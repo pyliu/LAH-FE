@@ -3,24 +3,24 @@
     <div>
       <Logo />
       <h1 class="title">
-        LAH-TY
+        桃園地政業務小幫手
       </h1>
       <div class="links">
         <a
-          href="https://nuxtjs.org/"
+          href="http://220.1.35.84/"
           target="_blank"
           rel="noopener noreferrer"
           class="button--green"
         >
-          Documentation
+          之前版本
         </a>
         <a
-          href="https://github.com/nuxt/nuxt.js"
+          href="https://github.com/pyliu/LAH-NUXTJS"
           target="_blank"
           rel="noopener noreferrer"
           class="button--grey"
         >
-          GitHub
+          原始碼
         </a>
       </div>
     </div>
