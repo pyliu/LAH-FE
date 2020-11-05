@@ -1,10 +1,8 @@
-# land-affairs-helper
-
-> My world-class Nuxt.js project
+# LAH-TY
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 $ yarn install
 
