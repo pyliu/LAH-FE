@@ -42,6 +42,21 @@ export default {
       type: 'info',
       pos: 'top'
     })
+    this.modal('BBB', {
+      title: 'ALERT',
+      type: 'info',
+      pos: 'top'
+    })
+    this.modal('ccc', {
+      title: 'aaa',
+      type: 'inaafo',
+      pos: 'aa'
+    })
+    this.confirm('ddd', {
+      title: 'aaa',
+      type: 'inaafo',
+      pos: 'aa'
+    })
   }
 }
 </script>

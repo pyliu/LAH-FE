@@ -6,6 +6,9 @@ export default {
     busyIconSize: undefined,
     dayMilliseconds: 24 * 60 * 60 * 1000,
     toastCounter: 0,
+    callbackQueue: [],
+    confirmAns: false,
+    confirmOpen: false,
     LOADING_PATTERNS: [
       'ld-heartbeat', 'ld-beat', 'ld-blink', 'ld-bounce', 'ld-bounceAlt', 'ld-breath', 'ld-wrench', 'ld-surprise',
       'ld-clock', 'ld-jump', 'ld-hit', 'ld-fade', 'ld-flip', 'ld-float', 'ld-move-ltr', 'ld-tremble', 'ld-tick',
@@ -564,14 +567,88 @@ export default {
         this.$error(msg, opts)
       }
     },
-    alert (msg, opts) {
+    alert (message, opts) {
       opts.pos = opts.pos === 'bottom' ? 'bf' : 'tf'
       const merged = Object.assign({
         title: '警示',
         autoHideDelay: 10000,
         variant: 'danger'
       }, opts)
-      this.notify(msg, merged)
+      this.notify(message, merged)
+    },
+    modal (message, opts) {
+      const merged = Object.assign({
+        title: '訊息',
+        size: 'md',
+        buttonSize: 'sm',
+        okVariant: 'outline-secondary',
+        okTitle: '關閉',
+        hideHeaderClose: false,
+        centered: true,
+        scrollable: true,
+        hideFooter: true,
+        noCloseOnBackdrop: false,
+        contentClass: 'shadow hide', // add hide class to .modal-content then use Animated.css for animation show up
+        html: false
+      }, opts)
+      // use d-none to hide footer
+      merged.footerClass = merged.hideFooter ? 'd-none' : 'p-2'
+      if (merged.html) {
+        merged.titleHtml = merged.title
+        merged.title = undefined
+        if (typeof message === 'object') {
+          // assume the message is VNode
+          this.$bvModal.msgBoxOk([message], merged)
+        } else {
+          const h = this.$createElement
+          const msgVNode = h('div', {
+            domProps: {
+              innerHTML: message
+            }
+          })
+          this.$bvModal.msgBoxOk([msgVNode], merged)
+        }
+        // to initialize Vue component purpose
+        if (merged.callback && typeof merged.callback === 'function') {
+          this.callbackQueue.push(merged.callback)
+        }
+      } else {
+        this.$bvModal.msgBoxOk(message, merged)
+      }
+    },
+    confirm (message, opts) {
+      this.confirmAnswer = false
+      this.openConfirm = true
+      const merged = Object.assign({
+        title: '請確認',
+        size: 'sm',
+        buttonSize: 'sm',
+        okVariant: 'outline-success',
+        okTitle: '確定',
+        cancelVariant: 'secondary',
+        cancelTitle: '取消',
+        footerClass: 'p-2',
+        hideHeaderClose: false,
+        noCloseOnBackdrop: false,
+        centered: true,
+        contentClass: 'shadow'
+      }, opts)
+      // use HTML content
+      const h = this.$createElement
+      const msgVNode = h('div', {
+        domProps: {
+          innerHTML: message
+        }
+      })
+      this.$bvModal.msgBoxConfirm([msgVNode], merged)
+        .then((value) => {
+          this.confirmAnswer = value
+          if (this.confirmAnswer && merged.callback && typeof merged.callback === 'function') {
+            merged.callback.apply(this, arguments)
+          }
+        }).catch((err) => {
+          this.$error(err)
+        })
     }
   },
   created () {
