@@ -410,6 +410,74 @@ export default {
     },
     timeout (func, ms) {
       return setTimeout(func, ms)
+    },
+    async setCache (key, val, expire_timeout = 0) {
+      if (this.empty(key) || this.empty(val)) { return false }
+      try {
+        const item = {
+          key,
+          value: val,
+          timestamp: +new Date(), // == new Date().getTime()
+          expire_ms: expire_timeout // milliseconds
+        }
+        await this.$localForage.setItem(key, item)
+      } catch (err) {
+        console.error(err)
+        return false
+      }
+      return true
+    },
+    async getCache (key) {
+      if (this.empty(key)) { return false }
+      try {
+        const item = await this.$localForage.getItem(key)
+        if (this.empty(item)) { return false }
+        const ts = item.timestamp
+        const expireTime = item.expire_ms || 0
+        const now = +new Date()
+        // console.log(`get ${key} value. (expireTime: ${expireTime}), now - ts == ${now - ts}`, item.value)
+        if (expireTime !== 0 && now - ts > expireTime) {
+          await this.$localForage.removeItem(key)
+          // console.log(`${key} is removed. (expireTime: ${expireTime}), now - ts == ${now - ts}`)
+          return false
+        } else {
+          return item.value
+        }
+      } catch (err) {
+        console.error(err)
+      }
+      return false
+    },
+    async getCacheExpireRemainingTime (key) {
+      if (this.empty(key)) { return false }
+      try {
+        const item = await this.$localForage.getItem(key)
+        if (this.empty(item)) { return false }
+        const ts = item.timestamp
+        const expireTime = item.expire_ms || 0
+        const now = +new Date()
+        // console.log(`get ${key} value. (expireTime: ${expireTime}), now - ts == ${now - ts}`, item.value)
+        if (expireTime === 0) {
+          return false
+        } else {
+          return expireTime - (now - ts) // milliseconds
+        }
+      } catch (err) {
+        console.error(err)
+      }
+      return false
+    },
+    removeLocalCache (key) {
+      if (this.empty(key)) { return false }
+      try {
+        this.$localForage.removeItem(key)
+      } catch (err) {
+        console.error(err)
+      }
+      return true
     }
+  },
+  created () {
+    this.$axios.defaults.transformRequest = [data => $.param(data)]
   }
 }

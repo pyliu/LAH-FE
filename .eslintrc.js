@@ -2,8 +2,6 @@ module.exports = {
   root: true,
   env: {
     browser: true,
-    commonjs: true,
-    es6: true,
     node: true
   },
   parserOptions: {
@@ -16,5 +14,7 @@ module.exports = {
   plugins: [
   ],
   // add your custom rules here
-  rules: {}
+  rules: {
+    "no-console": "off"
+  }
 }
