@@ -467,10 +467,10 @@ export default {
       }
       return false
     },
-    removeLocalCache (key) {
+    async removeLocalCache (key) {
       if (this.empty(key)) { return false }
       try {
-        this.$localForage.removeItem(key)
+        await this.$localForage.removeItem(key)
       } catch (err) {
         console.error(err)
       }
