@@ -29,9 +29,10 @@
 </template>
 
 <script>
+import $ from 'jquery'
 export default {
   mounted () {
-    // console.log(this.id)
+    this.$log($)
   }
 }
 </script>

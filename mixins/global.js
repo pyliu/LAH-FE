@@ -478,6 +478,10 @@ export default {
     }
   },
   created () {
-    this.$axios.defaults.transformRequest = [data => $.param(data)]
+    if (!this.$log) { this.$log = console.log.bind(console) }
+    if (!this.$error) { this.$error = console.error.bind(console) }
+    if (!this.$warn) { this.$warn = console.warn.bind(console) }
+    if (!this.$assert) { this.$assert = console.assert.bind(console) }
+    // if (this.$axios) { this.$axios.defaults.transformRequest = [data => $.param(data)] }
   }
 }
