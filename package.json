@@ -10,9 +10,6 @@
     "lint:js": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js"
   },
-  "pre-commit": [
-    "lint"
-  ],
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-brands-svg-icons": "^5.15.1",
