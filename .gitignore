@@ -88,6 +88,3 @@ sw.*
 
 # Vim swap files
 *.swp
-
-# yarn lock
-yarn.lock

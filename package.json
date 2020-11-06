@@ -14,13 +14,19 @@
     "lint"
   ],
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-brands-svg-icons": "^5.15.1",
+    "@fortawesome/free-regular-svg-icons": "^5.15.1",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/style-resources": "^1.0.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.17.3",
     "core-js": "^3.6.5",
+    "jquery": "^3.5.1",
     "node-sass": "^5.0.0",
     "nuxt": "^2.14.6",
+    "nuxt-fontawesome": "^0.4.0",
     "sass-loader": "^10.0.5"
   },
   "devDependencies": {

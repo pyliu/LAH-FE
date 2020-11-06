@@ -3,6 +3,7 @@
     <div>
       <Logo />
       <h3 class="title">
+        <font-awesome-icon :icon="['fas', 'sync']" fixed-width spin pull="left" />
         桃園地政業務小幫手
       </h3>
       <div class="links">
@@ -28,9 +29,7 @@
 </template>
 
 <script>
-import global from '~/mixins/global.js'
 export default {
-  mixins: [global],
   mounted () {
     // console.log(this.id)
   }

@@ -3,26 +3,53 @@ export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: '桃園市政府地政局',
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' }
+    meta: [{
+      charset: 'utf-8'
+    },
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1'
+    },
+    {
+      hid: 'description',
+      name: 'description',
+      content: ''
+    }
     ],
-    link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    link: [{
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico'
+    }
+    ],
+    script: [
+      {
+        src: '/assets/js/localforage.min.js'
+      },
+      {
+        src: '/assets/js/chart.min.js'
+      }
     ]
   },
   /*
-  ** Customize the progress-bar color
-  */
-  loading: { color: '#fff' },
+   ** Customize the progress-bar color
+   */
+  loading: {
+    color: '#fff'
+  },
   // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [
-    '@/assets/scss/main.scss'
+    '@fortawesome/fontawesome-svg-core/styles.css',
+    '~/assets/css/loading.css',
+    '~/assets/css/loading-btn.css',
+    '~/assets/css/animate.css',
+    '~/assets/scss/main.scss'
   ],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
+    { src: '~/plugins/fontawesome' },
+    { src: '~/plugins/global-mixin' }
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
@@ -40,7 +67,8 @@ export default {
     'bootstrap-vue/nuxt',
     '@nuxtjs/style-resources',
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    'nuxt-fontawesome'
   ],
   bootstrapVue: {
     bootstrapCSS: false,
@@ -55,10 +83,9 @@ export default {
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     /*
-    ** You can extend webpack config here
-    */
-    extend (config, ctx) {
-    }
+     ** You can extend webpack config here
+     */
+    extend (config, ctx) {}
   },
 
   env: {
