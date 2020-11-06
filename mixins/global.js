@@ -563,6 +563,15 @@ export default {
         this.alert({ message: 'notify 傳入參數有誤(請查看console)', type: 'danger' })
         this.$error(msg, opts)
       }
+    },
+    alert (msg, opts) {
+      opts.pos = opts.pos === 'bottom' ? 'bf' : 'tf'
+      const merged = Object.assign({
+        title: '警示',
+        autoHideDelay: 10000,
+        variant: 'danger'
+      }, opts)
+      this.notify(msg, merged)
     }
   },
   created () {

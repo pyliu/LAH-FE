@@ -32,10 +32,15 @@
 // import $ from 'jquery'
 export default {
   mounted () {
-    this.notify({
-      title: 'test',
-      message: 'AAA',
-      type: 'danger'
+    this.notify('AAA', {
+      title: 'NOTIFY',
+      type: 'warning',
+      pos: 'bc'
+    })
+    this.alert('BBB', {
+      title: 'ALERT',
+      type: 'info',
+      pos: 'top'
     })
   }
 }
