@@ -43,6 +43,7 @@ export default {
     '~/assets/css/loading.css',
     '~/assets/css/loading-btn.css',
     '~/assets/css/animate.css',
+    '~/assets/css/awesome-font.css',
     '~/assets/scss/main.scss'
   ],
 
