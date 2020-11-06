@@ -29,10 +29,14 @@
 </template>
 
 <script>
-import $ from 'jquery'
+// import $ from 'jquery'
 export default {
   mounted () {
-    this.$log($)
+    this.notify({
+      title: 'test',
+      message: 'AAA',
+      type: 'danger'
+    })
   }
 }
 </script>

@@ -5,6 +5,7 @@ export default {
     isBusy: false,
     busyIconSize: undefined,
     dayMilliseconds: 24 * 60 * 60 * 1000,
+    toastCounter: 0,
     LOADING_PATTERNS: [
       'ld-heartbeat', 'ld-beat', 'ld-blink', 'ld-bounce', 'ld-bounceAlt', 'ld-breath', 'ld-wrench', 'ld-surprise',
       'ld-clock', 'ld-jump', 'ld-hit', 'ld-fade', 'ld-flip', 'ld-float', 'ld-move-ltr', 'ld-tremble', 'ld-tick',
@@ -475,6 +476,93 @@ export default {
         console.error(err)
       }
       return true
+    },
+    makeToast (message, opts = {}) {
+      // position adapter
+      switch (opts.pos) {
+        case 'tr':
+          opts.toaster = 'b-toaster-top-right'
+          break
+        case 'tl':
+          opts.toaster = 'b-toaster-top-left'
+          break
+        case 'br':
+          opts.toaster = 'b-toaster-bottom-right'
+          break
+        case 'bl':
+          opts.toaster = 'b-toaster-bottom-left'
+          break
+        case 'tc':
+          opts.toaster = 'b-toaster-top-center'
+          break
+        case 'tf':
+          opts.toaster = 'b-toaster-top-full'
+          break
+        case 'bc':
+          opts.toaster = 'b-toaster-bottom-center'
+          break
+        case 'bf':
+          opts.toaster = 'b-toaster-bottom-full'
+          break
+        default:
+          opts.toaster = 'b-toaster-bottom-right'
+      }
+      // merge default setting
+      const merged = Object.assign({
+        title: '通知',
+        subtitle: this.now().split(' ')[1], // everytime is different, so not use computed var here
+        href: '',
+        noAutoHide: false,
+        autoHideDelay: 5000,
+        solid: true,
+        toaster: 'b-toaster-bottom-right',
+        appendToast: true,
+        variant: 'default'
+      }, opts)
+      // Use a shorter name for this.$createElement
+      const h = this.$createElement
+      // Create the title
+      const vNodesTitle = h(
+        'div', {
+          class: ['d-flex', 'flex-grow-1', 'align-items-baseline', 'mr-2']
+        },
+        [
+          h('strong', {
+            class: 'mr-2'
+          }, merged.title),
+          h('small', {
+            class: 'ml-auto text-italics'
+          }, merged.subtitle)
+        ]
+      )
+      // Pass the VNodes as an array for title
+      merged.title = [vNodesTitle]
+      // use vNode for HTML content
+      const msgVNode = h('div', {
+        domProps: {
+          innerHTML: message
+        }
+      })
+      this.$bvToast.toast([msgVNode], merged)
+
+      if (typeof merged.callback === 'function') {
+        this.timeout(() => merged.callback.apply(this, arguments), 100)
+      }
+      this.toastCounter++
+    },
+    notify (msg, opts) {
+      // previous only use one object param
+      if (typeof msg === 'object') {
+        const message = msg.body || msg.message
+        msg.variant = msg.type || 'default'
+        msg.autoHideDelay = msg.duration || msg.delay || 5000
+        this.makeToast(message, msg)
+      } else if (typeof msg === 'string') {
+        this.makeToast(msg, opts)
+      } else {
+        this.alert({ message: 'notify 傳入參數有誤(請查看console)', type: 'danger' })
+        this.$error(msg, opts)
+      }
     }
   },
   created () {
