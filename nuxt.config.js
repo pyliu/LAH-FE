@@ -1,4 +1,5 @@
 export default {
+  mode: 'universal',
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: '桃園市政府地政局',
@@ -11,9 +12,13 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
-
+  /*
+  ** Customize the progress-bar color
+  */
+  loading: { color: '#fff' },
   // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [
+    '@/assets/scss/main.scss'
   ],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
@@ -33,15 +38,27 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/bootstrap
     'bootstrap-vue/nuxt',
+    '@nuxtjs/style-resources',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios'
   ],
-
+  bootstrapVue: {
+    bootstrapCSS: false,
+    bootstrapVueCSS: false
+  },
+  styleResources: {
+    scss: '@/assets/scss/_variables.scss'
+  },
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {},
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    /*
+    ** You can extend webpack config here
+    */
+    extend (config, ctx) {
+    }
   },
 
   env: {

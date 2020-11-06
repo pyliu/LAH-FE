@@ -2,9 +2,9 @@
   <div class="container">
     <div>
       <Logo />
-      <h1 class="title">
+      <h3 class="title">
         桃園地政業務小幫手
-      </h1>
+      </h3>
       <div class="links">
         <a
           href="http://220.1.35.84/"
@@ -12,7 +12,7 @@
           rel="noopener noreferrer"
           class="button--green"
         >
-          之前版本
+          中壢所舊版
         </a>
         <a
           href="https://github.com/pyliu/LAH-NUXTJS"
@@ -28,7 +28,13 @@
 </template>
 
 <script>
-export default {}
+import global from '~/mixins/global.js'
+export default {
+  mixins: [global],
+  mounted () {
+    // console.log(this.id)
+  }
+}
 </script>
 
 <style>
@@ -53,10 +59,11 @@ export default {}
     Arial,
     sans-serif;
   display: block;
-  font-weight: 300;
-  font-size: 100px;
+  font-weight: bold;
+  font-size: 4rem;
   color: #35495e;
   letter-spacing: 1px;
+  margin-top: 2rem;
 }
 
 .subtitle {

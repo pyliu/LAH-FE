@@ -1,8 +1,11 @@
 <template>
-  <div>
+  <b-container v-cloak fluid>
     <Nuxt />
-  </div>
+  </b-container>
 </template>
+
+<script>
+</script>
 
 <style>
 html {
