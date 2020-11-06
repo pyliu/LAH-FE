@@ -197,6 +197,27 @@ export default {
       FAIL_NOT_FOUND: -7,
       FAIL_LOAD_ERROR: -8,
       FAIL_TIMEOUT: -9
+    },
+    API: {
+      XLSX: {
+        LANDING: 'api/xlsx/landing.php'
+      },
+      JSON: {
+        QUERY: 'api/query_json_api.php',
+        STATS: 'api/stats_json_api.php',
+        SWITCH: 'api/switch_json_api.php',
+        USER: 'api/user_json_api.php',
+        MSSQL: 'api/mssql_json_api.php',
+        LXHWEB: 'api/lxhweb_json_api.php'
+      },
+      FILE: {
+        LOAD: 'api/load_file_api.php',
+        EXPORT: 'api/export_file_api.php',
+        XLSX: 'api/export_xlsx_api.php',
+        TXT: 'api/export_tmp_txt.php',
+        CSV: 'api/export_tmp_csv.php',
+        DATA: 'api/export_txt_data.php'
+      }
     }
   }),
   watch: {
@@ -285,7 +306,9 @@ export default {
       })
       this.$emit('busyOff', this)
     },
-    rand (range) { return Math.floor(Math.random() * Math.floor(range || 100)) },
+    rand (range) {
+      return Math.floor(Math.random() * Math.floor(range || 100))
+    },
     empty (variable) {
       if (
         variable === null || variable === undefined || variable === false ||
@@ -333,7 +356,9 @@ export default {
         }, opts)
         node.addClass(`animated ${opts.name} ${opts.duration}`)
         node.on('animationend', () => {
-          if (typeof opts.callback === 'function') { opts.callback.apply(this, arguments) }
+          if (typeof opts.callback === 'function') {
+            opts.callback.apply(this, arguments)
+          }
           node.removeClass(`animated ${opts.name} ${opts.duration}`)
           node.off('animationend')
           // clear ld animation also
@@ -378,7 +403,9 @@ export default {
     },
     isOfficeHours () {
       const now = new Date()
-      if (now.getDay() === 0 || now.getDay() === 6) { return false }
+      if (now.getDay() === 0 || now.getDay() === 6) {
+        return false
+      }
       return now.getHours() > 6 && now.getHours() < 19
     },
     timeout (func, ms) {
