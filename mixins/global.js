@@ -1,5 +1,4 @@
 import $ from 'jquery'
-const jQuery = $
 export default {
   data: () => ({
     isBusy: false,
@@ -9,6 +8,7 @@ export default {
     callbackQueue: [],
     confirmAns: false,
     confirmOpen: false,
+    animTransition: undefined,
     LOADING_PATTERNS: [
       'ld-heartbeat', 'ld-beat', 'ld-blink', 'ld-bounce', 'ld-bounceAlt', 'ld-breath', 'ld-wrench', 'ld-surprise',
       'ld-clock', 'ld-jump', 'ld-hit', 'ld-fade', 'ld-flip', 'ld-float', 'ld-move-ltr', 'ld-tremble', 'ld-tick',
@@ -235,6 +235,7 @@ export default {
     }
   },
   methods: {
+    $, // jQuery '$'
     toggleBusy (opts = {}) {
       opts = Object.assign({
         selector: 'body',
@@ -242,7 +243,7 @@ export default {
         forceOff: false,
         forceOn: false
       }, opts)
-      const container = $(opts.selector)
+      const container = this.$(opts.selector)
       if (container.length > 0) {
         const removeSpinner = () => {
           container.removeClass(opts.style)
@@ -254,7 +255,7 @@ export default {
           container.addClass('running')
 
           // randomize loading.io css for fun
-          const coverEl = $(jQuery.parseHTML('<div class="ld auto-add-spinner"></div>'))
+          const coverEl = this.$(this.$.parseHTML('<div class="ld auto-add-spinner"></div>'))
           coverEl.addClass(this.LOADING_PREDEFINED[this.rand(this.LOADING_PREDEFINED.length)]) // predefined pattern
             .addClass(this.LOADING_SHAPES_COLOR[this.rand(this.LOADING_SHAPES_COLOR.length)]) // color
           switch (opts.size) {
@@ -351,28 +352,6 @@ export default {
         win.focus()
       }
     },
-    animated (selector, opts) {
-      const node = $(selector)
-      if (node) {
-        opts = Object.assign({
-          name: this.ANIMATED_PATTERNS[this.rand(this.ANIMATED_PATTERNS.length)],
-          duration: 'once-anim-cfg' // a css class to control speed
-        }, opts)
-        node.addClass(`animated ${opts.name} ${opts.duration}`)
-        node.on('animationend', () => {
-          if (typeof opts.callback === 'function') {
-            opts.callback.apply(this, arguments)
-          }
-          node.removeClass(`animated ${opts.name} ${opts.duration}`)
-          node.off('animationend')
-          // clear ld animation also
-          $(selector || '*').removeClass('ld').attr('class', function (i, c) {
-            return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
-          })
-        })
-      }
-      return node
-    },
     responseMessage (statusCode) {
       switch (statusCode) {
         case 0:
@@ -414,71 +393,6 @@ export default {
     },
     timeout (func, ms) {
       return setTimeout(func, ms)
-    },
-    async setCache (key, val, expire_timeout = 0) {
-      if (this.empty(key) || this.empty(val)) { return false }
-      try {
-        const item = {
-          key,
-          value: val,
-          timestamp: +new Date(), // == new Date().getTime()
-          expire_ms: expire_timeout // milliseconds
-        }
-        await this.$localForage.setItem(key, item)
-      } catch (err) {
-        console.error(err)
-        return false
-      }
-      return true
-    },
-    async getCache (key) {
-      if (this.empty(key)) { return false }
-      try {
-        const item = await this.$localForage.getItem(key)
-        if (this.empty(item)) { return false }
-        const ts = item.timestamp
-        const expireTime = item.expire_ms || 0
-        const now = +new Date()
-        // console.log(`get ${key} value. (expireTime: ${expireTime}), now - ts == ${now - ts}`, item.value)
-        if (expireTime !== 0 && now - ts > expireTime) {
-          await this.$localForage.removeItem(key)
-          // console.log(`${key} is removed. (expireTime: ${expireTime}), now - ts == ${now - ts}`)
-          return false
-        } else {
-          return item.value
-        }
-      } catch (err) {
-        console.error(err)
-      }
-      return false
-    },
-    async getCacheExpireRemainingTime (key) {
-      if (this.empty(key)) { return false }
-      try {
-        const item = await this.$localForage.getItem(key)
-        if (this.empty(item)) { return false }
-        const ts = item.timestamp
-        const expireTime = item.expire_ms || 0
-        const now = +new Date()
-        // console.log(`get ${key} value. (expireTime: ${expireTime}), now - ts == ${now - ts}`, item.value)
-        if (expireTime === 0) {
-          return false
-        } else {
-          return expireTime - (now - ts) // milliseconds
-        }
-      } catch (err) {
-        console.error(err)
-      }
-      return false
-    },
-    async removeLocalCache (key) {
-      if (this.empty(key)) { return false }
-      try {
-        await this.$localForage.removeItem(key)
-      } catch (err) {
-        console.error(err)
-      }
-      return true
     },
     makeToast (message, opts = {}) {
       // position adapter
@@ -552,6 +466,29 @@ export default {
         this.timeout(() => merged.callback.apply(this, arguments), 100)
       }
       this.toastCounter++
+    },
+    animated (selector, opts) {
+      const node = this.$(selector)
+      if (node.length > 0) {
+        opts = Object.assign({
+          name: this.ANIMATED_PATTERNS[this.rand(this.ANIMATED_PATTERNS.length)],
+          duration: 'once-anim-cfg' // a css class to control speed
+        }, opts)
+        node.removeClass('hide')
+        node.addClass(`animated ${opts.name} ${opts.duration}`)
+        node.on('animationend', () => {
+          if (typeof opts.callback === 'function') {
+            opts.callback.apply(this, arguments)
+          }
+          node.removeClass(`animated ${opts.name} ${opts.duration}`)
+          node.off('animationend')
+          // clear ld animation also
+          this.$(selector || '*').removeClass('ld').attr('class', function (i, c) {
+            return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
+          })
+        })
+      }
+      return node
     },
     notify (msg, opts) {
       // previous only use one object param
@@ -649,6 +586,71 @@ export default {
         }).catch((err) => {
           this.$error(err)
         })
+    },
+    async setCache (key, val, expire_timeout = 0) {
+      if (this.empty(key) || this.empty(val)) { return false }
+      try {
+        const item = {
+          key,
+          value: val,
+          timestamp: +new Date(), // == new Date().getTime()
+          expire_ms: expire_timeout // milliseconds
+        }
+        await this.$localForage.setItem(key, item)
+      } catch (err) {
+        console.error(err)
+        return false
+      }
+      return true
+    },
+    async getCache (key) {
+      if (this.empty(key)) { return false }
+      try {
+        const item = await this.$localForage.getItem(key)
+        if (this.empty(item)) { return false }
+        const ts = item.timestamp
+        const expireTime = item.expire_ms || 0
+        const now = +new Date()
+        // console.log(`get ${key} value. (expireTime: ${expireTime}), now - ts == ${now - ts}`, item.value)
+        if (expireTime !== 0 && now - ts > expireTime) {
+          await this.$localForage.removeItem(key)
+          // console.log(`${key} is removed. (expireTime: ${expireTime}), now - ts == ${now - ts}`)
+          return false
+        } else {
+          return item.value
+        }
+      } catch (err) {
+        console.error(err)
+      }
+      return false
+    },
+    async getCacheExpireRemainingTime (key) {
+      if (this.empty(key)) { return false }
+      try {
+        const item = await this.$localForage.getItem(key)
+        if (this.empty(item)) { return false }
+        const ts = item.timestamp
+        const expireTime = item.expire_ms || 0
+        const now = +new Date()
+        // console.log(`get ${key} value. (expireTime: ${expireTime}), now - ts == ${now - ts}`, item.value)
+        if (expireTime === 0) {
+          return false
+        } else {
+          return expireTime - (now - ts) // milliseconds
+        }
+      } catch (err) {
+        console.error(err)
+      }
+      return false
+    },
+    async removeLocalCache (key) {
+      if (this.empty(key)) { return false }
+      try {
+        await this.$localForage.removeItem(key)
+      } catch (err) {
+        console.error(err)
+      }
+      return true
     }
   },
   created () {
@@ -656,6 +658,7 @@ export default {
     if (!this.$error) { this.$error = console.error.bind(console) }
     if (!this.$warn) { this.$warn = console.warn.bind(console) }
     if (!this.$assert) { this.$assert = console.assert.bind(console) }
+    this.animTransition = this.ANIMATED_TRANSITIONS[this.rand(this.ANIMATED_TRANSITIONS.length)]
     // if (this.$axios) { this.$axios.defaults.transformRequest = [data => $.param(data)] }
   }
 }
