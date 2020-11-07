@@ -226,7 +226,18 @@ export default {
   }),
   watch: {
     isBusy (flag) {
-      flag ? this.busyOn(this.$el) : this.busyOff(this.$el)
+      if (flag) {
+        this.toggleBusy({
+          selector: this.$el,
+          forceOn: true,
+          size: this.busyIconSize
+        })
+      } else {
+        this.toggleBusy({
+          selector: this.$el,
+          forceOff: true
+        })
+      }
     }
   },
   computed: {
@@ -292,30 +303,19 @@ export default {
         }
         if (opts.forceOff) {
           removeSpinner(container, opts.style)
+          this.$emit('busyOff', this)
         } else if (opts.forceOn) {
           removeSpinner(container, opts.style)
           addSpinner(container, opts.style)
+          this.$emit('busyOn', this)
         } else if (container.hasClass(opts.style)) {
           removeSpinner(container, opts.style)
+          this.$emit('busyOff', this)
         } else {
           addSpinner(container, opts.style)
+          this.$emit('busyOn', this)
         }
       }
-    },
-    busyOn (el = 'body') {
-      this.toggleBusy({
-        selector: el,
-        forceOn: true,
-        size: this.busyIconSize
-      })
-      this.$emit('busyOn', this)
-    },
-    busyOff (el = 'body') {
-      this.toggleBusy({
-        selector: el,
-        forceOff: true
-      })
-      this.$emit('busyOff', this)
     },
     rand (range) {
       return Math.floor(Math.random() * Math.floor(range || 100))
