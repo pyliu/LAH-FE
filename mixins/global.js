@@ -254,15 +254,15 @@ export default {
         forceOn: false
       }, opts)
       const container = this.$(opts.selector)
-      if (container.length > 0) {
-        const removeSpinner = () => {
-          container.removeClass(opts.style)
-          container.find('.auto-add-spinner').remove()
-          container.removeClass('running')
+      if (container.length) {
+        const removeSpinner = (element, style) => {
+          element.removeClass(style)
+          element.find('.auto-add-spinner').remove()
+          element.removeClass('running')
         }
-        const addSpinner = () => {
-          container.addClass(opts.style)
-          container.addClass('running')
+        const addSpinner = (element, style) => {
+          element.addClass(style)
+          element.addClass('running')
 
           // randomize loading.io css for fun
           const coverEl = this.$(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
@@ -291,18 +291,14 @@ export default {
           container.append(coverEl)
         }
         if (opts.forceOff) {
-          removeSpinner()
-          return
-        }
-        if (opts.forceOn) {
-          removeSpinner()
-          addSpinner()
-          return
-        }
-        if (container.hasClass(opts.style)) {
-          removeSpinner()
+          removeSpinner(container, opts.style)
+        } else if (opts.forceOn) {
+          removeSpinner(container, opts.style)
+          addSpinner(container, opts.style)
+        } else if (container.hasClass(opts.style)) {
+          removeSpinner(container, opts.style)
         } else {
-          addSpinner()
+          addSpinner(container, opts.style)
         }
       }
     },
