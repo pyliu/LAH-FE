@@ -236,6 +236,16 @@ export default {
   },
   methods: {
     $, // jQuery '$'
+    parseHTML (string) {
+      const context = document.implementation.createHTMLDocument()
+      // Set the base href for the created document so any parsed elements with URLs
+      // are based on the document's URL
+      const base = context.createElement('base')
+      base.href = document.location.href
+      context.head.appendChild(base)
+      context.body.innerHTML = string
+      return context.body.children
+    },
     toggleBusy (opts = {}) {
       opts = Object.assign({
         selector: 'body',
@@ -255,7 +265,7 @@ export default {
           container.addClass('running')
 
           // randomize loading.io css for fun
-          const coverEl = this.$(this.$.parseHTML('<div class="ld auto-add-spinner"></div>'))
+          const coverEl = this.$(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
           coverEl.addClass(this.LOADING_PREDEFINED[this.rand(this.LOADING_PREDEFINED.length)]) // predefined pattern
             .addClass(this.LOADING_SHAPES_COLOR[this.rand(this.LOADING_SHAPES_COLOR.length)]) // color
           switch (opts.size) {
