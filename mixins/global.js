@@ -551,7 +551,7 @@ export default {
           })
           this.$bvModal.msgBoxOk([msgVNode], merged)
         }
-        // to initialize Vue component purpose
+        // you can do additional process after modal is opened
         if (merged.callback && typeof merged.callback === 'function') {
           this.callbackQueue.push(merged.callback)
         }
