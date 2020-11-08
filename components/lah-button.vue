@@ -19,6 +19,7 @@
       :icon="[faIconPrefix, icon]"
       :size="iconSize"
       :pull="pull"
+      class="ml-1"
     />
     <slot></slot>
     <b-badge
@@ -107,7 +108,7 @@ export default {
           "ld-slide-ltr", "ld-slide-rtl", "ld-slide-ttb", "ld-smash", "ld-spin", "ld-spin-fast", "ld-squeeze",
           "ld-swim", "ld-swing", "ld-tick-alt", "ld-vortex", "ld-vortex-alt", "ld-wander-h", "ld-wander-v"
         */
-      const movement = this.action ? `ld-${this.action}` : 'ld-jump';
+      const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-jump';
       // movement is 'undefined' will be random effect
       this.addAnimation(`#${this.iconId}`, movement);
     },
