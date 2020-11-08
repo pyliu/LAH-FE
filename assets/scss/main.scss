@@ -7,7 +7,11 @@
 a:hover,
 a:active,
 a.nuxt-link-active {
-  color: rgb(255, 255, 255) !important;
   font-weight: bold;
   font-size: 1.25rem;
+  text-decoration: none;
+}
+
+a.nuxt-link-active {
+  color: rgb(255, 255, 255) !important;
 }
