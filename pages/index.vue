@@ -3,10 +3,21 @@
     <div>
       <Logo />
       <h3 class="title">
-        <font-awesome-icon :icon="['fas', 'sync']" fixed-width spin pull="left" />
+        <font-awesome-icon
+          :icon="['fas', 'sync']"
+          fixed-width
+          spin
+          pull="left"
+        />
         桃園地政業務小幫手
       </h3>
       <div class="links">
+        <lah-button>
+          TEST
+        </lah-button>
+        <lah-button v-b-toggle.lah-sidebar>
+          side
+        </lah-button>
         <a
           href="http://220.1.35.84/"
           target="_blank"
@@ -29,34 +40,9 @@
 </template>
 
 <script>
+
 export default {
-  mounted () {
-    this.notify('AAA', {
-      title: 'NOTIFY',
-      type: 'warning',
-      pos: 'bc'
-    })
-    this.alert('BBB', {
-      title: 'ALERT',
-      type: 'info',
-      pos: 'top'
-    })
-    this.modal('BBB', {
-      title: 'ALERT',
-      type: 'info',
-      pos: 'top'
-    })
-    this.modal('ccc', {
-      title: 'aaa',
-      type: 'inaafo',
-      pos: 'aa'
-    })
-    this.confirm('ddd', {
-      title: 'aaa',
-      type: 'inaafo',
-      pos: 'aa'
-    })
-  }
+  mounted () { this.$log('TEST 　aaa') }
 }
 </script>
 
@@ -71,16 +57,8 @@ export default {
 }
 
 .title {
-  font-family:
-    'Quicksand',
-    'Source Sans Pro',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
+  font-family: "Quicksand", "Source Sans Pro", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   display: block;
   font-weight: bold;
   font-size: 4rem;

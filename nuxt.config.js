@@ -1,5 +1,4 @@
 export default {
-  mode: 'universal',
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: '桃園市政府地政局',
@@ -22,20 +21,13 @@ export default {
       href: '/favicon.ico'
     }
     ],
-    script: [
-      {
-        src: '/assets/js/localforage.min.js'
-      },
-      {
-        src: '/assets/js/chart.min.js'
-      }
-    ]
+    script: []
   },
   /*
    ** Customize the progress-bar color
    */
   loading: {
-    color: '#fff'
+    color: '#000'
   },
   // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [
@@ -46,22 +38,20 @@ export default {
     '~/assets/css/awesome-font.css',
     '~/assets/scss/main.scss'
   ],
-
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
-    { src: '~/plugins/fontawesome', mode: 'client' },
-    { src: '~/plugins/global-mixin', mode: 'client' }
+    { src: '~/plugins/jquery.min', mode: 'client', ssr: false },
+    // { src: '~/plugins/chart.min', mode: 'client', ssr: false },
+    { src: '~/plugins/fontawesome' },
+    { src: '~/plugins/global-mixin' }
   ],
-
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
-
   // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
   buildModules: [
     // https://go.nuxtjs.dev/eslint
-    '@nuxtjs/eslint-module'
+    // '@nuxtjs/eslint-module'
   ],
-
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     // https://go.nuxtjs.dev/bootstrap
@@ -90,7 +80,8 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend (config, ctx) {}
+    extend (config, ctx) {},
+    babel: { compact: true }
   },
 
   env: {

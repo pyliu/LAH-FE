@@ -3,3 +3,9 @@
 @import '~bootstrap-vue/src/index.scss';
 // General style overrides and custom classes
 @import 'theme';
+
+a:hover,
+a:active,
+a.nuxt-link-active {
+  color: rgb(161, 163, 245);
+}

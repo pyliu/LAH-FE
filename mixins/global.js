@@ -246,7 +246,7 @@ export default {
     }
   },
   methods: {
-    $, // jQuery '$'
+    $,  // jQuery '$'
     parseHTML (string) {
       const context = document.implementation.createHTMLDocument()
       // Set the base href for the created document so any parsed elements with URLs
@@ -264,7 +264,7 @@ export default {
         forceOff: false,
         forceOn: false
       }, opts)
-      const container = this.$(opts.selector)
+      const container = $(opts.selector)
       if (container.length) {
         const removeSpinner = (element, style) => {
           element.removeClass(style)
@@ -276,7 +276,7 @@ export default {
           element.addClass('running')
 
           // randomize loading.io css for fun
-          const coverEl = this.$(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
+          const coverEl = $(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
           coverEl.addClass(this.LOADING_PREDEFINED[this.rand(this.LOADING_PREDEFINED.length)]) // predefined pattern
             .addClass(this.LOADING_SHAPES_COLOR[this.rand(this.LOADING_SHAPES_COLOR.length)]) // color
           switch (opts.size) {
@@ -320,12 +320,13 @@ export default {
     rand (range) {
       return Math.floor(Math.random() * Math.floor(range || 100))
     },
+    trim (x) { return x.replace(/^\s+|\s+$/gm,'') },
     empty (variable) {
       if (
         variable === null || variable === undefined || variable === false ||
         (typeof variable === 'object' && variable.length === 0) ||
         (Array.isArray(variable) && variable.length === 0) ||
-        ($.trim(variable) === '')
+        (this.trim(variable) === '')
       ) {
         return true
       }
@@ -474,7 +475,7 @@ export default {
       this.toastCounter++
     },
     animated (selector, opts) {
-      const node = this.$(selector)
+      const node = $(selector)
       if (node.length > 0) {
         opts = Object.assign({
           name: this.ANIMATED_PATTERNS[this.rand(this.ANIMATED_PATTERNS.length)],
@@ -489,7 +490,7 @@ export default {
           node.removeClass(`animated ${opts.name} ${opts.duration}`)
           node.off('animationend')
           // clear ld animation also
-          this.$(selector || '*').removeClass('ld').attr('class', function (i, c) {
+          $(selector || '*').removeClass('ld').attr('class', function (i, c) {
             return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
           })
         })
@@ -649,7 +650,7 @@ export default {
       }
       return false
     },
-    async removeLocalCache (key) {
+    async removeCache (key) {
       if (this.empty(key)) { return false }
       try {
         await this.$localForage.removeItem(key)

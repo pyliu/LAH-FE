@@ -7,6 +7,7 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
+    "post-update": "yarn upgrade --latest",
     "lint:js": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js"
   },
@@ -15,12 +16,14 @@
     "@fortawesome/free-brands-svg-icons": "^5.15.1",
     "@fortawesome/free-regular-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@nuxt/components": "^1.1.1",
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/proxy": "^2.0.1",
     "@nuxtjs/style-resources": "^1.0.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.18.1",
-    "core-js": "^3.6.5",
+    "core-js": "^3.7.0",
+    "eslint-plugin-vue-libs": "^4.0.0",
     "jquery": "^3.5.1",
     "node-sass": "^5.0.0",
     "nuxt": "^2.14.6",
@@ -28,11 +31,11 @@
     "sass-loader": "^10.0.5"
   },
   "devDependencies": {
-    "@nuxtjs/eslint-config": "^3.1.0",
-    "@nuxtjs/eslint-module": "^2.0.0",
+    "@nuxtjs/eslint-config": "^4.0.0",
+    "@nuxtjs/eslint-module": "^3.0.0",
     "@nuxtjs/localforage": "^1.1.0",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.10.0",
+    "eslint": "^7.13.0",
     "eslint-plugin-nuxt": "^1.0.0",
     "pre-commit": "^1.2.2"
   }

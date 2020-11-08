@@ -1,23 +1,45 @@
 <template>
   <b-container v-cloak fluid>
     <Nuxt />
+    <b-sidebar
+      id="lah-sidebar"
+      title="快速選單"
+      bg-variant="dark"
+      text-variant="light"
+      backdrop
+      shadow
+    >
+      <ul class="px-3 py-2">
+        <li><NuxtLink to="/"> 首頁 </NuxtLink></li>
+        <li>
+          <a
+            href="http://220.1.35.84/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="button--green"
+          >
+            中壢所舊版
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://github.com/pyliu/LAH-NUXTJS"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="button--grey"
+          >
+            原始碼
+          </a>
+        </li>
+      </ul>
+    </b-sidebar>
   </b-container>
 </template>
 
-<script>
-</script>
-
 <style>
 html {
-  font-family:
-    'Source Sans Pro',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   word-spacing: 1px;
   -ms-text-size-adjust: 100%;
