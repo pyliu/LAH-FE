@@ -1,33 +1,50 @@
 <template>
   <b-container v-cloak fluid>
+    <lah-button
+      icon="bars"
+      size="lg"
+      action="ld-move-fade-ltr"
+      class="sidebar-button"
+      variant="dark"
+      title="開啟選單"
+      v-b-toggle.lah-sidebar
+    />
     <Nuxt />
     <b-sidebar
       id="lah-sidebar"
-      title="快速選單"
+      title="選單"
       bg-variant="dark"
       text-variant="light"
       backdrop
       shadow
     >
-      <ul class="px-3 py-2">
-        <li><NuxtLink to="/"> 首頁 </NuxtLink></li>
+      <ul>
         <li>
-          <a
-            href="http://220.1.35.84/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="button--green"
-          >
-            中壢所舊版
+          <NuxtLink to="/">
+            <font-awesome-icon
+              :icon="['fas', 'home']"
+              pull="left"
+              size="lg"
+            />
+            首頁
+          </NuxtLink></li>
+        <li>
+          <a href="http://220.1.35.84/" target="_blank" rel="noopener noreferrer">
+            <font-awesome-icon
+              :icon="['fas', 'history']"
+              pull="left"
+              size="lg"
+            />
+            先前版本
           </a>
         </li>
         <li>
-          <a
-            href="https://github.com/pyliu/LAH-NUXTJS"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="button--grey"
-          >
+          <a href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer">
+            <font-awesome-icon
+              :icon="['fab', 'github']"
+              pull="left"
+              size="lg"
+            />
             原始碼
           </a>
         </li>
@@ -35,6 +52,14 @@
     </b-sidebar>
   </b-container>
 </template>
+
+<script>
+export default {
+  methods: {
+    test () { this.notify(this.uuid()) }
+  }
+}
+</script>
 
 <style>
 html {
@@ -77,11 +102,26 @@ html {
   color: #35495e;
   text-decoration: none;
   padding: 10px 30px;
-  margin-left: 15px;
 }
 
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
+}
+
+.sidebar-button {
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  width: 3.5rem;
+}
+
+#lah-sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+#lah-sidebar ul li {
+  margin: 8px 16px;
 }
 </style>

@@ -19,7 +19,7 @@
       :icon="[faIconPrefix, icon]"
       :size="iconSize"
       :pull="pull"
-      class="ml-1"
+      class="mx-auto my-auto"
     />
     <slot></slot>
     <b-badge
@@ -40,7 +40,7 @@ export default {
     variant: { type: String, default: 'outline-primary' },
     size: { type: String, default: 'sm' },
     icon: { type: String, default: '' },
-    iconSize: { type: String, default: '' },
+    iconSize: { type: String, default: 'lg' },
     regular: { type: Boolean, default: false },
     brand: { type: Boolean, default: false },
     action: { type: String, default: undefined },

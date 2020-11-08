@@ -3,44 +3,20 @@
     <div>
       <Logo />
       <h3 class="title">
-        <font-awesome-icon
-          :icon="['fas', 'sync']"
-          fixed-width
-          spin
-          pull="left"
-        />
-        桃園地政業務小幫手
+        桃園市地政業務小幫手
       </h3>
       <div class="links">
-        <lah-button>
-          TEST
-        </lah-button>
-        <lah-button icon="bars" size="lg" action="ld-move-fade-ltr" v-b-toggle.lah-sidebar class="p-2" />
-        <a
-          href="http://220.1.35.84/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          中壢所舊版
-        </a>
-        <a
-          href="https://github.com/pyliu/LAH-NUXTJS"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          原始碼
-        </a>
+        
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
-  mounted () { this.$log('TEST 　aaa') }
+  methods: {
+    test () { this.notify(this.uuid()) }
+  }
 }
 </script>
 
