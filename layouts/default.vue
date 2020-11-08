@@ -5,7 +5,7 @@
       size="lg"
       action="ld-move-fade-ltr"
       class="sidebar-button"
-      variant="dark"
+      variant="outline-dark"
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
@@ -123,5 +123,9 @@ html {
 
 #lah-sidebar ul li {
   margin: 8px 16px;
+}
+
+#lah-sidebar ul li a {
+  color: rgb(187, 184, 184);
 }
 </style>
