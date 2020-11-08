@@ -13,7 +13,13 @@
     @blur="mouseleave"
     @click="emitClick($event)"
   >
-    <font-awesome-icon :id="iconId" :icon="[faIconPrefix, icon]" :pull="pull" class="align-middle my-auto" />
+    <font-awesome-icon
+      v-if="showIcon"
+      :id="iconId"
+      :icon="[faIconPrefix, icon]"
+      :size="iconSize"
+      :pull="pull"
+    />
     <slot></slot>
     <b-badge
       v-if="showBadge"
@@ -33,6 +39,7 @@ export default {
     variant: { type: String, default: 'outline-primary' },
     size: { type: String, default: 'sm' },
     icon: { type: String, default: '' },
+    iconSize: { type: String, default: '' },
     regular: { type: Boolean, default: false },
     brand: { type: Boolean, default: false },
     action: { type: String, default: undefined },
@@ -51,17 +58,18 @@ export default {
   }),
   watch: {},
   computed: {
-    faIconPrefix() {
+    faIconPrefix () {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas';
     },
-    showBadge() { return !this.empty(this.badgeText) }
+    showBadge () { return !this.empty(this.badgeText) },
+    showIcon () { return !this.empty(this.icon) }
   },
   methods: {
-    emitClick(evt) {
+    emitClick (evt) {
       this.$emit('click', this.click);
       evt.stopPropagation();
     },
-    addAnimation(selector, which) {
+    addAnimation (selector, which) {
       let el = this.clearAnimation(selector);
       if (el.length) {
         el.addClass('ld');
@@ -80,14 +88,14 @@ export default {
       }
       return el;
     },
-    clearAnimation(selector) {
+    clearAnimation (selector) {
       return this.$(selector || '*')
         .removeClass('ld')
         .attr('class', function(i, c) {
           return c ? c.replace(/(^|\s+)ld-\S+/g, '') : '';
         });
     },
-    mouseenter() {
+    mouseenter () {
       /**
        *  "ld-heartbeat", "ld-beat", "ld-blink", "ld-bounce", "ld-bounceAlt", "ld-breath", "ld-wrench", "ld-surprise",
           "ld-clock", "ld-jump", "ld-hit", "ld-fade", "ld-flip", "ld-float", "ld-move-ltr", "ld-tremble", "ld-tick",
@@ -103,11 +111,11 @@ export default {
       // movement is 'undefined' will be random effect
       this.addAnimation(`#${this.iconId}`, movement);
     },
-    mouseleave() {
+    mouseleave () {
       this.clearAnimation(`#${this.iconId}`);
     }
   },
-  mounted() {
+  created () {
     this.iconId = this.uuid();
   }
 };

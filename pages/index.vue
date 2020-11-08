@@ -15,9 +15,7 @@
         <lah-button>
           TEST
         </lah-button>
-        <lah-button v-b-toggle.lah-sidebar>
-          side
-        </lah-button>
+        <lah-button icon="bars" iconSize="lg" size="lg" v-b-toggle.lah-sidebar class="p-2" />
         <a
           href="http://220.1.35.84/"
           target="_blank"

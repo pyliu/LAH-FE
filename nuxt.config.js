@@ -1,4 +1,7 @@
 export default {
+  server: {
+    port: 6378 // default: 3000
+  },
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: '桃園市政府地政局',
@@ -62,10 +65,10 @@ export default {
     '@nuxtjs/localforage',
     'nuxt-fontawesome'
   ],
-  bootstrapVue: {
-    bootstrapCSS: false,
-    bootstrapVueCSS: false
-  },
+  // bootstrapVue: {
+  //   bootstrapCSS: true,
+  //   bootstrapVueCSS: true
+  // },
   styleResources: {
     scss: '@/assets/scss/_variables.scss'
   },
