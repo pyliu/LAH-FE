@@ -4,9 +4,39 @@
       <Logo />
       <h3 class="title">桃園市地政智慧管控系統</h3>
       <div class="mt-2 grids">
-        <div class="grid-6col-2row"><NuxtLink to="/about_to_expire">即將逾期案件</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/expiry_of_announcement">公告期滿案件</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/ask_for_instructions">請示未結案件</NuxtLink></div>
+        <div class="grid-6col-2row">
+          <NuxtLink to="/about_to_expire">
+            <font-awesome-icon
+              :icon="['far', 'calendar-check']"
+              pull="left"
+              size="5x"
+              class="anim-appear-1s ml-4"
+            />
+            即將逾期案件
+          </NuxtLink>
+        </div>
+        <div class="grid-6col-2row">
+          <NuxtLink to="/expiry_of_announcement">
+            <font-awesome-icon
+              :icon="['fas', 'scroll']"
+              pull="left"
+              size="4x"
+              class="anim-appear-1s ml-4"
+            />
+            公告期滿案件
+          </NuxtLink>
+        </div>
+        <div class="grid-6col-2row">
+          <NuxtLink to="/ask_for_instructions">
+            <font-awesome-icon
+              :icon="['fas', 'user-tie']"
+              pull="left"
+              size="4x"
+              class="anim-appear-1s ml-4"
+            />
+            請示未結案件
+          </NuxtLink>
+        </div>
         <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
         <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
         <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
