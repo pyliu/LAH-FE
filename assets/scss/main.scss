@@ -11,10 +11,25 @@ html, body {
   padding: 0;
 }
 
+@mixin anim-appear($d) {
+  animation: $d appear;
+  margin: auto;
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+}
+
 @mixin anim-cfg($ad, $aic) {
 	animation-duration: $ad;
 	/* animation-delay: 2s; */
 	animation-iteration-count: $aic;
+}
+
+.anim-appear-1s {
+  @include anim-appear(1s);
 }
 
 .once-anim-cfg {
