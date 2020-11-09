@@ -27,7 +27,11 @@
               size="lg"
             />
             首頁
-          </NuxtLink></li>
+          </NuxtLink>
+        </li>
+        <li><NuxtLink to="/about_to_expire">即將逾期案件</NuxtLink></li>
+        <li><NuxtLink to="/expiry_of_announcement">公告期滿案件</NuxtLink></li>
+        <li><NuxtLink to="/ask_for_instructions">請示未結案件</NuxtLink></li>
         <li>
           <a href="http://220.1.35.84/" target="_blank" rel="noopener noreferrer">
             <font-awesome-icon

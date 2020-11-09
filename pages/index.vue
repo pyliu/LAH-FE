@@ -2,11 +2,20 @@
   <div class="container">
     <div>
       <Logo />
-      <h3 class="title">
-        桃園市地政智慧管控系統
-      </h3>
-      <div class="links">
-        
+      <h3 class="title">桃園市地政智慧管控系統</h3>
+      <div class="mt-2 grids">
+        <div class="grid-6col-2row"><NuxtLink to="/about_to_expire">即將逾期案件</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/expiry_of_announcement">公告期滿案件</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/ask_for_instructions">請示未結案件</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
       </div>
     </div>
   </div>
@@ -22,7 +31,7 @@ export default {
 
 <style>
 .container {
-  margin: 0 auto;
+  margin: auto;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -49,7 +58,39 @@ export default {
   padding-bottom: 15px;
 }
 
-.links {
-  padding-top: 15px;
+.grids {
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+  height: 40vh;
+  align-content: flex-start;
+  padding: auto;
+}
+
+.grid-6col-2row {
+	width: 15.5%;
+	height: 48%;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: auto;
+	border-radius: 10px;
+	border: 1px solid gray;
+	margin: 0.5%;
+}
+
+.grid-center {
+	box-sizing: border-box;
+	display: flex;
+  justify-content: center;
+  align-items: center;
+	padding: auto;
+	height: 100%;
+}
+
+.grid-one-third {
+	width: 32.66%;
+	margin: 0.5%;
 }
 </style>

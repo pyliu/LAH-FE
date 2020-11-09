@@ -4,16 +4,41 @@
 // General style overrides and custom classes
 @import 'theme';
 
-a:hover,
-a:active {
-  font-weight: bold;
-  font-size: 1.25rem;
-  text-decoration: none;
+html, body { 
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-a.nuxt-link-active {
-  @extend a:hover;
-  color: rgb(255, 255, 255) !important;
+@mixin anim-cfg($ad, $aic) {
+	animation-duration: $ad;
+	/* animation-delay: 2s; */
+	animation-iteration-count: $aic;
+}
+
+.once-anim-cfg {
+  @include anim-cfg(0.4s, 1);
+}
+
+.once-anim-cfg-2x {
+	@include anim-cfg(0.8s, 1);
+}
+
+.inf-anim-cfg {
+  @include anim-cfg(0.4s, infinite);
+}
+
+#lah-sidebar a {
+  &:hover, &:active {
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-decoration: none;
+  }
+  &.nuxt-link-exact-active {
+    @extend :hover;
+    color: rgb(255, 255, 255) !important;
+  }
 }
 
 #lah-sidebar ul {
@@ -25,4 +50,44 @@ a.nuxt-link-active {
         color: rgb(187, 184, 184);
       }
   }
+}
+
+.s-95 {
+	font-size: .95rem;
+}
+
+.s-90 {
+	font-size: .90rem;
+}
+
+.s-85 {
+	font-size: .85rem;
+}
+
+.s-80 {
+	font-size: .80rem;
+}
+
+.s-75 {
+	font-size: .75rem;
+}
+
+.s-70 {
+	font-size: .70rem;
+}
+
+.s-65 {
+	font-size: .65rem;
+}
+
+.s-60 {
+	font-size: .60rem;
+}
+
+.s-55 {
+	font-size: .55rem;
+}
+
+.s-50 {
+	font-size: .50rem;
 }
