@@ -115,17 +115,4 @@ html {
   top: 10px;
   width: 3.5rem;
 }
-
-#lah-sidebar ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-#lah-sidebar ul li {
-  margin: 8px 16px;
-}
-
-#lah-sidebar ul li a {
-  color: rgb(187, 184, 184);
-}
 </style>
