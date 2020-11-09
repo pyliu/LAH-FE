@@ -1,4 +1,5 @@
 export default {
+  // target: 'static',
   server: {
     port: 6378 // default: 3000
   },
@@ -74,7 +75,7 @@ export default {
   },
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+    baseUrl: process.env.BASE_URL || 'http://localhost:8080',
     transformRequest: [data => $.param(data)]
   },
 
@@ -86,8 +87,7 @@ export default {
     extend (config, ctx) {},
     babel: { compact: true }
   },
-
   env: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:3000'
+    baseUrl: process.env.BASE_URL || 'http://localhost:8080'
   }
 }
