@@ -57,12 +57,9 @@ export default {
     title: '桃園市地政智慧管控系統'
   },
   data: () => ({
-    ip: undefined,
-    other: 'this is other'
+    other: 'this is other',
+    message: undefined
   }),
-  methods: {
-    test () { this.notify(this.uuid()) }
-  },
   async asyncData({ $axios }) {
     const params = new URLSearchParams();
     params.append('type', 'ip');
@@ -72,9 +69,11 @@ export default {
     const json = await $axios.$post('/api/query_json_api.php', params)
     return {...json}
   },
-  mounted () {
-    this.notify(this.message);
-  }
+  watch: {
+    message(str) { this.notify(str) }
+  },
+  methods: { },
+  mounted () { this.notify(this.message) }
 }
 </script>
 

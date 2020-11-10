@@ -1,6 +1,7 @@
 import $ from 'jquery'
 export default {
   data: () => ({
+    ip: undefined,
     isBusy: false,
     busyIconSize: undefined,
     dayMilliseconds: 24 * 60 * 60 * 1000,
