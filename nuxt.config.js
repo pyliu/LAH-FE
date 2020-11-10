@@ -16,7 +16,7 @@ export default {
     {
       hid: 'description',
       name: 'description',
-      content: ''
+      content: '桃園市地政智慧控管系統'
     }
     ],
     link: [{
@@ -80,7 +80,7 @@ export default {
   },
   proxy: {
     '/api': {
-      target: process.env.BASE_URL || 'http://220.1.35.84', 
+      target: process.env.BASE_URL || 'http://localhost', 
       changeOrigin: true, 
       pathRewrite: {
         '^/api': '',
