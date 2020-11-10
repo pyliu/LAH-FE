@@ -53,6 +53,9 @@
 
 <script>
 export default {
+  head: {
+    title: '桃園市地政智慧管控系統'
+  },
   methods: {
     test () { this.notify(this.uuid()) }
   }

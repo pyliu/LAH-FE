@@ -14,6 +14,9 @@
 
 <script>
 export default {
+  head: {
+    title: '公告期滿案件-桃園市地政局'
+  }
 }
 </script>
 

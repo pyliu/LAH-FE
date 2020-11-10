@@ -20,6 +20,9 @@
 
 <script>
 export default {
+  head: {
+    title: '即將逾期案件-桃園市地政局'
+  }
 }
 </script>
 
