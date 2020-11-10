@@ -1,4 +1,6 @@
 import $ from 'jquery'
+import axios from '@nuxtjs/axios'
+
 export default {
   data: () => ({
     ip: undefined,
@@ -248,6 +250,7 @@ export default {
   },
   methods: {
     $,  // jQuery '$'
+    axios,
     postParams (obj_in) {
       const params = new URLSearchParams();
       for (const [key, value] of Object.entries(obj_in)) {
@@ -460,7 +463,7 @@ export default {
       }
       return node
     },
-    notify (msg, opts) {
+    notify (msg, opts = {}) {
       // previous only use one object param
       if (typeof msg === 'object') {
         const message = msg.body || msg.message
@@ -470,18 +473,20 @@ export default {
       } else if (typeof msg === 'string') {
         this.makeToast(msg, opts)
       } else {
-        this.alert({ message: 'notify 傳入參數有誤(請查看console)', type: 'danger' })
+        this.alert('notify 傳入參數有誤(請查看console)')
         this.$error(msg, opts)
       }
     },
-    alert (message, opts) {
-      opts.pos = opts.pos === 'bottom' ? 'bf' : 'tf'
-      const merged = Object.assign({
-        title: '警示',
-        autoHideDelay: 10000,
-        variant: 'danger'
-      }, opts)
-      this.notify(message, merged)
+    alert (message, opts = {}) {
+      if (!this.empty(message)) {
+        opts.pos = (opts && opts.pos === 'bottom') ? 'bf' : 'tf'
+        const merged = Object.assign({
+          title: '警示',
+          autoHideDelay: 10000,
+          variant: 'danger'
+        }, opts)
+        this.notify(message, merged)
+      }
     },
     modal (message, opts) {
       const merged = Object.assign({
@@ -673,7 +678,9 @@ export default {
     if (!this.$error) { this.$error = console.error.bind(console) }
     if (!this.$warn) { this.$warn = console.warn.bind(console) }
     if (!this.$assert) { this.$assert = console.assert.bind(console) }
-    this.animTransition = this.ANIMATED_TRANSITIONS[this.rand(this.ANIMATED_TRANSITIONS.length)]
+    if (!this.animTransition) { this.animTransition = this.ANIMATED_TRANSITIONS[this.rand(this.ANIMATED_TRANSITIONS.length)] }
     // if (this.$axios) { this.$axios.defaults.transformRequest = [data => $.param(data)] }
+  },
+  mounted() {
   }
 }

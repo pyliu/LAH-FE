@@ -72,11 +72,11 @@ export default {
   },
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
+    // transformRequest: [data => $.param(data)],
     baseUrl: process.env.BASE_URL || 'http://localhost:8080',
     proxy: true,
     prefix: '/api',
     credentials: true
-    // transformRequest: [data => $.param(data)]
   },
   proxy: {
     '/api': {

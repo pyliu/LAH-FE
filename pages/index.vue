@@ -73,7 +73,20 @@ export default {
     message(str) { this.notify(str) }
   },
   methods: { },
-  mounted () { this.notify(this.message) }
+  mounted () {
+    this.notify(this.message)
+    // this.isBusy = true
+    // this.$axios.post('/api/query_json_api.php', this.postParams({
+    //   type: 'ip'
+    // })).then(res => {
+    //   this.ip = res.data.ip;
+    //   this.notify(this.message + ' 2')
+    // }).catch(err => {
+    //   this.$error(err);
+    // }).finally(() => {
+    //   this.isBusy = false
+    // })
+  }
 }
 </script>
 
