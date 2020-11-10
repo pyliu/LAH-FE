@@ -2,7 +2,7 @@
   <div class="container">
     <div>
       <Logo />
-      <h3 class="title">桃園市地政智慧管控系統</h3>
+      <h3 class="title">桃園市地政智慧管控系統 {{ip}}</h3>
       <div class="mt-2 grids">
         <div class="grid-6col-2row">
           <NuxtLink to="/about_to_expire">
@@ -56,8 +56,24 @@ export default {
   head: {
     title: '桃園市地政智慧管控系統'
   },
+  data: () => ({
+    ip: undefined,
+    other: 'this is other'
+  }),
   methods: {
     test () { this.notify(this.uuid()) }
+  },
+  async asyncData({ $axios }) {
+    const params = new URLSearchParams();
+    params.append('type', 'ip');
+    /**
+     * json format is { status, ip, data_count, message }
+    */
+    const json = await $axios.$post('/api/query_json_api.php', params)
+    return {...json}
+  },
+  mounted () {
+    this.notify(this.message);
   }
 }
 </script>

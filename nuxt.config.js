@@ -63,20 +63,29 @@ export default {
     '@nuxtjs/style-resources',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    '@nuxtjs/proxy',
     '@nuxtjs/localforage',
     'nuxt-fontawesome'
   ],
-  // bootstrapVue: {
-  //   bootstrapCSS: true,
-  //   bootstrapVueCSS: true
-  // },
   styleResources: {
     scss: '@/assets/scss/_variables.scss'
   },
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
     baseUrl: process.env.BASE_URL || 'http://localhost:8080',
-    transformRequest: [data => $.param(data)]
+    proxy: true,
+    prefix: '/api',
+    credentials: true
+    // transformRequest: [data => $.param(data)]
+  },
+  proxy: {
+    '/api': {
+      target: process.env.BASE_URL || 'http://220.1.35.84', 
+      changeOrigin: true, 
+      pathRewrite: {
+        '^/api': '',
+      },
+    }
   },
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
