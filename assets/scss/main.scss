@@ -11,6 +11,11 @@ html, body {
   padding: 0;
 }
 
+.shadow-xl {
+	-webkit-filter: drop-shadow(6px 6px 7px rgba(0, 0, 0, 0.7));
+	filter: drop-shadow(6px 6px 7px rgba(0, 0, 0, 0.7))
+}
+
 @mixin anim-appear($d) {
   animation: $d appear;
   margin: auto;

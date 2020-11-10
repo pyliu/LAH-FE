@@ -24,7 +24,7 @@
 <script>
 export default {
   data: () => ({
-    show: true,
+    show: false,
     leave_time: 10000,
     classes: [
       "text-muted",
@@ -41,6 +41,7 @@ export default {
     ],
   }),
   mounted() {
+    this.show = true;
     this.timeout(() => (this.show = false), this.leave_time);
   },
 };
