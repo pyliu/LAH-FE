@@ -37,15 +37,15 @@
             請示未結案件
           </NuxtLink>
         </div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
-        <div class="grid-6col-2row"><NuxtLink to="/">...</NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
+        <div class="grid-6col-2row"><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></div>
       </div>
     </div>
   </div>
