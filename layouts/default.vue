@@ -10,6 +10,7 @@
       v-b-toggle.lah-sidebar
     />
     <Nuxt />
+    <lah-footer />
     <b-sidebar
       id="lah-sidebar"
       title="選單"
