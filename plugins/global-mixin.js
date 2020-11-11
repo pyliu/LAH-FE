@@ -6,7 +6,6 @@ Vue.mixin({
     data: () => ({
       isBusy: false,
       busyIconSize: undefined,
-      toastCounter: 0,
       callbackQueue: [],
       confirmAns: false,
       confirmOpen: false
@@ -44,7 +43,8 @@ Vue.mixin({
           return this.ANIMATED_TRANSITIONS[this.rand(this.ANIMATED_TRANSITIONS.length)]
         }
         return undefined
-      }
+      },
+      toastCounter () { return this.$store ? this.$store.getters.toastCounter : 0 }
     },
     methods: {
       $,  // jQuery '$'
@@ -235,7 +235,10 @@ Vue.mixin({
         if (typeof merged.callback === 'function') {
           this.timeout(() => merged.callback.apply(this, arguments), 100)
         }
-        this.toastCounter++
+
+        if (this.$store) {
+          this.$store.commit('addToastCounter')
+        }
       },
       animated (selector, opts) {
         const node = $(selector)

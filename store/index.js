@@ -3,6 +3,7 @@ const state = () => {
     ip: undefined,
     // api call common json attrs
     apiJson: undefined,
+    toastCounter: 0,
     dayMilliseconds: 24 * 60 * 60 * 1000,
     LOADING_PATTERNS: [
       'ld-heartbeat', 'ld-beat', 'ld-blink', 'ld-bounce', 'ld-bounceAlt', 'ld-breath', 'ld-wrench', 'ld-surprise',
@@ -235,19 +236,20 @@ const getters = {
   animatedPatterns: state => state.ANIMATED_PATTERNS,
   animatedTransitions: state => state.ANIMATED_TRANSITIONS,
   xhrStatusCode: state => state.XHR_STATUS_CODE,
-  apiEp: state => state.API
+  apiEp: state => state.API,
+  toastCounter: state => state.toastCounter
 }
 
 // support async operation
 const actions = {
-  async nuxtServerInit({ commit, dispatch }) {
+  async nuxtServerInit ({ commit, dispatch }) {
     try {
       dispatch('ip');
     } catch (e) {
       console.error(e)
     }
   },
-  async ip({ commit, state }) {
+  async ip ({ commit, state }) {
     const params = new URLSearchParams()
     params.append('type', 'ip')
     /**
@@ -258,15 +260,26 @@ const actions = {
     }).catch((err) => {
       console.error(err)
     }).finally(() => {
-        console.log(new Date())
+        // e.g. 2020-11-11 16:25:23
+        let now = new Date();
+        now = now.getFullYear() + "-" +
+            ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+            ("0" + now.getDate()).slice(-2) + " " +
+            ("0" + now.getHours()).slice(-2) + ":" +
+            ("0" + now.getMinutes()).slice(-2) + ":" +
+            ("0" + now.getSeconds()).slice(-2);
+        console.log(now)
     })
   }
 }
 
 // only sync operation
 const mutations = {
-  apiResponse(state, objPayload) {
+  apiResponse (state, objPayload) {
     state.apiJson = objPayload
+  },
+  addToastCounter (state, objPayload) {
+      state.toastCounter++
   }
 }
 
