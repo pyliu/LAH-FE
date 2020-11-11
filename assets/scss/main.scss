@@ -1,6 +1,10 @@
 // Bootstrap and BootstrapVue SCSS files
 @import '~bootstrap/scss/bootstrap.scss';
 @import '~bootstrap-vue/src/index.scss';
+
+@import 'anim.scss';
+@import 'size.scss';
+
 // General style overrides and custom classes
 @import 'theme';
 
@@ -14,39 +18,6 @@ html, body {
 .shadow-xl {
 	-webkit-filter: drop-shadow(6px 6px 7px rgba(0, 0, 0, 0.7));
 	filter: drop-shadow(6px 6px 7px rgba(0, 0, 0, 0.7))
-}
-
-@mixin anim-appear($d) {
-  animation: $d appear;
-  margin: auto;
-}
-
-@keyframes appear {
-  0% {
-    opacity: 0;
-  }
-}
-
-@mixin anim-cfg($ad, $aic) {
-	animation-duration: $ad;
-	/* animation-delay: 2s; */
-	animation-iteration-count: $aic;
-}
-
-.anim-appear-1s {
-  @include anim-appear(1s);
-}
-
-.once-anim-cfg {
-  @include anim-cfg(0.4s, 1);
-}
-
-.once-anim-cfg-2x {
-	@include anim-cfg(0.8s, 1);
-}
-
-.inf-anim-cfg {
-  @include anim-cfg(0.4s, infinite);
 }
 
 #lah-sidebar {
@@ -71,44 +42,4 @@ html, body {
         }
     }
   }
-}
-
-.s-95 {
-	font-size: .95rem;
-}
-
-.s-90 {
-	font-size: .90rem;
-}
-
-.s-85 {
-	font-size: .85rem;
-}
-
-.s-80 {
-	font-size: .80rem;
-}
-
-.s-75 {
-	font-size: .75rem;
-}
-
-.s-70 {
-	font-size: .70rem;
-}
-
-.s-65 {
-	font-size: .65rem;
-}
-
-.s-60 {
-	font-size: .60rem;
-}
-
-.s-55 {
-	font-size: .55rem;
-}
-
-.s-50 {
-	font-size: .50rem;
 }

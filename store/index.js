@@ -249,7 +249,7 @@ const actions = {
       console.error(e)
     }
   },
-  async ip ({ commit, state }) {
+  async ip ({ commit, getters }) {
     const params = new URLSearchParams()
     params.append('type', 'ip')
     /**
@@ -260,15 +260,16 @@ const actions = {
     }).catch((err) => {
       console.error(err)
     }).finally(() => {
-        // e.g. 2020-11-11 16:25:23
-        let now = new Date();
-        now = now.getFullYear() + "-" +
-            ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
-            ("0" + now.getDate()).slice(-2) + " " +
-            ("0" + now.getHours()).slice(-2) + ":" +
-            ("0" + now.getMinutes()).slice(-2) + ":" +
-            ("0" + now.getSeconds()).slice(-2);
-        console.log(now)
+      // e.g. 2020-11-11 16:25:23
+      let now = new Date();
+      console.log(
+        now.getFullYear() + "-" +
+        ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+        ("0" + now.getDate()).slice(-2) + " " +
+        ("0" + now.getHours()).slice(-2) + ":" +
+        ("0" + now.getMinutes()).slice(-2) + ":" +
+        ("0" + now.getSeconds()).slice(-2)
+      )
     })
   }
 }

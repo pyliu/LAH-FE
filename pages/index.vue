@@ -60,7 +60,7 @@ export default {
     
   }),
   async asyncData(nuxt) {
-    // SSR: returned object will replace the data inside "data"
+    // SSR: returned object will replace the data inside "data" before rendering
   },
   watch: {
     message(str) { this.notify(str) }
