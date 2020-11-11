@@ -40,7 +40,7 @@ Vue.mixin({
       XHR_STATUS_CODE () { return this.$store ? this.$store.getters.xhrStatusCode : undefined },
       API () { return this.$store ? this.$store.getters.apiEp : undefined },
       animTransition () {
-        if (this.$store) {
+        if (this.ANIMATED_TRANSITIONS) {
           return this.ANIMATED_TRANSITIONS[this.rand(this.ANIMATED_TRANSITIONS.length)]
         }
         return undefined
@@ -469,7 +469,5 @@ Vue.mixin({
         }
         return now.getHours() > 6 && now.getHours() < 19
       }
-    },
-    created () { },
-    mounted() { }
+    }
   })
