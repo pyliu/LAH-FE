@@ -276,10 +276,10 @@ const actions = {
 
 // only sync operation
 const mutations = {
-  apiResponse (state, objPayload) {
-    state.apiJson = objPayload
+  apiResponse (state, json) {
+    state.apiJson = json
   },
-  addToastCounter (state, objPayload) {
+  addToastCounter (state, dontcare) {
       state.toastCounter++
   }
 }
