@@ -2,7 +2,7 @@ const state = () => {
   return {
     ip: undefined,
     // api call common json attrs
-    apiJson: undefined,
+    apiJson: { status: 0, message: 'Vuex store initialization'},
     toastCounter: 0,
     dayMilliseconds: 24 * 60 * 60 * 1000,
     LOADING_PATTERNS: [

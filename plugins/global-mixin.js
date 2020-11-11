@@ -24,6 +24,12 @@ Vue.mixin({
             forceOff: true
           })
         }
+      },
+      apiJson(nObj, oObj) {
+        this.notify(nObj.message, {
+          title: `API回應通知 ${nObj.status}`,
+          type: nObj.status > 0 ? '' : 'danger'
+        })
       }
     },
     computed: {
@@ -44,7 +50,12 @@ Vue.mixin({
         }
         return undefined
       },
-      toastCounter () { return this.$store ? this.$store.getters.toastCounter : 0 }
+      toastCounter () { return this.$store ? this.$store.getters.toastCounter : 0 },
+      apiMessage () { return this.$store ? this.$store.getters.apiMessage : undefined },
+      apiStatus () { return this.$store ? this.$store.getters.apiStatus : undefined },
+      apiDataRaw () { return this.$store ? this.$store.getters.apiDataRaw : undefined },
+      apiDataCount () { return this.$store ? this.$store.getters.apiDataCount : undefined },
+      apiJson () { return this.$store ? this.$store.getters.apiJson : undefined }
     },
     methods: {
       $,  // jQuery '$'

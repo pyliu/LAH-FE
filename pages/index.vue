@@ -62,23 +62,20 @@ export default {
   async asyncData(nuxt) {
     // SSR: returned object will replace the data inside "data" before rendering
   },
-  watch: {
-    message(str) { this.notify(str) }
-  },
-  methods: { },
+  watch: {},
+  methods: {},
   mounted () {
     // this.$store.dispatch('ip');
-    // this.isBusy = true
-    // this.$http.post('/api/query_json_api.php', {
-    //   type: 'ip'
-    // }).then(res => {
-    //   this.ip = res.data.ip;
-    //   this.message = res.data.message;
-    // }).catch(err => {
-    //   this.$error(err);
-    // }).finally(() => {
-    //   this.isBusy = false
-    // })
+    this.isBusy = true
+    this.$http.post('/api/query_json_api.php', {
+      type: 'ip'
+    }).then(res => {
+      this.$store.commit('apiResponse', res.data);
+    }).catch(err => {
+      this.$error(err);
+    }).finally(() => {
+      this.isBusy = false
+    })
   }
 }
 </script>
