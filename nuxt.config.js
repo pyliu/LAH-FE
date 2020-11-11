@@ -46,6 +46,7 @@ export default {
   plugins: [
     // { src: '~/plugins/jquery.min', mode: 'client', ssr: false },
     // { src: '~/plugins/chart.min', mode: 'client', ssr: false },
+    { src: '~/plugins/global-inject' },
     { src: '~/plugins/fontawesome' },
     { src: '~/plugins/global-mixin' }
   ],
