@@ -88,7 +88,7 @@
 <script>
 export default {
   methods: {
-    test () { this.notify(this.uuid()) }
+    
   }
 }
 </script>

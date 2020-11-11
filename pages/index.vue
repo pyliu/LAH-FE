@@ -2,7 +2,7 @@
   <div class="container">
     <div>
       <Logo />
-      <h3 class="title">桃園市地政智慧管控系統 {{ip}}</h3>
+      <h3 class="title">桃園市地政智慧管控系統</h3>
       <div class="mt-2 grids">
         <div class="grid-6col-2row">
           <NuxtLink to="/about_to_expire">
@@ -57,30 +57,23 @@ export default {
     title: '桃園市地政智慧管控系統'
   },
   data: () => ({
-    other: 'this is other',
-    message: undefined
+    
   }),
-  async asyncData({ $axios }) {
-    const params = new URLSearchParams();
-    params.append('type', 'ip');
-    /**
-     * json format is { status, ip, data_count, message }
-    */
-    const json = await $axios.$post('/api/query_json_api.php', params)
-    return {...json}
+  async asyncData(nuxt) {
+    // SSR: returned object will replace the data inside "data"
   },
   watch: {
     message(str) { this.notify(str) }
   },
   methods: { },
   mounted () {
-    this.notify(this.message)
+    // this.$store.dispatch('ip');
     // this.isBusy = true
-    // this.$axios.post('/api/query_json_api.php', this.postParams({
+    // this.$http.post('/api/query_json_api.php', {
     //   type: 'ip'
-    // })).then(res => {
+    // }).then(res => {
     //   this.ip = res.data.ip;
-    //   this.notify(this.message + ' 2')
+    //   this.message = res.data.message;
     // }).catch(err => {
     //   this.$error(err);
     // }).finally(() => {
