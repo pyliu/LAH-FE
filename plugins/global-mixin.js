@@ -24,12 +24,6 @@ Vue.mixin({
             forceOff: true
           })
         }
-      },
-      apiJson(nObj, oObj) {
-        this.notify(nObj.message, {
-          title: `API回應通知 ${nObj.status}`,
-          type: nObj.status > 0 ? '' : 'danger'
-        })
       }
     },
     computed: {
@@ -50,12 +44,7 @@ Vue.mixin({
         }
         return undefined
       },
-      toastCounter () { return this.$store ? this.$store.getters.toastCounter : 0 },
-      apiMessage () { return this.$store ? this.$store.getters.apiMessage : undefined },
-      apiStatus () { return this.$store ? this.$store.getters.apiStatus : undefined },
-      apiDataRaw () { return this.$store ? this.$store.getters.apiDataRaw : undefined },
-      apiDataCount () { return this.$store ? this.$store.getters.apiDataCount : undefined },
-      apiJson () { return this.$store ? this.$store.getters.apiJson : undefined }
+      toastCounter () { return this.$store ? this.$store.getters.toastCounter : 0 }
     },
     methods: {
       $,  // jQuery '$'
@@ -83,7 +72,7 @@ Vue.mixin({
           forceOff: false,
           forceOn: false
         }, opts)
-        const container = $(opts.selector)
+        const container = this.$(opts.selector)
         if (container.length) {
           const removeSpinner = (element, style) => {
             element.removeClass(style)
@@ -95,7 +84,7 @@ Vue.mixin({
             element.addClass('running')
   
             // randomize loading.io css for fun
-            const coverEl = $(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
+            const coverEl = this.$(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
             coverEl.addClass(this.LOADING_PREDEFINED[this.rand(this.LOADING_PREDEFINED.length)]) // predefined pattern
               .addClass(this.LOADING_SHAPES_COLOR[this.rand(this.LOADING_SHAPES_COLOR.length)]) // color
             switch (opts.size) {
@@ -252,7 +241,7 @@ Vue.mixin({
         }
       },
       animated (selector, opts) {
-        const node = $(selector)
+        const node = this.$(selector)
         if (node.length > 0) {
           opts = Object.assign({
             name: this.ANIMATED_PATTERNS[this.rand(this.ANIMATED_PATTERNS.length)],
@@ -267,7 +256,7 @@ Vue.mixin({
             node.removeClass(`animated ${opts.name} ${opts.duration}`)
             node.off('animationend')
             // clear ld animation also
-            $(selector || '*').removeClass('ld').attr('class', function (i, c) {
+            this.$(selector || '*').removeClass('ld').attr('class', function (i, c) {
               return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
             })
           })
