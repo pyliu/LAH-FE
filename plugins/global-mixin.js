@@ -8,7 +8,8 @@ Vue.mixin({
       busyIconSize: undefined,
       callbackQueue: [],
       confirmAns: false,
-      confirmOpen: false
+      confirmOpen: false,
+      cachedResponse: undefined
     }),
     watch: {
       isBusy (flag) {
@@ -23,6 +24,14 @@ Vue.mixin({
             selector: this.$el,
             forceOff: true
           })
+        }
+      },
+      cachedResponse(nJson, oJson) {
+        if (nJson && nJson.status < 1) {
+          this.notify(nJson.message, { title:'API警示', type: 'warning', pos: 'bl' })
+        } else {
+          // TODO hide this on prod env
+          this.notify(nJson.message)
         }
       }
     },
@@ -192,7 +201,18 @@ Vue.mixin({
             opts.toaster = 'b-toaster-bottom-full'
             break
           default:
-            opts.toaster = 'b-toaster-bottom-right'
+            switch(opts.type) {
+              case 'danger':
+              case 'red':
+                opts.toaster = 'b-toaster-top-full'
+                break
+              case 'warning':
+              case 'yellow':
+                opts.toaster = 'b-toaster-bottom-left'
+                break
+              default:
+                opts.toaster = 'b-toaster-bottom-right'
+            }
         }
         // merge default setting
         const merged = Object.assign({

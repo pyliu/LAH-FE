@@ -8,7 +8,7 @@ export default (nuxt, inject) => {
   axios.defaults.baseURL = '/api'
 
   // axios.onResponse(response => {
-  //   this.$store.commit('apiResponse', response.data);
+  //   this.cachedResponse = response.data
   // })
 
   // axios.onError(error => {

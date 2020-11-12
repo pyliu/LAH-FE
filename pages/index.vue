@@ -70,7 +70,7 @@ export default {
     this.$http.post('/api/query_json_api.php', {
       type: 'ip'
     }).then(res => {
-      this.$store.commit('apiResponse', res.data);
+      this.cachedResponse = res.data;
     }).catch(err => {
       this.$error(err);
     }).finally(() => {

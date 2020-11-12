@@ -1,7 +1,5 @@
 const state = () => ({
   ip: '0.0.0.0',
-  // api call common json attrs
-  apiJson: { status: 0, message: 'Vuex initialized', raw: [], data_count: 0 },
   toastCounter: 0,
   dayMilliseconds: 24 * 60 * 60 * 1000,
   LOADING_PATTERNS: [
@@ -135,14 +133,7 @@ const getters = {
   apiEp: state => state.API,
   toastCounter: state => state.toastCounter,
   vue: state => this._vm,
-  ip: state => state.ip,
-  /*
-  apiMessage: state => state.apiJson.message,
-  apiStatus: state => state.apiJson.status,
-  apiDataRaw: state => state.apiJson.raw,
-  apiDataCount: state => state.apiJson.data_count,
-  apiJson: state => state.apiJson
-  */
+  ip: state => state.ip
 }
 
 // support async operation
@@ -160,7 +151,7 @@ const actions = {
     // expected json format is { status, ip, data_count, message }
     this.$axios.$post('/api/query_json_api.php', params).then(res => {
       commit('ip', res.data.ip)
-      commit('apiResponse', res.data)
+      console.log(res.data)
     }).catch((err) => {
       console.error(err)
     }).finally(() => {
@@ -181,7 +172,6 @@ const actions = {
 // only sync operation
 const mutations = {
   ip (state, ip) { state.ip = ip },
-  apiResponse (state, json) { state.apiJson = json },
   addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 
