@@ -140,31 +140,47 @@ const getters = {
 const actions = {
   async nuxtServerInit ({ commit, dispatch }) {
     try {
-      dispatch('ip');
+      dispatch('ip')
     } catch (e) {
       console.error(e)
     }
   },
   async ip ({ commit, getters }) {
-    const params = new URLSearchParams()
-    params.append('type', 'ip')
     // expected json format is { status, ip, data_count, message }
-    this.$axios.$post('/api/query_json_api.php', params).then(res => {
-      commit('ip', res.data.ip)
-      console.log(res.data)
-    }).catch((err) => {
-      console.error(err)
+    this.$axios.post('/api/query_json_api.php', {
+      type: 'ip'
+    }).then((res) => {
+      if (res.data.ip) {
+        commit('ip', res.data.ip)
+      }
+      console.log(res.data.message)
+    }).catch((error) => {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.log(error.response.data)
+        console.log(error.response.status)
+        console.log(error.response.headers)
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log(error.request)
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message)
+      }
+      console.log(error.config)
     }).finally(() => {
       // e.g. 2020-11-11 16:25:23
-      let now = new Date();
-      console.log(
-        now.getFullYear() + "-" +
+      let now = new Date()
+      let datetime = now.getFullYear() + "-" +
         ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
         ("0" + now.getDate()).slice(-2) + " " +
         ("0" + now.getHours()).slice(-2) + ":" +
         ("0" + now.getMinutes()).slice(-2) + ":" +
         ("0" + now.getSeconds()).slice(-2)
-      )
+      console.log(getters.ip, datetime)
     })
   }
 }
