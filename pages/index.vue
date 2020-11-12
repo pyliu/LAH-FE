@@ -65,17 +65,12 @@ export default {
   watch: {},
   methods: {},
   mounted () {
-    // this.$store.dispatch('ip');
-    this.isBusy = true
-    this.$http.post('/api/query_json_api.php', {
-      type: 'ip'
-    }).then(res => {
-      this.cachedResponse = res.data;
-    }).catch(err => {
-      this.$error(err);
-    }).finally(() => {
-      this.isBusy = false
-    })
+    this.notify('test', { type: 'dark' })
+    this.notify('test', { type: 'info' })
+    this.warning('test')
+    this.warning('test', { variant: 'info' })
+    this.alert('test', { variant: 'success' })
+    this.alert('test')
   }
 }
 </script>

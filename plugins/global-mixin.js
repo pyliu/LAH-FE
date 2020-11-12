@@ -26,12 +26,14 @@ Vue.mixin({
           })
         }
       },
-      cachedResponse(nJson, oJson) {
-        if (nJson && nJson.status < 1) {
-          this.notify(nJson.message, { title:'API警示', type: 'warning', pos: 'bl' })
+      cachedResponse(response) {
+        if (response.status == 200) {
+          let json = response.data
+          if (json && json.status < 1) {
+            this.warning(json.message, { title:'API警示' })
+          }
         } else {
-          // TODO hide this on prod env
-          this.notify(nJson.message)
+          this.alert(response.statusText, { title:'網路連線錯誤' })
         }
       }
     },
@@ -192,7 +194,7 @@ Vue.mixin({
             opts.toaster = 'b-toaster-bottom-full'
             break
           default:
-            switch(opts.type) {
+            switch(opts.variant) {
               case 'danger':
               case 'red':
                 opts.toaster = 'b-toaster-top-full'
@@ -251,6 +253,44 @@ Vue.mixin({
           this.$store.commit('addToastCounter')
         }
       },
+      notify (msg, opts = { title: '通知' }) {
+        if (typeof msg === 'string') {
+          opts.variant = opts.type || opts.variant || 'default'
+          opts.autoHideDelay = opts.duration || opts.delay || 5000
+          this.makeToast(msg, opts)
+        } else if (typeof msg === 'object') {
+          // previous API only use one object param
+          const message = msg.body || msg.message
+          msg.variant = msg.type || msg.variant || 'default'
+          msg.autoHideDelay = msg.duration || msg.delay || 5000
+          this.makeToast(message, msg)
+        } else  {
+          this.alert(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
+          this.$error(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
+        }
+      },
+      warning (message, opts = {}) {
+        if (!this.empty(message)) {
+          const merged = Object.assign({
+            title: '警示',
+            autoHideDelay: 7500,
+            pos: 'bl',
+            variant: 'warning'
+          }, opts)
+          this.notify(message, merged)
+        }
+      },
+      alert (message, opts = {}) {
+        if (!this.empty(message)) {
+          opts.pos = (opts && opts.pos === 'bottom') ? 'bf' : 'tf'
+          const merged = Object.assign({
+            title: '錯誤',
+            autoHideDelay: 10000,
+            variant: 'danger'
+          }, opts)
+          this.notify(message, merged)
+        }
+      },
       animated (selector, opts) {
         const node = this.$(selector)
         if (node.length > 0) {
@@ -273,31 +313,6 @@ Vue.mixin({
           })
         }
         return node
-      },
-      notify (msg, opts = {}) {
-        // previous only use one object param
-        if (typeof msg === 'object') {
-          const message = msg.body || msg.message
-          msg.variant = msg.type || 'default'
-          msg.autoHideDelay = msg.duration || msg.delay || 5000
-          this.makeToast(message, msg)
-        } else if (typeof msg === 'string') {
-          this.makeToast(msg, opts)
-        } else {
-          this.alert(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
-          this.$error(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
-        }
-      },
-      alert (message, opts = {}) {
-        if (!this.empty(message)) {
-          opts.pos = (opts && opts.pos === 'bottom') ? 'bf' : 'tf'
-          const merged = Object.assign({
-            title: '警示',
-            autoHideDelay: 10000,
-            variant: 'danger'
-          }, opts)
-          this.notify(message, merged)
-        }
       },
       modal (message, opts) {
         const merged = Object.assign({
