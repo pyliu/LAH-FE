@@ -1,7 +1,8 @@
 import axios from 'axios'
+import qs from 'qs'
+
 export default (nuxt, inject) => {
   axios.defaults.transformRequest = [data => {
-    const qs = require('qs')
     return qs.stringify(data)
   }]
   // leverage axios proxy in nuxt.config.js
@@ -21,6 +22,7 @@ export default (nuxt, inject) => {
 
   // all injected var can be used by this.${varname} in Vue and ${varname} in Nuxt, e.g. this.$http (Vue), $http (Nuxt)
   inject('http', axios)
+  inject('qs', qs)
   inject('log', console.log.bind(console))
   inject('error', console.error.bind(console))
   inject('warn', console.warn.bind(console))

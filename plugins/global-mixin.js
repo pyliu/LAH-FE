@@ -36,9 +36,7 @@ Vue.mixin({
       }
     },
     computed: {
-      viewportRatio () {
-        return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2)
-      },
+      viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
       dayMilliseconds () { return this.$store ? this.$store.getters.dayMilliseconds : undefined },
       LOADING_PATTERNS () { return this.$store ? this.$store.getters.loadingPatterns : undefined },
       LOADING_PREDEFINED () { return this.$store ? this.$store.getters.loadingPredefined : undefined },
@@ -56,14 +54,7 @@ Vue.mixin({
       toastCounter () { return this.$store ? this.$store.getters.toastCounter : 0 }
     },
     methods: {
-      $,  // jQuery '$'
-      paramize (obj_in) {
-        const params = new URLSearchParams();
-        for (const [key, value] of Object.entries(obj_in)) {
-          params.append(key, value);
-        }
-        return params;
-      },
+      $,  // jQuery '$',
       parseHTML (string) {
         const context = document.implementation.createHTMLDocument()
         // Set the base href for the created document so any parsed elements with URLs
