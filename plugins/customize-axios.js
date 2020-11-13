@@ -1,6 +1,6 @@
 import qs from 'qs'
 
-export default function ({ $axios, redirect }, inject) {
+export default function ({ $axios, redirect, store }, inject) {
   const cancelTokenSource = $axios.CancelToken.source();
   $axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 
@@ -15,6 +15,7 @@ export default function ({ $axios, redirect }, inject) {
   $axios.onResponse(response => {
     if (response && response.data) {
       // handle global response here
+      // use store to store respinse globally
     }
   })
 
