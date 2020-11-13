@@ -9,13 +9,24 @@ export default function ({ $axios, redirect, store }, inject) {
       config.data = qs.stringify(config.data)
     }
     config.cancelToken = cancelTokenSource.token
+    // use store to store latest request config globally
+    store.commit('xhrRequest', config)
     return config
   })
 
   $axios.onResponse(response => {
-    if (response && response.data) {
-      // handle global response here
-      // use store to store respinse globally
+    // use store to store latest response globally
+    store.commit('xhrResponse', response)
+    // handle global response here
+    if (store._vm) {
+      if (response.status == 200) {
+        let json = response.data
+        if (json && json.status < 1) {
+          store._vm.warning(json.message, { title:'API警示' })
+        }
+      } else {
+        store._vm.alert(response.statusText, { title:'網路連線錯誤' })
+      }
     }
   })
 

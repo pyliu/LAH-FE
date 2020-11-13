@@ -48,7 +48,7 @@ export default {
     { src: '~/plugins/customize-axios'},
     { src: '~/plugins/fontawesome' },
     { src: '~/plugins/global-inject' },
-    { src: '~/plugins/global-mixin' }
+    { src: '~/plugins/global-vue-mixin' }
   ],
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,

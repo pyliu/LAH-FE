@@ -1,4 +1,6 @@
 const state = () => ({
+  xhrResponse: null,
+  xhrRequest: null, // the xhr config
   ip: '0.0.0.0',
   toastCounter: 0,
   dayMilliseconds: 24 * 60 * 60 * 1000,
@@ -133,7 +135,9 @@ const getters = {
   apiEp: state => state.API,
   toastCounter: state => state.toastCounter,
   vue: state => this._vm,
-  ip: state => state.ip
+  ip: state => state.ip,
+  xhrResponse: state => state.xhrResponse,
+  xhrRequest: state => state.xhrRequest
 }
 
 // support async operation
@@ -188,7 +192,9 @@ const actions = {
 // only sync operation
 const mutations = {
   ip (state, ip) { state.ip = ip },
-  addToastCounter (state, dontcare) { state.toastCounter++ }
+  addToastCounter (state, dontcare) { state.toastCounter++ },
+  xhrResponse (state, payload) { state.xhrResponse = payload },
+  xhrRequest (state, payload) { state.xhrRequest = payload }
 }
 
 export default {

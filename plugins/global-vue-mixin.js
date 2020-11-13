@@ -8,8 +8,7 @@ Vue.mixin({
       busyIconSize: undefined,
       callbackQueue: [],
       confirmAns: false,
-      confirmOpen: false,
-      cachedResponse: undefined
+      confirmOpen: false
     }),
     watch: {
       isBusy (flag) {
@@ -24,16 +23,6 @@ Vue.mixin({
             selector: this.$el,
             forceOff: true
           })
-        }
-      },
-      cachedResponse(response) {
-        if (response.status == 200) {
-          let json = response.data
-          if (json && json.status < 1) {
-            this.warning(json.message, { title:'API警示' })
-          }
-        } else {
-          this.alert(response.statusText, { title:'網路連線錯誤' })
         }
       }
     },
