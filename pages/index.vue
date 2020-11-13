@@ -4,21 +4,21 @@
       <Logo />
       <h3 class="title">桃園市地政智慧管控系統</h3>
       <section class="b-card-container">
-        <b-card-group deck>
-          <lah-index-card-link :icon="['far', 'calendar-check']" to="/about_to_expire" text="即將逾期案件"></lah-index-card-link>
-          <lah-index-card-link :icon="['fas', 'scroll']" to="/expiry_of_announcement" text="公告期滿案件"></lah-index-card-link>
-          <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask_for_instructions" text="請示未結案件"></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
+        <b-card-group deck class="mb-4">
+          <lah-index-card-link :icon="['far', 'calendar-check']" to="/about_to_expire">即將逾期案件</lah-index-card-link>
+          <lah-index-card-link :icon="['fas', 'scroll']" to="/expiry_of_announcement">公告期滿案件</lah-index-card-link>
+          <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask_for_instructions">請示未結案件</lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
         </b-card-group>
         <b-card-group deck>
-          <lah-index-card-link ></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
-          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
+          <lah-index-card-link>維護中 ... </lah-index-card-link>
         </b-card-group>
       </section>
       <!--
@@ -84,15 +84,7 @@ export default {
   },
   watch: {},
   methods: {},
-  mounted () {
-    this.notify('test', { type: 'dark' })
-    this.notify('test', { type: 'info' })
-    this.warning('test')
-    this.warning('test', { variant: 'info' })
-    this.alert('test', { variant: 'success' })
-    this.alert('test')
-    this.notify(this.ip)
-  }
+  mounted () {}
 }
 </script>
 
@@ -117,18 +109,13 @@ export default {
   margin-top: 2rem;
 }
 
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
 .b-card-container {
-  height: 40vh;
+	display: flex;
+	flex-wrap: wrap;
+  height: 50vh;
+  align-content: flex-start;
   .b-card-group {
-    height: 50%;
+    height: 45%;
   }
 }
 
@@ -150,19 +137,5 @@ export default {
     border: 1px solid gray;
     margin: 0.5%;
   }
-}
-
-.grid-center {
-	box-sizing: border-box;
-	display: flex;
-  justify-content: center;
-  align-items: center;
-	padding: auto;
-	height: 100%;
-}
-
-.grid-one-third {
-	width: 32.66%;
-	margin: 0.5%;
 }
 </style>
