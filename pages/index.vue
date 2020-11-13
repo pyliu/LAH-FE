@@ -4,41 +4,21 @@
       <Logo />
       <h3 class="title">桃園市地政智慧管控系統</h3>
       <section class="b-card-container">
-        <b-card-group deck class="mb-2">
-          <lah-index-card-link text="即將逾期案件"></lah-index-card-link>
-          <b-card>
-            <NuxtLink to="/expiry_of_announcement">
-              <font-awesome-icon
-                :icon="['fas', 'scroll']"
-                pull="left"
-                size="4x"
-                class="anim-appear-1s ml-4"
-              />
-              公告期滿案件
-            </NuxtLink>
-          </b-card>
-          <b-card>
-            <NuxtLink to="/ask_for_instructions">
-              <font-awesome-icon
-                :icon="['fas', 'user-tie']"
-                pull="left"
-                size="4x"
-                class="anim-appear-1s ml-4"
-              />
-              請示未結案件
-            </NuxtLink>
-          </b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
+        <b-card-group deck>
+          <lah-index-card-link :icon="['far', 'calendar-check']" to="/about_to_expire" text="即將逾期案件"></lah-index-card-link>
+          <lah-index-card-link :icon="['fas', 'scroll']" to="/expiry_of_announcement" text="公告期滿案件"></lah-index-card-link>
+          <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask_for_instructions" text="請示未結案件"></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
         </b-card-group>
         <b-card-group deck>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="4x" /></NuxtLink></b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
-          <b-card><NuxtLink to="/"><font-awesome-icon :icon="['fas', 'wrench']" class="anim-appear-1s" size="lg" /></NuxtLink></b-card>
+          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
+          <lah-index-card-link ></lah-index-card-link>
         </b-card-group>
       </section>
       <!--
@@ -146,19 +126,9 @@ export default {
 }
 
 .b-card-container {
-	width: 100%;
-  padding: auto;
+  height: 40vh;
   .b-card-group {
     height: 50%;
-    .b-card {
-      box-sizing: border-box;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: auto;
-      border-radius: 10px;
-      border: 1px solid gray;
-    }
   }
 }
 
