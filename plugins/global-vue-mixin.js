@@ -27,22 +27,23 @@ Vue.mixin({
       }
     },
     computed: {
+      ip () { return this.$store.getters.ip },
       viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
-      dayMilliseconds () { return this.$store ? this.$store.getters.dayMilliseconds : undefined },
-      LOADING_PATTERNS () { return this.$store ? this.$store.getters.loadingPatterns : undefined },
-      LOADING_PREDEFINED () { return this.$store ? this.$store.getters.loadingPredefined : undefined },
-      LOADING_SHAPES_COLOR () { return this.$store ? this.$store.getters.loadingShapeColor : undefined },
-      ANIMATED_PATTERNS () { return this.$store ? this.$store.getters.animatedPatterns : undefined },
-      ANIMATED_TRANSITIONS () { return this.$store ? this.$store.getters.animatedTransitions : undefined },
-      XHR_STATUS_CODE () { return this.$store ? this.$store.getters.xhrStatusCode : undefined },
-      API () { return this.$store ? this.$store.getters.apiEp : undefined },
+      dayMilliseconds () { return this.$store.getters.dayMilliseconds },
+      LOADING_PATTERNS () { return this.$store.getters.loadingPatterns },
+      LOADING_PREDEFINED () { return this.$store.getters.loadingPredefined },
+      LOADING_SHAPES_COLOR () { return this.$store.getters.loadingShapeColor },
+      ANIMATED_PATTERNS () { return this.$store.getters.animatedPatterns },
+      ANIMATED_TRANSITIONS () { return this.$store.getters.animatedTransitions },
+      XHR_STATUS_CODE () { return this.$store.getters.xhrStatusCode },
+      API () { return this.$store.getters.apiEp },
       animTransition () {
         if (this.ANIMATED_TRANSITIONS) {
           return this.ANIMATED_TRANSITIONS[this.rand(this.ANIMATED_TRANSITIONS.length)]
         }
         return undefined
       },
-      toastCounter () { return this.$store ? this.$store.getters.toastCounter : 0 }
+      toastCounter () { return this.$store.getters.toastCounter }
     },
     methods: {
       $,  // jQuery '$',

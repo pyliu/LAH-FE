@@ -3,6 +3,7 @@
     <div>
       <Logo />
       <h3 class="title">桃園市地政智慧管控系統</h3>
+      
       <div class="mt-2 grids">
         <div class="grid-6col-2row">
           <NuxtLink to="/about_to_expire">
@@ -71,6 +72,7 @@ export default {
     this.warning('test', { variant: 'info' })
     this.alert('test', { variant: 'success' })
     this.alert('test')
+    this.notify(this.ip)
   }
 }
 </script>

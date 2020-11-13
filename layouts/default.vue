@@ -93,7 +93,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 html {
   font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -146,5 +146,29 @@ html {
   left: 10px;
   top: 10px;
   width: 3.5rem;
+}
+
+#lah-sidebar {
+  a {
+    &:hover, &:active {
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-decoration: none;
+    }
+    &.nuxt-link-exact-active {
+      @extend :hover;
+      color: rgb(255, 255, 255) !important;
+    }
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+    li {
+        margin: 8px 16px;
+        a {
+          color: rgb(187, 184, 184);
+        }
+    }
+  }
 }
 </style>
