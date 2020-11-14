@@ -43,6 +43,10 @@ export default {
 </script>
 
 <style lang="scss">
+a {
+  color: var(--dark);
+}
+
 .container {
   margin: auto;
   min-height: 100vh;
