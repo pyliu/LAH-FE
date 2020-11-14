@@ -7,7 +7,7 @@
   >
     <NuxtLink :to="to">
       <div class="mb-2">
-        <font-awesome-icon ref="icon" :icon="icon" :size="size" />
+        <font-awesome-icon ref="icon" :icon="icon" :size="size" :class="variant" />
       </div>
       <b-card-title title-tag="h5"><slot></slot></b-card-title>
     </NuxtLink>
@@ -18,9 +18,43 @@
 export default {
   props: {
     to: { type: String, default: "/" },
-    icon: { type: Array, default: () => ["fas", "wrench"] },
+    icon: { type: Array, default: () => ["far", "times-circle"] },
     size: { type: String, default: "3x" },
-    action: { type: String, default: undefined }
+    action: { type: String, default: undefined },
+    iconVariant: { type: String, default: '' }
+  },
+  computed: {
+    variant () {
+      switch(this.iconVariant) {
+        case 'primary':
+          return ['text-primary']
+        case 'secondary':
+          return ['text-secondary']
+        case 'info':
+          return ['text-info']
+        case 'white':
+        case 'empty':
+          return ['text-white']
+        case 'dark':
+        case 'black':
+          return ['text-dark']
+        case 'red':
+        case 'danger':
+          return ['text-danger']
+        case 'yellow':
+        case 'warning':
+          return ['text-warning']
+        case 'success':
+        case 'green':
+          return ['text-success']
+        case 'muted':
+        case 'silent':
+        case 'fade':
+          return ['text-muted']
+        default:
+          return ['']
+      }
+    }
   },
   methods: {
     mouseenter () {

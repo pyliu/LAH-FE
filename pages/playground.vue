@@ -11,6 +11,14 @@
       </font-awesome-layers>
       <h3 class="title">測試</h3>
       <div>
+        <font-awesome-layers class="fa-lg">
+          <font-awesome-icon :icon="['far', 'circle']" />
+          <font-awesome-icon
+            icon="times"
+            transform="shrink-6"
+            :style="{ color: 'red' }"
+          />
+        </font-awesome-layers>
         <font-awesome-layers class="fa-5x">
           <font-awesome-icon icon="circle" />
           <font-awesome-icon
