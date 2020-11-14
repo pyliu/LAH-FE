@@ -70,44 +70,7 @@ export default {
       this.$emit('click', this.click);
       evt.stopPropagation();
     },
-    addAnimation (selector, which) {
-      let el = this.clearAnimation(selector);
-      if (el.length) {
-        el.addClass('ld');
-        if (!which) {
-          el.each((idx, el) => {
-            if (!this.$(el).is('body')) {
-              const randAnimPattern = this.LOADING_PATTERNS[
-                this.rand(this.LOADING_PATTERNS.length)
-              ];
-              this.$(el).addClass(randAnimPattern);
-            }
-          });
-        } else {
-          el.addClass(which);
-        }
-      }
-      return el;
-    },
-    clearAnimation (selector) {
-      return this.$(selector || '*')
-        .removeClass('ld')
-        .attr('class', function(i, c) {
-          return c ? c.replace(/(^|\s+)ld-\S+/g, '') : '';
-        });
-    },
     mouseenter () {
-      /**
-       *  "ld-heartbeat", "ld-beat", "ld-blink", "ld-bounce", "ld-bounceAlt", "ld-breath", "ld-wrench", "ld-surprise",
-          "ld-clock", "ld-jump", "ld-hit", "ld-fade", "ld-flip", "ld-float", "ld-move-ltr", "ld-tremble", "ld-tick",
-          "ld-move-rtl", "ld-move-ttb", "ld-move-btt", "ld-move-fade-ltr", "ld-move-fade-rtl", "ld-move-fade-ttb",
-          "ld-move-fade-btt", "ld-dim", "ld-swing", "ld-wander", "ld-pulse", "ld-cycle", "ld-cycle-alt", "ld-damage",
-          "ld-fade", "ld-flip", "ld-flip-h", "ld-flip-v", "ld-float", "ld-jelly", "ld-jelly-alt", "ld-jingle",
-          "ld-measure", "ld-metronome", "ld-orbit", "ld-rubber-h", "ld-rubber-v", "ld-rush-btt", "ld-rush-ttb",
-          "ld-rush-ltr", "ld-rush-rtl", "ld-shake-h", "ld-shake-v", "ld-shiver", "ld-skew", "ld-skew-alt", "ld-slide-btt",
-          "ld-slide-ltr", "ld-slide-rtl", "ld-slide-ttb", "ld-smash", "ld-spin", "ld-spin-fast", "ld-squeeze",
-          "ld-swim", "ld-swing", "ld-tick-alt", "ld-vortex", "ld-vortex-alt", "ld-wander-h", "ld-wander-v"
-        */
       const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-jump';
       // movement is 'undefined' will be random effect
       this.addAnimation(`#${this.iconId}`, movement);
@@ -122,14 +85,4 @@ export default {
 };
 </script>
 <style>
-.LAHButton {
-  animation: 1s appear;
-  margin: auto;
-}
-
-@keyframes appear {
-  0% {
-    opacity: 0;
-  }
-}
 </style>

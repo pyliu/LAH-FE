@@ -4,11 +4,22 @@
       icon="bars"
       size="lg"
       action="ld-move-fade-ltr"
-      class="sidebar-button"
-      variant="outline-dark"
+      class="bars-button"
+      variant="outline-secondary"
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
+    <NuxtLink to="/">
+      <lah-button
+        icon="home"
+        size="lg"
+        action="ld-jump"
+        class="home-button pr-1"
+        variant="outline-primary"
+        title="回到首頁"
+      >
+      </lah-button>
+    </NuxtLink>
     <Nuxt />
     <lah-footer />
     <b-sidebar
@@ -100,58 +111,18 @@ export default {
 </script>
 
 <style lang="scss">
-html {
-  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-}
-
-.button--green {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #3b8070;
-  color: #3b8070;
-  text-decoration: none;
-  padding: 10px 30px;
-}
-
-.button--green:hover {
-  color: #fff;
-  background-color: #3b8070;
-}
-
-.button--grey {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #35495e;
-  color: #35495e;
-  text-decoration: none;
-  padding: 10px 30px;
-}
-
-.button--grey:hover {
-  color: #fff;
-  background-color: #35495e;
-}
-
-.sidebar-button {
+.bars-button {
   position: fixed;
   left: 10px;
   top: 10px;
   width: 3.5rem;
+}
+
+.home-button {
+  @extend .bars-button;
+  right: 10px;
+  left: initial;
+  padding: 8px 4px 8px 12px;
 }
 
 #lah-sidebar {

@@ -1,10 +1,15 @@
 <template>
-  <b-card class="anim-appear-1s shadow lah-index-card-link">
+  <b-card
+    class="anim-appear-1s shadow lah-index-card-link"
+    @mouseenter="mouseenter"
+    @mouseleave="mouseleave"
+    @blur="mouseleave"
+  >
     <NuxtLink :to="to">
       <div class="mb-2">
-        <font-awesome-icon :icon="icon" :size="size" :style="style" />
+        <font-awesome-icon ref="icon" :icon="icon" :size="size" />
       </div>
-      <b-card-title><slot></slot></b-card-title>
+      <b-card-title title-tag="h5"><slot></slot></b-card-title>
     </NuxtLink>
   </b-card>
 </template>
@@ -15,8 +20,18 @@ export default {
     to: { type: String, default: "/" },
     icon: { type: Array, default: () => ["fas", "wrench"] },
     size: { type: String, default: "3x" },
-    style: { type: String, default: '' }
+    action: { type: String, default: undefined }
   },
+  methods: {
+    mouseenter () {
+      const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-jump';
+      // movement is 'undefined' will be random effect
+      this.addAnimation(this.$refs.icon, movement);
+    },
+    mouseleave () {
+      this.clearAnimation(this.$refs.icon);
+    }
+  }
 };
 </script>
 
