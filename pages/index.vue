@@ -6,7 +6,7 @@
       <section class="b-card-container">
         <b-card-group deck class="mb-4">
           <lah-index-card-link :icon="['far', 'calendar-check']" to="/about-to-expire">即將逾期案件</lah-index-card-link>
-          <lah-index-card-link :icon="['fas', 'scroll']" to="/expiry-of-announcement">公告期滿案件</lah-index-card-link>
+          <lah-index-card-link :icon="['far', 'sticky-note']" to="/expiry-of-announcement">公告期滿案件</lah-index-card-link>
           <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask-for-instructions">請示未結案件</lah-index-card-link>
           <lah-index-card-link>即將逾期案件</lah-index-card-link>
           <lah-index-card-link>開發維護中...</lah-index-card-link>
@@ -50,17 +50,6 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
-}
-
-.title {
-  font-family: "Quicksand", "Source Sans Pro", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  display: block;
-  font-weight: bold;
-  font-size: 4rem;
-  color: #35495e;
-  letter-spacing: 1px;
-  margin-top: 2rem;
 }
 
 .b-card-container {

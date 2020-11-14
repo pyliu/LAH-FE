@@ -34,7 +34,6 @@
           <NuxtLink to="/about-to-expire">
             <font-awesome-icon
               :icon="['far', 'calendar-check']"
-              pull="left"
               size="lg"
             />
             即將逾期案件
@@ -43,8 +42,7 @@
         <li>
           <NuxtLink to="/expiry-of-announcement">
             <font-awesome-icon
-              :icon="['fas', 'scroll']"
-              pull="left"
+              :icon="['fa', 'sticky-note']"
               size="lg"
             />
             公告期滿案件
@@ -54,7 +52,6 @@
           <NuxtLink to="/ask-for-instructions">
             <font-awesome-icon
               :icon="['fas', 'user-tie']"
-              pull="left"
               size="lg"
             />
             請示未結案件
@@ -79,6 +76,15 @@
             />
             原始碼
           </a>
+        </li>
+        <li>
+          <NuxtLink to="/playground">
+            <font-awesome-icon
+              :icon="['fas', 'leaf']"
+              size="lg"
+            />
+            測試
+          </NuxtLink>
         </li>
       </ul>
     </b-sidebar>
