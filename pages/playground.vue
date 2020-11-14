@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div>
-      <font-awesome-layers class="fa-10x">
+      <font-awesome-layers class="fa-10x anim-appear-1s">
         <font-awesome-icon icon="circle" />
         <font-awesome-icon
           icon="charging-station"
