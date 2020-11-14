@@ -31,7 +31,7 @@
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink to="/about_to_expire">
+          <NuxtLink to="/about-to-expire">
             <font-awesome-icon
               :icon="['far', 'calendar-check']"
               pull="left"
@@ -41,7 +41,7 @@
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink to="/expiry_of_announcement">
+          <NuxtLink to="/expiry-of-announcement">
             <font-awesome-icon
               :icon="['fas', 'scroll']"
               pull="left"
@@ -51,7 +51,7 @@
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink to="/ask_for_instructions">
+          <NuxtLink to="/ask-for-instructions">
             <font-awesome-icon
               :icon="['fas', 'user-tie']"
               pull="left"
