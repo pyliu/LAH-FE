@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div>
-      <Logo />
+      <Logo class="anim-appear-2s" />
       <h3 class="title">
         請示未結案件
       </h3>

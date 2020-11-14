@@ -6,7 +6,7 @@
         :icon="['far', 'calendar-check']"
         pull="left"
         size="10x"
-        class="anim-appear-1s"
+        class="anim-appear-2s"
       />
       <h3 class="title">
         即將逾期案件

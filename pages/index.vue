@@ -1,8 +1,14 @@
 <template>
   <div class="container">
     <div>
-      <Logo />
-      <h3 class="title">桃園市地政智慧管控系統</h3>
+      <section class="fixed-title-height">
+        <lah-transition appear>
+          <div v-if="showLogo">
+            <Logo />
+            <h3 class="title">桃園市地政智慧管控系統</h3>
+          </div>
+        </lah-transition>
+      </section>
       <section class="b-card-container">
         <b-card-group deck class="mb-4">
           <lah-index-card-link :icon="['far', 'calendar-check']" to="/about-to-expire">即將逾期案件</lah-index-card-link>
@@ -31,14 +37,14 @@ export default {
     title: '桃園市地政智慧管控系統'
   },
   data: () => ({
-    
+    showLogo: false
   }),
   async asyncData(nuxt) {
     // SSR: returned object will replace the data inside "data" before rendering
   },
   watch: {},
   methods: {},
-  mounted () {}
+  mounted () { this.showLogo = true }
 }
 </script>
 
@@ -54,6 +60,10 @@ a {
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+.fixed-title-height {
+  height: 45vh;
 }
 
 .b-card-container {

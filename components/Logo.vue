@@ -16,5 +16,5 @@
   <b-img src="~/assets/img/tyland.jpg"></b-img>
 </template>
 
-<style>
+<style lang="scss">
 </style>

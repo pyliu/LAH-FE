@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div>
-      <Logo />
+      <Logo class="anim-appear-2s" />
       <h3 class="title">
         公告期滿案件
       </h3>
