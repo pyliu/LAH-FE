@@ -1,30 +1,99 @@
 <template>
-  <div class="container">
-    <div>
-      
-      <font-awesome-icon
-        :icon="['far', 'calendar-check']"
-        pull="left"
-        size="10x"
-        class="anim-appear-2s"
-      />
-      <h3 class="title">
+  <div>
+    <lah-transition appear speed="quick">
+      <h3 class="text-center my-2 pt-1 text-nowrap font-weight-bold">
+        <font-awesome-icon
+          :icon="['far', 'calendar-check']"
+          size="lg"
+          class="mx-auto my-auto"
+        ></font-awesome-icon>
         即將逾期案件
       </h3>
-      <div>
-        AAA
-      </div>
-    </div>
+    </lah-transition>
+    <lah-expiry-b-table :json="queriedJson"></lah-expiry-b-table>
   </div>
 </template>
 
 <script>
 export default {
   head: {
-    title: '即將逾期案件-桃園市地政局'
+    title: "即將逾期案件-桃園市地政局"
+  },
+  data: () => ({
+    queriedJson: {
+      raw: [],
+      data_count: 0,
+      items: [],
+      items_by_id: {},
+      message: '',
+      status: 0
+    },
+    mode: `almost_overdue`,
+    reviewerID: '',
+    milliseconds: 15 * 60 * 1000
+  }),
+  computed: {
+    cacheKey () { return `about-to-expire` },
+    isOverdueMode () { return this.mode === 'overdue' },
+    queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
+    queryTitle () { return this.isOverdueMode ? '已逾期模式' : '快逾期模式' }
+  },
+  watch: {
+    mode (val) { this.$store.commit('expiry/is_overdue_mode', this.isOverdueMode) }
+  },
+  methods: {
+    load() {
+      this.getCache(this.cacheKey).then(jsonObj => {
+        if (jsonObj === false) {
+          this.isBusy = true
+          this.$axios.post(this.API.JSON.QUERY, {
+            type: this.queryType,
+            reviewer_id: this.reviewerID
+          }).then(res => {
+            this.setCache(this.cacheKey, res.data, this.milliseconds - 5000) // expired after 14 mins 55 secs
+            console.assert(
+              res.data.status == this.XHR_STATUS_CODE.SUCCESS_NORMAL ||
+              res.data.status == this.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
+              `查詢登記案件回傳狀態碼有問題【${this.queryTitle}, ${res.data.status}】`
+            )
+            if (
+              res.data.status != this.XHR_STATUS_CODE.SUCCESS_NORMAL &&
+              res.data.status != this.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD
+            ) {
+              this.removeCache(this.cacheKey)
+            }
+            this.queriedJson = res.data
+          }).catch(err => {
+            this.alert(err.message)
+            this.$error(err)
+          }).finally(() => {
+            this.isBusy = false
+          })
+        } else {
+          // cache hit!
+          this.queriedJson = jsonObj
+          // this.getCacheExpireRemainingTime(this.cacheKey).then(
+          //   remaining_cache_time => {
+          //     this.setCountdown(remaining_cache_time + 5000)
+          //     this.caption = `${jsonObj.data_count} 件，更新時間: ${new Date(
+          //       +new Date() - this.milliseconds + remaining_cache_time - 5000
+          //     )}`
+          //     this.$warn(
+          //       `快取資料將在 ${(remaining_cache_time / 1000).toFixed(
+          //         1
+          //       )} 秒後到期。`
+          //     )
+          //   }
+          // )
+        }
+      })
+    }
+  },
+  created () {
+    this.$store.commit('expiry/is_overdue_mode', this.isOverdueMode)
+    this.load()
   }
 }
 </script>
 
-<style>
-</style>
+<style></style>

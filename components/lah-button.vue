@@ -6,7 +6,7 @@
     :pill="pill"
     :block="block"
     :pressed="pressed"
-    :class="noBorder ? 'border-0' : ''"
+    :class="noBorder ? 'border-0 align-middle' : ' align-middle'"
     :href="href"
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"

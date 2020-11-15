@@ -5,7 +5,7 @@
         <lah-transition appear>
           <div v-if="showLogo">
             <Logo />
-            <h3 class="title lah-shadow">桃園市地政智慧管控系統</h3>
+            <h3 class="title lah-shadow text-nowrap">桃園市地政智慧管控系統</h3>
           </div>
         </lah-transition>
       </section>
@@ -44,7 +44,9 @@ export default {
   },
   watch: {},
   methods: {},
-  mounted () { this.showLogo = true }
+  mounted () {
+    this.showLogo = true
+  }
 }
 </script>
 

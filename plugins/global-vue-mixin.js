@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import $ from 'jquery'
-
 // inject to all Vue instances
 Vue.mixin({
     data: () => ({
@@ -43,7 +42,9 @@ Vue.mixin({
         }
         return undefined
       },
-      toastCounter () { return this.$store.getters.toastCounter }
+      toastCounter () { return this.$store.getters.toastCounter },
+      xhrResponse () { return this.$store.getters.xhrResponse },
+      xhrRequest () { return this.$store.getters.xhrRequest }
     },
     methods: {
       $,  // jQuery '$',
@@ -120,7 +121,7 @@ Vue.mixin({
       rand (range) {
         return Math.floor(Math.random() * Math.floor(range || 100))
       },
-      trim (x) { return x.replace(/^\s+|\s+$/gm,'') },
+      trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
       empty (variable) {
         if (
           variable === null || variable === undefined || variable === false ||
@@ -143,7 +144,7 @@ Vue.mixin({
           return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
         })
       },
-      now () {
+      datetimeNow () {
         // e.g. 2020-11-06 13:39:23
         const now = new Date()
         return now.getFullYear() + '-' +
@@ -200,7 +201,7 @@ Vue.mixin({
         // merge default setting
         const merged = Object.assign({
           title: '通知',
-          subtitle: this.now().split(' ')[1],
+          subtitle: this.datetimeNow().split(' ')[1],
           href: '',
           noAutoHide: false,
           autoHideDelay: 5000,
@@ -286,7 +287,7 @@ Vue.mixin({
         if (node.length > 0) {
           opts = Object.assign({
             name: this.ANIMATED_PATTERNS[this.rand(this.ANIMATED_PATTERNS.length)],
-            duration: 'once-anim-cfg' // a css class to control speed
+            duration: 'once-anim-cfg' // speed/times, e.g. 'once-anim-cfg', 'once-anim-cfg-2x', 'inf-anim-cfg'
           }, opts)
           node.removeClass('hide')
           node.addClass(`animated ${opts.name} ${opts.duration}`)
@@ -379,7 +380,7 @@ Vue.mixin({
           })
       },
       async setCache (key, val, expire_timeout = 0) {
-        if (this.empty(key) || this.empty(val)) { return false }
+        if (this.empty(key) || this.empty(val) || this.$localForage === undefined) { return false }
         try {
           const item = {
             key,
@@ -395,7 +396,7 @@ Vue.mixin({
         return true
       },
       async getCache (key) {
-        if (this.empty(key)) { return false }
+        if (this.empty(key) || this.$localForage === undefined) { return false }
         try {
           const item = await this.$localForage.getItem(key)
           if (this.empty(item)) { return false }
@@ -416,7 +417,7 @@ Vue.mixin({
         return false
       },
       async getCacheExpireRemainingTime (key) {
-        if (this.empty(key)) { return false }
+        if (this.empty(key) || this.$localForage === undefined) { return false }
         try {
           const item = await this.$localForage.getItem(key)
           if (this.empty(item)) { return false }
@@ -435,7 +436,7 @@ Vue.mixin({
         return false
       },
       async removeCache (key) {
-        if (this.empty(key)) { return false }
+        if (this.empty(key) || this.$localForage === undefined) { return false }
         try {
           await this.$localForage.removeItem(key)
         } catch (err) {
@@ -524,6 +525,6 @@ Vue.mixin({
           .attr('class', function(i, c) {
             return c ? c.replace(/(^|\s+)ld-\S+/g, '') : '';
           });
-      },
+      }
     }
   })

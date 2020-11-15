@@ -11,14 +11,16 @@
       </font-awesome-layers>
       <h3 class="title">測試</h3>
       <div>
-        <font-awesome-layers class="fa-lg">
-          <font-awesome-icon :icon="['far', 'circle']" />
-          <font-awesome-icon
-            icon="times"
-            transform="shrink-6"
-            :style="{ color: 'red' }"
-          />
-        </font-awesome-layers>
+        <lah-countdown-button :auto-start="true" variant="outline-secondary" badge-variant="danger" :click="clickCountdownButton">
+          <font-awesome-layers class="fa-2x">
+            <font-awesome-icon :icon="['far', 'circle']" />
+            <font-awesome-icon
+              icon="times"
+              transform="shrink-6"
+              :style="{ color: 'red' }"
+            />
+          </font-awesome-layers>
+        </lah-countdown-button>
         <font-awesome-layers class="fa-5x">
           <font-awesome-icon icon="circle" />
           <font-awesome-icon
@@ -74,6 +76,12 @@ export default {
   head: {
     title: "測試-桃園市地政局",
   },
+  methods: {
+    clickCountdownButton () {
+      this.$log(this.$el)
+      this.notify('click countdown button!')
+    }
+  }
 };
 </script>
 

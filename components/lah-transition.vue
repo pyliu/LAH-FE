@@ -2,7 +2,6 @@
   <transition
     :enter-active-class="animated_in"
     :leave-active-class="animated_out"
-    :duration="duration"
     :mode="mode"
     :appear="appear"
     @enter="enter($event)"
@@ -25,17 +24,23 @@ export default {
     zoom: { type: Boolean, default: false },
     bounce: { type: Boolean, default: false },
     rotate: { type: Boolean, default: false },
-    duration: { type: Number, default: 400}
+    speed: { type: String, default: 'quick' }
   },
   data: () => ({
-    animated_in: "animated fadeIn once-anim-cfg",
-    animated_out: "animated fadeOut once-anim-cfg",
-    animated_opts: undefined,
+    animated_in: "animated fadeIn once-anim-cfg-quick",
+    animated_out: "animated fadeOut once-anim-cfg-quick",
     mode: "out-in", // out-in, in-out
-    cfg_css: "once-anim-cfg",
+    cfg_css: "once-anim-cfg-quick",
   }),
   created() {
-    this.animated_opts = this.ANIMATED_TRANSITIONS;
+    switch (this.speed) {
+      case 'normal':
+      case 'slow':
+        this.cfg_css = `once-anim-cfg-${this.speed}`
+        break
+      default:
+        this.cfg_css = 'once-anim-cfg-quick'
+    }
     if (this.rotate) {
       this.animated_in = `animated rotateIn ${this.cfg_css}`;
       this.animated_out = `animated rotateOut ${this.cfg_css}`;
@@ -72,9 +77,9 @@ export default {
       this.$emit("after-leave", e);
     },
     randAnimation () {
-      if (this.animated_opts) {
-        let count = this.animated_opts.length;
-        let this_time = this.animated_opts[this.rand(count)];
+      if (this.ANIMATED_TRANSITIONS) {
+        let count = this.ANIMATED_TRANSITIONS.length;
+        let this_time = this.ANIMATED_TRANSITIONS[this.rand(count)];
         this.animated_in = `${this_time.in} ${this.cfg_css}`;
         this.animated_out = `${this_time.out} ${this.cfg_css}`;
       }
@@ -83,10 +88,21 @@ export default {
 };
 </script>
 
-<style>
-.once-anim-cfg {
-  animation-duration: 0.4s;
-  /* animation-delay: 2s; */
-  animation-iteration-count: 1;
+<style lang="scss">
+@mixin anim-cfg($ad, $aic) {
+	animation-duration: $ad;
+	animation-iteration-count: $aic;
+}
+
+.once-anim-cfg-quick {
+  @include anim-cfg(0.4s, 1);
+}
+
+.once-anim-cfg-normal {
+	@include anim-cfg(0.8s, 1);
+}
+
+.once-anim-cfg-slow {
+	@include anim-cfg(1.6s, 1);
 }
 </style>
