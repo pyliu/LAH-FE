@@ -32,9 +32,9 @@ export default {
           return ['text-secondary']
         case 'info':
           return ['text-info']
+        case 'light':
         case 'white':
-        case 'empty':
-          return ['text-white']
+          return ['text-light']
         case 'dark':
         case 'black':
           return ['text-dark']
