@@ -10,7 +10,9 @@
         即將逾期案件
       </h3>
     </lah-transition>
-    <lah-expiry-b-table :json="queriedJson"></lah-expiry-b-table>
+    <lah-transition appear speed="quick">
+      <lah-expiry-b-table v-if="committed"></lah-expiry-b-table>
+    </lah-transition>
   </div>
 </template>
 
@@ -20,17 +22,11 @@ export default {
     title: "即將逾期案件-桃園市地政局"
   },
   data: () => ({
-    queriedJson: {
-      raw: [],
-      data_count: 0,
-      items: [],
-      items_by_id: {},
-      message: '',
-      status: 0
-    },
-    mode: `almost_overdue`,
+    queriedJson: undefined,
+    mode: ``,
     reviewerID: '',
-    milliseconds: 15 * 60 * 1000
+    milliseconds: 15 * 60 * 1000,
+    committed: false
   }),
   computed: {
     cacheKey () { return `about-to-expire` },
@@ -42,10 +38,16 @@ export default {
     mode (val) { this.$store.commit('expiry/is_overdue_mode', this.isOverdueMode) }
   },
   methods: {
-    load() {
+    commit () {
+      this.$store.commit("expiry/list", this.queriedJson.items || [])
+      this.$store.commit("expiry/list_by_id", this.queriedJson.items_by_id || {})
+      this.committed = true
+    },
+    load () {
       this.getCache(this.cacheKey).then(jsonObj => {
         if (jsonObj === false) {
           this.isBusy = true
+          this.committed = false
           this.$axios.post(this.API.JSON.QUERY, {
             type: this.queryType,
             reviewer_id: this.reviewerID
@@ -63,6 +65,7 @@ export default {
               this.removeCache(this.cacheKey)
             }
             this.queriedJson = res.data
+            this.commit()
           }).catch(err => {
             this.alert(err.message)
             this.$error(err)
@@ -72,6 +75,7 @@ export default {
         } else {
           // cache hit!
           this.queriedJson = jsonObj
+          this.commit()
           // this.getCacheExpireRemainingTime(this.cacheKey).then(
           //   remaining_cache_time => {
           //     this.setCountdown(remaining_cache_time + 5000)
@@ -90,7 +94,7 @@ export default {
     }
   },
   created () {
-    this.$store.commit('expiry/is_overdue_mode', this.isOverdueMode)
+    this.mode = 'almost_overdue'
     this.load()
   }
 }

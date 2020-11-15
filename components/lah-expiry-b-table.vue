@@ -9,7 +9,6 @@
     caption-top
     no-border-collapse
     small
-    :caption="caption"
     :items="tableItems"
     :fields="fields"
     :busy="isBusy"
@@ -51,8 +50,7 @@
 <script>
 export default {
   props: {
-    id: { type: String, default: "" },
-    json: { type: Object, required: true }
+    id: { type: String, default: "" }
   },
   data: () => ({
     fields: [
@@ -65,58 +63,53 @@ export default {
       { key: "收件時間", sortable: true },
       { key: "限辦期限", sortable: true }
     ],
-    caption: "查詢中 ... ",
     mode: "逾期模式"
   }),
   computed: {
     totalCase () {
-      return this.$store.getters["expiry/list_count"];
+      return this.$store.getters["expiry/list_count"]
     },
     totalPeople () {
-      return this.$store.getters["expiry/list_by_id_count"];
+      return this.$store.getters["expiry/list_by_id_count"]
     },
     caseList () {
-      return this.$store.getters["expiry/list"];
+      return this.$store.getters["expiry/list"]
     },
     caseListByID () {
-      return this.$store.getters["expiry/list_by_id"];
+      return this.$store.getters["expiry/list_by_id"]
     },
     isOverdueMode () {
-      return this.$store.getters["expiry/is_overdue_mode"];
+      return this.$store.getters["expiry/is_overdue_mode"]
     },
     tableItems () {
-      return this.is_in_modal_mode
-        ? this.caseListByID[this.inSearchID]
-        : this.caseList;
+      return this.empty(this.id) ? this.caseList : this.caseListByID[this.id]
     },
     buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' }
   },
   watch: {
-    json (obj) { this.commitStoreData() }
+    totalPeople (val) {
+      this.notify({
+        title: this.mode,
+        message: `查詢到 ${val} 位相關人員案件`,
+        type: "info"
+      })
+    },
+    totalCase (val) {
+      this.notify({
+        title: this.mode,
+        message: `查詢到 ${val} 件案件`,
+        type: "info"
+      })
+    }
   },
   methods: {
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
-    commitStoreData () {
-      this.isBusy = true;
-      // NOTE: the payload must be valid or it will not update UI correctly
-      this.$store.commit("expiry/list", this.json.items);
-      this.$store.commit("expiry/list_by_id", this.json.items_by_id);
-      this.caption = `${this.json.data_count} 件，更新時間: ${this.datetimeNow()}`;
-      // release busy ...
-      this.isBusy = false;
-      // send notification
-      this.notify({
-        title: this.mode,
-        message: `查詢到 ${this.json.data_count} 件案件`,
-        type: "info"
-      });
-    },
     searchByReviewer (id) {},
     searchUser (id) {}
   },
   created () {},
   mounted () {}
-};
+}
 </script>
 
 <style lang="scss"></style>

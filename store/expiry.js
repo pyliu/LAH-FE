@@ -11,16 +11,15 @@ export default {
     list_by_id_count: state => Object.keys(state.list_by_id).length,
     is_overdue_mode: state => state.is_overdue_mode
   },
-  actions: {},
   mutations: {
     list(state, jsonPayload) {
-      state.list = jsonPayload || [];
+      state.list = jsonPayload || []
     },
     list_by_id(state, jsonPayload) {
-      state.list_by_id = jsonPayload || {};
+      state.list_by_id = jsonPayload || {}
     },
     is_overdue_mode(state, flagPayload) {
-      state.is_overdue_mode = flagPayload;
+      state.is_overdue_mode = flagPayload
     }
   },
   namespaced: true
