@@ -10,7 +10,7 @@
     no-border-collapse
     small
     :caption="caption"
-    :items="table_items"
+    :items="tableItems"
     :fields="fields"
     :busy="isBusy"
     class="text-center s-90"
@@ -25,18 +25,13 @@
     </template>
     <template v-slot:cell(初審人員)="data">
       <b-button
-        :variant="is_overdue_mode ? 'outline-danger' : 'warning'"
+        :variant="buttoVariant"
         size="sm"
         @click="searchByReviewer(data.value)"
-        :title="
-          '查詢 ' +
-            data.value +
-            ' 的' +
-            (is_overdue_mode ? '逾期' : '即將逾期') +
-            '案件'
-        "
-        >{{ data.value.split(" ")[0] }}</b-button
+        :title="buttonReviewerTitle(data.value)"
       >
+        {{ data.value.split(" ")[0] }}
+      </b-button>
       <span>{{ data.value.split(" ")[0] }}</span>
     </template>
     <template v-slot:cell(作業人員)="data">
@@ -44,8 +39,9 @@
         :data-name="data.value"
         :data-id="data.value"
         variant="outline-secondary"
+        @click="searchUser(data.value)"
         size="sm"
-        :title="'查詢 ' + data.value + ' 的使用者訊息'"
+        :title="`查詢 ${data.value} 的使用者訊息`"
         >{{ data.value }}</b-button
       >
     </template>
@@ -73,32 +69,34 @@ export default {
     mode: "逾期模式"
   }),
   computed: {
-    total_case() {
+    totalCase () {
       return this.$store.getters["expiry/list_count"];
     },
-    total_people() {
+    totalPeople () {
       return this.$store.getters["expiry/list_by_id_count"];
     },
-    caseList() {
+    caseList () {
       return this.$store.getters["expiry/list"];
     },
-    case_list_by_id() {
+    caseListByID () {
       return this.$store.getters["expiry/list_by_id"];
     },
-    is_overdue_mode() {
+    isOverdueMode () {
       return this.$store.getters["expiry/is_overdue_mode"];
     },
-    table_items() {
+    tableItems () {
       return this.is_in_modal_mode
-        ? this.case_list_by_id[this.inSearchID]
+        ? this.caseListByID[this.inSearchID]
         : this.caseList;
-    }
+    },
+    buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' }
   },
   watch: {
-    json (obj) { this.load() }
+    json (obj) { this.commitStoreData() }
   },
   methods: {
-    load() {
+    buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
+    commitStoreData () {
       this.isBusy = true;
       // NOTE: the payload must be valid or it will not update UI correctly
       this.$store.commit("expiry/list", this.json.items);
@@ -112,10 +110,12 @@ export default {
         message: `查詢到 ${this.json.data_count} 件案件`,
         type: "info"
       });
-    }
+    },
+    searchByReviewer (id) {},
+    searchUser (id) {}
   },
-  created() {},
-  mounted() {}
+  created () {},
+  mounted () {}
 };
 </script>
 
