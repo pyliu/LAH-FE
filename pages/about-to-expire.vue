@@ -7,7 +7,7 @@
           size="lg"
           class="mx-auto my-auto"
         ></font-awesome-icon>
-        即將逾期案件
+        即將逾期案件 <span v-if="queryCount > 0">({{queryCount}})</span>
       </h3>
     </lah-transition>
     <lah-transition appear speed="quick">
@@ -32,7 +32,8 @@ export default {
     cacheKey () { return `about-to-expire` },
     isOverdueMode () { return this.mode === 'overdue' },
     queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
-    queryTitle () { return this.isOverdueMode ? '已逾期模式' : '快逾期模式' }
+    queryTitle () { return this.isOverdueMode ? '已逾期模式' : '快逾期模式' },
+    queryCount () { return this.queriedJson && this.queriedJson.items ? this.queriedJson.items.length : 0 }
   },
   watch: {
     mode (val) { this.$store.commit('expiry/is_overdue_mode', this.isOverdueMode) }
