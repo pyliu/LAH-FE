@@ -50,7 +50,7 @@ export default {
     // { src: '~/plugins/jquery.min', mode: 'client', ssr: false },
     { src: '~/plugins/customize-axios'},
     { src: '~/plugins/fontawesome' },
-    { src: '~/plugins/global-inject' },
+    { src: '~/plugins/global-init' },
     { src: '~/plugins/global-vue-mixin' }
   ],
   // Auto import components (https://go.nuxtjs.dev/config-components)

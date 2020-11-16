@@ -144,7 +144,7 @@ const getters = {
 const actions = {
   async nuxtServerInit ({ commit, dispatch }) {
     try {
-      dispatch('ip')
+      // dispatch('ip')
     } catch (e) {
       console.error(e)
     }
@@ -157,7 +157,6 @@ const actions = {
       if (res.data.ip) {
         commit('ip', res.data.ip)
       }
-      console.log(res.data.message)
     }).catch((error) => {
       if (error.response) {
         // The request was made and the server responded with a status code
