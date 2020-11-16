@@ -7,7 +7,8 @@
           size="lg"
           class="mx-auto my-auto"
         ></font-awesome-icon>
-        即將逾期案件 <span v-if="queryCount > 0">({{queryCount}})</span>
+        即將逾期案件
+        <b-badge v-if="queryCount > 0" :variant="badgeVariant" pill>{{queryCount}}</b-badge>
       </h3>
     </lah-transition>
     <lah-transition appear speed="quick">
@@ -29,8 +30,9 @@ export default {
     committed: false
   }),
   computed: {
-    cacheKey () { return `about-to-expire` },
+    cacheKey () { return this.isOverdueMode ? `already-expired` : `about-to-expire` },
     isOverdueMode () { return this.mode === 'overdue' },
+    badgeVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
     queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
     queryTitle () { return this.isOverdueMode ? '已逾期模式' : '快逾期模式' },
     queryCount () { return this.queriedJson && this.queriedJson.items ? this.queriedJson.items.length : 0 }
