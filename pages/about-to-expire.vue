@@ -18,7 +18,7 @@
           :click="reload"
           :disabled="isBusy"
           auto-start
-          title="重新讀取"
+          title="立即重新讀取"
         ></lah-countdown-button>
       </h3>
     </lah-transition>
