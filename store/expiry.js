@@ -22,5 +22,6 @@ export default {
       state.is_overdue_mode = flagPayload
     }
   },
-  namespaced: true
+  namespaced: true,
+  strict: false
 }

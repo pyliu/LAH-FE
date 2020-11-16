@@ -38,9 +38,10 @@ export default {
     mode (val) { this.$store.commit('expiry/is_overdue_mode', this.isOverdueMode) }
   },
   methods: {
-    commit () {
-      this.$store.commit("expiry/list", this.queriedJson.items || [])
-      this.$store.commit("expiry/list_by_id", this.queriedJson.items_by_id || {})
+    commit (json) {
+      this.queriedJson = json
+      this.$store.commit('expiry/list', this.queriedJson.items || [])
+      this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
       this.committed = true
     },
     load () {
@@ -64,8 +65,7 @@ export default {
             ) {
               this.removeCache(this.cacheKey)
             }
-            this.queriedJson = res.data
-            this.commit()
+            this.commit(res.data)
           }).catch(err => {
             this.alert(err.message)
             this.$error(err)
@@ -74,8 +74,7 @@ export default {
           })
         } else {
           // cache hit!
-          this.queriedJson = jsonObj
-          this.commit()
+          this.commit(jsonObj)
           // this.getCacheExpireRemainingTime(this.cacheKey).then(
           //   remaining_cache_time => {
           //     this.setCountdown(remaining_cache_time + 5000)

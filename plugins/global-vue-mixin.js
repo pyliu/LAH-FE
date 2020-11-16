@@ -125,9 +125,9 @@ Vue.mixin({
       empty (variable) {
         if (
           variable === null || variable === undefined || variable === false ||
-          (typeof variable === 'object' && variable.length === 0) ||
           (Array.isArray(variable) && variable.length === 0) ||
-          (this.trim(variable) === '')
+          (typeof variable === 'object' && Object.keys(variable).length === 0) ||
+          (typeof variable === 'string' && this.trim(variable) === '')
         ) {
           return true
         }
@@ -380,7 +380,7 @@ Vue.mixin({
           })
       },
       async setCache (key, val, expire_timeout = 0) {
-        if (this.empty(key) || this.empty(val) || this.$localForage === undefined) { return false }
+        if (this.empty(key) || this.$localForage === undefined) { return false }
         try {
           const item = {
             key,
@@ -388,9 +388,14 @@ Vue.mixin({
             timestamp: +new Date(), // == new Date().getTime()
             expire_ms: expire_timeout // milliseconds
           }
-          await this.$localForage.setItem(key, item)
+          this.$localForage.setItem(key, item).then((value) => {
+            // Do other things once the value has been saved.
+          }).catch((err) => {
+            // This code runs if there were any errors
+            this.$error(err)
+          })
         } catch (err) {
-          console.error(err)
+          this.$error(err)
           return false
         }
         return true

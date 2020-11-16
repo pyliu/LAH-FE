@@ -5,6 +5,6 @@ export default ({ $axios, store }, inject) => {
   inject('error', console.error.bind(console))
   inject('warn', console.warn.bind(console))
   inject('assert', console.assert.bind(console))
-  // get ip address and svae it to store
+  // get ip address and save it to store at FE
   store.dispatch('ip')
 }
