@@ -126,7 +126,7 @@ Vue.mixin({
         if (
           variable === null || variable === undefined || variable === false ||
           (Array.isArray(variable) && variable.length === 0) ||
-          (typeof variable === 'object' && Object.keys(variable).length === 0) ||
+          (typeof variable === 'object' && JSON.stringify(variable) === '{}' ) ||
           (typeof variable === 'string' && this.trim(variable) === '')
         ) {
           return true

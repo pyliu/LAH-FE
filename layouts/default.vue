@@ -5,7 +5,7 @@
       size="lg"
       action="ld-move-fade-ltr"
       class="bars-button"
-      variant="outline-secondary"
+      variant="outline-dark"
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
@@ -14,7 +14,7 @@
         icon="home"
         size="lg"
         class="home-button pr-1"
-        variant="outline-secondary"
+        variant="outline-dark"
         title="回到首頁"
       >
       </lah-button>
