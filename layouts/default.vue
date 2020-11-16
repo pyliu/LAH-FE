@@ -68,7 +68,7 @@
           </NuxtLink>
         </li>
         <li>
-          <a href="http://220.1.35.84/" target="_blank" rel="noopener noreferrer">
+          <a href="http://127.0.0.1/" target="_blank" rel="noopener noreferrer">
             <font-awesome-icon
               :icon="['fas', 'history']"
               pull="left"

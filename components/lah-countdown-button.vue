@@ -3,13 +3,14 @@
     :icon="icon"
     :variant="variant"
     :size="size"
+    :action="action"
     @click="click"
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
     class="align-middle"
   >
     <slot></slot> 
-    <b-badge :variant="badgeVariant">
+    <b-badge :variant="badgeVariant" class="ml-1">
       <countdown
         ref="countdown"
         :time="milliseconds"
@@ -37,6 +38,7 @@ export default {
     size: { type: String, default: '' },
     icon: { type: String, default: '' },
     milliseconds: { type: Number, default: 5 * 60 * 1000 },
+    action: { type: String, default: '' },
     autoStart: { type: Boolean, default: false },
     click: { type: Function,  default: () => {} },
     start: { type: Function, default: () => {} },

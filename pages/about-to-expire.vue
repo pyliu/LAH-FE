@@ -9,6 +9,17 @@
         ></font-awesome-icon>
         即將逾期案件
         <b-badge v-if="queryCount > 0" :variant="badgeVariant" pill>{{queryCount}}</b-badge>
+        <lah-countdown-button
+          ref="countdown"
+          icon="sync"
+          action="ld-cycle"
+          :milliseconds="900000"
+          :end="load"
+          :click="reload"
+          :disabled="isBusy"
+          auto-start
+          title="重新讀取"
+        ></lah-countdown-button>
       </h3>
     </lah-transition>
     <lah-transition appear speed="quick">
@@ -47,6 +58,9 @@ export default {
       this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
       this.committed = true
     },
+    reload() {
+      this.removeCache(this.cacheKey).then(() => { this.load() })
+    },
     load () {
       this.getCache(this.cacheKey).then(jsonObj => {
         if (jsonObj === false) {
@@ -69,6 +83,8 @@ export default {
               this.removeCache(this.cacheKey)
             }
             this.commit(res.data)
+            this.$refs.countdown.resetCountdown()
+            this.$refs.countdown.startCountdown()
           }).catch(err => {
             this.alert(err.message)
             this.$error(err)
