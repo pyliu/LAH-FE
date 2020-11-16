@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear speed="quick">
-      <h3 class="text-center my-2 pt-1 text-nowrap font-weight-bold">
+      <h3 class="text-center mt-2 mb-3 pt-1 text-nowrap font-weight-bold">
         <font-awesome-icon
           :icon="['far', 'calendar-check']"
           size="lg"

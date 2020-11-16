@@ -112,14 +112,14 @@ export default {
 <style lang="scss">
 .bars-button {
   position: fixed;
-  left: 10px;
+  left: 1rem;
   top: 10px;
   width: 3.5rem;
 }
 
 .home-button {
   @extend .bars-button;
-  right: 10px;
+  right: 1rem;
   left: initial;
   padding: 8px 4px 8px 12px;
 }
