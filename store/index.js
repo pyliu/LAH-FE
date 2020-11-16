@@ -13,7 +13,8 @@ const state = () => ({
     'ld-measure', 'ld-metronome', 'ld-orbit', 'ld-rubber-h', 'ld-rubber-v', 'ld-rush-btt', 'ld-rush-ttb',
     'ld-rush-ltr', 'ld-rush-rtl', 'ld-shake-h', 'ld-shake-v', 'ld-shiver', 'ld-skew', 'ld-skew-alt', 'ld-slide-btt',
     'ld-slide-ltr', 'ld-slide-rtl', 'ld-slide-ttb', 'ld-smash', 'ld-spin', 'ld-spin-fast', 'ld-squeeze',
-    'ld-swim', 'ld-swing', 'ld-tick-alt', 'ld-vortex', 'ld-vortex-alt', 'ld-wander-h', 'ld-wander-v'
+    'ld-swim', 'ld-swing', 'ld-tick-alt', 'ld-vortex', 'ld-vortex-alt', 'ld-wander-h', 'ld-wander-v',
+    'ld-shadow', 'ld-shadow-a', 'ld-radio', 'ld-boradcast'
   ],
   LOADING_PREDEFINED: [
     'fa fa-snowflake ld-swim',
@@ -43,7 +44,7 @@ const state = () => ({
     'fab fa-angellist ld-metronome'
   ],
   LOADING_SHAPES_COLOR: ['text-primary', 'text-secondary', 'text-danger', 'text-info', 'text-warning', 'text-default', ''],
-  ANIMATED_PATTERNS: ['bounce', 'flash', 'pulse', 'rubberBand', 'shake', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'hinge'],
+  ANIMATED_PATTERNS: ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat', 'hinge'],
   ANIMATED_TRANSITIONS: [
     // rotate
     { in: 'animated rotateIn', out: 'animated rotateOut' },

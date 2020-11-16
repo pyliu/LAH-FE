@@ -282,6 +282,9 @@ Vue.mixin({
           this.notify(message, merged)
         }
       },
+      attention (selector, opts = { name: 'flash', duration: 'once-anim-cfg' }) {
+        this.animated(selector, opts)
+      },
       animated (selector, opts) {
         const node = this.$(selector)
         if (node.length > 0) {
@@ -495,7 +498,7 @@ Vue.mixin({
         return now.getHours() > 6 && now.getHours() < 19
       },
       addAnimation (selector, which) {
-        /** 'which' possible value:
+        /** 'which' possible value: (https://loading.io/animation/)
          *  "ld-heartbeat", "ld-beat", "ld-blink", "ld-bounce", "ld-bounceAlt", "ld-breath", "ld-wrench", "ld-surprise",
          *  "ld-clock", "ld-jump", "ld-hit", "ld-fade", "ld-flip", "ld-float", "ld-move-ltr", "ld-tremble", "ld-tick",
          *  "ld-move-rtl", "ld-move-ttb", "ld-move-btt", "ld-move-fade-ltr", "ld-move-fade-rtl", "ld-move-fade-ttb",

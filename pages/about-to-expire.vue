@@ -11,7 +11,7 @@
         <b-badge v-if="queryCount > 0" :variant="badgeVariant" pill>{{queryCount}}</b-badge>
         <lah-countdown-button
           ref="countdown"
-          icon="sync"
+          icon="sync-alt"
           action="ld-cycle"
           :milliseconds="900000"
           :end="load"
@@ -70,7 +70,7 @@ export default {
             type: this.queryType,
             reviewer_id: this.reviewerID
           }).then(res => {
-            this.setCache(this.cacheKey, res.data, this.milliseconds - 5000) // expired after 14 mins 55 secs
+            this.setCache(this.cacheKey, res.data, this.milliseconds - 1000) // expired after 14 mins 59 secs
             console.assert(
               res.data.status == this.XHR_STATUS_CODE.SUCCESS_NORMAL ||
               res.data.status == this.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
@@ -83,8 +83,10 @@ export default {
               this.removeCache(this.cacheKey)
             }
             this.commit(res.data)
-            this.$refs.countdown.resetCountdown()
-            this.$refs.countdown.startCountdown()
+            if (this.$refs.countdown) {
+              this.$refs.countdown.resetCountdown()
+              this.$refs.countdown.startCountdown()
+            }
           }).catch(err => {
             this.alert(err.message)
             this.$error(err)
@@ -94,19 +96,21 @@ export default {
         } else {
           // cache hit!
           this.commit(jsonObj)
-          // this.getCacheExpireRemainingTime(this.cacheKey).then(
-          //   remaining_cache_time => {
-          //     this.setCountdown(remaining_cache_time + 5000)
-          //     this.caption = `${jsonObj.data_count} 件，更新時間: ${new Date(
-          //       +new Date() - this.milliseconds + remaining_cache_time - 5000
-          //     )}`
-          //     this.$warn(
-          //       `快取資料將在 ${(remaining_cache_time / 1000).toFixed(
-          //         1
-          //       )} 秒後到期。`
-          //     )
-          //   }
-          // )
+            if (this.$refs.countdown) {
+              this.getCacheExpireRemainingTime(this.cacheKey).then(
+                remain_ms => {
+                  this.$refs.countdown.setCountdown(remain_ms + 1000)
+                  // this.caption = `${jsonObj.data_count} 件，更新時間: ${new Date(
+                  //   +new Date() - this.milliseconds + remain_ms - 5000
+                  // )}`
+                  this.$warn(
+                    `快取資料將在 ${(remain_ms / 1000).toFixed(
+                      1
+                    )} 秒後到期。`
+                  )
+                }
+              )
+            }
         }
       })
     }

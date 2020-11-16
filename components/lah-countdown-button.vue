@@ -5,14 +5,12 @@
     :size="size"
     :action="action"
     @click="click"
-    @mouseenter="mouseenter"
-    @mouseleave="mouseleave"
     class="align-middle"
   >
     <slot></slot> 
-    <b-badge :variant="badgeVariant" class="ml-1">
+    <b-badge ref="badge" :variant="badgeVariant" class="ml-1">
       <countdown
-        ref="countdown"
+        ref="cd"
         :time="milliseconds"
         :auto-start="false"
         @end="end"
@@ -49,27 +47,23 @@ export default {
   computed: {},
   methods: {
     resetCountdown () {
-      this.$refs.countdown.totalMilliseconds = this.milliseconds;
+      this.$refs.cd.totalMilliseconds = this.milliseconds;
     },
     setCountdown (milliseconds) {
-      this.$refs.countdown.totalMilliseconds = milliseconds || this.milliseconds;
+      this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds;
     },
     startCountdown () {
-      this.$refs.countdown.start();
+      this.$refs.cd.start();
     },
     endCountdown () {
-      this.$refs.countdown.end();
-    },
-    mouseenter () {
-      this.animated(this.$el);
-      this.$log(this.$el)
-    },
-    mouseleave () {}
+      this.$refs.cd.end();
+    }
   },
   created() {},
   mounted () {
     if (this.autoStart) {
       this.startCountdown();
+      this.attention(this.$refs.badge, { name: 'flash', duration: 'once-anim-cfg-2x' })
     }
   }
 };
