@@ -31,7 +31,6 @@
       >
         {{ data.value.split(" ")[0] }}
       </b-button>
-      <span>{{ data.value.split(" ")[0] }}</span>
     </template>
     <template v-slot:cell(作業人員)="data">
       <b-button
