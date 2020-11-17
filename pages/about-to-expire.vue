@@ -1,18 +1,22 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="text-center mt-2 mb-3 pt-1 text-nowrap font-weight-bold">
-        <font-awesome-icon
-          :icon="['far', 'calendar-check']"
+      <h3 class="d-flex justify-content-between header">
+        <lah-button
+          icon="calendar-check"
           size="lg"
-          class="mx-auto my-auto"
-        ></font-awesome-icon>
-        即將逾期案件
-        <b-badge v-if="queryCount > 0" :variant="badgeVariant" pill>{{queryCount}}</b-badge>
+          title="按我切換模式"
+          :badgeText="queryCount.toString()"
+          :variant="switchButtonVariant"
+          @click="isOverdueMode = !isOverdueMode"
+        >
+          <strong>{{queryTitle}}</strong>
+        </lah-button>
         <lah-countdown-button
           ref="countdown"
           icon="sync-alt"
           action="ld-cycle"
+          size="lg"
           :milliseconds="900000"
           :end="load"
           :click="reload"
@@ -35,21 +39,24 @@ export default {
   },
   data: () => ({
     queriedJson: undefined,
-    mode: ``,
+    isOverdueMode: undefined,
     reviewerID: '',
     milliseconds: 15 * 60 * 1000,
     committed: false
   }),
   computed: {
     cacheKey () { return this.isOverdueMode ? `already-expired` : `about-to-expire` },
-    isOverdueMode () { return this.mode === 'overdue' },
     badgeVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
     queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
-    queryTitle () { return this.isOverdueMode ? '已逾期模式' : '快逾期模式' },
-    queryCount () { return this.queriedJson && this.queriedJson.items ? this.queriedJson.items.length : 0 }
+    queryTitle () { return this.isOverdueMode ? '已逾期案件' : '即將逾期案件' },
+    queryCount () { return this.queriedJson && this.queriedJson.items ? this.queriedJson.items.length : 0 },
+    switchButtonVariant () { return this.isOverdueMode ? 'danger' : 'warning' }
   },
   watch: {
-    mode (val) { this.$store.commit('expiry/is_overdue_mode', this.isOverdueMode) }
+    isOverdueMode (val) {
+      this.$store.commit('expiry/is_overdue_mode', val)
+      this.load()
+    }
   },
   methods: {
     commit (json) {
@@ -57,11 +64,25 @@ export default {
       this.$store.commit('expiry/list', this.queriedJson.items || [])
       this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
       this.committed = true
+      if (this.$refs.countdown) {
+        this.getCacheExpireRemainingTime(this.cacheKey).then(
+          remain_ms => {
+            this.$refs.countdown.setCountdown(remain_ms + 1000)
+            // this.$warn(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+          }
+        ).finally(() => {
+          this.$refs.countdown.startCountdown()
+        }) 
+      }
     },
     reload() {
       this.removeCache(this.cacheKey).then(() => { this.load() })
     },
     load () {
+      if (this.isBusy) {
+        this.$warn('Querying result  is on the way ... skip the load call!')
+        return
+      }
       this.getCache(this.cacheKey).then(jsonObj => {
         if (jsonObj === false) {
           this.isBusy = true
@@ -82,11 +103,10 @@ export default {
             ) {
               this.removeCache(this.cacheKey)
             }
-            this.commit(res.data)
             if (this.$refs.countdown) {
               this.$refs.countdown.resetCountdown()
-              this.$refs.countdown.startCountdown()
             }
+            this.commit(res.data)
           }).catch(err => {
             this.alert(err.message)
             this.$error(err)
@@ -96,26 +116,24 @@ export default {
         } else {
           // cache hit!
           this.commit(jsonObj)
-            if (this.$refs.countdown) {
-              this.getCacheExpireRemainingTime(this.cacheKey).then(
-                remain_ms => {
-                  this.$refs.countdown.setCountdown(remain_ms + 1000)
-                  // this.caption = `${jsonObj.data_count} 件，更新時間: ${new Date(
-                  //   +new Date() - this.milliseconds + remain_ms - 5000
-                  // )}`
-                  this.$warn(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
-                }
-              )
-            }
         }
       })
     }
   },
   created () {
-    this.mode = 'almost_overdue'
+    this.isOverdueMode = false
     this.load()
   }
 }
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.header {
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display:block;
+  padding: 10px 4rem;
+}
+</style>

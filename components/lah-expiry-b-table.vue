@@ -61,8 +61,7 @@ export default {
       { key: "作業人員", sortable: true },
       { key: "收件時間", sortable: true },
       { key: "限辦期限", sortable: true }
-    ],
-    mode: "逾期模式"
+    ]
   }),
   computed: {
     totalCase () {
@@ -88,15 +87,15 @@ export default {
   watch: {
     totalPeople (val) {
       this.notify({
-        title: this.mode,
+        title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
         message: `查詢到 ${val} 位相關人員案件`,
         type: "info"
       })
     },
     totalCase (val) {
       this.notify({
-        title: this.mode,
-        message: `查詢到 ${val} 件案件`,
+        title:  this.isOverdueMode ? '已逾期案件' : '快逾期案件',
+        message: `共有 ${val} 件案件`,
         type: "info"
       })
     }

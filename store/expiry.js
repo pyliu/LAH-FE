@@ -2,7 +2,7 @@ export default {
   state: () => ({
     list: [], // [{...}, {...}, ...]
     list_by_id: {}, // { HB1234: [{}...], HB2134: [{}...], ... } 
-    is_overdue_mode: true
+    is_overdue_mode: false
   }),
   getters: {
     list: state => state.list,
