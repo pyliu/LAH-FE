@@ -7,7 +7,8 @@ Vue.mixin({
       busyIconSize: undefined,
       callbackQueue: [],
       confirmAns: false,
-      confirmOpen: false
+      confirmOpen: false,
+      animateAttentionSeekers:  ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat']
     }),
     watch: {
       isBusy (flag) {
@@ -32,16 +33,8 @@ Vue.mixin({
       LOADING_PATTERNS () { return this.$store.getters.loadingPatterns },
       LOADING_PREDEFINED () { return this.$store.getters.loadingPredefined },
       LOADING_SHAPES_COLOR () { return this.$store.getters.loadingShapeColor },
-      ANIMATED_ATTENTION_SEEKERS () { return this.$store.getters.animatedAttentionSeekers },
-      ANIMATED_TRANSITIONS () { return this.$store.getters.animatedTransitions },
       XHR_STATUS_CODE () { return this.$store.getters.xhrStatusCode },
       API () { return this.$store.getters.apiEp },
-      animTransition () {
-        if (this.ANIMATED_TRANSITIONS) {
-          return this.ANIMATED_TRANSITIONS[this.rand(this.ANIMATED_TRANSITIONS.length)]
-        }
-        return undefined
-      },
       toastCounter () { return this.$store.getters.toastCounter },
       xhrResponse () { return this.$store.getters.xhrResponse },
       xhrRequest () { return this.$store.getters.xhrRequest }
@@ -282,31 +275,38 @@ Vue.mixin({
           this.notify(message, merged)
         }
       },
-      attention (selector, opts = { name: 'flash', duration: 'once-anim-cfg' }) {
-        this.animated(selector, opts)
+      attention (selector, opts = { name: 'flash', speed: 'faster' }) {
+        return this.animated(selector, opts)
       },
-      animated (selector, opts) {
-        const node = this.$(selector)
-        if (node.length > 0) {
+      /**
+       * this.animated('.my-element', { name: 'bounce', duration: 'faster', delay: '' }).then((message) => {
+       *  // Do something after the animation
+       * })
+       */
+      animated (selector, opts, prefix = '') {
+        return new Promise((resolve, reject) => {
           opts = Object.assign({
-            name: this.ANIMATED_ATTENTION_SEEKERS[this.rand(this.ANIMATED_ATTENTION_SEEKERS.length)],
-            duration: 'once-anim-cfg' // speed/times, e.g. 'once-anim-cfg', 'once-anim-cfg-2x', 'inf-anim-cfg'
+            name: this.animateAttentionSeekers[this.rand(this.animateAttentionSeekers.length)],
+            speed: 'faster', // 'slower', 'slow', '', 'fast', 'faster' (3s, 2s, 1s, 800ms, 500ms)
+            repeat: '', // repeat-[1-3], infinite
+            delay: '' // delay, delay-[2s-5s]
           }, opts)
+          const node = this.$(selector)
           node.removeClass('hide')
-          node.addClass(`animated ${opts.name} ${opts.duration}`)
-          node.on('animationend', () => {
-            if (typeof opts.callback === 'function') {
-              opts.callback.apply(this, arguments)
-            }
-            node.removeClass(`animated ${opts.name} ${opts.duration}`)
-            node.off('animationend')
+          const classes = `${prefix}animated ${prefix}${opts.name} ${prefix}${opts.speed} ${prefix}${opts.repeat} ${prefix}${opts.delay}`
+          node.addClass(classes);
+          // When the animation ends, we clean the classes and resolve the Promise
+          const jquery = this.$
+          function handleAnimationEnd() {
+            node.removeClass(classes)
             // clear ld animation also
-            this.$(selector || '*').removeClass('ld').attr('class', function (i, c) {
+            jquery(selector || '*').removeClass('ld').attr('class', function (i, c) {
               return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
             })
-          })
-        }
-        return node
+            resolve(`${opts.name} animation ended.`);
+          }
+          node[0].addEventListener('animationend', handleAnimationEnd, {once: true});
+        })
       },
       modal (message, opts) {
         const merged = Object.assign({

@@ -24,85 +24,122 @@ export default {
     zoom: { type: Boolean, default: false },
     bounce: { type: Boolean, default: false },
     rotate: { type: Boolean, default: false },
-    speed: { type: String, default: 'quick' }
+    speed: { type: String, default: `animate__faster` }
   },
   data: () => ({
-    animated_in: "animated fadeIn once-anim-cfg-quick",
-    animated_out: "animated fadeOut once-anim-cfg-quick",
-    mode: "out-in", // out-in, in-out
-    cfg_css: "once-anim-cfg-quick",
+    prefix: '', // animate.css v4 has a default prefix => 'animate__' to avoid css name conflict
+    animated_in: '',
+    animated_out: '',
+    mode: 'out-in', // out-in, in-out
+    speed_css: `faster`,
+    ANIMATED_TRANSITIONS: []
   }),
-  created() {
-    switch (this.speed) {
-      case 'normal':
-      case 'slow':
-        this.cfg_css = `once-anim-cfg-${this.speed}`
-        break
-      default:
-        this.cfg_css = 'once-anim-cfg-quick'
+  computed: {
+    utilityCss () {
+      let speed, delay, repeat
+      switch (this.speed) {
+        case 'normal':
+          speed = ''
+          break
+        case `slow`:
+          speed = `${this.prefix}slow`
+          break
+        default:
+          speed = `${this.prefix}faster`
+          delay = ''
+          repeat = ''
+      }
+      return `${speed} ${delay} ${repeat}`
     }
+  },
+  created() {
+    this.ANIMATED_TRANSITIONS = [
+      // rotate
+      { in: `${this.prefix}animated ${this.prefix}rotateIn`, out: `${this.prefix}animated ${this.prefix}rotateOut` },
+      { in: `${this.prefix}animated ${this.prefix}rotateInDownLeft`, out: `${this.prefix}animated ${this.prefix}rotateOutDownLeft` },
+      { in: `${this.prefix}animated ${this.prefix}rotateInDownRight`, out: `${this.prefix}animated ${this.prefix}rotateOutDownRight` },
+      { in: `${this.prefix}animated ${this.prefix}rotateInUpLeft`, out: `${this.prefix}animated ${this.prefix}rotateOutUpLeft` },
+      { in: `${this.prefix}animated ${this.prefix}rotateInUpRight`, out: `${this.prefix}animated ${this.prefix}rotateOutUpRight` },
+      // bounce
+      { in: `${this.prefix}animated ${this.prefix}bounceIn`, out: `${this.prefix}animated ${this.prefix}bounceOut` },
+      { in: `${this.prefix}animated ${this.prefix}bounceInUp`, out: `${this.prefix}animated ${this.prefix}bounceOutDown` },
+      { in: `${this.prefix}animated ${this.prefix}bounceInDown`, out: `${this.prefix}animated ${this.prefix}bounceOutUp` },
+      { in: `${this.prefix}animated ${this.prefix}bounceInRight`, out: `${this.prefix}animated ${this.prefix}bounceOutLeft` },
+      { in: `${this.prefix}animated ${this.prefix}bounceInLeft`, out: `${this.prefix}animated ${this.prefix}bounceOutRight` },
+      // fade
+      { in: `${this.prefix}animated ${this.prefix}fadeIn`, out: `${this.prefix}animated ${this.prefix}fadeOut` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInDown`, out: `${this.prefix}animated ${this.prefix}fadeOutUp` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInDownBig`, out: `${this.prefix}animated ${this.prefix}fadeOutUpBig` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInLeft`, out: `${this.prefix}animated ${this.prefix}fadeOutRight` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInLeftBig`, out: `${this.prefix}animated ${this.prefix}fadeOutRightBig` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInRight`, out: `${this.prefix}animated ${this.prefix}fadeOutLeft` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInRightBig`, out: `${this.prefix}animated ${this.prefix}fadeOutLeftBig` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInUp`, out: `${this.prefix}animated ${this.prefix}fadeOutDown` },
+      { in: `${this.prefix}animated ${this.prefix}fadeInUpBig`, out: `${this.prefix}animated ${this.prefix}fadeOutDownBig` },
+      // flip
+      { in: `${this.prefix}animated ${this.prefix}flipInX`, out: `${this.prefix}animated ${this.prefix}flipOutX` },
+      { in: `${this.prefix}animated ${this.prefix}flipInY`, out: `${this.prefix}animated ${this.prefix}flipOutY` },
+      // lightspeed
+      { in: `${this.prefix}animated ${this.prefix}lightSpeedIn`, out: `${this.prefix}animated ${this.prefix}lightSpeedOut` },
+      // roll
+      { in: `${this.prefix}animated ${this.prefix}rollIn`, out: `${this.prefix}animated ${this.prefix}rollOut` },
+      // zoom
+      { in: `${this.prefix}animated ${this.prefix}zoomIn`, out: `${this.prefix}animated ${this.prefix}zoomOut` },
+      { in: `${this.prefix}animated ${this.prefix}zoomInDown`, out: `${this.prefix}animated ${this.prefix}zoomOutUp` },
+      { in: `${this.prefix}animated ${this.prefix}zoomInLeft`, out: `${this.prefix}animated ${this.prefix}zoomOutRight` },
+      { in: `${this.prefix}animated ${this.prefix}zoomInRight`, out: `${this.prefix}animated ${this.prefix}zoomOutLeft` },
+      { in: `${this.prefix}animated ${this.prefix}zoomInUp`, out: `${this.prefix}animated ${this.prefix}zoomOutDown` },
+      // slide
+      { in: `${this.prefix}animated ${this.prefix}slideInDown`, out: `${this.prefix}animated ${this.prefix}slideOutUp` },
+      { in: `${this.prefix}animated ${this.prefix}slideInUp`, out: `${this.prefix}animated ${this.prefix}slideOutDown` },
+      { in: `${this.prefix}animated ${this.prefix}slideInLeft`, out: `${this.prefix}animated ${this.prefix}slideOutRight` },
+      { in: `${this.prefix}animated ${this.prefix}slideInRight`, out: `${this.prefix}animated ${this.prefix}slideOutLeft` }
+    ]
     if (this.rotate) {
-      this.animated_in = `animated rotateIn ${this.cfg_css}`;
-      this.animated_out = `animated rotateOut ${this.cfg_css}`;
+      this.animated_in = `${this.prefix}animated ${this.prefix}rotateIn ${this.utilityCss}`
+      this.animated_out = `${this.prefix}animated ${this.prefix}rotateOut ${this.utilityCss}`
     } else if (this.bounce) {
-      this.animated_in = `animated bounceIn ${this.cfg_css}`;
-      this.animated_out = `animated bounceOut ${this.cfg_css}`;
+      this.animated_in = `${this.prefix}animated ${this.prefix}bounceIn ${this.utilityCss}`
+      this.animated_out = `${this.prefix}animated ${this.prefix}bounceOut ${this.utilityCss}`
     } else if (this.zoom) {
-      this.animated_in = `animated zoomIn ${this.cfg_css}`;
-      this.animated_out = `animated zoomOut ${this.cfg_css}`;
+      this.animated_in = `${this.prefix}animated ${this.prefix}zoomIn ${this.utilityCss}`
+      this.animated_out = `${this.prefix}animated ${this.prefix}zoomOut ${this.utilityCss}`
     } else if (this.fade) {
-      this.animated_in = `animated fadeIn ${this.cfg_css}`;
-      this.animated_out = `animated fadeOut ${this.cfg_css}`;
+      this.animated_in = `${this.prefix}animated ${this.prefix}fadeIn ${this.utilityCss}`
+      this.animated_out = `${this.prefix}animated ${this.prefix}fadeOut ${this.utilityCss}`
     } else if (this.slideDown || this.slide) {
-      this.animated_in = `animated slideInDown ${this.cfg_css}`;
-      this.animated_out = `animated slideOutUp ${this.cfg_css}`;
+      this.animated_in = `${this.prefix}animated ${this.prefix}slideInDown ${this.utilityCss}`
+      this.animated_out = `${this.prefix}animated ${this.prefix}slideOutUp ${this.utilityCss}`
     } else if (this.slideUp) {
-      this.animated_in = `animated slideInUp ${this.cfg_css}`;
-      this.animated_out = `animated slideOutDown ${this.cfg_css}`;
+      this.animated_in = `${this.prefix}animated ${this.prefix}slideInUp ${this.utilityCss}`
+      this.animated_out = `${this.prefix}animated ${this.prefix}slideOutDown ${this.utilityCss}`
     } else {
-      this.randAnimation();
+      this.randAnimation()
     }
   },
   methods: {
     enter (e) {
-      this.$emit("enter", e);
+      this.$emit("enter", e)
     },
     leave (e) {
-      this.$emit("leave", e);
+      this.$emit("leave", e)
     },
     afterEnter (e) {
-      this.$emit("after-enter", e);
+      this.$emit("after-enter", e)
     },
     afterLeave (e) {
-      this.$emit("after-leave", e);
+      this.$emit("after-leave", e)
     },
     randAnimation () {
       if (this.ANIMATED_TRANSITIONS) {
-        let count = this.ANIMATED_TRANSITIONS.length;
-        let this_time = this.ANIMATED_TRANSITIONS[this.rand(count)];
-        this.animated_in = `${this_time.in} ${this.cfg_css}`;
-        this.animated_out = `${this_time.out} ${this.cfg_css}`;
+        let count = this.ANIMATED_TRANSITIONS.length
+        let this_time = this.ANIMATED_TRANSITIONS[this.rand(count)]
+        this.animated_in = `${this_time.in} ${this.utilityCss}`
+        this.animated_out = `${this_time.out} ${this.utilityCss}`
       }
     }
   }
-};
+}
 </script>
 
-<style lang="scss">
-@mixin anim-cfg($ad, $aic) {
-	animation-duration: $ad;
-	animation-iteration-count: $aic;
-}
-
-.once-anim-cfg-quick {
-  @include anim-cfg(0.4s, 1);
-}
-
-.once-anim-cfg-normal {
-	@include anim-cfg(0.8s, 1);
-}
-
-.once-anim-cfg-slow {
-	@include anim-cfg(1.6s, 1);
-}
-</style>
+<style lang="scss"></style>

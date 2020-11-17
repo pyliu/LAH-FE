@@ -44,49 +44,6 @@ const state = () => ({
     'fab fa-angellist ld-metronome'
   ],
   LOADING_SHAPES_COLOR: ['text-primary', 'text-secondary', 'text-danger', 'text-info', 'text-warning', 'text-default', ''],
-  ANIMATED_ATTENTION_SEEKERS: ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
-  ANIMATED_TRANSITIONS: [
-    // rotate
-    { in: 'animated rotateIn', out: 'animated rotateOut' },
-    { in: 'animated rotateInDownLeft', out: 'animated rotateOutDownLeft' },
-    { in: 'animated rotateInDownRight', out: 'animated rotateOutDownRight' },
-    { in: 'animated rotateInUpLeft', out: 'animated rotateOutUpLeft' },
-    { in: 'animated rotateInUpRight', out: 'animated rotateOutUpRight' },
-    // bounce
-    { in: 'animated bounceIn', out: 'animated bounceOut' },
-    { in: 'animated bounceInUp', out: 'animated bounceOutDown' },
-    { in: 'animated bounceInDown', out: 'animated bounceOutUp' },
-    { in: 'animated bounceInRight', out: 'animated bounceOutLeft' },
-    { in: 'animated bounceInLeft', out: 'animated bounceOutRight' },
-    // fade
-    { in: 'animated fadeIn', out: 'animated fadeOut' },
-    { in: 'animated fadeInDown', out: 'animated fadeOutUp' },
-    { in: 'animated fadeInDownBig', out: 'animated fadeOutUpBig' },
-    { in: 'animated fadeInLeft', out: 'animated fadeOutRight' },
-    { in: 'animated fadeInLeftBig', out: 'animated fadeOutRightBig' },
-    { in: 'animated fadeInRight', out: 'animated fadeOutLeft' },
-    { in: 'animated fadeInRightBig', out: 'animated fadeOutLeftBig' },
-    { in: 'animated fadeInUp', out: 'animated fadeOutDown' },
-    { in: 'animated fadeInUpBig', out: 'animated fadeOutDownBig' },
-    // flip
-    { in: 'animated flipInX', out: 'animated flipOutX' },
-    { in: 'animated flipInY', out: 'animated flipOutY' },
-    // lightspeed
-    { in: 'animated lightSpeedIn', out: 'animated lightSpeedOut' },
-    // roll
-    { in: 'animated rollIn', out: 'animated rollOut' },
-    // zoom
-    { in: 'animated zoomIn', out: 'animated zoomOut' },
-    { in: 'animated zoomInDown', out: 'animated zoomOutUp' },
-    { in: 'animated zoomInLeft', out: 'animated zoomOutRight' },
-    { in: 'animated zoomInRight', out: 'animated zoomOutLeft' },
-    { in: 'animated zoomInUp', out: 'animated zoomOutDown' },
-    // slide
-    { in: 'animated slideInDown', out: 'animated slideOutUp' },
-    { in: 'animated slideInUp', out: 'animated slideOutDown' },
-    { in: 'animated slideInLeft', out: 'animated slideOutRight' },
-    { in: 'animated slideInRight', out: 'animated slideOutLeft' }
-  ],
   XHR_STATUS_CODE: {
     SUCCESS_WITH_NO_RECORD: 3,
     SUCCESS_WITH_MULTIPLE_RECORDS: 2,
@@ -130,8 +87,6 @@ const getters = {
   loadingPatterns: state => state.LOADING_PATTERNS,
   loadingPredefined: state => state.LOADING_PREDEFINED,
   loadingShapeColor: state => state.LOADING_SHAPES_COLOR,
-  animatedAttentionSeekers: state => state.ANIMATED_ATTENTION_SEEKERS,
-  animatedTransitions: state => state.ANIMATED_TRANSITIONS,
   xhrStatusCode: state => state.XHR_STATUS_CODE,
   apiEp: state => state.API,
   toastCounter: state => state.toastCounter,

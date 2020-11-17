@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import VueCountdown from "@chenfengyuan/vue-countdown";
+import VueCountdown from "@chenfengyuan/vue-countdown"
 
 export default {
   components: { countdown: VueCountdown },
@@ -47,25 +47,25 @@ export default {
   computed: {},
   methods: {
     resetCountdown () {
-      this.$refs.cd.totalMilliseconds = this.milliseconds;
+      this.$refs.cd.totalMilliseconds = this.milliseconds
     },
     setCountdown (milliseconds) {
-      this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds;
+      this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds
     },
     startCountdown () {
-      this.$refs.cd.start();
+      this.$refs.cd.start()
     },
     endCountdown () {
-      this.$refs.cd.end();
+      this.$refs.cd.end()
     }
   },
   created() {},
   mounted () {
     if (this.autoStart) {
-      this.startCountdown();
-      this.attention(this.$refs.badge, { name: 'flash', duration: 'once-anim-cfg-2x' })
+      this.startCountdown()
+      this.attention(this.$refs.badge, { name: 'flash', speed: 'slow' })
     }
   }
-};
+}
 </script>
 <style></style>

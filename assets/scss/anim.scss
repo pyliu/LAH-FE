@@ -3,12 +3,6 @@
   margin: auto;
 }
 
-@mixin anim-cfg($ad, $aic) {
-	animation-duration: $ad;
-	/* animation-delay: 2s; */
-	animation-iteration-count: $aic;
-}
-
 @keyframes appear {
   0% {
     opacity: 0;
@@ -37,18 +31,6 @@
 
 .anim-appear-3s {
   @include anim-appear(3s);
-}
-
-.once-anim-cfg {
-  @include anim-cfg(0.4s, 1);
-}
-
-.once-anim-cfg-2x {
-	@include anim-cfg(0.8s, 1);
-}
-
-.inf-anim-cfg {
-  @include anim-cfg(0.4s, infinite);
 }
 
 .slide-enter-active {
