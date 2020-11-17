@@ -44,7 +44,7 @@ const state = () => ({
     'fab fa-angellist ld-metronome'
   ],
   LOADING_SHAPES_COLOR: ['text-primary', 'text-secondary', 'text-danger', 'text-info', 'text-warning', 'text-default', ''],
-  ANIMATED_PATTERNS: ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat', 'hinge'],
+  ANIMATED_ATTENTION_SEEKERS: ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
   ANIMATED_TRANSITIONS: [
     // rotate
     { in: 'animated rotateIn', out: 'animated rotateOut' },
@@ -130,7 +130,7 @@ const getters = {
   loadingPatterns: state => state.LOADING_PATTERNS,
   loadingPredefined: state => state.LOADING_PREDEFINED,
   loadingShapeColor: state => state.LOADING_SHAPES_COLOR,
-  animatedPatterns: state => state.ANIMATED_PATTERNS,
+  animatedAttentionSeekers: state => state.ANIMATED_ATTENTION_SEEKERS,
   animatedTransitions: state => state.ANIMATED_TRANSITIONS,
   xhrStatusCode: state => state.XHR_STATUS_CODE,
   apiEp: state => state.API,

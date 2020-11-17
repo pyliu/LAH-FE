@@ -32,7 +32,7 @@ Vue.mixin({
       LOADING_PATTERNS () { return this.$store.getters.loadingPatterns },
       LOADING_PREDEFINED () { return this.$store.getters.loadingPredefined },
       LOADING_SHAPES_COLOR () { return this.$store.getters.loadingShapeColor },
-      ANIMATED_PATTERNS () { return this.$store.getters.animatedPatterns },
+      ANIMATED_ATTENTION_SEEKERS () { return this.$store.getters.animatedAttentionSeekers },
       ANIMATED_TRANSITIONS () { return this.$store.getters.animatedTransitions },
       XHR_STATUS_CODE () { return this.$store.getters.xhrStatusCode },
       API () { return this.$store.getters.apiEp },
@@ -289,7 +289,7 @@ Vue.mixin({
         const node = this.$(selector)
         if (node.length > 0) {
           opts = Object.assign({
-            name: this.ANIMATED_PATTERNS[this.rand(this.ANIMATED_PATTERNS.length)],
+            name: this.ANIMATED_ATTENTION_SEEKERS[this.rand(this.ANIMATED_ATTENTION_SEEKERS.length)],
             duration: 'once-anim-cfg' // speed/times, e.g. 'once-anim-cfg', 'once-anim-cfg-2x', 'inf-anim-cfg'
           }, opts)
           node.removeClass('hide')
