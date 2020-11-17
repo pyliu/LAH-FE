@@ -9,6 +9,7 @@
           :badgeText="queryCount.toString()"
           :variant="switchButtonVariant"
           @click="isOverdueMode = !isOverdueMode"
+          :disabled="isBusy"
         >
           <strong>{{queryTitle}}</strong>
         </lah-button>
@@ -79,10 +80,6 @@ export default {
       this.removeCache(this.cacheKey).then(() => { this.load() })
     },
     load () {
-      if (this.isBusy) {
-        this.$warn('Querying result  is on the way ... skip the load call!')
-        return
-      }
       this.getCache(this.cacheKey).then(jsonObj => {
         if (jsonObj === false) {
           this.isBusy = true
