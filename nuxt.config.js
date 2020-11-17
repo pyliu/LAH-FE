@@ -36,13 +36,13 @@ export default {
   // Global CSS (https://go.nuxtjs.dev/config-css)
   css: [
     '@fortawesome/fontawesome-svg-core/styles.css',
+    // https://animate.style/
+    'animate.css/animate.css',
     // https://github.com/loadingio/loading.css
     '~/assets/css/loading.min.css',
     '~/assets/css/loading-btn.css',
     // https://github.com/loadingio/transition.css/
     '~/assets/css/transition.min.css',
-    // https://animate.style/
-    '~/assets/css/animate.compat.css',
     '~/assets/css/awesome-font.css',
     '~/assets/scss/main.scss'
   ],

@@ -27,7 +27,7 @@ export default {
     speed: { type: String, default: `animate__faster` }
   },
   data: () => ({
-    prefix: '', // animate.css v4 has a default prefix => 'animate__' to avoid css name conflict
+    prefix: 'animate__', // animate.css v4 has a default prefix => 'animate__' to avoid css name conflict
     animated_in: '',
     animated_out: '',
     mode: 'out-in', // out-in, in-out

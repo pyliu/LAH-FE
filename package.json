@@ -21,6 +21,7 @@
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/proxy": "^2.0.1",
     "@nuxtjs/style-resources": "^1.0.0",
+    "animate.css": "^4.1.1",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.18.1",
     "core-js": "^3.7.0",

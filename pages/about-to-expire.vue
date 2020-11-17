@@ -103,11 +103,7 @@ export default {
                   // this.caption = `${jsonObj.data_count} 件，更新時間: ${new Date(
                   //   +new Date() - this.milliseconds + remain_ms - 5000
                   // )}`
-                  this.$warn(
-                    `快取資料將在 ${(remain_ms / 1000).toFixed(
-                      1
-                    )} 秒後到期。`
-                  )
+                  this.$warn(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
                 }
               )
             }
