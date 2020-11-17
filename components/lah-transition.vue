@@ -32,7 +32,7 @@ export default {
     animated_out: '',
     mode: 'out-in', // out-in, in-out
     speed_css: `faster`,
-    ANIMATED_TRANSITIONS: []
+    animateTransitions: []
   }),
   computed: {
     utilityCss () {
@@ -53,7 +53,7 @@ export default {
     }
   },
   created() {
-    this.ANIMATED_TRANSITIONS = [
+    this.animateTransitions = [
       // rotate
       { in: `${this.prefix}animated ${this.prefix}rotateIn`, out: `${this.prefix}animated ${this.prefix}rotateOut` },
       { in: `${this.prefix}animated ${this.prefix}rotateInDownLeft`, out: `${this.prefix}animated ${this.prefix}rotateOutDownLeft` },
@@ -131,12 +131,10 @@ export default {
       this.$emit("after-leave", e)
     },
     randAnimation () {
-      if (this.ANIMATED_TRANSITIONS) {
-        let count = this.ANIMATED_TRANSITIONS.length
-        let this_time = this.ANIMATED_TRANSITIONS[this.rand(count)]
-        this.animated_in = `${this_time.in} ${this.utilityCss}`
-        this.animated_out = `${this_time.out} ${this.utilityCss}`
-      }
+      let count = this.animateTransitions.length
+      let this_time = this.animateTransitions[this.rand(this.animateTransitions.length)]
+      this.animated_in = `${this_time.in} ${this.utilityCss}`
+      this.animated_out = `${this_time.out} ${this.utilityCss}`
     }
   }
 }
