@@ -40,6 +40,7 @@ export default {
     utilityCss () {
       let speed = `${this.prefix}faster`, delay = '', repeat = ''
       switch (this.speed) {
+        case '':
         case 'normal':
           speed = ''
           break
