@@ -5,7 +5,6 @@ Vue.mixin({
     data: () => ({
       isBusy: false,
       busyIconSize: undefined,
-      callbackQueue: [],
       confirmAns: false,
       confirmOpen: false,
       animateAttentionSeekers:  ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
@@ -380,44 +379,44 @@ Vue.mixin({
         })
       },
       modal (message, opts) {
-        const merged = Object.assign({
-          title: '訊息',
-          size: 'md',
-          buttonSize: 'sm',
-          okVariant: 'outline-secondary',
-          okTitle: '關閉',
-          hideHeaderClose: false,
-          centered: true,
-          scrollable: true,
-          hideFooter: true,
-          noCloseOnBackdrop: false,
-          contentClass: 'shadow hide', // add hide class to .modal-content then use Animated.css for animation show up
-          html: false
-        }, opts)
-        // use d-none to hide footer
-        merged.footerClass = merged.hideFooter ? 'd-none' : 'p-2'
-        if (merged.html) {
-          merged.titleHtml = merged.title
-          merged.title = undefined
-          if (typeof message === 'object') {
-            // assume the message is VNode
-            this.$bvModal.msgBoxOk([message], merged)
+        return new Promise((resolve, reject) => {
+          const merged = Object.assign({
+            title: '訊息',
+            size: 'md',
+            buttonSize: 'sm',
+            okVariant: 'outline-secondary',
+            okTitle: '關閉',
+            hideHeaderClose: false,
+            centered: true,
+            scrollable: true,
+            hideFooter: true,
+            noCloseOnBackdrop: false,
+            contentClass: 'shadow hide', // add hide class to .modal-content then use Animated.css for animation show up
+            html: false
+          }, opts)
+          // use d-none to hide footer
+          merged.footerClass = merged.hideFooter ? 'd-none' : 'p-2'
+          if (merged.html) {
+            merged.titleHtml = merged.title
+            merged.title = undefined
+            if (typeof message === 'object') {
+              // assume the message is VNode
+              this.$bvModal.msgBoxOk([message], merged)
+            } else {
+              const h = this.$createElement
+              const msgVNode = h('div', {
+                domProps: {
+                  innerHTML: message
+                }
+              })
+              this.$bvModal.msgBoxOk([msgVNode], merged)
+            }
           } else {
-            const h = this.$createElement
-            const msgVNode = h('div', {
-              domProps: {
-                innerHTML: message
-              }
-            })
-            this.$bvModal.msgBoxOk([msgVNode], merged)
+            this.$bvModal.msgBoxOk(message, merged)
           }
-          // you can do additional process after modal is opened
-          if (merged.callback && typeof merged.callback === 'function') {
-            this.callbackQueue.push(merged.callback)
-          }
-        } else {
-          this.$bvModal.msgBoxOk(message, merged)
-        }
+          // TODO: use modalId to resolve ... 
+          resolve('modal shown')
+        })
       },
       confirm (message, opts) {
         this.confirmAnswer = false
