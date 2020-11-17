@@ -24,7 +24,9 @@ export default {
     zoom: { type: Boolean, default: false },
     bounce: { type: Boolean, default: false },
     rotate: { type: Boolean, default: false },
-    speed: { type: String, default: `animate__faster` }
+    speed: { type: String, default: `faster` },
+    repeat: { type: String, default: `` },
+    delay: { type: String, default: `` }
   },
   data: () => ({
     prefix: 'animate__', // animate.css v4 has a default prefix => 'animate__' to avoid css name conflict
@@ -36,18 +38,41 @@ export default {
   }),
   computed: {
     utilityCss () {
-      let speed, delay, repeat
+      let speed = `${this.prefix}faster`, delay = '', repeat = ''
       switch (this.speed) {
         case 'normal':
           speed = ''
           break
-        case `slow`:
+        case 'faster':
+          speed = `${this.prefix}faster`
+          break
+        case 'fast':
+          speed = `${this.prefix}fast`
+          break
+        case 'slower':
+          speed = `${this.prefix}slower`
+          break
+        case 'slow':
           speed = `${this.prefix}slow`
           break
-        default:
-          speed = `${this.prefix}faster`
-          delay = ''
-          repeat = ''
+      }
+      switch (this.delay) {
+        case '2s':
+        case '3s':
+        case '4s':
+        case '5s':
+          delay = `${this.prefix}delay-${this.delay}`
+          break
+      }
+      switch (this.repeat) {
+        case '1':
+        case '2':
+        case '3':
+          repeat = `${this.prefix}repeat-${this.repeat}`
+          break
+        case 'infinite':
+          repeat = `${this.prefix}infinite`
+          break
       }
       return `${speed} ${delay} ${repeat}`
     }

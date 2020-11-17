@@ -1,6 +1,6 @@
 <template>
   <div>
-    <lah-transition appear speed="quick">
+    <lah-transition appear>
       <h3 class="text-center mt-2 mb-3 pt-1 text-nowrap font-weight-bold">
         <font-awesome-icon
           :icon="['far', 'calendar-check']"
@@ -22,7 +22,7 @@
         ></lah-countdown-button>
       </h3>
     </lah-transition>
-    <lah-transition appear speed="quick">
+    <lah-transition fade>
       <lah-expiry-b-table v-if="committed"></lah-expiry-b-table>
     </lah-transition>
   </div>
