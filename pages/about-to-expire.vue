@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between header">
+      <h3 class="d-flex justify-content-between page-header">
         <lah-button
           icon="calendar-check"
           size="lg"
@@ -125,12 +125,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.header {
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display:block;
-  padding: 10px 4rem;
-}
+
 </style>

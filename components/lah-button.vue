@@ -71,16 +71,16 @@ export default {
       evt.stopPropagation();
     },
     mouseenter () {
-      const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-jump';
+      const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath';
       // movement is 'undefined' will be random effect
-      this.addAnimation(`#${this.iconId}`, movement);
+      this.$utils.addAnimation(`#${this.iconId}`, movement);
     },
     mouseleave () {
-      this.clearAnimation(`#${this.iconId}`);
+      this.$utils.clearAnimation(`#${this.iconId}`);
     }
   },
   created () {
-    this.iconId = this.uuid();
+    this.iconId = this.$utils.uuid();
   }
 };
 </script>

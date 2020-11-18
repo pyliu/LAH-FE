@@ -26,3 +26,12 @@ html, body {
   color: #35495e;
   letter-spacing: 1px;
 }
+
+.page-header {
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display:block;
+  padding: 10px 4rem;
+}

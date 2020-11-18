@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     clickCountdownButton () {
-      this.$log(this.$el)
+      this.$utils.log(this.$el)
       this.notify('click countdown button!')
     }
   }

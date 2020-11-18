@@ -119,27 +119,6 @@ Vue.mixin({
         }
         return false
       },
-      uuid () {
-        let d = Date.now()
-        if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-          d += performance.now() // use high-precision timer if available
-        }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-          const r = (d + Math.random() * 16) % 16 | 0
-          d = Math.floor(d / 16)
-          return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
-        })
-      },
-      datetimeNow () {
-        // e.g. 2020-11-06 13:39:23
-        const now = new Date()
-        return now.getFullYear() + '-' +
-          ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
-          ('0' + now.getDate()).slice(-2) + ' ' +
-          ('0' + now.getHours()).slice(-2) + ':' +
-          ('0' + now.getMinutes()).slice(-2) + ':' +
-          ('0' + now.getSeconds()).slice(-2)
-      },
       timeout (func, ms) {
         return setTimeout(func, ms)
       },
@@ -187,7 +166,7 @@ Vue.mixin({
         // merge default setting
         const merged = Object.assign({
           title: '通知',
-          subtitle: this.datetimeNow().split(' ')[1],
+          subtitle: this.$utils.now().split(' ')[1],
           href: '',
           noAutoHide: false,
           autoHideDelay: 5000,
@@ -444,75 +423,6 @@ Vue.mixin({
           console.error(err)
         }
         return true
-      },
-      openNewWindow (url, e) {
-        if (window) {
-          const win = window.open(url, '_blank')
-          win.focus()
-        }
-      },
-      responseMessage (statusCode) {
-        switch (statusCode) {
-          case 0:
-            return `失敗【${this.$consts.XHR_STATUS_CODE.DEFAULT_FAIL}, DEFAULT_FAIL】`
-          case 1:
-            return `成功【${this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL}, SUCCESS_NORMAL】`
-          case 2:
-            return `成功(回傳多筆資料)【${this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_MULTIPLE_RECORDS}, SUCCESS_WITH_MULTIPLE_RECORDS】`
-          case 3:
-            return `成功(無資料)【${this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD}, SUCCESS_WITH_NO_RECORD】`
-          case -1:
-            return `失敗(不支援)【${this.$consts.XHR_STATUS_CODE.UNSUPPORT_FAIL}, UNSUPPORT_FAIL】`
-          case -2:
-            return `失敗(本地端無資料)【${this.$consts.XHR_STATUS_CODE.FAIL_WITH_LOCAL_NO_RECORD}, FAIL_WITH_LOCAL_NO_RECORD】`
-          case -3:
-            return `失敗(非正確伺服主機)【${this.$consts.XHR_STATUS_CODE.FAIL_NOT_VALID_SERVER}, FAIL_NOT_VALID_SERVER】`
-          case -4:
-            return `失敗(遠端無資料)【${this.$consts.XHR_STATUS_CODE.FAIL_WITH_REMOTE_NO_RECORD}, FAIL_WITH_REMOTE_NO_RECORD】`
-          case -5:
-            return `授權失敗【${this.$consts.XHR_STATUS_CODE.FAIL_NO_AUTHORITY}, FAIL_NO_AUTHORITY】`
-          case -6:
-            return `JSON編碼失敗【${this.$consts.XHR_STATUS_CODE.FAIL_JSON_ENCODE}, FAIL_JSON_ENCODE】`
-          case -7:
-            return `找不到資料失敗【${this.$consts.XHR_STATUS_CODE.FAIL_NOT_FOUND}, FAIL_NOT_FOUND`
-          case -8:
-            return `讀取檔案失敗【${this.$consts.XHR_STATUS_CODE.FAIL_LOAD_ERROR}, FAIL_LOAD_ERROR`
-          case -9:
-            return `動作請求逾時【${this.$consts.XHR_STATUS_CODE.FAIL_TIMEOUT}, FAIL_TIMEOUT`
-          default:
-            return `不支援的狀態碼【${statusCode}】`
-        }
-      },
-      isOfficeHours () {
-        const now = new Date()
-        if (now.getDay() === 0 || now.getDay() === 6) {
-          return false
-        }
-        return now.getHours() > 6 && now.getHours() < 19
-      },
-      addAnimation (selector, which) {
-        let el = this.clearAnimation(selector)
-        if (el.length) {
-          el.addClass('ld')
-          if (!which) {
-            el.each((idx, el) => {
-              if (!this.$(el).is('body')) {
-                const randAnimPattern = this.$consts.loadingAction[ this.rand(this.$consts.loadingAction.length) ]
-                this.$(el).addClass(randAnimPattern)
-              }
-            })
-          } else {
-            el.addClass(which)
-          }
-        }
-        return el
-      },
-      clearAnimation (selector) {
-        return this.$(selector || '*')
-          .removeClass('ld')
-          .attr('class', function(i, c) {
-            return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
-          })
       }
     }
   })

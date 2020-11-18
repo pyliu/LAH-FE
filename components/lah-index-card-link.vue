@@ -60,10 +60,10 @@ export default {
     mouseenter () {
       const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-jump';
       // movement is 'undefined' will be random effect
-      this.addAnimation(this.$refs.icon, movement);
+      this.$utils.addAnimation(this.$refs.icon, movement);
     },
     mouseleave () {
-      this.clearAnimation(this.$refs.icon);
+      this.$utils.clearAnimation(this.$refs.icon);
     }
   }
 };
