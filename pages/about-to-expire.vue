@@ -84,19 +84,19 @@ export default {
         if (jsonObj === false) {
           this.isBusy = true
           this.committed = false
-          this.$axios.post(this.API.JSON.QUERY, {
+          this.$axios.post(this.$consts.API.JSON.QUERY, {
             type: this.queryType,
             reviewer_id: this.reviewerID
           }).then(res => {
             this.setCache(this.cacheKey, res.data, this.milliseconds - 1000) // expired after 14 mins 59 secs
             console.assert(
-              res.data.status == this.XHR_STATUS_CODE.SUCCESS_NORMAL ||
-              res.data.status == this.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
+              res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL ||
+              res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
               `查詢登記案件回傳狀態碼有問題【${this.queryTitle}, ${res.data.status}】`
             )
             if (
-              res.data.status != this.XHR_STATUS_CODE.SUCCESS_NORMAL &&
-              res.data.status != this.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD
+              res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL &&
+              res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD
             ) {
               this.removeCache(this.cacheKey)
             }

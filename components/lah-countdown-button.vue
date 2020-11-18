@@ -63,7 +63,7 @@ export default {
   mounted () {
     if (this.autoStart) {
       this.startCountdown()
-      this.attention(this.$refs.badge, { name: 'flash', speed: 'slow' })
+      this.attention(this.$refs.badge, { name: 'flash', speed: 'slower' })
     }
   }
 }

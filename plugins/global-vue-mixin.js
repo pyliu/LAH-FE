@@ -6,84 +6,7 @@ Vue.mixin({
       isBusy: false,
       busyIconSize: undefined,
       confirmAns: false,
-      confirmOpen: false,
-      animateAttentionSeekers:  ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
-      loadingAction: [ //(https://loading.io/animation/)
-        'ld-heartbeat', 'ld-beat', 'ld-blink', 'ld-bounce', 'ld-bounceAlt', 'ld-breath', 'ld-wrench', 'ld-surprise',
-        'ld-clock', 'ld-jump', 'ld-hit', 'ld-fade', 'ld-flip', 'ld-float', 'ld-move-ltr', 'ld-tremble', 'ld-tick',
-        'ld-move-rtl', 'ld-move-ttb', 'ld-move-btt', 'ld-move-fade-ltr', 'ld-move-fade-rtl', 'ld-move-fade-ttb',
-        'ld-move-fade-btt', 'ld-dim', 'ld-swing', 'ld-wander', 'ld-pulse', 'ld-cycle', 'ld-cycle-alt', 'ld-damage',
-        'ld-fade', 'ld-flip', 'ld-flip-h', 'ld-flip-v', 'ld-float', 'ld-jelly', 'ld-jelly-alt', 'ld-jingle',
-        'ld-measure', 'ld-metronome', 'ld-orbit', 'ld-rubber-h', 'ld-rubber-v', 'ld-rush-btt', 'ld-rush-ttb',
-        'ld-rush-ltr', 'ld-rush-rtl', 'ld-shake-h', 'ld-shake-v', 'ld-shiver', 'ld-skew', 'ld-skew-alt', 'ld-slide-btt',
-        'ld-slide-ltr', 'ld-slide-rtl', 'ld-slide-ttb', 'ld-smash', 'ld-spin', 'ld-spin-fast', 'ld-squeeze',
-        'ld-swim', 'ld-swing', 'ld-tick-alt', 'ld-vortex', 'ld-vortex-alt', 'ld-wander-h', 'ld-wander-v',
-        'ld-shadow', 'ld-shadow-a', 'ld-radio', 'ld-boradcast'
-      ],
-      loadingShapeSet: [
-        'fa fa-snowflake ld-swim',
-        'ld-spinner ld-orbit',
-        'ld-pie ld-flip',
-        'fas fa-sync ld-spin',
-        'fas fa-spinner fa-spin',
-        'fas fa-radiation-alt ld-cycle',
-        'fas fa-radiation ld-spin-fast',
-        'fas fa-asterisk ld-spin',
-        'fas fa-bolt ld-bounce',
-        'fas fa-biking ld-move-ltr',
-        'fas fa-snowboarding ld-rush-ltr',
-        'fas fa-yin-yang fa-spin',
-        'fas fa-biohazard ld-metronome',
-        'fas fa-baseball-ball ld-bounce',
-        'fas fa-basketball-ball ld-beat',
-        'fas fa-stroopwafel ld-metronome',
-        'fas fa-fan ld-spin-fast',
-        'fas fa-cog ld-swing',
-        'fas fa-compact-disc ld-spin-fast',
-        'fas fa-crosshairs ld-swim',
-        'far fa-compass ld-tick',
-        'fas fa-compass fa-pulse',
-        'fas fa-anchor ld-swing',
-        'fas fa-fingerprint ld-damage',
-        'fab fa-angellist ld-metronome'
-      ],
-      loadingShapeColor: ['text-primary', 'text-secondary', 'text-danger', 'text-info', 'text-warning', 'text-default', ''],
-      XHR_STATUS_CODE: {
-        SUCCESS_WITH_NO_RECORD: 3,
-        SUCCESS_WITH_MULTIPLE_RECORDS: 2,
-        SUCCESS_NORMAL: 1,
-        DEFAULT_FAIL: 0,
-        UNSUPPORT_FAIL: -1,
-        FAIL_WITH_LOCAL_NO_RECORD: -2,
-        FAIL_NOT_VALID_SERVER: -3,
-        FAIL_WITH_REMOTE_NO_RECORD: -4,
-        FAIL_NO_AUTHORITY: -5,
-        FAIL_JSON_ENCODE: -6,
-        FAIL_NOT_FOUND: -7,
-        FAIL_LOAD_ERROR: -8,
-        FAIL_TIMEOUT: -9
-      },
-      API: {
-        XLSX: {
-          LANDING: '/api/xlsx/landing.php'
-        },
-        JSON: {
-          QUERY: '/api/query_json_api.php',
-          STATS: '/api/stats_json_api.php',
-          SWITCH: '/api/switch_json_api.php',
-          USER: '/api/user_json_api.php',
-          MSSQL: '/api/mssql_json_api.php',
-          LXHWEB: '/api/lxhweb_json_api.php'
-        },
-        FILE: {
-          LOAD: '/api/load_file_api.php',
-          EXPORT: '/api/export_file_api.php',
-          XLSX: '/api/export_xlsx_api.php',
-          TXT: '/api/export_tmp_txt.php',
-          CSV: '/api/export_tmp_csv.php',
-          DATA: '/api/export_txt_data.php'
-        }
-      }
+      confirmOpen: false
     }),
     watch: {
       isBusy (flag) {
@@ -141,8 +64,8 @@ Vue.mixin({
   
             // randomize loading.io css for fun
             const coverEl = this.$(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
-            coverEl.addClass(this.loadingShapeSet[this.rand(this.loadingShapeSet.length)]) // shape
-              .addClass(this.loadingShapeColor[this.rand(this.loadingShapeColor.length)]) // color
+            coverEl.addClass(this.$consts.loadingShapeSet[this.rand(this.$consts.loadingShapeSet.length)]) // shape
+              .addClass(this.$consts.loadingShapeColor[this.rand(this.$consts.loadingShapeColor.length)]) // color
             switch (opts.size) {
               case 'xs':
                 coverEl.addClass('fa-xs')
@@ -356,7 +279,7 @@ Vue.mixin({
       animated (selector, opts, prefix = '') {
         return new Promise((resolve, reject) => {
           opts = Object.assign({
-            name: this.animateAttentionSeekers[this.rand(this.animateAttentionSeekers.length)],
+            name: this.$consts.animateAttentionSeekers[this.rand(this.$consts.animateAttentionSeekers.length)],
             speed: 'faster', // 'slower', 'slow', '', 'fast', 'faster' (3s, 2s, 1s, 800ms, 500ms)
             repeat: '', // repeat-[1-3], infinite
             delay: '' // delay, delay-[2s-5s]
@@ -531,31 +454,31 @@ Vue.mixin({
       responseMessage (statusCode) {
         switch (statusCode) {
           case 0:
-            return `失敗【${this.XHR_STATUS_CODE.DEFAULT_FAIL}, DEFAULT_FAIL】`
+            return `失敗【${this.$consts.XHR_STATUS_CODE.DEFAULT_FAIL}, DEFAULT_FAIL】`
           case 1:
-            return `成功【${this.XHR_STATUS_CODE.SUCCESS_NORMAL}, SUCCESS_NORMAL】`
+            return `成功【${this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL}, SUCCESS_NORMAL】`
           case 2:
-            return `成功(回傳多筆資料)【${this.XHR_STATUS_CODE.SUCCESS_WITH_MULTIPLE_RECORDS}, SUCCESS_WITH_MULTIPLE_RECORDS】`
+            return `成功(回傳多筆資料)【${this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_MULTIPLE_RECORDS}, SUCCESS_WITH_MULTIPLE_RECORDS】`
           case 3:
-            return `成功(無資料)【${this.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD}, SUCCESS_WITH_NO_RECORD】`
+            return `成功(無資料)【${this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD}, SUCCESS_WITH_NO_RECORD】`
           case -1:
-            return `失敗(不支援)【${this.XHR_STATUS_CODE.UNSUPPORT_FAIL}, UNSUPPORT_FAIL】`
+            return `失敗(不支援)【${this.$consts.XHR_STATUS_CODE.UNSUPPORT_FAIL}, UNSUPPORT_FAIL】`
           case -2:
-            return `失敗(本地端無資料)【${this.XHR_STATUS_CODE.FAIL_WITH_LOCAL_NO_RECORD}, FAIL_WITH_LOCAL_NO_RECORD】`
+            return `失敗(本地端無資料)【${this.$consts.XHR_STATUS_CODE.FAIL_WITH_LOCAL_NO_RECORD}, FAIL_WITH_LOCAL_NO_RECORD】`
           case -3:
-            return `失敗(非正確伺服主機)【${this.XHR_STATUS_CODE.FAIL_NOT_VALID_SERVER}, FAIL_NOT_VALID_SERVER】`
+            return `失敗(非正確伺服主機)【${this.$consts.XHR_STATUS_CODE.FAIL_NOT_VALID_SERVER}, FAIL_NOT_VALID_SERVER】`
           case -4:
-            return `失敗(遠端無資料)【${this.XHR_STATUS_CODE.FAIL_WITH_REMOTE_NO_RECORD}, FAIL_WITH_REMOTE_NO_RECORD】`
+            return `失敗(遠端無資料)【${this.$consts.XHR_STATUS_CODE.FAIL_WITH_REMOTE_NO_RECORD}, FAIL_WITH_REMOTE_NO_RECORD】`
           case -5:
-            return `授權失敗【${this.XHR_STATUS_CODE.FAIL_NO_AUTHORITY}, FAIL_NO_AUTHORITY】`
+            return `授權失敗【${this.$consts.XHR_STATUS_CODE.FAIL_NO_AUTHORITY}, FAIL_NO_AUTHORITY】`
           case -6:
-            return `JSON編碼失敗【${this.XHR_STATUS_CODE.FAIL_JSON_ENCODE}, FAIL_JSON_ENCODE】`
+            return `JSON編碼失敗【${this.$consts.XHR_STATUS_CODE.FAIL_JSON_ENCODE}, FAIL_JSON_ENCODE】`
           case -7:
-            return `找不到資料失敗【${this.XHR_STATUS_CODE.FAIL_NOT_FOUND}, FAIL_NOT_FOUND`
+            return `找不到資料失敗【${this.$consts.XHR_STATUS_CODE.FAIL_NOT_FOUND}, FAIL_NOT_FOUND`
           case -8:
-            return `讀取檔案失敗【${this.XHR_STATUS_CODE.FAIL_LOAD_ERROR}, FAIL_LOAD_ERROR`
+            return `讀取檔案失敗【${this.$consts.XHR_STATUS_CODE.FAIL_LOAD_ERROR}, FAIL_LOAD_ERROR`
           case -9:
-            return `動作請求逾時【${this.XHR_STATUS_CODE.FAIL_TIMEOUT}, FAIL_TIMEOUT`
+            return `動作請求逾時【${this.$consts.XHR_STATUS_CODE.FAIL_TIMEOUT}, FAIL_TIMEOUT`
           default:
             return `不支援的狀態碼【${statusCode}】`
         }
@@ -574,7 +497,7 @@ Vue.mixin({
           if (!which) {
             el.each((idx, el) => {
               if (!this.$(el).is('body')) {
-                const randAnimPattern = this.loadingAction[ this.rand(this.loadingAction.length) ]
+                const randAnimPattern = this.$consts.loadingAction[ this.rand(this.$consts.loadingAction.length) ]
                 this.$(el).addClass(randAnimPattern)
               }
             })
