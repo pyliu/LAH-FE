@@ -104,7 +104,15 @@ Vue.mixin({
         }
       },
       timeout (func, ms) {
-        return setTimeout(func, ms)
+        return new Promise((resolve, reject) => {
+          if (parseInt(ms) === NaN || parseInt(ms) < 1) {
+            reject(new Error('timeout function second param should be an integer that is greater than 0'))
+          } else if (typeof func !== 'function') {
+            reject(new Error('timeout function first param should be a function'))
+          } else {
+            resolve(setTimeout(func, ms))
+          }
+        })
       },
       makeToast (message, opts = {}) {
         return new Promise((resolve, reject) => {

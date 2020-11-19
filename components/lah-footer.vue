@@ -42,7 +42,9 @@ export default {
   }),
   mounted() {
     this.show = true;
-    this.timeout(() => (this.show = false), this.leave_time);
+    this.timeout(() => (this.show = false), this.leave_time).then((handle) => {
+      // save the handle here if you want to control timeout func
+    }).catch((err) => this.$utils.error(err));
   },
 };
 </script>
