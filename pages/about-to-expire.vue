@@ -68,7 +68,7 @@ export default {
       if (this.$refs.countdown) {
         this.getCacheExpireRemainingTime(this.cacheKey).then(
           remain_ms => {
-            this.$refs.countdown.setCountdown(remain_ms + 1000)
+            this.$refs.countdown.setCountdown(remain_ms)
             // this.$utils.warn(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
           }
         ).finally(() => {
@@ -88,7 +88,7 @@ export default {
             type: this.queryType,
             reviewer_id: this.reviewerID
           }).then(res => {
-            this.setCache(this.cacheKey, res.data, this.milliseconds - 1000) // expired after 14 mins 59 secs
+            this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 14 mins 59 secs
             console.assert(
               res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL ||
               res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
