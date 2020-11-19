@@ -4,9 +4,7 @@ import $ from 'jquery'
 Vue.mixin({
     data: () => ({
       isBusy: false,
-      busyIconSize: undefined,
-      confirmAns: false,
-      confirmOpen: false
+      busyIconSize: undefined
     }),
     watch: {
       isBusy (flag) {
@@ -261,7 +259,7 @@ Vue.mixin({
       modal (message, opts) {
         return new Promise((resolve, reject) => {
           if (this.$isServer) {
-            reject('Server side doesn\'t use  modal')
+            reject('Server side doesn\'t use modal')
           } else if (this.$bvModal) {
             const merged = Object.assign({
               title: '訊息',
@@ -313,38 +311,36 @@ Vue.mixin({
           }
         })
       },
-      confirm (message, opts) {
-        this.confirmAns = false
-        this.openConfirm = true
-        const merged = Object.assign({
-          title: '請確認',
-          size: 'sm',
-          buttonSize: 'sm',
-          okVariant: 'outline-success',
-          okTitle: '確定',
-          cancelVariant: 'secondary',
-          cancelTitle: '取消',
-          footerClass: 'p-2',
-          hideHeaderClose: false,
-          noCloseOnBackdrop: false,
-          centered: true,
-          contentClass: 'shadow'
-        }, opts)
-        // use HTML content
-        const h = this.$createElement
-        const msgVNode = h('div', {
-          domProps: {
-            innerHTML: message
+      confirm (message, opts = {}) {
+        return new Promise((resolve, reject) => {
+          if (this.$isServer) {
+            reject('Server side doesn\'t use confirm')
+          } else if (this.$bvModal) {
+            const merged = Object.assign({
+              title: '請確認',
+              size: 'sm',
+              buttonSize: 'sm',
+              okVariant: 'outline-success',
+              okTitle: '確定',
+              cancelVariant: 'secondary',
+              cancelTitle: '取消',
+              footerClass: 'p-2',
+              hideHeaderClose: false,
+              noCloseOnBackdrop: false,
+              centered: true,
+              contentClass: 'shadow'
+            }, opts)
+            // use HTML content
+            const h = this.$createElement
+            const msgVNode = h('div', { domProps: { innerHTML: message } })
+            this.$bvModal.msgBoxConfirm([msgVNode], merged).then((value) => {
+              resolve(value)  // true, false or null
+            }).catch((err) => {
+              reject(err)
+            })
+          } else {
+            reject(new Error('No this.$bvModal, confirm window can not be shown'))
           }
-        })
-        this.$bvModal.msgBoxConfirm([msgVNode], merged)
-        .then((value) => {
-          this.confirmAns = value
-          if (this.confirmAns && merged.callback && typeof merged.callback === 'function') {
-            merged.callback.apply(this, arguments)
-          }
-        }).catch((err) => {
-          this.$utils.error(err)
         })
       },
       async setCache (key, val, expire_timeout = 0) {
