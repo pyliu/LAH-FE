@@ -120,7 +120,8 @@ export default {
   created () {
     this.isOverdueMode = false
     this.load()
-    this.modal('This is a test')
+    this.modal('This is a test').then((config) => this.notify(config.message, { type: 'warning' }))
+    this.notify('test').then((config) => this.notify(config, { type: 'danger' }))
   }
 }
 </script>

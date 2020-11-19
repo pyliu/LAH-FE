@@ -107,107 +107,123 @@ Vue.mixin({
         return setTimeout(func, ms)
       },
       makeToast (message, opts = {}) {
-        // position adapter
-        switch (opts.pos) {
-          case 'tr':
-            opts.toaster = 'b-toaster-top-right'
-            break
-          case 'tl':
-            opts.toaster = 'b-toaster-top-left'
-            break
-          case 'br':
-            opts.toaster = 'b-toaster-bottom-right'
-            break
-          case 'bl':
-            opts.toaster = 'b-toaster-bottom-left'
-            break
-          case 'tc':
-            opts.toaster = 'b-toaster-top-center'
-            break
-          case 'tf':
-            opts.toaster = 'b-toaster-top-full'
-            break
-          case 'bc':
-            opts.toaster = 'b-toaster-bottom-center'
-            break
-          case 'bf':
-            opts.toaster = 'b-toaster-bottom-full'
-            break
-          default:
-            switch(opts.variant) {
-              case 'danger':
-              case 'red':
-                opts.toaster = 'b-toaster-top-full'
+        return new Promise((resolve, reject) => {
+          if (this.$isServer) {
+            reject('Server side doesn\'t use  toast')
+          } else if (this.$bvToast) {
+            // position adapter
+            switch (opts.pos) {
+              case 'tr':
+                opts.toaster = 'b-toaster-top-right'
                 break
-              case 'warning':
-              case 'yellow':
+              case 'tl':
+                opts.toaster = 'b-toaster-top-left'
+                break
+              case 'br':
+                opts.toaster = 'b-toaster-bottom-right'
+                break
+              case 'bl':
                 opts.toaster = 'b-toaster-bottom-left'
                 break
+              case 'tc':
+                opts.toaster = 'b-toaster-top-center'
+                break
+              case 'tf':
+                opts.toaster = 'b-toaster-top-full'
+                break
+              case 'bc':
+                opts.toaster = 'b-toaster-bottom-center'
+                break
+              case 'bf':
+                opts.toaster = 'b-toaster-bottom-full'
+                break
               default:
-                opts.toaster = 'b-toaster-bottom-right'
+                switch(opts.variant) {
+                  case 'danger':
+                  case 'red':
+                    opts.toaster = 'b-toaster-top-full'
+                    break
+                  case 'warning':
+                  case 'yellow':
+                    opts.toaster = 'b-toaster-bottom-left'
+                    break
+                  default:
+                    opts.toaster = 'b-toaster-bottom-right'
+                }
             }
-        }
-        // merge default setting
-        const merged = Object.assign({
-          title: '通知',
-          subtitle: this.$utils.now().split(' ')[1],
-          href: '',
-          noAutoHide: false,
-          autoHideDelay: 5000,
-          solid: true,
-          toaster: 'b-toaster-bottom-right',
-          appendToast: true,
-          variant: 'default'
-        }, opts)
-        // Use a shorter name for this.$createElement
-        const h = this.$createElement
-        // Create the title
-        const vNodesTitle = h(
-          'div', {
-            class: ['d-flex', 'flex-grow-1', 'align-items-baseline', 'mr-2']
-          },
-          [
-            h('strong', {
-              class: 'mr-2'
-            }, merged.title),
-            h('small', {
-              class: 'ml-auto text-italics'
-            }, merged.subtitle)
-          ]
-        )
-        // Pass the VNodes as an array for title
-        merged.title = [vNodesTitle]
-        // use vNode for HTML content
-        const msgVNode = h('div', {
-          domProps: {
-            innerHTML: message
+            // merge default setting
+            const merged = Object.assign({
+              title: '通知',
+              subtitle: this.$utils.now().split(' ')[1],
+              href: '',
+              noAutoHide: false,
+              autoHideDelay: 5000,
+              solid: true,
+              toaster: 'b-toaster-bottom-right',
+              appendToast: true,
+              variant: 'default'
+            }, opts)
+            // Use a shorter name for this.$createElement
+            const h = this.$createElement
+            // Create the title
+            const vNodesTitle = h(
+              'div', {
+                class: ['d-flex', 'flex-grow-1', 'align-items-baseline', 'mr-2']
+              },
+              [
+                h('strong', {
+                  class: 'mr-2'
+                }, merged.title),
+                h('small', {
+                  class: 'ml-auto text-italics'
+                }, merged.subtitle)
+              ]
+            )
+            // Pass the VNodes as an array for title
+            merged.title = [vNodesTitle]
+            // use vNode for HTML content
+            const msgVNode = h('div', {
+              domProps: {
+                innerHTML: message
+              }
+            })
+
+            this.$bvToast.toast([msgVNode], merged)
+
+            if (this.$store) {
+              this.$store.commit('addToastCounter')
+            }
+            // resolve the final opts back
+            merged.message = message
+            resolve(merged)
+          } else {
+            reject(new Error('No this.$bvToast, toast window can not be shown'))
           }
         })
-        this.$bvToast.toast([msgVNode], merged)
-  
-        if (typeof merged.callback === 'function') {
-          this.timeout(() => merged.callback.apply(this, arguments), 100)
-        }
-
-        if (this.$store) {
-          this.$store.commit('addToastCounter')
-        }
       },
       notify (msg, opts = { title: '通知' }) {
-        if (typeof msg === 'string') {
-          opts.variant = opts.type || opts.variant || 'default'
-          opts.autoHideDelay = opts.duration || opts.delay || 5000
-          this.makeToast(msg, opts)
-        } else if (typeof msg === 'object') {
-          // previous API only use one object param
-          const message = msg.body || msg.message
-          msg.variant = msg.type || msg.variant || 'default'
-          msg.autoHideDelay = msg.duration || msg.delay || 5000
-          this.makeToast(message, msg)
-        } else  {
-          this.alert(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
-          this.$utils.error(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
-        }
+        return new Promise((resolve, reject) => {
+          if (typeof msg !== 'string' && typeof opts !== 'object') {
+            reject(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
+          } else {
+            if (typeof msg === 'string') {
+              opts.variant = opts.type || opts.variant || 'default'
+              opts.autoHideDelay = opts.duration || opts.delay || 5000
+            } else if (typeof msg === 'object') {
+              opts = msg
+              // previous API only use one object param
+              msg = opts.body || opts.message
+              opts.variant = opts.type || opts.variant || 'default'
+              opts.autoHideDelay = opts.duration || opts.delay || 5000
+            }
+            this.makeToast(msg, opts).then((config) => {
+              resolve(config)
+            }).catch((err) => {
+              this.$utils.error(err)
+              reject(err)
+            })
+          }
+        })
       },
       warning (message, opts = {}) {
         if (!this.$utils.empty(message)) {
@@ -237,7 +253,7 @@ Vue.mixin({
       modal (message, opts) {
         return new Promise((resolve, reject) => {
           if (this.$isServer) {
-            reject(new Error('Server side doesn\'t use  modal'))
+            reject('Server side doesn\'t use  modal')
           } else if (this.$bvModal) {
             const merged = Object.assign({
               title: '訊息',
@@ -281,8 +297,9 @@ Vue.mixin({
             }).catch(err => {
               reject(err)
             })
-            // TODO: pass modalId if available ... 
-            resolve('modal shown')
+            // resolve the final opts back
+            merged.message = message
+            resolve(merged)
           } else {
             reject(new Error('No this.$bvModal, modal window can not be shown'))
           }
