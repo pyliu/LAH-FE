@@ -153,6 +153,28 @@ export default ({ $axios, store }, inject) => {
       }
       return now.getHours() > 6 && now.getHours() < 19
     },
+    rand (range) {
+      return Math.floor(Math.random() * Math.floor(range || 100))
+    },
+    trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
+    empty (variable) {
+      if (
+        variable === null || variable === undefined || variable === false ||
+        (Array.isArray(variable) && variable.length === 0) ||
+        (typeof variable === 'object' && JSON.stringify(variable) === '{}' ) ||
+        (typeof variable === 'string' && this.trim(variable) === '')
+      ) {
+        return true
+      }
+      return false
+    },
+    caseid (id) {
+      if (this.empty(id) || id.length !== 13) {
+        this.warn(`id is not a valid string, can not oonvert to formated case id. (${id})`)
+        return id
+      }
+      return `${id.substring(0, 3)}-${id.substring(3, 7)}-${id.substring(7)}`
+    },
     uuid () {
       let d = Date.now()
       if (typeof performance !== 'undefined' && typeof performance.now === 'function') {

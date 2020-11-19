@@ -62,8 +62,8 @@ export default {
     faIconPrefix () {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas';
     },
-    showBadge () { return !this.empty(this.badgeText) },
-    showIcon () { return !this.empty(this.icon) }
+    showBadge () { return !this.$utils.empty(this.badgeText) },
+    showIcon () { return !this.$utils.empty(this.icon) }
   },
   methods: {
     emitClick (evt) {

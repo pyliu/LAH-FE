@@ -80,7 +80,7 @@ export default {
       return this.$store.getters["expiry/is_overdue_mode"]
     },
     tableItems () {
-      return this.empty(this.id) ? this.caseList : this.caseListByID[this.id]
+      return this.$utils.empty(this.id) ? this.caseList : this.caseListByID[this.id]
     },
     buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' }
   },

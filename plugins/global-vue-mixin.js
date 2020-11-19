@@ -64,8 +64,8 @@ Vue.mixin({
   
             // randomize loading.io css for fun
             const coverEl = this.$(this.parseHTML('<div class="ld auto-add-spinner"></div>'))
-            coverEl.addClass(this.$consts.loadingShapeSet[this.rand(this.$consts.loadingShapeSet.length)]) // shape
-              .addClass(this.$consts.loadingShapeColor[this.rand(this.$consts.loadingShapeColor.length)]) // color
+            coverEl.addClass(this.$consts.loadingShapeSet[this.$utils.rand(this.$consts.loadingShapeSet.length)]) // shape
+              .addClass(this.$consts.loadingShapeColor[this.$utils.rand(this.$consts.loadingShapeColor.length)]) // color
             switch (opts.size) {
               case 'xs':
                 coverEl.addClass('fa-xs')
@@ -103,21 +103,6 @@ Vue.mixin({
             this.$emit('busyOn', this)
           }
         }
-      },
-      rand (range) {
-        return Math.floor(Math.random() * Math.floor(range || 100))
-      },
-      trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
-      empty (variable) {
-        if (
-          variable === null || variable === undefined || variable === false ||
-          (Array.isArray(variable) && variable.length === 0) ||
-          (typeof variable === 'object' && JSON.stringify(variable) === '{}' ) ||
-          (typeof variable === 'string' && this.trim(variable) === '')
-        ) {
-          return true
-        }
-        return false
       },
       timeout (func, ms) {
         return setTimeout(func, ms)
@@ -226,7 +211,7 @@ Vue.mixin({
         }
       },
       warning (message, opts = {}) {
-        if (!this.empty(message)) {
+        if (!this.$utils.empty(message)) {
           const merged = Object.assign({
             title: '警示',
             autoHideDelay: 7500,
@@ -237,7 +222,7 @@ Vue.mixin({
         }
       },
       alert (message, opts = {}) {
-        if (!this.empty(message)) {
+        if (!this.$utils.empty(message)) {
           opts.pos = (opts && opts.pos === 'bottom') ? 'bf' : 'tf'
           const merged = Object.assign({
             title: '錯誤',
@@ -258,7 +243,7 @@ Vue.mixin({
       animated (selector, opts, prefix = '') {
         return new Promise((resolve, reject) => {
           opts = Object.assign({
-            name: this.$consts.animateAttentionSeekers[this.rand(this.$consts.animateAttentionSeekers.length)],
+            name: this.$consts.animateAttentionSeekers[this.$utils.rand(this.$consts.animateAttentionSeekers.length)],
             speed: 'faster', // 'slower', 'slow', '', 'fast', 'faster' (3s, 2s, 1s, 800ms, 500ms)
             repeat: '', // repeat-[1-3], infinite
             delay: '' // delay, delay-[2s-5s]
@@ -355,7 +340,7 @@ Vue.mixin({
           })
       },
       async setCache (key, val, expire_timeout = 0) {
-        if (this.empty(key) || this.$localForage === undefined) { return false }
+        if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
         try {
           const item = {
             key,
@@ -376,10 +361,10 @@ Vue.mixin({
         return true
       },
       async getCache (key) {
-        if (this.empty(key) || this.$localForage === undefined) { return false }
+        if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
         try {
           const item = await this.$localForage.getItem(key)
-          if (this.empty(item)) { return false }
+          if (this.$utils.empty(item)) { return false }
           const ts = item.timestamp
           const expireTime = item.expire_ms || 0
           const now = +new Date()
@@ -397,10 +382,10 @@ Vue.mixin({
         return false
       },
       async getCacheExpireRemainingTime (key) {
-        if (this.empty(key) || this.$localForage === undefined) { return false }
+        if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
         try {
           const item = await this.$localForage.getItem(key)
-          if (this.empty(item)) { return false }
+          if (this.$utils.empty(item)) { return false }
           const ts = item.timestamp
           const expireTime = item.expire_ms || 0
           const now = +new Date()
@@ -416,7 +401,7 @@ Vue.mixin({
         return false
       },
       async removeCache (key) {
-        if (this.empty(key) || this.$localForage === undefined) { return false }
+        if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
         try {
           await this.$localForage.removeItem(key)
         } catch (err) {

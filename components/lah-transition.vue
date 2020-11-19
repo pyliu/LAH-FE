@@ -158,7 +158,7 @@ export default {
     },
     randAnimation () {
       let count = this.animateTransitions.length
-      let this_time = this.animateTransitions[this.rand(this.animateTransitions.length)]
+      let this_time = this.animateTransitions[this.$utils.rand(this.animateTransitions.length)]
       this.animated_in = `${this_time.in} ${this.utilityCss}`
       this.animated_out = `${this_time.out} ${this.utilityCss}`
     }
