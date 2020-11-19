@@ -206,7 +206,7 @@ Vue.mixin({
           this.makeToast(message, msg)
         } else  {
           this.alert(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
-          this.$error(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
+          this.$utils.error(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
         }
       },
       warning (message, opts = {}) {
@@ -250,22 +250,20 @@ Vue.mixin({
               scrollable: true,
               hideFooter: true,
               noCloseOnBackdrop: false,
-              contentClass: 'shadow hide', // add hide class to .modal-content then use Animated.css for animation show up
-              html: false
+              noFade: false,
+              contentClass: 'shadow',
+              html: false,
+              root: false
             }, opts)
             // use d-none to hide footer
             merged.footerClass = merged.hideFooter ? 'd-none' : 'p-2'
+            // HTML message content
             if (merged.html) {
               merged.titleHtml = merged.title
               merged.title = undefined
-              // https://bootstrap-vue.org/docs/components/modal#modal-message-boxes
               if (typeof message === 'object') {
                 // assume the message is VNode
-                this.$bvModal.msgBoxOk([message], merged).then((val) => {
-                  // val will be always true from $bvModal.msgBoxOk window closed
-                }).catch(err => {
-                  reject(err)
-                })
+                message = [message]
               } else {
                 const h = this.$createElement
                 const msgVNode = h('div', {
@@ -273,20 +271,17 @@ Vue.mixin({
                     innerHTML: message
                   }
                 })
-                this.$bvModal.msgBoxOk([msgVNode], merged).then((val) => {
-                  // val will be always true from $bvModal.msgBoxOk window closed
-                }).catch(err => {
-                  reject(err)
-                })
               }
-            } else {
-              this.$bvModal.msgBoxOk(message, merged).then((val) => {
-                // val will be always true from $bvModal.msgBoxOk window closed
-              }).catch(err => {
-                reject(err)
-              })
+              message = [msgVNode]
             }
-            // TODO: use modalId to resolve ... 
+            // https://bootstrap-vue.org/docs/components/modal#modal-message-boxes
+            const modal = merged.root ? this.$root.$bvModal : this.$bvModal
+            modal.msgBoxOk(message, merged).then((val) => {
+              // val will be always true from $bvModal.msgBoxOk window closed
+            }).catch(err => {
+              reject(err)
+            })
+            // TODO: pass modalId if available ... 
             resolve('modal shown')
           } else {
             reject(new Error('No this.$bvModal, modal window can not be shown'))
@@ -318,14 +313,14 @@ Vue.mixin({
           }
         })
         this.$bvModal.msgBoxConfirm([msgVNode], merged)
-          .then((value) => {
-            this.confirmAns = value
-            if (this.confirmAns && merged.callback && typeof merged.callback === 'function') {
-              merged.callback.apply(this, arguments)
-            }
-          }).catch((err) => {
-            this.$error(err)
-          })
+        .then((value) => {
+          this.confirmAns = value
+          if (this.confirmAns && merged.callback && typeof merged.callback === 'function') {
+            merged.callback.apply(this, arguments)
+          }
+        }).catch((err) => {
+          this.$utils.error(err)
+        })
       },
       async setCache (key, val, expire_timeout = 0) {
         if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
@@ -340,10 +335,10 @@ Vue.mixin({
             // Do other things once the value has been saved.
           }).catch((err) => {
             // This code runs if there were any errors
-            this.$error(err)
+            this.$utils.error(err)
           })
         } catch (err) {
-          this.$error(err)
+          this.$utils.error(err)
           return false
         }
         return true

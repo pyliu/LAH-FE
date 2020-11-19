@@ -69,7 +69,7 @@ export default {
         this.getCacheExpireRemainingTime(this.cacheKey).then(
           remain_ms => {
             this.$refs.countdown.setCountdown(remain_ms + 1000)
-            // this.$warn(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+            // this.$utils.warn(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
           }
         ).finally(() => {
           this.$refs.countdown.startCountdown()
@@ -106,7 +106,7 @@ export default {
             this.commit(res.data)
           }).catch(err => {
             this.alert(err.message)
-            this.$error(err)
+            this.$utils.error(err)
           }).finally(() => {
             this.isBusy = false
           })
@@ -120,6 +120,7 @@ export default {
   created () {
     this.isOverdueMode = false
     this.load()
+    this.modal('This is a test')
   }
 }
 </script>
