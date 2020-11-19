@@ -83,6 +83,36 @@ export default ({ $axios, store }, inject) => {
   }
   // like old fashion global functions, use this.$utils to access these methods in Vue
   const utility = {
+    /**
+     * usage in Vue
+     * this.$utils.animated('.my-element', { name: 'bounce', duration: 'faster', delay: '' }).then((message) => {
+     *  // Do something after the animation
+     * })
+     */
+    animated (selector, opts, prefix = '') {
+      return new Promise((resolve, reject) => {
+        opts = Object.assign({
+          name: consts.animateAttentionSeekers[this.rand(consts.animateAttentionSeekers.length)],
+          speed: 'faster', // 'slower', 'slow', '', 'fast', 'faster' (3s, 2s, 1s, 800ms, 500ms)
+          repeat: '', // repeat-[1-3], infinite
+          delay: '' // delay, delay-[2s-5s]
+        }, opts)
+        const node = $(selector)
+        node.removeClass('hide')
+        const classes = `${prefix}animated ${prefix}${opts.name} ${prefix}${opts.speed} ${prefix}${opts.repeat} ${prefix}${opts.delay}`
+        node.addClass(classes)
+        // When the animation ends, we clean the classes and resolve the Promise
+        function handleAnimationEnd() {
+          node.removeClass(classes)
+          // clear ld animation also
+          $(selector || '*').removeClass('ld').attr('class', function (i, c) {
+            return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
+          })
+          resolve(`${opts.name} animation ended.`)
+        }
+        node[0].addEventListener('animationend', handleAnimationEnd, {once: true})
+      })
+    },
     addAnimation (selector, which) {
       let el = $(selector || '*').removeClass('ld').attr('class', function(i, c) {
         return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
