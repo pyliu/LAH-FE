@@ -81,10 +81,10 @@ export default {
       this.removeCache(this.cacheKey).then(() => { this.load() })
     },
     load () {
+      this.committed = false
       this.getCache(this.cacheKey).then(jsonObj => {
         if (jsonObj === false) {
           this.isBusy = true
-          this.committed = false
           this.$axios.post(this.$consts.API.JSON.QUERY, {
             type: this.queryType,
             reviewer_id: this.reviewerID
