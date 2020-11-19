@@ -276,7 +276,7 @@ Vue.mixin({
         })
       },
       confirm (message, opts) {
-        this.confirmAnswer = false
+        this.confirmAns = false
         this.openConfirm = true
         const merged = Object.assign({
           title: '請確認',
@@ -301,8 +301,8 @@ Vue.mixin({
         })
         this.$bvModal.msgBoxConfirm([msgVNode], merged)
           .then((value) => {
-            this.confirmAnswer = value
-            if (this.confirmAnswer && merged.callback && typeof merged.callback === 'function') {
+            this.confirmAns = value
+            if (this.confirmAns && merged.callback && typeof merged.callback === 'function') {
               merged.callback.apply(this, arguments)
             }
           }).catch((err) => {
