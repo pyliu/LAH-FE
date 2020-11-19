@@ -61,19 +61,20 @@ export default {
   },
   methods: {
     commit (json) {
-      this.queriedJson = json
-      this.$store.commit('expiry/list', this.queriedJson.items || [])
-      this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
-      this.committed = true
-      if (this.$refs.countdown) {
-        this.getCacheExpireRemainingTime(this.cacheKey).then(
-          remain_ms => {
-            this.$refs.countdown.setCountdown(remain_ms)
-            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
-          }
-        ).finally(() => {
-          this.$refs.countdown.startCountdown()
-        }) 
+      if (!this.committed) {
+        this.queriedJson = json
+        this.$store.commit('expiry/list', this.queriedJson.items || [])
+        this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
+        this.committed = true
+        if (this.$refs.countdown) {
+          this.getCacheExpireRemainingTime(this.cacheKey).then(
+            remain_ms => {
+              this.$refs.countdown.setCountdown(remain_ms)
+              this.$refs.countdown.startCountdown()
+              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+            }
+          )
+        }
       }
     },
     reload() {
