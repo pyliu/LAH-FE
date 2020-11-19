@@ -2,12 +2,10 @@ const state = () => ({
   xhrResponse: null,
   xhrRequest: null, // the xhr config
   ip: '0.0.0.0',
-  toastCounter: 0,
-  dayMilliseconds: 24 * 60 * 60 * 1000
+  toastCounter: 0
 })
 
 const getters = {
-  dayMilliseconds: state => state.dayMilliseconds,
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
   xhrResponse: state => state.xhrResponse,

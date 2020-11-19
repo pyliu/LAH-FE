@@ -3,30 +3,32 @@
     <div>
       <section class="fixed-title-height">
         <lah-transition appear>
-          <div v-if="showLogo">
+          <div v-if="ready">
             <Logo />
             <h3 class="title lah-shadow text-nowrap">桃園市地政智慧管控系統</h3>
           </div>
         </lah-transition>
       </section>
-      <section class="b-card-container">
-        <b-card-group deck class="mb-4">
-          <lah-index-card-link :icon="['far', 'calendar-check']" to="/about-to-expire">即將逾期案件</lah-index-card-link>
-          <lah-index-card-link :icon="['far', 'sticky-note']" to="/expiry-of-announcement">公告期滿案件</lah-index-card-link>
-          <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask-for-instructions">請示未結案件</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">信託案件檢索</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">非專業代理人案件檢索</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">外人地權案件檢索</lah-index-card-link>
-        </b-card-group>
-        <b-card-group deck>
-          <lah-index-card-link icon-variant="muted" action="damage">三七五租約標的異動檢索</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">未辦標的註記異動檢索</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">參考資訊檔標的異動通知書產製</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">逾期未駁回查詢</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">辦畢通知查詢</lah-index-card-link>
-          <lah-index-card-link icon-variant="muted" action="damage">領狀管控查詢</lah-index-card-link>
-        </b-card-group>
-      </section>
+      <lah-transition appear>
+        <section v-if="ready" class="b-card-container">
+          <b-card-group deck class="mb-4">
+            <lah-index-card-link :icon="['far', 'calendar-check']" to="/about-to-expire">即將逾期案件</lah-index-card-link>
+            <lah-index-card-link :icon="['far', 'sticky-note']" to="/expiry-of-announcement">公告期滿案件</lah-index-card-link>
+            <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask-for-instructions">請示未結案件</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">信託案件檢索</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">非專業代理人案件檢索</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">外人地權案件檢索</lah-index-card-link>
+          </b-card-group>
+          <b-card-group deck>
+            <lah-index-card-link icon-variant="muted" action="damage">三七五租約標的異動檢索</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">未辦標的註記異動檢索</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">參考資訊檔標的異動通知書產製</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">逾期未駁回查詢</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">辦畢通知查詢</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">領狀管控查詢</lah-index-card-link>
+          </b-card-group>
+        </section>
+      </lah-transition>
     </div>
   </div>
 </template>
@@ -37,7 +39,7 @@ export default {
     title: '桃園市地政智慧管控系統'
   },
   data: () => ({
-    showLogo: false
+    ready: false
   }),
   async asyncData(nuxt) {
     // SSR: returned object will replace the data inside "data" before rendering
@@ -45,7 +47,7 @@ export default {
   watch: {},
   methods: {},
   mounted () {
-    this.showLogo = true
+    this.ready = true
   }
 }
 </script>

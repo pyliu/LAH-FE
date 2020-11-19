@@ -25,9 +25,8 @@ Vue.mixin({
       }
     },
     computed: {
-      ip () { return this.$store.getters.ip },
       viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
-      dayMilliseconds () { return this.$store.getters.dayMilliseconds },
+      ip () { return this.$store.getters.ip },
       toastCounter () { return this.$store.getters.toastCounter },
       xhrResponse () { return this.$store.getters.xhrResponse },
       xhrRequest () { return this.$store.getters.xhrRequest }
@@ -237,42 +236,61 @@ Vue.mixin({
       },
       modal (message, opts) {
         return new Promise((resolve, reject) => {
-          const merged = Object.assign({
-            title: '訊息',
-            size: 'md',
-            buttonSize: 'sm',
-            okVariant: 'outline-secondary',
-            okTitle: '關閉',
-            hideHeaderClose: false,
-            centered: true,
-            scrollable: true,
-            hideFooter: true,
-            noCloseOnBackdrop: false,
-            contentClass: 'shadow hide', // add hide class to .modal-content then use Animated.css for animation show up
-            html: false
-          }, opts)
-          // use d-none to hide footer
-          merged.footerClass = merged.hideFooter ? 'd-none' : 'p-2'
-          if (merged.html) {
-            merged.titleHtml = merged.title
-            merged.title = undefined
-            if (typeof message === 'object') {
-              // assume the message is VNode
-              this.$bvModal.msgBoxOk([message], merged)
+          if (this.$isServer) {
+            reject(new Error('Server side doesn\'t use  modal'))
+          } else if (this.$bvModal) {
+            const merged = Object.assign({
+              title: '訊息',
+              size: 'md',
+              buttonSize: 'sm',
+              okVariant: 'outline-secondary',
+              okTitle: '關閉',
+              hideHeaderClose: false,
+              centered: true,
+              scrollable: true,
+              hideFooter: true,
+              noCloseOnBackdrop: false,
+              contentClass: 'shadow hide', // add hide class to .modal-content then use Animated.css for animation show up
+              html: false
+            }, opts)
+            // use d-none to hide footer
+            merged.footerClass = merged.hideFooter ? 'd-none' : 'p-2'
+            if (merged.html) {
+              merged.titleHtml = merged.title
+              merged.title = undefined
+              // https://bootstrap-vue.org/docs/components/modal#modal-message-boxes
+              if (typeof message === 'object') {
+                // assume the message is VNode
+                this.$bvModal.msgBoxOk([message], merged).then((val) => {
+                  // val will be always true from $bvModal.msgBoxOk window closed
+                }).catch(err => {
+                  reject(err)
+                })
+              } else {
+                const h = this.$createElement
+                const msgVNode = h('div', {
+                  domProps: {
+                    innerHTML: message
+                  }
+                })
+                this.$bvModal.msgBoxOk([msgVNode], merged).then((val) => {
+                  // val will be always true from $bvModal.msgBoxOk window closed
+                }).catch(err => {
+                  reject(err)
+                })
+              }
             } else {
-              const h = this.$createElement
-              const msgVNode = h('div', {
-                domProps: {
-                  innerHTML: message
-                }
+              this.$bvModal.msgBoxOk(message, merged).then((val) => {
+                // val will be always true from $bvModal.msgBoxOk window closed
+              }).catch(err => {
+                reject(err)
               })
-              this.$bvModal.msgBoxOk([msgVNode], merged)
             }
+            // TODO: use modalId to resolve ... 
+            resolve('modal shown')
           } else {
-            this.$bvModal.msgBoxOk(message, merged)
+            reject(new Error('No this.$bvModal, modal window can not be shown'))
           }
-          // TODO: use modalId to resolve ... 
-          resolve('modal shown')
         })
       },
       confirm (message, opts) {
