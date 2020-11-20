@@ -49,8 +49,18 @@ export default {
     cacheKey () { return this.isOverdueMode ? `already-expired` : `about-to-expire` },
     badgeVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
     queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
-    queryTitle () { return this.isOverdueMode ? '已逾期案件' : '即將逾期案件' },
-    queryCount () { return this.queriedJson && this.queriedJson.items ? this.queriedJson.items.length : 0 },
+    queryTitle () {
+      if (this.isBusy) {
+        return '讀取中'
+      }
+      return this.isOverdueMode ? '已逾期案件' : '即將逾期案件'
+    },
+    queryCount () {
+      if (this.isBusy) {
+        return '-'
+      }
+      return this.queriedJson && this.queriedJson.items ? this.queriedJson.items.length : 0
+    },
     switchButtonVariant () { return this.isOverdueMode ? 'danger' : 'warning' }
   },
   watch: {
