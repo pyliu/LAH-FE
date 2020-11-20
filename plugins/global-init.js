@@ -145,6 +145,7 @@ export default ({ $axios, store }, inject) => {
         win.focus()
       }
     },
+    statusCheck (statusCode) { return statusCode > 0 },
     message (statusCode) {
       switch (statusCode) {
         case 0:
