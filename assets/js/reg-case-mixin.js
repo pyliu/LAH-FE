@@ -1,28 +1,14 @@
 export default {
   props: {
-    bakedData: {
-      type: Object,
-      default: undefined
-    },
-    id: {
-      // the id format should be '109HB04001234'
-      type: String,
-      default: ''
-    }
+    bakedData: { type: Object, default: undefined },
+    // the id format should be '109HB04001234'
+    id: { type: String, default: '' }
   },
   computed: {
-    year () {
-      return this.bakedData ? this.bakedData['RM01'] : this.id.substring(0, 3)
-    },
-    code () {
-      return this.bakedData ? this.bakedData['RM02'] : this.id.substring(3, 7)
-    },
-    number () {
-      return this.bakedData ? this.bakedData['RM03'] : this.id.substring(7)
-    },
-    ready () {
-      return !this.empty(this.bakedData)
-    },
+    year () { return this.bakedData ? this.bakedData['RM01'] : this.id.substring(0, 3) },
+    code () { return this.bakedData ? this.bakedData['RM02'] : this.id.substring(3, 7) },
+    number () { return this.bakedData ? this.bakedData['RM03'] : this.id.substring(7) },
+    ready () { return !this.empty(this.bakedData) },
     storeBakedData () {
     // return this.storeParams['RegBakedData']
     }
