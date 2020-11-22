@@ -82,7 +82,7 @@ export default {
   created () {
     this.iconId = this.$utils.uuid();
   }
-};
+}
 </script>
 <style>
 </style>
