@@ -68,6 +68,16 @@
         </font-awesome-layers>
       </div>
     </div>
+    
+    <lah-reg-b-table
+      v-if="isTableReady"
+      :baked-data="json.baked"
+      icon-variant="success"
+      icon="chevron-circle-right" 
+      :max-height="300" 
+      class="small"
+    >
+    </lah-reg-b-table>
   </div>
 </template>
 
@@ -76,13 +86,41 @@ export default {
   head: {
     title: "測試-桃園市地政局",
   },
+  data: () => ({
+    pid: 'A123456789',
+    json: undefined
+  }),
+  computed: {
+    isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
+  },
   methods: {
     clickCountdownButton () {
       this.$utils.log(this.$el)
       this.notify('click countdown button!')
     }
+  },
+  created () {
+    let cache_key = "case-query-by-pid-crsms-"+this.pid
+    this.getCache(cache_key).then(json => {
+      this.json = json
+      if (this.$utils.empty(this.json)) {
+          this.$axios.post(
+              this.$consts.API.JSON.QUERY,
+              { type: 'crsms', id: this.pid }
+          ).then(response => {
+              // on success
+              this.json = response.data
+              this.setCache(cache_key, this.json, 900000)   // 15mins
+              if (this.json.data_count == 0) {
+                  this.notify(`<i class="text-info fas fa-exclamation-circle"></i> 查無登記案件資料`, { type: 'warning' })
+              }
+          }).catch(error => {
+              this.$utils.error(error)
+          }).finally(() => {})
+      }
+    })
   }
-};
+}
 </script>
 
 <style>

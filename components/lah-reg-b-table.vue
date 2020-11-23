@@ -45,11 +45,12 @@
             variant: row.item['燈號'],
           }"
         >
-          <lah-fa-icon
-            :icon="icon"
-            :variant="iconVariant"
+          <font-awesome-icon
             v-if="showIcon"
-          ></lah-fa-icon>
+            :icon="['fas', icon]"
+            :variant="iconVariant"
+            class="mx-auto my-auto"
+          />
           <span v-if="mute">{{ bakedContent(row) }}</span>
           <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{
             bakedContent(row)
@@ -64,11 +65,12 @@
             variant: row.item['燈號'],
           }"
         >
-          <lah-fa-icon
-            :icon="icon"
-            :variant="iconVariant"
+          <font-awesome-icon
             v-if="showIcon"
-          ></lah-fa-icon>
+            :icon="['fas', icon]"
+            :variant="iconVariant"
+            class="mx-auto my-auto"
+          />
           <span v-if="mute">{{ bakedContent(row) }}</span>
           <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{
             row.item["收件字號"]
@@ -81,21 +83,24 @@
       </template>
 
       <template v-slot:cell(燈號)="row">
-        <lah-fa-icon icon="circle" :variant="row.item['燈號']"></lah-fa-icon>
+        <font-awesome-icon
+          :icon="['fas', 'circle']"
+          :variant="row.item['燈號']"
+          class="mx-auto my-auto"
+        />
       </template>
 
       <template v-slot:cell(限辦時間)="row">
-        <lah-fa-icon
-          icon="circle"
+        <font-awesome-icon
+          :icon="['fas', 'circle']"
           :variant="row.item['燈號']"
+          class="mx-auto my-auto text-nowrap"
           v-b-popover.hover.focus.d400="{
             content: row.item['預定結案日期'],
             variant: row.item['燈號'],
           }"
-          class="text-nowrap"
-        >
-          {{ row.value }}</lah-fa-icon
-        >
+        />
+        {{ row.value }}
       </template>
 
       <template v-slot:cell(RM07_1)="row">
@@ -199,7 +204,7 @@ export default {
   }),
   computed: {
     tblFields: function () {
-      if (!this.empty(this.fields)) return this.fields
+      if (!this.$utils.empty(this.fields)) return this.fields
       switch (this.type) {
         case "md":
           return [
@@ -448,10 +453,10 @@ export default {
       return isNaN(parsed) ? "" : `max-height: ${parsed}px`
     },
     showIcon () {
-      return !this.empty(this.icon)
+      return !this.$utils.empty(this.icon)
     },
     sort () {
-      return this.empty(this.mute)
+      return this.$utils.empty(this.mute)
     },
   },
   methods: {
@@ -491,7 +496,7 @@ export default {
     userinfo (name, id = "") {
       if (name == "XXXXXXXX") return
       this.msgbox({
-        title: `${name} 使用者資訊${this.empty(id) ? "" : ` (${id})`}`,
+        title: `${name} 使用者資訊${this.$utils.empty(id) ? "" : ` (${id})`}`,
         message: this.$createElement("lah-user-card", {
           props: {
             id: id,
@@ -507,7 +512,7 @@ export default {
       return (
         row.item["RM09"] +
         " : " +
-        (this.empty(row.item["登記原因"])
+        (this.$utils.empty(row.item["登記原因"])
           ? row.item["RM09_CHT"]
           : row.item["登記原因"])
       )
@@ -517,9 +522,9 @@ export default {
         return this.color ? item["紅綠燈背景CSS"] : `filter-${item["燈號"]}`
     },
     passedTime (item, time_duration_secs) {
-      if (isNaN(time_duration_secs) || this.empty(time_duration_secs))
+      if (isNaN(time_duration_secs) || this.$utils.empty(time_duration_secs))
         return false
-      if (time_duration_secs == "0" && this.empty(item["結案代碼"])) {
+      if (time_duration_secs == "0" && this.$utils.empty(item["結案代碼"])) {
         return '<i class="fa fa-tools ld ld-clock"></i> 作業中'
       }
       if (time_duration_secs < 60) return "耗時 " + time_duration_secs + " 秒"
