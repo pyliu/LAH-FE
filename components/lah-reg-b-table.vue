@@ -1,202 +1,160 @@
 <template>
-  <lah-transition appear slide-down>
-    <b-table
-      ref="reg_case_tbl"
-      :responsive="'sm'"
-      :striped="true"
-      :hover="true"
-      :bordered="true"
-      :borderless="false"
-      :outlined="false"
-      :small="true"
-      :dark="false"
-      :fixed="false"
-      :foot-clone="false"
-      :no-border-collapse="true"
-      :head-variant="'dark'"
-      :table-variant="false"
-      :sticky-header="sticky"
-      :caption="caption"
-      :items="bakedData"
-      :fields="tblFields"
-      :style="style"
-      :busy="busy"
-      :tbody-tr-class="trClass"
-      :tbody-transition-props="transProps"
-      primary-key="收件字號"
-      class="text-center"
-      caption-top
-    >
-      <template v-slot:table-busy>
-        <b-spinner
-          class="align-middle"
-          variant="danger"
-          type="grow"
-          small
-          label="讀取中..."
-        ></b-spinner>
-      </template>
+  <b-table
+    ref="bTable"
+    :responsive="'lg'"
+    :striped="true"
+    :hover="true"
+    :bordered="true"
+    :borderless="false"
+    :outlined="false"
+    :small="true"
+    :dark="false"
+    :fixed="false"
+    :foot-clone="false"
+    :no-border-collapse="true"
+    :head-variant="'dark'"
+    :table-variant="tableVariant"
+    :sticky-header="sticky"
+    :caption="caption"
+    :items="bakedData"
+    :fields="tblFields"
+    :style="style"
+    :busy="busy"
+    :tbody-tr-class="trClass"
+    :tbody-transition-props="transProps"
+    primary-key="收件字號"
+    class="text-center"
+    caption-top
+  >
+    <template v-slot:table-busy>
+      <b-spinner
+        class="align-middle"
+        variant="danger"
+        type="grow"
+        small
+        label="讀取中..."
+      ></b-spinner>
+    </template>
 
-      <template v-slot:cell(RM01)="row">
-        <div
-          class="text-left"
-          v-b-popover.hover.focus.d400="{
-            content: row.item['結案狀態'],
-            variant: row.item['燈號'],
-          }"
-        >
-          <font-awesome-icon
-            v-if="showIcon"
-            :icon="['fas', icon]"
-            :variant="iconVariant"
-            class="mx-auto my-auto"
-          />
-          <span v-if="mute">{{ bakedContent(row) }}</span>
-          <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{
-            bakedContent(row)
-          }}</a>
-        </div>
-      </template>
-      <template v-slot:cell(收件字號)="row">
-        <div
-          class="text-left"
-          v-b-popover.hover.focus.d400="{
-            content: row.item['結案狀態'],
-            variant: row.item['燈號'],
-          }"
-        >
-          <font-awesome-icon
-            v-if="showIcon"
-            :icon="['fas', icon]"
-            :variant="iconVariant"
-            class="mx-auto my-auto"
-          />
-          <span v-if="mute">{{ bakedContent(row) }}</span>
-          <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{
-            row.item["收件字號"]
-          }}</a>
-        </div>
-      </template>
-
-      <template v-slot:cell(序號)="row">
-        {{ row.index + 1 }}
-      </template>
-
-      <template v-slot:cell(燈號)="row">
+    <template v-slot:cell(RM01)="row">
+      <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
         <font-awesome-icon
-          :icon="['fas', 'circle']"
-          :variant="row.item['燈號']"
+          v-if="showIcon"
+          :icon="['fas', icon]"
+          :variant="iconVariant"
           class="mx-auto my-auto"
         />
-      </template>
+        <span v-if="mute">{{ bakedContent(row) }}</span>
+        <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{ bakedContent(row) }}</a>
+      </div>
+    </template>
 
-      <template v-slot:cell(限辦時間)="row">
+    <template v-slot:cell(收件字號)="row">
+      <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
         <font-awesome-icon
-          :icon="['fas', 'circle']"
-          :variant="row.item['燈號']"
-          class="mx-auto my-auto text-nowrap"
-          v-b-popover.hover.focus.d400="{
-            content: row.item['預定結案日期'],
-            variant: row.item['燈號'],
-          }"
+          v-if="showIcon"
+          :icon="['fas', icon]"
+          :variant="iconVariant"
+          class="mx-auto my-auto"
         />
-        {{ row.value }}
-      </template>
+        <span v-if="mute">{{ bakedContent(row) }}</span>
+        <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{ row.item["收件字號"] }}</a>
+      </div>
+    </template>
 
-      <template v-slot:cell(RM07_1)="row">
-        <span v-b-popover.hover.focus.d400="row.item['收件時間']">{{
-          row.item["RM07_1"]
-        }}</span>
-      </template>
+    <template v-slot:cell(序號)="row">
+      {{ row.index + 1 }}
+    </template>
 
-      <template v-slot:cell(登記原因)="row">
-        {{ reason(row) }}
-      </template>
-      <template v-slot:cell(RM09)="row">
-        {{ reason(row) }}
-      </template>
+    <template v-slot:cell(燈號)="row">
+      <font-awesome-icon
+        :icon="['fas', 'circle']"
+        :variant="row.item['燈號']"
+        class="mx-auto my-auto"
+      />
+    </template>
 
-      <template v-slot:cell(初審人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['初審人員'], item['RM45'])"
-          v-b-popover.top.hover.focus.html="
-            passedTime(item, item.ELAPSED_TIME['初審'])
-          "
-          >{{ item["初審人員"] }}</a
-        >
-      </template>
-      <template v-slot:cell(複審人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['複審人員'], item['RM47'])"
-          v-b-popover.top.hover.focus.html="
-            passedTime(item, item.ELAPSED_TIME['複審'])
-          "
-          >{{ item["複審人員"] }}</a
-        >
-      </template>
-      <template v-slot:cell(收件人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['收件人員'], item['RM96'])"
-          >{{ item["收件人員"] }}</a
-        >
-      </template>
-      <template v-slot:cell(作業人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['作業人員'], item['RM30_1'])"
-          >{{ item["作業人員"] }}</a
-        >
-      </template>
-      <template v-slot:cell(准登人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['准登人員'], item['RM63'])"
-          v-b-popover.top.hover.focus.html="
-            passedTime(item, item.ELAPSED_TIME['准登'])
-          "
-          >{{ item["准登人員"] }}</a
-        >
-      </template>
-      <template v-slot:cell(登錄人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['登錄人員'], item['RM55'])"
-          v-b-popover.top.hover.focus.html="
-            passedTime(item, item.ELAPSED_TIME['登簿'])
-          "
-          >{{ item["登錄人員"] }}</a
-        >
-      </template>
-      <template v-slot:cell(校對人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['校對人員'], item['RM57'])"
-          v-b-popover.top.hover.focus.html="
-            passedTime(item, item.ELAPSED_TIME['校對'])
-          "
-          >{{ item["校對人員"] }}</a
-        >
-      </template>
-      <template v-slot:cell(結案人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['結案人員'], item['RM59'])"
-          v-b-popover.top.hover.focus.html="
-            passedTime(item, item.ELAPSED_TIME['結案'])
-          "
-          >{{ item["結案人員"] }}</a
-        >
-      </template>
-    </b-table>
-  </lah-transition>
+    <template v-slot:cell(限辦時間)="row">
+      <font-awesome-icon
+        :icon="['fas', 'circle']"
+        :variant="row.item['燈號']"
+        class="mx-auto my-auto text-nowrap"
+        v-b-popover.hover.focus.d400="{ content: row.item['預定結案日期'], variant: row.item['燈號'] }"
+      />
+      {{ row.value }}
+    </template>
+
+    <template v-slot:cell(RM07_1)="row">
+      <span v-b-popover.hover.focus.d400="row.item['收件時間']">{{ row.item["RM07_1"] }}</span>
+    </template>
+
+    <template v-slot:cell(登記原因)="row">
+      {{ reason(row) }}
+    </template>
+    <template v-slot:cell(RM09)="row">
+      {{ reason(row) }}
+    </template>
+
+    <template v-slot:cell(初審人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['初審人員'], item['RM45'])"
+        v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['初審'])"
+      >{{ item["初審人員"] }}</a>
+    </template>
+    <template v-slot:cell(複審人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['複審人員'], item['RM47'])"
+        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['複審'])"
+      >{{ item["複審人員"] }}</a>
+    </template>
+    <template v-slot:cell(收件人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['收件人員'], item['RM96'])"
+      >{{ item["收件人員"] }}</a>
+    </template>
+    <template v-slot:cell(作業人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['作業人員'], item['RM30_1'])"
+      >{{ item["作業人員"] }}</a>
+    </template>
+    <template v-slot:cell(准登人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['准登人員'], item['RM63'])"
+        v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['准登'])"
+      >{{ item["准登人員"] }}</a>
+    </template>
+    <template v-slot:cell(登錄人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['登錄人員'], item['RM55'])"
+        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['登簿'])"
+      >{{ item["登錄人員"] }}</a>
+    </template>
+    <template v-slot:cell(校對人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['校對人員'], item['RM57'])"
+        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['校對'])"
+      >{{ item["校對人員"] }}</a>
+    </template>
+    <template v-slot:cell(結案人員)="{ item }">
+      <a
+        href="javascript:void(0)"
+        @click="userinfo(item['結案人員'], item['RM59'])"
+        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['結案'])"
+      >{{ item["結案人員"] }}</a>
+    </template>
+  </b-table>
 </template>
 
 <script>
 export default {
-  props: ['bakedData', 'maxHeight', 'type', 'fields', 'mute', 'noCaption', 'color', 'icon', 'iconVariant', 'busy'],
+  props: ['bakedData', 'maxHeight', 'type', 'fields', 'mute', 'noCaption', 'color', 'icon', 'iconVariant', 'busy', 'tableVariant'],
   data: () => ({
     transProps: {
       name: "rollIn",
@@ -452,9 +410,7 @@ export default {
       const parsed = parseInt(this.maxHeight)
       return isNaN(parsed) ? "" : `max-height: ${parsed}px`
     },
-    showIcon () {
-      return !this.$utils.empty(this.icon)
-    },
+    showIcon () { return !this.$utils.empty(this.icon) },
     sort () {
       return this.$utils.empty(this.mute)
     },
@@ -462,40 +418,35 @@ export default {
   methods: {
     fetch (data) {
       let id = `${data["RM01"]}${data["RM02"]}${data["RM03"]}`
-      this.$http
-        .post(CONFIG.API.JSON.QUERY, {
-          type: "reg_case",
-          id: id,
-        })
-        .then((res) => {
-          if (
-            res.data.status == XHR_STATUS_CODE.DEFAULT_FAIL ||
-            res.data.status == XHR_STATUS_CODE.UNSUPPORT_FAIL
-          ) {
-            this.alert({
-              title: "顯示登記案件詳情",
-              message: res.data.message,
-              type: "warning",
-            })
-          } else {
-            this.msgbox({
-              message: this.$createElement("lah-reg-case-detail", {
-                props: {
-                  bakedData: res.data.baked,
-                },
-              }),
-              title: `登記案件詳情 ${data["RM01"]}-${data["RM02"]}-${data["RM03"]}`,
-              size: "lg",
-            })
-          }
-        })
-        .catch((err) => {
-          this.error = err
-        })
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: "reg_case",
+        id: id,
+      }).then((res) => {
+        if (!this.$utils.statusCheck(res.data.status)) {
+          this.alert({
+            title: "顯示登記案件詳情",
+            message: res.data.message,
+            type: "warning",
+          })
+        } else {
+          this.$utils.log(res.data.baked)
+          this.modal({
+            message: this.$createElement("lah-reg-case-detail", {
+              props: {
+                bakedData: res.data.baked,
+              },
+            }),
+            title: `登記案件詳情 ${data["RM01"]}-${data["RM02"]}-${data["RM03"]}`,
+            size: "lg",
+          })
+        }
+      })
+      .catch((err) => {
+        this.$utils.error(err)
+      })
     },
     userinfo (name, id = "") {
-      if (name == "XXXXXXXX") return
-      this.msgbox({
+      name !== "XXXXXXXX" && this.modal({
         title: `${name} 使用者資訊${this.$utils.empty(id) ? "" : ` (${id})`}`,
         message: this.$createElement("lah-user-card", {
           props: {

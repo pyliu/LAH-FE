@@ -103,21 +103,17 @@ export default {
     let cache_key = "case-query-by-pid-crsms-"+this.pid
     this.getCache(cache_key).then(json => {
       this.json = json
-      if (this.$utils.empty(this.json)) {
-          this.$axios.post(
-              this.$consts.API.JSON.QUERY,
-              { type: 'crsms', id: this.pid }
-          ).then(response => {
-              // on success
-              this.json = response.data
-              this.setCache(cache_key, this.json, 900000)   // 15mins
-              if (this.json.data_count == 0) {
-                  this.notify(`<i class="text-info fas fa-exclamation-circle"></i> 查無登記案件資料`, { type: 'warning' })
-              }
-          }).catch(error => {
-              this.$utils.error(error)
-          }).finally(() => {})
-      }
+      this.$utils.empty(this.json) && this.$axios.post(
+        this.$consts.API.JSON.QUERY,
+        { type: 'crsms', id: this.pid }
+      ).then(response => {
+        // on success
+        this.json = response.data
+        this.setCache(cache_key, this.json, 900000)   // 15mins
+        this.json.data_count === 0 && this.notify(`<i class="text-info fas fa-exclamation-circle"></i> 查無登記案件資料`, { type: 'warning' })
+      }).catch(error => {
+          this.$utils.error(error)
+      }).finally(() => {})
     })
   }
 }
