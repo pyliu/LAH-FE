@@ -18,11 +18,9 @@ export default {
     align: { type: String, default: "" },
   },
   computed: {
-    className() {
+    className () {
       let prefix = this.prefix || "fas";
       let icon = this.icon || "exclamation-circle";
-      let variant = this.variant || "";
-      let ld_movement = this.action || "";
       let size = "";
       switch (this.size) {
         case "xs":
@@ -40,8 +38,10 @@ export default {
           }
           break;
       }
-      return `text-${variant} ${prefix} fa-${icon} ${size} ld ld-${ld_movement}`;
+      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement}`;
     },
+    textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
+    ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` }
   },
 };
 </script>

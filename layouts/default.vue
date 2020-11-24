@@ -13,6 +13,7 @@
       icon="home"
       size="lg"
       class="home-button"
+      action="ld-breath"
       variant="outline-dark"
       title="回到首頁"
     />
@@ -27,18 +28,22 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.bars-button {
+<style lang="scss" scoped>
+@mixin fix() {
   position: fixed;
+  width: 3.5rem;
+  background: white;
+}
+
+.bars-button {
+  @include fix();
   left: 1rem;
   top: 10px;
-  width: 3.5rem;
-  background-color: white;
 }
 
 .home-button {
-  @extend .bars-button;
+  @include fix();
   right: 1rem;
-  left: initial;
+  top: 10px;
 }
 </style>

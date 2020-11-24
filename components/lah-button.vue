@@ -12,15 +12,8 @@
     @mouseleave="mouseleave"
     @blur="mouseleave"
     @click="emitClick($event)"
+    style="display: flex; align-items: center; justify-content: center;"
   >
-    <!-- <font-awesome-icon
-      v-if="showIcon"
-      :id="iconId"
-      :icon="[faIconPrefix, icon]"
-      :size="iconSize"
-      :pull="pull"
-      class="mx-auto my-auto"
-    /> -->
     <lah-fa-icon
       :id="iconId"
       :prefix="faIconPrefix"
@@ -92,5 +85,6 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="scss" scoped>
+
 </style>
