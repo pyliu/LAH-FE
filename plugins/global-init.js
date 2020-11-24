@@ -191,18 +191,7 @@ export default ({ $axios, store }, inject) => {
       return Math.floor(Math.random() * Math.floor(range || 100))
     },
     trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
-    empty: isEmpty,
-    /*empty (variable) {
-      if (
-        variable === null || variable === undefined || variable === false ||
-        (Array.isArray(variable) && variable.length === 0) ||
-        (typeof variable === 'object' && JSON.stringify(variable) === '{}' ) ||
-        (typeof variable === 'string' && this.trim(variable) === '')
-      ) {
-        return true
-      }
-      return false
-    },*/
+    empty: isEmpty, // '0' is not empty
     equal: isEqual,
     caseid (id) {
       if (this.empty(id) || id.length !== 13) {

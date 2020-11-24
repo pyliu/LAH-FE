@@ -123,6 +123,9 @@ export default {
           this.$utils.error(error)
       }).finally(() => {})
     })
+  },
+  mounted () {
+    
   }
 }
 </script>
