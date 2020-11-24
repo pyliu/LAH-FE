@@ -279,21 +279,14 @@ Vue.mixin({
             }, opts)
             // use d-none to hide footer
             merged.footerClass = merged.hideFooter ? 'd-none' : 'p-2'
-            // HTML message content
-            if (merged.html) {
+            if (typeof message === 'object') {
+              // assume the message is VNode
+              message = [message]
+            } else if (merged.html) {
+              // HTML message content
               merged.titleHtml = merged.title
               merged.title = undefined
-              if (typeof message === 'object') {
-                // assume the message is VNode
-                message = [message]
-              } else {
-                const h = this.$createElement
-                const msgVNode = h('div', {
-                  domProps: {
-                    innerHTML: message
-                  }
-                })
-              }
+              const msgVNode = this.$createElement('div', { domProps: { innerHTML: message } })
               message = [msgVNode]
             }
             // https://bootstrap-vue.org/docs/components/modal#modal-message-boxes

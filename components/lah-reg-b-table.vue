@@ -429,15 +429,14 @@ export default {
             type: "warning",
           })
         } else {
-          this.$utils.log(res.data.baked)
-          this.modal({
-            message: this.$createElement("lah-reg-case-detail", {
-              props: {
-                bakedData: res.data.baked,
-              },
-            }),
+          const vnode = this.$createElement("lah-reg-case-detail", {
+            props: {
+              bakedData: res.data.baked,
+            }
+          })
+          this.modal(vnode, {
             title: `登記案件詳情 ${data["RM01"]}-${data["RM02"]}-${data["RM03"]}`,
-            size: "lg",
+            size: "xl",
           })
         }
       })

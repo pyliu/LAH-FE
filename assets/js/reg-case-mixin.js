@@ -15,28 +15,33 @@ export default {
     }
   },
   computed: {
-    year() {
+    year () {
       return this.bakedData ? this.bakedData['RM01'] : this.id.substring(0, 3)
     },
-    code() {
+    code () {
       return this.bakedData ? this.bakedData['RM02'] : this.id.substring(3, 7)
     },
-    number() {
+    number () {
       return this.bakedData ? this.bakedData['RM03'] : this.id.substring(7)
     },
-    ready() {
+    ready () {
       return !this.empty(this.bakedData)
     },
-    storeBakedData() {
-      // return this.storeParams['RegBakedData']
+    storeBakedData () {
+      return this.$store.getters['regcase/bakedData']
     }
   },
   watch: {
-    bakedData: function (nObj, oObj) {
-      // this.addToStoreParams('RegBakedData', nObj)
+    bakedData (nObj, oObj) {
+      this.$store.dispatch('regcase/update', nObj).then((baked) => {
+        this.$utils.log(baked)
+      })
     }
   },
-  mounted() {
+  created () {
+    this.bakedData = this.storeBakedData
+  },
+  mounted () {
     if (this.bakedData === undefined) {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.QUERY, {

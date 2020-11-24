@@ -9,16 +9,13 @@
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
-    <NuxtLink to="/">
-      <lah-button
-        icon="home"
-        size="lg"
-        class="home-button pr-1"
-        variant="outline-dark"
-        title="回到首頁"
-      >
-      </lah-button>
-    </NuxtLink>
+    <lah-button
+      icon="home"
+      size="lg"
+      class="home-button"
+      variant="outline-dark"
+      title="回到首頁"
+    />
     <Nuxt />
     <lah-footer />
     <lah-sidebar />
@@ -43,6 +40,5 @@ export default {
   @extend .bars-button;
   right: 1rem;
   left: initial;
-  padding: 8px 4px 8px 12px;
 }
 </style>

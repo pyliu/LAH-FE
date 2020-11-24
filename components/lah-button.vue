@@ -13,22 +13,30 @@
     @blur="mouseleave"
     @click="emitClick($event)"
   >
-    <font-awesome-icon
+    <!-- <font-awesome-icon
       v-if="showIcon"
       :id="iconId"
       :icon="[faIconPrefix, icon]"
       :size="iconSize"
       :pull="pull"
       class="mx-auto my-auto"
-    />
-    <slot></slot>
-    <b-badge
-      v-if="showBadge"
-      :variant="badgeVariant"
-      :pill="badgePill"
+    /> -->
+    <lah-fa-icon
+      :id="iconId"
+      :prefix="faIconPrefix"
+      :icon="icon"
+      :size="iconSize"
+      :append="iconAppend"
     >
-      {{ badgeText }}
-    </b-badge>
+      <slot></slot>
+      <b-badge
+        v-if="showBadge"
+        :variant="badgeVariant"
+        :pill="badgePill"
+      >
+        {{ badgeText }}
+      </b-badge>
+    </lah-fa-icon>
   </b-button>
 </template>
 
@@ -41,12 +49,12 @@ export default {
     size: { type: String, default: 'sm' },
     icon: { type: String, default: '' },
     iconSize: { type: String, default: 'lg' },
+    iconAppend: { type: Boolean, default: false },
     regular: { type: Boolean, default: false },
     brand: { type: Boolean, default: false },
     action: { type: String, default: undefined },
-    click: { type: Function, default: console.log.bind(console) },
+    click: { type: Function, default: () => { console.log("%c BUTTON Click", 'color: red; font-size: 2rem;') } },
     pill: { type: Boolean, default: false },
-    pull: { type: String, default: 'left' },
     block: { type: Boolean, default: false },
     pressed: { type: Boolean, default: false },
     link: { type: Boolean, default: false },

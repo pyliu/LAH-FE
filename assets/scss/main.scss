@@ -9,12 +9,19 @@
 // General style overrides and custom classes
 @import 'theme';
 
+@mixin center() {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 html, body { 
-  height: 100%;
+  height: 100vh;
   width: 100%;
   margin: 0;
   padding: 0;
   min-width: 1012px;
+  scroll-behavior: smooth;
 }
 
 .title {
@@ -34,4 +41,19 @@ html, body {
   white-space: nowrap;
   display:block;
   padding: 10px 4rem;
+}
+
+.center {
+  @include center();
+}
+
+.full-vh {
+  @include center();
+  height: 100vh;
+  color: #fff;
+  font-size: 5em;
+  text-shadow:
+    0px 2px 0px #b2a98f,
+    0px 4px 3px rgba(0,0,0,0.15),
+    0px 8px 1px rgba(0,0,0,0.1);
 }

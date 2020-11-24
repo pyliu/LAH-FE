@@ -5,6 +5,8 @@
   <!-- detail info card -->
   <b-card no-body>
     <b-tabs card :end="tabsAtEnd" :pills="tabsAtEnd">
+        
+    <!--
     <b-tab>
         <template v-slot:title>
             <strong>收件資料</strong>
@@ -178,7 +180,6 @@
             </b-list-group>
         </b-card-body>
     </b-tab>
-    <!--
     <b-tab lazy>
         <template v-slot:title>
             <lah-fa-icon icon="chart-line" class="text-success"> <strong>案件時間線</strong></lah-fa-icon>
@@ -206,7 +207,11 @@
 <script>
 import regCaseMixin from "~/assets/js/reg-case-mixin.js";
 export default {
+  name: 'lah-reg-case-detail',
   mixins: [regCaseMixin],
+  mounted () {
+      this.$utils.log(this.bakedData)
+  }
 };
 </script>
 
