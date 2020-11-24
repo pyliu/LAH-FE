@@ -12,8 +12,8 @@
     <lah-button
       icon="home"
       size="lg"
+      action="ld-jump"
       class="home-button"
-      action="ld-breath"
       variant="outline-dark"
       title="回到首頁"
     />
@@ -32,7 +32,7 @@ export default {
 @mixin fix() {
   position: fixed;
   width: 3.5rem;
-  background: white;
+  background-color: #EFEFEF;
 }
 
 .bars-button {
