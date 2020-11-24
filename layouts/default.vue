@@ -5,7 +5,7 @@
       size="lg"
       action="ld-move-fade-ltr"
       class="bars-button"
-      variant="dark"
+      variant="success"
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
@@ -13,9 +13,9 @@
       <lah-button
         icon="home"
         size="lg"
-        action="ld-jump"
+        action="ld-float"
         class="home-button"
-        variant="dark"
+        variant="success"
         title="回到首頁"
       />
     </NuxtLink>
