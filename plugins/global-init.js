@@ -1,4 +1,6 @@
 import $ from 'jquery'
+import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
 
 export default ({ $axios, store }, inject) => {
   // global const variables, use this.$consts.xxxx to access them in Vue
@@ -189,7 +191,8 @@ export default ({ $axios, store }, inject) => {
       return Math.floor(Math.random() * Math.floor(range || 100))
     },
     trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
-    empty (variable) {
+    empty: isEmpty,
+    /*empty (variable) {
       if (
         variable === null || variable === undefined || variable === false ||
         (Array.isArray(variable) && variable.length === 0) ||
@@ -199,7 +202,8 @@ export default ({ $axios, store }, inject) => {
         return true
       }
       return false
-    },
+    },*/
+    equal: isEqual,
     caseid (id) {
       if (this.empty(id) || id.length !== 13) {
         this.warn(`id is not a valid string, can not oonvert to formated case id. (${id})`)
