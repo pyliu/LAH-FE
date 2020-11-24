@@ -154,7 +154,19 @@
 
 <script>
 export default {
-  props: ['bakedData', 'maxHeight', 'type', 'fields', 'mute', 'noCaption', 'color', 'icon', 'iconVariant', 'busy', 'tableVariant'],
+  props: {
+    bakedData: { type: Array, default: [] },
+    maxHeight: { type: Number, default: undefined },
+    type: { type: String, default: '' },
+    fields:  { type: Array, default: undefined },
+    mute: { type: Boolean, default: false },
+    noCaption: { type: Boolean, default: false },
+    color: { type: Boolean, default: false },
+    icon: { type: String, default: '' },
+    iconVariant: { type: String, default: '' },
+    busy: { type: Boolean, default: false },
+    tableVariant: { type: String, default: '' }
+  },
   data: () => ({
     transProps: {
       name: "rollIn",
@@ -490,9 +502,6 @@ export default {
         " 小時"
       )
     },
-  },
-  created () {
-    this.type = this.type || ""
   }
 }
 </script>
