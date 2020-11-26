@@ -21,14 +21,17 @@
       :size="iconSize"
       :append="iconAppend"
     >
-      <slot></slot>
-      <b-badge
-        v-if="showBadge"
-        :variant="badgeVariant"
-        :pill="badgePill"
-      >
-        {{ badgeText }}
-      </b-badge>
+      <span v-show="busy" class="ld-txt">讀取中...</span>
+      <span v-show="!busy">
+        <slot></slot>
+        <b-badge
+          v-if="showBadge"
+          :variant="badgeVariant"
+          :pill="badgePill"
+        >
+          {{ badgeText }}
+        </b-badge>
+      </span>
     </lah-fa-icon>
   </b-button>
 </template>
@@ -53,12 +56,17 @@ export default {
     link: { type: Boolean, default: false },
     badgeText: { type: String, default: '' },
     badgeVariant: { type: String, default: 'light' },
-    badgePill: { type: Boolean, default: true }
+    badgePill: { type: Boolean, default: true },
+    busy: { type: Boolean, default: false }
   },
   data: () => ({
     iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
   }),
-  watch: {},
+  watch: {
+    busy (flag) {
+
+    }
+  },
   computed: {
     faIconPrefix () {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas';

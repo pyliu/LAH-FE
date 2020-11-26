@@ -6,6 +6,7 @@
     :action="action"
     @click="click"
     class="align-middle"
+    :busy="busy"
   >
     <slot></slot> 
     <b-badge ref="badge" :variant="badgeVariant" class="ml-1">
@@ -40,7 +41,8 @@ export default {
     autoStart: { type: Boolean, default: false },
     click: { type: Function,  default: () => {} },
     start: { type: Function, default: () => {} },
-    end: { type: Function, default: () => {} }
+    end: { type: Function, default: () => {} },
+    busy: { type: Boolean, default: false }
   },
   data: () => ({}),
   watch: {},
