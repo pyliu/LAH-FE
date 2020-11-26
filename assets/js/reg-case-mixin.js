@@ -1,5 +1,9 @@
 export default {
   props: {
+    readyData: {
+      type: Object,
+      default: undefined
+    },
     // the id format should be '109HB04001234'
     id: {
       type: String,
@@ -40,6 +44,7 @@ export default {
     }
   },
   created () {
+    this.bakedData = this.readyData
     if (this.bakedData === undefined) {
       if (this.storeBakedData) {
         this.bakedData = this.storeBakedData

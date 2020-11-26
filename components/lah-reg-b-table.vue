@@ -412,7 +412,7 @@ export default {
       return this.bakedData ? this.bakedData.length : 0
     },
     caption () {
-      if (this.mute || this.noCaption) return false
+      if (this.mute || this.noCaption) return ''
       return this.busy ? "讀取中" : "登記案件找到 " + this.count + "件"
     },
     sticky () {
@@ -443,7 +443,7 @@ export default {
         } else {
           const vnode = this.$createElement("lah-reg-case-detail", {
             props: {
-              bakedData: res.data.baked,
+              readyData: res.data.baked,
             }
           })
           this.modal(vnode, {
