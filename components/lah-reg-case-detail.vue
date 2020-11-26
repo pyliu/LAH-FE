@@ -34,7 +34,7 @@
                 </div>
                 收件字號：
                 <a
-                  :title="'收件資料 on ' + ap_server"
+                  :title="'收件資料 on ' + apServer"
                   href="javascript:void(0)"
                   @click="openNewWindow(case_data_url, $event)"
                 >
@@ -79,7 +79,7 @@
     <b-tab>
         <template v-slot:title>
             <strong>辦理情形</strong>
-            <b-link variant="muted" @click.stop="openNewWindow(case_status_url, $event)" :title="'案件辦理情形 on ' + ap_server"><lah-fa-icon icon="external-link-alt" variant="primary"></lah-fa-icon></b-link>
+            <b-link variant="muted" @click.stop="openNewWindow(case_status_url, $event)" :title="'案件辦理情形 on ' + apServer"><lah-fa-icon icon="external-link-alt" variant="primary"></lah-fa-icon></b-link>
         </template>
         <b-card-body>
             <b-list-group flush compact>
