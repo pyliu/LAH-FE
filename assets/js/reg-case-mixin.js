@@ -11,7 +11,8 @@ export default {
     }
   },
   data: () => ({
-    bakedData: undefined
+    bakedData: undefined,
+    site: 'HB'
   }),
   computed: {
     year () {

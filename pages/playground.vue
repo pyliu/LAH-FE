@@ -81,8 +81,6 @@
       >
       </lah-reg-b-table>
     </p>
-    <lah-button><span class="ld-txt">讀取中...</span></lah-button>
-    <div class="ld-txt">讀取中...</div>
     <lah-reg-case-detail id="109HB04280370"></lah-reg-case-detail>
   </div>
 </template>
