@@ -10,47 +10,48 @@
     <!-- detail info card -->
     <b-card no-body>
       
-    <!--<b-tabs card :end="tabsAtEnd" :pills="tabsAtEnd">
+      <b-tabs card :end="tabsAtEnd" :pills="tabsAtEnd">
         
-    <b-tab>
-        <template v-slot:title>
-            <strong>收件資料</strong>
-            <b-link variant="muted" @click.stop="$utils.openNewWindow(case_data_url, $event)" :title="'收件資料 on ' + apServer">
-                <lah-fa-icon icon="external-link-alt" variant="primary"></lah-fa-icon>
-            </b-link>
-        </template>
-        <b-card-body>
-            <b-form-row class="mb-1">
-                <b-col>    
-                    <lah-transition appear>
-                        <div v-show="show_op_card" class="mr-1 float-right" style="width:400px">
-                            <lah-fa-icon icon="user" variant="dark" prefix="far"> 作業人員</lah-fa-icon>
-                            <lah-user-card @not-found="handleNotFound" :id="bakedData.RM30_1"></lah-user-card>
-                        </div>
-                    </lah-transition>
-                    <div v-if="bakedData.跨所 == 'Y'"><span class='bg-info text-white rounded p-1'>跨所案件 ({{bakedData.資料收件所}} => {{bakedData.資料管轄所}})</span></div>
-                    收件字號：
-                    <a :title="'收件資料 on ' + ap_server" href="javascript:void(0)" @click="openNewWindow(case_data_url, $event)">
-                        {{bakedData.收件字號}}
-                    </a> <br/>
-                    收件時間：{{bakedData.收件時間}} <br/>
-                    測量案件：{{bakedData.測量案件}} <br/>
-                    限辦期限：<span v-html="bakedData.限辦期限"></span> <br/>
-                    作業人員：<span class='user_tag'>{{bakedData.作業人員}}</span> <br/>
-                    辦理情形：{{bakedData.辦理情形}} <br/>
-                    登記原因：{{bakedData.登記原因}} <br/>
-                    區域：{{area}}【{{bakedData.RM10}}】 <br/>
-                    段小段：{{bakedData.段小段}}【{{bakedData.段代碼}}】 <br/>
-                    地號：{{bakedData.地號}} <br/>
-                    建號：{{bakedData.建號}} <br/>
-                    件數：{{bakedData.件數}} <br/>
-                    登記處理註記：{{bakedData.登記處理註記}} <br/>
-                    地價處理註記：{{bakedData.地價處理註記}} <br/>
-                    手機號碼：{{bakedData.手機號碼}}
-                </b-col>
-            </b-form-row>
-        </b-card-body>
-    </b-tab>
+        <b-tab>
+            <template v-slot:title>
+                <strong>收件資料</strong>
+                <b-link variant="muted" @click.stop="$utils.openNewWindow(case_data_url, $event)" :title="'收件資料 on ' + apServer">
+                    <lah-fa-icon icon="external-link-alt" variant="primary"></lah-fa-icon>
+                </b-link>
+            </template>
+            <b-card-body>
+                <b-form-row class="mb-1">
+                    <b-col>    
+                        <lah-transition appear>
+                            <div v-show="show_op_card" class="mr-1 float-right" style="width:400px">
+                                <lah-fa-icon icon="user" variant="dark" prefix="far"> 作業人員</lah-fa-icon>
+                                <lah-user-card @not-found="handleNotFound" :id="bakedData.RM30_1"></lah-user-card>
+                            </div>
+                        </lah-transition>
+                        <div v-if="bakedData.跨所 == 'Y'"><span class='bg-info text-white rounded p-1'>跨所案件 ({{bakedData.資料收件所}} => {{bakedData.資料管轄所}})</span></div>
+                        收件字號：
+                        <a :title="'收件資料 on ' + ap_server" href="javascript:void(0)" @click="openNewWindow(case_data_url, $event)">
+                            {{bakedData.收件字號}}
+                        </a> <br/>
+                        收件時間：{{bakedData.收件時間}} <br/>
+                        測量案件：{{bakedData.測量案件}} <br/>
+                        限辦期限：<span v-html="bakedData.限辦期限"></span> <br/>
+                        作業人員：<span class='user_tag'>{{bakedData.作業人員}}</span> <br/>
+                        辦理情形：{{bakedData.辦理情形}} <br/>
+                        登記原因：{{bakedData.登記原因}} <br/>
+                        區域：{{area}}【{{bakedData.RM10}}】 <br/>
+                        段小段：{{bakedData.段小段}}【{{bakedData.段代碼}}】 <br/>
+                        地號：{{bakedData.地號}} <br/>
+                        建號：{{bakedData.建號}} <br/>
+                        件數：{{bakedData.件數}} <br/>
+                        登記處理註記：{{bakedData.登記處理註記}} <br/>
+                        地價處理註記：{{bakedData.地價處理註記}} <br/>
+                        手機號碼：{{bakedData.手機號碼}}
+                    </b-col>
+                </b-form-row>
+            </b-card-body>
+        </b-tab>
+    <!--
     <b-tab>
         <template v-slot:title>
             <strong>辦理情形</strong>
@@ -202,8 +203,9 @@
             <lah-fa-icon icon="buffer" prefix="fab" class="text-secondary"> <strong>暫存檔管理</strong></lah-fa-icon>
         </template>
         <lah-reg-case-temp-mgt :baked-data="bakedData"></lah-reg-case-temp-mgt>
-    </b-tab>
-    </b-tabs>-->
+    </b-tab>-->
+
+      </b-tabs>
     
     </b-card>
   </div>
@@ -212,7 +214,10 @@
 <script>
 import regCaseBase from "~/assets/js/reg-case-mixin.js";
 export default {
-  mixins: [regCaseBase]
+  mixins: [regCaseBase],
+  props: {
+      tabsAtEnd: { type: Boolean, default: false }
+  }
 };
 </script>
 

@@ -10,6 +10,7 @@
           :variant="switchButtonVariant"
           @click="isOverdueMode = !isOverdueMode"
           :disabled="isBusy"
+          :busy="isBusy"
         >
           <strong>{{queryTitle}}</strong>
         </lah-button>
@@ -22,6 +23,7 @@
           :end="load"
           :click="reload"
           :disabled="isBusy"
+          :busy="isBusy"
           auto-start
           title="立即重新讀取"
         ></lah-countdown-button>

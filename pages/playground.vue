@@ -98,6 +98,11 @@ export default {
     pid: 'A123456789',
     json: undefined
   }),
+  async asyncData({ $axios }) {
+    // SSR: returned object will replace the data inside "data" before rendering
+    // http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01
+    return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 1000 })
+  },
   computed: {
     isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
   },

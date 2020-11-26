@@ -11,6 +11,7 @@ export default function ({ $axios, redirect, store }, inject) {
     config.cancelToken = cancelTokenSource.token
     // use store to store latest request config globally
     store.commit('xhrRequest', config)
+
     return config
   })
 

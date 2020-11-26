@@ -32,8 +32,8 @@ export default {
   },
   watch: {
     bakedData (json) {
-      !this.$utils.equal(json, this.storeBakedData) && this.$store.dispatch('regcase/update', json)
-      .then((baked) => {
+      !this.$utils.equal(json, this.storeBakedData) &&
+      this.$store.dispatch('regcase/update', json).then((baked) => {
         // this.$utils.log(baked)
       })
     }
