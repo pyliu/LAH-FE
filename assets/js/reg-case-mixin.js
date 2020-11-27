@@ -1,9 +1,5 @@
 export default {
   props: {
-    readyData: {
-      type: Object,
-      default: undefined
-    },
     // the id format should be '109HB04001234'
     id: {
       type: String,
@@ -12,6 +8,10 @@ export default {
     apServer: {
       type: String,
       default: '220.1.35.123'
+    },
+    standalone: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({
@@ -19,55 +19,64 @@ export default {
     site: 'HB'
   }),
   computed: {
-    year () {
+    year() {
       return this.bakedData ? this.bakedData['RM01'] : this.id.substring(0, 3)
     },
-    code () {
+    code() {
       return this.bakedData ? this.bakedData['RM02'] : this.id.substring(3, 7)
     },
-    number () {
+    number() {
       return this.bakedData ? this.bakedData['RM03'] : this.id.substring(7)
     },
-    ready () {
+    ready() {
       return !this.empty(this.bakedData)
     },
-    storeBakedData () {
+    storeBakedData() {
       return this.$store.getters['regcase/bakedData']
     }
   },
   watch: {
-    bakedData (json) {
-      !this.$utils.equal(json, this.storeBakedData) &&
-      this.$store.dispatch('regcase/update', json).then((baked) => {
-        // this.$utils.log(baked)
+    storeBakedData(json) {
+      !this.standalone && (this.bakedData = json)
+    },
+    bakedData(json) {
+      !this.standalone && !this.$utils.equal(json, this.storeBakedData) &&
+        this.$store.dispatch('regcase/update', json).then((baked) => {
+          // this.$utils.log(baked)
+        })
+    }
+  },
+  methods: {
+    fetch() {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'reg_case',
+        id: `${this.year}${this.code}${this.number}`
+      }).then(res => {
+        if (!this.$utils.statusCheck(res.data.status)) {
+          this.alert({
+            title: '讀取登記案件',
+            message: res.data.message,
+            type: 'warning'
+          })
+        } else {
+          this.bakedData = res.data.baked
+        }
+      }).catch(err => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
       })
     }
   },
-  created () {
-    this.bakedData = this.readyData
-    if (this.bakedData === undefined) {
+  created() {
+    if (this.standalone) {
+      this.fetch()
+    } else if (this.bakedData === undefined) {
       if (this.storeBakedData) {
         this.bakedData = this.storeBakedData
-      } else {
-        this.isBusy = true
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: 'reg_case',
-          id: `${this.year}${this.code}${this.number}`
-        }).then(res => {
-          if (!this.$utils.statusCheck(res.data.status)) {
-            this.alert({
-              title: '讀取登記案件',
-              message: res.data.message,
-              type: 'warning'
-            })
-          } else {
-            this.bakedData = res.data.baked
-          }
-        }).catch(err => {
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-        })
+      } else if (!this.$utils.empty(`${this.year}${this.code}${this.number}`)) {
+        this.fetch()
       }
     }
   }
