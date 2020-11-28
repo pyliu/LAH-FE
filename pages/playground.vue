@@ -81,6 +81,7 @@
       >
       </lah-reg-b-table>
     </p>
+    <lah-reg-case-flow compact></lah-reg-case-flow>
     <lah-reg-case-detail id="109HB04280370"></lah-reg-case-detail>
   </div>
 </template>
