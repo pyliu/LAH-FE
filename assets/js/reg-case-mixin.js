@@ -29,7 +29,7 @@ export default {
       return this.bakedData ? this.bakedData['RM03'] : this.id.substring(7)
     },
     ready() {
-      return !this.empty(this.bakedData)
+      return !this.$utils.empty(this.bakedData)
     },
     storeBakedData() {
       return this.$store.getters['regcase/bakedData']

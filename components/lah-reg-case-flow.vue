@@ -1,16 +1,21 @@
 <template>
   <b-card :no-body="compact" :title="`案件流程 ${ID}`" class="border-0">
-    <lah-reg-b-table
-      :bakedData="[bakedData]"
-      type="flow"
-      :mute="true"
-    ></lah-reg-b-table>
+    <lah-transition>
+      <lah-reg-b-table
+        v-if="ready"
+        :bakedData="[bakedData]"
+        type="flow"
+        :mute="true"
+      />
+    </lah-transition>
   </b-card>
 </template>
 
 <script>
 import regCaseBase from "~/assets/js/reg-case-mixin.js";
+import lahTransition from './lah-transition.vue';
 export default {
+  components: { lahTransition },
   mixins: [regCaseBase],
   props: {
       compact: { type: Boolean, default: false }
