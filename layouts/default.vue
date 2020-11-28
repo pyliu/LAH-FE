@@ -5,7 +5,7 @@
       size="lg"
       action="ld-move-fade-ltr"
       class="bars-button"
-      variant="dark"
+      variant="light"
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
@@ -15,7 +15,7 @@
         size="lg"
         action="ld-float"
         class="home-button"
-        variant="dark"
+        variant="light"
         title="回到首頁"
       />
     </NuxtLink>
@@ -34,6 +34,8 @@ export default {
 @mixin fix() {
   position: fixed;
   width: 3.5rem;
+  border: 1px solid gray;
+  border-radius: 10px;
 }
 
 .bars-button {
