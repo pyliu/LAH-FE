@@ -48,7 +48,6 @@ export default {
   },
   methods: {
     fetch() {
-      this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'reg_case',
         id: `${this.year}${this.code}${this.number}`
@@ -65,7 +64,6 @@ export default {
       }).catch(err => {
         this.$utils.error(err)
       }).finally(() => {
-        this.isBusy = false
       })
     }
   },

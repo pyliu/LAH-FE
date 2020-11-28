@@ -15,8 +15,8 @@ export default {
   props: {
       noBody: { type: Boolean, default: false }
   },
-  compunted: {
-    ID () { return `${this.year}-${this.code}-${this.num}`}
+  computed: {
+    ID () { return `${this.year}-${this.code}-${this.number}` }
   }
 };
 </script>
