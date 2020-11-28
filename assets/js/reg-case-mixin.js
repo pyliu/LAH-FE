@@ -28,6 +28,9 @@ export default {
     number() {
       return this.bakedData ? this.bakedData['RM03'] : this.id.substring(7)
     },
+    ID () {
+      return `${this.year}-${this.code}-${this.number}`
+    },
     ready() {
       return !this.$utils.empty(this.bakedData)
     },

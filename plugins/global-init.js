@@ -193,8 +193,8 @@ export default ({ $axios, store }, inject) => {
     trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
     empty: isEmpty, // '0' is not empty
     equal: isEqual,
-    caseid (id) {
-      if (this.empty(id) || id.length !== 13) {
+    caseID (id) {
+      if (isEmpty(id) || id.length !== 13) {
         this.warn(`id is not a valid string, can not oonvert to formated case id. (${id})`)
         return id
       }

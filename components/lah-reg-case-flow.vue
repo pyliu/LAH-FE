@@ -19,9 +19,6 @@ export default {
   mixins: [regCaseBase],
   props: {
       compact: { type: Boolean, default: false }
-  },
-  computed: {
-    ID () { return `${this.year}-${this.code}-${this.number}` }
   }
 };
 </script>
