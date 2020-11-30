@@ -154,6 +154,9 @@
 
 <script>
 export default {
+  components: {
+    lahRegCaseDetail: () => import('~/components/lah-reg-case-detail.vue')
+  },
   props: {
     bakedData: { type: Array, default: [] },
     maxHeight: { type: Number, default: undefined },
@@ -429,7 +432,7 @@ export default {
   },
   methods: {
     fetch (data) {
-      let id = `${data["RM01"]}${data["RM02"]}${data["RM03"]}`
+      const id = `${data["RM01"]}${data["RM02"]}${data["RM03"]}`
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: "reg_case",
         id: id,
@@ -443,7 +446,8 @@ export default {
         } else {
           const vnode = this.$createElement("lah-reg-case-detail", {
             props: {
-              readyData: res.data.baked,
+              id: id,
+              standalone: true
             }
           })
           this.modal(vnode, {

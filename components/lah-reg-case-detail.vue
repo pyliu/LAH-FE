@@ -1,7 +1,7 @@
 <template>
   <div v-if="ready">
     <!-- header flow table -->
-    <lah-reg-case-flow></lah-reg-case-flow>
+    <lah-reg-case-flow compact></lah-reg-case-flow>
     <!-- detail info card -->
     <b-card-group deck>
       <lah-reg-case-data></lah-reg-case-data>
@@ -11,10 +11,15 @@
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-mixin.js";
-import lahRegCaseData from './lah-reg-case-data.vue';
+import regCaseBase from "~/assets/js/reg-case-mixin.js"
+
 export default {
-  components: { lahRegCaseData },
+  name: 'lahRegCaseDetail',
+  components: {
+    lahRegCaseFlow: () => import('~/components/lah-reg-case-flow.vue'),
+    lahRegCaseData: () => import('~/components/lah-reg-case-data.vue'),
+    lahRegCaseStatus: () => import('~/components/lah-reg-case-status.vue')
+  },
   mixins: [regCaseBase],
   props: {
     tabsAtEnd: { type: Boolean, default: false },

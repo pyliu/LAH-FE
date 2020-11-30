@@ -71,7 +71,7 @@
       </font-awesome-layers>
     </div>
     <p>
-      <lah-reg-b-table
+      <lah-reg-btable
         v-if="isTableReady"
         :baked-data="json.baked"
         icon-variant="success"
@@ -79,7 +79,7 @@
         :max-height="300" 
         class="small"
       >
-      </lah-reg-b-table>
+      </lah-reg-btable>
     </p>
     <lah-reg-case-flow compact></lah-reg-case-flow>
     <lah-reg-case-detail id="109HB04280370"></lah-reg-case-detail>
@@ -87,9 +87,11 @@
 </template>
 
 <script>
-import lahButton from '../components/lah-button.vue'
+import lahButton from '~/components/lah-button.vue'
+import lahRegBtable from "~/components/lah-reg-btable.vue"
+
 export default {
-  components: { lahButton },
+  components: { lahButton, lahRegBtable },
   head: {
     title: "測試-桃園市地政局",
   },

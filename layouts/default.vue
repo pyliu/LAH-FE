@@ -35,6 +35,7 @@ export default {
   position: fixed;
   width: 3.5rem;
   border: 1px solid gray;
+  z-index: 1030;
 }
 
 .bars-button {
