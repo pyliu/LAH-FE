@@ -14,6 +14,7 @@
 import regCaseBase from "~/assets/js/reg-case-mixin.js"
 
 export default {
+  name: 'lahRegCaseFlow',
   components: {
     lahTransition: () => import('~/components/lah-transition.vue'),
     lahRegBtable: () => import('~/components/lah-reg-btable.vue')

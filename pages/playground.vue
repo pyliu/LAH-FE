@@ -13,6 +13,19 @@
         <h3 class="title">測試</h3>
       </div>
     </div>
+
+    <p>
+      <lah-reg-btable
+        v-if="isTableReady"
+        :baked-data="json.baked"
+        icon-variant="success"
+        icon="chevron-circle-right" 
+        :max-height="300" 
+        class="small"
+      />
+    </p>
+    <lah-reg-case-detail case-id="109HB04280370"></lah-reg-case-detail>
+
     <div class="border-1">
       <lah-countdown-button :auto-start="true" variant="outline-secondary" badge-variant="danger" :click="clickCountdownButton">
         <font-awesome-layers class="fa-2x">
@@ -70,19 +83,6 @@
         <font-awesome-layers-text counter value="1" position="top-right" />
       </font-awesome-layers>
     </div>
-    <p>
-      <lah-reg-btable
-        v-if="isTableReady"
-        :baked-data="json.baked"
-        icon-variant="success"
-        icon="chevron-circle-right" 
-        :max-height="300" 
-        class="small"
-      >
-      </lah-reg-btable>
-    </p>
-    <lah-reg-case-flow compact></lah-reg-case-flow>
-    <lah-reg-case-detail id="109HB04280370"></lah-reg-case-detail>
   </div>
 </template>
 

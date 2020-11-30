@@ -27,13 +27,7 @@
     caption-top
   >
     <template v-slot:table-busy>
-      <b-spinner
-        class="align-middle"
-        variant="danger"
-        type="grow"
-        small
-        label="讀取中..."
-      ></b-spinner>
+      <span class="ld-txt">讀取中...</span>
     </template>
 
     <template v-slot:cell(RM01)="row">
@@ -154,6 +148,7 @@
 
 <script>
 export default {
+  name: 'lahRegBtable',
   components: {
     lahRegCaseDetail: () => import('~/components/lah-reg-case-detail.vue')
   },
@@ -438,21 +433,21 @@ export default {
         id: id,
       }).then((res) => {
         if (!this.$utils.statusCheck(res.data.status)) {
-          this.alert({
+          this.alert(res.data.message, {
             title: "顯示登記案件詳情",
-            message: res.data.message,
             type: "warning",
           })
         } else {
-          const vnode = this.$createElement("lah-reg-case-detail", {
+          let vnode = this.$createElement('lah-reg-case-detail', {
             props: {
-              id: id,
-              standalone: true
+              caseId: id
             }
           })
           this.modal(vnode, {
             title: `登記案件詳情 ${data["RM01"]}-${data["RM02"]}-${data["RM03"]}`,
             size: "xl",
+          }).then(config => {
+            console.log(config)
           })
         }
       })
@@ -460,15 +455,12 @@ export default {
         this.$utils.error(err)
       })
     },
-    userinfo (name, id = "") {
-      name !== "XXXXXXXX" && this.modal({
-        title: `${name} 使用者資訊${this.$utils.empty(id) ? "" : ` (${id})`}`,
-        message: this.$createElement("lah-user-card", {
-          props: {
-            id: id,
-            name: name,
-          },
-        }),
+    userinfo (name, id = '') {
+      const h = this.$createElement
+      name !== "XXXXXXXX" && this.modal(h('lah-user-card', {
+        props: { id: id, name: name }
+      }), {
+        title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
       })
     },
     bakedContent (row) {

@@ -1,84 +1,71 @@
 export default {
+  name: 'regCaseBase',
   props: {
+    parentData: {
+      type: Object,
+      default: undefined
+    },
     // the id format should be '109HB04001234'
-    id: {
+    caseId: {
       type: String,
       default: ''
-    },
-    apServer: {
-      type: String,
-      default: '220.1.35.123'
-    },
-    standalone: {
-      type: Boolean,
-      default: false
     }
   },
   data: () => ({
-    bakedData: undefined,
-    site: 'HB'
+    bakedData: undefined
   }),
   computed: {
     year() {
-      return this.bakedData ? this.bakedData['RM01'] : this.id.substring(0, 3)
+      return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3)
     },
     code() {
-      return this.bakedData ? this.bakedData['RM02'] : this.id.substring(3, 7)
+      return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(3, 7)
     },
     number() {
-      return this.bakedData ? this.bakedData['RM03'] : this.id.substring(7)
+      return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(7)
     },
-    ID () {
-      return `${this.year}-${this.code}-${this.number}`
+    ID() {
+      return `${this.year}-${this.code}-${this.number.padStart(6, '0')}`
+    },
+    validID() {
+      return this.year.length === 3 && this.code.length === 4 && parseInt(this.number) < 1000000 && parseInt(this.number) > 0
     },
     ready() {
       return !this.$utils.empty(this.bakedData)
-    },
-    storeBakedData() {
-      return this.$store.getters['regcase/bakedData']
     }
   },
   watch: {
-    storeBakedData(json) {
-      !this.standalone && (this.bakedData = json)
-    },
-    bakedData(json) {
-      !this.standalone && !this.$utils.equal(json, this.storeBakedData) &&
-        this.$store.dispatch('regcase/update', json).then((baked) => {
-          // this.$utils.log(baked)
-        })
+    parentData(val) {
+      this.bakedData = val
     }
   },
   methods: {
     fetch() {
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'reg_case',
-        id: `${this.year}${this.code}${this.number}`
-      }).then(res => {
-        if (!this.$utils.statusCheck(res.data.status)) {
-          this.alert({
-            title: '讀取登記案件',
-            message: res.data.message,
-            type: 'warning'
-          })
-        } else {
-          this.bakedData = res.data.baked
-        }
-      }).catch(err => {
-        this.$utils.error(err)
-      }).finally(() => {
-      })
-    }
-  },
-  created() {
-    if (this.standalone) {
-      this.fetch()
-    } else if (this.bakedData === undefined) {
-      if (this.storeBakedData) {
-        this.bakedData = this.storeBakedData
-      } else if (!this.$utils.empty(`${this.year}${this.code}${this.number}`)) {
-        this.fetch()
+      if (this.validID) {
+        const thisID = `${this.year}${this.code}${this.number.padStart(6, '0')}`
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'reg_case',
+          id: thisID
+        }).then(res => {
+          if (this.$utils.statusCheck(res.data.status)) {
+            this.bakedData = res.data.baked
+          } else {
+            this.alert(res.data.message, {
+              title: '讀取登記案件',
+              type: 'warning'
+            })
+          }
+        }).catch(err => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
       }
     }
+  },
+  created () { 
+    this.bakedData = this.parentData
+    this.fetch()
   }
 }

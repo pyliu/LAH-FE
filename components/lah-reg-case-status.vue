@@ -199,11 +199,9 @@
 <script>
 import regCaseBase from "~/assets/js/reg-case-mixin.js";
 export default {
+  name: 'lahRegCaseStatus',
   mixins: [regCaseBase],
   computed: {
-    ready() {
-      return !this.$utils.empty(this.bakedData);
-    },
     ongoing() {
       return this.ready && this.$utils.empty(this.bakedData.結案代碼);
     },

@@ -1,11 +1,11 @@
 <template>
   <div v-if="ready">
     <!-- header flow table -->
-    <lah-reg-case-flow compact></lah-reg-case-flow>
+    <lah-reg-case-flow compact :parent-data="bakedData"></lah-reg-case-flow>
     <!-- detail info card -->
     <b-card-group deck>
-      <lah-reg-case-data></lah-reg-case-data>
-      <lah-reg-case-status></lah-reg-case-status>
+      <lah-reg-case-data :parent-data="bakedData"></lah-reg-case-data>
+      <lah-reg-case-status :parent-data="bakedData"></lah-reg-case-status>
     </b-card-group>
   </div>
 </template>
@@ -20,15 +20,7 @@ export default {
     lahRegCaseData: () => import('~/components/lah-reg-case-data.vue'),
     lahRegCaseStatus: () => import('~/components/lah-reg-case-status.vue')
   },
-  mixins: [regCaseBase],
-  props: {
-    tabsAtEnd: { type: Boolean, default: false },
-  },
-  computed: {
-    ready() {
-      return !this.$utils.empty(this.bakedData);
-    },
-  },
+  mixins: [regCaseBase]
 };
 </script>
 

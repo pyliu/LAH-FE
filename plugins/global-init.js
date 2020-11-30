@@ -196,7 +196,7 @@ export default ({ $axios, store }, inject) => {
     equal: isEqual,
     caseID (id) {
       if (isEmpty(id) || id.length !== 13) {
-        this.warn(`id is not a valid string, can not oonvert to formated case id. (${id})`)
+        this.warn(`id is not a valid string, can not convert to formatted case id. (${id})`)
         return id
       }
       return `${id.substring(0, 3)}-${id.substring(3, 7)}-${id.substring(7)}`

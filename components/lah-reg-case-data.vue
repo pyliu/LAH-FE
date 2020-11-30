@@ -12,7 +12,7 @@
         <a
           :title="'收件資料 on ' + apServer"
           href="javascript:void(0)"
-          @click="openNewWindow(case_data_url, $event)"
+          @click="$utils.openNewWindow(case_data_url, $event)"
         >
           {{ bakedData.收件字號 }}
         </a>
@@ -60,11 +60,12 @@
 <script>
 import regCaseBase from "~/assets/js/reg-case-mixin.js";
 export default {
+  name: 'lahRegCaseData',
   mixins: [regCaseBase],
+  data: () => ({
+    apServer: "220.1.35.123"
+  }),
   computed: {
-    ready() {
-      return !this.$utils.empty(this.bakedData);
-    },
     area() {
       if (this.ready) {
         switch (this.bakedData.RM10) {
