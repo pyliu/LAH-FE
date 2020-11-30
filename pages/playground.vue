@@ -24,7 +24,7 @@
         class="small"
       />
     </p>
-    <lah-reg-case-detail case-id="109HB04280370"></lah-reg-case-detail>
+    <lah-reg-case-detail case-id="109HB04280370"/>
 
     <div class="border-1">
       <lah-countdown-button :auto-start="true" variant="outline-secondary" badge-variant="danger" :click="clickCountdownButton">
