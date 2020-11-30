@@ -34,7 +34,7 @@ export default {
 @mixin fix() {
   position: fixed;
   width: 3.5rem;
-  border: 1px solid #000;
+  border: 1px solid gray;
 }
 
 .bars-button {
