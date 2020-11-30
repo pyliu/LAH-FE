@@ -450,8 +450,7 @@ export default {
             console.log(config)
           })
         }
-      })
-      .catch((err) => {
+      }).catch((err) => {
         this.$utils.error(err)
       })
     },
