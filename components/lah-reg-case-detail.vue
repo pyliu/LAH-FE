@@ -14,12 +14,7 @@
 import regCaseBase from "~/assets/js/reg-case-mixin.js"
 
 export default {
-  name: 'lahRegCaseDetail',
-  components: {
-    lahRegCaseFlow: () => import('~/components/lah-reg-case-flow.vue'),
-    lahRegCaseData: () => import('~/components/lah-reg-case-data.vue'),
-    lahRegCaseStatus: () => import('~/components/lah-reg-case-status.vue')
-  },
+  name: 'lah-reg-case-detail',
   mixins: [regCaseBase]
 };
 </script>
