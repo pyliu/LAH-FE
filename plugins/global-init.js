@@ -194,7 +194,11 @@ export default ({ $axios, store }, inject) => {
     trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
     empty: isEmpty, // '0' is not empty
     equal: isEqual,
-    caseID (id) {
+    caseId (id) {
+      if (isEmpty(id)) {
+        return ''
+      }
+      id = id.replace(/^[a-zA-Z0-9]$/g, '')
       if (isEmpty(id) || id.length !== 13) {
         this.warn(`id is not a valid string, can not convert to formatted case id. (${id})`)
         return id
@@ -221,6 +225,14 @@ export default ({ $axios, store }, inject) => {
         ('0' + now.getHours()).slice(-2) + ':' +
         ('0' + now.getMinutes()).slice(-2) + ':' +
         ('0' + now.getSeconds()).slice(-2)
+    },
+    customEvent (name, val, target) {
+      let evt = new CustomEvent(name, {
+        detail: val,
+        bubbles: true
+      });
+      Object.defineProperty(evt, 'target', {writable: false, value: target});
+      return evt;
     },
     log: console.log.bind(console),
     warn: console.warn.bind(console),

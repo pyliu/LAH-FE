@@ -1,160 +1,169 @@
 <template>
-  <b-table
-    ref="bTable"
-    :responsive="'lg'"
-    :striped="true"
-    :hover="true"
-    :bordered="true"
-    :borderless="false"
-    :outlined="false"
-    :small="true"
-    :dark="false"
-    :fixed="false"
-    :foot-clone="false"
-    :no-border-collapse="true"
-    :head-variant="'dark'"
-    :table-variant="tableVariant"
-    :sticky-header="sticky"
-    :caption="caption"
-    :items="bakedData"
-    :fields="tblFields"
-    :style="style"
-    :busy="busy"
-    :tbody-tr-class="trClass"
-    :tbody-transition-props="transProps"
-    primary-key="收件字號"
-    class="text-center"
-    caption-top
-  >
-    <template v-slot:table-busy>
-      <span class="ld-txt">讀取中...</span>
-    </template>
+  <div>
+    <b-table
+      ref="bTable"
+      :responsive="'lg'"
+      :striped="true"
+      :hover="true"
+      :bordered="true"
+      :borderless="false"
+      :outlined="false"
+      :small="true"
+      :dark="false"
+      :fixed="false"
+      :foot-clone="false"
+      :no-border-collapse="true"
+      :head-variant="'dark'"
+      :table-variant="tableVariant"
+      :sticky-header="sticky"
+      :caption="caption"
+      :items="bakedData"
+      :fields="tblFields"
+      :style="style"
+      :busy="busy"
+      :tbody-tr-class="trClass"
+      :tbody-transition-props="transProps"
+      primary-key="收件字號"
+      class="text-center"
+      caption-top
+    >
+      <template v-slot:table-busy>
+        <span class="ld-txt">讀取中...</span>
+      </template>
 
-    <template v-slot:cell(RM01)="row">
-      <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
+      <template v-slot:cell(RM01)="row">
+        <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
+          <font-awesome-icon
+            v-if="showIcon"
+            :icon="['fas', icon]"
+            :variant="iconVariant"
+            class="mx-auto my-auto"
+          />
+          <span v-if="mute">{{ bakedContent(row) }}</span>
+          <b-link v-else-if="usePopup" @click="popup(row.item)">{{ bakedContent(row) }}</b-link>
+          <NuxtLink v-else :to="`/regcase/${bakedContent(row)}`">{{ bakedContent(row) }}</NuxtLink>
+        </div>
+      </template>
+
+      <template v-slot:cell(收件字號)="row">
+        <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
+          <font-awesome-icon
+            v-if="showIcon"
+            :icon="['fas', icon]"
+            :variant="iconVariant"
+            class="mx-auto my-auto"
+          />
+          <span v-if="mute">{{ bakedContent(row) }}</span>
+          <b-link v-else-if="usePopup" @click="popup(row.item)">{{ row.item['收件字號'] }}</b-link>
+          <NuxtLink v-else :to="`/regcase/${row.item['收件字號']}`">{{ row.item['收件字號'] }}</NuxtLink>
+        </div>
+      </template>
+
+      <template v-slot:cell(序號)="row">
+        {{ row.index + 1 }}
+      </template>
+
+      <template v-slot:cell(燈號)="row">
         <font-awesome-icon
-          v-if="showIcon"
-          :icon="['fas', icon]"
-          :variant="iconVariant"
+          :icon="['fas', 'circle']"
+          :variant="row.item['燈號']"
           class="mx-auto my-auto"
         />
-        <span v-if="mute">{{ bakedContent(row) }}</span>
-        <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{ bakedContent(row) }}</a>
-      </div>
-    </template>
+      </template>
 
-    <template v-slot:cell(收件字號)="row">
-      <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
+      <template v-slot:cell(限辦時間)="row">
         <font-awesome-icon
-          v-if="showIcon"
-          :icon="['fas', icon]"
-          :variant="iconVariant"
-          class="mx-auto my-auto"
+          :icon="['fas', 'circle']"
+          :variant="row.item['燈號']"
+          class="mx-auto my-auto text-nowrap"
+          v-b-popover.hover.focus.d400="{ content: row.item['預定結案日期'], variant: row.item['燈號'] }"
         />
-        <span v-if="mute">{{ bakedContent(row) }}</span>
-        <a v-else href="javascript:void(0)" @click="fetch(row.item)">{{ row.item["收件字號"] }}</a>
-      </div>
-    </template>
+        {{ row.value }}
+      </template>
 
-    <template v-slot:cell(序號)="row">
-      {{ row.index + 1 }}
-    </template>
+      <template v-slot:cell(RM07_1)="row">
+        <span v-b-popover.hover.focus.d400="row.item['收件時間']">{{ row.item["RM07_1"] }}</span>
+      </template>
 
-    <template v-slot:cell(燈號)="row">
-      <font-awesome-icon
-        :icon="['fas', 'circle']"
-        :variant="row.item['燈號']"
-        class="mx-auto my-auto"
-      />
-    </template>
+      <template v-slot:cell(登記原因)="row">
+        {{ reason(row) }}
+      </template>
+      <template v-slot:cell(RM09)="row">
+        {{ reason(row) }}
+      </template>
 
-    <template v-slot:cell(限辦時間)="row">
-      <font-awesome-icon
-        :icon="['fas', 'circle']"
-        :variant="row.item['燈號']"
-        class="mx-auto my-auto text-nowrap"
-        v-b-popover.hover.focus.d400="{ content: row.item['預定結案日期'], variant: row.item['燈號'] }"
-      />
-      {{ row.value }}
-    </template>
-
-    <template v-slot:cell(RM07_1)="row">
-      <span v-b-popover.hover.focus.d400="row.item['收件時間']">{{ row.item["RM07_1"] }}</span>
-    </template>
-
-    <template v-slot:cell(登記原因)="row">
-      {{ reason(row) }}
-    </template>
-    <template v-slot:cell(RM09)="row">
-      {{ reason(row) }}
-    </template>
-
-    <template v-slot:cell(初審人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['初審人員'], item['RM45'])"
-        v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['初審'])"
-      >{{ item["初審人員"] }}</a>
-    </template>
-    <template v-slot:cell(複審人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['複審人員'], item['RM47'])"
-        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['複審'])"
-      >{{ item["複審人員"] }}</a>
-    </template>
-    <template v-slot:cell(收件人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['收件人員'], item['RM96'])"
-      >{{ item["收件人員"] }}</a>
-    </template>
-    <template v-slot:cell(作業人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['作業人員'], item['RM30_1'])"
-      >{{ item["作業人員"] }}</a>
-    </template>
-    <template v-slot:cell(准登人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['准登人員'], item['RM63'])"
-        v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['准登'])"
-      >{{ item["准登人員"] }}</a>
-    </template>
-    <template v-slot:cell(登錄人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['登錄人員'], item['RM55'])"
-        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['登簿'])"
-      >{{ item["登錄人員"] }}</a>
-    </template>
-    <template v-slot:cell(校對人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['校對人員'], item['RM57'])"
-        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['校對'])"
-      >{{ item["校對人員"] }}</a>
-    </template>
-    <template v-slot:cell(結案人員)="{ item }">
-      <a
-        href="javascript:void(0)"
-        @click="userinfo(item['結案人員'], item['RM59'])"
-        v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['結案'])"
-      >{{ item["結案人員"] }}</a>
-    </template>
-  </b-table>
+      <template v-slot:cell(初審人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['初審人員'], item['RM45'])"
+          v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['初審'])"
+        >{{ item["初審人員"] }}</a>
+      </template>
+      <template v-slot:cell(複審人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['複審人員'], item['RM47'])"
+          v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['複審'])"
+        >{{ item["複審人員"] }}</a>
+      </template>
+      <template v-slot:cell(收件人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['收件人員'], item['RM96'])"
+        >{{ item["收件人員"] }}</a>
+      </template>
+      <template v-slot:cell(作業人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['作業人員'], item['RM30_1'])"
+        >{{ item["作業人員"] }}</a>
+      </template>
+      <template v-slot:cell(准登人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['准登人員'], item['RM63'])"
+          v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['准登'])"
+        >{{ item["准登人員"] }}</a>
+      </template>
+      <template v-slot:cell(登錄人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['登錄人員'], item['RM55'])"
+          v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['登簿'])"
+        >{{ item["登錄人員"] }}</a>
+      </template>
+      <template v-slot:cell(校對人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['校對人員'], item['RM57'])"
+          v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['校對'])"
+        >{{ item["校對人員"] }}</a>
+      </template>
+      <template v-slot:cell(結案人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item['結案人員'], item['RM59'])"
+          v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['結案'])"
+        >{{ item["結案人員"] }}</a>
+      </template>
+    </b-table>
+    <b-modal
+      :id="modalId"
+      hide-footer
+      centered
+      size="xl"
+    >
+      <template #modal-title>
+        登記案件詳情 {{$utils.caseId(clickedId)}}
+      </template>
+      <lah-reg-case-detail :parent-data="clickedData"/>
+    </b-modal>
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'lah-reg-btable',
-  components: {
-    'lah-reg-case-detail': () => import('~/components/lah-reg-case-detail.vue'),
-    'lah-reg-case-flow': () => import('~/components/lah-reg-case-flow.vue'),
-    'lah-reg-case-data': () => import('~/components/lah-reg-case-data.vue'),
-    'lah-reg-case-status': () => import('~/components/lah-reg-case-status.vue')
-  },
+  name: 'lah-reg-b-table',
   props: {
     bakedData: { type: Array, default: [] },
     maxHeight: { type: Number, default: undefined },
@@ -166,12 +175,16 @@ export default {
     icon: { type: String, default: '' },
     iconVariant: { type: String, default: '' },
     busy: { type: Boolean, default: false },
-    tableVariant: { type: String, default: '' }
+    tableVariant: { type: String, default: '' },
+    usePopup: { type: Boolean, default: false }
   },
   data: () => ({
     transProps: {
       name: "rollIn",
     },
+    modalId: 'this should be an uuid',
+    clickedId: undefined,
+    clickedData: undefined
   }),
   computed: {
     tblFields: function () {
@@ -429,36 +442,10 @@ export default {
     },
   },
   methods: {
-    fetch (data) {
-      const id = `${data["RM01"]}${data["RM02"]}${data["RM03"]}`
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: "reg_case",
-        id: id,
-      }).then((res) => {
-        if (!this.$utils.statusCheck(res.data.status)) {
-          this.alert(res.data.message, {
-            title: "顯示登記案件詳情",
-            type: "warning",
-          })
-        } else {
-          let vnode = this.$createElement('lah-reg-case-detail', { props: { caseId: id } })
-          vnode = this.$createElement('div', {
-            attrs: {
-              id: id
-            }
-          }, [
-            this.$createElement('lah-reg-case-flow', { props: { caseId: id } })
-          ])
-          this.modal(vnode, {
-            title: `登記案件詳情 ${data["RM01"]}-${data["RM02"]}-${data["RM03"]}`,
-            size: "xl",
-          }).then(config => {
-            console.log(config)
-          })
-        }
-      }).catch((err) => {
-        this.$utils.error(err)
-      })
+    popup (data) {
+      this.clickedId = `${data["RM01"]}${data["RM02"]}${data["RM03"]}`
+      this.clickedData = data
+      this.$bvModal.show(this.modalId)
     },
     userinfo (name, id = '') {
       const h = this.$createElement
@@ -503,6 +490,9 @@ export default {
         " 小時"
       )
     },
+  },
+  created () {
+    this.modalId = this.$utils.uuid()
   }
 }
 </script>

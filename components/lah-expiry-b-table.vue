@@ -1,55 +1,75 @@
 <template>
-  <b-table
-    ref="tbl"
-    striped
-    hover
-    responsive
-    bordered
-    head-variant="dark"
-    caption-top
-    no-border-collapse
-    small
-    :items="tableItems"
-    :fields="fields"
-    :busy="isBusy"
-    class="text-center s-90"
-  >
-    <template v-slot:table-busy>
-      <div class="text-center text-danger my-5">
-        <strong>查詢中 ...</strong>
-      </div>
-    </template>
-    <template v-slot:cell(序號)="data">
-      {{ data.index + 1 }}
-    </template>
-    <template v-slot:cell(初審人員)="data">
-      <b-button
-        :variant="buttoVariant"
-        size="sm"
-        @click="searchByReviewer(data.value)"
-        :title="buttonReviewerTitle(data.value)"
-      >
-        {{ data.value.split(" ")[0] }}
-      </b-button>
-    </template>
-    <template v-slot:cell(作業人員)="data">
-      <b-button
-        :data-name="data.value"
-        :data-id="data.value"
-        variant="outline-secondary"
-        @click="searchUser(data.value)"
-        size="sm"
-        :title="`查詢 ${data.value} 的使用者訊息`"
-        >{{ data.value }}</b-button
-      >
-    </template>
-  </b-table>
+  <div>
+    <b-table
+      ref="tbl"
+      striped
+      hover
+      responsive
+      bordered
+      head-variant="dark"
+      caption-top
+      no-border-collapse
+      small
+      :items="tableItems"
+      :fields="fields"
+      :busy="isBusy"
+      class="text-center s-90"
+    >
+      <template v-slot:table-busy>
+        <div class="text-center text-danger my-5">
+          <strong>查詢中 ...</strong>
+        </div>
+      </template>
+      <template v-slot:cell(序號)="data">
+        {{ data.index + 1 }}
+      </template>
+      <template v-slot:cell(收件字號)="data">
+        <b-link v-if="usePopup" @click="popup(data)">{{ data.value }}</b-link>
+        <NuxtLink v-else :to="`/regcase/${data.value}`">{{ data.value }}</NuxtLink>
+      </template>
+      <template v-slot:cell(初審人員)="data">
+        <b-button
+          :variant="buttoVariant"
+          size="sm"
+          @click="searchByReviewer(data.value)"
+          :title="buttonReviewerTitle(data.value)"
+        >
+          {{ data.value.split(" ")[0] }}
+        </b-button>
+      </template>
+      <template v-slot:cell(作業人員)="data">
+        <b-button
+          :data-name="data.value"
+          :data-id="data.value"
+          variant="outline-secondary"
+          @click="searchUser(data.value)"
+          size="sm"
+          :title="`查詢 ${data.value} 的使用者訊息`"
+          >{{ data.value }}</b-button
+        >
+      </template>
+    </b-table>
+    <b-modal
+      :id="modalId"
+      hide-footer
+      centered
+      size="xl"
+    >
+      <template #modal-title>
+        登記案件詳情 {{clickedId}}
+      </template>
+      <span v-if="modalLoading" class="ld-txt">讀取中...</span>
+      <lah-reg-case-detail v-show="!modalLoading" @ready="modalLoading = false" :case-id="clickedId"/>
+    </b-modal>
+  </div>
 </template>
 
 <script>
 export default {
+  name: 'lah-expiry-b-table',
   props: {
-    id: { type: String, default: "" }
+    id: { type: String, default: "" },
+    usePopup: { type: Boolean, default: true }
   },
   data: () => ({
     fields: [
@@ -61,7 +81,10 @@ export default {
       { key: "作業人員", sortable: true },
       { key: "收件時間", sortable: true },
       { key: "限辦期限", sortable: true }
-    ]
+    ],
+    modalId: 'this should be an uuid',
+    clickedId: undefined,
+    modalLoading: true
   }),
   computed: {
     totalCase () {
@@ -101,11 +124,16 @@ export default {
     }
   },
   methods: {
+    popup (data) {
+      this.modalLoading = true
+      this.clickedId = data.value.replace(/^[a-zA-Z0-9]$/g, '')
+      this.$bvModal.show(this.modalId)
+    },
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
     searchByReviewer (id) {},
     searchUser (id) {}
   },
-  created () {},
+  created () { this.modalId = this.$utils.uuid() },
   mounted () {}
 }
 </script>

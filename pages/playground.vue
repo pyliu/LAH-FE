@@ -15,17 +15,17 @@
     </div>
 
     <p>
-      <lah-reg-btable
+      <lah-reg-b-table
         v-if="isTableReady"
         :baked-data="json.baked"
+        :use-popup="true"
         icon-variant="success"
         icon="chevron-circle-right" 
         :max-height="300" 
         class="small"
+        caption="查詢統編"
       />
     </p>
-    <lah-reg-case-detail case-id="109HB04280370"/>
-
     <div class="border-1">
       <lah-countdown-button :auto-start="true" variant="outline-secondary" badge-variant="danger" :click="clickCountdownButton">
         <font-awesome-layers class="fa-2x">
@@ -88,10 +88,10 @@
 
 <script>
 import lahButton from '~/components/lah-button.vue'
-import lahRegBtable from "~/components/lah-reg-btable.vue"
+import lahRegBTable from "~/components/lah-reg-b-table.vue"
 
 export default {
-  components: { lahButton, lahRegBtable },
+  components: { lahButton, lahRegBTable },
   head: {
     title: "測試-桃園市地政局",
   },
