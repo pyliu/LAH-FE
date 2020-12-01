@@ -12,26 +12,34 @@ export default {
     }
   },
   data: () => ({
-    bakedData: undefined
+    bakedData: undefined,
+    apServer: "220.1.35.123",
+    site: 'HB'
   }),
   computed: {
-    year() {
+    year () {
       return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3)
     },
-    code() {
+    code () {
       return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(3, 7)
     },
-    number() {
+    number () {
       return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(7)
     },
-    ID() {
+    ID () {
       return `${this.year}-${this.code}-${this.number.padStart(6, '0')}`
     },
-    validID() {
+    validID () {
       return this.year.length === 3 && this.code.length === 4 && parseInt(this.number) < 1000000 && parseInt(this.number) > 0
     },
-    ready() {
+    ready () {
       return !this.$utils.empty(this.bakedData)
+    },
+    queryDataUrl () {
+      return `http://${this.apServer}:9080/Land${this.site}/CAS/CCD01/CCD0103.jsp?rm01=${this.bakedData['RM01']}&rm02=${this.bakedData['RM02']}&rm03=${this.bakedData['RM03']}`
+    },
+    queryStatusUrl () {
+      return `http://${this.apServer}:9080/Land${this.site}/CAS/CCD02/CCD0202.jsp?year=${this.bakedData['RM01']}&word=${this.bakedData['RM02']}&code=${this.bakedData['RM03']}&sdlyn=N&RM90=`
     }
   },
   watch: {

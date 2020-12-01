@@ -1,6 +1,6 @@
 {
   "name": "LAH-TY",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "nuxt --port 8080",

@@ -1,5 +1,8 @@
 <template>
-  <b-card title="收件資料">
+  <b-card>
+    <b-card-title>
+      <b-link :href="queryDataUrl" target="_blank">收件資料</b-link>
+    </b-card-title>
     <b-list-group flush compact v-if="ready">
       <b-list-group-item v-if="bakedData.跨所 == 'Y'">
         <span class="bg-info text-white rounded p-1"
@@ -12,7 +15,7 @@
         <a
           :title="'收件資料 on ' + apServer"
           href="javascript:void(0)"
-          @click="$utils.openNewWindow(case_data_url, $event)"
+          @click="$utils.openNewWindow(queryDataUrl, $event)"
         >
           {{ bakedData.收件字號 }}
         </a>
@@ -62,9 +65,6 @@ import regCaseBase from "~/assets/js/reg-case-base.js";
 export default {
   name: 'lah-reg-case-data',
   mixins: [regCaseBase],
-  data: () => ({
-    apServer: "220.1.35.123"
-  }),
   computed: {
     area() {
       if (this.ready) {
@@ -76,7 +76,7 @@ export default {
         }
       }
       return this.ready ? `其他(${this.bakedData.資料管轄所}區)` : "";
-    },
+    }
   },
 };
 </script>

@@ -1,5 +1,8 @@
 <template>
-  <b-card title="辦理情形">
+  <b-card>
+    <b-card-title>
+      <b-link :href="queryStatusUrl" target="_blank">辦理情形</b-link>
+    </b-card-title>
     <b-list-group flush compact v-if="ready">
       <b-list-group-item>
         <b-form-row>
