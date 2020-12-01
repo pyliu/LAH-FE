@@ -24,8 +24,8 @@
         {{ data.index + 1 }}
       </template>
       <template v-slot:cell(收件字號)="data">
-        <b-link v-if="usePopup" @click="popup(data)">{{ data.value }}</b-link>
-        <NuxtLink v-else :to="`/regcase/${data.value}`">{{ data.value }}</NuxtLink>
+        <b-link @click="popup(data)">{{ data.value }}</b-link>
+        <NuxtLink :to="`/regcase/${data.value}`"><lah-fa-icon icon="share-square" /></NuxtLink>
       </template>
       <template v-slot:cell(初審人員)="data">
         <b-button
@@ -68,8 +68,7 @@
 export default {
   name: 'lah-expiry-b-table',
   props: {
-    id: { type: String, default: "" },
-    usePopup: { type: Boolean, default: true }
+    id: { type: String, default: "" }
   },
   data: () => ({
     fields: [

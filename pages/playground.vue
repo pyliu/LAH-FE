@@ -18,7 +18,6 @@
       <lah-reg-b-table
         v-if="isTableReady"
         :baked-data="json.baked"
-        :use-popup="true"
         icon-variant="success"
         icon="chevron-circle-right" 
         :max-height="300" 

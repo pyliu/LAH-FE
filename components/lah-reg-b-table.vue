@@ -40,8 +40,10 @@
             class="mx-auto my-auto"
           />
           <span v-if="mute">{{ bakedContent(row) }}</span>
-          <b-link v-else-if="usePopup" @click="popup(row.item)">{{ bakedContent(row) }}</b-link>
-          <NuxtLink v-else :to="`/regcase/${bakedContent(row)}`">{{ bakedContent(row) }}</NuxtLink>
+          <span v-else>
+            <b-link @click="popup(row.item)">{{ bakedContent(row) }}</b-link>
+            <NuxtLink :to="`/regcase/${bakedContent(row)}`"><lah-fa-icon icon="share-square" /></NuxtLink>
+          </span>
         </div>
       </template>
 
@@ -54,8 +56,10 @@
             class="mx-auto my-auto"
           />
           <span v-if="mute">{{ bakedContent(row) }}</span>
-          <b-link v-else-if="usePopup" @click="popup(row.item)">{{ row.item['收件字號'] }}</b-link>
-          <NuxtLink v-else :to="`/regcase/${row.item['收件字號']}`">{{ row.item['收件字號'] }}</NuxtLink>
+          <span v-else>
+            <b-link @click="popup(row.item)">{{ row.item['收件字號'] }}</b-link>
+            <NuxtLink :to="`/regcase/${row.item['收件字號']}`"><lah-fa-icon icon="share-square" /></NuxtLink>
+          </span>
         </div>
       </template>
 
@@ -175,8 +179,7 @@ export default {
     icon: { type: String, default: '' },
     iconVariant: { type: String, default: '' },
     busy: { type: Boolean, default: false },
-    tableVariant: { type: String, default: '' },
-    usePopup: { type: Boolean, default: false }
+    tableVariant: { type: String, default: '' }
   },
   data: () => ({
     transProps: {

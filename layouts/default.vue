@@ -8,9 +8,7 @@
 </template>
 
 <script>
-import lahHeader from '../components/lah-header.vue'
 export default {
-  components: { lahHeader },
 }
 </script>
 
