@@ -58,9 +58,9 @@
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-mixin.js";
+import regCaseBase from "~/assets/js/reg-case-base.js";
 export default {
-  name: 'lahRegCaseData',
+  name: 'lah-reg-case-data',
   mixins: [regCaseBase],
   data: () => ({
     apServer: "220.1.35.123"

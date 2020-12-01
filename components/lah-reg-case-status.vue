@@ -197,9 +197,9 @@
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-mixin.js";
+import regCaseBase from "~/assets/js/reg-case-base.js";
 export default {
-  name: 'lahRegCaseStatus',
+  name: 'lah-reg-case-status',
   mixins: [regCaseBase],
   computed: {
     ongoing() {

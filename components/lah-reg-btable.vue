@@ -148,7 +148,7 @@
 
 <script>
 export default {
-  name: 'lahRegBtable',
+  name: 'lah-reg-btable',
   components: {
     lahRegCaseDetail: () => import('~/components/lah-reg-case-detail.vue')
   },

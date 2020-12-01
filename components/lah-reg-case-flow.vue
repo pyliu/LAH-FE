@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-mixin.js";
+import regCaseBase from "~/assets/js/reg-case-base.js";
 
 export default {
   name: "lah-reg-case-flow",
