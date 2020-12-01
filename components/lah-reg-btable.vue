@@ -150,7 +150,10 @@
 export default {
   name: 'lah-reg-btable',
   components: {
-    lahRegCaseDetail: () => import('~/components/lah-reg-case-detail.vue')
+    'lah-reg-case-detail': () => import('~/components/lah-reg-case-detail.vue'),
+    'lah-reg-case-flow': () => import('~/components/lah-reg-case-flow.vue'),
+    'lah-reg-case-data': () => import('~/components/lah-reg-case-data.vue'),
+    'lah-reg-case-status': () => import('~/components/lah-reg-case-status.vue')
   },
   props: {
     bakedData: { type: Array, default: [] },
@@ -438,11 +441,14 @@ export default {
             type: "warning",
           })
         } else {
-          let vnode = this.$createElement('lah-reg-case-detail', {
-            props: {
-              caseId: id
+          let vnode = this.$createElement('lah-reg-case-detail', { props: { caseId: id } })
+          vnode = this.$createElement('div', {
+            attrs: {
+              id: id
             }
-          })
+          }, [
+            this.$createElement('lah-reg-case-flow', { props: { caseId: id } })
+          ])
           this.modal(vnode, {
             title: `登記案件詳情 ${data["RM01"]}-${data["RM02"]}-${data["RM03"]}`,
             size: "xl",
