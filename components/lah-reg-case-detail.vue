@@ -17,8 +17,9 @@ export default {
   name: 'lah-reg-case-detail',
   mixins: [regCaseBase],
   watch: {
+    // ready is from mixin
     ready (flag) {
-      this.$utils.trigger(this, 'ready', flag)
+      this.trigger('ready', flag)
     }
   }
 };

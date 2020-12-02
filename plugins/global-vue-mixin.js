@@ -338,6 +338,15 @@ Vue.mixin({
         }
       })
     },
+    trigger (evtName, payload) {
+      let evt = new CustomEvent(evtName, {
+        detail: payload,
+        bubbles: true
+      });
+      Object.defineProperty(evt, 'target', {writable: false, value: this.$el});
+      this.$emit(evtName, evt)
+      return evt
+    },
     async setCache (key, val, expire_timeout = 0) {
       if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
       try {

@@ -236,15 +236,6 @@ export default ({ $axios, store }, inject) => {
         ('0' + now.getMinutes()).slice(-2) + ':' +
         ('0' + now.getSeconds()).slice(-2)
     },
-    trigger (vm, evtName, payload) {
-      let evt = new CustomEvent(name, {
-        detail: payload,
-        bubbles: true
-      });
-      Object.defineProperty(evt, 'target', {writable: false, value: vm.$el});
-      vm.$emit(evtName, evt)
-      return evt
-    },
     log: console.log.bind(console),
     warn: console.warn.bind(console),
     assert: console.assert.bind(console),
