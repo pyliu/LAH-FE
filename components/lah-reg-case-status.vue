@@ -1,6 +1,6 @@
 <template>
   <b-card>
-    <b-card-title>
+    <b-card-title v-if="!noTitle">
       <b-link :href="queryStatusUrl" target="_blank">辦理情形</b-link>
     </b-card-title>
     <b-list-group flush compact v-if="ready">
@@ -204,6 +204,9 @@ import regCaseBase from "~/assets/js/reg-case-base.js";
 export default {
   name: 'lah-reg-case-status',
   mixins: [regCaseBase],
+  props: {
+    noTitle: { type: Boolean, default: false }
+  },
   computed: {
     ongoing() {
       return this.ready && this.$utils.empty(this.bakedData.結案代碼);

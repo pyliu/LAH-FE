@@ -1,6 +1,6 @@
 <template>
   <b-card>
-    <b-card-title>
+    <b-card-title v-if="!noTitle">
       <b-link :href="queryDataUrl" target="_blank">收件資料</b-link>
     </b-card-title>
     <b-list-group flush compact v-if="ready">
@@ -65,6 +65,9 @@ import regCaseBase from "~/assets/js/reg-case-base.js";
 export default {
   name: 'lah-reg-case-data',
   mixins: [regCaseBase],
+  props: {
+    noTitle: { type: Boolean, default: false }
+  },
   computed: {
     area() {
       if (this.ready) {

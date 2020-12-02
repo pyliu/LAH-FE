@@ -30,7 +30,7 @@
       </h3>
     </lah-transition>
     <lah-transition fade>
-      <lah-expiry-b-table v-if="committed"></lah-expiry-b-table>
+      <lah-expiry-b-table :busy="!committed"></lah-expiry-b-table>
     </lah-transition>
   </div>
 </template>

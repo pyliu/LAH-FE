@@ -12,12 +12,12 @@
       small
       :items="tableItems"
       :fields="fields"
-      :busy="isBusy"
+      :busy="isBusy || busy"
       class="text-center s-90"
     >
       <template v-slot:table-busy>
         <div class="text-center text-danger my-5">
-          <strong>查詢中 ...</strong>
+          <strong class="ld-txt">查詢中...</strong>
         </div>
       </template>
       <template v-slot:cell(序號)="data">
@@ -69,7 +69,8 @@
 export default {
   name: 'lah-expiry-b-table',
   props: {
-    id: { type: String, default: "" }
+    id: { type: String, default: "" },
+    busy: { type: Boolean, default: false }
   },
   data: () => ({
     fields: [
@@ -112,14 +113,14 @@ export default {
       this.notify({
         title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
         message: `查詢到 ${val} 位相關人員案件`,
-        type: "info"
+        type: this.isOverdueMode ? 'danger' : 'warning'
       })
     },
     totalCase (val) {
       this.notify({
         title:  this.isOverdueMode ? '已逾期案件' : '快逾期案件',
         message: `共有 ${val} 件案件`,
-        type: "info"
+        type: this.isOverdueMode ? 'danger' : 'warning'
       })
     }
   },
@@ -134,7 +135,7 @@ export default {
     searchUser (id) {}
   },
   created () { this.modalId = this.$utils.uuid() },
-  mounted () {}
+  mounted () { this.$utils.log(this.$utils.h) }
 }
 </script>
 

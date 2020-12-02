@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import $ from 'jquery'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
@@ -85,8 +86,16 @@ export default ({ $axios, store }, inject) => {
       }
     }
   }
+
+  const bus = new Vue()
+
   // like old fashion global functions, use this.$utils to access these methods in Vue
   const utility = {
+    /**
+     * Shortcuts for event bus
+     */
+    vm: bus,
+    h: bus.$createElement,
     /**
      * usage in Vue
      * this.$utils.animated('.my-element', { name: 'bounce', duration: 'faster', delay: '' }).then((message) => {
@@ -243,6 +252,7 @@ export default ({ $axios, store }, inject) => {
   inject('consts', consts)
   inject('utils', utility)
   inject('http', $axios)
+  inject('bus', bus)
   // get ip address and save it to store at FE
   store.dispatch('ip')
 }
