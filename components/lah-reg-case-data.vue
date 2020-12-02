@@ -13,7 +13,7 @@
       <b-list-group-item>
         收件字號：
         <a
-          :title="'收件資料 on ' + apServer"
+          :title="'收件資料 on ' + $consts.AP"
           href="javascript:void(0)"
           @click="$utils.openNewWindow(queryDataUrl, $event)"
         >
