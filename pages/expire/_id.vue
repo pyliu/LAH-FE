@@ -32,8 +32,8 @@
     <lah-transition fade>
       <lah-expiry-b-table :reviewer-id="reviewerId"></lah-expiry-b-table>
     </lah-transition>
-    <lah-transition class="center">
-      <lah-fa-icon v-if="queryCountById === 0" size="5x" action="swing" icon="smile-beam" prefix="far"></lah-fa-icon>
+    <lah-transition class="center h3">
+      <lah-fa-icon v-if="queryCountById === 0" action="bounce" icon="yahoo" prefix="fab"> 無資料</lah-fa-icon>
     </lah-transition>
   </div>
 </template>

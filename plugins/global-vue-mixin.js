@@ -148,8 +148,8 @@ Vue.mixin({
               switch(opts.variant) {
                 case 'danger':
                 case 'red':
-                  opts.toaster = 'b-toaster-bottom-center'
-                  break
+                  // opts.toaster = 'b-toaster-bottom-center'
+                  // break
                 case 'warning':
                 case 'yellow':
                   opts.toaster = 'b-toaster-bottom-left'
