@@ -6,7 +6,6 @@ import isEmpty from 'lodash/isEmpty'
 export default ({ $axios, store }, inject) => {
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
-    
     dayMilliseconds: 8640000,
     animateAttentionSeekers:  ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
     loadingAction: [ //(https://loading.io/animation/)
@@ -84,6 +83,11 @@ export default ({ $axios, store }, inject) => {
         CSV: '/api/export_tmp_csv.php',
         DATA: '/api/export_txt_data.php'
       }
+    },
+    EVENT: {
+      ERROR: 'lah::global::error',
+      WARNING: 'lah::global::warning',
+      INFO: 'lah::global::info'
     }
   }
 
@@ -91,11 +95,6 @@ export default ({ $axios, store }, inject) => {
 
   // like old fashion global functions, use this.$utils to access these methods in Vue
   const utility = {
-    /**
-     * Shortcuts for event bus
-     */
-    vm: bus,
-    h: bus.$createElement,
     /**
      * usage in Vue
      * this.$utils.animated('.my-element', { name: 'bounce', duration: 'faster', delay: '' }).then((message) => {
@@ -246,12 +245,32 @@ export default ({ $axios, store }, inject) => {
     log: console.log.bind(console),
     warn: console.warn.bind(console),
     assert: console.assert.bind(console),
-    error: console.error.bind(console)
+    error: console.error.bind(console),
+    /**
+     * Shortcuts for event bus
+     */
+    vm: bus,
+    h: bus.$createElement
   }
   // all injected var can be used by {varname} in Vue and ${varname} in Nuxt, e.g. this.$http (Vue), $http (Nuxt)
   inject('consts', consts)
   inject('utils', utility)
-  inject('http', $axios)
+  /** Event bus usage in Vue component
+    created () {
+      // In created hook, listen 'lah::global::info' event
+      this.$bus.$on(this.$consts.EVENT.INFO, msg => {
+        // do something about the msg
+      })
+    }
+
+    beforeDestroy () {
+      // destroy listener before component is destroyed  
+      this.$bus.$off(this.$consts.EVENT.INFO)
+    }
+
+    // emit somewhere
+    this.$bus.$emit(this.$consts.EVENT.INFO, 'hey something happening');
+   */
   inject('bus', bus)
   // get ip address and save it to store at FE
   store.dispatch('ip')

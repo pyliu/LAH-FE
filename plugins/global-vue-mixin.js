@@ -144,10 +144,11 @@ Vue.mixin({
               opts.toaster = 'b-toaster-bottom-full'
               break
             default:
+              // override the position by type/variant
               switch(opts.variant) {
                 case 'danger':
                 case 'red':
-                  opts.toaster = 'b-toaster-top-full'
+                  opts.toaster = 'b-toaster-bottom-center'
                   break
                 case 'warning':
                 case 'yellow':
@@ -212,15 +213,16 @@ Vue.mixin({
         if (typeof msg !== 'string' && typeof opts !== 'object') {
           reject(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
         } else {
+          const defDelay = (opts.variant === 'danger' ? 7500 : (opts.variant === 'warning' ? 6250 : 5000))
           if (typeof msg === 'string') {
             opts.variant = opts.type || opts.variant || 'default'
-            opts.autoHideDelay = opts.duration || opts.delay || 5000
+            opts.autoHideDelay = opts.duration || opts.delay || defDelay
           } else if (typeof msg === 'object') {
             opts = msg
             // previous API only use one object param
             msg = opts.body || opts.message
             opts.variant = opts.type || opts.variant || 'default'
-            opts.autoHideDelay = opts.duration || opts.delay || 5000
+            opts.autoHideDelay = opts.duration || opts.delay || defDelay
           }
           this.makeToast(msg, opts).then((config) => {
             resolve(config)

@@ -135,7 +135,7 @@ export default {
     searchUser (id) {}
   },
   created () { this.modalId = this.$utils.uuid() },
-  mounted () { this.$utils.log(this.$utils.h) }
+  mounted () { }
 }
 </script>
 
