@@ -10,6 +10,7 @@
       v-b-toggle.lah-sidebar
     />
     <lah-button
+      v-if="$route.path !== '/'"
       icon="home"
       size="lg"
       action="ld-breath"
