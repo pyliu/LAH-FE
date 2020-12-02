@@ -32,6 +32,9 @@
     <lah-transition fade>
       <lah-expiry-b-table :busy="!committed"></lah-expiry-b-table>
     </lah-transition>
+    <lah-transition class="center">
+      <lah-fa-icon v-if="queryCount === 0" size="5x" action="swing" icon="smile-beam" prefix="far"></lah-fa-icon>
+    </lah-transition>
   </div>
 </template>
 
@@ -41,10 +44,7 @@ export default {
   head: {
     title: "即將逾期案件-桃園市地政局"
   },
-  mixins: [expiryBase],
-  computed: {
-    cacheKey () { return this.isOverdueMode ? `already-expired-all` : `about-to-expire-all` }
-  }
+  mixins: [expiryBase]
 }
 </script>
 

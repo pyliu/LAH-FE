@@ -69,7 +69,7 @@
 export default {
   name: 'lah-expiry-b-table',
   props: {
-    id: { type: String, default: "" },
+    id: { type: String, default: '' },
     busy: { type: Boolean, default: false }
   },
   data: () => ({

@@ -6,7 +6,7 @@
           icon="calendar-check"
           size="lg"
           title="按我切換模式"
-          :badgeText="queryCount.toString()"
+          :badgeText="queryCountById.toString()"
           :variant="switchButtonVariant"
           @click="isOverdueMode = !isOverdueMode"
           :disabled="isBusy"
@@ -30,27 +30,47 @@
       </h3>
     </lah-transition>
     <lah-transition fade>
-      <lah-expiry-b-table :busy="!committed"></lah-expiry-b-table>
+      <lah-expiry-b-table :id="reviewerId"></lah-expiry-b-table>
+    </lah-transition>
+    <lah-transition class="center">
+      <lah-fa-icon v-if="queryCountById === 0" size="5x" action="swing" icon="smile-beam" prefix="far"></lah-fa-icon>
     </lah-transition>
   </div>
 </template>
 
 <script>
 import expiryBase from '~/assets/js/expiry-base.js'
+import lahFaIcon from '../../components/lah-fa-icon.vue'
 export default {
+  components: { lahFaIcon },
   head: {
     title: "初審即將逾期案件-桃園市地政局"
   },
   mixins: [expiryBase],
   computed: {
-    reviewerId () { return this.$route.params.id ? (this.$route.params.id.split(' ')[1].replace(/[^a-zA-Z0-9]/g, '') || '') : '' },
-    reviewerName () { return this.$route.params.id ? (this.$route.params.id.split(' ')[0] || '') : '' },
-    cacheKey () { return this.isOverdueMode ? `already-expired-${this.reviewerId}` : `about-to-expire-${this.reviewerId}` },
+    nameId () {
+      if (this.$route.params.id) {
+        const array = this.$route.params.id.split(' ')
+        if (array.length === 1) {
+          return ['', this.$route.params.id]
+        }
+        return array
+      }
+      return ['', '']
+    },
+    reviewerId () { return this.nameId[1].replace(/[^a-zA-Z0-9]/g, '') },
+    reviewerName () { return this.nameId[0] },
+    // cacheKey () { return this.isOverdueMode ? `already-expired-${this.reviewerId}` : `about-to-expire-${this.reviewerId}` },
     queryTitle () {
       if (this.isBusy) {
         return '讀取中...'
       }
-      return (this.isOverdueMode ? `已逾期案件` : `即將逾期案件`) + `(${this.reviewerName} ${this.reviewerId})`
+      return (this.isOverdueMode ? `已逾期案件` : `即將逾期案件`) + '(' + this.$utils.trim(`${this.reviewerName} ${this.reviewerId}`) + ')'
+    }
+  },
+  watch: {
+    committed (flag) {
+      this.isBusy = !flag
     }
   }
 }

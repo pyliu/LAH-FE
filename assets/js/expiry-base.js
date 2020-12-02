@@ -2,11 +2,12 @@ export default {
   name: 'expiryBase',
   data: () => ({
     queriedJson: undefined,
-    isOverdueMode: undefined,
+    isOverdueMode: false,
     milliseconds: 15 * 60 * 1000,
     committed: false
   }),
   computed: {
+    cacheKey () { return this.isOverdueMode ? `already-expired-all` : `about-to-expire-all` },
     badgeVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
     queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
     queryTitle () {
@@ -20,6 +21,15 @@ export default {
         return '-'
       }
       return this.queriedJson && this.queriedJson.items ? this.queriedJson.items.length : 0
+    },
+    queryCountById () {
+      if (this.reviewerId) {
+        if (this.isBusy) {
+          return '-'
+        }
+        return this.queriedJson && this.queriedJson.items_by_id[this.reviewerId] ? this.queriedJson.items_by_id[this.reviewerId].length : 0
+      }
+      return '-'
     },
     switchButtonVariant () { return this.isOverdueMode ? 'danger' : 'warning' }
   },
@@ -56,10 +66,11 @@ export default {
         if (jsonObj === false) {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.QUERY, {
-            type: this.queryType,
-            reviewer_id: this.reviewerId || ''
+            type: this.queryType
+            // always get all results and cache it at FE
+            // reviewer_id: this.reviewerId || ''
           }).then(res => {
-            this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 14 mins 59 secs
+            this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 15 mins
             console.assert(
               res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL ||
               res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
