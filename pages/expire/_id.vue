@@ -40,9 +40,7 @@
 
 <script>
 import expiryBase from '~/assets/js/expiry-base.js'
-import lahFaIcon from '../../components/lah-fa-icon.vue'
 export default {
-  components: { lahFaIcon },
   head: {
     title: "初審即將逾期案件-桃園市地政局"
   },
@@ -50,9 +48,9 @@ export default {
   computed: {
     nameId () {
       if (this.$route.params.id) {
-        const array = this.$route.params.id.split(' ')
+        const array = this.$route.params.id.toUpperCase().split(' ')
         if (array.length === 1) {
-          return ['', this.$route.params.id]
+          array.unshift('')
         }
         return array
       }
