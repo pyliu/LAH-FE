@@ -155,6 +155,7 @@
       :id="modalId"
       hide-footer
       centered
+      no-close-on-backdrop
       size="xl"
     >
       <template #modal-title>

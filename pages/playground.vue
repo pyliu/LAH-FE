@@ -86,11 +86,7 @@
 </template>
 
 <script>
-import lahButton from '~/components/lah-button.vue'
-import lahRegBTable from "~/components/lah-reg-b-table.vue"
-
 export default {
-  components: { lahButton, lahRegBTable },
   head: {
     title: "測試-桃園市地政局",
   },
