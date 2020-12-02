@@ -29,6 +29,7 @@
       </template>
       <template v-slot:cell(初審人員)="data">
         <b-button
+          v-if="allCaseMode"
           :variant="buttoVariant"
           size="sm"
           :to="`/expire/${data.value}`"
@@ -36,6 +37,7 @@
         >
           {{ data.value.split(" ")[0] }}
         </b-button>
+        <strong v-else>{{ data.value.split(" ")[0] }}</strong>
       </template>
       <template v-slot:cell(作業人員)="data">
         <b-button
@@ -69,7 +71,7 @@
 export default {
   name: 'lah-expiry-b-table',
   props: {
-    id: { type: String, default: '' },
+    reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false }
   },
   data: () => ({
@@ -104,9 +106,10 @@ export default {
       return this.$store.getters["expiry/is_overdue_mode"]
     },
     tableItems () {
-      return this.$utils.empty(this.id) ? this.caseList : this.caseListByID[this.id]
+      return this.allCaseMode ? this.caseList : this.caseListByID[this.reviewerId]
     },
-    buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' }
+    buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' },
+    allCaseMode () { return this.$utils.empty(this.reviewerId) }
   },
   watch: {
     totalPeople (val) {

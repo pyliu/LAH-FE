@@ -30,7 +30,7 @@
       </h3>
     </lah-transition>
     <lah-transition fade>
-      <lah-expiry-b-table :id="reviewerId"></lah-expiry-b-table>
+      <lah-expiry-b-table :reviewer-id="reviewerId"></lah-expiry-b-table>
     </lah-transition>
     <lah-transition class="center">
       <lah-fa-icon v-if="queryCountById === 0" size="5x" action="swing" icon="smile-beam" prefix="far"></lah-fa-icon>
@@ -60,7 +60,6 @@ export default {
     },
     reviewerId () { return this.nameId[1].replace(/[^a-zA-Z0-9]/g, '') },
     reviewerName () { return this.nameId[0] },
-    // cacheKey () { return this.isOverdueMode ? `already-expired-${this.reviewerId}` : `about-to-expire-${this.reviewerId}` },
     queryTitle () {
       if (this.isBusy) {
         return '讀取中...'
