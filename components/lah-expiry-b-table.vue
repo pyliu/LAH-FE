@@ -31,7 +31,7 @@
         <b-button
           :variant="buttoVariant"
           size="sm"
-          @click="searchByReviewer(data.value)"
+          :to="`/expire/${data.value}`"
           :title="buttonReviewerTitle(data.value)"
         >
           {{ data.value.split(" ")[0] }}

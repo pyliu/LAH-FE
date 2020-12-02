@@ -15,7 +15,7 @@
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/about-to-expire">
+        <NuxtLink to="/expire">
           <font-awesome-icon :icon="['far', 'calendar-check']" size="lg" />
           即將逾期案件
         </NuxtLink>

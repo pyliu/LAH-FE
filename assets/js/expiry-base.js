@@ -1,54 +1,12 @@
-<template>
-  <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header padding-override">
-        <lah-button
-          icon="calendar-check"
-          size="lg"
-          title="按我切換模式"
-          :badgeText="queryCount.toString()"
-          :variant="switchButtonVariant"
-          @click="isOverdueMode = !isOverdueMode"
-          :disabled="isBusy"
-          :busy="isBusy"
-        >
-          <strong>{{queryTitle}}</strong>
-        </lah-button>
-        <lah-countdown-button
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
-          size="lg"
-          :milliseconds="900000"
-          :end="load"
-          :click="reload"
-          :disabled="isBusy"
-          :busy="isBusy"
-          auto-start
-          title="立即重新讀取"
-        ></lah-countdown-button>
-      </h3>
-    </lah-transition>
-    <lah-transition fade>
-      <lah-expiry-b-table :busy="!committed"></lah-expiry-b-table>
-    </lah-transition>
-  </div>
-</template>
-
-<script>
 export default {
-  head: {
-    title: "即將逾期案件-桃園市地政局"
-  },
+  name: 'expiryBase',
   data: () => ({
     queriedJson: undefined,
     isOverdueMode: undefined,
-    reviewerID: '',
     milliseconds: 15 * 60 * 1000,
     committed: false
   }),
   computed: {
-    cacheKey () { return this.isOverdueMode ? `already-expired` : `about-to-expire` },
     badgeVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
     queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
     queryTitle () {
@@ -99,7 +57,7 @@ export default {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.QUERY, {
             type: this.queryType,
-            reviewer_id: this.reviewerID
+            reviewer_id: this.reviewerId || ''
           }).then(res => {
             this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 14 mins 59 secs
             console.assert(
@@ -131,14 +89,7 @@ export default {
     }
   },
   created () {
-    this.isOverdueMode = false
+    this.isOverdueMode = this.$store.getters['expiry/is_overdue_mode']
     this.load()
   }
 }
-</script>
-
-<style lang="scss" scoped>
-.padding-override {
-  padding: 10px 4rem;
-}
-</style>
