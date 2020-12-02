@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import expiryBase from '~/assets/js/expiry-base.js'
+import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
   head: {
     title: "即將逾期案件-桃園市地政局"
