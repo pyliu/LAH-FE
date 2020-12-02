@@ -66,7 +66,8 @@ export default {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas';
     },
     showBadge () { return !this.$utils.empty(this.badgeText) },
-    showIcon () { return !this.$utils.empty(this.icon) }
+    showIcon () { return !this.$utils.empty(this.icon) },
+    iconId () { return this.$refs.icon.iconId }
   },
   methods: {
     emitClick (evt) {
@@ -76,10 +77,10 @@ export default {
     mouseenter () {
       const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath';
       // movement is 'undefined' will be random effect
-      this.$utils.addAnimation(`#${this.$refs.icon.iconId}`, movement);
+      this.$utils.addAnimation(`#${this.iconId}`, movement)
     },
     mouseleave () {
-      this.$utils.clearAnimation(`#${this.$refs.icon.iconId}`);
+      this.$utils.clearAnimation(`#${this.iconId}`)
     }
   }
 }
