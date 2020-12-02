@@ -102,6 +102,9 @@ export default {
     caseListByID () {
       return this.$store.getters["expiry/list_by_id"]
     },
+    reviewerCaseList () {
+      return this.caseListByID[this.reviewerId]
+    },
     isOverdueMode () {
       return this.$store.getters["expiry/is_overdue_mode"]
     },
@@ -113,16 +116,24 @@ export default {
   },
   watch: {
     totalPeople (val) {
-      this.notify({
+      this.allCaseMode && this.notify({
         title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
-        message: `查詢到 ${val} 位相關人員案件`,
+        message: `找到 ${val} 位相關人員案件`,
         type: this.isOverdueMode ? 'danger' : 'warning'
       })
     },
     totalCase (val) {
-      this.notify({
+      this.allCaseMode && this.notify({
         title:  this.isOverdueMode ? '已逾期案件' : '快逾期案件',
         message: `共有 ${val} 件案件`,
+        type: this.isOverdueMode ? 'danger' : 'warning'
+      })
+    },
+    reviewerCaseList (val) {
+      val && !this.allCaseMode && this.notify({
+        title:  this.isOverdueMode ? '已逾期案件' : '快逾期案件',
+        subtitle: this.reviewerId,
+        message: `找到 ${val.length} 件案件`,
         type: this.isOverdueMode ? 'danger' : 'warning'
       })
     }
