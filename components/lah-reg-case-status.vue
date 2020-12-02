@@ -1,7 +1,7 @@
 <template>
   <b-card>
     <b-card-title v-if="!noTitle">
-      <b-link :href="queryStatusUrl" target="_blank">辦理情形</b-link>
+      <b-link :href="queryStatusUrl" target="_blank" title="開啟新視窗"><lah-fa-icon append icon="share-square">辦理情形</lah-fa-icon></b-link>
     </b-card-title>
     <b-list-group flush compact v-if="ready">
       <b-list-group-item>

@@ -1,7 +1,7 @@
 <template>
   <b-card>
     <b-card-title v-if="!noTitle">
-      <b-link :href="queryDataUrl" target="_blank">收件資料</b-link>
+      <b-link :href="queryDataUrl" target="_blank" title="開啟新視窗"><lah-fa-icon append icon="share-square">收件資料</lah-fa-icon></b-link>
     </b-card-title>
     <b-list-group flush compact v-if="ready">
       <b-list-group-item v-if="bakedData.跨所 == 'Y'">
