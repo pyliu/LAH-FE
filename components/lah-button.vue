@@ -11,6 +11,7 @@
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
     @blur="mouseleave"
+    @focus="mouseenter"
     @click="emitClick($event)"
     style="display: flex; align-items: center; justify-content: center;"
   >
