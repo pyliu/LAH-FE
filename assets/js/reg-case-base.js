@@ -12,9 +12,7 @@ export default {
     }
   },
   data: () => ({
-    bakedData: undefined,
-    apServer: "220.1.35.123",
-    site: 'HB'
+    bakedData: undefined
   }),
   computed: {
     year () {
@@ -36,10 +34,10 @@ export default {
       return !this.$utils.empty(this.bakedData)
     },
     queryDataUrl () {
-      return `http://${this.apServer}:9080/Land${this.site}/CAS/CCD01/CCD0103.jsp?rm01=${this.bakedData['RM01']}&rm02=${this.bakedData['RM02']}&rm03=${this.bakedData['RM03']}`
+      return `http://${this.$consts.AP}:9080/Land${this.$consts.SITE}/CAS/CCD01/CCD0103.jsp?rm01=${this.bakedData['RM01']}&rm02=${this.bakedData['RM02']}&rm03=${this.bakedData['RM03']}`
     },
     queryStatusUrl () {
-      return `http://${this.apServer}:9080/Land${this.site}/CAS/CCD02/CCD0202.jsp?year=${this.bakedData['RM01']}&word=${this.bakedData['RM02']}&code=${this.bakedData['RM03']}&sdlyn=N&RM90=`
+      return `http://${this.$consts.AP}:9080/Land${this.$consts.SITE}/CAS/CCD02/CCD0202.jsp?year=${this.bakedData['RM01']}&word=${this.bakedData['RM02']}&code=${this.bakedData['RM03']}&sdlyn=N&RM90=`
     }
   },
   watch: {
