@@ -50,7 +50,7 @@
       </li>
       <li>
         <NuxtLink to="/playground">
-          <font-awesome-icon :icon="['fas', 'leaf']" size="lg" />
+          <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
           測試
         </NuxtLink>
       </li>

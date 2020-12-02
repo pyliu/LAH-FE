@@ -9,21 +9,20 @@
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
-    <NuxtLink to="/">
-      <lah-button
-        icon="home"
-        size="lg"
-        action="ld-float"
-        class="home-button"
-        variant="light"
-        title="回到首頁"
-      />
-    </NuxtLink>
+    <lah-button
+      icon="home"
+      size="lg"
+      action="ld-breath"
+      class="home-button"
+      variant="light"
+      title="回到首頁"
+      to="/"
+    />
   </div>
 </template>
 
 <script>
-export default {};
+export default {}
 </script>
 
 <style lang="scss" scoped>

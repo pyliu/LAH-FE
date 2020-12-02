@@ -8,6 +8,7 @@
     :pressed="pressed"
     :class="noBorder ? 'border-0 align-middle' : ' align-middle'"
     :href="href"
+    :to="to"
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
     @blur="mouseleave"
@@ -39,7 +40,8 @@
 <script>
 export default {
   props: {
-    href: { type: String, default: '' },
+    to: { type: String, default: undefined },
+    href: { type: String, default: undefined },
     noBorder: { type: Boolean, default: false },
     variant: { type: String, default: 'outline-primary' },
     size: { type: String, default: 'sm' },
