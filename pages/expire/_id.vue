@@ -14,7 +14,6 @@
         >
           <strong>{{queryTitle}}</strong>
         </lah-button>
-        {{$route.params.id}}
         <lah-countdown-button
           ref="countdown"
           icon="sync-alt"
@@ -45,7 +44,14 @@ export default {
   mixins: [expiryBase],
   computed: {
     reviewerId () { return this.$route.params.id ? (this.$route.params.id.split(' ')[1].replace(/[^a-zA-Z0-9]/g, '') || '') : '' },
-    cacheKey () { return this.isOverdueMode ? `already-expired${this.reviewerId}` : `about-to-expire${this.reviewerId}` }
+    reviewerName () { return this.$route.params.id ? (this.$route.params.id.split(' ')[0] || '') : '' },
+    cacheKey () { return this.isOverdueMode ? `already-expired-${this.reviewerId}` : `about-to-expire-${this.reviewerId}` },
+    queryTitle () {
+      if (this.isBusy) {
+        return '讀取中...'
+      }
+      return (this.isOverdueMode ? `已逾期案件` : `即將逾期案件`) + `(${this.reviewerName} ${this.reviewerId})`
+    }
   }
 }
 </script>

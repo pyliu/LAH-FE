@@ -14,7 +14,6 @@
         >
           <strong>{{queryTitle}}</strong>
         </lah-button>
-        所有案件
         <lah-countdown-button
           ref="countdown"
           icon="sync-alt"
@@ -44,7 +43,7 @@ export default {
   },
   mixins: [expiryBase],
   computed: {
-    cacheKey () { return this.isOverdueMode ? `already-expired` : `about-to-expire` }
+    cacheKey () { return this.isOverdueMode ? `already-expired-all` : `about-to-expire-all` }
   }
 }
 </script>
