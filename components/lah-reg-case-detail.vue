@@ -18,8 +18,7 @@ export default {
   mixins: [regCaseBase],
   watch: {
     ready (flag) {
-      const evt = this.$utils.customEvent('ready', flag, this.$el);
-      this.$emit('ready', evt)
+      this.$utils.trigger(this, 'ready', flag)
     }
   }
 };

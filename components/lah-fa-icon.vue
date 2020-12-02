@@ -1,7 +1,8 @@
 <template>
   <span class="align-middle my-auto">
-    <span v-if="append"><slot></slot> <i :id="id" :class="className"></i></span>
-    <span v-else><i :id="id" :class="className"></i> <slot></slot></span>
+    <i v-if="!append" :id="iconId" :class="className"></i>
+    <slot></slot>
+    <i v-if="append" :id="iconId" :class="className"></i>
   </span>
 </template>
 
@@ -14,9 +15,11 @@ export default {
     variant: { type: String, default: "" },
     action: { type: String, default: "" },
     append: { type: Boolean, default: false },
-    id: { type: String, default: "" },
     align: { type: String, default: "" },
   },
+  data: () => ({
+    iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
+  }),
   computed: {
     className () {
       let prefix = this.prefix || "fas";
@@ -43,7 +46,10 @@ export default {
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` }
   },
-};
+  mounted () {
+    this.iconId = this.$utils.uuid()
+  }
+}
 </script>
 
 <style lang="scss" scoped>

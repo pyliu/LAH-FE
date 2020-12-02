@@ -11,12 +11,11 @@
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
     @blur="mouseleave"
-    @focus="mouseenter"
     @click="emitClick($event)"
     style="display: flex; align-items: center; justify-content: center;"
   >
     <lah-fa-icon
-      :id="iconId"
+      ref="icon"
       :prefix="faIconPrefix"
       :icon="icon"
       :size="iconSize"
@@ -60,14 +59,6 @@ export default {
     badgePill: { type: Boolean, default: true },
     busy: { type: Boolean, default: false }
   },
-  data: () => ({
-    iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
-  }),
-  watch: {
-    busy (flag) {
-
-    }
-  },
   computed: {
     faIconPrefix () {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas';
@@ -83,14 +74,11 @@ export default {
     mouseenter () {
       const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath';
       // movement is 'undefined' will be random effect
-      this.$utils.addAnimation(`#${this.iconId}`, movement);
+      this.$utils.addAnimation(`#${this.$refs.icon.iconId}`, movement);
     },
     mouseleave () {
-      this.$utils.clearAnimation(`#${this.iconId}`);
+      this.$utils.clearAnimation(`#${this.$refs.icon.iconId}`);
     }
-  },
-  created () {
-    this.iconId = this.$utils.uuid();
   }
 }
 </script>
