@@ -9,16 +9,18 @@
       title="開啟選單"
       v-b-toggle.lah-sidebar
     />
-    <lah-button
-      v-if="$route.path !== '/'"
-      icon="home"
-      size="lg"
-      action="ld-breath"
-      class="home-button"
-      variant="light"
-      title="回到首頁"
-      to="/"
-    />
+    <lah-transition>
+      <lah-button
+        v-if="$route.path !== '/'"
+        icon="home"
+        size="lg"
+        action="ld-breath"
+        class="home-button"
+        variant="light"
+        title="回到首頁"
+        to="/"
+      />
+    </lah-transition>
   </div>
 </template>
 
