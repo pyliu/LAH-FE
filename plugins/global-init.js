@@ -267,5 +267,5 @@ export default ({ $axios, store }, inject) => {
    */
   inject('bus', bus)
   // get ip address and save it to store at FE
-  store.dispatch('ip')
+  // store.dispatch('ip')
 }
