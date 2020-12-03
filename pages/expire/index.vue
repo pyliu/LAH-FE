@@ -44,7 +44,8 @@ export default {
   head: {
     title: "即將逾期案件-桃園市地政局"
   },
-  mixins: [expiryBase]
+  mixins: [expiryBase],
+  mounted() {console.log(this.ip)}
 }
 </script>
 

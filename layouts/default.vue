@@ -9,6 +9,9 @@
 
 <script>
 export default {
+  middleware: [
+    'ip'
+  ]
 }
 </script>
 

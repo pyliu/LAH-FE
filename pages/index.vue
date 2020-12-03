@@ -43,6 +43,13 @@ export default {
   }),
   async asyncData(nuxt) {
     // SSR: returned object will replace the data inside "data" before rendering
+  // const ip = 
+  // req.headers['x-forwarded-for'].split(',').pop() || // From proxy headers, can be spoofed if you don't have a proxy in front of your app, so drop it if your app is naked.
+  // req.connection.remoteAddress || 
+  // req.socket.remoteAddress || // socket is an alias to connection, just delete this line
+  // req.connection.socket.remoteAddress // no idea where this might be a thing, just delete this line
+  // probably add a default at the end here, although there shouldn't be a case when req.connection.remoteAddress is unset.
+  // console.log(nuxt)
   },
   watch: {},
   methods: {},
