@@ -38,40 +38,39 @@ export default {
     },
     queryStatusUrl () {
       return `http://${this.$consts.AP}:9080/Land${this.$consts.SITE}/CAS/CCD02/CCD0202.jsp?year=${this.bakedData['RM01']}&word=${this.bakedData['RM02']}&code=${this.bakedData['RM03']}&sdlyn=N&RM90=`
-    }
+    },
+    fetchPending () { return this.$fetchState.pending }
   },
   watch: {
     parentData(val) {
       this.bakedData = val
-    }
-  },
-  methods: {
-    fetch() {
-      if (this.validID) {
-        const thisID = `${this.year}${this.code}${this.number.padStart(6, '0')}`
-        this.isBusy = true
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: 'reg_case',
-          id: thisID
-        }).then(res => {
-          if (this.$utils.statusCheck(res.data.status)) {
-            this.bakedData = res.data.baked
-          } else {
-            this.alert(res.data.message, {
-              title: '讀取登記案件',
-              type: 'warning'
-            })
-          }
-        }).catch(err => {
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-        })
-      }
+    },
+    fetchPending (val) {
+      this.isBusy = val
     }
   },
   created () { 
     this.bakedData = this.parentData
-    this.fetch()
+  },
+  async fetch () {
+    if (this.validID) {
+      const thisID = `${this.year}${this.code}${this.number.padStart(6, '0')}`
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'reg_case',
+        id: thisID
+      }).then(res => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          this.bakedData = res.data.baked
+        } else {
+          this.alert(res.data.message, {
+            title: '讀取登記案件',
+            type: 'warning'
+          })
+        }
+      }).catch(err => {
+        this.$utils.error(err)
+      }).finally(() => {
+      })
+    }
   }
 }
