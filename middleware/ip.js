@@ -6,6 +6,6 @@ export default (ctx) => {
   }
   if (process.client) {
     // $store.commit('ip', store.getters.ip)
-    console.log(`client`, store.getters.ip)
+    console.log(`client`, ctx.store.getters.ip)
   }
 }

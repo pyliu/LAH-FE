@@ -31,12 +31,16 @@ export default {
       }
       return '-'
     },
-    switchButtonVariant () { return this.isOverdueMode ? 'danger' : 'warning' }
+    switchButtonVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
+    fetchPending () { return this.$fetchState.pending }
   },
   watch: {
     isOverdueMode (val) {
       this.$store.commit('expiry/is_overdue_mode', val)
       this.$fetch()
+    },
+    fetchPending (val) {
+      this.isBusy = val
     }
   },
   methods: {

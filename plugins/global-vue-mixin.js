@@ -20,9 +20,6 @@ Vue.mixin({
           forceOff: true
         })
       }
-    },
-    fetchPending (val) {
-      this.isBusy = val
     }
   },
   computed: {
@@ -30,8 +27,7 @@ Vue.mixin({
     ip () { return this.$store.getters.ip },
     toastCounter () { return this.$store.getters.toastCounter },
     xhrResponse () { return this.$store.getters.xhrResponse },
-    xhrRequest () { return this.$store.getters.xhrRequest },
-    fetchPending () { return this.$fetchState.pending }
+    xhrRequest () { return this.$store.getters.xhrRequest }
   },
   methods: {
     $,  // jQuery '$',
