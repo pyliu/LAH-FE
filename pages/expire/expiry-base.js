@@ -37,9 +37,6 @@ export default {
     isOverdueMode (val) {
       this.$store.commit('expiry/is_overdue_mode', val)
       this.$fetch()
-    },
-    '$fetchState.pending': function (val) {
-      this.isBusy = val
     }
   },
   methods: {
@@ -63,6 +60,9 @@ export default {
     reload() {
       this.removeCache(this.cacheKey).then(() => { this.$fetch() })
     }
+  },
+  created () {
+    this.isOverdueMode = this.$store.getters['expiry/is_overdue_mode']
   },
   async fetch () {
     this.committed = false
@@ -101,8 +101,5 @@ export default {
         this.commit(jsonObj)
       }
     })
-  },
-  created () {
-    this.isOverdueMode = this.$store.getters['expiry/is_overdue_mode']
   }
 }
