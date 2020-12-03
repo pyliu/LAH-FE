@@ -33,7 +33,7 @@
       <lah-expiry-b-table :busy="!committed"></lah-expiry-b-table>
     </lah-transition>
     <lah-transition class="center h3">
-      <lah-fa-icon v-if="queryCount === 0" action="bounce" icon="yahoo" prefix="fab"> 無資料</lah-fa-icon>
+      <lah-fa-icon v-cloak v-if="queryCount === 0" action="bounce" icon="yahoo" prefix="fab"> 無資料</lah-fa-icon>
     </lah-transition>
   </div>
 </template>

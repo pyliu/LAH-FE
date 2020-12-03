@@ -416,6 +416,9 @@ Vue.mixin({
         console.error(err)
       }
       return true
+    },
+    async clearCache () {
+      await this.$localForage.clear()
     }
   }
 })

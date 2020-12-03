@@ -263,7 +263,7 @@ export default ({ $axios, store }, inject) => {
     }
 
     // emit somewhere
-    this.$bus.$emit(this.$consts.EVENT.INFO, 'hey something happening');
+    this.$bus.$emit(this.$consts.EVENT.INFO, 'hey something happening')
    */
   inject('bus', bus)
   // get ip address and save it to store at FE
