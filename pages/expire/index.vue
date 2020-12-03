@@ -20,7 +20,7 @@
           action="ld-cycle"
           size="lg"
           :milliseconds="900000"
-          :end="load"
+          :end="$fetch"
           :click="reload"
           :disabled="isBusy"
           :busy="isBusy"
@@ -44,8 +44,7 @@ export default {
   head: {
     title: "即將逾期案件-桃園市地政局"
   },
-  mixins: [expiryBase],
-  mounted() {console.log(this.ip)}
+  mixins: [expiryBase]
 }
 </script>
 

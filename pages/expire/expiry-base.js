@@ -36,7 +36,10 @@ export default {
   watch: {
     isOverdueMode (val) {
       this.$store.commit('expiry/is_overdue_mode', val)
-      this.load()
+      this.$fetch()
+    },
+    '$fetchState.pending': function (val) {
+      this.isBusy = val
     }
   },
   methods: {
@@ -58,49 +61,48 @@ export default {
       }
     },
     reload() {
-      this.removeCache(this.cacheKey).then(() => { this.load() })
-    },
-    load () {
-      this.committed = false
-      this.getCache(this.cacheKey).then(jsonObj => {
-        if (jsonObj === false) {
-          this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.QUERY, {
-            type: this.queryType
-            // always get all results and cache it at FE
-            // reviewer_id: this.reviewerId || ''
-          }).then(res => {
-            this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 15 mins
-            console.assert(
-              res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL ||
-              res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
-              `查詢登記案件回傳狀態碼有問題【${this.queryTitle}, ${res.data.status}】`
-            )
-            if (
-              res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL &&
-              res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD
-            ) {
-              this.removeCache(this.cacheKey)
-            }
-            if (this.$refs.countdown) {
-              this.$refs.countdown.resetCountdown()
-            }
-            this.commit(res.data)
-          }).catch(err => {
-            this.alert(err.message)
-            this.$utils.error(err)
-          }).finally(() => {
-            this.isBusy = false
-          })
-        } else {
-          // cache hit!
-          this.commit(jsonObj)
-        }
-      })
+      this.removeCache(this.cacheKey).then(() => { this.$fetch() })
     }
+  },
+  async fetch () {
+    this.committed = false
+    this.getCache(this.cacheKey).then(jsonObj => {
+      if (jsonObj === false) {
+        // this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: this.queryType
+          // always get all results and cache it at FE
+          // reviewer_id: this.reviewerId || ''
+        }).then(res => {
+          this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 15 mins
+          console.assert(
+            res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL ||
+            res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
+            `查詢登記案件回傳狀態碼有問題【${this.queryTitle}, ${res.data.status}】`
+          )
+          if (
+            res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL &&
+            res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD
+          ) {
+            this.removeCache(this.cacheKey)
+          }
+          if (this.$refs.countdown) {
+            this.$refs.countdown.resetCountdown()
+          }
+          this.commit(res.data)
+        }).catch(err => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          // this.isBusy = false
+        })
+      } else {
+        // cache hit!
+        this.commit(jsonObj)
+      }
+    })
   },
   created () {
     this.isOverdueMode = this.$store.getters['expiry/is_overdue_mode']
-    this.load()
   }
 }
