@@ -26,9 +26,45 @@ Vue.mixin({
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
     ip () { return this.$store.getters.ip },
     svr () { return this.$store.getters.svr },
+    apiSvr () {
+      if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
+        return this.svr.ips[0]
+      }
+      return '127.0.0.1'
+    },
     toastCounter () { return this.$store.getters.toastCounter },
     xhrResponse () { return this.$store.getters.xhrResponse },
-    xhrRequest () { return this.$store.getters.xhrRequest }
+    xhrRequest () { return this.$store.getters.xhrRequest },
+    site () {
+      if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvr)) {
+        return 'H0'
+      }
+      if (/(^220\.1\.34\.|^192\.168\.1[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HA'
+      }
+      if (/(^220\.1\.35\.|^192\.168\.2[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HB'
+      }
+      if (/(^220\.1\.36\.|^192\.168\.3[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HC'
+      }
+      if (/(^220\.1\.37\.|^192\.168\.4[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HD'
+      }
+      if (/(^220\.1\.38\.|^192\.168\.5[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HE'
+      }
+      if (/(^220\.1\.39\.|^192\.168\.6[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HF'
+      }
+      if (/(^220\.1\.40\.|^192\.168\.7[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HG'
+      }
+      if (/(^220\.1\.41\.|^192\.168\.8[0-9]\.)/g.test(this.apiSvr)) {
+        return 'HG'
+      }
+      return 'HB'
+    }
   },
   methods: {
     $,  // jQuery '$',
