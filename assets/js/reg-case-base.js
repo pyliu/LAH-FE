@@ -34,19 +34,15 @@ export default {
       return !this.$utils.empty(this.bakedData)
     },
     queryDataUrl () {
-      return `http://${this.$consts.AP}:9080/Land${this.$consts.SITE}/CAS/CCD01/CCD0103.jsp?rm01=${this.bakedData['RM01']}&rm02=${this.bakedData['RM02']}&rm03=${this.bakedData['RM03']}`
+      return `http://${this.$consts.AP}:9080/Land${this.site}/CAS/CCD01/CCD0103.jsp?rm01=${this.bakedData['RM01']}&rm02=${this.bakedData['RM02']}&rm03=${this.bakedData['RM03']}`
     },
     queryStatusUrl () {
-      return `http://${this.$consts.AP}:9080/Land${this.$consts.SITE}/CAS/CCD02/CCD0202.jsp?year=${this.bakedData['RM01']}&word=${this.bakedData['RM02']}&code=${this.bakedData['RM03']}&sdlyn=N&RM90=`
-    },
-    fetchPending () { return this.$fetchState.pending }
+      return `http://${this.$consts.AP}:9080/Land${this.site}/CAS/CCD02/CCD0202.jsp?year=${this.bakedData['RM01']}&word=${this.bakedData['RM02']}&code=${this.bakedData['RM03']}&sdlyn=N&RM90=`
+    }
   },
   watch: {
     parentData(val) {
       this.bakedData = val
-    },
-    fetchPending (val) {
-      this.isBusy = val
     }
   },
   created () { 
@@ -55,6 +51,7 @@ export default {
   async fetch () {
     if (this.validID) {
       const thisID = `${this.year}${this.code}${this.number.padStart(6, '0')}`
+      this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'reg_case',
         id: thisID
@@ -70,6 +67,7 @@ export default {
       }).catch(err => {
         this.$utils.error(err)
       }).finally(() => {
+        this.isBusy = false
       })
     }
   }
