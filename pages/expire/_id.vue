@@ -20,7 +20,7 @@
           action="ld-cycle"
           size="lg"
           :milliseconds="900000"
-          :end="load"
+          :end="$fetch"
           :click="reload"
           :disabled="isBusy"
           :busy="isBusy"

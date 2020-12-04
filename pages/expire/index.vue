@@ -51,4 +51,5 @@ export default {
 <style lang="scss" scoped>
 .padding-override {
   padding: .6rem 4rem;
-
+}
+</style>
