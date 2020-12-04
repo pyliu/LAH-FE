@@ -116,21 +116,21 @@ export default {
   },
   watch: {
     totalPeople (val) {
-      this.allCaseMode && this.notify({
+      val > 0 && this.allCaseMode && this.notify({
         title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
         message: `找到 ${val} 位相關人員案件`,
         type: this.isOverdueMode ? 'danger' : 'warning'
       })
     },
     totalCase (val) {
-      this.allCaseMode && this.notify({
+      val > 0 && this.allCaseMode && this.notify({
         title:  this.isOverdueMode ? '已逾期案件' : '快逾期案件',
         message: `共有 ${val} 件案件`,
         type: this.isOverdueMode ? 'danger' : 'warning'
       })
     },
     reviewerCaseList (val) {
-      val && !this.allCaseMode && this.notify({
+      val > 0 && !this.allCaseMode && this.notify({
         title:  this.isOverdueMode ? '已逾期案件' : '快逾期案件',
         subtitle: this.reviewerId,
         message: `找到 ${val.length} 件案件`,
@@ -148,8 +148,7 @@ export default {
     searchByReviewer (id) {},
     searchUser (id) {}
   },
-  created () { this.modalId = this.$utils.uuid() },
-  mounted () { }
+  created () { this.modalId = this.$utils.uuid() }
 }
 </script>
 

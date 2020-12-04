@@ -77,14 +77,10 @@ export default {
         }).then(res => {
           this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 15 mins
           console.assert(
-            res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL ||
-            res.data.status == this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD,
+            this.$utils.statusCheck(res.data.status),
             `查詢登記案件回傳狀態碼有問題【${this.queryTitle}, ${res.data.status}】`
           )
-          if (
-            res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL &&
-            res.data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD
-          ) {
+          if (!this.$utils.statusCheck(res.data.status)) {
             this.removeCache(this.cacheKey)
           }
           if (this.$refs.countdown) {
