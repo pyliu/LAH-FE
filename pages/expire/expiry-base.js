@@ -31,16 +31,12 @@ export default {
       }
       return '-'
     },
-    switchButtonVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
-    fetchPending () { return this.$fetchState.pending }
+    switchButtonVariant () { return this.isOverdueMode ? 'danger' : 'warning' }
   },
   watch: {
     isOverdueMode (val) {
       this.$store.commit('expiry/is_overdue_mode', val)
       this.$fetch()
-    },
-    fetchPending (val) {
-      this.isBusy = val
     }
   },
   methods: {
@@ -72,6 +68,7 @@ export default {
     this.committed = false
     this.getCache(this.cacheKey).then(jsonObj => {
       if (jsonObj === false) {
+        this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.QUERY, {
           type: this.queryType
           // always get all results and cache it at FE
@@ -97,6 +94,7 @@ export default {
           this.alert(err.message)
           this.$utils.error(err)
         }).finally(() => {
+          this.isBusy = false
         })
       } else {
         // cache hit!
