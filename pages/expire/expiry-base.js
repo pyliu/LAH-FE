@@ -1,5 +1,6 @@
 export default {
   name: 'expiryBase',
+  fetchOnServer: false,
   data: () => ({
     queriedJson: undefined,
     isOverdueMode: false,
