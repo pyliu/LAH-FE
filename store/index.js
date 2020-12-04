@@ -49,31 +49,23 @@ const getters = {
 
 // support async operation
 const actions = {
-  async nuxtServerInit ({ commit, dispatch }) {
+  // Nuxt provided hook feature for Vuex, calling at server side when store initializing
+  async nuxtServerInit ({ commit, dispatch }, nuxt) {
     try {
-      // dispatch('ip')
+      const ip = nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress
+      commit('ip', ip)
+      // not calling here because I want to use cache capability at frontend => calling at lah-sidebar.vue
+      // dispatch('svr')
     } catch (e) {
       console.error(e)
     }
-  },
-  async ip ({ commit, getters }) {
-    this.$axios.post('/api/query_json_api.php', {
-      type: 'ip'
-    }).then((res) => {
-      // expected json format is { status, ip, data_count, message }
-      commit('ip', res.data)
-    }).catch((error) => {
-      logerror(error)
-    }).finally(() => {
-      logtimestamp(getters.ip)
-    })
   },
   async svr ({ commit, getters }) {
     this.$axios.post('/api/query_json_api.php', {
       type: 'svr'
     }).then((res) => {
-      // expected json format is { status, ip, data_count, message }
-      commit('svr', res.data.server)
+      // expected json format is { status, ips, server, data_count, message }
+      commit('svr', res.data)
     }).catch((error) => {
       logerror(error)
     }).finally(() => {
@@ -84,8 +76,8 @@ const actions = {
 
 // only sync operation
 const mutations = {
-  ip (state, { ip }) { state.ip = ip },
-  svr (state, { server }) { state.svr = server },
+  ip (state, ip) { state.ip = ip },
+  svr (state, jsonPayload) { state.svr = jsonPayload },
   addToastCounter (state, dontcare) { state.toastCounter++ },
   xhrResponse (state, payload) { state.xhrResponse = payload },
   xhrRequest (state, payload) { state.xhrRequest = payload }

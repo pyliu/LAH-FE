@@ -66,13 +66,10 @@
 
 <script>
 export default {
-  data: () => ({
-    apiServer: undefined
-  }),
   computed: {
     serverUrl () {
-      if (this.apiServer && Array.isArray(this.apiServer.ips) && this.apiServer.ips.length > 0) {
-        return `http://${this.apiServer.ips[0]}`
+      if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
+        return `http://${this.svr.ips[0]}`
       }
       return `http://127.0.0.1`
     }
@@ -84,26 +81,23 @@ export default {
       })
     }
   },
-  mounted () {
+  async fetch () {
     this.getCache('server-info').then((json) => {
       if (json === false) {
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.QUERY, {
           type: 'svr'
         }).then((res) => {
-          this.apiServer = res.data
-          this.$store.commit('svr', this.apiServer.server)
-          this.setCache('server-info', this.apiServer, 86400000) // cache for a day
+          this.$store.commit('svr', res.data)
+          this.setCache('server-info', res.data, 86400000) // cache for a day
         }).catch((err) => {
           this.$utils.error(err)
         }).finally(() => {
-          this.$utils.log('Got API server info.', this.apiServer)
-          this.$store.commit('svr', this.apiServer.server)
+          this.$utils.log('Got API server info.', this.svr)
           this.isBusy = false
         })
       } else {
-        this.apiServer = json
-        this.$store.commit('svr', this.apiServer.server)
+        this.$store.commit('svr', json)
       }
     })
   }
