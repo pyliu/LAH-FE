@@ -93,7 +93,7 @@ export default {
         }).catch((err) => {
           this.$utils.error(err)
         }).finally(() => {
-          this.$utils.log('Got API server info.', this.svr)
+          this.$utils.log('Got API server info.')
           this.isBusy = false
         })
       } else {
