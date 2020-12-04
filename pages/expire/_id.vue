@@ -33,7 +33,7 @@
       <lah-expiry-b-table :reviewer-id="reviewerId"></lah-expiry-b-table>
     </lah-transition>
     <lah-transition class="center h3">
-      <lah-fa-icon v-cloak v-if="queryCountById === 0" action="bounce" icon="yahoo" prefix="fab"> 無資料</lah-fa-icon>
+      <lah-fa-icon v-cloak v-if="queryCountById === 0 && committed" action="bounce" icon="yahoo" prefix="fab"> 無資料</lah-fa-icon>
     </lah-transition>
   </div>
 </template>
