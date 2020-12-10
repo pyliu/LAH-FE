@@ -13,8 +13,18 @@
       fill="#2F495E"
     />
   </svg> -->
-  <b-img src="~/assets/img/tyland.jpg"></b-img>
+  <b-img src="~/assets/img/tyland.jpg" v-bind="mainProps" ></b-img>
 </template>
+
+<script>
+  export default {
+    data() {
+      return {
+        mainProps: { blank: false, width: 250, height: 250, class: 'my-2' }
+      }
+    }
+  }
+</script>
 
 <style lang="scss">
 </style>
