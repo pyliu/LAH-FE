@@ -13,14 +13,14 @@
       fill="#2F495E"
     />
   </svg> -->
-  <b-img src="~/assets/img/tyland.jpg" v-bind="mainProps" ></b-img>
+  <b-img src="~/assets/img/tyland.png" v-bind="mainProps" ></b-img>
 </template>
 
 <script>
   export default {
     data() {
       return {
-        mainProps: { blank: false, width: 250, height: 250, class: 'my-2' }
+        mainProps: { blank: false, width: 250, height: 250, class: 'my-2  lah-shadow' }
       }
     }
   }
