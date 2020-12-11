@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header padding-override">
+      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
         <lah-button
           icon="calendar-check"
           size="lg"
@@ -49,7 +49,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.padding-override {
-  padding: .6rem 4rem;
-}
 </style>

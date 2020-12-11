@@ -1,12 +1,25 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header padding-override">
-        公告期滿案件
+      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
+        <div class="my-auto">公告期滿案件</div>
+        <lah-countdown-button
+          ref="countdown"
+          icon="sync-alt"
+          action="ld-cycle"
+          size="lg"
+          :milliseconds="cachedMs"
+          :end="$fetch"
+          :click="reload"
+          :disabled="isBusy"
+          :busy="isBusy"
+          auto-start
+          title="立即重新讀取"
+        ></lah-countdown-button>
       </h3>
     </lah-transition>
-    <lah-transition fade>
-      <lah-reg-b-table :baked-data="bakedData" type="md"></lah-reg-b-table>
+    <lah-transition appear>
+      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" type="md"></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -39,7 +52,7 @@ export default {
   },
   watch: {
     bakedData (val) {
-      this.$utils.log(val)
+      // this.$utils.log(val)
     }
   },
   fetch () {
@@ -60,8 +73,22 @@ export default {
         })
       } else {
         this.bakedData = json.baked
+        if (this.$refs.countdown) {
+          this.getCacheExpireRemainingTime(this.cacheKey).then(
+            remain_ms => {
+              this.$refs.countdown.setCountdown(remain_ms)
+              this.$refs.countdown.startCountdown()
+              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+            }
+          )
+        }
       }
     })
+  },
+  methods: {
+    reload () {
+      this.removeCache(this.cacheKey).then(() => { this.$fetch() })
+    }
   }
 }
 </script>
