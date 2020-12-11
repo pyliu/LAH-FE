@@ -6,7 +6,7 @@
       </h3>
     </lah-transition>
     <lah-transition fade>
-      <lah-reg-b-table :baked-data="bakedData"></lah-reg-b-table>
+      <lah-reg-b-table :baked-data="bakedData" type="md"></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -27,28 +27,43 @@ export default {
   head: {
     title: "公告期滿案件-桃園市地政局",
   },
+  fetchOnServer: false,
   data: () => ({
     bakedData: [],
-    committed: false
+    committed: false,
+    cachedMs: 15 * 60 * 1000
   }),
   computed: {
-    queryCount () { return this.bakedData.length }
+    queryCount () { return this.bakedData.length },
+    cacheKey () { return `reg_rm30_H_case` }
   },
-  mounted () {
-    this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: 'reg_rm30_H_case'
-    }).then((res) => {
-      this.bakedData = res.data.baked
-      this.notify(res.data.message)
-    }).catch(err => {
-      this.alert(err.message)
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
+  watch: {
+    bakedData (val) {
+      this.$utils.log(val)
+    }
+  },
+  fetch () {
+    this.getCache(this.cacheKey).then(json => {
+      if (json === false) {
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'reg_rm30_H_case'
+        }).then((res) => {
+          this.setCache(this.cacheKey, res.data, this.cachedMs)
+          this.bakedData = res.data.baked
+          this.notify(res.data.message)
+        }).catch(err => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      } else {
+        this.bakedData = json.baked
+      }
     })
   }
-};
+}
 </script>
 
 <style>
