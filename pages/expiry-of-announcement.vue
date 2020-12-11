@@ -63,6 +63,7 @@ export default {
           type: 'reg_rm30_H_case'
         }).then((res) => {
           this.setCache(this.cacheKey, res.data, this.cachedMs)
+          this.resetCountdown()
           this.bakedData = res.data.baked
           this.notify(res.data.message)
         }).catch(err => {
@@ -73,19 +74,22 @@ export default {
         })
       } else {
         this.bakedData = json.baked
-        if (this.$refs.countdown) {
-          this.getCacheExpireRemainingTime(this.cacheKey).then(
-            remain_ms => {
-              this.$refs.countdown.setCountdown(remain_ms)
-              this.$refs.countdown.startCountdown()
-              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
-            }
-          )
-        }
+        this.resetCountdown()
       }
     })
   },
   methods: {
+    resetCountdown () {
+      if (this.$refs.countdown) {
+        this.getCacheExpireRemainingTime(this.cacheKey).then(
+          remain_ms => {
+            this.$refs.countdown.setCountdown(remain_ms)
+            this.$refs.countdown.startCountdown()
+            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+          }
+        )
+      }
+    },
     reload () {
       this.removeCache(this.cacheKey).then(() => { this.$fetch() })
     }
