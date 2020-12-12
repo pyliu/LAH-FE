@@ -19,7 +19,7 @@
       </h3>
     </lah-transition>
     <lah-transition appear>
-      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields"></lah-reg-b-table>
+      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields" class="move-table-up"></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -128,5 +128,8 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.move-table-up {
+  margin-top: -25px;
+}
 </style>

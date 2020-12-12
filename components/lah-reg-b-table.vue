@@ -57,8 +57,8 @@
           />
           <span v-if="mute">{{ bakedContent(row) }}</span>
           <span v-else>
-            <b-link @click="popup(row.item)">{{ row.item['收件字號'] }}</b-link>
-            <NuxtLink :to="`/regcase/${row.item['收件字號']}`"><lah-fa-icon icon="share-square" /></NuxtLink>
+            <NuxtLink :to="`/regcase/${row.item['收件字號']}`">{{ row.item['收件字號'] }}</NuxtLink>
+            <b-link @click="popup(row.item)"><lah-fa-icon icon="share-square" /></b-link>
           </span>
         </div>
       </template>
