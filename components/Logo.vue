@@ -20,7 +20,7 @@
   export default {
     data() {
       return {
-        mainProps: { blank: false, width: 250, height: 250, class: 'my-2  lah-shadow' }
+        mainProps: { blank: false, width: 220, height: 220, class: 'my-2  lah-shadow' }
       }
     }
   }

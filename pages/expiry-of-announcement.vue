@@ -19,7 +19,7 @@
       </h3>
     </lah-transition>
     <lah-transition appear>
-      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" type="md"></lah-reg-b-table>
+      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields"></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -44,7 +44,38 @@ export default {
   data: () => ({
     bakedData: [],
     committed: false,
-    cachedMs: 15 * 60 * 1000
+    cachedMs: 15 * 60 * 1000,
+    fields: [
+      {
+        key: "收件字號",
+        sortable: true
+      },
+      {
+        key: "登記原因",
+        sortable: true
+      },
+      {
+        key: "辦理情形",
+        sortable: true
+      },
+      {
+        key: "初審人員",
+        sortable: true
+      },
+      {
+        key: "收件日期",
+        sortable: true
+      },
+      {
+        key: "公告日期",
+        sortable: true
+      },
+      {
+        key: "公告期滿日期",
+        label:"期滿日期",
+        sortable: true
+      }
+    ]
   }),
   computed: {
     queryCount () { return this.bakedData.length },
