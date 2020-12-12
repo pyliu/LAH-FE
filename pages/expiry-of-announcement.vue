@@ -63,16 +63,17 @@ export default {
         sortable: true
       },
       {
-        key: "收件日期",
-        sortable: true
-      },
-      {
         key: "公告日期",
         sortable: true
       },
       {
         key: "公告期滿日期",
         label:"期滿日期",
+        sortable: true
+      },
+      {
+        key: "預定結案日期",
+        label:"限辦期限",
         sortable: true
       }
     ]
