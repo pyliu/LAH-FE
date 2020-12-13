@@ -9,7 +9,7 @@
           action="ld-cycle"
           size="lg"
           :milliseconds="cachedMs"
-          :end="$fetch"
+          :end="reload"
           :click="reload"
           :disabled="isBusy"
           :busy="isBusy"
@@ -24,13 +24,13 @@
     <lah-transition class="center h3">
       <lah-fa-icon
         v-cloak
-        v-if="queryCount === 0 && committed"
+        v-if="queryCount === 0"
         action="bounce"
         icon="yahoo"
         prefix="fab"
       >
-        無資料</lah-fa-icon
-      >
+        無資料
+      </lah-fa-icon>
     </lah-transition>
   </div>
 </template>
