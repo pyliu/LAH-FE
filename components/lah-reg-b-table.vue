@@ -33,11 +33,11 @@
 
       <template v-slot:cell(RM01)="row">
         <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
-          <font-awesome-icon
+          <lah-fa-icon
             v-if="showIcon"
-            :icon="['fas', icon]"
+            prefix="fas"
+            :icon="icon"
             :variant="iconVariant"
-            class="mx-auto my-auto"
           />
           <span v-if="mute">{{ bakedContent(row) }}</span>
           <span v-else>
@@ -49,11 +49,11 @@
 
       <template v-slot:cell(收件字號)="row">
         <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
-          <font-awesome-icon
+          <lah-fa-icon
             v-if="showIcon"
-            :icon="['fas', icon]"
+            prefix="fas"
+            :icon="icon"
             :variant="iconVariant"
-            class="mx-auto my-auto"
           />
           <span v-if="mute">{{ bakedContent(row) }}</span>
           <span v-else>
@@ -68,18 +68,19 @@
       </template>
 
       <template v-slot:cell(燈號)="row">
-        <font-awesome-icon
-          :icon="['fas', 'circle']"
+        <lah-fa-icon
+          prefix="fas"
+          icon="circle"
           :variant="row.item['燈號']"
-          class="mx-auto my-auto"
         />
       </template>
 
       <template v-slot:cell(限辦時間)="row">
-        <font-awesome-icon
-          :icon="['fas', 'circle']"
+        <lah-fa-icon
+          prefix="fas"
+          icon="circle"
           :variant="row.item['燈號']"
-          class="mx-auto my-auto text-nowrap"
+          class="text-nowrap"
           v-b-popover.hover.focus.d400="{ content: row.item['預定結案日期'], variant: row.item['燈號'] }"
         />
         {{ row.value }}

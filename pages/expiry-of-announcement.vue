@@ -47,6 +47,10 @@ export default {
     cachedMs: 15 * 60 * 1000,
     fields: [
       {
+        key: "燈號",
+        sortable: true
+      },
+      {
         key: "收件字號",
         sortable: true
       },
