@@ -48,7 +48,7 @@ export default {
     fields: [
       {
         key: '公告燈號',
-        label: '燈號',
+        label: '狀態',
         sortable: true
       },
       {
