@@ -76,7 +76,7 @@
       </template>
 
       <template v-slot:cell(公告燈號)="{ item }">
-        <div class="text-center" :title="item['公告燈號'] == 'danger' ? '已到期' : ''">
+        <div class="text-center" :title="rm30HLightTitle(item)">
           <lah-fa-icon
             prefix="fas"
             icon="circle"
@@ -506,6 +506,9 @@ export default {
         " 小時"
       )
     },
+    rm30HLightTitle(item) {
+      return item['公告燈號'] === 'danger' ? '已到期' : (item['公告燈號'] === 'warning' ? '快到期' : '公告中')
+    }
   },
   created () {
     this.modalId = this.$utils.uuid()
