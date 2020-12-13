@@ -75,14 +75,13 @@
         />
       </template>
 
-      <template v-slot:cell(公告燈號)="{ item }">
-        <div class="text-center" :title="rm30HLightTitle(item)">
-          <lah-fa-icon
-            prefix="fas"
-            icon="circle"
-            :variant="item['公告燈號']"
-          />
-        </div>
+      <template #cell(公告燈號)="{ item }">
+        <lah-fa-icon
+          prefix="fas"
+          icon="circle"
+          :variant="item['公告燈號']"
+          :title="rm30HLightTitle(item)"
+        />
       </template>
 
       <template v-slot:cell(限辦時間)="row">
