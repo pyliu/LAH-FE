@@ -75,6 +75,16 @@
         />
       </template>
 
+      <template v-slot:cell(公告燈號)="{ item }">
+        <div class="text-center">
+          <lah-fa-icon
+            prefix="fas"
+            icon="circle"
+            :variant="item['公告燈號']"
+          />
+        </div>
+      </template>
+
       <template v-slot:cell(限辦時間)="row">
         <lah-fa-icon
           prefix="fas"

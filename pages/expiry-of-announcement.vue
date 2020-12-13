@@ -47,37 +47,33 @@ export default {
     cachedMs: 15 * 60 * 1000,
     fields: [
       {
-        key: "燈號",
+        key: '公告燈號',
+        label: '燈號',
         sortable: true
       },
       {
-        key: "收件字號",
+        key: '收件字號',
         sortable: true
       },
       {
-        key: "登記原因",
+        key: '登記原因',
         sortable: true
       },
       {
-        key: "辦理情形",
+        key: '辦理情形',
         sortable: true
       },
       {
-        key: "初審人員",
+        key: '初審人員',
         sortable: true
       },
       {
-        key: "公告日期",
+        key: '公告日期',
         sortable: true
       },
       {
-        key: "公告期滿日期",
-        label:"期滿日期",
-        sortable: true
-      },
-      {
-        key: "預定結案日期",
-        label:"限辦期限",
+        key: '公告期滿日期',
+        label:'期滿日期',
         sortable: true
       }
     ]
