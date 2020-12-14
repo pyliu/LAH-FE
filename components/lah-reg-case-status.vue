@@ -1,7 +1,9 @@
 <template>
   <b-card>
     <b-card-title v-if="!noTitle">
-      <b-link :href="queryStatusUrl" target="_blank" title="開啟新視窗"><lah-fa-icon append icon="share-square">辦理情形</lah-fa-icon></b-link>
+      <b-link :href="queryStatusUrl" target="_blank" title="開啟新視窗"
+        ><lah-fa-icon append icon="share-square">辦理情形</lah-fa-icon></b-link
+      >
     </b-card-title>
     <b-list-group flush compact v-if="ready">
       <b-list-group-item>
@@ -138,7 +140,7 @@
               bakedData.請示人員
             }}</span></b-col
           >
-          <b-col>請示時間：{{ bakedData.請示時間 }}</b-col>
+          <b-col>請示日期：{{ bakedData.請示日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.展期人員)">
@@ -202,14 +204,15 @@
 <script>
 import regCaseBase from "~/assets/js/reg-case-base.js";
 export default {
-  name: 'lah-reg-case-status',
+  name: "lah-reg-case-status",
   mixins: [regCaseBase],
   props: {
-    noTitle: { type: Boolean, default: false }
+    noTitle: { type: Boolean, default: false },
   },
   computed: {
     ongoing() {
-      return this.ready && this.$utils.empty(this.bakedData.結案代碼);
+      // 'E' => 請示
+      return this.ready && this.bakedData.結案與否 === 'N';
     },
   },
 };
