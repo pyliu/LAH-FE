@@ -24,7 +24,7 @@
     <lah-transition class="center h3">
       <lah-fa-icon
         v-cloak
-        v-if="queryCount === 0"
+        v-if="queryCount === 0 && !isBusy"
         action="bounce"
         icon="yahoo"
         prefix="fab"
