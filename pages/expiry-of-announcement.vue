@@ -44,7 +44,7 @@ export default {
   data: () => ({
     bakedData: [],
     committed: false,
-    cachedMs: 15 * 60 * 1000,
+    cachedMs: 60 * 60 * 1000,
     fields: [
       {
         key: '公告燈號',
