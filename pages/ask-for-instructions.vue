@@ -127,11 +127,7 @@ export default {
         this.getCacheExpireRemainingTime(this.cacheKey).then((remain_ms) => {
           this.$refs.countdown.setCountdown(remain_ms);
           this.$refs.countdown.startCountdown();
-          this.$utils.log(
-            `${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(
-              1
-            )} 秒後到期。`
-          );
+          this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`);
         });
       }
     },
