@@ -1,9 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3
-        class="d-flex justify-content-between page-header page-header-padding-override"
-      >
+      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
         <div class="my-auto">請示未結案件</div>
         <lah-countdown-button
           ref="countdown"
@@ -17,7 +15,7 @@
           :busy="isBusy"
           auto-start
           title="立即重新讀取"
-        ></lah-countdown-button>
+        />
       </h3>
     </lah-transition>
     <lah-transition appear>
@@ -26,7 +24,7 @@
         :baked-data="bakedData"
         :fields="fields"
         class="move-table-up"
-      ></lah-reg-b-table>
+      />
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
