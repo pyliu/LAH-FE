@@ -4,6 +4,7 @@ export default {
   data: () => ({
     queriedJson: undefined,
     isOverdueMode: false,
+    forceReload: false,
     milliseconds: 15 * 60 * 1000,
     committed: false
   }),
@@ -59,7 +60,10 @@ export default {
       }
     },
     reload() {
-      this.removeCache(this.cacheKey).then(() => { this.$fetch() })
+      this.removeCache(this.cacheKey).then(() => {
+        this.forceReload = true
+        this.$fetch()
+      })
     }
   },
   created () {
@@ -72,7 +76,8 @@ export default {
         this.isBusy = true
         // always get all results and cache it at FE
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-          type: this.queryType
+          type: this.queryType,
+          reload: this.forceReload
         }).then(res => {
           this.milliseconds = res.data.cache_remaining_time * 1000
           this.setCache(this.cacheKey, res.data, this.milliseconds) // expired by the cache time from server
@@ -89,6 +94,7 @@ export default {
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
+          this.forceReload = false
         })
       } else {
         // cache hit!
