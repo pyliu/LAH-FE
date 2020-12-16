@@ -45,6 +45,7 @@ export default {
     bakedData: [],
     committed: false,
     cachedMs: 60 * 60 * 1000,
+    forceReload: false,
     fields: [
       {
         key: '公告燈號',
@@ -79,7 +80,7 @@ export default {
     ]
   }),
   computed: {
-    queryCount () { return this.bakedData.length },
+    queryCount () { return this.bakedData ? this.bakedData.length : 0 },
     cacheKey () { return `reg_rm30_H_case` }
   },
   watch: {
@@ -90,20 +91,32 @@ export default {
   fetch () {
     this.getCache(this.cacheKey).then(json => {
       if (json === false) {
-        this.isBusy = true
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: 'reg_rm30_H_case'
-        }).then((res) => {
-          this.setCache(this.cacheKey, res.data, this.cachedMs)
-          this.resetCountdown()
-          this.bakedData = res.data.baked
-          this.notify(res.data.message)
-        }).catch(err => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-        })
+        if(!this.isBusy) {
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+            type: 'reg_rm30_H_case',
+            reload: this.forceReload
+          }).then((res) => {
+            this.bakedData = res.data.baked
+            // update cacheMs by server side cache remaining time
+            this.cachedMs = res.data.cache_remaining_time * 1000
+            this.$refs.countdown.setCountdown(this.cachedMs)
+            this.$refs.countdown.startCountdown()
+
+            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(this.cachedMs / 1000).toFixed(1)} 秒後到期。`)
+            
+            this.setCache(this.cacheKey, res.data, this.cachedMs)
+            this.notify(res.data.message)
+          }).catch(err => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+            this.forceReload = false
+          })
+        } else {
+          this.notify('讀取中 ... 請稍後', { type: 'warning' })
+        }
       } else {
         this.bakedData = json.baked
         this.resetCountdown()
@@ -123,7 +136,10 @@ export default {
       }
     },
     reload () {
-      this.removeCache(this.cacheKey).then(() => { this.$fetch() })
+      this.removeCache(this.cacheKey).then(() => {
+        this.forceReload = true
+        this.$fetch()
+      })
     }
   }
 }
