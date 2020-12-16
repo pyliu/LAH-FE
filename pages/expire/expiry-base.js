@@ -70,21 +70,18 @@ export default {
     this.getCache(this.cacheKey).then(jsonObj => {
       if (jsonObj === false) {
         this.isBusy = true
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
+        // always get all results and cache it at FE
+        this.$axios.post(this.$consts.API.JSON.PREFETCH, {
           type: this.queryType
-          // always get all results and cache it at FE
-          // reviewer_id: this.reviewerId || ''
         }).then(res => {
-          this.setCache(this.cacheKey, res.data, this.milliseconds) // expired after 15 mins
+          this.milliseconds = res.data.cache_remaining_time * 1000
+          this.setCache(this.cacheKey, res.data, this.milliseconds) // expired by the cache time from server
           console.assert(
             this.$utils.statusCheck(res.data.status),
             `查詢登記案件回傳狀態碼有問題【${this.queryTitle}, ${res.data.status}】`
           )
           if (!this.$utils.statusCheck(res.data.status)) {
             this.removeCache(this.cacheKey)
-          }
-          if (this.$refs.countdown) {
-            this.$refs.countdown.resetCountdown()
           }
           this.commit(res.data)
         }).catch(err => {
