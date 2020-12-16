@@ -19,7 +19,7 @@
       </h3>
     </lah-transition>
     <lah-transition appear>
-      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields" class="move-table-up"></lah-reg-b-table>
+      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight" no-caption></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -77,7 +77,8 @@ export default {
         label:'期滿日期',
         sortable: true
       }
-    ]
+    ],
+    maxHeight: 300
   }),
   computed: {
     queryCount () { return this.bakedData ? this.bakedData.length : 0 },
@@ -120,6 +121,7 @@ export default {
       } else {
         this.bakedData = json.baked
         this.resetCountdown()
+        this.notify(`查詢成功，找到 ${this.bakedData.length} 筆公告中資料。`)
       }
     })
   },
@@ -141,6 +143,9 @@ export default {
         this.$fetch()
       })
     }
+  },
+  mounted () {
+    this.maxHeight = window.innerHeight - 100
   }
 }
 </script>
@@ -148,5 +153,8 @@ export default {
 <style lang="scss" scoped>
 .move-table-up {
   margin-top: -25px;
+}
+.fixed-height-table {
+  height: calc(100% - 20px);
 }
 </style>

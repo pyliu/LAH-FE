@@ -31,7 +31,7 @@
       </h3>
     </lah-transition>
     <lah-transition fade>
-      <lah-expiry-b-table :reviewer-id="reviewerId"></lah-expiry-b-table>
+      <lah-expiry-b-table :reviewer-id="reviewerId" :max-height="maxHeight"></lah-expiry-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon v-cloak v-if="queryCountById === 0 && committed" action="bounce" icon="yahoo" prefix="fab"> 無資料</lah-fa-icon>
@@ -46,6 +46,9 @@ export default {
     title: "初審即將逾期案件-桃園市地政局"
   },
   mixins: [expiryBase],
+  data: () => ({
+    maxHeight: 300
+  }),
   computed: {
     nameId () {
       if (this.$route.params.id) {
@@ -70,6 +73,9 @@ export default {
     committed (flag) {
       this.isBusy = !flag
     }
+  },
+  mounted () {
+    this.maxHeight = window.innerHeight - 100
   }
 }
 </script>

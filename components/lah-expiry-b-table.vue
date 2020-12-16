@@ -14,6 +14,8 @@
       :fields="fields"
       :busy="isBusy || busy"
       class="text-center s-90"
+      :style="style"
+      :sticky-header="sticky"
     >
       <template v-slot:table-busy>
         <div class="text-center text-danger my-5">
@@ -72,7 +74,8 @@ export default {
   name: 'lah-expiry-b-table',
   props: {
     reviewerId: { type: String, default: '' },
-    busy: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false },
+    maxHeight: { type: Number, default: undefined }
   },
   data: () => ({
     fields: [
@@ -111,8 +114,14 @@ export default {
     tableItems () {
       return this.allCaseMode ? this.caseList : this.caseListByID[this.reviewerId]
     },
+    count () { return this.tableItems ? this.tableItems.length : 0 },
     buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' },
-    allCaseMode () { return this.$utils.empty(this.reviewerId) }
+    allCaseMode () { return this.$utils.empty(this.reviewerId) },
+    sticky () { return this.maxHeight ? (this.count > 0 ? true : false) : false },
+    style () {
+      const parsed = parseInt(this.maxHeight)
+      return isNaN(parsed) ? "" : `max-height: ${parsed}px`
+    }
   },
   watch: {
     totalPeople (val) {
