@@ -23,7 +23,7 @@
         v-if="!isBusy"
         :baked-data="bakedData"
         :fields="fields"
-        class="move-table-up"
+        :max-height="maxHeight"
       />
     </lah-transition>
     <lah-transition class="center h3">
@@ -50,6 +50,7 @@ export default {
     bakedData: [],
     committed: false,
     cachedMs: 15 * 60 * 1000,
+    forceReload: false,
     fields: [
       {
         key: "燈號",
@@ -80,13 +81,14 @@ export default {
         sortable: true,
       },
     ],
+    maxHeight: 300
   }),
   computed: {
     queryCount() {
-      return this.bakedData.length;
+      return this.bakedData ? this.bakedData.length : 0
     },
     cacheKey() {
-      return `reg_rm30_E_case`;
+      return `reg_cancel_ask_case`
     },
   },
   watch: {
@@ -97,51 +99,63 @@ export default {
   fetch() {
     this.getCache(this.cacheKey).then((json) => {
       if (json === false) {
-        this.isBusy = true;
+        this.isBusy = true
         this.$axios
-          .post(this.$consts.API.JSON.QUERY, {
-            type: "reg_rm30_E_case",
+          .post(this.$consts.API.JSON.PREFETCH, {
+            type: 'reg_cancel_ask_case',
+            reload: this.forceReload
           })
           .then((res) => {
-            this.setCache(this.cacheKey, res.data, this.cachedMs);
-            this.resetCountdown();
-            this.bakedData = res.data.baked;
-            this.notify(res.data.message);
+            this.bakedData = res.data.baked || []
+            this.notify(res.data.message)
+            const remain_ms = res.data.cache_remaining_time
+            if (remain_ms && remain_ms > 0) {
+              this.setCache(this.cacheKey, res.data, remain_ms)
+              // use server side cache remaining time
+              this.$refs.countdown.setCountdown(remain_ms * 1000)
+            } else {
+              this.$refs.countdown.setCountdown(this.cachedMs)
+            }
+            this.$refs.countdown.startCountdown()
           })
           .catch((err) => {
-            this.alert(err.message);
-            this.$utils.error(err);
+            this.alert(err.message)
+            this.$utils.error(err)
           })
           .finally(() => {
-            this.isBusy = false;
-          });
+            this.isBusy = false
+            this.forceReload = false
+          })
       } else {
-        this.bakedData = json.baked;
-        this.resetCountdown();
+        this.bakedData = json.baked
+        this.resetCountdown()
       }
-    });
+    })
   },
   methods: {
     resetCountdown() {
       if (this.$refs.countdown) {
         this.getCacheExpireRemainingTime(this.cacheKey).then((remain_ms) => {
-          this.$refs.countdown.setCountdown(remain_ms);
-          this.$refs.countdown.startCountdown();
-          this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`);
-        });
+          if (remain_ms > 0) {
+            this.$refs.countdown.setCountdown(remain_ms)
+            this.$refs.countdown.startCountdown()
+            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+          }
+        })
       }
     },
     reload() {
       this.removeCache(this.cacheKey).then(() => {
-        this.$fetch();
-      });
+        this.forceReload = true
+        this.$fetch()
+      })
     },
   },
-};
+  mounted () {
+    this.maxHeight = window.innerHeight - 100
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-.move-table-up {
-  margin-top: -25px;
-}
 </style>
