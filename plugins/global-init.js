@@ -73,6 +73,7 @@ export default ({ $axios, store }, inject) => {
       },
       JSON: {
         QUERY: '/api/query_json_api.php',
+        PREFETCH: '/api/prefetch_json_api.php',
         STATS: '/api/stats_json_api.php',
         SWITCH: '/api/switch_json_api.php',
         USER: '/api/user_json_api.php',
