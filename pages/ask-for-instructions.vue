@@ -2,7 +2,7 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
-        <div class="my-auto">取消請示案件(一年內)</div>
+        <div class="my-auto">取消請示案件(三個月內)</div>
         <lah-countdown-button
           ref="countdown"
           icon="sync-alt"
@@ -53,7 +53,7 @@ export default {
     fields: [
       {
         key: "請示燈號",
-        label: '燈號',
+        label: '狀態',
         sortable: true,
       },
       {
