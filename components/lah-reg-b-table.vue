@@ -32,7 +32,7 @@
       </template>
 
       <template v-slot:cell(RM01)="row">
-        <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
+        <div v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
           <lah-fa-icon
             v-if="showIcon"
             prefix="fas"
@@ -48,7 +48,7 @@
       </template>
 
       <template v-slot:cell(收件字號)="row">
-        <div class="text-left" v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
+        <div v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
           <lah-fa-icon
             v-if="showIcon"
             prefix="fas"
