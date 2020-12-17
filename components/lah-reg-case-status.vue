@@ -140,7 +140,17 @@
               bakedData.請示人員
             }}</span></b-col
           >
-          <b-col>請示日期：{{ bakedData.請示日期 }}</b-col>
+          <b-col>請示日期：{{ bakedData.請示日期 }} {{ bakedData.請示時間 }}</b-col>
+        </b-form-row>
+      </b-list-group-item>
+      <b-list-group-item v-if="!$utils.empty(bakedData.取消請示人員)">
+        <b-form-row>
+          <b-col
+            >取消請示人員：<span class="user_tag">{{
+              bakedData.取消請示人員
+            }}</span></b-col
+          >
+          <b-col>取消請示日期：{{ bakedData.取消請示日期 }} {{ bakedData.取消請示時間 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.展期人員)">
