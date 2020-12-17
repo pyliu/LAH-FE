@@ -19,7 +19,7 @@
       </h3>
     </lah-transition>
     <lah-transition appear>
-      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight" no-caption></lah-reg-b-table>
+      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -81,7 +81,7 @@ export default {
     maxHeight: 300
   }),
   computed: {
-    queryCount () { return this.bakedData ? this.bakedData.length : 0 },
+    queryCount () { return this.bakedData.length },
     cacheKey () { return `reg_rm30_H_case` }
   },
   watch: {
@@ -98,16 +98,20 @@ export default {
             type: 'reg_rm30_H_case',
             reload: this.forceReload
           }).then((res) => {
-            this.bakedData = res.data.baked
-            // update cacheMs by server side cache remaining time
-            this.cachedMs = res.data.cache_remaining_time * 1000
-            this.$refs.countdown.setCountdown(this.cachedMs)
-            this.$refs.countdown.startCountdown()
-
-            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(this.cachedMs / 1000).toFixed(1)} 秒後到期。`)
-            
-            this.setCache(this.cacheKey, res.data, this.cachedMs)
+            this.bakedData = res.data.baked || []
             this.notify(res.data.message)
+            const remain_ms = res.data.cache_remaining_time
+            if (remain_ms && remain_ms > 0) {
+              this.setCache(this.cacheKey, res.data, remain_ms)
+              // use server side cache remaining time
+              this.$refs.countdown.setCountdown(remain_ms * 1000)
+            } else {
+              this.$refs.countdown.setCountdown(this.cachedMs)
+            }
+            this.$refs.countdown.startCountdown()
+            this.getCacheExpireRemainingTime(this.cacheKey).then((true_remain_ms) => {
+              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
+            })
           }).catch(err => {
             this.alert(err.message)
             this.$utils.error(err)

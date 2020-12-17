@@ -79,16 +79,15 @@ export default {
           type: this.queryType,
           reload: this.forceReload
         }).then(res => {
-          this.milliseconds = res.data.cache_remaining_time * 1000
-          this.setCache(this.cacheKey, res.data, this.milliseconds) // expired by the cache time from server
-          console.assert(
-            this.$utils.statusCheck(res.data.status),
-            `查詢登記案件回傳狀態碼有問題【${this.queryTitle}, ${res.data.status}】`
-          )
-          if (!this.$utils.statusCheck(res.data.status)) {
+          if (this.$utils.statusCheck(res.data.status)) {
+            const server_cache_time = res.data.cache_remaining_time * 1000
+            this.setCache(this.cacheKey, res.data, server_cache_time).then(() => {
+              this.commit(res.data)
+            })
+          } else {
             this.removeCache(this.cacheKey)
+            this.notify(res.data.message, { type: 'warning' })
           }
-          this.commit(res.data)
         }).catch(err => {
           this.alert(err.message)
           this.$utils.error(err)
