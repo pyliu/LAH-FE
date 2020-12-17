@@ -84,6 +84,15 @@
         />
       </template>
 
+      <template #cell(請示燈號)="{ item }">
+        <lah-fa-icon
+          prefix="fas"
+          icon="circle"
+          :variant="item['請示燈號']"
+          :title="askLightTitle(item)"
+        />
+      </template>
+
       <template v-slot:cell(限辦時間)="row">
         <lah-fa-icon
           prefix="fas"
@@ -507,6 +516,9 @@ export default {
     },
     rm30HLightTitle(item) {
       return item['公告燈號'] === 'danger' ? '已到期' : (item['公告燈號'] === 'warning' ? '快到期' : '公告中')
+    },
+    askLightTitle(item) {
+      return item['請示燈號'] === 'danger' ? '逾期案件' : (item['公告燈號'] === 'warning' ? '快到期案件' : '正常案件')
     }
   },
   created () {

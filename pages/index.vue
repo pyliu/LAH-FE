@@ -14,7 +14,7 @@
           <b-card-group deck class="mb-4">
             <lah-index-card-link :icon="['far', 'calendar-check']" to="/expire">即將逾期案件</lah-index-card-link>
             <lah-index-card-link :icon="['far', 'sticky-note']" to="/expiry-of-announcement">公告期滿案件</lah-index-card-link>
-            <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask-for-instructions">請示未結案件</lah-index-card-link>
+            <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask-for-instructions">請示取消案件</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">信託案件檢索</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">非專業代理人案件檢索</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">外人地權案件檢索</lah-index-card-link>

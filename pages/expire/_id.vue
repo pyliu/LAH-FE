@@ -31,7 +31,7 @@
       </h3>
     </lah-transition>
     <lah-transition fade>
-      <lah-expiry-b-table :reviewer-id="reviewerId" :max-height="maxHeight"></lah-expiry-b-table>
+      <lah-expiry-b-table :busy="isBusy" :reviewer-id="reviewerId" :max-height="maxHeight"></lah-expiry-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon v-cloak v-if="queryCountById === 0 && committed" action="bounce" icon="yahoo" prefix="fab"> 無資料</lah-fa-icon>

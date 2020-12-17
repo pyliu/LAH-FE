@@ -2,7 +2,7 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
-        <div class="my-auto">請示未結案件</div>
+        <div class="my-auto">取消請示案件(一年內)</div>
         <lah-countdown-button
           ref="countdown"
           icon="sync-alt"
@@ -20,7 +20,7 @@
     </lah-transition>
     <lah-transition appear>
       <lah-reg-b-table
-        v-if="queryCount > 0"
+        :busy="isBusy"
         :baked-data="bakedData"
         :fields="fields"
         :max-height="maxHeight"
@@ -52,7 +52,8 @@ export default {
     forceReload: false,
     fields: [
       {
-        key: "燈號",
+        key: "請示燈號",
+        label: '燈號',
         sortable: true,
       },
       {
@@ -76,7 +77,17 @@ export default {
         sortable: true,
       },
       {
+        key: "取消請示日期",
+        label: '取消請示',
+        sortable: true,
+      },
+      {
         key: "預定結案日期",
+        label: '預定結案',
+        sortable: true,
+      },
+      {
+        key: "結案日期",
         sortable: true,
       },
     ],

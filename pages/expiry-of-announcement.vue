@@ -19,7 +19,7 @@
       </h3>
     </lah-transition>
     <lah-transition appear>
-      <lah-reg-b-table v-if="!isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table>
+      <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
