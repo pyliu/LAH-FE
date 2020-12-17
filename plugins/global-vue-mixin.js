@@ -33,8 +33,6 @@ Vue.mixin({
       return '127.0.0.1'
     },
     toastCounter () { return this.$store.getters.toastCounter },
-    xhrResponse () { return this.$store.getters.xhrResponse },
-    xhrRequest () { return this.$store.getters.xhrRequest },
     site () {
       if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvr)) {
         return 'H0'

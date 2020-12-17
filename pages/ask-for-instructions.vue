@@ -20,7 +20,7 @@
     </lah-transition>
     <lah-transition appear>
       <lah-reg-b-table
-        v-if="!isBusy"
+        v-if="queryCount > 0"
         :baked-data="bakedData"
         :fields="fields"
         :max-height="maxHeight"
@@ -30,9 +30,8 @@
       <lah-fa-icon
         v-cloak
         v-if="queryCount === 0 && !isBusy"
-        action="bounce"
-        icon="yahoo"
-        prefix="fab"
+        icon="exclamation-circle"
+        prefix="fas"
       >
         無資料
       </lah-fa-icon>
@@ -49,7 +48,7 @@ export default {
   data: () => ({
     bakedData: [],
     committed: false,
-    cachedMs: 15 * 60 * 1000,
+    cachedMs: 60 * 60 * 1000,
     forceReload: false,
     fields: [
       {
@@ -84,12 +83,8 @@ export default {
     maxHeight: 300
   }),
   computed: {
-    queryCount() {
-      return this.bakedData ? this.bakedData.length : 0
-    },
-    cacheKey() {
-      return `reg_cancel_ask_case`
-    },
+    queryCount() { return this.bakedData.length },
+    cacheKey() { return `reg_cancel_ask_case` },
   },
   watch: {
     bakedData(val) {
@@ -127,7 +122,7 @@ export default {
             this.forceReload = false
           })
       } else {
-        this.bakedData = json.baked
+        this.bakedData = json.baked || []
         this.resetCountdown()
       }
     })

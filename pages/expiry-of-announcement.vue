@@ -25,9 +25,8 @@
       <lah-fa-icon
         v-cloak
         v-if="queryCount === 0 && !isBusy"
-        action="bounce"
-        icon="yahoo"
-        prefix="fab"
+        icon="exclamation-circle"
+        prefix="fas"
       >
         無資料
       </lah-fa-icon>

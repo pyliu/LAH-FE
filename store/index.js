@@ -32,8 +32,6 @@ const logtimestamp = (message) => {
 }
 
 const state = () => ({
-  xhrResponse: null,
-  xhrRequest: null, // the xhr config
   ip: '0.0.0.0',
   svr: null,
   toastCounter: 0
@@ -42,9 +40,7 @@ const state = () => ({
 const getters = {
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
-  svr: state => state.svr,
-  xhrResponse: state => state.xhrResponse,
-  xhrRequest: state => state.xhrRequest
+  svr: state => state.svr
 }
 
 // support async operation
@@ -78,9 +74,7 @@ const actions = {
 const mutations = {
   ip (state, ip) { state.ip = ip },
   svr (state, jsonPayload) { state.svr = jsonPayload },
-  addToastCounter (state, dontcare) { state.toastCounter++ },
-  xhrResponse (state, payload) { state.xhrResponse = payload },
-  xhrRequest (state, payload) { state.xhrRequest = payload }
+  addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 
 export default {
