@@ -15,7 +15,15 @@ import regCaseBase from "~/assets/js/reg-case-base.js"
 
 export default {
   name: 'lah-reg-case-detail',
-  mixins: [regCaseBase]
+  mixins: [regCaseBase],
+  watch: {
+    ready (flag) {
+      this.trigger('ready', flag)
+    }
+  },
+  created () {
+    this.trigger('ready', this.ready)
+  }
 };
 </script>
 

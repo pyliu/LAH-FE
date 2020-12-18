@@ -1,15 +1,9 @@
 export default {
   name: 'regCaseBase',
   props: {
-    parentData: {
-      type: Object,
-      default: undefined
-    },
+    parentData: { type: Object, default: undefined },
     // the id format should be '109HB04001234'
-    caseId: {
-      type: String,
-      default: ''
-    }
+    caseId: { type: String, default: '' }
   },
   data: () => ({
     bakedData: undefined
