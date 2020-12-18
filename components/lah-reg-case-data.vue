@@ -69,7 +69,7 @@ export default {
     noTitle: { type: Boolean, default: false }
   },
   computed: {
-    area() {
+    area () {
       if (this.ready) {
         switch (this.bakedData.RM10) {
           case "03":
@@ -80,7 +80,7 @@ export default {
       }
       return this.ready ? `其他(${this.bakedData.資料管轄所}區)` : "";
     }
-  },
+  }
 };
 </script>
 
