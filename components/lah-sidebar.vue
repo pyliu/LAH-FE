@@ -14,6 +14,7 @@
           首頁
         </NuxtLink>
       </li>
+      <li>----</li>
       <li>
         <NuxtLink to="/expire">
           <font-awesome-icon :icon="['far', 'calendar-check']" size="lg" />
@@ -33,6 +34,61 @@
         </NuxtLink>
       </li>
       <li>
+        <NuxtLink to="/trust-case">
+          <font-awesome-icon :icon="['fas', 'money-check-alt']" size="lg" />
+          信託案件
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          非專業代理人案件
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          外人地權案件
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          三七五租約異動
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          未辦標的註記異動
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          參考資訊檔異動通知書產製
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          逾期未駁回案件
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          辦畢通知查詢
+        </NuxtLink>
+      </li>
+      <li>
+        <NuxtLink to="/">
+          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+          領狀管控查詢
+        </NuxtLink>
+      </li>
+      <li>----</li>
+      <li>
         <a :href="serverUrl" target="_blank" rel="noopener noreferrer">
           <font-awesome-icon :icon="['fas', 'history']" pull="left" size="lg" />
           先前版本
@@ -49,16 +105,17 @@
         </a>
       </li>
       <li>
-        <NuxtLink to="/playground">
-          <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
-          測試
-        </NuxtLink>
-      </li>
-      <li>
         <b-link @click="clearFECache">
           <font-awesome-icon :icon="['fas', 'hand-sparkles']" size="lg" />
           清除瀏覽器端快取資料
         </b-link>
+      </li>
+      <li>----</li>
+      <li>
+        <NuxtLink to="/playground">
+          <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
+          測試
+        </NuxtLink>
       </li>
     </ul>
   </b-sidebar>
