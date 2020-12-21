@@ -5,14 +5,40 @@
         <div class="my-auto">
           <lah-fa-icon icon="money-check-alt" variant="secondary">信託案件檢索</lah-fa-icon>
         </div>
-        <lah-button
-          ref="search"
-          icon="search"
-          size="lg"
-          title="搜尋"
-          :disabled="isBusy"
-          @click="search"
-        ></lah-button>
+        <div class="d-flex">
+          <b-input-group append="年" class="text-nowrap mr-1">
+            <b-form-select
+              ref="year"
+              v-model="year"
+              :options="years"
+              class="h-100"
+            >
+              <template v-slot:first>
+                <b-form-select-option :value="null" disabled>-- 請選擇年份 --</b-form-select-option>
+              </template>
+            </b-form-select>
+          </b-input-group>
+          <b-input-group class="text-nowrap mr-1">
+            <b-form-select
+              ref="type"
+              v-model="type"
+              :options="types"
+              class="h-100"
+            >
+              <template v-slot:first>
+                <b-form-select-option :value="null" disabled>-- 請選擇部別 --</b-form-select-option>
+              </template>
+            </b-form-select>
+          </b-input-group>
+          <lah-button
+            ref="search"
+            icon="search"
+            size="lg"
+            title="搜尋"
+            :disabled="isBusy"
+            @click="search"
+          ></lah-button>
+        </div>
       </h3>
     </lah-transition>
     <lah-transition appear>
@@ -40,6 +66,15 @@ export default {
   },
   fetchOnServer: false,
   data: () => ({
+    year: '109',
+    years: [],
+    type: '0',
+    types: [
+      { value: '0', text: '土地標示部' },
+      { value: '1', text: '土地所有權部' },
+      { value: '2', text: '建物標示部' },
+      { value: '3', text: '建物所有權部' }
+    ],
     bakedData: [],
     cachedMs: 60 * 60 * 1000,
     forceReload: false,
@@ -79,7 +114,8 @@ export default {
   }),
   computed: {
     queryCount () { return this.bakedData.length },
-    cacheKey () { return `reg_trust_case` }
+    cacheKey () { return `reg_trust_case` },
+    cacheKeyYear () { return `${this.cacheKey}_years` }
   },
   watch: {
     bakedData (val) {
@@ -94,6 +130,20 @@ export default {
         this.notify(`查詢成功，找到 ${this.bakedData.length} 筆信託案件。`)
       }
     })
+    this.getCache(this.cacheKeyYear).then(years => {
+      if (years !== false) {
+        this.years = years;
+      } else {
+        // set year select options
+        var d = new Date();
+        this.year = (d.getFullYear() - 1911);
+        let len = this.year - 104;
+        for (let i = 0; i <= len; i++) {
+            this.years.push({value: 104 + i, text: 104 + i});
+        }
+        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
+      }
+    });
   },
   methods: {
     search () {
