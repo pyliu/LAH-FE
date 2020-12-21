@@ -141,6 +141,7 @@ export default {
         for (let i = 0; i <= len; i++) {
             this.years.push({value: 104 + i, text: 104 + i});
         }
+        this.years.reverse()
         this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
       }
     });
