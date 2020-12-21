@@ -21,8 +21,8 @@
           <b-input-group class="text-nowrap mr-1">
             <b-form-select
               ref="type"
-              v-model="type"
-              :options="types"
+              v-model="qryType"
+              :options="qryTypes"
               class="h-100"
             >
               <template v-slot:first>
@@ -42,7 +42,7 @@
       </h3>
     </lah-transition>
     <lah-transition appear>
-      <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table>
+      <!-- <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table> -->
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -66,17 +66,16 @@ export default {
   },
   fetchOnServer: false,
   data: () => ({
-    year: '109',
+    year: '',
     years: [],
-    type: '0',
-    types: [
-      { value: '0', text: '土地標示部' },
-      { value: '1', text: '土地所有權部' },
-      { value: '2', text: '建物標示部' },
-      { value: '3', text: '建物所有權部' }
+    qryType: 'B',
+    qryTypes: [
+      { value: 'B', text: '土地所有權部' },
+      { value: 'E', text: '建物所有權部' },
+      { value: 'TB', text: '土地例外' },
+      { value: 'TE', text: '建物例外' }
     ],
-    bakedData: [],
-    cachedMs: 60 * 60 * 1000,
+    rows: [],
     forceReload: false,
     fields: [
       {
@@ -113,12 +112,13 @@ export default {
     maxHeight: 300
   }),
   computed: {
-    queryCount () { return this.bakedData.length },
+    queryCount () { return this.rows.length },
     cacheKey () { return `reg_trust_case` },
-    cacheKeyYear () { return `${this.cacheKey}_years` }
+    cacheKeyYear () { return `${this.cacheKey}_years` },
+    isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) }
   },
   watch: {
-    bakedData (val) {
+    rows (val) {
       // this.$utils.log(val)
     }
   },
@@ -126,17 +126,17 @@ export default {
     // get cached data
     this.getCache(this.cacheKey).then(json => {
       if (json !== false) {
-        this.bakedData = json.baked
-        this.notify(`查詢成功，找到 ${this.bakedData.length} 筆信託案件。`)
+        this.rows = json.raw
+        this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`)
       }
     })
     this.getCache(this.cacheKeyYear).then(years => {
+      var d = new Date();
+      this.year = (d.getFullYear() - 1911);
       if (years !== false) {
         this.years = years;
       } else {
         // set year select options
-        var d = new Date();
-        this.year = (d.getFullYear() - 1911);
         let len = this.year - 104;
         for (let i = 0; i <= len; i++) {
             this.years.push({value: 104 + i, text: 104 + i});
@@ -150,18 +150,20 @@ export default {
       if(!this.isBusy) {
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-          type: 'reg_trust_case',
+          type: `reg_trust_case`,
+          year: this.year,
+          query: this.qryType,
           reload: this.forceReload
         }).then((res) => {
-          this.bakedData = res.data.baked || []
+          this.rows = res.data.raw || []
+          
+          this.$utils.log(this.rows)
+          
           this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
           const remain_ms = res.data.cache_remaining_time
           if (remain_ms && remain_ms > 0) {
             this.setCache(this.cacheKey, res.data, remain_ms)
           }
-          this.getCacheExpireRemainingTime(this.cacheKey).then((true_remain_ms) => {
-            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
-          })
         }).catch(err => {
           this.alert(err.message)
           this.$utils.error(err)
