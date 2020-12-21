@@ -113,8 +113,8 @@ export default {
   }),
   computed: {
     queryCount () { return this.rows.length },
-    cacheKey () { return `reg_trust_case_${this.qryType}` },
-    cacheKeyYear () { return `${this.cacheKey}_years` },
+    cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
+    cacheKeyYear () { return `reg_trust_case_years` },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) }
   },
   watch: {
