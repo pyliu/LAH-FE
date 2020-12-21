@@ -122,30 +122,6 @@ export default {
       // this.$utils.log(val)
     }
   },
-  fetch () {
-    // get cached data
-    this.getCache(this.cacheKey).then(json => {
-      if (json !== false) {
-        this.rows = json.raw
-        this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`)
-      }
-    })
-    this.getCache(this.cacheKeyYear).then(years => {
-      var d = new Date();
-      this.year = (d.getFullYear() - 1911);
-      if (years !== false) {
-        this.years = years;
-      } else {
-        // set year select options
-        let len = this.year - 104;
-        for (let i = 0; i <= len; i++) {
-            this.years.push({value: 104 + i, text: 104 + i});
-        }
-        this.years.reverse()
-        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
-      }
-    });
-  },
   methods: {
     search () {
       if(!this.isBusy) {
@@ -177,8 +153,32 @@ export default {
       }
     }
   },
+  created () {
+    this.getCache(this.cacheKeyYear).then(years => {
+      if (years !== false) {
+        this.years = years;
+      } else {
+        // set year select options
+        let len = this.year - 104;
+        for (let i = 0; i <= len; i++) {
+            this.years.push({value: 104 + i, text: 104 + i});
+        }
+        this.years.reverse()
+        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
+      }
+    })
+  },
   mounted () {
     this.maxHeight = window.innerHeight - 100
+    // restore cached data if found
+    var d = new Date();
+    this.year = (d.getFullYear() - 1911);
+    this.getCache(this.cacheKey).then(json => {
+      if (json !== false) {
+        this.rows = json.raw
+        this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: this.cacheKey })
+      }
+    })
   }
 }
 </script>
