@@ -12,7 +12,7 @@ export default {
     year () { return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3) },
     code () { return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(3, 7) },
     number () { return this.caseId.replace(/[^a-zA-Z0-9]/g, '').substring(7) },
-    id () { return this.ID.replace('-', '') },
+    id () { return this.ID.replaceAll('-', '') },
     ID () { return `${this.year}-${this.code}-${this.number.padStart(6, '0')}` },
     validID () { return this.year.length === 3 && this.code.length === 4 && parseInt(this.number) < 1000000 && parseInt(this.number) > 0 },
     ready () { return !this.$utils.empty(this.bakedData) },
