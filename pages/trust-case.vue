@@ -2,20 +2,17 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
-        <div class="my-auto">信託案件檢索</div>
-        <lah-countdown-button
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
+        <div class="my-auto">
+          <lah-fa-icon icon="money-check-alt" variant="secondary">信託案件檢索</lah-fa-icon>
+        </div>
+        <lah-button
+          ref="search"
+          icon="search"
           size="lg"
-          :milliseconds="cachedMs"
-          :end="reload"
-          :click="reload"
+          title="搜尋"
           :disabled="isBusy"
-          :busy="isBusy"
-          auto-start
-          title="立即重新讀取"
-        ></lah-countdown-button>
+          @click="search"
+        ></lah-button>
       </h3>
     </lah-transition>
     <lah-transition appear>
@@ -35,14 +32,15 @@
 </template>
 
 <script>
+import lahFaIcon from '~/components/lah-fa-icon.vue'
 export default {
+  components: { lahFaIcon },
   head: {
     title: "信託案件檢索-桃園市地政局",
   },
   fetchOnServer: false,
   data: () => ({
     bakedData: [],
-    committed: false,
     cachedMs: 60 * 60 * 1000,
     forceReload: false,
     fields: [
@@ -89,62 +87,41 @@ export default {
     }
   },
   fetch () {
+    // get cached data
     this.getCache(this.cacheKey).then(json => {
-      if (json === false) {
-        if(!this.isBusy) {
-          this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-            type: 'reg_trust_case',
-            reload: this.forceReload
-          }).then((res) => {
-            this.bakedData = res.data.baked || []
-            this.notify(res.data.message)
-            const remain_ms = res.data.cache_remaining_time
-            if (remain_ms && remain_ms > 0) {
-              this.setCache(this.cacheKey, res.data, remain_ms)
-              // use server side cache remaining time
-              this.$refs.countdown.setCountdown(remain_ms * 1000)
-            } else {
-              this.$refs.countdown.setCountdown(this.cachedMs)
-            }
-            this.$refs.countdown.startCountdown()
-            this.getCacheExpireRemainingTime(this.cacheKey).then((true_remain_ms) => {
-              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
-            })
-          }).catch(err => {
-            this.alert(err.message)
-            this.$utils.error(err)
-          }).finally(() => {
-            this.isBusy = false
-            this.forceReload = false
-          })
-        } else {
-          this.notify('讀取中 ... 請稍後', { type: 'warning' })
-        }
-      } else {
+      if (json !== false) {
         this.bakedData = json.baked
-        this.resetCountdown()
         this.notify(`查詢成功，找到 ${this.bakedData.length} 筆信託案件。`)
       }
     })
   },
   methods: {
-    resetCountdown () {
-      if (this.$refs.countdown) {
-        this.getCacheExpireRemainingTime(this.cacheKey).then(
-          remain_ms => {
-            this.$refs.countdown.setCountdown(remain_ms)
-            this.$refs.countdown.startCountdown()
-            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+    search () {
+      if(!this.isBusy) {
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+          type: 'reg_trust_case',
+          reload: this.forceReload
+        }).then((res) => {
+          this.bakedData = res.data.baked || []
+          this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
+          const remain_ms = res.data.cache_remaining_time
+          if (remain_ms && remain_ms > 0) {
+            this.setCache(this.cacheKey, res.data, remain_ms)
           }
-        )
+          this.getCacheExpireRemainingTime(this.cacheKey).then((true_remain_ms) => {
+            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
+          })
+        }).catch(err => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+          this.forceReload = false
+        })
+      } else {
+        this.notify('讀取中 ... 請稍後', { type: 'warning' })
       }
-    },
-    reload () {
-      this.removeCache(this.cacheKey).then(() => {
-        this.forceReload = true
-        this.$fetch()
-      })
     }
   },
   mounted () {

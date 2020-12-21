@@ -2,7 +2,9 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
-        <div class="my-auto">公告期滿案件</div>
+        <div class="my-auto">
+          <lah-fa-icon icon="sticky-note" variant="secondary">公告期滿案件</lah-fa-icon>
+        </div>
         <lah-countdown-button
           ref="countdown"
           icon="sync-alt"
@@ -35,7 +37,9 @@
 </template>
 
 <script>
+import lahFaIcon from '~/components/lah-fa-icon.vue'
 export default {
+  components: { lahFaIcon },
   head: {
     title: "公告期滿案件-桃園市地政局",
   },

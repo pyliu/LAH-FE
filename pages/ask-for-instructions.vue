@@ -2,7 +2,9 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
-        <div class="my-auto">取消請示案件(三個月內)</div>
+        <div class="my-auto">
+          <lah-fa-icon icon="user-tie" variant="secondary">取消請示案件(三個月內)</lah-fa-icon>
+        </div>
         <lah-countdown-button
           ref="countdown"
           icon="sync-alt"
