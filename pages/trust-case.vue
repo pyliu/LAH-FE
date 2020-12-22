@@ -3,7 +3,7 @@
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
         <div class="my-auto">
-          <lah-fa-icon icon="money-check-alt" variant="secondary">信託案件檢索</lah-fa-icon>
+          <lah-fa-icon icon="money-check-alt" variant="secondary" append>信託案件檢索</lah-fa-icon>
         </div>
         <div class="d-flex">
           <b-input-group append="年" class="text-nowrap mr-1">

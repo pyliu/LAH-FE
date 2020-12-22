@@ -3,7 +3,7 @@
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
         <div class="my-auto">
-          <lah-fa-icon icon="user-tie" variant="secondary">取消請示案件(三個月內)</lah-fa-icon>
+          <lah-fa-icon append icon="user-tie" variant="secondary">取消請示案件({{daysText}})</lah-fa-icon>
         </div>
         <lah-countdown-button
           ref="countdown"
@@ -99,6 +99,7 @@ export default {
   computed: {
     queryCount() { return this.bakedData.length },
     cacheKey() { return `reg_cancel_ask_case` },
+    daysText () { return `${this.days} 天內`}
   },
   watch: {
     bakedData(val) {

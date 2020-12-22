@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear slide>
-      <h3 class="text-center page-header">登記案件 {{ ID }}</h3>
+      <h3 class="text-center page-header"><lah-fa-icon icon="briefcase" variant="secondary">登記案件 {{ ID }}</lah-fa-icon></h3>
     </lah-transition>
     <lah-reg-case-detail :case-id="id" @ready="readyHandler" />
   </div>
