@@ -42,7 +42,25 @@
       </h3>
     </lah-transition>
     <lah-transition appear>
-      <!-- <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table> -->
+      <b-table
+        :busy="isBusy"
+        :items="rows"
+        ref="table"
+        :responsive="'lg'"
+        :striped="true"
+        :hover="true"
+        :bordered="true"
+        :borderless="false"
+        :outlined="false"
+        :small="true"
+        :dark="false"
+        :fixed="false"
+        :foot-clone="false"
+        :no-border-collapse="true"
+        :head-variant="'dark'"
+        caption-top
+        :caption="caption"
+      />
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -113,6 +131,7 @@ export default {
   }),
   computed: {
     queryCount () { return this.rows.length },
+    caption () { return `找到 ${this.queryCount} 筆信託資料`},
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
     cacheKeyYear () { return `reg_trust_case_years` },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) }
