@@ -59,6 +59,7 @@
       centered
       no-close-on-backdrop
       size="xl"
+      scrollable
     >
       <template #modal-title>
         登記案件詳情 {{clickedId}}
