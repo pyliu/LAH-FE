@@ -204,7 +204,7 @@ Vue.mixin({
             solid: true,
             toaster: 'b-toaster-bottom-right',
             appendToast: true,
-            variant: 'default'
+            variant: 'info'
           }, opts)
           // Use a shorter name for this.$createElement
           const h = this.$createElement
