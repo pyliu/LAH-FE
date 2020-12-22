@@ -58,19 +58,15 @@
         :foot-clone="false"
         :no-border-collapse="true"
         :head-variant="'dark'"
+        :sticky-header="true"
         caption-top
         :caption="caption"
-      />
-    </lah-transition>
-    <lah-transition class="center h3">
-      <lah-fa-icon
-        v-cloak
-        v-if="queryCount === 0 && !isBusy"
-        icon="exclamation-circle"
-        prefix="fas"
+        :style="style"
       >
-        無資料
-      </lah-fa-icon>
+        <template #table-busy>
+          <span class="ld-txt">讀取中...</span>
+        </template>
+      </b-table>
     </lah-transition>
   </div>
 </template>
@@ -95,46 +91,33 @@ export default {
     ],
     rows: [],
     forceReload: false,
-    fields: [
-      {
-        key: '公告燈號',
-        label: '狀態',
-        sortable: true
-      },
-      {
-        key: '收件字號',
-        sortable: true
-      },
-      {
-        key: '登記原因',
-        sortable: true
-      },
-      {
-        key: '辦理情形',
-        sortable: true
-      },
-      {
-        key: '初審人員',
-        sortable: true
-      },
-      {
-        key: '公告日期',
-        sortable: true
-      },
-      {
-        key: '公告期滿日期',
-        label:'期滿日期',
-        sortable: true
-      }
-    ],
+    committed: false,
     maxHeight: 300
   }),
   computed: {
     queryCount () { return this.rows.length },
-    caption () { return `找到 ${this.queryCount} 筆信託資料`},
+    qryTypeText () {
+      switch (this.qryType) {
+        case 'B':
+          return '土地所有權部'
+        case 'E':
+          return '建物所有權部'
+        case 'TB':
+          return '土地例外'
+        case 'TE':
+          return '建物例外'
+        default:
+          return `不支援的型別【${this.qryType}】`
+      }
+    },
+    caption () { return this.committed ? `${this.year}年共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` : '' },
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
     cacheKeyYear () { return `reg_trust_case_years` },
-    isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) }
+    isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
+    style () {
+      const parsed = parseInt(this.maxHeight)
+      return isNaN(parsed) ? "" : `max-height: ${parsed}px`
+    }
   },
   watch: {
     rows (val) {
@@ -145,6 +128,7 @@ export default {
     search () {
       if(!this.isBusy) {
         this.isBusy = true
+        this.committed = false
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
           type: `reg_trust_case`,
           year: this.year,
@@ -166,6 +150,7 @@ export default {
         }).finally(() => {
           this.isBusy = false
           this.forceReload = false
+          this.committed = true
         })
       } else {
         this.notify('讀取中 ... 請稍後', { type: 'warning' })
