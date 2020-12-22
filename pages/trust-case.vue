@@ -45,6 +45,7 @@
     </lah-transition>
     <lah-transition appear>
       <b-table
+        v-if="committed"
         :busy="isBusy"
         :items="rows"
         ref="table"
@@ -93,8 +94,8 @@
           <div class="text-nowrap">{{ landBuildNumber(item) }}</div>
         </template>
       </b-table>
+      <h3 v-else class="text-center"><lah-fa-icon action="breath" variant="primary">請點選查詢按鈕</lah-fa-icon></h3>
     </lah-transition>
-    
     <b-modal
       :id="modalId"
       hide-footer
@@ -266,7 +267,7 @@ export default {
           return `不支援的型別【${this.qryType}】`
       }
     },
-    caption () { return this.committed ? `${this.year}年 共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` : '' },
+    caption () { return `${this.year}年 共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` },
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
     cacheKeyYear () { return `reg_trust_case_years` },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
