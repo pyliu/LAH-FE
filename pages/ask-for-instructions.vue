@@ -108,6 +108,7 @@ export default {
   },
   watch: {
     months (val) {
+      this.days = Math.ceil(365 / 12 * val)
       this.reloadDebounced()
     }
   },
