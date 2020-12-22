@@ -71,7 +71,12 @@
         </template>
         <template #cell(EE15_1)="{ item }">
           <div class="d-flex justify-content-between">
-            <strong>{{ item.EE15_1 }}</strong> <span>{{ item.EE15_3 }}／{{ item.EE15_2 }}</span>
+            <strong>{{ item.EE15_1||'' }}</strong> <span>{{ item.EE15_3 }}／{{ item.EE15_2 }}</span>
+          </div>
+        </template>
+        <template #cell(BB15_1)="{ item }">
+          <div class="d-flex justify-content-between">
+            <strong>{{ item.BB15_1||'' }}</strong> <span>{{ item.BB15_3 }}／{{ item.BB15_2 }}</span>
           </div>
         </template>
         <template #cell(IS03)="{ item }">
@@ -83,6 +88,9 @@
           <div>
             【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
           </div>
+        </template>
+        <template #cell(IS49)="{ item }">
+          <div class="text-nowrap">{{ landBuildNumber(item) }}</div>
         </template>
       </b-table>
     </lah-transition>
@@ -127,7 +135,64 @@ export default {
     forceReload: false,
     committed: false,
     maxHeight: 300,
-    fields: [
+    landFields: [
+      {
+        key: "IS48",
+        label: '段代碼',
+        sortable: true,
+      },
+      {
+        key: "IS49",
+        label: '地/建號',
+        sortable: true,
+      },
+      {
+        key: "IS01",
+        label: '登記次序',
+        sortable: false,
+      },
+      {
+        key: "IS09",
+        label: '統一編號',
+        sortable: true,
+      },
+      {
+        key: "ISNAME",
+        label: '所有權人',
+        sortable: true,
+      },
+      {
+        key: "GG30_2",
+        label: '其他登記內容',
+        sortable: true,
+      },
+      {
+        key: "BB15_1",
+        label: '土地權利範圍',
+        sortable: true,
+      },
+      {
+        key: "IS03",
+        label: '收件年字號',
+        sortable: true,
+      },
+      {
+        key: "IS05",
+        label: '登記日期',
+        sortable: true,
+      },
+      {
+        key: "KCNT",
+        label: '登記原因',
+        sortable: true,
+      },
+      {
+        key: "IS_DATE",
+        label: '異動日期',
+        sortable: true,
+      }
+    ],
+    buildFields: [
       {
         key: "IS48",
         label: '段代碼',
@@ -160,7 +225,7 @@ export default {
       },
       {
         key: "EE15_1",
-        label: '權利範圍',
+        label: '建物權利範圍',
         sortable: true,
       },
       {
@@ -208,7 +273,8 @@ export default {
     style () {
       const parsed = parseInt(this.maxHeight)
       return isNaN(parsed) ? "" : `max-height: ${parsed}px`
-    }
+    },
+    fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields }
   },
   watch: {
     rows (val) {
@@ -227,9 +293,6 @@ export default {
           reload: this.forceReload
         }).then((res) => {
           this.rows = res.data.raw || []
-          
-          this.$utils.log(this.rows)
-          
           this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
           const remain_ms = res.data.cache_remaining_time
           if (remain_ms && remain_ms > 0) {
@@ -252,6 +315,17 @@ export default {
       this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
       this.$bvModal.show(this.modalId)
     },
+    landBuildNumber (item) {
+      const val = item.IS49
+      if (this.qryType === 'B' || this.qryType === 'TB') {
+        const mainNumber = val.substring(0, 4).replace(/^[\s0]+/g, '')
+        const subNumber = val.substring(4).replace(/^[\s0]+/g, '')
+        return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+      }
+      const mainNumber = val.substring(0, 5).replace(/^[\s0]+/g, '')
+      const subNumber = val.substring(5).replace(/^[\s0]+/g, '')
+      return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+    }
   },
   created () {
     this.getCache(this.cacheKeyYear).then(years => {
