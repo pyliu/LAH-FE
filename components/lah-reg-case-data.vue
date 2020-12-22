@@ -74,6 +74,8 @@ export default {
         switch (this.bakedData.RM10) {
           case "03":
             return "中壢區";
+          case "08":
+            return "八德區";
           case "12":
             return "觀音區";
         }
