@@ -26,6 +26,7 @@ Vue.mixin({
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
     ip () { return this.$store.getters.ip },
     svr () { return this.$store.getters.svr },
+    webapIp () { return this.$store.getters.webapIp },
     apiSvr () {
       if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
         return this.svr.ips[0]
