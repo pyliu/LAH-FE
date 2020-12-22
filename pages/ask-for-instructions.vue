@@ -52,6 +52,7 @@ export default {
     committed: false,
     cachedMs: 60 * 60 * 1000,
     forceReload: false,
+    days: 92,
     fields: [
       {
         key: "請示燈號",
@@ -111,7 +112,8 @@ export default {
         this.$axios
           .post(this.$consts.API.JSON.PREFETCH, {
             type: 'reg_cancel_ask_case',
-            reload: this.forceReload
+            reload: this.forceReload,
+            days: this.days
           })
           .then((res) => {
             this.bakedData = res.data.baked || []
