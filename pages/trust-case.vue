@@ -110,7 +110,7 @@ export default {
           return `不支援的型別【${this.qryType}】`
       }
     },
-    caption () { return this.committed ? `${this.year}年共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` : '' },
+    caption () { return this.committed ? `${this.year}年 共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` : '' },
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
     cacheKeyYear () { return `reg_trust_case_years` },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
