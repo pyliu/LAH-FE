@@ -39,7 +39,7 @@
         登記原因：{{ bakedData.登記原因 }}
       </b-list-group-item>
       <b-list-group-item>
-        區域：{{ area }}【{{ bakedData.RM10 }}】
+        區域：{{ bakedData.區名稱 }}【{{ bakedData.RM10 }}】
       </b-list-group-item>
       <b-list-group-item>
         段小段：{{ bakedData.段小段 }}【{{ bakedData.段代碼 }}】
@@ -67,23 +67,6 @@ export default {
   mixins: [regCaseBase],
   props: {
     noTitle: { type: Boolean, default: false }
-  },
-  computed: {
-    area () {
-      if (this.ready) {
-        switch (this.bakedData.RM10) {
-          case '03':
-            return '中壢區';
-          case '08':
-            return '八德區';
-          case '12':
-            return '觀音區';
-          default:
-            return `${this.bakedData.RM10} (${this.bakedData.資料管轄所}所)`
-        }
-      }
-      return '';
-    }
   }
 };
 </script>
