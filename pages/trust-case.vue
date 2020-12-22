@@ -72,12 +72,12 @@
         </template>
         <template #cell(EE15_1)="{ item }">
           <div class="d-flex justify-content-between">
-            <strong>{{ item.EE15_1||'' }}</strong> <span>{{ item.EE15_3 }}／{{ item.EE15_2 }}</span>
+            <strong>{{ item.EE15_1||'' }}</strong> <div class="text-nowrap">{{ item.EE15_3 }}／{{ item.EE15_2 }}</div>
           </div>
         </template>
         <template #cell(BB15_1)="{ item }">
           <div class="d-flex justify-content-between">
-            <strong>{{ item.BB15_1||'' }}</strong> <span>{{ item.BB15_3 }}／{{ item.BB15_2 }}</span>
+            <strong>{{ item.BB15_1||'' }}</strong> <div class="text-nowrap">{{ item.BB15_3 }}／{{ item.BB15_2 }}</div>
           </div>
         </template>
         <template #cell(IS03)="{ item }">
