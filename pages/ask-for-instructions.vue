@@ -171,7 +171,7 @@ export default {
   },
   created () { 
     // wrap the reload function with delay to prevent quick reloading call
-    this.reloadDebounced = this.$utils.debounce(this.reload, 800)
+    this.reloadDebounced = this.$utils.debounce(this.reload, 1000)
   },
   mounted () {
     this.maxHeight = window.innerHeight - 100
