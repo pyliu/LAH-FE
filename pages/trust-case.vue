@@ -12,6 +12,7 @@
               v-model="year"
               :options="years"
               class="h-100"
+              @change="resetCommitted"
             >
               <template v-slot:first>
                 <b-form-select-option :value="null" disabled>-- 請選擇年份 --</b-form-select-option>
@@ -24,6 +25,7 @@
               v-model="qryType"
               :options="qryTypes"
               class="h-100"
+              @change="resetCommitted"
             >
               <template v-slot:first>
                 <b-form-select-option :value="null" disabled>-- 請選擇部別 --</b-form-select-option>
@@ -62,12 +64,42 @@
         caption-top
         :caption="caption"
         :style="style"
+        :fields="fields"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
         </template>
+        <template #cell(EE15_1)="{ item }">
+          <div class="d-flex justify-content-between">
+            <strong>{{ item.EE15_1 }}</strong> <span>{{ item.EE15_3 }}／{{ item.EE15_2 }}</span>
+          </div>
+        </template>
+        <template #cell(IS03)="{ item }">
+          <div class="text-nowrap">
+            <b-link @click="popup(item)">{{ item.IS03 }}-{{ item.IS04_1 }}-{{ item.IS04_2 }}</b-link>
+          </div>
+        </template>
+        <template #cell(GG30_2)="{ item }">
+          <div>
+            【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
+          </div>
+        </template>
       </b-table>
     </lah-transition>
+    
+    <b-modal
+      :id="modalId"
+      hide-footer
+      centered
+      no-close-on-backdrop
+      size="xl"
+      scrollable
+    >
+      <template #modal-title>
+        登記案件詳情 {{$utils.caseId(clickedId)}}
+      </template>
+      <lah-reg-case-detail :case-id="clickedId"/>
+    </b-modal>
   </div>
 </template>
 
@@ -80,6 +112,8 @@ export default {
   },
   fetchOnServer: false,
   data: () => ({
+    modalId: 'this should be an uuid',
+    clickedId: undefined,
     year: '',
     years: [],
     qryType: 'B',
@@ -92,7 +126,64 @@ export default {
     rows: [],
     forceReload: false,
     committed: false,
-    maxHeight: 300
+    maxHeight: 300,
+    fields: [
+      {
+        key: "IS48",
+        label: '段代碼',
+        sortable: true,
+      },
+      {
+        key: "IS49",
+        label: '地/建號',
+        sortable: true,
+      },
+      {
+        key: "IS01",
+        label: '登記次序',
+        sortable: false,
+      },
+      {
+        key: "IS09",
+        label: '統一編號',
+        sortable: true,
+      },
+      {
+        key: "ISNAME",
+        label: '所有權人',
+        sortable: true,
+      },
+      {
+        key: "GG30_2",
+        label: '其他登記內容',
+        sortable: true,
+      },
+      {
+        key: "EE15_1",
+        label: '權利範圍',
+        sortable: true,
+      },
+      {
+        key: "IS03",
+        label: '收件年字號',
+        sortable: true,
+      },
+      {
+        key: "IS05",
+        label: '登記日期',
+        sortable: true,
+      },
+      {
+        key: "KCNT",
+        label: '登記原因',
+        sortable: true,
+      },
+      {
+        key: "IS_DATE",
+        label: '異動日期',
+        sortable: true,
+      }
+    ]
   }),
   computed: {
     queryCount () { return this.rows.length },
@@ -155,7 +246,12 @@ export default {
       } else {
         this.notify('讀取中 ... 請稍後', { type: 'warning' })
       }
-    }
+    },
+    resetCommitted () { this.committed = false },
+    popup (data) {
+      this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
+      this.$bvModal.show(this.modalId)
+    },
   },
   created () {
     this.getCache(this.cacheKeyYear).then(years => {
@@ -173,6 +269,7 @@ export default {
     })
   },
   mounted () {
+    this.modalId = this.$utils.uuid()
     this.maxHeight = window.innerHeight - 100
     // restore cached data if found
     var d = new Date();
