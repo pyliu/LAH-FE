@@ -72,15 +72,17 @@ export default {
     area () {
       if (this.ready) {
         switch (this.bakedData.RM10) {
-          case "03":
-            return "中壢區";
-          case "08":
-            return "八德區";
-          case "12":
-            return "觀音區";
+          case '03':
+            return '中壢區';
+          case '08':
+            return '八德區';
+          case '12':
+            return '觀音區';
+          default:
+            return `${this.bakedData.RM10} (${this.bakedData.資料管轄所}所)`
         }
       }
-      return this.ready ? `其他(${this.bakedData.資料管轄所}區)` : "";
+      return '';
     }
   }
 };
