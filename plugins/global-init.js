@@ -2,6 +2,7 @@ import Vue from 'vue'
 import $ from 'jquery'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
+import debounce from 'lodash/debounce'
 
 export default ({ $axios, store }, inject) => {
   const bus = new Vue()
@@ -205,6 +206,7 @@ export default ({ $axios, store }, inject) => {
     trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
     empty: isEmpty, // '0' is not empty
     equal: isEqual,
+    debounce: debounce,
     caseId (id) {
       if (isEmpty(id)) {
         return ''

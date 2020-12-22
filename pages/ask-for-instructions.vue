@@ -3,21 +3,25 @@
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header page-header-padding-override">
         <div class="my-auto">
-          <lah-fa-icon append icon="user-tie" variant="secondary">取消請示案件({{daysText}})</lah-fa-icon>
+          <lah-fa-icon append icon="user-tie" variant="secondary">取消請示案件</lah-fa-icon>
         </div>
-        <lah-countdown-button
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
-          size="lg"
-          :milliseconds="cachedMs"
-          :end="reload"
-          :click="reload"
-          :disabled="isBusy"
-          :busy="isBusy"
-          auto-start
-          title="立即重新讀取"
-        />
+        <div class="d-flex">
+          <b-form-input type="range" v-model="months" class="my-auto mr-2" min="1" max="12"></b-form-input>
+          <span class="my-auto mr-2">{{months}}個月內</span>
+          <lah-countdown-button
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="cachedMs"
+            :end="reload"
+            :click="reload"
+            :disabled="isBusy"
+            :busy="isBusy"
+            auto-start
+            title="立即重新讀取"
+          />
+        </div>
       </h3>
     </lah-transition>
     <lah-transition appear>
@@ -52,6 +56,7 @@ export default {
     committed: false,
     cachedMs: 60 * 60 * 1000,
     forceReload: false,
+    months: 3,
     days: 92,
     fields: [
       {
@@ -102,11 +107,11 @@ export default {
     daysText () { return `${this.days} 天內`}
   },
   watch: {
-    bakedData(val) {
-      // this.$utils.log(val)
-    },
+    months (val) {
+      this.reloadDebounced()
+    }
   },
-  fetch() {
+  fetch () {
     this.getCache(this.cacheKey).then((json) => {
       if (json === false) {
         this.isBusy = true
@@ -144,7 +149,7 @@ export default {
     })
   },
   methods: {
-    resetCountdown() {
+    resetCountdown () {
       if (this.$refs.countdown) {
         this.getCacheExpireRemainingTime(this.cacheKey).then((remain_ms) => {
           if (remain_ms > 0) {
@@ -155,12 +160,17 @@ export default {
         })
       }
     },
-    reload() {
+    reload () {
       this.removeCache(this.cacheKey).then(() => {
         this.forceReload = true
         this.$fetch()
       })
     },
+    reloadDebounced () {}
+  },
+  created () { 
+    // wrap the reload function with delay to prevent quick reloading call
+    this.reloadDebounced = this.$utils.debounce(this.reload, 800)
   },
   mounted () {
     this.maxHeight = window.innerHeight - 100
