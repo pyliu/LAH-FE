@@ -6,6 +6,15 @@
           <lah-fa-icon icon="money-check-alt" variant="secondary" append>信託案件檢索</lah-fa-icon>
         </div>
         <div class="d-flex">
+          <b-pagination
+            v-if="!$utils.empty(rows)"
+            v-model="currentPage"
+            :total-rows="rows.length"
+            :per-page="perPage"
+            last-number
+            aria-controls="trust-table"
+            class="my-auto mr-1"
+          ></b-pagination>
           <b-input-group append="年" class="text-nowrap mr-1">
             <b-form-select
               ref="year"
@@ -45,6 +54,7 @@
     </lah-transition>
     <lah-transition appear>
       <b-table
+        id="trust-table"
         v-if="committed"
         :busy="isBusy"
         :items="rows"
@@ -66,6 +76,8 @@
         :caption="caption"
         :style="style"
         :fields="fields"
+        :per-page="perPage"
+        :current-page="currentPage"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
@@ -136,6 +148,8 @@ export default {
       { value: 'TE', text: '建物例外' }
     ],
     rows: [],
+    perPage: 100,
+    currentPage: 0,
     forceReload: false,
     committed: false,
     maxHeight: 300,
@@ -317,6 +331,7 @@ export default {
     resetCommitted () {
       this.committed = false
       this.rows = []
+      this.currentPage = 0
     },
     popup (data) {
       this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
