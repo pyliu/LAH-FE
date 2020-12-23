@@ -14,7 +14,7 @@
             last-number
             aria-controls="trust-table"
             class="my-auto mr-1"
-          ></b-pagination>
+          />
           <b-input-group append="年" class="text-nowrap mr-1">
             <b-form-select
               ref="year"
@@ -82,6 +82,9 @@
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
         </template>
+        <template v-slot:cell(序號)="data">
+          {{ data.index + 1 }}
+        </template>
         <template #cell(IS48)="{ item }">
           <div class="text-nowrap">{{ item.IS48 }} {{ item.IS48_CHT }}</div>
         </template>
@@ -148,8 +151,8 @@ export default {
       { value: 'TE', text: '建物例外' }
     ],
     rows: [],
-    perPage: 100,
-    currentPage: 0,
+    perPage: 25,
+    currentPage: 1,
     forceReload: false,
     committed: false,
     maxHeight: 300,
@@ -373,6 +376,7 @@ export default {
     this.getCache(this.cacheKey).then(json => {
       if (json !== false) {
         this.rows = json.raw
+        this.committed = true
         this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: this.cacheKey })
       }
     })
