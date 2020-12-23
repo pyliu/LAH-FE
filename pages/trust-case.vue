@@ -70,13 +70,19 @@
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
         </template>
+        <template #cell(IS48)="{ item }">
+          <div class="text-nowrap">{{ item.IS48 }} {{ item.IS48_CHT }}</div>
+        </template>
+        <template #cell(IS49)="{ item }">
+          <div class="text-nowrap">{{ landBuildNumber(item) }}</div>
+        </template>
         <template #cell(EE15_1)="{ item }">
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between" v-if="!($utils.empty(item.EE15_1) && $utils.empty(item.EE15_2) && $utils.empty(item.EE15_3))">
             <strong>{{ item.EE15_1||'' }}</strong> <div class="text-nowrap">{{ item.EE15_3 }}／{{ item.EE15_2 }}</div>
           </div>
         </template>
         <template #cell(BB15_1)="{ item }">
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between" v-if="!($utils.empty(item.BB15_1) && $utils.empty(item.BB15_2) && $utils.empty(item.BB15_3))">
             <strong>{{ item.BB15_1||'' }}</strong> <div class="text-nowrap">{{ item.BB15_3 }}／{{ item.BB15_2 }}</div>
           </div>
         </template>
@@ -86,12 +92,9 @@
           </div>
         </template>
         <template #cell(GG30_2)="{ item }">
-          <div>
+          <div v-if="!($utils.empty(item.GG30_1) && $utils.empty(item.GG30_1_CHT) && $utils.empty(item.GG30_2))">
             【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
           </div>
-        </template>
-        <template #cell(IS49)="{ item }">
-          <div class="text-nowrap">{{ landBuildNumber(item) }}</div>
         </template>
       </b-table>
       <h3 v-else class="text-center"><lah-fa-icon action="breath" variant="primary">請點選查詢按鈕</lah-fa-icon></h3>
@@ -139,7 +142,7 @@ export default {
     landFields: [
       {
         key: "IS48",
-        label: '段代碼',
+        label: '段代碼/名稱',
         sortable: true,
       },
       {
@@ -150,7 +153,7 @@ export default {
       {
         key: "IS01",
         label: '登記次序',
-        sortable: false,
+        sortable: true,
       },
       {
         key: "IS09",
@@ -183,7 +186,7 @@ export default {
         sortable: true,
       },
       {
-        key: "KCNT",
+        key: "BB06_CHT",
         label: '登記原因',
         sortable: true,
       },
@@ -196,7 +199,7 @@ export default {
     buildFields: [
       {
         key: "IS48",
-        label: '段代碼',
+        label: '段代碼/名稱',
         sortable: true,
       },
       {
@@ -207,7 +210,7 @@ export default {
       {
         key: "IS01",
         label: '登記次序',
-        sortable: false,
+        sortable: true,
       },
       {
         key: "IS09",
@@ -240,7 +243,7 @@ export default {
         sortable: true,
       },
       {
-        key: "KCNT",
+        key: "EE06_CHT",
         label: '登記原因',
         sortable: true,
       },
@@ -311,7 +314,10 @@ export default {
         this.notify('讀取中 ... 請稍後', { type: 'warning' })
       }
     },
-    resetCommitted () { this.committed = false },
+    resetCommitted () {
+      this.committed = false
+      this.rows = []
+    },
     popup (data) {
       this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
       this.$bvModal.show(this.modalId)
