@@ -12,6 +12,7 @@
             :total-rows="rows.length"
             :per-page="perPage"
             last-number
+            first-number
             aria-controls="trust-table"
             class="my-auto mr-1"
           />
