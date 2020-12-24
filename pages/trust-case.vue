@@ -125,25 +125,23 @@
       <template #modal-title>
         登記案件詳情 {{$utils.caseId(clickedId)}}
       </template>
-      <h4 class="text-center text-info my-5" v-if="!modalContentReady">
+      <h4 class="text-center text-info my-5" v-if="modalLoading">
         <strong class="ld-txt">查詢中...</strong>
       </h4>
-      <lah-reg-case-detail :case-id="clickedId" @ready="modalContentReady = $event.detail"/>
+      <lah-reg-case-detail :case-id="clickedId" @ready="modalLoading = false"/>
     </b-modal>
   </div>
 </template>
 
 <script>
-import lahFaIcon from '~/components/lah-fa-icon.vue'
 export default {
-  components: { lahFaIcon },
   head: {
     title: "信託案件檢索-桃園市地政局",
   },
   fetchOnServer: false,
   data: () => ({
     modalId: 'this should be an uuid',
-    modalContentReady: false,
+    modalLoading: true,
     clickedId: undefined,
     year: '',
     years: [],
@@ -341,7 +339,7 @@ export default {
       this.currentPage = 0
     },
     popup (data) {
-      this.modalContentReady = false
+      this.modalLoading = true
       this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
       this.$bvModal.show(this.modalId)
     },

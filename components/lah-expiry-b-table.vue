@@ -64,7 +64,9 @@
       <template #modal-title>
         登記案件詳情 {{clickedId}}
       </template>
-      <span v-if="modalLoading" class="ld-txt">讀取中...</span>
+      <h4 class="text-center text-info my-5" v-if="modalLoading">
+        <strong class="ld-txt">查詢中...</strong>
+      </h4>
       <lah-reg-case-detail v-show="!modalLoading" @ready="modalLoading = false" :case-id="clickedId"/>
     </b-modal>
   </div>

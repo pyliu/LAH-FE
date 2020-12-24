@@ -181,7 +181,10 @@
       <template #modal-title>
         登記案件詳情 {{$utils.caseId(clickedId)}}
       </template>
-      <lah-reg-case-detail :parent-data="clickedData"/>
+      <h4 class="text-center text-info my-5" v-if="modalLoading">
+        <strong class="ld-txt">查詢中...</strong>
+      </h4>
+      <lah-reg-case-detail :parent-data="clickedData" @ready="modalLoading = false"/>
     </b-modal>
   </div>
 </template>
@@ -207,6 +210,7 @@ export default {
       name: "rollIn",
     },
     modalId: 'this should be an uuid',
+    modalLoading: true,
     clickedId: undefined,
     clickedData: undefined
   }),
@@ -467,6 +471,7 @@ export default {
   },
   methods: {
     popup (data) {
+      this.modalLoading = true
       this.clickedId = `${data["RM01"]}${data["RM02"]}${data["RM03"]}`
       this.clickedData = data
       this.$bvModal.show(this.modalId)
