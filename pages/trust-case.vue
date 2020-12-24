@@ -125,7 +125,10 @@
       <template #modal-title>
         登記案件詳情 {{$utils.caseId(clickedId)}}
       </template>
-      <lah-reg-case-detail :case-id="clickedId"/>
+      <h4 class="text-center text-info my-5" v-if="!modalContentReady">
+        <strong class="ld-txt">查詢中...</strong>
+      </h4>
+      <lah-reg-case-detail :case-id="clickedId" @ready="modalContentReady = $event.detail"/>
     </b-modal>
   </div>
 </template>
@@ -140,6 +143,7 @@ export default {
   fetchOnServer: false,
   data: () => ({
     modalId: 'this should be an uuid',
+    modalContentReady: false,
     clickedId: undefined,
     year: '',
     years: [],
@@ -337,6 +341,7 @@ export default {
       this.currentPage = 0
     },
     popup (data) {
+      this.modalContentReady = false
       this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
       this.$bvModal.show(this.modalId)
     },
