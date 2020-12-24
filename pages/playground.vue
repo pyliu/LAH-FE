@@ -81,6 +81,7 @@
         <font-awesome-icon icon="envelope" />
         <font-awesome-layers-text counter value="1" position="top-right" />
       </font-awesome-layers>
+        <b-spinner type="grow"></b-spinner>
     </div>
   </div>
 </template>
