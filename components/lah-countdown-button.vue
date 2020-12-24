@@ -1,5 +1,6 @@
 <template>
   <lah-button
+    :id="id"
     :icon="icon"
     :variant="variant"
     :size="size"
@@ -16,6 +17,7 @@
         :auto-start="false"
         @end="end"
         @start="start"
+        @progress="handleProgress"
       >
         <template slot-scope="props">
           {{ props.minutes.toString().padStart(2, '0') }}:{{ props.seconds.toString().padStart(2, '0') }}
@@ -44,10 +46,31 @@ export default {
     end: { type: Function, default: () => {} },
     busy: { type: Boolean, default: false }
   },
-  data: () => ({}),
+  data: () => ({
+    id: ''
+  }),
   watch: {},
   computed: {},
   methods: {
+    handleProgress (payload) {
+      /* payload: {
+          days: this.days,
+          hours: this.hours,
+          minutes: this.minutes,
+          seconds: this.seconds,
+          milliseconds: this.milliseconds,
+          totalDays: this.totalDays,
+          totalHours: this.totalHours,
+          totalMinutes: this.totalMinutes,
+          totalSeconds: this.totalSeconds,
+          totalMilliseconds: this.totalMilliseconds
+        }
+      */
+      if (parseInt(payload.totalSeconds) === 3) {
+      this.$utils.log(this.$el, this.id) 
+        this.attention(`#${this.id}`, { name: 'flash', speed: 'slower' })
+      }
+    },
     resetCountdown () {
       this.$refs.cd.totalMilliseconds = this.milliseconds
     },
@@ -67,6 +90,7 @@ export default {
       this.startCountdown()
       this.attention(this.$refs.badge, { name: 'flash', speed: 'slower' })
     }
+    this.id = `cb-${this.$utils.uuid()}`
   }
 }
 </script>
