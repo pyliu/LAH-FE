@@ -40,8 +40,7 @@ const state = () => ({
 const getters = {
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
-  svr: state => state.svr,
-  webapIp: state => state.svr.config.webap_ip
+  svr: state => state.svr
 
 }
 
