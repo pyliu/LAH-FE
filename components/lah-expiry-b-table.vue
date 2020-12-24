@@ -68,7 +68,7 @@
         <b-spinner small type="grow"></b-spinner>
         <strong class="ld-txt">查詢中...</strong>
       </h4>
-      <lah-reg-case-detail v-show="!modalLoading" @ready="modalLoading = false" :case-id="clickedId"/>
+      <lah-reg-case-detail v-show="!modalLoading" @ready="modalLoading = !$event.detail" :case-id="clickedId"/>
     </b-modal>
   </div>
 </template>

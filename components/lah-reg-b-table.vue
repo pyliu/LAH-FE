@@ -185,7 +185,7 @@
         <b-spinner small type="grow"></b-spinner>
         <strong class="ld-txt">查詢中...</strong>
       </h4>
-      <lah-reg-case-detail :parent-data="clickedData" @ready="modalLoading = false"/>
+      <lah-reg-case-detail :parent-data="clickedData" @ready="modalLoading = !$event.detail"/>
     </b-modal>
   </div>
 </template>
