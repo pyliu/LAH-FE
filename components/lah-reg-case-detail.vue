@@ -21,7 +21,7 @@ export default {
       this.trigger('ready', flag)
     }
   },
-  created () {
+  mounted () {
     this.trigger('ready', this.ready)
   }
 };

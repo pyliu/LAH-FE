@@ -26,7 +26,7 @@ Vue.mixin({
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
     ip () { return this.$store.getters.ip },
     svr () { return this.$store.getters.svr },
-    webapIp () { return this.svr ? this.svr.config.webap_ip : '127.0.0.1' },
+    webapIp () { return this.svr ? (this.svr.config ? this.svr.config.webap_ip : '127.0.0.1') : '127.0.0.1' },
     apiSvr () {
       if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
         return this.svr.ips[0]
@@ -375,13 +375,17 @@ Vue.mixin({
       })
     },
     trigger (evtName, payload) {
-      let evt = new CustomEvent(evtName, {
-        detail: payload,
-        bubbles: true
-      });
-      Object.defineProperty(evt, 'target', {writable: false, value: this.$el});
-      this.$emit(evtName, evt)
-      return evt
+      if (CustomEvent) {
+        let evt = new CustomEvent(evtName, {
+          detail: payload,
+          bubbles: true
+        });
+        Object.defineProperty(evt, 'target', {writable: false, value: this.$el});
+        this.$emit(evtName, evt)
+        return evt
+      } else {
+        console.warning('CustomEvent not defined?')
+      }
     },
     async setCache (key, val, expire_timeout = 0) {
       if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
