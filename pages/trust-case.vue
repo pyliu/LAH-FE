@@ -338,7 +338,7 @@ export default {
     resetCommitted () {
       this.committed = false
       this.rows = []
-      this.currentPage = 0
+      this.currentPage = 1
     },
     popup (data) {
       this.modalLoading = true
