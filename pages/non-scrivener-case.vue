@@ -6,15 +6,19 @@
           <lah-fa-icon icon="user-tag" variant="secondary" append>非專業代理人案件檢索</lah-fa-icon>
         </div>
         <div class="d-flex">
-          <b-form-datepicker
+          <b-datepicker
             value-as-date
             v-model="startDateObj"
             placeholder="開始日期"
             :max="yesterday"
             boundary="viewport"
+            size="sm"
+            :date-format-options="{ weekday: 'narrow' }"
+            hide-header
+            dropleft
           />
           <div class="my-auto">～</div>
-          <b-form-datepicker
+          <b-datepicker
             value-as-date
             v-model="endDateObj"
             placeholder="截止日期"
@@ -22,6 +26,10 @@
             :min="startDateObj"
             boundary="viewport"
             class="mr-1"
+            size="sm"
+            dark
+            :date-format-options="{ weekday: 'narrow' }"
+            hide-header
           />
           <lah-countdown-button
             ref="countdown"
