@@ -1,6 +1,5 @@
 <template>
   <lah-button
-    :id="id"
     :icon="icon"
     :variant="variant"
     :size="size"
@@ -43,9 +42,7 @@ export default {
     autoStart: { type: Boolean, default: false },
     busy: { type: Boolean, default: false }
   },
-  data: () => ({
-    id: ''
-  }),
+  data: () => ({}),
   watch: {},
   computed: {},
   methods: {
@@ -65,11 +62,11 @@ export default {
       */
       if (parseInt(payload.totalSeconds) === 4) {
         // random effect, 2s
-        this.attention(`#${this.id}`, { speed: 'slow' })
+        this.attention(this.$el, { speed: 'slow' })
       }
       if (parseInt(payload.totalSeconds) === 1) {
         // random effect, 0.5s
-        this.attention(`#${this.id}`, { speed: 'faster' })
+        this.attention(this.$el, { speed: 'faster' })
       }
     },
     resetCountdown () {
@@ -81,6 +78,7 @@ export default {
     startCountdown () {
       this.resetCountdown()
       this.$refs.cd.start()
+      this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
     },
     endCountdown () {
       this.$refs.cd.end()
@@ -90,9 +88,7 @@ export default {
   mounted () {
     if (this.autoStart) {
       this.startCountdown()
-      this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
     }
-    this.id = `cb-${this.$utils.uuid()}`
   }
 }
 </script>
