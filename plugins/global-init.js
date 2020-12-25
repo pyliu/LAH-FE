@@ -103,7 +103,7 @@ export default ({ $axios, store }, inject) => {
      *  // Do something after the animation
      * })
      */
-    animated (selector, opts, prefix = '') {
+    animated (selector, opts, prefix = 'animate__') {
       return new Promise((resolve, reject) => {
         opts = Object.assign({
           name: consts.animateAttentionSeekers[this.rand(consts.animateAttentionSeekers.length)],

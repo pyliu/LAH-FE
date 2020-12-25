@@ -107,7 +107,7 @@ export default {
     clickCountdownButton () {
       this.$utils.log(this.$el)
       this.notify('click countdown button!')
-      $refs.countdown.startCountdown()
+      this.$refs.countdown.startCountdown()
     }
   },
   created () {

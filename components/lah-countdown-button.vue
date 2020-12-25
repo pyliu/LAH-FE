@@ -63,9 +63,11 @@ export default {
           totalMilliseconds: this.totalMilliseconds
         }
       */
-      if (parseInt(payload.totalSeconds) === 3) {
-      this.$utils.log(this.$el, this.id) 
-        this.attention(`#${this.id}`, { name: 'flash', speed: 'slower' })
+      if (parseInt(payload.totalSeconds) === 4) {
+        this.attention(`#${this.id}`, { name: 'flash', speed: 'slow' })
+      }
+      if (parseInt(payload.totalSeconds) === 1) {
+        this.attention(`#${this.id}`, { name: 'flash', speed: 'faster' })
       }
     },
     resetCountdown () {
