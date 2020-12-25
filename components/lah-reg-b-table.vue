@@ -26,6 +26,8 @@
       primary-key="收件字號"
       class="text-center"
       caption-top
+      :per-page="perPage"
+      :current-page="currentPage"
     >
       <template v-slot:table-busy>
         <span class="ld-txt">讀取中...</span>
@@ -204,7 +206,9 @@ export default {
     icon: { type: String, default: '' },
     iconVariant: { type: String, default: '' },
     busy: { type: Boolean, default: false },
-    tableVariant: { type: String, default: '' }
+    tableVariant: { type: String, default: '' },
+    perPage: { type: Number, default: 0 },
+    currentPage: { type: Number, default: 1 }
   },
   data: () => ({
     transProps: {
