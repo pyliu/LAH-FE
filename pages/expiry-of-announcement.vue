@@ -11,8 +11,8 @@
           action="ld-cycle"
           size="lg"
           :milliseconds="cachedMs"
-          :end="reload"
-          :click="reload"
+          @end="reload"
+          @click="reload"
           :disabled="isBusy"
           :busy="isBusy"
           auto-start

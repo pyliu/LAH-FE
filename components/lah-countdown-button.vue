@@ -5,7 +5,7 @@
     :variant="variant"
     :size="size"
     :action="action"
-    @click="click"
+    @click="$emit('click', $event)"
     class="align-middle"
     :busy="busy"
   >
@@ -15,8 +15,8 @@
         ref="cd"
         :time="milliseconds"
         :auto-start="false"
-        @end="end"
-        @start="start"
+        @end="$emit('end', $event)"
+        @start="$emit('start', $event)"
         @progress="handleProgress"
       >
         <template slot-scope="props">
@@ -41,9 +41,6 @@ export default {
     milliseconds: { type: Number, default: 5 * 60 * 1000 },
     action: { type: String, default: '' },
     autoStart: { type: Boolean, default: false },
-    click: { type: Function,  default: () => {} },
-    start: { type: Function, default: () => {} },
-    end: { type: Function, default: () => {} },
     busy: { type: Boolean, default: false }
   },
   data: () => ({
@@ -78,6 +75,7 @@ export default {
       this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds
     },
     startCountdown () {
+      this.resetCountdown()
       this.$refs.cd.start()
     },
     endCountdown () {

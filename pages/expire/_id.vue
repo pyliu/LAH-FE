@@ -21,8 +21,8 @@
           action="ld-cycle"
           size="lg"
           :milliseconds="900000"
-          :end="$fetch"
-          :click="reload"
+          @end="$fetch"
+          @click="reload"
           :disabled="isBusy"
           :busy="isBusy"
           auto-start

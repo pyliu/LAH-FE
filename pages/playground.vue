@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <p>
+    <!-- <p>
       <lah-reg-b-table
         v-if="isTableReady"
         :baked-data="json.baked"
@@ -24,9 +24,9 @@
         class="small"
         caption="查詢統編"
       />
-    </p>
+    </p> -->
     <div class="border-1">
-      <lah-countdown-button :auto-start="true" variant="outline-secondary" badge-variant="danger" :click="clickCountdownButton">
+      <lah-countdown-button ref="countdown" :auto-start="true" variant="outline-secondary" badge-variant="danger" :milliseconds="5000" id="cb1" @click="clickCountdownButton">
         <font-awesome-layers class="fa-2x">
           <font-awesome-icon :icon="['far', 'circle']" />
           <font-awesome-icon
@@ -107,6 +107,7 @@ export default {
     clickCountdownButton () {
       this.$utils.log(this.$el)
       this.notify('click countdown button!')
+      $refs.countdown.startCountdown()
     }
   },
   created () {
@@ -127,7 +128,7 @@ export default {
     })
   },
   mounted () {
-    
+    this.attention('#cb1')
   }
 }
 </script>
