@@ -111,10 +111,10 @@ export default {
             } else {
               this.$refs.countdown.setCountdown(this.cachedMs)
             }
-            this.$refs.countdown.startCountdown()
             this.getCacheExpireRemainingTime(this.cacheKey).then((true_remain_ms) => {
               this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
             })
+            this.$refs.countdown.startCountdown()
           }).catch(err => {
             this.alert(err.message)
             this.$utils.error(err)

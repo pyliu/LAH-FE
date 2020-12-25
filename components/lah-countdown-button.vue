@@ -76,7 +76,6 @@ export default {
       this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds
     },
     startCountdown () {
-      this.resetCountdown()
       this.$refs.cd.start()
       this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
     },
