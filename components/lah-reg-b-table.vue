@@ -42,6 +42,9 @@
             :variant="iconVariant"
           />
           <span v-if="mute">{{ bakedContent(row) }}</span>
+          <span v-else-if="onlyPopupDetail">
+            <b-link @click="popup(row.item)">{{ bakedContent(row) }}</b-link>
+          </span>
           <span v-else>
             <NuxtLink :to="`/regcase/${bakedContent(row)}`">{{ bakedContent(row) }}</NuxtLink>
             <b-link @click="popup(row.item)"><lah-fa-icon icon="share-square" /></b-link>
@@ -58,6 +61,9 @@
             :variant="iconVariant"
           />
           <span v-if="mute">{{ bakedContent(row) }}</span>
+          <span v-else-if="onlyPopupDetail">
+            <b-link @click="popup(row.item)">{{ bakedContent(row) }}</b-link>
+          </span>
           <span v-else>
             <NuxtLink :to="`/regcase/${row.item['收件字號']}`">{{ row.item['收件字號'] }}</NuxtLink>
             <b-link @click="popup(row.item)"><lah-fa-icon icon="share-square" variant="primary" /></b-link>
@@ -208,7 +214,8 @@ export default {
     busy: { type: Boolean, default: false },
     tableVariant: { type: String, default: '' },
     perPage: { type: Number, default: 0 },
-    currentPage: { type: Number, default: 1 }
+    currentPage: { type: Number, default: 1 },
+    onlyPopupDetail: { type: Boolean, default: false }
   },
   data: () => ({
     transProps: {

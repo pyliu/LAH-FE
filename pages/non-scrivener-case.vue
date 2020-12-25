@@ -5,60 +5,67 @@
         <div class="my-auto">
           <lah-fa-icon icon="user-tag" variant="secondary" append>非專業代理人案件檢索</lah-fa-icon>
         </div>
+        <div class="d-flex">
+          <b-form-datepicker
+            value-as-date
+            v-model="startDateObj"
+            placeholder="開始日期"
+            :max="yesterday"
+            boundary="viewport"
+          />
+          <div class="my-auto">～</div>
+          <b-form-datepicker
+            value-as-date
+            v-model="endDateObj"
+            placeholder="截止日期"
+            :max="today"
+            :min="startDateObj"
+            boundary="viewport"
+            class="mr-1"
+          />
+          <lah-countdown-button
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="0"
+            @end="reload"
+            @click="reload"
+            :disabled="isBusy"
+            :busy="isBusy"
+            title="立即重新讀取"
+          />
+        </div>
       </h3>
     </lah-transition>
+    <div>
+      <div class="d-flex justify-content-between">
+        <b-pagination
+          v-if="!$utils.empty(bakedData)"
+          v-model="currentPage"
+          :total-rows="bakedData.length"
+          :per-page="perPage"
+          last-number
+          first-number
+          aria-controls="scrivener-table"
+          size="sm"
+        />
+      </div>
+    </div>
     <lah-transition appear>
-      <b-table
-        v-if="committed"
-        id="trust-table"
-        :busy="isBusy"
-        :items="rows"
-        ref="table"
-        :responsive="'lg'"
-        :striped="true"
-        :hover="true"
-        :bordered="true"
-        :borderless="false"
-        :outlined="false"
-        :small="true"
-        :dark="false"
-        :fixed="false"
-        :foot-clone="false"
-        :no-border-collapse="true"
-        :head-variant="'dark'"
-        :sticky-header="true"
-        caption-top
-        :style="style"
-        :fields="fields"
-      >
-        <template #table-busy>
-          <span class="ld-txt">讀取中...</span>
-        </template>
-        <!-- <template #cell(GG30_2)="{ item }">
-          <div v-if="!($utils.empty(item.GG30_1) && $utils.empty(item.GG30_1_CHT) && $utils.empty(item.GG30_2))">
-            【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
-          </div>
-        </template> -->
-      </b-table>
+      <div v-if="committed">
+        <lah-reg-b-table
+          :busy="isBusy"
+          :baked-data="bakedData"
+          :fields="fields"
+          :max-height="maxHeight"
+          :per-page="perPage"
+          :current-page="currentPage"
+          only-popup-detail
+        />
+      </div>
       <h3 v-else class="text-center"><lah-fa-icon action="breath" variant="primary">請點選查詢按鈕</lah-fa-icon></h3>
     </lah-transition>
-    <b-modal
-      :id="modalId"
-      hide-footer
-      centered
-      no-close-on-backdrop
-      size="xl"
-      scrollable
-    >
-      <template #modal-title>
-        登記案件詳情 {{$utils.caseId(clickedId)}}
-      </template>
-      <h4 class="text-center text-info my-5" v-if="modalLoading">
-        <b-spinner small type="grow" class="my-auto"></b-spinner>
-        <strong class="ld-txt">查詢中...</strong>
-      </h4>
-      <lah-reg-case-detail :case-id="clickedId" @ready="modalLoading = !$event.detail"/>
-    </b-modal>
   </div>
 </template>
 
@@ -69,99 +76,137 @@ export default {
   },
   fetchOnServer: false,
   data: () => ({
-    modalId: 'this should be an uuid',
-    modalLoading: true,
     clickedId: undefined,
     forceReload: false,
     committed: false,
     maxHeight: 300,
-    year: 109,
-    rows: [],
+    startDateObj: null,
+    startDate: '1091201',
+    endDateObj: null,
+    endDate: '1091225',
+    bakedData: [],
     fields: [
       {
-        key: "IS48",
-        label: '段代碼/名稱',
-        sortable: true,
+        key: "RM01",
+        label: "收件字號",
+        sortable: true
+      },
+      {
+        key: "RM07_1",
+        label: "收件日期",
+        sortable: true
+      },
+      {
+        key: "RM09",
+        label: "登記原因",
+        sortable: true
+      },
+      {
+        key: "辦理情形",
+        sortable: true
+      },
+      {
+        key: "代理人統編",
+        sortable: true
+      },
+      {
+        key: "代理人姓名",
+        sortable: true
+      },
+      {
+        key: "代理人電話",
+        sortable: true
+      },
+      {
+        key: "代理人住址",
+        sortable: true
       }
-    ]
+    ],
+    currentPage: 1,
+    perPage: 25
   }),
   computed: {
-    cacheKey () { return `non_official_proxy_case_${this.year}` },
+    cacheKey () { return `non_scrivener_case_${this.startDate}_${this.endDate}` },
     style () {
       const parsed = parseInt(this.maxHeight)
       return isNaN(parsed) ? "" : `max-height: ${parsed}px`
-    }
+    },
+    yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
+    today () { return new Date() }
   },
   watch: {
-    rows (val) {
-      // this.$utils.log(val)
-    }
+    startDateObj (val) {
+      this.startDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
+    },
+    endDateObj (val) {
+      this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
+    },
   },
   methods: {
-    search () {
-      if(!this.isBusy) {
-        this.isBusy = true
-        this.committed = false
-        this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-          type: `reg_trust_case`,
-          year: this.year,
-          query: this.qryType,
-          reload: this.forceReload
-        }).then((res) => {
-          this.rows = res.data.raw || []
-          this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
-          const remain_ms = res.data.cache_remaining_time
-          if (remain_ms && remain_ms > 0) {
-            this.setCache(this.cacheKey, res.data, remain_ms)
-          }
-        }).catch(err => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-          this.forceReload = false
-          this.committed = true
-        })
-      } else {
-        this.notify('讀取中 ... 請稍後', { type: 'warning' })
-      }
+    reload () {
+      this.forceReload = true
+      this.$fetch()
     },
     resetCommitted () {
       this.committed = false
-      this.rows = []
+      this.bakedData = []
       this.currentPage = 1
-    },
-    popup (data) {
-      this.modalLoading = true
-      this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
-      this.$bvModal.show(this.modalId)
-    },
-    landBuildNumber (item) {
-      const val = item.IS49
-      if (this.qryType === 'B' || this.qryType === 'TB') {
-        const mainNumber = val.substring(0, 4).replace(/^[\s0]+/g, '')
-        const subNumber = val.substring(4).replace(/^[\s0]+/g, '')
-        return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
-      }
-      const mainNumber = val.substring(0, 5).replace(/^[\s0]+/g, '')
-      const subNumber = val.substring(5).replace(/^[\s0]+/g, '')
-      return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
     }
   },
-  mounted () {
-    this.modalId = this.$utils.uuid()
-    this.maxHeight = window.innerHeight - 100
+  fetch () {
     // restore cached data if found
-    var d = new Date();
-    this.year = (d.getFullYear() - 1911);
     this.getCache(this.cacheKey).then(json => {
-      if (json !== false) {
-        this.rows = json.raw
+      if (json === false || this.forceReload) {
+        if(!this.isBusy) {
+          this.isBusy = true
+          this.committed = false
+          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+            type: `reg_non_scrivener_case`,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            reload: this.forceReload
+          }).then((res) => {
+            this.bakedData = res.data.baked || []
+            this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
+            const remain_ms = res.data.cache_remaining_time // in seconds
+            if (remain_ms && remain_ms > 0) {
+              this.setCache(this.cacheKey, res.data, remain_ms * 1000)
+              if (this.$refs.countdown) {
+                this.$refs.countdown.setCountdown(remain_ms * 1000)
+                this.$refs.countdown.startCountdown()
+              }
+            }
+          }).catch(err => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+            this.forceReload = false
+            this.committed = true
+          })
+        } else {
+          this.notify('讀取中 ... 請稍後', { type: 'warning' })
+        }
+      } else {
+        this.bakedData = json.baked
         this.committed = true
         this.currentPage = 1
-        this.notify(`查詢成功，找到 ${this.rows.length} 筆非專業代理人案件。`, { subtitle: this.cacheKey })
+        this.notify(`查詢成功，找到 ${this.bakedData.length} 筆非專業代理人案件。`, { subtitle: this.cacheKey })
+        this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          if (this.$refs.countdown) {
+            this.$refs.countdown.setCountdown(remaining)
+            this.$refs.countdown.startCountdown()
+          }
+        })
       }
     })
+  },
+  created () {
+    this.startDateObj = this.yesterday
+    this.endDateObj = this.today
+  },
+  mounted () {
+    this.maxHeight = window.innerHeight - 135
   }
 }
 </script>
