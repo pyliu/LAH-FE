@@ -19,7 +19,7 @@
         @progress="handleProgress"
       >
         <template slot-scope="props">
-          {{ props.minutes.toString().padStart(2, '0') }}:{{ props.seconds.toString().padStart(2, '0') }}
+          <span v-if="props.hours > 0">{{ props.hours.toString().padStart(2, '0') }}:</span>{{ props.minutes.toString().padStart(2, '0') }}:{{ props.seconds.toString().padStart(2, '0') }}
         </template>
       </countdown>
       <span class="sr-only">倒數</span>
