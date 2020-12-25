@@ -64,10 +64,12 @@ export default {
         }
       */
       if (parseInt(payload.totalSeconds) === 4) {
-        this.attention(`#${this.id}`, { name: 'flash', speed: 'slow' })
+        // random effect, 2s
+        this.attention(`#${this.id}`, { speed: 'slow' })
       }
       if (parseInt(payload.totalSeconds) === 1) {
-        this.attention(`#${this.id}`, { name: 'flash', speed: 'faster' })
+        // random effect, 0.5s
+        this.attention(`#${this.id}`, { speed: 'faster' })
       }
     },
     resetCountdown () {
@@ -88,7 +90,7 @@ export default {
   mounted () {
     if (this.autoStart) {
       this.startCountdown()
-      this.attention(this.$refs.badge, { name: 'flash', speed: 'slower' })
+      this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
     }
     this.id = `cb-${this.$utils.uuid()}`
   }
