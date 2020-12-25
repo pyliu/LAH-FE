@@ -40,7 +40,7 @@
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/non-official-proxy-case">
+        <NuxtLink to="/non-scrivener-case">
           <font-awesome-icon :icon="['fas', 'user-tag']" size="lg" />
           非專業代理人案件
         </NuxtLink>
