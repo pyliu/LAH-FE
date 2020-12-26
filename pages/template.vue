@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
+      <h3 class="d-flex justify-content-between page-header">
         <div class="my-auto">
           <lah-fa-icon icon="question" variant="secondary" append>標題區域</lah-fa-icon>
         </div>
