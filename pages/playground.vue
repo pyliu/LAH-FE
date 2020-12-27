@@ -81,7 +81,11 @@
         <font-awesome-icon icon="envelope" />
         <font-awesome-layers-text counter value="1" position="top-right" />
       </font-awesome-layers>
-        <b-spinner type="grow"></b-spinner>
+      
+      <p>
+        <b-spinner type="grow" size="sm"></b-spinner>
+        you're from {{ip}}
+      </p>
     </div>
   </div>
 </template>
@@ -110,7 +114,7 @@ export default {
       this.$refs.countdown.startCountdown()
     }
   },
-  created () {
+  fetch () {
     let cache_key = "case-query-by-pid-crsms-"+this.pid
     this.getCache(cache_key).then(json => {
       this.json = json
@@ -120,7 +124,7 @@ export default {
       ).then(response => {
         // on success
         this.json = response.data
-        this.setCache(cache_key, this.json, 900000)   // 15mins
+        this.setCache(cache_key, this.json, 604800000)   // a week
         this.json.data_count === 0 && this.notify(`<i class="text-info fas fa-exclamation-circle"></i> 查無登記案件資料`, { type: 'warning' })
       }).catch(error => {
           this.$utils.error(error)
