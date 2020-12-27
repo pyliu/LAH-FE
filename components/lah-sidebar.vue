@@ -163,7 +163,6 @@ export default {
             client_ip: this.ip
           }).then((res) => {
             this.$store.commit('svr', res.data)
-            this.$utils.log('Got API server info.')
             this.setCache('server-info', res.data, 86400000) // cache for a day
           }).catch((err) => {
             this.$utils.error(err)
