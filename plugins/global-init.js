@@ -112,19 +112,22 @@ export default ({ $axios, store }, inject) => {
           delay: '' // delay, delay-[2s-5s]
         }, opts)
         const node = $(selector)
-        node.removeClass('hide')
-        const classes = `${prefix}animated ${prefix}${opts.name} ${prefix}${opts.speed} ${prefix}${opts.repeat} ${prefix}${opts.delay}`
-        node.addClass(classes)
-        // node[0].addEventListener('animationend', handleAnimationEnd, {once: true}
-        node.one('animationend', function(e) {
-          // When the animation ends, we clean the classes and resolve the Promise
-          node.removeClass(classes)
-          // clear ld animation also
-          $(selector || '*').removeClass('ld').attr('class', function (i, c) {
-            return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
+        if (node.length > 0) {        node.removeClass('hide')
+          const classes = `${prefix}animated ${prefix}${opts.name} ${prefix}${opts.speed} ${prefix}${opts.repeat} ${prefix}${opts.delay}`
+          node.addClass(classes)
+          // node[0].addEventListener('animationend', handleAnimationEnd, {once: true}
+          node.one('animationend', function(e) {
+            // When the animation ends, we clean the classes and resolve the Promise
+            node.removeClass(classes)
+            // clear ld animation also
+            $(selector || '*').removeClass('ld').attr('class', function (i, c) {
+              return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
+            })
+            resolve(`${opts.name} animation ended.`)
           })
-          resolve(`${opts.name} animation ended.`)
-        })
+        } else {
+          reject(`${selector} not found, can't apply animation effect.`)
+        }
       })
     },
     addAnimation (selector, which) {
