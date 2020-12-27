@@ -138,8 +138,13 @@ export default {
       }).finally(() => {})
     })
   },
+  created () {
+    if (!this.authority.isSuper && !this.authority.isAdmin) {
+      // todo redirect to root
+    }
+  },
   mounted () {
-    this.attention('#cb1')
+    //this.$utils.log(this)
   }
 }
 </script>

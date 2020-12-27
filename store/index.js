@@ -41,7 +41,6 @@ const getters = {
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
   svr: state => state.svr
-
 }
 
 // support async operation

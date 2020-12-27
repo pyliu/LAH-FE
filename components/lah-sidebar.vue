@@ -116,12 +116,16 @@
           清除瀏覽器端快取資料
         </b-link>
       </li>
-      <li>----</li>
-      <li>
+      <li v-if="authority.isSuper || authority.isAdmin">----</li>
+      <li v-if="authority.isSuper || authority.isAdmin">
         <NuxtLink to="/playground">
           <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
           測試
         </NuxtLink>
+      </li>
+      <li class="small text-muted text-right">
+        <i class="far fa-copyright"></i>
+        <a href="mailto:pangyu.liu@gmail.com">LIU, PANG-YU</a>
       </li>
     </ul>
   </b-sidebar>
@@ -148,18 +152,25 @@ export default {
   async fetch () {
     this.getCache('server-info').then((json) => {
       if (json === false) {
-        this.isBusy = true
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: 'svr'
-        }).then((res) => {
-          this.$store.commit('svr', res.data)
-          this.$utils.log('Got API server info.')
-          this.setCache('server-info', res.data, 86400000) // cache for a day
-        }).catch((err) => {
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-        })
+        if (this.ip === '0.0.0.0') {
+          this.$utils.warning('client ip is not ready ... wait 200ms to retry.')
+          // give a chance to wait ip ready in $store
+          this.timeout(() => this.$fetch(), 200)
+        } else {
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.QUERY, {
+            type: 'svr',
+            client_ip: this.ip
+          }).then((res) => {
+            this.$store.commit('svr', res.data)
+            this.$utils.log('Got API server info.')
+            this.setCache('server-info', res.data, 86400000) // cache for a day
+          }).catch((err) => {
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+          })
+        }
       } else {
         this.$store.commit('svr', json)
       }

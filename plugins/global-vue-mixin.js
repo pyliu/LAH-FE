@@ -26,6 +26,15 @@ Vue.mixin({
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
     ip () { return this.$store.getters.ip },
     svr () { return this.$store.getters.svr },
+    authority () {
+      return this.svr ? this.svr.config.authority : {
+        isAdmin: false,
+        isChief: false,
+        isGA: false,
+        isRAE: false,
+        isSuper: false
+      }
+    },
     webapIp () { return this.svr ? (this.svr.config ? this.svr.config.webap_ip : '127.0.0.1') : '127.0.0.1' },
     apiSvr () {
       if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
