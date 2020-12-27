@@ -115,16 +115,16 @@ export default ({ $axios, store }, inject) => {
         node.removeClass('hide')
         const classes = `${prefix}animated ${prefix}${opts.name} ${prefix}${opts.speed} ${prefix}${opts.repeat} ${prefix}${opts.delay}`
         node.addClass(classes)
-        // When the animation ends, we clean the classes and resolve the Promise
-        function handleAnimationEnd() {
+        // node[0].addEventListener('animationend', handleAnimationEnd, {once: true}
+        node.one('animationend', function(e) {
+          // When the animation ends, we clean the classes and resolve the Promise
           node.removeClass(classes)
           // clear ld animation also
           $(selector || '*').removeClass('ld').attr('class', function (i, c) {
             return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
           })
           resolve(`${opts.name} animation ended.`)
-        }
-        node[0].addEventListener('animationend', handleAnimationEnd, {once: true})
+        })
       })
     },
     addAnimation (selector, which) {
