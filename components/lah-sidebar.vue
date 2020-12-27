@@ -123,6 +123,7 @@
 
 <script>
 export default {
+  fetchOnServer: false,
   computed: {
     serverUrl () {
       if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
@@ -134,7 +135,7 @@ export default {
   methods: {
     clearFECache () {
       this.confirm('請確認要清除快取資料？').then((ans) => {
-        ans && this.clearCache() && this.notify('清除完成，5秒後自動整理頁面。') && this.timeout(() => location.reload(), 5000)
+        ans && this.clearCache() && this.notify('清除完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
       })
     }
   },
@@ -146,11 +147,11 @@ export default {
           type: 'svr'
         }).then((res) => {
           this.$store.commit('svr', res.data)
+          this.$utils.log('Got API server info.')
           this.setCache('server-info', res.data, 86400000) // cache for a day
         }).catch((err) => {
           this.$utils.error(err)
         }).finally(() => {
-          this.$utils.log('Got API server info.')
           this.isBusy = false
         })
       } else {
