@@ -89,6 +89,12 @@
       </li>
       <li>----</li>
       <li>
+        <NuxtLink to="/stats">
+          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
+          統計看板
+        </NuxtLink>
+      </li>
+      <li>
         <a :href="serverUrl" target="_blank" rel="noopener noreferrer">
           <font-awesome-icon :icon="['fas', 'history']" pull="left" size="lg" />
           先前版本
