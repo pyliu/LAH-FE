@@ -26,16 +26,6 @@
       />
     </p> -->
     <div class="border-1">
-      <lah-countdown-button ref="countdown" :auto-start="true" variant="outline-secondary" badge-variant="danger" :milliseconds="5000" id="cb1" @click="clickCountdownButton">
-        <font-awesome-layers class="fa-2x">
-          <font-awesome-icon :icon="['far', 'circle']" />
-          <font-awesome-icon
-            icon="times"
-            transform="shrink-6"
-            :style="{ color: 'red' }"
-          />
-        </font-awesome-layers>
-      </lah-countdown-button>
       <font-awesome-layers class="fa-5x">
         <font-awesome-icon icon="circle" />
         <font-awesome-icon
@@ -86,6 +76,19 @@
         <b-spinner type="grow" size="sm"></b-spinner>
         you're from {{ip}}
       </p>
+      <p>
+        <lah-countdown-button ref="countdown" :auto-start="true" variant="success" badge-variant="danger" :milliseconds="5000" @click="clickCountdownButton" @end="endCountdownButton">
+          <font-awesome-layers class="my-auto">
+            <font-awesome-icon :icon="['far', 'circle']" />
+            <font-awesome-icon
+              icon="times"
+              transform="shrink-6"
+              :style="{ color: 'red' }"
+            />
+          </font-awesome-layers>
+          some text
+        </lah-countdown-button>
+      </p>
     </div>
   </div>
 </template>
@@ -111,6 +114,10 @@ export default {
     clickCountdownButton () {
       this.$utils.log(this.$el)
       this.notify('click countdown button!')
+      this.endCountdownButton()
+    },
+    endCountdownButton () {
+      this.$refs.countdown.resetCountdown()
       this.$refs.countdown.startCountdown()
     }
   },

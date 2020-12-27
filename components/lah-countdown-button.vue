@@ -81,6 +81,9 @@ export default {
     },
     endCountdown () {
       this.$refs.cd.end()
+    },
+    pauseCountdown () {
+      this.$refs.cd.pause()
     }
   },
   created() {},
