@@ -118,7 +118,7 @@ export default {
     startDate: '1091201',
     endDateObj: null,
     endDate: '1091225',
-    ignoreTags: [],
+    ignoreTags: ['45000808', '43717356', '43504044', '43501004', '44039876', '95924138', '95920288', '50634177'],
     bakedData: [],
     fields: [
       {
