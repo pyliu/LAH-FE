@@ -80,7 +80,7 @@
             placeholder="輸入想要忽略的統編 ... "
           />
           <b-input-group-append>
-            <b-button variant="outline-primary" @click="ignoreOfficeTags">桃園各事務所</b-button>
+            <b-button variant="outline-primary" @click="ignoreTyoffices">桃園各事務所</b-button>
             <b-button variant="outline-success" @click="ignoreTags = []">清除</b-button>
           </b-input-group-append>
         </b-input-group>
@@ -228,7 +228,7 @@ export default {
       this.bakedData = []
       this.currentPage = 1
     },
-    ignoreOfficeTags () {
+    ignoreTyoffices () {
       this.ignoreTags = ['45000808', '43717356', '43504044', '43501004', '44039876', '95924138', '95920288', '50634177']
     }
   },
