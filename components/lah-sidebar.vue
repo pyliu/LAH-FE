@@ -206,7 +206,7 @@ export default {
     }
   }
   hr {
-    border: 1px solid white;
+    border: 1px solid rgb(138, 135, 135);
     border-radius: 2px;
   }
 }
