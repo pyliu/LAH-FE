@@ -9,7 +9,7 @@
     :busy="busy"
   >
     <slot></slot> 
-    <b-badge ref="badge" :variant="badgeVariant" class="ml-1">
+    <b-badge v-show="!noBadge" ref="badge" :variant="badgeVariant" class="ml-1">
       <countdown
         ref="cd"
         :time="milliseconds"
@@ -40,7 +40,8 @@ export default {
     milliseconds: { type: Number, default: 5 * 60 * 1000 },
     action: { type: String, default: '' },
     autoStart: { type: Boolean, default: false },
-    busy: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false },
+    noBadge: { type: Boolean, default: false }
   },
   data: () => ({}),
   watch: {},
