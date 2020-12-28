@@ -8,13 +8,14 @@
     shadow
   >
     <ul>
+      <li><hr/></li>
       <li>
         <NuxtLink to="/">
           <font-awesome-icon :icon="['fas', 'home']" pull="left" size="lg" />
           首頁
         </NuxtLink>
       </li>
-      <li>----</li>
+      <li><hr/></li>
       <li>
         <NuxtLink to="/expire">
           <font-awesome-icon :icon="['far', 'calendar-check']" size="lg" />
@@ -46,8 +47,8 @@
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+        <NuxtLink to="/foreigner-case">
+          <font-awesome-icon :icon="['fas', 'user-astronaut']" size="lg" />
           外人地權案件
         </NuxtLink>
       </li>
@@ -87,13 +88,7 @@
           領狀管控查詢
         </NuxtLink>
       </li>
-      <li>----</li>
-      <li>
-        <NuxtLink to="/stats">
-          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
-          統計看板
-        </NuxtLink>
-      </li>
+      <li><hr/></li>
       <li>
         <a :href="serverUrl" target="_blank" rel="noopener noreferrer">
           <font-awesome-icon :icon="['fas', 'history']" pull="left" size="lg" />
@@ -116,16 +111,24 @@
           清除瀏覽器端快取資料
         </b-link>
       </li>
-      <li v-if="authority.isSuper || authority.isAdmin">----</li>
+      <li v-if="authority.isSuper || authority.isAdmin"><hr/></li>
+      <li v-if="authority.isSuper || authority.isAdmin">
+        <NuxtLink to="/stats">
+          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
+          統計看板
+        </NuxtLink>
+      </li>
       <li v-if="authority.isSuper || authority.isAdmin">
         <NuxtLink to="/playground">
           <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
           測試
         </NuxtLink>
       </li>
+      <li><hr/></li>
       <li class="small text-muted text-right">
-        <i class="far fa-copyright"></i>
-        <a href="mailto:pangyu.liu@gmail.com">LIU, PANG-YU</a>
+        <lah-fa-icon icon="copyright" title="寄信給 LIU, PANG-YU">
+          <b-link href="mailto:pangyu.liu@gmail.com">LIU, PANG-YU</b-link>
+        </lah-fa-icon>
       </li>
     </ul>
   </b-sidebar>
@@ -201,6 +204,10 @@ export default {
         color: rgb(187, 184, 184);
       }
     }
+  }
+  hr {
+    border: 1px solid white;
+    border-radius: 2px;
   }
 }
 </style>

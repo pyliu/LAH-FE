@@ -17,7 +17,7 @@
             <lah-index-card-link :icon="['fas', 'user-tie']" to="/ask-for-instructions">取消請示案件</lah-index-card-link>
             <lah-index-card-link :icon="['fas', 'money-check-alt']" to="/trust-case">信託案件</lah-index-card-link>
             <lah-index-card-link :icon="['fas', 'user-tag']" to="/non-scrivener-case">非專業代理人案件</lah-index-card-link>
-            <lah-index-card-link icon-variant="muted" action="damage">外人地權案件</lah-index-card-link>
+            <lah-index-card-link :icon="['fas', 'user-astronaut']" to="/foreigner-case">外人地權案件</lah-index-card-link>
           </b-card-group>
           <b-card-group deck>
             <lah-index-card-link icon-variant="muted" action="damage">三七五租約標的異動</lah-index-card-link>
