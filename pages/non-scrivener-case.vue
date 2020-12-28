@@ -31,6 +31,15 @@
             :date-format-options="{ weekday: 'narrow' }"
             hide-header
           />
+          <lah-button
+            icon="search"
+            size="lg"
+            @click="$fetch"
+            :disabled="isBusy"
+            :busy="isBusy"
+            title="搜尋"
+            class="mr-1"
+          />
           <lah-countdown-button
             ref="countdown"
             icon="sync-alt"
@@ -41,7 +50,9 @@
             @click="reload"
             :disabled="isBusy"
             :busy="isBusy"
+            variant="outline-secondary"
             title="立即重新讀取"
+            no-badge
           />
         </div>
       </h3>
@@ -56,8 +67,23 @@
           last-number
           first-number
           aria-controls="scrivener-table"
-          size="sm"
+          class="my-auto mr-2"
         />
+        <b-input-group size="sm" prepend="忽略" class="tags-input">
+          <b-form-tags
+            input-id="tags"
+            v-model="ignoreTags"
+            separator=" ,;"
+            remove-on-delete
+            tag-variant="primary"
+            tag-pills
+            placeholder="輸入想要忽略的統編 ... "
+          />
+          <b-input-group-append>
+            <b-button variant="outline-primary" @click="ignoreOfficeTags">桃園各事務所</b-button>
+            <b-button variant="outline-success" @click="ignoreTags = []">清除</b-button>
+          </b-input-group-append>
+        </b-input-group>
       </div>
     </div>
     <lah-transition appear>
@@ -92,41 +118,83 @@ export default {
     startDate: '1091201',
     endDateObj: null,
     endDate: '1091225',
+    ignoreTags: [],
     bakedData: [],
     fields: [
       {
-        key: "RM01",
-        label: "收件字號",
+        key: "收件字號",
         sortable: true
       },
       {
-        key: "RM07_1",
-        label: "收件日期",
+        key: "收件日期",
         sortable: true
       },
       {
-        key: "RM09",
-        label: "登記原因",
+        key: "登記原因",
         sortable: true
       },
       {
-        key: "辦理情形",
+        key: "AB01",
+        label: "非專代統編",
         sortable: true
       },
       {
-        key: "代理人統編",
+        key: "AB02",
+        label: "非專代名稱",
         sortable: true
       },
       {
-        key: "代理人姓名",
+        key: "AB03",
+        label: "非專代住址",
         sortable: true
       },
       {
-        key: "代理人電話",
+        key: "AB04_NON_SCRIVENER_TEL",
+        label: "非專代電話",
         sortable: true
       },
       {
-        key: "代理人住址",
+        key: "AB13",
+        label: "當年案件量",
+        sortable: true
+      },
+      {
+        key: "AB23",
+        label: "累計案件量(同機關)",
+        sortable: true
+      },
+      {
+        key: "權利人姓名",
+        sortable: true
+      },
+      {
+        key: "權利人住址",
+        sortable: true
+      },
+      {
+        key: "義務人姓名",
+        sortable: true
+      },
+      {
+        key: "義務人住址",
+        sortable: true
+      },
+      {
+        key: "區名稱",
+        sortable: true
+      },
+      {
+        key: "段小段",
+        sortable: true
+      },
+      {
+        key: "RM12_C",
+        label: "地號",
+        sortable: true
+      },
+      {
+        key: "RM15_C",
+        label: "建號",
         sortable: true
       }
     ],
@@ -159,6 +227,9 @@ export default {
       this.committed = false
       this.bakedData = []
       this.currentPage = 1
+    },
+    ignoreOfficeTags () {
+      this.ignoreTags = ['45000808', '43717356', '43504044', '43501004', '44039876', '95924138', '95920288', '50634177']
     }
   },
   fetch () {
@@ -169,10 +240,11 @@ export default {
           this.isBusy = true
           this.committed = false
           this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-            type: `reg_non_scrivener_case`,
+            type: `reg_non_scrivener_web_case`,
             start_date: this.startDate,
             end_date: this.endDate,
-            reload: this.forceReload
+            reload: this.forceReload,
+            ignore: this.ignoreTags
           }).then((res) => {
             this.bakedData = res.data.baked || []
             this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
@@ -224,6 +296,9 @@ export default {
   margin-top: -25px;
 }
 .fixed-height-table {
-  height: calc(100% - 20px);
+  max-height: calc(100% - 135px);
+}
+.tags-input {
+  width: 100vw;
 }
 </style>
