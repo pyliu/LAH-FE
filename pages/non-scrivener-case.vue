@@ -52,7 +52,7 @@
               :disabled="isBusy"
               :busy="isBusy"
               variant="outline-secondary"
-              title="立即重新讀取"
+              title="強制重新搜尋"
               no-badge
             />
           </div>
