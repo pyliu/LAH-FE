@@ -52,6 +52,7 @@
               :disabled="isBusy"
               :busy="isBusy"
               variant="outline-secondary"
+              badge-variant="secondary"
               title="強制重新搜尋"
               no-badge
             />

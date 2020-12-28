@@ -26,6 +26,8 @@
           :busy="isBusy"
           auto-start
           title="立即重新讀取"
+          variant="outline-secondary"
+          badge-variant="secondary"
         ></lah-countdown-button>
       </h3>
     </lah-transition>
