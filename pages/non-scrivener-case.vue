@@ -5,56 +5,58 @@
         <div class="my-auto">
           <lah-fa-icon icon="user-tag" variant="secondary" append>非專業代理人案件檢索</lah-fa-icon>
         </div>
-        <div class="d-flex">
-          <b-datepicker
-            value-as-date
-            v-model="startDateObj"
-            placeholder="開始日期"
-            :max="yesterday"
-            boundary="viewport"
-            size="sm"
-            :date-format-options="{ weekday: 'narrow' }"
-            hide-header
-            dropleft
-          />
-          <div class="my-auto">～</div>
-          <b-datepicker
-            value-as-date
-            v-model="endDateObj"
-            placeholder="截止日期"
-            :max="today"
-            :min="startDateObj"
-            boundary="viewport"
-            class="mr-1"
-            size="sm"
-            dark
-            :date-format-options="{ weekday: 'narrow' }"
-            hide-header
-          />
-          <lah-button
-            icon="search"
-            size="lg"
-            @click="$fetch"
-            :disabled="isBusy"
-            :busy="isBusy"
-            title="搜尋"
-            class="mr-1"
-          />
-          <lah-countdown-button
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            :milliseconds="0"
-            @end="reload"
-            @click="reload"
-            :disabled="isBusy"
-            :busy="isBusy"
-            variant="outline-secondary"
-            title="立即重新讀取"
-            no-badge
-          />
-        </div>
+        <client-only>
+          <div class="d-flex">
+            <b-datepicker
+              value-as-date
+              v-model="startDateObj"
+              placeholder="開始日期"
+              boundary="viewport"
+              size="sm"
+              :date-format-options="{ weekday: 'narrow' }"
+              :max="yesterday || new Date(new Date().setDate(new Date().getDate()-1))"
+              hide-header
+              dropleft
+            />
+            <div class="my-auto">～</div>
+            <b-datepicker
+              value-as-date
+              v-model="endDateObj"
+              placeholder="截止日期"
+              boundary="viewport"
+              class="mr-1"
+              size="sm"
+              dark
+              :date-format-options="{ weekday: 'narrow' }"
+              :max="today || new Date()"
+              :min="startDateObj || new Date(new Date().setDate(new Date().getDate()-1))"
+              hide-header
+            />
+            <lah-button
+              icon="search"
+              size="lg"
+              @click="$fetch"
+              :disabled="isBusy"
+              :busy="isBusy"
+              title="搜尋"
+              class="mr-1"
+            />
+            <lah-countdown-button
+              ref="countdown"
+              icon="sync-alt"
+              action="ld-cycle"
+              size="lg"
+              :milliseconds="0"
+              @end="reload"
+              @click="reload"
+              :disabled="isBusy"
+              :busy="isBusy"
+              variant="outline-secondary"
+              title="立即重新讀取"
+              no-badge
+            />
+          </div>
+        </client-only>
       </h3>
     </lah-transition>
     <div>
