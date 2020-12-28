@@ -202,7 +202,10 @@ export default {
     perPage: 25
   }),
   computed: {
-    cacheKey () { return `non_scrivener_case_${this.startDate}_${this.endDate}` },
+    md5Hash () {
+      return this.$utils.md5(`${this.startDate}_${this.endDate}_${this.ignoreTags.join('')}`)
+    },
+    cacheKey () { return `non_scrivener_case_${this.md5Hash}` },
     style () {
       const parsed = parseInt(this.maxHeight)
       return isNaN(parsed) ? "" : `max-height: ${parsed}px`

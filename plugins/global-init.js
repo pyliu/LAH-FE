@@ -3,6 +3,7 @@ import $ from 'jquery'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import debounce from 'lodash/debounce'
+import _md5 from 'md5'
 
 export default ({ $axios, store }, inject) => {
   const bus = new Vue()
@@ -208,6 +209,7 @@ export default ({ $axios, store }, inject) => {
     empty: isEmpty, // '0' is not empty
     equal: isEqual,
     debounce: debounce,
+    md5: _md5,
     caseId (id) {
       if (isEmpty(id)) {
         return ''
