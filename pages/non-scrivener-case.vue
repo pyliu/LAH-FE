@@ -85,8 +85,8 @@
             add-button-variant="outline-secondary"
           />
           <b-input-group-append>
-            <b-button variant="outline-primary" @click="ignoreTyoffices">桃園各事務所</b-button>
-            <b-button variant="outline-success" @click="ignoreTags = []">清除</b-button>
+            <lah-button prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市">各事務所</lah-button>
+            <lah-button action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤">清除</lah-button>
           </b-input-group-append>
         </b-input-group>
       </div>
