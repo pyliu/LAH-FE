@@ -78,7 +78,7 @@
             v-model="ignoreTags"
             separator=" ,;"
             remove-on-delete
-            tag-variant="primary"
+            tag-variant="secondary"
             tag-pills
             placeholder="忽略的統編 ... "
             add-button-text="新增"
