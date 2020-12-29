@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
+      <h3 class="d-flex justify-content-between page-header">
         <div class="my-auto">
           <lah-fa-icon icon="sticky-note" variant="secondary" append>公告期滿案件</lah-fa-icon>
         </div>
@@ -19,7 +19,7 @@
           title="立即重新讀取"
           variant="outline-secondary"
           badge-variant="secondary"
-        ></lah-countdown-button>
+        />
       </h3>
     </lah-transition>
     <lah-transition appear>

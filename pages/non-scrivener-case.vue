@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
+      <h3 class="d-flex justify-content-between page-header">
         <div class="my-auto">
           <lah-fa-icon icon="user-tag" variant="secondary" append>非專業代理人案件檢索</lah-fa-icon>
         </div>
@@ -60,38 +60,36 @@
         </client-only>
       </h3>
     </lah-transition>
-    <div>
-      <div class="d-flex justify-content-between">
-        <b-pagination
-          v-if="!$utils.empty(bakedData)"
-          v-model="currentPage"
-          :total-rows="bakedData.length"
-          :per-page="perPage"
-          last-number
-          first-number
-          aria-controls="scrivener-table"
-          class="my-auto mr-2"
+    <div class="d-flex justify-content-between">
+      <b-pagination
+        v-if="!$utils.empty(bakedData) && bakedData.length > perPage"
+        v-model="currentPage"
+        :total-rows="bakedData.length"
+        :per-page="perPage"
+        last-number
+        first-number
+        aria-controls="scrivener-table"
+        class="my-auto mr-2"
+      />
+      <b-input-group size="sm" prepend="忽略" class="tags-input">
+        <b-form-tags
+          input-id="tags"
+          v-model="ignoreTags"
+          separator=" ,;"
+          remove-on-delete
+          tag-variant="secondary"
+          tag-pills
+          placeholder="忽略的統編 ... "
+          add-button-text="新增"
+          add-button-variant="outline-secondary"
         />
-        <b-input-group size="sm" prepend="忽略" class="tags-input">
-          <b-form-tags
-            input-id="tags"
-            v-model="ignoreTags"
-            separator=" ,;"
-            remove-on-delete
-            tag-variant="secondary"
-            tag-pills
-            placeholder="忽略的統編 ... "
-            add-button-text="新增"
-            add-button-variant="outline-secondary"
-          />
-          <b-input-group-append>
-            <lah-button prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市">各事務所</lah-button>
-            <lah-button action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤">清除</lah-button>
-          </b-input-group-append>
-        </b-input-group>
-      </div>
+        <b-input-group-append>
+          <lah-button prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市">各事務所</lah-button>
+          <lah-button action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤">清除</lah-button>
+        </b-input-group-append>
+      </b-input-group>
     </div>
-    <lah-transition appear>
+    <lah-transition>
       <div v-if="committed">
         <lah-reg-b-table
           :busy="isBusy"
@@ -100,10 +98,11 @@
           :max-height="maxHeight"
           :per-page="perPage"
           :current-page="currentPage"
+          :caption-append="captionRange"
           only-popup-detail
         />
       </div>
-      <h3 v-else class="text-center"><lah-fa-icon action="breath" variant="primary">請點選查詢按鈕</lah-fa-icon></h3>
+      <h3 v-else class="text-center"><lah-fa-icon icon="search" action="breath" variant="primary">請點擊查詢按鈕</lah-fa-icon></h3>
     </lah-transition>
   </div>
 </template>
@@ -227,7 +226,11 @@ export default {
       return isNaN(parsed) ? "" : `max-height: ${parsed}px`
     },
     yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
-    today () { return new Date() }
+    today () { return new Date() },
+    captionRange () {
+
+      return `，${this.startDate} ~ ${this.endDate}`
+    }
   },
   watch: {
     startDateObj (val) {

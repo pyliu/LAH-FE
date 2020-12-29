@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
+      <h3 class="d-flex justify-content-between page-header">
         <div class="my-auto">
           <lah-fa-icon icon="money-check-alt" variant="secondary" append>信託案件檢索</lah-fa-icon>
         </div>

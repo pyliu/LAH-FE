@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header page-header-padding-override">
+      <h3 class="d-flex justify-content-between page-header">
         <div class="my-auto">
           <lah-fa-icon append icon="user-tie" variant="secondary">取消請示案件</lah-fa-icon>
         </div>

@@ -31,7 +31,8 @@ export default {}
 <style lang="scss" scoped>
 @mixin fix() {
   position: fixed;
-  width: 3.5rem;
+  width: 3.4rem;
+  height: 3.4rem;
   border: 1px solid gray;
   border-radius: 10px;
   z-index: 1030;
@@ -40,12 +41,12 @@ export default {}
 .bars-button {
   @include fix();
   left: 1rem;
-  top: 10px;
+  top: 12.5px;
 }
 
 .home-button {
   @include fix();
   right: 1rem;
-  top: 10px;
+  top: 12.5px;
 }
 </style>

@@ -215,7 +215,8 @@ export default {
     tableVariant: { type: String, default: '' },
     perPage: { type: Number, default: 0 },
     currentPage: { type: Number, default: 1 },
-    onlyPopupDetail: { type: Boolean, default: false }
+    onlyPopupDetail: { type: Boolean, default: false },
+    captionAppend: { type: String, default: '' }
   },
   data: () => ({
     transProps: {
@@ -467,7 +468,7 @@ export default {
     },
     caption () {
       if (this.mute || this.noCaption) return ''
-      return this.busy ? "讀取中" : "登記案件找到 " + this.count + "件"
+      return this.busy ? "讀取中" : `登記案件找到 ${this.count} 件${this.captionAppend}`
     },
     sticky () {
       return this.maxHeight ? (this.count > 0 ? true : false) : false
