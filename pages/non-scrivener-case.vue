@@ -248,7 +248,7 @@ export default {
       this.currentPage = 1
     },
     ignoreTyoffices () {
-      this.ignoreTags = ['45000808', '43717356', '43504044', '43501004', '44039876', '95924138', '95920288', '50634177']
+      this.ignoreTags = ['中壢', '楊梅', '桃園', '大溪', '蘆竹', '八德', '平鎮', '龜山']
     }
   },
   fetch () {
