@@ -14,7 +14,7 @@
               boundary="viewport"
               size="sm"
               :date-format-options="{ weekday: 'narrow' }"
-              :max="yesterday || new Date(new Date().setDate(new Date().getDate()-1))"
+              :max="yesterday"
               hide-header
               dropleft
             />
@@ -28,8 +28,8 @@
               size="sm"
               dark
               :date-format-options="{ weekday: 'narrow' }"
-              :max="today || new Date()"
-              :min="startDateObj || new Date(new Date().setDate(new Date().getDate()-1))"
+              :max="today"
+              :min="startDateObj"
               hide-header
             />
             <lah-button
