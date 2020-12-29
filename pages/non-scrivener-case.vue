@@ -80,7 +80,9 @@
             remove-on-delete
             tag-variant="primary"
             tag-pills
-            placeholder="輸入想要忽略的統編 ... "
+            placeholder="忽略的統編 ... "
+            add-button-text="新增"
+            add-button-variant="outline-secondary"
           />
           <b-input-group-append>
             <b-button variant="outline-primary" @click="ignoreTyoffices">桃園各事務所</b-button>
@@ -121,7 +123,18 @@ export default {
     startDate: '1091201',
     endDateObj: null,
     endDate: '1091225',
-    ignoreTags: ['45000808', '43717356', '43504044', '43501004', '44039876', '95924138', '95920288', '50634177'],
+    tyOfficeMap: {
+      '中壢': 45000808,
+      '楊梅':	43717356,
+      '桃園': 43504044,
+      '大溪': 43501004,
+      '蘆竹':	44039876,
+      '八德':	95924138,
+      '平鎮':	95920288,
+      '龜山': 50634177
+
+    },
+    ignoreTags: ['中壢', '楊梅', '桃園', '大溪', '蘆竹', '八德', '平鎮', '龜山'],
     bakedData: [],
     fields: [
       {
@@ -250,7 +263,7 @@ export default {
             start_date: this.startDate,
             end_date: this.endDate,
             reload: this.forceReload,
-            ignore: this.ignoreTags
+            ignore: this.ignoreTags.map(tag => this.tyOfficeMap[tag] ? this.tyOfficeMap[tag] : tag)
           }).then((res) => {
             this.bakedData = res.data.baked || []
             this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
