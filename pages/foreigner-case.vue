@@ -175,7 +175,7 @@ export default {
         this.bakedData = json.baked
         this.committed = true
         this.currentPage = 1
-        this.notify(`查詢成功，找到 ${this.bakedData.length} 筆非專業代理人案件。`, { subtitle: `${this.cacheKey}(快取)` })
+        this.notify(`查詢成功，找到 ${this.bakedData.length} 筆外國人地權案件。`, { subtitle: `${this.cacheKey}(快取)` })
         this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
           if (this.$refs.countdown) {
             this.$refs.countdown.setCountdown(remaining)
