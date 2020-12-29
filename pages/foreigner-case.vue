@@ -151,7 +151,10 @@ export default {
             reload: this.forceReload
           }).then((res) => {
             this.bakedData = res.data.baked || []
-            this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
+            this.notify(res.data.message, {
+              type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning',
+              subtitle: `${this.year}-${this.month}`
+            })
             const remain_ms = res.data.cache_remaining_time // in seconds
             if (remain_ms && remain_ms > 0) {
               this.setCache(this.cacheKey, res.data, remain_ms * 1000)
