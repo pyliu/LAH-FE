@@ -53,8 +53,8 @@
         </NuxtLink>
       </li>
       <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+        <NuxtLink to="/agriculture-375-change">
+          <font-awesome-icon :icon="['fas', 'border-all']" size="lg" />
           三七五租約異動
         </NuxtLink>
       </li>
