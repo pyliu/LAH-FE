@@ -126,7 +126,7 @@ export default {
           })
           .then((res) => {
             this.bakedData = res.data.baked || []
-            this.notify(res.data.message)
+            this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
             const remain_ms = res.data.cache_remaining_time
             if (remain_ms && remain_ms > 0) {
               this.setCache(this.cacheKey, res.data, remain_ms)
@@ -148,6 +148,7 @@ export default {
       } else {
         this.bakedData = json.baked || []
         this.resetCountdown()
+        this.notify(`查詢成功，找到 ${this.bakedData.length} 筆請示案件資料。`, { subtitle: `${this.cacheKey}(快取)` })
       }
     })
   },
