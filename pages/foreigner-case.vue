@@ -6,16 +6,6 @@
           <lah-fa-icon icon="user-astronaut" variant="secondary" append>外國人地權案件</lah-fa-icon>
         </div>
         <div class="d-flex">
-          <b-input-group size="sm" class="vw-50">
-            <template #prepend>
-              <b-input-group-text>
-                <lah-fa-icon icon="search" action="breath" class="font-weight-bold">
-                  {{year}}-{{month}}
-                </lah-fa-icon>
-              </b-input-group-text>
-            </template>
-            <b-form-input type="range" v-model="rangeStep" class="my-auto mr-2" min="1" max="24"></b-form-input>
-          </b-input-group>
           <lah-countdown-button
             ref="countdown"
             icon="sync-alt"
@@ -30,7 +20,18 @@
             title="立即重新讀取"
             variant="outline-secondary"
             badge-variant="secondary"
+            class="mr-2"
           />
+          <b-input-group size="sm" class="vw-50">
+            <template #prepend>
+              <b-input-group-text>
+                <lah-fa-icon icon="search" action="breath" class="font-weight-bold">
+                  {{year}}-{{month}}
+                </lah-fa-icon>
+              </b-input-group-text>
+            </template>
+            <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
+          </b-input-group>
         </div>
       </h3>
     </lah-transition>
