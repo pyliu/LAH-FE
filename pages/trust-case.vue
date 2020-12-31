@@ -22,7 +22,7 @@
               v-model="year"
               :options="years"
               class="h-100"
-              @change="reset"
+              @change="cached"
             >
               <template v-slot:first>
                 <b-form-select-option :value="null" disabled>-- 請選擇年份 --</b-form-select-option>
@@ -35,7 +35,7 @@
               v-model="qryType"
               :options="qryTypes"
               class="h-100"
-              @change="reset"
+              @change="cached"
             >
               <template v-slot:first>
                 <b-form-select-option :value="null" disabled>-- 請選擇部別 --</b-form-select-option>
@@ -323,6 +323,16 @@ export default {
     }
   },
   methods: {
+    cached () {
+      this.reset()
+      this.getCache(this.cacheKey).then(json => {
+        if (json !== false) {
+          this.rows = json.raw
+          this.committed = true
+          this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.cacheKey}(快取)` })
+        }
+      })
+    },
     reload () {
       this.forceReload = true
       this.search()
@@ -397,13 +407,7 @@ export default {
     // restore cached data if found
     var d = new Date();
     this.year = (d.getFullYear() - 1911);
-    this.getCache(this.cacheKey).then(json => {
-      if (json !== false) {
-        this.rows = json.raw
-        this.committed = true
-        this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.cacheKey}(快取)` })
-      }
-    })
+    this.cached()
   },
   created () {
     this.restoreCachedYears()
