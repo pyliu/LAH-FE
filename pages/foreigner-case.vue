@@ -57,6 +57,7 @@ export default {
   head: {
     title: '外國人地權案件-桃園市地政局'
   },
+  fetchOnServer: false,
   data: () => {
     const now = new Date();
     return {
