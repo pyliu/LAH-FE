@@ -2,8 +2,8 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header">
-        <div class="my-auto">
-          <lah-fa-icon icon="question" variant="secondary" append>標題區域</lah-fa-icon>
+        <div>
+          <lah-fa-icon icon="question" variant="secondary" append class="my-auto">標題區域</lah-fa-icon>
         </div>
         <div class="d-flex">
           <div>右側選單區域</div>

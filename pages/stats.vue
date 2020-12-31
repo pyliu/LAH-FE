@@ -2,8 +2,8 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header">
-        <div class="my-auto">
-          <lah-fa-icon icon="calculator" variant="secondary" append>統計看板</lah-fa-icon>
+        <div>
+          <lah-fa-icon icon="calculator" variant="secondary" append class="my-auto">統計看板</lah-fa-icon>
         </div>
         <div class="d-flex">
           <lah-button

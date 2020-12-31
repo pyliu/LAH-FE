@@ -2,8 +2,8 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header">
-        <div class="my-auto">
-          <lah-fa-icon icon="user-tag" variant="secondary" append>非專業代理人案件檢索</lah-fa-icon>
+        <div>
+          <lah-fa-icon icon="user-tag" variant="secondary" append class="my-auto">非專業代理人案件檢索</lah-fa-icon>
         </div>
         <client-only>
           <div class="d-flex">

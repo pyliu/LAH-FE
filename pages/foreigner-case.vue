@@ -2,8 +2,8 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header">
-        <div class="my-auto">
-          <lah-fa-icon icon="user-astronaut" variant="secondary" append>外國人地權案件</lah-fa-icon>
+        <div>
+          <lah-fa-icon icon="user-astronaut" variant="secondary" append class="my-auto">外國人地權案件</lah-fa-icon>
         </div>
         <div class="d-flex">
           <lah-countdown-button

@@ -2,8 +2,8 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header">
-        <div class="my-auto">
-          <lah-fa-icon icon="border-all" variant="secondary" append>三七五租約標的異動</lah-fa-icon>
+        <div>
+          <lah-fa-icon icon="border-all" variant="secondary" append class="my-auto">三七五租約標的異動</lah-fa-icon>
         </div>
         <div class="d-flex">
           <div>右側選單區域</div>

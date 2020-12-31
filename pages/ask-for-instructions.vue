@@ -2,8 +2,8 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header">
-        <div class="my-auto">
-          <lah-fa-icon append icon="user-tie" variant="secondary">取消請示案件</lah-fa-icon>
+        <div>
+          <lah-fa-icon append icon="user-tie" variant="secondary" class="my-auto">取消請示案件</lah-fa-icon>
         </div>
         <div class="d-flex">
           <b-form-input type="range" v-model="months" class="my-auto mr-2" min="1" max="12"></b-form-input>

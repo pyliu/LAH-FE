@@ -2,10 +2,10 @@
   <div>
     <lah-transition appear>
       <h3 class="d-flex justify-content-between page-header">
-        <div class="my-auto">
-          <lah-fa-icon icon="money-check-alt" variant="secondary" append>信託案件檢索</lah-fa-icon>
+        <div>
+          <lah-fa-icon icon="money-check-alt" variant="secondary" append class="my-auto">信託案件檢索</lah-fa-icon>
         </div>
-        <div class="d-flex">
+        <div class="d-flex small">
           <b-pagination
             v-if="!$utils.empty(rows)"
             v-model="currentPage"
