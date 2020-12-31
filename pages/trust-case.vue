@@ -386,31 +386,26 @@ export default {
       const mainNumber = val.substring(0, 5).replace(/^[\s0]+/g, '')
       const subNumber = val.substring(5).replace(/^[\s0]+/g, '')
       return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
-    },
-    restoreCachedYears () {
-      this.getCache(this.cacheKeyYear).then(years => {
-        if (years !== false) {
-          this.years = years;
-        } else {
-          // set year select options
-          let len = this.year - 104;
-          for (let i = 0; i <= len; i++) {
-              this.years.push({value: 104 + i, text: 104 + i});
-          }
-          this.years.reverse()
-          this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
-        }
-      })
     }
   },
-  fetch () {
+  created () {
     // restore cached data if found
     var d = new Date();
-    this.year = (d.getFullYear() - 1911);
-    this.cached()
-  },
-  created () {
-    this.restoreCachedYears()
+    this.year = (d.getFullYear() - 1911)
+    this.getCache(this.cacheKeyYear).then(years => {
+      if (years !== false) {
+        this.years = years;
+      } else {
+        // set year select options
+        let len = this.year - 104;
+        for (let i = 0; i <= len; i++) {
+            this.years.push({value: 104 + i, text: 104 + i});
+        }
+        this.years.reverse()
+        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
+      }
+      this.cached()
+    })
   },
   mounted () {
     this.modalId = this.$utils.uuid()
