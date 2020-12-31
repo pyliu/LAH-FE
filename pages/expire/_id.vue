@@ -1,7 +1,7 @@
 <template>
   <div>
     <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header padding-override">
+      <h3 class="d-flex justify-content-between page-header">
         <lah-button
           icon="calendar-check"
           size="lg"
