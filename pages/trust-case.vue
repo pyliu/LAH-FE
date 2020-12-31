@@ -22,7 +22,7 @@
               v-model="year"
               :options="years"
               class="h-100"
-              @change="resetCommitted"
+              @change="reset"
             >
               <template v-slot:first>
                 <b-form-select-option :value="null" disabled>-- 請選擇年份 --</b-form-select-option>
@@ -35,7 +35,7 @@
               v-model="qryType"
               :options="qryTypes"
               class="h-100"
-              @change="resetCommitted"
+              @change="reset"
             >
               <template v-slot:first>
                 <b-form-select-option :value="null" disabled>-- 請選擇部別 --</b-form-select-option>
@@ -49,7 +49,23 @@
             title="搜尋"
             :disabled="isBusy"
             @click="search"
-          ></lah-button>
+            class="mr-1"
+          />
+          <lah-countdown-button
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="0"
+            @end="reload"
+            @click="reload"
+            :disabled="isBusy"
+            :busy="isBusy"
+            variant="outline-secondary"
+            badge-variant="secondary"
+            title="強制重新搜尋"
+            no-badge
+          />
         </div>
       </h3>
     </lah-transition>
@@ -307,6 +323,10 @@ export default {
     }
   },
   methods: {
+    reload () {
+      this.forceReload = true
+      this.search()
+    },
     search () {
       if(!this.isBusy) {
         this.isBusy = true
@@ -335,10 +355,11 @@ export default {
         this.notify('讀取中 ... 請稍後', { type: 'warning' })
       }
     },
-    resetCommitted () {
+    reset () {
       this.committed = false
       this.rows = []
       this.currentPage = 1
+      this.forceReload = false
     },
     popup (data) {
       this.modalLoading = true
@@ -355,26 +376,24 @@ export default {
       const mainNumber = val.substring(0, 5).replace(/^[\s0]+/g, '')
       const subNumber = val.substring(5).replace(/^[\s0]+/g, '')
       return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+    },
+    restoreCachedYears () {
+      this.getCache(this.cacheKeyYear).then(years => {
+        if (years !== false) {
+          this.years = years;
+        } else {
+          // set year select options
+          let len = this.year - 104;
+          for (let i = 0; i <= len; i++) {
+              this.years.push({value: 104 + i, text: 104 + i});
+          }
+          this.years.reverse()
+          this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
+        }
+      })
     }
   },
-  created () {
-    this.getCache(this.cacheKeyYear).then(years => {
-      if (years !== false) {
-        this.years = years;
-      } else {
-        // set year select options
-        let len = this.year - 104;
-        for (let i = 0; i <= len; i++) {
-            this.years.push({value: 104 + i, text: 104 + i});
-        }
-        this.years.reverse()
-        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
-      }
-    })
-  },
-  mounted () {
-    this.modalId = this.$utils.uuid()
-    this.maxHeight = window.innerHeight - 100
+  fetch () {
     // restore cached data if found
     var d = new Date();
     this.year = (d.getFullYear() - 1911);
@@ -382,9 +401,16 @@ export default {
       if (json !== false) {
         this.rows = json.raw
         this.committed = true
-        this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: this.cacheKey })
+        this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.cacheKey}(快取)` })
       }
     })
+  },
+  created () {
+    this.restoreCachedYears()
+  },
+  mounted () {
+    this.modalId = this.$utils.uuid()
+    this.maxHeight = window.innerHeight - 100
   }
 }
 </script>
