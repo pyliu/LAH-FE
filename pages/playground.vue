@@ -88,6 +88,21 @@
           </font-awesome-layers>
           some text
         </lah-countdown-button>
+        <b-iconstack font-scale="5" animation="cylon">
+          <b-icon
+            stacked
+            icon="camera"
+            animation="throb"
+            variant="info"
+            scale=".75"
+          ></b-icon>
+          <b-icon
+            stacked
+            icon="slash-circle"
+            animation="spin-reverse"
+            variant="dark"
+          ></b-icon>
+        </b-iconstack>
       </p>
     </div>
   </div>

@@ -58,7 +58,7 @@
           三七五租約異動
         </NuxtLink>
       </li>
-      <li>
+      <!-- <li>
         <NuxtLink to="/">
           <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
           未辦標的註記異動
@@ -87,7 +87,7 @@
           <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
           領狀管控查詢
         </NuxtLink>
-      </li>
+      </li> -->
       <li><hr/></li>
       <li>
         <a :href="serverUrl" target="_blank" rel="noopener noreferrer">
