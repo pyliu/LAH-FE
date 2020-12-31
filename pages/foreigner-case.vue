@@ -142,9 +142,10 @@ export default {
   fetch () {
     // restore cached data if found
     this.getCache(this.cacheKey).then(json => {
-      this.$utils.log(json)
       if (json === false || this.forceReload) {
-        if(!this.isBusy) {
+        if(this.isBusy) {
+          this.notify('讀取中 ... 請稍後', { type: 'warning' })
+        } else {
           this.isBusy = true
           this.committed = false
           this.$axios.post(this.$consts.API.JSON.PREFETCH, {
@@ -173,8 +174,6 @@ export default {
             this.forceReload = false
             this.committed = true
           })
-        } else {
-          this.notify('讀取中 ... 請稍後', { type: 'warning' })
         }
       } else {
         this.bakedData = json.baked
