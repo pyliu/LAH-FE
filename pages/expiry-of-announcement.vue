@@ -1,27 +1,27 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
           <lah-fa-icon icon="sticky-note" variant="secondary" append class="my-auto">公告期滿案件</lah-fa-icon>
+          <lah-countdown-button
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="cachedMs"
+            @end="reload"
+            @click="reload"
+            :disabled="isBusy"
+            :busy="isBusy"
+            auto-start
+            title="立即重新讀取"
+            variant="outline-secondary"
+            badge-variant="secondary"
+          />
         </div>
-        <lah-countdown-button
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
-          size="lg"
-          :milliseconds="cachedMs"
-          @end="reload"
-          @click="reload"
-          :disabled="isBusy"
-          :busy="isBusy"
-          auto-start
-          title="立即重新讀取"
-          variant="outline-secondary"
-          badge-variant="secondary"
-        />
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <lah-transition appear>
       <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table>
     </lah-transition>
@@ -40,8 +40,9 @@
 
 <script>
 import lahFaIcon from '~/components/lah-fa-icon.vue'
+import LahHeader from '~/components/lah-header.vue'
 export default {
-  components: { lahFaIcon },
+  components: { lahFaIcon, LahHeader },
   head: {
     title: "公告期滿案件-桃園市地政局",
   },
