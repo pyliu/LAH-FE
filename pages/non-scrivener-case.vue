@@ -1,65 +1,65 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
           <lah-fa-icon icon="user-tag" variant="secondary" append class="my-auto">非專業代理人案件檢索</lah-fa-icon>
+          <client-only>
+            <div class="d-flex">
+              <b-datepicker
+                value-as-date
+                v-model="startDateObj"
+                placeholder="開始日期"
+                boundary="viewport"
+                size="sm"
+                :date-format-options="{ weekday: 'narrow' }"
+                :max="yesterday"
+                hide-header
+                dropleft
+              />
+              <div class="my-auto">～</div>
+              <b-datepicker
+                value-as-date
+                v-model="endDateObj"
+                placeholder="截止日期"
+                boundary="viewport"
+                class="mr-1"
+                size="sm"
+                dark
+                :date-format-options="{ weekday: 'narrow' }"
+                :max="today"
+                :min="startDateObj"
+                hide-header
+              />
+              <lah-button
+                icon="search"
+                size="lg"
+                @click="$fetch"
+                :disabled="isBusy"
+                :busy="isBusy"
+                title="搜尋"
+                class="mr-1"
+              />
+              <lah-countdown-button
+                ref="countdown"
+                icon="sync-alt"
+                action="ld-cycle"
+                size="lg"
+                :milliseconds="0"
+                @end="reload"
+                @click="reload"
+                :disabled="isBusy"
+                :busy="isBusy"
+                variant="outline-secondary"
+                badge-variant="secondary"
+                title="強制重新搜尋"
+                no-badge
+              />
+            </div>
+          </client-only>
         </div>
-        <client-only>
-          <div class="d-flex">
-            <b-datepicker
-              value-as-date
-              v-model="startDateObj"
-              placeholder="開始日期"
-              boundary="viewport"
-              size="sm"
-              :date-format-options="{ weekday: 'narrow' }"
-              :max="yesterday"
-              hide-header
-              dropleft
-            />
-            <div class="my-auto">～</div>
-            <b-datepicker
-              value-as-date
-              v-model="endDateObj"
-              placeholder="截止日期"
-              boundary="viewport"
-              class="mr-1"
-              size="sm"
-              dark
-              :date-format-options="{ weekday: 'narrow' }"
-              :max="today"
-              :min="startDateObj"
-              hide-header
-            />
-            <lah-button
-              icon="search"
-              size="lg"
-              @click="$fetch"
-              :disabled="isBusy"
-              :busy="isBusy"
-              title="搜尋"
-              class="mr-1"
-            />
-            <lah-countdown-button
-              ref="countdown"
-              icon="sync-alt"
-              action="ld-cycle"
-              size="lg"
-              :milliseconds="0"
-              @end="reload"
-              @click="reload"
-              :disabled="isBusy"
-              :busy="isBusy"
-              variant="outline-secondary"
-              badge-variant="secondary"
-              title="強制重新搜尋"
-              no-badge
-            />
-          </div>
-        </client-only>
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <div class="d-flex justify-content-between">
       <b-pagination
         v-if="!$utils.empty(bakedData) && bakedData.length > perPage"
