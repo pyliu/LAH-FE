@@ -1,40 +1,40 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
           <lah-fa-icon icon="user-astronaut" variant="secondary" append class="my-auto">外國人地權案件</lah-fa-icon>
+          <div class="d-flex ">
+            <lah-countdown-button
+              ref="countdown"
+              icon="sync-alt"
+              action="ld-cycle"
+              size="lg"
+              :milliseconds="cachedMs"
+              @end="reload"
+              @click="reload"
+              :disabled="isBusy"
+              :busy="isBusy"
+              auto-start
+              title="立即重新讀取"
+              variant="outline-secondary"
+              badge-variant="secondary"
+              class="mr-2"
+            />
+            <b-input-group size="sm" class="vw-50">
+              <template #prepend>
+                <b-input-group-text>
+                  <lah-fa-icon icon="search" action="breath" class="font-weight-bold">
+                    {{year}}-{{month}}
+                  </lah-fa-icon>
+                </b-input-group-text>
+              </template>
+              <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
+            </b-input-group>
+          </div>
         </div>
-        <div class="d-flex">
-          <lah-countdown-button
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            :milliseconds="cachedMs"
-            @end="reload"
-            @click="reload"
-            :disabled="isBusy"
-            :busy="isBusy"
-            auto-start
-            title="立即重新讀取"
-            variant="outline-secondary"
-            badge-variant="secondary"
-            class="mr-2"
-          />
-          <b-input-group size="sm" class="vw-50">
-            <template #prepend>
-              <b-input-group-text>
-                <lah-fa-icon icon="search" action="breath" class="font-weight-bold">
-                  {{year}}-{{month}}
-                </lah-fa-icon>
-              </b-input-group-text>
-            </template>
-            <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
-          </b-input-group>
-        </div>
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <lah-transition>
       <div v-if="committed">
         <lah-reg-b-table
@@ -53,7 +53,9 @@
 </template>
 
 <script>
+import lahHeader from '~/components/lah-header.vue';
 export default {
+  components: { lahHeader },
   head: {
     title: '外國人地權案件-桃園市地政局'
   },
