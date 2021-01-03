@@ -189,11 +189,14 @@ export default {
   a {
     font-size: 1rem;
     display: flex;
-    &:hover,
-    &:active {
+    text-decoration: none;
+    &:hover {
       font-weight: bold;
       font-size: 1.1rem;
-      text-decoration: none;
+    }
+    &:active {
+      font-weight: bold;
+      font-size: 1.2rem;
     }
     &.nuxt-link-exact-active {
       @extend :hover;
