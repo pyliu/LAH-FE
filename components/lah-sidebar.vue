@@ -199,7 +199,7 @@ export default {
       font-size: 1.2rem;
     }
     &.nuxt-link-exact-active {
-      @extend :hover;
+      @extend :active;
       color: rgb(255, 255, 255) !important;
     }
     svg {
