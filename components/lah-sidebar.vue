@@ -125,10 +125,13 @@
         </NuxtLink>
       </li>
       <li><hr/></li>
-      <li class="small text-muted text-right">
-        <lah-fa-icon icon="copyright" title="寄信給 LIU, PANG-YU">
-          <b-link href="mailto:pangyu.liu@gmail.com">LIU, PANG-YU</b-link>
-        </lah-fa-icon>
+      <li class="text-right">
+        <b-link href="mailto:pangyu.liu@gmail.com" class="justify-content-between">
+          <span></span>
+          <lah-fa-icon icon="copyright" title="寄信給 LIU, PANG-YU" class="s-75 text-muted">
+            LIU, PANG-YU
+          </lah-fa-icon>
+        </b-link>
       </li>
     </ul>
   </b-sidebar>
@@ -184,6 +187,8 @@ export default {
 <style lang="scss" scoped>
 #lah-sidebar {
   a {
+    font-size: 1rem;
+    display: flex;
     &:hover,
     &:active {
       font-weight: bold;
@@ -193,6 +198,9 @@ export default {
     &.nuxt-link-exact-active {
       @extend :hover;
       color: rgb(255, 255, 255) !important;
+    }
+    svg {
+      margin-right: .4rem;
     }
   }
   ul {
