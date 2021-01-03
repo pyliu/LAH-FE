@@ -1,7 +1,8 @@
 <template>
   <lah-button
+    ref="btn"
     :icon="icon"
-    :variant="variant"
+    :variant="variantMediator"
     :size="size"
     :action="action"
     @click="$emit('click', $event)"
@@ -41,10 +42,19 @@ export default {
     action: { type: String, default: '' },
     autoStart: { type: Boolean, default: false },
     busy: { type: Boolean, default: false },
-    noBadge: { type: Boolean, default: false }
+    noBadge: { type: Boolean, default: false },
+    endAttention: { type: Boolean, default: false },
+    endAttentionVariant: { type: String, default: 'warning' },
+    endAttentionThreadhold: { type: Number, default: 3 }
   },
-  data: () => ({}),
-  watch: {},
+  data: () => ({
+    variantMediator: 'primary'
+  }),
+  watch: {
+    variant (val) {
+      this.variantMediator = val
+    }
+  },
   computed: {},
   methods: {
     handleProgress (payload) {
@@ -61,9 +71,14 @@ export default {
           totalMilliseconds: this.totalMilliseconds
         }
       */
-      if (parseInt(payload.totalSeconds) === 4) {
-        // random effect, 2s
-        this.attention(this.$el, { speed: 'slow' })
+      if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
+        this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
+        const oldVariant = this.variantMediator
+        this.variantMediator = this.endAttentionVariant
+        this.timeout(() => {
+          this.variantMediator = oldVariant
+          this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
+        }, 3000)
       }
       if (parseInt(payload.totalSeconds) === 1) {
         // random effect, 0.5s
@@ -87,7 +102,9 @@ export default {
       this.$refs.cd.pause()
     }
   },
-  created() {},
+  created() {
+    this.variantMediator = this.variant
+  },
   mounted () {
     if (this.autoStart) {
       this.startCountdown()

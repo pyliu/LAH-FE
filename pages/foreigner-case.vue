@@ -16,6 +16,7 @@
               :disabled="isBusy"
               :busy="isBusy"
               auto-start
+              end-attention
               title="立即重新讀取"
               variant="outline-secondary"
               badge-variant="secondary"

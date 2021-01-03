@@ -4,7 +4,7 @@
       icon="bars"
       size="lg"
       action="ld-move-fade-ltr"
-      variant="dark"
+      variant="outline-dark"
       title="開啟選單"
       class="bars-button mr-1"
       v-b-toggle.lah-sidebar
@@ -16,7 +16,7 @@
         icon="home"
         size="lg"
         action="ld-breath"
-        variant="light"
+        variant="outline-success"
         title="回到首頁"
         to="/"
         class="home-button ml-1"
@@ -35,6 +35,7 @@ export default {}
   width: 3.4rem;
   border-radius: 10px;
   z-index: 1030;
+  // border: 1px solid gray;
 }
 
 .bars-button {
@@ -43,6 +44,5 @@ export default {}
 
 .home-button {
   @include common();
-  border: 1px solid gray;
 }
 </style>
