@@ -1,5 +1,6 @@
 <template>
   <div>
+    <lah-header></lah-header>
     <div class="center my-3">
       <div>
         <font-awesome-layers class="fa-10x anim-appear-1s">

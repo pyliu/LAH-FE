@@ -1,8 +1,10 @@
 <template>
   <div>
-    <lah-transition appear slide>
-      <h3 class="text-center page-header"><lah-fa-icon icon="briefcase" variant="secondary">登記案件 {{ ID }}</lah-fa-icon></h3>
-    </lah-transition>
+    <lah-header>
+      <lah-transition appear slide>
+        <h3 class="text-center w-100"><lah-fa-icon icon="briefcase" variant="secondary">登記案件 {{ ID }}</lah-fa-icon></h3>
+      </lah-transition>
+    </lah-header>
     <lah-reg-case-detail :case-id="id" @ready="readyHandler" />
   </div>
 </template>
