@@ -1,36 +1,38 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <lah-button
-          icon="calendar-check"
-          size="lg"
-          title="按我切換模式"
-          :badgeText="queryCount.toString()"
-          :variant="switchButtonVariant"
-          @click="isOverdueMode = !isOverdueMode"
-          :disabled="isBusy"
-          :busy="isBusy"
-        >
-          <strong>{{queryTitle}}</strong>
-        </lah-button>
-        <lah-countdown-button
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
-          size="lg"
-          :milliseconds="900000"
-          @end="$fetch"
-          @click="reload"
-          :disabled="isBusy"
-          :busy="isBusy"
-          auto-start
-          title="立即重新讀取"
-          variant="outline-secondary"
-          badge-variant="secondary"
-        ></lah-countdown-button>
-      </h3>
-    </lah-transition>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
+          <lah-button
+            icon="calendar-check"
+            size="lg"
+            title="按我切換模式"
+            :badgeText="queryCount.toString()"
+            :variant="switchButtonVariant"
+            @click="isOverdueMode = !isOverdueMode"
+            :disabled="isBusy"
+            :busy="isBusy"
+          >
+            <strong>{{queryTitle}}</strong>
+          </lah-button>
+          <lah-countdown-button
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="900000"
+            @end="$fetch"
+            @click="reload"
+            :disabled="isBusy"
+            :busy="isBusy"
+            auto-start
+            title="立即重新讀取"
+            variant="outline-secondary"
+            badge-variant="secondary"
+          ></lah-countdown-button>
+        </div>
+      </lah-transition>
+    </lah-header>
     <lah-transition fade>
       <lah-expiry-b-table :busy="!committed" :max-height="maxHeight"></lah-expiry-b-table>
     </lah-transition>

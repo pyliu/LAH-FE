@@ -1,27 +1,29 @@
 <template>
-  <div>
+  <h3 class="d-flex justify-content-between py-3">
     <lah-button
       icon="bars"
       size="lg"
       action="ld-move-fade-ltr"
-      class="bars-button"
       variant="light"
       title="開啟選單"
+      class="bars-button mr-2"
       v-b-toggle.lah-sidebar
     />
+    <slot></slot>
     <lah-transition>
       <lah-button
         v-if="$route.path !== '/'"
         icon="home"
         size="lg"
         action="ld-breath"
-        class="home-button"
         variant="light"
         title="回到首頁"
         to="/"
+        class="home-button ml-2"
       />
     </lah-transition>
-  </div>
+    <lah-sidebar />
+  </h3>
 </template>
 
 <script>
@@ -30,9 +32,7 @@ export default {}
 
 <style lang="scss" scoped>
 @mixin fix() {
-  position: fixed;
   width: 3.4rem;
-  height: 3.4rem;
   border: 1px solid gray;
   border-radius: 10px;
   z-index: 1030;
@@ -40,13 +40,9 @@ export default {}
 
 .bars-button {
   @include fix();
-  left: 1rem;
-  top: 12.5px;
 }
 
 .home-button {
   @include fix();
-  right: 1rem;
-  top: 12.5px;
 }
 </style>
