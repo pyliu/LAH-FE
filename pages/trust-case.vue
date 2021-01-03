@@ -3,7 +3,7 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-fa-icon icon="money-check-alt" variant="secondary" append class="my-auto">信託案件檢索</lah-fa-icon>
+          <lah-fa-icon icon="money-check-alt" variant="secondary" append class="my-auto text-nowrap mr-1">信託案件檢索</lah-fa-icon>
           <div class="d-flex small">
             <b-pagination
               v-if="!$utils.empty(rows)"
