@@ -16,7 +16,7 @@
         icon="home"
         size="lg"
         action="ld-breath"
-        variant="primary"
+        variant="light"
         title="回到首頁"
         to="/"
         class="home-button ml-1"
@@ -31,18 +31,18 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
-@mixin fix() {
+@mixin common() {
   width: 3.4rem;
-  // border: 1px solid gray;
   border-radius: 10px;
   z-index: 1030;
 }
 
 .bars-button {
-  @include fix();
+  @include common();
 }
 
 .home-button {
-  @include fix();
+  @include common();
+  border: 1px solid gray;
 }
 </style>
