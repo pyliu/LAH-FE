@@ -87,7 +87,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.padding-override {
-  padding: 10px 4rem;
-}
 </style>
