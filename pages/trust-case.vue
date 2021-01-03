@@ -1,74 +1,74 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
           <lah-fa-icon icon="money-check-alt" variant="secondary" append class="my-auto">信託案件檢索</lah-fa-icon>
+          <div class="d-flex small">
+            <b-pagination
+              v-if="!$utils.empty(rows)"
+              v-model="currentPage"
+              :total-rows="rows.length"
+              :per-page="perPage"
+              last-number
+              first-number
+              aria-controls="trust-table"
+              class="my-auto mr-1"
+            />
+            <b-input-group append="年" class="text-nowrap mr-1">
+              <b-form-select
+                ref="year"
+                v-model="year"
+                :options="years"
+                class="h-100"
+                @change="cached"
+              >
+                <template v-slot:first>
+                  <b-form-select-option :value="null" disabled>-- 請選擇年份 --</b-form-select-option>
+                </template>
+              </b-form-select>
+            </b-input-group>
+            <b-input-group class="text-nowrap mr-1">
+              <b-form-select
+                ref="type"
+                v-model="qryType"
+                :options="qryTypes"
+                class="h-100"
+                @change="cached"
+              >
+                <template v-slot:first>
+                  <b-form-select-option :value="null" disabled>-- 請選擇部別 --</b-form-select-option>
+                </template>
+              </b-form-select>
+            </b-input-group>
+            <lah-button
+              ref="search"
+              icon="search"
+              size="lg"
+              title="搜尋"
+              :disabled="isBusy"
+              @click="search"
+              class="mr-1"
+            />
+            <lah-countdown-button
+              ref="countdown"
+              icon="sync-alt"
+              action="ld-cycle"
+              size="lg"
+              :milliseconds="0"
+              @end="reload"
+              @click="reload"
+              :disabled="isBusy"
+              :busy="isBusy"
+              variant="outline-secondary"
+              badge-variant="secondary"
+              title="強制重新搜尋"
+              no-badge
+            />
+          </div>
         </div>
-        <div class="d-flex small">
-          <b-pagination
-            v-if="!$utils.empty(rows)"
-            v-model="currentPage"
-            :total-rows="rows.length"
-            :per-page="perPage"
-            last-number
-            first-number
-            aria-controls="trust-table"
-            class="my-auto mr-1"
-          />
-          <b-input-group append="年" class="text-nowrap mr-1">
-            <b-form-select
-              ref="year"
-              v-model="year"
-              :options="years"
-              class="h-100"
-              @change="cached"
-            >
-              <template v-slot:first>
-                <b-form-select-option :value="null" disabled>-- 請選擇年份 --</b-form-select-option>
-              </template>
-            </b-form-select>
-          </b-input-group>
-          <b-input-group class="text-nowrap mr-1">
-            <b-form-select
-              ref="type"
-              v-model="qryType"
-              :options="qryTypes"
-              class="h-100"
-              @change="cached"
-            >
-              <template v-slot:first>
-                <b-form-select-option :value="null" disabled>-- 請選擇部別 --</b-form-select-option>
-              </template>
-            </b-form-select>
-          </b-input-group>
-          <lah-button
-            ref="search"
-            icon="search"
-            size="lg"
-            title="搜尋"
-            :disabled="isBusy"
-            @click="search"
-            class="mr-1"
-          />
-          <lah-countdown-button
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            :milliseconds="0"
-            @end="reload"
-            @click="reload"
-            :disabled="isBusy"
-            :busy="isBusy"
-            variant="outline-secondary"
-            badge-variant="secondary"
-            title="強制重新搜尋"
-            no-badge
-          />
-        </div>
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <lah-transition appear>
       <b-table
         id="trust-table"
