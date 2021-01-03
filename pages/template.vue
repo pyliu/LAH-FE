@@ -1,15 +1,13 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
-          <lah-fa-icon icon="question" variant="secondary" append class="my-auto">標題區域</lah-fa-icon>
-        </div>
-        <div class="d-flex">
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
+            <lah-fa-icon icon="question" variant="secondary" append class="my-auto">標題區域</lah-fa-icon>
           <div>右側選單區域</div>
         </div>
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <div class="container">
       <div>
         <Logo class="anim-appear-2s" />
