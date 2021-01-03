@@ -1,38 +1,38 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
           <lah-fa-icon icon="calculator" variant="secondary" append class="my-auto">統計看板</lah-fa-icon>
-        </div>
-        <div class="d-flex">
-          <lah-button
-            icon="sync"
-            action="cycle"
-            no-border
-            @click="refresh"
-            variant="outline-primary"
-            title="重新擷取統計資料"
-          />
-          <b-input-group :prepend="dateLabel" class="mx-1">
-            <b-form-input
-              v-model="rangeValue"
-              type="range"
-              :min="1"
-              :max="rangeMax"
-              class="h-100"
+          <div class="d-flex">
+            <lah-button
+              icon="sync"
+              action="cycle"
+              no-border
+              @click="refresh"
+              variant="outline-primary"
+              title="重新擷取統計資料"
             />
-          </b-input-group>
-          <b-input-group prepend="關鍵字">
-            <b-form-input
-              type="text"
-              v-model="keyword"
-              class="h-100"
-            />
-          </b-input-group>
+            <b-input-group :prepend="dateLabel" class="mx-1">
+              <b-form-input
+                v-model="rangeValue"
+                type="range"
+                :min="1"
+                :max="rangeMax"
+                class="h-100"
+              />
+            </b-input-group>
+            <b-input-group prepend="關鍵字">
+              <b-form-input
+                type="text"
+                v-model="keyword"
+                class="h-100"
+              />
+            </b-input-group>
+          </div>
         </div>
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <div class="container">
       <div>
         <Logo class="anim-appear-2s" />
