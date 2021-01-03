@@ -1,37 +1,39 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <lah-button
-          icon="calendar-check"
-          size="lg"
-          title="按我切換模式"
-          :badgeText="queryCountById.toString()"
-          :variant="switchButtonVariant"
-          @click="isOverdueMode = !isOverdueMode"
-          :disabled="isBusy"
-          :busy="isBusy"
-        >
-          <strong>{{queryTitle}}</strong>
-        </lah-button>
-        <b-link to="/expire" class="small my-auto"><lah-fa-icon icon="arrow-alt-circle-left" prefix="far">回全部列表</lah-fa-icon></b-link>
-        <lah-countdown-button
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
-          size="lg"
-          :milliseconds="900000"
-          @end="$fetch"
-          @click="reload"
-          :disabled="isBusy"
-          :busy="isBusy"
-          auto-start
-          title="立即重新讀取"
-          variant="outline-secondary"
-          badge-variant="secondary"
-        ></lah-countdown-button>
-      </h3>
-    </lah-transition>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
+          <lah-button
+            icon="calendar-check"
+            size="lg"
+            title="按我切換模式"
+            :badgeText="queryCountById.toString()"
+            :variant="switchButtonVariant"
+            @click="isOverdueMode = !isOverdueMode"
+            :disabled="isBusy"
+            :busy="isBusy"
+          >
+            <strong>{{queryTitle}}</strong>
+          </lah-button>
+          <b-link to="/expire" class="small my-auto"><lah-fa-icon icon="arrow-alt-circle-left" prefix="far">回全部列表</lah-fa-icon></b-link>
+          <lah-countdown-button
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="900000"
+            @end="$fetch"
+            @click="reload"
+            :disabled="isBusy"
+            :busy="isBusy"
+            auto-start
+            title="立即重新讀取"
+            variant="outline-secondary"
+            badge-variant="secondary"
+          ></lah-countdown-button>
+        </div>
+      </lah-transition>
+    </lah-header>
     <lah-transition fade>
       <lah-expiry-b-table :busy="isBusy" :reviewer-id="reviewerId" :max-height="maxHeight"></lah-expiry-b-table>
     </lah-transition>
@@ -42,8 +44,10 @@
 </template>
 
 <script>
+import lahHeader from '~/components/lah-header.vue'
 import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
+  components: { lahHeader },
   head: {
     title: "初審即將逾期案件-桃園市地政局"
   },
