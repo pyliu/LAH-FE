@@ -6,7 +6,7 @@
       action="ld-move-fade-ltr"
       variant="light"
       title="開啟選單"
-      class="bars-button mr-2"
+      class="bars-button mr-1"
       v-b-toggle.lah-sidebar
     />
     <slot></slot>
@@ -19,7 +19,7 @@
         variant="light"
         title="回到首頁"
         to="/"
-        class="home-button ml-2"
+        class="home-button ml-1"
       />
     </lah-transition>
     <lah-sidebar />
