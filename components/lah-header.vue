@@ -4,7 +4,7 @@
       icon="bars"
       size="lg"
       action="ld-move-fade-ltr"
-      variant="light"
+      variant="dark"
       title="開啟選單"
       class="bars-button mr-1"
       v-b-toggle.lah-sidebar
@@ -16,7 +16,7 @@
         icon="home"
         size="lg"
         action="ld-breath"
-        variant="light"
+        variant="primary"
         title="回到首頁"
         to="/"
         class="home-button ml-1"
@@ -33,7 +33,7 @@ export default {}
 <style lang="scss" scoped>
 @mixin fix() {
   width: 3.4rem;
-  border: 1px solid gray;
+  // border: 1px solid gray;
   border-radius: 10px;
   z-index: 1030;
 }
