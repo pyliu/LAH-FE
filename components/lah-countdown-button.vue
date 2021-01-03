@@ -43,7 +43,7 @@ export default {
     autoStart: { type: Boolean, default: false },
     busy: { type: Boolean, default: false },
     noBadge: { type: Boolean, default: false },
-    endAttention: { type: Boolean, default: false },
+    endAttention: { type: Boolean, default: true },
     endAttentionVariant: { type: String, default: 'warning' },
     endAttentionThreadhold: { type: Number, default: 3 }
   },
