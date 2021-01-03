@@ -61,11 +61,17 @@ export default {
   },
   fetchOnServer: false,
   data: () => {
-    const now = new Date();
+    const now = new Date()
+    let month = now.getMonth()
+    let year = now.getFullYear() - 1911
+    month === 0 && (month = 12, year--)
+    // set last month as default
+    const defMonth = ("0" + month).slice(-2)
+    const rangeBase = (now.getFullYear() - 1911) * 12 + now.getMonth() + 1
     return {
       forceReload: false,
-      year: now.getFullYear() - 1911,
-      month: ("0" + now.getMonth()).slice(-2), // set last month as default
+      year: year,
+      month: defMonth,
       cachedMs: 24 * 60 * 60 * 1000,
       committed: false,
       maxHeight: 300,
@@ -73,7 +79,7 @@ export default {
       perPage: 25,
       rangeMax: 24,
       rangeStep: 23,
-      rangeBase: (now.getFullYear() - 1911) * 12 + now.getMonth() + 1,
+      rangeBase: rangeBase,
       bakedData: [],
       fields: [
         {
