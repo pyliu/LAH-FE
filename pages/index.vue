@@ -20,7 +20,7 @@
             <lah-index-card-link :icon="['fas', 'user-astronaut']" to="/foreigner-case">外人地權案件</lah-index-card-link>
           </b-card-group>
           <b-card-group deck>
-            <lah-index-card-link :icon="['fas', 'border-all']" to="/agriculture-375-change">三七五租約標的異動</lah-index-card-link>
+            <lah-index-card-link :icon="['fas', 'border-all']" to="/agriculture-375-change">三七五租約異動</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">未辦標的註記異動</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">參考資訊檔標的異動通知書產製</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">逾期未駁回查詢</lah-index-card-link>
