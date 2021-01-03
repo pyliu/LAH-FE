@@ -44,7 +44,8 @@ export default {
     busy: { type: Boolean, default: false },
     noBadge: { type: Boolean, default: false },
     endAttention: { type: Boolean, default: true },
-    endAttentionVariant: { type: String, default: 'warning' },
+    endAttentionStartVariant: { type: String, default: 'warning' },
+    endAttentionEndVariant: { type: String, default: 'danger' },
     endAttentionThreadhold: { type: Number, default: 3 }
   },
   data: () => ({
@@ -74,11 +75,14 @@ export default {
       if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
         this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
         const oldVariant = this.variantMediator
-        this.variantMediator = this.endAttentionVariant
+        this.variantMediator = this.endAttentionStartVariant
+        this.timeout(() => {
+          this.variantMediator = this.endAttentionEndVariant
+        }, (this.endAttentionThreadhold - 1) * 1000)
         this.timeout(() => {
           this.variantMediator = oldVariant
           this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
-        }, 3000)
+        }, this.endAttentionThreadhold * 1000)
       }
       if (parseInt(payload.totalSeconds) === 1) {
         // random effect, 0.5s
