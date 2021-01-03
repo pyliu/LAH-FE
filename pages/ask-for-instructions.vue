@@ -1,31 +1,31 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
           <lah-fa-icon append icon="user-tie" variant="secondary" class="my-auto">取消請示案件</lah-fa-icon>
+          <div class="d-flex text-nowrap">
+            <b-form-input type="range" v-model="months" class="my-auto mr-2" min="1" max="12"></b-form-input>
+            <span class="my-auto mr-2">{{months}}個月內</span>
+            <lah-countdown-button
+              ref="countdown"
+              icon="sync-alt"
+              action="ld-cycle"
+              size="lg"
+              :milliseconds="cachedMs"
+              @end="reload"
+              @click="reload"
+              :disabled="isBusy"
+              :busy="isBusy"
+              auto-start
+              title="立即重新讀取"
+              variant="outline-secondary"
+              badge-variant="secondary"
+            />
+          </div>
         </div>
-        <div class="d-flex">
-          <b-form-input type="range" v-model="months" class="my-auto mr-2" min="1" max="12"></b-form-input>
-          <span class="my-auto mr-2">{{months}}個月內</span>
-          <lah-countdown-button
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            :milliseconds="cachedMs"
-            @end="reload"
-            @click="reload"
-            :disabled="isBusy"
-            :busy="isBusy"
-            auto-start
-            title="立即重新讀取"
-            variant="outline-secondary"
-            badge-variant="secondary"
-          />
-        </div>
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <lah-transition appear>
       <lah-reg-b-table
         :busy="isBusy"
