@@ -22,7 +22,7 @@
           <b-card-group deck>
             <lah-index-card-link :icon="['fas', 'border-all']" to="/agriculture-375-change">三七五租約異動</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">未辦標的註記異動</lah-index-card-link>
-            <lah-index-card-link icon-variant="muted" action="damage">參考資訊檔標的異動通知書產製</lah-index-card-link>
+            <lah-index-card-link icon-variant="muted" action="damage">參考資訊檔異動</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">逾期未駁回查詢</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">辦畢通知查詢</lah-index-card-link>
             <lah-index-card-link icon-variant="muted" action="damage">領狀管控查詢</lah-index-card-link>
