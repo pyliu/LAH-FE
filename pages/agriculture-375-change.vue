@@ -1,15 +1,15 @@
 <template>
   <div>
-    <lah-transition appear>
-      <h3 class="d-flex justify-content-between page-header">
-        <div>
+    <lah-header>
+      <lah-transition appear>
+        <div class="d-flex justify-content-between w-100">
           <lah-fa-icon icon="border-all" variant="secondary" append class="my-auto">三七五租約標的異動</lah-fa-icon>
+          <div class="d-flex">
+            <div>右側選單區域</div>
+          </div>
         </div>
-        <div class="d-flex">
-          <div>右側選單區域</div>
-        </div>
-      </h3>
-    </lah-transition>
+      </lah-transition>
+    </lah-header>
     <div class="container">
       <div>
         <Logo class="anim-appear-2s" />
