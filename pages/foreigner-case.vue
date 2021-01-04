@@ -85,47 +85,47 @@ export default {
       fields: [
         {
           key: '收件字號',
-          sort: true
+          sortable: true
         },
         {
           key: '登記原因',
-          sort: true
+          sortable: true
         },
         {
           key: '收件日期',
-          sort: true
+          sortable: true
         },
         {
           key: '結案日期',
-          sort: true
+          sortable: true
         },
         {
           key: '權利人統一編號',
-          sort: true
+          sortable: true
         },
         {
           key: '權利人姓名',
-          sort: true
+          sortable: true
         },
         {
           key: '義務人統一編號',
-          sort: true
+          sortable: true
         },
         {
           key: '義務人姓名',
-          sort: true
+          sortable: true
         },
         {
           key: '外國人類別',
-          sort: true
+          sortable: true
         },
         {
           key: '辦理情形',
-          sort: true
+          sortable: true
         },
         {
           key: '結案與否',
-          sort: true
+          sortable: true
         }
       ]
     }
