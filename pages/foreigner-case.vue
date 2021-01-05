@@ -32,6 +32,7 @@
               </template>
               <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
             </b-input-group>
+            <lah-button icon="question" variant="outline-success" class="border-0" @click="popup"></lah-button>
           </div>
         </div>
       </lah-transition>
@@ -146,6 +147,13 @@ export default {
     reload () {
       this.forceReload = true
       this.$fetch()
+    },
+    popup () {
+      this.modal(this.$createElement('lah-button', {
+        props: {variant: 'danger'}
+      }), {
+        title: '小幫手'
+      })
     }
   },
   fetch () {
