@@ -48,9 +48,9 @@ export default {
   methods: {},
   mounted () {
     this.ready = true
-    var ua = window.navigator.userAgent
+    const ua = window.navigator.userAgent
     if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
-      alert('不支援IE系列，請使用其他瀏覽器。')
+      alert('不支援IE瀏覽器，建議使用 Firefox 或 Chrome。')
     }
   }
 }
