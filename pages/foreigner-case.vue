@@ -3,7 +3,10 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-fa-icon icon="question" variant="success" append class="my-auto" @click="popup">外國人地權案件</lah-fa-icon>
+          <div class="d-flex">
+            <div class="my-auto">外國人地權案件</div>
+            <lah-button icon="question" variant="outline-success" no-border @click="popup"/>
+          </div>
           <div class="d-flex ">
             <lah-countdown-button
               ref="countdown"
