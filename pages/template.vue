@@ -6,18 +6,9 @@
           <div class="d-flex">
             <div class="my-auto">標題區域</div>
             <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')"/>
-            <b-modal
-              id="help-modal"
-              hide-footer
-              centered
-              size="xl"
-              scrollable
-            >
-              <template #modal-title>
-                說明
-              </template>
+            <lah-help-modal :modal-id="'help-modal'" size="xl">
               <lah-button icon="exclamation-circle" variant="danger"></lah-button>
-            </b-modal>
+            </lah-help-modal>
           </div>
           <div>右側選單區域</div>
         </div>
