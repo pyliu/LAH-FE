@@ -21,6 +21,7 @@
       :icon="icon"
       :size="iconSize"
       :append="iconAppend"
+      @click="emitClick($event)"
     >
       <span v-show="busy" class="ld-txt">讀取中...</span>
       <span v-show="!busy">
@@ -72,7 +73,7 @@ export default {
   methods: {
     emitClick (evt) {
       this.$emit('click', this.click);
-      evt.stopPropagation();
+      evt && evt.stopPropagation();
     },
     mouseenter () {
       const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath';
