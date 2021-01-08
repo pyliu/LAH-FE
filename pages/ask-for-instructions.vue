@@ -6,18 +6,9 @@
           <div class="d-flex">
             <div class="my-auto">取消請示案件</div>
             <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')"/>
-            <b-modal
-              id="help-modal"
-              hide-footer
-              centered
-              size="xl"
-              scrollable
-            >
-              <template #modal-title>
-                頁面說明
-              </template>
+            <lah-help-modal :modal-id="'help-modal'">
               <lah-button icon="exclamation-circle" variant="danger"></lah-button>
-            </b-modal>
+            </lah-help-modal>
           </div>
           <div class="d-flex text-nowrap">
             <b-form-input type="range" v-model="months" class="my-auto mr-2" min="1" max="12"></b-form-input>
