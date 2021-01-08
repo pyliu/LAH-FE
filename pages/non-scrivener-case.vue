@@ -119,9 +119,9 @@ export default {
     committed: false,
     maxHeight: 300,
     startDateObj: null,
-    startDate: '1091201',
+    startDate: '1100101',
     endDateObj: null,
-    endDate: '1091225',
+    endDate: '1100131',
     tyOfficeMap: {
       '中壢': 45000808,
       '楊梅':	43717356,
@@ -225,6 +225,12 @@ export default {
       const parsed = parseInt(this.maxHeight)
       return isNaN(parsed) ? "" : `max-height: ${parsed}px`
     },
+    firstDayofMonth () {
+      return new Date(this.today.getFullYear(), this.today.getMonth(), 1)
+    },
+    lastDayofMonth () {
+      return new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0)
+    },
     yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
     today () { return new Date() },
     captionRange () {
@@ -304,8 +310,8 @@ export default {
     })
   },
   created () {
-    this.startDateObj = this.yesterday
-    this.endDateObj = this.today
+    this.startDateObj = this.firstDayofMonth
+    this.endDateObj = this.lastDayofMonth
   },
   mounted () {
     this.maxHeight = window.innerHeight - 135
