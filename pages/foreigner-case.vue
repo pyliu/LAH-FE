@@ -3,7 +3,7 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-fa-icon icon="user-astronaut" variant="secondary" append class="my-auto">外國人地權案件</lah-fa-icon>
+          <lah-fa-icon icon="question" variant="success" append class="my-auto" @click="popup">外國人地權案件</lah-fa-icon>
           <div class="d-flex ">
             <lah-countdown-button
               ref="countdown"
@@ -32,7 +32,6 @@
               </template>
               <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
             </b-input-group>
-            <lah-button icon="question" variant="outline-success" class="border-0" @click="popup"></lah-button>
           </div>
         </div>
       </lah-transition>
@@ -55,9 +54,9 @@
 </template>
 
 <script>
-import lahHeader from '~/components/lah-header.vue';
+import lahButton from '~/components/lah-button.vue';
 export default {
-  components: { lahHeader },
+  components: { lahButton },
   head: {
     title: '外國人地權案件-桃園市地政局'
   },
