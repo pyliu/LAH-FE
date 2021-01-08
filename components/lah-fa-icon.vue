@@ -1,8 +1,8 @@
 <template>
   <span class="align-middle my-auto">
-    <i v-if="!append" :id="iconId" :class="className"></i>
+    <i v-if="!append" :id="iconId" :class="className" @click="emitClick($event)"></i>
     <slot></slot>
-    <i v-if="append" :id="iconId" :class="className"></i>
+    <i v-if="append" :id="iconId" :class="className" @click="emitClick($event)"></i>
   </span>
 </template>
 
@@ -45,6 +45,12 @@ export default {
     },
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` }
+  },
+  methods: {
+    emitClick (evt) {
+      this.$emit('click');
+      evt.stopPropagation();
+    }
   },
   mounted () {
     this.iconId = this.$utils.uuid()
