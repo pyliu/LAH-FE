@@ -234,8 +234,7 @@ export default {
     yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
     today () { return new Date() },
     captionRange () {
-
-      return `，${this.startDate} ~ ${this.endDate}`
+      return `，${this.startDate.substring(0, 3)}-${this.startDate.substring(3, 5)}-${this.startDate.substring(5)} ~ ${this.endDate.substring(0, 3)}-${this.endDate.substring(3, 5)}-${this.endDate.substring(5)}`
     }
   },
   watch: {
