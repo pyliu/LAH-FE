@@ -50,7 +50,8 @@ export default {
     this.ready = true
     const ua = window.navigator.userAgent
     if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
-      alert('不支援IE瀏覽器，建議使用 Firefox 或 Chrome。')
+      document.body.innerHTML = `<h1 style="color: red; text-align: center; font-weight: bold; margin-top: 5rem;">不支援IE瀏覽器，建議使用最新版本 Firefox 或 Chrome。</h1>`
+      alert('不支援IE瀏覽器，建議使用最新版本 Firefox 或 Chrome。')
     }
   }
 }
