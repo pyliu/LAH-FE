@@ -3,7 +3,22 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-fa-icon icon="money-check-alt" variant="secondary" append class="my-auto text-nowrap mr-1">信託案件檢索</lah-fa-icon>
+          <div class="d-flex">
+            <div class="my-auto">信託案件檢索</div>
+            <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')"/>
+            <b-modal
+              id="help-modal"
+              hide-footer
+              centered
+              size="xl"
+              scrollable
+            >
+              <template #modal-title>
+                說明
+              </template>
+              <lah-button icon="exclamation-circle" variant="danger"></lah-button>
+            </b-modal>
+          </div>
           <div class="d-flex small">
             <b-pagination
               v-if="!$utils.empty(rows)"

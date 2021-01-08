@@ -3,7 +3,22 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-fa-icon icon="sticky-note" variant="secondary" append class="my-auto">公告期滿案件</lah-fa-icon>
+          <div class="d-flex">
+            <div class="my-auto">公告期滿案件</div>
+            <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')"/>
+            <b-modal
+              id="help-modal"
+              hide-footer
+              centered
+              size="xl"
+              scrollable
+            >
+              <template #modal-title>
+                頁面說明
+              </template>
+              <lah-button icon="exclamation-circle" variant="danger"></lah-button>
+            </b-modal>
+          </div>
           <lah-countdown-button
             ref="countdown"
             icon="sync-alt"

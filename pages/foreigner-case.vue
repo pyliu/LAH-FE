@@ -5,7 +5,19 @@
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
             <div class="my-auto">外國人地權案件</div>
-            <lah-button icon="question" variant="outline-success" no-border @click="popup"/>
+            <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')"/>
+            <b-modal
+              id="help-modal"
+              hide-footer
+              centered
+              size="xl"
+              scrollable
+            >
+              <template #modal-title>
+                頁面說明
+              </template>
+              <lah-button icon="exclamation-circle" variant="danger"></lah-button>
+            </b-modal>
           </div>
           <div class="d-flex ">
             <lah-countdown-button
@@ -149,13 +161,6 @@ export default {
     reload () {
       this.forceReload = true
       this.$fetch()
-    },
-    popup () {
-      this.modal(this.$createElement('lah-button', {
-        props: {variant: 'danger'}
-      }), {
-        title: '小幫手'
-      })
     }
   },
   fetch () {

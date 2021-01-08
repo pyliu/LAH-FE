@@ -3,7 +3,23 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-fa-icon icon="user-tag" variant="secondary" append class="my-auto">非專業代理人案件檢索</lah-fa-icon>
+          <lah-fa-icon icon="user-tag" variant="secondary" append class="my-auto"></lah-fa-icon>
+          <div class="d-flex">
+            <div class="my-auto">非專業代理人案件檢索</div>
+            <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')"/>
+            <b-modal
+              id="help-modal"
+              hide-footer
+              centered
+              size="xl"
+              scrollable
+            >
+              <template #modal-title>
+                說明
+              </template>
+              <lah-button icon="exclamation-circle" variant="danger"></lah-button>
+            </b-modal>
+          </div>
           <client-only>
             <div class="d-flex">
               <b-datepicker
