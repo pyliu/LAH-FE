@@ -48,8 +48,7 @@ export default {
   },
   methods: {
     emitClick (evt) {
-      this.$emit('click');
-      evt.stopPropagation();
+      this.$emit('click')
     }
   },
   mounted () {

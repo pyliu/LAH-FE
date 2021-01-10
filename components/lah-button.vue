@@ -72,8 +72,8 @@ export default {
   },
   methods: {
     emitClick (evt) {
-      this.$emit('click', this.click);
-      evt && evt.stopPropagation();
+      this.$emit('click', this.click)
+      evt && evt.stopPropagation()
     },
     mouseenter () {
       const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath';
