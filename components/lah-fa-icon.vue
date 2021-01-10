@@ -47,8 +47,9 @@ export default {
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` }
   },
   methods: {
-    emitClick (evt) {
+    emitClick (evt, stopPropagation = false) {
       this.$emit('click')
+      stopPropagation && evt && evt.stopPropagation()
     }
   },
   mounted () {
