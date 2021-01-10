@@ -5,7 +5,7 @@
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
             <div class="my-auto">外國人地權案件</div>
-            <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')"/>
+            <lah-button icon="question" variant="outline-success" no-border @click="$bvModal.show('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'" size="xl">
               <lah-button icon="exclamation-circle" variant="danger"></lah-button>
             </lah-help-modal>
