@@ -6,12 +6,11 @@
           <div class="d-flex">
             <div class="my-auto">公告期滿案件</div>
             <lah-button icon="question" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'" size="md">
-              <div class="h5">系統公告中的案件狀態說明</div>
-              <div><lah-fa-icon icon="circle" variant="danger"> 已到期案件</lah-fa-icon></div>
-              <div><lah-fa-icon icon="circle" variant="warning"> 今日到期案件</lah-fa-icon></div>
-              <div><lah-fa-icon icon="circle" variant="success"> 公告中案件</lah-fa-icon></div>
-              <p class="h5 my-2 align-middle">滑鼠點擊 <lah-fa-icon icon="share-square" variant="primary"/> 可打開案件詳情視窗</p>
+            <lah-help-modal :modal-id="'help-modal'">
+              <div class="h5">公告中案件狀態說明：</div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger"> 已到期案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning"> 今日到期案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="success"> 公告中案件</lah-fa-icon></div>
             </lah-help-modal>
           </div>
           <lah-countdown-button
