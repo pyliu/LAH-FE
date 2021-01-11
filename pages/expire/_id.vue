@@ -3,18 +3,24 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-button
-            icon="calendar-check"
-            size="lg"
-            title="按我切換模式"
-            :badgeText="queryCountById.toString()"
-            :variant="switchButtonVariant"
-            @click="isOverdueMode = !isOverdueMode"
-            :disabled="isBusy"
-            :busy="isBusy"
-          >
-            <strong>{{queryTitle}}</strong>
-          </lah-button>
+          <div class="d-flex">
+            <lah-button
+              icon="calendar-check"
+              size="lg"
+              title="按我切換模式"
+              :badgeText="queryCountById.toString()"
+              :variant="switchButtonVariant"
+              @click="isOverdueMode = !isOverdueMode"
+              :disabled="isBusy"
+              :busy="isBusy"
+            >
+              <strong>{{queryTitle}}</strong>
+            </lah-button>
+            <lah-button icon="question" action="bounce" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
+            <lah-help-modal :modal-id="'help-modal'">
+              <div class="h5"><lah-fa-icon icon="lightbulb" regular variant="warning">請使用左上角按鈕切換 逾期/即將逾期 模式</lah-fa-icon></div>
+            </lah-help-modal>
+          </div>
           <b-link to="/expire" class="small my-auto"><lah-fa-icon icon="arrow-alt-circle-left" prefix="far">回全部列表</lah-fa-icon></b-link>
           <lah-countdown-button
             ref="countdown"
