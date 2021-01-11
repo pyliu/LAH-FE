@@ -16,7 +16,7 @@
             >
               <strong>{{queryTitle}}</strong>
             </lah-button>
-            <lah-button icon="question" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
+            <lah-button icon="question" action="bounce" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'">
               <div class="h5"><lah-fa-icon icon="lightbulb" regular variant="warning">請使用左上角按鈕切換 逾期/即將逾期 模式</lah-fa-icon></div>
             </lah-help-modal>
