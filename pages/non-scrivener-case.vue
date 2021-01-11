@@ -6,8 +6,15 @@
           <div class="d-flex">
             <div class="my-auto">非專業代理人案件檢索</div>
             <lah-button icon="question" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'" size="xl">
-              <lah-button icon="exclamation-circle" variant="danger"></lah-button>
+            <lah-help-modal :modal-id="'help-modal'">
+              <h5>請參照下列步驟搜尋</h5>
+              <ol>
+                <li>選擇日期區間(預設為目前月份)</li>
+                <li>輸入想要忽略之統編(非必要)</li>
+                <li>點擊 <lah-fa-icon icon="search" variant="primary"/> 搜尋</li>
+              </ol>
+              <hr/>
+              <lah-fa-icon icon="lightbulb" regular>點擊「收件字號」開啟案件詳情視窗</lah-fa-icon>
             </lah-help-modal>
           </div>
           <client-only>

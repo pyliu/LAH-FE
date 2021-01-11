@@ -6,8 +6,12 @@
           <div class="d-flex">
             <div class="my-auto">外國人地權案件</div>
             <lah-button icon="question" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'" size="xl">
-              <lah-button icon="exclamation-circle" variant="danger"></lah-button>
+            <lah-help-modal :modal-id="'help-modal'">
+              <div class="h5">利用下面介面操作資料搜尋時間：</div>
+              <div class="d-flex my-2 text-nowrap">
+                <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
+                <span class="my-auto mr-2">{{year}}-{{month}}</span>
+              </div>
             </lah-help-modal>
           </div>
           <div class="d-flex ">
