@@ -3,18 +3,24 @@
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
-          <lah-button
-            :icon="icon"
-            :badgeText="queryCount.toString()"
-            :variant="switchButtonVariant"
-            :disabled="isBusy"
-            :busy="isBusy"
-            @click="isOverdueMode = !isOverdueMode"
-            size="lg"
-            title="按我切換模式"
-          >
-            <strong>{{queryTitle}}</strong>
-          </lah-button>
+          <div class="d-flex">
+            <lah-button
+              :icon="icon"
+              :badgeText="queryCount.toString()"
+              :variant="switchButtonVariant"
+              :disabled="isBusy"
+              :busy="isBusy"
+              @click="isOverdueMode = !isOverdueMode"
+              size="lg"
+              title="按我切換模式"
+            >
+              <strong>{{queryTitle}}</strong>
+            </lah-button>
+            <lah-button icon="question" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
+            <lah-help-modal :modal-id="'help-modal'">
+              <div class="h5"><lah-fa-icon icon="lightbulb" regular>請使用左上角按鈕切換 逾期/即將逾期 模式</lah-fa-icon></div>
+            </lah-help-modal>
+          </div>
           <lah-countdown-button
             ref="countdown"
             icon="sync-alt"
@@ -50,8 +56,10 @@
 </template>
 
 <script>
+import lahFaIcon from '~/components/lah-fa-icon.vue'
 import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
+  components: { lahFaIcon },
   head: {
     title: "即將逾期案件-桃園市地政局"
   },
