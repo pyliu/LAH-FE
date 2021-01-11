@@ -1,5 +1,5 @@
 <template>
-  <span class="align-middle my-auto">
+  <span :class="alignClassName">
     <i v-if="!append" :id="iconId" :class="className" @click="emitClick($event)"></i>
     <slot></slot>
     <i v-if="append" :id="iconId" :class="className" @click="emitClick($event)"></i>
@@ -14,7 +14,8 @@ export default {
     icon: { type: String, default: "exclamation-circle" },
     variant: { type: String, default: "" },
     action: { type: String, default: "" },
-    append: { type: Boolean, default: false }
+    append: { type: Boolean, default: false },
+    alignMiddle: { type: Boolean, default: true }
   },
   data: () => ({
     iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
@@ -43,7 +44,8 @@ export default {
       return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement}`;
     },
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
-    ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` }
+    ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
+    alignClassName () { this.alignMiddle ? 'align-middle my-auto' : '' }
   },
   methods: {
     emitClick (evt, stopPropagation = false) {
