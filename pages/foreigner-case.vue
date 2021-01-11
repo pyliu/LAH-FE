@@ -27,6 +27,7 @@
               variant="outline-secondary"
               badge-variant="secondary"
               class="mr-2"
+              no-badge
             />
             <b-input-group size="sm" class="vw-50">
               <template #prepend>

@@ -24,6 +24,7 @@
             title="立即重新讀取"
             variant="outline-secondary"
             badge-variant="secondary"
+            no-badge
           />
         </div>
       </lah-transition>
