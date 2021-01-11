@@ -319,7 +319,7 @@ export default {
     this.endDateObj = this.lastDayofMonth
   },
   mounted () {
-    this.maxHeight = window.innerHeight - 135
+    this.maxHeight = window.innerHeight - 140
   }
 }
 </script>
