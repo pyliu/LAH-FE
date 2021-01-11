@@ -15,7 +15,9 @@ export default {
     variant: { type: String, default: "" },
     action: { type: String, default: "" },
     append: { type: Boolean, default: false },
-    alignMiddle: { type: Boolean, default: true }
+    alignMiddle: { type: Boolean, default: true },
+    regular: { type: Boolean, default: false },
+    brand: { type: Boolean, default: false }
   },
   data: () => ({
     iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
@@ -23,6 +25,8 @@ export default {
   computed: {
     className () {
       let prefix = this.prefix || "fas";
+      this.regular && (prefix = 'far')
+      this.brand && (prefix = 'fab')
       let icon = this.icon || "exclamation-circle";
       let size = "";
       switch (this.size) {

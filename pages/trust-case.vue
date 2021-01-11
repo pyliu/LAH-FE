@@ -6,8 +6,15 @@
           <div class="d-flex">
             <div class="my-auto">信託案件檢索</div>
             <lah-button icon="question" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'" size="xl">
-              
+            <lah-help-modal :modal-id="'help-modal'">
+              <h5>請參照下列步驟搜尋</h5>
+              <ol>
+                <li>選擇年份</li>
+                <li>選擇查詢類別</li>
+                <li>點擊 <lah-fa-icon icon="search" variant="primary"/> 搜尋</li>
+              </ol>
+              <hr/>
+              <lah-fa-icon icon="lightbulb" regular>點擊「收件年字號」開啟案件詳情視窗</lah-fa-icon>
             </lah-help-modal>
           </div>
           <div class="d-flex small">
