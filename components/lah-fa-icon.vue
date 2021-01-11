@@ -14,8 +14,7 @@ export default {
     icon: { type: String, default: "exclamation-circle" },
     variant: { type: String, default: "" },
     action: { type: String, default: "" },
-    append: { type: Boolean, default: false },
-    align: { type: String, default: "" },
+    append: { type: Boolean, default: false }
   },
   data: () => ({
     iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'

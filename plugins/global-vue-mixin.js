@@ -303,6 +303,9 @@ Vue.mixin({
     attention (selector, opts = { name: 'flash', speed: 'faster' }) {
       return this.$utils.animated(selector, opts)
     },
+    modalById (id) {
+      this.$bvModal && this.$bvModal.show(id)
+    },
     modal (message, opts) {
       return new Promise((resolve, reject) => {
         if (this.$isServer) {
