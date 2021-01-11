@@ -4,14 +4,14 @@
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
           <lah-button
-            icon="calendar-check"
-            size="lg"
-            title="按我切換模式"
+            :icon="icon"
             :badgeText="queryCount.toString()"
             :variant="switchButtonVariant"
-            @click="isOverdueMode = !isOverdueMode"
             :disabled="isBusy"
             :busy="isBusy"
+            @click="isOverdueMode = !isOverdueMode"
+            size="lg"
+            title="按我切換模式"
           >
             <strong>{{queryTitle}}</strong>
           </lah-button>
@@ -59,6 +59,9 @@ export default {
   data: () => ({
     maxHeight: 300
   }),
+  computed: {
+    icon () { return this.isOverdueMode ? 'exclamation-triangle' : 'exclamation-circle' }
+  },
   mounted () {
     this.maxHeight = window.innerHeight - 100
   }
