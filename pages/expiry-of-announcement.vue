@@ -56,7 +56,7 @@ export default {
   data: () => ({
     bakedData: [],
     committed: false,
-    cachedMs: 60 * 60 * 1000,
+    cachedMs: 12 * 60 * 60 * 1000,
     forceReload: false,
     fields: [
       {
