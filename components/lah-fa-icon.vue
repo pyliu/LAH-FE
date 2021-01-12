@@ -1,8 +1,8 @@
 <template>
   <span :class="alignClassName">
-    <i v-if="!append" :id="iconId" :class="className + ' mr-1'" @click="emitClick($event)"></i>
+    <i v-if="!append" :id="iconId" :class="className" @click="emitClick($event)"></i>
     <slot></slot>
-    <i v-if="append" :id="iconId" :class="className + ' ml-1'" @click="emitClick($event)"></i>
+    <i v-if="append" :id="iconId" :class="className" @click="emitClick($event)"></i>
   </span>
 </template>
 
@@ -45,11 +45,14 @@ export default {
           }
           break;
       }
-      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto`;
+      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto ${this.hasEmptySlot ? '' : (this.append ? ' ml-1' : ' mr-1')}`;
     },
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
-    alignClassName () { this.alignMiddle ? 'align-middle my-auto' : '' }
+    alignClassName () { this.alignMiddle ? 'align-middle my-auto' : '' },
+    hasEmptySlot () {
+      return this.$utils.empty(this.$slots['default']) || this.$utils.empty(this.$scopedSlots['default'])
+    }
   },
   methods: {
     emitClick (evt, stopPropagation = false) {
