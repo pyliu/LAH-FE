@@ -5,7 +5,7 @@
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
             <div class="my-auto">公告期滿案件</div>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
+            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="modalById('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'">
               <div class="h5">公告中案件狀態說明：</div>
               <div class="mx-2"><lah-fa-icon icon="circle" variant="danger"> 已到期案件</lah-fa-icon></div>

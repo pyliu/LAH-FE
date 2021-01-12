@@ -5,7 +5,7 @@
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
             <div class="my-auto">取消請示案件</div>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
+            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="modalById('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'">
               <div class="h5">利用下面介面操作資料搜尋時間：</div>
               <div class="d-flex my-2 text-nowrap">
