@@ -17,7 +17,8 @@ export default {
     append: { type: Boolean, default: false },
     alignMiddle: { type: Boolean, default: true },
     regular: { type: Boolean, default: false },
-    brand: { type: Boolean, default: false }
+    brand: { type: Boolean, default: false },
+    noGutter: { type: Boolean, default: false}
   },
   data: () => ({
     iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
@@ -45,12 +46,12 @@ export default {
           }
           break;
       }
-      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto ${this.hasSlot ? (this.append ? ' ml-1' : ' mr-1') : ''}`;
+      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto ${this.noGutter ? '' : (this.append ? ' ml-1' : ' mr-1')}`;
     },
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
     alignClassName () { this.alignMiddle ? 'align-middle my-auto' : '' },
-    hasSlot () { return this.$utils.empty(this.$slots['default']) }
+    hasSlot () { return !this.$utils.empty(this.$slots['default']) }
   },
   methods: {
     emitClick (evt, stopPropagation = false) {
