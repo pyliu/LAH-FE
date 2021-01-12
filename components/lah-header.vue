@@ -7,6 +7,7 @@
       variant="outline-dark"
       title="開啟選單"
       class="bars-button mr-1"
+      no-icon-gutter
       v-b-toggle.lah-sidebar
     />
     <slot></slot>
@@ -20,6 +21,7 @@
         title="回到首頁"
         to="/"
         class="home-button ml-1"
+        no-icon-gutter
       />
     </lah-transition>
     <lah-sidebar />
