@@ -1,8 +1,8 @@
 <template>
   <span :class="alignClassName">
-    <i v-if="!append" :id="iconId" :class="className" @click="emitClick($event)"></i>
+    <i v-if="!append" :id="iconId" :class="className + ' mr-1'" @click="emitClick($event)"></i>
     <slot></slot>
-    <i v-if="append" :id="iconId" :class="className" @click="emitClick($event)"></i>
+    <i v-if="append" :id="iconId" :class="className + ' ml-1'" @click="emitClick($event)"></i>
   </span>
 </template>
 
@@ -45,7 +45,7 @@ export default {
           }
           break;
       }
-      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto mx-1`;
+      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto`;
     },
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
