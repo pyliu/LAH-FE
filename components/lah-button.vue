@@ -22,9 +22,10 @@
       :size="iconSize"
       :append="iconAppend"
       @click="emitClick($event)"
+      :no-gutter="noIconGutter"
     >
-      <span v-show="busy" class="ld-txt">讀取中...</span>
-      <span v-show="!busy">
+      <span v-if="busy" class="ld-txt">讀取中...</span>
+      <span v-else>
         <slot></slot>
         <b-badge
           v-if="showBadge"
@@ -60,7 +61,8 @@ export default {
     badgeText: { type: String, default: '' },
     badgeVariant: { type: String, default: 'light' },
     badgePill: { type: Boolean, default: true },
-    busy: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false },
+    noIconGutter: { type: Boolean, default: false }
   },
   computed: {
     faIconPrefix () {
