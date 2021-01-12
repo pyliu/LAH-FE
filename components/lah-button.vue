@@ -24,8 +24,8 @@
       @click="emitClick($event)"
       :no-gutter="noIconGutter"
     >
-      <span v-if="busy" class="ld-txt">讀取中...</span>
-      <span v-else>
+      <span v-show="busy" class="ld-txt">讀取中...</span>
+      <span v-show="!busy">
         <slot></slot>
         <b-badge
           v-if="showBadge"
