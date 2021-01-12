@@ -8,6 +8,7 @@
     @click="$emit('click', $event)"
     class="align-middle"
     :busy="busy"
+    :no-icon-gutter="noBadge"
   >
     <slot></slot> 
     <b-badge v-show="!noBadge" ref="badge" :variant="badgeVariant" class="ml-1">
