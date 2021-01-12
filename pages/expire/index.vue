@@ -18,9 +18,9 @@
             </lah-button>
             <lah-button icon="question" action="bounce" variant="outline-success" no-border @click="modalById('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'">
-              <div class="h5">
+              <div class="h5 text-nowrap">
                 <lah-fa-icon icon="lightbulb" regular variant="warning" class="d-flex">
-                  請使用
+                  <span class="my-auto">請使用</span>
                   <lah-button
                     :icon="icon"
                     :badgeText="queryCount.toString()"
@@ -33,7 +33,8 @@
                   >
                     <strong>{{queryTitle}}</strong>
                   </lah-button>
-                  切換 逾期/即將逾期 模式</lah-fa-icon>
+                  <span class="my-auto">切換顯示模式</span>
+                </lah-fa-icon>
               </div>
             </lah-help-modal>
           </div>

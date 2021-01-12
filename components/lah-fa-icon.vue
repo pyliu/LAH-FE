@@ -45,7 +45,7 @@ export default {
           }
           break;
       }
-      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement}`;
+      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto mx-1`;
     },
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
