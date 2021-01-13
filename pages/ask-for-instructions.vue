@@ -14,9 +14,9 @@
               </div>
               <hr/>
               <div class="h5">取消請示案件狀態說明：</div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger"> 有申請取消請示紀錄且<strong class="text-danger">已</strong>逾期案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning"> 有申請取消請示紀錄且於預訂結案日結案之案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="success"> 有申請取消請示紀錄且<strong>未</strong>逾期案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger">有申請取消請示紀錄且<strong class="text-danger">已</strong>逾期案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning">有申請取消請示紀錄且於預訂結案日結案之案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="success">有申請取消請示紀錄且<strong>未</strong>逾期案件</lah-fa-icon></div>
             </lah-help-modal>
           </div>
           <div class="d-flex text-nowrap">

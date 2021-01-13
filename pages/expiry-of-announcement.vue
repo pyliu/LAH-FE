@@ -8,9 +8,9 @@
             <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="modalById('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'">
               <div class="h5">公告中案件狀態說明：</div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger"> 已到期案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning"> 今日到期案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="success"> 公告中案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger">已到期案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning">今日到期案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="success">公告中案件</lah-fa-icon></div>
             </lah-help-modal>
           </div>
           <lah-countdown-button

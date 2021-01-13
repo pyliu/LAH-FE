@@ -11,7 +11,7 @@
               <ol>
                 <li>選擇年份</li>
                 <li>選擇查詢類別</li>
-                <li>點擊 <lah-fa-icon icon="search" variant="primary"/> 搜尋</li>
+                <li>點擊 <lah-fa-icon icon="search" variant="primary"/>搜尋</li>
               </ol>
               <hr/>
               <lah-fa-icon icon="lightbulb" regular variant="warning">點擊「收件年字號」開啟案件詳情視窗</lah-fa-icon>

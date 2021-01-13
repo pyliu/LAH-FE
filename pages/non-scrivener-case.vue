@@ -11,7 +11,7 @@
               <ol>
                 <li>選擇日期區間(預設為目前月份)</li>
                 <li>輸入想要忽略之統編(非必要)</li>
-                <li>點擊 <lah-fa-icon icon="search" variant="primary"/> 搜尋</li>
+                <li>點擊 <lah-fa-icon icon="search" variant="primary" no-gutter /> 搜尋</li>
               </ol>
               <hr/>
               <lah-fa-icon icon="lightbulb" regular variant="warning">點擊「收件字號」開啟案件詳情視窗</lah-fa-icon>
