@@ -36,8 +36,8 @@
             <b-input-group size="sm" class="vw-50">
               <template #prepend>
                 <b-input-group-text>
-                  <lah-fa-icon icon="search" action="breath" class="font-weight-bold">
-                    {{year}}-{{month}}
+                  <lah-fa-icon icon="calendar" regular class="font-weight-bold">
+                    {{year}}年{{month}}月
                   </lah-fa-icon>
                 </b-input-group-text>
               </template>
