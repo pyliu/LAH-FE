@@ -18,7 +18,7 @@ export default {
     alignMiddle: { type: Boolean, default: true },
     regular: { type: Boolean, default: false },
     brand: { type: Boolean, default: false },
-    noGutter: { type: Boolean, default: false}
+    noGutter: { type: Boolean, default: false }
   },
   data: () => ({
     iconId: 'xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
