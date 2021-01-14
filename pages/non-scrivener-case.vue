@@ -52,6 +52,7 @@
                 :busy="isBusy"
                 title="搜尋"
                 class="mr-1"
+                no-icon-gutter
               />
               <lah-countdown-button
                 ref="countdown"

@@ -2565,6 +2565,11 @@ chart.js@^3.0.0-beta:
   resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.0.0-beta.7.tgz#ce11f437b555cc61b52ad24bf9505d08b4e09e6f"
   integrity sha512-UL0HlWNRBvvzGPoh0WfmsiaLuYdgjLj9PtutfEjL43eJxxDPHWmsqROJT7x81oyF6TVrFs2uR5UEkt0GfhGxxw==
 
+chartjs@^0.3.24:
+  version "0.3.24"
+  resolved "https://registry.yarnpkg.com/chartjs/-/chartjs-0.3.24.tgz#3addeb5ae3606b3e89e346c27d52ca158416e93d"
+  integrity sha1-Ot3rWuNgaz6J40bCfVLKFYQW6T0=
+
 check-types@^8.0.3:
   version "8.0.3"
   resolved "https://registry.yarnpkg.com/check-types/-/check-types-8.0.3.tgz#3356cca19c889544f2d7a95ed49ce508a0ecf552"

@@ -62,6 +62,7 @@
               :disabled="isBusy"
               @click="search"
               class="mr-1"
+              no-icon-gutter
             />
             <lah-countdown-button
               ref="countdown"
