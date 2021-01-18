@@ -59,8 +59,9 @@
         </b-form-group>
       </div>
       <hr class="mt-5" />
-      <div class="d-flex flex-row-reverse mb-2">
+      <div class="d-flex justify-content-between mb-2">
         <lah-button icon="user-plus" variant="outline-primary" @click="add">新增使用者</lah-button>
+        <span class="text-muted">{{users.length}}個使用者</span>
         <b-form-checkbox-group
           v-model="filter"
           :options="filterOptions"
