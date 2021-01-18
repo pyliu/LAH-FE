@@ -16,8 +16,8 @@
             <lah-help-modal :modal-id="'help-modal'" size="lg">
               <ul>
                 <li>
-                  <div class="d-inline-flex">
-                    選取編輯好的XLSX檔案，點擊 <lah-button icon="upload" variant="outline-primary" class="my-auto">上傳</lah-button> 上傳更新本地資料庫(dimension.db)
+                  <div class="d-inline-flex justify-content-around">
+                    選取編輯好的XLSX檔案，點擊 <lah-button icon="upload" variant="outline-primary" class="mx-1 mt-n1">上傳</lah-button> 上傳更新本地資料庫(dimension.db)
                   </div>
                 </li>
               </ul>
