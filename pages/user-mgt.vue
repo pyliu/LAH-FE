@@ -22,10 +22,15 @@
                 </li>
                 <li>
                   <div class="d-inline-flex justify-content-around">
-                    亦可利用下方 <lah-button icon="search" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 方式編輯或新增。
+                    亦可利用下方 <lah-button icon="user-plus" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 新增或其他按鍵編輯使用者。
                   </div>
                 </li>
               </ul>
+              <hr/>
+              <div class="h5">取消請示案件狀態說明：</div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger">有申請取消請示紀錄且<strong class="text-danger">已</strong>逾期案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning">有申請取消請示紀錄且於預訂結案日結案之案件</lah-fa-icon></div>
+              <div class="mx-2"><lah-fa-icon icon="circle" variant="success">有申請取消請示紀錄且<strong>未</strong>逾期案件</lah-fa-icon></div>
             </lah-help-modal>
           </div>
           <div></div>
@@ -50,33 +55,29 @@
           </b-input-group>
         </b-form-group>
       </div>
-      <hr class="my-5" />
-        <b-form-group label="搜尋" label-for="input-keyword" label-cols-sm="2" label-size="lg">
-          <b-input-group id="input-keyword" size="lg">
-            <b-form-input
-              v-model="keyword"
-              type="text"
-            />
-            <template #append>
-              <lah-button icon="search" variant="outline-primary" @click="search" title="搜尋"/>
-            </template>
-          </b-input-group>
-        </b-form-group>
-        <section>
-          <b-button
-            v-for="user in users"
-            :key="user['id']"
-            :data-id="user['id']"
-            :data-name="user['name']"
-            size="sm"
-            class="mx-1 my-1"
-            @click="click(user)"
-            :variant="variant(user)"
-          >
-            {{user['id']}}
-            {{user['name']}}
-          </b-button>
-        </section>
+      <hr class="mt-5" />
+      <div class="d-flex flex-row-reverse mb-2">
+        <lah-button icon="user-plus" variant="outline-primary" @click="add">新增使用者</lah-button>
+        <b-form-checkbox-group
+          v-model="filter"
+          :options="filterOptions"
+        />
+      </div>
+      <section v-if="found">
+        <b-button
+          v-for="user in users"
+          :key="user['id']"
+          :data-id="user['id']"
+          :data-name="user['name']"
+          size="sm"
+          class="mx-1 my-1"
+          @click="click(user)"
+          :variant="variant(user)"
+        >
+          {{user['id']}}
+          {{user['name']}}
+        </b-button>
+      </section>
       <hr class="my-5" />
     </section>
   </div>
@@ -91,12 +92,37 @@ export default {
   data: () => ({
     userXlsx: null,
     keyword: '',
-    users: []
+    users: [],
+    filter: ['on'],
+    filterOptions: [
+      { text: '在職', value: 'on' },
+      { text: '離職', value: 'off' }
+    ]
   }),
+  computed: {
+    type () {
+      if (this.filter.length === 2) return 'all_users'
+      if (this.filter.includes('on')) return 'on_board_users'
+      if (this.filter.includes('off')) return 'off_board_users'
+      return ''
+    },
+    found () {
+      return this.users.length > 0
+    }
+  },
+  watch: {
+    type (val) {
+      if (val === '') {
+        this.users = []
+      } else {
+        this.$fetch()
+      }
+    }
+  },
   fetch () {
     this.isBusy = true
     this.$axios.post(this.$consts.API.JSON.USER, {
-        type: 'all_users'
+      type: this.type
     }).then(res => {
       if (this.$utils.statusCheck(res.data.status)) {
         this.users = res.data.raw
@@ -113,7 +139,7 @@ export default {
     upload () {
       
     },
-    search () {
+    add () {
 
     },
     click (user) {
