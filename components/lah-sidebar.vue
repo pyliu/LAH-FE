@@ -88,6 +88,25 @@
           領狀管控查詢
         </NuxtLink>
       </li> -->
+      <li v-if="authority.isSuper || authority.isAdmin"><hr/></li>
+      <li v-if="authority.isSuper || authority.isAdmin">
+        <NuxtLink to="/user-mgt">
+          <font-awesome-icon :icon="['fas', 'users']" size="lg" />
+          使用者資訊管理
+        </NuxtLink>
+      </li>
+      <li v-if="authority.isSuper || authority.isAdmin">
+        <NuxtLink to="/stats">
+          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
+          統計看板
+        </NuxtLink>
+      </li>
+      <li v-if="authority.isSuper || authority.isAdmin">
+        <NuxtLink to="/playground">
+          <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
+          測試
+        </NuxtLink>
+      </li>
       <li><hr/></li>
       <li>
         <a :href="serverUrl" target="_blank" rel="noopener noreferrer">
@@ -110,25 +129,6 @@
           <font-awesome-icon :icon="['fas', 'hand-sparkles']" size="lg" />
           清除瀏覽器端快取資料
         </b-link>
-      </li>
-      <li v-if="authority.isSuper || authority.isAdmin"><hr/></li>
-      <li v-if="authority.isSuper || authority.isAdmin">
-        <NuxtLink to="/user-mgt">
-          <font-awesome-icon :icon="['fas', 'users']" size="lg" />
-          使用者資訊管理
-        </NuxtLink>
-      </li>
-      <li v-if="authority.isSuper || authority.isAdmin">
-        <NuxtLink to="/stats">
-          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
-          統計看板
-        </NuxtLink>
-      </li>
-      <li v-if="authority.isSuper || authority.isAdmin">
-        <NuxtLink to="/playground">
-          <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
-          測試
-        </NuxtLink>
       </li>
       <li><hr/></li>
       <li class="text-right">
