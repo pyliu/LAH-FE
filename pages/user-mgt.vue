@@ -17,7 +17,12 @@
               <ul>
                 <li>
                   <div class="d-inline-flex justify-content-around">
-                    選取編輯好的XLSX檔案，點擊 <lah-button icon="upload" variant="outline-primary" class="mx-1 mt-n1">上傳</lah-button> 上傳更新本地資料庫(dimension.db)
+                    選取編輯好的XLSX檔案，點擊 <lah-button icon="upload" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 上傳更新本地資料庫(dimension.db)
+                  </div>
+                </li>
+                <li>
+                  <div class="d-inline-flex justify-content-around">
+                    亦可利用下方 <lah-button icon="search" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 方式編輯或新增。
                   </div>
                 </li>
               </ul>
@@ -35,13 +40,27 @@
         </lah-fa-icon>
       </h4>
       <div>
-        <b-form-group label="匯入使用者XLSX檔案" label-for="file-land_data_upload" label-cols-sm="2" label-size="lg">
-          <b-form-file ref="file-land_data_upload" id="file-land_data_upload" size="lg" v-model="userXlsx" placeholder="請選擇XLSX檔案" drop-placeholder="放開以設定上傳檔案" accept=".xlsx, .XLSX"></b-form-file>
-          <lah-button icon="upload" variant="outline-primary" size="lg" @click="upload" class="mt-2">上傳</lah-button>
+        <b-form-group label="匯入使用者檔案" label-for="file-land_data_upload" label-cols-sm="2" label-size="lg" title="*.xlsx">
+          <b-input-group id="file-land_data_upload" size="lg">
+            <b-form-file ref="file-land_data_upload" v-model="userXlsx" placeholder="請選擇XLSX檔案" drop-placeholder="放開以設定上傳檔案" accept=".xlsx, .XLSX"></b-form-file>
+            <template #append>
+              <lah-button icon="upload" variant="outline-primary" size="lg" @click="upload"/>
+            </template>
+          </b-input-group>
         </b-form-group>
       </div>
       <hr class="my-5" />
-      <div id="id_data_upload"></div>
+        <b-form-group label="搜尋" label-for="input-keyword" label-cols-sm="2" label-size="lg">
+          <b-input-group id="input-keyword" size="lg">
+            <b-form-input
+              v-model="keyword"
+              type="text"
+            />
+            <template #append>
+              <lah-button icon="search" variant="outline-primary" @click="search"/>
+            </template>
+          </b-input-group>
+        </b-form-group>
       <hr class="my-5" />
     </section>
   </div>
@@ -54,11 +73,15 @@ export default {
   },
   fetchOnServer: false,
   data: () => ({
-    userXlsx: null
+    userXlsx: null,
+    keyword: ''
   }),
   methods: {
     upload () {
       
+    },
+    search () {
+
     }
   }
 }
