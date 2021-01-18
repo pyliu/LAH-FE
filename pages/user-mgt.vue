@@ -32,7 +32,7 @@
               <div class="mx-2 my-1"><b-button variant="danger" size="sm">{{site}}XXXX 要ＯＯ</b-button> 超級管理者</div>
               <div class="mx-2 my-1"><b-button variant="outline-danger" size="sm">{{site}}XXXX 豬ＯＯ</b-button> 系統管理者</div>
               <div class="mx-2 my-1"><b-button variant="outline-primary" size="sm">{{site}}XXXX 羊ＯＯ</b-button> 主管</div>
-              <div class="mx-2 my-1"><b-button variant="outline-info" size="sm">{{site}}XXXX 變ＯＯ</b-button> 研考</div>
+              <div class="mx-2 my-1"><b-button variant="warning" size="sm">{{site}}XXXX 變ＯＯ</b-button> 研考</div>
               <div class="mx-2 my-1"><b-button variant="outline-dark" size="sm">{{site}}XXXX 色ＯＯ</b-button> 總務</div>
             </lah-help-modal>
           </div>
@@ -43,24 +43,24 @@
 
     <section>
       <hr/>
-      <h4 class="font-weight-bold text-right">
+      <h5 class="font-weight-bold text-right">
         <lah-fa-icon icon="exclamation-circle" variant="warning" action="breath">
           重複資料會被更新，<b-link href="/xlsx/user_import.tpl.xlsx" target="_blank">範例檔點此下載</b-link>
         </lah-fa-icon>
-      </h4>
+      </h5>
       <div>
-        <b-form-group label="匯入使用者檔案" label-for="file-land_data_upload" label-cols-sm="2" label-size="lg" title="*.xlsx">
-          <b-input-group id="file-land_data_upload" size="lg">
+        <b-form-group label="匯入使用者檔案" label-for="file-land_data_upload" label-cols-sm="2" label-size="md" title="*.xlsx">
+          <b-input-group id="file-land_data_upload" size="md">
             <b-form-file ref="file-land_data_upload" v-model="userXlsx" placeholder="請選擇XLSX檔案" drop-placeholder="放開以設定上傳檔案" accept=".xlsx, .XLSX"></b-form-file>
             <template #append>
-              <lah-button icon="upload" variant="outline-primary" size="lg" @click="upload" title="上傳"/>
+              <lah-button icon="upload" variant="outline-primary" @click="upload" title="上傳"/>
             </template>
           </b-input-group>
         </b-form-group>
       </div>
-      <hr class="mt-5" />
+      <hr class="mt-4" />
       <div class="d-flex justify-content-between mb-2">
-        <lah-button icon="user-plus" variant="outline-primary" @click="add">新增使用者</lah-button>
+        <lah-button icon="user-plus" variant="primary" @click="add">新增使用者</lah-button>
         <span class="text-muted">{{users.length}}個使用者</span>
         <b-form-checkbox-group
           v-model="filter"
@@ -161,7 +161,7 @@ export default {
       if (auth.isSuper) return 'danger'
       if (auth.isAdmin) return 'outline-danger'
       if (auth.isChief) return 'outline-primary'
-      if (auth.isRAE) return 'outline-info'
+      if (auth.isRAE) return 'warning'
       if (auth.isGA) return 'outline-dark'
       return 'outline-success'
     },
