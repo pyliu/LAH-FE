@@ -27,10 +27,13 @@
                 </li>
               </ul>
               <hr/>
-              <div class="h5">取消請示案件狀態說明：</div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger">有申請取消請示紀錄且<strong class="text-danger">已</strong>逾期案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning">有申請取消請示紀錄且於預訂結案日結案之案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="success">有申請取消請示紀錄且<strong>未</strong>逾期案件</lah-fa-icon></div>
+              <div class="mx-2 my-1"><b-button variant="outline-success" size="sm">{{site}}XXXX 我ＯＯ</b-button> 在職使用者</div>
+              <div class="mx-2 my-1"><b-button variant="secondary" size="sm">{{site}}XXXX 不ＯＯ</b-button> 離職使用者</div>
+              <div class="mx-2 my-1"><b-button variant="danger" size="sm">{{site}}XXXX 要ＯＯ</b-button> 超級管理者</div>
+              <div class="mx-2 my-1"><b-button variant="outline-danger" size="sm">{{site}}XXXX 豬ＯＯ</b-button> 系統管理者</div>
+              <div class="mx-2 my-1"><b-button variant="outline-primary" size="sm">{{site}}XXXX 羊ＯＯ</b-button> 主管</div>
+              <div class="mx-2 my-1"><b-button variant="outline-info" size="sm">{{site}}XXXX 變ＯＯ</b-button> 研考</div>
+              <div class="mx-2 my-1"><b-button variant="outline-dark" size="sm">{{site}}XXXX 色ＯＯ</b-button> 總務</div>
             </lah-help-modal>
           </div>
           <div></div>
@@ -108,6 +111,12 @@ export default {
     },
     found () {
       return this.users.length > 0
+    },
+    site () {
+      if (this.svr) {
+        return this.svr.config.site
+      }
+      return 'HB'
     }
   },
   watch: {
