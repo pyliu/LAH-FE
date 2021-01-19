@@ -17,7 +17,7 @@
               <ul>
                 <li>
                   <div class="d-inline-flex justify-content-around">
-                    選取編輯好的XLSX檔案，點擊 <lah-button icon="upload" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 上傳更新本地資料庫(dimension.db)
+                    選取編輯好的XLSX檔案，點擊 <lah-button icon="upload" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 上傳更新本地資料庫(dimension.db, user表格)
                   </div>
                 </li>
                 <li>
@@ -31,9 +31,9 @@
               <div class="mx-2 my-1"><b-button variant="secondary" size="sm">{{site}}XXXX 不ＯＯ</b-button> 離職使用者</div>
               <div class="mx-2 my-1"><b-button variant="danger" size="sm">{{site}}XXXX 要ＯＯ</b-button> 超級管理者</div>
               <div class="mx-2 my-1"><b-button variant="outline-danger" size="sm">{{site}}XXXX 豬ＯＯ</b-button> 系統管理者</div>
-              <div class="mx-2 my-1"><b-button variant="outline-primary" size="sm">{{site}}XXXX 羊ＯＯ</b-button> 主管</div>
+              <div class="mx-2 my-1"><b-button variant="primary" size="sm">{{site}}XXXX 羊ＯＯ</b-button> 主管</div>
               <div class="mx-2 my-1"><b-button variant="warning" size="sm">{{site}}XXXX 變ＯＯ</b-button> 研考</div>
-              <div class="mx-2 my-1"><b-button variant="outline-dark" size="sm">{{site}}XXXX 色ＯＯ</b-button> 總務</div>
+              <div class="mx-2 my-1"><b-button variant="info" size="sm">{{site}}XXXX 色ＯＯ</b-button> 總務</div>
             </lah-help-modal>
           </div>
           <div></div>
@@ -60,8 +60,8 @@
       </div>
       <hr class="mt-4" />
       <div class="d-flex justify-content-between mb-2">
-        <lah-button icon="user-plus" variant="primary" @click="add">新增使用者</lah-button>
-        <span class="text-muted">{{users.length}}個使用者</span>
+        <lah-button icon="user-plus" variant="outline-primary" @click="add">新增使用者</lah-button>
+        <span class="text-muted">找到 {{users.length}} 個使用者</span>
         <b-form-checkbox-group
           v-model="filter"
           :options="filterOptions"
@@ -77,9 +77,10 @@
           class="mx-1 my-1"
           @click="click(user)"
           :variant="variant(user)"
+          v-b-popover.hover.top.html="role(user)"
         >
           {{user['id']}}
-          {{user['name']}}
+          {{user['name'].padEnd(3, '　')}}
         </b-button>
       </section>
       <hr class="my-5" />
@@ -88,11 +89,13 @@
 </template>
 
 <script>
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   head: {
-    title: "樣板頁面-桃園市地政局",
+    title: "使用者資訊管理-桃園市地政局",
   },
   fetchOnServer: false,
+  components: { lahUserCard },
   data: () => ({
     userXlsx: null,
     keyword: '',
@@ -143,7 +146,7 @@ export default {
       this.$utils.error(err)
     }).finally(() => {
         this.isBusy = false
-    });
+    })
   },
   methods: {
     upload () {
@@ -153,17 +156,30 @@ export default {
 
     },
     click (user) {
-      this.$utils.log(user)
+      // this.$utils.log(user)
+      this.modal(this.$createElement('lah-user-card', { props: { raw: user } }), {
+        title: `${user['id']} ${user['name']} 資訊`
+      })
     },
     variant (user) {
       if (!this.$utils.empty(user['offboard_date'])) return 'secondary'
       const auth = this.getAuthority(user)
       if (auth.isSuper) return 'danger'
       if (auth.isAdmin) return 'outline-danger'
-      if (auth.isChief) return 'outline-primary'
+      if (auth.isChief) return 'primary'
       if (auth.isRAE) return 'warning'
-      if (auth.isGA) return 'outline-dark'
+      if (auth.isGA) return 'info'
       return 'outline-success'
+    },
+    role (user) {
+      if (!this.$utils.empty(user['offboard_date'])) return '已離職'
+      const auth = this.getAuthority(user)
+      if (auth.isSuper) return '程式開發者'
+      if (auth.isAdmin) return '系統管理者'
+      if (auth.isChief) return '主管'
+      if (auth.isRAE) return '研考'
+      if (auth.isGA) return '總務'
+      return ''
     },
     getAuthority (user) {
       const authorityMap = {
@@ -180,7 +196,7 @@ export default {
         authorityMap.isChief = mappings.chief.includes(ip)
         authorityMap.isSuper = mappings.super.includes(ip)
         authorityMap.isRAE = mappings.rae.includes(ip)
-        authorityMap.isRA = mappings.ga.includes(ip)
+        authorityMap.isGA = mappings.ga.includes(ip)
       }
       return authorityMap
     }
