@@ -179,8 +179,5 @@ export default {
 }
 </script>
 
-<style lang="scss">
-a {
-  color: #007bff;
-}
+<style lang="scss" scoped>
 </style>
