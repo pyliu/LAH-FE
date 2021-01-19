@@ -1,5 +1,5 @@
 <template>
-  <b-card>
+  <b-card v-if="!$utils.empty(userData)">
     <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
     <b-card-img
       :src="photoUrl(userData)"
@@ -40,16 +40,26 @@
 <script>
 export default {
   props: {
-    raw: { type: Object, default: () => ({}) },
+    raw: { type: Array, default: () => ([]) },
     id: { type: String, default: '' },
     name: { type: String, default: '' }
   },
   data: () => ({
-    userData: []
+    userData: {}
   }),
   watch: {
-    raw (json) {
-      this.userData = typeof json === "object" ? json : {}
+    raw (array) {
+      if (Array.isArray(array)) {
+        if (array.length > 1) {
+          this.userData = array.find((item, idx, array) => {
+            return this.$utils.empty(item['offboard_date'])
+          }) || {}
+        } else {
+          this.userData = array[0]
+        }
+      } else {
+        this.$utils.warning('raw is not an array', array)
+      }
     }
   },
   computed: {
@@ -161,7 +171,7 @@ export default {
         if (res.data.data_count > 1) {
           this.userData = res.data.raw.find((item, idx, array) => {
             return this.$utils.empty(item['offboard_date'])
-          }) || []
+          }) || {}
         } else {
           this.userData = res.data.raw[0]
         }
@@ -175,7 +185,7 @@ export default {
     })
   },
   created() {
-    this.userData = this.raw
+    this.userData = this.$utils.empty(this.raw) ? {} : this.raw[0]
   }
 }
 </script>

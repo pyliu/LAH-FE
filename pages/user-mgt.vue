@@ -79,7 +79,7 @@
           :variant="variant(user)"
           v-b-popover.hover.top.html="role(user)"
         >
-          {{user['id']}}
+          {{user['id'].padStart(6, '&ensp;')}}
           {{user['name'].padEnd(3, '　')}}
         </b-button>
       </section>
@@ -156,7 +156,7 @@ export default {
 
     },
     click (user) {
-      this.modal(this.$createElement('lah-user-card', { props: { raw: user } }), {
+      this.modal(this.$createElement('lah-user-card', { props: { raw: [user] } }), {
         title: `${user['id']} ${user['name']} 資訊`
       })
     },
