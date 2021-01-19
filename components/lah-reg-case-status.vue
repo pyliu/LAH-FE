@@ -1,8 +1,9 @@
 <template>
   <b-card>
     <b-card-title v-if="!noTitle">
+      辦理情形
       <b-link :href="queryStatusUrl" target="_blank" title="開啟新視窗">
-        <lah-fa-icon append icon="share-square">辦理情形</lah-fa-icon>
+        <lah-fa-icon append icon="share-square" no-gutter/>
       </b-link>
     </b-card-title>
     <b-list-group flush compact v-if="ready">
@@ -45,14 +46,7 @@
       <b-list-group-item>
         <b-form-row>
           <b-col>
-            收件人員：
-            <span
-              class="user_tag"
-              :data-id="bakedData.收件人員ID"
-              :data-name="bakedData.收件人員"
-            >
-              {{ bakedData.收件人員 }}
-            </span>
+            收件人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.收件人員, bakedData.RM07_ID)">{{ bakedData.收件人員 }}</b-button>
           </b-col>
           <b-col>收件時間：{{ bakedData.收件時間 }}</b-col>
         </b-form-row>
@@ -60,10 +54,7 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.移轉課長)">
         <b-form-row>
           <b-col>
-            移轉課長：
-            <span class="user_tag">
-              {{ bakedData.移轉課長 }}
-            </span>
+            移轉課長：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉課長, bakedData.RM106)">{{ bakedData.移轉課長 }}</b-button>
           </b-col>
           <b-col>移轉課長時間：{{ bakedData.移轉課長時間 }}</b-col>
         </b-form-row>
@@ -71,10 +62,7 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.移轉秘書)">
         <b-form-row>
           <b-col>
-            移轉秘書：
-            <span class="user_tag">
-              {{ bakedData.移轉秘書 }}
-            </span>
+            移轉秘書：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉秘書, bakedData.RM107)">{{ bakedData.移轉秘書 }}</b-button>
           </b-col>
           <b-col>移轉秘書時間：{{ bakedData.移轉秘書時間 }}</b-col>
         </b-form-row>
@@ -82,10 +70,7 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.初審人員)">
         <b-form-row>
           <b-col>
-            初審人員：
-            <span class="user_tag">
-              {{ bakedData.初審人員 }}
-            </span>
+            初審人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.初審人員, bakedData.RM45)">{{ bakedData.初審人員 }}</b-button>
           </b-col>
           <b-col>初審時間：{{ bakedData.初審時間 }}</b-col>
         </b-form-row>
@@ -93,8 +78,7 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.複審人員)">
         <b-form-row>
           <b-col>
-            複審人員：
-            <span class="user_tag">{{bakedData.複審人員 }}</span>
+            複審人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.複審人員, bakedData.RM47)">{{ bakedData.複審人員 }}</b-button>
           </b-col>
           <b-col>複審時間：{{ bakedData.複審時間 }}</b-col>
         </b-form-row>
@@ -125,43 +109,43 @@
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.請示人員)">
         <b-form-row>
-          <b-col>請示人員：<span class="user_tag">{{ bakedData.請示人員 }}</span></b-col>
+          <b-col>請示人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.請示人員, bakedData.RM82)">{{ bakedData.請示人員 }}</b-button></b-col>
           <b-col>請示日期：{{ bakedData.請示日期 }} {{ bakedData.請示時間 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.取消請示人員)">
         <b-form-row>
-          <b-col>取消請示人員：<span class="user_tag">{{ bakedData.取消請示人員 }}</span></b-col>
+          <b-col>取消請示人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.取消請示人員, bakedData.RM85)">{{ bakedData.取消請示人員 }}</b-button></b-col>
           <b-col>取消請示日期：{{ bakedData.取消請示日期 }} {{ bakedData.取消請示時間 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.展期人員)">
         <b-form-row>
-          <b-col>展期人員：<span class="user_tag">{{ bakedData.展期人員 }}</span></b-col>
+          <b-col>展期人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.展期人員, bakedData.RM85)">{{ bakedData.展期人員 }}</b-button></b-col>
           <b-col>展期日期：{{ bakedData.展期日期 }} 天數：{{ bakedData.展期天數 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.准登人員)">
         <b-form-row>
-          <b-col>准登人員：<span class="user_tag">{{ bakedData.准登人員 }}</span></b-col>
+          <b-col>准登人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.准登人員, bakedData.RM63)">{{ bakedData.准登人員 }}</b-button></b-col>
           <b-col>准登日期：{{ bakedData.准登日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.登錄人員)">
         <b-form-row>
-          <b-col>登錄人員：<span class="user_tag">{{ bakedData.登錄人員 }}</span></b-col>
+          <b-col>登錄人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.登錄人員, bakedData.RM55)">{{ bakedData.登錄人員 }}</b-button></b-col>
           <b-col>登錄日期：{{ bakedData.登錄日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.校對人員)">
         <b-form-row>
-          <b-col>校對人員：<span class="user_tag">{{ bakedData.校對人員 }}</span></b-col>
+          <b-col>校對人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.校對人員, bakedData.RM57)">{{ bakedData.校對人員 }}</b-button></b-col>
           <b-col>校對日期：{{ bakedData.校對日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.結案人員)">
         <b-form-row>
-          <b-col>結案人員：<span class="user_tag">{{ bakedData.結案人員 }}</span></b-col>
+          <b-col>結案人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.結案人員, bakedData.RM59)">{{ bakedData.結案人員 }}</b-button></b-col>
           <b-col>結案日期：{{ bakedData.結案日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
@@ -170,9 +154,11 @@
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-base.js";
+import regCaseBase from "~/assets/js/reg-case-base.js"
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: "lah-reg-case-status",
+  components: { lahUserCard },
   mixins: [regCaseBase],
   props: {
     noTitle: { type: Boolean, default: false },
@@ -183,7 +169,14 @@ export default {
       return this.ready && this.bakedData.結案與否 === "N";
     },
   },
-};
+  methods: {
+    userinfo (name, id = '') {
+      this.modal(this.$createElement('lah-user-card', { props: { name: name, id: id } }), {
+        title: `${id} ${name} 資訊`
+      })
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,7 +1,7 @@
 <template>
   <b-card>
     <b-card-title v-if="!noTitle">
-      <b-link :href="queryDataUrl" target="_blank" title="開啟新視窗"><lah-fa-icon append icon="share-square">收件資料</lah-fa-icon></b-link>
+      收件資料 <b-link :href="queryDataUrl" target="_blank" title="開啟新視窗"><lah-fa-icon icon="share-square" no-gutter></lah-fa-icon></b-link>
     </b-card-title>
     <b-list-group flush compact v-if="ready">
       <b-list-group-item v-if="bakedData.跨所 == 'Y'">
@@ -30,7 +30,7 @@
         限辦期限：<span v-html="bakedData.限辦期限"></span>
       </b-list-group-item>
       <b-list-group-item>
-        作業人員：<span>{{ bakedData.作業人員 }}</span>
+        作業人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.作業人員, bakedData.RM30_1)">{{ bakedData.作業人員 }}</b-button>
       </b-list-group-item>
       <b-list-group-item>
         辦理情形：{{ bakedData.辦理情形 }}
@@ -61,14 +61,23 @@
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-base.js";
+import regCaseBase from "~/assets/js/reg-case-base.js"
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'lah-reg-case-data',
+  components: { lahUserCard },
   mixins: [regCaseBase],
   props: {
     noTitle: { type: Boolean, default: false }
+  },
+  methods: {
+    userinfo (name, id = '') {
+      this.modal(this.$createElement('lah-user-card', { props: { name: name, id: id } }), {
+        title: `${id} ${name} 資訊`
+      })
+    }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>

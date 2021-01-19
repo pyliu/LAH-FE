@@ -36,32 +36,33 @@
           <b-button variant="link" @click="userinfo(item['作業人員'], item['RM30_1'])">{{ item['作業人員'] }}</b-button>
         </template>
         <template v-slot:cell(初審人員)="{ item }">
-          <b-button variant="link" @click="userinfo(item['初審人員'], item['RM45'])" v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['初審'])">{{ item['初審人員'] }}</b-button>
+          <b-button variant="link" @click="userinfo(item['初審人員'], item['RM45'])">{{ item['初審人員'] }}</b-button>
         </template>
         <template v-slot:cell(複審人員)="{ item }">
-          <b-button variant="link" @click="userinfo(item['複審人員'], item['RM47'])" v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['複審'])">{{ item['複審人員'] }}</b-button>
+          <b-button variant="link" @click="userinfo(item['複審人員'], item['RM47'])">{{ item['複審人員'] }}</b-button>
         </template>
         <template v-slot:cell(准登人員)="{ item }">
-          <b-button variant="link" @click="userinfo(item['准登人員'], item['RM63'])" v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['准登'])">{{ item['准登人員'] }}</b-button>
+          <b-button variant="link" @click="userinfo(item['准登人員'], item['RM63'])">{{ item['准登人員'] }}</b-button>
         </template>
         <template v-slot:cell(登錄人員)="{ item }">
-          <b-button variant="link" @click="userinfo(item['登錄人員'], item['RM55'])" v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['登錄'])">{{ item['登錄人員'] }}</b-button>
+          <b-button variant="link" @click="userinfo(item['登錄人員'], item['RM55'])">{{ item['登錄人員'] }}</b-button>
         </template>
         <template v-slot:cell(校對人員)="{ item }">
-          <b-button variant="link" @click="userinfo(item['校對人員'], item['RM57'])" v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['校對'])">{{ item['校對人員'] }}</b-button>
+          <b-button variant="link" @click="userinfo(item['校對人員'], item['RM57'])">{{ item['校對人員'] }}</b-button>
         </template>
         <template v-slot:cell(結案人員)="{ item }">
-          <b-button variant="link" @click="userinfo(item['結案人員'], item['RM59'])" v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['結案'])">{{ item['結案人員'] }}</b-button>
+          <b-button variant="link" @click="userinfo(item['結案人員'], item['RM59'])">{{ item['結案人員'] }}</b-button>
         </template>
       </b-table>
     </b-card>
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-base.js";
-
+import regCaseBase from "~/assets/js/reg-case-base.js"
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: "lah-reg-case-flow",
+  components: { lahUserCard },
   mixins: [regCaseBase],
   data: () => ({
     fields: [
@@ -116,7 +117,9 @@ export default {
   },
   methods: {
     userinfo (name, id) {
-      this.$utils.log(name, id)
+      this.modal(this.$createElement('lah-user-card', { props: { name: name, id: id } }), {
+        title: `${id} ${name} 資訊`
+      })
     }
   }
 };

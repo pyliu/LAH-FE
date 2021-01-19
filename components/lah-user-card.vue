@@ -40,7 +40,7 @@
 <script>
 export default {
   props: {
-    raw: { type: Object, default: {} },
+    raw: { type: Object, default: () => ({}) },
     id: { type: String, default: '' },
     name: { type: String, default: '' }
   },
@@ -88,7 +88,7 @@ export default {
     workAge () {
       let AP_ON_DATE = this.userData['onboard_date']
       const AP_OFF_JOB = this.isLeft ? 'Y' : 'N'
-      const AP_OFF_DATE = this.userData['offboard_date']
+      let AP_OFF_DATE = this.userData['offboard_date']
 
       if (AP_ON_DATE !== undefined && AP_ON_DATE !== null) {
         AP_ON_DATE = AP_ON_DATE.date
@@ -151,7 +151,6 @@ export default {
     }
   },
   fetch () {
-    this.$utils.empty(this.userData) && 
     (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) && 
     this.$axios.post(this.$consts.API.JSON.USER, {
       type: 'user_info',
@@ -159,7 +158,13 @@ export default {
       name: this.name
     }).then(res => {
       if (this.$utils.statusCheck(res.data.status)) {
-        this.userData = res.data.raw
+        if (res.data.data_count > 1) {
+          this.userData = res.data.raw.find((item, idx, array) => {
+            return this.$utils.empty(item['offboard_date'])
+          }) || []
+        } else {
+          this.userData = res.data.raw[0]
+        }
       } else {
         this.notify(res.data.message, { type: 'warning' })
       }

@@ -199,8 +199,10 @@
 </template>
 
 <script>
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'lah-reg-b-table',
+  components: { lahUserCard },
   props: {
     bakedData: { type: Array, default: [] },
     maxHeight: { type: Number, default: undefined },
@@ -496,6 +498,7 @@ export default {
       }), {
         title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
       })
+
     },
     bakedContent (row) {
       return row.item[row.field.label]
@@ -545,4 +548,8 @@ export default {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+a {
+  color: #007bff;
+}
+</style>

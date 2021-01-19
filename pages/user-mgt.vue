@@ -156,7 +156,6 @@ export default {
 
     },
     click (user) {
-      // this.$utils.log(user)
       this.modal(this.$createElement('lah-user-card', { props: { raw: user } }), {
         title: `${user['id']} ${user['name']} 資訊`
       })

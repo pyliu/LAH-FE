@@ -39,7 +39,15 @@
         >
           {{ data.value.split(" ")[0] }}
         </b-button>
-        <strong v-else>{{ data.value.split(" ")[0] }}</strong>
+        <b-button
+          v-else
+          variant="outline-secondary"
+          @click="searchUser(data.value.split(' ')[0], data.value.split(' ')[1])"
+          size="sm"
+          :title="`查詢 ${data.value} 的使用者訊息`"
+          >
+            {{ data.value.split(' ')[0] }}
+          </b-button>
       </template>
       <template v-slot:cell(作業人員)="data">
         <b-button
@@ -74,8 +82,10 @@
 </template>
 
 <script>
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'lah-expiry-b-table',
+  components: { lahUserCard },
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
@@ -159,10 +169,18 @@ export default {
     },
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
     searchByReviewer (id) {},
-    searchUser (id) {}
+    searchUser (name, id = '') {
+      this.modal(this.$createElement('lah-user-card', { props: { name: name, id: id } }), {
+        title: `${id} ${name} 資訊`
+      })
+    }
   },
   created () { this.modalId = this.$utils.uuid() }
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+a {
+  color: #007bff;
+}
+</style>
