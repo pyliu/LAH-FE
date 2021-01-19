@@ -90,12 +90,13 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
+import lahUserEditCard from '~/components/lah-user-edit-card.vue'
 export default {
   head: {
     title: "使用者資訊管理-桃園市地政局",
   },
   fetchOnServer: false,
-  components: { lahUserCard },
+  components: { lahUserCard, lahUserEditCard },
   data: () => ({
     userXlsx: null,
     keyword: '',
@@ -156,8 +157,9 @@ export default {
 
     },
     click (user) {
-      this.modal(this.$createElement('lah-user-card', { props: { raw: [user] } }), {
-        title: `${user['id']} ${user['name']} 資訊`
+      this.modal(this.$createElement('lah-user-edit-card', { props: { raw: [user] } }), {
+        title: `編輯 ${user['id']} ${user['name']} 資訊`,
+        size: 'lg'
       })
     },
     variant (user) {
@@ -171,7 +173,7 @@ export default {
       return 'outline-success'
     },
     role (user) {
-      if (!this.$utils.empty(user['offboard_date'])) return '已離職'
+      if (!this.$utils.empty(user['offboard_date'])) return ''
       const auth = this.getAuthority(user)
       if (auth.isSuper) return '程式開發者'
       if (auth.isAdmin) return '系統管理者'
