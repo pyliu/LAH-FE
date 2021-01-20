@@ -115,6 +115,7 @@
       >
         <b-input id="offboard-input" v-model="userData['offboard_date']" trim />
       </b-form-group>
+      <lah-button icon="save" block @click="save">儲存變更</lah-button>
     </div>
     <!--
     <b-card-img
@@ -223,6 +224,25 @@ export default {
       }
       return `http://${this.svr.ips[0]}/get_user_img.php?name=${user["name"]}`
     },
+    save () {
+      this.isBusy = false
+      this.$axios.post(this.$consts.API.JSON.USER, {
+        type: "edit_user_info",
+        data: this.userData
+      }).then((res) => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          
+        } else {
+          this.notify(res.data.message, { type: "warning" })
+        }
+      })
+      .catch((err) => {
+        this.$utils.error(err)
+      })
+      .finally(() => {
+        this.isBusy = false
+      })
+    }
   },
   fetch() {
     (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) &&
