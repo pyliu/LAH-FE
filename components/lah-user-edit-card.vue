@@ -227,7 +227,7 @@ export default {
     save () {
       this.isBusy = false
       this.$axios.post(this.$consts.API.JSON.USER, {
-        type: "edit_user_info",
+        type: "save_user_info",
         data: this.userData
       }).then((res) => {
         if (this.$utils.statusCheck(res.data.status)) {
