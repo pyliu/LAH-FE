@@ -156,8 +156,28 @@ export default {
     add () {
 
     },
+    update (userData) {
+      // update the cached user data
+      let foundIdx = undefined
+      const user = this.users.find((item, idx, array) => {
+        if (item['id'] === userData['id']) {
+          foundIdx = idx
+        }
+        return item['id'] === userData['id']
+      })
+      if (foundIdx !== undefined) {
+        this.users[foundIdx] = Object.assign(user, userData)
+      }
+    },
     click (user) {
-      this.modal(this.$createElement('lah-user-edit-card', { props: { raw: [user] } }), {
+      this.modal(this.$createElement('lah-user-edit-card', {
+        props: { raw: [user] },
+        on: {
+          saved: (event) => {
+            this.update(event.detail)
+          }
+        }
+      }), {
         title: `編輯 ${user['id']} ${user['name']} 資訊`,
         size: 'lg'
       })
