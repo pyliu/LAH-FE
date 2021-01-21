@@ -9,6 +9,7 @@
     :class="noBorder ? 'border-0 align-middle' : ' align-middle'"
     :href="href"
     :to="to"
+    :disabled="disabled"
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
     @blur="mouseleave"
@@ -62,7 +63,8 @@ export default {
     badgeVariant: { type: String, default: 'light' },
     badgePill: { type: Boolean, default: true },
     busy: { type: Boolean, default: false },
-    noIconGutter: { type: Boolean, default: false }
+    noIconGutter: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false }
   },
   computed: {
     faIconPrefix () {
