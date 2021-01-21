@@ -2,8 +2,8 @@
   <b-card v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger">
     <b-button-group class="d-flex justify-content-between">
       <lah-button icon="save" @click="save">儲存變更</lah-button>
-      <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr">復職</lah-button>
-      <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr">離職</lah-button>
+      <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
+      <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
     </b-button-group>
     <hr/>
     <b-card-group deck>
@@ -182,11 +182,15 @@
       style="max-width: 220px"
     ></b-card-img>
     -->
+    <hr/>
+    <lah-user-card :raw="raw"></lah-user-card>
   </b-card>
 </template>
 
 <script>
+import lahUserCard from './lah-user-card.vue'
 export default {
+  components: { lahUserCard },
   props: {
     raw: { type: Array, default: () => [] },
     id: { type: String, default: "" },
@@ -281,24 +285,42 @@ export default {
       }
       return `http://${this.svr.ips[0]}/get_user_img.php?name=${user["name"]}`
     },
-    save () {
-      this.isBusy = false
-      this.$axios.post(this.$consts.API.JSON.USER, {
-        type: 'save_user_info',
-        data: this.userData
-      }).then((res) => {
-        if (this.$utils.statusCheck(res.data.status)) {
-          this.notify(res.data.message, { type: "success" })
-          this.trigger('saved', this.userData)
-        } else {
-          this.notify(res.data.message, { type: "warning" })
+    update (prompt, config) {
+      this.confirm(prompt).then((answer) => {
+        if (answer) {
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.USER, config).then((res) => {
+            if (this.$utils.statusCheck(res.data.status)) {
+              this.notify(res.data.message, { type: "success" })
+              this.trigger('saved', this.userData)
+            } else {
+              this.notify(res.data.message, { type: "warning" })
+            }
+          }).catch((err) => {
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+          })
         }
       })
-      .catch((err) => {
-        this.$utils.error(err)
+    },
+    save () {
+      this.update('確定要更新?', {
+        type: 'save_user_info',
+        data: this.userData
       })
-      .finally(() => {
-        this.isBusy = false
+    },
+    offboard () {
+      this.update('確定要設定為已離職?', {
+        type: 'user_offboard',
+        id: this.userData['id']
+      })
+    },
+    onboard () {
+      const today = this.$utils.now().split(' ')[0]
+      this.update(`確定要設定為復職? (到職日期會被設定為 ${today}，離職日期清空)`, {
+        type: 'user_onboard',
+        id: this.userData['id']
       })
     }
   },
