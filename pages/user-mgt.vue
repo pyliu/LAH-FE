@@ -53,7 +53,7 @@
           <b-input-group id="file-land_data_upload" size="md">
             <b-form-file ref="file-land_data_upload" v-model="userXlsx" placeholder="請選擇XLSX檔案" drop-placeholder="放開以設定上傳檔案" accept=".xlsx, .XLSX"></b-form-file>
             <template #append>
-              <lah-button icon="upload" variant="outline-primary" @click="upload" title="上傳"/>
+              <lah-button icon="upload" variant="outline-primary" @click="upload" title="上傳" :disabled="$utils.empty(userXlsx)"/>
             </template>
           </b-input-group>
         </b-form-group>
@@ -79,7 +79,7 @@
           :variant="variant(user)"
           v-b-popover.hover.top.html="role(user)"
         >
-          {{user['id'].padStart(6, '&ensp;')}}
+          {{user['id'].padStart(6, '&ensp')}}
           {{user['name'].padEnd(3, '　')}}
         </b-button>
       </section>
@@ -99,6 +99,8 @@ export default {
   components: { lahUserCard, lahUserEditCard },
   data: () => ({
     userXlsx: null,
+    uploadPercentage: 0,
+    responseData: undefined,
     keyword: '',
     users: [],
     filter: ['on'],
@@ -151,7 +153,30 @@ export default {
   },
   methods: {
     upload () {
-      
+      if (this.$utils.empty(this.userXlsx)) {
+        this.alert("請先選擇一個符合格式的XLSX檔")
+      } else {
+        this.isBusy = true
+        this.uploadPercentage = 0
+        let formData = new FormData()
+        formData.append("file", this.userXlsx)
+        this.$axios.post("api/import_user_xlsx.php", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          onUploadProgress: function (progressEvent) {
+            this.uploadPercentage = parseInt(Math.round((progressEvent.loaded / progressEvent.total) * 100))
+          }.bind(this)
+        }).then((res) => {
+          this.responseData = res.data
+          this.$utils.log(this.responseData)
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+          this.uploadPercentage = 0
+        })
+      }
     },
     add () {
 
