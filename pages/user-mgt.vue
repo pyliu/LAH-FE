@@ -17,23 +17,72 @@
               <ul>
                 <li>
                   <div class="d-inline-flex justify-content-around">
-                    選取編輯好的XLSX檔案，點擊 <lah-button icon="upload" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 上傳更新本地資料庫(dimension.db, user表格)
+                    選取編輯好的XLSX檔案，點擊
+                    <lah-button
+                      icon="upload"
+                      variant="outline-primary"
+                      class="mx-1 mt-n1"
+                      no-icon-gutter
+                    />
+                    上傳更新本地資料庫(dimension.db, user表格)
                   </div>
                 </li>
                 <li>
                   <div class="d-inline-flex justify-content-around">
-                    亦可利用下方 <lah-button icon="user-plus" variant="outline-primary" class="mx-1 mt-n1" no-icon-gutter /> 新增或其他按鍵編輯使用者。
+                    亦可利用下方
+                    <lah-button
+                      icon="user-plus"
+                      variant="outline-primary"
+                      class="mx-1 mt-n1"
+                      no-icon-gutter
+                    />
+                    新增或其他按鍵編輯使用者。
                   </div>
                 </li>
               </ul>
-              <hr/>
-              <div class="mx-2 my-1"><b-button variant="outline-success" size="sm">{{office}}XXXX 我ＯＯ</b-button> 在職使用者</div>
-              <div class="mx-2 my-1"><b-button variant="secondary" size="sm">{{office}}XXXX 不ＯＯ</b-button> 離職使用者</div>
-              <div class="mx-2 my-1"><b-button variant="danger" size="sm">{{office}}XXXX 要ＯＯ</b-button> 超級管理者</div>
-              <div class="mx-2 my-1"><b-button variant="outline-danger" size="sm">{{office}}XXXX 豬ＯＯ</b-button> 系統管理者</div>
-              <div class="mx-2 my-1"><b-button variant="primary" size="sm">{{office}}XXXX 羊ＯＯ</b-button> 主管</div>
-              <div class="mx-2 my-1"><b-button variant="warning" size="sm">{{office}}XXXX 變ＯＯ</b-button> 研考</div>
-              <div class="mx-2 my-1"><b-button variant="info" size="sm">{{office}}XXXX 色ＯＯ</b-button> 總務</div>
+              <hr />
+              <div class="mx-2 my-1">
+                <b-button variant="outline-success" size="sm"
+                  >{{ office }}XXXX 我ＯＯ</b-button
+                >
+                在職使用者
+              </div>
+              <div class="mx-2 my-1">
+                <b-button variant="secondary" size="sm"
+                  >{{ office }}XXXX 不ＯＯ</b-button
+                >
+                離職使用者
+              </div>
+              <div class="mx-2 my-1">
+                <b-button variant="danger" size="sm"
+                  >{{ office }}XXXX 要ＯＯ</b-button
+                >
+                超級管理者
+              </div>
+              <div class="mx-2 my-1">
+                <b-button variant="outline-danger" size="sm"
+                  >{{ office }}XXXX 豬ＯＯ</b-button
+                >
+                系統管理者
+              </div>
+              <div class="mx-2 my-1">
+                <b-button variant="primary" size="sm"
+                  >{{ office }}XXXX 羊ＯＯ</b-button
+                >
+                主管
+              </div>
+              <div class="mx-2 my-1">
+                <b-button variant="warning" size="sm"
+                  >{{ office }}XXXX 變ＯＯ</b-button
+                >
+                研考
+              </div>
+              <div class="mx-2 my-1">
+                <b-button variant="info" size="sm"
+                  >{{ office }}XXXX 色ＯＯ</b-button
+                >
+                總務
+              </div>
             </lah-help-modal>
           </div>
           <div></div>
@@ -42,16 +91,36 @@
     </lah-header>
 
     <section>
-      <hr/>
+      <hr />
       <h5 class="font-weight-bold text-right">
-        <lah-fa-icon icon="exclamation-circle" variant="warning" action="breath">
-          重複資料會被更新，<b-link href="/xlsx/user_import.tpl.xlsx" target="_blank">範例檔點此下載</b-link>
+        <lah-fa-icon
+          icon="exclamation-circle"
+          variant="warning"
+          action="breath"
+        >
+          重複資料會被更新，<b-link
+            href="/xlsx/user_import.tpl.xlsx"
+            target="_blank"
+            >範例檔點此下載</b-link
+          >
         </lah-fa-icon>
       </h5>
       <div>
-        <b-form-group label="匯入使用者檔案" label-for="file-land_data_upload" label-cols-sm="2" label-size="md" title="*.xlsx">
+        <b-form-group
+          label="匯入使用者檔案"
+          label-for="file-land_data_upload"
+          label-cols-sm="2"
+          label-size="md"
+          title="*.xlsx"
+        >
           <b-input-group id="file-land_data_upload" size="md">
-            <b-file ref="file-land_data_upload" v-model="userXlsx" placeholder="請選擇XLSX檔案" drop-placeholder="放開以設定上傳檔案" accept=".xlsx, .XLSX">
+            <b-file
+              ref="file-land_data_upload"
+              v-model="userXlsx"
+              placeholder="請選擇XLSX檔案"
+              drop-placeholder="放開以設定上傳檔案"
+              accept=".xlsx, .XLSX"
+            >
               <template slot="file-name" slot-scope="{ names }">
                 <b-badge variant="dark">{{ names[0] }}</b-badge>
                 <b-badge v-if="names.length > 1" variant="dark" class="ml-1">
@@ -60,19 +129,24 @@
               </template>
             </b-file>
             <template #append>
-              <lah-button icon="upload" variant="outline-primary" @click="upload" title="上傳" :disabled="$utils.empty(userXlsx)"/>
+              <lah-button
+                icon="upload"
+                variant="outline-primary"
+                @click="upload"
+                title="上傳"
+                :disabled="$utils.empty(userXlsx)"
+              />
             </template>
           </b-input-group>
         </b-form-group>
       </div>
       <hr class="mt-4" />
       <div class="d-flex justify-content-between mb-2">
-        <lah-button icon="user-plus" variant="outline-primary" @click="add">新增使用者</lah-button>
-        <span class="text-muted">找到 {{users.length}} 個使用者</span>
-        <b-form-checkbox-group
-          v-model="filter"
-          :options="filterOptions"
-        />
+        <lah-button icon="user-plus" variant="outline-primary" @click="add"
+          >新增使用者</lah-button
+        >
+        <span class="text-muted">找到 {{ users.length }} 個使用者</span>
+        <b-form-checkbox-group v-model="filter" :options="filterOptions" />
       </div>
       <section v-if="found">
         <b-button
@@ -86,8 +160,8 @@
           :variant="variant(user)"
           v-b-popover.hover.top.html="role(user)"
         >
-          {{user['id'].padStart(6, '&ensp')}}
-          {{user['name'].padEnd(3, '　')}}
+          {{ user["id"].padStart(6, "&ensp") }}
+          {{ user["name"].padEnd(3, "　") }}
         </b-button>
       </section>
       <hr class="my-5" />
@@ -96,9 +170,9 @@
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue'
-import lahUserEditCard from '~/components/lah-user-edit-card.vue'
-import lahUserAddCard from '~/components/lah-user-add-card.vue'
+import lahUserCard from "~/components/lah-user-card.vue"
+import lahUserEditCard from "~/components/lah-user-edit-card.vue"
+import lahUserAddCard from "~/components/lah-user-add-card.vue"
 export default {
   head: {
     title: "使用者資訊管理-桃園市地政局",
@@ -109,58 +183,129 @@ export default {
     userXlsx: null,
     uploadPercentage: 0,
     responseData: undefined,
-    keyword: '',
+    keyword: "",
     users: [],
-    filter: ['on'],
+    filter: ["on"],
     filterOptions: [
-      { text: '在職', value: 'on' },
-      { text: '離職', value: 'off' }
-    ]
+      { text: "在職", value: "on" },
+      { text: "離職", value: "off" },
+    ],
   }),
   computed: {
-    type () {
-      if (this.filter.length === 2) return 'all_users'
-      if (this.filter.includes('on')) return 'on_board_users'
-      if (this.filter.includes('off')) return 'off_board_users'
-      return ''
+    type() {
+      if (this.filter.length === 2) return "all_users"
+      if (this.filter.includes("on")) return "on_board_users"
+      if (this.filter.includes("off")) return "off_board_users"
+      return ""
     },
-    found () {
+    found() {
       return this.users.length > 0
     },
-    office () {
+    office() {
       if (this.svr) {
         return this.svr.config.site
       }
       return this.site
-    }
+    },
+    userByUnit() {
+      let hr = this.users.filter(
+        (this_record) => this_record["unit"] === "人事室"
+      )
+      let accounting = this.users.filter(
+        (this_record) => this_record["unit"] === "會計室"
+      )
+      let director = this.users.filter(
+        (this_record) => this_record["unit"] === "主任室"
+      )
+      let secretary = this.users.filter(
+        (this_record) => this_record["unit"] === "秘書室"
+      )
+      let adm = this.users.filter(
+        (this_record) => this_record["unit"] === "行政課"
+      )
+      let reg = this.users.filter(
+        (this_record) => this_record["unit"] === "登記課"
+      )
+      let val = this.users.filter(
+        (this_record) => this_record["unit"] === "地價課"
+      )
+      let sur = this.users.filter(
+        (this_record) => this_record["unit"] === "測量課"
+      )
+      let inf = this.users.filter(
+        (this_record) => this_record["unit"] === "資訊課"
+      )
+      return [
+        {
+          UNIT: "主任室",
+          LIST: director,
+        },
+        {
+          UNIT: "秘書室",
+          LIST: secretary,
+        },
+        {
+          UNIT: "人事室",
+          LIST: hr,
+        },
+        {
+          UNIT: "會計室",
+          LIST: accounting,
+        },
+        {
+          UNIT: "行政課",
+          LIST: adm,
+        },
+        {
+          UNIT: "登記課",
+          LIST: reg,
+        },
+        {
+          UNIT: "地價課",
+          LIST: val,
+        },
+        {
+          UNIT: "測量課",
+          LIST: sur,
+        },
+        {
+          UNIT: "資訊課",
+          LIST: inf,
+        },
+      ]
+    },
   },
   watch: {
-    type (val) {
-      if (val === '') {
+    type(val) {
+      if (val === "") {
         this.users = []
       } else {
         this.$fetch()
       }
-    }
+    },
   },
-  fetch () {
+  fetch() {
     this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.USER, {
-      type: this.type
-    }).then(res => {
-      if (this.$utils.statusCheck(res.data.status)) {
-        this.users = res.data.raw
-      } else {
-        this.notify(res.data.message, { type: 'warning' })
-      }
-    }).catch(err => {
-      this.$utils.error(err)
-    }).finally(() => {
+    this.$axios
+      .post(this.$consts.API.JSON.USER, {
+        type: this.type,
+      })
+      .then((res) => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          this.users = res.data.raw
+        } else {
+          this.notify(res.data.message, { type: "warning" })
+        }
+      })
+      .catch((err) => {
+        this.$utils.error(err)
+      })
+      .finally(() => {
         this.isBusy = false
-    })
+      })
   },
   methods: {
-    upload () {
+    upload() {
       if (this.$utils.empty(this.userXlsx)) {
         this.alert("請先選擇一個符合格式的XLSX檔")
       } else {
@@ -169,93 +314,103 @@ export default {
         this.uploadPercentage = 0
         let formData = new FormData()
         formData.append("file", this.userXlsx)
-        this.$axios.post("api/import_user_xlsx.php", formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }).then((res) => {
-          this.responseData = res.data
-          this.$utils.log(this.responseData)
-        }).catch((err) => {
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-          this.uploadPercentage = 0
-        })
+        this.$axios
+          .post("api/import_user_xlsx.php", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            this.responseData = res.data
+            this.$utils.log(this.responseData)
+          })
+          .catch((err) => {
+            this.$utils.error(err)
+          })
+          .finally(() => {
+            this.isBusy = false
+            this.uploadPercentage = 0
+          })
       }
     },
-    add () {
-      this.modal(this.$createElement('lah-user-add-card', {
-        on: {
-          added: (event) => {
-            this.added(event.detail)
-          }
+    add() {
+      this.modal(
+        this.$createElement("lah-user-add-card", {
+          on: {
+            added: (event) => {
+              this.added(event.detail)
+            },
+          },
+        }),
+        {
+          title: `新增使用者`,
+          size: "lg",
         }
-      }), {
-        title: `新增使用者`,
-        size: 'lg'
-      })
+      )
     },
-    added (userData) {
+    added(userData) {
       this.users.unshift(userData)
     },
-    update (userData) {
+    update(userData) {
       // update the cached user data
       let foundIdx = undefined
       const user = this.users.find((item, idx, array) => {
-        if (item['id'] === userData['id']) {
+        if (item["id"] === userData["id"]) {
           foundIdx = idx
         }
-        return item['id'] === userData['id']
+        return item["id"] === userData["id"]
       })
       if (foundIdx !== undefined) {
         this.users[foundIdx] = Object.assign(user, userData)
       }
     },
-    edit (user) {
-      this.modal(this.$createElement('lah-user-edit-card', {
-        props: { raw: [user] },
-        on: {
-          saved: (event) => {
-            this.update(event.detail)
-          }
+    edit(user) {
+      this.modal(
+        this.$createElement("lah-user-edit-card", {
+          props: { raw: [user] },
+          on: {
+            saved: (event) => {
+              this.update(event.detail)
+            },
+          },
+        }),
+        {
+          title: `編輯 ${user["id"]} ${user["name"]} 資訊`,
+          size: "lg",
         }
-      }), {
-        title: `編輯 ${user['id']} ${user['name']} 資訊`,
-        size: 'lg'
-      })
+      )
     },
-    variant (user) {
-      if (!this.$utils.empty(user['offboard_date'])) return 'secondary'
+    variant(user) {
+      if (!this.$utils.empty(user["offboard_date"])) return "secondary"
       const auth = this.getAuthority(user)
-      if (auth.isSuper) return 'danger'
-      if (auth.isAdmin) return 'outline-danger'
-      if (auth.isChief) return 'primary'
-      if (auth.isRAE) return 'warning'
-      if (auth.isGA) return 'info'
-      return 'outline-success'
+      if (auth.isSuper) return "danger"
+      if (auth.isAdmin) return "outline-danger"
+      if (auth.isChief) return "primary"
+      if (auth.isRAE) return "warning"
+      if (auth.isGA) return "info"
+      return "outline-success"
     },
-    role (user) {
-      if (!this.$utils.empty(user['offboard_date'])) return ''
+    role(user) {
+      if (!this.$utils.empty(user["offboard_date"])) return ""
       const auth = this.getAuthority(user)
-      if (auth.isSuper) return '程式開發者'
-      if (auth.isAdmin) return '系統管理者'
-      if (auth.isChief) return '主管'
-      if (auth.isRAE) return '研考'
-      if (auth.isGA) return '總務'
-      return ''
+      if (auth.isSuper) return "程式開發者"
+      if (auth.isAdmin) return "系統管理者"
+      if (auth.isChief) return "主管"
+      if (auth.isRAE) return "研考"
+      if (auth.isGA) return "總務"
+      return ""
     },
-    getAuthority (user) {
+    getAuthority(user) {
       const authorityMap = {
         isAdmin: false,
         isChief: false,
         isGA: false,
         isRAE: false,
-        isSuper: false
+        isSuper: false,
       }
       if (this.svr && this.svr.config.ip_maps) {
         const mappings = this.svr.config.ip_maps
-        const ip = user['ip']
+        const ip = user["ip"]
         authorityMap.isAdmin = mappings.admin.includes(ip)
         authorityMap.isChief = mappings.chief.includes(ip)
         authorityMap.isSuper = mappings.super.includes(ip)
@@ -263,8 +418,11 @@ export default {
         authorityMap.isGA = mappings.ga.includes(ip)
       }
       return authorityMap
-    }
-  }
+    },
+  },
+  mounted() {
+    this.$utils.log(this.userByUnit)
+  },
 }
 </script>
 
