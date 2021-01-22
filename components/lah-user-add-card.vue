@@ -169,9 +169,10 @@
         >
           <b-input
             id="onboard-input"
-            :value="userData['onboard_date']"
-            disabled
+            v-model="userData['onboard_date']"
             trim
+            :state="checkOnboardDate"
+            placeholder="110/01/22"
           />
         </b-form-group>
       </b-card>
@@ -264,6 +265,7 @@ export default {
       return this.checkId === true &&
              this.checkName === true &&
              this.checkIp === true &&
+             this.checkOnboardDate === true &&
              this.checkExt !== false &&
              this.checkBirthday !== false &&
              this.checkCell !== false
@@ -300,6 +302,10 @@ export default {
       }
       const regex = new RegExp(`^0\\d{9}$`, 'gm')
       return Boolean(this.userData['cell'].match(regex))
+    },
+    checkOnboardDate () {
+      const regex = new RegExp(`^\\d{3,4}/\\d{1,2}/\\d{1,2}$`, 'gm')
+      return Boolean(this.userData['onboard_date'].match(regex))
     }
   },
   methods: {
@@ -333,7 +339,7 @@ export default {
               .then((res) => {
                 if (this.$utils.statusCheck(res.data.status)) {
                   this.notify(res.data.message, { type: "success" })
-                  this.trigger("saved", this.userData)
+                  this.trigger("added", this.userData)
                 } else {
                   this.notify(res.data.message, { type: "warning" })
                 }

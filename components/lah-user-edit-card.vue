@@ -1,7 +1,7 @@
 <template>
   <b-card v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger">
     <b-button-group class="d-flex justify-content-between">
-      <lah-button icon="save" @click="save" :disabled="checkRequired">儲存變更</lah-button>
+      <lah-button icon="save" @click="save" :disabled="!checkRequired">儲存變更</lah-button>
       <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
       <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
     </b-button-group>
@@ -160,7 +160,7 @@
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="onboard-input" :value="userData['onboard_date']" disabled trim />
+          <b-input id="onboard-input" v-model="userData['onboard_date']" trim :state="checkOnboardDate" placeholder="110/01/22" />
         </b-form-group>
       </b-card>
       <b-card no-body class="border-0">
@@ -183,7 +183,7 @@
     ></b-card-img>
     -->
     <hr/>
-    <lah-user-card :raw="raw"></lah-user-card>
+    <lah-user-card :raw="[userData]"></lah-user-card>
   </b-card>
 </template>
 
@@ -197,7 +197,22 @@ export default {
     name: { type: String, default: "" },
   },
   data: () => ({
-    userData: {},
+    userData: {
+      id: "",
+      name: "",
+      sex: "1",
+      title: "臨時人員",
+      work: "打雜",
+      ext: "153",
+      birthday: "",
+      unit: "行政課",
+      ip: "192.168.XX.XX",
+      education: "桃園市中壢區富台國民小學",
+      exam: "未通過國家考試",
+      cell: "",
+      onboard_date: "",
+      offboard_date: ""
+    },
     workTitleOpts: [
       "臨時人員",
       "約僱人員",
@@ -238,15 +253,14 @@ export default {
     raw(array) {
       if (Array.isArray(array)) {
         if (array.length > 1) {
-          this.userData =
-            array.find((item, idx, array) => {
-              return this.$utils.empty(item["offboard_date"])
-            }) || {}
+          this.assignUserData(array.find((item, idx, array) => {
+            return this.$utils.empty(item["offboard_date"])
+          }))
         } else {
-          this.userData = array[0]
+          this.assignUserData(array[0])
         }
       } else {
-        this.$utils.warning("raw is not an array", array)
+        this.$utils.warn("raw is not an array", array)
       }
     },
   },
@@ -258,13 +272,16 @@ export default {
       return !this.$utils.empty(this.userData["offboard_date"])
     },
     checkRequired () {
-      return this.checkId === true &&
+      return this.modified &&
+             this.checkId === true &&
              this.checkName === true &&
              this.checkIp === true &&
+             this.checkOnboardDate === true &&
              this.checkExt !== false &&
              this.checkBirthday !== false &&
              this.checkCell !== false
     },
+    modified () { return !this.$utils.equal(this.userData, this.origUserData) },
     checkId () {
       if (this.$utils.empty(this.userData['id'])) {
         return false
@@ -300,9 +317,19 @@ export default {
       }
       const regex = new RegExp(`^0\\d{9}$`, 'gm')
       return Boolean(this.userData['cell'].match(regex))
+    },
+    checkOnboardDate () {
+      const regex = new RegExp(`^\\d{3,4}/\\d{1,2}/\\d{1,2}$`, 'gm')
+      return Boolean(this.userData['onboard_date'].match(regex))
     }
   },
   methods: {
+    assignUserData (array) {
+      // Object.assign makes object data reactively
+      if (!this.$utils.empty(array)) {
+        this.userData = Object.assign(this.userData, array)
+      }
+    },
     toTWFormat: function (ad_date) {
       tw_date = ad_date.replace("/-/g", "/")
       // detect if it is AD date
@@ -425,8 +452,10 @@ export default {
         })
   },
   created() {
-    // Object.assign makes object data reactively 
-    this.userData = this.$utils.empty(this.raw) ? {} : Object.assign({}, this.raw[0])
+    if (!this.$utils.empty(this.raw)) {
+      this.assignUserData(this.raw[0])
+      this.origUserData = Object.assign({}, this.userData)
+    }
   },
   mounted() {
   },

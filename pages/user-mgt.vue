@@ -197,17 +197,7 @@ export default {
       })
     },
     added (userData) {
-      // update the cached user data
-      // let foundIdx = undefined
-      // const user = this.users.find((item, idx, array) => {
-      //   if (item['id'] === userData['id']) {
-      //     foundIdx = idx
-      //   }
-      //   return item['id'] === userData['id']
-      // })
-      // if (foundIdx !== undefined) {
-      //   this.users[foundIdx] = Object.assign(user, userData)
-      // }
+      this.users.unshift(userData)
     },
     update (userData) {
       // update the cached user data
