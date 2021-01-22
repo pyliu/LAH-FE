@@ -1,11 +1,9 @@
 <template>
-  <b-card v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger">
+  <b-card v-if="isAuthorized" body-border-variant="danger">
     <b-button-group class="d-flex justify-content-between">
-      <lah-button icon="save" @click="save" :disabled="checkRequired">儲存變更</lah-button>
-      <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
-      <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
+      <lah-button icon="save" @click="save" :disabled="!checkRequired">新增</lah-button>
     </b-button-group>
-    <hr/>
+    <hr />
     <b-card-group deck>
       <b-card no-body class="border-0">
         <b-form-group
@@ -14,7 +12,12 @@
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="id-input" :value="userData['id']" disabled trim />
+          <b-input
+            id="id-input"
+            v-model="userData['id']"
+            trim
+            :state="checkId"
+          />
         </b-form-group>
       </b-card>
       <b-card no-body class="border-0">
@@ -33,11 +36,15 @@
       <b-card no-body class="border-0">
         <b-form-group
           label="性別"
-          label-for="sex-input"
+          label-for="sex-select"
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="sex-input" :value="userData['sex'] === 1 ? '男' : '女'" disabled trim />
+          <b-select
+            id="sex-select"
+            v-model="userData['sex']"
+            :options="sexOpts"
+          ></b-select>
         </b-form-group>
       </b-card>
       <b-card no-body class="border-0">
@@ -55,7 +62,7 @@
         </b-form-group>
       </b-card>
     </b-card-group>
-    
+
     <b-card-group deck>
       <b-card no-body class="border-0">
         <b-form-group
@@ -160,44 +167,55 @@
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="onboard-input" :value="userData['onboard_date']" disabled trim />
+          <b-input
+            id="onboard-input"
+            :value="userData['onboard_date']"
+            disabled
+            trim
+          />
         </b-form-group>
       </b-card>
       <b-card no-body class="border-0">
-        <b-form-group
+        <!-- <b-form-group
           label="離職"
           label-for="offboard-input"
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="offboard-input" :value="userData['offboard_date']" disabled trim />
-        </b-form-group>
+          <b-input
+            id="offboard-input"
+            :value="userData['offboard_date']"
+            disabled
+            trim
+          />
+        </b-form-group> -->
       </b-card>
     </b-card-group>
-    <!--
-    <b-card-img
-      :src="photoUrl(userData)"
-      :alt="userData['name']"
-      class="img-thumbnail float-right mx-auto ml-2 shadow-xl"
-      style="max-width: 220px"
-    ></b-card-img>
-    -->
-    <hr/>
-    <lah-user-card :raw="raw"></lah-user-card>
+    <hr />
+    <lah-user-card :raw="[userData]"></lah-user-card>
   </b-card>
 </template>
 
 <script>
-import lahUserCard from './lah-user-card.vue'
+import lahUserCard from "./lah-user-card.vue"
 export default {
   components: { lahUserCard },
-  props: {
-    raw: { type: Array, default: () => [] },
-    id: { type: String, default: "" },
-    name: { type: String, default: "" },
-  },
   data: () => ({
-    userData: {},
+    userData: {
+      id: "",
+      name: "",
+      sex: "1",
+      title: "臨時人員",
+      work: "打雜",
+      ext: "153",
+      birthday: "",
+      unit: "行政課",
+      ip: "192.168.XX.XX",
+      education: "桃園市中壢區富台國民小學",
+      exam: "未通過國家考試",
+      cell: "",
+      onboard_date: "",
+    },
     workTitleOpts: [
       "臨時人員",
       "約僱人員",
@@ -220,7 +238,7 @@ export default {
       "人事管理員",
       "課長",
       "秘書",
-      "主任"
+      "主任",
     ],
     unitOpts: [
       "登記課",
@@ -231,31 +249,16 @@ export default {
       "人事室",
       "會計室",
       "秘書室",
-      "主任室"
+      "主任室",
+    ],
+    sexOpts: [
+      { value: 1, text: "男" },
+      { value: 0, text: "女" },
     ],
   }),
-  watch: {
-    raw(array) {
-      if (Array.isArray(array)) {
-        if (array.length > 1) {
-          this.userData =
-            array.find((item, idx, array) => {
-              return this.$utils.empty(item["offboard_date"])
-            }) || {}
-        } else {
-          this.userData = array[0]
-        }
-      } else {
-        this.$utils.warning("raw is not an array", array)
-      }
-    },
-  },
   computed: {
-    isAuthorized() {
+    isAuthorized () {
       return this.authority.isAdmin || this.authority.isSuper
-    },
-    isLeft() {
-      return !this.$utils.empty(this.userData["offboard_date"])
     },
     checkRequired () {
       return this.checkId === true &&
@@ -281,9 +284,6 @@ export default {
       return Boolean(this.userData['ip'].match(regex))
     },
     checkExt () {
-      if (this.$utils.empty(this.userData['ext'])) {
-        return null
-      }
       const regex = new RegExp(`^\\d{3,4}$`, 'gm')
       return Boolean(this.userData['ext'].match(regex))
     },
@@ -303,7 +303,7 @@ export default {
     }
   },
   methods: {
-    toTWFormat: function (ad_date) {
+    toTWFormat (ad_date) {
       tw_date = ad_date.replace("/-/g", "/")
       // detect if it is AD date
       if (tw_date.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
@@ -313,7 +313,7 @@ export default {
       }
       return tw_date
     },
-    toADFormat: function (tw_date) {
+    toADFormat (tw_date) {
       let ad_date = tw_date.replace("/-/g", "/")
       // detect if it is TW date
       if (ad_date.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
@@ -323,31 +323,29 @@ export default {
       }
       return ad_date
     },
-    photoUrl: function (user) {
-      if (this.useAvatar) {
-        return `http://${this.svr.ips[0]}/get_user_img.php?name=${user["name"]}_avatar`
-      }
-      return `http://${this.svr.ips[0]}/get_user_img.php?name=${user["name"]}`
-    },
     async update (prompt, config) {
       return new Promise((resolve, reject) => {
         this.confirm(prompt).then((answer) => {
           if (answer) {
             this.isBusy = true
-            this.$axios.post(this.$consts.API.JSON.USER, config).then((res) => {
-              if (this.$utils.statusCheck(res.data.status)) {
-                this.notify(res.data.message, { type: "success" })
-                this.trigger('saved', this.userData)
-              } else {
-                this.notify(res.data.message, { type: "warning" })
-              }
-            }).catch((err) => {
-              this.$utils.error(err)
-              reject(err)
-            }).finally(() => {
-              this.isBusy = false
-              resolve(answer)
-            })
+            this.$axios
+              .post(this.$consts.API.JSON.USER, config)
+              .then((res) => {
+                if (this.$utils.statusCheck(res.data.status)) {
+                  this.notify(res.data.message, { type: "success" })
+                  this.trigger("saved", this.userData)
+                } else {
+                  this.notify(res.data.message, { type: "warning" })
+                }
+              })
+              .catch((err) => {
+                this.$utils.error(err)
+                reject(err)
+              })
+              .finally(() => {
+                this.isBusy = false
+                resolve(answer)
+              })
           } else {
             reject(answer)
           }
@@ -355,80 +353,14 @@ export default {
       })
     },
     save () {
-      this.update('確定要更新?', {
-        type: 'save_user_info',
-        data: this.userData
+      this.update("確定要更新?", {
+        type: "add_user",
+        data: this.userData,
       })
     },
-    offboard () {
-      this.update('確定要設定為已離職?', {
-        type: 'user_offboard',
-        id: this.userData['id']
-      }).then((answer) => {
-        if (answer) {
-          const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
-          this.userData = Object.assign(this.userData, {
-            offboard_date: today
-          })
-          this.trigger('saved', this.userData)
-        }
-      }).catch((error) => {
-        this.$utils.warn(error)
-      })
-    },
-    onboard () {
-      const today = this.$utils.now().split(' ')[0]
-      this.update(`確定要設定為復職? (到職日期會被設定為 ${today}，離職日期清空)`, {
-        type: 'user_onboard',
-        id: this.userData['id']
-      }).then((answer) => {
-        if (answer) {
-          const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
-          this.userData = Object.assign(this.userData, {
-            offboard_date: '',
-            onboard_date: today
-          })
-          this.trigger('saved', this.userData)
-        }
-      }).catch((error) => {
-        this.$utils.warn(error)
-      })
-    }
-  },
-  fetch() {
-    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) &&
-      this.$axios
-        .post(this.$consts.API.JSON.USER, {
-          type: "user_info",
-          id: this.id,
-          name: this.name,
-        })
-        .then((res) => {
-          if (this.$utils.statusCheck(res.data.status)) {
-            if (res.data.data_count > 1) {
-              this.userData =
-                res.data.raw.find((item, idx, array) => {
-                  return this.$utils.empty(item["offboard_date"])
-                }) || {}
-            } else {
-              this.userData = res.data.raw[0]
-            }
-          } else {
-            this.notify(res.data.message, { type: "warning" })
-          }
-        })
-        .catch((err) => {
-          this.$utils.error(err)
-        })
-        .finally(() => {
-          this.isBusy = false
-        })
   },
   created() {
-    // Object.assign makes object data reactively 
-    this.userData = this.$utils.empty(this.raw) ? {} : Object.assign({}, this.raw[0])
-  },
-  mounted() {
+    this.userData["birthday"] = this.userData["onboard_date"] = this.$utils.now().split(" ")[0].replaceAll("-", "/")
   },
 }
 </script>

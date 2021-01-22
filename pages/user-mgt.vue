@@ -51,7 +51,14 @@
       <div>
         <b-form-group label="匯入使用者檔案" label-for="file-land_data_upload" label-cols-sm="2" label-size="md" title="*.xlsx">
           <b-input-group id="file-land_data_upload" size="md">
-            <b-form-file ref="file-land_data_upload" v-model="userXlsx" placeholder="請選擇XLSX檔案" drop-placeholder="放開以設定上傳檔案" accept=".xlsx, .XLSX"></b-form-file>
+            <b-file ref="file-land_data_upload" v-model="userXlsx" placeholder="請選擇XLSX檔案" drop-placeholder="放開以設定上傳檔案" accept=".xlsx, .XLSX">
+              <template slot="file-name" slot-scope="{ names }">
+                <b-badge variant="dark">{{ names[0] }}</b-badge>
+                <b-badge v-if="names.length > 1" variant="dark" class="ml-1">
+                  + {{ names.length - 1 }} More files
+                </b-badge>
+              </template>
+            </b-file>
             <template #append>
               <lah-button icon="upload" variant="outline-primary" @click="upload" title="上傳" :disabled="$utils.empty(userXlsx)"/>
             </template>
@@ -75,7 +82,7 @@
           :data-name="user['name']"
           size="sm"
           class="mx-1 my-1"
-          @click="click(user)"
+          @click="edit(user)"
           :variant="variant(user)"
           v-b-popover.hover.top.html="role(user)"
         >
@@ -91,12 +98,13 @@
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
 import lahUserEditCard from '~/components/lah-user-edit-card.vue'
+import lahUserAddCard from '~/components/lah-user-add-card.vue'
 export default {
   head: {
     title: "使用者資訊管理-桃園市地政局",
   },
   fetchOnServer: false,
-  components: { lahUserCard, lahUserEditCard },
+  components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
     userXlsx: null,
     uploadPercentage: 0,
@@ -156,6 +164,7 @@ export default {
       if (this.$utils.empty(this.userXlsx)) {
         this.alert("請先選擇一個符合格式的XLSX檔")
       } else {
+        this.$utils.log(this.userXlsx)
         this.isBusy = true
         this.uploadPercentage = 0
         let formData = new FormData()
@@ -163,10 +172,7 @@ export default {
         this.$axios.post("api/import_user_xlsx.php", formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
-          },
-          onUploadProgress: function (progressEvent) {
-            this.uploadPercentage = parseInt(Math.round((progressEvent.loaded / progressEvent.total) * 100))
-          }.bind(this)
+          }
         }).then((res) => {
           this.responseData = res.data
           this.$utils.log(this.responseData)
@@ -179,7 +185,29 @@ export default {
       }
     },
     add () {
-
+      this.modal(this.$createElement('lah-user-add-card', {
+        on: {
+          added: (event) => {
+            this.added(event.detail)
+          }
+        }
+      }), {
+        title: `新增使用者`,
+        size: 'lg'
+      })
+    },
+    added (userData) {
+      // update the cached user data
+      // let foundIdx = undefined
+      // const user = this.users.find((item, idx, array) => {
+      //   if (item['id'] === userData['id']) {
+      //     foundIdx = idx
+      //   }
+      //   return item['id'] === userData['id']
+      // })
+      // if (foundIdx !== undefined) {
+      //   this.users[foundIdx] = Object.assign(user, userData)
+      // }
     },
     update (userData) {
       // update the cached user data
@@ -194,7 +222,7 @@ export default {
         this.users[foundIdx] = Object.assign(user, userData)
       }
     },
-    click (user) {
+    edit (user) {
       this.modal(this.$createElement('lah-user-edit-card', {
         props: { raw: [user] },
         on: {
