@@ -27,13 +27,13 @@
                 </li>
               </ul>
               <hr/>
-              <div class="mx-2 my-1"><b-button variant="outline-success" size="sm">{{site}}XXXX 我ＯＯ</b-button> 在職使用者</div>
-              <div class="mx-2 my-1"><b-button variant="secondary" size="sm">{{site}}XXXX 不ＯＯ</b-button> 離職使用者</div>
-              <div class="mx-2 my-1"><b-button variant="danger" size="sm">{{site}}XXXX 要ＯＯ</b-button> 超級管理者</div>
-              <div class="mx-2 my-1"><b-button variant="outline-danger" size="sm">{{site}}XXXX 豬ＯＯ</b-button> 系統管理者</div>
-              <div class="mx-2 my-1"><b-button variant="primary" size="sm">{{site}}XXXX 羊ＯＯ</b-button> 主管</div>
-              <div class="mx-2 my-1"><b-button variant="warning" size="sm">{{site}}XXXX 變ＯＯ</b-button> 研考</div>
-              <div class="mx-2 my-1"><b-button variant="info" size="sm">{{site}}XXXX 色ＯＯ</b-button> 總務</div>
+              <div class="mx-2 my-1"><b-button variant="outline-success" size="sm">{{office}}XXXX 我ＯＯ</b-button> 在職使用者</div>
+              <div class="mx-2 my-1"><b-button variant="secondary" size="sm">{{office}}XXXX 不ＯＯ</b-button> 離職使用者</div>
+              <div class="mx-2 my-1"><b-button variant="danger" size="sm">{{office}}XXXX 要ＯＯ</b-button> 超級管理者</div>
+              <div class="mx-2 my-1"><b-button variant="outline-danger" size="sm">{{office}}XXXX 豬ＯＯ</b-button> 系統管理者</div>
+              <div class="mx-2 my-1"><b-button variant="primary" size="sm">{{office}}XXXX 羊ＯＯ</b-button> 主管</div>
+              <div class="mx-2 my-1"><b-button variant="warning" size="sm">{{office}}XXXX 變ＯＯ</b-button> 研考</div>
+              <div class="mx-2 my-1"><b-button variant="info" size="sm">{{office}}XXXX 色ＯＯ</b-button> 總務</div>
             </lah-help-modal>
           </div>
           <div></div>
@@ -127,11 +127,11 @@ export default {
     found () {
       return this.users.length > 0
     },
-    site () {
+    office () {
       if (this.svr) {
         return this.svr.config.site
       }
-      return 'HB'
+      return this.site
     }
   },
   watch: {
