@@ -22,7 +22,6 @@
       :icon="icon"
       :size="iconSize"
       :append="iconAppend"
-      @click="!disabled && emitClick($event)"
       :no-gutter="noIconGutter"
     >
       <span v-if="busy" class="ld-txt">讀取中...</span>
@@ -54,7 +53,6 @@ export default {
     regular: { type: Boolean, default: false },
     brand: { type: Boolean, default: false },
     action: { type: String, default: undefined },
-    click: { type: Function, default: () => { console.log("%c BUTTON Click", 'color: red; font-size: 2rem;') } },
     pill: { type: Boolean, default: false },
     block: { type: Boolean, default: false },
     pressed: { type: Boolean, default: false },
@@ -76,8 +74,8 @@ export default {
   },
   methods: {
     emitClick (evt) {
-      this.$emit('click', this.click)
-      evt && evt.stopPropagation()
+      this.$emit('click', evt)
+      evt.stopPropagation()
     },
     mouseenter () {
       const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath';
