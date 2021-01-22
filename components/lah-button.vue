@@ -22,7 +22,7 @@
       :icon="icon"
       :size="iconSize"
       :append="iconAppend"
-      @click="emitClick($event)"
+      @click="!disabled && emitClick($event)"
       :no-gutter="noIconGutter"
     >
       <span v-if="busy" class="ld-txt">讀取中...</span>
