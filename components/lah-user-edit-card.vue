@@ -285,23 +285,29 @@ export default {
       }
       return `http://${this.svr.ips[0]}/get_user_img.php?name=${user["name"]}`
     },
-    update (prompt, config) {
-      this.confirm(prompt).then((answer) => {
-        if (answer) {
-          this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.USER, config).then((res) => {
-            if (this.$utils.statusCheck(res.data.status)) {
-              this.notify(res.data.message, { type: "success" })
-              this.trigger('saved', this.userData)
-            } else {
-              this.notify(res.data.message, { type: "warning" })
-            }
-          }).catch((err) => {
-            this.$utils.error(err)
-          }).finally(() => {
-            this.isBusy = false
-          })
-        }
+    async update (prompt, config) {
+      return new Promise((resolve, reject) => {
+        this.confirm(prompt).then((answer) => {
+          if (answer) {
+            this.isBusy = true
+            this.$axios.post(this.$consts.API.JSON.USER, config).then((res) => {
+              if (this.$utils.statusCheck(res.data.status)) {
+                this.notify(res.data.message, { type: "success" })
+                this.trigger('saved', this.userData)
+              } else {
+                this.notify(res.data.message, { type: "warning" })
+              }
+            }).catch((err) => {
+              this.$utils.error(err)
+              reject(err)
+            }).finally(() => {
+              this.isBusy = false
+              resolve(answer)
+            })
+          } else {
+            reject(answer)
+          }
+        })
       })
     },
     save () {
@@ -314,6 +320,16 @@ export default {
       this.update('確定要設定為已離職?', {
         type: 'user_offboard',
         id: this.userData['id']
+      }).then((answer) => {
+        if (answer) {
+          const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
+          this.userData = Object.assign(this.userData, {
+            offboard_date: today
+          })
+          this.trigger('saved', this.userData)
+        }
+      }).catch((error) => {
+        this.$utils.warn(error)
       })
     },
     onboard () {
@@ -321,6 +337,17 @@ export default {
       this.update(`確定要設定為復職? (到職日期會被設定為 ${today}，離職日期清空)`, {
         type: 'user_onboard',
         id: this.userData['id']
+      }).then((answer) => {
+        if (answer) {
+          const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
+          this.userData = Object.assign(this.userData, {
+            offboard_date: '',
+            onboard_date: today
+          })
+          this.trigger('saved', this.userData)
+        }
+      }).catch((error) => {
+        this.$utils.warn(error)
       })
     }
   },
