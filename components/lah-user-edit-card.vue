@@ -197,7 +197,66 @@
       scrollable
       no-close-on-backdrop
     >
-      <lah-fa-icon icon="user-circle"></lah-fa-icon>
+      <b-form-group
+        label="照片"
+        label-for="file-user-photo"
+        label-cols-sm="2"
+        label-size="md"
+        title="*.jpg"
+      >
+        <b-input-group id="file-user-photo" size="md">
+          <b-file
+            ref="file-user-photo"
+            v-model="userPhoto"
+            placeholder="請選擇JPEG檔案"
+            drop-placeholder="放開以設定上傳檔案"
+            accept=".jpg, .JPG"
+          >
+            <template slot="file-name" slot-scope="{ names }">
+              <b-badge variant="primary">{{ names[0] }}</b-badge>
+            </template>
+          </b-file>
+          <template #append>
+            <lah-button
+              icon="upload"
+              variant="outline-primary"
+              @click="upload"
+              title="上傳"
+              :disabled="$utils.empty(userPhoto)"
+            />
+          </template>
+        </b-input-group>
+      </b-form-group>
+      <b-form-group
+        label="頭像"
+        label-for="file-user-avatar"
+        label-cols-sm="2"
+        label-size="md"
+        title="*.jpg"
+      >
+        <b-input-group id="file-user-avatar" size="md">
+          <b-file
+            ref="file-user-avatar"
+            v-model="userAvatar"
+            placeholder="請選擇JPEG檔案"
+            drop-placeholder="放開以設定上傳檔案"
+            accept=".jpg, .JPG"
+          >
+            <template slot="file-name" slot-scope="{ names }">
+              <b-badge variant="secondary">{{ names[0] }}</b-badge>
+            </template>
+          </b-file>
+          <template #append>
+            <lah-button
+              icon="upload"
+              variant="outline-primary"
+              @click="upload"
+              title="上傳"
+              :disabled="$utils.empty(userAvatar)"
+            />
+          </template>
+        </b-input-group>
+      </b-form-group>
     </b-modal>
   </b-card>
 </template>
@@ -213,6 +272,8 @@ export default {
     name: { type: String, default: "" },
   },
   data: () => ({
+    userPhoto: null,
+    userAvatar: null,
     userData: {
       id: "",
       name: "",
@@ -371,10 +432,10 @@ export default {
       return ad_date
     },
     photoUrl: function (user) {
-      if (this.useAvatar) {
-        return `http://${this.svr.ips[0]}/get_user_img.php?name=${user["name"]}_avatar`
-      }
-      return `http://${this.svr.ips[0]}/get_user_img.php?name=${user["name"]}`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user["name"]}`
+    },
+    avatarUrl: function (user) {
+      return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user["name"]}_avatar`
     },
     async update (prompt, config) {
       return new Promise((resolve, reject) => {
@@ -436,6 +497,9 @@ export default {
       }).catch((error) => {
         this.$utils.warn(error)
       })
+    },
+    upload () {
+
     }
   },
   fetch() {
