@@ -63,43 +63,43 @@
         <hr />
         <div class="mx-2 my-1">
           <b-button variant="outline-success" size="sm"
-            >{{ office }}XXXX 我ＯＯ</b-button
+            >{{ office }}XXXX 劉ＯＯ</b-button
           >
           在職使用者
         </div>
         <div class="mx-2 my-1">
           <b-button variant="secondary" size="sm"
-            >{{ office }}XXXX 不ＯＯ</b-button
+            >{{ office }}XXXX 邦ＯＯ</b-button
           >
           離職使用者
         </div>
         <div class="mx-2 my-1">
           <b-button variant="danger" size="sm"
-            >{{ office }}XXXX 要ＯＯ</b-button
+            >{{ office }}XXXX 渝ＯＯ</b-button
           >
           超級管理者
         </div>
         <div class="mx-2 my-1">
           <b-button variant="outline-danger" size="sm"
-            >{{ office }}XXXX 豬ＯＯ</b-button
+            >{{ office }}XXXX 中ＯＯ</b-button
           >
           系統管理者
         </div>
         <div class="mx-2 my-1">
           <b-button variant="primary" size="sm"
-            >{{ office }}XXXX 羊ＯＯ</b-button
+            >{{ office }}XXXX 壢ＯＯ</b-button
           >
           主管
         </div>
         <div class="mx-2 my-1">
           <b-button variant="warning" size="sm"
-            >{{ office }}XXXX 變ＯＯ</b-button
+            >{{ office }}XXXX 地ＯＯ</b-button
           >
           研考
         </div>
         <div class="mx-2 my-1">
           <b-button variant="info" size="sm"
-            >{{ office }}XXXX 色ＯＯ</b-button
+            >{{ office }}XXXX 政ＯＯ</b-button
           >
           總務
         </div>
@@ -160,7 +160,6 @@
         </b-form-group>
       </b-modal>
     </lah-header>
-
     <section>
       <div class="d-flex justify-content-between mb-2">
         <span class="text-muted">找到 {{ users.length }} 個使用者</span>
