@@ -33,11 +33,15 @@
       <b-card no-body class="border-0">
         <b-form-group
           label="性別"
-          label-for="sex-input"
+          label-for="sex-select"
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="sex-input" :value="userData['sex'] === 1 ? '男' : '女'" disabled trim />
+          <b-select
+            id="sex-select"
+            v-model="userData['sex']"
+            :options="sexOpts"
+          ></b-select>
         </b-form-group>
       </b-card>
       <b-card no-body class="border-0">
@@ -248,6 +252,10 @@ export default {
       "秘書室",
       "主任室"
     ],
+    sexOpts: [
+      { value: 1, text: "男" },
+      { value: 0, text: "女" }
+    ]
   }),
   watch: {
     raw(array) {
@@ -364,19 +372,26 @@ export default {
             this.$axios.post(this.$consts.API.JSON.USER, config).then((res) => {
               if (this.$utils.statusCheck(res.data.status)) {
                 this.notify(res.data.message, { type: "success" })
-                this.trigger('saved', this.userData)
+                const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
+                if (config.type === "user_onboard") {
+                  this.userData['offboard_date'] = ''
+                  this.userData['onboard_date'] = today
+                } else if (config.type === "user_offboard") {
+                  this.userData['offboard_date'] = today
+                }
+                resolve(this.userData)
               } else {
                 this.notify(res.data.message, { type: "warning" })
+                reject(res.data.message)
               }
             }).catch((err) => {
               this.$utils.error(err)
               reject(err)
             }).finally(() => {
               this.isBusy = false
-              resolve(answer)
             })
           } else {
-            reject(answer)
+            reject('user cancelled the confirmation!')
           }
         })
       })
@@ -385,20 +400,16 @@ export default {
       this.update('確定要更新?', {
         type: 'save_user_info',
         data: this.userData
+      }).then((userData) => {
+        this.trigger('saved', userData)
       })
     },
     offboard () {
       this.update('確定要設定為已離職?', {
         type: 'user_offboard',
         id: this.userData['id']
-      }).then((answer) => {
-        if (answer) {
-          const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
-          this.userData = Object.assign(this.userData, {
-            offboard_date: today
-          })
-          this.trigger('saved', this.userData)
-        }
+      }).then((userData) => {
+        this.trigger('saved', userData)
       }).catch((error) => {
         this.$utils.warn(error)
       })
@@ -408,15 +419,8 @@ export default {
       this.update(`確定要設定為復職? (到職日期會被設定為 ${today}，離職日期清空)`, {
         type: 'user_onboard',
         id: this.userData['id']
-      }).then((answer) => {
-        if (answer) {
-          const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
-          this.userData = Object.assign(this.userData, {
-            offboard_date: '',
-            onboard_date: today
-          })
-          this.trigger('saved', this.userData)
-        }
+      }).then((userData) => {
+        this.trigger('saved', userData)
       }).catch((error) => {
         this.$utils.warn(error)
       })

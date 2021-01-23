@@ -208,10 +208,8 @@
 import lahUserCard from "./lah-user-card.vue"
 export default {
   components: { lahUserCard },
-  props: {
-    users: { type: Array, default: [] } // for duplication checking
-  },
   data: () => ({
+    users: [],
     userData: {
       id: "",
       name: "",
@@ -324,12 +322,13 @@ export default {
   },
   watch: {
     foundUser (val) {
-      val && this.$bvToast.toast(`已找到「${val.id} ${val.name}」使用者資料，請選擇其他代碼！`, {
+      val && this.$bvToast.toast(`「${val.id} ${val.name}」使用者已存在，請選擇其他代碼！`, {
         title: `重複警訊`,
-        toaster: 'b-toaster-top-left',
+        toaster: 'b-toaster-top-center',
         appendToast: false,
-        variant: 'danger',
-        noAutoHide: true,
+        variant: 'warning',
+        // noAutoHide: true,
+        // autoHideDelay: 10000,
         solid: true
       })
     }
@@ -396,6 +395,22 @@ export default {
       })
     },
   },
+  fetch() {
+    this.isBusy = true
+    this.$axios.post(this.$consts.API.JSON.USER, {
+      type: 'all_users',
+    }).then((res) => {
+      if (this.$utils.statusCheck(res.data.status)) {
+        this.users = res.data.raw
+      } else {
+        this.notify(res.data.message, { type: "warning" })
+      }
+    }).catch((err) => {
+      this.$utils.error(err)
+    }).finally(() => {
+      this.isBusy = false
+    })
+  },
   created() {
     this.userData["birthday"] = this.userData["onboard_date"] = this.$utils.now().split(" ")[0].replaceAll("-", "/")
     this.findDuplication = this.$utils.debounce(() => {
@@ -406,7 +421,7 @@ export default {
           return this.userData['id'] === user['id']
         })
       }
-    }, 500)
+    }, 250)
   },
 }
 </script>

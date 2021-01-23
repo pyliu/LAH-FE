@@ -336,9 +336,6 @@ export default {
     add() {
       this.modal(
         this.$createElement("lah-user-add-card", {
-          props: {
-            users: this.users // for ID validation
-          },
           on: {
             added: (event) => {
               this.users.unshift(event.detail)
