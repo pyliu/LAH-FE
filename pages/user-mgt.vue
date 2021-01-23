@@ -299,9 +299,6 @@ export default {
       } else {
         this.$fetch()
       }
-    },
-    svr(val) {
-      this.$utils.log(val)
     }
   },
   fetch() {
