@@ -341,7 +341,7 @@ export default {
           },
           on: {
             added: (event) => {
-              this.added(event.detail)
+              this.users.unshift(event.detail)
             },
           },
         }),
@@ -351,9 +351,6 @@ export default {
           noCloseOnBackdrop: true
         }
       )
-    },
-    added(userData) {
-      this.users.unshift(userData)
     },
     update(userData) {
       // update the cached user data

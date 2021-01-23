@@ -4,6 +4,7 @@
       <lah-button icon="save" @click="save" :disabled="!checkRequired">新增</lah-button>
     </b-button-group>
     <hr />
+
     <b-card-group deck>
       <b-card no-body class="border-0">
         <b-form-group
@@ -17,6 +18,7 @@
             v-model="userData['id']"
             trim
             :state="checkId"
+            @input="findDuplication"
           />
         </b-form-group>
       </b-card>
@@ -27,7 +29,12 @@
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="name-input" v-model="userData['name']" :state="checkName" trim />
+          <b-input
+            id="name-input"
+            v-model="userData['name']"
+            :state="checkName"
+            trim
+          />
         </b-form-group>
       </b-card>
     </b-card-group>
@@ -259,6 +266,7 @@ export default {
       { value: 1, text: "男" },
       { value: 0, text: "女" },
     ],
+    foundUser: null
   }),
   computed: {
     isAuthorized () {
@@ -274,7 +282,7 @@ export default {
              this.checkCell !== false
     },
     checkId () {
-      if (this.$utils.empty(this.userData['id'])) {
+      if (this.$utils.empty(this.userData['id']) || !this.$utils.empty(this.foundUser)) {
         return false
       }
       // e.g. HB0010
@@ -282,6 +290,9 @@ export default {
       return Boolean(this.userData['id'].match(regex))
     },
     checkName () {
+      if (!this.$utils.empty(this.foundUser)) {
+        return false
+      }
       return !this.$utils.empty(this.userData['name']) && this.userData['name'].length > 1
     },
     checkIp () {
@@ -311,7 +322,20 @@ export default {
       return Boolean(this.userData['onboard_date'].match(regex))
     }
   },
+  watch: {
+    foundUser (val) {
+      val && this.$bvToast.toast(`已找到「${val.id} ${val.name}」使用者資料，請選擇其他代碼！`, {
+        title: `重複警訊`,
+        toaster: 'b-toaster-top-left',
+        appendToast: false,
+        variant: 'danger',
+        noAutoHide: true,
+        solid: true
+      })
+    }
+  },
   methods: {
+    findDuplication () {},  // placeholder for debounced method
     toTWFormat (ad_date) {
       tw_date = ad_date.replace("/-/g", "/")
       // detect if it is AD date
@@ -366,7 +390,6 @@ export default {
         type: "add_user",
         data: this.userData,
       }).then((userData) => {
-        console.log(userData)
         this.trigger("added", userData)
       }).catch((error) => {
         console.log(error)
@@ -375,6 +398,15 @@ export default {
   },
   created() {
     this.userData["birthday"] = this.userData["onboard_date"] = this.$utils.now().split(" ")[0].replaceAll("-", "/")
+    this.findDuplication = this.$utils.debounce(() => {
+      if (this.$utils.empty(this.users)) {
+        this.foundUser = null
+      } else {
+        this.foundUser = this.users.find((user, idx, users) => {
+          return this.userData['id'] === user['id']
+        })
+      }
+    }, 500)
   },
 }
 </script>
