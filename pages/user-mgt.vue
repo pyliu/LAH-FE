@@ -218,9 +218,6 @@ export default {
       if (this.filter.includes("off")) return "off_board_users"
       return ""
     },
-    found() {
-      return this.users.length > 0
-    },
     office() {
       if (this.svr) {
         return this.svr.config.site
@@ -302,6 +299,9 @@ export default {
       } else {
         this.$fetch()
       }
+    },
+    svr(val) {
+      this.$utils.log(val)
     }
   },
   fetch() {
