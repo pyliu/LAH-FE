@@ -342,9 +342,10 @@ export default {
               .then((res) => {
                 if (this.$utils.statusCheck(res.data.status)) {
                   this.notify(res.data.message, { type: "success" })
-                  this.trigger("added", this.userData)
+                  resolve(this.userData)
                 } else {
                   this.notify(res.data.message, { type: "warning" })
+                  reject(res.data.message)
                 }
               })
               .catch((err) => {
@@ -353,10 +354,9 @@ export default {
               })
               .finally(() => {
                 this.isBusy = false
-                resolve(answer)
               })
           } else {
-            reject(answer)
+            reject("user cancelled the confirmation.")
           }
         })
       })
@@ -365,6 +365,11 @@ export default {
       this.callApi("確定要更新?", {
         type: "add_user",
         data: this.userData,
+      }).then((userData) => {
+        console.log(userData)
+        this.trigger("added", userData)
+      }).catch((error) => {
+        console.log(error)
       })
     },
   },
