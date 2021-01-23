@@ -301,9 +301,6 @@ export default {
       } else {
         this.$fetch()
       }
-    },
-    userByUnit (array) {
-      console.log(array)
     }
   },
   fetch() {
