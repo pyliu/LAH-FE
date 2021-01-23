@@ -1,12 +1,5 @@
 <template>
   <b-card v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger">
-    <b-button-group class="d-flex justify-content-between">
-      <lah-button icon="save" @click="save" :disabled="isLeft || !checkRequired">{{isLeft ? '已離職(無法變更資料)' : '儲存變更'}}</lah-button>
-      <lah-button icon="user-circle" regular v-if="!isLeft" variant="outline-secondary" v-b-modal.upload-user-img-modal>上傳圖檔</lah-button>
-      <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
-      <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
-    </b-button-group>
-    <hr/>
     <b-card-group deck>
       <b-card no-body class="border-0">
         <b-form-group
@@ -179,19 +172,19 @@
         </b-form-group>
       </b-card>
     </b-card-group>
-    <!--
-    <b-card-img
-      :src="photoUrl(userData)"
-      :alt="userData['name']"
-      class="img-thumbnail float-right mx-auto ml-2 shadow-xl"
-      style="max-width: 220px"
-    ></b-card-img>
-    -->
+    <hr/>
+    <b-button-group class="d-flex justify-content-between">
+      <lah-button icon="save" @click="save" :disabled="isLeft || !checkRequired">{{isLeft ? '已離職(無法變更資料)' : '儲存變更'}}</lah-button>
+      <lah-button icon="user-circle" regular v-if="!isLeft" variant="outline-secondary" v-b-modal.upload-user-img-modal>上傳圖檔</lah-button>
+      <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
+      <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
+    </b-button-group>
     <hr/>
     <lah-user-card :raw="[userData]"></lah-user-card>
     <b-modal
       id="upload-user-img-modal"
       :title="`更新 ${userData.id} ${userData.name} 照片`"
+      size="sm"
       centered
       hide-footer
       scrollable
@@ -208,7 +201,7 @@
           <b-file
             ref="file-user-photo"
             v-model="userPhoto"
-            placeholder="請選擇JPEG檔案"
+            placeholder="*.jpg"
             drop-placeholder="放開以設定上傳檔案"
             accept=".jpg, .JPG"
           >
@@ -232,13 +225,13 @@
         label-for="file-user-avatar"
         label-cols-sm="2"
         label-size="md"
-        title="*.jpg"
+        title="請用正方形比例之大頭照"
       >
         <b-input-group id="file-user-avatar" size="md">
           <b-file
             ref="file-user-avatar"
             v-model="userAvatar"
-            placeholder="請選擇JPEG檔案"
+            placeholder="*.jpg"
             drop-placeholder="放開以設定上傳檔案"
             accept=".jpg, .JPG"
           >
