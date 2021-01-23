@@ -332,7 +332,7 @@ export default {
       }
       return ad_date
     },
-    async update (prompt, config) {
+    async callApi (prompt, config) {
       return new Promise((resolve, reject) => {
         this.confirm(prompt).then((answer) => {
           if (answer) {
@@ -362,7 +362,7 @@ export default {
       })
     },
     save () {
-      this.update("確定要更新?", {
+      this.callApi("確定要更新?", {
         type: "add_user",
         data: this.userData,
       })
