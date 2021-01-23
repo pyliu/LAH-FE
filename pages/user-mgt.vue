@@ -13,99 +13,118 @@
               @click="$bvModal.show('help-modal')"
               title="說明"
             />
-            <lah-help-modal :modal-id="'help-modal'" size="lg">
-              <ul>
-                <li>
-                  <div class="d-inline-flex justify-content-around">
-                    選取編輯好的XLSX檔案，點擊
-                    <lah-button
-                      icon="upload"
-                      variant="outline-primary"
-                      class="mx-1 mt-n1"
-                      no-icon-gutter
-                    />
-                    上傳更新本地資料庫(dimension.db, user表格)
-                  </div>
-                </li>
-                <li>
-                  <div class="d-inline-flex justify-content-around">
-                    亦可利用下方
-                    <lah-button
-                      icon="user-plus"
-                      variant="outline-primary"
-                      class="mx-1 mt-n1"
-                      no-icon-gutter
-                    />
-                    新增或其他按鍵編輯使用者。
-                  </div>
-                </li>
-              </ul>
-              <hr />
-              <div class="mx-2 my-1">
-                <b-button variant="outline-success" size="sm"
-                  >{{ office }}XXXX 我ＯＯ</b-button
-                >
-                在職使用者
-              </div>
-              <div class="mx-2 my-1">
-                <b-button variant="secondary" size="sm"
-                  >{{ office }}XXXX 不ＯＯ</b-button
-                >
-                離職使用者
-              </div>
-              <div class="mx-2 my-1">
-                <b-button variant="danger" size="sm"
-                  >{{ office }}XXXX 要ＯＯ</b-button
-                >
-                超級管理者
-              </div>
-              <div class="mx-2 my-1">
-                <b-button variant="outline-danger" size="sm"
-                  >{{ office }}XXXX 豬ＯＯ</b-button
-                >
-                系統管理者
-              </div>
-              <div class="mx-2 my-1">
-                <b-button variant="primary" size="sm"
-                  >{{ office }}XXXX 羊ＯＯ</b-button
-                >
-                主管
-              </div>
-              <div class="mx-2 my-1">
-                <b-button variant="warning" size="sm"
-                  >{{ office }}XXXX 變ＯＯ</b-button
-                >
-                研考
-              </div>
-              <div class="mx-2 my-1">
-                <b-button variant="info" size="sm"
-                  >{{ office }}XXXX 色ＯＯ</b-button
-                >
-                總務
-              </div>
-            </lah-help-modal>
           </div>
-          <div></div>
+          <b-button-group size="lg" class="my-auto">
+            <lah-button
+              icon="user-plus"
+              variant="outline-primary"
+              @click="add"
+              title="新增使用者"
+              no-icon-gutter
+            />
+            <lah-button
+              icon="upload"
+              variant="outline-secondary"
+              no-icon-gutter
+              title="批次檔上傳更新"
+              @click="$bvModal.show('upload-modal')"
+              class="ml-1"
+            />
+          </b-button-group>
         </div>
       </lah-transition>
-    </lah-header>
-
-    <section>
-      <hr />
-      <h5 class="font-weight-bold text-right">
-        <lah-fa-icon
-          icon="exclamation-circle"
-          variant="warning"
-          action="breath"
-        >
-          重複資料會被更新，<b-link
-            href="/xlsx/user_import.tpl.xlsx"
-            target="_blank"
-            >範例檔點此下載</b-link
+      <lah-help-modal :modal-id="'help-modal'" size="lg">
+        <ul>
+          <li>
+            <div class="d-inline-flex justify-content-around">
+              選取編輯好的XLSX檔案，點擊
+              <lah-button
+                icon="upload"
+                variant="outline-primary"
+                class="mx-1 mt-n1"
+                no-icon-gutter
+              />
+              上傳更新本地資料庫(dimension.db, user表格)
+            </div>
+          </li>
+          <li>
+            <div class="d-inline-flex justify-content-around">
+              亦可利用下方
+              <lah-button
+                icon="user-plus"
+                variant="outline-primary"
+                class="mx-1 mt-n1"
+                no-icon-gutter
+              />
+              新增或其他按鍵編輯使用者。
+            </div>
+          </li>
+        </ul>
+        <hr />
+        <div class="mx-2 my-1">
+          <b-button variant="outline-success" size="sm"
+            >{{ office }}XXXX 我ＯＯ</b-button
           >
-        </lah-fa-icon>
-      </h5>
-      <div>
+          在職使用者
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="secondary" size="sm"
+            >{{ office }}XXXX 不ＯＯ</b-button
+          >
+          離職使用者
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="danger" size="sm"
+            >{{ office }}XXXX 要ＯＯ</b-button
+          >
+          超級管理者
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="outline-danger" size="sm"
+            >{{ office }}XXXX 豬ＯＯ</b-button
+          >
+          系統管理者
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="primary" size="sm"
+            >{{ office }}XXXX 羊ＯＯ</b-button
+          >
+          主管
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="warning" size="sm"
+            >{{ office }}XXXX 變ＯＯ</b-button
+          >
+          研考
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="info" size="sm"
+            >{{ office }}XXXX 色ＯＯ</b-button
+          >
+          總務
+        </div>
+      </lah-help-modal>
+      <b-modal
+        id="upload-modal"
+        title="批次檔上傳更新"
+        size="lg"
+        hide-footer
+        scrollable
+        no-close-on-backdrop
+      >
+        <h5 class="font-weight-bold text-right">
+          <lah-fa-icon
+            icon="exclamation-circle"
+            variant="warning"
+            action="breath"
+          >
+            重複資料會被更新，<b-link
+              href="/xlsx/user_import.tpl.xlsx"
+              target="_blank"
+              >範例檔點此下載</b-link
+            >
+          </lah-fa-icon>
+        </h5>
         <b-form-group
           label="匯入使用者檔案"
           label-for="file-land_data_upload"
@@ -139,12 +158,11 @@
             </template>
           </b-input-group>
         </b-form-group>
-      </div>
-      <hr class="mt-4" />
+      </b-modal>
+    </lah-header>
+
+    <section>
       <div class="d-flex justify-content-between mb-2">
-        <lah-button icon="user-plus" variant="outline-primary" @click="add"
-          >新增使用者</lah-button
-        >
         <span class="text-muted">找到 {{ users.length }} 個使用者</span>
         <b-form-checkbox-group v-model="filter" :options="filterOptions" />
       </div>
@@ -160,7 +178,7 @@
           :variant="variant(user)"
           v-b-popover.hover.top.html="role(user)"
         >
-          {{ user["id"].padStart(6, "&ensp") }}
+          {{ user["id"].padStart(6, "&ensp;") }}
           {{ user["name"].padEnd(3, "　") }}
         </b-button>
       </section>
