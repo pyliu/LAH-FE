@@ -182,6 +182,7 @@
         >
           {{ user["id"].padStart(6, "&ensp;") }}
           {{ user["name"].padEnd(3, "　") }}
+          <b-avatar button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
         </b-button>
       </section>
     </section>
@@ -324,7 +325,7 @@ export default {
       })
   },
   methods: {
-    upload() {
+    upload () {
       if (this.$utils.empty(this.userXlsx)) {
         this.alert("請先選擇一個符合格式的XLSX檔")
       } else {
@@ -352,7 +353,7 @@ export default {
           })
       }
     },
-    add() {
+    add () {
       this.modal(
         this.$createElement("lah-user-add-card", {
           on: {
@@ -368,7 +369,7 @@ export default {
         }
       )
     },
-    update(userData) {
+    update (userData) {
       // update the cached user data
       let foundIdx = undefined
       const user = this.users.find((item, idx, array) => {
@@ -381,7 +382,7 @@ export default {
         this.users[foundIdx] = Object.assign(user, userData)
       }
     },
-    edit(user) {
+    edit (user) {
       this.modal(
         this.$createElement("lah-user-edit-card", {
           props: { raw: [user] },
@@ -398,7 +399,7 @@ export default {
         }
       )
     },
-    variant(user) {
+    variant (user) {
       if (!this.$utils.empty(user["offboard_date"])) return "secondary"
       const auth = this.getAuthority(user)
       if (auth.isSuper) return "danger"
@@ -408,7 +409,7 @@ export default {
       if (auth.isGA) return "info"
       return "outline-success"
     },
-    role(user) {
+    role (user) {
       if (!this.$utils.empty(user["offboard_date"])) return ""
       const auth = this.getAuthority(user)
       if (auth.isSuper) return "程式開發者"
@@ -418,7 +419,7 @@ export default {
       if (auth.isGA) return "總務"
       return ""
     },
-    getAuthority(user) {
+    getAuthority (user) {
       const authorityMap = {
         isAdmin: false,
         isChief: false,
@@ -437,6 +438,11 @@ export default {
       }
       return authorityMap
     },
+    avatarSrc (user) {
+      if (this.svr) {
+        return `http://${this.svr.ips[0]}/get_user_img.php?name=${user['name']}_avatar`
+      }
+    }
   }
 }
 </script>
