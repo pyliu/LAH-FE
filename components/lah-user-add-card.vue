@@ -201,6 +201,9 @@
 import lahUserCard from "./lah-user-card.vue"
 export default {
   components: { lahUserCard },
+  props: {
+    users: { type: Array, default: [] } // for duplication checking
+  },
   data: () => ({
     userData: {
       id: "",
