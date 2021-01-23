@@ -348,6 +348,7 @@ export default {
         {
           title: `新增使用者`,
           size: "lg",
+          noCloseOnBackdrop: true
         }
       )
     },
@@ -380,6 +381,7 @@ export default {
         {
           title: `編輯 ${user["id"]} ${user["name"]} 資訊`,
           size: "lg",
+          noCloseOnBackdrop: true
         }
       )
     },
