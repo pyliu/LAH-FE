@@ -213,7 +213,7 @@
             <lah-button
               icon="upload"
               variant="outline-primary"
-              @click="upload"
+              @click="uploadPhoto"
               title="上傳"
               :disabled="$utils.empty(userPhoto)"
             />
@@ -243,7 +243,7 @@
             <lah-button
               icon="upload"
               variant="outline-primary"
-              @click="upload"
+              @click="uploadAvatar"
               title="上傳"
               :disabled="$utils.empty(userAvatar)"
             />
@@ -491,7 +491,29 @@ export default {
         this.$utils.warn(error)
       })
     },
-    upload () {
+    uploadPhoto () {
+      this.isBusy = true
+      this.uploadPercentage = 0
+      const formData = new FormData()
+      formData.append("file", this.userPhoto)
+      this.$axios
+        .post(this.$consts.API.FILE.PHOTO, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          this.responseData = res.data
+          this.$utils.log(this.responseData)
+        })
+        .catch((err) => {
+          this.$utils.error(err)
+        })
+        .finally(() => {
+          this.isBusy = false
+        })
+    },
+    uploadAvatar () {
 
     }
   },
