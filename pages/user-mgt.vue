@@ -161,13 +161,16 @@
       </b-modal>
     </lah-header>
     <section>
+      <hr/>
       <div class="d-flex justify-content-between mb-2">
         <span class="text-muted">找到 {{ users.length }} 個使用者</span>
         <b-form-checkbox-group v-model="filter" :options="filterOptions" />
       </div>
-      <section v-if="found">
+      <hr/>
+      <section v-for="category in userByUnit" :key="category.UNIT" class="mb-3">
+        <h5><lah-fa-icon icon="angle-double-right">{{category.UNIT}}</lah-fa-icon></h5>
         <b-button
-          v-for="user in users"
+          v-for="user in category.LIST"
           :key="user['id']"
           :data-id="user['id']"
           :data-name="user['name']"
@@ -181,7 +184,6 @@
           {{ user["name"].padEnd(3, "　") }}
         </b-button>
       </section>
-      <hr class="my-5" />
     </section>
   </div>
 </template>
@@ -225,31 +227,31 @@ export default {
       return this.site
     },
     userByUnit() {
-      let hr = this.users.filter(
+      const hr = this.users.filter(
         (this_record) => this_record["unit"] === "人事室"
       )
-      let accounting = this.users.filter(
+      const accounting = this.users.filter(
         (this_record) => this_record["unit"] === "會計室"
       )
-      let director = this.users.filter(
+      const director = this.users.filter(
         (this_record) => this_record["unit"] === "主任室"
       )
-      let secretary = this.users.filter(
+      const secretary = this.users.filter(
         (this_record) => this_record["unit"] === "秘書室"
       )
-      let adm = this.users.filter(
+      const adm = this.users.filter(
         (this_record) => this_record["unit"] === "行政課"
       )
-      let reg = this.users.filter(
+      const reg = this.users.filter(
         (this_record) => this_record["unit"] === "登記課"
       )
-      let val = this.users.filter(
+      const val = this.users.filter(
         (this_record) => this_record["unit"] === "地價課"
       )
-      let sur = this.users.filter(
+      const sur = this.users.filter(
         (this_record) => this_record["unit"] === "測量課"
       )
-      let inf = this.users.filter(
+      const inf = this.users.filter(
         (this_record) => this_record["unit"] === "資訊課"
       )
       return [
@@ -300,6 +302,9 @@ export default {
         this.$fetch()
       }
     },
+    userByUnit (array) {
+      console.log(array)
+    }
   },
   fetch() {
     this.isBusy = true
@@ -329,7 +334,7 @@ export default {
         this.$utils.log(this.userXlsx)
         this.isBusy = true
         this.uploadPercentage = 0
-        let formData = new FormData()
+        const formData = new FormData()
         formData.append("file", this.userXlsx)
         this.$axios
           .post("api/import_user_xlsx.php", formData, {
@@ -435,10 +440,7 @@ export default {
       }
       return authorityMap
     },
-  },
-  mounted() {
-    this.$utils.log(this.userByUnit)
-  },
+  }
 }
 </script>
 
