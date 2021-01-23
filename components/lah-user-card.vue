@@ -156,9 +156,9 @@ export default {
     },
     photoUrl: function (user) {
       if (this.useAvatar) {
-        return `http://${this.svr.ips[0]}/get_user_img.php?name=${user['name']}_avatar`
+        return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user['name']}_avatar`
       }
-      return `http://${this.svr.ips[0]}/get_user_img.php?name=${user['name']}`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user['name']}`
     }
   },
   fetch () {
