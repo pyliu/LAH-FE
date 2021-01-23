@@ -2,7 +2,7 @@
   <b-card v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger">
     <b-button-group class="d-flex justify-content-between">
       <lah-button icon="save" @click="save" :disabled="isLeft || !checkRequired">{{isLeft ? '已離職(無法變更資料)' : '儲存變更'}}</lah-button>
-      <lah-button icon="user-circle" regular v-if="!isLeft" variant="secondary" @click="upload">上傳個人圖檔</lah-button>
+      <lah-button icon="user-circle" regular v-if="!isLeft" variant="outline-secondary" @click="$bvModal.show('upload-user-img-modal')">上傳圖檔</lah-button>
       <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
       <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
     </b-button-group>
@@ -189,14 +189,24 @@
     -->
     <hr/>
     <lah-user-card :raw="[userData]"></lah-user-card>
+    <b-modal
+      id="upload-user-img-modal"
+      :title="`更新 ${userData.id} ${userData.name} 照片`"
+      centered
+      hide-footer
+      scrollable
+      no-close-on-backdrop
+    >
+      <lah-fa-icon icon="user-circle"></lah-fa-icon>
+    </b-modal>
   </b-card>
 </template>
 
 <script>
+import LahFaIcon from './lah-fa-icon.vue'
 import lahUserCard from './lah-user-card.vue'
-import lahFaIcon from './lah-fa-icon.vue'
 export default {
-  components: { lahUserCard, lahFaIcon },
+  components: { lahUserCard, LahFaIcon },
   props: {
     raw: { type: Array, default: () => [] },
     id: { type: String, default: "" },
@@ -425,14 +435,6 @@ export default {
         this.trigger('saved', userData)
       }).catch((error) => {
         this.$utils.warn(error)
-      })
-    },
-    upload () {
-      this.modal(this.$createElement('lah-fa-icon', {
-        props: { icon: 'user-circle', variant: 'info' }
-      }), {
-        title: `上傳 ${this.userData.id} ${this.userData.name} 個人圖檔`,
-        noCloseOnBackdrop: true
       })
     }
   },
