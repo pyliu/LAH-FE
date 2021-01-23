@@ -40,23 +40,31 @@
               選取編輯好的XLSX檔案，點擊
               <lah-button
                 icon="upload"
-                variant="outline-primary"
+                variant="outline-secondary"
                 class="mx-1 mt-n1"
                 no-icon-gutter
               />
               上傳更新本地資料庫(dimension.db, user表格)
             </div>
           </li>
-          <li>
+          <li class="mt-2">
             <div class="d-inline-flex justify-content-around">
-              亦可利用下方
+              利用
               <lah-button
                 icon="user-plus"
                 variant="outline-primary"
                 class="mx-1 mt-n1"
                 no-icon-gutter
               />
-              新增或其他按鍵編輯使用者。
+              新增或
+              <b-button
+                variant="outline-success"
+                class="mx-1 mt-n1"
+                size="sm"
+              >
+                {{site}}ＯＯＯＯ 中壢地政 <b-avatar size="1.5rem"></b-avatar>
+              </b-button>
+              編輯使用者。
             </div>
           </li>
         </ul>
@@ -400,20 +408,20 @@ export default {
       if (!this.$utils.empty(user["offboard_date"])) return "secondary"
       const auth = this.getAuthority(user)
       if (auth.isSuper) return "danger"
-      if (auth.isAdmin) return "outline-danger"
       if (auth.isChief) return "primary"
       if (auth.isRAE) return "warning"
       if (auth.isGA) return "info"
+      if (auth.isAdmin) return "outline-danger"
       return "outline-success"
     },
     role (user) {
       if (!this.$utils.empty(user["offboard_date"])) return ""
       const auth = this.getAuthority(user)
       if (auth.isSuper) return "程式開發者"
-      if (auth.isAdmin) return "系統管理者"
       if (auth.isChief) return "主管"
       if (auth.isRAE) return "研考"
       if (auth.isGA) return "總務"
+      if (auth.isAdmin) return "系統管理者"
       return ""
     },
     getAuthority (user) {
