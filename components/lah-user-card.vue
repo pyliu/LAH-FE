@@ -155,9 +155,6 @@ export default {
       return ad_date
     },
     photoUrl: function (user) {
-      if (this.useAvatar) {
-        return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user['name']}_avatar`
-      }
       return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user['name']}`
     }
   },
