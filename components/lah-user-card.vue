@@ -1,5 +1,6 @@
 <template>
   <b-card v-if="!$utils.empty(userData)">
+    <b-card-title>{{userData['name']}}</b-card-title>
     <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
     <b-card-img
       :src="photoUrl(userData)"
