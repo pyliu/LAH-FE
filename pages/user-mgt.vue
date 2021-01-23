@@ -10,7 +10,7 @@
               variant="outline-success"
               no-border
               no-icon-gutter
-              @click="$bvModal.show('help-modal')"
+              v-b-modal.help-modal
               title="說明"
             />
           </div>
@@ -27,7 +27,7 @@
               variant="outline-secondary"
               no-icon-gutter
               title="批次檔上傳更新"
-              @click="$bvModal.show('upload-modal')"
+              v-b-modal.upload-modal
               class="ml-1"
             />
           </b-button-group>
