@@ -1,7 +1,7 @@
 <template>
   <b-card v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger">
     <b-button-group class="d-flex justify-content-between">
-      <lah-button icon="save" @click="save" :disabled="!checkRequired">儲存變更</lah-button>
+      <lah-button icon="save" @click="save" :disabled="isLeft || !checkRequired">{{isLeft ? '已離職(無法變更資料)' : '儲存變更'}}</lah-button>
       <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
       <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
     </b-button-group>
