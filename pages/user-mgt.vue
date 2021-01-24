@@ -209,8 +209,6 @@ export default {
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
     userXlsx: null,
-    uploadPercentage: 0,
-    responseData: undefined,
     keyword: "",
     users: [],
     filter: ["on"],
@@ -220,19 +218,19 @@ export default {
     ],
   }),
   computed: {
-    type() {
+    type () {
       if (this.filter.length === 2) return "all_users"
       if (this.filter.includes("on")) return "on_board_users"
       if (this.filter.includes("off")) return "off_board_users"
       return ""
     },
-    office() {
+    office () {
       if (this.svr) {
         return this.svr.config.site
       }
       return this.site
     },
-    userByUnit() {
+    userByUnit () {
       const hr = this.users.filter(
         (this_record) => this_record["unit"] === "人事室"
       )
@@ -303,6 +301,9 @@ export default {
         },
       ]
     },
+    importUrl () {
+      return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
+    }
   },
   watch: {
     type(val) {
@@ -335,32 +336,36 @@ export default {
   },
   methods: {
     upload () {
-      if (this.$utils.empty(this.userXlsx)) {
-        this.alert("請先選擇一個符合格式的XLSX檔")
-      } else {
-        this.$utils.log(this.userXlsx)
-        this.isBusy = true
-        this.uploadPercentage = 0
-        const formData = new FormData()
-        formData.append("file", this.userXlsx)
-        this.$axios
-          .post("api/import_user_xlsx.php", formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then((res) => {
-            this.responseData = res.data
-            this.$utils.log(this.responseData)
-          })
-          .catch((err) => {
-            this.$utils.error(err)
-          })
-          .finally(() => {
-            this.isBusy = false
-            this.uploadPercentage = 0
-          })
-      }
+      this.confirm('請確定要上傳更新？').then((answer) => {
+        if (answer) {
+          if (this.$utils.empty(this.userXlsx)) {
+            this.alert("請先選擇一個符合格式的XLSX檔")
+          } else {
+            this.isBusy = true
+            const formData = new FormData()
+            formData.append("file", this.userXlsx)
+            this.$upload.post(this.importUrl, formData)
+            .then((res) => {
+              const opts = { type: "warning", title: '匯入使用者資料通知' }
+              if (this.$utils.statusCheck(res.data.status)) {
+                opts.type = 'success'
+                // refresh all list
+                this.$fetch()
+              }
+              this.notify(res.data.message, opts)
+            })
+            .catch((err) => {
+              this.$utils.error(err)
+            })
+            .finally(() => {
+              this.isBusy = false
+              this.userXlsx = null
+            })
+          }
+        } else {
+          this.$utils.warn('cancelled confirmation of uploading user xlsx!')
+        }
+      })
     },
     add () {
       this.modal(
