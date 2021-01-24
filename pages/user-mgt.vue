@@ -261,21 +261,25 @@ export default {
         (this_record) => this_record["unit"] === "資訊課"
       )
       return [
+        // {
+        //   UNIT: "主任室",
+        //   LIST: director,
+        // },
+        // {
+        //   UNIT: "秘書室",
+        //   LIST: secretary,
+        // },
+        // {
+        //   UNIT: "人事室",
+        //   LIST: hr,
+        // },
+        // {
+        //   UNIT: "會計室",
+        //   LIST: accounting,
+        // },
         {
-          UNIT: "主任室",
-          LIST: director,
-        },
-        {
-          UNIT: "秘書室",
-          LIST: secretary,
-        },
-        {
-          UNIT: "人事室",
-          LIST: hr,
-        },
-        {
-          UNIT: "會計室",
-          LIST: accounting,
+          UNIT: "主任室 / 秘書室 / 人事室 / 會計室",
+          LIST: director.concat(secretary).concat(hr).concat(accounting),
         },
         {
           UNIT: "行政課",
