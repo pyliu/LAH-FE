@@ -1,41 +1,46 @@
 <template>
-  <b-card v-if="!$utils.empty(userData)">
-    <b-card-title>{{userData['name']}}</b-card-title>
-    <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
-    <b-card-img
-      :src="photoUrl(userData)"
-      :alt="userData['name']"
-      class="img-thumbnail float-right mx-auto ml-2 shadow-xl"
-      style="max-width: 220px"
-    ></b-card-img>
-    <b-card-text class="small">
-      <lah-fa-icon
-        icon="ban"
-        variant="danger"
-        action="breath"
-        v-if="isLeft"
-        class="mx-auto"
-      >
-        已離職【{{ userData["offboard_date"] }}】
-      </lah-fa-icon>
-      <div>ID：{{ userData["id"] }}</div>
-      <div v-if="isAuthorized">電腦：{{ userData["ip"] }}</div>
-      <div>分機：{{ userData["ext"] }}</div>
-      <div v-if="isAuthorized">
-        生日：{{ userData["birthday"] }}
-        <b-badge v-if="birthAge !== false" :variant="birthAgeVariant" pill>{{ birthAge }}歲</b-badge>
-      </div>
-      <div>單位：{{ userData["unit"] }}</div>
-      <div>工作：{{ userData["work"] }}</div>
-      <div v-if="isAuthorized">學歷：{{ userData["education"] }}</div>
-      <div v-if="isAuthorized">考試：{{ userData["exam"] }}</div>
-      <div v-if="isAuthorized">手機：{{ userData["cell"] }}</div>
-      <div v-if="isAuthorized">
-        到職：{{ userData["onboard_date"] }}
-        <b-badge v-if="workAge !== false" :variant="workAgeVariant" pill>{{ workAge }}年</b-badge>
-      </div>
-    </b-card-text>
-  </b-card>
+  <div>
+    <h4 v-if="$utils.empty(userData)" class="center"><lah-fa-icon variant="danger">找不到使用者資料</lah-fa-icon></h4>
+    <b-card v-else>
+      <b-card-title>{{userData['name']}}</b-card-title>
+      <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
+      <b-card-img
+        :src="photoUrl(userData)"
+        :alt="userData['name']"
+        class="img-thumbnail float-right mx-auto ml-2 shadow-xl"
+        style="max-width: 220px"
+        @click="trigger('click', userData)"
+      ></b-card-img>
+      <b-card-text class="small">
+        <lah-fa-icon
+          icon="ban"
+          variant="danger"
+          action="breath"
+          v-if="isLeft"
+          class="mx-auto"
+        >
+          已離職【{{ userData["offboard_date"] }}】
+        </lah-fa-icon>
+        <div>ID：{{ userData["id"] }}</div>
+        <div v-if="isAuthorized">電腦：{{ userData["ip"] }}</div>
+        <div>分機：{{ userData["ext"] }}</div>
+        <div v-if="isAuthorized">
+          生日：{{ userData["birthday"] }}
+          <b-badge v-if="birthAge !== false" :variant="birthAgeVariant" pill>{{ birthAge }}歲</b-badge>
+        </div>
+        <div>單位：{{ userData["unit"] }}</div>
+        <div>工作：{{ userData["work"] }}</div>
+        <div v-if="isAuthorized">學歷：{{ userData["education"] }}</div>
+        <div v-if="isAuthorized">考試：{{ userData["exam"] }}</div>
+        <div v-if="isAuthorized">手機：{{ userData["cell"] }}</div>
+        <div v-if="isAuthorized">
+          到職：{{ userData["onboard_date"] }}
+          <b-badge v-if="workAge !== false" :variant="workAgeVariant" pill>{{ workAge }}年</b-badge>
+        </div>
+      </b-card-text>
+    </b-card>
+
+  </div>
 </template>
 
 <script>
@@ -48,21 +53,6 @@ export default {
   data: () => ({
     userData: {}
   }),
-  watch: {
-    raw (array) {
-      if (Array.isArray(array)) {
-        if (array.length > 1) {
-          this.userData = array.find((item, idx, array) => {
-            return this.$utils.empty(item['offboard_date'])
-          }) || {}
-        } else {
-          this.userData = array[0]
-        }
-      } else {
-        this.$utils.warning('raw is not an array', array)
-      }
-    }
-  },
   computed: {
     isAuthorized () {
       return this.authority.isAdmin || this.authority.isSuper
@@ -135,6 +125,21 @@ export default {
       return "danger"
     }
   },
+  watch: {
+    raw (array) {
+      if (Array.isArray(array)) {
+        if (array.length > 1) {
+          this.userData = array.find((item, idx, array) => {
+            return this.$utils.empty(item['offboard_date'])
+          }) || {}
+        } else {
+          this.userData = array[0]
+        }
+      } else {
+        this.$utils.warning('raw is not an array', array)
+      }
+    }
+  },
   methods: {
     toTWFormat: function (ad_date) {
       tw_date = ad_date.replace("/-/g", "/")
@@ -155,7 +160,7 @@ export default {
       return ad_date
     },
     photoUrl: function (user) {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user['name']}`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user['id']}&name=${user['name']}`
     }
   },
   fetch () {
