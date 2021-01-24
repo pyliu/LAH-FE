@@ -171,7 +171,7 @@
     <section>
       <hr/>
       <div class="d-flex justify-content-between mb-2">
-        <span class="text-muted">找到 {{ users.length }} 個使用者</span>
+        <span class="text-muted">找到 <b-badge pill class="my-auto" variant="warning">{{ users.length }}</b-badge> 個使用者</span>
         <b-form-checkbox-group v-model="filter" :options="filterOptions" />
       </div>
       <hr/>
