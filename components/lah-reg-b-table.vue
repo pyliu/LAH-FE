@@ -200,10 +200,9 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
-import lahUserPhoto from '~/components/lah-user-photo.vue'
 export default {
   name: 'lah-reg-b-table',
-  components: { lahUserCard, lahUserPhoto },
+  components: { lahUserCard },
   props: {
     bakedData: { type: Array, default: [] },
     maxHeight: { type: Number, default: undefined },
