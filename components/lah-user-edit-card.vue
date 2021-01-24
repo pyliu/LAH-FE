@@ -180,7 +180,7 @@
       <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
     </b-button-group>
     <hr/>
-    <lah-user-card :raw="[userData]"></lah-user-card>
+    <lah-user-card :raw="[userData]" @click="$bvModal.show('upload-user-img-modal')"></lah-user-card>
     <b-modal
       id="upload-user-img-modal"
       :title="`更新 ${userData.id} ${userData.name} 照片`"

@@ -83,9 +83,10 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
+import lahUserPhoto from '~/components/lah-user-photo.vue'
 export default {
   name: 'lah-expiry-b-table',
-  components: { lahUserCard },
+  components: { lahUserCard, lahUserPhoto },
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
@@ -170,7 +171,9 @@ export default {
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
     searchByReviewer (id) {},
     searchUser (name, id = '') {
-      this.modal(this.$createElement('lah-user-card', { props: { name: name, id: id } }), {
+      this.modal(this.$createElement('lah-user-card', {
+        props: { name: name, id: id }
+      }), {
         title: `${id} ${name} 資訊`
       })
     }

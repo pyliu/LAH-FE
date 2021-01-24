@@ -1,6 +1,9 @@
 <template>
   <div>
-    <h4 v-if="$utils.empty(userData)" class="center"><lah-fa-icon variant="danger">找不到使用者資料</lah-fa-icon></h4>
+    <h4 v-if="$utils.empty(userData)" class="center">
+      <lah-button v-if="isAuthorized" icon="user-plus" block size="lg" @click="add">新增</lah-button>
+      <lah-fa-icon v-else variant="danger">找不到使用者資料</lah-fa-icon>
+    </h4>
     <b-card v-else>
       <b-card-title>{{userData['name']}}</b-card-title>
       <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
@@ -8,8 +11,8 @@
         :src="photoUrl(userData)"
         :alt="userData['name']"
         class="img-thumbnail float-right mx-auto ml-2 shadow-xl"
-        style="max-width: 220px"
-        @click="trigger('click', userData)"
+        style="max-width: 220px; cursor: pointer;"
+        @click="photoClick"
       ></b-card-img>
       <b-card-text class="small">
         <lah-fa-icon
@@ -44,7 +47,10 @@
 </template>
 
 <script>
+import lahUserPhoto from '~/components/lah-user-photo.vue'
+import lahUserAddCard from "~/components/lah-user-add-card.vue"
 export default {
+  components: { lahUserAddCard, lahUserPhoto },
   props: {
     raw: { type: Array, default: () => ([]) },
     id: { type: String, default: '' },
@@ -141,7 +147,16 @@ export default {
     }
   },
   methods: {
-    toTWFormat: function (ad_date) {
+    add () {
+      if (this.isAuthorized) {
+        this.modal(this.$createElement("lah-user-add-card", { props: { userId: this.userData['id'] || this.id } }), {
+          title: `新增使用者`,
+          size: "lg",
+          noCloseOnBackdrop: true
+        })
+      }
+    },
+    toTWFormat (ad_date) {
       tw_date = ad_date.replace("/-/g", "/")
       // detect if it is AD date
       if (tw_date.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
@@ -150,7 +165,7 @@ export default {
       }
       return tw_date
     },
-    toADFormat: function (tw_date) {
+    toADFormat (tw_date) {
       let ad_date = tw_date.replace("/-/g", "/")
       // detect if it is TW date
       if (ad_date.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
@@ -159,8 +174,20 @@ export default {
       }
       return ad_date
     },
-    photoUrl: function (user) {
+    photoUrl (user) {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user['id']}&name=${user['name']}`
+    },
+    photoClick () {
+      this.modal(this.$createElement('lah-user-photo', {
+        props: {
+          userData: this.userData
+        }
+      }), {
+        title: `${this.userData['id']} ${this.userData['name']} 照片`,
+        size: 'lg'
+      })
+      // $emit to parent 
+      this.trigger('click', this.userData)
     }
   },
   fetch () {
@@ -179,7 +206,7 @@ export default {
           this.userData = res.data.raw[0]
         }
       } else {
-        this.notify(res.data.message, { type: 'warning' })
+        this.$utils.warn(res.data.message)
       }
     }).catch(err => {
       this.$utils.error(err)

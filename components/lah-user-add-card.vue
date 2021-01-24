@@ -208,6 +208,9 @@
 import lahUserCard from "./lah-user-card.vue"
 export default {
   components: { lahUserCard },
+  props: {
+    userId: { type: String, default: '' }
+  },
   data: () => ({
     users: [],
     userData: {
@@ -422,6 +425,7 @@ export default {
         })
       }
     }, 250)
+    this.userData['id'] = this.userId
   },
 }
 </script>
