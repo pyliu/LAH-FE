@@ -188,7 +188,6 @@
       centered
       hide-footer
       scrollable
-      no-close-on-backdrop
     >
       <b-form-group
         label="照片"
@@ -257,6 +256,7 @@
 <script>
 import LahFaIcon from './lah-fa-icon.vue'
 import lahUserCard from './lah-user-card.vue'
+
 export default {
   components: { lahUserCard, LahFaIcon },
   props: {
@@ -416,6 +416,9 @@ export default {
     },
     saveButtonDisabled () {
       return this.isLeft || !this.modified || !this.checkRequired
+    },
+    uploadUrl () {
+      return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.PHOTO}`
     }
   },
   methods: {
@@ -515,30 +518,32 @@ export default {
         this.$utils.warn(error)
       })
     },
-    uploadPhoto () {
+    upload (file, avatar = false) {
       this.isBusy = true
-      this.uploadPercentage = 0
       const formData = new FormData()
-      formData.append("file", this.userPhoto)
-      this.$axios
-        .post(this.$consts.API.FILE.PHOTO, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          this.responseData = res.data
-          this.$utils.log(this.responseData)
-        })
-        .catch((err) => {
-          this.$utils.error(err)
-        })
-        .finally(() => {
-          this.isBusy = false
-        })
+      formData.append("file", file)
+      formData.append("id", this.userData['id'])
+      formData.append("name", this.userData['name'])
+      formData.append("avatar", avatar)
+      this.$upload.post(this.uploadUrl, formData).then((res) => {
+        const opts = { type: 'warning', title: '上傳圖檔結果通知' }
+        if (this.$utils.statusCheck(res.data.status)) {
+          opts.type = 'success'
+        }
+        this.notify(res.data.message, opts)
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+    uploadPhoto () {
+      this.upload(this.userPhoto, false)
+      this.userPhoto = null
     },
     uploadAvatar () {
-
+      this.upload(this.userAvatar, true)
+      this.userAvatar = null
     }
   },
   fetch() {

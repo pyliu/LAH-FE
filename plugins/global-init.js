@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import debounce from 'lodash/debounce'
 import _md5 from 'md5'
+import uploadAxios from 'axios'
 
 export default ({ $axios, store }, inject) => {
   const bus = new Vue()
@@ -274,6 +275,8 @@ export default ({ $axios, store }, inject) => {
     this.$bus.$emit(this.$consts.EVENT.INFO, 'hey something happening')
    */
   inject('bus', bus)
-  // get ip address and save it to store at FE
-  // store.dispatch('ip')
+  // inject uploading file axios
+  // need to add 'Header set Access-Control-Allow-Origin "*"' to Apache site and turn on mod_header.so in httpd.conf
+  uploadAxios.defaults.headers.post['Content-Type'] = 'multipart/form-data'
+  inject('upload', uploadAxios)
 }
