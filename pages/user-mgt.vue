@@ -126,11 +126,8 @@
             variant="warning"
             action="breath"
           >
-            重複資料會被更新，<b-link
-              href="/xlsx/user_import.tpl.xlsx"
-              target="_blank"
-              >範例檔點此下載</b-link
-            >
+            <b-link href="/xlsx/user_import.tpl.xlsx" target="_blank">範例檔點此下載</b-link>，
+            <b-link @click="exportXlsx">點此匯出全部使用者</b-link>。
           </lah-fa-icon>
         </h5>
         <b-form-group
@@ -188,7 +185,7 @@
           :variant="variant(user)"
           v-b-popover.hover.top.html="role(user)"
         >
-          {{ user["id"].padStart(6, "&ensp;") }}
+          {{ user["id"].padStart(6, "&ensp") }}
           {{ user["name"].padEnd(3, "　") }}
           <b-avatar button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
         </b-button>
@@ -303,6 +300,9 @@ export default {
     },
     importUrl () {
       return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
+    },
+    exportXlsxUrl () {
+      return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.XLSX}?type=all_users_export`
     }
   },
   watch: {
@@ -335,6 +335,9 @@ export default {
       })
   },
   methods: {
+    exportXlsx () {
+      this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載XLSX' } })
+    },
     upload () {
       this.confirm('請確定要上傳更新？').then((answer) => {
         if (answer) {
