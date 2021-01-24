@@ -70,7 +70,8 @@ export default ({ $axios, store }, inject) => {
     },
     API: {
       XLSX: {
-        LANDING: '/api/xlsx/landing.php'
+        LANDING: '/api/xlsx/landing.php',
+        USER_IMPORT: '/api/import_user_xlsx.php'
       },
       JSON: {
         QUERY: '/api/query_json_api.php',
