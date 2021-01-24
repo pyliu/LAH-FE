@@ -174,8 +174,8 @@
     </b-card-group>
     <hr/>
     <b-button-group class="d-flex justify-content-between">
-      <lah-button icon="save" @click="save" :disabled="isLeft || !checkRequired">{{isLeft ? '已離職(無法變更資料)' : '儲存變更'}}</lah-button>
-      <lah-button icon="user-circle" regular v-if="!isLeft" variant="outline-secondary" v-b-modal.upload-user-img-modal>上傳圖檔</lah-button>
+      <lah-button icon="save" :variant="saveButtonVariant" @click="save" :disabled="saveButtonDisabled">{{isLeft ? '已離職(無法變更資料)' : '儲存變更'}}</lah-button>
+      <lah-button icon="user-circle" regular v-if="!isLeft" variant="info" v-b-modal.upload-user-img-modal>上傳圖檔</lah-button>
       <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
       <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
     </b-button-group>
@@ -346,8 +346,7 @@ export default {
       return !this.$utils.empty(this.userData["offboard_date"])
     },
     checkRequired () {
-      return this.modified &&
-             this.checkId === true &&
+      return this.checkId === true &&
              this.checkName === true &&
              this.checkIp === true &&
              this.checkOnboardDate === true &&
@@ -355,7 +354,6 @@ export default {
              this.checkBirthday !== false &&
              this.checkCell !== false
     },
-    modified () { return !this.$utils.equal(this.userData, this.origUserData) },
     checkId () {
       if (this.$utils.empty(this.userData['id'])) {
         return false
@@ -395,6 +393,29 @@ export default {
     checkOnboardDate () {
       const regex = new RegExp(`^\\d{3,4}/\\d{1,2}/\\d{1,2}$`, 'gm')
       return Boolean(this.userData['onboard_date'].match(regex))
+    },
+    modified () {
+      if (this.userData.id !== this.origUserData.id) return true
+      if (this.userData.name !== this.origUserData.name) return true
+      if (this.userData.sex !== this.origUserData.sex) return true
+      if (this.userData.title !== this.origUserData.title) return true
+      if (this.userData.work !== this.origUserData.work) return true
+      if (this.userData.ext != this.origUserData.ext) return true
+      if (this.userData.birthday !== this.origUserData.birthday) return true
+      if (this.userData.unit !== this.origUserData.unit) return true
+      if (this.userData.ip !== this.origUserData.ip) return true
+      if (this.userData.education !== this.origUserData.education) return true
+      if (this.userData.exam !== this.origUserData.exam) return true
+      if (this.userData.cell !== this.origUserData.cell) return true
+      if (this.userData.onboard_date !== this.origUserData.onboard_date) return true
+      if (this.userData.offboard_date !== this.origUserData.offboard_date) return true
+      return false
+    },
+    saveButtonVariant () {
+      return this.saveButtonDisabled ? 'secondary' : 'outline-success'
+    },
+    saveButtonDisabled () {
+      return this.isLeft || !this.modified || !this.checkRequired
     }
   },
   methods: {
@@ -468,6 +489,7 @@ export default {
         data: this.userData
       }).then((userData) => {
         this.trigger('saved', userData)
+        this.origUserData = Object.assign({}, userData)
       })
     },
     offboard () {
@@ -476,6 +498,7 @@ export default {
         id: this.userData['id']
       }).then((userData) => {
         this.trigger('saved', userData)
+        this.origUserData = Object.assign({}, userData)
       }).catch((error) => {
         this.$utils.warn(error)
       })
@@ -487,6 +510,7 @@ export default {
         id: this.userData['id']
       }).then((userData) => {
         this.trigger('saved', userData)
+        this.origUserData = Object.assign({}, userData)
       }).catch((error) => {
         this.$utils.warn(error)
       })
@@ -549,11 +573,10 @@ export default {
   created() {
     if (!this.$utils.empty(this.raw)) {
       this.assignUserData(this.raw[0])
-      this.origUserData = Object.assign({}, this.userData)
+      // deep copy
+      this.origUserData = Object.assign({}, this.raw[0])
     }
-  },
-  mounted() {
-  },
+  }
 }
 </script>
 
