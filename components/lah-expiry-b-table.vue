@@ -83,10 +83,9 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
-import lahUserPhoto from '~/components/lah-user-photo.vue'
 export default {
   name: 'lah-expiry-b-table',
-  components: { lahUserCard, lahUserPhoto },
+  components: { lahUserCard },
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
