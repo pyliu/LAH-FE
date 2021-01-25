@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-cloak>
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
@@ -14,9 +14,8 @@
         <lah-button icon="exclamation-circle" variant="danger"></lah-button>
       </lah-help-modal>
     </lah-header>
-    <div class="container">
+    <b-container fluid v-cloak class="center">
       <div>
-        <Logo class="anim-appear-2s" />
         <h3 class="title">
           樣板
         </h3>
@@ -24,7 +23,7 @@
           some text goes here ...
         </div>
       </div>
-    </div>
+    </b-container>
   </div>
 </template>
 
