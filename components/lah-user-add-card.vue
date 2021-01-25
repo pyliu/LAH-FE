@@ -205,7 +205,7 @@
 </template>
 
 <script>
-import lahUserCard from "./lah-user-card.vue"
+import lahUserCard from "~/components/lah-user-card.vue"
 export default {
   components: { lahUserCard },
   props: {
