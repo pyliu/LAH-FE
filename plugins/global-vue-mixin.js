@@ -38,7 +38,7 @@ Vue.mixin({
     webapIp () { return this.svr ? (this.svr.config ? this.svr.config.webap_ip : '127.0.0.1') : '127.0.0.1' },
     apiSvrIp () {
       if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
-        return this.svr.ips[0]
+        return this.svr.ips[this.svr.ips.length - 1]
       }
       return '127.0.0.1'
     },
