@@ -154,7 +154,7 @@ export default {
   methods: {
     add () {
       if (this.isAuthorized) {
-        this.modal(this.$createElement('lah-user-add-card', { props: { userId: this.userData['id'] || this.id } }), {
+        this.modal(this.$createElement('lah-user-add-card', { props: { userId: this.id || this.name } }), {
           title: `新增使用者`,
           size: "lg",
           noCloseOnBackdrop: true

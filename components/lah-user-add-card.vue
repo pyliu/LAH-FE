@@ -411,6 +411,7 @@ export default {
     })
   },
   created() {
+    this.userData['id'] = this.userId
     this.userData["birthday"] = this.userData["onboard_date"] = this.$utils.now().split(" ")[0].replaceAll("-", "/")
     this.findDuplication = this.$utils.debounce(() => {
       if (this.$utils.empty(this.users)) {
@@ -421,8 +422,7 @@ export default {
         })
       }
     }, 250)
-    this.userData['id'] = this.userId
-  },
+  }
 }
 </script>
 
