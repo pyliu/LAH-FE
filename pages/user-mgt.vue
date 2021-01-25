@@ -175,7 +175,7 @@
       </div>
       <hr/>
       <section v-for="category in userByUnit" :key="category.UNIT" class="mb-3">
-        <h5><lah-fa-icon icon="angle-double-right">{{category.UNIT}}</lah-fa-icon></h5>
+        <h5><lah-fa-icon icon="angle-double-right">{{category.UNIT}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
         <b-button
           v-for="user in category.LIST"
           :key="user['id']"
