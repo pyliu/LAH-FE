@@ -190,6 +190,7 @@
           <b-avatar button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
         </b-button>
       </section>
+      <hr/>
     </section>
   </div>
 </template>
