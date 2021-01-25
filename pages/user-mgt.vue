@@ -28,8 +28,16 @@
               no-icon-gutter
               title="批次檔上傳更新"
               v-b-modal.upload-modal
-              class="ml-1"
+              class="mx-1"
             />
+          <lah-button
+            icon="file-excel"
+            regular
+            @click="exportXlsx"
+            title="匯出系統全部使用者"
+            variant="outline-info"
+            no-icon-gutter
+          />
           </b-button-group>
         </div>
       </lah-transition>
