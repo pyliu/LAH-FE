@@ -199,8 +199,6 @@
         </b-form-group> -->
       </b-card>
     </b-card-group>
-    <hr />
-    <lah-user-card :raw="[userData]"></lah-user-card>
   </b-card>
 </template>
 

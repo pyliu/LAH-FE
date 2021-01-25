@@ -49,9 +49,10 @@
 
 <script>
 import lahUserPhoto from '~/components/lah-user-photo.vue'
+import lahUserAddCard from '~/components/lah-user-add-card.vue'
 export default {
   name: 'lah-user-card',
-  components: { lahUserPhoto },
+  components: { lahUserPhoto, lahUserAddCard },
   props: {
     raw: { type: Array, default: () => ([]) },
     id: { type: String, default: '' },
@@ -153,7 +154,7 @@ export default {
   methods: {
     add () {
       if (this.isAuthorized) {
-        this.modal(this.$createElement("lah-user-add-card", { props: { userId: this.userData['id'] || this.id } }), {
+        this.modal(this.$createElement('lah-user-add-card', { props: { userId: this.userData['id'] || this.id } }), {
           title: `新增使用者`,
           size: "lg",
           noCloseOnBackdrop: true

@@ -377,6 +377,7 @@ export default {
     add () {
       this.modal(
         this.$createElement("lah-user-add-card", {
+          components: { lahUserCard },
           on: {
             added: (event) => {
               this.users.unshift(event.detail)
