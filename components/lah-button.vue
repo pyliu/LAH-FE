@@ -23,6 +23,7 @@
       :size="iconSize"
       :append="iconAppend"
       :no-gutter="noIconGutter"
+      :variant="iconVariant"
     >
       <span v-if="busy" class="ld-txt">讀取中...</span>
       <span v-show="!busy">
@@ -50,6 +51,7 @@ export default {
     icon: { type: String, default: '' },
     iconSize: { type: String, default: 'lg' },
     iconAppend: { type: Boolean, default: false },
+    iconVariant: { type: String, default: '' },
     regular: { type: Boolean, default: false },
     brand: { type: Boolean, default: false },
     action: { type: String, default: undefined },

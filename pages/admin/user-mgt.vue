@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-cloak>
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
@@ -29,15 +29,17 @@
               title="批次檔上傳更新"
               v-b-modal.upload-modal
               class="mx-1"
+              action="move-fade-btt"
             />
-          <lah-button
-            icon="file-excel"
-            regular
-            @click="exportXlsx"
-            title="匯出系統全部使用者"
-            variant="outline-info"
-            no-icon-gutter
-          />
+            <lah-button
+              icon="file-excel"
+              regular
+              @click="exportXlsx"
+              title="匯出系統全部使用者"
+              variant="outline-success"
+              no-icon-gutter
+              action="move-fade-ltr"
+            />
           </b-button-group>
         </div>
       </lah-transition>
@@ -129,8 +131,8 @@
         no-close-on-backdrop
       >
         <b-button-group size="lg" class="d-flex justify-content-end mb-2">
-          <lah-button icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted">匯入範例檔下載</lah-button>
-          <lah-button icon="file-excel" regular @click="exportXlsx" variant="muted">匯出全部使用者</lah-button>
+          <lah-button icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success">匯入範例檔下載</lah-button>
+          <lah-button icon="file-excel" regular @click="exportXlsx" variant="muted" icon-variant="success">匯出全部使用者</lah-button>
         </b-button-group>
         <b-form-group
           label="匯入使用者檔案"
