@@ -4,12 +4,13 @@
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
     @blur="mouseleave"
+    :no-body="noBody"
   >
     <NuxtLink :to="to">
-      <div class="mb-2">
+      <div class="mb-2 center">
         <font-awesome-icon ref="icon" :icon="icon" :size="size" :class="variant" />
       </div>
-      <b-card-title title-tag="h5"><slot></slot></b-card-title>
+      <b-card-title :title-tag="titleTag" class="center"><slot></slot></b-card-title>
     </NuxtLink>
   </b-card>
 </template>
@@ -21,9 +22,19 @@ export default {
     icon: { type: Array, default: () => ["far", "times-circle"] },
     size: { type: String, default: "3x" },
     action: { type: String, default: undefined },
-    iconVariant: { type: String, default: '' }
+    iconVariant: { type: String, default: '' },
+    noBody: { type: Boolean, default: false }
   },
   computed: {
+    titleTag () {
+      const size = parseInt(this.size.replace('x','')) || 3
+      if (size <= 3) {
+        return 'h5'
+      } else if (size <= 7) {
+        return `h${8 - size}`
+      }
+      return 'h1'
+    },
     variant () {
       switch(this.iconVariant) {
         case 'primary':

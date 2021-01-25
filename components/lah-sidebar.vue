@@ -88,20 +88,20 @@
           領狀管控查詢
         </NuxtLink>
       </li> -->
-      <li v-if="authority.isSuper || authority.isAdmin"><hr/></li>
-      <li v-if="authority.isSuper || authority.isAdmin">
-        <NuxtLink to="/user-mgt">
-          <font-awesome-icon :icon="['fas', 'users']" size="lg" />
-          使用者資訊管理
+      <li v-if="isAuthorized"><hr/></li>
+      <li v-if="isAuthorized">
+        <NuxtLink to="/admin">
+          <font-awesome-icon :icon="['fas', 'cogs']" size="lg" />
+          系統管理
         </NuxtLink>
       </li>
-      <li v-if="authority.isSuper || authority.isAdmin">
+      <li v-if="isAuthorized">
         <NuxtLink to="/stats">
           <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
           統計看板
         </NuxtLink>
       </li>
-      <li v-if="authority.isSuper || authority.isAdmin">
+      <li v-if="isAuthorized">
         <NuxtLink to="/playground">
           <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
           測試
@@ -147,6 +147,9 @@
 export default {
   fetchOnServer: false,
   computed: {
+    isAuthorized () {
+      return this.authority.isSuper || this.authority.isAdmin
+    },
     serverUrl () {
       if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
         return `http://${this.svr.ips[0]}`
