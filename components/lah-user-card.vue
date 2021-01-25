@@ -8,7 +8,7 @@
       <b-card-title>{{userData['name']}}</b-card-title>
       <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
       <b-card-img
-        :src="photoUrl(userData)"
+        :src="photoSrc"
         :alt="userData['name']"
         class="img-thumbnail float-right mx-auto ml-2 shadow-xl"
         style="max-width: 220px; cursor: pointer;"
@@ -130,6 +130,9 @@ export default {
         return "warning"
       }
       return "danger"
+    },
+    photoSrc () {
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData['id']}&name=${this.userData['name']}`
     }
   },
   watch: {
@@ -174,9 +177,6 @@ export default {
         ad_date = parseInt(ad_date.substring(0, 3)) + 1911 + ad_date.substring(3)
       }
       return ad_date
-    },
-    photoUrl (user) {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user['id']}&name=${user['name']}`
     },
     photoClick () {
       this.modal(this.$createElement('lah-user-photo', {
