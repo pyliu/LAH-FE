@@ -120,16 +120,10 @@
         scrollable
         no-close-on-backdrop
       >
-        <h5 class="font-weight-bold text-right">
-          <lah-fa-icon
-            icon="exclamation-circle"
-            variant="warning"
-            action="breath"
-          >
-            <b-link href="/xlsx/user_import.tpl.xlsx" target="_blank">範例檔點此下載</b-link>，
-            <b-link @click="exportXlsx">點此匯出全部使用者</b-link>。
-          </lah-fa-icon>
-        </h5>
+        <b-button-group size="lg" class="d-flex justify-content-end mb-2">
+          <lah-button icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted">匯入範例檔下載</lah-button>
+          <lah-button icon="file-excel" regular @click="exportXlsx" variant="muted">匯出全部使用者</lah-button>
+        </b-button-group>
         <b-form-group
           label="匯入使用者檔案"
           label-for="file-land_data_upload"
@@ -199,12 +193,13 @@
 import lahUserCard from "~/components/lah-user-card.vue"
 import lahUserEditCard from "~/components/lah-user-edit-card.vue"
 import lahUserAddCard from "~/components/lah-user-add-card.vue"
+import LahButton from '~/components/lah-button.vue'
 export default {
   head: {
     title: "使用者資訊管理-桃園市地政局",
   },
   fetchOnServer: false,
-  components: { lahUserCard, lahUserEditCard, lahUserAddCard },
+  components: { lahUserCard, lahUserEditCard, lahUserAddCard, LahButton },
   data: () => ({
     userXlsx: null,
     keyword: "",
@@ -337,7 +332,7 @@ export default {
   },
   methods: {
     exportXlsx () {
-      this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載XLSX' } })
+      this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載使用者XLSX清單' } })
     },
     upload () {
       this.confirm('請確定要上傳更新？').then((answer) => {
