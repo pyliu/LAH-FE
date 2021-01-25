@@ -17,7 +17,7 @@
         icon="home"
         size="lg"
         action="ld-breath"
-        variant="outline-success"
+        variant="outline-dark"
         title="回到首頁"
         to="/"
         class="home-button ml-1"

@@ -18,7 +18,7 @@
       <b-card-group deck class="vh-50">
         <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/user-mgt" no-body size="5x" icon-variant="primary" action="bounce">使用者管理</lah-index-card-link>
         <lah-index-card-link :icon="['fas', 'network-wired']" to="/admin/authority-mgt" no-body size="5x" icon-variant="info" action="jelly">IP權限管理</lah-index-card-link>
-        <lah-index-card-link :icon="['fab', 'chrome']" to="/" no-body size="5x" icon-variant="warning" action="spin-fast">...</lah-index-card-link>
+        <lah-index-card-link :icon="['fas', 'server']" to="/admin/config-mgt" no-body size="5x" icon-variant="danger" action="float">系統設定</lah-index-card-link>
       </b-card-group>
     </b-container>
   </div>
@@ -29,6 +29,7 @@ export default {
   head: {
     title: '管理主面版-桃園市地政局'
   },
+  middleware: [ 'isAdmin' ],
   fetchOnServer: false
 }
 </script>

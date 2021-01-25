@@ -165,30 +165,32 @@ export default {
     }
   },
   async fetch () {
-    this.getCache('server-info').then((json) => {
-      if (json === false) {
-        if (this.ip === '0.0.0.0') {
-          this.$utils.warning('client ip is not ready ... wait 200ms to retry.')
-          // give a chance to wait ip ready in $store
-          this.timeout(() => this.$fetch(), 200)
+    if (this.$utils.empty(this.svr)) {
+      this.getCache('server-info').then((json) => {
+        if (json === false) {
+          if (this.ip === '0.0.0.0') {
+            this.$utils.warning('client ip is not ready ... wait 200ms to retry.')
+            // give a chance to wait ip ready in $store
+            this.timeout(() => this.$fetch(), 200)
+          } else {
+            this.isBusy = true
+            this.$axios.post(this.$consts.API.JSON.QUERY, {
+              type: 'svr',
+              client_ip: this.ip
+            }).then((res) => {
+              this.$store.commit('svr', res.data)
+              this.setCache('server-info', res.data, 86400000) // cache for a day
+            }).catch((err) => {
+              this.$utils.error(err)
+            }).finally(() => {
+              this.isBusy = false
+            })
+          }
         } else {
-          this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.QUERY, {
-            type: 'svr',
-            client_ip: this.ip
-          }).then((res) => {
-            this.$store.commit('svr', res.data)
-            this.setCache('server-info', res.data, 86400000) // cache for a day
-          }).catch((err) => {
-            this.$utils.error(err)
-          }).finally(() => {
-            this.isBusy = false
-          })
+          this.$store.commit('svr', json)
         }
-      } else {
-        this.$store.commit('svr', json)
-      }
-    })
+      })
+    }
   }
 }
 </script>

@@ -208,6 +208,7 @@ export default {
   head: {
     title: "使用者資訊管理-桃園市地政局",
   },
+  middleware: [ 'isAdmin' ],
   fetchOnServer: false,
   components: { lahUserCard, lahUserEditCard, lahUserAddCard, LahButton },
   data: () => ({

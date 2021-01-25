@@ -51,21 +51,23 @@ const actions = {
       const ip = nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress
       commit('ip', ip)
       // not calling here because I want to use cache capability at frontend => calling at lah-sidebar.vue
-      // dispatch('svr')
+      dispatch('svr')
     } catch (e) {
       console.error(e)
     }
   },
   async svr ({ commit, getters }) {
     this.$axios.post('/api/query_json_api.php', {
-      type: 'svr'
+      type: 'svr',
+      client_ip: getters.ip
     }).then((res) => {
       // expected json format is { status, ips, server, data_count, message }
+      console.log(res.data)
       commit('svr', res.data)
+      logtimestamp(`Got server info (client from ${getters.ip})`)
     }).catch((error) => {
       logerror(error)
     }).finally(() => {
-      logtimestamp('got server info')
     })
   }
 }
