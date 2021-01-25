@@ -12,6 +12,7 @@
         :alt="userData['name']"
         class="img-thumbnail float-right mx-auto ml-2 shadow-xl"
         style="max-width: 220px; cursor: pointer;"
+        :title="isAuthorized ? '更新照片' : '放大顯示'"
         @click="photoClick"
       ></b-card-img>
       <b-card-text class="small">
