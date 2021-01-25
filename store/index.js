@@ -20,15 +20,13 @@ const logerror = (error) => {
 const logtimestamp = (message) => {
   // e.g. 2020-12-03 10:23:00
   const now = new Date()
-  console.log(
-    message,
-    now.getFullYear() + '-' +
+  const timestamp = now.getFullYear() + '-' +
     ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
     ('0' + now.getDate()).slice(-2) + ' ' +
     ('0' + now.getHours()).slice(-2) + ':' +
     ('0' + now.getMinutes()).slice(-2) + ':' +
     ('0' + now.getSeconds()).slice(-2)
-  )
+  console.log(`${timestamp} ${message}`)
 }
 
 const state = () => ({
@@ -48,9 +46,8 @@ const actions = {
   // Nuxt provided hook feature for Vuex, calling at server side when store initializing
   async nuxtServerInit ({ commit, dispatch }, nuxt) {
     try {
-      const ip = nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress
-      commit('ip', ip)
-      // not calling here because I want to use cache capability at frontend => calling at lah-sidebar.vue
+      commit('ip', nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress)
+      // query the svr here because I want to use middleware to control authority
       dispatch('svr')
     } catch (e) {
       console.error(e)
@@ -61,13 +58,13 @@ const actions = {
       type: 'svr',
       client_ip: getters.ip
     }).then((res) => {
-      // expected json format is { status, ips, server, data_count, message }
-      console.log(res.data)
+      // expected json format is { status, config, ips, server, message }
       commit('svr', res.data)
-      logtimestamp(`Got server info (client from ${getters.ip})`)
+      // logtimestamp(res.data.message)
     }).catch((error) => {
       logerror(error)
     }).finally(() => {
+      logtimestamp(`${getters.ip} connected.`)
     })
   }
 }
@@ -75,7 +72,7 @@ const actions = {
 // only sync operation
 const mutations = {
   ip (state, ip) { state.ip = ip },
-  svr (state, jsonPayload) { state.svr = jsonPayload },
+  svr (state, obj) { state.svr = obj },
   addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 

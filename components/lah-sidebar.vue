@@ -165,6 +165,7 @@ export default {
     }
   },
   async fetch () {
+    // just in case the server side query failed
     if (this.$utils.empty(this.svr)) {
       this.getCache('server-info').then((json) => {
         if (json === false) {

@@ -203,14 +203,13 @@
 import lahUserCard from "~/components/lah-user-card.vue"
 import lahUserEditCard from "~/components/lah-user-edit-card.vue"
 import lahUserAddCard from "~/components/lah-user-add-card.vue"
-import LahButton from '~/components/lah-button.vue'
 export default {
   head: {
     title: "使用者資訊管理-桃園市地政局",
   },
   middleware: [ 'isAdmin' ],
   fetchOnServer: false,
-  components: { lahUserCard, lahUserEditCard, lahUserAddCard, LahButton },
+  components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
     userXlsx: null,
     keyword: "",
@@ -320,26 +319,6 @@ export default {
         this.$fetch()
       }
     }
-  },
-  fetch() {
-    this.isBusy = true
-    this.$axios
-      .post(this.$consts.API.JSON.USER, {
-        type: this.type,
-      })
-      .then((res) => {
-        if (this.$utils.statusCheck(res.data.status)) {
-          this.users = res.data.raw
-        } else {
-          this.notify(res.data.message, { type: "warning" })
-        }
-      })
-      .catch((err) => {
-        this.$utils.error(err)
-      })
-      .finally(() => {
-        this.isBusy = false
-      })
   },
   methods: {
     exportXlsx () {
@@ -468,6 +447,26 @@ export default {
         return `http://${this.svr.ips[0]}/get_user_img.php?name=${user['name']}_avatar`
       }
     }
+  },
+  fetch () {
+    this.isBusy = true
+    this.$axios
+      .post(this.$consts.API.JSON.USER, {
+        type: this.type,
+      })
+      .then((res) => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          this.users = res.data.raw
+        } else {
+          this.notify(res.data.message, { type: "warning" })
+        }
+      })
+      .catch((err) => {
+        this.$utils.error(err)
+      })
+      .finally(() => {
+        this.isBusy = false
+      })
   }
 }
 </script>

@@ -2,8 +2,11 @@ export default function ({
   store,
   redirect
 }) {
-  const authority = store.state.config.authority
-  // if the user is not admin
+  if (store.state.svr === null) {
+    return redirect('/')
+  }
+  const authority = store.state.svr.config.authority
+  // not admin => redirect to '/'
   if (!authority.isAdmin && !authority.isSuper) {
     return redirect('/')
   }
