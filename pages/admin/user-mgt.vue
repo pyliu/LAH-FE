@@ -182,8 +182,8 @@
         </div>
       </div>
       <hr/>
-      <section v-for="category in userByUnit" :key="category.UNIT" class="mb-3">
-        <h5><lah-fa-icon icon="address-book" regular>{{category.UNIT}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
+      <section v-for="category in userByTitle" :key="category.NAME" class="mb-3">
+        <h5><lah-fa-icon icon="address-book" regular>{{category.NAME}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
         <b-button
           v-for="user in category.LIST"
           :key="user['id']"
@@ -272,46 +272,63 @@ export default {
       )
       return [
         // {
-        //   UNIT: "主任室",
+        //   NAME: "主任室",
         //   LIST: director,
         // },
         // {
-        //   UNIT: "秘書室",
+        //   NAME: "秘書室",
         //   LIST: secretary,
         // },
         // {
-        //   UNIT: "人事室",
+        //   NAME: "人事室",
         //   LIST: hr,
         // },
         // {
-        //   UNIT: "會計室",
+        //   NAME: "會計室",
         //   LIST: accounting,
         // },
         {
-          UNIT: "主任室 / 秘書室 / 人事室 / 會計室",
+          NAME: "主任室 / 秘書室 / 人事室 / 會計室",
           LIST: director.concat(secretary).concat(hr).concat(accounting),
         },
         {
-          UNIT: "行政課",
+          NAME: "行政課",
           LIST: adm,
         },
         {
-          UNIT: "登記課",
+          NAME: "登記課",
           LIST: reg,
         },
         {
-          UNIT: "地價課",
+          NAME: "地價課",
           LIST: val,
         },
         {
-          UNIT: "測量課",
+          NAME: "測量課",
           LIST: sur,
         },
         {
-          UNIT: "資訊課",
+          NAME: "資訊課",
           LIST: inf,
         },
       ]
+    },
+    userByTitle () {
+      const filtered = []
+      this.users.forEach((item, idx, array) => {
+        const found = filtered.find((category, d, arr) => {
+          return category.NAME === item['title']
+        })
+        if (found) {
+          found.LIST.push(item)
+        } else {
+          filtered.push({
+            NAME: item['title'],
+            LIST: [item]
+          })
+        }
+      })
+      return filtered
     },
     importUrl () {
       return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
