@@ -174,14 +174,15 @@
     <section>
       <hr/>
       <div class="d-flex justify-content-between mb-2">
-        <span class="text-muted">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
+        <span class="text-muted my-auto">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
         <b-form-radio-group
           v-model="selectedGroup"
           :options="groupOptions"
           buttons
           button-variant="outline-dark"
+          class="my-auto"
         />
-        <div class="d-flex">
+        <div class="d-flex my-auto">
           <b-form-checkbox v-model="showAvatar" switch class="mr-3">大頭照</b-form-checkbox>
           <b-form-checkbox v-model="showIp" switch class="mr-3">IP</b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
@@ -189,23 +190,30 @@
       </div>
       <hr/>
       <section v-for="category in categories" :key="category.NAME" class="mb-3">
-        <h5><lah-fa-icon icon="address-book" regular>{{translateGroupName(category.NAME)}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
-        <b-button
-          v-for="user in category.LIST"
-          :key="user['id']"
-          :data-id="user['id']"
-          :data-name="user['name']"
-          size="sm"
-          class="mx-1 my-1"
-          @click="edit(user)"
-          :variant="variant(user)"
-          v-b-popover.hover.top.html="role(user)"
-        >
-          <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
-          {{ user["id"].padStart(6, "&ensp;") }}
-          {{ user["name"].padEnd(3, "　") }}
-          <span v-if="showIp" class="text-dark font-weight-bolder">{{ user["ip"].replace('192.168.', '').padEnd(6, "&ensp;") }}</span>
-        </b-button>
+        <h5>
+          <lah-fa-icon icon="address-book" regular style="cursor: pointer" v-b-toggle="$utils.md5(category.NAME)">
+            {{translateGroupName(category.NAME)}}
+            <b-badge pill variant="info">{{ category.LIST.length }}</b-badge>
+          </lah-fa-icon>
+        </h5>
+        <b-collapse visible :id="$utils.md5(category.NAME)">
+          <b-button
+            v-for="user in category.LIST"
+            :key="user['id']"
+            :data-id="user['id']"
+            :data-name="user['name']"
+            size="sm"
+            class="mx-1 my-1"
+            @click="edit(user)"
+            :variant="variant(user)"
+            v-b-popover.hover.top.html="role(user)"
+          >
+            <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
+            {{ user["id"].padStart(6, "&ensp;") }}
+            {{ user["name"].padEnd(3, "　") }}
+            <span v-if="showIp" class="text-dark font-weight-bolder">{{ user["ip"].replace('192.168.', '').padEnd(6, "&ensp;") }}</span>
+          </b-button>
+        </b-collapse>
       </section>
       <hr/>
     </section>
@@ -230,6 +238,7 @@ export default {
       { text: '職稱', value: 'title' },
       { text: '工作', value: 'work' },
       { text: '性別', value: 'sex' },
+      { text: '未分類', value: '' }
     ],
     showAvatar: false,
     showIp: false,
@@ -239,7 +248,7 @@ export default {
     filter: ["on"],
     filterOptions: [
       { text: "在職", value: "on" },
-      { text: "離職", value: "off" },
+      { text: "離職", value: "off" }
     ]
   }),
   computed: {
@@ -266,7 +275,7 @@ export default {
         case 'sex':
           return this.groupBy('sex')
         default:
-          return []
+          return [{ NAME: '未分類', LIST: this.users }]
       }
     },
     userByUnit () {
