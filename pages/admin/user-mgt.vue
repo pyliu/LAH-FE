@@ -175,11 +175,15 @@
       <hr/>
       <div class="d-flex justify-content-between mb-2">
         <span class="text-muted">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
-        <b-form-checkbox-group v-model="filter" :options="filterOptions" />
+        <div class="d-flex">
+          <b-form-checkbox v-model="showAvatar" switch class="mr-3">大頭照</b-form-checkbox>
+          <b-form-checkbox v-model="showIp" switch class="mr-3">IP</b-form-checkbox>
+          <b-form-checkbox-group v-model="filter" :options="filterOptions" />
+        </div>
       </div>
       <hr/>
       <section v-for="category in userByUnit" :key="category.UNIT" class="mb-3">
-        <h5><lah-fa-icon icon="angle-double-right">{{category.UNIT}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
+        <h5><lah-fa-icon icon="address-book" regular>{{category.UNIT}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
         <b-button
           v-for="user in category.LIST"
           :key="user['id']"
@@ -191,9 +195,10 @@
           :variant="variant(user)"
           v-b-popover.hover.top.html="role(user)"
         >
-          {{ user["id"].padStart(6, "&ensp") }}
+          <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
+          {{ user["id"].padStart(6, "&ensp;") }}
           {{ user["name"].padEnd(3, "　") }}
-          <b-avatar button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
+          <span v-if="showIp" class="text-dark font-weight-bolder">{{ user["ip"].replace('192.168.', '').padEnd(6, "&ensp;") }}</span>
         </b-button>
       </section>
       <hr/>
@@ -213,6 +218,8 @@ export default {
   fetchOnServer: false,
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
+    showAvatar: false,
+    showIp: false,
     userXlsx: null,
     keyword: "",
     users: [],
@@ -220,7 +227,7 @@ export default {
     filterOptions: [
       { text: "在職", value: "on" },
       { text: "離職", value: "off" },
-    ],
+    ]
   }),
   computed: {
     type () {
