@@ -181,10 +181,11 @@
           buttons
           button-variant="outline-dark"
           class="my-auto"
+          title="分類"
         />
         <div class="d-flex my-auto">
-          <b-form-checkbox v-model="showAvatar" switch class="mr-3">大頭照</b-form-checkbox>
-          <b-form-checkbox v-model="showIp" switch class="mr-3">IP</b-form-checkbox>
+          <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">大頭照</b-form-checkbox>
+          <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">IP</b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
         </div>
       </div>
@@ -238,6 +239,7 @@ export default {
       { text: '職稱', value: 'title' },
       { text: '工作', value: 'work' },
       { text: '性別', value: 'sex' },
+      { text: 'IP', value: 'ip' },
       { text: '未分類', value: '' }
     ],
     showAvatar: false,
@@ -274,6 +276,8 @@ export default {
           return this.groupBy('work')
         case 'sex':
           return this.groupBy('sex')
+        case 'ip':
+          return this.groupBy('ip')
         default:
           return [{ NAME: '未分類', LIST: this.users }]
       }
@@ -392,6 +396,18 @@ export default {
             LIST: [item]
           })
         }
+      })
+      filtered.sort((a, b) => {
+        if ((b.LIST.length - a.LIST.length) === 0) {
+          if (b.NAME > a.NAME) {
+            return -1
+          }
+          if (b.NAME < a.NAME) {
+            return 1
+          }
+          return 0
+        }
+        return b.LIST.length - a.LIST.length
       })
       return filtered
     },
