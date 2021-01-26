@@ -175,11 +175,13 @@
       <hr/>
       <div class="d-flex justify-content-between mb-2">
         <span class="text-muted">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
+        <b-form-radio-group
+          v-model="selectedGroup"
+          :options="groupOptions"
+          buttons
+          button-variant="outline-dark"
+        />
         <div class="d-flex">
-          <b-form-radio-group
-            v-model="selectedGroup"
-            :options="groupOptions"
-          ></b-form-radio-group>
           <b-form-checkbox v-model="showAvatar" switch class="mr-3">大頭照</b-form-checkbox>
           <b-form-checkbox v-model="showIp" switch class="mr-3">IP</b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
@@ -187,7 +189,7 @@
       </div>
       <hr/>
       <section v-for="category in categories" :key="category.NAME" class="mb-3">
-        <h5><lah-fa-icon icon="address-book" regular>{{category.NAME}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
+        <h5><lah-fa-icon icon="address-book" regular>{{translateGroupName(category.NAME)}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
         <b-button
           v-for="user in category.LIST"
           :key="user['id']"
@@ -225,7 +227,9 @@ export default {
     selectedGroup: 'unit',
     groupOptions: [
       { text: '部門', value: 'unit' },
-      { text: '職稱', value: 'title' }
+      { text: '職稱', value: 'title' },
+      { text: '工作', value: 'work' },
+      { text: '性別', value: 'sex' },
     ],
     showAvatar: false,
     showIp: false,
@@ -252,7 +256,18 @@ export default {
       return this.site
     },
     categories () {
-      return this.selectedGroup === 'unit' ? this.userByUnit : this.userByTitle
+      switch (this.selectedGroup) {
+        case 'unit':
+          return this.userByUnit
+        case 'title':
+          return this.groupBy('title')
+        case 'work':
+          return this.groupBy('work')
+        case 'sex':
+          return this.groupBy('sex')
+        default:
+          return []
+      }
     },
     userByUnit () {
       const hr = this.users.filter(
@@ -325,23 +340,6 @@ export default {
         },
       ]
     },
-    userByTitle () {
-      const filtered = []
-      this.users.forEach((item, idx, array) => {
-        const found = filtered.find((category, d, arr) => {
-          return category.NAME === item['title']
-        })
-        if (found) {
-          found.LIST.push(item)
-        } else {
-          filtered.push({
-            NAME: item['title'],
-            LIST: [item]
-          })
-        }
-      })
-      return filtered
-    },
     importUrl () {
       return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
     },
@@ -361,6 +359,32 @@ export default {
   methods: {
     exportXlsx () {
       this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載使用者XLSX清單' } })
+    },
+    translateGroupName (name) {
+      if (name == '1') {
+        return '男生'
+      }
+      if (name == '0') {
+        return '女生'
+      }
+      return name
+    },
+    groupBy (field) {
+      const filtered = []
+      this.users.forEach((item, idx, array) => {
+        const found = filtered.find((category, d, arr) => {
+          return category.NAME === item[field]
+        })
+        if (found) {
+          found.LIST.push(item)
+        } else {
+          filtered.push({
+            NAME: item[field],
+            LIST: [item]
+          })
+        }
+      })
+      return filtered
     },
     upload () {
       this.confirm('請確定要上傳更新？').then((answer) => {
