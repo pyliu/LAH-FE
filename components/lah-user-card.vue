@@ -6,7 +6,7 @@
     </h4>
     <b-card v-else>
       <b-card-title>
-        <b-avatar button variant="light" size="1.3em" :src="avatarSrc" class="mt-n1"/>
+        <b-avatar button variant="light" size="1.3em" :src="avatarSrc" class="mt-n1" @click="photoClick"/>
         {{userData['name']}}
       </b-card-title>
       <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
