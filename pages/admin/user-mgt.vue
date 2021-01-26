@@ -452,9 +452,7 @@ export default {
       return authorityMap
     },
     avatarSrc (user) {
-      if (this.svr) {
-        return `http://${this.svr.ips[0]}/get_user_img.php?name=${user['name']}_avatar`
-      }
+      return `http://${this.apiSvrHttpUrl}/get_user_img.php?name=${user['name']}_avatar`
     }
   },
   fetch () {

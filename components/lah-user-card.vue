@@ -5,7 +5,10 @@
       <lah-fa-icon v-else variant="danger">找不到使用者資料</lah-fa-icon>
     </h4>
     <b-card v-else>
-      <b-card-title>{{userData['name']}}</b-card-title>
+      <b-card-title>
+        <b-avatar button variant="light" size="1.3em" :src="avatarSrc" class="mt-n1"/>
+        {{userData['name']}}
+      </b-card-title>
       <b-card-sub-title>{{userData['title']}}</b-card-sub-title>
       <b-card-img
         :src="photoSrc"
@@ -134,6 +137,9 @@ export default {
     },
     photoSrc () {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData['id']}&name=${this.userData['name']}`
+    },
+    avatarSrc () {
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData['id']}_avatar&name=${this.userData['name']}_avatar`
     }
   },
   watch: {
