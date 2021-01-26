@@ -53,6 +53,7 @@
                 variant="outline-secondary"
                 class="mx-1 mt-n1"
                 no-icon-gutter
+                v-b-modal.upload-modal
               />
               上傳更新本地資料庫(dimension.db, user表格)
             </div>
@@ -65,6 +66,7 @@
                 variant="outline-primary"
                 class="mx-1 mt-n1"
                 no-icon-gutter
+                @click="add"
               />
               新增或
               <b-button
