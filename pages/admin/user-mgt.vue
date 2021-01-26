@@ -184,6 +184,7 @@
           title="分類"
         />
         <div class="d-flex my-auto">
+          <b-form-checkbox v-model="sortOrder" switch class="mr-3" title="排序">小到大</b-form-checkbox>
           <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">大頭照</b-form-checkbox>
           <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">IP</b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
@@ -242,6 +243,7 @@ export default {
       { text: 'IP', value: 'ip' },
       { text: '未分類', value: '' }
     ],
+    sortOrder: false,
     showAvatar: false,
     showIp: false,
     userXlsx: null,
@@ -397,19 +399,30 @@ export default {
           })
         }
       })
-      filtered.sort((a, b) => {
-        if ((b.LIST.length - a.LIST.length) === 0) {
-          if (b.NAME > a.NAME) {
-            return -1
-          }
-          if (b.NAME < a.NAME) {
-            return 1
-          }
-          return 0
-        }
-        return b.LIST.length - a.LIST.length
-      })
+      filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
       return filtered
+    },
+    sortAsc (a, b) {
+      if ((b.LIST.length - a.LIST.length) === 0) {
+        if (b.NAME > a.NAME) {
+          return -1
+        }
+        if (b.NAME < a.NAME) {
+          return 1
+        }
+        return 0
+      }
+      return b.LIST.length - a.LIST.length
+    },
+    sortDesc (a, b) {
+      const val = this.sortAsc(a, b)
+      if (val > 0) {
+        return -1
+      }
+      if (val < 0) {
+        return 1
+      }
+      return 0
     },
     upload () {
       this.confirm('請確定要上傳更新？').then((answer) => {
