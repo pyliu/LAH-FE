@@ -176,13 +176,17 @@
       <div class="d-flex justify-content-between mb-2">
         <span class="text-muted">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
         <div class="d-flex">
+          <b-form-radio-group
+            v-model="selectedGroup"
+            :options="groupOptions"
+          ></b-form-radio-group>
           <b-form-checkbox v-model="showAvatar" switch class="mr-3">大頭照</b-form-checkbox>
           <b-form-checkbox v-model="showIp" switch class="mr-3">IP</b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
         </div>
       </div>
       <hr/>
-      <section v-for="category in userByTitle" :key="category.NAME" class="mb-3">
+      <section v-for="category in categories" :key="category.NAME" class="mb-3">
         <h5><lah-fa-icon icon="address-book" regular>{{category.NAME}} <b-badge pill variant="info">{{ category.LIST.length }}</b-badge></lah-fa-icon></h5>
         <b-button
           v-for="user in category.LIST"
@@ -218,6 +222,11 @@ export default {
   fetchOnServer: false,
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
+    selectedGroup: 'unit',
+    groupOptions: [
+      { text: '部門', value: 'unit' },
+      { text: '職稱', value: 'title' }
+    ],
     showAvatar: false,
     showIp: false,
     userXlsx: null,
@@ -241,6 +250,9 @@ export default {
         return this.svr.config.site
       }
       return this.site
+    },
+    categories () {
+      return this.selectedGroup === 'unit' ? this.userByUnit : this.userByTitle
     },
     userByUnit () {
       const hr = this.users.filter(
