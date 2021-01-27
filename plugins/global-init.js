@@ -256,6 +256,18 @@ export default ({ $axios, store }, inject) => {
       const regex = new RegExp(`^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$`, 'g')
       return Boolean(str.match(regex))
     },
+    ipv4Int (addr) {
+      if (this.isIPv4(addr)) {
+        var parts = addr.split('.').map(function(str) {
+          return parseInt(str)
+        })
+        return (parts[0] ? parts[0] << 24 : 0) +
+               (parts[1] ? parts[1] << 16 : 0) +
+               (parts[2] ? parts[2] << 8  : 0) +
+                parts[3]
+      }
+      return false
+    },
     log: console.log.bind(console),
     warn: console.warn.bind(console),
     assert: console.assert.bind(console),
