@@ -407,15 +407,16 @@ export default {
       return filtered
     },
     sortAsc (a, b) {
+      // LIST count is the same, I will use the NAME for sorting
       if ((b.LIST.length - a.LIST.length) === 0) {
         const regex = new RegExp(`^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$`, 'g')
         const bv = Boolean(b.NAME.match(regex)) ? ip2long(b.NAME) : b.NAME
         const av = Boolean(a.NAME.match(regex)) ? ip2long(a.NAME) : a.NAME
         if (bv > av) {
-          return -1
+          return 1
         }
         if (bv < av) {
-          return 1
+          return -1
         }
         return 0
       }
