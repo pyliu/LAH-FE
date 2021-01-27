@@ -339,11 +339,14 @@ export default {
     },
   },
   computed: {
-    isAuthorized() {
+    isAuthorized () {
       return this.authority.isAdmin || this.authority.isSuper
     },
-    isLeft() {
+    isLeft () {
       return !this.$utils.empty(this.userData["offboard_date"])
+    },
+    isIpChanged () {
+      return this.userData.ip !== this.origUserData.ip
     },
     checkRequired () {
       return this.checkId === true &&
@@ -492,7 +495,27 @@ export default {
         data: this.userData
       }).then((userData) => {
         this.trigger('saved', userData)
-        this.origUserData = Object.assign({}, userData)
+        this.isIpChanged && this.saveTdocIp()
+        this.origUserData = Object.assign(this.origUserData, userData)
+      })
+    },
+    saveTdocIp () {
+      this.isBusy = true
+      // also update old db database
+      this.$axios.post(this.$consts.API.JSON.MSSQL, {
+        type: 'upd_ip_tdoc',
+        id: this.userData['id'],
+        ip: this.userData['ip']
+      }).then(res => {
+        const opts = { type: "warning" }
+        if (this.$utils.statusCheck(res.data.status)) {
+          opts.type = 'success'
+        }
+        this.notify(res.data.message, opts)
+      }).catch(err => {
+        this.$utils.warn(err)
+      }).finally(() => {
+        this.isBusy = false
       })
     },
     offboard () {

@@ -392,7 +392,7 @@ export default {
       }).catch((error) => {
         console.log(error)
       })
-    },
+    }
   },
   fetch() {
     this.isBusy = true

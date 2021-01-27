@@ -184,7 +184,7 @@
           title="分類"
         />
         <div class="d-flex my-auto">
-          <b-form-checkbox v-model="sortOrder" switch class="mr-3" title="排序">小到大</b-form-checkbox>
+          <b-form-checkbox v-model="sortOrder" switch class="mr-3" title="排序">少到多</b-form-checkbox>
           <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">大頭照</b-form-checkbox>
           <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">IP</b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
