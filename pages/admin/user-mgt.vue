@@ -174,17 +174,23 @@
     <section>
       <hr/>
       <div class="d-flex justify-content-between mb-2">
-        <b-form-radio-group
-          v-model="selectedGroup"
-          :options="groupOptions"
-          buttons
-          button-variant="outline-dark"
-          class="my-auto"
-          title="分類"
-        />
+        <div class="d-flex">
+          <b-form-radio-group
+            v-model="selectedGroup"
+            :options="groupOptions"
+            buttons
+            button-variant="outline-dark"
+            class="my-auto"
+            title="分類"
+          />
+          <b-form-radio-group
+            v-model="sortOrder"
+            :options="sortOpts"
+            class="ml-3 my-auto"
+          />
+        </div>
         <span class="text-muted my-auto">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
         <div class="d-flex my-auto">
-          <b-form-checkbox v-model="sortOrder" switch class="mr-3" title="排序">少到多</b-form-checkbox>
           <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">大頭照</b-form-checkbox>
           <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">IP</b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
@@ -248,6 +254,10 @@ export default {
       { text: '未分類', value: '' }
     ],
     sortOrder: false,
+    sortOpts: [
+      { html: '<i class="fas fa-sort-amount-down-alt"/>', value: true, disabled: false },
+      { html: '<i class="fas fa-sort-amount-down"/>', value: false, disabled: false }
+    ],
     showAvatar: false,
     showIp: false,
     userXlsx: null,
@@ -316,48 +326,27 @@ export default {
       const inf = this.users.filter(
         (this_record) => this_record["unit"] === "資訊課"
       )
-      return [
-        // {
-        //   NAME: "主任室",
-        //   LIST: director,
-        // },
-        // {
-        //   NAME: "秘書室",
-        //   LIST: secretary,
-        // },
-        // {
-        //   NAME: "人事室",
-        //   LIST: hr,
-        // },
-        // {
-        //   NAME: "會計室",
-        //   LIST: accounting,
-        // },
-        {
-          NAME: "主任室 / 秘書室 / 人事室 / 會計室",
-          LIST: director.concat(secretary).concat(hr).concat(accounting),
-        },
-        {
-          NAME: "行政課",
-          LIST: adm,
-        },
-        {
-          NAME: "登記課",
-          LIST: reg,
-        },
-        {
-          NAME: "地價課",
-          LIST: val,
-        },
-        {
-          NAME: "測量課",
-          LIST: sur,
-        },
-        {
-          NAME: "資訊課",
-          LIST: inf,
-        },
-      ]
+      const LIST = [{
+        NAME: "主任室 / 秘書室 / 人事室 / 會計室",
+        LIST: director.concat(secretary).concat(hr).concat(accounting),
+      }, {
+        NAME: "行政課",
+        LIST: adm,
+      }, {
+        NAME: "登記課",
+        LIST: reg,
+      }, {
+        NAME: "地價課",
+        LIST: val,
+      }, {
+        NAME: "測量課",
+        LIST: sur,
+      }, {
+        NAME: "資訊課",
+        LIST: inf,
+      }]
+      LIST.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
+      return LIST
     },
     importUrl () {
       return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
