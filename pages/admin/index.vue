@@ -16,9 +16,9 @@
     </lah-header>
     <b-container fluid v-cloak>
       <b-card-group deck class="vh-50">
-        <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/user-mgt" no-body size="5x" icon-variant="primary" action="metronome">使用者資訊管理</lah-index-card-link>
-        <lah-index-card-link :icon="['fas', 'user-tag']" to="/admin/authority-mgt" no-body size="5x" icon-variant="success" action="wander-h">使用者角色管理</lah-index-card-link>
-        <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/config-mgt" no-body size="5x" icon-variant="danger" action="shake-v">系統參數設定</lah-index-card-link>
+        <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/users" no-body size="5x" icon-variant="primary" action="metronome">使用者資訊管理</lah-index-card-link>
+        <lah-index-card-link :icon="['fas', 'user-tag']" to="/admin/roles" no-body size="5x" icon-variant="success" action="wander-h">使用者角色管理</lah-index-card-link>
+        <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="shake-v">系統參數設定</lah-index-card-link>
       </b-card-group>
     </b-container>
   </div>
