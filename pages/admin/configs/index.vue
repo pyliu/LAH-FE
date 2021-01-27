@@ -4,7 +4,7 @@
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
-            <div class="my-auto">系統設定管理</div>
+            <div class="my-auto">系統參數管理</div>
             <lah-button icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明"/>
           </div>
           <div>右側選單區域</div>
