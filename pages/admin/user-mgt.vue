@@ -228,6 +228,8 @@
 import lahUserCard from "~/components/lah-user-card.vue"
 import lahUserEditCard from "~/components/lah-user-edit-card.vue"
 import lahUserAddCard from "~/components/lah-user-add-card.vue"
+import ip2long from 'locutus/php/network/ip2long'
+
 export default {
   head: {
     title: "使用者資訊管理-桃園市地政局",
@@ -406,10 +408,13 @@ export default {
     },
     sortAsc (a, b) {
       if ((b.LIST.length - a.LIST.length) === 0) {
-        if (b.NAME > a.NAME) {
+        const regex = new RegExp(`^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$`, 'g')
+        const bv = Boolean(b.NAME.match(regex)) ? ip2long(b.NAME) : b.NAME
+        const av = Boolean(a.NAME.match(regex)) ? ip2long(a.NAME) : a.NAME
+        if (bv > av) {
           return -1
         }
-        if (b.NAME < a.NAME) {
+        if (bv < av) {
           return 1
         }
         return 0
