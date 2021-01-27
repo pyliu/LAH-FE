@@ -78,15 +78,15 @@ export default {
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
           type: this.queryType,
           reload: this.forceReload
-        }).then(res => {
-          if (this.$utils.statusCheck(res.data.status)) {
-            const server_cache_time = res.data.cache_remaining_time * 1000
-            this.setCache(this.cacheKey, res.data, server_cache_time).then(() => {
-              this.commit(res.data)
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            const server_cache_time = data.cache_remaining_time * 1000
+            this.setCache(this.cacheKey, data, server_cache_time).then(() => {
+              this.commit(data)
             })
           } else {
             this.removeCache(this.cacheKey)
-            this.notify(res.data.message, { type: 'warning' })
+            this.notify(data.message, { type: 'warning' })
           }
         }).catch(err => {
           this.alert(err.message)
