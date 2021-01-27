@@ -360,12 +360,12 @@ export default {
           year: this.year,
           query: this.qryType,
           reload: this.forceReload
-        }).then((res) => {
-          this.rows = res.data.raw || []
-          this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
-          const remain_ms = res.data.cache_remaining_time
+        }).then(({ data }) => {
+          this.rows = data.raw || []
+          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+          const remain_ms = data.cache_remaining_time
           if (remain_ms && remain_ms > 0) {
-            this.setCache(this.cacheKey, res.data, remain_ms)
+            this.setCache(this.cacheKey, data, remain_ms)
           }
         }).catch(err => {
           this.alert(err.message)

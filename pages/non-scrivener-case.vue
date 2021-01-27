@@ -286,12 +286,12 @@ export default {
             end_date: this.endDate,
             reload: this.forceReload,
             ignore: this.ignoreTags.map(tag => this.tyOfficeMap[tag] ? this.tyOfficeMap[tag] : tag)
-          }).then((res) => {
-            this.bakedData = res.data.baked || []
-            this.notify(res.data.message, { type: this.$utils.statusCheck(res.data.status) ? 'info' : 'warning' })
-            const remain_ms = res.data.cache_remaining_time // in seconds
+          }).then(({ data }) => {
+            this.bakedData = data.baked || []
+            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+            const remain_ms = data.cache_remaining_time // in seconds
             if (remain_ms && remain_ms > 0) {
-              this.setCache(this.cacheKey, res.data, remain_ms * 1000)
+              this.setCache(this.cacheKey, data, remain_ms * 1000)
               if (this.$refs.countdown) {
                 this.$refs.countdown.setCountdown(remain_ms * 1000)
                 this.$refs.countdown.startCountdown()

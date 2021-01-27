@@ -83,10 +83,10 @@ export default {
             type: "stats_refresh_month",
             date: this.date,
           })
-          .then((res) => {
-            let ok = res.data.status > 0
+          .then(({ data }) => {
+            let ok = data.status > 0
             let msg =
-              res.data.message + " " + this.responseMessage(res.data.status)
+              data.message + " " + this.responseMessage(data.status)
             this.notify({
               message: msg,
               type: ok ? "success" : "danger",

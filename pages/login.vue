@@ -62,9 +62,9 @@ export default {
     this.$axios.post(this.$consts.API.JSON.QUERY, {
       type: 'svr',
       client_ip: this.ip
-    }).then((res) => {
-      this.$store.commit('svr', res.data)
-      this.setCache('server-info', res.data, 86400000) // cache for a day
+    }).then(({ data }) => {
+      this.$store.commit('svr', data)
+      this.setCache('server-info', data, 86400000) // cache for a day
     }).catch((err) => {
       this.$utils.error(err)
     }).finally(() => {
