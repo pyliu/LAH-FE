@@ -11,13 +11,13 @@
         </div>
       </lah-transition>
       <lah-help-modal :modal-id="'help-modal'">
-        請輸入主密碼登入為管理者
+        <lah-fa-icon icon="exclamation-circle" variant="primary" >請輸入密碼登入為管理者，以存取系統管理功能。</lah-fa-icon>
       </lah-help-modal>
     </lah-header>
     <b-container fluid v-cloak>
       <div class="vp-100 center">
         <b-form-group class="center-50">
-            <b-form-input v-model="password" type="password" size="lg" class="text-center" trim></b-form-input>
+            <b-form-input @keyup.enter="check" ref="password" v-model="password" type="password" size="lg" class="text-center" trim/>
             <lah-button @click="check" icon="sign-in-alt" size="lg" action="move-fade-ltr" class="mx-auto my-2">登入</lah-button>
         </b-form-group>
       </div>
@@ -31,17 +31,52 @@ export default {
     title: '管理者登入-桃園市地政局'
   },
   data: () => ({
-    password: undefined,
-    hashedSecret: '4535972a186590f9fe2a470e02c9f22e'
+    password: '',
+    secret: '1f7744350d3dd3dc563421582f37f99e'
   }),
-  method: {
+  computed: {
+    hashed () {
+      return this.$utils.md5(this.password)
+    }
+  },
+  methods: {
     check () {
-      if (this.$utils.equal(this.$utils.md5(this.password), this.hashedSecret)) {
+      if (this.$utils.equal(this.hashed, this.secret)) {
         // ok
+        this.notify(
+          '已登入，將引導至管理者首頁 ... ',
+          { type: 'success' }
+        ).then((config) => {
+          // this.$utils.log(config)
+          this.$store.commit('admin', true)
+          this.$router.push('/admin')
+        })
       } else {
         // not ok
+        this.alert('密碼不相符，請重試！')
       }
     }
+  },
+  created () {
+    this.isBusy = true
+    this.$axios.post(this.$consts.API.JSON.QUERY, {
+      type: 'svr',
+      client_ip: this.ip
+    }).then((res) => {
+      this.$store.commit('svr', res.data)
+      this.setCache('server-info', res.data, 86400000) // cache for a day
+    }).catch((err) => {
+      this.$utils.error(err)
+    }).finally(() => {
+      if (this.authority.isAdmin) {
+        this.$router.push('/admin')
+      } else {
+        this.isBusy = false
+      }
+    })
+  },
+  mounted () {
+    this.$refs.password.$el.focus()
   }
 }
 </script>

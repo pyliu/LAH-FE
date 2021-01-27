@@ -73,6 +73,7 @@ const actions = {
 const mutations = {
   ip (state, ip) { state.ip = ip },
   svr (state, obj) { state.svr = obj },
+  admin (state, flag) { state.svr.config.authority.isAdmin = flag },
   addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 

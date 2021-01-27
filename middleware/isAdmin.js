@@ -3,11 +3,11 @@ export default function ({
   redirect
 }) {
   if (store.state.svr === null) {
-    return redirect('/')
+    return redirect('/login')
   }
   const authority = store.state.svr.config.authority
-  // not admin => redirect to '/'
+  // not admin => redirect to '/login'
   if (!authority.isAdmin && !authority.isSuper) {
-    return redirect('/')
+    return redirect('/login')
   }
 }
