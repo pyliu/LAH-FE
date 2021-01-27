@@ -102,6 +102,13 @@ export default ({ $axios, store }, inject) => {
   // like old fashion global functions, use this.$utils to access these methods in Vue
   const utility = {
     /**
+     * lodash ...
+     */
+    empty: isEmpty, // '0' is not empty
+    equal: isEqual,
+    debounce: debounce,
+    md5: _md5,
+    /**
      * usage in Vue
      * this.$utils.animated('.my-element', { name: 'bounce', duration: 'faster', delay: '' }).then((message) => {
      *  // Do something after the animation
@@ -210,10 +217,6 @@ export default ({ $axios, store }, inject) => {
       return Math.floor(Math.random() * Math.floor(range || 100))
     },
     trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
-    empty: isEmpty, // '0' is not empty
-    equal: isEqual,
-    debounce: debounce,
-    md5: _md5,
     caseId (id) {
       if (isEmpty(id)) {
         return ''
@@ -245,6 +248,13 @@ export default ({ $axios, store }, inject) => {
         ('0' + now.getHours()).slice(-2) + ':' +
         ('0' + now.getMinutes()).slice(-2) + ':' +
         ('0' + now.getSeconds()).slice(-2)
+    },
+    isIPv4 (str) {
+      if (isEmpty(str)) {
+        return false
+      }
+      const regex = new RegExp(`^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$`, 'g')
+      return Boolean(str.match(regex))
     },
     log: console.log.bind(console),
     warn: console.warn.bind(console),

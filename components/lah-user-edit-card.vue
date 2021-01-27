@@ -369,8 +369,7 @@ export default {
       return !this.$utils.empty(this.userData['name']) && this.userData['name'].length > 1
     },
     checkIp () {
-      const regex = new RegExp(`^(?!0)(?!.*\\.$)((1?\\d?\\d|25[0-5]|2[0-4]\\d)(\\.|$)){4}$`, 'gm')
-      return Boolean(this.userData['ip'].match(regex))
+      return this.$utils.isIPv4(this.userData['ip'])
     },
     checkExt () {
       if (this.$utils.empty(this.userData['ext'])) {
