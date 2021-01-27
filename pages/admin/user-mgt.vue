@@ -442,14 +442,14 @@ export default {
             const formData = new FormData()
             formData.append("file", this.userXlsx)
             this.$upload.post(this.importUrl, formData)
-            .then((res) => {
+            .then(({ data }) => {
               const opts = { type: "warning", title: '匯入使用者資料通知' }
-              if (this.$utils.statusCheck(res.data.status)) {
+              if (this.$utils.statusCheck(data.status)) {
                 opts.type = 'success'
                 // refresh all list
                 this.$fetch()
               }
-              this.notify(res.data.message, opts)
+              this.notify(data.message, opts)
             })
             .catch((err) => {
               this.$utils.error(err)
@@ -559,23 +559,19 @@ export default {
   },
   fetch () {
     this.isBusy = true
-    this.$axios
-      .post(this.$consts.API.JSON.USER, {
-        type: this.type,
-      })
-      .then((res) => {
-        if (this.$utils.statusCheck(res.data.status)) {
-          this.users = res.data.raw
-        } else {
-          this.notify(res.data.message, { type: "warning" })
-        }
-      })
-      .catch((err) => {
-        this.$utils.error(err)
-      })
-      .finally(() => {
-        this.isBusy = false
-      })
+    this.$axios.post(this.$consts.API.JSON.USER, {
+      type: this.type,
+    }).then(({ data }) => {
+      if (this.$utils.statusCheck(data.status)) {
+        this.users = data.raw
+      } else {
+        this.notify(data.message, { type: "warning" })
+      }
+    }).catch((err) => {
+      this.$utils.error(err)
+    }).finally(() => {
+      this.isBusy = false
+    })
   }
 }
 </script>
