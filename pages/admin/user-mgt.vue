@@ -214,7 +214,7 @@
             {{ user["id"].padStart(6, "&ensp;") }}
             {{ user["name"].padEnd(3, "　") }}
             <div v-if="showIp" class="text-dark text-center font-weight-bolder">
-              {{ user["ip"].split('.')[0] }}.{{ user["ip"].split('.')[1] }}.<span class="text-danger">{{ user["ip"].split('.')[2] }}.{{ user["ip"].split('.')[3] }}</span>
+              {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}.<span class="text-danger">{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}</span>
             </div>
           </b-button>
         </b-collapse>
@@ -546,6 +546,9 @@ export default {
     },
     avatarSrc (user) {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user['id']}_avatar&name=${user['name']}_avatar`
+    },
+    ipParts (user) {
+      return user["ip"].split('.')
     }
   },
   fetch () {
