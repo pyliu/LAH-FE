@@ -174,7 +174,6 @@
     <section>
       <hr/>
       <div class="d-flex justify-content-between mb-2">
-        <span class="text-muted my-auto">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
         <b-form-radio-group
           v-model="selectedGroup"
           :options="groupOptions"
@@ -183,6 +182,7 @@
           class="my-auto"
           title="分類"
         />
+        <span class="text-muted my-auto">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
         <div class="d-flex my-auto">
           <b-form-checkbox v-model="sortOrder" switch class="mr-3" title="排序">少到多</b-form-checkbox>
           <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">大頭照</b-form-checkbox>
