@@ -213,7 +213,9 @@
             <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
             {{ user["id"].padStart(6, "&ensp;") }}
             {{ user["name"].padEnd(3, "　") }}
-            <span v-if="showIp" class="text-dark font-weight-bolder">{{ user["ip"].replace('192.168.', '').padEnd(6, "&ensp;") }}</span>
+            <div v-if="showIp" class="text-dark text-center font-weight-bolder">
+              {{ user["ip"].split('.')[0] }}.{{ user["ip"].split('.')[1] }}.<span class="text-danger">{{ user["ip"].split('.')[2] }}.{{ user["ip"].split('.')[3] }}</span>
+            </div>
           </b-button>
         </b-collapse>
       </section>
