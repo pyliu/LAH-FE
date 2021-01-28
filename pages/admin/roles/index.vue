@@ -20,6 +20,27 @@
       </lah-transition>
       <lah-help-modal :modal-id="'help-modal'" size="md">
         <h6>本系統使用「IP位址」來管理使用者角色權限，請利用本頁面之介面進行新增或刪除的動作。</h6>
+        <hr />
+        <div class="mx-2 my-1">
+          <b-button variant="danger" size="sm">{{ site }}XXXX 劉ＯＯ</b-button>
+          超級管理者
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="outline-danger" size="sm">{{ site }}XXXX 邦ＯＯ</b-button>
+          系統管理者
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="primary" size="sm">{{ site }}XXXX 渝ＯＯ</b-button>
+          主管
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="warning" size="sm">{{ site }}XXXX 中ＯＯ</b-button>
+          研考
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="info" size="sm">{{ site }}XXXX 壢ＯＯ</b-button>
+          總務
+        </div>
       </lah-help-modal>
       <b-modal
         id="add-authority-modal"
@@ -30,7 +51,32 @@
         <template #modal-title>
           新增角色權限
         </template>
-        ...
+        <b-form-group
+          label="權限"
+          label-for="role-select"
+          label-cols-sm="2"
+          label-size="md"
+        >
+          <b-select
+            id="role-select"
+            v-model="addRole"
+            :options="addRoleOpts"
+            :state="roleOK"
+          ></b-select>
+        </b-form-group>
+        <b-form-group
+          label="電腦"
+          label-for="ip-input"
+          label-cols-sm="2"
+          label-size="md"
+        >
+          <b-input id="ip-input"
+            v-model="addIp"
+            :state="ipOK"
+            trim
+          />
+        </b-form-group>
+        <lah-button @click="add" icon="user-plus" :disabled="!(roleOK && ipOK)" block>新增角色權限</lah-button>
       </b-modal>
     </lah-header>
     <b-container fluid v-cloak>
@@ -45,21 +91,21 @@
         select-mode="single"
         selected-variant="success"
         class="text-center mb-3"
-        @row-selected="rowSelected"
-        :items="items"
-        :fields="fields"
+        @row-selected="popupUserInfo"
+        :items="tableItems"
+        :fields="tableFields"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
         </template>
         <template #table-caption>
-          <span class="lah-shadow">{{message}} <b-badge variant="info" pill>{{items.length}}</b-badge></span>
+          <span class="lah-shadow">{{message}} <b-badge variant="info" pill>{{tableItems.length}}</b-badge></span>
         </template>
         <template #cell(remove)="{ item }">
           <lah-button @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill class="mx-auto" title="刪除本筆資料"/>
         </template>
         <template #cell(id)="{ item }">
-          <b-button v-if="!$utils.empty(item['id'])" @click="popupUserInfo(item)" variant="outline-secondary" size="sm">
+          <b-button v-if="!$utils.empty(item['id'])" @click="popupUserInfo(item)" :variant="variant(item)" size="sm">
             <lah-avatar :user-data="item">
               {{ item["id"] }}
               {{ item["name"] }}
@@ -84,8 +130,8 @@ export default {
   components: { lahUserCard },
   middleware: [ 'isAdmin' ],
   data: () => ({
-    items: [],
-    fields: [{
+    tableItems: [],
+    tableFields: [{
         key: 'remove',
         label: '移除'
       }, {
@@ -110,25 +156,34 @@ export default {
         sortable: true
       }
     ],
-    message: ''
+    message: '',
+    addIp: '',
+    addRole: '',
+    addRoleOpts: [
+      { text: '主管', value: 4 },
+      { text: '研考', value: 5 },
+      { text: '總務', value: 6 },
+      { text: '系統管理者', value: 3 },
+      { text: '超級管理者', value: 2 }
+    ]
   }),
   fetchOnServer: true,
   async fetch () {
     const { data } = await this.$axios.post('/api/user_json_api.php', {
       type: 'authority_list'
     })
-    this.items = data.raw
+    this.tableItems = data.raw
     this.message = data.message
   },
-  watch: {
-    items (val) {
-      // this.$utils.log(val)
+  computed: {
+    roleOK () {
+      return this.addRole > 1
+    },
+    ipOK () {
+      return this.$utils.isIPv4(this.addIp)
     }
   },
   methods: {
-    rowSelected (row) {
-      this.$utils.log(row)
-    },
     add () {
 
     },
@@ -145,7 +200,7 @@ export default {
             if (this.$utils.statusCheck(data.status)) {
               opts.type = 'success'
               // lodash remove method ... not reactively Orz
-              this.items = this.$utils.reject(this.items, { role_id: userData['role_id'], role_ip: userData['role_ip'] })
+              this.tableItems = this.$utils.reject(this.tableItems, { role_id: userData['role_id'], role_ip: userData['role_ip'] })
             }
             this.notify(data.message, opts)
           })
@@ -154,13 +209,22 @@ export default {
         this.$utils.error(err)
       })
     },
+    variant (user) {
+      if (user['role_name'] === '超級管理者') return "danger"
+      if (user['role_name'] === '主管') return "primary"
+      if (user['role_name'] === '研考') return "warning"
+      if (user['role_name'] === '總務') return "info"
+      if (user['role_name'] === '系統管理者') return "outline-danger"
+      return "outline-secondary"
+    },
     popupUserInfo (data) {
-      this.modal(this.$createElement('lah-user-card', { props: { raw: [data] } }), {
-        title: `${data['id']} ${data['name']} 資訊`
-      })
+      if (!this.$utils.empty(data)) {
+        const obj =  Array.isArray(data) ? data[0] : data
+        this.modal(this.$createElement('lah-user-card', { props: { raw: [obj] } }), {
+          title: `${obj['id']} ${obj['name']} 資訊`
+        })
+      }
     }
-  },
-  created () {
   }
 }
 </script>

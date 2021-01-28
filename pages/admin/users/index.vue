@@ -82,45 +82,31 @@
         </ul>
         <hr />
         <div class="mx-2 my-1">
-          <b-button variant="outline-success" size="sm"
-            >{{ office }}XXXX 劉ＯＯ</b-button
-          >
+          <b-button variant="outline-success" size="sm">{{ office }}XXXX 劉ＯＯ</b-button>
           在職使用者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="secondary" size="sm"
-            >{{ office }}XXXX 邦ＯＯ</b-button
-          >
+          <b-button variant="secondary" size="sm">{{ office }}XXXX 邦ＯＯ</b-button>
           離職使用者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="danger" size="sm"
-            >{{ office }}XXXX 渝ＯＯ</b-button
-          >
+          <b-button variant="danger" size="sm">{{ office }}XXXX 渝ＯＯ</b-button>
           超級管理者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="outline-danger" size="sm"
-            >{{ office }}XXXX 中ＯＯ</b-button
-          >
+          <b-button variant="outline-danger" size="sm">{{ office }}XXXX 中ＯＯ</b-button>
           系統管理者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="primary" size="sm"
-            >{{ office }}XXXX 壢ＯＯ</b-button
-          >
+          <b-button variant="primary" size="sm">{{ office }}XXXX 壢ＯＯ</b-button>
           主管
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="warning" size="sm"
-            >{{ office }}XXXX 地ＯＯ</b-button
-          >
+          <b-button variant="warning" size="sm">{{ office }}XXXX 地ＯＯ</b-button>
           研考
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="info" size="sm"
-            >{{ office }}XXXX 政ＯＯ</b-button
-          >
+          <b-button variant="info" size="sm">{{ office }}XXXX 政ＯＯ</b-button>
           總務
         </div>
       </lah-help-modal>
