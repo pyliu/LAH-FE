@@ -189,7 +189,7 @@
             class="ml-3 my-auto"
           />
         </div>
-        <span class="text-muted my-auto">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
+        <span class="text-muted my-auto lah-shadow">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
         <div class="d-flex my-auto">
           <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">大頭照</b-form-checkbox>
           <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">IP</b-form-checkbox>
@@ -198,7 +198,7 @@
       </div>
       <hr/>
       <section v-for="category in categories" :key="category.NAME" class="mb-3">
-        <h5>
+        <h5 class="lah-shadow">
           <lah-fa-icon icon="address-book" regular style="cursor: pointer" v-b-toggle="$utils.md5(category.NAME)">
             {{translateGroupName(category.NAME)}}
             <b-badge pill variant="info">{{ category.LIST.length }}</b-badge>
