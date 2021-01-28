@@ -11,9 +11,9 @@
             <lah-button
               icon="user-plus"
               variant="outline-primary"
-              @click="add"
               title="新增使用者"
               no-icon-gutter
+              v-b-modal.add-authority-modal
             />
           </b-button-group>
         </div>
@@ -21,6 +21,17 @@
       <lah-help-modal :modal-id="'help-modal'" size="md">
         <h6>本系統使用「IP位址」來管理使用者角色權限，請利用本頁面之介面進行新增或刪除的動作。</h6>
       </lah-help-modal>
+      <b-modal
+        id="add-authority-modal"
+        hide-footer
+        no-close-on-backdrop
+        scrollable
+      >
+        <template #modal-title>
+          新增角色權限
+        </template>
+        ...
+      </b-modal>
     </lah-header>
     <b-container fluid v-cloak>
       <b-table
@@ -44,14 +55,16 @@
         <template #table-caption>
           <span class="lah-shadow">{{message}} <b-badge variant="info" pill>{{items.length}}</b-badge></span>
         </template>
-        <template #cell(operation)="{ item }">
-          <lah-button @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill title="刪除本筆資料"/>
+        <template #cell(remove)="{ item }">
+          <lah-button @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill class="mx-auto" title="刪除本筆資料"/>
         </template>
         <template #cell(id)="{ item }">
-          <b-button v-if="!$utils.empty(item['id'])" @click="popupUserInfo(item)" variant="outline-secondary" size="sm">{{ item["id"] }}</b-button>
-        </template>
-        <template #cell(name)="{ item }">
-          <b-button v-if="!$utils.empty(item['name'])" @click="popupUserInfo(item)" variant="outline-secondary" size="sm">{{ item["name"] }}</b-button>
+          <b-button v-if="!$utils.empty(item['id'])" @click="popupUserInfo(item)" variant="outline-secondary" size="sm">
+            <lah-avatar :user-data="item">
+              {{ item["id"] }}
+              {{ item["name"] }}
+            </lah-avatar>
+          </b-button>
         </template>
         <template #cell(role_ip)="{ item }">
           {{item['role_ip'].split('.')[0]}}.{{item['role_ip'].split('.')[1]}}.<span class="font-weight-bold text-primary">{{item['role_ip'].split('.')[2]}}.{{item['role_ip'].split('.')[3]}}</span>
@@ -73,23 +86,19 @@ export default {
   data: () => ({
     items: [],
     fields: [{
-        key: 'operation',
-        label: '操作'
-      }, {
-        key: 'role_name',
-        label: '權限',
-        sortable: true
+        key: 'remove',
+        label: '移除'
       }, {
         key: 'role_ip',
         label: '電腦IP位址',
         sortable: true
       }, {
         key: 'id',
-        label: '使用者代碼',
+        label: '使用者',
         sortable: true
       }, {
-        key: 'name',
-        label: '使用者名稱',
+        key: 'role_name',
+        label: '權限',
         sortable: true
       }, {
         key: 'unit',
