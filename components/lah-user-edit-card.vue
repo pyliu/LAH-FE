@@ -369,8 +369,7 @@ export default {
       return !this.$utils.empty(this.userData['name']) && this.userData['name'].length > 1
     },
     checkIp () {
-      const regex = new RegExp(`^(?!0)(?!.*\\.$)((1?\\d?\\d|25[0-5]|2[0-4]\\d)(\\.|$)){4}$`, 'gm')
-      return Boolean(this.userData['ip'].match(regex))
+      return this.$utils.isIPv4(this.userData['ip'])
     },
     checkExt () {
       if (this.$utils.empty(this.userData['ext'])) {
@@ -462,9 +461,9 @@ export default {
         this.confirm(prompt).then((answer) => {
           if (answer) {
             this.isBusy = true
-            this.$axios.post(this.$consts.API.JSON.USER, config).then((res) => {
-              if (this.$utils.statusCheck(res.data.status)) {
-                this.notify(res.data.message, { type: "success" })
+            this.$axios.post(this.$consts.API.JSON.USER, config).then(({ data }) => {
+              if (this.$utils.statusCheck(data.status)) {
+                this.notify(data.message, { type: "success" })
                 const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
                 if (config.type === "user_onboard") {
                   this.userData['offboard_date'] = ''
@@ -474,8 +473,8 @@ export default {
                 }
                 resolve(this.userData)
               } else {
-                this.notify(res.data.message, { type: "warning" })
-                reject(res.data.message)
+                this.notify(data.message, { type: "warning" })
+                reject(data.message)
               }
             }).catch((err) => {
               this.$utils.error(err)
@@ -506,12 +505,12 @@ export default {
         type: 'upd_ip_tdoc',
         id: this.userData['id'],
         ip: this.userData['ip']
-      }).then(res => {
+      }).then(({ data }) => {
         const opts = { type: "warning" }
-        if (this.$utils.statusCheck(res.data.status)) {
+        if (this.$utils.statusCheck(data.status)) {
           opts.type = 'success'
         }
-        this.notify(res.data.message, opts)
+        this.notify(data.message, opts)
       }).catch(err => {
         this.$utils.warn(err)
       }).finally(() => {
@@ -548,12 +547,12 @@ export default {
       formData.append("id", this.userData['id'])
       formData.append("name", this.userData['name'])
       formData.append("avatar", avatar)
-      this.$upload.post(this.uploadUrl, formData).then((res) => {
+      this.$upload.post(this.uploadUrl, formData).then(({ data }) => {
         const opts = { type: 'warning', title: '上傳圖檔結果通知' }
-        if (this.$utils.statusCheck(res.data.status)) {
+        if (this.$utils.statusCheck(data.status)) {
           opts.type = 'success'
         }
-        this.notify(res.data.message, opts)
+        this.notify(data.message, opts)
       }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
@@ -577,18 +576,18 @@ export default {
           id: this.id,
           name: this.name,
         })
-        .then((res) => {
-          if (this.$utils.statusCheck(res.data.status)) {
-            if (res.data.data_count > 1) {
+        .then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            if (data.data_count > 1) {
               this.userData =
-                res.data.raw.find((item, idx, array) => {
+                data.raw.find((item, idx, array) => {
                   return this.$utils.empty(item["offboard_date"])
                 }) || {}
             } else {
-              this.userData = res.data.raw[0]
+              this.userData = data.raw[0]
             }
           } else {
-            this.notify(res.data.message, { type: "warning" })
+            this.notify(data.message, { type: "warning" })
           }
         })
         .catch((err) => {

@@ -293,8 +293,7 @@ export default {
       return !this.$utils.empty(this.userData['name']) && this.userData['name'].length > 1
     },
     checkIp () {
-      const regex = new RegExp(`^(?!0)(?!.*\\.$)((1?\\d?\\d|25[0-5]|2[0-4]\\d)(\\.|$)){4}$`, 'gm')
-      return Boolean(this.userData['ip'].match(regex))
+      return this.$utils.isIPv4(this.userData['ip'])
     },
     checkExt () {
       const regex = new RegExp(`^\\d{3,4}$`, 'gm')
@@ -361,13 +360,13 @@ export default {
             this.isBusy = true
             this.$axios
               .post(this.$consts.API.JSON.USER, config)
-              .then((res) => {
-                if (this.$utils.statusCheck(res.data.status)) {
-                  this.notify(res.data.message, { type: "success" })
+              .then(({ data }) => {
+                if (this.$utils.statusCheck(data.status)) {
+                  this.notify(data.message, { type: "success" })
                   resolve(this.userData)
                 } else {
-                  this.notify(res.data.message, { type: "warning" })
-                  reject(res.data.message)
+                  this.notify(data.message, { type: "warning" })
+                  reject(data.message)
                 }
               })
               .catch((err) => {
@@ -398,11 +397,11 @@ export default {
     this.isBusy = true
     this.$axios.post(this.$consts.API.JSON.USER, {
       type: 'all_users',
-    }).then((res) => {
-      if (this.$utils.statusCheck(res.data.status)) {
-        this.users = res.data.raw
+    }).then(({ data }) => {
+      if (this.$utils.statusCheck(data.status)) {
+        this.users = data.raw
       } else {
-        this.notify(res.data.message, { type: "warning" })
+        this.notify(data.message, { type: "warning" })
       }
     }).catch((err) => {
       this.$utils.error(err)

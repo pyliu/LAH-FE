@@ -204,17 +204,17 @@ export default {
       type: 'user_info',
       id: this.id,
       name: this.name
-    }).then(res => {
-      if (this.$utils.statusCheck(res.data.status)) {
-        if (res.data.data_count > 1) {
-          this.userData = res.data.raw.find((item, idx, array) => {
+    }).then(({ data }) => {
+      if (this.$utils.statusCheck(data.status)) {
+        if (data.data_count > 1) {
+          this.userData = data.raw.find((item, idx, array) => {
             return this.$utils.empty(item['offboard_date'])
           }) || {}
         } else {
-          this.userData = res.data.raw[0]
+          this.userData = data.raw[0]
         }
       } else {
-        this.$utils.warn(res.data.message)
+        this.$utils.warn(data.message)
       }
     }).catch(err => {
       this.$utils.error(err)

@@ -57,10 +57,10 @@ const actions = {
     this.$axios.post('/api/query_json_api.php', {
       type: 'svr',
       client_ip: getters.ip
-    }).then((res) => {
+    }).then(({ data }) => {
       // expected json format is { status, config, ips, server, message }
-      commit('svr', res.data)
-      // logtimestamp(res.data.message)
+      commit('svr', data)
+      // logtimestamp(data.message)
     }).catch((error) => {
       logerror(error)
     }).finally(() => {

@@ -30,11 +30,11 @@ export default {
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'reg_case',
         id: this.id
-      }).then(res => {
-        if (this.$utils.statusCheck(res.data.status)) {
-          this.bakedData = res.data.baked
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.bakedData = data.baked
         } else {
-          this.alert(res.data.message, {
+          this.alert(data.message, {
             title: '讀取登記案件',
             type: 'warning'
           })
