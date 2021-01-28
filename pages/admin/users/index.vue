@@ -211,7 +211,7 @@
             :data-id="user['id']"
             :data-name="user['name']"
             size="sm"
-            class="mx-1 my-1"
+            class="mx-1 my-1 shadow"
             @click="edit(user)"
             :variant="variant(user)"
             v-b-popover.hover.top.html="role(user)"
