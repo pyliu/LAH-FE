@@ -123,19 +123,20 @@ export default {
     add () {
 
     },
-    remove (data) {
-      this.confirm(`請確認要刪除 ${data['id']} ${data['name']} ${data['role_name']} 權限？`)
+    remove (userData) {
+      this.confirm(`請確認要刪除 ${userData['id']} ${userData['name']} ${userData['role_name']} 權限？`)
       .then((answer) => {
         if (answer) {
           // click YES
           this.$axios.post(this.$consts.API.JSON.USER, {
-            type: 'remove_authority'
+            type: 'remove_authority',
+            user: userData,
           }).then(({ data }) => {
             const opts = { type: 'warning' }
             if (this.$utils.statusCheck(data.status)) {
               opts.type = 'success'
               // lodash remove method ... not reactively Orz
-              this.items = this.$utils.reject(this.items, { role_id: data['role_id'], role_ip: data['role_ip'] })
+              this.items = this.$utils.reject(this.items, { role_id: userData['role_id'], role_ip: userData['role_ip'] })
             }
             this.notify(data.message, opts)
           })
