@@ -28,6 +28,9 @@
       caption-top
       :per-page="perPage"
       :current-page="currentPage"
+      selectable
+      select-mode="single"
+      selected-variant="success"
     >
       <template v-slot:table-busy>
         <span class="ld-txt">讀取中...</span>

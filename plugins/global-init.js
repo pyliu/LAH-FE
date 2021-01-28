@@ -3,6 +3,9 @@ import $ from 'jquery'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import debounce from 'lodash/debounce'
+import remove from 'lodash/remove'
+import filter from 'lodash/filter'
+import reject from 'lodash/reject'
 import _md5 from 'md5'
 import uploadAxios from 'axios'
 
@@ -106,7 +109,10 @@ export default ({ $axios, store }, inject) => {
      */
     empty: isEmpty, // '0' is not empty
     equal: isEqual,
-    debounce: debounce,
+    debounce,
+    remove,
+    filter,
+    reject,
     md5: _md5,
     /**
      * usage in Vue

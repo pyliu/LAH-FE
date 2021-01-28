@@ -16,6 +16,9 @@
       class="text-center s-90"
       :style="style"
       :sticky-header="sticky"
+      selectable
+      select-mode="single"
+      selected-variant="success"
     >
       <template v-slot:table-busy>
         <div class="text-center text-danger my-5">
