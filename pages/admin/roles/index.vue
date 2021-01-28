@@ -181,14 +181,41 @@ export default {
     },
     ipOK () {
       return this.$utils.isIPv4(this.addIp)
+    },
+    selectedRole () {
+      const selected = this.addRoleOpts.find((item, idx, array) => { return item.value === this.addRole })
+      return selected ? selected.text : ''
     }
   },
   methods: {
     add () {
-
+      this.confirm(`請確認要新增 ${this.addIp} ${this.selectedRole} 權限？`)
+      .then((answer) => {
+        if (answer) {
+          // click YES
+          this.$axios.post(this.$consts.API.JSON.USER, {
+            type: 'add_authority',
+            role_id: this.addRole,
+            ip: this.addIp
+          }).then(({ data }) => {
+            const opts = { type: 'warning' }
+            if (this.$utils.statusCheck(data.status)) {
+              opts.type = 'success'
+              this.addRole = ''
+              this.addIp = ''
+              this.$fetch()
+              // clear FE cache
+              this.clearCache()
+            }
+            this.notify(data.message, opts)
+          })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      })
     },
     remove (userData) {
-      this.confirm(`請確認要刪除 ${userData['id']} ${userData['name']} ${userData['role_name']} 權限？`)
+      this.confirm(`請確認要刪除 ${userData['id'] || ''} ${userData['name'] || ''} ${userData['role_name']} 權限？`)
       .then((answer) => {
         if (answer) {
           // click YES
@@ -201,6 +228,8 @@ export default {
               opts.type = 'success'
               // lodash remove method ... not reactively Orz
               this.tableItems = this.$utils.reject(this.tableItems, { role_id: userData['role_id'], role_ip: userData['role_ip'] })
+              // clear FE cache
+              this.clearCache()
             }
             this.notify(data.message, opts)
           })
