@@ -33,7 +33,9 @@
           <b-button variant="link" @click="userinfo(item['收件人員'], item['RM96'])">{{ item['收件人員'] }}</b-button>
         </template>
         <template v-slot:cell(作業人員)="{ item }">
-          <b-button variant="link" @click="userinfo(item['作業人員'], item['RM30_1'])">{{ item['作業人員'] }}</b-button>
+          <b-button variant="outline-secondary" @click="userinfo(item['作業人員'], item['RM30_1'])">
+            <lah-avatar :id="item['RM30_1']" :name="item['作業人員']">{{ item['作業人員'] }}</lah-avatar>
+          </b-button>
         </template>
         <template v-slot:cell(初審人員)="{ item }">
           <b-button variant="link" @click="userinfo(item['初審人員'], item['RM45'])">{{ item['初審人員'] }}</b-button>

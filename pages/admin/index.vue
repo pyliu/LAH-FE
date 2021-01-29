@@ -37,7 +37,7 @@ export default {
 <style lang="scss" scoped>
 .vh-50 {
   height: 50vh;
-  margin-top: 20vh;
+  margin-top: 15vh;
   .card:hover {
     background-color: rgb(228, 222, 222)
   }

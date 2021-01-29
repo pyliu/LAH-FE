@@ -130,11 +130,9 @@
       </template>
 
       <template v-slot:cell(初審人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['初審人員'], item['RM45'])"
-          v-b-popover.top.hover.focus.html="(item, item.ELAPSED_TIME['初審'])"
-        >{{ item["初審人員"] }}</a>
+        <b-link @click="userinfo(item['初審人員'], item['RM45'])">
+          <lah-avatar :id="item['RM45']" :name="item['初審人員']">{{ item["初審人員"] }}</lah-avatar>
+        </b-link>
       </template>
       <template v-slot:cell(複審人員)="{ item }">
         <a
@@ -483,7 +481,7 @@ export default {
       return this.$utils.empty(this.mute)
     },
     maxHeightOverride () {
-      if (window) {
+      if (window !== undefined) {
         const parsed = parseInt(window.innerHeight - this.maxHeightOffset)
         return isNaN(parsed) ? '' : `max-height: ${parsed}px`
       }
