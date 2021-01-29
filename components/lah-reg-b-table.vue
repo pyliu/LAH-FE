@@ -33,7 +33,7 @@
       selectable
 
       sticky-header
-      :style="maxHeightOverride"
+      :style="maxHeightStyle"
     >
       <template v-slot:table-busy>
         <span class="ld-txt">讀取中...</span>
@@ -239,7 +239,8 @@ export default {
     modalId: 'this should be an uuid',
     modalLoading: true,
     clickedId: undefined,
-    clickedData: undefined
+    clickedData: undefined,
+    maxHeight: 600
   }),
   computed: {
     tblFields: function () {
@@ -488,12 +489,8 @@ export default {
     sort () {
       return this.$utils.empty(this.mute)
     },
-    maxHeightOverride () {
-      if (window !== undefined) {
-        const parsed = parseInt(window.innerHeight - this.maxHeightOffset)
-        return isNaN(parsed) ? '' : `max-height: ${parsed}px`
-      }
-      return ''
+    maxHeightStyle () {
+       return `max-height: ${this.maxHeight}px`
     }
   },
   methods: {
@@ -556,6 +553,9 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+  },
+  mounted () {
+    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   }
 }
 </script>

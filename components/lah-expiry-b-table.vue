@@ -20,7 +20,7 @@
       :fields="fields"
       :busy="isBusy || busy"
 
-      :style="tableFixedMaxHeight"
+      :style="maxHeightStyle"
       sticky-header
     >
       <template v-slot:table-busy>
@@ -117,7 +117,8 @@ export default {
     ],
     modalId: 'this should be an uuid',
     clickedId: undefined,
-    modalLoading: true
+    modalLoading: true,
+    maxHeight: 600
   }),
   computed: {
     totalCase () {
@@ -143,7 +144,8 @@ export default {
     },
     count () { return this.tableItems ? this.tableItems.length : 0 },
     buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' },
-    allCaseMode () { return this.$utils.empty(this.reviewerId) }
+    allCaseMode () { return this.$utils.empty(this.reviewerId) },
+    maxHeightStyle () { return `max-height: ${this.maxHeight}px` }
   },
   watch: {
     totalPeople (val) {
@@ -185,7 +187,10 @@ export default {
       })
     }
   },
-  created () { this.modalId = this.$utils.uuid() }
+  created () { this.modalId = this.$utils.uuid() },
+  mounted () {
+    this.maxHeight = parseInt(window.innerHeight - 105)
+  }
 }
 </script>
 
