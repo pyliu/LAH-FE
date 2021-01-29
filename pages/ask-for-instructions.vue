@@ -47,7 +47,6 @@
         :busy="isBusy"
         :baked-data="bakedData"
         :fields="fields"
-        :max-height="maxHeight"
       />
     </lah-transition>
     <lah-transition class="center h3">
@@ -116,8 +115,7 @@ export default {
         key: "結案日期",
         sortable: true,
       },
-    ],
-    maxHeight: 300
+    ]
   }),
   computed: {
     queryCount() { return this.bakedData.length },
@@ -191,9 +189,6 @@ export default {
   created () { 
     // wrap the reload function with delay to prevent quick reloading call
     this.reloadDebounced = this.$utils.debounce(this.reload, 1000)
-  },
-  mounted () {
-    this.maxHeight = window.innerHeight - 100
   }
 }
 </script>

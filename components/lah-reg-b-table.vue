@@ -15,22 +15,25 @@
       :no-border-collapse="true"
       :head-variant="'dark'"
       :table-variant="tableVariant"
-      :sticky-header="true"
       :caption="caption"
       :items="bakedData"
       :fields="tblFields"
-      :style="tableFixedMaxHeight"
-      :busy="busy"
+      :busy="isBusy || busy"
       :tbody-tr-class="trClass"
       :tbody-transition-props="transProps"
-      primary-key="收件字號"
-      class="text-center"
-      caption-top
       :per-page="perPage"
       :current-page="currentPage"
-      selectable
+
+      primary-key="收件字號"
+      class="text-center"
       select-mode="single"
       selected-variant="success"
+
+      caption-top
+      selectable
+
+      sticky-header
+      :style="tableFixedMaxHeight"
     >
       <template v-slot:table-busy>
         <span class="ld-txt">讀取中...</span>

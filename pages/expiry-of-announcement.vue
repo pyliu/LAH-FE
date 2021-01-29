@@ -33,7 +33,7 @@
       </lah-transition>
     </lah-header>
     <lah-transition appear>
-      <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields" :max-height="maxHeight"></lah-reg-b-table>
+      <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields"></lah-reg-b-table>
     </lah-transition>
     <lah-transition class="center h3">
       <lah-fa-icon
@@ -93,8 +93,7 @@ export default {
         label:'期滿日期',
         sortable: true
       }
-    ],
-    maxHeight: 300
+    ]
   }),
   computed: {
     queryCount () { return this.bakedData.length },
@@ -163,9 +162,6 @@ export default {
         this.$fetch()
       })
     }
-  },
-  mounted () {
-    this.maxHeight = window.innerHeight - 100
   }
 }
 </script>

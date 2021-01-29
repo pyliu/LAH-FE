@@ -189,7 +189,6 @@ export default {
     currentPage: 1,
     forceReload: false,
     committed: false,
-    maxHeight: 300,
     landFields: [
       {
         key: "IS48",
@@ -326,9 +325,6 @@ export default {
     cacheKeyYear () { return `reg_trust_case_years` },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
     style () {
-      const parsed = parseInt(this.maxHeight)
-      return isNaN(parsed) ? "" : `max-height: ${parsed}px`
-    },
     fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields }
   },
   watch: {
@@ -423,7 +419,6 @@ export default {
   },
   mounted () {
     this.modalId = this.$utils.uuid()
-    this.maxHeight = window.innerHeight - 100
   }
 }
 </script>

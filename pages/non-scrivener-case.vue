@@ -109,7 +109,6 @@
           :busy="isBusy"
           :baked-data="bakedData"
           :fields="fields"
-          :max-height="maxHeight"
           :per-page="perPage"
           :current-page="currentPage"
           :caption-append="captionRange"
@@ -235,10 +234,6 @@ export default {
       return this.$utils.md5(`${this.startDate}_${this.endDate}_${this.ignoreTags.join('')}`)
     },
     cacheKey () { return `non_scrivener_case_${this.md5Hash}` },
-    style () {
-      const parsed = parseInt(this.maxHeight)
-      return isNaN(parsed) ? "" : `max-height: ${parsed}px`
-    },
     firstDayofMonth () {
       return new Date(this.today.getFullYear(), this.today.getMonth(), 1)
     },
@@ -325,9 +320,6 @@ export default {
   created () {
     this.startDateObj = this.firstDayofMonth
     this.endDateObj = this.lastDayofMonth
-  },
-  mounted () {
-    this.maxHeight = window.innerHeight - 140
   }
 }
 </script>

@@ -2,23 +2,26 @@
   <div>
     <b-table
       ref="tbl"
+      
       striped
       hover
       responsive
       bordered
-      head-variant="dark"
       caption-top
       no-border-collapse
       small
+      selectable
+      head-variant="dark"
+      class="text-center s-90"
+      select-mode="single"
+      selected-variant="success"
+
       :items="tableItems"
       :fields="fields"
       :busy="isBusy || busy"
-      class="text-center s-90"
-      :style="style"
-      :sticky-header="sticky"
-      selectable
-      select-mode="single"
-      selected-variant="success"
+
+      :style="tableFixedMaxHeight"
+      sticky-header
     >
       <template v-slot:table-busy>
         <div class="text-center text-danger my-5">
@@ -91,8 +94,7 @@ export default {
   components: { lahUserCard },
   props: {
     reviewerId: { type: String, default: '' },
-    busy: { type: Boolean, default: false },
-    maxHeight: { type: Number, default: undefined }
+    busy: { type: Boolean, default: false }
   },
   data: () => ({
     fields: [
@@ -133,12 +135,7 @@ export default {
     },
     count () { return this.tableItems ? this.tableItems.length : 0 },
     buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' },
-    allCaseMode () { return this.$utils.empty(this.reviewerId) },
-    sticky () { return this.maxHeight ? (this.count > 0 ? true : false) : false },
-    style () {
-      const parsed = parseInt(this.maxHeight)
-      return isNaN(parsed) ? "" : `max-height: ${parsed}px`
-    }
+    allCaseMode () { return this.$utils.empty(this.reviewerId) }
   },
   watch: {
     totalPeople (val) {

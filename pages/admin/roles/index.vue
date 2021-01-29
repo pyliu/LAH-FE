@@ -88,13 +88,15 @@
         responsive="lg"
         small
         selectable
-        sticky-header
         select-mode="single"
         selected-variant="success"
         class="text-center mb-3"
         @row-selected="popupUserInfo"
         :items="tableItems"
         :fields="tableFields"
+        :busy="isBusy || busy"
+        
+        sticky-header
         :style="tableFixedMaxHeight"
       >
         <template #table-busy>

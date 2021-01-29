@@ -53,7 +53,6 @@
           :busy="isBusy"
           :baked-data="bakedData"
           :fields="fields"
-          :max-height="maxHeight"
           :per-page="perPage"
           :current-page="currentPage"
           only-popup-detail
@@ -86,7 +85,6 @@ export default {
       month: defMonth,
       cachedMs: 24 * 60 * 60 * 1000,
       committed: false,
-      maxHeight: 300,
       currentPage: 1,
       perPage: 25,
       rangeMax: 24,
@@ -211,9 +209,6 @@ export default {
   },
   created () {
     this.reloadDebounced = this.$utils.debounce(this.$fetch, 1000)
-  },
-  mounted () {
-    this.maxHeight = window.innerHeight - 135
   }
 }
 </script>
