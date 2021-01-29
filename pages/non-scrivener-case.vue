@@ -112,6 +112,7 @@
           :per-page="perPage"
           :current-page="currentPage"
           :caption-append="captionRange"
+          :max-height-offset="150"
           only-popup-detail
         />
       </div>
@@ -130,7 +131,6 @@ export default {
     clickedId: undefined,
     forceReload: false,
     committed: false,
-    maxHeight: 300,
     startDateObj: null,
     startDate: '1100101',
     endDateObj: null,

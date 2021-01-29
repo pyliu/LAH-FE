@@ -102,13 +102,14 @@
         :foot-clone="false"
         :no-border-collapse="true"
         :head-variant="'dark'"
-        :sticky-header="true"
         caption-top
         :caption="caption"
-        :style="style"
         :fields="fields"
         :per-page="perPage"
         :current-page="currentPage"
+
+        sticky-header
+        :style="tableFixedMaxHeight"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
@@ -324,7 +325,6 @@ export default {
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
     cacheKeyYear () { return `reg_trust_case_years` },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
-    style () {
     fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields }
   },
   watch: {

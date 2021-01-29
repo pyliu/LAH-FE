@@ -33,7 +33,7 @@
       selectable
 
       sticky-header
-      :style="tableFixedMaxHeight"
+      :style="maxHeightOverride"
     >
       <template v-slot:table-busy>
         <span class="ld-txt">讀取中...</span>
@@ -223,7 +223,8 @@ export default {
     perPage: { type: Number, default: 0 },
     currentPage: { type: Number, default: 1 },
     onlyPopupDetail: { type: Boolean, default: false },
-    captionAppend: { type: String, default: '' }
+    captionAppend: { type: String, default: '' },
+    maxHeightOffset: { type: Number, default: 0 }
   },
   data: () => ({
     transProps: {
@@ -481,6 +482,12 @@ export default {
     sort () {
       return this.$utils.empty(this.mute)
     },
+    maxHeightOverride () {
+      const parsed = parseInt(window.innerHeight - this.maxHeightOffset)
+      const style = isNaN(parsed) ? '' : `max-height: ${parsed}px`
+      console.log(style)
+      return style
+    }
   },
   methods: {
     popup (data) {
