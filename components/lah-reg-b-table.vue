@@ -224,7 +224,7 @@ export default {
     currentPage: { type: Number, default: 1 },
     onlyPopupDetail: { type: Boolean, default: false },
     captionAppend: { type: String, default: '' },
-    maxHeightOffset: { type: Number, default: 0 }
+    maxHeightOffset: { type: Number, default: 105 }
   },
   data: () => ({
     transProps: {
@@ -485,7 +485,6 @@ export default {
     maxHeightOverride () {
       const parsed = parseInt(window.innerHeight - this.maxHeightOffset)
       const style = isNaN(parsed) ? '' : `max-height: ${parsed}px`
-      console.log(style)
       return style
     }
   },
