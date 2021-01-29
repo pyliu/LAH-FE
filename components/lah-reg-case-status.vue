@@ -59,7 +59,12 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.移轉課長)">
         <b-form-row>
           <b-col>
-            移轉課長：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉課長, bakedData.RM106)">{{ bakedData.移轉課長 }}</b-button>
+            移轉課長：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉課長, bakedData.RM106)">
+              <lah-avatar :id="bakedData.RM106" :name="bakedData.移轉課長">
+                {{ bakedData.移轉課長 }}
+              </lah-avatar>
+            </b-button>
           </b-col>
           <b-col>移轉課長時間：{{ bakedData.移轉課長時間 }}</b-col>
         </b-form-row>
@@ -67,7 +72,12 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.移轉秘書)">
         <b-form-row>
           <b-col>
-            移轉秘書：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉秘書, bakedData.RM107)">{{ bakedData.移轉秘書 }}</b-button>
+            移轉秘書：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉秘書, bakedData.RM107)">
+              <lah-avatar :id="bakedData.RM107" :name="bakedData.移轉秘書">
+                {{ bakedData.移轉秘書 }}
+              </lah-avatar>
+            </b-button>
           </b-col>
           <b-col>移轉秘書時間：{{ bakedData.移轉秘書時間 }}</b-col>
         </b-form-row>
