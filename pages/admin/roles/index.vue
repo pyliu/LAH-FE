@@ -94,7 +94,7 @@
         @row-selected="popupUserInfo"
         :items="tableItems"
         :fields="tableFields"
-        :busy="isBusy || busy"
+        :busy="isBusy"
         
         sticky-header
         :style="tableFixedMaxHeight"
