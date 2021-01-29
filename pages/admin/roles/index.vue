@@ -281,7 +281,6 @@ export default {
   },
   mounted () {
     this.maxHeight = window.innerHeight - 115
-    document.body.style.overflow = 'hidden'
   }
 }
 </script>
