@@ -28,8 +28,8 @@ export default {
   computed: {
     titleTag () {
       const size = parseInt(this.size.replace('x','')) || 3
-      if (size <= 3) {
-        return 'h5'
+      if (size < 3) {
+        return 'span'
       } else if (size <= 7) {
         return `h${8 - size}`
       }
