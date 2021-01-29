@@ -129,7 +129,15 @@
         {{ reason(row) }}
       </template>
 
-      <template v-slot:cell(初審人員)="{ item }">
+      <template v-slot:cell(初審人員)="{ item, rowSelected }">
+        <template v-if="rowSelected">
+          <span aria-hidden="true">&check;</span>
+          <span class="sr-only">Selected</span>
+        </template>
+        <template v-else>
+          <span aria-hidden="true">&nbsp;</span>
+          <span class="sr-only">Not selected</span>
+        </template>
         <b-link @click="userinfo(item['初審人員'], item['RM45'])">
           <lah-avatar :id="item['RM45']" :name="item['初審人員']">{{ item["初審人員"] }}</lah-avatar>
         </b-link>

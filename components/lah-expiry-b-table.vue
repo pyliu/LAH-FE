@@ -29,6 +29,14 @@
         </div>
       </template>
       <template v-slot:cell(序號)="data">
+        <template v-if="data.rowSelected">
+          <span aria-hidden="true">&check;</span>
+          <span class="sr-only">Selected</span>
+        </template>
+        <template v-else>
+          <span aria-hidden="true">&nbsp;</span>
+          <span class="sr-only">Not selected</span>
+        </template>
         {{ data.index + 1 }}
       </template>
       <template v-slot:cell(收件字號)="data">
