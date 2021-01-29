@@ -46,7 +46,12 @@
       <b-list-group-item>
         <b-form-row>
           <b-col>
-            收件人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.收件人員, bakedData.RM07_ID)">{{ bakedData.收件人員 }}</b-button>
+            收件人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.收件人員, bakedData.RM07_ID)">
+              <lah-avatar :id="bakedData.RM07_ID" :name="bakedData.收件人員">
+                {{ bakedData.收件人員 }}
+              </lah-avatar>
+            </b-button>
           </b-col>
           <b-col>收件時間：{{ bakedData.收件時間 }}</b-col>
         </b-form-row>
@@ -70,7 +75,12 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.初審人員)">
         <b-form-row>
           <b-col>
-            初審人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.初審人員, bakedData.RM45)">{{ bakedData.初審人員 }}</b-button>
+            初審人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.初審人員, bakedData.RM45)">
+              <lah-avatar :id="bakedData.RM45" :name="bakedData.初審人員">
+                {{ bakedData.初審人員 }}
+              </lah-avatar>
+            </b-button>
           </b-col>
           <b-col>初審時間：{{ bakedData.初審時間 }}</b-col>
         </b-form-row>
@@ -78,7 +88,12 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.複審人員)">
         <b-form-row>
           <b-col>
-            複審人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.複審人員, bakedData.RM47)">{{ bakedData.複審人員 }}</b-button>
+            複審人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.複審人員, bakedData.RM47)">
+              <lah-avatar :id="bakedData.RM47" :name="bakedData.複審人員">
+                {{ bakedData.複審人員 }}
+              </lah-avatar>
+            </b-button>
           </b-col>
           <b-col>複審時間：{{ bakedData.複審時間 }}</b-col>
         </b-form-row>
@@ -109,43 +124,92 @@
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.請示人員)">
         <b-form-row>
-          <b-col>請示人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.請示人員, bakedData.RM82)">{{ bakedData.請示人員 }}</b-button></b-col>
+          <b-col>
+            請示人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.請示人員, bakedData.RM82)">
+              <lah-avatar :id="bakedData.RM82" :name="bakedData.請示人員">
+                {{ bakedData.請示人員 }}
+              </lah-avatar>
+            </b-button>
+          </b-col>
           <b-col>請示日期：{{ bakedData.請示日期 }} {{ bakedData.請示時間 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.取消請示人員)">
         <b-form-row>
-          <b-col>取消請示人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.取消請示人員, bakedData.RM85)">{{ bakedData.取消請示人員 }}</b-button></b-col>
+          <b-col>
+            取消請示人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.取消請示人員, bakedData.RM85)">
+              <lah-avatar :id="bakedData.RM85" :name="bakedData.取消請示人員">
+                {{ bakedData.取消請示人員 }}
+              </lah-avatar>
+            </b-button>
+          </b-col>
           <b-col>取消請示日期：{{ bakedData.取消請示日期 }} {{ bakedData.取消請示時間 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.展期人員)">
         <b-form-row>
-          <b-col>展期人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.展期人員, bakedData.RM85)">{{ bakedData.展期人員 }}</b-button></b-col>
+          <b-col>
+            展期人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.展期人員, bakedData.RM88)">
+              <lah-avatar :id="bakedData.RM88" :name="bakedData.展期人員">
+                {{ bakedData.展期人員 }}
+              </lah-avatar>
+            </b-button>
+          </b-col>
           <b-col>展期日期：{{ bakedData.展期日期 }} 天數：{{ bakedData.展期天數 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.准登人員)">
         <b-form-row>
-          <b-col>准登人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.准登人員, bakedData.RM63)">{{ bakedData.准登人員 }}</b-button></b-col>
+          <b-col>
+            准登人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.准登人員, bakedData.RM63)">
+              <lah-avatar :id="bakedData.RM63" :name="bakedData.准登人員">
+                {{ bakedData.准登人員 }}
+              </lah-avatar>
+            </b-button>
+          </b-col>
           <b-col>准登日期：{{ bakedData.准登日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.登錄人員)">
         <b-form-row>
-          <b-col>登錄人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.登錄人員, bakedData.RM55)">{{ bakedData.登錄人員 }}</b-button></b-col>
+          <b-col>
+            登錄人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.登錄人員, bakedData.RM55)">
+              <lah-avatar :id="bakedData.RM55" :name="bakedData.登錄人員">
+                {{ bakedData.登錄人員 }}
+              </lah-avatar>
+            </b-button>
+          </b-col>
           <b-col>登錄日期：{{ bakedData.登錄日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.校對人員)">
         <b-form-row>
-          <b-col>校對人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.校對人員, bakedData.RM57)">{{ bakedData.校對人員 }}</b-button></b-col>
+          <b-col>
+            校對人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.校對人員, bakedData.RM57)">
+              <lah-avatar :id="bakedData.RM57" :name="bakedData.校對人員">
+                {{ bakedData.校對人員 }}
+              </lah-avatar>
+            </b-button>
+          </b-col>
           <b-col>校對日期：{{ bakedData.校對日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.結案人員)">
         <b-form-row>
-          <b-col>結案人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.結案人員, bakedData.RM59)">{{ bakedData.結案人員 }}</b-button></b-col>
+          <b-col>
+            結案人員：
+            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.結案人員, bakedData.RM59)">
+              <lah-avatar :id="bakedData.RM59" :name="bakedData.結案人員">
+                {{ bakedData.結案人員 }}
+              </lah-avatar>
+            </b-button>
+          </b-col>
           <b-col>結案日期：{{ bakedData.結案日期 }}</b-col>
         </b-form-row>
       </b-list-group-item>
