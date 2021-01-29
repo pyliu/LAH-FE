@@ -30,7 +30,12 @@
         限辦期限：<span v-html="bakedData.限辦期限"></span>
       </b-list-group-item>
       <b-list-group-item>
-        作業人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.作業人員, bakedData.RM30_1)"><lah-avatar :id="bakedData.RM30_1" :name="bakedData.作業人員">{{ bakedData.作業人員 }}</lah-avatar></b-button>
+        作業人員：
+        <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.作業人員, bakedData.RM30_1)">
+          <lah-avatar :id="bakedData.RM30_1" :name="bakedData.作業人員">
+            {{ bakedData.作業人員 }}
+          </lah-avatar>
+        </b-button>
       </b-list-group-item>
       <b-list-group-item>
         辦理情形：{{ bakedData.辦理情形 }}

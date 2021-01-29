@@ -40,7 +40,9 @@ export default {
       evt && evt.stopPropagation()
       this.modal(this.$createElement('lah-user-photo', {
         props: {
-          userData: this.userData
+          userData: this.userData,
+          id: this.id,
+          name: this.name
         }
       }), {
         title: `${this.userId} ${this.userName} 照片`,
