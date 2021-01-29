@@ -388,7 +388,7 @@ export default {
     popup (data) {
       this.modalLoading = true
       this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
-      this.$bvModal.show(this.modalId)
+      this.showModalById(this.modalId)
     },
     landBuildNumber (item) {
       const val = item.IS49

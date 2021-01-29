@@ -15,11 +15,11 @@
       :no-border-collapse="true"
       :head-variant="'dark'"
       :table-variant="tableVariant"
-      :sticky-header="sticky"
+      :sticky-header="true"
       :caption="caption"
       :items="bakedData"
       :fields="tblFields"
-      :style="style"
+      :style="tableFixedMaxHeight"
       :busy="busy"
       :tbody-tr-class="trClass"
       :tbody-transition-props="transProps"
@@ -208,7 +208,6 @@ export default {
   components: { lahUserCard },
   props: {
     bakedData: { type: Array, default: [] },
-    maxHeight: { type: Number, default: undefined },
     type: { type: String, default: '' },
     fields:  { type: Array, default: undefined },
     mute: { type: Boolean, default: false },
@@ -475,13 +474,6 @@ export default {
       if (this.mute || this.noCaption) return ''
       return this.busy ? "讀取中" : `登記案件找到 ${this.count} 件${this.captionAppend}`
     },
-    sticky () {
-      return this.maxHeight ? (this.count > 0 ? true : false) : false
-    },
-    style () {
-      const parsed = parseInt(this.maxHeight)
-      return isNaN(parsed) ? "" : `max-height: ${parsed}px`
-    },
     showIcon () { return !this.$utils.empty(this.icon) },
     sort () {
       return this.$utils.empty(this.mute)
@@ -492,7 +484,7 @@ export default {
       this.modalLoading = true
       this.clickedId = `${data["RM01"]}${data["RM02"]}${data["RM03"]}`
       this.clickedData = data
-      this.$bvModal.show(this.modalId)
+      this.showModalById(this.modalId)
     },
     userinfo (name, id = '') {
       const h = this.$createElement

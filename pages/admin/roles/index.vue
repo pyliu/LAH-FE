@@ -88,12 +88,14 @@
         responsive="lg"
         small
         selectable
+        sticky-header
         select-mode="single"
         selected-variant="success"
         class="text-center mb-3"
         @row-selected="popupUserInfo"
         :items="tableItems"
         :fields="tableFields"
+        :style="tableFixedMaxHeight"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
@@ -102,7 +104,7 @@
           <span class="lah-shadow">{{message}} <b-badge variant="info" pill>{{tableItems.length}}</b-badge></span>
         </template>
         <template #cell(remove)="{ item }">
-          <lah-button @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill class="mx-auto" title="刪除本筆資料"/>
+          <lah-button v-if="showRemove(item)" @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill class="mx-auto" title="刪除本筆資料"/>
         </template>
         <template #cell(id)="{ item }">
           <b-button v-if="!$utils.empty(item['id'])" @click="popupUserInfo(item)" :variant="variant(item)" size="sm">
@@ -165,7 +167,8 @@ export default {
       { text: '總務', value: 6 },
       { text: '系統管理者', value: 3 },
       { text: '超級管理者', value: 2 }
-    ]
+    ],
+    maxHeight: 300
   }),
   fetchOnServer: true,
   async fetch () {
@@ -255,6 +258,9 @@ export default {
           title: `${obj['id']} ${obj['name']} 資訊`
         })
       }
+    },
+    showRemove (user) {
+      return user['role_ip'] !== '127.0.0.1' && user['role_ip'] !== '::1'
     }
   }
 }

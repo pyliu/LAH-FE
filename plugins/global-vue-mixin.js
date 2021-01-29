@@ -81,6 +81,10 @@ Vue.mixin({
         return 'HG'
       }
       return 'HB'
+    },
+    tableFixedMaxHeight () {
+      const parsed = parseInt(window.innerHeight - 105)
+      return isNaN(parsed) ? "" : `max-height: ${parsed}px`
     }
   },
   methods: {

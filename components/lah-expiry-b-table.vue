@@ -168,7 +168,7 @@ export default {
     popup (data) {
       this.modalLoading = true
       this.clickedId = data.value.replace(/^[a-zA-Z0-9]$/g, '')
-      this.$bvModal.show(this.modalId)
+      this.showModalById(this.modalId)
     },
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
     searchByReviewer (id) {},
