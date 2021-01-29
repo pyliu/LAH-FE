@@ -483,9 +483,11 @@ export default {
       return this.$utils.empty(this.mute)
     },
     maxHeightOverride () {
-      const parsed = parseInt(window.innerHeight - this.maxHeightOffset)
-      const style = isNaN(parsed) ? '' : `max-height: ${parsed}px`
-      return style
+      if (window) {
+        const parsed = parseInt(window.innerHeight - this.maxHeightOffset)
+        return isNaN(parsed) ? '' : `max-height: ${parsed}px`
+      }
+      return ''
     }
   },
   methods: {
