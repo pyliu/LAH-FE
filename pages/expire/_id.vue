@@ -66,10 +66,8 @@
 </template>
 
 <script>
-import lahHeader from '~/components/lah-header.vue'
 import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
-  components: { lahHeader },
   head: {
     title: "初審即將逾期案件-桃園市地政局"
   },
