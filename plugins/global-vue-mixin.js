@@ -312,8 +312,11 @@ Vue.mixin({
     attention (selector, opts = { name: 'flash', speed: 'faster' }) {
       return this.$utils.animated(selector, opts)
     },
-    modalById (id) {
+    showModalById (id) {
       this.$bvModal && this.$bvModal.show(id)
+    },
+    hideModalById (id) {
+      this.$bvModal && this.$bvModal.hide(id)
     },
     modal (message, opts) {
       return new Promise((resolve, reject) => {

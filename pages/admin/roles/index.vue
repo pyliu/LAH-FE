@@ -206,6 +206,8 @@ export default {
               this.$fetch()
               // clear FE cache
               this.clearCache()
+              // close modal
+              this.hideModalById('add-authority-modal')
             }
             this.notify(data.message, opts)
           })

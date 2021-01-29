@@ -131,9 +131,10 @@
         </b-link>
       </li>
       <li><hr/></li>
-      <li class="text-right">
-        <b-link href="mailto:pangyu.liu@gmail.com" class="justify-content-between">
-          <span></span>
+      <li class="d-flex justify-content-between">
+        <b-link v-if="!isAuthorized" to="/login">管理者登入</b-link>
+        <span></span>
+        <b-link href="mailto:pangyu.liu@gmail.com">
           <lah-fa-icon icon="copyright" title="寄信給 LIU, PANG-YU" class="s-75 text-muted">
             LIU, PANG-YU
           </lah-fa-icon>

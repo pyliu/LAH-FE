@@ -16,7 +16,7 @@
             >
               <strong>{{queryTitle}}</strong>
             </lah-button>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="modalById('help-modal')" title="說明"/>
+            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'">
               <div class="h5 text-nowrap">
                 <lah-fa-icon icon="lightbulb" regular variant="warning" class="d-flex">
