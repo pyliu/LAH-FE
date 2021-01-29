@@ -97,13 +97,26 @@
         :busy="isBusy"
         
         sticky-header
-        :style="tableFixedMaxHeight"
+        :style="`max-height: ${maxHeight}px`"
+
+        primary-key="序號"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
         </template>
         <template #table-caption>
           <span class="lah-shadow">{{message}} <b-badge variant="info" pill>{{tableItems.length}}</b-badge></span>
+        </template>
+        <template #cell(序號)="data">
+          <template v-if="data.rowSelected">
+            <span aria-hidden="true">&check;</span>
+            <span class="sr-only">Selected</span>
+          </template>
+          <template v-else>
+            <span aria-hidden="true">&nbsp;</span>
+            <span class="sr-only">Not selected</span>
+          </template>
+          {{ data.index + 1 }}
         </template>
         <template #cell(remove)="{ item }">
           <lah-button v-if="showRemove(item)" @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill class="mx-auto" title="刪除本筆資料"/>
@@ -135,7 +148,8 @@ export default {
   middleware: [ 'isAdmin' ],
   data: () => ({
     tableItems: [],
-    tableFields: [{
+    tableFields: [
+      '序號', {
         key: 'remove',
         label: '移除'
       }, {
@@ -264,6 +278,10 @@ export default {
     showRemove (user) {
       return user['role_ip'] !== '127.0.0.1' && user['role_ip'] !== '::1'
     }
+  },
+  mounted () {
+    this.maxHeight = window.innerHeight - 115
+    document.body.style.overflow = 'hidden'
   }
 }
 </script>
