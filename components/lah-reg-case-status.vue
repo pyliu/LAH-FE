@@ -156,9 +156,11 @@
 <script>
 import regCaseBase from "~/assets/js/reg-case-base.js"
 import lahUserCard from '~/components/lah-user-card.vue'
+import lahAvatar from '~/components/lah-avatar.vue'
+
 export default {
   name: "lah-reg-case-status",
-  components: { lahUserCard },
+  components: { lahUserCard, lahAvatar },
   mixins: [regCaseBase],
   props: {
     noTitle: { type: Boolean, default: false },

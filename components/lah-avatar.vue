@@ -18,13 +18,21 @@ import lahUserPhoto from '~/components/lah-user-photo.vue'
 export default {
   components: { lahUserPhoto },
   props: {
-    userData: { type: Object, required: true },
+    userData: { type: Object, default: () => ({}) },
+    id: { type: String, default: '' },
+    name: { type: String, default: '' },
     size: { type: String, default: '1.3' },
     variant: { type: String, default: 'light' }
   },
   computed: {
+    userId () {
+      return this.userData['id'] || this.id
+    },
+    userName () {
+      return this.userData['name'] || this.name
+    },
     avatarSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData['id']}_avatar&name=${this.userData['name']}_avatar`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
     }
   },
   methods: {
@@ -35,7 +43,7 @@ export default {
           userData: this.userData
         }
       }), {
-        title: `${this.userData['id']} ${this.userData['name']} 照片`,
+        title: `${this.userId} ${this.userName} 照片`,
         size: 'lg'
       })
     }

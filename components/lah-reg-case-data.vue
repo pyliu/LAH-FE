@@ -30,7 +30,7 @@
         限辦期限：<span v-html="bakedData.限辦期限"></span>
       </b-list-group-item>
       <b-list-group-item>
-        作業人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.作業人員, bakedData.RM30_1)">{{ bakedData.作業人員 }}</b-button>
+        作業人員：<b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.作業人員, bakedData.RM30_1)"><lah-avatar :id="bakedData.RM30_1" :name="bakedData.作業人員">{{ bakedData.作業人員 }}</lah-avatar></b-button>
       </b-list-group-item>
       <b-list-group-item>
         辦理情形：{{ bakedData.辦理情形 }}
@@ -63,9 +63,10 @@
 <script>
 import regCaseBase from "~/assets/js/reg-case-base.js"
 import lahUserCard from '~/components/lah-user-card.vue'
+import lahAvatar from '~/components/lah-avatar.vue'
 export default {
   name: 'lah-reg-case-data',
-  components: { lahUserCard },
+  components: { lahUserCard, lahAvatar },
   mixins: [regCaseBase],
   props: {
     noTitle: { type: Boolean, default: false }
