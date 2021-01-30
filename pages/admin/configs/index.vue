@@ -45,7 +45,7 @@
       </lah-help-modal>
     </lah-header>
     <b-container fluid v-cloak>
-      <b-card-group deck>
+      <b-card-group columns>
         <b-card>
           <template #header>
             <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="database">地政WEB資料庫連線設定 - {{site}}</lah-fa-icon></h6>
@@ -265,8 +265,6 @@
             </template>
           </b-input-group>
         </b-card>
-      </b-card-group>
-      <b-card-group deck class="my-3">
         <b-card>
           <template #header>
             <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
@@ -369,6 +367,285 @@
             </template>
           </b-input-group>
         </b-card>
+        <b-card>
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="comments">信差資料庫連線設定</lah-fa-icon></h6>
+          </template>
+          <b-input-group size="sm" prepend="登入帳密">
+            <b-input
+              v-model="configs['MS_DB_UID']"
+              placeholder=""
+              title="登入DB帳號"
+              class="mr-1"
+              trim
+            />
+            /
+            <b-input
+              v-model="configs['MS_DB_PWD']"
+              placeholder=""
+              type="password"
+              title="登入DB密碼"
+              class="ml-1"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DB_PWD: configs['MS_DB_PWD'], MS_DB_UID: configs['MS_DB_UID']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="連線ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.35.89"
+              v-model="configs['MS_DB_SVR']"
+              title="伺服器IP"
+              class="col-8 mr-1"
+              trim
+            />
+            :
+            <b-input
+              placeholder="1433"
+              title="連線埠號(PORT)"
+              class="col-2 ml-1"
+              value="1433"
+              disabled
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DB_SVR: configs['MS_DB_SVR']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="ＤＢ名稱" class="my-1">
+            <b-input
+              placeholder="jungli_in2016"
+              v-model="configs['MS_DB_DATABASE']"
+              title="資料庫名稱"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DB_DATABASE: configs['MS_DB_DATABASE']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="編碼設定" class="my-1">
+            <b-input
+              placeholder="UTF-8"
+              v-model="configs['MS_DB_CHARSET']"
+              title="資料庫編碼設定"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DB_CHARSET: configs['MS_DB_CHARSET']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+        </b-card>
+        <b-card>
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="hdd" regular>DOC資料庫連線設定</lah-fa-icon></h6>
+          </template>
+          <b-input-group size="sm" prepend="登入帳密">
+            <b-input
+              v-model="configs['MS_DOC_DB_UID']"
+              placeholder=""
+              title="登入DB帳號"
+              class="mr-1"
+              trim
+            />
+            /
+            <b-input
+              v-model="configs['MS_DOC_DB_PWD']"
+              placeholder=""
+              type="password"
+              title="登入DB密碼"
+              class="ml-1"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DOC_DB_PWD: configs['MS_DOC_DB_PWD'], MS_DOC_DB_UID: configs['MS_DOC_DB_UID']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="連線ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.35.24"
+              v-model="configs['MS_DOC_DB_SVR']"
+              title="伺服器IP"
+              class="col-8 mr-1"
+              trim
+            />
+            :
+            <b-input
+              placeholder="1433"
+              title="連線埠號(PORT)"
+              class="col-2 ml-1"
+              value="1433"
+              disabled
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DOC_DB_SVR: configs['MS_DOC_DB_SVR']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="ＤＢ名稱" class="my-1">
+            <b-input
+              placeholder="doc"
+              v-model="configs['MS_DOC_DB_DATABASE']"
+              title="資料庫名稱"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DOC_DB_DATABASE: configs['MS_DOC_DB_DATABASE']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="編碼設定" class="my-1">
+            <b-input
+              placeholder="UTF-8"
+              v-model="configs['MS_DOC_DB_CHARSET']"
+              title="資料庫編碼設定"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_DOC_DB_CHARSET: configs['MS_DOC_DB_CHARSET']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+        </b-card>
+        <b-card>
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="hdd">TDOC資料庫連線設定</lah-fa-icon></h6>
+          </template>
+          <b-input-group size="sm" prepend="登入帳密">
+            <b-input
+              v-model="configs['MS_TDOC_DB_UID']"
+              placeholder=""
+              title="登入DB帳號"
+              class="mr-1"
+              trim
+            />
+            /
+            <b-input
+              v-model="configs['MS_TDOC_DB_PWD']"
+              placeholder=""
+              type="password"
+              title="登入DB密碼"
+              class="ml-1"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_TDOC_DB_PWD: configs['MS_TDOC_DB_PWD'], MS_TDOC_DB_UID: configs['MS_TDOC_DB_UID']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="連線ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.35.24"
+              v-model="configs['MS_TDOC_DB_SVR']"
+              title="伺服器IP"
+              class="col-8 mr-1"
+              trim
+            />
+            :
+            <b-input
+              placeholder="1433"
+              title="連線埠號(PORT)"
+              class="col-2 ml-1"
+              value="1433"
+              disabled
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_TDOC_DB_SVR: configs['MS_TDOC_DB_SVR']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="ＤＢ名稱" class="my-1">
+            <b-input
+              placeholder="tdoc"
+              v-model="configs['MS_TDOC_DB_DATABASE']"
+              title="資料庫名稱"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_TDOC_DB_DATABASE: configs['MS_TDOC_DB_DATABASE']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="編碼設定" class="my-1">
+            <b-input
+              placeholder="UTF-8"
+              v-model="configs['MS_TDOC_DB_CHARSET']"
+              title="資料庫編碼設定"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MS_TDOC_DB_CHARSET: configs['MS_TDOC_DB_CHARSET']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+        </b-card>
       </b-card-group>
       <hr/>
     </b-container>
@@ -388,7 +665,7 @@ export default {
   }),
   watch: {
     configs (val) {
-      // this.$utils.log(val)
+      this.$utils.log(val)
     }
   },
   async fetch () {
