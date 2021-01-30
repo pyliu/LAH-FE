@@ -46,7 +46,11 @@
     </lah-header>
     <b-container fluid v-cloak>
       <b-card-group columns>
-        <b-card>
+        <b-card 
+          header-bg-variant="primary"
+          header-text-variant="white"
+          border-variant="primary"
+        >
           <template #header>
             <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="database">地政WEB資料庫連線設定 - {{site}}</lah-fa-icon></h6>
           </template>
@@ -155,125 +159,11 @@
             </template>
           </b-input-group>
         </b-card>
-        <b-card>
-          <template #header>
-            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="server">同步異動資料庫連線設定</lah-fa-icon></h6>
-          </template>
-          <b-input-group size="sm" prepend="登入帳密">
-            <b-input
-              placeholder=""
-              title="登入DB帳號"
-              class="mr-1"
-              trim
-              disabled
-            />
-            /
-            <b-input
-              placeholder=""
-              type="password"
-              title="登入DB密碼"
-              class="ml-1"
-              trim
-              disabled
-            />
-            <template #append>
-              <lah-button
-                icon="pen-square"
-                variant="outline-secondary"
-                title="立即寫入設定"
-                no-icon-gutter
-                disabled
-              />
-            </template>
-          </b-input-group>
-          <b-input-group size="sm" prepend="Ｌ１ＤＢ" class="my-1">
-            <b-input
-              placeholder="220.1.33.2"
-              v-model="configs['ORA_DB_L1HWEB_IP']"
-              title="L1HWEB 資料庫IP"
-              class="col-8 mr-1"
-              trim
-            />
-            :
-            <b-input
-              placeholder="1521"
-              v-model="configs['ORA_DB_L1HWEB_PORT']"
-              title="L1HWEB 資料庫PORT"
-              class="col-2 ml-1"
-              trim
-            />
-            <template #append>
-              <lah-button
-                icon="pen-square"
-                variant="outline-secondary"
-                title="立即寫入設定"
-                @click="quick({ORA_DB_L1HWEB_IP: configs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: configs['ORA_DB_L1HWEB_PORT']})"
-                no-icon-gutter
-              />
-            </template>
-          </b-input-group>
-          <b-input-group size="sm" prepend="Ｌ２ＤＢ" class="my-1">
-            <b-input
-              placeholder="220.1.33.3"
-              v-model="configs['ORA_DB_L2HWEB_IP']"
-              title="L2HWEB 資料庫IP"
-              class="col-8 mr-1"
-              trim
-            />
-            :
-            <b-input
-              placeholder="1521"
-              v-model="configs['ORA_DB_L2HWEB_PORT']"
-              title="L2HWEB 資料庫PORT"
-              class="col-2 ml-1"
-              trim
-            />
-            <template #append>
-              <lah-button
-                icon="pen-square"
-                variant="outline-secondary"
-                title="立即寫入設定"
-                @click="quick({ORA_DB_L2HWEB_IP: configs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: configs['ORA_DB_L2HWEB_PORT']})"
-                no-icon-gutter
-              />
-            </template>
-          </b-input-group>
-          <b-input-group size="sm" prepend="Ｌ３ＤＢ" class="my-1">
-            <b-input
-              placeholder="220.1.33.5"
-              v-model="configs['ORA_DB_L3HWEB_IP']"
-              title="L3HWEB 資料庫IP"
-              class="col-8 mr-1"
-              trim
-            />
-            :
-            <b-input
-              placeholder="1521"
-              v-model="configs['ORA_DB_L3HWEB_PORT']"
-              title="L3HWEB 資料庫PORT"
-              class="col-2 ml-1"
-              trim
-            />
-            <template #append>
-              <lah-button
-                icon="pen-square"
-                variant="outline-secondary"
-                title="立即寫入設定"
-                @click="quick({ORA_DB_L3HWEB_IP: configs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: configs['ORA_DB_L3HWEB_PORT']})"
-                no-icon-gutter
-              />
-            </template>
-          </b-input-group>
-        </b-card>
-        <b-card>
-          <template #header>
-            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
-          </template>
-          <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})">啟用開發模擬模式</b-checkbox>
-          <b-checkbox v-model="configs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: configs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
-          <b-checkbox v-model="configs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: configs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
-        </b-card>
-        <b-card>
+        <b-card
+          header-bg-variant="success"
+          header-text-variant="white"
+          border-variant="success"
+        >
           <template #header>
             <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="feather-alt">其他設定</lah-fa-icon></h6>
           </template>
@@ -366,6 +256,18 @@
               />
             </template>
           </b-input-group>
+        </b-card>
+        <b-card
+          header-bg-variant="danger"
+          header-text-variant="white"
+          border-variant="danger"
+        >
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
+          </template>
+          <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})">啟用開發模擬模式</b-checkbox>
+          <b-checkbox v-model="configs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: configs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
+          <b-checkbox v-model="configs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: configs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
         </b-card>
         <b-card>
           <template #header>
@@ -548,6 +450,120 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({MS_DOC_DB_CHARSET: configs['MS_DOC_DB_CHARSET']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+        </b-card>
+        <b-card
+          header-bg-variant="dark"
+          header-text-variant="white"
+          border-variant="dark"
+        >
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="server">同步異動資料庫連線設定</lah-fa-icon></h6>
+          </template>
+          <b-input-group size="sm" prepend="登入帳密">
+            <b-input
+              placeholder=""
+              title="登入DB帳號"
+              class="mr-1"
+              trim
+              disabled
+            />
+            /
+            <b-input
+              placeholder=""
+              type="password"
+              title="登入DB密碼"
+              class="ml-1"
+              trim
+              disabled
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                no-icon-gutter
+                disabled
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Ｌ１ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.33.2"
+              v-model="configs['ORA_DB_L1HWEB_IP']"
+              title="L1HWEB 資料庫IP"
+              class="col-8 mr-1"
+              trim
+            />
+            :
+            <b-input
+              placeholder="1521"
+              v-model="configs['ORA_DB_L1HWEB_PORT']"
+              title="L1HWEB 資料庫PORT"
+              class="col-2 ml-1"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_L1HWEB_IP: configs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: configs['ORA_DB_L1HWEB_PORT']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Ｌ２ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.33.3"
+              v-model="configs['ORA_DB_L2HWEB_IP']"
+              title="L2HWEB 資料庫IP"
+              class="col-8 mr-1"
+              trim
+            />
+            :
+            <b-input
+              placeholder="1521"
+              v-model="configs['ORA_DB_L2HWEB_PORT']"
+              title="L2HWEB 資料庫PORT"
+              class="col-2 ml-1"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_L2HWEB_IP: configs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: configs['ORA_DB_L2HWEB_PORT']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Ｌ３ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.33.5"
+              v-model="configs['ORA_DB_L3HWEB_IP']"
+              title="L3HWEB 資料庫IP"
+              class="col-8 mr-1"
+              trim
+            />
+            :
+            <b-input
+              placeholder="1521"
+              v-model="configs['ORA_DB_L3HWEB_PORT']"
+              title="L3HWEB 資料庫PORT"
+              class="col-2 ml-1"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_L3HWEB_IP: configs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: configs['ORA_DB_L3HWEB_PORT']})"
                 no-icon-gutter
               />
             </template>
