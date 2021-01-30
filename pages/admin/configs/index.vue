@@ -190,7 +190,8 @@
               :placeholder="site"
               v-model="configs['SITE']"
               :state="site === configs['SITE']"
-              :title="`本所代碼 - 系統偵測到所別為 ${site}`"
+              title="本所代碼"
+              v-b-popover.hover.top="site !== configs['SITE'] ? `系統偵測到所別為 : ${site}` : ''"
               trim
             />
             <template #append>
@@ -199,7 +200,6 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({SITE: configs['SITE']})"
-                :disabled="configs['SITE'] !== site"
                 no-icon-gutter
               />
             </template>
