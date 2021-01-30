@@ -80,7 +80,7 @@ Vue.mixin({
       if (/(^220\.1\.41\.|^192\.168\.8[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'HG'
       }
-      return 'HB'
+      return this.svr ? (this.svr.config ? this.svr.config.site : 'HB') : 'HB'
     }
   },
   methods: {
