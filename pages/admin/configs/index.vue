@@ -206,6 +206,7 @@
           </b-input-group>
           <b-input-group size="sm" prepend="本所統編" class="my-1">
             <b-input
+              type="number"
               placeholder="45000808"
               title="本所的統一編號"
               v-model="configs['SITE_ID']"
@@ -217,7 +218,7 @@
                 icon="pen-square"
                 variant="outline-secondary"
                 title="立即寫入設定"
-                @click="quick({SITE: configs['SITE_ID']})"
+                @click="quick({SITE_ID: configs['SITE_ID']})"
                 :disabled="numNotOK(configs['SITE_ID'])"
                 no-icon-gutter
               />
@@ -757,10 +758,11 @@ export default {
       return (pval !== NaN && pval > 0) ? null : false
     },
     ipNotOK (ip) {
-      return this.validateIp(ip) === false
+      return !this.$utils.isIPv4(ip)
     },
     numNotOK (val) {
-      return this.validateNumber(val) === false
+      const pval = parseInt(val)
+      return pval === NaN || pval <= 0 || this.$utils.empty(val)
     },
     update () {
       this.confirm('確定要更新「所有」設定值？')
