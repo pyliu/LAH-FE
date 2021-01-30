@@ -47,9 +47,9 @@
     <b-container fluid v-cloak>
       <b-card-group columns>
         <b-card 
-          header-bg-variant="primary"
+          header-bg-variant="danger"
           header-text-variant="white"
-          border-variant="primary"
+          border-variant="danger"
         >
           <template #header>
             <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="database">地政WEB資料庫連線設定 - {{site}}</lah-fa-icon></h6>
@@ -104,6 +104,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_HXWEB_IP: configs['ORA_DB_HXWEB_IP'], ORA_DB_HXWEB_PORT: configs['ORA_DB_HXWEB_PORT']})"
+                :disabled="disabled(configs['ORA_DB_HXWEB_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -132,6 +133,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_BACKUP_IP: configs['ORA_DB_BACKUP_IP'], ORA_DB_BACKUP_PORT: configs['ORA_DB_BACKUP_PORT']})"
+                :disabled="disabled(configs['ORA_DB_BACKUP_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -160,6 +162,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_HXT_IP: configs['ORA_DB_HXT_IP'], ORA_DB_HXT_PORT: configs['ORA_DB_HXT_PORT']})"
+                :disabled="disabled(configs['ORA_DB_HXT_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -221,6 +224,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({SITE: configs['WEBAP_IP']})"
+                :disabled="disabled(configs['WEBAP_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -265,9 +269,9 @@
           </b-input-group>
         </b-card>
         <b-card
-          header-bg-variant="danger"
+          header-bg-variant="primary"
           header-text-variant="white"
-          border-variant="danger"
+          border-variant="primary"
         >
           <template #header>
             <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
@@ -335,6 +339,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_L1HWEB_IP: configs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: configs['ORA_DB_L1HWEB_PORT']})"
+                :disabled="disabled(configs['ORA_DB_L1HWEB_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -363,6 +368,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_L2HWEB_IP: configs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: configs['ORA_DB_L2HWEB_PORT']})"
+                :disabled="disabled(configs['ORA_DB_L2HWEB_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -391,6 +397,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_L3HWEB_IP: configs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: configs['ORA_DB_L3HWEB_PORT']})"
+                :disabled="disabled(configs['ORA_DB_L3HWEB_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -456,6 +463,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({MS_DB_SVR: configs['MS_DB_SVR']})"
+                :disabled="disabled(configs['MS_DB_SVR'])"
                 no-icon-gutter
               />
             </template>
@@ -551,6 +559,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({MS_DOC_DB_SVR: configs['MS_DOC_DB_SVR']})"
+                :disabled="disabled(configs['MS_DOC_DB_SVR'])"
                 no-icon-gutter
               />
             </template>
@@ -646,6 +655,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({MS_TDOC_DB_SVR: configs['MS_TDOC_DB_SVR']})"
+                :disabled="disabled(configs['MS_TDOC_DB_SVR'])"
                 no-icon-gutter
               />
             </template>
@@ -712,7 +722,10 @@ export default {
   },
   methods: {
     validateIp (ip) {
-      return this.$utils.isIPv4(ip)
+      return this.$utils.isIPv4(ip) === true ? null : false
+    },
+    disabled (ip) {
+      return !this.$utils.isIPv4(ip)
     },
     update () {
       this.confirm('確定要更新「所有」設定值？')
