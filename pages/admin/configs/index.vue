@@ -91,6 +91,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1521"
               v-model="configs['ORA_DB_HXWEB_PORT']"
               title="主資料庫PORT"
@@ -118,6 +119,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1521"
               v-model="configs['ORA_DB_BACKUP_PORT']"
               title="備份資料庫PORT"
@@ -145,6 +147,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1521"
               v-model="configs['ORA_DB_HXT_PORT']"
               title="測試資料庫PORT"
@@ -319,6 +322,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1521"
               v-model="configs['ORA_DB_L1HWEB_PORT']"
               title="L1HWEB 資料庫PORT"
@@ -346,6 +350,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1521"
               v-model="configs['ORA_DB_L2HWEB_PORT']"
               title="L2HWEB 資料庫PORT"
@@ -373,6 +378,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1521"
               v-model="configs['ORA_DB_L3HWEB_PORT']"
               title="L3HWEB 資料庫PORT"
@@ -436,6 +442,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1433"
               title="連線埠號(PORT)"
               class="col-2 ml-1"
@@ -530,6 +537,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1433"
               title="連線埠號(PORT)"
               class="col-2 ml-1"
@@ -624,6 +632,7 @@
             />
             :
             <b-input
+              type="number"
               placeholder="1433"
               title="連線埠號(PORT)"
               class="col-2 ml-1"
