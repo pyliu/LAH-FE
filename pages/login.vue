@@ -57,26 +57,30 @@ export default {
       }
     }
   },
+  fetch () {
+  },
   created () {
-    this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: 'svr',
-      client_ip: this.ip
-    }).then(({ data }) => {
-      this.$store.commit('svr', data)
-      this.setCache('server-info', data, 86400000) // cache for a day
-    }).catch((err) => {
-      this.$utils.error(err)
-    }).finally(() => {
-      if (this.authority.isAdmin) {
-        this.$router.push('/admin')
-      } else {
-        this.isBusy = false
-      }
-    })
+    if (!this.authority.isAdmin && !this.authority.isSuper) {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'svr',
+        client_ip: this.ip
+      }).then(({ data }) => {
+        this.$store.commit('svr', data)
+        this.setCache('server-info', data, 86400000) // cache for a day
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+      })
+    }
   },
   mounted () {
-    this.$refs.password.$el.focus()
+    if (this.authority.isAdmin) {
+      this.$router.push('/admin')
+    } else {
+      this.isBusy = false
+      this.$refs.password.$el.focus()
+    }
   }
 }
 </script>
