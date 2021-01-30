@@ -22,7 +22,7 @@
       </lah-transition>
       <lah-help-modal :modal-id="'help-modal'" size="md">
         <div class="d-inline-flex">
-          ★ 請按 
+          ★ 按 
           <lah-button
             icon="edit"
             reqular
@@ -30,10 +30,10 @@
             class="mt-n1 mx-1"
             no-icon-gutter
           />
-          更新所有系統設定值
+          可一次更新所有系統設定值
         </div>
         <div class="d-inline-flex">
-          ★ 對各細項進行修改後按
+          ★ 各細項修改後按
           <lah-button
             icon="pen-square"
             variant="outline-secondary"
