@@ -86,6 +86,7 @@
               v-model="configs['ORA_DB_HXWEB_IP']"
               title="主資料庫IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['ORA_DB_HXWEB_IP'])"
               trim
             />
             :
@@ -112,6 +113,7 @@
               v-model="configs['ORA_DB_BACKUP_IP']"
               title="備份資料庫IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['ORA_DB_BACKUP_IP'])"
               trim
             />
             :
@@ -138,6 +140,7 @@
               v-model="configs['ORA_DB_HXT_IP']"
               title="測試資料庫IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['ORA_DB_HXT_IP'])"
               trim
             />
             :
@@ -206,6 +209,7 @@
               placeholder="220.1.35.123"
               title="任一個地政WEB版伺服器IP"
               v-model="configs['WEBAP_IP']"
+              :state="validateIp(configs['WEBAP_IP'])"
               trim
             />
             <template #append>
@@ -310,6 +314,7 @@
               v-model="configs['ORA_DB_L1HWEB_IP']"
               title="L1HWEB 資料庫IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['ORA_DB_L1HWEB_IP'])"
               trim
             />
             :
@@ -336,6 +341,7 @@
               v-model="configs['ORA_DB_L2HWEB_IP']"
               title="L2HWEB 資料庫IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['ORA_DB_L2HWEB_IP'])"
               trim
             />
             :
@@ -362,6 +368,7 @@
               v-model="configs['ORA_DB_L3HWEB_IP']"
               title="L3HWEB 資料庫IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['ORA_DB_L3HWEB_IP'])"
               trim
             />
             :
@@ -424,6 +431,7 @@
               v-model="configs['MS_DB_SVR']"
               title="伺服器IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['MS_DB_SVR'])"
               trim
             />
             :
@@ -517,6 +525,7 @@
               v-model="configs['MS_DOC_DB_SVR']"
               title="伺服器IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['MS_DOC_DB_SVR'])"
               trim
             />
             :
@@ -610,6 +619,7 @@
               v-model="configs['MS_TDOC_DB_SVR']"
               title="伺服器IP"
               class="col-8 mr-1"
+              :state="validateIp(configs['MS_TDOC_DB_SVR'])"
               trim
             />
             :
@@ -692,6 +702,9 @@ export default {
     this.message = data.message
   },
   methods: {
+    validateIp (ip) {
+      return this.$utils.isIPv4(ip)
+    },
     update () {
       this.confirm('確定要更新「所有」設定值？')
       .then((answer) => {
