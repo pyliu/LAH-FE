@@ -343,7 +343,7 @@
                 icon="pen-square"
                 variant="outline-secondary"
                 title="立即寫入設定"
-                @click="quick({SITE: configs['API_KEY']})"
+                @click="quick({API_KEY: configs['API_KEY']})"
                 no-icon-gutter
                 disabled
               />
@@ -362,7 +362,7 @@
                 icon="pen-square"
                 variant="outline-secondary"
                 title="立即寫入設定"
-                @click="quick({SITE: configs['USER_PHOTO_FOLDER']})"
+                @click="quick({USER_PHOTO_FOLDER: configs['USER_PHOTO_FOLDER']})"
                 no-icon-gutter
                 disabled
               />
@@ -386,12 +386,17 @@ export default {
     configs: {},
     message: ''
   }),
+  watch: {
+    configs (val) {
+      // this.$utils.log(val)
+    }
+  },
   async fetch () {
     const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, {
       type: 'configs'
     })
     // Object.assign makes var reactively
-    this.configs = Object.assign(this.configs, data.raw)
+    this.configs = Object.assign({}, data.raw)
     this.message = data.message
   },
   methods: {
