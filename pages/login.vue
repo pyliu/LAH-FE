@@ -71,11 +71,16 @@ export default {
       }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
+        if (this.authority.isAdmin || this.authority.isSuper) {
+          this.$router.push('/admin')
+        } else {
+          this.isBusy = false
+        }
       })
     }
   },
   mounted () {
-    if (this.authority.isAdmin) {
+    if (this.authority.isAdmin || this.authority.isSuper) {
       this.$router.push('/admin')
     } else {
       this.isBusy = false
