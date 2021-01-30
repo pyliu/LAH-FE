@@ -663,11 +663,6 @@ export default {
     configs: {},
     message: ''
   }),
-  watch: {
-    configs (val) {
-      this.$utils.log(val)
-    }
-  },
   async fetch () {
     const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, {
       type: 'configs'
