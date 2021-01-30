@@ -54,7 +54,7 @@ const actions = {
     }
   },
   async svr ({ commit, getters }) {
-    this.$axios.post('/api/query_json_api.php', {
+    this.$axios.post(this.$consts.API.JSON.QUERY, {
       type: 'svr',
       client_ip: getters.ip
     }).then(({ data }) => {
