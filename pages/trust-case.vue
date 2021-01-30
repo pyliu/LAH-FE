@@ -109,7 +109,7 @@
         :current-page="currentPage"
 
         sticky-header
-        :style="tableFixedMaxHeight"
+        :style="maxHeightStyle"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
@@ -303,7 +303,8 @@ export default {
         label: '異動日期',
         sortable: true,
       }
-    ]
+    ],
+    maxHeight: 600
   }),
   computed: {
     queryCount () { return this.rows.length },
@@ -325,11 +326,9 @@ export default {
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
     cacheKeyYear () { return `reg_trust_case_years` },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
-    fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields }
-  },
-  watch: {
-    rows (val) {
-      // this.$utils.log(val)
+    fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields },
+    maxHeightStyle () {
+       return `max-height: ${this.maxHeight}px`
     }
   },
   methods: {
@@ -416,9 +415,10 @@ export default {
       }
       this.cached()
     })
+    this.modalId = this.$utils.uuid()
   },
   mounted () {
-    this.modalId = this.$utils.uuid()
+    this.maxHeight = parseInt(window.innerHeight - 105)
   }
 }
 </script>
