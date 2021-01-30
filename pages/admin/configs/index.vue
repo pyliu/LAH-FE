@@ -327,7 +327,7 @@
                 :placeholder="site"
                 v-model="configs['SITE']"
                 :state="site === configs['SITE']"
-                v-b-popover.hover.top="site !== configs['SITE'] ? `系統偵測到所別為: ${site} (${apiSvrIp})` : ''"
+                v-b-popover.hover.focus.top="site !== configs['SITE'] ? `系統偵測到所別為: ${site} (${apiSvrIp})` : ''"
                 trim
               />
               <template #append>
