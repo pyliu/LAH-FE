@@ -52,7 +52,7 @@
           border-variant="danger"
         >
           <template #header>
-            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="database">地政WEB資料庫連線設定 - {{site}}</lah-fa-icon></h6>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="database">地政WEB資料庫連線設定</lah-fa-icon></h6>
           </template>
           <b-input-group size="sm" prepend="登入帳密">
             <b-input
@@ -92,10 +92,13 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1521"
               v-model="configs['ORA_DB_HXWEB_PORT']"
               title="主資料庫PORT"
               class="col-2 ml-1"
+              :state="validateNumber(configs['ORA_DB_HXWEB_PORT'])"
               trim
             />
             <template #append>
@@ -104,7 +107,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_HXWEB_IP: configs['ORA_DB_HXWEB_IP'], ORA_DB_HXWEB_PORT: configs['ORA_DB_HXWEB_PORT']})"
-                :disabled="disabled(configs['ORA_DB_HXWEB_IP'])"
+                :disabled="ipNotOK(configs['ORA_DB_HXWEB_IP']) || numNotOK(configs['ORA_DB_HXWEB_PORT'])"
                 no-icon-gutter
               />
             </template>
@@ -121,10 +124,13 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1521"
               v-model="configs['ORA_DB_BACKUP_PORT']"
               title="備份資料庫PORT"
               class="col-2 ml-1"
+              :state="validateNumber(configs['ORA_DB_BACKUP_PORT'])"
               trim
             />
             <template #append>
@@ -133,7 +139,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_BACKUP_IP: configs['ORA_DB_BACKUP_IP'], ORA_DB_BACKUP_PORT: configs['ORA_DB_BACKUP_PORT']})"
-                :disabled="disabled(configs['ORA_DB_BACKUP_IP'])"
+                :disabled="ipNotOK(configs['ORA_DB_BACKUP_IP']) || numNotOK(configs['ORA_DB_BACKUP_PORT'])"
                 no-icon-gutter
               />
             </template>
@@ -150,10 +156,13 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1521"
               v-model="configs['ORA_DB_HXT_PORT']"
               title="測試資料庫PORT"
               class="col-2 ml-1"
+              :state="validateNumber(configs['ORA_DB_HXT_PORT'])"
               trim
             />
             <template #append>
@@ -162,7 +171,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_HXT_IP: configs['ORA_DB_HXT_IP'], ORA_DB_HXT_PORT: configs['ORA_DB_HXT_PORT']})"
-                :disabled="disabled(configs['ORA_DB_HXT_IP'])"
+                :disabled="ipNotOK(configs['ORA_DB_HXT_IP']) || numNotOK(configs['ORA_DB_HXT_PORT'])"
                 no-icon-gutter
               />
             </template>
@@ -178,9 +187,10 @@
           </template>
           <b-input-group size="sm" prepend="本所代碼" class="my-1">
             <b-input
-              placeholder="HB"
-              title="本所代碼"
+              :placeholder="site"
               v-model="configs['SITE']"
+              :state="site === configs['SITE']"
+              :title="`本所代碼 - 系統偵測到所別為 ${site}`"
               trim
             />
             <template #append>
@@ -189,6 +199,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({SITE: configs['SITE']})"
+                :disabled="configs['SITE'] !== site"
                 no-icon-gutter
               />
             </template>
@@ -198,6 +209,7 @@
               placeholder="45000808"
               title="本所的統一編號"
               v-model="configs['SITE_ID']"
+              :state="validateNumber(configs['SITE_ID'])"
               trim
             />
             <template #append>
@@ -206,6 +218,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({SITE: configs['SITE_ID']})"
+                :disabled="numNotOK(configs['SITE_ID'])"
                 no-icon-gutter
               />
             </template>
@@ -224,7 +237,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({SITE: configs['WEBAP_IP']})"
-                :disabled="disabled(configs['WEBAP_IP'])"
+                :disabled="ipNotOK(configs['WEBAP_IP'])"
                 no-icon-gutter
               />
             </template>
@@ -327,10 +340,13 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1521"
               v-model="configs['ORA_DB_L1HWEB_PORT']"
               title="L1HWEB 資料庫PORT"
               class="col-2 ml-1"
+              :state="validateNumber(configs['ORA_DB_L1HWEB_PORT'])"
               trim
             />
             <template #append>
@@ -339,7 +355,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_L1HWEB_IP: configs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: configs['ORA_DB_L1HWEB_PORT']})"
-                :disabled="disabled(configs['ORA_DB_L1HWEB_IP'])"
+                :disabled="ipNotOK(configs['ORA_DB_L1HWEB_IP']) || numNotOK(configs['ORA_DB_L1HWEB_PORT'])"
                 no-icon-gutter
               />
             </template>
@@ -356,10 +372,13 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1521"
               v-model="configs['ORA_DB_L2HWEB_PORT']"
               title="L2HWEB 資料庫PORT"
               class="col-2 ml-1"
+              :state="validateNumber(configs['ORA_DB_L2HWEB_PORT'])"
               trim
             />
             <template #append>
@@ -368,7 +387,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_L2HWEB_IP: configs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: configs['ORA_DB_L2HWEB_PORT']})"
-                :disabled="disabled(configs['ORA_DB_L2HWEB_IP'])"
+                :disabled="ipNotOK(configs['ORA_DB_L2HWEB_IP']) || numNotOK(configs['ORA_DB_L2HWEB_PORT'])"
                 no-icon-gutter
               />
             </template>
@@ -385,10 +404,13 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1521"
               v-model="configs['ORA_DB_L3HWEB_PORT']"
               title="L3HWEB 資料庫PORT"
               class="col-2 ml-1"
+              :state="validateNumber(configs['ORA_DB_L3HWEB_PORT'])"
               trim
             />
             <template #append>
@@ -397,7 +419,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({ORA_DB_L3HWEB_IP: configs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: configs['ORA_DB_L3HWEB_PORT']})"
-                :disabled="disabled(configs['ORA_DB_L3HWEB_IP'])"
+                :disabled="ipNotOK(configs['ORA_DB_L3HWEB_IP']) || numNotOK(configs['ORA_DB_L3HWEB_PORT'])"
                 no-icon-gutter
               />
             </template>
@@ -450,6 +472,8 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1433"
               title="連線埠號(PORT)"
               class="col-2 ml-1"
@@ -463,7 +487,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({MS_DB_SVR: configs['MS_DB_SVR']})"
-                :disabled="disabled(configs['MS_DB_SVR'])"
+                :disabled="ipNotOK(configs['MS_DB_SVR'])"
                 no-icon-gutter
               />
             </template>
@@ -546,6 +570,8 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1433"
               title="連線埠號(PORT)"
               class="col-2 ml-1"
@@ -559,7 +585,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({MS_DOC_DB_SVR: configs['MS_DOC_DB_SVR']})"
-                :disabled="disabled(configs['MS_DOC_DB_SVR'])"
+                :disabled="ipNotOK(configs['MS_DOC_DB_SVR'])"
                 no-icon-gutter
               />
             </template>
@@ -642,6 +668,8 @@
             :
             <b-input
               type="number"
+              min="1"
+              max="65535"
               placeholder="1433"
               title="連線埠號(PORT)"
               class="col-2 ml-1"
@@ -655,7 +683,7 @@
                 variant="outline-secondary"
                 title="立即寫入設定"
                 @click="quick({MS_TDOC_DB_SVR: configs['MS_TDOC_DB_SVR']})"
-                :disabled="disabled(configs['MS_TDOC_DB_SVR'])"
+                :disabled="ipNotOK(configs['MS_TDOC_DB_SVR'])"
                 no-icon-gutter
               />
             </template>
@@ -724,8 +752,15 @@ export default {
     validateIp (ip) {
       return this.$utils.isIPv4(ip) === true ? null : false
     },
-    disabled (ip) {
-      return !this.$utils.isIPv4(ip)
+    validateNumber (val) {
+      const pval = parseInt(val)
+      return (pval !== NaN && pval > 0) ? null : false
+    },
+    ipNotOK (ip) {
+      return this.validateIp(ip) === false
+    },
+    numNotOK (val) {
+      return this.validateNumber(val) === false
     },
     update () {
       this.confirm('確定要更新「所有」設定值？')
