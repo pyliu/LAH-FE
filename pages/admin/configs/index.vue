@@ -398,7 +398,7 @@
                 />
               </template>
             </b-input-group>
-            <b-input-group size="sm" prepend="照片路徑" class="my-1">
+            <b-input-group v-show="false" size="sm" prepend="照片路徑" class="my-1">
               <b-input
                 placeholder="內網擷取使用者圖片路徑"
                 title="內網擷取使用者圖片路徑"

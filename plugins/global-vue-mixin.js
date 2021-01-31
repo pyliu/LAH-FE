@@ -51,7 +51,6 @@ Vue.mixin({
     apiSvrHttpUrl () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     },
-    toastCounter () { return this.$store.getters.toastCounter },
     site () {
       if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'H0'
@@ -81,7 +80,8 @@ Vue.mixin({
         return 'HG'
       }
       return this.svr ? (this.svr.config ? this.svr.config.site : 'HB') : 'HB'
-    }
+    },
+    toastCounter () { return this.$store.getters.toastCounter }
   },
   methods: {
     $,  // jQuery '$',
