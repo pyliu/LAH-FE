@@ -434,7 +434,7 @@
           </b-card>
         </lah-transition>
       </b-card-group>
-      <lah-transition slideUp>
+      <lah-transition appear slideUp>
         <b-card-group v-if="showMSSQLCards" deck class="mt-3">
           <b-card 
             header-bg-variant="info"
@@ -756,7 +756,7 @@ export default {
   }),
   computed: {
     showMSSQLCards () {
-      return !this.$utils.empty(this.configs) && this.configs['ENABLE_MSSQL_CONN'] === true
+      return this.configs && (this.configs['ENABLE_MSSQL_CONN'] === 'true' || this.configs['ENABLE_MSSQL_CONN'] === true)
     }
   },
   async fetch () {
@@ -807,8 +807,7 @@ export default {
         this.isBusy = false
       })
     }
-  },
-  mounted () { this.$utils.log(this.svr) }
+  }
 }
 </script>
 
