@@ -66,7 +66,8 @@ Vue.mixin({
       }
     },
     myinfo () {
-      return this.svr ? this.svr.user : { id: '', name: '' }
+      const noinfo = { id: '', name: '' }
+      return this.svr ? (this.svr.user !== null ? this.svr.user : noinfo) : noinfo
     },
     webapIp () { return this.svr ? (this.svr.config ? this.svr.config.webap_ip : '127.0.0.1') : '127.0.0.1' },
     apiSvrIp () {
