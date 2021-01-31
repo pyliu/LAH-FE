@@ -109,7 +109,7 @@
       </li>
       <li><hr/></li>
       <li>
-        <a :href="serverUrl" target="_blank" rel="noopener noreferrer">
+        <a :href="apiSvrHttpUrl" target="_blank" rel="noopener noreferrer">
           <font-awesome-icon :icon="['fas', 'history']" pull="left" size="lg" />
           先前版本
         </a>
@@ -150,12 +150,6 @@ export default {
   computed: {
     isAuthorized () {
       return this.authority.isSuper || this.authority.isAdmin
-    },
-    serverUrl () {
-      if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
-        return `http://${this.svr.ips[0]}`
-      }
-      return `http://127.0.0.1`
     }
   },
   methods: {
