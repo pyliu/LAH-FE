@@ -25,32 +25,6 @@ Vue.mixin({
   computed: {
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
     ip () { return this.$store.getters.ip },
-    svr () { return this.$store.getters.svr },
-    authority () {
-      return this.svr ? this.svr.config.authority : {
-        isAdmin: false,
-        isChief: false,
-        isGA: false,
-        isRAE: false,
-        isSuper: false
-      }
-    },
-    webapIp () { return this.svr ? (this.svr.config ? this.svr.config.webap_ip : '127.0.0.1') : '127.0.0.1' },
-    apiSvrIp () {
-      if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
-        return this.svr.ips[this.svr.ips.length - 1]
-      }
-      return '127.0.0.1'
-    },
-    apiSvrPort () {
-      if (this.svr && typeof this.svr.server === 'object') {
-        return this.svr.server.SERVER_PORT
-      }
-      return '80'
-    },
-    apiSvrHttpUrl () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}`
-    },
     site () {
       if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'H0'
@@ -80,6 +54,32 @@ Vue.mixin({
         return 'HG'
       }
       return this.svr ? (this.svr.config ? this.svr.config.site : 'HB') : 'HB'
+    },
+    svr () { return this.$store.getters.svr },
+    authority () {
+      return this.svr ? this.svr.config.authority : {
+        isAdmin: false,
+        isChief: false,
+        isGA: false,
+        isRAE: false,
+        isSuper: false
+      }
+    },
+    webapIp () { return this.svr ? (this.svr.config ? this.svr.config.webap_ip : '127.0.0.1') : '127.0.0.1' },
+    apiSvrIp () {
+      if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
+        return this.svr.ips[this.svr.ips.length - 1]
+      }
+      return '127.0.0.1'
+    },
+    apiSvrPort () {
+      if (this.svr && typeof this.svr.server === 'object') {
+        return this.svr.server.SERVER_PORT
+      }
+      return '80'
+    },
+    apiSvrHttpUrl () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     },
     toastCounter () { return this.$store.getters.toastCounter }
   },
