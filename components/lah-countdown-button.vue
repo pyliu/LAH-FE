@@ -73,7 +73,7 @@ export default {
           totalMilliseconds: this.totalMilliseconds
         }
       */
-      if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
+      if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold && this.$refs.btn) {
         this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
         const oldVariant = this.variantMediator
         this.variantMediator = this.endAttentionStartVariant

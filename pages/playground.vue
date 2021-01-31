@@ -89,21 +89,6 @@
           </font-awesome-layers>
           some text
         </lah-countdown-button>
-        <b-iconstack font-scale="5" animation="cylon">
-          <b-icon
-            stacked
-            icon="camera"
-            animation="throb"
-            variant="info"
-            scale=".75"
-          ></b-icon>
-          <b-icon
-            stacked
-            icon="slash-circle"
-            animation="spin-reverse"
-            variant="dark"
-          ></b-icon>
-        </b-iconstack>
       </p>
     </div>
   </div>
@@ -124,7 +109,7 @@ export default {
     // return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 1000 })
   },
   computed: {
-    isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
+    // isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
   },
   methods: {
     clickCountdownButton () {
@@ -153,14 +138,6 @@ export default {
           this.$utils.error(error)
       }).finally(() => {})
     })
-  },
-  created () {
-    if (!this.authority.isSuper && !this.authority.isAdmin) {
-      // todo redirect to root
-    }
-  },
-  mounted () {
-    //this.$utils.log(this)
   }
 }
 </script>
