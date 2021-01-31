@@ -807,7 +807,8 @@ export default {
         this.isBusy = false
       })
     }
-  }
+  },
+  mounted () { this.$utils.log(this.svr) }
 }
 </script>
 
