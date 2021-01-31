@@ -139,7 +139,9 @@
         </b-link>
       </li>
       <li><hr/></li>
-      <li class="d-flex justify-content-between">
+    </ul>
+    <template #footer>
+      <div class="d-flex bg-dark text-light justify-content-between px-3 py-2">
         <b-link v-if="!isAuthorized" to="/login">管理者登入</b-link>
         <span></span>
         <b-link href="mailto:pangyu.liu@gmail.com">
@@ -147,8 +149,8 @@
             LIU, PANG-YU
           </lah-fa-icon>
         </b-link>
-      </li>
-    </ul>
+      </div>
+    </template>
   </b-sidebar>
 </template>
 
