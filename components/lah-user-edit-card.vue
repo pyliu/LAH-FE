@@ -260,7 +260,7 @@ import lahUserCard from './lah-user-card.vue'
 export default {
   components: { lahUserCard, LahFaIcon },
   props: {
-    raw: { type: Array, default: () => [] },
+    raw: { type: Array, default: () => ([]) },
     id: { type: String, default: "" },
     name: { type: String, default: "" },
   },

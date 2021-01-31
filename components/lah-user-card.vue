@@ -146,11 +146,11 @@ export default {
     raw (array) {
       if (Array.isArray(array)) {
         if (array.length > 1) {
-          this.userData = array.find((item, idx, array) => {
+          this.assignUserData(array.find((item, idx, array) => {
             return this.$utils.empty(item['offboard_date'])
-          }) || {}
+          }))
         } else {
-          this.userData = array[0]
+          this.assignUserData(array[0])
         }
       } else {
         this.$utils.warning('raw is not an array', array)
@@ -158,6 +158,12 @@ export default {
     }
   },
   methods: {
+    assignUserData (obj) {
+      // Object.assign makes object data reactively
+      if (!this.$utils.empty(obj)) {
+        this.userData = Object.assign(this.userData, obj)
+      }
+    },
     add () {
       if (this.isAuthorized) {
         this.modal(this.$createElement('lah-user-add-card', { props: { userId: this.id || this.name } }), {
@@ -223,7 +229,9 @@ export default {
     })
   },
   created() {
-    this.userData = this.$utils.empty(this.raw) ? {} : this.raw[0]
+    if (!this.$utils.empty(this.raw)) {
+      this.assignUserData(this.raw[0])
+    }
   }
 }
 </script>
