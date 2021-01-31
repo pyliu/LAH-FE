@@ -26,10 +26,10 @@ export default {
   },
   computed: {
     userId () {
-      return this.userData['id'] || this.id || this.myinfo.id
+      return this.userData['id'] || this.id || this.myinfo ? this.myinfo.id : ''
     },
     userName () {
-      return this.userData['name'] || this.name || this.myinfo.name
+      return this.userData['name'] || this.name || this.myinfo ? this.myinfo.name : ''
     },
     avatarSrc () {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
