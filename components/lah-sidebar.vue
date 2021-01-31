@@ -7,7 +7,10 @@
     backdrop
     shadow
   >
-    <ul>
+    <template #title>
+      <lah-avatar :user-data="myinfo" size="1.8"/>
+    </template>
+    <ul class="mt-n3">
       <li><hr/></li>
       <li>
         <NuxtLink to="/">
@@ -145,7 +148,9 @@
 </template>
 
 <script>
+import lahAvatar from '~/components/lah-avatar.vue'
 export default {
+  components: { lahAvatar },
   fetchOnServer: false,
   computed: {
     isAuthorized () {

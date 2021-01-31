@@ -7,6 +7,7 @@
       :src="avatarSrc" 
       @click="photoClick($event)"
       class="my-auto"
+      :title="`${userId} ${userName}`"
     />
     <slot></slot>
   </span>
