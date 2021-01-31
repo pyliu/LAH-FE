@@ -8,7 +8,12 @@
     shadow
   >
     <template #title>
-      <lah-avatar :user-data="myinfo" size="1.8"/>
+      <lah-avatar :user-data="myinfo" size="1.6" class="mt-n1"/>
+      <span class="s-95 greeting" @click="popup">
+        {{myinfo.id}}
+        {{myinfo.name}}
+        {{greeting}}
+      </span>
     </template>
     <ul class="mt-n3">
       <li><hr/></li>
@@ -149,19 +154,17 @@
 
 <script>
 import lahAvatar from '~/components/lah-avatar.vue'
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
-  components: { lahAvatar },
+  components: { lahAvatar, lahUserCard },
   fetchOnServer: false,
   computed: {
     isAuthorized () {
       return this.authority.isSuper || this.authority.isAdmin
-    }
-  },
-  methods: {
-    clearFECache () {
-      this.confirm('請確認要清除快取資料？').then((ans) => {
-        ans && this.clearCache() && this.notify('清除完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
-      })
+    },
+    greeting () {
+      const hours = new Date().getHours()
+      return hours > 11 ? (hours > 17 ? '晚安' : '午安') : '早安'
     }
   },
   async fetch () {
@@ -190,6 +193,23 @@ export default {
         } else {
           this.$store.commit('svr', json)
         }
+      })
+    }
+  },
+  methods: {
+    clearFECache () {
+      this.confirm('請確認要清除快取資料？').then((ans) => {
+        ans && this.clearCache() && this.notify('清除完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
+      })
+    },
+    popup () {
+      this.modal(this.$createElement('lah-user-card', {
+        props: {
+          raw: [this.myinfo]
+        }
+      }), {
+        title: `${this.myinfo.id} ${this.myinfo.name} 資訊`,
+        size: 'md'
       })
     }
   }
@@ -231,6 +251,9 @@ export default {
   hr {
     border: 1px solid rgb(138, 135, 135);
     border-radius: 2px;
+  }
+  .greeting {
+    cursor: pointer;
   }
 }
 </style>
