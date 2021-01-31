@@ -19,6 +19,7 @@
             trim
             :state="checkId"
             @input="findDuplication"
+            v-b-popover.hover.focus.top.html="checkIdFeedback"
           />
         </b-form-group>
       </b-card>
@@ -278,12 +279,15 @@ export default {
              this.checkBirthday !== false &&
              this.checkCell !== false
     },
+    checkIdFeedback () {
+      return this.checkId ? '' : `<strong class="text-danger">${this.site}</strong>####`
+    },
     checkId () {
       if (this.$utils.empty(this.userData['id']) || !this.$utils.empty(this.foundUser)) {
         return false
       }
       // e.g. HB0010
-      const regex = new RegExp(`^${this.svr.config.site}\\d{4,}$`, 'gm')
+      const regex = new RegExp(`^${this.site}\\d{4,}$`, 'gm')
       return Boolean(this.userData['id'].match(regex))
     },
     checkName () {

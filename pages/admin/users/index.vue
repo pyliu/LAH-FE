@@ -271,7 +271,7 @@ export default {
     categories () {
       switch (this.selectedGroup) {
         case 'unit':
-          return this.userByUnit
+          return this.groupBy('unit')
         case 'title':
           return this.groupBy('title')
         case 'work':
@@ -283,56 +283,6 @@ export default {
         default:
           return [{ NAME: '未分類', LIST: this.users }]
       }
-    },
-    userByUnit () {
-      const hr = this.users.filter(
-        (this_record) => this_record["unit"] === "人事室"
-      )
-      const accounting = this.users.filter(
-        (this_record) => this_record["unit"] === "會計室"
-      )
-      const director = this.users.filter(
-        (this_record) => this_record["unit"] === "主任室"
-      )
-      const secretary = this.users.filter(
-        (this_record) => this_record["unit"] === "秘書室"
-      )
-      const adm = this.users.filter(
-        (this_record) => this_record["unit"] === "行政課"
-      )
-      const reg = this.users.filter(
-        (this_record) => this_record["unit"] === "登記課"
-      )
-      const val = this.users.filter(
-        (this_record) => this_record["unit"] === "地價課"
-      )
-      const sur = this.users.filter(
-        (this_record) => this_record["unit"] === "測量課"
-      )
-      const inf = this.users.filter(
-        (this_record) => this_record["unit"] === "資訊課"
-      )
-      const LIST = [{
-        NAME: "主任室 / 秘書室 / 人事室 / 會計室",
-        LIST: director.concat(secretary).concat(hr).concat(accounting),
-      }, {
-        NAME: "行政課",
-        LIST: adm,
-      }, {
-        NAME: "登記課",
-        LIST: reg,
-      }, {
-        NAME: "地價課",
-        LIST: val,
-      }, {
-        NAME: "測量課",
-        LIST: sur,
-      }, {
-        NAME: "資訊課",
-        LIST: inf,
-      }]
-      LIST.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
-      return LIST
     },
     importUrl () {
       return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
