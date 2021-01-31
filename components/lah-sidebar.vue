@@ -116,6 +116,12 @@
         </NuxtLink>
       </li>
       <li><hr/></li>
+      <li v-if="!isAuthorized">
+        <NuxtLink to="/login">
+          <font-awesome-icon :icon="['fas', 'sign-in-alt']" size="lg" />
+          管理者登入
+        </NuxtLink>
+      </li>
       <li>
         <a :href="apiSvrHttpUrl" target="_blank" rel="noopener noreferrer">
           <font-awesome-icon :icon="['fas', 'history']" pull="left" size="lg" />
@@ -141,11 +147,10 @@
       <li><hr/></li>
     </ul>
     <template #footer>
-      <div class="d-flex bg-dark text-light justify-content-between px-3 py-2">
-        <b-link v-if="!isAuthorized" to="/login">管理者登入</b-link>
-        <span></span>
+      <div class="d-flex bg-dark text-light justify-content-between px-3 py-2 align-middle">
+        <span class="s-75 text-muted my-auto">{{ip}}</span>
         <b-link href="mailto:pangyu.liu@gmail.com">
-          <lah-fa-icon icon="copyright" title="寄信給 LIU, PANG-YU" class="s-75 text-muted">
+          <lah-fa-icon icon="copyright" title="寄信給 LIU, PANG-YU" class="s-75 text-muted my-auto">
             LIU, PANG-YU
           </lah-fa-icon>
         </b-link>
