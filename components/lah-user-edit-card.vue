@@ -345,17 +345,34 @@ export default {
     isLeft () {
       return !this.$utils.empty(this.userData["offboard_date"])
     },
-    isIpChanged () {
-      return this.userData.ip !== this.origUserData.ip
-    },
     checkRequired () {
-      return this.checkId === true &&
-             this.checkName === true &&
+      // this.$utils.log('required: ', this.checkName, this.checkIp, this.checkOnboardDate, this.checkExt, this.checkBirthday, this.checkCell)
+      return this.checkName === true &&
              this.checkIp === true &&
              this.checkOnboardDate === true &&
              this.checkExt !== false &&
              this.checkBirthday !== false &&
              this.checkCell !== false
+    },
+    modified () {
+      if (this.userData.id !== this.origUserData.id) return true
+      if (this.userData.name !== this.origUserData.name) return true
+      if (this.userData.sex !== this.origUserData.sex) return true
+      if (this.userData.title !== this.origUserData.title) return true
+      if (this.userData.work !== this.origUserData.work) return true
+      if (this.userData.ext != this.origUserData.ext) return true
+      if (this.userData.birthday !== this.origUserData.birthday) return true
+      if (this.userData.unit !== this.origUserData.unit) return true
+      if (this.userData.ip !== this.origUserData.ip) return true
+      if (this.userData.education !== this.origUserData.education) return true
+      if (this.userData.exam !== this.origUserData.exam) return true
+      if (this.userData.cell !== this.origUserData.cell) return true
+      if (this.userData.onboard_date !== this.origUserData.onboard_date) return true
+      if (this.userData.offboard_date !== this.origUserData.offboard_date) return true
+      return false
+    },
+    isIpChanged () {
+      return this.userData.ip !== this.origUserData.ip
     },
     checkId () {
       if (this.$utils.empty(this.userData['id'])) {
@@ -396,28 +413,16 @@ export default {
       const regex = new RegExp(`^\\d{3,4}/\\d{1,2}/\\d{1,2}$`, 'gm')
       return Boolean(this.userData['onboard_date'].match(regex))
     },
-    modified () {
-      if (this.userData.id !== this.origUserData.id) return true
-      if (this.userData.name !== this.origUserData.name) return true
-      if (this.userData.sex !== this.origUserData.sex) return true
-      if (this.userData.title !== this.origUserData.title) return true
-      if (this.userData.work !== this.origUserData.work) return true
-      if (this.userData.ext != this.origUserData.ext) return true
-      if (this.userData.birthday !== this.origUserData.birthday) return true
-      if (this.userData.unit !== this.origUserData.unit) return true
-      if (this.userData.ip !== this.origUserData.ip) return true
-      if (this.userData.education !== this.origUserData.education) return true
-      if (this.userData.exam !== this.origUserData.exam) return true
-      if (this.userData.cell !== this.origUserData.cell) return true
-      if (this.userData.onboard_date !== this.origUserData.onboard_date) return true
-      if (this.userData.offboard_date !== this.origUserData.offboard_date) return true
-      return false
-    },
     saveButtonVariant () {
       return this.saveButtonDisabled ? 'secondary' : 'outline-success'
     },
     saveButtonDisabled () {
-      return this.isLeft || !this.modified || !this.checkRequired
+      if (!this.isLeft) {
+        if (this.modified && this.checkRequired) {
+          return false
+        }
+      }
+      return true
     },
     uploadUrl () {
       return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.PHOTO}`
