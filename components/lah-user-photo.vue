@@ -1,9 +1,14 @@
 <template>
   <div class="center">
-    <b-img
+    <b-img-lazy
       :fluid="fluid"
       :thumbnail="thumbnail"
       :src="src"
+      :blank="blank"
+      :block="block"
+      :left="left"
+      :right="right"
+      :center="center"
     />
   </div>
 </template>
@@ -15,7 +20,12 @@ export default {
     id: { type: String, default: '' },
     name: { type: String, default: '' },
     fluid: { type: Boolean, default: true },
-    thumbnail: { type: Boolean, default: false }
+    thumbnail: { type: Boolean, default: false },
+    left: { type: Boolean, default: false },
+    right: { type: Boolean, default: false },
+    blank: { type: Boolean, default: false },
+    block: { type: Boolean, default: false },
+    center: { type: Boolean, default: false }
   },
   computed: {
     userId () {
