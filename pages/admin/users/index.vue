@@ -200,6 +200,7 @@
             @click="edit(user)"
             :variant="variant(user)"
             v-b-popover.hover.top.html="role(user)"
+            :pill="showAvatar"
           >
             <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
             {{ user["id"].padStart(6, "&ensp;") }}

@@ -47,7 +47,7 @@
         <b-form-row>
           <b-col>
             收件人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.收件人員, bakedData.RM07_ID)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.收件人員, bakedData.RM07_ID)">
               <lah-avatar :id="bakedData.RM07_ID" :name="bakedData.收件人員">
                 {{ bakedData.收件人員 }}
               </lah-avatar>
@@ -60,7 +60,7 @@
         <b-form-row>
           <b-col>
             移轉課長：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉課長, bakedData.RM106)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉課長, bakedData.RM106)">
               <lah-avatar :id="bakedData.RM106" :name="bakedData.移轉課長">
                 {{ bakedData.移轉課長 }}
               </lah-avatar>
@@ -73,7 +73,7 @@
         <b-form-row>
           <b-col>
             移轉秘書：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉秘書, bakedData.RM107)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.移轉秘書, bakedData.RM107)">
               <lah-avatar :id="bakedData.RM107" :name="bakedData.移轉秘書">
                 {{ bakedData.移轉秘書 }}
               </lah-avatar>
@@ -86,7 +86,7 @@
         <b-form-row>
           <b-col>
             初審人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.初審人員, bakedData.RM45)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.初審人員, bakedData.RM45)">
               <lah-avatar :id="bakedData.RM45" :name="bakedData.初審人員">
                 {{ bakedData.初審人員 }}
               </lah-avatar>
@@ -99,7 +99,7 @@
         <b-form-row>
           <b-col>
             複審人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.複審人員, bakedData.RM47)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.複審人員, bakedData.RM47)">
               <lah-avatar :id="bakedData.RM47" :name="bakedData.複審人員">
                 {{ bakedData.複審人員 }}
               </lah-avatar>
@@ -136,7 +136,7 @@
         <b-form-row>
           <b-col>
             請示人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.請示人員, bakedData.RM82)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.請示人員, bakedData.RM82)">
               <lah-avatar :id="bakedData.RM82" :name="bakedData.請示人員">
                 {{ bakedData.請示人員 }}
               </lah-avatar>
@@ -149,7 +149,7 @@
         <b-form-row>
           <b-col>
             取消請示人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.取消請示人員, bakedData.RM85)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.取消請示人員, bakedData.RM85)">
               <lah-avatar :id="bakedData.RM85" :name="bakedData.取消請示人員">
                 {{ bakedData.取消請示人員 }}
               </lah-avatar>
@@ -162,7 +162,7 @@
         <b-form-row>
           <b-col>
             展期人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.展期人員, bakedData.RM88)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.展期人員, bakedData.RM88)">
               <lah-avatar :id="bakedData.RM88" :name="bakedData.展期人員">
                 {{ bakedData.展期人員 }}
               </lah-avatar>
@@ -175,7 +175,7 @@
         <b-form-row>
           <b-col>
             准登人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.准登人員, bakedData.RM63)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.准登人員, bakedData.RM63)">
               <lah-avatar :id="bakedData.RM63" :name="bakedData.准登人員">
                 {{ bakedData.准登人員 }}
               </lah-avatar>
@@ -188,7 +188,7 @@
         <b-form-row>
           <b-col>
             登錄人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.登錄人員, bakedData.RM55)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.登錄人員, bakedData.RM55)">
               <lah-avatar :id="bakedData.RM55" :name="bakedData.登錄人員">
                 {{ bakedData.登錄人員 }}
               </lah-avatar>
@@ -201,7 +201,7 @@
         <b-form-row>
           <b-col>
             校對人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.校對人員, bakedData.RM57)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.校對人員, bakedData.RM57)">
               <lah-avatar :id="bakedData.RM57" :name="bakedData.校對人員">
                 {{ bakedData.校對人員 }}
               </lah-avatar>
@@ -214,7 +214,7 @@
         <b-form-row>
           <b-col>
             結案人員：
-            <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.結案人員, bakedData.RM59)">
+            <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.結案人員, bakedData.RM59)">
               <lah-avatar :id="bakedData.RM59" :name="bakedData.結案人員">
                 {{ bakedData.結案人員 }}
               </lah-avatar>

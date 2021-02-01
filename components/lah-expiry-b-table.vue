@@ -48,10 +48,13 @@
           v-if="allCaseMode"
           :variant="buttoVariant"
           size="sm"
-          :to="`/expire/${data.value}`"
+          @click="$router.push(`/expire/${data.value}`)"
           :title="buttonReviewerTitle(data.value)"
+          pill
         >
-          {{ data.value.split(" ")[0] }}
+          <lah-avatar :id="data.value.split(' ')[0]" :name="data.value.split(' ')[1]">
+            {{ data.value.split(' ')[0] }}
+          </lah-avatar>
         </b-button>
         <b-button
           v-else
@@ -59,8 +62,11 @@
           @click="searchUser(data.value.split(' ')[0], data.value.split(' ')[1])"
           size="sm"
           :title="`查詢 ${data.value} 的使用者訊息`"
+          pill
           >
-            {{ data.value.split(' ')[0] }}
+            <lah-avatar :id="data.value.split(' ')[0]" :name="data.value.split(' ')[1]">
+              {{ data.value.split(' ')[0] }}
+            </lah-avatar>
           </b-button>
       </template>
       <template v-slot:cell(作業人員)="data">
@@ -71,8 +77,12 @@
           @click="searchUser(data.value)"
           size="sm"
           :title="`查詢 ${data.value} 的使用者訊息`"
-          >{{ data.value }}</b-button
+          pill
         >
+          <lah-avatar :name="data.value">
+            {{ data.value }}
+          </lah-avatar>
+        </b-button>
       </template>
     </b-table>
     <b-modal

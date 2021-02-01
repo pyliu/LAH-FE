@@ -31,7 +31,7 @@
       </b-list-group-item>
       <b-list-group-item>
         作業人員：
-        <b-button variant="outline-secondary" size="sm" @click="userinfo(bakedData.作業人員, bakedData.RM30_1)">
+        <b-button pill variant="outline-secondary" size="sm" @click="userinfo(bakedData.作業人員, bakedData.RM30_1)">
           <lah-avatar :id="bakedData.RM30_1" :name="bakedData.作業人員">
             {{ bakedData.作業人員 }}
           </lah-avatar>
