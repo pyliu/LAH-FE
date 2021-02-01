@@ -14,17 +14,17 @@
         請選擇下方功能區塊進行管理
         <hr/>
         <b-card-group deck>
-          <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="metronome" class="pt-2">使用者資訊管理</lah-index-card-link>
+          <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="rubber-h" class="pt-2">使用者資訊管理</lah-index-card-link>
           <lah-index-card-link :icon="['fas', 'user-tag']" to="/admin/roles" no-body size="2x" icon-variant="success" action="wander-h" class="pt-2">使用者角色管理</lah-index-card-link>
-          <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="shake-v" class="pt-2">系統參數設定</lah-index-card-link>
+          <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="rubber-v" class="pt-2">系統參數設定</lah-index-card-link>
         </b-card-group>
       </lah-help-modal>
     </lah-header>
     <b-container fluid v-cloak>
       <b-card-group deck class="vh-50">
-        <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/users" no-body size="5x" icon-variant="primary" action="metronome">使用者資訊管理</lah-index-card-link>
+        <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/users" no-body size="5x" icon-variant="primary" action="rubber-h">使用者資訊管理</lah-index-card-link>
         <lah-index-card-link :icon="['fas', 'user-tag']" to="/admin/roles" no-body size="5x" icon-variant="success" action="wander-h">使用者角色管理</lah-index-card-link>
-        <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="shake-v">系統參數設定</lah-index-card-link>
+        <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="rubber-v">系統參數設定</lah-index-card-link>
       </b-card-group>
     </b-container>
   </div>
