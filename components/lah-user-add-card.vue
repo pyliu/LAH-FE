@@ -395,6 +395,8 @@ export default {
         type: "add_user",
         data: this.userData,
       }).then((userData) => {
+        // clear id after added
+        this.userData['id'] = ''
         this.trigger("added", userData)
       }).catch((error) => {
         console.log(error)
