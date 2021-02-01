@@ -409,6 +409,15 @@
                 />
               </template>
             </b-input-group>
+            <b-input-group size="sm" prepend="管理金鑰" class="my-1">
+              <b-input
+                placeholder="MD5雜湊值"
+                title="管理者密碼雜湊值"
+                v-model="configs['MASTER_PASSWORD']"
+                trim
+                disabled
+              />
+            </b-input-group>
             <b-input-group v-show="false" size="sm" prepend="查詢金鑰" class="my-1">
               <b-input
                 placeholder="MD5雜湊值"
