@@ -31,12 +31,14 @@ export default {
     title: '管理者登入-桃園市地政局'
   },
   data: () => ({
-    password: '',
-    secret: '1f7744350d3dd3dc563421582f37f99e'
+    password: ''
   }),
   computed: {
     hashed () {
       return this.$utils.md5(this.password)
+    },
+    secret () {
+      return this.config ? this.config.master_password : '1f7744350d3dd3dc563421582f37f99e'
     }
   },
   methods: {
@@ -86,6 +88,7 @@ export default {
       this.isBusy = false
       this.$refs.password.$el.focus()
     }
+    // 0162703054122aa13eba16f4c81b8f39
   }
 }
 </script>

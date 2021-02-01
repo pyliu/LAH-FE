@@ -56,8 +56,11 @@ Vue.mixin({
       return this.svr ? (this.svr.config ? this.svr.config.site : 'HB') : 'HB'
     },
     svr () { return this.$store.getters.svr },
+    config () {
+      return this.svr ? this.svr.config : false
+    },
     authority () {
-      return this.svr ? this.svr.config.authority : {
+      return this.config ? this.config.authority : {
         isAdmin: false,
         isChief: false,
         isGA: false,

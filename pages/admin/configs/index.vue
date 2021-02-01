@@ -7,7 +7,7 @@
             <div class="my-auto">系統參數管理</div>
             <lah-button icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明"/>
           </div>
-          <div>
+          <b-button-group size="lg" class="my-auto">
             <lah-button
               icon="edit"
               reqular
@@ -17,7 +17,14 @@
               title="更新全部設定"
               no-icon-gutter
             />
-          </div>
+            <lah-button
+              icon="key"
+              title="變更管理者登入密碼"
+              variant="outline-danger"
+              no-icon-gutter
+              v-b-modal.master-pw-modal
+            />
+          </b-button-group>
         </div>
       </lah-transition>
       <lah-help-modal :modal-id="'help-modal'" size="md">
@@ -43,6 +50,29 @@
           可進行個別設定更新
         </div>
       </lah-help-modal>
+      <b-modal
+        id="master-pw-modal"
+        title="變更管理者登入密碼"
+        hide-footer
+      >
+        <b-input-group size="lg">
+          <b-input
+            type="password"
+            v-model="masterPassword"
+            title="管理者登入密碼"
+            trim
+          />
+          <template #append>
+            <lah-button
+              icon="pen-square"
+              variant="outline-danger"
+              title="更新主密碼"
+              @click="quick({MASTER_PASSWORD: configs['MASTER_PASSWORD']})"
+              no-icon-gutter
+            />
+          </template>
+        </b-input-group>
+      </b-modal>
     </lah-header>
     <b-container fluid v-cloak>
       <b-card-group deck>
@@ -752,11 +782,17 @@ export default {
   fetchOnServer: true,
   data: () => ({
     configs: {},
-    message: ''
+    message: '',
+    masterPassword: ''
   }),
   computed: {
     showMSSQLCards () {
       return this.configs && (this.configs['ENABLE_MSSQL_CONN'] === 'true' || this.configs['ENABLE_MSSQL_CONN'] === true)
+    }
+  },
+  watch: {
+    masterPassword (val) {
+      this.configs['MASTER_PASSWORD'] = this.$utils.md5(val)
     }
   },
   async fetch () {
