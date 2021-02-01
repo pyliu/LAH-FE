@@ -28,7 +28,6 @@
               no-icon-gutter
               title="批次檔上傳更新"
               v-b-modal.upload-modal
-              class="mx-1"
               action="move-fade-btt"
             />
             <lah-button
