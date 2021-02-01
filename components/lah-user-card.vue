@@ -194,7 +194,8 @@ export default {
     photoClick () {
       this.modal(this.$createElement('lah-user-photo', {
         props: {
-          userData: this.userData
+          userData: this.userData,
+          center: true
         }
       }), {
         title: `${this.userData['id']} ${this.userData['name']} 照片`,

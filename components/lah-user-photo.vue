@@ -9,6 +9,7 @@
       :left="left"
       :right="right"
       :center="center"
+      :rounded="rounded"
     />
   </div>
 </template>
@@ -25,7 +26,8 @@ export default {
     right: { type: Boolean, default: false },
     blank: { type: Boolean, default: false },
     block: { type: Boolean, default: false },
-    center: { type: Boolean, default: false }
+    center: { type: Boolean, default: false },
+    rounded: { type: Boolean, default: false }
   },
   computed: {
     userId () {

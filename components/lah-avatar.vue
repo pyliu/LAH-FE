@@ -43,7 +43,9 @@ export default {
         props: {
           userData: this.userData,
           id: this.id,
-          name: this.name
+          name: this.name,
+          center: true,
+          rounded: true
         }
       }), {
         title: `${this.userId} ${this.userName} 照片`,
