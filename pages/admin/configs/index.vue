@@ -410,7 +410,26 @@
                 />
               </template>
             </b-input-group>
-            <b-input-group size="sm" prepend="管理金鑰" class="my-1">
+            <b-input-group size="sm" prepend="模擬快取回應時間" class="my-1">
+              <b-input
+                type="number"
+                min="5"
+                placeholder="300"
+                title="模擬模式下快取剩餘時間(秒)"
+                v-model="configs['MOCK_CACHE_SECONDS']"
+                trim
+              />
+              <template #append>
+                <lah-button
+                  icon="pen-square"
+                  variant="outline-secondary"
+                  title="立即寫入設定"
+                  @click="quick({MOCK_CACHE_SECONDS: configs['MOCK_CACHE_SECONDS']})"
+                  no-icon-gutter
+                />
+              </template>
+            </b-input-group>
+            <b-input-group v-show="false" size="sm" prepend="管理金鑰" class="my-1">
               <b-input
                 placeholder="MD5雜湊值"
                 title="管理者密碼雜湊值"
