@@ -233,10 +233,11 @@ export default {
     selectedGroup: 'unit',
     groupOptions: [
       { text: '部門', value: 'unit' },
+      { text: '角色', value: 'role' },
       { text: '職稱', value: 'title' },
       { text: '工作', value: 'work' },
       { text: '性別', value: 'sex' },
-      { text: 'IP', value: 'ip' },
+      { text: '電腦', value: 'ip' },
       { text: '未分類', value: '' }
     ],
     sortOrder: false,
@@ -280,6 +281,8 @@ export default {
           return this.groupBy('sex')
         case 'ip':
           return this.groupBy('ip')
+        case 'role':
+          return this.groupByRole()
         default:
           return [{ NAME: '未分類', LIST: this.users }]
       }
@@ -354,6 +357,37 @@ export default {
             LIST: [item]
           })
         }
+      })
+      filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
+      return filtered;
+    },
+    groupByRole () {
+      const filtered = [
+        { NAME: '超級管理者', LIST: []},
+        { NAME: '系統管理者', LIST: []},
+        { NAME: '主管', LIST: []},
+        { NAME: '研考', LIST: []},
+        { NAME: '總務', LIST: []},
+        { NAME: '一般使用者', LIST: []}
+      ]
+      const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
+      sortTarget.forEach((item, idx, array) => {
+        if (this.config.ip_maps.super.includes(item['ip'])) {
+          return filtered[0].LIST.push(item)
+        }
+        if (this.config.ip_maps.admin.includes(item['ip'])) {
+          return filtered[1].LIST.push(item)
+        }
+        if (this.config.ip_maps.chief.includes(item['ip'])) {
+          return filtered[2].LIST.push(item)
+        }
+        if (this.config.ip_maps.rae.includes(item['ip'])) {
+          return filtered[3].LIST.push(item)
+        }
+        if (this.config.ip_maps.ga.includes(item['ip'])) {
+          return filtered[4].LIST.push(item)
+        }
+        return filtered[5].LIST.push(item)
       })
       filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
       return filtered;
@@ -524,6 +558,9 @@ export default {
     }).finally(() => {
       this.isBusy = false
     })
+  },
+  mounted () {
+    this.$utils.log(this.config)
   }
 }
 </script>
