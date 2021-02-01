@@ -40,7 +40,7 @@
             class="mt-n1 mx-1"
             no-icon-gutter
           />
-          進行個別更新
+          可進行個別設定更新
         </div>
       </lah-help-modal>
     </lah-header>
