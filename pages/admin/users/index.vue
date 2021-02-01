@@ -372,12 +372,6 @@ export default {
       ]
       const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
       sortTarget.forEach((item, idx, array) => {
-        if (this.config.ip_maps.super.includes(item['ip'])) {
-          return filtered[0].LIST.push(item)
-        }
-        if (this.config.ip_maps.admin.includes(item['ip'])) {
-          return filtered[1].LIST.push(item)
-        }
         if (this.config.ip_maps.chief.includes(item['ip'])) {
           return filtered[2].LIST.push(item)
         }
@@ -386,6 +380,12 @@ export default {
         }
         if (this.config.ip_maps.ga.includes(item['ip'])) {
           return filtered[4].LIST.push(item)
+        }
+        if (this.config.ip_maps.super.includes(item['ip'])) {
+          return filtered[0].LIST.push(item)
+        }
+        if (this.config.ip_maps.admin.includes(item['ip'])) {
+          return filtered[1].LIST.push(item)
         }
         return filtered[5].LIST.push(item)
       })
