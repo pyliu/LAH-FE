@@ -5,9 +5,10 @@
       :variant="variant" 
       :size="`${size}em`" 
       :src="avatarSrc" 
-      @click="photoClick($event)"
       class="my-auto"
       :title="`${userId} ${userName}`"
+      @click="photoClick($event)"
+      @img-error="srcNotAvailable"
     />
     <slot></slot>
   </span>
@@ -51,6 +52,9 @@ export default {
         title: `${this.userId} ${this.userName} 照片`,
         size: 'lg'
       })
+    },
+    srcNotAvailable (evt) {
+
     }
   }
 }
