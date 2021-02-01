@@ -8,7 +8,7 @@
           label-cols-sm="2"
           label-size="md"
         >
-          <b-input id="id-input" :value="userData['id']" disabled trim />
+          <b-input id="id-input" v-model="userData['id']" :formatter="formatter" disabled trim />
         </b-form-group>
       </b-card>
       <b-card no-body class="border-0">
@@ -429,6 +429,9 @@ export default {
     }
   },
   methods: {
+    formatter (val) {
+      return val.toUpperCase()
+    },
     assignUserData (array) {
       // Object.assign makes object data reactively
       if (!this.$utils.empty(array)) {

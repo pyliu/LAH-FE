@@ -18,6 +18,7 @@
             v-model="userData['id']"
             trim
             :state="checkId"
+            :formatter="formatter"
             @input="findDuplication"
             v-b-popover.hover.focus.top.html="checkIdFeedback"
           />
@@ -336,6 +337,9 @@ export default {
     }
   },
   methods: {
+    formatter (val) {
+      return val.toUpperCase()
+    },
     findDuplication () {},  // placeholder for debounced method
     toTWFormat (ad_date) {
       tw_date = ad_date.replace("/-/g", "/")
