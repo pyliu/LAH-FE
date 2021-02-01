@@ -371,7 +371,9 @@ export default {
               .then(({ data }) => {
                 if (this.$utils.statusCheck(data.status)) {
                   this.notify(data.message, { type: "success" })
-                  resolve(this.userData)
+                  resolve(Object.assign({}, this.userData))
+                  // clear id after added
+                  this.userData['id'] = ''
                 } else {
                   this.notify(data.message, { type: "warning" })
                   reject(data.message)
@@ -395,8 +397,6 @@ export default {
         type: "add_user",
         data: this.userData,
       }).then((userData) => {
-        // clear id after added
-        this.userData['id'] = ''
         this.trigger("added", userData)
       }).catch((error) => {
         console.log(error)
