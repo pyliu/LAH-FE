@@ -475,7 +475,7 @@
         </lah-transition>
       </b-card-group>
       <lah-transition appear slideUp>
-        <b-card-group v-if="showMSSQLCards" deck class="mt-3">
+        <b-card-group v-if="showMSSQLCards" deck class="mt-4">
           <b-card 
             header-bg-variant="info"
             header-text-variant="white"
