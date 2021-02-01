@@ -227,7 +227,7 @@ export default {
     title: "使用者資訊管理-桃園市地政局",
   },
   middleware: [ 'isAdmin' ],
-  fetchOnServer: false,
+  fetchOnServer: true,
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
     selectedGroup: 'unit',
@@ -289,6 +289,32 @@ export default {
     },
     exportXlsxUrl () {
       return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.XLSX}?type=all_users_export`
+    },
+    usersByIpAsc () {
+      return this.users.sort(function (a, b) {
+          const bv = ip2long(b.ip)
+          const av = ip2long(a.ip)
+          if (bv > av) {
+            return -1
+          }
+          if (bv < av) {
+            return 1
+          }
+          return 0
+        }
+      )
+    },
+    usersById () {
+      return this.users.sort(function (a, b) {
+          if (b.id > a.id) {
+            return -1
+          }
+          if (b.id < a.id) {
+            return 1
+          }
+          return 0
+        }
+      )
     }
   },
   watch: {
@@ -315,7 +341,8 @@ export default {
     },
     groupBy (field) {
       const filtered = []
-      this.users.forEach((item, idx, array) => {
+      const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
+      sortTarget.forEach((item, idx, array) => {
         const found = filtered.find((category, d, arr) => {
           return category.NAME === item[field]
         })
@@ -329,7 +356,7 @@ export default {
         }
       })
       filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
-      return filtered
+      return filtered;
     },
     sortAsc (a, b) {
       // LIST count is the same, I will use the NAME for sorting
