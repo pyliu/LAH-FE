@@ -558,9 +558,6 @@ export default {
     }).finally(() => {
       this.isBusy = false
     })
-  },
-  mounted () {
-    this.$utils.log(this.config)
   }
 }
 </script>
