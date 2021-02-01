@@ -60,6 +60,7 @@
             type="password"
             v-model="masterPassword"
             title="管理者登入密碼"
+            @keyup.enter="changeMasterPassword"
             trim
           />
           <template #append>
@@ -67,7 +68,7 @@
               icon="pen-square"
               variant="outline-danger"
               title="更新主密碼"
-              @click="quick({MASTER_PASSWORD: configs['MASTER_PASSWORD']})"
+              @click="changeMasterPassword"
               no-icon-gutter
             />
           </template>
@@ -851,6 +852,10 @@ export default {
       }).finally(() => {
         this.isBusy = false
       })
+    },
+    changeMasterPassword () {
+      this.quick({MASTER_PASSWORD: this.configs['MASTER_PASSWORD']})
+      this.hideModalById('master-pw-modal')
     }
   }
 }
