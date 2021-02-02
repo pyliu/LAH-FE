@@ -39,6 +39,16 @@
           />
           可一次更新所有系統設定值
         </div>
+        <div class="d-inline-flex my-2">
+          ★ 按
+          <lah-button
+            icon="key"
+            variant="outline-danger"
+            class="mt-n1 mx-1"
+            no-icon-gutter
+          />
+          可進行管理者密碼更新
+        </div>
         <div class="d-inline-flex">
           ★ 各細項修改後按
           <lah-button
