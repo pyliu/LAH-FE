@@ -36,6 +36,7 @@
             action="swing"
             class="mt-n1 mx-1"
             no-icon-gutter
+            @click="update"
           />
           可一次更新所有系統設定值
         </div>
@@ -46,6 +47,7 @@
             variant="outline-danger"
             class="mt-n1 mx-1"
             no-icon-gutter
+            v-b-modal.master-pw-modal
           />
           可進行管理者密碼更新
         </div>
