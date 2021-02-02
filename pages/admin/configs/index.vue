@@ -820,7 +820,8 @@ export default {
   data: () => ({
     configs: {},
     message: '',
-    masterPassword: ''
+    masterPassword: '',
+    origMasterPasswordHash: '1f7744350d3dd3dc563421582f37f99e'
   }),
   computed: {
     showMSSQLCards () {
@@ -830,7 +831,7 @@ export default {
   watch: {
     masterPassword (val) {
       // empty val restore to default pw
-      this.configs['MASTER_PASSWORD'] = this.$utils.empty(val) ? '1f7744350d3dd3dc563421582f37f99e' : this.$utils.md5(val)
+      this.configs['MASTER_PASSWORD'] = this.$utils.empty(val) ? this.origMasterPasswordHash : this.$utils.md5(val)
     }
   },
   async fetch () {
@@ -840,6 +841,7 @@ export default {
     // Object.assign makes var reactively
     this.configs = Object.assign({}, data.raw)
     this.message = data.message
+    this.origMasterPasswordHash = this.configs['MASTER_PASSWORD']
   },
   methods: {
     validateIp (ip) {
