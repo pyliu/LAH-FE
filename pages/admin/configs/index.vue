@@ -443,7 +443,7 @@
               <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
             </template>
             <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
-            <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 75%;" :disabled="!configs['ENABLE_MOCK_MODE']">
+            <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 65%;" :disabled="!configs['ENABLE_MOCK_MODE']">
               <b-input
                 type="number"
                 min="5"
@@ -892,6 +892,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+html, body {
+  min-width: 1280px !important;
+}
 .list-group-item:hover {
   background-color: rgb(37, 233, 125)
 }
