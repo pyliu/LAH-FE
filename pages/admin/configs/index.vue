@@ -410,26 +410,7 @@
                 />
               </template>
             </b-input-group>
-            <b-input-group size="sm" prepend="模擬快取回應時間" class="my-1">
-              <b-input
-                type="number"
-                min="5"
-                placeholder="300"
-                title="模擬模式下快取剩餘時間(秒)"
-                v-model="configs['MOCK_CACHE_SECONDS']"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({MOCK_CACHE_SECONDS: configs['MOCK_CACHE_SECONDS']})"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group v-show="false" size="sm" prepend="管理金鑰" class="my-1">
+            <b-input-group size="sm" prepend="管理金鑰" class="my-1">
               <b-input
                 placeholder="MD5雜湊值"
                 title="管理者密碼雜湊值"
@@ -438,7 +419,43 @@
                 disabled
               />
             </b-input-group>
-            <b-input-group v-show="false" size="sm" prepend="查詢金鑰" class="my-1">
+          </b-card>
+        </lah-transition>
+        <lah-transition appear>
+          <b-card
+            header-bg-variant="primary"
+            header-text-variant="white"
+            border-variant="primary"
+          >
+            <template #header>
+              <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
+            </template>
+            <div class="d-flex justify-content-between text-nowrap" title="開發模擬環境模式">
+              <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})" class="my-auto mr-2">啟用模擬模式</b-checkbox>
+              <b-input-group size="sm" prepend="回應(s)">
+                <b-input
+                  type="number"
+                  min="5"
+                  placeholder="15"
+                  title="模擬模式下回應快取剩餘時間(秒)"
+                  v-model="configs['MOCK_CACHE_SECONDS']"
+                  trim
+                  class="h-100"
+                />
+                <template #append>
+                  <lah-button
+                    icon="pen-square"
+                    variant="outline-secondary"
+                    title="立即寫入設定"
+                    @click="quick({MOCK_CACHE_SECONDS: configs['MOCK_CACHE_SECONDS']})"
+                    no-icon-gutter
+                  />
+                </template>
+              </b-input-group>
+            </div>
+            <b-checkbox v-model="configs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: configs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
+            <b-checkbox v-model="configs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: configs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
+            <b-input-group size="sm" prepend="查詢金鑰" class="my-1">
               <b-input
                 placeholder="MD5雜湊值"
                 title="API KEY MD5 HASH"
@@ -476,20 +493,6 @@
                 />
               </template>
             </b-input-group>
-          </b-card>
-        </lah-transition>
-        <lah-transition appear>
-          <b-card
-            header-bg-variant="primary"
-            header-text-variant="white"
-            border-variant="primary"
-          >
-            <template #header>
-              <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
-            </template>
-            <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})">啟用開發模擬模式</b-checkbox>
-            <b-checkbox v-model="configs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: configs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
-            <b-checkbox v-model="configs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: configs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
           </b-card>
         </lah-transition>
       </b-card-group>
