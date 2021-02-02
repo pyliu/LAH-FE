@@ -1,5 +1,5 @@
 <template>
-  <div v-cloak>
+  <div v-cloak class="width">
     <lah-header>
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
@@ -892,7 +892,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-html, body {
+.width {
   min-width: 1280px !important;
 }
 .list-group-item:hover {
