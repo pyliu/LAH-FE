@@ -430,29 +430,26 @@
             <template #header>
               <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
             </template>
-            <div class="d-flex justify-content-between text-nowrap" title="開發模擬環境模式">
-              <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})" class="my-auto mr-2">啟用模擬模式</b-checkbox>
-              <b-input-group size="sm" prepend="回應(s)">
-                <b-input
-                  type="number"
-                  min="5"
-                  placeholder="15"
-                  title="模擬模式下回應快取剩餘時間(秒)"
-                  v-model="configs['MOCK_CACHE_SECONDS']"
-                  trim
-                  class="h-100"
+            <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
+            <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 75%;">
+              <b-input
+                type="number"
+                min="5"
+                placeholder="15"
+                title="模擬模式下回應快取剩餘時間(秒)"
+                v-model="configs['MOCK_CACHE_SECONDS']"
+                trim
+              />
+              <template #append>
+                <lah-button
+                  icon="pen-square"
+                  variant="outline-secondary"
+                  title="立即寫入設定"
+                  @click="quick({MOCK_CACHE_SECONDS: configs['MOCK_CACHE_SECONDS']})"
+                  no-icon-gutter
                 />
-                <template #append>
-                  <lah-button
-                    icon="pen-square"
-                    variant="outline-secondary"
-                    title="立即寫入設定"
-                    @click="quick({MOCK_CACHE_SECONDS: configs['MOCK_CACHE_SECONDS']})"
-                    no-icon-gutter
-                  />
-                </template>
-              </b-input-group>
-            </div>
+              </template>
+            </b-input-group>
             <b-checkbox v-model="configs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: configs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
             <b-checkbox v-model="configs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: configs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
             <b-input-group size="sm" prepend="查詢金鑰" class="my-1">
