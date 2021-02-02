@@ -505,11 +505,7 @@
       </b-card-group>
       <lah-transition appear slideUp>
         <b-card-group v-if="showMSSQLCards" deck class="mt-4">
-          <b-card 
-            header-bg-variant="info"
-            header-text-variant="white"
-            border-variant="info"
-          >
+          <b-card>
             <template #header>
               <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="comments">信差資料庫連線設定</lah-fa-icon></h6>
             </template>
