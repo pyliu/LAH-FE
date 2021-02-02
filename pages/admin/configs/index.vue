@@ -829,7 +829,8 @@ export default {
   },
   watch: {
     masterPassword (val) {
-      this.configs['MASTER_PASSWORD'] = this.$utils.md5(val)
+      // empty val restore to default pw
+      this.configs['MASTER_PASSWORD'] = this.$utils.empty(val) ? '1f7744350d3dd3dc563421582f37f99e' : this.$utils.md5(val)
     }
   },
   async fetch () {
