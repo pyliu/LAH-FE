@@ -37,7 +37,7 @@
               </div>
             </lah-help-modal>
           </div>
-          <b-link to="/expire" class="small my-auto"><lah-fa-icon icon="arrow-alt-circle-left" prefix="far">回全部列表</lah-fa-icon></b-link>
+          <b-link v-if="isAuthorized" to="/expire" class="small my-auto"><lah-fa-icon icon="arrow-alt-circle-left" prefix="far">回全部列表</lah-fa-icon></b-link>
           <lah-countdown-button
             ref="countdown"
             icon="sync-alt"
@@ -73,6 +73,9 @@ export default {
   },
   mixins: [expiryBase],
   computed: {
+    isAuthorized () {
+      return this.authority.isChief || this.authority.isAdmin || this.authority.isSuper
+    },
     nameId () {
       if (this.$route.params.id) {
         const array = this.$route.params.id.toUpperCase().split(' ')
