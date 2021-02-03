@@ -80,6 +80,7 @@ export default {
   head: {
     title: "即將逾期案件-桃園市地政局"
   },
+  middleware: [ 'expireAuth' ],
   mixins: [expiryBase],
   computed: {
     icon () { return this.isOverdueMode ? 'exclamation-triangle' : 'exclamation-circle' }
