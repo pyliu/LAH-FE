@@ -18,6 +18,7 @@
             <i class="fas fa-quote-right fa1"></i>
             <div>
               <h4 v-html="message"/>
+              <p class="mt-5">仍然有問題!? 可嘗試 <b-link @click="clearFECache" class="text-light"> <font-awesome-icon :icon="['fas', 'hand-sparkles']" /> 清除瀏覽器快取資料</b-link>。</p>
             </div>
           </div>
         </div>
@@ -40,11 +41,24 @@ export default {
     message () {
       return this.lastMessage || error.message
     }
+  },
+  methods: {
+    clearFECache () {
+      this.confirm('請確認要清除快取資料？').then((ans) => {
+        ans && this.clearCache() && this.notify('清除完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
+      })
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.bottom {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
