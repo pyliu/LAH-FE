@@ -5,14 +5,10 @@
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
             <div class="my-auto">錯誤訊息</div>
-            <lah-button icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明"/>
           </div>
           <div></div>
         </div>
       </lah-transition>
-      <lah-help-modal :modal-id="'help-modal'">
-        <lah-button block icon="exclamation-circle" variant="danger"> 本頁面將顯示錯誤訊息</lah-button>
-      </lah-help-modal>
     </lah-header>
     <b-container fluid v-cloak>
       <div class="text-center">
