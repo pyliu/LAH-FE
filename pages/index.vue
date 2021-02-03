@@ -68,7 +68,6 @@ a {
 
 .container {
   margin: auto;
-  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -82,8 +81,9 @@ a {
 .b-card-container {
 	display: flex;
 	flex-wrap: wrap;
-  height: 50vh;
+  height: 40vh;
   align-content: flex-start;
+  margin-bottom: 1rem;
   .b-card-group {
     height: 45%;
   }
