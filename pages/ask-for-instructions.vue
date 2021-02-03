@@ -73,8 +73,7 @@ export default {
     committed: false,
     cachedMs: 60 * 60 * 1000,
     forceReload: false,
-    months: 3,
-    days: 92,
+    months: 1,
     fields: [
       {
         key: "請示燈號",
@@ -119,12 +118,10 @@ export default {
   }),
   computed: {
     queryCount() { return this.bakedData.length },
-    cacheKey() { return `reg_cancel_ask_case` },
-    daysText () { return `${this.days} 天內`}
+    cacheKey() { return `reg_cancel_ask_case` }
   },
   watch: {
     months (val) {
-      this.days = Math.ceil(365 / 12 * val)
       this.reloadDebounced()
     }
   },
@@ -136,7 +133,7 @@ export default {
           .post(this.$consts.API.JSON.PREFETCH, {
             type: 'reg_cancel_ask_case',
             reload: this.forceReload,
-            days: this.days
+            days: Math.ceil(365 / 12 * this.months) // calculate days by months
           })
           .then(({ data }) => {
             this.bakedData = data.baked || []
