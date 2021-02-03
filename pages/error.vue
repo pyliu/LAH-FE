@@ -17,7 +17,7 @@
           <div class="text">
             <i class="fas fa-quote-right fa1"></i>
             <div>
-              <h4>{{ lastMessage }}</h4>
+              <h4 v-html="lastMessage"/>
             </div>
           </div>
         </div>
