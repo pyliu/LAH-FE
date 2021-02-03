@@ -56,6 +56,7 @@ Vue.mixin({
       return this.svr ? (this.svr.config ? this.svr.config.site : 'HB') : 'HB'
     },
     svr () { return this.$store.getters.svr },
+    lastMessage () { return this.$store.getters.lastMessage },
     config () {
       return this.svr ? this.svr.config : false
     },

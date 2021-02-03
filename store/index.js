@@ -16,29 +16,42 @@ const logerror = (error) => {
   }
   console.error(error.config)
 }
-
-const logtimestamp = (message) => {
+const timestamp = () => {
   // e.g. 2020-12-03 10:23:00
   const now = new Date()
-  const timestamp = now.getFullYear() + '-' +
+  return now.getFullYear() + '-' +
     ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
     ('0' + now.getDate()).slice(-2) + ' ' +
     ('0' + now.getHours()).slice(-2) + ':' +
     ('0' + now.getMinutes()).slice(-2) + ':' +
     ('0' + now.getSeconds()).slice(-2)
-  console.log(`${timestamp} ${message}`)
+}
+const logtimestamp = (message) => {
+  const ts = timestamp()
+  console.log(`${ts} ${message}`)
 }
 
 const state = () => ({
   ip: '0.0.0.0',
   svr: null,
+  lastMessage: '',
   toastCounter: 0
 })
 
 const getters = {
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
-  svr: state => state.svr
+  svr: state => state.svr,
+  lastMessage: state => state.lastMessage
+}
+
+// only sync operation
+const mutations = {
+  ip (state, ip) { state.ip = ip },
+  svr (state, obj) { state.svr = obj },
+  lastMessage (state, string) { state.lastMessage = string },
+  admin (state, flag) { state.svr.config.authority.isAdmin = flag },
+  addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 
 // support async operation
@@ -67,14 +80,6 @@ const actions = {
       logtimestamp(`${getters.ip} connected.`)
     })
   }
-}
-
-// only sync operation
-const mutations = {
-  ip (state, ip) { state.ip = ip },
-  svr (state, obj) { state.svr = obj },
-  admin (state, flag) { state.svr.config.authority.isAdmin = flag },
-  addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 
 export default {
