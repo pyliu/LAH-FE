@@ -17,7 +17,7 @@
           <div class="text">
             <i class="fas fa-quote-right fa1"></i>
             <div>
-              <h4 v-html="lastMessage"/>
+              <h4 v-html="message"/>
             </div>
           </div>
         </div>
@@ -31,9 +31,14 @@ export default {
   head: {
     title: '發生錯誤-桃園市地政局'
   },
-  asyncData ({ store, redirect}) {
-    if (store.getters.lastMessage === '') {
+  asyncData ({ store, redirect, error}) {
+    if (store.getters.lastMessage === '' && error.message === undefined) {
       redirect('/')
+    }
+  },
+  computed: {
+    message () {
+      return this.lastMessage || error.message
     }
   }
 }
@@ -70,8 +75,8 @@ export default {
     width: 100%;
     height: 100%;
     background: transparent;
-    border-top: 20px solid rgb(255, 98, 98);
-    border-left: 20px solid rgb(255, 98, 98);
+    border-top: 20px solid rgb(56, 58, 223);
+    border-left: 20px solid rgb(56, 58, 223);
     box-sizing: border-box;
   }
   &:after {
@@ -81,8 +86,8 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    border-bottom: 20px solid rgb(255, 98, 98);
-    border-right: 20px solid rgb(255, 98, 98);
+    border-bottom: 20px solid rgb(56, 58, 223);
+    border-right: 20px solid rgb(56, 58, 223);
     box-sizing: border-box;
   }
   .fas {
@@ -90,7 +95,7 @@ export default {
     height: 50px;
     width: 50px;
     line-height: 50px !important;
-    background-color: rgb(255, 98, 98);
+    background-color: rgb(56, 58, 223);
     // color: #2C3A47;
     color: #FFF;
   }
