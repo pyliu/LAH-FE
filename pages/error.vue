@@ -2,9 +2,9 @@
   <div v-cloak>
     <lah-header>
       <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
+        <div class="d-flex justify-content-between w-100 my-auto">
           <div class="d-flex">
-            <div class="my-auto">錯誤訊息</div>
+            <lah-fa-icon append icon="exclamation" variant="danger">錯誤訊息</lah-fa-icon>
           </div>
           <div></div>
         </div>
