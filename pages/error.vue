@@ -15,7 +15,7 @@
         <div class="box">
           <i class="fas fa-exclamation-circle fa2"></i>
           <div class="text">
-            <i class="fas fa-quote-right fa1"></i>
+            <i class="fas fa-exclamation-triangle fa1"></i>
             <div>
               <h4 v-html="message"/>
               <p class="mt-5">仍然有問題!? 可嘗試 <b-link @click="clearFECache" class="text-light"> <font-awesome-icon :icon="['fas', 'hand-sparkles']" /> 清除瀏覽器快取資料</b-link>。</p>
@@ -89,8 +89,8 @@ export default {
     width: 100%;
     height: 100%;
     background: transparent;
-    border-top: 20px solid rgb(56, 58, 223);
-    border-left: 20px solid rgb(56, 58, 223);
+    border-top: 20px solid rgb(211, 40, 40);
+    border-left: 20px solid rgb(211, 40, 40);
     box-sizing: border-box;
   }
   &:after {
@@ -100,8 +100,8 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    border-bottom: 20px solid rgb(56, 58, 223);
-    border-right: 20px solid rgb(56, 58, 223);
+    border-bottom: 20px solid rgb(211, 40, 40);
+    border-right: 20px solid rgb(211, 40, 40);
     box-sizing: border-box;
   }
   .fas {
@@ -109,7 +109,7 @@ export default {
     height: 50px;
     width: 50px;
     line-height: 50px !important;
-    background-color: rgb(56, 58, 223);
+    background-color: rgb(211, 40, 40);
     // color: #2C3A47;
     color: #FFF;
   }
