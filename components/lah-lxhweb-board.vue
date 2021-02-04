@@ -282,7 +282,6 @@ export default {
     }).catch((err) => {
       this.$utils.error(err)
     }).finally(() => {
-      this.ping()
     })
     // mock data
     this.offices = [
@@ -295,6 +294,9 @@ export default {
       { SITE: "HG", UPDATE_DATETIME: this.randDate() },
       { SITE: "HH", UPDATE_DATETIME: this.randDate() }
     ]
+  },
+  mounted () {
+    this.ping()
   },
   beforeDestroy () {
     clearTimeout(this.pingTimer)
