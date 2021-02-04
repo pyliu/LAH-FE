@@ -89,7 +89,8 @@ Vue.mixin({
     apiSvrHttpUrl () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     },
-    toastCounter () { return this.$store.getters.toastCounter }
+    toastCounter () { return this.$store.getters.toastCounter },
+    xapMap () { return this.$store.getters.xapMap }
   },
   methods: {
     $,  // jQuery '$',

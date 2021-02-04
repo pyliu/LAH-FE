@@ -104,15 +104,15 @@
         </NuxtLink>
       </li>
       <li v-if="isAuthorized">
-        <NuxtLink to="/stats">
-          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
-          統計看板
+        <NuxtLink to="/admin/lxhweb">
+          <font-awesome-icon :icon="['fas', 'tachometer-alt']" size="lg" />
+          同步異動監控
         </NuxtLink>
       </li>
       <li v-if="isAuthorized">
-        <NuxtLink to="/playground">
-          <font-awesome-icon :icon="['fas', 'charging-station']" size="lg" />
-          測試
+        <NuxtLink to="/stats">
+          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
+          統計看板
         </NuxtLink>
       </li>
       <li><hr/></li>
