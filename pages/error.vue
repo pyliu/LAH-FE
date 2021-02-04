@@ -4,7 +4,7 @@
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100 my-auto">
           <div class="d-flex">
-            <lah-fa-icon append icon="exclamation" variant="danger">錯誤訊息</lah-fa-icon>
+            <lah-fa-icon append regular icon="comment-dots" variant="danger">錯誤訊息</lah-fa-icon>
           </div>
           <div></div>
         </div>
