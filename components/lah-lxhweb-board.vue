@@ -176,6 +176,7 @@ export default {
     },
     ping() {
       this.isBusy = true
+      clearTimeout(this.pingTimer)
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: "ping",
         ip: this.ip,
@@ -201,7 +202,6 @@ export default {
       })
     },
     pingNextTime () {
-      clearTimeout(this.pingTimer)
       this.pingTimer = this.timeout(() => this.ping(), this.pingInterval)
     },
     reload() {
