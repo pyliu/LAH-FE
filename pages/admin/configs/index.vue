@@ -245,7 +245,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({LXHWEB_PING_INTERVAL: configs['PING_INTERVAL_SECONDS']})"
+                  @click="quick({PING_INTERVAL_SECONDS: configs['PING_INTERVAL_SECONDS']})"
                   no-icon-gutter
                 />
               </template>
