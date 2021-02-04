@@ -231,30 +231,22 @@
             <template #header>
               <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="server">同步異動資料庫連線設定</lah-fa-icon></h6>
             </template>
-            <b-input-group size="sm" prepend="登入帳密">
+            <b-input-group size="sm" prepend="輪詢間隔">
               <b-input
-                placeholder=""
-                title="登入DB帳號"
-                class="mr-1"
+                type="number"
+                min="5"
+                placeholder="300"
+                title="PING間隔時間(秒)"
+                v-model="configs['PING_INTERVAL_SECONDS']"
                 trim
-                disabled
-              />
-              /
-              <b-input
-                placeholder=""
-                type="password"
-                title="登入DB密碼"
-                class="ml-1"
-                trim
-                disabled
               />
               <template #append>
                 <lah-button
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
+                  @click="quick({LXHWEB_PING_INTERVAL: configs['PING_INTERVAL_SECONDS']})"
                   no-icon-gutter
-                  disabled
                 />
               </template>
             </b-input-group>
