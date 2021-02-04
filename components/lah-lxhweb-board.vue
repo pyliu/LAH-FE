@@ -25,43 +25,25 @@
             no-border
             action="cycle"
             title="重新讀取"
-            @click="pingDebounced"
+            @click="ping"
           />
         </b-button-group>
       </div>
     </template>
     <div v-if="alive" class="h-100">
-      <!-- <div v-if="type == 'light'" :id="container_id" class="grids">
-        <div v-for="entry in offices" class="grid-4col-2row">
+      <div class="offices">
+        <div v-for="entry in offices" :key="entry.SITE" class="office center">
           <lah-fa-icon
             size="lg"
             icon="circle"
             :variant="light(entry)"
             :action="action(entry)"
-            v-b-popover.hover.focus.top="
-              '最後更新時間: ' + entry.UPDATE_DATETIME
-            "
-            >{{ name(entry) }}</lah-fa-icon
+            v-b-popover.hover.focus.top="'最後更新時間: ' + entry.UPDATE_DATETIME"
           >
+            {{ name(entry) }}
+          </lah-fa-icon>
         </div>
       </div>
-      <div v-else :id="container_id">
-        <div
-          v-if="showHeadLight"
-          class="d-flex justify-content-between mx-auto"
-        >
-          <lah-fa-icon
-            v-for="entry in offices"
-            icon="circle"
-            :variant="light(entry)"
-            :action="action(entry)"
-            v-b-popover.hover.focus.top="
-              '最後更新時間: ' + entry.UPDATE_DATETIME
-            "
-            >{{ name(entry) }}</lah-fa-icon
-          >
-        </div>
-      </div> -->
     </div>
     <h5 v-else class="font-weight-bold not-reachable">
       <lah-fa-icon
@@ -79,8 +61,7 @@
 <script>
 export default {
   props: {
-    server: { type: String, require: true },
-    bypassPing: { type: Boolean, default: false }
+    server: { type: String, require: true }
   },
   fetchOnServer: true,
   data: () => ({
@@ -89,7 +70,7 @@ export default {
     pingMessage: '',
     offices: [],
     pingTimer: null,
-    brokenTableRaw: null
+    brokenTableRaw: []
   }),
   computed: {
     ip() {
@@ -147,11 +128,6 @@ export default {
       return this.$utils.empty(this.configs) ? 5 * 60 * 1000 : parseInt(this.configs['PING_INTERVAL_SECONDS']) * 1000
     }
   },
-  watch: {
-    offices (val) {
-      this.$utils.log(val)
-    }
-  },
   methods: {
     randDate() {
       let rand_date = new Date(+new Date() - this.$utils.rand(45 * 60 * 1000))
@@ -199,38 +175,34 @@ export default {
       }
     },
     ping() {
-      if (!this.bypassPing) {
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: "ping",
-          ip: this.ip,
-          port: 1521, // db port
-        }).then(({ data }) => {
-          this.pingLatency = data.latency
-          this.pingMessage = data.message
-          if (this.$utils.statusCheck(data.status)) {
-            // array of {SITE: 'HB', UPDATE_DATETIME: '2020-10-08 21:47:00'}
-            this.reload()
-            this.checkBrokenTable()
-          } else {
-            this.notify({
-              title: "PING回應值",
-              message: `${data.message}`,
-              type: "warning",
-            })
-          }
-        })
-        .catch((err) => {
-          this.error = err
-        }).finally(() => {
-          this.isBusy = false
-          this.pingNextTime()
-        })
-      }
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: "ping",
+        ip: this.ip,
+        port: 1521, // db port
+      }).then(({ data }) => {
+        this.pingLatency = data.latency
+        this.pingMessage = data.message
+        if (this.$utils.statusCheck(data.status)) {
+          // array of {SITE: 'HB', UPDATE_DATETIME: '2020-10-08 21:47:00'}
+          this.reload()
+        } else {
+          this.notify({
+            title: "PING回應值",
+            message: `${data.message}`,
+            type: "warning",
+          })
+        }
+      }).catch((err) => {
+        this.error = err
+      }).finally(() => {
+        this.isBusy = false
+        this.pingNextTime()
+      })
     },
-    pingDebounced () {},  // placeholder for debounced ping
     pingNextTime () {
       clearTimeout(this.pingTimer)
-      this.pingTimer = this.timeout(() => this.pingDebounced(), this.pingInterval)
+      this.pingTimer = this.timeout(() => this.ping(), this.pingInterval)
     },
     reload() {
       if (this.alive) {
@@ -252,17 +224,17 @@ export default {
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
+          this.checkBrokenTable()
         })
       }
     },
     checkBrokenTable() {
-      this.brokenTableRaw = []
       if (this.alive) {
         this.$axios.post(this.$consts.API.JSON.LXHWEB, {
           type: "lxhweb_broken_table",
           site: this.server,
         }).then(({ data }) => {
-          if (data.status != this.$consts.XHR_STATUS_CODE.SUCCESS_WITH_NO_RECORD) {
+          if (data.data_count) {
             // found
             this.alert(`<i class="fa fa-exclamation-triangle fa-lg ld ld-beat"></i> 找到 ${data.data_count} 筆損毀表格`, {
               subtitle: this.server,
@@ -270,6 +242,8 @@ export default {
               delay: 15 * 1000
             })
             this.brokenTableRaw = data.raw
+          } else {
+            this.brokenTableRaw = []
           }
         }).catch((err) => {
           this.$utils.error(err)
@@ -322,8 +296,8 @@ export default {
       { SITE: "HH", UPDATE_DATETIME: this.randDate() }
     ]
   },
-  created() {
-    this.pingDebounced = this.$utils.debounce(this.ping, 250)
+  beforeDestroy () {
+    clearTimeout(this.pingTimer)
   }
 }
 </script>
@@ -333,5 +307,19 @@ export default {
   left: 30%;
   top: 50%;
   position: absolute;
+}
+.offices {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  align-content: flex-start;
+  .office {
+    width: 24%;
+    height: 50%;
+    border: 1px solid gray;
+    border-radius: 15px;
+    margin: 0 calc(0.5%) calc(0.5%) 0;
+  }
 }
 </style>

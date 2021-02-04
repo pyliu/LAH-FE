@@ -41,6 +41,6 @@ export default {
 
 <style lang="scss" scoped>
 .half-vp {
-    height: 42.5vh;
+    height: 42.5vh !important;
 }
 </style>

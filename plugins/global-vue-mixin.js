@@ -309,7 +309,13 @@ Vue.mixin({
     },
     alert (message, opts = {}) {
       if (!this.$utils.empty(message)) {
-        opts.pos = (opts && opts.pos === 'bottom') ? 'bf' : 'tf'
+        if (opts && opts.pos === 'bottom') {
+          opts.pos = 'bf'
+        } else if (opts && opts.pos === 'top') {
+          opts.pos = 'tf'
+        } else {
+          opts.pos = 'tl'
+        }
         const merged = Object.assign({
           title: '錯誤',
           autoHideDelay: 10000,
