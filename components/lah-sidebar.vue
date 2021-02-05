@@ -115,6 +115,12 @@
           統計看板
         </NuxtLink>
       </li>
+      <li v-if="isAuthorized">
+        <NuxtLink to="/playground">
+          <font-awesome-icon :icon="['fas', 'question']" size="lg" />
+          測試
+        </NuxtLink>
+      </li>
       <li><hr/></li>
       <li v-if="!isAuthorized">
         <NuxtLink to="/login">
