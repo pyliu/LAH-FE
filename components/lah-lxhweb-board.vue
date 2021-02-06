@@ -307,11 +307,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.not-reachable {
-  position: relative;
-  left: 25%;
-  top: 50%;
-}
 .offices {
   display: flex;
   flex-wrap: wrap;
