@@ -30,12 +30,12 @@
     </lah-header>
     <b-container fluid v-cloak>
       <b-card-group deck class="row">
-        <lah-lxhweb-board server="L1HWEB"/>
-        <lah-lxhweb-board server="L2HWEB"/>
+        <lah-lxhweb-board ref="lxhweb1" server="L1HWEB"/>
+        <lah-lxhweb-board ref="lxhweb2" server="L2HWEB"/>
       </b-card-group>
       <b-card-group deck class="row">
-        <lah-lxhweb-board server="L1HWEB_Alt"/>
-        <lah-lxhweb-board server="L3HWEB"/>
+        <lah-lxhweb-board ref="lxhweb3" server="L1HWEB_Alt"/>
+        <lah-lxhweb-board ref="lxhweb4" server="L3HWEB"/>
       </b-card-group>
     </b-container>
   </div>
@@ -50,6 +50,10 @@ export default {
   fetchOnServer: true,
   methods: {
     reload () {
+      this.$refs.lxhweb1.ping()
+      this.$refs.lxhweb2.ping()
+      this.$refs.lxhweb3.ping()
+      this.$refs.lxhweb4.ping()
     }
   }
 }

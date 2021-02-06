@@ -195,7 +195,7 @@ export default {
           //   message: `${data.message}`,
           //   type: "warning",
           // })
-          this.$utils.warn(data.message)
+          this.$utils.warn('PING回應值', data.message)
         }
       }).catch((err) => {
         this.error = err
@@ -217,11 +217,12 @@ export default {
             // array of {SITE: 'HB', UPDATE_DATETIME: '2020-10-08 21:47:00'}
             this.offices = data.raw
           } else {
-            this.notify(`${data.message}`, {
-              title: '同步異動主機狀態檢視',
-              subtitle: this.server,
-              type: 'warning'
-            })
+            // this.notify(`${data.message}`, {
+            //   title: '同步異動主機狀態檢視',
+            //   subtitle: this.server,
+            //   type: 'warning'
+            // })
+            this.$utils.warn('同步異動主機狀態檢視', data.message)
           }
         }).catch((err) => {
           this.$utils.error(err)
