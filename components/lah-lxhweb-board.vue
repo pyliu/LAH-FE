@@ -190,11 +190,12 @@ export default {
           // array of {SITE: 'HB', UPDATE_DATETIME: '2020-10-08 21:47:00'}
           this.reload()
         } else {
-          this.notify({
-            title: "PING回應值",
-            message: `${data.message}`,
-            type: "warning",
-          })
+          // this.notify({
+          //   title: "PING回應值",
+          //   message: `${data.message}`,
+          //   type: "warning",
+          // })
+          this.$utils.warn(data.message)
         }
       }).catch((err) => {
         this.error = err

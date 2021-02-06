@@ -4,10 +4,22 @@
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100 my-auto">
           <div class="d-flex">
-            <div>同步異動資料庫監控</div>
+            <div class="my-auto">同步異動資料庫監控</div>
             <lah-button icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明"/>
           </div>
-          <div></div>
+          <div>
+            <lah-button
+              icon="sync-alt"
+              action="ld-cycle"
+              size="lg"
+              @click="reload"
+              :disabled="isBusy"
+              :busy="isBusy"
+              title="全部重新讀取"
+              variant="outline-secondary"
+              no-icon-gutter
+            />
+          </div>
         </div>
       </lah-transition>
       <lah-help-modal :modal-id="'help-modal'" size="md">
@@ -35,7 +47,11 @@ export default {
     title: '同步異動資料庫監控-桃園市地政局'
   },
   middleware: [ 'isAdmin' ],
-  fetchOnServer: true
+  fetchOnServer: true,
+  methods: {
+    reload () {
+    }
+  }
 }
 </script>
 

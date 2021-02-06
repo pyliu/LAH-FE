@@ -14,7 +14,7 @@
               </div>
             </lah-help-modal>
           </div>
-          <div class="d-flex ">
+          <div class="d-flex">
             <lah-countdown-button
               ref="countdown"
               icon="sync-alt"
