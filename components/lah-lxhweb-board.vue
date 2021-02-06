@@ -45,16 +45,18 @@
         </div>
       </div>
     </div>
-    <h5 v-else class="font-weight-bold not-reachable">
-      <lah-fa-icon
-        icon="exclamation-triangle"
-        szie="lg"
-        variant="danger"
-        action="breath"
-      >
-        {{ ip }} 目前無法連線
-      </lah-fa-icon>
-    </h5>
+    <div v-else class="center h-100">
+      <h5 class="font-weight-bold">
+        <lah-fa-icon
+          icon="exclamation-triangle"
+          szie="lg"
+          variant="danger"
+          action="breath"
+        >
+          {{ ip }} 目前無法連線
+        </lah-fa-icon>
+      </h5>
+    </div>
   </b-card>
 </template>
 
@@ -306,9 +308,9 @@ export default {
 
 <style lang="scss" scoped>
 .not-reachable {
-  left: 30%;
+  position: relative;
+  left: 25%;
   top: 50%;
-  position: absolute;
 }
 .offices {
   display: flex;
