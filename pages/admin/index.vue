@@ -1,33 +1,24 @@
-<template>
-  <div v-cloak>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">管理主面版</div>
-            <lah-button icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明"/>
-          </div>
-          <div></div>
-        </div>
-      </lah-transition>
-      <lah-help-modal :modal-id="'help-modal'" size="md">
-        請選擇下方功能區塊進行管理
-        <hr/>
-        <b-card-group deck>
-          <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="rubber-h" class="pt-2">使用者資訊管理</lah-index-card-link>
-          <lah-index-card-link :icon="['fas', 'user-tag']" to="/admin/roles" no-body size="2x" icon-variant="success" action="wander-h" class="pt-2">使用者角色管理</lah-index-card-link>
-          <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="rubber-v" class="pt-2">系統參數設定</lah-index-card-link>
-        </b-card-group>
-      </lah-help-modal>
-    </lah-header>
-    <b-container fluid v-cloak>
-      <b-card-group deck class="vh-50">
-        <lah-index-card-link :icon="['fas', 'users-cog']" to="/admin/users" no-body size="5x" icon-variant="primary" action="rubber-h">使用者資訊管理</lah-index-card-link>
-        <lah-index-card-link :icon="['fas', 'user-tag']" to="/admin/roles" no-body size="5x" icon-variant="success" action="wander-h">使用者角色管理</lah-index-card-link>
-        <lah-index-card-link :icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="rubber-v">系統參數設定</lah-index-card-link>
-      </b-card-group>
-    </b-container>
-  </div>
+<template lang="pug">
+  div(v-cloak)
+    lah-header
+      lah-transition(appear)
+        div(class="d-flex justify-content-between w-100")
+          div(class="d-flex")
+            div(class="my-auto") 管理主面版
+            lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+          div
+      lah-help-modal(:modal-id="'help-modal'" size="md")
+        |請選擇下方功能區塊進行管理
+        hr
+        b-card-group(deck)
+          lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="rubber-h" class="pt-2") 使用者資訊管理
+          lah-index-card-link(:icon="['fas', 'user-tag']" to="/admin/roles" no-body size="2x" icon-variant="success" action="wander-h" class="pt-2") 使用者角色管理
+          lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="rubber-v" class="pt-2") 系統參數設定
+    b-container(fluid v-cloak)
+      b-card-group(deck class="vh-50")
+        lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="5x" icon-variant="primary" action="rubber-h") 使用者資訊管理
+        lah-index-card-link(:icon="['fas', 'user-tag']" to="/admin/roles" no-body size="5x" icon-variant="success" action="wander-h") 使用者角色管理
+        lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="rubber-v") 系統參數設定
 </template>
 
 <script>
