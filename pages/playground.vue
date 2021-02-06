@@ -1,5 +1,6 @@
 <template lang="pug">
   div
+    lah-header
     span test
     lah-button( size="lg" )
     <lah-fa-icon icon="question"></lah-fa-icon>

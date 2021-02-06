@@ -117,7 +117,7 @@
       </li>
       <li v-if="isAuthorized">
         <NuxtLink to="/playground">
-          <font-awesome-icon :icon="['fas', 'question']" size="lg" />
+          <font-awesome-icon :icon="['fab', 'playstation']" size="lg" />
           測試
         </NuxtLink>
       </li>

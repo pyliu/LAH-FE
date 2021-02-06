@@ -17,11 +17,11 @@
       </lah-help-modal>
     </lah-header>
     <b-container fluid v-cloak>
-      <b-card-group deck class="half-vp mb-4">
+      <b-card-group deck class="row mb-4">
         <lah-lxhweb-board server="L1HWEB"/>
         <lah-lxhweb-board server="L2HWEB"/>
       </b-card-group>
-      <b-card-group deck class="half-vp">
+      <b-card-group deck class="row">
         <lah-lxhweb-board server="L1HWEB_Alt"/>
         <lah-lxhweb-board server="L3HWEB"/>
       </b-card-group>
@@ -40,7 +40,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.half-vp {
-    height: 42.5vh !important;
+.row {
+    height: 40vh !important;
 }
 </style>
