@@ -1,6 +1,8 @@
 <template lang="pug">
   div
     span test
+    lah-button( size="lg" )
+    <lah-fa-icon icon="question"></lah-fa-icon>
 </template>
 
 <script>
