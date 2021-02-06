@@ -17,7 +17,7 @@
       </lah-help-modal>
     </lah-header>
     <b-container fluid v-cloak>
-      <b-card-group deck class="row mb-4">
+      <b-card-group deck class="row">
         <lah-lxhweb-board server="L1HWEB"/>
         <lah-lxhweb-board server="L2HWEB"/>
       </b-card-group>
@@ -41,6 +41,9 @@ export default {
 
 <style lang="scss" scoped>
 .row {
-    height: 40vh !important;
+  height: 42.5vh !important;
+}
+.card-deck .card {
+  margin: 5px;
 }
 </style>
