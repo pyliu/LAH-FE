@@ -14,11 +14,19 @@
           lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="rubber-h" class="pt-2") 使用者資訊管理
           lah-index-card-link(:icon="['fas', 'user-tag']" to="/admin/roles" no-body size="2x" icon-variant="success" action="wander-h" class="pt-2") 使用者角色管理
           lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="rubber-v" class="pt-2") 系統參數設定
+        b-card-group(deck style="margin-top: 15px;")
+          lah-index-card-link(:icon="['fas', 'th-large']" to="/admin/lxhweb" no-body size="2x" icon-variant="info" action="flip" class="pt-2") 系統參數設定
+          b-card
+          b-card
     b-container(fluid v-cloak)
-      b-card-group(deck class="vh-50")
+      b-card-group(deck class="row")
         lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="5x" icon-variant="primary" action="rubber-h") 使用者資訊管理
         lah-index-card-link(:icon="['fas', 'user-tag']" to="/admin/roles" no-body size="5x" icon-variant="success" action="wander-h") 使用者角色管理
         lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="rubber-v") 系統參數設定
+      b-card-group(deck class="row")
+        lah-index-card-link(class="card-link" :icon="['fas', 'th-large']" to="/admin/lxhweb" no-body size="5x" icon-variant="info" action="flip") 同步異動監控
+        b-card
+        b-card
 </template>
 
 <script>
@@ -32,9 +40,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.vh-50 {
-  height: 50vh;
-  margin-top: 15vh;
+.row {
+  height: calc((100vh - 90px) / 2.5);
+  margin-bottom: 30px;
   .card:hover {
     background-color: rgb(228, 222, 222)
   }
