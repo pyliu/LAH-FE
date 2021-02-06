@@ -15,7 +15,7 @@
           lah-index-card-link(:icon="['fas', 'user-tag']" to="/admin/roles" no-body size="2x" icon-variant="success" action="wander-h" class="pt-2") 使用者角色管理
           lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="rubber-v" class="pt-2") 系統參數設定
         b-card-group(deck style="margin-top: 15px;")
-          lah-index-card-link(:icon="['fas', 'th-large']" to="/admin/lxhweb" no-body size="2x" icon-variant="info" action="flip" class="pt-2") 系統參數設定
+          lah-index-card-link(:icon="['fas', 'tachometer-alt']" to="/admin/lxhweb" no-body size="2x" icon-variant="info" action="flip" class="pt-2") 系統參數設定
           b-card
           b-card
     b-container(fluid v-cloak)
@@ -24,7 +24,7 @@
         lah-index-card-link(:icon="['fas', 'user-tag']" to="/admin/roles" no-body size="5x" icon-variant="success" action="wander-h") 使用者角色管理
         lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="rubber-v") 系統參數設定
       b-card-group(deck class="row")
-        lah-index-card-link(class="card-link" :icon="['fas', 'th-large']" to="/admin/lxhweb" no-body size="5x" icon-variant="info" action="measure") 同步異動監控
+        lah-index-card-link(:icon="['fas', 'tachometer-alt']" to="/admin/lxhweb" no-body size="5x" icon-variant="info" action="measure") 同步異動監控
         b-card
         b-card
 </template>

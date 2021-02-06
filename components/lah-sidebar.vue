@@ -104,12 +104,6 @@
         </NuxtLink>
       </li>
       <li v-if="isAuthorized">
-        <NuxtLink to="/admin/lxhweb">
-          <font-awesome-icon :icon="['fas', 'tachometer-alt']" size="lg" />
-          同步異動監控
-        </NuxtLink>
-      </li>
-      <li v-if="isAuthorized">
         <NuxtLink to="/stats">
           <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
           統計看板
