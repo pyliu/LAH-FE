@@ -3,10 +3,10 @@
     lah-header
     .container: div
       section.fixed-title-height
-        lah-transition(appear): div(v-if="ready")
-          Logo
+        lah-transition(appear): div
+          lah-logo
           h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
-      lah-transition(appear): section.b-card-container(v-if="ready")
+      lah-transition(appear): section.b-card-container
         b-card-group.mb-4(deck)
           lah-index-card-link(:icon="['far', 'calendar-check']" to="/expire") 即將逾期案件
           lah-index-card-link(:icon="['far', 'sticky-note']" to="/expiry-of-announcement") 公告期滿案件
@@ -29,16 +29,10 @@ export default {
   head: {
     title: '桃園市地政智慧管控系統'
   },
-  data: () => ({
-    ready: false
-  }),
   async asyncData(nuxt) {
     // SSR: returned object will replace the data inside "data" before rendering
   },
-  watch: {},
-  methods: {},
   mounted () {
-    this.ready = true
     const ua = window.navigator.userAgent
     if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
       document.body.innerHTML = `<h1 style="color: red; text-align: center; font-weight: bold; margin-top: 5rem;">不支援IE瀏覽器，建議使用最新版本 Firefox 或 Chrome。</h1>`
@@ -48,13 +42,9 @@ export default {
 }
 </script>
 
-<style lang="scss">
-a {
-  color: var(--dark);
-}
-
+<style lang="scss" scoped>
 .container {
-  margin: auto;
+  margin-top: -75px;
   display: flex;
   justify-content: center;
   align-items: center;
