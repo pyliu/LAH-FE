@@ -1,5 +1,3 @@
-import isEmpty from 'lodash/isEmpty'
-
 const logerror = (error) => {
   if (error.response) {
     // The request was made and the server responded with a status code
@@ -72,8 +70,7 @@ const getters = {
   systemConfigs: state => state.systemConfigs,
   server: state => state.server,
   lastMessage: state => state.lastMessage,
-  xapMap: state => state.xapMap,
-  storeReady: state => !isEmpty(state.systemConfigs)
+  xapMap: state => state.xapMap
 }
 
 // only sync operation
