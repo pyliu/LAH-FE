@@ -139,9 +139,9 @@
         </a>
       </li>
       <li>
-        <b-link @click="clearFECache">
-          <font-awesome-icon :icon="['fas', 'hand-sparkles']" size="lg" />
-          清除瀏覽器端快取資料
+        <b-link @click="logout" title="清除瀏覽器端快取資料">
+          <font-awesome-icon :icon="['fas', 'sign-out-alt']" size="lg" />
+          登出
         </b-link>
       </li>
       <li><hr/></li>
@@ -175,9 +175,9 @@ export default {
     }
   },
   methods: {
-    clearFECache () {
-      this.confirm('請確認要清除快取資料？').then((ans) => {
-        ans && this.clearCache() && this.notify('清除完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
+    logout () {
+      this.confirm('請確認要登出並清除快取資料？').then((ans) => {
+        ans && this.clearCache() && this.notify('登出完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
       })
     },
     popup () {
