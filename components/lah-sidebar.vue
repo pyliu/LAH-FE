@@ -174,35 +174,6 @@ export default {
       return hours > 11 ? (hours > 17 ? '晚安' : '午安') : '早安'
     }
   },
-  async fetch () {
-    // just in case the server side query failed
-    if (this.$utils.empty(this.svr)) {
-      this.getCache('server-info').then((json) => {
-        if (json === false) {
-          if (this.ip === '0.0.0.0') {
-            this.$utils.warning('client ip is not ready ... wait 200ms to retry.')
-            // give a chance to wait ip ready in $store
-            this.timeout(() => this.$fetch(), 200)
-          } else {
-            this.isBusy = true
-            this.$axios.post(this.$consts.API.JSON.QUERY, {
-              type: 'svr',
-              client_ip: this.ip
-            }).then(({ data }) => {
-              this.$store.commit('svr', data)
-              this.setCache('server-info', data, 86400000) // cache for a day
-            }).catch((err) => {
-              this.$utils.error(err)
-            }).finally(() => {
-              this.isBusy = false
-            })
-          }
-        } else {
-          this.$store.commit('svr', json)
-        }
-      })
-    }
-  },
   methods: {
     clearFECache () {
       this.confirm('請確認要清除快取資料？').then((ans) => {

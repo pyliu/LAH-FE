@@ -1,19 +1,23 @@
+import isEmpty from 'lodash/isEmpty'
+
 export default function ({
     store,
     redirect
   }) {
+    const authority = store.getters.authority
     store.commit('lastMessage', '檢查使用者資訊')
-    // auth info not ready redirect to /
-    if (store.state.svr === null || store.state.svr.user === null) {
-      store.commit('lastMessage', `找不到 ${store.state.ip} 對應使用者資訊，請確認您的帳號已經建立。`)
-      return redirect('/error')
-    }
-    store.commit('lastMessage', '檢查使用者權限')
-    const authority = store.state.svr.config.authority
-    // not chief => redirect to personal page
-    if (!authority.isChief && !authority.isAdmin && !authority.isSuper) {
-      const myinfo = store.state.svr.user
-      return redirect(`/expire/${myinfo.name}%20${myinfo.id}`)
+    if (!authority.isAdmin && !authority.isSuper) {
+      // user info not found ... redirect to /error
+      if (isEmpty(store.getters.user)) {
+        store.commit('lastMessage', `找不到 ${store.getters.ip} 對應使用者資訊，請確認您的帳號已經建立。`)
+        return redirect('/error')
+      }
+      store.commit('lastMessage', '檢查是否有主管權限')
+      // not chief => redirect to personal page
+      if (!authority.isChief) {
+        const myinfo = store.getters.user
+        return redirect(`/expire/${myinfo.name}%20${myinfo.id}`)
+      }
     }
   }
   

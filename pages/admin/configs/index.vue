@@ -101,7 +101,7 @@
             <b-input-group size="sm" prepend="登入帳密">
               <b-input
                 placeholder="MOICAS"
-                v-model="configs['ORA_DB_USER']"
+                v-model="loadedConfigs['ORA_DB_USER']"
                 title="登入DB帳號"
                 class="mr-1"
                 trim
@@ -109,7 +109,7 @@
               /
               <b-input
                 type="password"
-                v-model="configs['ORA_DB_PASS']"
+                v-model="loadedConfigs['ORA_DB_PASS']"
                 title="登入DB密碼"
                 class="ml-1"
                 trim
@@ -119,7 +119,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({ORA_DB_USER: configs['ORA_DB_USER'], ORA_DB_PASS: configs['ORA_DB_PASS']})"
+                  @click="quick({ORA_DB_USER: loadedConfigs['ORA_DB_USER'], ORA_DB_PASS: loadedConfigs['ORA_DB_PASS']})"
                   no-icon-gutter
                 />
               </template>
@@ -127,10 +127,10 @@
             <b-input-group size="sm" prepend="主要ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.35.2"
-                v-model="configs['ORA_DB_HXWEB_IP']"
+                v-model="loadedConfigs['ORA_DB_HXWEB_IP']"
                 title="主資料庫IP"
                 class="mr-1"
-                :state="validateIp(configs['ORA_DB_HXWEB_IP'])"
+                :state="validateIp(loadedConfigs['ORA_DB_HXWEB_IP'])"
                 trim
               />
               :
@@ -139,10 +139,10 @@
                 min="1"
                 max="65535"
                 placeholder="1521"
-                v-model="configs['ORA_DB_HXWEB_PORT']"
+                v-model="loadedConfigs['ORA_DB_HXWEB_PORT']"
                 title="主資料庫PORT"
                 class="col-3 ml-1"
-                :state="validateNumber(configs['ORA_DB_HXWEB_PORT'])"
+                :state="validateNumber(loadedConfigs['ORA_DB_HXWEB_PORT'])"
                 trim
               />
               <template #append>
@@ -150,8 +150,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({ORA_DB_HXWEB_IP: configs['ORA_DB_HXWEB_IP'], ORA_DB_HXWEB_PORT: configs['ORA_DB_HXWEB_PORT']})"
-                  :disabled="ipNotOK(configs['ORA_DB_HXWEB_IP']) || numNotOK(configs['ORA_DB_HXWEB_PORT'])"
+                  @click="quick({ORA_DB_HXWEB_IP: loadedConfigs['ORA_DB_HXWEB_IP'], ORA_DB_HXWEB_PORT: loadedConfigs['ORA_DB_HXWEB_PORT']})"
+                  :disabled="ipNotOK(loadedConfigs['ORA_DB_HXWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_HXWEB_PORT'])"
                   no-icon-gutter
                 />
               </template>
@@ -159,10 +159,10 @@
             <b-input-group size="sm" prepend="備份ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.35.102"
-                v-model="configs['ORA_DB_BACKUP_IP']"
+                v-model="loadedConfigs['ORA_DB_BACKUP_IP']"
                 title="備份資料庫IP"
                 class="mr-1"
-                :state="validateIp(configs['ORA_DB_BACKUP_IP'])"
+                :state="validateIp(loadedConfigs['ORA_DB_BACKUP_IP'])"
                 trim
               />
               :
@@ -171,10 +171,10 @@
                 min="1"
                 max="65535"
                 placeholder="1521"
-                v-model="configs['ORA_DB_BACKUP_PORT']"
+                v-model="loadedConfigs['ORA_DB_BACKUP_PORT']"
                 title="備份資料庫PORT"
                 class="col-3 ml-1"
-                :state="validateNumber(configs['ORA_DB_BACKUP_PORT'])"
+                :state="validateNumber(loadedConfigs['ORA_DB_BACKUP_PORT'])"
                 trim
               />
               <template #append>
@@ -182,8 +182,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({ORA_DB_BACKUP_IP: configs['ORA_DB_BACKUP_IP'], ORA_DB_BACKUP_PORT: configs['ORA_DB_BACKUP_PORT']})"
-                  :disabled="ipNotOK(configs['ORA_DB_BACKUP_IP']) || numNotOK(configs['ORA_DB_BACKUP_PORT'])"
+                  @click="quick({ORA_DB_BACKUP_IP: loadedConfigs['ORA_DB_BACKUP_IP'], ORA_DB_BACKUP_PORT: loadedConfigs['ORA_DB_BACKUP_PORT']})"
+                  :disabled="ipNotOK(loadedConfigs['ORA_DB_BACKUP_IP']) || numNotOK(loadedConfigs['ORA_DB_BACKUP_PORT'])"
                   no-icon-gutter
                 />
               </template>
@@ -191,10 +191,10 @@
             <b-input-group size="sm" prepend="測試ＤＢ" class="my-1">
               <b-input
                 placeholder="192.168.27.2"
-                v-model="configs['ORA_DB_HXT_IP']"
+                v-model="loadedConfigs['ORA_DB_HXT_IP']"
                 title="測試資料庫IP"
                 class="mr-1"
-                :state="validateIp(configs['ORA_DB_HXT_IP'])"
+                :state="validateIp(loadedConfigs['ORA_DB_HXT_IP'])"
                 trim
               />
               :
@@ -203,10 +203,10 @@
                 min="1"
                 max="65535"
                 placeholder="1521"
-                v-model="configs['ORA_DB_HXT_PORT']"
+                v-model="loadedConfigs['ORA_DB_HXT_PORT']"
                 title="測試資料庫PORT"
                 class="col-3 ml-1"
-                :state="validateNumber(configs['ORA_DB_HXT_PORT'])"
+                :state="validateNumber(loadedConfigs['ORA_DB_HXT_PORT'])"
                 trim
               />
               <template #append>
@@ -214,8 +214,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({ORA_DB_HXT_IP: configs['ORA_DB_HXT_IP'], ORA_DB_HXT_PORT: configs['ORA_DB_HXT_PORT']})"
-                  :disabled="ipNotOK(configs['ORA_DB_HXT_IP']) || numNotOK(configs['ORA_DB_HXT_PORT'])"
+                  @click="quick({ORA_DB_HXT_IP: loadedConfigs['ORA_DB_HXT_IP'], ORA_DB_HXT_PORT: loadedConfigs['ORA_DB_HXT_PORT']})"
+                  :disabled="ipNotOK(loadedConfigs['ORA_DB_HXT_IP']) || numNotOK(loadedConfigs['ORA_DB_HXT_PORT'])"
                   no-icon-gutter
                 />
               </template>
@@ -237,7 +237,7 @@
                 min="5"
                 placeholder="300"
                 title="PING間隔時間(秒)"
-                v-model="configs['PING_INTERVAL_SECONDS']"
+                v-model="loadedConfigs['PING_INTERVAL_SECONDS']"
                 trim
               />
               <template #append>
@@ -245,7 +245,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({PING_INTERVAL_SECONDS: configs['PING_INTERVAL_SECONDS']})"
+                  @click="quick({PING_INTERVAL_SECONDS: loadedConfigs['PING_INTERVAL_SECONDS']})"
                   no-icon-gutter
                 />
               </template>
@@ -253,10 +253,10 @@
             <b-input-group size="sm" prepend="Ｌ１ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.33.2"
-                v-model="configs['ORA_DB_L1HWEB_IP']"
+                v-model="loadedConfigs['ORA_DB_L1HWEB_IP']"
                 title="L1HWEB 資料庫IP"
                 class="mr-1"
-                :state="validateIp(configs['ORA_DB_L1HWEB_IP'])"
+                :state="validateIp(loadedConfigs['ORA_DB_L1HWEB_IP'])"
                 trim
               />
               :
@@ -265,10 +265,10 @@
                 min="1"
                 max="65535"
                 placeholder="1521"
-                v-model="configs['ORA_DB_L1HWEB_PORT']"
+                v-model="loadedConfigs['ORA_DB_L1HWEB_PORT']"
                 title="L1HWEB 資料庫PORT"
                 class="col-3 ml-1"
-                :state="validateNumber(configs['ORA_DB_L1HWEB_PORT'])"
+                :state="validateNumber(loadedConfigs['ORA_DB_L1HWEB_PORT'])"
                 trim
               />
               <template #append>
@@ -276,8 +276,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({ORA_DB_L1HWEB_IP: configs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: configs['ORA_DB_L1HWEB_PORT']})"
-                  :disabled="ipNotOK(configs['ORA_DB_L1HWEB_IP']) || numNotOK(configs['ORA_DB_L1HWEB_PORT'])"
+                  @click="quick({ORA_DB_L1HWEB_IP: loadedConfigs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: loadedConfigs['ORA_DB_L1HWEB_PORT']})"
+                  :disabled="ipNotOK(loadedConfigs['ORA_DB_L1HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L1HWEB_PORT'])"
                   no-icon-gutter
                 />
               </template>
@@ -285,10 +285,10 @@
             <b-input-group size="sm" prepend="Ｌ２ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.33.3"
-                v-model="configs['ORA_DB_L2HWEB_IP']"
+                v-model="loadedConfigs['ORA_DB_L2HWEB_IP']"
                 title="L2HWEB 資料庫IP"
                 class=" mr-1"
-                :state="validateIp(configs['ORA_DB_L2HWEB_IP'])"
+                :state="validateIp(loadedConfigs['ORA_DB_L2HWEB_IP'])"
                 trim
               />
               :
@@ -297,10 +297,10 @@
                 min="1"
                 max="65535"
                 placeholder="1521"
-                v-model="configs['ORA_DB_L2HWEB_PORT']"
+                v-model="loadedConfigs['ORA_DB_L2HWEB_PORT']"
                 title="L2HWEB 資料庫PORT"
                 class="col-3 ml-1"
-                :state="validateNumber(configs['ORA_DB_L2HWEB_PORT'])"
+                :state="validateNumber(loadedConfigs['ORA_DB_L2HWEB_PORT'])"
                 trim
               />
               <template #append>
@@ -308,8 +308,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({ORA_DB_L2HWEB_IP: configs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: configs['ORA_DB_L2HWEB_PORT']})"
-                  :disabled="ipNotOK(configs['ORA_DB_L2HWEB_IP']) || numNotOK(configs['ORA_DB_L2HWEB_PORT'])"
+                  @click="quick({ORA_DB_L2HWEB_IP: loadedConfigs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: loadedConfigs['ORA_DB_L2HWEB_PORT']})"
+                  :disabled="ipNotOK(loadedConfigs['ORA_DB_L2HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L2HWEB_PORT'])"
                   no-icon-gutter
                 />
               </template>
@@ -317,10 +317,10 @@
             <b-input-group size="sm" prepend="Ｌ３ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.33.5"
-                v-model="configs['ORA_DB_L3HWEB_IP']"
+                v-model="loadedConfigs['ORA_DB_L3HWEB_IP']"
                 title="L3HWEB 資料庫IP"
                 class="mr-1"
-                :state="validateIp(configs['ORA_DB_L3HWEB_IP'])"
+                :state="validateIp(loadedConfigs['ORA_DB_L3HWEB_IP'])"
                 trim
               />
               :
@@ -329,10 +329,10 @@
                 min="1"
                 max="65535"
                 placeholder="1521"
-                v-model="configs['ORA_DB_L3HWEB_PORT']"
+                v-model="loadedConfigs['ORA_DB_L3HWEB_PORT']"
                 title="L3HWEB 資料庫PORT"
                 class="col-3 ml-1"
-                :state="validateNumber(configs['ORA_DB_L3HWEB_PORT'])"
+                :state="validateNumber(loadedConfigs['ORA_DB_L3HWEB_PORT'])"
                 trim
               />
               <template #append>
@@ -340,8 +340,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({ORA_DB_L3HWEB_IP: configs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: configs['ORA_DB_L3HWEB_PORT']})"
-                  :disabled="ipNotOK(configs['ORA_DB_L3HWEB_IP']) || numNotOK(configs['ORA_DB_L3HWEB_PORT'])"
+                  @click="quick({ORA_DB_L3HWEB_IP: loadedConfigs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: loadedConfigs['ORA_DB_L3HWEB_PORT']})"
+                  :disabled="ipNotOK(loadedConfigs['ORA_DB_L3HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L3HWEB_PORT'])"
                   no-icon-gutter
                 />
               </template>
@@ -360,9 +360,9 @@
             <b-input-group size="sm" prepend="本所代碼" class="my-1">
               <b-input
                 :placeholder="site"
-                v-model="configs['SITE']"
-                :state="site === configs['SITE']"
-                v-b-popover.hover.focus.top="site !== configs['SITE'] ? `系統偵測到所別為: ${site} (${apiSvrIp})` : ''"
+                v-model="loadedConfigs['SITE']"
+                :state="site === loadedConfigs['SITE']"
+                v-b-popover.hover.focus.top="site !== loadedConfigs['SITE'] ? `系統偵測到所別為: ${site} (${apiSvrIp})` : ''"
                 trim
               />
               <template #append>
@@ -370,7 +370,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({SITE: configs['SITE']})"
+                  @click="quick({SITE: loadedConfigs['SITE']})"
                   no-icon-gutter
                 />
               </template>
@@ -380,8 +380,8 @@
                 type="number"
                 placeholder="45000808"
                 title="本所的統一編號"
-                v-model="configs['SITE_ID']"
-                :state="validateNumber(configs['SITE_ID'])"
+                v-model="loadedConfigs['SITE_ID']"
+                :state="validateNumber(loadedConfigs['SITE_ID'])"
                 trim
               />
               <template #append>
@@ -389,8 +389,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({SITE_ID: configs['SITE_ID']})"
-                  :disabled="numNotOK(configs['SITE_ID'])"
+                  @click="quick({SITE_ID: loadedConfigs['SITE_ID']})"
+                  :disabled="numNotOK(loadedConfigs['SITE_ID'])"
                   no-icon-gutter
                 />
               </template>
@@ -399,8 +399,8 @@
               <b-input
                 placeholder="220.1.35.123"
                 title="任一個地政WEB版伺服器IP"
-                v-model="configs['WEBAP_IP']"
-                :state="validateIp(configs['WEBAP_IP'])"
+                v-model="loadedConfigs['WEBAP_IP']"
+                :state="validateIp(loadedConfigs['WEBAP_IP'])"
                 trim
               />
               <template #append>
@@ -408,8 +408,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({SITE: configs['WEBAP_IP']})"
-                  :disabled="ipNotOK(configs['WEBAP_IP'])"
+                  @click="quick({WEBAP_IP: loadedConfigs['WEBAP_IP']})"
+                  :disabled="ipNotOK(loadedConfigs['WEBAP_IP'])"
                   no-icon-gutter
                 />
               </template>
@@ -418,7 +418,7 @@
               <b-input
                 placeholder="MD5雜湊值"
                 title="管理者密碼雜湊值"
-                v-model="configs['MASTER_PASSWORD']"
+                v-model="loadedConfigs['MASTER_PASSWORD']"
                 trim
                 disabled
               />
@@ -434,14 +434,14 @@
             <template #header>
               <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
             </template>
-            <b-checkbox v-model="configs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: configs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
-            <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 65%;" :disabled="!configs['ENABLE_MOCK_MODE']">
+            <b-checkbox v-model="loadedConfigs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: loadedConfigs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
+            <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 65%;" :disabled="!loadedConfigs['ENABLE_MOCK_MODE']">
               <b-input
                 type="number"
                 min="5"
                 placeholder="15"
                 title="模擬模式下回應快取剩餘時間(秒)"
-                v-model="configs['MOCK_CACHE_SECONDS']"
+                v-model="loadedConfigs['MOCK_CACHE_SECONDS']"
                 trim
               />
               <template #append>
@@ -449,18 +449,18 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MOCK_CACHE_SECONDS: configs['MOCK_CACHE_SECONDS']})"
+                  @click="quick({MOCK_CACHE_SECONDS: loadedConfigs['MOCK_CACHE_SECONDS']})"
                   no-icon-gutter
                 />
               </template>
             </b-input-group>
-            <b-checkbox v-model="configs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: configs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
-            <b-checkbox v-model="configs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: configs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
+            <b-checkbox v-model="loadedConfigs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: loadedConfigs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
+            <b-checkbox v-model="loadedConfigs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: loadedConfigs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
             <b-input-group v-if="false" size="sm" prepend="查詢金鑰" class="my-1">
               <b-input
                 placeholder="MD5雜湊值"
                 title="API KEY MD5 HASH"
-                v-model="configs['API_KEY']"
+                v-model="loadedConfigs['API_KEY']"
                 trim
                 disabled
               />
@@ -469,7 +469,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({API_KEY: configs['API_KEY']})"
+                  @click="quick({API_KEY: loadedConfigs['API_KEY']})"
                   no-icon-gutter
                   disabled
                 />
@@ -479,7 +479,7 @@
               <b-input
                 placeholder="內網擷取使用者圖片路徑"
                 title="內網擷取使用者圖片路徑"
-                v-model="configs['USER_PHOTO_FOLDER']"
+                v-model="loadedConfigs['USER_PHOTO_FOLDER']"
                 trim
                 disabled
               />
@@ -488,7 +488,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({USER_PHOTO_FOLDER: configs['USER_PHOTO_FOLDER']})"
+                  @click="quick({USER_PHOTO_FOLDER: loadedConfigs['USER_PHOTO_FOLDER']})"
                   no-icon-gutter
                   disabled
                 />
@@ -505,7 +505,7 @@
             </template>
             <b-input-group size="sm" prepend="登入帳密">
               <b-input
-                v-model="configs['MS_DB_UID']"
+                v-model="loadedConfigs['MS_DB_UID']"
                 placeholder=""
                 title="登入DB帳號"
                 class="mr-1"
@@ -513,7 +513,7 @@
               />
               /
               <b-input
-                v-model="configs['MS_DB_PWD']"
+                v-model="loadedConfigs['MS_DB_PWD']"
                 placeholder=""
                 type="password"
                 title="登入DB密碼"
@@ -525,7 +525,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DB_PWD: configs['MS_DB_PWD'], MS_DB_UID: configs['MS_DB_UID']})"
+                  @click="quick({MS_DB_PWD: loadedConfigs['MS_DB_PWD'], MS_DB_UID: loadedConfigs['MS_DB_UID']})"
                   no-icon-gutter
                 />
               </template>
@@ -533,10 +533,10 @@
             <b-input-group size="sm" prepend="連線ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.35.89"
-                v-model="configs['MS_DB_SVR']"
+                v-model="loadedConfigs['MS_DB_SVR']"
                 title="伺服器IP"
                 class="mr-1"
-                :state="validateIp(configs['MS_DB_SVR'])"
+                :state="validateIp(loadedConfigs['MS_DB_SVR'])"
                 trim
               />
               :
@@ -556,8 +556,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DB_SVR: configs['MS_DB_SVR']})"
-                  :disabled="ipNotOK(configs['MS_DB_SVR'])"
+                  @click="quick({MS_DB_SVR: loadedConfigs['MS_DB_SVR']})"
+                  :disabled="ipNotOK(loadedConfigs['MS_DB_SVR'])"
                   no-icon-gutter
                 />
               </template>
@@ -565,7 +565,7 @@
             <b-input-group size="sm" prepend="ＤＢ名稱" class="my-1">
               <b-input
                 placeholder="jungli_in2016"
-                v-model="configs['MS_DB_DATABASE']"
+                v-model="loadedConfigs['MS_DB_DATABASE']"
                 title="資料庫名稱"
                 trim
               />
@@ -574,7 +574,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DB_DATABASE: configs['MS_DB_DATABASE']})"
+                  @click="quick({MS_DB_DATABASE: loadedConfigs['MS_DB_DATABASE']})"
                   no-icon-gutter
                 />
               </template>
@@ -582,7 +582,7 @@
             <b-input-group size="sm" prepend="編碼設定" class="my-1">
               <b-input
                 placeholder="UTF-8"
-                v-model="configs['MS_DB_CHARSET']"
+                v-model="loadedConfigs['MS_DB_CHARSET']"
                 title="資料庫編碼設定"
                 trim
               />
@@ -591,7 +591,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DB_CHARSET: configs['MS_DB_CHARSET']})"
+                  @click="quick({MS_DB_CHARSET: loadedConfigs['MS_DB_CHARSET']})"
                   no-icon-gutter
                 />
               </template>
@@ -603,7 +603,7 @@
             </template>
             <b-input-group size="sm" prepend="登入帳密">
               <b-input
-                v-model="configs['MS_DOC_DB_UID']"
+                v-model="loadedConfigs['MS_DOC_DB_UID']"
                 placeholder=""
                 title="登入DB帳號"
                 class="mr-1"
@@ -611,7 +611,7 @@
               />
               /
               <b-input
-                v-model="configs['MS_DOC_DB_PWD']"
+                v-model="loadedConfigs['MS_DOC_DB_PWD']"
                 placeholder=""
                 type="password"
                 title="登入DB密碼"
@@ -623,7 +623,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DOC_DB_PWD: configs['MS_DOC_DB_PWD'], MS_DOC_DB_UID: configs['MS_DOC_DB_UID']})"
+                  @click="quick({MS_DOC_DB_PWD: loadedConfigs['MS_DOC_DB_PWD'], MS_DOC_DB_UID: loadedConfigs['MS_DOC_DB_UID']})"
                   no-icon-gutter
                 />
               </template>
@@ -631,10 +631,10 @@
             <b-input-group size="sm" prepend="連線ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.35.24"
-                v-model="configs['MS_DOC_DB_SVR']"
+                v-model="loadedConfigs['MS_DOC_DB_SVR']"
                 title="伺服器IP"
                 class="mr-1"
-                :state="validateIp(configs['MS_DOC_DB_SVR'])"
+                :state="validateIp(loadedConfigs['MS_DOC_DB_SVR'])"
                 trim
               />
               :
@@ -654,8 +654,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DOC_DB_SVR: configs['MS_DOC_DB_SVR']})"
-                  :disabled="ipNotOK(configs['MS_DOC_DB_SVR'])"
+                  @click="quick({MS_DOC_DB_SVR: loadedConfigs['MS_DOC_DB_SVR']})"
+                  :disabled="ipNotOK(loadedConfigs['MS_DOC_DB_SVR'])"
                   no-icon-gutter
                 />
               </template>
@@ -663,7 +663,7 @@
             <b-input-group size="sm" prepend="ＤＢ名稱" class="my-1">
               <b-input
                 placeholder="doc"
-                v-model="configs['MS_DOC_DB_DATABASE']"
+                v-model="loadedConfigs['MS_DOC_DB_DATABASE']"
                 title="資料庫名稱"
                 trim
               />
@@ -672,7 +672,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DOC_DB_DATABASE: configs['MS_DOC_DB_DATABASE']})"
+                  @click="quick({MS_DOC_DB_DATABASE: loadedConfigs['MS_DOC_DB_DATABASE']})"
                   no-icon-gutter
                 />
               </template>
@@ -680,7 +680,7 @@
             <b-input-group size="sm" prepend="編碼設定" class="my-1">
               <b-input
                 placeholder="UTF-8"
-                v-model="configs['MS_DOC_DB_CHARSET']"
+                v-model="loadedConfigs['MS_DOC_DB_CHARSET']"
                 title="資料庫編碼設定"
                 trim
               />
@@ -689,7 +689,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_DOC_DB_CHARSET: configs['MS_DOC_DB_CHARSET']})"
+                  @click="quick({MS_DOC_DB_CHARSET: loadedConfigs['MS_DOC_DB_CHARSET']})"
                   no-icon-gutter
                 />
               </template>
@@ -701,7 +701,7 @@
             </template>
             <b-input-group size="sm" prepend="登入帳密">
               <b-input
-                v-model="configs['MS_TDOC_DB_UID']"
+                v-model="loadedConfigs['MS_TDOC_DB_UID']"
                 placeholder=""
                 title="登入DB帳號"
                 class="mr-1"
@@ -709,7 +709,7 @@
               />
               /
               <b-input
-                v-model="configs['MS_TDOC_DB_PWD']"
+                v-model="loadedConfigs['MS_TDOC_DB_PWD']"
                 placeholder=""
                 type="password"
                 title="登入DB密碼"
@@ -721,7 +721,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_TDOC_DB_PWD: configs['MS_TDOC_DB_PWD'], MS_TDOC_DB_UID: configs['MS_TDOC_DB_UID']})"
+                  @click="quick({MS_TDOC_DB_PWD: loadedConfigs['MS_TDOC_DB_PWD'], MS_TDOC_DB_UID: loadedConfigs['MS_TDOC_DB_UID']})"
                   no-icon-gutter
                 />
               </template>
@@ -729,10 +729,10 @@
             <b-input-group size="sm" prepend="連線ＤＢ" class="my-1">
               <b-input
                 placeholder="220.1.35.24"
-                v-model="configs['MS_TDOC_DB_SVR']"
+                v-model="loadedConfigs['MS_TDOC_DB_SVR']"
                 title="伺服器IP"
                 class="mr-1"
-                :state="validateIp(configs['MS_TDOC_DB_SVR'])"
+                :state="validateIp(loadedConfigs['MS_TDOC_DB_SVR'])"
                 trim
               />
               :
@@ -752,8 +752,8 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_TDOC_DB_SVR: configs['MS_TDOC_DB_SVR']})"
-                  :disabled="ipNotOK(configs['MS_TDOC_DB_SVR'])"
+                  @click="quick({MS_TDOC_DB_SVR: loadedConfigs['MS_TDOC_DB_SVR']})"
+                  :disabled="ipNotOK(loadedConfigs['MS_TDOC_DB_SVR'])"
                   no-icon-gutter
                 />
               </template>
@@ -761,7 +761,7 @@
             <b-input-group size="sm" prepend="ＤＢ名稱" class="my-1">
               <b-input
                 placeholder="tdoc"
-                v-model="configs['MS_TDOC_DB_DATABASE']"
+                v-model="loadedConfigs['MS_TDOC_DB_DATABASE']"
                 title="資料庫名稱"
                 trim
               />
@@ -770,7 +770,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_TDOC_DB_DATABASE: configs['MS_TDOC_DB_DATABASE']})"
+                  @click="quick({MS_TDOC_DB_DATABASE: loadedConfigs['MS_TDOC_DB_DATABASE']})"
                   no-icon-gutter
                 />
               </template>
@@ -778,7 +778,7 @@
             <b-input-group size="sm" prepend="編碼設定" class="my-1">
               <b-input
                 placeholder="UTF-8"
-                v-model="configs['MS_TDOC_DB_CHARSET']"
+                v-model="loadedConfigs['MS_TDOC_DB_CHARSET']"
                 title="資料庫編碼設定"
                 trim
               />
@@ -787,7 +787,7 @@
                   icon="pen-square"
                   variant="outline-secondary"
                   title="立即寫入設定"
-                  @click="quick({MS_TDOC_DB_CHARSET: configs['MS_TDOC_DB_CHARSET']})"
+                  @click="quick({MS_TDOC_DB_CHARSET: loadedConfigs['MS_TDOC_DB_CHARSET']})"
                   no-icon-gutter
                 />
               </template>
@@ -810,20 +810,20 @@ export default {
   middleware: [ 'isAdmin' ],
   fetchOnServer: true,
   data: () => ({
-    configs: {},
+    loadedConfigs: {},
     message: '',
     masterPassword: '',
     origMasterPasswordHash: '1f7744350d3dd3dc563421582f37f99e'
   }),
   computed: {
     showMSSQLCards () {
-      return this.configs && (this.configs['ENABLE_MSSQL_CONN'] === 'true' || this.configs['ENABLE_MSSQL_CONN'] === true)
+      return this.loadedConfigs && (this.loadedConfigs['ENABLE_MSSQL_CONN'] === 'true' || this.loadedConfigs['ENABLE_MSSQL_CONN'] === true)
     }
   },
   watch: {
     masterPassword (val) {
       // empty val restore to default pw
-      this.configs['MASTER_PASSWORD'] = this.$utils.empty(val) ? this.origMasterPasswordHash : this.$utils.md5(val)
+      this.loadedConfigs['MASTER_PASSWORD'] = this.$utils.empty(val) ? this.origMasterPasswordHash : this.$utils.md5(val)
     }
   },
   async fetch () {
@@ -831,9 +831,9 @@ export default {
       type: 'configs'
     })
     // Object.assign makes var reactively
-    this.configs = Object.assign({}, data.raw)
+    this.loadedConfigs = Object.assign({}, data.raw)
     this.message = data.message
-    this.origMasterPasswordHash = this.configs['MASTER_PASSWORD']
+    this.origMasterPasswordHash = this.loadedConfigs['MASTER_PASSWORD']
   },
   methods: {
     validateIp (ip) {
@@ -855,7 +855,7 @@ export default {
       .then((answer) => {
         if (answer) {
           this.isBusy = true
-          this.quick(this.configs)
+          this.quick(this.loadedConfigs)
         }
       })
     },
@@ -876,7 +876,7 @@ export default {
       })
     },
     changeMasterPassword () {
-      this.quick({MASTER_PASSWORD: this.configs['MASTER_PASSWORD']})
+      this.quick({MASTER_PASSWORD: this.loadedConfigs['MASTER_PASSWORD']})
       this.hideModalById('master-pw-modal')
     }
   }

@@ -35,7 +35,7 @@
     </lah-header>
     <div class="container">
       <div>
-        <Logo class="anim-appear-2s" />
+        <lah-logo class="anim-appear-2s" />
         <h3 class="title">樣板</h3>
         <div>some text goes here ...</div>
       </div>

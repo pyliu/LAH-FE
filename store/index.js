@@ -1,3 +1,5 @@
+import isEmpty from 'lodash/isEmpty'
+
 const logerror = (error) => {
   if (error.response) {
     // The request was made and the server responded with a status code
@@ -33,7 +35,17 @@ const logtimestamp = (message) => {
 
 const state = () => ({
   ip: '0.0.0.0',
-  svr: null,
+  server: {},
+  apiSvrIps: [],
+  user: {},
+  authority: {
+    isAdmin: false,
+    isChief: false,
+    isGA: false,
+    isRAE: false,
+    isSuper: false
+  },
+  systemConfigs: {},
   lastMessage: '',
   toastCounter: 0,
   xapMap: new Map([
@@ -52,17 +64,36 @@ const state = () => ({
 const getters = {
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
-  svr: state => state.svr,
+  apiSvrIps: state => state.apiSvrIps,
+  user: state => state.user,
+  authority: state => state.authority,
+  systemConfigs: state => state.systemConfigs,
+  server: state => state.server,
   lastMessage: state => state.lastMessage,
-  xapMap: state => state.xapMap
+  xapMap: state => state.xapMap,
+  storeReady: state => !isEmpty(state.systemConfigs)
 }
 
 // only sync operation
 const mutations = {
-  ip (state, ip) { state.ip = ip },
-  svr (state, obj) { state.svr = obj },
+  ip (state, ip) {
+    state.ip = ip
+    // treat localhost ip as admin
+    const adminIps = ['127.0.0.1', '::1']
+    state.authority.isAdmin = adminIps.includes(ip)
+  },
+  login (state, obj) {
+    // expected json obj format is { status, message, server, ips, user, configs }
+    state.user = Object.assign(state.user, obj.user)
+    state.systemConfigs = Object.assign(state.systemConfigs, obj.configs)
+    state.authority = Object.assign(state.authority, obj.configs.authority)
+    state.server = Object.assign(state.server, obj.server)
+    state.apiSvrIps = obj.ips
+  },
   lastMessage (state, string) { state.lastMessage = string },
-  admin (state, flag) { state.svr.config.authority.isAdmin = flag },
+  admin (state, flag) {
+    state.authority.isAdmin = flag
+  },
   addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 
@@ -72,20 +103,18 @@ const actions = {
   async nuxtServerInit ({ commit, dispatch }, nuxt) {
     try {
       commit('ip', nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress)
-      // query the svr here because I want to use middleware to control authority
-      dispatch('svr')
+      // query the all login require info here because I want to use middleware to control authority
+      dispatch('login')
     } catch (e) {
       console.error(e)
     }
   },
-  async svr ({ commit, getters }) {
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: 'svr',
-      client_ip: getters.ip
+  async login ({ commit, getters }) {
+    this.$axios.post(this.$consts.API.JSON.AUTH, {
+      type: 'login',
+      req_ip: getters.ip
     }).then(({ data }) => {
-      // expected json format is { status, config, ips, server, message }
-      commit('svr', data)
-      // logtimestamp(data.message)
+      commit('login', data)
     }).catch((error) => {
       logerror(error)
     }).finally(() => {

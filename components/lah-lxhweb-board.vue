@@ -63,7 +63,7 @@
 <script>
 export default {
   props: {
-    server: { type: String, require: true }
+    targetIp: { type: String, require: true }
   },
   fetchOnServer: true,
   data: () => ({
@@ -76,14 +76,14 @@ export default {
   }),
   computed: {
     ip() {
-      return this.hwebMap.get(this.server).ip
+      return this.hwebMap.get(this.targetIp).ip
     },
     header() {
-      if (this.hwebMap.has(this.server)) {
-        let entry = this.hwebMap.get(this.server)
+      if (this.hwebMap.has(this.targetIp)) {
+        let entry = this.hwebMap.get(this.targetIp)
         return `${entry.name} ${entry.ip}`
       }
-      return `未支援 ${this.server} 監控`
+      return `未支援 ${this.targetIp} 監控`
     },
     alive() {
       return this.pingLatency > 0 && this.pingLatency < 1000
@@ -211,7 +211,7 @@ export default {
       if (this.alive) {
         this.$axios.post(this.$consts.API.JSON.LXHWEB, {
           type: "lxhweb_site_update_time",
-          site: this.server,
+          site: this.targetIp,
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
             // array of {SITE: 'HB', UPDATE_DATETIME: '2020-10-08 21:47:00'}
@@ -219,7 +219,7 @@ export default {
           } else {
             // this.notify(`${data.message}`, {
             //   title: '同步異動主機狀態檢視',
-            //   subtitle: this.server,
+            //   subtitle: this.targetIp,
             //   type: 'warning'
             // })
             this.$utils.warn('同步異動主機狀態檢視', data.message)
@@ -236,12 +236,12 @@ export default {
       if (this.alive) {
         this.$axios.post(this.$consts.API.JSON.LXHWEB, {
           type: "lxhweb_broken_table",
-          site: this.server,
+          site: this.targetIp,
         }).then(({ data }) => {
           if (data.data_count) {
             // found
             this.alert(`<i class="fa fa-exclamation-triangle fa-lg ld ld-beat"></i> 找到 ${data.data_count} 筆損毀表格`, {
-              subtitle: this.server,
+              subtitle: this.targetIp,
               title: "同步異動表格檢測",
               delay: 15 * 1000
             })

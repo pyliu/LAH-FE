@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { mapAction, mapState, mapGetters } from 'vuex'
 import $ from 'jquery'
 // inject to all Vue instances
 Vue.mixin({
@@ -23,8 +24,19 @@ Vue.mixin({
     }
   },
   computed: {
+    ...mapGetters([
+      'ip',
+      'apiSvrIps',
+      'lastMessage',
+      'systemConfigs',
+      'user',
+      'authority',
+      'server',
+      'toastCounter',
+      'xapMap',
+      'storeReady'
+    ]),
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
-    ip () { return this.$store.getters.ip },
     site () {
       if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'H0'
@@ -53,44 +65,28 @@ Vue.mixin({
       if (/(^220\.1\.41\.|^192\.168\.8[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'HG'
       }
-      return this.svr ? (this.svr.config ? this.svr.config.site : 'HB') : 'HB'
-    },
-    svr () { return this.$store.getters.svr },
-    lastMessage () { return this.$store.getters.lastMessage },
-    config () {
-      return this.svr ? this.svr.config : false
-    },
-    authority () {
-      return this.config ? this.config.authority : {
-        isAdmin: false,
-        isChief: false,
-        isGA: false,
-        isRAE: false,
-        isSuper: false
-      }
+      return this.systemConfigs ? this.systemConfigs.site : 'HB'
     },
     myinfo () {
       const noinfo = { id: '', name: '' }
-      return this.svr ? (this.svr.user !== null ? this.svr.user : noinfo) : noinfo
+      return !this.$utils.empty(this.user) ? this.user : noinfo
     },
-    webapIp () { return this.svr ? (this.svr.config ? this.svr.config.webap_ip : '127.0.0.1') : '127.0.0.1' },
+    webapIp () { return !this.$utils.empty(this.systemConfigs.webap_ip) ? this.systemConfigs.webap_ip : '127.0.0.1' },
     apiSvrIp () {
-      if (this.svr && Array.isArray(this.svr.ips) && this.svr.ips.length > 0) {
-        return this.svr.ips[this.svr.ips.length - 1]
+      if (Array.isArray(this.apiSvrIps) && this.apiSvrIps.length > 0) {
+        return this.apiSvrIps[this.apiSvrIps.length - 1]
       }
       return '127.0.0.1'
     },
     apiSvrPort () {
-      if (this.svr && typeof this.svr.server === 'object') {
-        return this.svr.server.SERVER_PORT
+      if (!this.$utils.empty(this.server)) {
+        return this.server.SERVER_PORT
       }
       return '80'
     },
     apiSvrHttpUrl () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
-    },
-    toastCounter () { return this.$store.getters.toastCounter },
-    xapMap () { return this.$store.getters.xapMap }
+    }
   },
   methods: {
     $,  // jQuery '$',

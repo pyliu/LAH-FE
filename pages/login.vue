@@ -38,7 +38,7 @@ export default {
       return this.$utils.md5(this.password)
     },
     secret () {
-      return this.config ? this.config.master_password : '1f7744350d3dd3dc563421582f37f99e'
+      return this.systemConfigs ? this.systemConfigs.master_password : '1f7744350d3dd3dc563421582f37f99e'
     }
   },
   methods: {
@@ -48,8 +48,8 @@ export default {
         this.notify(
           '已登入，將引導至管理者首頁 ... ',
           { type: 'success' }
-        ).then((config) => {
-          // this.$utils.log(config)
+        ).then((opts) => {
+          // this.$utils.log(opts)
           this.$store.commit('admin', true)
           this.$router.push('/admin')
         })
@@ -64,11 +64,11 @@ export default {
   created () {
     if (!this.authority.isAdmin && !this.authority.isSuper) {
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'svr',
-        client_ip: this.ip
+      this.$axios.post(this.$consts.API.JSON.AUTH, {
+        type: 'login',
+        req_ip: this.ip
       }).then(({ data }) => {
-        this.$store.commit('svr', data)
+        this.$store.commit('login', data)
         this.setCache('server-info', data, 86400000) // cache for a day
       }).catch((err) => {
         this.$utils.error(err)
