@@ -35,8 +35,9 @@ const logtimestamp = (message) => {
 
 const state = () => ({
   ip: '0.0.0.0',
-  server: {},
+  adminIps: ['127.0.0.1', '::1'],
   apiSvrIps: [],
+  server: {},
   user: {},
   authority: {
     isAdmin: false,
@@ -64,6 +65,7 @@ const state = () => ({
 const getters = {
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
+  adminIps: state => state.adminIps,
   apiSvrIps: state => state.apiSvrIps,
   user: state => state.user,
   authority: state => state.authority,
@@ -79,8 +81,7 @@ const mutations = {
   ip (state, ip) {
     state.ip = ip
     // treat localhost ip as admin
-    const adminIps = ['127.0.0.1', '::1']
-    state.authority.isAdmin = adminIps.includes(ip)
+    state.authority.isAdmin = state.adminIps.includes(ip)
   },
   login (state, obj) {
     // expected json obj format is { status, message, server, ips, user, configs }
@@ -103,7 +104,7 @@ const actions = {
   async nuxtServerInit ({ commit, dispatch }, nuxt) {
     try {
       commit('ip', nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress)
-      // query the all login require info here because I want to use middleware to control authority
+      // query login require info by ip to use middleware to control authority
       dispatch('login')
     } catch (e) {
       console.error(e)
