@@ -68,10 +68,9 @@ Vue.mixin({
       return this.systemConfigs ? this.systemConfigs.site : 'HB'
     },
     myinfo () {
-      const noinfo = { id: '', name: '' }
-      return !this.$utils.empty(this.user) ? this.user : noinfo
+      return this.$utils.empty(this.user) ? { id: '', name: '' } : this.user
     },
-    webapIp () { return !this.$utils.empty(this.systemConfigs.webap_ip) ? this.systemConfigs.webap_ip : '127.0.0.1' },
+    webapIp () { return this.$utils.empty(this.systemConfigs.webap_ip) ?  '127.0.0.1' : this.systemConfigs.webap_ip },
     apiSvrIp () {
       if (Array.isArray(this.apiSvrIps) && this.apiSvrIps.length > 0) {
         return this.apiSvrIps[this.apiSvrIps.length - 1]
