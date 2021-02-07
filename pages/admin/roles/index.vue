@@ -119,7 +119,7 @@
           {{ data.index + 1 }}
         </template>
         <template #cell(remove)="{ item }">
-          <lah-button v-if="showRemove(item)" @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill class="mx-auto" title="刪除本筆資料"/>
+          <lah-button @click="remove(item)" icon="times" variant="outline-danger" size="sm" no-icon-gutter no-border pill class="mx-auto" title="刪除本筆資料"/>
         </template>
         <template #cell(id)="{ item }">
           <b-button v-if="!$utils.empty(item['id'])" @click="popupUserInfo(item)" :variant="variant(item)" size="sm">
@@ -274,9 +274,6 @@ export default {
           title: `${obj['id']} ${obj['name']} 資訊`
         })
       }
-    },
-    showRemove (user) {
-      return user['role_ip'] !== '127.0.0.1' && user['role_ip'] !== '::1'
     }
   },
   mounted () {

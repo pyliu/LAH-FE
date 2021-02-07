@@ -264,8 +264,8 @@ export default {
       return ""
     },
     office () {
-      if (this.svr) {
-        return this.svr.config.site
+      if (this.systemConfigs) {
+        return this.systemConfigs.site
       }
       return this.site
     },
@@ -525,8 +525,8 @@ export default {
         isRAE: false,
         isSuper: false,
       }
-      if (this.svr && this.svr.config.ip_maps) {
-        const mappings = this.svr.config.ip_maps
+      if (this.systemConfigs && this.systemConfigs.ip_maps) {
+        const mappings = this.systemConfigs.ip_maps
         const ip = user["ip"]
         authorityMap.isAdmin = mappings.admin.includes(ip)
         authorityMap.isChief = mappings.chief.includes(ip)

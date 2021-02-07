@@ -379,7 +379,7 @@ export default {
         return false
       }
       // e.g. HB0010
-      const regex = new RegExp(`^${this.svr.config.site}\\d{4,}$`, 'gm')
+      const regex = new RegExp(`^${this.systemConfigs.site}\\d{4,}$`, 'gm')
       return Boolean(this.userData['id'].match(regex))
     },
     checkName () {
