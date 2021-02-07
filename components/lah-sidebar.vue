@@ -138,7 +138,13 @@
           原始碼
         </a>
       </li>
-      <li>
+      <li v-if="$utils.empty(user)">
+        <b-link @click="logout">
+          <font-awesome-icon :icon="['fas', 'hand-sparkles']" size="lg" />
+          清除瀏覽器端快取資料
+        </b-link>
+      </li>
+      <li v-else>
         <b-link @click="logout" title="清除瀏覽器端快取資料">
           <font-awesome-icon :icon="['fas', 'sign-out-alt']" size="lg" />
           登出
@@ -176,7 +182,8 @@ export default {
   },
   methods: {
     logout () {
-      this.confirm('請確認要登出並清除快取資料？').then((ans) => {
+      const message = this.$utils.empty(user) ? '請確認要清除快取資料？' : '請確認要登出並清除快取資料？'
+      this.confirm(message).then((ans) => {
         ans && this.clearCache() && this.notify('登出完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
       })
     },
