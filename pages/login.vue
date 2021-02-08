@@ -71,11 +71,11 @@ export default {
       }
     },
     refirect () {
-      if (this.hasHistory) {
-        this.$router.go(-1)
-      } else {
-        this.$router.push('/admin')
-      }
+      // if (this.hasHistory) {
+      //   this.$router.go(-1)
+      // } else {
+      // }
+      this.$router.push('/admin')
     }
   },
   created () {
