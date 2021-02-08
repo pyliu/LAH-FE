@@ -41,6 +41,14 @@
           <b-button variant="info" size="sm">{{ site }}XXXX 壢ＯＯ</b-button>
           總務
         </div>
+        <div class="mx-2 my-1">
+          <b-button variant="outline-info" size="sm">{{ site }}XXXX 地ＯＯ</b-button>
+          人事
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="outline-dark" size="sm">{{ site }}XXXX 政ＯＯ</b-button>
+          會計
+        </div>
       </lah-help-modal>
       <b-modal
         id="add-authority-modal"
@@ -268,7 +276,7 @@ export default {
       if (user['role_name'] === '總務') return "info"
       if (user['role_name'] === '系統管理者') return "outline-danger"
       if (user['role_name'] === '人事') return "outline-info"
-      if (user['role_name'] === '會計') return "outline-warning"
+      if (user['role_name'] === '會計') return "outline-dark"
       return "outline-secondary"
     },
     popupUserInfo (data) {

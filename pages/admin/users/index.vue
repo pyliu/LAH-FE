@@ -108,6 +108,14 @@
           <b-button variant="info" size="sm">{{ office }}XXXX 政ＯＯ</b-button>
           總務
         </div>
+        <div class="mx-2 my-1">
+          <b-button variant="outline-info" size="sm">{{ office }}XXXX 開ＯＯ</b-button>
+          人事
+        </div>
+        <div class="mx-2 my-1">
+          <b-button variant="outline-dark" size="sm">{{ office }}XXXX 發ＯＯ</b-button>
+          會計
+        </div>
       </lah-help-modal>
       <b-modal
         id="upload-modal"
@@ -368,6 +376,8 @@ export default {
         { NAME: '主管', LIST: []},
         { NAME: '研考', LIST: []},
         { NAME: '總務', LIST: []},
+        { NAME: '會計', LIST: []},
+        { NAME: '人事', LIST: []},
         { NAME: '一般使用者', LIST: []}
       ]
       const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
@@ -387,7 +397,13 @@ export default {
         if (this.systemConfigs.ip_maps.admin.includes(item['ip'])) {
           return filtered[1].LIST.push(item)
         }
-        return filtered[5].LIST.push(item)
+        if (this.systemConfigs.ip_maps.hr.includes(item['ip'])) {
+          return filtered[5].LIST.push(item)
+        }
+        if (this.systemConfigs.ip_maps.accounting.includes(item['ip'])) {
+          return filtered[6].LIST.push(item)
+        }
+        return filtered[7].LIST.push(item)
       })
       filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
       return filtered;
