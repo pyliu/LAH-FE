@@ -32,6 +32,7 @@ const logtimestamp = (message) => {
 }
 
 const state = () => ({
+  loggedIn: false,
   ip: '0.0.0.0',
   adminIps: ['127.0.0.1', '::1'],
   apiSvrIps: [],
@@ -61,6 +62,7 @@ const state = () => ({
 })
 
 const getters = {
+  loggedIn: state => state.loggedIn,
   toastCounter: state => state.toastCounter,
   ip: state => state.ip,
   adminIps: state => state.adminIps,
@@ -87,6 +89,7 @@ const mutations = {
     state.authority = { ...state.authority, ...obj.configs.authority }
     state.server = { ...state.server, ...obj.server }
     state.apiSvrIps = obj.ips
+    state.loggedIn = true
   },
   lastMessage (state, string) { state.lastMessage = string },
   admin (state, flag) {
@@ -108,11 +111,11 @@ const actions = {
     }
   },
   async login ({ commit, getters }) {
-    this.$axios.post(this.$consts.API.JSON.AUTH, {
+    !getters.loggedIn && this.$axios.post(this.$consts.API.JSON.AUTH, {
       type: 'login',
       req_ip: getters.ip
-    }).then(({ data }) => {
-      commit('login', data)
+    }).then((res) => {
+      commit('login', res.data)
     }).catch((error) => {
       logerror(error)
     }).finally(() => {

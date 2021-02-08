@@ -1,12 +1,14 @@
-<template>
-  <b-container v-cloak fluid>
-    <Nuxt />
-    <lah-footer />
-  </b-container>
+<template lang="pug">
+  b-container(v-cloak fluid)
+    Nuxt
+    lah-footer
 </template>
 
 <script>
 export default {
+  created () {
+    this.login()
+  }
 }
 </script>
 

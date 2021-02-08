@@ -39,7 +39,8 @@ export default {
     },
     secret () {
       return this.systemConfigs ? this.systemConfigs.master_password : '1f7744350d3dd3dc563421582f37f99e'
-    }
+    },
+    hasHistory () { return window.history.length > 2 }
   },
   methods: {
     check () {
@@ -51,7 +52,8 @@ export default {
         ).then((opts) => {
           // this.$utils.log(opts)
           this.$store.commit('admin', true)
-          this.$router.push('/admin')
+          // this.$router.push('/admin')
+          this.$router.go(-1)
         })
       } else {
         // not ok
@@ -61,34 +63,17 @@ export default {
   },
   fetch () {
   },
-  created () {
-    if (!this.authority.isAdmin && !this.authority.isSuper) {
-      this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.AUTH, {
-        type: 'login',
-        req_ip: this.ip
-      }).then(({ data }) => {
-        this.$store.commit('login', data)
-        this.setCache('server-info', data, 86400000) // cache for a day
-      }).catch((err) => {
-        this.$utils.error(err)
-      }).finally(() => {
-        if (this.authority.isAdmin || this.authority.isSuper) {
-          this.$router.push('/admin')
-        } else {
-          this.isBusy = false
-        }
-      })
-    }
-  },
   mounted () {
-    if (this.authority.isAdmin || this.authority.isSuper) {
-      this.$router.push('/admin')
+    if (this.loggedIn) {
+      if (this.hasHistory) {
+        this.$router.go(-1)
+      } else {
+        this.$router.push('/admin')
+      }
     } else {
       this.isBusy = false
       this.$refs.password.$el.focus()
     }
-    // 0162703054122aa13eba16f4c81b8f39
   }
 }
 </script>

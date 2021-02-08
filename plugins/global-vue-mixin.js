@@ -1,6 +1,8 @@
 import Vue from 'vue'
-import { mapAction, mapState, mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import $ from 'jquery'
+import isEmpty from 'lodash/isEmpty'
+
 // inject to all Vue instances
 Vue.mixin({
   data: () => ({
@@ -25,6 +27,7 @@ Vue.mixin({
   },
   computed: {
     ...mapGetters([
+      'loggedIn',
       'ip',
       'apiSvrIps',
       'lastMessage',
@@ -67,9 +70,9 @@ Vue.mixin({
       return this.systemConfigs ? this.systemConfigs.site : 'HB'
     },
     myinfo () {
-      return this.$utils.empty(this.user) ? { id: '', name: '' } : this.user
+      return isEmpty(this.user) ? { id: '', name: '' } : this.user
     },
-    webapIp () { return this.$utils.empty(this.systemConfigs.webap_ip) ?  '127.0.0.1' : this.systemConfigs.webap_ip },
+    webapIp () { return isEmpty(this.systemConfigs.webap_ip) ?  '127.0.0.1' : this.systemConfigs.webap_ip },
     apiSvrIp () {
       if (Array.isArray(this.apiSvrIps) && this.apiSvrIps.length > 0) {
         return this.apiSvrIps[this.apiSvrIps.length - 1]
@@ -77,7 +80,7 @@ Vue.mixin({
       return '127.0.0.1'
     },
     apiSvrPort () {
-      if (!this.$utils.empty(this.server)) {
+      if (!isEmpty(this.server)) {
         return this.server.SERVER_PORT
       }
       return '80'
@@ -87,6 +90,9 @@ Vue.mixin({
     }
   },
   methods: {
+    ...mapActions([
+      'login'
+    ]),
     $,  // jQuery '$',
     parseHTML (string) {
       const context = document.implementation.createHTMLDocument()
@@ -291,7 +297,7 @@ Vue.mixin({
       })
     },
     warning (message, opts = {}) {
-      if (!this.$utils.empty(message)) {
+      if (!isEmpty(message)) {
         const merged = Object.assign({
           title: '警示',
           autoHideDelay: 7500,
@@ -302,7 +308,7 @@ Vue.mixin({
       }
     },
     alert (message, opts = {}) {
-      if (!this.$utils.empty(message)) {
+      if (!isEmpty(message)) {
         if (opts && opts.pos === 'bottom') {
           opts.pos = 'bf'
         } else if (opts && opts.pos === 'top') {
@@ -421,7 +427,7 @@ Vue.mixin({
       }
     },
     async setCache (key, val, expire_timeout = 0) {
-      if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
+      if (isEmpty(key) || this.$localForage === undefined) { return false }
       try {
         const item = {
           key,
@@ -442,10 +448,10 @@ Vue.mixin({
       return true
     },
     async getCache (key) {
-      if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
+      if (isEmpty(key) || this.$localForage === undefined) { return false }
       try {
         const item = await this.$localForage.getItem(key)
-        if (this.$utils.empty(item)) { return false }
+        if (isEmpty(item)) { return false }
         const ts = item.timestamp
         const expireTime = item.expire_ms || 0
         const now = +new Date()
@@ -463,10 +469,10 @@ Vue.mixin({
       return false
     },
     async getCacheExpireRemainingTime (key) {
-      if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
+      if (isEmpty(key) || this.$localForage === undefined) { return false }
       try {
         const item = await this.$localForage.getItem(key)
-        if (this.$utils.empty(item)) { return false }
+        if (isEmpty(item)) { return false }
         const ts = item.timestamp
         const expireTime = item.expire_ms || 0
         const now = +new Date()
@@ -482,7 +488,7 @@ Vue.mixin({
       return false
     },
     async removeCache (key) {
-      if (this.$utils.empty(key) || this.$localForage === undefined) { return false }
+      if (isEmpty(key) || this.$localForage === undefined) { return false }
       try {
         await this.$localForage.removeItem(key)
       } catch (err) {
