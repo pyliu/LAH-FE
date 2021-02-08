@@ -328,7 +328,7 @@ export default {
       this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
     },
     caseType (val) {
-      this.$fetch()
+      this.fetchDebounced()
     },
     surBakedData (val) {
       this.$utils.log(val)
@@ -452,6 +452,7 @@ export default {
   created () {
     this.startDateObj = this.firstDayofMonth
     this.endDateObj = this.lastDayofMonth
+    this.fetchDebounced = this.$utils.debounce(this.$fetch, 1000)
   }
 }
 </script>
