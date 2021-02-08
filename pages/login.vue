@@ -42,6 +42,13 @@ export default {
     },
     hasHistory () { return window.history.length > 2 }
   },
+  watch: {
+    loggedIn (flag) {
+      if (flag) {
+        this.refirect()
+      }
+    }
+  },
   methods: {
     check () {
       if (this.$utils.equal(this.hashed, this.secret)) {
@@ -52,28 +59,34 @@ export default {
         ).then((opts) => {
           // this.$utils.log(opts)
           this.$store.commit('admin', true)
-          // this.$router.push('/admin')
-          this.$router.go(-1)
+          if (this.hasHistory) {
+            this.$router.go(-1)
+          } else {
+            this.$router.push('/admin')
+          }
         })
       } else {
         // not ok
         this.alert('密碼不相符，請重試！')
       }
-    }
-  },
-  fetch () {
-  },
-  mounted () {
-    if (this.loggedIn) {
+    },
+    refirect () {
       if (this.hasHistory) {
         this.$router.go(-1)
       } else {
         this.$router.push('/admin')
       }
-    } else {
-      this.isBusy = false
-      this.$refs.password.$el.focus()
     }
+  },
+  created () {
+    this.isBusy = true
+    if (this.loggedIn) {
+      this.refirect()
+    }
+  },
+  mounted () {
+    this.isBusy = false
+    this.$refs.password.$el.focus()
   }
 }
 </script>
