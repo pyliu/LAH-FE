@@ -329,6 +329,9 @@ export default {
     },
     caseType (val) {
       this.$fetch()
+    },
+    surBakedData (val) {
+      this.$utils.log(val)
     }
   },
   methods: {
