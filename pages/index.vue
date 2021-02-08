@@ -2,7 +2,7 @@
   div
     lah-header
     .container: div
-      section.fixed-title-height
+      section.fixed-title-height.center
         lah-transition(appear): div
           lah-logo
           h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
