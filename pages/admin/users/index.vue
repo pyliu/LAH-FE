@@ -520,6 +520,8 @@ export default {
       if (auth.isChief) return "primary"
       if (auth.isRAE) return "warning"
       if (auth.isGA) return "info"
+      if (auth.isHR) return "outline-info"
+      if (auth.isAccounting) return "outline-dark"
       if (auth.isAdmin) return "outline-danger"
       return "outline-success"
     },
@@ -529,6 +531,8 @@ export default {
       if (auth.isSuper) return "程式開發者"
       if (auth.isChief) return "主管"
       if (auth.isRAE) return "研考"
+      if (auth.isHR) return "人事"
+      if (auth.isAccounting) return "會計"
       if (auth.isGA) return "總務"
       if (auth.isAdmin) return "系統管理者"
       return ""
@@ -540,6 +544,8 @@ export default {
         isGA: false,
         isRAE: false,
         isSuper: false,
+        isHR: false,
+        isAccounting: false
       }
       if (this.systemConfigs && this.systemConfigs.ip_maps) {
         const mappings = this.systemConfigs.ip_maps
@@ -549,6 +555,8 @@ export default {
         authorityMap.isSuper = mappings.super.includes(ip)
         authorityMap.isRAE = mappings.rae.includes(ip)
         authorityMap.isGA = mappings.ga.includes(ip)
+        authorityMap.isHR = mappings.hr.includes(ip)
+        authorityMap.isAccounting = mappings.accounting.includes(ip)
       }
       return authorityMap
     },
