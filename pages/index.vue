@@ -32,14 +32,6 @@ export default {
   async asyncData(nuxt) {
     // SSR: returned object will replace the data inside "data" before rendering
   },
-  watch: {
-    user (val) {
-      this.$utils.log('user', val)
-    },
-    myinfo (val) {
-      this.$utils.log('myinfo', val)
-    }
-  },
   mounted () {
     const ua = window.navigator.userAgent
     if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
