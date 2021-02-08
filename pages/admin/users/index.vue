@@ -397,10 +397,10 @@ export default {
         if (this.systemConfigs.ip_maps.admin.includes(item['ip'])) {
           return filtered[1].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.hr.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.accounting.includes(item['ip'])) {
           return filtered[5].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.accounting.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.hr.includes(item['ip'])) {
           return filtered[6].LIST.push(item)
         }
         return filtered[7].LIST.push(item)
