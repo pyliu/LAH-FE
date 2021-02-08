@@ -341,6 +341,7 @@ export default {
     resetCommitted () {
       this.committed = false
       this.regBakedData = []
+      this.surBakedData = []
       this.currentPage = 1
     },
     ignoreTyoffices () {
