@@ -182,7 +182,7 @@ export default {
   },
   methods: {
     logout () {
-      const message = this.$utils.empty(user) ? '請確認要清除快取資料？' : '請確認要登出並清除快取資料？'
+      const message = this.$utils.empty(this.user) ? '請確認要清除快取資料？' : '請確認要登出並清除快取資料？'
       this.confirm(message).then((ans) => {
         ans && this.clearCache() && this.notify('登出完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
       })
