@@ -43,7 +43,9 @@ const state = () => ({
     isChief: false,
     isGA: false,
     isRAE: false,
-    isSuper: false
+    isSuper: false,
+    isHR: false,
+    isAccounting: false
   },
   systemConfigs: {},
   lastMessage: '',

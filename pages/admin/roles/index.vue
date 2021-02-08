@@ -181,6 +181,8 @@ export default {
       { text: '主管', value: 4 },
       { text: '研考', value: 5 },
       { text: '總務', value: 6 },
+      { text: '人事', value: 7 },
+      { text: '會計', value: 8 },
       { text: '系統管理者', value: 3 },
       { text: '超級管理者', value: 2 }
     ],
@@ -265,6 +267,8 @@ export default {
       if (user['role_name'] === '研考') return "warning"
       if (user['role_name'] === '總務') return "info"
       if (user['role_name'] === '系統管理者') return "outline-danger"
+      if (user['role_name'] === '人事') return "outline-info"
+      if (user['role_name'] === '會計') return "outline-warning"
       return "outline-secondary"
     },
     popupUserInfo (data) {
