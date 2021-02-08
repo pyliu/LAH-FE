@@ -1,25 +1,22 @@
-<template>
-  <div>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">非專業代理人案件檢索</div>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'">
-              <h5>請參照下列步驟搜尋</h5>
-              <ol>
-                <li>選擇日期區間(預設為目前月份)</li>
-                <li>輸入想要忽略之統編(非必要)</li>
-                <li>點擊 <lah-fa-icon icon="search" variant="primary" no-gutter /> 搜尋</li>
-              </ol>
+<template lang="pug">
+  div
+    lah-header
+      lah-transition(appear)
+        .d-flex.justify-content-between.w-100
+          .d-flex
+            .my-auto 非專業代理人案件檢索
+            lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+            lah-help-modal(:modal-id="'help-modal'")
+              h5 請參照下列步驟搜尋
+              ol
+                li 選擇日期區間(預設為目前月份)
+                li 輸入想要忽略之統編(非必要)
+                li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
               <hr/>
-              <lah-fa-icon icon="lightbulb" regular variant="warning">點擊「收件字號」開啟案件詳情視窗</lah-fa-icon>
-            </lah-help-modal>
-          </div>
-          <client-only>
-            <div class="d-flex">
-              <b-datepicker
+              lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件字號」開啟案件詳情視窗
+          client-only
+            .d-flex
+              b-datepicker(
                 value-as-date
                 v-model="startDateObj"
                 placeholder="開始日期"
@@ -29,9 +26,9 @@
                 :max="yesterday"
                 hide-header
                 dropleft
-              />
-              <div class="my-auto">～</div>
-              <b-datepicker
+              )
+              .my-auto ～
+              b-datepicker(
                 value-as-date
                 v-model="endDateObj"
                 placeholder="截止日期"
@@ -43,8 +40,8 @@
                 :max="today"
                 :min="startDateObj"
                 hide-header
-              />
-              <lah-button
+              )
+              lah-button(
                 icon="search"
                 size="lg"
                 @click="$fetch"
@@ -53,8 +50,8 @@
                 title="搜尋"
                 class="mr-1"
                 no-icon-gutter
-              />
-              <lah-countdown-button
+              )
+              lah-countdown-button(
                 ref="countdown"
                 icon="sync-alt"
                 action="ld-cycle"
@@ -68,14 +65,9 @@
                 badge-variant="secondary"
                 title="強制重新搜尋"
                 no-badge
-              />
-            </div>
-          </client-only>
-        </div>
-      </lah-transition>
-    </lah-header>
-    <div class="d-flex justify-content-between">
-      <b-pagination
+              )
+    .d-flex.justify-content-between
+      b-pagination(
         v-if="!$utils.empty(bakedData) && bakedData.length > perPage"
         v-model="currentPage"
         :total-rows="bakedData.length"
@@ -84,9 +76,9 @@
         first-number
         aria-controls="scrivener-table"
         class="my-auto mr-2"
-      />
-      <b-input-group size="sm" prepend="忽略" class="tags-input">
-        <b-form-tags
+      )
+      b-input-group(size="sm" prepend="忽略" class="tags-input")
+        b-form-tags(
           input-id="tags"
           v-model="ignoreTags"
           separator=" ,;"
@@ -96,16 +88,13 @@
           placeholder="忽略的統編 ... "
           add-button-text="新增"
           add-button-variant="outline-secondary"
-        />
-        <b-input-group-append>
-          <lah-button prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市">各事務所</lah-button>
-          <lah-button action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤">清除</lah-button>
-        </b-input-group-append>
-      </b-input-group>
-    </div>
-    <lah-transition>
-      <div v-if="committed">
-        <lah-reg-b-table
+        )
+        b-input-group-append
+          lah-button(prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市") 各事務所
+          lah-button(action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤") 清除
+    lah-transition
+      div(v-if="committed")
+        lah-reg-b-table(
           :busy="isBusy"
           :baked-data="bakedData"
           :fields="fields"
@@ -113,12 +102,9 @@
           :current-page="currentPage"
           :caption-append="captionRange"
           :max-height-offset="150"
-          only-popup-detail
-        />
-      </div>
-      <h3 v-else class="text-center"><lah-fa-icon icon="search" action="breath" variant="primary">請點擊查詢按鈕</lah-fa-icon></h3>
-    </lah-transition>
-  </div>
+          only-popup-detailed
+        )
+      h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 </template>
 
 <script>
