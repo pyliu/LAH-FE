@@ -1,31 +1,26 @@
-<template>
-  <h3 class="d-flex justify-content-between py-3">
-    <lah-button
+<template lang="pug">
+  h3.d-flex.justify-content-between.py-3
+    lah-button.bars-button.mr-1(
       icon="bars"
       size="lg"
       action="ld-move-fade-ltr"
       variant="outline-dark"
       title="開啟選單"
-      class="bars-button mr-1"
       no-icon-gutter
       v-b-toggle.lah-sidebar
-    />
-    <slot></slot>
-    <lah-transition>
-      <lah-button
-        v-if="$route.path !== '/'"
-        icon="home"
-        size="lg"
-        action="ld-breath"
-        variant="outline-dark"
-        title="回到首頁"
-        to="/"
-        class="home-button ml-1"
-        no-icon-gutter
-      />
-    </lah-transition>
-    <lah-sidebar />
-  </h3>
+    )
+    slot
+    lah-transition: lah-button.home-button.ml-1(
+      v-if="$route.path !== '/'"
+      icon="home"
+      size="lg"
+      action="ld-breath"
+      variant="outline-dark"
+      title="回到首頁"
+      to="/"
+      no-icon-gutter
+    )
+    lah-sidebar
 </template>
 
 <script>
