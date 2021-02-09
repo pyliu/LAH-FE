@@ -1,18 +1,13 @@
-<template>
-  <b-card
-    class="anim-appear-1s shadow lah-index-card-link"
+<template lang="pug">
+  b-card.anim-appear-1s.shadow.lah-index-card-link(
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
     @blur="mouseleave"
     :no-body="noBody"
-  >
-    <NuxtLink :to="to">
-      <div class="mb-2 center">
-        <font-awesome-icon ref="icon" :icon="icon" :size="size" :class="variant" />
-      </div>
-      <b-card-title :title-tag="titleTag" class="center"><slot></slot></b-card-title>
-    </NuxtLink>
-  </b-card>
+  ): nuxt-link(:to="to")
+    div.mb-2.center
+      font-awesome-icon(ref="icon" :icon="icon" :size="size" :class="variant")
+    b-card-title.center(:title-tag="titleTag"): slot
 </template>
 
 <script>
