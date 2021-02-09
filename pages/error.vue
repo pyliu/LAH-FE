@@ -1,30 +1,18 @@
-<template>
-  <div v-cloak>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100 my-auto">
-          <div class="d-flex">
-            <lah-fa-icon append regular icon="comment-dots" variant="danger">錯誤訊息</lah-fa-icon>
-          </div>
-          <div></div>
-        </div>
-      </lah-transition>
-    </lah-header>
-    <b-container fluid v-cloak>
-      <div class="text-center">
-        <div class="box">
-          <i class="fas fa-exclamation-circle fa2"></i>
-          <div class="text">
-            <i class="fas fa-exclamation-triangle fa1"></i>
-            <div>
-              <h4 v-html="message"/>
-              <p class="mt-5">仍然有問題!? 可嘗試 <b-link @click="clearFECache" class="text-light"> <font-awesome-icon :icon="['fas', 'hand-sparkles']" /> 清除瀏覽器快取資料</b-link>。</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </b-container>
-  </div>
+<template lang="pug">
+  div(v-cloak)
+    lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100.my-auto
+      .d-flex: lah-fa-icon(append regular icon="comment-dots" variant="danger") 錯誤訊息
+      div
+    b-container(fluid v-cloak): .text-center: .box
+      i.fas.fa-exclamation-circle.fa2
+      .text
+        i.fas.fa-exclamation-triangle.fa1
+        div
+          h4(v-html="message")
+          p.mt-5.
+            仍然有問題!? 可嘗試
+            #[b-link(@click="clearFECache" class="text-light") #[font-awesome-icon(:icon="['fas', 'hand-sparkles']")]]清除瀏覽器快取資料
+            。
 </template>
 
 <script>
