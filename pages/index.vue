@@ -1,11 +1,10 @@
 <template lang="pug">
-  div
+  .h-100
     lah-header
     .container: div
-      section.fixed-title-height.center
-        lah-transition(appear): div
-          lah-logo
-          h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
+      section.fixed-title-height.center: lah-transition(appear): div
+        lah-logo
+        h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
       lah-transition(appear): section.b-card-container
         b-card-group.mb-4(deck)
           lah-index-card-link(:icon="['far', 'calendar-check']" to="/expire") 即將逾期案件
