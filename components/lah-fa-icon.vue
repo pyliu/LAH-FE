@@ -1,9 +1,8 @@
-<template>
-  <span :class="alignClassName">
-    <i v-if="!append" :id="iconId" :class="className" @click="emitClick($event)"></i>
-    <slot></slot>
-    <i v-if="append" :id="iconId" :class="className" @click="emitClick($event)"></i>
-  </span>
+<template lang="pug">
+  span(:class="alignClassName")
+    i(v-if="!append" :id="iconId" :class="className" @click="emitClick($event)")
+    slot
+    i(v-if="append" :id="iconId" :class="className" @click="emitClick($event)")
 </template>
 
 <script>
