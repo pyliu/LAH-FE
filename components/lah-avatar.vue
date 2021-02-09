@@ -1,17 +1,15 @@
-<template>
-  <span>
-    <b-avatar
+<template lang="pug">
+  span
+    b-avatar.my-auto(
       button 
       :variant="variant" 
       :size="`${size}em`" 
       :src="avatarSrc" 
-      class="my-auto"
       :title="`${userId} ${userName}`"
       @click="photoClick($event)"
       @img-error="srcNotAvailable"
-    />
-    <slot></slot>
-  </span>
+    )
+    slot
 </template>
 
 <script>
