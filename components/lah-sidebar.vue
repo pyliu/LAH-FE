@@ -83,12 +83,12 @@
       li(v-if="isAuthorized"): nuxt-link(to="/admin").
         #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
         系統管理
-      li(v-if="isAuthorized"): nuxt-link(to="/stats").
-        #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
-        統計看板
-      li(v-if="isAuthorized"): nuxt-link(to="/playground").
-        #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
-        測試
+      //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
+      //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
+      //-   統計看板
+      //- li(v-if="isAuthorized"): nuxt-link(to="/playground").
+      //-   #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
+      //-   測試
 
       li: hr
       

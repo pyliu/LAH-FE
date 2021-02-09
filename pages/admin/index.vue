@@ -25,8 +25,8 @@
         lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="5x" icon-variant="danger" action="rubber-v") 系統參數設定
       b-card-group(deck class="row")
         lah-index-card-link(:icon="['fas', 'tachometer-alt']" to="/admin/lxhweb" no-body size="5x" icon-variant="info" action="measure") 同步異動監控
-        b-card
-        b-card
+        lah-index-card-link(icon-variant="muted" action="damage" no-body size="5x" to="/stats") 統計看板
+        lah-index-card-link(icon-variant="muted" action="damage" no-body size="5x" to="/playground") 測試
 </template>
 
 <script>
