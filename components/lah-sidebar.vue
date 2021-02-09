@@ -1,168 +1,119 @@
-<template>
-  <b-sidebar
+<template lang="pug">
+  b-sidebar(
     id="lah-sidebar"
     title="選單"
     bg-variant="dark"
     text-variant="light"
     backdrop
     shadow
-  >
-    <template #title>
-      <lah-avatar :user-data="myinfo" size="1.6" class="mt-n1"/>
-      <span class="s-95 greeting" @click="popup">
+  )
+    template(#title)
+      lah-avatar.mt-n1(:user-data="myinfo" size="1.6")
+      span.s-95.greeting(@click="popup").
         {{myinfo.id}}
         {{myinfo.name}}
         {{greeting}}
-      </span>
-    </template>
-    <ul class="mt-n3">
-      <li><hr/></li>
-      <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['fas', 'home']" pull="left" size="lg" />
-          首頁
-        </NuxtLink>
-      </li>
-      <li><hr/></li>
-      <li>
-        <NuxtLink to="/expire">
-          <font-awesome-icon :icon="['far', 'calendar-check']" size="lg" />
-          即將逾期案件
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/expiry-of-announcement">
-          <font-awesome-icon :icon="['fa', 'sticky-note']" size="lg" />
-          公告期滿案件
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/ask-for-instructions">
-          <font-awesome-icon :icon="['fas', 'user-tie']" size="lg" />
-          請示未結案件
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/trust-case">
-          <font-awesome-icon :icon="['fas', 'money-check-alt']" size="lg" />
-          信託案件
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/non-scrivener-case">
-          <font-awesome-icon :icon="['fas', 'user-tag']" size="lg" />
-          非專業代理人案件
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/foreigner-case">
-          <font-awesome-icon :icon="['fas', 'user-astronaut']" size="lg" />
-          外人地權案件
-        </NuxtLink>
-      </li>
-      <!-- <li>
-        <NuxtLink to="/agriculture-375-change">
-          <font-awesome-icon :icon="['fas', 'border-all']" size="lg" />
-          三七五租約異動
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-          未辦標的註記異動
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-          參考資訊檔異動通知書產製
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-          逾期未駁回案件
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-          辦畢通知查詢
-        </NuxtLink>
-      </li>
-      <li>
-        <NuxtLink to="/">
-          <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-          領狀管控查詢
-        </NuxtLink>
-      </li> -->
-      <li v-if="isAuthorized"><hr/></li>
-      <li v-if="isAuthorized">
-        <NuxtLink to="/admin">
-          <font-awesome-icon :icon="['fas', 'cogs']" size="lg" />
-          系統管理
-        </NuxtLink>
-      </li>
-      <li v-if="isAuthorized">
-        <NuxtLink to="/stats">
-          <font-awesome-icon :icon="['fas', 'calculator']" size="lg" />
-          統計看板
-        </NuxtLink>
-      </li>
-      <li v-if="isAuthorized">
-        <NuxtLink to="/playground">
-          <font-awesome-icon :icon="['fab', 'playstation']" size="lg" />
-          測試
-        </NuxtLink>
-      </li>
-      <li><hr/></li>
-      <li v-if="!isAuthorized">
-        <NuxtLink to="/login">
-          <font-awesome-icon :icon="['fas', 'sign-in-alt']" size="lg" />
-          管理者登入
-        </NuxtLink>
-      </li>
-      <li>
-        <a :href="apiSvrHttpUrl" target="_blank" rel="noopener noreferrer">
-          <font-awesome-icon :icon="['fas', 'history']" pull="left" size="lg" />
-          先前版本
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/pyliu/LAH-NUXTJS"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <font-awesome-icon :icon="['fab', 'github']" pull="left" size="lg" />
-          原始碼
-        </a>
-      </li>
-      <li v-if="$utils.empty(user)">
-        <b-link @click="logout">
-          <font-awesome-icon :icon="['fas', 'hand-sparkles']" size="lg" />
-          清除瀏覽器端快取資料
-        </b-link>
-      </li>
-      <li v-else>
-        <b-link @click="logout" title="清除瀏覽器端快取資料">
-          <font-awesome-icon :icon="['fas', 'sign-out-alt']" size="lg" />
-          登出
-        </b-link>
-      </li>
-      <li><hr/></li>
-    </ul>
-    <template #footer>
-      <div class="d-flex bg-dark text-light justify-content-between px-3 py-2 align-middle">
-        <span class="s-75 text-muted my-auto">{{ip}}</span>
-        <b-link href="mailto:pangyu.liu@gmail.com">
-          <lah-fa-icon icon="copyright" title="寄信給 LIU, PANG-YU" class="s-75 text-muted my-auto">
-            LIU, PANG-YU
-          </lah-fa-icon>
-        </b-link>
-      </div>
-    </template>
-  </b-sidebar>
+    ul.mt-n3
+
+      li: hr
+
+      li: nuxt-link(to="/").
+        #[font-awesome-icon(:icon="['fas', 'home']" pull="left" size="lg")]
+        首頁
+
+      li: hr
+      
+      li: nuxt-link(to="/expire").
+        #[font-awesome-icon(:icon="['far', 'calendar-check']" size="lg")]
+        即將逾期案件
+      li: nuxt-link(to="/expiry-of-announcement").
+        #[font-awesome-icon(:icon="['fa', 'sticky-note']" size="lg")]
+        公告期滿案件
+      li: nuxt-link(to="/ask-for-instructions").
+        #[font-awesome-icon(:icon="['fas', 'user-tie']" size="lg")]
+        請示未結案件
+      li: nuxt-link(to="/trust-case").
+        #[font-awesome-icon(:icon="['fas', 'money-check-alt']" size="lg")]
+        信託案件
+      li: nuxt-link(to="/non-scrivener-case").
+        #[font-awesome-icon(:icon="['fas', 'user-tag']" size="lg")]
+        非專業代理人案件
+      li: NuxtLink(to="/foreigner-case").
+        #[font-awesome-icon(:icon="['fas', 'user-astronaut']" size="lg")]
+        外人地權案件
+      //- <li>
+      //-   <NuxtLink to="/agriculture-375-change">
+      //-     <font-awesome-icon :icon="['fas', 'border-all']" size="lg" />
+      //-     三七五租約異動
+      //-   </NuxtLink>
+      //- </li>
+      //- <li>
+      //-   <NuxtLink to="/">
+      //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+      //-     未辦標的註記異動
+      //-   </NuxtLink>
+      //- </li>
+      //- <li>
+      //-   <NuxtLink to="/">
+      //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+      //-     參考資訊檔異動通知書產製
+      //-   </NuxtLink>
+      //- </li>
+      //- <li>
+      //-   <NuxtLink to="/">
+      //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+      //-     逾期未駁回案件
+      //-   </NuxtLink>
+      //- </li>
+      //- <li>
+      //-   <NuxtLink to="/">
+      //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+      //-     辦畢通知查詢
+      //-   </NuxtLink>
+      //- </li>
+      //- <li>
+      //-   <NuxtLink to="/">
+      //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
+      //-     領狀管控查詢
+      //-   </NuxtLink>
+      //- </li>
+
+      li: hr
+
+      li(v-if="isAuthorized"): nuxt-link(to="/admin").
+        #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
+        系統管理
+      li(v-if="isAuthorized"): nuxt-link(to="/stats").
+        #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
+        統計看板
+      li(v-if="isAuthorized"): nuxt-link(to="/playground").
+        #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
+        測試
+
+      li: hr
+      
+      li(v-if="!isAuthorized"): nuxt-link(to="/login").
+        #[font-awesome-icon(:icon="['fas', 'sign-in-alt']" size="lg")]
+        管理者登入
+      li: a(:href="apiSvrHttpUrl" target="_blank" rel="noopener noreferrer").
+        #[font-awesome-icon(:icon="['fas', 'history']" pull="left" size="lg")]
+        先前版本
+      li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
+        #[font-awesome-icon(:icon="['fab', 'github']" pull="left" size="lg")]
+        原始碼
+      li(v-if="$utils.empty(user)"): b-link(@click="logout").
+        #[font-awesome-icon(:icon="['fas', 'hand-sparkles']" size="lg")]
+        清除瀏覽器端快取資料
+      li(v-else): b-link(@click="logout" title="清除瀏覽器端快取資料").
+        #[font-awesome-icon(:icon="['fas', 'sign-out-alt']" size="lg")]
+        登出
+      
+      li: hr
+    template(#footer)
+      div.d-flex.bg-dark.text-light.justify-content-between.px-3.py-2.align-middle
+        span.s-75.text-muted.my-auto {{ip}}
+        b-link(href="mailto:pangyu.liu@gmail.com")
+          lah-fa-icon.s-75.text-muted.my-auto(icon="copyright" title="寄信給 LIU, PANG-YU") LIU, PANG-YU
 </template>
 
 <script>
