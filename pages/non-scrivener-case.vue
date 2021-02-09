@@ -69,11 +69,11 @@
                 title="強制重新搜尋"
                 no-badge
               )
-    .d-flex.justify-content-between
+    .d-flex.justify-content-between.mb-1
       b-pagination(
-        v-if="!$utils.empty(regBakedData) && regBakedData.length > perPage"
+        v-if="showPagination"
         v-model="currentPage"
-        :total-rows="regBakedData.length"
+        :total-rows="paginationCount"
         :per-page="perPage"
         last-number
         first-number
@@ -104,7 +104,7 @@
           :per-page="perPage"
           :current-page="currentPage"
           :caption-append="captionRange"
-          :max-height-offset="150"
+          :max-height-offset="160"
           only-popup-detailed
           v-if="caseType === 'reg'"
         )
@@ -116,7 +116,7 @@
           :per-page="perPage"
           :current-page="currentPage"
           :caption-append="captionRange"
-          :max-height-offset="150"
+          :max-height-offset="160"
           only-popup-detailed
         )
       h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
@@ -327,7 +327,6 @@ export default {
     },
     cacheKey () {
       const key = this.caseType === 'reg' ? `non_scrivener_reg_case_${this.md5Hash}` : `non_scrivener_sur_case_${this.md5Hash}`
-      this.$utils.log(key)
       return key
     },
     firstDayofMonth () {
@@ -341,7 +340,19 @@ export default {
     captionRange () {
       return `，【${this.startDate.substring(0, 3)}-${this.startDate.substring(3, 5)}-${this.startDate.substring(5)} ~ ${this.endDate.substring(0, 3)}-${this.endDate.substring(3, 5)}-${this.endDate.substring(5)}】`
     },
-    fetchType () { return this.caseType === 'reg' ? `reg_non_scrivener_web_case` : `reg_non_scrivener_sur_case` }
+    fetchType () { return this.caseType === 'reg' ? `reg_non_scrivener_web_case` : `reg_non_scrivener_sur_case` },
+    showPagination () {
+      if (this.caseType === 'reg') {
+        return !this.$utils.empty(this.regBakedData) && this.regBakedData.length > this.perPage
+      }
+      return !this.$utils.empty(this.surBakedData) && this.surBakedData.length > this.perPage
+    },
+    paginationCount () {
+      if (this.caseType === 'reg') {
+        return this.regBakedData.length
+      }
+      return this.surBakedData.length
+    }
   },
   watch: {
     startDateObj (val) {
