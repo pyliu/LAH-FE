@@ -1,5 +1,5 @@
-<template>
-  <transition
+<template lang="pug">
+  transition(
     :enter-active-class="animated_in"
     :leave-active-class="animated_out"
     :mode="mode"
@@ -8,9 +8,8 @@
     @leave="leave($event)"
     @after-enter="afterEnter($event)"
     @after-leave="afterLeave($event)"
-  >
-    <slot>轉場內容會顯示在這邊</slot>
-  </transition>
+  )
+    slot 轉場內容會顯示在這邊
 </template>
 
 <script>
