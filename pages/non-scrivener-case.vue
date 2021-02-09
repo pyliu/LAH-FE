@@ -340,7 +340,7 @@ export default {
     captionRange () {
       return `，【${this.startDate.substring(0, 3)}-${this.startDate.substring(3, 5)}-${this.startDate.substring(5)} ~ ${this.endDate.substring(0, 3)}-${this.endDate.substring(3, 5)}-${this.endDate.substring(5)}】`
     },
-    fetchType () { return this.caseType === 'reg' ? `reg_non_scrivener_web_case` : `reg_non_scrivener_sur_case` },
+    fetchType () { return this.caseType === 'reg' ? `reg_non_scrivener_reg_case` : `reg_non_scrivener_sur_case` },
     showPagination () {
       if (this.caseType === 'reg') {
         return !this.$utils.empty(this.regBakedData) && this.regBakedData.length > this.perPage
@@ -393,7 +393,7 @@ export default {
           } else {
             this.isBusy = true
             this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-              type: 'reg_non_scrivener_web_case',
+              type: 'reg_non_scrivener_reg_case',
               start_date: this.startDate,
               end_date: this.endDate,
               reload: this.forceReload,
