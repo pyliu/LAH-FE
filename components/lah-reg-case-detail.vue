@@ -1,13 +1,11 @@
-<template>
-  <div v-if="ready">
-    <!-- header flow table -->
-    <lah-reg-case-flow compact :parent-data="bakedData"></lah-reg-case-flow>
-    <!-- detail info card -->
-    <b-card-group deck>
-      <lah-reg-case-data :parent-data="bakedData"></lah-reg-case-data>
-      <lah-reg-case-status :parent-data="bakedData"></lah-reg-case-status>
-    </b-card-group>
-  </div>
+<template lang="pug">
+  div(v-if="ready")
+    //- <!-- header flow table -->
+    lah-reg-case-flow(compact :parent-data="bakedData")
+    //- <!-- detail info card -->
+    b-card-group(deck)
+      lah-reg-case-data(:parent-data="bakedData")
+      lah-reg-case-status(:parent-data="bakedData")
 </template>
 
 <script>
