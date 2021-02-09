@@ -1,6 +1,6 @@
-<template>
-  <div class="center">
-    <b-img-lazy
+<template lang="pug">
+  .center
+    b-img-lazy(
       :fluid="fluid"
       :thumbnail="thumbnail"
       :src="src"
@@ -10,8 +10,7 @@
       :right="right"
       :center="center"
       :rounded="rounded"
-    />
-  </div>
+    )
 </template>
 
 <script>
