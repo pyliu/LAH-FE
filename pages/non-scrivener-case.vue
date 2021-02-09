@@ -106,6 +106,18 @@
           :caption-append="captionRange"
           :max-height-offset="150"
           only-popup-detailed
+          v-if="caseType === 'reg'"
+        )
+        lah-reg-b-table(
+          v-else
+          :busy="isBusy"
+          :baked-data="surBakedData"
+          :fields="surFields"
+          :per-page="perPage"
+          :current-page="currentPage"
+          :caption-append="captionRange"
+          :max-height-offset="150"
+          only-popup-detailed
         )
       h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 </template>
@@ -225,7 +237,8 @@ export default {
     surBakedData: [],
     surFields: [
       {
-        key: "收件字號",
+        key: "MM123",
+        label: '收件字號',
         sortable: true
       },
       {
@@ -233,7 +246,7 @@ export default {
         sortable: true
       },
       {
-        key: "登記原因",
+        key: "申請事由",
         sortable: true
       },
       {
@@ -267,27 +280,33 @@ export default {
         sortable: true
       },
       {
-        key: "權利人姓名",
+        key: 'MM13',
+        label: "申請人統編",
         sortable: true
       },
       {
-        key: "權利人住址",
+        key: 'MM14',
+        label: "申請人姓名",
         sortable: true
       },
       {
-        key: "義務人姓名",
+        key: 'MM15',
+        label: "申請人電話",
         sortable: true
       },
       {
-        key: "義務人住址",
+        key: 'MM16',
+        label: "申請人住址",
         sortable: true
       },
       {
-        key: "區名稱",
+        key: 'RM10_C_KCNT',
+        label: "區名稱",
         sortable: true
       },
       {
-        key: "段小段",
+        key: 'RM11_C_KCNT',
+        label: "段小段",
         sortable: true
       },
       {
@@ -328,15 +347,13 @@ export default {
       this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
     },
     caseType (val) {
-      this.fetchDebounced()
-    },
-    surBakedData (val) {
-      this.$utils.log(val)
+      this.$fetch()
     }
   },
   methods: {
     reload () {
       this.forceReload = true
+      this.$fetch()
     },
     resetCommitted () {
       this.committed = false
@@ -452,7 +469,6 @@ export default {
   created () {
     this.startDateObj = this.firstDayofMonth
     this.endDateObj = this.lastDayofMonth
-    this.fetchDebounced = this.$utils.debounce(this.$fetch, 1000)
   }
 }
 </script>
