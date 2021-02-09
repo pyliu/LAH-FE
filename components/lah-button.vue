@@ -1,5 +1,5 @@
-<template>
-  <b-button
+<template lang="pug">
+  b-button(
     :link="link"
     :variant="variant"
     :size="size"
@@ -15,29 +15,24 @@
     @blur="mouseleave"
     @click="emitClick($event)"
     style="display: flex; align-items: center; justify-content: center;"
-  >
-    <lah-fa-icon
-      ref="icon"
-      :prefix="faIconPrefix"
-      :icon="icon"
-      :size="iconSize"
-      :append="iconAppend"
-      :no-gutter="noIconGutter"
-      :variant="iconVariant"
-    >
-      <span v-if="busy" class="ld-txt">讀取中...</span>
-      <span v-show="!busy">
-        <slot></slot>
-        <b-badge
-          v-if="showBadge"
-          :variant="badgeVariant"
-          :pill="badgePill"
-        >
-          {{ badgeText }}
-        </b-badge>
-      </span>
-    </lah-fa-icon>
-  </b-button>
+  ): lah-fa-icon(
+    ref="icon"
+    :prefix="faIconPrefix"
+    :icon="icon"
+    :size="iconSize"
+    :append="iconAppend"
+    :no-gutter="noIconGutter"
+    :variant="iconVariant"
+  )
+    span.ld-txt(v-if="busy") 讀取中...
+    span(v-show="!busy")
+      slot
+      b-badge(
+        v-if="showBadge"
+        :variant="badgeVariant"
+        :pill="badgePill"
+      ).
+        {{ badgeText }}
 </template>
 
 <script>
