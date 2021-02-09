@@ -1,5 +1,5 @@
-<template>
-  <lah-button
+<template lang="pug">
+  lah-button(
     ref="btn"
     :icon="icon"
     :variant="variantMediator"
@@ -9,24 +9,20 @@
     class="align-middle"
     :busy="busy"
     :no-icon-gutter="noBadge"
-  >
-    <slot></slot> 
-    <b-badge v-show="!noBadge" ref="badge" :variant="badgeVariant" class="ml-1">
-      <countdown
+  )
+    slot
+    b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
+      countdown(
         ref="cd"
         :time="milliseconds"
         :auto-start="false"
         @end="$emit('end', $event)"
         @start="$emit('start', $event)"
         @progress="handleProgress"
-      >
-        <template slot-scope="props">
-          <span v-if="props.hours > 0">{{ props.hours.toString().padStart(2, '0') }}:</span>{{ props.minutes.toString().padStart(2, '0') }}:{{ props.seconds.toString().padStart(2, '0') }}
-        </template>
-      </countdown>
-      <span class="sr-only">倒數</span>
-    </b-badge>
-  </lah-button>
+      ): template(slot-scope="props").
+          #[span(v-if="props.hours > 0") {{ props.hours.toString().padStart(2, '0') }}:]
+          {{ props.minutes.toString().padStart(2, '0') }}:{{ props.seconds.toString().padStart(2, '0') }}
+      span.sr-only 倒數
 </template>
 
 <script>
