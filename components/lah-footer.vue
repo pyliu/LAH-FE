@@ -1,24 +1,15 @@
-<template>
-  <lah-transition slide-up appear>
-    <p v-if="show" :class="classes">
-      <span>
-        <a
-          href="https://github.com/pyliu/LAH-NUXTJS"
-          target="_blank"
-          title="View project on Github!"
-        >
-          <i class="fab fa-github fa-lg text-dark"></i>
-        </a>
-        <strong>
-          <i class="far fa-copyright"></i>
-          <a href="mailto:pangyu.liu@gmail.com">LIU, PANG-YU</a> ALL RIGHTS RESERVED.
-        </strong>
-        <a href="https://vuejs.org/" target="_blank" title="Learn Vue JS!">
-          <i class="text-success fab fa-vuejs fa-lg"></i>
-        </a>
-      </span>
-    </p>
-  </lah-transition>
+<template lang="pug">
+  lah-transition(slide-up appear): p(v-if="show" :class="classes"): span
+    a(
+      href="https://github.com/pyliu/LAH-NUXTJS"
+      target="_blank"
+      title="View project on Github!"
+    ): i.fab.fa-github.fa-lg.text-dark.mr-1 
+    strong.
+      #[i.far.fa-copyright]
+      #[a(href="mailto:pangyu.liu@gmail.com") LIU, PANG-YU]
+      ALL RIGHTS RESERVED.
+    a(href="https://vuejs.org/" target="_blank" title="Learn Vue JS!"): i.text-success.fab.fa-vuejs.fa-lg
 </template>
 
 <script>
