@@ -80,6 +80,7 @@
               icon="pen-square"
               variant="outline-danger"
               title="更新主密碼"
+              :disabled="masterPasswordNotChanged"
               @click="changeMasterPassword"
               no-icon-gutter
             />
@@ -818,6 +819,9 @@ export default {
   computed: {
     showMSSQLCards () {
       return this.loadedConfigs && (this.loadedConfigs['ENABLE_MSSQL_CONN'] === 'true' || this.loadedConfigs['ENABLE_MSSQL_CONN'] === true)
+    },
+    masterPasswordNotChanged () {
+      return this.$utils.equal(this.loadedConfigs['MASTER_PASSWORD'], this.origMasterPasswordHash)
     }
   },
   watch: {
@@ -830,8 +834,7 @@ export default {
     const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, {
       type: 'configs'
     })
-    // Object.assign makes var reactively
-    this.loadedConfigs = Object.assign({}, data.raw)
+    this.loadedConfigs = { ...data.raw }
     this.message = data.message
     this.origMasterPasswordHash = this.loadedConfigs['MASTER_PASSWORD']
   },
@@ -876,7 +879,11 @@ export default {
       })
     },
     changeMasterPassword () {
-      this.quick({MASTER_PASSWORD: this.loadedConfigs['MASTER_PASSWORD']})
+      if (this.masterPasswordNotChanged) {
+        this.notify('管理者密碼未變更', { type: 'warning' })
+      } else {
+        this.quick({MASTER_PASSWORD: this.loadedConfigs['MASTER_PASSWORD']})
+      }
       this.hideModalById('master-pw-modal')
     }
   }
