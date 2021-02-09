@@ -483,7 +483,7 @@ export default {
     },
     caption () {
       if (this.mute || this.noCaption) return ''
-      return this.busy ? "讀取中" : `登記案件找到 ${this.count} 件${this.captionAppend}`
+      return this.busy ? "讀取中" : `找到 ${this.count} 件案件${this.captionAppend}`
     },
     showIcon () { return !this.$utils.empty(this.icon) },
     sort () {
