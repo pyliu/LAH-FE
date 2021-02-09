@@ -1,256 +1,231 @@
-<template>
-  <b-card v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger">
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="ID"
-          label-for="id-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="id-input" v-model="userData['id']" :formatter="formatter" disabled trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="姓名"
-          label-for="name-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="name-input" v-model="userData['name']" :state="checkName" trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+<template lang="pug">
+  b-card(v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger")
+    b-card-group(deck)
+      b-card.border-0(no-body): b-form-group(
+        label="ID"
+        label-for="id-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="id-input"
+        v-model="userData['id']"
+        :formatter="formatter"
+        disabled
+        trim
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="姓名"
+        label-for="name-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="name-input"
+        v-model="userData['name']"
+        :state="checkName"
+        trim
+      )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="性別"
-          label-for="sex-select"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-select
-            id="sex-select"
-            v-model="userData['sex']"
-            :options="sexOpts"
-          ></b-select>
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="職稱"
-          label-for="work-title-select"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-select
-            id="work-title-select"
-            v-model="userData['title']"
-            :options="workTitleOpts"
-          ></b-select>
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+    b-card-group(deck)
+      b-card.border-0(no-body): b-form-group(
+        label="性別"
+        label-for="sex-select"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-select(
+        id="sex-select"
+        v-model="userData['sex']"
+        :options="sexOpts"
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="職稱"
+        label-for="work-title-select"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-select(
+        id="work-title-select"
+        v-model="userData['title']"
+        :options="workTitleOpts"
+      )
     
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="電腦"
-          label-for="ip-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="ip-input" v-model="userData['ip']" :state="checkIp" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="分機"
-          label-for="ext-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="ext-input" v-model="userData['ext']" :state="checkExt" trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+    b-card-group(deck)
+      b-card.border-0(no-body): b-form-group(
+        label="電腦"
+        label-for="ip-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="ip-input"
+        v-model="userData['ip']"
+        :state="checkIp"
+        trim
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="分機"
+        label-for="ext-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="ext-input"
+        v-model="userData['ext']"
+        :state="checkExt"
+        trim
+      )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="生日"
-          label-for="bd-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="bd-input" v-model="userData['birthday']" :state="checkBirthday" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="課室"
-          label-for="unit-select"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-select
-            id="unit-select"
-            v-model="userData['unit']"
-            :options="unitOpts"
-          ></b-select>
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+    b-card-group(deck)
+      b-card.border-0(no-body): b-form-group(
+        label="生日"
+        label-for="bd-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="bd-input"
+        v-model="userData['birthday']"
+        :state="checkBirthday"
+        trim
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="課室"
+        label-for="unit-select"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-select(
+        id="unit-select"
+        v-model="userData['unit']"
+        :options="unitOpts"
+      )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="工作"
-          label-for="work-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="work-input" v-model="userData['work']" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="教育"
-          label-for="edu-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="edu-input" v-model="userData['education']" trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+    b-card-group(deck)
+      b-card.border-0(no-body): b-form-group(
+        label="工作"
+        label-for="work-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="work-input"
+        v-model="userData['work']"
+        trim
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="教育"
+        label-for="edu-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="edu-input"
+        v-model="userData['education']"
+        trim
+      )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="考試"
-          label-for="exam-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="exam-input" v-model="userData['exam']" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="手機"
-          label-for="cell-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="cell-input" v-model="userData['cell']" :state="checkCell" trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+    b-card-group(deck)
+      b-card.border-0(no-body): b-form-group(
+        label="考試"
+        label-for="exam-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="exam-input"
+        v-model="userData['exam']"
+        trim
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="手機"
+        label-for="cell-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="cell-input"
+        v-model="userData['cell']"
+        :state="checkCell"
+        trim
+      )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="到職"
-          label-for="onboard-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="onboard-input" v-model="userData['onboard_date']" trim :state="checkOnboardDate" placeholder="110/01/22" />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
-          label="離職"
-          label-for="offboard-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input id="offboard-input" :value="userData['offboard_date']" disabled trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
-    <hr/>
-    <b-button-group class="d-flex justify-content-between">
-      <lah-button icon="save" :variant="saveButtonVariant" @click="save" :disabled="saveButtonDisabled">{{isLeft ? '已離職(無法變更資料)' : '儲存變更'}}</lah-button>
-      <lah-button icon="user-circle" regular v-if="!isLeft" variant="info" v-b-modal.upload-user-img-modal>上傳圖檔</lah-button>
-      <lah-button icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard">復職</lah-button>
-      <lah-button icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard">離職</lah-button>
-    </b-button-group>
-    <hr/>
-    <lah-user-card :raw="[userData]" @click="showModalById('upload-user-img-modal')"></lah-user-card>
-    <b-modal
+    b-card-group(deck)
+      b-card.border-0(no-body): b-form-group(
+        label="到職"
+        label-for="onboard-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="onboard-input"
+        v-model="userData['onboard_date']"
+        :state="checkOnboardDate"
+        placeholder="110/01/22"
+        trim
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="離職"
+        label-for="offboard-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="offboard-input"
+        :value="userData['offboard_date']"
+        disabled
+        trim
+      )
+    
+    hr
+
+    b-button-group.d-flex.justify-content-between
+      lah-button(icon="save" :variant="saveButtonVariant" @click="save" :disabled="saveButtonDisabled") {{ isLeft ? '已離職(無法變更資料)' : '儲存變更' }}
+      lah-button(icon="user-circle" regular v-if="!isLeft" variant="info" v-b-modal.upload-user-img-modal) 上傳圖檔
+      lah-button(icon="sign-in-alt" v-if="isLeft" variant="success" action="move-fade-ltr" @click="onboard") 復職
+      lah-button(icon="sign-out-alt" v-if="!isLeft" variant="danger" action="move-fade-ltr" @click="offboard") 離職
+
+    hr
+
+    lah-user-card(:raw="[userData]" @click="showModalById('upload-user-img-modal')")
+    
+    b-modal(
       id="upload-user-img-modal"
       :title="`更新 ${userData.id} ${userData.name} 照片`"
       size="sm"
       centered
       hide-footer
       scrollable
-    >
-      <b-form-group
+    )
+      b-form-group(
         label="照片"
         label-for="file-user-photo"
         label-cols-sm="2"
         label-size="md"
         title="*.jpg"
-      >
-        <b-input-group id="file-user-photo" size="md">
-          <b-file
-            ref="file-user-photo"
-            v-model="userPhoto"
-            placeholder="*.jpg"
-            drop-placeholder="放開以設定上傳檔案"
-            accept=".jpg, .JPG"
-          >
-            <template slot="file-name" slot-scope="{ names }">
-              <b-badge variant="primary">{{ names[0] }}</b-badge>
-            </template>
-          </b-file>
-          <template #append>
-            <lah-button
-              icon="upload"
-              variant="outline-primary"
-              @click="uploadPhoto"
-              title="上傳"
-              :disabled="$utils.empty(userPhoto)"
-            />
-          </template>
-        </b-input-group>
-      </b-form-group>
-      <b-form-group
+      ): b-input-group(id="file-user-photo" size="md")
+        b-file(
+          ref="file-user-photo"
+          v-model="userPhoto"
+          placeholder="*.jpg"
+          drop-placeholder="放開以設定上傳檔案"
+          accept=".jpg, .JPG"
+        ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
+        template(#append): lah-button(
+          icon="upload"
+          variant="outline-primary"
+          title="上傳"
+          @click="uploadPhoto"
+          :disabled="$utils.empty(userPhoto)"
+        )
+      b-form-group(
         label="頭像"
         label-for="file-user-avatar"
         label-cols-sm="2"
         label-size="md"
         title="請用正方形比例之大頭照"
-      >
-        <b-input-group id="file-user-avatar" size="md">
-          <b-file
-            ref="file-user-avatar"
-            v-model="userAvatar"
-            placeholder="*.jpg"
-            drop-placeholder="放開以設定上傳檔案"
-            accept=".jpg, .JPG"
-          >
-            <template slot="file-name" slot-scope="{ names }">
-              <b-badge variant="secondary">{{ names[0] }}</b-badge>
-            </template>
-          </b-file>
-          <template #append>
-            <lah-button
-              icon="upload"
-              variant="outline-primary"
-              @click="uploadAvatar"
-              title="上傳"
-              :disabled="$utils.empty(userAvatar)"
-            />
-          </template>
-        </b-input-group>
-      </b-form-group>
-    </b-modal>
-  </b-card>
+      ): b-input-group(id="file-user-avatar" size="md")
+        b-file(
+          ref="file-user-avatar"
+          v-model="userAvatar"
+          placeholder="*.jpg"
+          drop-placeholder="放開以設定上傳檔案"
+          accept=".jpg, .JPG"
+        ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="secondary") {{ names[0] }}
+        template(#append): lah-button(
+          icon="upload"
+          variant="outline-primary"
+          @click="uploadAvatar"
+          title="上傳"
+          :disabled="$utils.empty(userAvatar)"
+        )
 </template>
 
 <script>
