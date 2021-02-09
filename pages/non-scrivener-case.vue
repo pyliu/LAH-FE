@@ -325,7 +325,11 @@ export default {
     md5Hash () {
       return this.$utils.md5(`${this.startDate}_${this.endDate}_${this.ignoreTags.join('')}`)
     },
-    cacheKey () { return this.caseType === 'reg' ? `non_scrivener_case_${this.md5Hash}` : `non_scrivener_sur_case_${this.md5Hash}` },
+    cacheKey () {
+      const key = this.caseType === 'reg' ? `non_scrivener_reg_case_${this.md5Hash}` : `non_scrivener_sur_case_${this.md5Hash}`
+      this.$utils.log(key)
+      return key
+    },
     firstDayofMonth () {
       return new Date(this.today.getFullYear(), this.today.getMonth(), 1)
     },
@@ -361,6 +365,11 @@ export default {
       this.surBakedData = []
       this.currentPage = 1
     },
+    doneCommitted () {
+      this.isBusy = false
+      this.forceReload = false
+      this.committed = true
+    },
     ignoreTyoffices () {
       this.ignoreTags = ['中壢', '楊梅', '桃園', '大溪', '蘆竹', '八德', '平鎮', '龜山']
     },
@@ -372,7 +381,6 @@ export default {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
           } else {
             this.isBusy = true
-            this.committed = false
             this.$axios.post(this.$consts.API.JSON.PREFETCH, {
               type: 'reg_non_scrivener_web_case',
               start_date: this.startDate,
@@ -394,16 +402,13 @@ export default {
               this.alert(err.message)
               this.$utils.error(err)
             }).finally(() => {
-              this.isBusy = false
-              this.forceReload = false
-              this.committed = true
+              this.doneCommitted()
             })
           }
         } else {
           this.regBakedData = json.baked
-          this.committed = true
-          this.currentPage = 1
-          this.notify(`查詢成功，找到 ${this.regBakedData.length} 筆非專業代理人案件。`, { subtitle: `(快取)` })
+          this.doneCommitted()
+          this.notify(`查詢成功，找到 ${this.regBakedData.length} 筆非專業代理人登記案件。`)
           this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
@@ -421,7 +426,6 @@ export default {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
           } else {
             this.isBusy = true
-            this.committed = false
             this.$axios.post(this.$consts.API.JSON.PREFETCH, {
               type: 'reg_non_scrivener_sur_case',
               start_date: this.startDate,
@@ -443,16 +447,13 @@ export default {
               this.alert(err.message)
               this.$utils.error(err)
             }).finally(() => {
-              this.isBusy = false
-              this.forceReload = false
-              this.committed = true
+              this.doneCommitted()
             })
           }
         } else {
           this.surBakedData = json.baked
-          this.committed = true
-          this.currentPage = 1
-          this.notify(`查詢成功，找到 ${this.surBakedData.length} 筆非專業代理人測量案件。`, { subtitle: `(快取)` })
+          this.doneCommitted()
+          this.notify(`查詢成功，找到 ${this.surBakedData.length} 筆非專業代理人測量案件。`)
           this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
@@ -464,6 +465,7 @@ export default {
     }
   },
   fetch () {
+    this.resetCommitted()
     this.caseType === 'reg' ? this.loadReg() : this.loadSur()
   },
   created () {
