@@ -1,207 +1,186 @@
-<template>
-  <b-card v-if="isAuthorized" body-border-variant="danger">
-    <b-button-group class="d-flex justify-content-between">
-      <lah-button icon="save" @click="save" :disabled="!checkRequired">新增</lah-button>
-    </b-button-group>
-    <hr />
-
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
+<template lang="pug">
+  b-card(v-if="isAuthorized" body-border-variant="danger")
+    b-button-group.d-flex.justify-content-between: lah-button(icon="save" @click="save" :disabled="!checkRequired") 新增
+    hr
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="ID"
           label-for="id-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input
-            id="id-input"
-            v-model="userData['id']"
-            trim
-            :state="checkId"
-            :formatter="formatter"
-            @input="findDuplication"
-            v-b-popover.hover.focus.top.html="checkIdFeedback"
-          />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
+        ): b-input(
+          id="id-input"
+          v-model="userData['id']"
+          trim
+          :state="checkId"
+          :formatter="formatter"
+          @input="findDuplication"
+          v-b-popover.hover.focus.top.html="checkIdFeedback"
+        )
+      b-card.border-0(no-body)
+        b-form-group(
           label="姓名"
           label-for="name-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input
-            id="name-input"
-            v-model="userData['name']"
-            :state="checkName"
-            trim
-          />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+        ): b-input(
+          id="name-input"
+          v-model="userData['name']"
+          :state="checkName"
+          trim
+        )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="性別"
           label-for="sex-select"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-select
-            id="sex-select"
-            v-model="userData['sex']"
-            :options="sexOpts"
-          ></b-select>
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
+        ): b-select(
+          id="sex-select"
+          v-model="userData['sex']"
+          :options="sexOpts"
+        )
+      b-card.border-0(no-body)
+        b-form-group(
           label="職稱"
           label-for="work-title-select"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-select
-            id="work-title-select"
-            v-model="userData['title']"
-            :options="workTitleOpts"
-          ></b-select>
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+        ): b-select(
+          id="work-title-select"
+          v-model="userData['title']"
+          :options="workTitleOpts"
+        )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="電腦"
           label-for="ip-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input id="ip-input" v-model="userData['ip']" :state="checkIp" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
+        ): b-input(
+          id="ip-input"
+          v-model="userData['ip']"
+          :state="checkIp"
+          trim
+        )
+      b-card.border-0(no-body)
+        b-form-group(
           label="分機"
           label-for="ext-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input id="ext-input" v-model="userData['ext']" :state="checkExt" trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+        ): b-input(
+          id="ext-input"
+          v-model="userData['ext']"
+          :state="checkExt"
+          trim
+        )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="生日"
           label-for="bd-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input id="bd-input" v-model="userData['birthday']" :state="checkBirthday" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
+        ): b-input(
+          id="bd-input"
+          v-model="userData['birthday']"
+          :state="checkBirthday"
+          trim
+        )
+      b-card.border-0(no-body)
+        b-form-group(
           label="課室"
           label-for="unit-select"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-select
-            id="unit-select"
-            v-model="userData['unit']"
-            :options="unitOpts"
-          ></b-select>
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+        ): b-select(
+          id="unit-select"
+          v-model="userData['unit']"
+          :options="unitOpts"
+        )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="工作"
           label-for="work-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input id="work-input" v-model="userData['work']" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
+        ): b-input(
+          id="work-input"
+          v-model="userData['work']"
+          trim
+        )
+      b-card.border-0(no-body)
+        b-form-group(
           label="教育"
           label-for="edu-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input id="edu-input" v-model="userData['education']" trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+        ): b-input(
+          id="edu-input"
+          v-model="userData['education']"
+          trim
+        )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="考試"
           label-for="exam-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input id="exam-input" v-model="userData['exam']" trim />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <b-form-group
+        ): b-input(
+          id="exam-input"
+          v-model="userData['exam']"
+          trim
+        )
+      b-card.border-0(no-body)
+        b-form-group(
           label="手機"
           label-for="cell-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input id="cell-input" v-model="userData['cell']" :state="checkCell" trim />
-        </b-form-group>
-      </b-card>
-    </b-card-group>
+        ): b-input(
+          id="cell-input"
+          v-model="userData['cell']"
+          :state="checkCell"
+          trim
+        )
 
-    <b-card-group deck>
-      <b-card no-body class="border-0">
-        <b-form-group
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="到職"
           label-for="onboard-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input
-            id="onboard-input"
-            v-model="userData['onboard_date']"
-            trim
-            :state="checkOnboardDate"
-            placeholder="110/01/22"
-          />
-        </b-form-group>
-      </b-card>
-      <b-card no-body class="border-0">
-        <!-- <b-form-group
-          label="離職"
-          label-for="offboard-input"
-          label-cols-sm="2"
-          label-size="md"
-        >
-          <b-input
-            id="offboard-input"
-            :value="userData['offboard_date']"
-            disabled
-            trim
-          />
-        </b-form-group> -->
-      </b-card>
-    </b-card-group>
-  </b-card>
+        ): b-input(
+          id="onboard-input"
+          v-model="userData['onboard_date']"
+          trim
+          :state="checkOnboardDate"
+          placeholder="110/01/22"
+        )
+      b-card.border-0(no-body)
+        //- b-form-group(
+        //-   label="離職"
+        //-   label-for="offboard-input"
+        //-   label-cols-sm="2"
+        //-   label-size="md"
+        //- ): b-input(
+        //-   id="offboard-input"
+        //-   :value="userData['offboard_date']"
+        //-   disabled
+        //-   trim
+        //- )
 </template>
 
 <script>

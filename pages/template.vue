@@ -9,7 +9,7 @@
           div 右側選單區域
       lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
     b-container.center(fluid v-cloak)
-      | some content goes here ...
+      | some contents goes here ...
 </template>
 
 <script>
