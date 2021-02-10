@@ -1,65 +1,51 @@
-<template>
-  <div>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">取消請示案件</div>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'">
-              <div class="h5">利用下面介面操作資料搜尋時間：</div>
-              <div class="d-flex my-2 text-nowrap">
-                <b-form-input type="range" v-model="months" class="my-auto mr-2" min="1" max="12"></b-form-input>
-                <span class="my-auto mr-2">{{months}}個月內</span>
-              </div>
-              <hr/>
-              <div class="h5">取消請示案件狀態說明：</div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger">有申請取消請示紀錄且<strong class="text-danger">已</strong>逾期案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning">有申請取消請示紀錄且於預訂結案日結案之案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="success">有申請取消請示紀錄且<strong>未</strong>逾期案件</lah-fa-icon></div>
-            </lah-help-modal>
-          </div>
-          <div class="d-flex text-nowrap">
-            <b-form-input type="range" v-model="months" class="my-auto mr-2" min="1" max="12"></b-form-input>
-            <span class="my-auto mr-2">{{months}}個月內</span>
-            <lah-countdown-button
-              ref="countdown"
-              icon="sync-alt"
-              action="ld-cycle"
-              size="lg"
-              :milliseconds="cachedMs"
-              @end="reload"
-              @click="reload"
-              :disabled="isBusy"
-              :busy="isBusy"
-              auto-start
-              title="立即重新讀取"
-              variant="outline-secondary"
-              badge-variant="secondary"
-              no-badge
-            />
-          </div>
-        </div>
-      </lah-transition>
-    </lah-header>
-    <lah-transition appear>
-      <lah-reg-b-table
-        :busy="isBusy"
-        :baked-data="bakedData"
-        :fields="fields"
-      />
-    </lah-transition>
-    <lah-transition class="center h3">
-      <lah-fa-icon
-        v-cloak
-        v-if="queryCount === 0 && !isBusy"
-        icon="exclamation-circle"
-        prefix="fas"
-      >
-        無資料
-      </lah-fa-icon>
-    </lah-transition>
-  </div>
+<template lang="pug">
+  div
+    lah-header: lah-transition(appear)
+      .d-flex.justify-content-between.w-100
+        .d-flex
+          .my-auto 取消請示案件
+          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-help-modal(:modal-id="'help-modal'")
+            .h5 利用下面介面操作資料搜尋時間：
+            .d-flex.my-2.text-nowrap
+              b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
+              .my-auto.mr-2 {{months}}個月內
+            hr
+            .h5 取消請示案件狀態說明：
+            .mx-2: lah-fa-icon(icon="circle" variant="danger") 有申請取消請示紀錄且#[strong.text-danger 已]逾期案件
+            .mx-2: lah-fa-icon(icon="circle" variant="warning") 有申請取消請示紀錄且於預訂結案日結案之案件
+            .mx-2: lah-fa-icon(icon="circle" variant="success") 有申請取消請示紀錄且#[strong 未]逾期案件
+
+        .d-flex.text-nowrap
+          b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
+          span.my-auto.mr-2 {{ months }}個月內
+          lah-countdown-button(
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            title="立即重新讀取"
+            variant="outline-secondary"
+            badge-variant="secondary"
+            auto-start
+            no-badge
+            @end="reload"
+            @click="reload"
+            :milliseconds="cachedMs"
+            :disabled="isBusy"
+            :busy="isBusy"
+          )
+    lah-transition(appear): lah-reg-b-table(
+      :busy="isBusy"
+      :baked-data="bakedData"
+      :fields="fields"
+    )
+    lah-transition.center.h3: lah-fa-icon(
+      v-cloak
+      v-if="queryCount === 0 && !isBusy"
+      icon="exclamation-circle"
+      prefix="fas"
+    ) 無資料
 </template>
 
 <script>
