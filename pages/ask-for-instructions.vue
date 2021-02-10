@@ -1,40 +1,39 @@
 <template lang="pug">
   div
-    lah-header: lah-transition(appear)
-      .d-flex.justify-content-between.w-100
-        .d-flex
-          .my-auto 取消請示案件
-          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-          lah-help-modal(:modal-id="'help-modal'")
-            .h5 利用下面介面操作資料搜尋時間：
-            .d-flex.my-2.text-nowrap
-              b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
-              .my-auto.mr-2 {{months}}個月內
-            hr
-            .h5 取消請示案件狀態說明：
-            .mx-2: lah-fa-icon(icon="circle" variant="danger") 有申請取消請示紀錄且#[strong.text-danger 已]逾期案件
-            .mx-2: lah-fa-icon(icon="circle" variant="warning") 有申請取消請示紀錄且於預訂結案日結案之案件
-            .mx-2: lah-fa-icon(icon="circle" variant="success") 有申請取消請示紀錄且#[strong 未]逾期案件
+    lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
+      .d-flex
+        .my-auto 取消請示案件
+        lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-help-modal(:modal-id="'help-modal'")
+          .h5 利用下面介面操作資料搜尋時間：
+          .d-flex.my-2.text-nowrap
+            b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
+            .my-auto.mr-2 {{months}}個月內
+          hr
+          .h5 取消請示案件狀態說明：
+          .mx-2: lah-fa-icon(icon="circle" variant="danger") 有申請取消請示紀錄且#[strong.text-danger 已]逾期案件
+          .mx-2: lah-fa-icon(icon="circle" variant="warning") 有申請取消請示紀錄且於預訂結案日結案之案件
+          .mx-2: lah-fa-icon(icon="circle" variant="success") 有申請取消請示紀錄且#[strong 未]逾期案件
 
-        .d-flex.text-nowrap
-          b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
-          span.my-auto.mr-2 {{ months }}個月內
-          lah-countdown-button(
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            title="立即重新讀取"
-            variant="outline-secondary"
-            badge-variant="secondary"
-            auto-start
-            no-badge
-            @end="reload"
-            @click="reload"
-            :milliseconds="cachedMs"
-            :disabled="isBusy"
-            :busy="isBusy"
-          )
+      .d-flex.text-nowrap
+        b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
+        span.my-auto.mr-2 {{ months }}個月內
+        lah-countdown-button(
+          ref="countdown"
+          icon="sync-alt"
+          action="ld-cycle"
+          size="lg"
+          title="立即重新讀取"
+          variant="outline-secondary"
+          badge-variant="secondary"
+          auto-start
+          no-badge
+          @end="reload"
+          @click="reload"
+          :milliseconds="cachedMs"
+          :disabled="isBusy"
+          :busy="isBusy"
+        )
     lah-transition(appear): lah-reg-b-table(
       :busy="isBusy"
       :baked-data="bakedData"
