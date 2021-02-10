@@ -1,66 +1,48 @@
-<template>
-  <div>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">外國人地權案件</div>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'">
-              <div class="h5">利用下面介面操作資料搜尋時間：</div>
-              <div class="d-flex my-2 text-nowrap">
-                <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
-                <span class="my-auto mr-2">{{year}}-{{month}}</span>
-              </div>
-            </lah-help-modal>
-          </div>
-          <div class="d-flex">
-            <lah-countdown-button
-              ref="countdown"
-              icon="sync-alt"
-              action="ld-cycle"
-              size="lg"
-              :milliseconds="cachedMs"
-              @end="reload"
-              @click="reload"
-              :disabled="isBusy"
-              :busy="isBusy"
-              auto-start
-              end-attention
-              title="立即重新讀取"
-              variant="outline-secondary"
-              badge-variant="secondary"
-              class="mr-2"
-              no-badge
-            />
-            <b-input-group size="sm" class="vw-50">
-              <template #prepend>
-                <b-input-group-text>
-                  <lah-fa-icon icon="calendar" regular class="font-weight-bold">
-                    {{year}}年{{month}}月
-                  </lah-fa-icon>
-                </b-input-group-text>
-              </template>
-              <b-form-input type="range" v-model="rangeStep" class="my-auto" min="1" max="24"></b-form-input>
-            </b-input-group>
-          </div>
-        </div>
-      </lah-transition>
-    </lah-header>
-    <lah-transition>
-      <div v-if="committed">
-        <lah-reg-b-table
-          :busy="isBusy"
-          :baked-data="bakedData"
-          :fields="fields"
-          :per-page="perPage"
-          :current-page="currentPage"
-          only-popup-detail
-        />
-      </div>
-      <h3 v-else class="text-center"><lah-fa-icon icon="search" action="breath" variant="primary">請滑動月份</lah-fa-icon></h3>
-    </lah-transition>
-  </div>
+<template lang="pug">
+  div
+    lah-header: lah-transition(appear)
+      .d-flex.justify-content-between.w-100
+        .d-flex
+          .my-auto 外國人地權案件
+          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-help-modal(:modal-id="'help-modal'")
+            .h5 利用下面介面操作資料搜尋時間：
+            .d-flex.my-2.text-nowrap
+              b-form-input.my-auto(type="range" v-model="rangeStep" min="1" max="24")
+              span.my-auto.mr-2 {{ year }}-{{ month }}
+        .d-flex
+          lah-countdown-button(
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            title="立即重新讀取"
+            variant="outline-secondary"
+            badge-variant="secondary"
+            class="mr-2"
+            :disabled="isBusy"
+            :busy="isBusy"
+            :milliseconds="cachedMs"
+            @end="reload"
+            @click="reload"
+            auto-start
+            end-attention
+            no-badge
+          )
+          b-input-group.vw-50(size="sm")
+            template(#prepend): b-input-group-text: lah-fa-icon.font-weight-bold(icon="calendar" regular).
+              {{year}}年{{month}}月
+            b-form-input.my-auto(type="range" v-model="rangeStep" min="1" max="24")
+    lah-transition
+      div(v-if="committed"): lah-reg-b-table(
+        :busy="isBusy"
+        :baked-data="bakedData"
+        :fields="fields"
+        :per-page="perPage"
+        :current-page="currentPage"
+        only-popup-detail
+      )
+      h3.text-center(v-else): lah-fa-icon(icon="search" action="breath" variant="primary") 請滑動月份
 </template>
 
 <script>
