@@ -1,51 +1,39 @@
-<template>
-  <div>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">公告期滿案件</div>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'">
-              <div class="h5">公告中案件狀態說明：</div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="danger">已到期案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="warning">今日到期案件</lah-fa-icon></div>
-              <div class="mx-2"><lah-fa-icon icon="circle" variant="success">公告中案件</lah-fa-icon></div>
-            </lah-help-modal>
-          </div>
-          <lah-countdown-button
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            :milliseconds="cachedMs"
-            @end="reload"
-            @click="reload"
-            :disabled="isBusy"
-            :busy="isBusy"
-            auto-start
-            title="立即重新讀取"
-            variant="outline-secondary"
-            badge-variant="secondary"
-            no-badge
-          />
-        </div>
-      </lah-transition>
-    </lah-header>
-    <lah-transition appear>
-      <lah-reg-b-table :busy="isBusy" :baked-data="bakedData" :fields="fields"></lah-reg-b-table>
-    </lah-transition>
-    <lah-transition class="center h3">
-      <lah-fa-icon
-        v-cloak
-        v-if="queryCount === 0 && !isBusy"
-        icon="exclamation-circle"
-        prefix="fas"
-      >
-        無資料
-      </lah-fa-icon>
-    </lah-transition>
-  </div>
+<template lang="pug">
+  div
+    lah-header: lah-transition(appear)
+      .d-flex.justify-content-between.w-100
+        .d-flex
+          .my-auto 公告期滿案件
+          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-help-modal(:modal-id="'help-modal'")
+            .h5 公告中案件狀態說明：
+            .mx-2 #[lah-fa-icon(icon="circle" variant="danger") 已到期案件]
+            .mx-2 #[lah-fa-icon(icon="circle" variant="warning") 今日到期案件]
+            .mx-2 #[lah-fa-icon(icon="circle" variant="success") 公告中案件]
+        lah-countdown-button(
+          ref="countdown"
+          icon="sync-alt"
+          action="ld-cycle"
+          size="lg"
+          title="立即重新讀取"
+          variant="outline-secondary"
+          badge-variant="secondary"
+          :milliseconds="cachedMs"
+          :disabled="isBusy"
+          :busy="isBusy"
+          @end="reload"
+          @click="reload"
+          auto-start
+          no-badge
+        )
+
+    lah-transition(appear): lah-reg-b-table(:busy="isBusy" :baked-data="bakedData" :fields="fields")
+    lah-transition.center.h3: lah-fa-icon(
+      v-cloak
+      v-if="queryCount === 0 && !isBusy"
+      icon="exclamation-circle"
+      prefix="fas"
+    ) 無資料
 </template>
 
 <script>
