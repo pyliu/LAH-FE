@@ -90,7 +90,7 @@
       //-   #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
       //-   測試
 
-      li: hr
+      li(v-if="isAuthorized"): hr
       
       li(v-if="!isAuthorized"): nuxt-link(to="/login").
         #[font-awesome-icon(:icon="['fas', 'sign-in-alt']" size="lg")]

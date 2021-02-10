@@ -1,28 +1,16 @@
-<template>
-  <div v-cloak>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">管理者登入</div>
-            <lah-button icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明"/>
-          </div>
-          <div></div>
-        </div>
-      </lah-transition>
-      <lah-help-modal :modal-id="'help-modal'">
-        <lah-fa-icon icon="exclamation-circle" variant="primary" >請輸入密碼登入為管理者，以存取系統管理功能。</lah-fa-icon>
-      </lah-help-modal>
-    </lah-header>
-    <b-container fluid v-cloak>
-      <div class="vp-100 center">
-        <b-form-group class="center-50">
-            <b-form-input @keyup.enter="check" ref="password" v-model="password" type="password" size="lg" class="text-center" trim/>
-            <lah-button @click="check" icon="sign-in-alt" size="lg" action="move-fade-ltr" class="mx-auto my-2">登入</lah-button>
-        </b-form-group>
-      </div>
-    </b-container>
-  </div>
+<template lang="pug">
+  div(v-cloak)
+    lah-header
+      lah-transition(appear): .d-flex.justify-content-between.w-100
+        .d-flex
+          .my-auto 管理者登入
+          lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+        div
+      lah-help-modal(:modal-id="'help-modal'"): lah-fa-icon(icon="exclamation-circle" variant="primary").
+        請輸入密碼登入為管理者，以存取系統管理功能。
+    b-container(fluid v-cloak): .vp-100.center: b-form-group.center-50
+      b-form-input.text-center(@keyup.enter="check" ref="password" v-model="password" type="password" size="lg" trim)
+      lah-button.mx-auto.my-2(@click="check" icon="sign-in-alt" size="lg" action="move-fade-ltr") 登入
 </template>
 
 <script>
