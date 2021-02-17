@@ -7,6 +7,7 @@
 <script>
 export default {
   created () {
+    // this.$acts.cancel('page cahnged ... previous axios request has been cancelled!')
     this.login()
   }
 }
