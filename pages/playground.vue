@@ -51,7 +51,7 @@ export default {
       }).finally(() => {})
     })
   },
-  mounted () { tthis.$utils.log(this) }
+  mounted () { this.$utils.log(this) }
 }
 </script>
 
