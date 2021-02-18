@@ -4,7 +4,7 @@
     span test
     lah-button( size="lg" )
     <lah-fa-icon icon="question"></lah-fa-icon>
-    div {{ data.openNewsData }}
+    div {{ openNewsData }}
 </template>
 
 <script>
@@ -19,7 +19,10 @@ export default {
   async asyncData({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering
     // http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01
-    return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 })
+    // return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 })
+    return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 }).then(({ data }) => {
+      return {openNewsData: data.openNewsData}
+    })
   },
   computed: {
     // isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
