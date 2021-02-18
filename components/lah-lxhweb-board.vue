@@ -207,6 +207,9 @@ export default {
     pingNextTime () {
       this.pingTimer = this.timeout(() => this.ping(), this.pingInterval)
     },
+    stopPing () {
+      clearTimeout(this.pingTimer)
+    },
     reload() {
       if (this.alive) {
         this.$axios.post(this.$consts.API.JSON.LXHWEB, {
@@ -303,7 +306,7 @@ export default {
     this.ping()
   },
   beforeDestroy () {
-    clearTimeout(this.pingTimer)
+    this.stopPing()
   }
 }
 </script>

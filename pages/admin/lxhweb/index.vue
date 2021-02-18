@@ -55,6 +55,12 @@ export default {
       this.$refs.lxhweb3.ping()
       this.$refs.lxhweb4.ping()
     }
+  },
+  beforeDestroy () {
+    this.$refs.lxhweb1.stopPing()
+    this.$refs.lxhweb2.stopPing()
+    this.$refs.lxhweb3.stopPing()
+    this.$refs.lxhweb4.stopPing()
   }
 }
 </script>
