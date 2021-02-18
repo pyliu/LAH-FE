@@ -51,6 +51,17 @@
 <script>
 import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
+  validate ({ params, store }) {
+    const authority = store.getters.authority
+    const viewedUser = store.getters.user
+    if (authority.isAdmin || authority.isSuper || authority.isChief) {
+      return true
+    }
+    if (viewedUser && params.id.includes(viewedUser.id)) {
+      return true
+    }
+    return false
+  },
   head: {
     title: "初審即將逾期案件-桃園市地政局"
   },
@@ -85,7 +96,7 @@ export default {
   },
   created () {
     if (this.myinfo.id !== this.reviewerId && !this.isAuthorized) {
-      this.$store.commit('lastMessage', `僅有 ${this.reviewerId} 可瀏覽 ${this.$route.path} 頁面。`)
+      this.$store.commit('lastMessage', `僅有 ${this.reviewerId} 可瀏覽 ${decodeURI(this.$route.path)} 頁面。`)
       this.$router.push('/error')
     }
   }
