@@ -4,7 +4,7 @@
     span test
     lah-button( size="lg" )
     <lah-fa-icon icon="question"></lah-fa-icon>
-    div {{data['openNewsData']}}
+    div {{ data.openNewsData }}
 </template>
 
 <script>
