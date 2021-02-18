@@ -3,39 +3,45 @@
     h4.center(v-if="$utils.empty(userData)")
       lah-button(v-if="isAuthorized" icon="user-plus" block size="lg" @click="add") 新增
       lah-fa-icon(v-else variant="danger") 找不到使用者資料
+
     b-card(v-else)
-      b-card-title.
-        #[b-avatar.mt-n1(button variant="light" size="1.3em" :src="avatarSrc" @click="photoClick")]
-        {{userData['name']}}
-      b-card-sub-title {{userData['title']}}
-      b-card-img.img-thumbnail.float-right.mt-n3.shadow-xl(
-        :src="photoSrc"
-        :alt="userData['name']"
-        :title="isAuthorized ? '更新照片' : '放大顯示'"
-        style="max-width: 50%; cursor: pointer;"
-        @click="photoClick"
-      )
-      b-card-text.small
-        lah-fa-icon.mx-auto(
-          icon="ban"
-          variant="danger"
-          action="breath"
-          v-if="isLeft"
-        ) 已離職【{{ userData["offboard_date"] }}】
-        div ID：{{ userData["id"] }}
-        div(v-if="isAuthorized") 電腦：{{ userData["ip"] }}
-        div 分機：{{ userData["ext"] }}
-        div(v-if="isAuthorized").
-          生日：{{ userData["birthday"] }}
-          #[b-badge(v-if="birthAge !== false" :variant="birthAgeVariant" pill) {{ birthAge }}歲]
-        div 單位：{{ userData["unit"] }}
-        div 工作：{{ userData["work"] }}
-        div(v-if="isAuthorized") 學歷：{{ userData["education"] }}
-        div(v-if="isAuthorized") 考試：{{ userData["exam"] }}
-        div(v-if="isAuthorized") 手機：{{ userData["cell"] }}
-        div(v-if="isAuthorized").
-          到職：{{ userData["onboard_date"] }}
-          #[b-badge(v-if="workAge !== false" :variant="workAgeVariant" pill) {{ workAge }}年]
+      b-row
+        b-col(md="6")
+          b-card-title.
+            #[b-avatar.mt-n1(button variant="light" size="1.3em" :src="avatarSrc" @click="photoClick")]
+            {{userData['name']}}
+
+          b-card-sub-title {{userData['title']}}
+
+          b-card-text.small
+            lah-fa-icon.mx-auto(
+              icon="ban"
+              variant="danger"
+              action="breath"
+              v-if="isLeft"
+            ) 已離職【{{ userData["offboard_date"] }}】
+            div ID：{{ userData["id"] }}
+            div(v-if="isAuthorized") 電腦：{{ userData["ip"] }}
+            div 分機：{{ userData["ext"] }}
+            div(v-if="isAuthorized").
+              生日：{{ userData["birthday"] }}
+              #[b-badge(v-if="birthAge !== false" :variant="birthAgeVariant" pill) {{ birthAge }}歲]
+            div 單位：{{ userData["unit"] }}
+            div 工作：{{ userData["work"] }}
+            div(v-if="isAuthorized") 學歷：{{ userData["education"] }}
+            div(v-if="isAuthorized") 考試：{{ userData["exam"] }}
+            div(v-if="isAuthorized") 手機：{{ userData["cell"] }}
+            div(v-if="isAuthorized").
+              到職：{{ userData["onboard_date"] }}
+              #[b-badge(v-if="workAge !== false" :variant="workAgeVariant" pill) {{ workAge }}年]
+
+        b-col.center(md="6")
+          b-link(@click="photoClick" :title="isAuthorized ? '更新照片' : '放大顯示'")
+            b-card-img.img-thumbnail.mt-n3.shadow(
+              :src="photoSrc"
+              :alt="userData['name']"
+            )
+            //- b-skeleton-img(v-show="!imgLoaded" card-img="right")
 </template>
 
 <script>
@@ -50,7 +56,8 @@ export default {
     name: { type: String, default: '' }
   },
   data: () => ({
-    userData: {}
+    userData: {},
+    imgLoaded: false
   }),
   computed: {
     isAuthorized () {
