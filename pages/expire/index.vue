@@ -1,75 +1,57 @@
-<template>
-  <div>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <lah-button
+<template lang="pug">
+  div
+    lah-header: lah-transition(appear)
+      .d-flex.justify-content-between.w-100
+        .d-flex
+          lah-button(
+            :icon="icon"
+            :badgeText="queryCount.toString()"
+            :variant="switchButtonVariant"
+            :disabled="isBusy"
+            :busy="isBusy"
+            @click="isOverdueMode = !isOverdueMode"
+            size="lg"
+            title="按我切換模式"
+          )
+            strong {{ queryTitle }}
+          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-help-modal(:modal-id="'help-modal'"): .h5.text-nowrap: lah-fa-icon.d-flex(icon="lightbulb" regular variant="warning")
+            .my-auto 請使用
+            lah-button.mx-2(
               :icon="icon"
               :badgeText="queryCount.toString()"
               :variant="switchButtonVariant"
               :disabled="isBusy"
               :busy="isBusy"
               @click="isOverdueMode = !isOverdueMode"
-              size="lg"
               title="按我切換模式"
-            >
-              <strong>{{queryTitle}}</strong>
-            </lah-button>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
-            <lah-help-modal :modal-id="'help-modal'">
-              <div class="h5 text-nowrap">
-                <lah-fa-icon icon="lightbulb" regular variant="warning" class="d-flex">
-                  <span class="my-auto">請使用</span>
-                  <lah-button
-                    :icon="icon"
-                    :badgeText="queryCount.toString()"
-                    :variant="switchButtonVariant"
-                    :disabled="isBusy"
-                    :busy="isBusy"
-                    @click="isOverdueMode = !isOverdueMode"
-                    title="按我切換模式"
-                    class="mx-2"
-                  >
-                    <strong>{{queryTitle}}</strong>
-                  </lah-button>
-                  <span class="my-auto">切換顯示模式</span>
-                </lah-fa-icon>
-              </div>
-            </lah-help-modal>
-          </div>
-          <lah-countdown-button
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            :milliseconds="900000"
-            @end="$fetch"
-            @click="reload"
-            :disabled="isBusy"
-            :busy="isBusy"
-            auto-start
-            title="立即重新讀取"
-            variant="outline-secondary"
-            badge-variant="secondary"
-          ></lah-countdown-button>
-        </div>
-      </lah-transition>
-    </lah-header>
-    <lah-transition fade>
-      <lah-expiry-b-table :busy="!committed"></lah-expiry-b-table>
-    </lah-transition>
-    <lah-transition class="center h3">
-      <lah-fa-icon
+            )
+              strong {{ queryTitle }}
+            .my-auto 切換顯示模式
+        lah-countdown-button(
+          ref="countdown"
+          icon="sync-alt"
+          action="ld-cycle"
+          size="lg"
+          auto-start
+          title="立即重新讀取"
+          variant="outline-secondary"
+          badge-variant="secondary"
+          :milliseconds="900000"
+          :disabled="isBusy"
+          :busy="isBusy"
+          @end="$fetch"
+          @click="reload"
+        )
+    lah-transition(fade)
+      lah-expiry-b-table(:busy="!committed")
+    lah-transition.center.h3
+      lah-fa-icon(
         v-cloak
         v-if="queryCount === 0 && committed" 
         icon="exclamation-circle"
         prefix="fas"
-      >
-        無資料
-      </lah-fa-icon>
-    </lah-transition>
-  </div>
+      ) 無資料
 </template>
 
 <script>
