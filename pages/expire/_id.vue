@@ -82,6 +82,12 @@ export default {
     committed (flag) {
       this.isBusy = !flag
     }
+  },
+  created () {
+    if (this.myinfo.id !== this.reviewerId && !this.isAuthorized) {
+      this.$store.commit('lastMessage', `僅有 ${this.reviewerId} 可瀏覽 ${this.$route.path} 頁面。`)
+      this.$router.push('/error')
+    }
   }
 }
 </script>
