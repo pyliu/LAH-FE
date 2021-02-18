@@ -37,9 +37,12 @@
 
         b-col.center(md="6")
           b-link(@click="photoClick" :title="isAuthorized ? '更新照片' : '放大顯示'")
-            b-card-img.img-thumbnail.mt-n3.shadow(
+            b-img.shadow(
               :src="photoSrc"
               :alt="userData['name']"
+              fluid
+              thumbnail
+              rounded
             )
             //- b-skeleton-img(v-show="!imgLoaded" card-img="right")
 </template>
