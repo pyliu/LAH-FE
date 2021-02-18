@@ -8,7 +8,7 @@
     shadow
   )
     template(#title)
-      lah-avatar.mt-n1(:user-data="myinfo" size="1.6")
+      lah-avatar.mt-n1.mr-1(:user-data="myinfo" size="1.6")
       span.s-95.greeting(@click="popup").
         {{myinfo.id}}
         {{myinfo.name}}
