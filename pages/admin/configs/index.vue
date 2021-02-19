@@ -89,7 +89,7 @@
       </b-modal>
     </lah-header>
     <b-container fluid v-cloak>
-      <b-card-group :deck="!isMockModeEnabled" :columns="isMockModeEnabled">
+      <b-card-group :deck="!isMockModeEnabled" :columns="isMockModeEnabled" v-cloak>
         <b-card  v-cloak
           v-if="!isMockModeEnabled"
           header-bg-variant="danger"
@@ -501,7 +501,7 @@
         </b-card>
       </b-card-group>
       <lah-transition slideUp>
-        <b-card-group v-if="showMSSQLCards" deck class="mt-4">
+        <b-card-group v-if="showMSSQLCards" deck class="mt-4" v-cloak>
           <b-card>
             <template #header>
               <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="comments">信差資料庫連線設定</lah-fa-icon></h6>
