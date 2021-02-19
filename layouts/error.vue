@@ -1,7 +1,7 @@
 <template lang="pug">
   div
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100.my-auto
-      .d-flex.ml-3: lah-fa-icon(append regular icon="comment-dots" variant="danger")
+      .d-flex.ml-3: lah-fa-icon(append regular icon="comment-dots")
         span.mr-2 #[strong.text-danger {{ error.statusCode }}] 錯誤訊息
       div
     b-container.center.full
