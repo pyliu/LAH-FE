@@ -27,7 +27,7 @@
     span.ld-txt(v-if="busy") 讀取中...
     span(v-show="!busy")
       slot
-      b-badge(
+      b-badge.ml-1(
         v-if="showBadge"
         :variant="badgeVariant"
         :pill="badgePill"
