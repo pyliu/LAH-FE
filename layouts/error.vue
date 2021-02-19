@@ -6,10 +6,15 @@
       .text-danger.font-weight-bold.mr-3 {{ error.statusCode }}
     b-container.center.full
         div.text-center
-            blockquote.h4(v-if="error.statusCode === 404") 找不到頁面
-            blockquote.h4(v-else) {{ error.message || '有錯誤發生' }}
-            h2  {{ decodeURI(error.path) }}
-            nuxt-link(to="/") 回首頁
+          blockquote.h4(v-if="error.statusCode === 404").
+            找不到頁面 {{ decodeURI(error.path) }}
+          blockquote.h4(v-else) {{ error.message || '有錯誤發生' }}
+          p.mt-3
+            lah-fa-icon(icon="lightbulb" regular variant="warning").
+              仍然有問題!? 可嘗試
+              #[b-link(@click="clearFECache" class="text-primary") #[font-awesome-icon(:icon="['fas', 'hand-sparkles']")] 清除瀏覽器快取資料]
+          nuxt-link(to="/")
+            lah-fa-icon(icon="home" variant="success") 回首頁
 </template>
 
 <script>
