@@ -22,8 +22,7 @@ export default {
   head: {
     title: '發生錯誤-桃園市地政局'
   },
-  layout: 'error',
-  asyncData ({ store, redirect, error}) {
+  asyncData ({ store, redirect, error }) {
     if (isEmpty(store.getters.lastMessage) && isEmpty(error.message)) {
       redirect('/')
     }
