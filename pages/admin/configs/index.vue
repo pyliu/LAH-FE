@@ -221,6 +221,13 @@
                 />
               </template>
             </b-input-group>
+            <b-input-group size="sm" prepend="ＤＢ指向" class="my-1 d-flex">
+              <b-form-radio-group
+                v-model="loadedConfigs['ORA_DB_TARGET']"
+                :options="dbTargeteOpts"
+                class="my-auto ml-2"
+              />
+            </b-input-group>
           </b-card>
         </lah-transition>
         <lah-transition appear>
@@ -814,7 +821,12 @@ export default {
     loadedConfigs: {},
     message: '',
     masterPassword: '',
-    origMasterPasswordHash: '1f7744350d3dd3dc563421582f37f99e'
+    origMasterPasswordHash: '1f7744350d3dd3dc563421582f37f99e',
+    dbTargeteOpts: [
+      { text: '主要', value: 'HXWEB' },
+      { text: '備份', value: 'BACKUP' },
+      { text: '測試', value: 'HXT' }
+    ]
   }),
   computed: {
     showMSSQLCards () {
@@ -822,12 +834,20 @@ export default {
     },
     masterPasswordNotChanged () {
       return this.$utils.equal(this.loadedConfigs['MASTER_PASSWORD'], this.origMasterPasswordHash)
+    },
+    dbPointTarget () {
+      return this.loadedConfigs['ORA_DB_TARGET']
     }
   },
   watch: {
     masterPassword (val) {
       // empty val restore to default pw
       this.loadedConfigs['MASTER_PASSWORD'] = this.$utils.empty(val) ? this.origMasterPasswordHash : this.$utils.md5(val)
+    },
+    dbPointTarget (val) {
+      this.quick({ORA_DB_TARGET: val}, false)
+      // clear $localForage cached data
+      this.clearCache()
     }
   },
   async fetch () {
@@ -862,7 +882,7 @@ export default {
         }
       })
     },
-    quick (configs) {
+    quick (configs, notify = true) {
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'update_configs',
         configs: configs
@@ -871,7 +891,7 @@ export default {
         if (this.$utils.statusCheck(data.status)) {
           notifyOpts.type = 'success'
         }
-        this.notify(data.message, notifyOpts)
+        notify && this.notify(data.message, notifyOpts)
       }).catch((error) => {
         this.$utils.error(error)
       }).finally(() => {
