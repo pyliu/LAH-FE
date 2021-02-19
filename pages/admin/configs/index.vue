@@ -89,10 +89,10 @@
       </b-modal>
     </lah-header>
     <b-container fluid v-cloak>
-      <b-card-group :deck="!loadedConfigs['ENABLE_MOCK_MODE']" :columns="loadedConfigs['ENABLE_MOCK_MODE']">
+      <b-card-group :deck="!isMockModeEnabled" :columns="isMockModeEnabled">
         <lah-transition appear>
           <b-card
-            v-show="!loadedConfigs['ENABLE_MOCK_MODE']"
+            v-if="!isMockModeEnabled"
             header-bg-variant="danger"
             header-text-variant="white"
             border-variant="danger"
@@ -233,7 +233,7 @@
         </lah-transition>
         <lah-transition appear>
           <b-card
-            v-show="!loadedConfigs['ENABLE_MOCK_MODE']"
+            v-if="!isMockModeEnabled"
             header-bg-variant="dark"
             header-text-variant="white"
             border-variant="dark"
@@ -360,7 +360,7 @@
         </lah-transition>
         <lah-transition appear>
           <b-card
-            v-show="!loadedConfigs['ENABLE_MOCK_MODE']"
+            v-if="!isMockModeEnabled"
             header-bg-variant="success"
             header-text-variant="white"
             border-variant="success"
@@ -840,6 +840,9 @@ export default {
     },
     dbPointTarget () {
       return this.loadedConfigs['ORA_DB_TARGET']
+    },
+    isMockModeEnabled () {
+      return this.loadedConfigs['ENABLE_MOCK_MODE'] === true || this.loadedConfigs['ENABLE_MOCK_MODE'] === 'true'
     }
   },
   watch: {
