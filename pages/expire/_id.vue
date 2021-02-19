@@ -49,20 +49,20 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
-  // validate ({ params, store }) {
-  //   const authority = store.getters.authority
-  //   const viewedUser = store.getters.user
-  //   if (authority.isAdmin || authority.isSuper || authority.isChief) {
-  //     return true
-  //   }
-  //   if (viewedUser && params.id.includes(viewedUser.id)) {
-  //     return true
-  //   }
-  //   return false
-  // },
+  validate ({ params, store, redirect }) {
+    // const authority = store.getters.authority
+    // const viewedUser = store.getters.user
+    // if (authority.isAdmin || authority.isSuper || authority.isChief) {
+    //   return true
+    // }
+    // if (viewedUser && params.id.includes(viewedUser.id)) {
+    //   return true
+    // }
+    // return false
+    return true
+  },
   head: {
     title: "初審即將逾期案件-桃園市地政局"
   },
