@@ -1,6 +1,8 @@
 <template lang="pug">
   div
-    lah-header
+    lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100.my-auto
+      .d-flex: lah-fa-icon(append regular icon="comment-dots" variant="danger") OOPS!
+      div
     b-container.center.full
         div.text-center
             h1.text-danger.font-weight-bold {{ error.statusCode }}
