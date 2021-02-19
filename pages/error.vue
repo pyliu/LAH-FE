@@ -1,7 +1,8 @@
 <template lang="pug">
   div(v-cloak)
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100.my-auto
-      .d-flex: lah-fa-icon(append regular icon="comment-dots" variant="danger") OOPS!
+      .d-flex: lah-fa-icon(append regular icon="comment-dots" variant="danger")
+        span.mr-2 OOPS!
       div
     .center.full
       div.text-center.mx-auto
