@@ -1,12 +1,11 @@
 <template lang="pug">
   div(v-cloak)
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100.my-auto
-      .d-flex: lah-fa-icon(append regular icon="comment-dots" variant="danger")
-        span.mr-2 OOPS!
-      div
+      .d-flex.ml-3: lah-fa-icon(append regular icon="comment-dots" variant="danger")
+        span.mr-2 錯誤訊息
+      .text-danger.font-weight-bold.mr-3 {{ error.statusCode }}
     .center.full
       div.text-center.mx-auto
-          h1.text-danger.font-weight-bold.mb-3(v-if="error.statusCode") {{ error.statusCode }}
           blockquote.h4 {{ message }}
           p.mt-3
             lah-fa-icon(icon="lightbulb" regular variant="warning").
