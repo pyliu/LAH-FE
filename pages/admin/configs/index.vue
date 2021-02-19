@@ -90,7 +90,7 @@
     </lah-header>
     <b-container fluid v-cloak>
       <b-card-group :deck="!isMockModeEnabled" :columns="isMockModeEnabled">
-        <lah-transition appear>
+        <lah-transition>
           <b-card
             v-if="!isMockModeEnabled"
             header-bg-variant="danger"
@@ -231,7 +231,7 @@
             </b-input-group>
           </b-card>
         </lah-transition>
-        <lah-transition appear>
+        <lah-transition>
           <b-card
             v-if="!isMockModeEnabled"
             header-bg-variant="dark"
@@ -358,7 +358,7 @@
             </b-input-group>
           </b-card>
         </lah-transition>
-        <lah-transition appear>
+        <lah-transition>
           <b-card
             v-if="!isMockModeEnabled"
             header-bg-variant="success"
@@ -436,7 +436,7 @@
             </b-input-group>
           </b-card>
         </lah-transition>
-        <lah-transition appear>
+        <lah-transition>
           <b-card
             header-bg-variant="primary"
             header-text-variant="white"
@@ -508,7 +508,7 @@
           </b-card>
         </lah-transition>
       </b-card-group>
-      <lah-transition appear slideUp>
+      <lah-transition slideUp>
         <b-card-group v-if="showMSSQLCards" deck class="mt-4">
           <b-card>
             <template #header>
