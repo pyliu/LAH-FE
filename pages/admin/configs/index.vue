@@ -90,423 +90,415 @@
     </lah-header>
     <b-container fluid v-cloak>
       <b-card-group :deck="!isMockModeEnabled" :columns="isMockModeEnabled">
-        <lah-transition>
-          <b-card
-            v-if="!isMockModeEnabled"
-            header-bg-variant="danger"
-            header-text-variant="white"
-            border-variant="danger"
-          >
-            <template #header>
-              <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="database">地政WEB資料庫連線設定</lah-fa-icon></h6>
+        <b-card  v-cloak
+          v-if="!isMockModeEnabled"
+          header-bg-variant="danger"
+          header-text-variant="white"
+          border-variant="danger"
+        >
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="database">地政WEB資料庫連線設定</lah-fa-icon></h6>
+          </template>
+          <b-input-group size="sm" prepend="登入帳密">
+            <b-input
+              placeholder="MOICAS"
+              v-model="loadedConfigs['ORA_DB_USER']"
+              title="登入DB帳號"
+              class="mr-1"
+              trim
+            />
+            /
+            <b-input
+              type="password"
+              v-model="loadedConfigs['ORA_DB_PASS']"
+              title="登入DB密碼"
+              class="ml-1"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_USER: loadedConfigs['ORA_DB_USER'], ORA_DB_PASS: loadedConfigs['ORA_DB_PASS']})"
+                no-icon-gutter
+              />
             </template>
-            <b-input-group size="sm" prepend="登入帳密">
-              <b-input
-                placeholder="MOICAS"
-                v-model="loadedConfigs['ORA_DB_USER']"
-                title="登入DB帳號"
-                class="mr-1"
-                trim
+          </b-input-group>
+          <b-input-group size="sm" prepend="主要ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.35.2"
+              v-model="loadedConfigs['ORA_DB_HXWEB_IP']"
+              title="主資料庫IP"
+              class="mr-1"
+              :state="validateIp(loadedConfigs['ORA_DB_HXWEB_IP'])"
+              trim
+            />
+            :
+            <b-input
+              type="number"
+              min="1"
+              max="65535"
+              placeholder="1521"
+              v-model="loadedConfigs['ORA_DB_HXWEB_PORT']"
+              title="主資料庫PORT"
+              class="col-3 ml-1"
+              :state="validateNumber(loadedConfigs['ORA_DB_HXWEB_PORT'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_HXWEB_IP: loadedConfigs['ORA_DB_HXWEB_IP'], ORA_DB_HXWEB_PORT: loadedConfigs['ORA_DB_HXWEB_PORT']})"
+                :disabled="ipNotOK(loadedConfigs['ORA_DB_HXWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_HXWEB_PORT'])"
+                no-icon-gutter
               />
-              /
-              <b-input
-                type="password"
-                v-model="loadedConfigs['ORA_DB_PASS']"
-                title="登入DB密碼"
-                class="ml-1"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({ORA_DB_USER: loadedConfigs['ORA_DB_USER'], ORA_DB_PASS: loadedConfigs['ORA_DB_PASS']})"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="主要ＤＢ" class="my-1">
-              <b-input
-                placeholder="220.1.35.2"
-                v-model="loadedConfigs['ORA_DB_HXWEB_IP']"
-                title="主資料庫IP"
-                class="mr-1"
-                :state="validateIp(loadedConfigs['ORA_DB_HXWEB_IP'])"
-                trim
-              />
-              :
-              <b-input
-                type="number"
-                min="1"
-                max="65535"
-                placeholder="1521"
-                v-model="loadedConfigs['ORA_DB_HXWEB_PORT']"
-                title="主資料庫PORT"
-                class="col-3 ml-1"
-                :state="validateNumber(loadedConfigs['ORA_DB_HXWEB_PORT'])"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({ORA_DB_HXWEB_IP: loadedConfigs['ORA_DB_HXWEB_IP'], ORA_DB_HXWEB_PORT: loadedConfigs['ORA_DB_HXWEB_PORT']})"
-                  :disabled="ipNotOK(loadedConfigs['ORA_DB_HXWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_HXWEB_PORT'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="備份ＤＢ" class="my-1">
-              <b-input
-                placeholder="220.1.35.102"
-                v-model="loadedConfigs['ORA_DB_BACKUP_IP']"
-                title="備份資料庫IP"
-                class="mr-1"
-                :state="validateIp(loadedConfigs['ORA_DB_BACKUP_IP'])"
-                trim
-              />
-              :
-              <b-input
-                type="number"
-                min="1"
-                max="65535"
-                placeholder="1521"
-                v-model="loadedConfigs['ORA_DB_BACKUP_PORT']"
-                title="備份資料庫PORT"
-                class="col-3 ml-1"
-                :state="validateNumber(loadedConfigs['ORA_DB_BACKUP_PORT'])"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({ORA_DB_BACKUP_IP: loadedConfigs['ORA_DB_BACKUP_IP'], ORA_DB_BACKUP_PORT: loadedConfigs['ORA_DB_BACKUP_PORT']})"
-                  :disabled="ipNotOK(loadedConfigs['ORA_DB_BACKUP_IP']) || numNotOK(loadedConfigs['ORA_DB_BACKUP_PORT'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="測試ＤＢ" class="my-1">
-              <b-input
-                placeholder="192.168.27.2"
-                v-model="loadedConfigs['ORA_DB_HXT_IP']"
-                title="測試資料庫IP"
-                class="mr-1"
-                :state="validateIp(loadedConfigs['ORA_DB_HXT_IP'])"
-                trim
-              />
-              :
-              <b-input
-                type="number"
-                min="1"
-                max="65535"
-                placeholder="1521"
-                v-model="loadedConfigs['ORA_DB_HXT_PORT']"
-                title="測試資料庫PORT"
-                class="col-3 ml-1"
-                :state="validateNumber(loadedConfigs['ORA_DB_HXT_PORT'])"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({ORA_DB_HXT_IP: loadedConfigs['ORA_DB_HXT_IP'], ORA_DB_HXT_PORT: loadedConfigs['ORA_DB_HXT_PORT']})"
-                  :disabled="ipNotOK(loadedConfigs['ORA_DB_HXT_IP']) || numNotOK(loadedConfigs['ORA_DB_HXT_PORT'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="ＤＢ指向" class="my-1 d-flex">
-              <b-form-radio-group
-                v-model="loadedConfigs['ORA_DB_TARGET']"
-                :options="dbTargeteOpts"
-                class="my-auto ml-2"
-              />
-            </b-input-group>
-          </b-card>
-        </lah-transition>
-        <lah-transition>
-          <b-card
-            v-if="!isMockModeEnabled"
-            header-bg-variant="dark"
-            header-text-variant="white"
-            border-variant="dark"
-          >
-            <template #header>
-              <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="server">同步異動資料庫連線設定</lah-fa-icon></h6>
             </template>
-            <b-input-group size="sm" prepend="輪詢間隔">
-              <b-input
-                type="number"
-                min="5"
-                placeholder="300"
-                title="PING間隔時間(秒)"
-                v-model="loadedConfigs['PING_INTERVAL_SECONDS']"
-                trim
+          </b-input-group>
+          <b-input-group size="sm" prepend="備份ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.35.102"
+              v-model="loadedConfigs['ORA_DB_BACKUP_IP']"
+              title="備份資料庫IP"
+              class="mr-1"
+              :state="validateIp(loadedConfigs['ORA_DB_BACKUP_IP'])"
+              trim
+            />
+            :
+            <b-input
+              type="number"
+              min="1"
+              max="65535"
+              placeholder="1521"
+              v-model="loadedConfigs['ORA_DB_BACKUP_PORT']"
+              title="備份資料庫PORT"
+              class="col-3 ml-1"
+              :state="validateNumber(loadedConfigs['ORA_DB_BACKUP_PORT'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_BACKUP_IP: loadedConfigs['ORA_DB_BACKUP_IP'], ORA_DB_BACKUP_PORT: loadedConfigs['ORA_DB_BACKUP_PORT']})"
+                :disabled="ipNotOK(loadedConfigs['ORA_DB_BACKUP_IP']) || numNotOK(loadedConfigs['ORA_DB_BACKUP_PORT'])"
+                no-icon-gutter
               />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({PING_INTERVAL_SECONDS: loadedConfigs['PING_INTERVAL_SECONDS']})"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="Ｌ１ＤＢ" class="my-1">
-              <b-input
-                placeholder="220.1.33.2"
-                v-model="loadedConfigs['ORA_DB_L1HWEB_IP']"
-                title="L1HWEB 資料庫IP"
-                class="mr-1"
-                :state="validateIp(loadedConfigs['ORA_DB_L1HWEB_IP'])"
-                trim
-              />
-              :
-              <b-input
-                type="number"
-                min="1"
-                max="65535"
-                placeholder="1521"
-                v-model="loadedConfigs['ORA_DB_L1HWEB_PORT']"
-                title="L1HWEB 資料庫PORT"
-                class="col-3 ml-1"
-                :state="validateNumber(loadedConfigs['ORA_DB_L1HWEB_PORT'])"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({ORA_DB_L1HWEB_IP: loadedConfigs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: loadedConfigs['ORA_DB_L1HWEB_PORT']})"
-                  :disabled="ipNotOK(loadedConfigs['ORA_DB_L1HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L1HWEB_PORT'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="Ｌ２ＤＢ" class="my-1">
-              <b-input
-                placeholder="220.1.33.3"
-                v-model="loadedConfigs['ORA_DB_L2HWEB_IP']"
-                title="L2HWEB 資料庫IP"
-                class=" mr-1"
-                :state="validateIp(loadedConfigs['ORA_DB_L2HWEB_IP'])"
-                trim
-              />
-              :
-              <b-input
-                type="number"
-                min="1"
-                max="65535"
-                placeholder="1521"
-                v-model="loadedConfigs['ORA_DB_L2HWEB_PORT']"
-                title="L2HWEB 資料庫PORT"
-                class="col-3 ml-1"
-                :state="validateNumber(loadedConfigs['ORA_DB_L2HWEB_PORT'])"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({ORA_DB_L2HWEB_IP: loadedConfigs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: loadedConfigs['ORA_DB_L2HWEB_PORT']})"
-                  :disabled="ipNotOK(loadedConfigs['ORA_DB_L2HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L2HWEB_PORT'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="Ｌ３ＤＢ" class="my-1">
-              <b-input
-                placeholder="220.1.33.5"
-                v-model="loadedConfigs['ORA_DB_L3HWEB_IP']"
-                title="L3HWEB 資料庫IP"
-                class="mr-1"
-                :state="validateIp(loadedConfigs['ORA_DB_L3HWEB_IP'])"
-                trim
-              />
-              :
-              <b-input
-                type="number"
-                min="1"
-                max="65535"
-                placeholder="1521"
-                v-model="loadedConfigs['ORA_DB_L3HWEB_PORT']"
-                title="L3HWEB 資料庫PORT"
-                class="col-3 ml-1"
-                :state="validateNumber(loadedConfigs['ORA_DB_L3HWEB_PORT'])"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({ORA_DB_L3HWEB_IP: loadedConfigs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: loadedConfigs['ORA_DB_L3HWEB_PORT']})"
-                  :disabled="ipNotOK(loadedConfigs['ORA_DB_L3HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L3HWEB_PORT'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-          </b-card>
-        </lah-transition>
-        <lah-transition>
-          <b-card
-            v-if="!isMockModeEnabled"
-            header-bg-variant="success"
-            header-text-variant="white"
-            border-variant="success"
-          >
-            <template #header>
-              <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="feather-alt">其他設定</lah-fa-icon></h6>
             </template>
-            <b-input-group size="sm" prepend="本所代碼" class="my-1">
-              <b-input
-                :placeholder="site"
-                v-model="loadedConfigs['SITE']"
-                :state="site === loadedConfigs['SITE']"
-                v-b-popover.hover.focus.top="site !== loadedConfigs['SITE'] ? `系統偵測到所別為: ${site} (${apiSvrIp})` : ''"
-                trim
+          </b-input-group>
+          <b-input-group size="sm" prepend="測試ＤＢ" class="my-1">
+            <b-input
+              placeholder="192.168.27.2"
+              v-model="loadedConfigs['ORA_DB_HXT_IP']"
+              title="測試資料庫IP"
+              class="mr-1"
+              :state="validateIp(loadedConfigs['ORA_DB_HXT_IP'])"
+              trim
+            />
+            :
+            <b-input
+              type="number"
+              min="1"
+              max="65535"
+              placeholder="1521"
+              v-model="loadedConfigs['ORA_DB_HXT_PORT']"
+              title="測試資料庫PORT"
+              class="col-3 ml-1"
+              :state="validateNumber(loadedConfigs['ORA_DB_HXT_PORT'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_HXT_IP: loadedConfigs['ORA_DB_HXT_IP'], ORA_DB_HXT_PORT: loadedConfigs['ORA_DB_HXT_PORT']})"
+                :disabled="ipNotOK(loadedConfigs['ORA_DB_HXT_IP']) || numNotOK(loadedConfigs['ORA_DB_HXT_PORT'])"
+                no-icon-gutter
               />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({SITE: loadedConfigs['SITE']})"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="本所統編" class="my-1">
-              <b-input
-                type="number"
-                placeholder="45000808"
-                title="本所的統一編號"
-                v-model="loadedConfigs['SITE_ID']"
-                :state="validateNumber(loadedConfigs['SITE_ID'])"
-                trim
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="ＤＢ指向" class="my-1 d-flex">
+            <b-form-radio-group
+              v-model="loadedConfigs['ORA_DB_TARGET']"
+              :options="dbTargeteOpts"
+              class="my-auto ml-2"
+            />
+          </b-input-group>
+        </b-card>
+        <b-card  v-cloak
+          v-if="!isMockModeEnabled"
+          header-bg-variant="dark"
+          header-text-variant="white"
+          border-variant="dark"
+        >
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="server">同步異動資料庫連線設定</lah-fa-icon></h6>
+          </template>
+          <b-input-group size="sm" prepend="輪詢間隔">
+            <b-input
+              type="number"
+              min="5"
+              placeholder="300"
+              title="PING間隔時間(秒)"
+              v-model="loadedConfigs['PING_INTERVAL_SECONDS']"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({PING_INTERVAL_SECONDS: loadedConfigs['PING_INTERVAL_SECONDS']})"
+                no-icon-gutter
               />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({SITE_ID: loadedConfigs['SITE_ID']})"
-                  :disabled="numNotOK(loadedConfigs['SITE_ID'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="跨所ＡＰ" class="my-1">
-              <b-input
-                placeholder="220.1.35.123"
-                title="任一個地政WEB版伺服器IP"
-                v-model="loadedConfigs['WEBAP_IP']"
-                :state="validateIp(loadedConfigs['WEBAP_IP'])"
-                trim
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Ｌ１ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.33.2"
+              v-model="loadedConfigs['ORA_DB_L1HWEB_IP']"
+              title="L1HWEB 資料庫IP"
+              class="mr-1"
+              :state="validateIp(loadedConfigs['ORA_DB_L1HWEB_IP'])"
+              trim
+            />
+            :
+            <b-input
+              type="number"
+              min="1"
+              max="65535"
+              placeholder="1521"
+              v-model="loadedConfigs['ORA_DB_L1HWEB_PORT']"
+              title="L1HWEB 資料庫PORT"
+              class="col-3 ml-1"
+              :state="validateNumber(loadedConfigs['ORA_DB_L1HWEB_PORT'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_L1HWEB_IP: loadedConfigs['ORA_DB_L1HWEB_IP'], ORA_DB_L1HWEB_PORT: loadedConfigs['ORA_DB_L1HWEB_PORT']})"
+                :disabled="ipNotOK(loadedConfigs['ORA_DB_L1HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L1HWEB_PORT'])"
+                no-icon-gutter
               />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({WEBAP_IP: loadedConfigs['WEBAP_IP']})"
-                  :disabled="ipNotOK(loadedConfigs['WEBAP_IP'])"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-input-group size="sm" prepend="管理金鑰" class="my-1">
-              <b-input
-                placeholder="MD5雜湊值"
-                title="管理者密碼雜湊值"
-                v-model="loadedConfigs['MASTER_PASSWORD']"
-                trim
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Ｌ２ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.33.3"
+              v-model="loadedConfigs['ORA_DB_L2HWEB_IP']"
+              title="L2HWEB 資料庫IP"
+              class=" mr-1"
+              :state="validateIp(loadedConfigs['ORA_DB_L2HWEB_IP'])"
+              trim
+            />
+            :
+            <b-input
+              type="number"
+              min="1"
+              max="65535"
+              placeholder="1521"
+              v-model="loadedConfigs['ORA_DB_L2HWEB_PORT']"
+              title="L2HWEB 資料庫PORT"
+              class="col-3 ml-1"
+              :state="validateNumber(loadedConfigs['ORA_DB_L2HWEB_PORT'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_L2HWEB_IP: loadedConfigs['ORA_DB_L2HWEB_IP'], ORA_DB_L2HWEB_PORT: loadedConfigs['ORA_DB_L2HWEB_PORT']})"
+                :disabled="ipNotOK(loadedConfigs['ORA_DB_L2HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L2HWEB_PORT'])"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="Ｌ３ＤＢ" class="my-1">
+            <b-input
+              placeholder="220.1.33.5"
+              v-model="loadedConfigs['ORA_DB_L3HWEB_IP']"
+              title="L3HWEB 資料庫IP"
+              class="mr-1"
+              :state="validateIp(loadedConfigs['ORA_DB_L3HWEB_IP'])"
+              trim
+            />
+            :
+            <b-input
+              type="number"
+              min="1"
+              max="65535"
+              placeholder="1521"
+              v-model="loadedConfigs['ORA_DB_L3HWEB_PORT']"
+              title="L3HWEB 資料庫PORT"
+              class="col-3 ml-1"
+              :state="validateNumber(loadedConfigs['ORA_DB_L3HWEB_PORT'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({ORA_DB_L3HWEB_IP: loadedConfigs['ORA_DB_L3HWEB_IP'], ORA_DB_L3HWEB_PORT: loadedConfigs['ORA_DB_L3HWEB_PORT']})"
+                :disabled="ipNotOK(loadedConfigs['ORA_DB_L3HWEB_IP']) || numNotOK(loadedConfigs['ORA_DB_L3HWEB_PORT'])"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+        </b-card>
+        <b-card  v-cloak
+          v-if="!isMockModeEnabled"
+          header-bg-variant="success"
+          header-text-variant="white"
+          border-variant="success"
+        >
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="feather-alt">其他設定</lah-fa-icon></h6>
+          </template>
+          <b-input-group size="sm" prepend="本所代碼" class="my-1">
+            <b-input
+              :placeholder="site"
+              v-model="loadedConfigs['SITE']"
+              :state="site === loadedConfigs['SITE']"
+              v-b-popover.hover.focus.top="site !== loadedConfigs['SITE'] ? `系統偵測到所別為: ${site} (${apiSvrIp})` : ''"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({SITE: loadedConfigs['SITE']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="本所統編" class="my-1">
+            <b-input
+              type="number"
+              placeholder="45000808"
+              title="本所的統一編號"
+              v-model="loadedConfigs['SITE_ID']"
+              :state="validateNumber(loadedConfigs['SITE_ID'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({SITE_ID: loadedConfigs['SITE_ID']})"
+                :disabled="numNotOK(loadedConfigs['SITE_ID'])"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="跨所ＡＰ" class="my-1">
+            <b-input
+              placeholder="220.1.35.123"
+              title="任一個地政WEB版伺服器IP"
+              v-model="loadedConfigs['WEBAP_IP']"
+              :state="validateIp(loadedConfigs['WEBAP_IP'])"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({WEBAP_IP: loadedConfigs['WEBAP_IP']})"
+                :disabled="ipNotOK(loadedConfigs['WEBAP_IP'])"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-input-group size="sm" prepend="管理金鑰" class="my-1">
+            <b-input
+              placeholder="MD5雜湊值"
+              title="管理者密碼雜湊值"
+              v-model="loadedConfigs['MASTER_PASSWORD']"
+              trim
+              disabled
+            />
+          </b-input-group>
+        </b-card>
+        <b-card  v-cloak
+          header-bg-variant="primary"
+          header-text-variant="white"
+          border-variant="primary"
+        >
+          <template #header>
+            <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
+          </template>
+          <b-checkbox v-model="loadedConfigs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: loadedConfigs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
+          <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 65%;" :disabled="!loadedConfigs['ENABLE_MOCK_MODE']">
+            <b-input
+              type="number"
+              min="5"
+              placeholder="15"
+              title="模擬模式下回應快取剩餘時間(秒)"
+              v-model="loadedConfigs['MOCK_CACHE_SECONDS']"
+              trim
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({MOCK_CACHE_SECONDS: loadedConfigs['MOCK_CACHE_SECONDS']})"
+                no-icon-gutter
+              />
+            </template>
+          </b-input-group>
+          <b-checkbox v-model="loadedConfigs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: loadedConfigs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
+          <b-checkbox v-model="loadedConfigs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: loadedConfigs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
+          <b-input-group v-if="false" size="sm" prepend="查詢金鑰" class="my-1">
+            <b-input
+              placeholder="MD5雜湊值"
+              title="API KEY MD5 HASH"
+              v-model="loadedConfigs['API_KEY']"
+              trim
+              disabled
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({API_KEY: loadedConfigs['API_KEY']})"
+                no-icon-gutter
                 disabled
               />
-            </b-input-group>
-          </b-card>
-        </lah-transition>
-        <lah-transition>
-          <b-card
-            header-bg-variant="primary"
-            header-text-variant="white"
-            border-variant="primary"
-          >
-            <template #header>
-              <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
             </template>
-            <b-checkbox v-model="loadedConfigs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: loadedConfigs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
-            <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 65%;" :disabled="!loadedConfigs['ENABLE_MOCK_MODE']">
-              <b-input
-                type="number"
-                min="5"
-                placeholder="15"
-                title="模擬模式下回應快取剩餘時間(秒)"
-                v-model="loadedConfigs['MOCK_CACHE_SECONDS']"
-                trim
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({MOCK_CACHE_SECONDS: loadedConfigs['MOCK_CACHE_SECONDS']})"
-                  no-icon-gutter
-                />
-              </template>
-            </b-input-group>
-            <b-checkbox v-model="loadedConfigs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: loadedConfigs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
-            <b-checkbox v-model="loadedConfigs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: loadedConfigs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
-            <b-input-group v-if="false" size="sm" prepend="查詢金鑰" class="my-1">
-              <b-input
-                placeholder="MD5雜湊值"
-                title="API KEY MD5 HASH"
-                v-model="loadedConfigs['API_KEY']"
-                trim
+          </b-input-group>
+          <b-input-group v-show="false" size="sm" prepend="照片路徑" class="my-1">
+            <b-input
+              placeholder="內網擷取使用者圖片路徑"
+              title="內網擷取使用者圖片路徑"
+              v-model="loadedConfigs['USER_PHOTO_FOLDER']"
+              trim
+              disabled
+            />
+            <template #append>
+              <lah-button
+                icon="pen-square"
+                variant="outline-secondary"
+                title="立即寫入設定"
+                @click="quick({USER_PHOTO_FOLDER: loadedConfigs['USER_PHOTO_FOLDER']})"
+                no-icon-gutter
                 disabled
               />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({API_KEY: loadedConfigs['API_KEY']})"
-                  no-icon-gutter
-                  disabled
-                />
-              </template>
-            </b-input-group>
-            <b-input-group v-show="false" size="sm" prepend="照片路徑" class="my-1">
-              <b-input
-                placeholder="內網擷取使用者圖片路徑"
-                title="內網擷取使用者圖片路徑"
-                v-model="loadedConfigs['USER_PHOTO_FOLDER']"
-                trim
-                disabled
-              />
-              <template #append>
-                <lah-button
-                  icon="pen-square"
-                  variant="outline-secondary"
-                  title="立即寫入設定"
-                  @click="quick({USER_PHOTO_FOLDER: loadedConfigs['USER_PHOTO_FOLDER']})"
-                  no-icon-gutter
-                  disabled
-                />
-              </template>
-            </b-input-group>
-          </b-card>
-        </lah-transition>
+            </template>
+          </b-input-group>
+        </b-card>
       </b-card-group>
       <lah-transition slideUp>
         <b-card-group v-if="showMSSQLCards" deck class="mt-4">
