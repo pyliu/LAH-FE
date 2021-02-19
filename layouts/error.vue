@@ -3,7 +3,7 @@
     lah-header
     b-container.center.full
         div.text-center
-            h1 {{ error.statusCode }}
+            h1.text-danger.font-weight-bold {{ error.statusCode }}
             h1(v-if="error.statusCode === 404") 找不到頁面
             h1(v-else) 有錯誤發生
             h2  {{ decodeURI(error.path) }}
