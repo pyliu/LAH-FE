@@ -6,7 +6,7 @@
     .center.full
       div.text-center.mx-auto
           h1.text-danger.font-weight-bold.mb-3(v-if="error.statusCode") {{ error.statusCode }}
-          h3 {{ message }}
+          blockquote.h4 {{ message }}
           p.mt-3
             lah-fa-icon(icon="lightbulb" regular variant="warning").
               仍然有問題!? 可嘗試
