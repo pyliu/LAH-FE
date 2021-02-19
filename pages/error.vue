@@ -10,7 +10,7 @@
           p.mt-3
             lah-fa-icon(icon="lightbulb" regular variant="warning").
               仍然有問題!? 可嘗試
-              #[b-link(@click="clearFECache" class="text-primary") #[font-awesome-icon(:icon="['fas', 'hand-sparkles']")] 清除瀏覽器快取資料]
+              #[b-link(@click="clearFECache" class="text-primary") #[font-awesome-icon(:icon="['fas', 'hand-sparkles']")] 清除本系統快取資料]
           nuxt-link(to="/")
             lah-fa-icon(icon="home" variant="success") 回首頁
 </template>
