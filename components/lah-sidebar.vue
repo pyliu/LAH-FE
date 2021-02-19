@@ -103,7 +103,7 @@
         原始碼
       li(v-if="$utils.empty(user)"): b-link(@click="logout").
         #[font-awesome-icon(:icon="['fas', 'hand-sparkles']" size="lg")]
-        清除瀏覽器端快取資料
+        清除本系統快取資料
       li(v-else): b-link(@click="logout" title="清除瀏覽器端快取資料").
         #[font-awesome-icon(:icon="['fas', 'sign-out-alt']" size="lg")]
         登出
