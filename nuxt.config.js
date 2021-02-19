@@ -76,6 +76,13 @@ export default {
     '@nuxtjs/localforage',
     'nuxt-fontawesome'
   ],
+  bootstrapVue: {
+    // Install the `IconsPlugin` plugin (in addition to `BootstrapVue` plugin)
+    icons: true,
+    config: {
+      // Custom config options here
+    }
+  },
   styleResources: {
     scss: '@/assets/scss/_variables.scss'
   },
