@@ -15,19 +15,21 @@
           )
             strong {{ queryTitle }}
           lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-          lah-help-modal(:modal-id="'help-modal'"): .h5.text-nowrap: lah-fa-icon.d-flex(icon="lightbulb" regular variant="warning")
-            .my-auto 請使用
-            lah-button.mx-2(
-              :icon="icon"
-              :badgeText="queryCount.toString()"
-              :variant="switchButtonVariant"
-              :disabled="isBusy"
-              :busy="isBusy"
-              @click="isOverdueMode = !isOverdueMode"
-              title="按我切換模式"
-            )
-              strong {{ queryTitle }}
-            .my-auto 切換顯示模式
+          lah-help-modal(:modal-id="'help-modal'"): .h6.text-nowrap
+            lah-fa-icon.d-flex(icon="lightbulb" regular variant="warning")
+              .my-auto 請使用
+              lah-button.mx-2(
+                :icon="icon"
+                :badgeText="queryCount.toString()"
+                :variant="switchButtonVariant"
+                :disabled="isBusy"
+                :busy="isBusy"
+                @click="isOverdueMode = !isOverdueMode"
+                title="按我切換模式"
+              )
+                strong {{ queryTitle }}
+              .my-auto 切換顯示模式
+            lah-fa-icon.d-flex(icon="lightbulb" regular variant="warning") 預定結案時間剩餘4小時內將判定為即將逾期案件
         lah-countdown-button(
           ref="countdown"
           icon="sync-alt"
