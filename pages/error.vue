@@ -7,9 +7,10 @@
       div.text-center.mx-auto
           h1.text-danger.font-weight-bold.mb-3(v-if="error.statusCode") {{ error.statusCode }}
           h3 {{ message }}
-          p.mt-3.
-            仍然有問題!? 可嘗試
-            #[b-link(@click="clearFECache" class="text-primary") #[font-awesome-icon(:icon="['fas', 'hand-sparkles']")] 清除瀏覽器快取資料]
+          p.mt-3
+            lah-fa-icon(icon="lightbulb" regular variant="warning").
+              仍然有問題!? 可嘗試
+              #[b-link(@click="clearFECache" class="text-primary") #[font-awesome-icon(:icon="['fas', 'hand-sparkles']")] 清除瀏覽器快取資料]
           nuxt-link(to="/")
             lah-fa-icon(icon="home" variant="success") 回首頁
 </template>
