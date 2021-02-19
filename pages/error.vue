@@ -27,7 +27,15 @@ export default {
       redirect('/')
     }
     if (isEmpty(error.statusCode)) {
-      error.statusCode = 599  // my defined error code
+      /*
+        HTTP 狀態碼表明一個 HTTP 要求是否已經被完成。回應分為五種：
+        資訊回應 (Informational responses, 100–199),
+        成功回應 (Successful responses, 200–299),
+        重定向 (Redirects, 300–399),
+        用戶端錯誤 (Client errors, 400–499),
+        伺服器端錯誤 (Server errors, 500–599).
+       */
+      error.statusCode = 499  // my defined error code
     }
     return { error }
   },
