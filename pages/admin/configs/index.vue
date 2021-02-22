@@ -438,8 +438,11 @@
           <template #header>
             <h6 class="my-auto font-weight-bolder"><lah-fa-icon icon="toggle-off" size="lg">系統開關設定</lah-fa-icon></h6>
           </template>
-          <b-checkbox v-model="loadedConfigs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: loadedConfigs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
-          <b-input-group size="sm" prepend="快取時間" style="margin-left: 35px; width: 65%;" :disabled="!loadedConfigs['ENABLE_MOCK_MODE']">
+          <b-checkbox v-model="loadedConfigs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: loadedConfigs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
+          <b-checkbox v-model="loadedConfigs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: loadedConfigs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
+          <b-checkbox v-model="loadedConfigs['ENABLE_AVATAR']" switch @change="switchAvatar" class="text-nowrap">啟用大頭照</b-checkbox>
+          <b-input-group>
+            <b-checkbox class="my-auto mr-1" v-model="loadedConfigs['ENABLE_MOCK_MODE']" switch @change="quick({ENABLE_MOCK_MODE: loadedConfigs['ENABLE_MOCK_MODE']})" title="開發模擬環境模式">啟用模擬模式</b-checkbox>
             <b-input
               type="number"
               min="5"
@@ -447,6 +450,7 @@
               title="模擬模式下回應快取剩餘時間(秒)"
               v-model="loadedConfigs['MOCK_CACHE_SECONDS']"
               trim
+              size="sm"
             />
             <template #append>
               <lah-button
@@ -455,12 +459,11 @@
                 title="立即寫入設定"
                 @click="quick({MOCK_CACHE_SECONDS: loadedConfigs['MOCK_CACHE_SECONDS']})"
                 no-icon-gutter
+                :disabled="loadedConfigs['ENABLE_MOCK_MODE'] === false || loadedConfigs['ENABLE_MOCK_MODE'] === 'false'"
+                size="sm"
               />
             </template>
           </b-input-group>
-          <b-checkbox v-model="loadedConfigs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: loadedConfigs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
-          <b-checkbox v-model="loadedConfigs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: loadedConfigs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
-          <b-checkbox v-model="loadedConfigs['ENABLE_AVATAR']" switch @change="switchAvatar">啟用大頭照</b-checkbox>
           <b-input-group v-if="false" size="sm" prepend="查詢金鑰" class="my-1">
             <b-input
               placeholder="MD5雜湊值"
