@@ -34,6 +34,12 @@ export default {
     },
     avatarSrc () {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
+    },
+    enableAvatar () {
+      if (this.systemConfigs) {
+        return this.systemConfigs.avatar === true || this.systemConfigs.avatar === 'true'
+      }
+      return false
     }
   },
   methods: {

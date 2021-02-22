@@ -97,6 +97,9 @@ const mutations = {
   admin (state, flag) {
     state.authority.isAdmin = flag
   },
+  avatar (state, flag) {
+    state.systemConfigs.avatar = flag
+  },
   addToastCounter (state, dontcare) { state.toastCounter++ }
 }
 
