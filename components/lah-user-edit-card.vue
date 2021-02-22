@@ -350,7 +350,7 @@ export default {
       return this.userData.ip !== this.origUserData.ip
     },
     checkId () {
-      if (this.$utils.empty(this.userData['id'])) {
+      if (this.$utils.empty(this.userData['id']) || this.userData['id'].length < 6) {
         return false
       }
       return true
