@@ -24,7 +24,7 @@
       template(v-slot:table-busy): span.ld-txt 讀取中...
       template(v-slot:cell(辦理情形)="{ item }"): b-button(variant="link") {{ item['辦理情形'] }}
       template(v-slot:cell(收件人員)="{ item }"): b-button(variant="link" @click="userinfo(item['收件人員'], item['RM96'])") {{ item['收件人員'] }}
-      template(v-slot:cell(作業人員)="{ item }"): b-button(pill variant="outline-secondary" @click="userinfo(item['作業人員'], item['RM30_1'])"): lah-avatar(:id="item['RM30_1']" :name="item['作業人員']") {{ item['作業人員'] }})
+      template(v-slot:cell(作業人員)="{ item }"): b-button(pill variant="outline-secondary" @click="userinfo(item['作業人員'], item['RM30_1'])"): lah-avatar(:id="item['RM30_1']" :name="item['作業人員']") {{ item['作業人員'] }}
       template(v-slot:cell(初審人員)="{ item }"): b-button(variant="link" @click="userinfo(item['初審人員'], item['RM45'])") {{ item['初審人員'] }}
       template(v-slot:cell(複審人員)="{ item }"): b-button(variant="link" @click="userinfo(item['複審人員'], item['RM47'])") {{ item['複審人員'] }}
       template(v-slot:cell(准登人員)="{ item }"): b-button(variant="link" @click="userinfo(item['准登人員'], item['RM63'])") {{ item['准登人員'] }}
