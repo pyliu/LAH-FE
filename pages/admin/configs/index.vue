@@ -460,6 +460,7 @@
           </b-input-group>
           <b-checkbox v-model="loadedConfigs['ENABLE_MSSQL_CONN']" switch @change="quick({ENABLE_MSSQL_CONN: loadedConfigs['ENABLE_MSSQL_CONN']})">啟用MSSQL外部資料庫</b-checkbox>
           <b-checkbox v-model="loadedConfigs['ENABLE_OFFICE_HOURS']" switch @change="quick({ENABLE_OFFICE_HOURS: loadedConfigs['ENABLE_OFFICE_HOURS']})">啟用辦公時間限制</b-checkbox>
+          <b-checkbox v-model="loadedConfigs['ENABLE_AVATAR']" switch @change="quick({ENABLE_AVATAR: loadedConfigs['ENABLE_AVATAR']})">啟用大頭照</b-checkbox>
           <b-input-group v-if="false" size="sm" prepend="查詢金鑰" class="my-1">
             <b-input
               placeholder="MD5雜湊值"

@@ -69,6 +69,12 @@ Vue.mixin({
       }
       return this.systemConfigs ? this.systemConfigs.site : 'HB'
     },
+    enableAvatar () {
+      if (this.systemConfigs && this.systemConfigs.enableAvatar == 'true') {
+        return true
+      }
+      return false
+    },
     myinfo () {
       return isEmpty(this.user) ? { id: '', name: '' } : this.user
     },

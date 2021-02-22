@@ -1,6 +1,7 @@
 <template lang="pug">
   span
     b-avatar.my-auto(
+      v-if="enableAvatar"
       button 
       :variant="variant" 
       :size="`${size}em`" 
