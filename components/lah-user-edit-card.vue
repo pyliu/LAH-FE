@@ -353,9 +353,10 @@ export default {
       if (this.$utils.empty(this.userData['id'])) {
         return false
       }
+      return true
       // e.g. HB0010
-      const regex = new RegExp(`^${this.systemConfigs.site}\\d{4,}$`, 'gm')
-      return Boolean(this.userData['id'].match(regex))
+      // const regex = new RegExp(`^${this.systemConfigs.site}\\d{4,}$`, 'gm')
+      // return Boolean(this.userData['id'].match(regex))
     },
     checkName () {
       return !this.$utils.empty(this.userData['name']) && this.userData['name'].length > 1

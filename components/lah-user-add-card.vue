@@ -266,9 +266,10 @@ export default {
       if (this.$utils.empty(this.userData['id']) || !this.$utils.empty(this.foundUser)) {
         return false
       }
+      return true
       // e.g. HB0010
-      const regex = new RegExp(`^${this.site}\\d{4,}$`, 'gm')
-      return Boolean(this.userData['id'].match(regex))
+      // const regex = new RegExp(`^${this.site}\\d{4,}$`, 'gm')
+      // return Boolean(this.userData['id'].match(regex))
     },
     checkName () {
       if (!this.$utils.empty(this.foundUser)) {
