@@ -39,14 +39,6 @@
               no-icon-gutter
               action="move-fade-ltr"
             />
-            <lah-button
-              icon="sync-alt"
-              @click="importSYSAUTH1"
-              title="同步地政WEB版使用者"
-              variant="outline-danger"
-              no-icon-gutter
-              action="spin-fast"
-            />
           </b-button-group>
         </div>
       </lah-transition>
@@ -358,54 +350,6 @@ export default {
     }
   },
   methods: {
-    genUserData (id, name) {
-      return {
-        id: id,
-        name: name,
-        sex: "1",
-        title: "臨時人員",
-        work: "打雜",
-        ext: "153",
-        birthday: "",
-        unit: "未分配",
-        ip: "192.168.XX.XX",
-        education: "桃園市中壢區XXXX國民小學",
-        exam: "未通過國家考試",
-        cell: "",
-        onboard_date: ""
-      }
-    },
-    async importSYSAUTH1 () {
-      if (this.isBusy) {
-        this.notify('系統忙碌中，請稍後 ... ', { type: "warning" })
-      } else {
-        const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: "ping",
-          ip: this.L3HWEBIp,
-          port: this.L3HWEBPort
-        })
-        if (this.$utils.statusCheck(data.status)) {
-          const ans = await this.confirm(`請確認要匯入各所地政資料庫使用者資料？`)
-          if (ans) {
-            this.isBusy = true
-            const { data } = await this.$axios.post(this.$consts.API.JSON.USER, {
-              type: 'import_l3hweb_users'
-            })
-            if (this.$utils.statusCheck(data.status)) {
-              this.notify(`執行匯入完成，成功(${data.succeed}) 失敗(${data.failed})，3秒後重新整理頁面。`, { type: "success" })
-              this.timeout(() => {
-                window.location.reload()
-              }, 3000)
-            } else {
-              this.notify(`匯入失敗`, { type: "warning" })
-            }
-          }
-        } else {
-          this.notify(`L3HWEB無法連線(${data.message})，無法進行使用者匯入動作`, { type: "warning" })
-        }
-        this.isBusy = false
-      }
-    },
     exportXlsx () {
       this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載使用者XLSX清單' } })
     },
