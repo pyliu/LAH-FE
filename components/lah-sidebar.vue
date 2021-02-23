@@ -95,7 +95,7 @@
       li(v-if="!isAuthorized"): nuxt-link(to="/login").
         #[font-awesome-icon(:icon="['fas', 'sign-in-alt']" size="lg")]
         管理者登入
-      li(v-if="isAuthorized"): a(:href="apiSvrHttpUrl" target="_blank" rel="noopener noreferrer").
+      li(v-if="false"): a(:href="apiSvrHttpUrl" target="_blank" rel="noopener noreferrer").
         #[font-awesome-icon(:icon="['fas', 'history']" pull="left" size="lg")]
         先前版本
       li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
