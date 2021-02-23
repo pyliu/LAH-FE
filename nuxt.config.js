@@ -95,7 +95,7 @@ export default {
   },
   proxy: {
     '/api': {
-      target: process.env.BASE_URL || 'http://localhost', 
+      target: process.env.BASE_URL || 'http://localhost:80',
       changeOrigin: true, 
       pathRewrite: {
         '^/api': '',
