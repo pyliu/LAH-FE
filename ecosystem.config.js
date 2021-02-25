@@ -4,6 +4,8 @@ module.exports = {
     exec_mode: 'cluster',
     instances: -1,
     script: './node_modules/nuxt/bin/nuxt.js',
-    args: 'start'
+    args: 'start',
+    error_file: 'C:/AppServ/www/log',
+    out_file: 'C:/AppServ/www/log'
   }]
 }
