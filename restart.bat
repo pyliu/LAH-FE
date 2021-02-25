@@ -1,2 +1,2 @@
 @echo off
-pm2 restart
+pm2 restart all
