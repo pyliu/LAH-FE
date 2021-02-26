@@ -15,6 +15,6 @@ module.exports = {
     // 適合開發時用，檔案一有變更就會自動重啟
     watch: true,
     ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git"],
-    max_memory_restart: '512M',
+    max_memory_restart: '256M',
   }]
 }
