@@ -2,8 +2,9 @@ export default {
   server: {
     // bind to all possible addresses
     host: '0.0.0.0',
-    port: 8080 // default: 3000
+    port: process.env.NODE_ENV === 'production' ? 8080 : 3000 // default: 3000
   },
+  dev: process.env.NODE_ENV !== 'production',
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: '桃園市政府地政局',
@@ -88,11 +89,12 @@ export default {
   },
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:8080',
+    baseUrl: process.env.BASE_URL || `http://localhost:${process.env.PORT}`,
     proxy: true,
     prefix: '/api',
     credentials: true
   },
+  // API server proxy settings
   proxy: {
     '/api': {
       target: process.env.BASE_URL || 'http://localhost:80',
@@ -102,7 +104,6 @@ export default {
       },
     }
   },
-
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     /*
@@ -111,7 +112,18 @@ export default {
     extend (config, ctx) {},
     babel: { compact: true }
   },
+  // Environment variables that are required at build time 
   env: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:8080'
+    baseUrl: process.env.BASE_URL || `http://localhost:${process.env.PORT}`
+  },
+  // should hold all env variables that are public as these will be exposed on the frontend.
+  // available using $config in both server and client.
+  publicRuntimeConfig: {
+    baseURL: process.env.BASE_URL || 'https://nuxtjs.org'
+  },
+  // should hold all env variables that are private and that should not be exposed on the frontend.
+  // only available on server using same $config
+  privateRuntimeConfig: {
+    apiKey: '4a0494ad2055969f758260e8055dcb99'
   }
 }
