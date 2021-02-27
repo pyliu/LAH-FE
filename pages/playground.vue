@@ -15,7 +15,8 @@ export default {
   },
   data: () => ({
     pid: 'A123456789',
-    json: undefined
+    json: undefined,
+    openNewsData: undefined
   }),
   async asyncData({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering

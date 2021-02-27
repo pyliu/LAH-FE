@@ -97,7 +97,7 @@ export default {
   // API server proxy settings
   proxy: {
     '/api': {
-      target: `${process.env.BASE_URL}:${process.env.API_SERVER_PORT}`,
+      target: `${process.env.API_SERVER_BASE_URL}:${process.env.API_SERVER_PORT}`,
       changeOrigin: true, 
       pathRewrite: {
         '^/api': '',
@@ -111,10 +111,6 @@ export default {
      */
     extend (config, ctx) {},
     babel: { compact: true }
-  },
-  // Environment variables that are required at build time 
-  env: {
-    baseUrl: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`
   },
   // should hold all env variables that are public as these will be exposed on the frontend.
   // available using $config in both server and client.
