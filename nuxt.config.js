@@ -2,7 +2,7 @@ export default {
   server: {
     // bind to all possible addresses
     host: '0.0.0.0',
-    port: process.env.NODE_ENV === 'production' ? 8080 : 3000 // default: 3000
+    port: process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT
   },
   dev: process.env.NODE_ENV !== 'production',
   // Global page headers (https://go.nuxtjs.dev/config-head)
@@ -89,7 +89,7 @@ export default {
   },
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseUrl: process.env.BASE_URL || `http://localhost:${process.env.PORT}`,
+    baseUrl: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`,
     proxy: true,
     prefix: '/api',
     credentials: true
@@ -97,7 +97,7 @@ export default {
   // API server proxy settings
   proxy: {
     '/api': {
-      target: process.env.BASE_URL || 'http://localhost:80',
+      target: `${process.env.BASE_URL}:${process.env.API_SERVER_PORT}`,
       changeOrigin: true, 
       pathRewrite: {
         '^/api': '',
@@ -114,16 +114,17 @@ export default {
   },
   // Environment variables that are required at build time 
   env: {
-    baseUrl: process.env.BASE_URL || `http://localhost:${process.env.PORT}`
+    baseUrl: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`
   },
   // should hold all env variables that are public as these will be exposed on the frontend.
   // available using $config in both server and client.
   publicRuntimeConfig: {
-    baseURL: process.env.BASE_URL || 'https://nuxtjs.org'
+    baseURL: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`
   },
   // should hold all env variables that are private and that should not be exposed on the frontend.
   // only available on server using same $config
+  // privateRuntimeConfig always overrides publicRuntimeConfig on server-side. $config in server mode is { ...public, ...private } but for client mode only { ...public }
   privateRuntimeConfig: {
-    apiKey: '4a0494ad2055969f758260e8055dcb99'
+    apiKey: process.env.API_KEY
   }
 }
