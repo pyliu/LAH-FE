@@ -65,7 +65,10 @@ export default {
       }).finally(() => {})
     })
   },
-  mounted () { this.$utils.log(this) }
+  mounted () {
+    this.$utils.log(this)
+    this.$utils.log(typeof Chart)
+  }
 }
 </script>
 
