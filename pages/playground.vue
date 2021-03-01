@@ -1,11 +1,13 @@
 <template lang="pug">
-  div
+  div: client-only
     lah-header
     span test
     lah-button( size="lg" )
     <lah-fa-icon icon="question"></lah-fa-icon>
     div {{ openNewsData }}
     p {{ $config.baseURL }}
+    b-table( striped hover :items="configs" )
+    //- b-table( striped hover :items="nuxt" )
 </template>
 
 <script>
@@ -28,6 +30,12 @@ export default {
   },
   computed: {
     // isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
+    configs () {
+      return Object.keys(this.$config).map((key) => [key, this.$config[key]])
+    },
+    nuxt () {
+      return Object.keys(this.$nuxt).map((key) => [key, this.$nuxt[key]])
+    },
   },
   methods: {
     clickCountdownButton () {
