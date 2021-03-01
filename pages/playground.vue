@@ -7,7 +7,7 @@
     div {{ openNewsData }}
     p {{ $config.baseURL }}
     b-table( striped hover :items="configs" )
-    //- b-table( striped hover :items="nuxt" )
+    b-table( striped hover :items="[]" )
 </template>
 
 <script>
@@ -33,9 +33,9 @@ export default {
     configs () {
       return Object.keys(this.$config).map((key) => [key, this.$config[key]])
     },
-    nuxt () {
-      return Object.keys(this.$nuxt).map((key) => [key, this.$nuxt[key]])
-    },
+    // all () {
+    //   return Object.keys(this).map((key) => [key, this[key]])
+    // },
   },
   methods: {
     clickCountdownButton () {

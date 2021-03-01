@@ -115,7 +115,11 @@ export default {
   // should hold all env variables that are public as these will be exposed on the frontend.
   // available using $config in both server and client.
   publicRuntimeConfig: {
-    baseURL: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`
+    basePort: process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT,
+    baseURL: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`,
+    apiServerURL: `${process.env.API_SERVER_BASE_URL}:${process.env.API_SERVER_PORT}`,
+    apiServerPort: process.env.API_SERVER_PORT
+
   },
   // should hold all env variables that are private and that should not be exposed on the frontend.
   // only available on server using same $config
