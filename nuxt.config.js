@@ -53,7 +53,6 @@ export default {
   },
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
-    // { src: '~/plugins/jquery.min', mode: 'client', ssr: false },
     { src: '~/plugins/customize-axios'},
     { src: '~/plugins/fontawesome' },
     { src: '~/plugins/global-vue-mixin' },
