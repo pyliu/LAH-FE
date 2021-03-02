@@ -281,13 +281,14 @@ export default {
     ],
     maxHeight: 600
   }),
+  asyncData () {
+    const today = new Date()
+    return {
+      startDateObj: new Date(today.getFullYear(), today.getMonth(), 1), // firstDayofMonth
+      endDateObj: new Date(today.getFullYear(), today.getMonth() + 1, 0)  // lastDayofMonth
+    }
+  },
   computed: {
-    firstDayofMonth () {
-      return new Date(this.today.getFullYear(), this.today.getMonth(), 1)
-    },
-    lastDayofMonth () {
-      return new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0)
-    },
     yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
     today () { return new Date() },
     queryCount () { return this.rows.length },
@@ -316,10 +317,10 @@ export default {
   },
   watch: {
     startDateObj (val) {
-      this.startDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
+      val && (this.startDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
     },
     endDateObj (val) {
-      this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
+      val && (this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
     }
   },
   methods: {
