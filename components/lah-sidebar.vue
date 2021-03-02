@@ -32,7 +32,7 @@
       li: nuxt-link(to="/ask-for-instructions").
         #[font-awesome-icon(:icon="['fas', 'user-tie']" size="lg")]
         請示未結案件
-      li: nuxt-link(to="/trust-caseHB").
+      li: nuxt-link(to="/trust-case-HB").
         #[font-awesome-icon(:icon="['fas', 'money-check-alt']" size="lg")]
         信託相關案件
       li: nuxt-link(to="/non-scrivener-case").
