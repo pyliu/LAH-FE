@@ -163,7 +163,7 @@ export default {
       { value: 'building', text: '建物註記塗銷' },
       { value: 'reg_reason', text: '登記收件查詢' }
     ],
-    landFields: [
+    obliterateFields: [
       {
         key: "IS48",
         label: '段代碼/名稱',
@@ -220,7 +220,7 @@ export default {
         sortable: true,
       }
     ],
-    buildFields: [
+    regFields: [
       {
         key: "IS48",
         label: '段代碼/名稱',
@@ -302,9 +302,9 @@ export default {
           return `不支援的型別【${this.qryType}】`
       }
     },
-    caption () { return `${this.year}年 共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` },
+    caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.startDate}_${this.endDate}` },
-    fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields },
+    fields () { return this.qryType === 'land' || this.qryType === 'building' ? this.obliterateFields : this.regFields },
     maxHeightStyle () {
        return `max-height: ${this.maxHeight}px`
     }
