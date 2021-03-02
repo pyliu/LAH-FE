@@ -24,20 +24,40 @@
             first-number
             aria-controls="trust-table"
           )
-          b-input-group.text-nowrap.mr-1(append="年"): b-form-select(
-            ref="year"
-            v-model="year"
-            :options="years"
-            class="h-100"
-            @change="cached"
-          ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇年份 --
+          
+          client-only
+            b-datepicker(
+              v-model="startDateObj"
+              placeholder="開始日期"
+              boundary="viewport"
+              size="sm"
+              :date-format-options="{ weekday: 'narrow' }"
+              :max="yesterday"
+              value-as-date
+              hide-header
+              dropleft
+            )
+            .my-auto ～
+            b-datepicker.mr-1(
+              v-model="endDateObj"
+              placeholder="截止日期"
+              boundary="viewport"
+              size="sm"
+              :date-format-options="{ weekday: 'narrow' }"
+              :max="today"
+              :min="startDateObj"
+              value-as-date
+              hide-header
+              dark
+            )
+
           b-input-group.text-nowrap.mr-1: b-form-select(
             ref="type"
             v-model="qryType"
             :options="qryTypes"
             class="h-100"
             @change="cached"
-          ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇部別 --
+          ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇案件類型 --
           lah-button(
             ref="search"
             icon="search"
@@ -130,20 +150,21 @@ export default {
     modalId: 'this should be an uuid',
     modalLoading: true,
     clickedId: undefined,
-    year: '',
-    years: [],
-    qryType: 'B',
-    qryTypes: [
-      { value: 'B', text: '土地所有權部' },
-      { value: 'E', text: '建物所有權部' },
-      { value: 'TB', text: '土地例外' },
-      { value: 'TE', text: '建物例外' }
-    ],
+    startDateObj: null,
+    startDate: '1100301',
+    endDateObj: null,
+    endDate: '1100331',
     rows: [],
     perPage: 25,
     currentPage: 1,
     forceReload: false,
     committed: false,
+    qryType: 'reg_reason',
+    qryTypes: [
+      { value: 'land', text: '信託登記－土地註記塗銷' },
+      { value: 'building', text: '信託登記－建物註記塗銷' },
+      { value: 'reg_reason', text: '登記收件查詢' }
+    ],
     landFields: [
       {
         key: "IS48",
@@ -261,6 +282,14 @@ export default {
     maxHeight: 600
   }),
   computed: {
+    firstDayofMonth () {
+      return new Date(this.today.getFullYear(), this.today.getMonth(), 1)
+    },
+    lastDayofMonth () {
+      return new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0)
+    },
+    yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
+    today () { return new Date() },
     queryCount () { return this.rows.length },
     qryTypeText () {
       switch (this.qryType) {
@@ -283,6 +312,14 @@ export default {
     fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields },
     maxHeightStyle () {
        return `max-height: ${this.maxHeight}px`
+    }
+  },
+  watch: {
+    startDateObj (val) {
+      this.startDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
+    },
+    endDateObj (val) {
+      this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
     }
   },
   methods: {
@@ -352,24 +389,9 @@ export default {
     }
   },
   created () {
-    // restore cached data if found
-    var d = new Date();
-    this.year = (d.getFullYear() - 1911)
-    this.getCache(this.cacheKeyYear).then(years => {
-      if (years !== false) {
-        this.years = years;
-      } else {
-        // set year select options
-        let len = this.year - 104;
-        for (let i = 0; i <= len; i++) {
-            this.years.push({value: 104 + i, text: 104 + i});
-        }
-        this.years.reverse()
-        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
-      }
-      this.cached()
-    })
     this.modalId = this.$utils.uuid()
+    this.startDateObj = this.firstDayofMonth
+    this.endDateObj = this.lastDayofMonth
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 105)
