@@ -13,7 +13,7 @@
               li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
             hr
             //- lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件年字號」開啟案件詳情視窗
-            lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/trust-case-HF") 切換為八德版本
+            lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/trust/HF") 切換為八德版本
         .d-flex.small
           b-pagination.my-auto.mr-1(
             v-if="!$utils.empty(rows)"
