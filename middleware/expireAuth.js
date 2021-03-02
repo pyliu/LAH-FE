@@ -9,7 +9,7 @@ export default function ({
     if (!authority.isAdmin && !authority.isSuper) {
       // user info not found ... redirect to /error
       if (isEmpty(store.getters.user)) {
-        store.commit('lastMessage', `找不到 ${store.getters.ip} 對應使用者資訊，請確認您的帳號已經建立。`)
+        store.commit('lastMessage', `找不到 ${store.getters.ip} 對應使用者資訊，請於本系統建立您的IP及帳號對應資料。`)
         return redirect('/error')
       }
       store.commit('lastMessage', '檢查是否有主管權限')
