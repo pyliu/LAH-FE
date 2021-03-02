@@ -51,11 +51,11 @@
               dark
             )
 
-          b-input-group.text-nowrap.mr-1: b-form-select(
+          b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
             v-model="qryType"
             :options="qryTypes"
-            class="h-100"
+            :state="!$utils.empty(qryType)"
             @change="cached"
           ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇案件類型 --
           lah-button(
@@ -64,7 +64,7 @@
             size="lg"
             title="搜尋"
             class="mr-1"
-            :disabled="isBusy"
+            :disabled="isBusy || $utils.empty(qryType)"
             @click="search"
             no-icon-gutter
           )
@@ -157,10 +157,10 @@ export default {
     currentPage: 1,
     forceReload: false,
     committed: false,
-    qryType: 'reg_reason',
+    qryType: '',
     qryTypes: [
-      { value: 'land', text: '信託登記－土地註記塗銷' },
-      { value: 'building', text: '信託登記－建物註記塗銷' },
+      { value: 'land', text: '土地註記塗銷' },
+      { value: 'building', text: '建物註記塗銷' },
       { value: 'reg_reason', text: '登記收件查詢' }
     ],
     landFields: [
@@ -283,31 +283,27 @@ export default {
     const today = new Date()
     return {
       startDateObj: new Date(today.getFullYear(), today.getMonth(), 1), // firstDayofMonth
-      endDateObj: new Date(today.getFullYear(), today.getMonth() + 1, 0)  // lastDayofMonth
+      endDateObj: new Date(today.getFullYear(), today.getMonth() + 1, 0),  // lastDayofMonth
+      yesterday: new Date(new Date().setDate(today.getDate()-1)),
+      today: today
     }
   },
   computed: {
-    yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
-    today () { return new Date() },
     queryCount () { return this.rows.length },
     qryTypeText () {
       switch (this.qryType) {
-        case 'B':
-          return '土地所有權部'
-        case 'E':
-          return '建物所有權部'
-        case 'TB':
-          return '土地例外'
-        case 'TE':
-          return '建物例外'
+        case 'land':
+          return '土地註記塗銷'
+        case 'building':
+          return '建物註記塗銷'
+        case 'reg_reason':
+          return '登記收件查詢'
         default:
           return `不支援的型別【${this.qryType}】`
       }
     },
     caption () { return `${this.year}年 共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` },
-    cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
-    cacheKeyYear () { return `reg_trust_case_years` },
-    isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
+    cacheKey () { return `reg_trust_case_${this.qryType}_${this.startDate}_${this.endDate}` },
     fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields },
     maxHeightStyle () {
        return `max-height: ${this.maxHeight}px`
