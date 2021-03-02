@@ -391,8 +391,6 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.startDateObj = this.firstDayofMonth
-    this.endDateObj = this.lastDayofMonth
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 105)
