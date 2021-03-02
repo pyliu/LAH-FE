@@ -10,7 +10,7 @@
           lah-index-card-link(:icon="['far', 'calendar-check']" to="/expire") 即將逾期案件
           lah-index-card-link(:icon="['far', 'sticky-note']" to="/expiry-of-announcement") 公告期滿案件
           lah-index-card-link(:icon="['fas', 'user-tie']" to="/ask-for-instructions") 取消請示案件
-          lah-index-card-link(:icon="['fas', 'money-check-alt']" to="/trust-case") 信託相關案件
+          lah-index-card-link(:icon="['fas', 'money-check-alt']" to="/trust-case-HB") 信託相關案件
           lah-index-card-link(:icon="['fas', 'user-tag']" to="/non-scrivener-case") 非專業代理人案件
           lah-index-card-link(:icon="['fas', 'user-astronaut']" to="/foreigner-case") 外人地權案件
         b-card-group(deck)
