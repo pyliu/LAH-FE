@@ -189,7 +189,7 @@ export default {
       },
       {
         key: "AB23",
-        label: "累計案件量(同機關)",
+        label: "本所案件量",
         sortable: true
       },
       {
@@ -276,7 +276,7 @@ export default {
       },
       {
         key: "AB23",
-        label: "累計案件量(同機關)",
+        label: "本所案件量",
         sortable: true
       },
       {
