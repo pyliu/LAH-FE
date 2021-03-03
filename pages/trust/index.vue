@@ -121,18 +121,13 @@
       )
         template(#table-busy): span.ld-txt 讀取中...
         template(v-slot:cell(序號)="data") {{ data.index + 1 }}
-        template(#cell(IS48)="{ item }"): .text-nowrap {{ item.IS48 }} {{ item.IS48_CHT }}
-        template(#cell(IS49)="{ item }"): .text-nowrap {{ landBuildNumber(item) }}
-        template(#cell(EE15_1)="{ item }"): .d-flex.justify-content-between(v-if="!($utils.empty(item.EE15_1) && $utils.empty(item.EE15_2) && $utils.empty(item.EE15_3))")
-          strong {{ item.EE15_1||'' }}
-          .text-nowrap {{ item.EE15_3 }}／{{ item.EE15_2 }}
-        template(#cell(BB15_1)="{ item }"): .d-flex.justify-content-between(v-if="!($utils.empty(item.BB15_1) && $utils.empty(item.BB15_2) && $utils.empty(item.BB15_3))")
-          strong {{ item.BB15_1||'' }}
-          .text-nowrap {{ item.BB15_3 }}／{{ item.BB15_2 }}
-        template(#cell(IS03)="{ item }"): .text-nowrap: b-link(@click="popup(item)").
-          {{ item.IS03 }}-{{ item.IS04_1 }}-{{ item.IS04_2 }}
-        template(#cell(GG30_2)="{ item }"): div(v-if="!($utils.empty(item.GG30_1) && $utils.empty(item.GG30_1_CHT) && $utils.empty(item.GG30_2))").
-          {{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
+        template(#cell(GG48)="{ item }"): .text-nowrap {{ item.GG48 }}:{{ item.GG48_CHT }}
+        template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
+        template(#cell(GG49)="{ item }"): .text-nowrap {{ landBuildNumber(item) }}
+        template(#cell(RM123)="{ item }"): .text-nowrap: b-link(@click="popup(item)").
+          {{ item.RM123 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        template(#cell(GG30_1)="{ item }"): div.
+          【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
       h3.text-center(
         v-else
       ): lah-fa-icon(action="breath" variant="primary") 請點選查詢按鈕
@@ -176,58 +171,53 @@ export default {
     ],
     obliterateFields: [
       {
-        key: "IS48",
-        label: '段代碼/名稱',
+        key: "RM123",
+        label: '收件字號',
         sortable: true,
       },
       {
-        key: "IS49",
+        key: "GG48",
+        label: '段名稱',
+        sortable: true,
+      },
+      {
+        key: "GG49",
         label: '地/建號',
         sortable: true,
       },
       {
-        key: "IS01",
+        key: "GG01",
         label: '登記次序',
         sortable: true,
       },
       {
-        key: "IS09",
-        label: '統一編號',
+        key: "BB09",
+        label: '統編',
         sortable: true,
       },
       {
-        key: "ISNAME",
-        label: '所有權人',
+        key: "LNAM",
+        label: '姓名',
         sortable: true,
       },
       {
-        key: "GG30_2",
-        label: '其他登記內容',
+        key: "GS_TYPE",
+        label: '異動類別',
         sortable: true,
       },
       {
-        key: "BB15_1",
-        label: '土地權利範圍',
-        sortable: true,
-      },
-      {
-        key: "IS03",
-        label: '收件年字號',
-        sortable: true,
-      },
-      {
-        key: "IS05",
-        label: '登記日期',
-        sortable: true,
-      },
-      {
-        key: "BB06_CHT",
+        key: "RM09",
         label: '登記原因',
         sortable: true,
       },
       {
-        key: "IS_DATE",
-        label: '異動日期',
+        key: "RM33",
+        label: '登記日期',
+        sortable: true,
+      },
+      {
+        key: "GG30_1",
+        label: '代碼內容',
         sortable: true,
       }
     ],
@@ -277,7 +267,7 @@ export default {
         if (json !== false) {
           this.rows = json.raw
           this.committed = true
-          this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.cacheKey}(快取)` })
+          this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.qryType}(快取)` })
         }
       })
     },
@@ -322,12 +312,12 @@ export default {
     },
     popup (data) {
       this.modalLoading = true
-      this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
+      this.clickedId = `${data['RM123'].replaceAll('-', '')}`
       this.showModalById(this.modalId)
     },
     landBuildNumber (item) {
-      const val = item.IS49
-      if (this.qryType === 'B' || this.qryType === 'TB') {
+      const val = item.GG49
+      if (this.qryType === 'land') {
         const mainNumber = val.substring(0, 4).replace(/^[\s0]+/g, '')
         const subNumber = val.substring(4).replace(/^[\s0]+/g, '')
         return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
@@ -347,10 +337,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.move-table-up {
-  margin-top: -25px;
-}
-.fixed-height-table {
-  height: calc(100% - 20px);
-}
 </style>
