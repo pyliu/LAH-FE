@@ -78,14 +78,24 @@
             title="強制重新搜尋"
             no-badge
             :milliseconds="0"
-            :disabled="isBusy"
+            :disabled="isBusy || $utils.empty(qryType)"
             :busy="isBusy"
             @end="reload"
             @click="reload"
           )
     lah-transition(appear)
+      lah-reg-b-table(
+        v-if="qryType === 'reg_reason' && committed"
+
+        type="lg"
+        :baked-data="rows"
+        :per-page="perPage"
+        :current-page="currentPage"
+        :style="maxHeightStyle"
+      )
       b-table(
-        v-if="committed"
+        v-else-if="committed"
+
         id="trust-table"
         ref="table"
         caption-top
@@ -105,7 +115,7 @@
         :no-border-collapse="true"
         :head-variant="'dark'"
         :caption="caption"
-        :fields="fields"
+        :fields="obliterateFields"
         :per-page="perPage"
         :current-page="currentPage"
         :style="maxHeightStyle"
@@ -124,7 +134,9 @@
           {{ item.IS03 }}-{{ item.IS04_1 }}-{{ item.IS04_2 }}
         template(#cell(GG30_2)="{ item }"): div(v-if="!($utils.empty(item.GG30_1) && $utils.empty(item.GG30_1_CHT) && $utils.empty(item.GG30_2))").
           {{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
-      h3.text-center(v-else): lah-fa-icon(action="breath" variant="primary") 請點選查詢按鈕
+      h3.text-center(
+        v-else
+      ): lah-fa-icon(action="breath" variant="primary") 請點選查詢按鈕
     b-modal(
       :id="modalId"
       size="xl"
@@ -157,7 +169,7 @@ export default {
     currentPage: 1,
     forceReload: false,
     committed: false,
-    qryType: '',
+    qryType: 'reg_reason',
     qryTypes: [
       { value: 'land', text: '土地註記塗銷' },
       { value: 'building', text: '建物註記塗銷' },
@@ -220,63 +232,6 @@ export default {
         sortable: true,
       }
     ],
-    regFields: [
-      {
-        key: "IS48",
-        label: '段代碼/名稱',
-        sortable: true,
-      },
-      {
-        key: "IS49",
-        label: '地/建號',
-        sortable: true,
-      },
-      {
-        key: "IS01",
-        label: '登記次序',
-        sortable: true,
-      },
-      {
-        key: "IS09",
-        label: '統一編號',
-        sortable: true,
-      },
-      {
-        key: "ISNAME",
-        label: '所有權人',
-        sortable: true,
-      },
-      {
-        key: "GG30_2",
-        label: '其他登記內容',
-        sortable: true,
-      },
-      {
-        key: "EE15_1",
-        label: '建物權利範圍',
-        sortable: true,
-      },
-      {
-        key: "IS03",
-        label: '收件年字號',
-        sortable: true,
-      },
-      {
-        key: "IS05",
-        label: '登記日期',
-        sortable: true,
-      },
-      {
-        key: "EE06_CHT",
-        label: '登記原因',
-        sortable: true,
-      },
-      {
-        key: "IS_DATE",
-        label: '異動日期',
-        sortable: true,
-      }
-    ],
     maxHeight: 600
   }),
   asyncData () {
@@ -304,7 +259,6 @@ export default {
     },
     caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.startDate}_${this.endDate}` },
-    fields () { return this.qryType === 'land' || this.qryType === 'building' ? this.obliterateFields : this.regFields },
     maxHeightStyle () {
        return `max-height: ${this.maxHeight}px`
     }
@@ -337,9 +291,10 @@ export default {
         this.isBusy = true
         this.committed = false
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-          type: `reg_trust_case`,
-          year: this.year,
+          type: `trust_query`,
           query: this.qryType,
+          start: this.startDate,
+          end: this.endDate,
           reload: this.forceReload
         }).then(({ data }) => {
           this.rows = data.raw || []

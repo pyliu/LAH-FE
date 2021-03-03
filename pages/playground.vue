@@ -7,7 +7,7 @@
     div {{ openNewsData }}
     p {{ $config.baseURL }}
     b-table( striped hover :items="configs" )
-    b-table( striped hover :items="[]" )
+    b-table( striped hover :items="envs" )
 </template>
 
 <script>
@@ -32,6 +32,9 @@ export default {
     // isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
     configs () {
       return Object.keys(this.$config).map((key) => [key, this.$config[key]])
+    },
+    envs () {
+      // return Object.keys(this.env).map((key) => [key, this.env[key]]) || []
     },
     // all () {
     //   return Object.keys(this).map((key) => [key, this[key]])
