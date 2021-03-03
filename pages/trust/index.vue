@@ -55,7 +55,6 @@
             ref="type"
             v-model="qryType"
             :options="qryTypes"
-            :state="!$utils.empty(qryType)"
             @change="cached"
           ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇案件類型 --
           lah-button(
