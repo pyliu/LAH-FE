@@ -41,7 +41,7 @@
       </template>
       <template v-slot:cell(收件字號)="data">
         <NuxtLink :to="`/regcase/${data.value}`">{{ data.value }}</NuxtLink>
-        <b-link @click="popup(data)"><lah-fa-icon icon="window-maximize" regular /></b-link>
+        <b-link @click="popup(data)"><lah-fa-icon icon="window-restore" regular /></b-link>
       </template>
       <template v-slot:cell(初審人員)="data">
         <b-button
