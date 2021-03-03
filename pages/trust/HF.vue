@@ -4,7 +4,7 @@
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
-            <div class="my-auto">信託案件檢索</div>
+            <div class="my-auto">信託案件檢索【八德版】</div>
             <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
             <lah-help-modal :modal-id="'help-modal'">
               <h5>請參照下列步驟搜尋</h5>
