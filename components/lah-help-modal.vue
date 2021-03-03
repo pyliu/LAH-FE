@@ -12,7 +12,7 @@
     hr
     p.h6.my-2.align-middle.
       滑鼠點擊
-      #[lah-fa-icon(icon="share-square" variant="primary")]
+      #[lah-fa-icon(icon="window-maximize" regular variant="primary")]
       開啟案件詳情視窗
     
     p.h6.my-2.align-middle.

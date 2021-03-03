@@ -53,7 +53,7 @@
           </span>
           <span v-else>
             <NuxtLink :to="`/regcase/${bakedContent(row)}`">{{ bakedContent(row) }}</NuxtLink>
-            <b-link @click="popup(row.item)"><lah-fa-icon icon="share-square" /></b-link>
+            <b-link @click="popup(row.item)"><lah-fa-icon icon="window-maximize" regular /></b-link>
           </span>
         </div>
       </template>
@@ -72,7 +72,7 @@
           </span>
           <span v-else>
             <NuxtLink :to="`/regcase/${row.item['收件字號']}`">{{ row.item['收件字號'] }}</NuxtLink>
-            <b-link @click="popup(row.item)"><lah-fa-icon icon="share-square" variant="primary" /></b-link>
+            <b-link @click="popup(row.item)"><lah-fa-icon icon="window-maximize" regular variant="primary" /></b-link>
           </span>
         </div>
       </template>
