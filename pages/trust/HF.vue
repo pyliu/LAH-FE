@@ -14,7 +14,9 @@
                 <li>點擊 <lah-fa-icon icon="search" variant="primary"/>搜尋</li>
               </ol>
               <hr/>
-              <lah-fa-icon icon="lightbulb" regular variant="warning">點擊「收件年字號」開啟案件詳情視窗</lah-fa-icon>
+              <lah-fa-icon icon="caret-square-right" regular variant="primary">
+                <b-link to="/trust">切換為中壢版本</b-link>
+              </lah-fa-icon>
             </lah-help-modal>
           </div>
           <div class="d-flex small">

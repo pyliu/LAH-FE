@@ -8,9 +8,15 @@
           lah-help-modal(:modal-id="'help-modal'")
             h5 請參照下列步驟搜尋
             ol
-              li 選擇年份
+              li 選擇查詢區間
               li 選擇查詢類別
               li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
+            hr
+            h5 支援以下三種查詢類別
+            ol
+              li 信託登記－土地註記塗銷
+              li 信託登記－建物註記塗銷
+              li 登記收件原因為 CU, CW, CV, CX, CY 之案件
             hr
             //- lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件年字號」開啟案件詳情視窗
             lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/trust/HF") 切換為八德版本
