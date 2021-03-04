@@ -39,7 +39,7 @@
     "pug": "^3.0.2",
     "pug-plain-loader": "^1.1.0",
     "qs": "^6.9.4",
-    "sass-loader": "^11.0.1",
+    "sass-loader": "10.1.1",
     "vue-chartjs": "^3.5.1"
   },
   "devDependencies": {
