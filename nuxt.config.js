@@ -90,7 +90,7 @@ export default {
     baseURL: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
     proxy: true,
     credentials: false,
-    https: false,
+    https: process.env.PROTOCOL === 'https',
     debug: false
   },
   proxy: {
