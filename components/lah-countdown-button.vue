@@ -87,10 +87,10 @@ export default {
       }
     },
     resetCountdown () {
-      this.$refs.cd && this.$refs.cd.totalMilliseconds = this.milliseconds
+      this.$refs.cd && (this.$refs.cd.totalMilliseconds = this.milliseconds)
     },
     setCountdown (milliseconds) {
-      this.$refs.cd && this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds
+      this.$refs.cd && (this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds)
     },
     startCountdown () {
       this.$refs.cd && this.$refs.cd.start()
