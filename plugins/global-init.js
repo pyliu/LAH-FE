@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import $ from 'jquery'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
@@ -10,8 +9,6 @@ import _md5 from 'md5'
 import uploadAxios from 'axios'
 
 export default ({ $axios, store }, inject) => {
-  // const bus = new Vue()
-
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
     dayMilliseconds: 8640000,
@@ -278,33 +275,12 @@ export default ({ $axios, store }, inject) => {
     log: console.log.bind(console),
     warn: console.warn.bind(console),
     assert: console.assert.bind(console),
-    error: console.error.bind(console),
-    /**
-     * Shortcuts for event bus
-     */
-    // vm: bus,
-    // h: bus.$createElement
+    error: console.error.bind(console)
   }
   // all injected var can be used by {varname} in Vue and ${varname} in Nuxt, e.g. this.$http (Vue), $http (Nuxt)
   inject('consts', consts)
   inject('utils', utility)
-  /** Event bus usage in Vue component
-    created () {
-      // In created hook, listen 'lah::global::info' event
-      this.$bus.$on(this.$consts.EVENT.INFO, msg => {
-        // do something about the msg
-      })
-    }
-
-    beforeDestroy () {
-      // destroy listener before component is destroyed  
-      this.$bus.$off(this.$consts.EVENT.INFO)
-    }
-
-    // emit somewhere
-    this.$bus.$emit(this.$consts.EVENT.INFO, 'hey something happening')
-   */
-  // inject('bus', bus)
+  
   // inject uploading file axios
   // need to add 'Header set Access-Control-Allow-Origin "*"' to Apache site and turn on mod_header.so in httpd.conf
   uploadAxios.defaults.headers.post['Content-Type'] = 'multipart/form-data'
