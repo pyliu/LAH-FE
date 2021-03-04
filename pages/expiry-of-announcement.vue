@@ -107,14 +107,14 @@ export default {
             if (remain_ms && remain_ms > 0) {
               this.setCache(this.cacheKey, data, remain_ms)
               // use server side cache remaining time
-              this.$refs.countdown.setCountdown(remain_ms * 1000)
+              this.$refs.countdown && this.$refs.countdown.setCountdown(remain_ms * 1000)
             } else {
-              this.$refs.countdown.setCountdown(this.cachedMs)
+              this.$refs.countdown && this.$refs.countdown.setCountdown(this.cachedMs)
             }
             this.getCacheExpireRemainingTime(this.cacheKey).then((true_remain_ms) => {
               this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
             })
-            this.$refs.countdown.startCountdown()
+            this.$refs.countdown && this.$refs.countdown.startCountdown()
           }).catch(err => {
             this.alert(err.message)
             this.$utils.error(err)
