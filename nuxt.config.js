@@ -1,8 +1,7 @@
 export default {
   server: {
     // bind to all possible addresses
-    host: '0.0.0.0',
-    port: process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT
+    host: '0.0.0.0'
   },
   dev: process.env.NODE_ENV !== 'production',
   // Global page headers (https://go.nuxtjs.dev/config-head)
@@ -88,19 +87,19 @@ export default {
   },
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseUrl: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`,
+    baseURL: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
     proxy: true,
-    prefix: '/api',
-    credentials: true
+    credentials: false,
+    https: false,
+    debug: false
   },
-  // API server proxy settings
   proxy: {
     '/api': {
-      target: `${process.env.API_SERVER_BASE_URL}:${process.env.API_SERVER_PORT}`,
+      target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
       changeOrigin: true, 
-      pathRewrite: {
-        '^/api': '',
-      },
+      // pathRewrite: {
+      //   '^/api': '',
+      // },
     }
   },
   // Build Configuration (https://go.nuxtjs.dev/config-build)
@@ -114,16 +113,19 @@ export default {
   // should hold all env variables that are public as these will be exposed on the frontend.
   // available using $config in both server and client.
   publicRuntimeConfig: {
-    basePort: process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT,
-    baseURL: `${process.env.BASE_URL}:${process.env.NODE_ENV === 'production' ? process.env.PROD_PORT : process.env.DEV_PORT}`,
-    apiServerURL: `${process.env.API_SERVER_BASE_URL}:${process.env.API_SERVER_PORT}`,
-    apiServerPort: process.env.API_SERVER_PORT
-
+    axios: {
+      // Default: baseURL; when the proxy option is true, it will become PREFIX instead of baseURL
+      browserBaseURL: process.env.BROWSER_BASE_URL
+    }
   },
   // should hold all env variables that are private and that should not be exposed on the frontend.
   // only available on server using same $config
   // privateRuntimeConfig always overrides publicRuntimeConfig on server-side. $config in server mode is { ...public, ...private } but for client mode only { ...public }
   privateRuntimeConfig: {
-    apiKey: process.env.API_KEY
+    apiKey: process.env.API_KEY,
+    axios: {
+      // Default: http://[HOST]:[PORT][PREFIX]
+      baseURL: process.env.BASE_URL
+    }
   }
 }
