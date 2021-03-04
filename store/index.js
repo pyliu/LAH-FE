@@ -116,8 +116,8 @@ const actions = {
     }
   },
   async login ({ commit, getters }) {
-    // !getters.loggedIn && this.$axios.post(this.$consts.API.JSON.AUTH, {
-    !getters.loggedIn && this.$axios.post(`${this.$config.apiServerURL}${this.$consts.API.JSON.AUTH}`, {
+    !getters.loggedIn && this.$axios.post(this.$consts.API.JSON.AUTH, {
+    // !getters.loggedIn && this.$axios.post(`${this.$config.apiServerURL}${this.$consts.API.JSON.AUTH}`, {
       type: 'login',
       req_ip: getters.ip
     }).then((res) => {
