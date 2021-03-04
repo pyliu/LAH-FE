@@ -8,6 +8,7 @@
     @leave="leave($event)"
     @after-enter="afterEnter($event)"
     @after-leave="afterLeave($event)"
+    tag="div"
   )
     slot 轉場內容會顯示在這邊
 </template>
