@@ -1,5 +1,5 @@
 <template lang="pug">
-  lah-transition(slide-up appear): .p-2(v-if="show" :class="classes"): span
+  lah-transition(slide-up appear): .p-2(v-show="show" :class="classes"): span
     a(
       href="https://github.com/pyliu/LAH-NUXTJS"
       target="_blank"
