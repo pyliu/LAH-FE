@@ -127,7 +127,7 @@ export default ({ $axios, store }, inject) => {
           delay: '' // delay, delay-[2s-5s]
         }, opts)
         const node = $(selector)
-        if (node.length > 0) {
+        if (selector && node.length > 0) {
           node.removeClass('hide')
           const classes = `${prefix}animated ${prefix}${opts.name} ${prefix}${opts.speed} ${prefix}${opts.repeat} ${prefix}${opts.delay}`
           node.addClass(classes)
