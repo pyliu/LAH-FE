@@ -8,7 +8,6 @@
     :pressed="pressed"
     :class="noBorder ? 'border-0 align-middle' : ' align-middle'"
     :href="href"
-    :to="to"
     :disabled="disabled"
     @mouseenter="mouseenter"
     @mouseleave="mouseleave"
@@ -70,7 +69,11 @@ export default {
   },
   methods: {
     emitClick (evt) {
-      this.$emit('click', evt)
+      if (this.$utils.empty(this.to)) {
+        this.$emit('click', evt)
+      } else {
+        this.$router.push(this.to)
+      }
       evt.stopPropagation()
     },
     mouseenter () {
