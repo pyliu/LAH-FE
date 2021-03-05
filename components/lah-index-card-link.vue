@@ -4,10 +4,11 @@
     @mouseleave="mouseleave"
     @blur="mouseleave"
     :no-body="noBody"
-  ) 
-    div.mb-2.center: nuxt-link(:to="to")
-      font-awesome-icon(ref="icon" :icon="icon" :size="size" :class="variant")
-    b-card-title.center(:title-tag="titleTag"): nuxt-link(:to="to"): slot
+  )
+    nuxt-link(:to="to")
+      div.mb-2.center
+        font-awesome-icon(ref="icon" :icon="icon" :size="size" :class="variant")
+      b-card-title.center(:title-tag="titleTag"): slot
 </template>
 
 <script>
