@@ -269,7 +269,9 @@ export default {
     cached () {
       this.reset()
       this.getCache(this.cacheKey).then(json => {
-        if (json !== false) {
+        if (json === false) {
+          this.search()
+        } else {
           this.rows = json.raw
           this.committed = true
           this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.qryType}(快取)` })
@@ -337,6 +339,7 @@ export default {
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 105)
+    this.search() 
   }
 }
 </script>
