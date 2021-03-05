@@ -1,74 +1,73 @@
 <template lang="pug">
   div
     lah-header
-      lah-transition(appear)
-        .d-flex.justify-content-between.w-100
-          .d-flex
-            .my-auto 非專業代理人案件檢索
-            lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-            lah-help-modal(:modal-id="'help-modal'")
-              h5 請參照下列步驟搜尋
-              ol
-                li 切換登記或測量案件
-                li 選擇日期區間(預設為目前月份)
-                li 輸入想要忽略之統編(非必要)
-                li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
-          client-only
-            .d-flex
-              b-form-radio-group.d-flex.text-nowrap.my-auto.small(
-                v-model="caseType"
-                :options="caseTypeOpts"
-              )
-              b-datepicker(
-                value-as-date
-                v-model="startDateObj"
-                placeholder="開始日期"
-                boundary="viewport"
-                size="sm"
-                :date-format-options="{ weekday: 'narrow' }"
-                :max="yesterday"
-                hide-header
-                dropleft
-              )
-              .my-auto ～
-              b-datepicker(
-                value-as-date
-                v-model="endDateObj"
-                placeholder="截止日期"
-                boundary="viewport"
-                class="mr-1"
-                size="sm"
-                dark
-                :date-format-options="{ weekday: 'narrow' }"
-                :max="today"
-                :min="startDateObj"
-                hide-header
-              )
-              lah-button(
-                icon="search"
-                size="lg"
-                @click="$fetch"
-                :disabled="isBusy"
-                :busy="isBusy"
-                title="搜尋"
-                class="mr-1"
-                no-icon-gutter
-              )
-              lah-countdown-button(
-                ref="countdown"
-                icon="sync-alt"
-                action="ld-cycle"
-                size="lg"
-                :milliseconds="0"
-                @end="reload"
-                @click="reload"
-                :disabled="isBusy"
-                :busy="isBusy"
-                variant="outline-secondary"
-                badge-variant="secondary"
-                title="強制重新搜尋"
-                no-badge
-              )
+      lah-transition(appear): .d-flex.justify-content-between.w-100
+        .d-flex
+          .my-auto 非專業代理人案件檢索
+          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-help-modal(:modal-id="'help-modal'")
+            h5 請參照下列步驟搜尋
+            ol
+              li 切換登記或測量案件
+              li 選擇日期區間(預設為目前月份)
+              li 輸入想要忽略之統編(非必要)
+              li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
+        
+        .d-flex
+          b-form-radio-group.d-flex.text-nowrap.my-auto.small(
+            v-model="caseType"
+            :options="caseTypeOpts"
+          )
+          b-datepicker(
+            value-as-date
+            v-model="startDateObj"
+            placeholder="開始日期"
+            boundary="viewport"
+            size="sm"
+            :date-format-options="{ weekday: 'narrow' }"
+            :max="yesterday"
+            hide-header
+            dropleft
+          )
+          .my-auto ～
+          b-datepicker(
+            value-as-date
+            v-model="endDateObj"
+            placeholder="截止日期"
+            boundary="viewport"
+            class="mr-1"
+            size="sm"
+            dark
+            :date-format-options="{ weekday: 'narrow' }"
+            :max="today"
+            :min="startDateObj"
+            hide-header
+          )
+          lah-button(
+            icon="search"
+            size="lg"
+            @click="$fetch"
+            :disabled="isBusy"
+            :busy="isBusy"
+            title="搜尋"
+            class="mr-1"
+            no-icon-gutter
+          )
+          lah-countdown-button(
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="0"
+            @end="reload"
+            @click="reload"
+            :disabled="isBusy"
+            :busy="isBusy"
+            variant="outline-secondary"
+            badge-variant="secondary"
+            title="強制重新搜尋"
+            no-badge
+          )
     .d-flex.justify-content-between.mb-1
       b-pagination(
         v-if="showPagination"

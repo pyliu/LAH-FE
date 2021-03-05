@@ -94,7 +94,7 @@ export default {
     },
     startCountdown () {
       this.$refs.cd && this.$refs.cd.start()
-      this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
+      this.$refs.badge && this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
     },
     endCountdown () {
       this.$refs.cd && this.$refs.cd.end()
