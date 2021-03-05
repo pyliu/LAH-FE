@@ -9,8 +9,7 @@
       no-icon-gutter
       v-b-toggle.lah-sidebar
     )
-    client-only
-      slot
+    slot
     lah-transition: lah-button.home-button.ml-1(
       v-if="$route.path !== '/'"
       icon="home"
