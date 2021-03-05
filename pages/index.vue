@@ -1,11 +1,11 @@
 <template lang="pug">
   .h-100
     lah-header
-    .container: div
-      section.fixed-title-height.center: .anim-appear-1s
+    .container: .anim-appear-1s
+      section.fixed-title-height.center: div
         lah-logo
         h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
-      section.b-card-container.anim-appear-1s
+      section.b-card-container
         b-card-group.mb-4(deck)
           lah-index-card-link(:icon="['far', 'calendar-check']" to="/expire") 即將逾期案件
           lah-index-card-link(:icon="['far', 'sticky-note']" to="/expiry-of-announcement") 公告期滿案件

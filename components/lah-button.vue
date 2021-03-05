@@ -1,5 +1,5 @@
 <template lang="pug">
-  b-button(
+  b-button.text-nowrap(
     :link="link"
     :variant="variant"
     :size="size"
@@ -31,8 +31,7 @@
         v-if="showBadge"
         :variant="badgeVariant"
         :pill="badgePill"
-      ).
-        {{ badgeText }}
+      ) {{ badgeText }}
 </template>
 
 <script>
