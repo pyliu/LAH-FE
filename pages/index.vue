@@ -64,24 +64,4 @@ export default {
     height: 45%;
   }
 }
-
-.grids {
-	display: flex;
-	flex-wrap: wrap;
-	width: 100%;
-  height: 40vh;
-  align-content: flex-start;
-  .grid-6col-2row {
-    width: 15.5%;
-    height: 48%;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: auto;
-    border-radius: 10px;
-    border: 1px solid gray;
-    margin: 0.5%;
-  }
-}
 </style>

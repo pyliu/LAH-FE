@@ -63,12 +63,11 @@
             :options="qryTypes"
             @change="cached"
           ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇案件類型 --
-          lah-button(
+          lah-button.mr-1(
             ref="search"
             icon="search"
             size="lg"
             title="搜尋"
-            class="mr-1"
             :disabled="isBusy || $utils.empty(qryType)"
             @click="search"
             no-icon-gutter
