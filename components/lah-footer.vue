@@ -32,10 +32,11 @@ export default {
     ],
   }),
   mounted() {
-    this.show = true;
+    this.show = true
     this.timeout(() => (this.show = false), this.leave_time).then((handle) => {
       // save the handle here if you want to control timeout func
-    }).catch((err) => this.$utils.error(err));
+    }).catch((err) => this.$utils.error(err))
+    this.systemConfigs.mock && this.notify('目前系統處於模擬模式，僅會回應快取的資料', { type: 'dark', pos: 'br', delay: 7500 })
   },
 };
 </script>

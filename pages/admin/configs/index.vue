@@ -892,6 +892,9 @@ export default {
         const notifyOpts = { type: 'warning', subtitle: `${Object.keys(configs).length} 筆更新` }
         if (this.$utils.statusCheck(data.status)) {
           notifyOpts.type = 'success'
+          if (Object.keys(configs).includes('ENABLE_MOCK_MODE')) {
+            this.$store.commit('mock', configs['ENABLE_MOCK_MODE'])
+          }
         }
         notify && this.notify(data.message, notifyOpts)
       }).catch((error) => {

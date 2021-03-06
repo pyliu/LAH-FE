@@ -97,6 +97,9 @@ const mutations = {
   admin (state, flag) {
     state.authority.isAdmin = flag
   },
+  mock (state, flag) {
+    state.systemConfigs.mock = flag
+  },
   avatar (state, flag) {
     state.systemConfigs.avatar = flag
   },

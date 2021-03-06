@@ -27,12 +27,9 @@
 export default {
   computed: {
     variant () {
-      return this.systemConfigs.mock ? 'primary' : 'outline-dark'
+      return this.systemConfigs.mock ? 'dark' : 'outline-dark'
     },
-    title () { return this.systemConfigs.mock ? '系統處於模擬模式' : '回到首頁' }
-  },
-  mounted () {
-    this.systemConfigs.mock && this.notify('目前系統處於模擬模式，僅會回應快取的資料')
+    title () { return this.systemConfigs.mock ? '注意：系統處於模擬模式' : '回到首頁' }
   }
 }
 </script>
