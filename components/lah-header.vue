@@ -12,7 +12,7 @@
     client-only: slot
     lah-transition: lah-button.home-button.ml-1(
       v-if="$route.path !== '/'"
-      icon="home"
+      :icon="icon"
       size="lg"
       action="ld-breath"
       :variant="variant"
@@ -26,9 +26,8 @@
 <script>
 export default {
   computed: {
-    variant () {
-      return this.systemConfigs.mock ? 'dark' : 'outline-dark'
-    },
+    icon () { return this.systemConfigs.mock ? 'laptop-code' : 'home' },
+    variant () { return this.systemConfigs.mock ? 'success' : 'outline-dark' },
     title () { return this.systemConfigs.mock ? '注意：系統處於模擬模式' : '回到首頁' }
   }
 }
