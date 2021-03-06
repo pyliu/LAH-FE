@@ -54,9 +54,9 @@ export default {
     },
     busy (flag) {
       if (flag) {
-        this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
+        this.$refs.btn && this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
       } else {
-        this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
+        this.$refs.btn && this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
       }
     }
   },
@@ -78,7 +78,7 @@ export default {
       */
       if (!this.busy) {
         if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold && this.$refs.btn) {
-          this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
+          this.$refs.btn && this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
           const oldVariant = this.variantMediator
           this.variantMediator = this.endAttentionStartVariant
           this.timeout(() => {
@@ -86,7 +86,7 @@ export default {
           }, (this.endAttentionThreadhold - 1) * 1000)
           this.timeout(() => {
             this.variantMediator = oldVariant
-            this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
+            this.$refs.btn && this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
           }, this.endAttentionThreadhold * 1000)
         }
         if (parseInt(payload.totalSeconds) === 1) {
