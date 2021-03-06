@@ -15,8 +15,8 @@
       icon="home"
       size="lg"
       action="ld-breath"
-      variant="outline-dark"
-      title="回到首頁"
+      :variant="variant"
+      :title="title"
       to="/"
       no-icon-gutter
     )
@@ -24,7 +24,17 @@
 </template>
 
 <script>
-export default {}
+export default {
+  computed: {
+    variant () {
+      return this.systemConfigs.mock ? 'primary' : 'outline-dark'
+    },
+    title () { return this.systemConfigs.mock ? '系統處於模擬模式' : '回到首頁' }
+  },
+  mounted () {
+    this.systemConfigs.mock && this.notify('目前系統處於模擬模式，僅會回應快取的資料')
+  }
+}
 </script>
 
 <style lang="scss" scoped>

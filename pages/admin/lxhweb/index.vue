@@ -56,11 +56,16 @@ export default {
       this.$refs.lxhweb4.ping()
     }
   },
-  beforeDestroy () {
+  beforeRouteLeave () {
     this.$refs.lxhweb1.stopPing()
     this.$refs.lxhweb2.stopPing()
     this.$refs.lxhweb3.stopPing()
     this.$refs.lxhweb4.stopPing()
+  },
+  beforeRouteEntered (to, from, next) {
+   console.log("before route called");
+   const previousRoute = from.path || from.fullPath
+   console.log(`Previous Route ${previousRoute}`)
   }
 }
 </script>
