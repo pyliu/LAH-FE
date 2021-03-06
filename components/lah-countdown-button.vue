@@ -1,14 +1,14 @@
 <template lang="pug">
-  lah-button(
+  lah-button.align-middle(
     ref="btn"
     :icon="icon"
     :variant="variantMediator"
     :size="size"
     :action="action"
-    @click="$emit('click', $event)"
-    class="align-middle"
     :busy="busy"
     :no-icon-gutter="noBadge"
+    :disabled="busy"
+    @click="$emit('click', $event)"
   )
     slot
     b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
@@ -51,6 +51,13 @@ export default {
   watch: {
     variant (val) {
       this.variantMediator = val
+    },
+    busy (flag) {
+      if (flag) {
+        this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
+      } else {
+        this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
+      }
     }
   },
   computed: {},
@@ -69,21 +76,23 @@ export default {
           totalMilliseconds: this.totalMilliseconds
         }
       */
-      if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold && this.$refs.btn) {
-        this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
-        const oldVariant = this.variantMediator
-        this.variantMediator = this.endAttentionStartVariant
-        this.timeout(() => {
-          this.variantMediator = this.endAttentionEndVariant
-        }, (this.endAttentionThreadhold - 1) * 1000)
-        this.timeout(() => {
-          this.variantMediator = oldVariant
-          this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
-        }, this.endAttentionThreadhold * 1000)
-      }
-      if (parseInt(payload.totalSeconds) === 1) {
-        // random effect, 0.5s
-        this.attention(this.$el, { speed: 'faster' })
+      if (!this.busy) {
+        if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold && this.$refs.btn) {
+          this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
+          const oldVariant = this.variantMediator
+          this.variantMediator = this.endAttentionStartVariant
+          this.timeout(() => {
+            this.variantMediator = this.endAttentionEndVariant
+          }, (this.endAttentionThreadhold - 1) * 1000)
+          this.timeout(() => {
+            this.variantMediator = oldVariant
+            this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
+          }, this.endAttentionThreadhold * 1000)
+        }
+        if (parseInt(payload.totalSeconds) === 1) {
+          // random effect, 0.5s
+          this.attention(this.$el, { speed: 'faster' })
+        }
       }
     },
     resetCountdown () {

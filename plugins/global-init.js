@@ -66,7 +66,8 @@ export default ({ $axios, store }, inject) => {
       FAIL_JSON_ENCODE: -6,
       FAIL_NOT_FOUND: -7,
       FAIL_LOAD_ERROR: -8,
-      FAIL_TIMEOUT: -9
+      FAIL_TIMEOUT: -9,
+      FAIL_REMOTE_UNREACHABLE: -10
     },
     API: {
       XLSX: {
