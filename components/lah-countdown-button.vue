@@ -1,14 +1,14 @@
 <template lang="pug">
-  lah-button(
+  lah-button.align-middle(
     ref="btn"
     :icon="icon"
     :variant="variantMediator"
     :size="size"
     :action="action"
-    @click="$emit('click', $event)"
-    class="align-middle"
     :busy="busy"
     :no-icon-gutter="noBadge"
+    :disabled="busy"
+    @click="$emit('click', $event)"
   )
     slot
     b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
@@ -51,6 +51,13 @@ export default {
   watch: {
     variant (val) {
       this.variantMediator = val
+    },
+    busy (flag) {
+      if (flag) {
+        this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
+      } else {
+        this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
+      }
     }
   },
   computed: {},
