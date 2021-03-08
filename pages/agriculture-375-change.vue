@@ -7,8 +7,9 @@
           lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             h5 資料庫搜尋說明
-            ol
-              li 搜尋土標部之其他登記事項標註為「A6」資料
+            ul
+              li 搜尋土標部之其他登記事項標註為「A6」的資料
+              li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
             h5 請參照下列步驟搜尋
             ol
               li 選擇查詢區間
@@ -39,6 +40,7 @@
               size="sm"
               :date-format-options="{ weekday: 'narrow' }"
               :max="yesterday"
+              :state="daysPeriod < 0 ? false : null"
               value-as-date
               hide-header
               dropleft
@@ -50,8 +52,9 @@
               boundary="viewport"
               size="sm"
               :date-format-options="{ weekday: 'narrow' }"
-              :max="today"
+              :max="lastDayofMonth"
               :min="startDateObj"
+              :state="daysPeriod < 0 ? false : null"
               value-as-date
               hide-header
               dark
@@ -147,6 +150,7 @@ export default {
   head: {
     title: '375租約異動查詢-桃園市地政局'
   },
+  fetchOnServer: true,
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
     modalId: 'this should be an uuid',
@@ -265,11 +269,15 @@ export default {
   }),
   asyncData () {
     const today = new Date()
+    const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
     return {
-      startDateObj: new Date(today.getFullYear(), today.getMonth(), 1), // firstDayofMonth
-      endDateObj: new Date(today.getFullYear(), today.getMonth() + 1, 0),  // lastDayofMonth
+      startDateObj: firstDayofMonth,
+      endDateObj: lastDayofMonth,
       yesterday: new Date(new Date().setDate(today.getDate()-1)),
-      today: today
+      today,
+      firstDayofMonth,
+      lastDayofMonth
     }
   },
   computed: {
@@ -289,6 +297,14 @@ export default {
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
     caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」異動資料` },
+    daysPeriod () {
+      if (process.client) {
+        const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
+        return Math.ceil(difference / (1000 * 3600 * 24))
+      }
+      return 0
+    },
+    isWrongDaysPeriod () { return this.daysPeriod < 0 ? false : null }
   },
   watch: {
     startDateObj (val) {
@@ -296,6 +312,13 @@ export default {
     },
     endDateObj (val) {
       val && (this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
+    },
+    daysPeriod (val) {
+      if (val < 0) {
+        this.alert(`開始日期應小於或等於結束日期`, { pos: 'top' })
+      } else if (val > 30) {
+        this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
+      }
     }
   },
   async fetch () {
