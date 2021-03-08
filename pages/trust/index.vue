@@ -69,7 +69,7 @@
             size="lg"
             title="搜尋"
             :disabled="isBusy || $utils.empty(qryType)"
-            @click="search"
+            @click="$fetch"
             no-icon-gutter
           )
           lah-countdown-button(
@@ -265,25 +265,10 @@ export default {
       val && (this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
     }
   },
-  methods: {
-    cached () {
-      this.reset()
-      this.getCache(this.cacheKey).then(json => {
-        if (json === false) {
-          this.search()
-        } else {
-          this.rows = json.raw
-          this.committed = true
-          this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.qryType}(快取)` })
-        }
-      })
-    },
-    reload () {
-      this.forceReload = true
-      this.search()
-    },
-    search () {
-      if(!this.isBusy) {
+  async fetch () {
+      if(this.isBusy) {
+        process.client && this.notify('讀取中 ... 請稍後', { type: 'warning' })
+      } else {
         this.isBusy = true
         this.committed = false
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
@@ -294,22 +279,37 @@ export default {
           reload: this.forceReload
         }).then(({ data }) => {
           this.rows = data.raw || []
-          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+          process.client && this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
           const remain_ms = data.cache_remaining_time
-          if (remain_ms && remain_ms > 0) {
+          if (remain_ms && remain_ms > 0 && process.client) {
             this.setCache(this.cacheKey, data, remain_ms)
           }
         }).catch(err => {
-          this.alert(err.message)
+          process.client && this.alert(err.message)
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
           this.forceReload = false
           this.committed = true
         })
-      } else {
-        this.notify('讀取中 ... 請稍後', { type: 'warning' })
       }
+  },
+  methods: {
+    cached () {
+      this.reset()
+      this.getCache(this.cacheKey).then(json => {
+        if (json === false) {
+          this.$fetch()
+        } else {
+          this.rows = json.raw
+          this.committed = true
+          this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.qryType}(快取)` })
+        }
+      })
+    },
+    reload () {
+      this.forceReload = true
+      this.$fetch()
     },
     reset () {
       this.committed = false
@@ -339,7 +339,7 @@ export default {
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 105)
-    this.search() 
+    // this.search() 
   }
 }
 </script>
