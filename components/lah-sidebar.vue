@@ -42,12 +42,10 @@
         li: NuxtLink(to="/foreigner-case").
           #[font-awesome-icon(:icon="['fas', 'user-astronaut']" size="lg")]
           外人地權案件
-        //- <li>
-        //-   <NuxtLink to="/agriculture-375-change">
-        //-     <font-awesome-icon :icon="['fas', 'border-all']" size="lg" />
-        //-     三七五租約異動
-        //-   </NuxtLink>
-        //- </li>
+        li: nuxt-link(to="/agriculture-375-change").
+          #[font-awesome-icon(:icon="['fas', 'border-all']" size="lg")]
+          375租約異動
+        </li>
         //- <li>
         //-   <NuxtLink to="/">
         //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
