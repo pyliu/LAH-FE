@@ -59,6 +59,7 @@
               hide-header
               dark
             )
+            b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > 31" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") {{daysPeriod}}天
 
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
@@ -71,7 +72,7 @@
             icon="search"
             size="lg"
             title="搜尋"
-            :disabled="isBusy || $utils.empty(qryType)"
+            :disabled="isBusy || $utils.empty(qryType) || isWrongDaysPeriod"
             @click="$fetch"
             no-icon-gutter
           )
@@ -84,7 +85,7 @@
             action="ld-cycle"
             size="lg"
             :milliseconds="cachedMs"
-            :disabled="isBusy"
+            :disabled="isBusy || isWrongDaysPeriod"
             :busy="isBusy"
             @end="reload"
             @click="reload"
@@ -150,7 +151,7 @@ export default {
   head: {
     title: '375租約異動查詢-桃園市地政局'
   },
-  fetchOnServer: true,
+  fetchOnServer: false,
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
     modalId: 'this should be an uuid',
@@ -300,11 +301,11 @@ export default {
     daysPeriod () {
       if (process.client) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
-        return Math.ceil(difference / (1000 * 3600 * 24))
+        return Math.ceil(difference / (1000 * 3600 * 24)) + 1
       }
       return 0
     },
-    isWrongDaysPeriod () { return this.daysPeriod < 0 ? false : null }
+    isWrongDaysPeriod () { return this.daysPeriod < 0 }
   },
   watch: {
     startDateObj (val) {
@@ -315,16 +316,25 @@ export default {
     },
     daysPeriod (val) {
       if (val < 0) {
-        this.alert(`開始日期應小於或等於結束日期`, { pos: 'top' })
-      } else if (val > 30) {
+        this.alert(`開始日期應小於或等於結束日期`, { pos: 'tr' })
+      } else if (val > 31) {
         this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
       }
     }
   },
   async fetch () {
       if(this.isBusy) {
-        process.client && this.notify('讀取中 ... 請稍後', { type: 'warning' })
+        this.notify('讀取中 ... 請稍後', { type: 'warning' })
       } else {
+        if (this.daysPeriod > 31) {
+          const ans = await this.confirm('搜尋區間大於31天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？');
+          if (!ans) {
+            return;
+          }
+        } else if (this.isWrongDaysPeriod) {
+          this.notify('請選擇正確日期區間', { type: 'warning' })
+          return;
+        }
         this.reset()
         this.isBusy = true
         this.committed = false
@@ -336,13 +346,13 @@ export default {
           reload: this.forceReload
         }).then(({ data }) => {
           this.rows = data.raw || []
-          process.client && this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
           const remain_ms = data.cache_remaining_time
-          if (remain_ms && remain_ms > 0 && process.client) {
+          if (remain_ms && remain_ms > 0) {
             this.setCache(this.cacheKey, data, remain_ms)
           }
         }).catch(err => {
-          process.client && this.alert(err.message)
+          this.alert(err.message)
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
