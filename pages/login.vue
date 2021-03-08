@@ -26,7 +26,10 @@ export default {
       return this.$utils.md5(this.password)
     },
     secret () {
-      return this.systemConfigs ? this.systemConfigs.master_password : '1f7744350d3dd3dc563421582f37f99e'
+      if (this.systemConfigs && !this.$utils.empty(this.systemConfigs.master_password)) {
+        return this.systemConfigs.master_password
+      }
+      return '1f7744350d3dd3dc563421582f37f99e'
     },
     hasHistory () { return window.history.length > 2 }
   },
