@@ -288,16 +288,16 @@ export default {
     qryTypeText () {
       switch (this.qryType) {
         case 'land':
-          return '土地標示部'
+          return '土地標示部-375租約異動'
         case 'owner':
-          return '土地所有權部'
+          return '土地所有權部-375租約異動'
         default:
           return `不支援的型別【${this.qryType}】`
       }
     },
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
-    caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」異動資料` },
+    caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     daysPeriod () {
       if (process.client) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
@@ -382,7 +382,6 @@ export default {
       this.committed = false
       this.rows = []
       this.currentPage = 1
-      this.forceReload = false
     },
     popup (data) {
       this.modalLoading = true
