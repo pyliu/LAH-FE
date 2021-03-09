@@ -105,14 +105,15 @@ Vue.mixin({
       return context.body.children
     },
     toggleBusy (opts = {}) {
-      opts = Object.assign({
+      const def = {
         selector: 'body',
         style: 'ld-over', // ld-over, ld-over-inverse, ld-over-full, ld-over-full-inverse
         forceOff: false,
         forceOn: false
-      }, opts)
+      }
+      opts = {...def, ...opts}
       const container = this.$(opts.selector)
-      if (container.length) {
+      if (container.length > 0) {
         const removeSpinner = (element, style) => {
           element.removeClass(style)
           element.find('.auto-add-spinner').remove()
@@ -162,6 +163,8 @@ Vue.mixin({
           addSpinner(container, opts.style)
           this.$emit('busyOn', this)
         }
+      } else {
+        console.error(`${opts.selector} not found in DOM`)
       }
     },
     timeout (func, ms) {
