@@ -131,7 +131,7 @@
       )
         template(#table-busy): span.ld-txt 讀取中...
         template(v-slot:cell(#)="data") {{ data.index + 1 + (currentPage - 1) * perPage }}
-        template(#cell(收件字號)="{ item }"): .text-nowrap: b-link(@click="popup(item)").
+        template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(GG48)="{ item }"): .text-nowrap {{ item.GG48 }}:{{ item.GG48_CHT }}
         template(#cell(GG49)="{ item }"): .text-nowrap {{ landBuildNumber(item) }}
@@ -141,8 +141,8 @@
         template(#cell(GS_TYPE)="{ item }"): .text-nowrap {{ item.GS_TYPE }}:{{ item.GS_TYPE_CHT }}
         template(#cell(BS_TYPE)="{ item }"): .text-nowrap {{ item.BS_TYPE }}:{{ item.BS_TYPE_CHT }}
         template(#cell(BB15_1)="{ item }"): .text-nowrap {{ BB15_1Text(item) }}
-        template(#cell(BB09_NAME)="{ item }"): .text-nowrap {{ $utils.rareWordReplace(item.BB09_NAME) }}
-        template(#cell(BB09_ADDR)="{ item }"): .text-nowrap {{ $utils.rareWordReplace(item.BB09_ADDR) }}
+        template(#cell(BB09_NAME)="{ item }"): div {{ $utils.rareWordReplace(item.BB09_NAME) }}
+        template(#cell(BB09_ADDR)="{ item }"): div {{ $utils.rareWordReplace(item.BB09_ADDR) }}
     b-modal(
       :id="modalId"
       size="xl"

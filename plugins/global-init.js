@@ -280,9 +280,11 @@ export default ({ $axios, store }, inject) => {
       return false
     },
     rareWordReplace (txt) {
-      if (txt) {
+      if (typeof txt === 'string') {
         const regex = /(BAD\+[\da-zA-Z]{2,3}[\da-zA-Z]?)|(&#\d+;)/ig
-        return txt.replace(regex, '○')
+        const after = txt.replace(regex, '○')
+        txt.match(regex) && console.log(txt, after)
+        return after
       }
       return txt
     },
