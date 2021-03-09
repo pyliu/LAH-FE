@@ -131,6 +131,7 @@
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
         template(#cell(GS_TYPE)="{ item }"): .text-nowrap {{ item.GS_TYPE }}:{{ item.GS_TYPE_CHT }}
         template(#cell(BS_TYPE)="{ item }"): .text-nowrap {{ item.BS_TYPE }}:{{ item.BS_TYPE_CHT }}
+        template(#cell(BB15_1)="{ item }"): .text-nowrap {{ BB15_1Text(item) }}
     b-modal(
       :id="modalId"
       size="xl"
@@ -394,6 +395,16 @@ export default {
       const mainNumber = val.substring(0, 4).replace(/^[\s0]+/g, '')
       const subNumber = val.substring(4).replace(/^[\s0]+/g, '')
       return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+    },
+    BB15_1Text (item) {
+      if (item.BB15_1 === 'A') {
+        return 'A: 全部'
+      } else if (item.BB15_1 === 'B') {
+        return 'B: 共同共有'
+      } else if (item.BB15_1 === 'Z') {
+        return 'Z: 見其他登記事項'
+      }
+      return item.BB15_1
     }
   },
   created () {
