@@ -113,7 +113,7 @@
         min="10"
         number
       )
-      
+
     lah-transition(appear)
       b-table(
         id="a375-table"
@@ -313,16 +313,16 @@ export default {
     qryTypeText () {
       switch (this.qryType) {
         case 'land':
-          return '375租約異動-土地標示部'
+          return '土地標示部'
         case 'owner':
-          return '375租約異動-土地所有權部'
+          return '土地所有權部'
         default:
           return `不支援的型別【${this.qryType}】`
       }
     },
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
-    foundText () { return `${this.humanTWDate(this.startDate)} ~ ${this.humanTWDate(this.endDate)}區間找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
+    foundText () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     daysPeriod () {
       if (!this.$isServer && this.endDateObj && this.startDateObj) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
