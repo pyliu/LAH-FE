@@ -19,9 +19,53 @@
               :date-disabled-fn="dateDisabled"
               :max="new Date()"
             )
-          lah-button.mr-1(icon="search" @click="reload()" variant="outline-primary" title="依據日期查詢")
-          lah-countdown-button(icon="sync-alt" action="cycle" no-badge @click="reload" variant="outline-secondary")
+          lah-button.mr-1(
+            ref="search"
+            icon="search"
+            size="lg"
+            title="搜尋"
+            variant="outline-primary"
+            @click="reload()"
+            no-icon-gutter
+          )
+          lah-countdown-button(
+            ref="countdown"
+            title="立即重新讀取"
+            variant="outline-secondary"
+            badge-variant="secondary"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            :milliseconds="cachedMs"
+            :disabled="isBusy"
+            :busy="isBusy"
+            @end="reload"
+            @click="reload"
+            auto-start
+            end-attention
+            no-badge
+          )
     
+    .d-flex.justify-content-between.mb-2(v-if="!$utils.empty(bakedData)")
+      b-pagination.my-auto(
+        v-model="currentPage"
+        :total-rows="bakedData.length"
+        :per-page="perPage"
+        last-number
+        first-number
+        aria-controls="regcase-table"
+      )
+      .my-auto.text-muted {{ foundText }}
+      b-input-group.my-auto.fixed-width(prepend="每頁筆數"): b-input(
+        ref="perPage"
+        v-model="perPage"
+        type="number"
+        min="10"
+        number
+      )
+    
+    lah-transition(appear): lah-reg-b-table(:busy="isBusy" :baked-data="bakedData" :fields="fields")
+
     b-modal(
       :id="modalId"
       hide-footer
@@ -41,13 +85,18 @@ export default {
   },
   data: () => ({
     modalLoading: true,
-    modalCaseId: undefined
+    modalCaseId: undefined,
+    bakedData: [],
+    fields: [],
+    perPage: 25,
+    currentPage: 1
   }),
   asyncData (ctx) {
     // console.log(ctx)
     return {
       modalId: ctx.$utils.uuid(),
-      pickedDate: new Date()
+      pickedDate: new Date(),
+      cachedMs: 5 * 60 * 1000
     }
   },
   methods: {
