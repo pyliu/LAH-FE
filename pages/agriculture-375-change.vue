@@ -88,6 +88,14 @@
             end-attention
             no-badge
           )
+    
+    //- lah-pagination(
+    //-   :total-rows="queryCount"
+    //-   :per-page="perPage"
+    //-   :current-page="currentPage"
+    //-   :caption="foundText"
+    //- )
+
     .d-flex.justify-content-between.mb-2(v-if="!$utils.empty(rows)")
       b-pagination.my-auto(
         v-model="currentPage"
@@ -105,6 +113,7 @@
         min="10"
         number
       )
+      
     lah-transition(appear)
       b-table(
         id="a375-table"
