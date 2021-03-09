@@ -37,11 +37,13 @@
               placeholder="開始日期"
               boundary="viewport"
               size="sm"
+              title="開始日期"
               :date-format-options="{ weekday: 'narrow' }"
               :max="yesterday"
               value-as-date
               hide-header
               dropleft
+              v-b-tooltip.hover
             )
             .my-auto ～
             b-datepicker.mr-1(
@@ -49,12 +51,14 @@
               placeholder="截止日期"
               boundary="viewport"
               size="sm"
+              title="截止日期"
               :date-format-options="{ weekday: 'narrow' }"
               :max="today"
               :min="startDateObj"
               value-as-date
               hide-header
               dark
+              v-b-tooltip.hover
             )
 
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
