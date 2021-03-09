@@ -32,7 +32,8 @@
             first-number
             aria-controls="a375-table"
           )
-          b-input.h-100.mr-1.fixed-num-width(
+          b-input.h-100.my-auto.mr-1.fixed-num-width(
+            ref="perPage"
             v-if="!$utils.empty(rows)"
             v-model="perPage"
             type="number"
@@ -336,6 +337,9 @@ export default {
       } else if (val > this.warnDays) {
         this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
       }
+    },
+    perPage (val) {
+      val < 10 && (this.perPage = 10)
     }
   },
   async fetch () {
