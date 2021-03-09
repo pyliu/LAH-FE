@@ -180,7 +180,7 @@ Vue.mixin({
     makeToast (message, opts = {}) {
       return new Promise((resolve, reject) => {
         if (this.$isServer) {
-          reject('Server side doesn\'t use  toast')
+          reject('Server side doesn\'t use toast')
         } else if (this.$bvToast) {
           // position adapter
           switch (opts.pos) {
@@ -272,9 +272,7 @@ Vue.mixin({
     },
     notify (msg, opts = { title: '通知' }) {
       return new Promise((resolve, reject) => {
-        if (process.server) {
-          reject(`伺服器端不執行 notify`)
-        } else if (typeof msg !== 'string' && typeof opts !== 'object') {
+        if (typeof msg !== 'string' && typeof opts !== 'object') {
           reject(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
         } else {
           const defDelay = (opts.variant === 'danger' ? 7500 : (opts.variant === 'warning' ? 6250 : 5000))
