@@ -23,24 +23,6 @@
               li 土地所有權部
 
         .d-flex.small
-          b-pagination.my-auto.mr-1(
-            v-if="!$utils.empty(rows)"
-            v-model="currentPage"
-            :total-rows="rows.length"
-            :per-page="perPage"
-            last-number
-            first-number
-            aria-controls="a375-table"
-          )
-          b-input.h-100.my-auto.mr-1.fixed-num-width(
-            ref="perPage"
-            v-if="!$utils.empty(rows)"
-            v-model="perPage"
-            type="number"
-            min="10"
-            title="每頁顯示筆數"
-            v-b-tooltip.hover
-          )
           client-only
             b-datepicker(
               v-model="startDateObj"
@@ -106,7 +88,21 @@
             end-attention
             no-badge
           )
-    
+    .d-flex.justify-content-between.mb-2(v-if="!$utils.empty(rows)")
+      b-pagination(
+        v-model="currentPage"
+        :total-rows="rows.length"
+        :per-page="perPage"
+        last-number
+        first-number
+        aria-controls="a375-table"
+      )
+      b-input-group.my-auto.float-right.fixed-width(prepend="每頁筆數"): b-input(
+        ref="perPage"
+        v-model="perPage"
+        type="number"
+        min="10"
+      )
     lah-transition(appear)
       b-table(
         id="a375-table"
@@ -429,13 +425,13 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 105)
+    this.maxHeight = parseInt(window.innerHeight - 155)
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.fixed-num-width {
-  width: 75px;
+.fixed-width {
+  width: 160px !important;
 }
 </style>
