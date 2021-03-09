@@ -49,7 +49,6 @@ const state = () => ({
   },
   systemConfigs: {},
   lastMessage: '',
-  toastCounter: 0,
   xapMap: new Map([
     ['220.1.33.71', {name: '地政局', code: 'H0', ip: '220.1.33.71'}],
     ['220.1.34.161', {name: '桃園所', code: 'HA', ip: '220.1.34.161'}],
@@ -65,7 +64,6 @@ const state = () => ({
 
 const getters = {
   loggedIn: state => state.loggedIn,
-  toastCounter: state => state.toastCounter,
   ip: state => state.ip,
   adminIps: state => state.adminIps,
   apiSvrIps: state => state.apiSvrIps,
@@ -102,8 +100,7 @@ const mutations = {
   },
   avatar (state, flag) {
     state.systemConfigs.avatar = flag
-  },
-  addToastCounter (state, dontcare) { state.toastCounter++ }
+  }
 }
 
 // support async operation
