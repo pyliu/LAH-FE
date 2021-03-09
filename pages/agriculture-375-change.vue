@@ -97,7 +97,7 @@
         first-number
         aria-controls="a375-table"
       )
-      .my-auto.lah-shadow {{ foundText }}
+      .my-auto.text-muted {{ foundText }}
       b-input-group.my-auto.fixed-width(prepend="每頁筆數"): b-input(
         ref="perPage"
         v-model="perPage"
@@ -303,16 +303,16 @@ export default {
     qryTypeText () {
       switch (this.qryType) {
         case 'land':
-          return '土地標示部-375租約異動'
+          return '375租約異動-土地標示部'
         case 'owner':
-          return '土地所有權部-375租約異動'
+          return '375租約異動-土地所有權部'
         default:
           return `不支援的型別【${this.qryType}】`
       }
     },
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
-    foundText () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
+    foundText () { return `【${this.startDate} ~ ${this.endDate}】找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     daysPeriod () {
       if (process.client) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
