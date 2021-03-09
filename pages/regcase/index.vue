@@ -99,6 +99,9 @@ export default {
       cachedMs: 5 * 60 * 1000
     }
   },
+  computed: {
+    foundText () { return `` }
+  },
   methods: {
     reload () {},
     dateDisabled (ymd, date) {
