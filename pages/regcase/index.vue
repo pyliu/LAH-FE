@@ -1,4 +1,4 @@
-<template>
+<template lang="pug">
   <div>
     <lah-header>
       <div class="d-flex justify-content-between w-100">
