@@ -312,9 +312,9 @@ export default {
     },
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
-    foundText () { return `【${this.startDate} ~ ${this.endDate}】找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
+    foundText () { return `${this.humanTWDate(this.startDate)} ~ ${this.humanTWDate(this.endDate)}區間找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     daysPeriod () {
-      if (process.client) {
+      if (!this.$isServer && this.endDateObj && this.startDateObj) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
         return Math.ceil(difference / (1000 * 3600 * 24)) + 1
       }
@@ -411,6 +411,9 @@ export default {
       const mainNumber = val.substring(0, 4).replace(/^[\s0]+/g, '')
       const subNumber = val.substring(4).replace(/^[\s0]+/g, '')
       return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+    },
+    humanTWDate (str) {
+      return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
     },
     BB15_1Text (item) {
       if (item.BB15_1 === 'A') {
