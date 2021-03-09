@@ -59,7 +59,7 @@
               hide-header
               dark
             )
-            b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > 31" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") {{daysPeriod}}天
+            b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") {{daysPeriod}}天
 
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
@@ -266,7 +266,8 @@ export default {
         sortable: true,
       }
     ],
-    maxHeight: 600
+    maxHeight: 600,
+    warnDays: 180
   }),
   asyncData () {
     const today = new Date()
@@ -317,7 +318,7 @@ export default {
     daysPeriod (val) {
       if (val < 0) {
         this.alert(`開始日期應小於或等於結束日期`, { pos: 'tr' })
-      } else if (val > 31) {
+      } else if (val > this.warnDays) {
         this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
       }
     }
@@ -326,8 +327,8 @@ export default {
       if(this.isBusy) {
         this.notify('讀取中 ... 請稍後', { type: 'warning' })
       } else {
-        if (this.daysPeriod > 31) {
-          const ans = await this.confirm('搜尋區間大於31天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？');
+        if (this.daysPeriod > this.warnDays) {
+          const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`);
           if (!ans) {
             return;
           }
