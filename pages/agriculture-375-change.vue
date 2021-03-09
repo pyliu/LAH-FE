@@ -143,6 +143,7 @@
         template(v-slot:cell(#)="data") {{ data.index + 1 + (currentPage - 1) * perPage }}
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
         template(#cell(GG48)="{ item }"): .text-nowrap {{ item.GG48 }}:{{ item.GG48_CHT }}
         template(#cell(GG49)="{ item }"): .text-nowrap {{ landBuildNumber(item) }}
         template(#cell(BA48)="{ item }"): .text-nowrap {{ item.BA48 }}:{{ item.BA48_CHT }}
