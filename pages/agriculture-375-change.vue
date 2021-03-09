@@ -121,7 +121,7 @@
         :style="maxHeightStyle"
       )
         template(#table-busy): span.ld-txt 讀取中...
-        template(v-slot:cell(序號)="data") {{ data.index + 1 }}
+        template(v-slot:cell(#)="data") {{ data.index + 1 + (currentPage - 1) * perPage }}
         template(#cell(收件字號)="{ item }"): .text-nowrap: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(GG48)="{ item }"): .text-nowrap {{ item.GG48 }}:{{ item.GG48_CHT }}
@@ -171,6 +171,7 @@ export default {
       { value: 'owner', text: '土地所有權部' }
     ],
     landFields: [
+      '#',
       {
         key: "收件字號",
         sortable: true,
@@ -202,6 +203,7 @@ export default {
       }
     ],
     ownerFields:[
+      '#',
       {
         key: "收件字號",
         sortable: true,
