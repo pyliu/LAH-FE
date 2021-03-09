@@ -75,20 +75,21 @@ export default {
     brokenTableRaw: []
   }),
   computed: {
-    ip() {
+    ip () {
       return this.hwebMap.get(this.targetIp).ip
     },
-    header() {
+    header () {
       if (this.hwebMap.has(this.targetIp)) {
         let entry = this.hwebMap.get(this.targetIp)
         return `${entry.name} ${entry.ip}`
       }
       return `未支援 ${this.targetIp} 監控`
     },
-    alive() {
-      return this.pingLatency > 0 && this.pingLatency < 1000
+    alive () {
+      const latency = parseInt(this.pingLatency)
+      return latency > 0 && latency < 1000
     },
-    headerLight() {
+    headerLight () {
       if (this.alive) {
         let site_light = "success"
         for (let i = 0; i < this.offices.length; i++) {
@@ -100,10 +101,10 @@ export default {
       }
       return "secondary"
     },
-    brokenTableCount() {
+    brokenTableCount () {
       return this.$utils.empty(this.brokenTableRaw) ? 0 : this.brokenTableRaw.length
     },
-    showBrokenBtn() {
+    showBrokenBtn () {
       return this.brokenTableCount > 0
     },
     hwebMap () {
@@ -131,7 +132,7 @@ export default {
     }
   },
   methods: {
-    randDate() {
+    randDate () {
       let rand_date = new Date(+new Date() - this.$utils.rand(45 * 60 * 1000))
       return (
         rand_date.getFullYear() +
@@ -147,7 +148,7 @@ export default {
         ("0" + rand_date.getSeconds()).slice(-2)
       )
     },
-    action(entry) {
+    action (entry) {
       let light = this.light(entry)
       switch (light) {
         case "danger":
@@ -158,7 +159,7 @@ export default {
           return ""
       }
     },
-    light(entry) {
+    light (entry) {
       if (this.alive) {
         const now = +new Date() // in ms
         const last_update = +new Date(entry.UPDATE_DATETIME.replace(" ", "T"))
@@ -169,16 +170,16 @@ export default {
       }
       return "secondary"
     },
-    name(entry) {
+    name (entry) {
       for (var value of this.xapMap.values()) {
         if (value.code == entry.SITE) {
           return value.name
         }
       }
     },
-    ping() {
+    ping () {
+      this.stopPing()
       this.isBusy = true
-      clearTimeout(this.pingTimer)
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: "ping",
         ip: this.ip,
@@ -190,11 +191,6 @@ export default {
           // array of {SITE: 'HB', UPDATE_DATETIME: '2020-10-08 21:47:00'}
           this.reload()
         } else {
-          // this.notify({
-          //   title: "PING回應值",
-          //   message: `${data.message}`,
-          //   type: "warning",
-          // })
           this.$utils.warn('PING回應值', data.message)
         }
       }).catch((err) => {
@@ -235,7 +231,7 @@ export default {
         })
       }
     },
-    checkBrokenTable() {
+    checkBrokenTable () {
       if (this.alive) {
         this.$axios.post(this.$consts.API.JSON.LXHWEB, {
           type: "lxhweb_broken_table",
@@ -259,7 +255,7 @@ export default {
         })
       }
     },
-    showBrokenTable() {
+    showBrokenTable () {
       if (!this.$utils.empty(this.brokenTableRaw)) {
         this.modal(this.$createElement("b-table", {
             props: {
