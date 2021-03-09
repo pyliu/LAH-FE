@@ -89,7 +89,7 @@
             no-badge
           )
     .d-flex.justify-content-between.mb-2(v-if="!$utils.empty(rows)")
-      b-pagination(
+      b-pagination.my-auto(
         v-model="currentPage"
         :total-rows="rows.length"
         :per-page="perPage"
@@ -97,7 +97,8 @@
         first-number
         aria-controls="a375-table"
       )
-      b-input-group.my-auto.float-right.fixed-width(prepend="每頁筆數"): b-input(
+      .my-auto.lah-shadow {{ foundText }}
+      b-input-group.my-auto.fixed-width(prepend="每頁筆數"): b-input(
         ref="perPage"
         v-model="perPage"
         type="number"
@@ -123,7 +124,6 @@
         :foot-clone="false"
         :no-border-collapse="true"
         :head-variant="'dark'"
-        :caption="caption"
         :fields="fields"
         :per-page="perPage"
         :current-page="currentPage"
@@ -310,7 +310,7 @@ export default {
     },
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
-    caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料，每頁顯示${this.perPage}筆。` },
+    foundText () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     daysPeriod () {
       if (process.client) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
@@ -335,7 +335,7 @@ export default {
       }
     },
     perPage (val) {
-      val < 10 && (this.perPage = 10)
+      val < 1 && (this.perPage = 1)
     }
   },
   async fetch () {
@@ -425,7 +425,7 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 155)
+    this.maxHeight = parseInt(window.innerHeight - 145)
   }
 }
 </script>
