@@ -8,7 +8,7 @@
           lah-help-modal(:modal-id="'help-modal'")
             h5 資料庫搜尋說明
             ul
-              li 搜尋土標部之其他登記事項標註為「A6」的資料
+              li 搜尋土標部異動檔之「其他登記事項代碼(GG30_1)」標註為「A6(有３７５租約)」的資料
               li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
             h5 請參照下列步驟搜尋
             ol
@@ -401,6 +401,7 @@ export default {
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 105)
+    console.log(this)
   }
 }
 </script>
