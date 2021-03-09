@@ -10,6 +10,7 @@
             ul
               li 搜尋土標部異動檔之「其他登記事項代碼(GG30_1)」標註為「A6(有３７５租約)」的資料
               li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
+            hr
             h5 請參照下列步驟搜尋
             ol
               li 選擇查詢區間
@@ -31,12 +32,20 @@
             first-number
             aria-controls="a375-table"
           )
-          
+          b-input.h-100.mr-1.fixed-num-width(
+            v-if="!$utils.empty(rows)"
+            v-model="perPage"
+            type="number"
+            min="10"
+            title="每頁顯示筆數"
+            v-b-tooltip.hover
+          )
           client-only
             b-datepicker(
               v-model="startDateObj"
               placeholder="開始日期"
               boundary="viewport"
+              title="開始日期"
               size="sm"
               :date-format-options="{ weekday: 'narrow' }"
               :max="yesterday"
@@ -44,12 +53,14 @@
               value-as-date
               hide-header
               dropleft
+              v-b-tooltip.hover
             )
             .my-auto ～
             b-datepicker.mr-1(
               v-model="endDateObj"
               placeholder="截止日期"
               boundary="viewport"
+              title="結束日期"
               size="sm"
               :date-format-options="{ weekday: 'narrow' }"
               :max="lastDayofMonth"
@@ -58,6 +69,7 @@
               value-as-date
               hide-header
               dark
+              v-b-tooltip.hover
             )
             b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") {{daysPeriod}}天
 
@@ -301,7 +313,7 @@ export default {
     },
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
-    caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
+    caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料，每頁顯示${this.perPage}筆。` },
     daysPeriod () {
       if (process.client) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
@@ -414,10 +426,12 @@ export default {
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 105)
-    console.log(this)
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.fixed-num-width {
+  width: 75px;
+}
 </style>
