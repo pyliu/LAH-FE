@@ -90,11 +90,9 @@
           )
     
     lah-pagination(
+      v-model="pagination"
       :total-rows="queryCount"
-      :per-page="perPage"
-      :current-page="currentPage"
       :caption="foundText"
-      @update="updatePaginationParams"
     )
 
     lah-transition(appear)
@@ -118,12 +116,12 @@
         :no-border-collapse="true"
         :head-variant="'dark'"
         :fields="fields"
-        :per-page="perPage"
-        :current-page="currentPage"
+        :per-page="pagination.perPage"
+        :current-page="pagination.currentPage"
         :style="maxHeightStyle"
       )
         template(#table-busy): span.ld-txt 讀取中...
-        template(v-slot:cell(#)="data") {{ data.index + 1 + (currentPage - 1) * perPage }}
+        template(v-slot:cell(#)="data") {{ data.index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
@@ -166,8 +164,10 @@ export default {
     startDate: '1100301',
     endDate: '1100331',
     rows: [],
-    perPage: 25,
-    currentPage: 1,
+    pagination: {
+      perPage: 25,
+      currentPage: 1
+    },
     forceReload: false,
     committed: false,
     qryType: 'land',
@@ -329,9 +329,6 @@ export default {
       } else if (val > this.warnDays) {
         this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
       }
-    },
-    perPage (val) {
-      val < 1 && (this.perPage = 1)
     }
   },
   async fetch () {
@@ -418,10 +415,6 @@ export default {
         return 'Z: 見其他登記事項'
       }
       return item.BB15_1
-    },
-    updatePaginationParams (params) {
-      this.currentPage = params.currentPage
-      this.perPage = params.perPage
     }
   },
   created () {
