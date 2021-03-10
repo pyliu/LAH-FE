@@ -123,7 +123,14 @@
         :current-page="pagination.currentPage"
       )
         template(#table-busy): span.ld-txt 讀取中...
-        template(v-slot:cell(#)="data") {{ data.index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
+        template(v-slot:cell(#)="{ item, index, rowSelected }")
+          template(v-if="rowSelected")
+            span(aria-hidden="true") &check; 
+            span.sr-only 勾選
+          template(v-else)
+            span(aria-hidden="true") &nbsp;
+            span.sr-only 無勾選
+          span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
