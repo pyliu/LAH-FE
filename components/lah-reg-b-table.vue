@@ -23,6 +23,7 @@
       :tbody-transition-props="transProps"
       :per-page="perPage"
       :current-page="currentPage"
+      :sticky-header="maxHeightPx"
 
       primary-key="收件字號"
       class="text-center"
@@ -31,9 +32,6 @@
 
       caption-top
       selectable
-
-      sticky-header
-      :style="maxHeightStyle"
     >
       <template v-slot:table-busy>
         <span class="ld-txt">讀取中...</span>
@@ -240,7 +238,7 @@ export default {
     modalLoading: true,
     clickedId: undefined,
     clickedData: undefined,
-    maxHeight: 600
+    maxHeight: 300
   }),
   computed: {
     tblFields: function () {
@@ -489,9 +487,7 @@ export default {
     sort () {
       return this.$utils.empty(this.mute)
     },
-    maxHeightStyle () {
-       return `max-height: ${this.maxHeight}px`
-    }
+    maxHeightPx () { return `${this.maxHeight}px`}
   },
   methods: {
     popup (data) {
@@ -555,7 +551,9 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+    if (!this.$isServer && window) {
+      this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+    }
   }
 }
 </script>

@@ -10,18 +10,16 @@
       caption-top
       no-border-collapse
       small
-      selectable
       head-variant="dark"
       class="text-center s-90"
+      selectable
       select-mode="single"
       selected-variant="success"
 
       :items="tableItems"
       :fields="fields"
       :busy="isBusy || busy"
-
-      :style="maxHeightStyle"
-      sticky-header
+      :sticky-header="`${this.maxHeight}px`"
     >
       <template v-slot:table-busy>
         <div class="text-center text-danger my-5">
@@ -112,7 +110,8 @@ export default {
   components: { lahUserCard },
   props: {
     reviewerId: { type: String, default: '' },
-    busy: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false },
+    maxHeightOffset: { type: Number, default: 105 }
   },
   data: () => ({
     fields: [
@@ -199,7 +198,7 @@ export default {
   },
   created () { this.modalId = this.$utils.uuid() },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 105)
+    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   }
 }
 </script>

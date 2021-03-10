@@ -21,16 +21,6 @@
             //- lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件年字號」開啟案件詳情視窗
             lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/trust/HF") 切換為八德版本
         .d-flex.small
-          b-pagination.my-auto.mr-1(
-            v-if="!$utils.empty(rows)"
-            v-model="currentPage"
-            :total-rows="rows.length"
-            :per-page="perPage"
-            last-number
-            first-number
-            aria-controls="trust-table"
-          )
-          
           client-only
             b-datepicker(
               v-model="startDateObj"
@@ -91,23 +81,36 @@
             @end="reload"
             @click="reload"
           )
+
+    
+    lah-pagination(
+      v-model="pagination"
+      :total-rows="queryCount"
+      :caption="caption"
+    )
+
     lah-transition(appear)
       lah-reg-b-table(
         v-if="qryType === 'reg_reason' && committed"
 
         type="lg"
         :baked-data="rows"
-        :per-page="perPage"
-        :current-page="currentPage"
-        :style="maxHeightStyle"
+        :per-page="pagination.perPage"
+        :current-page="pagination.currentPage"
+        :max-height-offset="145"
+        no-caption
       )
       b-table(
         v-else-if="committed"
 
         id="trust-table"
         ref="table"
+        no-caption
         caption-top
-        sticky-header
+        selectable
+        select-mode="single"
+        selected-variant="success"
+        :sticky-header="`${maxHeight}px`"
         :busy="isBusy"
         :items="rows"
         :responsive="'lg'"
@@ -122,11 +125,9 @@
         :foot-clone="false"
         :no-border-collapse="true"
         :head-variant="'dark'"
-        :caption="caption"
         :fields="obliterateFields"
-        :per-page="perPage"
-        :current-page="currentPage"
-        :style="maxHeightStyle"
+        :per-page="pagination.perPage"
+        :current-page="pagination.currentPage"
       )
         template(#table-busy): span.ld-txt 讀取中...
         template(v-slot:cell(序號)="data") {{ data.index + 1 }}
@@ -168,8 +169,10 @@ export default {
     startDate: '1100301',
     endDate: '1100331',
     rows: [],
-    perPage: 25,
-    currentPage: 1,
+    pagination: {
+      perPage: 25,
+      currentPage: 1
+    },
     forceReload: false,
     committed: false,
     qryType: 'reg_reason',
@@ -256,10 +259,7 @@ export default {
       }
     },
     caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
-    cacheKey () { return `reg_trust_case_${this.qryType}_${this.startDate}_${this.endDate}` },
-    maxHeightStyle () {
-       return `max-height: ${this.maxHeight}px`
-    }
+    cacheKey () { return `reg_trust_case_${this.qryType}_${this.startDate}_${this.endDate}` }
   },
   watch: {
     startDateObj (val) {
@@ -342,8 +342,7 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 105)
-    // this.search() 
+    this.maxHeight = parseInt(window.innerHeight - 145)
   }
 }
 </script>

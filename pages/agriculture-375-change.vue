@@ -100,7 +100,10 @@
         id="a375-table"
         ref="table"
         caption-top
-        sticky-header
+        selectable
+        select-mode="single"
+        selected-variant="success"
+        :sticky-header="`${maxHeight}px`"
         :busy="isBusy"
         :items="rows"
         :responsive="'lg'"
@@ -118,7 +121,6 @@
         :fields="fields"
         :per-page="pagination.perPage"
         :current-page="pagination.currentPage"
-        :style="maxHeightStyle"
       )
         template(#table-busy): span.ld-txt 讀取中...
         template(v-slot:cell(#)="data") {{ data.index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
@@ -305,7 +307,6 @@ export default {
       }
     },
     cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
-    maxHeightStyle () { return `max-height: ${this.maxHeight}px` },
     foundText () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     daysPeriod () {
       if (!this.$isServer && this.endDateObj && this.startDateObj) {
