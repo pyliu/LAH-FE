@@ -4,11 +4,12 @@
       v-model="value.currentPage"
       :total-rows="totalRows"
       :per-page="value.perPage"
+      :size="size"
       last-number
       first-number
     )
     .my-auto.text-muted(v-html="caption")
-    b-input-group.my-auto.fixed-width(prepend="每頁" append="筆"): b-input(
+    b-input-group.my-auto.calc-width.text-nowrap(id="perPageCounter" prepend="每頁" append="筆" :size="size"): b-input.text-right(
       v-model="value.perPage"
       type="number"
       min="10"
@@ -21,7 +22,8 @@ export default {
   props: {
     totalRows: { type: Number, default: 0, require: true },
     value: { type: Object, default: { currentPage: 1, perPage: 25 } },
-    caption: { type: String, default: '' }
+    caption: { type: String, default: '' },
+    size: { type: String, default: 'sm' }
   },
   data: () => ({
   }),
@@ -34,7 +36,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.fixed-width {
-  width: 160px !important;
+.calc-width {
+  width: calc(12.5%);
 }
 </style>
