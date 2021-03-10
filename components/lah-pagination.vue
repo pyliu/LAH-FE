@@ -1,15 +1,15 @@
 <template lang="pug">
   .d-flex.justify-content-between.my-1
     b-pagination.my-auto(
-      v-model="currentPageModel"
+      v-model="value.currentPage"
       :total-rows="totalRows"
-      :per-page="perPage"
+      :per-page="value.perPage"
       last-number
       first-number
     )
     .my-auto.text-muted(v-html="caption")
     b-input-group.my-auto.fixed-width(prepend="每頁" append="筆"): b-input(
-      v-model="perPageModel"
+      v-model="value.perPage"
       type="number"
       min="10"
       number
@@ -20,25 +20,15 @@
 export default {
   props: {
     totalRows: { type: Number, default: 0, require: true },
-    perPage: { type: Number, default: 25, require: true },
-    currentPage: { type: Number, default: 1 },
+    value: { type: Object, default: { currentPage: 1, perPage: 25 } },
     caption: { type: String, default: '' }
   },
   data: () => ({
-    currentPageModel: 1,
-    perPageModel: 25
   }),
   watch: {
-    perPageModel (val) {
-      this.$emit('update', {perPage: this.perPageModel, currentPage: this.currentPageModel});
-    },
-    currentPageModel (val) {
-      this.$emit('update', {perPage: this.perPageModel, currentPage: this.currentPageModel});
+    value (val) {
+      this.$emit('input', val);
     }
-  },
-  created () {
-    this.currentPageModel = this.currentPage
-    this.perPageModel = this.perPage
   }
 }
 </script>
