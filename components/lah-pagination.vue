@@ -26,7 +26,7 @@
 export default {
   props: {
     totalRows: { type: Number, default: 0, require: true },
-    value: { type: Object, default: { currentPage: 1, perPage: 25 } },
+    value: { type: Object, default: { currentPage: 1, perPage: 23 } },
     caption: { type: String, default: '' },
     size: { type: String, default: 'md' }
   },
@@ -47,7 +47,7 @@ export default {
     }
   },
   created () {
-    this.value.perPage = this.$config.perPage || 25
+    this.value.perPage = this.$config.perPage || 23
     this.$emit('input', this.value)
   }
 }
