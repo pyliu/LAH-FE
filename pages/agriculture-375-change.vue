@@ -89,30 +89,13 @@
             no-badge
           )
     
-    //- lah-pagination(
-    //-   :total-rows="queryCount"
-    //-   :per-page="perPage"
-    //-   :current-page="currentPage"
-    //-   :caption="foundText"
-    //- )
-
-    .d-flex.justify-content-between.mb-2(v-if="!$utils.empty(rows)")
-      b-pagination.my-auto(
-        v-model="currentPage"
-        :total-rows="rows.length"
-        :per-page="perPage"
-        last-number
-        first-number
-        aria-controls="a375-table"
-      )
-      .my-auto.text-muted {{ foundText }}
-      b-input-group.my-auto.fixed-width(prepend="每頁筆數"): b-input(
-        ref="perPage"
-        v-model="perPage"
-        type="number"
-        min="10"
-        number
-      )
+    lah-pagination(
+      :total-rows="queryCount"
+      :per-page="perPage"
+      :current-page="currentPage"
+      :caption="foundText"
+      @update="updatePaginationParams"
+    )
 
     lah-transition(appear)
       b-table(
@@ -435,6 +418,10 @@ export default {
         return 'Z: 見其他登記事項'
       }
       return item.BB15_1
+    },
+    updatePaginationParams (params) {
+      this.currentPage = params.currentPage
+      this.perPage = params.perPage
     }
   },
   created () {
@@ -447,7 +434,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.fixed-width {
-  width: 160px !important;
-}
 </style>

@@ -8,7 +8,7 @@
       first-number
     )
     .my-auto.text-muted(v-html="caption")
-    b-input-group.my-auto.fixed-width(prepend="每頁筆數"): b-input(
+    b-input-group.my-auto.fixed-width(prepend="每頁" append="筆"): b-input(
       v-model="perPageModel"
       type="number"
       min="10"
@@ -29,11 +29,22 @@ export default {
     perPageModel: 25
   }),
   watch: {
-    perPage (val) { this.perPageModel = val },
-    currentPage (val) { this.currentPageModel = val }
+    perPageModel (val) {
+      this.$emit('update', {perPage: this.perPageModel, currentPage: this.currentPageModel});
+    },
+    currentPageModel (val) {
+      this.$emit('update', {perPage: this.perPageModel, currentPage: this.currentPageModel});
+    }
+  },
+  created () {
+    this.currentPageModel = this.currentPage
+    this.perPageModel = this.perPage
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.fixed-width {
+  width: 160px !important;
+}
 </style>
