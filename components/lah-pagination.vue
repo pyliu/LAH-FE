@@ -28,24 +28,17 @@ export default {
     totalRows: { type: Number, default: 0, require: true },
     value: { type: Object, default: { currentPage: 1, perPage: 25 } },
     caption: { type: String, default: '' },
-    size: { type: String, default: 'sm' },
-    col: { type: String, default: '' }
+    size: { type: String, default: 'md' }
   },
   computed: {
     gridColumnClass () {
-      if (!this.$utils.empty(this.col)) {
-        const val = parseInt(this.col)
-        if (val > 0 && val < 13) {
-          return `col-${val} mr-n3`
-        }
-      }
       if (this.size === 'lg') {
-        return `col-3 mr-n3`
+        return `lg-width`
       }
-      if (this.size === 'md') {
-        return `col-2 mr-n3`
+      if (this.size === 'sm') {
+        return `sm-width`
       }
-      return 'calc-width'
+      return 'md-width'
     }
   },
   watch: {
@@ -60,7 +53,13 @@ export default {
 .calc-width {
   width: calc(12.5%);
 }
-.m0 {
-  margin: 0;
+.sm-width {
+  width: 135px !important;
+}
+.md-width {
+  width: 165px !important;
+}
+.lg-width {
+  width: 210px !important;
 }
 </style>
