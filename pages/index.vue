@@ -14,12 +14,12 @@
           lah-index-card-link(:icon="['fas', 'user-tag']" to="/non-scrivener-case") 非專業代理人案件
           lah-index-card-link(:icon="['fas', 'user-astronaut']" to="/foreigner-case") 外人地權案件
         b-card-group(deck)
-          lah-index-card-link(:icon="['fas', 'border-all']" to="/agriculture-375-change") 375租約異動
-          lah-index-card-link(icon-variant="muted" action="damage") 未辦標的註記異動
-          lah-index-card-link(icon-variant="muted" action="damage") 參考資訊檔異動
-          lah-index-card-link(icon-variant="muted" action="damage") 逾期未駁回查詢
-          lah-index-card-link(icon-variant="muted" action="damage") 辦畢通知查詢
-          lah-index-card-link(icon-variant="muted" action="damage") 領狀管控查詢
+          lah-index-card-link(:icon="['fas', 'border-all']" to="/agriculture-375-change") 375租約異動查詢
+          lah-index-card-link(:icon="['fas', 'monument']" icon-variant="muted" action="damage") 未辦標的註記異動
+          lah-index-card-link(:icon="['fas', 'landmark']" icon-variant="muted" action="damage") 參考資訊檔異動
+          lah-index-card-link(:icon="['fas', 'pager']" icon-variant="muted" action="damage") 逾期未駁回查詢
+          lah-index-card-link(:icon="['fas', 'bullhorn']" icon-variant="muted" action="damage") 辦畢通知查詢
+          lah-index-card-link(:icon="['fas', 'stamp']" icon-variant="muted" action="damage") 案件領狀管控
 </template>
 
 <script>
