@@ -98,7 +98,7 @@
     )
 
     lah-transition(appear)
-      b-table(
+      b-table.text-center(
         id="a375-table"
         ref="table"
         caption-top
