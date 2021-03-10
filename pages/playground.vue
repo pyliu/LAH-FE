@@ -7,7 +7,6 @@
     div {{ openNewsData }}
     p {{ $config.baseURL }}
     b-table( striped hover :items="configs" )
-    b-table( striped hover :items="envs" )
 </template>
 
 <script>

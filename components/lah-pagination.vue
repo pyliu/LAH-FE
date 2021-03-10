@@ -43,8 +43,12 @@ export default {
   },
   watch: {
     value (val) {
-      this.$emit('input', val);
+      this.$emit('input', val)
     }
+  },
+  created () {
+    this.value.perPage = this.$config.perPage || 25
+    this.$emit('input', this.value)
   }
 }
 </script>
