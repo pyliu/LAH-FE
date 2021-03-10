@@ -9,7 +9,12 @@
       first-number
     )
     .my-auto.text-muted(v-html="caption")
-    b-input-group.my-auto.calc-width.text-nowrap(id="perPageCounter" prepend="每頁" append="筆" :size="size"): b-input.text-right(
+    b-input-group.my-auto.m0(
+      prepend="每頁"
+      append="筆"
+      :size="size"
+      :class="gridColumnClass"
+    ): b-input.text-right(
       v-model="value.perPage"
       type="number"
       min="10"
@@ -23,10 +28,26 @@ export default {
     totalRows: { type: Number, default: 0, require: true },
     value: { type: Object, default: { currentPage: 1, perPage: 25 } },
     caption: { type: String, default: '' },
-    size: { type: String, default: 'sm' }
+    size: { type: String, default: 'sm' },
+    col: { type: String, default: '' }
   },
-  data: () => ({
-  }),
+  computed: {
+    gridColumnClass () {
+      if (!this.$utils.empty(this.col)) {
+        const val = parseInt(this.col)
+        if (val > 0 && val < 13) {
+          return `col-${val} mr-n3`
+        }
+      }
+      if (this.size === 'lg') {
+        return `col-3 mr-n3`
+      }
+      if (this.size === 'md') {
+        return `col-2 mr-n3`
+      }
+      return 'calc-width'
+    }
+  },
   watch: {
     value (val) {
       this.$emit('input', val);
@@ -38,5 +59,8 @@ export default {
 <style lang="scss" scoped>
 .calc-width {
   width: calc(12.5%);
+}
+.m0 {
+  margin: 0;
 }
 </style>
