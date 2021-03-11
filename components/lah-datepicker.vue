@@ -1,6 +1,6 @@
 <template lang="pug">
   .d-flex
-    b-datepicker.mw-hack.p-auto(
+    b-datepicker(
       v-model="startDateObj"
       placeholder="開始日期"
       boundary="viewport"
@@ -16,7 +16,7 @@
       v-b-tooltip.hover
     )
     .my-auto ～
-    b-datepicker.mw-hack(
+    b-datepicker(
       v-model="endDateObj"
       placeholder="截止日期"
       boundary="viewport"
@@ -89,14 +89,11 @@ export default {
     }
   },
   mounted () {
-    // b-datepicker label centering hack
-    this.$("label.form-control.form-control-sm").addClass('my-auto')
+    // b-datepicker label centering/nowrap hack
+    this.$("label.form-control.form-control-sm").addClass('my-auto text-nowrap')
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.mw-hack {
-  min-width: 125px;
-}
 </style>
