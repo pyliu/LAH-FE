@@ -1,10 +1,11 @@
 <template lang="pug">
   .d-flex
-    b-datepicker.w-fixed(
+    b-datepicker.w-fixed.p-auto(
       v-model="startDateObj"
       placeholder="開始日期"
       boundary="viewport"
       title="開始日期"
+      label-help="可使用方向鍵操作移動"
       :size="size"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :max="yesterday"
@@ -20,6 +21,7 @@
       placeholder="截止日期"
       boundary="viewport"
       title="結束日期"
+      label-help="可使用方向鍵操作移動"
       :size="size"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :max="lastDayofMonth"
@@ -82,10 +84,13 @@ export default {
     }
   },
   methods: {
-    nowrap () { return 'text-nowrap' },
     twDate (obj) {
       return `${obj.getFullYear() - 1911}${("0" + (obj.getMonth()+1)).slice(-2)}${("0" + obj.getDate()).slice(-2)}`
     }
+  },
+  mounted () {
+    // b-datepicker label centering hack
+    this.$("label.form-control.form-control-sm").addClass('my-auto')
   }
 }
 </script>
