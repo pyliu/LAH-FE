@@ -175,8 +175,8 @@ export default {
     endDate: '1100331',
     rows: [],
     dateRange: {
-      begin: '1100301',
-      end: '1100331'
+      begin: '',
+      end: ''
     },
     pagination: {
       perPage: 25,
