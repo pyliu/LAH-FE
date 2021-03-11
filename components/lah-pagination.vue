@@ -1,7 +1,7 @@
 <template lang="pug">
   .d-flex.justify-content-between.my-1
     b-pagination.my-auto(
-      v-model="value.currentPage"
+      v-model="current"
       :total-rows="totalRows"
       :per-page="value.perPage"
       :size="size"
@@ -15,7 +15,7 @@
       :size="size"
       :class="gridColumnClass"
     ): b-input.text-right(
-      v-model="value.perPage"
+      v-model="pageCount"
       type="number"
       min="10"
       number
@@ -26,10 +26,14 @@
 export default {
   props: {
     totalRows: { type: Number, default: 0, require: true },
-    value: { type: Object, default: { currentPage: 1, perPage: 23 } },
+    value: { type: Object, default: { currentPage: 1, perPage: 1 }, required: true},
     caption: { type: String, default: '' },
     size: { type: String, default: 'md' }
   },
+  data: () => ({
+    current: 1,
+    pageCount: 23
+  }),
   computed: {
     gridColumnClass () {
       if (this.size === 'lg') {
@@ -42,13 +46,12 @@ export default {
     }
   },
   watch: {
-    value (val) {
-      this.$emit('input', val)
+    current (val) {
+      this.$emit("input", { ...this.value, currentPage: val })
+    },
+    pageCount (val) {
+      this.$emit("input", { ...this.value, perPage: val })
     }
-  },
-  created () {
-    this.value.perPage = this.$config.perPage || 23
-    this.$emit('input', this.value)
   }
 }
 </script>

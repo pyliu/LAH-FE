@@ -1,6 +1,6 @@
 <template lang="pug">
   .d-flex
-    b-datepicker(
+    b-datepicker.text-nowrap(
       v-model="startDateObj"
       placeholder="開始日期"
       boundary="viewport"
@@ -15,7 +15,7 @@
       v-b-tooltip.hover
     )
     .my-auto ～
-    b-datepicker.mr-1(
+    b-datepicker.text-nowrap(
       v-model="endDateObj"
       placeholder="截止日期"
       boundary="viewport"
@@ -36,7 +36,7 @@
 export default {
   props: {
     size: { type: String, default: 'sm' },
-    value: { type: Object, require: true }
+    value: { type: Object, default: { begin: '', end: '', days: 0 }, required: true },
   },
   fetchOnServer: true,
   data: () => ({
@@ -59,37 +59,15 @@ export default {
     this.lastDayofMonth = lastDayofMonth
   },
   watch: {
-    value (val) {
-      this.$emit('input', val)
-    },
     startDateObj (val) {
-      if (!this.$utils.empty(val)) {
-        this.value.begin = this.twDate(val)
-      }
-      //   this.$utils.log(val)
-      // if (!this.$utils.empty(val)) {
-      //   this.$emit('input', {
-      //     begin: this.twDate(val),
-      //     end: this.value.end
-      //   })
-      // }
-      //   this.$utils.log(this.value)
+      this.$emit("input", { ...this.value, begin: this.twDate(val), days: this.days })
     },
     endDateObj (val) {
-      if (!this.$utils.empty(val)) {
-        this.value.end = this.twDate(val)
-      }
-      // if (!this.$utils.empty(val)) {
-      //   this.value.end = this.twDate(val)
-      //   this.$emit('input', {
-      //     end: this.twDate(val),
-      //     begin: this.value.begin
-      //   })
-      // }
+      this.$emit("input", { ...this.value, end: this.twDate(val), days: this.days })
     }
   },
   computed: {
-    daysPeriod () {
+    days () {
       if (this.endDateObj && this.startDateObj) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
         return Math.ceil(difference / (1000 * 3600 * 24)) + 1
@@ -97,25 +75,16 @@ export default {
       return 0
     },
     stateIndicatorFlag () {
-      if (this.daysPeriod < 0) {
+      if (this.days < 0) {
         return false
       }
       return null
-    },
-    cValue () {
-      return {
-        begin: this.twDate(this.startDateObj),
-        end: this.twDate(this.endDateObj)
-      }
     }
   },
   methods: {
     twDate (obj) {
       return `${obj.getFullYear() - 1911}${("0" + (obj.getMonth()+1)).slice(-2)}${("0" + obj.getDate()).slice(-2)}`
     }
-  },
-  created () {
-    this.$emit('input', this.cValue)
   }
 }
 </script>
