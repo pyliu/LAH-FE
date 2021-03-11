@@ -24,37 +24,38 @@
 
         .d-flex.small
           client-only
-            b-datepicker(
-              v-model="startDateObj"
-              placeholder="開始日期"
-              boundary="viewport"
-              title="開始日期"
-              size="sm"
-              :date-format-options="{ weekday: 'narrow' }"
-              :max="yesterday"
-              :state="daysPeriod < 0 ? false : null"
-              value-as-date
-              hide-header
-              dropleft
-              v-b-tooltip.hover
-            )
-            .my-auto ～
-            b-datepicker.mr-1(
-              v-model="endDateObj"
-              placeholder="截止日期"
-              boundary="viewport"
-              title="結束日期"
-              size="sm"
-              :date-format-options="{ weekday: 'narrow' }"
-              :max="lastDayofMonth"
-              :min="startDateObj"
-              :state="daysPeriod < 0 ? false : null"
-              value-as-date
-              hide-header
-              dark
-              v-b-tooltip.hover
-            )
-            b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") {{daysPeriod}}天
+            lah-datepicker(v-model="dateRange")
+            //- b-datepicker(
+            //-   v-model="startDateObj"
+            //-   placeholder="開始日期"
+            //-   boundary="viewport"
+            //-   title="開始日期"
+            //-   size="sm"
+            //-   :date-format-options="{ weekday: 'narrow' }"
+            //-   :max="yesterday"
+            //-   :state="daysPeriod < 0 ? false : null"
+            //-   value-as-date
+            //-   hide-header
+            //-   dropleft
+            //-   v-b-tooltip.hover
+            //- )
+            //- .my-auto ～
+            //- b-datepicker.mr-1(
+            //-   v-model="endDateObj"
+            //-   placeholder="截止日期"
+            //-   boundary="viewport"
+            //-   title="結束日期"
+            //-   size="sm"
+            //-   :date-format-options="{ weekday: 'narrow' }"
+            //-   :max="lastDayofMonth"
+            //-   :min="startDateObj"
+            //-   :state="daysPeriod < 0 ? false : null"
+            //-   value-as-date
+            //-   hide-header
+            //-   dark
+            //-   v-b-tooltip.hover
+            //- )
+            //- b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") {{daysPeriod}}天
 
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
@@ -173,6 +174,10 @@ export default {
     startDate: '1100301',
     endDate: '1100331',
     rows: [],
+    dateRange: {
+      begin: '1100301',
+      end: '1100331'
+    },
     pagination: {
       perPage: 25,
       currentPage: 1
@@ -286,7 +291,8 @@ export default {
     maxHeight: 600,
     warnDays: 180
   }),
-  asyncData () {
+  // only worked at page level component
+  async asyncData (nuxt) {
     const today = new Date()
     const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
     const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
@@ -337,6 +343,9 @@ export default {
       } else if (val > this.warnDays) {
         this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
       }
+    },
+    dateRange (val) {
+      this.$utils.log(val)
     }
   },
   async fetch () {
