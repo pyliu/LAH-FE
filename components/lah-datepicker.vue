@@ -1,6 +1,6 @@
 <template lang="pug">
   .d-flex
-    b-datepicker.w-fixed.p-auto(
+    b-datepicker.mw-hack.p-auto(
       v-model="startDateObj"
       placeholder="開始日期"
       boundary="viewport"
@@ -16,7 +16,7 @@
       v-b-tooltip.hover
     )
     .my-auto ～
-    b-datepicker.w-fixed(
+    b-datepicker.mw-hack(
       v-model="endDateObj"
       placeholder="截止日期"
       boundary="viewport"
@@ -96,7 +96,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.w-fixed {
+.mw-hack {
   min-width: 125px;
 }
 </style>
