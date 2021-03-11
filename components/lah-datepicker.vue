@@ -1,12 +1,12 @@
 <template lang="pug">
   .d-flex
-    b-datepicker.text-nowrap(
+    b-datepicker.w-fixed(
       v-model="startDateObj"
       placeholder="開始日期"
       boundary="viewport"
       title="開始日期"
       :size="size"
-      :date-format-options="{ weekday: 'narrow' }"
+      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :max="yesterday"
       :state="stateIndicatorFlag"
       value-as-date
@@ -15,13 +15,13 @@
       v-b-tooltip.hover
     )
     .my-auto ～
-    b-datepicker.text-nowrap(
+    b-datepicker.w-fixed(
       v-model="endDateObj"
       placeholder="截止日期"
       boundary="viewport"
       title="結束日期"
       :size="size"
-      :date-format-options="{ weekday: 'narrow' }"
+      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :max="lastDayofMonth"
       :min="startDateObj"
       :state="stateIndicatorFlag"
@@ -82,6 +82,7 @@ export default {
     }
   },
   methods: {
+    nowrap () { return 'text-nowrap' },
     twDate (obj) {
       return `${obj.getFullYear() - 1911}${("0" + (obj.getMonth()+1)).slice(-2)}${("0" + obj.getDate()).slice(-2)}`
     }
@@ -90,4 +91,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.w-fixed {
+  min-width: 125px;
+}
 </style>

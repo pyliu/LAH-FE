@@ -23,40 +23,9 @@
               li 土地所有權部
 
         .d-flex.small
-          client-only
-            lah-datepicker(v-model="dateRange")
-            //- b-datepicker(
-            //-   v-model="startDateObj"
-            //-   placeholder="開始日期"
-            //-   boundary="viewport"
-            //-   title="開始日期"
-            //-   size="sm"
-            //-   :date-format-options="{ weekday: 'narrow' }"
-            //-   :max="yesterday"
-            //-   :state="daysPeriod < 0 ? false : null"
-            //-   value-as-date
-            //-   hide-header
-            //-   dropleft
-            //-   v-b-tooltip.hover
-            //- )
-            //- .my-auto ～
-            //- b-datepicker.mr-1(
-            //-   v-model="endDateObj"
-            //-   placeholder="截止日期"
-            //-   boundary="viewport"
-            //-   title="結束日期"
-            //-   size="sm"
-            //-   :date-format-options="{ weekday: 'narrow' }"
-            //-   :max="lastDayofMonth"
-            //-   :min="startDateObj"
-            //-   :state="daysPeriod < 0 ? false : null"
-            //-   value-as-date
-            //-   hide-header
-            //-   dark
-            //-   v-b-tooltip.hover
-            //- )
-            //- b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") {{daysPeriod}}天
-
+          b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") 查詢區間 {{ daysPeriod }} 天
+          lah-datepicker.mr-1(v-model="dateRange")
+          
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
             v-model="qryType"
@@ -171,12 +140,11 @@ export default {
     modalId: 'this should be an uuid',
     modalLoading: true,
     clickedId: undefined,
-    startDate: '1100301',
-    endDate: '1100331',
     rows: [],
     dateRange: {
       begin: '',
-      end: ''
+      end: '',
+      days: 0
     },
     pagination: {
       perPage: 25,
@@ -292,19 +260,7 @@ export default {
     warnDays: 180
   }),
   // only worked at page level component
-  async asyncData (nuxt) {
-    const today = new Date()
-    const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-    const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    return {
-      startDateObj: firstDayofMonth,
-      endDateObj: lastDayofMonth,
-      yesterday: new Date(new Date().setDate(today.getDate()-1)),
-      today,
-      firstDayofMonth,
-      lastDayofMonth
-    }
-  },
+  async asyncData (nuxt) {},
   computed: {
     fields () { return this.qryType === 'land' ? this.landFields : this.ownerFields },
     axiosType () { return this.qryType === 'land' ? '375_land_change' : '375_owner_change' },
@@ -319,73 +275,58 @@ export default {
           return `不支援的型別【${this.qryType}】`
       }
     },
-    cacheKey () { return `query_375_${this.qryType}_${this.startDate}_${this.endDate}` },
+    cacheKey () { return `query_375_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` },
     foundText () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
-    daysPeriod () {
-      if (!this.$isServer && this.endDateObj && this.startDateObj) {
-        const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
-        return Math.ceil(difference / (1000 * 3600 * 24)) + 1
-      }
-      return 0
-    },
+    daysPeriod () { return this.dateRange.days || 0 },
     isWrongDaysPeriod () { return this.daysPeriod < 0 }
   },
   watch: {
-    startDateObj (val) {
-      val && (this.startDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
-    },
-    endDateObj (val) {
-      val && (this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
-    },
     daysPeriod (val) {
       if (val < 0) {
         this.alert(`開始日期應小於或等於結束日期`, { pos: 'tr' })
       } else if (val > this.warnDays) {
         this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
       }
-    },
-    dateRange (val) {
-      this.$utils.log(val)
     }
   },
   async fetch () {
-      if(this.isBusy) {
-        this.notify('讀取中 ... 請稍後', { type: 'warning' })
-      } else {
-        if (this.daysPeriod > this.warnDays) {
-          const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`);
-          if (!ans) {
-            return;
-          }
-        } else if (this.isWrongDaysPeriod) {
-          this.notify('請選擇正確日期區間', { type: 'warning' })
+    if(this.isBusy) {
+      this.notify('讀取中 ... 請稍後', { type: 'warning' })
+    } else {
+      if (this.daysPeriod > this.warnDays) {
+        const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`);
+        if (!ans) {
           return;
         }
-        this.reset()
-        this.isBusy = true
-        this.committed = false
-        this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-          type: this.axiosType,
-          query: this.qryType,
-          start: this.startDate,
-          end: this.endDate,
-          reload: this.forceReload
-        }).then(({ data }) => {
-          this.rows = data.raw || []
-          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-          const remain_ms = data.cache_remaining_time
-          if (remain_ms && remain_ms > 0) {
-            this.setCache(this.cacheKey, data, remain_ms)
-          }
-        }).catch(err => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-          this.forceReload = false
-          this.committed = true
-        })
+      } else if (this.isWrongDaysPeriod) {
+        this.notify('請選擇正確日期區間', { type: 'warning' })
+        return;
       }
+      this.reset()
+      this.isBusy = true
+      this.committed = false
+      this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+        type: this.axiosType,
+        query: this.qryType,
+        start: this.dateRange.begin,
+        end: this.dateRange.end,
+        reload: this.forceReload
+      }).then(({ data }) => {
+        this.rows = data.raw || []
+        this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+        const remain_ms = data.cache_remaining_time
+        if (remain_ms && remain_ms > 0) {
+          this.setCache(this.cacheKey, data, remain_ms)
+        }
+      }).catch(err => {
+        this.alert(err.message)
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+        this.forceReload = false
+        this.committed = true
+      })
+    }
   },
   methods: {
     cached () {
