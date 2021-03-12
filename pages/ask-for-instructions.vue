@@ -16,8 +16,18 @@
           .mx-2: lah-fa-icon(icon="circle" variant="success") 有申請取消請示紀錄且#[strong 未]逾期案件
 
       .d-flex.text-nowrap
-        b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
-        span.my-auto.mr-2 {{ months }}個月內
+        lah-datepicker.mr-1(v-model="dateRange")
+        //- b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
+        //- span.my-auto.mr-2 {{ months }}個月內
+        lah-button.mr-1(
+          ref="search"
+          icon="search"
+          size="lg"
+          title="搜尋"
+          :disabled="isBusy || dateRange.days < 1"
+          @click="$fetch"
+          no-icon-gutter
+        )
         lah-countdown-button(
           ref="countdown"
           icon="sync-alt"
@@ -31,7 +41,7 @@
           @end="reload"
           @click="reload"
           :milliseconds="cachedMs"
-          :disabled="isBusy"
+          :disabled="isBusy || dateRange.days < 1"
           :busy="isBusy"
         )
     lah-transition(appear): lah-reg-b-table(
@@ -58,6 +68,11 @@ export default {
     committed: false,
     cachedMs: 60 * 60 * 1000,
     forceReload: false,
+    dateRange: {
+      begin: '',
+      end: '',
+      days: 0
+    },
     months: 1,
     fields: [
       {
@@ -105,29 +120,27 @@ export default {
     queryCount() { return this.bakedData.length },
     cacheKey() { return `reg_cancel_ask_case` }
   },
-  watch: {
-    months (val) {
-      this.reloadDebounced()
-    }
-  },
   fetch () {
     this.getCache(this.cacheKey).then((json) => {
       if (json === false) {
-        this.isBusy = true
-        this.$axios
-          .post(this.$consts.API.JSON.PREFETCH, {
+        if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+          this.$utils.warn('dateRange is not ready ... postpone $fetch')
+          this.timeout(this.$fetch, 250) 
+        } else {
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
             type: 'reg_cancel_ask_case',
             reload: this.forceReload,
-            days: Math.ceil(365 / 12 * this.months) // calculate days by months
-          })
-          .then(({ data }) => {
+            days: this.dateRange.days
+          }).then(({ data }) => {
             this.bakedData = data.baked || []
             this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-            const remain_ms = data.cache_remaining_time
+            const remain_s = data.cache_remaining_time
+            const remain_ms = remain_s * 1000
             if (remain_ms && remain_ms > 0) {
               this.setCache(this.cacheKey, data, remain_ms)
               // use server side cache remaining time
-              this.$refs.countdown.setCountdown(remain_ms * 1000)
+              this.$refs.countdown.setCountdown(remain_ms)
             } else {
               this.$refs.countdown.setCountdown(this.cachedMs)
             }
@@ -141,6 +154,7 @@ export default {
             this.isBusy = false
             this.forceReload = false
           })
+        }
       } else {
         this.bakedData = json.baked || []
         this.resetCountdown()
@@ -165,12 +179,7 @@ export default {
         this.forceReload = true
         this.$fetch()
       })
-    },
-    reloadDebounced () {}
-  },
-  created () { 
-    // wrap the reload function with delay to prevent quick reloading call
-    this.reloadDebounced = this.$utils.debounce(this.reload, 1000)
+    }
   }
 }
 </script>
