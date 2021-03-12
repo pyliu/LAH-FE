@@ -78,6 +78,10 @@ export default {
     },
     stateIndicatorFlag () {
       if (this.days < 0) {
+      // hack for b-datepicker label centering/nowrap
+      this.$nextTick(() => {
+        this.$("label.form-control.form-control-sm").addClass('my-auto text-nowrap')
+      })
         return false
       }
       return null
