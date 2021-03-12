@@ -296,11 +296,15 @@ export default {
       if (this.daysPeriod > this.warnDays) {
         const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`);
         if (!ans) {
-          return;
+          return
         }
       } else if (this.isWrongDaysPeriod) {
         this.notify('請選擇正確日期區間', { type: 'warning' })
-        return;
+        return
+      } else if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+        this.$utils.warn('dateRange is not ready ... postpone fetching')
+        this.timeout(this.$fetch, 200)
+        return 
       }
       this.reset()
       this.isBusy = true
