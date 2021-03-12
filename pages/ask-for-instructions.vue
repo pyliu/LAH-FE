@@ -118,7 +118,7 @@ export default {
   }),
   computed: {
     queryCount() { return this.bakedData.length },
-    cacheKey() { return `reg_cancel_ask_case` }
+    cacheKey() { return `reg_cancel_ask_case_${this.dateRange.begin}_${this.dateRange.end}` }
   },
   fetch () {
     this.getCache(this.cacheKey).then((json) => {
@@ -131,7 +131,8 @@ export default {
           this.$axios.post(this.$consts.API.JSON.PREFETCH, {
             type: 'reg_cancel_ask_case',
             reload: this.forceReload,
-            days: this.dateRange.days
+            begin: this.dateRange.begin,
+            end: this.dateRange.end
           }).then(({ data }) => {
             this.bakedData = data.baked || []
             this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
