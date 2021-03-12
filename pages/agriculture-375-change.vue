@@ -30,7 +30,7 @@
             v-model="qryType"
             :options="qryTypes"
             :disabled="isWrongDaysPeriod"
-            @change="cached"
+            @change="$fetch"
           ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇查詢類型 --
           lah-button.mr-1(
             ref="search"
@@ -303,45 +303,42 @@ export default {
         this.timeout(this.$fetch, 250)
         return 
       }
+
       this.reset()
-      this.isBusy = true
-      this.committed = false
-      this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-        type: this.axiosType,
-        query: this.qryType,
-        start: this.dateRange.begin,
-        end: this.dateRange.end,
-        reload: this.forceReload
-      }).then(({ data }) => {
-        this.rows = data.raw || []
-        this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-        const remain_ms = data.cache_remaining_time
-        if (remain_ms && remain_ms > 0) {
-          this.setCache(this.cacheKey, data, remain_ms)
-        }
-      }).catch(err => {
-        this.alert(err.message)
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-        this.forceReload = false
+      const json = await this.getCache(this.cacheKey);
+      if (json) {
+        this.rows = json.raw
         this.committed = true
-      })
+        this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
+      } else {
+        this.isBusy = true
+        this.committed = false
+        this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+          type: this.axiosType,
+          query: this.qryType,
+          start: this.dateRange.begin,
+          end: this.dateRange.end,
+          reload: this.forceReload
+        }).then(({ data }) => {
+          this.rows = data.raw || []
+          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+          const remain_s = data.cache_remaining_time
+          const remain_ms = remain_s * 1000
+          if (remain_ms && remain_ms > 0) {
+            this.setCache(this.cacheKey, data, remain_ms)
+          }
+        }).catch(err => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+          this.forceReload = false
+          this.committed = true
+        })
+      }
     }
   },
   methods: {
-    cached () {
-      this.reset()
-      this.getCache(this.cacheKey).then(json => {
-        if (json === false) {
-          this.$fetch()
-        } else {
-          this.rows = json.raw
-          this.committed = true
-          this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
-        }
-      })
-    },
     reload () {
       this.forceReload = true
       this.$fetch()
