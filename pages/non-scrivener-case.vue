@@ -129,10 +129,6 @@ export default {
     clickedId: undefined,
     forceReload: false,
     committed: false,
-    startDateObj: null,
-    startDate: '1100201',
-    endDateObj: null,
-    endDate: '1100228',
     tyOfficeMap: {
       '中壢': 45000808,
       '楊梅':	43717356,
@@ -318,6 +314,20 @@ export default {
       }
     ]
   }),
+  async asyncData(nuxt) {
+    const today = new Date()
+    const yesterday = new Date(new Date().setDate(new Date().getDate()-1))
+    const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    return {
+      startDate: `${firstDayofMonth.getFullYear() - 1911}${("0" + (firstDayofMonth.getMonth()+1)).slice(-2)}${("0" + firstDayofMonth.getDate()).slice(-2)}`,
+      endDate: `${lastDayofMonth.getFullYear() - 1911}${("0" + (lastDayofMonth.getMonth()+1)).slice(-2)}${("0" + lastDayofMonth.getDate()).slice(-2)}`,
+      firstDayofMonth,
+      lastDayofMonth,
+      today,
+      yesterday
+    }
+  },
   computed: {
     md5Hash () {
       return this.$utils.md5(`${this.startDate}_${this.endDate}_${this.ignoreTags.join('')}`)
@@ -326,14 +336,6 @@ export default {
       const key = this.caseType === 'reg' ? `non_scrivener_reg_case_${this.md5Hash}` : `non_scrivener_sur_case_${this.md5Hash}`
       return key
     },
-    firstDayofMonth () {
-      return new Date(this.today.getFullYear(), this.today.getMonth(), 1)
-    },
-    lastDayofMonth () {
-      return new Date(this.today.getFullYear(), this.today.getMonth() + 1, 0)
-    },
-    yesterday () { return new Date(new Date().setDate(new Date().getDate()-1)) },
-    today () { return new Date() },
     captionRange () {
       return `【${this.startDate.substring(0, 3)}-${this.startDate.substring(3, 5)}-${this.startDate.substring(5)} ~ ${this.endDate.substring(0, 3)}-${this.endDate.substring(3, 5)}-${this.endDate.substring(5)}】`
     },
@@ -384,7 +386,7 @@ export default {
     loadReg () {
       // restore cached data if found
       this.getCache(this.cacheKey).then(json => {
-        if (json === false || this.forceReload) {
+        if (this.forceReload || json === false) {
           if(this.isBusy) {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
           } else {
@@ -430,7 +432,7 @@ export default {
     loadSur () {
       // restore cached data if found
       this.getCache(this.cacheKey).then(json => {
-        if (json === false || this.forceReload) {
+        if (this.forceReload || json === false) {
           if(this.isBusy) {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
           } else {
