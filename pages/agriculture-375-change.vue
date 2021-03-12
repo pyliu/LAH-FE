@@ -282,7 +282,7 @@ export default {
   },
   watch: {
     daysPeriod (val) {
-      if (val < 0) {
+      if (val < 1) {
         this.alert(`開始日期應小於或等於結束日期`, { pos: 'tr' })
       } else if (val > this.warnDays) {
         this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
@@ -298,9 +298,6 @@ export default {
         if (!ans) {
           return
         }
-      } else if (this.isWrongDaysPeriod) {
-        this.notify('請選擇正確日期區間', { type: 'warning' })
-        return
       } else if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
         this.$utils.warn('dateRange is not ready ... postpone $fetch')
         this.timeout(this.$fetch, 250)
