@@ -94,7 +94,7 @@ export default {
   },
   fetch () {
     this.getCache(this.cacheKey).then(json => {
-      if (json === false) {
+      if (this.forceReload || json === false) {
         if(!this.isBusy) {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.PREFETCH, {
@@ -103,11 +103,12 @@ export default {
           }).then(({ data }) => {
             this.bakedData = data.baked || []
             this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-            const remain_ms = data.cache_remaining_time
+            const remain_s = data.cache_remaining_time
+            const remain_ms = remain_s * 1000
             if (remain_ms && remain_ms > 0) {
               this.setCache(this.cacheKey, data, remain_ms)
               // use server side cache remaining time
-              this.$refs.countdown && this.$refs.countdown.setCountdown(remain_ms * 1000)
+              this.$refs.countdown && this.$refs.countdown.setCountdown(remain_ms)
             } else {
               this.$refs.countdown && this.$refs.countdown.setCountdown(this.cachedMs)
             }
