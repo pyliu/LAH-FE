@@ -122,7 +122,7 @@ export default {
   },
   fetch () {
     this.getCache(this.cacheKey).then((json) => {
-      if (json === false) {
+      if (this.forceReload === true || json === false) {
         if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
           this.$utils.warn('dateRange is not ready ... postpone $fetch')
           this.timeout(this.$fetch, 250) 
