@@ -34,7 +34,7 @@
             icon="search"
             size="lg"
             title="搜尋"
-            :disabled="isBusy || $utils.empty(qryType)"
+            :disabled="isBusy || $utils.empty(qryType) || !validDateRange"
             @click="$fetch"
             no-icon-gutter
           )
@@ -48,7 +48,7 @@
             title="強制重新搜尋"
             no-badge
             :milliseconds="0"
-            :disabled="isBusy || $utils.empty(qryType)"
+            :disabled="isBusy || $utils.empty(qryType) || !validDateRange"
             :busy="isBusy"
             @end="reload"
             @click="reload"
@@ -225,15 +225,16 @@ export default {
       }
     },
     caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
-    cacheKey () { return `reg_trust_case_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` }
+    cacheKey () { return `reg_trust_case_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` },
+    validDateRange () { return this.dateRange.days > 0 }
   },
   async fetch () {
       if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
         this.$utils.warn('dateRange is not ready ... postpone $fetch')
         this.timeout(this.$fetch, 250)
       } else if(this.isBusy) {
-        process.client && this.notify('讀取中 ... 請稍後', { type: 'warning' })
-      } else {
+        this.notify('讀取中 ... 請稍後', { type: 'warning' })
+      } else if (this.validDateRange) {
         this.isBusy = true
         this.committed = false
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
@@ -244,13 +245,13 @@ export default {
           reload: this.forceReload
         }).then(({ data }) => {
           this.rows = data.raw || []
-          process.client && this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
           const remain_ms = data.cache_remaining_time
           if (remain_ms && remain_ms > 0 && process.client) {
             this.setCache(this.cacheKey, data, remain_ms)
           }
         }).catch(err => {
-          process.client && this.alert(err.message)
+          this.alert(err.message)
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
