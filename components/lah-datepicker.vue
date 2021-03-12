@@ -61,11 +61,11 @@ export default {
     this.lastDayofMonth = lastDayofMonth
   },
   watch: {
-    startDateObj (val) {
-      this.$emit("input", { ...this.value, begin: this.twDate(val), days: this.days })
+    startDateObj (dontcare) {
+      this.$emit("input", this.latestValue)
     },
-    endDateObj (val) {
-      this.$emit("input", { ...this.value, end: this.twDate(val), days: this.days })
+    endDateObj (dontcare) {
+      this.$emit("input", this.latestValue)
     }
   },
   computed: {
@@ -81,6 +81,13 @@ export default {
         return false
       }
       return null
+    },
+    latestValue () {
+      return {
+        begin: this.twDate(this.startDateObj),
+        end:  this.twDate(this.endDateObj),
+        days: this.days
+      }
     }
   },
   methods: {
@@ -91,6 +98,8 @@ export default {
   mounted () {
     // b-datepicker label centering/nowrap hack
     this.$("label.form-control.form-control-sm").addClass('my-auto text-nowrap')
+    // tell outside the component is ready and emit the latest value
+    this.$emit('ready', this.latestValue)
   }
 }
 </script>

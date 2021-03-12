@@ -24,7 +24,7 @@
 
         .d-flex.small
           b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") 查詢區間 {{ daysPeriod }} 天
-          lah-datepicker.mr-1(v-model="dateRange")
+          lah-datepicker.mr-1(v-model="dateRange" @ready="ready")
           
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
@@ -302,8 +302,7 @@ export default {
         this.notify('請選擇正確日期區間', { type: 'warning' })
         return
       } else if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
-        this.$utils.warn('dateRange is not ready ... postpone fetching')
-        this.timeout(this.$fetch, 200)
+        this.$utils.warn('dateRange is not ready ... skip fetch')
         return 
       }
       this.reset()
@@ -344,6 +343,12 @@ export default {
           this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
         }
       })
+    },
+    ready (range) {
+      this.dateRange.begin = range.begin
+      this.dateRange.end = range.end
+      this.dateRange.days = range.days
+      this.$fetch()
     },
     reload () {
       this.forceReload = true
