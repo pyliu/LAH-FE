@@ -21,35 +21,7 @@
             //- lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件年字號」開啟案件詳情視窗
             lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/trust/HF") 切換為八德版本
         .d-flex.small
-          client-only
-            b-datepicker(
-              v-model="startDateObj"
-              placeholder="開始日期"
-              boundary="viewport"
-              size="sm"
-              title="開始日期"
-              :date-format-options="{ weekday: 'narrow' }"
-              :max="yesterday"
-              value-as-date
-              hide-header
-              dropleft
-              v-b-tooltip.hover
-            )
-            .my-auto ～
-            b-datepicker.mr-1(
-              v-model="endDateObj"
-              placeholder="截止日期"
-              boundary="viewport"
-              size="sm"
-              title="截止日期"
-              :date-format-options="{ weekday: 'narrow' }"
-              :max="today"
-              :min="startDateObj"
-              value-as-date
-              hide-header
-              dark
-              v-b-tooltip.hover
-            )
+          lah-datepicker.mr-1(v-model="dateRange")
 
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
@@ -166,9 +138,12 @@ export default {
     modalId: 'this should be an uuid',
     modalLoading: true,
     clickedId: undefined,
-    startDate: '1100301',
-    endDate: '1100331',
     rows: [],
+    dateRange: {
+      begin: '',
+      end: '',
+      days: 0
+    },
     pagination: {
       perPage: 25,
       currentPage: 1
@@ -235,15 +210,6 @@ export default {
     ],
     maxHeight: 600
   }),
-  asyncData () {
-    const today = new Date()
-    return {
-      startDateObj: new Date(today.getFullYear(), today.getMonth(), 1), // firstDayofMonth
-      endDateObj: new Date(today.getFullYear(), today.getMonth() + 1, 0),  // lastDayofMonth
-      yesterday: new Date(new Date().setDate(today.getDate()-1)),
-      today: today
-    }
-  },
   computed: {
     queryCount () { return this.rows.length },
     qryTypeText () {
@@ -259,18 +225,13 @@ export default {
       }
     },
     caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
-    cacheKey () { return `reg_trust_case_${this.qryType}_${this.startDate}_${this.endDate}` }
-  },
-  watch: {
-    startDateObj (val) {
-      val && (this.startDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
-    },
-    endDateObj (val) {
-      val && (this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`)
-    }
+    cacheKey () { return `reg_trust_case_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` }
   },
   async fetch () {
-      if(this.isBusy) {
+      if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+        this.$utils.warn('dateRange is not ready ... postpone $fetch')
+        this.timeout(this.$fetch, 250)
+      } else if(this.isBusy) {
         process.client && this.notify('讀取中 ... 請稍後', { type: 'warning' })
       } else {
         this.isBusy = true
@@ -278,8 +239,8 @@ export default {
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
           type: `trust_query`,
           query: this.qryType,
-          start: this.startDate,
-          end: this.endDate,
+          start: this.dateRange.begin,
+          end: this.dateRange.end,
           reload: this.forceReload
         }).then(({ data }) => {
           this.rows = data.raw || []
