@@ -5,10 +5,10 @@
         .my-auto 取消請示案件
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
-          .h5 利用下面介面操作資料搜尋時間：
-          .d-flex.my-2.text-nowrap
-            b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
-            .my-auto.mr-2 {{months}}個月內
+          .h5 搜尋說明：
+          ul
+            li 根據收件日期區間查詢
+            li 取消請示日期(RM83)欄位不為空值之案件
           hr
           .h5 取消請示案件狀態說明：
           .mx-2: lah-fa-icon(icon="circle" variant="danger") 有申請取消請示紀錄且#[strong.text-danger 已]逾期案件
