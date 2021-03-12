@@ -62,7 +62,7 @@ import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
   components: { lahFaIcon },
   head: {
-    title: "即將逾期案件-桃園市地政局"
+    title: `即將(已)逾期案件-桃園市地政局`
   },
   middleware: [ 'expireAuth' ],
   mixins: [expiryBase],
