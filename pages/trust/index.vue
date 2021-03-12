@@ -36,7 +36,7 @@
             size="lg"
             title="搜尋"
             :disabled="isBusy || $utils.empty(qryType) || !validDateRange"
-            @click="$fetch"
+            @click="cached"
             no-icon-gutter
           )
           lah-countdown-button(
