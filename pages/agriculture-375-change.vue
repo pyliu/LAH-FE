@@ -306,7 +306,7 @@ export default {
 
       this.reset()
       const json = await this.getCache(this.cacheKey);
-      if (json) {
+      if (this.forceReload !== true && json) {
         this.rows = json.raw
         this.committed = true
         this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
