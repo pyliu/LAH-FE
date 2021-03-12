@@ -19,38 +19,36 @@
             :options="caseTypeOpts"
           )
           b-datepicker(
-            value-as-date
             v-model="startDateObj"
             placeholder="開始日期"
             boundary="viewport"
             size="sm"
             :date-format-options="{ weekday: 'narrow' }"
             :max="yesterday"
+            value-as-date
             hide-header
             dropleft
           )
           .my-auto ～
-          b-datepicker(
-            value-as-date
+          b-datepicker.mr-1(
             v-model="endDateObj"
             placeholder="截止日期"
             boundary="viewport"
-            class="mr-1"
             size="sm"
-            dark
             :date-format-options="{ weekday: 'narrow' }"
             :max="today"
             :min="startDateObj"
             hide-header
+            dark
+            value-as-date
           )
-          lah-button(
+          lah-button.mr-1(
             icon="search"
             size="lg"
+            title="搜尋"
             @click="$fetch"
             :disabled="isBusy"
             :busy="isBusy"
-            title="搜尋"
-            class="mr-1"
             no-icon-gutter
           )
           lah-countdown-button(
@@ -58,14 +56,14 @@
             icon="sync-alt"
             action="ld-cycle"
             size="lg"
-            :milliseconds="0"
-            @end="reload"
-            @click="reload"
-            :disabled="isBusy"
-            :busy="isBusy"
             variant="outline-secondary"
             badge-variant="secondary"
             title="強制重新搜尋"
+            :milliseconds="0"
+            :disabled="isBusy"
+            :busy="isBusy"
+            @end="reload"
+            @click="reload"
             no-badge
           )
     .d-flex.justify-content-between.mb-1
@@ -400,11 +398,12 @@ export default {
             }).then(({ data }) => {
               this.regBakedData = data.baked || []
               this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-              const remain_ms = data.cache_remaining_time // in seconds
+              const remain_s = data.cache_remaining_time // in seconds
+              const remain_ms = remain_s * 1000
               if (remain_ms && remain_ms > 0) {
-                this.setCache(this.cacheKey, data, remain_ms * 1000)
+                this.setCache(this.cacheKey, data, remain_ms)
                 if (this.$refs.countdown) {
-                  this.$refs.countdown.setCountdown(remain_ms * 1000)
+                  this.$refs.countdown.setCountdown(remain_ms)
                   this.$refs.countdown.startCountdown()
                 }
               }
@@ -445,11 +444,12 @@ export default {
             }).then(({ data }) => {
               this.surBakedData = data.baked || []
               this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-              const remain_ms = data.cache_remaining_time // in seconds
+              const remain_s = data.cache_remaining_time // in seconds
+              const remain_ms = remain_s * 1000
               if (remain_ms && remain_ms > 0) {
-                this.setCache(this.cacheKey, data, remain_ms * 1000)
+                this.setCache(this.cacheKey, data, remain_ms)
                 if (this.$refs.countdown) {
-                  this.$refs.countdown.setCountdown(remain_ms * 1000)
+                  this.$refs.countdown.setCountdown(remain_ms)
                   this.$refs.countdown.startCountdown()
                 }
               }
