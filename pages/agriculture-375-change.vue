@@ -304,38 +304,39 @@ export default {
         return 
       }
 
-      this.reset()
-      const json = await this.getCache(this.cacheKey);
-      if (this.forceReload !== true && json) {
-        this.rows = json.raw
-        this.committed = true
-        this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
-      } else {
-        this.isBusy = true
-        this.committed = false
-        this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-          type: this.axiosType,
-          query: this.qryType,
-          start: this.dateRange.begin,
-          end: this.dateRange.end,
-          reload: this.forceReload
-        }).then(({ data }) => {
-          this.rows = data.raw || []
-          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-          const remain_s = data.cache_remaining_time
-          const remain_ms = remain_s * 1000
-          if (remain_ms && remain_ms > 0) {
-            this.setCache(this.cacheKey, data, remain_ms)
-          }
-        }).catch(err => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-          this.forceReload = false
+      this.getCache(this.cacheKey).then((json) => {
+        this.reset()
+        if (this.forceReload !== true && json) {
+          this.rows = json.raw
           this.committed = true
-        })
-      }
+          this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
+        } else {
+          this.isBusy = true
+          this.committed = false
+          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+            type: this.axiosType,
+            query: this.qryType,
+            start: this.dateRange.begin,
+            end: this.dateRange.end,
+            reload: this.forceReload
+          }).then(({ data }) => {
+            this.rows = data.raw || []
+            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+            const remain_s = data.cache_remaining_time
+            const remain_ms = remain_s * 1000
+            if (remain_ms && remain_ms > 0) {
+              this.setCache(this.cacheKey, data, remain_ms)
+            }
+          }).catch(err => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+            this.forceReload = false
+            this.committed = true
+          })
+        }
+      })
     }
   },
   methods: {
