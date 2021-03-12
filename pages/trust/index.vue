@@ -280,7 +280,6 @@ export default {
       this.committed = false
       this.rows = []
       this.currentPage = 1
-      this.forceReload = false
     },
     popup (data) {
       this.modalLoading = true
