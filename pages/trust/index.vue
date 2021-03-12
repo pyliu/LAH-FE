@@ -27,6 +27,7 @@
             ref="type"
             v-model="qryType"
             :options="qryTypes"
+            :disabled="!validDateRange"
             @change="cached"
           ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇案件類型 --
           lah-button.mr-1(

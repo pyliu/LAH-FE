@@ -84,6 +84,10 @@ export default {
       })
         return false
       }
+      // hack for b-datepicker label centering/nowrap
+      this.$nextTick(() => {
+        this.$("label.form-control.form-control-sm").addClass('my-auto text-nowrap')
+      })
       return null
     },
     latestValue () {

@@ -23,13 +23,13 @@
               li 土地所有權部
 
         .d-flex.small
-          b-badge.my-auto.mr-1(v-if="isWrongDaysPeriod || daysPeriod > warnDays" pill :variant="isWrongDaysPeriod ? 'danger' : 'warning'") 查詢區間 {{ daysPeriod }} 天
           lah-datepicker.mr-1(v-model="dateRange")
           
           b-input-group.text-nowrap.mr-1: b-form-select.h-100(
             ref="type"
             v-model="qryType"
             :options="qryTypes"
+            :disabled="isWrongDaysPeriod"
             @change="cached"
           ): template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇查詢類型 --
           lah-button.mr-1(
@@ -278,7 +278,7 @@ export default {
     cacheKey () { return `query_375_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` },
     foundText () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     daysPeriod () { return this.dateRange.days || 0 },
-    isWrongDaysPeriod () { return this.daysPeriod < 0 }
+    isWrongDaysPeriod () { return this.daysPeriod < 1 }
   },
   watch: {
     daysPeriod (val) {
