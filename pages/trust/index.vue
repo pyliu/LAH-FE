@@ -247,7 +247,7 @@ export default {
           this.rows = data.raw || []
           this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
           const remain_ms = data.cache_remaining_time
-          if (remain_ms && remain_ms > 0 && process.client) {
+          if (remain_ms && remain_ms > 0) {
             this.setCache(this.cacheKey, data, remain_ms)
           }
         }).catch(err => {
