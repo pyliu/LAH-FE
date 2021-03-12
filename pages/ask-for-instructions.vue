@@ -85,6 +85,10 @@ export default {
         sortable: true,
       },
       {
+        key: "收件日期",
+        sortable: true,
+      },
+      {
         key: "登記原因",
         sortable: true,
       },
