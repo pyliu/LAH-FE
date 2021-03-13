@@ -157,11 +157,12 @@ export default {
               type: this.$utils.statusCheck(data.status) ? 'info' : 'warning',
               subtitle: `${this.year}-${this.month}`
             })
-            const remain_ms = data.cache_remaining_time // in seconds
+            const remain_s = data.cache_remaining_time // in seconds
+            const remain_ms = remain_s * 1000
             if (remain_ms && remain_ms > 0) {
-              this.setCache(this.cacheKey, data, remain_ms * 1000)
+              this.setCache(this.cacheKey, data, remain_ms)
               if (this.$refs.countdown) {
-                this.$refs.countdown.setCountdown(remain_ms * 1000)
+                this.$refs.countdown.setCountdown(remain_ms)
                 this.$refs.countdown.startCountdown()
               }
             }
