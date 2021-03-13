@@ -37,8 +37,6 @@
         :busy="isBusy"
         :baked-data="bakedData"
         :fields="fields"
-        :per-page="perPage"
-        :current-page="currentPage"
         only-popup-detail
       )
       h3.text-center(v-else): lah-fa-icon(icon="search" action="breath" variant="primary") 請滑動月份
@@ -66,8 +64,6 @@ export default {
       month: defMonth,
       cachedMs: 24 * 60 * 60 * 1000,
       committed: false,
-      currentPage: 1,
-      perPage: 25,
       rangeMax: 24,
       rangeStep: 23,
       rangeBase: rangeBase,
@@ -178,7 +174,6 @@ export default {
       } else {
         this.bakedData = json.baked
         this.committed = true
-        this.currentPage = 1
         this.notify(`查詢成功，找到 ${this.bakedData.length} 筆外國人地權案件。`, { subtitle: `${this.cacheKey}(快取)` })
         this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
           if (this.$refs.countdown) {
