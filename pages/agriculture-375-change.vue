@@ -310,6 +310,10 @@ export default {
         if (this.forceReload !== true && json) {
           this.rows = json.raw
           this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+            if (this.$refs.countdown) {
+              this.$refs.countdown.setCountdown(remaining)
+              this.$refs.countdown.startCountdown()
+            }
             this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
           this.committed = true
@@ -329,6 +333,10 @@ export default {
             const remain_ms = remain_s * 1000
             if (remain_ms && remain_ms > 0) {
               this.setCache(this.cacheKey, data, remain_ms)
+              if (this.$refs.countdown) {
+                this.$refs.countdown.setCountdown(remain_ms)
+                this.$refs.countdown.startCountdown()
+              }
             }
           }).catch(err => {
             this.alert(err.message)
