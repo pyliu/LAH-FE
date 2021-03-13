@@ -294,11 +294,11 @@ export default ({ $axios, store }, inject) => {
       const hours = (remain_ms / (1000 * 60 * 60)).toFixed(1);
       const days = (remain_ms / (1000 * 60 * 60 * 24)).toFixed(1);
       if (seconds < 60) {
-        return seconds + "s";
+        return seconds + " 秒";
       } else if (minutes < 60) {
-        return minutes + "min";
+        return minutes + " 分鐘";
       } else if (hours < 24) {
-        return hours + "hr";
+        return hours + " 小時";
       } else {
         return days + " 天"
       }
