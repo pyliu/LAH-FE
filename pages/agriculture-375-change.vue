@@ -65,8 +65,9 @@
       :caption="foundText"
     )
 
-    lah-transition(appear)
+    lah-transition
       b-table.text-center(
+        v-if="committed"
         id="a375-table"
         ref="table"
         caption-top
@@ -308,8 +309,8 @@ export default {
         this.reset()
         if (this.forceReload !== true && json) {
           this.rows = json.raw
-          this.committed = true
           this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
+          this.committed = true
         } else {
           this.isBusy = true
           this.committed = false
