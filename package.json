@@ -9,7 +9,8 @@
     "generate": "nuxt generate",
     "post-update": "yarn upgrade --latest",
     "lint:js": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
-    "lint": "yarn lint:js"
+    "lint": "yarn lint:js",
+    "socket": "node socket/index.js"
   },
   "dependencies": {
     "@chenfengyuan/vue-countdown": "^1.1.5",
