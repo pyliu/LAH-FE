@@ -188,7 +188,10 @@
         >{{ item["結案人員"] }}</a>
       </template>
       <template #cell(校對日期)="{ item }">
-        {{ item.校對日期.split(' ')[0] }}
+        <span class="text-nowrap">{{ item.校對日期.split(' ')[0] }}</span>
+      </template>
+      <template #cell(收件日期)="{ item }">
+        <span class="text-nowrap">{{ item.收件日期 }}</span>
       </template>
     </b-table>
     <b-modal
