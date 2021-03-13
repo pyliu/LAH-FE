@@ -1,41 +1,43 @@
 <template lang="pug">
-.test3
-  client-only
+div
+  lah-header
+  .msg-container
     .msg(ref="box")
-      p(v-for="item in list", :class="[item.type, 'msg-item']")
-        p {{ item.content }}
-    .input-group
-      input(type="text", v-model="contentText")
-      button(@click="sendText") 傳送
+      div(v-for="item in list", :class="[item.type, 'msg-item']")
+        p {{ item.message }}
+    b-input-group
+      b-input(v-model="text" @keyup.enter="sendText")
+      lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
 </template>
 
 <script>
 export default {
-  name: "index3",
-  data() {
-    return {
-      list: [
-        { type: '', content: 'test1'}
-      ], //聊天記錄的陣列
-      contentText: "", //input輸入的值
-    }
+  head: {
+    title: '測試訊息'
   },
+  asyncData ({ store, redirect, error }) {
+  },
+  data: () => ({
+    list: [
+      { type: 'robot', message: '您可以輸入訊息了~我會重複您輸入的字串。' }
+    ],
+    text: ''
+  }),
   methods: {
-    //傳送聊天資訊
     sendText() {
-      this.list = [...this.list, { type: "mine", content: this.contentText }] //通過type欄位進行區分是自己（mine）發的還是系統（robot）返回的
+      this.list = [...this.list, { type: "mine", message: this.text }]
       this.backText(() => {
-        this.contentText = "" //加回撥在得到返回資料的時候清除輸入框的內容
+        // received remote text clear mine
+        this.text = ''
       })
     },
     backText (callback) {
       if (window.WebSocket) {
-        const that = this
         const ws = new WebSocket("ws://127.0.0.1:8001")
-        ws.onopen = function (e) {
+        ws.onopen = (e) => {
           console.log("連結伺服器成功")
-          console.log("that.contentText is", that.contentText)
-          ws.send(that.contentText)
+          console.log("this.text is", this.text)
+          ws.send(this.text)
           callback()
         }
         ws.onclose = function (e) {
@@ -44,36 +46,39 @@ export default {
         ws.onerror = function () {
           console.log("伺服器出錯")
         }
-        ws.onmessage = function (e) {
-          that.list = [...that.list, { type: "robot", content: e.data }]
+        ws.onmessage = (e) => {
+          this.list = [...this.list, { type: "robot", message: e.data }]
         }
       }
     },
   },
   watch: {
-    //監聽list,當有修改的時候進行p的螢幕捲動，確保能看到最新的聊天
     list () {
-      setTimeout(() => {
+      // watch list to display the latest chat
+      // Vue VDOME workaround ... to display the last message
+      this.$nextTick(() => {
         this.$refs.box.scrollTop = this.$refs.box.scrollHeight
-      }, 0)
-      //加setTimeout的原因：由於vue採用虛擬dom，我每次生成新的訊息時獲取到的p的scrollHeight的值是生成新訊息之前的值，所以造成每次都是最新的那條訊息被隱藏掉了
+      })
     },
   },
-  mounted() {},
+  // mounted() {},
 }
 </script>
 
 <style scoped lang="scss">
-.test3 {
-  text-align: center;
+.msg-container {
+  margin-top: -67px;
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 480px;
 }
 
 .msg {
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 85vh;
   overflow: auto;
   padding-top: 5px;
-  border: 1px solid red;
+  border: 1px solid gray;
   display: inline-block;
   margin-bottom: 6px;
 
@@ -96,7 +101,7 @@ export default {
     &.mine {
       p {
         float: right;
-        background: aquamarine;
+        background: rgb(2, 182, 32);
         color: white;
       }
     }
