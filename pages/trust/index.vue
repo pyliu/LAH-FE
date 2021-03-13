@@ -265,7 +265,9 @@ export default {
           } else {
             this.rows = json.raw
             this.committed = true
-            this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `${this.qryType}(快取)` })
+            this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+              this.notify(`查詢成功，找到 ${this.rows.length} 筆資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            })
           }
         })
 

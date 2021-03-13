@@ -129,7 +129,9 @@ export default {
       } else {
         this.bakedData = json.baked
         this.resetCountdown()
-        this.notify(`查詢成功，找到 ${this.bakedData.length} 筆公告中資料。`, { subtitle: `${this.cacheKey}(快取)` })
+        this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          this.notify(`查詢成功，找到 ${this.bakedData.length} 筆公告中資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+        })
       }
     })
   },

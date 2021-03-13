@@ -309,7 +309,9 @@ export default {
         this.reset()
         if (this.forceReload !== true && json) {
           this.rows = json.raw
-          this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `${this.qryType}(快取)` })
+          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+            this.notify(`查詢成功，找到 ${this.rows.length} 筆375租約異動資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+          })
           this.committed = true
         } else {
           this.isBusy = true
