@@ -11,10 +11,11 @@
               b-form-input.my-auto(type="range" v-model="rangeStep" min="1" max="24")
               span.my-auto.mr-2 {{ year }}-{{ month }}
         .d-flex
-          b-input-group.vw-50.mr-2(size="sm")
-            template(#prepend): b-input-group-text: lah-fa-icon.font-weight-bold(icon="calendar" regular).
-              {{year}}年{{month}}月
-            b-form-input.my-auto(type="range" v-model="rangeStep" min="1" max="24")
+          lah-datepicker.mr-1(v-model="dateRange")
+          //- b-input-group.vw-50.mr-2(size="sm")
+          //-   template(#prepend): b-input-group-text: lah-fa-icon.font-weight-bold(icon="calendar" regular).
+          //-     {{year}}年{{month}}月
+          //-   b-form-input.my-auto(type="range" v-model="rangeStep" min="1" max="24")
           lah-countdown-button(
             ref="countdown"
             icon="sync-alt"
@@ -33,13 +34,14 @@
             no-badge
           )
     lah-transition
-      div(v-if="committed"): lah-reg-b-table(
+      lah-reg-b-table(
+        only-popup-detail
         :busy="isBusy"
         :baked-data="bakedData"
         :fields="fields"
-        only-popup-detail
+        v-if="committed"
       )
-      h3.text-center(v-else): lah-fa-icon(icon="search" action="breath" variant="primary") 請滑動月份
+      h3.text-center(v-else): lah-fa-icon(icon="search" action="breath" variant="primary") 請案搜尋按鈕
 </template>
 
 <script>
@@ -60,6 +62,11 @@ export default {
     const rangeBase = (now.getFullYear() - 1911) * 12 + now.getMonth() + 1
     return {
       forceReload: false,
+      dateRange: {
+        beigh: '',
+        end: '',
+        days: 0
+      },
       year: year,
       month: defMonth,
       cachedMs: 24 * 60 * 60 * 1000,
