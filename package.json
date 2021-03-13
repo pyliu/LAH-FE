@@ -33,6 +33,7 @@
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
     "node-sass": "5.0.0",
+    "nodejs-websocket": "^1.7.2",
     "nuxt": "^2.15.2",
     "nuxt-fontawesome": "^0.4.0",
     "pm2": "^4.5.5",
