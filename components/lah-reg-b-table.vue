@@ -187,6 +187,9 @@
           v-b-popover.top.hover.focus.html="passedTime(item, item.ELAPSED_TIME['結案'])"
         >{{ item["結案人員"] }}</a>
       </template>
+      <template #cell(校對日期)="{ item }">
+        {{ item.校對日期.split(' ')[0] }}
+      </template>
     </b-table>
     <b-modal
       :id="modalId"
