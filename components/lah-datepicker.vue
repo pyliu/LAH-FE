@@ -92,15 +92,10 @@ export default {
     },
     latestValue () {
       return {
-        begin: this.twDate(this.startDateObj),
-        end:  this.twDate(this.endDateObj),
+        begin: this.$utils.twDateStr(this.startDateObj),
+        end:  this.$utils.twDateStr(this.endDateObj),
         days: this.days
       }
-    }
-  },
-  methods: {
-    twDate (obj) {
-      return `${obj.getFullYear() - 1911}${("0" + (obj.getMonth()+1)).slice(-2)}${("0" + obj.getDate()).slice(-2)}`
     }
   },
   mounted () {

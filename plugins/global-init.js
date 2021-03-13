@@ -303,6 +303,13 @@ export default ({ $axios, store }, inject) => {
         return days + " 天"
       }
     },
+    twDateStr(dateObj) {
+      if (typeof dateObj !== "object") {
+        console.warn('twDateStr', dateObj, 'is not an object')
+        return ``
+      }
+      return `${dateObj.getFullYear() - 1911}${("0" + (dateObj.getMonth()+1)).slice(-2)}${("0" + dateObj.getDate()).slice(-2)}`
+    },
     log: console.log.bind(console),
     warn: console.warn.bind(console),
     assert: console.assert.bind(console),
