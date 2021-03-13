@@ -60,7 +60,7 @@
 <script>
 export default {
   head: {
-    title: "請示未結案件-桃園市地政局",
+    title: "取消請示案件查詢-桃園市地政局",
   },
   fetchOnServer: false,
   data: () => ({
