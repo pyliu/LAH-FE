@@ -114,6 +114,8 @@ export default {
   // available using $config in both server and client.
   publicRuntimeConfig: {
     perPage: process.env.PER_PAGE,
+    websocketHost: process.env.WEBSOCKET_HOST,
+    websocketPort: process.env.WEBSOCKET_PORT,
     axios: {
       // Default: baseURL; when the proxy option is true, it will become PREFIX instead of baseURL
       browserBaseURL: process.env.BROWSER_BASE_URL

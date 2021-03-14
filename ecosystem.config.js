@@ -16,5 +16,16 @@ module.exports = {
     watch: true,
     ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git"],
     max_memory_restart: '256M',
+  }, {
+    name: 'LAH-WEBSOCKET',
+    exec_mode: 'cluster',
+    instances: -1,
+    script: './socket/index.js',
+    args: 'socket',
+    cron_restart: '0 7 * * *',
+    time: true,
+    watch: true,
+    ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git"],
+    max_memory_restart: '256M',
   }]
 }

@@ -48,10 +48,9 @@ export default {
     },
     backText (callback) {
       if (window.WebSocket) {
-        const ws = new WebSocket("ws://127.0.0.1:8001")
+        const ws = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
         ws.onopen = (e) => {
-          console.log("連結伺服器成功")
-          console.log("this.text is", this.text)
+          console.log(`連結伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
           ws.send(this.text)
           callback()
         }
@@ -76,7 +75,9 @@ export default {
       })
     },
   },
-  // mounted() {},
+  mounted() {
+    console.log(this.$config)
+  },
 }
 </script>
 
@@ -107,7 +108,7 @@ export default {
       color: white;
       padding: 2px 12px;
       margin: 0 0 2px 0;
-      max-width: 70%;
+      max-width: 60%;
       text-align: left;
       box-sizing: border-box;
     }
