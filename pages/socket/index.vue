@@ -3,8 +3,10 @@ div
   lah-header
   .msg-container
     .msg(ref="box")
-      div(v-for="item in list", :class="[item.type, 'msg-item']")
-        p {{ item.message }}
+      .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
+        p(v-if="item.type === 'remote'") {{ item.text }}
+        .time.s-50.mx-1.text-muted {{ item.time }}
+        p(v-if="item.type === 'mine'") {{ item.text }}
     b-input-group
       b-input(v-model="text" @keyup.enter="sendText")
       lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
@@ -16,16 +18,29 @@ export default {
     title: '測試訊息'
   },
   asyncData ({ store, redirect, error }) {
+    const now = new Date()
+    const time = ('0' + now.getHours()).slice(-2) + ':' +
+                 ('0' + now.getMinutes()).slice(-2) + ':' +
+                 ('0' + now.getSeconds()).slice(-2)
+    return {
+      list: [
+        { type: 'remote', text: '您可以輸入訊息了~我會重複您輸入的字串。', time: time }
+      ]
+    }
   },
   data: () => ({
-    list: [
-      { type: 'robot', message: '您可以輸入訊息了~我會重複您輸入的字串。' }
-    ],
     text: ''
   }),
   methods: {
+    msgClass (item) {
+      return [item.type === 'mine' ? 'justify-content-end' : 'justify-content-start', item.type]
+    },
     sendText() {
-      this.list = [...this.list, { type: "mine", message: this.text }]
+      const now = new Date()
+      const time = ('0' + now.getHours()).slice(-2) + ':' +
+                   ('0' + now.getMinutes()).slice(-2) + ':' +
+                   ('0' + now.getSeconds()).slice(-2)
+      this.list = [...this.list, { type: "mine", text: this.text, time: time }]
       this.backText(() => {
         // received remote text clear mine
         this.text = ''
@@ -47,14 +62,14 @@ export default {
           console.log("伺服器出錯")
         }
         ws.onmessage = (e) => {
-          this.list = [...this.list, { type: "robot", message: e.data }]
+          this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
         }
       }
     },
   },
   watch: {
     list () {
-      // watch list to display the latest chat
+      // watch list to display the latest message
       // Vue VDOME workaround ... to display the last message
       this.$nextTick(() => {
         this.$refs.box.scrollTop = this.$refs.box.scrollHeight
@@ -77,20 +92,19 @@ export default {
   width: 100%;
   height: 85vh;
   overflow: auto;
-  padding-top: 5px;
+  padding: 5px;
   border: 1px solid gray;
   display: inline-block;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 
   .msg-item {
     position: relative;
     overflow: hidden;
     p {
       display: inline-block;
-      border-radius: 40px;
+      border-radius: 10px;
       background: #3c3d5a;
       color: white;
-      float: left;
       padding: 2px 12px;
       margin: 0 0 2px 0;
       max-width: 70%;
@@ -100,10 +114,13 @@ export default {
 
     &.mine {
       p {
-        float: right;
         background: rgb(2, 182, 32);
         color: white;
       }
+    }
+    .time {
+      display: inline-block;
+      align-self: flex-end;
     }
   }
 }
