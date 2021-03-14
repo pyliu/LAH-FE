@@ -1,6 +1,5 @@
-require('dotenv').config()
-const ws = require("nodejs-websocket")
 
+require('dotenv').config()
 const timestamp = (date = false) => {
   const now = new Date()
   if (date) {
@@ -20,7 +19,7 @@ const timestamp = (date = false) => {
 }
 
 try {
-
+  const ws = require("nodejs-websocket")
   const server = ws.createServer(function(conn) {
     conn.on("text", function(str) {
       console.log("收到的資訊為", str)
