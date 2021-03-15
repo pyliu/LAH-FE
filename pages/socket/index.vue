@@ -91,7 +91,7 @@ export default {
         this.list = [...this.list, { type: "remote", text: `連結 WebSocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`, time: this.time() }]
       }
       this.websocket.onclose = (e) => {
-        this.list = [...this.list, { type: "remote", text: `WebSocket 伺服器連線已關閉`, time: this.time() }]
+        this.list = [...this.list, { type: "remote", text: `WebSocket 伺服器連線已關閉，無法進行通訊`, time: this.time() }]
       }
       this.websocket.onerror = () => {
         this.list = [...this.list, { type: "remote", text: `WebSocket 伺服器連線出錯`, time: this.time() }]
