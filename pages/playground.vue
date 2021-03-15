@@ -1,6 +1,15 @@
 <template lang="pug">
   div: client-only
-    lah-header
+    lah-header: .d-flex.justify-content-between.w-100
+      .d-flex
+        .my-auto 測試頁面
+        lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-help-modal(:modal-id="'help-modal'"): ul
+          li.text-danger(v-if="!available") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+          li WEBSOCKET_HOST：伺服器IP
+          li WEBSOCKET_PORT：伺服器PORT
+          li 修改前端伺服器之「.env」檔案已變更上開設定值
+      .d-flex
     b-card-group(deck)
       b-card
         div {{ openNewsData }}
