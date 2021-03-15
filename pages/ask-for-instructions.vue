@@ -125,12 +125,12 @@ export default {
     cacheKey() { return `reg_cancel_ask_case_${this.dateRange.begin}_${this.dateRange.end}` }
   },
   async fetch () {
-    this.getCache(this.cacheKey).then((json) => {
-      if (this.forceReload === true || json === false) {
-        if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
-          this.$utils.warn('dateRange is not ready ... postpone $fetch')
-          this.timeout(this.$fetch, 250) 
-        } else {
+    if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+      this.$utils.warn('dateRange is not ready ... postpone $fetch')
+      this.timeout(this.$fetch, 250) 
+    } else {
+      this.getCache(this.cacheKey).then((json) => {
+        if (this.forceReload === true || json === false) {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.PREFETCH, {
             type: 'reg_cancel_ask_case',
@@ -159,15 +159,15 @@ export default {
             this.isBusy = false
             this.forceReload = false
           })
+        } else {
+          this.bakedData = json.baked || []
+          this.resetCountdown()
+          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+            this.notify(`查詢成功，找到 ${this.bakedData.length} 筆取消請示案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+          })
         }
-      } else {
-        this.bakedData = json.baked || []
-        this.resetCountdown()
-        this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
-          this.notify(`查詢成功，找到 ${this.bakedData.length} 筆請示案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
-        })
-      }
-    })
+      })
+    }
   },
   methods: {
     resetCountdown () {
