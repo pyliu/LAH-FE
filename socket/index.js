@@ -27,6 +27,12 @@ try {
         time: timestamp(),
         text: `${str}（機器人）`
       }))
+      setTimeout(() => {
+        conn.send(JSON.stringify({
+          time: timestamp(),
+          text: `${str}（機器人）`
+        }))
+      }, 3000)
     })
     conn.on("close", function(code, reason) {
       console.log(code, reason, "關閉連線")

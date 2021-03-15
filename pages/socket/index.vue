@@ -17,8 +17,8 @@ div
         .time.s-50.mx-1.text-muted {{ item.time }}
         p(v-if="item.type === 'mine'") {{ item.text }}
     b-input-group
-      b-input(v-model="text" @keyup.enter="sendText")
-      lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
+      b-input(v-model="text" @keyup.enter="send")
+      lah-button(@click="send" icon="telegram-plane" brand) 傳送
   h5.center(v-else): lah-fa-icon(icon="exclamation-circle" variant="primary").
     請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
 </template>
@@ -35,7 +35,7 @@ export default {
                  ('0' + now.getSeconds()).slice(-2)
     return {
       list: [
-        { type: 'remote', text: '您可以輸入訊息了~我會重複您輸入的字串。', time: time }
+        { type: 'remote', text: '... 準備中 ...', time: time }
       ]
     }
   },
@@ -47,25 +47,59 @@ export default {
     msgClass (item) {
       return [item.type === 'mine' ? 'justify-content-end' : 'justify-content-start', item.type]
     },
-    sendText() {
+    time () {
       const now = new Date()
       const time = ('0' + now.getHours()).slice(-2) + ':' +
                    ('0' + now.getMinutes()).slice(-2) + ':' +
                    ('0' + now.getSeconds()).slice(-2)
-      this.list = [...this.list, { type: "mine", text: this.text, time: time }]
-      this.backText(() => {
-        // received remote text clear mine
-        this.text = ''
-      })
+      return time
     },
-    backText (callback) {
-      if (this.websocket) {
-          this.websocket.send(this.text)
-          callback()
-      } else {
-        this.notify(`websocket not initialized ... `, { type: "warning" })
+    status (code) {
+      switch (code) {
+        case 0:
+          return '連線中'
+        case 1:
+          return '已連線'
+        case 2:
+          return '關閉中'
+        case 3:
+          return '已關閉'
+        default:
+          return `未定義的代碼(${code})`
       }
     },
+    send () {
+      /**
+       * readyState attr
+       * CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3
+       */
+      if (this.websocket && this.websocket.readyState !== 1) {
+        this.list = [...this.list, { type: "remote", text: `伺服器連線${this.status(this.websocket.readyState)} ...`, time: this.time() }]
+        this.websocket.readyState === 3 && this.connect()
+      }
+      
+      if (this.websocket && this.websocket.readyState === 1) {
+        this.list = [...this.list, { type: "mine", text: this.text, time: this.time() }]
+        this.websocket.send(this.text)
+        // received remote text clear mine
+        this.text = ''
+      }
+    },
+    connect () {
+      this.websocket = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
+      this.websocket.onopen = (e) => {
+        this.list = [...this.list, { type: "remote", text: `連結 WebSocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`, time: this.time() }]
+      }
+      this.websocket.onclose = (e) => {
+        this.list = [...this.list, { type: "remote", text: `WebSocket 伺服器連線已關閉`, time: this.time() }]
+      }
+      this.websocket.onerror = () => {
+        this.list = [...this.list, { type: "remote", text: `WebSocket 伺服器連線出錯`, time: this.time() }]
+      }
+      this.websocket.onmessage = (e) => {
+        this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
+      }
+    }
   },
   watch: {
     list () {
@@ -86,19 +120,7 @@ export default {
       this.pingLatency = data.latency
       this.pingMessage = data.message
       if (this.$utils.statusCheck(data.status)) {
-        this.websocket = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
-        this.websocket.onopen = (e) => {
-          console.log(`連結 websocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
-        }
-        this.websocket.onclose = function (e) {
-          console.log("websocket 伺服器關閉")
-        }
-        this.websocket.onerror = function () {
-          console.log("websocket 伺服器出錯")
-        }
-        this.websocket.onmessage = (e) => {
-          this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
-        }
+        this.connect()
       } else {
         this.notify(data.message, { type: "warning" })
       }
