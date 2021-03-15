@@ -465,8 +465,8 @@ export default {
         } else {
           this.surBakedData = json.baked
           this.doneCommitted()
-          this.notify(`查詢成功，找到 ${this.surBakedData.length} 筆非專業代理人測量案件。`)
           this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+            this.notify(`查詢成功，找到 ${this.surBakedData.length} 筆非專業代理人測量案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
