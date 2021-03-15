@@ -7,6 +7,18 @@
     div {{ openNewsData }}
     p {{ $config.baseURL }}
     b-table( striped hover :items="configs" )
+    
+    .msg-container(v-if="available")
+      .msg(ref="box")
+        .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
+          p(v-if="item.type === 'remote'") {{ item.text }}
+          .time.s-50.mx-1.text-muted {{ item.time }}
+          p(v-if="item.type === 'mine'") {{ item.text }}
+      b-input-group
+        b-input(v-model="text" @keyup.enter="sendText")
+        lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
+    h5.center(v-else): lah-fa-icon(icon="exclamation-circle" variant="primary").
+      請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
 </template>
 
 <script>
@@ -17,7 +29,9 @@ export default {
   data: () => ({
     pid: 'A123456789',
     json: undefined,
-    openNewsData: undefined
+    openNewsData: undefined,
+    text: '',
+    available: false
   }),
   async asyncData({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering
@@ -26,6 +40,15 @@ export default {
     // return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 }).then(({ data }) => {
     //   return {openNewsData: data.openNewsData}
     // })
+    const now = new Date()
+    const time = ('0' + now.getHours()).slice(-2) + ':' +
+                 ('0' + now.getMinutes()).slice(-2) + ':' +
+                 ('0' + now.getSeconds()).slice(-2)
+    return {
+      list: [
+        { type: 'remote', text: '您可以輸入訊息了~我會重複您輸入的字串。', time: time }
+      ]
+    }
   },
   computed: {
     // isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
@@ -39,6 +62,15 @@ export default {
     //   return Object.keys(this).map((key) => [key, this[key]])
     // },
   },
+  watch: {
+    list () {
+      // watch list to display the latest message
+      // Vue VDOME workaround ... to display the last message
+      this.$nextTick(() => {
+        this.$refs.box.scrollTop = this.$refs.box.scrollHeight
+      })
+    },
+  },
   methods: {
     clickCountdownButton () {
       this.$utils.log(this.$el)
@@ -48,31 +80,107 @@ export default {
     endCountdownButton () {
       this.$refs.countdown.resetCountdown()
       this.$refs.countdown.startCountdown()
-    }
+    },
+    msgClass (item) {
+      return [item.type === 'mine' ? 'justify-content-end' : 'justify-content-start', item.type]
+    },
+    sendText() {
+      const now = new Date()
+      const time = ('0' + now.getHours()).slice(-2) + ':' +
+                   ('0' + now.getMinutes()).slice(-2) + ':' +
+                   ('0' + now.getSeconds()).slice(-2)
+      this.list = [...this.list, { type: "mine", text: this.text, time: time }]
+      this.backText(() => {
+        // received remote text clear mine
+        this.text = ''
+      })
+    },
+    backText (callback) {
+      if (window.WebSocket) {
+        const ws = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
+        ws.onopen = (e) => {
+          console.log(`連結伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
+          ws.send(this.text)
+          callback()
+        }
+        ws.onclose = function (e) {
+          console.log("伺服器關閉")
+        }
+        ws.onerror = function () {
+          console.log("伺服器出錯")
+        }
+        ws.onmessage = (e) => {
+          this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
+        }
+      }
+    },
   },
   fetch () {
-    let cache_key = "case-query-by-pid-crsms-"+this.pid
-    this.getCache(cache_key).then(json => {
-      this.json = json
-      this.$utils.empty(this.json) && this.$axios.post(
-        this.$consts.API.JSON.QUERY,
-        { type: 'crsms', id: this.pid }
-      ).then(response => {
-        // on success
-        this.json = response.data
-        this.setCache(cache_key, this.json, 604800000)   // a week
-        this.json.data_count === 0 && this.notify(`<i class="text-info fas fa-exclamation-circle"></i> 查無登記案件資料`, { type: 'warning' })
-      }).catch(error => {
-          this.$utils.error(error)
-      }).finally(() => {})
-    })
   },
   mounted () {
-    this.$utils.log(this)
-    this.$utils.log(typeof Chart)
+    this.isBusy = true
+    this.$axios.post(this.$consts.API.JSON.QUERY, {
+      type: "ping",
+      ip: this.$config.websocketHost,
+      port: this.$config.websocketPort,
+    }).then(({ data }) => {
+      this.pingLatency = data.latency
+      this.pingMessage = data.message
+      if (this.$utils.statusCheck(data.status)) {
+        this.available = true
+      } else {
+        this.notify(data.message, { type: "warning" })
+      }
+    }).catch((err) => {
+      this.error = err
+    }).finally(() => {
+      this.isBusy = false
+    })
   }
 }
 </script>
 
-<style>
+<style scoped lang="scss">
+.msg-container {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 480px;
+}
+
+.msg {
+  width: 100%;
+  height: 40vh;
+  overflow: auto;
+  padding: 5px;
+  border: 1px solid gray;
+  display: inline-block;
+  margin-bottom: 5px;
+
+  .msg-item {
+    position: relative;
+    overflow: hidden;
+    p {
+      display: inline-block;
+      border-radius: 10px;
+      background: #3c3d5a;
+      color: white;
+      padding: 2px 12px;
+      margin: 0 0 2px 0;
+      max-width: 60%;
+      text-align: left;
+      box-sizing: border-box;
+    }
+
+    &.mine {
+      p {
+        background: rgb(2, 182, 32);
+        color: white;
+      }
+    }
+    .time {
+      display: inline-block;
+      align-self: flex-end;
+    }
+  }
+}
 </style>
