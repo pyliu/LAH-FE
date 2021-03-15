@@ -5,12 +5,12 @@ div
       .my-auto 即時通訊
       lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
       lah-help-modal(:modal-id="'help-modal'"): ul
-        li.text-danger(v-if="!available") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+        li.text-danger(v-if="websocket === undefined") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
         li WEBSOCKET_HOST：伺服器IP
         li WEBSOCKET_PORT：伺服器PORT
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
-  .msg-container(v-if="available")
+  .msg-container(v-if="websocket !== undefined")
     .msg(ref="box")
       .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
         p(v-if="item.type === 'remote'") {{ item.text }}
@@ -41,7 +41,7 @@ export default {
   },
   data: () => ({
     text: '',
-    available: false
+    websocket: undefined
   }),
   methods: {
     msgClass (item) {
@@ -59,22 +59,11 @@ export default {
       })
     },
     backText (callback) {
-      if (window.WebSocket) {
-        const ws = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
-        ws.onopen = (e) => {
-          console.log(`連結伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
-          ws.send(this.text)
+      if (this.websocket) {
+          this.websocket.send(this.text)
           callback()
-        }
-        ws.onclose = function (e) {
-          console.log("伺服器關閉")
-        }
-        ws.onerror = function () {
-          console.log("伺服器出錯")
-        }
-        ws.onmessage = (e) => {
-          this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
-        }
+      } else {
+        this.notify(`websocket not initialized ... `, { type: "warning" })
       }
     },
   },
@@ -97,7 +86,19 @@ export default {
       this.pingLatency = data.latency
       this.pingMessage = data.message
       if (this.$utils.statusCheck(data.status)) {
-        this.available = true
+        this.websocket = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
+        this.websocket.onopen = (e) => {
+          console.log(`連結 websocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
+        }
+        this.websocket.onclose = function (e) {
+          console.log("websocket 伺服器關閉")
+        }
+        this.websocket.onerror = function () {
+          console.log("websocket 伺服器出錯")
+        }
+        this.websocket.onmessage = (e) => {
+          this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
+        }
       } else {
         this.notify(data.message, { type: "warning" })
       }

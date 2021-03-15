@@ -5,7 +5,7 @@
         .my-auto 測試頁面
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ul
-          li.text-danger(v-if="!available") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+          li.text-danger(v-if="ws === undefined") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
           li WEBSOCKET_HOST：伺服器IP
           li WEBSOCKET_PORT：伺服器PORT
           li 修改前端伺服器之「.env」檔案已變更上開設定值
@@ -19,7 +19,7 @@
         b-input-group.mb-2
           b-input(v-model="text" @keyup.enter="sendText")
           lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
-        .msg(ref="box" v-if="available")
+        .msg(ref="box" v-if="ws !== undefined")
           .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
             p(v-if="item.type === 'remote'") {{ item.text }}
             .time.s-50.mx-1.text-muted {{ item.time }}
@@ -38,7 +38,8 @@ export default {
     json: undefined,
     openNewsData: undefined,
     text: '',
-    available: false
+    available: false,
+    ws: undefined
   }),
   async asyncData({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering
@@ -103,22 +104,21 @@ export default {
       })
     },
     backText (callback) {
-      if (window.WebSocket) {
-        const ws = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
-        ws.onopen = (e) => {
-          console.log(`連結伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
-          ws.send(this.text)
-          callback()
-        }
-        ws.onclose = function (e) {
-          console.log("伺服器關閉")
-        }
-        ws.onerror = function () {
-          console.log("伺服器出錯")
-        }
-        ws.onmessage = (e) => {
-          this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
-        }
+      if (this.ws) {
+        this.ws.send(this.text)
+        callback()
+        // const ws = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
+        // ws.onopen = (e) => {
+        //   console.log(`連結伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
+        //   ws.send(this.text)
+        //   callback()
+        // }
+        // ws.onclose = function (e) {
+        //   console.log("伺服器關閉")
+        // }
+        // ws.onerror = function () {
+        //   console.log("伺服器出錯")
+        // }
       }
     },
   },
@@ -135,6 +135,19 @@ export default {
       this.pingMessage = data.message
       if (this.$utils.statusCheck(data.status)) {
         this.available = true
+        this.ws = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
+        this.ws.onopen = (e) => {
+          console.log(`連結伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`)
+        }
+        this.ws.onclose = function (e) {
+          console.log("伺服器關閉")
+        }
+        this.ws.onerror = function () {
+          console.log("伺服器出錯")
+        }
+        this.ws.onmessage = (e) => {
+          this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
+        }
       } else {
         this.notify(data.message, { type: "warning" })
       }
