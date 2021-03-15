@@ -122,9 +122,7 @@ export default {
     }
   },
   fetch () {
-    if(this.isBusy) {
-      this.notify('讀取中 ... 請稍後', { type: 'warning' })
-    } else if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+    if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
         this.$utils.warn('dateRange is not ready ... postpone $fetch')
         this.timeout(this.$fetch, 250)
     } else {
