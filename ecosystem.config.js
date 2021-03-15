@@ -19,7 +19,7 @@ module.exports = {
   }, {
     name: 'LAH-WEBSOCKET',
     exec_mode: 'cluster',
-    instances: -1,
+    instances: 1,
     script: './socket/index.js',
     args: 'socket',
     cron_restart: '0 7 * * *',
