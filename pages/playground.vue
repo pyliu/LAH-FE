@@ -1,24 +1,22 @@
 <template lang="pug">
   div: client-only
     lah-header
-    span test
-    lah-button( size="lg" )
-    <lah-fa-icon icon="question"></lah-fa-icon>
-    div {{ openNewsData }}
-    p {{ $config.baseURL }}
-    b-table( striped hover :items="configs" )
-    
-    .msg-container(v-if="available")
-      .msg(ref="box")
-        .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
-          p(v-if="item.type === 'remote'") {{ item.text }}
-          .time.s-50.mx-1.text-muted {{ item.time }}
-          p(v-if="item.type === 'mine'") {{ item.text }}
-      b-input-group
-        b-input(v-model="text" @keyup.enter="sendText")
-        lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
-    h5.center(v-else): lah-fa-icon(icon="exclamation-circle" variant="primary").
-      請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+    b-card-group(deck)
+      b-card
+        div {{ openNewsData }}
+        p {{ $config.baseURL }}
+        b-table( striped hover :items="configs" )
+      b-card.p-2(no-body)
+        b-input-group.mb-2
+          b-input(v-model="text" @keyup.enter="sendText")
+          lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
+        .msg-container(v-if="available"): .msg(ref="box")
+          .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
+            p(v-if="item.type === 'remote'") {{ item.text }}
+            .time.s-50.mx-1.text-muted {{ item.time }}
+            p(v-if="item.type === 'mine'") {{ item.text }}
+        h5.center(v-else): lah-fa-icon(icon="exclamation-circle" variant="primary").
+          請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
 </template>
 
 <script>
@@ -144,7 +142,6 @@ export default {
 .msg-container {
   margin-right: auto;
   margin-left: auto;
-  max-width: 480px;
 }
 
 .msg {
