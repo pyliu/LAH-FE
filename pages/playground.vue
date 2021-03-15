@@ -19,7 +19,7 @@
         b-input-group.mb-2
           b-input(v-model="text" @keyup.enter="sendText")
           lah-button(@click="sendText" icon="telegram-plane" brand) 傳送
-        .msg-container(v-if="available"): .msg(ref="box")
+        .msg(ref="box" v-if="available")
           .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
             p(v-if="item.type === 'remote'") {{ item.text }}
             .time.s-50.mx-1.text-muted {{ item.time }}
@@ -148,14 +148,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.msg-container {
-  margin-right: auto;
-  margin-left: auto;
-}
-
 .msg {
   width: 100%;
-  height: 40vh;
+  height: 400px;
   overflow: auto;
   padding: 5px;
   border: 1px solid gray;
