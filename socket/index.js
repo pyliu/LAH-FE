@@ -1,5 +1,6 @@
 
-require('dotenv').config()
+require('dotenv').config();
+
 const timestamp = (date = false) => {
   const now = new Date()
   if (date) {
