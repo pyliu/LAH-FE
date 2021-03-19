@@ -33,7 +33,7 @@ const packMessage = (text, who = 'robot') => {
 
 const broadcast = (connections, message) => {
   connections.forEach((client, idx) => {
-    const json = packMessage(`哈囉 ${idx}: someone sends 「${message}」（機器人）`)
+    const json = packMessage(`哈囉 ${idx}: someone sends 「${message}」（機器人）`, client.socket.remoteAddress)
     client.send(json);
   });
 }
@@ -41,7 +41,7 @@ try {
   const ws = require("nodejs-websocket")
   const server = ws.createServer(function(conn) {
     conn.on("text", function(str) {
-      console.log("收到的資訊為", str)
+      // parse incoming json string (expected)
       const json = JSON.parse(str)
 
       broadcast(server.connections, json.message)
