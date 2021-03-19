@@ -23,15 +23,22 @@ try {
   const ws = require("nodejs-websocket")
   const server = ws.createServer(function(conn) {
     conn.on("text", function(str) {
+      console.log(server)
       console.log("收到的資訊為", str)
       conn.send(JSON.stringify({
         time: timestamp(),
         text: `${str}（機器人）`
       }))
       setTimeout(() => {
+        server.connections.forEach((client, idx) => {
+          client.send(JSON.stringify({
+              time: timestamp(),
+              text: `${idx}: 廣播回應（機器人）`
+          }));
+        });
         conn.send(JSON.stringify({
           time: timestamp(),
-          text: `${str}（機器人）`
+          text: `現在連線數 => ${server.connections.length}（機器人）`
         }))
       }, 3000)
     })
