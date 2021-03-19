@@ -1,47 +1,53 @@
 
 require('dotenv').config();
 
-const timestamp = (date = false) => {
+const timestamp = (date = 'time') => {
   const now = new Date()
-  if (date) {
-    // e.g. 2021-03-14 16:03:00
-    return now.getFullYear() + '-' +
-      ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
-      ('0' + now.getDate()).slice(-2) + ' ' +
-      ('0' + now.getHours()).slice(-2) + ':' +
-      ('0' + now.getMinutes()).slice(-2) + ':' +
-      ('0' + now.getSeconds()).slice(-2)
-  } else {
-    // e.g. 16:03:00
-    return ('0' + now.getHours()).slice(-2) + ':' +
+  const full = now.getFullYear() + '-' +
+    ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+    ('0' + now.getDate()).slice(-2) + ' ' +
+    ('0' + now.getHours()).slice(-2) + ':' +
     ('0' + now.getMinutes()).slice(-2) + ':' +
     ('0' + now.getSeconds()).slice(-2)
+  if (date === 'full') {
+    // e.g. 2021-03-14 16:03:00
+    return full
+  } else if (date === 'date') {
+    return full.split(' ')[0]
+  } else {
+    // e.g. 16:03:00
+    return full.split(' ')[1]
   }
+}
+
+const packMessage = (text, who = 'robot') => {
+  return JSON.stringify({
+    type: 'remote',
+    who: who,
+    date: timestamp('date'),
+    time: timestamp('time'),
+    message: text
+  })
 }
 
 
 const broadcast = (connections, message) => {
   connections.forEach((client, idx) => {
-    client.send(JSON.stringify({
-        time: timestamp(),
-        text: `哈囉 ${idx}: someone sends 「${message}」（機器人）`
-    }));
+    const json = packMessage(`哈囉 ${idx}: someone sends 「${message}」（機器人）`)
+    client.send(json);
   });
 }
 try {
   const ws = require("nodejs-websocket")
   const server = ws.createServer(function(conn) {
     conn.on("text", function(str) {
-      console.log(server)
       console.log("收到的資訊為", str)
+      const json = JSON.parse(str)
 
-      broadcast(server.connections, str)
+      broadcast(server.connections, json.message)
       
       setTimeout(() => {
-        conn.send(JSON.stringify({
-          time: timestamp(),
-          text: `現在連線數 => ${server.connections.length}（機器人）`
-        }))
+        conn.send(packMessage(`現在連線數 => ${server.connections.length}（機器人）`))
       }, 1000)
     })
     conn.on("close", function(code, reason) {
