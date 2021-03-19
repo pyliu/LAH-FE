@@ -20,10 +20,13 @@ const timestamp = (date = 'time') => {
   }
 }
 
-const packMessage = (text, who = 'robot') => {
+const ip = require('ip').address()
+
+const packMessage = (text, who = '小桃子') => {
   return JSON.stringify({
     type: 'remote',
     who: who,
+    ip: ip,
     date: timestamp('date'),
     time: timestamp('time'),
     message: text
@@ -31,9 +34,9 @@ const packMessage = (text, who = 'robot') => {
 }
 
 
-const broadcast = (connections, message) => {
+const broadcast = (connections, message, from) => {
   connections.forEach((client, idx) => {
-    const json = packMessage(`哈囉 ${idx}: someone sends 「${message}」（機器人）`, client.socket.remoteAddress)
+    const json = packMessage(`${from}送出「${message}」`)
     client.send(json);
   });
 }
@@ -44,10 +47,10 @@ try {
       // parse incoming json string (expected)
       const json = JSON.parse(str)
 
-      broadcast(server.connections, json.message)
+      broadcast(server.connections, json.message, json.ip)
       
       setTimeout(() => {
-        conn.send(packMessage(`現在連線數 => ${server.connections.length}（機器人）`))
+        conn.send(packMessage(`現在連線數 => ${server.connections.length}`))
       }, 1000)
     })
     conn.on("close", function(code, reason) {
