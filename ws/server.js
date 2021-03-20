@@ -1,8 +1,3 @@
-
-'use strict'
-
-require('dotenv').config();
-
 const timestamp = (date = 'time') => {
   const now = new Date()
   const full = now.getFullYear() + '-' +
@@ -22,7 +17,19 @@ const timestamp = (date = 'time') => {
   }
 }
 
-const ip = require('ip').address()
+let ip = require('ip').address()
+// get all ip addresses by node.js os module 
+const nets = require('os').networkInterfaces()
+const results = []
+for (const name of Object.keys(nets)) {
+  for (const net of nets[name]) {
+    // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+    if (net.family === 'IPv4' && !net.internal) {
+      ip = net.address
+    }
+  }
+}
+
 
 const packMessage = (text, who = '小桃子') => {
   return JSON.stringify({
@@ -35,20 +42,25 @@ const packMessage = (text, who = '小桃子') => {
   })
 }
 
+function noop() {}
+
+function heartbeat() {
+  this.isAlive = true
+}
 
 const broadcast = (wss, message) => {
   wss.clients.forEach(function each(client) {
     if (client.readyState === WebSocket.OPEN) {
       const json = packMessage(`${from} 送出 「${message}」(${client.clientIp})`)
-      client.send(json);
+      client.send(json)
     }
-  });
+  })
 }
 
 
 try {
-
-  const WebSocket = require('ws');
+  require('dotenv').config()
+  const WebSocket = require('ws')
 
   const wss = new WebSocket.Server({
     port: process.env.WEBSOCKET_PORT,
@@ -71,22 +83,37 @@ try {
       threshold: 1024 // Size (in bytes) below which messages
       // should not be compressed.
     }
-  });
+  })
 
   wss.on('connection', function connection(ws, req) {
+    
+    ws.isAlive = true
+    ws.on('pong', heartbeat)
 
     ws.on('message', function incoming(message) {
       const json = JSON.parse(message)
-      ws.clientIp = json.ip || req.socket.remoteAddress
-      console.log('received: %s', json.message)
+      !ws.clientIp && (ws.clientIp = json.ip || req.socket.remoteAddress)
+      console.log('received: %s', json.message, json.ip)
 
       setTimeout(() => {
         ws.send(packMessage(`Hey ${json.ip} ${json.message}`))
       }, 1000)
       
-    });
+    })
 
-  });
+  })
+
+  const interval = setInterval(function ping() {
+    wss.clients.forEach(function each(ws) {
+      if (ws.isAlive === false) return ws.terminate()
+      ws.isAlive = false
+      ws.ping(noop)
+    })
+  }, 30000)
+  
+  wss.on('close', function close() {
+    clearInterval(interval)
+  })
 
   console.log(`ws伺服器已啟動 (${process.env.WEBSOCKET_PORT})`)
 
