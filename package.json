@@ -10,7 +10,7 @@
     "post-update": "yarn upgrade --latest",
     "lint:js": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js",
-    "socket": "node socket/index.js"
+    "ws": "node ws/server.js"
   },
   "dependencies": {
     "@chenfengyuan/vue-countdown": "^1.1.5",
@@ -35,14 +35,14 @@
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
     "node-sass": "5.0.0",
-    "nodejs-websocket": "^1.7.2",
     "nuxt": "^2.15.3",
     "nuxt-fontawesome": "^0.4.0",
     "pug": "^3.0.2",
     "pug-plain-loader": "^1.1.0",
     "qs": "^6.9.4",
     "sass-loader": "10.1.1",
-    "vue-chartjs": "^3.5.1"
+    "vue-chartjs": "^3.5.1",
+    "ws": "^7.4.4"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^5.0.0",

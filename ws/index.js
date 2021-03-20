@@ -43,6 +43,11 @@ const broadcast = (connections, message, from) => {
 try {
   const ws = require("nodejs-websocket")
   const server = ws.createServer(function(conn) {
+
+    // const ip = conn.req.headers['x-forwarded-for'].split(/\s*,\s*/)[0]
+    // console.log(ip)
+    // console.log(conn)
+
     conn.on("text", function(str) {
       // parse incoming json string (expected)
       const json = JSON.parse(str)
@@ -60,7 +65,7 @@ try {
       console.log(code, reason, "異常關閉")
     })
   })
-  
+
   server.listen(process.env.WEBSOCKET_PORT)
   console.log(`WebSocket伺服器已啟動(${process.env.WEBSOCKET_PORT})`)
 
