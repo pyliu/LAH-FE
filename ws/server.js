@@ -1,3 +1,16 @@
+let ip = require('ip').address()
+// get all ip addresses by node.js os module 
+const nets = require('os').networkInterfaces()
+const results = []
+for (const name of Object.keys(nets)) {
+  for (const net of nets[name]) {
+    // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+    if (net.family === 'IPv4' && !net.internal) {
+      ip = net.address
+    }
+  }
+}
+
 const timestamp = (date = 'time') => {
   const now = new Date()
   const full = now.getFullYear() + '-' +
@@ -17,20 +30,6 @@ const timestamp = (date = 'time') => {
   }
 }
 
-let ip = require('ip').address()
-// get all ip addresses by node.js os module 
-const nets = require('os').networkInterfaces()
-const results = []
-for (const name of Object.keys(nets)) {
-  for (const net of nets[name]) {
-    // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-    if (net.family === 'IPv4' && !net.internal) {
-      ip = net.address
-    }
-  }
-}
-
-
 const packMessage = (text, who = '小桃子') => {
   return JSON.stringify({
     type: 'remote',
@@ -40,12 +39,6 @@ const packMessage = (text, who = '小桃子') => {
     time: timestamp('time'),
     message: text
   })
-}
-
-function noop() {}
-
-function heartbeat() {
-  this.isAlive = true
 }
 
 const broadcast = (wss, message) => {
@@ -88,7 +81,9 @@ try {
   wss.on('connection', function connection(ws, req) {
     
     ws.isAlive = true
-    ws.on('pong', heartbeat)
+    ws.on('pong', function heartbeat() {
+      this.isAlive = true
+    })
 
     ws.on('message', function incoming(message) {
       const json = JSON.parse(message)
@@ -102,12 +97,12 @@ try {
     })
 
   })
-
+  // remove dead connection
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) return ws.terminate()
       ws.isAlive = false
-      ws.ping(noop)
+      ws.ping(function noop() {})
     })
   }, 30000)
   
