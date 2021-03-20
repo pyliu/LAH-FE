@@ -88,11 +88,18 @@ try {
     ws.on('message', function incoming(message) {
       const json = JSON.parse(message)
       !ws.clientIp && (ws.clientIp = json.ip || req.socket.remoteAddress)
-      console.log('received: %s', json.message, json.ip)
-
-      setTimeout(() => {
-        ws.send(packMessage(`Hey ${json.ip} ${json.message}`))
-      }, 1000)
+      
+      if (json.message === '@online') {
+        const message = [...wss.clients].reduce(function(str, client) {
+          return client.readyState === WebSocket.OPEN ? (str += `${client.clientIp}<br/>`) : str
+        }, '目前連線使用者：<br/>')
+        ws.send(packMessage(message))
+      } else {
+        const delay = parseInt(Math.random() * 1000)
+        setTimeout(() => {
+          ws.send(packMessage(`${json.ip} 送出「${json.message}」訊息 (${delay}ms)`))
+        }, delay)
+      }
       
     })
 
