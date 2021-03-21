@@ -1,60 +1,10 @@
-let ip = require('ip').address()
-// get all ip addresses by node.js os module 
-const nets = require('os').networkInterfaces()
-const results = []
-for (const name of Object.keys(nets)) {
-  for (const net of nets[name]) {
-    // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-    if (net.family === 'IPv4' && !net.internal) {
-      ip = net.address
-    }
-  }
-}
-
-const timestamp = (date = 'time') => {
-  const now = new Date()
-  const full = now.getFullYear() + '-' +
-    ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
-    ('0' + now.getDate()).slice(-2) + ' ' +
-    ('0' + now.getHours()).slice(-2) + ':' +
-    ('0' + now.getMinutes()).slice(-2) + ':' +
-    ('0' + now.getSeconds()).slice(-2)
-  if (date === 'full') {
-    // e.g. 2021-03-14 16:03:00
-    return full
-  } else if (date === 'date') {
-    return full.split(' ')[0]
-  } else {
-    // e.g. 16:03:00
-    return full.split(' ')[1]
-  }
-}
-
-const packMessage = (text, who = '小桃子') => {
-  return JSON.stringify({
-    type: 'remote',
-    who: who,
-    ip: ip,
-    date: timestamp('date'),
-    time: timestamp('time'),
-    message: text
-  })
-}
-
-const broadcast = (wss, message) => {
-  wss.clients.forEach(function each(client) {
-    if (client.readyState === WebSocket.OPEN) {
-      const json = packMessage(`${from} 送出 「${message}」(${client.clientIp})`)
-      client.send(json)
-    }
-  })
-}
-
-
 try {
   require('dotenv').config()
-  const WebSocket = require('ws')
+  const utils = require('./utils.js')
+  const SQLiteDB = require('./sqlite.js')
+  const announcementDb = new SQLiteDB('channel_announcement')
 
+  const WebSocket = require('ws')
   const wss = new WebSocket.Server({
     port: process.env.WEBSOCKET_PORT,
     perMessageDeflate: {
@@ -83,6 +33,14 @@ try {
     ws.isAlive = true
     ws.on('pong', function heartbeat() {
       this.isAlive = true
+      // client is still connected, check the announcement channel db for unread message
+      announcementDb.get(function(err, row) {
+        err && console.warn(err)
+        if (row) {
+          ws.send(utils.packMessage(Object.entries(row).map(([k, v]) => `${k}: ${v}`).join(', ')))
+        }
+      })
+      console.log(utils.timestamp(), this.clientIp)
     })
 
     ws.on('message', function incoming(message) {
@@ -93,28 +51,35 @@ try {
         const message = [...wss.clients].reduce(function(str, client) {
           return client.readyState === WebSocket.OPEN ? (str += `${client.clientIp}<br/>`) : str
         }, '目前連線使用者：<br/>')
-        ws.send(packMessage(message))
+        ws.send(utils.packMessage(message))
       } else {
         const delay = parseInt(Math.random() * 1000)
         setTimeout(() => {
-          ws.send(packMessage(`${json.ip} 送出「${json.message}」訊息 (${delay}ms)`))
+          ws.send(utils.packMessage(`${json.ip} 送出「${json.message}」訊息 (${delay}ms)`))
         }, delay)
       }
       
     })
 
   })
-  // remove dead connection
+  // remove dead connection every 20s
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) return ws.terminate()
       ws.isAlive = false
       ws.ping(function noop() {})
     })
-  }, 30000)
+    announcementDb.insert({
+      $title: 'test',
+      $content: 'test...',
+      $expire_datetime: utils.timestamp('full'),
+      $sender: '小猴子'
+    })
+  }, 20000)
   
   wss.on('close', function close() {
     clearInterval(interval)
+    announcementDb.close()
   })
 
   console.log(`ws伺服器已啟動 (${process.env.WEBSOCKET_PORT})`)
