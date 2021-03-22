@@ -1,7 +1,7 @@
 class Message {
   
   constructor (channel) {
-    this.insSQL = "INSERT INTO message(title, content, create_datetime, expire_datetime, sender) VALUES ($title, $content, $create_datetime, $expire_datetime, $sender)"
+    this.insSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
     this.channel = channel
 
     this.fs = require("fs")
@@ -23,6 +23,7 @@ class Message {
         "id"	INTEGER,
         "title"	TEXT,
         "content"	TEXT NOT NULL,
+        "priority"	INTEGER NOT NULL DEFAULT 3,
         "create_datetime"	TEXT NOT NULL,
         "expire_datetime"	TEXT,
         "sender"	TEXT NOT NULL,
@@ -59,6 +60,7 @@ class Message {
       ...{
         $title: '',
         $content: '',
+        $priority: 3,
         $create_datetime: this.timestamp(),
         $expire_datetime: '',
         $sender: '小桃子'

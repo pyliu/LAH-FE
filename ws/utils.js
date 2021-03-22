@@ -31,21 +31,25 @@ const timestamp = function (date = 'time') {
   }
 }
 
-const packMessage = function (text, who = process.env.WEBSOCKET_ROBOT_NAME) {
-  return JSON.stringify({
-    type: 'remote',
-    who: who,
-    ip: ip,
-    date: timestamp('date'),
-    time: timestamp('time'),
-    message: text
-  })
+const packMessage = function (text, opts = {}) {
+  const args = {
+    ...{
+      type: 'remote',
+      who: process.env.WEBSOCKET_ROBOT_NAME,
+      ip: ip,
+      date: timestamp('date'),
+      time: timestamp('time'),
+      message: text
+    },
+    ...opts
+  }
+  return JSON.stringify(args)
 }
 
 const broadcast = (wss, message) => {
   wss.clients.forEach(function each(client) {
     if (client.readyState === WebSocket.OPEN) {
-      const json = packMessage(message)
+      const json = packMessage(message, { type: 'announcement' })
       client.send(json)
     }
   })

@@ -38,7 +38,7 @@ try {
       announcementChannel.get(function(err, row) {
         err && console.warn(err)
         if (row) {
-          utils.broadcast(wss, Object.entries(row).map(([k, v]) => `${k}: ${v}`).join(', '))
+          utils.broadcast(wss, row)
         }
       })
     }
@@ -80,16 +80,18 @@ try {
       ws.ping(function noop() {})
     })
     announcementChannel.insert({
-      $title: 'test',
-      $content: 'test...',
-      $expire_datetime: utils.timestamp('full'),
-      $sender: '小猴子'
+      $title: 'TEST HEADER',
+      $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
+      $sender: '小猴子',
+      $priority: (Math.random() * 1000) % 4
     })
   }, 20000)
   
   wss.on('close', function close() {
     clearInterval(interval)
-    announcementChannel.close()
+    watched.forEach((item, idx, array) => {
+      item.close()
+    })
   })
 
   console.log(`ws伺服器已啟動 (${process.env.WEBSOCKET_PORT})`)
