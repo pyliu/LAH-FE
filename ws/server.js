@@ -50,16 +50,14 @@ try {
 
       if (json.type === 'ip') {
         ws.clientIp = json.ip
+        ws.send(utils.packMessage(`來自 ${ws.clientIp} 的朋友您好。`))
       } else if (utils.trim(json.message) === '@online') {
+
         const message = [...wss.clients].reduce(function(str, client) {
           return client.readyState === WebSocket.OPEN ? (str += `${client.clientIp}<br/>`) : str
         }, '目前連線使用者：<br/>')
+
         ws.send(utils.packMessage(message))
-      } else {
-        const delay = parseInt(Math.random() * 1000)
-        setTimeout(() => {
-          ws.send(utils.packMessage(`${json.ip} 送出「${json.message}」訊息 (${delay}ms)`))
-        }, delay)
       }
       
     })
