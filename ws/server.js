@@ -40,14 +40,17 @@ try {
           ws.send(utils.packMessage(Object.entries(row).map(([k, v]) => `${k}: ${v}`).join(', ')))
         }
       })
-      console.log(utils.timestamp(), this.clientIp)
+      console.log(utils.timestamp(), 'received pong from', ws.clientIp)
     })
 
     ws.on('message', function incoming(message) {
       const json = JSON.parse(message)
-      !ws.clientIp && (ws.clientIp = json.ip || req.socket.remoteAddress)
-      
-      if (json.message === '@online') {
+
+      !ws.clientIp && (ws.clientIp = json.ip)
+
+      if (json.type === 'ip') {
+        ws.clientIp = json.ip
+      } else if (utils.trim(json.message) === '@online') {
         const message = [...wss.clients].reduce(function(str, client) {
           return client.readyState === WebSocket.OPEN ? (str += `${client.clientIp}<br/>`) : str
         }, '目前連線使用者：<br/>')

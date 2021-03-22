@@ -49,7 +49,10 @@ const broadcast = (wss, message) => {
   })
 }
 
+const trim = (x) => { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' }
+
 module.exports.timestamp = timestamp
 module.exports.packMessage = packMessage
 module.exports.broadcast = broadcast
+module.exports.trim = trim
 module.exports.ip = ip
