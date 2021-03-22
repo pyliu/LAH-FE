@@ -1,8 +1,11 @@
 try {
   require('dotenv').config()
   const utils = require('./utils.js')
-  const SQLiteDB = require('./sqlite.js')
-  const announcementDb = new SQLiteDB('channel_announcement')
+  const Message = require('./message.js')
+  const watched = []
+  const announcementChannel = new Message('channel_announcement')
+  
+  watched.push(announcementChannel)
 
   const WebSocket = require('ws')
   const wss = new WebSocket.Server({
@@ -28,19 +31,25 @@ try {
     }
   })
 
+  // watch announcement DB file for new message
+  const fs = require('fs')
+  fs.watch(announcementChannel.filepath, (event, filename) => {
+    if (filename) {
+      announcementChannel.get(function(err, row) {
+        err && console.warn(err)
+        if (row) {
+          utils.broadcast(wss, Object.entries(row).map(([k, v]) => `${k}: ${v}`).join(', '))
+        }
+      })
+    }
+  })
+
   wss.on('connection', function connection(ws, req) {
     
     ws.isAlive = true
     ws.on('pong', function heartbeat() {
       this.isAlive = true
-      // client is still connected, check the announcement channel db for unread message
-      announcementDb.get(function(err, row) {
-        err && console.warn(err)
-        if (row) {
-          ws.send(utils.packMessage(Object.entries(row).map(([k, v]) => `${k}: ${v}`).join(', ')))
-        }
-      })
-      console.log(utils.timestamp(), 'received pong from', ws.clientIp)
+      // console.log(utils.timestamp(), 'received pong from', ws.clientIp)
     })
 
     ws.on('message', function incoming(message) {
@@ -70,7 +79,7 @@ try {
       ws.isAlive = false
       ws.ping(function noop() {})
     })
-    announcementDb.insert({
+    announcementChannel.insert({
       $title: 'test',
       $content: 'test...',
       $expire_datetime: utils.timestamp('full'),
@@ -80,7 +89,7 @@ try {
   
   wss.on('close', function close() {
     clearInterval(interval)
-    announcementDb.close()
+    announcementChannel.close()
   })
 
   console.log(`ws伺服器已啟動 (${process.env.WEBSOCKET_PORT})`)
