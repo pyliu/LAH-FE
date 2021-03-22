@@ -1,3 +1,5 @@
+const WebSocket = require('ws')
+require('dotenv').config()
 let ip = require('ip').address()
 // get all ip addresses by node.js os module 
 const nets = require('os').networkInterfaces()
@@ -29,7 +31,7 @@ const timestamp = function (date = 'time') {
   }
 }
 
-const packMessage = function (text, who = '小桃子') {
+const packMessage = function (text, who = process.env.WEBSOCKET_ROBOT_NAME) {
   return JSON.stringify({
     type: 'remote',
     who: who,
@@ -43,7 +45,7 @@ const packMessage = function (text, who = '小桃子') {
 const broadcast = (wss, message) => {
   wss.clients.forEach(function each(client) {
     if (client.readyState === WebSocket.OPEN) {
-      const json = packMessage(`${from} 送出 「${message}」(${client.clientIp})`)
+      const json = packMessage(message)
       client.send(json)
     }
   })

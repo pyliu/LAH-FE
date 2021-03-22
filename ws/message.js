@@ -1,4 +1,4 @@
-class SQLiteDB {
+class Message {
   
   constructor (channel) {
     this.insSQL = "INSERT INTO message(title, content, create_datetime, expire_datetime, sender) VALUES ($title, $content, $create_datetime, $expire_datetime, $sender)"
@@ -10,13 +10,14 @@ class SQLiteDB {
     if (!this.fs.existsSync(this.dbDir)){
       this.fs.mkdirSync(this.dbDir)
     }
+    this.filepath = this.path.join(this.dbDir, this.channel) + '.db'
 
     this.open()
   }
 
   open () {
     const sqlite3 = require("sqlite3").verbose()
-    this.db = new sqlite3.Database(this.path.join(this.dbDir, this.channel) + '.db')
+    this.db = new sqlite3.Database(this.filepath)
     this.db.run(`
       CREATE TABLE IF NOT EXISTS "message" (
         "id"	INTEGER,
@@ -70,4 +71,4 @@ class SQLiteDB {
     this.db.get("SELECT * FROM message ORDER BY id DESC", callback)
   }
 }
-module.exports = SQLiteDB
+module.exports = Message
