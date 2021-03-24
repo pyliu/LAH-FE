@@ -4,7 +4,7 @@ try {
   const Message = require('./message.js')
   const watched = []
   const announcementChannel = new Message('channel_announcement')
-  
+
   watched.push(announcementChannel)
 
   const WebSocket = require('ws')
@@ -33,14 +33,19 @@ try {
 
   // watch announcement DB file for new message
   const fs = require('fs')
+  let debounce = false;
   fs.watch(announcementChannel.filepath, (event, filename) => {
-    if (filename) {
-      announcementChannel.get(function(err, row) {
-        err && console.warn(err)
-        if (row) {
-          utils.broadcast(wss, row)
-        }
-      })
+    if (filename && event === 'change') {
+      if (debounce) return
+      debounce = setTimeout(() => {
+        debounce = false
+        announcementChannel.get(function(err, row) {
+          err && console.warn(err)
+          if (row) {
+            utils.broadcast(wss, row)
+          }
+        })
+      }, 100)
     }
   })
 
