@@ -62,9 +62,12 @@ try {
 
       !ws.clientIp && (ws.clientIp = json.ip)
 
-      if (json.type === 'ip') {
-        ws.clientIp = json.ip
-        ws.send(utils.packMessage(`來自 ${ws.clientIp} 的朋友您好。`))
+      if (json.type === 'user') {
+        const user = JSON.parse(json.message)
+        ws.clientIp = user.ip
+        ws.clientDomain = user.domain
+        ws.clientUsername = user.username
+        ws.send(utils.packMessage(`來自 ${user.ip} 的 ${user.domain}\\${user.username} 您好。`))
       } else if (utils.trim(json.message) === '@online') {
 
         const message = [...wss.clients].reduce(function(str, client) {
