@@ -1,16 +1,17 @@
+const fs = require("fs")
+const path = require("path")
+
 class MessageDB {
   
   constructor (channel) {
     this.insSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
     this.channel = channel
 
-    this.fs = require("fs")
-    this.path = require("path")
-    this.dbDir = this.path.join(__dirname, 'db')
-    if (!this.fs.existsSync(this.dbDir)){
-      this.fs.mkdirSync(this.dbDir)
+    this.dbDir = path.join(__dirname, 'db')
+    if (!fs.existsSync(this.dbDir)){
+      fs.mkdirSync(this.dbDir)
     }
-    this.filepath = this.path.join(this.dbDir, this.channel) + '.db'
+    this.filepath = path.join(this.dbDir, this.channel) + '.db'
 
     this.open()
   }
