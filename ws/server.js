@@ -54,6 +54,7 @@ try {
     })
 
     ws.on('close', function close() {
+      console.log(`連線已中斷 ${this.user.username} 頻道將被移除。`)
       watcher.unsubscribe(this.user.username)
     });
 
@@ -62,7 +63,12 @@ try {
   // remove dead connection every 20s
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
-      if (ws.isAlive === false) return ws.terminate()
+      if (ws.isAlive === false) {
+        console.log(`偵測到 ${ws.user.username} 的連線已中斷。`)
+        // remove client channel fs watcher
+        watcher.unsubscribe(ws.user.username)
+        return ws.terminate()
+      }
       ws.isAlive = false
       ws.ping(function noop() {})
     })
