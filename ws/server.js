@@ -2,6 +2,7 @@ try {
   require('dotenv').config()
   const utils = require('./utils.js')
   const Message = require('./message.js')
+  const RequestHandler = require('./request-handler.js')
   const watched = []
   const announcementChannel = new Message('channel_announcement')
 
@@ -31,6 +32,8 @@ try {
     }
   })
 
+  const handler = new RequestHandler(wss)
+
   // watch announcement DB file for new message
   const fs = require('fs')
   let debounce = false;
@@ -58,25 +61,12 @@ try {
     })
 
     ws.on('message', function incoming(message) {
-      const json = JSON.parse(message)
-
-      !ws.clientIp && (ws.clientIp = json.ip)
-
-      if (json.type === 'user') {
-        const user = JSON.parse(json.message)
-        ws.clientIp = user.ip
-        ws.clientDomain = user.domain
-        ws.clientUsername = user.username
-        ws.send(utils.packMessage(`來自 ${user.ip} 的 ${user.domain}\\${user.username} 您好。`))
-      } else if (utils.trim(json.message) === '@online') {
-
-        const message = [...wss.clients].reduce(function(str, client) {
-          return client.readyState === WebSocket.OPEN ? (str += `${client.clientIp}<br/>`) : str
-        }, '目前連線使用者：<br/>')
-
-        ws.send(utils.packMessage(message))
+      const processedMessage = handler.handle(ws, message)
+      if (processedMessage === false) {
+        ws.send(utils.packMessage(`伺服器無法處理您的請求 ${message}`))
+      } else {
+        ws.send(utils.packMessage(processedMessage))
       }
-      
     })
 
   })
