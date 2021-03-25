@@ -32,16 +32,16 @@ class RequestHandler {
     const user = JSON.parse(message)
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     ws.user = user
-    console.log(utils.timestamp(), `遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.username}) 已儲存於 socket 物件中。`)
+    console.log(utils.timestamp(), `遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}) 已儲存於 socket 物件中。`)
     // not for broadcasting
-    this.watcher.subscribe(`${user.username}`)
+    this.watcher.subscribe(`${user.userid}`)
     // watch HB0541 channel
-    return `來自 ${user.ip} 的 ${user.domain}\\${user.username} 歡迎回來`
+    return `來自 ${user.ip} 的 ${user.domain}\\${user.userid} (${user.username}) 歡迎回來`
   }
 
   handleOnlineRequest () {
     const message = [...this.wss.clients].reduce(function(str, client) {
-      return client.readyState === WebSocket.OPEN ? (str += `${client.user.username} (${client.user.ip})<br/>`) : str
+      return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})<br/>`) : str
     }, '目前連線使用者：<br/>')
     return message
   }

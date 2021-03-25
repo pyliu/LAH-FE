@@ -54,8 +54,8 @@ try {
     })
 
     ws.on('close', function close() {
-      console.log(utils.timestamp(), `連線已中斷 ${this.user.username} 頻道將被移除。`)
-      watcher.unsubscribe(this.user.username)
+      console.log(utils.timestamp(), `連線已中斷 ${this.user.userid} 頻道將被移除。`)
+      watcher.unsubscribe(this.user.userid)
     });
 
   })
@@ -64,9 +64,9 @@ try {
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) {
-        console.log(utils.timestamp(), `偵測到 ${ws.user.username} 的連線已中斷。`)
+        console.log(utils.timestamp(), `偵測到 ${ws.user.userid} 的連線已中斷。`)
         // remove client channel fs watcher
-        watcher.unsubscribe(ws.user.username)
+        watcher.unsubscribe(ws.user.userid)
         return ws.terminate()
       }
       ws.isAlive = false
@@ -75,13 +75,26 @@ try {
 
     // for testing purpose
     const MessageDB = require('./message-db.js')
-    const announcementChannel = new MessageDB('announcement')
-    announcementChannel.insert({
-      $title: 'TEST HEADER',
-      $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
-      $sender: 'HB0541',
-      $priority: (Math.random() * 1000) % 4
-    })
+
+    setTimeout(() => {
+      const announcementChannel = new MessageDB('announcement')
+      announcementChannel.insert({
+        $title: 'TEST HEADER',
+        $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
+        $sender: 'HB0541',
+        $priority: (Math.random() * 1000) % 4
+      })
+    }, Math.random() * 1000 * 5)
+    setTimeout(() => {
+      const o541 = new MessageDB('0541')
+      o541.insert({
+        $title: '',
+        $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
+        $sender: 'HB0537',
+        $priority: (Math.random() * 1000) % 4
+      })
+    }, Math.random() * 1000 * 5)
+
 
   }, 20000)
   

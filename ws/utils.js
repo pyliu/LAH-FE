@@ -36,7 +36,6 @@ const packMessage = function (text, opts = {}) {
     ...{
       type: 'remote',
       who: process.env.WEBSOCKET_ROBOT_NAME,
-      ip: ip,
       date: timestamp('date'),
       time: timestamp('time'),
       message: text
