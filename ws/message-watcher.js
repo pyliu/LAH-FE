@@ -14,28 +14,30 @@ class MessageWatcher {
 
   subscribe (channel, broadcast = false) {
     let mc = new MessageDB(channel)
-    // watch channel DB file for new message
-    let debounce = false;
-    mc.watcher = fs.watch(mc.filepath, (event, filename) => {
-      if (filename && event === 'change') {
-        if (debounce) return
-        debounce = setTimeout(() => {
-          debounce = false
-          mc.get((err, row) => {
-            err && console.warn(err)
-            if (row) {
-              if (broadcast) {
-                utils.broadcast(this.wss, row)
-              } else {
-                // TODO: according channel name to find user to send message ... 
+    setTimeout(() => {
+      // watch channel DB file for new message
+      let debounce = false;
+      mc.watcher = fs.watch(mc.filepath, (event, filename) => {
+        if (filename && event === 'change') {
+          if (debounce) return
+          debounce = setTimeout(() => {
+            debounce = false
+            mc.get((err, row) => {
+              err && console.warn(err)
+              if (row) {
+                if (broadcast) {
+                  utils.broadcast(this.wss, row)
+                } else {
+                  // TODO: according channel name to find user to send message ... 
+                }
               }
-            }
-          })
-        }, 100)
-      }
-    })
-    MessageWatcher.channels.push(mc)
-    console.log(`${mc.filepath} 已註冊監控。`)
+            })
+          }, 100)
+        }
+      })
+      MessageWatcher.channels.push(mc)
+      console.log(`${mc.filepath} 已註冊監控。`)
+    }, 100)
   }
 
   unsubscribe (channel) {

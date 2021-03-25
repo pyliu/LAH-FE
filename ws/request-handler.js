@@ -2,9 +2,11 @@ const WebSocket = require('ws')
 
 class RequestHandler {
   
-  constructor (wss) {
+  constructor (wss, messageWatcher) {
     // WebSocket Server
     this.wss = wss
+    // MessageWatcher
+    this.watcher = messageWatcher
   }
 
   handle (ws, incomingRaw) {
@@ -29,7 +31,10 @@ class RequestHandler {
     const user = JSON.parse(message)
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     ws.user = user
-    console.log(`client info from ${user.ip} is settled.`)
+    console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.username}) 已儲存於 socket 物件中。`)
+    // not for broadcasting
+    this.watcher.subscribe(`${user.username}`)
+    // watch HB0541 channel
     return `來自 ${user.ip} 的 ${user.domain}\\${user.username} 歡迎回來`
   }
 

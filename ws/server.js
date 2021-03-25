@@ -30,8 +30,8 @@ try {
     }
   })
 
-  const handler = new RequestHandler(wss)
   const watcher = new MessageWatcher(wss)
+  const handler = new RequestHandler(wss, watcher)
 
   // watch announcement channel for broadcasting
   watcher.subscribe('announcement', true)
@@ -52,6 +52,10 @@ try {
         this.send(utils.packMessage(processedMessage))
       }
     })
+
+    ws.on('close', function close() {
+      watcher.unsubscribe(this.user.username)
+    });
 
   })
 
