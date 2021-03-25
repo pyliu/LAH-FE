@@ -32,11 +32,22 @@ class MessageWatcher {
                   const found = [ ...this.wss.clients ].find(function(ws, idx, array){
                     return ws.user.userid === channel
                   })
-                  found && found.send(utils.packMessage(row['content'], {
-                    who: row['sender'],
-                    date: row['create_datetime'].split(' ')[0],
-                    time: row['create_datetime'].split(' ')[1]
-                  }))
+                  if (found) {
+                    const userid = found.user.userid
+                    const userDB = new MessageDB(userid)
+                    userDB.getLastReadId(userid, (err, readRow) => {
+                      err && console.warn(err)
+                      if (!readRow || readRow['message_id'] < row['id']) {
+                        found.send(utils.packMessage(row['content'], {
+                          who: row['sender'],
+                          date: row['create_datetime'].split(' ')[0],
+                          time: row['create_datetime'].split(' ')[1]
+                        }))
+                        // mark user has read for the message
+                        utils.markRead(userid, userid, row['id'])
+                      }
+                    })
+                  } 
                 }
               }
             })

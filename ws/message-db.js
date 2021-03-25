@@ -4,7 +4,8 @@ const path = require("path")
 class MessageDB {
   
   constructor (channel) {
-    this.insSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
+    this.insertIntoMessageSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
+    this.replaceIntoReadSQL = "REPLACE INTO read(user_id, message_id) VALUES ($user_id, $message_id)"
     this.channel = channel
 
     this.dbDir = path.join(__dirname, 'db')
@@ -29,6 +30,13 @@ class MessageDB {
         "expire_datetime"	TEXT,
         "sender"	TEXT NOT NULL,
         PRIMARY KEY("id" AUTOINCREMENT)
+      )
+    `)
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS "read" (
+        "user_id"	TEXT NOT NULL,
+        "message_id"	INTEGER NOT NULL,
+        PRIMARY KEY("user_id")
       )
     `)
   }
@@ -56,8 +64,8 @@ class MessageDB {
     }
   }
 
-  insert (params) {
-    this.db.run(this.insSQL, {
+  insertMessage (params) {
+    this.db.run(this.insertIntoMessageSQL, {
       ...{
         $title: '',
         $content: '',
@@ -68,6 +76,20 @@ class MessageDB {
       },
       ...params
     })
+  }
+
+  replaceRead (params) {
+    this.db.run(this.replaceIntoReadSQL, {
+      ...{
+        $user_id: '',
+        $message_id: ''
+      },
+      ...params
+    })
+  }
+
+  getLastReadId (userId, callback) {
+    this.db.get(`SELECT * FROM read WHERE user_id = '${userId}' ORDER BY user_id DESC`, callback)
   }
 
   get (callback) {

@@ -45,11 +45,40 @@ const packMessage = function (text, opts = {}) {
   return JSON.stringify(args)
 }
 
-const broadcast = (wss, message) => {
+const userLastReadMessageId = (channel, userId) => {
+  const MessageDB = require('./message-db.js')
+  const channelDB = new MessageDB(channel)
+  channelDB.replaceRead({
+    $user_id: userId,
+    $message_id: messageId
+  })
+  channelDB.close()
+}
+
+const markRead = (channel, userId, messageId) => {
+  const MessageDB = require('./message-db.js')
+  const channelDB = new MessageDB(channel)
+  channelDB.replaceRead({
+    $user_id: userId,
+    $message_id: messageId
+  })
+  channelDB.close()
+}
+
+const broadcast = (wss, row) => {
+  const MessageDB = require('./message-db.js')
+  const announcementDB = new MessageDB('announcement')
   wss.clients.forEach(function each(client) {
     if (client.readyState === WebSocket.OPEN) {
-      const json = packMessage(message, { type: 'announcement' })
-      client.send(json)
+      announcementDB.getLastReadId(client.user.userid, (err, readRow) => {
+        err && console.warn(err)
+        if (!readRow || readRow['message_id'] < row['id']) {
+          const json = packMessage(row, { type: 'announcement' })
+          client.send(json)
+          // mark user has read for the message
+          markRead('announcement', client.user.userid, row['id'])
+        }
+      })
     }
   })
 }
@@ -58,6 +87,7 @@ const trim = (x) => { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'')
 
 module.exports.timestamp = timestamp
 module.exports.packMessage = packMessage
+module.exports.markRead = markRead
 module.exports.broadcast = broadcast
 module.exports.trim = trim
 module.exports.ip = ip

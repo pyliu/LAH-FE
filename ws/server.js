@@ -78,23 +78,25 @@ try {
 
     setTimeout(() => {
       const announcementChannel = new MessageDB('announcement')
-      announcementChannel.insert({
+      announcementChannel.insertMessage({
         $title: 'TEST HEADER',
         $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
         $sender: 'HB0541',
         $priority: (Math.random() * 1000) % 4
       })
+      announcementChannel.close()
     }, Math.random() * 1000 * 5)
+
     setTimeout(() => {
       const o541 = new MessageDB('0541')
-      o541.insert({
-        $title: '',
+      o541.insertMessage({
+        $title: 'personal header',
         $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
         $sender: 'HB0537',
         $priority: (Math.random() * 1000) % 4
       })
+      o541.close()
     }, Math.random() * 1000 * 5)
-
 
   }, 20000)
   
