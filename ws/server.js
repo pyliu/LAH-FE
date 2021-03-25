@@ -54,7 +54,7 @@ try {
     })
 
     ws.on('close', function close() {
-      console.log(`連線已中斷 ${this.user.username} 頻道將被移除。`)
+      console.log(utils.timestamp(), `連線已中斷 ${this.user.username} 頻道將被移除。`)
       watcher.unsubscribe(this.user.username)
     });
 
@@ -64,7 +64,7 @@ try {
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) {
-        console.log(`偵測到 ${ws.user.username} 的連線已中斷。`)
+        console.log(utils.timestamp(), `偵測到 ${ws.user.username} 的連線已中斷。`)
         // remove client channel fs watcher
         watcher.unsubscribe(ws.user.username)
         return ws.terminate()
@@ -90,7 +90,7 @@ try {
     watcher.close()
   })
 
-  console.log(`ws伺服器已啟動 (${process.env.WEBSOCKET_PORT})`)
+  console.log(utils.timestamp(), `ws伺服器已啟動 (${process.env.WEBSOCKET_PORT})`)
 
 } catch (e) {
   console.error('ws伺服器啟動失敗', e)
