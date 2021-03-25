@@ -1,4 +1,4 @@
-class Message {
+class MessageDB {
   
   constructor (channel) {
     this.insSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
@@ -73,4 +73,4 @@ class Message {
     this.db.get("SELECT * FROM message ORDER BY id DESC", callback)
   }
 }
-module.exports = Message
+module.exports = MessageDB
