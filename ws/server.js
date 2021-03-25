@@ -61,11 +61,11 @@ try {
     })
 
     ws.on('message', function incoming(message) {
-      const processedMessage = handler.handle(ws, message)
+      const processedMessage = handler.handle(this, message)
       if (processedMessage === false) {
-        ws.send(utils.packMessage(`伺服器無法處理您的請求 ${message}`))
+        this.send(utils.packMessage(`WS伺服器無法處理您的請求 ${message}`))
       } else {
-        ws.send(utils.packMessage(processedMessage))
+        this.send(utils.packMessage(processedMessage))
       }
     })
 
