@@ -69,7 +69,7 @@ try {
     announcementChannel.insert({
       $title: 'TEST HEADER',
       $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
-      $sender: '小猴子',
+      $sender: 'HB0541',
       $priority: (Math.random() * 1000) % 4
     })
 
