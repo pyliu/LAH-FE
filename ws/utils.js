@@ -65,22 +65,33 @@ const markRead = (channel, userId, messageId) => {
   channelDB.close()
 }
 
-const broadcast = (wss, row) => {
-  const MessageDB = require('./message-db.js')
-  const announcementDB = new MessageDB('announcement')
-  wss.clients.forEach(function each(client) {
-    if (client.readyState === WebSocket.OPEN) {
-      announcementDB.getLastReadId(client.user.userid, (err, readRow) => {
+let broadcasting = false
+const broadcast = (clients, row) => {
+  const connected = clients.length
+  if (broadcasting === false && connected > 0) {
+    broadcasting = true
+    const MessageDB = require('./message-db.js')
+    const db = new MessageDB('announcement')
+    let processed = 0
+    clients.forEach(function each(client) {
+      const userid = client.user.userid
+      db.getLastReadId(userid, (err, readRow) => {
         err && console.warn(err)
-        if (!readRow || readRow['message_id'] < row['id']) {
-          const json = packMessage(row, { type: 'announcement' })
-          client.send(json)
-          // mark user has read for the message
-          markRead('announcement', client.user.userid, row['id'])
+        if (client.readyState === WebSocket.OPEN) {
+          if (!readRow || readRow['message_id'] < row['id']) {
+            const json = packMessage(row, { type: 'announcement' })
+            client.send(json)
+            // mark user has read for the message
+            markRead('announcement', userid, row['id'])
+          }
+        }
+        processed++
+        if (processed == connected) {
+          broadcasting = false
         }
       })
-    }
-  })
+    })
+  }
 }
 
 const trim = (x) => { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' }

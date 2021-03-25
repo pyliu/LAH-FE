@@ -6,7 +6,7 @@ const MessageDB = require('./message-db.js')
 class MessageWatcher {
   
   static channels = []
-
+  
   constructor (wss) {
     // WebSocket Server
     this.wss = wss
@@ -26,9 +26,9 @@ class MessageWatcher {
               err && console.warn(err)
               if (row) {
                 if (broadcast) {
-                  utils.broadcast(this.wss, row)
+                  utils.broadcast([ ...this.wss.clients ], row)
                 } else {
-                  // TODO: according channel name to find user to send message ... 
+                  // according channel name to find user to send message ... 
                   const found = [ ...this.wss.clients ].find(function(ws, idx, array){
                     return ws.user.userid === channel
                   })
@@ -43,7 +43,7 @@ class MessageWatcher {
                           date: row['create_datetime'].split(' ')[0],
                           time: row['create_datetime'].split(' ')[1]
                         }))
-                        // mark user has read for the message
+                        // mark user has read the message
                         utils.markRead(userid, userid, row['id'])
                       }
                     })
