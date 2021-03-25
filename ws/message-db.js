@@ -64,7 +64,7 @@ class MessageDB {
         $priority: 3,
         $create_datetime: this.timestamp(),
         $expire_datetime: '',
-        $sender: '小桃子'
+        $sender: process.env.WEBSOCKET_ROBOT_NAME
       },
       ...params
     })
