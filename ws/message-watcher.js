@@ -30,7 +30,10 @@ class MessageWatcher {
                 } else {
                   // according channel name to find user to send message ... 
                   const found = [ ...this.wss.clients ].find(function(ws, idx, array){
-                    return ws.user.userid === channel
+                    if (ws.user) {
+                      return ws.user.userid === channel
+                    }
+                    return false
                   })
                   if (found) {
                     const userid = found.user.userid

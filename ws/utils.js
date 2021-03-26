@@ -74,6 +74,14 @@ const broadcast = (clients, row) => {
     const db = new MessageDB('announcement')
     let processed = 0
     clients.forEach(function each(client) {
+      if (!client.user) {
+        console.log(timestamp(), '沒有使用者資訊，略過廣播 ... ')
+        processed++
+        if (processed == connected) {
+          broadcasting = false
+        }
+        return
+      }
       const userid = client.user.userid
       db.getLastReadId(userid, (err, readRow) => {
         err && console.warn(err)

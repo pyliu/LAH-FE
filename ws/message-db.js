@@ -18,27 +18,31 @@ class MessageDB {
   }
 
   open () {
-    const sqlite3 = require("sqlite3").verbose()
-    this.db = new sqlite3.Database(this.filepath)
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS "message" (
-        "id"	INTEGER,
-        "title"	TEXT,
-        "content"	TEXT NOT NULL,
-        "priority"	INTEGER NOT NULL DEFAULT 3,
-        "create_datetime"	TEXT NOT NULL,
-        "expire_datetime"	TEXT,
-        "sender"	TEXT NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT)
-      )
-    `)
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS "read" (
-        "user_id"	TEXT NOT NULL,
-        "message_id"	INTEGER NOT NULL,
-        PRIMARY KEY("user_id")
-      )
-    `)
+    try {
+      const sqlite3 = require("sqlite3").verbose()
+      this.db = new sqlite3.Database(this.filepath)
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS "message" (
+          "id"	INTEGER,
+          "title"	TEXT,
+          "content"	TEXT NOT NULL,
+          "priority"	INTEGER NOT NULL DEFAULT 3,
+          "create_datetime"	TEXT NOT NULL,
+          "expire_datetime"	TEXT,
+          "sender"	TEXT NOT NULL,
+          PRIMARY KEY("id" AUTOINCREMENT)
+        )
+      `)
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS "read" (
+          "user_id"	TEXT NOT NULL,
+          "message_id"	INTEGER NOT NULL,
+          PRIMARY KEY("user_id")
+        )
+      `)
+    } catch (e) {
+      console.error(`${this.filepath} 建立表格失敗`, e)
+    }
   }
 
   close () {

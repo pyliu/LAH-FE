@@ -54,8 +54,12 @@ try {
     })
 
     ws.on('close', function close() {
-      console.log(utils.timestamp(), `連線已中斷 ${this.user.userid} 頻道將被移除。`)
-      watcher.unsubscribe(this.user.userid)
+      if (this.user) {
+        console.log(utils.timestamp(), `連線已中斷 ${this.user.userid} 頻道將被移除。`)
+        watcher.unsubscribe(this.user.userid)
+      } else {
+        console.warn(utils.timestamp(), 'WebSocket內沒有使用者資訊')
+      }
     });
 
   })
@@ -65,8 +69,10 @@ try {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) {
         console.log(utils.timestamp(), `偵測到 ${ws.user.userid} 的連線已中斷。`)
-        // remove client channel fs watcher
-        watcher.unsubscribe(ws.user.userid)
+        if (ws.user) {
+          // remove client channel fs watcher
+          watcher.unsubscribe(ws.user.userid)
+        }
         return ws.terminate()
       }
       ws.isAlive = false
