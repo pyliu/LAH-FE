@@ -19,7 +19,7 @@ module.exports = {
   }, {
     name: 'LAH-WSS',
     exec_mode: 'cluster',
-    instances: -1,
+    instances: 1,
     script: './ws/server.js',
     args: 'ws',
     cron_restart: '0 7 * * *',

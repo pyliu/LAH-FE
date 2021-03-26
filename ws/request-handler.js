@@ -17,6 +17,7 @@ class RequestHandler {
         case 'user':
           return this.handleUserRequest(ws, incoming.message)
         case '@online':
+          console.log(`收到查詢線上使用者指令 ${ws.user ? ws.user.userid : ''}`)
           return this.handleOnlineRequest()
         default:
           return false
