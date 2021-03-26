@@ -22,24 +22,20 @@
     "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/proxy": "^2.0.1",
     "@nuxtjs/style-resources": "^1.0.0",
+    "@nuxtjs/localforage": "^1.1.0",
     "activedirectory": "^0.7.2",
     "animate.css": "^4.1.1",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.18.1",
     "core-js": "^3.9.1",
     "dotenv": "^8.2.0",
-    "eslint-plugin-vue-libs": "^4.0.0",
     "jquery": "^3.6.0",
     "locutus": "^2.0.14",
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
-    "node-sass": "5.0.0",
     "nuxt": "^2.15.3",
     "nuxt-fontawesome": "^0.4.0",
-    "pug": "^3.0.2",
-    "pug-plain-loader": "^1.1.0",
     "qs": "^6.9.4",
-    "sass-loader": "10.1.1",
     "sqlite3": "^5.0.2",
     "vue-chartjs": "^3.5.1",
     "ws": "^7.4.4"
@@ -47,10 +43,14 @@
   "devDependencies": {
     "@nuxtjs/eslint-config": "^5.0.0",
     "@nuxtjs/eslint-module": "^3.0.0",
-    "@nuxtjs/localforage": "^1.1.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.21.0",
     "eslint-plugin-nuxt": "^2.0.0",
-    "pre-commit": "^1.2.2"
+    "eslint-plugin-vue-libs": "^4.0.0",
+    "pre-commit": "^1.2.2",
+    "pug": "^3.0.2",
+    "pug-plain-loader": "^1.1.0",
+    "sass-loader": "10.1.1",
+    "node-sass": "5.0.0"
   }
 }
