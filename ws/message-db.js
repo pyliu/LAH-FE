@@ -7,6 +7,7 @@ class MessageDB {
     this.insertIntoMessageSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
     this.replaceIntoReadSQL = "REPLACE INTO read(user_id, message_id) VALUES ($user_id, $message_id)"
     this.channel = channel
+    this.retry = 0
 
     this.dbDir = path.join(__dirname, 'db')
     if (!fs.existsSync(this.dbDir)){
@@ -40,8 +41,17 @@ class MessageDB {
           PRIMARY KEY("user_id")
         )
       `)
+      this.retry = 0
     } catch (e) {
-      console.error(`${this.filepath} 建立表格失敗`, e)
+      if (this.retry < 3) {
+        const timeout = parseInt(Math.random() * 1000)
+        console.error(e, `${timeout}ms 後重試打開資料庫 ... `)
+        setTimeout(this.open.bind(this), timeout)
+        this.retry++
+      } else {
+        console.error(e, `${this.filepath} 建立表格失敗`)
+      }
+      
     }
   }
 
@@ -69,27 +79,51 @@ class MessageDB {
   }
 
   insertMessage (params) {
-    this.db.run(this.insertIntoMessageSQL, {
-      ...{
-        $title: '',
-        $content: '',
-        $priority: 3,
-        $create_datetime: this.timestamp(),
-        $expire_datetime: '',
-        $sender: process.env.WEBSOCKET_ROBOT_NAME
-      },
-      ...params
-    })
+    try {
+      this.db.run(this.insertIntoMessageSQL, {
+        ...{
+          $title: '',
+          $content: '',
+          $priority: 3,
+          $create_datetime: this.timestamp(),
+          $expire_datetime: '',
+          $sender: process.env.WEBSOCKET_ROBOT_NAME
+        },
+        ...params
+      })
+      this.retry = 0
+    } catch (e) {
+      if (this.retry < 3) {
+        const timeout = parseInt(Math.random() * 1000)
+        console.error(e, `${timeout}ms 後重試插入新訊息 ... `)
+        setTimeout(this.insertMessage.bind(this, params), timeout)
+        this.retry++
+      } else {
+        console.error(e, `插入新訊息失敗 ${this.channel} "${params.$content}"`)
+      }
+    }
   }
 
   replaceRead (params) {
-    this.db.run(this.replaceIntoReadSQL, {
-      ...{
-        $user_id: '',
-        $message_id: ''
-      },
-      ...params
-    })
+    try {
+      this.db.run(this.replaceIntoReadSQL, {
+        ...{
+          $user_id: '',
+          $message_id: ''
+        },
+        ...params
+      })
+      this.retry = 0
+    } catch (e) {
+      if (this.retry < 3) {
+        const timeout = parseInt(Math.random() * 1000)
+        console.error(e, `${timeout}ms 後重試更新使用者已讀訊息 ... `)
+        setTimeout(this.replaceRead.bind(this, params), timeout)
+        this.retry++
+      } else {
+        console.error(e, `更新已讀訊息失敗 ${this.channel} "${params.$user_id}:${$params.$message_id}"`)
+      }
+    }
   }
 
   getLastReadId (userId, callback) {
