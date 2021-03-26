@@ -32,7 +32,7 @@ class RequestHandler {
     const user = JSON.parse(message)
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     ws.user = user
-    console.log(utils.timestamp(), `遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}) 已儲存於 socket 物件中。`)
+    console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}) 已儲存於 socket 物件中。`)
     // not for broadcasting
     this.watcher.subscribe(`${user.userid}`)
     // watch HB0541 channel

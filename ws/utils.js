@@ -75,7 +75,7 @@ const broadcast = (clients, row) => {
     let processed = 0
     clients.forEach(function each(client) {
       if (!client.user) {
-        console.log(timestamp(), '沒有使用者資訊，略過廣播 ... ')
+        console.log('沒有使用者資訊，略過廣播此WS頻道 ... ')
         processed++
         if (processed == connected) {
           broadcasting = false

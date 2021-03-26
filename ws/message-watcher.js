@@ -58,7 +58,7 @@ class MessageWatcher {
         }
       })
       MessageWatcher.channels.push(mc)
-      console.log(utils.timestamp(), `${mc.filepath} 已註冊監控。`)
+      console.log(`${mc.filepath} 已註冊監控。`)
     }, 100)
   }
 
@@ -73,11 +73,11 @@ class MessageWatcher {
     })
     if (found) {
       found.watcher.close()
-      console.log(utils.timestamp(), `[${found_index}] ${found.channel} 已解除更新監控。`)
+      console.log(`[${found_index}] ${found.channel} 已解除更新監控。`)
       found.close()
-      console.log(utils.timestamp(), `[${found_index}] ${found.channel} 資料庫已關閉。`)
+      console.log(`[${found_index}] ${found.channel} 資料庫已關閉。`)
       MessageWatcher.channels.splice(found_index, 1)
-      console.log(utils.timestamp(), `[${found_index}] ${found.channel} 資料庫已從監控陣列中移除。`)
+      console.log(`[${found_index}] ${found.channel} 資料庫已從監控陣列中移除。`)
     }
   }
 
@@ -87,7 +87,7 @@ class MessageWatcher {
       channel.close()
     })
     MessageWatcher.channels = []
-    console.log(utils.timestamp(), `監控頻道已清空。`)
+    console.log(`監控頻道已清空。`)
   }
 
 }
