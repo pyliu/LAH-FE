@@ -51,7 +51,7 @@ class RequestHandler {
     // not for broadcasting
     this.watcher.subscribe(`${user.userid}`)
     // watch HB0541 channel
-    return `來自 ${user.ip} 的 ${user.domain}\\${user.userid} (${user.username}) 歡迎回來`
+    return `${user.userid}:${user.username} 已連線`
   }
 
   handleHelpRequest (ws) {
