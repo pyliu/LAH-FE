@@ -30,9 +30,13 @@ class RequestHandler {
   handleMineRequest (ws, json) {
     utils.insertMessageChannel(json.receiver, json)
     setTimeout(() => {
-      if (json.message === '@online') {
-        console.log(`收到查詢線上使用者指令 ${ws.user ? ws.user.userid : ''}`)
-        return this.handleOnlineRequest(ws)
+      switch (json.message) {
+        case '@help':
+          console.log(`收到 ${ws.user ? ws.user.userid : '???'} 查詢幫助指令`)
+          return this.handleHelpRequest(ws)
+        case '@online':
+          console.log(`收到 ${ws.user ? ws.user.userid : '???'} 查詢線上使用者指令`)
+          return this.handleOnlineRequest(ws)
       }
     }, 150)
     return true
@@ -50,10 +54,19 @@ class RequestHandler {
     return `來自 ${user.ip} 的 ${user.domain}\\${user.userid} (${user.username}) 歡迎回來`
   }
 
+  handleHelpRequest (ws) {
+    const message = `###### 目前支援指令如下：
+***
+@help - 顯示輔助使用訊息<br/>
+@online - 查詢線上使用者
+    `
+    ws.send(utils.packMessage(message))
+  }
+
   handleOnlineRequest (ws) {
     const message = [...this.wss.clients].reduce(function(str, client) {
-      return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})\n`) : str
-    }, '目前連線使用者：\n')
+      return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})<br/>`) : str
+    }, '###### 目前連線使用者：<br/>')
     ws.send(utils.packMessage(message))
   }
 
