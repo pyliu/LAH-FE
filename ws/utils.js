@@ -45,7 +45,8 @@ const packMessage = function (text, opts = {}) {
       sender: process.env.WEBSOCKET_ROBOT_NAME,
       date: timestamp('date'),
       time: timestamp('time'),
-      message: typeof text === 'string' ? Markd(text, { sanitizer: DOMPurify.sanitize }) : text
+      message: typeof text === 'string' ? Markd(text, { sanitizer: DOMPurify.sanitize }) : text,
+      ip: ip
     },
     ...opts
   }
@@ -84,7 +85,8 @@ const insertMessageChannel = (channel, json) => {
     $title: 'dontcare',
     $content: json['message'],
     $sender: json['sender'],
-    $priority: 3
+    $priority: json['priority'] || 3,
+    $ip: json['ip'] || ''
   })
   channelDB.close()
 }

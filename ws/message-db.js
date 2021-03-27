@@ -4,7 +4,7 @@ const path = require("path")
 class MessageDB {
   
   constructor (channel) {
-    this.insertIntoMessageSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
+    this.insertIntoMessageSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, ip) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $ip)"
     this.channel = channel
     this.retry = 0
 
@@ -30,6 +30,7 @@ class MessageDB {
           "create_datetime"	TEXT NOT NULL,
           "expire_datetime"	TEXT,
           "sender"	TEXT NOT NULL,
+          "ip"	TEXT,
           PRIMARY KEY("id" AUTOINCREMENT)
         )
       `)
@@ -79,7 +80,8 @@ class MessageDB {
           $priority: 3,
           $create_datetime: this.timestamp(),
           $expire_datetime: '',
-          $sender: process.env.WEBSOCKET_ROBOT_NAME
+          $sender: process.env.WEBSOCKET_ROBOT_NAME,
+          $ip: ''
         },
         ...params
       })

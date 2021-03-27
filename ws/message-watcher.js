@@ -39,7 +39,8 @@ class MessageWatcher {
                     found.send(utils.packMessage(row['content'], {
                       sender: row['sender'],
                       date: row['create_datetime'].split(' ')[0],
-                      time: row['create_datetime'].split(' ')[1]
+                      time: row['create_datetime'].split(' ')[1],
+                      from: row['ip']
                     }))
                   } 
                 }

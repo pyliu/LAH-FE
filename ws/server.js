@@ -1,5 +1,3 @@
-const { BIconChevronCompactLeft } = require('bootstrap-vue')
-
 try {
   require('dotenv').config()
 
@@ -86,22 +84,31 @@ try {
 
     // for testing purpose
     const MessageDB = require('./message-db.js')
+    const fs = require('fs')
+    const news = JSON.parse(fs.readFileSync(__dirname+'/news.json', 'utf8'))
+    const newsLen = news.length
 
     setTimeout(() => {
       const announcementChannel = new MessageDB('announcement')
+      const seed = parseInt(Math.random() * 1000)
+      const pick = seed % newsLen
       announcementChannel.insertMessage({
-        $title: '長榮超大型貨櫃輪「長賜號」',
-        $content: `長榮超大型貨櫃輪「長賜號」（Ever Given）23日因意外擱淺卡在蘇伊士運河，至今卡在運河中已3天，導致後方交通全面阻塞，最新畫面指出，外界關注的「小小挖土機」，在清淤工作中也有了進展。`,
-        $sender: process.env['USERNAME'],
-        $priority: (Math.random() * 1000) % 4
+        $title: news[pick].title,
+        $content: news[pick].description,
+        $sender: news[pick].source,
+        $priority: seed % 4,
+        $ip: utils.ip
       })
       announcementChannel.close()
     }, Math.random() * 1000 * 5)
 
     setTimeout(() => {
+      const seed = parseInt(Math.random() * 1000)
+      const pick = seed % newsLen
       utils.insertMessageChannel(process.env['USERNAME'], {
-        message: `美譴責飛彈試射 北韓高官：侵犯自衛權形同挑釁`,
-        sender: '小猴子'
+        message: news[pick].title,
+        sender: news[pick].source,
+        $ip: utils.ip
       })
     }, Math.random() * 1000 * 5)
 
