@@ -55,11 +55,10 @@ class RequestHandler {
   }
 
   handleHelpRequest (ws) {
-    const message = `###### 目前支援指令如下：
-***
-@help - 顯示輔助使用訊息<br/>
-@online - 查詢線上使用者
-    `
+    const message = `###### 目前支援指令如下：\r\n`
+                    + `***`
+                    + `@help - 顯示輔助使用訊息\r\n`
+                    + `@online - 查詢線上使用者\r\n`
     ws.send(utils.packMessage(message))
   }
 
