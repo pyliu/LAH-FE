@@ -38,18 +38,11 @@ class MessageWatcher {
                   if (found) {
                     const userid = found.user.userid
                     const userDB = new MessageDB(userid)
-                    userDB.getLastReadId(userid, (err, readRow) => {
-                      err && console.warn(err)
-                      if (!readRow || readRow['message_id'] < row['id']) {
-                        found.send(utils.packMessage(row['content'], {
-                          who: row['sender'],
-                          date: row['create_datetime'].split(' ')[0],
-                          time: row['create_datetime'].split(' ')[1]
-                        }))
-                        // mark user has read the message
-                        utils.markRead(userid, userid, row['id'])
-                      }
-                    })
+                    found.send(utils.packMessage(row['content'], {
+                      sender: row['sender'],
+                      date: row['create_datetime'].split(' ')[0],
+                      time: row['create_datetime'].split(' ')[1]
+                    }))
                   } 
                 }
               }

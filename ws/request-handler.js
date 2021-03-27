@@ -16,14 +16,27 @@ class RequestHandler {
       switch (incoming.type) {
         case 'user':
           return this.handleUserRequest(ws, incoming.message)
-        case '@online':
-          console.log(`收到查詢線上使用者指令 ${ws.user ? ws.user.userid : ''}`)
-          return this.handleOnlineRequest()
+        case 'mine':
+          return this.handleMineRequest(ws, incoming)
         default:
           return false
       }
     } else {
       console.warn(`${incoming} is not a valid json object, skip the request ... `, `RAW: ${incomingRaw}`)
+    }
+    return false
+  }
+
+  handleMineRequest (ws, json) {
+    const userid = json.sender
+    const targetid = json.receiver
+    const message = json.message
+
+    utils.insertTargetChannel(json)
+
+    if (json.message === '@online') {
+      console.log(`收到查詢線上使用者指令 ${ws.user ? ws.user.userid : ''}`)
+      return this.handleOnlineRequest()
     }
     return false
   }
@@ -42,8 +55,9 @@ class RequestHandler {
 
   handleOnlineRequest () {
     const message = [...this.wss.clients].reduce(function(str, client) {
-      return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})<br/>`) : str
-    }, '目前連線使用者：<br/>')
+      return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})\n`) : str
+    }, '目前連線使用者：\n')
+    console.log(message)
     return message
   }
 
