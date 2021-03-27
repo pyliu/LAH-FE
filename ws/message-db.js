@@ -5,7 +5,6 @@ class MessageDB {
   
   constructor (channel) {
     this.insertIntoMessageSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender)"
-    this.replaceIntoReadSQL = "REPLACE INTO read(user_id, message_id) VALUES ($user_id, $message_id)"
     this.channel = channel
     this.retry = 0
 
@@ -32,13 +31,6 @@ class MessageDB {
           "expire_datetime"	TEXT,
           "sender"	TEXT NOT NULL,
           PRIMARY KEY("id" AUTOINCREMENT)
-        )
-      `)
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS "read" (
-          "user_id"	TEXT NOT NULL,
-          "message_id"	INTEGER NOT NULL,
-          PRIMARY KEY("user_id")
         )
       `)
       this.retry = 0
@@ -102,32 +94,6 @@ class MessageDB {
         console.error(e, `插入新訊息失敗 ${this.channel} "${params.$content}"`)
       }
     }
-  }
-
-  replaceRead (params) {
-    try {
-      this.db.run(this.replaceIntoReadSQL, {
-        ...{
-          $user_id: '',
-          $message_id: ''
-        },
-        ...params
-      })
-      this.retry = 0
-    } catch (e) {
-      if (this.retry < 3) {
-        const timeout = parseInt(Math.random() * 1000)
-        console.error(e, `${timeout}ms 後重試更新使用者已讀訊息 ... `)
-        setTimeout(this.replaceRead.bind(this, params), timeout)
-        this.retry++
-      } else {
-        console.error(e, `更新已讀訊息失敗 ${this.channel} "${params.$user_id}:${$params.$message_id}"`)
-      }
-    }
-  }
-
-  getLastReadId (userId, callback) {
-    this.db.get(`SELECT * FROM read WHERE user_id = '${userId}' ORDER BY user_id DESC`, callback)
   }
 
   get (callback) {

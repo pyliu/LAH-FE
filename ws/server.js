@@ -1,3 +1,5 @@
+const { BIconChevronCompactLeft } = require('bootstrap-vue')
+
 try {
   require('dotenv').config()
 
@@ -45,6 +47,7 @@ try {
     })
 
     ws.on('message', function incoming(message) {
+      console.log(message)
       const processedMessage = handler.handle(this, message)
       if (processedMessage === false) {
         this.send(utils.packMessage(`WS伺服器無法處理您的請求 ${message}`))
@@ -85,20 +88,20 @@ try {
     setTimeout(() => {
       const announcementChannel = new MessageDB('announcement')
       announcementChannel.insertMessage({
-        $title: 'TEST HEADER',
-        $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
-        $sender: 'HB0541',
+        $title: '長榮超大型貨櫃輪「長賜號」',
+        $content: `長榮超大型貨櫃輪「長賜號」（Ever Given）23日因意外擱淺卡在蘇伊士運河，至今卡在運河中已3天，導致後方交通全面阻塞，最新畫面指出，外界關注的「小小挖土機」，在清淤工作中也有了進展。`,
+        $sender: process.env['USERNAME'],
         $priority: (Math.random() * 1000) % 4
       })
       announcementChannel.close()
     }, Math.random() * 1000 * 5)
 
     setTimeout(() => {
-      const o541 = new MessageDB('pyliu')
+      const o541 = new MessageDB('yihome')
       o541.insertMessage({
-        $title: 'personal header',
-        $content: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.',
-        $sender: 'HB0537',
+        $title: 'dontcare',
+        $content: '美譴責飛彈試射 北韓高官：侵犯自衛權形同挑釁',
+        $sender: process.env['USERNAME'],
         $priority: (Math.random() * 1000) % 4
       })
       o541.close()
