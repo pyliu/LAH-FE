@@ -29,19 +29,21 @@ class MessageWatcher {
                   utils.broadcast([ ...this.wss.clients ], row)
                 } else {
                   // according channel name to find user to send message ... 
-                  const found = [ ...this.wss.clients ].find(function(ws, idx, array){
+                  const found = [ ...this.wss.clients ].filter(function(ws, idx, array){
                     if (ws.user) {
                       return ws.user.userid === channel
                     }
                     return false
                   })
-                  if (found) {
-                    found.send(utils.packMessage(row['content'], {
-                      sender: row['sender'],
-                      date: row['create_datetime'].split(' ')[0],
-                      time: row['create_datetime'].split(' ')[1],
-                      from: row['ip']
-                    }))
+                  if (found.length > 0) {
+                    found.forEach((ws, idx, array) => {
+                      ws.send(utils.packMessage(row['content'], {
+                        sender: row['sender'],
+                        date: row['create_datetime'].split(' ')[0],
+                        time: row['create_datetime'].split(' ')[1],
+                        from: row['ip']
+                      }))
+                    })
                   } 
                 }
               }
