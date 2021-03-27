@@ -1,6 +1,7 @@
 const DOMPurify = require('dompurify')
 const Markd = require('marked')
 const WebSocket = require('ws')
+const MessageDB = require('./message-db.js')
 
 require('dotenv').config()
 
@@ -77,20 +78,20 @@ const broadcast = (clients, row) => {
   }
 }
 
-const insertTargetChannel = (json) => {
-  const o541 = new MessageDB('yihome')
-      o541.insertMessage({
-        $title: 'dontcare',
-        $content: '美譴責飛彈試射 北韓高官：侵犯自衛權形同挑釁',
-        $sender: process.env['USERNAME'],
-        $priority: (Math.random() * 1000) % 4
-      })
-      o541.close()
+const insertMessageChannel = (channel, json) => {
+  const channelDB = new MessageDB(channel)
+  channelDB.insertMessage({
+    $title: 'dontcare',
+    $content: json['message'],
+    $sender: json['sender'],
+    $priority: 3
+  })
+  channelDB.close()
 }
 
 module.exports.timestamp = timestamp
 module.exports.packMessage = packMessage
 module.exports.broadcast = broadcast
-module.exports.insertTargetChannel = insertTargetChannel
+module.exports.insertMessageChannel = insertMessageChannel
 module.exports.trim = trim
 module.exports.ip = ip

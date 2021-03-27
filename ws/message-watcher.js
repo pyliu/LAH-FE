@@ -22,7 +22,7 @@ class MessageWatcher {
           if (debounce) return
           debounce = setTimeout(() => {
             debounce = false
-            mc.get((err, row) => {
+            mc.getLatestMessage((err, row) => {
               err && console.warn(err)
               if (row) {
                 if (broadcast) {
@@ -36,8 +36,6 @@ class MessageWatcher {
                     return false
                   })
                   if (found) {
-                    const userid = found.user.userid
-                    const userDB = new MessageDB(userid)
                     found.send(utils.packMessage(row['content'], {
                       sender: row['sender'],
                       date: row['create_datetime'].split(' ')[0],

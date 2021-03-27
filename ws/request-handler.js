@@ -14,8 +14,8 @@ class RequestHandler {
     const incoming = JSON.parse(incomingRaw)
     if (typeof incoming === 'object' && incoming.type) {
       switch (incoming.type) {
-        case 'user':
-          return this.handleUserRequest(ws, incoming.message)
+        case 'register':
+          return this.handleRegisterRequest(ws, incoming.message)
         case 'mine':
           return this.handleMineRequest(ws, incoming)
         default:
@@ -28,20 +28,17 @@ class RequestHandler {
   }
 
   handleMineRequest (ws, json) {
-    const userid = json.sender
-    const targetid = json.receiver
-    const message = json.message
-
-    utils.insertTargetChannel(json)
-
-    if (json.message === '@online') {
-      console.log(`收到查詢線上使用者指令 ${ws.user ? ws.user.userid : ''}`)
-      return this.handleOnlineRequest()
-    }
-    return false
+    utils.insertMessageChannel(json.receiver, json)
+    setTimeout(() => {
+      if (json.message === '@online') {
+        console.log(`收到查詢線上使用者指令 ${ws.user ? ws.user.userid : ''}`)
+        return this.handleOnlineRequest(ws)
+      }
+    }, 150)
+    return true
   }
 
-  handleUserRequest (ws, message) {
+  handleRegisterRequest (ws, message) {
     // this type message should be a json object string
     const user = JSON.parse(message)
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
@@ -53,12 +50,11 @@ class RequestHandler {
     return `來自 ${user.ip} 的 ${user.domain}\\${user.userid} (${user.username}) 歡迎回來`
   }
 
-  handleOnlineRequest () {
+  handleOnlineRequest (ws) {
     const message = [...this.wss.clients].reduce(function(str, client) {
       return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})\n`) : str
     }, '目前連線使用者：\n')
-    console.log(message)
-    return message
+    ws.send(utils.packMessage(message))
   }
 
 }

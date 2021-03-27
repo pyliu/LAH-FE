@@ -51,6 +51,8 @@ try {
       const processedMessage = handler.handle(this, message)
       if (processedMessage === false) {
         this.send(utils.packMessage(`WS伺服器無法處理您的請求 ${message}`))
+      } else if (processedMessage === true) {
+        
       } else {
         this.send(utils.packMessage(processedMessage))
       }
@@ -97,14 +99,10 @@ try {
     }, Math.random() * 1000 * 5)
 
     setTimeout(() => {
-      const o541 = new MessageDB('yihome')
-      o541.insertMessage({
-        $title: 'dontcare',
-        $content: '美譴責飛彈試射 北韓高官：侵犯自衛權形同挑釁',
-        $sender: process.env['USERNAME'],
-        $priority: (Math.random() * 1000) % 4
+      utils.insertMessageChannel(process.env['USERNAME'], {
+        message: `美譴責飛彈試射 北韓高官：侵犯自衛權形同挑釁`,
+        sender: '小猴子'
       })
-      o541.close()
     }, Math.random() * 1000 * 5)
 
   }, 20000)

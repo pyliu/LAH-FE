@@ -96,7 +96,7 @@ class MessageDB {
     }
   }
 
-  get (callback) {
+  getLatestMessage (callback) {
     this.db.get("SELECT * FROM message ORDER BY id DESC", callback)
   }
 }
