@@ -58,8 +58,6 @@ const broadcast = (clients, row) => {
   const connected = clients.length
   if (broadcasting === false && connected > 0) {
     broadcasting = true
-    const MessageDB = require('./message-db.js')
-    const db = new MessageDB('announcement')
     let processed = 0
     clients.forEach(function each(client) {
 
