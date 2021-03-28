@@ -11,6 +11,17 @@ class MessageWatcher {
       MessageWatcher._instance = this;
       // WebSocket Server
       MessageWatcher.wss = wss
+      // static channels
+      MessageWatcher.stickyChannels = [
+        'announcement', // 公告
+        'adm',  // 行政
+        'reg',  // 登記
+        'sur',  // 測量
+        'inf',  // 資訊
+        'val',  // 地價
+        'supervisor', // 主任/秘書
+        'lds' // 喇迪賽
+      ]
       // watch db folder for changes
       const nodeWatch = require('node-watch');
       nodeWatch(
@@ -23,9 +34,10 @@ class MessageWatcher {
   }
 
   watchHandler (evt, name) {
-    console.log(evt, name)
-    // e.g. test.db
+    // evt => 'update' / 'remove', name => 'D:\tmp\code\lah-nuxtjs\ws\db\0541.db'
+    // e.g. 0541.db
     const basename = path.basename(name)
+    // e.g. 0541
     const channel = path.basename(name, '.db')
     if (evt == 'update') {
       // on create or modify
@@ -33,8 +45,9 @@ class MessageWatcher {
       mc.getLatestMessage((err, row) => {
         err && console.warn(err)
         if (row) {
-          if (channel === 'announcement') {
-            utils.broadcast([ ...MessageWatcher.wss.clients ], row)
+          const wsClients = MessageWatcher.getOnlineWsClients(channel)
+          if (MessageWatcher.stickyChannels.includes(channel)) {
+            utils.broadcast(wsClients, row, channel)
           } else {
             // according channel name to find user to send message ... 
             const found = [ ...MessageWatcher.wss.clients ].filter(function(ws, idx, array){
@@ -61,6 +74,13 @@ class MessageWatcher {
   
     if (evt == 'remove') {
       // on delete
+    }
+  }
+
+  static getOnlineWsClients (channel) {
+    switch (channel) {
+      default:
+        return [ ...MessageWatcher.wss.clients ]
     }
   }
 

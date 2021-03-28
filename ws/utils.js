@@ -46,7 +46,8 @@ const packMessage = function (text, opts = {}) {
       date: timestamp('date'),
       time: timestamp('time'),
       message: typeof text === 'string' ? Markd(text, { sanitizer: DOMPurify.sanitize }) : text,
-      ip: ip
+      from: ip,
+      channel: ''
     },
     ...opts
   }
@@ -54,7 +55,7 @@ const packMessage = function (text, opts = {}) {
 }
 
 let broadcasting = false
-const broadcast = (clients, row) => {
+const broadcast = (clients, row, channel = 'lds') => {
   const connected = clients.length
   if (broadcasting === false && connected > 0) {
     broadcasting = true
@@ -64,7 +65,7 @@ const broadcast = (clients, row) => {
       if (!client.user) {
         console.log('沒有使用者資訊，略過廣播此WS頻道 ... ')
       } else if (client.readyState === WebSocket.OPEN) {
-        const json = packMessage(row, { type: 'announcement' })
+        const json = packMessage(row, { type: channel })
         client.send(json)
       }
 
