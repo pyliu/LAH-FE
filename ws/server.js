@@ -67,9 +67,6 @@ try {
   const watcher = new MessageWatcher(wss)
   const handler = new RequestHandler(wss, watcher)
 
-  // watch announcement channel for broadcasting
-  watcher.subscribe('announcement', true)
-
   // new connection handler for remote client
   wss.on('connection', function connection(ws, req) {
     
@@ -92,8 +89,7 @@ try {
 
     ws.on('close', function close() {
       if (this.user) {
-        console.log(`連線已中斷 ${this.user.userid} 頻道將被移除。`)
-        watcher.unsubscribe(this.user.userid)
+        console.log(`${this.user.userid} 連線已中斷`)
       } else {
         console.warn('WebSocket內沒有使用者資訊')
       }
@@ -107,8 +103,7 @@ try {
       if (ws.isAlive === false) {
         console.log(`偵測到 ${ws.user.userid} 的連線已中斷。`)
         if (ws.user) {
-          // remove client channel fs watcher
-          watcher.unsubscribe(ws.user.userid)
+          
         }
         return ws.terminate()
       }
