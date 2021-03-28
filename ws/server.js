@@ -15,7 +15,7 @@ const writeTestMessage = function () {
       $content: news[pick].description,
       $sender: news[pick].source,
       $priority: seed % 4,
-      $ip: utils.ip
+      $from_ip: utils.ip
     })
     announcementChannel.close()
   }, Math.random() * 1000 * 5)
@@ -26,7 +26,7 @@ const writeTestMessage = function () {
     utils.insertMessageChannel(process.env['USERNAME'], {
       message: news[pick].title,
       sender: news[pick].source,
-      ip: utils.ip,
+      from: utils.ip,
       priority: 2,
       flag: 0
     })

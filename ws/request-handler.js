@@ -23,7 +23,8 @@ class RequestHandler {
         case 'register':
           return this.handleRegisterRequest(ws, incoming.message)
         case 'mine':
-          return this.handleMineRequest(ws, incoming)
+          // client side sends message
+          return this.handleClientRequest(ws, incoming)
         default:
           return false
       }
@@ -33,9 +34,11 @@ class RequestHandler {
     return false
   }
 
-  handleMineRequest (ws, json) {
-    utils.insertMessageChannel(json.receiver, json)
+  handleClientRequest (ws, json) {
+    // insert client sent message to the channel db
+    utils.insertMessageChannel(json.channel, json)
     setTimeout(() => {
+      // addition parsing for the commands
       switch (json.message) {
         case '@help':
           console.log(`收到 ${ws.user ? ws.user.userid : '???'} 查詢幫助指令`)

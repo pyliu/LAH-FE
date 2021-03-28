@@ -65,7 +65,7 @@ const broadcast = (clients, row, channel = 'lds') => {
       if (!client.user) {
         console.log('沒有使用者資訊，略過廣播此WS頻道 ... ')
       } else if (client.readyState === WebSocket.OPEN) {
-        const json = packMessage(row, { type: channel, channel: channel })
+        const json = packMessage(row, { channel: channel })
         client.send(json)
       }
 
@@ -85,7 +85,7 @@ const insertMessageChannel = (channel, json) => {
     $content: json['message'],
     $sender: json['sender'],
     $priority: parseInt(json['priority']) || 3,
-    $ip: json['ip'] || '',
+    $from_ip: json['from'] || '',
     $flag: parseInt(json['flag']) || 0
   })
   channelDB.close()

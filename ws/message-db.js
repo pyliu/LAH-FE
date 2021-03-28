@@ -30,8 +30,8 @@ class MessageDB {
 
   createMessageTable () {
     this.insertIntoMessageSQL = `
-      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, ip, flag)
-      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $ip, $flag)
+      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
+      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
     `
     const db = new sqlite3.Database(this.filepath)
     db.run(`
@@ -43,7 +43,7 @@ class MessageDB {
         "create_datetime"	TEXT NOT NULL,
         "expire_datetime"	TEXT,
         "sender"	TEXT NOT NULL,
-        "ip"	TEXT,
+        "from_ip"	TEXT,
         "flag"	INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY("id" AUTOINCREMENT)
       )
@@ -82,7 +82,7 @@ class MessageDB {
           $create_datetime: this.timestamp(),
           $expire_datetime: '',
           $sender: process.env.WEBSOCKET_ROBOT_NAME,
-          $ip: '',
+          $from_ip: '',
           $flag: 0
         },
         ...params
