@@ -1,3 +1,37 @@
+const writeTestMessage = function () {
+  // for testing purpose
+  const MessageDB = require('./message-db.js')
+  const fs = require('fs')
+  const utils = require('./utils.js')
+  const news = JSON.parse(fs.readFileSync(__dirname+'/news.json', 'utf8'))
+  const newsLen = news.length
+
+  setTimeout(() => {
+    const announcementChannel = new MessageDB('announcement')
+    const seed = parseInt(Math.random() * 1000)
+    const pick = seed % newsLen
+    announcementChannel.insertMessage({
+      $title: news[pick].title,
+      $content: news[pick].description,
+      $sender: news[pick].source,
+      $priority: seed % 4,
+      $ip: utils.ip
+    })
+    announcementChannel.close()
+  }, Math.random() * 1000 * 5)
+
+  setTimeout(() => {
+    const seed = parseInt(Math.random() * 1000)
+    const pick = seed % newsLen
+    utils.insertMessageChannel(process.env['USERNAME'], {
+      message: news[pick].title,
+      sender: news[pick].source,
+      ip: utils.ip,
+      priority: 2,
+      flag: 0
+    })
+  }, Math.random() * 1000 * 5)
+}
 try {
   require('dotenv').config()
 
@@ -82,35 +116,9 @@ try {
       ws.ping(function noop() {})
     })
 
-    // for testing purpose
-    const MessageDB = require('./message-db.js')
-    const fs = require('fs')
-    const news = JSON.parse(fs.readFileSync(__dirname+'/news.json', 'utf8'))
-    const newsLen = news.length
+    // test purpose
+    writeTestMessage()
 
-    setTimeout(() => {
-      const announcementChannel = new MessageDB('announcement')
-      const seed = parseInt(Math.random() * 1000)
-      const pick = seed % newsLen
-      announcementChannel.insertMessage({
-        $title: news[pick].title,
-        $content: news[pick].description,
-        $sender: news[pick].source,
-        $priority: seed % 4,
-        $ip: utils.ip
-      })
-      announcementChannel.close()
-    }, Math.random() * 1000 * 5)
-
-    setTimeout(() => {
-      const seed = parseInt(Math.random() * 1000)
-      const pick = seed % newsLen
-      utils.insertMessageChannel(process.env['USERNAME'], {
-        message: news[pick].title,
-        sender: news[pick].source,
-        $ip: utils.ip
-      })
-    }, Math.random() * 1000 * 5)
 
   }, 20000)
   

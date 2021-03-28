@@ -80,13 +80,18 @@ const broadcast = (clients, row) => {
 const insertMessageChannel = (channel, json) => {
   const channelDB = new MessageDB(channel)
   channelDB.insertMessage({
-    $title: 'dontcare',
+    $title: json['title'] || 'dontcare',
     $content: json['message'],
     $sender: json['sender'],
-    $priority: json['priority'] || 3,
-    $ip: json['ip'] || ''
+    $priority: parseInt(json['priority']) || 3,
+    $ip: json['ip'] || '',
+    $flag: parseInt(json['flag']) || 0
   })
   channelDB.close()
+}
+
+const sleep = async function (ms = 0) {
+  return new Promise(r => setTimeout(r, ms));
 }
 
 module.exports.timestamp = timestamp
@@ -94,4 +99,5 @@ module.exports.packMessage = packMessage
 module.exports.broadcast = broadcast
 module.exports.insertMessageChannel = insertMessageChannel
 module.exports.trim = trim
+module.exports.sleep = sleep
 module.exports.ip = ip

@@ -1,10 +1,11 @@
 const fs = require("fs")
 const path = require("path")
+const utils = require("./utils.js")
+const sqlite3 = require("sqlite3").verbose()
 
 class MessageDB {
   
   constructor (channel) {
-    this.insertIntoMessageSQL = "INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, ip) VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $ip)"
     this.channel = channel
     this.retry = 0
 
@@ -18,38 +19,38 @@ class MessageDB {
   }
 
   open () {
-    try {
-      const sqlite3 = require("sqlite3").verbose()
-      this.db = new sqlite3.Database(this.filepath)
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS "message" (
-          "id"	INTEGER,
-          "title"	TEXT,
-          "content"	TEXT NOT NULL,
-          "priority"	INTEGER NOT NULL DEFAULT 3,
-          "create_datetime"	TEXT NOT NULL,
-          "expire_datetime"	TEXT,
-          "sender"	TEXT NOT NULL,
-          "ip"	TEXT,
-          PRIMARY KEY("id" AUTOINCREMENT)
-        )
-      `)
-      this.retry = 0
-    } catch (e) {
-      if (this.retry < 3) {
-        const timeout = parseInt(Math.random() * 1000)
-        console.error(e, `${timeout}ms 後重試打開資料庫 ... `)
-        setTimeout(this.open.bind(this), timeout)
-        this.retry++
-      } else {
-        console.error(e, `${this.filepath} 建立表格失敗`)
-      }
-      
-    }
+    this.createMessageTable()
+    this.db = new sqlite3.Database(this.filepath)
   }
 
   close () {
     this.db.close()
+    this.watcher && this.watcher.close()
+  }
+
+  createMessageTable () {
+    this.insertIntoMessageSQL = `
+      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, ip, flag)
+      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $ip, $flag)
+    `
+    const db = new sqlite3.Database(this.filepath)
+    db.run(`
+      CREATE TABLE IF NOT EXISTS "message" (
+        "id"	INTEGER,
+        "title"	TEXT,
+        "content"	TEXT NOT NULL,
+        "priority"	INTEGER NOT NULL DEFAULT 3,
+        "create_datetime"	TEXT NOT NULL,
+        "expire_datetime"	TEXT,
+        "sender"	TEXT NOT NULL,
+        "ip"	TEXT,
+        "flag"	INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY("id" AUTOINCREMENT)
+      )
+    `, {}, function (err) {
+      err && console.error(err)
+    })
+    db.close()
   }
 
   timestamp (date = 'full') {
@@ -81,7 +82,8 @@ class MessageDB {
           $create_datetime: this.timestamp(),
           $expire_datetime: '',
           $sender: process.env.WEBSOCKET_ROBOT_NAME,
-          $ip: ''
+          $ip: '',
+          $flag: 0
         },
         ...params
       })
@@ -89,7 +91,7 @@ class MessageDB {
     } catch (e) {
       if (this.retry < 3) {
         const timeout = parseInt(Math.random() * 1000)
-        console.error(e, `${timeout}ms 後重試插入新訊息 ... `)
+        console.warn(e, `${timeout}ms 後重試新增訊息 ... `)
         setTimeout(this.insertMessage.bind(this, params), timeout)
         this.retry++
       } else {

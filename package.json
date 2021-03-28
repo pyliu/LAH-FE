@@ -10,7 +10,8 @@
     "post-update": "yarn upgrade --latest",
     "lint:js": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js",
-    "ws": "nodemon ws/server.js"
+    "ws": "node ws/server.js",
+    "ws-dev": "nodemon ws/server.js"
   },
   "dependencies": {
     "@chenfengyuan/vue-countdown": "^1.1.5",
