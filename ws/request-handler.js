@@ -4,10 +4,16 @@ const utils = require('./utils.js')
 class RequestHandler {
   
   constructor (wss, messageWatcher) {
-    // WebSocket Server
-    this.wss = wss
-    // MessageWatcher
-    this.watcher = messageWatcher
+    
+    // singleton
+    if (!RequestHandler._instance) {
+      RequestHandler._instance = this;
+      // WebSocket Server
+      this.wss = wss
+      // MessageWatcher
+      this.watcher = messageWatcher
+    }
+    return RequestHandler._instance;
   }
 
   handle (ws, incomingRaw) {

@@ -1,5 +1,6 @@
 const fs = require('fs')
-
+const path = require('path')
+const watch = require('node-watch');
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 
@@ -8,8 +9,32 @@ class MessageWatcher {
   static channels = []
   
   constructor (wss) {
-    // WebSocket Server
-    this.wss = wss
+    // singleton
+    if (!MessageWatcher._instance) {
+      MessageWatcher._instance = this;
+      // WebSocket Server
+      this.wss = wss
+
+      watch(
+        path.join(__dirname, 'db'),
+        {
+          recursive: true,
+          filter: /\.db$/
+        },
+        function(evt, name) {
+          console.log(evt, name)
+          if (evt == 'update') {
+            // on create or modify
+          }
+        
+          if (evt == 'remove') {
+            // on delete
+          }
+        
+        } 
+      )
+    }
+    return MessageWatcher._instance;
   }
 
   subscribe (channel, broadcast = false) {
