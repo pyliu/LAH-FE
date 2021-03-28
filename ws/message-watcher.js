@@ -49,15 +49,8 @@ class MessageWatcher {
           if (MessageWatcher.stickyChannels.includes(channel)) {
             utils.broadcast(wsClients, row, channel)
           } else {
-            // according channel name to find user to send message ... 
-            const found = [ ...MessageWatcher.wss.clients ].filter(function(ws, idx, array){
-              if (ws.user) {
-                return ws.user.userid === channel
-              }
-              return false
-            })
-            if (found.length > 0) {
-              found.forEach((ws, idx, array) => {
+            if (wsClients.length > 0) {
+              wsClients.forEach((ws, idx, array) => {
                 ws.send(utils.packMessage(row['content'], {
                   sender: row['sender'],
                   date: row['create_datetime'].split(' ')[0],
@@ -77,10 +70,40 @@ class MessageWatcher {
     }
   }
 
+  static filterOnlineClientsByDept (dept) {
+    return [ ...MessageWatcher.wss.clients ].filter(function(ws, idx, array){
+      if (ws.user) {
+        return ws.user.dept === dept
+      }
+      return false
+    })
+  }
+
   static getOnlineWsClients (channel) {
     switch (channel) {
-      default:
+      case 'adm':  // 行政
+        return MessageWatcher.filterOnlineClientsByDept('adm')
+      case 'reg':  // 登記
+        return MessageWatcher.filterOnlineClientsByDept('reg')
+      case 'sur':  // 測量
+        return MessageWatcher.filterOnlineClientsByDept('sur')
+      case 'inf':  // 資訊
+        return MessageWatcher.filterOnlineClientsByDept('inf')
+      case 'val':  // 地價
+        return MessageWatcher.filterOnlineClientsByDept('val')
+      case 'supervisor': // 主任/秘書
+        return MessageWatcher.filterOnlineClientsByDept('supervisor')
+      case 'lds': // 喇迪賽
+      case 'announcement':
         return [ ...MessageWatcher.wss.clients ]
+      default:
+        // according channel name to find user to send message ... 
+        return [ ...MessageWatcher.wss.clients ].filter(function(ws, idx, array){
+          if (ws.user) {
+            return channel.startsWith(ws.user.userid)
+          }
+          return false
+        })
     }
   }
 

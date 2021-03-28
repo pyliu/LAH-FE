@@ -65,7 +65,7 @@ const broadcast = (clients, row, channel = 'lds') => {
       if (!client.user) {
         console.log('沒有使用者資訊，略過廣播此WS頻道 ... ')
       } else if (client.readyState === WebSocket.OPEN) {
-        const json = packMessage(row, { type: channel })
+        const json = packMessage(row, { type: channel, channel: channel })
         client.send(json)
       }
 

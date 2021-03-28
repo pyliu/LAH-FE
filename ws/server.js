@@ -101,10 +101,7 @@ try {
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) {
-        console.log(`偵測到 ${ws.user.userid} 的連線已中斷。`)
-        if (ws.user) {
-          
-        }
+        console.log(`偵測到 ${ws.user.dept} / ${ws.user.userid} 的連線已中斷。`)
         return ws.terminate()
       }
       ws.isAlive = false
