@@ -39,6 +39,9 @@ Vue.mixin({
     ]),
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
     site () {
+      if (this.systemConfigs && this.systemConfigs.site) {
+        return this.systemConfigs.site;
+      }
       if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'H0'
       }
@@ -66,7 +69,7 @@ Vue.mixin({
       if (/(^220\.1\.41\.|^192\.168\.8[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'HG'
       }
-      return this.systemConfigs ? this.systemConfigs.site : 'HB'
+      return 'HB'
     },
     myinfo () {
       return isEmpty(this.user) ? { id: '', name: '' } : this.user
