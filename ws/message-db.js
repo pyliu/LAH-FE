@@ -15,11 +15,18 @@ class MessageDB {
     }
     this.filepath = path.join(this.dbDir, this.channel) + '.db'
 
+    this.insertIntoMessageSQL = `
+      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
+      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
+    `
+
     this.open()
   }
 
   open () {
-    this.createMessageTable()
+    if (!fs.existsSync(this.filepath)) {
+      this.createMessageTable()
+    }
     this.db = new sqlite3.Database(this.filepath)
   }
 
@@ -28,11 +35,7 @@ class MessageDB {
     this.watcher && this.watcher.close()
   }
 
-  createMessageTable () {
-    this.insertIntoMessageSQL = `
-      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
-      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
-    `
+  async createMessageTable () {
     const db = new sqlite3.Database(this.filepath)
     db.run(`
       CREATE TABLE IF NOT EXISTS "message" (
@@ -51,6 +54,7 @@ class MessageDB {
       err && console.error(err)
     })
     db.close()
+    utils.sleep(400)
   }
 
   timestamp (date = 'full') {

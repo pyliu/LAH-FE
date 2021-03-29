@@ -6,18 +6,20 @@ const writeTestMessage = function () {
   const news = JSON.parse(fs.readFileSync(__dirname+'/news.json', 'utf8'))
   const newsLen = news.length
 
+  const adb = new MessageDB('announcement')
+  const sdb = new MessageDB(process.env['USERNAME'])
+
   setTimeout(() => {
-    const announcementChannel = new MessageDB('announcement')
     const seed = parseInt(Math.random() * 1000)
     const pick = seed % newsLen
-    announcementChannel.insertMessage({
-      $title: news[pick].title,
-      $content: news[pick].description,
-      $sender: news[pick].source,
-      $priority: seed % 4,
-      $from_ip: utils.ip
+    utils.insertMessageChannel('announcement', {
+      title: news[pick].title,
+      message: news[pick].description,
+      sender: news[pick].source,
+      from: utils.ip,
+      priority: seed % 4,
+      flag: 0
     })
-    announcementChannel.close()
   }, Math.random() * 1000 * 5)
 
   setTimeout(() => {
@@ -31,6 +33,9 @@ const writeTestMessage = function () {
       flag: 0
     })
   }, Math.random() * 1000 * 5)
+
+  adb.close()
+  sdb.close()
 }
 try {
   require('dotenv').config()
