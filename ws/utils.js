@@ -47,7 +47,7 @@ const packMessage = function (text, opts = {}) {
       time: timestamp('time'),
       message: typeof text === 'string' ? Markd(text, { sanitizer: DOMPurify.sanitize }) : text,
       from: ip,
-      channel: ''
+      channel: process.env['USERNAME']
     },
     ...opts
   }
