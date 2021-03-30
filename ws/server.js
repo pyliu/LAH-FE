@@ -88,7 +88,7 @@ try {
       } else if (processedMessage === true) {
         
       } else {
-        this.send(utils.packMessage(processedMessage))
+        this.send(utils.packMessage(processedMessage, { channel: this.user.userid }))
       }
     })
 

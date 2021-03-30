@@ -54,7 +54,7 @@ class MessageDB {
       err && console.error(err)
     })
     db.close()
-    utils.sleep(400)
+    await utils.sleep(400)
   }
 
   timestamp (date = 'full') {
