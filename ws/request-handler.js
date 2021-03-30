@@ -1,5 +1,6 @@
 const WebSocket = require('ws')
 const utils = require('./utils.js')
+const MessageDB = require('./message-db.js')
 
 class RequestHandler {
   
@@ -18,6 +19,8 @@ class RequestHandler {
 
   handle (ws, incomingRaw) {
     const incoming = JSON.parse(incomingRaw)
+    // create db if not exists
+    incoming.channel && new MessageDB(incoming.channel)
     if (typeof incoming === 'object' && incoming.type) {
       switch (incoming.type) {
         case 'register':

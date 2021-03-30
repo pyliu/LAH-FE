@@ -37,6 +37,7 @@ const writeTestMessage = function () {
   adb.close()
   sdb.close()
 }
+const isDev = process.env.NODE_ENV !== 'production'
 try {
   require('dotenv').config()
 
@@ -81,7 +82,7 @@ try {
     })
 
     ws.on('message', function incoming(message) {
-      console.log(message)
+      isDev && console.log(message)
       const processedMessage = handler.handle(this, message)
       if (processedMessage === false) {
         this.send(utils.packMessage(`WS伺服器無法處理您的請求 ${message}`))
@@ -114,7 +115,7 @@ try {
     })
 
     // test purpose
-    writeTestMessage()
+    isDev && writeTestMessage()
 
 
   }, 20000)

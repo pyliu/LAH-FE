@@ -88,7 +88,6 @@ const insertMessageChannel = (channel, json) => {
     $from_ip: json['from'] || '',
     $flag: parseInt(json['flag']) || 0
   })
-  channelDB.close()
 }
 
 const sleep = async function (ms = 0) {

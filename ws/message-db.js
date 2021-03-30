@@ -7,6 +7,10 @@ class MessageDB {
   
   constructor (channel) {
     this.channel = channel
+    this.insertIntoMessageSQL = `
+      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
+      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
+    `
     this.retry = 0
 
     this.dbDir = path.join(__dirname, 'db')
@@ -15,18 +19,12 @@ class MessageDB {
     }
     this.filepath = path.join(this.dbDir, this.channel) + '.db'
 
-    this.insertIntoMessageSQL = `
-      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
-      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
-    `
 
+    this.createMessageTable()
     this.open()
   }
 
   open () {
-    if (!fs.existsSync(this.filepath)) {
-      this.createMessageTable()
-    }
     this.db = new sqlite3.Database(this.filepath)
   }
 
@@ -36,25 +34,27 @@ class MessageDB {
   }
 
   async createMessageTable () {
-    const db = new sqlite3.Database(this.filepath)
-    db.run(`
-      CREATE TABLE IF NOT EXISTS "message" (
-        "id"	INTEGER,
-        "title"	TEXT,
-        "content"	TEXT NOT NULL,
-        "priority"	INTEGER NOT NULL DEFAULT 3,
-        "create_datetime"	TEXT NOT NULL,
-        "expire_datetime"	TEXT,
-        "sender"	TEXT NOT NULL,
-        "from_ip"	TEXT,
-        "flag"	INTEGER NOT NULL DEFAULT 0,
-        PRIMARY KEY("id" AUTOINCREMENT)
-      )
-    `, {}, function (err) {
-      err && console.error(err)
-    })
-    db.close()
-    await utils.sleep(400)
+    if (!fs.existsSync(this.filepath)) {
+      const db = new sqlite3.Database(this.filepath)
+      db.run(`
+        CREATE TABLE IF NOT EXISTS "message" (
+          "id"	INTEGER,
+          "title"	TEXT,
+          "content"	TEXT NOT NULL,
+          "priority"	INTEGER NOT NULL DEFAULT 3,
+          "create_datetime"	TEXT NOT NULL,
+          "expire_datetime"	TEXT,
+          "sender"	TEXT NOT NULL,
+          "from_ip"	TEXT,
+          "flag"	INTEGER NOT NULL DEFAULT 0,
+          PRIMARY KEY("id" AUTOINCREMENT)
+        )
+      `, {}, function (err) {
+        err && console.error(err)
+      })
+      await utils.sleep(400)
+      db.close()
+    }
   }
 
   timestamp (date = 'full') {
@@ -77,31 +77,33 @@ class MessageDB {
   }
 
   insertMessage (params) {
-    try {
-      this.db.run(this.insertIntoMessageSQL, {
-        ...{
-          $title: '',
-          $content: '',
-          $priority: 3,
-          $create_datetime: this.timestamp(),
-          $expire_datetime: '',
-          $sender: process.env.WEBSOCKET_ROBOT_NAME,
-          $from_ip: '',
-          $flag: 0
-        },
-        ...params
-      })
-      this.retry = 0
-    } catch (e) {
-      if (this.retry < 3) {
-        const timeout = parseInt(Math.random() * 1000)
-        console.warn(e, `${timeout}ms 後重試新增訊息 ... `)
-        setTimeout(this.insertMessage.bind(this, params), timeout)
-        this.retry++
+    const that = this
+    this.db.run(this.insertIntoMessageSQL, {
+      ...{
+        $title: '',
+        $content: '',
+        $priority: 3,
+        $create_datetime: this.timestamp(),
+        $expire_datetime: '',
+        $sender: process.env.WEBSOCKET_ROBOT_NAME,
+        $from_ip: '',
+        $flag: 0
+      },
+      ...params
+    }, {}, function (err) {
+      if (err) {
+        if (that.retry < 3) {
+          const timeout = parseInt(Math.random() * 1000)
+          console.warn(err, `${timeout}ms 後重試新增訊息 ... `)
+          setTimeout(that.insertMessage.bind(that, params), timeout)
+          that.retry++
+        } else {
+          console.error(err, `插入新訊息失敗 ${this.channel} "${params.$content}"`)
+        }
       } else {
-        console.error(e, `插入新訊息失敗 ${this.channel} "${params.$content}"`)
+        that.retry = 0
       }
-    }
+    })
   }
 
   getLatestMessage (callback) {
