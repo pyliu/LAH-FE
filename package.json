@@ -43,7 +43,6 @@
     "nuxt-fontawesome": "^0.4.0",
     "qs": "^6.9.4",
     "sqlite3": "^5.0.2",
-    "uWebSockets.js": "uNetworking/uWebSockets.js#v18.14.0",
     "vue-chartjs": "^3.5.1",
     "ws": "^7.4.4"
   },
