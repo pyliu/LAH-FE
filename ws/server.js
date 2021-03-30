@@ -20,7 +20,7 @@ const writeTestMessage = function () {
       priority: seed % 4,
       flag: 0
     })
-  }, Math.random() * 1000 * 5)
+  }, Math.random() * 1000 * 3)
 
   setTimeout(() => {
     const seed = parseInt(Math.random() * 1000)
@@ -29,10 +29,10 @@ const writeTestMessage = function () {
       message: news[pick].title,
       sender: news[pick].source,
       from: utils.ip,
-      priority: 2,
+      priority: 3,
       flag: 0
     })
-  }, Math.random() * 1000 * 5)
+  }, Math.random() * 1000 * 3)
 
   adb.close()
   sdb.close()
@@ -118,7 +118,7 @@ try {
     isDev && writeTestMessage()
 
 
-  }, 20000)
+  }, isDev ? 5000 : 20000)
   
   wss.on('close', function close() {
     clearInterval(interval)
