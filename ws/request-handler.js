@@ -94,7 +94,8 @@ class RequestHandler {
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     ws.user = user
     isDev && console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}, ${user.dept}) 已儲存於 ws 物件中。`)
-    return `${user.userid}:${user.username} 已連線`
+    // return `${user.userid}:${user.username} 已連線`
+    return true
   }
 
   handleHelpRequest (ws) {
