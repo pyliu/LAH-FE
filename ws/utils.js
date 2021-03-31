@@ -69,7 +69,19 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
       } else if (client.readyState === WebSocket.OPEN) {
         // if the input is a array then retrive its id as the message id
         const messageId = typeof rowORtext === 'array' ? rowORtext['id'] : 0
-        const json = packMessage(rowORtext, { channel: channel, id: messageId })
+
+        // channel === 'lds' && console.log(rowORtext)
+        const opts = {}
+        if (channel !== 'announcement') {
+          opts.sender = rowORtext.sender
+          opts.date = rowORtext.create_datetime.split(' ')[0]
+          opts.time = rowORtext.create_datetime.split(' ')[1]
+          opts.message = rowORtext.content
+          opts.from = rowORtext.$from_ip
+          opts.channel = channel
+        }
+
+        const json = packMessage(rowORtext, { ...opts, channel: channel, id: messageId })
         client.send(json)
       }
 
