@@ -52,6 +52,7 @@ class MessageWatcher {
             if (wsClients.length > 0) {
               wsClients.forEach((ws, idx, array) => {
                 ws.send(utils.packMessage(row['content'], {
+                  id: row['id'],
                   sender: row['sender'],
                   date: row['create_datetime'].split(' ')[0],
                   time: row['create_datetime'].split(' ')[1],
