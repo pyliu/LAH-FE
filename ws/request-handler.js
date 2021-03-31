@@ -25,6 +25,9 @@ class RequestHandler {
       switch (incoming.type) {
         case 'register':
           return this.handleRegisterRequest(ws, incoming.message)
+        case 'latest':
+          // this type message should be a string that presents channel
+          return this.handleLatestMessageRequest(ws, incoming.message)
         case 'mine':
           // client side sends message
           return this.handleClientRequest(ws, incoming)
@@ -35,6 +38,24 @@ class RequestHandler {
       console.warn(`${incoming} is not a valid json object, skip the request ... `, `RAW: ${incomingRaw}`)
     }
     return false
+  }
+
+  handleLatestMessageRequest (ws, channel) {
+    const channelDB = new MessageDB(channel)
+    channelDB.getLatestMessageByCount(10, (err, row) => {
+      err && console.warn(err)
+      if (channel === 'announcement') {
+        ws.send(utils.packMessage(row, { channel: channel }))
+      } else {
+        ws.send(utils.packMessage(row['content'], {
+          sender: row['sender'],
+          date: row['create_datetime'].split(' ')[0],
+          time: row['create_datetime'].split(' ')[1],
+          from: row['ip'],
+          channel: channel
+        }))
+      }
+    })
   }
 
   handleClientRequest (ws, json) {
