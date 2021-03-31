@@ -38,6 +38,11 @@ class RequestHandler {
   }
 
   handleClientRequest (ws, json) {
+    if (json.channel === 'announcement') {
+      // skip message from announcement channel
+      console.log('收到客戶端送給 announcement 頻道訊息，略過不處理。', json)
+      return false
+    }
     // insert client sent message to the channel db
     utils.insertMessageChannel(json.channel, json)
     setTimeout(() => {
