@@ -54,6 +54,7 @@ class RequestHandler {
           ws.send(utils.packMessage(row, { channel: channel }))
         } else {
           ws.send(utils.packMessage(row['content'], {
+            id: row['id'],
             sender: row['sender'],
             date: row['create_datetime'].split(' ')[0],
             time: row['create_datetime'].split(' ')[1],

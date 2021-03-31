@@ -70,9 +70,10 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
         // if the input is a array then retrive its id as the message id
         const messageId = typeof rowORtext === 'array' ? rowORtext['id'] : 0
 
-        // channel === 'lds' && console.log(rowORtext)
+        // channel === 'supervisor' && console.log(rowORtext)
         const opts = {}
         if (channel !== 'announcement') {
+          opts.id = rowORtext.id
           opts.sender = rowORtext.sender
           opts.date = rowORtext.create_datetime.split(' ')[0]
           opts.time = rowORtext.create_datetime.split(' ')[1]
@@ -81,7 +82,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
           opts.channel = channel
         }
 
-        const json = packMessage(rowORtext, { ...opts, channel: channel, id: messageId })
+        const json = packMessage(rowORtext, { channel: channel, id: messageId, ...opts })
         client.send(json)
       }
 
