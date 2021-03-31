@@ -1,3 +1,4 @@
+const isEmpty = require('lodash/isEmpty')
 const DOMPurify = require('dompurify')
 const Markd = require('marked')
 const WebSocket = require('ws')
@@ -100,4 +101,5 @@ module.exports.broadcast = broadcast
 module.exports.insertMessageChannel = insertMessageChannel
 module.exports.trim = trim
 module.exports.sleep = sleep
+module.exports.isEmpty = isEmpty
 module.exports.ip = ip

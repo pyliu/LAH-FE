@@ -2,6 +2,8 @@ const WebSocket = require('ws')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 class RequestHandler {
   
   constructor (wss, messageWatcher) {
@@ -19,6 +21,8 @@ class RequestHandler {
 
   handle (ws, incomingRaw) {
     const incoming = JSON.parse(incomingRaw)
+    
+    isDev && console.log('收到客戶端訊息', incoming)
     // create db if not exists
     incoming.channel && new MessageDB(incoming.channel)
     if (typeof incoming === 'object' && incoming.type) {
@@ -43,17 +47,20 @@ class RequestHandler {
   handleLatestMessageRequest (ws, channel) {
     const channelDB = new MessageDB(channel)
     channelDB.getLatestMessageByCount(10, (err, row) => {
-      err && console.warn(err)
-      if (channel === 'announcement') {
-        ws.send(utils.packMessage(row, { channel: channel }))
+      if (err) {
+        console.warn(err, row)
       } else {
-        ws.send(utils.packMessage(row['content'], {
-          sender: row['sender'],
-          date: row['create_datetime'].split(' ')[0],
-          time: row['create_datetime'].split(' ')[1],
-          from: row['ip'],
-          channel: channel
-        }))
+        if (channel === 'announcement') {
+          ws.send(utils.packMessage(row, { channel: channel }))
+        } else {
+          ws.send(utils.packMessage(row['content'], {
+            sender: row['sender'],
+            date: row['create_datetime'].split(' ')[0],
+            time: row['create_datetime'].split(' ')[1],
+            from: row['ip'],
+            channel: channel
+          }))
+        }
       }
     })
   }
@@ -85,7 +92,7 @@ class RequestHandler {
     const user = JSON.parse(message)
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     ws.user = user
-    console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}, ${user.dept}) 已儲存於 socket 物件中。`)
+    isDev && console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}, ${user.dept}) 已儲存於 ws 物件中。`)
     return `${user.userid}:${user.username} 已連線`
   }
 

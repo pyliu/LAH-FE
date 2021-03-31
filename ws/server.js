@@ -82,7 +82,6 @@ try {
     })
 
     ws.on('message', function incoming(message) {
-      isDev && console.log(message)
       const processedMessage = handler.handle(this, message)
       if (processedMessage === false) {
         this.send(utils.packMessage(`WS伺服器無法處理您的請求 ${message}`))
