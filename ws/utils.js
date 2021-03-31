@@ -76,7 +76,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
           opts.sender = rowORtext.sender
           opts.date = rowORtext.create_datetime.split(' ')[0]
           opts.time = rowORtext.create_datetime.split(' ')[1]
-          opts.message = rowORtext.content
+          opts.message = Markd(rowORtext.content, { sanitizer: DOMPurify.sanitize })
           opts.from = rowORtext.$from_ip
           opts.channel = channel
         }
