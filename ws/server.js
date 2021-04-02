@@ -6,9 +6,6 @@ const writeTestMessage = function () {
   const news = JSON.parse(fs.readFileSync(__dirname+'/news.json', 'utf8'))
   const newsLen = news.length
 
-  const adb = new MessageDB('announcement')
-  const sdb = new MessageDB(process.env['USERNAME'])
-
   setTimeout(() => {
     const seed = parseInt(Math.random() * 1000)
     const pick = seed % newsLen
@@ -25,6 +22,18 @@ const writeTestMessage = function () {
   setTimeout(() => {
     const seed = parseInt(Math.random() * 1000)
     const pick = seed % newsLen
+    utils.insertMessageChannel('lds', {
+      message: news[pick].description,
+      sender: news[pick].source,
+      from: utils.ip,
+      priority: 0,
+      flag: 0
+    })
+  }, Math.random() * 1000 * 3)
+
+  setTimeout(() => {
+    const seed = parseInt(Math.random() * 1000)
+    const pick = seed % newsLen
     utils.insertMessageChannel(process.env['USERNAME'], {
       message: news[pick].title,
       sender: news[pick].source,
@@ -34,8 +43,6 @@ const writeTestMessage = function () {
     })
   }, Math.random() * 1000 * 3)
 
-  adb.close()
-  sdb.close()
 }
 const isDev = process.env.NODE_ENV !== 'production'
 try {
