@@ -18,19 +18,30 @@ class MessageDB {
       fs.mkdirSync(this.dbDir)
     }
     this.filepath = path.join(this.dbDir, this.channel) + '.db'
-
-
-    this.createMessageTable()
     this.open()
   }
 
   open () {
+    this.copyEmptyMessageTable()
+    // this.createMessageTable()
     this.db = new sqlite3.Database(this.filepath)
   }
 
   close () {
     this.db.close()
     this.watcher && this.watcher.close()
+  }
+
+  copyEmptyMessageTable () {
+    try {
+      if (!fs.existsSync(this.filepath)) {
+        const samplePath = path.join(__dirname, 'dimension', 'message') + '.db'
+        fs.copyFileSync(samplePath, this.filepath)
+      }
+    } catch (e) {
+      console.warn('拷貝預設的訊息資料庫失敗，嘗試動態生成 ... ')
+      this.createMessageTable()
+    }
   }
 
   async createMessageTable () {
