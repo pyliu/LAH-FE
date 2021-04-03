@@ -68,7 +68,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
         console.log('沒有使用者資訊，略過廣播此WS頻道 ... ')
       } else if (client.readyState === WebSocket.OPEN) {
         // if the input is a array then retrive its id as the message id
-        const messageId = typeof rowORtext === 'array' ? rowORtext['id'] : 0
+        const messageId = typeof rowORtext === 'array' || typeof rowORtext === 'object' ? rowORtext['id'] : 0
 
         // channel === 'supervisor' && console.log(rowORtext)
         const opts = {}
