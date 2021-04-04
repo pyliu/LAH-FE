@@ -137,5 +137,21 @@ class MessageDB {
       }
     }
   }
+
+  getMessageByDate (date, callback) {
+    try {
+      this.db.each(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE '${date}%' ORDER BY id DESC`, callback)
+      this.retry = 0
+    } catch (e) {
+      if (that.retry < 3) {
+        const timeout = parseInt(Math.random() * 1000)
+        console.warn(err, `${timeout}ms 後重試取得 ${this.channel} 最新訊息 ... `)
+        setTimeout(this.getLatestMessageByCount.bind(this, count, callback), timeout)
+        this.retry++
+      } else {
+        console.error(err, `取得 ${this.channel} 最新訊息失敗`)
+      }
+    }
+  }
 }
 module.exports = MessageDB
