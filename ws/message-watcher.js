@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const debounce = require('lodash/debounce')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 
@@ -27,7 +28,7 @@ class MessageWatcher {
       nodeWatch(
         path.join(__dirname, 'db'),
         { recursive: true, filter: /\.db$/ },
-        this.watchHandler
+        debounce(this.watchHandler, 50)
       )
     }
     return MessageWatcher._instance;
