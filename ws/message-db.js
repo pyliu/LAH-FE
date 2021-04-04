@@ -124,7 +124,7 @@ class MessageDB {
   getLatestMessageByCount (count, callback) {
     try {
       const i = parseInt(count)
-      this.db.each(`SELECT * FROM (SELECT * FROM message ORDER BY id DESC LIMIT ${i}) ORDER BY id ASC`, callback)
+      this.db.each(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ${i}) ORDER BY id ASC`, callback)
       this.retry = 0
     } catch (e) {
       if (that.retry < 3) {
