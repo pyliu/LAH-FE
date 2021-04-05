@@ -3,6 +3,7 @@ const path = require('path')
 const debounce = require('lodash/debounce')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
+const ChannelDB = require('./channel-db.js')
 
 class MessageWatcher {
   
@@ -28,7 +29,7 @@ class MessageWatcher {
       nodeWatch(
         path.join(__dirname, 'db'),
         { recursive: true, filter: /\.db$/ },
-        debounce(this.watchHandler, 50)
+        this.watchHandler
       )
     }
     return MessageWatcher._instance;
@@ -42,7 +43,7 @@ class MessageWatcher {
     const channel = path.basename(name, '.db')
     if (evt == 'update') {
       // on create or modify
-      let mc = new MessageDB(channel)
+      const mc = new MessageDB(channel)
       mc.getLatestMessage((err, row) => {
         err && console.warn(err)
         if (row) {
@@ -50,18 +51,37 @@ class MessageWatcher {
           if (MessageWatcher.stickyChannels.includes(channel)) {
             utils.broadcast(wsClients, row, channel)
           } else {
-            if (wsClients.length > 0) {
-              wsClients.forEach((ws, idx, array) => {
-                ws.send(utils.packMessage(row['content'], {
-                  id: row['id'],
-                  sender: row['sender'],
-                  date: row['create_datetime'].split(' ')[0],
-                  time: row['create_datetime'].split(' ')[1],
-                  from: row['ip'],
-                  channel: channel
-                }))
+            // prepare message
+            const packedMessage = utils.packMessage(row['content'], {
+              id: row['id'],
+              sender: row['sender'],
+              date: row['create_datetime'].split(' ')[0],
+              time: row['create_datetime'].split(' ')[1],
+              from: row['ip'],
+              channel: channel
+            })
+
+            // find user own channel ws 
+            const ownWs = wsClients.find((ws, idx, arr) => {
+              if (ws.user) {
+                return ws.user.userid === channel
+              }
+              return false
+            })
+            ownWs && ownWs.send(packedMessage)
+
+            // search channel participants and delivery message to them
+            const channelDb = new ChannelDB()
+            channelDb.getParticipantByChannel(channel, (perr, prow) => {
+              perr && console.warn(`取得頻道 ${channel} 參與者失敗`, perr)
+              const found = wsClients.find((ws, idx, arr) => {
+                if (ws.user) {
+                  return ws.user.userid === prow['user_id']
+                }
+                return false
               })
-            } 
+              found && found.send(packedMessage)
+            })
           }
         }
       })
@@ -97,15 +117,8 @@ class MessageWatcher {
         return MessageWatcher.filterOnlineClientsByDept('supervisor')
       case 'lds': // 喇迪賽
       case 'announcement':
-        return [ ...MessageWatcher.wss.clients ]
       default:
-        // according channel name to find user to send message ... 
-        return [ ...MessageWatcher.wss.clients ].filter(function(ws, idx, array){
-          if (ws.user) {
-            return channel.startsWith(ws.user.userid)
-          }
-          return false
-        })
+        return [ ...MessageWatcher.wss.clients ]
     }
   }
 

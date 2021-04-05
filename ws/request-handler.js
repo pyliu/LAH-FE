@@ -1,6 +1,7 @@
 const WebSocket = require('ws')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
+const ChannelDB = require('./channel-db.js')
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -24,7 +25,7 @@ class RequestHandler {
     
     isDev && console.log('收到客戶端訊息', incoming)
     // create db if not exists
-    incoming.channel && new MessageDB(incoming.channel)
+    // incoming.channel && new MessageDB(incoming.channel)
     if (typeof incoming === 'object' && incoming.type) {
       switch (incoming.type) {
         case 'register':
@@ -32,6 +33,9 @@ class RequestHandler {
         case 'latest':
           // this type message should be a string that presents channel
           return this.handleLatestMessageRequest(ws, incoming.message)
+        case 'channel':
+          // get broadcast channel settings
+          return this.handleChannelRequest(ws)
         case 'mine':
           // client side sends message
           return this.handleClientRequest(ws, incoming)
@@ -94,8 +98,25 @@ class RequestHandler {
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     ws.user = user
     isDev && console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}, ${user.dept}) 已儲存於 ws 物件中。`)
-    // return `${user.userid}:${user.username} 已連線`
+  
+    // also query joined channels
+    this.handleChannelRequest(ws)
+
     return true
+  }
+
+  handleChannelRequest (ws) {
+    const db = new ChannelDB()
+    db.getChannelByParticipant(ws.user.userid, (err, row) => {
+      isDev && err && console.warn(`getChannelByParticipant error`, err)
+      !err && ws.send(utils.packMessage(
+        { action: 'add_channel', ...row },  // message
+        {
+          id: row['id'],
+          channel: 'system'
+        }
+      ))
+    })
   }
 
   handleHelpRequest (ws) {

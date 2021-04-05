@@ -6,7 +6,7 @@ const sqlite3 = require("sqlite3").verbose()
 class MessageDB {
   
   constructor (channel) {
-    this.channel = channel
+    this.channel = String(channel)
     this.insertIntoMessageSQL = `
       INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
       VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
@@ -143,7 +143,7 @@ class MessageDB {
       this.db.each(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE '${date}%' ORDER BY id DESC`, callback)
       this.retry = 0
     } catch (e) {
-      if (that.retry < 3) {
+      if (this.retry < 3) {
         const timeout = parseInt(Math.random() * 1000)
         console.warn(err, `${timeout}ms 後重試取得 ${this.channel} 最新訊息 ... `)
         setTimeout(this.getLatestMessageByCount.bind(this, count, callback), timeout)
