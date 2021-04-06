@@ -48,9 +48,11 @@ class RequestHandler {
     return false
   }
 
-  handleLatestMessageRequest (ws, channel) {
+  handleLatestMessageRequest (ws, params) {
+    const channel = params.channel
+    const count = parseInt(params.count) || 20
     const channelDB = new MessageDB(channel)
-    channelDB.getLatestMessageByCount(10, (err, row) => {
+    channelDB.getLatestMessageByCount(count, (err, row) => {
       if (err) {
         console.warn(err, row)
       } else {
