@@ -16,16 +16,24 @@ module.exports = {
     watch: true,
     ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git"],
     max_memory_restart: '256M',
+    env: {
+      NODE_ENV: 'production'
+    }
   }, {
     name: 'LAH-WSS',
     exec_mode: 'cluster',
     instances: 1,
     script: './ws/server.js',
+    out_file: '../wss_out.log',
+    error_file: '../wss_err.log',
     args: 'ws',
     cron_restart: '0 7 * * *',
     time: true,
     watch: true,
     ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git"],
-    max_memory_restart: '256M',
+    max_memory_restart: '1024M',
+    env: {
+      NODE_ENV: 'production'
+    }
   }]
 }

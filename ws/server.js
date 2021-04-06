@@ -32,7 +32,9 @@ const writeTestMessage = function () {
   }, Math.random() * 1000 * 3)
 
 }
+
 const isDev = process.env.NODE_ENV !== 'production'
+
 try {
   require('dotenv').config()
 
@@ -93,8 +95,10 @@ try {
       } else {
         console.warn('WebSocket內沒有使用者資訊')
       }
-    });
+      console.log(`目前已連線客戶數 ${[...wss.clients].length}}`)
+    })
 
+    console.log(`目前已連線客戶數 ${[...wss.clients].length}}`)
   })
 
   // remove dead connection every 20s

@@ -108,7 +108,7 @@ class RequestHandler {
   handleChannelRequest (ws) {
     const db = new ChannelDB()
     db.getChannelByParticipant(ws.user.userid, (err, row) => {
-      isDev && err && console.warn(`getChannelByParticipant error`, err)
+      err && console.warn(`getChannelByParticipant error`, err)
       !err && ws.send(utils.packMessage(
         { action: 'add_channel', ...row },  // message
         {
