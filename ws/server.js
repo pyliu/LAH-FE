@@ -75,7 +75,8 @@ try {
     
     ws.isAlive = true
     ws.on('pong', function heartbeat() {
-      this.isAlive = true
+      // only ws has user info is treated as alive
+      this.isAlive = typeof this.user === 'object'
     })
 
     ws.on('message', function incoming(message) {
@@ -105,7 +106,8 @@ try {
   const interval = setInterval(function ping() {
     wss.clients.forEach(function each(ws) {
       if (ws.isAlive === false) {
-        console.log(`偵測到 ${ws.user.dept} / ${ws.user.userid} 的連線已中斷。`)
+        ws.user && console.log(`偵測到 ${ws.user.dept} / ${ws.user.userid} 的連線已中斷。`)
+        !ws.user && console.log(`偵測到無使用者資訊的連線，斷線 ... `)
         return ws.terminate()
       }
       ws.isAlive = false
