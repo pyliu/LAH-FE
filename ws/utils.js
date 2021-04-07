@@ -1,6 +1,6 @@
 const isEmpty = require('lodash/isEmpty')
-const DOMPurify = require('dompurify')
 const Markd = require('marked')
+const DOMPurify = require('dompurify')
 const WebSocket = require('ws')
 const MessageDB = require('./message-db.js')
 
@@ -18,7 +18,7 @@ for (const name of Object.keys(nets)) {
   }
 }
 
-const trim = (x) => { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' }
+const trim = (x) => { return typeof x === 'string' ? x.replace(/^[\s\r\n]+|[\s\r\n]+$/gm,'') : '' }
 
 const timestamp = function (date = 'time') {
   const now = new Date()
@@ -47,11 +47,20 @@ const packMessage = function (text, opts = {}) {
       sender: process.env.WEBSOCKET_ROBOT_NAME,
       date: timestamp('date'),
       time: timestamp('time'),
-      message: typeof text === 'string' ? Markd(text, { sanitizer: DOMPurify.sanitize }) : text,
+      message: text,
       from: ip,
       channel: process.env['USERNAME']
     },
     ...opts
+  }
+  if (typeof args.message === 'string') {
+    args.message = trim(Markd(args.message, { sanitizer: DOMPurify.sanitize }))
+    // markd generated message into <p>....</p>
+    const innerText = args.message.replace(/(<p[^>]+?>|<p>|<\/p>)/img, '')
+    // test if the inner text contain HTML element
+    if (!/<\/?[a-z][\s\S]*>/i.test(innerText)) {
+      args.message = args.message.replace(/(?:\r\n|\r|\n)/g, '<br>')
+    }
   }
   return JSON.stringify(args)
 }
