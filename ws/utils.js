@@ -59,7 +59,7 @@ const packMessage = function (text, opts = {}) {
     const innerText = args.message.replace(/(<p[^>]+?>|<p>|<\/p>)/img, '')
     // test if the inner text contain HTML element
     if (!/<\/?[a-z][\s\S]*>/i.test(innerText)) {
-      args.message = args.message.replace(/(?:\r\n|\r|\n)/g, '<br>')
+      args.message = args.message.replace(/(?:\r\n|\r|\n)/g, '<br/>')
     }
   }
   return JSON.stringify(args)

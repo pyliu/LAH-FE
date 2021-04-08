@@ -1,4 +1,5 @@
 const WebSocket = require('ws')
+const isEmpty = require('lodash/isEmpty')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 const ChannelDB = require('./channel-db.js')
@@ -24,6 +25,12 @@ class RequestHandler {
     const incoming = JSON.parse(incomingRaw)
     
     isDev && console.log('收到客戶端訊息', incoming)
+
+    if (isEmpty(incoming.channel) && isEmpty(incoming.message.channel) && incoming.type !== 'register') {
+      console.warn(`沒有頻道資訊，無法處理此訊息`, incoming)
+      return
+    }
+
     // create db if not exists
     // incoming.channel && new MessageDB(incoming.channel)
     if (typeof incoming === 'object' && incoming.type) {
