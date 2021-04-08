@@ -26,7 +26,7 @@ class RequestHandler {
     
     isDev && console.log('收到客戶端訊息', incoming)
 
-    if (isEmpty(incoming.channel) && isEmpty(incoming.message.channel) && incoming.type !== 'register') {
+    if (incoming.channel === undefined && incoming.message.channel === undefined && incoming.type !== 'register') {
       console.warn(`沒有頻道資訊，無法處理此訊息`, incoming)
       return
     }
@@ -107,7 +107,6 @@ class RequestHandler {
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     ws.user = user
     isDev && console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}, ${user.dept}) 已儲存於 ws 物件中。`)
-  
     // also query joined channels
     this.handleChannelRequest(ws)
 
@@ -118,6 +117,7 @@ class RequestHandler {
     const db = new ChannelDB()
     db.getChannelByParticipant(ws.user.userid, (err, row) => {
       err && console.warn(`getChannelByParticipant error`, err)
+      isDev && console.log(`參與頻道資訊`, row)
       !err && ws.send(utils.packMessage(
         { action: 'add_channel', ...row },  // message
         {

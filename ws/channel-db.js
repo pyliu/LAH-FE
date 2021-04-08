@@ -105,9 +105,30 @@ class ChannelDB {
   }
 
   getChannelByParticipant (userId, callback) {
-    this.db.each(`
-      SELECT * FROM channel WHERE id IN (SELECT DISTINCT channel_id FROM participant WHERE user_id ='${userId}')
-      ORDER BY name, id
+      this.db.each(`
+        SELECT * FROM channel WHERE id IN (SELECT DISTINCT channel_id FROM participant WHERE user_id ='${userId}')
+        ORDER BY name, id
+      `, (err, row) => {
+        err && console.error(`ChannelDB::getChannelByParticipant`, err)
+        // row: { id: 10, name: 'DONTCARE', host: null, password: null, type: 0 }
+        // add participants into the channel row
+        row['participants'] = []
+        this.getAllParticipantByChannel(row['id'], (ierr, irows) => {
+          // irow: { id: 1, channel_id: 10, user_id: HB0541 }
+          ierr && console.error(`ChannelDB::getAllParticipantByChannel`, err)
+          irows.forEach((val, idx, arr) => {
+            row['participants'].push(val['user_id'])
+          })
+          // callback for the channel
+          callback(err, row)
+        })
+      })
+  }
+
+  getAllParticipantByChannel (channelId, callback) {
+    this.db.all(`
+      SELECT * FROM participant WHERE channel_id = '${channelId}'
+      ORDER BY user_id
     `, callback)
   }
 
