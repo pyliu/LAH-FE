@@ -49,7 +49,7 @@ const packMessage = function (text, opts = {}) {
       time: timestamp('time'),
       message: text,
       from: ip,
-      channel: process.env['USERNAME']
+      channel: 'blackhole'
     },
     ...opts
   }
