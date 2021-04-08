@@ -31,14 +31,13 @@ class RequestHandler {
       return
     }
 
-    // create db if not exists
-    // incoming.channel && new MessageDB(incoming.channel)
     if (typeof incoming === 'object' && incoming.type) {
       switch (incoming.type) {
         case 'register':
+          // log user info
           return this.handleRegisterRequest(ws, incoming.message)
         case 'latest':
-          // this type message should be a string that presents channel
+          // this type message should be an object that contains channel, count keys
           return this.handleLatestMessageRequest(ws, incoming.message)
         case 'channel':
           // get broadcast channel settings
