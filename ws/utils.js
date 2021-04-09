@@ -39,7 +39,7 @@ const timestamp = function (date = 'time') {
   }
 }
 
-const packMessage = function (text, opts = {}) {
+const packMessage = function (payload, opts = {}) {
   const args = {
     ...{
       type: 'remote',
@@ -47,7 +47,7 @@ const packMessage = function (text, opts = {}) {
       sender: process.env.WEBSOCKET_ROBOT_NAME,
       date: timestamp('date'),
       time: timestamp('time'),
-      message: text,
+      message: payload,
       from: ip,
       channel: 'blackhole'
     },

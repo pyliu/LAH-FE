@@ -3,6 +3,7 @@ const isEmpty = require('lodash/isEmpty')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 const ChannelDB = require('./channel-db.js')
+const { BIconChevronCompactLeft } = require('bootstrap-vue')
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -33,15 +34,9 @@ class RequestHandler {
 
     if (typeof incoming === 'object' && incoming.type) {
       switch (incoming.type) {
-        case 'register':
-          // log user info
-          return this.handleRegisterRequest(ws, incoming.message)
-        case 'latest':
-          // this type message should be an object that contains channel, count keys
-          return this.handleLatestMessageRequest(ws, incoming.message)
-        case 'channel':
-          // get broadcast channel settings
-          return this.handleChannelRequest(ws)
+        case 'command':
+          // handle system command 
+          return this.handleCommandRequest(ws, incoming.message)
         case 'mine':
           // client side sends message
           return this.handleClientRequest(ws, incoming)
@@ -54,9 +49,87 @@ class RequestHandler {
     return false
   }
 
-  handleLatestMessageRequest (ws, params) {
-    const channel = params.channel
-    const count = parseInt(params.count) || 20
+  handleCommandRequest (ws, message) {
+    const json= JSON.parse(message)
+    const cmd = json.command
+    switch (cmd) {
+      case 'register':
+        return this.executeRegisterCommand(ws, json)
+      case 'mychannel':
+        return this.executeQueryJoinChannelCommand(ws)
+      case 'latest':
+        return this.executeQueryLatestlMessageCommand(ws, json)
+      default:
+        console.warn(`不支援的命令 ${cmd}`)
+    }
+    return false
+  }
+
+  executeRegisterCommand (ws, args) {
+    /** expected args json format
+      {
+        command: 'register',
+        ip: '192.168.24.2',
+        domain: 'HBWEB',
+        userid: 'HB0541',
+        username: 'WHOAMI',
+        dept: 'inf',
+      }
+     */
+    const valid = typeof args === 'object'
+    // inject client information into ws instance, currently it should contain ip, domain and username from remote client
+    valid && (ws.user = { ...args })
+
+    const message = valid ? `遠端客戶端資料 (${ws.user.ip}, ${ws.user.domain}, ${ws.user.userid}, ${ws.user.username}, ${ws.user.dept}) 已儲存於 ws 物件中` : `無法完成 register 命令，因為格式不符`
+    !valid && console.warn(message, args)
+    isDev && console.log(message)
+
+    ws.send(utils.packMessage(
+      // message payload
+      {
+        command: 'register',
+        payload: null,
+        success: valid,
+        message: message
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-1', // temporary id for register
+        channel: 'system'
+      }
+    ))
+
+    return valid
+  }
+
+  executeQueryJoinChannelCommand (ws) {
+    !ws.user && console.warn('無法完成 mychannel 命令，因為無使用者資訊')
+    const db = new ChannelDB()
+    ws.user && db.getChannelByParticipant(ws.user.userid, (err, row) => {
+      err && console.warn(`executeQueryJoinChannelCommand 執行錯誤`, err)
+      isDev && console.log(`找到 ${ws.user.userid} 參與頻道資訊`, row)
+      !err && ws.send(utils.packMessage(
+        // message payload
+        {
+          command: 'mychannel',
+          payload: { action: 'add', ...row },
+          success: !err,
+          message: `找到 ${row['id']} 頻道`
+        },
+        // outter message attrs
+        {
+          type: 'ack',
+          id: '-2', // temporary id for mychannel
+          channel: 'system'
+        }
+      ))
+    })
+  }
+
+  executeQueryLatestlMessageCommand (ws, json) {
+    const channel = json.channel
+    const count = parseInt(json.count) || 30
     const channelDB = new MessageDB(channel)
     channelDB.getLatestMessageByCount(count, (err, row) => {
       if (err) {
@@ -98,33 +171,6 @@ class RequestHandler {
       }
     }, 150)
     return true
-  }
-
-  handleRegisterRequest (ws, message) {
-    // this type message should be a json object string
-    const user = JSON.parse(message)
-    // inject client information into ws instance, currently it should contain ip, domain and username from remote client
-    ws.user = user
-    isDev && console.log(`遠端客戶端資料 (${user.ip}, ${user.domain}, ${user.userid}, ${user.username}, ${user.dept}) 已儲存於 ws 物件中。`)
-    // also query joined channels
-    this.handleChannelRequest(ws)
-
-    return true
-  }
-
-  handleChannelRequest (ws) {
-    const db = new ChannelDB()
-    db.getChannelByParticipant(ws.user.userid, (err, row) => {
-      err && console.warn(`getChannelByParticipant error`, err)
-      isDev && console.log(`參與頻道資訊`, row)
-      !err && ws.send(utils.packMessage(
-        { action: 'add_channel', ...row },  // message
-        {
-          id: row['id'],
-          channel: 'system'
-        }
-      ))
-    })
   }
 
   handleHelpRequest (ws) {
