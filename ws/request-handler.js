@@ -27,7 +27,7 @@ class RequestHandler {
     
     isDev && console.log('收到客戶端訊息', incoming)
 
-    if (incoming.channel === undefined && incoming.message.channel === undefined && incoming.type !== 'register') {
+    if (incoming.channel === undefined && incoming.message.channel === undefined) {
       console.warn(`沒有頻道資訊，無法處理此訊息`, incoming)
       return
     }
