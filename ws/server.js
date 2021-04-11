@@ -73,6 +73,7 @@ try {
   // new connection handler for remote client
   wss.on('connection', function connection(ws, req) {
     
+    ws.wss = this // reference to the server
     ws.isAlive = true
     ws.on('pong', function heartbeat() {
       // only ws has user info is treated as alive

@@ -50,7 +50,7 @@ class RequestHandler {
   }
 
   handleCommandRequest (ws, message) {
-    const json= JSON.parse(message)
+    const json= typeof message === 'string' ? JSON.parse(message) : message
     const cmd = json.command
     switch (cmd) {
       case 'register':
@@ -59,6 +59,8 @@ class RequestHandler {
         return this.executeQueryJoinChannelCommand(ws)
       case 'latest':
         return this.executeQueryLatestlMessageCommand(ws, json)
+      case 'remove_channel':
+        return this.executeRemoveChannelCommand(ws, json)
       default:
         console.warn(`不支援的命令 ${cmd}`)
     }
@@ -148,6 +150,43 @@ class RequestHandler {
           }))
         }
       }
+    })
+  }
+
+  executeRemoveChannelCommand (ws, json) {
+    const channel = json.channel
+    /*
+      item example: {
+        id: 10,
+        name: 'DONTCARE',
+        participants: [ '0541', 'HB0542' ],
+        type: 0
+      }
+    */
+    const id = json.id
+    const toBeRemoved = new MessageDB(id)
+    // find online participants' ws to send ACK
+    const participants = [...ws.wss.clients].filter((client, idx, arr) => {
+      return json.participants.includes(client.user.userid)
+    })
+    toBeRemoved.remove((success) => {
+      participants.forEach((participant) => {
+        participant.send(utils.packMessage(
+          // message payload
+          {
+            command: 'remove_channel',
+            payload: json,
+            success: success,
+            message: success? `已移除 ${id} / ${json.name} 頻道` : `移除 ${id} / ${json.name} 頻道失敗，請稍後再試`
+          },
+          // outter message attrs
+          {
+            type: 'ack',
+            id: '-3', // temporary id for remove channel
+            channel: 'system'
+          }
+        ))
+      })
     })
   }
 

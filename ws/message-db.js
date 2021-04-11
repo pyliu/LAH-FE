@@ -2,6 +2,7 @@ const fs = require("fs")
 const path = require("path")
 const utils = require("./utils.js")
 const sqlite3 = require("sqlite3").verbose()
+const isEmpty = require('lodash/isEmpty')
 
 class MessageDB {
   
@@ -14,7 +15,7 @@ class MessageDB {
     this.retry = 0
 
     this.dbDir = path.join(__dirname, 'db')
-    if (!fs.existsSync(this.dbDir)){
+    if (!fs.existsSync(this.dbDir)) {
       fs.mkdirSync(this.dbDir)
     }
     this.filepath = path.join(this.dbDir, this.channel) + '.db'
@@ -122,36 +123,24 @@ class MessageDB {
   }
 
   getLatestMessageByCount (count, callback) {
-    try {
-      const i = parseInt(count)
-      this.db.each(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ${i}) ORDER BY id ASC`, callback)
-      this.retry = 0
-    } catch (e) {
-      if (that.retry < 3) {
-        const timeout = parseInt(Math.random() * 1000)
-        console.warn(err, `${timeout}ms 後重試取得 ${this.channel} 最新訊息 ... `)
-        setTimeout(this.getLatestMessageByCount.bind(this, count, callback), timeout)
-        this.retry++
-      } else {
-        console.error(err, `取得 ${this.channel} 最新訊息失敗`)
-      }
-    }
+    const i = parseInt(count)
+    this.db.each(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ${i}) ORDER BY id ASC`, callback)
   }
 
   getMessageByDate (date, callback) {
-    try {
-      this.db.each(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE '${date}%' ORDER BY id DESC`, callback)
-      this.retry = 0
-    } catch (e) {
-      if (this.retry < 3) {
-        const timeout = parseInt(Math.random() * 1000)
-        console.warn(err, `${timeout}ms 後重試取得 ${this.channel} 最新訊息 ... `)
-        setTimeout(this.getLatestMessageByCount.bind(this, count, callback), timeout)
-        this.retry++
-      } else {
-        console.error(err, `取得 ${this.channel} 最新訊息失敗`)
-      }
-    }
+    this.db.each(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE '${date}%' ORDER BY id DESC`, callback)
+  }
+
+  remove (cb) {
+    setTimeout(() => {
+      fs.unlink(this.filepath, (err) => {
+        let succeed = isEmpty(err)
+        if (!succeed) {
+          console.warn(`刪除 ${this.filepath} 發生錯誤`, err)
+        }
+        cb(succeed)
+      })
+    }, parseInt(Math.random() * 600 + 400))
   }
 }
 module.exports = MessageDB
