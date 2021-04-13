@@ -138,7 +138,7 @@ class RequestHandler {
         console.warn(err, row)
       } else {
         if (channel === 'announcement') {
-          ws.send(utils.packMessage(row, { channel: channel }))
+          ws.send(utils.packMessage(row, { channel: channel, id: row['id'] }))
         } else {
           ws.send(utils.packMessage(row['content'], {
             id: row['id'],
