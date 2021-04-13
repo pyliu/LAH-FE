@@ -22,7 +22,7 @@ const writeTestMessage = function () {
   setTimeout(() => {
     const seed = parseInt(Math.random() * 1000)
     const pick = seed % newsLen
-    utils.insertMessageChannel(process.env['USERNAME'], {
+    utils.insertMessageChannel('lds', {
       message: news[pick].title,
       sender: news[pick].source,
       from: utils.ip,
