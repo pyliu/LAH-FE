@@ -17,7 +17,7 @@ const writeTestMessage = function () {
       priority: seed % 4,
       flag: 0
     })
-  }, Math.random() * 1000 * 3)
+  }, Math.random() * 1000 * 20)
 
   setTimeout(() => {
     const seed = parseInt(Math.random() * 1000)
@@ -29,7 +29,7 @@ const writeTestMessage = function () {
       priority: 3,
       flag: 0
     })
-  }, Math.random() * 1000 * 3)
+  }, Math.random() * 1000 * 20)
 
 }
 
@@ -119,7 +119,7 @@ try {
     isDev && writeTestMessage()
 
 
-  }, isDev ? 5000 : 20000)
+  }, 20000)
   
   wss.on('close', function close() {
     clearInterval(interval)
