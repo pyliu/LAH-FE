@@ -17,7 +17,7 @@ const writeTestMessage = function () {
       priority: seed % 4,
       flag: 0
     })
-  }, Math.random() * 1000 * 20)
+  }, Math.random() * 1000 * 15)
 
   setTimeout(() => {
     const seed = parseInt(Math.random() * 1000)
@@ -29,7 +29,7 @@ const writeTestMessage = function () {
       priority: 3,
       flag: 0
     })
-  }, Math.random() * 1000 * 20)
+  }, Math.random() * 1000 * 15)
 
 }
 
