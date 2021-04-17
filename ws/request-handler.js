@@ -3,7 +3,6 @@ const isEmpty = require('lodash/isEmpty')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 const ChannelDB = require('./channel-db.js')
-const { BIconChevronCompactLeft } = require('bootstrap-vue')
 
 const isDev = process.env.NODE_ENV !== 'production'
 
