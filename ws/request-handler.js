@@ -1,5 +1,4 @@
 const WebSocket = require('ws')
-const isEmpty = require('lodash/isEmpty')
 const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 const ChannelDB = require('./channel-db.js')
