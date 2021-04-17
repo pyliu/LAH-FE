@@ -8,6 +8,9 @@ class ChannelDB {
     INSERT INTO channel(name, host, password, type)
     VALUES ($name, $host, $password, $type)
   `
+  static updateChannelLastSQL = `
+    UPDATE channel SET last = $last WHERE id = $id
+  `
   constructor () {
     this.dbDir = path.join(__dirname, 'dimension')
     if (!fs.existsSync(this.dbDir)){
@@ -32,6 +35,7 @@ class ChannelDB {
           "host"	TEXT,
           "password"	TEXT,
           "type"	INTEGER NOT NULL DEFAULT 0,
+          "last"	INTEGER NOT NULL DEFAULT -1,
           PRIMARY KEY("id" AUTOINCREMENT)
         )
       `, {}, function (err) {
@@ -71,8 +75,61 @@ class ChannelDB {
     }
   }
 
-  insertChannel (params) {
-    this.db.run(this.insertIntoChannelSQL, {
+  updateChannelLastUpdated (id, retry = 0) {
+    const timestamp = +new Date()
+    let channelId = id
+    switch (channelId) {
+      case 'inf':
+        channelId = '1'
+        break;
+      case 'adm':
+        channelId = '2'
+        break;
+      case 'reg':
+        channelId = '3'
+        break;
+      case 'sur':
+        channelId = '4'
+        break;
+      case 'val':
+        channelId = '5'
+        break;
+      case 'supervisor':
+        channelId = '6'
+        break;
+      case 'hr':
+        channelId = '7'
+        break;
+      case 'acc':
+        channelId = '8'
+        break;
+      case 'lds':
+        channelId = '9'
+        break;
+      case 'announcement':
+        channelId = '10'
+        break;
+      default:
+        break;
+    }
+    this.db.run(ChannelDB.updateChannelLastSQL, {
+        $id: channelId,
+        $last: timestamp
+      }, {}, (err) => {
+      if (err) {
+        if (retry < 3) {
+          const timeout = parseInt(Math.random() * 1000)
+          console.warn(err, `${timeout}ms 後重試更新頻道更新時間 ... (${retry + 1})`)
+          setTimeout(this.updateChannelLastUpdated.bind(this, channelId, retry + 1), timeout)
+        } else {
+          console.error(err, `更新 "${id}" 頻道最後更新時間失敗 (${timestamp})`)
+        }
+      }
+    })
+  }
+
+  insertChannel (params, retry = 0) {
+    this.db.run(ChannelDB.insertIntoChannelSQL, {
       ...{
         $name: '',
         $host: '',
@@ -82,16 +139,13 @@ class ChannelDB {
       ...params
     }, {}, (err) => {
       if (err) {
-        if (this.retry < 3) {
+        if (retry < 3) {
           const timeout = parseInt(Math.random() * 1000)
-          console.warn(err, `${timeout}ms 後重試新增頻道 ... `)
-          setTimeout(this.insertMessage.bind(this, params), timeout)
-          this.retry++
+          console.warn(err, `${timeout}ms 後重試新增頻道 ... (${retry + 1})`)
+          setTimeout(this.insertMessage.bind(this, params, retry + 1), timeout)
         } else {
           console.error(err, `插入新頻道失敗 "${params.$name}"`)
         }
-      } else {
-        this.retry = 0
       }
     })
   }

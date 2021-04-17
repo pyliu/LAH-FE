@@ -1,4 +1,5 @@
 const fs = require("fs")
+const ChannelDB = require('./channel-db.js')
 const path = require("path")
 const utils = require("./utils.js")
 const sqlite3 = require("sqlite3").verbose()
@@ -88,8 +89,7 @@ class MessageDB {
     }
   }
 
-  insertMessage (params) {
-    const that = this
+  insertMessage (params, retry = 0) {
     this.db.run(this.insertIntoMessageSQL, {
       ...{
         $title: '',
@@ -102,18 +102,18 @@ class MessageDB {
         $flag: 0
       },
       ...params
-    }, {}, function (err) {
+    }, {}, (err) => {
       if (err) {
-        if (that.retry < 3) {
+        if (retry < 3) {
           const timeout = parseInt(Math.random() * 1000)
-          console.warn(err, `${timeout}ms 後重試新增訊息 ... `)
-          setTimeout(that.insertMessage.bind(that, params), timeout)
-          that.retry++
+          console.warn(err, `${timeout}ms 後重試新增訊息 ... (${retry + 1})`)
+          setTimeout(this.insertMessage.bind(this, params, retry + 1), timeout)
         } else {
           console.error(err, `插入新訊息失敗 ${this.channel} "${params.$content}"`)
         }
       } else {
-        that.retry = 0
+        const channelDb = new ChannelDB()
+        channelDb.updateChannelLastUpdated(this.channel)
       }
     })
   }

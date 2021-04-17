@@ -1,5 +1,3 @@
-const { BIconChevronCompactLeft } = require('bootstrap-vue')
-
 const writeTestMessage = function () {
   // for testing purpose
   const MessageDB = require('./message-db.js')
