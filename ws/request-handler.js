@@ -127,6 +127,7 @@ class RequestHandler {
         }
       ))
     })
+    return Boolean(ws.user)
   }
 
   executeQueryLatestlMessageCommand (ws, json) {
@@ -151,6 +152,7 @@ class RequestHandler {
         }
       }
     })
+    return true
   }
 
   executeRemoveChannelCommand (ws, json) {

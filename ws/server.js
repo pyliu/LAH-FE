@@ -1,3 +1,5 @@
+const { BIconChevronCompactLeft } = require('bootstrap-vue')
+
 const writeTestMessage = function () {
   // for testing purpose
   const MessageDB = require('./message-db.js')
@@ -83,11 +85,14 @@ try {
     ws.on('message', function incoming(message) {
       const processedMessage = handler.handle(this, message)
       if (processedMessage === false) {
+        isDev && console.log(`處理訊息失敗`, message)
         this.send(utils.packMessage(`WS伺服器無法處理您的請求 ${message}`))
       } else if (processedMessage === true) {
-        
-      } else {
+        isDev && console.log(`處理訊息成功`)
+      } else if (!utils.isEmpty(processedMessage)) {
         this.send(utils.packMessage(processedMessage, { channel: this.user.userid }))
+      } else {
+        isDev && console.log(`處理訊息後無回傳值，無法處理給客戶端回應`, message)
       }
     })
 
