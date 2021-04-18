@@ -26,6 +26,7 @@
     "@nuxtjs/style-resources": "^1.0.0",
     "activedirectory": "^0.7.2",
     "animate.css": "^4.1.1",
+    "better-sqlite3": "^7.1.5",
     "bl": "1.2.3",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.18.1",

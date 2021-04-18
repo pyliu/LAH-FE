@@ -4,6 +4,11 @@ const path = require("path")
 const utils = require("./utils.js")
 const sqlite3 = require("sqlite3").verbose()
 const isEmpty = require('lodash/isEmpty')
+/*
+const db = require('better-sqlite3')('foobar.db', options);
+const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+console.log(row.firstName, row.lastName, row.email);
+*/
 
 class MessageDB {
   
