@@ -75,9 +75,9 @@ class ChannelDB {
     }
   }
 
-  updateChannelLastUpdated (id, retry = 0) {
+  updateChannelLastUpdated (channel, retry = 0) {
     const timestamp = +new Date()
-    let channelId = id
+    let channelId = channel
     switch (channelId) {
       case 'inf':
         channelId = '1'
