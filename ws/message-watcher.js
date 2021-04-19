@@ -5,6 +5,8 @@ const utils = require('./utils.js')
 const MessageDB = require('./message-db.js')
 const ChannelDB = require('./channel-db.js')
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 class MessageWatcher {
   
   constructor (wss) {
@@ -44,47 +46,47 @@ class MessageWatcher {
     if (evt == 'update') {
       // on create or modify
       const mc = new MessageDB(channel)
-      mc.getLatestMessage((err, row) => {
-        err && console.warn(err)
-        if (row) {
-          const wsClients = MessageWatcher.getOnlineWsClients(channel)
-          if (MessageWatcher.stickyChannels.includes(channel)) {
-            utils.broadcast(wsClients, row, channel)
-          } else {
-            // prepare message
-            const packedMessage = utils.packMessage(row['content'], {
-              id: row['id'],
-              sender: row['sender'],
-              date: row['create_datetime'].split(' ')[0],
-              time: row['create_datetime'].split(' ')[1],
-              from: row['ip'],
-              channel: channel
-            })
+      const row = mc.getLatestMessage()
+      if (row) {
+        const wsClients = MessageWatcher.getOnlineWsClients(channel)
+        if (MessageWatcher.stickyChannels.includes(channel)) {
+          utils.broadcast(wsClients, row, channel)
+        } else {
+          // prepare message
+          const packedMessage = utils.packMessage(row['content'], {
+            id: row['id'],
+            sender: row['sender'],
+            date: row['create_datetime'].split(' ')[0],
+            time: row['create_datetime'].split(' ')[1],
+            from: row['ip'],
+            channel: channel
+          })
 
-            // find user own channel ws 
-            const ownWs = wsClients.find((ws, idx, arr) => {
+          // find user own channel ws 
+          const ownWs = wsClients.find((ws, idx, arr) => {
+            if (ws.user) {
+              return ws.user.userid === channel
+            }
+            return false
+          })
+          ownWs && ownWs.send(packedMessage)
+
+          // search channel participants and delivery message to them
+          const channelDb = new ChannelDB()
+          const participants = channelDb.getAllParticipantsByChannel(channel)
+          participants.forEach((participant, idx, arr) => {
+            const found = wsClients.find((ws, idx, arr) => {
               if (ws.user) {
-                return ws.user.userid === channel
+                return ws.user.userid === participant['user_id']
               }
               return false
             })
-            ownWs && ownWs.send(packedMessage)
-
-            // search channel participants and delivery message to them
-            const channelDb = new ChannelDB()
-            const participants = channelDb.getAllParticipantsByChannel(channel)
-            participants.forEach((participant, idx, arr) => {
-              const found = wsClients.find((ws, idx, arr) => {
-                if (ws.user) {
-                  return ws.user.userid === participant['user_id']
-                }
-                return false
-              })
-              found && found.send(packedMessage)
-            })
-          }
+            found && found.send(packedMessage)
+          })
         }
-      })
+      } else {
+        isDev && console.log(`無法取得 ${channel} 最新訊息`)
+      }
     }
   
     if (evt == 'remove') {

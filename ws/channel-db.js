@@ -107,14 +107,16 @@ class ChannelDB {
     }
     const stmt = this.db.prepare(`UPDATE channel SET last = $last WHERE id = $id`)
     const info = stmt.run({ id: channelId, last: +new Date() })
+    // info: { changes: 1, lastInsertRowid: 0 }
     isDev && console.log('更新成功', info)
   }
 
   insertChannel (params, retry = 0) {
-    this.db.run(`
+    const stmt = this.db.prepare(`
       INSERT INTO channel(name, host, password, type)
       VALUES ($name, $host, $password, $type)
-    `, {
+    `)
+    const info = stmt.run({
       ...{
         name: '',
         host: '',
@@ -122,17 +124,10 @@ class ChannelDB {
         type: 0  // 0 -> 1 on 1, 1 -> group, 2 -> broadcast channel
       },
       ...params
-    }, {}, (err) => {
-      if (err) {
-        if (retry < 3) {
-          const timeout = parseInt(Math.random() * 1000)
-          console.warn(err, `${timeout}ms 後重試新增頻道 ... (${retry + 1})`)
-          setTimeout(this.insertMessage.bind(this, params, retry + 1), timeout)
-        } else {
-          console.error(err, `插入新頻道失敗 "${params.$name}"`)
-        }
-      }
     })
+    // info: { changes: 1, lastInsertRowid: 0 }
+    isDev && console.log('新增頻道成功', info, params)
+    return info
   }
 
   // getBroadcastChannel (callback) {

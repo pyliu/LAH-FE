@@ -131,24 +131,23 @@ class RequestHandler {
     const channel = json.channel
     const count = parseInt(json.count) || 30
     const channelDB = new MessageDB(channel)
-    channelDB.getLatestMessageByCount(count, (err, row) => {
-      if (err) {
-        console.warn(err, row)
-      } else {
+    const messages = channelDB.getLatestMessageByCount(count)
+    if (messages && messages.length > 0) {
+      messages.forEach((message, idx, arr) => {
         if (channel === 'announcement') {
-          ws.send(utils.packMessage(row, { channel: channel, id: row['id'] }))
+          ws.send(utils.packMessage(message, { channel: channel, id: message['id'] }))
         } else {
-          ws.send(utils.packMessage(row['content'], {
-            id: row['id'],
-            sender: row['sender'],
-            date: row['create_datetime'].split(' ')[0],
-            time: row['create_datetime'].split(' ')[1],
-            from: row['ip'],
+          ws.send(utils.packMessage(message['content'], {
+            id: message['id'],
+            sender: message['sender'],
+            date: message['create_datetime'].split(' ')[0],
+            time: message['create_datetime'].split(' ')[1],
+            from: message['ip'],
             channel: channel
           }))
         }
-      }
-    })
+      })
+    }
     return true
   }
 

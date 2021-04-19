@@ -1,23 +1,19 @@
 const fs = require("fs")
-const ChannelDB = require('./channel-db.js')
 const path = require("path")
 const utils = require("./utils.js")
-const sqlite3 = require("sqlite3").verbose()
-const isEmpty = require('lodash/isEmpty')
+const Database = require('better-sqlite3')
 /*
 const db = require('better-sqlite3')('foobar.db', options);
 const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
 console.log(row.firstName, row.lastName, row.email);
 */
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 class MessageDB {
   
   constructor (channel) {
     this.channel = String(channel)
-    this.insertIntoMessageSQL = `
-      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
-      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
-    `
     this.retry = 0
 
     this.dbDir = path.join(__dirname, 'db')
@@ -31,7 +27,7 @@ class MessageDB {
   open () {
     this.copyEmptyMessageTable()
     // this.createMessageTable()
-    this.db = new sqlite3.Database(this.filepath)
+    this.db = new Database(this.filepath, { verbose: isDev ? console.log : null })
   }
 
   close () {
@@ -53,8 +49,8 @@ class MessageDB {
 
   async createMessageTable () {
     if (!fs.existsSync(this.filepath)) {
-      const db = new sqlite3.Database(this.filepath)
-      db.run(`
+      const db = new Database(this.filepath, { verbose: isDev ? console.log : null })
+      const stmt = db.prepare(`
         CREATE TABLE IF NOT EXISTS "message" (
           "id"	INTEGER,
           "title"	TEXT,
@@ -67,9 +63,8 @@ class MessageDB {
           "flag"	INTEGER NOT NULL DEFAULT 0,
           PRIMARY KEY("id" AUTOINCREMENT)
         )
-      `, {}, function (err) {
-        err && console.error(err)
-      })
+      `)
+      stmt.run()
       await utils.sleep(400)
       db.close()
     }
@@ -94,52 +89,47 @@ class MessageDB {
     }
   }
 
-  insertMessage (params, retry = 0) {
-    this.db.run(this.insertIntoMessageSQL, {
-      ...{
-        $title: '',
-        $content: '',
-        $priority: 3,
-        $create_datetime: this.timestamp(),
-        $expire_datetime: '',
-        $sender: process.env.WEBSOCKET_ROBOT_NAME,
-        $from_ip: '',
-        $flag: 0
-      },
-      ...params
-    }, {}, (err) => {
-      if (err) {
-        if (retry < 3) {
-          const timeout = parseInt(Math.random() * 1000)
-          console.warn(err, `${timeout}ms 後重試新增訊息 ... (${retry + 1})`)
-          setTimeout(this.insertMessage.bind(this, params, retry + 1), timeout)
-        } else {
-          console.error(err, `插入新訊息失敗 ${this.channel} "${params.$content}"`)
-        }
-      } else {
-        const channelDb = new ChannelDB()
-        channelDb.updateChannelLastUpdated(this.channel)
-      }
-    })
+  insertMessage (params) {
+    const stmt = this.db.prepare(`
+      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
+      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
+    `)
+    const info = stmt.run({
+        ...{
+          title: '',
+          content: '',
+          priority: 3,
+          create_datetime: this.timestamp(),
+          expire_datetime: '',
+          sender: process.env.WEBSOCKET_ROBOT_NAME,
+          from_ip: '',
+          flag: 0
+        },
+        ...params
+      })
+    // info: { changes: 1, lastInsertRowid: 0 }
+    isDev && console.log(`新增 ${this.channel} 訊息成功`, info)
+    return info
   }
 
-  getLatestMessage (callback) {
-    this.db.get("SELECT * FROM message ORDER BY id DESC", callback)
+  getLatestMessage () {
+    const stmt = this.db.prepare(`SELECT * FROM message ORDER BY id DESC`)
+    return stmt.get()
   }
 
-  getLatestMessageByCount (count, callback) {
-    const i = parseInt(count)
-    this.db.each(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ${i}) ORDER BY id ASC`, callback)
+  getLatestMessageByCount (count) {
+    const stmt = this.db.prepare(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ?) ORDER BY id ASC`)
+    return stmt.all(parseInt(count) || 30)
   }
 
-  getMessageByDate (date, callback) {
-    this.db.each(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE '${date}%' ORDER BY id DESC`, callback)
-  }
+  // getMessageByDate (date, callback) {
+  //   this.db.each(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE '${date}%' ORDER BY id DESC`, callback)
+  // }
 
   remove (cb) {
     setTimeout(() => {
       fs.unlink(this.filepath, (err) => {
-        let succeed = isEmpty(err)
+        let succeed = utils.empty(err)
         if (!succeed) {
           console.warn(`刪除 ${this.filepath} 發生錯誤`, err)
         }
