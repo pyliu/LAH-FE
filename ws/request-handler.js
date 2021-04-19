@@ -131,7 +131,7 @@ class RequestHandler {
     const channel = json.channel
     const count = parseInt(json.count) || 30
     const channelDB = new MessageDB(channel)
-    const messages = channelDB.getLatestMessageByCount(count)
+    const messages = channelDB.getLatestMessagesByCount(count)
     if (messages && messages.length > 0) {
       messages.forEach((message, idx, arr) => {
         if (channel === 'announcement') {

@@ -127,14 +127,15 @@ class MessageDB {
     return stmt.get()
   }
 
-  getLatestMessageByCount (count) {
+  getLatestMessagesByCount (count) {
     const stmt = this.db.prepare(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ?) ORDER BY id ASC`)
     return stmt.all(parseInt(count) || 30)
   }
 
-  // getMessageByDate (date, callback) {
-  //   this.db.each(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE '${date}%' ORDER BY id DESC`, callback)
-  // }
+  getMessagesByDate (date) {
+    const stmt = this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE ? || '%' ORDER BY id DESC`)
+    return stmt.all(date)
+  }
 
   remove (cb) {
     setTimeout(() => {
