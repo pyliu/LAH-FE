@@ -140,7 +140,7 @@ class MessageDB {
   remove (cb) {
     setTimeout(() => {
       fs.unlink(this.filepath, (err) => {
-        let succeed = utils.empty(err)
+        let succeed = utils.isEmpty(err)
         if (!succeed) {
           console.warn(`刪除 ${this.filepath} 發生錯誤`, err)
         }
