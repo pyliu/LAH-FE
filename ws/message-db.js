@@ -2,11 +2,6 @@ const fs = require("fs")
 const path = require("path")
 const utils = require("./utils.js")
 const Database = require('better-sqlite3')
-/*
-const db = require('better-sqlite3')('foobar.db', options);
-const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
-console.log(row.firstName, row.lastName, row.email);
-*/
 
 const isDev = process.env.NODE_ENV !== 'production'
 
