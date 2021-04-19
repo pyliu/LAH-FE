@@ -147,7 +147,7 @@ class ChannelDB {
       // channel: { id: 10, name: 'DONTCARE', host: null, password: null, type: 0 }
       // add participants into the channel row
       const all_participants = this.getAllParticipantsByChannel(channel['id'])
-      
+      channel['participants'] = []
       all_participants.forEach((val, idx, arr) => {
         channel['participants'].push(val['user_id'])
       })

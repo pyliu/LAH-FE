@@ -108,12 +108,12 @@ class RequestHandler {
     const db = new ChannelDB()
     ws.user && db.getChannelByParticipant(ws.user.userid, (row) => {
       isDev && console.log(`找到 ${ws.user.userid} 參與頻道資訊`, row)
-      !err && ws.send(utils.packMessage(
+      ws.send(utils.packMessage(
         // message payload
         {
           command: 'mychannel',
           payload: { action: 'add', ...row },
-          success: !err,
+          success: true,
           message: `找到 ${row['id']} 頻道`
         },
         // outter message attrs
