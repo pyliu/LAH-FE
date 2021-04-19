@@ -72,11 +72,11 @@ class MessageWatcher {
 
             // search channel participants and delivery message to them
             const channelDb = new ChannelDB()
-            channelDb.getParticipantByChannel(channel, (perr, prow) => {
-              perr && console.warn(`取得頻道 ${channel} 參與者失敗`, perr)
+            const participants = channelDb.getAllParticipantsByChannel(channel)
+            participants.forEach((participant, idx, arr) => {
               const found = wsClients.find((ws, idx, arr) => {
                 if (ws.user) {
-                  return ws.user.userid === prow['user_id']
+                  return ws.user.userid === participant['user_id']
                 }
                 return false
               })

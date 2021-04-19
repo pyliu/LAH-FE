@@ -106,8 +106,7 @@ class RequestHandler {
   executeQueryJoinChannelCommand (ws) {
     !ws.user && console.warn('無法完成 mychannel 命令，因為無使用者資訊')
     const db = new ChannelDB()
-    ws.user && db.getChannelByParticipant(ws.user.userid, (err, row) => {
-      err && console.warn(`executeQueryJoinChannelCommand 執行錯誤`, err)
+    ws.user && db.getChannelByParticipant(ws.user.userid, (row) => {
       isDev && console.log(`找到 ${ws.user.userid} 參與頻道資訊`, row)
       !err && ws.send(utils.packMessage(
         // message payload

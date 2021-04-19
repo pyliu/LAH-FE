@@ -1,16 +1,12 @@
 const fs = require("fs")
 const path = require("path")
 const utils = require("./utils.js")
-const sqlite3 = require("sqlite3").verbose()
+const Database = require('better-sqlite3')
+
+const isDev = process.env.NODE_ENV !== 'production'
 
 class ChannelDB {
-  static insertIntoChannelSQL = `
-    INSERT INTO channel(name, host, password, type)
-    VALUES ($name, $host, $password, $type)
-  `
-  static updateChannelLastSQL = `
-    UPDATE channel SET last = $last WHERE id = $id
-  `
+
   constructor () {
     this.dbDir = path.join(__dirname, 'dimension')
     if (!fs.existsSync(this.dbDir)){
@@ -18,7 +14,7 @@ class ChannelDB {
     }
     this.filepath = path.join(this.dbDir, 'channel') + '.db'
     this.createTable()
-    this.db = new sqlite3.Database(this.filepath)
+    this.db = new Database(this.filepath, { verbose: isDev ? console.log : null })
   }
 
   close () {
@@ -27,8 +23,8 @@ class ChannelDB {
 
   async createTable () {
     if (!fs.existsSync(this.filepath)) {
-      const db = new sqlite3.Database(this.filepath)
-      db.run(`
+      const db = new Database(this.filepath, { verbose: isDev ? console.log : null })
+      let stmt = db.prepare(`
         CREATE TABLE IF NOT EXISTS "channel" (
           "id"	INTEGER,
           "name"	TEXT NOT NULL,
@@ -38,19 +34,17 @@ class ChannelDB {
           "last"	INTEGER NOT NULL DEFAULT -1,
           PRIMARY KEY("id" AUTOINCREMENT)
         )
-      `, {}, function (err) {
-        err && console.error(err)
-      })
-      db.run(`
+      `)
+      stmt.run()
+      stmt = db.prepare(`
         CREATE TABLE IF NOT EXISTS "participant" (
           "id"	INTEGER,
           "channel_id"	INTEGER NOT NULL,
           "user_id"	TEXT NOT NULL,
           PRIMARY KEY("id" AUTOINCREMENT)
         )
-      `, {}, function (err) {
-        err && console.error(err)
-      })
+      `)
+      stmt.run()
       await utils.sleep(400)
       db.close()
     }
@@ -75,8 +69,7 @@ class ChannelDB {
     }
   }
 
-  updateChannelLastUpdated (channel, retry = 0) {
-    const timestamp = +new Date()
+  updateChannelLastUpdated (channel) {
     let channelId = channel
     switch (channelId) {
       case 'inf':
@@ -112,29 +105,21 @@ class ChannelDB {
       default:
         break;
     }
-    this.db.run(ChannelDB.updateChannelLastSQL, {
-        $id: channelId,
-        $last: timestamp
-      }, {}, (err) => {
-      if (err) {
-        if (retry < 3) {
-          const timeout = parseInt(Math.random() * 1000)
-          console.warn(err, `${timeout}ms 後重試更新頻道更新時間 ... (${retry + 1})`)
-          setTimeout(this.updateChannelLastUpdated.bind(this, channelId, retry + 1), timeout)
-        } else {
-          console.error(err, `更新 "${id}" 頻道最後更新時間失敗 (${timestamp})`)
-        }
-      }
-    })
+    const stmt = this.db.prepare(`UPDATE channel SET last = $last WHERE id = $id`)
+    const info = stmt.run({ id: channelId, last: +new Date() })
+    isDev && console.log('更新成功', info)
   }
 
   insertChannel (params, retry = 0) {
-    this.db.run(ChannelDB.insertIntoChannelSQL, {
+    this.db.run(`
+      INSERT INTO channel(name, host, password, type)
+      VALUES ($name, $host, $password, $type)
+    `, {
       ...{
-        $name: '',
-        $host: '',
-        $password: '',
-        $type: 0  // 0 -> 1 on 1, 1 -> group, 2 -> broadcast channel
+        name: '',
+        host: '',
+        password: '',
+        type: 0  // 0 -> 1 on 1, 1 -> group, 2 -> broadcast channel
       },
       ...params
     }, {}, (err) => {
@@ -150,47 +135,39 @@ class ChannelDB {
     })
   }
 
-  getBroadcastChannel (callback) {
-    this.db.each("SELECT * FROM channel WHERE type = '2' ORDER BY name, id", callback)
-  }
+  // getBroadcastChannel (callback) {
+  //   this.db.each("SELECT * FROM channel WHERE type = '2' ORDER BY name, id", callback)
+  // }
 
-  getChannelByHost (userId, callback) {
-    this.db.each(`SELECT * FROM channel WHERE host = '${userId}' ORDER BY name, id`, callback)
-  }
+  // getChannelByHost (userId, callback) {
+  //   this.db.each(`SELECT * FROM channel WHERE host = '${userId}' ORDER BY name, id`, callback)
+  // }
 
   getChannelByParticipant (userId, callback) {
-      this.db.each(`
-        SELECT * FROM channel WHERE id IN (SELECT DISTINCT channel_id FROM participant WHERE user_id ='${userId}')
-        ORDER BY name, id
-      `, (err, row) => {
-        err && console.error(`ChannelDB::getChannelByParticipant`, err)
-        // row: { id: 10, name: 'DONTCARE', host: null, password: null, type: 0 }
-        // add participants into the channel row
-        row['participants'] = []
-        this.getAllParticipantByChannel(row['id'], (ierr, irows) => {
-          // irow: { id: 1, channel_id: 10, user_id: HB0541 }
-          ierr && console.error(`ChannelDB::getAllParticipantByChannel`, err)
-          irows.forEach((val, idx, arr) => {
-            row['participants'].push(val['user_id'])
-          })
-          // callback for the channel
-          callback(err, row)
-        })
+    const stmt = this.db.prepare(`
+      SELECT * FROM channel WHERE id IN (SELECT DISTINCT channel_id FROM participant WHERE user_id = $user_id)
+      ORDER BY name, id
+    `)
+    for (const channel of stmt.iterate({user_id: userId})) {
+      // channel: { id: 10, name: 'DONTCARE', host: null, password: null, type: 0 }
+      // add participants into the channel row
+      const all_participants = this.getAllParticipantsByChannel(channel['id'])
+      
+      all_participants.forEach((val, idx, arr) => {
+        channel['participants'].push(val['user_id'])
       })
+      // callback for the channel
+      callback(channel)
+    }
   }
 
-  getAllParticipantByChannel (channelId, callback) {
-    this.db.all(`
-      SELECT * FROM participant WHERE channel_id = '${channelId}'
+  getAllParticipantsByChannel (channelId) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM participant WHERE channel_id = $channel_id
       ORDER BY user_id
-    `, callback)
+    `)
+    return stmt.all({channel_id: channelId})
   }
 
-  getParticipantByChannel (channelId, callback) {
-    this.db.each(`
-      SELECT * FROM participant WHERE channel_id = '${channelId}'
-      ORDER BY user_id
-    `, callback)
-  }
 }
 module.exports = ChannelDB
