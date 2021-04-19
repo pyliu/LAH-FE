@@ -89,27 +89,37 @@ class MessageDB {
     }
   }
 
-  insertMessage (params) {
-    const stmt = this.db.prepare(`
-      INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
-      VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
-    `)
-    const info = stmt.run({
-        ...{
-          title: '',
-          content: '',
-          priority: 3,
-          create_datetime: this.timestamp(),
-          expire_datetime: '',
-          sender: process.env.WEBSOCKET_ROBOT_NAME,
-          from_ip: '',
-          flag: 0
-        },
-        ...params
-      })
-    // info: { changes: 1, lastInsertRowid: 0 }
-    isDev && console.log(`新增 ${this.channel} 訊息成功`, info)
-    return info
+  insertMessage (params, retry = 0) {
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
+        VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
+      `)
+      const info = stmt.run({
+          ...{
+            title: '',
+            content: '',
+            priority: 3,
+            create_datetime: this.timestamp(),
+            expire_datetime: '',
+            sender: process.env.WEBSOCKET_ROBOT_NAME,
+            from_ip: '',
+            flag: 0
+          },
+          ...params
+        })
+      // info: { changes: 1, lastInsertRowid: 0 }
+      isDev && console.log(`新增 ${this.channel} 訊息成功`, info)
+      return info
+    } catch (e) {
+      if (retry < 3) {
+        const delay = parseInt(Math.random() * 1000)
+        isDev && console.warn(`新增訊息失敗，${delay} ms 後重試 (${retry + 1})`)
+        setTimeout(this.insertMessage.bind(this, params, retry + 1), delay)
+      } else {
+        console.error(`新增 ${this.channel} 訊息失敗`, e)
+      }
+    }
   }
 
   getLatestMessage () {
