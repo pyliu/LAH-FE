@@ -45,7 +45,7 @@ class MessageDB {
   async createMessageTable () {
     if (!fs.existsSync(this.filepath)) {
       const db = new Database(this.filepath, { verbose: isDev ? console.log : null })
-      const stmt = db.prepare(`
+      db.prepare(`
         CREATE TABLE IF NOT EXISTS "message" (
           "id"	INTEGER,
           "title"	TEXT,
@@ -58,8 +58,7 @@ class MessageDB {
           "flag"	INTEGER NOT NULL DEFAULT 0,
           PRIMARY KEY("id" AUTOINCREMENT)
         )
-      `)
-      stmt.run()
+      `).run()
       await utils.sleep(400)
       db.close()
     }
@@ -86,23 +85,22 @@ class MessageDB {
 
   insertMessage (params, retry = 0) {
     try {
-      const stmt = this.db.prepare(`
+      const info = this.db.prepare(`
         INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
         VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
-      `)
-      const info = stmt.run({
-          ...{
-            title: '',
-            content: '',
-            priority: 3,
-            create_datetime: this.timestamp(),
-            expire_datetime: '',
-            sender: process.env.WEBSOCKET_ROBOT_NAME,
-            from_ip: '',
-            flag: 0
-          },
-          ...params
-        })
+      `).run({
+        ...{
+          title: '',
+          content: '',
+          priority: 3,
+          create_datetime: this.timestamp(),
+          expire_datetime: '',
+          sender: process.env.WEBSOCKET_ROBOT_NAME,
+          from_ip: '',
+          flag: 0
+        },
+        ...params
+      })
       // info: { changes: 1, lastInsertRowid: 0 }
       isDev && console.log(`新增 ${this.channel} 訊息成功`, info)
       return info
@@ -118,18 +116,15 @@ class MessageDB {
   }
 
   getLatestMessage () {
-    const stmt = this.db.prepare(`SELECT * FROM message ORDER BY id DESC`)
-    return stmt.get()
+    return this.db.prepare(`SELECT * FROM message ORDER BY id DESC`).get()
   }
 
   getLatestMessagesByCount (count) {
-    const stmt = this.db.prepare(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ?) ORDER BY id ASC`)
-    return stmt.all(parseInt(count) || 30)
+    return this.db.prepare(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ?) ORDER BY id ASC`).all(parseInt(count) || 30)
   }
 
   getMessagesByDate (date) {
-    const stmt = this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE ? || '%' ORDER BY id DESC`)
-    return stmt.all(date)
+    return this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE ? || '%' ORDER BY id DESC`).all(date)
   }
 
   remove (cb) {

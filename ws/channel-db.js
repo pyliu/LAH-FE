@@ -105,18 +105,16 @@ class ChannelDB {
       default:
         break;
     }
-    const stmt = this.db.prepare(`UPDATE channel SET last = $last WHERE id = $id`)
-    const info = stmt.run({ id: channelId, last: +new Date() })
+    const info = this.db.prepare(`UPDATE channel SET last = $last WHERE id = $id`).run({ id: channelId, last: +new Date() })
     // info: { changes: 1, lastInsertRowid: 0 }
     isDev && console.log('更新成功', info)
   }
 
   insertChannel (params) {
-    const stmt = this.db.prepare(`
+    const info = this.db.prepare(`
       INSERT INTO channel(name, host, password, type)
       VALUES ($name, $host, $password, $type)
-    `)
-    const info = stmt.run({
+    `).run({
       ...{
         name: '',
         host: '',
@@ -131,23 +129,19 @@ class ChannelDB {
   }
 
   getGroupChannels () {
-    const stmt = this.db.prepare(`SELECT * FROM channel WHERE type = '1' ORDER BY name, id`)
-    return stmt.all()
+    return this.db.prepare(`SELECT * FROM channel WHERE type = '1' ORDER BY name, id`).all()
   }
 
   getOneOnOneChannels () {
-    const stmt = this.db.prepare(`SELECT * FROM channel WHERE type = '0' ORDER BY name, id`)
-    return stmt.all()
+    return this.db.prepare(`SELECT * FROM channel WHERE type = '0' ORDER BY name, id`).all()
   }
 
   getBroadcastChannels () {
-    const stmt = this.db.prepare(`SELECT * FROM channel WHERE type = '2' ORDER BY name, id`)
-    return stmt.all()
+    return this.db.prepare(`SELECT * FROM channel WHERE type = '2' ORDER BY name, id`).all()
   }
 
   getChannelsByHost (userId) {
-    const stmt = this.db.prepare(`SELECT * FROM channel WHERE host = $user_id ORDER BY name, id`)
-    return stmt.all({ user_id: userId })
+    return this.db.prepare(`SELECT * FROM channel WHERE host = $user_id ORDER BY name, id`).all({ user_id: userId })
   }
 
   getChannelByParticipant (userId, callback) {
@@ -169,11 +163,10 @@ class ChannelDB {
   }
 
   getAllParticipantsByChannel (channelId) {
-    const stmt = this.db.prepare(`
+    return this.db.prepare(`
       SELECT * FROM participant WHERE channel_id = $channel_id
       ORDER BY user_id
-    `)
-    return stmt.all({channel_id: channelId})
+    `).all({channel_id: channelId})
   }
 
 }
