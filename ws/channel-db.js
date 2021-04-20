@@ -111,7 +111,7 @@ class ChannelDB {
     isDev && console.log('更新成功', info)
   }
 
-  insertChannel (params, retry = 0) {
+  insertChannel (params) {
     const stmt = this.db.prepare(`
       INSERT INTO channel(name, host, password, type)
       VALUES ($name, $host, $password, $type)
