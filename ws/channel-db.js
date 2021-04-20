@@ -130,13 +130,25 @@ class ChannelDB {
     return info
   }
 
-  // getBroadcastChannel (callback) {
-  //   this.db.each("SELECT * FROM channel WHERE type = '2' ORDER BY name, id", callback)
-  // }
+  getGroupChannels () {
+    const stmt = this.db.prepare(`SELECT * FROM channel WHERE type = '1' ORDER BY name, id`)
+    return stmt.all()
+  }
 
-  // getChannelByHost (userId, callback) {
-  //   this.db.each(`SELECT * FROM channel WHERE host = '${userId}' ORDER BY name, id`, callback)
-  // }
+  getOneOnOneChannels () {
+    const stmt = this.db.prepare(`SELECT * FROM channel WHERE type = '0' ORDER BY name, id`)
+    return stmt.all()
+  }
+
+  getBroadcastChannels () {
+    const stmt = this.db.prepare(`SELECT * FROM channel WHERE type = '2' ORDER BY name, id`)
+    return stmt.all()
+  }
+
+  getChannelsByHost (userId) {
+    const stmt = this.db.prepare(`SELECT * FROM channel WHERE host = $user_id ORDER BY name, id`)
+    return stmt.all({ user_id: userId })
+  }
 
   getChannelByParticipant (userId, callback) {
     const stmt = this.db.prepare(`
