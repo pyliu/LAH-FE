@@ -9,7 +9,7 @@ const writeTestMessage = function () {
   setTimeout(() => {
     const seed = parseInt(Math.random() * 1000)
     const pick = seed % newsLen
-    utils.insertMessageChannel('announcement_sur', {
+    utils.insertMessageChannel('announcement', {
       title: news[pick].title,
       message: news[pick].description,
       sender: news[pick].source,
