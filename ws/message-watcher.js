@@ -49,7 +49,7 @@ class MessageWatcher {
       const row = mc.getLatestMessage()
       if (row) {
         const wsClients = MessageWatcher.getOnlineWsClients(channel)
-        if (MessageWatcher.stickyChannels.includes(channel)) {
+        if (MessageWatcher.stickyChannels.includes(channel) || channel.startsWith('announcement')) {
           utils.broadcast(wsClients, row, channel)
         } else {
           // prepare message

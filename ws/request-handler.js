@@ -134,7 +134,7 @@ class RequestHandler {
     const messages = channelDB.getLatestMessagesByCount(count)
     if (messages && messages.length > 0) {
       messages.forEach((message, idx, arr) => {
-        if (channel === 'announcement') {
+        if (channel.startsWith('announcement')) {
           ws.send(utils.packMessage(message, { channel: channel, id: message['id'] }))
         } else {
           ws.send(utils.packMessage(message['content'], {

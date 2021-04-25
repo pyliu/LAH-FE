@@ -81,7 +81,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
 
         // channel === 'supervisor' && console.log(rowORtext)
         const opts = {}
-        if (channel === 'announcement') {
+        if (channel.startsWith('announcement')) {
           opts.id = rowORtext.id
         } else {
           opts.id = rowORtext.id
