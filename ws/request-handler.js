@@ -128,7 +128,7 @@ class RequestHandler {
   }
 
   executeQueryLatestlMessageCommand (ws, json) {
-    const channel = json.channel
+    const channel = String(json.channel)
     const count = parseInt(json.count) || 30
     const channelDB = new MessageDB(channel)
     const messages = channelDB.getLatestMessagesByCount(count)
