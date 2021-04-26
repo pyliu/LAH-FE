@@ -56,7 +56,9 @@ class RequestHandler {
       case 'mychannel':
         return this.executeQueryJoinChannelCommand(ws)
       case 'latest':
-        return this.executeQueryLatestlMessageCommand(ws, json)
+        return this.executeQueryLatestMessageCommand(ws, json)
+      case 'previous':
+        return this.executeQueryPreviousMessageCommand(ws, json)
       case 'remove_channel':
         return this.executeRemoveChannelCommand(ws, json)
       default:
@@ -127,7 +129,7 @@ class RequestHandler {
     return Boolean(ws.user)
   }
 
-  executeQueryLatestlMessageCommand (ws, json) {
+  executeQueryLatestMessageCommand (ws, json) {
     const channel = String(json.channel)
     const count = parseInt(json.count) || 30
     const channelDB = new MessageDB(channel)
@@ -144,6 +146,38 @@ class RequestHandler {
             time: message['create_datetime'].split(' ')[1],
             from: message['ip'],
             channel: channel
+          }))
+        }
+      })
+    }
+    return true
+  }
+
+  
+  executeQueryPreviousMessageCommand (ws, json) {
+    const channel = String(json.channel)
+    const count = parseInt(json.count) || 1
+    const headId = json.headId
+    const channelDB = new MessageDB(channel)
+    const messages = channelDB.getPreviousMessagesByCount(headId, count)
+
+    if (messages && messages.length > 0) {
+      messages.forEach((message, idx, arr) => {
+        if (channel.startsWith('announcement')) {
+          ws.send(utils.packMessage(message, {
+            channel: channel,
+            id: message['id'],
+            prepend: true
+          }))
+        } else {
+          ws.send(utils.packMessage(message['content'], {
+            id: message['id'],
+            sender: message['sender'],
+            date: message['create_datetime'].split(' ')[0],
+            time: message['create_datetime'].split(' ')[1],
+            from: message['ip'],
+            channel: channel,
+            prepend: true
           }))
         }
       })

@@ -127,6 +127,10 @@ class MessageDB {
     return this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE ? || '%' ORDER BY id DESC`).all(date)
   }
 
+  getPreviousMessagesByCount (headId, count) {
+    return this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND id < ? ORDER BY id DESC LIMIT ?`).all(headId, parseInt(count) || 1)
+  }
+  
   remove (cb) {
     setTimeout(() => {
       fs.unlink(this.filepath, (err) => {

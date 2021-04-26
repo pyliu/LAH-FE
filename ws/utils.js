@@ -49,7 +49,8 @@ const packMessage = function (payload, opts = {}) {
       time: timestamp('time'),
       message: payload,
       from: ip,
-      channel: 'blackhole'
+      channel: 'blackhole',
+      prepend: false
     },
     ...opts
   }
