@@ -1,3 +1,4 @@
+let count = 0
 const writeTestMessage = function () {
   // for testing purpose
   const MessageDB = require('./message-db.js')
@@ -14,9 +15,10 @@ const writeTestMessage = function () {
       message: news[pick].description,
       sender: news[pick].source,
       from: utils.ip,
-      priority: seed % 4,
+      priority: count % 4,
       flag: 0
     })
+    count++
   }, Math.random() * 1000 * 15)
 
   setTimeout(() => {
@@ -26,7 +28,7 @@ const writeTestMessage = function () {
       message: news[pick].title,
       sender: news[pick].source,
       from: utils.ip,
-      priority: 3,
+      priority: count % 4,
       flag: 0
     })
   }, Math.random() * 1000 * 15)

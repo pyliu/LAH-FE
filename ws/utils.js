@@ -113,7 +113,7 @@ const insertMessageChannel = (channel, json) => {
     title: json['title'] || 'dontcare',
     content: json['message'],
     sender: json['sender'],
-    priority: parseInt(json['priority']) || 3,
+    priority: parseInt(json['priority']),
     from_ip: json['from'] || '',
     flag: parseInt(json['flag']) || 0
   })
