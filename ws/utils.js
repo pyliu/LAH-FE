@@ -109,11 +109,12 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
 
 const insertMessageChannel = (channel, json) => {
   const channelDB = new MessageDB(channel)
+  const priority = parseInt(json['priority'])
   channelDB.insertMessage({
     title: json['title'] || 'dontcare',
     content: json['message'],
     sender: json['sender'],
-    priority: parseInt(json['priority']),
+    priority: priority === 0 ? 0 : priority || 3,
     from_ip: json['from'] || '',
     flag: parseInt(json['flag']) || 0
   })
