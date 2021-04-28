@@ -182,6 +182,23 @@ class RequestHandler {
         }
       })
     }
+
+    ws.send(utils.packMessage(
+      // message payload
+      {
+        command: 'previous',
+        payload: json,
+        success: true,
+        message: `已完成 ${channel} 歷史訊息讀取`
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-4', // temporary id for previous
+        channel: 'system'
+      }
+    ))
+
     return true
   }
 
