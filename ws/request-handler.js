@@ -160,8 +160,8 @@ class RequestHandler {
     const headId = json.headId
     const channelDB = new MessageDB(channel)
     const messages = channelDB.getPreviousMessagesByCount(headId, count)
-
-    if (messages && messages.length > 0) {
+    const hasMessage = messages && messages.length > 0
+    if (hasMessage) {
       messages.forEach((message, idx, arr) => {
         if (channel.startsWith('announcement')) {
           ws.send(utils.packMessage(message, {
@@ -188,8 +188,8 @@ class RequestHandler {
       {
         command: 'previous',
         payload: json,
-        success: true,
-        message: `已完成 ${channel} 歷史訊息讀取`
+        success: hasMessage,
+        message: hasMessage ? `已完成 ${channel} 歷史訊息讀取` : `已無歷史訊息`
       },
       // outter message attrs
       {
