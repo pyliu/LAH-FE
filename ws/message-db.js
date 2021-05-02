@@ -130,6 +130,10 @@ class MessageDB {
   getPreviousMessagesByCount (headId, count) {
     return this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND id < ? ORDER BY id DESC LIMIT ?`).all(headId, parseInt(count) || 1)
   }
+
+  getUnreadMessageCount (lastReadId) {
+    return this.db.prepare(`SELECT COUNT(*) FROM message WHERE sender <> 'system' AND id > ? ORDER BY id DESC`).pluck().get(lastReadId || 0)
+  }
   
   remove (cb) {
     setTimeout(() => {

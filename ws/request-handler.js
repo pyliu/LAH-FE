@@ -59,6 +59,8 @@ class RequestHandler {
         return this.executeQueryLatestMessageCommand(ws, json)
       case 'previous':
         return this.executeQueryPreviousMessageCommand(ws, json)
+      case 'unread':
+        return this.executeChannelUnreadCommand(ws, json)
       case 'remove_channel':
         return this.executeRemoveChannelCommand(ws, json)
       default:
@@ -237,6 +239,30 @@ class RequestHandler {
         ))
       })
     })
+  }
+
+  executeChannelUnreadCommand (ws, json) {
+    const channel = String(json.channel)
+    const last = parseInt(json.last) || 0
+    const channelDB = new MessageDB(channel)
+    json['unread'] = channelDB.getUnreadMessageCount(last)
+    ws.send(utils.packMessage(
+      // message payload
+      {
+        command: 'unread',
+        payload: json,
+        success: true,
+        message: `${channel} 共 ${json['unread']} 筆未讀訊息`
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-5', // temporary id for unread
+        channel: 'system'
+      }
+    ))
+
+    return true
   }
 
   handleClientRequest (ws, json) {
