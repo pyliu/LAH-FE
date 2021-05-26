@@ -168,11 +168,6 @@ export default {
         sortable: true,
       },
       {
-        key: "GG01",
-        label: '登序',
-        sortable: true,
-      },
-      {
         key: "GG48",
         label: '段代碼',
         sortable: true,
@@ -180,6 +175,11 @@ export default {
       {
         key: "GG49",
         label: '地/建號',
+        sortable: true,
+      },
+      {
+        key: "GG01",
+        label: '登序',
         sortable: true,
       },
       {
