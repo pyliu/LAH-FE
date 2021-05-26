@@ -45,38 +45,10 @@
         li: nuxt-link(to="/agriculture-375-change").
           #[font-awesome-icon(:icon="['fas', 'border-all']" size="lg")]
           375租約異動
-        </li>
-        //- <li>
-        //-   <NuxtLink to="/">
-        //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-        //-     未辦標的註記異動
-        //-   </NuxtLink>
-        //- </li>
-        //- <li>
-        //-   <NuxtLink to="/">
-        //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-        //-     參考資訊檔異動通知書產製
-        //-   </NuxtLink>
-        //- </li>
-        //- <li>
-        //-   <NuxtLink to="/">
-        //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-        //-     逾期未駁回案件
-        //-   </NuxtLink>
-        //- </li>
-        //- <li>
-        //-   <NuxtLink to="/">
-        //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-        //-     辦畢通知查詢
-        //-   </NuxtLink>
-        //- </li>
-        //- <li>
-        //-   <NuxtLink to="/">
-        //-     <font-awesome-icon :icon="['far', 'times-circle']" size="lg" />
-        //-     領狀管控查詢
-        //-   </NuxtLink>
-        //- </li>
-
+        li: nuxt-link(to="/not-done-change").
+          #[font-awesome-icon(:icon="['fas', 'monument']" size="lg")]
+          未辦標的註記異動
+          
         li: hr
 
         li(v-if="isAuthorized"): nuxt-link(to="/admin").

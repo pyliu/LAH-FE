@@ -15,7 +15,7 @@
           lah-index-card-link(:icon="['fas', 'user-astronaut']" to="/foreigner-case") 外人地權案件
         b-card-group(deck)
           lah-index-card-link(:icon="['fas', 'border-all']" to="/agriculture-375-change") 375租約異動查詢
-          lah-index-card-link(:icon="['fas', 'monument']" icon-variant="muted" action="damage") 未辦標的註記異動
+          lah-index-card-link(:icon="['fas', 'monument']" to="/not-done-change") 未辦標的註記異動
           lah-index-card-link(:icon="['fas', 'landmark']" icon-variant="muted" action="damage") 參考資訊檔異動
           lah-index-card-link(:icon="['fas', 'pager']" icon-variant="muted" action="damage") 逾期未駁回查詢
           lah-index-card-link(:icon="['fas', 'bullhorn']" icon-variant="muted" action="damage") 辦畢通知查詢
