@@ -23,7 +23,7 @@
           首頁
 
         li: hr
-        
+
         li: nuxt-link(to="/expire").
           #[font-awesome-icon(:icon="['far', 'calendar-check']" size="lg")]
           即將逾期案件
@@ -48,7 +48,7 @@
         li: nuxt-link(to="/not-done-change").
           #[font-awesome-icon(:icon="['fas', 'monument']" size="lg")]
           未辦標的註記異動
-          
+
         li: hr
 
         li(v-if="isAuthorized"): nuxt-link(to="/admin").
@@ -62,7 +62,7 @@
         //-   測試
 
         li(v-if="isAuthorized"): hr
-        
+
         li(v-if="!isAuthorized"): nuxt-link(to="/login").
           #[font-awesome-icon(:icon="['fas', 'sign-in-alt']" size="lg")]
           管理者登入
@@ -78,7 +78,7 @@
         li(v-else): b-link(@click="logout" title="清除瀏覽器端快取資料").
           #[font-awesome-icon(:icon="['fas', 'sign-out-alt']" size="lg")]
           登出
-        
+
         li: hr
     template(#footer)
       div.d-flex.bg-dark.text-light.justify-content-between.px-3.py-2.align-middle
