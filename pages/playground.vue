@@ -42,9 +42,9 @@ export default {
   }),
   async asyncData({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering
-    // http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01
-    // return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 })
-    // return await $axios.get('http://220.1.35.123/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 }).then(({ data }) => {
+    // http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01
+    // return await $axios.get('http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 })
+    // return await $axios.get('http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 }).then(({ data }) => {
     //   return {openNewsData: data.openNewsData}
     // })
     const now = new Date()

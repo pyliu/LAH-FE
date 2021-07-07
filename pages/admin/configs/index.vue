@@ -403,7 +403,7 @@
           </b-input-group>
           <b-input-group size="sm" prepend="跨所ＡＰ" class="my-1">
             <b-input
-              placeholder="220.1.35.123"
+              placeholder="220.1.34.161"
               title="任一個地政WEB版伺服器IP"
               v-model="loadedConfigs['WEBAP_IP']"
               :state="validateIp(loadedConfigs['WEBAP_IP'])"
