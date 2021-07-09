@@ -73,7 +73,7 @@
                 class="mx-1 mt-n1"
                 size="sm"
               >
-                {{ site }}ＯＯＯＯ 中壢地政
+                {{ site }}ＯＯＯＯ 桃園地政
               </b-button>
               編輯使用者。
             </div>
