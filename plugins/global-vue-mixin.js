@@ -69,7 +69,7 @@ Vue.mixin({
       if (/(^220\.1\.41\.|^192\.168\.8[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'HG'
       }
-      return 'HB'
+      return 'HA'
     },
     myinfo () {
       return isEmpty(this.user) ? { id: '', name: '' } : this.user
