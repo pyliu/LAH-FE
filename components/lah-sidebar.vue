@@ -48,6 +48,9 @@
         li: nuxt-link(to="/not-done-change").
           #[font-awesome-icon(:icon="['fas', 'monument']" size="lg")]
           未辦標的註記異動
+        li: nuxt-link(to="/land-ref-change").
+          #[font-awesome-icon(:icon="['fas', 'landmark']" size="lg")]
+          土地參考資訊檔異動
 
         li: hr
 
