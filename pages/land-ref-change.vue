@@ -185,7 +185,7 @@ export default {
       }
     ],
     maxHeight: 600,
-    warnDays: 180
+    warnDays: 365
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
