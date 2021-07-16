@@ -51,6 +51,9 @@
         li: nuxt-link(to="/land-ref-change").
           #[font-awesome-icon(:icon="['fas', 'landmark']" size="lg")]
           土地參考資訊檔異動
+        li: nuxt-link(to="/reg-fix-case").
+          #[font-awesome-icon(:icon="['fas', 'pager']" size="lg")]
+          補正期滿案件查詢
 
         li: hr
 
