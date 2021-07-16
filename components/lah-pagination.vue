@@ -36,7 +36,7 @@ export default {
   },
   data: () => ({
     current: 1,
-    pageCount: 23
+    pageCount: 20
   }),
   computed: {
     gridColumnClass () {
