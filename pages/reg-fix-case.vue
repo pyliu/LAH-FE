@@ -138,7 +138,7 @@ export default {
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
-  async fetch () {
+  fetch () {
     if (this.isBusy) {
       this.notify('讀取中 ... 請稍後', { type: 'warning' })
     } else {
