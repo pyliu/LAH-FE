@@ -188,7 +188,7 @@ export default {
       { value: 'TE', text: '建物例外' }
     ],
     rows: [],
-    perPage: 25,
+    perPage: 20,
     currentPage: 1,
     forceReload: false,
     committed: false,

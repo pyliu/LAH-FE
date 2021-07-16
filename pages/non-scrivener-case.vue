@@ -221,7 +221,7 @@ export default {
       }
     ],
     currentPage: 1,
-    perPage: 25,
+    perPage: 20,
     caseType: 'reg',
     caseTypeOpts: [
       { text: '登記', value: 'reg' },

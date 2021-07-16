@@ -88,7 +88,7 @@ export default {
     modalCaseId: undefined,
     bakedData: [],
     fields: [],
-    perPage: 25,
+    perPage: 20,
     currentPage: 1
   }),
   asyncData (ctx) {
