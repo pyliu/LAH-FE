@@ -113,7 +113,7 @@ export default {
     clickedId: undefined,
     rows: [],
     pagination: {
-      perPage: 25,
+      perPage: 20,
       currentPage: 1
     },
     forceReload: false,
