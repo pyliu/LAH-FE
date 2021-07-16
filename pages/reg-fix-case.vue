@@ -3,28 +3,25 @@
     lah-header: lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto 土地參考資訊檔異動
+          .my-auto 補正期滿案件查詢
           lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             h5 資料庫搜尋說明
             ul
-              li 搜尋土地參考資訊檔異動情形的資料
+              li 搜尋補正期滿案件的資料
               li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
             hr
             h5 請參照下列步驟搜尋
             ol
-              li 選擇查詢區間
               li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
         .d-flex.small
-          lah-datepicker.mr-1(v-model="dateRange")
-
           lah-button.mr-1(
             ref="search"
             icon="search"
             size="lg"
             title="搜尋"
-            :disabled="isBusy || isWrongDaysPeriod"
+            :disabled="isBusy"
             @click="$fetch"
             no-icon-gutter
           )
@@ -37,7 +34,7 @@
             action="ld-cycle"
             size="lg"
             :milliseconds="cachedMs"
-            :disabled="isBusy || isWrongDaysPeriod"
+            :disabled="isBusy"
             :busy="isBusy"
             @end="reload"
             @click="reload"
@@ -89,18 +86,9 @@
             span(aria-hidden="true") &nbsp;
             span.sr-only 無勾選
           span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-        template(#cell(RM01)="{ item }"): div: b-link(@click="popup(item)").
-          {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-        template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
-        template(#cell(AA48)="{ item }"): .text-nowrap {{ item.AA48 }}:{{ item.AA48_CHT }}
-        template(#cell(AA49)="{ item }"): .text-nowrap {{ landNumber(item) }}
-        template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
-        template(#cell(AS_TYPE)="{ item }"): .text-nowrap {{ item.AS_TYPE }}:{{ item.AS_TYPE_CHT }}
-        template(#cell(GG00)="{ item }"): .text-nowrap {{ item.GG00 }}:{{ item.GG00_CHT }}
-        template(#cell(GG01)="{ item }"): .text-nowrap {{ item.GG01 }}
-        template(#cell(GG30_2)="{ item }"): .text-left.content-max-width {{ item.GG30_2 }}
-        template(#cell(AF08)="{ item }"): .text-nowrap {{ item.AF08 }}:{{ item.AF08_CHT }}
-        template(#cell(AF09)="{ item }"): .text-left.content-max-width {{ item.AF09 }}
+        template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
+          {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
     b-modal(
       :id="modalId"
       size="xl"
@@ -124,11 +112,6 @@ export default {
     modalLoading: true,
     clickedId: undefined,
     rows: [],
-    dateRange: {
-      begin: '',
-      end: '',
-      days: 0
-    },
     pagination: {
       perPage: 25,
       currentPage: 1
@@ -138,8 +121,7 @@ export default {
     fields: [
       '#',
       {
-        key: 'RM01',
-        label: '收件案號',
+        key: '收件字號',
         sortable: true
       },
       {
@@ -148,43 +130,11 @@ export default {
         sortable: true
       },
       {
-        key: 'RM56_1',
-        label: '校對日期',
-        sortable: true
-      },
-      {
-        key: 'AA48',
-        label: '段代碼',
-        sortable: true
-      },
-      {
-        key: 'AA49',
-        label: '地號',
-        sortable: true
-      },
-      {
-        key: 'AS_TYPE',
-        label: '異動別',
-        sortable: true
-      },
-      {
-        key: 'GG30_2',
-        label: '其他登記事項',
-        sortable: true
-      },
-      {
-        key: 'AF08',
-        label: '土參類別',
-        sortable: true
-      },
-      {
-        key: 'AF09',
-        label: '土參內容',
+        key: '初審人員',
         sortable: true
       }
     ],
-    maxHeight: 600,
-    warnDays: 365
+    maxHeight: 600
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
@@ -192,17 +142,6 @@ export default {
     if (this.isBusy) {
       this.notify('讀取中 ... 請稍後', { type: 'warning' })
     } else {
-      if (this.daysPeriod > this.warnDays) {
-        const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`)
-        if (!ans) {
-          return
-        }
-      } else if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
-        this.$utils.warn('dateRange is not ready ... postpone $fetch')
-        this.timeout(this.$fetch, 250)
-        return
-      }
-
       this.getCache(this.cacheKey).then((json) => {
         this.reset()
         if (this.forceReload !== true && json) {
@@ -212,16 +151,14 @@ export default {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
             }
-            this.notify(`查詢成功，找到 ${this.rows.length} 筆土地參考資訊檔異動情形資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            this.notify(`查詢成功，找到 ${this.rows.length} 筆補正案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
           this.committed = true
         } else {
           this.isBusy = true
           this.committed = false
           this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-            type: 'land_ref_change',
-            start: this.dateRange.begin,
-            end: this.dateRange.end,
+            type: 'reg_fix_case',
             reload: this.forceReload
           }).then(({ data }) => {
             this.rows = data.raw || []
@@ -248,25 +185,14 @@ export default {
     }
   },
   head: {
-    title: '土地參考資訊檔異動情形查詢-桃園市地政局'
+    title: '補正期滿案件查詢-桃園市地政局'
   },
   computed: {
     queryCount () { return this.rows.length },
-    cacheKey () { return `query_land_ref_change_${this.dateRange.begin}_${this.dateRange.end}` },
-    foundText () { return `找到 ${this.queryCount} 筆「土地參考資訊檔」案件異動資料` },
-    daysPeriod () { return this.dateRange.days || 0 },
-    isWrongDaysPeriod () { return this.daysPeriod < 1 }
+    cacheKey () { return 'query_reg_fix_case' },
+    foundText () { return `找到 ${this.queryCount} 筆「補正」案件資料` }
   },
   fetchOnServer: false,
-  watch: {
-    daysPeriod (val) {
-      if (val < 1) {
-        this.alert('開始日期應小於或等於結束日期', { pos: 'tr' })
-      } else if (val > this.warnDays) {
-        this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
-      }
-    }
-  },
   created () {
     this.modalId = this.$utils.uuid()
   },
