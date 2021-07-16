@@ -14,7 +14,6 @@
             h5 請參照下列步驟搜尋
             ol
               li 選擇查詢區間
-              li 選擇查詢類別
               li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
         .d-flex.small
