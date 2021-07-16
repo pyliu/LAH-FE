@@ -27,9 +27,9 @@ export default {
   head: {
     title: '桃園市地政智慧管控系統'
   },
-  async asyncData(nuxt) {
-    // SSR: returned object will replace the data inside "data" before rendering
-  },
+  // async asyncData(nuxt) {
+  //   // SSR: returned object will replace the data inside "data" before rendering
+  // },
   mounted () {
     const ua = window.navigator.userAgent
     if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
