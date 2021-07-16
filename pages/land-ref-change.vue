@@ -184,20 +184,15 @@ export default {
       }
     ],
     maxHeight: 600,
-    warnDays: 365
+    warnDays: 730
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
-  async fetch () {
+  fetch () {
     if (this.isBusy) {
       this.notify('讀取中 ... 請稍後', { type: 'warning' })
     } else {
-      if (this.daysPeriod > this.warnDays) {
-        const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`)
-        if (!ans) {
-          return
-        }
-      } else if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+      if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
         this.$utils.warn('dateRange is not ready ... postpone $fetch')
         this.timeout(this.$fetch, 250)
         return
@@ -262,8 +257,6 @@ export default {
     daysPeriod (val) {
       if (val < 1) {
         this.alert('開始日期應小於或等於結束日期', { pos: 'tr' })
-      } else if (val > this.warnDays) {
-        this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
       }
     }
   },
