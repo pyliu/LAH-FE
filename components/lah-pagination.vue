@@ -7,26 +7,30 @@
       :size="size"
       last-number
       first-number
+      v-if="totalRows > 0"
     )
+    div(v-else)
     .my-auto.text-muted(v-html="caption")
     b-input-group.my-auto.m0(
       prepend="每頁"
       append="筆"
       :size="size"
       :class="gridColumnClass"
+      v-if="totalRows > 0"
     ): b-input.text-right(
       v-model="pageCount"
       type="number"
       min="10"
       number
     )
+    div(v-else)
 </template>
 
 <script>
 export default {
   props: {
     totalRows: { type: Number, default: 0, require: true },
-    value: { type: Object, default: { currentPage: 1, perPage: 1 }, required: true},
+    value: { type: Object, default: () => ({ currentPage: 1, perPage: 1 }), required: true },
     caption: { type: String, default: '' },
     size: { type: String, default: 'md' }
   },
@@ -37,20 +41,20 @@ export default {
   computed: {
     gridColumnClass () {
       if (this.size === 'lg') {
-        return `lg-width`
+        return 'lg-width'
       }
       if (this.size === 'sm') {
-        return `sm-width`
+        return 'sm-width'
       }
       return 'md-width'
     }
   },
   watch: {
     current (val) {
-      this.$emit("input", { ...this.value, currentPage: val })
+      this.$emit('input', { ...this.value, currentPage: val })
     },
     pageCount (val) {
-      this.$emit("input", { ...this.value, perPage: val })
+      this.$emit('input', { ...this.value, perPage: val })
     }
   }
 }
