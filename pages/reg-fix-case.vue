@@ -89,6 +89,7 @@
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
+        template(#cell(日期)="{ item }"): lah-reg-case-fix-date(:id="`${item.RM01}${item.RM02}${item.RM03}`")
     b-modal(
       :id="modalId"
       size="xl"
@@ -131,6 +132,10 @@ export default {
       },
       {
         key: '初審人員',
+        sortable: true
+      },
+      {
+        key: '日期',
         sortable: true
       }
     ],
