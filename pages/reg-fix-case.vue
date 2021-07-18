@@ -89,7 +89,8 @@
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
-        template(#cell(日期)="{ item }"): lah-reg-case-fix-date(:id="`${item.RM01}${item.RM02}${item.RM03}`")
+        template(#cell(日期)="{ item }")
+          lah-reg-case-fix-date(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
     b-modal(
       :id="modalId"
       size="xl"

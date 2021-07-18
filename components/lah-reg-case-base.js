@@ -23,7 +23,7 @@ export default {
     parentData(val) { this.bakedData = val }
   },
   created () { this.bakedData = this.parentData },
-  async fetch () {
+  fetch () {
     // case-id prop-in is valid then uses it for fetching data
     if (this.validID) {
       this.isBusy = true
@@ -39,7 +39,7 @@ export default {
             type: 'warning'
           })
         }
-      }).catch(err => {
+      }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
