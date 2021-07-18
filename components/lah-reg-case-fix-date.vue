@@ -1,6 +1,8 @@
 <template lang="pug">
   div(v-if="ready")
-    span {{ parentData.收件字號 }}
+    fieldset
+      legend {{ caseId }}
+      span {{ parentData.收件字號 }}
     //- <!-- header flow table -->
     //- lah-reg-case-flow(compact :parent-data="bakedData")
     //- <!-- detail info card -->
@@ -29,6 +31,7 @@ export default {
   },
   mounted () {
     this.trigger('ready', this.ready)
+    this.$utils.log(this.parentData)
   }
 };
 </script>

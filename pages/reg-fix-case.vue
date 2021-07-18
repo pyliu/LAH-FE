@@ -89,7 +89,7 @@
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
-        template(#cell(日期)="{ item }")
+        template(#cell(lah-reg-case-fix-date)="{ item }")
           lah-reg-case-fix-date(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
     b-modal(
       :id="modalId"
@@ -136,7 +136,24 @@ export default {
         sortable: true
       },
       {
-        key: '日期',
+        key: '補正期限',
+        sortable: true
+      },
+      {
+        key: '通知補正日期',
+        sortable: true
+      },
+      {
+        key: '補正期滿日期',
+        sortable: true
+      },
+      {
+        key: '補正日期',
+        sortable: true
+      },
+      {
+        key: 'lah-reg-case-fix-date',
+        label: '補正日期設定',
         sortable: true
       }
     ],
