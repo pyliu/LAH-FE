@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import regCaseBase from "~/assets/js/reg-case-base.js"
+import regCaseBase from "~/components/lah-reg-case-base.js"
 import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: "lah-reg-case-flow",
