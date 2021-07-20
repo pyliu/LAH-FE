@@ -5,8 +5,9 @@
       placeholder="補正通知書送達日期"
       boundary="viewport"
       :title="`${$utils.caseId(caseId)}`"
-      label-help="可使用方向鍵操作移動"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+      :min="minDate"
+      label-help="可使用方向鍵操作移動"
       hide-header
       dropleft
       v-b-tooltip.hover.left
@@ -27,7 +28,8 @@ export default {
   name: 'lah-reg-case-fix-date',
   mixins: [regCaseBase],
   data: () => ({
-    deliveredDate: ''
+    deliveredDate: '',
+    minDate: new Date()
   }),
   fetch () {
     // get the date string from sqlite db
@@ -78,8 +80,17 @@ export default {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
   },
   mounted () {
+    // RM51: 通知補正日
+    const rm51 = this.bakedData.RM51
+    if (!this.$utils.empty(rm51)) {
+      const Y = rm51.substring(0, 3) - 0 + 1911
+      const M = rm51.substring(3, 5) - 0 - 1
+      const D = rm51.substring(5, 7) - 0
+      this.minDate = new Date(Y, M, D)
+    }
     this.trigger('ready', this.ready)
-  }
+  },
+  methods: {}
 }
 </script>
 
