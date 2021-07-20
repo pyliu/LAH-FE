@@ -7,10 +7,16 @@
       :title="`${$utils.caseId(caseId)}`"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :min="minDate"
-      label-help="可使用方向鍵操作移動"
+      label-help="使用方向鍵操作移動日期"
       hide-header
       dropleft
-      v-b-tooltip.hover.left
+      today-button
+      label-today-button="今天"
+      reset-button
+      label-reset-button="重設"
+      close-button
+      label-close-button="關閉"
+      v-b-tooltip.hover.left.v-warning
     )
 </template>
 

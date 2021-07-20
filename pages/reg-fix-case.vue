@@ -144,10 +144,12 @@ export default {
       },
       {
         key: '通知補正日期',
+        label: '通知補正',
         sortable: true
       },
       {
         key: '補正期滿日期',
+        label: '補正期滿',
         sortable: true
       },
       {
