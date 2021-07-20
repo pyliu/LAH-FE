@@ -102,7 +102,7 @@
       no-close-on-backdrop
       scrollable
     )
-      template(#modal-title) 登記案件詳情 {{ clickedData.收件字號}}
+      template(#modal-title) 登記案件詳情 {{ $utils.caseId(clickedData.ID) }}
       h4.text-center.text-info.my-5(v-if="modalLoading")
         b-spinner.my-auto(small type="grow")
         strong.ld-txt 查詢中...
@@ -156,8 +156,8 @@ export default {
       },
       {
         key: 'lah-reg-case-fix-date',
-        label: '日期追蹤設定',
-        sortable: true
+        label: '通知送達日期設定',
+        sortable: false
       }
     ],
     maxHeight: 600
