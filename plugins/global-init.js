@@ -311,7 +311,7 @@ export default ({ $axios, store }, inject) => {
       }
       return `${dateObj.getFullYear() - 1911}${('0' + (dateObj.getMonth() + 1)).slice(-2)}${('0' + dateObj.getDate()).slice(-2)}`
     },
-    adDateObj (twDateStr) {
+    twToAdDateObj (twDateStr) {
       if (isEmpty(twDateStr)) return null
       const Y = twDateStr.substring(0, 3) - 0 + 1911
       const M = twDateStr.substring(3, 5) - 0 - 1

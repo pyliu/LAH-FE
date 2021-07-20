@@ -18,7 +18,7 @@
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
     )
-    
+
 </template>
 
 <script>
@@ -59,6 +59,15 @@ export default {
       this.isBusy = false
     })
   },
+  computed: {
+    deliveredDateAfter15Days () {
+      if (this.$utils.empty(this.deliveredDate)) {
+        return ''
+      }
+      // this.$utils.twToAdDateObj(this.this.deliveredDate)
+      return ''
+    }
+  },
   watch: {
     ready (flag) {
       this.trigger('ready', flag)
@@ -88,7 +97,7 @@ export default {
   },
   mounted () {
     // RM51: 通知補正日
-    this.minDate = this.$utils.adDateObj(this.bakedData.RM51)
+    this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM51)
     this.trigger('ready', this.ready)
   },
   methods: {}
