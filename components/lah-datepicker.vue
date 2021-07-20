@@ -38,7 +38,7 @@
 export default {
   props: {
     size: { type: String, default: 'sm' },
-    value: { type: Object, default: { begin: '', end: '', days: 0 }, required: true },
+    value: { type: Object, default: () => ({ begin: '', end: '', days: 0 }), required: true },
   },
   fetchOnServer: true,
   data: () => ({
@@ -49,7 +49,7 @@ export default {
     firstDayofMonth: null,
     lastDayofMonth: null
   }),
-  async fetch () {
+  fetch () {
     const today = new Date()
     const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
     const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
@@ -59,14 +59,6 @@ export default {
     this.today = today
     this.firstDayofMonth = firstDayofMonth
     this.lastDayofMonth = lastDayofMonth
-  },
-  watch: {
-    startDateObj (dontcare) {
-      this.$emit("input", this.latestValue)
-    },
-    endDateObj (dontcare) {
-      this.$emit("input", this.latestValue)
-    }
   },
   computed: {
     days () {
@@ -80,27 +72,35 @@ export default {
       if (this.days < 1) {
       // hack for b-datepicker label centering/nowrap
       this.$nextTick(() => {
-        this.$("label.form-control.form-control-sm").addClass('my-auto text-nowrap')
+        this.$('label.form-control.form-control-sm').addClass('my-auto text-nowrap')
       })
         return false
       }
       // hack for b-datepicker label centering/nowrap
       this.$nextTick(() => {
-        this.$("label.form-control.form-control-sm").addClass('my-auto text-nowrap')
+        this.$('label.form-control.form-control-sm').addClass('my-auto text-nowrap')
       })
       return null
     },
     latestValue () {
       return {
         begin: this.$utils.twDateStr(this.startDateObj),
-        end:  this.$utils.twDateStr(this.endDateObj),
+        end: this.$utils.twDateStr(this.endDateObj),
         days: this.days
       }
     }
   },
+  watch: {
+    startDateObj (dontcare) {
+      this.$emit('input', this.latestValue)
+    },
+    endDateObj (dontcare) {
+      this.$emit('input', this.latestValue)
+    }
+  },
   mounted () {
     // b-datepicker label centering/nowrap hack
-    this.$("label.form-control.form-control-sm").addClass('my-auto text-nowrap')
+    this.$('label.form-control.form-control-sm').addClass('my-auto text-nowrap')
     // tell outside the component is ready and emit the latest value
     this.$emit('ready', this.latestValue)
   }
