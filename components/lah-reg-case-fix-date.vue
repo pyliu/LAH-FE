@@ -1,7 +1,7 @@
 <template lang="pug">
   div(v-if="ready")
     fieldset
-      legend {{ caseId }}
+      legend {{ parentData.收件字號 }}
       span {{ parentData.收件字號 }}
     //- <!-- header flow table -->
     //- lah-reg-case-flow(compact :parent-data="bakedData")

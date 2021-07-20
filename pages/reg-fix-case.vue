@@ -8,12 +8,14 @@
           lah-help-modal(:modal-id="'help-modal'")
             h5 資料庫搜尋說明
             ul
-              li 搜尋補正期滿案件的資料
-              li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
+              li 搜尋補正、補正初核「本所」案件的資料
+              li 補正期限為15個日曆天
+              li 設定「通知送達日期」後將自動計算「送達期滿日期」及「可駁回日期」
             hr
             h5 請參照下列步驟搜尋
             ol
               li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
+              li 點擊 #[lah-fa-icon(icon="sync" variant="muted") 重新搜尋]
 
         .d-flex.small
           lah-button.mr-1(
@@ -91,6 +93,7 @@
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
         template(#cell(lah-reg-case-fix-date)="{ item }")
           lah-reg-case-fix-date(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
+        template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
     b-modal(
       :id="modalId"
       size="xl"
@@ -99,11 +102,11 @@
       no-close-on-backdrop
       scrollable
     )
-      template(#modal-title) 登記案件詳情 {{ $utils.caseId(clickedId) }}
+      template(#modal-title) 登記案件詳情 {{ clickedData.收件字號}}
       h4.text-center.text-info.my-5(v-if="modalLoading")
         b-spinner.my-auto(small type="grow")
         strong.ld-txt 查詢中...
-      lah-reg-case-detail(:case-id="clickedId" @ready="modalLoading = !$event.detail")
+      lah-reg-case-detail(@ready="modalLoading = !$event.detail" :parent-data="clickedData")
 </template>
 
 <script>
@@ -112,7 +115,7 @@ export default {
     cachedMs: 24 * 60 * 60 * 1000,
     modalId: 'this should be an uuid',
     modalLoading: true,
-    clickedId: undefined,
+    clickedData: undefined,
     rows: [],
     pagination: {
       perPage: 20,
@@ -136,7 +139,7 @@ export default {
         sortable: true
       },
       {
-        key: '補正期限',
+        key: '辦理情形',
         sortable: true
       },
       {
@@ -153,7 +156,7 @@ export default {
       },
       {
         key: 'lah-reg-case-fix-date',
-        label: '補正日期設定',
+        label: '日期追蹤設定',
         sortable: true
       }
     ],
@@ -174,7 +177,7 @@ export default {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
             }
-            this.notify(`查詢成功，找到 ${this.rows.length} 筆補正案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            this.notify(`查詢成功，找到 ${this.rows.length} 筆「補正」、「補正初核」案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
           this.committed = true
         } else {
@@ -213,7 +216,7 @@ export default {
   computed: {
     queryCount () { return this.rows.length },
     cacheKey () { return 'query_reg_fix_case' },
-    foundText () { return `找到 ${this.queryCount} 筆「補正」案件資料` }
+    foundText () { return `找到 ${this.queryCount} 筆「補正」、「補正初核」案件資料` }
   },
   fetchOnServer: false,
   created () {
@@ -234,7 +237,7 @@ export default {
     },
     popup (data) {
       this.modalLoading = true
-      this.clickedId = `${data.RM01}${data.RM02}${data.RM03}`
+      this.clickedData = data
       this.showModalById(this.modalId)
     },
     landNumber (item) {
