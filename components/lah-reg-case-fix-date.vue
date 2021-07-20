@@ -2,7 +2,7 @@
   div(v-if="ready")
     b-datepicker(
       v-model="deliveredDate"
-      placeholder="補正通知書送達日期"
+      placeholder="選擇送達日期"
       boundary="viewport"
       :title="`${$utils.caseId(caseId)}`"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"

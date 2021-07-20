@@ -158,7 +158,7 @@ export default {
       },
       {
         key: 'lah-reg-case-fix-date',
-        label: '通知書送達日設定',
+        label: '通知書送達日',
         sortable: false
       }
     ],
