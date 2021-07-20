@@ -81,13 +81,7 @@ export default {
   },
   mounted () {
     // RM51: 通知補正日
-    const rm51 = this.bakedData.RM51
-    if (!this.$utils.empty(rm51)) {
-      const Y = rm51.substring(0, 3) - 0 + 1911
-      const M = rm51.substring(3, 5) - 0 - 1
-      const D = rm51.substring(5, 7) - 0
-      this.minDate = new Date(Y, M, D)
-    }
+    this.minDate = this.$utils.adDateObj(this.bakedData.RM51)
     this.trigger('ready', this.ready)
   },
   methods: {}

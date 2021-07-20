@@ -136,7 +136,7 @@ export default ({ $axios, store }, inject) => {
             const classes = `${prefix}animated ${prefix}${opts.name} ${prefix}${opts.speed} ${prefix}${opts.repeat} ${prefix}${opts.delay}`
             node.addClass(classes)
             // node[0].addEventListener('animationend', handleAnimationEnd, {once: true}
-            node.one('animationend', function(e) {
+            node.one('animationend', function (e) {
               // When the animation ends, we clean the classes and resolve the Promise
               node.removeClass(classes)
               // clear ld animation also
@@ -154,7 +154,7 @@ export default ({ $axios, store }, inject) => {
       })
     },
     addAnimation (selector, which) {
-      let el = $(selector || '*').removeClass('ld').attr('class', function(i, c) {
+      let el = $(selector || '*').removeClass('ld').attr('class', function (i, c) {
         return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
       })
       if (el.length) {
@@ -174,7 +174,7 @@ export default ({ $axios, store }, inject) => {
       return el
     },
     clearAnimation (selector) {
-      return $(selector || '*').removeClass('ld').attr('class', function(i, c) {
+      return $(selector || '*').removeClass('ld').attr('class', function (i, c) {
         return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
       })
     },
@@ -269,7 +269,7 @@ export default ({ $axios, store }, inject) => {
     },
     ipv4Int (addr) {
       if (this.isIPv4(addr)) {
-        var parts = addr.split('.').map(function(str) {
+        var parts = addr.split('.').map(function (str) {
           return parseInt(str)
         })
         return (parts[0] ? parts[0] << 24 : 0) +
@@ -288,7 +288,7 @@ export default ({ $axios, store }, inject) => {
       }
       return txt
     },
-    msToHuman(remain_ms) {
+    msToHuman (remain_ms) {
       const seconds = (remain_ms / 1000).toFixed(1);
       const minutes = (remain_ms / (1000 * 60)).toFixed(1);
       const hours = (remain_ms / (1000 * 60 * 60)).toFixed(1);
@@ -303,12 +303,19 @@ export default ({ $axios, store }, inject) => {
         return days + ' 天'
       }
     },
-    twDateStr(dateObj) {
+    twDateStr (dateObj) {
       if (typeof dateObj !== 'object') {
         console.warn('twDateStr', dateObj, 'is not an object')
         return ''
       }
       return `${dateObj.getFullYear() - 1911}${('0' + (dateObj.getMonth() + 1)).slice(-2)}${('0' + dateObj.getDate()).slice(-2)}`
+    },
+    adDateObj (twDateStr) {
+      if (isEmpty(twDateStr)) return null
+      const Y = twDateStr.substring(0, 3) - 0 + 1911
+      const M = twDateStr.substring(3, 5) - 0 - 1
+      const D = twDateStr.substring(5, 7) - 0
+      return new Date(Y, M, D)
     },
     log: console.log.bind(console),
     warn: console.warn.bind(console),
