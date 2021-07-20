@@ -12,8 +12,8 @@ export default ({ $axios, store }, inject) => {
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
     dayMilliseconds: 8640000,
-    animateAttentionSeekers:  ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
-    loadingAction: [ //(https://loading.io/animation/)
+    animateAttentionSeekers: ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
+    loadingAction: [ // (https://loading.io/animation/)
       'ld-heartbeat', 'ld-beat', 'ld-blink', 'ld-bounce', 'ld-bounceAlt', 'ld-breath', 'ld-wrench', 'ld-surprise',
       'ld-clock', 'ld-jump', 'ld-hit', 'ld-fade', 'ld-flip', 'ld-float', 'ld-move-ltr', 'ld-tremble', 'ld-tick',
       'ld-move-rtl', 'ld-move-ttb', 'ld-move-btt', 'ld-move-fade-ltr', 'ld-move-fade-rtl', 'ld-move-fade-ttb',
@@ -122,7 +122,7 @@ export default ({ $axios, store }, inject) => {
     animated (selector, opts, prefix = 'animate__') {
       return new Promise((resolve, reject) => {
         if (isEmpty(selector)) {
-          reject(`selector is empty.`)
+          reject('selector is empty.')
         } else if (process.client) {
           opts = Object.assign({
             name: consts.animateAttentionSeekers[this.rand(consts.animateAttentionSeekers.length)],
@@ -139,7 +139,7 @@ export default ({ $axios, store }, inject) => {
             node.one('animationend', function(e) {
               // When the animation ends, we clean the classes and resolve the Promise
               node.removeClass(classes)
-                // clear ld animation also
+              // clear ld animation also
               $(selector || '*').removeClass('ld').attr('class', function (i, c) {
                 return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
               })
@@ -149,7 +149,7 @@ export default ({ $axios, store }, inject) => {
             reject(`${selector} not found, can't apply animation effect.`)
           }
         } else {
-          reject(`Only apply animation on client side, this animated call will be ignored.`)
+          reject('Only apply animation on client side, this animated call will be ignored.')
         }
       })
     },
@@ -227,7 +227,7 @@ export default ({ $axios, store }, inject) => {
     rand (range) {
       return Math.floor(Math.random() * Math.floor(range || 100))
     },
-    trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm,'') : '' },
+    trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm, '') : '' },
     caseId (id) {
       if (isEmpty(id)) {
         return ''
@@ -264,7 +264,7 @@ export default ({ $axios, store }, inject) => {
       if (isEmpty(str)) {
         return false
       }
-      const regex = new RegExp(`^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$`, 'g')
+      const regex = new RegExp('^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$', 'g')
       return Boolean(str.match(regex))
     },
     ipv4Int (addr) {
@@ -294,21 +294,21 @@ export default ({ $axios, store }, inject) => {
       const hours = (remain_ms / (1000 * 60 * 60)).toFixed(1);
       const days = (remain_ms / (1000 * 60 * 60 * 24)).toFixed(1);
       if (seconds < 60) {
-        return seconds + " 秒";
+        return seconds + ' 秒';
       } else if (minutes < 60) {
-        return minutes + " 分鐘";
+        return minutes + ' 分鐘';
       } else if (hours < 24) {
-        return hours + " 小時";
+        return hours + ' 小時';
       } else {
-        return days + " 天"
+        return days + ' 天'
       }
     },
     twDateStr(dateObj) {
-      if (typeof dateObj !== "object") {
+      if (typeof dateObj !== 'object') {
         console.warn('twDateStr', dateObj, 'is not an object')
-        return ``
+        return ''
       }
-      return `${dateObj.getFullYear() - 1911}${("0" + (dateObj.getMonth()+1)).slice(-2)}${("0" + dateObj.getDate()).slice(-2)}`
+      return `${dateObj.getFullYear() - 1911}${('0' + (dateObj.getMonth() + 1)).slice(-2)}${('0' + dateObj.getDate()).slice(-2)}`
     },
     log: console.log.bind(console),
     warn: console.warn.bind(console),
@@ -318,7 +318,6 @@ export default ({ $axios, store }, inject) => {
   // all injected var can be used by {varname} in Vue and ${varname} in Nuxt, e.g. this.$http (Vue), $http (Nuxt)
   inject('consts', consts)
   inject('utils', utility)
-  
   // inject uploading file axios
   // need to add 'Header set Access-Control-Allow-Origin "*"' to Apache site and turn on mod_header.so in httpd.conf
   uploadAxios.defaults.headers.post['Content-Type'] = 'multipart/form-data'

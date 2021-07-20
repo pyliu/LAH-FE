@@ -87,4 +87,7 @@ export default {
   border: 1px solid gray;
   height: 100%;
 }
+.card {
+  border-width: 2px;
+}
 </style>

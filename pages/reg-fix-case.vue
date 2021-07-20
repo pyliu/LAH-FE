@@ -156,7 +156,7 @@ export default {
       },
       {
         key: 'lah-reg-case-fix-date',
-        label: '通知送達日期設定',
+        label: '通知書送達日設定',
         sortable: false
       }
     ],
@@ -177,7 +177,7 @@ export default {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
             }
-            this.notify(`查詢成功，找到 ${this.rows.length} 筆「補正」、「補正初核」案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            this.notify(`查詢成功，找到 ${this.rows.length} 筆本所「補正」、「補正初核」案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
           this.committed = true
         } else {
@@ -216,7 +216,7 @@ export default {
   computed: {
     queryCount () { return this.rows.length },
     cacheKey () { return 'query_reg_fix_case' },
-    foundText () { return `找到 ${this.queryCount} 筆「補正」、「補正初核」案件資料` }
+    foundText () { return `找到 ${this.queryCount} 筆本所「補正」、「補正初核」案件資料` }
   },
   fetchOnServer: false,
   created () {
