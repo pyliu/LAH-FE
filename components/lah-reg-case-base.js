@@ -25,7 +25,7 @@ export default {
   created () { this.bakedData = this.parentData },
   fetch () {
     // case-id prop-in is valid then uses it for fetching data
-    if (this.validID) {
+    if (this.validID && !this.bakedData) {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'reg_case',
