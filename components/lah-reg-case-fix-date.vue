@@ -1,5 +1,5 @@
 <template lang="pug">
-  .text-left(v-if="ready" :class="classes")
+  .text-left(v-if="ready")
     b-datepicker(
       v-model="deliveredDate"
       placeholder="選擇送達日期"
@@ -18,8 +18,9 @@
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
     )
-    div(v-if="!$utils.empty(dueDate)") 到期日期：{{ dueDate }}
-    div(v-if="!$utils.empty(rejectDate)") 可駁回日：{{ rejectDate }}
+    .p-1.mt-1(:class="classes" v-if="!$utils.empty(deliveredDate)")
+      div 到期日期：{{ dueDate }}
+      div 可駁回日：{{ rejectDate }}
 </template>
 
 <script>
@@ -96,7 +97,7 @@ export default {
         case 'red': return ['bg-danger', 'text-white', 'font-weight-bold']
         case 'yellow': return ['bg-warning']
         default:
-          return ''
+          return ['bg-success', 'text-white']
       }
     }
   },
