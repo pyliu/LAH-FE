@@ -18,6 +18,7 @@
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
     )
+    
 </template>
 
 <script>
