@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(v-if="ready")
+  .text-left(v-if="ready")
     b-datepicker(
       v-model="deliveredDate"
       placeholder="選擇送達日期"
@@ -18,7 +18,8 @@
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
     )
-
+    div(v-if="!$utils.empty(dueDate)") 補正到期：{{ dueDate }}
+    div(v-if="!$utils.empty(rejectDate)") 可駁回日：{{ rejectDate }}
 </template>
 
 <script>
@@ -60,12 +61,25 @@ export default {
     })
   },
   computed: {
-    deliveredDateAfter15Days () {
+    dueDate () {
       if (this.$utils.empty(this.deliveredDate)) {
         return ''
       }
-      // this.$utils.twToAdDateObj(this.this.deliveredDate)
-      return ''
+      const dd = new Date(this.deliveredDate)
+      dd.setDate(dd.getDate() + 15)
+      /**
+       * 'en-ZA' => 2020/08/19 (year/month/day)
+       * 'en-CA' => 2020-08-19 (year-month-day)
+       */
+      return dd.toLocaleDateString('en-ZA')
+    },
+    rejectDate () {
+      if (this.$utils.empty(this.dueDate)) {
+        return ''
+      }
+      const dd = new Date(this.dueDate)
+      dd.setDate(dd.getDate() + 1)
+      return dd.toLocaleDateString('en-ZA')
     }
   },
   watch: {
