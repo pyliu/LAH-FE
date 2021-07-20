@@ -1,5 +1,5 @@
 <template lang="pug">
-  .text-left(v-if="ready")
+  .text-left(v-if="ready" :class="classes")
     b-datepicker(
       v-model="deliveredDate"
       placeholder="選擇送達日期"
@@ -18,7 +18,7 @@
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
     )
-    div(v-if="!$utils.empty(dueDate)") 補正到期：{{ dueDate }}
+    div(v-if="!$utils.empty(dueDate)") 到期日期：{{ dueDate }}
     div(v-if="!$utils.empty(rejectDate)") 可駁回日：{{ rejectDate }}
 </template>
 
@@ -80,6 +80,24 @@ export default {
       const dd = new Date(this.dueDate)
       dd.setDate(dd.getDate() + 1)
       return dd.toLocaleDateString('en-ZA')
+    },
+    today () {
+      return new Date().toLocaleDateString('en-ZA')
+    },
+    light () {
+      if (!this.$utils.empty(this.deliveredDate)) {
+        if (this.today >= this.rejectDate) { return 'red' }
+        if (this.today === this.dueDate) { return 'yellow' }
+      }
+      return 'green'
+    },
+    classes () {
+      switch (this.light) {
+        case 'red': return ['bg-danger', 'text-white', 'font-weight-bold']
+        case 'yellow': return ['bg-warning']
+        default:
+          return ''
+      }
     }
   },
   watch: {
