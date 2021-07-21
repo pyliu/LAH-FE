@@ -26,7 +26,6 @@
     b-textarea.mt-1(
       v-show="noteFlag"
       v-model="note"
-      placeholder="... 備忘錄 ..."
       size="sm"
       trim
       lazy
@@ -126,12 +125,11 @@ export default {
       this.update()
     },
     note (val) {
-      this.updateDebounced()
+      this.update()
     }
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
-    this.updateDebounced = this.$utils.debounce(this.update, 1000)
   },
   mounted () {
     // RM51: 通知補正日
@@ -139,9 +137,8 @@ export default {
     this.trigger('ready', this.ready)
   },
   methods: {
-    updateDebounced () {},
     update () {
-      if (!this.isBusy && this.fetched === false) {
+      if (!this.isBusy) {
         this.isBusy = true
         // to update delivered date in sqlite db
         this.$axios.post(this.$consts.API.JSON.QUERY, {
@@ -160,7 +157,6 @@ export default {
           this.isBusy = false
         })
       }
-      this.fetched && (this.fetched = false)
     }
   }
 }
