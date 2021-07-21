@@ -1,6 +1,8 @@
 <template lang="pug">
   .text-left(v-if="ready")
     b-datepicker(
+      size="sm"
+      variant="primary"
       v-model="deliveredDate"
       placeholder="選擇送達日期"
       boundary="viewport"
@@ -17,6 +19,13 @@
       close-button
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
+    )
+    b-textarea.mt-1(
+      v-model="note"
+      placeholder="... 備忘錄 ..."
+      size="sm"
+      trim
+      lazy
     )
     .p-1.mt-1(:class="classes" v-if="!$utils.empty(deliveredDate)")
       div 到期日期：{{ dueDate }}
@@ -38,6 +47,7 @@ export default {
   mixins: [regCaseBase],
   data: () => ({
     deliveredDate: '',
+    note: '',
     minDate: new Date()
   }),
   fetch () {
@@ -53,12 +63,14 @@ export default {
        */
       if (data.raw) {
         this.deliveredDate = data.raw.notify_delivered_date
+        this.note = data.raw.note
       }
     }).catch((err) => {
       this.alert(err.message)
       this.$utils.error(err)
     }).finally(() => {
       this.isBusy = false
+      this.fetched = true
     })
   },
   computed: {
@@ -106,34 +118,46 @@ export default {
       this.trigger('ready', flag)
     },
     deliveredDate (val) {
-      this.isBusy = true
-      // to update delivered date in sqlite db
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'upd_reg_fix_case_delivered_date',
-        id: this.caseId,
-        date: val,
-        note: ''
-      }).then(({ data }) => {
-        if (!this.$utils.statusCheck(data.status)) {
-          this.warning(data.message)
-        }
-      }).catch((err) => {
-        this.alert(err.message)
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-      })
+      this.update()
+    },
+    note (val) {
+      this.updateDebounced()
     }
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
+    this.updateDebounced = this.$utils.debounce(this.update, 1000)
   },
   mounted () {
     // RM51: 通知補正日
     this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM51)
     this.trigger('ready', this.ready)
   },
-  methods: {}
+  methods: {
+    updateDebounced () {},
+    update () {
+      if (!this.isBusy && this.fetched === false) {
+        this.isBusy = true
+        // to update delivered date in sqlite db
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'upd_reg_fix_case_delivered_date',
+          id: this.caseId,
+          date: this.deliveredDate,
+          note: this.note
+        }).then(({ data }) => {
+          if (!this.$utils.statusCheck(data.status)) {
+            this.warning(data.message)
+          }
+        }).catch((err) => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      }
+      this.fetched && (this.fetched = false)
+    }
+  }
 }
 </script>
 
