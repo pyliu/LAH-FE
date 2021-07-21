@@ -1,26 +1,30 @@
 <template lang="pug">
   .text-left(v-if="ready")
-    b-datepicker(
-      size="sm"
-      variant="primary"
-      v-model="deliveredDate"
-      placeholder="選擇送達日期"
-      boundary="viewport"
-      :title="`${$utils.caseId(caseId)}`"
-      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-      :min="minDate"
-      label-help="使用方向鍵操作移動日期"
-      hide-header
-      dropleft
-      today-button
-      label-today-button="今天"
-      reset-button
-      label-reset-button="重設"
-      close-button
-      label-close-button="關閉"
-      v-b-tooltip.hover.left.v-warning
-    )
+    .d-flex
+      b-datepicker(
+        size="sm"
+        variant="primary"
+        v-model="deliveredDate"
+        placeholder="選擇送達日期"
+        boundary="viewport"
+        :title="`${$utils.caseId(caseId)}`"
+        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+        :min="minDate"
+        label-help="使用方向鍵操作移動日期"
+        hide-header
+        dropleft
+        today-button
+        label-today-button="今天"
+        reset-button
+        label-reset-button="重設"
+        close-button
+        label-close-button="關閉"
+        v-b-tooltip.hover.left.v-warning
+      )
+      //- lah-button(icon="edit" @click="noteFlag = !noteFlag") 備忘
+      b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
     b-textarea.mt-1(
+      v-show="noteFlag"
       v-model="note"
       placeholder="... 備忘錄 ..."
       size="sm"
@@ -48,6 +52,7 @@ export default {
   data: () => ({
     deliveredDate: '',
     note: '',
+    noteFlag: false,
     minDate: new Date()
   }),
   fetch () {
