@@ -32,7 +32,7 @@ export default {
     totalRows: { type: Number, default: 0, require: true },
     value: { type: Object, default: () => ({ currentPage: 1, perPage: 1 }), required: true },
     caption: { type: String, default: '' },
-    size: { type: String, default: 'md' }
+    size: { type: String, default: 'sm' }
   },
   data: () => ({
     current: 1,
