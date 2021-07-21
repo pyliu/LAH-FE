@@ -68,6 +68,7 @@ export default {
       if (data.raw) {
         this.deliveredDate = data.raw.notify_delivered_date
         this.note = data.raw.note
+        !this.$utils.empty(this.note) && (this.noteFlag = true)
       }
     }).catch((err) => {
       this.alert(err.message)

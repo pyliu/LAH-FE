@@ -52,7 +52,7 @@
     )
 
     lah-transition
-      b-table.text-center(
+      b-table.text-center.align-middle(
         v-if="committed"
         id="land-ref-table"
         ref="table"
@@ -88,7 +88,7 @@
             span(aria-hidden="true") &nbsp;
             span.sr-only 無勾選
           span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-        template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
+        template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
         template(#cell(lah-reg-case-fix-date)="{ item }")
