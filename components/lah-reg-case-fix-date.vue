@@ -5,7 +5,7 @@
         size="sm"
         variant="primary"
         v-model="deliveredDate"
-        placeholder="選擇送達日期"
+        placeholder="請設定送達日期"
         boundary="viewport"
         :title="`${$utils.caseId(caseId)}`"
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
