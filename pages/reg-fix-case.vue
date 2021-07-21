@@ -152,10 +152,10 @@ export default {
         label: '補正期滿',
         sortable: true
       },
-      {
-        key: '補正日期',
-        sortable: true
-      },
+      // {
+      //   key: '補正日期',
+      //   sortable: true
+      // },
       {
         key: 'lah-reg-case-fix-date',
         label: '通知書送達日',
