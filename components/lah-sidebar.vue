@@ -54,6 +54,9 @@
         li: nuxt-link(to="/reg-fix-case").
           #[font-awesome-icon(:icon="['fas', 'pager']" size="lg")]
           補正期滿案件查詢
+        li: nuxt-link(to="/reg-not-done-case").
+          #[font-awesome-icon(:icon="['fas', 'bullhorn']" size="lg")]
+          辦畢通知案件查詢
 
         li: hr
 
