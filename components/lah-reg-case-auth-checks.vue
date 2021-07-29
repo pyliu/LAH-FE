@@ -1,9 +1,10 @@
 <template lang="pug">
-  div(
+  b-button-group.d-flex.justify-content-around(
     v-if="ready"
     v-b-tooltip.hover.left.v-warning
     :title="`${$utils.caseId(caseId)}`"
-  ): b-button-group.d-flex.justify-content-around(size="sm")
+    size="sm"
+  )
     b-button(pill :variant="RM45 ? 'outline-success' : 'outline-secondary'" :pressed="RM45" @click="toggle('RM45')") 初審
     b-button.mx-1(pill :variant="RM47 ? 'outline-success' : 'outline-secondary'" :pressed="RM47" @click="toggle('RM47')") 複審
     b-button(pill :variant="CHIEF ? 'outline-success' : 'outline-secondary'" :pressed="CHIEF" @click="toggle('CHIEF')") 課長
@@ -23,17 +24,9 @@ export default {
   name: 'lah-reg-case-auth-checks',
   mixins: [regCaseBase],
   data: () => ({
-    RM45: undefined,
-    RM47: undefined,
-    CHIEF: undefined,
-    note: undefined
+    note: ''
   }),
   fetch () {
-    const authority = parseInt(this.parentData ? this.parentData.FINISH_NOTIFY_AUTHORITY : 0)
-    this.RM45 = (authority & 1) === 1
-    this.RM47 = (authority & 2) === 2
-    this.CHIEF = (authority & 8) === 8
-    this.note = ''
   },
   computed: {
     light () {
@@ -42,26 +35,33 @@ export default {
         if (this.today === this.dueDate) { return 'yellow' }
       }
       return 'green'
+    },
+    authority () {
+      return parseInt(this.bakedData ? this.bakedData.FINISH_NOTIFY_AUTHORITY : 0)
+    },
+    RM45 () {
+      return (this.authority & 1) === 1
+    },
+    RM47 () {
+      return (this.authority & 2) === 2
+    },
+    CHIEF () {
+      return (this.authority & 8) === 8
     }
   },
   watch: {
     ready (flag) {
       this.trigger('ready', flag)
     },
-    RM45 (n, o) {
-      o !== undefined && this.updateDebounced()
-    },
-    RM47 (n, o) {
-      o !== undefined && this.updateDebounced()
-    },
-    CHIEF (n, o) {
-      o !== undefined && this.updateDebounced()
-    },
     note (n, o) {
       o !== undefined && this.updateDebounced()
+    },
+    authority () {
+      this.updateDebounced()
     }
   },
   created () {
+    // parentData will assign to bakedData
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     this.updateDebounced = this.$utils.debounce(this.update, 1000)
   },
@@ -70,9 +70,27 @@ export default {
   },
   methods: {
     toggle (target) {
-      target === 'RM45' && (this.RM45 = !this.RM45)
-      target === 'RM47' && (this.RM47 = !this.RM47)
-      target === 'CHIEF' && (this.CHIEF = !this.CHIEF)
+      if (target === 'RM45') {
+        if (this.RM45) {
+          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority - 1
+        } else {
+          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority + 1
+        }
+      }
+      if (target === 'RM47') {
+        if (this.RM47) {
+          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority - 2
+        } else {
+          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority + 2
+        }
+      }
+      if (target === 'CHIEF') {
+        if (this.CHIEF) {
+          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority - 8
+        } else {
+          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority + 8
+        }
+      }
     },
     load () {
       this.isBusy = true
@@ -103,15 +121,11 @@ export default {
       })
     },
     update () {
-      let calculated = 0
-      this.RM45 && (calculated = calculated + 1)
-      this.RM47 && (calculated = calculated + 2)
-      this.CHIEF && (calculated = calculated + 8)
       // to update authority integer in sqlite db
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'upd_reg_auth_checks',
         id: this.caseId,
-        authority: calculated,
+        authority: this.authority,
         note: this.note
       }).then(({ data }) => {
         if (!this.$utils.statusCheck(data.status)) {
