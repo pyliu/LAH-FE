@@ -4,7 +4,7 @@
       b-datepicker(
         size="sm"
         variant="primary"
-        v-model="deliveredDate"
+        v-model="parentData.FIX_DELIVERED_DATE.notify_delivered_date"
         placeholder="請設定送達日期"
         boundary="viewport"
         :title="`${$utils.caseId(caseId)}`"
@@ -25,7 +25,7 @@
       b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
     b-textarea.mt-1(
       v-show="noteFlag"
-      v-model="note"
+      v-model="parentData.FIX_DELIVERED_DATE.note"
       size="sm"
       trim
     )
@@ -48,18 +48,19 @@ export default {
   name: 'lah-reg-case-fix-date',
   mixins: [regCaseBase],
   data: () => ({
-    deliveredDate: '',
-    note: '',
     noteFlag: false,
     minDate: new Date()
   }),
   fetch () {
-    const raw = this.parentData.FIX_DELIVERED_DATE
-    this.deliveredDate = raw.notify_delivered_date || ''
-    this.note = raw.note || ''
     !this.$utils.empty(this.note) && (this.noteFlag = true)
   },
   computed: {
+    deliveredDate () {
+      return this.parentData.FIX_DELIVERED_DATE.notify_delivered_date
+    },
+    note () {
+      return this.parentData.FIX_DELIVERED_DATE.note
+    },
     dueDate () {
       if (this.$utils.empty(this.deliveredDate)) {
         return ''
@@ -108,6 +109,7 @@ export default {
     },
     note (val) {
       this.updateDebounced()
+      this.noteFlag = !this.$utils.empty(val)
     }
   },
   created () {
@@ -145,25 +147,22 @@ export default {
       })
     },
     update () {
-      if (!this.isBusy) {
-        this.isBusy = true
-        // to update delivered date in sqlite db
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: 'upd_reg_fix_case_delivered_date',
-          id: this.caseId,
-          date: this.deliveredDate,
-          note: this.note
-        }).then(({ data }) => {
-          if (!this.$utils.statusCheck(data.status)) {
-            this.warning(data.message)
-          }
-        }).catch((err) => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-        })
-      }
+      // to update delivered date in sqlite db
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'upd_reg_fix_case_delivered_date',
+        id: this.caseId,
+        date: this.deliveredDate,
+        note: this.note
+      }).then(({ data }) => {
+        if (!this.$utils.statusCheck(data.status)) {
+          this.warning(data.message)
+        }
+      }).catch((err) => {
+        this.alert(err.message)
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
     }
   }
 }
