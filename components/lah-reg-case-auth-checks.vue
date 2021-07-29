@@ -1,8 +1,12 @@
 <template lang="pug">
-  .d-flex.justify-content-around(v-if="ready")
-      b-button(pill :variant="RM45 ? 'outline-success' : 'outline-secondary'" :pressed="RM45" @click="toggle('RM45')") 初審
-      b-button.mx-1(pill :variant="RM47 ? 'outline-success' : 'outline-secondary'" :pressed="RM47" @click="toggle('RM47')") 複審
-      b-button(pill :variant="CHIEF ? 'outline-success' : 'outline-secondary'" :pressed="CHIEF" @click="toggle('CHIEF')") 課長
+  div(
+    v-if="ready"
+    v-b-tooltip.hover.left.v-warning
+    :title="`${$utils.caseId(caseId)}`"
+  ): b-button-group.d-flex.justify-content-around(size="sm")
+    b-button(pill :variant="RM45 ? 'outline-success' : 'outline-secondary'" :pressed="RM45" @click="toggle('RM45')") 初審
+    b-button.mx-1(pill :variant="RM47 ? 'outline-success' : 'outline-secondary'" :pressed="RM47" @click="toggle('RM47')") 複審
+    b-button(pill :variant="CHIEF ? 'outline-success' : 'outline-secondary'" :pressed="CHIEF" @click="toggle('CHIEF')") 課長
 </template>
 
 <script>

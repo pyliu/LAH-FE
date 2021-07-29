@@ -146,7 +146,7 @@ export default {
       },
       {
         key: 'lah-reg-case-auth-checks',
-        label: '辦畢通知審核',
+        label: '辦畢通知審核設定',
         sortable: false
       }
     ],
