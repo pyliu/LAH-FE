@@ -170,45 +170,33 @@ export default {
     if (this.isBusy) {
       this.notify('讀取中 ... 請稍後', { type: 'warning' })
     } else {
-      this.getCache(this.cacheKey).then((json) => {
-        this.reset()
-        if (this.forceReload !== true && json) {
-          this.rows = json.raw
-          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
-            if (this.$refs.countdown) {
-              this.$refs.countdown.setCountdown(remaining)
-              this.$refs.countdown.startCountdown()
-            }
-            this.notify(`查詢成功，找到 ${this.rows.length} 筆本所「補正」、「補正初核」案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
-          })
-          this.committed = true
-        } else {
-          this.isBusy = true
-          this.committed = false
-          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-            type: 'reg_fix_case',
-            reload: this.forceReload
-          }).then(({ data }) => {
-            this.rows = data.raw || []
-            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-            const remain_s = data.cache_remaining_time
-            const remain_ms = remain_s * 1000
-            if (remain_ms && remain_ms > 0) {
-              this.setCache(this.cacheKey, data, remain_ms)
-              if (this.$refs.countdown) {
-                this.$refs.countdown.setCountdown(remain_ms)
-                this.$refs.countdown.startCountdown()
-              }
-            }
-          }).catch((err) => {
-            this.alert(err.message)
-            this.$utils.error(err)
-          }).finally(() => {
-            this.isBusy = false
-            this.forceReload = false
-            this.committed = true
-          })
+      /**
+       * Can not use FE cache for this page since I manipulate the bakedData at API side
+       */
+      this.isBusy = true
+      this.committed = false
+      this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+        type: 'reg_fix_case',
+        reload: this.forceReload
+      }).then(({ data }) => {
+        this.rows = data.raw || []
+        this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+        const remain_s = data.cache_remaining_time
+        const remain_ms = remain_s * 1000
+        if (remain_ms && remain_ms > 0) {
+          this.setCache(this.cacheKey, data, remain_ms)
+          if (this.$refs.countdown) {
+            this.$refs.countdown.setCountdown(remain_ms)
+            this.$refs.countdown.startCountdown()
+          }
         }
+      }).catch((err) => {
+        this.alert(err.message)
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+        this.forceReload = false
+        this.committed = true
       })
     }
   },
