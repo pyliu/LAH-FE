@@ -1,6 +1,8 @@
 <template lang="pug">
-  .text-left(v-if="ready")
-    .d-flex
+  .d-flex.justify-content-around(v-if="ready")
+      b-button(pill :variant="RM45 ? 'outline-success' : 'outline-secondary'" :pressed="RM45" @click="toggle('RM45')") 初審
+      b-button.mx-1(pill :variant="RM47 ? 'outline-success' : 'outline-secondary'" :pressed="RM47" @click="toggle('RM47')") 複審
+      b-button(pill :variant="CHIEF ? 'outline-success' : 'outline-secondary'" :pressed="CHIEF" @click="toggle('CHIEF')") 課長
 </template>
 
 <script>
@@ -17,13 +19,13 @@ export default {
   name: 'lah-reg-case-auth-checks',
   mixins: [regCaseBase],
   data: () => ({
-    deliveredDate: '',
-    note: '',
-    noteFlag: false,
-    minDate: new Date()
+    RM45: undefined,
+    RM47: undefined,
+    CHIEF: undefined,
+    note: undefined
   }),
   fetch () {
-    // get the date string from sqlite db
+    // get the authority int from sqlite db
     this.$axios.post(this.$consts.API.JSON.QUERY, {
       type: 'reg_auth_checks',
       id: this.caseId
@@ -31,12 +33,20 @@ export default {
       /** expected raw json data format e.g.
        * case_no: "110HHA1017620"
        * note: "測試"
-       * notify_delivered_date: "2021/07/20"
+       * authority: "0"
        */
       if (data.raw) {
-        // this.deliveredDate = data.raw.notify_delivered_date
-        // this.note = data.raw.note
-        // !this.$utils.empty(this.note) && (this.noteFlag = true)
+        const authority = parseInt(data.raw.authority)
+        this.RM45 = (authority & 1) === 1
+        this.RM47 = (authority & 2) === 2
+        this.CHIEF = (authority & 8) === 8
+        this.note = data.raw.note
+      } else {
+        // To initialize data
+        this.RM45 = false
+        this.RM47 = false
+        this.CHIEF = false
+        this.note = ''
       }
     }).catch((err) => {
       this.alert(err.message)
@@ -46,85 +56,65 @@ export default {
     })
   },
   computed: {
-    dueDate () {
-      if (this.$utils.empty(this.deliveredDate)) {
-        return ''
-      }
-      const dd = new Date(this.deliveredDate)
-      dd.setDate(dd.getDate() + 15)
-      /**
-       * 'en-ZA' => 2020/08/19 (year/month/day)
-       * 'en-CA' => 2020-08-19 (year-month-day)
-       */
-      return dd.toLocaleDateString('en-ZA')
-    },
-    rejectDate () {
-      if (this.$utils.empty(this.dueDate)) {
-        return ''
-      }
-      const dd = new Date(this.dueDate)
-      dd.setDate(dd.getDate() + 1)
-      return dd.toLocaleDateString('en-ZA')
-    },
-    today () {
-      return new Date().toLocaleDateString('en-ZA')
-    },
     light () {
       if (!this.$utils.empty(this.deliveredDate)) {
         if (this.today >= this.rejectDate) { return 'red' }
         if (this.today === this.dueDate) { return 'yellow' }
       }
       return 'green'
-    },
-    classes () {
-      switch (this.light) {
-        case 'red': return ['bg-danger', 'text-white', 'font-weight-bold']
-        case 'yellow': return ['bg-warning']
-        default:
-          return ['bg-success', 'text-white']
-      }
     }
   },
   watch: {
     ready (flag) {
       this.trigger('ready', flag)
     },
-    deliveredDate (val) {
-      this.update()
+    RM45 (n, o) {
+      o !== undefined && this.updateDebounced()
     },
-    note (val) {
-      this.update()
+    RM47 (n, o) {
+      o !== undefined && this.updateDebounced()
+    },
+    CHIEF (n, o) {
+      o !== undefined && this.updateDebounced()
+    },
+    note (n, o) {
+      o !== undefined && this.updateDebounced()
     }
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
+    this.updateDebounced = this.$utils.debounce(this.update, 1000)
   },
   mounted () {
-    // RM51: 通知補正日
-    this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM51)
     this.trigger('ready', this.ready)
   },
   methods: {
+    toggle (target) {
+      target === 'RM45' && (this.RM45 = !this.RM45)
+      target === 'RM47' && (this.RM47 = !this.RM47)
+      target === 'CHIEF' && (this.CHIEF = !this.CHIEF)
+    },
     update () {
-      if (!this.isBusy) {
-        this.isBusy = true
-        // to update delivered date in sqlite db
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: 'upd_reg_fix_case_delivered_date',
-          id: this.caseId,
-          date: this.deliveredDate,
-          note: this.note
-        }).then(({ data }) => {
-          if (!this.$utils.statusCheck(data.status)) {
-            this.warning(data.message)
-          }
-        }).catch((err) => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-        })
-      }
+      let calculated = 0
+      this.RM45 && (calculated = calculated + 1)
+      this.RM47 && (calculated = calculated + 2)
+      this.CHIEF && (calculated = calculated + 8)
+      // to update authority integer in sqlite db
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'upd_reg_auth_checks',
+        id: this.caseId,
+        authority: calculated,
+        note: this.note
+      }).then(({ data }) => {
+        if (!this.$utils.statusCheck(data.status)) {
+          this.warning(data.message)
+        }
+      }).catch((err) => {
+        this.alert(err.message)
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
     }
   }
 }

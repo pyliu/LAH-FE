@@ -9,7 +9,7 @@
             h5 資料庫搜尋說明
             ul
               li 搜尋「本所」未結案案件的資料
-              li 「初審」、「複審」及「課長」選項全部勾選後即以紅底顯示該案件辦畢時需通知申請人
+              li 「初審」、「複審」及「課長」選項全部勾選後即表示該案件辦畢時需通知申請人
             hr
             h5 請參照下列步驟搜尋
             ol
@@ -90,9 +90,8 @@
         template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
-        template(#cell(lah-reg-case-auth-checks)="{ item }")
-          lah-reg-case-auth-checks(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
         template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
+        template(#cell(lah-reg-case-auth-checks)="{ item }"): lah-reg-case-auth-checks(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
     b-modal(
       :id="modalId"
       size="xl"
@@ -134,11 +133,15 @@ export default {
         sortable: true
       },
       {
+        key: '辦理情形',
+        sortable: true
+      },
+      {
         key: '初審人員',
         sortable: true
       },
       {
-        key: '辦理情形',
+        key: '複審人員',
         sortable: true
       },
       {
