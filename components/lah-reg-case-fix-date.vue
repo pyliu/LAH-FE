@@ -28,7 +28,6 @@
       v-model="note"
       size="sm"
       trim
-      lazy
     )
     .p-1.mt-1(:class="classes" v-if="!$utils.empty(deliveredDate)")
       div 到期日期：{{ dueDate }}
@@ -108,11 +107,12 @@ export default {
       this.update()
     },
     note (val) {
-      this.update()
+      this.updateDebounced()
     }
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
+    this.updateDebounced = this.$utils.debounce(this.update, 1000)
   },
   mounted () {
     // RM51: 通知補正日
