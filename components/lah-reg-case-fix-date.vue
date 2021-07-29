@@ -55,28 +55,10 @@ export default {
     minDate: new Date()
   }),
   fetch () {
-    // get the date string from sqlite db
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: 'reg_fix_case_delivered_date',
-      id: this.caseId
-    }).then(({ data }) => {
-      /** expected raw json data format e.g.
-       * case_no: "110HHA1017620"
-       * note: "測試"
-       * notify_delivered_date: "2021/07/20"
-       */
-      if (data.raw) {
-        this.deliveredDate = data.raw.notify_delivered_date
-        this.note = data.raw.note
-        !this.$utils.empty(this.note) && (this.noteFlag = true)
-      }
-    }).catch((err) => {
-      this.alert(err.message)
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
-      this.fetched = true
-    })
+    const raw = this.parentData.FIX_DELIVERED_DATE
+    this.deliveredDate = raw.notify_delivered_date || ''
+    this.note = raw.note || ''
+    !this.$utils.empty(this.note) && (this.noteFlag = true)
   },
   computed: {
     dueDate () {
@@ -138,6 +120,30 @@ export default {
     this.trigger('ready', this.ready)
   },
   methods: {
+    load () {
+      // get the date string from sqlite db
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'reg_fix_case_delivered_date',
+        id: this.caseId
+      }).then(({ data }) => {
+        /** expected raw json data format e.g.
+         * case_no: "110HHA1017620"
+         * note: "測試"
+         * notify_delivered_date: "2021/07/20"
+         */
+        if (data.raw) {
+          this.deliveredDate = data.raw.notify_delivered_date
+          this.note = data.raw.note
+          !this.$utils.empty(this.note) && (this.noteFlag = true)
+        }
+      }).catch((err) => {
+        this.alert(err.message)
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+        this.fetched = true
+      })
+    },
     update () {
       if (!this.isBusy) {
         this.isBusy = true
