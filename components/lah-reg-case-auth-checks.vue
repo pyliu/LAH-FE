@@ -29,35 +29,11 @@ export default {
     note: undefined
   }),
   fetch () {
-    // get the authority int from sqlite db
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: 'reg_auth_checks',
-      id: this.caseId
-    }).then(({ data }) => {
-      /** expected raw json data format e.g.
-       * case_no: "110HHA1017620"
-       * note: "測試"
-       * authority: "0"
-       */
-      if (data.raw) {
-        const authority = parseInt(data.raw.authority)
-        this.RM45 = (authority & 1) === 1
-        this.RM47 = (authority & 2) === 2
-        this.CHIEF = (authority & 8) === 8
-        this.note = data.raw.note
-      } else {
-        // To initialize data
-        this.RM45 = false
-        this.RM47 = false
-        this.CHIEF = false
-        this.note = ''
-      }
-    }).catch((err) => {
-      this.alert(err.message)
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
-    })
+    const authority = parseInt(this.parentData ? this.parentData.FINISH_NOTIFY_AUTHORITY : 0)
+    this.RM45 = (authority & 1) === 1
+    this.RM47 = (authority & 2) === 2
+    this.CHIEF = (authority & 8) === 8
+    this.note = ''
   },
   computed: {
     light () {
@@ -97,6 +73,34 @@ export default {
       target === 'RM45' && (this.RM45 = !this.RM45)
       target === 'RM47' && (this.RM47 = !this.RM47)
       target === 'CHIEF' && (this.CHIEF = !this.CHIEF)
+    },
+    load () {
+      this.isBusy = true
+      // get the authority int from sqlite db
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'reg_auth_checks',
+        id: this.caseId
+      }).then(({ data }) => {
+        /** expected raw json data format e.g.
+         * case_no: "110HHA1017620"
+         * note: "測試"
+         * authority: "0"
+         */
+        if (data.raw) {
+          const authority = parseInt(data.raw.authority)
+          this.RM45 = (authority & 1) === 1
+          this.RM47 = (authority & 2) === 2
+          this.CHIEF = (authority & 8) === 8
+          this.note = data.raw.note
+        } else {
+          this.notify(`${this.caseId} 無資料`, { type: 'warning' })
+        }
+      }).catch((err) => {
+        this.alert(err.message)
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
     },
     update () {
       let calculated = 0
