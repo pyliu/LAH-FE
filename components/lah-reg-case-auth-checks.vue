@@ -29,12 +29,6 @@ export default {
   fetch () {
   },
   computed: {
-    light () {
-      if (this.CHIEF) { return 'bg-danger' }
-      if (this.RM47) { return 'bg-warning' }
-      if (this.RM45) { return 'bg-light' }
-      return 'bg-muted'
-    },
     authority () {
       return parseInt(this.parentData ? this.parentData.FINISH_NOTIFY_AUTHORITY : 0)
     },
