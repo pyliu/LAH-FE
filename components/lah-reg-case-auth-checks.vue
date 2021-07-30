@@ -30,11 +30,10 @@ export default {
   },
   computed: {
     light () {
-      if (!this.$utils.empty(this.deliveredDate)) {
-        if (this.today >= this.rejectDate) { return 'red' }
-        if (this.today === this.dueDate) { return 'yellow' }
-      }
-      return 'green'
+      if (this.CHIEF) { return 'bg-danger' }
+      if (this.RM47) { return 'bg-warning' }
+      if (this.RM45) { return 'bg-light' }
+      return 'bg-muted'
     },
     authority () {
       return parseInt(this.parentData ? this.parentData.FINISH_NOTIFY_AUTHORITY : 0)
