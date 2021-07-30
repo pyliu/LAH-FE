@@ -37,7 +37,7 @@ export default {
       return 'green'
     },
     authority () {
-      return parseInt(this.bakedData ? this.bakedData.FINISH_NOTIFY_AUTHORITY : 0)
+      return parseInt(this.parentData ? this.parentData.FINISH_NOTIFY_AUTHORITY : 0)
     },
     RM45 () {
       return (this.authority & 1) === 1
@@ -72,23 +72,23 @@ export default {
     toggle (target) {
       if (target === 'RM45') {
         if (this.RM45) {
-          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority - 1
+          this.parentData.FINISH_NOTIFY_AUTHORITY = this.authority - 1
         } else {
-          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority + 1
+          this.parentData.FINISH_NOTIFY_AUTHORITY = this.authority + 1
         }
       }
       if (target === 'RM47') {
         if (this.RM47) {
-          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority - 2
+          this.parentData.FINISH_NOTIFY_AUTHORITY = this.authority - 2
         } else {
-          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority + 2
+          this.parentData.FINISH_NOTIFY_AUTHORITY = this.authority + 2
         }
       }
       if (target === 'CHIEF') {
         if (this.CHIEF) {
-          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority - 8
+          this.parentData.FINISH_NOTIFY_AUTHORITY = this.authority - 8
         } else {
-          this.bakedData.FINISH_NOTIFY_AUTHORITY = this.authority + 8
+          this.parentData.FINISH_NOTIFY_AUTHORITY = this.authority + 8
         }
       }
     },
@@ -105,10 +105,7 @@ export default {
          * authority: "0"
          */
         if (data.raw) {
-          const authority = parseInt(data.raw.authority)
-          this.RM45 = (authority & 1) === 1
-          this.RM47 = (authority & 2) === 2
-          this.CHIEF = (authority & 8) === 8
+          this.parentData.FINISH_NOTIFY_AUTHORITY = parseInt(data.raw.authority)
           this.note = data.raw.note
         } else {
           this.notify(`${this.caseId} 無資料`, { type: 'warning' })
