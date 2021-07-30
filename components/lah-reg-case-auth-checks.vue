@@ -57,7 +57,7 @@ export default {
       o !== undefined && this.updateDebounced()
     },
     authority () {
-      this.updateDebounced()
+      this.update()
     }
   },
   created () {
