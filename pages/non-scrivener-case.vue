@@ -12,7 +12,7 @@
               li 選擇日期區間(預設為目前月份)
               li 輸入想要忽略之統編(非必要)
               li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
-        
+
         .d-flex
           b-form-radio-group.d-flex.text-nowrap.my-auto.small(
             v-model="caseType"
@@ -121,10 +121,23 @@
 
 <script>
 export default {
-  head: {
-    title: "信託案件檢索-桃園市地政局",
-  },
   fetchOnServer: false,
+  asyncData(nuxt) {
+    const today = new Date()
+    const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
+    const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    return {
+      startDateObj: firstDayofMonth,
+      endDateObj: lastDayofMonth,
+      startDate: `${firstDayofMonth.getFullYear() - 1911}${('0' + (firstDayofMonth.getMonth() + 1)).slice(-2)}${('0' + firstDayofMonth.getDate()).slice(-2)}`,
+      endDate: `${lastDayofMonth.getFullYear() - 1911}${('0' + (lastDayofMonth.getMonth() + 1)).slice(-2)}${('0' + lastDayofMonth.getDate()).slice(-2)}`,
+      firstDayofMonth,
+      lastDayofMonth,
+      today,
+      yesterday
+    }
+  },
   data: () => ({
     clickedId: undefined,
     forceReload: false,
@@ -144,79 +157,79 @@ export default {
     regBakedData: [],
     regFields: [
       {
-        key: "收件字號",
+        key: '收件字號',
         sortable: true
       },
       {
-        key: "收件日期",
+        key: '收件日期',
         sortable: true
       },
       {
-        key: "登記原因",
+        key: '登記原因',
         sortable: true
       },
       {
-        key: "AB01",
-        label: "非專代統編",
+        key: 'AB01',
+        label: '非專代統編',
         sortable: true
       },
       {
-        key: "AB02",
-        label: "非專代名稱",
+        key: 'AB02',
+        label: '非專代名稱',
         sortable: true
       },
       {
-        key: "AB03",
-        label: "非專代住址",
+        key: 'AB03',
+        label: '非專代住址',
         sortable: true
       },
       {
-        key: "AB04_NON_SCRIVENER_TEL",
-        label: "非專代電話",
+        key: 'AB04_NON_SCRIVENER_TEL',
+        label: '非專代電話',
         sortable: true
       },
       {
-        key: "AB13",
-        label: "當年案件量",
+        key: 'AB13',
+        label: '當年案件量',
         sortable: true
       },
       {
-        key: "AB23",
-        label: "本所案件量",
+        key: 'AB23',
+        label: '本所案件量',
         sortable: true
       },
       {
-        key: "權利人姓名",
+        key: '權利人姓名',
         sortable: true
       },
       {
-        key: "權利人住址",
+        key: '權利人住址',
         sortable: true
       },
       {
-        key: "義務人姓名",
+        key: '義務人姓名',
         sortable: true
       },
       {
-        key: "義務人住址",
+        key: '義務人住址',
         sortable: true
       },
       {
-        key: "區名稱",
+        key: '區名稱',
         sortable: true
       },
       {
-        key: "段小段",
+        key: '段小段',
         sortable: true
       },
       {
-        key: "RM12_C",
-        label: "地號",
+        key: 'RM12_C',
+        label: '地號',
         sortable: true
       },
       {
-        key: "RM15_C",
-        label: "建號",
+        key: 'RM15_C',
+        label: '建號',
         sortable: true
       }
     ],
@@ -230,103 +243,96 @@ export default {
     surBakedData: [],
     surFields: [
       {
-        key: "MM123",
+        key: 'MM123',
         label: '收件字號',
         sortable: true
       },
       {
-        key: "收件日期",
+        key: '收件日期',
         sortable: true
       },
       {
-        key: "申請事由",
+        key: '申請事由',
         sortable: true
       },
       {
-        key: "AB01",
-        label: "非專代統編",
+        key: 'AB01',
+        label: '非專代統編',
         sortable: true
       },
       {
-        key: "AB02",
-        label: "非專代名稱",
+        key: 'AB02',
+        label: '非專代名稱',
         sortable: true
       },
       {
-        key: "AB03",
-        label: "非專代住址",
+        key: 'AB03',
+        label: '非專代住址',
         sortable: true
       },
       {
-        key: "AB04_NON_SCRIVENER_TEL",
-        label: "非專代電話",
+        key: 'AB04_NON_SCRIVENER_TEL',
+        label: '非專代電話',
         sortable: true
       },
       {
-        key: "AB13",
-        label: "當年案件量",
+        key: 'AB13',
+        label: '當年案件量',
         sortable: true
       },
       {
-        key: "AB23",
-        label: "本所案件量",
+        key: 'AB23',
+        label: '本所案件量',
         sortable: true
       },
       {
         key: 'MM13',
-        label: "申請人統編",
+        label: '申請人統編',
         sortable: true
       },
       {
         key: 'MM14',
-        label: "申請人姓名",
+        label: '申請人姓名',
         sortable: true
       },
       {
         key: 'MM15',
-        label: "申請人電話",
+        label: '申請人電話',
         sortable: true
       },
       {
         key: 'MM16',
-        label: "申請人住址",
+        label: '申請人住址',
         sortable: true
       },
       {
         key: 'RM10_C_KCNT',
-        label: "區名稱",
+        label: '區名稱',
         sortable: true
       },
       {
         key: 'RM11_C_KCNT',
-        label: "段小段",
+        label: '段小段',
         sortable: true
       },
       {
-        key: "RM12_C",
-        label: "地號",
+        key: 'RM12_C',
+        label: '地號',
         sortable: true
       },
       {
-        key: "RM15_C",
-        label: "建號",
+        key: 'RM15_C',
+        label: '建號',
         sortable: true
       }
     ]
   }),
-  async asyncData(nuxt) {
-    const today = new Date()
-    const yesterday = new Date(new Date().setDate(new Date().getDate()-1))
-    const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-    return {
-      startDate: `${firstDayofMonth.getFullYear() - 1911}${("0" + (firstDayofMonth.getMonth()+1)).slice(-2)}${("0" + firstDayofMonth.getDate()).slice(-2)}`,
-      endDate: `${lastDayofMonth.getFullYear() - 1911}${("0" + (lastDayofMonth.getMonth()+1)).slice(-2)}${("0" + lastDayofMonth.getDate()).slice(-2)}`,
-      firstDayofMonth,
-      lastDayofMonth,
-      today,
-      yesterday
-    }
+  fetch () {
+    this.resetCommitted()
+    this.caseType === 'reg' ? this.loadReg() : this.loadSur()
+  },
+  head: {
+    title: '信託案件檢索-桃園市地政局',
   },
   computed: {
     md5Hash () {
@@ -339,7 +345,7 @@ export default {
     captionRange () {
       return `【${this.startDate.substring(0, 3)}-${this.startDate.substring(3, 5)}-${this.startDate.substring(5)} ~ ${this.endDate.substring(0, 3)}-${this.endDate.substring(3, 5)}-${this.endDate.substring(5)}】`
     },
-    fetchType () { return this.caseType === 'reg' ? `reg_non_scrivener_reg_case` : `reg_non_scrivener_sur_case` },
+    fetchType () { return this.caseType === 'reg' ? 'reg_non_scrivener_reg_case' : 'reg_non_scrivener_sur_case' },
     showPagination () {
       if (this.caseType === 'reg') {
         return !this.$utils.empty(this.regBakedData) && this.regBakedData.length > this.perPage
@@ -355,14 +361,16 @@ export default {
   },
   watch: {
     startDateObj (val) {
-      this.startDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
+      this.startDate = `${val.getFullYear() - 1911}${('0' + (val.getMonth() + 1)).slice(-2)}${('0' + val.getDate()).slice(-2)}`
     },
     endDateObj (val) {
-      this.endDate = `${val.getFullYear() - 1911}${("0" + (val.getMonth()+1)).slice(-2)}${("0" + val.getDate()).slice(-2)}`
+      this.endDate = `${val.getFullYear() - 1911}${('0' + (val.getMonth() + 1)).slice(-2)}${('0' + val.getDate()).slice(-2)}`
     },
     caseType (val) {
       this.$fetch()
     }
+  },
+  created () {
   },
   methods: {
     reload () {
@@ -385,7 +393,7 @@ export default {
     },
     loadReg () {
       // restore cached data if found
-      this.getCache(this.cacheKey).then(json => {
+      this.getCache(this.cacheKey).then((json) => {
         if (this.forceReload || json === false) {
           if(this.isBusy) {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
@@ -409,7 +417,7 @@ export default {
                   this.$refs.countdown.startCountdown()
                 }
               }
-            }).catch(err => {
+            }).catch((err) => {
               this.alert(err.message)
               this.$utils.error(err)
             }).finally(() => {
@@ -419,7 +427,7 @@ export default {
         } else {
           this.regBakedData = json.baked
           this.doneCommitted()
-          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
             this.notify(`查詢成功，找到 ${this.regBakedData.length} 筆非專業代理人登記案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
@@ -431,7 +439,7 @@ export default {
     },
     loadSur () {
       // restore cached data if found
-      this.getCache(this.cacheKey).then(json => {
+      this.getCache(this.cacheKey).then((json) => {
         if (this.forceReload || json === false) {
           if(this.isBusy) {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
@@ -455,7 +463,7 @@ export default {
                   this.$refs.countdown.startCountdown()
                 }
               }
-            }).catch(err => {
+            }).catch((err) => {
               this.alert(err.message)
               this.$utils.error(err)
             }).finally(() => {
@@ -465,7 +473,7 @@ export default {
         } else {
           this.surBakedData = json.baked
           this.doneCommitted()
-          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
             this.notify(`查詢成功，找到 ${this.surBakedData.length} 筆非專業代理人測量案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
@@ -475,14 +483,6 @@ export default {
         }
       })
     }
-  },
-  fetch () {
-    this.resetCommitted()
-    this.caseType === 'reg' ? this.loadReg() : this.loadSur()
-  },
-  created () {
-    this.startDateObj = this.firstDayofMonth
-    this.endDateObj = this.lastDayofMonth
   }
 }
 </script>
