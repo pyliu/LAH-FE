@@ -89,6 +89,14 @@
           span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
         template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        template(v-slot:cell(燈號)="{ item }")
+          lah-fa-icon(
+            prefix="fas"
+            icon="circle"
+            :variant="item.燈號"
+            :title="lightDesc(item.燈號)"
+            v-b-tooltip.hover.left
+          )
         template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
         template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
         template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
@@ -124,6 +132,10 @@ export default {
     committed: false,
     fields: [
       '#',
+      {
+        key: '燈號',
+        sortable: true
+      },
       {
         key: '收件字號',
         sortable: true
@@ -227,17 +239,13 @@ export default {
       this.clickedData = data
       this.showModalById(this.modalId)
     },
-    landNumber (item) {
-      const val = item.AA49
-      if (val) {
-        const mainNumber = val.substring(0, 4)
-        const subNumber = val.substring(4)
-        return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+    lightDesc (light) {
+      if (light === 'danger') {
+        return '已逾期'
+      } else if (light === 'warning') {
+        return '今日到期'
       }
-      return ''
-    },
-    humanTWDate (str) {
-      return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
+      return '正常'
     }
   }
 }
