@@ -92,6 +92,7 @@
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(登記原因)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
+        template(#cell(結案日期)="{ item }"): .text-nowrap {{ item.結案日期.split(' ')[0] }}
         template(#cell(lah-reg-untaken-mgt)="{ item }"): .text-nowrap TODO: lah-reg-untaken-mgt component
     b-modal(
       :id="modalId"
@@ -134,15 +135,23 @@ export default {
         sortable: true
       },
       {
-        key: '登記原因',
-        sortable: true
-      },
-      {
         key: '收件日期',
         sortable: true
       },
       {
+        key: '登記原因',
+        sortable: true
+      },
+      {
+        key: '初審人員',
+        sortable: true
+      },
+      {
         key: '結案日期',
+        sortable: true
+      },
+      {
+        key: '結案人員',
         sortable: true
       },
       {
