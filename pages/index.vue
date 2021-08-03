@@ -19,7 +19,7 @@
           lah-index-card-link(:icon="['fas', 'landmark']" to="/land-ref-change") 土地參考資訊檔異動
           lah-index-card-link(:icon="['fas', 'pager']" to="/reg-fix-case") 補正期滿案件查詢
           lah-index-card-link(:icon="['fas', 'bullhorn']" to="/reg-not-done-case") 辦畢通知案件查詢
-          lah-index-card-link(:icon="['fas', 'stamp']" icon-variant="muted" action="damage") 案件領狀管控
+          lah-index-card-link(:icon="['fas', 'stamp']" to="/reg-untaken-case") 案件領狀管控
 </template>
 
 <script>

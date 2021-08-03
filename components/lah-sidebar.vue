@@ -57,6 +57,9 @@
         li: nuxt-link(to="/reg-not-done-case").
           #[font-awesome-icon(:icon="['fas', 'bullhorn']" size="lg")]
           辦畢通知案件查詢
+        li: nuxt-link(to="/reg-untaken-case").
+          #[font-awesome-icon(:icon="['fas', 'stamp']" size="lg")]
+          案件領狀管控
 
         li: hr
 

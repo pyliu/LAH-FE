@@ -3,26 +3,28 @@
     lah-header: lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto 登記案件辦畢通知查詢
+          .my-auto 案件領狀管控
           lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             h5 資料庫搜尋說明
             ul
-              li 搜尋「本所」未結案案件的資料
-              li 「初審」、「複審」及「課長」選項全部勾選後即表示該案件辦畢時需通知申請人
+              li 搜尋已結案但未歸檔的登記案件資料
+              li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
             hr
             h5 請參照下列步驟搜尋
             ol
+              li 選擇日期區間(預設為目前月份)
               li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
-              li 點擊 #[lah-fa-icon(icon="sync" variant="muted") 重新搜尋]
 
         .d-flex.small
+          lah-datepicker.mr-1(v-model="dateRange")
+
           lah-button.mr-1(
             ref="search"
             icon="search"
             size="lg"
             title="搜尋"
-            :disabled="isBusy"
+            :disabled="isBusy || isWrongDaysPeriod"
             @click="$fetch"
             no-icon-gutter
           )
@@ -35,7 +37,7 @@
             action="ld-cycle"
             size="lg"
             :milliseconds="cachedMs"
-            :disabled="isBusy"
+            :disabled="isBusy || isWrongDaysPeriod"
             :busy="isBusy"
             @end="reload"
             @click="reload"
@@ -51,7 +53,7 @@
     )
 
     lah-transition
-      b-table.text-center.align-middle(
+      b-table.text-center(
         v-if="committed"
         id="land-ref-table"
         ref="table"
@@ -87,20 +89,10 @@
             span(aria-hidden="true") &nbsp;
             span.sr-only 無勾選
           span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-        template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
+        template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-        template(v-slot:cell(燈號)="{ item }")
-          lah-fa-icon(
-            prefix="fas"
-            icon="circle"
-            :variant="item.燈號"
-            :title="lightDesc(item.燈號)"
-            v-b-tooltip.hover.left
-          )
-        template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
-        template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
-        template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
-        template(#cell(lah-reg-case-auth-checks)="{ item }"): lah-reg-case-auth-checks(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
+        template(#cell(登記原因)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
+        template(#cell(lah-reg-untaken-mgt)="{ item }"): .text-nowrap TODO: lah-reg-untaken-mgt component
     b-modal(
       :id="modalId"
       size="xl"
@@ -113,7 +105,7 @@
       h4.text-center.text-info.my-5(v-if="modalLoading")
         b-spinner.my-auto(small type="grow")
         strong.ld-txt 查詢中...
-      lah-reg-case-detail(@ready="modalLoading = !$event.detail" :parent-data="clickedData")
+      lah-reg-case-detail(:parent-data="clickedData" @ready="modalLoading = !$event.detail")
 </template>
 
 <script>
@@ -124,6 +116,11 @@ export default {
     modalLoading: true,
     clickedData: undefined,
     rows: [],
+    dateRange: {
+      begin: '',
+      end: '',
+      days: 0
+    },
     pagination: {
       perPage: 20,
       currentPage: 1
@@ -133,11 +130,11 @@ export default {
     fields: [
       '#',
       {
-        key: '燈號',
+        key: '收件字號',
         sortable: true
       },
       {
-        key: '收件字號',
+        key: '登記原因',
         sortable: true
       },
       {
@@ -145,33 +142,17 @@ export default {
         sortable: true
       },
       {
-        key: '預定結案日期',
+        key: '結案日期',
         sortable: true
       },
       {
-        key: 'RM09',
-        label: '登記原因',
+        key: 'lah-reg-untaken-mgt',
+        label: '領狀設定',
         sortable: true
-      },
-      {
-        key: '辦理情形',
-        sortable: true
-      },
-      {
-        key: '初審人員',
-        sortable: true
-      },
-      {
-        key: '複審人員',
-        sortable: true
-      },
-      {
-        key: 'lah-reg-case-auth-checks',
-        label: '辦畢通知審核設定',
-        sortable: false
       }
     ],
-    maxHeight: 600
+    maxHeight: 600,
+    warnDays: 730
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
@@ -179,45 +160,74 @@ export default {
     if (this.isBusy) {
       this.notify('讀取中 ... 請稍後', { type: 'warning' })
     } else {
-      /**
-       * Can not use FE cache for this page since I manipulate the bakedData at API side
-       */
-      this.isBusy = true
-      this.committed = false
-      this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-        type: 'reg_not_done_case',
-        reload: this.forceReload
-      }).then(({ data }) => {
-        this.rows = data.raw || []
-        this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-        const remain_s = data.cache_remaining_time
-        const remain_ms = remain_s * 1000
-        if (remain_ms && remain_ms > 0) {
-          this.setCache(this.cacheKey, data, remain_ms)
-          if (this.$refs.countdown) {
-            this.$refs.countdown.setCountdown(remain_ms)
-            this.$refs.countdown.startCountdown()
-          }
+      if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+        this.$utils.warn('dateRange is not ready ... postpone $fetch')
+        this.timeout(this.$fetch, 250)
+        return
+      }
+
+      this.getCache(this.cacheKey).then((json) => {
+        this.reset()
+        if (this.forceReload !== true && json) {
+          this.rows = json.raw
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
+            if (this.$refs.countdown) {
+              this.$refs.countdown.setCountdown(remaining)
+              this.$refs.countdown.startCountdown()
+            }
+            this.notify(`查詢成功，找到 ${this.rows.length} 筆已結案未歸檔登記案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+          })
+          this.committed = true
+        } else {
+          this.isBusy = true
+          this.committed = false
+          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+            type: 'reg_untaken_case',
+            start: this.dateRange.begin,
+            end: this.dateRange.end,
+            reload: this.forceReload
+          }).then(({ data }) => {
+            this.rows = data.raw || []
+            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+            const remain_s = data.cache_remaining_time
+            const remain_ms = remain_s * 1000
+            if (remain_ms && remain_ms > 0) {
+              this.setCache(this.cacheKey, data, remain_ms)
+              if (this.$refs.countdown) {
+                this.$refs.countdown.setCountdown(remain_ms)
+                this.$refs.countdown.startCountdown()
+              }
+            }
+          }).catch((err) => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+            this.forceReload = false
+            this.committed = true
+          })
         }
-      }).catch((err) => {
-        this.alert(err.message)
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-        this.forceReload = false
-        this.committed = true
       })
     }
   },
   head: {
-    title: '登記案件辦畢通知查詢-桃園市地政局'
+    title: '案件領狀管控-桃園市地政局'
   },
   computed: {
     queryCount () { return this.rows.length },
-    cacheKey () { return 'query_reg_not_done_case' },
-    foundText () { return `找到 ${this.queryCount} 筆本所「未結案」案件資料` }
+    cacheKey () { return `query_reg_untaken_case_${this.dateRange.begin}_${this.dateRange.end}` },
+    foundText () { return `找到 ${this.queryCount} 筆「已結案未歸檔」登記案件異動資料` },
+    daysPeriod () { return this.dateRange.days || 0 },
+    isWrongDaysPeriod () { return this.daysPeriod < 1 }
   },
   fetchOnServer: false,
+  watch: {
+    daysPeriod (val) {
+      if (val < 1) {
+        this.alert('開始日期應小於或等於結束日期', { pos: 'tr' })
+      }
+    }
+  },
   created () {
     this.modalId = this.$utils.uuid()
   },
@@ -238,14 +248,6 @@ export default {
       this.modalLoading = true
       this.clickedData = data
       this.showModalById(this.modalId)
-    },
-    lightDesc (light) {
-      if (light === 'danger') {
-        return '已逾期'
-      } else if (light === 'warning') {
-        return '今日到期'
-      }
-      return '正常'
     }
   }
 }
