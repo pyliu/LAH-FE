@@ -1,13 +1,25 @@
 <template lang="pug">
-  .text-left(v-if="ready")
-    .d-flex
+  .text-left(
+    :title="`${$utils.caseId(caseId)}`"
+    v-if="ready"
+    v-b-tooltip.hover.left.v-warning
+  )
+    .d-flex.text-nowrap
+      .my-auto.mr-1 領件狀態
+      b-select(
+        v-model="parentData.UNTAKEN_TAKEN_STATUS"
+        :options="status"
+        size="sm"
+      )
+
+    .d-flex.text-nowrap
+      .my-auto.mr-1 領件日期
       b-datepicker(
         size="sm"
         variant="primary"
         v-model="parentData.UNTAKEN_TAKEN_DATE"
         placeholder="請設定領件日期"
         boundary="viewport"
-        :title="`${$utils.caseId(caseId)}`"
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
         :min="minDate"
         :max="maxDate"
@@ -20,19 +32,65 @@
         label-reset-button="重設"
         close-button
         label-close-button="關閉"
-        v-b-tooltip.hover.left.v-warning
       )
-      //- lah-button(icon="edit" @click="noteFlag = !noteFlag") 備忘
-      b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
-    b-textarea.mt-1(
-      v-show="noteFlag"
-      v-model="parentData.UNTAKEN_NOTE"
-      size="sm"
-      trim
-    )
-    .p-1.mt-1(:class="classes" v-if="!$utils.empty(takenDate)")
-      div 到期日期：{{ dueDate }}
-      div 可駁回日：{{ rejectDate }}
+
+    div(v-if="$utils.empty(takenDate)")
+      .d-flex.text-nowrap
+        .my-auto.mr-1.text-nowrap 　借閱人
+        span {{ borrower }}
+
+      .d-flex.text-nowrap
+        .my-auto.mr-1 借閱日期
+        b-datepicker(
+          size="sm"
+          variant="primary"
+          v-model="parentData.UNTAKEN_LENT_DATE"
+          placeholder="請設定借閱日期"
+          boundary="viewport"
+          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+          :min="minDate"
+          :max="maxDate"
+          label-help="使用方向鍵操作移動日期"
+          hide-header
+          dropleft
+          today-button
+          label-today-button="今天"
+          reset-button
+          label-reset-button="重設"
+          close-button
+          label-close-button="關閉"
+        )
+
+      .d-flex.text-nowrap(v-if="!$utils.empty(lentDate)")
+        .my-auto.mr-1 歸還日期
+        b-datepicker(
+          size="sm"
+          variant="primary"
+          v-model="parentData.UNTAKEN_RETURN_DATE"
+          placeholder="請設定借閱歸還日期"
+          boundary="viewport"
+          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+          :min="minDate"
+          :max="maxDate"
+          label-help="使用方向鍵操作移動日期"
+          hide-header
+          dropleft
+          today-button
+          label-today-button="今天"
+          reset-button
+          label-reset-button="重設"
+          close-button
+          label-close-button="關閉"
+        )
+
+    .d-flex.text-nowrap(v-if="false")
+      b-checkbox.my-auto.mr-1.text-nowrap(v-model="noteFlag" size="sm") 備忘錄
+      b-textarea(
+        v-show="noteFlag"
+        v-model="parentData.UNTAKEN_NOTE"
+        size="sm"
+        trim
+      )
 </template>
 
 <script>
@@ -56,7 +114,8 @@ export default {
   data: () => ({
     noteFlag: false,
     minDate: new Date(),
-    maxDate: new Date()
+    maxDate: new Date(),
+    status: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家']
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
@@ -126,8 +185,12 @@ export default {
     takenDate (dontcare) {
       this.update()
     },
-    takenStatus (dontcare) {
-      this.update()
+    takenStatus (val) {
+      if (this.$utils.empty(val)) {
+        this.parentData.UNTAKEN_TAKEN_DATE = ''
+      } else {
+        this.parentData.UNTAKEN_TAKEN_DATE = new Date()
+      }
     },
     lentDate (dontcare) {
       this.update()
