@@ -4,12 +4,13 @@
       b-datepicker(
         size="sm"
         variant="primary"
-        v-model="parentData.CERT_CTL.cert_taken_date"
+        v-model="parentData.UNTAKEN_TAKEN_DATE"
         placeholder="請設定領件日期"
         boundary="viewport"
         :title="`${$utils.caseId(caseId)}`"
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
         :min="minDate"
+        :max="maxDate"
         label-help="使用方向鍵操作移動日期"
         hide-header
         dropleft
@@ -25,7 +26,7 @@
       b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
     b-textarea.mt-1(
       v-show="noteFlag"
-      v-model="parentData.CERT_CTL.note"
+      v-model="parentData.UNTAKEN_NOTE"
       size="sm"
       trim
     )
@@ -50,21 +51,34 @@ export default {
     caseId: { type: String, default: '' }
   },
   */
-  name: 'lah-reg-case-cert-ctl',
+  name: 'lah-reg-untaken-mgt',
   mixins: [regCaseBase],
   data: () => ({
     noteFlag: false,
-    minDate: new Date()
+    minDate: new Date(),
+    maxDate: new Date()
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
   },
   computed: {
     takenDate () {
-      return this.parentData.CERT_CTL.cert_taken_date
+      return this.parentData.UNTAKEN_TAKEN_DATE || ''
+    },
+    takenStatus () {
+      return this.parentData.UNTAKEN_TAKEN_STATUS || ''
+    },
+    lentDate () {
+      return this.parentData.UNTAKEN_LENT_DATE || ''
+    },
+    returnDate () {
+      return this.parentData.UNTAKEN_RETURN_DATE || ''
+    },
+    borrower () {
+      return this.parentData.UNTAKEN_BORROWER_DATE || ''
     },
     note () {
-      return this.parentData.CERT_CTL.note
+      return this.parentData.UNTAKEN_NOTE || ''
     },
     dueDate () {
       if (this.$utils.empty(this.takenDate)) {
@@ -109,7 +123,19 @@ export default {
     ready (flag) {
       this.trigger('ready', flag)
     },
-    cert_taken_date (val) {
+    takenDate (dontcare) {
+      this.update()
+    },
+    takenStatus (dontcare) {
+      this.update()
+    },
+    lentDate (dontcare) {
+      this.update()
+    },
+    returnDate (dontcare) {
+      this.update()
+    },
+    borrower (dontcare) {
       this.update()
     },
     note (val) {
@@ -123,40 +149,20 @@ export default {
   },
   mounted () {
     // RM58_1: 結案日期
-    this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM5_1)
+    this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM58_1)
     this.trigger('ready', this.ready)
   },
   methods: {
-    load () {
-      // get the date string from sqlite db
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'reg_cert_taken_date',
-        id: this.caseId
-      }).then(({ data }) => {
-        /** expected raw json data format e.g.
-         * case_no: "110HHA1017620"
-         * note: "測試"
-         * notify_delivered_date: "2021/07/20"
-         */
-        if (data.raw) {
-          this.takenDate = data.raw.notify_delivered_date
-          this.note = data.raw.note
-          !this.$utils.empty(this.note) && (this.noteFlag = true)
-        }
-      }).catch((err) => {
-        this.alert(err.message)
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-        this.fetched = true
-      })
-    },
     update () {
-      // to update delivered date in sqlite db
+      // to update untaken data in sqlite db
       this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'upd_reg_fix_case_delivered_date',
+        type: 'upd_reg_cert_taken_date',
         id: this.caseId,
-        date: this.takenDate,
+        taken_date: this.takenDate,
+        taken_status: this.takenStatus,
+        lent_date: this.lentDate,
+        return_date: this.returnDate,
+        borrower: this.borrower,
         note: this.note
       }).then(({ data }) => {
         if (!this.$utils.statusCheck(data.status)) {

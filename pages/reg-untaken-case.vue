@@ -93,7 +93,7 @@
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(登記原因)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
         template(#cell(結案日期)="{ item }"): .text-nowrap {{ item.結案日期.split(' ')[0] }}
-        template(#cell(lah-reg-untaken-mgt)="{ item }"): .text-nowrap TODO: lah-reg-untaken-mgt component
+        template(#cell(lah-reg-untaken-mgt)="{ item }"): lah-reg-untaken-mgt(:parent-data="item" :case-id="item.ID")
     b-modal(
       :id="modalId"
       size="xl"
