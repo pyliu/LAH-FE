@@ -13,12 +13,12 @@
       )
 
     .d-flex.text-nowrap
-      .my-auto.mr-1 領件日期
+      .my-auto.mr-1 　　日期
       b-datepicker(
         size="sm"
         variant="primary"
         v-model="parentData.UNTAKEN_TAKEN_DATE"
-        placeholder="請設定領件日期"
+        placeholder="選擇狀態變更日期"
         boundary="viewport"
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
         :min="minDate"
@@ -34,18 +34,19 @@
         label-close-button="關閉"
       )
 
-    div(v-if="$utils.empty(takenDate)")
+    div(v-if="takenStatus === ''")
+      hr
       .d-flex.text-nowrap
         .my-auto.mr-1.text-nowrap 　借閱人
         span {{ borrower }}
 
       .d-flex.text-nowrap
-        .my-auto.mr-1 借閱日期
+        .my-auto.mr-1 　　日期
         b-datepicker(
           size="sm"
           variant="primary"
           v-model="parentData.UNTAKEN_LENT_DATE"
-          placeholder="請設定借閱日期"
+          placeholder="變更借閱日期"
           boundary="viewport"
           :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
           :min="minDate"
@@ -67,7 +68,7 @@
           size="sm"
           variant="primary"
           v-model="parentData.UNTAKEN_RETURN_DATE"
-          placeholder="請設定借閱歸還日期"
+          placeholder="設定借閱歸還日期"
           boundary="viewport"
           :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
           :min="minDate"
@@ -183,12 +184,15 @@ export default {
       this.trigger('ready', flag)
     },
     takenDate (dontcare) {
+      if (this.$utils.empty(this.takenStatus)) {
+        this.parentData.UNTAKEN_TAKEN_STATUS = '已領件'
+      }
       this.update()
     },
     takenStatus (val) {
       if (this.$utils.empty(val)) {
         this.parentData.UNTAKEN_TAKEN_DATE = ''
-      } else {
+      } else if (this.$utils.empty(this.parentData.UNTAKEN_TAKEN_DATE)) {
         this.parentData.UNTAKEN_TAKEN_DATE = new Date()
       }
     },
