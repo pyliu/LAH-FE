@@ -41,9 +41,6 @@ import lahFaIcon from '~/components/lah-fa-icon.vue'
 import LahHeader from '~/components/lah-header.vue'
 export default {
   components: { lahFaIcon, LahHeader },
-  head: {
-    title: "公告期滿案件-桃園市地政局",
-  },
   fetchOnServer: false,
   data: () => ({
     bakedData: [],
@@ -51,6 +48,10 @@ export default {
     cachedMs: 12 * 60 * 60 * 1000,
     forceReload: false,
     fields: [
+      {
+        key: '序號',
+        sortable: false
+      },
       {
         key: '公告燈號',
         label: '狀態',
@@ -78,24 +79,15 @@ export default {
       },
       {
         key: '公告期滿日期',
-        label:'期滿日期',
+        label: '期滿日期',
         sortable: true
       }
     ]
   }),
-  computed: {
-    queryCount () { return this.bakedData.length },
-    cacheKey () { return `reg_rm30_H_case` }
-  },
-  watch: {
-    bakedData (val) {
-      // this.$utils.log(val)
-    }
-  },
   fetch () {
-    this.getCache(this.cacheKey).then(json => {
+    this.getCache(this.cacheKey).then((json) => {
       if (this.forceReload || json === false) {
-        if(!this.isBusy) {
+        if (!this.isBusy) {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.PREFETCH, {
             type: 'reg_rm30_H_case',
@@ -116,7 +108,7 @@ export default {
               this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
             })
             this.$refs.countdown && this.$refs.countdown.startCountdown()
-          }).catch(err => {
+          }).catch((err) => {
             this.alert(err.message)
             this.$utils.error(err)
           }).finally(() => {
@@ -129,17 +121,29 @@ export default {
       } else {
         this.bakedData = json.baked
         this.resetCountdown()
-        this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+        this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
           this.notify(`查詢成功，找到 ${this.bakedData.length} 筆公告中資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
         })
       }
     })
   },
+  head: {
+    title: '公告期滿案件-桃園市地政局'
+  },
+  computed: {
+    queryCount () { return this.bakedData.length },
+    cacheKey () { return `reg_rm30_H_case` }
+  },
+  watch: {
+    bakedData (val) {
+      // this.$utils.log(val)
+    }
+  },
   methods: {
     resetCountdown () {
       if (this.$refs.countdown) {
         this.getCacheExpireRemainingTime(this.cacheKey).then(
-          remain_ms => {
+          (remain_ms) => {
             this.$refs.countdown.setCountdown(remain_ms)
             this.$refs.countdown.startCountdown()
             this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
