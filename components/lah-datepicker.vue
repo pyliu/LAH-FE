@@ -8,7 +8,7 @@
       label-help="可使用方向鍵操作移動"
       :size="size"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-      :max="yesterday"
+      :max="today"
       :state="stateIndicatorFlag"
       value-as-date
       hide-header
@@ -39,7 +39,8 @@ export default {
   props: {
     size: { type: String, default: 'sm' },
     value: { type: Object, default: () => ({ begin: '', end: '', days: 0 }), required: true },
-    beginToday: { type: Boolean, default: false }
+    begin: { type: Date, default: () => (new Date(new Date().getFullYear(), new Date().getMonth(), 1)), required: false },
+    end: { type: Date, default: () => (new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)), required: false }
   },
   fetchOnServer: true,
   data: () => ({
@@ -52,14 +53,12 @@ export default {
   }),
   fetch () {
     const today = new Date()
-    const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-    const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    this.startDateObj = this.beginToday ? today : firstDayofMonth
-    this.endDateObj = lastDayofMonth
+    this.startDateObj = this.begin
+    this.endDateObj = this.end
     this.yesterday = new Date(new Date().setDate(today.getDate() - 1))
     this.today = today
-    this.firstDayofMonth = firstDayofMonth
-    this.lastDayofMonth = lastDayofMonth
+    this.firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    this.lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
   },
   computed: {
     days () {
