@@ -155,7 +155,7 @@ export default ({ $axios, store }, inject) => {
       })
     },
     addAnimation (selector, which) {
-      let el = $(selector || '*').removeClass('ld').attr('class', function (i, c) {
+      const el = $(selector || '*').removeClass('ld').attr('class', function (i, c) {
         return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
       })
       if (el.length) {
@@ -270,12 +270,12 @@ export default ({ $axios, store }, inject) => {
     },
     ipv4Int (addr) {
       if (this.isIPv4(addr)) {
-        var parts = addr.split('.').map(function (str) {
+        const parts = addr.split('.').map(function (str) {
           return parseInt(str)
         })
         return (parts[0] ? parts[0] << 24 : 0) +
                (parts[1] ? parts[1] << 16 : 0) +
-               (parts[2] ? parts[2] << 8  : 0) +
+               (parts[2] ? parts[2] << 8 : 0) +
                 parts[3]
       }
       return false
@@ -290,16 +290,16 @@ export default ({ $axios, store }, inject) => {
       return txt
     },
     msToHuman (remain_ms) {
-      const seconds = (remain_ms / 1000).toFixed(1);
-      const minutes = (remain_ms / (1000 * 60)).toFixed(1);
-      const hours = (remain_ms / (1000 * 60 * 60)).toFixed(1);
-      const days = (remain_ms / (1000 * 60 * 60 * 24)).toFixed(1);
+      const seconds = (remain_ms / 1000).toFixed(1)
+      const minutes = (remain_ms / (1000 * 60)).toFixed(1)
+      const hours = (remain_ms / (1000 * 60 * 60)).toFixed(1)
+      const days = (remain_ms / (1000 * 60 * 60 * 24)).toFixed(1)
       if (seconds < 60) {
-        return seconds + ' 秒';
+        return seconds + ' 秒'
       } else if (minutes < 60) {
-        return minutes + ' 分鐘';
+        return minutes + ' 分鐘'
       } else if (hours < 24) {
-        return hours + ' 小時';
+        return hours + ' 小時'
       } else {
         return days + ' 天'
       }
@@ -312,7 +312,7 @@ export default ({ $axios, store }, inject) => {
       return `${dateObj.getFullYear() - 1911}${('0' + (dateObj.getMonth() + 1)).slice(-2)}${('0' + dateObj.getDate()).slice(-2)}`
     },
     twToAdDateObj (twDateStr) {
-      if (isEmpty(twDateStr)) return null
+      if (isEmpty(twDateStr)) { return null }
       const Y = twDateStr.substring(0, 3) - 0 + 1911
       const M = twDateStr.substring(3, 5) - 0 - 1
       const D = twDateStr.substring(5, 7) - 0
