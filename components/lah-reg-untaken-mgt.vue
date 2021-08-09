@@ -116,7 +116,8 @@ export default {
     noteFlag: false,
     minDate: new Date(),
     maxDate: new Date(),
-    status: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家']
+    status: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家'],
+    skipTakenDateUpdate: false
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
@@ -184,26 +185,30 @@ export default {
       this.trigger('ready', flag)
     },
     takenDate (dontcare) {
-      if (this.$utils.empty(this.takenStatus)) {
+      if (this.$utils.empty(this.takenStatus) && !this.skipTakenDateUpdate) {
         this.parentData.UNTAKEN_TAKEN_STATUS = '已領件'
       }
-      this.update()
+      this.skipTakenDateUpdate = false
+      this.updateDebounced()
     },
     takenStatus (val) {
+      console.log(val, this.parentData.UNTAKEN_TAKEN_DATE)
       if (this.$utils.empty(val)) {
-        this.parentData.UNTAKEN_TAKEN_DATE = ''
+        this.skipTakenDateUpdate = true
+        this.parentData.UNTAKEN_TAKEN_DATE = null
       } else if (this.$utils.empty(this.parentData.UNTAKEN_TAKEN_DATE)) {
         this.parentData.UNTAKEN_TAKEN_DATE = new Date()
       }
+      this.updateDebounced()
     },
     lentDate (dontcare) {
-      this.update()
+      this.updateDebounced()
     },
     returnDate (dontcare) {
-      this.update()
+      this.updateDebounced()
     },
     borrower (dontcare) {
-      this.update()
+      this.updateDebounced()
     },
     note (val) {
       this.updateDebounced()
@@ -212,7 +217,7 @@ export default {
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
-    this.updateDebounced = this.$utils.debounce(this.update, 1000)
+    this.updateDebounced = this.$utils.debounce(this.update, 250)
   },
   mounted () {
     // RM58_1: 結案日期
