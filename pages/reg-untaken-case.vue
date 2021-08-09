@@ -210,7 +210,7 @@ export default {
   computed: {
     queryCount () { return this.rows.length },
     cacheKey () { return `query_reg_untaken_case_${this.dateRange.begin}_${this.dateRange.end}` },
-    foundText () { return `找到 ${this.queryCount} 筆「已結案未歸檔」登記案件異動資料` },
+    foundText () { return `找到 ${this.queryCount} 筆「已結案未歸檔」登記案件資料` },
     daysPeriod () { return this.dateRange.days || 0 },
     isWrongDaysPeriod () { return this.daysPeriod < 1 }
   },
