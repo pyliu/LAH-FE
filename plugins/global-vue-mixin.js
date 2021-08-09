@@ -9,22 +9,6 @@ Vue.mixin({
     isBusy: false,
     busyIconSize: undefined
   }),
-  watch: {
-    isBusy (flag) {
-      if (flag) {
-        this.toggleBusy({
-          selector: this.$el,
-          forceOn: true,
-          size: this.busyIconSize
-        })
-      } else {
-        this.toggleBusy({
-          selector: this.$el,
-          forceOff: true
-        })
-      }
-    }
-  },
   computed: {
     ...mapGetters([
       'loggedIn',
@@ -40,7 +24,7 @@ Vue.mixin({
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
     site () {
       if (this.systemConfigs && this.systemConfigs.site) {
-        return this.systemConfigs.site;
+        return this.systemConfigs.site
       }
       if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'H0'
@@ -74,7 +58,7 @@ Vue.mixin({
     myinfo () {
       return isEmpty(this.user) ? { id: '', name: '' } : this.user
     },
-    webapIp () { return isEmpty(this.systemConfigs.webap_ip) ?  '127.0.0.1' : this.systemConfigs.webap_ip },
+    webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip },
     apiSvrIp () {
       if (Array.isArray(this.apiSvrIps) && this.apiSvrIps.length > 0) {
         return this.apiSvrIps[this.apiSvrIps.length - 1]
@@ -91,20 +75,36 @@ Vue.mixin({
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     }
   },
+  watch: {
+    isBusy (flag) {
+      if (flag) {
+        this.toggleBusy({
+          selector: this.$el,
+          forceOn: true,
+          size: this.busyIconSize
+        })
+      } else {
+        this.toggleBusy({
+          selector: this.$el,
+          forceOff: true
+        })
+      }
+    }
+  },
   methods: {
     ...mapActions([
       'login'
     ]),
-    $,  // jQuery '$',
-    uuid: function() {
-      var d = Date.now();
-      if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
-        d += performance.now() //use high-precision timer if available
+    $, // jQuery '$',
+    uuid () {
+      let d = Date.now()
+      if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+        d += performance.now() // use high-precision timer if available
       }
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (d + Math.random() * 16) % 16 | 0;
-        d = Math.floor(d / 16);
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        const r = (d + Math.random() * 16) % 16 | 0
+        d = Math.floor(d / 16)
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
       })
     },
     parseHTML (string) {
@@ -124,7 +124,7 @@ Vue.mixin({
         forceOff: false,
         forceOn: false
       }
-      opts = {...def, ...opts}
+      opts = { ...def, ...opts }
       const container = this.$(opts.selector)
       if (container.length > 0) {
         const removeSpinner = (element, style) => {
@@ -182,7 +182,7 @@ Vue.mixin({
     },
     timeout (func, ms) {
       return new Promise((resolve, reject) => {
-        if (parseInt(ms) === NaN || parseInt(ms) < 1) {
+        if (isNaN(parseInt(ms)) || parseInt(ms) < 1) {
           reject(new Error('timeout function second param should be an integer that is greater than 0'))
         } else if (typeof func !== 'function') {
           reject(new Error('timeout function first param should be a function'))
@@ -224,7 +224,7 @@ Vue.mixin({
               break
             default:
               // override the position by type/variant
-              switch(opts.variant) {
+              switch (opts.variant) {
                 case 'danger':
                 case 'red':
                   // opts.toaster = 'b-toaster-bottom-center'
@@ -381,7 +381,7 @@ Vue.mixin({
           const modal = merged.root ? this.$root.$bvModal : this.$bvModal
           modal.msgBoxOk(message, merged).then((val) => {
             // val will be always true from $bvModal.msgBoxOk window closed
-          }).catch(err => {
+          }).catch((err) => {
             reject(err)
           })
           // resolve the final opts back
@@ -415,7 +415,7 @@ Vue.mixin({
           const h = this.$createElement
           const msgVNode = h('div', { domProps: { innerHTML: message } })
           this.$bvModal.msgBoxConfirm([msgVNode], merged).then((value) => {
-            resolve(value)  // true, false or null
+            resolve(value) // true, false or null
           }).catch((err) => {
             reject(err)
           })
@@ -426,18 +426,18 @@ Vue.mixin({
     },
     trigger (evtName, payload) {
       if (CustomEvent) {
-        let evt = new CustomEvent(evtName, {
+        const evt = new CustomEvent(evtName, {
           detail: payload,
           bubbles: true
-        });
-        Object.defineProperty(evt, 'target', {writable: false, value: this.$el});
+        })
+        Object.defineProperty(evt, 'target', { writable: false, value: this.$el })
         this.$emit(evtName, evt)
         return evt
       } else {
         console.warning('CustomEvent not defined?')
       }
     },
-    async setCache (key, val, expire_timeout = 0) {
+    setCache (key, val, expire_timeout = 0) {
       if (isEmpty(key) || this.$localForage === undefined) { return false }
       try {
         const item = {
