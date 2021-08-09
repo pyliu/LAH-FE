@@ -39,6 +39,7 @@ export default {
   props: {
     size: { type: String, default: 'sm' },
     value: { type: Object, default: () => ({ begin: '', end: '', days: 0 }), required: true },
+    beginToday: { type: Boolean, default: false }
   },
   fetchOnServer: true,
   data: () => ({
@@ -53,9 +54,9 @@ export default {
     const today = new Date()
     const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
     const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    this.startDateObj = firstDayofMonth
+    this.startDateObj = this.beginToday ? today : firstDayofMonth
     this.endDateObj = lastDayofMonth
-    this.yesterday = new Date(new Date().setDate(today.getDate()-1))
+    this.yesterday = new Date(new Date().setDate(today.getDate() - 1))
     this.today = today
     this.firstDayofMonth = firstDayofMonth
     this.lastDayofMonth = lastDayofMonth
@@ -71,9 +72,9 @@ export default {
     stateIndicatorFlag () {
       if (this.days < 1) {
       // hack for b-datepicker label centering/nowrap
-      this.$nextTick(() => {
-        this.$('label.form-control.form-control-sm').addClass('my-auto text-nowrap')
-      })
+        this.$nextTick(() => {
+          this.$('label.form-control.form-control-sm').addClass('my-auto text-nowrap')
+        })
         return false
       }
       // hack for b-datepicker label centering/nowrap
