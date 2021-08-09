@@ -106,7 +106,7 @@ const mutations = {
 // support async operation
 const actions = {
   // Nuxt provided hook feature for Vuex, calling at server side when store initializing
-  async nuxtServerInit ({ commit, dispatch }, nuxt) {
+  nuxtServerInit ({ commit, dispatch }, nuxt) {
     try {
       commit('ip', nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress)
       // query login require info by ip to use middleware to control authority
@@ -115,7 +115,7 @@ const actions = {
       console.error(e)
     }
   },
-  async login ({ commit, getters }) {
+  login ({ commit, getters }) {
     !getters.loggedIn && this.$axios.post(this.$consts.API.JSON.AUTH, {
     // !getters.loggedIn && this.$axios.post(`${this.$config.apiServerURL}${this.$consts.API.JSON.AUTH}`, {
       type: 'login',
