@@ -117,7 +117,8 @@ export default {
     minDate: new Date(),
     maxDate: new Date(),
     status: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家'],
-    skipTakenDateUpdate: false
+    skipTakenDateUpdate: false,
+    skipTakenStatusUpdate: false
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
@@ -184,21 +185,28 @@ export default {
     ready (flag) {
       this.trigger('ready', flag)
     },
-    takenDate (dontcare) {
-      if (this.$utils.empty(this.takenStatus) && !this.skipTakenDateUpdate) {
-        this.parentData.UNTAKEN_TAKEN_STATUS = '已領件'
+    takenDate (val) {
+      if (!this.skipTakenDateUpdate) {
+        this.skipTakenStatusUpdate = true
+        if (this.$utils.empty(val)) {
+          this.parentData.UNTAKEN_TAKEN_STATUS = ''
+        } else if (this.$utils.empty(this.takenStatus)) {
+          this.parentData.UNTAKEN_TAKEN_STATUS = '已領件'
+        }
       }
       this.skipTakenDateUpdate = false
       this.updateDebounced()
     },
     takenStatus (val) {
-      console.log(val, this.parentData.UNTAKEN_TAKEN_DATE)
-      if (this.$utils.empty(val)) {
+      if (!this.skipTakenStatusUpdate) {
         this.skipTakenDateUpdate = true
-        this.parentData.UNTAKEN_TAKEN_DATE = null
-      } else if (this.$utils.empty(this.parentData.UNTAKEN_TAKEN_DATE)) {
-        this.parentData.UNTAKEN_TAKEN_DATE = new Date()
+        if (this.$utils.empty(val)) {
+          this.parentData.UNTAKEN_TAKEN_DATE = null
+        } else if (this.$utils.empty(this.takenDate)) {
+          this.parentData.UNTAKEN_TAKEN_DATE = new Date()
+        }
       }
+      this.skipTakenStatusUpdate = false
       this.updateDebounced()
     },
     lentDate (dontcare) {
