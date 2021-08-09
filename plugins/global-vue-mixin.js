@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { mapActions, mapGetters } from 'vuex'
 import $ from 'jquery'
 import isEmpty from 'lodash/isEmpty'
+import { BIconChevronCompactLeft } from 'bootstrap-vue'
 
 // inject to all Vue instances
 Vue.mixin({
@@ -17,6 +18,7 @@ Vue.mixin({
       'lastMessage',
       'systemConfigs',
       'user',
+      'userNames',
       'authority',
       'server',
       'xapMap'
@@ -88,6 +90,37 @@ Vue.mixin({
           selector: this.$el,
           forceOff: true
         })
+      }
+    }
+  },
+  async mounted () {
+    // userNames initial value is undefined
+    if (this.userNames === undefined && this.userNames !== null) {
+      try {
+        // flag to ensure doing this task once
+        this.$store.commit('userNames', null)
+        const json = await this.getCache('userNames')
+        if (json !== false) {
+          // console.log('userNames from cache')
+          // within a day use the cached data
+          this.$store.commit('userNames', json || {})
+        } else {
+          // console.log('userNames from BE')
+          await this.$axios.post(this.$consts.API.JSON.USER, {
+            type: 'user_mapping'
+          }).then(async ({ data }) => {
+            const json = data.data
+            // one day in milliseconds => 86400 * 1000
+            await this.setCache('userNames', json, 86400000)
+            this.$store.commit('userNames', json || {})
+          }).catch((err) => {
+            console.error(err)
+            this.$store.commit('userNames', {})
+          })
+        }
+        console.log(this.userNames)
+      } catch (e) {
+        console.error(e)
       }
     }
   },

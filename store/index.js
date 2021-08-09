@@ -38,6 +38,7 @@ const state = () => ({
   apiSvrIps: [],
   server: {},
   user: {},
+  userNames: undefined,
   authority: {
     isAdmin: false,
     isChief: false,
@@ -68,6 +69,7 @@ const getters = {
   adminIps: state => state.adminIps,
   apiSvrIps: state => state.apiSvrIps,
   user: state => state.user,
+  userNames: state => state.userNames,
   authority: state => state.authority,
   systemConfigs: state => state.systemConfigs,
   server: state => state.server,
@@ -100,6 +102,9 @@ const mutations = {
   },
   avatar (state, flag) {
     state.systemConfigs.avatar = flag
+  },
+  userNames (state, json) {
+    state.userNames = { ...json }
   }
 }
 
