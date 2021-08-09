@@ -227,6 +227,7 @@ export default {
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)
+    this.$utils.log(this.)
   },
   methods: {
     reload () {
