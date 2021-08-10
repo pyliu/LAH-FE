@@ -1,10 +1,12 @@
 <template lang="pug">
   b-card
-    b-input.mb-2(
-      v-model="keyword"
-      placeholder="請輸入關鍵字 ... "
-      trim
-    )
+    .d-flex.mb-2
+      b-input.mr-1(
+        v-model="keyword"
+        placeholder="請輸入關鍵字 ... "
+        trim
+      )
+      lah-button(icon="times" variant="outline-danger" @click="clean") 清除
     div(v-if="filtered.length > 0")
       b-button.m-1(
         v-for="id in filtered"
@@ -48,8 +50,12 @@ export default {
   },
   methods: {
     update (id) {
-      this.trigger('click', id)
+      this.trigger('update', id)
       this.keyword = id
+    },
+    clean () {
+      this.trigger('clean')
+      this.keyword = this.site
     }
   }
 }

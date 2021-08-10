@@ -263,9 +263,8 @@ export default {
           initKeyword: this.borrowerName
         },
         on: {
-          click: (payload) => {
-            this.parentData.UNTAKEN_BORROWER = payload.detail
-          }
+          update: (payload) => { this.parentData.UNTAKEN_BORROWER = payload.detail },
+          clean: () => { this.parentData.UNTAKEN_BORROWER = '' }
         }
       }), {
         title: `選擇借閱人 - ${this.parentData.收件字號}`,
