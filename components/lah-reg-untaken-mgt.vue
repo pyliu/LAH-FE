@@ -40,7 +40,7 @@
       .d-flex.text-nowrap
         .my-auto.mr-1.text-nowrap 　借閱人
         lah-button(icon="user-friends" @click="selectUser") 選擇
-        span {{ borrower }}
+        span(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
 
       .d-flex.text-nowrap
         .my-auto.mr-1 　　日期
@@ -136,7 +136,10 @@ export default {
       return this.parentData.UNTAKEN_RETURN_DATE || ''
     },
     borrower () {
-      return this.parentData.UNTAKEN_BORROWER_DATE || ''
+      return this.parentData.UNTAKEN_BORROWER || ''
+    },
+    borrowerName () {
+      return this.userNames[this.borrower] || ''
     },
     note () {
       return this.parentData.UNTAKEN_NOTE || ''
@@ -262,6 +265,11 @@ export default {
           name: this.name,
           center: true,
           rounded: true
+        },
+        on: {
+          click: (payload) => {
+            this.parentData.UNTAKEN_BORROWER = payload.detail
+          }
         }
       }), {
         title: `選擇借閱人 - ${this.parentData.收件字號}`,

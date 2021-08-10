@@ -1,13 +1,16 @@
 <template lang="pug">
   b-card()
-    b-input(v-model="keyword" trim)
+    b-input.mb-2(v-model="keyword" trim)
     b-button.m-1(
+      v-if="filtered.length > 0"
       v-for="id in filtered"
       :key="id"
       :title="id"
-      rounded
       variant="outline-primary"
-    ) {{ userNames[id].replace(/^(桃園|中壢|大溪|楊梅|蘆竹|八德|平鎮|龜山|龍潭|復興)/g, '').replace(/^(所)/g, '') }}
+      rounded
+      @click="update(id)"
+    ) {{ id }}:{{ userNames[id].replace(/^(桃園|中壢|大溪|楊梅|蘆竹|八德|平鎮|龜山|龍潭|復興)/g, '').replace(/^(所)/g, '') }}
+    h4.center.mt-1(v-else) 查無資料
 </template>
 
 <script>
@@ -19,9 +22,15 @@ export default {
   },
   computed: {
     filtered () {
-      const re = new RegExp(`^${this.keyword}`, 'gi')
+      // chinese chars length hack
+      if (this.$utils.empty(this.keyword) || this.keyword.replace(/[^\x00-\xFF]/g, 'xx').length < 2) {
+        return []
+      }
+      const idRE = new RegExp(`^${this.keyword}`, 'gi')
+      const nameRE = new RegExp(`${this.keyword}`, 'gi')
       return Object.keys(this.userNames).filter((id) => {
-        return id.match(re) && !this.userNames[id].match(/^(登記|地價|測量|資訊|主任|秘書|第|服|會|地|TEST|HH|建)/gi)
+        return (id.match(idRE) && !this.userNames[id].match(/^(登記|地價|測量|資訊|主任|秘書|第|服|會|地|TEST|HH|建)/gi)) ||
+               (this.userNames[id] && this.userNames[id].match(nameRE))
       })
     }
   },
@@ -31,6 +40,10 @@ export default {
     this.keyword = this.site
   },
   methods: {
+    update(id) {
+      this.trigger('click', id)
+      this.keyword = id
+    }
   }
 }
 </script>
