@@ -118,7 +118,6 @@ Vue.mixin({
             this.$store.commit('userNames', {})
           })
         }
-        console.log(this.userNames)
       } catch (e) {
         console.error(e)
       }
