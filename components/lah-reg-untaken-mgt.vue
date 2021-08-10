@@ -5,7 +5,7 @@
     v-if="ready"
     v-b-tooltip.hover.left.v-warning
   )
-    .d-flex.text-nowrap
+    .d-flex.text-nowrap.mb-1
       .my-auto.mr-1 領件狀態
       b-select(
         v-model="parentData.UNTAKEN_TAKEN_STATUS"
@@ -13,7 +13,7 @@
         size="sm"
       )
 
-    .d-flex.text-nowrap
+    .d-flex.text-nowrap.mb-1
       .my-auto.mr-1 領件日期
       b-datepicker(
         size="sm"
@@ -36,13 +36,18 @@
       )
 
     div(v-if="takenStatus === ''")
-      hr
-      .d-flex.text-nowrap
+      .d-flex.text-nowrap.mb-1
         .my-auto.mr-1.text-nowrap 　借閱人
         span.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
-        lah-button(icon="user-friends" @click="selectUser" title="選擇" no-icon-gutter)
+        lah-button(
+          no-icon-gutter
+          icon="user-friends"
+          title="選擇"
+          @click="selectUser"
+          :variant="$utils.empty(borrower) ? 'outline-dark' : 'warning'"
+        )
 
-      .d-flex.text-nowrap
+      .d-flex.text-nowrap.mb-1
         .my-auto.mr-1 借出日期
         b-datepicker(
           size="sm"
@@ -64,7 +69,7 @@
           label-close-button="關閉"
         )
 
-      .d-flex.text-nowrap(v-if="!$utils.empty(lentDate)")
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(lentDate)")
         .my-auto.mr-1 歸還日期
         b-datepicker(
           size="sm"
@@ -86,7 +91,7 @@
           label-close-button="關閉"
         )
 
-    .d-flex.text-nowrap(v-if="false")
+    .d-flex.text-nowrap.mb-1(v-if="false")
       b-checkbox.my-auto.mr-1.text-nowrap(v-model="noteFlag" size="sm") 備忘錄
       b-textarea(
         v-show="noteFlag"
