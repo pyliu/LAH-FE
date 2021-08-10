@@ -38,7 +38,7 @@
     div(v-if="takenStatus === ''")
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1.text-nowrap 　借閱人
-        span.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
+        strong.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
         lah-button(
           no-icon-gutter
           icon="user-friends"
@@ -185,7 +185,7 @@ export default {
       this.updateDebounced()
     },
     lentDate (dontcare) {
-      // if (this.$utils.empty(dontcare)) {
+      // if (this.$utils.empty(this.parentData.UNTAKEN_LENT_DATE)) {
       //   this.parentData.UNTAKEN_BORROWER = ''
       // }
       this.updateDebounced()
