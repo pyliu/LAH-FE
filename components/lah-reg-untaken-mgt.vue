@@ -1,3 +1,4 @@
+/* eslint-disable no-irregular-whitespace */
 <template lang="pug">
   .text-left(
     :title="`${$utils.caseId(caseId)}`"
@@ -38,6 +39,7 @@
       hr
       .d-flex.text-nowrap
         .my-auto.mr-1.text-nowrap 　借閱人
+        lah-button(icon="user-friends" @click="selectUser") 選擇
         span {{ borrower }}
 
       .d-flex.text-nowrap
@@ -96,13 +98,9 @@
 
 <script>
 import regCaseBase from '~/components/lah-reg-case-base.js'
+import lahUserSelect from '~/components/lah-user-select.vue'
 
 export default {
-  /**
-   * 參考八德所系統,欄位包含年度、收件字號、領件人、登記原因、結案日期、領件日期、領件狀
-態(已領件、免發狀、附件領回、內部更正、駁回、撤回、郵寄到家)。
-設「年度」時間區間供查詢,參考桃園所目前程式,並增加「承辦人借閱案件」之欄位功能。
-   */
   /* from lah-reg-case-base.js
   props: {
     parentData: { type: Object, default: undefined },
@@ -111,6 +109,7 @@ export default {
   },
   */
   name: 'lah-reg-untaken-mgt',
+  components: { lahUserSelect },
   mixins: [regCaseBase],
   data: () => ({
     noteFlag: false,
@@ -253,6 +252,20 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
+      })
+    },
+    selectUser () {
+      this.modal(this.$createElement('lah-user-select', {
+        props: {
+          userData: this.userData,
+          id: this.id,
+          name: this.name,
+          center: true,
+          rounded: true
+        }
+      }), {
+        title: `選擇借閱人 - ${this.parentData.收件字號}`,
+        size: 'lg'
       })
     }
   }
