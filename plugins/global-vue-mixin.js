@@ -108,10 +108,10 @@ Vue.mixin({
           // console.log('userNames from BE')
           await this.$axios.post(this.$consts.API.JSON.USER, {
             type: 'user_mapping'
-          }).then(async ({ data }) => {
+          }).then(({ data }) => {
             const json = data.data
-            // one day in milliseconds => 86400 * 1000
-            await this.setCache('userNames', json, 86400000)
+            // one day in milliseconds
+            this.setCache && this.setCache('userNames', json, 24 * 60 * 60 * 1000)
             this.$store.commit('userNames', json || {})
           }).catch((err) => {
             console.error(err)

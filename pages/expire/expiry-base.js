@@ -9,7 +9,7 @@ export default {
     committed: false
   }),
   computed: {
-    cacheKey () { return this.isOverdueMode ? `already-expired-all` : `about-to-expire-all` },
+    cacheKey () { return this.isOverdueMode ? 'already-expired-all' : 'about-to-expire-all' },
     badgeVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
     queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
     queryTitle () {
@@ -50,16 +50,16 @@ export default {
         this.committed = true
         if (this.$refs.countdown) {
           this.getCacheExpireRemainingTime(this.cacheKey).then(
-            remain_ms => {
-              this.$refs.countdown.setCountdown(remain_ms)
+            (remainMs) => {
+              this.$refs.countdown.setCountdown(remainMs)
               this.$refs.countdown.startCountdown()
-              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remainMs / 1000).toFixed(1)} 秒後到期。`)
             }
           )
         }
       }
     },
-    reload() {
+    reload () {
       this.removeCache(this.cacheKey).then(() => {
         this.forceReload = true
         this.$fetch()
@@ -69,9 +69,9 @@ export default {
   created () {
     this.isOverdueMode = this.$store.getters['expiry/is_overdue_mode']
   },
-  async fetch () {
+  fetch () {
     this.committed = false
-    this.getCache(this.cacheKey).then(jsonObj => {
+    this.getCache(this.cacheKey).then((jsonObj) => {
       if (jsonObj === false) {
         this.isBusy = true
         // always get all results and cache it at FE
@@ -80,15 +80,15 @@ export default {
           reload: this.forceReload
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            const server_cache_time = data.cache_remaining_time * 1000
-            this.setCache(this.cacheKey, data, server_cache_time).then(() => {
+            const serverCacheTime = data.cache_remaining_time * 1000
+            if (this.setCache(this.cacheKey, data, serverCacheTime)) {
               this.commit(data)
-            })
+            }
           } else {
             this.removeCache(this.cacheKey)
             this.notify(data.message, { type: 'warning' })
           }
-        }).catch(err => {
+        }).catch((err) => {
           this.alert(err.message)
           this.$utils.error(err)
         }).finally(() => {
