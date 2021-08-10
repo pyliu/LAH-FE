@@ -1,5 +1,5 @@
 <template lang="pug">
-  b-card
+  div
     .d-flex.mb-2
       b-input.mr-1(
         v-model="keyword"

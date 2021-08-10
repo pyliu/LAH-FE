@@ -47,7 +47,7 @@
           :variant="$utils.empty(borrower) ? 'outline-dark' : 'warning'"
         )
 
-      .d-flex.text-nowrap.mb-1
+      .d-flex.text-nowrap.mb-1(v-if="showLentDate")
         .my-auto.mr-1 借出日期
         b-datepicker(
           size="sm"
@@ -69,7 +69,7 @@
           label-close-button="關閉"
         )
 
-      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(lentDate)")
+      .d-flex.text-nowrap.mb-1(v-if="showReturnDate")
         .my-auto.mr-1 歸還日期
         b-datepicker(
           size="sm"
@@ -149,43 +149,11 @@ export default {
     note () {
       return this.parentData.UNTAKEN_NOTE || ''
     },
-    dueDate () {
-      if (this.$utils.empty(this.takenDate)) {
-        return ''
-      }
-      const dd = new Date(this.takenDate)
-      dd.setDate(dd.getDate() + 15)
-      /**
-       * 'en-ZA' => 2020/08/19 (year/month/day)
-       * 'en-CA' => 2020-08-19 (year-month-day)
-       */
-      return dd.toLocaleDateString('en-ZA')
+    showReturnDate () {
+      return this.lentDate !== null && this.lentDate !== ''
     },
-    rejectDate () {
-      if (this.$utils.empty(this.dueDate)) {
-        return ''
-      }
-      const dd = new Date(this.dueDate)
-      dd.setDate(dd.getDate() + 1)
-      return dd.toLocaleDateString('en-ZA')
-    },
-    today () {
-      return new Date().toLocaleDateString('en-ZA')
-    },
-    light () {
-      if (!this.$utils.empty(this.takenDate)) {
-        if (this.today >= this.rejectDate) { return 'red' }
-        if (this.today === this.dueDate) { return 'yellow' }
-      }
-      return 'green'
-    },
-    classes () {
-      switch (this.light) {
-        case 'red': return ['bg-danger', 'text-white', 'font-weight-bold']
-        case 'yellow': return ['bg-warning']
-        default:
-          return ['bg-success', 'text-white']
-      }
+    showLentDate () {
+      return this.borrower !== ''
     }
   },
   watch: {
@@ -217,6 +185,9 @@ export default {
       this.updateDebounced()
     },
     lentDate (dontcare) {
+      // if (this.$utils.empty(dontcare)) {
+      //   this.parentData.UNTAKEN_BORROWER = ''
+      // }
       this.updateDebounced()
     },
     returnDate (dontcare) {
@@ -268,8 +239,16 @@ export default {
           initKeyword: this.borrowerName
         },
         on: {
-          update: (payload) => { this.parentData.UNTAKEN_BORROWER = payload.detail },
-          clean: () => { this.parentData.UNTAKEN_BORROWER = '' }
+          update: (payload) => {
+            this.parentData.UNTAKEN_BORROWER = payload.detail
+            this.parentData.UNTAKEN_LENT_DATE = new Date()
+            this.parentData.UNTAKEN_RETURN_DATE = null
+          },
+          clean: () => {
+            this.parentData.UNTAKEN_BORROWER = ''
+            this.parentData.UNTAKEN_LENT_DATE = null
+            this.parentData.UNTAKEN_RETURN_DATE = null
+          }
         }
       }), {
         title: `選擇借閱人 - ${this.parentData.收件字號}`,
