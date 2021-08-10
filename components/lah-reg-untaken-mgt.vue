@@ -14,7 +14,7 @@
       )
 
     .d-flex.text-nowrap
-      .my-auto.mr-1 　　日期
+      .my-auto.mr-1 領件日期
       b-datepicker(
         size="sm"
         variant="primary"
@@ -39,11 +39,11 @@
       hr
       .d-flex.text-nowrap
         .my-auto.mr-1.text-nowrap 　借閱人
-        lah-button(icon="user-friends" @click="selectUser") 選擇
-        span(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
+        span.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
+        lah-button(icon="user-friends" @click="selectUser" title="選擇" no-icon-gutter)
 
       .d-flex.text-nowrap
-        .my-auto.mr-1 　　日期
+        .my-auto.mr-1 借出日期
         b-datepicker(
           size="sm"
           variant="primary"
@@ -260,11 +260,7 @@ export default {
     selectUser () {
       this.modal(this.$createElement('lah-user-select', {
         props: {
-          userData: this.userData,
-          id: this.id,
-          name: this.name,
-          center: true,
-          rounded: true
+          initKeyword: this.borrowerName
         },
         on: {
           click: (payload) => {

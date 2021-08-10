@@ -1,20 +1,27 @@
 <template lang="pug">
-  b-card()
-    b-input.mb-2(v-model="keyword" trim)
-    b-button.m-1(
-      v-if="filtered.length > 0"
-      v-for="id in filtered"
-      :key="id"
-      :title="id"
-      variant="outline-primary"
-      rounded
-      @click="update(id)"
-    ) {{ id }}:{{ userNames[id].replace(/^(桃園|中壢|大溪|楊梅|蘆竹|八德|平鎮|龜山|龍潭|復興)/g, '').replace(/^(所)/g, '') }}
+  b-card
+    b-input.mb-2(
+      v-model="keyword"
+      placeholder="請輸入關鍵字 ... "
+      trim
+    )
+    div(v-if="filtered.length > 0")
+      b-button.m-1(
+        v-for="id in filtered"
+        :key="id"
+        :title="id"
+        variant="outline-primary"
+        rounded
+        @click="update(id)"
+      ) {{ id }}:{{ userNames[id].replace(/^(桃園|中壢|大溪|楊梅|蘆竹|八德|平鎮|龜山|龍潭|復興)/g, '').replace(/^(所)/g, '') }}
     h4.center.mt-1(v-else) 查無資料
 </template>
 
 <script>
 export default {
+  props: {
+    initKeyword: { type: String, default: '' }
+  },
   data: () => ({
     keyword: ''
   }),
@@ -37,10 +44,10 @@ export default {
   watch: {
   },
   created () {
-    this.keyword = this.site
+    this.keyword = this.initKeyword || this.site
   },
   methods: {
-    update(id) {
+    update (id) {
       this.trigger('click', id)
       this.keyword = id
     }
