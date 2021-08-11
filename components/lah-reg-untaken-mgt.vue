@@ -5,35 +5,36 @@
     v-if="ready"
     v-b-tooltip.hover.left.v-warning
   )
-    .d-flex.text-nowrap.mb-1
-      .my-auto.mr-1 領件狀態
-      b-select(
-        v-model="parentData.UNTAKEN_TAKEN_STATUS"
-        :options="status"
-        size="sm"
-      )
+    div(v-if="showTakenFields")
+      .d-flex.text-nowrap.mb-1
+        .my-auto.mr-1 領件狀態
+        b-select(
+          v-model="parentData.UNTAKEN_TAKEN_STATUS"
+          :options="status"
+          size="sm"
+        )
 
-    .d-flex.text-nowrap.mb-1
-      .my-auto.mr-1 領件日期
-      b-datepicker(
-        size="sm"
-        variant="primary"
-        v-model="parentData.UNTAKEN_TAKEN_DATE"
-        placeholder="選擇狀態變更日期"
-        boundary="viewport"
-        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-        :min="minDate"
-        :max="maxDate"
-        label-help="使用方向鍵操作移動日期"
-        hide-header
-        dropleft
-        today-button
-        label-today-button="今天"
-        reset-button
-        label-reset-button="重設"
-        close-button
-        label-close-button="關閉"
-      )
+      .d-flex.text-nowrap.mb-1
+        .my-auto.mr-1 領件日期
+        b-datepicker(
+          size="sm"
+          variant="primary"
+          v-model="parentData.UNTAKEN_TAKEN_DATE"
+          placeholder="選擇狀態變更日期"
+          boundary="viewport"
+          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+          :min="minDate"
+          :max="maxDate"
+          label-help="使用方向鍵操作移動日期"
+          hide-header
+          dropleft
+          today-button
+          label-today-button="今天"
+          reset-button
+          label-reset-button="重設"
+          close-button
+          label-close-button="關閉"
+        )
 
     div(v-if="takenStatus === ''")
       .d-flex.text-nowrap.mb-1
@@ -78,7 +79,7 @@
           placeholder="設定借閱歸還日期"
           boundary="viewport"
           :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :min="minDate"
+          :min="returnDateMin"
           :max="maxDate"
           label-help="使用方向鍵操作移動日期"
           hide-header
@@ -140,6 +141,9 @@ export default {
     returnDate () {
       return this.parentData.UNTAKEN_RETURN_DATE || ''
     },
+    returnDateMin () {
+      return new Date(this.lentDate)
+    },
     borrower () {
       return this.parentData.UNTAKEN_BORROWER || ''
     },
@@ -154,6 +158,10 @@ export default {
     },
     showLentDate () {
       return this.borrower !== ''
+    },
+    showTakenFields () {
+      return this.borrower === '' ||
+             (this.returnDate !== null && this.returnDate !== '')
     }
   },
   watch: {
@@ -184,10 +192,13 @@ export default {
       this.skipTakenStatusUpdate = false
       this.updateDebounced()
     },
-    lentDate (dontcare) {
+    lentDate (val) {
       // if (this.$utils.empty(this.parentData.UNTAKEN_LENT_DATE)) {
       //   this.parentData.UNTAKEN_BORROWER = ''
       // }
+      if (this.$utils.empty(val)) {
+        this.parentData.UNTAKEN_RETURN_DATE = null
+      }
       this.updateDebounced()
     },
     returnDate (dontcare) {

@@ -31,8 +31,10 @@ export default {
   },
   computed: {
     filtered () {
-      // chinese chars length hack
-      if (this.$utils.empty(this.keyword) || this.keyword.replace(/[^\x00-\xFF]/g, 'xx').length < 2) {
+      if (this.$utils.empty(this.keyword) ||
+          // chinese chars length hack
+          this.keyword.replace(/[^\x00-\xFF]/g, 'xx').length < 2
+      ) {
         return []
       }
       const idRE = new RegExp(`^${this.keyword}`, 'gi')
