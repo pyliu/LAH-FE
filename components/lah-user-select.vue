@@ -15,7 +15,7 @@
         variant="outline-primary"
         rounded
         @click="update(id)"
-      ) {{ id }}:{{ userNames[id].replace(/^(桃園|中壢|大溪|楊梅|蘆竹|八德|平鎮|龜山|龍潭|復興)/g, '').replace(/^(所)/g, '') }}
+      ) {{ id }}:{{ userNames[id].replace(/^(桃園|中壢|大溪|楊梅|蘆竹|八德|平鎮|龜山|龍潭|復興|[1-9_\s]|離職|分機)/g, '').replace(/^(所)/g, '') }}
     h4.center.mt-1(v-else) 查無資料
 </template>
 
