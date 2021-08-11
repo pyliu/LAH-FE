@@ -3,7 +3,8 @@
   .text-left(
     :title="`${$utils.caseId(caseId)}`"
     v-if="ready"
-    v-b-tooltip.hover.left.v-warning
+    v-b-tooltip.hover.left.v-info
+    :class="styling"
   )
     div(v-if="showTakenFields")
       .d-flex.text-nowrap.mb-1
@@ -15,7 +16,7 @@
         )
 
       .d-flex.text-nowrap.mb-1
-        .my-auto.mr-1 領件日期
+        .my-auto.mr-1 更新日期
         b-datepicker(
           size="sm"
           variant="primary"
@@ -45,7 +46,7 @@
           icon="user-friends"
           title="選擇"
           @click="selectUser"
-          :variant="$utils.empty(borrower) ? 'outline-dark' : 'warning'"
+          :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'"
         )
 
       .d-flex.text-nowrap.mb-1(v-if="showLentDate")
@@ -100,6 +101,16 @@
         size="sm"
         trim
       )
+
+    b-modal(
+      :id="modalId"
+      size="xl"
+      hide-footer
+      centered
+      scrollable
+    )
+      template(#modal-title) 選擇借閱人 - {{ $utils.caseId(parentData.ID) }}
+      lah-user-select(:init-keyword="borrowerName" @update="borrowerSelected" @clean="borrowerClean")
 </template>
 
 <script>
@@ -118,6 +129,7 @@ export default {
   components: { lahUserSelect },
   mixins: [regCaseBase],
   data: () => ({
+    modalId: 'this should be an uuid',
     noteFlag: false,
     minDate: new Date(),
     maxDate: new Date(),
@@ -162,6 +174,11 @@ export default {
     showTakenFields () {
       return this.borrower === '' ||
              (this.returnDate !== null && this.returnDate !== '')
+    },
+    styling () {
+      if (this.takenStatus !== '') { return ['bg-success', 'text-white', 'p-1'] }
+      if (this.borrower !== '') { return ['bg-warning', 'p-1'] }
+      return []
     }
   },
   watch: {
@@ -213,6 +230,7 @@ export default {
     }
   },
   created () {
+    this.modalId = this.$utils.uuid()
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     this.updateDebounced = this.$utils.debounce(this.update, 250)
   },
@@ -244,27 +262,19 @@ export default {
         this.isBusy = false
       })
     },
+    borrowerSelected (payload) {
+      this.parentData.UNTAKEN_BORROWER = payload.detail
+      this.parentData.UNTAKEN_LENT_DATE = new Date()
+      this.parentData.UNTAKEN_RETURN_DATE = null
+      this.hideModalById(this.modalId)
+    },
+    borrowerClean () {
+      this.parentData.UNTAKEN_BORROWER = ''
+      this.parentData.UNTAKEN_LENT_DATE = null
+      this.parentData.UNTAKEN_RETURN_DATE = null
+    },
     selectUser () {
-      this.modal(this.$createElement('lah-user-select', {
-        props: {
-          initKeyword: this.borrowerName
-        },
-        on: {
-          update: (payload) => {
-            this.parentData.UNTAKEN_BORROWER = payload.detail
-            this.parentData.UNTAKEN_LENT_DATE = new Date()
-            this.parentData.UNTAKEN_RETURN_DATE = null
-          },
-          clean: () => {
-            this.parentData.UNTAKEN_BORROWER = ''
-            this.parentData.UNTAKEN_LENT_DATE = null
-            this.parentData.UNTAKEN_RETURN_DATE = null
-          }
-        }
-      }), {
-        title: `選擇借閱人 - ${this.parentData.收件字號}`,
-        size: 'lg'
-      })
+      this.showModalById(this.modalId)
     }
   }
 }
