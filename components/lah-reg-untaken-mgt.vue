@@ -177,7 +177,8 @@ export default {
     },
     styling () {
       if (this.takenStatus !== '') { return ['bg-success', 'text-white', 'p-1'] }
-      if (this.borrower !== '') { return ['bg-warning', 'p-1'] }
+      if (this.borrower !== '' && this.$utils.empty(this.returnDate)) { return ['bg-warning', 'p-1'] }
+      if (!this.$utils.empty(this.returnDate)) { return ['bg-light', 'p-1'] }
       return []
     }
   },
