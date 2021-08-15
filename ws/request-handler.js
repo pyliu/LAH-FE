@@ -1,39 +1,38 @@
+const path = require('path')
 const WebSocket = require('ws')
-const utils = require('./utils.js')
-const MessageDB = require('./message-db.js')
-const ChannelDB = require('./channel-db.js')
+const utils = require(path.join(__dirname, 'utils.js'))
+const MessageDB = require(path.join(__dirname, 'message-db.js'))
+const ChannelDB = require(path.join(__dirname, 'channel-db.js'))
 
 const isDev = process.env.NODE_ENV !== 'production'
 
 class RequestHandler {
-  
   constructor (wss, messageWatcher) {
-    
     // singleton
     if (!RequestHandler._instance) {
-      RequestHandler._instance = this;
+      RequestHandler._instance = this
       // WebSocket Server
       this.wss = wss
       // MessageWatcher
       this.watcher = messageWatcher
     }
-    return RequestHandler._instance;
+    return RequestHandler._instance
   }
 
   handle (ws, incomingRaw) {
     const incoming = JSON.parse(incomingRaw)
-    
+
     isDev && console.log('收到客戶端訊息', incoming)
 
     if (incoming.channel === undefined && incoming.message.channel === undefined) {
-      console.warn(`沒有頻道資訊，無法處理此訊息`, incoming)
+      console.warn('沒有頻道資訊，無法處理此訊息', incoming)
       return
     }
 
     if (typeof incoming === 'object' && incoming.type) {
       switch (incoming.type) {
         case 'command':
-          // handle system command 
+          // handle system command
           return this.handleCommandRequest(ws, incoming.message)
         case 'mine':
           // client side sends message
@@ -48,7 +47,7 @@ class RequestHandler {
   }
 
   handleCommandRequest (ws, message) {
-    const json= typeof message === 'string' ? JSON.parse(message) : message
+    const json = typeof message === 'string' ? JSON.parse(message) : message
     const cmd = json.command
     switch (cmd) {
       case 'register':
@@ -84,7 +83,7 @@ class RequestHandler {
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
     valid && (ws.user = { ...args })
 
-    const message = valid ? `遠端客戶端資料 (${ws.user.ip}, ${ws.user.domain}, ${ws.user.userid}, ${ws.user.username}, ${ws.user.dept}) 已儲存於 ws 物件中` : `無法完成 register 命令，因為格式不符`
+    const message = valid ? `遠端客戶端資料 (${ws.user.ip}, ${ws.user.domain}, ${ws.user.userid}, ${ws.user.username}, ${ws.user.dept}) 已儲存於 ws 物件中` : '無法完成 register 命令，因為格式不符'
     !valid && console.warn(message, args)
     isDev && console.log(message)
 
@@ -94,7 +93,7 @@ class RequestHandler {
         command: 'register',
         payload: null,
         success: valid,
-        message: message
+        message
       },
       // outter message attrs
       {
@@ -118,7 +117,7 @@ class RequestHandler {
           command: 'mychannel',
           payload: { action: 'add', ...row },
           success: true,
-          message: `找到 ${row['id']} 頻道`
+          message: `找到 ${row.id} 頻道`
         },
         // outter message attrs
         {
@@ -139,15 +138,15 @@ class RequestHandler {
     if (messages && messages.length > 0) {
       messages.forEach((message, idx, arr) => {
         if (channel.startsWith('announcement')) {
-          ws.send(utils.packMessage(message, { channel: channel, id: message['id'] }))
+          ws.send(utils.packMessage(message, { channel, id: message.id }))
         } else {
-          ws.send(utils.packMessage(message['content'], {
-            id: message['id'],
-            sender: message['sender'],
-            date: message['create_datetime'].split(' ')[0],
-            time: message['create_datetime'].split(' ')[1],
-            from: message['ip'],
-            channel: channel
+          ws.send(utils.packMessage(message.content, {
+            id: message.id,
+            sender: message.sender,
+            date: message.create_datetime.split(' ')[0],
+            time: message.create_datetime.split(' ')[1],
+            from: message.ip,
+            channel
           }))
         }
       })
@@ -155,7 +154,6 @@ class RequestHandler {
     return true
   }
 
-  
   executeQueryPreviousMessageCommand (ws, json) {
     const channel = String(json.channel)
     const count = parseInt(json.count) || 1
@@ -167,18 +165,18 @@ class RequestHandler {
       messages.forEach((message, idx, arr) => {
         if (channel.startsWith('announcement')) {
           ws.send(utils.packMessage(message, {
-            channel: channel,
-            id: message['id'],
+            channel,
+            id: message.id,
             prepend: true
           }))
         } else {
-          ws.send(utils.packMessage(message['content'], {
-            id: message['id'],
-            sender: message['sender'],
-            date: message['create_datetime'].split(' ')[0],
-            time: message['create_datetime'].split(' ')[1],
-            from: message['ip'],
-            channel: channel,
+          ws.send(utils.packMessage(message.content, {
+            id: message.id,
+            sender: message.sender,
+            date: message.create_datetime.split(' ')[0],
+            time: message.create_datetime.split(' ')[1],
+            from: message.ip,
+            channel,
             prepend: true
           }))
         }
@@ -191,7 +189,7 @@ class RequestHandler {
         command: 'previous',
         payload: json,
         success: hasMessage,
-        message: hasMessage ? `已完成 ${channel} 歷史訊息讀取` : `已無歷史訊息`
+        message: hasMessage ? `已完成 ${channel} 歷史訊息讀取` : '已無歷史訊息'
       },
       // outter message attrs
       {
@@ -205,7 +203,7 @@ class RequestHandler {
   }
 
   executeRemoveChannelCommand (ws, json) {
-    const channel = json.channel
+    // const channel = json.channel
     /*
       item example: {
         id: 10,
@@ -227,8 +225,8 @@ class RequestHandler {
           {
             command: 'remove_channel',
             payload: json,
-            success: success,
-            message: success? `已移除 ${id} / ${json.name} 頻道` : `移除 ${id} / ${json.name} 頻道失敗，請稍後再試`
+            success,
+            message: success ? `已移除 ${id} / ${json.name} 頻道` : `移除 ${id} / ${json.name} 頻道失敗，請稍後再試`
           },
           // outter message attrs
           {
@@ -245,14 +243,14 @@ class RequestHandler {
     const channel = String(json.channel)
     const last = parseInt(json.last) || 0
     const channelDB = new MessageDB(channel)
-    json['unread'] = channelDB.getUnreadMessageCount(last)
+    json.unread = channelDB.getUnreadMessageCount(last)
     ws.send(utils.packMessage(
       // message payload
       {
         command: 'unread',
         payload: json,
         success: true,
-        message: `${channel} 共 ${json['unread']} 筆未讀訊息`
+        message: `${channel} 共 ${json.unread} 筆未讀訊息`
       },
       // outter message attrs
       {
@@ -288,10 +286,10 @@ class RequestHandler {
   }
 
   handleHelpRequest (ws) {
-    const message = `###### 目前支援指令如下：\r\n`
-                    + `***`
-                    + `@help - 顯示輔助使用訊息\r\n`
-                    + `@online - 查詢線上使用者\r\n`
+    const message = '###### 目前支援指令如下：\r\n' +
+                    '***' +
+                    '@help - 顯示輔助使用訊息\r\n' +
+                    '@online - 查詢線上使用者\r\n'
     ws.send(utils.packMessage(message))
   }
 
@@ -301,6 +299,5 @@ class RequestHandler {
     }, '###### 目前連線使用者：<br/>')
     ws.send(utils.packMessage(message))
   }
-
 }
 module.exports = RequestHandler

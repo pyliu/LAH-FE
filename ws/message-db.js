@@ -1,12 +1,11 @@
-const fs = require("fs")
-const path = require("path")
-const utils = require("./utils.js")
+const fs = require('fs')
+const path = require('path')
 const Database = require('better-sqlite3')
+const utils = require(path.join(__dirname, 'utils.js'))
 
 const isDev = process.env.NODE_ENV !== 'production'
 
 class MessageDB {
-  
   constructor (channel) {
     this.channel = String(channel)
     this.retry = 0
@@ -47,15 +46,15 @@ class MessageDB {
       const db = new Database(this.filepath, { verbose: isDev ? console.log : null })
       db.prepare(`
         CREATE TABLE IF NOT EXISTS "message" (
-          "id"	INTEGER,
-          "title"	TEXT,
-          "content"	TEXT NOT NULL,
-          "priority"	INTEGER NOT NULL DEFAULT 3,
-          "create_datetime"	TEXT NOT NULL,
-          "expire_datetime"	TEXT,
-          "sender"	TEXT NOT NULL,
-          "from_ip"	TEXT,
-          "flag"	INTEGER NOT NULL DEFAULT 0,
+          "id" INTEGER,
+          "title" TEXT,
+          "content" TEXT NOT NULL,
+          "priority" INTEGER NOT NULL DEFAULT 3,
+          "create_datetime" TEXT NOT NULL,
+          "expire_datetime" TEXT,
+          "sender" TEXT NOT NULL,
+          "from_ip" TEXT,
+          "flag" INTEGER NOT NULL DEFAULT 0,
           PRIMARY KEY("id" AUTOINCREMENT)
         )
       `).run()
@@ -116,29 +115,29 @@ class MessageDB {
   }
 
   getLatestMessage () {
-    return this.db.prepare(`SELECT * FROM message ORDER BY id DESC`).get()
+    return this.db.prepare('SELECT * FROM message ORDER BY id DESC').get()
   }
 
   getLatestMessagesByCount (count) {
-    return this.db.prepare(`SELECT * FROM (SELECT * FROM message WHERE sender <> 'system' ORDER BY id DESC LIMIT ?) ORDER BY id ASC`).all(parseInt(count) || 30)
+    return this.db.prepare('SELECT * FROM (SELECT * FROM message WHERE sender <> \'system\' ORDER BY id DESC LIMIT ?) ORDER BY id ASC').all(parseInt(count) || 30)
   }
 
   getMessagesByDate (date) {
-    return this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND create_datetime LIKE ? || '%' ORDER BY id DESC`).all(date)
+    return this.db.prepare('SELECT * FROM message WHERE sender <> \'system\' AND create_datetime LIKE ? || \'%\' ORDER BY id DESC').all(date)
   }
 
   getPreviousMessagesByCount (headId, count) {
-    return this.db.prepare(`SELECT * FROM message WHERE sender <> 'system' AND id < ? ORDER BY id DESC LIMIT ?`).all(headId, parseInt(count) || 1)
+    return this.db.prepare('SELECT * FROM message WHERE sender <> \'system\' AND id < ? ORDER BY id DESC LIMIT ?').all(headId, parseInt(count) || 1)
   }
 
   getUnreadMessageCount (lastReadId) {
-    return this.db.prepare(`SELECT COUNT(*) FROM message WHERE sender <> 'system' AND id > ? ORDER BY id DESC`).pluck().get(lastReadId || 0)
+    return this.db.prepare('SELECT COUNT(*) FROM message WHERE sender <> \'system\' AND id > ? ORDER BY id DESC').pluck().get(lastReadId || 0)
   }
-  
+
   remove (cb) {
     setTimeout(() => {
       fs.unlink(this.filepath, (err) => {
-        let succeed = utils.isEmpty(err)
+        const succeed = utils.isEmpty(err)
         if (!succeed) {
           console.warn(`刪除 ${this.filepath} 發生錯誤`, err)
         }

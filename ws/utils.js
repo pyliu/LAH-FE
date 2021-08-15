@@ -1,14 +1,8 @@
-const isEmpty = require('lodash/isEmpty')
-const Markd = require('marked')
-const DOMPurify = require('dompurify')
-const WebSocket = require('ws')
-const MessageDB = require('./message-db.js')
 
-require('dotenv').config()
-
+const OS = require('os')
 let ip = require('ip').address()
-// get all ip addresses by node.js os module 
-const nets = require('os').networkInterfaces()
+// get all ip addresses by node.js os module
+const nets = OS.networkInterfaces()
 for (const name of Object.keys(nets)) {
   for (const net of nets[name]) {
     // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
@@ -17,8 +11,15 @@ for (const name of Object.keys(nets)) {
     }
   }
 }
+const isEmpty = require('lodash/isEmpty')
+const Markd = require('marked')
+const DOMPurify = require('dompurify')
+const WebSocket = require('ws')
+const MessageDB = require('./message-db.js')
 
-const trim = (x) => { return typeof x === 'string' ? x.replace(/^[\s\r\n]+|[\s\r\n]+$/gm,'') : '' }
+require('dotenv').config()
+
+const trim = (x) => { return typeof x === 'string' ? x.replace(/^[\s\r\n]+|[\s\r\n]+$/gm, '') : '' }
 
 const timestamp = function (date = 'time') {
   const now = new Date()
@@ -72,13 +73,12 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
   if (broadcasting === false && connected > 0) {
     broadcasting = true
     let processed = 0
-    clients.forEach(function each(client) {
-
+    clients.forEach(function each (client) {
       if (!client.user) {
         console.log('沒有使用者資訊，略過廣播此WS頻道 ... ')
       } else if (client.readyState === WebSocket.OPEN) {
         // if the input is a array then retrive its id as the message id
-        const messageId = typeof rowORtext === 'string' ? 0 : rowORtext['id']
+        const messageId = typeof rowORtext === 'string' ? 0 : rowORtext.id
 
         // channel === 'supervisor' && console.log(rowORtext)
         const opts = {}
@@ -94,7 +94,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
           opts.channel = channel
         }
 
-        const json = packMessage(rowORtext, { channel: channel, id: messageId, ...opts })
+        const json = packMessage(rowORtext, { channel, id: messageId, ...opts })
         client.send(json)
       }
 
@@ -102,26 +102,25 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
       if (processed == connected) {
         broadcasting = false
       }
-
     })
   }
 }
 
 const insertMessageChannel = (channel, json) => {
   const channelDB = new MessageDB(channel)
-  const priority = parseInt(json['priority'])
+  const priority = parseInt(json.priority)
   channelDB.insertMessage({
-    title: json['title'] || 'dontcare',
-    content: json['message'],
-    sender: json['sender'],
+    title: json.title || 'dontcare',
+    content: json.message,
+    sender: json.sender,
     priority: priority === 0 ? 0 : priority || 3,
-    from_ip: json['from'] || '',
-    flag: parseInt(json['flag']) || 0
+    from_ip: json.from || '',
+    flag: parseInt(json.flag) || 0
   })
 }
 
-const sleep = async function (ms = 0) {
-  return new Promise(r => setTimeout(r, ms));
+const sleep = function (ms = 0) {
+  return new Promise(r => setTimeout(r, ms))
 }
 
 module.exports.timestamp = timestamp
