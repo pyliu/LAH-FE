@@ -1,120 +1,85 @@
-<template>
-  <div v-cloak>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">
-              使用者角色管理
-            </div>
-            <lah-button
+<template lang="pug">
+  div(v-cloak)
+    lah-header
+      lah-transition(appear)
+        .d-flex.justify-content-between.w-100
+          .d-flex
+            .my-auto 使用者角色管理
+            lah-button(
               v-b-modal.help-modal
               icon="question"
               variant="outline-success"
               no-border
               no-icon-gutter
               title="說明"
-            />
-          </div>
-          <b-button-group size="lg" class="my-auto">
-            <lah-button
+            )
+          b-button-group.my-auto(size="lg")
+            lah-button(
               v-b-modal.add-authority-modal
               icon="user-plus"
               variant="outline-primary"
               title="新增使用者"
               no-icon-gutter
-            />
-          </b-button-group>
-        </div>
-      </lah-transition>
-      <lah-help-modal :modal-id="'help-modal'" size="md">
-        <h6>本系統使用「IP位址」來管理使用者角色權限，請利用本頁面之介面進行新增或刪除的動作。</h6>
-        <hr>
-        <div class="mx-2 my-1">
-          <b-button variant="danger" size="sm">
-            {{ site }}XXXX 劉ＯＯ
-          </b-button>
-          系統管理者
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="outline-danger" size="sm">
-            {{ site }}XXXX 邦ＯＯ
-          </b-button>
-          主管
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="primary" size="sm">
-            {{ site }}XXXX 渝ＯＯ
-          </b-button>
-          研考
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="warning" size="sm">
-            {{ site }}XXXX 桃ＯＯ
-          </b-button>
-          研考協辦
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="info" size="sm">
-            {{ site }}XXXX 園ＯＯ
-          </b-button>
-          總務
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="outline-info" size="sm">
-            {{ site }}XXXX 地ＯＯ
-          </b-button>
-          總務協辦
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="outline-dark" size="sm">
-            {{ site }}XXXX 政ＯＯ
-          </b-button>
-          ...
-        </div>
-      </lah-help-modal>
-      <b-modal
+            )
+      lah-help-modal(:modal-id="'help-modal'" size="md")
+        h6 本系統使用「IP位址」來管理使用者角色權限，可利用本頁面之介面進行新增或刪除的動作。
+        hr
+        .mx-2.my-1
+          b-button(variant="danger" size="sm") {{ site }}XXXX 劉ＯＯ
+          span 系統管理者
+        .mx-2.my-1
+          b-button(variant="outline-danger" size="sm") {{ site }}XXXX 邦ＯＯ
+          span 主管
+        .mx-2.my-1
+          b-button(variant="primary" size="sm")  {{ site }}XXXX 渝ＯＯ
+          span 研考
+        .mx-2.my-1
+          b-button(variant="warning" size="sm") {{ site }}XXXX 桃ＯＯ
+          span 研考協辦
+        .mx-2.my-1
+          b-button(variant="info" size="sm") {{ site }}XXXX 園ＯＯ
+          span 總務
+        .mx-2.my-1
+          b-button(variant="outline-info" size="sm") {{ site }}XXXX 地ＯＯ
+          span 總務協辦
+        .mx-2.my-1
+          b-button(variant="outline-dark" size="sm") {{ site }}XXXX 政ＯＯ
+          span ...
+      b-modal(
         id="add-authority-modal"
         hide-footer
         no-close-on-backdrop
         scrollable
-      >
-        <template #modal-title>
-          新增角色權限
-        </template>
-        <b-form-group
+      )
+        template(#modal-title) 新增角色權限
+        b-form-group(
           label="權限"
           label-for="role-select"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-select
+        )
+          b-select(
             id="role-select"
             v-model="addRole"
             :options="addRoleOpts"
             :state="roleOK"
-          />
-        </b-form-group>
-        <b-form-group
+          )
+        b-form-group(
           label="電腦"
           label-for="ip-input"
           label-cols-sm="2"
           label-size="md"
-        >
-          <b-input
+        )
+          b-input(
             id="ip-input"
             v-model="addIp"
             :state="ipOK"
             trim
-          />
-        </b-form-group>
-        <lah-button icon="user-plus" :disabled="!(roleOK && ipOK)" block @click="add">
-          新增角色權限
-        </lah-button>
-      </b-modal>
-    </lah-header>
-    <b-container v-cloak fluid>
-      <b-table
+          )
+        lah-button(icon="user-plus" :disabled="!(roleOK && ipOK)" block @click="add") 新增角色權限
+
+    b-container(v-cloak fluid)
+      b-table(
         striped
         hover
         caption-top
@@ -134,52 +99,43 @@
         primary-key="序號"
 
         @row-selected="popupUserInfo"
-      >
-        <template #table-busy>
-          <span class="ld-txt">讀取中...</span>
-        </template>
-        <template #table-caption>
-          <span class="lah-shadow">{{ message }} <b-badge variant="info" pill>{{ tableItems.length }}</b-badge></span>
-        </template>
-        <template #cell(序號)="data">
-          <template v-if="data.rowSelected">
-            <span aria-hidden="true">&check;</span>
-            <span class="sr-only">Selected</span>
-          </template>
-          <template v-else>
-            <span aria-hidden="true">&nbsp;</span>
-            <span class="sr-only">Not selected</span>
-          </template>
-          {{ data.index + 1 }}
-        </template>
-        <template #cell(remove)="{ item }">
-          <lah-button
-            icon="times"
-            variant="outline-danger"
-            size="sm"
-            no-icon-gutter
-            no-border
-            pill
-            class="mx-auto"
-            title="刪除本筆資料"
-            @click="remove(item)"
-          />
-        </template>
-        <template #cell(id)="{ item }">
-          <b-button v-if="!$utils.empty(item['id'])" :variant="variant(item)" size="sm" @click="popupUserInfo(item)">
-            <lah-avatar :user-data="item">
-              {{ item["id"] }}
-              {{ item["name"] }}
-            </lah-avatar>
-          </b-button>
-        </template>
-        <template #cell(role_ip)="{ item }">
-          {{ item['role_ip'].split('.')[0] }}.{{ item['role_ip'].split('.')[1] }}.<span class="font-weight-bold text-primary">{{ item['role_ip'].split('.')[2] }}.{{ item['role_ip'].split('.')[3] }}</span>
-        </template>
-      </b-table>
-      <hr>
-    </b-container>
-  </div>
+      )
+        template(#table-busy): span.ld-txt 讀取中...
+
+        template(#table-caption)
+          span.lah-shadow: span
+            span {{ message }}
+            b-badge(variant="info" pill) {{ tableItems.length }}
+
+        template(#cell(序號)="data")
+          template(v-if="data.rowSelected")
+            span(aria-hidden="true") &check;
+            span.sr-only Selected
+          template(v-else)
+            span(aria-hidden="true") &nbsp;
+            span.sr-only Not selected
+          span {{ data.index + 1 }}
+
+        template(#cell(remove)="{ item }"): lah-button(
+          icon="times"
+          variant="outline-danger"
+          size="sm"
+          no-icon-gutter
+          no-border
+          pill
+          class="mx-auto"
+          title="刪除本筆資料"
+          @click="remove(item)"
+        )
+        template(#cell(id)="{ item }")
+          b-button(v-if="!$utils.empty(item['id'])" :variant="variant(item)" size="sm" @click="popupUserInfo(item)")
+            lah-avatar(:user-data="item")
+              span {{ item["id"] }}
+              span {{ item["name"] }}
+        template(#cell(role_ip)="{ item }")
+          span {{ item['role_ip'].split('.')[0] }}.{{ item['role_ip'].split('.')[1] }}.
+          span.font-weight-bold.text-primary {{ item['role_ip'].split('.')[2] }}.{{ item['role_ip'].split('.')[3] }}
+      hr
 </template>
 
 <script>
