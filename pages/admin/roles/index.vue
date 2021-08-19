@@ -25,26 +25,27 @@
         h6 本系統使用「IP位址」來管理使用者角色權限，可利用本頁面之介面進行新增或刪除的動作。
         hr
         .mx-2.my-1
-          b-button(variant="danger" size="sm") {{ site }}XXXX 劉ＯＯ
+          b-button.mr-1(variant="danger" size="sm") {{ site }}XXXX 劉ＯＯ
           span 系統管理者
         .mx-2.my-1
-          b-button(variant="outline-danger" size="sm") {{ site }}XXXX 邦ＯＯ
+          b-button.mr-1(variant="outline-danger" size="sm") {{ site }}XXXX 邦ＯＯ
           span 主管
         .mx-2.my-1
-          b-button(variant="primary" size="sm")  {{ site }}XXXX 渝ＯＯ
+          b-button.mr-1(variant="outline-info" size="sm") {{ site }}XXXX 地ＯＯ
+          span 代主管
+        .mx-2.my-1
+          b-button.mr-1(variant="primary" size="sm")  {{ site }}XXXX 渝ＯＯ
           span 研考
         .mx-2.my-1
-          b-button(variant="warning" size="sm") {{ site }}XXXX 桃ＯＯ
-          span 研考協辦
-        .mx-2.my-1
-          b-button(variant="info" size="sm") {{ site }}XXXX 園ＯＯ
+          b-button.mr-1(variant="warning" size="sm") {{ site }}XXXX 桃ＯＯ
           span 總務
         .mx-2.my-1
-          b-button(variant="outline-info" size="sm") {{ site }}XXXX 地ＯＯ
-          span 總務協辦
+          b-button.mr-1(variant="info" size="sm") {{ site }}XXXX 園ＯＯ
+          span 協辦
         .mx-2.my-1
-          b-button(variant="outline-dark" size="sm") {{ site }}XXXX 政ＯＯ
-          span ...
+          b-button.mr-1(variant="outline-dark" size="sm") {{ site }}XXXX 政ＯＯ
+          span 文書
+
       b-modal(
         id="add-authority-modal"
         hide-footer
