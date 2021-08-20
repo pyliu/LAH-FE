@@ -80,7 +80,7 @@
         lah-button(icon="user-plus" :disabled="!(roleOK && ipOK)" block @click="add") 新增角色權限
 
     b-container(v-cloak fluid)
-      b-table(
+      b-table.text-center.mb-3(
         striped
         hover
         caption-top
@@ -90,7 +90,6 @@
         selectable
         select-mode="single"
         selected-variant="success"
-        class="text-center mb-3"
         :items="tableItems"
         :fields="tableFields"
         :busy="isBusy"
@@ -117,14 +116,13 @@
             span.sr-only Not selected
           span {{ data.index + 1 }}
 
-        template(#cell(remove)="{ item }"): lah-button(
+        template(#cell(remove)="{ item }"): lah-button.mx-auto(
           icon="times"
           variant="outline-danger"
           size="sm"
           no-icon-gutter
           no-border
           pill
-          class="mx-auto"
           title="刪除本筆資料"
           @click="remove(item)"
         )
