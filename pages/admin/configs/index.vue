@@ -448,7 +448,7 @@
             <b-input
               v-model="loadedConfigs['WEBAP_POSTFIXES']"
               placeholder="僅輸入最後一碼，以逗號分隔"
-              title="其他地政WEB版AP IP的最後一碼"
+              title="其他地政WEB版AP IPv4的最後一碼"
               trim
             />
             <template #append>
