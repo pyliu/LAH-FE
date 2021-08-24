@@ -10,7 +10,7 @@
       span \#{{ dataJson.id }}
     b-card-text(v-html="content")
     template(#footer): .d-flex.justify-content-between.small.text-muted
-      span {{ dataJson.sender }}
+      span {{ sender }}
       span {{ dataJson.create_datetime }}
 </template>
 
@@ -40,7 +40,7 @@ export default {
       }
     },
     sender () {
-      return this.userNames[this.dataJson.sender] || this.dataJson.sender
+      return this.userNames ? this.userNames[this.dataJson.sender] : this.dataJson.sender
     },
     content () {
       if (isEmpty(this.dataJson.content)) {
