@@ -444,11 +444,11 @@
               />
             </template>
           </b-input-group>
-          <b-input-group size="sm" prepend="其他ＡＰ" class="my-1">
+          <b-input-group size="sm" prepend="監控ＡＰ" class="my-1">
             <b-input
               v-model="loadedConfigs['WEBAP_POSTFIXES']"
               placeholder="僅輸入最後一碼，以逗號分隔"
-              title="其他地政WEB版AP IPv4的最後一碼"
+              title="欲監控之地政WEB版AP IPv4的最後一碼"
               trim
             />
             <template #append>
