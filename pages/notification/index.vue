@@ -7,11 +7,11 @@
         lah-help-modal(:modal-id="'help-modal'"): ul
           li 支援 Markdown 語法，請參考 https://ppt.cc/fVm4Gx 教學
       .d-flex
-    b-card-group(deck)
+    b-card-group(columns)
       b-card
         b-card-title 輸入欄位
         b-input-group.mb-1(size="sm" prepend="　　標題")
-          b-input(v-model="announcementDataJson.title")
+          b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
         b-input-group.mb-1(size="sm" prepend="緊急程度")
           b-select(v-model="announcementDataJson.priority" :options="announcementPriorityOpts")
         b-input-group.mb-1(size="sm" prepend="　　內文")
@@ -21,45 +21,46 @@
             max-rows="15"
             placeholder="... 支援 Markdown 語法 ... "
           )
-        lah-button(variant="outline-primary") 儲存
+        b-button-group(size="sm")
+          lah-button(icon="save" variant="outline-primary") 儲存
+          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="sidebarFlag") 語法說明
       b-card.border-0
         b-card-title 預覽
         lah-notification-announcement-card(
           :data-json="announcementDataJson"
         )
+    b-sidebar(
+      id="md-desc"
+      v-model="sidebarFlag"
+      title="簡易排版語法說明"
+      right
+      shadow
+    )
       b-card
-        b-card-title 簡易語法說明
-        div
-          | #[b 標題]#[br]
-          | 每一個 # 代表一層標題，總共支援五層標題：#[br]
-          | # 第一標題#[br]
-          | ## 第二標題
-          | #[hr]
-          | #[b 引言]#[br]
-          | 語法：#[i #[b > 「我思，故我在。」]]
-          | #[hr]
-          | #[b 分隔線]#[br]
-          | 語法： #[b ---]
-          | #[hr]
-          | #[b 超連結]#[br]
-          | 語法：[知識網](http://220.1.34.18:8888/)
-          | #[hr]
-          | #[b 無編號項目符號]#[br]
-          | 語法：#[br]
-          | - 康德#[br]
-          | - 笛卡爾#[br]
-          | - 蘇格拉底#[br]
-          | 可使用「 * 」 取代這裡的「 - 」
-          | #[hr]
-          | #[b 有編號項目符號]#[br]
-          | 語法：#[br]
-          | 1. 量的#[br]
-          | 2. 質的#[br]
-          | 3. 樣態的
-          | #[hr]
-          | #[b 斜體與粗體]#[br]
-          | 粗體語法： **我是粗體**#[br]
-          | 斜體語法： *我是斜體*#[br]
+        | #[b 標題]#[br]
+        | 每一個 # 代表一層標題，總共支援五層標題：#[br]
+        | # 第一標題#[br]
+        | ## 第二標題
+        | #[hr]
+        | #[b 引言]#[br]
+        | 語法：#[i #[b > 「我思，故我在。」]]
+        | #[hr]
+        | #[b 分隔線]#[br]
+        | 語法： #[b ---]
+        | #[hr]
+        | #[b 超連結]#[br]
+        | 語法：[知識網](http://220.1.34.18:8888/)
+        | #[hr]
+        | #[b 編號項目符號]#[br]
+        | 語法：#[br]
+        | - 康德#[br]
+        | 1. 笛卡爾#[br]
+        | 2. 蘇格拉底#[br]
+        | 可使用「 * 」 取代這裡的「 - 」，或是使用數字加上「 . 」
+        | #[hr]
+        | #[b 斜體與粗體]#[br]
+        | 粗體語法： **我是粗體**#[br]
+        | 斜體語法： *我是斜體*#[br]
 </template>
 
 <script>
@@ -88,11 +89,17 @@ export default {
       { text: '最高', value: 0 },
       { text: '高', value: 1 },
       { text: '中', value: 2 },
-      { text: '低', value: 3 }
-    ]
+      { text: '正常', value: 3 }
+    ],
+    sidebarFlag: true
   }),
   head: {
     title: '訊息發佈管理'
+  },
+  computed: {
+    validTitle () {
+      return !this.$utils.empty(this.announcementDataJson.title)
+    }
   },
   watch: {
   },
