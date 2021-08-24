@@ -2,7 +2,7 @@
   div
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 訊息發佈管理
+        .my-auto 公告訊息發佈管理
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ul
           li 支援 Markdown 語法，請參考 https://ppt.cc/fVm4Gx 教學
@@ -21,9 +21,9 @@
             max-rows="15"
             placeholder="... 支援 Markdown 語法 ... "
           )
-        b-button-group(size="sm")
-          lah-button(icon="save" variant="outline-primary") 儲存
-          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="sidebarFlag") 語法說明
+        .d-flex.justify-content-between
+          lah-button(icon="paper-plane" variant="outline-primary") 送出
+          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="sidebarFlag" pill) 語法說明
       b-card.border-0
         b-card-title 預覽
         lah-notification-announcement-card(
