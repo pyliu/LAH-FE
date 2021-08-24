@@ -19,7 +19,7 @@
     .d-flex.msg-item.my-1(:class="classes")
 
       //- special card message for announcement
-      lah-notification-announcement-ard(
+      lah-notification-announcement-card(
         v-if="isAnnouncement"
         :data-json="raw['message']"
       )
