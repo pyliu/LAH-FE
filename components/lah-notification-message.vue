@@ -42,65 +42,65 @@ export default {
     raw: { type: Object, required: true },
     prev: { type: Object, default: undefined }
   },
-  data: () => ({}),
-  asyncData(ctx) {
+  asyncData (ctx) {
     return {}
   },
+  data: () => ({}),
   computed: {
-    showMdate() {
+    showMdate () {
       return this.prevMdate !== this.mdate
     },
-    isAnnouncement() {
+    isAnnouncement () {
       return this.currentChannel.startsWith('announcement')
     },
-    mine() {
-      return this.raw ? this.userid === this.raw["sender"] : false
+    mine () {
+      return this.raw ? this.userid === this.raw.sender : false
     },
-    system() {
-      return this.raw ? 'system' === this.sender : false
+    system () {
+      return this.raw ? this.sender === 'system' : false
     },
-    id() {
-      return this.raw ? this.raw["id"] : ""
+    id () {
+      return this.raw ? this.raw.id : ''
     },
-    type() {
-      return this.raw ? this.raw["type"] : ""
+    type () {
+      return this.raw ? this.raw.type : ''
     },
-    message() {
-      return this.raw ? this.raw["message"] : ""
+    message () {
+      return this.raw ? this.raw.message : ''
     },
-    sender() {
-      return this.raw ? this.userMap[this.raw["sender"]] || this.raw["sender"] : ""
+    sender () {
+      return this.raw ? this.userMap[this.raw.sender] || this.raw.sender : ''
     },
-    from() {
-      return this.raw ? this.raw["ip"] : ""
+    from () {
+      return this.raw ? this.raw.ip : ''
     },
-    mtime() {
-      return this.raw ? this.raw["time"] : ""
+    mtime () {
+      return this.raw ? this.raw.time : ''
     },
-    prevMdate() {
+    prevMdate () {
       if (this.prev) {
         // announcement card date is inside the message
         if (this.isAnnouncement) {
-          return this.prev['message']['create_datetime'].split(' ')[0]
+          return this.prev.message.create_datetime.split(' ')[0]
         }
-        return this.prev['date']
+        return this.prev.date
       }
       return ''
     },
-    mdate() {
+    mdate () {
       // announcement card date is inside the message
       if (this.isAnnouncement) {
-        return this.raw['message']['create_datetime'].split(' ')[0]
+        return this.raw.message.create_datetime.split(' ')[0]
       }
-      return this.raw ? this.raw["date"] : ""
+      return this.raw ? this.raw.date : ''
     },
-    channel() {
-      return this.raw ? this.raw["channel"] : ""
+    channel () {
+      return this.raw ? this.raw.channel : ''
     },
-    classes() {
+    classes () {
       return [
         this.mine ? 'justify-content-end' : this.system ? 'justify-content-center' : 'justify-content-start',
-        this.mine ? 'mine' : this.system ? 'system' : '',
+        this.mine ? 'mine' : this.system ? 'system' : ''
       ]
     }
   },
