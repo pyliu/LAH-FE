@@ -66,6 +66,9 @@
         li(v-if="isAuthorized"): nuxt-link(to="/admin").
           #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
           系統管理
+        li(v-if="isAuthorized"): nuxt-link(to="/notification").
+          #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
+          公告訊息管理
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
         //-   統計看板

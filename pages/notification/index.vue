@@ -2,14 +2,28 @@
   div
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 公告訊息發佈管理
+        .my-auto 公告訊息發布管理
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ul
           li 支援 Markdown 語法，請參考 https://bit.ly/mdcheat 教學
       .d-flex
+
     b-card-group(columns)
       b-card
-        b-card-title 輸入欄位
+        b-card-title 即時預覽
+        div 發布對象：{{ sendto }}
+        lah-notification-announcement-card(
+          :data-json="announcementDataJson"
+        )
+
+      b-card
+        b-card-title 新增公告
+        b-form-group(label="發布對象：")
+          b-form-checkbox-group(
+            v-model="announcementSendto"
+            :options="announcementSendtoOpts"
+          )
+        hr
         b-input-group.mb-1(size="sm" prepend="　　標題")
           b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
         b-input-group.mb-1(size="sm" prepend="緊急程度")
@@ -23,13 +37,16 @@
             :state="validContent"
           )
         .d-flex.justify-content-between
-          lah-button(icon="paper-plane" variant="outline-primary" :disabled="!validContent || !validTitle") 送出
+          lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
           lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="sidebarFlag" pill) 語法說明
+
       b-card
-        b-card-title 預覽
+        b-card-title 歷史資料
         lah-notification-announcement-card(
-          :data-json="announcementDataJson"
+          :data-json="{ id: '?', ...lastPublishPost }"
         )
+        lah-button(icon="copy" variant="outline-secondary" @click="copy" title="複製本篇內容到新增欄位") 複製
+
     b-sidebar(
       id="md-desc"
       v-model="sidebarFlag"
@@ -39,29 +56,30 @@
     )
       b-card
         | #[b 標題]#[br]
-        | 每一個 # 代表一層標題，總共支援五層標題：#[br]
-        | # 第一標題#[br]
-        | ## 第二標題
+        | 語法(共支援五層標題)：#[br]
+        | #[b.text-primary # 第一標題]#[br]
+        | #[b.text-primary ## 第二標題]
         | #[hr]
         | #[b 引言]#[br]
-        | 語法：#[i #[b > 「我思，故我在。」]]
+        | 語法：#[i #[b.text-primary > 「我思，故我在。」]]
         | #[hr]
         | #[b 分隔線]#[br]
-        | 語法： #[b ---]
+        | 語法： #[b.text-primary ---]
         | #[hr]
         | #[b 超連結]#[br]
-        | 語法：[知識網](http://220.1.34.18:8888/)
+        | 語法：#[br]
+        | <b class="text-primary">[知識網](http://220.1.34.18:8888/)</b>
         | #[hr]
         | #[b 編號項目符號]#[br]
         | 語法：#[br]
-        | - 康德#[br]
-        | 1. 笛卡爾#[br]
-        | 2. 蘇格拉底#[br]
+        | #[b.text-primary -] 康德#[br]
+        | #[b.text-primary 1.] 笛卡爾#[br]
+        | #[b.text-primary 2.] 蘇格拉底#[br]
         | 可使用「 * 」 取代這裡的「 - 」，或是使用數字加上「 . 」
         | #[hr]
         | #[b 斜體與粗體]#[br]
-        | 粗體語法： **我是粗體**#[br]
-        | 斜體語法： *我是斜體*#[br]
+        | 粗體語法： #[b.text-primary **我是粗體**]#[br]
+        | 斜體語法： #[b.text-primary *我是斜體*]#[br]
 </template>
 
 <script>
@@ -92,7 +110,21 @@ export default {
       { text: '中', value: 2 },
       { text: '正常', value: 3 }
     ],
-    sidebarFlag: true
+    announcementSendto: [],
+    announcementSendtoOpts: [
+      { value: 'all', text: '全所' },
+      { value: 'supervisor', text: '主任秘書室' },
+      { value: 'hr', text: '人事室' },
+      { value: 'acc', text: '會計室' },
+      { value: 'adm', text: '行政課' },
+      { value: 'reg', text: '登記課' },
+      { value: 'sur', text: '測量課' },
+      { value: 'val', text: '地價課' },
+      { value: 'inf', text: '資訊課' }
+    ],
+    sidebarFlag: true,
+    cacheKey: 'lastPublishPost',
+    lastPublishPost: {}
   }),
   head: {
     title: '訊息發佈管理'
@@ -103,18 +135,71 @@ export default {
     },
     validContent () {
       return !this.$utils.empty(this.announcementDataJson.content)
+    },
+    validSendto () {
+      return this.announcementSendto.length > 0
+    },
+    sendButtonDisabled () {
+      return !this.validContent || !this.validTitle || !this.validSendto
+    },
+    sendto () {
+      const sendto = []
+      this.announcementSendto.forEach((selected) => {
+        const found = this.announcementSendtoOpts.find((item) => {
+          return item.value === selected
+        })
+        found && sendto.push(found.text)
+      })
+      return sendto.join(', ')
     }
   },
   watch: {
   },
   created () {
   },
-  mounted () {
-    const m = new Date()
-    const dateString = m.getUTCFullYear() + '/' + (m.getUTCMonth() + 1) + '/' + m.getUTCDate() + ' ' + m.getUTCHours() + ':' + m.getUTCMinutes() + ':' + m.getUTCSeconds()
-    this.announcementDataJson.create_datetime = dateString
+  async mounted () {
+    this.announcementDataJson.create_datetime = this.currentDatetime()
+    const cached = await this.getCache(this.cacheKey)
+    this.lastPublishPost = { ...cached }
   },
   methods: {
+    currentDatetime () {
+      const m = new Date()
+      return m.getFullYear() + '-' + (m.getMonth() + 1).toString().padStart(2, '0') + '-' + m.getDate().toString().padStart(2, '0') + ' ' + m.getHours().toString().padStart(2, '0') + ':' + m.getMinutes().toString().padStart(2, '0') + ':' + m.getSeconds().toString().padStart(2, '0')
+    },
+    copy () {
+      this.announcementDataJson = { ...this.announcementDataJson, ...this.lastPublishPost }
+      this.announcementSendto = [...this.lastPublishPost.channels]
+    },
+    add () {
+      this.confirm('確定要新增公告?').then((flag) => {
+        if (flag) {
+          this.isBusy = true
+          const snapshot = {
+            channels: this.announcementSendto,
+            from_ip: this.ip,
+            title: this.announcementDataJson.title,
+            content: this.announcementDataJson.content,
+            priority: this.announcementDataJson.priority,
+            sender: this.user.id || this.ip,
+            create_datetime: this.currentDatetime()
+          }
+          this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
+            type: 'add_notification',
+            ...snapshot
+          }).then(({ data }) => {
+            this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning' })
+          }).catch((err) => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+            this.lastPublishPost = { ...snapshot }
+            this.setCache(this.cacheKey, snapshot)
+          })
+        }
+      })
+    }
   }
 }
 </script>
