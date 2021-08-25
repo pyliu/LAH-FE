@@ -142,7 +142,7 @@ export default {
   },
   computed: {
     validTitle () {
-      return !this.$utils.empty(this.announcementDataJson.title)
+      return !this.$utils.empty(this.announcementDataJson.title) && this.announcementDataJson.title.length < 21
     },
     validContent () {
       return !this.$utils.empty(this.announcementDataJson.content)
