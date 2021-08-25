@@ -31,7 +31,7 @@
           )
         .d-flex.justify-content-between
           lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
-          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="sidebarFlag" pill) 語法說明
+          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 語法說明
 
       b-card
         b-card-title 即時預覽
@@ -50,7 +50,7 @@
 
     b-sidebar(
       id="md-desc"
-      v-model="sidebarFlag"
+      v-model="helpSidebarFlag"
       title="簡易排版語法說明"
       right
       shadow
@@ -129,7 +129,7 @@ export default {
       { value: 'val', text: '地價課' },
       { value: 'inf', text: '資訊課' }
     ],
-    sidebarFlag: true,
+    helpSidebarFlag: false,
     cacheKey: 'postMementoCache',
     memento: [],
     mementoCount: 6
