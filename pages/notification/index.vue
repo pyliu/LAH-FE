@@ -11,7 +11,9 @@
     b-card-group(deck)
 
       b-card(ref="addCard")
-        b-card-title 新增公告
+        b-card-title.d-flex.justify-content-between
+          div 新增公告
+          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
         b-form-group.mb-1
           template(#label): div
             span 發布對象
@@ -24,7 +26,7 @@
           b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
         b-input-group.mb-1(size="sm" prepend="緊急程度")
           b-select(v-model="announcementDataJson.priority" :options="announcementPriorityOpts")
-        b-input-group.mb-1(size="sm" prepend="　　內文")
+        b-input-group.mb-1(size="sm" prepend="　　內容")
           b-textarea(
             v-model="announcementDataJson.content"
             rows="5"
@@ -32,9 +34,7 @@
             placeholder="... 支援 Markdown 語法 ... "
             :state="validContent"
           )
-        .d-flex.justify-content-between
-          lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
-          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 語法說明
+        .center: lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
 
       b-card
         b-card-title 即時預覽
