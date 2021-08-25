@@ -8,22 +8,15 @@
           li 支援 Markdown 語法，請參考 https://bit.ly/mdcheat 教學
       .d-flex
 
-    b-card-group(columns)
-      b-card
-        b-card-title 即時預覽
-        div 發布對象：{{ sendto }}
-        lah-notification-announcement-card(
-          :data-json="announcementDataJson"
-        )
+    b-card-group(deck)
 
-      b-card
+      b-card(ref="addCard")
         b-card-title 新增公告
-        b-form-group(label="發布對象：")
+        b-form-group.mb-1(label="發布對象：")
           b-form-checkbox-group(
             v-model="announcementSendto"
             :options="announcementSendtoOpts"
           )
-        hr
         b-input-group.mb-1(size="sm" prepend="　　標題")
           b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
         b-input-group.mb-1(size="sm" prepend="緊急程度")
@@ -41,11 +34,19 @@
           lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="sidebarFlag" pill) 語法說明
 
       b-card
-        b-card-title 歷史資料
+        b-card-title 即時預覽
+        div 發布對象：{{ sendto }}
         lah-notification-announcement-card(
-          :data-json="{ id: '?', ...lastPublishPost }"
+          :data-json="announcementDataJson"
         )
-        lah-button(icon="copy" variant="outline-secondary" @click="copy" title="複製本篇內容到新增欄位") 複製
+
+    b-card-title.my-3 歷史資料
+    b-card-group(columns)
+      b-card.border-0(no-body v-for="(snapshot, idx) in reverseMemento" :key="`hist_${idx}`")
+        lah-button(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
+        lah-notification-announcement-card(
+          :data-json="{ id: idx+1, ...snapshot }"
+        )
 
     b-sidebar(
       id="md-desc"
@@ -98,7 +99,13 @@ export default {
   data: () => ({
     announcementDataJson: {
       title: '',
-      content: '',
+      content: `##### 我是主題
+一般說明打在這邊....
+
+- 項目一
+- 項目二
+
+... 可打上其他說明於此 ...`,
       priority: 3,
       sender: '',
       id: '?',
@@ -123,11 +130,12 @@ export default {
       { value: 'inf', text: '資訊課' }
     ],
     sidebarFlag: true,
-    cacheKey: 'lastPublishPost',
-    lastPublishPost: {}
+    cacheKey: 'postMementoCache',
+    memento: [],
+    mementoCount: 6
   }),
   head: {
-    title: '訊息發佈管理'
+    title: '公告訊息發布管理'
   },
   computed: {
     validTitle () {
@@ -151,6 +159,9 @@ export default {
         found && sendto.push(found.text)
       })
       return sendto.join(', ')
+    },
+    reverseMemento () {
+      return this.memento.slice().reverse()
     }
   },
   watch: {
@@ -160,16 +171,28 @@ export default {
   async mounted () {
     this.announcementDataJson.create_datetime = this.currentDatetime()
     const cached = await this.getCache(this.cacheKey)
-    this.lastPublishPost = { ...cached }
+    cached && (this.memento = [...cached])
+    if (this.memento.length > this.mementoCount) {
+      this.memento.splice(0, this.memento.length - this.mementoCount)
+    }
   },
   methods: {
+    addMemento (snapshot) {
+      this.memento.push(snapshot)
+      if (this.memento.length > this.mementoCount) {
+        this.memento.splice(0, 1)
+      }
+      this.setCache(this.cacheKey, this.memento)
+    },
     currentDatetime () {
       const m = new Date()
       return m.getFullYear() + '-' + (m.getMonth() + 1).toString().padStart(2, '0') + '-' + m.getDate().toString().padStart(2, '0') + ' ' + m.getHours().toString().padStart(2, '0') + ':' + m.getMinutes().toString().padStart(2, '0') + ':' + m.getSeconds().toString().padStart(2, '0')
     },
-    copy () {
-      this.announcementDataJson = { ...this.announcementDataJson, ...this.lastPublishPost }
-      this.announcementSendto = [...this.lastPublishPost.channels]
+    copy (snapshot) {
+      this.announcementDataJson = { ...this.announcementDataJson, ...snapshot }
+      this.announcementSendto = [...snapshot.channels]
+      this.$refs.addCard.scrollIntoView()
+      setTimeout(() => this.attention(this.$refs.addCard), 400)
     },
     add () {
       this.confirm('確定要新增公告?').then((flag) => {
@@ -194,14 +217,31 @@ export default {
             this.$utils.error(err)
           }).finally(() => {
             this.isBusy = false
-            this.lastPublishPost = { ...snapshot }
-            this.setCache(this.cacheKey, snapshot)
+            this.addMemento(snapshot)
+            this.reset()
           })
         }
       })
+    },
+    reset () {
+      this.announcementDataJson = {
+        ...{
+          title: '',
+          content: '',
+          priority: 3,
+          sender: '',
+          id: '?',
+          create_datetime: this.currentDatetime()
+        }
+      }
+      this.announcementSendto = [...[]]
     }
   }
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.block {
+  max-width: calc(32.5%);
+}
+</style>

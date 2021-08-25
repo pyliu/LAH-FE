@@ -30,17 +30,7 @@
 
 <script>
 export default {
-  head: {
-    title: "測試-桃園市地政局",
-  },
-  data: () => ({
-    pid: 'A123456789',
-    json: undefined,
-    openNewsData: undefined,
-    text: '',
-    websocket: undefined
-  }),
-  async asyncData({ $axios }) {
+  async asyncData ({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering
     // http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01
     // return await $axios.get('http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 })
@@ -53,18 +43,30 @@ export default {
                  ('0' + now.getSeconds()).slice(-2)
     return {
       list: [
-        { type: 'remote', text: '準備中 ... ', time: time }
+        { type: 'remote', text: '準備中 ... ', time }
       ]
     }
+  },
+  data: () => ({
+    pid: 'A123456789',
+    json: undefined,
+    openNewsData: undefined,
+    text: '',
+    websocket: undefined
+  }),
+  fetch () {
+  },
+  head: {
+    title: '測試-桃園市地政局'
   },
   computed: {
     // isTableReady () { return this.json && this.json.baked && this.json.baked.length > 0 ? true : false }
     configs () {
-      return Object.keys(this.$config).map((key) => [key, this.$config[key]])
+      return Object.keys(this.$config).map(key => [key, this.$config[key]])
     },
     envs () {
       // return Object.keys(this.env).map((key) => [key, this.env[key]]) || []
-    },
+    }
     // all () {
     //   return Object.keys(this).map((key) => [key, this[key]])
     // },
@@ -76,7 +78,27 @@ export default {
       this.$nextTick(() => {
         this.$refs.box.scrollTop = this.$refs.box.scrollHeight
       })
-    },
+    }
+  },
+  mounted () {
+    this.isBusy = true
+    this.$axios.post(this.$consts.API.JSON.QUERY, {
+      type: 'ping',
+      ip: this.$config.websocketHost,
+      port: this.$config.websocketPort
+    }).then(({ data }) => {
+      this.pingLatency = data.latency
+      this.pingMessage = data.message
+      if (this.$utils.statusCheck(data.status)) {
+        this.connect()
+      } else {
+        this.notify(data.message, { type: 'warning' })
+      }
+    }).catch((err) => {
+      this.error = err
+    }).finally(() => {
+      this.isBusy = false
+    })
   },
   methods: {
     clickCountdownButton () {
@@ -118,12 +140,12 @@ export default {
        * CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3
        */
       if (this.websocket && this.websocket.readyState !== 1) {
-        this.list = [...this.list, { type: "remote", text: `伺服器連線${this.status(this.websocket.readyState)} ...`, time: this.time() }]
+        this.list = [...this.list, { type: 'remote', text: `伺服器連線${this.status(this.websocket.readyState)} ...`, time: this.time() }]
         this.websocket.readyState === 3 && this.connect()
       }
-      
+
       if (this.websocket && this.websocket.readyState === 1) {
-        this.list = [...this.list, { type: "mine", text: this.text, time: this.time() }]
+        this.list = [...this.list, { type: 'mine', text: this.text, time: this.time() }]
         this.websocket.send(this.text)
         // received remote text clear mine
         this.text = ''
@@ -132,40 +154,18 @@ export default {
     connect () {
       this.websocket = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
       this.websocket.onopen = (e) => {
-        this.list = [...this.list, { type: "remote", text: `連結 WebSocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`, time: this.time() }]
+        this.list = [...this.list, { type: 'remote', text: `連結 WebSocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`, time: this.time() }]
       }
       this.websocket.onclose = (e) => {
-        this.list = [...this.list, { type: "remote", text: `WebSocket 伺服器連線已關閉`, time: this.time() }]
+        this.list = [...this.list, { type: 'remote', text: 'WebSocket 伺服器連線已關閉', time: this.time() }]
       }
       this.websocket.onerror = () => {
-        this.list = [...this.list, { type: "remote", text: `WebSocket 伺服器連線出錯`, time: this.time() }]
+        this.list = [...this.list, { type: 'remote', text: 'WebSocket 伺服器連線出錯', time: this.time() }]
       }
       this.websocket.onmessage = (e) => {
-        this.list = [...this.list, { type: "remote", ...JSON.parse(e.data) }]
+        this.list = [...this.list, { type: 'remote', ...JSON.parse(e.data) }]
       }
     }
-  },
-  fetch () {
-  },
-  mounted () {
-    this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: "ping",
-      ip: this.$config.websocketHost,
-      port: this.$config.websocketPort,
-    }).then(({ data }) => {
-      this.pingLatency = data.latency
-      this.pingMessage = data.message
-      if (this.$utils.statusCheck(data.status)) {
-        this.connect()
-      } else {
-        this.notify(data.message, { type: "warning" })
-      }
-    }).catch((err) => {
-      this.error = err
-    }).finally(() => {
-      this.isBusy = false
-    })
   }
 }
 </script>
