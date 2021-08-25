@@ -12,7 +12,10 @@
 
       b-card(ref="addCard")
         b-card-title 新增公告
-        b-form-group.mb-1(label="發布對象：")
+        b-form-group.mb-1
+          template(#label): div
+            span 發布對象
+            lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")
           b-form-checkbox-group(
             v-model="announcementSendto"
             :options="announcementSendtoOpts"
@@ -35,7 +38,7 @@
 
       b-card
         b-card-title 即時預覽
-        div 發布對象：{{ sendto }}
+        h6(style="margin-left: 15px;") 發布對象：#[b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`") #[strong.s-105 {{ to }}]]
         lah-notification-announcement-card(
           :data-json="announcementDataJson"
         )
@@ -158,7 +161,7 @@ export default {
         })
         found && sendto.push(found.text)
       })
-      return sendto.join(', ')
+      return sendto
     },
     reverseMemento () {
       return this.memento.slice().reverse()
@@ -235,6 +238,14 @@ export default {
         }
       }
       this.announcementSendto = [...[]]
+    },
+    sendtoVariant (to) {
+      switch (to) {
+        case '全所':
+          return 'danger'
+        default:
+          return 'success'
+      }
     }
   }
 }
