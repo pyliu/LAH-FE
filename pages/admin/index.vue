@@ -16,7 +16,7 @@
           lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="rubber-v" class="pt-2") 系統參數設定
         b-card-group(deck style="margin-top: 15px;")
           lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="rubber-h" class="pt-2") 使用者資訊管理
-          lah-index-card-link(:icon="['fas', 'comment-dots']" icon-variant="warning" no-body size="2x" to="/notification"0 class="pt-2") 公告訊息發布管理
+          lah-index-card-link(:icon="['fas', 'comment-dots']" icon-variant="warning" no-body size="2x" to="/notification" class="pt-2") 公告訊息發布管理
           lah-index-card-link(:icon="['fab', 'xbox']" icon-variant="muted" action="damage" no-body size="2x" to="/playground" class="pt-2") 測試
     b-container(fluid v-cloak)
       b-card-group(deck class="row")
