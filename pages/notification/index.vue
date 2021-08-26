@@ -34,7 +34,9 @@
             placeholder="... 支援 Markdown 語法 ... "
             :state="validContent"
           )
-        .center: lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
+        .center
+          lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
+          lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset") 預設值
 
       b-card
         b-card-title 即時預覽
