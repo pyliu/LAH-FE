@@ -103,15 +103,20 @@ export default {
     }
   },
   data: () => ({
+    defaultContent: `##### **\`我是主題\`**
+***一般說明打在這邊....***
+
+[知識網連結](http://220.1.34.18:8888/)
+- [ ] 空心菜
+- [x] 醬油
+  1. 雲林西螺
+  2. 屏東東港
+
+<font color=#0000FF>... 可打上其他說明於此 ... (深藍色)</font>
+    `,
     announcementDataJson: {
       title: '',
-      content: `##### **\`我是主題\`**
-一般說明打在這邊....
-
-- 項目一
-- 項目二
-
-... 可打上其他說明於此 ...`,
+      content: '',
       priority: 3,
       sender: '',
       id: '?',
@@ -181,6 +186,7 @@ export default {
     if (this.memento.length > this.mementoCount) {
       this.memento.splice(0, this.memento.length - this.mementoCount)
     }
+    this.reset()
   },
   methods: {
     addMemento (snapshot) {
@@ -233,7 +239,7 @@ export default {
       this.announcementDataJson = {
         ...{
           title: '',
-          content: '',
+          content: this.defaultContent,
           priority: 3,
           sender: '',
           id: '?',
