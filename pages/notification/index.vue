@@ -44,6 +44,7 @@
         )
 
     b-card-title.my-3 歷史資料
+    hr
     b-card-group(columns)
       b-card.border-0(no-body v-for="(snapshot, idx) in reverseMemento" :key="`hist_${idx}`")
         lah-button(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
