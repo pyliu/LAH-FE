@@ -16,12 +16,12 @@
           lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
         b-form-group.mb-1
           template(#label): div
-            span 發布對象
-            lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")
+            h5 發布對象 #[lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")]
           b-form-checkbox-group(
             v-model="announcementSendto"
             :options="announcementSendtoOpts"
           )
+        hr
         b-input-group.mb-1(size="sm" prepend="　　標題")
           b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
         b-input-group.mb-1(size="sm" prepend="緊急程度")
@@ -85,6 +85,8 @@
         | #[b 斜體與粗體]#[br]
         | 粗體語法： #[b.text-primary **我是粗體**]#[br]
         | 斜體語法： #[b.text-primary *我是斜體*]#[br]
+        | #[hr]
+        | 其他詳細 Markdown 語法，請參考 https://bit.ly/mdcheat 教學
 </template>
 
 <script>
