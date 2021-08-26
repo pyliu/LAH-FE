@@ -36,7 +36,7 @@
           )
         .center
           lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
-          lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset") 預設值
+          lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt") 預設值
 
       b-card
         b-card-title 即時預覽
@@ -93,17 +93,7 @@
 
 <script>
 export default {
-  asyncData ({ store, redirect, error }) {
-    const now = new Date()
-    const time = ('0' + now.getHours()).slice(-2) + ':' +
-                 ('0' + now.getMinutes()).slice(-2) + ':' +
-                 ('0' + now.getSeconds()).slice(-2)
-    return {
-      list: [
-        { type: 'remote', text: '... 準備中 ...', time }
-      ]
-    }
-  },
+  asyncData ({ store, redirect, error }) { return {} },
   data: () => ({
     defaultContent: `##### **\`我是主題\`**
 ***一般說明打在這邊....***
