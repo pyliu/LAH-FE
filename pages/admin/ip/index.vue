@@ -8,6 +8,15 @@
           li 可於此頁面管理靜態IP對應表
           li 可查看使用者回報IP紀錄
       .d-flex
+
+    b-card-group(deck)
+      b-card
+        b-table(striped hover :items="static")
+
+      b-card
+        b-table(striped hover :items="dynamic" size="sm")
+          template(#cell(timestamp)="{ item }")
+            div {{ $utils.tsAdDateStr(item.timestamp, true) }}
 </template>
 
 <script>
@@ -22,7 +31,7 @@ export default {
     this.$axios.post(this.$consts.API.JSON.IP, {
       type: 'ip_entries'
     }).then(({ data }) => {
-      this.$utils.log(data.message)
+      
       this.entries = [...data.raw]
     }).catch((err) => {
       this.alert(err)

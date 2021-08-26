@@ -307,6 +307,16 @@ export default ({ $axios, store }, inject) => {
         return days + ' 天'
       }
     },
+    tsAdDateStr (phpTs, full = false) {
+      const dateObj = new Date(phpTs * 1000)
+      const dateStr = `${dateObj.getFullYear()}-${('0' + (dateObj.getMonth() + 1)).slice(-2)}-${('0' + dateObj.getDate()).slice(-2)}`
+      const timeStr = `${('0' + dateObj.getHours()).slice(-2)}:${('0' + dateObj.getMinutes()).slice(-2)}:${('0' + dateObj.getSeconds()).slice(-2)}`
+      if (full) {
+        return `${dateStr} ${timeStr}`
+      } else {
+        return dateStr
+      }
+    },
     twDateStr (dateObj) {
       if (typeof dateObj !== 'object') {
         console.warn('twDateStr', dateObj, 'is not an object')
