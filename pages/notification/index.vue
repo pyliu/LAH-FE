@@ -22,10 +22,11 @@
             :options="announcementSendtoOpts"
           )
         hr
-        b-input-group.mb-1(size="sm" prepend="　　標題")
-          b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
-        b-input-group.mb-1(size="sm" prepend="緊急程度")
-          b-select(v-model="announcementDataJson.priority" :options="announcementPriorityOpts")
+        .d-flex.mb-1
+          b-input-group(size="sm" prepend="　　標題")
+            b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
+          b-input-group.ml-1.severity(size="sm" prepend="緊急程度")
+            b-select(v-model="announcementDataJson.priority" :options="announcementPriorityOpts")
         b-input-group.mb-1(size="sm" prepend="　　內容")
           b-textarea(
             v-model="announcementDataJson.content"
@@ -253,7 +254,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.block {
-  max-width: calc(32.5%);
+.severity {
+  max-width: 150px;
 }
 </style>
