@@ -17,7 +17,7 @@
         b-card-group(deck style="margin-top: 15px;")
           lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="rubber-h" class="pt-2") 使用者資訊管理
           lah-index-card-link(:icon="['fas', 'comment-dots']" icon-variant="warning" no-body size="2x" to="/notification" class="pt-2") 公告訊息發布管理
-          lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="info" action="breath" no-body size="2x" to="/admin/ip" class="pt-2") IP對應表管理
+          lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="dark" action="breath" no-body size="2x" to="/admin/ip" class="pt-2") IP對應表管理
     b-container(fluid v-cloak)
       b-card-group(deck class="row")
         lah-index-card-link(:icon="['fab', 'watchman-monitoring']" to="/admin/lxhweb" no-body size="5x" icon-variant="info" action="flip-h") 同步異動監控
@@ -26,7 +26,7 @@
       b-card-group(deck class="row")
         lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="5x" icon-variant="primary" action="rubber-h") 使用者資訊管理
         lah-index-card-link(:icon="['fas', 'comment-dots']" icon-variant="warning" no-body size="5x" to="/notification" action="pulse") 公告訊息發布管理
-        lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="info" no-body size="5x" to="/admin/ip" action="breath") IP對應表管理
+        lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="dark" no-body size="5x" to="/admin/ip" action="breath") IP對應表管理
 </template>
 
 <script>
