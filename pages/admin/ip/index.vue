@@ -16,7 +16,7 @@
       b-card
         b-table(striped hover :items="dynamic" size="sm")
           template(#cell(timestamp)="{ item }")
-            div {{ $utils.tsAdDateStr(item.timestamp, true) }}
+            div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
 </template>
 
 <script>
