@@ -103,7 +103,7 @@ export default {
   data: () => ({
     announcementDataJson: {
       title: '',
-      content: `##### 我是主題
+      content: `##### **\`我是主題\`**
 一般說明打在這邊....
 
 - 項目一
