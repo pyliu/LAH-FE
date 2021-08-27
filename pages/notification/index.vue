@@ -38,7 +38,7 @@
           )
         .center
           lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
-          lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt") 預設值
+          lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt") 清除
 
       b-card.border-0
         b-card-title(style="margin-left: 15px;") 即時預覽
@@ -97,7 +97,9 @@
 export default {
   asyncData ({ store, redirect, error }) { return {} },
   data: () => ({
-    defaultContent: `##### **\`我是主題\`**
+    announcementDataJson: {
+      title: '',
+      content: `##### **\`我是主題\`**
 ***一般說明打在這邊....***
 
 [知識網連結](http://220.1.34.18:8888/)
@@ -108,13 +110,10 @@ export default {
 
 <font color=#0000FF>... 可打上其他說明於此 ... (深藍色)</font>
     `,
-    announcementDataJson: {
-      title: '',
-      content: '',
       priority: 3,
       sender: '',
       id: '?',
-      create_datetime: '2021-08-24 20:23:00'
+      create_datetime: ''
     },
     announcementPriorityOpts: [
       { text: '最高', value: 0 },
@@ -180,7 +179,6 @@ export default {
     if (this.memento.length > this.mementoCount) {
       this.memento.splice(0, this.memento.length - this.mementoCount)
     }
-    this.reset()
   },
   methods: {
     addMemento (snapshot) {
@@ -233,7 +231,7 @@ export default {
       this.announcementDataJson = {
         ...{
           title: '',
-          content: this.defaultContent,
+          content: '',
           priority: 3,
           sender: '',
           id: '?',

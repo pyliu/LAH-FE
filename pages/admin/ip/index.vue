@@ -31,7 +31,6 @@ export default {
     this.$axios.post(this.$consts.API.JSON.IP, {
       type: 'ip_entries'
     }).then(({ data }) => {
-      
       this.entries = [...data.raw]
     }).catch((err) => {
       this.alert(err)
