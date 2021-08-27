@@ -131,7 +131,8 @@ export default {
       { value: 'reg', text: '登記課' },
       { value: 'sur', text: '測量課' },
       { value: 'val', text: '地價課' },
-      { value: 'inf', text: '資訊課' }
+      { value: 'inf', text: '資訊課' },
+      { value: 'myself', text: '我自己' }
     ],
     helpSidebarFlag: false,
     cacheKey: 'postMementoCache',
@@ -244,6 +245,8 @@ export default {
       switch (to) {
         case '全所':
           return 'danger'
+        case '我自己':
+          return 'primary'
         default:
           return 'success'
       }
