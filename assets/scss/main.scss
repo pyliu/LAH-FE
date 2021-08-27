@@ -61,22 +61,13 @@ a {
     0px 8px 1px rgba(0,0,0,0.1);
 }
 
-blockquote {
-  background: #f9f9f9;
-  border-left: 10px solid #ccc;
-  margin: 1.5em 10px;
-  padding: 0.5em 10px;
-  quotes: "\201C""\201D""\2018""\2019";
-  box-shadow: 2px 2px 15px #ccc;
-}
-
-blockquote:before {
-  color: #ccc;
-  content: open-quote;
-  font-size: 4em;
-  line-height: 0.1em;
-  margin-right: 0.25em;
-  vertical-align: -0.4em;
+blockquote{
+  margin: 20px;
+ padding: 10px;
+ background-color: #eeeeee;
+ border-left: 5px solid #989899;;
+ margin: 10px 30px 0 10px;
+ padding-left: 10px;
 }
 
 blockquote p {

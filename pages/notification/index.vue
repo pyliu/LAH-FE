@@ -10,7 +10,7 @@
 
     b-card-group(deck)
 
-      b-card(ref="addCard")
+      b-card(ref="addCard" border-variant="dark")
         b-card-title.d-flex.justify-content-between
           div 新增公告
           lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
@@ -39,8 +39,8 @@
           lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
           lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt") 預設值
 
-      b-card
-        b-card-title 即時預覽
+      b-card.border-0
+        b-card-title(style="margin-left: 15px;") 即時預覽
         h6(style="margin-left: 15px;") 發布對象：#[b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`") #[strong.s-105 {{ to }}]]
         lah-notification-announcement-card(
           :data-json="announcementDataJson"
