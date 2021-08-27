@@ -5,7 +5,9 @@
         .my-auto 公告訊息發布管理
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ul
-          li 支援 Markdown 語法，請參考 https://bit.ly/mdcheat 教學
+          li 可先利用送給 #[b-badge.s-105(variant="primary" pill) 我自己] 來做傳送測試(電腦需安裝信差即時通程式)
+          li 標題限制最大長度為 42 個字元(剛好中文兩排)
+          li 內容支援 Markdown 語法，請參考 https://bit.ly/mdcheat 教學
       .d-flex
 
     b-card-group(deck)
@@ -144,7 +146,7 @@ export default {
   },
   computed: {
     validTitle () {
-      return !this.$utils.empty(this.announcementDataJson.title) && this.announcementDataJson.title.length < 21
+      return !this.$utils.empty(this.announcementDataJson.title) && this.announcementDataJson.title.length <= 42
     },
     validContent () {
       return !this.$utils.empty(this.announcementDataJson.content)
@@ -174,12 +176,13 @@ export default {
   created () {
   },
   async mounted () {
-    this.announcementDataJson.create_datetime = this.currentDatetime()
     const cached = await this.getCache(this.cacheKey)
     cached && (this.memento = [...cached])
     if (this.memento.length > this.mementoCount) {
       this.memento.splice(0, this.memento.length - this.mementoCount)
     }
+    this.announcementDataJson.create_datetime = this.currentDatetime()
+    this.announcementDataJson.sender = this.user.id
   },
   methods: {
     addMemento (snapshot) {
