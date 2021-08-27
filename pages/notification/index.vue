@@ -12,11 +12,12 @@
 
       b-card(ref="addCard" border-variant="dark")
         template(#header): .d-flex.justify-content-between
-          h5.my-auto 新增公告
+          h4.my-auto 新增公告
           lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
         b-form-group.mb-1
-          template(#label): div
-            h5 發布對象 #[lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")]
+          template(#label): .d-flex.h5
+            lah-fa-icon.mr-1(icon="angle-double-right" variant="primary")
+            .my-auto 發布對象 #[lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")]
           b-form-checkbox-group(
             v-model="announcementSendto"
             :options="announcementSendtoOpts"
