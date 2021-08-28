@@ -54,7 +54,7 @@
 
     h4.d-flex.justify-content-between.my-3
       lah-fa-icon(icon="clipboard-list") 歷史資料
-      b-input-group.memento-count-input(prepend="顯示" append="個"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
+      b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
     hr
     b-card-group(columns)
       b-card.border-0(no-body v-for="(snapshot, idx) in reverseMemento" :key="`hist_${idx}`")
