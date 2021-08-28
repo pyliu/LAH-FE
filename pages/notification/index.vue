@@ -4,9 +4,12 @@
       .d-flex
         .my-auto 公告訊息發布管理
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'"): ul
-          li 可先利用送給 #[b-badge.s-105(variant="primary" pill) 我自己] 來做傳送測試(電腦需安裝信差即時通程式)
-          li 標題限制最大長度為 42 個字元(剛好中文兩排)
+        lah-help-modal(:modal-id="'help-modal'"): ol
+          li 可先利用送給 #[b-badge.s-105(variant="primary" pill) 我自己] 來做傳送測試
+            ul: li 電腦端需安裝信差即時通程式並正常連線才能顯示
+          li 歷史資料儲存於瀏覽器端，清除瀏覽器快取即可清空
+            ul: li 最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆
+          li 標題限制最大長度為 #[b.text-info 84] 個英文字元(中文 #[b.text-info 42] 個字)
           li 內容支援 Markdown 語法，請參考 https://bit.ly/mdcheat 教學
       .d-flex
 
@@ -27,7 +30,7 @@
         hr
         .d-flex.mb-1
           b-input-group(size="sm" prepend="　　標題")
-            b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder="必要欄位")
+            b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder=" ... 必要欄位 ..." v-b-tooltip.focus="`輸入 ${titleLength()} / 84 個字元`")
           b-input-group.ml-1.severity(size="sm" prepend="緊急程度")
             b-select(v-model="announcementDataJson.priority" :options="announcementPriorityOpts")
         b-input-group.mb-3(size="sm" prepend="　　內容")
@@ -49,7 +52,9 @@
           :data-json="announcementDataJson"
         )
 
-    b-card-title.my-3 歷史資料
+    h4.d-flex.justify-content-between.my-3
+      lah-fa-icon(icon="clipboard-list") 歷史資料
+      b-input-group.memento-count-input(prepend="顯示" append="個"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
     hr
     b-card-group(columns)
       b-card.border-0(no-body v-for="(snapshot, idx) in reverseMemento" :key="`hist_${idx}`")
@@ -139,14 +144,15 @@ export default {
     helpSidebarFlag: false,
     cacheKey: 'postMementoCache',
     memento: [],
-    mementoCount: 6
+    mementoCapacity: 10,
+    mementoCount: 3
   }),
   head: {
     title: '公告訊息發布管理'
   },
   computed: {
     validTitle () {
-      return !this.$utils.empty(this.announcementDataJson.title) && this.announcementDataJson.title.length <= 42
+      return !this.$utils.empty(this.announcementDataJson.title) && this.titleLength() <= 84
     },
     validContent () {
       return !this.$utils.empty(this.announcementDataJson.content)
@@ -168,29 +174,43 @@ export default {
       return sendto
     },
     reverseMemento () {
-      return this.memento.slice().reverse()
+      return this.memento.slice().reverse().slice(0, this.mementoCount)
+    },
+    mementoCountCacheKey () {
+      return `${this.cacheKey} count`
     }
   },
   watch: {
+    mementoCount (val) {
+      this.setCache(this.mementoCountCacheKey, val)
+      this.restoreCachedMemento()
+    }
   },
   created () {
   },
   async mounted () {
-    const cached = await this.getCache(this.cacheKey)
-    cached && (this.memento = [...cached])
-    if (this.memento.length > this.mementoCount) {
-      this.memento.splice(0, this.memento.length - this.mementoCount)
-    }
+    this.mementoCount = await this.getCache(this.mementoCountCacheKey) || 3
+    this.restoreCachedMemento()
     this.announcementDataJson.create_datetime = this.currentDatetime()
     this.announcementDataJson.sender = this.user.id
   },
   methods: {
+    async restoreCachedMemento () {
+      const cached = await this.getCache(this.cacheKey)
+      cached && (this.memento = [...cached])
+      if (this.memento.length > this.mementoCount) {
+        this.memento.splice(0, this.memento.length - this.mementoCount)
+      }
+    },
     addMemento (snapshot) {
       this.memento.push(snapshot)
-      if (this.memento.length > this.mementoCount) {
+      if (this.memento.length > this.mementoCapacity) {
         this.memento.splice(0, 1)
       }
       this.setCache(this.cacheKey, this.memento)
+    },
+    titleLength () {
+      return this.announcementDataJson.title.replace(/[^\x00-\xFF]/g, 'xx').length
     },
     currentDatetime () {
       const m = new Date()
@@ -261,5 +281,8 @@ export default {
 <style scoped lang="scss">
 .severity {
   max-width: 150px;
+}
+.memento-count-input {
+  max-width: 160px;
 }
 </style>
