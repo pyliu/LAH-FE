@@ -292,11 +292,11 @@ export default ({ $axios, store }, inject) => {
       }
       return txt
     },
-    msToHuman (remain_ms) {
-      const seconds = (remain_ms / 1000).toFixed(1)
-      const minutes = (remain_ms / (1000 * 60)).toFixed(1)
-      const hours = (remain_ms / (1000 * 60 * 60)).toFixed(1)
-      const days = (remain_ms / (1000 * 60 * 60 * 24)).toFixed(1)
+    msToHuman (remainMs) {
+      const seconds = (remainMs / 1000).toFixed(1)
+      const minutes = (remainMs / (1000 * 60)).toFixed(1)
+      const hours = (remainMs / (1000 * 60 * 60)).toFixed(1)
+      const days = (remainMs / (1000 * 60 * 60 * 24)).toFixed(1)
       if (seconds < 60) {
         return seconds + ' 秒'
       } else if (minutes < 60) {
