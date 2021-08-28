@@ -20,7 +20,7 @@
           h4.my-auto 新增公告
           lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
         b-form-group.mb-1
-          template(#label): .d-flex.h5
+          template(#label): .d-flex.h5(@click="flipSendto")
             lah-fa-icon.mr-1(icon="angle-double-right" variant="primary")
             .my-auto 發布對象 #[lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")]
           b-form-checkbox-group(
@@ -45,12 +45,12 @@
           lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
           lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt") 清除
 
-      b-card.border-0
+      b-card(border-variant="success")
         b-card-title(style="margin-left: 15px;") 即時預覽
-        h6(style="margin-left: 15px;") 發布對象：#[b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`") #[strong.s-105 {{ to }}]]
         lah-notification-announcement-card(
           :data-json="announcementDataJson"
         )
+        h6.mt-2(style="margin-left: 15px;") 送給：#[b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`") #[strong.s-105 {{ to }}]]
 
     h4.d-flex.justify-content-between.my-3
       lah-fa-icon(icon="clipboard-list") 歷史資料
@@ -128,7 +128,7 @@ export default {
       { text: '中', value: 2 },
       { text: '正常', value: 3 }
     ],
-    announcementSendto: [],
+    announcementSendto: ['myself'],
     announcementSendtoOpts: [
       { value: 'all', text: '全所' },
       { value: 'supervisor', text: '主任秘書室' },
@@ -263,6 +263,13 @@ export default {
         }
       }
       this.announcementSendto = [...[]]
+    },
+    flipSendto () {
+      if (this.$utils.empty(this.announcementSendto)) {
+        this.announcementSendto = [...['myself']]
+      } else {
+        this.announcementSendto = [...[]]
+      }
     },
     sendtoVariant (to) {
       switch (to) {
