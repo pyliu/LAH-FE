@@ -30,7 +30,7 @@
         hr
         .d-flex.mb-1
           b-input-group(size="sm" prepend="　　標題")
-            b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder=" ... 必要欄位 ..." v-b-tooltip.focus="`輸入 ${titleLength()} / 84 個字元`")
+            b-input(v-model="announcementDataJson.title" :state="validTitle" placeholder=" ... 必要欄位 ..." v-b-tooltip.focus="`輸入 ${$utils.length(announcementDataJson.title)} / 84 個字元`")
           b-input-group.ml-1.severity(size="sm" prepend="緊急程度")
             b-select(v-model="announcementDataJson.priority" :options="announcementPriorityOpts")
         b-input-group.mb-3(size="sm" prepend="　　內容")
@@ -152,7 +152,7 @@ export default {
   },
   computed: {
     validTitle () {
-      return !this.$utils.empty(this.announcementDataJson.title) && this.titleLength() <= 84
+      return !this.$utils.empty(this.announcementDataJson.title) && this.$utils.length(this.announcementDataJson.title) <= 84
     },
     validContent () {
       return !this.$utils.empty(this.announcementDataJson.content)
@@ -208,9 +208,6 @@ export default {
         this.memento.splice(0, 1)
       }
       this.setCache(this.cacheKey, this.memento)
-    },
-    titleLength () {
-      return this.announcementDataJson.title.replace(/[^\x00-\xFF]/g, 'xx').length
     },
     currentDatetime () {
       const m = new Date()

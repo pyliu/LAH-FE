@@ -331,6 +331,9 @@ export default ({ $axios, store }, inject) => {
       const D = twDateStr.substring(5, 7) - 0
       return new Date(Y, M, D)
     },
+    length (chinese) {
+      return chinese.replace(/[^\x00-\xFF]/g, 'xx').length
+    },
     log: console.log.bind(console),
     warn: console.warn.bind(console),
     assert: console.assert.bind(console),
