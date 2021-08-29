@@ -22,7 +22,7 @@
               no-icon-gutter
             )
       lah-help-modal(:modal-id="'help-modal'" size="md")
-        h6 可利用使用者ID來管理使用者角色權限，可利用本頁面之介面進行新增或刪除的動作。
+        h6 本系統使用「IP位址」來管理使用者角色權限，可利用本頁面之介面進行新增或刪除的動作。
         hr
         .mx-2.my-1
           b-button.mr-1(variant="danger" size="sm") {{ site }}XXXX 劉ＯＯ
@@ -190,7 +190,7 @@ export default {
     this.message = data.message
   },
   head: {
-    title: '使用者角色管理-地政智慧管控系統'
+    title: '使用者角色管理-桃園市地政局'
   },
   fetchOnServer: true,
   computed: {
