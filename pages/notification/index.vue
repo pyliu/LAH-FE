@@ -46,19 +46,23 @@
           lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt") 清除
 
       b-card(border-variant="success")
-        b-card-title(style="margin-left: 15px;") 即時預覽
+        template(#header): .d-flex.justify-content-between
+          h4.my-auto.text-nowrap.mr-2 即時預覽
+          .my-auto(v-if="sendto.length > 0"): b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`")
+            strong.s-105 {{ to }}
         lah-notification-announcement-card(
           :data-json="announcementDataJson"
         )
-        h6.mt-2(style="margin-left: 15px;") 送給：#[b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`") #[strong.s-105 {{ to }}]]
 
     h4.d-flex.justify-content-between.my-3
       lah-fa-icon(icon="clipboard-list") 歷史資料
       b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
     hr
-    b-card-group(columns)
+    b-card-group(columns): transition-group(name="list" mode="out-in")
       b-card.border-0(no-body v-for="(snapshot, idx) in reverseMemento" :key="`hist_${idx}`")
-        lah-button(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
+        .d-flex.mb-1
+          lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
+          lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
         lah-notification-announcement-card(
           :data-json="{ id: idx+1, ...snapshot }"
         )
@@ -218,6 +222,15 @@ export default {
       this.announcementSendto = [...snapshot.channels]
       this.$refs.addCard.scrollIntoView()
       setTimeout(() => this.attention(this.$refs.addCard), 400)
+    },
+    remove (snapshot) {
+      for (let i = 0; i < this.memento.length; i++) {
+        if (this.$utils.equal(this.memento[i], snapshot)) {
+          this.memento.splice(i, 1)
+          this.setCache(this.cacheKey, this.memento)
+          return
+        }
+      }
     },
     add () {
       this.confirm('確定要新增公告?').then((flag) => {

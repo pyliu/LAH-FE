@@ -24,21 +24,21 @@ export default {
     zoom: { type: Boolean, default: false },
     bounce: { type: Boolean, default: false },
     rotate: { type: Boolean, default: false },
-    speed: { type: String, default: `faster` },
-    repeat: { type: String, default: `` },
-    delay: { type: String, default: `` }
+    speed: { type: String, default: 'faster' },
+    repeat: { type: String, default: '' },
+    delay: { type: String, default: '' }
   },
   data: () => ({
     prefix: 'animate__', // animate.css v4 has a default prefix => 'animate__' to avoid css name conflict
     animated_in: '',
     animated_out: '',
     mode: 'out-in', // out-in, in-out
-    speed_css: `faster`,
+    speed_css: 'faster',
     animateTransitions: []
   }),
   computed: {
     utilityCss () {
-      let speed = `${this.prefix}faster`, delay = '', repeat = ''
+      let speed = `${this.prefix}faster`; let delay = ''; let repeat = ''
       switch (this.speed) {
         case '':
         case 'normal':
@@ -78,7 +78,7 @@ export default {
       return `${speed} ${delay} ${repeat}`
     }
   },
-  created() {
+  created () {
     this.animateTransitions = [
       // rotate
       { in: `${this.prefix}animated ${this.prefix}rotateIn`, out: `${this.prefix}animated ${this.prefix}rotateOut` },
@@ -145,20 +145,20 @@ export default {
   },
   methods: {
     enter (e) {
-      this.$emit("enter", e)
+      this.$emit('enter', e)
     },
     leave (e) {
-      this.$emit("leave", e)
+      this.$emit('leave', e)
     },
     afterEnter (e) {
-      this.$emit("after-enter", e)
+      this.$emit('after-enter', e)
     },
     afterLeave (e) {
-      this.$emit("after-leave", e)
+      this.$emit('after-leave', e)
     },
     randAnimation () {
-      let count = this.animateTransitions.length
-      let this_time = this.animateTransitions[this.$utils.rand(this.animateTransitions.length)]
+      const count = this.animateTransitions.length
+      const this_time = this.animateTransitions[this.$utils.rand(this.animateTransitions.length)]
       this.animated_in = `${this_time.in} ${this.utilityCss}`
       this.animated_out = `${this_time.out} ${this.utilityCss}`
     }
