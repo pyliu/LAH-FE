@@ -18,7 +18,10 @@
       b-card(ref="addCard" border-variant="dark")
         template(#header): .d-flex.justify-content-between
           h4.my-auto 新增公告
-          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
+          b-button-group
+            lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add" pill) 送出
+            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill) 清除
+            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
         b-form-group.mb-1
           template(#label): .d-flex.h5(@click="flipSendto")
             lah-fa-icon.mr-1(icon="angle-double-right" variant="primary")
@@ -41,16 +44,13 @@
             placeholder="... 支援 Markdown 語法 ... "
             :state="validContent"
           )
-        .center
-          lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add") 送出
-          lah-button.ml-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt") 清除
 
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
           .my-auto(v-if="sendto.length > 0"): b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`")
             strong.s-105 {{ to }}
-        lah-notification-announcement-card(
+        lah-notification-announcement-card.hist-card.mx-auto(
           :data-json="announcementDataJson"
         )
 
@@ -58,14 +58,39 @@
       lah-fa-icon(icon="clipboard-list") 歷史資料
       b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
     hr
-    b-card-group(columns): transition-group(name="list" mode="out-in")
-      b-card.border-0(no-body v-for="(snapshot, idx) in reverseMemento" :key="`hist_${idx}`")
-        .d-flex.mb-1
-          lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
-          lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
-        lah-notification-announcement-card(
-          :data-json="{ id: idx+1, ...snapshot }"
-        )
+    .d-flex
+      div.w-100: transition-group(name="list" mode="out-in")
+        b-card.hist-card(no-body v-for="(snapshot, idx) in firstColumnMemento" :key="`hist_first_${idx}`")
+          .d-flex.mb-1.mx-auto
+            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
+            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
+          lah-notification-announcement-card.mx-auto(
+            :data-json="{ id: idx+1, ...snapshot }"
+          )
+      div.w-100: transition-group(name="list" mode="out-in")
+        b-card.hist-card.mb-2(no-body v-for="(snapshot, idx) in secondColumnMemento" :key="`hist_second_${idx}`")
+          .d-flex.mb-1.mx-auto
+            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
+            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
+          lah-notification-announcement-card.mx-auto(
+            :data-json="{ id: idx+1, ...snapshot }"
+          )
+      div.w-100: transition-group(name="list" mode="out-in")
+        b-card.hist-card.mb-2(no-body v-for="(snapshot, idx) in thirdColumnMemento" :key="`hist_third_${idx}`")
+          .d-flex.mb-1.mx-auto
+            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
+            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
+          lah-notification-announcement-card.mx-auto(
+            :data-json="{ id: idx+1, ...snapshot }"
+          )
+    //- b-card-group(columns): transition-group(name="list" mode="out-in")
+    //-   b-card.border-0(no-body v-for="(snapshot, idx) in reverseMemento" :key="`hist_${idx}`")
+    //-     .d-flex.mb-1
+    //-       lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
+    //-       lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
+    //-     lah-notification-announcement-card(
+    //-       :data-json="{ id: idx+1, ...snapshot }"
+    //-     )
 
     b-sidebar(
       id="md-desc"
@@ -177,11 +202,26 @@ export default {
       })
       return sendto
     },
+    mementoCountCacheKey () {
+      return `${this.cacheKey} count`
+    },
     reverseMemento () {
       return this.memento.slice().reverse().slice(0, this.mementoCount)
     },
-    mementoCountCacheKey () {
-      return `${this.cacheKey} count`
+    firstColumnMemento () {
+      return this.reverseMemento.filter((snap, idx) => {
+        return idx % 3 === 0
+      })
+    },
+    secondColumnMemento () {
+      return this.reverseMemento.filter((snap, idx) => {
+        return idx % 3 === 1
+      })
+    },
+    thirdColumnMemento () {
+      return this.reverseMemento.filter((snap, idx) => {
+        return idx % 3 === 2
+      })
     }
   },
   watch: {
@@ -301,5 +341,18 @@ export default {
 }
 .memento-count-input {
   max-width: 160px;
+}
+.hist-card {
+  margin-bottom: 1rem;
+  border: 0;
+  padding: 5px;
+}
+.hist-card:hover {
+  border-color:gray;
+  border-style: dotted;
+  border-width: 5px;
+}
+.hist-card .card {
+  width: 400px;
 }
 </style>
