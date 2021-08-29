@@ -22,7 +22,7 @@
         b-form-group.mb-1
           template(#label): .d-flex.h5(@click="flipSendto")
             lah-fa-icon.mr-1(icon="angle-double-right" variant="primary")
-            .my-auto 發布對象 #[lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")]
+            .my-auto(:title="validSendto ? '' : '至少選一個對象！'") 發布對象 #[lah-fa-icon.ml-1(:icon="validSendto ? 'check' : 'exclamation-circle'" :variant="validSendto ? 'success' : 'danger'" :action="validSendto ? '' : 'breath'")]
           b-form-checkbox-group(
             v-model="announcementSendto"
             :options="announcementSendtoOpts"
@@ -47,7 +47,7 @@
 
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.justify-content-between
-          h4.my-auto.text-nowrap.mr-2 即時預覽
+          h4.my-auto.text-nowrap.mr-2 預覽
           .my-auto(v-if="sendto.length > 0"): b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`")
             strong.s-105 {{ to }}
         lah-notification-announcement-card(
