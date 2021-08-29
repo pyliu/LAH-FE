@@ -7,16 +7,49 @@
         lah-help-modal(:modal-id="'help-modal'"): ul
           li 可於此頁面管理靜態IP對應表
           li 可查看使用者回報IP紀錄
+            ul: li 電腦端需安裝 #[a(href="https://ppt.cc/fQNgux" target="_blank") #[b 信差即時通程式(外網下載)]] 並正常連線才能正常回報IP
       .d-flex
 
     b-card-group(deck)
       b-card
-        b-table(striped hover :items="static")
+        template(#header)
+          h4 靜態IP對應表
+        b-table(
+          striped
+          hover
+          responsive
+          bordered
+          caption-top
+          no-border-collapse
+          small
+          selectable
+          head-variant="dark"
+          select-mode="single"
+          selected-variant="warning"
+          :items="static"
+          :fields="staticFields"
+        )
+          template(#cell(timestamp)="{ item }"): div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
 
       b-card
-        b-table(striped hover :items="dynamic" size="sm")
-          template(#cell(timestamp)="{ item }")
-            div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
+        template(#header)
+          h4 使用者回報IP對應表
+        b-table(
+          striped
+          hover
+          responsive
+          bordered
+          caption-top
+          no-border-collapse
+          small
+          selectable
+          head-variant="dark"
+          select-mode="single"
+          selected-variant="warning"
+          :items="dynamic"
+          :fields="dynamicFields"
+        )
+          template(#cell(timestamp)="{ item }"): div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
 </template>
 
 <script>
@@ -24,7 +57,19 @@ export default {
   middleware: ['isAdmin'],
   asyncData ({ store, redirect, error }) { return {} },
   data: () => ({
-    entries: []
+    entries: [],
+    staticFields: [
+      { key: 'ip', label: '設定位址', sortable: true },
+      { key: 'entry_id', label: '設定代號', sortable: true },
+      { key: 'entry_desc', label: '設定名稱', sortable: true },
+      { key: 'timestamp', label: '更新時間', sortable: true }
+    ],
+    dynamicFields: [
+      { key: 'ip', label: '連線位址', sortable: true },
+      { key: 'entry_id', label: '登入帳號', sortable: true },
+      { key: 'entry_desc', label: '登入名稱', sortable: true },
+      { key: 'timestamp', label: '登入時間', sortable: true }
+    ]
   }),
   fetchOnServer: false,
   fetch () {

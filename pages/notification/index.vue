@@ -19,7 +19,7 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto 新增公告
           b-button-group
-            lah-button(icon="paper-plane" variant="outline-primary" :disabled="sendButtonDisabled" @click="add" pill) 送出
+            lah-button(icon="paper-plane" :variant="sendButtonDisabled ? 'outline-primary' : 'primary'" :disabled="sendButtonDisabled" @click="add" pill) 送出
             lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill) 清除
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
         b-form-group.mb-1
