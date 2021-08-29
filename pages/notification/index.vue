@@ -221,16 +221,21 @@ export default {
     mementoCount (val) {
       this.setCache(this.mementoCountCacheKey, val)
       this.restoreCachedMemento()
+    },
+    myid (id) {
+      this.announcementDataJson.sender = id
+    },
+    myname (name) {
+      const myself = this.announcementSendtoOpts.find((item) => {
+        return item.value === 'myself'
+      })
+      myself.text = name
     }
   },
   async mounted () {
     this.mementoCount = await this.getCache(this.mementoCountCacheKey) || 3
     this.restoreCachedMemento()
     this.announcementDataJson.create_datetime = this.currentDatetime()
-    setTimeout(() => {
-      this.announcementDataJson.sender = this.myid
-      this.$utils.log(this.myid)
-    }, 1500)
   },
   methods: {
     async restoreCachedMemento () {
@@ -320,6 +325,7 @@ export default {
         case '全所':
           return 'danger'
         case '我自己':
+        case this.myname:
           return 'primary'
         default:
           return 'success'
