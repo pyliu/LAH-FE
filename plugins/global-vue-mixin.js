@@ -2,7 +2,6 @@ import Vue from 'vue'
 import { mapActions, mapGetters } from 'vuex'
 import $ from 'jquery'
 import isEmpty from 'lodash/isEmpty'
-import { BIconChevronCompactLeft } from 'bootstrap-vue'
 
 // inject to all Vue instances
 Vue.mixin({
@@ -57,9 +56,9 @@ Vue.mixin({
       }
       return 'HA'
     },
-    myinfo () {
-      return isEmpty(this.user) ? { id: '', name: '' } : this.user
-    },
+    myinfo () { return isEmpty(this.user) ? { id: '', name: '' } : this.user },
+    myid () { return this.user.id },
+    myname () { return this.user.name },
     webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip },
     apiSvrIp () {
       if (Array.isArray(this.apiSvrIps) && this.apiSvrIps.length > 0) {

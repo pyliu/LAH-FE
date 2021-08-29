@@ -9,18 +9,18 @@
       lah-help-modal(:modal-id="'help-modal'"): lah-fa-icon(icon="exclamation-circle" variant="primary").
         請輸入密碼登入為管理者，以存取系統管理功能。
     b-container(fluid v-cloak): .vp-100.center: b-form-group.center-50
-      b-form-input.text-center(@keyup.enter="check" ref="password" v-model="password" type="password" size="lg" trim)
+      b-input.text-center(@keyup.enter="check" ref="password" v-model="password" type="password" size="lg" trim)
       lah-button.mx-auto.my-2(@click="check" icon="sign-in-alt" size="lg" action="move-fade-ltr") 登入
 </template>
 
 <script>
 export default {
-  head: {
-    title: '管理者登入-桃園市地政局'
-  },
   data: () => ({
     password: ''
   }),
+  head: {
+    title: '管理者登入-桃園市地政局'
+  },
   computed: {
     hashed () {
       return this.$utils.md5(this.password)
@@ -31,7 +31,7 @@ export default {
       }
       return '1f7744350d3dd3dc563421582f37f99e'
     },
-    hasHistory () { return window.history.length > 2 }
+    hasHistory () { return window.history.length > 1 }
   },
   watch: {
     loggedIn (flag) {
@@ -39,6 +39,16 @@ export default {
         this.refirect()
       }
     }
+  },
+  created () {
+    this.isBusy = true
+    if (this.loggedIn) {
+      this.refirect()
+    }
+  },
+  mounted () {
+    this.isBusy = false
+    this.$refs.password.$el.focus()
   },
   methods: {
     check () {
@@ -50,11 +60,12 @@ export default {
         ).then((opts) => {
           // this.$utils.log(opts)
           this.$store.commit('admin', true)
-          if (this.hasHistory) {
-            this.$router.go(-1)
-          } else {
-            this.$router.push('/admin')
-          }
+          // if (this.hasHistory) {
+          //   this.$router.go(-1)
+          // } else {
+          //   this.refirect()
+          // }
+          this.refirect()
         })
       } else {
         // not ok
@@ -68,16 +79,6 @@ export default {
       // }
       this.$router.push('/admin')
     }
-  },
-  created () {
-    this.isBusy = true
-    if (this.loggedIn) {
-      this.refirect()
-    }
-  },
-  mounted () {
-    this.isBusy = false
-    this.$refs.password.$el.focus()
   }
 }
 </script>

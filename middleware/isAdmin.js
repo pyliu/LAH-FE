@@ -4,7 +4,7 @@ export default async function ({
 }) {
   const authority = store.getters.authority
   // not admin/super => redirect to '/login'
-  if (!authority.isAdmin && !authority.isSuper) {
+  if (!authority.isAdmin) {
     return redirect('/login')
   }
 }

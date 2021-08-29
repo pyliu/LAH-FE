@@ -86,11 +86,11 @@ const mutations = {
   },
   login (state, obj) {
     // expected json obj format is { status, message, server, ips, user, configs }
-    state.user = { ...state.user, ...obj.user }
+    state.user = { ...obj.user }
     state.systemConfigs = { ...state.systemConfigs, ...obj.configs }
     state.authority = { ...state.authority, ...obj.configs.authority }
     state.server = { ...state.server, ...obj.server }
-    state.apiSvrIps = obj.ips
+    state.apiSvrIps = [...obj.ips]
     state.loggedIn = true
   },
   lastMessage (state, string) { state.lastMessage = string },
