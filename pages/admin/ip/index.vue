@@ -170,7 +170,19 @@ export default {
     remove (record) {
       this.confirm(`確定要刪除 ${record.ip} 資料?`).then((YN) => {
         if (YN) {
-          //
+          this.$axios.post(this.$consts.API.JSON.IP, {
+            type: 'remove_ip_entry',
+            ip: record.ip,
+            added_type: record.added_type,
+            entry_type: record.entry_type
+          }).then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              this.notify(data.message, { type: 'success' })
+              this.$fetch()
+            } else {
+              this.alert(data.message)
+            }
+          })
         }
       })
     }
