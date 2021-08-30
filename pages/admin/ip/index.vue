@@ -29,6 +29,7 @@
           selected-variant="warning"
           :items="static"
           :fields="staticFields"
+          :sticky-header="`${maxHeight}px`"
         )
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
           template(#cell(entry_type)="{ item }"): div {{ item.entry_type === 'SERVER' ? '伺服器' : '其他設備' }}
@@ -54,6 +55,7 @@
           selected-variant="warning"
           :items="dynamic"
           :fields="dynamicFields"
+          :sticky-header="`${maxHeight}px`"
         )
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
     b-modal(
@@ -95,7 +97,8 @@ export default {
       { key: 'entry_id', label: '登入帳號', sortable: true },
       { key: 'entry_desc', label: '登入名稱', sortable: true },
       { key: 'timestamp', label: '登入時間', sortable: true }
-    ]
+    ],
+    maxHeight: 450
   }),
   fetchOnServer: false,
   fetch () {
@@ -132,6 +135,7 @@ export default {
   created () {
   },
   mounted () {
+    this.maxHeight = parseInt(window.innerHeight - 205)
   },
   methods: {
     replace () {
@@ -194,7 +198,6 @@ export default {
 <style scoped lang="scss">
 .fixed-vh {
   height: calc(100vh - 100px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 </style>
