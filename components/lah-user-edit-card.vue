@@ -50,7 +50,7 @@
       )
 
     .d-flex.center
-      lah-fa-icon(:icon="showOthers ? 'chevron-up' : 'chevron-down'" @click="showOthers = !showOthers" title="切換非必要欄位顯示" style="cursor: pointer")
+      lah-fa-icon(:icon="showOthers ? 'angle-double-up' : 'angle-double-down'" @click="showOthers = !showOthers" title="切換非必要欄位顯示" style="cursor: pointer")
 
     .p-3.border.border-secondary(v-show="showOthers")
       b-card-group(deck)
