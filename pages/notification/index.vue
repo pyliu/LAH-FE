@@ -236,6 +236,12 @@ export default {
     this.mementoCount = await this.getCache(this.mementoCountCacheKey) || 3
     this.restoreCachedMemento()
     this.announcementDataJson.create_datetime = this.currentDatetime()
+    // init my info to relative fields
+    this.announcementDataJson.sender = this.myid
+    const myself = this.announcementSendtoOpts.find((item) => {
+      return item.value === 'myself'
+    })
+    myself.text = this.$utils.empty(this.myname) ? '我自己' : this.myname
   },
   methods: {
     async restoreCachedMemento () {
