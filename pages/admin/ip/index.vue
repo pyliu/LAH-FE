@@ -7,7 +7,7 @@
         lah-help-modal(:modal-id="'help-modal'"): ul
           li 可於此頁面管理靜態IP對應表
           li 可查看使用者回報IP紀錄
-            ul: li 電腦端需安裝 #[a(href="https://ppt.cc/fQNgux" target="_blank") #[b 信差即時通程式(外網下載)]] 並正常連線才能正常回報IP
+            ul: li 電腦端需安裝 #[a(href="https://ppt.cc/fA2imx" target="_blank") #[b 信差即時通程式(外網下載)]] 並正常連線才能正常回報IP
       .d-flex
 
     b-card-group(deck)
