@@ -15,7 +15,7 @@
         template(#header): .d-flex.justify-content-between
           h4 靜態IP對應表
           lah-button(icon="plus" variant="outline-primary" title="新增靜態IP資料" no-icon-gutter v-b-modal.replace-static-modal pill)
-        b-table(
+        b-table.b-table-max-height(
           striped
           hover
           responsive
@@ -24,12 +24,12 @@
           no-border-collapse
           small
           selectable
+          sticky-header
           head-variant="dark"
           select-mode="single"
           selected-variant="warning"
           :items="static"
           :fields="staticFields"
-          :sticky-header="`${maxHeight}px`"
         )
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
           template(#cell(entry_type)="{ item }"): div {{ item.entry_type === 'SERVER' ? '伺服器' : '其他設備' }}
@@ -41,7 +41,7 @@
       b-card.fixed-vh
         template(#header)
           h4 使用者回報IP對應表
-        b-table(
+        b-table.b-table-max-height(
           striped
           hover
           responsive
@@ -50,12 +50,12 @@
           no-border-collapse
           small
           selectable
+          sticky-header
           head-variant="dark"
           select-mode="single"
           selected-variant="warning"
           :items="dynamic"
           :fields="dynamicFields"
-          :sticky-header="`${maxHeight}px`"
         )
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
     b-modal(
@@ -97,8 +97,7 @@ export default {
       { key: 'entry_id', label: '登入帳號', sortable: true },
       { key: 'entry_desc', label: '登入名稱', sortable: true },
       { key: 'timestamp', label: '登入時間', sortable: true }
-    ],
-    maxHeight: 450
+    ]
   }),
   fetchOnServer: false,
   fetch () {
@@ -135,7 +134,6 @@ export default {
   created () {
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 205)
   },
   methods: {
     replace () {
@@ -199,5 +197,8 @@ export default {
 .fixed-vh {
   height: calc(100vh - 100px);
   overflow: hidden;
+}
+.b-table-max-height {
+  max-height: calc(100vh - 205px);
 }
 </style>
