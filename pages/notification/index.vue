@@ -6,7 +6,7 @@
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 可先利用送給 #[b-badge.s-105(variant="primary" pill) 我自己] 來做傳送測試
-            ul: li 電腦端需安裝 #[a(href="https://ppt.cc/fA2imx" target="_blank") #[b 信差即時通程式(外網下載)]] 並正常連線才能顯示
+            ul: li 電腦端需安裝 #[a(href="https://ppt.cc/fI3xYx" target="_blank") #[b 信差即時通程式(外網下載)]] 並正常連線才能顯示
           li 歷史資料儲存於瀏覽器端，清除瀏覽器快取即可清空
             ul: li 最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆
           li 標題限制最大長度為 #[b.text-info 84] 個英文字元(中文 #[b.text-info 42] 個字)
