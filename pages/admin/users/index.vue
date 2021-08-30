@@ -4,13 +4,15 @@
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
-            <div class="my-auto">使用者資訊管理</div>
+            <div class="my-auto">
+              使用者資訊管理
+            </div>
             <lah-button
+              v-b-modal.help-modal
               icon="question"
               variant="outline-success"
               no-border
               no-icon-gutter
-              v-b-modal.help-modal
               title="說明"
             />
           </div>
@@ -18,26 +20,26 @@
             <lah-button
               icon="user-plus"
               variant="outline-primary"
-              @click="add"
               title="新增使用者"
               no-icon-gutter
+              @click="add"
             />
             <lah-button
+              v-b-modal.upload-modal
               icon="upload"
               variant="outline-secondary"
               no-icon-gutter
               title="批次檔上傳更新"
-              v-b-modal.upload-modal
               action="move-fade-btt"
             />
             <lah-button
               icon="file-excel"
               regular
-              @click="exportXlsx"
               title="匯出系統全部使用者"
               variant="outline-success"
               no-icon-gutter
               action="move-fade-ltr"
+              @click="exportXlsx"
             />
           </b-button-group>
         </div>
@@ -48,11 +50,11 @@
             <div class="d-inline-flex justify-content-around">
               選取編輯好的XLSX檔案，點擊
               <lah-button
+                v-b-modal.upload-modal
                 icon="upload"
                 variant="outline-secondary"
                 class="mx-1 mt-n1"
                 no-icon-gutter
-                v-b-modal.upload-modal
               />
               上傳更新本地資料庫(dimension.db, user表格)
             </div>
@@ -79,41 +81,59 @@
             </div>
           </li>
         </ul>
-        <hr />
+        <hr>
         <div class="mx-2 my-1">
-          <b-button variant="outline-success" size="sm">{{ office }}XXXX 劉ＯＯ</b-button>
+          <b-button variant="outline-success" size="sm">
+            {{ office }}XXXX 劉ＯＯ
+          </b-button>
           在職使用者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="secondary" size="sm">{{ office }}XXXX 邦ＯＯ</b-button>
+          <b-button variant="secondary" size="sm">
+            {{ office }}XXXX 邦ＯＯ
+          </b-button>
           離職使用者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="danger" size="sm">{{ office }}XXXX 渝ＯＯ</b-button>
+          <b-button variant="danger" size="sm">
+            {{ office }}XXXX 渝ＯＯ
+          </b-button>
           超級管理者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="outline-danger" size="sm">{{ office }}XXXX 中ＯＯ</b-button>
+          <b-button variant="outline-danger" size="sm">
+            {{ office }}XXXX 中ＯＯ
+          </b-button>
           系統管理者
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="primary" size="sm">{{ office }}XXXX 壢ＯＯ</b-button>
+          <b-button variant="primary" size="sm">
+            {{ office }}XXXX 壢ＯＯ
+          </b-button>
           主管
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="warning" size="sm">{{ office }}XXXX 地ＯＯ</b-button>
+          <b-button variant="warning" size="sm">
+            {{ office }}XXXX 地ＯＯ
+          </b-button>
           研考
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="info" size="sm">{{ office }}XXXX 政ＯＯ</b-button>
+          <b-button variant="info" size="sm">
+            {{ office }}XXXX 政ＯＯ
+          </b-button>
           總務
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="outline-info" size="sm">{{ office }}XXXX 開ＯＯ</b-button>
+          <b-button variant="outline-info" size="sm">
+            {{ office }}XXXX 開ＯＯ
+          </b-button>
           人事
         </div>
         <div class="mx-2 my-1">
-          <b-button variant="outline-dark" size="sm">{{ office }}XXXX 發ＯＯ</b-button>
+          <b-button variant="outline-dark" size="sm">
+            {{ office }}XXXX 發ＯＯ
+          </b-button>
           會計
         </div>
       </lah-help-modal>
@@ -126,8 +146,12 @@
         no-close-on-backdrop
       >
         <b-button-group size="lg" class="d-flex justify-content-end mb-2">
-          <lah-button icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success">匯入範例檔下載</lah-button>
-          <lah-button icon="file-excel" regular @click="exportXlsx" variant="muted" icon-variant="success">匯出全部使用者</lah-button>
+          <lah-button icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success">
+            匯入範例檔下載
+          </lah-button>
+          <lah-button icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx">
+            匯出全部使用者
+          </lah-button>
         </b-button-group>
         <b-form-group
           label="匯入使用者檔案"
@@ -145,7 +169,9 @@
               accept=".xlsx, .XLSX"
             >
               <template slot="file-name" slot-scope="{ names }">
-                <b-badge variant="dark">{{ names[0] }}</b-badge>
+                <b-badge variant="dark">
+                  {{ names[0] }}
+                </b-badge>
                 <b-badge v-if="names.length > 1" variant="dark" class="ml-1">
                   + {{ names.length - 1 }} More files
                 </b-badge>
@@ -155,9 +181,9 @@
               <lah-button
                 icon="upload"
                 variant="outline-primary"
-                @click="upload"
                 title="上傳"
                 :disabled="$utils.empty(userXlsx)"
+                @click="upload"
               />
             </template>
           </b-input-group>
@@ -165,7 +191,7 @@
       </b-modal>
     </lah-header>
     <section>
-      <hr/>
+      <hr>
       <div class="d-flex justify-content-between mb-2">
         <div class="d-flex">
           <b-form-radio-group
@@ -184,33 +210,39 @@
         </div>
         <span class="text-muted my-auto lah-shadow">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
         <div class="d-flex my-auto">
-          <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">大頭照</b-form-checkbox>
-          <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">IP</b-form-checkbox>
+          <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">
+            大頭照
+          </b-form-checkbox>
+          <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">
+            IP
+          </b-form-checkbox>
           <b-form-checkbox-group v-model="filter" :options="filterOptions" />
         </div>
       </div>
-      <hr/>
+      <hr>
       <section v-for="category in categories" :key="category.NAME" class="mb-3">
         <h5 class="lah-shadow">
-          <lah-fa-icon icon="address-book" regular style="cursor: pointer" v-b-toggle="$utils.md5(category.NAME)">
-            {{translateGroupName(category.NAME)}}
-            <b-badge pill variant="info">{{ category.LIST.length }}</b-badge>
+          <lah-fa-icon v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer">
+            {{ translateGroupName(category.NAME) }}
+            <b-badge pill variant="info">
+              {{ category.LIST.length }}
+            </b-badge>
           </lah-fa-icon>
         </h5>
-        <b-collapse visible :id="$utils.md5(category.NAME)">
+        <b-collapse :id="$utils.md5(category.NAME)" visible>
           <b-button
             v-for="user in category.LIST"
             :key="user['id']"
+            v-b-popover.hover.top.html="role(user)"
             :data-id="user['id']"
             :data-name="user['name']"
             size="sm"
             class="mx-1 my-1 shadow"
-            @click="edit(user)"
             :variant="variant(user)"
-            v-b-popover.hover.top.html="role(user)"
             :pill="showAvatar"
+            @click="edit(user)"
           >
-            <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)"/>
+            <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)" />
             {{ user["id"].padStart(6, "&ensp;") }}
             {{ user["name"].padEnd(3, "　") }}
             <div v-if="showIp" class="text-dark text-center font-weight-bolder">
@@ -219,24 +251,20 @@
           </b-button>
         </b-collapse>
       </section>
-      <hr/>
+      <hr>
     </section>
   </div>
 </template>
 
 <script>
-import lahUserCard from "~/components/lah-user-card.vue"
-import lahUserEditCard from "~/components/lah-user-edit-card.vue"
-import lahUserAddCard from "~/components/lah-user-add-card.vue"
 import ip2long from 'locutus/php/network/ip2long'
+import lahUserCard from '~/components/lah-user-card.vue'
+import lahUserEditCard from '~/components/lah-user-edit-card.vue'
+import lahUserAddCard from '~/components/lah-user-add-card.vue'
 
 export default {
-  head: {
-    title: "使用者資訊管理-桃園市地政局",
-  },
-  middleware: [ 'isAdmin' ],
-  fetchOnServer: true,
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
+  middleware: ['isAdmin'],
   data: () => ({
     selectedGroup: 'unit',
     groupOptions: [
@@ -256,20 +284,40 @@ export default {
     showAvatar: false,
     showIp: false,
     userXlsx: null,
-    keyword: "",
+    keyword: '',
     users: [],
-    filter: ["on"],
+    filter: ['on'],
     filterOptions: [
-      { text: "在職", value: "on" },
-      { text: "離職", value: "off" }
+      { text: '在職', value: 'on' },
+      { text: '離職', value: 'off' }
     ]
   }),
+  fetch () {
+    this.isBusy = true
+    this.$axios.post(this.$consts.API.JSON.USER, {
+      type: this.type
+    }).then(({ data }) => {
+      if (this.$utils.statusCheck(data.status)) {
+        this.users = data.raw
+      } else {
+        this.notify(data.message, { type: 'warning' })
+      }
+    }).catch((err) => {
+      this.$utils.error(err)
+    }).finally(() => {
+      this.isBusy = false
+    })
+  },
+  head: {
+    title: '使用者資訊管理-桃園市地政局'
+  },
+  fetchOnServer: true,
   computed: {
     type () {
-      if (this.filter.length === 2) return "all_users"
-      if (this.filter.includes("on")) return "on_board_users"
-      if (this.filter.includes("off")) return "off_board_users"
-      return ""
+      if (this.filter.length === 2) { return 'all_users' }
+      if (this.filter.includes('on')) { return 'on_board_users' }
+      if (this.filter.includes('off')) { return 'off_board_users' }
+      return ''
     },
     office () {
       if (this.systemConfigs) {
@@ -303,46 +351,46 @@ export default {
     },
     usersByIpAsc () {
       return this.users.sort(function (a, b) {
-          const bv = ip2long(b.ip)
-          const av = ip2long(a.ip)
-          if (bv > av) {
-            return -1
-          }
-          if (bv < av) {
-            return 1
-          }
-          return 0
+        const bv = ip2long(b.ip)
+        const av = ip2long(a.ip)
+        if (bv > av) {
+          return -1
         }
+        if (bv < av) {
+          return 1
+        }
+        return 0
+      }
       )
     },
     usersById () {
       return this.users.sort(function (a, b) {
-          if (b.id > a.id) {
-            return -1
-          }
-          if (b.id < a.id) {
-            return 1
-          }
-          return 0
+        if (b.id > a.id) {
+          return -1
         }
+        if (b.id < a.id) {
+          return 1
+        }
+        return 0
+      }
       )
     },
     L3HWEBIp () {
       if (this.systemConfigs && this.systemConfigs.lxhweb) {
-        return this.systemConfigs.lxhweb['ORA_DB_L3HWEB_IP']
+        return this.systemConfigs.lxhweb.ORA_DB_L3HWEB_IP
       }
       return '220.1.33.5'
     },
     L3HWEBPort () {
       if (this.systemConfigs && this.systemConfigs.lxhweb) {
-        return this.systemConfigs.lxhweb['ORA_DB_L3HWEB_PORT']
+        return this.systemConfigs.lxhweb.ORA_DB_L3HWEB_PORT
       }
       return '1521'
     }
   },
   watch: {
-    type(val) {
-      if (val === "") {
+    type (val) {
+      if (val === '') {
         this.users = []
       } else {
         this.$fetch()
@@ -379,53 +427,53 @@ export default {
         }
       })
       filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
-      return filtered;
+      return filtered
     },
     groupByRole () {
       const filtered = [
-        { NAME: '超級管理者', LIST: []},
-        { NAME: '系統管理者', LIST: []},
-        { NAME: '主管', LIST: []},
-        { NAME: '研考', LIST: []},
-        { NAME: '總務', LIST: []},
-        { NAME: '會計', LIST: []},
-        { NAME: '人事', LIST: []},
-        { NAME: '一般使用者', LIST: []}
+        { NAME: '超級管理者', LIST: [] },
+        { NAME: '系統管理者', LIST: [] },
+        { NAME: '主管', LIST: [] },
+        { NAME: '研考', LIST: [] },
+        { NAME: '總務', LIST: [] },
+        { NAME: '會計', LIST: [] },
+        { NAME: '人事', LIST: [] },
+        { NAME: '一般使用者', LIST: [] }
       ]
       const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
       sortTarget.forEach((item, idx, array) => {
-        if (this.systemConfigs.ip_maps.chief.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.chief.includes(item.ip)) {
           return filtered[2].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.rae.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.rae.includes(item.ip)) {
           return filtered[3].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.ga.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.ga.includes(item.ip)) {
           return filtered[4].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.super.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.super.includes(item.ip)) {
           return filtered[0].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.admin.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.admin.includes(item.ip)) {
           return filtered[1].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.accounting.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.accounting.includes(item.ip)) {
           return filtered[5].LIST.push(item)
         }
-        if (this.systemConfigs.ip_maps.hr.includes(item['ip'])) {
+        if (this.systemConfigs.ip_maps.hr.includes(item.ip)) {
           return filtered[6].LIST.push(item)
         }
         return filtered[7].LIST.push(item)
       })
       filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
-      return filtered;
+      return filtered
     },
     sortAsc (a, b) {
       // LIST count is the same, I will use the NAME for sorting
       if ((b.LIST.length - a.LIST.length) === 0) {
-        const regex = new RegExp(`^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$`, 'g')
-        const bv = Boolean(b.NAME.match(regex)) ? ip2long(b.NAME) : b.NAME
-        const av = Boolean(a.NAME.match(regex)) ? ip2long(a.NAME) : a.NAME
+        const regex = new RegExp('^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$', 'g')
+        const bv = b.NAME.match(regex) ? ip2long(b.NAME) : b.NAME
+        const av = a.NAME.match(regex) ? ip2long(a.NAME) : a.NAME
         if (bv > av) {
           return 1
         }
@@ -450,28 +498,28 @@ export default {
       this.confirm('請確定要上傳更新？').then((answer) => {
         if (answer) {
           if (this.$utils.empty(this.userXlsx)) {
-            this.alert("請先選擇一個符合格式的XLSX檔")
+            this.alert('請先選擇一個符合格式的XLSX檔')
           } else {
             this.isBusy = true
             const formData = new FormData()
-            formData.append("file", this.userXlsx)
+            formData.append('file', this.userXlsx)
             this.$upload.post(this.importUrl, formData)
-            .then(({ data }) => {
-              const opts = { type: "warning", title: '匯入使用者資料通知' }
-              if (this.$utils.statusCheck(data.status)) {
-                opts.type = 'success'
-                // refresh all list
-                this.$fetch()
-              }
-              this.notify(data.message, opts)
-            })
-            .catch((err) => {
-              this.$utils.error(err)
-            })
-            .finally(() => {
-              this.isBusy = false
-              this.userXlsx = null
-            })
+              .then(({ data }) => {
+                const opts = { type: 'warning', title: '匯入使用者資料通知' }
+                if (this.$utils.statusCheck(data.status)) {
+                  opts.type = 'success'
+                  // refresh all list
+                  this.$fetch()
+                }
+                this.notify(data.message, opts)
+              })
+              .catch((err) => {
+                this.$utils.error(err)
+              })
+              .finally(() => {
+                this.isBusy = false
+                this.userXlsx = null
+              })
           }
         } else {
           this.$utils.warn('cancelled confirmation of uploading user xlsx!')
@@ -480,29 +528,29 @@ export default {
     },
     add () {
       this.modal(
-        this.$createElement("lah-user-add-card", {
+        this.$createElement('lah-user-add-card', {
           components: { lahUserCard },
           on: {
             added: (event) => {
               this.users.unshift(event.detail)
-            },
-          },
+            }
+          }
         }),
         {
-          title: `新增使用者`,
-          size: "lg",
+          title: '新增使用者',
+          size: 'lg',
           noCloseOnBackdrop: true
         }
       )
     },
     update (userData) {
       // update the cached user data
-      let foundIdx = undefined
+      let foundIdx
       const user = this.users.find((item, idx, array) => {
-        if (item["id"] === userData["id"]) {
+        if (item.id === userData.id) {
           foundIdx = idx
         }
-        return item["id"] === userData["id"]
+        return item.id === userData.id
       })
       if (foundIdx !== undefined) {
         this.users[foundIdx] = Object.assign(user, userData)
@@ -510,44 +558,44 @@ export default {
     },
     edit (user) {
       this.modal(
-        this.$createElement("lah-user-edit-card", {
+        this.$createElement('lah-user-edit-card', {
           props: { raw: [user] },
           on: {
             saved: (event) => {
               this.update(event.detail)
-            },
-          },
+            }
+          }
         }),
         {
-          title: `編輯 ${user["id"]} ${user["name"]} 資訊`,
-          size: "lg",
+          title: `編輯 ${user.id} ${user.name} 資訊`,
+          size: 'lg',
           noCloseOnBackdrop: true
         }
       )
     },
     variant (user) {
-      if (!this.$utils.empty(user["offboard_date"])) return "secondary"
+      if (!this.$utils.empty(user.offboard_date)) { return 'secondary' }
       const auth = this.getAuthority(user)
-      if (auth.isSuper) return "danger"
-      if (auth.isChief) return "primary"
-      if (auth.isRAE) return "warning"
-      if (auth.isGA) return "info"
-      if (auth.isHR) return "outline-info"
-      if (auth.isAccounting) return "outline-dark"
-      if (auth.isAdmin) return "outline-danger"
-      return "outline-success"
+      if (auth.isSuper) { return 'danger' }
+      if (auth.isChief) { return 'primary' }
+      if (auth.isRAE) { return 'warning' }
+      if (auth.isGA) { return 'info' }
+      if (auth.isHR) { return 'outline-info' }
+      if (auth.isAccounting) { return 'outline-dark' }
+      if (auth.isAdmin) { return 'outline-danger' }
+      return 'outline-success'
     },
     role (user) {
-      if (!this.$utils.empty(user["offboard_date"])) return ""
+      if (!this.$utils.empty(user.offboard_date)) { return '' }
       const auth = this.getAuthority(user)
-      if (auth.isSuper) return "程式開發者"
-      if (auth.isChief) return "主管"
-      if (auth.isRAE) return "研考"
-      if (auth.isHR) return "人事"
-      if (auth.isAccounting) return "會計"
-      if (auth.isGA) return "總務"
-      if (auth.isAdmin) return "系統管理者"
-      return ""
+      if (auth.isSuper) { return '程式開發者' }
+      if (auth.isChief) { return '主管' }
+      if (auth.isRAE) { return '研考' }
+      if (auth.isHR) { return '人事' }
+      if (auth.isAccounting) { return '會計' }
+      if (auth.isGA) { return '總務' }
+      if (auth.isAdmin) { return '系統管理者' }
+      return ''
     },
     getAuthority (user) {
       const authorityMap = {
@@ -561,7 +609,7 @@ export default {
       }
       if (this.systemConfigs && this.systemConfigs.ip_maps) {
         const mappings = this.systemConfigs.ip_maps
-        const ip = user["ip"]
+        const ip = user.ip
         authorityMap.isAdmin = mappings.admin.includes(ip)
         authorityMap.isChief = mappings.chief.includes(ip)
         authorityMap.isSuper = mappings.super.includes(ip)
@@ -573,27 +621,11 @@ export default {
       return authorityMap
     },
     avatarSrc (user) {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user['id']}_avatar&name=${user['name']}_avatar`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
     },
     ipParts (user) {
-      return user["ip"].split('.')
+      return user.ip.split('.')
     }
-  },
-  fetch () {
-    this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.USER, {
-      type: this.type,
-    }).then(({ data }) => {
-      if (this.$utils.statusCheck(data.status)) {
-        this.users = data.raw
-      } else {
-        this.notify(data.message, { type: "warning" })
-      }
-    }).catch((err) => {
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
-    })
   }
 }
 </script>
