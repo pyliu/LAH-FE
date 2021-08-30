@@ -229,7 +229,7 @@ export default {
       const myself = this.announcementSendtoOpts.find((item) => {
         return item.value === 'myself'
       })
-      myself.text = name
+      myself.text = `${name}(${this.myid})`
     }
   },
   async mounted () {
@@ -241,7 +241,7 @@ export default {
     const myself = this.announcementSendtoOpts.find((item) => {
       return item.value === 'myself'
     })
-    myself.text = this.$utils.empty(this.myname) ? '我自己' : this.myname
+    myself.text = this.$utils.empty(this.myname) ? '我自己' : `${this.myname}(${this.myid})`
   },
   methods: {
     async restoreCachedMemento () {
@@ -317,13 +317,13 @@ export default {
           create_datetime: this.currentDatetime()
         }
       }
-      this.announcementSendto = [...[]]
+      this.announcementSendto = []
     },
     flipSendto () {
       if (this.$utils.empty(this.announcementSendto)) {
         this.announcementSendto = [...['myself']]
       } else {
-        this.announcementSendto = [...[]]
+        this.announcementSendto = []
       }
     },
     sendtoVariant (to) {
@@ -331,7 +331,7 @@ export default {
         case '全所':
           return 'danger'
         case '我自己':
-        case this.myname:
+        case `${this.myname}(${this.myid})`:
           return 'primary'
         default:
           return 'success'
