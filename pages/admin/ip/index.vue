@@ -11,10 +11,10 @@
       .d-flex
 
     b-card-group(deck)
-      b-card
+      b-card.fixed-vh
         template(#header): .d-flex.justify-content-between
           h4 靜態IP對應表
-          lah-button(icon="plus" variant="outline-primary" title="新增靜態IP資料" no-icon-gutter v-b-modal.replace-static-modal)
+          lah-button(icon="plus" variant="outline-primary" title="新增靜態IP資料" no-icon-gutter v-b-modal.replace-static-modal pill)
         b-table(
           striped
           hover
@@ -30,13 +30,14 @@
           :items="static"
           :fields="staticFields"
         )
-          template(#cell(timestamp)="{ item }"): div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
+          template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
+          template(#cell(entry_type)="{ item }"): div {{ item.entry_type === 'SERVER' ? '伺服器' : '其他設備' }}
           template(#cell(操作)="{ item }")
             b-button-group
               lah-button.mr-1(icon="edit" variant="outline-primary" no-icon-gutter title="編輯" @click="edit(item)" pill)
               lah-button(icon="times" variant="outline-danger" no-icon-gutter title="移除" @click="remove(item)" pill)
 
-      b-card
+      b-card.fixed-vh
         template(#header)
           h4 使用者回報IP對應表
         b-table(
@@ -54,7 +55,7 @@
           :items="dynamic"
           :fields="dynamicFields"
         )
-          template(#cell(timestamp)="{ item }"): div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
+          template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
     b-modal(
       id="replace-static-modal"
       hide-footer
@@ -84,7 +85,7 @@ export default {
     staticFields: [
       '操作',
       { key: 'ip', label: '設定位址', sortable: true },
-      // { key: 'entry_id', label: '設定代號', sortable: true },
+      { key: 'entry_type', label: '類型', sortable: true },
       { key: 'entry_desc', label: '設定名稱', sortable: true },
       { key: 'timestamp', label: '更新時間', sortable: true },
       { key: 'note', label: '備註', sortable: true }
@@ -168,7 +169,7 @@ export default {
       this.$bvModal.show('replace-static-modal')
     },
     remove (record) {
-      this.confirm(`確定要刪除 ${record.ip} 資料?`).then((YN) => {
+      this.confirm(`確定要刪除 ${record.ip}, ${record.added_type}, ${record.entry_type} 資料?`).then((YN) => {
         if (YN) {
           this.$axios.post(this.$consts.API.JSON.IP, {
             type: 'remove_ip_entry',
@@ -191,4 +192,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.fixed-vh {
+  height: calc(100vh - 100px);
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
 </style>
