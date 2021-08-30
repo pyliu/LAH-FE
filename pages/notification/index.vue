@@ -215,7 +215,8 @@ export default {
       return this.reverseMemento.filter((snap, idx) => {
         return idx % 3 === 2
       })
-    }
+    },
+    myLabelText () { return `${this.myname} (${this.myid})` }
   },
   watch: {
     mementoCount (val) {
@@ -225,11 +226,11 @@ export default {
     myid (id) {
       this.announcementDataJson.sender = id
     },
-    myname (name) {
+    myname (dontcare) {
       const myself = this.announcementSendtoOpts.find((item) => {
         return item.value === 'myself'
       })
-      myself.text = `${name} (${this.myid})`
+      myself.text = this.myLabelText
     }
   },
   async mounted () {
@@ -241,7 +242,7 @@ export default {
     const myself = this.announcementSendtoOpts.find((item) => {
       return item.value === 'myself'
     })
-    myself.text = this.$utils.empty(this.myname) ? '我自己' : `${this.myname} (${this.myid})`
+    myself.text = this.$utils.empty(this.myname) ? '我自己' : this.myLabelText
   },
   methods: {
     async restoreCachedMemento () {
@@ -331,7 +332,7 @@ export default {
         case '全所':
           return 'danger'
         case '我自己':
-        case `${this.myname}(${this.myid})`:
+        case this.myLabelText:
           return 'primary'
         default:
           return 'success'
