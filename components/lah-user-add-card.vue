@@ -34,30 +34,6 @@
     b-card-group(deck)
       b-card.border-0(no-body)
         b-form-group(
-          label="性別"
-          label-for="sex-select"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-select(
-          id="sex-select"
-          v-model="userData['sex']"
-          :options="sexOpts"
-        )
-      b-card.border-0(no-body)
-        b-form-group(
-          label="職稱"
-          label-for="work-title-select"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-select(
-          id="work-title-select"
-          v-model="userData['title']"
-          :options="workTitleOpts"
-        )
-
-    b-card-group(deck)
-      b-card.border-0(no-body)
-        b-form-group(
           label="電腦"
           label-for="ip-input"
           label-cols-sm="2"
@@ -67,6 +43,7 @@
           v-model="userData['ip']"
           :state="checkIp"
           trim
+          placeholder="範例：192.168.XX.XX"
         )
       b-card.border-0(no-body)
         b-form-group(
@@ -81,106 +58,135 @@
           trim
         )
 
-    b-card-group(deck)
-      b-card.border-0(no-body)
-        b-form-group(
-          label="生日"
-          label-for="bd-input"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-input(
-          id="bd-input"
-          v-model="userData['birthday']"
-          :state="checkBirthday"
-          trim
-        )
-      b-card.border-0(no-body)
-        b-form-group(
-          label="課室"
-          label-for="unit-select"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-select(
-          id="unit-select"
-          v-model="userData['unit']"
-          :options="unitOpts"
-        )
+    .d-flex.center
+      lah-fa-icon(:icon="showOthers ? 'chevron-up' : 'chevron-down'" @click="showOthers = !showOthers" title="切換非必要欄位顯示" style="cursor: pointer")
 
-    b-card-group(deck)
-      b-card.border-0(no-body)
-        b-form-group(
-          label="工作"
-          label-for="work-input"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-input(
-          id="work-input"
-          v-model="userData['work']"
-          trim
-        )
-      b-card.border-0(no-body)
-        b-form-group(
-          label="教育"
-          label-for="edu-input"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-input(
-          id="edu-input"
-          v-model="userData['education']"
-          trim
-        )
+    .p-3.border.border-secondary(v-show="showOthers")
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="性別"
+            label-for="sex-select"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-select(
+            id="sex-select"
+            v-model="userData['sex']"
+            :options="sexOpts"
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="職稱"
+            label-for="work-title-select"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-select(
+            id="work-title-select"
+            v-model="userData['title']"
+            :options="workTitleOpts"
+          )
 
-    b-card-group(deck)
-      b-card.border-0(no-body)
-        b-form-group(
-          label="考試"
-          label-for="exam-input"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-input(
-          id="exam-input"
-          v-model="userData['exam']"
-          trim
-        )
-      b-card.border-0(no-body)
-        b-form-group(
-          label="手機"
-          label-for="cell-input"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-input(
-          id="cell-input"
-          v-model="userData['cell']"
-          :state="checkCell"
-          trim
-        )
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="生日"
+            label-for="bd-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="bd-input"
+            v-model="userData['birthday']"
+            :state="checkBirthday"
+            placeholder="範例：066/05/23"
+            trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="課室"
+            label-for="unit-select"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-select(
+            id="unit-select"
+            v-model="userData['unit']"
+            :options="unitOpts"
+          )
 
-    b-card-group(deck)
-      b-card.border-0(no-body)
-        b-form-group(
-          label="到職"
-          label-for="onboard-input"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-input(
-          id="onboard-input"
-          v-model="userData['onboard_date']"
-          trim
-          :state="checkOnboardDate"
-          placeholder="110/01/22"
-        )
-      b-card.border-0(no-body)
-        //- b-form-group(
-        //-   label="離職"
-        //-   label-for="offboard-input"
-        //-   label-cols-sm="2"
-        //-   label-size="md"
-        //- ): b-input(
-        //-   id="offboard-input"
-        //-   :value="userData['offboard_date']"
-        //-   disabled
-        //-   trim
-        //- )
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="工作"
+            label-for="work-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="work-input"
+            v-model="userData['work']"
+            trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="教育"
+            label-for="edu-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="edu-input"
+            v-model="userData['education']"
+            trim
+          )
+
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="考試"
+            label-for="exam-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="exam-input"
+            v-model="userData['exam']"
+            trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="手機"
+            label-for="cell-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="cell-input"
+            v-model="userData['cell']"
+            :state="checkCell"
+            trim
+          )
+
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="到職"
+            label-for="onboard-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="onboard-input"
+            v-model="userData['onboard_date']"
+            trim
+            :state="checkOnboardDate"
+            placeholder="範例：110/06/01"
+          )
+        b-card.border-0(no-body)
+          //- b-form-group(
+          //-   label="離職"
+          //-   label-for="offboard-input"
+          //-   label-cols-sm="2"
+          //-   label-size="md"
+          //- ): b-input(
+          //-   id="offboard-input"
+          //-   :value="userData['offboard_date']"
+          //-   disabled
+          //-   trim
+          //- )
 </template>
 
 <script>
@@ -193,15 +199,15 @@ export default {
     userData: {
       id: '',
       name: '',
-      sex: '1',
-      title: '臨時人員',
-      work: '打雜',
-      ext: '153',
+      sex: '',
+      title: '',
+      work: '',
+      ext: '411',
       birthday: '',
-      unit: '行政課',
-      ip: '192.168.XX.XX',
-      education: '桃園市中壢區富台國民小學',
-      exam: '未通過國家考試',
+      unit: '',
+      ip: '',
+      education: '',
+      exam: '',
       cell: '',
       onboard_date: ''
     },
@@ -244,7 +250,8 @@ export default {
       { value: 1, text: '男' },
       { value: 0, text: '女' }
     ],
-    foundUser: null
+    foundUser: null,
+    showOthers: false
   }),
   fetch () {
     this.isBusy = true
@@ -270,7 +277,7 @@ export default {
       return this.checkId === true &&
              this.checkName === true &&
              this.checkIp === true &&
-             this.checkOnboardDate === true &&
+             this.checkOnboardDate !== false &&
              this.checkExt !== false &&
              this.checkBirthday !== false &&
              this.checkCell !== false
@@ -297,6 +304,9 @@ export default {
       return this.$utils.isIPv4(this.userData.ip)
     },
     checkExt () {
+      if (this.$utils.empty(this.userData.ext)) {
+        return null
+      }
       const regex = new RegExp('^\\d{3,4}$', 'gm')
       return Boolean(this.userData.ext.match(regex))
     },
@@ -315,6 +325,9 @@ export default {
       return Boolean(this.userData.cell.match(regex))
     },
     checkOnboardDate () {
+      if (this.$utils.empty(this.userData.onboard_date)) {
+        return null
+      }
       const regex = new RegExp('^\\d{3,4}/\\d{1,2}/\\d{1,2}$', 'gm')
       return Boolean(this.userData.onboard_date.match(regex))
     }
@@ -334,7 +347,7 @@ export default {
   },
   created () {
     this.userData.id = this.userId
-    this.userData.birthday = this.userData.onboard_date = this.$utils.now().split(' ')[0].replaceAll('-', '/')
+    // this.userData.birthday = this.userData.onboard_date = this.$utils.now().split(' ')[0].replaceAll('-', '/')
     this.findDuplication = this.$utils.debounce(() => {
       if (this.$utils.empty(this.users)) {
         this.foundUser = null
