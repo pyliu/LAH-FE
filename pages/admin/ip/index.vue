@@ -12,8 +12,9 @@
 
     b-card-group(deck)
       b-card
-        template(#header)
+        template(#header): .d-flex.justify-content-between
           h4 靜態IP對應表
+          lah-button(icon="plus" variant="outline-primary" title="新增靜態IP資料" no-icon-gutter v-b-modal.replace-static-modal)
         b-table(
           striped
           hover
@@ -30,6 +31,10 @@
           :fields="staticFields"
         )
           template(#cell(timestamp)="{ item }"): div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
+          template(#cell(操作)="{ item }")
+            b-button-group
+              lah-button.mr-1(icon="edit" variant="outline-primary" no-icon-gutter title="編輯" @click="edit(item)" pill)
+              lah-button(icon="times" variant="outline-danger" no-icon-gutter title="移除" @click="remove(item)" pill)
 
       b-card
         template(#header)
@@ -50,6 +55,18 @@
           :fields="dynamicFields"
         )
           template(#cell(timestamp)="{ item }"): div {{ $utils.tsToAdDateStr(item.timestamp, true) }}
+    b-modal(
+      id="replace-static-modal"
+      hide-footer
+      scrollable
+      no-close-on-backdrop
+    )
+      template(#modal-title) 編輯靜態IP對應資料
+      b-input-group(prepend="ＩＰ位址"): b-input(v-model="staticEntry.ip" :state="isIPv4" placeholder="... 220.1.3X.XX ...")
+      b-input-group.my-1(prepend="　　類別"): b-select(v-model="staticEntry.entry_type" :options="[{ value: 'SERVER', text: '伺服器' }, { value: 'OTHER_EP', text: '其他設備' }]" :state="staticTypeCheck")
+      b-input-group.my-1(prepend="　　名稱"): b-input(v-model="staticEntry.entry_desc" :state="staticNameCheck")
+      b-input-group.my-1(prepend="　　備註"): b-input(v-model="staticEntry.note")
+      b-button-group.center: lah-button(icon="save" no-icon-gutter :disabled="staticSaveDisabled" @click="replace") 儲存
 </template>
 
 <script>
@@ -57,12 +74,20 @@ export default {
   middleware: ['isAdmin'],
   asyncData ({ store, redirect, error }) { return {} },
   data: () => ({
+    staticEntry: {
+      ip: '',
+      entry_type: '',
+      entry_desc: '',
+      note: ''
+    },
     entries: [],
     staticFields: [
+      '操作',
       { key: 'ip', label: '設定位址', sortable: true },
-      { key: 'entry_id', label: '設定代號', sortable: true },
+      // { key: 'entry_id', label: '設定代號', sortable: true },
       { key: 'entry_desc', label: '設定名稱', sortable: true },
-      { key: 'timestamp', label: '更新時間', sortable: true }
+      { key: 'timestamp', label: '更新時間', sortable: true },
+      { key: 'note', label: '備註', sortable: true }
     ],
     dynamicFields: [
       { key: 'ip', label: '連線位址', sortable: true },
@@ -86,6 +111,10 @@ export default {
     title: 'IP對應表管理'
   },
   computed: {
+    isIPv4 () { return this.$utils.isIPv4(this.staticEntry.ip) },
+    staticTypeCheck () { return ['SERVER', 'OTHER_EP'].includes(this.staticEntry.entry_type) },
+    staticNameCheck () { return !this.$utils.empty(this.staticEntry.entry_desc) },
+    staticSaveDisabled () { return !this.isIPv4 || !this.staticTypeCheck || !this.staticNameCheck },
     static () {
       return this.entries.filter((entry, idx, arr) => {
         return entry.added_type === 'STATIC'
@@ -104,6 +133,47 @@ export default {
   mounted () {
   },
   methods: {
+    replace () {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.IP, {
+        type: 'add_static_ip_entry',
+        ip: this.staticEntry.ip,
+        entry_type: this.staticEntry.entry_type,
+        entry_desc: this.staticEntry.entry_desc,
+        note: this.staticEntry.note
+      }).then(({ data }) => {
+        if (data.status < 1) {
+          this.alert(data.message)
+        } else {
+          this.notify(data.message, { type: 'success' })
+          this.staticEntry = {
+            ...{
+              ip: '',
+              entry_type: '',
+              entry_desc: '',
+              note: ''
+            }
+          }
+          this.$fetch()
+          this.$bvModal.hide('replace-static-modal')
+        }
+      }).catch((error) => {
+        console.error(error)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+    edit (record) {
+      this.staticEntry = { ...record }
+      this.$bvModal.show('replace-static-modal')
+    },
+    remove (record) {
+      this.confirm(`確定要刪除 ${record.ip} 資料?`).then((YN) => {
+        if (YN) {
+          //
+        }
+      })
+    }
   }
 }
 </script>
