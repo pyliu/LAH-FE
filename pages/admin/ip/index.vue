@@ -4,9 +4,9 @@
       .d-flex
         .my-auto IP對應表管理
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'"): ul
-          li 可於此頁面管理靜態IP對應表
-          li 可查看使用者回報IP紀錄
+        lah-help-modal(:modal-id="'help-modal'"): ol
+          li 利用本頁面管理靜態IP對應表
+          li 查看使用者回報IP紀錄
             ul: li 電腦端需安裝 #[a(href="https://ppt.cc/fI3xYx" target="_blank") #[b 信差即時通程式(外網下載)]] 並正常連線才能正常回報IP
       .d-flex
 
@@ -32,7 +32,7 @@
           :fields="staticFields"
         )
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
-          template(#cell(entry_type)="{ item }"): div {{ item.entry_type === 'SERVER' ? '伺服器' : '其他設備' }}
+          template(#cell(entry_type)="{ item }"): div {{ item.entry_type === 'SERVER' ? '伺服器' : '其他終端' }}
           template(#cell(操作)="{ item }")
             b-button-group
               lah-button.mr-1(icon="edit" variant="outline-primary" no-icon-gutter title="編輯" @click="edit(item)" pill)
@@ -58,6 +58,7 @@
           :fields="dynamicFields"
         )
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
+          template(#cell(entry_desc)="{ item }"): .text-nowrap {{ userNames ? userNames[item.entry_id] : item.entry_desc }}
     b-modal(
       id="replace-static-modal"
       hide-footer
@@ -66,7 +67,7 @@
     )
       template(#modal-title) 編輯靜態IP對應資料
       b-input-group(prepend="ＩＰ位址"): b-input(v-model="staticEntry.ip" :state="isIPv4" placeholder="... 220.1.3X.XX ...")
-      b-input-group.my-1(prepend="　　類別"): b-select(v-model="staticEntry.entry_type" :options="[{ value: 'SERVER', text: '伺服器' }, { value: 'OTHER_EP', text: '其他設備' }]" :state="staticTypeCheck")
+      b-input-group.my-1(prepend="　　類別"): b-select(v-model="staticEntry.entry_type" :options="[{ value: 'SERVER', text: '伺服器' }, { value: 'OTHER_EP', text: '其他終端' }]" :state="staticTypeCheck")
       b-input-group.my-1(prepend="　　名稱"): b-input(v-model="staticEntry.entry_desc" :state="staticNameCheck")
       b-input-group.my-1(prepend="　　備註"): b-input(v-model="staticEntry.note")
       b-button-group.center: lah-button(icon="save" no-icon-gutter :disabled="staticSaveDisabled" @click="replace") 儲存
@@ -89,14 +90,14 @@ export default {
       { key: 'ip', label: '設定位址', sortable: true },
       { key: 'entry_type', label: '類型', sortable: true },
       { key: 'entry_desc', label: '設定名稱', sortable: true },
-      { key: 'timestamp', label: '更新時間', sortable: true },
+      { key: 'timestamp', label: '更新日期', sortable: true },
       { key: 'note', label: '備註', sortable: true }
     ],
     dynamicFields: [
       { key: 'ip', label: '連線位址', sortable: true },
       { key: 'entry_id', label: '登入帳號', sortable: true },
       { key: 'entry_desc', label: '登入名稱', sortable: true },
-      { key: 'timestamp', label: '登入時間', sortable: true }
+      { key: 'timestamp', label: '登入日期', sortable: true }
     ]
   }),
   fetchOnServer: false,
