@@ -51,7 +51,7 @@ export default {
       }
     },
     sender () {
-      return this.userNames ? this.userNames[this.dataJson.sender] : this.dataJson.sender
+      return this.userNames ? `${this.dataJson.sender} ${this.userNames[this.dataJson.sender]}` : this.dataJson.sender
     },
     content () {
       if (isEmpty(this.dataJson.content) || !DOMPurify.sanitize) {
