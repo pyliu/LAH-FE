@@ -2,7 +2,8 @@
   div
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 傳送個人訊息 - {{ ID }} / {{ NAME }}
+        .my-auto.d-flex
+          .my-auto 傳送個人訊息 - {{ ID }} / {{ NAME}}
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 歷史資料儲存於瀏覽器端，清除瀏覽器快取即可清空
@@ -114,28 +115,12 @@ export default {
       id: '?',
       create_datetime: ''
     },
-    priorityOpts: [
-      { text: '最高', value: 0 },
-      { text: '高', value: 1 },
-      { text: '中', value: 2 },
-      { text: '正常', value: 3 }
-    ],
-    sendtoOpts: [
-      { value: 'all', text: '全所' },
-      { value: 'supervisor', text: '主任秘書室' },
-      { value: 'hr', text: '人事室' },
-      { value: 'acc', text: '會計室' },
-      { value: 'adm', text: '行政課' },
-      { value: 'reg', text: '登記課' },
-      { value: 'sur', text: '測量課' },
-      { value: 'val', text: '地價課' },
-      { value: 'inf', text: '資訊課' },
-      { value: 'myself', text: '我自己' }
-    ],
     helpSidebarFlag: false,
     memento: [],
     mementoCapacity: 10,
-    mementoCount: 3
+    mementoCount: 3,
+    activeEntry: null, // store ip entry object
+    activeIPEntries: []
   }),
   head: {
     title: '傳送個人訊息'
@@ -147,7 +132,7 @@ export default {
         const name = this.userNames[this.ID]
         return this.$utils.empty(name) ? '系統查無無此人' : name
       }
-      return ''
+      return '系統查無無此人'
     },
     sendtoNotFound () { return this.NAME === '系統查無無此人' },
     sendto () { return [this.ID] },
@@ -177,17 +162,25 @@ export default {
     }
   },
   watch: {
+    ID (dontcare) {
+      this.restoreCachedMemento()
+    },
     mementoCount (val) {
       this.setCache(this.mementoCountCacheKey, val)
       this.restoreCachedMemento()
+    },
+    activeIPEntries (val) {
+      this.$utils.log(val)
     }
   },
   created () {
     this.dataJson.create_datetime = this.$utils.now()
   },
   mounted () {
-    this.sendtoNotFound && this.alert(`系統查無 ${this.ID} 此人`, { pos: 'tf' })
-    this.sendtoNotFound && this.$router.go(-1)
+    setTimeout(() => {
+      this.sendtoNotFound && this.alert(`系統查無 ${this.ID} 此人`, { pos: 'tf' })
+      this.sendtoNotFound && this.$router.go(-1)
+    }, 400)
   },
   methods: {
     async restoreCachedMemento () {
@@ -258,7 +251,6 @@ export default {
           create_datetime: this.$utils.now()
         }
       }
-      this.sendto = [this.ID]
     }
   }
 }
