@@ -8,7 +8,6 @@
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 歷史資料儲存於瀏覽器端，清除瀏覽器快取即可清空
             ul: li 最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆
-          li 標題限制最大長度為 #[b.text-info 84] 個英文字元(中文 #[b.text-info 42] 個字)
           li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank") #[b https://bit.ly/mdcheat]] 教學
       .d-flex
 
