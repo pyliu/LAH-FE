@@ -152,7 +152,7 @@ export default {
     sendto () { return [this.ID] },
     cacheKey () { return `${this.ID}_postMementoCache` },
     validContent () { return !this.$utils.empty(this.dataJson.content) },
-    sendButtonDisabled () { return !this.validContent },
+    sendButtonDisabled () { return !this.validContent || this.NAME === '系統查無無此人' },
     mementoCountCacheKey () {
       return `${this.cacheKey}_count`
     },
