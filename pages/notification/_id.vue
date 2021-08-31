@@ -149,10 +149,11 @@ export default {
       }
       return ''
     },
+    sendtoNotFound () { return this.NAME === '系統查無無此人' },
     sendto () { return [this.ID] },
     cacheKey () { return `${this.ID}_postMementoCache` },
     validContent () { return !this.$utils.empty(this.dataJson.content) },
-    sendButtonDisabled () { return !this.validContent || this.NAME === '系統查無無此人' },
+    sendButtonDisabled () { return !this.validContent || this.sendtoNotFound },
     mementoCountCacheKey () {
       return `${this.cacheKey}_count`
     },
@@ -184,6 +185,10 @@ export default {
   created () {
     this.dataJson.create_datetime = this.$utils.now()
   },
+  mounted () {
+    this.sendtoNotFound && this.alert(`系統查無 ${this.ID} 此人`, { pos: 'tf' })
+    this.sendtoNotFound && this.$router.go(-1)
+  },
   methods: {
     async restoreCachedMemento () {
       const cached = await this.getCache(this.cacheKey)
@@ -214,7 +219,7 @@ export default {
       }
     },
     add () {
-      this.confirm(`確定要傳送訊息給${this.NAME}?`).then((flag) => {
+      this.confirm(`確定要傳送訊息給「${this.NAME}」?`).then((flag) => {
         if (flag) {
           this.isBusy = true
           const snapshot = {
