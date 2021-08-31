@@ -51,6 +51,7 @@
 <script>
 import expiryBase from '~/pages/expire/expiry-base.js'
 export default {
+  mixins: [expiryBase],
   validate ({ params, store, redirect }) {
     // const authority = store.getters.authority
     // const viewedUser = store.getters.user
@@ -64,9 +65,8 @@ export default {
     return true
   },
   head: {
-    title: "初審即將逾期案件-桃園市地政局"
+    title: '初審即將逾期案件-桃園市地政局'
   },
-  mixins: [expiryBase],
   computed: {
     isAuthorized () {
       return this.authority.isChief || this.authority.isAdmin || this.authority.isSuper
@@ -87,13 +87,16 @@ export default {
       if (this.isBusy) {
         return '讀取中...'
       }
-      return (this.isOverdueMode ? `已逾期案件` : `即將逾期案件`) + '(' + this.$utils.trim(`${this.reviewerName} ${this.reviewerId}`) + ')'
+      return (this.isOverdueMode ? '已逾期案件' : '即將逾期案件') + '(' + this.$utils.trim(`${this.reviewerName} ${this.reviewerId}`) + ')'
     }
   },
   watch: {
     committed (flag) {
       this.isBusy = !flag
     }
+  },
+  created () {
+    this.meOnly()
   },
   methods: {
     meOnly () {
@@ -104,14 +107,10 @@ export default {
         }
       } else {
         this.login()
-        // wait 200ms to see if the store ready ... 
+        // wait 200ms to see if the store ready ...
         this.timeout(this.meOnly, 200)
-        return
       }
     }
-  },
-  created () {
-    this.meOnly()
   }
 }
 </script>
