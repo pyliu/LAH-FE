@@ -132,10 +132,12 @@ export default {
       if (this.$utils.statusCheck(data.status)) {
         this.activeIPEntries = [...data.raw.sort((a, b) => {
           // sort by ip value
-          const aIpInt = this.$utils.ipv4Int(a.ip)
-          const bIpInt = this.$utils.ipv4Int(b.ip)
-          if (aIpInt > bIpInt) { return 1 }
-          if (aIpInt < bIpInt) { return -1 }
+          // const aIpInt = this.$utils.ipv4Int(a.ip)
+          // const bIpInt = this.$utils.ipv4Int(b.ip)
+          // if (aIpInt > bIpInt) { return 1 }
+          // if (aIpInt < bIpInt) { return -1 }
+          if (a.timestamp < b.timestamp) { return 1 }
+          if (a.timestamp > b.timestamp) { return -1 }
           return 0
         })]
       } else {
@@ -157,7 +159,7 @@ export default {
         // not existed in acc then push into it
         !found && acc.push({
           value: entry,
-          text: `${entry.entry_id} / ${this.userNames[entry.entry_id]} / ${entry.ip}`
+          text: `${this.userNames[entry.entry_id]} / ${entry.entry_id} / ${entry.ip} / ${this.$utils.tsToAdDateStr(entry.timestamp, true)}`
         })
         return acc
       }, [])
