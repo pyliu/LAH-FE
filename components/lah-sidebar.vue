@@ -63,6 +63,9 @@
 
         li: hr
 
+        li: nuxt-link(to="/message").
+          #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
+          傳送訊息
         li(v-if="isAuthorized"): nuxt-link(to="/admin").
           #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
           系統管理
