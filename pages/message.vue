@@ -2,7 +2,7 @@
   div
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
-        font-awesome-icon.my-auto.mx-1(:icon="['fas', 'comments']" size="lg")
+        font-awesome-icon.my-auto.mx-1(:icon="['far', 'comments']" size="lg")
         .my-auto 傳送個人通知訊息
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
