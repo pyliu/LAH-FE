@@ -23,20 +23,38 @@
             lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill) 清除
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
 
-        b-input-group.mb-1(size="sm" prepend="發送對象"): b-select(v-model="activeEntry" :options="activeEntryOpts" :state="this.validSento")
-        b-input-group.mb-3(size="sm" prepend="訊息內容"): b-textarea(
+        b-textarea.mb-3(
           v-model="dataJson.content"
           rows="5"
           max-rows="15"
           placeholder="... 支援 Markdown 語法 ... "
           :state="validContent"
         )
+        h6: lah-fa-icon(icon="hand-point-right" regular) 可選擇的傳送對象
+        b-button.mr-1.mb-1(
+          v-for="(entry, idx) in sendtoEntries"
+          v-if="!sendto.includes(entry.id)"
+          :title="entry.ip"
+          :key="`badge-${idx}`"
+          variant="outline-secondary"
+          size="sm"
+          pill
+          @click="addSendto(entry.id)"
+        ) {{ entry.id }} / {{ userNames[entry.id] || entry.name }}
 
       lah-transition(appear): b-card(border-variant="success")
-        template(#header): .d-flex.justify-content-between
-          h4.my-auto.text-nowrap.mr-2 預覽
-          .my-auto 給 #[b-badge.mx-1(variant="primary" pill) #[strong.s-105 {{ ID }} / {{ NAME }}]]
-        .center: lah-notification-message(:data-json="dataJson")
+        template(#header): h4.my-auto.text-nowrap.mr-2 預覽
+        h6: lah-fa-icon(icon="hand-point-right" regular) 已選擇的傳送對象
+        b-button.mr-1.mb-1(
+          v-for="(id, idx) in sendto"
+          v-b-tooltip="`移除${userNames[id]}`"
+          variant="outline-primary"
+          size="sm"
+          :key="`snedto-${idx}`"
+          @click="removeSendto(id)"
+          pill
+        ) {{ id }} / {{ userNames[id] }}
+        .center.mt-3: lah-notification-message(:data-json="dataJson")
 
     h4.d-flex.justify-content-between.my-3
       lah-fa-icon(icon="clipboard-list") 歷史資料
@@ -117,11 +135,12 @@ export default {
       create_datetime: ''
     },
     helpSidebarFlag: false,
+    sendto: [],
+    sendtoEntries: [],
     memento: [],
     mementoCapacity: 10,
     mementoCount: 3,
-    activeEntry: null, // store ip entry object
-    activeIPEntries: []
+    cacheKey: 'message_postMementoCache'
   }),
   fetchOnServer: false,
   fetch () {
@@ -130,16 +149,21 @@ export default {
       offset: 604800
     }).then(({ data }) => {
       if (this.$utils.statusCheck(data.status)) {
-        this.activeIPEntries = [...data.raw.sort((a, b) => {
-          // sort by ip value
-          // const aIpInt = this.$utils.ipv4Int(a.ip)
-          // const bIpInt = this.$utils.ipv4Int(b.ip)
-          // if (aIpInt > bIpInt) { return 1 }
-          // if (aIpInt < bIpInt) { return -1 }
+        data.raw.sort((a, b) => {
           if (a.timestamp < b.timestamp) { return 1 }
           if (a.timestamp > b.timestamp) { return -1 }
           return 0
-        })]
+        }).forEach((entry) => {
+          if (!this.sendtoEntries.find((item) => {
+            return item.id === entry.entry_id
+          })) {
+            this.sendtoEntries.push({
+              ip: entry.ip,
+              id: entry.entry_id,
+              name: entry.entry_desc
+            })
+          }
+        })
       } else {
         this.$utils.warn(data.message)
       }
@@ -151,37 +175,8 @@ export default {
     title: '傳送個人訊息'
   },
   computed: {
-    activeEntryOpts () {
-      return this.activeIPEntries.reduce((acc, entry, idx, arr) => {
-        const found = acc.find((item) => {
-          return entry.entry_id === item.value.entry_id
-        })
-        // not existed in acc then push into it
-        !found && acc.push({
-          value: entry,
-          text: `${this.userNames[entry.entry_id] || '找不到姓名'} / ${entry.entry_id} / 登入時間：${this.$utils.tsToAdDateStr(entry.timestamp, true)}`
-        })
-        return acc
-      }, [])
-    },
-    ID () {
-      if (this.activeEntry) {
-        return this.activeEntry.entry_id
-      }
-      return this.$route.params.id || ''
-    },
-    NAME () {
-      if (this.userNames) {
-        const name = this.userNames[this.ID]
-        return this.$utils.empty(name) ? '系統查無無此人' : name
-      }
-      return '系統查無無此人'
-    },
-    sendtoNotFound () { return this.NAME === '系統查無無此人' },
-    sendto () { return [this.ID] },
-    cacheKey () { return `${this.ID}_postMementoCache` },
     validContent () { return !this.$utils.empty(this.dataJson.content) },
-    validSento () { return this.activeEntry !== null },
+    validSento () { return this.sendto.length > 0 },
     sendButtonDisabled () { return !this.validContent || !this.validSento },
     mementoCountCacheKey () {
       return `${this.cacheKey}_count`
@@ -206,9 +201,6 @@ export default {
     }
   },
   watch: {
-    ID (dontcare) {
-      this.restoreCachedMemento()
-    },
     mementoCount (val) {
       this.setCache(this.mementoCountCacheKey, val)
       this.restoreCachedMemento()
@@ -216,8 +208,8 @@ export default {
   },
   created () {
     this.dataJson.create_datetime = this.$utils.now()
+    this.restoreCachedMemento()
   },
-  mounted () { },
   methods: {
     async restoreCachedMemento () {
       const cached = await this.getCache(this.cacheKey)
@@ -233,8 +225,20 @@ export default {
       }
       this.setCache(this.cacheKey, this.memento)
     },
+    addSendto (id) {
+      this.sendto.push(id)
+    },
+    removeSendto (id) {
+      const index = this.sendto.indexOf(id)
+      if (index > -1) {
+        this.sendto.splice(index, 1)
+      }
+    },
     copy (snapshot) {
+      this.sendto = [...snapshot.channels]
       this.dataJson = { ...this.dataJson, ...snapshot }
+      // remove additional property
+      delete this.dataJson.channels
       this.$refs.addCard.scrollIntoView()
       setTimeout(() => this.attention(this.$refs.addCard), 400)
     },
@@ -248,7 +252,7 @@ export default {
       }
     },
     add () {
-      this.confirm(`確定要傳送訊息給「${this.NAME}」?`).then((flag) => {
+      this.confirm('確定要發送訊息?').then((flag) => {
         if (flag) {
           this.isBusy = true
           const snapshot = {
@@ -287,6 +291,7 @@ export default {
           create_datetime: this.$utils.now()
         }
       }
+      this.sendto = []
     }
   }
 }

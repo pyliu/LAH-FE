@@ -264,8 +264,10 @@ export default {
       return m.getFullYear() + '-' + (m.getMonth() + 1).toString().padStart(2, '0') + '-' + m.getDate().toString().padStart(2, '0') + ' ' + m.getHours().toString().padStart(2, '0') + ':' + m.getMinutes().toString().padStart(2, '0') + ':' + m.getSeconds().toString().padStart(2, '0')
     },
     copy (snapshot) {
-      this.announcementDataJson = { ...this.announcementDataJson, ...snapshot }
       this.announcementSendto = [...snapshot.channels]
+      this.announcementDataJson = { ...this.announcementDataJson, ...snapshot }
+      // remove additional property
+      delete this.announcementDataJson.channels
       this.$refs.addCard.scrollIntoView()
       setTimeout(() => this.attention(this.$refs.addCard), 400)
     },
