@@ -68,10 +68,10 @@
           傳送訊息
         li(v-if="isAuthorized"): nuxt-link(to="/admin").
           #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
-          系統管理
-        li(v-if="isAuthorized"): nuxt-link(to="/notification").
-          #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
-          公告訊息管理
+          系統管理介面
+        //- li(v-if="isAuthorized"): nuxt-link(to="/notification").
+        //-   #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
+        //-   公告訊息管理
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
         //-   統計看板
@@ -84,9 +84,6 @@
         li(v-if="!isAuthorized"): nuxt-link(to="/login").
           #[font-awesome-icon(:icon="['fas', 'sign-in-alt']" size="lg")]
           管理者登入
-        li(v-if="false"): a(:href="apiSvrHttpUrl" target="_blank" rel="noopener noreferrer").
-          #[font-awesome-icon(:icon="['fas', 'history']" pull="left" size="lg")]
-          先前版本
         li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
           #[font-awesome-icon(:icon="['fab', 'github']" pull="left" size="lg")]
           原始碼
