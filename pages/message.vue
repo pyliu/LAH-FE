@@ -159,7 +159,7 @@ export default {
         // not existed in acc then push into it
         !found && acc.push({
           value: entry,
-          text: `${this.userNames[entry.entry_id]} / ${entry.entry_id} / 登入時間：${this.$utils.tsToAdDateStr(entry.timestamp, true)}`
+          text: `${this.userNames[entry.entry_id] || '找不到姓名'} / ${entry.entry_id} / 登入時間：${this.$utils.tsToAdDateStr(entry.timestamp, true)}`
         })
         return acc
       }, [])
