@@ -47,13 +47,13 @@
         h6: lah-fa-icon(icon="hand-point-right" regular) 已選擇的傳送對象
         b-button.mr-1.mb-1(
           v-for="(id, idx) in sendto"
-          v-b-tooltip="`移除${userNames[id]}`"
+          v-b-tooltip="`移除${userNames[id] || id}`"
           variant="outline-primary"
           size="sm"
           :key="`snedto-${idx}`"
           @click="removeSendto(id)"
           pill
-        ) {{ id }} / {{ userNames[id] }}
+        ) {{ id }} / {{ userNames[id] || id }}
         .center.mt-3: lah-notification-message(:data-json="dataJson")
 
     h4.d-flex.justify-content-between.my-3
