@@ -287,7 +287,6 @@ export default {
           create_datetime: this.$utils.now()
         }
       }
-      this.sendto = [this.ID]
     }
   }
 }
