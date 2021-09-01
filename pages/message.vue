@@ -6,11 +6,11 @@
         .my-auto 傳送個人通知訊息
         lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
-          li 接收端電腦需安裝 #[a(href="https://ppt.cc/f7b8ex" target="_blank") #[b 信差即時通程式(外網下載)]] 並正常連線才能接收
-          li 僅可送訊息給#[b.text-danger 一周內]有使用 #[a(href="https://ppt.cc/f7b8ex" target="_blank") #[b.text-primary 信差即時通程式]] 的使用者
+          li 接收端電腦需安裝 #[a(href="https://ppt.cc/fVtsqx" target="_blank" rel="noopener noreferrer") #[b 信差即時通程式(外網下載)]] 並正常連線才能接收
+          li 僅可送訊息給#[b.text-danger 一周內]有使用 #[a(href="https://ppt.cc/fVtsqx" target="_blank" rel="noopener noreferrer") #[b.text-primary 信差即時通程式]] 的使用者
           li 歷史資料儲存於瀏覽器端，清除瀏覽器快取即可清空
             ul: li 最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆  ({{ memento.length }} / {{ mementoCapacity }})
-          li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank") #[b https://bit.ly/mdcheat]] 教學
+          li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank" rel="noopener noreferrer") #[b https://bit.ly/mdcheat]] 教學
       .d-flex
 
     b-card-group(deck)
