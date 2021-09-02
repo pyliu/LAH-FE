@@ -19,7 +19,6 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group
-            lah-button(icon="paper-plane" :variant="sendButtonDisabled ? 'outline-primary' : 'primary'" :disabled="sendButtonDisabled" @click="add" pill) 送出
             lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill) 清除
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
 
@@ -44,7 +43,9 @@
           ) {{ entry.id }} / {{ userNames[entry.id] || entry.name }}
 
       lah-transition(appear): b-card(border-variant="success")
-        template(#header): h4.my-auto.text-nowrap.mr-2 預覽
+        template(#header): .d-flex.justify-content-between
+          h4.my-auto.text-nowrap.mr-2 預覽
+          lah-button(icon="paper-plane" :variant="sendButtonDisabled ? 'outline-primary' : 'primary'" :disabled="sendButtonDisabled" @click="add" pill) 確定發送
         .d-flex
           h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 已選擇的傳送對象
           b-button.my-auto.mr-1.mb-1(
