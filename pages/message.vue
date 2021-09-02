@@ -45,7 +45,14 @@
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
-          lah-button(icon="paper-plane" :variant="sendButtonDisabled ? 'outline-primary' : 'primary'" :disabled="sendButtonDisabled" @click="add" pill) 確定發送
+          lah-button(
+            icon="paper-plane"
+            action="slide-btt"
+            :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
+            :disabled="sendButtonDisabled"
+            @click="add"
+            pill
+          ) 確定發送
         .d-flex
           h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 已選擇送給
           b-button.my-auto.mr-1.mb-1(
