@@ -35,7 +35,7 @@
           b-button.my-auto.mr-1.mb-1(
             v-for="(entry, idx) in sendtoEntries"
             v-if="!sendto.includes(entry.id)"
-            :title="entry.ip"
+            v-b-tooltip="`點擊新增 ${userNames[entry.id] || entry.name}`"
             :key="`badge-${idx}`"
             variant="outline-secondary"
             size="sm"
@@ -49,7 +49,7 @@
           h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 已選擇的傳送對象
           b-button.my-auto.mr-1.mb-1(
             v-for="(id, idx) in sendto"
-            v-b-tooltip="`移除${userNames[id] || id}`"
+            v-b-tooltip="`點擊移除 ${userNames[id] || id}`"
             variant="outline-primary"
             size="sm"
             :key="`snedto-${idx}`"
