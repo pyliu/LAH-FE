@@ -19,9 +19,9 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group
-            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="selectAllSendto" action="slide-ltr" pill) 全選
-            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill) 清除
-            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
+            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="selectAllSendto" action="slide-ltr" pill v-b-tooltip="'傳送給所有人'") 全選
+            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill v-b-tooltip="'清除內文及已選擇對象'") 清除
+            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill no-icon-gutter v-b-tooltip="'內容 Markdown 語法簡易說明'")
 
         b-textarea.mb-3(
           v-model="dataJson.content"
