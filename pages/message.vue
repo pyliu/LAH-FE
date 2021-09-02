@@ -19,7 +19,7 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group
-            lah-button.mx-1(icon="angle-double-right" variant="outline-primary"  @click="selectAllSendto" action="slide-ltr" pill) 全選
+            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="selectAllSendto" action="slide-ltr" pill) 全選
             lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill) 清除
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
 
