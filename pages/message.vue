@@ -30,7 +30,7 @@
           :state="validContent"
         )
         .d-flex
-          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 可選擇的傳送對象
+          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 可選擇名單
           b-button.my-auto.mr-1.mb-1(
             v-for="(entry, idx) in sendtoEntries"
             v-if="!sendto.includes(entry.id)"
@@ -47,7 +47,7 @@
           h4.my-auto.text-nowrap.mr-2 預覽
           lah-button(icon="paper-plane" :variant="sendButtonDisabled ? 'outline-primary' : 'primary'" :disabled="sendButtonDisabled" @click="add" pill) 確定發送
         .d-flex
-          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 已選擇的傳送對象
+          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 已選擇送給
           b-button.my-auto.mr-1.mb-1(
             v-for="(id, idx) in sendto"
             v-b-tooltip="`點擊移除 ${userNames[id] || id}`"
