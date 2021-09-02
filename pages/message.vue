@@ -30,30 +30,32 @@
           placeholder="... 支援 Markdown 語法 ... "
           :state="validContent"
         )
-        h6: lah-fa-icon(icon="hand-point-right" regular) 可選擇的傳送對象
-        b-button.mr-1.mb-1(
-          v-for="(entry, idx) in sendtoEntries"
-          v-if="!sendto.includes(entry.id)"
-          :title="entry.ip"
-          :key="`badge-${idx}`"
-          variant="outline-secondary"
-          size="sm"
-          pill
-          @click="addSendto(entry.id)"
-        ) {{ entry.id }} / {{ userNames[entry.id] || entry.name }}
+        .d-flex
+          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 可選擇的傳送對象
+          b-button.my-auto.mr-1.mb-1(
+            v-for="(entry, idx) in sendtoEntries"
+            v-if="!sendto.includes(entry.id)"
+            :title="entry.ip"
+            :key="`badge-${idx}`"
+            variant="outline-secondary"
+            size="sm"
+            pill
+            @click="addSendto(entry.id)"
+          ) {{ entry.id }} / {{ userNames[entry.id] || entry.name }}
 
       lah-transition(appear): b-card(border-variant="success")
         template(#header): h4.my-auto.text-nowrap.mr-2 預覽
-        h6: lah-fa-icon(icon="hand-point-right" regular) 已選擇的傳送對象
-        b-button.mr-1.mb-1(
-          v-for="(id, idx) in sendto"
-          v-b-tooltip="`移除${userNames[id] || id}`"
-          variant="outline-primary"
-          size="sm"
-          :key="`snedto-${idx}`"
-          @click="removeSendto(id)"
-          pill
-        ) {{ id }} / {{ userNames[id] || id }}
+        .d-flex
+          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 已選擇的傳送對象
+          b-button.my-auto.mr-1.mb-1(
+            v-for="(id, idx) in sendto"
+            v-b-tooltip="`移除${userNames[id] || id}`"
+            variant="outline-primary"
+            size="sm"
+            :key="`snedto-${idx}`"
+            @click="removeSendto(id)"
+            pill
+          ) {{ id }} / {{ userNames[id] || id }}
         .center.mt-3: lah-notification-message(:data-json="dataJson")
 
     h4.d-flex.justify-content-between.my-3
