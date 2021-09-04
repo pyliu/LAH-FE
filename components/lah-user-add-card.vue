@@ -47,105 +47,35 @@
         )
       b-card.border-0(no-body)
         b-form-group(
-          label="分機"
+          label="權限"
           label-for="ext-input"
           label-cols-sm="2"
           label-size="md"
-        ): b-input(
-          id="ext-input"
-          v-model="userData['ext']"
-          :state="checkExt"
-          trim
-        )
+        ): b-checkbox-group(
+        v-model="authorities"
+        :options="authOpts"
+      )
 
-    .d-flex.center
-      lah-fa-icon(:icon="showOthers ? 'angle-double-up' : 'angle-double-down'" @click="showOthers = !showOthers" title="切換非必要欄位顯示" style="cursor: pointer")
+    .d-flex.justify-content-end.mb-2.toogle-block(@click="showOthers = !showOthers" style="cursor: pointer" title="切換其他欄位顯示")
+      .mr-1 {{ showOthers ? '隱藏其他資訊欄位' : '顯示其他資訊欄位' }}
+      lah-fa-icon(
+        :icon="showOthers ? 'angle-double-up' : 'angle-double-down'"
+        :action="showOthers ? 'move-fade-btt' : 'move-fade-ttb'"
+      )
 
-    .p-3.border.border-secondary(v-show="showOthers")
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="性別"
-            label-for="sex-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="sex-select"
-            v-model="userData['sex']"
-            :options="sexOpts"
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="職稱"
-            label-for="work-title-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="work-title-select"
-            v-model="userData['title']"
-            :options="workTitleOpts"
-          )
+    .p-4.optional-border(v-show="showOthers")
 
       b-card-group(deck)
         b-card.border-0(no-body)
           b-form-group(
-            label="生日"
-            label-for="bd-input"
+            label="分機"
+            label-for="ext-input"
             label-cols-sm="2"
             label-size="md"
           ): b-input(
-            id="bd-input"
-            v-model="userData['birthday']"
-            :state="checkBirthday"
-            placeholder="範例：066/05/23"
-            trim
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="課室"
-            label-for="unit-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="unit-select"
-            v-model="userData['unit']"
-            :options="unitOpts"
-          )
-
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="工作"
-            label-for="work-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="work-input"
-            v-model="userData['work']"
-            trim
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="教育"
-            label-for="edu-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="edu-input"
-            v-model="userData['education']"
-            trim
-          )
-
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="考試"
-            label-for="exam-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="exam-input"
-            v-model="userData['exam']"
+            id="ext-input"
+            v-model="userData['ext']"
+            :state="checkExt"
             trim
           )
         b-card.border-0(no-body)
@@ -164,6 +94,91 @@
       b-card-group(deck)
         b-card.border-0(no-body)
           b-form-group(
+            label="職稱"
+            label-for="work-title-select"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-select(
+            id="work-title-select"
+            v-model="userData['title']"
+            :options="workTitleOpts"
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="課室"
+            label-for="unit-select"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-select(
+            id="unit-select"
+            v-model="userData['unit']"
+            :options="unitOpts"
+          )
+
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="性別"
+            label-for="sex-select"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-select(
+            id="sex-select"
+            v-model="userData['sex']"
+            :options="sexOpts"
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="生日"
+            label-for="bd-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="bd-input"
+            v-model="userData['birthday']"
+            :state="checkBirthday"
+            placeholder="範例：066/05/23"
+            trim
+          )
+
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="考試"
+            label-for="exam-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="exam-input"
+            v-model="userData['exam']"
+            trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="教育"
+            label-for="edu-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="edu-input"
+            v-model="userData['education']"
+            trim
+          )
+
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="工作"
+            label-for="work-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="work-input"
+            v-model="userData['work']"
+            trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
             label="到職"
             label-for="onboard-input"
             label-cols-sm="2"
@@ -175,18 +190,20 @@
             :state="checkOnboardDate"
             placeholder="範例：110/06/01"
           )
-        b-card.border-0(no-body)
-          //- b-form-group(
-          //-   label="離職"
-          //-   label-for="offboard-input"
-          //-   label-cols-sm="2"
-          //-   label-size="md"
-          //- ): b-input(
-          //-   id="offboard-input"
-          //-   :value="userData['offboard_date']"
-          //-   disabled
-          //-   trim
-          //- )
+
+      //- b-card-group(deck)
+      //-   b-card.border-0(no-body)
+      //-     b-form-group(
+      //-       label="離職"
+      //-       label-for="offboard-input"
+      //-       label-cols-sm="2"
+      //-       label-size="md"
+      //-     ): b-input(
+      //-       id="offboard-input"
+      //-       :value="userData['offboard_date']"
+      //-       disabled
+      //-       trim
+      //-     )
 </template>
 
 <script>
@@ -209,7 +226,8 @@ export default {
       education: '',
       exam: '',
       cell: '',
-      onboard_date: ''
+      onboard_date: '',
+      authority: 0
     },
     workTitleOpts: [
       '臨時人員',
@@ -251,7 +269,17 @@ export default {
       { value: 0, text: '女' }
     ],
     foundUser: null,
-    showOthers: false
+    showOthers: false,
+    authorities: [],
+    authOpts: [
+      { value: 1, text: '停用' },
+      { value: 2, text: '系統管理員' },
+      { value: 4, text: '主管' },
+      { value: 8, text: '研考' },
+      { value: 16, text: '初審' },
+      { value: 32, text: '複審' }
+
+    ]
   }),
   fetch () {
     this.isBusy = true
@@ -359,31 +387,29 @@ export default {
     }, 250)
   },
   methods: {
-    formatter (val) {
-      return val.toUpperCase()
-    },
+    formatter (val) { return val.toUpperCase() },
     findDuplication () {}, // placeholder for debounced method
-    toTWFormat (ad_date) {
-      tw_date = ad_date.replace('/-/g', '/')
+    toTWFormat (adDate) {
+      let twDate = adDate.replace('/-/g', '/')
       // detect if it is AD date
-      if (tw_date.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
+      if (twDate.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
         // to TW date
-        tw_date =
-          parseInt(tw_date.substring(0, 4)) - 1911 + tw_date.substring(4)
+        twDate =
+          parseInt(twDate.substring(0, 4)) - 1911 + twDate.substring(4)
       }
-      return tw_date
+      return twDate
     },
-    toADFormat (tw_date) {
-      let ad_date = tw_date.replace('/-/g', '/')
+    toADFormat (twDate) {
+      let adDate = twDate.replace('/-/g', '/')
       // detect if it is TW date
-      if (ad_date.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
+      if (adDate.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
         // to AD date
-        ad_date =
-          parseInt(ad_date.substring(0, 3)) + 1911 + ad_date.substring(3)
+        adDate =
+          parseInt(adDate.substring(0, 3)) + 1911 + adDate.substring(3)
       }
-      return ad_date
+      return adDate
     },
-    async callApi (prompt, config) {
+    callApi (prompt, config) {
       return new Promise((resolve, reject) => {
         this.confirm(prompt).then((answer) => {
           if (answer) {
@@ -429,4 +455,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.toogle-block:hover {
+  font-weight: bolder;
+  text-decoration: underline;
+}
+.optional-border {
+  border-style: dashed;
+  border-width: 2px;
+  border-radius: .75rem;
+  border-color: gray;
+}
 </style>
