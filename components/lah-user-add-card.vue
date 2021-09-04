@@ -151,6 +151,7 @@
           ): b-input(
             id="exam-input"
             v-model="userData['exam']"
+            placeholder="範例：107年資訊處理高考三級"
             trim
           )
         b-card.border-0(no-body)
@@ -162,6 +163,7 @@
           ): b-input(
             id="edu-input"
             v-model="userData['education']"
+            placeholder="範例：台北科技大學資訊工程研究所"
             trim
           )
 
@@ -175,6 +177,7 @@
           ): b-input(
             id="work-input"
             v-model="userData['work']"
+            placeholder="範例：資訊系統管理"
             trim
           )
         b-card.border-0(no-body)
