@@ -276,12 +276,13 @@ export default {
     authorities: [],
     authOpts: [
       { value: 1, text: '停用' },
-      { value: 2, text: '系統管理員' },
-      { value: 4, text: '主管' },
-      { value: 8, text: '研考' },
-      { value: 16, text: '初審' },
-      { value: 32, text: '複審' }
-
+      { value: 2, text: '系統管理' },
+      { value: 4, text: '訊息管理' },
+      { value: 8, text: '人員管理' },
+      { value: 16, text: '主管' },
+      { value: 32, text: '研考' },
+      { value: 64, text: '初審' },
+      { value: 128, text: '複審' }
     ]
   }),
   fetch () {
@@ -302,7 +303,7 @@ export default {
   },
   computed: {
     isAuthorized () {
-      return this.authority.isAdmin || this.authority.isSuper
+      return this.authority.isAdmin
     },
     checkRequired () {
       return this.checkId === true &&
