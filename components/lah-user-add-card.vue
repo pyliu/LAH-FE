@@ -63,7 +63,7 @@
         :action="showOthers ? 'move-fade-btt' : 'move-fade-ttb'"
       )
 
-    .p-4.optional-border(v-show="showOthers")
+    lah-transition(zoom): .p-4.optional-border(v-show="showOthers")
 
       b-card-group(deck)
         b-card.border-0(no-body)
