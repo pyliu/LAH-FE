@@ -468,7 +468,7 @@ export default {
       if (Array.isArray(array)) {
         if (array.length > 1) {
           this.assignUserData(array.find((item, idx, array) => {
-            return this.$utils.empty(item.offboard_date)
+            return this.$consts.AUTHORITY.DISABLED !== item.authority & this.$consts.AUTHORITY.DISABLED
           }))
         } else {
           this.assignUserData(array[0])
@@ -487,7 +487,7 @@ export default {
     if (!this.$utils.empty(this.raw)) {
       this.assignUserData(this.raw[0])
       // deep copy
-      this.origUserData = Object.assign({}, this.raw[0])
+      this.origUserData = { ...this.raw[0] }
     }
     this.authOpts = [
       { value: this.$consts.AUTHORITY.DISABLED, text: '停用' },
@@ -503,10 +503,8 @@ export default {
       return val.toUpperCase()
     },
     assignUserData (array) {
-      // Object.assign makes object data reactively
-      if (!this.$utils.empty(array)) {
-        this.userData = Object.assign(this.userData, array)
-      }
+      // use spread operator since it make object reaactively in Vue2
+      this.userData = { ...this.userData, ...array }
     },
     toTWFormat (adDate) {
       let twDate = adDate.replace('/-/g', '/')
