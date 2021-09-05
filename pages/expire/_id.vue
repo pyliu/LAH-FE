@@ -69,7 +69,7 @@ export default {
   },
   computed: {
     isAuthorized () {
-      return this.authority.isChief || this.authority.isAdmin || this.authority.isSuper
+      return this.authority.isChief || this.authority.isAdmin
     },
     nameId () {
       if (this.$route.params.id) {

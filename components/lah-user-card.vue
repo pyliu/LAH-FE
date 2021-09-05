@@ -51,7 +51,7 @@
 import lahUserPhoto from '~/components/lah-user-photo.vue'
 import lahUserAddCard from '~/components/lah-user-add-card.vue'
 export default {
-  name: 'lah-user-card',
+  name: 'LahUserCard',
   components: { lahUserPhoto, lahUserAddCard },
   props: {
     raw: { type: Array, default: () => ([]) },
@@ -62,43 +62,67 @@ export default {
     userData: {},
     imgLoaded: false
   }),
+  fetch () {
+    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) &&
+    this.$axios.post(this.$consts.API.JSON.USER, {
+      type: 'user_info',
+      id: this.id,
+      name: this.name
+    }).then(({ data }) => {
+      if (this.$utils.statusCheck(data.status)) {
+        if (data.data_count > 1) {
+          this.userData = data.raw.find((item, idx, array) => {
+            return this.$utils.empty(item.offboard_date)
+          }) || {}
+        } else {
+          this.userData = data.raw[0]
+        }
+      } else {
+        this.$utils.warn(data.message)
+      }
+    }).catch((err) => {
+      this.$utils.error(err)
+    }).finally(() => {
+      this.isBusy = false
+    })
+  },
   computed: {
     isAuthorized () {
-      return this.authority.isAdmin || this.authority.isSuper
+      return this.authority.isAdmin
     },
     isLeft () {
-      return !this.$utils.empty(this.userData["offboard_date"])
+      return !this.$utils.empty(this.userData.offboard_date)
     },
     birthAgeVariant () {
-      const badge_age = this.birthAge
-      if (badge_age < 30) {
-        return "success"
-      } else if (badge_age < 40) {
-        return "primary"
-      } else if (badge_age < 50) {
-        return "warning"
-      } else if (badge_age < 60) {
-        return "danger"
+      const badgeAge = this.birthAge
+      if (badgeAge < 30) {
+        return 'success'
+      } else if (badgeAge < 40) {
+        return 'primary'
+      } else if (badgeAge < 50) {
+        return 'warning'
+      } else if (badgeAge < 60) {
+        return 'danger'
       }
-      return "dark"
+      return 'dark'
     },
     birthAge () {
-      let birth = this.userData['birthday']
+      let birth = this.userData.birthday
       if (birth) {
         const now = new Date()
         birth = this.toADFormat(birth)
-        let temp = Date.parse(birth)
+        const temp = Date.parse(birth)
         if (temp) {
-          let born = new Date(temp)
+          const born = new Date(temp)
           return ((now - born) / 31536000000).toFixed(1)
         }
       }
       return false
     },
     workAge () {
-      let AP_ON_DATE = this.userData['onboard_date']
+      let AP_ON_DATE = this.userData.onboard_date
       const AP_OFF_JOB = this.isLeft ? 'Y' : 'N'
-      let AP_OFF_DATE = this.userData['offboard_date']
+      let AP_OFF_DATE = this.userData.offboard_date
 
       if (AP_ON_DATE !== undefined && AP_ON_DATE !== null) {
         AP_ON_DATE = AP_ON_DATE.date
@@ -107,7 +131,7 @@ export default {
         AP_ON_DATE = this.toADFormat(AP_ON_DATE)
         let temp = Date.parse(AP_ON_DATE)
         if (temp) {
-          let on = new Date(temp)
+          const on = new Date(temp)
           let now = new Date()
           if (AP_OFF_JOB === 'Y') {
             AP_OFF_DATE = this.toADFormat(AP_OFF_DATE)
@@ -123,21 +147,21 @@ export default {
       return false
     },
     workAgeVariant () {
-      const work_age = this.workAge
-      if (work_age < 5) {
-        return "success"
-      } else if (work_age < 10) {
-        return "primary"
-      } else if (work_age < 20) {
-        return "warning"
+      const workAge = this.workAge
+      if (workAge < 5) {
+        return 'success'
+      } else if (workAge < 10) {
+        return 'primary'
+      } else if (workAge < 20) {
+        return 'warning'
       }
-      return "danger"
+      return 'danger'
     },
     photoSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData['id']}&name=${this.userData['name']}`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}`
     },
     avatarSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData['id']}_avatar&name=${this.userData['name']}_avatar`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar`
     }
   },
   watch: {
@@ -145,7 +169,7 @@ export default {
       if (Array.isArray(array)) {
         if (array.length > 1) {
           this.assignUserData(array.find((item, idx, array) => {
-            return this.$utils.empty(item['offboard_date'])
+            return this.$utils.empty(item.offboard_date)
           }))
         } else {
           this.assignUserData(array[0])
@@ -153,6 +177,11 @@ export default {
       } else {
         this.$utils.warning('raw is not an array', array)
       }
+    }
+  },
+  created () {
+    if (!this.$utils.empty(this.raw)) {
+      this.assignUserData(this.raw[0])
     }
   },
   methods: {
@@ -165,29 +194,29 @@ export default {
     add () {
       if (this.isAuthorized) {
         this.modal(this.$createElement('lah-user-add-card', { props: { userId: this.id || this.name } }), {
-          title: `新增使用者`,
-          size: "lg",
+          title: '新增使用者',
+          size: 'lg',
           noCloseOnBackdrop: true
         })
       }
     },
-    toTWFormat (ad_date) {
-      tw_date = ad_date.replace("/-/g", "/")
+    toTWFormat (adDate) {
+      let twDate = adDate.replace('/-/g', '/')
       // detect if it is AD date
-      if (tw_date.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
+      if (twDate.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
         // to TW date
-        tw_date = parseInt(tw_date.substring(0, 4)) - 1911 + tw_date.substring(4)
+        twDate = parseInt(twDate.substring(0, 4)) - 1911 + twDate.substring(4)
       }
-      return tw_date
+      return twDate
     },
-    toADFormat (tw_date) {
-      let ad_date = tw_date.replace("/-/g", "/")
+    toADFormat (twDate) {
+      let adDate = twDate.replace('/-/g', '/')
       // detect if it is TW date
-      if (ad_date.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
+      if (adDate.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
         // to AD date
-        ad_date = parseInt(ad_date.substring(0, 3)) + 1911 + ad_date.substring(3)
+        adDate = parseInt(adDate.substring(0, 3)) + 1911 + adDate.substring(3)
       }
-      return ad_date
+      return adDate
     },
     photoClick () {
       this.modal(this.$createElement('lah-user-photo', {
@@ -196,40 +225,11 @@ export default {
           center: true
         }
       }), {
-        title: `${this.userData['id']} ${this.userData['name']} 照片`,
+        title: `${this.userData.id} ${this.userData.name} 照片`,
         size: 'lg'
       })
-      // $emit to parent 
+      // $emit to parent
       this.trigger('click', this.userData)
-    }
-  },
-  fetch () {
-    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) && 
-    this.$axios.post(this.$consts.API.JSON.USER, {
-      type: 'user_info',
-      id: this.id,
-      name: this.name
-    }).then(({ data }) => {
-      if (this.$utils.statusCheck(data.status)) {
-        if (data.data_count > 1) {
-          this.userData = data.raw.find((item, idx, array) => {
-            return this.$utils.empty(item['offboard_date'])
-          }) || {}
-        } else {
-          this.userData = data.raw[0]
-        }
-      } else {
-        this.$utils.warn(data.message)
-      }
-    }).catch(err => {
-      this.$utils.error(err)
-    }).finally(() => {
-        this.isBusy = false
-    })
-  },
-  created() {
-    if (!this.$utils.empty(this.raw)) {
-      this.assignUserData(this.raw[0])
     }
   }
 }

@@ -98,6 +98,15 @@ export default ({ $axios, store }, inject) => {
         PHOTO: '/api/upload_user_photo.php'
       }
     },
+    AUTHORITY: {
+      NORMAL: 0,
+      DISABLED: 1,
+      ADMIN: 2,
+      ANNOUNCEMENT_MANAGEMENT: 4,
+      USER_MANAGEMENT: 8,
+      CHIEF: 16,
+      RESEARCH_AND_EVALUATION: 32
+    },
     EVENT: {
       ERROR: 'lah::global::error',
       WARNING: 'lah::global::warning',

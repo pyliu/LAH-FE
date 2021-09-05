@@ -430,40 +430,27 @@ export default {
       return filtered
     },
     groupByRole () {
+      /*
+      if (userAuthority.isUserMgtStaff) { return '人事管理者' }
+      if (userAuthority.isNotifyMgtStaff) { return '公告管理者' }
+      */
       const filtered = [
-        { NAME: '超級管理者', LIST: [] },
         { NAME: '系統管理者', LIST: [] },
         { NAME: '主管', LIST: [] },
         { NAME: '研考', LIST: [] },
-        { NAME: '總務', LIST: [] },
-        { NAME: '會計', LIST: [] },
-        { NAME: '人事', LIST: [] },
+        { NAME: '人事管理者', LIST: [] },
+        { NAME: '公告管理者', LIST: [] },
         { NAME: '一般使用者', LIST: [] }
       ]
       const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
       sortTarget.forEach((item, idx, array) => {
-        if (this.systemConfigs.ip_maps.chief.includes(item.ip)) {
-          return filtered[2].LIST.push(item)
-        }
-        if (this.systemConfigs.ip_maps.rae.includes(item.ip)) {
-          return filtered[3].LIST.push(item)
-        }
-        if (this.systemConfigs.ip_maps.ga.includes(item.ip)) {
-          return filtered[4].LIST.push(item)
-        }
-        if (this.systemConfigs.ip_maps.super.includes(item.ip)) {
-          return filtered[0].LIST.push(item)
-        }
-        if (this.systemConfigs.ip_maps.admin.includes(item.ip)) {
-          return filtered[1].LIST.push(item)
-        }
-        if (this.systemConfigs.ip_maps.accounting.includes(item.ip)) {
-          return filtered[5].LIST.push(item)
-        }
-        if (this.systemConfigs.ip_maps.hr.includes(item.ip)) {
-          return filtered[6].LIST.push(item)
-        }
-        return filtered[7].LIST.push(item)
+        const userAuthority = this.getAuthority(item)
+        if (userAuthority.isAdmin) { return filtered[0].LIST.push(item) }
+        if (userAuthority.isChief) { return filtered[1].LIST.push(item) }
+        if (userAuthority.isRAE) { return filtered[2].LIST.push(item) }
+        if (userAuthority.isUserMgtStaff) { return filtered[3].LIST.push(item) }
+        if (userAuthority.isNotifyMgtStaff) { return filtered[4].LIST.push(item) }
+        return filtered[5].LIST.push(item)
       })
       filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
       return filtered
@@ -574,51 +561,34 @@ export default {
       )
     },
     variant (user) {
-      if (!this.$utils.empty(user.offboard_date)) { return 'secondary' }
-      const auth = this.getAuthority(user)
-      if (auth.isSuper) { return 'danger' }
-      if (auth.isChief) { return 'primary' }
-      if (auth.isRAE) { return 'warning' }
-      if (auth.isGA) { return 'info' }
-      if (auth.isHR) { return 'outline-info' }
-      if (auth.isAccounting) { return 'outline-dark' }
-      if (auth.isAdmin) { return 'outline-danger' }
-      return 'outline-success'
+      const userAuthority = this.getAuthority(user)
+      if (userAuthority.isDisabled) { return 'secondary' }
+      if (userAuthority.isAdmin) { return 'danger' }
+      if (userAuthority.isChief) { return 'primary' }
+      if (userAuthority.isRAE) { return 'warning' }
+      if (userAuthority.isUserMgtStaff) { return 'outline-success' }
+      if (userAuthority.isNotifyMgtStaff) { return 'outline-info' }
+      return 'outline-dark'
     },
     role (user) {
-      if (!this.$utils.empty(user.offboard_date)) { return '' }
-      const auth = this.getAuthority(user)
-      if (auth.isSuper) { return '程式開發者' }
-      if (auth.isChief) { return '主管' }
-      if (auth.isRAE) { return '研考' }
-      if (auth.isHR) { return '人事' }
-      if (auth.isAccounting) { return '會計' }
-      if (auth.isGA) { return '總務' }
-      if (auth.isAdmin) { return '系統管理者' }
+      const userAuthority = this.getAuthority(user)
+      if (userAuthority.isAdmin) { return '系統管理者' }
+      if (userAuthority.isChief) { return '主管' }
+      if (userAuthority.isRAE) { return '研考' }
+      if (userAuthority.isUserMgtStaff) { return '人事管理者' }
+      if (userAuthority.isNotifyMgtStaff) { return '公告管理者' }
       return ''
     },
     getAuthority (user) {
-      const authorityMap = {
-        isAdmin: false,
-        isChief: false,
-        isGA: false,
-        isRAE: false,
-        isSuper: false,
-        isHR: false,
-        isAccounting: false
+      const authority = user.authority || 0
+      return {
+        isAdmin: this.$consts.AUTHORITY.ADMIN === authority & this.$consts.AUTHORITY.ADMIN,
+        isChief: this.$consts.AUTHORITY.CHIEF === authority & this.$consts.AUTHORITY.CHIEF,
+        isDisabled: this.$consts.AUTHORITY.DISABLED === authority & this.$consts.AUTHORITY.DISABLED,
+        isRAE: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === authority & this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION,
+        isUserMgtStaff: this.$consts.AUTHORITY.USER_MANAGEMENT === authority & this.$consts.AUTHORITY.USER_MANAGEMENT,
+        isNotifyMgtStaff: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === authority & this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT
       }
-      if (this.systemConfigs && this.systemConfigs.ip_maps) {
-        const mappings = this.systemConfigs.ip_maps
-        const ip = user.ip
-        authorityMap.isAdmin = mappings.admin.includes(ip)
-        authorityMap.isChief = mappings.chief.includes(ip)
-        authorityMap.isSuper = mappings.super.includes(ip)
-        authorityMap.isRAE = mappings.rae.includes(ip)
-        authorityMap.isGA = mappings.ga.includes(ip)
-        authorityMap.isHR = mappings.hr.includes(ip)
-        authorityMap.isAccounting = mappings.accounting.includes(ip)
-      }
-      return authorityMap
     },
     avatarSrc (user) {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`

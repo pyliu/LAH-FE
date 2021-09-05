@@ -337,16 +337,7 @@ export default {
     ],
     showOthers: false,
     authorities: [],
-    authOpts: [
-      { value: 1, text: '停用' },
-      { value: 2, text: '系統管理' },
-      { value: 4, text: '訊息管理' },
-      { value: 8, text: '人事管理' },
-      { value: 16, text: '主管' },
-      { value: 32, text: '研考' },
-      { value: 64, text: '初審' },
-      { value: 128, text: '複審' }
-    ]
+    authOpts: []
   }),
   fetch () {
     (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) &&
@@ -492,6 +483,14 @@ export default {
       // deep copy
       this.origUserData = Object.assign({}, this.raw[0])
     }
+    this.authOpts = [
+      { value: this.$consts.AUTHORITY.DISABLED, text: '停用' },
+      { value: this.$consts.AUTHORITY.ADMIN, text: '系統管理' },
+      { value: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT, text: '訊息管理' },
+      { value: this.$consts.AUTHORITY.USER_MANAGEMENT, text: '人員管理' },
+      { value: this.$consts.AUTHORITY.CHIEF, text: '主管' },
+      { value: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION, text: '研考' }
+    ]
   },
   methods: {
     formatter (val) {

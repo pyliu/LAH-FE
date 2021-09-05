@@ -63,15 +63,15 @@
 
         li: hr
 
+        li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
+          #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
+          傳送公告訊息
+        li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
+          #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
+          系統管理介面
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
           傳送個人通知訊息
-        li(v-if="isAuthorized"): nuxt-link(to="/admin").
-          #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
-          系統管理介面
-        //- li(v-if="isAuthorized"): nuxt-link(to="/notification").
-        //-   #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
-        //-   公告訊息管理
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
         //-   統計看板
@@ -79,9 +79,9 @@
         //-   #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
         //-   測試
 
-        li(v-if="isAuthorized"): hr
+        li(v-if="authority.isAdmin"): hr
 
-        li(v-if="!isAuthorized"): nuxt-link(to="/login").
+        li(v-if="!authority.isAdmin"): nuxt-link(to="/login").
           #[font-awesome-icon(:icon="['fas', 'sign-in-alt']" size="lg")]
           管理者登入
         li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
@@ -110,7 +110,7 @@ export default {
   fetchOnServer: false,
   computed: {
     isAuthorized () {
-      return this.authority.isSuper || this.authority.isAdmin
+      return this.authority.isAdmin
     },
     greeting () {
       const hours = new Date().getHours()
