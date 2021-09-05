@@ -352,7 +352,7 @@ export default {
             if (data.data_count > 1) {
               this.userData =
                 data.raw.find((item, idx, array) => {
-                  return this.$utils.empty(item.offboard_date)
+                  return this.$consts.AUTHORITY.DISABLED !== item.authority & this.$consts.AUTHORITY.DISABLED
                 }) || {}
             } else {
               this.userData = data.raw[0]
@@ -399,6 +399,7 @@ export default {
       if (this.userData.cell !== this.origUserData.cell) { return true }
       if (this.userData.onboard_date !== this.origUserData.onboard_date) { return true }
       if (this.userData.offboard_date !== this.origUserData.offboard_date) { return true }
+      if (this.userData.authority !== this.origUserData.authority) { return true }
       return false
     },
     isIpChanged () {
@@ -475,6 +476,11 @@ export default {
       } else {
         this.$utils.warn('raw is not an array', array)
       }
+    },
+    authorities (array) {
+      this.userData.authority = array.reduce((acc, item) => {
+        return acc + item
+      }, 0)
     }
   },
   created () {
