@@ -123,7 +123,7 @@
 
 <script>
 export default {
-  middleware: ['isAdmin'],
+  middleware: ['isNotifyMgtStaff'],
   asyncData ({ store, redirect, error }) { return {} },
   data: () => ({
     announcementDataJson: {
