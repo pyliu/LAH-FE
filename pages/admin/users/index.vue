@@ -178,6 +178,26 @@
           span.text-info .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
 
     hr
+
+    b-modal(
+      id="edit-user-modal"
+      :title="editUserTitle"
+      size="lg"
+      hide-footer
+      scrollable
+      no-close-on-backdrop
+    )
+      lah-user-edit-card(:raw="[clickedUser]" @saved="saved($event)")
+
+    b-modal(
+      id="add-user-modal"
+      title="手動新增使用者"
+      size="lg"
+      hide-footer
+      scrollable
+      no-close-on-backdrop
+    )
+      lah-user-add-card(@added="added($event)")
 </template>
 
 <script>
@@ -213,7 +233,8 @@ export default {
     filterOptions: [
       { text: '正常', value: 'on' },
       { text: '停用', value: 'off' }
-    ]
+    ],
+    clickedUser: { id: '', name: '' }
   }),
   fetch () {
     this.isBusy = true
@@ -307,7 +328,8 @@ export default {
         return this.systemConfigs.lxhweb.ORA_DB_L3HWEB_PORT
       }
       return '1521'
-    }
+    },
+    editUserTitle () { return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊` }
   },
   watch: {
     type (val) {
@@ -435,21 +457,21 @@ export default {
       })
     },
     add () {
-      this.modal(
-        this.$createElement('lah-user-add-card', {
-          components: { lahUserCard },
-          on: {
-            added: (event) => {
-              this.users.unshift(event.detail)
-            }
-          }
-        }),
-        {
-          title: '新增使用者',
-          size: 'lg',
-          noCloseOnBackdrop: true
-        }
-      )
+      this.showModalById('add-user-modal')
+    },
+    added (event) {
+      this.users.unshift(event.detail)
+      this.hideModalById('add-user-modal')
+      this.notify(`新增 ${event.detail.id} ${event.detail.name} 成功`, { type: 'success' })
+    },
+    edit (user) {
+      this.clickedUser = user
+      this.showModalById('edit-user-modal')
+    },
+    saved (event) {
+      this.update(event.detail)
+      this.hideModalById('edit-user-modal')
+      this.notify(`更新 ${this.clickedUser.id} ${this.clickedUser.name} 完成`, { type: 'success' })
     },
     update (userData) {
       // update the cached user data
@@ -461,25 +483,10 @@ export default {
         return item.id === userData.id
       })
       if (foundIdx !== undefined) {
-        this.users[foundIdx] = Object.assign(user, userData)
+        // refresh current data
+        this.users[foundIdx] = { ...user, ...userData }
+        this.users = [...this.users]
       }
-    },
-    edit (user) {
-      this.modal(
-        this.$createElement('lah-user-edit-card', {
-          props: { raw: [user] },
-          on: {
-            saved: (event) => {
-              this.update(event.detail)
-            }
-          }
-        }),
-        {
-          title: `編輯 ${user.id} ${user.name} 資訊`,
-          size: 'lg',
-          noCloseOnBackdrop: true
-        }
-      )
     },
     variant (user) {
       const userAuthority = this.getAuthority(user)

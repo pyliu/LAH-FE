@@ -451,6 +451,26 @@ export default {
         this.trigger('added', userData)
       }).catch((error) => {
         console.log(error)
+      }).finally(() => {
+        // clean input data
+        this.userData = {
+          ...{
+            id: '',
+            name: '',
+            sex: '',
+            title: '',
+            work: '',
+            ext: '411',
+            birthday: '',
+            unit: '',
+            ip: '',
+            education: '',
+            exam: '',
+            cell: '',
+            onboard_date: '',
+            authority: 0
+          }
+        }
       })
     }
   }
