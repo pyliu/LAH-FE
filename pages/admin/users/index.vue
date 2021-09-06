@@ -181,7 +181,7 @@
         span {{ user["name"].padEnd(3, '　') }}
         .text-dark.text-center.font-weight-bolder(v-if="showIp")
           span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
-          span.text-danger {{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
+          span.text-info .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
 
     hr
 </template>
