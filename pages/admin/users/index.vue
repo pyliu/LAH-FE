@@ -165,7 +165,7 @@
         :data-name="user['name']"
         :variant="variant(user)"
         :pill="showAvatar"
-        v-b-popover.hover.top.html="role(user)"
+        v-b-tooltip="role(user)"
         size="sm"
         class="mx-1 my-1 shadow"
         @click="edit(user)"
@@ -333,9 +333,8 @@ export default {
   },
   watch: {
     type (val) {
-      if (val === '') {
-        this.users = []
-      } else {
+      this.users = []
+      if (val !== '') {
         this.$fetch()
       }
     }
