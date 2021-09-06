@@ -385,7 +385,7 @@ export default {
     sortAsc (a, b) {
       // LIST count is the same, I will use the NAME for sorting
       if ((b.LIST.length - a.LIST.length) === 0) {
-        const regex = new RegExp('^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$', 'g')
+        const regex = /^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$/g
         const bv = b.NAME.match(regex) ? this.$utils.ipv4Int(b.NAME) : b.NAME
         const av = a.NAME.match(regex) ? this.$utils.ipv4Int(a.NAME) : a.NAME
         if (bv > av) {
