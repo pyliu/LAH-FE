@@ -34,6 +34,32 @@
     b-card-group(deck)
       b-card.border-0(no-body)
         b-form-group(
+          label="性別"
+          label-for="sex-select"
+          label-cols-sm="2"
+          label-size="md"
+        ): b-select(
+          id="sex-select"
+          v-model="userData['sex']"
+          :options="sexOpts"
+          :state="checkDept"
+        )
+      b-card.border-0(no-body)
+        b-form-group(
+          label="課室"
+          label-for="unit-select"
+          label-cols-sm="2"
+          label-size="md"
+        ): b-select(
+          id="unit-select"
+          v-model="userData['unit']"
+          :options="unitOpts"
+          :state="checkSex"
+        )
+
+    b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
           label="電腦"
           label-for="ip-input"
           label-cols-sm="2"
@@ -102,30 +128,6 @@
             id="work-title-select"
             v-model="userData['title']"
             :options="workTitleOpts"
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="課室"
-            label-for="unit-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="unit-select"
-            v-model="userData['unit']"
-            :options="unitOpts"
-          )
-
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="性別"
-            label-for="sex-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="sex-select"
-            v-model="userData['sex']"
-            :options="sexOpts"
           )
         b-card.border-0(no-body)
           b-form-group(
@@ -299,11 +301,19 @@ export default {
     checkRequired () {
       return this.checkId === true &&
              this.checkName === true &&
+             this.checkDept === true &&
+             this.checkSex === true &&
              this.checkIp === true &&
              this.checkOnboardDate !== false &&
              this.checkExt !== false &&
              this.checkBirthday !== false &&
              this.checkCell !== false
+    },
+    checkSex () {
+      return !this.$utils.empty(this.userData.sex)
+    },
+    checkDept () {
+      return !this.$utils.empty(this.userData.unit)
     },
     checkIdFeedback () {
       return this.checkId ? '' : `<strong class="text-danger">${this.site}</strong>####`
