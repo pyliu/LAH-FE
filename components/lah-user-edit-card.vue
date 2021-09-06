@@ -473,8 +473,9 @@ export default {
         } else {
           this.assignUserData(array[0])
         }
+        this.restoreAuthorities()
       } else {
-        this.$utils.warn('raw is not an array', array)
+        this.$utils.warn('輸入 prop (raw) 不是陣列，無法初始化！', array)
       }
     },
     authorities (array) {
@@ -497,6 +498,7 @@ export default {
       { value: this.$consts.AUTHORITY.CHIEF, text: '主管' },
       { value: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION, text: '研考' }
     ]
+    this.restoreAuthorities()
   },
   methods: {
     formatter (val) {
@@ -569,8 +571,9 @@ export default {
         data: this.userData
       }).then((userData) => {
         this.trigger('saved', userData)
-        this.isIpChanged && this.saveTdocIp()
-        this.origUserData = Object.assign(this.origUserData, userData)
+        // HB only
+        this.site === 'HB' && this.isIpChanged && this.saveTdocIp()
+        this.origUserData = { ...this.origUserData, ...userData }
       })
     },
     saveTdocIp () {
@@ -641,6 +644,24 @@ export default {
     uploadAvatar () {
       this.upload(this.userAvatar, true)
       this.userAvatar = null
+    },
+    restoreAuthorities () {
+      /**
+       * NORMAL: 0,
+      DISABLED: 1,
+      ADMIN: 2,
+      ANNOUNCEMENT_MANAGEMENT: 4,
+      USER_MANAGEMENT: 8,
+      CHIEF: 16,
+      RESEARCH_AND_EVALUATION: 32
+       */
+      const authority = this.userData.authority
+      this.$consts.AUTHORITY.DISABLED === (this.$consts.AUTHORITY.DISABLED & authority) && this.authorities.push(this.$consts.AUTHORITY.DISABLED)
+      this.$consts.AUTHORITY.ADMIN === (this.$consts.AUTHORITY.ADMIN & authority) && this.authorities.push(this.$consts.AUTHORITY.ADMIN)
+      this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === (this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT & authority) && this.authorities.push(this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT)
+      this.$consts.AUTHORITY.USER_MANAGEMENT === (this.$consts.AUTHORITY.USER_MANAGEMENT & authority) && this.authorities.push(this.$consts.AUTHORITY.USER_MANAGEMENT)
+      this.$consts.AUTHORITY.CHIEF === (this.$consts.AUTHORITY.CHIEF & authority) && this.authorities.push(this.$consts.AUTHORITY.CHIEF)
+      this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === (this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION & authority) && this.authorities.push(this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION)
     }
   }
 }
