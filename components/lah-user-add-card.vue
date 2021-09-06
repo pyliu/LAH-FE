@@ -42,7 +42,7 @@
           id="sex-select"
           v-model="userData['sex']"
           :options="sexOpts"
-          :state="checkDept"
+          :state="checkSex"
         )
       b-card.border-0(no-body)
         b-form-group(
@@ -54,7 +54,7 @@
           id="unit-select"
           v-model="userData['unit']"
           :options="unitOpts"
-          :state="checkSex"
+          :state="checkDept"
         )
 
     b-card-group(deck)

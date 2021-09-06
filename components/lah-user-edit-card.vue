@@ -26,6 +26,30 @@
       )
 
     b-card-group(deck)
+      b-card.border-0(no-body)
+        b-form-group(
+          label="性別"
+          label-for="sex-select"
+          label-cols-sm="2"
+          label-size="md"
+        ): b-select(
+          id="sex-select"
+          v-model="userData['sex']"
+          :options="sexOpts"
+        )
+      b-card.border-0(no-body)
+        b-form-group(
+          label="課室"
+          label-for="unit-select"
+          label-cols-sm="2"
+          label-size="md"
+        ): b-select(
+          id="unit-select"
+          v-model="userData['unit']"
+          :options="unitOpts"
+        )
+
+    b-card-group(deck)
       b-card.border-0(no-body): b-form-group(
         label="電腦"
         label-for="ip-input"
@@ -55,7 +79,6 @@
         :action="showOthers ? 'move-fade-btt' : 'move-fade-ttb'"
       )
 
-    
     lah-transition(zoom): .p-4.optional-border(v-show="showOthers")
 
       b-card-group(deck)
@@ -87,41 +110,6 @@
       b-card-group(deck)
         b-card.border-0(no-body)
           b-form-group(
-            label="職稱"
-            label-for="work-title-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="work-title-select"
-            v-model="userData['title']"
-            :options="workTitleOpts"
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="課室"
-            label-for="unit-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="unit-select"
-            v-model="userData['unit']"
-            :options="unitOpts"
-          )
-
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="性別"
-            label-for="sex-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select(
-            id="sex-select"
-            v-model="userData['sex']"
-            :options="sexOpts"
-          )
-        b-card.border-0(no-body)
-          b-form-group(
             label="生日"
             label-for="bd-input"
             label-cols-sm="2"
@@ -132,6 +120,17 @@
             :state="checkBirthday"
             placeholder="範例：066/05/23"
             trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="職稱"
+            label-for="work-title-select"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-select(
+            id="work-title-select"
+            v-model="userData['title']"
+            :options="workTitleOpts"
           )
 
       b-card-group(deck)
@@ -373,7 +372,7 @@ export default {
       return this.authority.isAdmin
     },
     isLeft () {
-      return !this.$utils.empty(this.userData.offboard_date)
+      return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED
     },
     checkRequired () {
       // this.$utils.log('required: ', this.checkName, this.checkIp, this.checkOnboardDate, this.checkExt, this.checkBirthday, this.checkCell)
