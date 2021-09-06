@@ -39,7 +39,7 @@
             @click="exportXlsx"
           )
 
-    lah-help-modal(:modal-id="'help-modal'")
+    lah-help-modal(:modal-id="'help-modal'" size="lg")
       ul
         li: .d-inline-flex.justify-content-around
           span 選取編輯好的XLSX檔案，點擊
@@ -71,32 +71,26 @@
 
       hr
       .mx-2.my-1
-        b-button(variant="outline-success" size="sm") {{ office }}XXXX 劉ＯＯ
-        span 在職使用者
+        b-button.mr-1(variant="outline-dark" size="sm") {{ office }}XXXX 劉ＯＯ
+        span 正常使用者
       .mx-2.my-1
-        b-button(variant="secondary" size="sm") {{ office }}XXXX 邦ＯＯ
-        span 離職使用者
+        b-button.mr-1(variant="secondary" size="sm") {{ office }}XXXX 邦ＯＯ
+        span 被停用使用者
       .mx-2.my-1
-        b-button(variant="danger" size="sm") {{ office }}XXXX 渝ＯＯ
-        span 超級管理者
-      .mx-2.my-1
-        b-button(variant="outline-danger" size="sm") {{ office }}XXXX 中ＯＯ
+        b-button.mr-1(variant="danger" size="sm") {{ office }}XXXX 渝ＯＯ
         span 系統管理者
       .mx-2.my-1
-        b-button(variant="primary" size="sm") {{ office }}XXXX 壢ＯＯ
+        b-button.mr-1(variant="primary" size="sm") {{ office }}XXXX 桃ＯＯ
         span 主管
       .mx-2.my-1
-        b-button(variant="warning" size="sm") {{ office }}XXXX 地ＯＯ
+        b-button.mr-1(variant="warning" size="sm") {{ office }}XXXX 園ＯＯ
         span 研考
       .mx-2.my-1
-        b-button(variant="info" size="sm") {{ office }}XXXX 政ＯＯ
-        span 總務
+        b-button.mr-1(variant="success" size="sm") {{ office }}XXXX 地ＯＯ
+        span 人員管理
       .mx-2.my-1
-        b-button(variant="outline-info" size="sm") {{ office }}XXXX 開ＯＯ
-        span 人事
-      .mx-2.my-1
-        b-button(variant="outline-dark" size="sm") {{ office }}XXXX 發ＯＯ
-        span 會計
+        b-button.mr-1(variant="outline-info" size="sm") {{ office }}XXXX 政ＯＯ
+        span 公告管理
 
       b-modal(
         id="upload-modal"
@@ -493,12 +487,13 @@ export default {
       if (userAuthority.isAdmin) { return 'danger' }
       if (userAuthority.isChief) { return 'primary' }
       if (userAuthority.isRAE) { return 'warning' }
-      if (userAuthority.isUserMgtStaff) { return 'outline-success' }
+      if (userAuthority.isUserMgtStaff) { return 'success' }
       if (userAuthority.isNotifyMgtStaff) { return 'outline-info' }
       return 'outline-dark'
     },
     role (user) {
       const userAuthority = this.getAuthority(user)
+      if (userAuthority.isDisabled) { return '已被停用' }
       if (userAuthority.isAdmin) { return '系統管理者' }
       if (userAuthority.isChief) { return '主管' }
       if (userAuthority.isRAE) { return '研考' }
