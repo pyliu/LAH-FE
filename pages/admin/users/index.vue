@@ -1,263 +1,192 @@
-<template>
-  <div v-cloak>
-    <lah-header>
-      <lah-transition appear>
-        <div class="d-flex justify-content-between w-100">
-          <div class="d-flex">
-            <div class="my-auto">
-              使用者資訊管理
-            </div>
-            <lah-button
-              v-b-modal.help-modal
-              icon="question"
-              variant="outline-success"
-              no-border
-              no-icon-gutter
-              title="說明"
-            />
-          </div>
-          <b-button-group size="lg" class="my-auto">
-            <lah-button
-              icon="user-plus"
-              variant="outline-primary"
-              title="新增使用者"
-              no-icon-gutter
-              @click="add"
-            />
-            <lah-button
-              v-b-modal.upload-modal
-              icon="upload"
-              variant="outline-secondary"
-              no-icon-gutter
-              title="批次檔上傳更新"
-              action="move-fade-btt"
-            />
-            <lah-button
-              icon="file-excel"
-              regular
-              title="匯出系統全部使用者"
-              variant="outline-success"
-              no-icon-gutter
-              action="move-fade-ltr"
-              @click="exportXlsx"
-            />
-          </b-button-group>
-        </div>
-      </lah-transition>
-      <lah-help-modal :modal-id="'help-modal'" size="lg">
-        <ul>
-          <li>
-            <div class="d-inline-flex justify-content-around">
-              選取編輯好的XLSX檔案，點擊
-              <lah-button
-                v-b-modal.upload-modal
-                icon="upload"
-                variant="outline-secondary"
-                class="mx-1 mt-n1"
-                no-icon-gutter
-              />
-              上傳更新本地資料庫(dimension.db, user表格)
-            </div>
-          </li>
-          <li class="mt-2">
-            <div class="d-inline-flex justify-content-around">
-              利用
-              <lah-button
-                icon="user-plus"
-                variant="outline-primary"
-                class="mx-1 mt-n1"
-                no-icon-gutter
-                @click="add"
-              />
-              新增或
-              <b-button
-                variant="outline-success"
-                class="mx-1 mt-n1"
-                size="sm"
-              >
-                {{ site }}ＯＯＯＯ 桃園地政
-              </b-button>
-              編輯使用者。
-            </div>
-          </li>
-        </ul>
-        <hr>
-        <div class="mx-2 my-1">
-          <b-button variant="outline-success" size="sm">
-            {{ office }}XXXX 劉ＯＯ
-          </b-button>
-          在職使用者
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="secondary" size="sm">
-            {{ office }}XXXX 邦ＯＯ
-          </b-button>
-          離職使用者
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="danger" size="sm">
-            {{ office }}XXXX 渝ＯＯ
-          </b-button>
-          超級管理者
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="outline-danger" size="sm">
-            {{ office }}XXXX 中ＯＯ
-          </b-button>
-          系統管理者
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="primary" size="sm">
-            {{ office }}XXXX 壢ＯＯ
-          </b-button>
-          主管
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="warning" size="sm">
-            {{ office }}XXXX 地ＯＯ
-          </b-button>
-          研考
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="info" size="sm">
-            {{ office }}XXXX 政ＯＯ
-          </b-button>
-          總務
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="outline-info" size="sm">
-            {{ office }}XXXX 開ＯＯ
-          </b-button>
-          人事
-        </div>
-        <div class="mx-2 my-1">
-          <b-button variant="outline-dark" size="sm">
-            {{ office }}XXXX 發ＯＯ
-          </b-button>
-          會計
-        </div>
-      </lah-help-modal>
-      <b-modal
+<template lang="pug">
+  div(v-cloak)
+    lah-header: lah-transition(appear)
+      .d-flex.justify-content-between.w-100
+        .d-flex
+          .my-auto 使用者資訊管理
+          lah-button(
+            v-b-modal.help-modal
+            icon="question"
+            variant="outline-success"
+            no-border
+            no-icon-gutter
+            title="說明"
+          )
+
+        b-button-group.my-auto(size="lg")
+          lah-button(
+            icon="user-plus"
+            variant="outline-primary"
+            title="新增使用者"
+            no-icon-gutter
+            @click="add"
+          )
+          lah-button(
+            v-b-modal.upload-modal
+            icon="upload"
+            variant="outline-secondary"
+            no-icon-gutter
+            title="批次檔上傳更新"
+            action="move-fade-btt"
+          )
+          lah-button(
+            icon="file-excel"
+            regular
+            title="匯出系統全部使用者"
+            variant="outline-success"
+            no-icon-gutter
+            action="move-fade-ltr"
+            @click="exportXlsx"
+          )
+
+    lah-help-modal(:modal-id="'help-modal'")
+      ul
+        li: .d-inline-flex.justify-content-around
+          span 選取編輯好的XLSX檔案，點擊
+          lah-button(
+            v-b-modal.upload-modal
+            icon="upload"
+            variant="outline-secondary"
+            class="mx-1 mt-n1"
+            no-icon-gutter
+          )
+          span 上傳更新本地資料庫(dimension.db, user表格)
+
+        li.mt-2: .d-inline-flex.justify-content-around
+          span 利用
+          lah-button(
+            icon="user-plus"
+            variant="outline-primary"
+            class="mx-1 mt-n1"
+            no-icon-gutter
+            @click="add"
+          )
+          span 新增或
+          b-button(
+            variant="outline-success"
+            class="mx-1 mt-n1"
+            size="sm"
+          ) {{ site }}ＯＯＯＯ 桃園地政
+          span 編輯使用者。
+
+      hr
+      .mx-2.my-1
+        b-button(variant="outline-success" size="sm") {{ office }}XXXX 劉ＯＯ
+        span 在職使用者
+      .mx-2.my-1
+        b-button(variant="secondary" size="sm") {{ office }}XXXX 邦ＯＯ
+        span 離職使用者
+      .mx-2.my-1
+        b-button(variant="danger" size="sm") {{ office }}XXXX 渝ＯＯ
+        span 超級管理者
+      .mx-2.my-1
+        b-button(variant="outline-danger" size="sm") {{ office }}XXXX 中ＯＯ
+        span 系統管理者
+      .mx-2.my-1
+        b-button(variant="primary" size="sm") {{ office }}XXXX 壢ＯＯ
+        span 主管
+      .mx-2.my-1
+        b-button(variant="warning" size="sm") {{ office }}XXXX 地ＯＯ
+        span 研考
+      .mx-2.my-1
+        b-button(variant="info" size="sm") {{ office }}XXXX 政ＯＯ
+        span 總務
+      .mx-2.my-1
+        b-button(variant="outline-info" size="sm") {{ office }}XXXX 開ＯＯ
+        span 人事
+      .mx-2.my-1
+        b-button(variant="outline-dark" size="sm") {{ office }}XXXX 發ＯＯ
+        span 會計
+
+      b-modal(
         id="upload-modal"
         title="批次檔上傳更新"
         size="lg"
         hide-footer
         scrollable
         no-close-on-backdrop
-      >
-        <b-button-group size="lg" class="d-flex justify-content-end mb-2">
-          <lah-button icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success">
-            匯入範例檔下載
-          </lah-button>
-          <lah-button icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx">
-            匯出全部使用者
-          </lah-button>
-        </b-button-group>
-        <b-form-group
+      )
+        b-button-group.d-flex.justify-content-end.mb-2(size="lg")
+          lah-button(icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success") 匯入範例檔下載
+          lah-button(icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx") 匯出全部使用者
+        b-form-group(
           label="匯入使用者檔案"
           label-for="file-land_data_upload"
           label-cols-sm="2"
           label-size="md"
           title="*.xlsx"
-        >
-          <b-input-group id="file-land_data_upload" size="md">
-            <b-file
-              ref="file-land_data_upload"
-              v-model="userXlsx"
-              placeholder="請選擇XLSX檔案"
-              drop-placeholder="放開以設定上傳檔案"
-              accept=".xlsx, .XLSX"
-            >
-              <template slot="file-name" slot-scope="{ names }">
-                <b-badge variant="dark">
-                  {{ names[0] }}
-                </b-badge>
-                <b-badge v-if="names.length > 1" variant="dark" class="ml-1">
-                  + {{ names.length - 1 }} More files
-                </b-badge>
-              </template>
-            </b-file>
-            <template #append>
-              <lah-button
-                icon="upload"
-                variant="outline-primary"
-                title="上傳"
-                :disabled="$utils.empty(userXlsx)"
-                @click="upload"
-              />
-            </template>
-          </b-input-group>
-        </b-form-group>
-      </b-modal>
-    </lah-header>
-    <section>
-      <hr>
-      <div class="d-flex justify-content-between mb-2">
-        <div class="d-flex">
-          <b-form-radio-group
+        ): b-input-group(id="file-land_data_upload" size="md"): b-file(
+          ref="file-land_data_upload"
+          v-model="userXlsx"
+          placeholder="請選擇XLSX檔案"
+          drop-placeholder="放開以設定上傳檔案"
+          accept=".xlsx, .XLSX"
+        )
+          template(slot="file-name" slot-scope="{ names }")
+            b-badge(variant="dark") {{ names[0] }}
+            b-badge.ml-1(v-if="names.length > 1" variant="dark" class="") + {{ names.length - 1 }} More files
+          template(#append): lah-button(
+            icon="upload"
+            variant="outline-primary"
+            title="上傳"
+            :disabled="$utils.empty(userXlsx)"
+            @click="upload"
+          )
+
+    hr
+    section
+      //- 顯示控制UI
+      .d-flex.justify-content-between.mb-2
+        .d-flex
+          b-form-radio-group(
             v-model="selectedGroup"
             :options="groupOptions"
             buttons
             button-variant="outline-dark"
             class="my-auto"
             title="分類"
-          />
-          <b-form-radio-group
+          )
+          b-form-radio-group(
             v-model="sortOrder"
             :options="sortOpts"
             class="ml-3 my-auto"
-          />
-        </div>
-        <span class="text-muted my-auto lah-shadow">找到 <b-badge pill class="my-auto" variant="info">{{ users.length }}</b-badge> 個使用者</span>
-        <div class="d-flex my-auto">
-          <b-form-checkbox v-model="showAvatar" switch class="mr-3" title="顯示">
-            大頭照
-          </b-form-checkbox>
-          <b-form-checkbox v-model="showIp" switch class="mr-3" title="顯示">
-            IP
-          </b-form-checkbox>
-          <b-form-checkbox-group v-model="filter" :options="filterOptions" />
-        </div>
-      </div>
-      <hr>
-      <section v-for="category in categories" :key="category.NAME" class="mb-3">
-        <h5 class="lah-shadow">
-          <lah-fa-icon v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer">
-            {{ translateGroupName(category.NAME) }}
-            <b-badge pill variant="info">
-              {{ category.LIST.length }}
-            </b-badge>
-          </lah-fa-icon>
-        </h5>
-        <b-collapse :id="$utils.md5(category.NAME)" visible>
-          <b-button
-            v-for="user in category.LIST"
-            :key="user['id']"
-            v-b-popover.hover.top.html="role(user)"
-            :data-id="user['id']"
-            :data-name="user['name']"
-            size="sm"
-            class="mx-1 my-1 shadow"
-            :variant="variant(user)"
-            :pill="showAvatar"
-            @click="edit(user)"
-          >
-            <b-avatar v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)" />
-            {{ user["id"].padStart(6, "&ensp;") }}
-            {{ user["name"].padEnd(3, "　") }}
-            <div v-if="showIp" class="text-dark text-center font-weight-bolder">
-              {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}.<span class="text-danger">{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}</span>
-            </div>
-          </b-button>
-        </b-collapse>
-      </section>
-      <hr>
-    </section>
-  </div>
+          )
+        span.text-muted.my-auto.lah-shadow 找到 #[b-badge( pill class="my-auto" variant="info") {{ users.length }}] 個使用者
+        .d-flex.my-auto
+          b-form-checkbox(v-model="showAvatar" switch class="mr-3" title="顯示") 大頭照
+          b-form-checkbox(v-model="showIp" switch class="mr-3" title="顯示") IP
+          b-form-checkbox-group(v-model="filter" :options="filterOptions")
+
+    hr
+    //- 名牌顯示區塊
+    section.mb-3(v-for="category in categories" :key="category.NAME")
+      h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
+        span {{ translateGroupName(category.NAME) }}
+        b-badge(pill variant="info") {{ category.LIST.length }}
+
+      b-collapse(:id="$utils.md5(category.NAME)" visible): b-button(
+        v-for="user in category.LIST"
+        :key="user['id']"
+        :data-id="user['id']"
+        :data-name="user['name']"
+        :variant="variant(user)"
+        :pill="showAvatar"
+        v-b-popover.hover.top.html="role(user)"
+        size="sm"
+        class="mx-1 my-1 shadow"
+        @click="edit(user)"
+      )
+        b-avatar(v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)")
+        span {{ user["id"].padStart(6, '&ensp;') }}
+        span {{ user["name"].padEnd(3, '　') }}
+        .text-dark.text-center.font-weight-bolder(v-if="showIp")
+          span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
+          span.text-danger {{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
+
+    hr
 </template>
 
 <script>
-import ip2long from 'locutus/php/network/ip2long'
 import lahUserCard from '~/components/lah-user-card.vue'
 import lahUserEditCard from '~/components/lah-user-edit-card.vue'
 import lahUserAddCard from '~/components/lah-user-add-card.vue'
@@ -288,8 +217,8 @@ export default {
     users: [],
     filter: ['on'],
     filterOptions: [
-      { text: '在職', value: 'on' },
-      { text: '離職', value: 'off' }
+      { text: '正常', value: 'on' },
+      { text: '停用', value: 'off' }
     ]
   }),
   fetch () {
@@ -350,9 +279,9 @@ export default {
       return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.XLSX}?type=all_users_export`
     },
     usersByIpAsc () {
-      return this.users.sort(function (a, b) {
-        const bv = ip2long(b.ip)
-        const av = ip2long(a.ip)
+      return this.users.sort((a, b) => {
+        const bv = this.$utils.ipv4Int(b.ip)
+        const av = this.$utils.ipv4Int(a.ip)
         if (bv > av) {
           return -1
         }
@@ -360,8 +289,7 @@ export default {
           return 1
         }
         return 0
-      }
-      )
+      })
     },
     usersById () {
       return this.users.sort(function (a, b) {
@@ -372,8 +300,7 @@ export default {
           return 1
         }
         return 0
-      }
-      )
+      })
     },
     L3HWEBIp () {
       if (this.systemConfigs && this.systemConfigs.lxhweb) {
@@ -459,8 +386,8 @@ export default {
       // LIST count is the same, I will use the NAME for sorting
       if ((b.LIST.length - a.LIST.length) === 0) {
         const regex = new RegExp('^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$', 'g')
-        const bv = b.NAME.match(regex) ? ip2long(b.NAME) : b.NAME
-        const av = a.NAME.match(regex) ? ip2long(a.NAME) : a.NAME
+        const bv = b.NAME.match(regex) ? this.$utils.ipv4Int(b.NAME) : b.NAME
+        const av = a.NAME.match(regex) ? this.$utils.ipv4Int(a.NAME) : a.NAME
         if (bv > av) {
           return 1
         }
@@ -582,12 +509,12 @@ export default {
     getAuthority (user) {
       const authority = user.authority || 0
       return {
-        isAdmin: this.$consts.AUTHORITY.ADMIN === authority & this.$consts.AUTHORITY.ADMIN,
-        isChief: this.$consts.AUTHORITY.CHIEF === authority & this.$consts.AUTHORITY.CHIEF,
-        isDisabled: this.$consts.AUTHORITY.DISABLED === authority & this.$consts.AUTHORITY.DISABLED,
-        isRAE: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === authority & this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION,
-        isUserMgtStaff: this.$consts.AUTHORITY.USER_MANAGEMENT === authority & this.$consts.AUTHORITY.USER_MANAGEMENT,
-        isNotifyMgtStaff: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === authority & this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT
+        isAdmin: this.$consts.AUTHORITY.ADMIN === (authority & this.$consts.AUTHORITY.ADMIN),
+        isChief: this.$consts.AUTHORITY.CHIEF === (authority & this.$consts.AUTHORITY.CHIEF),
+        isDisabled: this.$consts.AUTHORITY.DISABLED === (authority & this.$consts.AUTHORITY.DISABLED),
+        isRAE: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === (authority & this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION),
+        isUserMgtStaff: this.$consts.AUTHORITY.USER_MANAGEMENT === (authority & this.$consts.AUTHORITY.USER_MANAGEMENT),
+        isNotifyMgtStaff: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === (authority & this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT)
       }
     },
     avatarSrc (user) {
