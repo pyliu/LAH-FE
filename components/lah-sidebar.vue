@@ -61,14 +61,16 @@
           #[font-awesome-icon(:icon="['fas', 'stamp']" size="lg")]
           案件領狀管控
 
+        li(v-if="authority.isAdmin"): hr
+        li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
+          #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
+          系統管理
+
         li: hr
 
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
           #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
           傳送公告訊息
-        li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
-          #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
-          系統管理介面
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
           傳送個人通知訊息
