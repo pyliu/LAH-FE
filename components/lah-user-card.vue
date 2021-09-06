@@ -19,7 +19,7 @@
               variant="danger"
               action="breath"
               v-if="isLeft"
-            ) 已離職【{{ userData["offboard_date"] }}】
+            ) 此帳號已禁用
             div ID：{{ userData["id"] }}
             div(v-if="isAuthorized") 電腦：{{ userData["ip"] }}
             div 分機：{{ userData["ext"] }}
@@ -88,10 +88,10 @@ export default {
   },
   computed: {
     isAuthorized () {
-      return this.authority.isAdmin
+      return this.authority.isAdmin || this.authority.isUserMgtStaff
     },
     isLeft () {
-      return !this.$utils.empty(this.userData.offboard_date)
+      return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED
     },
     birthAgeVariant () {
       const badgeAge = this.birthAge

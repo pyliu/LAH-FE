@@ -203,7 +203,7 @@
     hr
 
     b-button-group.d-flex.justify-content-between
-      lah-button(icon="save" :variant="saveButtonVariant" @click="save" :disabled="saveButtonDisabled") {{ isLeft ? '已離職(無法變更資料)' : '儲存變更' }}
+      lah-button(icon="save" :variant="saveButtonVariant" @click="save" :disabled="saveButtonDisabled") 儲存變更
       lah-button(icon="user-circle" regular v-if="!isLeft" variant="info" v-b-modal.upload-user-img-modal) 上傳圖檔
       lah-button(icon="sign-in-alt" v-if="isLeft && false" variant="success" action="move-fade-ltr" @click="onboard") 復職
       lah-button(icon="sign-out-alt" v-if="!isLeft && false" variant="danger" action="move-fade-ltr" @click="offboard") 離職
@@ -265,11 +265,7 @@
 </template>
 
 <script>
-import LahFaIcon from './lah-fa-icon.vue'
-import lahUserCard from './lah-user-card.vue'
-
 export default {
-  components: { lahUserCard, LahFaIcon },
   props: {
     raw: { type: Array, default: () => ([]) },
     id: { type: String, default: '' },
@@ -451,10 +447,8 @@ export default {
       return this.saveButtonDisabled ? 'secondary' : 'outline-success'
     },
     saveButtonDisabled () {
-      if (!this.isLeft) {
-        if (this.modified && this.checkRequired) {
-          return false
-        }
+      if (this.modified && this.checkRequired) {
+        return false
       }
       return true
     },
