@@ -60,50 +60,32 @@
     hr
     .d-flex.hist-card-container
       div.w-100: transition-group(name="list" mode="out-in")
-        b-card.hist-card(no-body v-for="(snapshot, idx) in firstColumnMemento" :key="`hist_first_${idx}`")
-          .d-flex.mb-1.mx-auto
-            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
-            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
-
-          div: b-badge.mr-1(
-            v-for="added in snapshot.added_to"
-            :key="`${added.channel}-${added.addedId}`"
-            variant="primary"
-          ) {{ `${added.channel}(${added.addedId})` }}
-
-          lah-notification-announcement-card.mx-auto(
-            :data-json="{ id: '#', ...snapshot }"
-          )
+        lah-notification-announcement-memento(
+          v-for="(snapshot, idx) in firstColumnMemento"
+          :key="`hist_first_${idx}`"
+          :memento="snapshot"
+          @copy="copy(snapshot)"
+          @remove="remove(snapshot)"
+          @badge="removeMementoAddedChannel($event.detail, snapshot)"
+        )
       div.w-100: transition-group(name="list" mode="out-in")
-        b-card.hist-card.mb-2(no-body v-for="(snapshot, idx) in secondColumnMemento" :key="`hist_second_${idx}`")
-          .d-flex.mb-1.mx-auto
-            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
-            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
-
-          div: b-badge.mr-1(
-            v-for="added in snapshot.added_to"
-            :key="`${added.channel}-${added.addedId}`"
-            variant="primary"
-          ) {{ `${added.channel}(${added.addedId})` }}
-
-          lah-notification-announcement-card.mx-auto(
-            :data-json="{ id: '#', ...snapshot }"
-          )
+        lah-notification-announcement-memento(
+          v-for="(snapshot, idx) in secondColumnMemento"
+          :key="`hist_second_${idx}`"
+          :memento="snapshot"
+          @copy="copy(snapshot)"
+          @remove="remove(snapshot)"
+          @badge="removeMementoAddedChannel($event.detail, snapshot)"
+        )
       div.w-100: transition-group(name="list" mode="out-in")
-        b-card.hist-card.mb-2(no-body v-for="(snapshot, idx) in thirdColumnMemento" :key="`hist_third_${idx}`")
-          .d-flex.mb-1.mx-auto
-            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
-            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
-
-          div: b-badge.mr-1(
-            v-for="added in snapshot.added_to"
-            :key="`${added.channel}-${added.addedId}`"
-            variant="primary"
-          ) {{ `${added.channel}(${added.addedId})` }}
-
-          lah-notification-announcement-card.mx-auto(
-            :data-json="{ id: '#', ...snapshot }"
-          )
+        lah-notification-announcement-memento(
+          v-for="(snapshot, idx) in thirdColumnMemento"
+          :key="`hist_third_${idx}`"
+          :memento="snapshot"
+          @copy="copy(snapshot)"
+          @remove="remove(snapshot)"
+          @badge="removeMementoAddedChannel($event.detail, snapshot)"
+        )
 
     b-sidebar(
       id="md-desc"
@@ -293,11 +275,29 @@ export default {
       setTimeout(() => this.attention(this.$refs.addCard), 400)
     },
     remove (snapshot) {
-      for (let i = 0; i < this.memento.length; i++) {
-        if (this.$utils.equal(this.memento[i], snapshot)) {
-          this.memento.splice(i, 1)
+      this.confirm(`移除「${snapshot.title}」這筆歷史紀錄?`).then((YN) => {
+        if (YN) {
+          // TODO: request to remove content from all added channels
+          for (let i = 0; i < this.memento.length; i++) {
+            if (this.$utils.equal(this.memento[i], snapshot)) {
+              this.copy(this.memento[i])
+              this.memento.splice(i, 1)
+              this.setCache(this.cacheKey, this.memento)
+              return
+            }
+          }
+        }
+      })
+    },
+    removeMementoAddedChannel (added, snapshot) {
+      // TODO: request to remove content from a specified channel
+      alert(`${added.channel} ${added.addedId}`)
+      // remove the content of specified channel in memento
+      for (let i = 0; i < snapshot.added_to.length; i++) {
+        if (this.$utils.equal(snapshot.added_to[i], added)) {
+          snapshot.added_to.splice(i, 1)
           this.setCache(this.cacheKey, this.memento)
-          return
+          break
         }
       }
     },
@@ -377,18 +377,5 @@ export default {
 }
 .hist-card-container {
   overflow: auto;
-}
-.hist-card {
-  margin-bottom: 1rem;
-  border: 0;
-  padding: 5px;
-}
-.hist-card:hover {
-  border-color:gray;
-  border-style: dotted;
-  border-width: 5px;
-}
-.hist-card .card {
-  width: 400px;
 }
 </style>
