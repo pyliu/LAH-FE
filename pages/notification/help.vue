@@ -28,9 +28,9 @@ export default {
   watch: {
   },
   created () {
-    // if (this.authority.isAdmin || this.authority.isNotifyMgtStaff) {
-    //   this.$router.push('/notification')
-    // }
+    if (this.authority.isAdmin || this.authority.isNotifyMgtStaff) {
+      this.$router.push('/notification')
+    }
   },
   mounted () {
   },
