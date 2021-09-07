@@ -3,7 +3,7 @@
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
         .my-auto 公告訊息發布管理
-        lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 可先利用送給 #[b-badge.s-105(variant="primary" pill) 我自己] 來做傳送測試
             ul: li 電腦端需安裝 #[b 信差即時通程式] 並正常連線才能顯示

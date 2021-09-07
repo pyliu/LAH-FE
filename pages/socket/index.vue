@@ -3,7 +3,7 @@ div
   lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
     .d-flex
       .my-auto 即時通訊
-      lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+      lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
       lah-help-modal(:modal-id="'help-modal'"): ul
         li.text-danger(v-if="websocket === undefined") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
         li WEBSOCKET_HOST：伺服器IP

@@ -4,7 +4,7 @@
       .d-flex.justify-content-between.w-100
         .d-flex
           .my-auto 375租約異動
-          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             h5 資料庫搜尋說明
             ul

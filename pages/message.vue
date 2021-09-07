@@ -4,7 +4,7 @@
       .d-flex
         font-awesome-icon.my-auto.mx-1(:icon="['far', 'comments']" size="lg")
         .my-auto 傳送個人通知訊息
-        lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 接收端電腦需安裝 #[b.text-primary 信差即時通程式] 並正常連線才能接收
           li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 信差即時通程式] 的使用者

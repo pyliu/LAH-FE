@@ -4,7 +4,7 @@
       lah-transition(appear): .d-flex.justify-content-between.w-100
         .d-flex
           .my-auto 非專業代理人案件檢索
-          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             h5 請參照下列步驟搜尋
             ol

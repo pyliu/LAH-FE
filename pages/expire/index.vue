@@ -14,7 +14,7 @@
             title="按我切換模式"
           )
             strong {{ queryTitle }}
-          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'"): .h6.text-nowrap: ul
             li
               .d-flex

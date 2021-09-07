@@ -4,7 +4,7 @@
       .d-flex
         .my-auto.d-flex
           .my-auto 傳送個人訊息 - {{ ID }} / {{ NAME}}
-        lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 歷史資料儲存於瀏覽器端，清除瀏覽器快取即可清空
             ul: li 最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆

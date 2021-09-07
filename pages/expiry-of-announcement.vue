@@ -4,7 +4,7 @@
       .d-flex.justify-content-between.w-100
         .d-flex
           .my-auto 公告期滿案件
-          lah-button(icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+          lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             .h5 公告中案件狀態說明：
             .mx-2 #[lah-fa-icon(icon="circle" variant="danger") 已到期案件]
