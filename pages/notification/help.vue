@@ -10,10 +10,10 @@
         //-     ul: li 最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆
         //-   li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank") #[b https://bit.ly/mdcheat]] 教學
       .d-flex
-    b-card.center.vh-85
+    b-card.center.text-center.vh-85
       h1 您需要有公告管理者權限，請洽系統管理者調整。
       h2 您仍可傳送個人訊息，如欲傳送請按 #[nuxt-link(to="/message") 此處] 。
-      h3 PC端信差即時通請至知識網下載安裝。
+      h3 PC端信差即時通請至 #[a(href="http://220.1.34.18:8888/service/section/%E8%B3%87%E8%A8%8A%E8%AA%B2/soft.html" target="_blank") 所內知識網] 下載安裝。
 </template>
 
 <script>
