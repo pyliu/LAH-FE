@@ -70,10 +70,10 @@
 
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
           #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
-          傳送公告訊息
+          公告訊息
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
-          傳送個人通知訊息
+          所內訊息
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
         //-   統計看板
