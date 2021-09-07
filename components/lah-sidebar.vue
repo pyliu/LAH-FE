@@ -73,7 +73,7 @@
           公告訊息
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
-          所內訊息
+          所內傳訊
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
         //-   統計看板
