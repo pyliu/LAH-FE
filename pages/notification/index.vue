@@ -64,6 +64,13 @@
           .d-flex.mb-1.mx-auto
             lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
             lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
+
+          div: b-badge.mr-1(
+            v-for="added in snapshot.added_to"
+            :key="`${added.channel}-${added.addedId}`"
+            variant="primary"
+          ) {{ `${added.channel}(${added.addedId})` }}
+
           lah-notification-announcement-card.mx-auto(
             :data-json="{ id: '#', ...snapshot }"
           )
@@ -72,6 +79,13 @@
           .d-flex.mb-1.mx-auto
             lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
             lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
+
+          div: b-badge.mr-1(
+            v-for="added in snapshot.added_to"
+            :key="`${added.channel}-${added.addedId}`"
+            variant="primary"
+          ) {{ `${added.channel}(${added.addedId})` }}
+
           lah-notification-announcement-card.mx-auto(
             :data-json="{ id: '#', ...snapshot }"
           )
@@ -80,6 +94,13 @@
           .d-flex.mb-1.mx-auto
             lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
             lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
+
+          div: b-badge.mr-1(
+            v-for="added in snapshot.added_to"
+            :key="`${added.channel}-${added.addedId}`"
+            variant="primary"
+          ) {{ `${added.channel}(${added.addedId})` }}
+
           lah-notification-announcement-card.mx-auto(
             :data-json="{ id: '#', ...snapshot }"
           )
@@ -298,6 +319,9 @@ export default {
             ...snapshot
           }).then(({ data }) => {
             this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning' })
+            if (data.status > 0) {
+              snapshot.added_to = data.added
+            }
           }).catch((err) => {
             this.alert(err.message)
             this.$utils.error(err)
