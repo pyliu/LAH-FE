@@ -5,6 +5,6 @@ export default function ({
   const authority = store.getters.authority
   // not admin/ => redirect to '/login'
   if (!authority.isAdmin && !authority.isNotifyMgtStaff) {
-    return redirect('/help')
+    return redirect('/notification/help')
   }
 }
