@@ -58,7 +58,7 @@
       lah-fa-icon(icon="clipboard-list") 歷史資料
       b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
     hr
-    .d-flex
+    .d-flex.hist-card-container
       div.w-100: transition-group(name="list" mode="out-in")
         b-card.hist-card(no-body v-for="(snapshot, idx) in firstColumnMemento" :key="`hist_first_${idx}`")
           .d-flex.mb-1.mx-auto
@@ -350,6 +350,9 @@ export default {
 }
 .memento-count-input {
   max-width: 160px;
+}
+.hist-card-container {
+  overflow: auto;
 }
 .hist-card {
   margin-bottom: 1rem;
