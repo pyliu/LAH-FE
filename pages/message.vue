@@ -261,12 +261,48 @@ export default {
       setTimeout(() => this.attention(this.$refs.addCard), 400)
     },
     remove (snapshot) {
-      for (let i = 0; i < this.memento.length; i++) {
-        if (this.$utils.equal(this.memento[i], snapshot)) {
-          this.memento.splice(i, 1)
-          this.setCache(this.cacheKey, this.memento)
-          return
-        }
+      // request to remove content from all added channels
+      if (Array.isArray(snapshot.added_to)) {
+        const channelData = snapshot.added_to.map((added, idx, array) => {
+          return {
+            channel: added.channel,
+            id: added.addedId
+          }
+        })
+        this.requestRemove(channelData, () => {
+          for (let i = 0; i < this.memento.length; i++) {
+            if (this.$utils.equal(this.memento[i], snapshot)) {
+              // restore removing data to edit field
+              this.copy(this.memento[i])
+              this.memento.splice(i, 1)
+              this.setCache(this.cacheKey, this.memento)
+              break
+            }
+          }
+        })
+      } else {
+        this.warning('這個 snapshot 裡沒有 added_to 屬性資料。')
+      }
+    },
+    requestRemove (array, cb = undefined) {
+      if (Array.isArray(array)) {
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
+          type: 'remove_notification',
+          message_type: 'message',
+          channels: array
+        }).then(({ data }) => {
+          this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning' })
+          data.status > 0 && cb && cb()
+        }).catch((err) => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      } else {
+        this.alert('欲刪除之頻道資訊不是陣列')
+        this.$utils.warn(array)
       }
     },
     add () {
@@ -287,6 +323,9 @@ export default {
             ...snapshot
           }).then(({ data }) => {
             this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning' })
+            if (data.status > 0) {
+              snapshot.added_to = data.added
+            }
           }).catch((err) => {
             this.alert(err.message)
             this.$utils.error(err)
