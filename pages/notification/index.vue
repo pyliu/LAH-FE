@@ -284,7 +284,7 @@ export default {
                 id: added.addedId
               }
             })
-            this.requestRemove(channelData, () => {
+            this.requestDBRemove(channelData, () => {
               for (let i = 0; i < this.memento.length; i++) {
                 if (this.$utils.equal(this.memento[i], snapshot)) {
                   this.copy(this.memento[i])
@@ -302,7 +302,7 @@ export default {
     },
     removeMementoAddedChannel (added, snapshot) {
       // request to remove content from a specified channel
-      this.requestRemove([{
+      this.requestDBRemove([{
         channel: added.channel,
         id: added.addedId
       }], () => {
@@ -316,7 +316,7 @@ export default {
         }
       })
     },
-    requestRemove (array, cb = undefined) {
+    requestDBRemove (array, cb = undefined) {
       if (Array.isArray(array)) {
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {

@@ -261,28 +261,28 @@ export default {
     remove (snapshot) {
       // request to remove content from all added channels
       if (Array.isArray(snapshot.added_to)) {
-        const channelData = snapshot.added_to.map((added, idx, array) => {
-          return {
-            channel: added.channel,
-            id: added.addedId
-          }
-        })
-        this.requestRemove(channelData, () => {
-          for (let i = 0; i < this.memento.length; i++) {
-            if (this.$utils.equal(this.memento[i], snapshot)) {
-              // restore removing data to edit field
-              this.copy(this.memento[i])
-              this.memento.splice(i, 1)
-              this.setCache(this.cacheKey, this.memento)
-              break
-            }
-          }
-        })
+        const channelData = snapshot.added_to.map(added => ({
+          channel: added.channel,
+          id: added.addedId
+        }))
+        this.requestDBRemove(channelData, () => this.removeMemento(snapshot))
       } else {
-        this.warning('這個 snapshot 裡沒有 added_to 屬性資料。')
+        this.$utils.warn('這個 snapshot 裡沒有 added_to 屬性資料。', snapshot)
+        this.removeMemento(snapshot)
       }
     },
-    requestRemove (array, cb = undefined) {
+    removeMemento (snapshot) {
+      for (let i = 0; i < this.memento.length; i++) {
+        if (this.$utils.equal(this.memento[i], snapshot)) {
+          // restore removing data to edit field
+          this.copy(this.memento[i])
+          this.memento.splice(i, 1)
+          this.setCache(this.cacheKey, this.memento)
+          break
+        }
+      }
+    },
+    requestDBRemove (array, cb = undefined) {
       if (Array.isArray(array)) {
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
