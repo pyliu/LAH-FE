@@ -26,16 +26,15 @@ export default {
   computed: {
   },
   watch: {
-  },
-  created () {
-    if (this.authority.isAdmin || this.authority.isNotifyMgtStaff) {
-      this.$router.push('/notification')
+    authority (obj) {
+      if (this.authority.isAdmin || this.authority.isNotifyMgtStaff) {
+        this.$router.push('/notification')
+      }
     }
   },
-  mounted () {
-  },
-  methods: {
-  }
+  created () {},
+  mounted () {},
+  methods: {}
 }
 </script>
 
