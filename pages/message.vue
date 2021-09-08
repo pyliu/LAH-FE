@@ -72,29 +72,26 @@
     hr
     .d-flex.hist-card-container
       div.w-100: transition-group(name="list" mode="out-in")
-        b-card.hist-card(no-body v-for="(snapshot, idx) in firstColumnMemento" :key="`hist_first_${idx}`")
-          .d-flex.mb-1.mx-auto
-            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
-            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
-          lah-notification-message.mx-auto(
-            :data-json="{ id: '#', ...snapshot }"
-          )
+        lah-notification-messsage-memento(
+           v-for="(snapshot, idx) in firstColumnMemento" :key="`hist_first_${idx}`"
+          :memento="snapshot"
+          @copy="copy(snapshot)"
+          @remove="remove(snapshot)"
+        )
       div.w-100: transition-group(name="list" mode="out-in")
-        b-card.hist-card.mb-2(no-body v-for="(snapshot, idx) in secondColumnMemento" :key="`hist_second_${idx}`")
-          .d-flex.mb-1.mx-auto
-            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
-            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
-          lah-notification-message.mx-auto(
-            :data-json="{ id: '#', ...snapshot }"
-          )
+        lah-notification-messsage-memento(
+           v-for="(snapshot, idx) in secondColumnMemento" :key="`hist_second_${idx}`"
+          :memento="snapshot"
+          @copy="copy(snapshot)"
+          @remove="remove(snapshot)"
+        )
       div.w-100: transition-group(name="list" mode="out-in")
-        b-card.hist-card.mb-2(no-body v-for="(snapshot, idx) in thirdColumnMemento" :key="`hist_third_${idx}`")
-          .d-flex.mb-1.mx-auto
-            lah-button.mr-1(icon="copy" variant="outline-secondary" @click="copy(snapshot)" title="複製本篇內容到新增欄位") 複製
-            lah-button(icon="times" variant="outline-danger" @click="remove(snapshot)" title="刪除本篇內容") 移除
-          lah-notification-message.mx-auto(
-            :data-json="{ id: '#', ...snapshot }"
-          )
+        lah-notification-messsage-memento(
+           v-for="(snapshot, idx) in thirdColumnMemento" :key="`hist_third_${idx}`"
+          :memento="snapshot"
+          @copy="copy(snapshot)"
+          @remove="remove(snapshot)"
+        )
 
     b-sidebar(
       id="md-desc"
