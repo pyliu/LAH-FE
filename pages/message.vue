@@ -40,7 +40,9 @@
             size="sm"
             pill
             @click="addSendto(entry.id)"
-          ) {{ entry.id }} / {{ userNames[entry.id] || entry.name }}
+          )
+            span {{ entry.id }}
+            span.ml-1(v-if="userNames[entry.id]") / {{ userNames[entry.id] || entry.name }}
 
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.justify-content-between
