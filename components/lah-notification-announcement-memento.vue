@@ -4,12 +4,12 @@
       lah-button.mr-1(icon="caret-up" action="move-fade-btt" variant="outline-primary" @click="trigger('copy')" v-b-tooltip.left="'複製本內容到編輯區塊'") 複製
       lah-button(icon="times" action="clock" variant="outline-danger" @click="trigger('remove')" v-b-tooltip.right="'從全部頻道中本內容'") 移除
 
-    .badge-container.mx-auto: lah-button.float-left.mb-1.mr-1(
+    .badge-container.mx-auto: lah-button.float-left.mb-1.mr-1.border-dashed(
       v-for="added in memento.added_to"
       :key="`${added.channel}-${added.addedId}`"
       v-b-tooltip="`自 ${addedText(added.channel)} 頻道移除`"
       icon="times"
-      variant="outline-dark"
+      variant="outline-danger"
       size="sm"
       @click="trigger('badge', added)"
     ) {{ addedText(added.channel) }}
@@ -56,5 +56,8 @@ export default {
 }
 .hist-card .card, .badge-container {
   width: 400px;
+}
+.border-dashed {
+  border-style: dashed;
 }
 </style>
