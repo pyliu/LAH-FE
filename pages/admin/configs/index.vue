@@ -9,7 +9,7 @@
             </div>
             <lah-button
               v-b-modal.help-modal
-              icon="question"
+              icon="info"
               variant="outline-success"
               no-border
               no-icon-gutter

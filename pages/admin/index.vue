@@ -2,10 +2,10 @@
   div(v-cloak)
     lah-header
       lah-transition(appear)
-        div(class="d-flex justify-content-between w-100")
-          div(class="d-flex")
-            div(class="my-auto") 管理主面版
-            lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+        .d-flex.justify-content-between.w-100
+          .d-flex
+            .my-auto 管理主面版
+            lah-button(icon="info" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
           div
       lah-help-modal(:modal-id="'help-modal'" size="md")
         |請選擇下方功能區塊進行管理
