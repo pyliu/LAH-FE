@@ -27,14 +27,20 @@ export default {
   },
   watch: {
     authority (obj) {
+      this.checkAuthority()
+    }
+  },
+  created () {},
+  mounted () {
+    this.checkAuthority()
+  },
+  methods: {
+    checkAuthority () {
       if (this.authority.isAdmin || this.authority.isNotifyMgtStaff) {
         this.$router.push('/notification')
       }
     }
-  },
-  created () {},
-  mounted () {},
-  methods: {}
+  }
 }
 </script>
 
