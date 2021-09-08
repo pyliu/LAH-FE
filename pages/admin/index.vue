@@ -8,16 +8,16 @@
             lah-button(icon="info" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
           div
       lah-help-modal(:modal-id="'help-modal'" size="md")
-        |請選擇下方功能區塊進行管理
-        hr
-        b-card-group(deck)
-          lah-index-card-link(:icon="['fas', 'comment-dots']" icon-variant="success" no-body size="2x" to="/notification" class="pt-2" action="metronome") 公告訊息發布管理
-          lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" action="rubber-h" class="pt-2") 使用者資訊管理
-          lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="dark" action="jelly" no-body size="2x" to="/admin/ip" class="pt-2") IP對應表管理
-        b-card-group(deck style="margin-top: 15px;")
-          lah-index-card-link(:icon="['fas', 'hammer']" no-body size="2x" icon-variant="muted" action="damage" class="pt-2") 工事中
-          lah-index-card-link(:icon="['fab', 'watchman-monitoring']" to="/admin/lxhweb" no-body size="2x" icon-variant="info" action="flip-h" class="pt-2") 同步異動監控
-          lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" action="rubber-v" class="pt-2") 系統參數設定
+        | 請選擇各功能區塊進行管理
+        //- hr
+        //- b-card-group(deck)
+        //-   lah-index-card-link(:icon="['fas', 'comment-dots']" icon-variant="success" no-body size="2x" to="/notification" class="pt-2") 公告訊息發布管理
+        //-   lah-index-card-link(:icon="['fas', 'users-cog']" to="/admin/users" no-body size="2x" icon-variant="primary" class="pt-2") 使用者資訊管理
+        //-   lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="dark" no-body size="2x" to="/admin/ip" class="pt-2") IP對應表管理
+        //- b-card-group(deck style="margin-top: 15px;")
+        //-   lah-index-card-link(:icon="['fas', 'hammer']" no-body size="2x" icon-variant="muted" class="pt-2") 工事中
+        //-   lah-index-card-link(:icon="['fab', 'watchman-monitoring']" to="/admin/lxhweb" no-body size="2x" icon-variant="info" class="pt-2") 同步異動監控
+        //-   lah-index-card-link(:icon="['fas', 'tasks']" to="/admin/configs" no-body size="2x" icon-variant="danger" class="pt-2") 系統參數設定
     b-container(fluid v-cloak)
       b-card-group(deck class="row")
         lah-index-card-link(:icon="['fas', 'comment-dots']" icon-variant="success" no-body size="5x" to="/notification" action="metronome") 公告訊息發布管理
