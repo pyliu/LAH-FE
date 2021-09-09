@@ -55,7 +55,7 @@ export default {
   border-width: 5px;
 }
 .hist-card .card, .badge-container {
-  width: 400px;
+  max-width: 400px;
 }
 .border-dashed {
   border-style: dashed;

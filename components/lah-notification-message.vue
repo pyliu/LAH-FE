@@ -1,5 +1,5 @@
 <template lang="pug">
-  .d-flex.my-1.justify-content-end
+  .d-flex.my-1.justify-content-center
     p.msg-item(v-html="message")
     //- timestamp for the message
     .time.s-60.mx-1.text-muted
@@ -37,13 +37,13 @@ export default {
   position: relative;
   overflow: hidden;
   background: #e6e9e9;
-  width: 350px;
+  min-width: 250px;
 
   display: inline-block;
   border-radius: 15px;
   color: rgb(10, 10, 10);
   padding: 10px;
-  max-width: 85%;
+  max-width: 350px;
   text-align: left;
   box-sizing: border-box;
   margin-bottom: 0rem !important;

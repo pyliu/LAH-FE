@@ -64,10 +64,10 @@
         li: hr
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
           #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
-          公告訊息
+          發布信差公告訊息
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
-          所內傳訊
+          傳送所內信差訊息
 
         li(v-if="authority.isAdmin"): hr
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
