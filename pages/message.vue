@@ -26,7 +26,7 @@
 
           b-modal(
             id="sendtoModal"
-            size="xl"
+            size="lg"
             scrollable
             hide-footer
             no-close-on-backdrop
@@ -35,11 +35,11 @@
             .d-flex
               b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple)
               .users-control-bar.users-select-height
-                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr")
-                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl")
-                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr")
-                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl")
-              b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple)
+                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed")
+                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates")
+                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed")
+                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates")
+              b-select.users-select-height(v-model="choosed" :options="choosedOpts" multiple)
 
 
         b-textarea.mb-3(
@@ -159,8 +159,8 @@ export default {
     cacheKey: 'message_postMementoCache',
     candidates: [],
     candidatesEntries: [],
-    selected: [],
-    selectedEntries: []
+    choosed: [],
+    choosedEntries: []
   }),
   fetchOnServer: false,
   fetch () {
@@ -183,6 +183,16 @@ export default {
               name: entry.entry_desc
             })
           }
+
+          if (!this.candidatesEntries.find((item) => {
+            return item.id === entry.entry_id
+          })) {
+            this.candidatesEntries.push({
+              ip: entry.ip,
+              id: entry.entry_id,
+              name: entry.entry_desc
+            })
+          }
         })
       } else {
         this.$utils.warn(data.message)
@@ -196,12 +206,20 @@ export default {
   },
   computed: {
     candidatesOpts () {
-      return this.candidatesEntries.map((entry) => {
+      return [...this.candidatesEntries].sort((a, b) => {
+        if (a.id > b.id) { return 1 }
+        if (a.id < b.id) { return -1 }
+        return 0
+      }).map((entry) => {
         return { value: entry, text: `${entry.id} ${this.userNames[entry.id] || entry.name}` }
       })
     },
-    selectedOpts () {
-      return this.selectedEntries.map((entry) => {
+    choosedOpts () {
+      return [...this.choosedEntries].sort((a, b) => {
+        if (a.id > b.id) { return 1 }
+        if (a.id < b.id) { return -1 }
+        return 0
+      }).map((entry) => {
         return { value: entry, text: `${entry.id} ${this.userNames[entry.id] || entry.name}` }
       })
     },
@@ -223,6 +241,66 @@ export default {
     this.restoreCachedMemento()
   },
   methods: {
+    /**
+     * users selection modal used
+     */
+    allCandidatesToChoosed () {
+      this.choosed = []
+      this.candidates = []
+      this.choosedEntries = [...this.choosedEntries, ...this.candidatesEntries]
+      this.candidatesEntries = []
+    },
+    allChoosedToCandidates () {
+      this.choosed = []
+      this.candidates = []
+      this.candidatesEntries = [...this.candidatesEntries, ...this.choosedEntries]
+      this.choosedEntries = []
+    },
+    candidatesToChoosed () {
+      this.candidatesEntries.forEach((entry) => {
+        if (this.candidates.includes(entry)) {
+          this.choosedEntries.push(entry)
+        }
+      })
+      // clear candidates
+      this.candidates.forEach((oentry, idx) => {
+        let foundIdx = -1
+        const found = this.candidatesEntries.find((ientry, idx) => {
+          if (this.$utils.equal(oentry, ientry)) {
+            foundIdx = idx
+            return true
+          }
+          return false
+        })
+        if (found) {
+          this.candidatesEntries.splice(foundIdx, 1)
+        }
+      })
+      this.candidates = []
+    },
+    choosedToCandidates () {
+      this.choosedEntries.forEach((entry) => {
+        if (this.choosed.includes(entry)) {
+          this.candidatesEntries.push(entry)
+        }
+      })
+      // clear candidates
+      this.choosed.forEach((oentry, idx) => {
+        let foundIdx = -1
+        const found = this.choosedEntries.find((ientry, idx) => {
+          if (this.$utils.equal(oentry, ientry)) {
+            foundIdx = idx
+            return true
+          }
+          return false
+        })
+        if (found) {
+          this.choosedEntries.splice(foundIdx, 1)
+        }
+      })
+      this.choosed = []
+    },
+
     async restoreCachedMemento () {
       const cached = await this.getCache(this.cacheKey)
       cached && (this.memento = [...cached])
