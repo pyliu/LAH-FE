@@ -3,11 +3,11 @@
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
         font-awesome-icon.my-auto.mx-1(:icon="['far', 'comments']" size="lg")
-        .my-auto 傳送個人通知訊息
+        .my-auto 傳送所內信差訊息
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 接收端電腦需安裝 #[b.text-primary 信差即時通程式] 並正常連線才能接收
-          li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 信差即時通程式] 的使用者
+          li 僅可送訊息給 #[b.text-danger 一個月內] 有使用 #[b.text-primary 信差即時通程式] 的使用者
           li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆  ({{ memento.length }} / {{ mementoCapacity }})
           li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank" rel="noopener noreferrer") #[b https://bit.ly/mdcheat]] 教學
       .d-flex
@@ -18,9 +18,29 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group
+            lah-button.mx-1(icon="users" variant="outline-primary"  v-b-modal.sendtoModal pill) 選擇傳送對象
             lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="selectAllSendto" action="slide-ltr" pill v-b-tooltip="'傳送給所有人'") 全選
             lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill v-b-tooltip="'清除內文及已選擇對象'") 清除
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill no-icon-gutter v-b-tooltip="'內容 Markdown 語法簡易說明'")
+
+
+          b-modal(
+            id="sendtoModal"
+            size="xl"
+            scrollable
+            hide-footer
+            no-close-on-backdrop
+          )
+            template(#modal-title) 設定傳送對象
+            .d-flex
+              b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple)
+              .users-control-bar.users-select-height
+                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr")
+                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl")
+                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr")
+                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl")
+              b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple)
+
 
         b-textarea.mb-3(
           v-model="dataJson.content"
@@ -30,7 +50,7 @@
           :state="validContent"
         )
         .d-flex
-          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 可選擇名單
+          h5.my-auto.mr-1(title="一個月內活躍的使用者"): lah-fa-icon(icon="hand-point-right" regular) 可選擇名單
           b-button.my-auto.mr-1.mb-1(
             v-for="(entry, idx) in sendtoEntries"
             v-if="!sendto.includes(entry.id)"
@@ -136,13 +156,17 @@ export default {
     memento: [],
     mementoCapacity: 10,
     mementoCount: 3,
-    cacheKey: 'message_postMementoCache'
+    cacheKey: 'message_postMementoCache',
+    candidates: [],
+    candidatesEntries: [],
+    selected: [],
+    selectedEntries: []
   }),
   fetchOnServer: false,
   fetch () {
     this.$axios.post(this.$consts.API.JSON.IP, {
       type: 'dynamic_ip_entries',
-      offset: 604800
+      offset: 2629743
     }).then(({ data }) => {
       if (this.$utils.statusCheck(data.status)) {
         data.raw.sort((a, b) => {
@@ -171,29 +195,21 @@ export default {
     title: '傳送個人訊息'
   },
   computed: {
+    candidatesOpts () {
+      return this.candidatesEntries.map((entry) => {
+        return { value: entry, text: `${entry.id} ${this.userNames[entry.id] || entry.name}` }
+      })
+    },
+    selectedOpts () {
+      return this.selectedEntries.map((entry) => {
+        return { value: entry, text: `${entry.id} ${this.userNames[entry.id] || entry.name}` }
+      })
+    },
     validContent () { return !this.$utils.empty(this.dataJson.content) },
     validSento () { return this.sendto.length > 0 },
     sendButtonDisabled () { return !this.validContent || !this.validSento },
     mementoCountCacheKey () {
       return `${this.cacheKey}_count`
-    },
-    reverseMemento () {
-      return this.memento.slice().reverse().slice(0, this.mementoCount)
-    },
-    firstColumnMemento () {
-      return this.reverseMemento.filter((snap, idx) => {
-        return idx % 3 === 0
-      })
-    },
-    secondColumnMemento () {
-      return this.reverseMemento.filter((snap, idx) => {
-        return idx % 3 === 1
-      })
-    },
-    thirdColumnMemento () {
-      return this.reverseMemento.filter((snap, idx) => {
-        return idx % 3 === 2
-      })
     }
   },
   watch: {
@@ -342,5 +358,14 @@ export default {
 <style>
 .memento-count-input {
   max-width: 160px;
+}
+.users-select-height {
+  height: calc(100vh - 160px) !important;
+  overflow: auto;
+}
+.users-control-bar {
+  width: 64px;
+  margin: 0 5px;
+  padding: calc((100vh - 400px) / 2) 0;
 }
 </style>
