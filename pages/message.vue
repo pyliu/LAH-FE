@@ -34,13 +34,13 @@
               h6 可選擇
               h6 已選擇
             .d-flex
-              b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple)
+              b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple @change="$utils.log($event)")
               .users-control-bar.users-select-height
-                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed")
-                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates")
-                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed")
-                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates")
-              b-select.users-select-height(v-model="choosed" :options="choosedOpts" multiple)
+                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed" title="加入")
+                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed" title="全部加入")
+                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates" title="移除")
+                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates" title="全部移除")
+              b-select.users-select-height(v-model="choosed" :options="choosedOpts" multiple @change="$utils.log($event)")
 
         b-textarea(
           v-model="dataJson.content"
@@ -55,7 +55,11 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
           .d-flex
-            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換名牌顯示") 已選擇傳送給 #[b-badge(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}] 人
+            div(@click="sendtoVisibleFlag = !sendtoVisibleFlag" v-b-toggle.choosed-tags): lah-fa-icon.my-auto(
+              :variant="sendtoDisplayIndicatorVariant"
+              :icon="sendtoDisplayIndicator"
+              title="切換名牌顯示"
+            ) 已選擇傳送給 #[b-badge(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}] 人
             lah-button.ml-1(
               icon="paper-plane"
               action="slide-btt"
@@ -151,7 +155,8 @@ export default {
     candidates: [],
     candidatesEntries: [],
     choosed: [],
-    choosedEntries: []
+    choosedEntries: [],
+    sendtoVisibleFlag: false
   }),
   fetchOnServer: false,
   fetch () {
@@ -220,7 +225,9 @@ export default {
     validSento () { return this.choosedSendtoCount > 0 },
     validContent () { return !this.$utils.empty(this.dataJson.content) },
     sendButtonDisabled () { return !this.validContent || !this.validSento },
-    mementoCountCacheKey () { return `${this.cacheKey}_count` }
+    mementoCountCacheKey () { return `${this.cacheKey}_count` },
+    sendtoDisplayIndicator () { return this.sendtoVisibleFlag ? 'caret-down' : 'caret-right' },
+    sendtoDisplayIndicatorVariant () { return this.sendtoVisibleFlag ? 'primary' : 'dark' }
   },
   watch: {
     mementoCount (val) {
