@@ -28,7 +28,6 @@
             size=""
             scrollable
             hide-footer
-            no-close-on-backdrop
           )
             template(#modal-title) 選擇傳送對象
             .d-flex.justify-content-around
@@ -55,7 +54,7 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
           .d-flex
-            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換狗牌顯示") 已設定 #[b-badge(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}] 人
+            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換狗牌顯示") 已選擇傳送給 #[b-badge(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}] 人
             lah-button.ml-1(
               icon="paper-plane"
               action="slide-btt"
@@ -66,6 +65,7 @@
             ) 確定發送
 
         b-collapse(id="choosed-tags"): .d-flex
+          span.my-auto 將傳送給：
           b-button.my-auto.m-1(
             v-for="(id, idx) in choosedSendto"
             v-b-tooltip="`移除 ${id}`"
