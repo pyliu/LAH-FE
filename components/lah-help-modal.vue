@@ -27,7 +27,7 @@
 
     p.h6.my-2.align-middle.
       滑鼠點擊
-      #[lah-fa-icon(icon="question" variant="success")]
+      #[lah-fa-icon(icon="info" variant="success")]
       查看頁面說明
 
     p.h6.my-2.align-middle.
