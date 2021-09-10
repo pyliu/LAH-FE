@@ -4,17 +4,18 @@
       lah-button.mr-1(icon="caret-up" action="move-fade-btt" variant="outline-primary" @click="trigger('copy')" v-b-tooltip.left="'複製本內容到編輯區塊'") 複製
       lah-button(icon="times" action="clock" variant="outline-danger" @click="trigger('remove')" v-b-tooltip.right="'從全部頻道中本內容'") 移除
 
-    .badge-container.mx-auto: lah-button.float-left.mb-1.mr-1.border-dashed(
+    .badge-container.clearfix.mx-auto: lah-button.m-1.border-dashed.float-left(
       v-for="added in memento.added_to"
       :key="`${added.channel}-${added.addedId}`"
       v-b-tooltip="`自 ${addedText(added.channel)} 頻道移除`"
       icon="times"
-      variant="outline-danger"
+      action="clock"
+      variant="outline-secondary"
       size="sm"
       @click="trigger('badge', added)"
     ) {{ addedText(added.channel) }}
 
-    lah-notification-announcement-card.mx-auto.clearfix(
+    .d-flex.justify-content-center: lah-notification-announcement-card(
       :data-json="{ id: '#', ...memento }"
     )
 </template>
