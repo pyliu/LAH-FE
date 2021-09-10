@@ -19,9 +19,9 @@
           h4.my-auto 傳送訊息
           b-button-group
             lah-button.mx-1(icon="users" variant="outline-primary"  v-b-modal.sendtoModal pill title="顯示選擇視窗") 選擇傳送對象
-            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="allCandidatesToChoosed" action="slide-ltr" pill title="'傳送給所有活躍使用者'" :disabled="candidatesEntries.length === 0") 全選
-            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill title="'清除內文及已選擇對象'") 清除
-            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill no-icon-gutter title="'內容 Markdown 語法簡易說明'")
+            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="allCandidatesToChoosed" action="slide-ltr" pill title="傳送給所有活躍使用者" :disabled="candidatesEntries.length === 0") 全選
+            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill title="清除內文及已選擇對象") 清除
+            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill no-icon-gutter title="內容 Markdown 語法簡易說明")
 
           b-modal(
             id="sendtoModal"
