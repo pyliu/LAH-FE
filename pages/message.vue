@@ -18,10 +18,10 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group
-            lah-button.mx-1(icon="users" variant="outline-primary"  v-b-modal.sendtoModal pill) 選擇傳送對象
-            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="allCandidatesToChoosed" action="slide-ltr" pill v-b-tooltip="'傳送給所有活躍使用者'" :disabled="candidatesEntries.length === 0") 全選
-            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill v-b-tooltip="'清除內文及已選擇對象'") 清除
-            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill no-icon-gutter v-b-tooltip="'內容 Markdown 語法簡易說明'")
+            lah-button.mx-1(icon="users" variant="outline-primary"  v-b-modal.sendtoModal pill title="顯示選擇視窗") 選擇傳送對象
+            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="allCandidatesToChoosed" action="slide-ltr" pill title="'傳送給所有活躍使用者'" :disabled="candidatesEntries.length === 0") 全選
+            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill title="'清除內文及已選擇對象'") 清除
+            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill no-icon-gutter title="'內容 Markdown 語法簡易說明'")
 
           b-modal(
             id="sendtoModal"
@@ -55,7 +55,7 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
           .d-flex
-            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換狗牌顯示") 已設定 #[b-badge(variant="info" pill) {{ choosedSendtoCount }}] 人
+            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換狗牌顯示") 已設定 #[b-badge(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}] 人
             lah-button.ml-1(
               icon="paper-plane"
               action="slide-btt"
