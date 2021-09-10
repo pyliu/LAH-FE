@@ -45,15 +45,15 @@
           )
 
       lah-transition(appear): b-card(border-variant="success")
-        template(#header): .d-flex.justify-content-between
-          h4.my-auto.text-nowrap.mr-2 預覽
-          .my-auto(v-if="sendto.length > 0"): b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`")
-            strong.s-105 {{ to }}
+        template(#header): .d-flex.align-items-center
+          h4.text-nowrap.mr-auto.my-auto 預覽
+          div(v-if="sendto.length > 0"): b-badge.mx-1(v-for="(to, idx) in sendto" :variant="sendtoVariant(to)" pill :key="`b-badge-${idx}`")
+            strong.s-100 {{ to }}
         lah-notification-announcement-card.mx-auto(
           :data-json="announcementDataJson"
         )
 
-    h4.d-flex.justify-content-between.my-3
+    h4.d-flex.justify-content-between.align-items-center.my-3
       lah-fa-icon(icon="clipboard-list") 歷史資料
       b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
     hr
