@@ -1,6 +1,6 @@
 <template lang="pug">
   b-card.hist-card.mb-2(no-body)
-    .d-flex.mb-1.mx-auto
+    .d-flex.mb-1.justify-content-center
       lah-button.mr-1(icon="caret-up" action="move-fade-btt" variant="outline-primary" @click="trigger('copy')" v-b-tooltip.left="'複製本內容到編輯區塊'") 複製
       lah-button(icon="times" action="clock" variant="outline-danger" @click="trigger('remove')" v-b-tooltip.right="'從全部頻道中本內容'") 移除
 
@@ -14,7 +14,7 @@
       @click="trigger('badge', added)"
     ) {{ addedText(added.channel) }}
 
-    lah-notification-announcement-card.mx-auto(
+    lah-notification-announcement-card.mx-auto.clearfix(
       :data-json="{ id: '#', ...memento }"
     )
 </template>
