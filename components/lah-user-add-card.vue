@@ -391,7 +391,7 @@ export default {
       }
     }, 250)
     this.authOpts = [
-      { value: this.$consts.AUTHORITY.DISABLED, text: '停用' },
+      { value: this.$consts.AUTHORITY.DISABLED, text: '停用', disabled: true },
       { value: this.$consts.AUTHORITY.ADMIN, text: '系統管理' },
       { value: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT, text: '訊息管理' },
       { value: this.$consts.AUTHORITY.USER_MANAGEMENT, text: '人員管理' },
