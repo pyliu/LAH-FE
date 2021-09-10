@@ -35,7 +35,7 @@
               b 已選擇
             .d-flex.align-items-stretch.modal-height
               b-select.overflow-auto(v-model="candidates" :options="candidatesOpts" multiple @change="$utils.log($event)")
-              .modal-ctl-bar.my-auto
+              .modal-ctl-bar.align-self-center
                 lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed" title="加入" :disabled="candidatesEntries.length === 0")
                 lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed" title="全部加入" :disabled="candidatesEntries.length === 0")
                 lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates" title="移除" :disabled="choosedEntries.length === 0")
@@ -52,32 +52,31 @@
         )
 
       lah-transition(appear): b-card.max-card-height(border-variant="success")
-        template(#header): .d-flex.justify-content-between
-          h4.my-auto.text-nowrap.mr-2 預覽
-          .d-flex.align-items-center
-            .d-flex.align-items-center(@click="sendtoVisibleFlag = !sendtoVisibleFlag" v-b-toggle.choosed-tags)
-              lah-fa-icon(
-                :variant="sendtoDisplayIndicatorVariant"
-                :icon="sendtoDisplayIndicator"
-                title="切換名牌顯示"
-              )
-              .d-flex.align-items-center
-                span 已選擇傳送給
-                b-badge.mx-1(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
-                span 人
+        template(#header): .d-flex.align-items-center
+          h4.my-auto.text-nowrap.mr-auto 預覽
+          .d-flex.align-items-center(@click="sendtoVisibleFlag = !sendtoVisibleFlag" v-b-toggle.choosed-tags)
+            lah-fa-icon(
+              :variant="sendtoDisplayIndicatorVariant"
+              :icon="sendtoDisplayIndicator"
+              title="切換名牌顯示"
+            )
+            .d-flex.align-items-center
+              span 已選擇傳送給
+              b-badge.mx-1(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
+              span 人
 
-            lah-button.ml-1(
-              icon="paper-plane"
-              action="slide-btt"
-              :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
-              :disabled="sendButtonDisabled"
-              @click="add"
-              pill
-            ) 發送
+          lah-button.ml-1(
+            icon="paper-plane"
+            action="slide-btt"
+            :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
+            :disabled="sendButtonDisabled"
+            @click="add"
+            pill
+          ) 發送
 
-        b-collapse(id="choosed-tags"): .clearfix
-          .my-auto.text-nowrap.float-left 將傳送給：
-          b-button.my-auto.m-1.mt-2.text-nowrap.float-left(
+        b-collapse(id="choosed-tags"): .d-flex.flex-wrap.align-items-center
+          .text-nowrap 將傳送給：
+          b-button.m-1.text-nowrap(
             v-for="(id, idx) in choosedSendto"
             v-b-tooltip="`移除 ${id}`"
             variant="outline-success"
@@ -88,10 +87,10 @@
           )
             lah-avatar(:id="id" ignore-system-config)
             span.my-auto.ml-1 {{ userNames[id] || id }}
-        .center.clearfix.mt-3: lah-notification-message(:data-json="dataJson")
+        .center: lah-notification-message(:data-json="dataJson")
 
-    h4.d-flex.justify-content-between.my-3
-      lah-fa-icon(icon="clipboard-list") 歷史資料
+    h4.d-flex.my-3
+      lah-fa-icon.mr-auto(icon="clipboard-list") 歷史資料
       b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
 
     hr
