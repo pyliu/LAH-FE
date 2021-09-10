@@ -69,10 +69,13 @@
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
           傳送所內信差訊息
 
-        li(v-if="authority.isAdmin"): hr
+        li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
           #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
           系統管理
+        li(v-if="authority.isUserMgtStaff || authority.isAdmin"): nuxt-link(to="/admin/users").
+          #[font-awesome-icon(:icon="['fas', 'users-cog']" size="lg")]
+          使用者管理
 
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
