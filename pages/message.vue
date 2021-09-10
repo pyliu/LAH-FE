@@ -42,7 +42,7 @@
                 lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates")
               b-select.users-select-height(v-model="choosed" :options="choosedOpts" multiple)
 
-        b-textarea.mb-3(
+        b-textarea(
           v-model="dataJson.content"
           rows="5"
           max-rows="15"
@@ -54,7 +54,7 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
           .d-flex
-            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換狗牌顯示") 已選擇傳送給 #[b-badge(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}] 人
+            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換名牌顯示") 已選擇傳送給 #[b-badge(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}] 人
             lah-button.ml-1(
               icon="paper-plane"
               action="slide-btt"
@@ -62,7 +62,7 @@
               :disabled="sendButtonDisabled"
               @click="add"
               pill
-            ) 確定發送
+            ) 發送
 
         b-collapse(id="choosed-tags"): .d-flex
           span.my-auto.clearfix.text-nowrap 將傳送給：
