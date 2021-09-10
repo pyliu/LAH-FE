@@ -65,8 +65,8 @@
             ) 確定發送
 
         b-collapse(id="choosed-tags"): .d-flex
-          span.my-auto 將傳送給：
-          b-button.my-auto.m-1(
+          span.my-auto.clearfix.text-nowrap 將傳送給：
+          b-button.my-auto.m-1.text-nowrap.float-left(
             v-for="(id, idx) in choosedSendto"
             v-b-tooltip="`移除 ${id}`"
             variant="outline-success"
@@ -77,7 +77,7 @@
           )
             lah-avatar(:id="id" ignore-system-config)
             span.my-auto.ml-1 {{ userNames[id] || id }}
-        .center.mt-3: lah-notification-message(:data-json="dataJson")
+        .center.clearfix.mt-3: lah-notification-message(:data-json="dataJson")
 
     h4.d-flex.justify-content-between.my-3
       lah-fa-icon(icon="clipboard-list") 歷史資料
