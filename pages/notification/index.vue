@@ -19,8 +19,8 @@
           h4.my-auto 新增公告
           b-button-group
             lah-button(icon="paper-plane" :variant="sendButtonDisabled ? 'outline-primary' : 'primary'" :disabled="sendButtonDisabled" @click="add" pill) 送出
-            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill) 清除
-            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 內容語法說明
+            lah-button.mx-1(icon="undo-alt" variant="outline-secondary" title="清除欄位及已選擇對象" @click="reset" action="cycle-alt" pill) 清除
+            lah-button(icon="question" variant="outline-success" action="bounce" title="內容 Markdown 語法簡易說明" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill) 說明
         b-form-group.mb-1
           template(#label): .d-flex.align-items-center.h5(@click="flipSendto")
             lah-fa-icon.mr-1(icon="caret-square-right" regular)
