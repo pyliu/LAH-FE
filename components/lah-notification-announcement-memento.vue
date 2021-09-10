@@ -1,19 +1,18 @@
 <template lang="pug">
   b-card.hist-card.mb-2(no-body)
-    .d-flex.mb-1.justify-content-center
-      lah-button.mr-1(icon="caret-up" action="move-fade-btt" variant="outline-primary" @click="trigger('copy')" v-b-tooltip.left="'複製本內容到編輯區塊'") 複製
-      lah-button(icon="times" action="clock" variant="outline-danger" @click="trigger('remove')" v-b-tooltip.right="'從全部頻道中本內容'") 移除
-
-    .badge-container.d-flex.flex-wrap: lah-button.m-1.border-dashed(
-      v-for="added in memento.added_to"
-      :key="`${added.channel}-${added.addedId}`"
-      v-b-tooltip="`自 ${addedText(added.channel)} 頻道移除`"
-      icon="times"
-      action="clock"
-      variant="outline-secondary"
-      size="sm"
-      @click="trigger('badge', added)"
-    ) {{ addedText(added.channel) }}
+    .badge-container.d-flex.flex-wrap
+      lah-button.m-1(icon="caret-up" action="move-fade-btt" variant="outline-primary" @click="trigger('copy')" v-b-tooltip="'複製本內容到編輯區塊'") 複製
+      lah-button.m-1(icon="times" action="clock" variant="outline-danger" @click="trigger('remove')" v-b-tooltip="'從全部頻道中本內容'") 移除
+      lah-button.m-1.border-dashed(
+        v-for="added in memento.added_to"
+        :key="`${added.channel}-${added.addedId}`"
+        :title="`自 ${addedText(added.channel)} 頻道移除`"
+        icon="times"
+        action="clock"
+        variant="outline-secondary"
+        size="sm"
+        @click="trigger('badge', added)"
+      ) {{ addedText(added.channel) }}
 
     .d-flex.justify-content-center: lah-notification-announcement-card(
       :data-json="{ id: '#', ...memento }"
