@@ -70,12 +70,21 @@
           傳送所內信差訊息
 
         li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
-        li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
-          #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
-          系統管理
+        li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
+          #[font-awesome-icon(:icon="['fab', 'watchman-monitoring']" size="lg")]
+          同步異動監控
+        li(v-if="authority.isAdmin"): nuxt-link(to="/admin/ip").
+          #[font-awesome-icon(:icon="['fas', 'network-wired']" size="lg")]
+          IP對應表管理
         li(v-if="authority.isUserMgtStaff || authority.isAdmin"): nuxt-link(to="/admin/users").
           #[font-awesome-icon(:icon="['fas', 'users-cog']" size="lg")]
           使用者管理
+        li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
+          #[font-awesome-icon(:icon="['fas', 'tasks']" size="lg")]
+          系統設定參數管理
+        li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
+          #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
+          系統管理介面
 
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
