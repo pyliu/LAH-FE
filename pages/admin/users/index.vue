@@ -294,7 +294,7 @@ export default {
       return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.XLSX}?type=all_users_export`
     },
     usersByIpAsc () {
-      return this.users.sort((a, b) => {
+      return [...this.users].sort((a, b) => {
         const bv = this.$utils.ipv4Int(b.ip)
         const av = this.$utils.ipv4Int(a.ip)
         if (bv > av) {
@@ -307,7 +307,7 @@ export default {
       })
     },
     usersById () {
-      return this.users.sort(function (a, b) {
+      return [...this.users].sort(function (a, b) {
         if (b.id > a.id) {
           return -1
         }
