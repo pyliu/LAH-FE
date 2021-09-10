@@ -14,13 +14,13 @@
 
     b-card-group(deck)
 
-      b-card(ref="addCard" border-variant="dark")
+      b-card.max-card-height(ref="addCard" border-variant="dark")
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group
             lah-button.mx-1(icon="users" v-b-modal.sendtoModal pill title="顯示選擇視窗") 選擇
-            lah-button.mx-1(icon="caret-right" variant="outline-info" @click="allCandidatesToChoosed" action="slide-ltr" pill title="傳送給所有活躍使用者" :disabled="candidatesEntries.length === 0") 全選
-            lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill title="清除內文及已選擇對象") 清除
+            lah-button.mx-1(icon="caret-right" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ltr" pill title="傳送給所有活躍使用者" :disabled="candidatesEntries.length === 0") 全選
+            lah-button.mx-1(icon="undo-alt" variant="outline-danger"  @click="reset" action="cycle-alt" pill title="清除內文及已選擇對象") 清除
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill title="內容 Markdown 語法簡易說明" action="bounce") 說明
 
           b-modal(
@@ -45,12 +45,13 @@
         b-textarea(
           v-model="dataJson.content"
           rows="5"
-          max-rows="15"
+          max-rows="100"
           placeholder="... 支援 Markdown 語法 ... "
+          style="overflow: hidden"
           :state="validContent"
         )
 
-      lah-transition(appear): b-card(border-variant="success")
+      lah-transition(appear): b-card.max-card-height(border-variant="success")
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
           .d-flex
@@ -64,9 +65,9 @@
               pill
             ) 發送
 
-        b-collapse(id="choosed-tags"): .d-flex
-          span.my-auto.clearfix.text-nowrap 將傳送給：
-          b-button.my-auto.m-1.text-nowrap.float-left(
+        b-collapse(id="choosed-tags"): .clearfix
+          .my-auto.text-nowrap.float-left 將傳送給：
+          b-button.my-auto.m-1.mt-2.text-nowrap.float-left(
             v-for="(id, idx) in choosedSendto"
             v-b-tooltip="`移除 ${id}`"
             variant="outline-success"
@@ -420,6 +421,10 @@ export default {
 </script>
 
 <style>
+.max-card-height {
+  max-height: calc(50vh - 80px);
+  overflow: auto;
+}
 .memento-count-input {
   max-width: 160px;
 }
