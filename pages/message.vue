@@ -55,7 +55,7 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
           .d-flex
-            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="angle-double-right" title="切換狗牌顯示") 已設定 #[b-badge(variant="info" pill) {{ choosedSendtoCount }}] 人
+            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="caret-right" title="切換狗牌顯示") 已設定 #[b-badge(variant="info" pill) {{ choosedSendtoCount }}] 人
             lah-button.ml-1(
               icon="paper-plane"
               action="slide-btt"
