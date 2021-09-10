@@ -2,10 +2,10 @@
   span
     b-avatar.my-auto(
       v-if="enableAvatar"
-      button 
-      :variant="variant" 
-      :size="`${size}em`" 
-      :src="avatarSrc" 
+      button
+      :variant="variant"
+      :size="`${size}em`"
+      :src="avatarSrc"
       :title="`${userId} ${userName}`"
       @click="photoClick($event)"
       @img-error="srcNotAvailable"
@@ -23,22 +23,22 @@ export default {
     id: { type: String, default: '' },
     name: { type: String, default: '' },
     size: { type: String, default: '1.3' },
-    variant: { type: String, default: 'light' }
+    variant: { type: String, default: 'light' },
+    ignoreSystemConfig: { type: Boolean, default: false }
   },
   computed: {
     userId () {
-      return this.userData['id'] || this.id
+      return this.userData.id || this.id
     },
     userName () {
-      return this.userData['name'] || this.name
+      return this.userData.name || this.userNames[this.id] || this.name
     },
     avatarSrc () {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
     },
     enableAvatar () {
-      if (this.systemConfigs) {
-        return this.systemConfigs.avatar === true || this.systemConfigs.avatar === 'true'
-      }
+      if (this.ignoreSystemConfig) { return true }
+      if (this.systemConfigs) { return this.systemConfigs.avatar === true || this.systemConfigs.avatar === 'true' }
       return false
     }
   },

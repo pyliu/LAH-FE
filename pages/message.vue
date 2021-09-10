@@ -19,19 +19,21 @@
           h4.my-auto 傳送訊息
           b-button-group
             lah-button.mx-1(icon="users" variant="outline-primary"  v-b-modal.sendtoModal pill) 選擇傳送對象
-            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="selectAllSendto" action="slide-ltr" pill v-b-tooltip="'傳送給所有人'") 全選
+            lah-button.mx-1(icon="caret-right" variant="outline-primary"  @click="allCandidatesToChoosed" action="slide-ltr" pill v-b-tooltip="'傳送給所有活躍使用者'" :disabled="candidatesEntries.length === 0") 全選
             lah-button.mx-1(icon="undo-alt" variant="outline-secondary"  @click="reset" action="cycle-alt" pill v-b-tooltip="'清除內文及已選擇對象'") 清除
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill no-icon-gutter v-b-tooltip="'內容 Markdown 語法簡易說明'")
 
-
           b-modal(
             id="sendtoModal"
-            size="lg"
+            size=""
             scrollable
             hide-footer
             no-close-on-backdrop
           )
-            template(#modal-title) 設定傳送對象
+            template(#modal-title) 選擇傳送對象
+            .d-flex.justify-content-around
+              h6 可選擇
+              h6 已選擇
             .d-flex
               b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple)
               .users-control-bar.users-select-height
@@ -41,7 +43,6 @@
                 lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates")
               b-select.users-select-height(v-model="choosed" :options="choosedOpts" multiple)
 
-
         b-textarea.mb-3(
           v-model="dataJson.content"
           rows="5"
@@ -49,43 +50,33 @@
           placeholder="... 支援 Markdown 語法 ... "
           :state="validContent"
         )
-        .d-flex
-          h5.my-auto.mr-1(title="一個月內活躍的使用者"): lah-fa-icon(icon="hand-point-right" regular) 可選擇名單
-          b-button.my-auto.mr-1.mb-1(
-            v-for="(entry, idx) in sendtoEntries"
-            v-if="!sendto.includes(entry.id)"
-            v-b-tooltip="`點擊新增 ${userNames[entry.id] || entry.name}`"
-            :key="`badge-${idx}`"
-            variant="outline-secondary"
-            size="sm"
-            pill
-            @click="addSendto(entry.id)"
-          )
-            span {{ entry.id }}
-            span.ml-1(v-if="userNames[entry.id]") / {{ userNames[entry.id] || entry.name }}
 
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.justify-content-between
           h4.my-auto.text-nowrap.mr-2 預覽
-          lah-button(
-            icon="paper-plane"
-            action="slide-btt"
-            :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
-            :disabled="sendButtonDisabled"
-            @click="add"
-            pill
-          ) 確定發送
-        .d-flex
-          h5.my-auto.mr-1: lah-fa-icon(icon="hand-point-right" regular) 已選擇送給
-          b-button.my-auto.mr-1.mb-1(
-            v-for="(id, idx) in sendto"
-            v-b-tooltip="`點擊移除 ${userNames[id] || id}`"
-            variant="outline-primary"
+          .d-flex
+            lah-fa-icon.my-auto(v-b-toggle.choosed-tags icon="angle-double-right" title="切換狗牌顯示") 已設定 #[b-badge(variant="info" pill) {{ choosedSendtoCount }}] 人
+            lah-button.ml-1(
+              icon="paper-plane"
+              action="slide-btt"
+              :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
+              :disabled="sendButtonDisabled"
+              @click="add"
+              pill
+            ) 確定發送
+
+        b-collapse(id="choosed-tags"): .d-flex
+          b-button.my-auto.m-1(
+            v-for="(id, idx) in choosedSendto"
+            v-b-tooltip="`移除 ${id}`"
+            variant="outline-success"
             size="sm"
             :key="`snedto-${idx}`"
             @click="removeSendto(id)"
             pill
-          ) {{ id }} / {{ userNames[id] || id }}
+          )
+            lah-avatar(:id="id" ignore-system-config)
+            span.my-auto.ml-1 {{ userNames[id] || id }}
         .center.mt-3: lah-notification-message(:data-json="dataJson")
 
     h4.d-flex.justify-content-between.my-3
@@ -151,7 +142,6 @@ export default {
       create_datetime: ''
     },
     helpSidebarFlag: false,
-    sendto: [],
     sendtoEntries: [],
     memento: [],
     mementoCapacity: 10,
@@ -202,7 +192,7 @@ export default {
     })
   },
   head: {
-    title: '傳送個人訊息'
+    title: '傳送個人信差訊息'
   },
   computed: {
     candidatesOpts () {
@@ -223,12 +213,13 @@ export default {
         return { value: entry, text: `${entry.id} ${this.userNames[entry.id] || entry.name}` }
       })
     },
+    selectableEntries () { return this.candidatesEntries.concat(this.choosedEntries) },
+    choosedSendto () { return this.choosedEntries.map(entry => entry.id) },
+    choosedSendtoCount () { return this.choosedSendto.length },
+    validSento () { return this.choosedSendtoCount > 0 },
     validContent () { return !this.$utils.empty(this.dataJson.content) },
-    validSento () { return this.sendto.length > 0 },
     sendButtonDisabled () { return !this.validContent || !this.validSento },
-    mementoCountCacheKey () {
-      return `${this.cacheKey}_count`
-    }
+    mementoCountCacheKey () { return `${this.cacheKey}_count` }
   },
   watch: {
     mementoCount (val) {
@@ -300,7 +291,6 @@ export default {
       })
       this.choosed = []
     },
-
     async restoreCachedMemento () {
       const cached = await this.getCache(this.cacheKey)
       cached && (this.memento = [...cached])
@@ -315,24 +305,20 @@ export default {
       }
       this.setCache(this.cacheKey, this.memento)
     },
-    addSendto (id) {
-      this.sendto.push(id)
-    },
     removeSendto (id) {
-      const index = this.sendto.indexOf(id)
-      if (index > -1) {
-        this.sendto.splice(index, 1)
-      }
+      const found = this.choosedEntries.find(entry => entry.id === id)
+      found && this.choosed.push(found)
+      this.choosedToCandidates()
     },
-    selectAllSendto () {
-      this.clearAllSendto()
-      this.sendtoEntries.forEach((entry) => {
-        this.addSendto(entry.id)
-      })
-    },
-    clearAllSendto () { this.sendto = [] },
     copy (snapshot) {
-      this.sendto = [...snapshot.channels]
+      // all choosed back to candidates
+      this.allChoosedToCandidates()
+      snapshot.channels.forEach((id) => {
+        const found = this.candidatesEntries.find(entry => entry.id === id)
+        found && this.candidates.push(found)
+      })
+      this.candidatesToChoosed()
+
       this.dataJson = { ...this.dataJson, ...snapshot }
       // remove additional property
       delete this.dataJson.channels
@@ -389,7 +375,7 @@ export default {
         if (flag) {
           this.isBusy = true
           const snapshot = {
-            channels: this.sendto,
+            channels: this.choosedSendto,
             from_ip: this.ip,
             title: this.dataJson.title,
             content: this.dataJson.content,
@@ -427,7 +413,7 @@ export default {
           create_datetime: this.$utils.now()
         }
       }
-      this.clearAllSendto()
+      this.allChoosedToCandidates()
     }
   }
 }
@@ -438,12 +424,13 @@ export default {
   max-width: 160px;
 }
 .users-select-height {
-  height: calc(100vh - 160px) !important;
+  height: calc(100vh - 187px) !important;
   overflow: auto;
 }
 .users-control-bar {
   width: 64px;
   margin: 0 5px;
   padding: calc((100vh - 400px) / 2) 0;
+  overflow: hidden;
 }
 </style>
