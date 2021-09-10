@@ -36,7 +36,7 @@
           b-input-group.ml-1.severity(size="sm" prepend="緊急程度")
             b-select(v-model="announcementDataJson.priority" :options="announcementPriorityOpts")
         b-input-group.mb-3(size="sm" prepend="　　內容")
-          b-textarea(
+          b-textarea.overflow-auto(
             v-model="announcementDataJson.content"
             rows="5"
             max-rows="15"
