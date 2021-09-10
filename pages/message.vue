@@ -36,10 +36,10 @@
             .d-flex
               b-select.users-select-height(v-model="candidates" :options="candidatesOpts" multiple @change="$utils.log($event)")
               .users-control-bar.users-select-height
-                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed" title="加入")
-                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed" title="全部加入")
-                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates" title="移除")
-                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates" title="全部移除")
+                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed" title="加入" :disabled="candidatesEntries.length === 0")
+                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed" title="全部加入" :disabled="candidatesEntries.length === 0")
+                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates" title="移除" :disabled="choosedEntries.length === 0")
+                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates" title="全部移除" :disabled="choosedEntries.length === 0")
               b-select.users-select-height(v-model="choosed" :options="choosedOpts" multiple @change="$utils.log($event)")
 
         b-textarea(
