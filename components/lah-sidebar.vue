@@ -24,6 +24,12 @@
 
         li: hr
 
+        li: nuxt-link(to="/message").
+          #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
+          傳送所內信差訊息
+
+        li: hr
+
         li: nuxt-link(to="/expire").
           #[font-awesome-icon(:icon="['far', 'calendar-check']" size="lg")]
           即將逾期案件
@@ -61,15 +67,10 @@
           #[font-awesome-icon(:icon="['fas', 'stamp']" size="lg")]
           案件領狀管控
 
-        li: hr
+        li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
           #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
           發布信差公告訊息
-        li: nuxt-link(to="/message").
-          #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
-          傳送所內信差訊息
-
-        li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
           #[font-awesome-icon(:icon="['fab', 'watchman-monitoring']" size="lg")]
           同步異動監控
