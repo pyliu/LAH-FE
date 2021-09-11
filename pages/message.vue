@@ -8,7 +8,7 @@
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 接收端電腦需安裝 #[b.text-primary 信差即時通程式] 並正常連線才能接收
           li 僅可送訊息給 #[b.text-danger 一個月內] 有使用 #[b.text-primary 信差即時通程式] 的使用者
-          li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 10] 筆  ({{ memento.length }} / {{ mementoCapacity }})
+          li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆  ({{ memento.length }} / {{ mementoCapacity }})
           li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank" rel="noopener noreferrer") #[b https://bit.ly/mdcheat]] 教學
       .d-flex
 
@@ -154,7 +154,7 @@ export default {
     helpSidebarFlag: false,
     sendtoEntries: [],
     memento: [],
-    mementoCapacity: 10,
+    mementoCapacity: 30,
     mementoCount: 3,
     cacheKey: 'message_postMementoCache',
     candidates: [],
