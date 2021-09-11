@@ -172,7 +172,7 @@
       )
         b-avatar(v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)")
         span {{ user["id"].padStart(6, '&ensp;') }}
-        span {{ user["name"].padEnd(3, '　') }}
+        span.ml-1 {{ user["name"].padEnd(3, '　') }}
         .text-dark.text-center.font-weight-bolder(v-if="showIp")
           span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
           span.text-info .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
