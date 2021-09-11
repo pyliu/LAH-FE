@@ -344,10 +344,10 @@ export default {
       this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載使用者XLSX清單' } })
     },
     translateGroupName (name) {
-      if (name === '1') {
+      if (parseInt(name) === 1) {
         return '男生'
       }
-      if (name === '0') {
+      if (parseInt(name) === 0) {
         return '女生'
       }
       return name
