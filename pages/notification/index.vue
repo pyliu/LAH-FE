@@ -53,9 +53,9 @@
           :data-json="announcementDataJson"
         )
 
-    h4.d-flex.justify-content-between.align-items-center.my-3
-      lah-fa-icon(icon="clipboard-list") 歷史資料
-      b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
+    h4.d-flex.justify-content-between.align-items-stretch.my-3
+      lah-fa-icon.my-auto(icon="clipboard-list") 歷史資料
+      b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input(type="number" min="3" max="10" v-model="mementoCount")
     hr
     b-card-group(columns): transition-group(name="list" mode="out-in")
       lah-notification-announcement-memento(

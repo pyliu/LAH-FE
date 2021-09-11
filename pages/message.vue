@@ -89,9 +89,9 @@
             span.my-auto.ml-1 {{ userNames[id] || id }}
         .center: lah-notification-message(:data-json="dataJson")
 
-    h4.d-flex.align-items-center.my-3
-      lah-fa-icon.mr-auto(icon="clipboard-list") 歷史資料
-      b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input.h-100(type="number" min="3" max="10" v-model="mementoCount")
+    h4.d-flex.align-items-stretch.my-3
+      lah-fa-icon.my-auto.mr-auto(icon="clipboard-list") 歷史資料
+      b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input(type="number" min="3" max="10" v-model="mementoCount")
 
     hr
 
