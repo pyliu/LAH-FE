@@ -119,14 +119,12 @@
 
 <script>
 import lahAvatar from '~/components/lah-avatar.vue'
-import lahUserCard from '~/components/lah-user-card.vue'
+import LahUserCard from '~/components/lah-user-card.vue'
 export default {
-  components: { lahAvatar, lahUserCard },
+  components: { lahAvatar, LahUserCard },
   fetchOnServer: false,
   computed: {
-    isAuthorized () {
-      return this.authority.isAdmin
-    },
+    isAuthorized () { return this.authority.isAdmin },
     greeting () {
       const hours = new Date().getHours()
       return hours > 11 ? (hours > 17 ? '晚安' : '午安') : '早安'
@@ -142,7 +140,9 @@ export default {
     popup () {
       this.modal(this.$createElement('lah-user-card', {
         props: {
-          raw: [this.myinfo]
+          id: this.myinfo.id,
+          name: this.myinfo.name,
+          from: this.ip
         }
       }), {
         title: `${this.myinfo.id} ${this.myinfo.name} 資訊`,

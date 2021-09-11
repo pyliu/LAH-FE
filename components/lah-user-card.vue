@@ -48,26 +48,25 @@
 </template>
 
 <script>
-import lahUserPhoto from '~/components/lah-user-photo.vue'
-import lahUserAddCard from '~/components/lah-user-add-card.vue'
 export default {
   name: 'LahUserCard',
-  components: { lahUserPhoto, lahUserAddCard },
   props: {
     raw: { type: Array, default: () => ([]) },
     id: { type: String, default: '' },
-    name: { type: String, default: '' }
+    name: { type: String, default: '' },
+    from: { type: String, default: '' }
   },
   data: () => ({
     userData: {},
     imgLoaded: false
   }),
   fetch () {
-    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) &&
+    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name) || this.$utils.isIPv4(this.from)) &&
     this.$axios.post(this.$consts.API.JSON.USER, {
       type: 'user_info',
       id: this.id,
-      name: this.name
+      name: this.name,
+      ip: this.from
     }).then(({ data }) => {
       if (this.$utils.statusCheck(data.status)) {
         if (data.data_count > 1) {
@@ -87,12 +86,8 @@ export default {
     })
   },
   computed: {
-    isAuthorized () {
-      return this.authority.isAdmin || this.authority.isUserMgtStaff
-    },
-    isLeft () {
-      return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED
-    },
+    isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
+    isLeft () { return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED },
     birthAgeVariant () {
       const badgeAge = this.birthAge
       if (badgeAge < 30) {
@@ -177,18 +172,22 @@ export default {
       } else {
         this.$utils.warning('raw is not an array', array)
       }
+    },
+    from (ip) {
+      this.$fetch()
     }
   },
   created () {
     if (!this.$utils.empty(this.raw)) {
       this.assignUserData(this.raw[0])
     }
+    this.$utils.log(this.raw, this.id, this.name, this.from)
   },
   methods: {
     assignUserData (obj) {
       // Object.assign makes object data reactively
       if (!this.$utils.empty(obj)) {
-        this.userData = Object.assign(this.userData, obj)
+        this.userData = { ...this.userData, ...obj }
       }
     },
     add () {
