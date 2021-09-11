@@ -30,10 +30,10 @@ export default {
   },
   computed: {
     userId () {
-      return this.userData['id'] || this.id
+      return this.userData.id || this.id
     },
     userName () {
-      return this.userData['name'] || this.name
+      return this.userData.name || this.name
     },
     src () {
       return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}&name=${this.userName}`

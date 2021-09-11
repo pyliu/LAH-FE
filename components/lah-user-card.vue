@@ -48,7 +48,9 @@
 </template>
 
 <script>
+import lahUserPhoto from '~/components/lah-user-photo.vue'
 export default {
+  components: { lahUserPhoto },
   name: 'LahUserCard',
   props: {
     raw: { type: Array, default: () => ([]) },
@@ -181,7 +183,6 @@ export default {
     if (!this.$utils.empty(this.raw)) {
       this.assignUserData(this.raw[0])
     }
-    this.$utils.log(this.raw, this.id, this.name, this.from)
   },
   methods: {
     assignUserData (obj) {
