@@ -14,7 +14,7 @@
 
     b-card-group(deck)
 
-      b-card.max-card-height(ref="addCard" border-variant="dark")
+      b-card(ref="addCard" border-variant="dark")
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group
@@ -51,7 +51,7 @@
           :state="validContent"
         )
 
-      lah-transition(appear): b-card.max-card-height(border-variant="success")
+      lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.align-items-center
           h4.my-auto.text-nowrap.mr-auto 預覽
           .d-flex.align-items-center(@click="sendtoVisibleFlag = !sendtoVisibleFlag" v-b-toggle.choosed-tags)
@@ -433,10 +433,6 @@ export default {
 </script>
 
 <style>
-.max-card-height {
-  max-height: calc(50vh - 80px);
-  overflow: auto;
-}
 .memento-count-input {
   max-width: 160px;
 }
