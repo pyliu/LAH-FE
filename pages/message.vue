@@ -240,8 +240,9 @@ export default {
       this.restoreCachedMemento()
     }
   },
-  created () {
+  async created () {
     this.dataJson.create_datetime = this.$utils.now()
+    this.mementoCount = await this.getCache(this.mementoCountCacheKey) || 3
     this.restoreCachedMemento()
   },
   methods: {
