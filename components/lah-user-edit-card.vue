@@ -277,31 +277,14 @@ export default {
   computed: {
     isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
     checkRequired () {
-      // this.$utils.log('required: ', this.checkName, this.checkIp, this.checkOnboardDate, this.checkExt, this.checkBirthday, this.checkCell)
       return this.checkName === true &&
              this.checkIp === true &&
-             this.checkOnboardDate !== false &&
              this.checkExt !== false &&
              this.checkBirthday !== false &&
              this.checkCell !== false
     },
     modified () {
-      if (this.userData.id !== this.origUserData.id) { return true }
-      if (this.userData.name !== this.origUserData.name) { return true }
-      if (this.userData.sex !== this.origUserData.sex) { return true }
-      if (this.userData.title !== this.origUserData.title) { return true }
-      if (this.userData.work !== this.origUserData.work) { return true }
-      if (this.userData.ext !== this.origUserData.ext) { return true }
-      if (this.userData.birthday !== this.origUserData.birthday) { return true }
-      if (this.userData.unit !== this.origUserData.unit) { return true }
-      if (this.userData.ip !== this.origUserData.ip) { return true }
-      if (this.userData.education !== this.origUserData.education) { return true }
-      if (this.userData.exam !== this.origUserData.exam) { return true }
-      if (this.userData.cell !== this.origUserData.cell) { return true }
-      if (this.userData.onboard_date !== this.origUserData.onboard_date) { return true }
-      if (this.userData.offboard_date !== this.origUserData.offboard_date) { return true }
-      if (this.userData.authority !== this.origUserData.authority) { return true }
-      return false
+      return !this.$utils.equal(this.userData, this.origUserData)
     },
     isIpChanged () {
       return this.userData.ip !== this.origUserData.ip
@@ -381,11 +364,8 @@ export default {
     }
   },
   created () {
-    if (!this.$utils.empty(this.raw)) {
-      this.assignUserData(this.raw[0])
-      // deep copy
-      this.origUserData = { ...this.raw[0] }
-    }
+    // deep copy
+    this.origUserData = { ...this.userData }
     this.authOpts = [
       { value: this.$consts.AUTHORITY.DISABLED, text: '停用' },
       { value: this.$consts.AUTHORITY.ADMIN, text: '系統管理' },
