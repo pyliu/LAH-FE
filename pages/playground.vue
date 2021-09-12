@@ -10,7 +10,7 @@
           li WEBSOCKET_PORT：伺服器PORT
           li 修改前端伺服器之「.env」檔案已變更上開設定值
       .d-flex
-    b-card-group(deck)
+    b-card-group(columns)
       b-card
         div {{ openNewsData }}
         p {{ $config.baseURL }}
@@ -26,6 +26,21 @@
             p(v-if="item.type === 'mine'") {{ item.text }}
         h5.center(v-else): lah-fa-icon(icon="exclamation-circle" variant="primary").
           請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+      b-card
+        b-file(
+          v-model="image"
+          placeholder="*.jpg"
+          drop-placeholder="放開以設定上傳檔案"
+          accept="image/*"
+        ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
+        lah-button(
+          icon="upload"
+          variant="outline-primary"
+          title="上傳"
+          @click="upload"
+          :disabled="$utils.empty(image)"
+          no-icon-gutter
+        )
 </template>
 
 <script>
@@ -52,7 +67,8 @@ export default {
     json: undefined,
     openNewsData: undefined,
     text: '',
-    websocket: undefined
+    websocket: undefined,
+    image: undefined
   }),
   fetch () {
   },
@@ -64,12 +80,7 @@ export default {
     configs () {
       return Object.keys(this.$config).map(key => [key, this.$config[key]])
     },
-    envs () {
-      // return Object.keys(this.env).map((key) => [key, this.env[key]]) || []
-    }
-    // all () {
-    //   return Object.keys(this).map((key) => [key, this[key]])
-    // },
+    uploadUrl () { return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.IMAGE}` }
   },
   watch: {
     list () {
@@ -101,6 +112,27 @@ export default {
     })
   },
   methods: {
+    upload () {
+      // image
+      this.isBusy = true
+      const formData = new FormData()
+      formData.append('file', this.image)
+      formData.append('note', '測試')
+      formData.append('width', 960)
+      formData.append('height', 540)
+      formData.append('quality', 75)
+      this.$upload.post(this.uploadUrl, formData).then(({ data }) => {
+        const opts = { type: 'warning', title: '上傳圖檔結果通知' }
+        if (this.$utils.statusCheck(data.status)) {
+          opts.type = 'success'
+        }
+        this.notify(data.message, opts)
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
     clickCountdownButton () {
       this.$utils.log(this.$el)
       this.notify('click countdown button!')

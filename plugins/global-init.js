@@ -95,7 +95,8 @@ export default ({ $axios, store }, inject) => {
         TXT: '/api/export_tmp_txt.php',
         CSV: '/api/export_tmp_csv.php',
         DATA: '/api/export_txt_data.php',
-        PHOTO: '/api/upload_user_photo.php'
+        PHOTO: '/api/upload_user_photo.php',
+        IMAGE: '/api/upload_image.php'
       }
     },
     AUTHORITY: {
