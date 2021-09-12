@@ -22,6 +22,7 @@
         id="name-input"
         v-model="userData['name']"
         :state="checkName"
+        :disabled="isDisabled"
         trim
       )
 
@@ -36,6 +37,7 @@
           id="sex-select"
           v-model="userData['sex']"
           :options="sexOpts"
+          :disabled="isDisabled"
         )
       b-card.border-0(no-body)
         b-form-group(
@@ -47,6 +49,7 @@
           id="unit-select"
           v-model="userData['unit']"
           :options="unitOpts"
+          :disabled="isDisabled"
         )
 
     b-card-group(deck)
@@ -59,6 +62,7 @@
         id="ip-input"
         v-model="userData['ip']"
         :state="checkIp"
+        :disabled="isDisabled"
         trim
       )
       b-card.border-0(no-body)
@@ -92,6 +96,7 @@
             id="ext-input"
             v-model="userData['ext']"
             :state="checkExt"
+            :disabled="isDisabled"
             trim
           )
         b-card.border-0(no-body)
@@ -104,6 +109,7 @@
             id="cell-input"
             v-model="userData['cell']"
             :state="checkCell"
+            :disabled="isDisabled"
             trim
           )
 
@@ -118,6 +124,7 @@
             id="bd-input"
             v-model="userData['birthday']"
             :state="checkBirthday"
+            :disabled="isDisabled"
             placeholder="範例：066/05/23"
             trim
           )
@@ -131,6 +138,7 @@
             id="work-title-select"
             v-model="userData['title']"
             :options="workTitleOpts"
+            :disabled="isDisabled"
           )
 
       b-card-group(deck)
@@ -144,6 +152,7 @@
             id="exam-input"
             v-model="userData['exam']"
             placeholder="範例：107年資訊處理高考三級"
+            :disabled="isDisabled"
             trim
           )
         b-card.border-0(no-body)
@@ -156,6 +165,7 @@
             id="edu-input"
             v-model="userData['education']"
             placeholder="範例：台北科技大學資訊工程研究所"
+            :disabled="isDisabled"
             trim
           )
 
@@ -170,6 +180,7 @@
             id="work-input"
             v-model="userData['work']"
             placeholder="範例：資訊系統管理"
+            :disabled="isDisabled"
             trim
           )
         b-card.border-0(no-body)
@@ -183,6 +194,7 @@
             v-model="userData['onboard_date']"
             trim
             :state="checkOnboardDate"
+            :disabled="isDisabled"
             placeholder="範例：110/06/01"
           )
 
@@ -277,8 +289,7 @@ export default {
     userPhoto: null,
     userAvatar: null,
     showOthers: false,
-    authorities: [],
-    authOpts: []
+    authorities: []
   }),
   computed: {
     isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
@@ -342,23 +353,19 @@ export default {
       }
       return true
     },
-    uploadUrl () { return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.PHOTO}` }
+    uploadUrl () { return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.PHOTO}` },
+    authOpts () {
+      return [
+        { value: this.$consts.AUTHORITY.DISABLED, text: '停用' },
+        { value: this.$consts.AUTHORITY.ADMIN, text: '系統管理', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT, text: '訊息管理', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.USER_MANAGEMENT, text: '人員管理', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.CHIEF, text: '主管', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION, text: '研考', disabled: this.isDisabled }
+      ]
+    }
   },
   watch: {
-    raw (array) {
-      if (Array.isArray(array)) {
-        if (array.length > 1) {
-          this.assignUserData(array.find((item, idx, array) => {
-            return this.$consts.AUTHORITY.DISABLED !== item.authority & this.$consts.AUTHORITY.DISABLED
-          }))
-        } else {
-          this.assignUserData(array[0])
-        }
-        this.restoreAuthorities()
-      } else {
-        this.$utils.warn('輸入 prop (raw) 不是陣列，無法初始化！', array)
-      }
-    },
     authorities (array) {
       this.userData.authority = array.reduce((acc, item) => {
         return acc + item
@@ -368,14 +375,6 @@ export default {
   created () {
     // deep copy
     this.origUserData = { ...this.userData }
-    this.authOpts = [
-      { value: this.$consts.AUTHORITY.DISABLED, text: '停用' },
-      { value: this.$consts.AUTHORITY.ADMIN, text: '系統管理' },
-      { value: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT, text: '訊息管理' },
-      { value: this.$consts.AUTHORITY.USER_MANAGEMENT, text: '人員管理' },
-      { value: this.$consts.AUTHORITY.CHIEF, text: '主管' },
-      { value: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION, text: '研考' }
-    ]
     this.restoreAuthorities()
   },
   methods: {
