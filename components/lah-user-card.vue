@@ -1,11 +1,10 @@
 <template lang="pug">
-  div
+  lah-transition(fade)
     .center.h1(v-if="$fetchState.pending")
       lah-fa-icon(icon="spinner" action="cycle")
     h4.center(v-else-if="!found")
-      lah-button(v-if="isAuthorized" icon="user-plus" block size="lg" @click="add") 新增
-      lah-fa-icon(v-else variant="danger") 找不到使用者資料
-
+        lah-button(v-if="isAuthorized" icon="user-plus" block size="lg" @click="add") 新增
+        lah-fa-icon(v-else variant="danger") 找不到使用者資料
     b-card(v-else)
       b-row
         b-col(md="6")
