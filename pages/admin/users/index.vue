@@ -1,8 +1,8 @@
 <template lang="pug">
   div(v-cloak)
     lah-header: lah-transition(appear)
-      .d-flex.justify-content-between.w-100
-        .d-flex
+      .d-flex.w-100
+        .d-flex.mr-auto
           .my-auto 使用者資訊管理
           lah-button(
             v-b-modal.help-modal
@@ -22,12 +22,12 @@
             @click="add"
           )
           lah-button(
-            v-b-modal.upload-modal
             icon="upload"
             variant="outline-secondary"
-            no-icon-gutter
             title="批次檔上傳更新"
             action="move-fade-btt"
+            no-icon-gutter
+            v-b-modal.upload-ui
           )
           lah-button(
             icon="file-excel"
@@ -44,11 +44,11 @@
         li: .d-inline-flex.justify-content-around
           span 選取編輯好的XLSX檔案，點擊
           lah-button(
-            v-b-modal.upload-modal
             icon="upload"
             variant="outline-secondary"
             class="mx-1 mt-n1"
             no-icon-gutter
+            v-b-modal.upload-ui
           )
           span 上傳更新本地資料庫(dimension.db, user表格)
 
@@ -93,7 +93,7 @@
         span 公告管理
 
       b-modal(
-        id="upload-modal"
+        id="upload-ui"
         title="批次檔上傳更新"
         size="lg"
         hide-footer
@@ -165,7 +165,7 @@
         :data-name="user['name']"
         :variant="variant(user)"
         :pill="showAvatar"
-        v-b-tooltip="role(user)"
+        :title="role(user)"
         size="sm"
         class="mx-1 my-1 shadow"
         @click="edit(user)"
