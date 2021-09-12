@@ -36,7 +36,7 @@ export default {
       return this.userData.name || this.name
     },
     src () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}&name=${this.userName}`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}&name=${this.userName}&timestamp=${this.timestamp}`
     }
   }
 }

@@ -61,12 +61,10 @@ export default {
   components: { lahUserPhoto, lahUserAddCard, lahUserEditCard },
   mixins: [userBase],
   props: {
-    noEditButton: { type: Boolean, default: false },
-    photoUpdated: { type: Boolean, default: false }
+    noEditButton: { type: Boolean, default: false }
   },
   data: () => ({
-    imgLoaded: false,
-    timestamp: 0
+    imgLoaded: false
   }),
   computed: {
     isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
@@ -144,9 +142,6 @@ export default {
   watch: {
     from (ip) {
       this.$fetch()
-    },
-    photoUpdated (flag) {
-      this.timestamp = +new Date()
     }
   },
   methods: {

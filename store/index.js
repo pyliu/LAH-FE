@@ -32,6 +32,7 @@ const logtimestamp = (message) => {
 }
 
 const state = () => ({
+  timestamp: 0,
   loggedIn: false,
   ip: '0.0.0.0',
   adminIps: ['127.0.0.1', '::1'],
@@ -73,7 +74,8 @@ const getters = {
   systemConfigs: state => state.systemConfigs,
   server: state => state.server,
   lastMessage: state => state.lastMessage,
-  xapMap: state => state.xapMap
+  xapMap: state => state.xapMap,
+  timestamp: state => state.timestamp
 }
 
 // only sync operation
@@ -104,6 +106,9 @@ const mutations = {
   },
   userNames (state, json) {
     state.userNames = { ...json }
+  },
+  timestamp (state, dontcare) {
+    state.timestamp = +new Date()
   }
 }
 

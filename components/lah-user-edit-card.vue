@@ -224,7 +224,6 @@
       :raw="[userData]"
       @click="!isDisabled && showModalById('upload-user-img-modal')"
       no-edit-button
-      :photo-updated="photoUpdated"
     )
 
     b-modal(
@@ -285,7 +284,6 @@ import userBase from '~/components/lah-user-base.js'
 export default {
   mixins: [userBase],
   data: () => ({
-    photoUpdated: false,
     userPhoto: null,
     userAvatar: null,
     showOthers: false,
@@ -447,7 +445,6 @@ export default {
     },
     upload (file, avatar = false) {
       this.isBusy = true
-      this.photoUpdated = false
       const formData = new FormData()
       formData.append('file', file)
       formData.append('id', this.userData.id)
@@ -463,7 +460,8 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
-        this.photoUpdated = true
+        // mark upload operation done
+        this.$store.commit('timestamp')
       })
     },
     uploadPhoto () {
