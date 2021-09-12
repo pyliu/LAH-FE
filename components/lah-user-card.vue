@@ -13,33 +13,34 @@
 
           b-card-sub-title {{userData['title']}}
 
-          b-card-text.small
+          b-card-text.d-flex.flex-column.small
             lah-fa-icon.mx-auto(
               icon="ban"
               variant="danger"
               action="breath"
               v-if="isLeft"
             ) 此帳號已禁用
-            div ID：{{ userData["id"] }}
-            div(v-if="isAuthorized") 電腦：{{ userData["ip"] }}
-            div 分機：{{ userData["ext"] }}
-            div(v-if="isAuthorized").
-              生日：{{ userData["birthday"] }}
+            div ＩＤ：{{ userData.id }}
+            div(v-if="isAuthorized && userData.ip") 電腦：{{ userData.ip }}
+            div(v-if="userData.ext") 分機：{{ userData.ext }}
+            div(v-if="isAuthorized && userData.birthday").
+              生日：{{ userData.birthday }}
               #[b-badge(v-if="birthAge !== false" :variant="birthAgeVariant" pill) {{ birthAge }}歲]
-            div 單位：{{ userData["unit"] }}
-            div 工作：{{ userData["work"] }}
-            div(v-if="isAuthorized") 學歷：{{ userData["education"] }}
-            div(v-if="isAuthorized") 考試：{{ userData["exam"] }}
-            div(v-if="isAuthorized") 手機：{{ userData["cell"] }}
-            div(v-if="isAuthorized").
-              到職：{{ userData["onboard_date"] }}
+            div(v-if="userData.unit") 單位：{{ userData.unit }}
+            div(v-if="userData.work") 工作：{{ userData.work }}
+            div(v-if="isAuthorized && userData.education") 學歷：{{ userData.education }}
+            div(v-if="isAuthorized && userData.exam") 考試：{{ userData.exam }}
+            div(v-if="isAuthorized && userData.cell") 手機：{{ userData.cell}}
+            div(v-if="isAuthorized && userData.onboard_date").
+              到職：{{ userData.onboard_date }}
               #[b-badge(v-if="workAge !== false" :variant="workAgeVariant" pill) {{ workAge }}年]
 
-        b-col.center(md="6")
-          b-link(@click="photoClick" :title="isAuthorized ? '更新照片' : '放大顯示'")
+        b-col.d.flex.flex-column(md="6")
+          lah-button.ml-auto.mb-1(v-if="isAuthorized && !noEditButton" icon="edit" @click="edit") 編輯
+          b-link(@click="photoClick" title="放大顯示")
             b-img.shadow(
               :src="photoSrc"
-              :alt="userData['name']"
+              :alt="userData.name"
               fluid
               thumbnail
               rounded
@@ -50,14 +51,16 @@
 <script>
 import lahUserPhoto from '~/components/lah-user-photo.vue'
 import lahUserAddCard from '~/components/lah-user-add-card.vue'
+import lahUserEditCard from '~/components/lah-user-edit-card.vue'
 export default {
-  components: { lahUserPhoto, lahUserAddCard },
   name: 'LahUserCard',
+  components: { lahUserPhoto, lahUserAddCard, lahUserEditCard },
   props: {
     raw: { type: Array, default: () => ([]) },
     id: { type: String, default: '' },
     name: { type: String, default: '' },
-    from: { type: String, default: '' }
+    from: { type: String, default: '' },
+    noEditButton: { type: Boolean, default: false }
   },
   data: () => ({
     userData: {},
@@ -231,6 +234,17 @@ export default {
       })
       // $emit to parent
       this.trigger('click', this.userData)
+    },
+    edit () {
+      this.modal(this.$createElement('lah-user-edit-card', {
+        props: {
+          raw: [this.userData],
+          center: true
+        }
+      }), {
+        title: `編輯 ${this.userData.id} ${this.userData.name}`,
+        size: 'lg'
+      })
     }
   }
 }

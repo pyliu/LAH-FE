@@ -210,7 +210,7 @@
 
     hr
 
-    lah-user-card(:raw="[userData]" @click="showModalById('upload-user-img-modal')")
+    lah-user-card(:raw="[userData]" @click="showModalById('upload-user-img-modal')" no-edit-button)
 
     b-modal(
       id="upload-user-img-modal"
