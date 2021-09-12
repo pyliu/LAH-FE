@@ -208,7 +208,12 @@
 
     hr
 
-    lah-user-card(:raw="[userData]" @click="showModalById('upload-user-img-modal')" no-edit-button)
+    lah-user-card(
+      :raw="[userData]"
+      @click="showModalById('upload-user-img-modal')"
+      no-edit-button
+      :photo-updated="photoUpdated"
+    )
 
     b-modal(
       id="upload-user-img-modal"
@@ -230,7 +235,7 @@
           v-model="userPhoto"
           placeholder="*.jpg"
           drop-placeholder="放開以設定上傳檔案"
-          accept=".jpg, .JPG"
+          accept=".jpg, .JPG, .jpeg, .JEPG"
         ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
         template(#append): lah-button(
           icon="upload"
@@ -251,7 +256,7 @@
           v-model="userAvatar"
           placeholder="*.jpg"
           drop-placeholder="放開以設定上傳檔案"
-          accept=".jpg, .JPG"
+          accept=".jpg, .JPG, .jpeg, .JEPG"
         ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="secondary") {{ names[0] }}
         template(#append): lah-button(
           icon="upload"
@@ -268,6 +273,7 @@ import userBase from '~/components/lah-user-base.js'
 export default {
   mixins: [userBase],
   data: () => ({
+    photoUpdated: false,
     userPhoto: null,
     userAvatar: null,
     showOthers: false,
@@ -399,12 +405,6 @@ export default {
       }
       return adDate
     },
-    photoUrl (user) {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user.name}`
-    },
-    avatarUrl (user) {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?name=${user.name}_avatar`
-    },
     update (prompt, config) {
       return new Promise((resolve, reject) => {
         this.confirm(prompt).then((answer) => {
@@ -448,6 +448,7 @@ export default {
     },
     upload (file, avatar = false) {
       this.isBusy = true
+      this.photoUpdated = false
       const formData = new FormData()
       formData.append('file', file)
       formData.append('id', this.userData.id)
@@ -463,6 +464,7 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
+        this.photoUpdated = true
       })
     },
     uploadPhoto () {

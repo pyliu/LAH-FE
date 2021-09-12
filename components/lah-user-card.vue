@@ -61,10 +61,12 @@ export default {
   components: { lahUserPhoto, lahUserAddCard, lahUserEditCard },
   mixins: [userBase],
   props: {
-    noEditButton: { type: Boolean, default: false }
+    noEditButton: { type: Boolean, default: false },
+    photoUpdated: { type: Boolean, default: false }
   },
   data: () => ({
-    imgLoaded: false
+    imgLoaded: false,
+    timestamp: 0
   }),
   computed: {
     isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
@@ -133,28 +135,18 @@ export default {
       return 'danger'
     },
     photoSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}&timestamp=${this.timestamp}`
     },
     avatarSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar`
+      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar&timestamp=${this.timestamp}`
     }
   },
   watch: {
-    raw (array) {
-      if (Array.isArray(array)) {
-        if (array.length > 1) {
-          this.assignUserData(array.find((item, idx, array) => {
-            return (item.authority & this.$consts.AUTHORITY.DISABLED) !== this.$consts.AUTHORITY.DISABLED
-          }))
-        } else {
-          this.assignUserData(array[0])
-        }
-      } else {
-        this.$utils.warning('raw is not an array', array)
-      }
-    },
     from (ip) {
       this.$fetch()
+    },
+    photoUpdated (flag) {
+      this.timestamp = +new Date()
     }
   },
   methods: {
