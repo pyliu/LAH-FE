@@ -279,15 +279,13 @@ export default {
     checkRequired () {
       return this.checkName === true &&
              this.checkIp === true &&
+             this.checkOnboardDate !== false &&
              this.checkExt !== false &&
              this.checkBirthday !== false &&
              this.checkCell !== false
     },
     modified () {
       return !this.$utils.equal(this.userData, this.origUserData)
-    },
-    isIpChanged () {
-      return this.userData.ip !== this.origUserData.ip
     },
     checkId () {
       if (this.$utils.empty(this.userData.id) || this.userData.id.length < 6) {
@@ -447,28 +445,7 @@ export default {
         data: this.userData
       }).then((userData) => {
         this.trigger('saved', userData)
-        // HB only
-        this.site === 'HB' && this.isIpChanged && this.saveTdocIp()
         this.origUserData = { ...this.origUserData, ...userData }
-      })
-    },
-    saveTdocIp () {
-      this.isBusy = true
-      // also update old db database
-      this.$axios.post(this.$consts.API.JSON.MSSQL, {
-        type: 'upd_ip_tdoc',
-        id: this.userData.id,
-        ip: this.userData.ip
-      }).then(({ data }) => {
-        const opts = { type: 'warning' }
-        if (this.$utils.statusCheck(data.status)) {
-          opts.type = 'success'
-        }
-        this.notify(data.message, opts)
-      }).catch((err) => {
-        this.$utils.warn(err)
-      }).finally(() => {
-        this.isBusy = false
       })
     },
     upload (file, avatar = false) {
