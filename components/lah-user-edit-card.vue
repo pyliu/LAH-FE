@@ -336,9 +336,7 @@ export default {
       }
       return true
     },
-    uploadUrl () {
-      return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.PHOTO}`
-    }
+    uploadUrl () { return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.PHOTO}` }
   },
   watch: {
     raw (array) {
