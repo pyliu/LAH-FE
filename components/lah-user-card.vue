@@ -1,6 +1,8 @@
 <template lang="pug">
   div
-    h4.center(v-if="notFound")
+    .center.h1(v-if="$fetchState.pending")
+      lah-fa-icon(icon="spinner" action="cycle")
+    h4.center(v-else-if="!found")
       lah-button(v-if="isAuthorized" icon="user-plus" block size="lg" @click="add") 新增
       lah-fa-icon(v-else variant="danger") 找不到使用者資料
 
@@ -156,7 +158,6 @@ export default {
       this.$fetch()
     }
   },
-  created () {},
   methods: {
     assignUserData (obj) {
       // Object.assign makes object data reactively
@@ -172,6 +173,17 @@ export default {
           noCloseOnBackdrop: true
         })
       }
+    },
+    edit () {
+      this.modal(this.$createElement('lah-user-edit-card', {
+        props: {
+          raw: [this.userData],
+          center: true
+        }
+      }), {
+        title: `編輯 ${this.userData.id} ${this.userData.name}`,
+        size: 'lg'
+      })
     },
     toTWFormat (adDate) {
       let twDate = adDate.replace('/-/g', '/')
@@ -203,17 +215,6 @@ export default {
       })
       // $emit to parent
       this.trigger('click', this.userData)
-    },
-    edit () {
-      this.modal(this.$createElement('lah-user-edit-card', {
-        props: {
-          raw: [this.userData],
-          center: true
-        }
-      }), {
-        title: `編輯 ${this.userData.id} ${this.userData.name}`,
-        size: 'lg'
-      })
     }
   }
 }

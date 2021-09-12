@@ -1,5 +1,5 @@
 <template lang="pug">
-  b-card(v-if="!notFound && isAuthorized" body-border-variant="danger")
+  b-card(v-if="found && isAuthorized" body-border-variant="danger")
     b-card-group(deck)
       b-card.border-0(no-body): b-form-group(
         label="ID"

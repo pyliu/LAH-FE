@@ -65,7 +65,7 @@ export default {
   }),
   computed: {
     isDisabled () { return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED },
-    notFound () { return this.$utils.empty(this.userData.id) }
+    found () { return this.$utils.empty(this.userData.id) }
   },
   fetch () {
     (!this.$utils.empty(this.id) || !this.$utils.empty(this.name) || this.$utils.isIPv4(this.from)) &&
