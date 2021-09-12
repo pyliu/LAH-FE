@@ -222,7 +222,7 @@
 
     lah-user-card(
       :raw="[userData]"
-      @click="showModalById('upload-user-img-modal')"
+      @click="!isDisabled && showModalById('upload-user-img-modal')"
       no-edit-button
       :photo-updated="photoUpdated"
     )
