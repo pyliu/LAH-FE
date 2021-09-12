@@ -65,10 +65,10 @@ export default {
   }),
   computed: {
     isDisabled () { return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED },
-    found () { return this.$utils.empty(this.userData.id) }
+    found () { return !this.$utils.empty(this.userData.id) }
   },
   fetch () {
-    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name) || this.$utils.isIPv4(this.from)) &&
+    (this.raw.length === 0 || !this.$utils.empty(this.id) || !this.$utils.empty(this.name) || this.$utils.isIPv4(this.from)) &&
     this.$axios.post(this.$consts.API.JSON.USER, {
       type: 'user_info',
       id: this.id,
