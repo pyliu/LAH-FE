@@ -92,6 +92,5 @@ export default {
       this.isBusy = false
     })
   },
-  watch: {},
   created () { this.raw.length > 0 && (this.userData = { ...this.userData, ...this.raw[0] }) }
 }

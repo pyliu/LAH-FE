@@ -253,7 +253,7 @@ export default {
              this.checkCell !== false
     },
     checkSex () {
-      return !this.$utils.empty(this.userData.sex)
+      return [0, 1].includes(parseInt(this.userData.sex))
     },
     checkDept () {
       return !this.$utils.empty(this.userData.unit)
