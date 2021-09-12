@@ -1,7 +1,5 @@
 <template lang="pug">
   b-card(v-if="isAuthorized" body-border-variant="danger")
-    b-button-group.d-flex.justify-content-between: lah-button(icon="save" @click="save" :disabled="!checkRequired") 新增
-    hr
     b-card-group(deck)
       b-card.border-0(no-body)
         b-form-group(
@@ -209,70 +207,17 @@
       //-       disabled
       //-       trim
       //-     )
+    hr
+    .d-flex.justify-content-center: lah-button(icon="save" @click="save" :disabled="!checkRequired" block) 新增
 </template>
 
 <script>
+import userBase from '~/components/lah-user-base.js'
+
 export default {
-  props: {
-    userId: { type: String, default: '' }
-  },
+  mixins: [userBase],
   data: () => ({
     users: [],
-    userData: {
-      id: '',
-      name: '',
-      sex: '',
-      title: '',
-      work: '',
-      ext: '411',
-      birthday: '',
-      unit: '',
-      ip: '',
-      education: '',
-      exam: '',
-      cell: '',
-      onboard_date: '',
-      authority: 0
-    },
-    workTitleOpts: [
-      '臨時人員',
-      '約僱人員',
-      '工讀生',
-      '身心專案',
-      '促進就業方案人員',
-      '工友',
-      '技佐',
-      '技工',
-      '書記',
-      '助理員',
-      '辦事員',
-      '測量助理',
-      '測量員',
-      '助理管理師',
-      '技士',
-      '課員',
-      '管理師',
-      '會計員',
-      '人事管理員',
-      '課長',
-      '秘書',
-      '主任'
-    ],
-    unitOpts: [
-      '登記課',
-      '測量課',
-      '行政課',
-      '地價課',
-      '資訊課',
-      '人事室',
-      '會計室',
-      '秘書室',
-      '主任室'
-    ],
-    sexOpts: [
-      { value: 1, text: '男' },
-      { value: 0, text: '女' }
-    ],
     foundUser: null,
     showOthers: false,
     authorities: [],
@@ -295,9 +240,7 @@ export default {
     })
   },
   computed: {
-    isAuthorized () {
-      return this.authority.isAdmin
-    },
+    isAuthorized () { return this.authority.isAdmin },
     checkRequired () {
       return this.checkId === true &&
              this.checkName === true &&
@@ -379,7 +322,8 @@ export default {
     }
   },
   created () {
-    this.userData.id = this.userId
+    this.userData.id = this.id
+    this.userData.name = this.name || ''
     // this.userData.birthday = this.userData.onboard_date = this.$utils.now().split(' ')[0].replaceAll('-', '/')
     this.findDuplication = this.$utils.debounce(() => {
       if (this.$utils.empty(this.users)) {

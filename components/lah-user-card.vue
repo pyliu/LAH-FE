@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    h4.center(v-if="$utils.empty(userData)")
+    h4.center(v-if="notFound")
       lah-button(v-if="isAuthorized" icon="user-plus" block size="lg" @click="add") 新增
       lah-fa-icon(v-else variant="danger") 找不到使用者資料
 
@@ -11,15 +11,16 @@
             #[b-avatar.mt-n1(button variant="light" size="1.3em" :src="avatarSrc" @click="photoClick")]
             {{userData['name']}}
 
-          b-card-sub-title {{userData['title']}}
-
-          b-card-text.d-flex.flex-column.small
-            lah-fa-icon.mx-auto(
+          b-card-sub-title.d-flex
+            span.mr-auto {{userData['title']}}
+            lah-fa-icon.my-auto(
               icon="ban"
               variant="danger"
               action="breath"
-              v-if="isLeft"
-            ) 此帳號已禁用
+              v-if="isDisabled"
+            ) 已停用
+
+          b-card-text.d-flex.flex-column.small
             div ＩＤ：{{ userData.id }}
             div(v-if="isAuthorized && userData.ip") 電腦：{{ userData.ip }}
             div(v-if="userData.ext") 分機：{{ userData.ext }}
@@ -49,51 +50,23 @@
 </template>
 
 <script>
+import userBase from '~/components/lah-user-base.js'
 import lahUserPhoto from '~/components/lah-user-photo.vue'
 import lahUserAddCard from '~/components/lah-user-add-card.vue'
 import lahUserEditCard from '~/components/lah-user-edit-card.vue'
+
 export default {
   name: 'LahUserCard',
   components: { lahUserPhoto, lahUserAddCard, lahUserEditCard },
+  mixins: [userBase],
   props: {
-    raw: { type: Array, default: () => ([]) },
-    id: { type: String, default: '' },
-    name: { type: String, default: '' },
-    from: { type: String, default: '' },
     noEditButton: { type: Boolean, default: false }
   },
   data: () => ({
-    userData: {},
     imgLoaded: false
   }),
-  fetch () {
-    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name) || this.$utils.isIPv4(this.from)) &&
-    this.$axios.post(this.$consts.API.JSON.USER, {
-      type: 'user_info',
-      id: this.id,
-      name: this.name,
-      ip: this.from
-    }).then(({ data }) => {
-      if (this.$utils.statusCheck(data.status)) {
-        if (data.data_count > 1) {
-          this.userData = data.raw.find((item, idx, array) => {
-            return this.$utils.empty(item.offboard_date)
-          }) || {}
-        } else {
-          this.userData = data.raw[0]
-        }
-      } else {
-        this.$utils.warn(data.message)
-      }
-    }).catch((err) => {
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
-    })
-  },
   computed: {
     isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
-    isLeft () { return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED },
     birthAgeVariant () {
       const badgeAge = this.birthAge
       if (badgeAge < 30) {
@@ -122,7 +95,7 @@ export default {
     },
     workAge () {
       let AP_ON_DATE = this.userData.onboard_date
-      const AP_OFF_JOB = this.isLeft ? 'Y' : 'N'
+      const AP_OFF_JOB = this.isDisabled ? 'Y' : 'N'
       let AP_OFF_DATE = this.userData.offboard_date
 
       if (AP_ON_DATE !== undefined && AP_ON_DATE !== null) {
@@ -170,7 +143,7 @@ export default {
       if (Array.isArray(array)) {
         if (array.length > 1) {
           this.assignUserData(array.find((item, idx, array) => {
-            return this.$utils.empty(item.offboard_date)
+            return (item.authority & this.$consts.AUTHORITY.DISABLED) !== this.$consts.AUTHORITY.DISABLED
           }))
         } else {
           this.assignUserData(array[0])
@@ -183,11 +156,7 @@ export default {
       this.$fetch()
     }
   },
-  created () {
-    if (!this.$utils.empty(this.raw)) {
-      this.assignUserData(this.raw[0])
-    }
-  },
+  created () {},
   methods: {
     assignUserData (obj) {
       // Object.assign makes object data reactively
@@ -197,7 +166,7 @@ export default {
     },
     add () {
       if (this.isAuthorized) {
-        this.modal(this.$createElement('lah-user-add-card', { props: { userId: this.id || this.name } }), {
+        this.modal(this.$createElement('lah-user-add-card', { props: { id: this.id, name: this.name } }), {
           title: '新增使用者',
           size: 'lg',
           noCloseOnBackdrop: true

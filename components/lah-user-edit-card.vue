@@ -1,5 +1,5 @@
 <template lang="pug">
-  b-card(v-if="!$utils.empty(userData) && isAuthorized" body-border-variant="danger")
+  b-card(v-if="!notFound && isAuthorized" body-border-variant="danger")
     b-card-group(deck)
       b-card.border-0(no-body): b-form-group(
         label="ID"
@@ -204,9 +204,7 @@
 
     b-button-group.d-flex.justify-content-between
       lah-button(icon="save" :variant="saveButtonVariant" @click="save" :disabled="saveButtonDisabled") 儲存變更
-      lah-button(icon="user-circle" regular v-if="!isLeft" variant="info" v-b-modal.upload-user-img-modal) 上傳圖檔
-      lah-button(icon="sign-in-alt" v-if="isLeft && false" variant="success" action="move-fade-ltr" @click="onboard") 復職
-      lah-button(icon="sign-out-alt" v-if="!isLeft && false" variant="danger" action="move-fade-ltr" @click="offboard") 離職
+      lah-button(icon="user-circle" regular v-if="!isDisabled" variant="info" v-b-modal.upload-user-img-modal) 上傳圖檔
 
     hr
 
@@ -265,111 +263,19 @@
 </template>
 
 <script>
+import userBase from '~/components/lah-user-base.js'
+
 export default {
-  props: {
-    raw: { type: Array, default: () => ([]) },
-    id: { type: String, default: '' },
-    name: { type: String, default: '' }
-  },
+  mixins: [userBase],
   data: () => ({
     userPhoto: null,
     userAvatar: null,
-    userData: {
-      id: '',
-      name: '',
-      sex: '',
-      title: '',
-      work: '',
-      ext: '411',
-      birthday: '',
-      unit: '',
-      ip: '',
-      education: '',
-      exam: '',
-      cell: '',
-      onboard_date: '',
-      offboard_date: '',
-      authority: 0
-    },
-    workTitleOpts: [
-      '臨時人員',
-      '約僱人員',
-      '工讀生',
-      '身心專案',
-      '促進就業方案人員',
-      '工友',
-      '技佐',
-      '技工',
-      '書記',
-      '助理員',
-      '辦事員',
-      '測量助理',
-      '測量員',
-      '助理管理師',
-      '技士',
-      '課員',
-      '管理師',
-      '會計員',
-      '人事管理員',
-      '課長',
-      '秘書',
-      '主任'
-    ],
-    unitOpts: [
-      '登記課',
-      '測量課',
-      '行政課',
-      '地價課',
-      '資訊課',
-      '人事室',
-      '會計室',
-      '秘書室',
-      '主任室'
-    ],
-    sexOpts: [
-      { value: 1, text: '男' },
-      { value: 0, text: '女' }
-    ],
     showOthers: false,
     authorities: [],
     authOpts: []
   }),
-  fetch () {
-    (!this.$utils.empty(this.id) || !this.$utils.empty(this.name)) &&
-      this.$axios
-        .post(this.$consts.API.JSON.USER, {
-          type: 'user_info',
-          id: this.id,
-          name: this.name
-        })
-        .then(({ data }) => {
-          if (this.$utils.statusCheck(data.status)) {
-            if (data.data_count > 1) {
-              this.userData =
-                data.raw.find((item, idx, array) => {
-                  return this.$consts.AUTHORITY.DISABLED !== item.authority & this.$consts.AUTHORITY.DISABLED
-                }) || {}
-            } else {
-              this.userData = data.raw[0]
-            }
-          } else {
-            this.notify(data.message, { type: 'warning' })
-          }
-        })
-        .catch((err) => {
-          this.$utils.error(err)
-        })
-        .finally(() => {
-          this.isBusy = false
-        })
-  },
   computed: {
-    isAuthorized () {
-      return this.authority.isAdmin
-    },
-    isLeft () {
-      return (this.userData.authority & this.$consts.AUTHORITY.DISABLED) === this.$consts.AUTHORITY.DISABLED
-    },
+    isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
     checkRequired () {
       // this.$utils.log('required: ', this.checkName, this.checkIp, this.checkOnboardDate, this.checkExt, this.checkBirthday, this.checkCell)
       return this.checkName === true &&
@@ -405,9 +311,6 @@ export default {
         return false
       }
       return true
-      // e.g. HB0010
-      // const regex = new RegExp(`^${this.systemConfigs.site}\\d{4,}$`, 'gm')
-      // return Boolean(this.userData['id'].match(regex))
     },
     checkName () {
       return !this.$utils.empty(this.userData.name) && this.userData.name.length > 1
@@ -588,29 +491,6 @@ export default {
         this.isBusy = false
       })
     },
-    // offboard () {
-    //   this.update('確定要設定為已離職?', {
-    //     type: 'user_offboard',
-    //     id: this.userData.id
-    //   }).then((userData) => {
-    //     this.trigger('saved', userData)
-    //     this.origUserData = Object.assign({}, userData)
-    //   }).catch((error) => {
-    //     this.$utils.warn(error)
-    //   })
-    // },
-    // onboard () {
-    //   const today = this.$utils.now().split(' ')[0]
-    //   this.update(`確定要設定為復職? (到職日期會被設定為 ${today}，離職日期清空)`, {
-    //     type: 'user_onboard',
-    //     id: this.userData.id
-    //   }).then((userData) => {
-    //     this.trigger('saved', userData)
-    //     this.origUserData = Object.assign({}, userData)
-    //   }).catch((error) => {
-    //     this.$utils.warn(error)
-    //   })
-    // },
     upload (file, avatar = false) {
       this.isBusy = true
       const formData = new FormData()
@@ -639,15 +519,6 @@ export default {
       this.userAvatar = null
     },
     restoreAuthorities () {
-      /**
-       * NORMAL: 0,
-      DISABLED: 1,
-      ADMIN: 2,
-      ANNOUNCEMENT_MANAGEMENT: 4,
-      USER_MANAGEMENT: 8,
-      CHIEF: 16,
-      RESEARCH_AND_EVALUATION: 32
-       */
       const authority = this.userData.authority
       this.$consts.AUTHORITY.DISABLED === (this.$consts.AUTHORITY.DISABLED & authority) && this.authorities.push(this.$consts.AUTHORITY.DISABLED)
       this.$consts.AUTHORITY.ADMIN === (this.$consts.AUTHORITY.ADMIN & authority) && this.authorities.push(this.$consts.AUTHORITY.ADMIN)
