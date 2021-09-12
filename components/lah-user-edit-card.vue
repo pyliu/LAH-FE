@@ -246,7 +246,7 @@
           v-model="userPhoto"
           placeholder="*.jpg"
           drop-placeholder="放開以設定上傳檔案"
-          accept=".jpg, .JPG, .jpeg, .JEPG"
+          accept="image/jpeg"
         ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
         template(#append): lah-button(
           icon="upload"
@@ -267,7 +267,7 @@
           v-model="userAvatar"
           placeholder="*.jpg"
           drop-placeholder="放開以設定上傳檔案"
-          accept=".jpg, .JPG, .jpeg, .JEPG"
+          accept="image/jpeg"
         ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="secondary") {{ names[0] }}
         template(#append): lah-button(
           icon="upload"
