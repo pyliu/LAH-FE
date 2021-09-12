@@ -49,8 +49,9 @@
 
 <script>
 import lahUserPhoto from '~/components/lah-user-photo.vue'
+import lahUserAddCard from '~/components/lah-user-add-card.vue'
 export default {
-  components: { lahUserPhoto },
+  components: { lahUserPhoto, lahUserAddCard },
   name: 'LahUserCard',
   props: {
     raw: { type: Array, default: () => ([]) },
