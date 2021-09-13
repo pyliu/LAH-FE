@@ -224,6 +224,7 @@ Vue.mixin({
       })
     },
     makeToast (message, opts = {}) {
+      // skip making toast when document is not visible
       if (document && document.hidden) {
         this.$utils.warn('document is hidden ... skip makeToast message', message)
         return
