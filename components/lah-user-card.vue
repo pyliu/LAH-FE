@@ -52,13 +52,14 @@
 
 <script>
 import userBase from '~/components/lah-user-base.js'
-import lahUserPhoto from '~/components/lah-user-photo.vue'
-import lahUserAddCard from '~/components/lah-user-add-card.vue'
-import lahUserEditCard from '~/components/lah-user-edit-card.vue'
 
 export default {
   name: 'LahUserCard',
-  components: { lahUserPhoto, lahUserAddCard, lahUserEditCard },
+  components: {
+    lahUserPhoto: () => import('~/components/lah-user-photo.vue'),
+    lahUserAddCard: () => import('~/components/lah-user-add-card.vue'),
+    lahUserEditCard: () => import('~/components/lah-user-edit-card.vue')
+  },
   mixins: [userBase],
   props: {
     noEditButton: { type: Boolean, default: false }

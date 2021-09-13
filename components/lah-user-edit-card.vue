@@ -280,10 +280,12 @@
 
 <script>
 import userBase from '~/components/lah-user-base.js'
-import lahUserCard from '~/components/lah-user-card.vue'
 
 export default {
-  components: { lahUserCard },
+  name: 'LahUserEditCard',
+  components: {
+    lahUserCard: () => import('~/components/lah-user-card.vue')
+  },
   mixins: [userBase],
   data: () => ({
     userPhoto: null,
