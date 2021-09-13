@@ -57,7 +57,7 @@
           :items="dynamic"
           :fields="dynamicFields"
         )
-          template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
+          template(#cell(timestamp)="{ item }"): .text-nowrap {{ time(item) }}
           template(#cell(entry_desc)="{ item }"): .text-nowrap {{ userNames ? userNames[item.entry_id] : item.entry_desc }}
     b-modal(
       id="replace-static-modal"
@@ -189,6 +189,13 @@ export default {
           })
         }
       })
+    },
+    time (item) {
+      const full = this.$utils.tsToAdDateStr(item.timestamp, true)
+      const date = full.split(' ')[0]
+      const time = full.split(' ')[1]
+      const now = this.$utils.now()
+      return now.startsWith(date) ? time : date
     }
   }
 }
