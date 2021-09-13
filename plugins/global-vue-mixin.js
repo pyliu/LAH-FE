@@ -224,6 +224,10 @@ Vue.mixin({
       })
     },
     makeToast (message, opts = {}) {
+      if (document && document.hidden) {
+        this.$utils.warn('document is hidden ... skip makeToast message', message)
+        return
+      }
       return new Promise((resolve, reject) => {
         if (this.$isServer) {
           reject('Server side doesn\'t use toast')
