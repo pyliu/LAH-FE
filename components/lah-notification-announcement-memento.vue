@@ -2,7 +2,7 @@
   b-card.hist-card.mb-2(no-body)
     .badge-container.d-flex.flex-wrap
       lah-button.m-1(icon="caret-up" action="move-fade-btt" variant="outline-primary" @click="trigger('copy')" v-b-tooltip="'複製本內容到編輯區塊'") 複製
-      lah-button.m-1(icon="times" action="clock" variant="outline-danger" @click="trigger('remove')" v-b-tooltip="'從全部頻道中本內容'") 移除
+      lah-button.m-1(icon="times" action="clock" variant="outline-danger" @click="trigger('remove')" v-b-tooltip="'全部頻道移除本篇內容'") 移除
       lah-button.m-1.border-dashed(
         v-for="added in memento.added_to"
         :key="`${added.channel}-${added.addedId}`"
