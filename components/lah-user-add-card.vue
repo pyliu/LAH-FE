@@ -215,6 +215,7 @@
 import userBase from '~/components/lah-user-base.js'
 
 export default {
+  name: 'LahUserAddCard',
   mixins: [userBase],
   data: () => ({
     users: [],

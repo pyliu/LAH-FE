@@ -55,11 +55,6 @@ import userBase from '~/components/lah-user-base.js'
 
 export default {
   name: 'LahUserCard',
-  components: {
-    lahUserPhoto: () => import('~/components/lah-user-photo.vue'),
-    lahUserAddCard: () => import('~/components/lah-user-add-card.vue'),
-    lahUserEditCard: () => import('~/components/lah-user-edit-card.vue')
-  },
   mixins: [userBase],
   props: {
     noEditButton: { type: Boolean, default: false }
@@ -145,6 +140,12 @@ export default {
       this.$fetch()
     }
   },
+  beforeCreate () {
+    // https://vuejs.org/v2/guide/components-edge-cases.html#Circular-References-Between-Components
+    this.$options.components.LahUserAddCard = require('~/components/lah-user-add-card.vue').default
+    this.$options.components.LahUserPhoto = require('~/components/lah-user-photo.vue').default
+    this.$options.components.LahUserEditCard = require('~/components/lah-user-edit-card.vue').default
+  },
   methods: {
     assignUserData (obj) {
       // Object.assign makes object data reactively
@@ -155,7 +156,7 @@ export default {
     add () {
       if (this.isAuthorized) {
         this.modal(this.$createElement('lah-user-add-card', { props: { id: this.id, name: this.name } }), {
-          title: '新增使用者',
+          title: `新增使用者 ${this.id} ${this.name}`,
           size: 'lg',
           noCloseOnBackdrop: true
         })

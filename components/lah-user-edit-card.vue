@@ -283,9 +283,6 @@ import userBase from '~/components/lah-user-base.js'
 
 export default {
   name: 'LahUserEditCard',
-  components: {
-    lahUserCard: () => import('~/components/lah-user-card.vue')
-  },
   mixins: [userBase],
   data: () => ({
     userPhoto: null,
@@ -373,6 +370,10 @@ export default {
         return acc + item
       }, 0)
     }
+  },
+  beforeCreate () {
+    // https://vuejs.org/v2/guide/components-edge-cases.html#Circular-References-Between-Components
+    this.$options.components.LahUserCard = require('~/components/lah-user-card.vue').default
   },
   created () {
     // deep copy

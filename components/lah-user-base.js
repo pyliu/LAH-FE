@@ -1,5 +1,4 @@
 export default {
-  name: 'userBase',
   props: {
     raw: { type: Array, default: () => ([]) },
     id: { type: String, default: '' },
@@ -92,5 +91,7 @@ export default {
       this.isBusy = false
     })
   },
-  created () { this.raw.length > 0 && (this.userData = { ...this.userData, ...this.raw[0] }) }
+  created () {
+    this.raw.length > 0 && (this.userData = { ...this.userData, ...this.raw[0] })
+  }
 }
