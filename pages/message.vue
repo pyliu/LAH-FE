@@ -51,14 +51,14 @@
         .d-flex.flex-wrap.my-1.align-items-center
           h6.m-1 快速選擇
           lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ltr" title="傳送給所有活躍使用者") 全選 #[b-badge(pill variant="danger") {{ allCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="regToChoosed" action="slide-ltr" title="傳送給登記課") 登記課 #[b-badge(pill :variant="myDepartment === '登記課' ? 'success' : ''") {{ regCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="surToChoosed" action="slide-ltr" title="傳送給測量課") 測量課 #[b-badge(pill :variant="myDepartment === '測量課' ? 'success' : ''") {{ surCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="valToChoosed" action="slide-ltr" title="傳送給地價課") 地價課 #[b-badge(pill :variant="myDepartment === '地價課' ? 'success' : ''") {{ valCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="admToChoosed" action="slide-ltr" title="傳送給行政課") 行政課 #[b-badge(pill :variant="myDepartment === '行政課' ? 'success' : ''") {{ admCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="infToChoosed" action="slide-ltr" title="傳送給資訊課") 資訊課 #[b-badge(pill :variant="myDepartment === '資訊課' ? 'success' : ''") {{ infCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="hrToChoosed" action="slide-ltr" title="傳送給人事室") 人事室 #[b-badge(pill :variant="myDepartment === '人事室' ? 'success' : ''") {{ hrCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="accToChoosed" action="slide-ltr" title="傳送給會計室") 會計室 #[b-badge(pill :variant="myDepartment === '會計室' ? 'success' : ''") {{ accCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="supervisorToChoosed" action="slide-ltr" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill :variant="myDepartment === '主任秘書室' ? 'success' : ''") {{ supervisorCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="regToChoosed" action="slide-ltr" title="傳送給登記課") 登記課 #[b-badge(pill :variant="myDepartment === '登記課' ? 'success' : 'light'") {{ regCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="surToChoosed" action="slide-ltr" title="傳送給測量課") 測量課 #[b-badge(pill :variant="myDepartment === '測量課' ? 'success' : 'light'") {{ surCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="valToChoosed" action="slide-ltr" title="傳送給地價課") 地價課 #[b-badge(pill :variant="myDepartment === '地價課' ? 'success' : 'light'") {{ valCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="admToChoosed" action="slide-ltr" title="傳送給行政課") 行政課 #[b-badge(pill :variant="myDepartment === '行政課' ? 'success' : 'light'") {{ admCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="infToChoosed" action="slide-ltr" title="傳送給資訊課") 資訊課 #[b-badge(pill :variant="myDepartment === '資訊課' ? 'success' : 'light'") {{ infCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="hrToChoosed" action="slide-ltr" title="傳送給人事室") 人事室 #[b-badge(pill :variant="myDepartment === '人事室' ? 'success' : 'light'") {{ hrCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="accToChoosed" action="slide-ltr" title="傳送給會計室") 會計室 #[b-badge(pill :variant="myDepartment === '會計室' ? 'success' : 'light'") {{ accCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="supervisorToChoosed" action="slide-ltr" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill :variant="myDepartment === '主任秘書室' ? 'success' : 'light'") {{ supervisorCandidates.length }}]
 
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.align-items-center
