@@ -7,7 +7,7 @@
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 接收端電腦需安裝 #[b.text-primary 信差即時通程式] 並正常連線才能接收
-          li 僅可送訊息給 #[b.text-danger 一個月內] 有使用 #[b.text-primary 信差即時通程式] 的使用者
+          li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 信差即時通程式] 的使用者
           li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆  ({{ memento.length }} / {{ mementoCapacity }})
           li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank" rel="noopener noreferrer") #[b https://bit.ly/mdcheat]] 教學
       .d-flex
@@ -17,11 +17,9 @@
       b-card(ref="addCard" border-variant="dark")
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
-          b-button-group
-            lah-button.mx-1(icon="users" v-b-modal.sendtoModal pill title="顯示選擇視窗") 選擇
-            lah-button.mx-1(icon="caret-right" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ltr" pill title="傳送給所有活躍使用者" :disabled="candidatesEntries.length === 0") 全選
-            lah-button.mx-1(icon="undo-alt" variant="outline-danger"  @click="reset" action="cycle-alt" pill title="清除內文及已選擇對象") 清除
-            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" pill title="內容 Markdown 語法簡易說明" action="bounce") 說明
+          b-button-group(size="sm")
+            lah-button.mx-1(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
+            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
 
           b-modal(
             id="sendtoModal"
@@ -29,7 +27,7 @@
             scrollable
             hide-footer
           )
-            template(#modal-title) 選擇傳送對象
+            template(#modal-title) 選擇傳送對象 (一周內活躍的同仁)
             .d-flex.justify-content-around
               b 可選擇
               b 已選擇
@@ -50,6 +48,17 @@
           style="overflow: hidden"
           :state="validContent"
         )
+        .d-flex.flex-wrap.my-1.align-items-center
+          h6.m-1 快速選擇
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ltr" title="傳送給所有活躍使用者") 全選 #[b-badge(pill variant="danger") {{ allCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="regToChoosed" action="slide-ltr" title="傳送給登記課") 登記課 #[b-badge(pill) {{ regCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="surToChoosed" action="slide-ltr" title="傳送給測量課") 測量課 #[b-badge(pill) {{ surCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="valToChoosed" action="slide-ltr" title="傳送給地價課") 地價課 #[b-badge(pill) {{ valCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="admToChoosed" action="slide-ltr" title="傳送給行政課") 行政課 #[b-badge(pill) {{ admCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="infToChoosed" action="slide-ltr" title="傳送給資訊課") 資訊課 #[b-badge(pill) {{ infCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="hrToChoosed" action="slide-ltr" title="傳送給人事室") 人事室 #[b-badge(pill) {{ hrCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="accToChoosed" action="slide-ltr" title="傳送給會計室") 會計室 #[b-badge(pill) {{ accCandidates.length }}]
+          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="supervisorToChoosed" action="slide-ltr" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill) {{ supervisorCandidates.length }}]
 
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.align-items-center
@@ -64,8 +73,8 @@
               span 已選擇傳送給
               b-badge.mx-1(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
               span 人
-
-          lah-button.ml-1(
+          lah-button.mx-1(icon="caret-left" variant="warning"  @click="reset" action="slide-rtl" pill title="已選擇對象") 清空
+          lah-button(
             icon="paper-plane"
             action="slide-btt"
             :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
@@ -167,7 +176,7 @@ export default {
   fetch () {
     this.$axios.post(this.$consts.API.JSON.IP, {
       type: 'dynamic_ip_entries',
-      offset: 2629743
+      offset: 604800
     }).then(({ data }) => {
       if (this.$utils.statusCheck(data.status)) {
         data.raw.sort((a, b) => {
@@ -178,21 +187,13 @@ export default {
           if (!this.sendtoEntries.find((item) => {
             return item.id === entry.entry_id
           })) {
-            this.sendtoEntries.push({
-              ip: entry.ip,
-              id: entry.entry_id,
-              name: entry.entry_desc
-            })
+            this.sendtoEntries.push(this.packEntryData(entry))
           }
 
           if (!this.candidatesEntries.find((item) => {
             return item.id === entry.entry_id
           })) {
-            this.candidatesEntries.push({
-              ip: entry.ip,
-              id: entry.entry_id,
-              name: entry.entry_desc
-            })
+            this.candidatesEntries.push(this.packEntryData(entry))
           }
         })
       } else {
@@ -206,6 +207,7 @@ export default {
     title: '傳送個人信差訊息'
   },
   computed: {
+    allCandidates () { return [...this.candidatesEntries, ...this.choosedEntries] },
     candidatesOpts () {
       return [...this.candidatesEntries].sort((a, b) => {
         if (a.id > b.id) { return 1 }
@@ -232,7 +234,15 @@ export default {
     sendButtonDisabled () { return !this.validContent || !this.validSento },
     mementoCountCacheKey () { return `${this.cacheKey}_count` },
     sendtoDisplayIndicator () { return this.sendtoVisibleFlag ? 'caret-down' : 'caret-right' },
-    sendtoDisplayIndicatorVariant () { return this.sendtoVisibleFlag ? 'primary' : 'dark' }
+    sendtoDisplayIndicatorVariant () { return this.sendtoVisibleFlag ? 'primary' : 'dark' },
+    infCandidates () { return this.allCandidates.filter(entry => entry.dept === 'inf') },
+    admCandidates () { return this.allCandidates.filter(entry => entry.dept === 'adm') },
+    regCandidates () { return this.allCandidates.filter(entry => entry.dept === 'reg') },
+    surCandidates () { return this.allCandidates.filter(entry => entry.dept === 'sur') },
+    valCandidates () { return this.allCandidates.filter(entry => entry.dept === 'val') },
+    hrCandidates () { return this.allCandidates.filter(entry => entry.dept === 'hr') },
+    accCandidates () { return this.allCandidates.filter(entry => entry.dept === 'acc') },
+    supervisorCandidates () { return this.allCandidates.filter(entry => entry.dept === 'supervisor') }
   },
   watch: {
     mementoCount (val) {
@@ -305,6 +315,27 @@ export default {
       })
       this.choosed = []
     },
+    /**
+     * Quick selection by Department
+     */
+    deptToChoosed (dept) {
+      // all back to candidates pool
+      this.allChoosedToCandidates()
+      // search for user belongs to dept
+      this.candidates = [...this.candidatesEntries.filter(entry => entry.dept === dept)]
+      this.candidatesToChoosed()
+    },
+    infToChoosed () { this.deptToChoosed('inf') },
+    valToChoosed () { this.deptToChoosed('val') },
+    regToChoosed () { this.deptToChoosed('reg') },
+    surToChoosed () { this.deptToChoosed('sur') },
+    admToChoosed () { this.deptToChoosed('adm') },
+    accToChoosed () { this.deptToChoosed('acc') },
+    hrToChoosed () { this.deptToChoosed('hr') },
+    supervisorToChoosed () { this.deptToChoosed('supervisor') },
+    /**
+     * Memento
+     */
     async restoreCachedMemento () {
       const cached = await this.getCache(this.cacheKey)
       cached && (this.memento = [...cached])
@@ -417,17 +448,25 @@ export default {
       })
     },
     reset () {
-      this.dataJson = {
-        ...{
-          title: '',
-          content: '',
-          priority: 3,
-          sender: '',
-          id: '?',
-          create_datetime: this.$utils.now()
-        }
-      }
+      // this.dataJson = {
+      //   ...{
+      //     title: '',
+      //     content: '',
+      //     priority: 3,
+      //     sender: '',
+      //     id: '?',
+      //     create_datetime: this.$utils.now()
+      //   }
+      // }
       this.allChoosedToCandidates()
+    },
+    packEntryData (entry) {
+      return {
+        ip: entry.ip,
+        id: entry.entry_id,
+        name: entry.entry_desc,
+        dept: entry.note.split(' ')[1]
+      }
     }
   }
 }
