@@ -134,8 +134,7 @@ export default {
   },
   created () {
   },
-  mounted () {
-  },
+  mounted () { setInterval(this.$fetch, 60 * 1000) },
   methods: {
     replace () {
       this.isBusy = true
