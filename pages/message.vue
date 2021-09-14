@@ -66,7 +66,6 @@
           .d-flex.align-items-center(
             ref="nameTag"
             @click="sendtoVisibleFlag = !sendtoVisibleFlag"
-            v-b-toggle.choosed-tags
           )
             lah-fa-icon(
               :variant="sendtoDisplayIndicatorVariant"
@@ -87,9 +86,9 @@
             pill
           ) 發送
 
-        b-collapse(id="choosed-tags"): .d-flex.flex-wrap.align-items-center
+        b-collapse(v-model="sendtoVisibleFlag"): .d-flex.flex-wrap.align-items-center
           .text-nowrap 將傳送給：
-          b-button.m-1.text-nowrap(
+          transition-group(name="list" mode="out-in"): b-button.m-1.text-nowrap(
             v-for="(id, idx) in choosedSendto"
             v-b-tooltip="`移除 ${id}`"
             variant="outline-success"
@@ -269,6 +268,7 @@ export default {
       this.choosedEntries = [...this.choosedEntries, ...this.candidatesEntries]
       this.candidatesEntries = []
       this.attention(this.$refs.nameTag)
+      this.sendtoVisibleFlag = true
     },
     allChoosedToCandidates () {
       this.choosed = []
@@ -330,6 +330,7 @@ export default {
       this.candidates = [...this.candidatesEntries.filter(entry => entry.dept === dept)]
       this.candidatesToChoosed()
       this.attention(this.$refs.nameTag)
+      this.sendtoVisibleFlag = true
     },
     infToChoosed () { this.deptToChoosed('inf') },
     valToChoosed () { this.deptToChoosed('val') },
