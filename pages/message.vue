@@ -63,7 +63,11 @@
       lah-transition(appear): b-card(border-variant="success")
         template(#header): .d-flex.align-items-center
           h4.my-auto.text-nowrap.mr-auto 預覽
-          .d-flex.align-items-center(@click="sendtoVisibleFlag = !sendtoVisibleFlag" v-b-toggle.choosed-tags)
+          .d-flex.align-items-center(
+            ref="nameTag"
+            @click="sendtoVisibleFlag = !sendtoVisibleFlag"
+            v-b-toggle.choosed-tags
+          )
             lah-fa-icon(
               :variant="sendtoDisplayIndicatorVariant"
               :icon="sendtoDisplayIndicator"
@@ -264,6 +268,7 @@ export default {
       this.candidates = []
       this.choosedEntries = [...this.choosedEntries, ...this.candidatesEntries]
       this.candidatesEntries = []
+      this.attention(this.$refs.nameTag)
     },
     allChoosedToCandidates () {
       this.choosed = []
@@ -324,6 +329,7 @@ export default {
       // search for user belongs to dept
       this.candidates = [...this.candidatesEntries.filter(entry => entry.dept === dept)]
       this.candidatesToChoosed()
+      this.attention(this.$refs.nameTag)
     },
     infToChoosed () { this.deptToChoosed('inf') },
     valToChoosed () { this.deptToChoosed('val') },
