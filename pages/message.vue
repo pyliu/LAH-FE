@@ -18,7 +18,8 @@
         template(#header): .d-flex.justify-content-between
           h4.my-auto 傳送訊息
           b-button-group(size="sm")
-            lah-button.mx-1(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
+            lah-button(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
+            lah-button.mx-1(icon="caret-left" variant="warning"  @click="reset" action="slide-rtl" pill title="已選擇對象") 清空
             lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
 
           b-modal(
@@ -68,16 +69,15 @@
             @click="sendtoVisibleFlag = !sendtoVisibleFlag"
           )
             lah-fa-icon(
-              :variant="sendtoDisplayIndicatorVariant"
               :icon="sendtoDisplayIndicator"
+              regular
               title="切換名牌顯示"
             )
             .d-flex.align-items-center
               span 已選擇傳送給
               b-badge.mx-1(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
               span 人
-          lah-button.mx-1(icon="caret-left" variant="warning"  @click="reset" action="slide-rtl" pill title="已選擇對象") 清空
-          lah-button(
+          lah-button.ml-1(
             icon="paper-plane"
             action="slide-btt"
             :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
@@ -237,8 +237,7 @@ export default {
     validContent () { return !this.$utils.empty(this.dataJson.content) },
     sendButtonDisabled () { return !this.validContent || !this.validSento },
     mementoCountCacheKey () { return `${this.cacheKey}_count` },
-    sendtoDisplayIndicator () { return this.sendtoVisibleFlag ? 'caret-down' : 'caret-right' },
-    sendtoDisplayIndicatorVariant () { return this.sendtoVisibleFlag ? 'primary' : 'dark' },
+    sendtoDisplayIndicator () { return this.sendtoVisibleFlag ? 'hand-point-down' : 'hand-point-right' },
     infCandidates () { return this.allCandidates.filter(entry => entry.dept === 'inf') },
     admCandidates () { return this.allCandidates.filter(entry => entry.dept === 'adm') },
     regCandidates () { return this.allCandidates.filter(entry => entry.dept === 'reg') },
