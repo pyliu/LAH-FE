@@ -20,7 +20,9 @@ module.exports = {
     max_memory_restart: '256M',
     env: {
       NODE_ENV: 'production'
-    }
+    },
+    wait_ready: true,
+    restart_delay: 5000
   }, {
     name: 'LAH-WSS',
     exec_mode: 'cluster',
@@ -36,6 +38,8 @@ module.exports = {
     max_memory_restart: '1024M',
     env: {
       NODE_ENV: 'production'
-    }
+    },
+    wait_ready: true,
+    restart_delay: 5000
   }]
 }
