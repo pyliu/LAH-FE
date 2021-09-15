@@ -118,12 +118,6 @@ export default {
       if (this.filter.includes('off')) { return 'off_board_users' }
       return ''
     },
-    office () {
-      if (this.systemConfigs) {
-        return this.systemConfigs.site
-      }
-      return this.site
-    },
     categories () {
       switch (this.selectedGroup) {
         case 'unit':
@@ -142,19 +136,6 @@ export default {
           return [{ NAME: '未分類', LIST: this.users }]
       }
     },
-    usersByIpAsc () {
-      return [...this.users].sort((a, b) => {
-        const bv = this.$utils.ipv4Int(b.ip)
-        const av = this.$utils.ipv4Int(a.ip)
-        if (bv > av) {
-          return -1
-        }
-        if (bv < av) {
-          return 1
-        }
-        return 0
-      })
-    },
     usersById () {
       return [...this.users].sort(function (a, b) {
         if (b.id > a.id) {
@@ -165,20 +146,7 @@ export default {
         }
         return 0
       })
-    },
-    L3HWEBIp () {
-      if (this.systemConfigs && this.systemConfigs.lxhweb) {
-        return this.systemConfigs.lxhweb.ORA_DB_L3HWEB_IP
-      }
-      return '220.1.33.5'
-    },
-    L3HWEBPort () {
-      if (this.systemConfigs && this.systemConfigs.lxhweb) {
-        return this.systemConfigs.lxhweb.ORA_DB_L3HWEB_PORT
-      }
-      return '1521'
-    },
-    editUserTitle () { return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊` }
+    }
   },
   watch: {
     type (val) {
