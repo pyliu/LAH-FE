@@ -108,7 +108,7 @@ export default {
     })
   },
   head: {
-    title: '使用者資訊管理-桃園市地政局'
+    title: '員工名錄-桃園市地政局'
   },
   fetchOnServer: true,
   computed: {
