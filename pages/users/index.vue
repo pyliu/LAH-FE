@@ -51,7 +51,7 @@
         b-badge(pill variant="info") {{ category.LIST.length }}
 
       b-collapse(:id="$utils.md5(category.NAME)" visible)
-        b-card-group(columns)
+        b-card-group(columns): transition-group(name="list")
           lah-user-card.max-width(
             v-for="user in category.LIST"
             :key="user.id"
