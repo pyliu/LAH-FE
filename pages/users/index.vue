@@ -23,8 +23,10 @@
     hr
     section
       //- 顯示控制UI
-      .d-flex.mb-2
-        .d-flex.align-items-center.mr-auto
+      .d-flex.mb-2.text-nowrap
+        .d-flex.align-items-center.flex-nowrap.mr-auto
+          h5.my-auto 部門
+          b-select.dept-width(v-model="department" :options="deptOpts")
           h5.my-auto 分類顯示
           b-radio-group.mx-1(
             v-model="selectedGroup"
@@ -65,11 +67,13 @@ import lahUserAddCard from '~/components/lah-user-add-card.vue'
 export default {
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
-    selectedGroup: 'unit',
+    department: '',
+    deptOpts: ['全所', '登記課', '測量課', '行政課', '地價課', '資訊課', '人事室', '會計室', '主任室'],
+    selectedGroup: 'title',
     groupOptions: [
-      { text: '部門', value: 'unit' },
-      { text: '角色', value: 'role' },
+      // { text: '部門', value: 'unit' },
       { text: '職稱', value: 'title' },
+      { text: '角色', value: 'role' },
       { text: '工作', value: 'work' },
       { text: '性別', value: 'sex' }
       // { text: '電腦', value: 'ip' },
@@ -91,22 +95,22 @@ export default {
     ],
     clickedUser: { id: '', name: '' }
   }),
-  fetch () {
-    this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.USER, {
-      type: this.type
-    }).then(({ data }) => {
-      if (this.$utils.statusCheck(data.status)) {
-        this.users = data.raw
-      } else {
-        this.notify(data.message, { type: 'warning' })
-      }
-    }).catch((err) => {
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
-    })
-  },
+  // fetch () {
+  //   this.isBusy = true
+  //   this.$axios.post(this.$consts.API.JSON.USER, {
+  //     type: this.type
+  //   }).then(({ data }) => {
+  //     if (this.$utils.statusCheck(data.status)) {
+  //       this.users = data.raw
+  //     } else {
+  //       this.notify(data.message, { type: 'warning' })
+  //     }
+  //   }).catch((err) => {
+  //     this.$utils.error(err)
+  //   }).finally(() => {
+  //     this.isBusy = false
+  //   })
+  // },
   head: {
     title: '員工名錄-桃園市地政局'
   },
@@ -152,11 +156,39 @@ export default {
     type (val) {
       this.users = []
       if (val !== '') {
-        this.$fetch()
+        this.fetchUsersByDepartment()
+      }
+    },
+    department (val) {
+      this.users = []
+      if (val !== '') {
+        this.fetchUsersByDepartment()
       }
     }
   },
+  mounted () {
+    this.department = this.user.unit
+    this.fetchUsersByDepartment()
+  },
   methods: {
+    fetchUsersByDepartment () {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.USER, {
+        type: 'department_users',
+        valid: this.type,
+        department: this.department
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.users = data.raw
+        } else {
+          this.notify(data.message, { type: 'warning' })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
     translateGroupName (name) {
       if (parseInt(name) === 1) {
         return '男生'
@@ -253,5 +285,8 @@ export default {
 <style lang="scss" scoped>
 .max-width {
   max-width: calc(30vw - 0px);
+}
+.dept-width {
+  max-width: 100px;
 }
 </style>
