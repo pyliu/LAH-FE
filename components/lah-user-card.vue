@@ -47,7 +47,6 @@
               thumbnail
               rounded
             )
-            //- b-skeleton-img(v-show="!imgLoaded" card-img="right")
 </template>
 
 <script>
@@ -59,9 +58,6 @@ export default {
   props: {
     noEditButton: { type: Boolean, default: false }
   },
-  data: () => ({
-    imgLoaded: false
-  }),
   computed: {
     isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
     birthAgeVariant () {
