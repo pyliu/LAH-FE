@@ -16,7 +16,7 @@ module.exports = {
     time: true,
     // 適合開發時用，檔案一有變更就會自動重啟
     watch: true,
-    ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git"],
+    ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git", "./ws/db/*", "./assets/db/*"],
     max_memory_restart: '256M',
     env: {
       NODE_ENV: 'production'
@@ -32,7 +32,7 @@ module.exports = {
     cron_restart: '0 7 * * *',
     time: true,
     watch: true,
-    ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git"],
+    ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git", "./ws/db/*", "./assets/db/*"],
     max_memory_restart: '1024M',
     env: {
       NODE_ENV: 'production'
