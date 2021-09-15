@@ -129,10 +129,10 @@ export default {
       return 'danger'
     },
     photoSrc () {
-      return `${this.apiHttpUrl}/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}&timestamp=${this.timestamp}`
+      return `/img/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}&timestamp=${this.timestamp}`
     },
     avatarSrc () {
-      return `${this.apiHttpUrl}/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar&timestamp=${this.timestamp}`
+      return `/img/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar&timestamp=${this.timestamp}`
     }
   },
   watch: {

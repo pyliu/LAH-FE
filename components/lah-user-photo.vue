@@ -36,7 +36,7 @@ export default {
       return this.userData.name || this.name
     },
     src () {
-      return `${this.apiHttpUrl}/get_user_img.php?id=${this.userId}&name=${this.userName}&timestamp=${this.timestamp}`
+      return `/img/get_user_img.php?id=${this.userId}&name=${this.userName}&timestamp=${this.timestamp}`
     }
   }
 }

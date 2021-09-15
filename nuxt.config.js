@@ -52,7 +52,7 @@ export default {
   },
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
-    { src: '~/plugins/customize-axios'},
+    { src: '~/plugins/customize-axios' },
     { src: '~/plugins/fontawesome' },
     { src: '~/plugins/global-vue-mixin' },
     { src: '~/plugins/global-init' }
@@ -96,10 +96,15 @@ export default {
   proxy: {
     '/api': {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
-      changeOrigin: true, 
+      changeOrigin: true
       // pathRewrite: {
       //   '^/api': '',
       // },
+    },
+    '/img': {
+      target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
+      changeOrigin: true,
+      pathRewrite: { '^/img': '' }
     }
   },
   // Build Configuration (https://go.nuxtjs.dev/config-build)

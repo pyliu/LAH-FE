@@ -34,7 +34,7 @@ export default {
       return this.userData?.name || this.userNames[this.id] || this.name
     },
     avatarSrc () {
-      return `${this.apiHttpUrl}/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
+      return `/img/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
     },
     enableAvatar () {
       if (this.ignoreSystemConfig) { return true }
