@@ -18,7 +18,7 @@
               icon="ban"
               variant="danger"
               action="breath"
-              v-if="isDisabled"
+              v-if="isDisabled || !$utils.empty(userData.offboard_date)"
             ) 已停用
 
           b-card-text.d-flex.flex-column.small
