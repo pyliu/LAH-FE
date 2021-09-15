@@ -489,7 +489,7 @@ export default {
     },
     variant (user) {
       const userAuthority = this.getAuthority(user)
-      if (userAuthority.isDisabled) { return 'secondary' }
+      if (userAuthority.isDisabled || !this.$utils.empty(user.offboard_date)) { return 'secondary' }
       if (userAuthority.isAdmin) { return 'danger' }
       if (userAuthority.isChief) { return 'primary' }
       if (userAuthority.isRAE) { return 'warning' }
@@ -499,7 +499,7 @@ export default {
     },
     role (user) {
       const userAuthority = this.getAuthority(user)
-      if (userAuthority.isDisabled) { return '已被停用' }
+      if (userAuthority.isDisabled || !this.$utils.empty(user.offboard_date)) { return '已被停用' }
       if (userAuthority.isAdmin) { return '系統管理者' }
       if (userAuthority.isChief) { return '主管' }
       if (userAuthority.isRAE) { return '研考' }
@@ -512,7 +512,7 @@ export default {
       return {
         isAdmin: this.$consts.AUTHORITY.ADMIN === (authority & this.$consts.AUTHORITY.ADMIN),
         isChief: this.$consts.AUTHORITY.CHIEF === (authority & this.$consts.AUTHORITY.CHIEF),
-        isDisabled: this.$consts.AUTHORITY.DISABLED === (authority & this.$consts.AUTHORITY.DISABLED),
+        isDisabled: this.$consts.AUTHORITY.DISABLED === (authority & this.$consts.AUTHORITY.DISABLED) || !this.$utils.empty(user.offboard_date),
         isRAE: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === (authority & this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION),
         isUserMgtStaff: this.$consts.AUTHORITY.USER_MANAGEMENT === (authority & this.$consts.AUTHORITY.USER_MANAGEMENT),
         isNotifyMgtStaff: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === (authority & this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT)

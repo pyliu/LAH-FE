@@ -127,7 +127,7 @@ Vue.mixin({
     ...mapActions([
       'login'
     ]),
-    $, // jQuery '$',
+    $, // jQuery '$'
     uuid () {
       let d = Date.now()
       if (typeof performance !== 'undefined' && typeof performance.now === 'function') {

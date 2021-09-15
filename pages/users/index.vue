@@ -81,7 +81,6 @@ export default {
       { html: '<i class="fas fa-sort-amount-down"/>', value: false, disabled: false }
     ],
     showAvatar: false,
-    showIp: false,
     userXlsx: null,
     keyword: '',
     users: [],
@@ -201,8 +200,7 @@ export default {
     },
     groupBy (field) {
       const filtered = []
-      const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
-      sortTarget.forEach((item, idx, array) => {
+      this.usersById.forEach((item, idx, array) => {
         const found = filtered.find((category, d, arr) => {
           return category.NAME === item[field]
         })
@@ -231,8 +229,7 @@ export default {
         { NAME: '公告管理者', LIST: [] },
         { NAME: '一般使用者', LIST: [] }
       ]
-      const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
-      sortTarget.forEach((item, idx, array) => {
+      this.usersById.forEach((item, idx, array) => {
         const userAuthority = this.getAuthority(item)
         if (userAuthority.isAdmin) { return filtered[0].LIST.push(item) }
         if (userAuthority.isChief) { return filtered[1].LIST.push(item) }
@@ -270,74 +267,16 @@ export default {
       }
       return 0
     },
-    add () {
-      this.showModalById('add-user-modal')
-    },
-    added (event) {
-      this.users.unshift(event.detail)
-      this.hideModalById('add-user-modal')
-      this.notify(`新增 ${event.detail.id} ${event.detail.name} 成功`, { type: 'success' })
-    },
-    edit (user) {
-      this.clickedUser = user
-      this.showModalById('edit-user-modal')
-    },
-    saved (event) {
-      this.update(event.detail)
-      this.hideModalById('edit-user-modal')
-      this.notify(`更新 ${this.clickedUser.id} ${this.clickedUser.name} 完成`, { type: 'success' })
-    },
-    update (userData) {
-      // update the cached user data
-      let foundIdx
-      const user = this.users.find((item, idx, array) => {
-        if (item.id === userData.id) {
-          foundIdx = idx
-        }
-        return item.id === userData.id
-      })
-      if (foundIdx !== undefined) {
-        // refresh current data
-        this.users[foundIdx] = { ...user, ...userData }
-        this.users = [...this.users]
-      }
-    },
-    variant (user) {
-      const userAuthority = this.getAuthority(user)
-      if (userAuthority.isDisabled) { return 'secondary' }
-      if (userAuthority.isAdmin) { return 'danger' }
-      if (userAuthority.isChief) { return 'primary' }
-      if (userAuthority.isRAE) { return 'warning' }
-      if (userAuthority.isUserMgtStaff) { return 'success' }
-      if (userAuthority.isNotifyMgtStaff) { return 'outline-info' }
-      return 'outline-dark'
-    },
-    role (user) {
-      const userAuthority = this.getAuthority(user)
-      if (userAuthority.isDisabled) { return '已被停用' }
-      if (userAuthority.isAdmin) { return '系統管理者' }
-      if (userAuthority.isChief) { return '主管' }
-      if (userAuthority.isRAE) { return '研考' }
-      if (userAuthority.isUserMgtStaff) { return '人事管理者' }
-      if (userAuthority.isNotifyMgtStaff) { return '公告管理者' }
-      return ''
-    },
     getAuthority (user) {
       const authority = user.authority || 0
       return {
         isAdmin: this.$consts.AUTHORITY.ADMIN === (authority & this.$consts.AUTHORITY.ADMIN),
         isChief: this.$consts.AUTHORITY.CHIEF === (authority & this.$consts.AUTHORITY.CHIEF),
-        isDisabled: this.$consts.AUTHORITY.DISABLED === (authority & this.$consts.AUTHORITY.DISABLED),
+        isDisabled: this.$consts.AUTHORITY.DISABLED === (authority & this.$consts.AUTHORITY.DISABLED) || !this.$utils.empty(user.offboard_date),
         isRAE: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === (authority & this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION),
         isUserMgtStaff: this.$consts.AUTHORITY.USER_MANAGEMENT === (authority & this.$consts.AUTHORITY.USER_MANAGEMENT),
         isNotifyMgtStaff: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === (authority & this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT)
       }
-    },
-    avatarSrc (user) {
-      return `${this.apiHttpUrl}/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
-    },
-    ipParts (user) {
-      return user.ip.split('.')
     }
   }
 }
