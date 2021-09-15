@@ -80,7 +80,7 @@ export default {
     configs () {
       return Object.keys(this.$config).map(key => [key, this.$config[key]])
     },
-    uploadUrl () { return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.IMAGE}` }
+    uploadUrl () { return `${this.apiHttpUrl}${this.$consts.API.FILE.IMAGE}` }
   },
   watch: {
     list () {

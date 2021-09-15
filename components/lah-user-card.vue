@@ -40,7 +40,7 @@
         b-col.d.flex.flex-column(md="6")
           lah-button.ml-auto.mb-1(v-if="isAuthorized && !noEditButton" icon="edit" @click="edit") 編輯
           b-link(@click="photoClick" title="放大顯示")
-            b-img.shadow(
+            b-img-lazy.shadow(
               :src="photoSrc"
               :alt="userData.name"
               fluid
@@ -129,10 +129,10 @@ export default {
       return 'danger'
     },
     photoSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}&timestamp=${this.timestamp}`
+      return `${this.apiHttpUrl}/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}&timestamp=${this.timestamp}`
     },
     avatarSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar&timestamp=${this.timestamp}`
+      return `${this.apiHttpUrl}/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar&timestamp=${this.timestamp}`
     }
   },
   watch: {

@@ -73,7 +73,7 @@ Vue.mixin({
       }
       return '80'
     },
-    apiSvrHttpUrl () {
+    apiHttpUrl () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     }
   },

@@ -352,7 +352,7 @@ export default {
       }
       return true
     },
-    uploadUrl () { return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.PHOTO}` },
+    uploadUrl () { return `${this.apiHttpUrl}${this.$consts.API.FILE.PHOTO}` },
     authOpts () {
       return [
         { value: this.$consts.AUTHORITY.DISABLED, text: '停用' },
