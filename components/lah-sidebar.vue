@@ -8,11 +8,12 @@
     shadow
   )
     template(#title)
-      lah-avatar.mt-n1.mr-1(:user-data="myinfo" size="1.6")
-      span.s-95.greeting(@click="popup").
-        {{myinfo.id}}
-        {{myinfo.name}}
-        {{greeting}}
+      .d-flex.align-items.center(@click="popup")
+        lah-avatar.mt-n1.mr-1(:user-data="user" size="1.0")
+        span.s-95.greeting.
+          {{myinfo.id}}
+          {{myinfo.name}}
+          {{greeting}}
     client-only
       ul.mt-n3
 
@@ -21,12 +22,6 @@
         li: nuxt-link(to="/").
           #[font-awesome-icon(:icon="['fas', 'home']" pull="left" size="lg")]
           首頁
-
-        li: hr
-
-        li: nuxt-link(to="/message").
-          #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
-          傳送所內信差訊息
 
         li: hr
 
@@ -66,6 +61,15 @@
         li: nuxt-link(to="/reg-untaken-case").
           #[font-awesome-icon(:icon="['fas', 'stamp']" size="lg")]
           案件領狀管控
+
+        li: hr
+
+        li: nuxt-link(to="/message").
+          #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
+          傳送所內信差訊息
+        li: nuxt-link(to="/users").
+          #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
+          芳名錄
 
         li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
