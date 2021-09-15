@@ -72,9 +72,6 @@ Vue.mixin({
         return this.server.SERVER_PORT
       }
       return '80'
-    },
-    apiHttpUrl () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     }
   },
   watch: {
