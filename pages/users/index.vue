@@ -3,7 +3,7 @@
     lah-header: lah-transition(appear)
       .d-flex.w-100
         .d-flex.mr-auto
-          .my-auto 芳名錄
+          .my-auto 員工名錄
           lah-button(
             v-b-modal.help-modal
             icon="info"

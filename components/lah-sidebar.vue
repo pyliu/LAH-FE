@@ -69,7 +69,7 @@
           傳送所內信差訊息
         li: nuxt-link(to="/users").
           #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
-          芳名錄
+          員工名錄
 
         li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
