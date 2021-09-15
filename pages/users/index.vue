@@ -17,31 +17,32 @@
 
     lah-help-modal(:modal-id="'help-modal'" size="lg")
       ul
-        li ???
+        li 分類顯示，依各個分類項目組合
+        li 排序，依數量多寡
 
     hr
     section
       //- 顯示控制UI
-      .d-flex.justify-content-between.mb-2
-        .d-flex
-          b-form-radio-group(
+      .d-flex.mb-2
+        .d-flex.align-items-center.mr-auto
+          h5.my-auto 分類顯示
+          b-radio-group.mx-1(
             v-model="selectedGroup"
             :options="groupOptions"
             buttons
             button-variant="outline-dark"
-            class="my-auto"
-            title="分類"
           )
-          b-form-radio-group.ml-3.my-auto(
+          h5.my-auto 排序
+          b-radio-group.ml-3.my-auto(
             v-model="sortOrder"
             :options="sortOpts"
           )
-        span.text-muted.my-auto.lah-shadow 找到 #[b-badge( pill class="my-auto" variant="info") {{ users.length }}] 個使用者
-        .d-flex.my-auto
-          b-form-checkbox-group(v-model="filter" :options="filterOptions")
+        .d-flex.align-items-center.my-auto
+          b-checkbox-group(v-model="filter" :options="filterOptions")
+        .d-flex.align-items-center.my-auto.text-muted #[b-badge.my-auto.mx-1( pill :variant="filter.includes('off') ? 'secondary' : 'success'") {{ users.length }}] 個使用者
 
     hr
-    //- 名牌顯示區塊
+    //- 卡片顯示區塊
     .mb-3(v-for="category in categories" :key="category.NAME")
       h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
         span {{ translateGroupName(category.NAME) }}
@@ -54,24 +55,6 @@
             :key="user.id"
             :raw="[user]"
           )
-        //- b-button(
-        //-   v-for="user in category.LIST"
-        //-   :key="user['id']"
-        //-   :data-id="user['id']"
-        //-   :data-name="user['name']"
-        //-   :variant="variant(user)"
-        //-   :pill="showAvatar"
-        //-   :title="role(user)"
-        //-   size="sm"
-        //-   class="mx-1 my-1 shadow"
-        //-   @click="edit(user)"
-        //- )
-        //-   b-avatar(v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)")
-        //-   span.ml-1 {{ user["id"].padStart(6, '&ensp;') }}
-        //-   span.ml-1 {{ user["name"].padEnd(3, '　') }}
-        //-   .text-dark.text-center.font-weight-bolder(v-if="showIp")
-        //-     span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
-        //-     span.text-info .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
 </template>
 
 <script>
@@ -88,9 +71,9 @@ export default {
       { text: '角色', value: 'role' },
       { text: '職稱', value: 'title' },
       { text: '工作', value: 'work' },
-      { text: '性別', value: 'sex' },
-      { text: '電腦', value: 'ip' },
-      { text: '未分類', value: '' }
+      { text: '性別', value: 'sex' }
+      // { text: '電腦', value: 'ip' },
+      // { text: '未分類', value: '' }
     ],
     sortOrder: false,
     sortOpts: [
@@ -160,12 +143,6 @@ export default {
           return [{ NAME: '未分類', LIST: this.users }]
       }
     },
-    importUrl () {
-      return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
-    },
-    exportXlsxUrl () {
-      return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.XLSX}?type=all_users_export`
-    },
     usersByIpAsc () {
       return [...this.users].sort((a, b) => {
         const bv = this.$utils.ipv4Int(b.ip)
@@ -213,9 +190,6 @@ export default {
     }
   },
   methods: {
-    exportXlsx () {
-      this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載使用者XLSX清單' } })
-    },
     translateGroupName (name) {
       if (parseInt(name) === 1) {
         return '男生'
@@ -296,38 +270,6 @@ export default {
       }
       return 0
     },
-    upload () {
-      this.confirm('請確定要上傳更新？').then((answer) => {
-        if (answer) {
-          if (this.$utils.empty(this.userXlsx)) {
-            this.alert('請先選擇一個符合格式的XLSX檔')
-          } else {
-            this.isBusy = true
-            const formData = new FormData()
-            formData.append('file', this.userXlsx)
-            this.$upload.post(this.importUrl, formData)
-              .then(({ data }) => {
-                const opts = { type: 'warning', title: '匯入使用者資料通知' }
-                if (this.$utils.statusCheck(data.status)) {
-                  opts.type = 'success'
-                  // refresh all list
-                  this.$fetch()
-                }
-                this.notify(data.message, opts)
-              })
-              .catch((err) => {
-                this.$utils.error(err)
-              })
-              .finally(() => {
-                this.isBusy = false
-                this.userXlsx = null
-              })
-          }
-        } else {
-          this.$utils.warn('cancelled confirmation of uploading user xlsx!')
-        }
-      })
-    },
     add () {
       this.showModalById('add-user-modal')
     },
@@ -392,7 +334,7 @@ export default {
       }
     },
     avatarSrc (user) {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
+      return `${this.apiHttpUrl}/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
     },
     ipParts (user) {
       return user.ip.split('.')

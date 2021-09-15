@@ -28,18 +28,17 @@ export default {
   },
   computed: {
     userId () {
-      return this.userData.id || this.id
+      return this.userData?.id || this.id
     },
     userName () {
-      return this.userData.name || this.userNames[this.id] || this.name
+      return this.userData?.name || this.userNames[this.id] || this.name
     },
     avatarSrc () {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
+      return `${this.apiHttpUrl}/get_user_img.php?id=${this.userId}_avatar&name=${this.userName}_avatar`
     },
     enableAvatar () {
       if (this.ignoreSystemConfig) { return true }
-      if (this.systemConfigs) { return this.systemConfigs.avatar === true || this.systemConfigs.avatar === 'true' }
-      return false
+      return this.systemConfigs?.avatar === true || this.systemConfigs?.avatar === 'true'
     }
   },
   methods: {
