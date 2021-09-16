@@ -288,10 +288,10 @@ export default {
       }
     },
     importUrl () {
-      return `${this.apiSvrHttpUrl}${this.$consts.API.XLSX.USER_IMPORT}`
+      return `http://${this.apiHost}:${this.apiPort}${this.$consts.API.XLSX.USER_IMPORT}`
     },
     exportXlsxUrl () {
-      return `${this.apiSvrHttpUrl}${this.$consts.API.FILE.XLSX}?type=all_users_export`
+      return `http://${this.apiHost}:${this.apiPort}${this.$consts.API.FILE.XLSX}?type=all_users_export`
     },
     usersByIpAsc () {
       return [...this.users].sort((a, b) => {
@@ -519,7 +519,7 @@ export default {
       }
     },
     avatarSrc (user) {
-      return `${this.apiSvrHttpUrl}/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
+      return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
     },
     ipParts (user) {
       return user.ip.split('.')
