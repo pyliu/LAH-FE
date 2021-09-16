@@ -97,9 +97,7 @@ export default {
     '/api': {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
       changeOrigin: true
-      // pathRewrite: {
-      //   '^/api': '',
-      // },
+      // pathRewrite: { '^/api': '' }
     },
     '/img': {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,

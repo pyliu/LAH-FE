@@ -21,20 +21,20 @@
         li 排序，依數量多寡
 
     hr
-    section
+    section: client-only
       //- 顯示控制UI
       .d-flex.mb-2.text-nowrap
         .d-flex.align-items-center.flex-nowrap.mr-auto
-          h5.my-auto 部門
+          h5.my-auto.mr-1 部門
           b-select.dept-width(v-model="department" :options="deptOpts")
-          h5.my-auto 分類顯示
+          h5.my-auto.mx-1 分類顯示
           b-radio-group.mx-1(
             v-model="selectedGroup"
             :options="groupOptions"
             buttons
-            button-variant="outline-dark"
+            button-variant="outline-secondary"
           )
-          h5.my-auto 排序
+          h5.my-auto.mx-1 排序
           b-radio-group.ml-3.my-auto(
             v-model="sortOrder"
             :options="sortOpts"
@@ -48,11 +48,11 @@
     .mb-3(v-for="category in categories" :key="category.NAME")
       h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
         span {{ translateGroupName(category.NAME) }}
-        b-badge(pill variant="info") {{ category.LIST.length }}
+        b-badge.mx-1(pill variant="secondary") {{ category.LIST.length }}
 
       b-collapse(:id="$utils.md5(category.NAME)" visible)
         b-card-group(columns): transition-group(name="list")
-          lah-user-card.max-width(
+          lah-user-card.max-width.lah-shadow(
             v-for="user in category.LIST"
             :key="user.id"
             :raw="[user]"
@@ -68,16 +68,16 @@ export default {
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
     department: '',
-    deptOpts: ['全所', '登記課', '測量課', '行政課', '地價課', '資訊課', '人事室', '會計室', '主任室'],
-    selectedGroup: 'title',
+    deptOpts: ['全所', '登記課', '測量課', '行政課', '地價課', '資訊課', '人事室', '會計室', '秘書室', '主任室'],
+    selectedGroup: '',
     groupOptions: [
       // { text: '部門', value: 'unit' },
       { text: '職稱', value: 'title' },
       { text: '角色', value: 'role' },
       { text: '工作', value: 'work' },
-      { text: '性別', value: 'sex' }
+      { text: '性別', value: 'sex' },
+      { text: '未分類', value: '' }
       // { text: '電腦', value: 'ip' },
-      // { text: '未分類', value: '' }
     ],
     sortOrder: false,
     sortOpts: [
@@ -164,11 +164,10 @@ export default {
       if (val !== '') {
         this.fetchUsersByDepartment()
       }
+    },
+    user (storeUpdVal) {
+      this.department = storeUpdVal.unit
     }
-  },
-  mounted () {
-    this.department = this.user.unit
-    this.fetchUsersByDepartment()
   },
   methods: {
     fetchUsersByDepartment () {
