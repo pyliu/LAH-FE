@@ -19,30 +19,35 @@
       ul
         li 分類顯示，依各個分類項目組合
         li 排序，依數量多寡
+        li 關鍵字，可依輸入字串找尋使用者
 
     hr
     section: client-only
       //- 顯示控制UI
-      .d-flex.mb-2.text-nowrap
-        .d-flex.align-items-center.flex-nowrap.mr-auto
+      .d-flex.mb-2.text-nowrap.justify-content-between
+        .d-flex.align-items-center.flex-nowrap
           h5.my-auto.mr-1 部門
           b-select.dept-width(v-model="department" :options="deptOpts")
-          h5.my-auto.mx-1 分類顯示
           b-radio-group.mx-1(
             v-model="selectedGroup"
             :options="groupOptions"
             buttons
             button-variant="outline-secondary"
           )
-          h5.my-auto.mx-1 排序
+
+        b-input.max-width(
+          :state="$utils.empty(keyword) ? null : true"
+          v-model="keyword"
+          placeholder="... 可輸入過濾字串 ..."
+          trim
+        )
+
+        .d-flex.align-items-center.my-auto
+          b-checkbox-group(v-model="filter" :options="filterOptions")
           b-radio-group.ml-3.my-auto(
             v-model="sortOrder"
             :options="sortOpts"
           )
-        .d-flex.align-items-center.my-auto
-          b-checkbox-group(v-model="filter" :options="filterOptions")
-        .d-flex.align-items-center.my-auto.text-muted #[b-badge.my-auto.mx-1( pill :variant="filter.includes('off') ? 'secondary' : 'success'") {{ users.length }}] 個使用者
-
     hr
     //- 卡片顯示區塊
     .mb-3(v-for="category in categories" :key="category.NAME")
@@ -54,6 +59,7 @@
         b-card-group(columns): transition-group(name="list")
           lah-user-card.max-width.lah-shadow(
             v-for="user in category.LIST"
+            v-if="filterUser(user)"
             :key="user.id"
             :raw="[user]"
           )
@@ -67,6 +73,7 @@ import lahUserAddCard from '~/components/lah-user-add-card.vue'
 export default {
   components: { lahUserCard, lahUserEditCard, lahUserAddCard },
   data: () => ({
+    keyword: '',
     department: '',
     deptOpts: ['全所', '登記課', '測量課', '行政課', '地價課', '資訊課', '人事室', '會計室', '秘書室', '主任室'],
     selectedGroup: '',
@@ -86,7 +93,6 @@ export default {
     ],
     showAvatar: false,
     userXlsx: null,
-    keyword: '',
     users: [],
     filter: ['on'],
     filterOptions: [
@@ -95,22 +101,6 @@ export default {
     ],
     clickedUser: { id: '', name: '' }
   }),
-  // fetch () {
-  //   this.isBusy = true
-  //   this.$axios.post(this.$consts.API.JSON.USER, {
-  //     type: this.type
-  //   }).then(({ data }) => {
-  //     if (this.$utils.statusCheck(data.status)) {
-  //       this.users = data.raw
-  //     } else {
-  //       this.notify(data.message, { type: 'warning' })
-  //     }
-  //   }).catch((err) => {
-  //     this.$utils.error(err)
-  //   }).finally(() => {
-  //     this.isBusy = false
-  //   })
-  // },
   head: {
     title: '員工名錄-桃園市地政局'
   },
@@ -167,9 +157,23 @@ export default {
     },
     user (storeUpdVal) {
       this.department = storeUpdVal.unit
+    },
+    keyword (dontcare) {
+
     }
   },
   methods: {
+    filterUser (user) {
+      if (!this.$utils.empty(this.keyword)) {
+        return user.name.includes(this.keyword) ||
+               user.id.includes(this.keyword) ||
+               user.work.includes(this.keyword) ||
+               user.title.includes(this.keyword) ||
+               user.education.includes(this.keyword) ||
+               user.exam.includes(this.keyword)
+      }
+      return true
+    },
     fetchUsersByDepartment () {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.USER, {
