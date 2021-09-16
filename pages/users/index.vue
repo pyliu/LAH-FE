@@ -201,7 +201,7 @@ export default {
       if (parseInt(name) === 0) {
         return '女生'
       }
-      return name
+      return this.$utils.empty(name) ? '未設定' : name
     },
     groupBy (field) {
       const filtered = []
