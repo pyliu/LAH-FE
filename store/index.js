@@ -32,7 +32,7 @@ const logtimestamp = (message) => {
 }
 
 const state = () => ({
-  timestamp: 0,
+  timestamp: +new Date(),
   loggedIn: false,
   ip: '0.0.0.0',
   adminIps: ['127.0.0.1', '::1'],
