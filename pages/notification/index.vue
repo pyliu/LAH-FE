@@ -335,7 +335,7 @@ export default {
             type: 'add_notification',
             ...snapshot
           }).then(({ data }) => {
-            this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning' })
+            this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning', title: data.title })
             if (data.status > 0) {
               snapshot.added_to = data.added
             }
