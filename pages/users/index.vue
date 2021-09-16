@@ -43,7 +43,7 @@
         )
 
         .d-flex.align-items-center.my-auto
-          b-checkbox-group(v-model="filter" :options="filterOptions")
+          b-checkbox-group(v-model="filter" :options="filterOptions" :disabled="!isAuthorized")
           b-radio-group.ml-3.my-auto(
             v-model="sortOrder"
             :options="sortOpts"
@@ -96,8 +96,8 @@ export default {
     users: [],
     filter: ['on'],
     filterOptions: [
-      { text: '正常', value: 'on' },
-      { text: '停用', value: 'off' }
+      { text: '在職', value: 'on' },
+      { text: '離職', value: 'off' }
     ],
     clickedUser: { id: '', name: '' }
   }),
@@ -106,6 +106,7 @@ export default {
   },
   fetchOnServer: true,
   computed: {
+    isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
     type () {
       if (this.filter.length === 2) { return 'all_users' }
       if (this.filter.includes('on')) { return 'on_board_users' }
@@ -158,6 +159,9 @@ export default {
     user (storeUpdVal) {
       this.department = storeUpdVal.unit
     }
+  },
+  mounted () {
+    this.department = this.user.unit
   },
   methods: {
     filterUser (user) {

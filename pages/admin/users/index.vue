@@ -156,7 +156,7 @@
     section.mb-3(v-for="category in categories" :key="category.NAME")
       h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
         span {{ translateGroupName(category.NAME) }}
-        b-badge(pill variant="info") {{ category.LIST.length }}
+        b-badge.ml-1.my-auto(pill variant="info") {{ category.LIST.length }}
 
       b-collapse(:id="$utils.md5(category.NAME)" visible): b-button(
         v-for="user in category.LIST"
