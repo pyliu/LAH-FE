@@ -3,7 +3,7 @@
     lah-header: lah-transition(appear)
       .d-flex.w-100
         .d-flex.mr-auto
-          .my-auto 使用者資訊管理
+          .my-auto 員工資訊管理
           lah-button(
             v-b-modal.help-modal
             icon="info"
@@ -253,7 +253,7 @@ export default {
     })
   },
   head: {
-    title: '使用者資訊管理-桃園市地政局'
+    title: '員工資訊管理-桃園市地政局'
   },
   fetchOnServer: true,
   computed: {

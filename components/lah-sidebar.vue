@@ -66,7 +66,7 @@
 
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
-          傳送所內信差訊息
+          傳送信差訊息
         li: nuxt-link(to="/users").
           #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
           員工名錄
@@ -74,7 +74,7 @@
         li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
           #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
-          發布信差公告訊息
+          發布公告訊息
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
           #[font-awesome-icon(:icon="['fab', 'watchman-monitoring']" size="lg")]
           同步異動監控
@@ -83,10 +83,10 @@
           IP對應表管理
         li(v-if="authority.isUserMgtStaff || authority.isAdmin"): nuxt-link(to="/admin/users").
           #[font-awesome-icon(:icon="['fas', 'users-cog']" size="lg")]
-          使用者管理
+          員工管理
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
           #[font-awesome-icon(:icon="['fas', 'tasks']" size="lg")]
-          系統設定參數管理
+          系統參數設定
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
           #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
           系統管理介面
