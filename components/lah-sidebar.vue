@@ -106,12 +106,9 @@
         li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
           #[font-awesome-icon(:icon="['fab', 'github']" pull="left" size="lg")]
           原始碼
-        li(v-if="$utils.empty(user)"): b-link(@click="logout").
+        li: b-link(@click="clearCache").
           #[font-awesome-icon(:icon="['fas', 'hand-sparkles']" size="lg")]
           清除本系統快取資料
-        li(v-else): b-link(@click="logout" title="清除瀏覽器端快取資料").
-          #[font-awesome-icon(:icon="['fas', 'sign-out-alt']" size="lg")]
-          登出
 
         li: hr
     template(#footer)
@@ -135,10 +132,9 @@ export default {
     }
   },
   methods: {
-    logout () {
-      const message = this.$utils.empty(this.user) ? '請確認要清除快取資料？' : '請確認要登出並清除快取資料？'
-      this.confirm(message).then((ans) => {
-        ans && this.clearCache() && this.notify('登出完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
+    clearCache () {
+      this.confirm('請確認要清除快取資料？').then((ans) => {
+        ans && this.clearCache() && this.notify('清除快取資料完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
       })
     },
     popup () {
