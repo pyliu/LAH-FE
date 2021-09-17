@@ -14,6 +14,8 @@ Vue.mixin({
       'loggedIn',
       'ip',
       'apiSvrIps',
+      'apiSvrIp',
+      'apiSvrPort',
       'lastMessage',
       'systemConfigs',
       'apiHost',
@@ -64,19 +66,7 @@ Vue.mixin({
     myinfo () { return isEmpty(this.user) ? { id: '', name: '' } : this.user },
     myid () { return this.user.id },
     myname () { return this.user.name },
-    webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip },
-    apiSvrIp () {
-      if (Array.isArray(this.apiSvrIps) && this.apiSvrIps.length > 0) {
-        return this.apiSvrIps[this.apiSvrIps.length - 1]
-      }
-      return '127.0.0.1'
-    },
-    apiSvrPort () {
-      if (!isEmpty(this.server)) {
-        return this.server.SERVER_PORT
-      }
-      return '80'
-    }
+    webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip }
   },
   watch: {
     isBusy (flag) {

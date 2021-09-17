@@ -1,3 +1,5 @@
+import isEmpty from 'lodash/isEmpty'
+
 const logerror = (error) => {
   if (error.response) {
     // The request was made and the server responded with a status code
@@ -67,7 +69,20 @@ const getters = {
   loggedIn: state => state.loggedIn,
   ip: state => state.ip,
   adminIps: state => state.adminIps,
+  server: state => state.server,
   apiSvrIps: state => state.apiSvrIps,
+  apiSvrIp: (state) => {
+    if (Array.isArray(state.apiSvrIps) && state.apiSvrIps.length > 0) {
+      return state.apiSvrIps[state.apiSvrIps.length - 1]
+    }
+    return state.systemConfigs.API_SERVER_IP
+  },
+  apiSvrPort: (state) => {
+    if (!isEmpty(state.server)) {
+      return state.server.SERVER_PORT
+    }
+    return state.apiPort
+  },
   user: state => state.user,
   userNames: state => state.userNames,
   authority: state => state.authority,
@@ -76,7 +91,6 @@ const getters = {
   apiPort: state => state.systemConfigs.API_SERVER_PORT,
   wsHost: state => state.systemConfigs.WS_SERVER_IP,
   wsPort: state => state.systemConfigs.WS_SERVER_PORT,
-  server: state => state.server,
   lastMessage: state => state.lastMessage,
   xapMap: state => state.xapMap,
   timestamp: state => state.timestamp
