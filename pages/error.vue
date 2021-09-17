@@ -1,7 +1,7 @@
 <template lang="pug">
   div(v-cloak)
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100.my-auto
-      .d-flex.ml-3: lah-fa-icon(append regular icon="comment-dots")
+      .d-flex.ml-3: lah-fa-icon(append regular icon="exclamation-triangle")
         span.mr-2 #[strong.text-danger {{ error.statusCode }}] 錯誤訊息
       div
     .center.full
