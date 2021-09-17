@@ -176,7 +176,7 @@ export default {
 
 <style lang="scss" scoped>
 .fixed-width {
-  width: 32px;
+  width: 24px;
 }
 #lah-sidebar {
   a {
