@@ -231,8 +231,8 @@ export default {
     users: [],
     filter: ['on'],
     filterOptions: [
-      { text: '正常', value: 'on' },
-      { text: '停用', value: 'off' }
+      { text: '在職', value: 'on' },
+      { text: '離職', value: 'off' }
     ],
     clickedUser: { id: '', name: '' }
   }),
