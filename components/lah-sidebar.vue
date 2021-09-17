@@ -64,6 +64,9 @@
 
         li: hr
 
+        li: a(href="/legacy/shortcuts.html" target="_blank" rel="noreferrer noopener").
+          #[font-awesome-icon(:icon="['far', 'bookmark']" size="lg")]
+          書籤
         li: nuxt-link(to="/users").
           #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
           員工名錄
