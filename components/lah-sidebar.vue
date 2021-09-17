@@ -20,115 +20,115 @@
         li: hr
 
         li: nuxt-link(to="/").
-          #[font-awesome-icon(:icon="['fas', 'home']" pull="left" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'home']" pull="left" size="lg")]
           首頁
 
         li: hr
 
         li: nuxt-link(to="/expire").
-          #[font-awesome-icon(:icon="['far', 'calendar-check']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['far', 'calendar-check']" size="lg")]
           即將逾期案件
         li: nuxt-link(to="/expiry-of-announcement").
-          #[font-awesome-icon(:icon="['fa', 'sticky-note']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fa', 'sticky-note']" size="lg")]
           公告期滿案件
         li: nuxt-link(to="/ask-for-instructions").
-          #[font-awesome-icon(:icon="['fas', 'user-tie']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'user-tie']" size="lg")]
           取消請示案件
         li: nuxt-link(to="/trust").
-          #[font-awesome-icon(:icon="['fas', 'money-check-alt']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'money-check-alt']" size="lg")]
           信託相關案件
         li: nuxt-link(to="/non-scrivener-case").
-          #[font-awesome-icon(:icon="['fas', 'user-tag']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'user-tag']" size="lg")]
           非專業代理人案件
         li: NuxtLink(to="/foreigner-case").
-          #[font-awesome-icon(:icon="['fas', 'user-astronaut']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'user-astronaut']" size="lg")]
           外人地權案件
         li: nuxt-link(to="/agriculture-375-change").
-          #[font-awesome-icon(:icon="['fas', 'border-all']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'border-all']" size="lg")]
           375租約異動
         li: nuxt-link(to="/not-done-change").
-          #[font-awesome-icon(:icon="['fas', 'monument']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'monument']" size="lg")]
           未辦標的註記異動
         li: nuxt-link(to="/land-ref-change").
-          #[font-awesome-icon(:icon="['fas', 'landmark']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'landmark']" size="lg")]
           土地參考資訊檔異動
         li: nuxt-link(to="/reg-fix-case").
-          #[font-awesome-icon(:icon="['fas', 'pager']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'pager']" size="lg")]
           補正期滿案件查詢
         li: nuxt-link(to="/reg-not-done-case").
-          #[font-awesome-icon(:icon="['fas', 'bullhorn']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'bullhorn']" size="lg")]
           辦畢通知案件查詢
         li: nuxt-link(to="/reg-untaken-case").
-          #[font-awesome-icon(:icon="['fas', 'stamp']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'stamp']" size="lg")]
           案件領狀管控
 
         li: hr
 
         li: a(href="/legacy/shortcuts.html" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon(:icon="['far', 'bookmark']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['far', 'bookmark']" size="lg")]
           書籤
         li: nuxt-link(to="/users").
-          #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['far', 'user-circle']" size="lg")]
           員工名錄
         li: nuxt-link(to="/message").
-          #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['far', 'comments']" size="lg")]
           傳送信差訊息
         li: a(href="/legacy/carousel.html" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon(:icon="['far', 'newspaper']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['far', 'newspaper']" size="lg")]
           海報輪撥
         li: a(href="/legacy/stats.html" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'calculator']" size="lg")]
           統計看板
         li: a(href="/legacy/helper.html" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon(:icon="['fas', 'hands-helping']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'hands-helping']" size="lg")]
           業務小幫手
         li: a(href="/legacy/index.html" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon(:icon="['fas', 'calendar-day']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'calendar-day']" size="lg")]
           今日案件追蹤
 
         li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
-          #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['far', 'comment-dots']" size="lg")]
           發布公告訊息
         li(v-if="authority.isAdmin"): a(href="/legacy/dashboard.html" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon(:icon="['fas', 'diagnoses']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'diagnoses']" size="lg")]
           地政系統管理面板
         li(v-if="authority.isAdmin"): a(href="/legacy/monitor.html" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon(:icon="['fas', 'columns']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']" size="lg")]
           跨所伺服器監控面板
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
-          #[font-awesome-icon(:icon="['fab', 'watchman-monitoring']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fab', 'watchman-monitoring']" size="lg")]
           同步異動監控
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/ip").
-          #[font-awesome-icon(:icon="['fas', 'network-wired']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'network-wired']" size="lg")]
           IP對應表管理
         li(v-if="authority.isUserMgtStaff || authority.isAdmin"): nuxt-link(to="/admin/users").
-          #[font-awesome-icon(:icon="['fas', 'users-cog']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'users-cog']" size="lg")]
           員工管理
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
-          #[font-awesome-icon(:icon="['fas', 'tasks']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'tasks']" size="lg")]
           智慧管控系統參數設定
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
-          #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'cogs']" size="lg")]
           智慧管控系統管理介面
 
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
-        //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
+        //-   #[font-awesome-icon.fixed-width(:icon="['fas', 'calculator']" size="lg")]
         //-   統計看板
         //- li(v-if="isAuthorized"): nuxt-link(to="/playground").
-        //-   #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
+        //-   #[font-awesome-icon.fixed-width(:icon="['fab', 'playstation']" size="lg")]
         //-   測試
 
         li(v-if="authority.isAdmin"): hr
 
         li(v-if="!authority.isAdmin"): nuxt-link(to="/login").
-          #[font-awesome-icon(:icon="['fas', 'sign-in-alt']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'sign-in-alt']" size="lg")]
           管理者登入
         li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
-          #[font-awesome-icon(:icon="['fab', 'github']" pull="left" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fab', 'github']" pull="left" size="lg")]
           原始碼
         li: b-link(@click="clearCache").
-          #[font-awesome-icon(:icon="['fas', 'hand-sparkles']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'hand-sparkles']" size="lg")]
           清除本系統快取資料
 
         li: hr
@@ -175,6 +175,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.fixed-width {
+  width: 32px;
+}
 #lah-sidebar {
   a {
     font-size: 1rem;
