@@ -33,7 +33,7 @@ module.exports = {
     error_file: '../wss_err.log',
     cron_restart: '0 7 * * *',
     time: true,
-    watch: true,
+    watch: false,
     ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git", "./ws/db/*", "./assets/db/*"],
     max_memory_restart: '1024M',
     env: {
