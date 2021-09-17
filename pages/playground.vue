@@ -12,10 +12,12 @@
       .d-flex
     b-card-group(columns)
       b-card
+        template(#header) 設定檔測試
         div {{ openNewsData }}
         p {{ $config.baseURL }}
         b-table( striped hover :items="configs" )
       b-card.p-2(no-body)
+        template(#header) WEBSOCKET測試
         b-input-group.mb-2
           b-input(v-model="text" @keyup.enter="send")
           lah-button(@click="send" icon="telegram-plane" brand) 傳送
@@ -27,20 +29,40 @@
         h5.center(v-else): lah-fa-icon(icon="exclamation-circle" variant="primary").
           請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
       b-card
-        b-file(
-          v-model="image"
-          placeholder="*.jpg"
-          drop-placeholder="放開以設定上傳檔案"
-          accept="image/*"
-        ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
-        lah-button(
-          icon="upload"
-          variant="outline-primary"
-          title="上傳"
-          @click="upload"
-          :disabled="$utils.empty(image)"
-          no-icon-gutter
-        )
+        template(#header) 儲存BLOB影像測試
+        .d-flex
+          b-file(
+            v-model="image"
+            placeholder="*.jpg"
+            drop-placeholder="放開以設定上傳檔案"
+            accept="image/*"
+          ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
+          lah-button.ml-1(
+            icon="upload"
+            variant="outline-primary"
+            title="上傳"
+            @click="upload"
+            :disabled="$utils.empty(image)"
+            no-icon-gutter
+          )
+      b-card
+        template(#header) BASE64影像上傳測試
+        .d-flex
+          b-file(
+            v-model="image"
+            placeholder="*.jpg"
+            drop-placeholder="放開以設定上傳檔案"
+            accept="image/*"
+          ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
+          lah-button.ml-1(
+            icon="upload"
+            variant="outline-dark"
+            title="上傳"
+            @click="uploadBase64"
+            :disabled="$utils.empty(image)"
+            no-icon-gutter
+          )
+        img(:src="this.base64image")
 </template>
 
 <script>
@@ -68,7 +90,8 @@ export default {
     openNewsData: undefined,
     text: '',
     websocket: undefined,
-    image: undefined
+    image: undefined,
+    base64image: ''
   }),
   fetch () {
   },
@@ -80,7 +103,8 @@ export default {
     configs () {
       return Object.keys(this.$config).map(key => [key, this.$config[key]])
     },
-    uploadUrl () { return `/img${this.$consts.API.FILE.IMAGE}` }
+    uploadUrl () { return `/img${this.$consts.API.FILE.IMAGE}` },
+    uploadBase64Url () { return `${this.$consts.API.FILE.BASE64}` }
   },
   watch: {
     list () {
@@ -122,6 +146,31 @@ export default {
       formData.append('height', 540)
       formData.append('quality', 75)
       this.$upload.post(this.uploadUrl, formData).then(({ data }) => {
+        const opts = { type: 'warning', title: '上傳圖檔結果通知' }
+        if (this.$utils.statusCheck(data.status)) {
+          opts.type = 'success'
+        }
+        this.notify(data.message, opts)
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+    uploadBase64 () {
+      // image
+      this.isBusy = true
+      const formData = new FormData()
+      formData.append('file', this.image)
+      formData.append('width', 320)
+      formData.append('height', 240)
+      formData.append('quality', 75)
+
+      console.log(this.image)
+
+      this.$upload.post(this.uploadBase64Url, formData).then(({ data }) => {
+        this.base64image = data.prefix + data.base64
+        console.log(this.base64image)
         const opts = { type: 'warning', title: '上傳圖檔結果通知' }
         if (this.$utils.statusCheck(data.status)) {
           opts.type = 'success'
