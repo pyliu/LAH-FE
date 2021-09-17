@@ -64,20 +64,35 @@
 
         li: hr
 
+        li: nuxt-link(to="/users").
+          #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
+          員工名錄
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
           傳送信差訊息
         li: a(href="/legacy/carousel.html" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon(:icon="['far', 'newspaper']" size="lg")]
           海報輪撥
-        li: nuxt-link(to="/users").
-          #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
-          員工名錄
+        li: a(href="/legacy/stats.html" target="_blank" rel="noreferrer noopener").
+          #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
+          統計看板
+        li: a(href="/legacy/helper.html" target="_blank" rel="noreferrer noopener").
+          #[font-awesome-icon(:icon="['fas', 'hands-helping']" size="lg")]
+          業務小幫手
+        li: a(href="/legacy/index.html" target="_blank" rel="noreferrer noopener").
+          #[font-awesome-icon(:icon="['fas', 'calendar-day']" size="lg")]
+          今日案件追蹤
 
         li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
           #[font-awesome-icon(:icon="['far', 'comment-dots']" size="lg")]
           發布公告訊息
+        li(v-if="authority.isAdmin"): a(href="/legacy/dashboard.html" target="_blank" rel="noreferrer noopener").
+          #[font-awesome-icon(:icon="['fas', 'diagnoses']" size="lg")]
+          地政系統管理面板
+        li(v-if="authority.isAdmin"): a(href="/legacy/monitor.html" target="_blank" rel="noreferrer noopener").
+          #[font-awesome-icon(:icon="['fas', 'columns']" size="lg")]
+          跨所伺服器監控面板
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
           #[font-awesome-icon(:icon="['fab', 'watchman-monitoring']" size="lg")]
           同步異動監控
@@ -89,10 +104,10 @@
           員工管理
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
           #[font-awesome-icon(:icon="['fas', 'tasks']" size="lg")]
-          系統參數設定
+          智慧管控系統參數設定
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
           #[font-awesome-icon(:icon="['fas', 'cogs']" size="lg")]
-          系統管理介面
+          智慧管控系統管理介面
 
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
