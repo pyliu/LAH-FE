@@ -67,6 +67,9 @@
         li: nuxt-link(to="/message").
           #[font-awesome-icon(:icon="['far', 'comments']" size="lg")]
           傳送信差訊息
+        li: a(href="/web/carousel.html" target="_blank" rel="noreferrer noopener").
+          #[font-awesome-icon(:icon="['far', 'newspaper']" size="lg")]
+          海報輪撥
         li: nuxt-link(to="/users").
           #[font-awesome-icon(:icon="['far', 'user-circle']" size="lg")]
           員工名錄
