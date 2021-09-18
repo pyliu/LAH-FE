@@ -3,7 +3,7 @@
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
         font-awesome-icon.my-auto.mx-1(:icon="['far', 'comments']" size="lg")
-        .my-auto 傳送所內信差訊息
+        .my-auto 傳送信差訊息
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 接收端電腦需安裝 #[b.text-primary 信差即時通程式] 並正常連線才能接收
