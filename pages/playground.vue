@@ -170,7 +170,7 @@ export default {
       console.log(this.image)
 
       this.$upload.post(this.uploadBase64Url, formData).then(({ data }) => {
-        this.base64image = data.prefix + data.base64
+        this.base64image = data.uri + data.encoded
         console.log(this.base64image)
         const opts = { type: 'warning', title: '上傳圖檔結果通知' }
         if (this.$utils.statusCheck(data.status)) {
