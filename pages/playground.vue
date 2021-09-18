@@ -67,6 +67,7 @@
 
 <script>
 export default {
+  middleware: ['isAdmin'],
   async asyncData ({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering
     // http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01
@@ -227,15 +228,55 @@ export default {
 
       if (this.websocket && this.websocket.readyState === 1) {
         this.list = [...this.list, { type: 'mine', text: this.text, time: this.time() }]
-        this.websocket.send(this.text)
-        // received remote text clear mine
-        this.text = ''
+
+        if (!this.$utils.empty(this.text)) {
+          // DEV
+          this.websocket.send(this.packMessage(this.text, { channel: '10013859' }))
+          // REAL DEV
+          this.websocket.send(this.packMessage(this.text, { channel: this.user.id }))
+          // received remote text clear mine
+          this.text = ''
+        }
       }
+    },
+    packMessage (text, opts = {}) {
+      const now = this.$utils.now().split(' ')
+      return JSON.stringify({
+        ...{
+          type: 'mine',
+          sender: this.user.id,
+          date: now[0],
+          time: now[1],
+          title: 'dontcare',
+          from: this.ip,
+          message: text,
+          channel: this.user.id
+        },
+        ...opts
+      })
     },
     connect () {
       this.websocket = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
       this.websocket.onopen = (e) => {
         this.list = [...this.list, { type: 'remote', text: `連結 WebSocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`, time: this.time() }]
+        // to register in wss
+        const now = this.$utils.now().split(' ')
+        const jsonString = JSON.stringify({
+          type: 'command',
+          sender: this.user.id,
+          date: now[0],
+          time: now[1],
+          message: JSON.stringify({
+            command: 'register',
+            ip: this.ip,
+            domain: 'HA.CENWEB.LAND.MOI',
+            userid: this.user.id,
+            username: '測試者',
+            dept: 'inf'
+          }),
+          channel: 'system'
+        })
+        this.websocket.send(jsonString)
       }
       this.websocket.onclose = (e) => {
         this.list = [...this.list, { type: 'remote', text: 'WebSocket 伺服器連線已關閉', time: this.time() }]
