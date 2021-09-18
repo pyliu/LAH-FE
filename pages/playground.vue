@@ -62,7 +62,7 @@
             :disabled="$utils.empty(image)"
             no-icon-gutter
           )
-        img(:src="this.base64image")
+        b-img.my-1(:src="this.base64image" thumbnail fluid)
 </template>
 
 <script>
