@@ -285,7 +285,11 @@ export default {
         this.list = [...this.list, { type: 'remote', text: 'WebSocket 伺服器連線出錯', time: this.time() }]
       }
       this.websocket.onmessage = (e) => {
-        this.list = [...this.list, { type: 'remote', ...JSON.parse(e.data) }]
+        const response = JSON.parse(e.data)
+        if (response.type === 'ack') {
+          response.message = `ACK(${response.id}, ${response.channel})`
+        }
+        this.list = [...this.list, { type: 'remote', ...response }]
       }
     }
   }
