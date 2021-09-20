@@ -60,6 +60,8 @@ class RequestHandler {
         return this.executeQueryPreviousMessageCommand(ws, json)
       case 'unread':
         return this.executeChannelUnreadCommand(ws, json)
+      case 'remove_message':
+        return this.executeRemoveMessageCommand(ws, json)
       case 'remove_channel':
         return this.executeRemoveChannelCommand(ws, json)
       default:
@@ -195,6 +197,37 @@ class RequestHandler {
       {
         type: 'ack',
         id: '-4', // temporary id for previous
+        channel: 'system'
+      }
+    ))
+
+    return true
+  }
+
+  executeRemoveMessageCommand (ws, json) {
+    /** expected json
+     {
+        command: 'remove_message',
+        channel: 'inf',
+        id: '23'
+      }
+     */
+    const targetChannel = String(json.channel)
+    const targetId = parseInt(json.id) || 0
+    const messageDB = new MessageDB(targetChannel)
+    const result = messageDB.removeMesaage(targetId)
+    ws.send(utils.packMessage(
+      // message payload
+      {
+        command: 'remove_message',
+        payload: json,
+        success: result !== false,
+        message: `${targetChannel} 移除 ${targetId} 訊息${result !== false ? '成功' : '失敗'}`
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-6', // temporary id for remove_message
         channel: 'system'
       }
     ))

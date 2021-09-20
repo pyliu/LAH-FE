@@ -84,10 +84,14 @@ class MessageDB {
 
   insertMessage (params, retry = 0) {
     try {
-      const info = this.db.prepare(`
+      const prepared = this.db.prepare(`
         INSERT INTO message(title, content, priority, create_datetime, expire_datetime, sender, from_ip, flag)
         VALUES ($title, $content, $priority, $create_datetime, $expire_datetime, $sender, $from_ip, $flag)
-      `).run({
+      `)
+      const insertion = this.db.transaction((obj) => {
+        return prepared.run(obj)
+      })
+      const info = insertion.immediate({
         ...{
           title: '',
           content: '',
@@ -111,7 +115,25 @@ class MessageDB {
       } else {
         console.error(`新增 ${this.channel} 訊息失敗`, e)
       }
+    } finally {
+      // this.db
     }
+  }
+
+  removeMesaage (id) {
+    try {
+      const prepared = this.db.prepare('DELETE FROM message WHERE id = $id')
+      const deletion = this.db.transaction((id) => {
+        return prepared.run({ id })
+      })
+      const result = deletion.immediate(id)
+      // info: { changes: 1, lastInsertRowid: 0 }
+      isDev && console.log(`移除 ${this.channel} 訊息 ${id} 成功`, result)
+      return result
+    } catch (e) {
+      console.error(`移除 ${this.channel} 訊息 ${id} 失敗`, e)
+    }
+    return false
   }
 
   getLatestMessage () {
