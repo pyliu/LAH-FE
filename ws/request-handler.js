@@ -54,6 +54,8 @@ class RequestHandler {
         return this.executeRegisterCommand(ws, json)
       case 'mychannel':
         return this.executeQueryJoinChannelCommand(ws)
+      case 'online':
+        return this.executeQueryOnlineCommand(ws, json)
       case 'latest':
         return this.executeQueryLatestMessageCommand(ws, json)
       case 'previous':
@@ -197,6 +199,39 @@ class RequestHandler {
       {
         type: 'ack',
         id: '-4', // temporary id for previous
+        channel: 'system'
+      }
+    ))
+
+    return true
+  }
+
+  executeQueryOnlineCommand (ws, json) {
+    const channel = String(json.channel)
+    // assume the channel belongs to chatting room
+    const depts = ['adm', 'inf', 'reg', 'sur', 'val', 'acc', 'hr', 'supervisor']
+    // default get all connected clients
+    let filteredClients = [...ws.wss.clients]
+    if (depts.includes(channel)) {
+      filteredClients = filteredClients.filter((client) => {
+        return client.user && client.user.dept === channel
+      })
+    }
+    // prepare ack payload info
+    const ackUsers = filteredClients.map(client => client.user)
+
+    ws.send(utils.packMessage(
+      // message payload
+      {
+        command: 'online',
+        payload: { ...json, users: ackUsers },
+        success: ackUsers.length > 0,
+        message: `找到 ${ackUsers.length} 已連線使用者`
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-7', // temporary id for online
         channel: 'system'
       }
     ))
