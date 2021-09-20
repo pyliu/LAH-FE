@@ -91,7 +91,7 @@ class MessageDB {
       const insertion = this.db.transaction((obj) => {
         return prepared.run(obj)
       })
-      const info = insertion.immediate({
+      const info = insertion.deferred({
         ...{
           title: '',
           content: '',
@@ -104,7 +104,7 @@ class MessageDB {
         },
         ...params
       })
-      // info: { changes: 1, lastInsertRowid: 0 }
+      // info: { changes: 1, lastInsertRowid: xx }
       isDev && console.log(`新增 ${this.channel} 訊息成功`, info)
       return info
     } catch (e) {
@@ -116,7 +116,6 @@ class MessageDB {
         console.error(`新增 ${this.channel} 訊息失敗`, e)
       }
     } finally {
-      // this.db
     }
   }
 
@@ -126,7 +125,7 @@ class MessageDB {
       const deletion = this.db.transaction((id) => {
         return prepared.run({ id })
       })
-      const result = deletion.immediate(id)
+      const result = deletion.deferred(id)
       // info: { changes: 1, lastInsertRowid: 0 }
       isDev && console.log(`移除 ${this.channel} 訊息 ${id} 成功`, result)
       return result

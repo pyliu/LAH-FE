@@ -222,7 +222,7 @@ class RequestHandler {
         command: 'remove_message',
         payload: json,
         success: result !== false,
-        message: `${targetChannel} 移除 ${targetId} 訊息${result !== false ? '成功' : '失敗'}`
+        message: `${targetChannel} 移除 #${targetId} 訊息${result !== false ? '成功' : '失敗'}`
       },
       // outter message attrs
       {
