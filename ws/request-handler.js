@@ -216,22 +216,24 @@ class RequestHandler {
     const targetId = parseInt(json.id) || 0
     const messageDB = new MessageDB(targetChannel)
     const result = messageDB.removeMesaage(targetId)
-    ws.send(utils.packMessage(
-      // message payload
-      {
-        command: 'remove_message',
-        payload: json,
-        success: result !== false,
-        message: `${targetChannel} 移除 #${targetId} 訊息${result !== false ? '成功' : '失敗'}`
-      },
-      // outter message attrs
-      {
-        type: 'ack',
-        id: '-6', // temporary id for remove_message
-        channel: 'system'
-      }
-    ))
-
+    const allConnectedWs = [...ws.wss.clients]
+    allConnectedWs.forEach((thisWs) => {
+      thisWs.send(utils.packMessage(
+        // message payload
+        {
+          command: 'remove_message',
+          payload: json,
+          success: result !== false,
+          message: `${targetChannel} 移除 #${targetId} 訊息${result !== false ? '成功' : '失敗'}`
+        },
+        // outter message attrs
+        {
+          type: 'ack',
+          id: '-6', // temporary id for remove_message
+          channel: 'system'
+        }
+      ))
+    })
     return true
   }
 
@@ -327,7 +329,7 @@ class RequestHandler {
   }
 
   handleOnlineRequest (ws) {
-    const message = [...this.wss.clients].reduce(function(str, client) {
+    const message = [...this.wss.clients].reduce(function (str, client) {
       return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})<br/>`) : str
     }, '###### 目前連線使用者：<br/>')
     ws.send(utils.packMessage(message))
