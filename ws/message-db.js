@@ -115,7 +115,6 @@ class MessageDB {
       } else {
         console.error(`新增 ${this.channel} 訊息失敗`, e)
       }
-    } finally {
     }
   }
 
@@ -140,7 +139,7 @@ class MessageDB {
   }
 
   getLatestMessagesByCount (count) {
-    return this.db.prepare('SELECT * FROM (SELECT * FROM message WHERE sender <> \'system\' ORDER BY id DESC LIMIT ?) ORDER BY id ASC').all(parseInt(count) || 30)
+    return this.db.prepare('SELECT * FROM (SELECT * FROM message WHERE sender <> \'system\' ORDER BY id DESC LIMIT ?) ORDER BY id ASC').all(parseInt(count) || 10)
   }
 
   getMessagesByDate (date) {
