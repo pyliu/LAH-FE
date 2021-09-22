@@ -89,7 +89,7 @@ class RequestHandler {
 
     const message = valid ? `遠端客戶端資料 (${ws.user.ip}, ${ws.user.domain}, ${ws.user.userid}, ${ws.user.username}, ${ws.user.dept}) 已儲存於 ws 物件中` : '無法完成 register 命令，因為格式不符'
     !valid && console.warn(message, args)
-    isDev && console.log(message)
+    isDev && console.log(message, ws.user)
 
     ws.send(utils.packMessage(
       // message payload
@@ -217,6 +217,16 @@ class RequestHandler {
         return client.user && client.user.dept === channel
       })
     }
+    // sort filtered client with its register timestamp
+    filteredClients.sort((a, b) => {
+      const aTs = parseInt(a.user.timestamp)
+      const bTs = parseInt(b.user.timestamp)
+      if (aTs && bTs) {
+        if (aTs > bTs) { return 1 }
+        if (aTs < bTs) { return -1 }
+      }
+      return 0
+    })
     // prepare ack payload info
     const ackUsers = filteredClients.map(client => client.user)
 
