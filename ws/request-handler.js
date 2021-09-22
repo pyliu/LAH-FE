@@ -222,9 +222,9 @@ class RequestHandler {
       const aTs = parseInt(a.user.timestamp)
       const bTs = parseInt(b.user.timestamp)
       if (aTs && bTs) {
-        // lower ts at array front
-        if (aTs > bTs) { return 1 }
-        if (aTs < bTs) { return -1 }
+        // bigger ts at array front
+        if (bTs > aTs) { return 1 }
+        if (bTs < aTs) { return -1 }
       }
       return 0
     })
