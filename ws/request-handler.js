@@ -85,7 +85,7 @@ class RequestHandler {
      */
     const valid = typeof args === 'object'
     // inject client information into ws instance, currently it should contain ip, domain and username from remote client
-    valid && (ws.user = { ...args })
+    valid && (ws.user = { ...args, timestamp: +new Date() })
 
     const message = valid ? `遠端客戶端資料 (${ws.user.ip}, ${ws.user.domain}, ${ws.user.userid}, ${ws.user.username}, ${ws.user.dept}) 已儲存於 ws 物件中` : '無法完成 register 命令，因為格式不符'
     !valid && console.warn(message, args)
