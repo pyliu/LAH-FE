@@ -345,7 +345,7 @@ class RequestHandler {
   }
 
   handleClientRequest (ws, json) {
-    if (['announcement', 'chat'].includes(json.channel)) {
+    if (json.channel === 'chat') {
       // skip message from announcement channel
       console.log(`收到客戶端送給 ${json.channel} 頻道訊息，略過不處理。`, json)
       return false
