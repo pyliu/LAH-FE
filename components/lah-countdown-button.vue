@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import VueCountdown from "@chenfengyuan/vue-countdown"
+import VueCountdown from '@chenfengyuan/vue-countdown'
 
 export default {
   components: { countdown: VueCountdown },
@@ -48,6 +48,7 @@ export default {
   data: () => ({
     variantMediator: 'primary'
   }),
+  computed: {},
   watch: {
     variant (val) {
       this.variantMediator = val
@@ -60,7 +61,14 @@ export default {
       }
     }
   },
-  computed: {},
+  created () {
+    this.variantMediator = this.variant
+  },
+  mounted () {
+    if (this.autoStart) {
+      this.startCountdown()
+    }
+  },
   methods: {
     handleProgress (payload) {
       /* payload: {
@@ -110,14 +118,6 @@ export default {
     },
     pauseCountdown () {
       this.$refs.cd && this.$refs.cd.pause()
-    }
-  },
-  created() {
-    this.variantMediator = this.variant
-  },
-  mounted () {
-    if (this.autoStart) {
-      this.startCountdown()
     }
   }
 }
