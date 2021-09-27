@@ -22,10 +22,10 @@ export default {
       return this.$utils.empty(this.dataJson.create_datetime) ? '' : this.dataJson.create_datetime.split(' ')[1]
     },
     message () {
-      if (isEmpty(this.dataJson.content) || !DOMPurify.sanitize) {
+      if (isEmpty(this.dataJson.content)) {
         return ''
       }
-      return DOMPurify.sanitize(Markd(this.dataJson.content))
+      return DOMPurify?.sanitize(Markd(this.dataJson.content.replaceAll('\n', '  \n')))
     }
   },
   methods: {}

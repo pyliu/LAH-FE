@@ -54,10 +54,10 @@ export default {
       return this.userNames ? `${this.dataJson.sender} ${this.userNames[this.dataJson.sender]}` : this.dataJson.sender
     },
     content () {
-      if (isEmpty(this.dataJson.content) || !DOMPurify.sanitize) {
+      if (isEmpty(this.dataJson.content)) {
         return ''
       }
-      return DOMPurify.sanitize(Markd(this.dataJson.content))
+      return DOMPurify?.sanitize(Markd(this.dataJson.content.replaceAll('\n', '  \n')))
     }
   }
 }
