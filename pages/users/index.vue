@@ -62,6 +62,7 @@
             v-if="filterUser(user)"
             :key="user.id"
             :raw="[user]"
+            @saved="fetchUsersByDepartment"
           )
 </template>
 
@@ -182,6 +183,7 @@ export default {
     },
     fetchUsersByDepartment () {
       this.isBusy = true
+      this.users = []
       this.$axios.post(this.$consts.API.JSON.USER, {
         type: 'department_users',
         valid: this.type,

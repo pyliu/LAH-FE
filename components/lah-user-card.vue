@@ -163,6 +163,9 @@ export default {
         props: {
           raw: [this.userData],
           center: true
+        },
+        on: {
+          saved: (event) => { this.trigger('saved', event.detail) }
         }
       }), {
         title: `編輯 ${this.userData.id} ${this.userData.name}`,
