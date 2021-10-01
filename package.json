@@ -41,6 +41,7 @@
     "markd": "^1.2.0",
     "marked": "^3.0.4",
     "md5": "^2.3.0",
+    "node-emoji": "^1.11.0",
     "node-watch": "^0.7.1",
     "nuxt": "^2.15.4",
     "nuxt-fontawesome": "^0.4.0",

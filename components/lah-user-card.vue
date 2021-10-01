@@ -141,6 +141,7 @@ export default {
     this.$options.components.LahUserAddCard = require('~/components/lah-user-add-card.vue').default
     this.$options.components.LahUserPhoto = require('~/components/lah-user-photo.vue').default
     this.$options.components.LahUserEditCard = require('~/components/lah-user-edit-card.vue').default
+    this.$options.components.LahUserMessage = require('~/components/lah-user-message.vue').default
   },
   methods: {
     assignUserData (obj) {

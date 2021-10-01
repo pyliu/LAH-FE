@@ -1,4 +1,6 @@
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
+import uniqWith from 'lodash/uniqWith'
 
 const logerror = (error) => {
   if (error.response) {
@@ -62,7 +64,11 @@ const state = () => ({
     ['220.1.39.57', { name: '八德所', code: 'HF', ip: '220.1.39.57' }],
     ['220.1.40.33', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
     ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
-  ])
+  ]),
+  imageMementoCapacity: 30,
+  imageMemento: [],
+  messageMementoCapacity: 30,
+  messageMemento: []
 })
 
 const getters = {
@@ -93,7 +99,15 @@ const getters = {
   wsPort: state => state.systemConfigs.WS_SERVER_PORT,
   lastMessage: state => state.lastMessage,
   xapMap: state => state.xapMap,
-  timestamp: state => state.timestamp
+  timestamp: state => state.timestamp,
+  imageMementoCapacity: state => state.imageMementoCapacity,
+  imageMemento: state => state.imageMemento,
+  latestImageMemento: state => state.imageMemento.length > 0 ? state.imageMemento[state.imageMemento.length - 1] : undefined,
+  imageMementoCacheKey: state => 'imageMementoCached',
+  messageMementoCapacity: state => state.messageMementoCapacity,
+  messageMemento: state => state.messageMemento,
+  latestMessageMemento: state => state.messageMemento.length > 0 ? state.messageMemento[state.messageMemento.length - 1] : undefined,
+  messageMementoCacheKey: state => 'messageMementoCached'
 }
 
 // only sync operation
@@ -127,6 +141,44 @@ const mutations = {
   },
   timestamp (state, dontcare) {
     state.timestamp = +new Date()
+  },
+  imageMementoCapacity (state, capacity) { state.imageMementoCapacity = parseInt(capacity) || 30 },
+  imageMemento (state, arr) {
+    if (Array.isArray(arr)) {
+      state.imageMemento = [...arr]
+    }
+  },
+  addImageMemento (state, base64data) {
+    this.$config.isDev && console.log(timestamp(), '新增 image data 到 store。 [Vuex::addImageMemento]')
+    if (state.imageMemento.length >= state.imageMementoCapacity) {
+      const removed = state.imageMemento.shift()
+      this.$config.isDev && console.log(timestamp(), '移除最早的 image data。 [Vuex::addImageMemento]')
+      state.imageMemento.length = state.imageMementoCapacity
+    }
+    state.imageMemento.push(base64data)
+    // remove duplication
+    state.imageMemento = [...uniqWith(state.imageMemento, isEqual)]
+    this.$config.isDev && console.log(timestamp(), `現在暫存 image data 數量為 ${state.imageMemento.length}。 [Vuex::addImageMemento]`)
+  },
+  messageMementoCapacity (state, capacity) { state.messageMementoCapacity = parseInt(capacity) || 30 },
+  messageMemento (state, arr) {
+    if (Array.isArray(arr)) {
+      state.messageMemento = [...arr]
+    }
+  },
+  addMessageMemento (state, data) {
+    this.$config.isDev && console.log(timestamp(), '新增 message data 到 store。 [Vuex::addMessageMemento]', data)
+    if (state.messageMemento.length >= state.messageMementoCapacity) {
+      const removed = state.messageMemento.shift()
+      this.$config.isDev && console.log(timestamp(), '移除最早的 message data。 [Vuex::addMessageMemento]', removed)
+      state.messageMemento.length = state.messageMementoCapacity
+    }
+    state.messageMemento.push(data)
+    // remove duplication
+    state.messageMemento = [...state.messageMemento.filter(function (item, pos) {
+      return state.messageMemento.indexOf(item) === pos
+    })]
+    this.$config.isDev && console.log(timestamp(), `現在暫存 message data 數量為 ${state.messageMemento.length}。 [Vuex::addMessageMemento]`)
   }
 }
 

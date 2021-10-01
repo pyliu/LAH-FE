@@ -63,11 +63,20 @@
             no-icon-gutter
           )
         b-img.my-1(:src="this.base64image" thumbnail fluid)
+      b-card
+        template(#header) lah-image-upload 測試
+        lah-button.ml-1(
+          icon="image"
+          variant="outline-success"
+          title="打開上傳介面"
+          @click="openUpload"
+          no-icon-gutter
+        )
 </template>
 
 <script>
 export default {
-  middleware: ['isAdmin'],
+  // middleware: ['isAdmin'],
   async asyncData ({ $axios }) {
     // SSR: returned object will replace the data inside "data" before rendering
     // http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01
@@ -137,6 +146,20 @@ export default {
     })
   },
   methods: {
+    openUpload () {
+      this.modal(this.$createElement('lah-image-upload', {
+        on: {
+          publish: (base64) => {
+            this.$utils.log(base64)
+            this.hideModalById('upload-image-modal')
+          }
+        }
+      }), {
+        id: 'upload-image-modal',
+        size: 'md',
+        title: '上傳圖片管理'
+      })
+    },
     upload () {
       // image
       this.isBusy = true
