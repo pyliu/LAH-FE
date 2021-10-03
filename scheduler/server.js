@@ -1,30 +1,48 @@
-const isDev = process.env.NODE_ENV !== 'production'
-// Cron-style Scheduling
-// The cron format consists of:
-// *    *    *    *    *    *
-// ┬    ┬    ┬    ┬    ┬    ┬
-// │    │    │    │    │    │
-// │    │    │    │    │    └ day of week (0 - 7) (0 or 7 is Sun)
-// │    │    │    │    └───── month (1 - 12)
-// │    │    │    └────────── day of month (1 - 31)
-// │    │    └─────────────── hour (0 - 23)
-// │    └──────────────────── minute (0 - 59)
-// └───────────────────────── second (0 - 59, OPTIONAL)
+const fs = require('fs')
+const path = require('path')
+// https://www.npmjs.com/package/node-schedule
+const schedule = require('node-schedule')
+const qs = require('qs')
+const axios = require('axios')
+// to PHP API
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+
+function now () {
+  const dateOb = new Date()
+  // current date
+  // adjust 0 before single digit date
+  const date = ('0' + dateOb.getDate()).slice(-2)
+  // current month
+  const month = ('0' + (dateOb.getMonth() + 1)).slice(-2)
+  // current year
+  const year = dateOb.getFullYear()
+  // current hours
+  const hours = ('0' + dateOb.getHours()).slice(-2)
+  // current minutes
+  const minutes = ('0' + dateOb.getMinutes()).slice(-2)
+  // current seconds
+  const seconds = ('0' + dateOb.getSeconds()).slice(-2)
+  // prints date & time in YYYY-MM-DD HH:MM:SS format
+  return (year + '-' + month + '-' + date + ' ' + hours + ':' + minutes + ':' + seconds)
+}
+
 try {
+  const isDev = process.env.NODE_ENV !== 'production'
   require('dotenv').config()
   isDev && console.log(process.env)
 
-  const fs = require('fs')
-  const path = require('path')
   const dbDir = path.join(__dirname, 'db')
   if (!fs.existsSync(dbDir)) {
     fs.mkdirSync(dbDir)
   }
 
-  const schedule = require('node-schedule')
-
-  const job = schedule.scheduleJob('*/5 * * * * *', function () {
-    console.log('5s reached!')
+  const watchdog = schedule.scheduleJob('*/10 * * * * 0-6', function () {
+    axios.post(
+      `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`,
+      qs.stringify({ type: 'watchdog' })
+    ).then(({ data }) => {
+      console.log(now(), data.message)
+    })
   })
 
   isDev && console.log('LAH排程伺服器已啟動')
