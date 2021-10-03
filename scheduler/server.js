@@ -45,7 +45,7 @@ try {
     })
   })
 
-  isDev && console.log('LAH排程伺服器已啟動')
+  console.log('LAH排程伺服器已啟動')
 } catch (e) {
   console.error('LAH排程伺服器啟動失敗', e)
 // eslint-disable-next-line no-empty
