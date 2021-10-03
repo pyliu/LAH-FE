@@ -11,7 +11,9 @@
     "lint:js": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js",
     "ws": "node ws/server.js",
-    "ws-dev": "nodemon ws/server.js"
+    "ws-dev": "nodemon ws/server.js",
+    "scheduler": "node scheduler/server.js",
+    "scheduler-dev": "nodemon scheduler/server.js"
   },
   "dependencies": {
     "@chenfengyuan/vue-countdown": "^1.1.5",
@@ -42,6 +44,7 @@
     "marked": "^3.0.4",
     "md5": "^2.3.0",
     "node-emoji": "^1.11.0",
+    "node-schedule": "^2.0.0",
     "node-watch": "^0.7.1",
     "nuxt": "^2.15.4",
     "nuxt-fontawesome": "^0.4.0",

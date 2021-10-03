@@ -16,7 +16,7 @@ module.exports = {
     time: true,
     // 適合開發時用，檔案一有變更就會自動重啟
     watch: true,
-    ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git", "./ws/db/*", "./assets/db/*"],
+    ignore_watch: ['[/\\]./', 'node_modules', '*.bat', '.git', './ws/db/*', './assets/db/*'],
     max_memory_restart: '256M',
     env: {
       NODE_ENV: 'production'
@@ -34,8 +34,26 @@ module.exports = {
     cron_restart: '0 7 * * *',
     time: true,
     watch: false,
-    ignore_watch: ["[\/\\]\./", "node_modules", "*.bat", ".git", "./ws/db/*", "./assets/db/*"],
+    ignore_watch: ['[/\\]./', 'node_modules', '*.bat', '.git', './ws/db/*', './assets/db/*'],
     max_memory_restart: '1024M',
+    env: {
+      NODE_ENV: 'production'
+    },
+    wait_ready: true,
+    restart_delay: 5000
+  }, {
+    name: 'LAH-SCHEDULER',
+    exec_mode: 'cluster',
+    instances: 1,
+    script: './scheduler/server.js',
+    args: 'ws',
+    out_file: '../scheduler_out.log',
+    error_file: '../scheduler_err.log',
+    cron_restart: '0 7 * * *',
+    time: true,
+    watch: true,
+    ignore_watch: ['[/\\]./', 'node_modules', '*.bat', '.git', './scheduler/db/*', './assets/db/*'],
+    max_memory_restart: '128M',
     env: {
       NODE_ENV: 'production'
     },
