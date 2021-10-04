@@ -87,7 +87,7 @@ const getters = {
     if (!isEmpty(state.server)) {
       return state.server.SERVER_PORT
     }
-    return state.apiPort
+    return state.systemConfigs.API_SERVER_PORT
   },
   user: state => state.user,
   userNames: state => state.userNames,

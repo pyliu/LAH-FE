@@ -64,7 +64,7 @@
 
         li: hr
 
-        li: a(href="/legacy/shortcuts.html" target="_blank" rel="noreferrer noopener").
+        li: a(:href="`${this.legacyUrl}/shortcuts.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['far', 'bookmark']" size="lg")]
           書籤
         li: nuxt-link(to="/users").
@@ -73,16 +73,16 @@
         li: nuxt-link(to="/message").
           #[font-awesome-icon.fixed-width(:icon="['far', 'comments']" size="lg")]
           傳送信差訊息
-        li: a(href="/legacy/carousel.html" target="_blank" rel="noreferrer noopener").
+        li: a(:href="`${this.legacyUrl}/carousel.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['far', 'newspaper']" size="lg")]
           海報輪撥
-        li: a(href="/legacy/stats.html" target="_blank" rel="noreferrer noopener").
+        li: a(:href="`${this.legacyUrl}/stats.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'calculator']" size="lg")]
           統計看板
-        li: a(href="/legacy/helper.html" target="_blank" rel="noreferrer noopener").
+        li: a(:href="`${this.legacyUrl}/helper.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'hands-helping']" size="lg")]
           業務小幫手
-        li: a(href="/legacy/index.html" target="_blank" rel="noreferrer noopener").
+        li: a(:href="`${this.legacyUrl}/index.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'calendar-day']" size="lg")]
           今日案件追蹤
 
@@ -90,10 +90,10 @@
         li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(to="/notification").
           #[font-awesome-icon.fixed-width(:icon="['far', 'comment-dots']" size="lg")]
           發布公告訊息
-        li(v-if="authority.isAdmin"): a(href="/legacy/dashboard.html" target="_blank" rel="noreferrer noopener").
+        li(v-if="authority.isAdmin"): a(:href="`${this.legacyUrl}/dashboard.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'diagnoses']" size="lg")]
           地政系統管理面板
-        li(v-if="authority.isAdmin"): a(href="/legacy/monitor.html" target="_blank" rel="noreferrer noopener").
+        li(v-if="authority.isAdmin"): a(:href="`${this.legacyUrl}/monitor.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']" size="lg")]
           跨所伺服器監控面板
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
