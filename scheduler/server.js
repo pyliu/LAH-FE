@@ -36,7 +36,7 @@ try {
     fs.mkdirSync(dbDir)
   }
 
-  const watchdog = schedule.scheduleJob('0 */15 * * * 0-6', function () {
+  const watchdog = schedule.scheduleJob('0 */15 8-18 * * 0-6', function () {
     axios.post(
       `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`,
       qs.stringify({ type: 'watchdog' })
