@@ -167,17 +167,17 @@ export default {
   methods: {
     filterUser (user) {
       if (!this.$utils.empty(this.keyword)) {
-        return user.name.includes(this.keyword) ||
-               user.id.includes(this.keyword) ||
-               user.work.includes(this.keyword) ||
-               user.title.includes(this.keyword) ||
+        return user.name?.includes(this.keyword) ||
+               user.id?.includes(this.keyword) ||
+               user.work?.includes(this.keyword) ||
+               user.title?.includes(this.keyword) ||
                user.education?.includes(this.keyword) ||
-               user.exam.includes(this.keyword) ||
-               user.unit.includes(this.keyword) ||
-               user.ip.includes(this.keyword) ||
-               user.birthday.includes(this.keyword) ||
-               String(user.ext).includes(this.keyword) ||
-               String(user.cell).includes(this.keyword)
+               user.exam?.includes(this.keyword) ||
+               user.unit?.includes(this.keyword) ||
+               user.ip?.includes(this.keyword) ||
+               user.birthday?.includes(this.keyword) ||
+               String(user.ext)?.includes(this.keyword) ||
+               String(user.cell)?.includes(this.keyword)
       }
       return true
     },
