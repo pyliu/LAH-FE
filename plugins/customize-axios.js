@@ -1,10 +1,12 @@
 import qs from 'qs'
 
 export default function ({ $axios, redirect, store }, inject) {
-  const cancelTokenSource = $axios.CancelToken.source();
+  const cancelTokenSource = $axios.CancelToken.source()
   $axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+  // store client ip in the axios header
+  $axios.defaults.headers.common.LAH_CLIENT_IP = store.getters.ip
 
-  $axios.onRequest(config => {
+  $axios.onRequest((config) => {
     if (config.data && config.headers[config.method]['Content-Type'] === 'application/x-www-form-urlencoded') {
       config.data = qs.stringify(config.data)
     }
@@ -13,11 +15,11 @@ export default function ({ $axios, redirect, store }, inject) {
     return config
   })
 
-  $axios.onResponse(response => {
-    
+  $axios.onResponse((response) => {
+
   })
 
-  $axios.onError(error => {
+  $axios.onError((error) => {
     console.error(error)
     // redirect('/error')
   })
