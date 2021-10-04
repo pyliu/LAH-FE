@@ -4,7 +4,7 @@ export default function ({ $axios, redirect, store }, inject) {
   const cancelTokenSource = $axios.CancelToken.source()
   $axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
   // store client ip in the axios header
-  $axios.defaults.headers.common.LAH_CLIENT_IP = store.getters.ip
+  $axios.defaults.headers.common.CLIENT_IP = store.getters.ip
 
   $axios.onRequest((config) => {
     if (config.data && config.headers[config.method]['Content-Type'] === 'application/x-www-form-urlencoded') {
