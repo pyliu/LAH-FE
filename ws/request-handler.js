@@ -219,8 +219,8 @@ class RequestHandler {
     }
     // sort filtered client with its register timestamp
     filteredClients.sort((a, b) => {
-      const aTs = parseInt(a.user.timestamp)
-      const bTs = parseInt(b.user.timestamp)
+      const aTs = parseInt(a.user?.timestamp)
+      const bTs = parseInt(b.user?.timestamp)
       if (aTs && bTs) {
         // bigger ts at array front
         if (bTs > aTs) { return 1 }
