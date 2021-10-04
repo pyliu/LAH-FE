@@ -4,7 +4,7 @@ module.exports = {
     name: 'LAH-FE',
     // 分為 cluster 以及 fork 模式
     exec_mode: 'cluster',
-    instances: -1,
+    instances: -2,
     // 執行服務的入口檔案
     script: './node_modules/nuxt/bin/nuxt.js',
     args: 'start',
