@@ -1,2 +1,2 @@
 @echo off
-pm2 start
+pm2 start all
