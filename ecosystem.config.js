@@ -33,7 +33,7 @@ module.exports = {
     error_file: '../wss_err.log',
     cron_restart: '0 7 * * *',
     time: true,
-    watch: false,
+    watch: true,
     ignore_watch: ['[/\\]./', 'node_modules', '*.bat', '.git', './ws/db/*', './assets/db/*'],
     max_memory_restart: '1024M',
     env: {
@@ -46,7 +46,6 @@ module.exports = {
     exec_mode: 'cluster',
     instances: 1,
     script: './scheduler/server.js',
-    args: 'ws',
     out_file: '../scheduler_out.log',
     error_file: '../scheduler_err.log',
     cron_restart: '0 7 * * *',
