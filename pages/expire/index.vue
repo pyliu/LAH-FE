@@ -32,7 +32,7 @@
                 .my-auto 切換顯示模式
             li 預定結案時間剩餘4小時內將判定為即將逾期案件
             li #[a(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 切換成舊版本模式]
-        a.small.my-auto.mr-1(href="/legacy/overdue_reg_cases.html" target="_blank" rel="noreferrer noopener") 舊版本
+        a.small.my-auto.mr-1(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 舊版本
         lah-countdown-button(
           ref="countdown"
           icon="sync-alt"
