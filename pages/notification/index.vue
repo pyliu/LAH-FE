@@ -9,7 +9,7 @@
             ul: li 電腦端需安裝 #[b 桃園即時通程式] 並正常連線才能顯示
           li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆 ({{ memento.length }} / {{ mementoCapacity }})
           li 標題限制最大長度為 #[b.text-info 84] 個英文字元(中文 #[b.text-info 42] 個字)
-          li 內容支援 Markdown 語法，請參考 #[a(href="https://bit.ly/mdcheat" target="_blank" rel="noopener noreferrer") #[b https://bit.ly/mdcheat]] 教學
+          li 內容支援 Markdown 語法，請參考 #[a(href="https://markdown.tw/" target="_blank" rel="noopener noreferrer") #[b https://markdown.tw/]] 教學
       .d-flex
 
     b-card-group(deck)
@@ -101,7 +101,7 @@
         | 粗體語法： #[b.text-primary **我是粗體**]#[br]
         | 斜體語法： #[b.text-primary *我是斜體*]#[br]
         | #[hr]
-        | 其他詳細 Markdown 語法，請參考 https://bit.ly/mdcheat 教學
+        | 其他詳細 Markdown 語法，請參考 https://markdown.tw/ 教學
 </template>
 
 <script>
