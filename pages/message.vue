@@ -10,7 +10,6 @@
           li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 桃園即時通程式] 的使用者
           li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆  ({{ memento.length }} / {{ mementoCapacity }})
           li 內容支援 Markdown 語法，請參考 #[a(href="https://markdown.tw/" target="_blank" rel="noopener noreferrer") #[b https://markdown.tw/]] 教學
-          li #[nuxt-link(to="/markdown") 所內 Markdown 語法教學]
       .d-flex
 
     b-card-group(deck)
