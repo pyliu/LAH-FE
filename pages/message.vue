@@ -48,6 +48,7 @@
           placeholder="... 支援 Markdown 語法 ... "
           style="overflow: hidden"
           :state="validContent"
+          @paste="pasteImage($event, addImage)"
         )
         .d-flex.flex-wrap.my-1.align-items-center
           h6.m-1 快速選擇
@@ -165,6 +166,7 @@ export default {
     },
     helpSidebarFlag: false,
     sendtoEntries: [],
+    images: [],
     memento: [],
     mementoCapacity: 30,
     mementoCount: 3,
@@ -475,6 +477,9 @@ export default {
         name: entry.entry_desc,
         dept: entry.note.split(' ')[1]
       }
+    },
+    addImage (base64) {
+      !this.images.includes(base64) && this.images.push(base64)
     }
   }
 }
