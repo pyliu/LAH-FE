@@ -169,8 +169,8 @@ Vue.mixin({
       formData.append('width', 1920)
       formData.append('height', 1080)
       formData.append('quality', 80)
-      this.$upload.post(this.uploadUrl, formData).then(({ data }) => {
-        if (!this.empty(data.encoded) && !this.empty(data.uri)) {
+      this.$upload.post(this.$consts.API.FILE.BASE64, formData).then(({ data }) => {
+        if (!this.$utils.empty(data.encoded) && !this.$utils.empty(data.uri)) {
           const encoded = `${data.uri}${data.encoded}`
           this.$store.commit('addImageMemento', encoded)
           callback && callback(encoded)
@@ -181,7 +181,7 @@ Vue.mixin({
           this.warning('回傳的影像編碼有誤', { title: '貼上的影像處理結果' })
         }
       }).catch((err) => {
-        this.err(err)
+        this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
       })

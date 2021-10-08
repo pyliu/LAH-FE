@@ -101,6 +101,19 @@
             lah-avatar(:id="id" ignore-system-config)
             span.my-auto.ml-1 {{ userNames[id] || id }}
         .center: lah-notification-message(:data-json="dataJson")
+        h6(v-if="!$utils.empty(images)"): lah-fa-icon(icon="paperclip") 附加圖片
+        .d-flex.flex-wrap.align-items-center
+          transition-group(name="listY" mode="out-in")
+            b-img.memento.m-1(
+              v-for="(base64data, idx) in images"
+              :key="`imgAttached_${idx}`"
+              :src="base64data"
+              @click="removeImage(base64data)"
+              thumbnail
+              fluid
+              v-b-tooltip="'刪除這張圖片'"
+              style="width: 138.5px"
+            )
 
     h4.d-flex.align-items-stretch.my-3
       lah-fa-icon.my-auto.mr-auto(icon="clipboard-list") 歷史資料
@@ -480,12 +493,23 @@ export default {
     },
     addImage (base64) {
       !this.images.includes(base64) && this.images.push(base64)
+    },
+    removeImage (base64data) {
+      const index = this.images.indexOf(base64data)
+      if (index > -1) {
+        this.images.splice(index, 1)
+      }
     }
   }
 }
 </script>
 
 <style>
+.memento:hover {
+  border: 5px dashed rgb(194, 6, 6);
+  padding: 2px;
+  cursor: pointer;
+}
 .memento-count-input {
   max-width: 160px;
 }
