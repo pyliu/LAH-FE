@@ -134,28 +134,41 @@ class RequestHandler {
     return Boolean(ws.user)
   }
 
-  executeQueryLatestMessageCommand (ws, json) {
-    const channel = String(json.channel)
-    const count = parseInt(json.count) || 30
-    const channelDB = new MessageDB(channel)
-    const messages = channelDB.getLatestMessagesByCount(count)
-    if (messages && messages.length > 0) {
-      messages.forEach((message, idx, arr) => {
-        if (channel.startsWith('announcement')) {
-          ws.send(utils.packMessage(message, { channel, id: message.id }))
-        } else {
-          ws.send(utils.packMessage(message.content, {
-            id: message.id,
-            sender: message.sender,
-            date: message.create_datetime.split(' ')[0],
-            time: message.create_datetime.split(' ')[1],
-            from: message.ip,
-            channel
-          }))
-        }
+  executeRemoveChannelCommand (ws, json) {
+    // const channel = json.channel
+    /*
+      item example: {
+        id: 10,
+        name: 'DONTCARE',
+        participants: [ '0541', 'HB0542' ],
+        type: 0
+      }
+    */
+    const id = json.id
+    const toBeRemoved = new MessageDB(id)
+    // find online participants' ws to send ACK
+    const participants = [...ws.wss.clients].filter((client, idx, arr) => {
+      return json.participants.includes(client.user.userid)
+    })
+    toBeRemoved.remove((success) => {
+      participants.forEach((participant) => {
+        participant.send(utils.packMessage(
+          // message payload
+          {
+            command: 'remove_channel',
+            payload: json,
+            success,
+            message: success ? `已移除 ${id} / ${json.name} 頻道` : `移除 ${id} / ${json.name} 頻道失敗，請稍後再試`
+          },
+          // outter message attrs
+          {
+            type: 'ack',
+            id: '-3', // temporary id for remove channel
+            channel: 'system'
+          }
+        ))
       })
-    }
-    return true
+    })
   }
 
   executeQueryPreviousMessageCommand (ws, json) {
@@ -206,6 +219,63 @@ class RequestHandler {
     return true
   }
 
+  executeChannelUnreadCommand (ws, json) {
+    const channel = String(json.channel)
+    const last = parseInt(json.last) || 0
+    const channelDB = new MessageDB(channel)
+    json.unread = channelDB.getUnreadMessageCount(last)
+    ws.send(utils.packMessage(
+      // message payload
+      {
+        command: 'unread',
+        payload: json,
+        success: true,
+        message: `${channel} 共 ${json.unread} 筆未讀訊息`
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-5', // temporary id for unread
+        channel: 'system'
+      }
+    ))
+
+    return true
+  }
+
+  executeRemoveMessageCommand (ws, json) {
+    /** expected json
+     {
+        command: 'remove_message',
+        channel: 'inf',
+        id: '23'
+      }
+     */
+    const targetChannel = String(json.channel)
+    const targetId = parseInt(json.id) || 0
+    const messageDB = new MessageDB(targetChannel)
+    const result = messageDB.removeMesaage(targetId)
+    const allConnectedWs = [...ws.wss.clients]
+    allConnectedWs.forEach((thisWs) => {
+      thisWs.send(utils.packMessage(
+        // message payload
+        {
+          command: 'remove_message',
+          payload: json,
+          success: result !== false,
+          message: `${targetChannel} 移除 #${targetId} 訊息${result !== false ? '成功' : '失敗'}`
+        },
+        // outter message attrs
+        {
+          type: 'ack',
+          id: '-6', // temporary id for remove_message
+          channel: 'system'
+        }
+      ))
+    })
+    return true
+  }
+
   executeQueryOnlineCommand (ws, json) {
     const channel = String(json.channel)
     // assume the channel belongs to chatting room
@@ -250,97 +320,27 @@ class RequestHandler {
     return true
   }
 
-  executeRemoveMessageCommand (ws, json) {
-    /** expected json
-     {
-        command: 'remove_message',
-        channel: 'inf',
-        id: '23'
-      }
-     */
-    const targetChannel = String(json.channel)
-    const targetId = parseInt(json.id) || 0
-    const messageDB = new MessageDB(targetChannel)
-    const result = messageDB.removeMesaage(targetId)
-    const allConnectedWs = [...ws.wss.clients]
-    allConnectedWs.forEach((thisWs) => {
-      thisWs.send(utils.packMessage(
-        // message payload
-        {
-          command: 'remove_message',
-          payload: json,
-          success: result !== false,
-          message: `${targetChannel} 移除 #${targetId} 訊息${result !== false ? '成功' : '失敗'}`
-        },
-        // outter message attrs
-        {
-          type: 'ack',
-          id: '-6', // temporary id for remove_message
-          channel: 'system'
-        }
-      ))
-    })
-    return true
-  }
-
-  executeRemoveChannelCommand (ws, json) {
-    // const channel = json.channel
-    /*
-      item example: {
-        id: 10,
-        name: 'DONTCARE',
-        participants: [ '0541', 'HB0542' ],
-        type: 0
-      }
-    */
-    const id = json.id
-    const toBeRemoved = new MessageDB(id)
-    // find online participants' ws to send ACK
-    const participants = [...ws.wss.clients].filter((client, idx, arr) => {
-      return json.participants.includes(client.user.userid)
-    })
-    toBeRemoved.remove((success) => {
-      participants.forEach((participant) => {
-        participant.send(utils.packMessage(
-          // message payload
-          {
-            command: 'remove_channel',
-            payload: json,
-            success,
-            message: success ? `已移除 ${id} / ${json.name} 頻道` : `移除 ${id} / ${json.name} 頻道失敗，請稍後再試`
-          },
-          // outter message attrs
-          {
-            type: 'ack',
-            id: '-3', // temporary id for remove channel
-            channel: 'system'
-          }
-        ))
-      })
-    })
-  }
-
-  executeChannelUnreadCommand (ws, json) {
+  executeQueryLatestMessageCommand (ws, json) {
     const channel = String(json.channel)
-    const last = parseInt(json.last) || 0
+    const count = parseInt(json.count) || 30
     const channelDB = new MessageDB(channel)
-    json.unread = channelDB.getUnreadMessageCount(last)
-    ws.send(utils.packMessage(
-      // message payload
-      {
-        command: 'unread',
-        payload: json,
-        success: true,
-        message: `${channel} 共 ${json.unread} 筆未讀訊息`
-      },
-      // outter message attrs
-      {
-        type: 'ack',
-        id: '-5', // temporary id for unread
-        channel: 'system'
-      }
-    ))
-
+    const messages = channelDB.getLatestMessagesByCount(count)
+    if (messages && messages.length > 0) {
+      messages.forEach((message, idx, arr) => {
+        if (channel.startsWith('announcement')) {
+          ws.send(utils.packMessage(message, { channel, id: message.id }))
+        } else {
+          ws.send(utils.packMessage(message.content, {
+            id: message.id,
+            sender: message.sender,
+            date: message.create_datetime.split(' ')[0],
+            time: message.create_datetime.split(' ')[1],
+            from: message.ip,
+            channel
+          }))
+        }
+      })
+    }
     return true
   }
 
