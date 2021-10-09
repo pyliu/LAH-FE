@@ -109,7 +109,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
 const insertMessageChannel = (channel, json) => {
   const channelDB = new MessageDB(channel)
   const priority = parseInt(json.priority)
-  channelDB.insertMessage({
+  return channelDB.insertMessage({
     title: json.title || 'dontcare',
     content: json.message,
     sender: json.sender,
@@ -117,6 +117,11 @@ const insertMessageChannel = (channel, json) => {
     from_ip: json.from || '',
     flag: parseInt(json.flag) || 0
   })
+}
+
+const getLatestMessageByChannel = (channel) => {
+  const channelDB = new MessageDB(channel)
+  return channelDB.getLatestMessage()
 }
 
 const sleep = function (ms = 0) {
@@ -127,6 +132,7 @@ module.exports.timestamp = timestamp
 module.exports.packMessage = packMessage
 module.exports.broadcast = broadcast
 module.exports.insertMessageChannel = insertMessageChannel
+module.exports.getLatestMessageByChannel = getLatestMessageByChannel
 module.exports.trim = trim
 module.exports.sleep = sleep
 module.exports.isEmpty = isEmpty

@@ -1,5 +1,4 @@
 const path = require('path')
-const WebSocket = require('ws')
 const utils = require(path.join(__dirname, 'utils.js'))
 const MessageDB = require(path.join(__dirname, 'message-db.js'))
 const ChannelDB = require(path.join(__dirname, 'channel-db.js'))
@@ -194,7 +193,9 @@ class RequestHandler {
             time: message.create_datetime.split(' ')[1],
             from: message.ip,
             channel,
-            prepend: true
+            prepend: true,
+            flag: message.flag,
+            remove: message.title
           }))
         }
       })
@@ -336,7 +337,9 @@ class RequestHandler {
             date: message.create_datetime.split(' ')[0],
             time: message.create_datetime.split(' ')[1],
             from: message.ip,
-            channel
+            channel,
+            flag: message.flag,
+            remove: message.title
           }))
         }
       })
@@ -350,35 +353,34 @@ class RequestHandler {
       console.log(`收到客戶端送給 ${json.channel} 頻道訊息，略過不處理。`, json)
       return false
     }
-    // insert client sent message to the channel db
-    utils.insertMessageChannel(json.channel, json)
-    setTimeout(() => {
-      // addition parsing for the commands
-      switch (json.message) {
-        case '@help':
-          console.log(`收到 ${ws.user ? ws.user.userid : '???'} 查詢幫助指令`)
-          return this.handleHelpRequest(ws)
-        case '@online':
-          console.log(`收到 ${ws.user ? ws.user.userid : '???'} 查詢線上使用者指令`)
-          return this.handleOnlineRequest(ws)
-      }
-    }, 150)
+    // insert client sent message to the channel db; expected info: { changes: 1, lastInsertRowid: xx }
+    const info = utils.insertMessageChannel(json.channel, json)
+    // send ACK back to user to add talk record in own channel when sent private message
+    if (info.changes === 1 && !json.channel?.startsWith('announcement') && !['chat', 'lds', 'inf', 'reg', 'val', 'adm', 'acc', 'hr', 'sur', 'supervisor'].includes(json.channel)) {
+      // successful inserted message to channel
+      // const message = utils.getLatestMessageByChannel(json.channel)
+      ws.send(utils.packMessage(
+        // message payload
+        {
+          command: 'private_message',
+          payload: {
+            ...json,
+            insertedId: info.lastInsertRowid,
+            flag: 1,
+            remove: { to: json.channel, id: info.lastInsertRowid }
+          },
+          success: true,
+          message: `已新增訊息到 ${json.channel} 頻道，該訊息 ID 為 ${info.lastInsertRowid}`
+        },
+        // outter message attrs
+        {
+          type: 'ack',
+          id: '-99', // temporary id for online
+          channel: 'system'
+        }
+      ))
+    }
     return true
-  }
-
-  handleHelpRequest (ws) {
-    const message = '###### 目前支援指令如下：\r\n' +
-                    '***' +
-                    '@help - 顯示輔助使用訊息\r\n' +
-                    '@online - 查詢線上使用者\r\n'
-    ws.send(utils.packMessage(message))
-  }
-
-  handleOnlineRequest (ws) {
-    const message = [...this.wss.clients].reduce(function (str, client) {
-      return client.readyState === WebSocket.OPEN ? (str += `${client.user.userid}: ${client.user.username} (${client.user.ip})<br/>`) : str
-    }, '###### 目前連線使用者：<br/>')
-    ws.send(utils.packMessage(message))
   }
 }
 module.exports = RequestHandler

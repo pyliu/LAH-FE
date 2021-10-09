@@ -56,7 +56,9 @@ class MessageWatcher {
             date: row.create_datetime.split(' ')[0],
             time: row.create_datetime.split(' ')[1],
             from: row.ip,
-            channel
+            channel,
+            flag: row.flag, // remove PM required
+            remove: row.title // remove PM required
           })
 
           // find user own channel ws
