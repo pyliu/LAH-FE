@@ -45,7 +45,7 @@
           v-model="dataJson.content"
           rows="5"
           max-rows="100"
-          placeholder="... 支援 Markdown 語法 ... "
+          placeholder="... 支援 Markdown 語法 ... Ctrl + V 貼上剪貼簿中螢幕截圖 ..."
           style="overflow: hidden"
           :state="validContent"
           @paste="pasteImage($event, addImage)"
