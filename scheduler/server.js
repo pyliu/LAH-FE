@@ -36,16 +36,22 @@ try {
     fs.mkdirSync(dbDir)
   }
 
-  const watchdog = schedule.scheduleJob('0 */15 8-18 * * 0-6', function () {
+  const cronSetting = '0 */15 8-18 * * 0-6'
+  const watchdog = schedule.scheduleJob(cronSetting, function () {
+    const url = `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`
+    console.log(`啟動排程 ${cronSetting}`)
+    console.log(`啟動 ${url}}`, 'type: "watchdog"')
     axios.post(
-      `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`,
+      url,
       qs.stringify({ type: 'watchdog' })
     ).then(({ data }) => {
-      console.log(now(), data.message)
-    })
+      console.log(data.message)
+    }).catch((err) => {
+      console.error(err)
+    }).finally(() => {})
   })
 
-  console.log('LAH排程伺服器已啟動')
+  console.log('LAH排程伺服器已啟動', watchdog)
 } catch (e) {
   console.error('LAH排程伺服器啟動失敗', e)
 // eslint-disable-next-line no-empty
