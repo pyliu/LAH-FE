@@ -134,6 +134,24 @@ class MessageDB {
     return false
   }
 
+  setMesaageRead (id, currentFlag) {
+    try {
+      // current flag definition is 1 => private message, 2 => message read
+      const updateFlag = currentFlag + 2
+      const prepared = this.db.prepare('UPDATE message SET flag = $flag WHERE id = $id')
+      const update = this.db.transaction((obj) => {
+        return prepared.run(obj)
+      })
+      const result = update.deferred({ id, flag: updateFlag })
+      // info: { changes: 1, lastInsertRowid: 0 }
+      isDev && console.log(`將 ${this.channel} #${id} 訊息 設為已讀成功`, result)
+      return result
+    } catch (e) {
+      console.error(`將 ${this.channel} #${id} 訊息 設為已讀失敗`, e)
+    }
+    return false
+  }
+
   getLatestMessage () {
     return this.db.prepare('SELECT * FROM message ORDER BY id DESC').get()
   }
