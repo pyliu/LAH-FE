@@ -59,6 +59,8 @@ class RequestHandler {
         return this.executeQueryLatestMessageCommand(ws, json)
       case 'previous':
         return this.executeQueryPreviousMessageCommand(ws, json)
+      case 'set_read':
+        return this.executeChannelSetReadCommand(ws, json)
       case 'unread':
         return this.executeChannelUnreadCommand(ws, json)
       case 'remove_message':
@@ -318,6 +320,42 @@ class RequestHandler {
       }
     ))
 
+    return true
+  }
+
+  executeChannelSetReadCommand (ws, json) {
+    /** expected json
+     {
+        command: 'set_read',
+        channel: 'inf',
+        id: '123',
+        flag: 0
+      }
+     */
+    const targetChannel = String(json.channel)
+    const targetId = parseInt(json.id) || 0
+    const flag = parseInt(json.flag) || 0
+    const messageDB = new MessageDB(targetChannel)
+    const result = messageDB.setMesaageRead(targetId, flag)
+    // send ack to all connected clients
+    const allConnectedWs = [...ws.wss.clients]
+    allConnectedWs.forEach((thisWs) => {
+      thisWs.send(utils.packMessage(
+        // message payload
+        {
+          command: 'set_read',
+          payload: json,
+          success: result !== false,
+          message: `於 ${targetChannel} 頻道設定 #${targetId} 訊息已讀${result !== false ? '成功' : '失敗'}`
+        },
+        // outter message attrs
+        {
+          type: 'ack',
+          id: '-8', // temporary id for set_read
+          channel: 'system'
+        }
+      ))
+    })
     return true
   }
 
