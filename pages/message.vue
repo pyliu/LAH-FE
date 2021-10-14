@@ -272,7 +272,6 @@ export default {
     this.dataJson.create_datetime = this.$utils.now()
     this.mementoCount = await this.getCache(this.mementoCountCacheKey) || 3
     this.restoreCachedMemento()
-    this.$utils.log(this.myinfo)
   },
   methods: {
     /**
