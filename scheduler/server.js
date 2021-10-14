@@ -37,7 +37,7 @@ try {
   }
 
   const cronSetting = '0 */15 8-18 * * 0-6'
-  const watchdog = schedule.scheduleJob(cronSetting, function () {
+  schedule.scheduleJob(cronSetting, function () {
     const url = `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`
     console.log(`啟動排程 ${cronSetting}`)
     console.log(`啟動 ${url}}`, 'type: "watchdog"')
@@ -51,7 +51,7 @@ try {
     }).finally(() => {})
   })
 
-  console.log('LAH排程伺服器已啟動', watchdog)
+  console.log('LAH排程伺服器已啟動')
 } catch (e) {
   console.error('LAH排程伺服器啟動失敗', e)
 // eslint-disable-next-line no-empty
