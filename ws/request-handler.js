@@ -324,38 +324,43 @@ class RequestHandler {
   }
 
   executeChannelSetReadCommand (ws, json) {
+    // json.command === 'set_read'
     /** expected json
      {
         command: 'set_read',
-        channel: 'inf',
+        channel: 'HA8001XXXX',
         id: '123',
-        flag: 0
+        flag: 0,
+        sender: 'HA1001XXXX',
+        cascade: true // if send message back to the sender to set the message in his channel
       }
      */
     const targetChannel = String(json.channel)
     const targetId = parseInt(json.id) || 0
     const flag = parseInt(json.flag) || 0
+    const sender = json.sender
+    const cascade = json.cascade
     const messageDB = new MessageDB(targetChannel)
     const result = messageDB.setMesaageRead(targetId, flag)
-    // send ack to all connected clients
-    const allConnectedWs = [...ws.wss.clients]
-    allConnectedWs.forEach((thisWs) => {
-      thisWs.send(utils.packMessage(
-        // message payload
-        {
-          command: 'set_read',
-          payload: json,
-          success: result !== false,
-          message: `於 ${targetChannel} 頻道設定 #${targetId} 訊息已讀${result !== false ? '成功' : '失敗'}`
-        },
-        // outter message attrs
-        {
-          type: 'ack',
-          id: '-8', // temporary id for set_read
-          channel: 'system'
-        }
-      ))
+    // send ack to the message sender ...
+    const found = [...ws.wss.clients].find((ws) => {
+      return ws.user?.userid === sender
     })
+    found && found.send(utils.packMessage(
+      // message payload
+      {
+        command: 'set_read',
+        payload: json,
+        success: result !== false,
+        message: `於 ${targetChannel} 頻道設定 #${targetId} 訊息已讀${result !== false ? '成功' : '失敗'}`
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-8', // temporary id for set_read
+        channel: 'system'
+      }
+    ))
     return true
   }
 

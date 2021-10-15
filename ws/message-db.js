@@ -137,6 +137,10 @@ class MessageDB {
   setMesaageRead (id, currentFlag) {
     try {
       // current flag definition is 1 => private message, 2 => message read
+      if ((currentFlag & 2) === 2) {
+        isDev && console.log(`✔️ ${this.channel} #${id} 訊息已為已讀讀，略過不處理。`)
+        return true
+      }
       const updateFlag = currentFlag + 2
       const prepared = this.db.prepare('UPDATE message SET flag = $flag WHERE id = $id')
       const update = this.db.transaction((obj) => {
@@ -144,10 +148,10 @@ class MessageDB {
       })
       const result = update.deferred({ id, flag: updateFlag })
       // info: { changes: 1, lastInsertRowid: 0 }
-      isDev && console.log(`將 ${this.channel} #${id} 訊息 設為已讀成功`, result)
+      isDev && console.log(`🌟 將 ${this.channel} #${id} 訊息 設為已讀成功`, result)
       return result
     } catch (e) {
-      console.error(`將 ${this.channel} #${id} 訊息 設為已讀失敗`, e)
+      console.error(`❌ 將 ${this.channel} #${id} 訊息 設為已讀失敗`, e)
     }
     return false
   }
