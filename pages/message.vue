@@ -7,7 +7,7 @@
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 接收端電腦需安裝 #[b.text-primary 桃園即時通程式] 並正常連線才能接收
-          li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 桃園即時通程式] 的使用者
+          li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 桃園即時通程式] 的使用者 (紀錄於 IPResolver.db 內，DYNAMIC)
           li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆  ({{ memento.length }} / {{ mementoCapacity }})
           li 內容支援 Markdown 語法，請參考 #[a(href="https://markdown.tw/" target="_blank" rel="noopener noreferrer") #[b https://markdown.tw/]] 教學
       .d-flex
