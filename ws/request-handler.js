@@ -339,19 +339,22 @@ class RequestHandler {
     const targetId = parseInt(json.id) || 0
     const flag = parseInt(json.flag) || 0
     const sender = json.sender
-    const cascade = json.cascade
     const messageDB = new MessageDB(targetChannel)
     const result = messageDB.setMesaageRead(targetId, flag)
     // send ack to the message sender ...
     const found = [...ws.wss.clients].find((ws) => {
       return ws.user?.userid === sender
     })
+
+    console.log('準備送出已讀ACK(-8)，接收者', found?.user)
+
     found && found.send(utils.packMessage(
       // message payload
       {
         command: 'set_read',
         payload: json,
         success: result !== false,
+        cascade: json.cascade,
         message: `於 ${targetChannel} 頻道設定 #${targetId} 訊息已讀${result !== false ? '成功' : '失敗'}`
       },
       // outter message attrs
