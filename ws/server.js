@@ -67,7 +67,7 @@ try {
 
     ws.on('close', function close () {
       if (this.user) {
-        console.log(`${this.user.userid} / ${this.user.ip} 連線已中斷`)
+        console.log(`${this.user.userid} / ${this.user.username} / ${this.user.ip} 連線已中斷`)
       } else {
         console.warn('WebSocket內沒有使用者資訊')
       }

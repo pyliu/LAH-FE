@@ -89,8 +89,9 @@ class RequestHandler {
     valid && (ws.user = { ...args, timestamp: +new Date() })
 
     const message = valid ? `遠端客戶端資料 (${ws.user.ip}, ${ws.user.domain}, ${ws.user.userid}, ${ws.user.username}, ${ws.user.dept}) 已儲存於 ws 物件中` : '無法完成 register 命令，因為格式不符'
-    !valid && console.warn(message, args)
-    isDev && console.log(message, ws.user)
+    console.log(message)
+    !valid && console.warn('收到參數', args)
+    isDev && console.log('The user object in ws', ws.user)
 
     ws.send(utils.packMessage(
       // message payload
