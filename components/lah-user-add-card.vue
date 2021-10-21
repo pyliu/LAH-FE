@@ -241,7 +241,7 @@ export default {
     })
   },
   computed: {
-    isAuthorized () { return this.authority.isAdmin },
+    isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
     checkRequired () {
       return this.checkId === true &&
              this.checkName === true &&
@@ -320,6 +320,11 @@ export default {
         // autoHideDelay: 10000,
         solid: true
       })
+    },
+    authorities (array) {
+      this.userData.authority = array.reduce((acc, item) => {
+        return acc + item
+      }, 0)
     }
   },
   created () {
@@ -399,7 +404,7 @@ export default {
       })
     },
     save () {
-      this.callApi('確定要更新?', {
+      this.callApi('確定要新增?', {
         type: 'add_user',
         data: this.userData
       }).then((userData) => {
