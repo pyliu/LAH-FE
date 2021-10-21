@@ -61,6 +61,8 @@ class RequestHandler {
         return this.executeQueryPreviousMessageCommand(ws, json)
       case 'set_read':
         return this.executeChannelSetReadCommand(ws, json)
+      case 'check_read':
+        return this.executeChannelCheckReadCommand(ws, json)
       case 'unread':
         return this.executeChannelUnreadCommand(ws, json)
       case 'remove_message':
@@ -341,13 +343,13 @@ class RequestHandler {
     const flag = parseInt(json.flag) || 0
     const sender = json.sender
     const messageDB = new MessageDB(targetChannel)
-    const result = messageDB.setMesaageRead(targetId, flag)
+    const result = messageDB.setMessageRead(targetId, flag)
     // send ack to the message sender ...
     const found = [...ws.wss.clients].find((ws) => {
       return ws.user?.userid === sender
     })
 
-    console.log('準備送出已讀ACK(-8)，接收者', found?.user)
+    // console.log('準備送出已讀ACK(-8)，接收者', found?.user)
 
     found && found.send(utils.packMessage(
       // message payload
@@ -365,6 +367,58 @@ class RequestHandler {
         channel: 'system'
       }
     ))
+    return true
+  }
+
+  executeChannelCheckReadCommand (ws, json) {
+    // json.command === 'set_read'
+    /** expected json
+     {
+        command: 'check_read',
+        channel: 'HA8001XXXX',
+        id: '123',
+        sender: 'HA1001XXXX',
+        senderChannelMessageId: '158',
+        senderChannelMessageFlag: 0
+      }
+     */
+    const senderChannel = String(json.sender)
+    const senderMessageId = parseInt(json.senderChannelMessageId) || 0
+    const senderMessageFlag = parseInt(json.senderChannelMessageFlag) || 0
+    const targetChannel = String(json.channel)
+    const targetId = parseInt(json.id) || 0
+    const sender = json.sender
+    const messageDB = new MessageDB(targetChannel)
+    const result = messageDB.isMessageRead(targetId)
+    // send ack to the message sender ...
+    const found = [...ws.wss.clients].find((ws) => {
+      return ws.user?.userid === sender
+    })
+
+    // console.log('準備送出已讀ACK(-9)，接收者', found?.user)
+
+    found && found.send(utils.packMessage(
+      // message payload
+      {
+        command: 'check_read',
+        payload: json,
+        success: result !== false,
+        message: `於 ${senderChannel} 頻道設定 #${senderMessageId} 訊息已讀${result !== false ? '成功' : '失敗'}`
+      },
+      // outter message attrs
+      {
+        type: 'ack',
+        id: '-9', // temporary id for check_read
+        channel: 'system'
+      }
+    ))
+
+    if (result !== false) {
+      // set sender channel message read
+      const messageDB = new MessageDB(senderChannel)
+      !messageDB.setMessageRead(senderMessageId, senderMessageFlag) && console.warn(`設定 ${senderChannel} 頻道訊息 #${senderMessageId} 已讀失敗`)
+    }
+
     return true
   }
 

@@ -134,7 +134,7 @@ class MessageDB {
     return false
   }
 
-  setMesaageRead (id, currentFlag) {
+  setMessageRead (id, currentFlag) {
     try {
       // current flag definition is 1 => private message, 2 => message read
       if ((currentFlag & 2) === 2) {
@@ -152,6 +152,16 @@ class MessageDB {
       return result
     } catch (e) {
       console.error(`❌ 將 ${this.channel} #${id} 訊息 設為已讀失敗`, e)
+    }
+    return false
+  }
+
+  isMessageRead (id) {
+    try {
+      const message = this.db.prepare('SELECT * FROM message WHERE id = ? ORDER BY id DESC').get(id)
+      return (parseInt(message?.flag) & 2) === 2
+    } catch (e) {
+      console.error(`❌ 讀取 ${this.channel} #${id} 訊息 已讀屬性(flag)失敗`, e)
     }
     return false
   }
