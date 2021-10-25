@@ -2,7 +2,7 @@
   .d-flex
     b-datepicker(
       v-model="startDateObj"
-      placeholder="開始日期"
+      placeholder="📅 開始日期"
       boundary="viewport"
       title="開始日期"
       label-help="可使用方向鍵操作移動"
@@ -18,7 +18,7 @@
     .my-auto ～
     b-datepicker(
       v-model="endDateObj"
-      placeholder="截止日期"
+      placeholder="📆 結束日期"
       boundary="viewport"
       title="結束日期"
       label-help="可使用方向鍵操作移動"
