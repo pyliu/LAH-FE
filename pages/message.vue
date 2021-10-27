@@ -274,16 +274,11 @@ export default {
     this.restoreCachedMemento()
   },
   mounted () {
-    const { Picker } = require('emoji-picker-element')
-    console.log(new Picker())
-    this.modal(this.$createElement(new Picker(), {
+    this.modal(this.$createElement('lah-emoji-picker', {
       on: {
-        select: emoji => this.notify(emoji.data)
+        select: emoji => console.log(emoji)
       }
     }), { size: 'md' })
-    // const { Picker } = require('emoji-picker-element')
-    // const emojiPicker = new Picker()
-    // console.log(emojiPicker)
   },
   methods: {
     /**
