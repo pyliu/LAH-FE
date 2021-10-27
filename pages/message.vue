@@ -273,6 +273,18 @@ export default {
     this.mementoCount = await this.getCache(this.mementoCountCacheKey) || 3
     this.restoreCachedMemento()
   },
+  mounted () {
+    const { Picker } = require('emoji-picker-element')
+    console.log(new Picker())
+    this.modal(this.$createElement(new Picker(), {
+      on: {
+        select: emoji => this.notify(emoji.data)
+      }
+    }), { size: 'md' })
+    // const { Picker } = require('emoji-picker-element')
+    // const emojiPicker = new Picker()
+    // console.log(emojiPicker)
+  },
   methods: {
     /**
      * users selection modal used
