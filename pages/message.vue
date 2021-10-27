@@ -45,7 +45,7 @@
           v-model="dataJson.content"
           rows="5"
           max-rows="100"
-          placeholder="... 支援 Markdown 語法 ... Ctrl + V 貼上剪貼簿中螢幕截圖 ..."
+          placeholder="... 支援 Markdown 語法 ... Windows + \".\" 輸入表情符號..."
           style="overflow: hidden"
           :state="validContent"
           @paste="pasteImage($event, addImage)"
@@ -272,13 +272,6 @@ export default {
     this.dataJson.create_datetime = this.$utils.now()
     this.mementoCount = await this.getCache(this.mementoCountCacheKey) || 3
     this.restoreCachedMemento()
-  },
-  mounted () {
-    this.modal(this.$createElement('lah-emoji-picker', {
-      on: {
-        select: emoji => console.log(emoji)
-      }
-    }), { size: 'md' })
   },
   methods: {
     /**

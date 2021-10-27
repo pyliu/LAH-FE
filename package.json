@@ -16,6 +16,7 @@
     "scheduler-dev": "nodemon scheduler/server.js"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.15.8",
     "@chenfengyuan/vue-countdown": "^1.1.5",
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-brands-svg-icons": "^5.15.1",
@@ -52,7 +53,6 @@
     "qs": "^6.9.4",
     "sqlite3": "^4.2.0",
     "vue-chartjs": "^3.5.1",
-    "vuemoji-picker": "^0.0.7",
     "ws": "^7.4.6"
   },
   "devDependencies": {
