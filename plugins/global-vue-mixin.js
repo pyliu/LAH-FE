@@ -150,8 +150,8 @@ Vue.mixin({
       return context.body.children
     },
     pasteImage (pasteEvent, callback) {
-      pasteEvent.stopPropagation()
-      pasteEvent.preventDefault()
+      // pasteEvent.stopPropagation()
+      // pasteEvent.preventDefault()
       const items = (pasteEvent.clipboardData || pasteEvent.originalEvent.clipboardData).items
       for (let i = 0; i < items.length; i++) {
         const item = items[i]
