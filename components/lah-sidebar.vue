@@ -127,7 +127,7 @@
         li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
           #[font-awesome-icon.fixed-width(:icon="['fab', 'github']" pull="left" size="lg")]
           原始碼
-        li: b-link(@click="clearCache").
+        li: b-link(@click="triggerClear").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'hand-sparkles']" size="lg")]
           清除本系統快取資料
 
@@ -153,9 +153,13 @@ export default {
     }
   },
   methods: {
-    clearCache () {
+    triggerClear () {
       this.confirm('請確認要清除快取資料？').then((ans) => {
-        ans && this.clearCache() && this.notify('清除快取資料完成，3秒後自動整理頁面。') && this.timeout(() => location.reload(), 3000)
+        if (ans) {
+          this.clearCache()
+          this.notify('清除快取資料完成，3秒後自動整理頁面。')
+          this.timeout(() => location.reload(), 3000)
+        }
       })
     },
     popup () {
