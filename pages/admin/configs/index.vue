@@ -38,7 +38,7 @@
       </lah-transition>
       <lah-help-modal :modal-id="'help-modal'" size="md">
         <div class="d-inline-flex">
-          ★ 按
+          ⭐ 按
           <lah-button
             icon="edit"
             reqular
@@ -50,7 +50,7 @@
           可一次更新所有系統設定值
         </div>
         <div class="d-inline-flex my-2">
-          ★ 按
+          ⭐ 按
           <lah-button
             v-b-modal.master-pw-modal
             icon="key"
@@ -61,7 +61,7 @@
           可進行管理者密碼更新
         </div>
         <div class="d-inline-flex">
-          ★ 各細項修改後按
+          ⭐ 各細項修改後按
           <lah-button
             icon="pen-square"
             variant="outline-secondary"
@@ -476,7 +476,7 @@
                 title="立即寫入設定"
                 :disabled="$utils.empty(loadedConfigs['WS_DB_PATH'])"
                 no-icon-gutter
-                @click="quick({WEBAP_POSTFIXES: loadedConfigs['WS_DB_PATH']})"
+                @click="quick({WS_DB_PATH: loadedConfigs['WS_DB_PATH']})"
               />
             </template>
           </b-input-group>
