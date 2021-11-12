@@ -57,6 +57,7 @@
           :items="dynamic"
           :fields="dynamicFields"
         )
+          template(#cell(序號)="{ index }") {{ index + 1 }}
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ time(item) }}
           template(#cell(entry_desc)="{ item }"): .text-nowrap {{ userNames ? userNames[item.entry_id] : item.entry_desc }}
     b-modal(
@@ -94,6 +95,7 @@ export default {
       { key: 'note', label: '備註', sortable: true }
     ],
     dynamicFields: [
+      '序號',
       { key: 'ip', label: '連線位址', sortable: true },
       { key: 'entry_id', label: '登入帳號', sortable: true },
       { key: 'entry_desc', label: '登入名稱', sortable: true },
