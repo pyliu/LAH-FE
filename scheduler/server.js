@@ -31,11 +31,6 @@ try {
   require('dotenv').config()
   isDev && console.log(process.env)
 
-  const dbDir = path.join(__dirname, 'db')
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir)
-  }
-
   const cronSetting = '0 */15 8-18 * * 0-6'
   schedule.scheduleJob(cronSetting, function () {
     const url = `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`
