@@ -3,7 +3,7 @@
     lah-header: lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto 案件領狀管控
+          .my-auto 領件管控查詢
           lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             h5 資料庫搜尋說明

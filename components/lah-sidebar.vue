@@ -60,7 +60,7 @@
           辦畢通知案件查詢
         li: nuxt-link(to="/reg-untaken-case").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'stamp']" size="lg")]
-          案件領狀管控
+          領件管控查詢
 
         li: hr
 
