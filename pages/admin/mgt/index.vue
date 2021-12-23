@@ -4,7 +4,7 @@
       lah-transition(appear)
         .d-flex.justify-content-between.w-100
           .d-flex
-            .my-auto 地政管理看板
+            .my-auto 地政監控儀錶板
             lah-button(
               v-b-modal.help-modal
               icon="info"
@@ -14,9 +14,9 @@
               title="說明"
             )
       lah-help-modal(:modal-id="'help-modal'" size="md")
-        h6 提供地政系統相關案件查詢及快速修正之功能
-    b-card
-      h6 TO BE MIGRATED FROM #[a(href="/legacy/dashboard.html" target="_blank" rel="noreferrer noopener") 管理面板]
+        h6 提供顯示個監控標的狀態之功能
+    b-card-group(columns)
+      lah-monitor-board
 </template>
 
 <script>

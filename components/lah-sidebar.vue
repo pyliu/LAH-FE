@@ -91,7 +91,7 @@
           #[font-awesome-icon.fixed-width(:icon="['far', 'comment-dots']" size="lg")]
           發布公告訊息
         li(v-if="authority.isAdmin"): a(:href="`${this.legacyUrl}/dashboard.html`" target="_blank" rel="noreferrer noopener").
-          #[font-awesome-icon.fixed-width(:icon="['fas', 'diagnoses']" size="lg")]
+          #[font-awesome-icon.fixed-width(:icon="['fas', 'chalkboard-teacher']" size="lg")]
           地政系統管理面板
         li(v-if="authority.isAdmin"): a(:href="`${this.legacyUrl}/monitor.html`" target="_blank" rel="noreferrer noopener").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']" size="lg")]
@@ -107,10 +107,13 @@
           員工管理
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'tasks']" size="lg")]
-          智慧管控系統參數設定
+          系統參數設定
+
+        li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
+
         li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'cogs']" size="lg")]
-          智慧管控系統管理介面
+          系統管理選單
 
         //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
         //-   #[font-awesome-icon.fixed-width(:icon="['fas', 'calculator']" size="lg")]
@@ -124,6 +127,9 @@
         li(v-if="!authority.isAdmin"): nuxt-link(to="/login").
           #[font-awesome-icon.fixed-width(:icon="['fas', 'sign-in-alt']" size="lg")]
           管理者登入
+
+        li(v-if="!authority.isAdmin"): hr
+
         li: a(href="https://github.com/pyliu/LAH-NUXTJS" target="_blank" rel="noopener noreferrer").
           #[font-awesome-icon.fixed-width(:icon="['fab', 'github']" pull="left" size="lg")]
           原始碼
