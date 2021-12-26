@@ -19,10 +19,6 @@ div(v-cloak)
     lah-monitor-board(header="主資料庫")
       template(#help)
         h6 這是說明區塊
-      template(#header)
-        lah-fa-icon(icon="database") 主資料庫
-
-      lah-fa-icon(icon="circle", variant="danger")
 </template>
 
 <script>

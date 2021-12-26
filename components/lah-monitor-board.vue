@@ -1,8 +1,9 @@
 <template lang="pug">
 b-card
   template(#header): .d-flex.justify-content-between
-    slot(name="header")
-    lah-button(
+    lah-fa-icon(icon="circle", :variant="light")
+    strong {{ header }}
+    lah-button.ml-auto(
       icon="question",
       action="breath",
       variant="outline-success",
@@ -16,6 +17,8 @@ b-card
       :modal-title="`${header} 說明`"
     ): slot(name="help")
   slot
+  template(#footer): .d-flex.justify-content-end
+    .text-muted.small {{ timestamp }}
 </template>
 
 <script>
@@ -24,10 +27,13 @@ export default {
     header: { type: String, default: '未設定監控標的' }
   },
   data: () => ({
-    modalId: 'tmp-id'
+    modalId: 'tmp-id',
+    light: 'danger',
+    timestamp: ''
   }),
   created () {
     this.modalId = this.$utils.uuid()
+    this.timestamp = this.$utils.now()
   }
 }
 </script>
