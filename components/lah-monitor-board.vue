@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card
   template(#header): .d-flex.justify-content-between
-    b {{ header }}
+    slot(name="header")
     lah-button(
       icon="question",
       action="breath",
