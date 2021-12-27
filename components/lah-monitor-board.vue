@@ -23,10 +23,10 @@ b-card
       div 🟡 表示超過一天未更新
       div 🔴 表示狀態錯誤
   slot
-  ul: li(v-for="(item, idx) in headLogs"): a(href="#" @click="popupLogContent(item)" title="顯示詳細記錄")
+  ul: li(v-for="(item, idx) in headLogs")
     .d-flex.justify-content-between
-      .truncate-half {{ item.title }}
-      lah-fa-icon(icon="clock" regular) {{ displayDatetime(item.timestamp) }}
+      a.truncate-short(href="#" @click="popupLogContent(item)" title="顯示詳細記錄") {{ item.title }}
+      lah-fa-icon.small.my-auto.text-nowrap(icon="clock" regular) {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.content }}
   template(#footer): .d-flex.justify-content-between.small.text-muted
     span {{ site }}
@@ -43,8 +43,8 @@ export default {
     light: 'danger',
     logs: [
       { timestamp: +new Date() / 1000, title: '220.1.xx.xx DB is online', content: 'TEST' },
-      { timestamp: +new Date() / 1000 + 10, title: '220.1.xx.xx DB is offline', content: 'TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' },
-      { timestamp: +new Date() / 1000 + 20, title: '220.1.xx.xx DB is online but the status is not good.', content: 'TEST3' },
+      { timestamp: +new Date() / 1000 + 10, title: '220.1.xx.xx DB is offline', content: 'Hang out anytime, anywhere\n ... Messenger makes it easy and fun to stay close to your favorite people. ... New! Message your Instagram friends right from Messenger.' },
+      { timestamp: +new Date() / 1000 + 20, title: '220.1.xx.xx DB is online but the status is not good.', content: 'Send them a message 3. Stream the movie 4. Have fun with Movie Mate. 1,025 個讚103 則留言. Vicky Ford, profile picture. Vicky Ford. Love that mover ok' },
       { timestamp: +new Date() / 1000 + 30, title: '220.1.xx.xx DB has no response', content: 'TEST4TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' }
     ]
   }),
@@ -72,14 +72,18 @@ export default {
     // use this.site to determine which office
   },
   methods: {
+    truncate (content) {
+      return content?.substring(0, 100).replaceAll('\n', '<br/>') + ' ...'
+    },
     displayDatetime (ts) {
       const fullDt = this.$utils.tsToAdDateStr(ts, true)
       return fullDt.replace(this.today, '')
     },
     popupLogContent (item) {
-      this.modal(item.content, {
+      this.modal(item.content?.replaceAll('\n', '<br/>'), {
         title: `${this.header} - ${item.title}`,
-        size: 'xl'
+        size: 'xl',
+        html: true
       })
     },
     reload () {
@@ -91,16 +95,22 @@ export default {
 
 <style lang="scss" scoped>
 @mixin truncateBase() {
-  width: calc((100vw - 350px) / 3);
+  width: calc((100vw - 300px) / 3);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .truncate {
   @include truncateBase();
+  p {
+    margin-bottom: 0px !important;
+  }
 }
-.truncate-half {
+.truncate-short {
   @include truncateBase();
-  width: calc((100vw - 350px) / 6);
+  width: calc((100vw - 350px) / 4);
+}
+ul {
+  padding-left: 21.25px;
 }
 </style>
