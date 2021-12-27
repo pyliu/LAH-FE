@@ -18,7 +18,7 @@ div(v-cloak)
   b-card-group(columns)
     lah-monitor-board(header="主資料庫")
       template(#help)
-        h6 這是說明區塊
+        h6 顯示主資料庫狀態
 </template>
 
 <script>
