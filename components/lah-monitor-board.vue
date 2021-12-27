@@ -26,8 +26,8 @@ b-card
   ul: li(v-for="(item, idx) in headLogs"): a(href="#" @click="popupLogContent(item)" title="顯示詳細記錄")
     .d-flex.justify-content-between
       .truncate-half {{ item.title }}
-      lah-fa-icon.text-muted(icon="clock" regular) {{ displayDatetime(item.timestamp) }}
-    .truncate {{ item.content }}
+      lah-fa-icon(icon="clock" regular) {{ displayDatetime(item.timestamp) }}
+    .truncate.text-muted.small {{ item.content }}
   template(#footer): .d-flex.justify-content-between.small.text-muted
     span {{ site }}
     span {{ timestamp }}
@@ -92,16 +92,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.truncate {
+@mixin truncateBase() {
   width: calc((100vw - 350px) / 3);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.truncate {
+  @include truncateBase();
+}
 .truncate-half {
+  @include truncateBase();
   width: calc((100vw - 350px) / 6);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 </style>
