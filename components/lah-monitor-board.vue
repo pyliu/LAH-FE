@@ -15,12 +15,19 @@ b-card
     lah-help-modal(
       :modal-id="modalId",
       :modal-title="`${header} 說明`"
-    ): slot(name="help")
+    )
+      slot(name="help")
+      hr
+      div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
+      div 🟢 表示一切正常
+      div 🟡 表示超過一天未更新
+      div 🔴 表示狀態錯誤
   slot
   ul: li(v-for="(item, idx) in headLogs"): a(href="#" @click="popupLogContent(item)" title="顯示詳細記錄")
-    .truncate {{ item.content }}
-    .d-flex.justify-content-end.small
+    .d-flex.justify-content-between
+      .truncate-half {{ item.title }}
       lah-fa-icon.text-muted(icon="clock" regular) {{ displayDatetime(item.timestamp) }}
+    .truncate {{ item.content }}
   template(#footer): .d-flex.justify-content-between.small.text-muted
     span {{ site }}
     span {{ timestamp }}
@@ -36,16 +43,11 @@ export default {
     light: 'danger',
     timestamp: '',
     logs: [
-      { timestamp: +new Date() / 1000, content: 'TEST' },
-      { timestamp: +new Date() / 1000 + 10, content: 'TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' },
-      { timestamp: +new Date() / 1000 + 20, content: 'TEST3' },
-      { timestamp: +new Date() / 1000 + 30, content: 'TEST4TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' }
-    ],
-    targets: {
-      dbMain: '',
-      dbBackup: '',
-      dbSub: ''
-    }
+      { timestamp: +new Date() / 1000, title: '220.1.xx.xx DB is online', content: 'TEST' },
+      { timestamp: +new Date() / 1000 + 10, title: '220.1.xx.xx DB is offline', content: 'TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' },
+      { timestamp: +new Date() / 1000 + 20, title: '220.1.xx.xx DB is online but the status is not good.', content: 'TEST3' },
+      { timestamp: +new Date() / 1000 + 30, title: '220.1.xx.xx DB has no response', content: 'TEST4TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' }
+    ]
   }),
   computed: {
     headLogs () {
@@ -57,6 +59,13 @@ export default {
       return now.getFullYear() + '-' +
         ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
         ('0' + now.getDate()).slice(-2)
+    },
+    queryType () {
+      switch (this.header) {
+        case '主資料庫':
+          return 'dbMain'
+      }
+      return 'unknown'
     }
   },
   created () {
@@ -71,9 +80,12 @@ export default {
     },
     popupLogContent (item) {
       this.modal(item.content, {
-        title: `${this.header} - ${this.displayDatetime(item.timestamp)}`,
+        title: `${this.header} - ${item.title}`,
         size: 'xl'
       })
+    },
+    reload () {
+
     }
   }
 }
@@ -82,6 +94,12 @@ export default {
 <style lang="scss" scoped>
 .truncate {
   width: calc((100vw - 350px) / 3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.truncate-half {
+  width: calc((100vw - 350px) / 6);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
