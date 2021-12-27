@@ -41,7 +41,6 @@ export default {
   data: () => ({
     modalId: 'tmp-id',
     light: 'danger',
-    timestamp: '',
     logs: [
       { timestamp: +new Date() / 1000, title: '220.1.xx.xx DB is online', content: 'TEST' },
       { timestamp: +new Date() / 1000 + 10, title: '220.1.xx.xx DB is offline', content: 'TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' },
@@ -70,7 +69,6 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.timestamp = this.$utils.now()
     // use this.site to determine which office
   },
   methods: {

@@ -319,6 +319,7 @@ export default ({ $axios, store }, inject) => {
       }
     },
     tsToAdDateStr (phpTs, full = false) {
+      // PHP time() generate ts by seconds, however js is milliseconds
       const dateObj = new Date(phpTs * 1000)
       const dateStr = `${dateObj.getFullYear()}-${('0' + (dateObj.getMonth() + 1)).slice(-2)}-${('0' + dateObj.getDate()).slice(-2)}`
       const timeStr = `${('0' + dateObj.getHours()).slice(-2)}:${('0' + dateObj.getMinutes()).slice(-2)}:${('0' + dateObj.getSeconds()).slice(-2)}`
