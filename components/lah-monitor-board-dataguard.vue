@@ -52,7 +52,8 @@ export default {
     header: '資料庫 Data Guard',
     modalId: 'tmp-id',
     messages: [],
-    updatedTimestamp: ''
+    updatedTimestamp: '',
+    reloadTimer: null
   }),
   computed: {
     headMessages () {
@@ -117,6 +118,7 @@ export default {
       })
     },
     reload () {
+      clearTimeout(this.reloadTimer)
       this.isBusy = true
       // to update untaken data in sqlite db
       this.$axios
@@ -138,6 +140,7 @@ export default {
         .finally(() => {
           this.isBusy = false
           this.updatedTimestamp = this.$utils.now()
+          this.reloadTimer = setTimeout(() => this.reload(), 15 * 60 * 1000)
         })
     }
   }
