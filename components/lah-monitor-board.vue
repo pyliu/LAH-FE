@@ -30,7 +30,7 @@ b-card
     .truncate.text-muted.small {{ item.content }}
   template(#footer): .d-flex.justify-content-between.small.text-muted
     span {{ site }}
-    span {{ timestamp }}
+    span {{ updatedTimestamp }}
 </template>
 
 <script>
@@ -46,7 +46,8 @@ export default {
       { timestamp: +new Date() / 1000 + 10, title: '220.1.xx.xx DB is offline', content: 'Hang out anytime, anywhere\n ... Messenger makes it easy and fun to stay close to your favorite people. ... New! Message your Instagram friends right from Messenger.' },
       { timestamp: +new Date() / 1000 + 20, title: '220.1.xx.xx DB is online but the status is not good.', content: 'Send them a message 3. Stream the movie 4. Have fun with Movie Mate. 1,025 個讚103 則留言. Vicky Ford, profile picture. Vicky Ford. Love that mover ok' },
       { timestamp: +new Date() / 1000 + 30, title: '220.1.xx.xx DB has no response', content: 'TEST4TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2TEST2' }
-    ]
+    ],
+    updatedTimestamp: ''
   }),
   computed: {
     headLogs () {
@@ -69,7 +70,7 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
-    // use this.site to determine which office
+    this.updatedTimestamp = this.$utils.now()
   },
   methods: {
     truncate (content) {
@@ -82,7 +83,7 @@ export default {
     popupLogContent (item) {
       this.modal(item.content?.replaceAll('\n', '<br/>'), {
         title: `${this.header} - ${item.title}`,
-        size: 'xl',
+        size: 'lg',
         html: true
       })
     },
