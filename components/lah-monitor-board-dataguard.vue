@@ -7,15 +7,6 @@ b-card
       size="sm"
     )
       lah-button(
-        icon="sync-alt",
-        action="ld-cycle",
-        variant="outline-secondary",
-        no-border,
-        no-icon-gutter,
-        @click="reload",
-        title="重新讀取"
-      )
-      lah-button(
         icon="question",
         action="breath",
         variant="outline-success",
@@ -42,8 +33,22 @@ b-card
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular) {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ keyMessage(item) }}
   template(#footer): .d-flex.justify-content-between.small.text-muted
-    span 更新時間
-    lah-fa-icon.my-auto.text-nowrap(icon="clock") {{ updatedTimestamp }}
+    lah-countdown-button.border-0(
+      size="sm"
+      ref="countdown"
+      icon="sync-alt"
+      action="ld-cycle"
+      auto-start
+      title="立即重新讀取"
+      variant="outline-secondary"
+      badge-variant="secondary"
+      :milliseconds="reloadMs"
+      :disabled="isBusy"
+      :busy="isBusy"
+      @end="reload"
+      @click="reload"
+    )
+    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updatedTimestamp }}
 </template>
 
 <script>
@@ -53,7 +58,7 @@ export default {
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadTimer: null
+    reloadMs: 15 * 60 * 1000
   }),
   computed: {
     headMessages () {
@@ -118,7 +123,6 @@ export default {
       })
     },
     reload () {
-      clearTimeout(this.reloadTimer)
       this.isBusy = true
       // to update untaken data in sqlite db
       this.$axios
@@ -139,8 +143,11 @@ export default {
         })
         .finally(() => {
           this.isBusy = false
-          this.updatedTimestamp = this.$utils.now()
-          this.reloadTimer = setTimeout(() => this.reload(), 15 * 60 * 1000)
+          this.updatedTimestamp = this.$utils.now().replace(this.today, '')
+          if (this.$refs.countdown) {
+            this.$refs.countdown.setCountdown(this.reloadMs)
+            this.$refs.countdown.startCountdown()
+          }
         })
     }
   }
