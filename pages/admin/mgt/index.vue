@@ -16,9 +16,7 @@ div(v-cloak)
     lah-help-modal(:modal-id="'help-modal'", size="md")
       h6 提供顯示個監控標的狀態之功能
   b-card-group(columns)
-    lah-monitor-board(header="主資料庫")
-      template(#help)
-        h6 顯示主資料庫狀態
+    lah-monitor-board-dataguard
 </template>
 
 <script>
