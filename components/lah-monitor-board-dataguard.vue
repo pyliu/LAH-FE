@@ -20,7 +20,7 @@ b-card
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示超過一天未更新
+      div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
   ul: li(v-for="(item, idx) in headMessages")
@@ -30,9 +30,9 @@ b-card
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
       ) {{ item.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular) {{ displayDatetime(item.timestamp) }}
+      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ keyMessage(item) }}
-  template(#footer): .d-flex.justify-content-between.small.text-muted
+  template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       size="sm"
       ref="countdown"
@@ -76,7 +76,9 @@ export default {
       )
     },
     light () {
-      if (this.headMessages.length === 0) {
+      const now = +new Date()
+      if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+        this.$utils.warn(`${this.header} - 狀態未更新`)
         return 'warning'
       }
       const criteria = this.keyMessage(this.headMessages[0])
