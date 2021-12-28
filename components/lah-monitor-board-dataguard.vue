@@ -42,8 +42,8 @@ b-card
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular) {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ keyMessage(item) }}
   template(#footer): .d-flex.justify-content-between.small.text-muted
-    span {{ site }}
-    span {{ updatedTimestamp }}
+    span 更新時間
+    lah-fa-icon.my-auto.text-nowrap(icon="clock") {{ updatedTimestamp }}
 </template>
 
 <script>
