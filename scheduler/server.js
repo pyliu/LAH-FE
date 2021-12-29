@@ -35,7 +35,7 @@ try {
   schedule.scheduleJob(cronSetting, function () {
     const url = `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`
     console.log(`啟動排程 ${cronSetting}`)
-    console.log(`啟動 ${url}}`, 'type: "watchdog"')
+    console.log(`啟動 ${url}`, 'type: "watchdog"')
     axios.post(
       url,
       qs.stringify({ type: 'watchdog' })
