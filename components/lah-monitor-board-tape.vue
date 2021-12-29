@@ -17,8 +17,8 @@ b-card
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫備份狀態(選項2、4、5)
-        li 備份選項5更新較頻繁，故設定重新整理計時器為15分鐘
+        li 顯示資料庫磁帶備份狀態(P7-102)
+        li 目前檢查郵件一天1封，故設定重新整理計時器為1天
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -57,18 +57,15 @@ b-card
 <script>
 export default {
   data: () => ({
-    header: '資料庫備份排程',
+    header: '資料庫磁帶備份',
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadMs: 15 * 60 * 60 * 1000
+    reloadMs: 24 * 60 * 60 * 1000
   }),
   computed: {
     headMessages () {
-      const opt2 = this.messages.find(item => item.subject.includes('BACKUP OPTION 2'))
-      const opt4 = this.messages.find(item => item.subject.includes('BACKUP OPTION 4'))
-      const opt5 = this.messages.find(item => item.subject.includes('BACKUP OPTION 5'))
-      return [opt2, opt4, opt5].filter(item => item)
+      return this.messages.filter((item, idx, arr) => idx < 1)
     },
     today () {
       // e.g. 2021-12-29
@@ -84,9 +81,6 @@ export default {
     light () {
       const now = +new Date()
       if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
-        return 'warning'
-      }
-      if (this.headMessages.length !== 3) {
         return 'danger'
       }
       return 'success'
@@ -118,7 +112,7 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'subject',
-          keyword: 'BACKUP OPTION'
+          keyword: 'TAPE BACKUP STATE'
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {

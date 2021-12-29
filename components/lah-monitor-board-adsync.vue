@@ -57,7 +57,7 @@ b-card
 <script>
 export default {
   data: () => ({
-    header: 'AD SYNC 狀態',
+    header: 'AD 同步',
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',

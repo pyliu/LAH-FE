@@ -22,6 +22,7 @@ div(v-cloak)
     lah-monitor-board-ups
     lah-monitor-board-adsync
     lah-monitor-board-dbbackup
+    lah-monitor-board-tape
 </template>
 
 <script>
