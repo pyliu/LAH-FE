@@ -35,7 +35,7 @@ b-card
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.message }}
-  template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
+  template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       size="sm"
       ref="countdown"
@@ -56,6 +56,9 @@ b-card
 
 <script>
 export default {
+  props: {
+    footer: { type: Boolean, default: false }
+  },
   data: () => ({
     header: '資料庫磁帶備份',
     modalId: 'tmp-id',

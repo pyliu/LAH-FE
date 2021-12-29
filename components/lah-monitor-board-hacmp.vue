@@ -35,7 +35,7 @@ b-card
       ) {{ headMessage.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(headMessage.timestamp, true)") {{ displayDatetime(headMessage.timestamp) }}
     .truncate.text-muted.small(v-html="extractedMessage")
-  template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
+  template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       ref="countdown"
       size="sm"
@@ -56,6 +56,9 @@ b-card
 
 <script>
 export default {
+  props: {
+    footer: { type: Boolean, default: false }
+  },
   data: () => ({
     header: '資料庫 HACMP',
     modalId: 'tmp-id',
