@@ -27,7 +27,7 @@ b-card
   slot
   .center(v-if="headMessages.length === 0") ⚠ 無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
-    .d-flex.justify-content-between
+    .d-flex.justify-content-between.font-weight-bold
       a.truncate-short(
         href="#",
         @click="popupLogContent(item)",

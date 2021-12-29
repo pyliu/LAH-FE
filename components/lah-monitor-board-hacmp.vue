@@ -27,7 +27,7 @@ b-card
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ 無資料
   div(v-else)
-    .d-flex.justify-content-between
+    .d-flex.justify-content-between.font-weight-bold
       a.truncate-short(
         href="#",
         @click="popupLogContent(headMessage)",
