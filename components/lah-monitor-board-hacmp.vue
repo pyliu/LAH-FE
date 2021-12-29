@@ -88,7 +88,6 @@ export default {
     },
     light () {
       if (this.$utils.empty(this.headMessage)) {
-        this.$utils.warn(`${this.header} - 狀態未更新`)
         return 'warning'
       }
       return this.found.length === 7 ? 'success' : 'danger'

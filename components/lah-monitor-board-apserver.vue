@@ -82,7 +82,6 @@ export default {
     light () {
       const now = +new Date()
       if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
-        this.$utils.warn(`${this.header} - 狀態未更新`)
         return 'warning'
       }
       const ans = this.messages.every((item) => {
