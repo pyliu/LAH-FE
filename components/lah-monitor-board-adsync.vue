@@ -17,12 +17,12 @@ b-card
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示 UPS 狀態
-        li 目前檢查郵件一天2封，故設定重新整理計時器為半天
+        li 顯示 AD SYNC 狀態，每天8點同步
+        li 目前檢查郵件一天1封，故設定重新整理計時器為1天
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
-      div 🟢 表示一切正常，2組UPS都有回應
-      div 🟡 表示狀態未更新
+      div 🟢 表示一切正常
+      //- div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
   .center(v-if="headMessages.length === 0") ⚠ 無資料
@@ -32,7 +32,7 @@ b-card
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ shortenSubject(item) }}
+      ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.message }}
   template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
@@ -57,15 +57,15 @@ b-card
 <script>
 export default {
   data: () => ({
-    header: 'UPS 狀態',
+    header: 'AD SYNC 狀態',
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadMs: 12 * 60 * 60 * 1000
+    reloadMs: 24 * 60 * 60 * 1000
   }),
   computed: {
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 2)
+      return this.messages.filter((item, idx, arr) => idx < 1)
     },
     today () {
       // e.g. 2021-12-29
@@ -81,9 +81,9 @@ export default {
     light () {
       const now = +new Date()
       if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
-        return 'warning'
+        return 'danger'
       }
-      return this.headMessages[0]?.subject !== this.headMessages[1]?.subject ? 'success' : 'danger'
+      return 'success'
     }
   },
   created () {
@@ -103,7 +103,7 @@ export default {
     },
     popupLogContent (item) {
       this.modal(item.message?.replaceAll('\n', '<br/>'), {
-        title: `${this.header} - ${this.shortenSubject(item)}`,
+        title: `${this.header} - ${item.subject}`,
         size: 'sm',
         html: true
       })
@@ -115,9 +115,10 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'subject',
-          keyword: 'Daily Email from NMC'
+          keyword: 'ad sync'
         })
         .then(({ data }) => {
+          console.log(data)
           if (this.$utils.statusCheck(data.status)) {
             this.messages = [...data.raw]
           } else {

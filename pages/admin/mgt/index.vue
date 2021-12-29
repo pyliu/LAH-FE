@@ -20,6 +20,7 @@ div(v-cloak)
     lah-monitor-board-hacmp
     lah-monitor-board-apserver
     lah-monitor-board-ups
+    lah-monitor-board-adsync
 </template>
 
 <script>
