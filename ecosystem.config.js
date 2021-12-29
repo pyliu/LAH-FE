@@ -52,7 +52,7 @@ module.exports = {
     time: true,
     watch: true,
     ignore_watch: ['[/\\]./', 'node_modules', '*.bat', '.git', './scheduler/db/*', './assets/db/*'],
-    max_memory_restart: '128M',
+    max_memory_restart: '256M',
     env: {
       NODE_ENV: 'production'
     },
