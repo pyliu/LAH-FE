@@ -110,7 +110,6 @@ export default {
     popupLogContent (item) {
       this.modal(item.message?.replaceAll('\n', '<br/>'), {
         title: `${this.header} - ${item.subject}`,
-        size: 'lg',
         html: true
       })
     },

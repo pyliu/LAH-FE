@@ -21,7 +21,7 @@ b-card
         li 目前檢查郵件一天2封，故設定重新整理計時器為半天
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
-      div 🟢 表示一切正常
+      div 🟢 表示一切正常，2組UPS都有回應
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
@@ -32,7 +32,7 @@ b-card
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ item.subject.replace(' Daily Email from NMC.', '') }}
+      ) {{ shortenSubject(item) }}
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.message }}
   template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
@@ -92,6 +92,9 @@ export default {
     this.reload()
   },
   methods: {
+    shortenSubject (item) {
+      return item.subject.replace(' Daily Email from NMC.', '')
+    },
     extractSubject (item) {
       const matched = [...item.message.matchAll(this.regex)][0]
       return `${matched[1]} ${matched[2]}`
@@ -105,8 +108,8 @@ export default {
     },
     popupLogContent (item) {
       this.modal(item.message?.replaceAll('\n', '<br/>'), {
-        title: `${this.header} - ${item.subject}`,
-        size: 'lg',
+        title: `${this.header} - ${this.shortenSubject(item)}`,
+        size: 'sm',
         html: true
       })
     },
