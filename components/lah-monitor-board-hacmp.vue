@@ -17,7 +17,7 @@ b-card
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫 Data Guard 狀態(檢視P8-2、P7-102及hb-114內「Current log sequence」文字是否一樣)
+        li 顯示資料庫 HACMP 狀態
         li 目前檢查郵件一天只有一封，故設定重新整理計時器為一天
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
@@ -25,20 +25,20 @@ b-card
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="headMessages.length === 0") ⚠ 無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  .center(v-if="$utils.empty(headMessage)") ⚠ 無資料
+  div(v-else)
     .d-flex.justify-content-between
       a.truncate-short(
         href="#",
-        @click="popupLogContent(item)",
+        @click="popupLogContent(headMessage)",
         title="顯示詳細記錄"
-      ) {{ item.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
-    .truncate.text-muted.small {{ seqMessage(item) }}
+      ) {{ headMessage.subject }}
+      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(headMessage.timestamp, true)") {{ displayDatetime(headMessage.timestamp) }}
+    .truncate.text-muted.small(v-html="extractedMessage")
   template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
-      size="sm"
       ref="countdown"
+      size="sm"
       icon="sync-alt"
       action="ld-cycle"
       auto-start
@@ -57,18 +57,26 @@ b-card
 <script>
 export default {
   data: () => ({
-    header: '資料庫 Data Guard',
+    header: '資料庫 HACMP',
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadMs: 24 * 60 * 60 * 1000
+    reloadMs: 24 * 60 * 60 * 1000,
+    found: []
   }),
   computed: {
-    headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 3)
+    headMessage () {
+      return this.messages[0]
+    },
+    extractedMessage () {
+      const regex = /\/.+\s+datavg\s+reg_ctl\s+ORAH[A-H]HA1,ORAH[A-H]HA2/gm
+      const message = this.headMessage.message || ''
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      this.found = [...message.matchAll(regex)]
+      return this.found.join('<br/>')
     },
     today () {
-      // e.g. 2021-12-27
+      // e.g. 2021-12-29
       const now = new Date()
       return (
         now.getFullYear() +
@@ -79,16 +87,11 @@ export default {
       )
     },
     light () {
-      const now = +new Date()
-      if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+      if (this.$utils.empty(this.headMessage)) {
         this.$utils.warn(`${this.header} - 狀態未更新`)
         return 'warning'
       }
-      const criteria = this.seqMessage(this.headMessages[0])
-      const ans = this.headMessages.every((item, index, array) => {
-        return criteria === this.seqMessage(item)
-      })
-      return ans ? 'success' : 'danger'
+      return this.found.length === 7 ? 'success' : 'danger'
     }
   },
   created () {
@@ -96,10 +99,6 @@ export default {
     this.reload()
   },
   methods: {
-    seqMessage (item) {
-      const regex = /Current\s+log\s+sequence\s+\d+/gm
-      return [...item.message.matchAll(regex)].join('')
-    },
     truncate (content) {
       return content?.substring(0, 100).replaceAll('\n', '<br/>') + ' ...'
     },
@@ -120,7 +119,7 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'subject',
-          keyword: 'DataGuard'
+          keyword: 'hacmp'
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
