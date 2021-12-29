@@ -17,8 +17,8 @@ b-card
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示 AP Server 備份狀態，每天晚上9點做備份
-        li 目前檢查郵件一天只有一封，故設定重新整理計時器為一天
+        li 顯示 UPS 狀態
+        li 目前檢查郵件一天2封，故設定重新整理計時器為半天
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -32,7 +32,7 @@ b-card
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ extractSubject(item) }}
+      ) {{ item.subject.replace(' Daily Email from NMC.', '') }}
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.message }}
   template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
@@ -57,16 +57,16 @@ b-card
 <script>
 export default {
   data: () => ({
-    header: 'AP Server 備份',
+    header: 'UPS 狀態',
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadMs: 24 * 60 * 60 * 1000,
+    reloadMs: 12 * 60 * 60 * 1000,
     regex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm
   }),
   computed: {
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 8)
+      return this.messages.filter((item, idx, arr) => idx < 2)
     },
     today () {
       // e.g. 2021-12-29
@@ -84,11 +84,7 @@ export default {
       if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
         return 'warning'
       }
-      const ans = this.messages.every((item) => {
-        const matched = [...item.message.matchAll(this.regex)][0]
-        return matched && matched[2] === 'successful'
-      })
-      return ans ? 'success' : 'danger'
+      return this.headMessages[0]?.subject !== this.headMessages[1]?.subject ? 'success' : 'danger'
     }
   },
   created () {
@@ -121,7 +117,7 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'subject',
-          keyword: 'AP Server'
+          keyword: 'Daily Email from NMC'
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {

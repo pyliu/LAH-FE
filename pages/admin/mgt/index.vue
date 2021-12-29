@@ -19,6 +19,7 @@ div(v-cloak)
     lah-monitor-board-dataguard
     lah-monitor-board-hacmp
     lah-monitor-board-apserver
+    lah-monitor-board-ups
 </template>
 
 <script>
