@@ -1,5 +1,8 @@
 export default {
   name: 'lahMonitorBoardBase',
+  data: () => ({
+    header: '等著被覆寫的資料'
+  }),
   computed: {
     today () {
       // e.g. 2021-12-29
@@ -37,6 +40,7 @@ export default {
         }
       }), {
         title: `${this.header} - ${days}天內訊息`,
+        size: 'lg',
         html: true
       })
     }
