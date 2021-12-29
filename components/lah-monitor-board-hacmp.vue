@@ -16,6 +16,14 @@ b-card
         title="重新讀取"
       )
       lah-button(
+        icon="external-link-alt",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        @click="popupMessages('subject', 'hacmp', 7)",
+        title="讀取7天內訊息"
+      )
+      lah-button(
         icon="question",
         action="breath",
         variant="outline-success",
@@ -64,7 +72,9 @@ b-card
 </template>
 
 <script>
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
 export default {
+  mixins: [lahMonitorBoardBase],
   props: {
     footer: { type: Boolean, default: false }
   },
@@ -87,17 +97,6 @@ export default {
       this.found = [...message.matchAll(regex)]
       return this.found.join('<br/>')
     },
-    today () {
-      // e.g. 2021-12-29
-      const now = new Date()
-      return (
-        now.getFullYear() +
-        '-' +
-        ('0' + (now.getMonth() + 1)).slice(-2) +
-        '-' +
-        ('0' + now.getDate()).slice(-2)
-      )
-    },
     light () {
       if (this.$utils.empty(this.headMessage)) {
         return 'warning'
@@ -110,20 +109,6 @@ export default {
     this.reload()
   },
   methods: {
-    truncate (content) {
-      return content?.substring(0, 100).replaceAll('\n', '<br/>') + ' ...'
-    },
-    displayDatetime (ts) {
-      const fullDt = this.$utils.tsToAdDateStr(ts, true)
-      return fullDt.replace(this.today, '')
-    },
-    popupLogContent (item) {
-      this.modal(item.message?.replaceAll('\n', '<br/>'), {
-        title: `${this.header} - ${item.subject}`,
-        size: 'lg',
-        html: true
-      })
-    },
     reload () {
       this.isBusy = true
       // to update untaken data in sqlite db
