@@ -17,8 +17,6 @@ div(v-cloak)
       h6 提供顯示個監控標的狀態之功能
   b-card-group(columns)
     lah-monitor-board-dataguard
-    lah-monitor-board-dataguard
-    lah-monitor-board-dataguard
 </template>
 
 <script>

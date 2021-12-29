@@ -15,15 +15,18 @@ b-card
         @click="showModalById(modalId)",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 說明`")
-      h6 顯示資料庫 Data Guard 狀態
+    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+      ul
+        li 顯示資料庫 Data Guard 狀態(檢視P8-2、P7-102及hb-114內「Current log sequence」文字是否一樣)
+        li 目前檢查郵件一天只有一封，故設定重新整理計時器為一天
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  ul: li(v-for="(item, idx) in headMessages")
+  .center(v-if="headMessages.length === 0") 無資料
+  ul(v-else): li(v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between
       a.truncate-short(
         href="#",
@@ -58,7 +61,7 @@ export default {
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadMs: 15 * 60 * 1000
+    reloadMs: 24 * 60 * 60 * 1000
   }),
   computed: {
     headMessages () {
