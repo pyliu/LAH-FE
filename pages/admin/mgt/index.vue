@@ -18,6 +18,7 @@ div(v-cloak)
   b-card-group(columns)
     lah-monitor-board-dataguard
     lah-monitor-board-hacmp
+    lah-monitor-board-apserver
 </template>
 
 <script>
