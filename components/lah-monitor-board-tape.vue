@@ -7,6 +7,15 @@ b-card
       size="sm"
     )
       lah-button(
+        icon="sync-alt",
+        action="ld-cycle",
+        variant="outline-secondary",
+        no-border,
+        no-icon-gutter,
+        @click="reload",
+        title="重新讀取"
+      )
+      lah-button(
         icon="question",
         action="breath",
         variant="outline-success",
