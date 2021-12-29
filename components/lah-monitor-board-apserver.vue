@@ -32,9 +32,9 @@ b-card
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ item.subject }}
+      ) {{ extractSubject(item) }}
       lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
-    .truncate.text-muted.small {{ matchMessage(item) }}
+    .truncate.text-muted.small {{ item.message }}
   template(#footer): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       size="sm"
@@ -61,7 +61,8 @@ export default {
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadMs: 24 * 60 * 60 * 1000
+    reloadMs: 24 * 60 * 60 * 1000,
+    regex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm
   }),
   computed: {
     headMessages () {
@@ -84,7 +85,11 @@ export default {
         this.$utils.warn(`${this.header} - 狀態未更新`)
         return 'warning'
       }
-      return this.headMessages.length === 8 ? 'success' : 'danger'
+      const ans = this.messages.every((item) => {
+        const matched = [...item.message.matchAll(this.regex)][0]
+        return matched[2] === 'successful'
+      })
+      return ans ? 'success' : 'danger'
     }
   },
   created () {
@@ -92,9 +97,9 @@ export default {
     this.reload()
   },
   methods: {
-    matchMessage (item) {
-      const regex = /AP\s+Server\s+.+\s+files\s+backup\s+successful/gm
-      return [...item.message.matchAll(regex)].join('')
+    extractSubject (item) {
+      const matched = [...item.message.matchAll(this.regex)][0]
+      return `${matched[1]} ${matched[2]}`
     },
     truncate (content) {
       return content?.substring(0, 100).replaceAll('\n', '<br/>') + ' ...'
@@ -112,6 +117,7 @@ export default {
     },
     reload () {
       this.isBusy = true
+      this.succeed = 0
       // to update untaken data in sqlite db
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
