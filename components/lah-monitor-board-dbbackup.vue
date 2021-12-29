@@ -17,12 +17,12 @@ b-card
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示 AD SYNC 狀態，每天8點同步
-        li 目前檢查郵件一天1封，故設定重新整理計時器為1天
+        li 顯示資料庫備份狀態(選項2、4、5)
+        li 備份選項5更新較頻繁，故設定重新整理計時器為15分鐘
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      //- div 🟡 表示狀態未更新
+      div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
   .center(v-if="headMessages.length === 0") ⚠ 無資料
@@ -57,15 +57,18 @@ b-card
 <script>
 export default {
   data: () => ({
-    header: 'AD SYNC 狀態',
+    header: '資料庫備份狀態',
     modalId: 'tmp-id',
     messages: [],
     updatedTimestamp: '',
-    reloadMs: 24 * 60 * 60 * 1000
+    reloadMs: 15 * 60 * 60 * 1000
   }),
   computed: {
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 1)
+      const opt2 = this.messages.find(item => item.subject.includes('BACKUP OPTION 2'))
+      const opt4 = this.messages.find(item => item.subject.includes('BACKUP OPTION 4'))
+      const opt5 = this.messages.find(item => item.subject.includes('BACKUP OPTION 5'))
+      return [opt2, opt4, opt5].filter(item => item)
     },
     today () {
       // e.g. 2021-12-29
@@ -81,6 +84,9 @@ export default {
     light () {
       const now = +new Date()
       if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+        return 'warning'
+      }
+      if (this.headMessages.length !== 3) {
         return 'danger'
       }
       return 'success'
@@ -91,9 +97,6 @@ export default {
     this.reload()
   },
   methods: {
-    shortenSubject (item) {
-      return item.subject.replace(' Daily Email from NMC.', '')
-    },
     truncate (content) {
       return content?.substring(0, 100).replaceAll('\n', '<br/>') + ' ...'
     },
@@ -104,7 +107,7 @@ export default {
     popupLogContent (item) {
       this.modal(item.message?.replaceAll('\n', '<br/>'), {
         title: `${this.header} - ${item.subject}`,
-        size: 'sm',
+        size: 'lg',
         html: true
       })
     },
@@ -115,7 +118,7 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'subject',
-          keyword: 'ad sync'
+          keyword: 'BACKUP OPTION'
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
