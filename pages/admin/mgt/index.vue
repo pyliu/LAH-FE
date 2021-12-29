@@ -17,12 +17,14 @@ div(v-cloak)
       h6 提供顯示個監控標的狀態之功能
   b-card-group(columns)
     lah-monitor-board-dataguard
-    lah-monitor-board-hacmp
-    lah-monitor-board-apserver
     lah-monitor-board-ups
-    lah-monitor-board-adsync
+    lah-monitor-board-vmclone
+    lah-monitor-board-hacmp
     lah-monitor-board-dbbackup
     lah-monitor-board-tape
+    lah-monitor-board-apserver
+    lah-monitor-board-testdb
+    lah-monitor-board-adsync
 </template>
 
 <script>
