@@ -50,7 +50,7 @@ b-card
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
       ) {{ item.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
+      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)", :variant="isToday(item.timestamp) ? 'success' : 'muted'") {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.message }}
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(

@@ -22,6 +22,10 @@ export default {
     truncate (content) {
       return content?.substring(0, 100).replaceAll('\n', '<br/>') + ' ...'
     },
+    isToday (ts) {
+      const fullDt = this.$utils.tsToAdDateStr(ts, true)
+      return this.today === fullDt.split(' ')[0]
+    },
     displayDatetime (ts) {
       const fullDt = this.$utils.tsToAdDateStr(ts, true)
       return fullDt.replace(this.today, '')
