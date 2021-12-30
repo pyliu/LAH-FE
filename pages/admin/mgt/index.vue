@@ -18,15 +18,15 @@ div(v-cloak)
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
   b-card-group(columns)
-    lah-monitor-board-dataguard
-    lah-monitor-board-testdb
-    lah-monitor-board-vmclone
-    lah-monitor-board-hacmp
-    lah-monitor-board-dbbackup
-    lah-monitor-board-tape
-    lah-monitor-board-apserver.card-body
-    lah-monitor-board-ups
-    lah-monitor-board-adsync
+    lah-monitor-board-dataguard.card-body-fixed-height
+    lah-monitor-board-testdb.card-body-fixed-height
+    lah-monitor-board-vmclone.card-body-fixed-height
+    lah-monitor-board-hacmp.card-body-fixed-height
+    lah-monitor-board-dbbackup.card-body-fixed-height
+    lah-monitor-board-tape.card-body-fixed-height
+    lah-monitor-board-apserver.card-body-fixed-height
+    lah-monitor-board-ups.card-body-fixed-height
+    lah-monitor-board-adsync.card-body-fixed-height
 </template>
 
 <script>
@@ -40,10 +40,11 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.card-body {
-  padding: 0;
-  height: 250px !important;
-  overflow: auto !important;
+<style lang="scss">
+.card-body-fixed-height {
+  .card-body {
+    height: 200px;
+    overflow: auto;
+  }
 }
 </style>
