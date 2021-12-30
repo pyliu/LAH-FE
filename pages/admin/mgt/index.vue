@@ -14,16 +14,18 @@ div(v-cloak)
             title="說明"
           )
     lah-help-modal(:modal-id="'help-modal'", size="md")
-      h6 提供顯示各監控標的狀態之功能
+      ul
+        li 提供顯示各監控標的狀態之功能
+        li 預設監控顯示一天內資料
   b-card-group(columns)
     lah-monitor-board-dataguard
-    lah-monitor-board-ups
+    lah-monitor-board-testdb
     lah-monitor-board-vmclone
     lah-monitor-board-hacmp
     lah-monitor-board-dbbackup
     lah-monitor-board-tape
     lah-monitor-board-apserver
-    lah-monitor-board-testdb
+    lah-monitor-board-ups
     lah-monitor-board-adsync
 </template>
 
