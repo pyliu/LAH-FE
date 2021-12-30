@@ -3,9 +3,7 @@ b-card
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
-    b-button-group.ml-auto(
-      size="sm"
-    )
+    b-button-group.ml-auto(size="sm")
       lah-button(
         icon="sync-alt",
         action="ld-cycle",
@@ -50,22 +48,27 @@ b-card
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
       ) {{ item.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)", :variant="isToday(item.timestamp) ? 'success' : 'muted'") {{ displayDatetime(item.timestamp) }}
+      lah-fa-icon.small.my-auto.text-nowrap(
+        icon="clock",
+        regular,
+        :title="$utils.tsToAdDateStr(item.timestamp, true)",
+        :variant="isToday(item.timestamp) ? 'success' : 'muted'"
+      ) {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.message }}
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
-      size="sm"
-      ref="countdown"
-      icon="sync-alt"
-      action="ld-cycle"
-      auto-start
-      title="立即重新讀取"
-      variant="outline-secondary"
-      badge-variant="secondary"
-      :milliseconds="reloadMs"
-      :disabled="isBusy"
-      :busy="isBusy"
-      @end="reload"
+      size="sm",
+      ref="countdown",
+      icon="sync-alt",
+      action="ld-cycle",
+      auto-start,
+      title="立即重新讀取",
+      variant="outline-secondary",
+      badge-variant="secondary",
+      :milliseconds="reloadMs",
+      :disabled="isBusy",
+      :busy="isBusy",
+      @end="reload",
       @click="reload"
     )
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updatedTimestamp }}
@@ -90,14 +93,23 @@ export default {
   }),
   computed: {
     headMessages () {
-      const opt2 = this.messages.find(item => item.subject.includes('BACKUP OPTION 2'))
-      const opt4 = this.messages.find(item => item.subject.includes('BACKUP OPTION 4'))
-      const opt5 = this.messages.find(item => item.subject.includes('BACKUP OPTION 5'))
+      const opt2 = this.messages.find(item =>
+        item.subject.includes('BACKUP OPTION 2')
+      )
+      const opt4 = this.messages.find(item =>
+        item.subject.includes('BACKUP OPTION 4')
+      )
+      const opt5 = this.messages.find(item =>
+        item.subject.includes('BACKUP OPTION 5')
+      )
       return [opt2, opt4, opt5].filter(item => item)
     },
     light () {
       const now = +new Date()
-      if (this.headMessages.length === 0 || (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+      if (
+        this.headMessages.length === 0 ||
+        now - this.headMessages[0].timestamp * 1000 > 24 * 60 * 60 * 1000
+      ) {
         return 'warning'
       }
       if (this.headMessages.length !== 3) {

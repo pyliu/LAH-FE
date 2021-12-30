@@ -3,9 +3,7 @@ b-card
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
-    b-button-group.ml-auto(
-      size="sm"
-    )
+    b-button-group.ml-auto(size="sm")
       lah-button(
         icon="sync-alt",
         action="ld-cycle",
@@ -50,22 +48,27 @@ b-card
         @click="popupLogContent(headMessage)",
         title="顯示詳細記錄"
       ) {{ headMessage.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(headMessage.timestamp, true)", :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'") {{ displayDatetime(headMessage.timestamp) }}
+      lah-fa-icon.small.my-auto.text-nowrap(
+        icon="clock",
+        regular,
+        :title="$utils.tsToAdDateStr(headMessage.timestamp, true)",
+        :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'"
+      ) {{ displayDatetime(headMessage.timestamp) }}
     .truncate.text-muted.small(v-html="extractedMessage")
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
-      ref="countdown"
-      size="sm"
-      icon="sync-alt"
-      action="ld-cycle"
-      auto-start
-      title="立即重新讀取"
-      variant="outline-secondary"
-      badge-variant="secondary"
-      :milliseconds="reloadMs"
-      :disabled="isBusy"
-      :busy="isBusy"
-      @end="reload"
+      ref="countdown",
+      size="sm",
+      icon="sync-alt",
+      action="ld-cycle",
+      auto-start,
+      title="立即重新讀取",
+      variant="outline-secondary",
+      badge-variant="secondary",
+      :milliseconds="reloadMs",
+      :disabled="isBusy",
+      :busy="isBusy",
+      @end="reload",
       @click="reload"
     )
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updatedTimestamp }}
