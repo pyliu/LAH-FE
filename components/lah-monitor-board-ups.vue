@@ -73,7 +73,10 @@ b-card
 
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+
 export default {
+  components: { lahMonitorBoardRaw },
   mixins: [lahMonitorBoardBase],
   props: {
     footer: { type: Boolean, default: false }

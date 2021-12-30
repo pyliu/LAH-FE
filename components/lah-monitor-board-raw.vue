@@ -1,14 +1,21 @@
 <template lang="pug">
 b-card
+  .d-flex.justify-content-between.mb-1
+    div
+    b-input-group.ml-auto(size="sm", append="天", style="max-width: 80px"): b-input(v-model="daysBefore", type="number", min="1", max="90")
   .center(v-if="messages.length === 0") ⚠ 無資料
-  ul(v-else): li(v-for="(item, idx) in messages")
+  ol(v-else): li(v-for="(item, idx) in messages")
     .d-flex.justify-content-between.font-weight-bold
       a.truncate-short(
         href="#",
         @click="popupLogContent(item)",
         :title="item.subject"
       ) {{ item.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(icon="clock", regular, :title="$utils.tsToAdDateStr(item.timestamp, true)") {{ displayDatetime(item.timestamp) }}
+      lah-fa-icon.small.my-auto.text-nowrap(
+        icon="clock",
+        regular,
+        :title="$utils.tsToAdDateStr(item.timestamp, true)"
+      ) {{ displayDatetime(item.timestamp) }}
     .truncate.text-muted.small {{ item.message }}
 </template>
 
@@ -22,12 +29,22 @@ export default {
     days: { type: Number, default: 1 }
   },
   data: () => ({
+    daysBefore: 1,
     messages: []
   }),
+  watch: {
+    daysBefore (val) {
+      this._reload()
+    }
+  },
   created () {
-    this.reload()
+    this._reload = this.$utils.debounce(this.reload, 1000)
+    this.daysBefore = this.days
   },
   methods: {
+    _reload () {
+      /* placeholder for debounced reload method */
+    },
     reload () {
       this.isBusy = true
       // to update untaken data in sqlite db
@@ -35,7 +52,7 @@ export default {
         .post(this.$consts.API.JSON.MONITOR, {
           type: this.queryType,
           keyword: this.keyword,
-          days: this.days
+          days: this.daysBefore
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {

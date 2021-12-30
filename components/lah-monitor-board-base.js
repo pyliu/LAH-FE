@@ -1,5 +1,7 @@
+// import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 export default {
   name: 'lahMonitorBoardBase',
+  // components: { lahMonitorBoardRaw },
   data: () => ({
     header: '等著被覆寫的資料'
   }),
@@ -39,7 +41,7 @@ export default {
           days
         }
       }), {
-        title: `${this.header} - ${days}天內訊息`,
+        title: `${this.header} - 顯示區間內訊息`,
         size: 'lg',
         html: true
       })
