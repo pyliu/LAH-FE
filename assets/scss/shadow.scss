@@ -3,7 +3,6 @@
     filter: drop-shadow($first $first $second rgba(0, 0, 0, $opacity))
 }
 
-
 .lah-shadow-xl {
     @include shadow-level(9px, 10.5px, 0.7)
   }

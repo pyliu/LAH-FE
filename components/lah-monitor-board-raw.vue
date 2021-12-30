@@ -74,22 +74,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@mixin truncateBase() {
-  width: calc((100vw - 300px) / 3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.truncate {
-  @include truncateBase();
-  p {
-    margin-bottom: 0px !important;
-  }
-}
-.truncate-short {
-  @include truncateBase();
-  width: calc((100vw - 350px) / 4);
-}
 ul {
   padding-left: 21.25px;
 }

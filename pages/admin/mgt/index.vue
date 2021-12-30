@@ -24,7 +24,7 @@ div(v-cloak)
     lah-monitor-board-hacmp
     lah-monitor-board-dbbackup
     lah-monitor-board-tape
-    lah-monitor-board-apserver
+    lah-monitor-board-apserver.card-body
     lah-monitor-board-ups
     lah-monitor-board-adsync
 </template>
@@ -41,4 +41,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.card-body {
+  padding: 0;
+  height: 250px !important;
+  overflow: auto !important;
+}
 </style>
