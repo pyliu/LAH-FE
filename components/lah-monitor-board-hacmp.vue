@@ -137,6 +137,8 @@ export default {
           if (this.$refs.countdown) {
             this.$refs.countdown.setCountdown(this.reloadMs)
             this.$refs.countdown.startCountdown()
+          } else {
+            this.timeout(() => this.reload(), this.reloadMs)
           }
         })
     }
