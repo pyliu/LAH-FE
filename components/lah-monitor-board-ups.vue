@@ -90,7 +90,7 @@ export default {
   }),
   computed: {
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 2)
+      return this.messages.filter((item, idx, arr) => idx < 4)
     },
     light () {
       const now = +new Date()
@@ -115,7 +115,8 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'subject',
-          keyword: 'Daily Email from NMC'
+          keyword: 'Daily Email from NMC',
+          days: 2
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {

@@ -90,7 +90,7 @@ export default {
   }),
   computed: {
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 1)
+      return this.messages.filter((item, idx, arr) => idx < 3)
     },
     light () {
       const now = +new Date()
@@ -115,7 +115,8 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'subject',
-          keyword: 'ad sync'
+          keyword: 'ad sync',
+          days: 3
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
