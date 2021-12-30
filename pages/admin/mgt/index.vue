@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto 地政監控儀錶板
+          .my-auto {{ site }} 智慧監控儀錶板
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -31,7 +31,7 @@ div(v-cloak)
 export default {
   middleware: ['isAdmin'],
   head: {
-    title: '地政監控儀錶板-桃園市地政局'
+    title: '智慧監控儀錶板-桃園市地政局'
   },
   fetchOnServer: true,
   methods: {}
