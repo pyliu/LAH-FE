@@ -126,7 +126,7 @@ b-sidebar#lah-sidebar(
         跨所伺服器監控面板
       li(v-if="authority.isAdmin"): nuxt-link(to="/admin/mgt").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'diagnoses']", size="lg")]
-        地政監控儀錶板
+        {{site}} 智慧監控儀錶板
       li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
         #[font-awesome-icon.fixed-width(:icon="['fab', 'watchman-monitoring']", size="lg")]
         同步異動監控
