@@ -14,7 +14,7 @@ div(v-cloak)
             title="說明"
           )
     lah-help-modal(:modal-id="'help-modal'", size="md")
-      h6 提供顯示個監控標的狀態之功能
+      h6 提供顯示各監控標的狀態之功能
   b-card-group(columns)
     lah-monitor-board-dataguard
     lah-monitor-board-ups
