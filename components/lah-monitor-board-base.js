@@ -1,7 +1,6 @@
-// import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 export default {
   name: 'lahMonitorBoardBase',
-  // components: { lahMonitorBoardRaw },
+  fetchOnServer: false,
   data: () => ({
     header: '等著被覆寫的資料',
     messages: [],
@@ -54,6 +53,8 @@ export default {
     },
     load (type, keyword, days = 1) {
       return new Promise((resolve, reject) => {
+        this.messages.length = 0
+        this.isBusy = true
         this.$axios
           .post(this.$consts.API.JSON.MONITOR, {
             type,
@@ -74,6 +75,7 @@ export default {
           })
           .finally(() => {
             this.updated = this.$utils.now().replace(this.today, '')
+            this.isBusy = false
           })
       })
     }
