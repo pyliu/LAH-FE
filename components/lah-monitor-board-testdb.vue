@@ -10,7 +10,7 @@ b-card
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="reload",
+        @click="$fetch",
         title="重新讀取"
       )
       lah-button(
@@ -40,7 +40,7 @@ b-card
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="headMessages.length === 0") ⚠ 無資料
+  .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       a.truncate-short(
@@ -68,10 +68,10 @@ b-card
       :milliseconds="reloadMs",
       :disabled="isBusy",
       :busy="isBusy",
-      @end="reload",
-      @click="reload"
+      @end="$fetch",
+      @click="$fetch"
     )
-    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updatedTimestamp }}
+    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
 <script>
@@ -87,62 +87,38 @@ export default {
   data: () => ({
     header: '測試資料庫匯入作業',
     modalId: 'tmp-id',
-    messages: [],
-    updatedTimestamp: '',
+    queryDays: 3,
     reloadMs: 24 * 60 * 60 * 1000
   }),
+  fetch () {
+    this.load('subject', 'test system imp state', this.queryDays).then((data) => {
+      // successful loaded
+    }).catch((err) => {
+      this.$utils.warn(err)
+    }).finally(() => {
+      // set auto reloading timeout
+      if (this.$refs.countdown) {
+        this.$refs.countdown.setCountdown(this.reloadMs)
+        this.$refs.countdown.startCountdown()
+      } else {
+        this.timeout(() => this.$fetch(), this.reloadMs)
+      }
+    })
+  },
   computed: {
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
     },
     light () {
-      const now = +new Date()
-      if (
-        this.headMessages.length === 0 ||
-        now - this.headMessages[0].timestamp * 1000 > 24 * 60 * 60 * 1000
-      ) {
-        return 'danger'
+      if (this.headMessages.length === 0) {
+        return 'warning'
       }
-      return 'success'
+      const now = +new Date()
+      return (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000 ? 'danger' : 'success'
     }
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.reload()
-  },
-  methods: {
-    reload () {
-      this.isBusy = true
-      this.succeed = 0
-      // to update untaken data in sqlite db
-      this.$axios
-        .post(this.$consts.API.JSON.MONITOR, {
-          type: 'subject',
-          keyword: 'test system imp state',
-          days: 3
-        })
-        .then(({ data }) => {
-          if (this.$utils.statusCheck(data.status)) {
-            this.messages = [...data.raw]
-          } else {
-            this.warning(data.message)
-          }
-        })
-        .catch((err) => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        })
-        .finally(() => {
-          this.isBusy = false
-          this.updatedTimestamp = this.$utils.now().replace(this.today, '')
-          if (this.$refs.countdown) {
-            this.$refs.countdown.setCountdown(this.reloadMs)
-            this.$refs.countdown.startCountdown()
-          } else {
-            this.timeout(() => this.reload(), this.reloadMs)
-          }
-        })
-    }
   }
 }
 </script>

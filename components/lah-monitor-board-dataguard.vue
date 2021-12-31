@@ -40,7 +40,7 @@ b-card
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="headMessages.length === 0") ⚠ 無資料
+  .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       a.truncate-short(
@@ -87,17 +87,15 @@ export default {
   data: () => ({
     header: '資料庫 Data Guard',
     modalId: 'tmp-id',
-    queryDays: 3,
+    queryDays: 1,
     reloadMs: 24 * 60 * 60 * 1000
   }),
   fetch () {
-    this.isBusy = true
     this.load('subject', 'DataGuard', this.queryDays).then((data) => {
       // successful loaded
     }).catch((err) => {
       this.$utils.warn(err)
     }).finally(() => {
-      this.isBusy = false
       // set auto reloading timeout
       if (this.$refs.countdown) {
         this.$refs.countdown.setCountdown(this.reloadMs)

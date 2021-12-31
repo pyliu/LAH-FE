@@ -10,7 +10,7 @@ b-card
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="reload",
+        @click="$fetch",
         title="重新讀取"
       )
       lah-button(
@@ -40,7 +40,7 @@ b-card
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="$utils.empty(headMessage)") ⚠ 無資料
+  .center(v-if="$utils.empty(headMessage)") ⚠ {{ queryDays }}日內無資料
   div(v-else)
     .d-flex.justify-content-between.font-weight-bold
       a.truncate-short(
@@ -68,10 +68,10 @@ b-card
       :milliseconds="reloadMs",
       :disabled="isBusy",
       :busy="isBusy",
-      @end="reload",
-      @click="reload"
+      @end="$fetch",
+      @click="$fetch"
     )
-    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updatedTimestamp }}
+    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
 <script>
@@ -87,11 +87,25 @@ export default {
   data: () => ({
     header: '資料庫 HACMP',
     modalId: 'tmp-id',
-    messages: [],
-    updatedTimestamp: '',
+    queryDays: 1,
     reloadMs: 24 * 60 * 60 * 1000,
     found: []
   }),
+  fetch () {
+    this.load('subject', 'hacmp', this.queryDays).then((data) => {
+      // successful loaded
+    }).catch((err) => {
+      this.$utils.warn(err)
+    }).finally(() => {
+      // set auto reloading timeout
+      if (this.$refs.countdown) {
+        this.$refs.countdown.setCountdown(this.reloadMs)
+        this.$refs.countdown.startCountdown()
+      } else {
+        this.timeout(() => this.$fetch(), this.reloadMs)
+      }
+    })
+  },
   computed: {
     headMessage () {
       return this.messages[0]
@@ -112,39 +126,6 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.reload()
-  },
-  methods: {
-    reload () {
-      this.isBusy = true
-      // to update untaken data in sqlite db
-      this.$axios
-        .post(this.$consts.API.JSON.MONITOR, {
-          type: 'subject',
-          keyword: 'hacmp'
-        })
-        .then(({ data }) => {
-          if (this.$utils.statusCheck(data.status)) {
-            this.messages = [...data.raw]
-          } else {
-            this.warning(data.message)
-          }
-        })
-        .catch((err) => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        })
-        .finally(() => {
-          this.isBusy = false
-          this.updatedTimestamp = this.$utils.now().replace(this.today, '')
-          if (this.$refs.countdown) {
-            this.$refs.countdown.setCountdown(this.reloadMs)
-            this.$refs.countdown.startCountdown()
-          } else {
-            this.timeout(() => this.reload(), this.reloadMs)
-          }
-        })
-    }
   }
 }
 </script>
