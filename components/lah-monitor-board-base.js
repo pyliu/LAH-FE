@@ -3,7 +3,9 @@ export default {
   name: 'lahMonitorBoardBase',
   // components: { lahMonitorBoardRaw },
   data: () => ({
-    header: '等著被覆寫的資料'
+    header: '等著被覆寫的資料',
+    messages: [],
+    updated: ''
   }),
   computed: {
     today () {
@@ -48,6 +50,33 @@ export default {
         title: `${this.header} - 顯示區間內訊息`,
         size: 'lg',
         html: true
+      })
+    },
+    load (type, keyword, days = 1) {
+      return new Promise((resolve, reject) => {
+        this.isBusy = true
+        this.$axios
+          .post(this.$consts.API.JSON.MONITOR, {
+            type,
+            keyword,
+            days
+          })
+          .then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              this.messages = [...data.raw]
+            } else {
+              this.$utils.warn(data.message)
+            }
+            resolve(data)
+          })
+          .catch((err) => {
+            reject(new Error(err.message))
+            this.$utils.error(err)
+          })
+          .finally(() => {
+            this.isBusy = false
+            this.updated = this.$utils.now().replace(this.today, '')
+          })
       })
     }
   }

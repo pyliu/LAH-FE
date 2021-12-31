@@ -10,7 +10,7 @@ b-card
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="reload",
+        @click="$fetch",
         title="重新讀取"
       )
       lah-button(
@@ -54,7 +54,7 @@ b-card
         :title="$utils.tsToAdDateStr(item.timestamp, true)",
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
       ) {{ displayDatetime(item.timestamp) }}
-    .truncate.text-muted.small {{ seqMessage(item) }}
+    .truncate.text-muted.small {{ extractSequenceLog(item) }}
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       size="sm",
@@ -68,10 +68,10 @@ b-card
       :milliseconds="reloadMs",
       :disabled="isBusy",
       :busy="isBusy",
-      @end="reload",
-      @click="reload"
+      @end="$fetch",
+      @click="$fetch"
     )
-    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updatedTimestamp }}
+    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
 <script>
@@ -87,10 +87,24 @@ export default {
   data: () => ({
     header: '資料庫 Data Guard',
     modalId: 'tmp-id',
-    messages: [],
-    updatedTimestamp: '',
+    queryDays: 3,
     reloadMs: 24 * 60 * 60 * 1000
   }),
+  fetch () {
+    this.load('subject', 'DataGuard', this.queryDays).then((data) => {
+      // successful loaded
+    }).catch((err) => {
+      this.$utils.warn(err)
+    }).finally(() => {
+      // set auto reloading timeout
+      if (this.$refs.countdown) {
+        this.$refs.countdown.setCountdown(this.reloadMs)
+        this.$refs.countdown.startCountdown()
+      } else {
+        this.timeout(() => this.$fetch(), this.reloadMs)
+      }
+    })
+  },
   computed: {
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
@@ -103,51 +117,20 @@ export default {
       ) {
         return 'warning'
       }
-      const criteria = this.seqMessage(this.headMessages[0])
+      const criteria = this.extractSequenceLog(this.headMessages[0])
       const ans = this.headMessages.every((item, index, array) => {
-        return criteria === this.seqMessage(item)
+        return criteria === this.extractSequenceLog(item)
       })
       return ans ? 'success' : 'danger'
     }
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.reload()
   },
   methods: {
-    seqMessage (item) {
+    extractSequenceLog (item) {
       const regex = /Current\s+log\s+sequence\s+\d+/gm
       return [...item.message.matchAll(regex)].join('')
-    },
-    reload () {
-      this.isBusy = true
-      // to update untaken data in sqlite db
-      this.$axios
-        .post(this.$consts.API.JSON.MONITOR, {
-          type: 'subject',
-          keyword: 'DataGuard'
-        })
-        .then(({ data }) => {
-          if (this.$utils.statusCheck(data.status)) {
-            this.messages = [...data.raw]
-          } else {
-            this.warning(data.message)
-          }
-        })
-        .catch((err) => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        })
-        .finally(() => {
-          this.isBusy = false
-          this.updatedTimestamp = this.$utils.now().replace(this.today, '')
-          if (this.$refs.countdown) {
-            this.$refs.countdown.setCountdown(this.reloadMs)
-            this.$refs.countdown.startCountdown()
-          } else {
-            this.timeout(() => this.reload(), this.reloadMs)
-          }
-        })
     }
   }
 }
