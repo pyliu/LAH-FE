@@ -43,7 +43,7 @@ b-card
   .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
-      a.truncate-short(
+      a.truncate(
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"

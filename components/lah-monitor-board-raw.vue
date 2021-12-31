@@ -6,7 +6,7 @@ b-card
   .center(v-if="messages.length === 0") ⚠ 無資料
   ol(v-else): li(v-for="(item, idx) in messages")
     .d-flex.justify-content-between.font-weight-bold
-      a.truncate-short(
+      a.truncate(
         href="#",
         @click="popupLogContent(item)",
         :title="item.subject"
@@ -74,7 +74,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-ul {
-  padding-left: 21.25px;
-}
 </style>

@@ -43,7 +43,7 @@ b-card
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ queryDays }}日內無資料
   div(v-else)
     .d-flex.justify-content-between.font-weight-bold
-      a.truncate-short(
+      a.truncate(
         href="#",
         @click="popupLogContent(headMessage)",
         title="顯示詳細記錄"
