@@ -1,77 +1,107 @@
 <template lang="pug">
-  div: client-only
-    lah-header: .d-flex.justify-content-between.w-100
+div: client-only
+  lah-header: .d-flex.justify-content-between.w-100
+    .d-flex
+      .my-auto 測試頁面
+      lah-button(
+        icon="info",
+        action="bounce",
+        variant="outline-success",
+        no-border,
+        no-icon-gutter,
+        @click="showModalById('help-modal')",
+        title="說明"
+      )
+      lah-help-modal(:modal-id="'help-modal'"): ul
+        li.text-danger(v-if="websocket === undefined") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+        li WEBSOCKET_HOST：伺服器IP
+        li WEBSOCKET_PORT：伺服器PORT
+        li 修改前端伺服器之「.env」檔案已變更上開設定值
+    .d-flex
+  b-card-group(columns)
+    b-card
+      template(#header) 設定檔測試
+      div {{ openNewsData }}
+      p {{ $config.baseURL }}
+      b-table(striped, hover, :items="configs")
+    b-card.p-2(no-body)
+      template(#header) WEBSOCKET測試
+      b-input-group.mb-2
+        b-input(v-model="text", @keyup.enter="send")
+        lah-button(@click="send", icon="telegram-plane", brand) 傳送
+      .msg(ref="box", v-if="websocket !== undefined")
+        .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
+          p(v-if="item.type === 'remote'") {{ item.text }}
+          .time.s-50.mx-1.text-muted {{ item.time }}
+          p(v-if="item.type === 'mine'") {{ item.text }}
+      h5.center(v-else): lah-fa-icon(
+        icon="exclamation-circle",
+        variant="primary"
+      ).
+        請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+    b-card
+      template(#header) 儲存BLOB影像測試
       .d-flex
-        .my-auto 測試頁面
-        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'"): ul
-          li.text-danger(v-if="websocket === undefined") 請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
-          li WEBSOCKET_HOST：伺服器IP
-          li WEBSOCKET_PORT：伺服器PORT
-          li 修改前端伺服器之「.env」檔案已變更上開設定值
-      .d-flex
-    b-card-group(columns)
-      b-card
-        template(#header) 設定檔測試
-        div {{ openNewsData }}
-        p {{ $config.baseURL }}
-        b-table( striped hover :items="configs" )
-      b-card.p-2(no-body)
-        template(#header) WEBSOCKET測試
-        b-input-group.mb-2
-          b-input(v-model="text" @keyup.enter="send")
-          lah-button(@click="send" icon="telegram-plane" brand) 傳送
-        .msg(ref="box" v-if="websocket !== undefined")
-          .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
-            p(v-if="item.type === 'remote'") {{ item.text }}
-            .time.s-50.mx-1.text-muted {{ item.time }}
-            p(v-if="item.type === 'mine'") {{ item.text }}
-        h5.center(v-else): lah-fa-icon(icon="exclamation-circle" variant="primary").
-          請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
-      b-card
-        template(#header) 儲存BLOB影像測試
-        .d-flex
-          b-file(
-            v-model="image"
-            placeholder="*.jpg"
-            drop-placeholder="放開以設定上傳檔案"
-            accept="image/*"
-          ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
-          lah-button.ml-1(
-            icon="upload"
-            variant="outline-primary"
-            title="上傳"
-            @click="upload"
-            :disabled="$utils.empty(image)"
-            no-icon-gutter
-          )
-      b-card
-        template(#header) BASE64影像上傳測試
-        .d-flex
-          b-file(
-            v-model="image"
-            placeholder="*.jpg"
-            drop-placeholder="放開以設定上傳檔案"
-            accept="image/*"
-          ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
-          lah-button.ml-1(
-            icon="upload"
-            variant="outline-dark"
-            title="上傳"
-            @click="uploadBase64"
-            :disabled="$utils.empty(image)"
-            no-icon-gutter
-          )
-        b-img.my-1(:src="this.base64image" thumbnail fluid)
-      b-card
-        template(#header) lah-image-upload 測試
+        b-file(
+          v-model="image",
+          placeholder="*.jpg",
+          drop-placeholder="放開以設定上傳檔案",
+          accept="image/*"
+        ): template(
+          slot="file-name",
+          slot-scope="{ names }"
+        ): b-badge(
+          variant="primary"
+        ) {{ names[0] }}
         lah-button.ml-1(
-          icon="image"
-          variant="outline-success"
-          title="打開上傳介面"
-          @click="openUpload"
+          icon="upload",
+          variant="outline-primary",
+          title="上傳",
+          @click="upload",
+          :disabled="$utils.empty(image)",
           no-icon-gutter
         )
+    b-card
+      template(#header) BASE64影像上傳測試
+      .d-flex
+        b-file(
+          v-model="image",
+          placeholder="*.jpg",
+          drop-placeholder="放開以設定上傳檔案",
+          accept="image/*"
+        ): template(
+          slot="file-name",
+          slot-scope="{ names }"
+        ): b-badge(
+          variant="primary"
+        ) {{ names[0] }}
+        lah-button.ml-1(
+          icon="upload",
+          variant="outline-dark",
+          title="上傳",
+          @click="uploadBase64",
+          :disabled="$utils.empty(image)",
+          no-icon-gutter
+        )
+      b-img.my-1(:src="this.base64image", thumbnail, fluid)
+    b-card
+      template(#header) lah-image-upload 測試
+      lah-button.ml-1(
+        icon="image",
+        variant="outline-success",
+        title="打開上傳介面",
+        @click="openUpload",
+        no-icon-gutter
+      )
+    b-card
+      template(#header) lah-chart 測試
+      lah-chart(
+        ref="chart",
+        label="test",
+        :items="chartItems",
+        :type="chartType",
+        :bg-color="chartBgColor"
+      )
 </template>
 
 <script>
@@ -85,13 +115,25 @@ export default {
     //   return {openNewsData: data.openNewsData}
     // })
     const now = new Date()
-    const time = ('0' + now.getHours()).slice(-2) + ':' +
-                 ('0' + now.getMinutes()).slice(-2) + ':' +
-                 ('0' + now.getSeconds()).slice(-2)
+    const time =
+      ('0' + now.getHours()).slice(-2) +
+      ':' +
+      ('0' + now.getMinutes()).slice(-2) +
+      ':' +
+      ('0' + now.getSeconds()).slice(-2)
     return {
-      list: [
-        { type: 'remote', text: '準備中 ... ', time }
-      ]
+      list: [{ type: 'remote', text: '準備中 ... ', time }],
+      // items: [
+      //   ['桃園所', 40],
+      //   ['中壢所', 16],
+      //   ['大溪所', 0],
+      //   ['楊梅所', 1],
+      //   ['蘆竹所', 1],
+      //   ['八德所', 6],
+      //   ['平鎮所', 0],
+      //   ['龜山所', 26],
+      //   ['地政局', 0]
+      // ],
     }
   },
   data: () => ({
@@ -101,9 +143,12 @@ export default {
     text: '',
     websocket: undefined,
     image: undefined,
-    base64image: ''
+    base64image: '',
+    chartItems: [],
+    chartType: 'line'
   }),
   fetch () {
+    this.chartLoadData()
   },
   head: {
     title: '測試-桃園市地政局'
@@ -113,8 +158,12 @@ export default {
     configs () {
       return Object.keys(this.$config).map(key => [key, this.$config[key]])
     },
-    uploadUrl () { return `/img${this.$consts.API.FILE.IMAGE}` },
-    uploadBase64Url () { return `${this.$consts.API.FILE.BASE64}` }
+    uploadUrl () {
+      return `/img${this.$consts.API.FILE.IMAGE}`
+    },
+    uploadBase64Url () {
+      return `${this.$consts.API.FILE.BASE64}`
+    }
   },
   watch: {
     list () {
@@ -127,38 +176,125 @@ export default {
   },
   mounted () {
     this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: 'ping',
-      ip: this.$config.websocketHost,
-      port: this.$config.websocketPort
-    }).then(({ data }) => {
-      this.pingLatency = data.latency
-      this.pingMessage = data.message
-      if (this.$utils.statusCheck(data.status)) {
-        this.connect()
-      } else {
-        this.notify(data.message, { type: 'warning' })
-      }
-    }).catch((err) => {
-      this.error = err
-    }).finally(() => {
-      this.isBusy = false
-    })
+    this.$axios
+      .post(this.$consts.API.JSON.QUERY, {
+        type: 'ping',
+        ip: this.$config.websocketHost,
+        port: this.$config.websocketPort
+      })
+      .then(({ data }) => {
+        this.pingLatency = data.latency
+        this.pingMessage = data.message
+        if (this.$utils.statusCheck(data.status)) {
+          this.connect()
+        } else {
+          this.notify(data.message, { type: 'warning' })
+        }
+      })
+      .catch((err) => {
+        this.error = err
+      })
+      .finally(() => {
+        this.isBusy = false
+      })
   },
   methods: {
-    openUpload () {
-      this.modal(this.$createElement('lah-image-upload', {
-        on: {
-          publish: (base64) => {
-            this.$utils.log(base64)
-            this.hideModalById('upload-image-modal')
+    chartBgColor (item, opacity) {
+      switch (item[0]) {
+        case '地政局':
+          return `rgb(207, 207, 207, ${opacity})` // H0
+        case '桃園所':
+          return `rgb(254, 185, 180, ${opacity})` // HA
+        case '中壢所':
+          return `rgb(125, 199, 80, ${opacity})` // HB
+        case '大溪所':
+          return `rgb(255, 251, 185, ${opacity})` // HC
+        case '楊梅所':
+          return `rgb(0, 157, 122, ${opacity})` // HD
+        case '蘆竹所':
+          return `rgb(33, 137, 227, ${opacity})` // HE
+        case '八德所':
+          return `rgb(181, 92, 66, ${opacity})` // HF
+        case '平鎮所':
+          return `rgb(195, 42, 84, ${opacity})` // HG
+        case '龜山所':
+          return `rgb(136, 72, 152, ${opacity})` // HH
+        default:
+          `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(
+            255
+          )}, ${opacity})`
+      }
+    },
+    chartLoadData () {
+      this.chartItems.length = 0
+      this.$axios
+        .post(this.$consts.API.JSON.STATS, {
+          type: 'stats_latest_ap_conn',
+          ap_ip: '220.1.34.161',
+          all: true
+        })
+        .then(({ data }) => {
+          // console.warn(data)
+          if (data.data_count && data.data_count > 0) {
+            data.raw.forEach((item, idx, array) => {
+              /*
+                  item = {
+                      log_time: '20201005181631',
+                      ap_ip: '220.1.34.161',
+                      est_ip: '220.1.35.36',
+                      count: '2',
+                      batch: '490',
+                      name: '資訊主機'
+                  }
+              */
+              const text = this.$consts.ipMap.get(item.est_ip)?.name
+              if (text) {
+                const value = item.count
+                const found = this.chartItems.find((item) => {
+                  return item[0] === text
+                })
+                if (found) {
+                  found[0] = text
+                  found[1] = value
+                  // not reactively ... manual set chartData
+                  // this.$refs.chart?.changeValue(text, value)
+                } else {
+                  this.chartItems.push([text, value])
+                }
+              }
+            })
+            // this.chartItems = [...items]
+            this.$refs.chart?.buildChart()
           }
+        })
+        .catch((err) => {
+          this.error = err
+        })
+        .finally(() => {
+          // this.isBusy = false;
+          // reload every 15s
+          this.reload_timer = this.timeout(this.chartLoadData, 15 * 60 * 1000)
+          this.$nextTick(() => {
+            this.$refs.chart?.update()
+          })
+        })
+    },
+    openUpload () {
+      this.modal(
+        this.$createElement('lah-image-upload', {
+          on: {
+            publish: (base64) => {
+              this.$utils.log(base64)
+              this.hideModalById('upload-image-modal')
+            }
+          }
+        }),
+        {
+          id: 'upload-image-modal',
+          size: 'md',
+          title: '上傳圖片管理'
         }
-      }), {
-        id: 'upload-image-modal',
-        size: 'md',
-        title: '上傳圖片管理'
-      })
+      )
     },
     upload () {
       // image
@@ -169,17 +305,21 @@ export default {
       formData.append('width', 960)
       formData.append('height', 540)
       formData.append('quality', 75)
-      this.$upload.post(this.uploadUrl, formData).then(({ data }) => {
-        const opts = { type: 'warning', title: '上傳圖檔結果通知' }
-        if (this.$utils.statusCheck(data.status)) {
-          opts.type = 'success'
-        }
-        this.notify(data.message, opts)
-      }).catch((err) => {
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-      })
+      this.$upload
+        .post(this.uploadUrl, formData)
+        .then(({ data }) => {
+          const opts = { type: 'warning', title: '上傳圖檔結果通知' }
+          if (this.$utils.statusCheck(data.status)) {
+            opts.type = 'success'
+          }
+          this.notify(data.message, opts)
+        })
+        .catch((err) => {
+          this.$utils.error(err)
+        })
+        .finally(() => {
+          this.isBusy = false
+        })
     },
     uploadBase64 () {
       // image
@@ -192,19 +332,23 @@ export default {
 
       console.log(this.image)
 
-      this.$upload.post(this.uploadBase64Url, formData).then(({ data }) => {
-        this.base64image = data.uri + data.encoded
-        console.log(this.base64image)
-        const opts = { type: 'warning', title: '上傳圖檔結果通知' }
-        if (this.$utils.statusCheck(data.status)) {
-          opts.type = 'success'
-        }
-        this.notify(data.message, opts)
-      }).catch((err) => {
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-      })
+      this.$upload
+        .post(this.uploadBase64Url, formData)
+        .then(({ data }) => {
+          this.base64image = data.uri + data.encoded
+          console.log(this.base64image)
+          const opts = { type: 'warning', title: '上傳圖檔結果通知' }
+          if (this.$utils.statusCheck(data.status)) {
+            opts.type = 'success'
+          }
+          this.notify(data.message, opts)
+        })
+        .catch((err) => {
+          this.$utils.error(err)
+        })
+        .finally(() => {
+          this.isBusy = false
+        })
     },
     clickCountdownButton () {
       this.$utils.log(this.$el)
@@ -216,13 +360,19 @@ export default {
       this.$refs.countdown.startCountdown()
     },
     msgClass (item) {
-      return [item.type === 'mine' ? 'justify-content-end' : 'justify-content-start', item.type]
+      return [
+        item.type === 'mine' ? 'justify-content-end' : 'justify-content-start',
+        item.type
+      ]
     },
     time () {
       const now = new Date()
-      const time = ('0' + now.getHours()).slice(-2) + ':' +
-                   ('0' + now.getMinutes()).slice(-2) + ':' +
-                   ('0' + now.getSeconds()).slice(-2)
+      const time =
+        ('0' + now.getHours()).slice(-2) +
+        ':' +
+        ('0' + now.getMinutes()).slice(-2) +
+        ':' +
+        ('0' + now.getSeconds()).slice(-2)
       return time
     },
     status (code) {
@@ -245,18 +395,32 @@ export default {
        * CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3
        */
       if (this.websocket && this.websocket.readyState !== 1) {
-        this.list = [...this.list, { type: 'remote', text: `伺服器連線${this.status(this.websocket.readyState)} ...`, time: this.time() }]
+        this.list = [
+          ...this.list,
+          {
+            type: 'remote',
+            text: `伺服器連線${this.status(this.websocket.readyState)} ...`,
+            time: this.time()
+          }
+        ]
         this.websocket.readyState === 3 && this.connect()
       }
 
       if (this.websocket && this.websocket.readyState === 1) {
-        this.list = [...this.list, { type: 'mine', text: this.text, time: this.time() }]
+        this.list = [
+          ...this.list,
+          { type: 'mine', text: this.text, time: this.time() }
+        ]
 
         if (!this.$utils.empty(this.text)) {
           // DEV
-          this.websocket.send(this.packMessage(this.text, { channel: '10013859' }))
+          this.websocket.send(
+            this.packMessage(this.text, { channel: '10013859' })
+          )
           // REAL DEV
-          this.websocket.send(this.packMessage(this.text, { channel: this.user.id }))
+          this.websocket.send(
+            this.packMessage(this.text, { channel: this.user.id })
+          )
           // received remote text clear mine
           this.text = ''
         }
@@ -279,9 +443,18 @@ export default {
       })
     },
     connect () {
-      this.websocket = new WebSocket(`ws://${this.$config.websocketHost}:${this.$config.websocketPort}`)
+      this.websocket = new WebSocket(
+        `ws://${this.$config.websocketHost}:${this.$config.websocketPort}`
+      )
       this.websocket.onopen = (e) => {
-        this.list = [...this.list, { type: 'remote', text: `連結 WebSocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`, time: this.time() }]
+        this.list = [
+          ...this.list,
+          {
+            type: 'remote',
+            text: `連結 WebSocket 伺服器成功(ws://${this.$config.websocketHost}:${this.$config.websocketPort})`,
+            time: this.time()
+          }
+        ]
         // to register in wss
         const now = this.$utils.now().split(' ')
         const jsonString = JSON.stringify({
@@ -302,10 +475,24 @@ export default {
         this.websocket.send(jsonString)
       }
       this.websocket.onclose = (e) => {
-        this.list = [...this.list, { type: 'remote', text: 'WebSocket 伺服器連線已關閉', time: this.time() }]
+        this.list = [
+          ...this.list,
+          {
+            type: 'remote',
+            text: 'WebSocket 伺服器連線已關閉',
+            time: this.time()
+          }
+        ]
       }
       this.websocket.onerror = () => {
-        this.list = [...this.list, { type: 'remote', text: 'WebSocket 伺服器連線出錯', time: this.time() }]
+        this.list = [
+          ...this.list,
+          {
+            type: 'remote',
+            text: 'WebSocket 伺服器連線出錯',
+            time: this.time()
+          }
+        ]
       }
       this.websocket.onmessage = (e) => {
         const response = JSON.parse(e.data)

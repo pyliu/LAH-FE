@@ -3,7 +3,7 @@ b-card.border-0(no-body): canvas(:id="id") 圖形初始化失敗
 </template>
 
 <script>
-import Chart from 'chart.js/auto';
+import Chart from 'chart.js/auto'
 export default {
   props: {
     type: {
@@ -41,7 +41,7 @@ export default {
     },
     bgColor: {
       type: Function,
-      default (dataset_item, opacity) {
+      default (item, opacity) {
         return `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${opacity})`
       }
     },
@@ -91,10 +91,10 @@ export default {
   },
   watch: {
     type (val) {
-      this.timeout(this.buildChart, 0)
+      this.$nextTick(this.buildChart)
     },
     chartData (newObj) {
-      this.timeout(this.buildChart, 0)
+      this.$nextTick(this.buildChart)
     },
     items (newItems) {
       this.setData(newItems)
@@ -103,13 +103,6 @@ export default {
   created () { this.id = this.uuid() },
   mounted () {
     this.setData(this.items)
-    // this.style = `max-height: ${window.innerHeight - 185}px; max-width: ${window.innerWidth - 20}px;`;
-    // window.addEventListener("resize", e => {
-    //     clearTimeout(this.resize_timer);
-    //     this.resize_timer = this.timeout(() => {
-    //         this.style = `max-height: ${window.innerHeight - 185}px; max-width: ${window.innerWidth - 20}px;`;
-    //     }, 250);
-    // });
   },
   methods: {
     update () {
@@ -145,22 +138,22 @@ export default {
         // randoom color for this item
         this.chartData.datasets[0].backgroundColor.push(this.bgColor(item, opacity))
       })
-      this.timeout(this.buildChart, 0)
+      this.$nextTick(this.buildChart)
     },
     changeValue (label, value) {
-      let found_idx
+      let foundIdx
       this.chartData.labels.find((olabel, idx, array) => {
-        if (olabel == label) { found_idx = idx }
-        return olabel == label
+        if (olabel === label) { foundIdx = idx }
+        return olabel === label
       })
-      if (found_idx !== undefined) {
-        this.chartData.datasets[0].data[found_idx] = value
+      if (foundIdx !== undefined) {
+        this.chartData.datasets[0].data[foundIdx] = value
         // also update background color as well
-        this.chartData.datasets[0].backgroundColor[found_idx] = this.bgColor([label, value], 0.6)
+        this.chartData.datasets[0].backgroundColor[foundIdx] = this.bgColor([label, value], 0.6)
         // redraw the chart
-        Vue.nextTick(this.update)
+        this.$nextTick(this.update())
       } else {
-        this.$warn(`lah-chart: Not found "${label}" in dataset, the ${value} will not be updated.`, this.chartData)
+        this.$utils.warn(`lah-chart: Not found "${label}" in dataset, the ${value} will not be updated.`, this.chartData)
       }
     },
     buildChart (opts = { plugins: {} }) {
@@ -200,14 +193,14 @@ export default {
       }
       // update title
       opts.plugins.title = {
-        display: !this.empty(this.title),
+        display: !this.$utils.empty(this.title),
         text: this.title,
         position: this.titlePos,
         font: { size: +this.titleFontSize }
       }
       // use chart.js directly
       // let ctx = this.$el.childNodes[0];
-      const ctx = $(`#${this.id}`)
+      const ctx = this.$(`#${this.id}`)
       const that = this
       this.inst = new Chart(ctx, {
         type: this.type,
@@ -240,9 +233,9 @@ export default {
               if (payload.point) {
                 // point e.g. {element: e, datasetIndex: 0, index: 14}
                 const idx = payload.point.index
-                const dataset_idx = payload.point.datasetIndex // only one dataset, it should be always be 0
+                const datasetIdx = payload.point.datasetIndex // only one dataset, it should be always be 0
                 payload.label = that.inst.data.labels[idx]
-                payload.value = that.inst.data.datasets[dataset_idx].data[idx]
+                payload.value = that.inst.data.datasets[datasetIdx].data[idx]
               }
               // parent uses a handle function to catch the event, e.g. catchClick(e, payload) { ... }
               that.$emit('click', e, payload)
