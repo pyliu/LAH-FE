@@ -91,11 +91,13 @@ export default {
     reloadMs: 24 * 60 * 60 * 1000
   }),
   fetch () {
+    this.isBusy = true
     this.load('subject', 'DataGuard', this.queryDays).then((data) => {
       // successful loaded
     }).catch((err) => {
       this.$utils.warn(err)
     }).finally(() => {
+      this.isBusy = false
       // set auto reloading timeout
       if (this.$refs.countdown) {
         this.$refs.countdown.setCountdown(this.reloadMs)

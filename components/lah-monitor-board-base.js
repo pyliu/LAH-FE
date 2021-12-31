@@ -54,7 +54,6 @@ export default {
     },
     load (type, keyword, days = 1) {
       return new Promise((resolve, reject) => {
-        this.isBusy = true
         this.$axios
           .post(this.$consts.API.JSON.MONITOR, {
             type,
@@ -74,7 +73,6 @@ export default {
             this.$utils.error(err)
           })
           .finally(() => {
-            this.isBusy = false
             this.updated = this.$utils.now().replace(this.today, '')
           })
       })
