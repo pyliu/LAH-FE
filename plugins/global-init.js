@@ -1,3 +1,6 @@
+/* eslint-disable no-control-regex */
+/* eslint-disable prefer-regex-literals */
+/* eslint-disable prefer-promise-reject-errors */
 import $ from 'jquery'
 import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
