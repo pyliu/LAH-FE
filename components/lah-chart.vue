@@ -136,9 +136,10 @@ export default {
         datasets: []
       }
     },
-    initDataset (idx, label) {
+    initDataset (idx, label, type) {
       if (!this.chartData.datasets[idx]) {
         this.chartData.datasets.push({
+          type: type || this.type,
           label,
           backgroundColor: [],
           data: [],
@@ -154,9 +155,9 @@ export default {
       clearTimeout(this.updateTimer)
       this.updateTimer = this.timeout(() => this.inst && this.inst.update(), 100)
     },
-    addData (item, label, datasetIdx = 0) {
+    addData (item, label, type, datasetIdx = 0) {
       if (item.x !== undefined && item.y !== undefined) {
-        this.initDataset(datasetIdx, label)
+        this.initDataset(datasetIdx, label, type)
         const foundIdx = this.chartData.labels.indexOf(item.x)
         if (foundIdx === -1) {
           this.chartData.labels.push(item.x) // x is label
@@ -169,7 +170,7 @@ export default {
           !this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] && this.addBackgroundColor(item, datasetIdx)
         }
       } else if (Array.isArray(item)) {
-        this.initDataset(datasetIdx, label)
+        this.initDataset(datasetIdx, label, type)
         // legacy use array
         const foundIdx = this.chartData.labels.indexOf(item[0])
         if (foundIdx === -1) {
@@ -184,7 +185,7 @@ export default {
           }
         }
       } else {
-        this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
+        this.$utils.warn('輸入資料不符合規格無法加入 chart dataset', item, label, type, datasetIdx)
       }
     },
     addBackgroundColor (item, datasetIdx) {
@@ -209,9 +210,9 @@ export default {
         this.$utils.warn(`lah-chart: 沒找到 "${label}" 在 dataset 內, ${value} 不會被更新.`, this.chartData)
       }
     },
-    importData (items, label) {
+    importData (items, label, type = undefined) {
       const nextDatasetIdx = this.chartData.datasets.length
-      items?.forEach(item => this.addData(item, label, nextDatasetIdx))
+      items?.forEach(item => this.addData(item, label, type, nextDatasetIdx))
     },
     rebuild () { this.$nextTick(this.build) },
     build (opts = { plugins: {} }) {
