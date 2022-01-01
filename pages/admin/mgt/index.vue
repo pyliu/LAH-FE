@@ -17,16 +17,19 @@ div(v-cloak)
       ul
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
-  b-card-group(columns)
+  b-card-group.mb-4(deck)
+    lah-monitor-board-crossap
     lah-monitor-board-dataguard.card-body-fixed-height
-    lah-monitor-board-testdb.card-body-fixed-height
-    lah-monitor-board-vmclone.card-body-fixed-height
     lah-monitor-board-hacmp.card-body-fixed-height
+  b-card-group.mb-4(deck)
     lah-monitor-board-dbbackup.card-body-fixed-height
     lah-monitor-board-tape.card-body-fixed-height
     lah-monitor-board-apserver.card-body-fixed-height
-    lah-monitor-board-ups.card-body-fixed-height
-    lah-monitor-board-adsync.card-body-fixed-height
+  b-card-group(columns)
+    lah-monitor-board-testdb
+    lah-monitor-board-vmclone
+    lah-monitor-board-ups
+    lah-monitor-board-adsync
 </template>
 
 <script>
