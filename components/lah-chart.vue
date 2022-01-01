@@ -211,8 +211,9 @@ export default {
         })
       }
     },
-    importData (items, label, datasetIdx = 0) {
-      items?.forEach(item => this.addData(item, label, datasetIdx))
+    importData (items, label) {
+      const nextDatasetIdx = this.chartData.datasets.length
+      items?.forEach(item => this.addData(item, label, nextDatasetIdx))
     },
     rebuild () { this.$nextTick(this.build) },
     build (opts = { plugins: {} }) {
