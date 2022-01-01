@@ -122,7 +122,10 @@ export default {
     calcAspectRatio () { return +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
   },
   watch: {
-    type (val) { this.rebuild() }
+    type (val) {
+      this.chartData.datasets.forEach(ds => (ds.type = val))
+      this.rebuild()
+    }
   },
   created () {
     this.id = this.uuid()
@@ -211,6 +214,14 @@ export default {
       }
     },
     importData (items, label, type = undefined) {
+      /**
+       * expect item format:
+       * {
+       *   x: 'X軸標籤', // xAxes
+       *   y: 23, // yAxes
+       *   color: { R: 22, G: 11, B: 45 } // optional
+       * }
+       */
       const nextDatasetIdx = this.chartData.datasets.length
       items?.forEach(item => this.addData(item, label, type, nextDatasetIdx))
     },
@@ -261,7 +272,6 @@ export default {
       const ctx = this.id
       const that = this
       this.inst = new Chart(ctx, {
-        type: this.type,
         data: this.chartData,
         options: Object.assign({
           showTooltips: true,

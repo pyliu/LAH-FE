@@ -255,8 +255,9 @@ export default {
                 this.$utils.warn('item.est_ip 不在 ipMap 內無法新增至 chartItems 裡', item)
               }
             })
-            this.$refs.chart?.importData(this.chartItems, 'LINE')
-            this.$refs.chart?.importData(plus10, 'BAR', 'bar')
+            this.$refs.chart?.importData(this.chartItems, 'LINE', 'line')
+            this.$refs.chart?.importData(this.chartItems, 'BAR', 'bar')
+            this.$refs.chart?.importData(plus10, 'LINE', 'line')
             this.$refs.chart?.rebuild()
           }
         })
