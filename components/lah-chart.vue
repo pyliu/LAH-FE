@@ -14,10 +14,18 @@ export default {
       type: Boolean,
       default: true
     },
-    label: {
-      type: String,
-      default: 'set label to override me'
-    },
+    // label: {
+    //   type: String,
+    //   default: 'set label to override me'
+    // },
+    // items: {
+    //   type: Array,
+    //   default: () => [{
+    //     x: 'X軸標籤', // xAxes
+    //     y: 23, // yAxes
+    //     color: { R: 22, G: 11, B: 45 }
+    //   }]
+    // },
     labelFontSize: {
       type: Number,
       default: 14
@@ -25,14 +33,6 @@ export default {
     opacity: {
       type: Number,
       default: 0.6
-    },
-    items: {
-      type: Array,
-      default: () => [{
-        x: 'X軸標籤', // xAxes
-        y: 23, // yAxes
-        color: { R: 22, G: 11, B: 45 }
-      }]
     },
     tooltip: {
       type: Function,
@@ -78,6 +78,10 @@ export default {
       type: String,
       default: 'rgb(22, 22, 22)'
     },
+    borderWidth: {
+      type: Number,
+      default: 1
+    },
     yAxes: {
       type: Boolean,
       default: true
@@ -115,59 +119,61 @@ export default {
     updateTimer: null
   }),
   computed: {
-    calcOpacity () { return this.chartData?.datasets[0]?.opacity || 0.6 },
     calcAspectRatio () { return +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
   },
   watch: {
     type (val) {
-      this.$nextTick(this.buildChart)
-    },
-    chartData (newObj) {
-      this.$nextTick(this.buildChart)
-    },
-    items (newItems) {
-      this.setData(newItems)
+      this.rebuild()
     }
   },
   created () {
     this.id = this.uuid()
-    this.setData(this.items)
+    this.resetData()
   },
   methods: {
     update () {
       clearTimeout(this.updateTimer)
       this.updateTimer = this.timeout(() => this.inst && this.inst.update(), 100)
     },
-    addData (item, datasetIdx = 0) {
+    addData (item, label, datasetIdx = 0) {
       if (item.x !== undefined && item.y !== undefined) {
-        this.checkDataset(datasetIdx)
+        this.initDataset(datasetIdx, label)
         const foundIdx = this.chartData.labels.indexOf(item.x)
         if (foundIdx === -1) {
           this.chartData.labels.push(item.x) // x is label
           this.chartData.datasets[datasetIdx].data.push(item.y) // y is data count
-          if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
-            this.chartData.datasets[datasetIdx].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.calcOpacity})`)
-          } else {
-            // random color for this item
-            this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor(item, this.calcOpacity))
-          }
+          this.addBackgroundColor(item, datasetIdx)
         } else {
           // increment the value if the label existed
-          this.chartData.datasets[datasetIdx].data[foundIdx] += item.y
+          const orig = this.chartData.datasets[datasetIdx].data[foundIdx] || 0
+          this.chartData.datasets[datasetIdx].data[foundIdx] = orig + item.y
+          !this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] && this.addBackgroundColor(item, datasetIdx)
         }
       } else if (Array.isArray(item)) {
-        this.checkDataset(datasetIdx)
+        this.initDataset(datasetIdx, label)
         // legacy use array
         const foundIdx = this.chartData.labels.indexOf(item[0])
         if (foundIdx === -1) {
           this.chartData.labels.push(item[0]) // first element is label
           this.chartData.datasets[datasetIdx].data.push(item[1]) // second element is data count
-          this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor({ x: item[0], y: item[1] }, this.calcOpacity))
+          this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor({ x: item[0], y: item[1] }, this.opacity))
         } else {
-          this.chartData.datasets[0].data[foundIdx] += item[1]
+          const orig = this.chartData.datasets[datasetIdx].data[foundIdx] || 0
+          this.chartData.datasets[datasetIdx].data[foundIdx] = orig + item[1]
+          if (!this.chartData.datasets[datasetIdx].backgroundColor[foundIdx]) {
+            this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor({ x: item[0], y: item[1] }, this.opacity))
+          }
         }
       } else {
         this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
+      }
+    },
+    addBackgroundColor (item, datasetIdx) {
+      if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
+        this.chartData.datasets[datasetIdx].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.opacity})`)
+      } else {
+        // random color for this item
+        this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor(item, this.opacity))
       }
     },
     updateData (item, datasetIdx = 0) {
@@ -177,7 +183,7 @@ export default {
       if (foundIdx !== -1) {
         this.chartData.datasets[datasetIdx].data[foundIdx] = value
         // also update background color as well
-        this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.calcOpacity)
+        this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.opacity)
         // redraw the chart
         this.$nextTick(this.update())
       } else {
@@ -190,39 +196,35 @@ export default {
         legend: { display: this.legend },
         datasets: []
       }
-      this.checkDataset(0)
     },
-    checkDataset (idx) {
+    initDataset (idx, label) {
       if (!this.chartData.datasets[idx]) {
         this.chartData.datasets.push({
-          label: this.label,
+          label,
           backgroundColor: [],
           data: [],
           borderColor: this.borderColor,
           order: 1,
           opacity: this.opacity,
           snapGaps: true,
-          borderWidth: 1
+          borderWidth: this.borderWidth
         })
       }
     },
-    setData (items) {
-      // reload data
-      this.resetData()
-      items?.forEach(item => this.addData(item))
-      this.$nextTick(this.buildChart)
-      this.$utils.warn(this.chartData.datasets)
+    importData (items, label, datasetIdx = 0) {
+      items?.forEach(item => this.addData(item, label, datasetIdx))
     },
-    buildChart (datasetIdx = 0, opts = { plugins: {} }) {
+    rebuild () { this.$nextTick(this.build) },
+    build (opts = { plugins: {} }) {
       if (this.inst) {
         // reset the chart
         this.inst.destroy()
         this.inst = null
       }
       // keep only one dataset inside
-      if (this.chartData.datasets.length > 1) {
-        this.chartData.datasets = this.chartData.datasets.slice(0, 1)
-      }
+      // if (this.chartData.datasets.length > 1) {
+      //   this.chartData.datasets = this.chartData.datasets.slice(0, 1)
+      // }
       switch (this.type) {
         case 'pie':
         case 'polarArea':

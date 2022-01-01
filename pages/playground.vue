@@ -100,7 +100,6 @@ div: client-only
       lah-chart(
         ref="chart",
         label="連線數"
-        :items="chartItems",
         :type="chartType"
       )
 </template>
@@ -208,30 +207,6 @@ export default {
       })
   },
   methods: {
-    chartBgColor (item, opacity) {
-      switch (item.x) {
-        case '地政局':
-          return `rgb(207, 207, 207, ${opacity})` // H0
-        case '桃園所':
-          return `rgb(254, 185, 180, ${opacity})` // HA
-        case '中壢所':
-          return `rgb(125, 199, 80, ${opacity})` // HB
-        case '大溪所':
-          return `rgb(255, 251, 185, ${opacity})` // HC
-        case '楊梅所':
-          return `rgb(0, 157, 122, ${opacity})` // HD
-        case '蘆竹所':
-          return `rgb(33, 137, 227, ${opacity})` // HE
-        case '八德所':
-          return `rgb(181, 92, 66, ${opacity})` // HF
-        case '平鎮所':
-          return `rgb(195, 42, 84, ${opacity})` // HG
-        case '龜山所':
-          return `rgb(136, 72, 152, ${opacity})` // HH
-        default:
-          return `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${opacity})`
-      }
-    },
     chartLoadData () {
       this.chartItems.length = 0
       this.$axios
@@ -243,6 +218,7 @@ export default {
         .then(({ data }) => {
           // console.warn(data)
           if (data.data_count && data.data_count > 0) {
+            const plus10 = []
             data.raw.forEach((item, idx, array) => {
               /*
                   item = {
@@ -257,7 +233,7 @@ export default {
               const text = this.$consts.ipMap.get(item.est_ip)?.name
               if (text) {
                 const value = item.count
-                const found = this.chartItems.find((item) => {
+                let found = this.chartItems.find((item) => {
                   return item.x === text
                 })
                 if (found) {
@@ -265,12 +241,24 @@ export default {
                 } else {
                   this.chartItems.push({ x: text, y: value })
                 }
+
+                found = plus10.find((item) => {
+                  return item.x === text
+                })
+                if (found) {
+                  found.y += value
+                } else {
+                  plus10.push({ x: text, y: value + 10, color: { R: this.$utils.rand(255), G: this.$utils.rand(255), B: this.$utils.rand(255) } })
+                }
               } else {
                 this.$utils.warn('item.est_ip 不在 ipMap 內無法新增至 chartItems 裡', item)
               }
             })
+            this.$refs.chart?.importData(this.chartItems, '正常', 0)
+            this.$refs.chart?.importData(plus10, '加10', 1)
+            this.$refs.chart?.rebuild()
             // this.chartItems = [...items]
-            this.$refs.chart?.buildChart()
+            // this.$refs.chart?.buildChart()
           }
         })
         .catch((err) => {
