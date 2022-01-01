@@ -14,18 +14,6 @@ export default {
       type: Boolean,
       default: true
     },
-    // label: {
-    //   type: String,
-    //   default: 'set label to override me'
-    // },
-    // items: {
-    //   type: Array,
-    //   default: () => [{
-    //     x: 'X軸標籤', // xAxes
-    //     y: 23, // yAxes
-    //     color: { R: 22, G: 11, B: 45 }
-    //   }]
-    // },
     labelFontSize: {
       type: Number,
       default: 14
@@ -213,7 +201,7 @@ export default {
         this.$utils.warn(`lah-chart: 沒找到 "${label}" 在 dataset 內, ${value} 不會被更新.`, this.chartData)
       }
     },
-    importData (items, label, type = undefined) {
+    addDataset (items, label, type = undefined) {
       /**
        * expect item format:
        * {
@@ -224,6 +212,22 @@ export default {
        */
       const nextDatasetIdx = this.chartData.datasets.length
       items?.forEach(item => this.addData(item, label, type, nextDatasetIdx))
+    },
+    removeDataset (label) {
+      let foundIdx = -1
+      this.chartData.datasets.find((ds, idx) => {
+        if (ds.label === label) {
+          foundIdx = idx
+          return true
+        }
+        return false
+      })
+      if (foundIdx === -1) {
+        this.$utils.warn(`沒有發現 ${label} 的資料。`)
+      } else {
+        this.chartData.datasets.splice(foundIdx, 1)
+        this.update()
+      }
     },
     rebuild () { this.$nextTick(this.build) },
     build (opts = { plugins: {} }) {

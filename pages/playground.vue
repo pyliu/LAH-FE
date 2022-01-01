@@ -255,10 +255,14 @@ export default {
                 this.$utils.warn('item.est_ip 不在 ipMap 內無法新增至 chartItems 裡', item)
               }
             })
-            this.$refs.chart?.importData(this.chartItems, 'LINE', 'line')
-            this.$refs.chart?.importData(this.chartItems, 'BAR', 'bar')
-            this.$refs.chart?.importData(plus10, 'LINE', 'line')
+            this.$refs.chart?.addDataset(this.chartItems, 'LINE', 'line')
+            this.$refs.chart?.addDataset(this.chartItems, 'BAR', 'bar')
+            this.$refs.chart?.addDataset(plus10, 'LINE2', 'line')
             this.$refs.chart?.rebuild()
+            this.timeout(() => {
+              this.$refs.chart?.addData({ x: 'NEW', y: this.$utils.rand(255) }, 'LINE2', 'line')
+              this.$refs.chart?.removeDataset('BAR')
+            }, 5 * 1000)
           }
         })
         .catch((err) => {
