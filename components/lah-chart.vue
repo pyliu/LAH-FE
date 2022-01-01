@@ -98,7 +98,7 @@ export default {
       type: Number,
       default: 14
     },
-    aspectRatio: { type: Number, default: () => +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
+    aspectRatio: { type: Number, default: () => 0 }
   },
   data: () => ({
     id: null,
@@ -106,9 +106,6 @@ export default {
     chartData: null,
     updateTimer: null
   }),
-  computed: {
-    calcAspectRatio () { return +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
-  },
   watch: {
     type (val) {
       this.chartData.datasets.forEach(ds => (ds.type = val))
@@ -281,7 +278,7 @@ export default {
           showTooltips: true,
           responsive: true,
           maintainAspectRatio: true,
-          aspectRatio: that.aspectRatio,
+          aspectRatio: that.aspectRatio || +this.viewportRatio,
           elements: {
             point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
             line: { tension: this.type === 'line' ? 0.35 : 0.1, fill: this.chartData.datasets.length === 1, stepped: false }
