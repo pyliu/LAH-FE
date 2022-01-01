@@ -47,10 +47,31 @@ export default {
         return ` ${entry.label} : ${currentVal} [${percent}%]`
       }
     },
-    bgColor: {
+    backgroundColor: {
       type: Function,
       default (item, opacity) {
-        return `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${opacity})`
+        switch (item.x) {
+          case '地政局':
+            return `rgb(207, 207, 207, ${opacity})` // H0
+          case '桃園所':
+            return `rgb(254, 185, 180, ${opacity})` // HA
+          case '中壢所':
+            return `rgb(125, 199, 80, ${opacity})` // HB
+          case '大溪所':
+            return `rgb(255, 251, 185, ${opacity})` // HC
+          case '楊梅所':
+            return `rgb(0, 157, 122, ${opacity})` // HD
+          case '蘆竹所':
+            return `rgb(33, 137, 227, ${opacity})` // HE
+          case '八德所':
+            return `rgb(181, 92, 66, ${opacity})` // HF
+          case '平鎮所':
+            return `rgb(195, 42, 84, ${opacity})` // HG
+          case '龜山所':
+            return `rgb(136, 72, 152, ${opacity})` // HH
+          default:
+            return `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${opacity})`
+        }
       }
     },
     borderColor: {
@@ -128,7 +149,7 @@ export default {
             this.chartData.datasets[datasetIdx].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.calcOpacity})`)
           } else {
             // random color for this item
-            this.chartData.datasets[datasetIdx].backgroundColor.push(this.bgColor(item, this.calcOpacity))
+            this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor(item, this.calcOpacity))
           }
         } else {
           // increment the value if the label existed
@@ -141,7 +162,7 @@ export default {
         if (foundIdx === -1) {
           this.chartData.labels.push(item[0]) // first element is label
           this.chartData.datasets[datasetIdx].data.push(item[1]) // second element is data count
-          this.chartData.datasets[datasetIdx].backgroundColor.push(this.bgColor({ x: item[0], y: item[1] }, this.calcOpacity))
+          this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor({ x: item[0], y: item[1] }, this.calcOpacity))
         } else {
           this.chartData.datasets[0].data[foundIdx] += item[1]
         }
@@ -156,7 +177,7 @@ export default {
       if (foundIdx !== -1) {
         this.chartData.datasets[datasetIdx].data[foundIdx] = value
         // also update background color as well
-        this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.bgColor(item, this.calcOpacity)
+        this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.calcOpacity)
         // redraw the chart
         this.$nextTick(this.update())
       } else {

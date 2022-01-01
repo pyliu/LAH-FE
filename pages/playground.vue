@@ -101,8 +101,7 @@ div: client-only
         ref="chart",
         label="連線數"
         :items="chartItems",
-        :type="chartType",
-        :bg-color="chartBgColor"
+        :type="chartType"
       )
 </template>
 
