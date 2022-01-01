@@ -33,8 +33,8 @@ b-card(no-body)
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示跨域AP連線狀態
-        li 目前每 15s 更新資料一次
+        li 顯示跨域AP連線狀態(AP需安裝回報腳本以更新快取資料庫)
+        li 每15秒更新資料一次狀態
   lah-chart(ref="chart", :type="chartType")
 </template>
 
