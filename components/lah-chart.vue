@@ -27,7 +27,7 @@ export default {
       default: () => [{
         x: 'X軸標籤',
         y: 23,
-        color: {R: 22, G: 11, B: 45}
+        color: { R: 22, G: 11, B: 45 }
       }]
     },
     tooltip: {
