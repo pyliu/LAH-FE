@@ -111,9 +111,7 @@ export default {
   methods: {
     update () {
       clearTimeout(this.update_timer)
-      this.update_timer = this.timeout(() => {
-        if (this.inst) { this.inst.update() }
-      }, 100)
+      this.update_timer = this.timeout(() => this.inst && this.inst.update(), 100)
     },
     addData (item, datasetIdx = 0) {
       if (item.x !== undefined && item.y !== undefined) {
@@ -265,14 +263,14 @@ export default {
                 payload.label = that.inst.data.labels[idx]
                 payload.value = that.inst.data.datasets[datasetIdx].data[idx]
               }
-              // parent uses a handle function to catch the event, e.g. catchClick(e, payload) { ... }
-              that.$emit('click', e, payload)
+              // parent uses a handle function to catch the event, e.g. catchClick(e) { const payload = e.detail; const target = e.target; ... }
+              that.trigger('click', payload)
             }
           }
         }, opts)
       })
       // sometimes the chart doesn't show up properly ... so add this fix to update it
-      this.timeout(this.update, 400)
+      this.$nextTick(this.update)
     },
     toBase64Image () {
       return this.inst.toBase64Image()
