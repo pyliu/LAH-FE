@@ -133,11 +133,11 @@ export default {
         }]
       }
     },
-    setData (items) {
-      this.resetData()
-      const opacity = this.chartData.datasets[0].opacity
-      items.forEach((item) => {
-        if (item.x !== undefined && item.y !== undefined) {
+    addData (item) {
+      const opacity = this.chartData.datasets[0].opacity || 0.6
+      if (item.x !== undefined && item.y !== undefined) {
+        const foundIdx = this.chartData.labels.indexOf(item.x)
+        if (foundIdx === -1) {
           this.chartData.labels.push(item.x) // x is label
           this.chartData.datasets[0].data.push(item.y) // y is data count
           if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
@@ -146,15 +146,46 @@ export default {
             // random color for this item
             this.chartData.datasets[0].backgroundColor.push(this.bgColor(item, opacity))
           }
-        } else if (Array.isArray(item)) {
-          // legacy use array
+        } else {
+          // increment the value if the label existed
+          this.chartData.datasets[0].data[foundIdx] += item.y
+        }
+      } else if (Array.isArray(item)) {
+        // legacy use array
+        const foundIdx = this.chartData.labels.indexOf(item[0])
+        if (foundIdx === -1) {
           this.chartData.labels.push(item[0]) // first element is label
           this.chartData.datasets[0].data.push(item[1]) // second element is data count
-          // randoom color for this item
           this.chartData.datasets[0].backgroundColor.push(this.bgColor({ x: item[0], y: item[1] }, opacity))
         } else {
-          this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
+          this.chartData.datasets[0].data[foundIdx] += item[1]
         }
+      } else {
+        this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
+      }
+    },
+    setData (items) {
+      this.resetData()
+      items.forEach((item) => {
+        this.addData(item)
+        // if (item.x !== undefined && item.y !== undefined) {
+        //   this.chartData.labels.push(item.x) // x is label
+        //   this.chartData.datasets[0].data.push(item.y) // y is data count
+        //   if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
+        //     this.chartData.datasets[0].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${opacity})`)
+        //   } else {
+        //     // random color for this item
+        //     this.chartData.datasets[0].backgroundColor.push(this.bgColor(item, opacity))
+        //   }
+        // } else if (Array.isArray(item)) {
+        //   // legacy use array
+        //   this.chartData.labels.push(item[0]) // first element is label
+        //   this.chartData.datasets[0].data.push(item[1]) // second element is data count
+        //   // randoom color for this item
+        //   this.chartData.datasets[0].backgroundColor.push(this.bgColor({ x: item[0], y: item[1] }, opacity))
+        // } else {
+        //   this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
+        // }
       })
       this.$nextTick(this.buildChart)
     },
