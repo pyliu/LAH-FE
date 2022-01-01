@@ -246,16 +246,16 @@ export default {
                   return item.x === text
                 })
                 if (found) {
-                  found.y += value
+                  found.y += this.$utils.rand(255)
                 } else {
-                  plus10.push({ x: text, y: value + 10, color: { R: this.$utils.rand(255), G: this.$utils.rand(255), B: this.$utils.rand(255) } })
+                  plus10.push({ x: text, y: this.$utils.rand(255), color: { R: this.$utils.rand(255), G: this.$utils.rand(255), B: this.$utils.rand(255) } })
                 }
               } else {
                 this.$utils.warn('item.est_ip 不在 ipMap 內無法新增至 chartItems 裡', item)
               }
             })
             this.$refs.chart?.importData(this.chartItems, '正常')
-            this.$refs.chart?.importData(plus10, '加10')
+            this.$refs.chart?.importData(plus10, '亂數')
             this.$refs.chart?.rebuild()
           }
         })
