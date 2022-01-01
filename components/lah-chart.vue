@@ -126,10 +126,10 @@ export default {
   },
   created () {
     this.id = this.uuid()
-    this.resetData()
+    this.reset()
   },
   methods: {
-    resetData () {
+    reset () {
       this.chartData = {
         labels: [],
         legend: { display: this.legend },
@@ -270,7 +270,7 @@ export default {
           aspectRatio: that.aspectRatio,
           elements: {
             point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
-            line: { tension: this.type === 'line' ? 0.35 : 0.1, fill: true, stepped: false }
+            line: { tension: this.type === 'line' ? 0.35 : 0.1, fill: this.chartData.datasets.length === 1, stepped: false }
           },
           tooltips: {
             callbacks: {

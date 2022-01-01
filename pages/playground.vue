@@ -209,6 +209,7 @@ export default {
   methods: {
     chartLoadData () {
       this.chartItems.length = 0
+      this.$refs.chart?.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_latest_ap_conn',
@@ -237,9 +238,9 @@ export default {
                   return item.x === text
                 })
                 if (found) {
-                  found.y += value
+                  found.y += this.$utils.rand(255)
                 } else {
-                  this.chartItems.push({ x: text, y: value })
+                  this.chartItems.push({ x: text, y: this.$utils.rand(255) })
                 }
 
                 found = plus10.find((item) => {
