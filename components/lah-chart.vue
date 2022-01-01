@@ -218,7 +218,8 @@ export default {
       }
       // use chart.js directly
       // let ctx = this.$el.childNodes[0];
-      const ctx = this.$(`#${this.id}`)
+      // const ctx = this.$(`#${this.id}`)
+      const ctx = this.id
       const that = this
       this.inst = new Chart(ctx, {
         type: this.type,
@@ -261,7 +262,7 @@ export default {
           }
         }, opts)
       })
-      // sometimes the char doesn't show up properly ... so add this fix to update it
+      // sometimes the chart doesn't show up properly ... so add this fix to update it
       this.timeout(this.update, 400)
     },
     toBase64Image () {
