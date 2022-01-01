@@ -122,7 +122,7 @@ export default {
       ':' +
       ('0' + now.getSeconds()).slice(-2)
     return {
-      list: [{ type: 'remote', text: '準備中 ... ', time }],
+      list: [{ type: 'remote', text: '準備中 ... ', time }]
       // items: [
       //   ['桃園所', 40],
       //   ['中壢所', 16],
@@ -147,9 +147,6 @@ export default {
     chartItems: [],
     chartType: 'line'
   }),
-  fetch () {
-    this.chartLoadData()
-  },
   head: {
     title: '測試-桃園市地政局'
   },
@@ -173,6 +170,9 @@ export default {
         this.$refs.box.scrollTop = this.$refs.box.scrollHeight
       })
     }
+  },
+  created () {
+    this.chartLoadData()
   },
   mounted () {
     this.isBusy = true
@@ -200,7 +200,7 @@ export default {
   },
   methods: {
     chartBgColor (item, opacity) {
-      switch (item[0]) {
+      switch (item.x) {
         case '地政局':
           return `rgb(207, 207, 207, ${opacity})` // H0
         case '桃園所':
@@ -220,9 +220,7 @@ export default {
         case '龜山所':
           return `rgb(136, 72, 152, ${opacity})` // HH
         default:
-          `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(
-            255
-          )}, ${opacity})`
+          return `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${opacity})`
       }
     },
     chartLoadData () {
@@ -251,16 +249,15 @@ export default {
               if (text) {
                 const value = item.count
                 const found = this.chartItems.find((item) => {
-                  return item[0] === text
+                  return item.x === text
                 })
                 if (found) {
-                  found[0] = text
-                  found[1] = value
-                  // not reactively ... manual set chartData
-                  // this.$refs.chart?.changeValue(text, value)
+                  found.y += value
                 } else {
-                  this.chartItems.push([text, value])
+                  this.chartItems.push({ x: text, y: value })
                 }
+              } else {
+                this.$utils.warn('item.est_ip 不在 ipMap 內無法新增至 chartItems 裡', item)
               }
             })
             // this.chartItems = [...items]

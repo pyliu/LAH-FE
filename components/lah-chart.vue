@@ -24,7 +24,11 @@ export default {
     },
     items: {
       type: Array,
-      default: () => []
+      default: () => [{
+        x: 'X軸標籤',
+        y: 23,
+        color: {R: 22, G: 11, B: 45}
+      }]
     },
     tooltip: {
       type: Function,
@@ -133,10 +137,24 @@ export default {
       this.resetData()
       const opacity = this.chartData.datasets[0].opacity
       items.forEach((item) => {
-        this.chartData.labels.push(item[0]) // first element is label
-        this.chartData.datasets[0].data.push(item[1]) // second element is data count
-        // randoom color for this item
-        this.chartData.datasets[0].backgroundColor.push(this.bgColor(item, opacity))
+        if (item.x !== undefined && item.y !== undefined) {
+          this.chartData.labels.push(item.x) // x is label
+          this.chartData.datasets[0].data.push(item.y) // y is data count
+          if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
+            this.chartData.datasets[0].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${opacity})`)
+          } else {
+            // random color for this item
+            this.chartData.datasets[0].backgroundColor.push(this.bgColor(item, opacity))
+          }
+        } else if (Array.isArray(item)) {
+          // legacy use array
+          this.chartData.labels.push(item[0]) // first element is label
+          this.chartData.datasets[0].data.push(item[1]) // second element is data count
+          // randoom color for this item
+          this.chartData.datasets[0].backgroundColor.push(this.bgColor({ x: item[0], y: item[1] }, opacity))
+        } else {
+          this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
+        }
       })
       this.$nextTick(this.buildChart)
     },
@@ -149,11 +167,11 @@ export default {
       if (foundIdx !== undefined) {
         this.chartData.datasets[0].data[foundIdx] = value
         // also update background color as well
-        this.chartData.datasets[0].backgroundColor[foundIdx] = this.bgColor([label, value], 0.6)
+        this.chartData.datasets[0].backgroundColor[foundIdx] = this.bgColor({ x: label, y: value }, 0.6)
         // redraw the chart
         this.$nextTick(this.update())
       } else {
-        this.$utils.warn(`lah-chart: Not found "${label}" in dataset, the ${value} will not be updated.`, this.chartData)
+        this.$utils.warn(`lah-chart: 沒找到 "${label}" 在 dataset 內, ${value} 不會被更新.`, this.chartData)
       }
     },
     buildChart (opts = { plugins: {} }) {
