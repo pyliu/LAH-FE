@@ -131,6 +131,27 @@ export default {
     this.resetData()
   },
   methods: {
+    resetData () {
+      this.chartData = {
+        labels: [],
+        legend: { display: this.legend },
+        datasets: []
+      }
+    },
+    initDataset (idx, label) {
+      if (!this.chartData.datasets[idx]) {
+        this.chartData.datasets.push({
+          label,
+          backgroundColor: [],
+          data: [],
+          borderColor: this.borderColor,
+          order: 1,
+          opacity: this.opacity,
+          snapGaps: true,
+          borderWidth: this.borderWidth
+        })
+      }
+    },
     update () {
       clearTimeout(this.updateTimer)
       this.updateTimer = this.timeout(() => this.inst && this.inst.update(), 100)
@@ -188,27 +209,6 @@ export default {
         this.$nextTick(this.update())
       } else {
         this.$utils.warn(`lah-chart: 沒找到 "${label}" 在 dataset 內, ${value} 不會被更新.`, this.chartData)
-      }
-    },
-    resetData () {
-      this.chartData = {
-        labels: [],
-        legend: { display: this.legend },
-        datasets: []
-      }
-    },
-    initDataset (idx, label) {
-      if (!this.chartData.datasets[idx]) {
-        this.chartData.datasets.push({
-          label,
-          backgroundColor: [],
-          data: [],
-          borderColor: this.borderColor,
-          order: 1,
-          opacity: this.opacity,
-          snapGaps: true,
-          borderWidth: this.borderWidth
-        })
       }
     },
     importData (items, label) {
@@ -302,8 +302,7 @@ export default {
           }
         }, opts)
       })
-      // sometimes the chart doesn't show up properly ... so add this fix to update it
-      this.$nextTick(this.update)
+      this.update()
     },
     toBase64Image () {
       return this.inst.toBase64Image()
