@@ -26,8 +26,8 @@ div(v-cloak)
     lah-monitor-board-tape.card-body-fixed-height
     lah-monitor-board-apserver.card-body-fixed-height
   b-card-group(columns)
-    lah-monitor-board-testdb
     lah-monitor-board-vmclone
+    lah-monitor-board-testdb
     lah-monitor-board-ups
     lah-monitor-board-adsync
 </template>
