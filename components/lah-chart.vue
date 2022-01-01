@@ -25,8 +25,8 @@ export default {
     items: {
       type: Array,
       default: () => [{
-        x: 'X軸標籤',
-        y: 23,
+        x: 'X軸標籤', // xAxes
+        y: 23, // yAxes
         color: { R: 22, G: 11, B: 45 }
       }]
     },
@@ -81,7 +81,7 @@ export default {
       type: Number,
       default: 14
     },
-    aspectRatio: { type: Number, default: 2 }
+    aspectRatio: { type: Number, default: () => +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
   },
   data: () => ({
     id: null,
@@ -91,7 +91,9 @@ export default {
     resize_timer: null
   }),
   computed: {
-    style () { return `max-height: ${window.innerHeight - 185}px; max-width: ${window.innerWidth * 0.75}px;` }
+    style () { return `max-height: ${window.innerHeight - 185}px; max-width: ${window.innerWidth * 0.75}px;` },
+    calcOpacity () { return this.chartData?.datasets[0]?.opacity || 0.6 },
+    calcAspectRatio () { return +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
   },
   watch: {
     type (val) {
@@ -105,15 +107,57 @@ export default {
     }
   },
   created () { this.id = this.uuid() },
-  mounted () {
-    this.setData(this.items)
-  },
+  mounted () { this.setData(this.items) },
   methods: {
     update () {
       clearTimeout(this.update_timer)
       this.update_timer = this.timeout(() => {
         if (this.inst) { this.inst.update() }
       }, 100)
+    },
+    addData (item, datasetIdx = 0) {
+      if (item.x !== undefined && item.y !== undefined) {
+        const foundIdx = this.chartData.labels.indexOf(item.x)
+        if (foundIdx === -1) {
+          this.chartData.labels.push(item.x) // x is label
+          this.chartData.datasets[datasetIdx].data.push(item.y) // y is data count
+          if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
+            this.chartData.datasets[datasetIdx].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.calcOpacity})`)
+          } else {
+            // random color for this item
+            this.chartData.datasets[datasetIdx].backgroundColor.push(this.bgColor(item, this.calcOpacity))
+          }
+        } else {
+          // increment the value if the label existed
+          this.chartData.datasets[datasetIdx].data[foundIdx] += item.y
+        }
+      } else if (Array.isArray(item)) {
+        // legacy use array
+        const foundIdx = this.chartData.labels.indexOf(item[0])
+        if (foundIdx === -1) {
+          this.chartData.labels.push(item[0]) // first element is label
+          this.chartData.datasets[datasetIdx].data.push(item[1]) // second element is data count
+          this.chartData.datasets[datasetIdx].backgroundColor.push(this.bgColor({ x: item[0], y: item[1] }, this.calcOpacity))
+        } else {
+          this.chartData.datasets[0].data[foundIdx] += item[1]
+        }
+      } else {
+        this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
+      }
+    },
+    updateData (item, datasetIdx = 0) {
+      const label = item.x
+      const value = item.y
+      const foundIdx = this.chartData.labels.indexOf(label)
+      if (foundIdx !== -1) {
+        this.chartData.datasets[datasetIdx].data[foundIdx] = value
+        // also update background color as well
+        this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.bgColor(item, this.calcOpacity)
+        // redraw the chart
+        this.$nextTick(this.update())
+      } else {
+        this.$utils.warn(`lah-chart: 沒找到 "${label}" 在 dataset 內, ${value} 不會被更新.`, this.chartData)
+      }
     },
     resetData () {
       this.chartData = {
@@ -133,79 +177,13 @@ export default {
         }]
       }
     },
-    addData (item) {
-      const opacity = this.chartData.datasets[0].opacity || 0.6
-      if (item.x !== undefined && item.y !== undefined) {
-        const foundIdx = this.chartData.labels.indexOf(item.x)
-        if (foundIdx === -1) {
-          this.chartData.labels.push(item.x) // x is label
-          this.chartData.datasets[0].data.push(item.y) // y is data count
-          if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
-            this.chartData.datasets[0].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${opacity})`)
-          } else {
-            // random color for this item
-            this.chartData.datasets[0].backgroundColor.push(this.bgColor(item, opacity))
-          }
-        } else {
-          // increment the value if the label existed
-          this.chartData.datasets[0].data[foundIdx] += item.y
-        }
-      } else if (Array.isArray(item)) {
-        // legacy use array
-        const foundIdx = this.chartData.labels.indexOf(item[0])
-        if (foundIdx === -1) {
-          this.chartData.labels.push(item[0]) // first element is label
-          this.chartData.datasets[0].data.push(item[1]) // second element is data count
-          this.chartData.datasets[0].backgroundColor.push(this.bgColor({ x: item[0], y: item[1] }, opacity))
-        } else {
-          this.chartData.datasets[0].data[foundIdx] += item[1]
-        }
-      } else {
-        this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
-      }
-    },
     setData (items) {
+      // reload data
       this.resetData()
-      items.forEach((item) => {
-        this.addData(item)
-        // if (item.x !== undefined && item.y !== undefined) {
-        //   this.chartData.labels.push(item.x) // x is label
-        //   this.chartData.datasets[0].data.push(item.y) // y is data count
-        //   if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
-        //     this.chartData.datasets[0].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${opacity})`)
-        //   } else {
-        //     // random color for this item
-        //     this.chartData.datasets[0].backgroundColor.push(this.bgColor(item, opacity))
-        //   }
-        // } else if (Array.isArray(item)) {
-        //   // legacy use array
-        //   this.chartData.labels.push(item[0]) // first element is label
-        //   this.chartData.datasets[0].data.push(item[1]) // second element is data count
-        //   // randoom color for this item
-        //   this.chartData.datasets[0].backgroundColor.push(this.bgColor({ x: item[0], y: item[1] }, opacity))
-        // } else {
-        //   this.$utils.warn('輸入資料不符合規格無法加入 chart data', item)
-        // }
-      })
+      items?.forEach(item => this.addData(item))
       this.$nextTick(this.buildChart)
     },
-    changeValue (label, value) {
-      let foundIdx
-      this.chartData.labels.find((olabel, idx, array) => {
-        if (olabel === label) { foundIdx = idx }
-        return olabel === label
-      })
-      if (foundIdx !== undefined) {
-        this.chartData.datasets[0].data[foundIdx] = value
-        // also update background color as well
-        this.chartData.datasets[0].backgroundColor[foundIdx] = this.bgColor({ x: label, y: value }, 0.6)
-        // redraw the chart
-        this.$nextTick(this.update())
-      } else {
-        this.$utils.warn(`lah-chart: 沒找到 "${label}" 在 dataset 內, ${value} 不會被更新.`, this.chartData)
-      }
-    },
-    buildChart (opts = { plugins: {} }) {
+    buildChart (datasetIdx = 0, opts = { plugins: {} }) {
       if (this.inst) {
         // reset the chart
         this.inst.destroy()
@@ -215,7 +193,7 @@ export default {
       if (this.chartData.datasets.length > 1) {
         this.chartData.datasets = this.chartData.datasets.slice(0, 1)
       }
-      this.chartData.datasets[0].label = this.label
+      this.chartData.datasets[datasetIdx].label = this.label
       switch (this.type) {
         case 'pie':
         case 'polarArea':
@@ -278,7 +256,7 @@ export default {
              * getDatasetAtEvent is replaced with chart.getElementsAtEventForMode(e, 'dataset', { intersect: true }, false)
              */
             const element = that.inst.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false)
-            if (!that.empty(element)) {
+            if (!that.$utils.empty(element)) {
               payload.point = element[0]
               if (payload.point) {
                 // point e.g. {element: e, datasetIndex: 0, index: 14}
