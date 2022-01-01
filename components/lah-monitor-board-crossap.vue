@@ -12,6 +12,17 @@ b-card(no-body)
         title="圖型切換"
       )
       lah-button(
+        v-if="!maximized"
+        icon="window-maximize",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        regular,
+        @click="popupMaximize",
+        title="放大顯示"
+      )
+      lah-button(
+        v-if="!maximized"
         icon="question",
         action="breath",
         variant="outline-success",
@@ -29,6 +40,9 @@ b-card(no-body)
 
 <script>
 export default {
+  props: {
+    maximized: { type: Boolean, default: false }
+  },
   data: () => ({
     header: '跨域AP連線狀態',
     bar: true,
@@ -49,6 +63,12 @@ export default {
     this.load()
   },
   methods: {
+    popupMaximize () {
+      this.modal(this.$createElement('lah-monitor-board-crossap', { props: { maximized: true } }), {
+        title: '跨域AP監控',
+        size: 'xl'
+      })
+    },
     load () {
       clearTimeout(this.reloadTimer)
       this.$refs.chart?.reset()
@@ -56,7 +76,7 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_latest_ap_conn',
-          ap_ip: '220.1.34.161',
+          ap_ip: this.webapIp,
           all: true
         })
         .then(({ data }) => {
