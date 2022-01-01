@@ -122,9 +122,7 @@ export default {
     calcAspectRatio () { return +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
   },
   watch: {
-    type (val) {
-      this.rebuild()
-    }
+    type (val) { this.rebuild() }
   },
   created () {
     this.id = this.uuid()
