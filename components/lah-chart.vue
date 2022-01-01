@@ -222,10 +222,6 @@ export default {
         this.inst.destroy()
         this.inst = null
       }
-      // keep only one dataset inside
-      // if (this.chartData.datasets.length > 1) {
-      //   this.chartData.datasets = this.chartData.datasets.slice(0, 1)
-      // }
       switch (this.type) {
         case 'pie':
         case 'polarArea':
