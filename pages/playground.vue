@@ -94,10 +94,12 @@ div: client-only
         no-icon-gutter
       )
     b-card
-      template(#header) lah-chart 測試
+      template(#header): .d-flex
+       .text-nowrap.my-auto.mr-1 lah-chart 測試
+       b-select.ml-auto(v-model="chartType", :options="chartOpts")
       lah-chart(
         ref="chart",
-        label="test",
+        label="連線數"
         :items="chartItems",
         :type="chartType",
         :bg-color="chartBgColor"
@@ -145,7 +147,15 @@ export default {
     image: undefined,
     base64image: '',
     chartItems: [],
-    chartType: 'line'
+    chartType: 'line',
+    chartOpts: [
+      'line',
+      'bar',
+      'pie',
+      'polarArea',
+      'doughnut',
+      'radar'
+    ]
   }),
   head: {
     title: '測試-桃園市地政局'

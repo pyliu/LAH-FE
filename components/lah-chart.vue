@@ -10,9 +10,13 @@ export default {
       type: String,
       default: 'bar'
     },
+    legend: {
+      type: Boolean,
+      default: true
+    },
     label: {
       type: String,
-      default: '統計圖表'
+      default: 'set label to override me'
     },
     labelFontSize: {
       type: Number,
@@ -61,13 +65,13 @@ export default {
       type: Boolean,
       default: true
     },
-    legend: {
-      type: Boolean,
-      default: true
-    },
     beginAtZero: {
       type: Boolean,
       default: true
+    },
+    subtitle: {
+      type: String,
+      default: ''
     },
     title: {
       type: String,
@@ -87,11 +91,9 @@ export default {
     id: null,
     inst: null,
     chartData: null,
-    update_timer: null,
-    resize_timer: null
+    updateTimer: null
   }),
   computed: {
-    style () { return `max-height: ${window.innerHeight - 185}px; max-width: ${window.innerWidth * 0.75}px;` },
     calcOpacity () { return this.chartData?.datasets[0]?.opacity || 0.6 },
     calcAspectRatio () { return +Number.parseFloat(window.innerWidth / window.innerHeight).toFixed(2) }
   },
@@ -106,15 +108,18 @@ export default {
       this.setData(newItems)
     }
   },
-  created () { this.id = this.uuid() },
-  mounted () { this.setData(this.items) },
+  created () {
+    this.id = this.uuid()
+    this.setData(this.items)
+  },
   methods: {
     update () {
-      clearTimeout(this.update_timer)
-      this.update_timer = this.timeout(() => this.inst && this.inst.update(), 100)
+      clearTimeout(this.updateTimer)
+      this.updateTimer = this.timeout(() => this.inst && this.inst.update(), 100)
     },
     addData (item, datasetIdx = 0) {
       if (item.x !== undefined && item.y !== undefined) {
+        this.checkDataset(datasetIdx)
         const foundIdx = this.chartData.labels.indexOf(item.x)
         if (foundIdx === -1) {
           this.chartData.labels.push(item.x) // x is label
@@ -130,6 +135,7 @@ export default {
           this.chartData.datasets[datasetIdx].data[foundIdx] += item.y
         }
       } else if (Array.isArray(item)) {
+        this.checkDataset(datasetIdx)
         // legacy use array
         const foundIdx = this.chartData.labels.indexOf(item[0])
         if (foundIdx === -1) {
@@ -160,10 +166,14 @@ export default {
     resetData () {
       this.chartData = {
         labels: [],
-        legend: {
-          display: this.legend
-        },
-        datasets: [{
+        legend: { display: this.legend },
+        datasets: []
+      }
+      this.checkDataset(0)
+    },
+    checkDataset (idx) {
+      if (!this.chartData.datasets[idx]) {
+        this.chartData.datasets.push({
           label: this.label,
           backgroundColor: [],
           data: [],
@@ -172,7 +182,7 @@ export default {
           opacity: this.opacity,
           snapGaps: true,
           borderWidth: 1
-        }]
+        })
       }
     },
     setData (items) {
@@ -180,6 +190,7 @@ export default {
       this.resetData()
       items?.forEach(item => this.addData(item))
       this.$nextTick(this.buildChart)
+      this.$utils.warn(this.chartData.datasets)
     },
     buildChart (datasetIdx = 0, opts = { plugins: {} }) {
       if (this.inst) {
@@ -191,7 +202,6 @@ export default {
       if (this.chartData.datasets.length > 1) {
         this.chartData.datasets = this.chartData.datasets.slice(0, 1)
       }
-      this.chartData.datasets[datasetIdx].label = this.label
       switch (this.type) {
         case 'pie':
         case 'polarArea':
@@ -223,9 +233,12 @@ export default {
         position: this.titlePos,
         font: { size: +this.titleFontSize }
       }
+      // subtitle
+      opts.plugins.subtitle = {
+        display: !this.$utils.empty(this.subtitle),
+        text: this.subtitle
+      }
       // use chart.js directly
-      // let ctx = this.$el.childNodes[0];
-      // const ctx = this.$(`#${this.id}`)
       const ctx = this.id
       const that = this
       this.inst = new Chart(ctx, {
