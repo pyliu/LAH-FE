@@ -119,7 +119,7 @@ export default {
       this.chartData = {
         labels: [],
         legend: {
-          display: true
+          display: this.legend
         },
         datasets: [{
           label: this.label,
