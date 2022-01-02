@@ -5,13 +5,6 @@ b-card(no-body)
     strong {{ header }} ({{ totalCount }})
     b-button-group.ml-auto(size="sm")
       lah-button(
-        :icon="bar ? 'chart-line' : 'chart-bar'",
-        no-border,
-        no-icon-gutter,
-        @click="bar = !bar",
-        title="圖型切換"
-      )
-      lah-button(
         v-if="!maximized"
         icon="window-maximize",
         variant="outline-primary",
@@ -35,7 +28,7 @@ b-card(no-body)
       ul
         li 顯示跨域AP連線狀態(AP需安裝回報腳本以更新快取資料庫)
         li 每15秒更新資料一次狀態
-  lah-chart(ref="chart", :type="chartType")
+  lah-chart(ref="chart")
 </template>
 
 <script>
@@ -45,10 +38,10 @@ export default {
   },
   data: () => ({
     header: '跨域AP連線狀態',
-    bar: true,
     reloadTimer: null,
     loadItems: [],
-    chartDatasetIdx: 0,
+    barDatasetIdx: 0,
+    lineDatasetIdx: 1,
     initItems: [
       { x: '桃園所', y: 0, color: { R: 254, G: 185, B: 180 } },
       { x: '中壢所', y: 0, color: { R: 125, G: 199, B: 80 } },
@@ -77,7 +70,6 @@ export default {
       const found = [...this.crossApMap].find(arr => arr[1].code === this.site)
       return found[0]
     },
-    chartType () { return this.bar ? 'bar' : 'line' },
     totalCount () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
     light () {
       if (this.totalCount > 500) { return 'danger' }
@@ -89,7 +81,8 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   mounted () {
-    this.chartDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '連線數', this.chartType)
+    this.barDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '長條圖', 'bar')
+    this.lineDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '線型圖', 'line')
     this.$refs.chart?.build()
     this.loadAPConnectionCount()
   },
@@ -146,7 +139,9 @@ export default {
             })
             this.loadItems = [...tmp]
             this.loadItems.forEach((element) => {
-              this.$refs.chart.updateData({ x: element[0], y: element[1] }, this.chartDatasetIdx)
+              const item = { x: element[0], y: element[1] }
+              this.$refs.chart.updateData(item, this.barDatasetIdx)
+              this.$refs.chart.updateData(item, this.lineDatasetIdx)
             })
           }
         })
