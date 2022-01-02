@@ -103,17 +103,17 @@ export default {
   data: () => ({
     id: null,
     inst: null,
-    chartData: null,
-    updateTimer: null
+    chartData: null
   }),
   watch: {
     type (val) {
       this.chartData.datasets.forEach(ds => (ds.type = val))
-      this.rebuild()
+      this.build()
     }
   },
   created () {
     this.id = this.uuid()
+    this.update = this.$utils.debounce(() => this.inst && this.inst.update(), 100)
     this.reset()
   },
   methods: {
@@ -138,10 +138,6 @@ export default {
           borderWidth: this.borderWidth
         })
       }
-    },
-    update () {
-      clearTimeout(this.updateTimer)
-      this.updateTimer = this.timeout(() => this.inst && this.inst.update(), 100)
     },
     addData (item, label, type, datasetIdx = 0) {
       if (item.x !== undefined && item.y !== undefined) {
@@ -173,7 +169,7 @@ export default {
           }
         }
       } else {
-        this.$utils.warn('輸入資料不符合規格無法加入 chart dataset', item, label, type, datasetIdx)
+        this.$utils.warn(`輸入資料不符合規格無法加入 chart datasets[${datasetIdx}]`, item, label, type)
       }
     },
     addBackgroundColor (item, datasetIdx) {
@@ -193,9 +189,9 @@ export default {
         // also update background color as well
         this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.opacity)
         // redraw the chart
-        this.$nextTick(this.update())
+        this.update()
       } else {
-        this.$utils.warn(`lah-chart: 沒找到 "${label}" 在 dataset 內, ${value} 不會被更新.`, this.chartData)
+        this.$utils.warn(`${this.$options.name}: 沒找到 "${label}" 在 datasets[${datasetIdx}] 內, ${value} 不會被更新.`, this.chartData)
       }
     },
     addDataset (items, label, type = undefined) {
@@ -209,6 +205,7 @@ export default {
        */
       const nextDatasetIdx = this.chartData.datasets.length
       items?.forEach(item => this.addData(item, label, type, nextDatasetIdx))
+      return nextDatasetIdx
     },
     removeDataset (label) {
       let foundIdx = -1
@@ -220,13 +217,13 @@ export default {
         return false
       })
       if (foundIdx === -1) {
-        this.$utils.warn(`沒有發現 ${label} 的資料。`)
+        this.$utils.warn(`沒有發現 ${label} 的 dataset，刪除失敗。`)
       } else {
         this.chartData.datasets.splice(foundIdx, 1)
         this.update()
       }
+      return foundIdx
     },
-    rebuild () { this.$nextTick(this.build) },
     build (opts = { plugins: {} }) {
       if (this.inst) {
         // reset the chart
