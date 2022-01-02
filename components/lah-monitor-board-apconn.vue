@@ -36,6 +36,8 @@ b-card(no-body)
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
         li 顯示AP連線數統計狀態(AP需安裝回報腳本才能正常顯示)
+        li 可利用 #[lah-fa-icon(:icon="type === 'bar' ? 'chart-line' : 'chart-bar'", variant="primary")] 切換圖形
+        li 可利用「全部」切換非人使用者顯示
         li 60秒更新資料一次
   lah-chart(ref="chart" :type="type")
 </template>
