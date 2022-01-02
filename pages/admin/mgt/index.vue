@@ -24,7 +24,7 @@ div(v-cloak)
   b-card-group.mb-4(deck)
     lah-monitor-board-dbbackup.card-body-fixed-height
     lah-monitor-board-tape.card-body-fixed-height
-    lah-monitor-board-apserver.card-body-fixed-height
+    lah-monitor-board-apbackup.card-body-fixed-height
   b-card-group(columns)
     lah-monitor-board-vmclone
     lah-monitor-board-testdb
