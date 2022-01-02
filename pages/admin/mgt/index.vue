@@ -19,17 +19,18 @@ div(v-cloak)
         li 預設監控顯示一天內資料
   b-card-group.mb-4(deck)
     lah-monitor-board-crossap
+    lah-monitor-board-apconn
+    lah-monitor-board-apconn(line, all)
+  b-card-group(columns)
     lah-monitor-board-dataguard.card-body-fixed-height
+    lah-monitor-board-vmclone.card-body-fixed-height
+    lah-monitor-board-testdb.card-body-fixed-height
     lah-monitor-board-hacmp.card-body-fixed-height
-  b-card-group.mb-4(deck)
+    lah-monitor-board-apbackup.card-body-fixed-height
     lah-monitor-board-dbbackup.card-body-fixed-height
     lah-monitor-board-tape.card-body-fixed-height
-    lah-monitor-board-apbackup.card-body-fixed-height
-  b-card-group(columns)
-    lah-monitor-board-vmclone
-    lah-monitor-board-testdb
-    lah-monitor-board-ups
-    lah-monitor-board-adsync
+    lah-monitor-board-ups.card-body-fixed-height
+    lah-monitor-board-adsync.card-body-fixed-height
 </template>
 
 <script>
