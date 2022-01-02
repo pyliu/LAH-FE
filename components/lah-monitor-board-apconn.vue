@@ -86,12 +86,6 @@ export default {
     this.loadConfig()
   },
   mounted () {
-    // this.barDatasetIdx = this.$refs.chart?.addDataset(
-    //   this.initItems,
-    //   '長條圖',
-    //   'bar'
-    // )
-    // this.$refs.chart?.build()
     this.loadAPConnectionCount()
   },
   beforeDestroy () {
@@ -109,7 +103,7 @@ export default {
           }
         }),
         {
-          title: 'AP連線狀態監控',
+          title: 'AP使用者連線數',
           size: 'xl'
         }
       )
