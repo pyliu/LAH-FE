@@ -2,7 +2,7 @@
 b-card(no-body)
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
-    strong {{ header }} ({{ totalCount }})
+    strong {{ header }} #[span.text-muted.s-65 (總數：{{ totalCount }} 更新：{{ updatedTime }})]
     b-button-group.ml-auto(size="sm")
       lah-button(
         v-if="!maximized"
@@ -26,8 +26,8 @@ b-card(no-body)
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示跨域AP連線狀態(AP需安裝回報腳本以更新快取資料庫)
-        li 每15秒更新資料一次狀態
+        li 顯示跨域AP連線數統計狀態(AP需安裝回報腳本才能正常顯示)
+        li 15秒更新資料一次
   lah-chart(ref="chart")
 </template>
 
@@ -39,6 +39,7 @@ export default {
   data: () => ({
     header: '跨域AP連線狀態',
     reloadTimer: null,
+    updatedTime: '',
     loadItems: [],
     barDatasetIdx: 0,
     lineDatasetIdx: 1,
@@ -134,7 +135,7 @@ export default {
               if (currentValue !== undefined) {
                 tmp.set(text, item.count + currentValue)
               } else {
-                // this.$utils.warn('item.est_ip 不在 ipMap 內無法新增至 loadItems 裡', item)
+                // this.$utils.warn('item.est_ip 不在 crossApMap 內無法新增至 loadItems 裡', item)
               }
             })
             this.loadItems = [...tmp]
@@ -149,6 +150,7 @@ export default {
           this.error = err
         })
         .finally(() => {
+          this.updatedTime = this.$utils.now().split(' ')[1]
           // reload every 15s
           this.reloadTimer = this.timeout(this.loadAPConnectionCount, 15 * 1000)
         })
