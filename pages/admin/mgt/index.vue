@@ -21,7 +21,8 @@ div(v-cloak)
   b-card-group.mb-2(deck)
     lah-monitor-board-crossap
     lah-monitor-board-apconn
-    lah-monitor-board-apconn(line, all)
+    //- lah-monitor-board-apconn(line, all)
+    lah-monitor-board-connectivity
   b-card-group.mb-2(deck)
     lah-monitor-board-dataguard.card-body-fixed-height
     lah-monitor-board-hacmp.card-body-fixed-height

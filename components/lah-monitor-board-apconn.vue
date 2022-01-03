@@ -59,7 +59,7 @@ b-card(no-body)
         li 可利用「全部」切換為系統連線顯示(包含使用者及其他伺服器連線)
         li 60秒更新資料一次
       hr
-      lah-fa-icon(icon="palette") 顏色說明(若切換為全部顯示，臨界值會乘上3倍)
+      h5 #[lah-fa-icon(icon="palette") 顏色說明(切換系統顯示，臨界值會乘上3倍)]
       div #[lah-fa-icon(icon="circle", style="color: rgb(214, 214, 214)")] 灰色 - 連線數 1 ~ 2
       div #[lah-fa-icon(icon="circle", style="color: rgb(164, 236, 119)")] 綠色 - 連線數 3 ~ 4
       div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - 連線數 5 ~ 8
@@ -74,11 +74,9 @@ b-card(no-body)
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
     lah-fa-icon(
       v-if="allSwitch",
-      size="sm",
       icon="database"
     ) 資料庫 {{ dbTotal }}
     lah-fa-icon(
-      size="sm",
       icon="server"
     ) 連線總數 {{ totalCount }}
     strong {{ apIp }}
@@ -130,6 +128,7 @@ export default {
     prevSvr () {
       let currIdx = -1
       this.carousel.find((item, idx, array) => {
+        // eslint-disable-next-line eqeqeq
         const found = item == this.currSvr
         currIdx = found ? idx : -1
         return found
@@ -140,6 +139,7 @@ export default {
     nextSvr () {
       let currIdx = -1
       this.carousel.find((item, idx, array) => {
+        // eslint-disable-next-line eqeqeq
         const found = item == this.currSvr
         currIdx = found ? idx : -1
         return found
@@ -179,7 +179,7 @@ export default {
           }
         }),
         {
-          title: 'AP使用者連線數',
+          title: 'AP伺服器連線狀態',
           size: 'xl'
         }
       )
