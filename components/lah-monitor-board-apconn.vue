@@ -162,10 +162,10 @@ export default {
         this.$utils.error('讀取系統設定失敗', e)
       }
     },
-    backgroundColor (item) {
-      if (item.count > 8) { return { R: 220, G: 53, B: 29 } }
-      if (item.count > 4) { return { R: 255, G: 193, B: 7 } }
-      if (item.count > 2) { return { R: 164, G: 236, B: 119 } }
+    backgroundColor (element) {
+      if (element[1] > 8) { return { R: 220, G: 53, B: 29 } }
+      if (element[1] > 4) { return { R: 255, G: 193, B: 7 } }
+      if (element[1] > 2) { return { R: 164, G: 236, B: 119 } }
       return { R: 214, G: 214, B: 214 }
     },
     loadAPConnectionCount () {
