@@ -44,6 +44,7 @@ b-card(no-body)
 
 <script>
 export default {
+  name: 'LahMonitorBoardApconn',
   props: {
     maximized: { type: Boolean, default: false },
     line: { type: Boolean, default: false },
@@ -95,7 +96,7 @@ export default {
     reload () { /* placeholder for loadAPConnectionCount  */ },
     popupMaximize () {
       this.modal(
-        this.$createElement('lah-monitor-board-apconn', {
+        this.$createElement('LahMonitorBoardApconn', {
           props: {
             maximized: true,
             all: this.all,

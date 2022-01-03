@@ -33,6 +33,7 @@ b-card(no-body)
 
 <script>
 export default {
+  name: 'LahMonitorBoardCrossap',
   props: {
     maximized: { type: Boolean, default: false }
   },
@@ -82,17 +83,20 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   mounted () {
-    this.barDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '長條圖', 'bar')
-    this.lineDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '線型圖', 'line')
-    this.$refs.chart?.build()
-    this.loadAPConnectionCount()
+    // let init chart process after mounted executed
+    setTimeout(() => {
+      this.barDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '長條圖', 'bar')
+      this.lineDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '線型圖', 'line')
+      this.$refs.chart?.build()
+      this.loadAPConnectionCount()
+    }, 0)
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
   },
   methods: {
     popupMaximize () {
-      this.modal(this.$createElement('lah-monitor-board-crossap', { props: { maximized: true } }), {
+      this.modal(this.$createElement('LahMonitorBoardCrossap', { props: { maximized: true } }), {
         title: '跨域AP監控',
         size: 'xl'
       })
