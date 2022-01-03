@@ -110,18 +110,15 @@ export default {
     },
     async loadConfig () {
       try {
-        let configs = this.systemConfigs
+        let configs = await this.getCache('SYSYEM_CONFIGS')
         if (!configs) {
-          const data = await this.$axios.post(this.$consts.API.JSON.QUERY, { type: 'configs' })
-          if (data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL) {
-            configs = data.raw
-          }
+          const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, { type: 'configs' })
+          configs = { ...data.raw }
+          // cached for a day
+          this.setCache('SYSYEM_CONFIGS', configs, 24 * 60 * 60 * 1000)
         }
         // 起始顯示之AP
         this.apIp = configs.WEBAP_IP || '220.1.34.161'
-        // this.site = configs.SITE || 'HA'
-        // default is HA ap list
-        // this.carousel =
         if (configs.WEBAP_POSTFIXES) {
           // expect ip postfix string => "205, 206, 207, 156, 118, 60, 161"
           const list = configs.WEBAP_POSTFIXES.split(',')
@@ -155,15 +152,6 @@ export default {
       } catch (e) {
         this.$utils.error('讀取系統設定失敗', e)
       }
-    },
-    loadStaticIPEntries () {
-      this.$axios.post(this.$consts.API.JSON.IP, {
-        type: 'static_ip_entries'
-      }).then(({ data }) => {
-        this.$utils.warn(data)
-      }).catch((err) => {
-        this.$utils.error('取得靜態IP列表失敗', err)
-      })
     },
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
