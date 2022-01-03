@@ -110,18 +110,23 @@ export default {
     },
     async loadConfig () {
       try {
-        let configs = await this.getCache('SYSYEM_CONFIGS')
-        if (!configs) {
-          const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, { type: 'configs' })
-          configs = { ...data.raw }
-          // cached for a day
-          this.setCache('SYSYEM_CONFIGS', configs, 24 * 60 * 60 * 1000)
-        }
         // 起始顯示之AP
-        this.apIp = configs.WEBAP_IP || '220.1.34.161'
-        if (configs.WEBAP_POSTFIXES) {
+        this.apIp = this.systemConfigs.webap_ip || '220.1.34.161'
+        // 全部AP的IP尾數
+        let apPostfix = this.systemConfigs.webap_postfix
+        if (!apPostfix) {
+          let configs = await this.getCache('SYSYEM_CONFIGS')
+          if (!configs) {
+            const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, { type: 'configs' })
+            configs = { ...data.raw }
+            // cached for a day
+            this.setCache('SYSYEM_CONFIGS', configs, 24 * 60 * 60 * 1000)
+          }
+          apPostfix = configs.WEBAP_POSTFIXES
+        }
+        if (apPostfix) {
           // expect ip postfix string => "205, 206, 207, 156, 118, 60, 161"
-          const list = configs.WEBAP_POSTFIXES.split(',')
+          const list = apPostfix.split(',')
             .sort((a, b) => {
               if (parseInt(a) < parseInt(b)) {
                 return 1
@@ -147,7 +152,7 @@ export default {
             })
           this.carousel = [...list]
         } else {
-          this.$utils.warn('找不到 configs.WEBAP_POSTFIXES 使用 HA 預設！')
+          this.$utils.warn('找不到 WEBAP POSTFIX 設定，使用 HA 預設！')
         }
       } catch (e) {
         this.$utils.error('讀取系統設定失敗', e)
