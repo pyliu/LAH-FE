@@ -73,6 +73,11 @@ b-card(no-body)
 
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
     lah-fa-icon(
+      v-if="allSwitch",
+      size="sm",
+      icon="database"
+    ) 資料庫 {{ dbTotal }}
+    lah-fa-icon(
       size="sm",
       icon="server"
     ) 連線總數 {{ totalCount }}
@@ -106,7 +111,8 @@ export default {
     updatedTime: '',
     allSwitch: false,
     loadItems: [],
-    skipNames: ['資料庫', '系統管理者']
+    skipNames: ['資料庫', '系統管理者'],
+    dbTotal: 0
   }),
   computed: {
     header () { return this.allSwitch ? 'AP系統連線狀態' : 'AP使用者連線狀態' },
@@ -148,13 +154,13 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.reload = this.$utils.debounce(this.loadAPConnectionCount, 1000)
-    this.type = this.line ? 'line' : 'bar'
+    this.reload = this.$utils.debounce(this.loadAPConnectionCount, 500)
     this.allSwitch = this.all
+    this.type = this.line ? 'line' : 'bar'
     this.loadConfig()
   },
   mounted () {
-    this.timeout(() => this.loadAPConnectionCount(), 0)
+    this.loadAPConnectionCount()
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
@@ -261,6 +267,7 @@ export default {
                       name: '資訊主機'
                   }
               */
+              if (item.name === '資料庫') { this.dbTotal = item.count }
               // skip 資料庫/系統管理者
               if (!this.skipNames.includes(item.name)) {
                 const current = processing.get(item.name)
