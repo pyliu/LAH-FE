@@ -39,6 +39,8 @@ b-card(no-body)
         li 可利用 #[lah-fa-icon(:icon="type === 'bar' ? 'chart-line' : 'chart-bar'", variant="primary")] 切換圖形
         li 可利用「全部」切換非人使用者顯示
         li 60秒更新資料一次
+  //- b-carousel(
+  //- )
   lah-chart(ref="chart" :type="type")
 </template>
 
@@ -160,6 +162,12 @@ export default {
         this.$utils.error('讀取系統設定失敗', e)
       }
     },
+    backgroundColor (item) {
+      if (item.count > 8) { return { R: 220, G: 53, B: 29 } }
+      if (item.count > 4) { return { R: 255, G: 193, B: 7 } }
+      if (item.count > 2) { return { R: 164, G: 236, B: 119 } }
+      return { R: 214, G: 214, B: 214 }
+    },
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
       this.$refs.chart?.reset()
@@ -192,7 +200,7 @@ export default {
             })
             this.loadItems = [...processing]
             this.loadItems.forEach((element) => {
-              const item = { x: element[0], y: element[1] }
+              const item = { x: element[0], y: element[1], color: this.backgroundColor(element) }
               this.$refs.chart?.addData(item, this.apIp, 0)
             })
             this.$refs.chart?.build()
@@ -203,6 +211,7 @@ export default {
         })
         .finally(() => {
           this.updatedTime = this.$utils.now().split(' ')[1]
+          clearTimeout(this.reloadTimer)
           // reload every 60s
           this.reloadTimer = this.timeout(
             this.loadAPConnectionCount,
