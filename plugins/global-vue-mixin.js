@@ -224,8 +224,9 @@ Vue.mixin({
     },
     timeout (func, ms) {
       return new Promise((resolve, reject) => {
-        if (isNaN(parseInt(ms)) || parseInt(ms) < 1) {
-          reject(new Error('timeout function second param should be an integer that is greater than 0'))
+        const delayMs = parseInt(ms)
+        if (isNaN(delayMs) || delayMs < 0) {
+          reject(new Error('timeout function second param should be an integer'))
         } else if (typeof func !== 'function') {
           reject(new Error('timeout function first param should be a function'))
         } else {

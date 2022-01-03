@@ -84,7 +84,7 @@ export default {
   },
   mounted () {
     // let init chart process after mounted executed
-    setTimeout(() => {
+    this.timeout(() => {
       this.barDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '長條圖', 'bar')
       this.lineDatasetIdx = this.$refs.chart?.addDataset(this.initItems, '線型圖', 'line')
       this.$refs.chart?.build()
