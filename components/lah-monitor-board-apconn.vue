@@ -68,7 +68,7 @@ b-card(no-body)
       div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - 連線數大於32
   //- b-carousel(
   //- )
-  .center.mt-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
+  .center.my-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
   lah-chart(v-show="loadItems.length > 0" ref="chart" :type="type")
 
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small

@@ -54,7 +54,7 @@ b-card(no-body)
       div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - PING值161ms以上
   //- b-carousel(
   //- )
-  .center.mt-5(v-if="loadItems.length === 0") ⚠ 無監控標的資料
+  .center.my-5(v-if="loadItems.length === 0") ⚠ 無監控標的資料
   lah-chart(
     v-show="loadItems.length > 0",
     ref="chart",
