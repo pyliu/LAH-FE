@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card(no-body)
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(:icon="icon", :variant="light"): strong {{ header }} #[span.text-muted.s-75 (總數：{{ totalCount }})]
+    lah-fa-icon(:icon="icon", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
       b-checkbox.my-auto(v-model="allSwitch", size="sm") 全部
       lah-button(
@@ -70,6 +70,15 @@ b-card(no-body)
   //- )
   .center.mt-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
   lah-chart(v-show="loadItems.length > 0" ref="chart" :type="type")
+
+  template(#footer): .d-flex.justify-content-between.small
+    lah-fa-icon(
+      size="sm",
+      icon="server"
+    ) 連線總數 {{ totalCount }}
+    strong {{ apIp }}
+    lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
+
 </template>
 
 <script>

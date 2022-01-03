@@ -1,8 +1,7 @@
 <template lang="pug">
 b-card(no-body)
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(icon="circle", :variant="light")
-    strong {{ header }} #[span.text-muted.s-65 (總數：{{ totalCount }} 更新：{{ updatedTime }})]
+    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
         v-if="!maximized"
@@ -29,6 +28,22 @@ b-card(no-body)
         li 顯示跨域AP連線數統計狀態(AP需安裝回報腳本才能正常顯示)
         li 15秒更新資料一次
   lah-chart(ref="chart")
+
+  template(#footer): .d-flex.justify-content-between.small
+    lah-fa-icon(
+      :variant="dbStyles[0]",
+      :action="dbStyles[1]",
+      :size="dbStyles[2]",
+      :icon="dbStyles[3]"
+    ) 資料庫 {{ dbTotal }}
+    lah-fa-icon(
+      :variant="apStyles[0]",
+      :action="apStyles[1]",
+      :size="apStyles[2]",
+      :icon="apStyles[3]"
+    ) 主機連線 {{ apTotal }}
+    lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
+
 </template>
 
 <script>
@@ -44,6 +59,7 @@ export default {
     loadItems: [],
     barDatasetIdx: 0,
     lineDatasetIdx: 1,
+    dbTotal: 0,
     initItems: [
       { x: '桃園所', y: 0, color: { R: 254, G: 185, B: 180 } },
       { x: '中壢所', y: 0, color: { R: 125, G: 199, B: 80 } },
@@ -72,11 +88,23 @@ export default {
       const found = [...this.crossApMap].find(arr => arr[1].code === this.site)
       return found[0]
     },
-    totalCount () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
+    apTotal () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
     light () {
-      if (this.totalCount > 500) { return 'danger' }
-      if (this.totalCount > 300) { return 'warning' }
-      return 'success'
+      return this.apStyles[0]
+    },
+    dbStyles () {
+      // return [color, action, size, icon]
+      if (this.dbTotal > 3000) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.dbTotal > 1800) { return ['danger', 'shiver', 'lg', 'database'] }
+      if (this.dbTotal > 1000) { return ['warning', 'beat', '1x', 'database'] }
+      return ['success', 'breath', 'sm', 'database']
+    },
+    apStyles () {
+      // return [color, action, size, icon]
+      if (this.apTotal > 1000) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.apTotal > 750) { return ['danger', 'shiver', 'lg', 'server'] }
+      if (this.apTotal > 500) { return ['warning', 'beat', '1x', 'server'] }
+      return ['success', 'breath', 'sm', 'server']
     }
   },
   created () {
@@ -134,6 +162,7 @@ export default {
                       name: '資訊主機'
                   }
               */
+              item.name === '資料庫' && (this.dbTotal = item.count)
               const text = this.crossApMap.get(item.est_ip)?.name
               const currentValue = tmp.get(text)
               if (currentValue !== undefined) {
