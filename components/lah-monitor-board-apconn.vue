@@ -163,11 +163,12 @@ export default {
       }
     },
     backgroundColor (element) {
-      if (element[1] > 32) { return { R: 51, G: 51, B: 51 } } // black
-      if (element[1] > 16) { return { R: 204, G: 0, B: 204 } } // purple
-      if (element[1] > 8) { return { R: 220, G: 53, B: 29 } } // red
-      if (element[1] > 4) { return { R: 255, G: 193, B: 7 } } // yellow
-      if (element[1] > 2) { return { R: 164, G: 236, B: 119 } } // green
+      const factor = this.allSwitch ? 3 : 1
+      if (element[1] > 32 * factor) { return { R: 51, G: 51, B: 51 } } // black
+      if (element[1] > 16 * factor) { return { R: 204, G: 0, B: 204 } } // purple
+      if (element[1] > 8 * factor) { return { R: 220, G: 53, B: 29 } } // red
+      if (element[1] > 4 * factor) { return { R: 255, G: 193, B: 7 } } // yellow
+      if (element[1] > 2 * factor) { return { R: 164, G: 236, B: 119 } } // green
       // gray
       return { R: 214, G: 214, B: 214 }
     },
