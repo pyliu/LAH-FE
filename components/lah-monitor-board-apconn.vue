@@ -280,7 +280,8 @@ export default {
               const item = { x: element[0], y: element[1], color: this.backgroundColor(element) }
               this.$refs.chart?.addData(item, this.apIp, 0)
             })
-            this.$refs.chart?.build()
+            // make chart build a bit later
+            this.timeout(() => this.$refs.chart?.build(), 0)
           }
         })
         .catch((err) => {
