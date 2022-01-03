@@ -37,7 +37,7 @@ b-card(no-body)
       ul
         li 顯示AP連線數統計狀態(AP需安裝回報腳本才能正常顯示)
         li 可利用 #[lah-fa-icon(:icon="type === 'bar' ? 'chart-line' : 'chart-bar'", variant="primary")] 切換圖形
-        li 可利用「全部」切換非人使用者顯示
+        li 可利用「全部」切換為系統連線顯示(包含使用者及其他伺服器連線)
         li 60秒更新資料一次
       hr
       lah-fa-icon(icon="palette") 顏色說明(若切換為全部顯示，臨界值會乘上3倍)
