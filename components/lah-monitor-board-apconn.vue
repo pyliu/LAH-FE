@@ -39,6 +39,14 @@ b-card(no-body)
         li 可利用 #[lah-fa-icon(:icon="type === 'bar' ? 'chart-line' : 'chart-bar'", variant="primary")] 切換圖形
         li 可利用「全部」切換非人使用者顯示
         li 60秒更新資料一次
+      hr
+      lah-fa-icon(icon="palette") 顏色說明(若切換為全部顯示，臨界值會乘上3倍)
+      div #[lah-fa-icon(icon="circle", style="color: rgb(214, 214, 214)")] 灰色 - 連線數 1 ~ 2
+      div #[lah-fa-icon(icon="circle", style="color: rgb(164, 236, 119)")] 綠色 - 連線數 3 ~ 4
+      div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - 連線數 5 ~ 8
+      div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - 連線數 9 ~ 16
+      div #[lah-fa-icon(icon="circle", style="color: rgb(204, 0, 204)")] 紫色 - 連線數 17 ~ 32
+      div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - 連線數大於32
   //- b-carousel(
   //- )
   lah-chart(ref="chart" :type="type")
