@@ -1,8 +1,8 @@
 <template lang="pug">
 b-card(no-body)
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(icon="users", :variant="light")
-    strong {{ header }} #[span.text-muted.s-75 (連線總數：{{ totalCount }})]
+    lah-fa-icon(:icon="icon", :variant="light")
+    strong {{ header }} #[span.text-muted.s-75 (總數：{{ totalCount }})]
     b-button-group.ml-auto(size="sm")
       b-checkbox.my-auto(v-model="allSwitch", size="sm") 全部
       lah-button(
@@ -51,7 +51,6 @@ export default {
     all: { type: Boolean, default: false }
   },
   data: () => ({
-    header: 'AP使用者連線數',
     type: 'bar',
     apIp: '220.1.34.161',
     carousel: [
@@ -71,6 +70,8 @@ export default {
     skipNames: ['資料庫', '系統管理者']
   }),
   computed: {
+    header () { return this.allSwitch ? 'AP系統連線狀態' : 'AP使用者連線狀態' },
+    icon () { return this.allSwitch ? 'server' : 'users' },
     light () {
       return this.allSwitch ? 'info' : 'secondary'
     },
