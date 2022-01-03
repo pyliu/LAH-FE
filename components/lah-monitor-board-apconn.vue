@@ -71,7 +71,7 @@ b-card(no-body)
   .center.mt-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
   lah-chart(v-show="loadItems.length > 0" ref="chart" :type="type")
 
-  template(#footer): .d-flex.justify-content-between.small
+  template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
     lah-fa-icon(
       size="sm",
       icon="server"
@@ -154,7 +154,7 @@ export default {
     this.loadConfig()
   },
   mounted () {
-    this.loadAPConnectionCount()
+    this.timeout(() => this.loadAPConnectionCount(), 0)
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
