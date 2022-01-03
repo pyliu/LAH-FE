@@ -67,7 +67,7 @@ export default {
     updatedTime: '',
     allSwitch: false,
     loadItems: [],
-    skipNames: ['桃園跨域', '中壢跨域', '大溪跨域', '楊梅跨域', '蘆竹跨域', '八德跨域', '平鎮跨域', '龜山跨域', '地政局', '系統管理者']
+    skipNames: ['資料庫', '系統管理者']
   }),
   computed: {
     light () {
@@ -108,65 +108,62 @@ export default {
         }
       )
     },
-    loadConfig () {
-      // get settings from config sqlite db
-      this.$axios
-        .post(this.$consts.API.JSON.QUERY, {
-          type: 'configs'
-        })
-        .then(({ data }) => {
+    async loadConfig () {
+      try {
+        let configs = this.systemConfigs
+        if (!configs) {
+          const data = await this.$axios.post(this.$consts.API.JSON.QUERY, { type: 'configs' })
           if (data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL) {
-            const configs = data.raw
-            // 起始顯示之AP
-            this.apIp = configs.WEBAP_IP || '220.1.34.161'
-            // this.site = configs.SITE || 'HA'
-            // default is HA ap list
-            // this.carousel =
-            if (configs.WEBAP_POSTFIXES) {
-              // expect ip postfix string => "205, 206, 207, 156, 118, 60, 161"
-              const list = configs.WEBAP_POSTFIXES.split(',')
-                .sort((a, b) => {
-                  if (parseInt(a) < parseInt(b)) {
-                    return 1
-                  }
-                  if (parseInt(a) > parseInt(b)) {
-                    return -1
-                  }
-                  // a 必須等於 b
-                  return 0
-                })
-                .map((postfix) => {
-                  const integer = parseInt(postfix.trim())
-                  if (integer && integer < 255 && integer > 0) {
-                    return integer
-                  }
-                  console.warn(
-                    `The webap ip postfix from config(WEBAP_POSTFIXES) format is wrong => "${postfix}"`
-                  )
-                  return undefined
-                })
-                .filter((item) => {
-                  return item !== undefined
-                })
-              this.carousel = [...list]
-            } else {
-              this.$utils.warn('找不到 configs.WEBAP_POSTFIXES 使用 HA 預設！')
-            }
-          } else {
-            this.alert({
-              title: '取得系統設定失敗',
-              message: `取得系統設定狀態碼有問題【${data.status}】`,
-              variant: 'warning'
-            })
+            configs = data.raw
           }
-        })
-        .catch((err) => {
-          this.$utils.error(err)
-        })
-        .finally(() => {
-          // this.reload(true)
-          // this.addToStoreParams('XAP_CONN_TOP_SITES', [])
-        })
+        }
+        // 起始顯示之AP
+        this.apIp = configs.WEBAP_IP || '220.1.34.161'
+        // this.site = configs.SITE || 'HA'
+        // default is HA ap list
+        // this.carousel =
+        if (configs.WEBAP_POSTFIXES) {
+          // expect ip postfix string => "205, 206, 207, 156, 118, 60, 161"
+          const list = configs.WEBAP_POSTFIXES.split(',')
+            .sort((a, b) => {
+              if (parseInt(a) < parseInt(b)) {
+                return 1
+              }
+              if (parseInt(a) > parseInt(b)) {
+                return -1
+              }
+              // a 必須等於 b
+              return 0
+            })
+            .map((postfix) => {
+              const integer = parseInt(postfix.trim())
+              if (integer && integer < 255 && integer > 0) {
+                return integer
+              }
+              console.warn(
+                `The webap ip postfix from config(WEBAP_POSTFIXES) format is wrong => "${postfix}"`
+              )
+              return undefined
+            })
+            .filter((item) => {
+              return item !== undefined
+            })
+          this.carousel = [...list]
+        } else {
+          this.$utils.warn('找不到 configs.WEBAP_POSTFIXES 使用 HA 預設！')
+        }
+      } catch (e) {
+        this.$utils.error('讀取系統設定失敗', e)
+      }
+    },
+    loadStaticIPEntries () {
+      this.$axios.post(this.$consts.API.JSON.IP, {
+        type: 'static_ip_entries'
+      }).then(({ data }) => {
+        this.$utils.warn(data)
+      }).catch((err) => {
+        this.$utils.error('取得靜態IP列表失敗', err)
+      })
     },
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
@@ -175,7 +172,7 @@ export default {
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_latest_ap_conn',
           ap_ip: this.apIp,
-          all: this.allSwitch
+          all: this.allSwitch // IP that is marked by "SERVER" in IPResolver.db will be filtered when the switch is false
         })
         .then(({ data }) => {
           if (data.data_count && data.data_count > 0) {
@@ -191,11 +188,8 @@ export default {
                       name: '資訊主機'
                   }
               */
-              if (!this.allSwitch && this.skipNames.includes(item.name)) {
-                return
-              }
-              // skip 資料庫
-              if (item.name !== '資料庫') {
+              // skip 資料庫/系統管理者
+              if (!this.skipNames.includes(item.name)) {
                 const current = processing.get(item.name)
                 const tobeUpdated = current === undefined ? item.count : current + item.count
                 processing.set(item.name, tobeUpdated)

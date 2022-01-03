@@ -26,11 +26,11 @@ div(v-cloak)
     lah-monitor-board-vmclone.card-body-fixed-height
     lah-monitor-board-testdb.card-body-fixed-height
     lah-monitor-board-hacmp.card-body-fixed-height
-    lah-monitor-board-apbackup.card-body-fixed-height
-    lah-monitor-board-dbbackup.card-body-fixed-height
-    lah-monitor-board-tape.card-body-fixed-height
-    lah-monitor-board-ups.card-body-fixed-height
     lah-monitor-board-adsync.card-body-fixed-height
+    lah-monitor-board-dbbackup.card-body-fixed-height
+    lah-monitor-board-apbackup.card-body-fixed-height
+    lah-monitor-board-ups.card-body-fixed-height
+    lah-monitor-board-tape.card-body-fixed-height
 </template>
 
 <script>
