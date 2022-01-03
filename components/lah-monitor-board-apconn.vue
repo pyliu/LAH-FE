@@ -1,10 +1,29 @@
 <template lang="pug">
 b-card(no-body)
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(:icon="icon", :variant="light")
-    strong {{ header }} #[span.text-muted.s-75 (總數：{{ totalCount }})]
-    b-button-group.ml-auto(size="sm")
+    lah-fa-icon(:icon="icon", :variant="light"): strong {{ header }} #[span.text-muted.s-75 (總數：{{ totalCount }})]
+    b-button-group(size="sm")
       b-checkbox.my-auto(v-model="allSwitch", size="sm") 全部
+      lah-button(
+        icon="arrow-alt-circle-left",
+        action="move-fade-rtl",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        regular,
+        @click="navLeft",
+        :title="`切換至 ${prevSvr}`"
+      )
+      lah-button(
+        icon="arrow-alt-circle-right",
+        action="move-fade-ltr",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        regular,
+        @click="navRight",
+        :title="`切換至 ${nextSvr}`"
+      )
       lah-button(
         :icon="type === 'bar' ? 'chart-line' : 'chart-bar'",
         variant="outline-primary",
@@ -49,7 +68,8 @@ b-card(no-body)
       div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - 連線數大於32
   //- b-carousel(
   //- )
-  lah-chart(ref="chart" :type="type")
+  .center.mt-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
+  lah-chart(v-show="loadItems.length > 0" ref="chart" :type="type")
 </template>
 
 <script>
@@ -85,10 +105,37 @@ export default {
     light () {
       return this.allSwitch ? 'info' : 'secondary'
     },
-    totalCount () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) }
+    totalCount () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
+    ipPrefix () {
+      const ipParts = this.apIp.split('.')
+      ipParts.pop()
+      return ipParts.join('.')
+    },
+    currSvr () { return this.apIp.split('.')[3] },
+    prevSvr () {
+      let currIdx = -1
+      this.carousel.find((item, idx, array) => {
+        const found = item == this.currSvr
+        currIdx = found ? idx : -1
+        return found
+      })
+      const prevIdx = (currIdx - 1) === -1 ? this.carousel.length - 1 : currIdx - 1
+      return `${this.ipPrefix}.${this.carousel[prevIdx]}`
+    },
+    nextSvr () {
+      let currIdx = -1
+      this.carousel.find((item, idx, array) => {
+        const found = item == this.currSvr
+        currIdx = found ? idx : -1
+        return found
+      })
+      const nextIdx = (currIdx + 1) % this.carousel.length
+      return `${this.ipPrefix}.${this.carousel[nextIdx]}`
+    }
   },
   watch: {
-    allSwitch (dontcare) { this.reload() }
+    allSwitch (dontcare) { this.reload() },
+    apIp (dontcare) { this.reload() }
   },
   created () {
     this.modalId = this.$utils.uuid()
@@ -105,6 +152,8 @@ export default {
   },
   methods: {
     reload () { /* placeholder for loadAPConnectionCount  */ },
+    navLeft () { this.apIp = this.prevSvr },
+    navRight () { this.apIp = this.nextSvr },
     popupMaximize () {
       this.modal(
         this.$createElement('LahMonitorBoardApconn', {
