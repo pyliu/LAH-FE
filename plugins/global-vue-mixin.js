@@ -94,34 +94,6 @@ Vue.mixin({
       }
     }
   },
-  async mounted () {
-    // userNames initial value is undefined
-    if (this.userNames === undefined && this.userNames !== null) {
-      try {
-        // flag to ensure doing this task once
-        this.$store.commit('userNames', null)
-        const json = await this.getCache('userNames')
-        if (json !== false) {
-          // within a day use the cached data
-          this.$store.commit('userNames', json || {})
-        } else {
-          await this.$axios.post(this.$consts.API.JSON.USER, {
-            type: 'user_mapping'
-          }).then(({ data }) => {
-            const json = data.data
-            // one day in milliseconds
-            this.setCache && this.setCache('userNames', json, 24 * 60 * 60 * 1000)
-            this.$store.commit('userNames', json || {})
-          }).catch((err) => {
-            console.error(err)
-            this.$store.commit('userNames', {})
-          })
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  },
   methods: {
     ...mapActions([
       'login'
