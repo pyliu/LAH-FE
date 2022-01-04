@@ -4,6 +4,14 @@ b-card(no-body)
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        :icon="chartType === 'bar' ? 'chart-line' : 'chart-bar'",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        @click="chartType = chartType === 'bar' ? 'line' : 'bar'",
+        title="切換圖形"
+      )
+      lah-button(
         v-if="!maximized"
         icon="window-maximize",
         variant="outline-primary",
@@ -32,7 +40,7 @@ b-card(no-body)
       div #[lah-fa-icon(icon="circle", style="color: rgb(40, 167, 69)")] 綠色 - 連線數 0 ~ 100
       div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - 連線數 101 ~ 200
       div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - 連線數 201 以上
-  lah-chart(ref="chart")
+  lah-chart(ref="chart", :type="chartType")
 
   template(#footer): .d-flex.justify-content-between.small
     lah-fa-icon(icon="clock") {{ mins }}分內
@@ -64,6 +72,7 @@ export default {
   },
   data: () => ({
     header: '',
+    chartType: 'line',
     reloadTimer: null,
     updatedTime: '',
     loadItems: [],
@@ -75,6 +84,9 @@ export default {
     }
   }),
   computed: {
+    chartType (val) {
+
+    },
     nowItem () {
       return this.rightmost ? this.loadItems[this.loadItems.length - 1] : this.loadItems[0]
     },
@@ -98,6 +110,7 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+    this.chartType = this.type
     this.header = `${this.office} 跨域AP 連線趨勢圖`
   },
   mounted () {
@@ -132,7 +145,7 @@ export default {
         this.loadItems.push(item)
       }
       this.$refs.chart?.reset()
-      this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '線型', 'line')
+      this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '連線數', this.chartType)
       this.timeout(() => this.$refs.chart?.build(), 0)
     },
     backgroundColor (val) {
