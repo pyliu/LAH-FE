@@ -113,13 +113,11 @@ export default {
             // raw is array of { 'AP31': {ip: 'xxx.xxx.xxx.31', name: 'AP31', port: '', note: 'XXX'} }
             for (const [name, rawObj] of Object.entries(data.raw)) {
               this.loadItems.push({
-                // name,
                 ip: rawObj.ip,
-                // latency: 0.0,
                 status: 'DOWN',
                 timestamp: '20201005181631',
                 x: name,
-                y: 0.0
+                y: 0.0 // latency
               })
             }
             // build the chart skeleton from loaded targets
