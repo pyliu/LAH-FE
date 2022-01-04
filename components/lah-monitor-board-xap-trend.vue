@@ -9,7 +9,7 @@ b-card(no-body)
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="load",
+        @click="_load",
         title="重新讀取"
       )
       lah-button(
@@ -71,6 +71,7 @@ export default {
     chartType: 'bar',
     reloadTimer: null,
     updatedTime: '',
+    loadMins: 60,
     loadItems: [],
     datasetIdx: 0,
     lightCriteria: {
@@ -105,20 +106,22 @@ export default {
     }
   },
   watch: {
-    rightmost (flag) {
-      this.reset()
-      this.timeout(() => { this.load() }, 100)
-    }
+    rightmost (flag) { this._resetAndLoad() },
+    loadMins (val) { this._resetAndLoad() }
   },
   created () {
     this.modalId = this.$utils.uuid()
     this.chartType = this.type
+    this.loadMins = this.mins
     this.header = `${this.office} 跨域AP 連線趨勢圖`
+    this._load = this.$utils.debounce(this.load, 100)
+    this._resetAndLoad = this.$utils.debounce(() => {
+      this.reset()
+      this._load()
+    }, 400)
   },
   mounted () {
-    this.reset()
-    // a bit delay for loading data
-    this.timeout(() => { this.load() }, 100)
+    this._resetAndLoad()
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
@@ -141,13 +144,14 @@ export default {
         '0' + dateObj.getMinutes()
       ).slice(-2)}`
     },
+    _resetAndLoad () { /* placeholder for debounceing method */ },
     reset () {
       this.loadItems.length = 0
       const now = +new Date()
-      for (let i = 0; i < this.mins; i++) {
+      for (let i = 0; i < this.loadMins; i++) {
         const item = { x: '', y: 0, color: { R: 164, G: 236, B: 119 } }
         if (this.rightmost) {
-          item.x = i === this.mins - 1 ? '現在' : this.toTime(now - (this.mins - i - 1) * 60 * 1000)
+          item.x = i === this.loadMins - 1 ? '現在' : this.toTime(now - (this.loadMins - i - 1) * 60 * 1000)
         } else {
           item.x = i === 0 ? '現在' : this.toTime(now - i * 60 * 1000)
         }
@@ -171,6 +175,7 @@ export default {
       }
       return { R: 164, G: 236, B: 119 }
     },
+    _load () { /* placeholder for load method debounced */ },
     load () {
       clearTimeout(this.reloadTimer)
       this.isBusy = true
@@ -178,7 +183,7 @@ export default {
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_ap_conn_history',
           ap_ip: this.apIp,
-          count: parseInt(this.mins)
+          count: parseInt(this.loadMins)
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
