@@ -51,12 +51,12 @@ b-card(no-body)
 
 <script>
 export default {
-  name: 'LahMonitorBoardCrossap',
+  name: 'LahMonitorBoardXap',
   props: {
     maximized: { type: Boolean, default: false }
   },
   data: () => ({
-    header: '跨域AP連線狀態',
+    header: '跨域AP各所連線狀態',
     reloadTimer: null,
     updatedTime: '',
     loadItems: [],
@@ -127,7 +127,7 @@ export default {
   },
   methods: {
     popupMaximize () {
-      this.modal(this.$createElement('LahMonitorBoardCrossap', { props: { maximized: true } }), {
+      this.modal(this.$createElement('LahMonitorBoardXap', { props: { maximized: true } }), {
         title: '跨域AP監控',
         size: 'xl'
       })

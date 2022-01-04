@@ -19,7 +19,7 @@ div(v-cloak)
         li 預設監控顯示一天內資料
 
   b-card-group.mb-2(deck)
-    lah-monitor-board-crossap
+    lah-monitor-board-xap
     lah-monitor-board-apconn
     //- lah-monitor-board-apconn(line, all)
     lah-monitor-board-connectivity
