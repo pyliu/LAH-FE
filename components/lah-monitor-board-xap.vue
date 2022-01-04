@@ -30,7 +30,7 @@ b-card(no-body)
         li #[lah-fa-icon(icon="server", variant="success")] 顯示AP連線總數(數字越高有可能造成地政系統回應緩慢)
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
-  lah-chart(ref="chart")
+  lah-chart(ref="chart", @click="popupTrending")
 
   template(#footer): .d-flex.justify-content-between.small
     lah-fa-icon(
@@ -126,6 +126,17 @@ export default {
     clearTimeout(this.reloadTimer)
   },
   methods: {
+    popupTrending ({ detail }) {
+      /*
+        label: "XX所"
+        point: {element: BarElement, datasetIndex: 0, index: 5}
+        value: 34
+      */
+      this.modal(this.$createElement('LahMonitorBoardXapTrend', { props: { maximized: true, office: detail.label } }), {
+        title: `${detail.label}跨域AP連線趨勢`,
+        size: 'xl'
+      })
+    },
     popupMaximize () {
       this.modal(this.$createElement('LahMonitorBoardXap', { props: { maximized: true } }), {
         title: '跨域AP監控',

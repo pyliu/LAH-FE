@@ -1,0 +1,185 @@
+<template lang="pug">
+b-card(no-body)
+  template(#header): .d-flex.justify-content-between
+    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
+    b-button-group.ml-auto(size="sm")
+      lah-button(
+        v-if="!maximized"
+        icon="window-maximize",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        regular,
+        @click="popupMaximize",
+        title="放大顯示"
+      )
+      lah-button(
+        v-if="!maximized"
+        icon="question",
+        action="breath",
+        variant="outline-success",
+        no-border,
+        no-icon-gutter,
+        @click="showModalById(modalId)",
+        title="說明"
+      )
+    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+      ul
+        li 顯示跨域AP連線數統計狀態(AP需安裝回報腳本才能正常顯示)
+        li #[lah-fa-icon(icon="database", variant="danger")] 顯示資料庫連線總數(超過3000會造成地政系統停擺)
+        li #[lah-fa-icon(icon="server", variant="success")] 顯示AP連線總數(數字越高有可能造成地政系統回應緩慢)
+        li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
+        li 15秒更新資料一次
+  lah-chart(ref="chart")
+
+  template(#footer): .d-flex.justify-content-between.small
+    lah-fa-icon(icon="clock") {{ mins }}分內
+    lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
+
+</template>
+
+<script>
+export default {
+  name: 'LahMonitorBoardXapTrend',
+  props: {
+    maximized: { type: Boolean, default: false },
+    office: {
+      type: String,
+      default: '地政局'
+    },
+    mins: {
+      type: Number,
+      default: 60
+    },
+    type: {
+      type: String,
+      default: 'line'
+    },
+    rightmost: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data: () => ({
+    header: '',
+    reloadTimer: null,
+    updatedTime: '',
+    loadItems: [],
+    datasetIdx: 0,
+    lightCriteria: {
+      red: 200,
+      yellow: 100,
+      green: 0
+    }
+  }),
+  computed: {
+    nowItem () {
+      return this.rightmost ? this.loadItems[this.loadItems.length - 1] : this.loadItems[0]
+    },
+    light () {
+      if (this.nowItem) {
+        if (this.nowItem.y > this.lightCriteria.red) { return 'danger' }
+        if (this.nowItem.y > this.lightCriteria.yellow) { return 'warning' }
+      }
+      return 'success'
+    },
+    apIp () {
+      // xapMap from store
+      const xaps = [...this.xapMap]
+      // item: ['220.1.XX.XX', { name: 'XXX', code: 'XX', ip: '220.1.XX.XX' }]
+      const found = xaps.find(item => item[1].name === this.office)
+      return found[0]
+    }
+  },
+  watch: {
+    rightmost (flag) { this.reset() }
+  },
+  created () {
+    this.modalId = this.$utils.uuid()
+    this.header = `${this.office} 跨域AP 連線趨勢圖`
+  },
+  mounted () {
+    this.reset()
+    // let init chart process after mounted executed
+    this.timeout(() => { this.load() }, 100)
+  },
+  beforeDestroy () {
+    clearTimeout(this.reloadTimer)
+  },
+  methods: {
+    popupMaximize () {
+      this.modal(this.$createElement('LahMonitorBoardXapTrend', { props: { maximized: true } }), {
+        title: '跨域AP連線趨勢',
+        size: 'xl'
+      })
+    },
+    reset () {
+      this.loadItems.length = 0
+      for (let i = 0; i < this.mins; i++) {
+        const item = { x: '', y: 0, color: { R: 164, G: 236, B: 119 } }
+        if (this.rightmost) {
+          item.x = (i === (this.mins - 1)) ? '現在' : `${this.mins - i - 1}分前`
+        } else {
+          item.x = (i === 0) ? '現在' : `${i}分前`
+        }
+        this.loadItems.push(item)
+      }
+      this.$refs.chart?.reset()
+      this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '趨勢圖', 'line')
+      this.timeout(() => this.$refs.chart?.build(), 0)
+    },
+    backgroundColor (val) {
+      if (val > this.lightCriteria.red) { return { R: 220, G: 53, B: 29 } }
+      if (val > this.lightCriteria.yellow) { return { R: 255, G: 193, B: 7 } }
+      return { R: 164, G: 236, B: 119 }
+    },
+    load () {
+      clearTimeout(this.reloadTimer)
+      this.$axios.post(this.$consts.API.JSON.STATS, {
+        type: 'stats_ap_conn_history',
+        ap_ip: this.apIp,
+        count: parseInt(this.mins)
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          if (data.data_count === 0) {
+            this.warning('無資料，無法繪製圖形', {
+              title: this.header,
+              subtitle: this.office
+            })
+          } else {
+            // display now to the chart right bound
+            const mRaw = this.rightmost ? data.raw.reverse() : data.raw
+            mRaw.forEach((item, rawIdx, raw) => {
+              /*
+                item = {
+                  log_time: '20201005181631',
+                  ap_ip: '220.1.34.161',
+                  est_ip: '220.1.35.36',
+                  count: '2',
+                  batch: '490',
+                  name: '資訊主機'
+                }
+              */
+              this.loadItems[rawIdx].y = item.count
+              this.loadItems[rawIdx].color = this.backgroundColor(item.count)
+              this.$refs.chart?.updateData(this.loadItems[rawIdx], this.datasetIdx)
+            })
+          }
+        } else {
+          this.warning(`取得跨所 AP ${this.office} ${this.apIp} 連線資料失敗。狀態碼：${data.status}`, {
+            title: `跨所 AP ${this.office} 連線趨勢圖`
+          })
+        }
+      }).catch((err) => {
+        this.$utils.error('讀取AP連線歷史紀錄失敗', err)
+      }).finally(() => {
+        // this.isBusy = false;
+        this.reloadTimer = this.timeout(this.load, 60 * 1000)
+      })
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+</style>
