@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card(no-body)
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(:icon="icon", :variant="light"): strong {{ header }}
+    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
       b-checkbox.my-auto(v-model="allSwitch", size="sm") 全部
       lah-button(
