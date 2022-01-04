@@ -173,7 +173,7 @@ export default {
       }).catch((err) => {
         this.$utils.error('讀取AP連線歷史紀錄失敗', err)
       }).finally(() => {
-        // this.isBusy = false;
+        this.updatedTime = this.$utils.now().split(' ')[1]
         this.reloadTimer = this.timeout(this.load, 60 * 1000)
       })
     }

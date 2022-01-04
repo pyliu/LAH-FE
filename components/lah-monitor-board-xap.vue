@@ -50,8 +50,10 @@ b-card(no-body)
 </template>
 
 <script>
+import LahMonitorBoardXapTrend from '~/components/lah-monitor-board-xap-trend.vue'
 export default {
   name: 'LahMonitorBoardXap',
+  components: { LahMonitorBoardXapTrend },
   props: {
     maximized: { type: Boolean, default: false }
   },

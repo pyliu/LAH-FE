@@ -187,7 +187,11 @@ export default {
       if (foundIdx !== -1) {
         this.chartData.datasets[datasetIdx].data[foundIdx] = value
         // also update background color as well
-        this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.opacity)
+        if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
+          this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = `rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.opacity})`
+        } else {
+          this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.opacity)
+        }
         // redraw the chart
         this.update()
       } else {
