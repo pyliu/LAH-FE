@@ -134,7 +134,7 @@ export default {
         point: {element: BarElement, datasetIndex: 0, index: 5}
         value: 34
       */
-      this.modal(this.$createElement('LahMonitorBoardXapTrend', { props: { maximized: true, office: detail.label } }), {
+      this.modal(this.$createElement('LahMonitorBoardXapTrend', { props: { maximized: true, office: detail.label, type: (+new Date() % 2 === 0) ? 'bar' : 'line' } }), {
         title: `${detail.label}跨域AP連線趨勢`,
         size: 'xl'
       })

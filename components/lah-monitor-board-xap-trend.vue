@@ -12,7 +12,7 @@ b-card(no-body)
         title="切換圖形"
       )
       lah-button(
-        v-if="!maximized"
+        v-if="!maximized",
         icon="window-maximize",
         variant="outline-primary",
         no-border,
@@ -45,7 +45,6 @@ b-card(no-body)
   template(#footer): .d-flex.justify-content-between.small
     lah-fa-icon(icon="clock") {{ mins }}分內
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
-
 </template>
 
 <script>
@@ -53,26 +52,14 @@ export default {
   name: 'LahMonitorBoardXapTrend',
   props: {
     maximized: { type: Boolean, default: false },
-    office: {
-      type: String,
-      default: '地政局'
-    },
-    mins: {
-      type: Number,
-      default: 60
-    },
-    type: {
-      type: String,
-      default: 'line'
-    },
-    rightmost: {
-      type: Boolean,
-      default: true
-    }
+    office: { type: String, default: '地政局' },
+    mins: { type: Number, default: 60 },
+    type: { type: String, default: 'bar' },
+    rightmost: { type: Boolean, default: true }
   },
   data: () => ({
     header: '',
-    chartType: 'line',
+    chartType: 'bar',
     reloadTimer: null,
     updatedTime: '',
     loadItems: [],
@@ -84,16 +71,19 @@ export default {
     }
   }),
   computed: {
-    chartType (val) {
-
-    },
     nowItem () {
-      return this.rightmost ? this.loadItems[this.loadItems.length - 1] : this.loadItems[0]
+      return this.rightmost
+        ? this.loadItems[this.loadItems.length - 1]
+        : this.loadItems[0]
     },
     light () {
       if (this.nowItem) {
-        if (this.nowItem.y > this.lightCriteria.red) { return 'danger' }
-        if (this.nowItem.y > this.lightCriteria.yellow) { return 'warning' }
+        if (this.nowItem.y > this.lightCriteria.red) {
+          return 'danger'
+        }
+        if (this.nowItem.y > this.lightCriteria.yellow) {
+          return 'warning'
+        }
       }
       return 'success'
     },
@@ -106,7 +96,10 @@ export default {
     }
   },
   watch: {
-    rightmost (flag) { this.reset() }
+    rightmost (flag) {
+      this.reset()
+      this.timeout(() => { this.load() }, 100)
+    }
   },
   created () {
     this.modalId = this.$utils.uuid()
@@ -123,14 +116,21 @@ export default {
   },
   methods: {
     popupMaximize () {
-      this.modal(this.$createElement('LahMonitorBoardXapTrend', { props: { maximized: true } }), {
-        title: '跨域AP連線趨勢',
-        size: 'xl'
-      })
+      this.modal(
+        this.$createElement('LahMonitorBoardXapTrend', {
+          props: { maximized: true }
+        }),
+        {
+          title: '跨域AP連線趨勢',
+          size: 'xl'
+        }
+      )
     },
     toTime (ts) {
       const dateObj = new Date(ts)
-      return `${('0' + dateObj.getHours()).slice(-2)}:${('0' + dateObj.getMinutes()).slice(-2)}`
+      return `${('0' + dateObj.getHours()).slice(-2)}:${(
+        '0' + dateObj.getMinutes()
+      ).slice(-2)}`
     },
     reset () {
       this.loadItems.length = 0
@@ -138,39 +138,52 @@ export default {
       for (let i = 0; i < this.mins; i++) {
         const item = { x: '', y: 0, color: { R: 164, G: 236, B: 119 } }
         if (this.rightmost) {
-          item.x = (i === (this.mins - 1)) ? '現在' : this.toTime(now - ((this.mins - i - 1) * 60 * 1000))
+          item.x =
+            i === this.mins - 1
+              ? '現在'
+              : this.toTime(now - (this.mins - i - 1) * 60 * 1000)
         } else {
-          item.x = (i === 0) ? '現在' : this.toTime(now - (i * 60 * 1000))
+          item.x = i === 0 ? '現在' : this.toTime(now - i * 60 * 1000)
         }
         this.loadItems.push(item)
       }
       this.$refs.chart?.reset()
-      this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '連線數', this.chartType)
+      this.datasetIdx = this.$refs.chart?.addDataset(
+        this.loadItems,
+        '連線數',
+        this.chartType
+      )
       this.timeout(() => this.$refs.chart?.build(), 0)
     },
     backgroundColor (val) {
-      if (val > this.lightCriteria.red) { return { R: 220, G: 53, B: 29 } }
-      if (val > this.lightCriteria.yellow) { return { R: 255, G: 193, B: 7 } }
+      if (val > this.lightCriteria.red) {
+        return { R: 220, G: 53, B: 29 }
+      }
+      if (val > this.lightCriteria.yellow) {
+        return { R: 255, G: 193, B: 7 }
+      }
       return { R: 164, G: 236, B: 119 }
     },
     load () {
       clearTimeout(this.reloadTimer)
-      this.$axios.post(this.$consts.API.JSON.STATS, {
-        type: 'stats_ap_conn_history',
-        ap_ip: this.apIp,
-        count: parseInt(this.mins)
-      }).then(({ data }) => {
-        if (this.$utils.statusCheck(data.status)) {
-          if (data.data_count === 0) {
-            this.warning('無資料，無法繪製圖形', {
-              title: this.header,
-              subtitle: this.office
-            })
-          } else {
-            // display now to the chart right bound
-            const mRaw = this.rightmost ? data.raw.reverse() : data.raw
-            mRaw.forEach((item, rawIdx, raw) => {
-              /*
+      this.$axios
+        .post(this.$consts.API.JSON.STATS, {
+          type: 'stats_ap_conn_history',
+          ap_ip: this.apIp,
+          count: parseInt(this.mins)
+        })
+        .then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            if (data.data_count === 0) {
+              this.warning('無資料，無法繪製圖形', {
+                title: this.header,
+                subtitle: this.office
+              })
+            } else {
+              // display now to the chart right bound
+              const mRaw = this.rightmost ? data.raw.reverse() : data.raw
+              mRaw.forEach((item, rawIdx, raw) => {
+                /*
                 item = {
                   log_time: '20201005181631',
                   ap_ip: '220.1.34.161',
@@ -180,22 +193,30 @@ export default {
                   name: '資訊主機'
                 }
               */
-              this.loadItems[rawIdx].y = item.count
-              this.loadItems[rawIdx].color = this.backgroundColor(item.count)
-              this.$refs.chart?.updateData(this.loadItems[rawIdx], this.datasetIdx)
-            })
+                this.loadItems[rawIdx].y = item.count
+                this.loadItems[rawIdx].color = this.backgroundColor(item.count)
+                this.$refs.chart?.updateData(
+                  this.loadItems[rawIdx],
+                  this.datasetIdx
+                )
+              })
+            }
+          } else {
+            this.warning(
+              `取得跨所 AP ${this.office} ${this.apIp} 連線資料失敗。狀態碼：${data.status}`,
+              {
+                title: `跨所 AP ${this.office} 連線趨勢圖`
+              }
+            )
           }
-        } else {
-          this.warning(`取得跨所 AP ${this.office} ${this.apIp} 連線資料失敗。狀態碼：${data.status}`, {
-            title: `跨所 AP ${this.office} 連線趨勢圖`
-          })
-        }
-      }).catch((err) => {
-        this.$utils.error('讀取AP連線歷史紀錄失敗', err)
-      }).finally(() => {
-        this.updatedTime = this.$utils.now().split(' ')[1]
-        this.reloadTimer = this.timeout(this.load, 60 * 1000)
-      })
+        })
+        .catch((err) => {
+          this.$utils.error('讀取AP連線歷史紀錄失敗', err)
+        })
+        .finally(() => {
+          this.updatedTime = this.$utils.now().split(' ')[1]
+          this.reloadTimer = this.timeout(this.load, 60 * 1000)
+        })
     }
   }
 }
