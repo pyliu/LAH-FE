@@ -71,7 +71,7 @@ b-card(no-body)
   .center.my-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
   lah-chart(v-show="loadItems.length > 0" ref="chart" :type="type")
 
-  template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
+  template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.align-items-center.small
     lah-fa-icon(
       v-if="allSwitch",
       icon="database"
@@ -79,7 +79,7 @@ b-card(no-body)
     lah-fa-icon(
       icon="server"
     ) 連線總數 {{ totalCount }}
-    strong {{ apIp }}
+    b-select.m-n2(v-model="apIp", :options="apIpList", size="sm", style="max-width: 115px")
     lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
 
 </template>
@@ -110,13 +110,26 @@ export default {
     allSwitch: false,
     loadItems: [],
     skipNames: ['資料庫', '系統管理者'],
-    dbTotal: 0
+    dbTotal: 0,
+    lightCriteria: {
+      blalck: 32,
+      purple: 16,
+      red: 8,
+      yellow: 4,
+      green: 2,
+      gray: 0
+    }
   }),
   computed: {
     header () { return this.allSwitch ? 'AP系統連線狀態' : 'AP使用者連線狀態' },
     icon () { return this.allSwitch ? 'server' : 'users' },
+    factor () { return this.allSwitch ? 3 : 1 },
     light () {
-      return this.allSwitch ? 'info' : 'secondary'
+      if (this.loadItems.find(item => item[1] > this.lightCriteria.black * this.factor)) { return 'danger' }
+      if (this.loadItems.find(item => item[1] > this.lightCriteria.purple * this.factor)) { return 'danger' }
+      if (this.loadItems.find(item => item[1] > this.lightCriteria.red * this.factor)) { return 'danger' }
+      if (this.loadItems.find(item => item[1] > this.lightCriteria.yellow * this.factor)) { return 'warning' }
+      return 'success'
     },
     totalCount () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
     ipPrefix () {
@@ -146,7 +159,8 @@ export default {
       })
       const nextIdx = (currIdx + 1) % this.carousel.length
       return `${this.ipPrefix}.${this.carousel[nextIdx]}`
-    }
+    },
+    apIpList () { return this.carousel.map(postfix => `${this.ipPrefix}.${postfix}`) }
   },
   watch: {
     allSwitch (dontcare) { this.reload() },
@@ -235,14 +249,12 @@ export default {
       }
     },
     backgroundColor (element) {
-      const factor = this.allSwitch ? 3 : 1
-      if (element[1] > 32 * factor) { return { R: 51, G: 51, B: 51 } } // black
-      if (element[1] > 16 * factor) { return { R: 204, G: 0, B: 204 } } // purple
-      if (element[1] > 8 * factor) { return { R: 220, G: 53, B: 29 } } // red
-      if (element[1] > 4 * factor) { return { R: 255, G: 193, B: 7 } } // yellow
-      if (element[1] > 2 * factor) { return { R: 164, G: 236, B: 119 } } // green
-      // gray
-      return { R: 214, G: 214, B: 214 }
+      if (element[1] > this.lightCriteria.blalck * this.factor) { return { R: 51, G: 51, B: 51 } }
+      if (element[1] > this.lightCriteria.purple * this.factor) { return { R: 204, G: 0, B: 204 } }
+      if (element[1] > this.lightCriteria.red * this.factor) { return { R: 220, G: 53, B: 29 } }
+      if (element[1] > this.lightCriteria.yellow * this.factor) { return { R: 255, G: 193, B: 7 } }
+      if (element[1] > this.lightCriteria.green * this.factor) { return { R: 164, G: 236, B: 119 } }
+      return { R: 214, G: 214, B: 214 } // gray
     },
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
