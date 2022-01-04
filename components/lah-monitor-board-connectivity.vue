@@ -103,7 +103,7 @@ export default {
       if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'rgb(204, 0, 204)' }
       if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'rgb(220, 53, 29)' }
       if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'rgb(255, 193, 7)' }
-      return 'rgb(177, 221, 150)'
+      return 'rgb(40, 167, 69)'
     }
   },
   watch: {
@@ -174,7 +174,7 @@ export default {
       if (item.y > this.lightCriteria.purple) { return `rgb(204, 0, 204, ${opacity})` }
       if (item.y > this.lightCriteria.red) { return `rgb(220, 53, 29, ${opacity})` }
       if (item.y > this.lightCriteria.yellow) { return `rgb(255, 193, 7, ${opacity})` }
-      return `rgb(164, 236, 119, ${opacity})`
+      return `rgb(40, 167, 69, ${opacity})`
     },
     reload (force = false) {
       clearTimeout(this.reloadTimer)
