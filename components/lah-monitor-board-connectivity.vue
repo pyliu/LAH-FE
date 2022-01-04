@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card(no-body)
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(icon="network-wired", :variant="light"): strong {{ header }}
+    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
       lah-button(
         icon="sync-alt",
@@ -47,7 +47,7 @@ b-card(no-body)
         li 15分鐘更新資料一次(效能考量)，但可透過 #[lah-fa-icon(icon="sync-alt", variant="secondary")] 更新最新資料
       hr
       h5 #[lah-fa-icon(icon="palette") 顏色說明]
-      div #[lah-fa-icon(icon="circle", style="color: rgb(164, 236, 119)")] 綠色 - PING值小於等於20ms
+      div #[lah-fa-icon(icon="circle", style="color: rgb(177, 221, 150)")] 綠色 - PING值小於等於20ms
       div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - PING值小於等於40ms
       div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - PING值小於等於80ms
       div #[lah-fa-icon(icon="circle", style="color: rgb(204, 0, 204)")] 紫色 - PING值小於等於160ms
@@ -63,7 +63,9 @@ b-card(no-body)
   )
 
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
-    lah-fa-icon(icon="server") {{ loadItems.length }} 個監控系統
+    span
+      lah-fa-icon(icon="server" :style="`color: ${colorCode}`")
+      span {{ loadItems.length }} 個監控系統
     lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
 </template>
 
@@ -79,11 +81,29 @@ export default {
     reloadTimer: null,
     updatedTime: '',
     datasetIdx: 0,
-    loadItems: []
+    loadItems: [],
+    lightCriteria: {
+      blalck: 160,
+      purple: 80,
+      red: 40,
+      yellow: 20,
+      green: 0
+    }
   }),
   computed: {
     light () {
-      return 'secondary'
+      if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'danger' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'danger' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'danger' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'warning' }
+      return 'success'
+    },
+    colorCode () {
+      if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'rgb(51, 51, 51)' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'rgb(204, 0, 204)' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'rgb(220, 53, 29)' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'rgb(255, 193, 7)' }
+      return 'rgb(177, 221, 150)'
     }
   },
   watch: {
@@ -150,11 +170,11 @@ export default {
       )
     },
     backgroundColor (item, opacity = 0.6) {
-      if (item.y > 160) { return `rgb(51, 51, 51, ${opacity})` } // black
-      if (item.y > 80) { return `rgb(204, 0, 204, ${opacity})` } // purple
-      if (item.y > 40) { return `rgb(220, 53, 29, ${opacity})` } // red
-      if (item.y > 20) { return `rgb(255, 193, 7, ${opacity})` } // yellow
-      return `rgb(164, 236, 119, ${opacity})` // green
+      if (item.y > this.lightCriteria.black) { return `rgb(51, 51, 51, ${opacity})` }
+      if (item.y > this.lightCriteria.purple) { return `rgb(204, 0, 204, ${opacity})` }
+      if (item.y > this.lightCriteria.red) { return `rgb(220, 53, 29, ${opacity})` }
+      if (item.y > this.lightCriteria.yellow) { return `rgb(255, 193, 7, ${opacity})` }
+      return `rgb(164, 236, 119, ${opacity})`
     },
     reload (force = false) {
       clearTimeout(this.reloadTimer)
