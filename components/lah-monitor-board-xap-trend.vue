@@ -4,6 +4,15 @@ b-card(no-body)
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        icon="sync-alt",
+        action="ld-cycle",
+        variant="outline-secondary",
+        no-border,
+        no-icon-gutter,
+        @click="load",
+        title="重新讀取"
+      )
+      lah-button(
         :icon="chartType === 'bar' ? 'chart-line' : 'chart-bar'",
         variant="outline-primary",
         no-border,
@@ -166,6 +175,7 @@ export default {
     },
     load () {
       clearTimeout(this.reloadTimer)
+      this.isBusy = true
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_ap_conn_history',
@@ -214,6 +224,7 @@ export default {
           this.$utils.error('讀取AP連線歷史紀錄失敗', err)
         })
         .finally(() => {
+          this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
           this.reloadTimer = this.timeout(this.load, 60 * 1000)
         })
