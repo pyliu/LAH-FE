@@ -45,7 +45,7 @@ b-card(no-body)
       :size="apStyles[2]",
       :icon="apStyles[3]"
     ) 主機連線 {{ apTotal }}
-    lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
+    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
 

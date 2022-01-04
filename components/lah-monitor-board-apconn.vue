@@ -61,7 +61,7 @@ b-card(no-body)
       hr
       h5 #[lah-fa-icon(icon="palette") 顏色說明(切換系統顯示，臨界值會乘上3倍)]
       div #[lah-fa-icon(icon="circle", style="color: rgb(214, 214, 214)")] 灰色 - 連線數 1 ~ 2
-      div #[lah-fa-icon(icon="circle", style="color: rgb(164, 236, 119)")] 綠色 - 連線數 3 ~ 4
+      div #[lah-fa-icon(icon="circle", style="color: rgb(40, 167, 69)")] 綠色 - 連線數 3 ~ 4
       div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - 連線數 5 ~ 8
       div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - 連線數 9 ~ 16
       div #[lah-fa-icon(icon="circle", style="color: rgb(204, 0, 204)")] 紫色 - 連線數 17 ~ 32
@@ -80,7 +80,7 @@ b-card(no-body)
       icon="server"
     ) 連線總數 {{ totalCount }}
     b-select.m-n2(v-model="apIp", :options="apIpList", size="sm", style="max-width: 115px")
-    lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
+    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
 
@@ -253,7 +253,7 @@ export default {
       if (element[1] > this.lightCriteria.purple * this.factor) { return { R: 204, G: 0, B: 204 } }
       if (element[1] > this.lightCriteria.red * this.factor) { return { R: 220, G: 53, B: 29 } }
       if (element[1] > this.lightCriteria.yellow * this.factor) { return { R: 255, G: 193, B: 7 } }
-      if (element[1] > this.lightCriteria.green * this.factor) { return { R: 164, G: 236, B: 119 } }
+      if (element[1] > this.lightCriteria.green * this.factor) { return { R: 40, G: 167, B: 69 } }
       return { R: 214, G: 214, B: 214 } // gray
     },
     loadAPConnectionCount () {

@@ -14,7 +14,6 @@ b-card(no-body)
         title="放大顯示"
       )
       lah-button(
-        v-if="!maximized"
         icon="question",
         action="breath",
         variant="outline-success",
@@ -25,16 +24,19 @@ b-card(no-body)
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示跨域AP連線數統計狀態(AP需安裝回報腳本才能正常顯示)
-        li #[lah-fa-icon(icon="database", variant="danger")] 顯示資料庫連線總數(超過3000會造成地政系統停擺)
-        li #[lah-fa-icon(icon="server", variant="success")] 顯示AP連線總數(數字越高有可能造成地政系統回應緩慢)
+        li 顯示指定所跨域AP連線數趨勢圖(跨域AP需安裝回報腳本才能正常顯示)
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
-        li 15秒更新資料一次
+        li 60秒更新資料一次資料
+      hr
+      h5 #[lah-fa-icon(icon="palette") 顏色說明]
+      div #[lah-fa-icon(icon="circle", style="color: rgb(40, 167, 69)")] 綠色 - 連線數 0 ~ 100
+      div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - 連線數 101 ~ 200
+      div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - 連線數 201 以上
   lah-chart(ref="chart")
 
   template(#footer): .d-flex.justify-content-between.small
     lah-fa-icon(icon="clock") {{ mins }}分內
-    lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
+    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
 
@@ -57,7 +59,7 @@ export default {
     },
     rightmost: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   data: () => ({
@@ -113,19 +115,24 @@ export default {
         size: 'xl'
       })
     },
+    toTime (ts) {
+      const dateObj = new Date(ts)
+      return `${('0' + dateObj.getHours()).slice(-2)}:${('0' + dateObj.getMinutes()).slice(-2)}`
+    },
     reset () {
       this.loadItems.length = 0
+      const now = +new Date()
       for (let i = 0; i < this.mins; i++) {
         const item = { x: '', y: 0, color: { R: 164, G: 236, B: 119 } }
         if (this.rightmost) {
-          item.x = (i === (this.mins - 1)) ? '現在' : `${this.mins - i - 1}分前`
+          item.x = (i === (this.mins - 1)) ? '現在' : this.toTime(now - ((this.mins - i - 1) * 60 * 1000))
         } else {
-          item.x = (i === 0) ? '現在' : `${i}分前`
+          item.x = (i === 0) ? '現在' : this.toTime(now - (i * 60 * 1000))
         }
         this.loadItems.push(item)
       }
       this.$refs.chart?.reset()
-      this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '趨勢圖', 'line')
+      this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '線型', 'line')
       this.timeout(() => this.$refs.chart?.build(), 0)
     },
     backgroundColor (val) {
