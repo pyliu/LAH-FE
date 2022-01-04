@@ -117,7 +117,7 @@ export default {
   },
   mounted () {
     this.reset()
-    // let init chart process after mounted executed
+    // a bit delay for loading data
     this.timeout(() => { this.load() }, 100)
   },
   beforeDestroy () {
@@ -147,10 +147,7 @@ export default {
       for (let i = 0; i < this.mins; i++) {
         const item = { x: '', y: 0, color: { R: 164, G: 236, B: 119 } }
         if (this.rightmost) {
-          item.x =
-            i === this.mins - 1
-              ? '現在'
-              : this.toTime(now - (this.mins - i - 1) * 60 * 1000)
+          item.x = i === this.mins - 1 ? '現在' : this.toTime(now - (this.mins - i - 1) * 60 * 1000)
         } else {
           item.x = i === 0 ? '現在' : this.toTime(now - i * 60 * 1000)
         }
@@ -162,7 +159,8 @@ export default {
         '連線數',
         this.chartType
       )
-      this.timeout(() => this.$refs.chart?.build(), 0)
+      // a bit delay for building chart
+      this.timeout(() => this.$refs.chart?.build(), 50)
     },
     backgroundColor (val) {
       if (val > this.lightCriteria.red) {
