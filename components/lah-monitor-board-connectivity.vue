@@ -124,7 +124,8 @@ export default {
             }
             // build the chart skeleton from loaded targets
             this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, 'PING值(ms)', 'bar')
-            this.$refs.chart?.build()
+            // add a bit delay to make the chart build successfully
+            this.timeout(() => this.$refs.chart?.build(), 100)
           } else {
             this.warning(data.message, { title: '讀取監測目標' })
           }
