@@ -190,7 +190,6 @@ export default {
     },
     _load () { /* placeholder for load method debounced */ },
     load () {
-      clearTimeout(this.reloadTimer)
       this.isBusy = true
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
@@ -242,6 +241,7 @@ export default {
         .finally(() => {
           this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
+          clearTimeout(this.reloadTimer)
           this.reloadTimer = this.timeout(this.load, 60 * 1000)
         })
     }
