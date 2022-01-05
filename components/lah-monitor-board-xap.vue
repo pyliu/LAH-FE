@@ -201,7 +201,7 @@ export default {
         .finally(() => {
           this.updatedTime = this.$utils.now().split(' ')[1]
           // reload every 15s
-          this.reloadTimer = this.timeout(this.loadAPConnectionCount, 15 * 1000)
+          this.timeout(this.loadAPConnectionCount, 15 * 1000).then((handler) => { this.reloadTimer = handler })
         })
     }
   }

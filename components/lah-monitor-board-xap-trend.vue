@@ -242,7 +242,7 @@ export default {
           this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
-          this.reloadTimer = this.timeout(this.load, 60 * 1000)
+          this.timeout(this.load, 60 * 1000).then((handler) => { this.reloadTimer = handler })
         })
     }
   }

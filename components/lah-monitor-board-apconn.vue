@@ -257,8 +257,6 @@ export default {
       return { R: 214, G: 214, B: 214 } // gray
     },
     loadAPConnectionCount () {
-      clearTimeout(this.reloadTimer)
-      this.$refs.chart?.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_latest_ap_conn',
@@ -267,6 +265,7 @@ export default {
         })
         .then(({ data }) => {
           if (data.data_count && data.data_count > 0) {
+            this.$refs.chart?.reset()
             const processing = new Map()
             data.raw.forEach((item, idx, array) => {
               /*
@@ -293,7 +292,7 @@ export default {
               this.$refs.chart?.addData(item, this.apIp, 0)
             })
             // make chart build a bit later
-            this.timeout(() => this.$refs.chart?.build(), 0)
+            this.timeout(() => this.$refs.chart?.build(), 50)
           }
         })
         .catch((err) => {
@@ -303,10 +302,12 @@ export default {
           this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
           // reload every 60s
-          this.reloadTimer = this.timeout(
+          this.timeout(
             this.loadAPConnectionCount,
             60 * 1000
-          )
+          ).then((handler) => {
+            this.reloadTimer = handler
+          })
         })
     }
   }
