@@ -118,7 +118,7 @@ export default {
       const xaps = [...this.xapMap]
       // item: ['220.1.XX.XX', { name: 'XXX', code: 'XX', ip: '220.1.XX.XX' }]
       const found = xaps.find(item => item[1].name === this.watchOffice)
-      return found[0]
+      return found ? found[0] : ''
     }
   },
   watch: {
