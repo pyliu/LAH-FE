@@ -284,14 +284,14 @@ export default {
           showTooltips: true,
           responsive: true,
           maintainAspectRatio: true,
-          aspectRatio: that.aspectRatio || +this.viewportRatio,
+          aspectRatio: that.aspectRatio || +that.viewportRatio,
           elements: {
             point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
-            line: { tension: this.type === 'line' ? 0.35 : 0.1, fill: this.chartData.datasets.length === 1, stepped: false }
+            line: { tension: that.type === 'line' ? 0.35 : 0.1, fill: that.chartData.datasets.length === 1, stepped: false }
           },
           tooltips: {
             callbacks: {
-              label: this.tooltip
+              label: that.tooltip
             }
           },
           onClick (e) {
