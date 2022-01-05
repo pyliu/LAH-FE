@@ -99,11 +99,11 @@ export default {
       return 'success'
     },
     colorCode () {
-      if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'rgb(51, 51, 51)' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'rgb(204, 0, 204)' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'rgb(220, 53, 29)' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'rgb(255, 193, 7)' }
-      return 'rgb(40, 167, 69)'
+      if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'rgba(51, 51, 51, 0.6)' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'rgba(204, 0, 204, 0.6)' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'rgba(220, 53, 29, 0.6)' }
+      if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'rgba(255, 193, 7, 0.6)' }
+      return 'rgba(40, 167, 69, 0.6)'
     }
   },
   watch: {
