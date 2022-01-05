@@ -132,7 +132,7 @@ b-sidebar#lah-sidebar(
         {{site}} 智慧監控儀錶板
       li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
         #[font-awesome-icon.fixed-width(:icon="['fab', 'watchman-monitoring']", size="lg")]
-        同步異動監控
+        {{site}} 同步異動監控
       li(v-if="authority.isAdmin"): nuxt-link(to="/admin/ip").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'network-wired']", size="lg")]
         IP對應表管理
