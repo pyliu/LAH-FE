@@ -194,7 +194,6 @@ export default {
     },
     _load () { /* placeholder for load method debounced */ },
     load () {
-      this.isBusy = true
       this.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
@@ -249,7 +248,6 @@ export default {
           this.$utils.error('讀取AP連線歷史紀錄失敗', err)
         })
         .finally(() => {
-          this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
           this.timeout(() => this.load(), this.reloadTime * 1000).then((handler) => { this.reloadTimer = handler })

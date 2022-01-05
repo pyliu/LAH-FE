@@ -178,7 +178,6 @@ export default {
     },
     reload (force = false) {
       clearTimeout(this.reloadTimer)
-      this.isBusy = true
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_connectivity_history',
@@ -215,7 +214,6 @@ export default {
           this.alert(err.toString(), { title: '讀取連線資料失敗' })
         })
         .finally(() => {
-          this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
           this.timeout(() => this.reload(), 15 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
         })
