@@ -213,7 +213,7 @@ export default {
         .finally(() => {
           this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
-          this.reloadTimer = this.timeout(() => this.reload(), 15 * 60 * 1000) // 15 mins reload
+          this.timeout(() => this.reload(), 15 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
         })
     },
     _reload () { /* placeholder for debouncing reload method */ }

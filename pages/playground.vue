@@ -271,7 +271,7 @@ export default {
         .finally(() => {
           // this.isBusy = false;
           // reload every 15s
-          this.reload_timer = this.timeout(this.chartLoadData, 15 * 60 * 1000)
+          this.timeout(this.chartLoadData, 15 * 60 * 1000).then((handler) => { this.reload_timer = handler })
           this.$nextTick(() => {
             this.$refs.chart?.update()
           })

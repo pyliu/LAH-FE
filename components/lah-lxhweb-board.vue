@@ -231,7 +231,7 @@ export default {
       })
     },
     pingNextTime () {
-      this.pingTimer = this.timeout(() => this.ping(), this.pingInterval)
+      this.timeout(() => this.ping(), this.pingInterval).then((handler) => { this.pingTimer = handler })
     },
     stopPing () {
       clearTimeout(this.pingTimer)
