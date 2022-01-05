@@ -41,31 +41,31 @@ export default {
       default (item, opacity) {
         switch (item.x) {
           case '地政局':
-            return `rgb(207, 207, 207, ${opacity})` // H0
+            return `rgba(207, 207, 207, ${opacity})` // H0
           case '桃園所':
-            return `rgb(254, 185, 180, ${opacity})` // HA
+            return `rgba(254, 185, 180, ${opacity})` // HA
           case '中壢所':
-            return `rgb(125, 199, 80, ${opacity})` // HB
+            return `rgba(125, 199, 80, ${opacity})` // HB
           case '大溪所':
-            return `rgb(255, 251, 185, ${opacity})` // HC
+            return `rgba(255, 251, 185, ${opacity})` // HC
           case '楊梅所':
-            return `rgb(0, 157, 122, ${opacity})` // HD
+            return `rgba(0, 157, 122, ${opacity})` // HD
           case '蘆竹所':
-            return `rgb(33, 137, 227, ${opacity})` // HE
+            return `rgba(33, 137, 227, ${opacity})` // HE
           case '八德所':
-            return `rgb(181, 92, 66, ${opacity})` // HF
+            return `rgba(181, 92, 66, ${opacity})` // HF
           case '平鎮所':
-            return `rgb(195, 42, 84, ${opacity})` // HG
+            return `rgba(195, 42, 84, ${opacity})` // HG
           case '龜山所':
-            return `rgb(136, 72, 152, ${opacity})` // HH
+            return `rgba(136, 72, 152, ${opacity})` // HH
           default:
-            return `rgb(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${opacity})`
+            return `rgba(${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${this.$utils.rand(255)}, ${opacity})`
         }
       }
     },
     borderColor: {
       type: String,
-      default: 'rgb(22, 22, 22)'
+      default: 'rgba(22, 22, 22)'
     },
     borderWidth: {
       type: Number,
@@ -178,7 +178,7 @@ export default {
     },
     addBackgroundColor (item, datasetIdx) {
       if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
-        this.chartData.datasets[datasetIdx].backgroundColor.push(`rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.opacity})`)
+        this.chartData.datasets[datasetIdx].backgroundColor.push(`rgba(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.opacity})`)
       } else {
         // random color for this item
         this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor(item, this.opacity))
@@ -192,7 +192,7 @@ export default {
         this.chartData.datasets[datasetIdx].data[foundIdx] = value
         // also update background color as well
         if (item.color !== undefined && item.color.R !== undefined && item.color.G !== undefined && item.color.B !== undefined) {
-          this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = `rgb(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.opacity})`
+          this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = `rgba(${item.color.R}, ${item.color.G}, ${item.color.B}, ${this.opacity})`
         } else {
           this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.opacity)
         }
