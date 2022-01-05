@@ -44,7 +44,7 @@ b-card(no-body)
         li 顯示指定所跨域AP連線數趨勢圖 (⭐ AP需安裝#[a(href="/send_netstats.sh") 回報腳本] ⭐)
         li #[lah-fa-icon(icon="clock", variant="primary")] 調整顯示時段區間
         li #[lah-fa-icon(icon="clock", regular, variant="secondary")] 顯示資料更新時間
-        li 60秒更新資料一次資料
+        li {{ reloadTime }} 秒更新資料一次資料
       hr
       h5 #[lah-fa-icon(icon="palette") 顏色說明]
       div #[lah-fa-icon(icon="circle", style="color: rgb(40, 167, 69)")] 綠色 - 連線數 0 ~ 100
@@ -68,7 +68,8 @@ export default {
     mins: { type: Number, default: 15 },
     type: { type: String, default: 'line' },
     rightmost: { type: Boolean, default: true },
-    watchTopXap: { type: Boolean, default: false }
+    watchTopXap: { type: Boolean, default: false },
+    reloadTime: { type: Number, default: 60 }
   },
   data: () => ({
     header: '',
@@ -246,7 +247,7 @@ export default {
           this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
-          this.timeout(() => this.load(), 60 * 1000).then((handler) => { this.reloadTimer = handler })
+          this.timeout(() => this.load(), this.reloadTime * 1000).then((handler) => { this.reloadTimer = handler })
         })
     }
   }

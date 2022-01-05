@@ -17,12 +17,18 @@ div(v-cloak)
       ul
         li 提供顯示跨域伺服器狀態
   client-only
+    //- b-card-group.mb-2(columns)
+    //-   lah-monitor-board-xap.card-body-fixed-height
+    //-   lah-monitor-board-connectivity.card-body-fixed-height
+    //-   lah-monitor-board-xap-trend.card-body-fixed-height(office="桃園所" watch-top-xap)
+    //-   lah-monitor-board-apconn.card-body-fixed-height
+    //-   lah-monitor-board-apconn(line, all)
     b-card-group.mb-2(deck)
-      lah-monitor-board-xap.card-body-fixed-height
-      lah-monitor-board-connectivity.card-body-fixed-height
+      lah-monitor-board-xap
+      lah-monitor-board-connectivity
     b-card-group.mb-2(deck)
-      lah-monitor-board-xap-trend.card-body-fixed-height(office="桃園所" watch-top-xap)
-      lah-monitor-board-apconn.card-body-fixed-height
+      lah-monitor-board-xap-trend(office="桃園所" watch-top-xap reload-time="15")
+      lah-monitor-board-apconn
       //- lah-monitor-board-apconn(line, all)
 </template>
 
@@ -38,8 +44,8 @@ export default {
 <style lang="scss">
 .card-body-fixed-height {
   .card-body {
-    // height: calc((100vh - 600px) / 2);
-    // overflow: auto;
+    height: calc((100vh - 600px) / 2);
+    overflow: auto;
   }
 }
 </style>
