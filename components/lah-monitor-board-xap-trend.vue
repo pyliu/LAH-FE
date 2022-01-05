@@ -65,7 +65,7 @@ export default {
   props: {
     maximized: { type: Boolean, default: false },
     office: { type: String, default: '地政局' },
-    mins: { type: Number, default: 60 },
+    mins: { type: Number, default: 15 },
     type: { type: String, default: 'bar' },
     rightmost: { type: Boolean, default: true }
   },
@@ -74,7 +74,7 @@ export default {
     chartType: 'bar',
     reloadTimer: null,
     updatedTime: '',
-    loadMins: 60,
+    loadMins: 15,
     loadMinsOpts: [
       { value: 15, text: '15分鐘' },
       { value: 30, text: '30分鐘' },
