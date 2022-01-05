@@ -187,7 +187,12 @@ export default {
     setLineFillColor (datasetIdx, colorCode) {
       const ds = this.chartData.datasets[datasetIdx]
       if (ds && ds.type === 'line') {
-        ds.backgroundColor = colorCode
+        if (Array.isArray(ds.backgroundColor)) {
+          // fill color will use the first one in array
+          ds.backgroundColor[0] = colorCode
+        } else {
+          ds.backgroundColor = colorCode
+        }
       }
     },
     updateData (item, datasetIdx = 0) {
