@@ -230,6 +230,11 @@ export default {
                   this.datasetIdx
                 )
               })
+              if (this.chartType === 'line' && this.loadItems.length > 0) {
+                const item = this.rightmost ? this.loadItems[this.loadItems.length - 1] : this.loadItems[0]
+                const fillColor = `rgba(${item.color.R}, ${item.color.G}, ${item.color.B}, 0.6)`
+                this.$refs.chart.setLineFillColor(this.datasetIdx, fillColor)
+              }
             }
           } else {
             this.warning(

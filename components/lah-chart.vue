@@ -184,6 +184,12 @@ export default {
         this.chartData.datasets[datasetIdx].backgroundColor.push(this.backgroundColor(item, this.opacity))
       }
     },
+    setLineFillColor (datasetIdx, colorCode) {
+      const ds = this.chartData.datasets[datasetIdx]
+      if (ds && ds.type === 'line') {
+        ds.backgroundColor = colorCode
+      }
+    },
     updateData (item, datasetIdx = 0) {
       const label = item.x
       const value = item.y
