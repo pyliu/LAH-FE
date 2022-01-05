@@ -9,7 +9,7 @@ b-card(no-body)
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="_resetAndLoad",
+        @click="_load(true)",
         title="重新讀取"
       )
       lah-button(
@@ -121,8 +121,8 @@ export default {
     }
   },
   watch: {
-    rightmost (flag) { this._resetAndLoad() },
-    loadMins (val) { this._resetAndLoad() },
+    rightmost (flag) { this._load(true) },
+    loadMins (val) { this._load(true) },
     topXap (office) {
       if (this.watchTopXap) {
         this.watchOffice = office.x
@@ -136,13 +136,9 @@ export default {
     this.loadMins = this.mins
     this.watchOffice = this.office
     this._load = this.$utils.debounce(this.load, 100)
-    this._resetAndLoad = this.$utils.debounce(() => {
-      this.reset()
-      this._load()
-    }, 400)
   },
   mounted () {
-    this._resetAndLoad()
+    this.load(true)
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
@@ -165,7 +161,6 @@ export default {
         '0' + dateObj.getMinutes()
       ).slice(-2)}`
     },
-    _resetAndLoad () { /* placeholder for debounceing method */ },
     reset () {
       this.loadItems.length = 0
       const now = +new Date()
@@ -197,8 +192,9 @@ export default {
       return { R: 164, G: 236, B: 119 }
     },
     _load () { /* placeholder for load method debounced */ },
-    load () {
+    load (reset = false) {
       this.isBusy = true
+      reset && this.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_ap_conn_history',
@@ -250,7 +246,7 @@ export default {
           this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
-          this.timeout(this.load, 60 * 1000).then((handler) => { this.reloadTimer = handler })
+          this.timeout(() => this.load(true), 60 * 1000).then((handler) => { this.reloadTimer = handler })
         })
     }
   }
