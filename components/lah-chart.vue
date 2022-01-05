@@ -4,6 +4,7 @@ b-card.border-0(no-body): canvas(:id="id") 圖形初始化失敗
 
 <script>
 import Chart from 'chart.js/auto'
+
 export default {
   props: {
     type: {
@@ -126,7 +127,7 @@ export default {
     },
     initDataset (idx, label, type) {
       if (!this.chartData.datasets[idx]) {
-        this.chartData.datasets.push({
+        const opts = {
           type: type || this.type,
           label,
           backgroundColor: [],
@@ -136,7 +137,10 @@ export default {
           opacity: this.opacity,
           snapGaps: true,
           borderWidth: this.borderWidth
-        })
+        }
+        // make line char style smoothly
+        type === 'line' && (opts.tension = 0.35)
+        this.chartData.datasets.push(opts)
       }
     },
     addData (item, label, type, datasetIdx = 0) {
@@ -273,6 +277,7 @@ export default {
       // use chart.js directly
       const ctx = this.id
       const that = this
+      // this.$utils.warn(this.chartData.datasets[0].backgroundColor[this.chartData.datasets[0].backgroundColor.length - 1])
       this.inst = new Chart(ctx, {
         data: this.chartData,
         options: Object.assign({

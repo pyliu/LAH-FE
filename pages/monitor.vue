@@ -27,7 +27,7 @@ div(v-cloak)
       lah-monitor-board-xap
       lah-monitor-board-connectivity
     b-card-group.mb-2(deck)
-      lah-monitor-board-xap-trend(office="桃園所" watch-top-xap reload-time="15")
+      lah-monitor-board-xap-trend(office="桃園所" watch-top-xap :reload-time="15")
       lah-monitor-board-apconn
       //- lah-monitor-board-apconn(line, all)
 </template>
