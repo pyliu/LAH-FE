@@ -9,7 +9,7 @@ b-card(no-body)
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="_load",
+        @click="_resetAndLoad",
         title="重新讀取"
       )
       lah-button(
