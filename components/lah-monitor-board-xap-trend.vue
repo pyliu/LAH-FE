@@ -9,7 +9,7 @@ b-card(no-body)
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="_load(true)",
+        @click="_load",
         title="重新讀取"
       )
       lah-button(
@@ -121,8 +121,8 @@ export default {
     }
   },
   watch: {
-    rightmost (flag) { this._load(true) },
-    loadMins (val) { this._load(true) },
+    rightmost (flag) { this._load() },
+    loadMins (val) { this._load() },
     topXap (office) {
       if (this.watchTopXap) {
         this.watchOffice = office.x
@@ -167,9 +167,9 @@ export default {
       for (let i = 0; i < this.loadMins; i++) {
         const item = { x: '', y: 0, color: { R: 164, G: 236, B: 119 } }
         if (this.rightmost) {
-          item.x = i === this.loadMins - 1 ? '現在' : this.toTime(now - (this.loadMins - i - 1) * 60 * 1000)
+          item.x = this.toTime(now - (this.loadMins - i - 1) * 60 * 1000)
         } else {
-          item.x = i === 0 ? '現在' : this.toTime(now - i * 60 * 1000)
+          item.x = this.toTime(now - i * 60 * 1000)
         }
         this.loadItems.push(item)
       }
@@ -192,9 +192,9 @@ export default {
       return { R: 164, G: 236, B: 119 }
     },
     _load () { /* placeholder for load method debounced */ },
-    load (reset = false) {
+    load () {
       this.isBusy = true
-      reset && this.reset()
+      this.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_ap_conn_history',
@@ -246,7 +246,7 @@ export default {
           this.isBusy = false
           this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
-          this.timeout(() => this.load(true), 60 * 1000).then((handler) => { this.reloadTimer = handler })
+          this.timeout(() => this.load(), 60 * 1000).then((handler) => { this.reloadTimer = handler })
         })
     }
   }
