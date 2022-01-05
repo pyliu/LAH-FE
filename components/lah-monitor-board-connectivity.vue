@@ -202,6 +202,10 @@ export default {
                 this.$utils.warn(`找不到 ${item.target_ip} 資料。`)
               }
             })
+            // line chart fill color sync
+            if (this.type === 'line' && this.loadItems.length > 0) {
+              this.$refs.chart?.setLineFillColor(this.datasetIdx, this.colorCode)
+            }
           } else {
             this.warning(data.message, { title: '同步異動主機狀態檢視' })
           }
