@@ -41,8 +41,9 @@ b-card(no-body)
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示指定所跨域AP連線數趨勢圖(跨域AP需安裝回報腳本才能正常顯示)
-        li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
+        li 顯示指定所跨域AP連線數趨勢圖 (⭐ AP需安裝#[a(href="/send_netstats.sh") 回報腳本] ⭐)
+        li #[lah-fa-icon(icon="clock", variant="primary")] 調整顯示時段區間
+        li #[lah-fa-icon(icon="clock", regular, variant="secondary")] 顯示資料更新時間
         li 60秒更新資料一次資料
       hr
       h5 #[lah-fa-icon(icon="palette") 顏色說明]
@@ -52,7 +53,9 @@ b-card(no-body)
   lah-chart(ref="chart", :type="chartType")
 
   template(#footer): .d-flex.justify-content-between.small
-    lah-fa-icon(icon="clock") {{ mins }}分內
+    .d-flex
+      lah-fa-icon.my-auto.mr-1(icon="clock", variant="primary")
+      b-select.m-n1(v-model="loadMins", :options="loadMinsOpts", size="sm", style="max-width: 100px")
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 </template>
 
@@ -72,6 +75,16 @@ export default {
     reloadTimer: null,
     updatedTime: '',
     loadMins: 60,
+    loadMinsOpts: [
+      { value: 15, text: '15分鐘' },
+      { value: 30, text: '30分鐘' },
+      { value: 60, text: '1小時' },
+      { value: 90, text: '1.5小時' },
+      { value: 120, text: '2小時' },
+      { value: 240, text: '4小時' },
+      { value: 360, text: '6小時' },
+      { value: 480, text: '8小時' }
+    ],
     loadItems: [],
     datasetIdx: 0,
     lightCriteria: {
