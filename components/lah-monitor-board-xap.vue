@@ -134,7 +134,13 @@ export default {
         point: {element: BarElement, datasetIndex: 0, index: 5}
         value: 34
       */
-      this.modal(this.$createElement('LahMonitorBoardXapTrend', { props: { maximized: true, office: detail.label, type: (+new Date() % 2 === 0) ? 'bar' : 'line' } }), {
+      this.modal(this.$createElement('LahMonitorBoardXapTrend', {
+        props: {
+          maximized: true,
+          office: detail.label,
+          type: (+new Date() % 2 === 0) ? 'bar' : 'line'
+        }
+      }), {
         title: `${detail.label}跨域AP連線趨勢`,
         size: 'xl'
       })
@@ -167,6 +173,7 @@ export default {
               ['平鎮所', 0],
               ['龜山所', 0]
             ])
+            let topOffice = { x: '', y: 0 }
             data.raw.forEach((item, idx, array) => {
               /*
                   item = {
@@ -192,7 +199,11 @@ export default {
               const item = { x: element[0], y: element[1] }
               this.$refs.chart.updateData(item, this.barDatasetIdx)
               this.$refs.chart.updateData(item, this.lineDatasetIdx)
+              if (topOffice.y < item.y) {
+                topOffice = item
+              }
             })
+            this.$store.commit('topXap', topOffice)
           }
         })
         .catch((err) => {

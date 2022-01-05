@@ -117,13 +117,16 @@ b-sidebar#lah-sidebar(
       ).
         #[font-awesome-icon.fixed-width(:icon="['fas', 'chalkboard-teacher']", size="lg")]
         地政系統管理面板
-      li(v-if="authority.isAdmin"): a(
-        :href="`${this.legacyUrl}/monitor.html`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ).
+      li: nuxt-link(to="/monitor").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']", size="lg")]
-        跨所伺服器監控面板
+        {{site}} 跨域伺服器監控
+      //- li(v-if="authority.isAdmin"): a(
+      //-   :href="`${this.legacyUrl}/monitor.html`",
+      //-   target="_blank",
+      //-   rel="noreferrer noopener"
+      //- ).
+      //-   #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']", size="lg")]
+      //-   跨所伺服器監控面板
       li(v-if="authority.isAdmin"): nuxt-link(to="/admin/mgt").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'diagnoses']", size="lg")]
         {{site}} 智慧監控儀錶板

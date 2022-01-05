@@ -54,6 +54,7 @@ const state = () => ({
   },
   systemConfigs: {},
   lastMessage: '',
+  topXap: { x: '', y: 0 },
   xapMap: new Map([
     ['220.1.33.71', { name: '地政局', code: 'H0', ip: '220.1.33.71' }],
     ['220.1.34.161', { name: '桃園所', code: 'HA', ip: '220.1.34.161' }],
@@ -98,6 +99,7 @@ const getters = {
   wsHost: state => state.systemConfigs.WS_SERVER_IP,
   wsPort: state => state.systemConfigs.WS_SERVER_PORT,
   lastMessage: state => state.lastMessage,
+  topXap: state => state.topXap,
   xapMap: state => state.xapMap,
   timestamp: state => state.timestamp,
   imageMementoCapacity: state => state.imageMementoCapacity,
@@ -179,6 +181,9 @@ const mutations = {
       return state.messageMemento.indexOf(item) === pos
     })]
     this.$config.isDev && console.log(timestamp(), `現在暫存 message data 數量為 ${state.messageMemento.length}。 [Vuex::addMessageMemento]`)
+  },
+  topXap (state, office) {
+    state.topXap = { ...office }
   }
 }
 

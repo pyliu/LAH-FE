@@ -21,8 +21,9 @@ div(v-cloak)
   b-card-group.mb-2(deck)
     lah-monitor-board-xap
     lah-monitor-board-apconn
-    //- lah-monitor-board-apconn(line, all)
     lah-monitor-board-connectivity
+    //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
+    //- lah-monitor-board-apconn(line, all)
   b-card-group.mb-2(deck)
     lah-monitor-board-dataguard.card-body-fixed-height
     lah-monitor-board-hacmp.card-body-fixed-height

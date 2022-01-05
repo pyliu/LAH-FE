@@ -27,6 +27,7 @@ Vue.mixin({
       'userNames',
       'authority',
       'server',
+      'topXap',
       'xapMap',
       'timestamp',
       'imageMemento',
@@ -38,7 +39,7 @@ Vue.mixin({
       'messageMementoCacheKey',
       'latestMessageMemento'
     ]),
-    viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 20).toFixed(2) },
+    viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 120).toFixed(2) },
     site () {
       if (this.systemConfigs && this.systemConfigs.site) {
         return this.systemConfigs.site

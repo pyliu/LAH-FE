@@ -64,14 +64,16 @@ export default {
   name: 'LahMonitorBoardXapTrend',
   props: {
     maximized: { type: Boolean, default: false },
-    office: { type: String, default: '地政局' },
+    office: { type: String, default: '桃園所' },
     mins: { type: Number, default: 15 },
-    type: { type: String, default: 'bar' },
-    rightmost: { type: Boolean, default: true }
+    type: { type: String, default: 'line' },
+    rightmost: { type: Boolean, default: true },
+    watchTopXap: { type: Boolean, default: false }
   },
   data: () => ({
     header: '',
-    chartType: 'bar',
+    watchOffice: '',
+    chartType: 'line',
     reloadTimer: null,
     updatedTime: '',
     loadMins: 15,
@@ -114,19 +116,25 @@ export default {
       // xapMap from store
       const xaps = [...this.xapMap]
       // item: ['220.1.XX.XX', { name: 'XXX', code: 'XX', ip: '220.1.XX.XX' }]
-      const found = xaps.find(item => item[1].name === this.office)
+      const found = xaps.find(item => item[1].name === this.watchOffice)
       return found[0]
     }
   },
   watch: {
     rightmost (flag) { this._resetAndLoad() },
-    loadMins (val) { this._resetAndLoad() }
+    loadMins (val) { this._resetAndLoad() },
+    topXap (office) {
+      if (this.watchTopXap) {
+        this.watchOffice = office.x
+      }
+    },
+    watchOffice (str) { this.header = `${str} 跨域AP 連線趨勢圖` }
   },
   created () {
     this.modalId = this.$utils.uuid()
     this.chartType = this.type
     this.loadMins = this.mins
-    this.header = `${this.office} 跨域AP 連線趨勢圖`
+    this.watchOffice = this.office
     this._load = this.$utils.debounce(this.load, 100)
     this._resetAndLoad = this.$utils.debounce(() => {
       this.reset()
@@ -202,7 +210,7 @@ export default {
             if (data.data_count === 0) {
               this.warning('無資料，無法繪製圖形', {
                 title: this.header,
-                subtitle: this.office
+                subtitle: this.watchOffice
               })
             } else {
               // display now to the chart right bound
@@ -228,9 +236,9 @@ export default {
             }
           } else {
             this.warning(
-              `取得跨所 AP ${this.office} ${this.apIp} 連線資料失敗。狀態碼：${data.status}`,
+              `取得跨所 AP ${this.watchOffice} ${this.apIp} 連線資料失敗。狀態碼：${data.status}`,
               {
-                title: `跨所 AP ${this.office} 連線趨勢圖`
+                title: `跨所 AP ${this.watchOffice} 連線趨勢圖`
               }
             )
           }
