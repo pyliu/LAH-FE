@@ -27,7 +27,7 @@ b-card(no-body)
       ul
         li 顯示跨域AP連線數統計狀態 (⭐ AP需安裝#[a(href="/send_netstats.sh") 回報腳本] ⭐)
         li #[lah-fa-icon(icon="database", variant="danger")] 顯示資料庫連線總數(超過3000會造成地政系統停擺)
-        li #[lah-fa-icon(icon="server", variant="success")] 顯示AP連線總數(數字越高有可能造成地政系統回應緩慢)
+        li #[lah-fa-icon(icon="wave-square", variant="success")] 顯示AP連線總數(數字越高有可能造成地政系統回應緩慢)
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
   lah-chart(ref="chart", @click="popupTrending")
@@ -109,7 +109,7 @@ export default {
       if (this.apTotal > 1000) { return ['danger', 'tremble', '2x', 'bomb'] }
       if (this.apTotal > 750) { return ['danger', 'shiver', 'lg', 'server'] }
       if (this.apTotal > 500) { return ['warning', 'beat', '1x', 'server'] }
-      return ['success', 'breath', 'sm', 'server']
+      return ['success', 'breath', 'sm', 'wave-square']
     }
   },
   created () {

@@ -77,7 +77,8 @@ b-card(no-body)
       icon="database"
     ) 資料庫 {{ dbTotal }}
     lah-fa-icon(
-      icon="server"
+      icon="wave-square",
+      :variant="light"
     ) 連線總數 {{ totalCount }}
     b-select.m-n2(v-model="apIp", :options="apIpList", size="sm", style="max-width: 115px")
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
