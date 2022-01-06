@@ -162,6 +162,18 @@ export default {
         '0' + dateObj.getMinutes()
       ).slice(-2)}`
     },
+    labelNeedUpdate () {
+      const length = this.loadItems.length
+      if (length > 0) {
+        const now = this.toTime(+new Date())
+        if (this.rightmost) {
+          return now !== this.loadItems[length - 1].x
+        } else {
+          return now !== this.loadItems[0].x
+        }
+      }
+      return true
+    },
     reset () {
       this.loadItems.length = 0
       const now = +new Date()
@@ -194,7 +206,7 @@ export default {
     },
     _load () { /* placeholder for load method debounced */ },
     load () {
-      this.reset()
+      this.labelNeedUpdate() && this.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_ap_conn_history',
