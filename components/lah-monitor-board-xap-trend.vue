@@ -202,7 +202,7 @@ export default {
       if (val > this.lightCriteria.yellow) {
         return { R: 255, G: 193, B: 7 }
       }
-      return { R: 164, G: 236, B: 119 }
+      return { R: 40, G: 167, B: 69 }
     },
     _load () { /* placeholder for load method debounced */ },
     load () {
