@@ -59,7 +59,8 @@ b-card(no-body)
     v-show="loadItems.length > 0",
     ref="chart",
     :type="type"
-    :backgroundColor="backgroundColor"
+    :backgroundColor="backgroundColor",
+    @click="popupNote"
   )
 
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
@@ -136,6 +137,7 @@ export default {
                 ip: rawObj.ip,
                 status: 'DOWN',
                 timestamp: '20201005181631',
+                note: rawObj.note,
                 x: name,
                 y: 0.0 // latency
               })
@@ -155,6 +157,14 @@ export default {
         .finally(() => {
           this.reload()
         })
+    },
+    popupNote ({ detail }) {
+      const found = this.loadItems.find(item => item.x === detail.label)
+      if (found) {
+        this.modal(found.note.replaceAll('\n', '<br/>'), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
+      } else {
+        this.$utils.warn('找不到監控項目', detail)
+      }
     },
     popupMaximize () {
       this.modal(
