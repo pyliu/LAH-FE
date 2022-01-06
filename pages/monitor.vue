@@ -17,12 +17,6 @@ div(v-cloak)
       ul
         li 提供顯示跨域伺服器狀態
   client-only
-    //- b-card-group.mb-2(columns)
-    //-   lah-monitor-board-xap.card-body-fixed-height
-    //-   lah-monitor-board-connectivity.card-body-fixed-height
-    //-   lah-monitor-board-xap-trend.card-body-fixed-height(office="桃園所" watch-top-xap)
-    //-   lah-monitor-board-apconn.card-body-fixed-height
-    //-   lah-monitor-board-apconn(line, all)
     b-card-group.mb-2(deck)
       lah-monitor-board-xap
       lah-monitor-board-connectivity
@@ -42,9 +36,8 @@ export default {
     title: '跨域伺服器監控-桃園市地政局'
   },
   mounted () {
-    this.$(window).resize(this.$utils.debounce(() => {
-      window.location.reload()
-    }, 1000))
+    window.addEventListener('resize', this.$utils.debounce(() => window.location.reload(), 1000))
+    this.refresh()
   },
   methods: {
     refresh (minSec = '00:00') {
@@ -72,10 +65,4 @@ export default {
 </script>
 
 <style lang="scss">
-.card-body-fixed-height {
-  .card-body {
-    height: calc((100vh - 600px) / 2);
-    overflow: auto;
-  }
-}
 </style>
