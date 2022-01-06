@@ -79,7 +79,7 @@ b-card(no-body)
     lah-fa-icon(
       icon="wave-square",
       :variant="light"
-    ) 連線總數 {{ totalCount }}
+    ) {{ word }}連線數 #[b-badge(:variant="light", pill) {{ totalCount }}]
     b-select.m-n2(v-model="apIp", :options="apIpList", size="sm", style="max-width: 115px")
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
@@ -122,7 +122,8 @@ export default {
     }
   }),
   computed: {
-    header () { return this.allSwitch ? 'AP系統連線狀態' : 'AP使用者連線狀態' },
+    word () { return this.allSwitch ? '系統' : '使用者' },
+    header () { return `AP ${this.word} 連線狀態` },
     icon () { return this.allSwitch ? 'server' : 'users' },
     factor () { return this.allSwitch ? 3 : 1 },
     light () {

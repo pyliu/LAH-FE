@@ -38,13 +38,13 @@ b-card(no-body)
       :action="dbStyles[1]",
       :size="dbStyles[2]",
       :icon="dbStyles[3]"
-    ) 資料庫 {{ dbTotal }}
+    ) 資料庫 #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
     lah-fa-icon(
       :variant="apStyles[0]",
       :action="apStyles[1]",
       :size="apStyles[2]",
       :icon="apStyles[3]"
-    ) 主機連線 {{ apTotal }}
+    ) 主機連線 #[b-badge(:variant="apStyles[0]", pill) {{ apTotal }}]
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
