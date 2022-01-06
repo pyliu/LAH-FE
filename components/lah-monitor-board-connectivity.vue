@@ -61,6 +61,8 @@ b-card(no-body)
     :type="type"
     :backgroundColor="backgroundColor",
     @click="popupNote"
+    :tooltip-title-callback="titleTooltip",
+    :tooltip-label-callback="labelTooltip"
   )
 
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
@@ -157,6 +159,20 @@ export default {
         .finally(() => {
           this.reload()
         })
+    },
+    titleTooltip (entry) {
+      const item = entry[this.datasetIdx]
+      return `${item.label}：${item.raw.toFixed(2)} ms`
+    },
+    labelTooltip (entry) {
+      const found = this.loadItems.find(item => item.x === entry.label)
+      if (found) {
+        return found.note.split('\n')
+        // this.modal(found.note.replaceAll('\n', '<br/>'), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
+      } else {
+        const currentVal = entry.dataset.data[entry.dataIndex]
+        return ` ${entry.label}：${currentVal}`
+      }
     },
     popupNote ({ detail }) {
       const found = this.loadItems.find(item => item.x === detail.label)

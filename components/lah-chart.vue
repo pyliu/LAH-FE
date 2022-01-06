@@ -23,7 +23,21 @@ export default {
       type: Number,
       default: 0.6
     },
-    tooltip: {
+    noTooltip: {
+      type: Boolean,
+      default: false
+    },
+    tooltipBackgroundColor: {
+      type: String,
+      default: 'rgba(0, 0, 0, 0.7)'
+    },
+    tooltipTitleCallback: {
+      type: Function,
+      default (entry) {
+        return entry[0].label
+      }
+    },
+    tooltipLabelCallback: {
       type: Function,
       default (entry) {
         // add percent ratio to the label
@@ -32,8 +46,9 @@ export default {
         })
         const currentVal = entry.dataset.data[entry.dataIndex]
         const percent = Math.round(((currentVal / sum) * 100))
-        if (isNaN(percent)) { return ` ${entry.label} : ${currentVal}` }
-        return ` ${entry.label} : ${currentVal} [${percent}%]`
+        // return either a string or an array of strings. Arrays of strings are treated as multiple lines of text.
+        if (isNaN(percent)) { return `${currentVal}` }
+        return `${currentVal} [${percent}%]`
       }
     },
     backgroundColor: {
@@ -285,6 +300,15 @@ export default {
         display: !this.$utils.empty(this.subtitle),
         text: this.subtitle
       }
+      // tooltip
+      opts.plugins.tooltip = {
+        enabled: !this.noTooltip,
+        backgroundColor: this.tooltipBackgroundColor,
+        callbacks: {
+          title: this.tooltipTitleCallback,
+          label: this.tooltipLabelCallback
+        }
+      }
       // use chart.js directly
       const ctx = this.id
       const that = this
@@ -292,18 +316,12 @@ export default {
       this.inst = new Chart(ctx, {
         data: this.chartData,
         options: Object.assign({
-          showTooltips: true,
           responsive: true,
           maintainAspectRatio: true,
           aspectRatio: that.aspectRatio || +that.viewportRatio,
           elements: {
             point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
             line: { tension: that.type === 'line' ? 0.35 : 0.1, fill: that.chartData.datasets.length === 1, stepped: false }
-          },
-          tooltips: {
-            callbacks: {
-              label: that.tooltip
-            }
           },
           onClick (e) {
             const payload = {}
