@@ -69,7 +69,7 @@ b-card(no-body)
   //- b-carousel(
   //- )
   .center.h-100.my-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
-  lah-chart(v-show="loadItems.length > 0" ref="chart" :type="type")
+  lah-chart(v-show="loadItems.length > 0", ref="chart", :type="type", @click="popupUser")
 
   template(#footer): .d-flex.justify-content-between.align-items-center.small
     lah-fa-icon(
@@ -86,8 +86,10 @@ b-card(no-body)
 </template>
 
 <script>
+import LahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'LahMonitorBoardApconn',
+  components: { LahUserCard },
   props: {
     maximized: { type: Boolean, default: false },
     line: { type: Boolean, default: false },
@@ -185,6 +187,17 @@ export default {
     reload () { /* placeholder for loadAPConnectionCount  */ },
     navLeft () { this.apIp = this.prevSvr },
     navRight () { this.apIp = this.nextSvr },
+    popupUser ({ detail }) {
+      this.modal(this.$createElement(LahUserCard, {
+        props: {
+          id: detail.label,
+          name: detail.label,
+          from: detail.label
+        }
+      }), {
+        title: `${detail.label} - 已連線數：${detail.value}`
+      })
+    },
     popupMaximize () {
       this.modal(
         this.$createElement('LahMonitorBoardApconn', {
@@ -290,7 +303,7 @@ export default {
             })
             this.loadItems = [...processing]
             this.loadItems.forEach((element) => {
-              const item = { x: element[0], y: element[1], color: this.backgroundColor(element) }
+              const item = { x: this.userNames[element[0]] || element[0], y: element[1], color: this.backgroundColor(element) }
               this.$refs.chart?.addData(item, this.apIp, this.type, 0)
             })
             // make chart build a bit later
