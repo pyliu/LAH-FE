@@ -291,7 +291,7 @@ export default {
             this.loadItems = [...processing]
             this.loadItems.forEach((element) => {
               const item = { x: element[0], y: element[1], color: this.backgroundColor(element) }
-              this.$refs.chart?.addData(item, this.apIp, 0)
+              this.$refs.chart?.addData(item, this.apIp, this.type, 0)
             })
             // make chart build a bit later
             this.timeout(() => this.$refs.chart?.build(), 50)
