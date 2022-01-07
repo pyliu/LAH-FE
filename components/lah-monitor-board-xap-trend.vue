@@ -206,7 +206,21 @@ export default {
     },
     _load () { /* placeholder for load method debounced */ },
     load () {
-      this.labelNeedUpdate() && this.reset()
+      this.loadItems.length === 0 && this.reset()
+      // update label
+      if (this.labelNeedUpdate() && this.loadItems.length > 0) {
+        const now = +new Date()
+        for (let i = 0; i < this.loadMins; i++) {
+          const item = this.loadItems[i]
+          if (this.rightmost) {
+            item.x = this.toTime(now - (this.loadMins - i - 1) * 60 * 1000)
+          } else {
+            item.x = this.toTime(now - i * 60 * 1000)
+          }
+        }
+        this.$refs.chart.setLabels(this.loadItems.map(item => item.x))
+      }
+
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_ap_conn_history',

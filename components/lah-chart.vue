@@ -158,6 +158,14 @@ export default {
         this.chartData.datasets.push(opts)
       }
     },
+    setLabels (labels) {
+      const currentLabelsLength = this.chartData.labels.length || 0
+      if (Array.isArray(labels) && labels.length === currentLabelsLength) {
+        this.chartData.labels = [...labels]
+      } else {
+        this.$utils.warn(`與目前標籤數(${currentLabelsLength})不相符，無法變更圖形標籤(x軸)`, this.chartData.labels, labels)
+      }
+    },
     addData (item, label, type, datasetIdx = 0) {
       if (item.x !== undefined && item.y !== undefined) {
         this.initDataset(datasetIdx, label, type)
