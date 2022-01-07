@@ -122,8 +122,14 @@ export default {
     }
   },
   watch: {
-    rightmost (flag) { this._load() },
-    loadMins (val) { this._load() },
+    rightmost (flag) {
+      this.reset()
+      this._load()
+    },
+    loadMins (val) {
+      this.reset()
+      this._load()
+    },
     topXap (office) {
       if (this.watchTopXap) {
         this.watchOffice = office.x
