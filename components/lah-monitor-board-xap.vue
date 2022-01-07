@@ -138,7 +138,8 @@ export default {
         props: {
           maximized: true,
           office: detail.label,
-          type: (+new Date() % 2 === 0) ? 'bar' : 'line'
+          type: (+new Date() % 2 === 0) ? 'bar' : 'line',
+          mins: 60
         }
       }), {
         title: `${detail.label}跨域AP連線趨勢`,
