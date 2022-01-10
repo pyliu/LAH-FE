@@ -133,6 +133,7 @@ export default {
     topXap (office) {
       if (this.watchTopXap) {
         this.watchOffice = office.x
+        this.load()
       }
     },
     watchOffice (str) { this.header = `${str} 跨域AP 連線趨勢圖` }
