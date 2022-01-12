@@ -1,4 +1,5 @@
 export default {
+  emits: ['warning', 'danger'],
   name: 'lahMonitorBoardBase',
   fetchOnServer: false,
   data: () => ({

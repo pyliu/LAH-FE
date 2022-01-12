@@ -110,16 +110,19 @@ export default {
     },
     light () {
       if (this.headMessages.length === 0) {
+        this.$emit('warning', `${this.header}找不到紀錄郵件!`)
         return 'warning'
       }
       const ts = +new Date()
       if ((ts - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+        this.$emit('danger', this.headMessages[0])
         return 'danger'
       }
       const expectStr = 'No dump file'
       const regex = new RegExp(expectStr, 'gm')
       const matched = [...this.itemMessage(this.headMessages[0]).matchAll(regex)].join('')
       if (matched.length > 0) {
+        this.$emit('danger', this.headMessages[0])
         return 'danger'
       }
       return 'success'

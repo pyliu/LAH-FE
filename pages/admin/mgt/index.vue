@@ -33,7 +33,7 @@ div(v-cloak)
     lah-monitor-board-dbbackup.card-body-fixed-height
     lah-monitor-board-tape.card-body-fixed-height
   b-card-group.mb-2(deck)
-    lah-monitor-board-testdb.card-body-fixed-height
+    lah-monitor-board-testdb.card-body-fixed-height(@warning="handleWarning", @danger="handleDanger")
     lah-monitor-board-adsync.card-body-fixed-height
     lah-monitor-board-ups.card-body-fixed-height
 </template>
@@ -41,11 +41,22 @@ div(v-cloak)
 <script>
 export default {
   middleware: ['isAdmin'],
+  data: () => ({
+    warningMessages: [],
+    dangerMessages: []
+  }),
   head: {
     title: '智慧監控儀錶板-桃園市地政局'
   },
   fetchOnServer: true,
-  methods: {}
+  methods: {
+    handleWarning (message) {
+      this.warningMessages.push(message)
+    },
+    handleDanger (message) {
+      this.dangerMessages.push(message)
+    }
+  }
 }
 </script>
 
