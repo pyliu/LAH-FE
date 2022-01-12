@@ -113,8 +113,27 @@ export default {
       if (this.headMessages.length === 0) {
         return 'warning'
       }
-      const now = +new Date()
-      return (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000 ? 'danger' : 'success'
+      const ts = +new Date()
+      if ((ts - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+        return 'danger'
+      }
+      // parsing message for the error text
+      const yesterday = new Date()
+      // yesterday
+      yesterday.setDate(yesterday.getDate() - 1)
+      // expect yesterday string => 220111
+      const date = yesterday.getFullYear().toString().slice(-2) +
+        ('0' + (yesterday.getMonth() + 1)).slice(-2) +
+        ('0' + yesterday.getDate()).slice(-2)
+      // eslint-disable-next-line no-useless-escape
+      const expectStr = `No dump file (exp_HAWEB_${date}_full.dmp.gz) on ftp site!!!`.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const regex = new RegExp(expectStr, 'gm')
+      const message = this.headMessages[0].message
+      const all = [...message.matchAll(regex)].join('')
+      if (!this.$utils.empty(all)) {
+        return 'danger'
+      }
+      return 'success'
     }
   },
   created () {

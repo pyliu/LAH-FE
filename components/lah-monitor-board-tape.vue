@@ -116,7 +116,17 @@ export default {
       if (this.headMessages.length === 0) {
         return 'warning'
       }
-      return (now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000 ? 'danger' : 'success'
+      if ((now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+        return 'danger'
+      }
+      // parsing message for the successful text
+      const message = this.headMessages[0].message
+      const regex = /pax\s+successful!!/gm
+      const all = [...message.matchAll(regex)].join('')
+      if (this.$utils.empty(all)) {
+        return 'danger'
+      }
+      return 'success'
     }
   },
   created () {
