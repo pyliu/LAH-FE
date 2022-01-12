@@ -41,11 +41,11 @@ b-card
       div 🔴 表示狀態錯誤
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  ul(v-else): li(v-for="(item, idx) in headMessages" :key="`head_${idx}`")
     .d-flex.justify-content-between.font-weight-bold
       a.truncate(
         href="#",
-        @click="popupLogContent(item)",
+        @click="popupExtractMessage(item)",
         title="顯示詳細記錄"
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(
@@ -54,7 +54,7 @@ b-card
         :title="$utils.tsToAdDateStr(item.timestamp, true)",
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
       ) {{ displayDatetime(item.timestamp) }}
-    .truncate.text-muted.small {{ item.message }}
+    .truncate.text-muted.small {{ itemMessage(item) }}
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       size="sm",
@@ -116,20 +116,10 @@ export default {
       if ((ts - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
         return 'danger'
       }
-      // parsing message for the error text
-      const yesterday = new Date()
-      // yesterday
-      yesterday.setDate(yesterday.getDate() - 1)
-      // expect yesterday string => 220111
-      const date = yesterday.getFullYear().toString().slice(-2) +
-        ('0' + (yesterday.getMonth() + 1)).slice(-2) +
-        ('0' + yesterday.getDate()).slice(-2)
-      // eslint-disable-next-line no-useless-escape
-      const expectStr = `No dump file (exp_HAWEB_${date}_full.dmp.gz) on ftp site!!!`.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const expectStr = 'No dump file'
       const regex = new RegExp(expectStr, 'gm')
-      const message = this.headMessages[0].message
-      const all = [...message.matchAll(regex)].join('')
-      if (!this.$utils.empty(all)) {
+      const matched = [...this.itemMessage(this.headMessages[0]).matchAll(regex)].join('')
+      if (matched.length > 0) {
         return 'danger'
       }
       return 'success'
@@ -137,6 +127,29 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+  },
+  methods: {
+    popupExtractMessage (item) {
+      this.modal(this.itemMessage(item).replaceAll('\n', '<br/>'), {
+        title: `${this.header} - ${item.subject}`,
+        size: 'md',
+        html: true
+      })
+    },
+    itemMessage (item) {
+      if (item) {
+        const dateParts = new Date(item.timestamp * 1000).toString().split(' ')
+        // e.g. "Wed Jan 12"
+        const search = `${dateParts[0]} ${dateParts[1]} ${dateParts[2]}`
+        const lastIdx = item.message.lastIndexOf(search)
+        if (lastIdx !== -1) {
+          return item.message.substring(lastIdx)
+        } else {
+          return `找不到 ${search} 日期標示`
+        }
+      }
+      return ''
+    }
   }
 }
 </script>
