@@ -33,7 +33,7 @@ b-card
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫備份狀態(選項2、4、5)
-        li 備份選項5更新較頻繁(30mins)，故設定重新整理計時器為30分鐘
+        li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -87,8 +87,7 @@ export default {
   data: () => ({
     header: '資料庫備份排程',
     modalId: 'tmp-id',
-    queryDays: 1,
-    reloadMs: 30 * 60 * 60 * 1000
+    queryDays: 1
   }),
   fetch () {
     this.load('subject', 'BACKUP OPTION', this.queryDays).then((data) => {

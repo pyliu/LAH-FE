@@ -33,7 +33,7 @@ b-card
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫 HACMP 狀態，每天早上8點檢查
-        li 目前檢查郵件一天只有一封，故設定重新整理計時器為一天
+        li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -88,7 +88,6 @@ export default {
     header: '資料庫 HACMP',
     modalId: 'tmp-id',
     queryDays: 1,
-    reloadMs: 24 * 60 * 60 * 1000,
     found: []
   }),
   fetch () {

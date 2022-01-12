@@ -33,7 +33,7 @@ b-card
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
         li 顯示測試資料庫匯入狀態
-        li 目前檢查郵件一天1封，故設定重新整理計時器為1天
+        li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -87,8 +87,7 @@ export default {
   data: () => ({
     header: '測試資料庫匯入作業',
     modalId: 'tmp-id',
-    queryDays: 3,
-    reloadMs: 24 * 60 * 60 * 1000
+    queryDays: 3
   }),
   fetch () {
     this.load('subject', 'test system imp state', this.queryDays).then((data) => {

@@ -33,7 +33,7 @@ b-card
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 UPS 狀態
-        li 目前檢查郵件一天2封，故設定重新整理計時器為半天
+        li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常，2組UPS都有回應
@@ -87,8 +87,7 @@ export default {
   data: () => ({
     header: 'UPS 狀態',
     modalId: 'tmp-id',
-    queryDays: 2,
-    reloadMs: 12 * 60 * 60 * 1000
+    queryDays: 2
   }),
   fetch () {
     this.load('subject', 'Daily Email from NMC', this.queryDays).then((data) => {

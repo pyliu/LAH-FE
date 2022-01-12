@@ -4,7 +4,8 @@ export default {
   data: () => ({
     header: '等著被覆寫的資料',
     messages: [],
-    updated: ''
+    updated: '',
+    reloadMs: 15 * 60 * 1000
   }),
   computed: {
     today () {
