@@ -231,10 +231,10 @@ export default {
           const list = apPostfix.split(',')
             .sort((a, b) => {
               if (parseInt(a) < parseInt(b)) {
-                return 1
+                return -1
               }
               if (parseInt(a) > parseInt(b)) {
-                return -1
+                return 1
               }
               // a 必須等於 b
               return 0
