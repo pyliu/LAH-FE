@@ -2,7 +2,7 @@
 div(v-cloak)
   lah-header
     lah-transition(appear)
-      .d-flex.justify-content-between.w-100
+      .d-flex.justify-content-between.align-items-center.w-100
         .d-flex
           .my-auto {{ site }} 智慧監控儀錶板
           lah-button(
@@ -13,17 +13,22 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
+        .d-flex
+          b-checkbox.my-auto.small.mr-1(v-model="displayXAP", switch) 顯示跨所AP狀態
+          span 🔴 {{ dangerMessages.length }}
+          span 🟡 {{ warningMessages.length }}
+          span 🟢 0
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
-
-  b-card-group.mb-2(deck)
-    lah-monitor-board-xap
-    lah-monitor-board-apconn
-    lah-monitor-board-connectivity
-    //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
-    //- lah-monitor-board-apconn(line, all)
+  b-collapse(v-model="displayXAP")
+    b-card-group.mb-2(deck)
+      lah-monitor-board-xap
+      lah-monitor-board-apconn
+      lah-monitor-board-connectivity
+      //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
+      //- lah-monitor-board-apconn(line, all)
   b-card-group.mb-2(deck)
     lah-monitor-board-dataguard.card-body-fixed-height
     lah-monitor-board-hacmp.card-body-fixed-height
@@ -42,6 +47,7 @@ div(v-cloak)
 export default {
   middleware: ['isAdmin'],
   data: () => ({
+    displayXAP: false,
     warningMessages: [],
     dangerMessages: []
   }),
