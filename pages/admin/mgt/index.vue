@@ -30,17 +30,17 @@ div(v-cloak)
       //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
       //- lah-monitor-board-apconn(line, all)
   b-card-group.mb-2(deck)
-    lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate")
-    lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate")
-    lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
+    lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
+    lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
   b-card-group.mb-2(deck)
-    lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate")
-    lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate")
-    lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate", footer)
+    lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+    lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate", footer)
   b-card-group.mb-2(deck)
-    lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate")
-    lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate")
-    lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate", footer)
+    lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
+    lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
 </template>
 
 <script>
@@ -77,7 +77,7 @@ export default {
 <style lang="scss">
 .card-body-fixed-height {
   .card-body {
-    height: 200px;
+    height: calc((100vh - 450px) / 3);
     overflow: auto;
   }
 }

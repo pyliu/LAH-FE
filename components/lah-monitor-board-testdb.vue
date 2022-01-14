@@ -5,6 +5,7 @@ b-card
     strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        v-if="!footer"
         icon="sync-alt",
         action="ld-cycle",
         variant="outline-secondary",
