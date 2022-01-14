@@ -15,9 +15,9 @@ div(v-cloak)
           )
         .d-flex
           b-checkbox.my-auto.small.mr-1(v-model="displayXAP", switch) 顯示跨所AP狀態
-          .mr-1 🔴 {{ dangerMessages.length }}
-          .mr-1 🟡 {{ warningMessages.length }}
-          .mr-1 🟢 0
+          //- .mr-1 🔴 {{ dangerMessages.length }}
+          //- .mr-1 🟡 {{ warningMessages.length }}
+          //- .mr-1 🟢 0
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示各監控標的狀態之功能
