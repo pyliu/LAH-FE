@@ -79,6 +79,7 @@ import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 
 export default {
+  name: 'LahMonitorBoardAdsync',
   components: { lahMonitorBoardRaw },
   mixins: [lahMonitorBoardBase],
   props: {
