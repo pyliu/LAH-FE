@@ -77,7 +77,8 @@ Vue.mixin({
     myid () { return this.user.id },
     myname () { return this.user.name },
     webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip },
-    legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` }
+    legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` },
+    componentName () { return this.$options.name }
   },
   watch: {
     isBusy (flag) {

@@ -1,5 +1,5 @@
 export default {
-  emits: ['warning', 'danger'],
+  emit: ['light-update'],
   name: 'lahMonitorBoardBase',
   fetchOnServer: false,
   data: () => ({
@@ -20,6 +20,22 @@ export default {
         ('0' + now.getDate()).slice(-2)
       )
     }
+  },
+  watch: {
+    light (nVal, oVal) {
+      this.$emit('light-update', {
+        name: this.componentName,
+        new: nVal,
+        old: oVal
+      })
+    }
+  },
+  created () {
+    this.$emit('light-update', {
+      name: this.componentName,
+      new: 'warning',
+      old: ''
+    })
   },
   methods: {
     truncate (content) {

@@ -15,9 +15,9 @@ div(v-cloak)
           )
         .d-flex
           b-checkbox.my-auto.small.mr-1(v-model="displayXAP", switch) 顯示跨所AP狀態
-          //- .mr-1 🔴 {{ dangerMessages.length }}
-          //- .mr-1 🟡 {{ warningMessages.length }}
-          //- .mr-1 🟢 0
+          .mr-1 🔴 {{ red }}
+          .mr-1 🟡 {{ yellow }}
+          .mr-1 🟢 {{ green }}
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示各監控標的狀態之功能
@@ -30,17 +30,17 @@ div(v-cloak)
       //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
       //- lah-monitor-board-apconn(line, all)
   b-card-group.mb-2(deck)
-    lah-monitor-board-dataguard.card-body-fixed-height
-    lah-monitor-board-hacmp.card-body-fixed-height
-    lah-monitor-board-apbackup.card-body-fixed-height
+    lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate")
   b-card-group.mb-2(deck)
-    lah-monitor-board-vmclone.card-body-fixed-height
-    lah-monitor-board-dbbackup.card-body-fixed-height
-    lah-monitor-board-tape.card-body-fixed-height
+    lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate")
   b-card-group.mb-2(deck)
-    lah-monitor-board-testdb.card-body-fixed-height(@warning="handleWarning", @danger="handleDanger")
-    lah-monitor-board-adsync.card-body-fixed-height
-    lah-monitor-board-ups.card-body-fixed-height
+    lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate")
+    lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate")
 </template>
 
 <script>
@@ -48,19 +48,27 @@ export default {
   middleware: ['isAdmin'],
   data: () => ({
     displayXAP: false,
-    warningMessages: [],
-    dangerMessages: []
+    lightMap: new Map(),
+    red: 0,
+    yellow: 0,
+    green: 0
   }),
   head: {
     title: '智慧監控儀錶板-桃園市地政局'
   },
-  fetchOnServer: true,
   methods: {
-    handleWarning (message) {
-      this.warningMessages.push(message)
-    },
-    handleDanger (message) {
-      this.dangerMessages.push(message)
+    lightUpdate (payload) {
+      this.lightMap.set(payload.name, payload.new)
+      const tmp = [...this.lightMap]
+      this.green = tmp.reduce((acc, item) => {
+        return item[1] === 'success' ? acc + 1 : acc
+      }, 0)
+      this.yellow = tmp.reduce((acc, item) => {
+        return item[1] === 'warning' ? acc + 1 : acc
+      }, 0)
+      this.red = tmp.reduce((acc, item) => {
+        return item[1] === 'danger' ? acc + 1 : acc
+      }, 0)
     }
   }
 }
