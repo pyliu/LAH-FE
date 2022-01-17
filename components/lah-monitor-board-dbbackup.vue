@@ -121,13 +121,14 @@ export default {
     },
     light () {
       const now = +new Date()
-      if (
-        this.headMessages.length === 0 ||
-        now - this.headMessages[0].timestamp * 1000 > 24 * 60 * 60 * 1000
-      ) {
+      const adayMs = 24 * 60 * 60 * 1000
+      if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
-      }
-      if (this.headMessages.length !== 3) {
+      } else if (
+        now - this.headMessages[0].timestamp * 1000 > adayMs ||
+        now - this.headMessages[1].timestamp * 1000 > adayMs ||
+        now - this.headMessages[2].timestamp * 1000 > adayMs
+      ) {
         return 'danger'
       }
       return 'success'
