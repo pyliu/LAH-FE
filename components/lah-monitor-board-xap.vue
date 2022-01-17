@@ -99,9 +99,9 @@ export default {
     },
     dbStyles () {
       // return [color, action, size, icon]
-      if (this.dbTotal > 3000) { return ['danger', 'tremble', '2x', 'bomb'] }
-      if (this.dbTotal > 1800) { return ['danger', 'shiver', 'lg', 'database'] }
-      if (this.dbTotal > 1000) { return ['warning', 'beat', '1x', 'database'] }
+      if (this.dbTotal > 2800) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.dbTotal > 2200) { return ['danger', 'shiver', 'lg', 'database'] }
+      if (this.dbTotal > 1800) { return ['warning', 'beat', '1x', 'database'] }
       return ['success', 'breath', 'sm', 'database']
     },
     apStyles () {
