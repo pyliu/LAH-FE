@@ -89,7 +89,7 @@ export default {
   data: () => ({
     header: '資料庫備份排程',
     modalId: 'tmp-id',
-    queryDays: 1
+    queryDays: 4
   }),
   fetch () {
     this.load('subject', 'BACKUP OPTION', this.queryDays).then((data) => {
@@ -120,14 +120,22 @@ export default {
       return [opt2, opt4, opt5].filter(item => item)
     },
     light () {
-      const now = +new Date()
-      const adayMs = 24 * 60 * 60 * 1000
+      const now = new Date()
+      const ts = now.getTime()
+      const isMonday = now.getDay() === 1
+      const opt4yMs = 24 * 60 * 60 * 1000
+      const opt2Ms = isMonday ? 4 * opt4yMs : opt4yMs
+      // there is a 15 mins offset for scheduling
+      const opt5Ms = 30 * 60 * 1000 + 15 * 60 * 1000
+
+      console.warn(ts - this.headMessages[0]?.timestamp * 1000, ts - this.headMessages[1]?.timestamp * 1000, ts - this.headMessages[2]?.timestamp * 1000)
+
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
-        now - this.headMessages[0].timestamp * 1000 > adayMs ||
-        now - this.headMessages[1].timestamp * 1000 > adayMs ||
-        now - this.headMessages[2].timestamp * 1000 > adayMs
+        ts - this.headMessages[0].timestamp * 1000 > opt2Ms ||
+        ts - this.headMessages[1].timestamp * 1000 > opt4yMs ||
+        ts - this.headMessages[2].timestamp * 1000 > opt5Ms
       ) {
         return 'danger'
       }
