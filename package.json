@@ -43,7 +43,7 @@
     "locutus": "^2.0.15",
     "lodash": "^4.17.21",
     "markd": "^1.0.1",
-    "marked": "^3.0.4",
+    "marked": "^4.0.10",
     "md5": "^2.3.0",
     "node-emoji": "^1.11.0",
     "node-schedule": "^2.0.0",
