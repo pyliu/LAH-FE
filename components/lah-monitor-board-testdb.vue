@@ -38,8 +38,8 @@ b-card
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示狀態未更新
-      div 🔴 表示狀態錯誤
+      div 🟡 表示{{ queryDays }}天內未獲得完整郵件清單
+      div 🔴 表示最新郵件找到「No dump file」字串
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages" :key="`head_${idx}`")
@@ -88,8 +88,7 @@ export default {
   },
   data: () => ({
     header: '測試資料庫匯入作業',
-    modalId: 'tmp-id',
-    queryDays: 3
+    modalId: 'tmp-id'
   }),
   fetch () {
     this.load('subject', 'test system imp state', this.queryDays).then((data) => {
@@ -107,6 +106,10 @@ export default {
     })
   },
   computed: {
+    queryDays () {
+      // testdb import will not execute on weenend
+      return this.isMonday ? 4 : 3
+    },
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
     },
@@ -115,8 +118,9 @@ export default {
         this.$emit('warning', `${this.header}找不到紀錄郵件!`)
         return 'warning'
       }
-      const ts = +new Date()
-      if ((ts - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+      const now = +new Date()
+      const ts = this.isMonday ? 4 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+      if ((now - this.headMessages[0].timestamp * 1000) > ts) {
         this.$emit('danger', this.headMessages[0])
         return 'danger'
       }

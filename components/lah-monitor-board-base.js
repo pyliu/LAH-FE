@@ -19,6 +19,10 @@ export default {
         '-' +
         ('0' + now.getDate()).slice(-2)
       )
+    },
+    isMonday () {
+      const now = new Date()
+      return now.getDay() === 1
     }
   },
   watch: {

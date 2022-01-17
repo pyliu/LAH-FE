@@ -39,7 +39,11 @@ b-card
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
       div 🟡 表示{{ queryDays }}天內未獲得完整郵件清單(OPTION 2、4、5)
-      div 🔴 表示有備份失效(超過1天未執行)
+      div 🔴 表示有備份失效
+      ul.ml-4
+        li OPTION 2 👉 1工作天內未更新
+        li OPTION 4 👉 1天內未更新
+        li OPTION 5 👉 45分鐘內未更新
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
@@ -88,8 +92,7 @@ export default {
   },
   data: () => ({
     header: '資料庫備份排程',
-    modalId: 'tmp-id',
-    queryDays: 4
+    modalId: 'tmp-id'
   }),
   fetch () {
     this.load('subject', 'BACKUP OPTION', this.queryDays).then((data) => {
@@ -107,6 +110,10 @@ export default {
     })
   },
   computed: {
+    queryDays () {
+      // option 2 only executes on 02:00:00 every workday
+      return this.isMonday ? 4 : 1
+    },
     headMessages () {
       const opt2 = this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 2')
@@ -120,11 +127,9 @@ export default {
       return [opt2, opt4, opt5].filter(item => item)
     },
     light () {
-      const now = new Date()
-      const ts = now.getTime()
-      const isMonday = now.getDay() === 1
+      const ts = +new Date()
       const opt4yMs = 24 * 60 * 60 * 1000
-      const opt2Ms = isMonday ? 4 * opt4yMs : opt4yMs
+      const opt2Ms = this.queryDays * opt4yMs
       // there is a 15 mins offset for scheduling
       const opt5Ms = 30 * 60 * 1000 + 15 * 60 * 1000
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
@@ -141,6 +146,7 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+    console.warn(this.isMonday, this.queryDays)
   }
 }
 </script>

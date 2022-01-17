@@ -40,8 +40,8 @@ b-card
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示狀態未更新
-      div 🔴 表示狀態錯誤
+      div 🟡 表示{{ queryDays }}天內未獲得完整郵件清單
+      div 🔴 表示郵件找不到「pax successful!!」字串
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
@@ -90,8 +90,7 @@ export default {
   },
   data: () => ({
     header: '資料庫磁帶備份',
-    modalId: 'tmp-id',
-    queryDays: 3
+    modalId: 'tmp-id'
   }),
   fetch () {
     this.load('subject', 'TAPE BACKUP STATE', this.queryDays).then((data) => {
@@ -109,6 +108,10 @@ export default {
     })
   },
   computed: {
+    queryDays () {
+      // tape backup will not execute on weenend
+      return this.isMonday ? 4 : 3
+    },
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
     },
@@ -117,7 +120,8 @@ export default {
       if (this.headMessages.length === 0) {
         return 'warning'
       }
-      if ((now - this.headMessages[0].timestamp * 1000) > 24 * 60 * 60 * 1000) {
+      const ts = this.isMonday ? 4 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+      if ((now - this.headMessages[0].timestamp * 1000) > ts) {
         return 'danger'
       }
       // parsing message for the successful text
