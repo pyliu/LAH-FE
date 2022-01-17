@@ -127,9 +127,6 @@ export default {
       const opt2Ms = isMonday ? 4 * opt4yMs : opt4yMs
       // there is a 15 mins offset for scheduling
       const opt5Ms = 30 * 60 * 1000 + 15 * 60 * 1000
-
-      console.warn(ts - this.headMessages[0]?.timestamp * 1000, ts - this.headMessages[1]?.timestamp * 1000, ts - this.headMessages[2]?.timestamp * 1000)
-
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
