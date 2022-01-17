@@ -38,7 +38,7 @@ b-card
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示 {{ queryDays }} 天內會獲得完整郵件清單(OPTION 2、4、5)
+      div 🟡 表示{{ queryDays }}天內未獲得完整郵件清單(OPTION 2、4、5)
       div 🔴 表示有備份失效(超過1天未執行)
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
