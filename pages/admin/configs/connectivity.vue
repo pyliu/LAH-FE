@@ -39,7 +39,7 @@ div
       head-variant="dark",
       select-mode="single",
       selected-variant="warning",
-      :items="static",
+      :items="entries",
       :fields="fields"
     )
       template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
@@ -112,16 +112,23 @@ export default {
   fetchOnServer: false,
   fetch () {
     this.$axios
-      .post(this.$consts.API.JSON.IP, {
-        type: 'ip_entries'
+      .post(this.$consts.API.JSON.MONITOR, {
+        type: 'monitor_targets'
       })
       .then(({ data }) => {
-        this.entries = [...data.raw]
+        if (this.$utils.statusCheck(data.status)) {
+          this.entries = [...Object.values(data.raw)]
+        } else {
+          this.warning(data.message, { title: '讀取監測目標' })
+        }
       })
       .catch((err) => {
-        this.alert(err)
+        this.$utils.error('讀取監測目標失敗', err)
+        this.alert(err.toString(), { title: '讀取監測目標失敗' })
       })
-      .finally(() => {})
+      .finally(() => {
+        this.$utils.warn(this.entries)
+      })
   },
   head: {
     title: 'IP對應表管理'
