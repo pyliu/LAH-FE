@@ -140,7 +140,7 @@ export default {
                 status: 'DOWN',
                 timestamp: '20201005181631',
                 note: rawObj.note,
-                x: name,
+                x: rawObj.name,
                 y: 0.0 // latency
               })
             }
