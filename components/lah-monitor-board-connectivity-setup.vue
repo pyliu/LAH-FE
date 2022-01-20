@@ -88,6 +88,7 @@ b-card
 <script>
 export default {
   name: 'LahMonitorBoardConnectivitySetup',
+  emit: ['update'],
   data: () => ({
     header: '系統連線狀態標的設定',
     updatedTime: '',
@@ -110,6 +111,9 @@ export default {
   }),
   fetch () {
     this.loadWatchTarget()
+  },
+  mounted () {
+    this.timeout(() => this.$emit('update'), 3000)
   },
   methods: {
     loadWatchTarget () {

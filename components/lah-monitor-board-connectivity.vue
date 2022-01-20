@@ -185,7 +185,11 @@ export default {
       }
     },
     popupSetup () {
-      this.modal(this.$createElement(LahMonitorBoardConnectivitySetup), {
+      this.modal(this.$createElement(LahMonitorBoardConnectivitySetup, {
+        on: {
+          update: () => this.loadWatchTarget()
+        }
+      }), {
         size: 'xl',
         title: '系統連線狀態標的設定'
       })
