@@ -14,7 +14,7 @@ b-card(no-body)
       )
       lah-button(
         :icon="type === 'bar' ? 'chart-line' : 'chart-bar'",
-        variant="outline-primary",
+        variant="outline-info",
         no-border,
         no-icon-gutter,
         @click="type = type === 'bar' ? 'line' : 'bar'",
@@ -31,16 +31,25 @@ b-card(no-body)
         title="放大顯示"
       )
       lah-button(
+        icon="cog",
+        action="cycle",
+        variant="outline-dark",
+        no-border,
+        no-icon-gutter,
+        @click="popupSetup",
+        title="設定"
+      )
+      lah-button(
         v-if="!maximized",
         icon="question",
         action="breath",
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示偵測系統連線狀態
         li 目前須修改 connectivity.db 來新增或修改欲監控標的
@@ -73,8 +82,10 @@ b-card(no-body)
 </template>
 
 <script>
+import LahMonitorBoardConnectivitySetup from '~/components/lah-monitor-board-connectivity-setup.vue'
 export default {
   name: 'LahMonitorBoardConnectivity',
+  components: { LahMonitorBoardConnectivitySetup },
   props: {
     maximized: { type: Boolean, default: false }
   },
@@ -113,7 +124,6 @@ export default {
     type (dontcare) { this._reload() }
   },
   created () {
-    this.modalId = this.$utils.uuid()
     this._reload = this.$utils.debounce(this.reload, 500)
   },
   mounted () {
@@ -173,6 +183,12 @@ export default {
         const currentVal = entry.dataset.data[entry.dataIndex]
         return ` ${entry.label}：${currentVal}`
       }
+    },
+    popupSetup () {
+      this.modal(this.$createElement(LahMonitorBoardConnectivitySetup), {
+        size: 'xl',
+        title: '系統連線狀態標的設定'
+      })
     },
     popupNote ({ detail }) {
       const found = this.loadItems.find(item => item.x === detail.label)
