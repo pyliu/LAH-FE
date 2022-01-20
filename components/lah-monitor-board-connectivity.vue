@@ -134,7 +134,7 @@ export default {
             // initializing monitor list entries from DB
             this.loadItems = []
             // raw is array of { 'AP31': {ip: 'xxx.xxx.xxx.31', name: 'AP31', port: '', note: 'XXX'} }
-            for (const [name, rawObj] of Object.entries(data.raw)) {
+            data.raw.forEach((rawObj) => {
               this.loadItems.push({
                 ip: rawObj.ip,
                 status: 'DOWN',
@@ -143,7 +143,7 @@ export default {
                 x: rawObj.name,
                 y: 0.0 // latency
               })
-            }
+            })
             // build the chart skeleton from loaded targets
             this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '回應時間(ms)', 'bar')
             // add a bit delay to make the chart build successfully
