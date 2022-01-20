@@ -126,8 +126,8 @@ export default {
   methods: {
     loadWatchTarget () {
       this.$axios
-        .post(this.$consts.API.JSON.STATS, {
-          type: 'stats_connectivity_target'
+        .post(this.$consts.API.JSON.MONITOR, {
+          type: 'monitor_targets'
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
@@ -205,8 +205,8 @@ export default {
     reload (force = false) {
       clearTimeout(this.reloadTimer)
       this.$axios
-        .post(this.$consts.API.JSON.STATS, {
-          type: 'stats_connectivity_history',
+        .post(this.$consts.API.JSON.MONITOR, {
+          type: 'monitor_targets_history',
           force,
           timeout: this.loadItems.length * 1000 + 3000 // maximum number of timeout in milliseconds
         })
