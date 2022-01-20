@@ -113,11 +113,12 @@ export default {
   fetch () {
     this.$axios
       .post(this.$consts.API.JSON.MONITOR, {
-        type: 'monitor_targets'
+        type: 'monitor_targets',
+        raw: true
       })
       .then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
-          this.entries = [...Object.values(data.raw)]
+          this.entries = [...data.raw]
         } else {
           this.warning(data.message, { title: '讀取監測目標' })
         }
@@ -127,7 +128,7 @@ export default {
         this.alert(err.toString(), { title: '讀取監測目標失敗' })
       })
       .finally(() => {
-        this.$utils.warn(this.entries)
+        // this.$utils.warn(this.entries)
       })
   },
   head: {
