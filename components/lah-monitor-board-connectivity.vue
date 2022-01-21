@@ -143,6 +143,7 @@ export default {
           if (this.$utils.statusCheck(data.status)) {
             // initializing monitor list entries from DB
             this.loadItems = []
+            this.$refs.chart?.reset()
             // raw is array of { 'AP31': {ip: 'xxx.xxx.xxx.31', name: 'AP31', port: '', note: 'XXX'} }
             data.raw.forEach((rawObj) => {
               this.loadItems.push({
