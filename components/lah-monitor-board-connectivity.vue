@@ -185,9 +185,13 @@ export default {
       }
     },
     popupSetup () {
+      const that = this
       this.modal(this.$createElement(LahMonitorBoardConnectivitySetup, {
         on: {
-          update: () => this.loadWatchTarget()
+          update: () => {
+            that.$utils.warn(arguments)
+            that.loadWatchTarget()
+          }
         }
       }), {
         size: 'xl',
@@ -224,6 +228,7 @@ export default {
     },
     reload (force = false) {
       clearTimeout(this.reloadTimer)
+      this.isBusy = true
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'monitor_targets_history',
@@ -262,6 +267,7 @@ export default {
         .finally(() => {
           this.updatedTime = this.$utils.now().split(' ')[1]
           this.timeout(() => this.reload(), 15 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
+          this.isBusy = false
         })
     },
     _reload () { /* placeholder for debouncing reload method */ }
