@@ -103,6 +103,8 @@ b-card
 </template>
 
 <script>
+import DOMPurify from 'dompurify'
+import { marked } from 'marked'
 export default {
   name: 'LahMonitorBoardConnectivitySetup',
   emit: ['update'],
@@ -206,7 +208,8 @@ export default {
       if (this.$utils.empty(entry.note)) {
         return ''
       }
-      return entry.note.replaceAll('\r\n', '<br/>')
+      return DOMPurify?.sanitize(marked.parse(entry.note))
+      // return entry.note.replaceAll('\r\n', '<br/>')
     }
   }
 }

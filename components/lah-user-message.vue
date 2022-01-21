@@ -73,7 +73,7 @@ div(style="position:relative")
 
 <script>
 import DOMPurify from 'dompurify'
-import Markd from 'marked'
+import { marked } from 'marked'
 
 export default {
   name: 'LahUserMessage',
@@ -122,7 +122,7 @@ export default {
       }
       return `${this.message}${imgMdText}`
     },
-    markdMergedMessage () { return DOMPurify?.sanitize(Markd(this.mergedMessage.replaceAll('\n', '  \n'))) },
+    markdMergedMessage () { return DOMPurify?.sanitize(marked.parse(this.mergedMessage.replaceAll('\n', '  \n'))) },
     announcementJson () {
       // announcement-card required json
       return {

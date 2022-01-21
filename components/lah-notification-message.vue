@@ -9,7 +9,7 @@
 
 <script>
 import DOMPurify from 'dompurify'
-import Markd from 'marked'
+import { marked } from 'marked'
 import isEmpty from 'lodash/isEmpty'
 
 export default {
@@ -25,7 +25,7 @@ export default {
       if (isEmpty(this.dataJson.content)) {
         return ''
       }
-      return DOMPurify?.sanitize(Markd(this.dataJson.content.replaceAll('\n', '  \n')))
+      return DOMPurify?.sanitize(marked.parse(this.dataJson.content.replaceAll('\n', '  \n')))
     }
   },
   methods: {}

@@ -16,7 +16,7 @@
 
 <script>
 import DOMPurify from 'dompurify'
-import Markd from 'marked'
+import { marked } from 'marked'
 import isEmpty from 'lodash/isEmpty'
 export default {
   props: {
@@ -57,7 +57,7 @@ export default {
       if (isEmpty(this.dataJson.content) || !DOMPurify?.sanitize) {
         return ''
       }
-      return DOMPurify?.sanitize(Markd(this.dataJson.content.replaceAll('\n', '  \n')))
+      return DOMPurify?.sanitize(marked.parse(this.dataJson.content.replaceAll('\n', '  \n')))
     }
   }
 }
