@@ -103,9 +103,6 @@ b-card
 </template>
 
 <script>
-import DOMPurify from 'dompurify'
-import Markd from 'markd'
-
 export default {
   name: 'LahMonitorBoardConnectivitySetup',
   emit: ['update'],
@@ -206,10 +203,10 @@ export default {
       this.edit(selectedArray[0])
     },
     htmlNote (entry) {
-      if (this.$utils.empty(entry.note) || !DOMPurify?.sanitize) {
+      if (this.$utils.empty(entry.note)) {
         return ''
       }
-      return DOMPurify?.sanitize(Markd(entry.note.replaceAll('\r\n', '  \n')))
+      return entry.note.replaceAll('\r\n', '<br/>')
     }
   }
 }
