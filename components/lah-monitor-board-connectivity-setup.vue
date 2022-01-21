@@ -179,8 +179,10 @@ export default {
     remove (entry) {
     },
     edit (entry) {
-      this.entry = { ...entry }
-      this.$refs.replaceModal?.show()
+      if (!this.$utils.empty(entry)) {
+        this.entry = { ...entry }
+        this.$refs.replaceModal?.show()
+      }
     },
     save () {
       this.isBusy = false
