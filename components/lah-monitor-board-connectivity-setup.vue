@@ -104,7 +104,7 @@ b-card
 
 <script>
 import DOMPurify from 'dompurify'
-import Markd from 'marked'
+import Markd from 'markd'
 
 export default {
   name: 'LahMonitorBoardConnectivitySetup',
