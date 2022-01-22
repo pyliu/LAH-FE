@@ -58,25 +58,36 @@ b-card
         span {{ item.ip }}
 
     template(#cell(刪除)="{ item }")
-      b-button-group(size="sm")
-        lah-button(
-          icon="times",
-          variant="outline-danger",
-          no-icon-gutter,
-          title="移除",
-          @click="remove(item)",
-          pill
-        )
+      lah-button(
+        icon="times",
+        variant="outline-danger",
+        no-icon-gutter,
+        title="移除",
+        size="sm",
+        @click="remove(item)",
+        pill
+      )
+
+    template(#cell(monitor)="{ item }")
+      b-button-group(size="sm"): b-checkbox(
+        switch,
+        v-model="item.monitor",
+        value="Y",
+        unchecked-value="N"
+        @change="handleMonitorSwitch(item)"
+      )
 
     template(#cell(note)="{ item }")
       div(v-html="htmlNote(item)")
 
   b-modal(ref="replaceModal", hide-footer, scrollable, no-close-on-backdrop)
     template(#modal-title) 監控系統資料
-    b-input-group.my-1(prepend="啟動監控"): b-select(
+    b-input-group.my-1(size="lg"): b-checkbox(
+      switch,
       v-model="entry.monitor",
-      :options="[ { value: 'Y', text: '啟動' }, { value: 'N', text: '關閉' }, ]"
-    )
+      value="Y",
+      unchecked-value="N"
+    ) 啟動
     b-input-group(prepend="系統ＩＰ"): b-input(
       v-model="entry.ip",
       :state="isIPv4",
@@ -85,7 +96,7 @@ b-card
     b-input-group.my-1(prepend="服務埠號"): b-input(
       v-model="entry.port",
       type="number",
-      min="1",
+      min="0",
       max="65535",
       :state="isValidPort",
     )
@@ -120,12 +131,12 @@ export default {
     },
     entries: [],
     fields: [
-      '刪除',
+      { key: 'monitor', label: '啟用', sortable: true },
       { key: 'ip', label: '監控IP', sortable: true },
       { key: 'port', label: '監控埠號', sortable: true },
       { key: 'name', label: '系統名稱', sortable: true },
-      { key: 'monitor', label: '啟用監控', sortable: true },
-      { key: 'note', label: '系統備註', sortable: false }
+      { key: 'note', label: '系統備註', sortable: false },
+      '刪除'
     ]
   }),
   fetch () {
@@ -134,20 +145,39 @@ export default {
   computed: {
     isIPv4 () { return this.$utils.isIPv4(this.entry.ip) },
     isValidPort () {
+      if (this.$utils.empty(this.entry.port)) {
+        return null
+      }
       const val = parseInt(this.entry.port)
-      return val > 0 && val < 65536
+      return val >= 0 && val <= 65535
     },
     isValidName () {
       return !this.$utils.empty(this.entry.name)
     },
-    dataReady () { return this.isIPv4 && this.isValidName && this.isValidPort }
+    dataReady () { return this.isIPv4 && this.isValidName && this.isValidPort !== false }
   },
   methods: {
+    handleMonitorSwitch (item) {
+      this.$axios.post(this.$consts.API.JSON.MONITOR, {
+        type: 'replace_connectivity_target',
+        ...item
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          // emit 'update' event, not close modal
+          this.$emit('update', false)
+        } else {
+          this.warning(data.message)
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+      })
+    },
     loadWatchTarget () {
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'monitor_targets',
-          raw: true
+          all: true
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
@@ -177,6 +207,27 @@ export default {
       this.$refs.replaceModal?.show()
     },
     remove (entry) {
+      this.confirm(`請確認要刪除 ${entry.name} - ${entry.ip}:${entry.port} 監控標的？`).then((YN) => {
+        if (YN) {
+          this.isBusy = false
+          this.$axios.post(this.$consts.API.JSON.MONITOR, {
+            type: 'remove_connectivity_target',
+            ...entry
+          }).then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              // emit 'update' event, colse modal
+              this.$emit('update', true)
+              this.success(data.message)
+            } else {
+              this.warning(data.message)
+            }
+          }).catch((err) => {
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+          })
+        }
+      })
     },
     edit (entry) {
       if (!this.$utils.empty(entry)) {
@@ -191,8 +242,8 @@ export default {
         ...this.entry
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
-          // emit 'update' event
-          this.$emit('update')
+          // emit 'update' event, colse modal
+          this.$emit('update', true)
           this.success(data.message)
         } else {
           this.warning(data.message)
@@ -210,7 +261,7 @@ export default {
       if (this.$utils.empty(entry.note)) {
         return ''
       }
-      return DOMPurify?.sanitize(marked.parse(entry.note))
+      return DOMPurify?.sanitize(marked.parse(entry.note.trimEnd().replaceAll("\r\n", "   \n")))
       // return entry.note.replaceAll('\r\n', '<br/>')
     }
   }

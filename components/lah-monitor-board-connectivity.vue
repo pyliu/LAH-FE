@@ -31,12 +31,13 @@ b-card(no-body)
         title="放大顯示"
       )
       lah-button(
+        v-if="authority.isAdmin",
         icon="cog",
         action="cycle",
         variant="outline-dark",
         no-border,
         no-icon-gutter,
-        @click="popupSetup",
+        @click="$refs.setup.show()",
         title="設定"
       )
       lah-button(
@@ -61,6 +62,13 @@ b-card(no-body)
       div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - PING值小於等於80ms
       div #[lah-fa-icon(icon="circle", style="color: rgb(204, 0, 204)")] 紫色 - PING值小於等於160ms
       div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - PING值161ms以上
+    b-modal(
+      ref="setup",
+      size="xl",
+      title="系統連線狀態標的設定",
+      hide-footer
+    )
+      lah-monitor-board-connectivity-setup(@update="onSetupUpdate")
   //- b-carousel(
   //- )
   .center.my-5(v-if="loadItems.length === 0") ⚠ 無監控標的資料
@@ -185,19 +193,9 @@ export default {
         return ` ${entry.label}：${currentVal}`
       }
     },
-    popupSetup () {
-      const that = this
-      this.modal(this.$createElement(LahMonitorBoardConnectivitySetup, {
-        on: {
-          update: () => {
-            that.$utils.warn(arguments)
-            that.loadWatchTarget()
-          }
-        }
-      }), {
-        size: 'xl',
-        title: '系統連線狀態標的設定'
-      })
+    onSetupUpdate (closeModal) {
+      this.loadWatchTarget()
+      closeModal && this.$refs.setup?.hide()
     },
     popupNote ({ detail }) {
       const found = this.loadItems.find(item => item.x === detail.label)
