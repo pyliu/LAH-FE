@@ -283,11 +283,6 @@ export default ({ $axios, store }, inject) => {
         return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
       })
     },
-    now () {
-      // https://date-fns.org/v2.28.0/docs/format
-      // e.g. 2022-01-22 16:06:23
-      return format(new Date(), 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
-    },
     isIPv4 (str) {
       if (isEmpty(str)) {
         return false
@@ -331,23 +326,29 @@ export default ({ $axios, store }, inject) => {
         return days + ' 天'
       }
     },
+    now () {
+      // https://date-fns.org/v2.28.0/docs/format
+      // e.g. 2022-01-22 16:06:23
+      return format(new Date(), 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
+    },
+    twNow () {
+      const now = new Date()
+      now.setFullYear(now.getFullYear() - 1911)
+      return format(now, 'yyy-LL-dd HH:mm:ss', { locale: zhTW })
+    },
     tsToAdDateStr (phpTs, full = false) {
       // PHP time() generate ts by seconds, however js is milliseconds
-      const dateObj = new Date(phpTs * 1000)
-      const dateStr = `${dateObj.getFullYear()}-${('0' + (dateObj.getMonth() + 1)).slice(-2)}-${('0' + dateObj.getDate()).slice(-2)}`
-      const timeStr = `${('0' + dateObj.getHours()).slice(-2)}:${('0' + dateObj.getMinutes()).slice(-2)}:${('0' + dateObj.getSeconds()).slice(-2)}`
-      if (full) {
-        return `${dateStr} ${timeStr}`
-      } else {
-        return dateStr
-      }
+      const formatted = format(phpTs * 1000, 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
+      const parts = formatted.split(' ')
+      return full ? formatted : parts[0]
     },
     twDateStr (dateObj) {
       if (typeof dateObj !== 'object') {
         console.warn('twDateStr', dateObj, 'is not an object')
         return ''
       }
-      return `${dateObj.getFullYear() - 1911}${('0' + (dateObj.getMonth() + 1)).slice(-2)}${('0' + dateObj.getDate()).slice(-2)}`
+      dateObj.setFullYear(dateObj.getFullYear() - 1911)
+      return format(dateObj, 'yyyLLdd', { locale: zhTW })
     },
     twToAdDateObj (twDateStr) {
       if (isEmpty(twDateStr)) { return null }
