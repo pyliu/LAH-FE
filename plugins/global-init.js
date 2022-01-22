@@ -10,6 +10,9 @@ import filter from 'lodash/filter'
 import reject from 'lodash/reject'
 import _md5 from 'md5'
 import uploadAxios from 'axios'
+import { format } from 'date-fns'
+// Require tw locale
+import { zhTW } from 'date-fns/locale'
 
 export default ({ $axios, store }, inject) => {
   // global const variables, use this.$consts.xxxx to access them in Vue
@@ -281,14 +284,9 @@ export default ({ $axios, store }, inject) => {
       })
     },
     now () {
-      // e.g. 2020-11-06 13:39:23
-      const now = new Date()
-      return now.getFullYear() + '-' +
-        ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
-        ('0' + now.getDate()).slice(-2) + ' ' +
-        ('0' + now.getHours()).slice(-2) + ':' +
-        ('0' + now.getMinutes()).slice(-2) + ':' +
-        ('0' + now.getSeconds()).slice(-2)
+      // https://date-fns.org/v2.28.0/docs/format
+      // e.g. 2022-01-22 16:06:23
+      return format(new Date(), 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
     },
     isIPv4 (str) {
       if (isEmpty(str)) {
