@@ -261,7 +261,7 @@ export default {
       if (this.$utils.empty(entry.note)) {
         return ''
       }
-      return DOMPurify?.sanitize(marked.parse(entry.note.trimEnd().replaceAll("\r\n", "   \n")))
+      return DOMPurify?.sanitize(marked.parse(entry.note.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
       // return entry.note.replaceAll('\r\n', '<br/>')
     }
   }
