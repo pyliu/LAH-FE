@@ -23,6 +23,10 @@ export default {
     isMonday () {
       const now = new Date()
       return now.getDay() === 1
+    },
+    isSaturday () {
+      const now = new Date()
+      return now.getDay() === 6
     }
   },
   watch: {

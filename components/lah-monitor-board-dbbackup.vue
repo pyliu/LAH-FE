@@ -137,7 +137,7 @@ export default {
       } else if (
         ts - this.headMessages[0].timestamp * 1000 > opt2Ms ||
         ts - this.headMessages[1].timestamp * 1000 > opt4yMs ||
-        ts - this.headMessages[2].timestamp * 1000 > opt5Ms
+        (!this.isSaturday && ts - this.headMessages[2].timestamp * 1000 > opt5Ms)
       ) {
         return 'danger'
       }
