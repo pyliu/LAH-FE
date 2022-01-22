@@ -10,7 +10,7 @@ import filter from 'lodash/filter'
 import reject from 'lodash/reject'
 import _md5 from 'md5'
 import uploadAxios from 'axios'
-import { format } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
 
@@ -356,6 +356,13 @@ export default ({ $axios, store }, inject) => {
       const M = twDateStr.substring(3, 5) - 0 - 1
       const D = twDateStr.substring(5, 7) - 0
       return new Date(Y, M, D)
+    },
+    formatDistanceToNow (d = +new Date()) {
+      return formatDistanceToNow(d, {
+        addSuffix: true,
+        includeSeconds: true,
+        locale: zhTW
+      })
     },
     length (chinese) {
       return chinese.replace(/[^\x00-\xFF]/g, 'xx').length

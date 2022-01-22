@@ -102,9 +102,20 @@ div: client-only
         label="連線數"
         :type="chartType"
       )
+    b-card
+      template(#header): .d-flex: .text-nowrap.my-auto date-fns 測試
+      ul
+        li 西元：{{ $utils.now() }} / {{ $utils.tsToAdDateStr(+new Date() / 1000) }}
+        li 民國：{{ $utils.twNow() }} / {{ $utils.twDateStr(new Date()) }}
+        li {{ formatDate(+new Date()) }} - {{ formatDate(new Date(2015, 8, 1)) }}: 離開 Y! {{ dateDistance }}
+        li this.$utils.formatDistanceToNow() 👉 {{ $utils.formatDistanceToNow() }}
 </template>
 
 <script>
+import { formatDistance, formatDistanceToNow, format } from 'date-fns'
+// Require Esperanto locale
+import { zhTW } from 'date-fns/locale'
+
 export default {
   // middleware: ['isAdmin'],
   async asyncData ({ $axios }) {
@@ -168,6 +179,21 @@ export default {
     },
     uploadBase64Url () {
       return `${this.$consts.API.FILE.BASE64}`
+    },
+    dateDistance () {
+      const result = formatDistance(
+        new Date(),
+        new Date(2016, 8, 1),
+        { locale: zhTW } // Pass the locale as an option
+      )
+      return result
+    },
+    dateDistanceToNow () {
+      return formatDistanceToNow(+new Date() - 1000, {
+        addSuffix: true,
+        includeSeconds: true,
+        locale: zhTW
+      })
     }
   },
   watch: {
@@ -207,6 +233,11 @@ export default {
       })
   },
   methods: {
+    formatDate (d) {
+      return format(d, 'yyyy-LL-dd HH:mm:ss', {
+        locale: zhTW
+      })
+    },
     chartLoadData () {
       this.chartItems.length = 0
       this.$refs.chart?.reset()

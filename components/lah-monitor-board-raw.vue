@@ -15,7 +15,7 @@ b-card
         icon="clock",
         regular,
         :title="$utils.tsToAdDateStr(item.timestamp, true)"
-      ) {{ displayDatetime(item.timestamp) }}
+      ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
     .truncate.text-muted.small {{ item.message }}
 </template>
 

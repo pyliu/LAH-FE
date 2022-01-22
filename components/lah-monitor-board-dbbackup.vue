@@ -58,7 +58,7 @@ b-card
         regular,
         :title="$utils.tsToAdDateStr(item.timestamp, true)",
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
-      ) {{ displayDatetime(item.timestamp) }}
+      ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
     .truncate.text-muted.small {{ item.message }}
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
