@@ -146,7 +146,6 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
-    console.warn(this.isMonday, this.queryDays)
   }
 }
 </script>
