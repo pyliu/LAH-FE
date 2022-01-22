@@ -33,7 +33,7 @@ b-card
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫 HACMP 狀態，每天早上8點檢查
+        li 顯示資料庫 HACMP 狀態，每天 08:00 及 13:00 檢查
         li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
@@ -119,7 +119,11 @@ export default {
       return this.found.join('<br/>')
     },
     light () {
-      if (this.$utils.empty(this.headMessage)) {
+      const now = +new Date()
+      if (
+        this.$utils.empty(this.headMessage) ||
+        now - this.headMessage.timestamp * 1000 > 6 * 60 * 60 * 1000
+      ) {
         return 'warning'
       }
       return this.found.length === 7 ? 'success' : 'danger'
