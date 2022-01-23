@@ -116,17 +116,23 @@ export default {
       // option 2 only executes on 02:00:00 every workday
       return this.isMonday ? 4 : 1
     },
-    headMessages () {
-      const opt2 = this.messages.find(item =>
+    opt2Message () {
+      return this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 2')
       )
-      const opt4 = this.messages.find(item =>
+    },
+    opt4Message () {
+      return this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 4')
       )
-      const opt5 = this.messages.find(item =>
+    },
+    opt5Message () {
+      return this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 5')
       )
-      return [opt2, opt4, opt5].filter(item => item)
+    },
+    headMessages () {
+      return [this.opt2Message, this.opt4Message, this.opt5Message].filter(item => item)
     },
     light () {
       const ts = +new Date()
@@ -137,9 +143,9 @@ export default {
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
-        ts - this.headMessages[0].timestamp * 1000 > opt2Ms ||
-        ts - this.headMessages[1].timestamp * 1000 > opt4Ms ||
-        (!this.isSaturday && ts - this.headMessages[2].timestamp * 1000 > opt5Ms)
+        ts - this.opt2Message.timestamp * 1000 > opt2Ms ||
+        ts - this.opt4Message.timestamp * 1000 > opt4Ms ||
+        (!this.isSaturday && ts - this.opt5Message.timestamp * 1000 > opt5Ms)
       ) {
         return 'danger'
       }
