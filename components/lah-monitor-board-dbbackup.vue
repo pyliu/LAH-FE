@@ -112,7 +112,7 @@ export default {
     })
   },
   computed: {
-    queryDays () {return 3
+    queryDays () {
       // option 2 only executes on 02:00:00 every workday
       return this.isMonday ? 4 : 1
     },
