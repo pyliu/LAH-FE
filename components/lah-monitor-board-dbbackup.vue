@@ -46,12 +46,14 @@ b-card
         li OPTION 5 👉 45分鐘內未更新
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
+      .mr-1 {{ subjectLight(item) }}
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
-        title="顯示詳細記錄"
+        title="顯示詳細記錄",
+        :class="subjectCss(item)"
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
@@ -110,7 +112,7 @@ export default {
     })
   },
   computed: {
-    queryDays () {
+    queryDays () {return 3
       // option 2 only executes on 02:00:00 every workday
       return this.isMonday ? 4 : 1
     },
@@ -128,15 +130,15 @@ export default {
     },
     light () {
       const ts = +new Date()
-      const opt4yMs = 24 * 60 * 60 * 1000
-      const opt2Ms = this.queryDays * opt4yMs
+      const opt4Ms = 24 * 60 * 60 * 1000
+      const opt2Ms = this.queryDays * opt4Ms
       // there is a 15 mins offset for scheduling
       const opt5Ms = 30 * 60 * 1000 + 15 * 60 * 1000
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
         ts - this.headMessages[0].timestamp * 1000 > opt2Ms ||
-        ts - this.headMessages[1].timestamp * 1000 > opt4yMs ||
+        ts - this.headMessages[1].timestamp * 1000 > opt4Ms ||
         (!this.isSaturday && ts - this.headMessages[2].timestamp * 1000 > opt5Ms)
       ) {
         return 'danger'
@@ -146,6 +148,37 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+  },
+  methods: {
+    subjectLight (item) {
+      const list = this.subjectCss(item)
+      return list.includes('text-danger') ? '🔴' : '🟢'
+    },
+    subjectCss (item) {
+      const ts = +new Date()
+      const opt4Ms = 24 * 60 * 60 * 1000
+      const opt2Ms = this.queryDays * opt4Ms
+      // there is a 15 mins offset for scheduling
+      const opt5Ms = 30 * 60 * 1000 + 15 * 60 * 1000
+      const cssList = []
+      if (
+        item.subject.includes('BACKUP OPTION 2') &&
+        (ts - item.timestamp * 1000 > opt2Ms)
+      ) {
+        cssList.push('text-danger')
+      } else if (
+        item.subject.includes('BACKUP OPTION 4') &&
+        (ts - item.timestamp * 1000 > opt4Ms)
+      ) {
+        cssList.push('text-danger')
+      } else if (
+        item.subject.includes('BACKUP OPTION 5') &&
+        (!this.isSaturday && (ts - item.timestamp * 1000) > opt5Ms)
+      ) {
+        cssList.push('text-danger')
+      }
+      return cssList
+    }
   }
 }
 </script>
