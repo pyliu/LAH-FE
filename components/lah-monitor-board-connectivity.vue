@@ -53,7 +53,8 @@ b-card(no-body)
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示偵測系統連線狀態
-        li 目前須修改 connectivity.db 來新增或修改欲監控標的
+        li 請按 #[lah-fa-icon(icon="cog", variant="dark")]來新增或修改欲監控標的
+        li 依照IP位址來排序
         li 15分鐘更新資料一次(效能考量)，但可透過 #[lah-fa-icon(icon="sync-alt", variant="secondary")] 更新最新資料
       hr
       h5 #[lah-fa-icon(icon="palette") 顏色說明]
@@ -153,7 +154,13 @@ export default {
             this.loadItems = []
             this.$refs.chart?.reset()
             // raw is array of { 'AP31': {ip: 'xxx.xxx.xxx.31', name: 'AP31', port: '', note: 'XXX'} }
-            data.raw.forEach((rawObj) => {
+            data.raw.sort((a, b) => {
+              const aipVal = this.$utils.ipv4Int(a.ip)
+              const bipVal = this.$utils.ipv4Int(b.ip)
+              if (aipVal > bipVal) { return 1 }
+              if (aipVal < bipVal) { return -1 }
+              return 0
+            }).forEach((rawObj) => {
               this.loadItems.push({
                 ip: rawObj.ip,
                 port: rawObj.port,
