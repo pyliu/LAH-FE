@@ -242,8 +242,13 @@ export default {
               const found = this.loadItems.find((oitem, idx, array) => {
                 const parts = item.target_ip.split(':')
                 const ip = parts[0]
+                // no port, just compares with ip
+                if (item.target_ip.endsWith(':')) {
+                  return oitem.ip === ip
+                }
                 const port = parseInt(parts[1])
                 const oport = parseInt(oitem.port)
+                // this.$utils.warn(oitem.ip, ip, oport, port)
                 return oitem.ip === ip && oport === port
               })
               if (found) {
