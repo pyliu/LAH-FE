@@ -1,4 +1,3 @@
-
 const OS = require('os')
 let ip = require('ip').address()
 // get all ip addresses by node.js os module
@@ -12,7 +11,7 @@ for (const name of Object.keys(nets)) {
   }
 }
 const isEmpty = require('lodash/isEmpty')
-const Markd = require('marked')
+const { marked } = require('marked')
 const DOMPurify = require('dompurify')
 const WebSocket = require('ws')
 const MessageDB = require('./message-db.js')
@@ -56,7 +55,7 @@ const packMessage = function (payload, opts = {}) {
     ...opts
   }
   if (typeof args.message === 'string') {
-    args.message = trim(Markd(args.message, { sanitizer: DOMPurify.sanitize }))
+    args.message = trim(marked.parse(args.message, { sanitizer: DOMPurify.sanitize }))
     // markd generated message into <p>....</p>
     const innerText = args.message.replace(/(<p[^>]+?>|<p>|<\/p>)/img, '')
     // test if the inner text contain HTML element
@@ -89,7 +88,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
           opts.sender = rowORtext.sender
           opts.date = rowORtext.create_datetime.split(' ')[0]
           opts.time = rowORtext.create_datetime.split(' ')[1]
-          opts.message = Markd(rowORtext.content, { sanitizer: DOMPurify.sanitize })
+          opts.message = marked.parse(rowORtext.content, { sanitizer: DOMPurify.sanitize })
           opts.from = rowORtext.$from_ip
           opts.channel = channel
         }
