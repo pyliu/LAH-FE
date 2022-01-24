@@ -156,6 +156,7 @@ export default {
             data.raw.forEach((rawObj) => {
               this.loadItems.push({
                 ip: rawObj.ip,
+                port: rawObj.port,
                 status: 'DOWN',
                 timestamp: '20201005181631',
                 note: rawObj.note,
@@ -236,10 +237,14 @@ export default {
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            // array of { target_ip: 'xxx.xxx.xxx.xxx', latency: 2000.0, status: 'DOWN', log_time: '20201005181631' }
+            // array of { target_ip: 'xxx.xxx.xxx.xxx:xxxx', latency: 2000.0, status: 'DOWN', log_time: '20201005181631' }
             data.raw.forEach((item) => {
               const found = this.loadItems.find((oitem, idx, array) => {
-                return oitem.ip === item.target_ip
+                const parts = item.target_ip.split(':')
+                const ip = parts[0]
+                const port = parseInt(parts[1])
+                const oport = parseInt(oitem.port)
+                return oitem.ip === ip && oport === port
               })
               if (found) {
                 // the dataset item format is ['text', 123]
