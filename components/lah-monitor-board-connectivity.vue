@@ -137,7 +137,10 @@ export default {
     }
   },
   watch: {
-    type (dontcare) { this._reload() },
+    type (val) {
+      this.setCache('lah-monitor-board-connectivity-type', val)
+      this._reload()
+    },
     sortBy (val) {
       this.setCache('lah-monitor-board-connectivity-sortby', val)
       this.loadWatchTarget()
@@ -146,6 +149,7 @@ export default {
   async created () {
     this._reload = this.$utils.debounce(this.reload, 500)
     this.sortBy = await this.getCache('lah-monitor-board-connectivity-sortby') || 'ip'
+    this.type = await this.getCache('lah-monitor-board-connectivity-type') || 'line'
   },
   mounted () {
     this.loadWatchTarget()
