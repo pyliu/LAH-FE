@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card(no-body)
-  template(#header): .d-flex.justify-content-between
-    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
+  template(#header): .d-flex
+    lah-fa-icon.mr-auto(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
       lah-button(
         icon="sync-alt",
@@ -87,6 +87,7 @@ b-card(no-body)
     span
       lah-fa-icon(icon="server" :style="`color: ${colorCode}`")
       span {{ loadItems.length }} 個監控系統
+    b-form-radio-group(v-model="sortBy", :options="sortByOpts")
     lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
 </template>
 
@@ -111,7 +112,13 @@ export default {
       red: 40,
       yellow: 20,
       green: 0
-    }
+    },
+    sortBy: 'ip',
+    sortByOpts: [
+      { text: 'IP', value: 'ip' },
+      { text: '埠號', value: 'port' },
+      { text: '名稱', value: 'name' }
+    ]
   }),
   computed: {
     light () {
@@ -130,10 +137,15 @@ export default {
     }
   },
   watch: {
-    type (dontcare) { this._reload() }
+    type (dontcare) { this._reload() },
+    sortBy (val) {
+      this.setCache('lah-monitor-board-connectivity-sortby', val)
+      this.loadWatchTarget()
+    }
   },
-  created () {
+  async created () {
     this._reload = this.$utils.debounce(this.reload, 500)
+    this.sortBy = await this.getCache('lah-monitor-board-connectivity-sortby') || 'ip'
   },
   mounted () {
     this.loadWatchTarget()
@@ -155,10 +167,22 @@ export default {
             this.$refs.chart?.reset()
             // raw is array of { 'AP31': {ip: 'xxx.xxx.xxx.31', name: 'AP31', port: '', note: 'XXX'} }
             data.raw.sort((a, b) => {
-              const aipVal = this.$utils.ipv4Int(a.ip)
-              const bipVal = this.$utils.ipv4Int(b.ip)
-              if (aipVal > bipVal) { return 1 }
-              if (aipVal < bipVal) { return -1 }
+              let aVal, bVal
+              switch (this.sortBy) {
+                case 'name':
+                  aVal = a.name
+                  bVal = b.name
+                  break
+                case 'port':
+                  aVal = a.port
+                  bVal = b.port
+                  break
+                default:
+                  aVal = this.$utils.ipv4Int(a.ip)
+                  bVal = this.$utils.ipv4Int(b.ip)
+              }
+              if (aVal > bVal) { return 1 }
+              if (aVal < bVal) { return -1 }
               return 0
             }).forEach((rawObj) => {
               this.loadItems.push({
