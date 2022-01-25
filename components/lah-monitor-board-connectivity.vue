@@ -194,7 +194,8 @@ export default {
     labelTooltip (entry) {
       const found = this.loadItems.find(item => item.x === entry.label)
       if (found) {
-        return found.note.split('\n')
+        const combined = `${found.note}\nIP: ${found.ip}\n監測埠號: ${found.port}`
+        return combined.split('\n')
         // this.modal(found.note.replaceAll('\n', '<br/>'), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
       } else {
         const currentVal = entry.dataset.data[entry.dataIndex]
@@ -208,7 +209,8 @@ export default {
     popupNote ({ detail }) {
       const found = this.loadItems.find(item => item.x === detail.label)
       if (found) {
-        this.modal(found.note.replaceAll('\n', '<br/>'), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
+        const combined = `${found.note}\nIP: ${found.ip}\n監測埠號: ${found.port}`
+        this.modal(combined.replaceAll('\n', '<br/>'), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
       } else {
         this.$utils.warn('找不到監控項目', detail)
       }

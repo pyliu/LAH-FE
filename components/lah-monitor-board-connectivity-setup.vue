@@ -137,7 +137,10 @@ export default {
       { key: 'name', label: '系統名稱', sortable: true },
       { key: 'note', label: '系統備註', sortable: false },
       '刪除'
-    ]
+    ],
+    editMode: true,
+    editIp: '',
+    editPort: 0
   }),
   fetch () {
     this.loadWatchTarget()
@@ -154,7 +157,8 @@ export default {
     isValidName () {
       return !this.$utils.empty(this.entry.name)
     },
-    dataReady () { return this.isIPv4 && this.isValidName && this.isValidPort !== false }
+    dataReady () { return this.isIPv4 && this.isValidName && this.isValidPort !== false },
+    queryMode () { return this.editMode ? 'edit' : 'replace' }
   },
   methods: {
     handleMonitorSwitch (item) {
@@ -205,6 +209,7 @@ export default {
         }
       }
       this.$refs.replaceModal?.show()
+      this.editMode = false
     },
     remove (entry) {
       this.confirm(`請確認要刪除 ${entry.name} - ${entry.ip}:${entry.port} 監控標的？`).then((YN) => {
@@ -233,18 +238,23 @@ export default {
       if (!this.$utils.empty(entry)) {
         this.entry = { ...entry }
         this.$refs.replaceModal?.show()
+        this.editMode = true
+        this.editIp = entry.ip
+        this.editPort = entry.port
       }
     },
     save () {
       this.isBusy = false
       this.$axios.post(this.$consts.API.JSON.MONITOR, {
-        type: 'replace_connectivity_target',
-        ...this.entry
+        type: `${this.queryMode}_connectivity_target`,
+        ...this.entry,
+        editIp: this.editIp,
+        editPort: this.editPort
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           // emit 'update' event, colse modal
           this.$emit('update', true)
-          this.success(data.message)
+          this.timeout(() => this.success(data.message), 1000)
         } else {
           this.warning(data.message)
         }
