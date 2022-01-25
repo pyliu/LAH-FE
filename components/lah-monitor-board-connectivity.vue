@@ -200,7 +200,7 @@ export default {
               })
             })
             // build the chart skeleton from loaded targets
-            this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '回應時間(ms)', 'bar')
+            this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '回應時間(ms)', this.type)
             // add a bit delay to make the chart build successfully
             this.timeout(() => this.$refs.chart?.build(), 100)
           } else {
