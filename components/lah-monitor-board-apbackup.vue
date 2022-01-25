@@ -42,13 +42,14 @@ b-card
       div 🔴 表示狀態錯誤
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
+      .mr-1 {{ itemLight(item) }}
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ extractSubject(item) }}
+      ) {{ subject(item) }}
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
@@ -90,7 +91,9 @@ export default {
     header: 'AP Server 備份',
     modalId: 'tmp-id',
     queryDays: 1,
-    regex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm
+    regex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm,
+    // AP Server (apha14) files backup failure!!
+    failRegex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(failure)!!/gm
   }),
   fetch () {
     this.load('subject', 'AP Server', this.queryDays).then((data) => {
@@ -109,7 +112,13 @@ export default {
   },
   computed: {
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 8)
+      const heads = this.messages.filter((item, idx, arr) => idx < 8)
+      heads.sort((a, b) => {
+        if (a.message.includes('failure') && !b.message.includes('failure')) { return -1 }
+        if (!a.message.includes('failure') && b.message.includes('failure')) { return 1 }
+        return 0
+      })
+      return heads
     },
     light () {
       const now = +new Date()
@@ -128,11 +137,20 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+    this.$utils.warn(this.messages)
   },
   methods: {
-    extractSubject (item) {
-      const matched = [...item.message.matchAll(this.regex)][0]
-      return `${matched[1]} ${matched[2]}`
+    itemLight (item) {
+      const subject = this.subject(item)
+      return subject.includes('failure') ? '🔴' : '🟢'
+    },
+    subject (item) {
+      // successful
+      let matched = [...item.message.matchAll(this.regex)][0]
+      if (!matched) {
+        matched = [...item.message.matchAll(this.failRegex)][0]
+      }
+      return matched ? `${matched[1]} ${matched[2]}` : '標題解析失敗'
     }
   }
 }
