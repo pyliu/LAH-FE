@@ -121,8 +121,11 @@ export default {
         return 'warning'
       }
       const criteria = this.currentLogText(this.headMessages[0])
-      const ans = this.headMessages.every((item, index, array) => {
+      let ans = this.headMessages.every((item, index, array) => {
         return criteria === this.currentLogText(item)
+      })
+      ans = this.headMessages.every((item, index, array) => {
+        return this.switchoverText(item) === 'ACTIVE'
       })
       return ans ? 'success' : 'danger'
     }
