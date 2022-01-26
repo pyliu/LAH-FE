@@ -138,8 +138,7 @@ export default {
       const ts = +new Date()
       const opt4Ms = this.queryDays * 24 * 60 * 60 * 1000
       const opt2Ms = opt4Ms
-      // there is a 15 mins offset for scheduling
-      const opt5Ms = 30 * 60 * 1000 + 15 * 60 * 1000
+      const opt5Ms = 60 * 60 * 1000
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
