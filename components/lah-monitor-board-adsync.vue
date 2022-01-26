@@ -34,12 +34,12 @@ b-card
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 AD SYNC 狀態，每天8點同步
-        li 每15分鐘重新檢查一次
+        li 儀錶板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      //- div 🟡 表示狀態未更新
-      div 🔴 表示狀態錯誤
+      div 🟡 表示找不到任何郵件訊息
+      div 🔴 表示最新同步郵件日期非今日[{{ $utils.toADDate(new Date(), 'yyyy-LL-dd') }}]
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
