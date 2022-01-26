@@ -116,15 +116,24 @@ export default {
       // option 2 only executes on 02:00:00 every workday
       return this.isMonday ? 4 : 1
     },
+    opt2Ms () {
+      return this.opt4Ms
+    },
     opt2Message () {
       return this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 2')
       )
     },
+    opt4Ms () {
+      return this.queryDays * 24 * 60 * 60 * 1000
+    },
     opt4Message () {
       return this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 4')
       )
+    },
+    opt5Ms () {
+      return 60 * 60 * 1000
     },
     opt5Message () {
       return this.messages.find(item =>
@@ -136,15 +145,12 @@ export default {
     },
     light () {
       const ts = +new Date()
-      const opt4Ms = this.queryDays * 24 * 60 * 60 * 1000
-      const opt2Ms = opt4Ms
-      const opt5Ms = 60 * 60 * 1000
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
-        ts - this.opt2Message.timestamp * 1000 > opt2Ms ||
-        ts - this.opt4Message.timestamp * 1000 > opt4Ms ||
-        (!this.isSaturday && ts - this.opt5Message.timestamp * 1000 > opt5Ms)
+        ts - this.opt2Message.timestamp * 1000 > this.opt2Ms ||
+        ts - this.opt4Message.timestamp * 1000 > this.opt4Ms ||
+        (!this.isSaturday && ts - this.opt5Message.timestamp * 1000 > this.opt5Ms)
       ) {
         return 'danger'
       }
@@ -161,24 +167,20 @@ export default {
     },
     subjectCss (item) {
       const ts = +new Date()
-      const opt4Ms = this.queryDays * 24 * 60 * 60 * 1000
-      const opt2Ms = opt4Ms
-      // there is a 15 mins offset for scheduling
-      const opt5Ms = 30 * 60 * 1000 + 15 * 60 * 1000
       const cssList = []
       if (
         item.subject.includes('BACKUP OPTION 2') &&
-        (ts - item.timestamp * 1000 > opt2Ms)
+        (ts - item.timestamp * 1000 > this.opt2Ms)
       ) {
         cssList.push('text-danger')
       } else if (
         item.subject.includes('BACKUP OPTION 4') &&
-        (ts - item.timestamp * 1000 > opt4Ms)
+        (ts - item.timestamp * 1000 > this.opt4Ms)
       ) {
         cssList.push('text-danger')
       } else if (
         item.subject.includes('BACKUP OPTION 5') &&
-        (!this.isSaturday && (ts - item.timestamp * 1000) > opt5Ms)
+        (!this.isSaturday && (ts - item.timestamp * 1000) > this.opt5Ms)
       ) {
         cssList.push('text-danger')
       }
