@@ -42,11 +42,13 @@ b-card
       div 🔴 表示最新同步郵件日期非今日[{{ $utils.toADDate(new Date(), 'yyyy-LL-dd') }}]
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
+      .mr-1 {{ subjectLight(item) }}
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
+        :class="subjectCss(item)",
         title="顯示詳細記錄"
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(
@@ -107,8 +109,20 @@ export default {
     })
   },
   computed: {
+    todayNoAdSyncMessage () {
+      return `${this.today} 無 AD 同步資訊`
+    },
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
+      if (filtered[0] && filtered[0].timestamp > 24 * 60 * 60) {
+        // insert dummy item to indicate danger
+        filtered.unshift({
+          subject: this.todayNoAdSyncMessage,
+          message: '...',
+          timestamp: filtered[0].timestamp + 24 * 60 * 60
+        })
+      }
+      return filtered
     },
     headMessage () {
       return this.headMessages[0]
@@ -117,6 +131,9 @@ export default {
       const now = +new Date()
       if (!this.headMessage) {
         return 'warning'
+      }
+      if (this.headMessage.subject === this.todayNoAdSyncMessage) {
+        return 'danger'
       }
       const messageDate = this.$utils.toADDate(this.headMessage.timestamp * 1000, 'yyyy-LL-dd')
       const todayDate = this.$utils.toADDate(now, 'yyyy-LL-dd')
@@ -130,6 +147,17 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   methods: {
+    subjectLight (item) {
+      const list = this.subjectCss(item)
+      return list.includes('text-danger') ? '🔴' : '🟢'
+    },
+    subjectCss (item) {
+      // parsing message for the successful text
+      if (item.subject === this.todayNoAdSyncMessage) {
+        return ['text-danger']
+      }
+      return []
+    },
     shortenSubject (item) {
       return item.subject.replace(' Daily Email from NMC.', '')
     }

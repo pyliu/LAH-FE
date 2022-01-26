@@ -42,12 +42,14 @@ b-card
       div 🔴 表示最新郵件找到「No dump file」字串
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages" :key="`head_${idx}`")
+  div(v-else, v-for="(item, idx) in headMessages" :key="`head_${idx}`")
     .d-flex.justify-content-between.font-weight-bold
+      .mr-1 {{ subjectLight(item) }}
       a.truncate(
         href="#",
         @click="popupExtractMessage(item)",
         title="顯示詳細記錄"
+        :class="subjectCss(item)"
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
@@ -138,6 +140,21 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   methods: {
+    subjectLight (item) {
+      const list = this.subjectCss(item)
+      return list.includes('text-danger') ? '🔴' : '🟢'
+    },
+    subjectCss (item) {
+      // parsing message for the successful text
+      const message = this.itemMessage(item)
+      const expectStr = 'No dump file'
+      const regex = new RegExp(expectStr, 'gm')
+      const matched = [...message.matchAll(regex)].join('')
+      if (matched.length > 0) {
+        return ['text-danger']
+      }
+      return []
+    },
     popupExtractMessage (item) {
       this.modal(this.itemMessage(item).replaceAll('\n', '<br/>'), {
         title: `${this.header} - ${item.subject}`,

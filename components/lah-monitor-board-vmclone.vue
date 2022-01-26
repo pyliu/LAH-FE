@@ -33,20 +33,22 @@ b-card
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示測試資料庫匯入狀態
-        li 每15分鐘重新檢查一次
+        li 顯示VM備份狀態
+        li 儀表板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示狀態未更新
-      div 🔴 表示狀態錯誤
+      div 🟡 表示找不到 VM CLONE 訊息
+      div 🔴 表示 VM CLONE 排程中任一個失敗
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
+      .mr-1 {{ subjectLight(item) }}
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
+        :class="subjectCss(item)"
         title="顯示詳細記錄"
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(
@@ -107,15 +109,35 @@ export default {
     })
   },
   computed: {
+    vc135Message () {
+      return this.messages.find(item =>
+        item.subject.includes('vm-clone-135')
+      )
+    },
+    vc24Message () {
+      return this.messages.find(item =>
+        item.subject.includes('vm-clone-24')
+      )
+    },
+    vc7Message () {
+      return this.messages.find(item =>
+        item.subject.includes('vm-clone-7')
+      )
+    },
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 3)
+      return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
     },
     light () {
-      const now = +new Date()
-      if (
-        this.headMessages.length === 0 ||
-        now - this.headMessages[0].timestamp * 1000 > 7 * 24 * 60 * 60 * 1000
-      ) {
+      if (this.headMessages.length === 0) {
+        return 'warning'
+      }
+      if (!this.vc135Message || this.subjectCss(this.vc135Message).includes('text-danger')) {
+        return 'danger'
+      }
+      if (!this.vc24Message || this.subjectCss(this.vc24Message).includes('text-danger')) {
+        return 'danger'
+      }
+      if (!this.vc7Message || this.subjectCss(this.vc7Message).includes('text-danger')) {
         return 'danger'
       }
       return 'success'
@@ -123,6 +145,73 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+  },
+  methods: {
+    subjectLight (item) {
+      const list = this.subjectCss(item)
+      return list.includes('text-danger') ? '🔴' : '🟢'
+    },
+    subjectCss (item) {
+      const now = new Date()
+      const today = now.getDay()
+      const dayMs = 24 * 60 * 60 * 1000
+      let vc135Ms = dayMs
+      let vc24Ms = dayMs
+      let vc7Ms = dayMs
+      switch (today) {
+        case 1:
+          vc135Ms *= 3
+          vc24Ms *= 4
+          vc7Ms *= 2
+          break
+        case 2:
+          vc135Ms *= 1
+          vc24Ms *= 5
+          vc7Ms *= 3
+          break
+        case 3:
+          vc135Ms *= 2
+          vc24Ms *= 1
+          vc7Ms *= 4
+          break
+        case 4:
+          vc135Ms *= 1
+          vc24Ms *= 2
+          vc7Ms *= 5
+          break
+        case 5:
+          vc135Ms *= 2
+          vc24Ms *= 1
+          vc7Ms *= 6
+          break
+        case 6:
+          vc135Ms *= 1
+          vc24Ms *= 2
+          vc7Ms *= 7
+          break
+        default:
+          break
+      }
+      const cssList = []
+      const ts = now.getTime()
+      if (
+        item.subject.includes('vm-clone-135') &&
+        (ts - item.timestamp * 1000 > vc135Ms)
+      ) {
+        cssList.push('text-danger')
+      } else if (
+        item.subject.includes('vm-clone-24') &&
+        (ts - item.timestamp * 1000 > vc24Ms)
+      ) {
+        cssList.push('text-danger')
+      } else if (
+        item.subject.includes('vm-clone-7') &&
+        (!this.isSaturday && (ts - item.timestamp * 1000) > vc7Ms)
+      ) {
+        cssList.push('text-danger')
+      }
+      return cssList
+    }
   }
 }
 </script>

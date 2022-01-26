@@ -10,15 +10,8 @@ export default {
   }),
   computed: {
     today () {
-      // e.g. 2021-12-29
-      const now = new Date()
-      return (
-        now.getFullYear() +
-        '-' +
-        ('0' + (now.getMonth() + 1)).slice(-2) +
-        '-' +
-        ('0' + now.getDate()).slice(-2)
-      )
+      // e.g. 2022-01-26
+      return this.$utils.toADDate(new Date(), 'yyyy-LL-dd')
     },
     isMonday () {
       const now = new Date()
