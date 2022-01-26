@@ -34,16 +34,17 @@ b-card
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫 Data Guard 狀態(檢視P8-2、P7-102及hb-114內「Current log sequence」文字是否一樣)，每天 08:00 及 13:00 檢查
-        li 每15分鐘重新檢查一次
+        li 儀錶板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示狀態未更新
-      div 🔴 表示狀態錯誤
+      div 🟡 表示狀態超過6小時未更新
+      div 🔴 表示有資料庫 Current Log Sequence 不一致
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
+      .mr-1 #[b-badge(variant="primary", pill) {{ currentLogNumber(item) }}]
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
@@ -55,7 +56,7 @@ b-card
         :title="$utils.tsToAdDateStr(item.timestamp, true)",
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
-    .truncate.text-muted.small {{ extractSequenceLog(item) }}
+    .truncate.text-muted.small {{ currentLogText(item) }}
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       size="sm",
@@ -118,9 +119,9 @@ export default {
       ) {
         return 'warning'
       }
-      const criteria = this.extractSequenceLog(this.headMessages[0])
+      const criteria = this.currentLogText(this.headMessages[0])
       const ans = this.headMessages.every((item, index, array) => {
-        return criteria === this.extractSequenceLog(item)
+        return criteria === this.currentLogText(item)
       })
       return ans ? 'success' : 'danger'
     }
@@ -129,9 +130,27 @@ export default {
     this.modalId = this.$utils.uuid()
   },
   methods: {
-    extractSequenceLog (item) {
-      const regex = /Current\s+log\s+sequence\s+\d+/gm
-      return [...item.message.matchAll(regex)].join('')
+    logSeqMatches (item) {
+      const regex = /Current\s+log\s+sequence\s+(\d+)/gm
+      return [...item.message.matchAll(regex)]
+    },
+    currentLogText (item) {
+      const arr = this.logSeqMatches(item)
+      /**
+       * arr[0]:
+       *   0: "Current log sequence\t       54357"
+       *   1: "54357"
+       */
+      return arr[0][0]
+    },
+    currentLogNumber (item) {
+      const arr = this.logSeqMatches(item)
+      /**
+       * arr[0]:
+       *   0: "Current log sequence\t       54357"
+       *   1: "54357"
+       */
+      return arr[0][1]
     }
   }
 }
