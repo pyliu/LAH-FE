@@ -113,7 +113,7 @@ export default {
       yellow: 20,
       green: 0
     },
-    sortBy: 'ip',
+    sortBy: 'name',
     sortByOpts: [
       { text: 'IP', value: 'ip' },
       { text: '埠號', value: 'port' },
@@ -195,7 +195,7 @@ export default {
                 status: 'DOWN',
                 timestamp: '20201005181631',
                 note: rawObj.note,
-                x: rawObj.name,
+                x: ['ip', 'port'].includes(this.sortBy) ? `${rawObj.ip}:${rawObj.port}` : rawObj.name,
                 y: 0.0 // latency
               })
             })
