@@ -44,12 +44,14 @@ b-card
       div 🔴 表示郵件找不到「pax successful!!」字串
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
-  ul(v-else): li(v-for="(item, idx) in headMessages")
+  div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
+      .mr-1 {{ subjectLight(item) }}
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
+        :class="subjectCss(item)"
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
@@ -136,6 +138,22 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
+  },
+  methods: {
+    subjectLight (item) {
+      const list = this.subjectCss(item)
+      return list.includes('text-danger') ? '🔴' : '🟢'
+    },
+    subjectCss (item) {
+      // parsing message for the successful text
+      const message = item.message
+      const regex = /pax\s+successful!!/gm
+      const all = [...message.matchAll(regex)].join('')
+      if (this.$utils.empty(all)) {
+        return ['text-danger']
+      }
+      return []
+    }
   }
 }
 </script>
