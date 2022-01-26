@@ -110,12 +110,17 @@ export default {
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
     },
+    headMessage () {
+      return this.headMessages[0]
+    },
     light () {
       const now = +new Date()
-      if (
-        this.headMessages.length === 0 ||
-        now - this.headMessages[0].timestamp * 1000 > 24 * 60 * 60 * 1000
-      ) {
+      if (!this.headMessage) {
+        return 'warning'
+      }
+      const messageDate = this.$utils.toADDate(this.headMessage.timestamp * 1000, 'yyyy-LL-dd')
+      const todayDate = this.$utils.toADDate(now, 'yyyy-LL-dd')
+      if (messageDate !== todayDate) {
         return 'danger'
       }
       return 'success'

@@ -336,6 +336,9 @@ export default ({ $axios, store }, inject) => {
       now.setFullYear(now.getFullYear() - 1911)
       return format(now, 'yyy-LL-dd HH:mm:ss', { locale: zhTW })
     },
+    toADDate (ts, fmt = 'yyyy-LL-dd HH:mm:ss') {
+      return format(ts, fmt, { locale: zhTW })
+    },
     tsToAdDateStr (phpTs, full = false) {
       // PHP time() generate ts by seconds, however js is milliseconds
       const formatted = format(phpTs * 1000, 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
