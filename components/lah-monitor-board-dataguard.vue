@@ -45,6 +45,7 @@ b-card
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 #[b-badge(variant="primary", pill) {{ currentLogNumber(item) }}]
+      .mr-1 #[b-badge(:variant="switchoverText(item) !== 'ACTIVE' ? 'danger' : 'success'", pill) {{ switchoverText(item) }}]
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
@@ -56,7 +57,7 @@ b-card
         :title="$utils.tsToAdDateStr(item.timestamp, true)",
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
-    .truncate.text-muted.small {{ currentLogText(item) }}
+    .truncate.text-muted.small {{ currentLogText(item) }} | SWITCHOVER STATUS: SESSIONS {{ switchoverText(item) }}
   template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
     lah-countdown-button.border-0(
       size="sm",
@@ -133,6 +134,12 @@ export default {
     logSeqMatches (item) {
       const regex = /Current\s+log\s+sequence\s+(\d+)/gm
       return [...item.message.matchAll(regex)]
+    },
+    switchoverText (item) {
+      const regex = /SESSIONS\s+([A-Z]+)/gm
+      const arr = [...item.message.matchAll(regex)]
+      this.$utils.warn(arr)
+      return arr[0][1]
     },
     currentLogText (item) {
       const arr = this.logSeqMatches(item)
