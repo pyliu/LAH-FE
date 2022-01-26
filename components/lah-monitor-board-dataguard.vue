@@ -50,7 +50,7 @@ b-card
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ item.subject }}
+      ) {{ item.subject.replace(' DataGuard STATE', '') }}
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,

@@ -206,7 +206,7 @@ export default {
         cssList.push('text-danger')
       } else if (
         item.subject.includes('vm-clone-7') &&
-        (!this.isSaturday && (ts - item.timestamp * 1000) > vc7Ms)
+        (!this.isSaturday && (ts - item.timestamp * 1000) > (vc7Ms + 12 * 60 * 60 * 1000))
       ) {
         cssList.push('text-danger')
       }
