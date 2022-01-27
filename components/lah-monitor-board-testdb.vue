@@ -112,13 +112,31 @@ export default {
       // testdb import will not execute on weenend
       return this.isMonday ? 4 : 3
     },
+    todayNoDBImportMessage () {
+      return `${this.today} 無測試 DB 匯入資訊`
+    },
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
+      if (filtered[0] && filtered[0].timestamp > 24 * 60 * 60) {
+        // insert dummy item to indicate danger
+        filtered.unshift({
+          subject: this.todayNoDBImportMessage,
+          message: '...',
+          timestamp: filtered[0].timestamp + 24 * 60 * 60
+        })
+      }
+      return filtered
+    },
+    headMessage () {
+      return this.headMessages[0]
     },
     light () {
       if (this.headMessages.length === 0) {
         this.$emit('warning', `${this.header}找不到紀錄郵件!`)
         return 'warning'
+      }
+      if (this.headMessage.subject === this.todayNoDBImportMessage) {
+        return 'danger'
       }
       const now = +new Date()
       const ts = this.isMonday ? 4 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
@@ -145,6 +163,9 @@ export default {
       return list.includes('text-danger') ? '🔴' : '🟢'
     },
     subjectCss (item) {
+      if (item.subject === this.todayNoDBImportMessage) {
+        return ['text-danger']
+      }
       // parsing message for the successful text
       const message = this.itemMessage(item)
       const expectStr = 'No dump file'
