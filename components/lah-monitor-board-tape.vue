@@ -114,13 +114,31 @@ export default {
       // tape backup will not execute on weenend
       return this.isMonday ? 4 : 3
     },
+    todayNoTapeMessage () {
+      return `${this.today} 無磁帶備份資訊`
+    },
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
+      if (filtered[0] && filtered[0].timestamp > 24 * 60 * 60) {
+        // insert dummy item to indicate danger
+        filtered.unshift({
+          subject: this.todayNoTapeMessage,
+          message: '...',
+          timestamp: filtered[0].timestamp + 24 * 60 * 60
+        })
+      }
+      return filtered
+    },
+    headMessage () {
+      return this.headMessages[0]
     },
     light () {
       const now = +new Date()
       if (this.headMessages.length === 0) {
         return 'warning'
+      }
+      if (this.headMessage.subject === this.todayNoTapeMessage) {
+        return 'danger'
       }
       const ts = this.isMonday ? 4 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
       if ((now - this.headMessages[0].timestamp * 1000) > ts) {
@@ -145,6 +163,9 @@ export default {
       return list.includes('text-danger') ? '🔴' : '🟢'
     },
     subjectCss (item) {
+      if (item.subject === this.todayNoTapeMessage) {
+        return ['text-danger']
+      }
       // parsing message for the successful text
       const message = item.message
       const regex = /pax\s+successful!!/gm
