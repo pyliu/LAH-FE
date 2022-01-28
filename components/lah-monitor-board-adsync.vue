@@ -114,7 +114,8 @@ export default {
     },
     headMessages () {
       const filtered = this.messages.filter((item, idx, arr) => idx < 3)
-      if (filtered[0] && filtered[0].timestamp > 24 * 60 * 60) {
+      const ts = +new Date() / 1000
+      if (filtered[0] && ts - filtered[0].timestamp > 24 * 60 * 60) {
         // insert dummy item to indicate danger
         filtered.unshift({
           subject: this.todayNoAdSyncMessage,

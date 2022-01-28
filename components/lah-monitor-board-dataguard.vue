@@ -141,7 +141,6 @@ export default {
     switchoverText (item) {
       const regex = /SESSIONS\s+([A-Z]+)/gm
       const arr = [...item.message.matchAll(regex)]
-      this.$utils.warn(arr)
       return arr[0][1]
     },
     currentLogText (item) {
