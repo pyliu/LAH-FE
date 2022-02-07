@@ -186,9 +186,11 @@ export default {
     },
     itemMessage (item) {
       if (item) {
-        const dateParts = new Date(item.timestamp * 1000).toString().split(' ')
+        // const dateParts = new Date(item.timestamp * 1000).toString().split(' ')
         // e.g. "Wed Jan 12"
-        const search = `${dateParts[0]} ${dateParts[1]} ${dateParts[2]}`
+        // const search = `${dateParts[0]} ${dateParts[1]} ${dateParts[2] - 0}`
+        // find yesterday dump date
+        const search = `DATE=${this.$utils.toADDate(item.timestamp * 1000 - 24 * 60 * 60 * 1000, 'yyLLdd')}`
         const lastIdx = item.message.lastIndexOf(search)
         if (lastIdx !== -1) {
           return item.message.substring(lastIdx)
