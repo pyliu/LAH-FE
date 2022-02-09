@@ -38,7 +38,7 @@ b-card
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常，2組UPS都有回應
-      div 🟡 表示狀態未更新
+      div 🟡 表示有1組UPS無回報訊息
       div 🔴 表示狀態錯誤
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
