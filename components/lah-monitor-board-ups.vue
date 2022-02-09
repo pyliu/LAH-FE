@@ -110,15 +110,22 @@ export default {
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 4)
     },
+    head2Messages () {
+      return this.messages.filter((item, idx, arr) => idx < 2)
+    },
     light () {
       const now = +new Date()
       if (
-        this.headMessages.length === 0 ||
-        now - this.headMessages[0].timestamp * 1000 > 24 * 60 * 60 * 1000
+        this.head2Messages.length !== 2 ||
+        now - this.head2Messages[0].timestamp * 1000 > 24 * 60 * 60 * 1000
       ) {
         return 'warning'
       }
-      return this.headMessages[0]?.subject !== this.headMessages[1]?.subject
+      // UPS-A-73 / UPS-B-71 timestamp diff over a day
+      if (this.head2Messages[0].timestamp - this.head2Messages[1].timestamp > 12 * 60 * 60) {
+        return 'warning'
+      }
+      return this.head2Messages[0]?.subject !== this.head2Messages[1]?.subject
         ? 'success'
         : 'danger'
     }
