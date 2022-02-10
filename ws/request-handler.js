@@ -69,6 +69,8 @@ class RequestHandler {
         return this.executeRemoveMessageCommand(ws, json)
       case 'remove_channel':
         return this.executeRemoveChannelCommand(ws, json)
+      case 'update_user':
+        return this.executeUpdateUserCommand(ws, json)
       default:
         console.warn(`不支援的命令 ${cmd}`)
     }
@@ -418,6 +420,50 @@ class RequestHandler {
       const messageDB = new MessageDB(senderChannel)
       !messageDB.setMessageRead(senderMessageId, senderMessageFlag) && console.warn(`設定 ${senderChannel} 頻道訊息 #${senderMessageId} 已讀失敗`)
     }
+
+    return true
+  }
+
+  executeUpdateUserCommand (ws, json) {
+    /** expected json
+      {
+        command: 'update_user',
+        id: 'HA1001XXXX',
+        payload: {
+          id: 'ID to be updated',
+          name: 'Name to be updated',
+          dept: 'Dept to be updated',
+          ext: 'Ext to be updated',
+          ip: 'IP to be updated',
+          work: 'Work to be updated'
+        }
+      }
+     */
+    const targetUserId = json.id
+    // find online user's ws
+    const found = [...ws.wss.clients].find((ws) => {
+      return ws.user?.userid === targetUserId
+    })
+    if (found) {
+      const result = true
+      // 準備送出 ACK(-10) 通知使用者更新設定(in $localForage cache)
+      found && found.send(utils.packMessage(
+        // message payload
+        {
+          command: 'update_user',
+          payload: json,
+          success: result !== false,
+          message: `設定使用者資訊 ${result !== false ? '成功' : '失敗'}`
+        },
+        // outter message attrs
+        {
+          type: 'ack',
+          id: '-10', // temporary id for update_user
+          channel: 'system'
+        }
+      ))
+    }
+    // TODO: also update user info at Backend
 
     return true
   }
