@@ -429,7 +429,7 @@ class RequestHandler {
       {
         command: 'update_user',
         id: 'HA1001XXXX',
-        payload: {
+        info: {
           id: 'ID to be updated',
           name: 'Name to be updated',
           dept: 'Dept to be updated',
