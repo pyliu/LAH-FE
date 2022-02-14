@@ -439,32 +439,25 @@ class RequestHandler {
         }
       }
      */
+    // prepare system command message
+    const packedMessage = utils.packMessage({
+      command: 'update_user',
+      payload: json.info
+    }, {
+      channel: 'system'
+    })
+    // target user id
     const targetUserId = json.id
     // find online user's ws
     const found = [...ws.wss.clients].find((ws) => {
       return ws.user?.userid === targetUserId
     })
     if (found) {
-      const result = true
-      // 準備送出 ACK(-10) 通知使用者更新設定(in $localForage cache)
-      found && found.send(utils.packMessage(
-        // message payload
-        {
-          command: 'update_user',
-          payload: json,
-          success: result !== false,
-          message: `設定使用者資訊 ${result !== false ? '成功' : '失敗'}`
-        },
-        // outter message attrs
-        {
-          type: 'ack',
-          id: '-10', // temporary id for update_user
-          channel: 'system'
-        }
-      ))
+      found.send(packedMessage)
+      console.log(`傳送系統訊息至 ${targetUserId}`, packedMessage)
+    } else {
+      console.warn(`${targetUserId} 沒在線上，無法更新快取登入資訊!`, json)
     }
-    // TODO: also update user info at Backend
-
     return true
   }
 
