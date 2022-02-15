@@ -346,12 +346,9 @@ export default ({ $axios, store }, inject) => {
       return full ? formatted : parts[0]
     },
     twDateStr (dateObj) {
-      if (typeof dateObj !== 'object') {
-        console.warn('twDateStr', dateObj, 'is not an object')
-        return ''
-      }
-      dateObj.setFullYear(dateObj.getFullYear() - 1911)
-      return format(dateObj, 'yyyLLdd', { locale: zhTW })
+      const ad = this.tsToAdDateStr(dateObj?.getTime() / 1000)?.replaceAll('-', '')
+      const year = parseInt(ad.substring(0, 4)) - 1911
+      return `${year}${ad.substring(4)}`
     },
     twToAdDateObj (twDateStr) {
       if (isEmpty(twDateStr)) { return null }
