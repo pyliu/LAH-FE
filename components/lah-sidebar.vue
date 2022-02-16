@@ -25,7 +25,7 @@ b-sidebar#lah-sidebar(
 
       li: nuxt-link(to="/expire").
         #[font-awesome-icon.fixed-width(:icon="['far', 'calendar-check']", size="lg")]
-        逾期案件
+        已(即將)逾期案件
       li: nuxt-link(to="/expiry-of-announcement").
         #[font-awesome-icon.fixed-width(:icon="['fa', 'sticky-note']", size="lg")]
         公告期滿案件

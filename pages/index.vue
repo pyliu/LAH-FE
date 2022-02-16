@@ -7,7 +7,7 @@
       h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
     section.b-card-container
       b-card-group.mb-4(deck)
-        lah-index-card-link(:icon="['far', 'calendar-check']" to="/expire") 逾期案件
+        lah-index-card-link(:icon="['far', 'calendar-check']" to="/expire") 已(即將)逾期案件
         lah-index-card-link(:icon="['far', 'sticky-note']" to="/expiry-of-announcement") 公告期滿案件
         lah-index-card-link(:icon="['fas', 'user-tie']" to="/ask-for-instructions") 取消請示案件
         lah-index-card-link(:icon="['fas', 'money-check-alt']" to="/trust") 信託相關案件

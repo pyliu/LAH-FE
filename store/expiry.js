@@ -1,8 +1,8 @@
 export default {
   state: () => ({
     list: [], // [{...}, {...}, ...]
-    list_by_id: {}, // { HB1234: [{}...], HB2134: [{}...], ... } 
-    is_overdue_mode: false
+    list_by_id: {}, // { HB1234: [{}...], HB2134: [{}...], ... }
+    is_overdue_mode: true
   }),
   getters: {
     list: state => state.list,
@@ -12,13 +12,13 @@ export default {
     is_overdue_mode: state => state.is_overdue_mode
   },
   mutations: {
-    list(state, jsonPayload) {
+    list (state, jsonPayload) {
       state.list = jsonPayload || []
     },
-    list_by_id(state, jsonPayload) {
+    list_by_id (state, jsonPayload) {
       state.list_by_id = jsonPayload || {}
     },
-    is_overdue_mode(state, flagPayload) {
+    is_overdue_mode (state, flagPayload) {
       state.is_overdue_mode = flagPayload
     }
   },
