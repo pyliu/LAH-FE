@@ -68,7 +68,7 @@ export default {
     // hostname: location.toString()
   }),
   head: {
-    title: '即將(已)逾期案件-桃園市地政局'
+    title: '逾期案件-桃園市地政局'
   },
   computed: {
     icon () { return this.isOverdueMode ? 'exclamation-triangle' : 'exclamation-circle' }

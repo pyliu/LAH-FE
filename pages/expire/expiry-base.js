@@ -3,7 +3,7 @@ export default {
   fetchOnServer: false,
   data: () => ({
     queriedJson: undefined,
-    isOverdueMode: false,
+    isOverdueMode: true,
     forceReload: false,
     milliseconds: 15 * 60 * 1000,
     committed: false
