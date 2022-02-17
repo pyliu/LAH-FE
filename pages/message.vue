@@ -163,7 +163,7 @@
         | 粗體語法： #[b.text-primary **我是粗體**]#[br]
         | 斜體語法： #[b.text-primary *我是斜體*]#[br]
         | #[hr]
-        | 其他詳細 Markdown 語法，請參考 https://markdown.tw/ 教學
+        | 其他詳細 Markdown 語法，請參考 #[a(:href="`${legacyUrl}/markdown.html`", target="_blank") https://markdown.tw/] 教學
 </template>
 
 <script>
