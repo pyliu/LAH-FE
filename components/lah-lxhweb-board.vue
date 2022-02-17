@@ -34,7 +34,7 @@
       <div class="offices">
         <div v-for="entry in offices" :key="entry.SITE" class="office center">
           <lah-fa-icon
-            v-b-popover.hover.focus.top="'最後更新時間: ' + entry.UPDATE_DATETIME"
+            v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))"
             size="lg"
             icon="circle"
             :variant="light(entry)"
@@ -116,13 +116,13 @@ export default {
     },
     headerLight () {
       if (this.alive) {
-        let site_light = 'success'
+        let siteLight = 'success'
         for (let i = 0; i < this.offices.length; i++) {
-          const this_light = this.light(this.offices[i])
-          if (this_light == 'warning') { site_light = 'warning' }
-          if (this_light == 'danger') { return 'danger' }
+          const thisLight = this.light(this.offices[i])
+          if (thisLight === 'warning') { siteLight = 'warning' }
+          if (thisLight === 'danger') { return 'danger' }
         }
-        return site_light
+        return siteLight
       }
       return 'secondary'
     },
@@ -164,19 +164,19 @@ export default {
   },
   methods: {
     randDate () {
-      const rand_date = new Date(+new Date() - this.$utils.rand(45 * 60 * 1000))
+      const randDate = new Date(+new Date() - this.$utils.rand(45 * 60 * 1000))
       return (
-        rand_date.getFullYear() +
+        randDate.getFullYear() +
         '-' +
-        ('0' + (rand_date.getMonth() + 1)).slice(-2) +
+        ('0' + (randDate.getMonth() + 1)).slice(-2) +
         '-' +
-        ('0' + rand_date.getDate()).slice(-2) +
+        ('0' + randDate.getDate()).slice(-2) +
         ' ' +
-        ('0' + rand_date.getHours()).slice(-2) +
+        ('0' + randDate.getHours()).slice(-2) +
         ':' +
-        ('0' + rand_date.getMinutes()).slice(-2) +
+        ('0' + randDate.getMinutes()).slice(-2) +
         ':' +
-        ('0' + rand_date.getSeconds()).slice(-2)
+        ('0' + randDate.getSeconds()).slice(-2)
       )
     },
     action (entry) {
@@ -193,8 +193,8 @@ export default {
     light (entry) {
       if (this.alive) {
         const now = +new Date() // in ms
-        const last_update = +new Date(entry.UPDATE_DATETIME.replace(' ', 'T'))
-        const offset = now - last_update
+        const lastUpdate = +new Date(entry.UPDATE_DATETIME.replace(' ', 'T'))
+        const offset = now - lastUpdate
         if (offset > 30 * 60 * 1000) { return 'danger' } else if (offset > 15 * 60 * 1000) { return 'warning' }
         return 'success'
       }
