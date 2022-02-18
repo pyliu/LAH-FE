@@ -1,63 +1,22 @@
-<template>
-  <b-card border-variant="secondary" class="shadow">
-    <template #header>
-      <div class="d-flex w-100 justify-content-between">
-        <h6 class="my-auto font-weight-bolder">
-          <lah-fa-icon icon="traffic-light" size="lg" :variant="headerLight">
-            {{ header }}
-          </lah-fa-icon>
-        </h6>
-        <b-button-group>
-          <lah-button
-            v-if="showBrokenBtn"
-            icon="unlink"
-            variant="danger"
-            no-border
-            action="damage"
-            title="檢視損毀資料表"
-            :badge-text="String(brokenTableCount)"
-            @click="showBrokenTable"
-          />
-          <lah-button
-            v-if="alive"
-            icon="sync"
-            variant="outline-secondary"
-            no-border
-            action="cycle"
-            title="重新讀取"
-            @click="ping"
-          />
-        </b-button-group>
-      </div>
-    </template>
-    <div v-if="alive" class="h-100">
-      <div class="offices">
-        <div v-for="entry in offices" :key="entry.SITE" class="office center">
-          <lah-fa-icon
-            v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))"
-            size="lg"
-            icon="circle"
-            :variant="light(entry)"
-            :action="action(entry)"
-          >
-            {{ name(entry) }}
-          </lah-fa-icon>
-        </div>
-      </div>
-    </div>
-    <div v-else class="center h-100">
-      <h5 class="font-weight-bold">
-        <lah-fa-icon
-          icon="exclamation-triangle"
-          szie="lg"
-          variant="danger"
-          action="breath"
-        >
-          {{ ip }} 目前無法連線
-        </lah-fa-icon>
-      </h5>
-    </div>
-  </b-card>
+<template lang="pug">
+b-card.shadow(border-variant="secondary")
+  template(#header)
+    .d-flex.w-100.justify-content-between
+      h6.my-auto.font-weight-bolder
+        lah-fa-icon(icon="traffic-light" size="lg" :variant="headerLight")
+          | {{ header }}
+      b-button-group
+        lah-button(v-if="showBrokenBtn" icon="unlink" variant="danger" no-border action="damage" title="檢視損毀資料表" :badge-text="String(brokenTableCount)" @click="showBrokenTable")
+          lah-button(v-if="alive" icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="ping")
+  .h-100(v-if="alive")
+    .offices
+      .office.center(v-for="entry in offices" :key="entry.SITE")
+        lah-fa-icon(v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))" size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
+          | {{ name(entry) }}
+  .center.h-100(v-else)
+    h5.font-weight-bold
+      lah-fa-icon(icon="exclamation-triangle" szie="lg" variant="danger" action="breath")
+        | {{ ip }} 目前無法連線
 </template>
 
 <script>
