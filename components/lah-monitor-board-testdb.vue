@@ -144,6 +144,9 @@ export default {
         this.$emit('danger', `${this.header}找不到今日匯入紀錄的郵件!`)
         return 'danger'
       }
+      if (this.itemMessage(this.headMessage).startsWith('找不到')) {
+        return 'warning'
+      }
       const now = +new Date()
       const ts = this.isMonday ? 4 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
       if ((now - this.headMessages[0].timestamp * 1000) > ts) {
@@ -180,6 +183,9 @@ export default {
           return ['text-warning']
         }
         return ['text-danger']
+      }
+      if (this.itemMessage(item).startsWith('找不到')) {
+        return ['text-warning']
       }
       // parsing message for the successful text
       const message = this.itemMessage(item)
