@@ -137,6 +137,11 @@ export default {
         return 'warning'
       }
       if (this.headMessage.subject === this.todayNoDBImportMessage) {
+        if (this.isMonday) {
+          this.$emit('warning', `${this.header}，週日無備份檔，所以無還原。`)
+          return 'warning'
+        }
+        this.$emit('danger', `${this.header}找不到今日匯入紀錄的郵件!`)
         return 'danger'
       }
       const now = +new Date()
@@ -161,10 +166,19 @@ export default {
   methods: {
     subjectLight (item) {
       const list = this.subjectCss(item)
-      return list.includes('text-danger') ? '🔴' : '🟢'
+      if (list.includes('text-danger')) {
+        return '🔴'
+      }
+      if (list.includes('text-warning')) {
+        return '🟡'
+      }
+      return '🟢'
     },
     subjectCss (item) {
       if (item.subject === this.todayNoDBImportMessage) {
+        if (this.isMonday) {
+          return ['text-warning']
+        }
         return ['text-danger']
       }
       // parsing message for the successful text

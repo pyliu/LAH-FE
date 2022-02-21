@@ -139,6 +139,9 @@ export default {
         return 'warning'
       }
       if (this.headMessage.subject === this.todayNoTapeMessage) {
+        if (this.isMonday) {
+          return 'warning'
+        }
         return 'danger'
       }
       const ts = this.isMonday ? 4 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
@@ -161,10 +164,19 @@ export default {
   methods: {
     subjectLight (item) {
       const list = this.subjectCss(item)
-      return list.includes('text-danger') ? '🔴' : '🟢'
+      if (list.includes('text-danger')) {
+        return '🔴'
+      }
+      if (list.includes('text-warning')) {
+        return '🟡'
+      }
+      return '🟢'
     },
     subjectCss (item) {
       if (item.subject === this.todayNoTapeMessage) {
+        if (this.isMonday) {
+          return ['text-warning']
+        }
         return ['text-danger']
       }
       // parsing message for the successful text
