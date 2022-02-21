@@ -144,6 +144,7 @@ export default {
         this.$emit('danger', `${this.header}找不到今日匯入紀錄的郵件!`)
         return 'danger'
       }
+      // the case that the message can not find yesterday "DATE=XXXXXX" string
       if (this.itemMessage(this.headMessage).startsWith('找不到')) {
         return 'warning'
       }
