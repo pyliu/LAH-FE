@@ -98,7 +98,7 @@ const broadcast = (clients, rowORtext, channel = 'lds') => {
       }
 
       processed++
-      if (processed == connected) {
+      if (processed === connected) {
         broadcasting = false
       }
     })
@@ -124,6 +124,7 @@ const getLatestMessageByChannel = (channel) => {
 }
 
 const sleep = function (ms = 0) {
+  // eslint-disable-next-line promise/param-names
   return new Promise(r => setTimeout(r, ms))
 }
 
