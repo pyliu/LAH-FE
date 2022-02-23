@@ -108,10 +108,8 @@
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'LahExpiryBTable',
-  components: { lahUserCard },
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
