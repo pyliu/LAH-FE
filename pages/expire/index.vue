@@ -218,6 +218,14 @@ export default {
         this.advOpts.caseOperatorOpts = [...new Set(val.items.map(item => item.作業人員))].sort()
         this.advOpts.caseYearOpts = [...new Set(val.raw.map(item => item.RM01))].sort()
         this.advOpts.caseWordOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
+
+        this.advOpts.caseReasonOpts.unshift('')
+        this.advOpts.caseStateOpts.unshift('')
+        this.advOpts.casePreliminatorOpts.unshift('')
+        this.advOpts.caseOperatorOpts.unshift('')
+        this.advOpts.caseYearOpts.unshift('')
+        this.advOpts.caseWordOpts.unshift('')
+
         this.$store.commit('expiry/list', this.queriedJson.items || [])
         this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
       }
