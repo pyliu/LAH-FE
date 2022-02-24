@@ -90,8 +90,7 @@ div
   b-modal(
     ref="searchPlus",
     title="進階搜尋",
-    hide-footer,
-    centered
+    hide-footer
   )
     .center.d-flex
       b-input-group(prepend="年")
