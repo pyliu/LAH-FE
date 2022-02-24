@@ -102,24 +102,24 @@ div
         b-input(v-model="advOpts.caseNum", placeholder="... 收件號 ...", trim)
 
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="原因"): b-select(
+      b-input-group.mr-1(prepend="登記原因"): b-select(
         v-model="advOpts.caseReason",
         :options="advOpts.caseReasonOpts",
         title="登記原因"
       )
-      b-input-group(prepend="狀態"): b-select(
+      b-input-group(prepend="辦理情形"): b-select(
         v-model="advOpts.caseState",
         :options="advOpts.caseStateOpts",
         title="辦理情形"
       )
 
     .center.d-flex
-      b-input-group.mr-1(prepend="初審"): b-select(
+      b-input-group.mr-1(prepend="初審人員"): b-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
         title="初審人員"
       )
-      b-input-group(prepend="作業"): b-select(
+      b-input-group(prepend="作業人員"): b-select(
         v-model="advOpts.caseOperator",
         :options="advOpts.caseOperatorOpts",
         title="作業人員"
@@ -231,10 +231,10 @@ export default {
     filter () {
       if (this.dataReady) {
         let pipelineItems = this.queriedJson.items
-        const checkYear = !this.$utils.empty(this.advOpts.caseYear)
-        if (checkYear) {
+        const checkNum = !this.$utils.empty(this.advOpts.caseNum)
+        if (checkNum) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
+            return item.收件字號.match(this.advOpts.caseNum) !== null
           })
         }
         const checkWord = !this.$utils.empty(this.advOpts.caseWord)
@@ -243,10 +243,10 @@ export default {
             return item.收件字號.match(this.advOpts.caseWord) !== null
           })
         }
-        const checkNum = !this.$utils.empty(this.advOpts.caseNum)
-        if (checkNum) {
+        const checkYear = !this.$utils.empty(this.advOpts.caseYear)
+        if (checkYear) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseNum) !== null
+            return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
           })
         }
         const checkReason = !this.$utils.empty(this.advOpts.caseReason)
