@@ -141,12 +141,12 @@ div
         @click="filter",
         variant="outline-primary"
       ) 確定
-      lah-fa-icon.mr-1(v-if="filtering", icon="sync-alt", action="spin", title="篩選中 ... ")
       lah-button(
         icon="recycle",
         @click="reset",
-        variant="outline-secondary"
+        variant="outline-success"
       ) 重設
+      lah-fa-icon.ml-1(v-if="filtering", icon="sync-alt", action="spin", variant="danger",title="篩選中 ... ")
 </template>
 
 <script>
