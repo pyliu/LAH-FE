@@ -78,7 +78,7 @@ div
     no-add-on-enter,
     no-tag-remove
   )
-  lah-transition(appear): lah-expiry-b-table(:busy="!committed")
+  lah-transition(appear): lah-expiry-b-table(:busy="!committed || filtering")
   lah-transition.center.h3
     lah-fa-icon(
       v-cloak
