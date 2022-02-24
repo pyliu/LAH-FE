@@ -86,6 +86,12 @@
           </lah-avatar>
         </b-button>
       </template>
+      <template #cell(收件時間)="data">
+        <span v-b-tooltip="distanceFromNow(data.value)">{{ data.value }}</span>
+      </template>
+      <template #cell(限辦期限)="data">
+        <span v-b-tooltip="distanceFromNow(data.value)">{{ data.value }}</span>
+      </template>
     </b-table>
     <b-modal
       :id="modalId"
@@ -108,8 +114,10 @@
 </template>
 
 <script>
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'LahExpiryBTable',
+  components: { lahUserCard },
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
@@ -195,11 +203,17 @@ export default {
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
     searchByReviewer (id) {},
     searchUser (name, id = '') {
-      this.modal(this.$createElement('lah-user-card', {
+      this.modal(this.$createElement(lahUserCard, {
         props: { name, id }
       }), {
         title: `${id} ${name} 資訊`
       })
+    },
+    distanceFromNow(val) {
+      const head = val.substring(0, 3)
+      const adHead = 1911 + parseInt(val)
+      const adDate = val.replace(head, adHead)
+      return this.$utils.formatDistanceToNow(+new Date(adDate))
     }
   }
 }
