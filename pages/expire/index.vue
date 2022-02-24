@@ -35,6 +35,17 @@ div
               .my-auto 切換顯示模式
           li 預定結案時間剩餘4小時內將判定為即將逾期案件
           li #[a(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 切換成舊版本模式]
+
+      //- lah-transition: .w-auto: b-tags.border-0(
+      //-   v-if="advTags.length > 0",
+      //-   v-model="advTags",
+      //-   placeholder="",
+      //-   tag-variant="primary",
+      //-   tag-pills,
+      //-   no-outer-focus,
+      //-   no-add-on-enter,
+      //-   no-tag-remove
+      //- )
       lah-button.mr-1(
         icon="search-plus",
         size="lg",
@@ -57,7 +68,7 @@ div
         @end="$fetch"
         @click="reload"
       )
-  lah-transition: b-tags.border-0.mt-n4(
+  lah-transition: b-tags.border-0.mt-n4.fixed(
     v-if="advTags.length > 0",
     v-model="advTags",
     placeholder="",
@@ -80,7 +91,7 @@ div
     ref="searchPlus",
     title="進階搜尋",
     hide-footer,
-    no-close-on-backdrop
+    centered
   )
     .center.d-flex
       b-input-group(prepend="年")
@@ -126,10 +137,12 @@ div
 
     .center.d-flex.my-1
       lah-button.mr-1(
+        v-if="false",
         icon="check-circle",
         @click="filter",
         variant="outline-primary"
       ) 確定
+      lah-fa-icon.mr-1(v-if="filtering", icon="sync-alt", action="spin", title="篩選中 ... ")
       lah-button(
         icon="recycle",
         @click="reset",
@@ -143,6 +156,7 @@ export default {
   // middleware: [ 'expireAuth' ],
   mixins: [expiryBase],
   data: () => ({
+    filtering: false,
     advOpts: {
       caseYear: '',
       caseWord: '',
@@ -229,12 +243,17 @@ export default {
         this.$store.commit('expiry/list', this.queriedJson.items || [])
         this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
       }
+    },
+    advTags (dontcare) {
+      this.filtering = true
+      this.filterDebounced()
     }
   },
   created () {
-
+    this.filterDebounced = this.$utils.debounce(this.filter, 2000)
   },
   methods: {
+    filterDebounced () { /** placeholder for debounced filter method */ },
     filter () {
       if (this.dataReady) {
         let pipelineItems = this.queriedJson.items
@@ -282,11 +301,12 @@ export default {
         }
         this.$store.commit('expiry/list', pipelineItems)
         // this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
-        this.$refs.searchPlus.hide()
+        // this.$refs.searchPlus.hide()
         // this.notify(`篩選完成，找到 ${this.storeCaseCount} 筆案件。`)
       } else {
         this.warning('無資料無法篩選!')
       }
+      this.filtering = false
     },
     reset () {
       this.advOpts = {
