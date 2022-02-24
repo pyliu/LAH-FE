@@ -57,7 +57,7 @@ div
         @end="$fetch"
         @click="reload"
       )
-  lah-transition: b-tags.border-0.mt-n3.mb-1(
+  lah-transition: b-tags.border-0.mt-n4(
     v-if="advTags.length > 0",
     v-model="advTags",
     placeholder="",
@@ -65,8 +65,7 @@ div
     tag-pills,
     no-outer-focus,
     no-add-on-enter,
-    no-tag-remove,
-    disabled
+    no-tag-remove
   )
   lah-transition(appear): lah-expiry-b-table(:busy="!committed")
   lah-transition.center.h3
