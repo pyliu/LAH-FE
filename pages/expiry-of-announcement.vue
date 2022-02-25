@@ -10,6 +10,7 @@
             .mx-2 #[lah-fa-icon(icon="circle" variant="danger") 已到期案件]
             .mx-2 #[lah-fa-icon(icon="circle" variant="warning") 今日到期案件]
             .mx-2 #[lah-fa-icon(icon="circle" variant="success") 公告中案件]
+            .mx-2 #[lah-fa-icon(icon="circle" variant="info") 公告初核中案件]
         lah-countdown-button(
           ref="countdown"
           icon="sync-alt"
