@@ -114,12 +114,6 @@ div
       )
 
     .center.d-flex.my-1
-      lah-button.mr-1(
-        v-if="false",
-        icon="check-circle",
-        @click="filter",
-        variant="outline-primary"
-      ) 確定
       lah-button(
         icon="recycle",
         @click="reset",
@@ -405,60 +399,6 @@ export default {
         this.forceReload = true
         this.$fetch()
       })
-    },
-    filter () {
-      if (this.dataReady) {
-        let pipelineItems = this.bakedData
-        const checkNum = !this.$utils.empty(this.advOpts.caseNum)
-        if (checkNum) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseNum) !== null
-          })
-        }
-        const checkWord = !this.$utils.empty(this.advOpts.caseWord)
-        if (checkWord) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseWord) !== null
-          })
-        }
-        const checkYear = !this.$utils.empty(this.advOpts.caseYear)
-        if (checkYear) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
-          })
-        }
-        const checkReason = !this.$utils.empty(this.advOpts.caseReason)
-        if (checkReason) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.登記原因 === this.advOpts.caseReason
-          })
-        }
-        const checkState = !this.$utils.empty(this.advOpts.caseState)
-        if (checkState) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.辦理情形 === this.advOpts.caseState
-          })
-        }
-        const checkPreliminator = !this.$utils.empty(this.advOpts.casePreliminator)
-        if (checkPreliminator) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.初審人員 === this.advOpts.casePreliminator
-          })
-        }
-        const checkOperator = !this.$utils.empty(this.advOpts.caseOperator)
-        if (checkOperator) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.作業人員 === this.advOpts.caseOperator
-          })
-        }
-        this.$store.commit('expiry/list', pipelineItems)
-        // this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
-        // this.$refs.searchPlus.hide()
-        // this.notify(`篩選完成，找到 ${this.storeCaseCount} 筆案件。`)
-      } else {
-        this.warning('無資料無法篩選!')
-      }
-      this.filtering = false
     },
     reset () {
       this.advOpts = {
