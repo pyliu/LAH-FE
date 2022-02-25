@@ -86,8 +86,7 @@ export default {
   padding: auto;
   border-radius: 10px;
   border: 1px solid gray;
-  width: 156px;
-  height: 156px;
+  height: 100%;
 }
 .card {
   border-width: 2px;
