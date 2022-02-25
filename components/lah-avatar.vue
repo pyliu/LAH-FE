@@ -1,16 +1,16 @@
 <template lang="pug">
-  span
-    b-avatar.my-auto(
-      v-if="enableAvatar"
-      button
-      :variant="variant"
-      :size="`${size}em`"
-      :src="avatarSrc"
-      :title="`${userId} ${userName}`"
-      @click="photoClick($event)"
-      @img-error="srcNotAvailable"
-    )
-    slot
+span
+  b-avatar.my-auto(
+    v-if="enableAvatar"
+    button
+    :variant="variant"
+    :size="`${size}em`"
+    :src="avatarSrc"
+    :title="`${userId} ${userName}`"
+    @click="photoClick($event)"
+    @img-error="srcNotAvailable"
+  )
+  slot
 </template>
 
 <script>
