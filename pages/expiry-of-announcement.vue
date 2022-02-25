@@ -470,7 +470,9 @@ export default {
           caseReason: '',
           caseState: '',
           casePreliminator: '',
-          caseOperator: ''
+          caseOperator: '',
+          caseAnnouncementDate: '',
+          caseAnnouncementDeadline: ''
         }
       }
       // this.$store.commit('expiry/list', this.queriedJson.items || [])
