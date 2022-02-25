@@ -472,7 +472,8 @@ export default {
           casePreliminator: '',
           caseOperator: '',
           caseAnnouncementDate: '',
-          caseAnnouncementDeadline: ''
+          caseAnnouncementDeadline: '',
+          caseLight: ''
         }
       }
       // this.$store.commit('expiry/list', this.queriedJson.items || [])
