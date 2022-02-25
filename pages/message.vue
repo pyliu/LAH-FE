@@ -1,168 +1,168 @@
 <template lang="pug">
-  div
-    lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
-      .d-flex
-        .my-auto 傳送信差訊息
-        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'"): ol
-          li 接收端電腦需安裝 #[b.text-primary 桃園即時通程式] 並正常連線才能接收
-          li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 桃園即時通程式] 的使用者 (紀錄於 IPResolver.db 內，DYNAMIC)
-          li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆  ({{ memento.length }} / {{ mementoCapacity }})
-          li 內容支援 Markdown 語法，請參考 #[a(href="https://markdown.tw/" target="_blank" rel="noopener noreferrer") #[b https://markdown.tw/]] 教學
-      .d-flex
+div
+  lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
+    .d-flex
+      .my-auto 傳送信差訊息
+      lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+      lah-help-modal(:modal-id="'help-modal'"): ol
+        li 接收端電腦需安裝 #[b.text-primary 桃園即時通程式] 並正常連線才能接收
+        li 僅可送訊息給 #[b.text-danger 一周內] 有使用 #[b.text-primary 桃園即時通程式] 的使用者 (紀錄於 IPResolver.db 內，DYNAMIC)
+        li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆  ({{ memento.length }} / {{ mementoCapacity }})
+        li 內容支援 Markdown 語法，請參考 #[a(href="https://markdown.tw/" target="_blank" rel="noopener noreferrer") #[b https://markdown.tw/]] 教學
+    .d-flex
 
-    b-card-group(deck)
+  b-card-group(deck)
 
-      b-card(ref="addCard" border-variant="dark")
-        template(#header): .d-flex.justify-content-between
-          h4.my-auto 傳送訊息
-          b-button-group(size="sm")
-            lah-button(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
-            lah-button.mx-1(icon="caret-left" variant="warning"  @click="reset" action="slide-rtl" pill title="已選擇對象") 清空
-            lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
+    b-card(ref="addCard" border-variant="dark")
+      template(#header): .d-flex.justify-content-between
+        h4.my-auto 傳送訊息
+        b-button-group(size="sm")
+          lah-button(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
+          lah-button.mx-1(icon="caret-left" variant="warning"  @click="reset" action="slide-rtl" pill title="已選擇對象") 清空
+          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
 
-          b-modal(
-            id="sendtoModal"
-            size=""
-            scrollable
-            hide-footer
-          )
-            template(#modal-title) 選擇傳送對象 (一周內活躍的同仁)
-            .d-flex.justify-content-around
-              b 可選擇
-              b 已選擇
-            .d-flex.align-items-stretch.modal-height
-              b-select.overflow-auto(v-model="candidates" :options="candidatesOpts" multiple @change="$utils.log($event)")
-              .modal-ctl-bar.align-self-center
-                lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed" title="加入" :disabled="candidatesEntries.length === 0")
-                lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed" title="全部加入" :disabled="candidatesEntries.length === 0")
-                lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates" title="移除" :disabled="choosedEntries.length === 0")
-                lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates" title="全部移除" :disabled="choosedEntries.length === 0")
-              b-select.overflow-auto(v-model="choosed" :options="choosedOpts" multiple @change="$utils.log($event)")
-
-        b-textarea(
-          v-model="dataJson.content"
-          rows="5"
-          max-rows="100"
-          placeholder="... 支援 Markdown 語法 ... Windows + \".\" 輸入表情符號..."
-          style="overflow: hidden"
-          :state="validContent"
-          @paste="pasteImage($event, addImage)"
+        b-modal(
+          id="sendtoModal"
+          size=""
+          scrollable
+          hide-footer
         )
-        .d-flex.flex-wrap.my-1.align-items-center
-          h6.m-1 快速選擇
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ltr" title="傳送給所有活躍使用者") 全選 #[b-badge(pill variant="danger") {{ allCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="regToChoosed" action="slide-ltr" title="傳送給登記課") 登記課 #[b-badge(pill :variant="myDepartment === '登記課' ? 'success' : 'light'") {{ regCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="surToChoosed" action="slide-ltr" title="傳送給測量課") 測量課 #[b-badge(pill :variant="myDepartment === '測量課' ? 'success' : 'light'") {{ surCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="valToChoosed" action="slide-ltr" title="傳送給地價課") 地價課 #[b-badge(pill :variant="myDepartment === '地價課' ? 'success' : 'light'") {{ valCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="admToChoosed" action="slide-ltr" title="傳送給行政課") 行政課 #[b-badge(pill :variant="myDepartment === '行政課' ? 'success' : 'light'") {{ admCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="infToChoosed" action="slide-ltr" title="傳送給資訊課") 資訊課 #[b-badge(pill :variant="myDepartment === '資訊課' ? 'success' : 'light'") {{ infCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="hrToChoosed" action="slide-ltr" title="傳送給人事室") 人事室 #[b-badge(pill :variant="myDepartment === '人事室' ? 'success' : 'light'") {{ hrCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="accToChoosed" action="slide-ltr" title="傳送給會計室") 會計室 #[b-badge(pill :variant="myDepartment === '會計室' ? 'success' : 'light'") {{ accCandidates.length }}]
-          lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="supervisorToChoosed" action="slide-ltr" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill :variant="myDepartment === '主任秘書室' ? 'success' : 'light'") {{ supervisorCandidates.length }}]
+          template(#modal-title) 選擇傳送對象 (一周內活躍的同仁)
+          .d-flex.justify-content-around
+            b 可選擇
+            b 已選擇
+          .d-flex.align-items-stretch.modal-height
+            b-select.overflow-auto(v-model="candidates" :options="candidatesOpts" multiple @change="$utils.log($event)")
+            .modal-ctl-bar.align-self-center
+              lah-button(block no-icon-gutter icon="angle-right" action="move-fade-ltr" @click="candidatesToChoosed" title="加入" :disabled="candidatesEntries.length === 0")
+              lah-button(block no-icon-gutter icon="angle-double-right" action="move-fade-ltr" @click="allCandidatesToChoosed" title="全部加入" :disabled="candidatesEntries.length === 0")
+              lah-button(block no-icon-gutter icon="angle-left" action="move-fade-rtl" @click="choosedToCandidates" title="移除" :disabled="choosedEntries.length === 0")
+              lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates" title="全部移除" :disabled="choosedEntries.length === 0")
+            b-select.overflow-auto(v-model="choosed" :options="choosedOpts" multiple @change="$utils.log($event)")
 
-      lah-transition(appear): b-card(border-variant="success")
-        template(#header): .d-flex.align-items-center
-          h4.my-auto.text-nowrap.mr-auto 預覽
-          .d-flex.align-items-center(
-            ref="nameTag"
-            @click="sendtoVisibleFlag = !sendtoVisibleFlag"
-          )
-            lah-fa-icon(
-              :icon="sendtoDisplayIndicator"
-              regular
-              title="切換名牌顯示"
-            )
-            .d-flex.align-items-center
-              span 已選擇傳送給
-              b-badge.mx-1(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
-              span 人
-          lah-button.ml-1(
-            icon="paper-plane"
-            action="slide-btt"
-            :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
-            :disabled="sendButtonDisabled"
-            @click="add"
-            pill
-          ) 發送
-
-        b-collapse(v-model="sendtoVisibleFlag"): .d-flex.flex-wrap.align-items-center
-          .text-nowrap 將傳送給：
-          transition-group(name="list" mode="out-in"): b-button.m-1.text-nowrap(
-            v-for="(id, idx) in choosedSendto"
-            v-b-tooltip="`移除 ${id}`"
-            variant="outline-success"
-            size="sm"
-            :key="`snedto-${idx}`"
-            @click="removeSendto(id)"
-            pill
-          )
-            lah-avatar(:id="id" ignore-system-config)
-            span.my-auto.ml-1 {{ userNames[id] || id }}
-        .center: lah-notification-message(:data-json="dataJson")
-        h6(v-if="!$utils.empty(images)"): lah-fa-icon(icon="paperclip") 附加圖片
-        .d-flex.flex-wrap.align-items-center
-          transition-group(name="listY" mode="out-in")
-            b-img.memento.m-1(
-              v-for="(base64data, idx) in images"
-              :key="`imgAttached_${idx}`"
-              :src="base64data"
-              @click="removeImage(base64data)"
-              thumbnail
-              fluid
-              v-b-tooltip="'刪除這張圖片'"
-              style="width: 138.5px"
-            )
-
-    h4.d-flex.align-items-stretch.my-3
-      lah-fa-icon.my-auto.mr-auto(icon="clipboard-list") 歷史資料
-      b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input(type="number" min="3" max="10" v-model="mementoCount")
-
-    hr
-
-    b-card-group(columns): transition-group(name="list" mode="out-in")
-      lah-notification-messsage-memento(
-        v-for="(snapshot, idx) in memento" :key="`hist_${idx}`"
-        :memento="snapshot"
-        @copy="copy(snapshot)"
-        @remove="remove(snapshot)"
+      b-textarea(
+        v-model="dataJson.content"
+        rows="5"
+        max-rows="100"
+        placeholder="... 支援 Markdown 語法 ... Windows + \".\" 輸入表情符號..."
+        style="overflow: hidden"
+        :state="validContent"
+        @paste="pasteImage($event, addImage)"
       )
+      .d-flex.flex-wrap.my-1.align-items-center
+        h6.m-1 快速選擇
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ltr" title="傳送給所有活躍使用者") 全選 #[b-badge(pill variant="danger") {{ allCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="regToChoosed" action="slide-ltr" title="傳送給登記課") 登記課 #[b-badge(pill :variant="myDepartment === '登記課' ? 'success' : 'light'") {{ regCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="surToChoosed" action="slide-ltr" title="傳送給測量課") 測量課 #[b-badge(pill :variant="myDepartment === '測量課' ? 'success' : 'light'") {{ surCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="valToChoosed" action="slide-ltr" title="傳送給地價課") 地價課 #[b-badge(pill :variant="myDepartment === '地價課' ? 'success' : 'light'") {{ valCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="admToChoosed" action="slide-ltr" title="傳送給行政課") 行政課 #[b-badge(pill :variant="myDepartment === '行政課' ? 'success' : 'light'") {{ admCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="infToChoosed" action="slide-ltr" title="傳送給資訊課") 資訊課 #[b-badge(pill :variant="myDepartment === '資訊課' ? 'success' : 'light'") {{ infCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="hrToChoosed" action="slide-ltr" title="傳送給人事室") 人事室 #[b-badge(pill :variant="myDepartment === '人事室' ? 'success' : 'light'") {{ hrCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="accToChoosed" action="slide-ltr" title="傳送給會計室") 會計室 #[b-badge(pill :variant="myDepartment === '會計室' ? 'success' : 'light'") {{ accCandidates.length }}]
+        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="supervisorToChoosed" action="slide-ltr" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill :variant="myDepartment === '主任秘書室' ? 'success' : 'light'") {{ supervisorCandidates.length }}]
 
-    b-sidebar(
-      id="md-desc"
-      v-model="helpSidebarFlag"
-      title="簡易排版語法說明"
-      right
-      shadow
+    lah-transition(appear): b-card(border-variant="success")
+      template(#header): .d-flex.align-items-center
+        h4.my-auto.text-nowrap.mr-auto 預覽
+        .d-flex.align-items-center(
+          ref="nameTag"
+          @click="sendtoVisibleFlag = !sendtoVisibleFlag"
+        )
+          lah-fa-icon(
+            :icon="sendtoDisplayIndicator"
+            regular
+            title="切換名牌顯示"
+          )
+          .d-flex.align-items-center
+            span 已選擇傳送給
+            b-badge.mx-1(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
+            span 人
+        lah-button.ml-1(
+          icon="paper-plane"
+          action="slide-btt"
+          :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
+          :disabled="sendButtonDisabled"
+          @click="add"
+          pill
+        ) 發送
+
+      b-collapse(v-model="sendtoVisibleFlag"): .d-flex.flex-wrap.align-items-center
+        .text-nowrap 將傳送給：
+        transition-group(name="list" mode="out-in"): b-button.m-1.text-nowrap(
+          v-for="(id, idx) in choosedSendto"
+          v-b-tooltip="`移除 ${id}`"
+          variant="outline-success"
+          size="sm"
+          :key="`snedto-${idx}`"
+          @click="removeSendto(id)"
+          pill
+        )
+          lah-avatar(:id="id" ignore-system-config)
+          span.my-auto.ml-1 {{ userNames[id] || id }}
+      .center: lah-notification-message(:data-json="dataJson")
+      h6(v-if="!$utils.empty(images)"): lah-fa-icon(icon="paperclip") 附加圖片
+      .d-flex.flex-wrap.align-items-center
+        transition-group(name="listY" mode="out-in")
+          b-img.memento.m-1(
+            v-for="(base64data, idx) in images"
+            :key="`imgAttached_${idx}`"
+            :src="base64data"
+            @click="removeImage(base64data)"
+            thumbnail
+            fluid
+            v-b-tooltip="'刪除這張圖片'"
+            style="width: 138.5px"
+          )
+
+  h4.d-flex.align-items-stretch.my-3
+    lah-fa-icon.my-auto.mr-auto(icon="clipboard-list") 歷史資料
+    b-input-group.memento-count-input(prepend="顯示" append="筆"): b-input(type="number" min="3" max="10" v-model="mementoCount")
+
+  hr
+
+  b-card-group(columns): transition-group(name="list" mode="out-in")
+    lah-notification-messsage-memento(
+      v-for="(snapshot, idx) in memento" :key="`hist_${idx}`"
+      :memento="snapshot"
+      @copy="copy(snapshot)"
+      @remove="remove(snapshot)"
     )
-      b-card
-        | #[b 標題]#[br]
-        | 語法(共支援五層標題)：#[br]
-        | #[b.text-primary # 第一標題]#[br]
-        | #[b.text-primary ## 第二標題]
-        | #[hr]
-        | #[b 引言]#[br]
-        | 語法：#[i #[b.text-primary > 「我思，故我在。」]]
-        | #[hr]
-        | #[b 分隔線]#[br]
-        | 語法： #[b.text-primary ---]
-        | #[hr]
-        | #[b 超連結]#[br]
-        | 語法：#[br]
-        | <b class="text-primary">[知識網](http://220.1.34.18:8888/)</b>
-        | #[hr]
-        | #[b 編號項目符號]#[br]
-        | 語法：#[br]
-        | #[b.text-primary -] 康德#[br]
-        | #[b.text-primary 1.] 笛卡爾#[br]
-        | #[b.text-primary 2.] 蘇格拉底#[br]
-        | 可使用「 * 」 取代這裡的「 - 」，或是使用數字加上「 . 」
-        | #[hr]
-        | #[b 斜體與粗體]#[br]
-        | 粗體語法： #[b.text-primary **我是粗體**]#[br]
-        | 斜體語法： #[b.text-primary *我是斜體*]#[br]
-        | #[hr]
-        | 其他詳細 Markdown 語法，請參考 #[a(:href="`${legacyUrl}/markdown.html`", target="_blank") https://markdown.tw/] 教學
+
+  b-sidebar(
+    id="md-desc"
+    v-model="helpSidebarFlag"
+    title="簡易排版語法說明"
+    right
+    shadow
+  )
+    b-card
+      | #[b 標題]#[br]
+      | 語法(共支援五層標題)：#[br]
+      | #[b.text-primary # 第一標題]#[br]
+      | #[b.text-primary ## 第二標題]
+      | #[hr]
+      | #[b 引言]#[br]
+      | 語法：#[i #[b.text-primary > 「我思，故我在。」]]
+      | #[hr]
+      | #[b 分隔線]#[br]
+      | 語法： #[b.text-primary ---]
+      | #[hr]
+      | #[b 超連結]#[br]
+      | 語法：#[br]
+      | <b class="text-primary">[知識網](http://220.1.34.18:8888/)</b>
+      | #[hr]
+      | #[b 編號項目符號]#[br]
+      | 語法：#[br]
+      | #[b.text-primary -] 康德#[br]
+      | #[b.text-primary 1.] 笛卡爾#[br]
+      | #[b.text-primary 2.] 蘇格拉底#[br]
+      | 可使用「 * 」 取代這裡的「 - 」，或是使用數字加上「 . 」
+      | #[hr]
+      | #[b 斜體與粗體]#[br]
+      | 粗體語法： #[b.text-primary **我是粗體**]#[br]
+      | 斜體語法： #[b.text-primary *我是斜體*]#[br]
+      | #[hr]
+      | 其他詳細 Markdown 語法，請參考 #[a(:href="`${legacyUrl}/markdown.html`", target="_blank") https://markdown.tw/] 教學
 </template>
 
 <script>
