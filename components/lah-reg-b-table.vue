@@ -137,9 +137,11 @@
           <span class="sr-only">Not selected</span>
         </template>
         <b-link @click="userinfo(item['初審人員'], item['RM45'])">
-          <lah-avatar :id="item['RM45']" :name="item['初審人員']">
-            {{ item["初審人員"] }}
-          </lah-avatar>
+          <b-button variant="outline-secondary" size="sm" pill>
+            <lah-avatar :id="item['RM45']" :name="item['初審人員']">
+              {{ item["初審人員"] }}
+            </lah-avatar>
+          </b-button>
         </b-link>
       </template>
       <template #cell(複審人員)="{ item }">
