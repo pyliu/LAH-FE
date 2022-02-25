@@ -44,8 +44,8 @@ export default {
 }
 
 .b-card-container {
-	display: flex;
-	flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
   height: 40vh;
   align-content: flex-start;
   margin-bottom: 1rem;

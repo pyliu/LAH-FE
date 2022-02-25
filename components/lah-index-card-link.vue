@@ -1,29 +1,30 @@
 <template lang="pug">
-  b-card.anim-appear-1s.shadow.lah-index-card-link(
-    @mouseenter="mouseenter"
-    @mouseleave="mouseleave"
-    @blur="mouseleave"
-    :no-body="noBody"
-  )
-    nuxt-link(:to="to")
-      div.mb-2.center
-        font-awesome-icon(ref="icon" :icon="icon" :size="size" :class="variant")
-      b-card-title.center(:title-tag="titleTag"): slot
+b-card.anim-appear-1s.shadow.lah-index-card-link(
+  @mouseenter="mouseenter"
+  @mouseleave="mouseleave"
+  @blur="mouseleave"
+  :no-body="noBody"
+)
+  nuxt-link(:to="to")
+    .mb-2.center(style="max-width: 56px; margin: auto;")
+      font-awesome-icon(ref="icon" :icon="icon" :size="size" :class="variant" :spin="spin")
+    b-card-title.center(:title-tag="titleTag"): slot
 </template>
 
 <script>
 export default {
   props: {
-    to: { type: String, default: "/" },
-    icon: { type: Array, default: () => ["far", "times-circle"] },
-    size: { type: String, default: "3x" },
+    to: { type: String, default: '/' },
+    icon: { type: Array, default: () => ['far', 'times-circle'] },
+    size: { type: String, default: '3x' },
     action: { type: String, default: undefined },
+    spin: { type: Boolean, default: false },
     iconVariant: { type: String, default: '' },
     noBody: { type: Boolean, default: false }
   },
   computed: {
     titleTag () {
-      const size = parseInt(this.size.replace('x','')) || 3
+      const size = parseInt(this.size.replace('x', '')) || 3
       if (size < 3) {
         return 'span'
       } else if (size <= 7) {
@@ -32,7 +33,7 @@ export default {
       return 'h1'
     },
     variant () {
-      switch(this.iconVariant) {
+      switch (this.iconVariant) {
         case 'primary':
           return ['text-primary']
         case 'secondary':
@@ -65,15 +66,15 @@ export default {
   },
   methods: {
     mouseenter () {
-      const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-jump';
+      const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-jump'
       // movement is 'undefined' will be random effect
-      this.$utils.addAnimation(this.$refs.icon, movement);
+      this.$utils.addAnimation(this.$refs.icon, movement)
     },
     mouseleave () {
-      this.$utils.clearAnimation(this.$refs.icon);
+      this.$utils.clearAnimation(this.$refs.icon)
     }
   }
-};
+}
 </script>
 
 <style lang="scss">
@@ -85,7 +86,8 @@ export default {
   padding: auto;
   border-radius: 10px;
   border: 1px solid gray;
-  height: 100%;
+  width: 156px;
+  height: 156px;
 }
 .card {
   border-width: 2px;
