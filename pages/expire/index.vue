@@ -66,7 +66,9 @@ div
     tag-pills,
     no-outer-focus,
     no-add-on-enter,
-    no-tag-remove
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
   )
   lah-transition(appear): lah-expiry-b-table(:busy="!committed || filtering")
   lah-transition.center.h3

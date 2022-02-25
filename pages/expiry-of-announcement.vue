@@ -44,7 +44,9 @@ div
     tag-pills,
     no-outer-focus,
     no-add-on-enter,
-    no-tag-remove
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
   )
   lah-transition(appear): lah-reg-b-table(:busy="isBusy || filtering" :baked-data="filterBakedData" :fields="fields")
   lah-transition.center.h3: lah-fa-icon(

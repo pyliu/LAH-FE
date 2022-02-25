@@ -51,7 +51,9 @@ div
     tag-pills,
     no-outer-focus,
     no-add-on-enter,
-    no-tag-remove
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
   )
 
   lah-pagination(
