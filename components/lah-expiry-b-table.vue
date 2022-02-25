@@ -209,7 +209,7 @@ export default {
         title: `${id} ${name} 資訊`
       })
     },
-    distanceFromNow(val) {
+    distanceFromNow (val) {
       const head = val.substring(0, 3)
       const adHead = 1911 + parseInt(val)
       const adDate = val.replace(head, adHead)

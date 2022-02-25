@@ -3,7 +3,7 @@
     lah-header: lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto 公告期滿案件
+          .my-auto 公告案件
           lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
           lah-help-modal(:modal-id="'help-modal'")
             .h5 公告中案件狀態說明：
@@ -95,17 +95,17 @@ export default {
           }).then(({ data }) => {
             this.bakedData = data.baked || []
             this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-            const remain_s = data.cache_remaining_time
-            const remain_ms = remain_s * 1000
-            if (remain_ms && remain_ms > 0) {
-              this.setCache(this.cacheKey, data, remain_ms)
+            const remainS = data.cache_remaining_time
+            const remainMs = remainS * 1000
+            if (remainMs && remainMs > 0) {
+              this.setCache(this.cacheKey, data, remainMs)
               // use server side cache remaining time
-              this.$refs.countdown && this.$refs.countdown.setCountdown(remain_ms)
+              this.$refs.countdown && this.$refs.countdown.setCountdown(remainMs)
             } else {
               this.$refs.countdown && this.$refs.countdown.setCountdown(this.cachedMs)
             }
-            this.getCacheExpireRemainingTime(this.cacheKey).then((true_remain_ms) => {
-              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(true_remain_ms / 1000).toFixed(1)} 秒後到期。`)
+            this.getCacheExpireRemainingTime(this.cacheKey).then((trueRemainMs) => {
+              this.$utils.log(`${this.cacheKey} 快取資料將在 ${(trueRemainMs / 1000).toFixed(1)} 秒後到期。`)
             })
             this.$refs.countdown && this.$refs.countdown.startCountdown()
           }).catch((err) => {
@@ -143,10 +143,10 @@ export default {
     resetCountdown () {
       if (this.$refs.countdown) {
         this.getCacheExpireRemainingTime(this.cacheKey).then(
-          (remain_ms) => {
-            this.$refs.countdown.setCountdown(remain_ms)
+          (remainMs) => {
+            this.$refs.countdown.setCountdown(remainMs)
             this.$refs.countdown.startCountdown()
-            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remain_ms / 1000).toFixed(1)} 秒後到期。`)
+            this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remainMs / 1000).toFixed(1)} 秒後到期。`)
           }
         )
       }
