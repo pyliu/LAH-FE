@@ -36,16 +36,6 @@ div
           li 預定結案時間剩餘4小時內將判定為即將逾期案件
           li #[a(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 切換成舊版本模式]
 
-      //- lah-transition: .w-auto: b-tags.border-0(
-      //-   v-if="advTags.length > 0",
-      //-   v-model="advTags",
-      //-   placeholder="",
-      //-   tag-variant="primary",
-      //-   tag-pills,
-      //-   no-outer-focus,
-      //-   no-add-on-enter,
-      //-   no-tag-remove
-      //- )
       lah-button.mr-1(
         icon="search-plus",
         size="lg",
@@ -68,7 +58,7 @@ div
         @end="$fetch"
         @click="reload"
       )
-  lah-transition: b-tags.border-0.mt-n4.fixed(
+  lah-transition: b-tags.border-0.mt-n4(
     v-if="advTags.length > 0",
     v-model="advTags",
     placeholder="",
