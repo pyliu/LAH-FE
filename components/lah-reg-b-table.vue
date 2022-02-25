@@ -556,7 +556,16 @@ export default {
       )
     },
     rm30HLightTitle (item) {
-      return item['公告燈號'] === 'danger' ? '已到期' : (item['公告燈號'] === 'warning' ? '快到期' : '公告中')
+      if (item['公告燈號'] === 'danger') {
+        return '已到期'
+      }
+      if (item['公告燈號'] === 'warning') {
+        return '快到期'
+      }
+      if (item['公告燈號'] === 'success') {
+        return '公告中'
+      }
+      return '審核中'
     },
     askLightTitle (item) {
       return item['請示燈號'] === 'danger' ? '逾期案件' : (item['公告燈號'] === 'warning' ? '快到期案件' : '正常案件')
