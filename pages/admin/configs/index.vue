@@ -934,7 +934,8 @@ export default {
     },
     isMockModeEnabled () {
       return this.loadedConfigs.ENABLE_MOCK_MODE === true || this.loadedConfigs.ENABLE_MOCK_MODE === 'true'
-    }
+    },
+    isHB () { return this.site === 'HB' }
   },
   watch: {
     masterPassword (val) {
@@ -953,7 +954,7 @@ export default {
     },
     validateNumber (val) {
       const pval = parseInt(val)
-      return (pval !== NaN && pval > 0) ? null : false
+      return (!isNaN(pval) && pval > 0) ? null : false
     },
     ipNotOK (ip) {
       return !this.$utils.isIPv4(ip)

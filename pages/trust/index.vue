@@ -55,7 +55,6 @@
             @click="reload"
           )
 
-    
     lah-pagination(
       v-model="pagination"
       :total-rows="queryCount"
@@ -131,10 +130,6 @@
 
 <script>
 export default {
-  head: {
-    title: "信託案件檢索-桃園市地政局",
-  },
-  fetchOnServer: false,
   data: () => ({
     modalId: 'this should be an uuid',
     modalLoading: true,
@@ -159,58 +154,105 @@ export default {
     ],
     obliterateFields: [
       {
-        key: "RM123",
+        key: 'RM123',
         label: '收件字號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG48",
+        key: 'GG48',
         label: '段名稱',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG49",
+        key: 'GG49',
         label: '地/建號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG01",
+        key: 'GG01',
         label: '登記次序',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "BB09",
+        key: 'BB09',
         label: '統編',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "LNAM",
+        key: 'LNAM',
         label: '姓名',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GS_TYPE",
+        key: 'GS_TYPE',
         label: '異動類別',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "RM09",
+        key: 'RM09',
         label: '登記原因',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "RM33",
+        key: 'RM33',
         label: '登記日期',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG30_1",
+        key: 'GG30_1',
         label: '代碼內容',
-        sortable: true,
+        sortable: true
       }
     ],
     maxHeight: 600
   }),
+  fetch () {
+    if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
+      this.$utils.warn('dateRange is not ready ... postpone $fetch')
+      this.timeout(this.$fetch, 250)
+    } else if (this.isBusy) {
+      this.notify('讀取中 ... 請稍後', { type: 'warning' })
+    } else if (this.validDateRange) {
+      this.getCache(this.cacheKey).then((json) => {
+        this.reset()
+        if (this.forceReload === true || json === false) {
+          this.isBusy = true
+          this.committed = false
+          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
+            type: 'trust_query',
+            query: this.qryType,
+            start: this.dateRange.begin,
+            end: this.dateRange.end,
+            reload: this.forceReload
+          }).then(({ data }) => {
+            this.rows = data.raw || []
+            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+            const remainS = data.cache_remaining_time
+            if (remainS && remainS > 0) {
+              this.setCache(this.cacheKey, data, remainS * 1000)
+            }
+          }).catch((err) => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+            this.forceReload = false
+            this.committed = true
+          })
+        } else {
+          this.rows = json.raw
+          this.committed = true
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
+            this.notify(`查詢成功，找到 ${this.rows.length} 筆資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+          })
+        }
+      })
+    }
+  },
+  head: {
+    title: '信託案件檢索-桃園市地政局'
+  },
+  fetchOnServer: false,
   computed: {
     queryCount () { return this.rows.length },
     qryTypeText () {
@@ -229,49 +271,11 @@ export default {
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` },
     validDateRange () { return this.dateRange.days > 0 }
   },
-  async fetch () {
-      if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
-        this.$utils.warn('dateRange is not ready ... postpone $fetch')
-        this.timeout(this.$fetch, 250)
-      } else if(this.isBusy) {
-        this.notify('讀取中 ... 請稍後', { type: 'warning' })
-      } else if (this.validDateRange) {
-        this.getCache(this.cacheKey).then(json => {
-          this.reset()
-          if (this.forceReload === true || json === false) {
-            this.isBusy = true
-            this.committed = false
-            this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-              type: `trust_query`,
-              query: this.qryType,
-              start: this.dateRange.begin,
-              end: this.dateRange.end,
-              reload: this.forceReload
-            }).then(({ data }) => {
-              this.rows = data.raw || []
-              this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-              const remain_s = data.cache_remaining_time
-              if (remain_s && remain_s > 0) {
-                this.setCache(this.cacheKey, data, remain_s * 1000)
-              }
-            }).catch(err => {
-              this.alert(err.message)
-              this.$utils.error(err)
-            }).finally(() => {
-              this.isBusy = false
-              this.forceReload = false
-              this.committed = true
-            })
-          } else {
-            this.rows = json.raw
-            this.committed = true
-            this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
-              this.notify(`查詢成功，找到 ${this.rows.length} 筆資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
-            })
-          }
-        })
-
-      }
+  created () {
+    this.modalId = this.$utils.uuid()
+  },
+  mounted () {
+    this.maxHeight = parseInt(window.innerHeight - 145)
   },
   methods: {
     reload () {
@@ -285,7 +289,7 @@ export default {
     },
     popup (data) {
       this.modalLoading = true
-      this.clickedId = `${data['RM123'].replaceAll('-', '')}`
+      this.clickedId = `${data.RM123.replaceAll('-', '')}`
       this.showModalById(this.modalId)
     },
     landBuildNumber (item) {
@@ -299,12 +303,6 @@ export default {
       const subNumber = val.substring(5).replace(/^[\s0]+/g, '')
       return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
-  },
-  mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
   }
 }
 </script>
