@@ -29,6 +29,11 @@ export default {
         new: nVal,
         old: oVal
       })
+    },
+    fetchingMonitorMail(nFlag, oFlag) {
+      if (oFlag && !nFlag) {
+        this.$fetch && this.$fetch()
+      }
     }
   },
   created () {
@@ -122,10 +127,7 @@ export default {
       try {
         this.isBusy = true
         this.$store.commit('fetchingMonitorMail', true)
-        const data = await this.checkMail()
-        if (data.data_count > 0) {
-          this.$fetch()
-        }
+        await this.checkMail()
       } catch (err) {
         this.alert(err.message)
       } finally {
