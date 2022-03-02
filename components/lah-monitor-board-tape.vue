@@ -14,7 +14,8 @@ b-card
         no-border,
         no-icon-gutter,
         @click="reload",
-        title="重新讀取"
+        title="重新讀取",
+        :disabled="fetchingMonitorMail"
       )
       lah-button(
         icon="external-link-alt",
@@ -71,7 +72,7 @@ b-card
       variant="outline-secondary"
       badge-variant="secondary"
       :milliseconds="reloadMs"
-      :disabled="isBusy"
+      :disabled="isBusy || fetchingMonitorMail"
       :busy="isBusy"
       @end="$fetch"
       @click="reload"

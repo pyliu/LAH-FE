@@ -69,7 +69,8 @@ const state = () => ({
   imageMementoCapacity: 30,
   imageMemento: [],
   messageMementoCapacity: 30,
-  messageMemento: []
+  messageMemento: [],
+  fetchingMonitorMail: false
 })
 
 const getters = {
@@ -109,7 +110,8 @@ const getters = {
   messageMementoCapacity: state => state.messageMementoCapacity,
   messageMemento: state => state.messageMemento,
   latestMessageMemento: state => state.messageMemento.length > 0 ? state.messageMemento[state.messageMemento.length - 1] : undefined,
-  messageMementoCacheKey: state => 'messageMementoCached'
+  messageMementoCacheKey: state => 'messageMementoCached',
+  fetchingMonitorMail: state => state.fetchingMonitorMail
 }
 
 // only sync operation
@@ -184,6 +186,9 @@ const mutations = {
   },
   topXap (state, office) {
     state.topXap = { ...office }
+  },
+  fetchingMonitorMail (state, flag) {
+    state.fetchingMonitorMail = flag
   }
 }
 

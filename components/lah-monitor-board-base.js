@@ -121,6 +121,7 @@ export default {
     async reload () {
       try {
         this.isBusy = true
+        this.$store.commit('fetchingMonitorMail', true)
         const data = await this.checkMail()
         if (data.data_count > 0) {
           this.$fetch()
@@ -129,6 +130,7 @@ export default {
         this.alert(err.message)
       } finally {
         this.isBusy = false
+        this.$store.commit('fetchingMonitorMail', false)
       }
     }
   }
