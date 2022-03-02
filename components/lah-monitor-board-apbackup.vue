@@ -113,16 +113,15 @@ export default {
   computed: {
     headMessages () {
       const now = +new Date() / 1000
-      const oneDayHeads = this.messages.filter((item, idx, arr) => {
-        this.$utils.warn(item.timestamp, (now - item.timestamp), (now - item.timestamp) < 24 * 60 * 60)
-        return (now - item.timestamp) < 24 * 60 * 60
-      })
+      const oneDayHeads = this.messages.filter((item, idx, arr) => now - item.timestamp < 24 * 60 * 60)
       oneDayHeads.sort((a, b) => {
+        // make failure one on the top
         if (a.message.includes('failure') && !b.message.includes('failure')) { return -1 }
         if (!a.message.includes('failure') && b.message.includes('failure')) { return 1 }
         return 0
       })
       const filtered = new Map()
+      // remove duplication
       oneDayHeads.forEach((item, idx, arr) => {
         const key = this.subjectKey(item)
         const existed = filtered.has(key)
@@ -135,7 +134,6 @@ export default {
           filtered.set(key, item)
         }
       })
-      // this.$utils.warn([...filtered.values()])
       return [...filtered.values()]
     },
     light () {
@@ -147,8 +145,7 @@ export default {
         return 'warning'
       }
       const ans = this.headMessages.every((item) => {
-        const matched = [...item.message.matchAll(this.regex)][0]
-        return matched && matched[2] === 'successful'
+        return this.subject(item).includes('successful')
       })
       return ans ? 'success' : 'danger'
     }
