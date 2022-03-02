@@ -70,6 +70,26 @@ export default {
         html: true
       })
     },
+    checkMail () {
+      return new Promise((resolve, reject) => {
+        this.$axios
+          .post(this.$consts.API.JSON.MONITOR, {
+            type: 'check_mail'
+          })
+          .then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              this.notify(data.message)
+            } else {
+              this.warning(data.message)
+            }
+            resolve(data)
+          })
+          .catch((err) => {
+            this.$utils.error(err)
+            reject(new Error(err.message))
+          })
+      })
+    },
     load (type, keyword, days = 1) {
       return new Promise((resolve, reject) => {
         this.messages.length = 0
@@ -97,6 +117,19 @@ export default {
             this.isBusy = false
           })
       })
+    },
+    async reload () {
+      try {
+        this.isBusy = true
+        const data = await this.checkMail()
+        if (data.data_count > 0) {
+          this.$fetch()
+        }
+      } catch (err) {
+        this.alert(err.message)
+      } finally {
+        this.isBusy = false
+      }
     }
   }
 }

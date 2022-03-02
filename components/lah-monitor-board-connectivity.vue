@@ -9,7 +9,7 @@ b-card(no-body)
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="reload(true)",
+        @click="reloadConn(true)",
         title="重新讀取"
       )
       lah-button(
@@ -147,7 +147,7 @@ export default {
     }
   },
   async created () {
-    this._reload = this.$utils.debounce(this.reload, 500)
+    this._reload = this.$utils.debounce(this.reloadConn, 500)
     this.sortBy = await this.getCache('lah-monitor-board-connectivity-sortby') || 'ip'
     this.type = await this.getCache('lah-monitor-board-connectivity-type') || 'line'
   },
@@ -212,7 +212,7 @@ export default {
           this.alert(err.toString(), { title: '讀取監測目標失敗' })
         })
         .finally(() => {
-          this.reload()
+          this.reloadConn()
         })
     },
     titleTooltip (entry) {
@@ -263,7 +263,7 @@ export default {
       if (item.y > this.lightCriteria.yellow) { return `rgba(255, 193, 7, ${opacity})` }
       return `rgba(40, 167, 69, ${opacity})`
     },
-    reload (force = false) {
+    reloadConn (force = false) {
       clearTimeout(this.reloadTimer)
       this.isBusy = true
       this.$axios
@@ -312,7 +312,7 @@ export default {
         })
         .finally(() => {
           this.updatedTime = this.$utils.now().split(' ')[1]
-          this.timeout(() => this.reload(), 15 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
+          this.timeout(() => this.reloadConn(), 15 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
           this.isBusy = false
         })
     },

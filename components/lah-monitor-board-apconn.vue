@@ -167,12 +167,12 @@ export default {
     apIpList () { return this.carousel.map(postfix => `${this.ipPrefix}.${postfix}`) }
   },
   watch: {
-    allSwitch (dontcare) { this.reload() },
-    apIp (dontcare) { this.reload() }
+    allSwitch (dontcare) { this.reloadConn() },
+    apIp (dontcare) { this.reloadConn() }
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.reload = this.$utils.debounce(this.loadAPConnectionCount, 500)
+    this.reloadConn = this.$utils.debounce(this.loadAPConnectionCount, 500)
     this.allSwitch = this.all
     this.type = this.line ? 'line' : 'bar'
     this.loadConfig()
@@ -184,7 +184,7 @@ export default {
     clearTimeout(this.reloadTimer)
   },
   methods: {
-    reload () { /* placeholder for loadAPConnectionCount  */ },
+    reloadConn () { /* placeholder for loadAPConnectionCount  */ },
     navLeft () { this.apIp = this.prevSvr },
     navRight () { this.apIp = this.nextSvr },
     popupUser ({ detail }) {

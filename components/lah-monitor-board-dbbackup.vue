@@ -11,7 +11,7 @@ b-card
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="$fetch",
+        @click="reload",
         title="重新讀取"
       )
       lah-button(
@@ -76,7 +76,7 @@ b-card
       :disabled="isBusy",
       :busy="isBusy",
       @end="$fetch",
-      @click="$fetch"
+      @click="reload"
     )
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
