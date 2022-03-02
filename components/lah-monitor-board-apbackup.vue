@@ -112,13 +112,31 @@ export default {
   },
   computed: {
     headMessages () {
-      const heads = this.messages.filter((item, idx, arr) => idx < 8)
-      heads.sort((a, b) => {
+      const now = +new Date() / 1000
+      const oneDayHeads = this.messages.filter((item, idx, arr) => {
+        this.$utils.warn(item.timestamp, (now - item.timestamp), (now - item.timestamp) < 24 * 60 * 60)
+        return (now - item.timestamp) < 24 * 60 * 60
+      })
+      oneDayHeads.sort((a, b) => {
         if (a.message.includes('failure') && !b.message.includes('failure')) { return -1 }
         if (!a.message.includes('failure') && b.message.includes('failure')) { return 1 }
         return 0
       })
-      return heads
+      const filtered = new Map()
+      oneDayHeads.forEach((item, idx, arr) => {
+        const key = this.subjectKey(item)
+        const existed = filtered.has(key)
+        if (existed) {
+          // keep latest one
+          if (filtered.get(key).timestamp < item.timestamp) {
+            filtered.set(key, item)
+          }
+        } else {
+          filtered.set(key, item)
+        }
+      })
+      // this.$utils.warn([...filtered.values()])
+      return [...filtered.values()]
     },
     light () {
       const now = +new Date()
@@ -128,7 +146,7 @@ export default {
       ) {
         return 'warning'
       }
-      const ans = this.messages.every((item) => {
+      const ans = this.headMessages.every((item) => {
         const matched = [...item.message.matchAll(this.regex)][0]
         return matched && matched[2] === 'successful'
       })
@@ -137,7 +155,7 @@ export default {
   },
   created () {
     this.modalId = this.$utils.uuid()
-    this.$utils.warn(this.messages)
+    // this.$utils.warn(this.messages)
   },
   methods: {
     itemLight (item) {
@@ -146,11 +164,19 @@ export default {
     },
     subject (item) {
       // successful
-      let matched = [...item.message.matchAll(this.regex)][0]
+      let matched = [...item.message?.matchAll(this.regex)][0]
       if (!matched) {
-        matched = [...item.message.matchAll(this.failRegex)][0]
+        matched = [...item.message?.matchAll(this.failRegex)][0]
       }
       return matched ? `${matched[1]} ${matched[2]}` : '標題解析失敗'
+    },
+    subjectKey (item) {
+      // successful
+      let matched = [...item.message?.matchAll(this.regex)][0]
+      if (!matched) {
+        matched = [...item.message?.matchAll(this.failRegex)][0]
+      }
+      return matched ? `${matched[1]}` : 'AP主機解析失敗'
     }
   }
 }
