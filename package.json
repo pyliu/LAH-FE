@@ -10,8 +10,6 @@
     "post-update": "yarn upgrade --latest",
     "lint:js": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "lint": "yarn lint:js",
-    "ws": "node ws/server.js",
-    "ws-dev": "nodemon ws/server.js",
     "scheduler": "node scheduler/server.js",
     "scheduler-dev": "nodemon scheduler/server.js"
   },
@@ -29,7 +27,6 @@
     "@nuxtjs/proxy": "^2.0.1",
     "@nuxtjs/style-resources": "^1.0.0",
     "@vue/composition-api": "^1.2.4",
-    "activedirectory": "^0.7.2",
     "animate.css": "^4.1.1",
     "better-sqlite3": "^7.1.5",
     "bl": "1.2.3",
@@ -53,8 +50,7 @@
     "nuxt-fontawesome": "^0.4.0",
     "qs": "^6.9.4",
     "sqlite3": "^4.2.0",
-    "vue-chartjs": "^3.5.1",
-    "ws": "^7.4.6"
+    "vue-chartjs": "^3.5.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
