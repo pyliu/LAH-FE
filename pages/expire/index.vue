@@ -241,7 +241,7 @@ export default {
     }
   },
   created () {
-    this.filterDebounced = this.$utils.debounce(this.filter, 2000)
+    this.filterDebounced = this.$utils.debounce(this.filter, 1000)
   },
   methods: {
     filterDebounced () { /** placeholder for debounced filter method */ },
