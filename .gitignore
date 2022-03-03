@@ -89,5 +89,8 @@ sw.*
 # Vim swap files
 *.swp
 
-# ws sqlite3 db files
-ws/db
+# Nitro folder
+.output
+
+# lock files
+*.lock
