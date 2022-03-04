@@ -1,6 +1,7 @@
 export default {
   emit: ['light-update'],
   name: 'lahMonitorBoardBase',
+  fetchOnServer: false,
   data: () => ({
     header: '等著被覆寫的資料',
     messages: [],
