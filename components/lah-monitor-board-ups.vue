@@ -29,10 +29,10 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 UPS 狀態
         li 每15分鐘重新檢查一次
@@ -42,7 +42,7 @@ b-card
       div 🟡 表示有1組UPS無回報訊息
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   ul(v-else): li(v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       a.truncate(
@@ -73,6 +73,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -89,24 +90,10 @@ export default {
   },
   data: () => ({
     header: 'UPS 狀態',
-    modalId: 'tmp-id',
-    queryDays: 2
+    fetchType: 'subject',
+    fetchKeyword: 'Daily Email from NMC',
+    fetchDay: 2
   }),
-  fetch () {
-    this.load('subject', 'Daily Email from NMC', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 4)
@@ -130,9 +117,6 @@ export default {
         ? 'success'
         : 'danger'
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
   },
   methods: {
     shortenSubject (item) {

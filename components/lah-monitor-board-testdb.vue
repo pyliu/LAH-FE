@@ -29,20 +29,20 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示測試資料庫匯入狀態
         li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示{{ queryDays }}天內未獲得完整郵件清單
+      div 🟡 表示{{ fetchDay }}天內未獲得完整郵件清單
       div 🔴 表示最新郵件找到「No dump file」字串
   slot
-  .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages" :key="`head_${idx}`")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
@@ -75,6 +75,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -91,28 +92,11 @@ export default {
   },
   data: () => ({
     header: '測試資料庫匯入作業',
-    modalId: 'tmp-id'
+    fetchType: 'subject',
+    fetchKeyword: 'test system imp state',
+    fetchDay: 1
   }),
-  fetch () {
-    this.load('subject', 'test system imp state', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
-    queryDays () {
-      // testdb import will not execute on weenend
-      return this.isMonday ? 4 : 3
-    },
     todayNoDBImportMessage () {
       return `${this.today} 無測試 DB 匯入資訊`
     },
@@ -166,7 +150,8 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
+    // testdb import will not execute on weenend
+    this.fetchDay = this.isMonday ? 4 : 3
   },
   methods: {
     subjectLight (item) {

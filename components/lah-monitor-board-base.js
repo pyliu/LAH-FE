@@ -1,13 +1,36 @@
 export default {
   emit: ['light-update'],
   name: 'lahMonitorBoardBase',
-  fetchOnServer: false,
   data: () => ({
     header: '等著被覆寫的資料',
     messages: [],
     updated: '',
-    reloadMs: 15 * 60 * 1000
+    reloadMs: 15 * 60 * 1000,
+    lastFetchTimestamp: 0,
+    fetchingState: ''
   }),
+  fetch () {
+    if (this.needRefetch) {
+      this.load(this.fetchType, this.fetchKeyword, this.fetchDay).then((data) => {
+        // successful loaded
+        this.lastFetchTimestamp = +new Date()
+        this.fetchingState = '✔ 已更新'
+      }).catch((err) => {
+        this.$utils.warn(err)
+      }).finally(() => {
+        // set auto reloading timeout
+        if (this.$refs.countdown) {
+          this.$refs.countdown.setCountdown(this.reloadMs)
+          this.$refs.countdown.startCountdown()
+        } else {
+          this.timeout(() => this.$fetch(), this.reloadMs)
+        }
+      })
+    } else {
+      const past = this.$utils.formatDistanceToNow(this.lastFetchTimestamp)
+      this.fetchingState = `⚠ ${past} 已更新`
+    }
+  },
   computed: {
     today () {
       // e.g. 2022-01-26
@@ -20,6 +43,16 @@ export default {
     isSaturday () {
       const now = new Date()
       return now.getDay() === 6
+    },
+    needRefetch () {
+      if (
+        this.$utils.empty(this.fetchType) ||
+        this.$utils.empty(this.fetchKeyword) ||
+        isNaN(this.fetchDay)
+      ) {
+        return false
+      }
+      return +new Date() - this.reloadMs > this.lastFetchTimestamp
     }
   },
   watch: {
@@ -32,8 +65,13 @@ export default {
     },
     fetchingMonitorMail(nFlag, oFlag) {
       if (oFlag && !nFlag) {
+        // doing fetch next time
+        this.lastFetchTimestamp = 0
         this.$fetch && this.$fetch()
       }
+    },
+    fetchingState () {
+      this.timeout(() => { this.fetchingState = '' }, 5000)
     }
   },
   created () {
@@ -128,6 +166,8 @@ export default {
         this.isBusy = true
         this.$store.commit('fetchingMonitorMail', true)
         await this.checkMail()
+        // doing $fetch next time
+        this.lastFetchTimestamp = 0
       } catch (err) {
         this.alert(err.message)
       } finally {

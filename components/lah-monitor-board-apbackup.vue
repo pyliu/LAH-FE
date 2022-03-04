@@ -29,10 +29,10 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 AP Server 備份狀態，每天晚上9點做備份
         li 每15分鐘重新檢查一次
@@ -42,7 +42,7 @@ b-card
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ itemLight(item) }}
@@ -74,6 +74,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -90,27 +91,13 @@ export default {
   },
   data: () => ({
     header: 'AP Server 備份',
-    modalId: 'tmp-id',
-    queryDays: 1,
+    fetchType: 'subject',
+    fetchKeyword: 'AP Server',
+    fetchDay: 1,
     regex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm,
     // AP Server (apha14) files backup failure!!
     failRegex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(failure)!!/gm
   }),
-  fetch () {
-    this.load('subject', 'AP Server', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
     headMessages () {
       const now = +new Date() / 1000
@@ -150,10 +137,6 @@ export default {
       })
       return ans ? 'success' : 'danger'
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
-    // this.$utils.warn(this.messages)
   },
   methods: {
     itemLight (item) {

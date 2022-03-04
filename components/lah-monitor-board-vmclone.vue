@@ -29,20 +29,20 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示VM備份狀態
         li 儀表板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示找不到 VM CLONE 訊息
+      div 🟡 表示{{ fetchDay }}日內找不到 VM CLONE 訊息
       div 🔴 表示 VM CLONE 排程中任一個失敗
   slot
-  .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
@@ -75,6 +75,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -91,24 +92,10 @@ export default {
   },
   data: () => ({
     header: 'VM備份排程作業',
-    modalId: 'tmp-id',
-    queryDays: 7
+    fetchType: 'subject',
+    fetchKeyword: 'vm-clone',
+    fetchDay: 7
   }),
-  fetch () {
-    this.load('subject', 'vm-clone', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
     vc135Message () {
       return this.messages.find(item =>
@@ -143,9 +130,6 @@ export default {
       }
       return 'success'
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
   },
   methods: {
     subjectLight (item) {

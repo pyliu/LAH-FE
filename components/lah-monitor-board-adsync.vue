@@ -29,10 +29,10 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 AD SYNC 狀態，每天8點同步
         li 儀錶板每15分鐘重新檢查一次
@@ -42,7 +42,7 @@ b-card
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示最新同步郵件日期非今日[{{ $utils.toADDate(new Date(), 'yyyy-LL-dd') }}]
   slot
-  .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
@@ -75,6 +75,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -91,24 +92,10 @@ export default {
   },
   data: () => ({
     header: 'AD 同步',
-    modalId: 'tmp-id',
-    queryDays: 3
+    fetchType: 'subject',
+    fetchKeyword: 'ad sync',
+    fetchDay: 3
   }),
-  fetch () {
-    this.load('subject', 'ad sync', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
     todayNoAdSyncMessage () {
       return `${this.today} 無 AD 同步資訊`
@@ -144,9 +131,6 @@ export default {
       }
       return 'success'
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
   },
   methods: {
     subjectLight (item) {

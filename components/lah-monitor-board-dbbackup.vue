@@ -29,24 +29,24 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫備份狀態(選項2、4、5)
         li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示{{ queryDays }}天內未獲得完整郵件清單(OPTION 2、4、5)
+      div 🟡 表示{{ fetchDay }}天內未獲得完整郵件清單(OPTION 2、4、5)
       div 🔴 表示有備份失效
       ul.ml-4
         li OPTION 2 👉 1工作天內未更新
         li OPTION 4 👉 1天內未更新
         li OPTION 5 👉 45分鐘內未更新
   slot
-  .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠ {{ fetchType }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
@@ -79,6 +79,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -95,28 +96,11 @@ export default {
   },
   data: () => ({
     header: '資料庫備份排程',
-    modalId: 'tmp-id'
+    fetchType: 'subject',
+    fetchKeyword: 'BACKUP OPTION',
+    fetchDay: 1
   }),
-  fetch () {
-    this.load('subject', 'BACKUP OPTION', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
-    queryDays () {
-      // option 2 only executes on 02:00:00 every workday
-      return this.isMonday ? 4 : 1
-    },
     opt2Ms () {
       return this.opt4Ms
     },
@@ -126,7 +110,7 @@ export default {
       )
     },
     opt4Ms () {
-      return this.queryDays * 24 * 60 * 60 * 1000
+      return this.fetchDay * 24 * 60 * 60 * 1000
     },
     opt4Message () {
       return this.messages.find(item =>
@@ -159,7 +143,7 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
+    this.fetchDay = this.isMonday ? 4 : 1
   },
   methods: {
     subjectLight (item) {

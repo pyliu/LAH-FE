@@ -29,10 +29,10 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫 HACMP 狀態，每天 08:00 及 13:00 檢查
         li 每15分鐘重新檢查一次
@@ -42,7 +42,7 @@ b-card
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="$utils.empty(headMessage)") ⚠ {{ queryDays }}日內無資料
+  .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
   div(v-else)
     .d-flex.justify-content-between.font-weight-bold
       a.truncate(
@@ -73,6 +73,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -89,25 +90,11 @@ export default {
   },
   data: () => ({
     header: '資料庫 HACMP',
-    modalId: 'tmp-id',
-    queryDays: 1,
+    fetchType: 'subject',
+    fetchKeyword: 'hacmp',
+    fetchDay: 1,
     found: []
   }),
-  fetch () {
-    this.load('subject', 'hacmp', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
     headMessage () {
       return this.messages[0]
@@ -129,9 +116,6 @@ export default {
       }
       return this.found.length === 7 ? 'success' : 'danger'
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
   }
 }
 </script>

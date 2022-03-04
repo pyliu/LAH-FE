@@ -31,20 +31,20 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫磁帶備份狀態(P7-102)
         li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示{{ queryDays }}天內未獲得完整郵件清單
+      div 🟡 表示{{ fetchDay }}天內未獲得完整郵件清單
       div 🔴 表示郵件找不到「pax successful!!」字串
   slot
-  .center(v-if="headMessages.length === 0") ⚠ {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
@@ -77,6 +77,7 @@ b-card
       @end="$fetch"
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -93,28 +94,11 @@ export default {
   },
   data: () => ({
     header: '資料庫磁帶備份',
-    modalId: 'tmp-id'
+    fetchType: 'subject',
+    fetchKeyword: 'TAPE BACKUP STATE',
+    fetchDay: 1
   }),
-  fetch () {
-    this.load('subject', 'TAPE BACKUP STATE', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
-    queryDays () {
-      // tape backup will not execute on weenend
-      return this.isMonday ? 4 : 3
-    },
     todayNoTapeMessage () {
       return `${this.today} 無磁帶備份資訊`
     },
@@ -160,7 +144,7 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
+    this.fetchDay = this.isMonday ? 4 : 3
   },
   methods: {
     subjectLight (item) {

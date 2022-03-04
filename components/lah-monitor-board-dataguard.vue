@@ -29,10 +29,10 @@ b-card
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById(modalId)",
+        @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫 Data Guard 狀態(檢視P8-2、P7-102及hb-114內「Current log sequence」文字是否一樣)，每天 08:00 及 13:00 檢查
         li 儀錶板每15分鐘重新檢查一次
@@ -42,7 +42,7 @@ b-card
       div 🟡 表示狀態超過6小時未更新
       div 🔴 表示有資料庫 Current Log Sequence 不一致
   slot
-  .center(v-if="headMessages.length === 0") ⚠  {{ queryDays }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 #[b-badge(variant="primary", pill) {{ currentLogNumber(item) }}]
@@ -75,6 +75,7 @@ b-card
       @end="$fetch",
       @click="reload"
     )
+    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
     lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
 </template>
 
@@ -91,24 +92,10 @@ export default {
   },
   data: () => ({
     header: '資料庫 Data Guard',
-    modalId: 'tmp-id',
-    queryDays: 1
+    fetchType: 'subject',
+    fetchKeyword: 'DataGuard',
+    fetchDay: 1
   }),
-  fetch () {
-    this.load('subject', 'DataGuard', this.queryDays).then((data) => {
-      // successful loaded
-    }).catch((err) => {
-      this.$utils.warn(err)
-    }).finally(() => {
-      // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(this.reloadMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), this.reloadMs)
-      }
-    })
-  },
   computed: {
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
@@ -130,9 +117,6 @@ export default {
       })
       return ans ? 'success' : 'danger'
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
   },
   methods: {
     logSeqMatches (item) {
