@@ -15,7 +15,7 @@
     @end="fetch",
     @click="reload"
   )
-  lah-transition: .my-auto(v-if="displayFetchState") {{ fetchState }}
+  lah-transition: .my-auto.small(v-if="displayFetchState") {{ fetchState }}
   lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updateTime }}
 </template>
 

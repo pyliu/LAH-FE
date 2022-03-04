@@ -23,8 +23,6 @@ export default {
         this.resetCountdownCounter(this.reloadMs)
       })
     } else {
-      const past = this.$utils.formatDistanceToNow(this.lastFetchTimestamp)
-      this.fetchingState = `⚠ ${past} 已更新`
       const offset = this.reloadMs - +new Date() + this.lastFetchTimestamp
       const restartTimerMs = offset > 0 ? offset : this.reloadMs
       // set auto reloading timeout
@@ -66,15 +64,13 @@ export default {
         old: oVal
       })
     },
-    fetchingMonitorMail(nFlag, oFlag) {
+    fetchingMonitorMail (nFlag, oFlag) {
       if (oFlag && !nFlag) {
-        // doing fetch next time
-        this.lastFetchTimestamp = 0
         this.$fetch && this.$fetch()
       }
     },
-    fetchingState () {
-      this.timeout(() => { this.fetchingState = '' }, 5000)
+    fetchingState (dontcare) {
+      this.clearFetchingState()
     }
   },
   created () {
@@ -83,6 +79,7 @@ export default {
       new: 'warning',
       old: ''
     })
+    this.clearFetchingState = this.$utils.debounce(() => { this.fetchingState = '' }, 5000)
   },
   methods: {
     resetCountdownCounter (restartTimerMs) {
@@ -177,9 +174,13 @@ export default {
       try {
         this.isBusy = true
         this.$store.commit('fetchingMonitorMail', true)
-        await this.checkMail()
-        // doing $fetch next time
-        this.lastFetchTimestamp = 0
+        this.$store.commit('fetchedMonitorMailCount', 0)
+        const data = await this.checkMail()
+        // doing $fetch next time forcely
+        if (data.data_count > 0) {
+          this.lastFetchTimestamp = 0
+          this.$store.commit('fetchedMonitorMailCount', data.data_count)
+        }
       } catch (err) {
         this.alert(err.message)
       } finally {
