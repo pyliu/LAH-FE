@@ -29,6 +29,15 @@ export default {
     } else {
       const past = this.$utils.formatDistanceToNow(this.lastFetchTimestamp)
       this.fetchingState = `⚠ ${past} 已更新`
+      const offset = this.reloadMs - +new Date() + this.lastFetchTimestamp
+      const restartTimerMs = offset > 0 ? offset : this.reloadMs
+      // set auto reloading timeout
+      if (this.$refs.countdown) {
+        this.$refs.countdown.setCountdown(restartTimerMs)
+        this.$refs.countdown.startCountdown()
+      } else {
+        this.timeout(() => this.$fetch(), restartTimerMs)
+      }
     }
   },
   computed: {
