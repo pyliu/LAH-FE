@@ -19,12 +19,7 @@ export default {
         this.$utils.warn(err)
       }).finally(() => {
         // set auto reloading timeout
-        if (this.$refs.countdown) {
-          this.$refs.countdown.setCountdown(this.reloadMs)
-          this.$refs.countdown.startCountdown()
-        } else {
-          this.timeout(() => this.$fetch(), this.reloadMs)
-        }
+        this.resetCountdownCounter(this.reloadMs)
       })
     } else {
       const past = this.$utils.formatDistanceToNow(this.lastFetchTimestamp)
@@ -32,13 +27,7 @@ export default {
       const offset = this.reloadMs - +new Date() + this.lastFetchTimestamp
       const restartTimerMs = offset > 0 ? offset : this.reloadMs
       // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(restartTimerMs)
-        this.$refs.countdown.startCountdown()
-      } else {
-        this.timeout(() => this.$fetch(), restartTimerMs)
-      }
-    }
+      this.resetCountdownCounter(restartTimerMs)
   },
   computed: {
     today () {
@@ -91,6 +80,15 @@ export default {
     })
   },
   methods: {
+    resetCountdownCounter (restartTimerMs) {
+      // set auto reloading timeout
+      if (this.$refs.countdown) {
+        this.$refs.countdown.setCountdown(restartTimerMs)
+        this.$refs.countdown.startCountdown()
+      } else {
+        this.timeout(() => this.$fetch(), restartTimerMs)
+      }
+    },
     truncate (content) {
       return content?.substring(0, 100).replaceAll('\n', '<br/>') + ' ...'
     },
