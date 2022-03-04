@@ -14,7 +14,7 @@ div(v-cloak)
             title="說明"
           )
         .d-flex
-          b-checkbox.my-auto.small.mr-1(v-model="displayXAP", switch) 顯示跨所AP狀態
+          b-checkbox.my-auto.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch) 跨縣市AP
           .mr-1 🔴 {{ red }}
           .mr-1 🟡 {{ yellow }}
           .mr-1 🟢 {{ green }}
@@ -22,8 +22,7 @@ div(v-cloak)
       ul
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
-  b-collapse(v-model="displayXAP")
-    b-card-group.mb-2(deck)
+  lah-transition: b-card-group.mb-2(deck, v-if="displayXAP")
       lah-monitor-board-xap
       lah-monitor-board-apconn
       lah-monitor-board-connectivity
