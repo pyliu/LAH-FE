@@ -22,7 +22,6 @@
 <script>
 export default {
   name: 'LahMonitorBoardFooter',
-  emit: ['clear-fetch-state'],
   props: {
     reloadMs: { type: Number, require: true, default: 15 * 60 * 1000 },
     busy: { type: Boolean, require: true },
@@ -34,11 +33,6 @@ export default {
   data: () => ({}),
   computed: {
     displayFetchState () { return !this.$utils.empty(this.fetchState) }
-  },
-  watch: {
-    fetchState (val) {
-      !this.$utils.empty(val) && this.timeout(() => { this.$emit('clear-fetch-state') }, 5000)
-    }
   }
 }
 </script>

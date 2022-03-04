@@ -66,7 +66,6 @@ b-card
     :reload="reload",
     :fetch-state="fetchingState",
     :update-time="updated"
-    @clear-fetch-stat="fetchingState = ''"
   )
 </template>
 
