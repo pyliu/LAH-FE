@@ -58,6 +58,7 @@ b-card
       ) {{ $utils.formatDistanceToNow(headMessage.timestamp * 1000) }}
     .truncate.text-muted.small(v-html="extractedMessage")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
+    ref="footer"
     :reload-ms="reloadMs",
     :busy="isBusy",
     :fetch="$fetch",

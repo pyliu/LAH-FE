@@ -32,6 +32,19 @@ export default {
     }
   },
   computed: {
+    needRefetch () {
+      // none of this criteria fits, no needs to fetch
+      if (
+        this.$utils.empty(this.fetchType) ||
+        this.$utils.empty(this.fetchKeyword) ||
+        isNaN(this.fetchDay)
+      ) {
+        this.$utils.warn(`${this.header} fetch 參數為空值，無法進行資料讀取!`)
+        return false
+      }
+      const passed = +new Date() - this.lastFetchTimestamp
+      return passed > this.reloadMs * 0.8
+    },
     today () {
       // e.g. 2022-01-26
       return this.$utils.toADDate(new Date(), 'yyyy-LL-dd')
@@ -43,16 +56,6 @@ export default {
     isSaturday () {
       const now = new Date()
       return now.getDay() === 6
-    },
-    needRefetch () {
-      if (
-        this.$utils.empty(this.fetchType) ||
-        this.$utils.empty(this.fetchKeyword) ||
-        isNaN(this.fetchDay)
-      ) {
-        return false
-      }
-      return +new Date() - this.reloadMs > this.lastFetchTimestamp
     }
   },
   watch: {
@@ -84,10 +87,10 @@ export default {
   methods: {
     resetCountdownCounter (restartTimerMs) {
       // set auto reloading timeout
-      if (this.$refs.countdown) {
-        this.$refs.countdown.setCountdown(restartTimerMs)
-        this.$refs.countdown.startCountdown()
+      if (this.$refs.footer) {
+        this.$refs.footer.reset(restartTimerMs)
       } else {
+        this.$utils.warn('No footer ref found')
         this.timeout(() => this.$fetch(), restartTimerMs)
       }
     },

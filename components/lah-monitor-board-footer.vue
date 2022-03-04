@@ -30,9 +30,14 @@ export default {
     reload: { type: Function, require: true, default: () => {} },
     updateTime: { type: String, require: true, default: '' }
   },
-  data: () => ({}),
   computed: {
     displayFetchState () { return !this.$utils.empty(this.fetchState) }
+  },
+  methods: {
+    reset (ms) {
+      this.$refs.countdown.setCountdown(ms)
+      this.$refs.countdown.startCountdown()
+    }
   }
 }
 </script>
