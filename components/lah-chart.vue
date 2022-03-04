@@ -132,7 +132,17 @@ export default {
     this.update = this.$utils.debounce(() => this.inst && this.inst.update(), 100)
     this.reset()
   },
+  beforeDestroy () {
+    this.destroy()
+  },
   methods: {
+    destroy () {
+      if (this.inst) {
+        // reset the chart
+        this.inst.destroy()
+        this.inst = null
+      }
+    },
     reset () {
       this.chartData = {
         labels: [],
@@ -267,11 +277,7 @@ export default {
       return foundIdx
     },
     build (opts = { plugins: {} }) {
-      if (this.inst) {
-        // reset the chart
-        this.inst.destroy()
-        this.inst = null
-      }
+      this.destroy()
       switch (this.type) {
         case 'pie':
         case 'polarArea':
