@@ -38,7 +38,8 @@ Vue.mixin({
       'messageMementoCapacity',
       'messageMementoCacheKey',
       'latestMessageMemento',
-      'fetchingMonitorMail'
+      'fetchingMonitorMail',
+      'fetchedMonitorMailCount'
     ]),
     viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 120).toFixed(2) },
     site () {

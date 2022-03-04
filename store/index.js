@@ -70,7 +70,8 @@ const state = () => ({
   imageMemento: [],
   messageMementoCapacity: 30,
   messageMemento: [],
-  fetchingMonitorMail: false
+  fetchingMonitorMail: false,
+  fetchedMonitorMailCount: 0
 })
 
 const getters = {
@@ -111,7 +112,8 @@ const getters = {
   messageMemento: state => state.messageMemento,
   latestMessageMemento: state => state.messageMemento.length > 0 ? state.messageMemento[state.messageMemento.length - 1] : undefined,
   messageMementoCacheKey: state => 'messageMementoCached',
-  fetchingMonitorMail: state => state.fetchingMonitorMail
+  fetchingMonitorMail: state => state.fetchingMonitorMail,
+  fetchedMonitorMailCount: state => state.fetchedMonitorMailCount
 }
 
 // only sync operation
@@ -189,6 +191,9 @@ const mutations = {
   },
   fetchingMonitorMail (state, flag) {
     state.fetchingMonitorMail = flag
+  },
+  fetchedMonitorMailCount (state, count) {
+    state.fetchedMonitorMailCount = count || 0
   }
 }
 
