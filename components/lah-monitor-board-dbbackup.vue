@@ -63,24 +63,15 @@ b-card
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
     .truncate.text-muted.small {{ item.message }}
-  template(#footer, v-if="footer"): client-only: .d-flex.justify-content-between.small.text-muted
-    lah-countdown-button.border-0(
-      size="sm",
-      ref="countdown",
-      icon="sync-alt",
-      action="ld-cycle",
-      auto-start,
-      title="立即重新讀取",
-      variant="outline-secondary",
-      badge-variant="secondary",
-      :milliseconds="reloadMs",
-      :disabled="isBusy || fetchingMonitorMail",
-      :busy="isBusy",
-      @end="$fetch",
-      @click="reload"
-    )
-    lah-transition: .my-auto(v-if="fetchingState !== ''") {{ fetchingState }}
-    lah-fa-icon.my-auto.text-nowrap(icon="clock", title="更新時間") {{ updated }}
+  template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
+    :reload-ms="reloadMs",
+    :busy="isBusy",
+    :fetch="$fetch",
+    :reload="reload",
+    :fetch-state="fetchingState",
+    :update-time="updated"
+    @clear-fetch-stat="fetchingState = ''"
+  )
 </template>
 
 <script>
