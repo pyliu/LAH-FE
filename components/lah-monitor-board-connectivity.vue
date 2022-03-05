@@ -115,9 +115,9 @@ export default {
     },
     sortBy: 'name',
     sortByOpts: [
+      { text: '名稱', value: 'name' },
       { text: 'IP', value: 'ip' },
-      { text: '埠號', value: 'port' },
-      { text: '名稱', value: 'name' }
+      { text: '埠號', value: 'port' }
     ]
   }),
   computed: {
@@ -148,7 +148,7 @@ export default {
   },
   async created () {
     this._reload = this.$utils.debounce(this.reloadConn, 500)
-    this.sortBy = await this.getCache('lah-monitor-board-connectivity-sortby') || 'ip'
+    this.sortBy = await this.getCache('lah-monitor-board-connectivity-sortby') || 'name'
     this.type = await this.getCache('lah-monitor-board-connectivity-type') || 'line'
   },
   mounted () {
