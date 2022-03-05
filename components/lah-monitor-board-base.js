@@ -64,8 +64,8 @@ export default {
         old: oVal
       })
     },
-    fetchingMonitorMail (nFlag, oFlag) {
-      if (oFlag && !nFlag) {
+    fetchedMonitorMailCount (nVal, oVal) {
+      if (nVal > 0) {
         this.$fetch && this.$fetch()
       }
     },
@@ -124,6 +124,8 @@ export default {
     },
     checkMail () {
       return new Promise((resolve, reject) => {
+        this.$store.commit('fetchedMonitorMailCount', 0)
+        this.$store.commit('fetchingMonitorMail', true)
         this.$axios
           .post(this.$consts.API.JSON.MONITOR, {
             type: 'check_mail'
@@ -131,6 +133,7 @@ export default {
           .then(({ data }) => {
             if (this.$utils.statusCheck(data.status)) {
               this.notify(data.message)
+              this.$store.commit('fetchedMonitorMailCount', data.data_count)
             } else {
               this.warning(data.message)
             }
@@ -139,6 +142,9 @@ export default {
           .catch((err) => {
             this.$utils.error(err)
             reject(new Error(err.message))
+          })
+          .finally(() => {
+            this.$store.commit('fetchingMonitorMail', false)
           })
       })
     },
@@ -173,19 +179,15 @@ export default {
     async reload () {
       try {
         this.isBusy = true
-        this.$store.commit('fetchingMonitorMail', true)
-        this.$store.commit('fetchedMonitorMailCount', 0)
         const data = await this.checkMail()
         // doing $fetch next time forcely
         if (data.data_count > 0) {
           this.lastFetchTimestamp = 0
-          this.$store.commit('fetchedMonitorMailCount', data.data_count)
         }
       } catch (err) {
         this.alert(err.message)
       } finally {
         this.isBusy = false
-        this.$store.commit('fetchingMonitorMail', false)
       }
     }
   }
