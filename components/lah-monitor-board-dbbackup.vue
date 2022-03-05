@@ -46,7 +46,7 @@ b-card
         li OPTION 4 👉 1天內未更新
         li OPTION 5 👉 45分鐘內未更新
   slot
-  .center(v-if="headMessages.length === 0") ⚠ {{ fetchType }}日內無資料
+  .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
