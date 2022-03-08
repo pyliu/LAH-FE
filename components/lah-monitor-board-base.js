@@ -11,10 +11,11 @@ export default {
     fetchingState: ''
   }),
   fetch () {
+    const nowTs = this.$utils.nowTs()
     if (this.needRefetch) {
       this.load(this.fetchType, this.fetchKeyword, this.fetchDay).then((data) => {
         // successful loaded
-        this.lastFetchTimestamp = +new Date()
+        this.lastFetchTimestamp = nowTs
         this.fetchingState = '✔ 已更新'
       }).catch((err) => {
         this.$utils.warn(err)
@@ -23,7 +24,10 @@ export default {
         this.resetCountdownCounter(this.reloadMs)
       })
     } else {
-      const offset = this.reloadMs - +new Date() + this.lastFetchTimestamp
+      if (this.lastFetchTimestamp === 0) {
+        this.lastFetchTimestamp = nowTs
+      }
+      const offset = this.reloadMs - nowTs + this.lastFetchTimestamp
       const restartTimerMs = offset > 0 ? offset : this.reloadMs
       // set auto reloading timeout
       this.resetCountdownCounter(restartTimerMs)

@@ -118,7 +118,7 @@ b-sidebar#lah-sidebar(
         #[font-awesome-icon.fixed-width(:icon="['fas', 'chalkboard-teacher']", size="lg")]
         地政系統管理面板
       li: nuxt-link(to="/monitor").
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']", size="lg")]
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'chart-bar']", size="lg")]
         {{site}} 跨域伺服器監控
       //- li(v-if="authority.isAdmin"): a(
       //-   :href="`${this.legacyUrl}/monitor.html`",
