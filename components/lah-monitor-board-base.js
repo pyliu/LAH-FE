@@ -29,6 +29,7 @@ export default {
       }
       const offset = this.reloadMs - nowTs + this.lastFetchTimestamp
       const restartTimerMs = offset > 0 ? offset : this.reloadMs
+      this.fetchingState = `🕓 ${+(Math.round((restartTimerMs / 1000 / 60) + 'e+1') + 'e-1')}分後更新`
       // set auto reloading timeout
       this.resetCountdownCounter(restartTimerMs)
     }
