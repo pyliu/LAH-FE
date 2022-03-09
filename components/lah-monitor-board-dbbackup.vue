@@ -108,9 +108,9 @@ export default {
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
-        ts - this.opt2Message.timestamp * 1000 > this.opt2Ms ||
-        ts - this.opt4Message.timestamp * 1000 > this.opt4Ms ||
-        (!this.isSaturday && ts - this.opt5Message.timestamp * 1000 > this.opt5Ms)
+        ts - this.opt2Message.timestamp * 1000 >= this.opt2Ms ||
+        ts - this.opt4Message.timestamp * 1000 >= this.opt4Ms ||
+        (!this.isSaturday && ts - this.opt5Message.timestamp * 1000 >= this.opt5Ms)
       ) {
         return 'danger'
       }
@@ -173,7 +173,7 @@ export default {
           mailbox: 'INBOX',
           message: `找不到 ${keyword} 已完成的通知郵件`,
           subject: `${keyword} 未完成！`,
-          timestamp: this.$utils.nowTs() / 1000 - ts / 1000 - 1 // minus 1 to let light logic work
+          timestamp: this.$utils.nowTs() / 1000 - ts / 1000
         }
       }
       return found
