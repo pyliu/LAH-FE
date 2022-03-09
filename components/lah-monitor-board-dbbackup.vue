@@ -96,14 +96,29 @@ export default {
       return this.opt4Ms
     },
     opt2Message () {
-      return this.messages.find(item =>
+      let found = this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 2')
       )
+      // prepare dummy item to indicate the missing info
+      if (!found) {
+        found = {
+          from: 'oracle@orahaha1',
+          id: 0,
+          mailbox: 'INBOX',
+          message: '找不到 BACKUP OPTION 2 已完成的通知郵件',
+          subject: 'BACKUP OPTION 2 未完成！',
+          timestamp: this.$utils.nowTs() / 1000 - this.opt4Ms / 1000
+        }
+      }
+      return found
     },
     opt4Ms () {
       return this.fetchDay * 24 * 60 * 60 * 1000
     },
     opt4Message () {
+      console.log(this.messages.find(item =>
+        item.subject.includes('BACKUP OPTION 4')
+      ))
       return this.messages.find(item =>
         item.subject.includes('BACKUP OPTION 4')
       )
