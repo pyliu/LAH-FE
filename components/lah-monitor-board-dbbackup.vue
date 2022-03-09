@@ -104,7 +104,7 @@ export default {
       return [this.opt2Message, this.opt4Message, this.opt5Message].filter(item => item)
     },
     light () {
-      const ts = +new Date()
+      const ts = this.$utils.nowTs()
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         return 'warning'
       } else if (
