@@ -95,42 +95,11 @@ export default {
     opt2Ms () {
       return this.opt4Ms
     },
-    opt2Message () {
-      let found = this.messages.find(item =>
-        item.subject.includes('BACKUP OPTION 2')
-      )
-      // prepare dummy item to indicate the missing info
-      if (!found) {
-        found = {
-          from: 'oracle@orahaha1',
-          id: 0,
-          mailbox: 'INBOX',
-          message: '找不到 BACKUP OPTION 2 已完成的通知郵件',
-          subject: 'BACKUP OPTION 2 未完成！',
-          timestamp: this.$utils.nowTs() / 1000 - this.opt4Ms / 1000
-        }
-      }
-      return found
-    },
-    opt4Ms () {
-      return this.fetchDay * 24 * 60 * 60 * 1000
-    },
-    opt4Message () {
-      console.log(this.messages.find(item =>
-        item.subject.includes('BACKUP OPTION 4')
-      ))
-      return this.messages.find(item =>
-        item.subject.includes('BACKUP OPTION 4')
-      )
-    },
-    opt5Ms () {
-      return 60 * 60 * 1000
-    },
-    opt5Message () {
-      return this.messages.find(item =>
-        item.subject.includes('BACKUP OPTION 5')
-      )
-    },
+    opt2Message () { return this.findItem(2) },
+    opt4Ms () { return this.fetchDay * 24 * 60 * 60 * 1000 },
+    opt4Message () { return this.findItem(4) },
+    opt5Ms () { return 60 * 60 * 1000 },
+    opt5Message () { return this.findItem(5) },
     headMessages () {
       return [this.opt2Message, this.opt4Message, this.opt5Message].filter(item => item)
     },
@@ -176,6 +145,38 @@ export default {
         cssList.push('text-danger')
       }
       return cssList
+    },
+    findItem (opt) {
+      let keyword = `BACKUP OPTION ${opt}`
+      let ts = 0
+      switch (opt) {
+        case 2:
+          ts = this.opt2Ms
+          break
+        case 4:
+          ts = this.opt4Ms
+          break
+        case 5:
+          ts = this.opt5Ms
+          break
+        default:
+          keyword = `未知選項 ${opt}`
+      }
+      let found = this.messages.find(item =>
+        item.subject.includes(keyword)
+      )
+      // prepare dummy item to indicate the missing info
+      if (!found) {
+        found = {
+          from: 'oracle@orahaha1',
+          id: 0,
+          mailbox: 'INBOX',
+          message: `找不到 ${keyword} 已完成的通知郵件`,
+          subject: `${keyword} 未完成！`,
+          timestamp: this.$utils.nowTs() / 1000 - ts / 1000 - 1 // minus 1 to let light logic work
+        }
+      }
+      return found
     }
   }
 }
