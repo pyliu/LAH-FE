@@ -342,6 +342,9 @@ export default {
         return pipelineItems
       }
       return this.bakedData
+    },
+    fieldKeys () {
+      return this.fields.map((field, idx, array) => field.key)
     }
   },
   watch: {
@@ -432,10 +435,20 @@ export default {
       // this.$store.commit('expiry/list', this.queriedJson.items || [])
     },
     xlsx () {
+      // prepare json objects for xlsx exporting
+      const jsons = this.bakedData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (key !== '公告燈號' && this.fieldKeys.includes(key)) {
+            obj[key] = value
+          }
+        }
+        return obj
+      })
       this.modal(this.$createElement(lahXlsxDownload, {
         props: {
           header: '公告案件',
-          jsonArray: this.bakedData || []
+          jsonArray: jsons
         }
       }), {
         title: '下載EXCEL檔案'
