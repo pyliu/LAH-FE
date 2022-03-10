@@ -154,8 +154,10 @@ div
 
 <script>
 import expiryBase from '~/pages/expire/expiry-base.js'
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
 export default {
   // middleware: [ 'expireAuth' ],
+  components: { lahXlsxDownload },
   mixins: [expiryBase],
   data: () => ({
     filtering: false,
@@ -326,7 +328,7 @@ export default {
       this.$store.commit('expiry/list', this.queriedJson.items || [])
     },
     xlsx () {
-      this.modal(this.$createElement('lah-xlsx-download', {
+      this.modal(this.$createElement(lahXlsxDownload, {
         props: {
           header: this.queryTitle,
           jsonArray: this.queriedJson?.items || []
