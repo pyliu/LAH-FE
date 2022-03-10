@@ -350,8 +350,9 @@ export default ({ $axios, store }, inject) => {
       const parts = formatted.split(' ')
       return full ? formatted : parts[0]
     },
-    twDateStr (dateObj) {
-      const ad = this.tsToAdDateStr(dateObj?.getTime() / 1000)?.replaceAll('-', '')
+    twDateStr (dateObj, full = false) {
+      const regex = /[:\-\s]/ig
+      const ad = this.tsToAdDateStr(dateObj?.getTime() / 1000, full)?.replaceAll(regex, '')
       const year = parseInt(ad.substring(0, 4)) - 1911
       return `${year}${ad.substring(4)}`
     },
