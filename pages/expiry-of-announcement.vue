@@ -12,13 +12,23 @@ div
           .mx-2 #[lah-fa-icon(icon="circle" variant="success") 公告中案件]
           .mx-2 #[lah-fa-icon(icon="circle" variant="info") 公告初核中案件]
 
-      lah-button.mr-1(
+      lah-button(
         icon="search-plus",
         size="lg",
         title="開啟進階搜尋視窗",
         @click="$refs.searchPlus.show()",
         :disabled="!dataReady"
       ) 進階搜尋
+      lah-button.mx-1(
+        icon="file-excel",
+        size="lg",
+        title="匯出EXCEL",
+        variant="outline-success",
+        regular,
+        no-icon-gutter,
+        :disabled="!dataReady",
+        @click="xlsx"
+      )
       lah-countdown-button(
         ref="countdown"
         icon="sync-alt"
@@ -127,8 +137,9 @@ div
 <script>
 import lahFaIcon from '~/components/lah-fa-icon.vue'
 import LahHeader from '~/components/lah-header.vue'
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
 export default {
-  components: { lahFaIcon, LahHeader },
+  components: { lahFaIcon, LahHeader, lahXlsxDownload },
   fetchOnServer: false,
   data: () => ({
     bakedData: [],
@@ -234,7 +245,7 @@ export default {
     })
   },
   head: {
-    title: '公告期滿案件-桃園市地政局'
+    title: '公告案件-桃園市地政局'
   },
   computed: {
     dataReady () { return this.bakedData?.length > 0 },
@@ -419,6 +430,16 @@ export default {
         }
       }
       // this.$store.commit('expiry/list', this.queriedJson.items || [])
+    },
+    xlsx () {
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header: '公告案件',
+          jsonArray: this.bakedData || []
+        }
+      }), {
+        title: '下載EXCEL檔案'
+      })
     }
   }
 }
