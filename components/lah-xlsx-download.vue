@@ -12,7 +12,7 @@ b-card(
     :variant="done ? 'success' : 'outline-secondary'",
     :disabled="!done"
   ) 開始下載
-  b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`") {{ msg }}
+  b-list-group(flush): transition-group(name="list"): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`") {{ msg }}
 </template>
 
 <script>
