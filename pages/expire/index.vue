@@ -36,13 +36,24 @@ div
           li 預定結案時間剩餘4小時內將判定為即將逾期案件
           li #[a(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 切換成舊版本模式]
 
-      lah-button.mr-1(
+
+      lah-button(
         icon="search-plus",
         size="lg",
         title="開啟進階搜尋視窗",
         @click="$refs.searchPlus.show()",
         :disabled="!dataReady"
       ) 進階搜尋
+      lah-button.mx-1(
+        icon="file-excel",
+        size="lg",
+        title="匯出EXCEL",
+        variant="outline-success",
+        regular,
+        no-icon-gutter,
+        :disabled="!dataReady",
+        @click="xlsx"
+      )
       lah-countdown-button(
         ref="countdown"
         icon="sync-alt"
@@ -313,6 +324,16 @@ export default {
         }
       }
       this.$store.commit('expiry/list', this.queriedJson.items || [])
+    },
+    xlsx () {
+      this.modal(this.$createElement('lah-xlsx-download', {
+        props: {
+          header: this.queryTitle,
+          jsonArray: this.queriedJson?.items || []
+        }
+      }), {
+        title: '下載EXCEL檔案'
+      })
     }
   }
 }
