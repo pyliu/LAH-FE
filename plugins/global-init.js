@@ -332,6 +332,9 @@ export default ({ $axios, store }, inject) => {
       // e.g. 2022-01-22 16:06:23
       return format(new Date(), 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
     },
+    time () {
+      return format(new Date(), 'HH:mm:ss', { locale: zhTW })
+    },
     nowTs () { return +new Date() },
     twNow () {
       const now = new Date()
