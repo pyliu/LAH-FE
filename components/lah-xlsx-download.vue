@@ -3,13 +3,15 @@ b-card(
   :class="noBorder ? ['border-0'] : []"
   no-body
 )
-  .d-flex.justify-content-start: lah-button(
+  .d-flex.justify-content-center: lah-button(
     icon="file-excel",
     title="點我下載EXCEL檔案",
+    size="lg",
+    action="slide-ttb",
     @click="download",
     :variant="done ? 'success' : 'outline-secondary'",
     :disabled="!done"
-  ) 下載
+  ) 開始下載
   b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`") {{ msg }}
 </template>
 
