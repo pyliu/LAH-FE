@@ -65,8 +65,9 @@ export default {
         this.addMessage('將轉換的資料加到 Workbook 中 ...')
         this.workbook.appendSheet(this.sheet)
         const filename = this.$utils.empty(this.filename) ? this.$utils.twDateStr(new Date(), true) : this.filename
-        this.addMessage(`開啟下載中 ... ${filename}.xlsx`)
+        this.addMessage(`準備 ${filename}.xlsx ...`)
         FileSaver.saveAs(this.workbook.toBlob(), `${filename}.xlsx`)
+        this.addMessage(`${filename}.xlsx 已傳送，請查看瀏覽器下載清單。`)
       } else {
         this.addMessage('⚠ 無資料 ... 請稍後再試！')
       }
