@@ -9,7 +9,7 @@
             .h5 請利用日期區間搜尋
         .d-flex
           lah-datepicker.mr-1(v-model="dateRange")
-          lah-button.mr-1(
+          lah-button(
             ref="search"
             icon="search"
             size="lg"
@@ -17,6 +17,17 @@
             :disabled="isBusy || isWrongDaysPeriod"
             @click="$fetch"
             no-icon-gutter
+          )
+          lah-button.mx-1(
+            icon="file-excel",
+            size="lg",
+            title="匯出EXCEL",
+            variant="outline-success",
+            action="move-fade-ltr",
+            regular,
+            no-icon-gutter,
+            :disabled="!dataReady",
+            @click="xlsx"
           )
           lah-countdown-button(
             ref="countdown"
@@ -47,13 +58,9 @@
 </template>
 
 <script>
-import lahButton from '~/components/lah-button.vue';
+import lahButton from '~/components/lah-button.vue'
 export default {
   components: { lahButton },
-  head: {
-    title: '外國人地權案件-桃園市地政局'
-  },
-  fetchOnServer: false,
   data: () => ({
     forceReload: false,
     committed: false,
@@ -111,31 +118,21 @@ export default {
       }
     ]
   }),
-  computed: {
-    cacheKey () { return `foreigner-case-${this.dateRange.begin}-${this.dateRange.end}` },
-    isWrongDaysPeriod () { return this.dateRange.days < 1 }
-  },
-  methods: {
-    reload () {
-      this.forceReload = true
-      this.$fetch()
-    }
-  },
   fetch () {
     if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
-        this.$utils.warn('dateRange is not ready ... postpone $fetch')
-        this.timeout(this.$fetch, 250)
+      this.$utils.warn('dateRange is not ready ... postpone $fetch')
+      this.timeout(this.$fetch, 250)
     } else {
       // restore cached data if found
-      this.getCache(this.cacheKey).then(json => {
+      this.getCache(this.cacheKey).then((json) => {
         if (json === false || this.forceReload) {
-          if(this.isBusy) {
+          if (this.isBusy) {
             this.notify('讀取中 ... 請稍後', { type: 'warning' })
           } else {
             this.isBusy = true
             this.committed = false
             this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-              type: `reg_foreigner_case`,
+              type: 'reg_foreigner_case',
               begin: this.dateRange.begin,
               end: this.dateRange.end,
               reload: this.forceReload
@@ -154,7 +151,7 @@ export default {
                   this.$refs.countdown.startCountdown()
                 }
               }
-            }).catch(err => {
+            }).catch((err) => {
               this.alert(err.message)
               this.$utils.error(err)
             }).finally(() => {
@@ -166,7 +163,7 @@ export default {
         } else {
           this.bakedData = json.baked
           this.committed = true
-          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
@@ -175,6 +172,34 @@ export default {
           })
         }
       })
+    }
+  },
+  head: {
+    title: '外國人地權案件-桃園市地政局'
+  },
+  fetchOnServer: false,
+  computed: {
+    dataReady () { return this.bakedData.length > 0 },
+    cacheKey () { return `foreigner-case-${this.dateRange.begin}-${this.dateRange.end}` },
+    isWrongDaysPeriod () { return this.dateRange.days < 1 }
+  },
+  methods: {
+    reload () {
+      this.forceReload = true
+      this.$fetch()
+    },
+    xlsx () {
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.bakedData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[key] = value
+          }
+        }
+        return obj
+      })
+      this.downloadXlsx('外國人地權案件', jsons)
     }
   }
 }
