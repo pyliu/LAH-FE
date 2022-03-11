@@ -1,133 +1,177 @@
 <template lang="pug">
-  div
-    lah-header
-      lah-transition(appear): .d-flex.justify-content-between.w-100
-        .d-flex
-          .my-auto 非專業代理人案件檢索
-          lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-          lah-help-modal(:modal-id="'help-modal'")
-            h5 請參照下列步驟搜尋
-            ol
-              li 切換登記或測量案件
-              li 選擇日期區間(預設為目前月份)
-              li 輸入想要忽略之統編(非必要)
-              li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
+div
+  lah-header
+    lah-transition(appear): .d-flex.justify-content-between.w-100
+      .d-flex
+        .my-auto 非專業代理人案件檢索
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-help-modal(:modal-id="'help-modal'")
+          h5 請參照下列步驟搜尋
+          ol
+            li 切換登記或測量案件
+            li 選擇日期區間(預設為目前月份)
+            li 輸入想要忽略之統編(非必要)
+            li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
 
-        .d-flex
-          b-form-radio-group.d-flex.text-nowrap.my-auto.small(
-            v-model="caseType"
-            :options="caseTypeOpts"
-          )
-          b-datepicker(
-            v-model="startDateObj"
-            placeholder="開始日期"
-            boundary="viewport"
-            size="sm"
-            :date-format-options="{ weekday: 'narrow' }"
-            :max="yesterday"
-            value-as-date
-            hide-header
-            dropleft
-          )
-          .my-auto ～
-          b-datepicker.mr-1(
-            v-model="endDateObj"
-            placeholder="截止日期"
-            boundary="viewport"
-            size="sm"
-            :date-format-options="{ weekday: 'narrow' }"
-            :max="today"
-            :min="startDateObj"
-            hide-header
-            dark
-            value-as-date
-          )
-          lah-button(
-            icon="search"
-            size="lg"
-            title="搜尋"
-            @click="$fetch"
-            :disabled="isBusy"
-            :busy="isBusy"
-            no-icon-gutter
-          )
-          lah-button.mx-1(
-            icon="file-excel",
-            size="lg",
-            title="匯出EXCEL",
-            variant="outline-success",
-            action="move-fade-ltr",
-            regular,
-            no-icon-gutter,
-            :disabled="!committed",
-            @click="xlsx"
-          )
-          lah-countdown-button(
-            ref="countdown"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            variant="outline-secondary"
-            badge-variant="secondary"
-            title="強制重新搜尋"
-            :milliseconds="0"
-            :disabled="isBusy"
-            :busy="isBusy"
-            @end="reload"
-            @click="reload"
-            no-badge
-          )
-    .d-flex.justify-content-between.mb-1
-      b-pagination(
-        v-if="showPagination"
-        v-model="currentPage"
-        :total-rows="paginationCount"
-        :per-page="perPage"
-        last-number
-        first-number
-        aria-controls="scrivener-table"
-        class="my-auto mr-2"
+      .d-flex
+        b-form-radio-group.d-flex.text-nowrap.my-auto.small(
+          v-model="caseType"
+          :options="caseTypeOpts"
+        )
+        b-datepicker(
+          v-model="startDateObj"
+          placeholder="開始日期"
+          boundary="viewport"
+          size="sm"
+          :date-format-options="{ weekday: 'narrow' }"
+          :max="yesterday"
+          value-as-date
+          hide-header
+          dropleft
+        )
+        .my-auto ～
+        b-datepicker.mr-1(
+          v-model="endDateObj"
+          placeholder="截止日期"
+          boundary="viewport"
+          size="sm"
+          :date-format-options="{ weekday: 'narrow' }"
+          :max="today"
+          :min="startDateObj"
+          hide-header
+          dark
+          value-as-date
+        )
+        lah-button.mx-1(
+          icon="search"
+          size="lg"
+          title="搜尋"
+          @click="$fetch"
+          :disabled="isBusy"
+          :busy="isBusy"
+          no-icon-gutter
+        )
+        lah-button(
+          icon="search-plus",
+          size="lg",
+          title="開啟進階搜尋視窗",
+          @click="$refs.searchPlus.show()",
+          :disabled="!committed",
+          no-icon-gutter
+        )
+        lah-button.mx-1(
+          icon="file-excel",
+          size="lg",
+          title="匯出EXCEL",
+          variant="outline-success",
+          action="move-fade-ltr",
+          regular,
+          no-icon-gutter,
+          :disabled="!committed",
+          @click="xlsx"
+        )
+        lah-countdown-button(
+          ref="countdown"
+          icon="sync-alt"
+          action="ld-cycle"
+          size="lg"
+          variant="outline-secondary"
+          badge-variant="secondary"
+          title="強制重新搜尋"
+          :milliseconds="0"
+          :disabled="isBusy"
+          :busy="isBusy"
+          @end="reload"
+          @click="reload"
+          no-badge
+        )
+
+  lah-transition: b-tags.border-0.mt-n4(
+    v-if="advTags.length > 0",
+    v-model="advTags",
+    placeholder="",
+    tag-variant="primary",
+    tag-pills,
+    no-outer-focus,
+    no-add-on-enter,
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
+  )
+  .d-flex.justify-content-between.mb-1
+    b-pagination(
+      v-if="showPagination"
+      v-model="currentPage"
+      :total-rows="paginationCount"
+      :per-page="perPage"
+      last-number
+      first-number
+      aria-controls="scrivener-table"
+      class="my-auto mr-2"
+    )
+    b-input-group(size="sm" prepend="忽略" class="tags-input")
+      b-form-tags(
+        input-id="tags"
+        v-model="ignoreTags"
+        separator=" ,;"
+        remove-on-delete
+        tag-variant="secondary"
+        tag-pills
+        placeholder="忽略的統編 ... "
+        add-button-text="新增"
+        add-button-variant="outline-secondary"
       )
-      b-input-group(size="sm" prepend="忽略" class="tags-input")
-        b-form-tags(
-          input-id="tags"
-          v-model="ignoreTags"
-          separator=" ,;"
-          remove-on-delete
-          tag-variant="secondary"
-          tag-pills
-          placeholder="忽略的統編 ... "
-          add-button-text="新增"
-          add-button-variant="outline-secondary"
-        )
-        b-input-group-append
-          lah-button(prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市") 各事務所
-          lah-button(action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤") 清除
-    lah-transition
-      div(v-if="committed")
-        lah-reg-b-table(
-          :busy="isBusy"
-          :baked-data="regBakedData"
-          :fields="regFields"
-          :per-page="perPage"
-          :current-page="currentPage"
-          :caption-append="captionRange"
-          :max-height-offset="160"
-          only-popup-detailed
-          v-if="caseType === 'reg'"
-        )
-        lah-reg-b-table(
-          v-else
-          :busy="isBusy"
-          :baked-data="surBakedData"
-          :fields="surFields"
-          :per-page="perPage"
-          :current-page="currentPage"
-          :caption-append="captionRange"
-          :max-height-offset="160"
-          only-popup-detailed
-        )
-      h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
+      b-input-group-append
+        lah-button(prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市") 各事務所
+        lah-button(action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤") 清除
+  lah-transition
+    div(v-if="committed")
+      lah-reg-b-table(
+        :busy="isBusy"
+        :baked-data="filterRegBakedData"
+        :fields="regFields"
+        :per-page="perPage"
+        :current-page="currentPage"
+        :caption-append="captionRange"
+        :max-height-offset="160"
+        only-popup-detailed
+        v-if="caseType === 'reg'"
+      )
+      lah-reg-b-table(
+        v-else
+        :busy="isBusy"
+        :baked-data="surBakedData"
+        :fields="surFields"
+        :per-page="perPage"
+        :current-page="currentPage"
+        :caption-append="captionRange"
+        :max-height-offset="160"
+        only-popup-detailed
+      )
+    h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
+
+  b-modal(
+    ref="searchPlus",
+    title="進階搜尋",
+    hide-footer
+  )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="統編"): b-select(
+        v-model="advOpts.id",
+        :options="advOpts.idOpts",
+        title="非專代統編"
+      )
+      b-input-group(prepend="名稱"): b-select(
+        v-model="advOpts.name",
+        :options="advOpts.nameOpts",
+        title="非專代名稱"
+      )
+    .center.d-flex.my-1
+      lah-button(
+        icon="recycle",
+        @click="resetAdvOpts",
+        variant="outline-success"
+      ) 重設
 </template>
 
 <script>
@@ -336,7 +380,13 @@ export default {
         label: '建號',
         sortable: true
       }
-    ]
+    ],
+    advOpts: {
+      id: '',
+      idOpts: [],
+      name: '',
+      nameOpts: []
+    }
   }),
   fetch () {
     this.resetCommitted()
@@ -368,6 +418,22 @@ export default {
         return this.regBakedData.length
       }
       return this.surBakedData.length
+    },
+    advTags () {
+      const tags = []
+      if (!this.$utils.empty(this.advOpts.id)) {
+        tags.push(`統編：${this.advOpts.id}`)
+      }
+      if (!this.$utils.empty(this.advOpts.name)) {
+        tags.push(`名稱：${this.advOpts.name}`)
+      }
+      return tags
+    },
+    filterRegBakedData () {
+      return this.filterBakedData(this.regBakedData)
+    },
+    filterSurBakedData () {
+      return this.filterBakedData(this.surBakedData)
     }
   },
   watch: {
@@ -379,9 +445,13 @@ export default {
     },
     caseType (val) {
       this.$fetch()
+    },
+    regBakedData (val) {
+      this.refreshAdvOptsSelect(val)
+    },
+    surBakedData (val) {
+      this.refreshAdvOptsSelect(val)
     }
-  },
-  created () {
   },
   methods: {
     reload () {
@@ -596,6 +666,50 @@ export default {
     xlsx () {
       const jsons = this.caseType === 'reg' ? this.prepareRegJsons() : this.prepareSurJsons()
       this.downloadXlsx('非專業代理人案件', jsons)
+    },
+    resetAdvOpts () {
+      this.advOpts = {
+        ...this.advOpts,
+        ...{
+          id: '',
+          name: ''
+        }
+      }
+    },
+    refreshAdvOptsSelect (val) {
+      this.advOpts = {
+        ...{
+          id: '',
+          idOpts: [],
+          name: '',
+          nameOpts: []
+        }
+      }
+      if (val) {
+        this.advOpts.idOpts = [...new Set(val.map(item => item.AB01))].sort()
+        this.advOpts.nameOpts = [...new Set(val.map(item => item.AB02))].sort()
+        this.advOpts.idOpts.unshift('')
+        this.advOpts.nameOpts.unshift('')
+      }
+    },
+    filterBakedData (source) {
+      if (this.advTags.length > 0) {
+        let pipelineItems = source
+        const checkId = !this.$utils.empty(this.advOpts.id)
+        if (checkId) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.AB01.match(this.advOpts.id) !== null
+          })
+        }
+        const checkName = !this.$utils.empty(this.advOpts.name)
+        if (checkName) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.AB02.match(this.advOpts.name) !== null
+          })
+        }
+        return pipelineItems
+      }
+      return source
     }
   }
 }
