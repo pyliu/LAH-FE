@@ -437,7 +437,7 @@ export default {
     },
     xlsx () {
       // prepare json objects for xlsx exporting
-      const jsons = this.bakedData.map((data, idx, array) => {
+      const jsons = this.filterBakedData.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (key !== '公告燈號' && this.fieldKeys.includes(key)) {
