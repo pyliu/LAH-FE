@@ -4,7 +4,7 @@ b-card(
   no-body
 )
   .d-flex.justify-content-center: lah-button.my-1(
-    icon="file-excel",
+    icon="download",
     title="點我下載EXCEL檔案",
     size="lg",
     action="slide-ttb",
