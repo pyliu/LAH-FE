@@ -42,7 +42,7 @@
             dark
             value-as-date
           )
-          lah-button.mr-1(
+          lah-button(
             icon="search"
             size="lg"
             title="搜尋"
@@ -50,6 +50,17 @@
             :disabled="isBusy"
             :busy="isBusy"
             no-icon-gutter
+          )
+          lah-button.mx-1(
+            icon="file-excel",
+            size="lg",
+            title="匯出EXCEL",
+            variant="outline-success",
+            action="move-fade-ltr",
+            regular,
+            no-icon-gutter,
+            :disabled="!committed",
+            @click="xlsx"
           )
           lah-countdown-button(
             ref="countdown"
@@ -122,7 +133,7 @@
 <script>
 export default {
   fetchOnServer: false,
-  asyncData(nuxt) {
+  asyncData (nuxt) {
     const today = new Date()
     const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
     const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
@@ -143,14 +154,14 @@ export default {
     forceReload: false,
     committed: false,
     tyOfficeMap: {
-      '中壢': 45000808,
-      '楊梅':	43717356,
-      '桃園': 43504044,
-      '大溪': 43501004,
-      '蘆竹':	44039876,
-      '八德':	95924138,
-      '平鎮':	95920288,
-      '龜山': 50634177
+      中壢: 45000808,
+      楊梅: 43717356,
+      桃園: 43504044,
+      大溪: 43501004,
+      蘆竹: 44039876,
+      八德: 95924138,
+      平鎮: 95920288,
+      龜山: 50634177
 
     },
     ignoreTags: ['中壢', '楊梅', '桃園', '大溪', '蘆竹', '八德', '平鎮', '龜山'],
@@ -332,7 +343,7 @@ export default {
     this.caseType === 'reg' ? this.loadReg() : this.loadSur()
   },
   head: {
-    title: '信託案件檢索-桃園市地政局',
+    title: '非專業代理人案件-桃園市地政局'
   },
   computed: {
     md5Hash () {
@@ -395,7 +406,7 @@ export default {
       // restore cached data if found
       this.getCache(this.cacheKey).then((json) => {
         if (this.forceReload || json === false) {
-          if(this.isBusy) {
+          if (this.isBusy) {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
           } else {
             this.isBusy = true
@@ -441,7 +452,7 @@ export default {
       // restore cached data if found
       this.getCache(this.cacheKey).then((json) => {
         if (this.forceReload || json === false) {
-          if(this.isBusy) {
+          if (this.isBusy) {
             this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
           } else {
             this.isBusy = true
@@ -482,6 +493,109 @@ export default {
           })
         }
       })
+    },
+    prepareRegJsons () {
+      const fieldKeys = this.regFields.map((field, idx, array) => field.key)
+      return this.regBakedData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            switch (key) {
+              case 'AB01':
+                obj['非專代統編'] = value
+                break
+              case 'AB02':
+                obj['非專代名稱'] = value
+                break
+              case 'AB03':
+                obj['非專代住址'] = value
+                break
+              case 'AB04_NON_SCRIVENER_TEL':
+                obj['非專代電話'] = value
+                break
+              case 'AB13':
+                obj['當年案件量'] = value
+                break
+              case 'AB23':
+                obj['本所案件量'] = value
+                break
+              case 'RM12_C':
+                obj['地號'] = value
+                break
+              case 'RM15_C':
+                obj['建號'] = value
+                break
+              default:
+                obj[key] = value
+            }
+          }
+        }
+        return obj
+      })
+    },
+    prepareSurJsons () {
+      const fieldKeys = this.surFields.map((field, idx, array) => field.key)
+      return this.surBakedData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            switch (key) {
+              case 'AB01':
+                obj['非專代統編'] = value
+                break
+              case 'AB02':
+                obj['非專代名稱'] = value
+                break
+              case 'AB03':
+                obj['非專代住址'] = value
+                break
+              case 'AB04_NON_SCRIVENER_TEL':
+                obj['非專代電話'] = value
+                break
+              case 'MM123':
+                obj['收件字號'] = value
+                break
+              case 'AB13':
+                obj['當年案件量'] = value
+                break
+              case 'AB23':
+                obj['本所案件量'] = value
+                break
+              case 'RM11_C_KCNT':
+                obj['段小段'] = value
+                break
+              case 'RM10_C_KCNT':
+                obj['區名稱'] = value
+                break
+              case 'MM16':
+                obj['申請人住址'] = value
+                break
+              case 'MM15':
+                obj['申請人電話'] = value
+                break
+              case 'MM14':
+                obj['申請人姓名'] = value
+                break
+              case 'MM13':
+                obj['申請人統編'] = value
+                break
+              case 'RM12_C':
+                obj['地號'] = value
+                break
+              case 'RM15_C':
+                obj['建號'] = value
+                break
+              default:
+                obj[key] = value
+            }
+          }
+        }
+        return obj
+      })
+    },
+    xlsx () {
+      const jsons = this.caseType === 'reg' ? this.prepareRegJsons() : this.prepareSurJsons()
+      this.downloadXlsx('非專業代理人案件', jsons)
     }
   }
 }
