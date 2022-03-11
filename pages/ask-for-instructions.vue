@@ -19,7 +19,7 @@
         lah-datepicker.mr-1(v-model="dateRange")
         //- b-form-input.my-auto.mr-2(type="range" v-model="months" min="1" max="12")
         //- span.my-auto.mr-2 {{ months }}個月內
-        lah-button.mr-1(
+        lah-button(
           ref="search"
           icon="search"
           size="lg"
@@ -27,6 +27,17 @@
           :disabled="isBusy || dateRange.days < 1"
           @click="$fetch"
           no-icon-gutter
+        )
+        lah-button.mx-1(
+          icon="file-excel",
+          size="lg",
+          title="匯出EXCEL",
+          variant="outline-success",
+          action="move-fade-ltr",
+          regular,
+          no-icon-gutter,
+          :disabled="!dataReady",
+          @click="xlsx"
         )
         lah-countdown-button(
           ref="countdown"
@@ -59,10 +70,6 @@
 
 <script>
 export default {
-  head: {
-    title: "取消請示案件查詢-桃園市地政局",
-  },
-  fetchOnServer: false,
   data: () => ({
     bakedData: [],
     committed: false,
@@ -76,58 +83,54 @@ export default {
     months: 1,
     fields: [
       {
-        key: "請示燈號",
+        key: '請示燈號',
         label: '狀態',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "收件字號",
-        sortable: true,
+        key: '收件字號',
+        sortable: true
       },
       {
-        key: "收件日期",
-        sortable: true,
+        key: '收件日期',
+        sortable: true
       },
       {
-        key: "登記原因",
-        sortable: true,
+        key: '登記原因',
+        sortable: true
       },
       {
-        key: "辦理情形",
-        sortable: true,
+        key: '辦理情形',
+        sortable: true
       },
       {
-        key: "初審人員",
-        sortable: true,
+        key: '初審人員',
+        sortable: true
       },
       {
-        key: "請示日期",
-        sortable: true,
+        key: '請示日期',
+        sortable: true
       },
       {
-        key: "取消請示日期",
+        key: '取消請示日期',
         label: '取消請示',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "預定結案日期",
+        key: '預定結案日期',
         label: '預定結案',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "結案日期",
-        sortable: true,
-      },
+        key: '結案日期',
+        sortable: true
+      }
     ]
   }),
-  computed: {
-    queryCount() { return this.bakedData.length },
-    cacheKey() { return `reg_cancel_ask_case_${this.dateRange.begin}_${this.dateRange.end}` }
-  },
-  async fetch () {
+  fetch () {
     if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
       this.$utils.warn('dateRange is not ready ... postpone $fetch')
-      this.timeout(this.$fetch, 250) 
+      this.timeout(this.$fetch, 250)
     } else {
       this.getCache(this.cacheKey).then((json) => {
         if (this.forceReload === true || json === false) {
@@ -151,23 +154,32 @@ export default {
             }
             this.$refs.countdown.startCountdown()
           })
-          .catch((err) => {
-            this.alert(err.message)
-            this.$utils.error(err)
-          })
-          .finally(() => {
-            this.isBusy = false
-            this.forceReload = false
-          })
+            .catch((err) => {
+              this.alert(err.message)
+              this.$utils.error(err)
+            })
+            .finally(() => {
+              this.isBusy = false
+              this.forceReload = false
+            })
         } else {
           this.bakedData = json.baked || []
           this.resetCountdown()
-          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
             this.notify(`查詢成功，找到 ${this.bakedData.length} 筆取消請示案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
         }
       })
     }
+  },
+  head: {
+    title: '取消請示案件查詢-桃園市地政局'
+  },
+  fetchOnServer: false,
+  computed: {
+    dataReady () { return this.queryCount > 0 },
+    queryCount () { return this.bakedData?.length || 0 },
+    cacheKey () { return `reg_cancel_ask_case_${this.dateRange.begin}_${this.dateRange.end}` }
   },
   methods: {
     resetCountdown () {
@@ -186,6 +198,20 @@ export default {
         this.forceReload = true
         this.$fetch()
       })
+    },
+    xlsx () {
+      // prepare json objects for xlsx exporting
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.bakedData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (key !== '請示燈號' && fieldKeys.includes(key)) {
+            obj[key] = value
+          }
+        }
+        return obj
+      })
+      this.downloadXlsx('取消請示案件', jsons)
     }
   }
 }

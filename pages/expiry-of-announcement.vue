@@ -24,6 +24,7 @@ div
         size="lg",
         title="匯出EXCEL",
         variant="outline-success",
+        action="move-fade-ltr",
         regular,
         no-icon-gutter,
         :disabled="!dataReady",
