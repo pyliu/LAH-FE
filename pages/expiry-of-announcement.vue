@@ -445,14 +445,7 @@ export default {
         }
         return obj
       })
-      this.modal(this.$createElement(lahXlsxDownload, {
-        props: {
-          header: '公告案件',
-          jsonArray: jsons
-        }
-      }), {
-        title: '下載EXCEL檔案'
-      })
+      this.downloadXlsx('公告案件', jsons)
     }
   }
 }

@@ -1,7 +1,7 @@
 <template lang="pug">
-  b-container(v-cloak fluid)
-    Nuxt
-    lah-footer
+b-container(v-cloak fluid)
+  Nuxt
+  lah-footer
 </template>
 
 <script>

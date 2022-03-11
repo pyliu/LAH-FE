@@ -3,7 +3,7 @@ b-card(
   :class="noBorder ? ['border-0'] : []"
   no-body
 )
-  .d-flex.justify-content-center: lah-button(
+  .d-flex.justify-content-center: lah-button.my-1(
     icon="file-excel",
     title="點我下載EXCEL檔案",
     size="lg",
@@ -12,7 +12,14 @@ b-card(
     :variant="done ? 'success' : 'outline-secondary'",
     :disabled="!done"
   ) 開始下載
-  b-list-group(flush): transition-group(name="list"): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`") {{ msg }}
+  b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
+    lah-fa-icon(
+      v-if="idx === 0"
+      icon="angle-double-right",
+      variant="danger",
+      action="move-ltr"
+    )
+    span.ml-1 {{ msg }}
 </template>
 
 <script>
@@ -60,7 +67,7 @@ export default {
   },
   methods: {
     addMessage (msg) {
-      this.messages.unshift(`${this.$utils.time()}: ${msg}`)
+      this.messages.unshift(`${msg} (${this.$utils.time()})`)
     },
     download () {
       if (this.done) {
