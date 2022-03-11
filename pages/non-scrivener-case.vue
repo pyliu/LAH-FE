@@ -566,7 +566,7 @@ export default {
     },
     prepareRegJsons () {
       const fieldKeys = this.regFields.map((field, idx, array) => field.key)
-      return this.regBakedData.map((data, idx, array) => {
+      return this.filterRegBakedData.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
@@ -605,7 +605,7 @@ export default {
     },
     prepareSurJsons () {
       const fieldKeys = this.surFields.map((field, idx, array) => field.key)
-      return this.surBakedData.map((data, idx, array) => {
+      return this.filterSurBakedData.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
