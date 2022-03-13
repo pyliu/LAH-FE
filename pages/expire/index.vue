@@ -52,7 +52,7 @@ div
         regular,
         no-icon-gutter,
         :disabled="!dataReady",
-        @click="downloadXlsx(queryTitle, queriedJson.items || [])"
+        @click="downloadXlsx(queryTitle, $store.getters['expiry/list'] || [])"
       )
       lah-countdown-button(
         ref="countdown"
