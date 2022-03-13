@@ -45,7 +45,7 @@ div
           :value="null",
           disabled
         ) -- 請選擇查詢類型 --
-        lah-button.mr-1(
+        lah-button(
           ref="search",
           icon="search",
           size="lg",
@@ -53,6 +53,17 @@ div
           :disabled="isBusy || $utils.empty(qryType) || isWrongDaysPeriod",
           @click="$fetch",
           no-icon-gutter
+        )
+        lah-button.mx-1(
+          icon="file-excel",
+          size="lg",
+          title="匯出EXCEL",
+          variant="outline-success",
+          action="move-fade-ltr",
+          regular,
+          no-icon-gutter,
+          :disabled="!dataReady",
+          @click="xlsx"
         )
         lah-countdown-button(
           ref="countdown",
@@ -352,6 +363,9 @@ export default {
   },
   fetchOnServer: false,
   computed: {
+    dataReady () {
+      return this.rows.length > 0
+    },
     fields () {
       return this.qryType === 'land' ? this.landFields : this.ownerFields
     },
@@ -440,6 +454,20 @@ export default {
         return 'Z: 見其他登記事項'
       }
       return item.BB15_1
+    },
+    xlsx () {
+      const fields = this.qryType === 'land' ? this.landFields : this.ownerFields
+      const fieldKeys = fields.map((field, idx, array) => field.key)
+      const jsons = this.rows.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[key] = value
+          }
+        }
+        return obj
+      })
+      this.downloadXlsx('外國人地權案件', jsons)
     }
   }
 }
