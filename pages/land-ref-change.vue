@@ -1,119 +1,130 @@
 <template lang="pug">
-  div
-    lah-header: lah-transition(appear)
-      .d-flex.justify-content-between.w-100
-        .d-flex
-          .my-auto 土地參考資訊檔異動
-          lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-          lah-help-modal(:modal-id="'help-modal'")
-            h5 資料庫搜尋說明
-            ul
-              li 搜尋土地參考資訊檔異動情形的資料
-              li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
-            hr
-            h5 請參照下列步驟搜尋
-            ol
-              li 選擇查詢區間
-              li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
+div
+  lah-header: lah-transition(appear)
+    .d-flex.justify-content-between.w-100
+      .d-flex
+        .my-auto 土地參考資訊檔異動
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-help-modal(:modal-id="'help-modal'")
+          h5 資料庫搜尋說明
+          ul
+            li 搜尋土地參考資訊檔異動情形的資料
+            li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
+          hr
+          h5 請參照下列步驟搜尋
+          ol
+            li 選擇查詢區間
+            li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
-        .d-flex.small
-          lah-datepicker.mr-1(v-model="dateRange")
+      .d-flex.small
+        lah-datepicker.mr-1(v-model="dateRange")
 
-          lah-button.mr-1(
-            ref="search"
-            icon="search"
-            size="lg"
-            title="搜尋"
-            :disabled="isBusy || isWrongDaysPeriod"
-            @click="$fetch"
-            no-icon-gutter
-          )
-          lah-countdown-button(
-            ref="countdown"
-            title="立即重新讀取"
-            variant="outline-secondary"
-            badge-variant="secondary"
-            icon="sync-alt"
-            action="ld-cycle"
-            size="lg"
-            :milliseconds="cachedMs"
-            :disabled="isBusy || isWrongDaysPeriod"
-            :busy="isBusy"
-            @end="reload"
-            @click="reload"
-            auto-start
-            end-attention
-            no-badge
-          )
+        lah-button(
+          ref="search"
+          icon="search"
+          size="lg"
+          title="搜尋"
+          :disabled="isBusy || isWrongDaysPeriod"
+          @click="$fetch"
+          no-icon-gutter
+        )
+        lah-button.mx-1(
+          icon="file-excel",
+          size="lg",
+          title="匯出EXCEL",
+          variant="outline-success",
+          action="move-fade-ltr",
+          regular,
+          no-icon-gutter,
+          :disabled="!dataReady",
+          @click="xlsx"
+        )
+        lah-countdown-button(
+          ref="countdown"
+          title="立即重新讀取"
+          variant="outline-secondary"
+          badge-variant="secondary"
+          icon="sync-alt"
+          action="ld-cycle"
+          size="lg"
+          :milliseconds="cachedMs"
+          :disabled="isBusy || isWrongDaysPeriod"
+          :busy="isBusy"
+          @end="reload"
+          @click="reload"
+          auto-start
+          end-attention
+          no-badge
+        )
 
-    lah-pagination(
-      v-model="pagination"
-      :total-rows="queryCount"
-      :caption="foundText"
+  lah-pagination(
+    v-model="pagination"
+    :total-rows="queryCount"
+    :caption="foundText"
+  )
+
+  lah-transition
+    b-table.text-center(
+      v-if="committed"
+      id="land-ref-table"
+      ref="table"
+      caption-top
+      selectable
+      select-mode="single"
+      selected-variant="success"
+      :sticky-header="`${maxHeight}px`"
+      :busy="isBusy"
+      :items="rows"
+      :responsive="'lg'"
+      :striped="true"
+      :hover="true"
+      :bordered="true"
+      :borderless="false"
+      :outlined="false"
+      :small="true"
+      :dark="false"
+      :fixed="false"
+      :foot-clone="false"
+      :no-border-collapse="true"
+      :head-variant="'dark'"
+      :fields="fields"
+      :per-page="pagination.perPage"
+      :current-page="pagination.currentPage"
     )
-
-    lah-transition
-      b-table.text-center(
-        v-if="committed"
-        id="land-ref-table"
-        ref="table"
-        caption-top
-        selectable
-        select-mode="single"
-        selected-variant="success"
-        :sticky-header="`${maxHeight}px`"
-        :busy="isBusy"
-        :items="rows"
-        :responsive="'lg'"
-        :striped="true"
-        :hover="true"
-        :bordered="true"
-        :borderless="false"
-        :outlined="false"
-        :small="true"
-        :dark="false"
-        :fixed="false"
-        :foot-clone="false"
-        :no-border-collapse="true"
-        :head-variant="'dark'"
-        :fields="fields"
-        :per-page="pagination.perPage"
-        :current-page="pagination.currentPage"
-      )
-        template(#table-busy): span.ld-txt 讀取中...
-        template(v-slot:cell(#)="{ item, index, rowSelected }")
-          template(v-if="rowSelected")
-            span(aria-hidden="true") &check;
-            span.sr-only 勾選
-          template(v-else)
-            span(aria-hidden="true") &nbsp;
-            span.sr-only 無勾選
-          span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-        template(#cell(RM01)="{ item }"): div: b-link(@click="popup(item)").
-          {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-        template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
-        template(#cell(AA48)="{ item }"): .text-nowrap {{ item.AA48 }}:{{ item.AA48_CHT }}
-        template(#cell(AA49)="{ item }"): .text-nowrap {{ landNumber(item) }}
-        template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
-        template(#cell(AS_TYPE)="{ item }"): .text-nowrap {{ item.AS_TYPE }}:{{ item.AS_TYPE_CHT }}
-        template(#cell(GG00)="{ item }"): .text-nowrap {{ item.GG00 }}:{{ item.GG00_CHT }}
-        template(#cell(GG01)="{ item }"): .text-nowrap {{ item.GG01 }}
-        template(#cell(GG30_2)="{ item }"): .text-left.content-max-width {{ item.GG30_2 }}
-        template(#cell(AF08)="{ item }"): .text-nowrap {{ item.AF08 }}:{{ item.AF08_CHT }}
-        template(#cell(AF09)="{ item }"): .text-left.content-max-width {{ item.AF09 }}
-    b-modal(
-      :id="modalId"
-      size="xl"
-      hide-footer
-      centered
-      no-close-on-backdrop
-      scrollable
-    )
-      template(#modal-title) 登記案件詳情 {{ $utils.caseId(clickedId) }}
-      h4.text-center.text-info.my-5(v-if="modalLoading")
-        b-spinner.my-auto(small type="grow")
-        strong.ld-txt 查詢中...
-      lah-reg-case-detail(:case-id="clickedId" @ready="modalLoading = !$event.detail")
+      template(#table-busy): span.ld-txt 讀取中...
+      template(v-slot:cell(#)="{ item, index, rowSelected }")
+        template(v-if="rowSelected")
+          span(aria-hidden="true") &check;
+          span.sr-only 勾選
+        template(v-else)
+          span(aria-hidden="true") &nbsp;
+          span.sr-only 無勾選
+        span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
+      template(#cell(RM01)="{ item }"): div: b-link(@click="popup(item)").
+        {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+      template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
+      template(#cell(AA48)="{ item }"): .text-nowrap {{ item.AA48 }}:{{ item.AA48_CHT }}
+      template(#cell(AA49)="{ item }"): .text-nowrap {{ landNumber(item) }}
+      template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
+      template(#cell(AS_TYPE)="{ item }"): .text-nowrap {{ item.AS_TYPE }}:{{ item.AS_TYPE_CHT }}
+      template(#cell(GG00)="{ item }"): .text-nowrap {{ item.GG00 }}:{{ item.GG00_CHT }}
+      template(#cell(GG01)="{ item }"): .text-nowrap {{ item.GG01 }}
+      template(#cell(GG30_2)="{ item }"): .text-left.content-max-width {{ item.GG30_2 }}
+      template(#cell(AF08)="{ item }"): .text-nowrap {{ item.AF08 }}:{{ item.AF08_CHT }}
+      template(#cell(AF09)="{ item }"): .text-left.content-max-width {{ item.AF09 }}
+  b-modal(
+    :id="modalId"
+    size="xl"
+    hide-footer
+    centered
+    no-close-on-backdrop
+    scrollable
+  )
+    template(#modal-title) 登記案件詳情 {{ $utils.caseId(clickedId) }}
+    h4.text-center.text-info.my-5(v-if="modalLoading")
+      b-spinner.my-auto(small type="grow")
+      strong.ld-txt 查詢中...
+    lah-reg-case-detail(:case-id="clickedId" @ready="modalLoading = !$event.detail")
 </template>
 
 <script>
@@ -246,6 +257,7 @@ export default {
     title: '土地參考資訊檔異動情形查詢-桃園市地政局'
   },
   computed: {
+    dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
     cacheKey () { return `query_land_ref_change_${this.dateRange.begin}_${this.dateRange.end}` },
     foundText () { return `找到 ${this.queryCount} 筆「土地參考資訊檔」案件異動資料` },
@@ -292,6 +304,28 @@ export default {
     },
     humanTWDate (str) {
       return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
+    },
+    getLabel (key) {
+      const found = this.fields.find((item, idx, array) => {
+        return this.$utils.equal(item.key, key)
+      })
+      if (found && found.label) {
+        return found.label
+      }
+      return key
+    },
+    xlsx () {
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.rows.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      })
+      this.downloadXlsx('土地參考資訊檔異動情形', jsons)
     }
   }
 }
