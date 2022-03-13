@@ -19,8 +19,8 @@
 
         .d-flex.small
           lah-datepicker.mr-1(v-model="dateRange")
-          
-          lah-button.mr-1(
+
+          lah-button(
             ref="search"
             icon="search"
             size="lg"
@@ -28,6 +28,17 @@
             :disabled="isBusy || isWrongDaysPeriod"
             @click="$fetch"
             no-icon-gutter
+          )
+          lah-button.mx-1(
+            icon="file-excel",
+            size="lg",
+            title="匯出EXCEL",
+            variant="outline-success",
+            action="move-fade-ltr",
+            regular,
+            no-icon-gutter,
+            :disabled="!dataReady",
+            @click="xlsx"
           )
           lah-countdown-button(
             ref="countdown"
@@ -46,7 +57,7 @@
             end-attention
             no-badge
           )
-    
+
     lah-pagination(
       v-model="pagination"
       :total-rows="queryCount"
@@ -84,7 +95,7 @@
         template(#table-busy): span.ld-txt 讀取中...
         template(v-slot:cell(#)="{ item, index, rowSelected }")
           template(v-if="rowSelected")
-            span(aria-hidden="true") &check; 
+            span(aria-hidden="true") &check;
             span.sr-only 勾選
           template(v-else)
             span(aria-hidden="true") &nbsp;
@@ -119,10 +130,8 @@
 
 <script>
 export default {
-  head: {
-    title: '未辦繼承土地及建物異動情形查詢-桃園市地政局'
-  },
-  fetchOnServer: false,
+  // only worked at page level component
+  async asyncData (nuxt) {},
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
     modalId: 'this should be an uuid',
@@ -143,102 +152,84 @@ export default {
     fields: [
       '#',
       {
-        key: "GG00",
-        label: "部別",
-        sortable: true,
+        key: 'GG00',
+        label: '部別',
+        sortable: true
       },
       {
-        key: "GS03",
-        label: "收件年字號",
-        sortable: true,
+        key: 'GS03',
+        label: '收件年字號',
+        sortable: true
       },
       {
-        key: "RM09",
+        key: 'RM09',
         label: '登記原因',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "RM56_1",
+        key: 'RM56_1',
         label: '校對日期',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GS_TYPE",
+        key: 'GS_TYPE',
         label: '異動別',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG48",
+        key: 'GG48',
         label: '段代碼',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG49",
+        key: 'GG49',
         label: '地/建號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG01",
+        key: 'GG01',
         label: '登序',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS09",
+        key: 'IS09',
         label: '統編',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "ISNAME",
+        key: 'ISNAME',
         label: '權利人',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG30_2",
+        key: 'GG30_2',
         label: '內容',
-        sortable: true,
+        sortable: true
       }
     ],
     maxHeight: 600,
     warnDays: 180
   }),
-  // only worked at page level component
-  async asyncData (nuxt) {},
-  computed: {
-    queryCount () { return this.rows.length },
-    cacheKey () { return `query_not_done_change_${this.dateRange.begin}_${this.dateRange.end}` },
-    foundText () { return `找到 ${this.queryCount} 筆「未辦繼承土地及建物」異動資料` },
-    daysPeriod () { return this.dateRange.days || 0 },
-    isWrongDaysPeriod () { return this.daysPeriod < 1 }
-  },
-  watch: {
-    daysPeriod (val) {
-      if (val < 1) {
-        this.alert(`開始日期應小於或等於結束日期`, { pos: 'tr' })
-      } else if (val > this.warnDays) {
-        this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
-      }
-    }
-  },
   async fetch () {
-    if(this.isBusy) {
+    if (this.isBusy) {
       this.notify('讀取中 ... 請稍後', { type: 'warning' })
     } else {
       if (this.daysPeriod > this.warnDays) {
-        const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`);
+        const ans = await this.confirm(`搜尋區間大於${this.warnDays}天(過大區間，可能造成讀取時間過長而失敗)，請確認要執行？`)
         if (!ans) {
           return
         }
       } else if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
         this.$utils.warn('dateRange is not ready ... postpone $fetch')
         this.timeout(this.$fetch, 250)
-        return 
+        return
       }
 
       this.getCache(this.cacheKey).then((json) => {
         this.reset()
         if (this.forceReload !== true && json) {
           this.rows = json.raw
-          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
@@ -266,7 +257,7 @@ export default {
                 this.$refs.countdown.startCountdown()
               }
             }
-          }).catch(err => {
+          }).catch((err) => {
             this.alert(err.message)
             this.$utils.error(err)
           }).finally(() => {
@@ -277,6 +268,33 @@ export default {
         }
       })
     }
+  },
+  head: {
+    title: '未辦繼承土地及建物異動情形查詢-桃園市地政局'
+  },
+  fetchOnServer: false,
+  computed: {
+    dataReady () { return this.rows.length > 0 },
+    queryCount () { return this.rows.length },
+    cacheKey () { return `query_not_done_change_${this.dateRange.begin}_${this.dateRange.end}` },
+    foundText () { return `找到 ${this.queryCount} 筆「未辦繼承土地及建物」異動資料` },
+    daysPeriod () { return this.dateRange.days || 0 },
+    isWrongDaysPeriod () { return this.daysPeriod < 1 }
+  },
+  watch: {
+    daysPeriod (val) {
+      if (val < 1) {
+        this.alert('開始日期應小於或等於結束日期', { pos: 'tr' })
+      } else if (val > this.warnDays) {
+        this.notify(`搜尋區間過大將造成伺服器回應緩慢(目前:${val}天)`, { title: '警告', type: 'warning', pos: 'tr' })
+      }
+    }
+  },
+  created () {
+    this.modalId = this.$utils.uuid()
+  },
+  mounted () {
+    this.maxHeight = parseInt(window.innerHeight - 145)
   },
   methods: {
     reload () {
@@ -290,7 +308,7 @@ export default {
     },
     popup (data) {
       this.modalLoading = true
-      this.clickedId = `${data['GS03']}${data['GS04_1']}${data['GS04_2']}`
+      this.clickedId = `${data.GS03}${data.GS04_1}${data.GS04_2}`
       this.showModalById(this.modalId)
     },
     landBuildNumber (item) {
@@ -311,13 +329,29 @@ export default {
         return 'Z: 見其他登記事項'
       }
       return item.BB15_1
+    },
+    getLabel (key) {
+      const found = this.fields.find((item, idx, array) => {
+        return this.$utils.equal(item.key, key)
+      })
+      if (found && found.label) {
+        return found.label
+      }
+      return key
+    },
+    xlsx () {
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.rows.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      })
+      this.downloadXlsx('未辦繼承土地及建物異動', jsons)
     }
-  },
-  created () {
-    this.modalId = this.$utils.uuid()
-  },
-  mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
   }
 }
 </script>
