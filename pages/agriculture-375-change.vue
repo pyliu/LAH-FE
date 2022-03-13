@@ -385,6 +385,9 @@ export default {
           return `不支援的型別【${this.qryType}】`
       }
     },
+    qryFields () {
+      return this.qryType === 'land' ? this.landFields : this.ownerFields
+    },
     cacheKey () {
       return `query_375_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}`
     },
@@ -455,19 +458,28 @@ export default {
       }
       return item.BB15_1
     },
+    getLabel (key) {
+      const found = this.qryFields.find((item, idx, array) => {
+        return this.$utils.equal(item.key, key)
+      })
+      if (found && found.label) {
+        return found.label
+      }
+      return key
+    },
     xlsx () {
-      const fields = this.qryType === 'land' ? this.landFields : this.ownerFields
-      const fieldKeys = fields.map((field, idx, array) => field.key)
+      const fieldKeys = this.qryFields.map((field, idx, array) => field.key)
       const jsons = this.rows.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
-            obj[key] = value
+            this.$utils.warn(key, this.getLabel(key))
+            obj[this.getLabel(key)] = value
           }
         }
         return obj
       })
-      this.downloadXlsx('外國人地權案件', jsons)
+      this.downloadXlsx('375租約異動查詢', jsons)
     }
   }
 }
