@@ -77,6 +77,7 @@ export default {
         this.addMessage(`準備 ${filename}.xlsx ...`)
         FileSaver.saveAs(this.workbook.toBlob(), `${filename}.xlsx`)
         this.addMessage(`${filename}.xlsx 已傳送，請查看瀏覽器下載清單。`)
+        this.done = false
       } else {
         this.addMessage('⚠ 無資料 ... 請稍後再試！')
       }
