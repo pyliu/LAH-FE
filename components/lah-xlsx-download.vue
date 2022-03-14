@@ -12,6 +12,7 @@ b-card(
     :variant="done ? 'success' : 'outline-secondary'",
     :disabled="!done"
   ) 開始下載
+  lah-fa-icon(icon="list-alt", variant="secondary") 處理紀錄
   b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
     lah-fa-icon(
       v-if="idx === 0"
