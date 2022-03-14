@@ -140,7 +140,7 @@ div
       lah-reg-b-table(
         v-else
         :busy="isBusy"
-        :baked-data="surBakedData"
+        :baked-data="filterSurBakedData"
         :fields="surFields"
         :per-page="perPage"
         :current-page="currentPage"
