@@ -52,7 +52,7 @@ div
         regular,
         no-icon-gutter,
         :disabled="!dataReady",
-        @click="downloadXlsx(queryTitle, $store.getters['expiry/list'] || [])"
+        @click="downloadXlsx(queryTitle, currentList)"
       )
       lah-countdown-button(
         ref="countdown"
@@ -206,6 +206,9 @@ export default {
     },
     storeCaseCount () {
       return this.$store.getters['expiry/list_count']
+    },
+    currentList () {
+      return this.$store.getters['expiry/list'] || []
     }
   },
   watch: {
