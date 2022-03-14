@@ -7,6 +7,7 @@ export default {
     messages: [],
     updated: '',
     reloadMs: 15 * 60 * 1000,
+    reloadTimer: null,
     lastFetchTimestamp: 0,
     fetchingState: ''
   }),
@@ -85,6 +86,9 @@ export default {
       old: ''
     })
     this.clearFetchingState = this.$utils.debounce(() => { this.fetchingState = '' }, 5000)
+  },
+  beforeDestroy () {
+    clearTimeout(this.reloadTimer)
   },
   methods: {
     resetCountdownCounter (restartTimerMs) {

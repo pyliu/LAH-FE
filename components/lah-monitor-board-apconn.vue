@@ -108,7 +108,6 @@ export default {
       '60',
       '161'
     ],
-    reloadTimer: null,
     updatedTime: '',
     allSwitch: false,
     loadItems: [],
@@ -121,7 +120,8 @@ export default {
       yellow: 4,
       green: 2,
       gray: 0
-    }
+    },
+    reloadTimer: null
   }),
   computed: {
     word () { return this.allSwitch ? '系統' : '使用者' },
@@ -179,9 +179,6 @@ export default {
   },
   mounted () {
     this.loadAPConnectionCount()
-  },
-  beforeDestroy () {
-    clearTimeout(this.reloadTimer)
   },
   methods: {
     reloadConn () { /* placeholder for loadAPConnectionCount  */ },

@@ -33,6 +33,9 @@ export default {
   computed: {
     displayFetchState () { return !this.$utils.empty(this.fetchState) }
   },
+  beforeDestroy () {
+    this.$refs.countdown.pauseCountdown()
+  },
   methods: {
     reset (ms) {
       this.$refs.countdown.setCountdown(ms)
