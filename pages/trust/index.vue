@@ -39,7 +39,16 @@ div
           @click="$fetch"
           no-icon-gutter
         )
-        lah-button.mx-1(
+        lah-button.ml-1(
+          v-if="showAdvSearch",
+          icon="search-plus",
+          size="lg",
+          title="開啟進階搜尋視窗",
+          @click="$refs.searchPlus.show()",
+          :disabled="disableAdvSearch",
+          no-icon-gutter
+        )
+        lah-button.ml-1(
           icon="file-excel",
           size="lg",
           title="匯出EXCEL",
@@ -65,6 +74,19 @@ div
           @end="reload"
           @click="reload"
         )
+
+  lah-transition: b-tags.border-0.mt-n4(
+    v-if="advTags.length > 0",
+    v-model="advTags",
+    placeholder="",
+    tag-variant="primary",
+    tag-pills,
+    no-outer-focus,
+    no-add-on-enter,
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
+  )
 
   lah-pagination(
     v-model="pagination"
@@ -95,7 +117,7 @@ div
       selected-variant="success"
       :sticky-header="`${maxHeight}px`"
       :busy="isBusy"
-      :items="rows"
+      :items="filteredRows"
       :responsive="'lg'"
       :striped="true"
       :hover="true"
@@ -120,7 +142,7 @@ div
       template(#cell(RM123)="{ item }"): .text-nowrap: b-link(@click="popup(item)").
         {{ item.RM123 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
       template(#cell(GG30_1)="{ item }"): div.
-        【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }}{{ item.GG30_2 }}
+        【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }} {{ item.GG30_2 }}
     h3.text-center(
       v-else
     ): lah-fa-icon(action="breath" variant="primary") 請點選查詢按鈕
@@ -137,6 +159,51 @@ div
       b-spinner.my-auto(small type="grow")
       strong.ld-txt 查詢中...
     lah-reg-case-detail(:case-id="clickedId" @ready="modalLoading = !$event.detail")
+
+  b-modal(
+    ref="searchPlus",
+    title="進階搜尋",
+    hide-footer
+  )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="日期"): b-select(
+        v-model="advOpts.date",
+        :options="advOpts.dateOpts",
+        title="登記日期"
+      )
+      b-input-group(prepend="類別"): b-select(
+        v-model="advOpts.class",
+        :options="advOpts.classOpts",
+        title="異動類別"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="原因"): b-select(
+        v-model="advOpts.reason",
+        :options="advOpts.reasonOpts",
+        title="登記原因"
+      )
+      b-input-group(prepend="地號"): b-select(
+        v-model="advOpts.number",
+        :options="advOpts.numberOpts",
+        title="地或建號"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="統編"): b-select(
+        v-model="advOpts.id",
+        :options="advOpts.idOpts",
+        title="統編"
+      )
+      b-input-group(prepend="名稱"): b-select(
+        v-model="advOpts.name",
+        :options="advOpts.nameOpts",
+        title="名稱"
+      )
+    .center.d-flex.my-1
+      lah-button(
+        icon="recycle",
+        @click="resetAdvOpts",
+        variant="outline-success"
+      ) 重設
 </template>
 
 <script>
@@ -157,16 +224,21 @@ export default {
     },
     forceReload: false,
     committed: false,
-    qryType: 'reg_reason',
+    qryType: 'land',
     qryTypes: [
-      { value: 'land', text: '土地註記塗銷' },
-      { value: 'building', text: '建物註記塗銷' },
+      { value: 'land', text: '信託註記查詢-土地' },
+      { value: 'building', text: '信託註記查詢-建物' },
       { value: 'reg_reason', text: '登記收件查詢' }
     ],
     obliterateFields: [
       {
-        key: 'RM123',
-        label: '收件字號',
+        key: 'RM33',
+        label: '登記日期',
+        sortable: true
+      },
+      {
+        key: 'GS_TYPE',
+        label: '異動類別',
         sortable: true
       },
       {
@@ -195,8 +267,8 @@ export default {
         sortable: true
       },
       {
-        key: 'GS_TYPE',
-        label: '異動類別',
+        key: 'RM123',
+        label: '收件字號',
         sortable: true
       },
       {
@@ -205,17 +277,26 @@ export default {
         sortable: true
       },
       {
-        key: 'RM33',
-        label: '登記日期',
-        sortable: true
-      },
-      {
         key: 'GG30_1',
         label: '代碼內容',
         sortable: true
       }
     ],
-    maxHeight: 600
+    maxHeight: 600,
+    advOpts: {
+      id: '',
+      idOpts: [],
+      name: '',
+      nameOpts: [],
+      date: '',
+      dateOpts: [],
+      class: '',
+      classOpts: [],
+      reason: '',
+      reasonOpts: [],
+      number: '',
+      numberOpts: []
+    }
   }),
   fetch () {
     if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
@@ -266,22 +347,100 @@ export default {
   fetchOnServer: false,
   computed: {
     dataReady () { return this.queryCount > 0 },
-    queryCount () { return this.rows?.length || 0 },
+    queryCount () {
+      if (this.qryType === 'reg_reason') {
+        return this.rows?.length || 0
+      } else {
+        return this.filteredRows.length || 0
+      }
+    },
     qryTypeText () {
       switch (this.qryType) {
         case 'land':
-          return '土地註記塗銷'
+          return '土地其他登記事項信託註記查詢'
         case 'building':
-          return '建物註記塗銷'
+          return '建物其他登記事項信託註記查詢'
         case 'reg_reason':
-          return '登記收件查詢'
+          return '登記收件(信託)資料查詢'
         default:
           return `不支援的型別【${this.qryType}】`
       }
     },
     caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` },
-    validDateRange () { return this.dateRange.days > 0 }
+    validDateRange () { return this.dateRange.days > 0 },
+    showAdvSearch () { return this.qryType !== 'reg_reason' },
+    disableAdvSearch () { return this.rows.length === 0 || !this.committed },
+    advTags () {
+      const tags = []
+      if (!this.$utils.empty(this.advOpts.id)) {
+        tags.push(`統編：${this.advOpts.id}`)
+      }
+      if (!this.$utils.empty(this.advOpts.name)) {
+        tags.push(`名稱：${this.advOpts.name}`)
+      }
+      if (!this.$utils.empty(this.advOpts.date)) {
+        tags.push(`登記日期：${this.advOpts.date}`)
+      }
+      if (!this.$utils.empty(this.advOpts.class)) {
+        tags.push(`異動類別：${this.advOpts.class}`)
+      }
+      if (!this.$utils.empty(this.advOpts.reason)) {
+        tags.push(`登記原因：${this.advOpts.reason}`)
+      }
+      if (!this.$utils.empty(this.advOpts.number)) {
+        tags.push(`地/建號：${this.advOpts.number}`)
+      }
+      return tags
+    },
+    filteredRows () {
+      if (this.advTags.length > 0) {
+        let pipelineItems = this.rows
+        const checkId = !this.$utils.empty(this.advOpts.id)
+        if (checkId) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.BB09.match(this.advOpts.id) !== null
+          })
+        }
+        const checkName = !this.$utils.empty(this.advOpts.name)
+        if (checkName) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.LNAM.match(this.advOpts.name) !== null
+          })
+        }
+        const checkDate = !this.$utils.empty(this.advOpts.date)
+        if (checkDate) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM33.match(this.advOpts.date) !== null
+          })
+        }
+        const checkClass = !this.$utils.empty(this.advOpts.class)
+        if (checkClass) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.GS_TYPE.match(this.advOpts.class) !== null
+          })
+        }
+        const checkReason = !this.$utils.empty(this.advOpts.reason)
+        if (checkReason) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM09.match(this.advOpts.reason) !== null
+          })
+        }
+        const checkNumber = !this.$utils.empty(this.advOpts.number)
+        if (checkNumber) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.GG49.match(this.advOpts.number) !== null
+          })
+        }
+        return pipelineItems
+      }
+      return this.rows
+    }
+  },
+  watch: {
+    rows (val) {
+      this.refreshAdvOptsSelect(val)
+    }
   },
   created () {
     this.modalId = this.$utils.uuid()
@@ -319,7 +478,8 @@ export default {
       const fieldKeys = this.qryType === 'reg_reason'
         ? this.$refs.regTbl.tblFields.map((field, idx, array) => field.key)
         : this.obliterateFields.map((field, idx, array) => field.key)
-      const jsons = this.rows.map((data, idx, array) => {
+      const data = this.qryType === 'reg_reason' ? this.rows : this.filteredRows
+      const jsons = data.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
@@ -335,6 +495,51 @@ export default {
         return obj
       })
       this.downloadXlsx('信託案件', jsons)
+    },
+    resetAdvOpts () {
+      this.advOpts = {
+        ...this.advOpts,
+        ...{
+          id: '',
+          name: '',
+          date: '',
+          class: '',
+          reason: '',
+          number: ''
+        }
+      }
+    },
+    refreshAdvOptsSelect (val) {
+      this.advOpts = {
+        ...{
+          id: '',
+          idOpts: [],
+          name: '',
+          nameOpts: [],
+          date: '',
+          dateOpts: [],
+          class: '',
+          classOpts: [],
+          reason: '',
+          reasonOpts: [],
+          number: '',
+          numberOpts: []
+        }
+      }
+      if (val) {
+        this.advOpts.idOpts = [...new Set(val.map(item => item.BB09))].sort()
+        this.advOpts.nameOpts = [...new Set(val.map(item => item.LNAM))].sort()
+        this.advOpts.dateOpts = [...new Set(val.map(item => item.RM33))].sort()
+        this.advOpts.classOpts = [...new Set(val.map(item => item.GS_TYPE))].sort()
+        this.advOpts.reasonOpts = [...new Set(val.map(item => item.RM09))].sort()
+        this.advOpts.numberOpts = [...new Set(val.map(item => item.GG49))].sort()
+        this.advOpts.idOpts.unshift('')
+        this.advOpts.nameOpts.unshift('')
+        this.advOpts.dateOpts.unshift('')
+        this.advOpts.classOpts.unshift('')
+        this.advOpts.reasonOpts.unshift('')
+        this.advOpts.numberOpts.unshift('')
+      }
     }
   }
 }
