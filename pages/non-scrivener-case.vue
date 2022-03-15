@@ -56,7 +56,7 @@ div
           size="lg",
           title="開啟進階搜尋視窗",
           @click="$refs.searchPlus.show()",
-          :disabled="!committed",
+          :disabled="!committed || paginationCount === 0",
           no-icon-gutter
         )
         lah-button.mx-1(
@@ -165,6 +165,17 @@ div
         v-model="advOpts.name",
         :options="advOpts.nameOpts",
         title="非專代名稱"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="電話"): b-select(
+        v-model="advOpts.tel",
+        :options="advOpts.telOpts",
+        title="非專代電話"
+      )
+      b-input-group(prepend="日期"): b-select(
+        v-model="advOpts.date",
+        :options="advOpts.dateOpts",
+        title="收件日期"
       )
     .center.d-flex.my-1
       lah-button(
@@ -386,7 +397,11 @@ export default {
       id: '',
       idOpts: [],
       name: '',
-      nameOpts: []
+      nameOpts: [],
+      tel: '',
+      telOpts: [],
+      date: '',
+      dateOpts: []
     }
   }),
   fetch () {
@@ -427,6 +442,12 @@ export default {
       }
       if (!this.$utils.empty(this.advOpts.name)) {
         tags.push(`名稱：${this.advOpts.name}`)
+      }
+      if (!this.$utils.empty(this.advOpts.tel)) {
+        tags.push(`非專代電話：${this.advOpts.tel}`)
+      }
+      if (!this.$utils.empty(this.advOpts.date)) {
+        tags.push(`收件日期：${this.advOpts.date}`)
       }
       return tags
     },
@@ -676,7 +697,9 @@ export default {
         ...this.advOpts,
         ...{
           id: '',
-          name: ''
+          name: '',
+          tel: '',
+          date: ''
         }
       }
     },
@@ -686,14 +709,22 @@ export default {
           id: '',
           idOpts: [],
           name: '',
-          nameOpts: []
+          nameOpts: [],
+          tel: '',
+          telOpts: [],
+          date: '',
+          dateOpts: []
         }
       }
       if (val) {
         this.advOpts.idOpts = [...new Set(val.map(item => item.AB01))].sort()
         this.advOpts.nameOpts = [...new Set(val.map(item => item.AB02))].sort()
+        this.advOpts.telOpts = [...new Set(val.map(item => item.AB04_NON_SCRIVENER_TEL))].sort()
+        this.advOpts.dateOpts = [...new Set(val.map(item => item.收件日期))].sort()
         this.advOpts.idOpts.unshift('')
         this.advOpts.nameOpts.unshift('')
+        this.advOpts.telOpts.unshift('')
+        this.advOpts.dateOpts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -709,6 +740,21 @@ export default {
         if (checkName) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.AB02.match(this.advOpts.name) !== null
+          })
+        }
+        const checkTel = !this.$utils.empty(this.advOpts.tel)
+        if (checkTel) {
+          pipelineItems = pipelineItems.filter((item) => {
+            if (item.AB04_NON_SCRIVENER_TEL) {
+              return item.AB04_NON_SCRIVENER_TEL.match(this.advOpts.tel) !== null
+            }
+            return false
+          })
+        }
+        const checkDate = !this.$utils.empty(this.advOpts.date)
+        if (checkDate) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.收件日期.match(this.advOpts.date) !== null
           })
         }
         return pipelineItems
