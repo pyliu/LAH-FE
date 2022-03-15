@@ -106,6 +106,7 @@ export default {
     light () {
       const ts = this.$utils.nowTs()
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
+        this.lightChanged('warning', '', 'LahMonitorBoardDbbackup')
         return 'warning'
       } else if (
         ts - this.opt2Message.timestamp * 1000 >= this.opt2Ms ||
