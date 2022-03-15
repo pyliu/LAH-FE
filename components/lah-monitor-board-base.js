@@ -64,11 +64,7 @@ export default {
   },
   watch: {
     light (nVal, oVal) {
-      this.$emit('light-update', {
-        name: this.componentName,
-        new: nVal,
-        old: oVal
-      })
+      this.lightChanged(nVal, oVal, this.componentName)
     },
     fetchedMonitorMailCount (nVal, oVal) {
       if (nVal > 0) {
@@ -80,11 +76,7 @@ export default {
     }
   },
   created () {
-    this.$emit('light-update', {
-      name: this.componentName,
-      new: 'warning',
-      old: ''
-    })
+    this.lightChanged('warning', '', this.componentName)
     this.clearFetchingState = this.$utils.debounce(() => { this.fetchingState = '' }, 5000)
   },
   beforeDestroy () {
@@ -198,6 +190,13 @@ export default {
       } finally {
         this.isBusy = false
       }
+    },
+    lightChanged (nlight, olight, name) {
+      this.$emit('light-update', {
+        name,
+        new: nlight,
+        old: olight
+      })
     }
   }
 }

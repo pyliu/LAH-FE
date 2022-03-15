@@ -112,8 +112,10 @@ export default {
         ts - this.opt4Message.timestamp * 1000 >= this.opt4Ms ||
         (!this.isSaturday && ts - this.opt5Message.timestamp * 1000 >= this.opt5Ms)
       ) {
+        this.lightChanged('danger', '', 'LahMonitorBoardDbbackup')
         return 'danger'
       }
+      this.lightChanged('success', '', 'LahMonitorBoardDbbackup')
       return 'success'
     }
   },
