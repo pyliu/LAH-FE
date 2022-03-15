@@ -76,7 +76,7 @@ div
     lah-reg-b-table(
       v-if="qryType === 'reg_reason' && committed"
       ref="regTbl"
-      type="lg"
+      type="md"
       :baked-data="rows"
       :per-page="pagination.perPage"
       :current-page="pagination.currentPage"
