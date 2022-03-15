@@ -210,6 +210,7 @@ div
         @click="resetAdvOpts",
         variant="outline-success"
       ) 重設
+      small.text-muted.ml-2 找到 {{ filteredRows.length }} 筆
 </template>
 
 <script>

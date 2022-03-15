@@ -172,6 +172,7 @@ div
         @click="resetAdvOpts",
         variant="outline-success"
       ) 重設
+      small.text-muted.ml-2 找到 {{ filterDataCount }} 筆
 </template>
 
 <script>
@@ -434,6 +435,9 @@ export default {
     },
     filterSurBakedData () {
       return this.filterBakedData(this.surBakedData)
+    },
+    filterDataCount () {
+      return this.caseType === 'reg' ? this.filterRegBakedData.length : this.filterSurBakedData.length
     }
   },
   watch: {

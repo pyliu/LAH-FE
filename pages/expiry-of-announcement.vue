@@ -132,6 +132,7 @@ div
         @click="reset",
         variant="outline-success"
       ) 重設
+      small.text-muted.ml-2 找到 {{ filterBakedData.length }} 筆
       lah-fa-icon.ml-1(v-if="filtering", icon="sync-alt", action="spin", variant="danger",title="篩選中 ... ")
 </template>
 
