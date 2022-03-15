@@ -14,8 +14,8 @@ div
           hr
           h5 支援以下三種查詢類別
           ol
-            li 信託登記－土地註記塗銷
-            li 信託登記－建物註記塗銷
+            li 信託註記查詢-土地
+            li 信託註記查詢-建物
             li 登記收件原因為 CU, CW, CV, CX, CY 之案件
           hr
           //- lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件年字號」開啟案件詳情視窗
@@ -199,6 +199,12 @@ div
         title="名稱"
       )
     .center.d-flex.my-1
+      b-input-group.mr-1(prepend="段小段代碼"): b-select(
+        v-model="advOpts.section",
+        :options="advOpts.sectionOpts",
+        title="段小段代碼"
+      )
+    .center.d-flex.my-1
       lah-button(
         icon="recycle",
         @click="resetAdvOpts",
@@ -295,7 +301,9 @@ export default {
       reason: '',
       reasonOpts: [],
       number: '',
-      numberOpts: []
+      numberOpts: [],
+      section: '',
+      sectionOpts: []
     }
   }),
   fetch () {
@@ -391,6 +399,9 @@ export default {
       if (!this.$utils.empty(this.advOpts.number)) {
         tags.push(`地/建號：${this.advOpts.number}`)
       }
+      if (!this.$utils.empty(this.advOpts.section)) {
+        tags.push(`段代碼：${this.advOpts.section}`)
+      }
       return tags
     },
     filteredRows () {
@@ -430,6 +441,12 @@ export default {
         if (checkNumber) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.GG49.match(this.advOpts.number) !== null
+          })
+        }
+        const checkSection = !this.$utils.empty(this.advOpts.section)
+        if (checkSection) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.GG48.match(this.advOpts.section) !== null
           })
         }
         return pipelineItems
@@ -505,7 +522,8 @@ export default {
           date: '',
           class: '',
           reason: '',
-          number: ''
+          number: '',
+          section: ''
         }
       }
     },
@@ -523,7 +541,9 @@ export default {
           reason: '',
           reasonOpts: [],
           number: '',
-          numberOpts: []
+          numberOpts: [],
+          section: '',
+          sectionOpts: []
         }
       }
       if (val) {
@@ -533,12 +553,14 @@ export default {
         this.advOpts.classOpts = [...new Set(val.map(item => item.GS_TYPE))].sort()
         this.advOpts.reasonOpts = [...new Set(val.map(item => item.RM09))].sort()
         this.advOpts.numberOpts = [...new Set(val.map(item => item.GG49))].sort()
+        this.advOpts.sectionOpts = [...new Set(val.map(item => item.GG48))].sort()
         this.advOpts.idOpts.unshift('')
         this.advOpts.nameOpts.unshift('')
         this.advOpts.dateOpts.unshift('')
         this.advOpts.classOpts.unshift('')
         this.advOpts.reasonOpts.unshift('')
         this.advOpts.numberOpts.unshift('')
+        this.advOpts.sectionOpts.unshift('')
       }
     }
   }
