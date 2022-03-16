@@ -264,7 +264,7 @@ export default {
       },
       {
         key: 'GG30_2',
-        label: '內容',
+        label: '其他登記事項內容',
         sortable: true
       }
     ],
