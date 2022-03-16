@@ -199,11 +199,12 @@ div
         title="名稱"
       )
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="段小段代碼"): b-select(
+      b-input-group.mr-1(prepend="段碼"): b-select(
         v-model="advOpts.section",
         :options="advOpts.sectionOpts",
         title="段小段代碼"
       )
+      b-input-group: .text-muted.ml-2 {{ advOptsSectionCHT }}
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -304,7 +305,8 @@ export default {
       number: '',
       numberOpts: [],
       section: '',
-      sectionOpts: []
+      sectionOpts: [],
+      sectionMap: new Map()
     }
   }),
   fetch () {
@@ -404,6 +406,9 @@ export default {
         tags.push(`段代碼：${this.advOpts.section}`)
       }
       return tags
+    },
+    advOptsSectionCHT () {
+      return this.advOpts.sectionMap?.get(this.advOpts.section)
     },
     filteredRows () {
       if (this.advTags.length > 0) {
@@ -524,7 +529,8 @@ export default {
           class: '',
           reason: '',
           number: '',
-          section: ''
+          section: '',
+          sectionMap: new Map()
         }
       }
     },
@@ -544,7 +550,8 @@ export default {
           number: '',
           numberOpts: [],
           section: '',
-          sectionOpts: []
+          sectionOpts: [],
+          sectionMap: new Map()
         }
       }
       if (val) {
@@ -555,6 +562,9 @@ export default {
         this.advOpts.reasonOpts = [...new Set(val.map(item => item.RM09))].sort()
         this.advOpts.numberOpts = [...new Set(val.map(item => item.GG49))].sort()
         this.advOpts.sectionOpts = [...new Set(val.map(item => item.GG48))].sort()
+        val.forEach((item, idx, arr) => {
+          this.advOpts.sectionMap.set(item.GG48, item.GG48_CHT)
+        })
         this.advOpts.idOpts.unshift('')
         this.advOpts.nameOpts.unshift('')
         this.advOpts.dateOpts.unshift('')
