@@ -131,7 +131,7 @@ div
       //-     :options="advOpts.caseYearOpts",
       //-     title="收件年"
       //-   )
-      b-input-group.mx-1(prepend="　收件字")
+      b-input-group.mr-1(prepend="　收件字")
         //- b-input.mx-1(v-model="advOpts.caseYear", placeholder="... 收件年 ...", trim)
         b-select(
           v-model="advOpts.caseWord",
