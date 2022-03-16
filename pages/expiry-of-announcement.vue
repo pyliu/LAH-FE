@@ -73,20 +73,20 @@ div
     hide-footer
   )
     .center.d-flex
-      b-input-group(prepend="年")
-        b-select(
-          v-model="advOpts.caseYear",
-          :options="advOpts.caseYearOpts",
-          title="收件年"
-        )
-      b-input-group.mx-1(prepend="字")
+      //- b-input-group(prepend="年")
+      //-   b-select(
+      //-     v-model="advOpts.caseYear",
+      //-     :options="advOpts.caseYearOpts",
+      //-     title="收件年"
+      //-   )
+      b-input-group.mr-1(prepend="　收件字")
         //- b-input.mx-1(v-model="advOpts.caseYear", placeholder="... 收件年 ...", trim)
         b-select(
           v-model="advOpts.caseWord",
           :options="advOpts.caseWordOpts",
           title="收件字"
         )
-      b-input-group(prepend="號")
+      b-input-group(prepend="　收件號")
         //- b-input.mr-1(v-model="advOpts.caseWord", placeholder="... 收件字 ...", trim)
         b-input(v-model="advOpts.caseNum", placeholder="... 收件號 ...", trim)
 
