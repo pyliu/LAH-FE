@@ -514,12 +514,12 @@ export default {
             }).then(({ data }) => {
               this.regBakedData = data.baked || []
               this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-              const remain_s = data.cache_remaining_time // in seconds
-              const remain_ms = remain_s * 1000
-              if (remain_ms && remain_ms > 0) {
-                this.setCache(this.cacheKey, data, remain_ms)
+              const remainS = data.cache_remaining_time // in seconds
+              const remainMs = remainS * 1000
+              if (remainMs && remainMs > 0) {
+                this.setCache(this.cacheKey, data, remainMs)
                 if (this.$refs.countdown) {
-                  this.$refs.countdown.setCountdown(remain_ms)
+                  this.$refs.countdown.setCountdown(remainMs)
                   this.$refs.countdown.startCountdown()
                 }
               }
@@ -560,12 +560,12 @@ export default {
             }).then(({ data }) => {
               this.surBakedData = data.baked || []
               this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-              const remain_s = data.cache_remaining_time // in seconds
-              const remain_ms = remain_s * 1000
-              if (remain_ms && remain_ms > 0) {
-                this.setCache(this.cacheKey, data, remain_ms)
+              const remainS = data.cache_remaining_time // in seconds
+              const remainMs = remainS * 1000
+              if (remainMs && remainMs > 0) {
+                this.setCache(this.cacheKey, data, remainMs)
                 if (this.$refs.countdown) {
-                  this.$refs.countdown.setCountdown(remain_ms)
+                  this.$refs.countdown.setCountdown(remainMs)
                   this.$refs.countdown.startCountdown()
                 }
               }
