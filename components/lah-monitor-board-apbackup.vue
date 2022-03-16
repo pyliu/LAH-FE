@@ -7,7 +7,7 @@ b-card
       small.my-auto.mr-1(
         v-b-tooltip="`目前${headMessages.length}`"
         :class="missingMail ? ['p-1', 'bg-warning', 'rounded'] : []"
-      ) {{ `${missingMail ? '⚠' : '✔'} 預期回報AP個數` }}
+      ) {{ `${missingMail ? '⚠' : ''} 預期回報AP個數` }}
       b-input(v-model="expectAPs", type="number", min="1", size="sm", style="max-width:50px")
       b-button-group(size="sm")
         lah-button(
