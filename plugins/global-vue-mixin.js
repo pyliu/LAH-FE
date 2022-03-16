@@ -380,7 +380,6 @@ Vue.mixin({
         const merged = Object.assign({
           title: '警示',
           autoHideDelay: 7500,
-          pos: 'bl',
           variant: 'warning'
         }, opts)
         this.notify(message, merged)
