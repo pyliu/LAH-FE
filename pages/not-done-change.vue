@@ -29,6 +29,14 @@ div
           no-icon-gutter
         )
         lah-button.mx-1(
+          icon="search-plus",
+          size="lg",
+          title="開啟進階搜尋視窗",
+          @click="$refs.searchPlus.show()",
+          :disabled="!dataReady",
+          no-icon-gutter
+        )
+        lah-button.mr-1(
           icon="file-excel",
           size="lg",
           title="匯出EXCEL",
@@ -57,61 +65,74 @@ div
           no-badge
         )
 
+  lah-transition: b-tags.border-0.mt-n4(
+    v-if="advTags.length > 0",
+    v-model="advTags",
+    placeholder="",
+    tag-variant="primary",
+    tag-pills,
+    no-outer-focus,
+    no-add-on-enter,
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
+  )
+
   lah-pagination(
     v-model="pagination"
     :total-rows="queryCount"
     :caption="foundText"
   )
 
-  lah-transition
-    b-table.text-center(
-      v-if="committed"
-      id="not-done-table"
-      ref="table"
-      caption-top
-      selectable
-      select-mode="single"
-      selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
-      :busy="isBusy"
-      :items="rows"
-      :responsive="'lg'"
-      :striped="true"
-      :hover="true"
-      :bordered="true"
-      :borderless="false"
-      :outlined="false"
-      :small="true"
-      :dark="false"
-      :fixed="false"
-      :foot-clone="false"
-      :no-border-collapse="true"
-      :head-variant="'dark'"
-      :fields="fields"
-      :per-page="pagination.perPage"
-      :current-page="pagination.currentPage"
-    )
-      template(#table-busy): span.ld-txt 讀取中...
-      template(v-slot:cell(#)="{ item, index, rowSelected }")
-        template(v-if="rowSelected")
-          span(aria-hidden="true") &check;
-          span.sr-only 勾選
-        template(v-else)
-          span(aria-hidden="true") &nbsp;
-          span.sr-only 無勾選
-        span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-      template(#cell(GS03)="{ item }"): div: b-link(@click="popup(item)").
-        {{ item.GS03 }}-{{ item.GS04_1 }}-{{ item.GS04_2 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-      template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
-      template(#cell(GG48)="{ item }"): .text-nowrap {{ item.GG48 }}
-      template(#cell(GG49)="{ item }"): .text-nowrap {{ landBuildNumber(item) }}
-      template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
-      template(#cell(GS_TYPE)="{ item }"): .text-nowrap {{ item.GS_TYPE }}:{{ item.GS_TYPE_CHT }}
-      template(#cell(GG00)="{ item }"): .text-nowrap {{ item.GG00 }}:{{ item.GG00_CHT }}
-      template(#cell(GG01)="{ item }"): .text-nowrap {{ item.GG01 }}
-      template(#cell(IS09)="{ item }"): .text-nowrap {{ item.IS09 }}
-      template(#cell(ISNAME)="{ item }"): div {{ item.ISNAME }}
-      template(#cell(GG30_2)="{ item }"): .text-left.content-max-width {{ item.GG30_2 }}
+  lah-transition: b-table.text-center(
+    v-if="committed"
+    id="not-done-table"
+    ref="table"
+    caption-top
+    selectable
+    select-mode="single"
+    selected-variant="success"
+    :sticky-header="`${maxHeight}px`"
+    :busy="isBusy"
+    :items="filteredData"
+    :responsive="'lg'"
+    :striped="true"
+    :hover="true"
+    :bordered="true"
+    :borderless="false"
+    :outlined="false"
+    :small="true"
+    :dark="false"
+    :fixed="false"
+    :foot-clone="false"
+    :no-border-collapse="true"
+    :head-variant="'dark'"
+    :fields="fields"
+    :per-page="pagination.perPage"
+    :current-page="pagination.currentPage"
+  )
+    template(#table-busy): span.ld-txt 讀取中...
+    template(v-slot:cell(#)="{ item, index, rowSelected }")
+      template(v-if="rowSelected")
+        span(aria-hidden="true") &check;
+        span.sr-only 勾選
+      template(v-else)
+        span(aria-hidden="true") &nbsp;
+        span.sr-only 無勾選
+      span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
+    template(#cell(GS03)="{ item }"): div: b-link(@click="popup(item)").
+      {{ item.GS03 }}-{{ item.GS04_1 }}-{{ item.GS04_2 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+    template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
+    template(#cell(GG48)="{ item }"): .text-nowrap {{ item.GG48 }}
+    template(#cell(GG49)="{ item }"): .text-nowrap {{ landBuildNumber(item) }}
+    template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
+    template(#cell(GS_TYPE)="{ item }"): .text-nowrap {{ item.GS_TYPE }}:{{ item.GS_TYPE_CHT }}
+    template(#cell(GG00)="{ item }"): .text-nowrap {{ item.GG00 }}:{{ item.GG00_CHT }}
+    template(#cell(GG01)="{ item }"): .text-nowrap {{ item.GG01 }}
+    template(#cell(IS09)="{ item }"): .text-nowrap {{ item.IS09 }}
+    template(#cell(ISNAME)="{ item }"): div {{ item.ISNAME }}
+    template(#cell(GG30_2)="{ item }"): .text-left.content-max-width 【{{ item.GG30_1 }}】{{ item.GG30_2 }}
+
   b-modal(
     ref="caseDetail"
     size="xl"
@@ -125,6 +146,48 @@ div
       b-spinner.my-auto(small type="grow")
       strong.ld-txt 查詢中...
     lah-reg-case-detail(:case-id="clickedId" @ready="modalLoading = !$event.detail")
+
+  b-modal(
+    ref="searchPlus",
+    title="進階搜尋",
+    hide-footer
+  )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="部別"): b-select(
+        v-model="advOpts.gg00",
+        :options="advOpts.gg00Opts",
+        title="土地或是建物"
+      )
+      b-input-group(prepend="原因"): b-select(
+        v-model="advOpts.reason",
+        :options="advOpts.reasonOpts",
+        title="登記原因"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="日期"): b-select(
+        v-model="advOpts.date",
+        :options="advOpts.dateOpts",
+        title="校對日期"
+      )
+      b-input-group(prepend="異動"): b-select(
+        v-model="advOpts.type",
+        :options="advOpts.typeOpts",
+        title="異動別"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="代碼"): b-select(
+        v-model="advOpts.gg301",
+        :options="advOpts.gg301Opts",
+        title="其他登記事項代碼"
+      )
+      b-input-group
+    .center.d-flex.my-1
+      lah-button(
+        icon="recycle",
+        @click="resetAdvOpts",
+        variant="outline-success"
+      ) 重設
+      small.text-muted.ml-2 找到 {{ filterDataCount }} 筆
 </template>
 
 <script>
@@ -206,7 +269,19 @@ export default {
       }
     ],
     maxHeight: 600,
-    warnDays: 180
+    warnDays: 180,
+    advOpts: {
+      gg00: '',
+      gg00Opts: [],
+      gg301: '',
+      gg301Opts: [],
+      reason: '',
+      reasonOpts: [],
+      type: '',
+      typeOpts: [],
+      date: '',
+      dateOpts: []
+    }
   }),
   async fetch () {
     if (this.isBusy) {
@@ -273,13 +348,70 @@ export default {
   fetchOnServer: false,
   computed: {
     dataReady () { return this.rows.length > 0 },
-    queryCount () { return this.rows.length },
+    queryCount () { return this.filterDataCount },
     cacheKey () { return `query_not_done_change_${this.dateRange.begin}_${this.dateRange.end}` },
     foundText () { return `找到 ${this.queryCount} 筆「未辦繼承土地及建物」異動資料` },
     daysPeriod () { return this.dateRange.days || 0 },
-    isWrongDaysPeriod () { return this.daysPeriod < 1 }
+    isWrongDaysPeriod () { return this.daysPeriod < 1 },
+    advTags () {
+      const tags = []
+      if (!this.$utils.empty(this.advOpts.gg00)) {
+        tags.push(`部別：${this.advOpts.gg00}`)
+      }
+      if (!this.$utils.empty(this.advOpts.gg301)) {
+        tags.push(`其他登記事項代碼：${this.advOpts.gg301}`)
+      }
+      if (!this.$utils.empty(this.advOpts.reason)) {
+        tags.push(`登記原因：${this.advOpts.reason}`)
+      }
+      if (!this.$utils.empty(this.advOpts.type)) {
+        tags.push(`異動別：${this.advOpts.type}`)
+      }
+      if (!this.$utils.empty(this.advOpts.date)) {
+        tags.push(`校對日期：${this.advOpts.date}`)
+      }
+      return tags
+    },
+    filteredData () {
+      if (this.advTags.length > 0) {
+        let pipelineItems = this.rows
+        if (!this.$utils.empty(this.advOpts.gg00)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.GG00 === this.advOpts.gg00
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.reason)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM09 === this.advOpts.reason
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.gg301)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.GG30_1 === this.advOpts.gg301
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.type)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.GS_TYPE === this.advOpts.type
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.date)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM56_1.split(' ')[0] === this.advOpts.date
+          })
+        }
+        return pipelineItems
+      }
+      return this.rows
+    },
+    filterDataCount () {
+      return this.filteredData.length
+    }
   },
   watch: {
+    rows (val) {
+      this.refreshAdvOptsSelect(val)
+    },
     daysPeriod (val) {
       if (val < 1) {
         this.alert('開始日期應小於或等於結束日期', { pos: 'tr' })
@@ -336,7 +468,7 @@ export default {
     },
     xlsx () {
       const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.rows.map((data, idx, array) => {
+      const jsons = this.filteredData.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
@@ -346,6 +478,53 @@ export default {
         return obj
       })
       this.downloadXlsx('未辦繼承土地及建物異動', jsons)
+    },
+    resetAdvOpts () {
+      this.advOpts = {
+        ...this.advOpts,
+        ...{
+          gg00: '',
+          gg301: '',
+          type: '',
+          reason: '',
+          date: ''
+        }
+      }
+    },
+    refreshAdvOptsSelect (val) {
+      this.advOpts = {
+        ...{
+          gg00: '',
+          gg00Opts: [],
+          gg301: '',
+          gg301Opts: [],
+          reason: '',
+          reasonOpts: [],
+          date: '',
+          dateOpts: [],
+          type: '',
+          typeOpts: []
+        }
+      }
+      if (val) {
+        this.advOpts.gg00Opts = [...new Set(val.map(item => item.GG00))].sort()
+        this.advOpts.gg301Opts = [...new Set(val.map(item => item.GG30_1))].sort()
+        this.advOpts.typeOpts = [...new Set(val.map(item => item.GS_TYPE))].sort()
+        this.advOpts.reasonOpts = [
+          ...this.$utils.orderBy(
+            this.$utils.uniqBy(val.map((item) => {
+              return { value: item.RM09, text: `${item.RM09}：${item.RM09_CHT}` }
+            }), 'value'),
+            'value'
+          )
+        ]
+        this.advOpts.dateOpts = [...new Set(val.map(item => item.RM56_1?.split(' ')[0]))].sort()
+        this.advOpts.gg00Opts.unshift('')
+        this.advOpts.gg301Opts.unshift('')
+        this.advOpts.typeOpts.unshift('')
+        this.advOpts.reasonOpts.unshift('')
+        this.advOpts.dateOpts.unshift('')
+      }
     }
   }
 }
