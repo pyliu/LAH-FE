@@ -179,6 +179,7 @@ div
         @click="resetAdvSearch",
         variant="outline-success"
       ) 重設
+      small.text-muted.ml-2 找到 {{ filterDataCount }} 筆
 </template>
 
 <script>
@@ -351,6 +352,9 @@ export default {
         return pipelineItems
       }
       return this.rows
+    },
+    filterDataCount () {
+      return this.filterRows.length
     },
     advTags () {
       const tags = []
