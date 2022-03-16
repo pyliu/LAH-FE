@@ -106,7 +106,7 @@ div
         lah-reg-case-fix-date(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
       template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
   b-modal(
-    :id="modalId"
+    ref="caseDetail"
     size="xl"
     hide-footer
     centered
@@ -185,7 +185,6 @@ div
 export default {
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
-    modalId: 'this should be an uuid',
     modalLoading: true,
     clickedData: undefined,
     rows: [],
@@ -422,9 +421,6 @@ export default {
       }
     }
   },
-  created () {
-    this.modalId = this.$utils.uuid()
-  },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)
   },
@@ -441,7 +437,7 @@ export default {
     popup (data) {
       this.modalLoading = true
       this.clickedData = data
-      this.showModalById(this.modalId)
+      this.$refs.caseDetail.show()
     },
     landNumber (item) {
       const val = item.AA49
