@@ -84,12 +84,12 @@ div
         title="登記原因"
       )
     .center.d-flex.my-1
-      b-input-group(prepend="日期"): b-select(
+      b-input-group.mr-1(prepend="日期"): b-select(
         v-model="advOpts.date",
         :options="advOpts.dateOpts",
         title="校對日期"
       )
-      b-input-group.mr-1(prepend="狀態"): b-select(
+      b-input-group(prepend="狀態"): b-select(
         v-model="advOpts.op",
         :options="advOpts.opOpts",
         title="辦理情形"
@@ -310,7 +310,7 @@ export default {
     },
     xlsx () {
       const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.bakedData.map((data, idx, array) => {
+      const jsons = this.filteredData.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
