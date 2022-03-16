@@ -180,7 +180,11 @@ div
         :options="advOpts.gg301Opts",
         title="其他登記事項代碼"
       )
-      b-input-group
+      b-input-group(prepend="統編"): b-select(
+        v-model="advOpts.id",
+        :options="advOpts.idOpts",
+        title="權利人統編"
+      )
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -271,6 +275,8 @@ export default {
     maxHeight: 600,
     warnDays: 180,
     advOpts: {
+      id: '',
+      idOpts: [],
       gg00: '',
       gg00Opts: [],
       gg301: '',
@@ -370,6 +376,9 @@ export default {
       if (!this.$utils.empty(this.advOpts.date)) {
         tags.push(`校對日期：${this.advOpts.date}`)
       }
+      if (!this.$utils.empty(this.advOpts.id)) {
+        tags.push(`權利人統編：${this.advOpts.id}`)
+      }
       return tags
     },
     filteredData () {
@@ -398,6 +407,11 @@ export default {
         if (!this.$utils.empty(this.advOpts.date)) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.RM56_1.split(' ')[0] === this.advOpts.date
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.id)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.IS09 === this.advOpts.id
           })
         }
         return pipelineItems
@@ -483,6 +497,7 @@ export default {
       this.advOpts = {
         ...this.advOpts,
         ...{
+          id: '',
           gg00: '',
           gg301: '',
           type: '',
@@ -494,6 +509,8 @@ export default {
     refreshAdvOptsSelect (val) {
       this.advOpts = {
         ...{
+          id: '',
+          idOpts: [],
           gg00: '',
           gg00Opts: [],
           gg301: '',
@@ -507,6 +524,7 @@ export default {
         }
       }
       if (val) {
+        this.advOpts.idOpts = [...new Set(val.map(item => item.IS09))].sort()
         this.advOpts.gg00Opts = [...new Set(val.map(item => item.GG00))].sort()
         this.advOpts.gg301Opts = [...new Set(val.map(item => item.GG30_1))].sort()
         this.advOpts.typeOpts = [...new Set(val.map(item => item.GS_TYPE))].sort()
@@ -519,6 +537,7 @@ export default {
           )
         ]
         this.advOpts.dateOpts = [...new Set(val.map(item => item.RM56_1?.split(' ')[0]))].sort()
+        this.advOpts.idOpts.unshift('')
         this.advOpts.gg00Opts.unshift('')
         this.advOpts.gg301Opts.unshift('')
         this.advOpts.typeOpts.unshift('')
