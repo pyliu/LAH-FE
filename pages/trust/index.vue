@@ -48,7 +48,7 @@ div
           :disabled="disableAdvSearch",
           no-icon-gutter
         )
-        lah-button.ml-1(
+        lah-button.mx-1(
           icon="file-excel",
           size="lg",
           title="匯出EXCEL",
