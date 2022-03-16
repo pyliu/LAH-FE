@@ -8,6 +8,9 @@ import debounce from 'lodash/debounce'
 import remove from 'lodash/remove'
 import filter from 'lodash/filter'
 import reject from 'lodash/reject'
+import sortedUniq from 'lodash/sortedUniq'
+import uniqBy from 'lodash/uniqBy'
+import orderBy from 'lodash/orderBy'
 import _md5 from 'md5'
 import uploadAxios from 'axios'
 import { format, formatDistanceToNow } from 'date-fns'
@@ -146,6 +149,9 @@ export default ({ $axios, store }, inject) => {
     remove,
     filter,
     reject,
+    sortedUniq,
+    uniqBy,
+    orderBy,
     md5: _md5,
     /**
      * usage in Vue

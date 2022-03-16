@@ -199,12 +199,12 @@ div
         title="名稱"
       )
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="段碼"): b-select(
+      b-input-group.mr-1(prepend="段名"): b-select(
         v-model="advOpts.section",
         :options="advOpts.sectionOpts",
-        title="段小段代碼"
+        title="段小段代碼及名稱"
       )
-      b-input-group: .text-muted.ml-2 {{ advOptsSectionCHT }}
+      b-input-group
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -305,8 +305,7 @@ export default {
       number: '',
       numberOpts: [],
       section: '',
-      sectionOpts: [],
-      sectionMap: new Map()
+      sectionOpts: []
     }
   }),
   fetch () {
@@ -406,9 +405,6 @@ export default {
         tags.push(`段代碼：${this.advOpts.section}`)
       }
       return tags
-    },
-    advOptsSectionCHT () {
-      return this.advOpts.sectionMap?.get(this.advOpts.section)
     },
     filteredRows () {
       if (this.advTags.length > 0) {
@@ -529,8 +525,7 @@ export default {
           class: '',
           reason: '',
           number: '',
-          section: '',
-          sectionMap: new Map()
+          section: ''
         }
       }
     },
@@ -550,8 +545,7 @@ export default {
           number: '',
           numberOpts: [],
           section: '',
-          sectionOpts: [],
-          sectionMap: new Map()
+          sectionOpts: []
         }
       }
       if (val) {
@@ -559,12 +553,23 @@ export default {
         this.advOpts.nameOpts = [...new Set(val.map(item => item.LNAM))].sort()
         this.advOpts.dateOpts = [...new Set(val.map(item => item.RM33))].sort()
         this.advOpts.classOpts = [...new Set(val.map(item => item.GS_TYPE))].sort()
-        this.advOpts.reasonOpts = [...new Set(val.map(item => item.RM09))].sort()
+        this.advOpts.reasonOpts = [
+          ...this.$utils.orderBy(
+            this.$utils.uniqBy(val.map((item) => {
+              return { value: item.RM09, text: `${item.RM09}：${item.RM09_CHT}` }
+            }), 'value'),
+            'value'
+          )
+        ]
         this.advOpts.numberOpts = [...new Set(val.map(item => item.GG49))].sort()
-        this.advOpts.sectionOpts = [...new Set(val.map(item => item.GG48))].sort()
-        val.forEach((item, idx, arr) => {
-          this.advOpts.sectionMap.set(item.GG48, item.GG48_CHT)
-        })
+        this.advOpts.sectionOpts = [
+          ...this.$utils.orderBy(
+            this.$utils.uniqBy(val.map((item) => {
+              return { value: item.GG48, text: `${item.GG48}：${item.GG48_CHT}` }
+            }), 'value'),
+            'value'
+          )
+        ]
         this.advOpts.idOpts.unshift('')
         this.advOpts.nameOpts.unshift('')
         this.advOpts.dateOpts.unshift('')
