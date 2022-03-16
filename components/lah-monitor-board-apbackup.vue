@@ -3,35 +3,38 @@ b-card
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
-    b-button-group.ml-auto(size="sm")
-      lah-button(
-        v-if="!footer"
-        icon="sync-alt",
-        action="ld-cycle",
-        variant="outline-secondary",
-        no-border,
-        no-icon-gutter,
-        @click="reload",
-        title="重新讀取",
-        :disabled="fetchingMonitorMail"
-      )
-      lah-button(
-        icon="external-link-alt",
-        variant="outline-primary",
-        no-border,
-        no-icon-gutter,
-        @click="popupMessages('subject', 'AP Server', 7)",
-        title="讀取7天內訊息"
-      )
-      lah-button(
-        icon="question",
-        action="breath",
-        variant="outline-success",
-        no-border,
-        no-icon-gutter,
-        @click="$refs.help.show()",
-        title="說明"
-      )
+    .d-flex.ml-auto
+      small.my-auto.mr-1 預期回報AP個數
+      b-input(v-model="expectAPs", type="number", min="1", size="sm", style="max-width:50px")
+      b-button-group(size="sm")
+        lah-button(
+          v-if="!footer"
+          icon="sync-alt",
+          action="ld-cycle",
+          variant="outline-secondary",
+          no-border,
+          no-icon-gutter,
+          @click="reload",
+          title="重新讀取",
+          :disabled="fetchingMonitorMail"
+        )
+        lah-button(
+          icon="external-link-alt",
+          variant="outline-primary",
+          no-border,
+          no-icon-gutter,
+          @click="popupMessages('subject', 'AP Server', 7)",
+          title="讀取7天內訊息"
+        )
+        lah-button(
+          icon="question",
+          action="breath",
+          variant="outline-success",
+          no-border,
+          no-icon-gutter,
+          @click="$refs.help.show()",
+          title="說明"
+        )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 AP Server 備份狀態，每天晚上9點做備份
@@ -87,7 +90,8 @@ export default {
     fetchDay: 1,
     regex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm,
     // AP Server (apha14) files backup failure!!
-    failRegex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(failure)!!/gm
+    failRegex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(failure)!!/gm,
+    expectAPs: 8
   }),
   computed: {
     headMessages () {
@@ -126,8 +130,19 @@ export default {
       const ans = this.headMessages.every((item) => {
         return this.subject(item).includes('successful')
       })
+      if (ans && this.headMessages.length < this.expectAPs) {
+        return 'warning'
+      }
       return ans ? 'success' : 'danger'
     }
+  },
+  watch: {
+    expectAPs (val) {
+      this.setCache('expectAPs', val || 1)
+    }
+  },
+  async created () {
+    this.expectAPs = await this.getCache('expectAPs') || 8
   },
   methods: {
     itemLight (item) {
