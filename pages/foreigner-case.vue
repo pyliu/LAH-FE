@@ -57,15 +57,26 @@ div
           end-attention
           no-badge
         )
-  lah-transition
-    lah-reg-b-table(
-      only-popup-detail
-      :busy="isBusy"
-      :baked-data="filteredData"
-      :fields="fields"
-      v-if="committed"
-    )
-    h3.text-center(v-else): lah-fa-icon(icon="search" action="breath" variant="primary") 請案搜尋按鈕
+
+  lah-transition: b-tags.border-0.mt-n4(
+    v-if="advTags.length > 0",
+    v-model="advTags",
+    placeholder="",
+    tag-variant="primary",
+    tag-pills,
+    no-outer-focus,
+    no-add-on-enter,
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
+  )
+
+  lah-transition: lah-reg-b-table(
+    only-popup-detail
+    :busy="isBusy"
+    :baked-data="filteredData"
+    :fields="fields"
+  )
 
   b-modal(
     ref="searchPlus",
@@ -248,7 +259,7 @@ export default {
   },
   fetchOnServer: false,
   computed: {
-    dataReady () { return this.filteredData.length > 0 },
+    dataReady () { return this.bakedData.length > 0 },
     cacheKey () { return `foreigner-case-${this.dateRange.begin}-${this.dateRange.end}` },
     isWrongDaysPeriod () { return this.dateRange.days < 1 },
     advTags () {
