@@ -113,7 +113,7 @@ div
       template(#cell(ISNAME)="{ item }"): div {{ item.ISNAME }}
       template(#cell(GG30_2)="{ item }"): .text-left.content-max-width {{ item.GG30_2 }}
   b-modal(
-    :id="modalId"
+    ref="caseDetail"
     size="xl"
     hide-footer
     centered
@@ -133,7 +133,6 @@ export default {
   async asyncData (nuxt) {},
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
-    modalId: 'this should be an uuid',
     modalLoading: true,
     clickedId: undefined,
     rows: [],
@@ -289,9 +288,6 @@ export default {
       }
     }
   },
-  created () {
-    this.modalId = this.$utils.uuid()
-  },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)
   },
@@ -308,7 +304,7 @@ export default {
     popup (data) {
       this.modalLoading = true
       this.clickedId = `${data.GS03}${data.GS04_1}${data.GS04_2}`
-      this.showModalById(this.modalId)
+      this.$refs.caseDetail.show()
     },
     landBuildNumber (item) {
       const val = item.GG49
