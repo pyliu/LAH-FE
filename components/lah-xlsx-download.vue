@@ -18,7 +18,7 @@ b-card(
       v-if="idx === 0"
       icon="angle-double-right",
       variant="danger",
-      action="move-ltr"
+      action="move-fade-ltr"
     )
     span.ml-1 {{ msg }}
 </template>
