@@ -31,7 +31,7 @@ try {
   require('dotenv').config()
   isDev && console.log(process.env)
 
-  const watchdogCronConfig = '0 */15 8-18 * * 0-6'
+  const watchdogCronConfig = '0 */15 7-17 * * 0-6'
   console.log(`啟動 watchdog 排程 ${watchdogCronConfig}`)
   schedule.scheduleJob(watchdogCronConfig, function () {
     const url = `http://${process.env.API_HOST}:${process.env.API_PORT}/api/query_json_api.php`
@@ -47,7 +47,7 @@ try {
     })
   })
 
-  const schedulerCronConfig = '0 */5 7-23 * * 0-6'
+  const schedulerCronConfig = '0 */5 7-22 * * 0-6'
   console.log(`啟動 scheduler 排程 ${schedulerCronConfig}`)
   schedule.scheduleJob(schedulerCronConfig, function () {
     const url = `http://${process.env.API_HOST}:${process.env.API_PORT}/api/schedule_json_api.php`
