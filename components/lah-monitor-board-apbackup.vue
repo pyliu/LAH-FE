@@ -4,7 +4,10 @@ b-card
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
     .d-flex.ml-auto
-      small.my-auto.mr-1 預期回報AP個數
+      small.my-auto.mr-1(
+        v-b-tooltip="`目前${headMessages.length}`"
+        :class="missingMail ? ['p-1', 'bg-warning', 'rounded'] : []"
+      ) {{ `${missingMail ? '⚠' : '✔'} 預期回報AP個數` }}
       b-input(v-model="expectAPs", type="number", min="1", size="sm", style="max-width:50px")
       b-button-group(size="sm")
         lah-button(
@@ -119,6 +122,9 @@ export default {
       })
       return [...filtered.values()]
     },
+    missingMail () {
+      return this.headMessages.length < this.expectAPs
+    },
     light () {
       const now = +new Date()
       if (
@@ -130,7 +136,7 @@ export default {
       const ans = this.headMessages.every((item) => {
         return this.subject(item).includes('successful')
       })
-      if (ans && this.headMessages.length < this.expectAPs) {
+      if (ans && this.missingMail) {
         return 'warning'
       }
       return ans ? 'success' : 'danger'
