@@ -417,7 +417,7 @@ export default {
         const checkName = !this.$utils.empty(this.advOpts.name)
         if (checkName) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.LNAM.match(this.advOpts.name) !== null
+            return item.LNAM.match === this.advOpts.name
           })
         }
         const checkDate = !this.$utils.empty(this.advOpts.date)

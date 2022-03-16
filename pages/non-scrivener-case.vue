@@ -739,7 +739,7 @@ export default {
         const checkName = !this.$utils.empty(this.advOpts.name)
         if (checkName) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.AB02.match(this.advOpts.name) !== null
+            return item.AB02 === this.advOpts.name
           })
         }
         const checkTel = !this.$utils.empty(this.advOpts.tel)
