@@ -219,18 +219,12 @@ export default {
           type: 'upd_reg_fix_case_data',
           ...this.updateDataset
         }).then(({ data }) => {
-          if (!this.$utils.statusCheck(data.status)) {
-            // retry after a random delay
-            if (this.retried < 3) {
-              this.timeout(this.update, this.$utils.rand(400))
-            } else {
-              this.$utils.warn(data.message, {
-                id: this.caseId,
-                delivered: this.deliveredDate,
-                deadline: this.deadlineDate,
-                note: this.note
-              })
-            }
+          if (this.$utils.statusCheck(data.status)) {
+            this.origDataset = { ...this.updateDataset }
+          } else if (this.retried < 3) {
+            this.timeout(this.update, this.$utils.rand(400))
+          } else {
+            this.$utils.warn(data.message, this.updateDataset)
           }
         }).catch((err) => {
           this.alert(err.message)
