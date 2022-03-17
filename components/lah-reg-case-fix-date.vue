@@ -4,7 +4,6 @@
     small.my-auto.text-nowrap.mr-1 補正期滿
     b-datepicker(
       size="sm"
-      variant="primary"
       v-model="parentData.REG_FIX_CASE_RECORD.fix_deadline_date"
       placeholder="補正期滿日期"
       boundary="viewport"
@@ -31,12 +30,9 @@
     small.my-auto.text-nowrap.mr-1 通知送達
     b-datepicker(
       size="sm"
-      variant="primary"
       v-model="parentData.REG_FIX_CASE_RECORD.notify_delivered_date"
       placeholder="通知書送達日期"
       boundary="viewport"
-      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-      :min="minDate"
       label-help="使用方向鍵操作移動日期"
       hide-header
       dropleft
@@ -48,6 +44,9 @@
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
       @context="update"
+      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+      :min="minDate"
+      :state="settleDeliveredDate"
     )
     //- b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
   b-textarea.mt-1(
@@ -85,6 +84,9 @@ export default {
     deliveredDate () {
       return this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date
     },
+    settleDeliveredDate () {
+      return !this.$utils.empty(this.deliveredDate)
+    },
     defaultDeadlineDate () {
       // RM52: 補正期滿日期
       return this.$utils.tsToAdDateStr(+this.$utils.twToAdDateObj(this.parentData.RM52) / 1000)
@@ -103,7 +105,10 @@ export default {
         return ''
       }
       const dd = new Date(this.deliveredDate)
-      dd.setDate(dd.getDate() + 15)
+      // RM52_TYPE === '1' => Month
+      const factor = this.parentData.RM52_TYPE === '1' ? 30 : 1
+      const days = factor * (parseInt(this.parentData.RM52_DAY) || 15)
+      dd.setDate(dd.getDate() + days)
       /**
        * 'en-ZA' => 2020/08/19 (year/month/day)
        * 'en-CA' => 2020-08-19 (year-month-day)
@@ -151,8 +156,8 @@ export default {
     this.updateDebounced = this.$utils.debounce(this.update, 1000)
   },
   mounted () {
-    // RM51: 通知補正日
-    this.minDate = this.$utils.twToAdDateObj(this.parentData.RM51)
+    // RM51: 通知補正日, plus one day
+    this.minDate = new Date(+this.$utils.twToAdDateObj(this.parentData.RM51) + 24 * 60 * 60 * 1000)
     // fill default value from RM52
     this.$utils.empty(this.deadlineDate) && this.resetDeadline()
     this.trigger('ready', this.ready)
