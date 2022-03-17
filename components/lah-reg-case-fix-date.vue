@@ -1,11 +1,12 @@
 <template lang="pug">
 .text-left(v-if="ready")
   .d-flex
-    b-datepicker(
+    small.my-auto.text-nowrap 補正期滿
+    b-datepicker.mx-1(
       size="sm"
       variant="primary"
-      v-model="parentData.REG_FIX_CASE_RECORD.notify_delivered_date"
-      placeholder="請設定送達日期"
+      v-model="parentData.REG_FIX_CASE_RECORD.fix_deadline_date"
+      placeholder="補正期滿日期"
       boundary="viewport"
       :title="`${$utils.caseId(caseId)}`"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
@@ -21,15 +22,37 @@
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
     )
-    //- lah-button(icon="edit" @click="noteFlag = !noteFlag") 備忘
-    b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
+    lah-button(icon="undo", action="cycle-alt", @click="resetDeadline", variant="outline-secondary", size="sm", title="重設")
+  .d-flex.my-1
+    small.my-auto.text-nowrap.mr-1 通知送達
+    b-datepicker(
+      size="sm"
+      variant="primary"
+      v-model="parentData.REG_FIX_CASE_RECORD.notify_delivered_date"
+      placeholder="通知書送達日期"
+      boundary="viewport"
+      :title="`${$utils.caseId(caseId)}`"
+      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+      :min="minDate"
+      label-help="使用方向鍵操作移動日期"
+      hide-header
+      dropleft
+      today-button
+      label-today-button="今天"
+      reset-button
+      label-reset-button="重設"
+      close-button
+      label-close-button="關閉"
+      v-b-tooltip.hover.left.v-warning
+    )
+    //- b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
   b-textarea.mt-1(
     v-show="noteFlag"
     v-model="parentData.REG_FIX_CASE_RECORD.note"
     size="sm"
     trim
   )
-  .p-1.mt-1(:class="classes" v-if="!$utils.empty(deliveredDate)")
+  .p-1.mt-1.small(:class="classes" v-if="!$utils.empty(deliveredDate)")
     div 到期日期：{{ dueDate }}
     div 可駁回日：{{ rejectDate }}
 </template>
@@ -110,6 +133,9 @@ export default {
     deliveredDate (val) {
       this.update()
     },
+    deadlineDate (val) {
+      this.update()
+    },
     note (val) {
       this.updateDebounced()
       this.noteFlag = !this.$utils.empty(val)
@@ -122,9 +148,15 @@ export default {
   mounted () {
     // RM51: 通知補正日
     this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM51)
+    // fill default value from RM52
+    this.$utils.empty(this.deadlineDate) && this.resetDeadline()
     this.trigger('ready', this.ready)
   },
   methods: {
+    resetDeadline () {
+      // RM52: 補正期滿日期
+      this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = this.$utils.twToAdDateObj(this.bakedData.RM52)
+    },
     load () {
       // get the date string from sqlite db
       this.$axios.post(this.$consts.API.JSON.QUERY, {

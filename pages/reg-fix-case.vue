@@ -219,18 +219,18 @@ export default {
         label: '通知補正',
         sortable: true
       },
-      {
-        key: '補正期滿日期',
-        label: '補正期滿',
-        sortable: true
-      },
+      // {
+      //   key: '補正期滿日期',
+      //   label: '補正期滿',
+      //   sortable: true
+      // },
       // {
       //   key: '補正日期',
       //   sortable: true
       // },
       {
         key: 'lah-reg-case-fix-date',
-        label: '通知書送達日',
+        label: '其他設定',
         sortable: false
       }
     ],
