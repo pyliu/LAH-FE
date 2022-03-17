@@ -17,15 +17,15 @@ div
             li 點擊 #[lah-fa-icon(icon="sync" variant="muted") 重新搜尋]
 
       .d-flex.small
-        lah-button.mr-1(
-          ref="search"
-          icon="search"
-          size="lg"
-          title="搜尋"
-          :disabled="isBusy"
-          @click="$fetch"
-          no-icon-gutter
-        )
+        //- lah-button.mr-1(
+        //-   ref="search"
+        //-   icon="search"
+        //-   size="lg"
+        //-   title="搜尋"
+        //-   :disabled="isBusy"
+        //-   @click="$fetch"
+        //-   no-icon-gutter
+        //- )
         lah-button.mr-1(
           icon="search-plus",
           size="lg",
