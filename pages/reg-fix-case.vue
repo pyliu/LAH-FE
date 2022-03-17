@@ -103,7 +103,10 @@ div
         {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
       template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
       template(#cell(lah-reg-case-fix-date)="{ item }")
-        lah-reg-case-fix-date(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
+        lah-reg-case-fix-date(
+          :case-id="`${item.RM01}${item.RM02}${item.RM03}`",
+          :parent-data="item"
+        )
       template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
   b-modal(
     ref="caseDetail"
@@ -475,7 +478,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.content-max-width {
-  max-width: 300px;
-}
 </style>
