@@ -55,9 +55,9 @@
     size="sm"
     trim
   )
-  .p-1.mt-1.small(:class="classes" v-if="!$utils.empty(deliveredDate)")
-    div 到期日期：{{ dueDate }}
-    div 可駁回日：{{ rejectDate }}
+  lah-transition: .p-1.mt-1.small(v-if="!$utils.empty(deliveredDate)")
+    b-badge.p-2.mr-2(pill, :class="classes") 到期日期：{{ dueDate }}
+    b-badge.p-2(pill, :class="classes") 可駁回日：{{ rejectDate }}
 </template>
 
 <script>
