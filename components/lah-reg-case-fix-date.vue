@@ -1,37 +1,37 @@
 <template lang="pug">
-  .text-left(v-if="ready")
-    .d-flex
-      b-datepicker(
-        size="sm"
-        variant="primary"
-        v-model="parentData.FIX_DELIVERED_DATE.notify_delivered_date"
-        placeholder="請設定送達日期"
-        boundary="viewport"
-        :title="`${$utils.caseId(caseId)}`"
-        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-        :min="minDate"
-        label-help="使用方向鍵操作移動日期"
-        hide-header
-        dropleft
-        today-button
-        label-today-button="今天"
-        reset-button
-        label-reset-button="重設"
-        close-button
-        label-close-button="關閉"
-        v-b-tooltip.hover.left.v-warning
-      )
-      //- lah-button(icon="edit" @click="noteFlag = !noteFlag") 備忘
-      b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
-    b-textarea.mt-1(
-      v-show="noteFlag"
-      v-model="parentData.FIX_DELIVERED_DATE.note"
+.text-left(v-if="ready")
+  .d-flex
+    b-datepicker(
       size="sm"
-      trim
+      variant="primary"
+      v-model="parentData.REG_FIX_CASE_RECORD.notify_delivered_date"
+      placeholder="請設定送達日期"
+      boundary="viewport"
+      :title="`${$utils.caseId(caseId)}`"
+      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+      :min="minDate"
+      label-help="使用方向鍵操作移動日期"
+      hide-header
+      dropleft
+      today-button
+      label-today-button="今天"
+      reset-button
+      label-reset-button="重設"
+      close-button
+      label-close-button="關閉"
+      v-b-tooltip.hover.left.v-warning
     )
-    .p-1.mt-1(:class="classes" v-if="!$utils.empty(deliveredDate)")
-      div 到期日期：{{ dueDate }}
-      div 可駁回日：{{ rejectDate }}
+    //- lah-button(icon="edit" @click="noteFlag = !noteFlag") 備忘
+    b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
+  b-textarea.mt-1(
+    v-show="noteFlag"
+    v-model="parentData.REG_FIX_CASE_RECORD.note"
+    size="sm"
+    trim
+  )
+  .p-1.mt-1(:class="classes" v-if="!$utils.empty(deliveredDate)")
+    div 到期日期：{{ dueDate }}
+    div 可駁回日：{{ rejectDate }}
 </template>
 
 <script>
@@ -45,7 +45,7 @@ export default {
     caseId: { type: String, default: '' }
   },
   */
-  name: 'lah-reg-case-fix-date',
+  name: 'LahRegCaseFixDate',
   mixins: [regCaseBase],
   data: () => ({
     noteFlag: false,
@@ -56,10 +56,13 @@ export default {
   },
   computed: {
     deliveredDate () {
-      return this.parentData.FIX_DELIVERED_DATE.notify_delivered_date
+      return this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date
+    },
+    deadlineDate () {
+      return this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date
     },
     note () {
-      return this.parentData.FIX_DELIVERED_DATE.note
+      return this.parentData.REG_FIX_CASE_RECORD.note
     },
     dueDate () {
       if (this.$utils.empty(this.deliveredDate)) {
@@ -132,6 +135,7 @@ export default {
          * case_no: "110HHA1017620"
          * note: "測試"
          * notify_delivered_date: "2021/07/20"
+         * fix_deadline_date: "2022/03/17"
          */
         if (data.raw) {
           this.deliveredDate = data.raw.notify_delivered_date
@@ -149,9 +153,10 @@ export default {
     update () {
       // to update delivered date in sqlite db
       this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'upd_reg_fix_case_delivered_date',
+        type: 'upd_reg_fix_case_data',
         id: this.caseId,
         date: this.deliveredDate,
+        deadline: this.deadlineDate,
         note: this.note
       }).then(({ data }) => {
         if (!this.$utils.statusCheck(data.status)) {
