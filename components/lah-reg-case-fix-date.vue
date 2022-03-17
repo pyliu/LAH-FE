@@ -76,12 +76,26 @@ export default {
   data: () => ({
     noteFlag: false,
     minDate: new Date(),
-    retried: 0
+    retried: 0,
+    origDataset: {
+      id: '',
+      delivered: '',
+      deadline: '',
+      note: ''
+    }
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
   },
   computed: {
+    updateDataset () {
+      return {
+        id: this.caseId,
+        delivered: this.deliveredDate,
+        deadline: this.deadlineDate,
+        note: this.note
+      }
+    },
     deliveredDate () {
       return this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date
     },
@@ -155,6 +169,11 @@ export default {
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     this.updateDebounced = this.$utils.debounce(this.update, 1000)
+    // keep init value
+    this.origDataset.id = this.caseId
+    this.origDataset.delivered = this.deliveredDate
+    this.origDataset.deadline = this.deadlineDate
+    this.origDataset.note = this.note
   },
   mounted () {
     // RM51: 通知補正日, plus one day
@@ -194,33 +213,32 @@ export default {
       })
     },
     update () {
-      // to update delivered date in sqlite db
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'upd_reg_fix_case_data',
-        id: this.caseId,
-        delivered: this.deliveredDate,
-        deadline: this.deadlineDate,
-        note: this.note
-      }).then(({ data }) => {
-        if (!this.$utils.statusCheck(data.status)) {
-          // retry after a random delay
-          if (this.retried < 3) {
-            this.timeout(this.update, this.$utils.rand(400))
-          } else {
-            this.$utils.warn(data.message, {
-              id: this.caseId,
-              delivered: this.deliveredDate,
-              deadline: this.deadlineDate,
-              note: this.note
-            })
+      if (!this.$utils.equal(this.origDataset, this.updateDataset)) {
+        // to update delivered date in sqlite db
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'upd_reg_fix_case_data',
+          ...this.updateDataset
+        }).then(({ data }) => {
+          if (!this.$utils.statusCheck(data.status)) {
+            // retry after a random delay
+            if (this.retried < 3) {
+              this.timeout(this.update, this.$utils.rand(400))
+            } else {
+              this.$utils.warn(data.message, {
+                id: this.caseId,
+                delivered: this.deliveredDate,
+                deadline: this.deadlineDate,
+                note: this.note
+              })
+            }
           }
-        }
-      }).catch((err) => {
-        this.alert(err.message)
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-      })
+        }).catch((err) => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      }
     }
   }
 }
