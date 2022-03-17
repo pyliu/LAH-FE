@@ -160,18 +160,18 @@ div
         :options="advOpts.caseFixDateOpts",
         title="通知補正日期"
       )
-      b-input-group(prepend="補正期滿"): b-select(
-        v-model="advOpts.caseFixDeadline",
-        :options="advOpts.caseFixDeadlineOpts",
-        title="補正期滿日期"
-      )
-
-    .center.d-flex
       b-input-group(prepend="初審人員"): b-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
         title="初審人員"
       )
+
+    //- .center.d-flex
+    //-   b-input-group(prepend="補正期滿"): b-select(
+    //-     v-model="advOpts.caseFixDeadline",
+    //-     :options="advOpts.caseFixDeadlineOpts",
+    //-     title="補正期滿日期"
+    //-   )
 
     .center.d-flex.my-1
       lah-button(
