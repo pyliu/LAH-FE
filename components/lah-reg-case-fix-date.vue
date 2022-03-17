@@ -46,6 +46,7 @@
       @context="update"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :min="minDate"
+      :max="maxDate"
       :state="settleDeliveredDate"
     )
     //- b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
@@ -76,6 +77,7 @@ export default {
   data: () => ({
     noteFlag: false,
     minDate: new Date(),
+    maxDate: new Date(),
     retried: 0,
     origDataset: {
       id: '',
