@@ -1,14 +1,13 @@
 <template lang="pug">
 .text-left(v-if="ready")
   .d-flex
-    small.my-auto.text-nowrap 補正期滿
-    b-datepicker.mx-1(
+    small.my-auto.text-nowrap.mr-1 補正期滿
+    b-datepicker(
       size="sm"
       variant="primary"
       v-model="parentData.REG_FIX_CASE_RECORD.fix_deadline_date"
       placeholder="補正期滿日期"
       boundary="viewport"
-      :title="`${$utils.caseId(caseId)}`"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :min="minDate"
       label-help="使用方向鍵操作移動日期"
@@ -21,8 +20,16 @@
       close-button
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
+      @context="updateDebounced"
     )
-    lah-button(icon="undo", action="cycle-alt", @click="resetDeadline", variant="outline-secondary", size="sm", title="重設")
+    //- lah-button(
+    //-   icon="undo",
+    //-   action="cycle-alt",
+    //-   variant="outline-secondary",
+    //-   size="sm",
+    //-   title="重設",
+    //-   @click="resetDeadline"
+    //- )
   .d-flex.my-1
     small.my-auto.text-nowrap.mr-1 通知送達
     b-datepicker(
@@ -31,7 +38,6 @@
       v-model="parentData.REG_FIX_CASE_RECORD.notify_delivered_date"
       placeholder="通知書送達日期"
       boundary="viewport"
-      :title="`${$utils.caseId(caseId)}`"
       :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
       :min="minDate"
       label-help="使用方向鍵操作移動日期"
@@ -44,6 +50,7 @@
       close-button
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
+      @context="updateDebounced"
     )
     //- b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
   b-textarea.mt-1(
@@ -130,12 +137,12 @@ export default {
     ready (flag) {
       this.trigger('ready', flag)
     },
-    deliveredDate (val) {
-      this.update()
-    },
-    deadlineDate (val) {
-      this.update()
-    },
+    // deliveredDate (dontcare) {
+    //   this.updateDebounced()
+    // },
+    // deadlineDate (dontcare) {
+    //   this.updateDebounced()
+    // },
     note (val) {
       this.updateDebounced()
       this.noteFlag = !this.$utils.empty(val)
@@ -147,7 +154,7 @@ export default {
   },
   mounted () {
     // RM51: 通知補正日
-    this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM51)
+    this.minDate = this.$utils.twToAdDateObj(this.parentData.RM51)
     // fill default value from RM52
     this.$utils.empty(this.deadlineDate) && this.resetDeadline()
     this.trigger('ready', this.ready)
@@ -155,7 +162,7 @@ export default {
   methods: {
     resetDeadline () {
       // RM52: 補正期滿日期
-      this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = this.$utils.twToAdDateObj(this.bakedData.RM52)
+      this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = this.$utils.twToAdDateObj(this.parentData.RM52)
     },
     load () {
       // get the date string from sqlite db
@@ -170,7 +177,8 @@ export default {
          * fix_deadline_date: "2022/03/17"
          */
         if (data.raw) {
-          this.deliveredDate = data.raw.notify_delivered_date
+          this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date = data.raw.notify_delivered_date
+          this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = data.raw.fix_deadline_date
           this.note = data.raw.note
           !this.$utils.empty(this.note) && (this.noteFlag = true)
         }
@@ -187,12 +195,17 @@ export default {
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'upd_reg_fix_case_data',
         id: this.caseId,
-        date: this.deliveredDate,
+        delivered: this.deliveredDate,
         deadline: this.deadlineDate,
         note: this.note
       }).then(({ data }) => {
         if (!this.$utils.statusCheck(data.status)) {
-          this.warning(data.message)
+          this.$utils.warn(data.message, {
+            id: this.caseId,
+            delivered: this.deliveredDate,
+            deadline: this.deadlineDate,
+            note: this.note
+          })
         }
       }).catch((err) => {
         this.alert(err.message)
