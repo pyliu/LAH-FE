@@ -141,12 +141,6 @@ export default {
     ready (flag) {
       this.trigger('ready', flag)
     },
-    // deliveredDate (dontcare) {
-    //   this.updateDebounced()
-    // },
-    // deadlineDate (dontcare) {
-    //   this.updateDebounced()
-    // },
     note (val) {
       this.updateDebounced()
       this.noteFlag = !this.$utils.empty(val)
