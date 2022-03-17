@@ -75,7 +75,8 @@ export default {
   mixins: [regCaseBase],
   data: () => ({
     noteFlag: false,
-    minDate: new Date()
+    minDate: new Date(),
+    retried: 0
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
@@ -202,12 +203,17 @@ export default {
         note: this.note
       }).then(({ data }) => {
         if (!this.$utils.statusCheck(data.status)) {
-          this.$utils.warn(data.message, {
-            id: this.caseId,
-            delivered: this.deliveredDate,
-            deadline: this.deadlineDate,
-            note: this.note
-          })
+          // retry after a random delay
+          if (this.retried < 3) {
+            this.timeout(this.update, this.$utils.rand(400))
+          } else {
+            this.$utils.warn(data.message, {
+              id: this.caseId,
+              delivered: this.deliveredDate,
+              deadline: this.deadlineDate,
+              note: this.note
+            })
+          }
         }
       }).catch((err) => {
         this.alert(err.message)
