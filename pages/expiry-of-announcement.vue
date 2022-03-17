@@ -88,7 +88,7 @@ div
         )
       b-input-group(prepend="　收件號")
         //- b-input.mr-1(v-model="advOpts.caseWord", placeholder="... 收件字 ...", trim)
-        b-input(v-model="advOpts.caseNum", placeholder="... 收件號 ...", trim)
+        b-input(v-model="advOpts.caseNum", trim)
 
     .center.d-flex.my-1
       b-input-group.mr-1(prepend="登記原因"): b-select(
