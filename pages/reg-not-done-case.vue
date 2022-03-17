@@ -176,7 +176,11 @@ div
         :options="advOpts.casePreliminatorOpts",
         title="初審人員"
       )
-      b-input-group
+      b-input-group(prepend="燈號狀態"): b-select(
+        v-model="advOpts.caseLight",
+        :options="advOpts.caseLightOpts",
+        title="燈號狀態"
+      )
 
     .center.d-flex.my-1
       lah-button(
@@ -254,7 +258,14 @@ export default {
       caseState: '',
       caseStateOpts: [],
       casePreliminator: '',
-      casePreliminatorOpts: []
+      casePreliminatorOpts: [],
+      caseLight: '',
+      caseLightOpts: [
+        { text: '', value: '' },
+        { text: '🟢 正常', value: 'success' },
+        { text: '🟡 快到期', value: 'warning' },
+        { text: '🔴 已逾期', value: 'danger' }
+      ]
     }
   }),
   // only worked at page level component
@@ -334,6 +345,11 @@ export default {
             return item.初審人員 === this.advOpts.casePreliminator
           })
         }
+        if (!this.$utils.empty(this.advOpts.caseLight)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.燈號 === this.advOpts.caseLight
+          })
+        }
         return pipelineItems
       }
       return this.rows
@@ -358,6 +374,9 @@ export default {
       if (!this.$utils.empty(this.advOpts.casePreliminator)) {
         tags.push(`初審人員：${this.advOpts.casePreliminator}`)
       }
+      if (!this.$utils.empty(this.advOpts.caseLight)) {
+        tags.push(`燈號：${this.advOpts.caseLight}`)
+      }
       return tags
     }
   },
@@ -376,7 +395,9 @@ export default {
           caseState: '',
           caseStateOpts: [],
           casePreliminator: '',
-          casePreliminatorOpts: []
+          casePreliminatorOpts: [],
+          caseLight: '',
+          caseLightOpts: this.advOpts.caseLightOpts
         }
       }
       if (val) {
@@ -433,8 +454,7 @@ export default {
           caseReason: '',
           caseState: '',
           casePreliminator: '',
-          caseFixDate: '',
-          caseFixDeadline: ''
+          caseLight: ''
         }
       }
     }
