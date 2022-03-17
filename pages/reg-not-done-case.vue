@@ -135,6 +135,7 @@ div
       b-spinner.my-auto(small type="grow")
       strong.ld-txt 查詢中...
     lah-reg-case-detail(@ready="modalLoading = !$event.detail" :parent-data="clickedData")
+
   b-modal(
     ref="searchPlus",
     title="進階搜尋",
@@ -311,7 +312,7 @@ export default {
     dataReady () { return this.rows.length > 0 },
     filterDataCount () { return this.filteredData.length },
     cacheKey () { return 'query_reg_not_done_case' },
-    foundText () { return `找到 ${this.filterDataCount} 筆本所「未結案」案件資料` },
+    foundText () { return `找到 ${this.filterDataCount} 筆「未結案」案件資料` },
     filteredData () {
       if (this.advTags.length > 0) {
         let pipelineItems = this.rows

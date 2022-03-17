@@ -21,7 +21,7 @@ export default {
     caseId: { type: String, default: '' }
   },
   */
-  name: 'lah-reg-case-auth-checks',
+  name: 'LahRegCaseAuthChecks',
   mixins: [regCaseBase],
   data: () => ({
     note: ''
