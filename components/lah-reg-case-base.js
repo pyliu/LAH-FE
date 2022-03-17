@@ -20,7 +20,7 @@ export default {
     queryStatusUrl () { return `http://${this.webapIp}:9080/Land${this.site}/CAS/CCD02/CCD0202.jsp?year=${this.bakedData['RM01']}&word=${this.bakedData['RM02']}&code=${this.bakedData['RM03']}&sdlyn=N&RM90=` }
   },
   watch: {
-    parentData(val) { this.bakedData = val }
+    parentData (val) { this.bakedData = val }
   },
   created () { this.bakedData = this.parentData },
   fetch () {
