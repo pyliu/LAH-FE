@@ -13,23 +13,20 @@
       label-help="使用方向鍵操作移動日期"
       hide-header
       dropleft
-      today-button
-      label-today-button="今天"
-      reset-button
-      label-reset-button="重設"
       close-button
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
       @context="update"
     )
-    //- lah-button(
-    //-   icon="undo",
-    //-   action="cycle-alt",
-    //-   variant="outline-secondary",
-    //-   size="sm",
-    //-   title="重設",
-    //-   @click="resetDeadline"
-    //- )
+    lah-button.ml-1(
+      v-if="deadlineDateChanged",
+      icon="undo",
+      action="cycle-alt",
+      variant="outline-secondary",
+      size="sm",
+      :title="`補正期滿日期重設為 ${defaultDeadlineDate}`",
+      @click="resetDeadline"
+    )
   .d-flex.my-1
     small.my-auto.text-nowrap.mr-1 通知送達
     b-datepicker(
@@ -88,8 +85,15 @@ export default {
     deliveredDate () {
       return this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date
     },
+    defaultDeadlineDate () {
+      // RM52: 補正期滿日期
+      return this.$utils.tsToAdDateStr(+this.$utils.twToAdDateObj(this.parentData.RM52) / 1000)
+    },
     deadlineDate () {
       return this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date
+    },
+    deadlineDateChanged () {
+      return this.defaultDeadlineDate !== this.deadlineDate
     },
     note () {
       return this.parentData.REG_FIX_CASE_RECORD.note
@@ -161,8 +165,7 @@ export default {
   },
   methods: {
     resetDeadline () {
-      // RM52: 補正期滿日期
-      this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = this.$utils.twToAdDateObj(this.parentData.RM52)
+      this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = this.defaultDeadlineDate
     },
     load () {
       // get the date string from sqlite db
