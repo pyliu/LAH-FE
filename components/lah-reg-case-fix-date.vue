@@ -20,7 +20,7 @@
       close-button
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
-      @context="updateDebounced"
+      @context="update"
     )
     //- lah-button(
     //-   icon="undo",
@@ -50,7 +50,7 @@
       close-button
       label-close-button="關閉"
       v-b-tooltip.hover.left.v-warning
-      @context="updateDebounced"
+      @context="update"
     )
     //- b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
   b-textarea.mt-1(
