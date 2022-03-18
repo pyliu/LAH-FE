@@ -113,9 +113,8 @@ div
         prefix="fas"
         icon="circle"
         :variant="item.燈號"
-        :title="lightDesc(item.燈號)"
         v-b-tooltip.hover.left
-      )
+      ) {{ lightDesc(item.燈號) }}
     template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
     template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
     template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
@@ -208,6 +207,7 @@ export default {
       '#',
       {
         key: '燈號',
+        label: '逾期燈號',
         sortable: true
       },
       {
