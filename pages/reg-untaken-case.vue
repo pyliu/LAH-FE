@@ -436,7 +436,11 @@ export default {
   },
   methods: {
     statusLight (item) {
-      if (!this.$utils.empty(item?.UNTAKEN_LENT_DATE) && this.$utils.empty(item?.UNTAKEN_RETURN_DATE)) {
+      if (
+        !this.$utils.empty(item?.UNTAKEN_BORROWER) &&
+        // !this.$utils.empty(item?.UNTAKEN_LENT_DATE) &&
+        this.$utils.empty(item?.UNTAKEN_RETURN_DATE)
+      ) {
         return '🟡'
       } else if (this.$utils.empty(item?.UNTAKEN_TAKEN_STATUS)) {
         return '🔴'
