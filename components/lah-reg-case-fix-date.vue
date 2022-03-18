@@ -187,6 +187,9 @@ export default {
         if (data.raw) {
           this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date = data.raw.notify_delivered_date
           this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = data.raw.fix_deadline_date
+          this.origDataset.id = this.caseId
+          this.origDataset.delivered = this.deliveredDate
+          this.origDataset.deadline = this.deadlineDate
         }
       }).catch((err) => {
         this.alert(err.message)

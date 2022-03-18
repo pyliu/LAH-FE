@@ -62,7 +62,7 @@ div
     v-if="advTags.length > 0",
     v-model="advTags",
     placeholder="",
-    tag-variant="primary",
+    tag-variant="info",
     tag-pills,
     no-outer-focus,
     no-add-on-enter,

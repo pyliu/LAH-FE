@@ -8,8 +8,8 @@ div
         lah-help-modal(:modal-id="'help-modal'")
           h5 資料庫搜尋說明
           ul
-            li 搜尋「本所」未結案案件的資料
-            li 「初審」、「複審」及「課長」選項全部勾選後即表示該案件辦畢時需通知申請人
+            li 搜尋未結案登記案件的資料
+            li 預設都是需要辦畢通知申請人，輸入公文文號後即代表完成(欄位會顯示 ✔ )。
           hr
           h5 請參照下列步驟搜尋
           ol
@@ -55,7 +55,7 @@ div
     v-if="advTags.length > 0",
     v-model="advTags",
     placeholder="",
-    tag-variant="primary",
+    tag-variant="info",
     tag-pills,
     no-outer-focus,
     no-add-on-enter,
@@ -70,57 +70,56 @@ div
     :caption="foundText"
   )
 
-  lah-transition
-    b-table.text-center.align-middle(
-      v-if="committed"
-      id="land-ref-table"
-      ref="table"
-      caption-top
-      selectable
-      select-mode="single"
-      selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
-      :busy="isBusy"
-      :items="filteredData"
-      :responsive="'lg'"
-      :striped="true"
-      :hover="true"
-      :bordered="true"
-      :borderless="false"
-      :outlined="false"
-      :small="true"
-      :dark="false"
-      :fixed="false"
-      :foot-clone="false"
-      :no-border-collapse="true"
-      :head-variant="'dark'"
-      :fields="fields"
-      :per-page="pagination.perPage"
-      :current-page="pagination.currentPage"
-    )
-      template(#table-busy): span.ld-txt 讀取中...
-      template(v-slot:cell(#)="{ item, index, rowSelected }")
-        template(v-if="rowSelected")
-          span(aria-hidden="true") &check;
-          span.sr-only 勾選
-        template(v-else)
-          span(aria-hidden="true") &nbsp;
-          span.sr-only 無勾選
-        span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-      template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
-        {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-      template(v-slot:cell(燈號)="{ item }")
-        lah-fa-icon(
-          prefix="fas"
-          icon="circle"
-          :variant="item.燈號"
-          :title="lightDesc(item.燈號)"
-          v-b-tooltip.hover.left
-        )
-      template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
-      template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
-      template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
-      template(#cell(lah-reg-case-auth-checks)="{ item }"): lah-reg-case-auth-checks(:case-id="`${item.RM01}${item.RM02}${item.RM03}`" :parent-data="item")
+  lah-transition: b-table.text-center.align-middle(
+    v-if="committed"
+    id="land-ref-table"
+    ref="table"
+    caption-top
+    selectable
+    select-mode="single"
+    selected-variant="success"
+    :sticky-header="`${maxHeight}px`"
+    :busy="isBusy"
+    :items="filteredData"
+    :responsive="'lg'"
+    :striped="true"
+    :hover="true"
+    :bordered="true"
+    :borderless="false"
+    :outlined="false"
+    :small="true"
+    :dark="false"
+    :fixed="false"
+    :foot-clone="false"
+    :no-border-collapse="true"
+    :head-variant="'dark'"
+    :fields="fields"
+    :per-page="pagination.perPage"
+    :current-page="pagination.currentPage"
+  )
+    template(#table-busy): span.ld-txt 讀取中...
+    template(v-slot:cell(#)="{ item, index, rowSelected }")
+      template(v-if="rowSelected")
+        span(aria-hidden="true") &check;
+        span.sr-only 勾選
+      template(v-else)
+        span(aria-hidden="true") &nbsp;
+        span.sr-only 無勾選
+      span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
+    template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
+      {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+    template(v-slot:cell(燈號)="{ item }")
+      lah-fa-icon(
+        prefix="fas"
+        icon="circle"
+        :variant="item.燈號"
+        :title="lightDesc(item.燈號)"
+        v-b-tooltip.hover.left
+      )
+    template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
+    template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
+    template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
+    template(#cell(customize)="{ item }"): lah-reg-case-notify(:case-id="`${item.ID}`" :parent-data="item")
 
   b-modal(
     :id="modalId"
@@ -213,6 +212,11 @@ export default {
         sortable: true
       },
       {
+        key: 'customize',
+        label: '辦畢通知',
+        sortable: false
+      },
+      {
         key: '收件字號',
         sortable: true
       },
@@ -240,11 +244,6 @@ export default {
       {
         key: '複審人員',
         sortable: true
-      },
-      {
-        key: 'lah-reg-case-auth-checks',
-        label: '辦畢通知審核設定',
-        sortable: false
       }
     ],
     maxHeight: 600,
@@ -286,12 +285,12 @@ export default {
       }).then(({ data }) => {
         this.rows = data.raw || []
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-        const remain_s = data.cache_remaining_time
-        const remain_ms = remain_s * 1000
-        if (remain_ms && remain_ms > 0) {
-          this.setCache(this.cacheKey, data, remain_ms)
+        const remainS = data.cache_remaining_time
+        const remainMs = remainS * 1000
+        if (remainMs && remainMs > 0) {
+          this.setCache(this.cacheKey, data, remainMs)
           if (this.$refs.countdown) {
-            this.$refs.countdown.setCountdown(remain_ms)
+            this.$refs.countdown.setCountdown(remainMs)
             this.$refs.countdown.startCountdown()
           }
         }
