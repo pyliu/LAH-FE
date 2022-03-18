@@ -49,13 +49,7 @@
       :max="maxDate"
       :state="settleDeliveredDate"
     )
-    //- b-checkbox.my-auto.ml-1.text-nowrap(v-model="noteFlag" size="sm" switch) 備忘錄
-  b-textarea.mt-1(
-    v-show="noteFlag"
-    v-model="parentData.REG_FIX_CASE_RECORD.note"
-    size="sm"
-    trim
-  )
+
   lah-transition: .p-1.mt-1.small(v-if="!$utils.empty(deliveredDate)")
     b-badge.p-2.mr-2(pill, :class="classes") 調整到期日期：{{ dueDate }}
     b-badge.p-2(pill, :class="classes") 預計可駁回日：{{ rejectDate }}
@@ -75,27 +69,21 @@ export default {
   name: 'LahRegCaseFixDate',
   mixins: [regCaseBase],
   data: () => ({
-    noteFlag: false,
     minDate: new Date(),
     maxDate: new Date(),
     retried: 0,
     origDataset: {
       id: '',
       delivered: '',
-      deadline: '',
-      note: ''
+      deadline: ''
     }
   }),
-  fetch () {
-    !this.$utils.empty(this.note) && (this.noteFlag = true)
-  },
   computed: {
     updateDataset () {
       return {
         id: this.caseId,
         delivered: this.deliveredDate,
-        deadline: this.deadlineDate,
-        note: this.note
+        deadline: this.deadlineDate
       }
     },
     deliveredDate () {
@@ -113,9 +101,6 @@ export default {
     },
     deadlineDateChanged () {
       return this.defaultDeadlineDate !== this.deadlineDate
-    },
-    note () {
-      return this.parentData.REG_FIX_CASE_RECORD.note
     },
     dueDate () {
       if (this.$utils.empty(this.deliveredDate)) {
@@ -163,9 +148,9 @@ export default {
     ready (flag) {
       this.trigger('ready', flag)
     },
-    note (val) {
-      this.updateDebounced()
-      this.noteFlag = !this.$utils.empty(val)
+    caseId (dontcare) {
+      // to let the component refresh in b-table
+      this.load()
     }
   },
   created () {
@@ -175,7 +160,6 @@ export default {
     this.origDataset.id = this.caseId
     this.origDataset.delivered = this.deliveredDate
     this.origDataset.deadline = this.deadlineDate
-    this.origDataset.note = this.note
   },
   mounted () {
     // RM51: 通知補正日, plus one day
@@ -203,8 +187,6 @@ export default {
         if (data.raw) {
           this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date = data.raw.notify_delivered_date
           this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = data.raw.fix_deadline_date
-          this.note = data.raw.note
-          !this.$utils.empty(this.note) && (this.noteFlag = true)
         }
       }).catch((err) => {
         this.alert(err.message)
@@ -223,8 +205,9 @@ export default {
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
             this.origDataset = { ...this.updateDataset }
-          } else if (this.retried < 3) {
-            this.timeout(this.update, this.$utils.rand(400))
+          } else if (this.retried < 5) {
+            this.timeout(this.update, this.$utils.rand(800))
+            this.retried++
           } else {
             this.$utils.warn(data.message, this.updateDataset)
           }
