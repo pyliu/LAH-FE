@@ -175,10 +175,10 @@ div
         :options="advOpts.casePreliminatorOpts",
         title="初審人員"
       )
-      b-input-group(prepend="燈號狀態"): b-select(
+      b-input-group(prepend="逾期狀態"): b-select(
         v-model="advOpts.caseLight",
         :options="advOpts.caseLightOpts",
-        title="燈號狀態"
+        title="逾期狀態"
       )
 
     .center.d-flex.my-1
@@ -374,7 +374,7 @@ export default {
         tags.push(`初審人員：${this.advOpts.casePreliminator}`)
       }
       if (!this.$utils.empty(this.advOpts.caseLight)) {
-        tags.push(`燈號：${this.advOpts.caseLight}`)
+        tags.push(`逾期燈號狀態：${this.advOpts.caseLight}`)
       }
       return tags
     }
