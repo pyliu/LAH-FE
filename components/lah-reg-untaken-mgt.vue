@@ -1,116 +1,116 @@
 /* eslint-disable no-irregular-whitespace */
 <template lang="pug">
-  .text-left(
-    :title="`${$utils.caseId(caseId)}`"
-    v-if="ready"
-    v-b-tooltip.hover.left.v-info
-    :class="styling"
-  )
-    div(v-if="showTakenFields")
-      .d-flex.text-nowrap.mb-1
-        .my-auto.mr-1 領件狀態
-        b-select(
-          v-model="parentData.UNTAKEN_TAKEN_STATUS"
-          :options="status"
-          size="sm"
-        )
-
-      .d-flex.text-nowrap.mb-1
-        .my-auto.mr-1 更新日期
-        b-datepicker(
-          size="sm"
-          variant="primary"
-          v-model="parentData.UNTAKEN_TAKEN_DATE"
-          placeholder="選擇狀態變更日期"
-          boundary="viewport"
-          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :min="minDate"
-          :max="maxDate"
-          label-help="使用方向鍵操作移動日期"
-          hide-header
-          dropleft
-          today-button
-          label-today-button="今天"
-          reset-button
-          label-reset-button="重設"
-          close-button
-          label-close-button="關閉"
-        )
-
-    div(v-if="takenStatus === ''")
-      .d-flex.text-nowrap.mb-1
-        .my-auto.mr-1.text-nowrap 　借閱人
-        strong.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
-        lah-button(
-          no-icon-gutter
-          icon="user-friends"
-          title="選擇"
-          @click="selectUser"
-          :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'"
-        )
-
-      .d-flex.text-nowrap.mb-1(v-if="showLentDate")
-        .my-auto.mr-1 借出日期
-        b-datepicker(
-          size="sm"
-          variant="primary"
-          v-model="parentData.UNTAKEN_LENT_DATE"
-          placeholder="變更借閱日期"
-          boundary="viewport"
-          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :min="minDate"
-          :max="maxDate"
-          label-help="使用方向鍵操作移動日期"
-          hide-header
-          dropleft
-          today-button
-          label-today-button="今天"
-          reset-button
-          label-reset-button="重設"
-          close-button
-          label-close-button="關閉"
-        )
-
-      .d-flex.text-nowrap.mb-1(v-if="showReturnDate")
-        .my-auto.mr-1 歸還日期
-        b-datepicker(
-          size="sm"
-          variant="primary"
-          v-model="parentData.UNTAKEN_RETURN_DATE"
-          placeholder="設定借閱歸還日期"
-          boundary="viewport"
-          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :min="returnDateMin"
-          :max="maxDate"
-          label-help="使用方向鍵操作移動日期"
-          hide-header
-          dropleft
-          today-button
-          label-today-button="今天"
-          reset-button
-          label-reset-button="重設"
-          close-button
-          label-close-button="關閉"
-        )
-
-    .d-flex.text-nowrap.mb-1(v-if="false")
-      b-checkbox.my-auto.mr-1.text-nowrap(v-model="noteFlag" size="sm") 備忘錄
-      b-textarea(
-        v-show="noteFlag"
-        v-model="parentData.UNTAKEN_NOTE"
+.text-left(
+  :title="`${$utils.caseId(caseId)}`"
+  v-if="ready"
+  v-b-tooltip.hover.left.v-info
+  :class="styling"
+)
+  div(v-if="showTakenFields")
+    .d-flex.text-nowrap.mb-1
+      .my-auto.mr-1 領件狀態
+      b-select(
+        v-model="parentData.UNTAKEN_TAKEN_STATUS"
+        :options="statusOpts"
         size="sm"
-        trim
       )
 
-    b-modal(
-      :id="modalId"
-      size="xl"
-      hide-footer
-      centered
-      scrollable
+    .d-flex.text-nowrap.mb-1
+      .my-auto.mr-1 更新日期
+      b-datepicker(
+        size="sm"
+        variant="primary"
+        v-model="parentData.UNTAKEN_TAKEN_DATE"
+        placeholder="選擇狀態變更日期"
+        boundary="viewport"
+        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+        :min="minDate"
+        :max="maxDate"
+        label-help="使用方向鍵操作移動日期"
+        hide-header
+        dropleft
+        today-button
+        label-today-button="今天"
+        reset-button
+        label-reset-button="重設"
+        close-button
+        label-close-button="關閉"
+      )
+
+  div(v-if="takenStatus === ''")
+    .d-flex.text-nowrap.mb-1
+      .my-auto.mr-1.text-nowrap 　借閱人
+      strong.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
+      lah-button(
+        no-icon-gutter
+        icon="user-friends"
+        title="選擇"
+        @click="selectUser"
+        :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'"
+      )
+
+    .d-flex.text-nowrap.mb-1(v-if="showLentDate")
+      .my-auto.mr-1 借出日期
+      b-datepicker(
+        size="sm"
+        variant="primary"
+        v-model="parentData.UNTAKEN_LENT_DATE"
+        placeholder="變更借閱日期"
+        boundary="viewport"
+        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+        :min="minDate"
+        :max="maxDate"
+        label-help="使用方向鍵操作移動日期"
+        hide-header
+        dropleft
+        today-button
+        label-today-button="今天"
+        reset-button
+        label-reset-button="重設"
+        close-button
+        label-close-button="關閉"
+      )
+
+    .d-flex.text-nowrap.mb-1(v-if="showReturnDate")
+      .my-auto.mr-1 歸還日期
+      b-datepicker(
+        size="sm"
+        variant="primary"
+        v-model="parentData.UNTAKEN_RETURN_DATE"
+        placeholder="設定借閱歸還日期"
+        boundary="viewport"
+        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+        :min="returnDateMin"
+        :max="maxDate"
+        label-help="使用方向鍵操作移動日期"
+        hide-header
+        dropleft
+        today-button
+        label-today-button="今天"
+        reset-button
+        label-reset-button="重設"
+        close-button
+        label-close-button="關閉"
+      )
+
+  .d-flex.text-nowrap.mb-1(v-if="false")
+    b-checkbox.my-auto.mr-1.text-nowrap(v-model="noteFlag" size="sm") 備忘錄
+    b-textarea(
+      v-show="noteFlag"
+      v-model="parentData.UNTAKEN_NOTE"
+      size="sm"
+      trim
     )
-      template(#modal-title) 選擇借閱人 - {{ $utils.caseId(parentData.ID) }}
-      lah-user-select(:init-keyword="borrowerName" @update="borrowerSelected" @clean="borrowerClean")
+
+  b-modal(
+    ref="borrower"
+    size="xl"
+    hide-footer
+    centered
+    scrollable
+  )
+    template(#modal-title) 選擇借閱人 - {{ $utils.caseId(parentData.ID) }}
+    lah-user-select(:init-keyword="borrowerName" @update="borrowerSelected" @clean="borrowerClean")
 </template>
 
 <script>
@@ -125,15 +125,14 @@ export default {
     caseId: { type: String, default: '' }
   },
   */
-  name: 'lah-reg-untaken-mgt',
+  name: 'LahRegUntakenMgt',
   components: { lahUserSelect },
   mixins: [regCaseBase],
   data: () => ({
-    modalId: 'this should be an uuid',
     noteFlag: false,
     minDate: new Date(),
     maxDate: new Date(),
-    status: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家'],
+    statusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家', 'i領件', 'i郵箱'],
     skipTakenDateUpdate: false,
     skipTakenStatusUpdate: false
   }),
@@ -231,7 +230,6 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     this.updateDebounced = this.$utils.debounce(this.update, 250)
   },
@@ -267,7 +265,7 @@ export default {
       this.parentData.UNTAKEN_BORROWER = payload.detail
       this.parentData.UNTAKEN_LENT_DATE = new Date()
       this.parentData.UNTAKEN_RETURN_DATE = null
-      this.hideModalById(this.modalId)
+      this.$refs.borrower.hide()
     },
     borrowerClean () {
       this.parentData.UNTAKEN_BORROWER = ''
@@ -275,7 +273,7 @@ export default {
       this.parentData.UNTAKEN_RETURN_DATE = null
     },
     selectUser () {
-      this.showModalById(this.modalId)
+      this.$refs.borrower.show()
     }
   }
 }

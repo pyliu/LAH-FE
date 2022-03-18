@@ -11,9 +11,15 @@
               li 搜尋已結案但未歸檔的登記案件資料
               li 請勿搜尋#[strong.text-danger 過大區間]，可能造成讀取時間過長而失敗
             hr
+            h5 狀態說明
+            ul
+              li 🟢 已領件
+              li 🟡 借閱中
+              li 🔴 未領件
+            hr
             h5 請參照下列步驟搜尋
             ol
-              li 選擇日期區間(預設為目前月份)
+              li 選擇日期區間(預設為今天)
               li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
         .d-flex.small
@@ -48,7 +54,7 @@
 
     lah-pagination(
       v-model="pagination"
-      :total-rows="queryCount"
+      :total-rows="filteredDataCount"
       :caption="foundText"
     )
 
@@ -93,9 +99,10 @@
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(登記原因)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
         template(#cell(結案日期)="{ item }"): .text-nowrap {{ item.結案日期.split(' ')[0] }}
-        template(#cell(lah-reg-untaken-mgt)="{ item }"): lah-reg-untaken-mgt(:parent-data="item" :case-id="item.ID")
+        template(#cell(customize)="{ item }"): lah-reg-untaken-mgt(:parent-data="item" :case-id="item.ID")
+        template(#cell(UNTAKEN_TAKEN_STATUS)="{ item }"): .text-nowrap {{ statusLight(item) }} {{ statusText(item) }}
     b-modal(
-      :id="modalId"
+      ref="caseDetail"
       size="xl"
       hide-footer
       centered
@@ -113,7 +120,6 @@
 export default {
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
-    modalId: 'this should be an uuid',
     modalLoading: true,
     clickedData: undefined,
     rows: [],
@@ -130,6 +136,11 @@ export default {
     committed: false,
     fields: [
       '#',
+      {
+        key: 'UNTAKEN_TAKEN_STATUS',
+        label: '狀態',
+        sortable: true
+      },
       {
         key: '收件字號',
         sortable: true
@@ -155,8 +166,8 @@ export default {
         sortable: true
       },
       {
-        key: 'lah-reg-untaken-mgt',
-        label: '領狀設定',
+        key: 'customize',
+        label: '領件設定',
         sortable: true
       }
     ],
@@ -208,11 +219,17 @@ export default {
     title: '案件領狀管控-桃園市地政局'
   },
   computed: {
-    queryCount () { return this.rows.length },
+    dataReady () { return this.rows.length > 0 },
     cacheKey () { return `query_reg_untaken_case_${this.dateRange.begin}_${this.dateRange.end}` },
-    foundText () { return `找到 ${this.queryCount} 筆「已結案未歸檔」登記案件資料` },
+    foundText () { return `找到 ${this.filteredDataCount} 筆「已結案未歸檔」登記案件資料` },
     daysPeriod () { return this.dateRange.days || 0 },
-    isWrongDaysPeriod () { return this.daysPeriod < 1 }
+    isWrongDaysPeriod () { return this.daysPeriod < 1 },
+    filteredData () {
+      return this.rows
+    },
+    filteredDataCount () {
+      return this.filteredData.length
+    }
   },
   fetchOnServer: false,
   watch: {
@@ -222,13 +239,29 @@ export default {
       }
     }
   },
-  created () {
-    this.modalId = this.$utils.uuid()
-  },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)
   },
   methods: {
+    statusLight (item) {
+      if (!this.$utils.empty(item?.UNTAKEN_LENT_DATE) && this.$utils.empty(item?.UNTAKEN_RETURN_DATE)) {
+        return '🟡'
+      } else if (this.$utils.empty(item?.UNTAKEN_TAKEN_STATUS)) {
+        return '🔴'
+      }
+      return '🟢'
+    },
+    statusText (item) {
+      const light = this.statusLight(item)
+      switch (light) {
+        case '🟡':
+          return '借閱中'
+        case '🔴':
+          return '未領件'
+        default:
+          return item.UNTAKEN_TAKEN_STATUS
+      }
+    },
     reload () {
       this.forceReload = true
       this.$fetch()
@@ -241,7 +274,7 @@ export default {
     popup (data) {
       this.modalLoading = true
       this.clickedData = data
-      this.showModalById(this.modalId)
+      this.$refs.caseDetail.show()
     }
   }
 }
