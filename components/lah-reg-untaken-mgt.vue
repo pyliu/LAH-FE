@@ -241,6 +241,7 @@ export default {
     },
     caseId (dontcare) {
       // this.$utils.warn(dontcare, this.updateData)
+      this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
     }
   },
   created () {
@@ -249,7 +250,7 @@ export default {
   },
   mounted () {
     // RM58_1: 結案日期
-    this.minDate = this.$utils.twToAdDateObj(this.bakedData.RM58_1)
+    this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
     this.trigger('ready', this.ready)
   },
   methods: {
