@@ -40,6 +40,7 @@ div
           title="開啟進階搜尋視窗",
           @click="$refs.searchPlus.show()",
           :disabled="!dataReady"
+          no-icon-gutter
         )
         lah-countdown-button(
           ref="countdown"
