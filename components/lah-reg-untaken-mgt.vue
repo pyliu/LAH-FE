@@ -179,6 +179,17 @@ export default {
       if (this.borrower !== '' && this.$utils.empty(this.returnDate)) { return ['bg-warning', 'p-1'] }
       if (!this.$utils.empty(this.returnDate)) { return ['bg-light', 'p-1'] }
       return []
+    },
+    updateData () {
+      return {
+        id: this.caseId,
+        taken_date: this.takenDate,
+        taken_status: this.takenStatus,
+        lent_date: this.lentDate,
+        return_date: this.returnDate,
+        borrower: this.borrower,
+        note: this.note
+      }
     }
   },
   watch: {
@@ -227,6 +238,9 @@ export default {
     note (val) {
       this.updateDebounced()
       this.noteFlag = !this.$utils.empty(val)
+    },
+    caseId (dontcare) {
+      // this.$utils.warn(dontcare, this.updateData)
     }
   },
   created () {
@@ -243,13 +257,7 @@ export default {
       // to update untaken data in sqlite db
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'upd_reg_cert_taken_date',
-        id: this.caseId,
-        taken_date: this.takenDate,
-        taken_status: this.takenStatus,
-        lent_date: this.lentDate,
-        return_date: this.returnDate,
-        borrower: this.borrower,
-        note: this.note
+        ...this.updateData
       }).then(({ data }) => {
         if (!this.$utils.statusCheck(data.status)) {
           this.warning(data.message)
