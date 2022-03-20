@@ -14,15 +14,21 @@
         :options="statusOpts",
         size="sm"
       )
-      lah-transition: lah-button.ml-1(
+      lah-transition: lah-countdown-button.ml-1(
         v-if="dataChanged"
+        ref="countdown"
         icon="edit",
         size="sm",
-        :disabled="!dataChanged"
         variant="primary",
-        title="馬上更新",
+        badge-variant="light"
+        title="立即更新",
+        :disabled="!dataChanged",
+        :milliseconds="debounceMs",
+        :busy="isBusy",
         @click="update",
-      ) 確定
+        @end="update",
+        auto-start
+      ) 更新
 
     .d-flex.text-nowrap.mb-1
       .my-auto.mr-1 更新日期
@@ -61,7 +67,7 @@
         v-if="!$utils.empty(borrower)",
         icon="undo",
         action="cycle-alt",
-        variant="outline-secondary",
+        variant="secondary",
         size="sm",
         title="清除借閱人",
         @click="borrowerClean"
@@ -154,7 +160,8 @@ export default {
     statusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家', 'i領件', 'i郵箱'],
     skipTakenDateUpdate: false,
     skipTakenStatusUpdate: false,
-    origData: {}
+    origData: {},
+    debounceMs: 30 * 1000
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
@@ -270,7 +277,7 @@ export default {
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
-    this.updateDebounced = this.$utils.debounce(this.update, 10000)
+    this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
     this.origData = { ...this.updateData }
   },
   mounted () {
@@ -280,7 +287,8 @@ export default {
   },
   methods: {
     update () {
-      if (this.dataChanged) {
+      if (this.dataChanged && !this.isBusy) {
+        this.isBusy = true
         // to update untaken data in sqlite db
         this.$axios.post(this.$consts.API.JSON.QUERY, {
           type: 'upd_reg_cert_taken_date',
