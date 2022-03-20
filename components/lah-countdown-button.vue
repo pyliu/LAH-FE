@@ -1,28 +1,28 @@
 <template lang="pug">
-  lah-button.align-middle(
-    ref="btn"
-    :icon="icon"
-    :variant="variantMediator"
-    :size="size"
-    :action="action"
-    :busy="busy"
-    :no-icon-gutter="noBadge"
-    :disabled="busy"
-    @click="$emit('click', $event)"
-  )
-    slot
-    b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
-      countdown(
-        ref="cd"
-        :time="milliseconds"
-        :auto-start="false"
-        @end="$emit('end', $event)"
-        @start="$emit('start', $event)"
-        @progress="handleProgress"
-      ): template(slot-scope="props").
-          #[span(v-if="props.hours > 0") {{ props.hours.toString().padStart(2, '0') }}:]
-          {{ props.minutes.toString().padStart(2, '0') }}:{{ props.seconds.toString().padStart(2, '0') }}
-      span.sr-only 倒數
+lah-button.align-middle(
+  ref="btn"
+  :icon="icon"
+  :variant="variantMediator"
+  :size="size"
+  :action="action"
+  :busy="busy"
+  :no-icon-gutter="noBadge"
+  :disabled="busy"
+  @click="$emit('click', $event)"
+)
+  slot
+  b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
+    countdown(
+      ref="cd"
+      :time="milliseconds"
+      :auto-start="false"
+      @end="$emit('end', $event)"
+      @start="$emit('start', $event)"
+      @progress="handleProgress"
+    ): template(slot-scope="props").
+        #[span(v-if="props.hours > 0") {{ props.hours.toString().padStart(2, '0') }}:]
+        #[span(v-if="props.minutes > 0") {{ props.minutes.toString().padStart(2, '0') }}:]{{ props.seconds.toString().padStart(2, '0') }}
+    span.sr-only 倒數
 </template>
 
 <script>
@@ -84,8 +84,8 @@ export default {
           totalMilliseconds: this.totalMilliseconds
         }
       */
-      if (!this.busy) {
-        if (this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold && this.$refs.btn) {
+      if (!this.busy && this.$refs.btn) {
+        if (this.$refs.btn && this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
           this.$refs.btn && this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
           const oldVariant = this.variantMediator
           this.variantMediator = this.endAttentionStartVariant

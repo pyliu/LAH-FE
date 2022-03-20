@@ -14,21 +14,20 @@
         :options="statusOpts",
         size="sm"
       )
-      lah-transition: lah-countdown-button.ml-1(
+      lah-countdown-button.ml-1(
         v-if="dataChanged"
         ref="countdown"
         icon="edit",
         size="sm",
-        variant="primary",
-        badge-variant="light"
+        variant="outline-primary",
+        badge-variant="secondary"
         title="立即更新",
         :disabled="!dataChanged",
         :milliseconds="debounceMs",
-        :busy="isBusy",
         @click="update",
         @end="update",
         auto-start
-      ) 更新
+      )
 
     .d-flex.text-nowrap.mb-1
       .my-auto.mr-1 更新日期
@@ -205,6 +204,7 @@ export default {
              (this.returnDate !== null && this.returnDate !== '')
     },
     styling () {
+      if (this.dataChanged) { return ['update-mark'] }
       if (this.takenStatus !== '') { return ['bg-success', 'text-white', 'p-1'] }
       if (this.borrower !== '' && this.$utils.empty(this.returnDate)) { return ['bg-warning', 'p-1'] }
       if (!this.$utils.empty(this.returnDate)) { return ['bg-light', 'p-1'] }
@@ -237,6 +237,7 @@ export default {
         }
       }
       this.skipTakenDateUpdate = false
+      this.$refs.countdown?.resetCountdown()
       this.updateDebounced()
     },
     takenStatus (val) {
@@ -249,6 +250,7 @@ export default {
         }
       }
       this.skipTakenStatusUpdate = false
+      this.$refs.countdown?.resetCountdown()
       this.updateDebounced()
     },
     lentDate (val) {
@@ -326,4 +328,10 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.update-mark {
+  border: 2px dashed red;
+  border-radius: 5px;
+  padding: .25rem;
+}
+</style>
