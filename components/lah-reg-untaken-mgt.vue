@@ -3,7 +3,7 @@
 .text-left(
   :title="`${$utils.caseId(caseId)}`"
   v-b-tooltip.hover.left.v-info
-  :class="styling"
+  :class="modifiedMark"
 )
   div(v-if="showTakenFields")
     .d-flex.text-nowrap.mb-1
@@ -161,10 +161,6 @@ export default {
     debounceMs: 30 * 1000,
     origData: {}
   }),
-  fetch () {
-    !this.$utils.empty(this.note) && (this.noteFlag = true)
-    this.origData = { ...this.updateData }
-  },
   computed: {
     dataChanged () {
       return !this.$utils.equal(this.origData, this.updateData)
@@ -203,7 +199,7 @@ export default {
       return this.borrower === '' ||
              (this.returnDate !== null && this.returnDate !== '')
     },
-    styling () {
+    modifiedMark () {
       if (this.dataChanged) { return ['update-mark'] }
       // if (this.takenStatus !== '') { return ['bg-success', 'text-white', 'p-1'] }
       // if (this.borrower !== '' && this.$utils.empty(this.returnDate)) { return ['bg-warning', 'p-1'] }
@@ -212,7 +208,6 @@ export default {
     },
     updateData () {
       const data = {
-        id: this.caseId,
         taken_date: this.takenDate,
         taken_status: this.takenStatus,
         lent_date: this.lentDate,
@@ -277,6 +272,8 @@ export default {
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
+    !this.$utils.empty(this.note) && (this.noteFlag = true)
+    this.syncOrigData()
   },
   mounted () {
     // RM58_1: 結案日期
@@ -290,13 +287,14 @@ export default {
         // to update untaken data in sqlite db
         this.$axios.post(this.$consts.API.JSON.QUERY, {
           type: 'upd_reg_cert_taken_date',
+          id: this.caseId,
           ...this.updateData
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            this.origData = { ...this.updateData }
-            this.success('領件設定更新成功。', { title: this.parentData.收件字號 })
+            this.syncOrigData()
+            this.$utils.log(this.parentData.ID, '領件設定更新成功。')
           } else {
-            this.warning(data.message)
+            this.warning(data.message, { title: this.parentData.收件字號 })
           }
         }).catch((err) => {
           this.alert(err.message)
@@ -319,6 +317,9 @@ export default {
     },
     selectUser () {
       this.$refs.borrower.show()
+    },
+    syncOrigData () {
+      this.origData = { ...this.updateData }
     }
   }
 }
