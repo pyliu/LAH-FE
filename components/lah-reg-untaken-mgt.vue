@@ -2,7 +2,6 @@
 <template lang="pug">
 .text-left(
   :title="`${$utils.caseId(caseId)}`"
-  v-if="ready"
   v-b-tooltip.hover.left.v-info
   :class="styling"
 )
@@ -159,11 +158,12 @@ export default {
     statusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家', 'i領件', 'i郵箱'],
     skipTakenDateUpdate: false,
     skipTakenStatusUpdate: false,
-    origData: {},
-    debounceMs: 30 * 1000
+    debounceMs: 30 * 1000,
+    origData: {}
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
+    this.origData = { ...this.updateData }
   },
   computed: {
     dataChanged () {
@@ -224,9 +224,6 @@ export default {
     }
   },
   watch: {
-    ready (flag) {
-      this.trigger('ready', flag)
-    },
     takenDate (val) {
       if (!this.skipTakenDateUpdate) {
         this.skipTakenStatusUpdate = true
@@ -280,12 +277,11 @@ export default {
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
-    this.origData = { ...this.updateData }
   },
   mounted () {
     // RM58_1: 結案日期
     this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
-    this.trigger('ready', this.ready)
+    this.trigger('ready')
   },
   methods: {
     update () {
