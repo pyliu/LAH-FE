@@ -10,10 +10,20 @@
     .d-flex.text-nowrap.mb-1
       .my-auto.mr-1 領件狀態
       b-select(
-        v-model="parentData.UNTAKEN_TAKEN_STATUS"
-        :options="statusOpts"
+        v-model="parentData.UNTAKEN_TAKEN_STATUS",
+        :options="statusOpts",
         size="sm"
       )
+      lah-transition: lah-button.ml-1(
+        v-if="dataChanged"
+        icon="edit",
+        size="sm",
+        :disabled="!dataChanged"
+        variant="primary",
+        title="馬上更新",
+        @click="update",
+        no-icon-gutter
+      ) 確定更新
 
     .d-flex.text-nowrap.mb-1
       .my-auto.mr-1 更新日期
@@ -47,6 +57,16 @@
         title="選擇"
         @click="selectUser"
         :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'"
+      )
+      lah-button.ml-1(
+        v-if="!$utils.empty(borrower)",
+        icon="undo",
+        action="cycle-alt",
+        variant="outline-secondary",
+        size="sm",
+        title="清除借閱人",
+        @click="borrowerClean"
+        no-icon-gutter
       )
 
     .d-flex.text-nowrap.mb-1(v-if="showLentDate")
@@ -134,12 +154,16 @@ export default {
     maxDate: new Date(),
     statusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家', 'i領件', 'i郵箱'],
     skipTakenDateUpdate: false,
-    skipTakenStatusUpdate: false
+    skipTakenStatusUpdate: false,
+    origData: {}
   }),
   fetch () {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
   },
   computed: {
+    dataChanged () {
+      return !this.$utils.equal(this.origData, this.updateData)
+    },
     takenDate () {
       return this.parentData.UNTAKEN_TAKEN_DATE || ''
     },
@@ -181,7 +205,7 @@ export default {
       return []
     },
     updateData () {
-      return {
+      const data = {
         id: this.caseId,
         taken_date: this.takenDate,
         taken_status: this.takenStatus,
@@ -190,6 +214,7 @@ export default {
         borrower: this.borrower,
         note: this.note
       }
+      return data
     }
   },
   watch: {
@@ -227,16 +252,16 @@ export default {
       if (this.$utils.empty(val)) {
         this.parentData.UNTAKEN_RETURN_DATE = null
       }
-      this.updateDebounced()
+      this.update()
     },
     returnDate (dontcare) {
-      this.updateDebounced()
+      this.update()
     },
     borrower (dontcare) {
-      this.updateDebounced()
+      this.update()
     },
     note (val) {
-      this.updateDebounced()
+      this.update()
       this.noteFlag = !this.$utils.empty(val)
     },
     caseId (dontcare) {
@@ -246,7 +271,8 @@ export default {
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
-    this.updateDebounced = this.$utils.debounce(this.update, 250)
+    this.updateDebounced = this.$utils.debounce(this.update, 10000)
+    this.origData = { ...this.updateData }
   },
   mounted () {
     // RM58_1: 結案日期
@@ -255,20 +281,25 @@ export default {
   },
   methods: {
     update () {
-      // to update untaken data in sqlite db
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'upd_reg_cert_taken_date',
-        ...this.updateData
-      }).then(({ data }) => {
-        if (!this.$utils.statusCheck(data.status)) {
-          this.warning(data.message)
-        }
-      }).catch((err) => {
-        this.alert(err.message)
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-      })
+      if (this.dataChanged) {
+        // to update untaken data in sqlite db
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'upd_reg_cert_taken_date',
+          ...this.updateData
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            this.origData = { ...this.updateData }
+            this.success('領件設定更新成功。', { title: this.parentData.收件字號 })
+          } else {
+            this.warning(data.message)
+          }
+        }).catch((err) => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      }
     },
     borrowerSelected (payload) {
       this.parentData.UNTAKEN_BORROWER = payload.detail

@@ -25,6 +25,7 @@
       size="sm",
       :title="`補正期滿日期重設為 ${defaultDeadlineDate}`",
       @click="resetDeadline"
+      no-icon-gutter
     )
   .d-flex.my-1
     small.my-auto.text-nowrap.mr-1 通知送達
