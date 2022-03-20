@@ -165,8 +165,8 @@ export default {
   computed: {
     dataChanged () {
       // pagination will re-use the same component in b-table ...
-      // I need to a way to determine if it is a user triggered data change
-      if (this.$utils.equal(this.origData.id, this.updateData.id)) {
+      // I need a way to determine if it is a user triggered data change
+      if (!this.$utils.empty(this.origData)) {
         return !this.$utils.equal(this.origData, this.updateData)
       }
       return false
