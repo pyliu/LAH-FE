@@ -197,18 +197,18 @@ export default ({ $axios, store }, inject) => {
       const el = $(selector || '*').removeClass('ld').attr('class', function (i, c) {
         return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
       })
-      if (el.length) {
-        el.addClass('ld')
+      if (el?.length) {
+        el?.addClass('ld')
         if (!which) {
-          el.each((idx, el) => {
-            if (!el.is('body') && !el.is('html')) {
+          el?.each((idx, el) => {
+            if (el.is && !el?.is('body') && !el.is('html')) {
               const index = Math.floor(Math.random() * Math.floor(consts.loadingAction.length || 100))
               const randAnimPattern = consts.loadingAction[index]
-              el.addClass(randAnimPattern)
+              el?.addClass(randAnimPattern)
             }
           })
         } else {
-          el.addClass(which)
+          el?.addClass(which)
         }
       }
       return el
