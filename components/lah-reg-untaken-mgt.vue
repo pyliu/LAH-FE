@@ -293,12 +293,12 @@ export default {
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
             this.syncOrigData()
-            this.$utils.log(this.parentData.ID, '領件設定更新成功。')
           } else {
             this.warning(data.message, { title: this.parentData.收件字號 })
+            this.$utils.warn(this.caseId, data.message)
           }
         }).catch((err) => {
-          this.alert(err.message)
+          this.alert(err.message, { title: this.parentData.收件字號 })
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
