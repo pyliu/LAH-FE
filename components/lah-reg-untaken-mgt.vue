@@ -55,17 +55,18 @@
       .my-auto.mr-1.text-nowrap 　借閱人
       strong.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
       lah-button(
+        icon="user-friends",
+        title="選擇",
+        size="sm",
+        @click="selectUser",
+        :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'",
         no-icon-gutter
-        icon="user-friends"
-        title="選擇"
-        @click="selectUser"
-        :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'"
       )
       lah-button.ml-1(
         v-if="!$utils.empty(borrower)",
         icon="undo",
         action="cycle-alt",
-        variant="secondary",
+        variant="outline-secondary",
         size="sm",
         title="清除借閱人",
         @click="borrowerClean"
@@ -271,14 +272,13 @@ export default {
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
-    this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
     !this.$utils.empty(this.note) && (this.noteFlag = true)
+    this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
     this.syncOrigData()
   },
   mounted () {
     // RM58_1: 結案日期
     this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
-    this.trigger('ready')
   },
   methods: {
     update () {
