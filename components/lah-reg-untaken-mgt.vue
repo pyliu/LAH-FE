@@ -21,7 +21,7 @@
         :disabled="!dataChanged"
         variant="primary",
         title="馬上更新",
-        @click="update"
+        @click="update",
       ) 確定
 
     .d-flex.text-nowrap.mb-1
