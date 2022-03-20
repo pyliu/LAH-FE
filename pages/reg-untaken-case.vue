@@ -214,8 +214,13 @@ export default {
       '#',
       {
         key: 'UNTAKEN_TAKEN_STATUS',
-        label: '領件狀態',
+        label: '狀態',
         sortable: true
+      },
+      {
+        key: 'customize',
+        label: '設定',
+        sortable: false
       },
       {
         key: '收件字號',
@@ -239,11 +244,6 @@ export default {
       },
       {
         key: '結案人員',
-        sortable: true
-      },
-      {
-        key: 'customize',
-        label: '領件設定',
         sortable: true
       }
     ],
