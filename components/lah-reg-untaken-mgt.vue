@@ -21,9 +21,8 @@
         :disabled="!dataChanged"
         variant="primary",
         title="馬上更新",
-        @click="update",
-        no-icon-gutter
-      ) 確定更新
+        @click="update"
+      ) 確定
 
     .d-flex.text-nowrap.mb-1
       .my-auto.mr-1 更新日期
