@@ -164,7 +164,12 @@ export default {
   }),
   computed: {
     dataChanged () {
-      return !this.$utils.equal(this.origData, this.updateData)
+      // pagination will re-use the same component in b-table ...
+      // I need to a way to determine if it is a user triggered data change
+      if (this.$utils.equal(this.origData.id, this.updateData.id)) {
+        return !this.$utils.equal(this.origData, this.updateData)
+      }
+      return false
     },
     takenDate () {
       return this.parentData.UNTAKEN_TAKEN_DATE || ''
@@ -209,6 +214,7 @@ export default {
     },
     updateData () {
       const data = {
+        id: this.caseId,
         taken_date: this.takenDate,
         taken_status: this.takenStatus,
         lent_date: this.lentDate,
@@ -266,19 +272,15 @@ export default {
       this.noteFlag = !this.$utils.empty(val)
     },
     caseId (dontcare) {
-      // this.$utils.warn(dontcare, this.updateData)
+    // RM58_1: 結案日期
       this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
+      this.syncOrigData()
     }
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     !this.$utils.empty(this.note) && (this.noteFlag = true)
     this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
-    this.syncOrigData()
-  },
-  mounted () {
-    // RM58_1: 結案日期
-    this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
   },
   methods: {
     update () {
@@ -287,7 +289,6 @@ export default {
         // to update untaken data in sqlite db
         this.$axios.post(this.$consts.API.JSON.QUERY, {
           type: 'upd_reg_cert_taken_date',
-          id: this.caseId,
           ...this.updateData
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
