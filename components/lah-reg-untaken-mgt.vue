@@ -281,6 +281,8 @@ export default {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     !this.$utils.empty(this.note) && (this.noteFlag = true)
     this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
+    // to make init state for dataChanged correctly
+    this.timeout(this.syncOrigData, 400)
   },
   methods: {
     update () {
