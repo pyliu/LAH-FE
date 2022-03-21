@@ -23,7 +23,7 @@ div
             li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
       .d-flex.small
-        lah-datepicker.mr-1(v-model="dateRange" :begin="new Date()")
+        lah-datepicker.mr-1(v-model="dateRange")
 
         lah-button.mr-1(
           ref="search"
