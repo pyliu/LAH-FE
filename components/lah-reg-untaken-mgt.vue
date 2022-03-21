@@ -1,8 +1,8 @@
 /* eslint-disable no-irregular-whitespace */
 <template lang="pug">
 .text-left(
-  :title="`${$utils.caseId(caseId)}`"
-  v-b-tooltip.hover.left.v-info
+  v-b-tooltip.hover.left.v-danger
+  :title="dataChanged ? '請儲存更新狀態 ... ' : ``"
   :class="modifiedMark"
 )
   div(v-if="showTakenFields")
@@ -66,7 +66,7 @@
         v-if="!$utils.empty(borrower)",
         icon="undo",
         action="cycle-alt",
-        variant="outline-secondary",
+        variant="secondary",
         size="sm",
         title="清除借閱人",
         @click="borrowerClean"
