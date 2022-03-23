@@ -308,13 +308,14 @@ export default {
       return key
     },
     xlsx () {
-      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      // const fieldKeys = this.fields.map((field, idx, array) => field.key)
       const jsons = this.rows.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
-          }
+          // if (fieldKeys.includes(key)) {
+          //   obj[this.getLabel(key)] = value
+          // }
+          obj[key] = value
         }
         return obj
       })
