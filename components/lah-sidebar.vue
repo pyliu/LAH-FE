@@ -38,7 +38,7 @@ b-sidebar#lah-sidebar(
 
       li: nuxt-link(to="/expire").
         #[font-awesome-icon.fixed-width(:icon="['far', 'calendar-check']", size="lg")]
-        已(即將)逾期案件
+        登記逾期案件
       li: nuxt-link(to="/expiry-of-announcement").
         #[font-awesome-icon.fixed-width(:icon="['fa', 'sticky-note']", size="lg")]
         公告案件
@@ -72,6 +72,11 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/reg-untaken-case").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'stamp']", size="lg")]
         領件管控查詢
+
+      li: hr
+      li: nuxt-link(to="/expire/sur").
+        #[font-awesome-icon.fixed-width(:icon="['far', 'calendar-alt']", size="lg")]
+        測量逾期案件
 
       li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
       li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(
