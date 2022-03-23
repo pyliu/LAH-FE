@@ -15,7 +15,8 @@ div(v-cloak)
           )
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
-        li 提供顯示跨域伺服器狀態
+        li 提供顯示跨域伺服器狀態。
+        li 跨域伺服器#[b.text-danger 需安裝 #[a(href="/send_netstats.sh") send_netstats.sh]] 腳本定期回報該主機之連線數回後端紀錄才能正常顯示。
   client-only
     b-card-group.mb-2(deck)
       lah-monitor-board-xap
