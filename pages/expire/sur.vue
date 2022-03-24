@@ -4,7 +4,7 @@ div
     .d-flex.justify-content-between.w-100
       .d-flex.align-items-center
         .my-auto.mr-1 測量案件
-        b-badge.mr-2.my-auto(pill, variant="info") {{ queryCount }} 件
+        b-badge.mr-2.my-auto(pill, :variant="queryVariant") {{ queryCount }} 件
         b-form-radio-group.my-auto(
           v-model="fetchMode",
           size="lg",
@@ -101,7 +101,7 @@ div
         div.p-1.m-1(
           v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
           style="border: 2px dashed red",
-          title="延期複丈"
+          :title="`★延期複丈★，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
         ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
         span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
       template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
@@ -246,6 +246,7 @@ export default {
     queryCount () { return this.rows.length },
     queryText () { return this.fetchModeOpts.find(opt => opt.value === this.fetchMode)?.text },
     queryType () { return this.fetchMode === 'overdue' ? 'sur_overdue_case' : this.fetchMode === 'near' ? 'sur_near_case' : 'sur_not_close_case' },
+    queryVariant () { return this.fetchMode === 'overdue' ? 'danger' : this.fetchMode === 'near' ? 'warning' : 'info' },
     foundText () { return `找到 ${this.queryCount} 筆「${this.queryText}」測量案件資料` }
   },
   watch: {
