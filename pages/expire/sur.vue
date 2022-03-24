@@ -126,7 +126,9 @@ div
 </template>
 
 <script>
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
+  components: { lahUserCard },
   data: () => ({
     cachedMs: 15 * 60 * 1000,
     modalLoading: true,
@@ -263,7 +265,7 @@ export default {
   methods: {
     userinfo (name, id = '') {
       const h = this.$createElement
-      name !== 'XXXXXXXX' && this.modal(h('lah-user-card', {
+      name !== 'XXXXXXXX' && this.modal(h(lahUserCard, {
         props: { id, name }
       }), {
         title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
