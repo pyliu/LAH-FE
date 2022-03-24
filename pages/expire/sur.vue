@@ -20,6 +20,13 @@ div
 
       .d-flex.small
         lah-button.mr-1(
+          icon="search-plus",
+          size="lg",
+          title="開啟進階搜尋視窗",
+          @click="$refs.searchPlus.show()",
+          :disabled="!dataReady"
+        ) 進階搜尋
+        lah-button.mr-1(
           icon="file-excel",
           size="lg",
           title="匯出EXCEL",
@@ -27,7 +34,7 @@ div
           action="move-fade-ltr",
           regular,
           no-icon-gutter,
-          :disabled="!dataReady",
+          :disabled="filterDataCount === 0",
           @click="xlsx"
         )
         lah-countdown-button(
@@ -47,75 +54,88 @@ div
           end-attention
         )
 
+  lah-transition: b-tags.border-0.mt-n4(
+    v-if="advTags.length > 0",
+    v-model="advTags",
+    placeholder="",
+    tag-variant="info",
+    tag-pills,
+    no-outer-focus,
+    no-add-on-enter,
+    no-tag-remove,
+    add-button-variant="white"
+    add-button-text=""
+  )
+
   lah-pagination(
     v-model="pagination"
     :total-rows="queryCount"
     :caption="foundText"
   )
 
-  lah-transition
-    b-table.text-center(
-      v-if="committed"
-      id="land-ref-table"
-      ref="table"
-      caption-top
-      selectable
-      select-mode="single"
-      selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
-      :busy="isBusy"
-      :items="rows"
-      :responsive="'lg'"
-      :striped="true"
-      :hover="true"
-      :bordered="true"
-      :borderless="false"
-      :outlined="false"
-      :small="true"
-      :dark="false"
-      :fixed="false"
-      :foot-clone="false"
-      :no-border-collapse="true"
-      :head-variant="'dark'"
-      :fields="fields"
-      :per-page="pagination.perPage"
-      :current-page="pagination.currentPage"
-    )
-      template(#table-busy): span.ld-txt 讀取中...
-      template(v-slot:cell(#)="{ item, index, rowSelected }")
-        template(v-if="rowSelected")
-          span(aria-hidden="true") &check;
-          span.sr-only 勾選
-        template(v-else)
-          span(aria-hidden="true") &nbsp;
-          span.sr-only 無勾選
-        span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-      template(#cell(MM01)="{ item: { MM01, MM02, MM02_CHT, MM03 } }")
-        b-link.text-nowrap(
-          :href="caseQueryUrl(MM01, MM02, MM03)",
-          rel="noreferrer noopener",
-          target="_blank",
-          title="開啟新視窗查詢地政系統資料"
-        ) {{ MM01 }}-{{ MM02 }}({{ MM02_CHT }})-{{ MM03 }} #[lah-fa-icon(icon="external-link-alt")]
-      template(#cell(MM06)="{ item: { MM06, MM06_CHT } }"): .text-nowrap {{ MM06 }} : {{ MM06_CHT }}
-      template(#cell(MM22)="{ item: { MM22, MM22_CHT, MD12, MD12_CHT } }")
-        .text-nowrap(:title="MD12_CHT") {{ MM22 }} : {{ MM22_CHT }} #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")]
-      template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
-        b-link(@click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") {{ MD04_CHT }}
-      template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
-      template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2, MD12, MD12_CHT } }")
-        div.p-1.m-1(
-          v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
-          style="border: 2px dashed red",
-          :title="`延期複丈原因：${MD12_CHT}，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
-        ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
-        span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
-      template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
-      template(#cell(MM21_1)="{ item: { MM21_1, MM21_2 } }"): span {{ humanDate(MM21_1) }} {{ humanTime(MM21_2) }}
-      template(#cell(note)="{ item: { MD09, MD10 } }")
-        .flex-column
-          div(v-if="!$utils.empty(MD09)") 通知補正：{{ humanDate(MD09) }}
-          div(v-if="!$utils.empty(MD10)") 補正期滿：{{ humanDate(MD10) }}
+  lah-transition: b-table.text-center(
+    v-if="committed"
+    id="land-ref-table"
+    ref="table"
+    caption-top
+    selectable
+    select-mode="single"
+    selected-variant="success"
+    :sticky-header="`${maxHeight}px`"
+    :busy="isBusy"
+    :items="filteredData"
+    :responsive="'lg'"
+    :striped="true"
+    :hover="true"
+    :bordered="true"
+    :borderless="false"
+    :outlined="false"
+    :small="true"
+    :dark="false"
+    :fixed="false"
+    :foot-clone="false"
+    :no-border-collapse="true"
+    :head-variant="'dark'"
+    :fields="fields"
+    :per-page="pagination.perPage"
+    :current-page="pagination.currentPage"
+  )
+    template(#table-busy): span.ld-txt 讀取中...
+    template(v-slot:cell(#)="{ item, index, rowSelected }")
+      template(v-if="rowSelected")
+        span(aria-hidden="true") &check;
+        span.sr-only 勾選
+      template(v-else)
+        span(aria-hidden="true") &nbsp;
+        span.sr-only 無勾選
+      span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
+    template(#cell(MM01)="{ item: { MM01, MM02, MM02_CHT, MM03 } }")
+      b-link.text-nowrap(
+        :href="caseQueryUrl(MM01, MM02, MM03)",
+        rel="noreferrer noopener",
+        target="_blank",
+        title="開啟新視窗查詢地政系統資料"
+      ) {{ MM01 }}-{{ MM02 }}({{ MM02_CHT }})-{{ MM03 }} #[lah-fa-icon(icon="external-link-alt")]
+    template(#cell(MM06)="{ item: { MM06, MM06_CHT } }"): .text-nowrap {{ MM06 }} : {{ MM06_CHT }}
+    template(#cell(MM22)="{ item: { MM22, MM22_CHT, MD12, MD12_CHT } }")
+      .text-nowrap(:title="MD12_CHT") {{ MM22 }} : {{ MM22_CHT }} #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")]
+    template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
+      b-link(@click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") #[.text-nowrap {{ MD04_CHT }}]
+    template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
+    template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2, MD12, MD12_CHT } }")
+      div.p-1.m-1(
+        v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
+        style="border: 2px dashed red",
+        :title="`延期複丈原因：${MD12_CHT}，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
+      ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
+      span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
+    template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
+    template(#cell(MM21_1)="{ item: { MM21_1, MM21_2 } }"): span {{ humanDate(MM21_1) }} {{ humanTime(MM21_2) }}
+    template(#cell(note)="{ item: { MD09, MD10 } }")
+      .flex-column
+        div(v-if="!$utils.empty(MD09)") 通知補正：{{ humanDate(MD09) }}
+        div(v-if="!$utils.empty(MD10)") 補正期滿：{{ humanDate(MD10) }}
+
   b-modal(
     ref="caseDetail"
     size="xl"
@@ -129,6 +149,41 @@ div
       b-spinner.my-auto(small type="grow")
       strong.ld-txt 查詢中...
     lah-reg-case-detail(:case-id="clickedId" @ready="modalLoading = !$event.detail")
+
+  b-modal(
+    ref="searchPlus",
+    title="進階搜尋",
+    hide-footer
+  )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="　收件字"): b-select(
+        v-model="advOpts.code",
+        :options="advOpts.codeOpts",
+        title="收件字"
+      )
+      b-input-group(prepend="複丈原因"): b-select(
+        v-model="advOpts.reason",
+        :options="advOpts.reasonOpts",
+        title="複丈原因"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="辦理情形"): b-select(
+        v-model="advOpts.state",
+        :options="advOpts.stateOpts",
+        title="辦理情形"
+      )
+      b-input-group(prepend="測量人員"): b-select(
+        v-model="advOpts.operator",
+        :options="advOpts.operatorOpts",
+        title="測量人員"
+      )
+    .center.d-flex.my-1
+      lah-button(
+        icon="recycle",
+        @click="resetAdvOpts",
+        variant="outline-success"
+      ) 重設
+      small.text-muted.ml-2 找到 {{ filterDataCount }} 筆
 </template>
 
 <script>
@@ -200,7 +255,17 @@ export default {
       { text: '逾期', value: 'overdue' },
       { text: '即將逾期', value: 'near' },
       { text: '未結案', value: 'notyet' }
-    ]
+    ],
+    advOpts: {
+      code: '',
+      codeOpts: [],
+      reason: '',
+      reasonOpts: [],
+      state: '',
+      stateOpts: [],
+      operator: '',
+      operatorOpts: []
+    }
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
@@ -251,18 +316,64 @@ export default {
   computed: {
     dataReady () { return this.rows.length > 0 },
     cacheKey () { return `query_sur_case_${this.fetchMode}` },
-    queryCount () { return this.rows.length },
+    queryCount () { return this.filterDataCount },
     queryText () { return this.fetchModeOpts.find(opt => opt.value === this.fetchMode)?.text },
     queryType () { return this.fetchMode === 'overdue' ? 'sur_overdue_case' : this.fetchMode === 'near' ? 'sur_near_case' : 'sur_not_close_case' },
     queryVariant () { return this.fetchMode === 'overdue' ? 'danger' : this.fetchMode === 'near' ? 'warning' : 'info' },
-    foundText () { return `找到 ${this.queryCount} 筆「${this.queryText}」測量案件資料` }
+    foundText () { return `找到 ${this.queryCount} 筆「${this.queryText}」測量案件資料` },
+    filteredData () {
+      if (this.advTags.length > 0) {
+        let pipelineItems = this.rows
+        if (!this.$utils.empty(this.advOpts.code)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.MM02 === this.advOpts.code
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.reason)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.MM06 === this.advOpts.reason
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.state)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.MM22 === this.advOpts.state
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.operator)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.MD04 === this.advOpts.operator
+          })
+        }
+        return pipelineItems
+      }
+      return this.rows
+    },
+    filterDataCount () {
+      return this.filteredData.length
+    },
+    advTags () {
+      const tags = []
+      if (!this.$utils.empty(this.advOpts.code)) {
+        tags.push(`收件字：${this.advOpts.code}`)
+      }
+      if (!this.$utils.empty(this.advOpts.reason)) {
+        tags.push(`複丈原因：${this.advOpts.reason}`)
+      }
+      if (!this.$utils.empty(this.advOpts.state)) {
+        tags.push(`辦理情形：${this.advOpts.state}`)
+      }
+      if (!this.$utils.empty(this.advOpts.operator)) {
+        tags.push(`測量員：${this.advOpts.operator}`)
+      }
+      return tags
+    }
   },
   watch: {
     fetchMode (dontcare) {
       this.$fetch()
     },
     rows (val) {
-      console.warn(val)
+      this.refreshAdvOptsSelect(val)
     }
   },
   mounted () {
@@ -325,6 +436,8 @@ export default {
         case 'MM04_2': return '收件時間'
         case 'MD05_1': return '複丈日期'
         case 'MD05_2': return '複丈時間'
+        case 'MD12': return '延期複丈原因代碼'
+        case 'MD12_CHT': return '延期複丈原因'
         case 'MD13_1': return '延期複丈日期'
         case 'MD13_2': return '延期複丈時間'
         case 'MD06_1': return '結案日期'
@@ -339,7 +452,7 @@ export default {
       }
     },
     xlsx () {
-      const jsons = this.rows.map((data, idx, array) => {
+      const jsons = this.filteredData.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           obj[this.getLabel(key)] = value
@@ -347,6 +460,72 @@ export default {
         return obj
       })
       this.downloadXlsx(`測量${this.queryText}案件查詢`, jsons)
+    },
+    resetAdvOpts () {
+      this.advOpts = {
+        ...this.advOpts,
+        ...{
+          code: '',
+          reason: '',
+          state: '',
+          operator: ''
+        }
+      }
+    },
+    refreshAdvOptsSelect (val) {
+      this.advOpts = {
+        ...{
+          code: '',
+          codeOpts: [],
+          reason: '',
+          reasonOpts: [],
+          state: '',
+          stateOpts: [],
+          operator: '',
+          operatorOpts: []
+        }
+      }
+      if (val) {
+        this.advOpts.codeOpts = [
+          ...this.$utils.orderBy(
+          // ...new Set(val.map(item => item.MD04)),
+            this.$utils.uniqBy(val.map((item) => {
+              return { value: item.MM02, text: `${item.MM02}：${item.MM02_CHT}` }
+            }), 'value'),
+            'value'
+          )
+        ]
+        this.advOpts.stateOpts = [
+          ...this.$utils.orderBy(
+          // ...new Set(val.map(item => item.MD04)),
+            this.$utils.uniqBy(val.map((item) => {
+              return { value: item.MM22, text: `${item.MM22}：${item.MM22_CHT}` }
+            }), 'value'),
+            'value'
+          )
+        ]
+        this.advOpts.operatorOpts = [
+          ...this.$utils.orderBy(
+          // ...new Set(val.map(item => item.MD04)),
+            this.$utils.uniqBy(val.map((item) => {
+              return { value: item.MD04, text: `${item.MD04}：${item.MD04_CHT}` }
+            }), 'value'),
+            'value'
+          )
+        ]
+        this.advOpts.reasonOpts = [
+          ...this.$utils.orderBy(
+            this.$utils.uniqBy(val.map((item) => {
+              return { value: item.MM06, text: `${item.MM06}：${item.MM06_CHT}` }
+            }), 'value'),
+            'value'
+          )
+        ]
+        this.advOpts.codeOpts.unshift('')
+        this.advOpts.stateOpts.unshift('')
+        this.advOpts.operatorOpts.unshift('')
+        this.advOpts.reasonOpts.unshift('')
+      }
     }
   }
 }
