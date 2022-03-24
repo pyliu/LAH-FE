@@ -98,7 +98,8 @@ div
           title="開啟新視窗查詢地政系統資料"
         ) {{ MM01 }}-{{ MM02 }}({{ MM02_CHT }})-{{ MM03 }} #[lah-fa-icon(icon="external-link-alt")]
       template(#cell(MM06)="{ item: { MM06, MM06_CHT } }"): .text-nowrap {{ MM06 }} : {{ MM06_CHT }}
-      template(#cell(MM22)="{ item: { MM22, MM22_CHT } }"): .text-nowrap {{ MM22 }} : {{ MM22_CHT }}
+      template(#cell(MM22)="{ item: { MM22, MM22_CHT, MD12, MD12_CHT } }")
+        .text-nowrap(:title="MD12_CHT") {{ MM22 }} : {{ MM22_CHT }} #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")]
       template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
         b-link(@click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") {{ MD04_CHT }}
       template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
@@ -107,7 +108,7 @@ div
           v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
           style="border: 2px dashed red",
           :title="`延期複丈原因：${MD12_CHT}，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
-        ) #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")] {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
+        ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
         span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
       template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
       template(#cell(MM21_1)="{ item: { MM21_1, MM21_2 } }"): span {{ humanDate(MM21_1) }} {{ humanTime(MM21_2) }}
