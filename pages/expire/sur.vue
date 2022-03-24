@@ -92,22 +92,24 @@ div
         span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
       template(#cell(MM01)="{ item: { MM01, MM02, MM02_CHT, MM03 } }"): .text-nowrap(:title="MM02_CHT") {{ MM01 }}-{{ MM02 }}-{{ MM03 }}
       template(#cell(MM06)="{ item: { MM06, MM06_CHT } }"): .text-nowrap {{ MM06 }} : {{ MM06_CHT }}
-      template(#cell(M22)="{ item: { MM22, MM22_CHT } }"): .text-nowrap {{ MM22 }} : {{ MM22_CHT }}
-      template(#cell(MD04)="{ item: { MD04, MD04_CHT } }"): .text-nowrap {{ MD04 }} : {{ MD04_CHT }}
-      template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ MM04_1 }} {{ MM04_2 }}
+      template(#cell(MM22)="{ item: { MM22, MM22_CHT } }"): .text-nowrap {{ MM22 }} : {{ MM22_CHT }}
+      template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
+        b-link(@click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") {{ MD04_CHT }}
+        //- .text-nowrap {{ MD04 }} : {{ MD04_CHT }}
+      template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
       template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2 } }")
         div.p-1.m-1(
           v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
           style="border: 2px dashed red",
           title="延期複丈"
-        ) {{ MD13_1 }} {{ MD13_2 }}
-        span(v-else) {{ MD05_1 }} {{ MD05_2 }}
-      template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ MD06_1 }} {{ MD06_2 }}
-      template(#cell(MM22_1)="{ item: { MM22_1, MM22_2 } }"): span {{ MM22_1 }} {{ MM22_2 }}
+        ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
+        span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
+      template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
+      template(#cell(MM21_1)="{ item: { MM21_1, MM21_2 } }"): span {{ humanDate(MM21_1) }} {{ humanTime(MM21_2) }}
       template(#cell(note)="{ item: { MD09, MD10 } }")
         .flex-column
-          div(v-if="!$utils.empty(MD09)") 通知補正：{{ MD09 }}
-          div(v-if="!$utils.empty(MD10)") 補正期滿：{{ MD10 }}
+          div(v-if="!$utils.empty(MD09)") 通知補正：{{ humanDate(MD09) }}
+          div(v-if="!$utils.empty(MD10)") 補正期滿：{{ humanDate(MD10) }}
   b-modal(
     ref="caseDetail"
     size="xl"
@@ -143,16 +145,6 @@ export default {
         label: '收件字號',
         sortable: true
       },
-      // {
-      //   key: 'MM02',
-      //   label: '收件字',
-      //   sortable: true
-      // },
-      // {
-      //   key: 'MM03',
-      //   label: '收件號',
-      //   sortable: true
-      // },
       {
         key: 'MM06',
         label: '複丈原因',
@@ -191,7 +183,7 @@ export default {
       {
         key: 'note',
         label: '備註',
-        sortable: true
+        sortable: false
       }
     ],
     maxHeight: 600,
@@ -268,6 +260,14 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - 145)
   },
   methods: {
+    userinfo (name, id = '') {
+      const h = this.$createElement
+      name !== 'XXXXXXXX' && this.modal(h('lah-user-card', {
+        props: { id, name }
+      }), {
+        title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
+      })
+    },
     resetCountdown (ms) {
       this.$refs.countdown?.setCountdown(ms)
       this.$refs.countdown?.startCountdown()
@@ -295,27 +295,48 @@ export default {
       }
       return ''
     },
-    humanTWDate (str) {
+    humanDate (str) {
+      if (!str) { return '' }
       return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
     },
+    humanTime (str) {
+      if (!str) { return '' }
+      return `${str.substring(0, 2)}:${str.substring(2, 4)}:${str.substring(4)}`
+    },
     getLabel (key) {
-      const found = this.fields.find((item, idx, array) => {
-        return this.$utils.equal(item.key, key)
-      })
-      if (found && found.label) {
-        return found.label
+      switch (key) {
+        case 'MM01': return '收件年'
+        case 'MM02_CHT': return '收件字'
+        case 'MM02': return '收件字代碼'
+        case 'MM03': return '收件號'
+        case 'MM06': return '複丈原因代碼'
+        case 'MM06_CHT': return '複丈原因'
+        case 'MM22': return '辦理情形代碼'
+        case 'MM22_CHT': return '辦理情形'
+        case 'MD04': return '測量員代碼'
+        case 'MD04_CHT': return '測量員'
+        case 'MM04_1': return '收件日期'
+        case 'MM04_2': return '收件時間'
+        case 'MD05_1': return '複丈日期'
+        case 'MD05_2': return '複丈時間'
+        case 'MD13_1': return '延期複丈日期'
+        case 'MD13_2': return '延期複丈時間'
+        case 'MD06_1': return '結案日期'
+        case 'MD06_2': return '結案時間'
+        case 'MM21_1': return '逾期日期'
+        case 'MM21_2': return '逾期時間'
+        case 'MM23': return '結案已否'
+        case 'MD09': return '通知補正日期'
+        case 'MD10': return '補正期滿日期'
+        default:
+          return key
       }
-      return key
     },
     xlsx () {
-      // const fieldKeys = this.fields.map((field, idx, array) => field.key)
       const jsons = this.rows.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
-          // if (fieldKeys.includes(key)) {
-          //   obj[this.getLabel(key)] = value
-          // }
-          obj[key] = value
+          obj[this.getLabel(key)] = value
         }
         return obj
       })
