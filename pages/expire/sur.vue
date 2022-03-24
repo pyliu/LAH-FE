@@ -90,19 +90,24 @@ div
           span(aria-hidden="true") &nbsp;
           span.sr-only 無勾選
         span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-      template(#cell(MM01)="{ item: { MM01, MM02, MM02_CHT, MM03 } }"): .text-nowrap(:title="MM02_CHT") {{ MM01 }}-{{ MM02 }}-{{ MM03 }}
+      template(#cell(MM01)="{ item: { MM01, MM02, MM02_CHT, MM03 } }")
+        b-link.text-nowrap(
+          :href="caseQueryUrl(MM01, MM02, MM03)",
+          rel="noreferrer noopener",
+          target="_blank",
+          title="開啟新視窗查詢地政系統資料"
+        ) {{ MM01 }}-{{ MM02 }}({{ MM02_CHT }})-{{ MM03 }} #[lah-fa-icon(icon="external-link-alt")]
       template(#cell(MM06)="{ item: { MM06, MM06_CHT } }"): .text-nowrap {{ MM06 }} : {{ MM06_CHT }}
       template(#cell(MM22)="{ item: { MM22, MM22_CHT } }"): .text-nowrap {{ MM22 }} : {{ MM22_CHT }}
       template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
         b-link(@click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") {{ MD04_CHT }}
-        //- .text-nowrap {{ MD04 }} : {{ MD04_CHT }}
       template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
-      template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2 } }")
+      template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2, MD12, MD12_CHT } }")
         div.p-1.m-1(
           v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
           style="border: 2px dashed red",
-          :title="`★延期複丈★，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
-        ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
+          :title="`延期複丈原因：${MD12_CHT}，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
+        ) #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")] {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
         span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
       template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
       template(#cell(MM21_1)="{ item: { MM21_1, MM21_2 } }"): span {{ humanDate(MM21_1) }} {{ humanTime(MM21_2) }}
@@ -263,6 +268,12 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - 145)
   },
   methods: {
+    becauseOfRain (MD12) {
+      return MD12 === '1'
+    },
+    caseQueryUrl (MM01, MM02, MM03) {
+      return `http://${this.webapIp}:9080/Land${this.site}/CAS/CMC01/CMC0102.jsp?reciveYear=${MM01}&reciveId=${MM02}&reciveNumber=${MM03}`
+    },
     userinfo (name, id = '') {
       const h = this.$createElement
       name !== 'XXXXXXXX' && this.modal(h(lahUserCard, {
@@ -288,15 +299,6 @@ export default {
       this.modalLoading = true
       this.clickedId = `${data.RM01}${data.RM02}${data.RM03}`
       this.$refs.caseDetail.show()
-    },
-    landNumber (item) {
-      const val = item.AA49
-      if (val) {
-        const mainNumber = val.substring(0, 4)
-        const subNumber = val.substring(4)
-        return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
-      }
-      return ''
     },
     humanDate (str) {
       if (!str) { return '' }
