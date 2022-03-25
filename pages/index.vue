@@ -7,7 +7,8 @@
       h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
     section.b-card-container
       b-card-group(deck)
-        lah-index-card-link(:icon="['far', 'calendar-check']" to="/expire") 登記逾期案件
+        lah-index-card-link(v-if="isSur", :icon="['far', 'calendar-alt']" to="/expire/sur") 測量逾期案件
+        lah-index-card-link(v-else,:icon="['far', 'calendar-check']" to="/expire") 登記逾期案件
         lah-index-card-link(:icon="['far', 'sticky-note']" to="/expiry-of-announcement") 公告案件
         lah-index-card-link(:icon="['fas', 'user-tie']" to="/ask-for-instructions") 取消請示案件
         lah-index-card-link(:icon="['fas', 'money-check-alt']" to="/trust") 信託相關案件
@@ -26,6 +27,9 @@
 export default {
   head: {
     title: '桃園市地政智慧管控系統'
+  },
+  computed: {
+    isSur () { return this.myinfo.unit === '測量課' }
   }
 }
 </script>
