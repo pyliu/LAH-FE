@@ -81,7 +81,7 @@ b-sidebar#lah-sidebar(
         to="/notification"
       ).
         #[font-awesome-icon.fixed-width(:icon="['far', 'comment-dots']", size="lg")]
-        發布公告訊息
+        發布即時通公告
       li(v-if="authority.isAdmin"): a(
         :href="`${this.legacyUrl}/dashboard.html`",
         target="_blank",
