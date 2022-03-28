@@ -120,7 +120,8 @@ div
     template(#cell(MM22)="{ item: { MM22, MM22_CHT, MD12, MD12_CHT } }")
       .text-nowrap(:title="MD12_CHT") {{ MM22 }} : {{ MM22_CHT }} #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")]
     template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
-      b-link(@click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") #[.text-nowrap {{ MD04_CHT }}]
+      b-link(v-if="!$utils.empty(MD04)", @click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") #[.text-nowrap {{ MD04_CHT }}]
+      b.text-nowrap.text-danger(v-else) 無設定
     template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
     template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2, MD12, MD12_CHT } }")
       div.p-1.m-1(
