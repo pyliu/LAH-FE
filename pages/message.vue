@@ -12,7 +12,6 @@ div
     .d-flex
 
   b-card-group(columns)
-
     b-card(ref="addCard" border-variant="primary")
       template(#header): .d-flex.justify-content-between
         h4.my-auto.mr-auto 訊息輸入
@@ -71,26 +70,7 @@ div
         @click="add"
         pill
       ) 發送
-
-    lah-transition(appear): b-card
-      template(#header)
-        h4.my-auto.text-nowrap.mr-auto 預覽
-      .center: lah-notification-message(:data-json="dataJson")
-      h6(v-if="!$utils.empty(images)"): lah-fa-icon(icon="paperclip") 附加圖片
-      .d-flex.flex-wrap.align-items-center
-        transition-group(name="listY" mode="out-in")
-          b-img.memento.m-1(
-            v-for="(base64data, idx) in images"
-            :key="`imgAttached_${idx}`"
-            :src="base64data"
-            @click="removeImage(base64data)"
-            thumbnail
-            fluid
-            v-b-tooltip="'刪除這張圖片'"
-            style="width: 138.5px"
-          )
-
-    lah-transition(appear): b-card
+    b-card
       template(#header): .d-flex
         h4.my-auto.text-nowrap.mr-auto 快速選擇
         lah-button(icon="recycle" variant="warning"  @click="reset" :title="`清除 ${choosedSendtoCount} 已選擇對象`" pill) 清除 #[b-badge(variant="light", pill) {{ choosedSendtoCount }}]
@@ -120,6 +100,23 @@ div
         )
           lah-avatar(:id="id" ignore-system-config)
           span.my-auto.ml-1 {{ userNames[id] || id }}
+    b-card
+      template(#header)
+        h4.my-auto.text-nowrap.mr-auto 預覽
+      .center: lah-notification-message(:data-json="dataJson")
+      h6(v-if="!$utils.empty(images)"): lah-fa-icon(icon="paperclip") 附加圖片
+      .d-flex.flex-wrap.align-items-center
+        transition-group(name="listY" mode="out-in")
+          b-img.memento.m-1(
+            v-for="(base64data, idx) in images"
+            :key="`imgAttached_${idx}`"
+            :src="base64data"
+            @click="removeImage(base64data)"
+            thumbnail
+            fluid
+            v-b-tooltip="'刪除這張圖片'"
+            style="width: 138.5px"
+          )
 
   h4.d-flex.align-items-stretch.my-3
     lah-fa-icon.my-auto.mr-auto(icon="clipboard-list") 歷史資料
