@@ -48,12 +48,13 @@ div
           )
           .d-flex.align-items-center.mx-1
             span 已選擇傳送給
-            b-badge.mx-1(:variant="choosedSendtoCount === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
+            b-badge.mx-1(:variant="chosenSendTo ? 'info' : 'danger'" pill) {{ choosedSendtoCount }}
             span 人
-        strong.text-danger(v-if="choosedSendtoCount === 0") ⚠ 請先選擇傳送對象！
+        strong.text-danger(v-if="!chosenSendTo") ⚠ 請先選擇傳送對象！
         lah-button.mx-1(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
 
-      b-textarea(
+      lah-transition: b-textarea(
+        v-if="chosenSendTo"
         v-model="dataJson.content"
         rows="5"
         max-rows="100"
@@ -251,6 +252,7 @@ export default {
     selectableEntries () { return this.candidatesEntries.concat(this.choosedEntries) },
     choosedSendto () { return this.choosedEntries.map(entry => entry.id) },
     choosedSendtoCount () { return this.choosedSendto.length },
+    chosenSendTo () { return this.choosedSendtoCount > 0 },
     validSento () { return this.choosedSendtoCount > 0 },
     validContent () { return !this.$utils.empty(this.dataJson.content) },
     sendButtonDisabled () { return !this.validContent || !this.validSento },
