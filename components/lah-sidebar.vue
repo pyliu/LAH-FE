@@ -131,7 +131,7 @@ b-sidebar#lah-sidebar(
         員工名錄
       li: nuxt-link(to="/message").
         #[font-awesome-icon.fixed-width(:icon="['far', 'comments']", size="lg")]
-        傳送信差訊息
+        傳送即時通訊息
       li: a(
         :href="`${this.legacyUrl}/carousel.html`",
         target="_blank",
