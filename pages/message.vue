@@ -2,7 +2,7 @@
 div
   lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
     .d-flex
-      .my-auto 傳送信差訊息
+      .my-auto 傳送即時通私訊
       lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
       lah-help-modal(:modal-id="'help-modal'"): ol
         li 接收端電腦需安裝 #[b.text-primary 桃園即時通程式] 並正常連線才能接收
@@ -15,7 +15,7 @@ div
 
     b-card(ref="addCard" border-variant="primary")
       template(#header): .d-flex.justify-content-between
-        h4.my-auto.mr-auto 傳送個人信差訊息
+        h4.my-auto.mr-auto 訊息輸入
         lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
 
         b-modal(
