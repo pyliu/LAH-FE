@@ -11,9 +11,9 @@ div
         li 內容支援 Markdown 語法，請參考 #[a(href="https://markdown.tw/" target="_blank" rel="noopener noreferrer") #[b https://markdown.tw/]] 教學
     .d-flex
 
-  b-card-group(deck)
+  b-card-group(columns)
 
-    b-card(ref="addCard" border-variant="dark")
+    b-card(ref="addCard" border-variant="primary")
       template(#header): .d-flex.justify-content-between
         h4.my-auto.mr-auto 傳送個人信差訊息
         lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
@@ -72,10 +72,9 @@ div
         pill
       ) 發送
 
-    lah-transition(appear): b-card(border-variant="success")
+    lah-transition(appear): b-card
       template(#header)
         h4.my-auto.text-nowrap.mr-auto 預覽
-
       .center: lah-notification-message(:data-json="dataJson")
       h6(v-if="!$utils.empty(images)"): lah-fa-icon(icon="paperclip") 附加圖片
       .d-flex.flex-wrap.align-items-center
@@ -90,9 +89,14 @@ div
             v-b-tooltip="'刪除這張圖片'"
             style="width: 138.5px"
           )
-      hr
+
+    lah-transition(appear): b-card
+      template(#header): .d-flex
+        h4.my-auto.text-nowrap.mr-auto 快速選擇
+        lah-button(icon="recycle" variant="warning"  @click="reset" :title="`清除 ${choosedSendtoCount} 已選擇對象`" pill) 清除 #[b-badge(variant="light", pill) {{ choosedSendtoCount }}]
+
       .d-flex.flex-wrap.my-1.align-items-center
-        h6.m-1 快速選擇
+        h6.m-1 快速選擇傳送對象
         lah-button.m-1(icon="caret-down" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ttb" title="傳送給所有活躍使用者") 全選 #[b-badge(pill variant="warning") {{ allCandidates.length }}]
         lah-button.m-1(icon="caret-down" variant="outline-dark" @click="regToChoosed" action="slide-ttb" title="傳送給登記課") 登記課 #[b-badge(pill :variant="myDepartment === '登記課' ? 'success' : 'secondary'") {{ regCandidates.length }}]
         lah-button.m-1(icon="caret-down" variant="outline-dark" @click="surToChoosed" action="slide-ttb" title="傳送給測量課") 測量課 #[b-badge(pill :variant="myDepartment === '測量課' ? 'success' : 'secondary'") {{ surCandidates.length }}]
@@ -103,11 +107,8 @@ div
         lah-button.m-1(icon="caret-down" variant="outline-dark" @click="accToChoosed" action="slide-ttb" title="傳送給會計室") 會計室 #[b-badge(pill :variant="myDepartment === '會計室' ? 'success' : 'secondary'") {{ accCandidates.length }}]
         lah-button.m-1(icon="caret-down" variant="outline-dark" @click="supervisorToChoosed" action="slide-ttb" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill :variant="myDepartment === '主任秘書室' ? 'success' : 'secondary'") {{ supervisorCandidates.length }}]
       hr
-
       .d-flex.flex-wrap.align-items-center
-        .d-flex
-          lah-button.mx-1(icon="recycle" variant="warning"  @click="reset" :title="`清除 ${choosedSendtoCount} 已選擇對象`" pill) {{ choosedSendtoCount }}
-          b.h5.text-nowrap.my-auto 已選擇：
+        b.h5.text-nowrap.my-auto 已選擇：
         transition-group(name="list" mode="out-in"): b-button.m-1.text-nowrap(
           v-for="(id, idx) in choosedSendto"
           v-b-tooltip="`移除 ${id}`"
