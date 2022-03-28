@@ -77,11 +77,6 @@ b-sidebar#lah-sidebar(
         領件管控查詢
 
       li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
-      li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(
-        to="/notification"
-      ).
-        #[font-awesome-icon.fixed-width(:icon="['far', 'comment-dots']", size="lg")]
-        發布即時通公告
       li(v-if="authority.isAdmin"): a(
         :href="`${this.legacyUrl}/dashboard.html`",
         target="_blank",
@@ -119,6 +114,14 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
+      li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(
+        to="/notification"
+      ).
+        #[font-awesome-icon.fixed-width(:icon="['far', 'comment-dots']", size="lg")]
+        發布即時通公告
+      li: nuxt-link(to="/message").
+        #[font-awesome-icon.fixed-width(:icon="['far', 'comments']", size="lg")]
+        傳送即時通訊息
       li: a(
         :href="`${this.legacyUrl}/shortcuts.html`",
         target="_blank",
@@ -129,9 +132,6 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/users").
         #[font-awesome-icon.fixed-width(:icon="['far', 'user-circle']", size="lg")]
         員工名錄
-      li: nuxt-link(to="/message").
-        #[font-awesome-icon.fixed-width(:icon="['far', 'comments']", size="lg")]
-        傳送即時通訊息
       li: a(
         :href="`${this.legacyUrl}/carousel.html`",
         target="_blank",
