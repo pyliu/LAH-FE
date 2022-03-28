@@ -51,6 +51,7 @@ div
             span 已選擇傳送給
             b-badge.mx-1(:variant="choosedSendtoCount === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
             span 人
+          strong.text-danger(v-if="choosedSendtoCount === 0") 請先選擇欲傳送的對象！
         lah-button.mx-1(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
 
       b-textarea(
