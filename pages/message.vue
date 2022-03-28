@@ -15,11 +15,8 @@ div
 
     b-card(ref="addCard" border-variant="dark")
       template(#header): .d-flex.justify-content-between
-        h4.my-auto 傳送訊息
-        b-button-group(size="sm")
-          lah-button(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
-          lah-button.mx-1(icon="caret-left" variant="warning"  @click="reset" action="slide-rtl" pill title="已選擇對象") 清空
-          lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
+        h4.my-auto.mr-auto 傳送個人信差訊息
+        lah-button(icon="question" variant="outline-success" v-b-toggle.md-desc :pressed="helpSidebarFlag" title="內容 Markdown 語法簡易說明" action="bounce" pill) 說明
 
         b-modal(
           id="sendtoModal"
@@ -40,6 +37,22 @@ div
               lah-button(block no-icon-gutter icon="angle-double-left" action="move-fade-rtl" @click="allChoosedToCandidates" title="全部移除" :disabled="choosedEntries.length === 0")
             b-select.overflow-auto(v-model="choosed" :options="choosedOpts" multiple @change="$utils.log($event)")
 
+      .d-flex.align-items-center.my-1
+        .d-flex.align-items-center.mr-auto(
+          ref="nameTag"
+          @click="sendtoVisibleFlag = !sendtoVisibleFlag"
+        )
+          lah-fa-icon.my-auto(
+            icon="hand-point-right"
+            regular
+            title="切換名牌顯示"
+          )
+          .d-flex.align-items-center.mx-1
+            span 已選擇傳送給
+            b-badge.mx-1(:variant="choosedSendtoCount === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
+            span 人
+        lah-button.mx-1(icon="users" v-b-modal.sendtoModal title="顯示選擇視窗" pill) 選擇
+
       b-textarea(
         v-model="dataJson.content"
         rows="5"
@@ -49,56 +62,19 @@ div
         :state="validContent"
         @paste="pasteImage($event, addImage)"
       )
-      .d-flex.flex-wrap.my-1.align-items-center
-        h6.m-1 快速選擇
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ltr" title="傳送給所有活躍使用者") 全選 #[b-badge(pill variant="danger") {{ allCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="regToChoosed" action="slide-ltr" title="傳送給登記課") 登記課 #[b-badge(pill :variant="myDepartment === '登記課' ? 'success' : 'light'") {{ regCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="surToChoosed" action="slide-ltr" title="傳送給測量課") 測量課 #[b-badge(pill :variant="myDepartment === '測量課' ? 'success' : 'light'") {{ surCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="valToChoosed" action="slide-ltr" title="傳送給地價課") 地價課 #[b-badge(pill :variant="myDepartment === '地價課' ? 'success' : 'light'") {{ valCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="admToChoosed" action="slide-ltr" title="傳送給行政課") 行政課 #[b-badge(pill :variant="myDepartment === '行政課' ? 'success' : 'light'") {{ admCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="infToChoosed" action="slide-ltr" title="傳送給資訊課") 資訊課 #[b-badge(pill :variant="myDepartment === '資訊課' ? 'success' : 'light'") {{ infCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="hrToChoosed" action="slide-ltr" title="傳送給人事室") 人事室 #[b-badge(pill :variant="myDepartment === '人事室' ? 'success' : 'light'") {{ hrCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="accToChoosed" action="slide-ltr" title="傳送給會計室") 會計室 #[b-badge(pill :variant="myDepartment === '會計室' ? 'success' : 'light'") {{ accCandidates.length }}]
-        lah-button.m-1(pill icon="caret-right" variant="outline-dark" @click="supervisorToChoosed" action="slide-ltr" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill :variant="myDepartment === '主任秘書室' ? 'success' : 'light'") {{ supervisorCandidates.length }}]
+      .center.mt-3: lah-button(
+        icon="paper-plane"
+        action="slide-btt"
+        :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
+        :disabled="sendButtonDisabled"
+        @click="add"
+        pill
+      ) 發送
 
     lah-transition(appear): b-card(border-variant="success")
-      template(#header): .d-flex.align-items-center
+      template(#header)
         h4.my-auto.text-nowrap.mr-auto 預覽
-        .d-flex.align-items-center(
-          ref="nameTag"
-          @click="sendtoVisibleFlag = !sendtoVisibleFlag"
-        )
-          lah-fa-icon(
-            :icon="sendtoDisplayIndicator"
-            regular
-            title="切換名牌顯示"
-          )
-          .d-flex.align-items-center
-            span 已選擇傳送給
-            b-badge.mx-1(:variant="candidatesEntries.length === 0 ? 'danger' : 'info'" pill) {{ choosedSendtoCount }}
-            span 人
-        lah-button.ml-1(
-          icon="paper-plane"
-          action="slide-btt"
-          :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
-          :disabled="sendButtonDisabled"
-          @click="add"
-          pill
-        ) 發送
 
-      b-collapse(v-model="sendtoVisibleFlag"): .d-flex.flex-wrap.align-items-center
-        .text-nowrap 將傳送給：
-        transition-group(name="list" mode="out-in"): b-button.m-1.text-nowrap(
-          v-for="(id, idx) in choosedSendto"
-          v-b-tooltip="`移除 ${id}`"
-          variant="outline-success"
-          size="sm"
-          :key="`snedto-${idx}`"
-          @click="removeSendto(id)"
-          pill
-        )
-          lah-avatar(:id="id" ignore-system-config)
-          span.my-auto.ml-1 {{ userNames[id] || id }}
       .center: lah-notification-message(:data-json="dataJson")
       h6(v-if="!$utils.empty(images)"): lah-fa-icon(icon="paperclip") 附加圖片
       .d-flex.flex-wrap.align-items-center
@@ -113,6 +89,35 @@ div
             v-b-tooltip="'刪除這張圖片'"
             style="width: 138.5px"
           )
+      hr
+      .d-flex.flex-wrap.my-1.align-items-center
+        h6.m-1 快速選擇
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="allCandidatesToChoosed" action="slide-ttb" title="傳送給所有活躍使用者") 全選 #[b-badge(pill variant="warning") {{ allCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="regToChoosed" action="slide-ttb" title="傳送給登記課") 登記課 #[b-badge(pill :variant="myDepartment === '登記課' ? 'success' : 'secondary'") {{ regCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="surToChoosed" action="slide-ttb" title="傳送給測量課") 測量課 #[b-badge(pill :variant="myDepartment === '測量課' ? 'success' : 'secondary'") {{ surCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="valToChoosed" action="slide-ttb" title="傳送給地價課") 地價課 #[b-badge(pill :variant="myDepartment === '地價課' ? 'success' : 'secondary'") {{ valCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="admToChoosed" action="slide-ttb" title="傳送給行政課") 行政課 #[b-badge(pill :variant="myDepartment === '行政課' ? 'success' : 'secondary'") {{ admCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="infToChoosed" action="slide-ttb" title="傳送給資訊課") 資訊課 #[b-badge(pill :variant="myDepartment === '資訊課' ? 'success' : 'secondary'") {{ infCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="hrToChoosed" action="slide-ttb" title="傳送給人事室") 人事室 #[b-badge(pill :variant="myDepartment === '人事室' ? 'success' : 'secondary'") {{ hrCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="accToChoosed" action="slide-ttb" title="傳送給會計室") 會計室 #[b-badge(pill :variant="myDepartment === '會計室' ? 'success' : 'secondary'") {{ accCandidates.length }}]
+        lah-button.m-1(icon="caret-down" variant="outline-dark" @click="supervisorToChoosed" action="slide-ttb" title="傳送給主任祕書室") 主任秘書室 #[b-badge(pill :variant="myDepartment === '主任秘書室' ? 'success' : 'secondary'") {{ supervisorCandidates.length }}]
+      hr
+
+      .d-flex.flex-wrap.align-items-center
+        .d-flex
+          lah-button.mx-1(icon="recycle" variant="warning"  @click="reset" :title="`清除 ${choosedSendtoCount} 已選擇對象`" pill) {{ choosedSendtoCount }}
+          b.h5.text-nowrap.my-auto 已選擇：
+        transition-group(name="list" mode="out-in"): b-button.m-1.text-nowrap(
+          v-for="(id, idx) in choosedSendto"
+          v-b-tooltip="`移除 ${id}`"
+          variant="outline-success"
+          size="sm"
+          :key="`snedto-${idx}`"
+          @click="removeSendto(id)"
+          pill
+        )
+          lah-avatar(:id="id" ignore-system-config)
+          span.my-auto.ml-1 {{ userNames[id] || id }}
 
   h4.d-flex.align-items-stretch.my-3
     lah-fa-icon.my-auto.mr-auto(icon="clipboard-list") 歷史資料
@@ -251,7 +256,6 @@ export default {
     validContent () { return !this.$utils.empty(this.dataJson.content) },
     sendButtonDisabled () { return !this.validContent || !this.validSento },
     mementoCountCacheKey () { return `${this.cacheKey}_count` },
-    sendtoDisplayIndicator () { return this.sendtoVisibleFlag ? 'hand-point-down' : 'hand-point-right' },
     infCandidates () { return this.allCandidates.filter(entry => entry.dept === 'inf') },
     admCandidates () { return this.allCandidates.filter(entry => entry.dept === 'adm') },
     regCandidates () { return this.allCandidates.filter(entry => entry.dept === 'reg') },
