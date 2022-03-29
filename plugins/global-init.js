@@ -248,11 +248,11 @@ export default ({ $axios, store }, inject) => {
         case -6:
           return `JSON編碼失敗【${consts.XHR_STATUS_CODE.FAIL_JSON_ENCODE}, FAIL_JSON_ENCODE】`
         case -7:
-          return `找不到資料失敗【${consts.XHR_STATUS_CODE.FAIL_NOT_FOUND}, FAIL_NOT_FOUND`
+          return `找不到資料失敗【${consts.XHR_STATUS_CODE.FAIL_NOT_FOUND}, FAIL_NOT_FOUND】`
         case -8:
-          return `讀取檔案失敗【${consts.XHR_STATUS_CODE.FAIL_LOAD_ERROR}, FAIL_LOAD_ERROR`
+          return `讀取檔案失敗【${consts.XHR_STATUS_CODE.FAIL_LOAD_ERROR}, FAIL_LOAD_ERROR】`
         case -9:
-          return `動作請求逾時【${consts.XHR_STATUS_CODE.FAIL_TIMEOUT}, FAIL_TIMEOUT`
+          return `動作請求逾時【${consts.XHR_STATUS_CODE.FAIL_TIMEOUT}, FAIL_TIMEOUT】`
         default:
           return `不支援的狀態碼【${statusCode}】`
       }

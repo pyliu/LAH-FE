@@ -121,7 +121,7 @@ div
     b-card
       template(#header)
         h4.my-auto.text-nowrap.mr-auto 我的訊息
-      lah-chat
+      lah-chat(:channel="myinfo.id")
 
   h4.d-flex.align-items-stretch.my-3
     lah-fa-icon.my-auto.mr-auto(icon="clipboard-list") 歷史資料
