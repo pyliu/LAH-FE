@@ -118,7 +118,7 @@ div
             v-b-tooltip="'刪除這張圖片'"
             style="width: 138.5px"
           )
-    b-card(v-if="myinfo.id === 'HA10013859'")
+    b-card
       template(#header)
         h4.my-auto.text-nowrap.mr-auto 我的訊息
       lah-chat(:channel="myinfo.id")
