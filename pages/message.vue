@@ -65,12 +65,12 @@ div
       )
       .center.mt-3: lah-button(
         icon="paper-plane"
-        action="slide-btt"
+        action="move-fade-ltr"
         :variant="sendButtonDisabled ? 'outline-primary' : 'primary'"
         :disabled="sendButtonDisabled"
         @click="add"
         pill
-      ) 發送
+      ) 送出
     b-card
       template(#header): .d-flex
         h4.my-auto.text-nowrap.mr-auto 快速選擇
