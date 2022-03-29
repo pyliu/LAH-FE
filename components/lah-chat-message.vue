@@ -28,7 +28,7 @@ export default {
 <style lang="scss">
 .chat-board {
   img {
-    max-width: 90%;
+    max-width: 99%;
   }
 }
 </style>
