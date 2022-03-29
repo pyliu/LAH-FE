@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+.lah-chat
   h5.center.my-5(v-if="$utils.empty(list)")
     b-icon.mr-1(icon="shield-fill-exclamation" variant="warning")
     span 目前未收到任何訊息
@@ -56,5 +56,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+.lah-chat {
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+}
 </style>
