@@ -3,6 +3,7 @@ div
   lah-header
     .d-flex.w-100
       .d-flex.mr-auto.align-items-center
+        .my-auto.mr-1 登記案件
         b-badge.mr-1(pill, :variant="switchButtonVariant") {{ storeCaseCount }} 件
         b-form-radio-group.my-auto(
           v-model="isOverdueMode",
