@@ -26,16 +26,9 @@ div
           @click="$refs.searchPlus.show()",
           :disabled="!dataReady"
         ) 進階搜尋
-        lah-button.mr-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="filterDataCount === 0",
-          @click="xlsx"
+        lah-button-xlsx.mr-1(
+          :jsons="xlsxData"
+          :header="`測量${queryText}案件查詢`"
         )
         lah-countdown-button(
           ref="countdown",
@@ -367,6 +360,16 @@ export default {
         tags.push(`測量員：${this.advOpts.operator}`)
       }
       return tags
+    },
+    xlsxData () {
+      const jsons = this.filteredData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          obj[this.getLabel(key)] = value
+        }
+        return obj
+      })
+      return jsons
     }
   },
   watch: {
@@ -451,16 +454,6 @@ export default {
         default:
           return key
       }
-    },
-    xlsx () {
-      const jsons = this.filteredData.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          obj[this.getLabel(key)] = value
-        }
-        return obj
-      })
-      this.downloadXlsx(`測量${this.queryText}案件查詢`, jsons)
     },
     resetAdvOpts () {
       this.advOpts = {

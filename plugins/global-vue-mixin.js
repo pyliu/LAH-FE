@@ -4,8 +4,6 @@ import { mapActions, mapGetters } from 'vuex'
 import $ from 'jquery'
 import isEmpty from 'lodash/isEmpty'
 
-import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
-
 // inject to all Vue instances
 Vue.mixin({
   data: () => ({
@@ -574,16 +572,6 @@ Vue.mixin({
     },
     async clearCache () {
       await this.$localForage.clear()
-    },
-    downloadXlsx (header, jsons) {
-      this.modal(this.$createElement(lahXlsxDownload, {
-        props: {
-          header,
-          jsonArray: jsons || []
-        }
-      }), {
-        title: `下載EXCEL檔案 - ${header}`
-      })
-    },
+    }
   }
 })

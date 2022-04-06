@@ -36,16 +36,9 @@ div
           :disabled="!dataReady",
           no-icon-gutter
         )
-        lah-button.mr-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="!dataReady",
-          @click="xlsx"
+        lah-button-xlsx.mr-1(
+          :jsons="xlsxData"
+          header="未辦繼承土地及建物異動"
         )
         lah-countdown-button(
           ref="countdown"
@@ -420,6 +413,19 @@ export default {
     },
     filterDataCount () {
       return this.filteredData.length
+    },
+    xlsxData () {
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.filteredData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      })
+      return jsons
     }
   },
   watch: {
@@ -479,19 +485,6 @@ export default {
         return found.label
       }
       return key
-    },
-    xlsx () {
-      const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.filteredData.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
-          }
-        }
-        return obj
-      })
-      this.downloadXlsx('未辦繼承土地及建物異動', jsons)
     },
     resetAdvOpts () {
       this.advOpts = {

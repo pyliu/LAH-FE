@@ -28,16 +28,9 @@ div
           @click="$fetch"
           no-icon-gutter
         )
-        lah-button.mx-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="!dataReady",
-          @click="xlsx"
+        lah-button-xlsx.mx-1(
+          :jsons="xlsxData"
+          header="土地參考資訊檔異動情形"
         )
         lah-countdown-button(
           ref="countdown"
@@ -262,7 +255,20 @@ export default {
     cacheKey () { return `query_land_ref_change_${this.dateRange.begin}_${this.dateRange.end}` },
     foundText () { return `找到 ${this.queryCount} 筆「土地參考資訊檔」案件異動資料` },
     daysPeriod () { return this.dateRange.days || 0 },
-    isWrongDaysPeriod () { return this.daysPeriod < 1 }
+    isWrongDaysPeriod () { return this.daysPeriod < 1 },
+    xlsxData () {
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.rows.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      })
+      return jsons
+    }
   },
   fetchOnServer: false,
   watch: {
@@ -313,19 +319,6 @@ export default {
         return found.label
       }
       return key
-    },
-    xlsx () {
-      const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.rows.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
-          }
-        }
-        return obj
-      })
-      this.downloadXlsx('土地參考資訊檔異動情形', jsons)
     }
   }
 }

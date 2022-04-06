@@ -48,16 +48,9 @@ div
           :disabled="disableAdvSearch",
           no-icon-gutter
         )
-        lah-button.mx-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="!dataReady",
-          @click="xlsx"
+        lah-button-xlsx.mx-1(
+          :jsons="xlsxData"
+          header="信託案件"
         )
         lah-countdown-button(
           ref="countdown"
@@ -454,6 +447,28 @@ export default {
         return pipelineItems
       }
       return this.rows
+    },
+    xlsxData () {
+      const fieldKeys = this.qryType === 'reg_reason'
+        ? this.$refs.regTbl.tblFields.map((field, idx, array) => field.key)
+        : this.obliterateFields.map((field, idx, array) => field.key)
+      const data = this.qryType === 'reg_reason' ? this.rows : this.filteredRows
+      const jsons = data.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            if (this.qryType === 'reg_reason') {
+              obj[key] = value
+            } else {
+              const found = this.obliterateFields.find(element => element.key === key)
+              const label = found ? found.label : key
+              obj[label] = value
+            }
+          }
+        }
+        return obj
+      })
+      return jsons
     }
   },
   watch: {
@@ -492,28 +507,6 @@ export default {
       const mainNumber = val.substring(0, 5).replace(/^[\s0]+/g, '')
       const subNumber = val.substring(5).replace(/^[\s0]+/g, '')
       return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
-    },
-    xlsx () {
-      const fieldKeys = this.qryType === 'reg_reason'
-        ? this.$refs.regTbl.tblFields.map((field, idx, array) => field.key)
-        : this.obliterateFields.map((field, idx, array) => field.key)
-      const data = this.qryType === 'reg_reason' ? this.rows : this.filteredRows
-      const jsons = data.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            if (this.qryType === 'reg_reason') {
-              obj[key] = value
-            } else {
-              const found = this.obliterateFields.find(element => element.key === key)
-              const label = found ? found.label : key
-              obj[label] = value
-            }
-          }
-        }
-        return obj
-      })
-      this.downloadXlsx('信託案件', jsons)
     },
     resetAdvOpts () {
       this.advOpts = {

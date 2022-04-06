@@ -44,16 +44,9 @@ div
         @click="$refs.searchPlus.show()",
         :disabled="!dataReady"
       ) 進階搜尋
-      lah-button.mx-1(
-        icon="file-excel",
-        size="lg",
-        title="匯出EXCEL",
-        variant="outline-success",
-        action="move-fade-ltr",
-        regular,
-        no-icon-gutter,
-        :disabled="!dataReady",
-        @click="downloadXlsx(queryTitle, currentList)"
+      lah-button-xlsx.mx-1(
+        :jsons="currentList"
+        :header="queryTitle"
       )
       lah-countdown-button(
         ref="countdown"

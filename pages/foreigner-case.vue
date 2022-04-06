@@ -29,16 +29,9 @@ div
           :disabled="!dataReady",
           no-icon-gutter
         )
-        lah-button.mr-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="filterDataCount === 0",
-          @click="xlsx"
+        lah-button-xlsx.mr-1(
+          :jsons="xlsxData"
+          header="外國人地權案件"
         )
         lah-countdown-button(
           ref="countdown"
@@ -307,6 +300,19 @@ export default {
     },
     filterDataCount () {
       return this.filteredData.length
+    },
+    xlsxData () {
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.filteredData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[key] = value
+          }
+        }
+        return obj
+      })
+      return jsons
     }
   },
   watch: {
@@ -318,19 +324,6 @@ export default {
     reload () {
       this.forceReload = true
       this.$fetch()
-    },
-    xlsx () {
-      const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.filteredData.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[key] = value
-          }
-        }
-        return obj
-      })
-      this.downloadXlsx('外國人地權案件', jsons)
     },
     resetAdvOpts () {
       this.advOpts = {

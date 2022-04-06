@@ -59,16 +59,9 @@ div
           :disabled="!committed || paginationCount === 0",
           no-icon-gutter
         )
-        lah-button.mx-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="filterDataCount === 0",
-          @click="xlsx"
+        lah-button-xlsx.mx-1(
+          :jsons="xlsxData",
+          header="非專業代理人案件"
         )
         lah-countdown-button(
           ref="countdown"
@@ -459,6 +452,9 @@ export default {
     },
     filterDataCount () {
       return this.caseType === 'reg' ? this.filterRegBakedData.length : this.filterSurBakedData.length
+    },
+    xlsxData () {
+      return this.caseType === 'reg' ? this.prepareRegJsons() : this.prepareSurJsons()
     }
   },
   watch: {
@@ -687,10 +683,6 @@ export default {
         }
         return obj
       })
-    },
-    xlsx () {
-      const jsons = this.caseType === 'reg' ? this.prepareRegJsons() : this.prepareSurJsons()
-      this.downloadXlsx('非專業代理人案件', jsons)
     },
     resetAdvOpts () {
       this.advOpts = {

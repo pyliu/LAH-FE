@@ -28,16 +28,9 @@
           @click="$fetch"
           no-icon-gutter
         )
-        lah-button.mx-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="!dataReady",
-          @click="xlsx"
+        lah-button-xlsx.mx-1(
+          :jsons="xlsxData"
+          header="取消請示案件"
         )
         lah-countdown-button(
           ref="countdown"
@@ -179,7 +172,21 @@ export default {
   computed: {
     dataReady () { return this.queryCount > 0 },
     queryCount () { return this.bakedData?.length || 0 },
-    cacheKey () { return `reg_cancel_ask_case_${this.dateRange.begin}_${this.dateRange.end}` }
+    cacheKey () { return `reg_cancel_ask_case_${this.dateRange.begin}_${this.dateRange.end}` },
+    xlsxData () {
+      // prepare json objects for xlsx exporting
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.bakedData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (key !== '請示燈號' && fieldKeys.includes(key)) {
+            obj[key] = value
+          }
+        }
+        return obj
+      })
+      return jsons
+    }
   },
   methods: {
     resetCountdown () {
@@ -198,20 +205,6 @@ export default {
         this.forceReload = true
         this.$fetch()
       })
-    },
-    xlsx () {
-      // prepare json objects for xlsx exporting
-      const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.bakedData.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (key !== '請示燈號' && fieldKeys.includes(key)) {
-            obj[key] = value
-          }
-        }
-        return obj
-      })
-      this.downloadXlsx('取消請示案件', jsons)
     }
   }
 }

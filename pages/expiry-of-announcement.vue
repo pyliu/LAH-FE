@@ -19,16 +19,9 @@ div
         @click="$refs.searchPlus.show()",
         :disabled="!dataReady"
       ) 進階搜尋
-      lah-button.mx-1(
-        icon="file-excel",
-        size="lg",
-        title="匯出EXCEL",
-        variant="outline-success",
-        action="move-fade-ltr",
-        regular,
-        no-icon-gutter,
-        :disabled="!dataReady",
-        @click="xlsx"
+      lah-button-xlsx.mx-1(
+        :jsons="xlsxData",
+        header="公告案件"
       )
       lah-countdown-button(
         ref="countdown"
@@ -252,7 +245,7 @@ export default {
   computed: {
     dataReady () { return this.bakedData?.length > 0 },
     queryCount () { return this.bakedData.length },
-    cacheKey () { return `reg_rm30_H_case` },
+    cacheKey () { return 'reg_rm30_H_case' },
     advTags () {
       const tags = []
       if (!this.$utils.empty(this.advOpts.caseLight)) {
@@ -345,6 +338,19 @@ export default {
       }
       return this.bakedData
     },
+    xlsxData () {
+      // prepare json objects for xlsx exporting
+      const jsons = this.filterBakedData.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (key !== '公告燈號' && this.fieldKeys.includes(key)) {
+            obj[key] = value
+          }
+        }
+        return obj
+      })
+      return jsons
+    },
     fieldKeys () {
       return this.fields.map((field, idx, array) => field.key)
     }
@@ -435,19 +441,6 @@ export default {
         }
       }
       // this.$store.commit('expiry/list', this.queriedJson.items || [])
-    },
-    xlsx () {
-      // prepare json objects for xlsx exporting
-      const jsons = this.filterBakedData.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (key !== '公告燈號' && this.fieldKeys.includes(key)) {
-            obj[key] = value
-          }
-        }
-        return obj
-      })
-      this.downloadXlsx('公告案件', jsons)
     }
   }
 }

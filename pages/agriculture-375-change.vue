@@ -54,16 +54,9 @@ div
           @click="$fetch",
           no-icon-gutter
         )
-        lah-button.mx-1(
-          icon="file-excel",
-          size="lg",
-          title="匯出EXCEL",
-          variant="outline-success",
-          action="move-fade-ltr",
-          regular,
-          no-icon-gutter,
-          :disabled="!dataReady",
-          @click="xlsx"
+        lah-button-xlsx.mx-1(
+          :jsons="xlsxData"
+          header="375租約異動查詢"
         )
         lah-countdown-button(
           ref="countdown",
@@ -399,6 +392,19 @@ export default {
     },
     isWrongDaysPeriod () {
       return this.daysPeriod < 1
+    },
+    xlsxData () {
+      const fieldKeys = this.qryFields.map((field, idx, array) => field.key)
+      const jsons = this.rows.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      })
+      return jsons
     }
   },
   watch: {
@@ -466,19 +472,6 @@ export default {
         return found.label
       }
       return key
-    },
-    xlsx () {
-      const fieldKeys = this.qryFields.map((field, idx, array) => field.key)
-      const jsons = this.rows.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
-          }
-        }
-        return obj
-      })
-      this.downloadXlsx('375租約異動查詢', jsons)
     }
   }
 }
