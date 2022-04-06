@@ -1,5 +1,5 @@
 <template lang="pug">
-.chat-board(v-html="json.content")
+.chat-message(v-html="json.content")
 </template>
 
 <script>
@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style lang="scss">
-.chat-board {
+.chat-message {
   img {
     max-width: 99%;
   }
