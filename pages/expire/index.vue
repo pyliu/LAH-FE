@@ -35,6 +35,7 @@ div
                 strong {{ queryTitle }}
               .my-auto 切換顯示模式
           li 預定結案時間剩餘4小時內將判定為即將逾期案件
+          li 切換為#[nuxt-link(to="/expire/sur") 測量案件]
           li #[a(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 切換成舊版本模式]
 
       lah-button(

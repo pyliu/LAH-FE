@@ -17,6 +17,7 @@ div
             li 全部未結案的案件：只顯示未結案案件(MOICAS.CMSMS的MM23「結案已否」為空值表示尚未結案)【排除收件字ST的案件】。
             li 即將逾期案件：逾期日期 #[b.text-danger 3日] 內的案件 (MOICAS.CMSMS的MM21_1逾期日期)。
             li 已逾期案件：未結案案件且應結日期已逾今天。
+            li 切換為#[nuxt-link(to="/expire") 登記案件]
 
       .d-flex.small
         lah-button.mr-1(
