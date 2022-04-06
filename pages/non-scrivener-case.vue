@@ -67,7 +67,7 @@ div
           action="move-fade-ltr",
           regular,
           no-icon-gutter,
-          :disabled="!committed",
+          :disabled="filterDataCount === 0",
           @click="xlsx"
         )
         lah-countdown-button(
