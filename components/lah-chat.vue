@@ -1,6 +1,6 @@
 <template lang="pug">
 .lah-chat
-  h5.center.my-5(v-if="$utils.empty(list)")
+  h5.center.my-5(v-if="noMessage")
     b-icon.mr-1(icon="shield-fill-exclamation" variant="warning")
     span 目前未收到任何訊息
   transition-group(v-else name="list" mode="out-in")
@@ -47,6 +47,7 @@ export default {
     }
   },
   computed: {
+    noMessage () { return this.$utils.empty(this.list) }
   },
   watch: {
     channel (dontcare) {
