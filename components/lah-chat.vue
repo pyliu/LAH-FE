@@ -18,7 +18,7 @@
 <script>
 export default {
   props: {
-    channel: { type: String, default: () => this.myinfo.id, require: true },
+    channel: { type: String, default: () => this.myid },
     limit: { type: Number, default: 10 }
   },
   data: () => ({
