@@ -450,13 +450,13 @@ export default {
     },
     xlsxData () {
       const fieldKeys = this.qryType === 'reg_reason'
-        ? this.$refs.regTbl.tblFields.map((field, idx, array) => field.key)
+        ? this.$refs.regTbl?.tblFields?.map((field, idx, array) => field.key)
         : this.obliterateFields.map((field, idx, array) => field.key)
       const data = this.qryType === 'reg_reason' ? this.rows : this.filteredRows
       const jsons = data.map((data, idx, array) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
+          if (fieldKeys?.includes(key)) {
             if (this.qryType === 'reg_reason') {
               obj[key] = value
             } else {
