@@ -1,55 +1,60 @@
 <template lang="pug">
-.text-left(v-if="ready")
-  .d-flex
-    small.my-auto.text-nowrap.mr-1 補正期滿
-    b-datepicker(
-      size="sm"
-      v-model="parentData.REG_FIX_CASE_RECORD.fix_deadline_date"
-      placeholder="補正期滿日期"
-      boundary="viewport"
-      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-      :min="minDate"
-      label-help="使用方向鍵操作移動日期"
-      hide-header
-      dropleft
-      close-button
-      label-close-button="關閉"
-      v-b-tooltip.hover.left.v-warning
-      @context="update"
-    )
-    lah-button.ml-1(
-      v-if="deadlineDateChanged",
-      icon="undo",
-      action="cycle-alt",
-      variant="outline-secondary",
-      size="sm",
-      :title="`補正期滿日期重設為 ${defaultDeadlineDate}`",
-      @click="resetDeadline"
-      no-icon-gutter
-    )
-  .d-flex.my-1
-    small.my-auto.text-nowrap.mr-1 通知送達
-    b-datepicker(
-      size="sm"
-      v-model="parentData.REG_FIX_CASE_RECORD.notify_delivered_date"
-      placeholder="通知書送達日期"
-      boundary="viewport"
-      label-help="使用方向鍵操作移動日期"
-      hide-header
-      dropleft
-      today-button
-      label-today-button="今天"
-      reset-button
-      label-reset-button="重設"
-      close-button
-      label-close-button="關閉"
-      v-b-tooltip.hover.left.v-warning
-      @context="update"
-      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-      :min="minDate"
-      :max="maxDate"
-      :state="settleDeliveredDate"
-    )
+.text-left
+  div(v-if="ready && editable")
+    .d-flex
+      small.my-auto.text-nowrap.mr-1 補正期滿
+      b-datepicker(
+        size="sm"
+        v-model="parentData.REG_FIX_CASE_RECORD.fix_deadline_date"
+        placeholder="補正期滿日期"
+        boundary="viewport"
+        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+        :min="minDate"
+        label-help="使用方向鍵操作移動日期"
+        hide-header
+        dropleft
+        close-button
+        label-close-button="關閉"
+        v-b-tooltip.hover.left.v-warning
+        @context="update"
+      )
+      lah-button.ml-1(
+        v-if="deadlineDateChanged",
+        icon="undo",
+        action="cycle-alt",
+        variant="outline-secondary",
+        size="sm",
+        :title="`補正期滿日期重設為 ${defaultDeadlineDate}`",
+        @click="resetDeadline"
+        no-icon-gutter
+      )
+    .d-flex.my-1
+      small.my-auto.text-nowrap.mr-1 通知送達
+      b-datepicker(
+        size="sm"
+        v-model="parentData.REG_FIX_CASE_RECORD.notify_delivered_date"
+        placeholder="通知書送達日期"
+        boundary="viewport"
+        label-help="使用方向鍵操作移動日期"
+        hide-header
+        dropleft
+        today-button
+        label-today-button="今天"
+        reset-button
+        label-reset-button="重設"
+        close-button
+        label-close-button="關閉"
+        v-b-tooltip.hover.left.v-warning
+        @context="update"
+        :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+        :min="minDate"
+        :max="maxDate"
+        :state="settleDeliveredDate"
+      )
+
+  div(v-else)
+    .my-auto.text-nowrap.mr-1 補正期滿：{{ parentData.REG_FIX_CASE_RECORD.fix_deadline_date }}
+    .my-auto.text-nowrap.mr-1 通知送達：{{ parentData.REG_FIX_CASE_RECORD.notify_delivered_date }}
 
   lah-transition: .p-1.mt-1.small(v-if="!$utils.empty(deliveredDate)")
     b-badge.p-2.mr-2(pill, :class="classes") 調整到期日期：{{ dueDate }}
@@ -143,6 +148,9 @@ export default {
         default:
           return ['bg-success', 'text-white']
       }
+    },
+    editable () {
+      return this.parentData.RM45 === this.myid || this.authority.isAdmin || this.authority.isChief
     }
   },
   watch: {
