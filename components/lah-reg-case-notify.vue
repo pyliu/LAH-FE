@@ -1,18 +1,22 @@
 <template lang="pug">
-.d-flex.flex-nowrap.text-nowrap.p-1(:title="parentData.ID")
-  b-checkbox.mr-2.my-auto(
-    v-model="notifyFlag",
-    switch
-  ) {{ notifyFlag ? '是' : '否' }}
-  lah-transition(speed="fastest"): b-input(
-    v-if="notifyFlag",
-    v-model="note",
-    size="sm",
-    placeholder="請輸入公文文號",
-    title="請輸入公文文號",
-    :state="validNote",
-    trim
-  )
+div
+  .d-flex.flex-nowrap.text-nowrap.p-1(v-if="editable", :title="parentData.ID")
+    b-checkbox.mr-2.my-auto(
+      v-model="notifyFlag",
+      switch
+    ) {{ notifyFlag ? '是' : '否' }}
+    lah-transition(speed="fastest"): b-input(
+      v-if="notifyFlag",
+      v-model="note",
+      size="sm",
+      placeholder="請輸入公文文號",
+      title="請輸入公文文號",
+      :state="validNote",
+      trim
+    )
+  .d-flex.flex-nowrap.text-nowrap.p-1(v-else)
+    span(title="是否需要通知", :class="notifyFlag ? ['text-primary'] : ['text-success']") 📢：{{ notifyFlag ? '需通知' : '不需通知' }}
+    span.mx-1(v-if="notifyFlag", title="公文號", :class="$utils.empty(note) ? ['text-danger'] : []") {{ $utils.empty(note) ? '⚠ 尚未設定公文號' : `公文文號：${note}` }}
 </template>
 
 <script>
@@ -33,8 +37,6 @@ export default {
     note: undefined,
     retried: 0
   }),
-  fetch () {
-  },
   computed: {
     validNote () {
       return !this.$utils.empty(this.note) && this.note.match(/^\d{12}$/) !== null
@@ -45,6 +47,9 @@ export default {
         authority: this.notifyFlag ? 1 : 0,
         note: this.note
       }
+    },
+    editable () {
+      return this.parentData.RM45 === this.myid || this.parentData.RM47 === this.myid || this.authority.isChief || this.authority.isAdmin
     }
   },
   watch: {

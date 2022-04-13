@@ -109,7 +109,7 @@ div
     template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
       {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
     template(v-slot:cell(燈號)="{ item }")
-      lah-fa-icon(
+      .text-left: lah-fa-icon(
         prefix="fas"
         icon="circle"
         :variant="item.燈號"
