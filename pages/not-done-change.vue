@@ -509,6 +509,7 @@ export default {
         ...this.advOpts,
         ...{
           id: '',
+          name: '',
           gg00: '',
           gg301: '',
           type: '',
