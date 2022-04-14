@@ -176,8 +176,16 @@ div
       b-input-group(prepend="統編"): b-select(
         v-model="advOpts.id",
         :options="advOpts.idOpts",
-        title="權利人統編"
+        title="統編"
       )
+    .center.d-flex.my-1
+      b-input-group(prepend="權利人"): b-select(
+        v-model="advOpts.name",
+        :options="advOpts.nameOpts",
+        title="權利人"
+      )
+      b-input-group
+
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -270,6 +278,8 @@ export default {
     advOpts: {
       id: '',
       idOpts: [],
+      name: '',
+      nameOpts: [],
       gg00: '',
       gg00Opts: [],
       gg301: '',
@@ -370,7 +380,10 @@ export default {
         tags.push(`校對日期：${this.advOpts.date}`)
       }
       if (!this.$utils.empty(this.advOpts.id)) {
-        tags.push(`權利人統編：${this.advOpts.id}`)
+        tags.push(`統編：${this.advOpts.id}`)
+      }
+      if (!this.$utils.empty(this.advOpts.name)) {
+        tags.push(`權利人：${this.advOpts.name}`)
       }
       return tags
     },
@@ -405,6 +418,11 @@ export default {
         if (!this.$utils.empty(this.advOpts.id)) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.IS09 === this.advOpts.id
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.name)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.ISNAME === this.advOpts.name
           })
         }
         return pipelineItems
@@ -504,6 +522,8 @@ export default {
         ...{
           id: '',
           idOpts: [],
+          name: '',
+          nameOpts: [],
           gg00: '',
           gg00Opts: [],
           gg301: '',
@@ -518,6 +538,7 @@ export default {
       }
       if (val) {
         this.advOpts.idOpts = [...new Set(val.map(item => item.IS09))].sort()
+        this.advOpts.nameOpts = [...new Set(val.map(item => item.ISNAME))].sort()
         this.advOpts.gg00Opts = [...new Set(val.map(item => item.GG00))].sort()
         this.advOpts.gg301Opts = [...new Set(val.map(item => item.GG30_1))].sort()
         this.advOpts.typeOpts = [...new Set(val.map(item => item.GS_TYPE))].sort()
@@ -531,6 +552,7 @@ export default {
         ]
         this.advOpts.dateOpts = [...new Set(val.map(item => item.RM56_1?.split(' ')[0]))].sort()
         this.advOpts.idOpts.unshift('')
+        this.advOpts.nameOpts.unshift('')
         this.advOpts.gg00Opts.unshift('')
         this.advOpts.gg301Opts.unshift('')
         this.advOpts.typeOpts.unshift('')
