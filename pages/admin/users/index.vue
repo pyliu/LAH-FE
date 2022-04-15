@@ -1,203 +1,203 @@
 <template lang="pug">
-  div(v-cloak)
-    lah-header: lah-transition(appear)
-      .d-flex.w-100
-        .d-flex.mr-auto
-          .my-auto 員工資訊管理
-          lah-button(
-            v-b-modal.help-modal
-            icon="info"
-            variant="outline-success"
-            no-border
-            no-icon-gutter
-            title="說明"
-          )
-
-        b-button-group.my-auto(size="lg")
-          lah-button(
-            icon="user-plus"
-            variant="outline-primary"
-            title="新增使用者"
-            no-icon-gutter
-            @click="add"
-          )
-          lah-button(
-            icon="upload"
-            variant="outline-secondary"
-            title="批次檔上傳更新"
-            action="move-fade-btt"
-            no-icon-gutter
-            v-b-modal.upload-ui
-          )
-          lah-button(
-            icon="file-excel"
-            regular
-            title="匯出系統全部使用者"
-            variant="outline-success"
-            no-icon-gutter
-            action="move-fade-ltr"
-            @click="exportXlsx"
-          )
-
-    lah-help-modal(:modal-id="'help-modal'" size="lg")
-      ul
-        li: .d-inline-flex.justify-content-around
-          span 選取編輯好的XLSX檔案，點擊
-          lah-button(
-            icon="upload"
-            variant="outline-secondary"
-            class="mx-1 mt-n1"
-            no-icon-gutter
-            v-b-modal.upload-ui
-          )
-          span 上傳更新本地資料庫(dimension.db, user表格)
-
-        li.mt-2: .d-inline-flex.justify-content-around
-          span 利用
-          lah-button(
-            icon="user-plus"
-            variant="outline-primary"
-            class="mx-1 mt-n1"
-            no-icon-gutter
-            @click="add"
-          )
-          span 新增或
-          b-button(
-            variant="outline-success"
-            class="mx-1 mt-n1"
-            size="sm"
-          ) {{ site }}ＯＯＯＯ 桃園地政
-          span 編輯使用者。
-
-      hr
-      .mx-2.my-1
-        b-button.mr-1(variant="outline-dark" size="sm") {{ office }}XXXX 劉ＯＯ
-        span 正常使用者
-      .mx-2.my-1
-        b-button.mr-1(variant="secondary" size="sm") {{ office }}XXXX 邦ＯＯ
-        span 被停用使用者
-      .mx-2.my-1
-        b-button.mr-1(variant="danger" size="sm") {{ office }}XXXX 渝ＯＯ
-        span 系統管理者
-      .mx-2.my-1
-        b-button.mr-1(variant="primary" size="sm") {{ office }}XXXX 桃ＯＯ
-        span 主管
-      .mx-2.my-1
-        b-button.mr-1(variant="warning" size="sm") {{ office }}XXXX 園ＯＯ
-        span 研考
-      .mx-2.my-1
-        b-button.mr-1(variant="success" size="sm") {{ office }}XXXX 地ＯＯ
-        span 人員管理
-      .mx-2.my-1
-        b-button.mr-1(variant="outline-info" size="sm") {{ office }}XXXX 政ＯＯ
-        span 公告管理
-
-      b-modal(
-        id="upload-ui"
-        title="批次檔上傳更新"
-        size="lg"
-        hide-footer
-        scrollable
-        no-close-on-backdrop
-      )
-        b-button-group.d-flex.justify-content-end.mb-2(size="lg")
-          lah-button(icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success") 匯入範例檔下載
-          lah-button(icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx") 匯出全部使用者
-        b-form-group(
-          label="匯入使用者檔案"
-          label-for="file-land_data_upload"
-          label-cols-sm="2"
-          label-size="md"
-          title="*.xlsx"
-        ): b-input-group(id="file-land_data_upload" size="md"): b-file(
-          ref="file-land_data_upload"
-          v-model="userXlsx"
-          placeholder="請選擇XLSX檔案"
-          drop-placeholder="放開以設定上傳檔案"
-          accept=".xlsx, .XLSX"
+div(v-cloak)
+  lah-header: lah-transition(appear)
+    .d-flex.w-100
+      .d-flex.mr-auto
+        .my-auto 員工資訊管理
+        lah-button(
+          v-b-modal.help-modal
+          icon="info"
+          variant="outline-success"
+          no-border
+          no-icon-gutter
+          title="說明"
         )
-          template(slot="file-name" slot-scope="{ names }")
-            b-badge(variant="dark") {{ names[0] }}
-            b-badge.ml-1(v-if="names.length > 1" variant="dark" class="") + {{ names.length - 1 }} More files
-          template(#append): lah-button(
-            icon="upload"
-            variant="outline-primary"
-            title="上傳"
-            :disabled="$utils.empty(userXlsx)"
-            @click="upload"
-          )
+
+      b-button-group.my-auto(size="lg")
+        lah-button(
+          icon="user-plus"
+          variant="outline-primary"
+          title="新增使用者"
+          no-icon-gutter
+          @click="add"
+        )
+        //- lah-button(
+        //-   icon="upload"
+        //-   variant="outline-secondary"
+        //-   title="批次檔上傳更新"
+        //-   action="move-fade-btt"
+        //-   no-icon-gutter
+        //-   v-b-modal.upload-ui
+        //- )
+        //- lah-button(
+        //-   icon="file-excel"
+        //-   regular
+        //-   title="匯出系統全部使用者"
+        //-   variant="outline-success"
+        //-   no-icon-gutter
+        //-   action="move-fade-ltr"
+        //-   @click="exportXlsx"
+        //- )
+
+  lah-help-modal(:modal-id="'help-modal'" size="lg")
+    ul
+      li: .d-inline-flex.justify-content-around
+        span 選取編輯好的XLSX檔案，點擊
+        lah-button(
+          icon="upload"
+          variant="outline-secondary"
+          class="mx-1 mt-n1"
+          no-icon-gutter
+          v-b-modal.upload-ui
+        )
+        span 上傳更新本地資料庫(dimension.db, user表格)
+
+      li.mt-2: .d-inline-flex.justify-content-around
+        span 利用
+        lah-button(
+          icon="user-plus"
+          variant="outline-primary"
+          class="mx-1 mt-n1"
+          no-icon-gutter
+          @click="add"
+        )
+        span 新增或
+        b-button(
+          variant="outline-success"
+          class="mx-1 mt-n1"
+          size="sm"
+        ) {{ site }}ＯＯＯＯ 桃園地政
+        span 編輯使用者。
 
     hr
-    section
-      //- 顯示控制UI
-      .d-flex.justify-content-between.mb-2
-        .d-flex
-          b-form-radio-group(
-            v-model="selectedGroup"
-            :options="groupOptions"
-            buttons
-            button-variant="outline-dark"
-            class="my-auto"
-            title="分類"
-          )
-          b-form-radio-group(
-            v-model="sortOrder"
-            :options="sortOpts"
-            class="ml-3 my-auto"
-          )
-        span.text-muted.my-auto.lah-shadow 找到 #[b-badge( pill class="my-auto" variant="info") {{ users.length }}] 個使用者
-        .d-flex.my-auto
-          b-form-checkbox(v-model="showAvatar" switch class="mr-3" title="顯示") 大頭照
-          b-form-checkbox(v-model="showIp" switch class="mr-3" title="顯示") IP
-          b-form-checkbox-group(v-model="filter" :options="filterOptions")
+    .mx-2.my-1
+      b-button.mr-1(variant="outline-dark" size="sm") {{ office }}XXXX 劉ＯＯ
+      span 正常使用者
+    .mx-2.my-1
+      b-button.mr-1(variant="secondary" size="sm") {{ office }}XXXX 邦ＯＯ
+      span 被停用使用者
+    .mx-2.my-1
+      b-button.mr-1(variant="danger" size="sm") {{ office }}XXXX 渝ＯＯ
+      span 系統管理者
+    .mx-2.my-1
+      b-button.mr-1(variant="primary" size="sm") {{ office }}XXXX 桃ＯＯ
+      span 主管
+    .mx-2.my-1
+      b-button.mr-1(variant="warning" size="sm") {{ office }}XXXX 園ＯＯ
+      span 研考
+    .mx-2.my-1
+      b-button.mr-1(variant="success" size="sm") {{ office }}XXXX 地ＯＯ
+      span 人員管理
+    .mx-2.my-1
+      b-button.mr-1(variant="outline-info" size="sm") {{ office }}XXXX 政ＯＯ
+      span 公告管理
 
-    hr
-    //- 名牌顯示區塊
-    section.mb-3(v-for="category in categories" :key="category.NAME")
-      h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
-        span {{ translateGroupName(category.NAME) }}
-        b-badge.ml-1.my-auto(pill variant="info") {{ category.LIST.length }}
-
-      b-collapse(:id="$utils.md5(category.NAME)" visible): b-button(
-        v-for="user in category.LIST"
-        :key="user['id']"
-        :data-id="user['id']"
-        :data-name="user['name']"
-        :variant="variant(user)"
-        :pill="showAvatar"
-        :title="role(user)"
-        size="sm"
-        class="mx-1 my-1 shadow"
-        @click="edit(user)"
+    b-modal(
+      id="upload-ui"
+      title="批次檔上傳更新"
+      size="lg"
+      hide-footer
+      scrollable
+      no-close-on-backdrop
+    )
+      b-button-group.d-flex.justify-content-end.mb-2(size="lg")
+        lah-button(icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success") 匯入範例檔下載
+        lah-button(icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx") 匯出全部使用者
+      b-form-group(
+        label="匯入使用者檔案"
+        label-for="file-land_data_upload"
+        label-cols-sm="2"
+        label-size="md"
+        title="*.xlsx"
+      ): b-input-group(id="file-land_data_upload" size="md"): b-file(
+        ref="file-land_data_upload"
+        v-model="userXlsx"
+        placeholder="請選擇XLSX檔案"
+        drop-placeholder="放開以設定上傳檔案"
+        accept=".xlsx, .XLSX"
       )
-        b-avatar(v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)")
-        span.ml-1 {{ user["id"].padStart(6, '&ensp;') }}
-        span.ml-1 {{ user["name"].padEnd(3, '　') }}
-        .text-dark.text-center.font-weight-bolder(v-if="showIp")
-          span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
-          span.text-info .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
+        template(slot="file-name" slot-scope="{ names }")
+          b-badge(variant="dark") {{ names[0] }}
+          b-badge.ml-1(v-if="names.length > 1" variant="dark" class="") + {{ names.length - 1 }} More files
+        template(#append): lah-button(
+          icon="upload"
+          variant="outline-primary"
+          title="上傳"
+          :disabled="$utils.empty(userXlsx)"
+          @click="upload"
+        )
 
-    hr
+  hr
+  section
+    //- 顯示控制UI
+    .d-flex.justify-content-between.mb-2
+      .d-flex
+        b-form-radio-group(
+          v-model="selectedGroup"
+          :options="groupOptions"
+          buttons
+          button-variant="outline-dark"
+          class="my-auto"
+          title="分類"
+        )
+        b-form-radio-group(
+          v-model="sortOrder"
+          :options="sortOpts"
+          class="ml-3 my-auto"
+        )
+      span.text-muted.my-auto.lah-shadow 找到 #[b-badge( pill class="my-auto" variant="info") {{ users.length }}] 個使用者
+      .d-flex.my-auto
+        b-form-checkbox(v-model="showAvatar" switch class="mr-3" title="顯示") 大頭照
+        b-form-checkbox(v-model="showIp" switch class="mr-3" title="顯示") IP
+        b-form-checkbox-group(v-model="filter" :options="filterOptions")
 
-    b-modal(
-      id="edit-user-modal"
-      :title="editUserTitle"
-      size="lg"
-      hide-footer
-      scrollable
-      no-close-on-backdrop
+  hr
+  //- 名牌顯示區塊
+  section.mb-3(v-for="category in categories" :key="category.NAME")
+    h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
+      span {{ translateGroupName(category.NAME) }}
+      b-badge.ml-1.my-auto(pill variant="info") {{ category.LIST.length }}
+
+    b-collapse(:id="$utils.md5(category.NAME)" visible): b-button(
+      v-for="user in category.LIST"
+      :key="user['id']"
+      :data-id="user['id']"
+      :data-name="user['name']"
+      :variant="variant(user)"
+      :pill="showAvatar"
+      :title="role(user)"
+      size="sm"
+      class="mx-1 my-1 shadow"
+      @click="edit(user)"
     )
-      lah-user-edit-card(:raw="[clickedUser]" @saved="saved($event)")
+      b-avatar(v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)")
+      span.ml-1 {{ user["id"].padStart(6, '&ensp;') }}
+      span.ml-1 {{ user["name"].padEnd(3, '　') }}
+      .text-dark.text-center.font-weight-bolder(v-if="showIp")
+        span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
+        span.text-info .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
 
-    b-modal(
-      id="add-user-modal"
-      title="手動新增使用者"
-      size="lg"
-      hide-footer
-      scrollable
-      no-close-on-backdrop
-    )
-      lah-user-add-card(@added="added($event)")
+  hr
+
+  b-modal(
+    id="edit-user-modal"
+    :title="editUserTitle"
+    size="lg"
+    hide-footer
+    scrollable
+    no-close-on-backdrop
+  )
+    lah-user-edit-card(:raw="[clickedUser]" @saved="saved($event)")
+
+  b-modal(
+    id="add-user-modal"
+    title="手動新增使用者"
+    size="lg"
+    hide-footer
+    scrollable
+    no-close-on-backdrop
+  )
+    lah-user-add-card(@added="added($event)")
 </template>
 
 <script>

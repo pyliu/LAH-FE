@@ -263,7 +263,7 @@ export default {
       return this.checkId ? '' : `<strong class="text-danger">${this.site}</strong>####`
     },
     checkId () {
-      if (this.$utils.empty(this.userData.id) || !this.$utils.empty(this.foundUser) || this.userData.id.length < 6) {
+      if (this.$utils.empty(this.userData.id) || !this.$utils.empty(this.foundUser) || this.userData.id.length < 4) {
         return false
       }
       return true
