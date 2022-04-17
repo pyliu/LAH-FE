@@ -3,6 +3,8 @@
 This project needs to work with my another project, [Land-Affairs-Helper](https://github.com/pyliu/Land-Affairs-Helper), that serves as PHP API server to provide json data used by this frontend project.
 > Please refers to .env.example file to setup the require variables to start the nuxt.js server.
 
+![系統區塊圖](system_block.jpg)
+
 ## Build Setup
 
 ```bash
