@@ -106,7 +106,7 @@ export default {
       return this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date
     },
     deadlineDateChanged () {
-      return this.defaultDeadlineDate !== this.deadlineDate
+      return !this.$utils.empty(this.deadlineDate) && this.defaultDeadlineDate !== this.deadlineDate
     },
     dueDate () {
       if (this.$utils.empty(this.deliveredDate)) {
