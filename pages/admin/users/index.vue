@@ -41,18 +41,18 @@ div(v-cloak)
 
   lah-help-modal(:modal-id="'help-modal'" size="lg")
     ul
-      li: .d-inline-flex.justify-content-around
-        span 選取編輯好的XLSX檔案，點擊
-        lah-button(
-          icon="upload"
-          variant="outline-secondary"
-          class="mx-1 mt-n1"
-          no-icon-gutter
-          v-b-modal.upload-ui
-        )
-        span 上傳更新本地資料庫(dimension.db, user表格)
+      //- li: .d-inline-flex.justify-content-around
+      //-   span 選取編輯好的XLSX檔案，點擊
+      //-   lah-button(
+      //-     icon="upload"
+      //-     variant="outline-secondary"
+      //-     class="mx-1 mt-n1"
+      //-     no-icon-gutter
+      //-     v-b-modal.upload-ui
+      //-   )
+      //-   span 上傳更新本地資料庫(dimension.db, user表格)
 
-      li.mt-2: .d-inline-flex.justify-content-around
+      li: .d-inline-flex.justify-content-around
         span 利用
         lah-button(
           icon="user-plus"
@@ -92,40 +92,40 @@ div(v-cloak)
       b-button.mr-1(variant="outline-info" size="sm") {{ office }}XXXX 政ＯＯ
       span 公告管理
 
-    b-modal(
-      id="upload-ui"
-      title="批次檔上傳更新"
-      size="lg"
-      hide-footer
-      scrollable
-      no-close-on-backdrop
-    )
-      b-button-group.d-flex.justify-content-end.mb-2(size="lg")
-        lah-button(icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success") 匯入範例檔下載
-        lah-button(icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx") 匯出全部使用者
-      b-form-group(
-        label="匯入使用者檔案"
-        label-for="file-land_data_upload"
-        label-cols-sm="2"
-        label-size="md"
-        title="*.xlsx"
-      ): b-input-group(id="file-land_data_upload" size="md"): b-file(
-        ref="file-land_data_upload"
-        v-model="userXlsx"
-        placeholder="請選擇XLSX檔案"
-        drop-placeholder="放開以設定上傳檔案"
-        accept=".xlsx, .XLSX"
-      )
-        template(slot="file-name" slot-scope="{ names }")
-          b-badge(variant="dark") {{ names[0] }}
-          b-badge.ml-1(v-if="names.length > 1" variant="dark" class="") + {{ names.length - 1 }} More files
-        template(#append): lah-button(
-          icon="upload"
-          variant="outline-primary"
-          title="上傳"
-          :disabled="$utils.empty(userXlsx)"
-          @click="upload"
-        )
+    //- b-modal(
+    //-   id="upload-ui"
+    //-   title="批次檔上傳更新"
+    //-   size="lg"
+    //-   hide-footer
+    //-   scrollable
+    //-   no-close-on-backdrop
+    //- )
+    //-   b-button-group.d-flex.justify-content-end.mb-2(size="lg")
+    //-     lah-button(icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success") 匯入範例檔下載
+    //-     lah-button(icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx") 匯出全部使用者
+    //-   b-form-group(
+    //-     label="匯入使用者檔案"
+    //-     label-for="file-land_data_upload"
+    //-     label-cols-sm="2"
+    //-     label-size="md"
+    //-     title="*.xlsx"
+    //-   ): b-input-group(id="file-land_data_upload" size="md"): b-file(
+    //-     ref="file-land_data_upload"
+    //-     v-model="userXlsx"
+    //-     placeholder="請選擇XLSX檔案"
+    //-     drop-placeholder="放開以設定上傳檔案"
+    //-     accept=".xlsx, .XLSX"
+    //-   )
+    //-     template(slot="file-name" slot-scope="{ names }")
+    //-       b-badge(variant="dark") {{ names[0] }}
+    //-       b-badge.ml-1(v-if="names.length > 1" variant="dark" class="") + {{ names.length - 1 }} More files
+    //-     template(#append): lah-button(
+    //-       icon="upload"
+    //-       variant="outline-primary"
+    //-       title="上傳"
+    //-       :disabled="$utils.empty(userXlsx)"
+    //-       @click="upload"
+    //-     )
 
   hr
   section
