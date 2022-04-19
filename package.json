@@ -44,7 +44,7 @@
     "marked": "^4.0.10",
     "md5": "^2.3.0",
     "node-emoji": "^1.11.0",
-    "node-schedule": "^2.0.0",
+    "node-schedule": "^2.1.0",
     "node-watch": "^0.7.1",
     "nuxt": "^2.15.8",
     "nuxt-fontawesome": "^0.4.0",
