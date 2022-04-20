@@ -1,35 +1,37 @@
 <template lang="pug">
-b-list-group: b-list-group-item.flex-column.align-items-start(
-  v-for="(item, index) in orderedItems",
-  :key="`${item.create_datetime}-${item.title}-${index}`"
-)
-  .item-head(:class="[bootstrapVariant]")
-  .item-tail(v-if="index !== itemsCount - 1")
-  b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant")
-  .item-content(v-if="!item.spinner")
+div
+  .center(v-if="itemsCount === 0") ⚠ 無資料
+  b-list-group(v-else): b-list-group-item.flex-column.align-items-start(
+    v-for="(item, index) in orderedItems",
+    :key="`${item.create_datetime}-${item.title}-${index}`"
+  )
+    .item-head(:class="[bootstrapVariant]")
+    .item-tail(v-if="index !== itemsCount - 1")
+    b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant")
+    .item-content(v-if="!item.spinner")
 
-    .d-flex.w-100.justify-content-between.font-weight-bold
-      .mb-1.truncate(
-        :title="cleanTags(item.title)",
-        v-html="item.title",
-        v-b-toggle="`content-${index}`"
+      .d-flex.w-100.justify-content-between.font-weight-bold
+        .mb-1.truncate(
+          :title="cleanTags(item.title)",
+          v-html="item.title",
+          v-b-toggle="`content-${index}`"
+        )
+        lah-fa-icon.small.my-auto.text-nowrap(
+          icon="clock",
+          regular,
+          :title="item.create_datetime",
+          :variant="'muted'"
+          v-b-tooltip="item.create_datetime"
+        ) {{ displayTimestamp(item.create_datetime) }}
+
+      .small.mb-1.text-muted.w-100.truncate(
+        :id="`content-${index}-preview`"
+      ) {{ cleanTags(item.content) }}
+
+      b-collapse.item-description(
+        :id="`content-${index}`",
+        v-html="cleanText(item.content)"
       )
-      lah-fa-icon.small.my-auto.text-nowrap(
-        icon="clock",
-        regular,
-        :title="item.create_datetime",
-        :variant="'muted'"
-        v-b-tooltip="item.create_datetime"
-      ) {{ displayTimestamp(item.create_datetime) }}
-
-    .small.mb-1.text-muted.w-100.truncate(
-      :id="`content-${index}-preview`"
-    ) {{ cleanTags(item.content) }}
-
-    b-collapse.item-description(
-      :id="`content-${index}`",
-      v-html="cleanText(item.content)"
-    )
 </template>
 
 <script>
