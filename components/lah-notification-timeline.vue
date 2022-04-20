@@ -11,10 +11,11 @@ div
     .item-content(v-if="!item.spinner")
 
       .d-flex.w-100.justify-content-between.font-weight-bold
-        .mb-1.truncate(
+        a.mb-1.truncate(
           :title="cleanTags(item.title)",
           v-html="item.title",
-          v-b-toggle="`content-${index}`"
+          v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
+          href="javascript:void(0)"
         )
         lah-fa-icon.small.my-auto.text-nowrap(
           icon="clock",
@@ -24,8 +25,9 @@ div
           v-b-tooltip="item.create_datetime"
         ) {{ displayTimestamp(item.create_datetime) }}
 
-      .small.mb-1.text-muted.w-100.truncate(
-        :id="`content-${index}-preview`"
+      b-collapse.small.mb-1.text-muted.w-100.truncate(
+        :id="`content-${index}-preview`",
+        visible
       ) {{ cleanTags(item.content) }}
 
       b-collapse.item-description(
