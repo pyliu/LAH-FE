@@ -140,8 +140,7 @@ export default {
       ':' +
       ('0' + now.getSeconds()).slice(-2)
     return {
-      list: [{ type: 'remote', text: '準備中 ... ', time }],
-      timelineItems: []
+      list: [{ type: 'remote', text: '準備中 ... ', time }]
       // items: [
       //   ['桃園所', 40],
       //   ['中壢所', 16],
@@ -172,7 +171,8 @@ export default {
       'polarArea',
       'doughnut',
       'radar'
-    ]
+    ],
+    timelineItems: []
   }),
   head: {
     title: '測試-桃園市地政局'
