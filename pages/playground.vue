@@ -109,6 +109,12 @@ div: client-only
         li 民國：{{ $utils.twNow() }} / {{ $utils.twDateStr(new Date()) }}
         li {{ formatDate(+new Date()) }} - {{ formatDate(new Date(2015, 8, 1)) }}: 離開 Y! {{ dateDistance }}
         li this.$utils.formatDistanceToNow() 👉 {{ $utils.formatDistanceToNow() }}
+
+    b-card
+      template(#header): .d-flex: .text-nowrap.my-auto b-timeline 測試
+      lah-notification-timeline(
+        :items="timelineItems"
+      )
 </template>
 
 <script>
@@ -133,7 +139,16 @@ export default {
       ':' +
       ('0' + now.getSeconds()).slice(-2)
     return {
-      list: [{ type: 'remote', text: '準備中 ... ', time }]
+      list: [{ type: 'remote', text: '準備中 ... ', time }],
+      timelineItems: [{
+        timestamp: +new Date(),
+        title: '<i>根據</i>《日經新聞》報導，中國軍方人員與日本國安專家分析認為，俄羅斯攻打烏克蘭的劇本是北京當',
+        content: '<b>俄烏戰爭不如莫斯科當局所預料的短期內結束，在當地軍民頑抗下轉而走向長期化的軍事行動，對外界來說更值得關注。日媒報導指出，中國過去想控制台灣政權的劇本也因此遭到改寫，既然無法在短時間內「速戰速決」，那麼就只能被迫修改劇本，建立強大核武實力嚇阻美軍介入同時封鎖「獨派」行動。</b>'
+      }, {
+        timestamp: +new Date(),
+        title: 'second',
+        content: '<b>TEST2</b>'
+      }]
       // items: [
       //   ['桃園所', 40],
       //   ['中壢所', 16],
