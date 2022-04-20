@@ -115,4 +115,44 @@ export default {
   display: block;
   text-align: left;
 }
+.primary {
+  background-color: #007bff;
+  color: #007bff;
+  border-color: #007bff;
+}
+.secondary {
+  background-color: #6c757d;
+  color: #6c757d;
+  border-color: #6c757d;
+}
+.success {
+  background-color: #28a745;
+  color: #28a745;
+  border-color: #28a745;
+}
+.info {
+  background-color: #17a2b8;
+  color: #17a2b8;
+  border-color: #17a2b8;
+}
+.warning {
+  background-color: #ffc107;
+  color: #ffc107;
+  border-color: #ffc107;
+}
+.danger {
+  background-color: #dc3545;
+  color: #dc3545;
+  border-color: #dc3545;
+}
+.light {
+  background-color: #f8f9fa;
+  color: #f8f9fa;
+  border-color: #f8f9fa;
+}
+.dark {
+  background-color: #343a40;
+  color: #343a40;
+  border-color: #343a40;
+}
 </style>
