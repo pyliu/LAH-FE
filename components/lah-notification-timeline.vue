@@ -1,26 +1,39 @@
 <template lang="pug">
 b-list-group: b-list-group-item.flex-column.align-items-start(
   v-for="(item, index) in orderedItems",
-  :key="`${item.timestamp}-${item.title}-${index}`"
+  :key="`${item.create_datetime}-${item.title}-${index}`"
 )
   .item-head(:class="[bootstrapVariant]")
   .item-tail(v-if="index !== itemsCount - 1")
   b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant")
   .item-content(v-if="!item.spinner")
+
     .d-flex.w-100.justify-content-between.font-weight-bold
-      h5.mb-1.truncate(v-html="item.title", :title="textTitle(item.title)")
+      .mb-1.truncate(
+        :title="cleanTags(item.title)",
+        v-html="item.title",
+        v-b-toggle="`content-${index}`"
+      )
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
-        :title="$utils.tsToAdDateStr(item.timestamp, true)",
+        :title="item.create_datetime",
         :variant="'muted'"
-        v-b-tooltip="humanFriendlyTime ? formatFull(item.timestamp) : formatAgo(item.timestamp)"
-      ) {{ displayTimestamp(item.timestamp) }}
-    .item-description(v-html="cleanText(item.content)")
+        v-b-tooltip="item.create_datetime"
+      ) {{ displayTimestamp(item.create_datetime) }}
+
+    .small.mb-1.text-muted.w-100.truncate(
+      :id="`content-${index}-preview`"
+    ) {{ cleanTags(item.content) }}
+
+    b-collapse.item-description(
+      :id="`content-${index}`",
+      v-html="cleanText(item.content)"
+    )
 </template>
 
 <script>
-import { format, formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
 import DOMPurify from 'dompurify'
@@ -30,28 +43,29 @@ export default {
   name: 'LahNotificationTimeline',
   props: {
     /**
-     * [{ timestamp: +new Date(), title: '...', content: '...'}, { ... }, ...]
+     * [{ create_datetime: '2022-04-20 15:16:00', title: '...', content: '...'}, { ... }, ...]
      */
     items: { type: Array, default: () => ([]) },
     reverse: { type: Boolean, default: false },
     dateFormat: { type: String, default: 'yyyy-MM-dd HH:mm:ss' },
     variant: { type: String, default: 'primary' },
-    humanFriendlyTime: { type: Boolean, default: true }
+    humanFriendlyTime: { type: Boolean, default: true },
+    loading: { type: Boolean, default: false }
   },
   computed: {
     bootstrapVariant () {
       return this.variant || 'primary'
     },
     itemsCount () {
-      if (this.isBusy) {
+      if (this.loading) {
         return this.items.length + 1
       }
       return this.items.length
     },
     orderedItems () {
       let items = this.items
-      if (this.isBusy) {
-        items = [...items, { spinner: true, timestamp: 'time', title: 'loading' }]
+      if (this.loading) {
+        items = [...items, { spinner: true, create_datetime: 'time', title: 'loading' }]
       }
       if (this.reverse) {
         items.reverse()
@@ -63,20 +77,17 @@ export default {
     console.log(this.orderedItems)
   },
   methods: {
-    formatAgo (timestamp) {
-      return formatDistanceToNow(timestamp, { addSuffix: true, locale: zhTW })
-    },
-    formatFull (timestamp) {
-      const dateFormat = this.dateFormat || 'yyyy-MM-dd HH:mm:ss'
-      return format(timestamp, dateFormat, { locale: zhTW })
-    },
-    displayTimestamp (timestamp) {
-      return this.humanFriendlyTime ? this.formatAgo(timestamp) : this.formatFull(timestamp)
+    displayTimestamp (datetimeStr) {
+      return this.humanFriendlyTime ? formatDistanceToNow(Date.parse(datetimeStr), { addSuffix: true, locale: zhTW }) : datetimeStr
     },
     cleanText (text) {
-      return DOMPurify?.sanitize(marked.parse(text?.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
+      const domsafe = DOMPurify?.sanitize(marked.parse(text?.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
+      return this.removeBase64Img(domsafe)
     },
-    textTitle (title) {
+    removeBase64Img (text) {
+      return text?.replaceAll(/!\[.+\]\(data:image\/.+\)/gm, '')
+    },
+    cleanTags (title) {
       return this.cleanText(title)?.replace(/(<([^>]+)>)/gi, '')
     }
   }
