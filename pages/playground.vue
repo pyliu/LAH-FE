@@ -214,32 +214,10 @@ export default {
     }
   },
   created () {
-    this.chartLoadData()
+    // this.chartLoadData()
   },
   mounted () {
     this.loadAnnouncements()
-    this.isBusy = true
-    this.$axios
-      .post(this.$consts.API.JSON.QUERY, {
-        type: 'ping',
-        ip: this.$config.websocketHost,
-        port: this.$config.websocketPort
-      })
-      .then(({ data }) => {
-        this.pingLatency = data.latency
-        this.pingMessage = data.message
-        if (this.$utils.statusCheck(data.status)) {
-          this.connect()
-        } else {
-          this.notify(data.message, { type: 'warning' })
-        }
-      })
-      .catch((err) => {
-        this.error = err
-      })
-      .finally(() => {
-        this.isBusy = false
-      })
   },
   methods: {
     formatDate (d) {
@@ -539,6 +517,30 @@ export default {
         }
         this.list = [...this.list, { type: 'remote', ...response }]
       }
+    },
+    ping () {
+      this.isBusy = true
+      this.$axios
+        .post(this.$consts.API.JSON.QUERY, {
+          type: 'ping',
+          ip: this.$config.websocketHost,
+          port: this.$config.websocketPort
+        })
+        .then(({ data }) => {
+          this.pingLatency = data.latency
+          this.pingMessage = data.message
+          if (this.$utils.statusCheck(data.status)) {
+            this.connect()
+          } else {
+            this.notify(data.message, { type: 'warning' })
+          }
+        })
+        .catch((err) => {
+          this.error = err
+        })
+        .finally(() => {
+          this.isBusy = false
+        })
     },
     loadAnnouncements () {
       this.isBusy = true
