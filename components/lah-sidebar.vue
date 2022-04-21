@@ -21,6 +21,10 @@ b-sidebar#lah-sidebar(
         #[font-awesome-icon.fixed-width(:icon="['fas', 'home']", pull="left", size="lg")]
         首頁
 
+      li: hr
+
+      li: lah-sidebar-announcement
+
       li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
 
       li(v-if="authority.isAdmin"): nuxt-link(to="/admin").

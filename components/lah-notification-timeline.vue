@@ -123,7 +123,7 @@ export default {
   position: relative;
   border: none;
   margin: 0;
-  padding: 0 0 20px;
+  // padding: 0 0 20px;
   box-sizing: border-box;
 }
 .item-head {
