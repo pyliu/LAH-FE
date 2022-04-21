@@ -5,7 +5,7 @@ div
     v-for="(item, index) in orderedItems",
     :key="`${item.create_datetime}-${item.title}-${index}`"
   )
-    .item-head(:class="[bootstrapVariant]")
+    .item-head(:class="[itemVariant(item)]")
     .item-tail(v-if="index !== itemsCount - 1")
     b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant")
     .item-content(v-if="!item.spinner")
@@ -42,6 +42,8 @@ import { formatDistanceToNow } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
+import { markedImages } from 'marked-images'
+// marked.use(markedImages)
 
 export default {
   name: 'LahNotificationTimeline',
@@ -81,12 +83,22 @@ export default {
     console.log(this.orderedItems)
   },
   methods: {
+    itemVariant (item) {
+      const priority = parseInt(item.priority) || 0
+      switch (priority) {
+        case 0: return 'danger'
+        case 1: return 'warning'
+        case 2: return 'info'
+        default: return 'secondary'
+      }
+    },
     displayTimestamp (datetimeStr) {
       return this.humanFriendlyTime ? formatDistanceToNow(Date.parse(datetimeStr), { addSuffix: true, locale: zhTW }) : datetimeStr
     },
     cleanText (text) {
       const domsafe = DOMPurify?.sanitize(marked.parse(text?.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
-      return this.removeBase64Img(domsafe)
+      // return this.removeBase64Img(domsafe)
+      return domsafe
     },
     removeBase64Img (text) {
       return text?.replaceAll(/!\[.+\]\(data:image\/.+\)/gm, '')
