@@ -49,9 +49,11 @@ b-card.p-3.border-0(no-body)
 import { formatDistanceToNow } from 'date-fns'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
+import lahUserCard from '~/components/lah-user-card.vue'
 
 export default {
   name: 'LahNotificationTimeline',
+  components: { lahUserCard },
   props: {
     /**
      * [{ create_datetime: '2022-04-20 15:16:00', title: '...', content: '...'}, { ... }, ...]
