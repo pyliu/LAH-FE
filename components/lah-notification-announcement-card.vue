@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import DOMPurify from 'dompurify'
-import { marked } from 'marked'
 import isEmpty from 'lodash/isEmpty'
 export default {
   props: {
@@ -54,10 +52,8 @@ export default {
       return this.userNames ? `${this.dataJson.sender} ${this.userNames[this.dataJson.sender]}` : this.dataJson.sender
     },
     content () {
-      if (isEmpty(this.dataJson.content) || !DOMPurify?.sanitize) {
-        return ''
-      }
-      return DOMPurify?.sanitize(marked.parse(this.dataJson.content.replaceAll('\n', '  \n')))
+      // return DOMPurify?.sanitize(marked.parse(this.dataJson.content.replaceAll('\n', '  \n')))
+      return this.$utils.convertMarkd(this.dataJson.content)
     }
   }
 }

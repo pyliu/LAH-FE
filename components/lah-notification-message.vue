@@ -25,7 +25,8 @@ export default {
       if (isEmpty(this.dataJson.content)) {
         return ''
       }
-      return DOMPurify?.sanitize(marked.parse(this.dataJson.content.replaceAll('\n', '  \n')))
+      // return DOMPurify?.sanitize(marked.parse(this.dataJson.content.replaceAll('\n', '  \n')))
+      return this.$utils.convertMarkd(this.dataJson.content)
     }
   },
   methods: {}

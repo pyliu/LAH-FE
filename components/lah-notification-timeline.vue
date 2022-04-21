@@ -40,10 +40,6 @@ div
 import { formatDistanceToNow } from 'date-fns'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
-import DOMPurify from 'dompurify'
-import { marked } from 'marked'
-import { markedImages } from 'marked-images'
-// marked.use(markedImages)
 
 export default {
   name: 'LahNotificationTimeline',
@@ -96,8 +92,9 @@ export default {
       return this.humanFriendlyTime ? formatDistanceToNow(Date.parse(datetimeStr), { addSuffix: true, locale: zhTW }) : datetimeStr
     },
     cleanText (text) {
-      const domsafe = DOMPurify?.sanitize(marked.parse(text?.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
+      // const domsafe = DOMPurify?.sanitize(marked.parse(text?.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
       // return this.removeBase64Img(domsafe)
+      const domsafe = this.$utils.convertMarkd(text)
       return domsafe
     },
     removeBase64Img (text) {

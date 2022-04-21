@@ -17,6 +17,12 @@ import { format, formatDistanceToNow } from 'date-fns'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
 
+import DOMPurify from 'dompurify'
+import { marked } from 'marked'
+marked.setOptions({
+  breaks: true
+})
+
 export default ({ $axios, store }, inject) => {
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
@@ -153,6 +159,13 @@ export default ({ $axios, store }, inject) => {
     uniqBy,
     orderBy,
     md5: _md5,
+    /**
+     * marked
+     */
+    marked,
+    convertMarkd (text) {
+      return DOMPurify?.sanitize(marked.parse(text?.trimEnd()))
+    },
     /**
      * usage in Vue
      * this.$utils.animated('.my-element', { name: 'bounce', duration: 'faster', delay: '' }).then((message) => {

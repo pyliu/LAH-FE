@@ -122,7 +122,10 @@ export default {
       }
       return `${this.message}${imgMdText}`
     },
-    markdMergedMessage () { return DOMPurify?.sanitize(marked.parse(this.mergedMessage.replaceAll('\n', '  \n'))) },
+    markdMergedMessage () {
+      // return DOMPurify?.sanitize(marked.parse(this.mergedMessage.replaceAll('\n', '  \n')))
+      return this.$utils.convertMarkd(this.mergedMessage)
+    },
     announcementJson () {
       // announcement-card required json
       return {
