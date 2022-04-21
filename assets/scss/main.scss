@@ -84,6 +84,13 @@ blockquote p {
   border-width: 2px;
 }
 
+.timeline-img {
+  img {
+    max-width: 98%;
+    cursor: pointer;
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;

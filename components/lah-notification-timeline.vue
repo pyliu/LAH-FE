@@ -25,13 +25,14 @@ div
           v-b-tooltip="item.create_datetime"
         ) {{ displayTimestamp(item.create_datetime) }}
 
-      b-collapse.small.mb-1.text-muted.w-100.truncate(
+      b-collapse(
         :id="`content-${index}-preview`",
         visible
-      ) {{ cleanTags(item.content) }}
+      ): .small.mb-1.text-muted.w-100.truncate
+        |{{ cleanTags(item.content) }}
 
-      b-collapse.item-description(
-        :id="`content-${index}`",
+      b-collapse(:id="`content-${index}`"): .item-description.timeline-img(
+        @click="handleContentClick($event)",
         v-html="cleanText(item.content)"
       )
 </template>
@@ -92,16 +93,26 @@ export default {
       return this.humanFriendlyTime ? formatDistanceToNow(Date.parse(datetimeStr), { addSuffix: true, locale: zhTW }) : datetimeStr
     },
     cleanText (text) {
-      // const domsafe = DOMPurify?.sanitize(marked.parse(text?.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
-      // return this.removeBase64Img(domsafe)
       const domsafe = this.$utils.convertMarkd(text)
-      return domsafe
+      // convert for images ...
+      return this.$utils.convertInlineMarkd(domsafe?.replaceAll('\n', ''))
     },
     removeBase64Img (text) {
       return text?.replaceAll(/!\[.+\]\(data:image\/.+\)/gm, '')
     },
     cleanTags (title) {
       return this.cleanText(title)?.replace(/(<([^>]+)>)/gi, '')
+    },
+    handleContentClick (event) {
+      if (this.$utils.equal(event.target.tagName, 'IMG')) {
+        this.modal(this.$createElement('IMG', {
+          attrs: { src: event.target.src },
+          class: ['img-thumbnail', 'img-fluid', 'rounded', 'mx-auto', 'd-block']
+        }), {
+          size: 'lg',
+          title: `顯示圖片 - alt: ${event.target.alt}`
+        })
+      }
     }
   }
 }

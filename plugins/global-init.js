@@ -163,8 +163,14 @@ export default ({ $axios, store }, inject) => {
      * marked
      */
     marked,
-    convertMarkd (text) {
+    convertMarkd (text, inline = false) {
+      if (inline) {
+        return DOMPurify?.sanitize(marked.parseInline(text?.trimEnd()))
+      }
       return DOMPurify?.sanitize(marked.parse(text?.trimEnd()))
+    },
+    convertInlineMarkd (text) {
+      return DOMPurify?.sanitize(marked.parseInline(text?.trimEnd()))
     },
     /**
      * usage in Vue
