@@ -37,7 +37,12 @@ div
           v-html="cleanText(item.content)"
         )
         .d-flex.justify-content-end.small.text-muted.mt-2
-          .sender-tag.rounded {{ displaySender(item) }}
+          b-button(
+            variant="outline-secondary",
+            size="sm",
+            title="顯示使用者資訊",
+            @click="showUserCard(item)"
+          ) {{ displaySender(item) }}
 </template>
 
 <script>
@@ -119,6 +124,14 @@ export default {
           title: `顯示圖片 - alt: ${event.target.alt}`
         })
       }
+    },
+    showUserCard (item) {
+      const h = this.$createElement
+      this.modal(h('lah-user-card', {
+        props: { id: item.sender }
+      }), {
+        title: `使用者資訊 - ${this.userNames[item.sender]}`
+      })
     }
   }
 }
@@ -155,10 +168,6 @@ export default {
 .item-description {
   display: block;
   text-align: left;
-}
-.sender-tag {
-  border: 1px solid gray;
-  padding: 3px 5px;
 }
 .primary {
   background-color: #007bff;
