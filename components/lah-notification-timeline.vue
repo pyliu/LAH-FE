@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+b-card.p-3.border-0(no-body)
   .center(v-if="itemsCount === 0") ⚠ 無資料
   b-list-group(v-else): b-list-group-item.flex-column.align-items-start(
     v-for="(item, index) in orderedItems",
@@ -144,6 +144,7 @@ export default {
   margin: 0;
   padding: 0 0 20px;
   box-sizing: border-box;
+  padding-bottom: 0;
 }
 .item-head {
   position: absolute;
