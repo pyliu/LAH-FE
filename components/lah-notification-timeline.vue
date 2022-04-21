@@ -31,10 +31,13 @@ div
       ): .small.mb-1.text-muted.w-100.truncate
         |{{ cleanTags(item.content) }}
 
-      b-collapse(:id="`content-${index}`"): .item-description.timeline-img(
-        @click="handleContentClick($event)",
-        v-html="cleanText(item.content)"
-      )
+      b-collapse(:id="`content-${index}`")
+        .item-description.timeline-img(
+          @click="handleContentClick($event)",
+          v-html="cleanText(item.content)"
+        )
+        .d-flex.justify-content-end.small.text-muted.mt-2
+          .sender-tag.rounded {{ displaySender(item) }}
 </template>
 
 <script>
@@ -91,6 +94,9 @@ export default {
     },
     displayTimestamp (datetimeStr) {
       return this.humanFriendlyTime ? formatDistanceToNow(Date.parse(datetimeStr), { addSuffix: true, locale: zhTW }) : datetimeStr
+    },
+    displaySender (item) {
+      return `${item.sender} ${this.userNames[item.sender]}`
     },
     cleanText (text) {
       const domsafe = this.$utils.convertMarkd(text)
@@ -149,6 +155,10 @@ export default {
 .item-description {
   display: block;
   text-align: left;
+}
+.sender-tag {
+  border: 1px solid gray;
+  padding: 3px 5px;
 }
 .primary {
   background-color: #007bff;
