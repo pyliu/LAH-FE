@@ -154,22 +154,22 @@ export default {
         key: '義務人姓名',
         sortable: true
       },
-      {
-        key: '土地筆數',
-        sortable: true
-      },
-      {
-        key: '土地面積',
-        sortable: true
-      },
-      {
-        key: '建物筆數',
-        sortable: true
-      },
-      {
-        key: '建物面積',
-        sortable: true
-      },
+      // {
+      //   key: '土地筆數',
+      //   sortable: true
+      // },
+      // {
+      //   key: '土地面積',
+      //   sortable: true
+      // },
+      // {
+      //   key: '建物筆數',
+      //   sortable: true
+      // },
+      // {
+      //   key: '建物面積',
+      //   sortable: true
+      // },
       {
         key: '外國人類別',
         sortable: true
