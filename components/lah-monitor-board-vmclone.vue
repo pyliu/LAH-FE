@@ -40,7 +40,13 @@ b-card
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
       div 🟡 表示{{ fetchDay }}日內找不到 VM CLONE 訊息
-      div 🔴 表示 VM CLONE 排程中任一個失敗
+      div 🔴 表示 VM CLONE 排程中超過規定時間未更新
+      .ml-4 周一：135 → 3天、24 → 4天、7 → 2天
+      .ml-4 周二：135 → 1天、24 → 5天、7 → 3天
+      .ml-4 周三：135 → 2天、24 → 1天、7 → 4天
+      .ml-4 周四：135 → 1天、24 → 2天、7 → 5天
+      .ml-4 周五：135 → 2天、24 → 1天、7 → 6天
+      .ml-4 周六：135 → 1天、24 → 2天、7 → 7天
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
