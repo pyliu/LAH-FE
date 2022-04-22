@@ -7,7 +7,7 @@ b-card.p-3.border-0(no-body)
   )
     .item-head(:class="[itemVariant(item)]")
     .item-tail(v-if="index !== itemsCount - 1")
-    b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant")
+    b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", size="sm")
     .item-content(v-if="!item.spinner")
 
       .d-flex.w-100.justify-content-between.font-weight-bold
