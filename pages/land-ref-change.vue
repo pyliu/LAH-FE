@@ -171,11 +171,11 @@ export default {
         label: '異動別',
         sortable: true
       },
-      {
-        key: 'GG30_2',
-        label: '其他登記事項',
-        sortable: true
-      },
+      // {
+      //   key: 'GG30_2',
+      //   label: '其他登記事項',
+      //   sortable: true
+      // },
       {
         key: 'AF08',
         label: '土參類別',
