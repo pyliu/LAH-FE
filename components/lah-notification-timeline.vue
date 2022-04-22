@@ -1,48 +1,49 @@
 <template lang="pug">
 b-card.p-3.border-0(no-body)
   .center(v-if="itemsCount === 0") ⚠ 無資料
-  b-list-group(v-else): b-list-group-item.flex-column.align-items-start(
-    v-for="(item, index) in orderedItems",
-    :key="`${item.create_datetime}-${item.title}-${index}`"
-  )
-    .item-head(:class="[itemVariant(item)]")
-    .item-tail(v-if="index !== itemsCount - 1")
-    b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", size="sm")
-    .item-content(v-if="!item.spinner")
+  b-list-group(v-else)
+    transition-group(name="list"): b-list-group-item.flex-column.align-items-start(
+      v-for="(item, index) in orderedItems",
+      :key="`${item.create_datetime}-${item.title}-${index}`"
+    )
+      .item-head(:class="[itemVariant(item)]")
+      .item-tail(v-if="index !== itemsCount - 1")
+      b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", size="sm")
+      .item-content(v-if="!item.spinner")
 
-      .d-flex.w-100.justify-content-between.font-weight-bold
-        a.mb-1.truncate(
-          :title="cleanTags(item.title)",
-          v-html="item.title",
-          v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
-          href="javascript:void(0)"
-        )
-        lah-fa-icon.small.my-auto.text-nowrap(
-          icon="clock",
-          regular,
-          :title="item.create_datetime",
-          :variant="'muted'"
-          v-b-tooltip="item.create_datetime"
-        ) {{ displayTimestamp(item.create_datetime) }}
+        .d-flex.w-100.justify-content-between.font-weight-bold
+          a.mb-1.truncate(
+            :title="cleanTags(item.title)",
+            v-html="item.title",
+            v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
+            href="javascript:void(0)"
+          )
+          lah-fa-icon.small.my-auto.text-nowrap(
+            icon="clock",
+            regular,
+            :title="item.create_datetime",
+            :variant="'muted'"
+            v-b-tooltip="item.create_datetime"
+          ) {{ displayTimestamp(item.create_datetime) }}
 
-      b-collapse(
-        :id="`content-${index}-preview`",
-        visible
-      ): .small.mb-1.text-muted.w-100.truncate
-        |{{ cleanTags(item.content) }}
+        b-collapse(
+          :id="`content-${index}-preview`",
+          visible
+        ): .small.mb-1.text-muted.w-100.truncate
+          |{{ cleanTags(item.content) }}
 
-      b-collapse(:id="`content-${index}`")
-        .item-description.timeline-img(
-          @click="handleContentClick($event)",
-          v-html="cleanText(item.content)"
-        )
-        .d-flex.justify-content-end.small.text-muted.mt-2
-          b-button(
-            variant="outline-secondary",
-            size="sm",
-            title="顯示使用者資訊",
-            @click="showUserCard(item)"
-          ) {{ displaySender(item) }}
+        b-collapse(:id="`content-${index}`")
+          .item-description.timeline-img(
+            @click="handleContentClick($event)",
+            v-html="cleanText(item.content)"
+          )
+          .d-flex.justify-content-end.small.text-muted.mt-2
+            b-button(
+              variant="outline-secondary",
+              size="sm",
+              title="顯示使用者資訊",
+              @click="showUserCard(item)"
+            ) {{ displaySender(item) }}
 </template>
 
 <script>
