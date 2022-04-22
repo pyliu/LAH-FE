@@ -112,9 +112,8 @@ export default {
       })
     },
     reset () {
-      this.timelineItems.length = 0
+      this.timelineItems.splice(1, this.itemCount - 1)
       this.selectedCount = this.loadCount
-      this.loadFirst()
     }
   }
 }
