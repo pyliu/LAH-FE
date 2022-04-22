@@ -85,7 +85,7 @@ export default {
         type: 'get_notification_before',
         channel: 'announcement',
         before: this.lastId,
-        limit: this.loadCount
+        limit: this.selectedCount
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           if (data.data_count === 0) {
