@@ -7,18 +7,25 @@ b-card(no-body, title="最新公告").announcement-timeline
   .d-flex.justify-content-end(v-if="!noMore && loadButton")
     b-button-group(size="sm")
       lah-button.border-0(
+        v-if="itemCount !== 1"
+        icon="undo-alt",
+        title="回復預設顯示",
+        variant="outline-success",
+        action="cycle-alt",
+        @click="reset",
+        no-icon-gutter
+      )
+      b-select.border-0(
+        v-model="selectedCount",
+        :options="[1, 3, 5]"
+      )
+      lah-button.border-0(
         icon="caret-down",
-        size="sm",
         title="讀取更多 ... ",
         variant="outline-secondary",
         action="move-fade-ttb",
         @click="loadMore",
         no-icon-gutter
-      )
-      b-select.border-0(
-        v-model="selectedCount",
-        size="sm",
-        :options="[1, 3, 5]"
       )
 
 </template>
@@ -103,6 +110,11 @@ export default {
       }).finally(() => {
         this.isBusy = false
       })
+    },
+    reset () {
+      this.timelineItems.length = 0
+      this.selectedCount = this.loadCount
+      this.loadFirst()
     }
   }
 }
