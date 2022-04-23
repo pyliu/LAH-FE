@@ -1,8 +1,7 @@
 <template lang="pug">
 b-card(no-body, title="最新公告").announcement-timeline
   lah-notification-timeline(
-    :items="timelineItems",
-    :loading="isBusy"
+    :items="timelineItems"
   )
   .d-flex.justify-content-end(v-if="!noMore && loadButton")
     b-button-group(size="sm")

@@ -8,7 +8,7 @@ b-card.p-3.border-0(no-body)
     )
       .item-head(:class="[itemVariant(item)]")
       .item-tail(v-if="index !== itemsCount - 1")
-      //- b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", small)
+      b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", small)
       .item-content(v-if="!item.spinner")
 
         .d-flex.w-100.justify-content-between.font-weight-bold
@@ -71,10 +71,7 @@ export default {
       return this.variant || 'primary'
     },
     itemsCount () {
-      if (this.loading) {
-        return this.items.length + 1
-      }
-      return this.items.length
+      return this.orderedItems.length
     },
     orderedItems () {
       let items = this.items
