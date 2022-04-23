@@ -363,6 +363,16 @@ Vue.mixin({
         }
       })
     },
+    info (message, opts = {}) {
+      if (!isEmpty(message)) {
+        const merged = Object.assign({
+          title: '訊息',
+          autoHideDelay: 5000,
+          variant: 'info'
+        }, opts)
+        this.notify(message, merged)
+      }
+    },
     success (message, opts = {}) {
       if (!isEmpty(message)) {
         const merged = Object.assign({

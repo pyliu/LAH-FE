@@ -94,11 +94,16 @@ export default {
         limit: this.selectedCount
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
-          if (data.data_count === 0) {
+          const loadedCount = data.data_count
+          if (loadedCount === 0) {
             this.warning('沒有更多公告')
             this.noMore = true
           } else {
             this.timelineItems = [...this.timelineItems, ...data.raw]
+            if (loadedCount < this.selectedCount) {
+              this.noMore = true
+              this.info('已無更多公告')
+            }
           }
         } else {
           this.$utils.warn(data.message)
