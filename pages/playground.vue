@@ -116,6 +116,34 @@ div: client-only
         :items="timelineItems",
         :loading="isBusy"
       )
+
+    b-card
+      template(#header): .d-flex: .text-nowrap.my-auto 罕用字測試
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+      span 
+
 </template>
 
 <script>

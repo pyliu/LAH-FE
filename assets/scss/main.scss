@@ -20,6 +20,13 @@
   display: none;
 }
 
+@font-face {
+  font-family: EUDC;
+  src:url('../webfonts/eudc_H.woff');
+  src:url('../webfonts/eudc_H.woff') format('woff'),
+	    url('../webfonts/EUDC.TTF') format('truetype');
+}
+
 html, body { 
   height: 100vh;
   width: 100%;
@@ -27,6 +34,7 @@ html, body {
   padding: 0;
   min-width: 1012px;
   scroll-behavior: smooth;
+  font-family: 'Microsoft JhengHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'EUDC';
 }
 
 body::-webkit-scrollbar {
