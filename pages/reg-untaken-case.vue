@@ -19,7 +19,7 @@ div
           hr
           h5 請參照下列步驟搜尋
           ol
-            li 選擇日期區間(預設為今天)
+            li 選擇日期區間(預設為本月份)
             li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
       .d-flex.small

@@ -214,7 +214,7 @@ export default {
     }
   },
   created () {
-    // this.chartLoadData()
+    this.chartLoadData()
   },
   mounted () {
     this.loadAnnouncements()
