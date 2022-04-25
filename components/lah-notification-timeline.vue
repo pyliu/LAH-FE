@@ -6,7 +6,7 @@ b-card.p-3.border-0(no-body)
       v-for="(item, index) in orderedItems",
       :key="`${item.create_datetime}-${item.title}-${index}`"
     )
-      .item-head(:class="[itemVariant(item)]")
+      .item-head(:class="[itemVariant(item)]", :title="`緊急程度：${itemUrgency(item)}`")
       .item-tail(v-if="index !== itemsCount - 1")
       b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", small)
       .item-content(v-if="!item.spinner")
@@ -95,6 +95,15 @@ export default {
         case 1: return 'warning'
         case 2: return 'info'
         default: return 'secondary'
+      }
+    },
+    itemUrgency (item) {
+      const priority = parseInt(item.priority) || 0
+      switch (priority) {
+        case 0: return '最高'
+        case 1: return '高'
+        case 2: return '中'
+        default: return '正常'
       }
     },
     displayTimestamp (datetimeStr) {
