@@ -44,7 +44,7 @@
           @end="$fetch"
           @click="reload"
         )
-    lah-transition(fade): lah-expiry-b-table(:busy="isBusy" :reviewer-id="reviewerId")
+    lah-transition(fade): lah-expiry-b-table(:busy="isBusy" :reviewer-id="reviewerId" only-popup-detail)
     lah-transition.center.h3: lah-fa-icon(v-cloak v-if="queryCountById === 0 && committed" icon="exclamation-circle" prefix="fas") 無資料
 </template>
 
