@@ -76,7 +76,7 @@ div
     add-button-variant="white"
     add-button-text=""
   )
-  lah-transition(appear): lah-expiry-b-table(:busy="!committed || filtering")
+  lah-transition(appear): lah-expiry-b-table(:busy="!committed || filtering", only-popup-detail)
   lah-transition.center.h3
     lah-fa-icon(
       v-cloak

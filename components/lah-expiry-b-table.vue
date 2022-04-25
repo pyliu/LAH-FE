@@ -38,12 +38,19 @@
         {{ data.index + 1 }}
       </template>
       <template #cell(收件字號)="data">
-        <NuxtLink :to="`/regcase/${data.value}`">
+        <span v-if="onlyPopupDetail">
+          <b-link @click="popup(data)">{{ data.value }} <lah-fa-icon icon="window-restore" regular /></b-link>
+        </span>
+        <span v-else>
+          <NuxtLink :to="`/regcase/${data.value}`">{{ data.value }}</NuxtLink>
+          <b-link @click="popup(data)"><lah-fa-icon icon="window-restore" regular /></b-link>
+        </span>
+        <!-- <NuxtLink :to="`/regcase/${data.value}`">
           {{ data.value }}
         </NuxtLink>
         <b-link @click="popup(data)">
           <lah-fa-icon icon="window-restore" regular />
-        </b-link>
+        </b-link> -->
       </template>
       <template #cell(初審人員)="data">
         <b-button
@@ -121,7 +128,8 @@ export default {
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
-    maxHeightOffset: { type: Number, default: 105 }
+    maxHeightOffset: { type: Number, default: 105 },
+    onlyPopupDetail: { type: Boolean, default: false }
   },
   data: () => ({
     fields: [
