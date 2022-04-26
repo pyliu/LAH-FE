@@ -62,74 +62,83 @@ div
   )
 
   lah-pagination(
+    v-if="queryCount > 0"
     v-model="pagination"
     :total-rows="queryCount"
     :caption="foundText"
   )
 
-  lah-transition: b-table.text-center(
-    v-if="committed"
-    id="land-ref-table"
-    ref="table"
-    caption-top
-    selectable
-    select-mode="single"
-    selected-variant="success"
-    :sticky-header="`${maxHeight}px`"
-    :busy="isBusy"
-    :items="filteredData"
-    :responsive="'lg'"
-    :striped="true"
-    :hover="true"
-    :bordered="true"
-    :borderless="false"
-    :outlined="false"
-    :small="true"
-    :dark="false"
-    :fixed="false"
-    :foot-clone="false"
-    :no-border-collapse="true"
-    :head-variant="'dark'"
-    :fields="fields"
-    :per-page="pagination.perPage"
-    :current-page="pagination.currentPage"
-  )
-    template(#table-busy): span.ld-txt 讀取中...
-    template(v-slot:cell(#)="{ item, index, rowSelected }")
-      template(v-if="rowSelected")
-        span(aria-hidden="true") &check;
-        span.sr-only 勾選
-      template(v-else)
-        span(aria-hidden="true") &nbsp;
-        span.sr-only 無勾選
-      span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-    template(#cell(MM01)="{ item: { MM01, MM02, MM02_CHT, MM03 } }")
-      b-link.text-nowrap(
-        :href="caseQueryUrl(MM01, MM02, MM03)",
-        rel="noreferrer noopener",
-        target="_blank",
-        title="開啟新視窗查詢地政系統資料"
-      ) {{ MM01 }}-{{ MM02 }}({{ MM02_CHT }})-{{ MM03 }} #[lah-fa-icon(icon="external-link-alt")]
-    template(#cell(MM06)="{ item: { MM06, MM06_CHT } }"): .text-nowrap {{ MM06 }} : {{ MM06_CHT }}
-    template(#cell(MM22)="{ item: { MM22, MM22_CHT, MD12, MD12_CHT } }")
-      .text-nowrap(:title="MD12_CHT") {{ MM22 }} : {{ MM22_CHT }} #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")]
-    template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
-      b-link(v-if="!$utils.empty(MD04)", @click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") #[.text-nowrap {{ MD04_CHT }}]
-      b.text-nowrap.text-danger(v-else) 無設定
-    template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
-    template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2, MD12, MD12_CHT } }")
-      div.p-1.m-1(
-        v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
-        style="border: 2px dashed red",
-        :title="`延期複丈原因：${MD12_CHT}，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
-      ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
-      span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
-    template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
-    template(#cell(MM21_1)="{ item: { MM21_1, MM21_2 } }"): span {{ humanDate(MM21_1) }} {{ humanTime(MM21_2) }}
-    template(#cell(note)="{ item: { MD09, MD10 } }")
-      .flex-column
-        div(v-if="!$utils.empty(MD09)") 通知補正：{{ humanDate(MD09) }}
-        div(v-if="!$utils.empty(MD10)") 補正期滿：{{ humanDate(MD10) }}
+  lah-transition
+    b-table.text-center(
+      v-if="queryCount > 0"
+      id="land-ref-table"
+      ref="table"
+      caption-top
+      selectable
+      select-mode="single"
+      selected-variant="success"
+      :sticky-header="`${maxHeight}px`"
+      :busy="isBusy"
+      :items="filteredData"
+      :responsive="'lg'"
+      :striped="true"
+      :hover="true"
+      :bordered="true"
+      :borderless="false"
+      :outlined="false"
+      :small="true"
+      :dark="false"
+      :fixed="false"
+      :foot-clone="false"
+      :no-border-collapse="true"
+      :head-variant="'dark'"
+      :fields="fields"
+      :per-page="pagination.perPage"
+      :current-page="pagination.currentPage"
+    )
+      template(#table-busy): span.ld-txt 讀取中...
+      template(v-slot:cell(#)="{ item, index, rowSelected }")
+        template(v-if="rowSelected")
+          span(aria-hidden="true") &check;
+          span.sr-only 勾選
+        template(v-else)
+          span(aria-hidden="true") &nbsp;
+          span.sr-only 無勾選
+        span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
+      template(#cell(MM01)="{ item: { MM01, MM02, MM02_CHT, MM03 } }")
+        b-link.text-nowrap(
+          :href="caseQueryUrl(MM01, MM02, MM03)",
+          rel="noreferrer noopener",
+          target="_blank",
+          title="開啟新視窗查詢地政系統資料"
+        ) {{ MM01 }}-{{ MM02 }}({{ MM02_CHT }})-{{ MM03 }} #[lah-fa-icon(icon="external-link-alt")]
+      template(#cell(MM06)="{ item: { MM06, MM06_CHT } }"): .text-nowrap {{ MM06 }} : {{ MM06_CHT }}
+      template(#cell(MM22)="{ item: { MM22, MM22_CHT, MD12, MD12_CHT } }")
+        .text-nowrap(:title="MD12_CHT") {{ MM22 }} : {{ MM22_CHT }} #[lah-fa-icon(v-if="becauseOfRain(MD12)", icon="cloud-rain", variant="primary")]
+      template(#cell(MD04)="{ item: { MD04, MD04_CHT } }")
+        b-link(v-if="!$utils.empty(MD04)", @click="userinfo(MD04_CHT, MD04)"): b-button(variant="outline-secondary", size="sm", pill): lah-avatar(:id="MD04" :name="MD04_CHT") #[.text-nowrap {{ MD04_CHT }}]
+        b.text-nowrap.text-danger(v-else) 無設定
+      template(#cell(MM04_1)="{ item: { MM04_1, MM04_2 } }"): span {{ humanDate(MM04_1) }} {{ humanTime(MM04_2) }}
+      template(#cell(MD05_1)="{ item: { MD05_1, MD05_2, MD13_1, MD13_2, MD12, MD12_CHT } }")
+        div.p-1.m-1(
+          v-if="!$utils.empty(MD13_1) && MD13_1 > MD05_1",
+          style="border: 2px dashed red",
+          :title="`延期複丈原因：${MD12_CHT}，原設定：${humanDate(MD05_1)} ${humanTime(MD05_2)}`"
+        ) {{ humanDate(MD13_1) }} {{ humanTime(MD13_2) }}
+        span(v-else) {{ humanDate(MD05_1) }} {{ humanTime(MD05_2) }}
+      template(#cell(MD06_1)="{ item: { MD06_1, MD06_2 } }"): span {{ humanDate(MD06_1) }} {{ humanTime(MD06_2) }}
+      template(#cell(MM21_1)="{ item: { MM21_1, MM21_2 } }"): span {{ humanDate(MM21_1) }} {{ humanTime(MM21_2) }}
+      template(#cell(note)="{ item: { MD09, MD10 } }")
+        .flex-column
+          div(v-if="!$utils.empty(MD09)") 通知補正：{{ humanDate(MD09) }}
+          div(v-if="!$utils.empty(MD10)") 補正期滿：{{ humanDate(MD10) }}
+
+    .center(v-else): h1
+      lah-fa-icon(
+        icon="exclamation-circle",
+        prefix="fas",
+        variant="success"
+      ) {{ `無${queryText}案件資料` }}
 
   b-modal(
     ref="caseDetail"

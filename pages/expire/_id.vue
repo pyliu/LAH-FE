@@ -1,51 +1,61 @@
 <template lang="pug">
-  div
-    lah-header: lah-transition(appear)
-      .d-flex.justify-content-between.w-100
-        .d-flex
-          lah-button(
-            icon="calendar-check"
-            size="lg"
-            title="按我切換模式"
-            :badgeText="queryCountById.toString()"
-            :variant="switchButtonVariant"
-            :disabled="isBusy"
-            :busy="isBusy"
-            @click="isOverdueMode = !isOverdueMode"
-          ): strong {{ queryTitle }}
-          lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-          lah-help-modal(:modal-id="'help-modal'")
-            .h5.text-nowrap
-              lah-fa-icon.d-flex(icon="lightbulb" regular variant="warning")
-                span.my-auto.mr-1 請使用
-                lah-button(
-                  icon="calendar-check"
-                  title="按我切換模式"
-                  :badgeText="queryCountById.toString()"
-                  :variant="switchButtonVariant"
-                  @click="isOverdueMode = !isOverdueMode"
-                  :disabled="isBusy"
-                  :busy="isBusy"
-                ): strong {{ queryTitle }}
-                span.my-auto.nl-1 切換顯示模式
-        b-link.small.my-auto(v-if="isAuthorized" to="/expire"): lah-fa-icon(icon="arrow-alt-circle-left" prefix="far") 回全部列表
-        lah-countdown-button(
-          auto-start
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
+div
+  lah-header: lah-transition(appear)
+    .d-flex.justify-content-between.w-100
+      .d-flex
+        lah-button(
+          icon="calendar-check"
           size="lg"
-          title="立即重新讀取"
-          variant="outline-secondary"
-          badge-variant="secondary"
-          :milliseconds="900000"
+          title="按我切換模式"
+          :badgeText="queryCountById.toString()"
+          :variant="switchButtonVariant"
           :disabled="isBusy"
           :busy="isBusy"
-          @end="$fetch"
-          @click="reload"
-        )
-    lah-transition(fade): lah-expiry-b-table(:busy="isBusy" :reviewer-id="reviewerId" only-popup-detail)
-    lah-transition.center.h3: lah-fa-icon(v-cloak v-if="queryCountById === 0 && committed" icon="exclamation-circle" prefix="fas") 無資料
+          @click="isOverdueMode = !isOverdueMode"
+        ): strong {{ queryTitle }}
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-help-modal(:modal-id="'help-modal'")
+          .h5.text-nowrap
+            lah-fa-icon.d-flex(icon="lightbulb" regular variant="warning")
+              span.my-auto.mr-1 請使用
+              lah-button(
+                icon="calendar-check"
+                title="按我切換模式"
+                :badgeText="queryCountById.toString()"
+                :variant="switchButtonVariant"
+                @click="isOverdueMode = !isOverdueMode"
+                :disabled="isBusy"
+                :busy="isBusy"
+              ): strong {{ queryTitle }}
+              span.my-auto.nl-1 切換顯示模式
+      b-link.small.my-auto(v-if="isAuthorized" to="/expire"): lah-fa-icon(icon="arrow-alt-circle-left" prefix="far") 回全部列表
+      lah-countdown-button(
+        auto-start
+        ref="countdown"
+        icon="sync-alt"
+        action="ld-cycle"
+        size="lg"
+        title="立即重新讀取"
+        variant="outline-secondary"
+        badge-variant="secondary"
+        :milliseconds="900000"
+        :disabled="isBusy"
+        :busy="isBusy"
+        @end="$fetch"
+        @click="reload"
+      )
+  lah-transition(fade)
+    lah-expiry-b-table(
+      v-if="queryCountById > 0",
+      :busy="isBusy",
+      :reviewer-id="reviewerId",
+      only-popup-detail
+    )
+    .center.h3(v-else): lah-fa-icon(
+      icon="exclamation-circle",
+      prefix="fas",
+      variant="success"
+    ) 無資料
 </template>
 
 <script>
