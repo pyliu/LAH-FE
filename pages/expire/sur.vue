@@ -133,12 +133,7 @@ div
           div(v-if="!$utils.empty(MD09)") 通知補正：{{ humanDate(MD09) }}
           div(v-if="!$utils.empty(MD10)") 補正期滿：{{ humanDate(MD10) }}
 
-    .center(v-else): h1
-      lah-fa-icon(
-        icon="exclamation-circle",
-        prefix="fas",
-        variant="success"
-      ) {{ `無${queryText}案件資料` }}
+    .center(v-else): h3 {{ `無${queryText}案件資料👍` }}
 
   b-modal(
     ref="caseDetail"

@@ -77,13 +77,7 @@ div
     add-button-text=""
   )
   lah-transition(appear): lah-expiry-b-table(:busy="!committed || filtering", only-popup-detail)
-  lah-transition.center.h3
-    lah-fa-icon(
-      v-cloak
-      v-if="queryCount === 0 && committed"
-      icon="exclamation-circle"
-      prefix="fas"
-    ) 無資料
+  lah-transition.center.h3(v-if="queryCount === 0 && committed") 無資料👍
 
   b-modal(
     ref="searchPlus",

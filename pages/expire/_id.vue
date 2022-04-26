@@ -51,11 +51,7 @@ div
       :reviewer-id="reviewerId",
       only-popup-detail
     )
-    .center.h3(v-else): lah-fa-icon(
-      icon="exclamation-circle",
-      prefix="fas",
-      variant="success"
-    ) 無資料
+    .center.h3(v-else) 無資料👍
 </template>
 
 <script>
