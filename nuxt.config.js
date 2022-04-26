@@ -1,3 +1,4 @@
+import pkg from './package.json'
 export default {
   server: {
     // bind to all possible addresses
@@ -121,6 +122,7 @@ export default {
   // should hold all env variables that are public as these will be exposed on the frontend.
   // available using $config in both server and client.
   publicRuntimeConfig: {
+    pkgVersion: pkg.version,
     perPage: process.env.PER_PAGE,
     websocketHost: process.env.WEBSOCKET_HOST,
     websocketPort: process.env.WEBSOCKET_PORT,

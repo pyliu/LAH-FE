@@ -10,7 +10,7 @@ lah-transition(slide-up appear): .d-flex.align-items-center.justify-content-cent
     #[a(href="mailto:pangyu.liu@gmail.com") LIU, PANG-YU]
     ALL RIGHTS RESERVED.
   a(href="https://vuejs.org/" target="_blank" title="Learn Vue JS!"): i.text-success.fab.fa-vuejs.fa-lg
-  .version v20220426
+  .version v{{ $config.pkgVersion }}
 </template>
 
 <script>
