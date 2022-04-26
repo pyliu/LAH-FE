@@ -10,6 +10,7 @@ lah-transition(slide-up appear): .d-flex.align-items-center.justify-content-cent
     #[a(href="mailto:pangyu.liu@gmail.com") LIU, PANG-YU]
     ALL RIGHTS RESERVED.
   a(href="https://vuejs.org/" target="_blank" title="Learn Vue JS!"): i.text-success.fab.fa-vuejs.fa-lg
+  .position-absolute.small(style="right: 10px; bottom: 25%;") v20220426
 </template>
 
 <script>
@@ -28,7 +29,7 @@ export default {
       'text-center',
       'p-2',
       'small',
-      'shadow-xl',
+      'lah-shadow',
       'w-50'
     ]
   }),
