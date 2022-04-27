@@ -7,7 +7,7 @@
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 利用本頁面管理靜態IP對應表
           li 查看使用者回報IP紀錄
-            ul: li 電腦端需安裝 #[b 桃園即時通程式] 並正常連線才能正常回報IP
+            ul: li 電腦端需安裝 #[b 桃園即時通] 並正常連線才能正常回報電腦IP
       .d-flex
 
     b-card-group(deck)
