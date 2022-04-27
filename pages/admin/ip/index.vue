@@ -2,7 +2,7 @@
   div
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto IP對應表管理
+        .my-auto IP對應名稱設定管理
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'"): ol
           li 利用本頁面管理靜態IP對應表
