@@ -45,18 +45,19 @@ b-card
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
   div(v-else)
     .d-flex.justify-content-between.font-weight-bold
+      b-badge.my-auto.mr-1(:variant="light", pill) {{ badgeText }}
       a.truncate(
         href="#",
         @click="popupLogContent(headMessage)",
         title="顯示詳細記錄"
-      ) {{ emojiLight }} {{ extractNodes }}
+      ) {{ extractNodes }}
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
         :title="$utils.tsToAdDateStr(headMessage.timestamp, true)",
         :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(headMessage.timestamp * 1000) }}
-    .truncate.text-muted.small(v-html="extractDNPValues")
+    .text-muted.small.dnp-content(v-html="extractDNPValues")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -105,7 +106,9 @@ export default {
     extractDNPValues () {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.foundDNPValues = [...this.headContent.matchAll(this.dnpRegex)]
-      console.warn(this.foundDNPValues)
+      if (this.foundDNPValues.length > 1) {
+        return this.$utils.convertMarkd('- ' + this.foundDNPValues[0] + '- ' + this.foundDNPValues[1])
+      }
       return this.$utils.convertMarkd(this.foundDNPValues.join('\n'))
     },
     light () {
@@ -124,13 +127,22 @@ export default {
         case 'success': return '🟢'
         default: return '🟡'
       }
+    },
+    badgeText () {
+      switch (this.light) {
+        case 'danger': return 'BROKEN'
+        case 'success': return 'ACTIVE'
+        default: return 'UNKNOWN'
+      }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-ul {
-  padding-left: 21.25px;
+.dnp-content {
+  ul, ol {
+    padding-left: 10.25px;
+  }
 }
 </style>
