@@ -5,6 +5,22 @@ b-card
     strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        icon="exclamation-circle",
+        variant="warning",
+        @click="popupMessages('subject', '異常告警', 1, '異常告警訊息')",
+        pill
+      )
+        span.mr-1 告警
+        b-badge(variant="light", pill) {{ warnings.length }}
+      lah-button.mx-1(
+        icon="check-circle",
+        variant="success",
+        @click="popupMessages('subject', '回復通知', 1, '回復通知訊息')",
+        pill
+      )
+        span.mr-1 回復
+        b-badge(variant="light", pill) {{ restores.length }}
+      lah-button(
         v-if="!footer"
         icon="sync-alt",
         action="ld-cycle",
@@ -44,21 +60,13 @@ b-card
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else)
-    .d-flex.font-weight-bold.justify-content-around.mb-1
-      lah-button(icon="exclamation-circle", variant="warning", @click="popupMessages('subject', '異常告警', 1, '異常告警訊息')", pill)
-        span.mr-1 異常告警
-        b-badge(variant="light", pill) {{ warnings.length }}
-      lah-button(icon="check-circle", variant="success", @click="popupMessages('subject', '回復通知', 1, '回復通知訊息')", pill)
-        span.mr-1 回復通知
-        b-badge(variant="light", pill) {{ restores.length }}
-
     .font-weight-bold.h6 #[lah-fa-icon(icon="exclamation-triangle", variant="danger") 未接收到回復通知項目]
       div(v-for="(item, idx) in problems")
         .d-flex.justify-content-between.font-weight-bold.small
           a.truncate(
             href="#",
             @click="popupLogContent(item)",
-            :class="['text-success']",
+            :class="['text-danger']",
             title="顯示詳細記錄"
           ) {{ item.subject }}
           lah-fa-icon.small.my-auto.text-nowrap(
@@ -110,6 +118,7 @@ b-card
     :fetch-state="fetchingState",
     :update-time="updated"
   )
+
 </template>
 
 <script>
@@ -124,7 +133,7 @@ export default {
     footer: { type: Boolean, default: false }
   },
   data: () => ({
-    header: 'SRMAS通知監控',
+    header: 'SRMAS通知分析',
     fetchType: 'sender',
     fetchKeyword: 'SRMAS',
     fetchDay: 1
