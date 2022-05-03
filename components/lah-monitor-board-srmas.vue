@@ -60,54 +60,24 @@ b-card
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else)
-    .font-weight-bold.h6 #[lah-fa-icon(icon="exclamation-triangle", variant="danger") 未接收到回復通知項目]
-      div(v-for="(item, idx) in problems")
-        .d-flex.justify-content-between.font-weight-bold.small
-          a.truncate(
-            href="#",
-            @click="popupLogContent(item)",
-            :class="['text-danger']",
-            title="顯示詳細記錄"
-          ) {{ item.subject }}
-          lah-fa-icon.small.my-auto.text-nowrap(
-            icon="clock",
-            regular,
-            :title="$utils.tsToAdDateStr(item.timestamp, true)",
-            :variant="isToday(item.timestamp) ? 'success' : 'muted'"
-          ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
-        .truncate.text-muted.small {{ item.message }}
-    .font-weight-bold.h6 #[lah-fa-icon(icon="exclamation-circle", variant="warning") 最新異常告警]
-      div(v-for="(item, idx) in headWarnings")
-        .d-flex.justify-content-between.font-weight-bold.small
-          a.truncate(
-            href="#",
-            @click="popupLogContent(item)",
-            :class="['text-warning']",
-            title="顯示詳細記錄"
-          ) {{ item.subject }}
-          lah-fa-icon.small.my-auto.text-nowrap(
-            icon="clock",
-            regular,
-            :title="$utils.tsToAdDateStr(item.timestamp, true)",
-            :variant="isToday(item.timestamp) ? 'success' : 'muted'"
-          ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
-        .truncate.text-muted.small {{ item.message }}
-    .font-weight-bold.h6 #[lah-fa-icon(icon="check-circle", variant="success") 最新回復通知]
-      div(v-for="(item, idx) in headRestores")
-        .d-flex.justify-content-between.font-weight-bold.small
-          a.truncate(
-            href="#",
-            @click="popupLogContent(item)",
-            :class="['text-success']",
-            title="顯示詳細記錄"
-          ) {{ item.subject }}
-          lah-fa-icon.small.my-auto.text-nowrap(
-            icon="clock",
-            regular,
-            :title="$utils.tsToAdDateStr(item.timestamp, true)",
-            :variant="isToday(item.timestamp) ? 'success' : 'muted'"
-          ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
-        .truncate.text-muted.small {{ item.message }}
+    lah-monitor-board-srmas-item(
+      title-text="未接收到回復通知項目",
+      title-icon="exclamation-triangle",
+      variant="danger",
+      :items="problems"
+    )
+    lah-monitor-board-srmas-item(
+      title-text="最新異常告警",
+      title-icon="exclamation-circle",
+      variant="warning",
+      :items="headWarnings"
+    )
+    lah-monitor-board-srmas-item(
+      title-text="最新回復通知",
+      title-icon="check-circle",
+      variant="success",
+      :items="headRestores"
+    )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -124,10 +94,11 @@ b-card
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardSrmasItem from '~/components/lah-monitor-board-srmas-item.vue'
 
 export default {
   name: 'LahMonitorBoardSrmas',
-  components: { lahMonitorBoardRaw },
+  components: { lahMonitorBoardRaw, lahMonitorBoardSrmasItem },
   mixins: [lahMonitorBoardBase],
   props: {
     footer: { type: Boolean, default: false }
