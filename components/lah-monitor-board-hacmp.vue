@@ -56,7 +56,8 @@ b-card
         :title="$utils.tsToAdDateStr(headMessage.timestamp, true)",
         :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(headMessage.timestamp * 1000) }}
-    .truncate.text-muted.small(v-html="extractedMessage")
+    .truncate.text-muted.small(v-if="light !== 'danger'", v-html="extractedMessage")
+    .text-danger.small(v-else, v-html="extractedError")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -92,6 +93,13 @@ export default {
     },
     extractedMessage () {
       const regex = /\/.+\s+datavg\s+reg_ctl\s+ORAH[A-H]HA1,ORAH[A-H]HA2/gm
+      const message = this.headMessage.message || ''
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      this.found = [...message.matchAll(regex)]
+      return this.found.join('<br/>')
+    },
+    extractedError () {
+      const regex = /.+unreachable.+/gm
       const message = this.headMessage.message || ''
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.found = [...message.matchAll(regex)]
