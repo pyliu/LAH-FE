@@ -50,13 +50,13 @@ b-card
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示 SRMAS 系統回報訊統計
+        li 顯示 SRMAS 系統回報訊息分析統計
         li 儀錶板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
       div 🟡 表示找不到任何郵件訊息
-      div 🔴 表示「告警通知」及「回復通知」統計不相符
+      div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else)
