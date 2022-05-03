@@ -5,6 +5,7 @@ b-card
     strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        v-if="warnings.length > 0",
         icon="exclamation-circle",
         variant="warning",
         @click="popupMessages('subject', '異常告警', 1, '異常告警訊息')",
@@ -13,6 +14,7 @@ b-card
         span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
       lah-button.mx-1(
+        v-if="restores.length > 0",
         icon="check-circle",
         variant="success",
         @click="popupMessages('subject', '回復通知', 1, '回復通知訊息')",
