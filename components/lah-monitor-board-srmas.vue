@@ -61,7 +61,7 @@ b-card
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else)
     lah-monitor-board-srmas-item(
-      title-text="未接收到回復通知項目",
+      title-text="無回復通知項目",
       title-icon="exclamation-triangle",
       variant="danger",
       :items="problems"
