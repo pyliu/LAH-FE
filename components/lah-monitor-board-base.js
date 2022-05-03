@@ -3,7 +3,7 @@ export default {
   name: 'lahMonitorBoardBase',
   fetchOnServer: false,
   data: () => ({
-    header: '等著被覆寫的資料',
+    header: '監控儀表板BASE',
     messages: [],
     updated: '',
     reloadMs: 15 * 60 * 1000,
@@ -44,7 +44,9 @@ export default {
         isNaN(this.fetchDay)
       ) {
         this.$utils.warn(`${this.header} fetch 參數為空值，無法進行資料讀取!`)
-        return false
+        this.$utils.warn('fetchType', this.fetchType)
+        this.$utils.warn('fetchKeyword', this.fetchKeyword)
+        this.$utils.warn('fetchDay', this.fetchDay)
       }
       const passed = +new Date() - this.lastFetchTimestamp
       return passed > this.reloadMs * 0.8
@@ -110,7 +112,7 @@ export default {
         html: true
       })
     },
-    popupMessages (type, keyword, days = 7) {
+    popupMessages (type, keyword, days = 7, title = '顯示區間內訊息') {
       this.modal(this.$createElement('lah-monitor-board-raw', {
         props: {
           queryType: type,
@@ -118,7 +120,7 @@ export default {
           days
         }
       }), {
-        title: `${this.header} - 顯示區間內訊息`,
+        title: `${this.header} - ${title}`,
         size: 'lg',
         html: true
       })

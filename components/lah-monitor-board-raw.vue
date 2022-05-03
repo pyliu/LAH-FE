@@ -29,7 +29,7 @@ export default {
     days: { type: Number, default: 1 }
   },
   data: () => ({
-    daysBefore: 1,
+    daysBefore: 0,
     messages: []
   }),
   watch: {
@@ -39,7 +39,7 @@ export default {
   },
   created () {
     this._reload = this.$utils.debounce(this.reload, 1000)
-    this.daysBefore = this.days
+    this.daysBefore = this.days || 1
   },
   methods: {
     _reload () {

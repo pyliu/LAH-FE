@@ -85,7 +85,7 @@ export default {
     }
   },
   mounted () {
-    console.log(this.orderedItems)
+    // console.log(this.orderedItems)
   },
   methods: {
     itemVariant (item) {

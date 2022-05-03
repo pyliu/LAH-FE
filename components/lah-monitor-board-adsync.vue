@@ -134,9 +134,6 @@ export default {
         return ['text-danger']
       }
       return []
-    },
-    shortenSubject (item) {
-      return item.subject.replace(' Daily Email from NMC.', '')
     }
   }
 }
