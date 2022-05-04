@@ -57,16 +57,25 @@ b-card
           span.sr-only Not selected
         span {{ item.ip }}
 
-    template(#cell(刪除)="{ item }")
-      lah-button(
-        icon="times",
-        variant="outline-danger",
-        no-icon-gutter,
-        title="移除",
-        size="sm",
-        @click="remove(item)",
-        pill
-      )
+    template(#cell(操作)="{ item }")
+      b-button-group
+        lah-button.mr-1(
+          icon="edit",
+          title="編輯",
+          variant="outline-primary",
+          @click="edit(item)",
+          no-icon-gutter,
+          pill
+        )
+        lah-button(
+          icon="times",
+          variant="outline-danger",
+          no-icon-gutter,
+          title="移除",
+          size="sm",
+          @click="remove(item)",
+          pill
+        )
 
     template(#cell(monitor)="{ item }")
       b-button-group(size="sm"): b-checkbox(
@@ -134,7 +143,7 @@ export default {
       { key: 'port', label: '監控埠號', sortable: true },
       { key: 'name', label: '系統名稱', sortable: true },
       { key: 'note', label: '系統備註', sortable: false },
-      '刪除'
+      '操作'
     ],
     editMode: true,
     editIp: '',
