@@ -8,7 +8,7 @@ b-card
         v-if="warnings.length > 0",
         icon="exclamation-circle",
         variant="warning",
-        @click="popupMessages('subject', '異常告警', 1, '異常告警訊息')",
+        @click="popupMessages('異常告警', 'exclamation-circle', 'warning', warnings)",
         pill
       )
         span.mr-1 告警
@@ -17,7 +17,7 @@ b-card
         v-if="restores.length > 0",
         icon="check-circle",
         variant="success",
-        @click="popupMessages('subject', '回復通知', 1, '回復通知訊息')",
+        @click="popupMessages('回覆通知', 'check-circle', 'success', restores)",
         pill
       )
         span.mr-1 回復
@@ -164,6 +164,19 @@ export default {
     }
   },
   methods: {
+    popupMessages (title, icon, variant, items) {
+      this.modal(this.$createElement(lahMonitorBoardSrmasItem, {
+        props: {
+          titleText: title,
+          titleIcon: icon,
+          variant,
+          items
+        }
+      }), {
+        title,
+        size: 'lg'
+      })
+    }
   }
 }
 </script>
