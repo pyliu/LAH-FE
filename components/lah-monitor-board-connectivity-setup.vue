@@ -78,7 +78,7 @@ b-card
       )
 
     template(#cell(note)="{ item }")
-      div(v-html="htmlNote(item)")
+      div(v-html="$utils.convertMarkd(item.note)")
 
   b-modal(ref="replaceModal", hide-footer, scrollable, no-close-on-backdrop)
     template(#modal-title) 監控系統資料
@@ -235,10 +235,10 @@ export default {
     edit (entry) {
       if (!this.$utils.empty(entry)) {
         this.entry = { ...entry }
-        this.$refs.replaceModal?.show()
         this.editMode = true
         this.editIp = entry.ip
         this.editPort = entry.port
+        this.$refs.replaceModal?.show()
       }
     },
     save () {
@@ -264,13 +264,6 @@ export default {
     },
     rowSelected (selectedArray) {
       this.edit(selectedArray[0])
-    },
-    htmlNote (entry) {
-      if (this.$utils.empty(entry.note)) {
-        return ''
-      }
-      // return DOMPurify?.sanitize(marked.parse(entry.note.trimEnd().replaceAll('\n', '   \n').replaceAll('\r', '')))
-      return this.$utils.convertMarkd(entry.note)
     }
   }
 }
