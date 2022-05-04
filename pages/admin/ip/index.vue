@@ -67,11 +67,24 @@
       no-close-on-backdrop
     )
       template(#modal-title) 編輯靜態IP對應資料
-      b-input-group(prepend="ＩＰ位址"): b-input(v-model="staticEntry.ip" :state="isIPv4" placeholder="... 220.1.3X.XX ...")
+      b-input-group(prepend="ＩＰ位址"): b-input(v-model="staticEntry.ip" :state="isStaticIPv4" placeholder="... 220.1.3X.XX ...")
       b-input-group.my-1(prepend="　　類別"): b-select(v-model="staticEntry.entry_type" :options="[{ value: 'SERVER', text: '伺服器' }, { value: 'OTHER_EP', text: '其他終端' }]" :state="staticTypeCheck")
       b-input-group.my-1(prepend="　　名稱"): b-input(v-model="staticEntry.entry_desc" :state="staticNameCheck")
       b-input-group.my-1(prepend="　　備註"): b-input(v-model="staticEntry.note")
       b-button-group.center: lah-button(icon="save" no-icon-gutter :disabled="staticSaveDisabled" @click="replace") 儲存
+
+    b-modal(
+      ref="editModal"
+      hide-footer
+      scrollable
+      no-close-on-backdrop
+    )
+      template(#modal-title) 編輯靜態IP資訊
+      b-input-group(prepend="ＩＰ位址"): b-input(v-model="editEntry.ip" :state="isEditIPv4" placeholder="... 220.1.3X.XX ...")
+      b-input-group.my-1(prepend="　　類別"): b-select(v-model="editEntry.entry_type" :options="[{ value: 'SERVER', text: '伺服器' }, { value: 'OTHER_EP', text: '其他終端' }]" :state="editTypeCheck")
+      b-input-group.my-1(prepend="　　名稱"): b-input(v-model="editEntry.entry_desc" :state="editNameCheck")
+      b-input-group.my-1(prepend="　　備註"): b-input(v-model="editEntry.note")
+      b-button-group.center: lah-button(icon="save" no-icon-gutter :disabled="editSaveDisabled" @click="saveEdit") 儲存
 </template>
 
 <script>
@@ -80,6 +93,15 @@ export default {
   asyncData ({ store, redirect, error }) { return {} },
   data: () => ({
     staticEntry: {
+      ip: '',
+      entry_type: '',
+      entry_desc: '',
+      note: ''
+    },
+    editEntry: {
+      orig_ip: '',
+      orig_added_type: 'STATIC',
+      orig_entry_type: '',
       ip: '',
       entry_type: '',
       entry_desc: '',
@@ -117,10 +139,14 @@ export default {
     title: 'IP對應表管理'
   },
   computed: {
-    isIPv4 () { return this.$utils.isIPv4(this.staticEntry.ip) },
+    isStaticIPv4 () { return this.$utils.isIPv4(this.staticEntry.ip) },
+    isEditIPv4 () { return this.$utils.isIPv4(this.editEntry.ip) },
     staticTypeCheck () { return ['SERVER', 'OTHER_EP'].includes(this.staticEntry.entry_type) },
+    editTypeCheck () { return ['SERVER', 'OTHER_EP'].includes(this.editEntry.entry_type) },
     staticNameCheck () { return !this.$utils.empty(this.staticEntry.entry_desc) },
-    staticSaveDisabled () { return !this.isIPv4 || !this.staticTypeCheck || !this.staticNameCheck },
+    editNameCheck () { return !this.$utils.empty(this.editEntry.entry_desc) },
+    staticSaveDisabled () { return !this.isStaticIPv4 || !this.staticTypeCheck || !this.staticNameCheck },
+    editSaveDisabled () { return !this.isEditIPv4 || !this.editTypeCheck || !this.editNameCheck },
     static () {
       return this.entries.filter((entry, idx, arr) => {
         return entry.added_type === 'STATIC'
@@ -142,10 +168,7 @@ export default {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.IP, {
         type: 'add_static_ip_entry',
-        ip: this.staticEntry.ip,
-        entry_type: this.staticEntry.entry_type,
-        entry_desc: this.staticEntry.entry_desc,
-        note: this.staticEntry.note
+        ...this.staticEntry
       }).then(({ data }) => {
         if (data.status < 1) {
           this.alert(data.message)
@@ -169,8 +192,43 @@ export default {
       })
     },
     edit (record) {
-      this.staticEntry = { ...record }
-      this.$bvModal.show('replace-static-modal')
+      this.editEntry = {
+        orig_ip: record.ip,
+        orig_entry_type: record.entry_type,
+        orig_added_type: record.added_type,
+        ...record
+      }
+      this.$refs.editModal?.show()
+    },
+    saveEdit () {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.IP, {
+        type: 'edit_static_ip_entry',
+        ...this.editEntry
+      }).then(({ data }) => {
+        if (data.status < 1) {
+          this.alert(data.message)
+        } else {
+          this.success(data.message)
+          this.editEntry = {
+            ...{
+              orig_ip: '',
+              orig_added_type: 'STATIC',
+              orig_entry_type: '',
+              ip: '',
+              entry_type: '',
+              entry_desc: '',
+              note: ''
+            }
+          }
+          this.$fetch()
+          this.$refs.editModal?.hide()
+        }
+      }).catch((error) => {
+        console.error(error)
+      }).finally(() => {
+        this.isBusy = false
+      })
     },
     remove (record) {
       this.confirm(`確定要刪除 ${record.ip}, ${record.added_type}, ${record.entry_type} 資料?`).then((YN) => {
