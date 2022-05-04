@@ -8,7 +8,7 @@ b-card
         v-if="warnings.length > 0",
         icon="exclamation-circle",
         variant="warning",
-        @click="popupMessages({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
+        @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill
       )
         span.mr-1 告警
@@ -17,7 +17,7 @@ b-card
         v-if="restores.length > 0",
         icon="check-circle",
         variant="success",
-        @click="popupMessages({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
+        @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill
       )
         span.mr-1 回復
@@ -164,7 +164,7 @@ export default {
     }
   },
   methods: {
-    popupMessages (payload) {
+    showMails (payload) {
       // destruvting obj entries to vars
       const { title, icon, variant, items } = payload
       this.modal(this.$createElement(lahMonitorBoardSrmasItem, {
