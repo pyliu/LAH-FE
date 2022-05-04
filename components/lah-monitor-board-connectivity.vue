@@ -238,7 +238,7 @@ export default {
       const found = this.loadItems.find(item => item.x === detail.label)
       if (found) {
         const combined = `${found.note}\nIP: ${found.ip}\n監測埠號: ${found.port}`
-        this.modal(combined.replaceAll('\n', '<br/>'), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
+        this.modal(this.$utils.convertMarkd(combined), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
       } else {
         this.$utils.warn('找不到監控項目', detail)
       }
