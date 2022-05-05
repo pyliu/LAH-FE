@@ -132,7 +132,7 @@ export default {
       switch (this.light) {
         case 'danger': return 'BROKEN'
         case 'success': return 'ACTIVE'
-        default: return 'UNKNOWN'
+        default: return 'OUTDATED'
       }
     }
   }
