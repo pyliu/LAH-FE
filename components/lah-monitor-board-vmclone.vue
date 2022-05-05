@@ -102,7 +102,7 @@ export default {
       return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: 'vm-clone-24 2,4-22:00' })
     },
     vc7Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: 'vm-clone-7 7-22:00' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: 'vm-clone-7 6-04:00' })
     },
     headMessages () {
       return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
