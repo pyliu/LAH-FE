@@ -117,7 +117,6 @@ export default {
   computed: {
     messagesIn12hrs () {
       return this.messages.filter((item, idx, arr) => {
-        console.warn(item.timestamp, this.twelveHrsAgo)
         return item.timestamp > this.twelveHrsAgo
       })
     },
