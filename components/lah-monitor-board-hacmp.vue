@@ -97,7 +97,7 @@ export default {
       return [...message.matchAll(this.foundFsRegex)]
     },
     extractedMessage () {
-      return this.$utils.convertMarkd(`✔ 已找到下列系統所需檔案系統\n${this.foundFs.join('\n')}`)
+      return this.$utils.convertMarkd(`✔ 已找到下列系統所需資料夾\n${this.foundFs.join('\n')}`)
     },
     extractedError () {
       const regex = /.+unreachable.+/gm
