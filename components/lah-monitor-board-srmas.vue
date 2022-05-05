@@ -163,6 +163,7 @@ export default {
           })
         }
       }
+      fixed.reverse()
       return fixed
     },
     problems () {
@@ -187,6 +188,7 @@ export default {
           bad.splice(found, 1)
         }
       }
+      bad.reverse()
       return bad
     }
   },
