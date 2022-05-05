@@ -493,6 +493,7 @@
           </b-input-group>
         </b-card>
         <b-card
+          v-if="isHA"
           v-cloak
           header-bg-variant="primary"
           header-text-variant="white"
@@ -935,7 +936,8 @@ export default {
     isMockModeEnabled () {
       return this.loadedConfigs.ENABLE_MOCK_MODE === true || this.loadedConfigs.ENABLE_MOCK_MODE === 'true'
     },
-    isHB () { return this.site === 'HB' }
+    isHB () { return this.site === 'HB' },
+    isHA () { return this.site === 'HA' }
   },
   watch: {
     masterPassword (val) {
