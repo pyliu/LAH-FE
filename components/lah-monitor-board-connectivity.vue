@@ -101,7 +101,7 @@ export default {
   },
   data: () => ({
     header: '系統連線狀態監控',
-    type: 'line',
+    type: 'bar',
     reloadTimer: null,
     updatedTime: '',
     datasetIdx: 0,
