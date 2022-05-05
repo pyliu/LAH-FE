@@ -64,6 +64,7 @@ b-card
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
+  .center(v-else-if="problems.length === 0 && fixed.length === 0") 👍  沒有發生告警
   div(v-else)
     lah-monitor-board-srmas-item(
       v-if="problems.length > 0"
@@ -79,18 +80,6 @@ b-card
       variant="success",
       :items="fixed"
     )
-    //- lah-monitor-board-srmas-item.my-1(
-    //-   title-text="最新異常告警",
-    //-   title-icon="exclamation-circle",
-    //-   variant="warning",
-    //-   :items="headWarnings"
-    //- )
-    //- lah-monitor-board-srmas-item(
-    //-   title-text="最新回復通知",
-    //-   title-icon="check-circle",
-    //-   variant="success",
-    //-   :items="headRestores"
-    //- )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -142,17 +131,9 @@ export default {
       }
       return this.problems.length > 0 ? 'danger' : 'success'
     },
-    // headWarnings () {
-    //   const filtered = this.warnings.filter((item, idx, arr) => idx < 1)
-    //   return filtered
-    // },
     warnings () {
       return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警'))
     },
-    // headRestores () {
-    //   const filtered = this.restores.filter((item, idx, arr) => idx < 1)
-    //   return filtered
-    // },
     restores () {
       return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
     },
