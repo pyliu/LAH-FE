@@ -7,7 +7,6 @@ b-card.border-0(no-body)
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
-        :class="[`text-${variant}`]",
         title="顯示詳細記錄"
       ) {{ item.subject }}
       lah-fa-icon.small.my-auto.text-nowrap(
