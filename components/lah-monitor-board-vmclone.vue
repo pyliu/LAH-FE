@@ -91,41 +91,38 @@ export default {
     header: 'VM備份排程作業',
     fetchType: 'subject',
     fetchKeyword: 'vm-clone',
-    fetchDay: 7
+    fetchDay: 7,
+    dummyMessage: '未發現監控郵件'
   }),
   computed: {
     vc135Message () {
-      return this.messages.find(item =>
-        item.subject.includes('vm-clone-135')
-      )
+      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: 'vm-clone-135 1,3,5-22:00' })
     },
     vc24Message () {
-      return this.messages.find(item =>
-        item.subject.includes('vm-clone-24')
-      )
+      return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: 'vm-clone-24 2,4-22:00' })
     },
     vc7Message () {
-      return this.messages.find(item =>
-        item.subject.includes('vm-clone-7')
-      )
+      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: 'vm-clone-7 7-22:00' })
     },
     headMessages () {
       return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
     },
     light () {
+      let light = 'success'
       if (this.headMessages.length === 0) {
-        return 'warning'
+        light = 'warning'
       }
       if (!this.vc135Message || this.subjectCss(this.vc135Message).includes('text-danger')) {
-        return 'danger'
+        light = 'danger'
       }
       if (!this.vc24Message || this.subjectCss(this.vc24Message).includes('text-danger')) {
-        return 'danger'
+        light = 'danger'
       }
       if (!this.vc7Message || this.subjectCss(this.vc7Message).includes('text-danger')) {
-        return 'danger'
+        light = 'danger'
       }
-      return 'success'
+      this.lightChanged(light, '', 'LahMonitorBoardVmclone')
+      return light
     }
   },
   methods: {
@@ -134,6 +131,9 @@ export default {
       return list.includes('text-danger') ? '🔴' : '🟢'
     },
     subjectCss (item) {
+      if (item.message === this.dummyMessage) {
+        return ['text-danger']
+      }
       const now = new Date()
       const today = now.getDay()
       const dayMs = 24 * 60 * 60 * 1000
@@ -177,29 +177,48 @@ export default {
       const cssList = []
       const ts = now.getTime()
       if (
-        item.subject.includes('vm-clone-135') &&
+        item.subject?.includes('vm-clone-135') &&
         (ts - item.timestamp * 1000 > vc135Ms)
       ) {
         cssList.push('text-danger')
       } else if (
-        item.subject.includes('vm-clone-24') &&
+        item.subject?.includes('vm-clone-24') &&
         (ts - item.timestamp * 1000 > vc24Ms)
       ) {
         cssList.push('text-danger')
       } else if (
-        item.subject.includes('vm-clone-7') &&
+        item.subject?.includes('vm-clone-7') &&
         (!this.isSaturday && (ts - item.timestamp * 1000) > (vc7Ms + 12 * 60 * 60 * 1000))
       ) {
         cssList.push('text-danger')
       }
       return cssList
+    },
+    findVMCloneMessage (payload) {
+      const { keyword, subject } = payload
+      const found = this.messages.find(item =>
+        item.subject.includes(keyword)
+      )
+      if (found) {
+        return found
+      }
+      return this.vcDummyMessage({ subject, message: this.dummyMessage })
+    },
+    vcDummyMessage (payload) {
+      const { subject, message } = payload
+      return {
+        id: 0,
+        mailbox: 'INBOX',
+        receiver: '',
+        sender: '',
+        timestamp: +new Date() / 1000,
+        subject,
+        message
+      }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-ul {
-  padding-left: 21.25px;
-}
 </style>
