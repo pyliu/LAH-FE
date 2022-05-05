@@ -85,25 +85,25 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'hacmp',
     fetchDay: 1,
-    found: []
+    foundFsRegex: /\/.+\s+datavg\s+reg_ctl\s+ORAH[A-H]HA1,ORAH[A-H]HA2/gm
   }),
   computed: {
     headMessage () {
       return this.messages[0]
     },
-    extractedMessage () {
-      const regex = /\/.+\s+datavg\s+reg_ctl\s+ORAH[A-H]HA1,ORAH[A-H]HA2/gm
+    foundFs () {
       const message = this.headMessage.message || ''
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.found = [...message.matchAll(regex)]
-      return this.found.join('<br/>')
+      return [...message.matchAll(this.foundFsRegex)]
+    },
+    extractedMessage () {
+      return this.foundFs.join('<br/>')
     },
     extractedError () {
       const regex = /.+unreachable.+/gm
       const message = this.headMessage.message || ''
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.found = [...message.matchAll(regex)]
-      return this.found.join('<br/>')
+      return [...message.matchAll(regex)].join('<br/>')
     },
     light () {
       const now = +new Date()
@@ -113,7 +113,7 @@ export default {
       ) {
         return 'warning'
       }
-      return this.found.length === 7 ? 'success' : 'danger'
+      return this.foundFs.length === 7 ? 'success' : 'danger'
     }
   }
 }
