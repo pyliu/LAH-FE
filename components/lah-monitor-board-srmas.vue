@@ -53,6 +53,7 @@ b-card
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 SRMAS 系統回報訊息分析統計
+        li 僅顯示最近12小時內的資訊
         li 儀錶板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
@@ -63,12 +64,13 @@ b-card
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else)
     lah-monitor-board-srmas-item(
+      v-if="problems.length > 0"
       title-text="無回復通知項目",
       title-icon="exclamation-triangle",
       variant="danger",
       :items="problems"
     )
-    lah-monitor-board-srmas-item(
+    lah-monitor-board-srmas-item.my-1(
       title-text="最新異常告警",
       title-icon="exclamation-circle",
       variant="warning",
@@ -106,17 +108,21 @@ export default {
     footer: { type: Boolean, default: false }
   },
   data: () => ({
-    header: 'SRMAS通知分析',
+    header: 'SRMAS分析',
     fetchType: 'sender',
     fetchKeyword: 'SRMAS',
-    fetchDay: 1
+    fetchDay: 1,
+    twelveHrsAgo: (+new Date() - (12 * 60 * 60 * 1000)) / 1000
   }),
   computed: {
-    todayNoAdSyncMessage () {
-      return `${this.today} 無SRMAS相關資訊`
+    messagesIn12hrs () {
+      return this.messages.filter((item, idx, arr) => {
+        console.warn(item.timestamp, this.twelveHrsAgo)
+        return item.timestamp > this.twelveHrsAgo
+      })
     },
     headMessages () {
-      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messagesIn12hrs.filter((item, idx, arr) => idx < 3)
       return filtered
     },
     headMessage () {
@@ -133,14 +139,14 @@ export default {
       return filtered
     },
     warnings () {
-      return this.messages.filter((item, idx, arr) => item.subject?.startsWith('異常告警'))
+      return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警'))
     },
     headRestores () {
       const filtered = this.restores.filter((item, idx, arr) => idx < 1)
       return filtered
     },
     restores () {
-      return this.messages.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
+      return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
     },
     problems () {
       const bad = [...this.warnings]
@@ -161,6 +167,11 @@ export default {
         }
       }
       return bad
+    }
+  },
+  watch: {
+    headMessage (val) {
+      this.$utils.warn(val)
     }
   },
   methods: {
@@ -184,7 +195,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-ul {
-  padding-left: 21.25px;
-}
 </style>

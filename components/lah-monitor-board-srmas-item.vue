@@ -1,8 +1,9 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  .font-weight-bold.h6 #[lah-fa-icon(:icon="titleIcon", :variant="variant") {{ titleText }}]
+  .font-weight-bold #[lah-fa-icon(:icon="titleIcon", :variant="variant") {{ titleText }}]
   div(v-for="(item, idx) in items")
     .d-flex.justify-content-between.font-weight-bold.small
+      lah-fa-icon(icon="angle-double-right")
       a.truncate(
         href="#",
         @click="popupLogContent(item)",
