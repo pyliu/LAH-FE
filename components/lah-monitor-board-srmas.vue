@@ -169,11 +169,7 @@ export default {
       return bad
     }
   },
-  watch: {
-    headMessage (val) {
-      this.$utils.warn(val)
-    }
-  },
+  watch: {},
   methods: {
     showMails (payload) {
       // destruvting obj entries to vars
