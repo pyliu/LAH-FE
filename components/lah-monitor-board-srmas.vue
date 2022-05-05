@@ -9,7 +9,8 @@ b-card
         icon="exclamation-circle",
         variant="warning",
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
-        pill
+        pill,
+        v-b-tooltip="'12小時內'"
       )
         span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
@@ -18,7 +19,8 @@ b-card
         icon="check-circle",
         variant="success",
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
-        pill
+        pill,
+        v-b-tooltip="'12小時內'"
       )
         span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
@@ -65,23 +67,30 @@ b-card
   div(v-else)
     lah-monitor-board-srmas-item(
       v-if="problems.length > 0"
-      title-text="無回復通知項目",
+      title-text="無告警回復項目",
       title-icon="exclamation-triangle",
       variant="danger",
       :items="problems"
     )
-    lah-monitor-board-srmas-item.my-1(
-      title-text="最新異常告警",
-      title-icon="exclamation-circle",
-      variant="warning",
-      :items="headWarnings"
-    )
-    lah-monitor-board-srmas-item(
-      title-text="最新回復通知",
-      title-icon="check-circle",
+    lah-monitor-board-srmas-fixed(
+      v-if="fixed.length > 0"
+      title-text="已正常回復項目",
+      title-icon="check-double",
       variant="success",
-      :items="headRestores"
+      :items="fixed"
     )
+    //- lah-monitor-board-srmas-item.my-1(
+    //-   title-text="最新異常告警",
+    //-   title-icon="exclamation-circle",
+    //-   variant="warning",
+    //-   :items="headWarnings"
+    //- )
+    //- lah-monitor-board-srmas-item(
+    //-   title-text="最新回復通知",
+    //-   title-icon="check-circle",
+    //-   variant="success",
+    //-   :items="headRestores"
+    //- )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -133,19 +142,47 @@ export default {
       }
       return this.problems.length > 0 ? 'danger' : 'success'
     },
-    headWarnings () {
-      const filtered = this.warnings.filter((item, idx, arr) => idx < 1)
-      return filtered
-    },
+    // headWarnings () {
+    //   const filtered = this.warnings.filter((item, idx, arr) => idx < 1)
+    //   return filtered
+    // },
     warnings () {
       return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警'))
     },
-    headRestores () {
-      const filtered = this.restores.filter((item, idx, arr) => idx < 1)
-      return filtered
-    },
+    // headRestores () {
+    //   const filtered = this.restores.filter((item, idx, arr) => idx < 1)
+    //   return filtered
+    // },
     restores () {
       return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
+    },
+    fixed () {
+      const bad = [...this.warnings]
+      const fixed = []
+      // find warning without restore message
+      const goodLen = this.restores.length
+      for (let i = goodLen - 1; i >= 0; i--) {
+        const trimGoodHead = this.restores[i]?.subject?.replace('回復通知-', '')
+        let found = -1
+        bad.find((item, idx) => {
+          // found the restore notification that timestamp is after the warning one
+          if (
+            item.subject?.includes(trimGoodHead) &&
+            this.restores[i].timestamp > item.timestamp
+          ) {
+            found = idx
+            return true
+          }
+          return false
+        })
+        if (found !== -1) {
+          fixed.push({
+            bad: bad.splice(found, 1)[0],
+            good: this.restores[i]
+          })
+        }
+      }
+      return fixed
     },
     problems () {
       const bad = [...this.warnings]
@@ -155,7 +192,11 @@ export default {
         const trimGoodHead = this.restores[i]?.subject?.replace('回復通知-', '')
         let found = -1
         bad.find((item, idx) => {
-          if (item.subject?.includes(trimGoodHead)) {
+          // found the restore notification that timestamp is after the warning one
+          if (
+            item.subject?.includes(trimGoodHead) &&
+            this.restores[i].timestamp > item.timestamp
+          ) {
             found = idx
             return true
           }
