@@ -41,7 +41,6 @@ export default {
       const badSubjectTokens = item.bad.subject?.split('-')
       const goodSubjectTokens = item.good.subject?.split('-')
       const commons = intersection(goodSubjectTokens, badSubjectTokens)
-      console.warn(commons)
       return commons.join('-')
     },
     packedMessage (item) {
