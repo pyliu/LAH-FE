@@ -113,13 +113,13 @@ export default {
     twelveHrsAgo: (+new Date() - (8 * 60 * 60 * 1000)) / 1000
   }),
   computed: {
-    messagesIn12hrs () {
+    messagesIn8hrs () {
       return this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.twelveHrsAgo
       })
     },
     headMessages () {
-      const filtered = this.messagesIn12hrs.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messagesIn8hrs.filter((item, idx, arr) => idx < 3)
       return filtered
     },
     headMessage () {
@@ -132,10 +132,10 @@ export default {
       return this.problems.length > 0 ? 'danger' : 'success'
     },
     warnings () {
-      return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警'))
+      return this.messagesIn8hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警'))
     },
     restores () {
-      return this.messagesIn12hrs.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
+      return this.messagesIn8hrs.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
     },
     fixed () {
       const bad = [...this.warnings]
