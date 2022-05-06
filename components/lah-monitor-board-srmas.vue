@@ -10,7 +10,7 @@ b-card
         variant="warning",
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill,
-        v-b-tooltip="'12小時內'"
+        v-b-tooltip="'8小時內'"
       )
         span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
@@ -20,7 +20,7 @@ b-card
         variant="success",
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
-        v-b-tooltip="'12小時內'"
+        v-b-tooltip="'8小時內'"
       )
         span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
@@ -55,7 +55,7 @@ b-card
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 SRMAS 系統回報訊息分析統計
-        li 僅顯示最近12小時內的資訊
+        li 僅顯示最近8小時內的資訊
         li 儀錶板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
@@ -110,7 +110,7 @@ export default {
     fetchType: 'sender',
     fetchKeyword: 'SRMAS',
     fetchDay: 1,
-    twelveHrsAgo: (+new Date() - (12 * 60 * 60 * 1000)) / 1000
+    twelveHrsAgo: (+new Date() - (8 * 60 * 60 * 1000)) / 1000
   }),
   computed: {
     messagesIn12hrs () {
