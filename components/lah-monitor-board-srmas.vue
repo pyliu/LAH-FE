@@ -110,12 +110,12 @@ export default {
     fetchType: 'sender',
     fetchKeyword: 'SRMAS',
     fetchDay: 1,
-    twelveHrsAgo: (+new Date() - (8 * 60 * 60 * 1000)) / 1000
+    eightHrsAgo: (+new Date() - (8 * 60 * 60 * 1000)) / 1000
   }),
   computed: {
     messagesIn8hrs () {
       return this.messages.filter((item, idx, arr) => {
-        return item.timestamp > this.twelveHrsAgo
+        return item.timestamp > this.eightHrsAgo
       })
     },
     headMessages () {
