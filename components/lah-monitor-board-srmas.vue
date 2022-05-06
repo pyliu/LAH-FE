@@ -172,21 +172,17 @@ export default {
       const goodLen = this.restores.length
       for (let i = goodLen - 1; i >= 0; i--) {
         const trimGoodHead = this.restores[i]?.subject?.replace('回復通知-', '')
-        let found = -1
-        bad.find((item, idx) => {
-          // found the restore notification that timestamp is after the warning one
+        const clearIdx = []
+        bad.forEach((item, idx) => {
           if (
             item.subject?.includes(trimGoodHead) &&
             this.restores[i].timestamp > item.timestamp
           ) {
-            found = idx
-            return true
+            clearIdx.push(idx)
           }
-          return false
         })
-        if (found !== -1) {
-          bad.splice(found, 1)
-        }
+        // remove clear warning
+        clearIdx.forEach(deletedIdx => bad.splice(deletedIdx, 1))
       }
       bad.reverse()
       return bad
