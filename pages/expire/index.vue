@@ -127,6 +127,14 @@ div
       )
 
     .center.d-flex.my-1
+      b-input-group.mr-1(prepend="收件所別"): b-select(
+        v-model="advOpts.caseReceiveOffice",
+        :options="advOpts.caseReceiveOfficeOpts",
+        title="收件所別"
+      )
+      b-input-group
+
+    .center.d-flex.my-1
       lah-button.mr-1(
         v-if="false",
         icon="check-circle",
@@ -160,7 +168,9 @@ export default {
       casePreliminator: '',
       casePreliminatorOpts: [],
       caseOperator: '',
-      caseOperatorOpts: []
+      caseOperatorOpts: [],
+      caseReceiveOffice: '',
+      caseReceiveOfficeOpts: []
     }
   }),
   head: {
@@ -192,6 +202,9 @@ export default {
       if (!this.$utils.empty(this.advOpts.caseOperator)) {
         tags.push(`作業人員：${this.advOpts.caseOperator}`)
       }
+      if (!this.$utils.empty(this.advOpts.caseReceiveOffice)) {
+        tags.push(`收件所別：${this.advOpts.caseReceiveOffice}`)
+      }
       return tags
     },
     storeCaseCount () {
@@ -217,7 +230,9 @@ export default {
           casePreliminator: '',
           casePreliminatorOpts: [],
           caseOperator: '',
-          caseOperatorOpts: []
+          caseOperatorOpts: [],
+          caseReceiveOffice: '',
+          caseReceiveOfficeOpts: []
         }
       }
       if (val) {
@@ -227,6 +242,7 @@ export default {
         this.advOpts.caseOperatorOpts = [...new Set(val.items.map(item => item.作業人員))].sort()
         this.advOpts.caseYearOpts = [...new Set(val.raw.map(item => item.RM01))].sort()
         this.advOpts.caseWordOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
+        this.advOpts.caseReceiveOfficeOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
 
         this.advOpts.caseReasonOpts.unshift('')
         this.advOpts.caseStateOpts.unshift('')
@@ -234,6 +250,7 @@ export default {
         this.advOpts.caseOperatorOpts.unshift('')
         this.advOpts.caseYearOpts.unshift('')
         this.advOpts.caseWordOpts.unshift('')
+        this.advOpts.caseReceiveOfficeOpts.unshift('')
 
         this.$store.commit('expiry/list', this.queriedJson.items || [])
         this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
