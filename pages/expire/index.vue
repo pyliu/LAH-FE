@@ -330,7 +330,8 @@ export default {
           caseReason: '',
           caseState: '',
           casePreliminator: '',
-          caseOperator: ''
+          caseOperator: '',
+          caseReceiveOffice: ''
         }
       }
       this.$store.commit('expiry/list', this.queriedJson.items || [])
