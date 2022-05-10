@@ -393,15 +393,15 @@ export default {
     fetchType () { return this.caseType === 'reg' ? 'reg_non_scrivener_reg_case' : 'reg_non_scrivener_sur_case' },
     showPagination () {
       if (this.caseType === 'reg') {
-        return !this.$utils.empty(this.regBakedData) && this.regBakedData.length > this.perPage
+        return !this.$utils.empty(this.filterRegBakedData) && this.filterRegBakedData.length > this.perPage
       }
-      return !this.$utils.empty(this.surBakedData) && this.surBakedData.length > this.perPage
+      return !this.$utils.empty(this.filterSurBakedData) && this.filterSurBakedData.length > this.perPage
     },
     paginationCount () {
       if (this.caseType === 'reg') {
-        return this.regBakedData.length
+        return this.filterRegBakedData.length
       }
-      return this.surBakedData.length
+      return this.filterSurBakedData.length
     },
     advTags () {
       const tags = []
@@ -450,6 +450,12 @@ export default {
     },
     ignoreLandOffice (flag) {
       this.reload()
+    },
+    filterRegBakedData (dontcare) {
+      this.currentPage = 1
+    },
+    filterSurBakedData (dontcare) {
+      this.currentPage = 1
     }
   },
   methods: {
