@@ -8,7 +8,7 @@ div
         lah-help-modal(:modal-id="'help-modal'")
           h5 資料庫搜尋說明
           ul
-            li 搜尋補正、補正初核「本所」案件的資料
+            li 搜尋補正、補正初核「本所收件」案件的資料
             li 補正期限為15個日曆天
             li 設定「通知送達日期」後將自動計算「送達期滿日期」及「可駁回日期」
           hr
@@ -300,7 +300,7 @@ export default {
     dataReady () { return this.rows?.length > 0 },
     queryCount () { return this.filterRows.length },
     cacheKey () { return 'query_reg_fix_case' },
-    foundText () { return `找到 ${this.queryCount} 筆本所「補正」、「補正初核」案件資料` },
+    foundText () { return `找到 ${this.queryCount} 筆本所收件「補正」、「補正初核」案件資料` },
     filterRows () {
       if (this.advTags.length > 0) {
         let pipelineItems = this.rows
