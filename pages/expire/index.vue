@@ -126,13 +126,13 @@ div
         title="作業人員"
       )
 
-    .center.d-flex.my-1
-      b-input-group.mr-1(prepend="收件所別"): b-select(
-        v-model="advOpts.caseReceiveOffice",
-        :options="advOpts.caseReceiveOfficeOpts",
-        title="收件所別"
-      )
-      b-input-group
+    //- .center.d-flex.my-1
+    //-   b-input-group.mr-1(prepend="收件所別"): b-select(
+    //-     v-model="advOpts.caseReceiveOffice",
+    //-     :options="advOpts.caseReceiveOfficeOpts",
+    //-     title="收件所別"
+    //-   )
+    //-   b-input-group
 
     .center.d-flex.my-1
       lah-button.mr-1(
