@@ -74,6 +74,7 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
     '@nuxtjs/localforage',
+    // '@nuxt/content',
     'nuxt-fontawesome'
   ],
   bootstrapVue: {
