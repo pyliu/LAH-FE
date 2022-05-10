@@ -91,7 +91,7 @@ div
     add-button-variant="white"
     add-button-text=""
   )
-  .d-flex.justify-content-between.mb-1
+  .d-flex.mb-1
     b-pagination(
       v-if="showPagination"
       v-model="currentPage"
@@ -102,21 +102,7 @@ div
       aria-controls="scrivener-table"
       class="my-auto mr-2"
     )
-    b-input-group(size="sm" prepend="忽略" class="tags-input")
-      b-form-tags(
-        input-id="tags"
-        v-model="ignoreTags"
-        separator=" ,;"
-        remove-on-delete
-        tag-variant="secondary"
-        tag-pills
-        placeholder="忽略的統編 ... "
-        add-button-text="新增"
-        add-button-variant="outline-secondary"
-      )
-      b-input-group-append
-        lah-button(prefix="far" action="move-fade-rtl" icon="hand-point-left" variant="outline-secondary" @click="ignoreTyoffices" title="桃園市") 各事務所
-        lah-button(action="swing" icon="broom" variant="outline-success" @click="ignoreTags = []" title="清除忽略標籤") 清除
+    b-checkbox.my-auto.ml-auto(v-model="ignoreLandOffice", switch) 忽略地政事務所
   lah-transition
     div(v-if="committed")
       lah-reg-b-table(
@@ -202,18 +188,7 @@ export default {
     clickedId: undefined,
     forceReload: false,
     committed: false,
-    tyOfficeMap: {
-      中壢: 45000808,
-      楊梅: 43717356,
-      桃園: 43504044,
-      大溪: 43501004,
-      蘆竹: 44039876,
-      八德: 95924138,
-      平鎮: 95920288,
-      龜山: 50634177
-
-    },
-    ignoreTags: ['中壢', '楊梅', '桃園', '大溪', '蘆竹', '八德', '平鎮', '龜山'],
+    ignoreLandOffice: true,
     regBakedData: [],
     regFields: [
       {
@@ -406,7 +381,7 @@ export default {
   },
   computed: {
     md5Hash () {
-      return this.$utils.md5(`${this.startDate}_${this.endDate}_${this.ignoreTags.join('')}`)
+      return this.$utils.md5(`${this.startDate}_${this.endDate}_${this.ignoreLandOffice}`)
     },
     cacheKey () {
       const key = this.caseType === 'reg' ? `non_scrivener_reg_case_${this.md5Hash}` : `non_scrivener_sur_case_${this.md5Hash}`
@@ -472,6 +447,9 @@ export default {
     },
     surBakedData (val) {
       this.refreshAdvOptsSelect(val)
+    },
+    ignoreLandOffice (flag) {
+      this.reload()
     }
   },
   methods: {
@@ -490,9 +468,6 @@ export default {
       this.forceReload = false
       this.committed = true
     },
-    ignoreTyoffices () {
-      this.ignoreTags = ['中壢', '楊梅', '桃園', '大溪', '蘆竹', '八德', '平鎮', '龜山']
-    },
     loadReg () {
       // restore cached data if found
       this.getCache(this.cacheKey).then((json) => {
@@ -506,7 +481,7 @@ export default {
               start_date: this.startDate,
               end_date: this.endDate,
               reload: this.forceReload,
-              ignore: this.ignoreTags.map(tag => this.tyOfficeMap[tag] ? this.tyOfficeMap[tag] : tag)
+              ignore: this.ignoreLandOffice
             }).then(({ data }) => {
               this.regBakedData = data.baked || []
               this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
@@ -552,7 +527,7 @@ export default {
               start_date: this.startDate,
               end_date: this.endDate,
               reload: this.forceReload,
-              ignore: this.ignoreTags.map(tag => this.tyOfficeMap[tag] ? this.tyOfficeMap[tag] : tag)
+              ignore: this.ignoreLandOffice
             }).then(({ data }) => {
               this.surBakedData = data.baked || []
               this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
