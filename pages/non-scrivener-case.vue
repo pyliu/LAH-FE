@@ -10,8 +10,8 @@ div
           ol
             li 切換登記或測量案件
             li 選擇日期區間(預設為目前月份)
-            li 輸入想要忽略之統編(非必要)
             li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
+            li 利用「忽略地政事務所」開關切換是否顯示地政事務所代理案件
 
       .d-flex
         b-form-radio-group.d-flex.text-nowrap.my-auto.small(
