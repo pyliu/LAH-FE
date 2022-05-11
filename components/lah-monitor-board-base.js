@@ -62,6 +62,12 @@ export default {
     isSaturday () {
       const now = new Date()
       return now.getDay() === 6
+    },
+    border () {
+      if (this.light !== 'success') {
+        return this.light
+      }
+      return ''
     }
   },
   watch: {
