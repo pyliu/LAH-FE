@@ -38,7 +38,7 @@ b-card(:border-variant="border")
         no-border,
         no-icon-gutter,
         @click="reload",
-        v-b-tooltip="`上次更新時間 ${updated}`",
+        :title="`上次更新時間 ${updated}`",
         :disabled="fetchingMonitorMail"
       )
       lah-button(
