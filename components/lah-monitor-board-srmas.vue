@@ -167,7 +167,7 @@ export default {
       return fixed
     },
     problems () {
-      const bad = [...this.warnings]
+      let bad = [...this.warnings]
       // find warning without restore message
       const goodLen = this.restores.length
       for (let i = goodLen - 1; i >= 0; i--) {
@@ -183,6 +183,8 @@ export default {
         })
         // remove clear warning
         clearIdx.forEach(deletedIdx => bad.splice(deletedIdx, 1))
+        // clear previoius same warning
+        bad = [...bad.filter(item => !item.subject?.includes(trimGoodHead))]
       }
       bad.reverse()
       return bad
