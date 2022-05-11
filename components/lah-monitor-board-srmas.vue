@@ -74,7 +74,7 @@ b-card(:border-variant="border")
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  .center(v-else-if="problems.length === 0 && fixed.length === 0") ✔ {{ monitorHrs }}小時內沒有發生告警
+  .center.mt-5(v-else-if="problems.length === 0 && fixed.length === 0") 👌 {{ monitorHrs }}小時內沒有發生告警
   div(v-else)
     lah-monitor-board-srmas-item.mb-2(
       v-if="problems.length > 0"
@@ -210,13 +210,14 @@ export default {
     }
   },
   created () {
+    // debounce the input event
+    this.calcTime = this.$utils.debounce(() => {
+      this.duration = this.monitorHrs * 60 * 60 * 1000
+      this.threadhold = (+new Date() - this.duration) / 1000
+    }, 500)
     this.calcTime()
   },
   methods: {
-    calcTime () {
-      this.duration = this.monitorHrs * 60 * 60 * 1000
-      this.threadhold = (+new Date() - this.duration) / 1000
-    },
     showMails (payload) {
       // destruvting obj entries to vars
       const { title, icon, variant, items } = payload
