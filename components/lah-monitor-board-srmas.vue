@@ -64,7 +64,7 @@ b-card(:border-variant="border")
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  .center(v-else-if="problems.length === 0 && fixed.length === 0") 👍  沒有發生告警
+  .center(v-else-if="problems.length === 0 && fixed.length === 0") ✔ {{ durationHrs }}小時內沒有發生告警
   div(v-else)
     lah-monitor-board-srmas-item.mb-2(
       v-if="problems.length > 0"
@@ -110,20 +110,21 @@ export default {
     fetchType: 'sender',
     fetchKeyword: 'SRMAS',
     fetchDay: 1,
-    duration: (+new Date() - (8 * 60 * 60 * 1000)) / 1000
+    duration: 8 * 60 * 60 * 1000,
+    threadhold: 0
   }),
   computed: {
     durationHrs () {
-      return Math.round(this.duration / (1000 * 8 * 7 * 60 * 60))
+      return Math.round(this.duration / (1000 * 60 * 60))
     },
-    messagesInDuration () {
+    messagesAfterThreadhold () {
       const tmp = this.messages.filter((item, idx, arr) => {
-        return item.timestamp > this.duration
+        return item.timestamp > this.threadhold
       })
       return this.$utils.uniqBy(tmp, 'subject')
     },
     headMessages () {
-      const filtered = this.messagesInDuration.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
       return filtered
     },
     headMessage () {
@@ -136,10 +137,10 @@ export default {
       return this.problems.length > 0 ? 'danger' : 'success'
     },
     warnings () {
-      return this.messagesInDuration.filter((item, idx, arr) => item.subject?.startsWith('異常告警')).reverse()
+      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.startsWith('異常告警')).reverse()
     },
     restores () {
-      return this.messagesInDuration.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
+      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
     },
     fixed () {
       const bad = [...this.warnings]
@@ -196,6 +197,10 @@ export default {
     }
   },
   watch: {},
+  created () {
+    this.threadhold = (+new Date() - this.duration) / 1000
+    console.warn(this.threadhold)
+  },
   methods: {
     showMails (payload) {
       // destruvting obj entries to vars
