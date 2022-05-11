@@ -10,7 +10,7 @@ b-card(:border-variant="border")
         variant="warning",
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill,
-        v-b-tooltip="'8小時內'"
+        v-b-tooltip="`${durationHrs}小時內`"
       )
         span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
@@ -20,7 +20,7 @@ b-card(:border-variant="border")
         variant="success",
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
-        v-b-tooltip="'8小時內'"
+        v-b-tooltip="`${durationHrs}小時內`"
       )
         span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
@@ -55,7 +55,7 @@ b-card(:border-variant="border")
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 SRMAS 系統回報訊息分析統計
-        li 僅顯示最近8小時內的資訊
+        li 僅顯示最近{{ durationHrs }}小時內的資訊
         li 儀錶板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
@@ -113,14 +113,17 @@ export default {
     duration: (+new Date() - (8 * 60 * 60 * 1000)) / 1000
   }),
   computed: {
-    messagesIn8hrs () {
+    durationHrs () {
+      return Math.round(this.duration / (1000 * 8 * 7 * 60 * 60))
+    },
+    messagesInDuration () {
       const tmp = this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.duration
       })
       return this.$utils.uniqBy(tmp, 'subject')
     },
     headMessages () {
-      const filtered = this.messagesIn8hrs.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messagesInDuration.filter((item, idx, arr) => idx < 3)
       return filtered
     },
     headMessage () {
@@ -133,10 +136,10 @@ export default {
       return this.problems.length > 0 ? 'danger' : 'success'
     },
     warnings () {
-      return this.messagesIn8hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警')).reverse()
+      return this.messagesInDuration.filter((item, idx, arr) => item.subject?.startsWith('異常告警')).reverse()
     },
     restores () {
-      return this.messagesIn8hrs.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
+      return this.messagesInDuration.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
     },
     fixed () {
       const bad = [...this.warnings]
