@@ -66,7 +66,7 @@ b-card(:border-variant="border")
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   .center(v-else-if="problems.length === 0 && fixed.length === 0") 👍  沒有發生告警
   div(v-else)
-    lah-monitor-board-srmas-item(
+    lah-monitor-board-srmas-item.mb-2(
       v-if="problems.length > 0"
       title-text="無告警回復項目",
       title-icon="exclamation-triangle",
