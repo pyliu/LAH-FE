@@ -10,7 +10,7 @@ b-card(:border-variant="border")
         variant="warning",
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill,
-        v-b-tooltip="`${durationHrs}小時內`"
+        v-b-tooltip="`${monitorHrs}小時內`"
       )
         span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
@@ -20,7 +20,7 @@ b-card(:border-variant="border")
         variant="success",
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
-        v-b-tooltip="`${durationHrs}小時內`"
+        v-b-tooltip="`${monitorHrs}小時內`"
       )
         span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
@@ -55,16 +55,20 @@ b-card(:border-variant="border")
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 SRMAS 系統回報訊息分析統計
-        li 僅顯示最近{{ durationHrs }}小時內的資訊
         li 儀錶板每15分鐘重新檢查一次
       hr
-      div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
+      .d-flex.align-items-center
+        span 👉 顯示最近
+        b-input.mx-1(v-model="monitorHrs", type="number", min=1, max=24, size="sm", style="width: 50px")
+        span 小時內的資訊
+      hr
+      div ⭐ 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  .center(v-else-if="problems.length === 0 && fixed.length === 0") ✔ {{ durationHrs }}小時內沒有發生告警
+  .center(v-else-if="problems.length === 0 && fixed.length === 0") ✔ {{ monitorHrs }}小時內沒有發生告警
   div(v-else)
     lah-monitor-board-srmas-item.mb-2(
       v-if="problems.length > 0"
@@ -110,13 +114,11 @@ export default {
     fetchType: 'sender',
     fetchKeyword: 'SRMAS',
     fetchDay: 1,
-    duration: 8 * 60 * 60 * 1000,
+    monitorHrs: 8,
+    duration: 0,
     threadhold: 0
   }),
   computed: {
-    durationHrs () {
-      return Math.round(this.duration / (1000 * 60 * 60))
-    },
     messagesAfterThreadhold () {
       const tmp = this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.threadhold
@@ -196,12 +198,19 @@ export default {
       return bad
     }
   },
-  watch: {},
+  watch: {
+    monitorHrs (dontcare) {
+      this.calcTime()
+    }
+  },
   created () {
-    this.threadhold = (+new Date() - this.duration) / 1000
-    console.warn(this.threadhold)
+    this.calcTime()
   },
   methods: {
+    calcTime () {
+      this.duration = this.monitorHrs * 60 * 60 * 1000
+      this.threadhold = (+new Date() - this.duration) / 1000
+    },
     showMails (payload) {
       // destruvting obj entries to vars
       const { title, icon, variant, items } = payload
