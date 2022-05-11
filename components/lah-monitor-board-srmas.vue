@@ -24,7 +24,7 @@ b-card(:border-variant="border")
       )
         span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
-      b-input-group.mx-1(size="sm", append="小時", style="max-width: 90px"): b-input(
+      b-input-group.mx-1(size="sm", append="小時", style="max-width: 95px"): b-input(
         v-model="monitorHrs",
         type="number",
         min=1,
