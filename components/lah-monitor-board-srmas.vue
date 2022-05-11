@@ -129,7 +129,7 @@ export default {
       const tmp = this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.threadhold
       })
-      return this.$utils.uniqBy(tmp, 'subject')
+      return this.$utils.uniqBy(this.$utils.orderBy(tmp, 'timestamp').reverse(), 'subject')
     },
     headMessages () {
       const filtered = this.messages.filter((item, idx, arr) => idx < 3)
