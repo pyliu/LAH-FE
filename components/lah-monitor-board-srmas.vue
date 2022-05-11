@@ -4,9 +4,8 @@ b-card(:border-variant="border")
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
     b-button-group.ml-auto(size="sm")
-      lah-button(
+      b-button(
         v-if="warnings.length > 0",
-        icon="exclamation-circle",
         variant="warning",
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill,
@@ -14,9 +13,8 @@ b-card(:border-variant="border")
       )
         span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
-      lah-button.mx-1(
+      b-button.mx-1(
         v-if="restores.length > 0",
-        icon="check-circle",
         variant="success",
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
