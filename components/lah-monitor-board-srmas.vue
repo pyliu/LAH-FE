@@ -4,20 +4,22 @@ b-card(:border-variant="border")
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
     b-button-group.ml-auto(size="sm")
-      b-button(
+      lah-button(
         v-if="warnings.length > 0",
         variant="warning",
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill,
+        no-icon,
         v-b-tooltip="`${monitorHrs}小時內`"
       )
         span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
-      b-button.mx-1(
+      lah-button.mx-1(
         v-if="restores.length > 0",
         variant="success",
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
+        no-icon,
         v-b-tooltip="`${monitorHrs}小時內`"
       )
         span.mr-1 回復

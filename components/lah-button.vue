@@ -14,15 +14,17 @@
     @blur="mouseleave"
     @click="emitClick($event)"
     style="display: flex; align-items: center; justify-content: center;"
-  ): lah-fa-icon(
-    ref="icon"
-    :prefix="faIconPrefix"
-    :icon="icon"
-    :size="iconSize"
-    :append="iconAppend"
-    :no-gutter="noIconGutter"
-    :variant="iconVariant"
   )
+    lah-fa-icon(
+      ref="icon"
+      v-if="!noIcon"
+      :prefix="faIconPrefix"
+      :icon="icon"
+      :size="iconSize"
+      :append="iconAppend"
+      :no-gutter="noIconGutter"
+      :variant="iconVariant"
+    )
     span.ld-txt(v-if="busy") 讀取中...
     span(v-show="!busy")
       slot
@@ -57,11 +59,12 @@ export default {
     badgePill: { type: Boolean, default: true },
     busy: { type: Boolean, default: false },
     noIconGutter: { type: Boolean, default: false },
+    noIcon: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false }
   },
   computed: {
     faIconPrefix () {
-      return this.brand ? 'fab' : this.regular ? 'far' : 'fas';
+      return this.brand ? 'fab' : this.regular ? 'far' : 'fas'
     },
     showBadge () { return !this.$utils.empty(this.badgeText) },
     showIcon () { return !this.$utils.empty(this.icon) },
@@ -77,12 +80,16 @@ export default {
       evt.stopPropagation()
     },
     mouseenter () {
-      const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath';
-      // movement is 'undefined' will be random effect
-      this.$utils.addAnimation(`#${this.iconId}`, movement)
+      if (!this.noIcon) {
+        const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath'
+        // movement is 'undefined' will be random effect
+        this.$utils.addAnimation(`#${this.iconId}`, movement)
+      }
     },
     mouseleave () {
-      this.$utils.clearAnimation(`#${this.iconId}`)
+      if (!this.noIcon) {
+        this.$utils.clearAnimation(`#${this.iconId}`)
+      }
     }
   }
 }
