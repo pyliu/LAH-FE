@@ -1,6 +1,6 @@
 <template lang="pug">
 b-card(:border-variant="border")
-  template(#header): .d-flex.justify-content-between
+  template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
     b-button-group.ml-auto(size="sm")
@@ -24,6 +24,12 @@ b-card(:border-variant="border")
       )
         span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
+      b-input-group.mx-1(size="sm", append="小時", style="max-width: 90px"): b-input(
+        v-model="monitorHrs",
+        type="number",
+        min=1,
+        max=24
+      )
       lah-button(
         v-if="!footer"
         icon="sync-alt",
