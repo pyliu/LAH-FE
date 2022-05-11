@@ -22,21 +22,21 @@ div(v-cloak)
       ul
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
-  lah-transition: b-card-group.mb-2(deck, v-if="displayXAP")
+  lah-transition: b-card-group.mb-4(deck, v-if="displayXAP")
       lah-monitor-board-xap
       lah-monitor-board-apconn
       lah-monitor-board-connectivity
       //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
       //- lah-monitor-board-apconn(line, all)
-  b-card-group.mb-2(deck)
+  b-card-group.mb-4(deck)
     lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
     lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate")
     lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate")
-  b-card-group.mb-2(deck)
+  b-card-group.mb-4(deck)
     lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate")
     lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate")
     lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate")
-  b-card-group.mb-2(deck)
+  b-card-group.mb-4(deck)
     lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate")
     lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate")
     lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate")
