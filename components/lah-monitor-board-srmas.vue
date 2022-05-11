@@ -114,9 +114,10 @@ export default {
   }),
   computed: {
     messagesIn8hrs () {
-      return this.messages.filter((item, idx, arr) => {
+      const tmp = this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.eightHrsAgo
       })
+      return this.$utils.uniqBy(tmp, 'subject')
     },
     headMessages () {
       const filtered = this.messagesIn8hrs.filter((item, idx, arr) => idx < 3)
