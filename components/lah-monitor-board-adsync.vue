@@ -12,7 +12,7 @@ b-card(:border-variant="border")
         no-border,
         no-icon-gutter,
         @click="reload",
-        title="重新讀取",
+        v-b-tooltip="`上次更新時間 ${updated}`",
         :disabled="fetchingMonitorMail"
       )
       lah-button(
