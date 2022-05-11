@@ -133,7 +133,7 @@ export default {
       return this.problems.length > 0 ? 'danger' : 'success'
     },
     warnings () {
-      return this.messagesIn8hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警'))
+      return this.messagesIn8hrs.filter((item, idx, arr) => item.subject?.startsWith('異常告警')).reverse()
     },
     restores () {
       return this.messagesIn8hrs.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
@@ -164,8 +164,9 @@ export default {
           })
         }
       }
-      fixed.reverse()
-      return fixed
+      // fixed.reverse()
+      return this.$utils.sortBy(fixed, item => item.bad.timestamp).reverse()
+      // return fixed
     },
     problems () {
       let bad = [...this.warnings]

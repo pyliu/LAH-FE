@@ -11,6 +11,7 @@ import reject from 'lodash/reject'
 import sortedUniq from 'lodash/sortedUniq'
 import uniqBy from 'lodash/uniqBy'
 import orderBy from 'lodash/orderBy'
+import sortBy from 'lodash/sortBy'
 import _md5 from 'md5'
 import uploadAxios from 'axios'
 import { format, formatDistanceToNow } from 'date-fns'
@@ -158,6 +159,7 @@ export default ({ $axios, store }, inject) => {
     sortedUniq,
     uniqBy,
     orderBy,
+    sortBy,
     md5: _md5,
     /**
      * marked
