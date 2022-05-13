@@ -169,7 +169,7 @@ export default {
     ping () {
       this.stopPing()
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
+      this.$axios.post(this.$consts.API.JSON.IP, {
         type: 'ping',
         ip: this.ip,
         port: 1521 // db port

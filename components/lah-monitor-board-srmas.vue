@@ -145,7 +145,12 @@ export default {
       if (!this.headMessage) {
         return 'warning'
       }
-      return this.problems.length > 0 ? 'danger' : 'success'
+      // return this.problems.length > 0 ? 'danger' : 'success'
+      if (this.problems.length > 0) {
+        const everyTrue = this.problems.every(item => item.message?.includes('🟢'))
+        return everyTrue ? 'success' : 'danger'
+      }
+      return 'success'
     },
     warnings () {
       return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.startsWith('異常告警')).reverse()
@@ -203,6 +208,22 @@ export default {
         // clear previoius same warning
         bad = [...bad.filter(item => !item.subject?.includes(trimGoodHead))]
       }
+      // active test the connectivity and elimitates the '裝置未回應' item
+      const activeClearIdx = []
+      bad.forEach((item, idx) => {
+        if (item.subject?.includes('裝置未回應')) {
+          const ip = item.subject?.split('-')[1]
+          if (this.ping(ip)) {
+            activeClearIdx.push(idx)
+            const succeedMessage = '🟢 目前 ping 值正常，可忽略此訊息！'
+            if (!item.message?.includes(succeedMessage)) {
+              item.message = `${succeedMessage}\n\n${item.message}`
+            }
+          }
+        }
+      })
+      // remove items that ping successfully
+      // activeClearIdx.forEach(idx => bad.splice(idx, 1))
       bad.reverse()
       return bad
     }
@@ -235,6 +256,19 @@ export default {
         title,
         size: 'lg'
       })
+    },
+    async ping (ip) {
+      try {
+        const { data } = await this.$axios.post(this.$consts.API.JSON.IP, {
+          type: 'ping',
+          ip
+        })
+        // this.$utils.log(ip, data)
+        return this.$utils.statusCheck(data.status)
+      } catch (e) {
+        this.$utils.error(e)
+      }
+      return false
     }
   }
 }

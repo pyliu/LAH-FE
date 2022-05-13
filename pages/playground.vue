@@ -526,7 +526,7 @@ export default {
     ping () {
       this.isBusy = true
       this.$axios
-        .post(this.$consts.API.JSON.QUERY, {
+        .post(this.$consts.API.JSON.IP, {
           type: 'ping',
           ip: this.$config.websocketHost,
           port: this.$config.websocketPort
