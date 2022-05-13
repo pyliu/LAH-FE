@@ -78,7 +78,7 @@ b-card(:border-variant="border")
     .mr-1 {{ monitorHrs }}小時內一切正常
     lah-fa-icon(icon="seedling", variant="success")
   div(v-else)
-    lah-monitor-board-srmas-item.mb-2(
+    lah-monitor-board-srmas-list.mb-2(
       v-if="problems.length > 0"
       title-text="無告警回復項目",
       title-icon="exclamation-triangle",
@@ -108,11 +108,12 @@ b-card(:border-variant="border")
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
-import lahMonitorBoardSrmasItem from '~/components/lah-monitor-board-srmas-item.vue'
+import lahMonitorBoardSrmasList from '~/components/lah-monitor-board-srmas-list.vue'
+import lahMonitorBoardSrmasFixed from '~/components/lah-monitor-board-srmas-fixed.vue'
 
 export default {
   name: 'LahMonitorBoardSrmas',
-  components: { lahMonitorBoardRaw, lahMonitorBoardSrmasItem },
+  components: { lahMonitorBoardRaw, lahMonitorBoardSrmasList, lahMonitorBoardSrmasFixed },
   mixins: [lahMonitorBoardBase],
   props: {
     footer: { type: Boolean, default: false }
@@ -223,7 +224,7 @@ export default {
     showMails (payload) {
       // destruvting obj entries to vars
       const { title, icon, variant, items } = payload
-      this.modal(this.$createElement(lahMonitorBoardSrmasItem, {
+      this.modal(this.$createElement(lahMonitorBoardSrmasList, {
         props: {
           titleText: title,
           titleIcon: icon,
