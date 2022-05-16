@@ -159,7 +159,7 @@ export default {
     filtering: false,
     advOpts: {
       caseYear: '',
-      caseWord: '本所關注案件',
+      caseWord: '',
       caseNum: '',
       caseReason: '',
       caseReasonOpts: [],
@@ -249,12 +249,15 @@ export default {
         this.advOpts.casePreliminatorOpts.unshift('')
         this.advOpts.caseOperatorOpts.unshift('')
         this.advOpts.caseYearOpts.unshift('')
-        this.advOpts.caseWordOpts.unshift('本所關注案件')
-        this.advOpts.caseWordOpts.unshift('')
         this.advOpts.caseReceiveOfficeOpts.unshift('')
 
         this.$store.commit('expiry/list', this.queriedJson.items || [])
         this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
+
+        // set default to own case option
+        this.advOpts.caseWordOpts.unshift('本所關注案件')
+        this.advOpts.caseWordOpts.unshift('')
+        this.advOpts.caseWord = '本所關注案件'
       }
     },
     advTags (dontcare) {
