@@ -101,7 +101,7 @@
       </template>
     </b-table>
     <b-modal
-      :id="modalId"
+      ref="detail"
       hide-footer
       centered
       no-close-on-backdrop
@@ -142,7 +142,6 @@ export default {
       { key: '收件時間', sortable: true },
       { key: '限辦期限', sortable: true }
     ],
-    modalId: 'this should be an uuid',
     clickedId: undefined,
     modalLoading: true,
     maxHeight: 600
@@ -175,30 +174,29 @@ export default {
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` }
   },
   watch: {
-    totalPeople (val) {
-      val > 0 && this.allCaseMode && this.notify({
-        title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
-        message: `找到 ${val} 位相關人員案件`,
-        type: this.isOverdueMode ? 'danger' : 'warning'
-      })
-    },
-    totalCase (val) {
-      val > 0 && this.allCaseMode && this.notify({
-        title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
-        message: `共有 ${val} 件案件`,
-        type: this.isOverdueMode ? 'danger' : 'warning'
-      })
-    },
-    reviewerCaseList (val) {
-      val > 0 && !this.allCaseMode && this.notify({
-        title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
-        subtitle: this.reviewerId,
-        message: `找到 ${val.length} 件案件`,
-        type: this.isOverdueMode ? 'danger' : 'warning'
-      })
-    }
+    // totalPeople (val) {
+    //   val > 0 && this.allCaseMode && this.notify({
+    //     title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
+    //     message: `找到 ${val} 位相關人員案件`,
+    //     type: this.isOverdueMode ? 'danger' : 'warning'
+    //   })
+    // },
+    // totalCase (val) {
+    //   val > 0 && this.allCaseMode && this.notify({
+    //     title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
+    //     message: `共有 ${val} 件案件`,
+    //     type: this.isOverdueMode ? 'danger' : 'warning'
+    //   })
+    // },
+    // reviewerCaseList (val) {
+    //   val > 0 && !this.allCaseMode && this.notify({
+    //     title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
+    //     subtitle: this.reviewerId,
+    //     message: `找到 ${val.length} 件案件`,
+    //     type: this.isOverdueMode ? 'danger' : 'warning'
+    //   })
+    // }
   },
-  created () { this.modalId = this.$utils.uuid() },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
@@ -206,7 +204,7 @@ export default {
     popup (data) {
       this.modalLoading = true
       this.clickedId = data.value.replace(/^[a-zA-Z0-9]$/g, '')
-      this.showModalById(this.modalId)
+      this.$refs.detail?.show()
     },
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
     searchByReviewer (id) {},

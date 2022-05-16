@@ -86,7 +86,7 @@ export default {
             }
           } else {
             this.removeCache(this.cacheKey)
-            this.notify(data.message, { type: 'warning' })
+            this.warning(data.message)
           }
         }).catch((err) => {
           this.alert(err.message)
