@@ -159,7 +159,7 @@ export default {
     filtering: false,
     advOpts: {
       caseYear: '',
-      caseWord: '',
+      caseWord: '本所關注案件',
       caseNum: '',
       caseReason: '',
       caseReasonOpts: [],
@@ -342,7 +342,7 @@ export default {
         ...this.advOpts,
         ...{
           caseYear: '',
-          caseWord: '',
+          caseWord: '本所關注案件',
           caseNum: '',
           caseReason: '',
           caseState: '',
