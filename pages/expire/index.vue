@@ -5,7 +5,7 @@ div
       .d-flex.mr-auto.align-items-center
         .my-auto.mr-1 登記案件
         b-badge.mr-1(pill, :variant="switchButtonVariant") 
-          span.ld-txt(v-if="filtering") 處理中...
+          span.ld-txt(v-if="filtering || isBusy") 處理中...
           span(v-else) {{ storeCaseCount }} 件
         b-form-radio-group.my-auto(
           v-model="isOverdueMode",
