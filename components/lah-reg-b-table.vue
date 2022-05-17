@@ -237,7 +237,7 @@ export default {
     tableVariant: { type: String, default: '' },
     perPage: { type: Number, default: 0 },
     currentPage: { type: Number, default: 1 },
-    onlyPopupDetail: { type: Boolean, default: false },
+    onlyPopupDetail: { type: Boolean, default: true },
     captionAppend: { type: String, default: '' },
     maxHeightOffset: { type: Number, default: 105 },
     caseReload: { type: Boolean, default: false }
