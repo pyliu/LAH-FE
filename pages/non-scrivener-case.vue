@@ -113,7 +113,6 @@ div
         :current-page="currentPage"
         :caption-append="captionRange"
         :max-height-offset="160"
-        only-popup-detailed
         v-if="caseType === 'reg'"
       )
       lah-reg-b-table(
@@ -125,7 +124,6 @@ div
         :current-page="currentPage"
         :caption-append="captionRange"
         :max-height-offset="160"
-        only-popup-detailed
       )
     h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 
