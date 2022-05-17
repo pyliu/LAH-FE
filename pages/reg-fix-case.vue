@@ -312,9 +312,27 @@ export default {
         }
         const checkWord = !this.$utils.empty(this.advOpts.caseWord)
         if (checkWord) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseWord) !== null
-          })
+          if (this.advOpts.caseWord === '本所關注案件') {
+            const alphabet = this.site[1]
+            const number = alphabet.charCodeAt(0) - 64
+            pipelineItems = pipelineItems.filter((item) => {
+              const extractedWord = item.收件字號.match(/\(.+\)/gm)[0].replace(/[()]/gm, '')
+              if (extractedWord.startsWith(this.site) && !extractedWord.endsWith('1')) {
+                return true
+              } else if (extractedWord.endsWith(`${alphabet}1`)) {
+                return true
+              } else if (extractedWord.startsWith(`H${number}`)) {
+                return true
+              }
+              return false
+            })
+          } else {
+            pipelineItems = pipelineItems.filter((item) => {
+              return item.收件字號.match(this.advOpts.caseWord) !== null
+            })
+          }
+        }
+        if (checkWord) {
         }
         const checkYear = !this.$utils.empty(this.advOpts.caseYear)
         if (checkYear) {
@@ -422,9 +440,13 @@ export default {
         this.advOpts.caseStateOpts.unshift('')
         this.advOpts.casePreliminatorOpts.unshift('')
         this.advOpts.caseYearOpts.unshift('')
-        this.advOpts.caseWordOpts.unshift('')
         this.advOpts.caseFixDateOpts.unshift('')
         this.advOpts.caseFixDeadlineOpts.unshift('')
+
+        // set default to own case option
+        this.advOpts.caseWordOpts.unshift('本所關注案件')
+        this.advOpts.caseWordOpts.unshift('')
+        this.advOpts.caseWord = '本所關注案件'
       }
     }
   },
@@ -463,7 +485,7 @@ export default {
         ...this.advOpts,
         ...{
           caseYear: '',
-          caseWord: '',
+          caseWord: '本所關注案件',
           caseNum: '',
           caseReason: '',
           caseState: '',
