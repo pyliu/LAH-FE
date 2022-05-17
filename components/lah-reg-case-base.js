@@ -3,7 +3,8 @@ export default {
   props: {
     parentData: { type: Object, default: undefined },
     // the id format should be '109HB04001234'
-    caseId: { type: String, default: '' }
+    caseId: { type: String, default: '' },
+    reload: { type: Boolean, default: false }
   },
   data: () => ({
     bakedData: undefined
@@ -25,7 +26,7 @@ export default {
   created () { this.bakedData = this.parentData },
   fetch () {
     // case-id prop-in is valid then uses it for fetching data
-    if (this.validID && !this.bakedData) {
+    if (this.validID && (this.reload || !this.bakedData)) {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'reg_case',

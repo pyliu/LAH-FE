@@ -199,7 +199,7 @@
       </template>
     </b-table>
     <b-modal
-      :id="modalId"
+      ref="detail"
       hide-footer
       centered
       no-close-on-backdrop
@@ -213,7 +213,7 @@
         <b-spinner small type="grow" />
         <strong class="ld-txt">查詢中...</strong>
       </h4>
-      <lah-reg-case-detail :parent-data="clickedData" @ready="modalLoading = !$event.detail" />
+      <lah-reg-case-detail :reload="caseReload" :case-id="clickedId" :parent-data="clickedData" @ready="modalLoading = !$event.detail" />
     </b-modal>
   </div>
 </template>
@@ -239,13 +239,13 @@ export default {
     currentPage: { type: Number, default: 1 },
     onlyPopupDetail: { type: Boolean, default: false },
     captionAppend: { type: String, default: '' },
-    maxHeightOffset: { type: Number, default: 105 }
+    maxHeightOffset: { type: Number, default: 105 },
+    caseReload: { type: Boolean, default: false }
   },
   data: () => ({
     transProps: {
       name: 'rollIn'
     },
-    modalId: 'this should be an uuid',
     modalLoading: true,
     clickedId: undefined,
     clickedData: undefined,
@@ -500,9 +500,6 @@ export default {
     },
     maxHeightPx () { return `${this.maxHeight}px` }
   },
-  created () {
-    this.modalId = this.$utils.uuid()
-  },
   mounted () {
     if (!this.$isServer && window) {
       this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
@@ -513,7 +510,7 @@ export default {
       this.modalLoading = true
       this.clickedId = `${data.RM01}${data.RM02}${data.RM03}`
       this.clickedData = data
-      this.showModalById(this.modalId)
+      this.$refs.detail?.show()
     },
     userinfo (name, id = '') {
       const h = this.$createElement

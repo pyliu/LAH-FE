@@ -65,9 +65,10 @@ div
   )
 
   lah-transition: lah-reg-b-table(
-    only-popup-detail
-    :busy="isBusy"
-    :baked-data="filteredData"
+    only-popup-detail,
+    case-reload,
+    :busy="isBusy",
+    :baked-data="filteredData",
     :fields="fields"
   )
 
