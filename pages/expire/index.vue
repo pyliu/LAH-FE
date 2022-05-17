@@ -72,12 +72,13 @@ div
     v-model="advTags",
     placeholder="",
     tag-variant="info",
+    add-button-variant="white"
+    add-button-text="",
+    size="lg",
     tag-pills,
     no-outer-focus,
     no-add-on-enter,
-    no-tag-remove,
-    add-button-variant="white"
-    add-button-text=""
+    no-tag-remove
   )
   lah-transition(appear): lah-expiry-b-table(:busy="!committed || filtering", only-popup-detail)
   lah-transition.center.h3(v-if="queryCount === 0 && committed") 無資料👍
