@@ -22,6 +22,7 @@ div
           title="說明"
         )
         lah-help-modal(ref="help"): .h6.text-nowrap: ul
+          li 搜尋15天內的案件
           li
             .d-flex
               .my-auto 請使用
