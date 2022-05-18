@@ -582,6 +582,24 @@ Vue.mixin({
     },
     async clearCache () {
       await this.$localForage.clear()
+    },
+    quickUpdateConfig (configs, callback = undefined, notify = true) {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'update_configs',
+        configs
+      }).then(({ data }) => {
+        const notifyOpts = { type: 'warning', subtitle: `${Object.keys(configs).length} 筆設定更新` }
+        if (this.$utils.statusCheck(data.status)) {
+          notifyOpts.type = 'success'
+        }
+        notify && this.notify(data.message, notifyOpts)
+        callback && callback.apply(this)
+      }).catch((error) => {
+        this.$utils.error(error)
+      }).finally(() => {
+        this.isBusy = false
+      })
     }
   }
 })

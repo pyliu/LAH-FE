@@ -979,7 +979,7 @@ export default {
         type: 'update_configs',
         configs
       }).then(({ data }) => {
-        const notifyOpts = { type: 'warning', subtitle: `${Object.keys(configs).length} 筆更新` }
+        const notifyOpts = { type: 'warning', subtitle: `${Object.keys(configs).length} 筆設定更新` }
         if (this.$utils.statusCheck(data.status)) {
           notifyOpts.type = 'success'
           if (Object.keys(configs).includes('ENABLE_MOCK_MODE')) {
