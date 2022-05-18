@@ -9,7 +9,7 @@ b-modal(
 )
   template(#modal-title): div(v-html="modalTitle")
   b-input-group(prepend="郵件主機")
-    b-input(v-model="host", title="主機IP", @input="addTestHostMessage", trim)
+    b-input(v-model="host", title="主機IP", :state="hostOK" , trim)
   b-input-group.my-1(prepend="登入帳號")
     b-input(v-model="account", title="登入帳號", trim)
   b-input-group(prepend="登入密碼")
@@ -18,7 +18,7 @@ b-modal(
     icon="pen-square",
     variant="outline-primary",
     title="更新",
-    :disabled="isBusy",
+    :disabled="isBusy || !valid",
     @click="update"
   ) 確定修改
   lah-fa-icon(icon="list-alt", variant="secondary") 連線測試
@@ -44,15 +44,24 @@ export default {
   },
   data: () => ({
     host: '',
+    hostOK: false,
     account: '',
     password: '',
     messages: []
   }),
+  computed: {
+    valid () {
+      return this.hostOK
+    }
+  },
   watch: {
     systemConfigs (val) {
       this.host = val.monitor.host
       this.account = val.monitor.account
       this.password = val.monitor.password
+    },
+    host (val) {
+      this.addTestHostMessage()
     }
   },
   created () {
@@ -65,7 +74,8 @@ export default {
       }).catch((err) => {
         this.messages.unshift(err)
       })
-    }, 500)
+    }, 1000)
+    this.addTestHostMessage()
   },
   methods: {
     show () {
@@ -75,18 +85,22 @@ export default {
       this.$refs.setupModal?.hide()
     },
     async ping (ip) {
+      this.hostOK = false
+      if (this.$utils.empty(ip)) {
+        return `${this.$utils.time()} 🚩郵件主機不能為空值`
+      }
       try {
         const { data } = await this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'ping',
           ip,
           port: 143
         })
-        // this.$utils.log(ip, data)
-        return data.message
+        this.hostOK = this.$utils.statusCheck(data.status)
+        return `${this.$utils.time()} ${this.hostOK ? '✅' : '⚠️'} ${data.message}`
       } catch (e) {
         this.$utils.error(e)
+        return `${this.$utils.time()} ${ip}:143 測試失敗(${e.message})`
       }
-      return `${ip}:143 測試失敗`
     },
     update () {
       this.quickUpdateConfig({
