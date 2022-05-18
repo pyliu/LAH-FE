@@ -132,6 +132,9 @@ const mutations = {
     state.apiSvrIps = [...obj.ips]
     state.loggedIn = true
   },
+  systemConfigs (state, payload) {
+    state.systemConfigs = { ...state.systemConfigs, ...payload }
+  },
   lastMessage (state, string) { state.lastMessage = string },
   admin (state, flag) {
     state.authority.isAdmin = flag

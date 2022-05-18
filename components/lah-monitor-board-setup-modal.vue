@@ -53,6 +53,13 @@ export default {
   computed: {
     valid () {
       return this.hostOK
+    },
+    payload () {
+      return {
+        MONITOR_MAIL_HOST: this.host,
+        MONITOR_MAIL_ACCOUNT: this.account,
+        MONITOR_MAIL_PASSWORD: this.password
+      }
     }
   },
   watch: {
@@ -104,11 +111,11 @@ export default {
       }
     },
     update () {
-      this.quickUpdateConfig({
-        MONITOR_MAIL_HOST: this.host,
-        MONITOR_MAIL_ACCOUNT: this.account,
-        MONITOR_MAIL_PASSWORD: this.password
-      }, this.hide)
+      this.quickUpdateConfig(this.payload, () => {
+        // also update the store cached data
+        this.$store.commit('systemConfigs', this.payload)
+        this.hide()
+      })
     }
   }
 }
