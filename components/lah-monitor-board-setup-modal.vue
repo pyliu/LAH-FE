@@ -8,16 +8,17 @@ b-modal(
   :no-close-on-backdrop="noCloseOnBackdrop"
 )
   template(#modal-title): div(v-html="modalTitle")
-  b-input-group(prepend="郵件主機")
-    b-input(v-model="host", title="主機IP", :state="hostOK" , trim)
-  b-input-group.my-1(prepend="登入帳號")
-    b-input(v-model="account", title="登入帳號", trim)
-  b-input-group(prepend="登入密碼")
-    b-input(v-model="password", type="password", title="登入帳號", trim)
+  b-input-group(prepend="郵件主機", size="lg")
+    b-input(v-model="host", title="主機IP", :state="hostOK", placeholder="220.1.3x.xxx", trim)
+  b-input-group.my-1(prepend="登入帳號", size="lg")
+    b-input(v-model="account", title="登入帳號", placeholder="...取得監控郵件的帳號...",trim)
+  b-input-group(prepend="登入密碼", size="lg")
+    b-input(v-model="password", type="password", title="登入帳號", placeholder="...取得監控郵件的密碼...", trim)
   .center.my-2: lah-button(
     icon="pen-square",
     variant="outline-primary",
     title="更新",
+    size="lg",
     :disabled="isBusy || !valid",
     @click="update"
   ) 確定修改
@@ -56,18 +57,18 @@ export default {
   },
   watch: {
     systemConfigs (val) {
-      this.host = val.monitor.host
-      this.account = val.monitor.account
-      this.password = val.monitor.password
+      this.host = val.monitor?.host
+      this.account = val.monitor?.account
+      this.password = val.monitor?.password
     },
     host (val) {
       this.addTestHostMessage()
     }
   },
   created () {
-    this.host = this.systemConfigs.monitor.host
-    this.account = this.systemConfigs.monitor.account
-    this.password = this.systemConfigs.monitor.password
+    this.host = this.systemConfigs.monitor?.host
+    this.account = this.systemConfigs.monitor?.account
+    this.password = this.systemConfigs.monitor?.password
     this.addTestHostMessage = this.$utils.debounce(() => {
       this.ping(this.host).then((msg) => {
         this.messages.unshift(msg)
@@ -86,8 +87,8 @@ export default {
     },
     async ping (ip) {
       this.hostOK = false
-      if (this.$utils.empty(ip)) {
-        return `${this.$utils.time()} 🚩郵件主機不能為空值`
+      if (!this.$utils.isIPv4(ip)) {
+        return `${this.$utils.time()} 🚩郵件主機必須為正確的IPv4位址`
       }
       try {
         const { data } = await this.$axios.post(this.$consts.API.JSON.IP, {
@@ -96,7 +97,7 @@ export default {
           port: 143
         })
         this.hostOK = this.$utils.statusCheck(data.status)
-        return `${this.$utils.time()} ${this.hostOK ? '✅' : '⚠️'} ${data.message}`
+        return `${this.$utils.time()} ${this.hostOK ? '✅' : '⚠️'} ${data.message} (TCP:143)`
       } catch (e) {
         this.$utils.error(e)
         return `${this.$utils.time()} ${ip}:143 測試失敗(${e.message})`
