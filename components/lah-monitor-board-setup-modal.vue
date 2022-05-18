@@ -19,7 +19,7 @@ b-modal(
     variant="outline-primary",
     title="更新",
     size="lg",
-    :disabled="isBusy || !valid",
+    :disabled="isBusy",
     @click="update"
   ) 確定修改
   lah-fa-icon(icon="list-alt", variant="secondary") 連線測試
@@ -48,12 +48,11 @@ export default {
     hostOK: false,
     account: '',
     password: '',
-    messages: []
+    messages: [],
+    imapOK: false,
+    imapTesting: false
   }),
   computed: {
-    valid () {
-      return this.hostOK
-    },
     payload () {
       return {
         MONITOR_MAIL_HOST: this.host,
@@ -70,6 +69,12 @@ export default {
     },
     host (val) {
       this.addTestHostMessage()
+    },
+    account (val) {
+      this.addTestImapMessage()
+    },
+    password (val) {
+      this.addTestImapMessage()
     }
   },
   created () {
@@ -78,11 +83,18 @@ export default {
     this.password = this.systemConfigs.monitor?.password
     this.addTestHostMessage = this.$utils.debounce(() => {
       this.ping(this.host).then((msg) => {
-        this.messages.unshift(msg)
+        this.addMessage(msg)
       }).catch((err) => {
-        this.messages.unshift(err)
+        this.addMessage(err)
       })
     }, 1000)
+    this.addTestImapMessage = this.$utils.debounce(() => {
+      this.imapTest().then((msg) => {
+        this.addMessage(msg)
+      }).catch((err) => {
+        this.addMessage(err)
+      })
+    }, 3000)
     this.addTestHostMessage()
   },
   methods: {
@@ -92,10 +104,41 @@ export default {
     hide () {
       this.$refs.setupModal?.hide()
     },
+    addMessage (msg) {
+      this.messages.unshift(`${this.$utils.time()} ${msg}`)
+    },
+    async imapTest () {
+      if (this.hostOK && !this.imapTesting) {
+        try {
+          this.imapOK = false
+          this.imapTesting = true
+          const { data } = await this.$axios.post(this.$consts.API.JSON.MONITOR, {
+            type: 'imap_open',
+            host: this.host,
+            account: this.account,
+            password: this.password
+          })
+          this.imapOK = this.$utils.statusCheck(data.status)
+          return `${this.imapOK ? '✅' : '⚠️'} ${data.message}`
+        } catch (e) {
+          this.$utils.error(e)
+          return `❌ IMAP測試失敗(${e.message})`
+        } finally {
+          this.imapTesting = false
+        }
+      }
+      if (!this.hostOK) {
+        return `${this.host} 無法連線 ... ❗`
+      }
+      if (this.imapTesting) {
+        return `測試 ${this.account} IMAP連線 ${this.host} 中 ... 🚧`
+      }
+      return '未知的錯誤'
+    },
     async ping (ip) {
       this.hostOK = false
       if (!this.$utils.isIPv4(ip)) {
-        return `${this.$utils.time()} 🚩郵件主機必須為正確的IPv4位址`
+        return '🚩郵件主機必須為正確的IPv4位址'
       }
       try {
         const { data } = await this.$axios.post(this.$consts.API.JSON.IP, {
@@ -104,10 +147,10 @@ export default {
           port: 143
         })
         this.hostOK = this.$utils.statusCheck(data.status)
-        return `${this.$utils.time()} ${this.hostOK ? '✅' : '⚠️'} ${data.message} (TCP:143)`
+        return `${this.hostOK ? '✅' : '⚠️'} ${data.message} (TCP:143)`
       } catch (e) {
         this.$utils.error(e)
-        return `${this.$utils.time()} ${ip}:143 測試失敗(${e.message})`
+        return `${ip}:143 測試失敗(${e.message})`
       }
     },
     update () {
