@@ -19,13 +19,16 @@ div(v-cloak)
           .mr-1 🟡 {{ yellow }}
           .mr-1 🟢 {{ green }}
           lah-button(
+            @click="$refs.setupModal.show()",
             icon="cog",
             variant="outline-secondary",
             size="lg",
+            action="clock",
             no-border,
             no-icon-gutter,
             title="設定"
           )
+    lah-monitor-board-setup-modal(ref="setupModal")
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示各監控標的狀態之功能
