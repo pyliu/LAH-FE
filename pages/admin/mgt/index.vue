@@ -13,11 +13,19 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
-        .d-flex
-          b-checkbox.my-auto.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch) 跨縣市AP
+        .d-flex.align-items.center
+          b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch) 跨縣市AP
           .mr-1 🔴 {{ red }}
           .mr-1 🟡 {{ yellow }}
           .mr-1 🟢 {{ green }}
+          lah-button(
+            icon="cog",
+            variant="outline-secondary",
+            size="lg",
+            no-border,
+            no-icon-gutter,
+            title="設定"
+          )
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示各監控標的狀態之功能
