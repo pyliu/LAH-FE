@@ -9,7 +9,7 @@ b-modal(
 )
   template(#modal-title): div(v-html="modalTitle")
   b-input-group(prepend="郵件主機")
-    b-input(v-model="host", title="主機IP", trim)
+    b-input(v-model="host", title="主機IP", @input="addTestHostMessage", trim)
   b-input-group.my-1(prepend="登入帳號")
     b-input(v-model="account", title="登入帳號", trim)
   b-input-group(prepend="登入密碼")
@@ -21,7 +21,7 @@ b-modal(
     :disabled="isBusy",
     @click="update"
   ) 確定修改
-  lah-fa-icon(icon="list-alt", variant="secondary") 測試訊息
+  lah-fa-icon(icon="list-alt", variant="secondary") 連線測試
   b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
     lah-fa-icon(
       v-if="idx === 0"
@@ -59,6 +59,13 @@ export default {
     this.host = this.systemConfigs.monitor.host
     this.account = this.systemConfigs.monitor.account
     this.password = this.systemConfigs.monitor.password
+    this.addTestHostMessage = this.$utils.debounce(() => {
+      this.ping(this.host).then((msg) => {
+        this.messages.unshift(msg)
+      }).catch((err) => {
+        this.messages.unshift(err)
+      })
+    }, 500)
   },
   methods: {
     show () {
@@ -66,6 +73,20 @@ export default {
     },
     hide () {
       this.$refs.setupModal?.hide()
+    },
+    async ping (ip) {
+      try {
+        const { data } = await this.$axios.post(this.$consts.API.JSON.IP, {
+          type: 'ping',
+          ip,
+          port: 143
+        })
+        // this.$utils.log(ip, data)
+        return data.message
+      } catch (e) {
+        this.$utils.error(e)
+      }
+      return `${ip}:143 測試失敗`
     },
     update () {
       this.quickUpdateConfig({
