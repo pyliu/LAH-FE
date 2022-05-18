@@ -12,10 +12,10 @@ export default {
   },
   async mounted () {
     const ua = window.navigator.userAgent
-    if (ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0) {
+    if (!ua.includes('AppleWebKit/') && !ua.includes('Chrome/') && !ua.includes('Safari/') && !ua.includes('Edg/')) {
       document.body.innerHTML = `
-        <h1 style="color: red; text-align: center; font-weight: bold; margin-top: 5rem;">不支援IE瀏覽器，請使用最新版本 Chrome 開啟本頁面</h1>
-        <h2 style="color: blue; text-align: center; font-weight: bold; margin-top: 5rem;">請將 ${window.location.href} 複製，貼到 CHROME 的網址列</h2>
+        <h1 style="color: red; text-align: center; font-weight: bold; margin-top: 5rem;">不支援此瀏覽器，請嘗試使用其他瀏覽器</h1>
+        <h2 style="color: blue; text-align: center; font-weight: bold; margin-top: 5rem;">請將 ${window.location.href} 複製，貼到另一個瀏覽器視窗的網址列</h2>
       `
     }
     // userNames initial value is undefined
