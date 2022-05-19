@@ -149,7 +149,7 @@ export default {
   async created () {
     this._reload = this.$utils.debounce(this.reloadConn, 500)
     this.sortBy = await this.getCache('lah-monitor-board-connectivity-sortby') || 'name'
-    this.type = await this.getCache('lah-monitor-board-connectivity-type') || 'line'
+    this.type = await this.getCache('lah-monitor-board-connectivity-type') || 'bar'
   },
   mounted () {
     this.loadWatchTarget()
