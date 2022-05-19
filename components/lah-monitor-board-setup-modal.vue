@@ -59,17 +59,9 @@ export default {
         MONITOR_MAIL_ACCOUNT: this.account,
         MONITOR_MAIL_PASSWORD: this.password
       }
-    },
-    connectionText () {
-      return `${this.account}@{${this.host}/novalidate-cert}INBOX`
     }
   },
   watch: {
-    systemConfigs (val) {
-      this.host = val.monitor?.host
-      this.account = val.monitor?.account
-      this.password = val.monitor?.password
-    },
     host (val) {
       this.addTestHostMessage()
     },
@@ -81,9 +73,6 @@ export default {
     }
   },
   created () {
-    this.host = this.systemConfigs.monitor?.host
-    this.account = this.systemConfigs.monitor?.account
-    this.password = this.systemConfigs.monitor?.password
     this.addTestHostMessage = this.$utils.debounce(() => {
       this.ping(this.host).then((msg) => {
         this.addMessage(msg)
@@ -97,8 +86,11 @@ export default {
       }).catch((err) => {
         this.addMessage(err)
       })
-    }, 3000)
+    }, 1500)
     this.addTestHostMessage()
+  },
+  mounted () {
+    this.loadConfig()
   },
   methods: {
     show () {
@@ -106,6 +98,11 @@ export default {
     },
     hide () {
       this.$refs.setupModal?.hide()
+    },
+    loadConfig () {
+      this.host = this.systemConfigs.monitor?.host
+      this.account = this.systemConfigs.monitor?.account
+      this.password = this.systemConfigs.monitor?.password
     },
     addMessage (msg) {
       this.messages.unshift(`${this.$utils.time()} ${msg}`)
