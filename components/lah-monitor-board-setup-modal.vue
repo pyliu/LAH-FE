@@ -59,6 +59,9 @@ export default {
         MONITOR_MAIL_ACCOUNT: this.account,
         MONITOR_MAIL_PASSWORD: this.password
       }
+    },
+    connectionText () {
+      return `${this.account}@{${this.host}/novalidate-cert}INBOX`
     }
   },
   watch: {
@@ -112,6 +115,7 @@ export default {
         try {
           this.imapOK = false
           this.imapTesting = true
+          this.addMessage(`👉 測試 ${this.connectionText} 連線中 ... `)
           const { data } = await this.$axios.post(this.$consts.API.JSON.MONITOR, {
             type: 'imap_open',
             host: this.host,
