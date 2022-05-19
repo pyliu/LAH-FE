@@ -151,10 +151,10 @@ export default {
           port: 143
         })
         this.hostOK = this.$utils.statusCheck(data.status)
-        return `${this.hostOK ? '✅' : '⚠️'} ${data.message} (TCP:143)`
+        return `${this.hostOK ? '✅' : '⚠️'} ${data.message} (埠號143)`
       } catch (e) {
         this.$utils.error(e)
-        return `${ip}:143 測試失敗(${e.message})`
+        return `❌ ${ip}:143 測試失敗(${e.message})`
       }
     },
     update () {
