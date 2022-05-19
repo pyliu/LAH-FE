@@ -33,6 +33,7 @@ div(v-cloak)
       ul
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
+        li 目前監控設定：{{ connectionText }}
   lah-transition: b-card-group.mb-4(deck, v-if="displayXAP")
       lah-monitor-board-xap
       lah-monitor-board-apconn
@@ -70,6 +71,11 @@ export default {
   }),
   head: {
     title: '智慧監控儀錶板-桃園市地政局'
+  },
+  computed: {
+    connectionText () {
+      return `${this.systemConfigs.monitor.account}@{${this.systemConfigs.monitor.host}/novalidate-cert}INBOX`
+    }
   },
   methods: {
     lightUpdate (payload) {
