@@ -92,7 +92,7 @@
             label-for="ext-input"
             label-cols-sm="2"
             label-size="md"
-          ): b-input(
+          ): b-input.border-info(
             id="ext-input"
             v-model="userData['ext']"
             :state="checkExt"
@@ -105,7 +105,7 @@
             label-for="work-title-select"
             label-cols-sm="2"
             label-size="md"
-          ): b-select(
+          ): b-select.border-info(
             id="work-title-select"
             v-model="userData['title']"
             :options="workTitleOpts"
@@ -119,7 +119,7 @@
             label-for="work-input"
             label-cols-sm="2"
             label-size="md"
-          ): b-input(
+          ): b-input.border-info(
             id="work-input"
             v-model="userData['work']"
             placeholder="範例：資訊系統管理"
