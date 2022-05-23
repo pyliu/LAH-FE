@@ -101,35 +101,6 @@
           )
         b-card.border-0(no-body)
           b-form-group(
-            label="手機"
-            label-for="cell-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="cell-input"
-            v-model="userData['cell']"
-            :state="checkCell"
-            :disabled="isDisabled"
-            trim
-          )
-
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="生日"
-            label-for="bd-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="bd-input"
-            v-model="userData['birthday']"
-            :state="checkBirthday"
-            :disabled="isDisabled"
-            placeholder="範例：066/05/23"
-            trim
-          )
-        b-card.border-0(no-body)
-          b-form-group(
             label="職稱"
             label-for="work-title-select"
             label-cols-sm="2"
@@ -139,34 +110,6 @@
             v-model="userData['title']"
             :options="workTitleOpts"
             :disabled="isDisabled"
-          )
-
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="考試"
-            label-for="exam-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="exam-input"
-            v-model="userData['exam']"
-            placeholder="範例：107年資訊處理高考三級"
-            :disabled="isDisabled"
-            trim
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="教育"
-            label-for="edu-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="edu-input"
-            v-model="userData['education']"
-            placeholder="範例：台北科技大學資訊工程研究所"
-            :disabled="isDisabled"
-            trim
           )
 
       b-card-group(deck)
@@ -196,6 +139,63 @@
             :state="checkOnboardDate"
             :disabled="isDisabled"
             placeholder="範例：110/06/01"
+          )
+
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="生日"
+            label-for="bd-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="bd-input"
+            v-model="userData['birthday']"
+            :state="checkBirthday"
+            :disabled="isDisabled"
+            placeholder="範例：066/05/23"
+            trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="手機"
+            label-for="cell-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="cell-input"
+            v-model="userData['cell']"
+            :state="checkCell"
+            :disabled="isDisabled"
+            trim
+          )
+
+      b-card-group(deck)
+        b-card.border-0(no-body)
+          b-form-group(
+            label="考試"
+            label-for="exam-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="exam-input"
+            v-model="userData['exam']"
+            placeholder="範例：107年資訊處理高考三級"
+            :disabled="isDisabled"
+            trim
+          )
+        b-card.border-0(no-body)
+          b-form-group(
+            label="教育"
+            label-for="edu-input"
+            label-cols-sm="2"
+            label-size="md"
+          ): b-input(
+            id="edu-input"
+            v-model="userData['education']"
+            placeholder="範例：台北科技大學資訊工程研究所"
+            :disabled="isDisabled"
+            trim
           )
 
       //- b-card-group(deck)
