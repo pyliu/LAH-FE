@@ -2,7 +2,7 @@
   b-card(v-if="found && isAuthorized" body-border-variant="danger")
     b-card-group(deck)
       b-card.border-0(no-body): b-form-group(
-        label="ID"
+        label="帳號"
         label-for="id-input"
         label-cols-sm="2"
         label-size="md"
@@ -13,6 +13,18 @@
         disabled
         trim
       )
+      b-card.border-0(no-body)
+        b-form-group(
+          label="權限"
+          label-for="ext-input"
+          label-cols-sm="2"
+          label-size="md"
+        ): b-checkbox-group(
+        v-model="authorities"
+        :options="authOpts"
+      )
+
+    b-card-group(deck)
       b-card.border-0(no-body): b-form-group(
         label="姓名"
         label-for="name-input"
@@ -22,6 +34,18 @@
         id="name-input"
         v-model="userData['name']"
         :state="checkName"
+        :disabled="isDisabled"
+        trim
+      )
+      b-card.border-0(no-body): b-form-group(
+        label="電腦"
+        label-for="ip-input"
+        label-cols-sm="2"
+        label-size="md"
+      ): b-input(
+        id="ip-input"
+        v-model="userData['ip']"
+        :state="checkIp"
         :disabled="isDisabled"
         trim
       )
@@ -51,30 +75,6 @@
           :options="unitOpts"
           :disabled="isDisabled"
         )
-
-    b-card-group(deck)
-      b-card.border-0(no-body): b-form-group(
-        label="電腦"
-        label-for="ip-input"
-        label-cols-sm="2"
-        label-size="md"
-      ): b-input(
-        id="ip-input"
-        v-model="userData['ip']"
-        :state="checkIp"
-        :disabled="isDisabled"
-        trim
-      )
-      b-card.border-0(no-body)
-        b-form-group(
-          label="權限"
-          label-for="ext-input"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-checkbox-group(
-        v-model="authorities"
-        :options="authOpts"
-      )
 
     .d-flex.justify-content-end.mb-2.toogle-block(@click="showOthers = !showOthers" style="cursor: pointer" title="切換其他欄位顯示")
       .mr-1 {{ showOthers ? '隱藏其他資訊欄位' : '顯示其他資訊欄位' }}
