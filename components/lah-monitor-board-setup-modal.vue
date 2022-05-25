@@ -112,7 +112,7 @@ export default {
         try {
           this.imapOK = false
           this.imapTesting = true
-          this.addMessage(`👉 測試 ${this.connectionText} 連線中 ... `)
+          this.addMessage('測試 IMAP 伺服器連線中 ... ')
           const { data } = await this.$axios.post(this.$consts.API.JSON.MONITOR, {
             type: 'imap_open',
             host: this.host,
