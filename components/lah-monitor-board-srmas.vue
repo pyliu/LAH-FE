@@ -7,20 +7,22 @@ b-card(:border-variant="border")
       lah-button(
         v-if="warnings.length > 0",
         variant="warning",
+        :title="`${monitorHrs}小時內告警訊息`"
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill,
         no-icon,
-        v-b-tooltip="`${monitorHrs}小時內告警訊息`"
+        v-b-tooltip.v-warning
       )
         //- span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
       lah-button.mx-1(
         v-if="restores.length > 0",
         variant="success",
+        :title="`${monitorHrs}小時內回復訊息`"
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
         no-icon,
-        v-b-tooltip="`${monitorHrs}小時內回復訊息`"
+        v-b-tooltip.v-success
       )
         //- span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
