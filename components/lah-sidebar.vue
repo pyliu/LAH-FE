@@ -27,9 +27,40 @@ b-sidebar#lah-sidebar(
 
       li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
 
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'cogs']", size="lg")]
-        系統管理選單
+      li(v-if="authority.isAdmin"): a(
+        :href="`${this.legacyUrl}/dashboard.html`",
+        target="_blank",
+        rel="noreferrer noopener"
+      ).
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'chalkboard-teacher']", size="lg")]
+        地政系統管理面板
+      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/mgt").
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'diagnoses']", size="lg")]
+        {{site}} 智慧監控儀錶板
+      li(v-if="authority.isAdmin"): nuxt-link(to="/monitor").
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'chart-bar']", size="lg")]
+        {{site}} 跨域伺服器監控
+      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/ip").
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'network-wired']", size="lg")]
+        IP對應名稱設定管理
+      li(v-if="authority.isUserMgtStaff || authority.isAdmin"): nuxt-link(
+        to="/admin/users"
+      ).
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'users-cog']", size="lg")]
+        員工管理
+      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'tasks']", size="lg")]
+        系統參數設定
+      //- li(v-if="authority.isAdmin"): a(
+      //-   :href="`${this.legacyUrl}/monitor.html`",
+      //-   target="_blank",
+      //-   rel="noreferrer noopener"
+      //- ).
+      //-   #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']", size="lg")]
+      //-   跨所伺服器監控面板
+      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
+        #[font-awesome-icon.fixed-width(:icon="['fab', 'watchman-monitoring']", size="lg")]
+        {{site}} 同步異動監控
 
       //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
       //-   #[font-awesome-icon.fixed-width(:icon="['fas', 'calculator']" size="lg")]
@@ -37,6 +68,9 @@ b-sidebar#lah-sidebar(
       //- li(v-if="isAuthorized"): nuxt-link(to="/playground").
       //-   #[font-awesome-icon.fixed-width(:icon="['fab', 'playstation']" size="lg")]
       //-   測試
+      li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
+        #[font-awesome-icon.fixed-width(:icon="['fas', 'cogs']", size="lg")]
+        系統管理選單
 
       li: hr
 
@@ -79,42 +113,6 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/reg-untaken-case").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'stamp']", size="lg")]
         領件管控查詢
-
-      li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
-      li(v-if="authority.isAdmin"): a(
-        :href="`${this.legacyUrl}/dashboard.html`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ).
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'chalkboard-teacher']", size="lg")]
-        地政系統管理面板
-      li(v-if="authority.isAdmin"): nuxt-link(to="/monitor").
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'chart-bar']", size="lg")]
-        {{site}} 跨域伺服器監控
-      //- li(v-if="authority.isAdmin"): a(
-      //-   :href="`${this.legacyUrl}/monitor.html`",
-      //-   target="_blank",
-      //-   rel="noreferrer noopener"
-      //- ).
-      //-   #[font-awesome-icon.fixed-width(:icon="['fas', 'columns']", size="lg")]
-      //-   跨所伺服器監控面板
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/mgt").
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'diagnoses']", size="lg")]
-        {{site}} 智慧監控儀錶板
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
-        #[font-awesome-icon.fixed-width(:icon="['fab', 'watchman-monitoring']", size="lg")]
-        {{site}} 同步異動監控
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/ip").
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'network-wired']", size="lg")]
-        IP對應名稱設定管理
-      li(v-if="authority.isUserMgtStaff || authority.isAdmin"): nuxt-link(
-        to="/admin/users"
-      ).
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'users-cog']", size="lg")]
-        員工管理
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
-        #[font-awesome-icon.fixed-width(:icon="['fas', 'tasks']", size="lg")]
-        系統參數設定
 
       li: hr
 
