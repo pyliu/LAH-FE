@@ -231,16 +231,18 @@ export default {
     }
   },
   watch: {
-    monitorHrs (dontcare) {
+    monitorHrs (val) {
       this.calcTime()
+      this.setCache('monitorHrs', val)
     }
   },
-  created () {
+  async created () {
     // debounce the input event
     this.calcTime = this.$utils.debounce(() => {
       this.duration = this.monitorHrs * 60 * 60 * 1000
       this.threadhold = (+new Date() - this.duration) / 1000
     }, 500)
+    this.monitorHrs = await this.getCache('monitorHrs') || 8
     this.calcTime()
   },
   methods: {
