@@ -74,7 +74,7 @@ export default {
   },
   computed: {
     connectionText () {
-      return `${this.systemConfigs.monitor.account}@{${this.systemConfigs.monitor.host}/novalidate-cert}INBOX`
+      return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
     }
   },
   methods: {
