@@ -6,6 +6,7 @@ import isEqual from 'lodash/isEqual'
 import isEmpty from 'lodash/isEmpty'
 import debounce from 'lodash/debounce'
 import remove from 'lodash/remove'
+import without from 'lodash/without'
 import filter from 'lodash/filter'
 import reject from 'lodash/reject'
 import sortedUniq from 'lodash/sortedUniq'
@@ -155,6 +156,7 @@ export default ({ $axios, store }, inject) => {
     debounce,
     remove,
     filter,
+    without,
     reject,
     sortedUniq,
     uniqBy,

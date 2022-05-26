@@ -1,8 +1,8 @@
 <template lang="pug">
-  span(:class="alignClassName")
-    i(v-if="!append" :id="iconId" :class="className" @click="emitClick($event)")
-    slot
-    i(v-if="append" :id="iconId" :class="className" @click="emitClick($event)")
+span(:class="alignClassName")
+  i(v-if="!append" :id="iconId" :class="className" @click="emitClick($event)")
+  slot
+  i(v-if="append" :id="iconId" :class="className" @click="emitClick($event)")
 </template>
 
 <script>
@@ -45,7 +45,12 @@ export default {
           }
           break
       }
-      return `${this.textVariant} ${prefix} fa-${icon} ${size} ${this.ldMovement} my-auto ${this.noGutter ? '' : (this.append ? ' ml-1' : ' mr-1')}`
+      const gutter = this.noGutter ? '' : (this.append ? ' ml-1' : ' mr-1')
+      // remove empty val from array
+      return this.$utils.without(
+        [this.textVariant, prefix, `fa-${icon}`, size, this.ldMovement, 'my-auto', gutter],
+        '', undefined, null
+      )
     },
     textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
     ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },

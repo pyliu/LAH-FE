@@ -14,11 +14,9 @@ div(v-cloak)
             title="說明"
           )
         .d-flex.align-items.center
-          b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch) 跨縣市AP
-          .mr-1 🔴 {{ red }}
-          .mr-1 🟡 {{ yellow }}
-          .mr-1 🟢 {{ green }}
-          lah-button(
+          b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
+            lah-fa-icon(icon="chart-line", :variant="'info'") 跨縣市AP
+          lah-button.mr-1(
             @click="$refs.setupModal.show()",
             icon="cog",
             variant="outline-secondary",
@@ -28,6 +26,9 @@ div(v-cloak)
             no-icon-gutter,
             title="設定"
           )
+          .mr-1 🔴 {{ red }}
+          .mr-1 🟡 {{ yellow }}
+          .mr-1 🟢 {{ green }}
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
