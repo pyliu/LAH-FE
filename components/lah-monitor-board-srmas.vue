@@ -10,9 +10,9 @@ b-card(:border-variant="border")
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
         pill,
         no-icon,
-        v-b-tooltip="`${monitorHrs}小時內`"
+        v-b-tooltip="`${monitorHrs}小時內告警訊息`"
       )
-        span.mr-1 告警
+        //- span.mr-1 告警
         b-badge(variant="light", pill) {{ warnings.length }}
       lah-button.mx-1(
         v-if="restores.length > 0",
@@ -20,9 +20,9 @@ b-card(:border-variant="border")
         @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
         no-icon,
-        v-b-tooltip="`${monitorHrs}小時內`"
+        v-b-tooltip="`${monitorHrs}小時內回復訊息`"
       )
-        span.mr-1 回復
+        //- span.mr-1 回復
         b-badge(variant="light", pill) {{ restores.length }}
       b-input-group.mx-1(size="sm", append="小時", style="max-width: 95px"): b-input(
         v-model="monitorHrs",
