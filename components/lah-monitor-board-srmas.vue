@@ -76,7 +76,7 @@ b-card(:border-variant="border")
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  .center.h-100.h3(v-else-if="problems.length === 0 && fixed.length === 0")
+  .center.h-90.h3(v-else-if="problems.length === 0 && fixed.length === 0")
     .mr-1 {{ monitorHrs }}小時內一切正常
     lah-fa-icon(icon="seedling", variant="success")
   div(v-else)
