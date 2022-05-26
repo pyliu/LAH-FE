@@ -129,7 +129,7 @@ export default {
         }
       }
       if (!this.hostOK) {
-        return `${this.host} 無法連線 ... ❗`
+        return `❗ ${this.host} 無法連線`
       }
       if (this.imapTesting) {
         return `測試 ${this.account} IMAP連線 ${this.host} 中 ... 🚧`
