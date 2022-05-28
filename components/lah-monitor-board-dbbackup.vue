@@ -108,10 +108,13 @@ export default {
       if (this.headMessages.length === 0 || this.headMessages.length !== 3) {
         this.lightChanged('warning', '', 'LahMonitorBoardDbbackup')
         return 'warning'
+      } else if (this.headMessages.some(item => item.subject.includes('未完成'))) {
+        this.lightChanged('danger', '', 'LahMonitorBoardDbbackup')
+        return 'danger'
       } else if (
         ts - this.opt2Message.timestamp * 1000 >= this.opt2Ms ||
         ts - this.opt4Message.timestamp * 1000 >= this.opt4Ms ||
-        (!this.isSaturday && ts - this.opt5Message.timestamp * 1000 >= this.opt5Ms)
+        (!this.isSaturday && (ts - this.opt5Message.timestamp * 1000 >= this.opt5Ms))
       ) {
         this.lightChanged('danger', '', 'LahMonitorBoardDbbackup')
         return 'danger'
@@ -131,7 +134,9 @@ export default {
     subjectCss (item) {
       const ts = +new Date()
       const cssList = []
-      if (
+      if (item.subject.includes('未完成')) {
+        cssList.push('text-danger')
+      } else if (
         item.subject.includes('BACKUP OPTION 2') &&
         (ts - item.timestamp * 1000 > this.opt2Ms)
       ) {
@@ -176,7 +181,7 @@ export default {
           mailbox: 'INBOX',
           message: `找不到 ${keyword} 已完成的通知郵件`,
           subject: `${keyword} 未完成！`,
-          timestamp: this.$utils.nowTs() / 1000 - ts / 1000
+          timestamp: this.$utils.nowTs() / 1000 - (ts) / 1000
         }
       }
       return found
