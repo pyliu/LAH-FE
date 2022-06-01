@@ -85,7 +85,7 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'hacmp',
     fetchDay: 1,
-    foundFsRegex: /\/.+\s+datavg\s+.+\s+ORAH[A-H]HA1,ORAH[A-H]HA2/gm
+    foundFsRegex: /\/.+\s+datavg\s+\w+\s+ORAH[A-H]HA1,ORAH[A-H]HA2/igm
   }),
   computed: {
     headMessage () {
