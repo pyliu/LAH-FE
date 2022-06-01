@@ -45,6 +45,7 @@ export default {
 
 <style lang="scss" scoped>
 .version {
+  font-weight: 900;
   position: absolute;
   right: 10px;
   bottom: 25%;

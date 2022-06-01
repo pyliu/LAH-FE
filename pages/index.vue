@@ -21,6 +21,7 @@
         lah-index-card-link(:icon="['fas', 'pager']" to="/reg-fix-case") 補正期滿案件查詢
         lah-index-card-link(:icon="['fas', 'bullhorn']" to="/reg-not-done-case") 辦畢通知案件查詢
         lah-index-card-link(:icon="['fas', 'stamp']" to="/reg-untaken-case") 領件管控查詢
+  .version v{{ $config.pkgVersion }}
 </template>
 
 <script>
@@ -56,5 +57,11 @@ export default {
   .b-card-group {
     height: 45%;
   }
+}
+.version {
+  font-weight: 900;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
 }
 </style>
