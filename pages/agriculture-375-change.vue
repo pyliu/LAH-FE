@@ -129,8 +129,8 @@ div
       template(#cell(GS_TYPE)="{ item }"): .text-nowrap {{ item.GS_TYPE }}:{{ item.GS_TYPE_CHT }}
       template(#cell(BS_TYPE)="{ item }"): .text-nowrap {{ item.BS_TYPE }}:{{ item.BS_TYPE_CHT }}
       template(#cell(BB15_1)="{ item }"): .text-nowrap {{ BB15_1Text(item) }}
-      template(#cell(BB09_NAME)="{ item }"): .text-nowrap {{ $utils.rareWordReplace(item.BB09_NAME) }}
-      template(#cell(BB09_ADDR)="{ item }"): div {{ $utils.rareWordReplace(item.BB09_ADDR) }}
+      template(#cell(BB09_NAME)="{ item }"): .text-nowrap {{ item.BB09_NAME }}
+      //- template(#cell(BB09_ADDR)="{ item }"): div {{ item.BB09_ADDR }}
   b-modal(
     :id="modalId",
     size="xl",

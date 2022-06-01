@@ -332,15 +332,6 @@ export default ({ $axios, store }, inject) => {
       }
       return false
     },
-    rareWordReplace (txt) {
-      if (typeof txt === 'string') {
-        const regex = /(BAD\+[\da-zA-Z]{2,3}[\da-zA-Z]?)|(&#\d+;)/ig
-        const after = txt.replace(regex, '○')
-        // txt.match(regex) && console.log(txt, after)
-        return after
-      }
-      return txt
-    },
     msToHuman (remainMs) {
       const seconds = (remainMs / 1000).toFixed(1)
       const minutes = (remainMs / (1000 * 60)).toFixed(1)
