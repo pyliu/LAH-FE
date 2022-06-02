@@ -23,7 +23,7 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
-      li: lah-sidebar-announcement(load-button, :load-count="3")
+      li: lah-timeline-announcement(load-button, :load-count="3")
 
       li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
 
