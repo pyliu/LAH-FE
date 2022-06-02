@@ -33,17 +33,18 @@ b-card.p-3.border-0(no-body)
           |{{ cleanTags(item.content) }}
 
         b-collapse(:id="`content-${index}`")
-          .item-description.timeline-img(
-            @click="handleContentClick($event)",
-            v-html="cleanText(item.content)"
-          )
-          .d-flex.justify-content-end.small.text-muted.mt-2
-            b-button(
-              variant="outline-secondary",
-              size="sm",
-              title="顯示使用者資訊",
-              @click="showUserCard(item)"
-            ) {{ displaySender(item) }}
+          .rounded.border.border-dark.mt-1.mb-1.p-2
+            .item-description.timeline-img(
+              @click="handleContentClick($event)",
+              v-html="cleanText(item.content)"
+            )
+            .d-flex.justify-content-end.small.text-muted.mt-2
+              b-button.s-60(
+                variant="outline-secondary",
+                size="sm",
+                title="顯示使用者資訊",
+                @click="showUserCard(item)"
+              ) {{ displaySender(item) }}
 </template>
 
 <script>
