@@ -23,7 +23,7 @@ h3.d-flex.justify-content-between.py-3
     )
     lah-button.home-button.ml-1(
       v-else
-      icon="user-circle"
+      icon="house-user"
       size="lg"
       action="ld-breath"
       variant="primary"
