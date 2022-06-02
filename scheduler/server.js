@@ -17,16 +17,16 @@ try {
   console.log(`啟動 watchdog 排程 ${watchdogCronConfig}`)
   schedule.scheduleJob(watchdogCronConfig, debounce(() => {
     const url = `${baseAPIUrl}/api/query_json_api.php`
-    console.log('執行 watchdog 請求')
+    isDev && console.log('執行 watchdog 請求')
     axios.post(
       url,
       qs.stringify({ type: 'watchdog' })
     ).then(({ data }) => {
-      console.log(data.message)
+      isDev && console.log(data.message)
     }).catch((err) => {
       console.error(err)
     }).finally(() => {
-      console.log('完成 watchdog 請求')
+      isDev && console.log('完成 watchdog 請求')
     })
   }, randomDelay(50, 500)))
 
@@ -34,16 +34,16 @@ try {
   console.log(`啟動 scheduler 排程 ${schedulerCronConfig}`)
   schedule.scheduleJob(schedulerCronConfig, debounce(() => {
     const url = `${baseAPIUrl}/api/schedule_json_api.php`
-    console.log('執行 scheduler 請求')
+    isDev && console.log('執行 scheduler 請求')
     axios.post(
       url,
       qs.stringify({ type: 'reqular' })
     ).then(({ data }) => {
-      console.log(data.message)
+      isDev && console.log(data.message)
     }).catch((err) => {
       console.error(err)
     }).finally(() => {
-      console.log('完成 scheduler 請求')
+      isDev && console.log('完成 scheduler 請求')
     })
   }, randomDelay(50, 500)))
 
