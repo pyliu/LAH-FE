@@ -9,11 +9,11 @@ div: client-only
         variant="outline-success",
         no-border,
         no-icon-gutter,
-        @click="showModalById('help-modal')",
+        @click="$refs.helpMpdal.show()",
         title="說明"
       )
-      lah-help-modal(:modal-id="'help-modal'"): ul
-        li TBD...
+      lah-help-modal(ref="helpMpdal"): ul
+        li 顯示與自身相關的各項統計儀錶板
     .d-flex
   b-card-group(columns)
     b-card(no-body)
@@ -26,7 +26,7 @@ div: client-only
 
     b-card
       template(#header): .d-flex: .text-nowrap.my-auto 罕用字測試
-      span       
+      span      
 
 </template>
 

@@ -22,7 +22,7 @@ h3.d-flex.justify-content-between.py-3
       no-icon-gutter
     )
     lah-button.home-button.ml-1(
-      v-else
+      v-else-if="authority.isAdmin"
       icon="house-user"
       size="lg"
       action="ld-breath"
