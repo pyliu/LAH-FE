@@ -76,7 +76,7 @@ b-sidebar#lah-sidebar(
 
       li: nuxt-link(to="/expire").
         #[font-awesome-icon.fixed-width(:icon="['far', 'calendar-check']", size="lg")]
-        登記逾期案件
+        即將逾期案件(登記)
       li: nuxt-link(to="/expire/sur").
         #[font-awesome-icon.fixed-width(:icon="['far', 'calendar-alt']", size="lg")]
         測量逾期案件
@@ -100,7 +100,7 @@ b-sidebar#lah-sidebar(
         375租約異動
       li: nuxt-link(to="/not-done-change").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'monument']", size="lg")]
-        未辦標的註記異動
+        未辦繼承標的註記異動
       li: nuxt-link(to="/land-ref-change").
         #[font-awesome-icon.fixed-width(:icon="['fas', 'landmark']", size="lg")]
         土地參考資訊檔異動
