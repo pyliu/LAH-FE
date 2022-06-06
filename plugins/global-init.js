@@ -105,7 +105,8 @@ export default ({ $axios, store }, inject) => {
         SYSTEM: '/api/system_json_api.php',
         IP: '/api/ip_json_api.php',
         NOTIFICATION: '/api/notification_json_api.php',
-        MONITOR: '/api/monitor_json_api.php'
+        MONITOR: '/api/monitor_json_api.php',
+        MYQUERY: '/api/myquery_json_api.php'
       },
       FILE: {
         LOAD: '/api/load_file_api.php',
