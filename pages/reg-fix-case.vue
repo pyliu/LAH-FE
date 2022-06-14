@@ -298,7 +298,7 @@ export default {
   },
   computed: {
     dataReady () { return this.rows?.length > 0 },
-    queryCount () { return this.filterRows?.length || 0 },
+    queryCount () { return this.filterRows ? this.filterRows.length : 0 },
     cacheKey () { return 'query_reg_fix_case' },
     foundText () { return `找到 ${this.queryCount} 筆「補正」、「補正初核」案件資料` },
     filterRows () {
