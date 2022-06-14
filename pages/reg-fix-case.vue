@@ -306,7 +306,7 @@ export default {
         let pipelineItems = this.rows
         const checkNum = !this.$utils.empty(this.advOpts.caseNum)
         if (checkNum) {
-          pipelineItems = pipelineItems.filter((item) => {
+          pipelineItems = pipelineItems?.filter((item) => {
             return item.收件字號.match(this.advOpts.caseNum) !== null
           })
         }
@@ -315,7 +315,7 @@ export default {
           if (this.advOpts.caseWord === '本所關注案件') {
             const alphabet = this.site[1]
             const number = alphabet.charCodeAt(0) - 64
-            pipelineItems = pipelineItems.filter((item) => {
+            pipelineItems = pipelineItems?.filter((item) => {
               const extractedWord = item.收件字號.match(/\(.+\)/gm)[0].replace(/[()]/gm, '')
               if (extractedWord.startsWith(this.site) && !extractedWord.endsWith('1')) {
                 return true
@@ -327,44 +327,44 @@ export default {
               return false
             })
           } else {
-            pipelineItems = pipelineItems.filter((item) => {
+            pipelineItems = pipelineItems?.filter((item) => {
               return item.收件字號.match(this.advOpts.caseWord) !== null
             })
           }
         }
         const checkYear = !this.$utils.empty(this.advOpts.caseYear)
         if (checkYear) {
-          pipelineItems = pipelineItems.filter((item) => {
+          pipelineItems = pipelineItems?.filter((item) => {
             return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
           })
         }
         const checkReason = !this.$utils.empty(this.advOpts.caseReason)
         if (checkReason) {
-          pipelineItems = pipelineItems.filter((item) => {
+          pipelineItems = pipelineItems?.filter((item) => {
             return item.登記原因 === this.advOpts.caseReason
           })
         }
         const checkState = !this.$utils.empty(this.advOpts.caseState)
         if (checkState) {
-          pipelineItems = pipelineItems.filter((item) => {
+          pipelineItems = pipelineItems?.filter((item) => {
             return item.辦理情形 === this.advOpts.caseState
           })
         }
         const checkPreliminator = !this.$utils.empty(this.advOpts.casePreliminator)
         if (checkPreliminator) {
-          pipelineItems = pipelineItems.filter((item) => {
+          pipelineItems = pipelineItems?.filter((item) => {
             return item.初審人員 === this.advOpts.casePreliminator
           })
         }
         const checkFixDate = !this.$utils.empty(this.advOpts.caseFixDate)
         if (checkFixDate) {
-          pipelineItems = pipelineItems.filter((item) => {
+          pipelineItems = pipelineItems?.filter((item) => {
             return item.通知補正日期 === this.advOpts.caseFixDate
           })
         }
         const checkFixDeadline = !this.$utils.empty(this.advOpts.caseFixDeadline)
         if (checkFixDeadline) {
-          pipelineItems = pipelineItems.filter((item) => {
+          pipelineItems = pipelineItems?.filter((item) => {
             return item.補正期滿日期 === this.advOpts.caseFixDeadline
           })
         }
