@@ -298,7 +298,7 @@ export default {
   },
   computed: {
     dataReady () { return this.rows?.length > 0 },
-    queryCount () { return this.filterRows ? this.filterRows.length : 0 },
+    queryCount () { return this.filterRows?.length || 0 },
     cacheKey () { return 'query_reg_fix_case' },
     foundText () { return `找到 ${this.queryCount} 筆「補正」、「補正初核」案件資料` },
     filterRows () {
@@ -316,7 +316,8 @@ export default {
             const alphabet = this.site[1]
             const number = alphabet.charCodeAt(0) - 64
             pipelineItems = pipelineItems?.filter((item) => {
-              const extractedWord = item.收件字號.match(/\(.+\)/gm)[0].replace(/[()]/gm, '')
+              // const extractedWord = item.收件字號.match(/年\s?\(?.+\)?\s?第/gm)[0]?.replace(/[()\s年第]/gm, '')
+              const extractedWord = item.RM02
               if (extractedWord.startsWith(this.site) && !extractedWord.endsWith('1')) {
                 return true
               } else if (extractedWord.endsWith(`${alphabet}1`)) {
