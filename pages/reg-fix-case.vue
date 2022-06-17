@@ -315,9 +315,10 @@ export default {
           if (this.advOpts.caseWord === '本所關注案件') {
             const alphabet = this.site[1]
             const number = alphabet.charCodeAt(0) - 64
+            const matchRegex = /年\s?\(?.+\)?\s?第/gm
             pipelineItems = pipelineItems?.filter((item) => {
-              // const extractedWord = item.收件字號.match(/年\s?\(?.+\)?\s?第/gm)[0]?.replace(/[()\s年第]/gm, '')
-              const extractedWord = item.RM02
+              let extractedWord = item.RM02 ? item.RM02 : (item.收件字號.match(matchRegex) ? item.收件字號.match(matchRegex)[0] : '')
+              extractedWord = extractedWord?.replace(/[()\s年第]/gm, '')
               if (extractedWord.startsWith(this.site) && !extractedWord.endsWith('1')) {
                 return true
               } else if (extractedWord.endsWith(`${alphabet}1`)) {
