@@ -115,8 +115,11 @@ export default {
     },
     cleanText (text) {
       const domsafe = this.$utils.convertMarkd(text)
-      // convert for images ...
-      return this.$utils.convertInlineMarkd(domsafe?.replaceAll('\n', ''))
+      if (/!\[.+\]\(data:image\/.+\)/gm.test(domsafe)) {
+        // convert for images ...
+        return this.$utils.convertInlineMarkd(domsafe?.repaceAll('\n', ''))
+      }
+      return domsafe
     },
     removeBase64Img (text) {
       return text?.replaceAll(/!\[.+\]\(data:image\/.+\)/gm, '')

@@ -8,10 +8,6 @@
 </template>
 
 <script>
-import DOMPurify from 'dompurify'
-import { marked } from 'marked'
-import isEmpty from 'lodash/isEmpty'
-
 export default {
   props: {
     dataJson: { type: Object, required: true }
@@ -22,7 +18,7 @@ export default {
       return this.$utils.empty(this.dataJson.create_datetime) ? '' : this.dataJson.create_datetime.split(' ')[1]
     },
     message () {
-      if (isEmpty(this.dataJson.content)) {
+      if (this.$utils.empty(this.dataJson.content)) {
         return ''
       }
       // return DOMPurify?.sanitize(marked.parse(this.dataJson.content.replaceAll('\n', '  \n')))
