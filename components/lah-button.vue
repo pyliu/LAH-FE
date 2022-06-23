@@ -1,38 +1,38 @@
 <template lang="pug">
-  b-button.text-nowrap(
-    :link="link"
-    :variant="variant"
-    :size="size"
-    :pill="pill"
-    :block="block"
-    :pressed="pressed"
-    :class="noBorder ? 'border-0 align-middle' : ' align-middle'"
-    :href="href"
-    :disabled="disabled"
-    @mouseenter="mouseenter"
-    @mouseleave="mouseleave"
-    @blur="mouseleave"
-    @click="emitClick($event)"
-    style="display: flex; align-items: center; justify-content: center;"
+b-button.text-nowrap(
+  :link="link"
+  :variant="variant"
+  :size="size"
+  :pill="pill"
+  :block="block"
+  :pressed="pressed"
+  :class="noBorder ? 'border-0 align-middle' : ' align-middle'"
+  :href="href"
+  :disabled="disabled"
+  @mouseenter="mouseenter"
+  @mouseleave="mouseleave"
+  @blur="mouseleave"
+  @click="emitClick($event)"
+  style="display: flex; align-items: center; justify-content: center;"
+)
+  lah-fa-icon(
+    ref="icon"
+    v-if="!noIcon"
+    :prefix="faIconPrefix"
+    :icon="icon"
+    :size="iconSize"
+    :append="iconAppend"
+    :no-gutter="noIconGutter"
+    :variant="iconVariant"
   )
-    lah-fa-icon(
-      ref="icon"
-      v-if="!noIcon"
-      :prefix="faIconPrefix"
-      :icon="icon"
-      :size="iconSize"
-      :append="iconAppend"
-      :no-gutter="noIconGutter"
-      :variant="iconVariant"
-    )
-    span.ld-txt(v-if="busy") 讀取中...
-    span(v-show="!busy")
-      slot
-      b-badge.ml-1(
-        v-if="showBadge"
-        :variant="badgeVariant"
-        :pill="badgePill"
-      ) {{ badgeText }}
+  span.ld-txt(v-if="busy") 讀取中...
+  span(v-show="!busy")
+    slot
+    b-badge.ml-1(
+      v-if="showBadge"
+      :variant="badgeVariant"
+      :pill="badgePill"
+    ) {{ badgeText }}
 </template>
 
 <script>
