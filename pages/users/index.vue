@@ -89,8 +89,8 @@ export default {
     ],
     sortOrder: false,
     sortOpts: [
-      { html: '<i class="fas fa-sort-amount-down-alt"/>', value: true, disabled: false },
-      { html: '<i class="fas fa-sort-amount-down"/>', value: false, disabled: false }
+      { html: '↓', value: true, disabled: false },
+      { html: '↑', value: false, disabled: false }
     ],
     showAvatar: false,
     userXlsx: null,
