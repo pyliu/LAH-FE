@@ -5,8 +5,8 @@ lah-transition(slide-up appear): .d-flex.align-items-center.justify-content-cent
     target="_blank"
     title="View project on Github!"
   ): i.fab.fa-github.fa-lg.text-dark.mr-1
-  strong.
-    #[i.far.fa-copyright]
+  strong.d-inline-flex.align-items-center.
+    #[lah-fa-icon(icon="copyright", regular)]
     #[a(href="mailto:pangyu.liu@gmail.com") LIU, PANG-YU]
     ALL RIGHTS RESERVED.
   a(href="https://vuejs.org/" target="_blank" title="Learn Vue JS!"): i.text-success.fab.fa-vuejs.fa-lg
