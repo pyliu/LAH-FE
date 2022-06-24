@@ -15,7 +15,7 @@ div(v-cloak)
           )
         .d-flex.align-items.center
           b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
-            lah-fa-icon(:icon="displayXAP ? 'chart-line' : 'chart-bar'", :variant="displayXAP ? 'secondary' : 'primary'") 跨縣市AP
+            lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨縣市AP
           lah-button.mr-1(
             @click="$refs.setupModal.show()",
             icon="cog",
