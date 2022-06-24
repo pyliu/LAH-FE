@@ -53,11 +53,11 @@
       :baked-data="bakedData"
       :fields="fields"
     )
-    lah-transition.center.h3: lah-fa-icon(
+    lah-transition: .center.h3: lah-fa-icon(
       v-cloak
       v-if="queryCount === 0 && !isBusy"
       icon="exclamation-circle"
-      prefix="fas"
+      variant="success"
     ) 無資料
 </template>
 
