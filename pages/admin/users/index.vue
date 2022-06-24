@@ -21,37 +21,9 @@ div(v-cloak)
           no-icon-gutter
           @click="add"
         )
-        //- lah-button(
-        //-   icon="upload"
-        //-   variant="outline-secondary"
-        //-   title="批次檔上傳更新"
-        //-   action="move-fade-btt"
-        //-   no-icon-gutter
-        //-   v-b-modal.upload-ui
-        //- )
-        //- lah-button(
-        //-   icon="file-excel"
-        //-   regular
-        //-   title="匯出系統全部使用者"
-        //-   variant="outline-success"
-        //-   no-icon-gutter
-        //-   action="move-fade-ltr"
-        //-   @click="exportXlsx"
-        //- )
 
   lah-help-modal(:modal-id="'help-modal'" size="lg")
     ul
-      //- li: .d-inline-flex.justify-content-around
-      //-   span 選取編輯好的XLSX檔案，點擊
-      //-   lah-button(
-      //-     icon="upload"
-      //-     variant="outline-secondary"
-      //-     class="mx-1 mt-n1"
-      //-     no-icon-gutter
-      //-     v-b-modal.upload-ui
-      //-   )
-      //-   span 上傳更新本地資料庫(dimension.db, user表格)
-
       li: .d-inline-flex.justify-content-around
         span 利用
         lah-button(
@@ -221,8 +193,8 @@ export default {
     ],
     sortOrder: false,
     sortOpts: [
-      { html: '<i class="fas fa-sort-amount-down-alt"/>', value: true, disabled: false },
-      { html: '<i class="fas fa-sort-amount-down"/>', value: false, disabled: false }
+      { html: '↓', value: true, disabled: false },
+      { html: '↑', value: false, disabled: false }
     ],
     showAvatar: false,
     showIp: false,
