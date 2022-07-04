@@ -21,6 +21,8 @@ import { zhTW } from 'date-fns/locale'
 
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
+
+import highlightWords from 'highlight-words'
 marked.setOptions({
   breaks: true
 })
@@ -393,6 +395,72 @@ export default ({ $axios, store }, inject) => {
     },
     length (chinese) {
       return chinese.replace(/[^\x00-\xFF]/g, 'xx').length
+    },
+    highlight (str, regex, css, title = '') {
+      const chunks = highlightWords({
+        text: str,
+        query: regex
+      })
+      if (chunks) {
+        return chunks.map(({ text, match, key }) => {
+          return match ? (`<span class="${css}" title="${title}" key="${key}">${text}</span>`) : text
+        }).join('')
+      }
+      return str
+    },
+    highlightBlue (str) {
+      return this.highlight(
+        str,
+        /(\{{2}b.+?b\}{2})/igm,
+        'text-bold-blue'
+      ).replace(/(\{{2}b|b\}{2})/igm, '')
+    },
+    highlightRed (str) {
+      return this.highlight(
+        str,
+        /(\{{2}r.+?r\}{2})/,
+        'text-bold-red'
+      ).replace(/(\{{2}r|r\}{2})/igm, '')
+    },
+    highlightGreen (str) {
+      return this.highlight(
+        str,
+        /(\{{2}g.+?g\}{2})/,
+        'text-bold-green'
+      ).replace(/(\{{2}g|g\}{2})/igm, '')
+    },
+    highlightOrange (str) {
+      return this.highlight(
+        str,
+        /(\{{2}o.+?o\}{2})/,
+        'text-bold-orange'
+      ).replace(/(\{{2}o|o\}{2})/igm, '')
+    },
+    highlightTimestamp (str, css = 'text-bold-blue') {
+      return this.highlight(
+        str,
+        /([0-2]?[0-9]：[0-5]?[0-9]|\s[0-2]?[0-9]:[0-5]?[0-9]\s|\([0-1]?[0-9]\/[0-3]?[0-9].*?\)|[0-1]?[0-9][／月][0-3]?[0-9]日?|\s[0-1]?[0-9][\/／][0-3]?[0-9]\s|[0-2]?[0-9][:：][0-5]?[0-9]\s?[\-~]\s?[0-2]?[0-9][:：][0-5]?[0-9]|[0-2]?[0-9][點時分秒HhSsMm]?[:：]?[0-5]?[0-9]?\s?[\-~]\s?[0-2]?[0-9][點時Hh][:：]?[0-5]?[0-9]?|[0-1]?[0-9][\/／][0-3]?[0-9]\s?[\-~]\s?[0-1]?[0-9][\/／][0-3]?[0-9])/i,
+        css
+      )
+    },
+    highlightTitle (str, css = 'font-weight-bold') {
+      return this.highlight(
+        str,
+        /(['「（【《『〈〔].+?[〕〉』》】）」'])/i,
+        css
+      )
+    },
+    highlightPipeline (str) {
+      if (str) {
+        let tmp = this.highlightBlue(str)
+        tmp = this.highlightRed(tmp)
+        tmp = this.highlightOrange(tmp)
+        tmp = this.highlightGreen(tmp)
+        tmp = this.highlightTimestamp(tmp)
+        tmp = this.highlightTitle(tmp)
+        return tmp
+      }
+      return str
     },
     log: console.log.bind(console),
     warn: console.warn.bind(console),

@@ -114,7 +114,8 @@ export default {
       return `${item.sender} ${this.userNames[item.sender]}`
     },
     cleanText (text) {
-      const domsafe = this.$utils.convertMarkd(text)
+      const highlighted = this.$utils.highlightPipeline(text)
+      const domsafe = this.$utils.convertMarkd(highlighted)
       if (/!\[.+\]\(data:image\/.+\)/gm.test(domsafe)) {
         // convert for images ...
         return this.$utils.convertInlineMarkd(domsafe?.repaceAll('\n', ''))

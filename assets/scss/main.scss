@@ -99,6 +99,26 @@ blockquote p {
   }
 }
 
+.text-bold-red {
+  color:red;
+  font-weight: bold;
+}
+
+.text-bold-blue {
+  color:blue;
+  font-weight: bold;
+}
+
+.text-bold-orange {
+  color:orange;
+  font-weight: bold;
+}
+
+.text-bold-green {
+  color:limegreen;
+  font-weight: bold;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
