@@ -31,7 +31,7 @@ div(v-cloak)
             action="move-fade-rtl",
             no-border,
             no-icon-gutter,
-            title="上一頁"
+            title="上一個面板"
           )
           lah-button(
             @click="next()",
@@ -41,14 +41,15 @@ div(v-cloak)
             action="move-fade-ltr",
             no-border,
             no-icon-gutter,
-            title="下一頁"
+            title="下一個面板"
           )
         .d-flex.align-items-center
           .mr-1 每
           b-spinbutton(
             v-model="secs",
-            min="5",
+            min="0",
             max="60",
+            title="設定為0會停止自動切換面板",
             inline
           )
           .mx-1 秒自動切換
