@@ -13,7 +13,16 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
-        .d-flex.align-items.center
+          lah-button(
+            icon="circle-right",
+            variant="outline-primary",
+            to="/admin/mgt/carousel",
+            regular,
+            no-border,
+            no-icon-gutter,
+            title="走馬燈版本"
+          )
+        .d-flex.align-items-center
           b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
             lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨域AP
           lah-button.mr-1(
