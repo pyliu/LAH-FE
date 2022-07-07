@@ -52,6 +52,14 @@ div
         :jsons="currentList"
         :header="queryTitle"
       )
+      lah-button.mr-1(
+        icon="chart-column",
+        size="lg",
+        title="開啟統計圖表",
+        :href="`${legacyUrl}/overdue_reg_cases.html`",
+        no-icon-gutter,
+        link
+      )
       lah-countdown-button(
         ref="countdown"
         icon="sync-alt"
