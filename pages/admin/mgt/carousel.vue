@@ -22,20 +22,20 @@ div(v-cloak)
             no-icon-gutter,
             title="正常版本"
           )
-        lah-countdown-button(
-          ref="countdown",
-          icon="tv",
-          action="slide-rtl",
-          auto-start,
-          title="立即切換版面",
-          variant="outline-primary",
-          badge-variant="secondary",
-          :milliseconds="carouselInterval",
-          @end="next()",
-          @click="next()"
-        )
         .d-flex.align-items-center
-          .mr-1 每
+          lah-countdown-button(
+            ref="countdown",
+            icon="tv",
+            action="slide-rtl",
+            auto-start,
+            title="立即切換版面",
+            variant="outline-primary",
+            badge-variant="secondary",
+            :milliseconds="carouselInterval",
+            @end="next()",
+            @click="next()"
+          ) 切換版面
+          .mx-1 每
           b-spinbutton(
             v-model="secs",
             min="0",
@@ -44,6 +44,7 @@ div(v-cloak)
             inline
           )
           .mx-1 秒自動切換
+        .d-flex.align-items-center
           lah-button.mr-1(
             @click="$refs.setupModal.show()",
             icon="cog",
