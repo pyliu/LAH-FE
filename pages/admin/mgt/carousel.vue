@@ -22,27 +22,18 @@ div(v-cloak)
             no-icon-gutter,
             title="正常版本"
           )
-        .d-flex.align-items-center
-          lah-button.mr-5(
-            @click="prev()",
-            icon="arrow-left-long",
-            variant="primary",
-            size="lg",
-            action="move-fade-rtl",
-            no-border,
-            no-icon-gutter,
-            title="上一個面板"
-          )
-          lah-button(
-            @click="next()",
-            icon="arrow-right-long",
-            variant="primary",
-            size="lg",
-            action="move-fade-ltr",
-            no-border,
-            no-icon-gutter,
-            title="下一個面板"
-          )
+        lah-countdown-button(
+          ref="countdown",
+          icon="tv",
+          action="slide-rtl",
+          auto-start,
+          title="立即切換版面",
+          variant="outline-primary",
+          badge-variant="secondary",
+          :milliseconds="carouselInterval",
+          @end="next()",
+          @click="next()"
+        )
         .d-flex.align-items-center
           .mr-1 每
           b-spinbutton(
@@ -76,7 +67,7 @@ div(v-cloak)
     b-carousel.mb-4(
       ref="xap",
       v-if="displayXAP",
-      :interval="carouselInterval"
+      :interval="0"
     )
       b-carousel-slide: template(#img): b-card-group.card-body-fixed-height(deck)
         lah-monitor-board-xap
@@ -89,7 +80,7 @@ div(v-cloak)
         lah-lxhweb-board(target-ip="L3HWEB")
   b-carousel(
     ref="boards",
-    :interval="carouselInterval"
+    :interval="0"
   )
     b-carousel-slide: template(#img)
       b-card-group.mb-4.card-body-fixed-height(deck)
@@ -137,6 +128,7 @@ export default {
     secs (val) {
       const int = parseInt(val)
       this.setCache('monitorBoardsCarouselSecs', int && int > 0 ? int : 10)
+      this.resetTimer()
     }
   },
   async created () {
@@ -144,6 +136,9 @@ export default {
   },
   mounted () {
     this.$nextTick(() => { this.displayXAP = true })
+  },
+  beforeDestroy () {
+    this.$refs.countdown?.pauseCountdown()
   },
   methods: {
     lightUpdate (payload) {
@@ -162,10 +157,16 @@ export default {
     prev () {
       this.$refs.xap?.prev()
       this.$refs.boards?.prev()
+      this.resetTimer()
     },
     next () {
       this.$refs.xap?.next()
       this.$refs.boards?.next()
+      this.resetTimer()
+    },
+    resetTimer () {
+      this.$refs.countdown?.setCountdown(this.carouselInterval)
+      this.carouselInterval > 0 && this.$refs.countdown?.startCountdown()
     }
   }
 }
