@@ -56,7 +56,7 @@ div
         icon="chart-column",
         size="lg",
         title="開啟統計圖表",
-        :href="`${legacyUrl}/overdue_reg_cases.html`",
+        :href="`${legacyUrl}/overdue_reg_cases.html?chart=1`",
         no-icon-gutter,
         link
       )
