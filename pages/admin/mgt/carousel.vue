@@ -39,7 +39,7 @@ div(v-cloak)
           b-spinbutton(
             v-model="secs",
             min="0",
-            max="60",
+            max="180",
             title="設定為0會停止自動切換面板",
             inline
           )
