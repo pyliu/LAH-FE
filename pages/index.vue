@@ -4,7 +4,7 @@
   .container: .anim-appear-1s
     section.fixed-title-height.center: div
       lah-logo
-      h3.title.lah-shadow.text-nowrap 桃園市地政智慧管控系統
+      h3.title.lah-shadow.text-nowrap 桃園市地政智慧控管系統
     section.b-card-container
       b-card-group(deck)
         lah-index-card-link(v-if="isSur", :icon="['far', 'calendar-alt']" to="/expire/sur") 測量逾期案件
@@ -27,7 +27,7 @@
 <script>
 export default {
   head: {
-    title: '桃園市地政智慧管控系統'
+    title: '桃園市地政智慧控管系統'
   },
   computed: {
     isSur () { return this.myinfo.unit === '測量課' }
