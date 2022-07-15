@@ -298,7 +298,8 @@ export default {
             const number = alphabet.charCodeAt(0) - 64
             pipelineItems = pipelineItems.filter((item) => {
               const extractedWord = item.收件字號.match(/\(.+\)/gm)[0].replace(/[()]/gm, '')
-              if (extractedWord.startsWith(this.site) && !extractedWord.endsWith('1')) {
+              this.$utils.warn(item.收件字號, extractedWord)
+              if (extractedWord.startsWith(this.site)) {
                 return true
               } else if (extractedWord.endsWith(`${alphabet}1`)) {
                 return true
