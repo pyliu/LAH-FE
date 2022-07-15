@@ -70,8 +70,8 @@ export default {
       return `未支援 ${this.targetIp} 監控`
     },
     alive () {
-      const latency = parseInt(this.pingLatency)
-      return latency > 0 && latency < 1000
+      const latency = parseFloat(this.pingLatency)
+      return latency > 0 && latency < 3000
     },
     headerLight () {
       if (this.alive) {
