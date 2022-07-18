@@ -80,39 +80,39 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/expire/sur").
         #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
         測量逾期案件
-      li: nuxt-link(to="/expiry-of-announcement").
-        #[font-awesome-icon(:icon="['fa', 'sticky-note']", fixed-width, size="lg")]
-        公告案件
       li: nuxt-link(to="/ask-for-instructions").
         #[font-awesome-icon(:icon="['fas', 'user-tie']", fixed-width, size="lg")]
         取消請示案件
+      li: nuxt-link(to="/reg-fix-case").
+        #[font-awesome-icon(:icon="['fas', 'pager']", fixed-width, size="lg")]
+        補正期滿案件
+      li: nuxt-link(to="/expiry-of-announcement").
+        #[font-awesome-icon(:icon="['fa', 'sticky-note']", fixed-width, size="lg")]
+        公告案件
+      li: nuxt-link(to="/reg-untaken-case").
+        #[font-awesome-icon(:icon="['fas', 'stamp']", fixed-width, size="lg")]
+        領件管控
+      li: nuxt-link(to="/reg-not-done-case").
+        #[font-awesome-icon(:icon="['fas', 'bullhorn']", fixed-width, size="lg")]
+        辦畢通知案件
       li: nuxt-link(to="/trust").
         #[font-awesome-icon(:icon="['fas', 'money-check-alt']", fixed-width, size="lg")]
         信託相關案件
-      li: nuxt-link(to="/non-scrivener-case").
-        #[font-awesome-icon(:icon="['fas', 'user-tag']", fixed-width, size="lg")]
-        非專業代理人案件
-      li: NuxtLink(to="/foreigner-case").
-        #[font-awesome-icon(:icon="['fas', 'user-astronaut']", fixed-width, size="lg")]
-        外人地權案件
-      li: nuxt-link(to="/agriculture-375-change").
-        #[font-awesome-icon(:icon="['fas', 'border-all']", fixed-width, size="lg")]
-        375租約異動
       li: nuxt-link(to="/not-done-change").
         #[font-awesome-icon(:icon="['fas', 'monument']", fixed-width, size="lg")]
         未辦繼承標的註記異動
       li: nuxt-link(to="/land-ref-change").
         #[font-awesome-icon(:icon="['fas', 'landmark']", fixed-width, size="lg")]
         土地參考資訊檔異動
-      li: nuxt-link(to="/reg-fix-case").
-        #[font-awesome-icon(:icon="['fas', 'pager']", fixed-width, size="lg")]
-        補正期滿案件查詢
-      li: nuxt-link(to="/reg-not-done-case").
-        #[font-awesome-icon(:icon="['fas', 'bullhorn']", fixed-width, size="lg")]
-        辦畢通知案件查詢
-      li: nuxt-link(to="/reg-untaken-case").
-        #[font-awesome-icon(:icon="['fas', 'stamp']", fixed-width, size="lg")]
-        領件管控查詢
+      li: nuxt-link(to="/agriculture-375-change").
+        #[font-awesome-icon(:icon="['fas', 'border-all']", fixed-width, size="lg")]
+        375租約異動
+      li: NuxtLink(to="/foreigner-case").
+        #[font-awesome-icon(:icon="['fas', 'user-astronaut']", fixed-width, size="lg")]
+        外人地權案件
+      li: nuxt-link(to="/non-scrivener-case").
+        #[font-awesome-icon(:icon="['fas', 'user-tag']", fixed-width, size="lg")]
+        非專業代理人案件
 
       li: hr
 
