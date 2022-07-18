@@ -9,7 +9,7 @@ div
           span(v-else) {{ storeCaseCount }} 件
         b-form-radio-group.my-auto(
           v-model="isOverdueMode",
-          :options="[{text: '逾期', value: true}, {text: '即將逾期', value: false}]",
+          :options="[{text: '即將逾期', value: false}, {text: '逾期', value: true}]",
           size="lg"
         )
         lah-button(

@@ -18,7 +18,7 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'money-check-alt']" to="/trust") 信託相關#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'monument']" to="/not-done-change") 未辦繼承標的註記異動
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'landmark']" to="/land-ref-change") 土地參考資訊檔異動
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'border-all']" to="/agriculture-375-change") 375租約異動案件
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'border-all']" to="/agriculture-375-change") 375租約#[br]異動案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-astronaut']" to="/foreigner-case") 外人地權#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tag']" to="/non-scrivener-case") 非專業代理人案件
   .version v{{ $config.pkgVersion }}
