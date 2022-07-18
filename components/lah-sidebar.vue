@@ -88,7 +88,7 @@ b-sidebar#lah-sidebar(
         補正期滿案件
       li: nuxt-link(to="/expiry-of-announcement").
         #[font-awesome-icon(:icon="['fa', 'sticky-note']", fixed-width, size="lg")]
-        公告案件
+        公告案件控管
       li: nuxt-link(to="/reg-untaken-case").
         #[font-awesome-icon(:icon="['fas', 'stamp']", fixed-width, size="lg")]
         領件控管
