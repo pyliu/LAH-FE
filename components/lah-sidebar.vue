@@ -91,7 +91,7 @@ b-sidebar#lah-sidebar(
         公告案件
       li: nuxt-link(to="/reg-untaken-case").
         #[font-awesome-icon(:icon="['fas', 'stamp']", fixed-width, size="lg")]
-        領件管控
+        領件控管
       li: nuxt-link(to="/reg-not-done-case").
         #[font-awesome-icon(:icon="['fas', 'bullhorn']", fixed-width, size="lg")]
         辦畢通知案件
