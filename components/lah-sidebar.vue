@@ -21,9 +21,14 @@ b-sidebar#lah-sidebar(
         #[font-awesome-icon(:icon="['fas', 'home']", fixed-width, pull="left", size="lg")]
         首頁
 
-      li: hr
+      li: hr(v-if="displayAnnouncement")
 
-      li: lah-timeline-announcement(load-button, :load-count="3")
+      li: lah-timeline-announcement(
+        v-if="displayAnnouncement",
+        load-button,
+        :load-count="3",
+        @announcement-count="handleAnnouncementEvent($event)"
+      )
 
       li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
 
@@ -199,6 +204,9 @@ import LahUserCard from '~/components/lah-user-card.vue'
 export default {
   components: { lahAvatar, LahUserCard },
   fetchOnServer: false,
+  data: () => ({
+    displayAnnouncement: true
+  }),
   computed: {
     isAuthorized () {
       return this.authority.isAdmin
@@ -209,6 +217,13 @@ export default {
     }
   },
   methods: {
+    handleAnnouncementEvent (payload) {
+      if (payload.count && payload.count > 0) {
+        this.displayAnnouncement = true
+      } else {
+        this.displayAnnouncement = false
+      }
+    },
     triggerClear () {
       this.confirm('請確認要清除快取資料？').then((ans) => {
         if (ans) {

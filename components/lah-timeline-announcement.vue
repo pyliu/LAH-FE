@@ -31,6 +31,7 @@ b-card(:class="cardCss", no-body, title="最新公告").announcement-timeline
 
 <script>
 export default {
+  emit: ['announcement-count'],
   props: {
     initCount: { type: Number, default: 1 },
     loadButton: { type: Boolean, default: true },
@@ -88,6 +89,7 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
+        this.$emit('announcement-count', { count: this.timelineItems?.length || 0 })
       })
     },
     loadMore (count) {
