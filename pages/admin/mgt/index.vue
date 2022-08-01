@@ -100,6 +100,14 @@ export default {
       return this.site === 'HA'
     }
   },
+  watch: {
+    displayXAP (flag) {
+      this.setCache('lah-display-XAP-flag', flag)
+    }
+  },
+  async mounted () {
+    this.displayXAP = await this.getCache('lah-display-XAP-flag') || false
+  },
   methods: {
     lightUpdate (payload) {
       this.lightMap.set(payload.name, payload.new)
