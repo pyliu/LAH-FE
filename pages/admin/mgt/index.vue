@@ -50,22 +50,32 @@ div(v-cloak)
       lah-monitor-board-connectivity
       //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
       //- lah-monitor-board-apconn(line, all)
-  b-card-group.mb-4(deck)
-    lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
-    lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
-    lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
-  b-card-group.mb-4(deck)
-    lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
-    lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-    lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate", footer)
-  b-card-group.mb-4(deck)
-    lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate", footer)
-    lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-    lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate", footer)
-  b-card-group(deck)
-    lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
-    lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
-    b-card
+  div(v-if="isHA")
+    b-card-group.mb-4(deck)
+      lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
+    b-card-group.mb-4(deck)
+      lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate", footer)
+    b-card-group.mb-4(deck)
+      lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate", footer)
+    b-card-group(deck)
+      lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
+      b-card
+  div(v-else)
+    b-card-group.mb-4(deck)
+      lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
+    b-card-group.mb-4(deck)
+      lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
+      lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+      b-card
   hr
 </template>
 
@@ -85,6 +95,9 @@ export default {
   computed: {
     connectionText () {
       return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
+    },
+    isHA () {
+      return this.site === 'HA'
     }
   },
   methods: {
