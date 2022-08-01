@@ -75,13 +75,13 @@ div(v-cloak)
     b-card-group.mb-4(deck)
       lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
       lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-      b-card
+      lah-lxhweb-board(target-ip="L3HWEB")
   hr
 </template>
 
 <script>
 export default {
-  middleware: ['isAdmin'],
+  // middleware: ['isAdmin'],
   data: () => ({
     displayXAP: false,
     lightMap: new Map(),
