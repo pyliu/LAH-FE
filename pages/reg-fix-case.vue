@@ -319,7 +319,9 @@ export default {
             pipelineItems = pipelineItems?.filter((item) => {
               let extractedWord = item.RM02 ? item.RM02 : (item.收件字號.match(matchRegex) ? item.收件字號.match(matchRegex)[0] : '')
               extractedWord = extractedWord?.replace(/[()\s年第]/gm, '')
-              if (extractedWord.startsWith(this.site) && !extractedWord.endsWith('1')) {
+              // use regex to detect the local case word
+              const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
+              if (localCaseRegex.test(extractedWord)) {
                 return true
               } else if (extractedWord.endsWith(`${alphabet}1`)) {
                 return true
