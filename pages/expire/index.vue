@@ -298,7 +298,9 @@ export default {
             const number = alphabet.charCodeAt(0) - 64
             pipelineItems = pipelineItems.filter((item) => {
               const extractedWord = item.收件字號.match(/\(.+\)/gm)[0].replace(/[()]/gm, '')
-              if (extractedWord.startsWith(this.site)) {
+              // use regex to detect the local case word
+              const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
+              if (localCaseRegex.test(extractedWord)) {
                 return true
               } else if (extractedWord.endsWith(`${alphabet}1`)) {
                 return true
