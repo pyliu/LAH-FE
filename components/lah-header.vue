@@ -21,16 +21,16 @@ h3.d-flex.justify-content-between.py-3
       to="/"
       no-icon-gutter
     )
-    lah-button.home-button.ml-1(
-      v-else-if="authority.isAdmin"
-      icon="house-user"
-      size="lg"
-      action="ld-breath"
-      variant="primary"
-      title="進入我的儀表板"
-      to="/users/dashboard"
-      no-icon-gutter
-    )
+    //- lah-button.home-button.ml-1(
+    //-   v-else-if="authority.isAdmin"
+    //-   icon="house-user"
+    //-   size="lg"
+    //-   action="ld-breath"
+    //-   variant="primary"
+    //-   title="進入我的儀表板"
+    //-   to="/users/dashboard"
+    //-   no-icon-gutter
+    //- )
   lah-sidebar
 </template>
 
