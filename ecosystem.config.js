@@ -8,8 +8,8 @@ module.exports = {
     // 執行服務的入口檔案
     script: './node_modules/nuxt/bin/nuxt.js',
     args: 'start',
-    out_file: '../fe_out.log',
-    error_file: '../fe_err.log',
+    out_file: '../logs/fe_out.log',
+    error_file: '../logs/fe_err.log',
     // 'cron' 模式指定重啟時間，只支持 cluster 模式
     cron_restart: '0 7 * * *',
     // log 顯示時間
@@ -28,8 +28,8 @@ module.exports = {
     exec_mode: 'cluster',
     instances: 1,
     script: './scheduler/server.js',
-    out_file: '../scheduler_out.log',
-    error_file: '../scheduler_err.log',
+    out_file: '../logs/scheduler_out.log',
+    error_file: '../logs/scheduler_err.log',
     cron_restart: '0 7 * * *',
     time: true,
     watch: true,
