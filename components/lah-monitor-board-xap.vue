@@ -30,6 +30,7 @@ b-card(no-body)
         li #[lah-fa-icon(icon="wave-square", variant="success")] 顯示AP連線總數(數字越高有可能造成地政系統回應緩慢)
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
+
   lah-chart(ref="chart", @click="popupTrending")
 
   template(#footer): .d-flex.justify-content-between.small
@@ -186,7 +187,7 @@ export default {
                       name: '資訊主機'
                   }
               */
-              item.name === '資料庫' && (this.dbTotal = item.count)
+              item.name.includes('資料庫') && (this.dbTotal = item.count)
               const text = this.crossApMap.get(item.est_ip)?.name
               const currentValue = tmp.get(text)
               if (currentValue !== undefined) {
