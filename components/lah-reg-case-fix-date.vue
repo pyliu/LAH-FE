@@ -16,7 +16,7 @@
         close-button
         label-close-button="關閉"
         v-b-tooltip.hover.left.v-warning
-        @context="update"
+        @input="update"
       )
       lah-button.ml-1(
         v-if="deadlineDateChanged",
@@ -45,7 +45,7 @@
         close-button
         label-close-button="關閉"
         v-b-tooltip.hover.left.v-warning
-        @context="update"
+        @input="update"
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
         :min="minDate"
         :max="maxDate"
@@ -169,6 +169,17 @@ export default {
     this.origDataset.id = this.caseId
     this.origDataset.delivered = this.deliveredDate
     this.origDataset.deadline = this.deadlineDate
+    // fix not reactively bug
+    if (Array.isArray(this.parentData.REG_FIX_CASE_RECORD)) {
+      this.parentData.REG_FIX_CASE_RECORD = {
+        ...{
+          case_no: this.caseId,
+          fix_deadline_date: this.deadlineDate,
+          note: '',
+          notify_delivered_date: this.deliveredDate
+        }
+      }
+    }
   },
   mounted () {
     // RM51: 通知補正日, plus one day
@@ -176,6 +187,7 @@ export default {
     // fill default value from RM52
     this.$utils.empty(this.deadlineDate) && this.resetDeadline()
     this.trigger('ready', this.ready)
+    this.$utils.warn(this.parentData)
   },
   methods: {
     resetDeadline () {
