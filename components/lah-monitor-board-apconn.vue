@@ -287,9 +287,9 @@ export default {
                       name: '資訊主機'
                   }
               */
-              if (item.name === '資料庫') { this.dbTotal = item.count }
+              if (item.name.includes('資料庫')) { this.dbTotal = item.count }
               // skip 資料庫/系統管理者
-              if (!this.skipNames.includes(item.name)) {
+              if (!this.skipNames.some(name => item.name.includes(name))) {
                 const current = processing.get(item.name)
                 const tobeUpdated = current === undefined ? item.count : current + item.count
                 processing.set(item.name, tobeUpdated)
