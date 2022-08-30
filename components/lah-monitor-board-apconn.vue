@@ -74,8 +74,11 @@ b-card(no-body)
   template(#footer): .d-flex.justify-content-between.align-items-center.small
     lah-fa-icon(
       v-if="allSwitch",
-      icon="database"
-    ) 資料庫 {{ dbTotal }}
+      :variant="dbStyles[0]",
+      :action="dbStyles[1]",
+      :size="dbStyles[2]",
+      :icon="dbStyles[3]"
+    ) 資料庫 #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
     lah-fa-icon(
       icon="wave-square",
       :variant="light"
@@ -136,6 +139,13 @@ export default {
       return 'success'
     },
     totalCount () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
+    dbStyles () {
+      // return [color, action, size, icon]
+      if (this.dbTotal > 2800) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.dbTotal > 2200) { return ['danger', 'shiver', 'lg', 'database'] }
+      if (this.dbTotal > 1800) { return ['warning', 'beat', '1x', 'database'] }
+      return ['success', 'breath', 'sm', 'database']
+    },
     ipPrefix () {
       const ipParts = this.apIp.split('.')
       ipParts.pop()
