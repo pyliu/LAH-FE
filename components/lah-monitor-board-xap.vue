@@ -175,6 +175,7 @@ export default {
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
       this.loadItems.length = 0
+      this.jbossCpuUtilization = 0
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_latest_ap_conn',
