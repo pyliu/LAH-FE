@@ -292,6 +292,7 @@ export default {
       return { R: 214, G: 214, B: 214 } // gray
     },
     loadAPConnectionCount () {
+      this.jbossCpuUtilization = 0
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_latest_ap_conn',
