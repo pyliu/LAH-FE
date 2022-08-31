@@ -45,6 +45,7 @@ b-card(no-body)
       :action="apStyles[1]",
       :size="apStyles[2]",
       :icon="apStyles[3]"
+      title="各所加總連線數"
     ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ apTotal }}]
     lah-fa-icon(
       :variant="cpuStyles[0]",
