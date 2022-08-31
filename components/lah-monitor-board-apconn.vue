@@ -157,9 +157,9 @@ export default {
     },
     cpuStyles () {
       // return [color, action, size, icon]
-      if (this.jbossCpuUtilization > 75) { return ['danger', 'tremble', '2x', 'microchip'] }
-      if (this.jbossCpuUtilization > 50) { return ['danger', 'shiver', 'lg', 'microchip'] }
-      if (this.jbossCpuUtilization > 25) { return ['warning', 'beat', '1x', 'microchip'] }
+      if (this.jbossCpuUtilization > 90) { return ['danger', 'tremble', '2x', 'microchip'] }
+      if (this.jbossCpuUtilization > 70) { return ['danger', 'shiver', 'lg', 'microchip'] }
+      if (this.jbossCpuUtilization > 40) { return ['warning', 'beat', '1x', 'microchip'] }
       return ['success', 'breath', 'sm', 'microchip']
     },
     ipPrefix () {
