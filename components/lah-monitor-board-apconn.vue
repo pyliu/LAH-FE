@@ -78,11 +78,19 @@ b-card(no-body)
       :action="dbStyles[1]",
       :size="dbStyles[2]",
       :icon="dbStyles[3]"
-    ) 資料庫 #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
+    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
+    lah-fa-icon(
+      v-if="allSwitch"
+      :variant="cpuStyles[0]",
+      :action="cpuStyles[1]",
+      :size="cpuStyles[2]",
+      :icon="cpuStyles[3]"
+    ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill) {{ jbossCpuUtilization }} %]
     lah-fa-icon(
       icon="wave-square",
       :variant="light"
-    ) {{ word }}連線數 #[b-badge(:variant="light", pill) {{ totalCount }}]
+      :title="`${word}連線數`"
+    ) #[span.mr-1 連線] #[b-badge(:variant="light", pill) {{ totalCount }}]
     b-select.m-n2(v-model="apIp", :options="apIpList", size="sm", style="max-width: 115px")
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
@@ -116,6 +124,7 @@ export default {
     loadItems: [],
     skipNames: ['資料庫', '系統管理者', 'JBOSS_CPU_USAGE'],
     dbTotal: 0,
+    jbossCpuUtilization: 0,
     lightCriteria: {
       blalck: 32,
       purple: 16,
@@ -145,6 +154,13 @@ export default {
       if (this.dbTotal > 2200) { return ['danger', 'shiver', 'lg', 'database'] }
       if (this.dbTotal > 1800) { return ['warning', 'beat', '1x', 'database'] }
       return ['success', 'breath', 'sm', 'database']
+    },
+    cpuStyles () {
+      // return [color, action, size, icon]
+      if (this.jbossCpuUtilization > 75) { return ['danger', 'tremble', '2x', 'microchip'] }
+      if (this.jbossCpuUtilization > 50) { return ['danger', 'shiver', 'lg', 'microchip'] }
+      if (this.jbossCpuUtilization > 25) { return ['warning', 'beat', '1x', 'microchip'] }
+      return ['success', 'breath', 'sm', 'microchip']
     },
     ipPrefix () {
       const ipParts = this.apIp.split('.')
@@ -298,6 +314,7 @@ export default {
                   }
               */
               if (item.name.includes('資料庫')) { this.dbTotal = item.count }
+              if (item.name.includes('JBOSS_CPU_USAGE')) { this.jbossCpuUtilization = item.count }
               // skip 資料庫/系統管理者
               if (!this.skipNames.some(name => item.name.includes(name))) {
                 const current = processing.get(item.name)
