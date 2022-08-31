@@ -114,7 +114,7 @@ export default {
     updatedTime: '',
     allSwitch: false,
     loadItems: [],
-    skipNames: ['資料庫', '系統管理者'],
+    skipNames: ['資料庫', '系統管理者', 'JBOSS_CPU_USAGE'],
     dbTotal: 0,
     lightCriteria: {
       blalck: 32,
