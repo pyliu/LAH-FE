@@ -39,13 +39,19 @@ b-card(no-body)
       :action="dbStyles[1]",
       :size="dbStyles[2]",
       :icon="dbStyles[3]"
-    ) 資料庫 #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
+    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
     lah-fa-icon(
       :variant="apStyles[0]",
       :action="apStyles[1]",
       :size="apStyles[2]",
       :icon="apStyles[3]"
-    ) 主機連線 #[b-badge(:variant="apStyles[0]", pill) {{ apTotal }}]
+    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ apTotal }}]
+    lah-fa-icon(
+      :variant="cpuStyles[0]",
+      :action="cpuStyles[1]",
+      :size="cpuStyles[2]",
+      :icon="cpuStyles[3]"
+    ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill) {{ jbossCpuUtilization }} %]
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
@@ -66,6 +72,7 @@ export default {
     barDatasetIdx: 0,
     lineDatasetIdx: 1,
     dbTotal: 0,
+    jbossCpuUtilization: 0,
     initItems: [
       { x: '桃園所', y: 0, color: { R: 254, G: 185, B: 180 } },
       { x: '中壢所', y: 0, color: { R: 125, G: 199, B: 80 } },
@@ -98,6 +105,13 @@ export default {
     light () {
       return this.apStyles[0]
     },
+    cpuStyles () {
+      // return [color, action, size, icon]
+      if (this.jbossCpuUtilization > 75) { return ['danger', 'tremble', '2x', 'microchip'] }
+      if (this.jbossCpuUtilization > 50) { return ['danger', 'shiver', 'lg', 'microchip'] }
+      if (this.jbossCpuUtilization > 25) { return ['warning', 'beat', '1x', 'microchip'] }
+      return ['success', 'breath', 'sm', 'microchip']
+    },
     dbStyles () {
       // return [color, action, size, icon]
       if (this.dbTotal > 2800) { return ['danger', 'tremble', '2x', 'bomb'] }
@@ -111,6 +125,11 @@ export default {
       if (this.apTotal > 750) { return ['danger', 'shiver', 'lg', 'server'] }
       if (this.apTotal > 500) { return ['warning', 'beat', '1x', 'server'] }
       return ['success', 'breath', 'sm', 'wave-square']
+    }
+  },
+  watch: {
+    loadItems (val) {
+      console.warn(val)
     }
   },
   created () {
@@ -188,6 +207,7 @@ export default {
                   }
               */
               item.name.includes('資料庫') && (this.dbTotal = item.count)
+              item.name.includes('JBOSS_CPU_USAGE') && (this.jbossCpuUtilization = item.count)
               const text = this.crossApMap.get(item.est_ip)?.name
               const currentValue = tmp.get(text)
               if (currentValue !== undefined) {
