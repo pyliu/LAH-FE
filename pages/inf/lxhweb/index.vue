@@ -22,10 +22,10 @@ div(v-cloak)
   b-container(v-cloak fluid)
     b-card-group.row(deck)
       lah-lxhweb-board(ref="lxhweb1" target-ip="L1HWEB")
-        lah-lxhweb-board(ref="lxhweb2" target-ip="L2HWEB")
+      lah-lxhweb-board(ref="lxhweb2" target-ip="L2HWEB")
     b-card-group.row(deck)
       lah-lxhweb-board(ref="lxhweb3" target-ip="L1HWEB_Alt")
-        lah-lxhweb-board(ref="lxhweb4" target-ip="L3HWEB")
+      lah-lxhweb-board(ref="lxhweb4" target-ip="L3HWEB")
 </template>
 
 <script>
