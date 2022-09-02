@@ -42,7 +42,7 @@ b-sidebar#lah-sidebar(
       ).
         #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
         地政系統管理面板
-      li: nuxt-link(to="/admin/mgt").
+      li: nuxt-link(to="/inf/dashboard").
         #[font-awesome-icon(:icon="['fas', 'traffic-light']", fixed-width, size="lg")]
         {{site}} 智慧監控儀錶板
       li: nuxt-link(to="/monitor").
