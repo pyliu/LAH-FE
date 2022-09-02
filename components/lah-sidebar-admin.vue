@@ -39,8 +39,11 @@ b-sidebar#lah-sidebar(
         #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
         地政系統管理面板
       li: nuxt-link(to="/inf/dashboard").
-        #[font-awesome-icon(:icon="['fas', 'traffic-light']", fixed-width, size="lg")]
-        {{site}} 智慧監控儀錶板
+        #[font-awesome-icon(:icon="['fas', 'desktop']", fixed-width, size="lg")]
+        {{site}} 監控儀錶板
+      li: nuxt-link(to="/inf/dashboard/carousel").
+        #[font-awesome-icon(:icon="['fas', 'arrows-spin']", fixed-width, size="lg")]
+        {{site}} 輪播儀錶板
       li: nuxt-link(to="/inf/xap").
         #[font-awesome-icon(:icon="['fas', 'server']", fixed-width, size="lg")]
         {{site}} 跨域伺服器監控
