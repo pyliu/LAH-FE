@@ -13,11 +13,11 @@ div(v-cloak)
     b-card-group.row(deck)
       lah-index-card-link(:icon="['fas', 'note-sticky']" icon-variant="success" no-body size="5x" to="/notification" action="metronome") 公告訊息發布管理
       lah-index-card-link(:icon="['fas', 'people-roof']" to="/admin/users" no-body size="5x" icon-variant="primary" action="rubber-h") 使用者資訊管理
-      lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="dark" no-body size="5x" to="/admin/ip" action="jelly") IP對應名稱設定管理
+      lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="dark" no-body size="5x" to="/inf/ip" action="jelly") IP對應名稱設定管理
     b-card-group.row(deck)
-      lah-index-card-link(:icon="['fas', 'traffic-light']" to="/admin/mgt" no-body size="5x" icon-variant="danger" action="breath") {{ site }} 智慧監控儀錶板
-      lah-index-card-link(:icon="['fas', 'database']" to="/admin/lxhweb" no-body size="5x" icon-variant="info" action="flip-h") 同步異動監控
-      lah-index-card-link(:icon="['fas', 'server']" to="/monitor" no-body size="5x" icon-variant="warning" action="bounceAlt") 跨縣市AP監控
+      lah-index-card-link(:icon="['fas', 'traffic-light']" to="/inf/dashboard" no-body size="5x" icon-variant="danger" action="breath") {{ site }} 智慧監控儀錶板
+      lah-index-card-link(:icon="['fas', 'database']" to="/inf/lxhweb" no-body size="5x" icon-variant="info" action="flip-h") 同步異動監控
+      lah-index-card-link(:icon="['fas', 'server']" to="/inf/xap" no-body size="5x" icon-variant="warning" action="bounceAlt") 跨縣市AP監控
     b-card-group.row(deck)
       //- lah-index-card-link(:icon="['fas', 'person-chalkboard']" to="/legacy/dashboard.html" no-body size="5x" icon-variant="secondary") 系管面板
       lah-index-card-link(to="/" no-body size="5x" icon-variant="muted" action="damage" title="尚未設定") ...

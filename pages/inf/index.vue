@@ -9,8 +9,8 @@
       b-card-group(deck)
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'person-chalkboard']" to="/inf/mgt") 系統管理面板
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'traffic-light']" to="/inf/dashboard") 監控儀錶板
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'server']" to="/monitor") 跨域伺服器監控
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'database']" to="/admin/lxhweb") 同步異動監控
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'server']" to="/inf/xap") 跨域伺服器監控
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'database']" to="/inf/lxhweb") 同步異動監控
         //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'network-wired']" to="/inf/ip") IP對應表管理
         //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'people-roof']" to="/admin/users") 使用者管理
         //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'tasks']" to="/admin/configs") 系統參數設定
