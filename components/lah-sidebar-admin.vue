@@ -35,11 +35,7 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
-      li: a(
-        :href="`${this.legacyUrl}/dashboard.html`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ).
+      li: nuxt-link(to="/inf/mgt").
         #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
         地政系統管理面板
       li: nuxt-link(to="/inf/dashboard").
@@ -51,6 +47,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/admin/lxhweb").
         #[font-awesome-icon(:icon="['fas', 'database']", fixed-width, size="lg")]
         {{site}} 同步異動監控
+
+      li: hr
+
       li: nuxt-link(to="/admin/ip").
         #[font-awesome-icon(:icon="['fas', 'network-wired']", fixed-width, size="lg")]
         IP對應名稱設定管理
