@@ -19,7 +19,10 @@ b-sidebar#lah-sidebar(
 
       li: nuxt-link(to="/").
         #[font-awesome-icon(:icon="['fas', 'home']", fixed-width, pull="left", size="lg")]
-        首頁
+        智慧控管首頁
+      li: nuxt-link(v-if="authority.isAdmin", to="/inf").
+        #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
+        智慧監控首頁
 
       li: hr(v-if="displayAnnouncement")
 
@@ -29,53 +32,6 @@ b-sidebar#lah-sidebar(
         :load-count="3",
         @announcement-count="handleAnnouncementEvent($event)"
       )
-
-      li(v-if="authority.isAdmin || authority.isUserMgtStaff"): hr
-
-      li(v-if="authority.isAdmin"): a(
-        :href="`${this.legacyUrl}/dashboard.html`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ).
-        #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
-        地政系統管理面板
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/mgt").
-        #[font-awesome-icon(:icon="['fas', 'traffic-light']", fixed-width, size="lg")]
-        {{site}} 智慧監控儀錶板
-      li(v-if="authority.isAdmin"): nuxt-link(to="/monitor").
-        #[font-awesome-icon(:icon="['fas', 'server']", fixed-width, size="lg")]
-        {{site}} 跨域伺服器監控
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/lxhweb").
-        #[font-awesome-icon(:icon="['fas', 'database']", fixed-width, size="lg")]
-        {{site}} 同步異動監控
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/ip").
-        #[font-awesome-icon(:icon="['fas', 'network-wired']", fixed-width, size="lg")]
-        IP對應名稱設定管理
-      li(v-if="authority.isUserMgtStaff || authority.isAdmin"): nuxt-link(
-        to="/admin/users"
-      ).
-        #[font-awesome-icon(:icon="['fas', 'people-roof']", fixed-width, size="lg")]
-        員工管理
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin/configs").
-        #[font-awesome-icon(:icon="['fas', 'tasks']", fixed-width, size="lg")]
-        系統參數設定
-      //- li(v-if="authority.isAdmin"): a(
-      //-   :href="`${this.legacyUrl}/monitor.html`",
-      //-   target="_blank",
-      //-   rel="noreferrer noopener"
-      //- ).
-      //-   #[font-awesome-icon(:icon="['fas', 'columns']", fixed-width, size="lg")]
-      //-   跨所伺服器監控面板
-
-      //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
-      //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
-      //-   統計看板
-      //- li(v-if="isAuthorized"): nuxt-link(to="/playground").
-      //-   #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
-      //-   測試
-      li(v-if="authority.isAdmin"): nuxt-link(to="/admin").
-        #[font-awesome-icon(:icon="['fas', 'cogs']", fixed-width, size="lg")]
-        系統管理選單
 
       li: hr
 

@@ -77,7 +77,7 @@ export default {
       //   this.$router.go(-1)
       // } else {
       // }
-      this.$router.push('/admin')
+      this.$router.push('/inf')
     }
   }
 }
