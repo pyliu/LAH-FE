@@ -41,10 +41,10 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/dashboard").
         #[font-awesome-icon(:icon="['fas', 'traffic-light']", fixed-width, size="lg")]
         {{site}} 智慧監控儀錶板
-      li: nuxt-link(to="/monitor").
+      li: nuxt-link(to="/inf/xap").
         #[font-awesome-icon(:icon="['fas', 'server']", fixed-width, size="lg")]
         {{site}} 跨域伺服器監控
-      li: nuxt-link(to="/admin/lxhweb").
+      li: nuxt-link(to="/inf/lxhweb").
         #[font-awesome-icon(:icon="['fas', 'database']", fixed-width, size="lg")]
         {{site}} 同步異動監控
 
@@ -52,7 +52,7 @@ b-sidebar#lah-sidebar(
 
       li: nuxt-link(to="/admin/ip").
         #[font-awesome-icon(:icon="['fas', 'network-wired']", fixed-width, size="lg")]
-        IP對應名稱設定管理
+        IP對應表管理
       li: nuxt-link(
         to="/admin/users"
       ).
