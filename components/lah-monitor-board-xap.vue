@@ -128,11 +128,6 @@ export default {
       return ['success', 'breath', 'sm', 'wave-square']
     }
   },
-  watch: {
-    loadItems (val) {
-      console.warn(val)
-    }
-  },
   created () {
     this.modalId = this.$utils.uuid()
   },
