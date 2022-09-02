@@ -13,7 +13,7 @@ h3.d-flex.justify-content-between.py-3
   lah-transition: .d-flex
     lah-button.home-button.mx-1(
       v-if="authority.isAdmin && showAdminHome"
-      icon="house-laptop"
+      icon="display"
       size="lg"
       action="ld-breath"
       variant="primary"
