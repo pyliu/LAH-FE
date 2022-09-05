@@ -11,7 +11,7 @@ h3.d-flex.justify-content-between.py-3
   )
   client-only: slot
   lah-transition: .d-flex
-    lah-button.home-button.mx-1(
+    lah-button.home-button.ml-1(
       v-if="authority.isAdmin && showAdminHome"
       icon="display"
       size="lg"
@@ -21,7 +21,7 @@ h3.d-flex.justify-content-between.py-3
       to="/inf"
       no-icon-gutter
     )
-    lah-button.home-button(
+    lah-button.home-button.ml-1(
       v-if="showHome"
       :icon="icon"
       size="lg"
