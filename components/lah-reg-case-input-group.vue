@@ -1,20 +1,20 @@
 <template lang="pug">
 .d-flex
-  b-input-group.text-nowrap(size="sm" append="年" @click="getMaxNumber")
+  b-input-group.text-nowrap.fixed-width(size="sm" append="年")
     b-form-select.h-100(
       ref="year",
       v-model="year",
       :options="years",
       @change="emitInput"
     )
-      template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇年份 --
+      template(v-slot:first): b-form-select-option(:value="null" disabled) -- 年份 --
   b-input-group.mx-1(size="sm" append="字")
     b-form-select.h-100(
       ref="code",
       v-model="code",
       @change="emitInput"
     )
-      template(v-slot:first): b-form-select-option(:value="null" disabled) -- 請選擇案件字 --
+      template(v-slot:first): b-form-select-option(:value="null" disabled) -- 案件字 --
       optgroup(
         v-if="obj.options.length > 0",
         v-for="obj in codeData",
@@ -25,7 +25,7 @@
           v-for="item in obj.options",
           :value="item.replace(/[^A-Za-z0-9]/g, '')"
         ) {{item}}
-  b-input-group.text-nowrap(
+  b-input-group.text-nowrap.fixed-width(
     size="sm",
     append="號"
   )
@@ -86,6 +86,9 @@ export default {
     // caseId (val) {
     //   this.$utils.warn(val)
     // },
+    year (dontcare) {
+      this.getMaxNumber()
+    },
     code (val) {
       this.getMaxNumber()
     }
@@ -109,7 +112,7 @@ export default {
           if (res.data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL) {
             // update UI
             this.number = res.data.max
-            // this.emitInput(e)
+            this.emitInput()
           } else {
             this.$warn(`無法取得最大號 ${this.year}-${this.code}`)
           }
@@ -329,4 +332,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.fixed-width {
+  width: 275px;
+}
 </style>
