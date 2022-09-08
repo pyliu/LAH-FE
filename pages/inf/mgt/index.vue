@@ -17,8 +17,8 @@ div(v-cloak)
         li ...
       hr
 
-  b-container.center(fluid v-cloak)
-    | some contents goes here ...
+  b-card-group(columns)
+    lah-mgmt-board-CRSMS
 </template>
 
 <script>
