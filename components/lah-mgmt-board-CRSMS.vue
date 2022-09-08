@@ -48,7 +48,7 @@ export default {
         }
       }), {
         title: `登記案件詳情 ${this.$utils.caseId(this.caseId)}`,
-        size: 'lg'
+        size: 'xl'
       })
     }
   }
