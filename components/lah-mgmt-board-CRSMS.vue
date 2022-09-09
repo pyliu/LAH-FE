@@ -1,12 +1,13 @@
 <template lang="pug">
-b-card(no-body)
+b-card
   template(#header)
     .d-flex
-      h6.mb-0.mr-auto 登記案件快速修正 {{ $utils.caseId(caseId) }}
+      h6.mb-0.mr-auto 登記案件快速修正
       b-checkbox(v-model="vertical", switch) 顯示切換
 
-  b-card-body
+  .d-flex
     lah-reg-case-input-group(v-model="caseId", :vertical="vertical")
+    .w-50.p-1(v-if="vertical")  {{ $utils.caseId(caseId) }}
 
   template(#footer)
     .d-flex.justify-content-between

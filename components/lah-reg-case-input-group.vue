@@ -1,5 +1,5 @@
 <template lang="pug">
-div(:class="vertical ? ['d-flex-column'] : ['d-flex']")
+.w-100(:class="vertical ? ['d-flex-column'] : ['d-flex']")
   b-input-group.text-nowrap(
     size="sm",
     prepend="年",
