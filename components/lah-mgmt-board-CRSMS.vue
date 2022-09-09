@@ -1,10 +1,12 @@
 <template lang="pug">
-b-card
+b-card(no-body)
   template(#header)
-    h6.mb-0 登記案件快速修正 {{ $utils.caseId(caseId) }}
+    .d-flex
+      h6.mb-0.mr-auto 登記案件快速修正 {{ $utils.caseId(caseId) }}
+      b-checkbox(v-model="vertical", switch) 顯示切換
 
   b-card-body
-    lah-reg-case-input-group(v-model="caseId")
+    lah-reg-case-input-group(v-model="caseId", :vertical="vertical")
 
   template(#footer)
     .d-flex.justify-content-between
@@ -32,7 +34,8 @@ b-card
 export default {
   data: () => ({
     caseId: '',
-    modalLoading: false
+    modalLoading: false,
+    vertical: false
   }),
   methods: {
     showCaseDetail () {

@@ -1,6 +1,10 @@
 <template lang="pug">
-.d-flex
-  b-input-group.text-nowrap.fixed-width(size="sm" append="年")
+div(:class="vertical ? ['d-flex-column'] : ['d-flex']")
+  b-input-group.text-nowrap(
+    size="sm",
+    prepend="年",
+    :class="vertical ? [] : ['fixed-width']"
+  )
     b-form-select.h-100(
       ref="year",
       v-model="year",
@@ -8,7 +12,11 @@
       @change="emitInput"
     )
       template(v-slot:first): b-form-select-option(:value="null" disabled) -- 年份 --
-  b-input-group.mx-1(size="sm" append="字")
+  b-input-group(
+    size="sm",
+    prepend="字",
+    :class="vertical ? ['my-1'] : ['mx-1']"
+  )
     b-form-select.h-100(
       ref="code",
       v-model="code",
@@ -25,9 +33,10 @@
           v-for="item in obj.options",
           :value="item.replace(/[^A-Za-z0-9]/g, '')"
         ) {{item}}
-  b-input-group.text-nowrap.fixed-width(
+  b-input-group.text-nowrap(
     size="sm",
-    append="號"
+    prepend="號",
+    :class="vertical ? [] : ['fixed-width']"
   )
     b-form-input.h-100(
       ref="num",
@@ -46,7 +55,8 @@
 export default {
   props: {
     type: { type: String, default: 'reg' },
-    value: { type: String, default: '' }
+    value: { type: String, default: '' },
+    vertical: { type: Boolean, default: false }
   },
   data: () => ({
     codes: {},
