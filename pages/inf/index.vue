@@ -3,7 +3,7 @@
   lah-header
   .container: .anim-appear-1s
     section.fixed-title-height.center: div
-      lah-logo-monitoring
+      lah-logo-monitoring.mvh-50
       h3.title.lah-shadow.text-nowrap 地政資訊智慧監控系統
     section.b-card-container
       b-card-group(deck)
@@ -56,6 +56,11 @@ export default {
   //   height: 45%;
   // }
 }
+
+.mvh-50 {
+  max-height: 50vh;
+}
+
 .version {
   font-weight: 900;
   position: absolute;

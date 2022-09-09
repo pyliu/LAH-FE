@@ -3,7 +3,7 @@
   lah-header
   .container: .anim-appear-1s
     section.fixed-title-height.center: div
-      lah-logo
+      lah-logo.mvh-50
       h3.title.lah-shadow.text-nowrap 桃園市地政智慧控管系統
     section.b-card-container
       b-card-group(deck)
@@ -63,6 +63,11 @@ export default {
     height: 45%;
   }
 }
+
+.mvh-50 {
+  max-height: 50vh;
+}
+
 .version {
   font-weight: 900;
   position: absolute;
