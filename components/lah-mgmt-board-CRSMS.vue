@@ -55,7 +55,8 @@ export default {
             this.modalLoading = !e.detail
           },
           dataReady: (e) => {
-            console.warn(e.detail)
+            this.$store.commit('inf/crsmsData', e.detail)
+            console.warn(this.crsmsData)
           }
         }
       }), {
