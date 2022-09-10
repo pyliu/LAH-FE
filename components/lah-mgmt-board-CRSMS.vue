@@ -38,6 +38,11 @@ export default {
     modalLoading: false,
     vertical: false
   }),
+  computed: {
+    crsmsData () {
+      return this.$store.getters['inf/crsmsData']
+    }
+  },
   methods: {
     showCaseDetail () {
       this.modalLoading = true
@@ -48,6 +53,9 @@ export default {
         on: {
           ready: (e) => {
             this.modalLoading = !e.detail
+          },
+          dataReady: (e) => {
+            console.warn(e.detail)
           }
         }
       }), {
