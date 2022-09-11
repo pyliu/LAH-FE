@@ -7,7 +7,7 @@ b-card
 
   .d-flex
     lah-reg-case-input-group(v-model="caseId", :vertical="vertical")
-    .w-50.p-1(v-if="vertical")  {{ $utils.caseId(caseId) }}
+    lah-reg-case-data(v-if="crsmsData", :parent-data="crsmsData")
 
   template(#footer)
     .d-flex.justify-content-between

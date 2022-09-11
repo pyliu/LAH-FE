@@ -1,14 +1,14 @@
 <template>
   <b-card>
     <b-card-title v-if="!noTitle">
-      收件資料 <b-link :href="queryDataUrl" target="_blank" title="開啟新視窗"><lah-fa-icon icon="share-square" no-gutter></lah-fa-icon></b-link>
+      收件資料 <b-link :href="queryDataUrl" target="_blank" title="開啟新視窗">
+        <lah-fa-icon icon="share-square" no-gutter />
+      </b-link>
     </b-card-title>
-    <b-list-group flush compact v-if="ready">
+    <b-list-group v-if="ready" flush compact>
       <b-list-group-item v-if="bakedData.跨所 == 'Y'">
-        <span class="bg-info text-white rounded p-1"
-          >跨所案件 ({{ bakedData.資料收件所 }} =>
-          {{ bakedData.資料管轄所 }})</span
-        >
+        <span class="bg-info text-white rounded p-1">跨所案件 ({{ bakedData.資料收件所 }} =>
+          {{ bakedData.資料管轄所 }})</span>
       </b-list-group-item>
       <b-list-group-item>
         收件字號：
@@ -27,7 +27,7 @@
         測量案件：{{ bakedData.測量案件 }}
       </b-list-group-item>
       <b-list-group-item>
-        限辦期限：<span v-html="bakedData.限辦期限"></span>
+        限辦期限：<span v-html="bakedData.限辦期限" />
       </b-list-group-item>
       <b-list-group-item>
         作業人員：
@@ -66,11 +66,11 @@
 </template>
 
 <script>
-import regCaseBase from "~/components/lah-reg-case-base.js"
+import regCaseBase from '~/components/lah-reg-case-base.js'
 import lahUserCard from '~/components/lah-user-card.vue'
 import lahAvatar from '~/components/lah-avatar.vue'
 export default {
-  name: 'lah-reg-case-data',
+  name: 'LahRegCaseData',
   components: { lahUserCard, lahAvatar },
   mixins: [regCaseBase],
   props: {
@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     userinfo (name, id = '') {
-      this.modal(this.$createElement('lah-user-card', { props: { name: name, id: id } }), {
+      this.modal(this.$createElement('lah-user-card', { props: { name, id } }), {
         title: `${id} ${name} 資訊`
       })
     }
