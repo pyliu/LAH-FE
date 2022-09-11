@@ -1,11 +1,14 @@
 <template lang="pug">
-div(v-if="ready")
+div(v-if="bakedData !== undefined")
   //- <!-- header flow table -->
   lah-reg-case-flow(compact :parent-data="bakedData")
   //- <!-- detail info card -->
   b-card-group(deck)
     lah-reg-case-data(:parent-data="bakedData")
     lah-reg-case-status(:parent-data="bakedData")
+h4.text-center.text-info.my-5(v-else)
+  b-spinner(small type="grow")
+    strong.ld-txt 查詢中...
 </template>
 
 <script>

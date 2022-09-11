@@ -7,7 +7,7 @@ b-card
 
   .d-flex
     lah-reg-case-input-group(v-model="caseId", :vertical="vertical")
-    lah-reg-case-data(v-if="crsmsData", :parent-data="crsmsData")
+    //- lah-reg-case-data(v-if="crsmsData", :parent-data="crsmsData")
 
   template(#footer)
     .d-flex.justify-content-between
@@ -35,7 +35,6 @@ b-card
 export default {
   data: () => ({
     caseId: '',
-    modalLoading: false,
     vertical: false
   }),
   computed: {
@@ -45,18 +44,17 @@ export default {
   },
   methods: {
     showCaseDetail () {
-      this.modalLoading = true
       this.modal(this.$createElement('lah-reg-case-detail', {
         props: {
           caseId: this.caseId
         },
         on: {
-          ready: (e) => {
-            this.modalLoading = !e.detail
-          },
+          // ready: (e) => {
+          //   this.modalLoading = !e.detail
+          // },
           dataReady: (e) => {
             this.$store.commit('inf/crsmsData', e.detail)
-            console.warn(this.crsmsData)
+            // console.warn(this.crsmsData)
           }
         }
       }), {
