@@ -38,6 +38,9 @@ b-card
       b-col
         span 結案與否：
         b(:class="crsmsData['結案與否'] === 'Y' ? ['text-success'] : ['text-danger']") {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
+    b-row
+      b-col 收件日期：{{ crsmsData['收件日期'] }}
+      b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }}
   lah-reg-case-input-group(
     v-model="caseId",
     :vertical="vertical"
