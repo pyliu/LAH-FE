@@ -344,14 +344,12 @@ export default {
       }).then(({ data }) => {
         console.assert(data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL, `更新案件「${config.col}」欄位回傳狀態碼有問題【${data.status}】`)
         if (this.$utils.statusCheck(data.status)) {
-          this.success({
-            title: '更新案件欄位',
-            message: `「${config.col}」更新完成`
+          this.success(`「${config.col}」更新完成`, {
+            title: '更新案件欄位'
           })
         } else {
-          this.warning({
-            title: '更新案件欄位',
-            message: `「${config.col}」更新失敗【${data.status}】`
+          this.warning(`「${config.col}」更新失敗【${data.status}】`, {
+            title: '更新案件欄位'
           })
         }
       }).catch((err) => {
@@ -469,14 +467,6 @@ export default {
       })
     },
     updateRM42 (e) {
-      if (this.rm42 === this.rm42_orig) {
-        this.notify({
-          title: '更新地價處理註記',
-          message: '地價處理註記沒變動',
-          type: 'warning'
-        })
-        return
-      }
       this.confirm(`您確定要更新地價處理註記為「${this.rm42}」?`, {
         title: '請確認更新地價處理註記',
         callback: () => {

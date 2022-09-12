@@ -243,10 +243,9 @@ export default {
     },
     cleanAll (e) {
       if (this.cleanAllBackupFlag !== true) {
-        this.alert({
+        this.alert('請先備份！', {
           title: '清除全部暫存資料',
-          subtitle: `${this.year}-${this.code}-${this.number}`,
-          message: '請先備份！'
+          subtitle: `${this.year}-${this.code}-${this.number}`
         })
         this.attention('#backup_temp_btn_all', { name: 'tada' })
       } else {
@@ -265,9 +264,8 @@ export default {
               table: ''
             }).then((res) => {
               console.assert(res.data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL, '清除暫存資料回傳狀態碼有問題【' + res.data.status + '】')
-              this.success({
-                title: '清除暫存檔',
-                message: '已清除完成。<p>' + this.year + '-' + this.code + '-' + this.number + '</p>'
+              this.success('已清除完成。<p>' + this.year + '-' + this.code + '-' + this.number + '</p>', {
+                title: '清除暫存檔'
               })
               this.$(e.target).remove()
             }).catch((err) => {
@@ -312,10 +310,9 @@ export default {
               table
             }).then((res) => {
               console.assert(res.data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL, '清除暫存資料回傳狀態碼有問題【' + res.data.status + '】')
-              this.success({
+              this.success('已清除完成。', {
                 title: `清除 ${table} 暫存檔`,
-                subtitle: this.year + '-' + this.code + '-' + this.number,
-                message: '已清除完成。'
+                subtitle: this.year + '-' + this.code + '-' + this.number
               })
               this.$(e.target).remove()
             }).catch((err) => {
