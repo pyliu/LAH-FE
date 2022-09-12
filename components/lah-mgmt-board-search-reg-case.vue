@@ -47,7 +47,7 @@ b-card
       b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }}
 
   template(#footer)
-    .d-flex.justify-content-between
+    .d-flex.justify-content-center
       lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail", pill) 詳情
       lah-button(v-else, icon="search", @click="search", :disabled="!validCaseId", pill) 查詢
       lah-button.h-100.ml-1(icon="arrow-rotate-left", variant="outline-secondary", @click="clearSearchData", pill) 清除
