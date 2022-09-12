@@ -22,7 +22,7 @@ b-card
           span 即可顯示案件狀態。
         li: .d-flex.align-items-center
           span 點選
-          lah-button.mx-1(icon="window-restore", variant="outline-success") 詳情
+          lah-button.mx-1(icon="window-restore", variant="outline-success", pill) 詳情
           span 顯示詳細資料彈出視窗。
         li.mt-1: .d-flex.align-items-center
           span 點選
