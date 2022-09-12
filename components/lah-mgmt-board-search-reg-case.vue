@@ -29,6 +29,10 @@ b-card
           lah-button.mx-1(icon="trash", variant="outline-secondary", pill) 詳情
           span 清除搜尋資料。
 
+  lah-reg-case-input-group(
+    v-model="caseId",
+    :vertical="vertical"
+  )
   .d-flex-column.my-1(v-if="dataReady")
     b-row
       b-col 登記原因：{{ crsmsData['登記原因'] }}
@@ -41,10 +45,6 @@ b-card
     b-row
       b-col 收件日期：{{ crsmsData['收件日期'] }}
       b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }}
-  lah-reg-case-input-group(
-    v-model="caseId",
-    :vertical="vertical"
-  )
 
   template(#footer)
     .d-flex.justify-content-between

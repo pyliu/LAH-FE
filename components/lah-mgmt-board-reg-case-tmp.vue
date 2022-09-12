@@ -101,17 +101,17 @@ b-card
   div(v-else)
     div(v-if="found")
       div(v-for="(item, idx) in filtered")
-        h6.font-weight-bold.text-center(v-if="idx == 0") 請檢查下列暫存檔資訊，必要時請刪除
+        h6.font-weight-bold.text-center(v-if="idx == 0")
+          lah-fa-icon(icon="triangle-exclamation", variant="warning") 請檢查下列暫存檔資訊，必要時請刪除。
         b-button(@click="showSQL(item)" size="sm" variant="warning")
-          | {{item[0]}}表格
-          span.badge.badge-light
-            | {{item[1].length}}
+          | {{ item[0] }}表格
+          span.badge.badge-light.ml-1
+            | {{ item[1].length }}
             span.sr-only 暫存檔數量
         small.ml-1
           b-button(:id="'backup_temp_btn_' + idx" size="sm" variant="outline-primary" @click="backup(item, idx, $event)") 備份
           b-button.ml-1(v-if="item[0] != 'MOICAT.RINDX' && item[0] != 'MOIPRT.PHIND'" :title="title(item)" size="sm" variant="outline-danger" @click="clean(item, idx, $event)") 清除
-        br
-        small － {{item[2]}}
+        .small.my-2 － {{ item[2] }}
       hr
       .text-center
         b-button#backup_temp_btn_all(@click="backupAll" variant="outline-primary" size="sm") 全部備份
