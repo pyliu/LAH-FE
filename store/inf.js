@@ -7,6 +7,9 @@ export default {
   },
   mutations: {
     crsmsData (state, jsonPayload) {
+      if (jsonPayload === null || jsonPayload === undefined) {
+        state.crsmsData = jsonPayload
+      }
       state.crsmsData = { ...jsonPayload }
     }
   },
