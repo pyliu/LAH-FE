@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div 地政系統管理面板
+          div 地政系統管理儀表板
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         div: a(
         :href="`${this.legacyUrl}/dashboard.html`",
