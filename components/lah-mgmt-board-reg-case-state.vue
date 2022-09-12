@@ -2,7 +2,7 @@
 b-card
   template(#header)
     .d-flex
-      h6.mb-0.mr-auto 登記案件狀態修正  #[a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}]
+      h6.mb-0.mr-auto #[lah-fa-icon(icon="2", size="lg")] 登記案件狀態修正  #[a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}]
       b-button-group(size="sm")
         lah-button(
           icon="question",
@@ -13,7 +13,7 @@ b-card
           @click="$refs.help.show()",
           title="登記案件狀態修正說明"
         )
-    lah-help-modal(ref="help", modal-title="搜尋登記案件說明")
+    lah-help-modal(ref="help", modal-title="登記案件狀態修正說明")
       ul
         li: .d-flex.align-items-center
           div 本項功能僅調整 CRSMS 資料表格欄位，請謹慎使用。
@@ -272,9 +272,6 @@ export default {
     },
     crsmsData () {
       return this.$store.getters['inf/crsmsData']
-    },
-    statusData () {
-      return [...[this.crsmsData]]
     },
     showProgress () {
       return this.progress !== false

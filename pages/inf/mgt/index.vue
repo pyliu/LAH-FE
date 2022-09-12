@@ -20,6 +20,12 @@ div(v-cloak)
   b-card-group(columns)
     lah-mgmt-board-search-reg-case
     lah-mgmt-board-reg-case-state
+    lah-mgmt-board-reg-case-tmp
+  hr
+  b-card-group(columns)
+    b-card
+    b-card
+    b-card
 </template>
 
 <script>
