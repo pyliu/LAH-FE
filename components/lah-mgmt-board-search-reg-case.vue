@@ -2,7 +2,7 @@
 b-card
   template(#header)
     .d-flex
-      h6.mb-0.mr-auto 搜尋登記案件 #[b.text-primary {{ $utils.caseId(caseId) }}]
+      h6.mb-0.mr-auto 搜尋登記案件 #[a.text-primary.font-weight-bold(v-if="dataReady", href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}]
       b-button-group(size="sm")
         b-checkbox(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
         lah-button(
@@ -35,7 +35,9 @@ b-card
       b-col 作業人員：{{ crsmsData['作業人員'] }}
     b-row
       b-col 辦理情形：{{ crsmsData['辦理情形'] }}
-      b-col 結案與否：{{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
+      b-col
+        span 結案與否：
+        b(:class="crsmsData['結案與否'] === 'Y' ? ['text-success'] : ['text-danger']") {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
   lah-reg-case-input-group(
     v-model="caseId",
     :vertical="vertical"
