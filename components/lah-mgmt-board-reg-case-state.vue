@@ -16,9 +16,15 @@ b-card
     lah-help-modal(ref="help", modal-title="登記案件狀態修正說明")
       ul
         li: .d-flex.align-items-center
-          div 本項功能僅調整 CRSMS 資料表格欄位，請謹慎使用。
+          div
+            div 本項功能僅調整部分 CRSMS 資料表格欄位(如下)，請謹慎使用。
+            ul
+              li RM30 - 案件辦理情形
+              li RM31 - 結案狀態
+              li RM39 - 登記處理註記
+              li RM42 - 地價處理註記
         li: .d-flex.align-items-center
-          div 使用方式請依各項目進行欄位值修正。
+          div 使用方式請依各項目欄位選擇後更新修正。
 
   h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
   div(v-else)
