@@ -288,10 +288,9 @@ export default {
     clean (item, idx, e) {
       const table = item[0]
       if (this.backupFlags[idx] !== true) {
-        this.alert({
+        this.alert(`請先備份 ${table} ！`, {
           title: `清除 ${table} 暫存檔`,
-          subtitle: `${this.year}-${this.code}-${this.number}`,
-          message: `請先備份 ${table} ！`
+          subtitle: `${this.year}-${this.code}-${this.number}`
         })
         this.attention(`#backup_temp_btn_${idx}`, { name: 'tada' })
       } else {
