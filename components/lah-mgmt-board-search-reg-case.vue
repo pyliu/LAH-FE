@@ -48,9 +48,9 @@ b-card
 
   template(#footer)
     .d-flex.justify-content-between
-      lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail") 詳情
-      lah-button(v-else, icon="search", @click="search", pill, :disabled="!validCaseId") 查詢
-      lah-button(icon="trash", variant="outline-secondary", @click="clearSearchData", pill) 清除
+      lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail", pill) 詳情
+      lah-button(v-else, icon="search", @click="search", :disabled="!validCaseId", pill) 查詢
+      lah-button.h-100.ml-1(icon="arrow-rotate-left", variant="outline-secondary", @click="clearSearchData", pill) 清除
 
 </template>
 
