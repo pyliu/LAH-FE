@@ -18,7 +18,8 @@ div(v-cloak)
       hr
 
   b-card-group(columns)
-    lah-mgmt-board-CRSMS
+    lah-mgmt-board-search-reg-case
+    lah-mgmt-board-reg-case-state
 </template>
 
 <script>
