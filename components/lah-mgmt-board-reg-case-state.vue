@@ -54,26 +54,12 @@ b-card
           template(v-slot:first): b-select-option(value) -- 無狀態 --
       .filter-btn-group.col-auto(v-if="rm42 !== rm42_orig")
         lah-button(icon="edit" @click="updateRM42" size="sm" variant="outline-primary") 更新
-    p.mt-1(v-if="showProgress")
-      lah-reg-table.small(type="sm" :crsmsData="[crsmsData]" :no-caption="true")
-
-  //- template(#footer, v-if="ui")
-  //-   lah-reg-case-input-group.my-1(v-model="inputCaseId")
-  //-   .d-flex.justify-content-between
-  //-     lah-button(v-if="dataReady", icon="scroll", variant="outline-success", @click="detail") 詳情
-  //-     lah-button(v-else, icon="search", @click="search") 查詢
-  //-     lah-button(icon="broom", variant="outline-secondary", @click="clearSearchData") 清除
-
 </template>
 
 <script>
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   components: { lahRegCaseDetailVue },
-  props: {
-    // ui: { type: Boolean, default: false },
-    progress: { type: Boolean, default: false }
-  },
   data: () => ({
     // inputCaseId: ''
     rm30_orig: '',
@@ -286,6 +272,9 @@ export default {
     },
     crsmsData () {
       return this.$store.getters['inf/crsmsData']
+    },
+    statusData () {
+      return [...[this.crsmsData]]
     },
     showProgress () {
       return this.progress !== false
