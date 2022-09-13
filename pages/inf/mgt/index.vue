@@ -23,7 +23,7 @@ div(v-cloak)
     lah-mgmt-board-reg-case-tmp
   hr
   b-card-group(columns)
-    b-card
+    lah-mgmt-board-sync-reg-case
     b-card
     b-card
 </template>
