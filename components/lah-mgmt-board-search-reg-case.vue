@@ -34,7 +34,7 @@ b-card
     :vertical="vertical",
     @enter="search"
   )
-  .d-flex-column.my-1(v-if="dataReady")
+  lah-transition: .d-flex-column.my-1(v-if="dataReady")
     b-row
       b-col 登記原因：{{ crsmsData['登記原因'] }}
       b-col 作業人員：{{ crsmsData['作業人員'] }}
