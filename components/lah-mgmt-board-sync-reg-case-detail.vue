@@ -120,7 +120,7 @@ export default {
                 subtitle: this.caseId
               })
               this.trigger('synced', column)
-              this.$(e.target).closest('button').remove()
+              // this.$(e.target).closest('button').remove()
               this.columns = this.columns.filter((item, idx, arr) => item.COLUMN !== column)
             } else {
               this.warning(res.data.message, {
