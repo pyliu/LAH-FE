@@ -117,6 +117,14 @@ export default {
     switchoverText (item) {
       const regex = /SESSIONS\s+([A-Z]+)/gm
       const arr = [...item.message.matchAll(regex)]
+      /**
+       * arr[0]:
+       * 0: "SESSIONS ACTIVE"
+       * 1: "ACTIVE"
+       */
+      if (this.$utils.empty(arr)) {
+        return 'BROKEN'
+      }
       return arr[0][1]
     },
     currentLogText (item) {
@@ -126,6 +134,9 @@ export default {
        *   0: "Current log sequence\t       54357"
        *   1: "54357"
        */
+      if (this.$utils.empty(arr)) {
+        return 'Current log sequence\t       0'
+      }
       return arr[0][0]
     },
     currentLogNumber (item) {
@@ -135,6 +146,9 @@ export default {
        *   0: "Current log sequence\t       54357"
        *   1: "54357"
        */
+      if (this.$utils.empty(arr)) {
+        return '0'
+      }
       return arr[0][1]
     }
   }
