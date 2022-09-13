@@ -1,9 +1,10 @@
 <template lang="pug">
 b-card
   template(#header)
-    .d-flex
-      h6.mb-0.mr-auto #[lah-fa-icon(icon="1", size="lg", :variant="dataReady ? '' : 'danger'")] 搜尋登記案件 #[a.text-primary.font-weight-bold(v-if="dataReady", href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}]
-      b-button-group(size="sm")
+    .d-flex.align-items-center
+      h6.mb-0.mt-1 #[lah-fa-icon(icon="1", size="lg", :variant="dataReady ? '' : 'danger'") 搜尋登記案件]
+      a.text-primary.font-weight-bold(v-if="dataReady", href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
+      b-button-group.ml-auto(size="sm")
         b-checkbox(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
         lah-button(
           icon="question",

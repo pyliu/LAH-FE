@@ -1,18 +1,18 @@
 <template lang="pug">
 b-card
   template(#header)
-    .d-flex
-      h6.mb-0.mr-auto #[lah-fa-icon(icon="3", size="lg")] 登記案件暫存檔  #[a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}]
-      b-button-group(size="sm")
-        lah-button(
-          icon="question",
-          action="breath",
-          variant="outline-success",
-          no-border,
-          no-icon-gutter,
-          @click="$refs.help.show()",
-          title="登記案件狀態修正說明"
-        )
+    .d-flex.align-items-center
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="3", size="lg") 登記案件暫存檔]
+      a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
+      b-button-group.ml-auto(size="sm"): lah-button(
+        icon="question",
+        action="breath",
+        variant="outline-success",
+        no-border,
+        no-icon-gutter,
+        @click="$refs.help.show()",
+        title="登記案件狀態修正說明"
+      )
     lah-help-modal(ref="help", modal-title="登記案件暫存檔說明")
       ul.h5
         li: .d-flex.align-items-center
