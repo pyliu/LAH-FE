@@ -26,12 +26,13 @@ b-card
           span 顯示詳細資料彈出視窗。
         li.mt-1: .d-flex.align-items-center
           span 點選
-          lah-button.mx-1(icon="trash", variant="outline-secondary", pill) 詳情
+          lah-button.mx-1(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", pill) 清除
           span 清除搜尋資料。
 
   lah-reg-case-input-group(
     v-model="caseId",
-    :vertical="vertical"
+    :vertical="vertical",
+    @enter="search"
   )
   .d-flex-column.my-1(v-if="dataReady")
     b-row
@@ -50,7 +51,7 @@ b-card
     .d-flex.justify-content-center
       lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail", pill) 詳情
       lah-button(v-else, icon="search", @click="search", :disabled="!validCaseId", pill) 查詢
-      lah-button.h-100.ml-1(icon="arrow-rotate-left", variant="outline-secondary", @click="clearSearchData", pill) 清除
+      lah-button.h-100.ml-1(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", @click="clearSearchData", pill) 清除
 
 </template>
 
