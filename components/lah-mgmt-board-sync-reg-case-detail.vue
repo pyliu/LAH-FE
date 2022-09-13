@@ -154,7 +154,7 @@ export default {
                 subtitle: this.caseId
               })
               this.trigger('synced', 'ALL')
-              this.$(e.target).closest('button').remove()
+              // this.$(e.target).closest('button').remove()
               this.updated = true
             } else {
               this.warning(res.data.message, {
