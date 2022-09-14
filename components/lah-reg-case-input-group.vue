@@ -239,7 +239,7 @@ export default {
       // ITEM欄位：YEAR, CODE, CODE_NAME, COUNT, CODE_TYPE
       // [109, HCB1, 壢溪登跨, 1213, reg.HXB1]
       if (!Array.isArray(items)) {
-        items = await this.getLocalCache(this.codeCacheKeyPermanent)
+        items = await this.getCache(this.codeCacheKeyPermanent)
       }
 
       if (Array.isArray(items)) {
