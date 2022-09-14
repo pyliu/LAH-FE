@@ -179,11 +179,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.row {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  &::hover {
-    background-color: antiquewhite;
-  }
-}
 </style>
