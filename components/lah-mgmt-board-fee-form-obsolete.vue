@@ -4,12 +4,6 @@ b-card
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="ban", size="lg", variant="danger") 無電腦給號規費收據作廢]
       b-button-group.ml-auto(size="sm")
-        b-button.text-nowrap(
-          variant="primary",
-          title="顯示全部資料",
-          @click="showTable",
-          pill
-        ) {{ year }}年 #[b-badge(variant="light", pill) {{ count }}]
         lah-button(
           icon="question",
           action="breath",
@@ -30,28 +24,40 @@ b-card
         li AA28、AA39 - 規費資料集(EXPAA)中記載金額的兩個欄位
         li AC29、AC30 - 規費項目資料集(EXPAC)中記載收費項目之金額
 
-  h6 ※ 下一筆假資料電腦給號：{{ nextPcNumber }}
-  hr
-  b-input-group(size="sm" title="民國年月日")
-    b-input-group-prepend(is-text="") 結帳日期
-    b-form-input#dummy_obsolete_date(v-model="today" placeholder="1090225" size="sm" trim="" :state="isDateValid")
-  b-input-group.my-1(size="sm")
-    b-input-group-prepend(is-text="") 作廢原因
-    b-form-input#dummy_obsolete_reason(v-model="reason" placeholder="卡紙" :state="isReasonValid" size="sm" trim="")
-  b-input-group(size="sm" title="作業人員")
-    b-input-group-prepend(is-text="") {{operatorName || '作業人員'}}
-    b-form-input#dummy_operator(v-model="operator" placeholder="HAXXXX" size="sm" trim="" :state="isOperatorValid")
-  b-input-group.my-1(size="sm" title="AB開頭編號共10碼")
-    b-input-group-prepend(is-text="") 收據號碼
-    b-form-input#dummy_fee_number(v-model="AbNumber" placeholder="AAXXXXXXXX" :state="isNumberValid" size="sm" trim="")
-  lah-button(
-    v-if="!isDisabled"
-    icon="plus",
-    :variant="isDisabled ? 'outline-primary' : 'primary'",
-    size="sm",
-    @click="add",
-    block
-  ) 新增
+  .d-flex.align-items-center
+    b-input-group(size="sm" title="民國年月日")
+      b-input-group-prepend(is-text="") 結帳日期
+      b-form-input#dummy_obsolete_date(v-model="today" placeholder="1090225" size="sm" trim="" :state="isDateValid")
+    b-input-group.ml-1(size="sm")
+      b-input-group-prepend(is-text="") 作廢原因
+      b-form-input#dummy_obsolete_reason(v-model="reason" placeholder="卡紙" :state="isReasonValid" size="sm" trim="")
+  .d-flex.align-items-center.my-1
+    b-input-group(size="sm" title="作業人員")
+      b-input-group-prepend(is-text="") {{operatorName || '作業人員'}}
+      b-form-input#dummy_operator(v-model="operator" placeholder="HAXXXX" size="sm" trim="" :state="isOperatorValid")
+    b-input-group.ml-1(size="sm" title="AB開頭編號共10碼")
+      b-input-group-prepend(is-text="") 收據號碼
+      b-form-input#dummy_fee_number(v-model="AbNumber" placeholder="AAXXXXXXXX" :state="isNumberValid" size="sm" trim="")
+
+  template(#footer)
+    .d-flex.justify-content-between.align-items.center
+      small ※ 下一筆假資料電腦給號：{{ nextPcNumber }}
+      lah-button.mx-auto(
+        v-if="!isDisabled"
+        icon="plus",
+        size="sm",
+        :variant="isDisabled ? 'outline-primary' : 'primary'",
+        @click="add",
+        pill
+      ) 確定新增
+      b-button.text-nowrap(
+        variant="outline-info",
+        size="sm",
+        title="顯示全部資料",
+        @click="showTable",
+        pill
+      ) {{ year }}年 #[b-badge(variant="secondary", pill) {{ count }}]
+
 </template>
 
 <script>
