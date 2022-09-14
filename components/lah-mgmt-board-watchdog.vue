@@ -2,7 +2,7 @@
 b-card
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="screwdriver-wrench", size="lg", variant="info") 快速檢測＆修正資料庫]
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="screwdriver-wrench", size="lg", variant="info") 快速檢測＆修正]
       b-button-group.ml-auto(size="sm"): lah-button(
         icon="question",
         action="breath",
