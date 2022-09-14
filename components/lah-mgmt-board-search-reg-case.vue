@@ -99,6 +99,7 @@ export default {
   },
   async created () {
     this.vertical = await this.getCache('lah-mgmt-board-search-reg-case-vertical') || false
+    this.clearSearchData()
   },
   methods: {
     search () {
