@@ -127,7 +127,7 @@ export default {
             this.$warn(`無法取得最大號 ${this.year}-${this.code}`)
           }
         }).catch((err) => {
-          this.error = err
+          this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
         })
@@ -161,20 +161,20 @@ export default {
         }
       }).finally(() => {
         if (this.$utils.empty(this.years)) {
-          this.timeout(() => { this.reloadYear() }, 1000)
+          this.timeout(() => this.reloadYear(), 1000)
         }
       })
     },
     reloadCode () {
       this.getCache(this.codeCacheKey).then((items) => {
-        if (items === false || !Array.isArray(items)) {
+        if (!Array.isArray(items) || this.$utils.empty(items)) {
           this.getDBCodeData()
         } else {
           this.restoreCodeData(items)
         }
       }).finally(() => {
         if (this.$utils.empty(this.codes)) {
-          this.timeout(() => { this.reloadCode() }, 1000)
+          this.timeout(() => this.reloadCode(), 1000)
         }
       })
     },
@@ -192,7 +192,7 @@ export default {
         }
         this.restoreCodeData(res.data.raw)
       }).catch((err) => {
-        this.error = err
+        this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
       })
@@ -261,7 +261,7 @@ export default {
         // this.codes = Object.assign({}, this.codes);
         this.arrangeCodeList()
       } else if (--this.retry > 0) {
-        this.timeout(() => { this.reloadCode() }, 200)
+        this.timeout(() => this.reloadCode(), 200)
       } else {
         this.notify({
           title: '案件字還原',
