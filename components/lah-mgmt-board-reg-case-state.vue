@@ -23,6 +23,7 @@ b-card
               li RM31 - 結案狀態
               li RM39 - 登記處理註記
               li RM42 - 地價處理註記
+              li 自行輸入欄位
         li: .d-flex.align-items-center
           div 使用方式請依各項目欄位選擇後更新修正。
 
@@ -60,6 +61,20 @@ b-card
           template(v-slot:first): b-select-option(value) -- 無狀態 --
       .filter-btn-group.col-auto(v-if="rm42 !== rm42_orig")
         lah-button(icon="edit" @click="updateRM42" size="sm" variant="outline-primary") 更新
+    hr
+    .form-row
+      b-input-group.col(size="sm")
+        b-input-group-prepend(is-text) 其他欄位
+        b-input.h-100(v-model="rmXX", @input="restoreRMXXValue")
+      b-input-group.col.text-nowrap(size="sm")
+        b-input-group-prepend(is-text) 修改內容
+        b-form-input.h-100(v-model="rmXXValue")
+      .filter-btn-group.col-auto(v-if="validRMXX")
+        lah-button(icon="edit" @click="updateRMXX(upperCaseRmXX, rmXXValue)" size="sm" variant="outline-primary") 更新
+    .form-row.mt-1.ml-1(v-if="validRMXX")
+      lah-fa-icon(icon="eye", variant="success") 即將修正「{{ upperCaseRmXX }}」為「{{ rmXXValue }}」。
+    .form-row.mt-1.ml-1(v-else-if="!$utils.empty(rmXX)")
+      lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
 </template>
 
 <script>
@@ -264,7 +279,9 @@ export default {
       label: '期限',
       sortable: true
     }
-    ]
+    ],
+    rmXX: '',
+    rmXXValue: ''
   }),
   computed: {
     caseId () {
@@ -308,6 +325,12 @@ export default {
     },
     number () {
       return this.crsmsData?.RM03 || ''
+    },
+    upperCaseRmXX () {
+      return `RM${this.rmXX}`.toUpperCase().replace('RMRM', 'RM')
+    },
+    validRMXX () {
+      return this.upperCaseRmXX in this.crsmsData
     }
   },
   watch: {
@@ -359,22 +382,12 @@ export default {
       })
     },
     updateRM30 (e) {
-      this.confirm(
+      this.updateRMXX(
+        'RM30',
+        this.rm30,
         `確定要更新辦理情形為「${this.rm30}」?`,
-        { title: '請確認更新案件辦理情形' }
-      ).then((YN) => {
-        if (YN) {
-          // update RM30
-          this.updateCRSMSCol({
-            rm01: this.year,
-            rm02: this.code,
-            rm03: this.number,
-            col: 'RM30',
-            val: this.rm30
-          })
-
+        () => {
           this.rm30_orig = this.rm30
-
           if (this.sync_rm30_1) {
             /**
              * RM45 - 初審 A
@@ -430,56 +443,57 @@ export default {
             })
           }
         }
-      })
+      )
     },
     updateRM31 (e) {
-      this.confirm(
+      this.updateRMXX(
+        'RM31',
+        this.rm31,
         `您確定要更新結案狀態為「${this.rm31}」?`,
-        { title: '請確認更新案件結案狀態' }
-      ).then((YN) => {
-        if (YN) {
-          this.updateCRSMSCol({
-            rm01: this.year,
-            rm02: this.code,
-            rm03: this.number,
-            col: 'RM31',
-            val: this.rm31
-          })
-          this.rm31_orig = this.rm31
-        }
-      })
+        () => { this.rm31_orig = this.rm31 }
+      )
     },
     updateRM39 (e) {
+      this.updateRMXX(
+        'RM39',
+        this.rm39,
+        `您確定要更新登記處理註記為「${this.rm39}」`,
+        () => { this.rm39_orig = this.rm39 }
+      )
+    },
+    updateRM42 (e) {
+      this.updateRMXX(
+        'RM42',
+        this.rm42,
+        `您確定要更新地價處理註記為「${this.rm42}」?`,
+        () => { this.rm42_orig = this.rm42 }
+      )
+    },
+    updateRMXX (col, val, msg, callback) {
+      msg = msg || `您確定要更新 ${col} 為「${val}」?`
       this.confirm(
-        `您確定要更新登記處理註記為「${this.rm39}」?`,
-        { title: '請確認更新登記處理註記' }
+        msg,
+        { title: '請確認更新欄位狀態' }
       ).then((YN) => {
         if (YN) {
           this.updateCRSMSCol({
             rm01: this.year,
             rm02: this.code,
             rm03: this.number,
-            col: 'RM39',
-            val: this.rm39
+            col,
+            val
           })
-          this.rm39_orig = this.rm39
+          this.crsmsData[col] = val
+          callback && callback()
         }
       })
     },
-    updateRM42 (e) {
-      this.confirm(`您確定要更新地價處理註記為「${this.rm42}」?`, {
-        title: '請確認更新地價處理註記',
-        callback: () => {
-          this.updateCRSMSCol({
-            rm01: this.year,
-            rm02: this.code,
-            rm03: this.number,
-            col: 'RM42',
-            val: this.rm42
-          })
-          this.rm42_orig = this.rm42
-        }
-      })
+    restoreRMXXValue () {
+      if (this.validRMXX) {
+        this.rmXXValue = this.crsmsData[this.upperCaseRmXX]
+      } else {
+        this.rmXXValue = ''
+      }
     }
   }
 }
