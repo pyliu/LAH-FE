@@ -339,6 +339,7 @@ export default {
       this.rm31_orig = this.crsmsData?.RM31 || ''
       this.rm39_orig = this.crsmsData?.RM39 || ''
       this.rm42_orig = this.crsmsData?.RM42 || ''
+      this.rmXX = ''
     }
   },
   created () {},
