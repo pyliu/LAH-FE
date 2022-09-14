@@ -27,7 +27,7 @@ div(v-cloak)
   b-card-group(columns)
     lah-mgmt-board-sync-reg-case
     lah-mgmt-board-watchdog
-    b-card
+    b-card 預定製作規費查詢看板
 </template>
 
 <script>
