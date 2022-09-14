@@ -52,7 +52,7 @@ b-card
       title="檢測地價案件跨所註記遺失問題",
       @click="checkValXcase"
     ) 「地價」跨所註記檢測
-  b-button-group.mt-1.w-100
+  b-button-group.my-1.w-100
     lah-button.w-50(
       icon="credit-card",
       action="flip-h",
@@ -67,7 +67,6 @@ b-card
     ) 測量問題案件檢測
 
   lah-transition(appear): b-card(v-if="foundRegCases")
-    hr
     h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(登記)
     b-list-group(flush)
       b-list-group-item(
@@ -81,7 +80,6 @@ b-card
           lah-button(icon="hammer", action="tick", variant="outline-primary", @click="fixRegCase(item)") 修正
 
   lah-transition(appear): b-card(v-if="foundValCases")
-    hr
     h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(地價)
     b-list-group(flush)
       b-list-group-item(
@@ -95,7 +93,6 @@ b-card
           lah-button(icon="hammer", action="tick", variant="outline-info", @click="fixValCase(item)") 修正
 
   lah-transition(appear): b-card(v-if="foundPaymentData")
-    hr
     h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列悠遊卡付款失敗問題
     b-list-group(flush)
       b-list-group-item(
@@ -108,7 +105,6 @@ b-card
         lah-button(v-if="$utils.empty(item['AA104'])", @click="paymentFix(item)", variant="outline-dark") 修正
 
   lah-transition(appear): b-card(v-if="foundSurCases")
-    hr
     h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列有問題之測量案件
     b-list-group(flush)
       b-list-group-item(
