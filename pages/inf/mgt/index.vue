@@ -23,11 +23,10 @@ div(v-cloak)
     lah-mgmt-board-search-reg-case
     lah-mgmt-board-reg-case-state
     lah-mgmt-board-reg-case-tmp
-  hr
   b-card-group(columns)
     lah-mgmt-board-sync-reg-case
+    lah-mgmt-board-fee-form-obsolete
     lah-mgmt-board-watchdog
-    b-card 預定製作規費查詢看板
 </template>
 
 <script>
