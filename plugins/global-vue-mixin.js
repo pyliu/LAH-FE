@@ -423,6 +423,7 @@ Vue.mixin({
           reject('Server side doesn\'t use modal')
         } else if (this.$bvModal) {
           const merged = Object.assign({
+            id: 'dynamic-modal-control', // used for show/close by programming
             title: '訊息',
             size: 'md',
             buttonSize: 'sm',
