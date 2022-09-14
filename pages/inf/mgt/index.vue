@@ -26,7 +26,7 @@ div(v-cloak)
   hr
   b-card-group(columns)
     lah-mgmt-board-sync-reg-case
-    b-card
+    lah-mgmt-board-watchdog
     b-card
 </template>
 

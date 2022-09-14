@@ -63,7 +63,7 @@ b-card
         lah-button(icon="edit" @click="updateRM42" size="sm" variant="outline-primary") 更新
     hr
     .form-row
-      b-input-group.col(size="sm")
+      b-input-group.col(size="sm", v-b-tooltip="'RMXX'")
         b-input-group-prepend(is-text) 其他欄位
         b-input.h-100(v-model="rmXX", @input="restoreRMXXValue")
       b-input-group.col.text-nowrap(size="sm")
