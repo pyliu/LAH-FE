@@ -501,4 +501,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+hr {
+  margin-top: .5rem;
+  margin-bottom: .5rem;
+}
 </style>
