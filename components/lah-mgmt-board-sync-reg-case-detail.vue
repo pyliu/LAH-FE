@@ -17,8 +17,8 @@ b-card.border-0(no-body)
         small,
         fixed
       )
-        template(#cell(REMOTE)="{ item }"): div {{ $utils.empty(item.REMOTE) ? '空值' : item.REMOTE }}
-        template(#cell(LOCAL)="{ item }"): div {{ $utils.empty(item.LOCAL) ? '空值' : item.LOCAL }}
+        template(#cell(REMOTE)="{ item }"): div {{ $utils.empty(item.REMOTE) ? '(空值)' : item.REMOTE }}
+        template(#cell(LOCAL)="{ item }"): div {{ $utils.empty(item.LOCAL) ? '(空值)' : item.LOCAL }}
         template(#cell(OP)="{ item }"): lah-button.mx-auto(icon="cloud-arrow-down", variant="outline-primary", @click="syncColumn($event, item.COLUMN)") 同步 {{ item.COLUMN }}
 </template>
 
