@@ -417,6 +417,12 @@ Vue.mixin({
     hideModalById (id) {
       this.$bvModal && this.$bvModal.hide(id)
     },
+    showModal (id) {
+      this.showModalById(id || 'dynamic-modal-control')
+    },
+    hideModal (id) {
+      this.hideModalById(id || 'dynamic-modal-control')
+    },
     modal (message, opts) {
       return new Promise((resolve, reject) => {
         if (this.$isServer) {
