@@ -253,14 +253,15 @@ export default {
           },
           on: {
             synced: (e) => {
-              if (e.detail === 'ALL') {
-                this.clear()
-              } else {
-                this.l3hwebData = this.l3hwebData?.filter((item, idx, arr) => item.COLUMN !== e.detail)
-              }
+              this.l3hwebData = this.l3hwebData?.filter((item, idx, arr) => item.COLUMN !== e.detail)
+            },
+            'all-synced': (e) => {
+              this.timeout(() => this.hideModalById('sync-detail-modal'), 1000)
+              this.clear()
             }
           }
         }), {
+          id: 'sync-detail-modal',
           title: `同步狀態比對詳情 ${this.formattedID}`,
           size: 'lg'
         })

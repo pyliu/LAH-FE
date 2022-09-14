@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card.border-0(no-body)
   lah-transition
-    .center.h5(v-if="updated"): lah-fa-icon(icon="check", variant="success") 更新完成。
+    .center.h5(v-if="updated"): lah-fa-icon(icon="check", variant="success") 全部更新完成。
     div(v-else)
       .d-flex.align-items-center.h5
         lah-fa-icon(icon="triangle-exclamation", size="lg")
@@ -26,7 +26,7 @@ b-card.border-0(no-body)
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {
-  emit: ['synced'],
+  emit: ['synced', 'all-synced'],
   components: { lahRegCaseDetailVue },
   props: {
     caseId: { type: String, default: '' },
@@ -115,7 +115,7 @@ export default {
             column
           }).then((res) => {
             if (this.$utils.statusCheck(res.data.status)) {
-              this.success(`${column} 同步成功！`, {
+              this.success(`${column} 欄位同步成功！`, {
                 title: '同步局端資料',
                 subtitle: this.caseId
               })
@@ -149,12 +149,12 @@ export default {
             id: this.caseId
           }).then((res) => {
             if (this.$utils.statusCheck(res.data.status)) {
-              this.success('案件同步成功！', {
+              this.success('案件全部同步成功！', {
                 title: '同步局端資料',
                 subtitle: this.caseId
               })
-              this.trigger('synced', 'ALL')
-              // this.$(e.target).closest('button').remove()
+              this.trigger('all-synced')
+              this.columns.length = 0
               this.updated = true
             } else {
               this.warning(res.data.message, {
