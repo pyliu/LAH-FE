@@ -24,8 +24,8 @@ div(v-cloak)
     lah-mgmt-board-reg-case-state
     lah-mgmt-board-reg-case-tmp
   b-card-group(columns)
-    lah-mgmt-board-sync-reg-case
     lah-mgmt-board-fee-form-obsolete
+    lah-mgmt-board-sync-reg-case
     lah-mgmt-board-watchdog
 </template>
 

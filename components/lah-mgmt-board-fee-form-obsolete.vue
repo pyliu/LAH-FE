@@ -45,10 +45,10 @@ b-card
     b-input-group-prepend(is-text="") 收據號碼
     b-form-input#dummy_fee_number(v-model="AbNumber" placeholder="AAXXXXXXXX" :state="isNumberValid" size="sm" trim="")
   lah-button(
+    v-if="!isDisabled"
     icon="plus",
     :variant="isDisabled ? 'outline-primary' : 'primary'",
     size="sm",
-    :disabled="isDisabled",
     @click="add",
     block
   ) 新增
