@@ -20,27 +20,27 @@ b-card
         li 範例： #[b.text-danger 9]#[b.text-primary 111]#[b.text-success 001]、9111002 ... 以此類推
       h6 相關欄位定義供參考
       ul
-        li AA09 - 列印註記【1：已印，0：未印】
-        li AA100 - 付款方式
-        li AA106 - 悠遊卡繳費扣款結果
-        li AA107 - 悠遊卡交易流水號
-        li AA28、AA39 - 規費資料集(EXPAA)中記載金額的兩個欄位
-        li AC29、AC30 - 規費項目資料集(EXPAC)中記載收費項目之金額
+        li AA01 - 日期
+        li AA04 - 電腦給號
+        li AA05 - 規費編號
+        li AA104 - 作廢原因
+        li AA39 - 作業人員
 
-  .d-flex.align-items-center
-    b-input-group(size="sm" title="民國年月日")
-      b-input-group-prepend(is-text="") 結帳日期
-      b-form-input#dummy_obsolete_date(v-model="today" placeholder="1090225" size="sm" trim="" :state="isDateValid")
-    b-input-group.ml-1(size="sm")
-      b-input-group-prepend(is-text="") 作廢原因
-      b-form-input#dummy_obsolete_reason(v-model="reason" placeholder="卡紙" :state="isReasonValid" size="sm" trim="")
-  .d-flex.align-items-center.my-1
-    b-input-group(size="sm" title="作業人員")
-      b-input-group-prepend(is-text="") {{operatorName || '作業人員'}}
-      b-form-input#dummy_operator(v-model="operator" placeholder="HAXXXX" size="sm" trim="" :state="isOperatorValid")
-    b-input-group.ml-1(size="sm" title="AB開頭編號共10碼")
-      b-input-group-prepend(is-text="") 收據號碼
-      b-form-input#dummy_fee_number(v-model="AbNumber" placeholder="AAXXXXXXXX" :state="isNumberValid" size="sm" trim="")
+  .center-container-wh-100: div
+    .d-flex.align-items-center
+      b-input-group(size="sm" title="民國年月日")
+        b-input-group-prepend(is-text) 結帳日期
+        b-form-input#dummy_obsolete_date(v-model="today" placeholder="1090225" size="sm" trim :state="isDateValid")
+      b-input-group.ml-1(size="sm")
+        b-input-group-prepend(is-text) 作廢原因
+        b-form-input#dummy_obsolete_reason(v-model="reason" placeholder="卡紙" :state="isReasonValid" size="sm" trim)
+    .d-flex.align-items-center.my-1
+      b-input-group(size="sm" title="作業人員")
+        b-input-group-prepend(is-text) {{operatorName || '作業人員'}}
+        b-form-input#dummy_operator(v-model="operator" placeholder="HAXXXX" size="sm" trim :state="isOperatorValid")
+      b-input-group.ml-1(size="sm" title="AA開頭編號共10碼")
+        b-input-group-prepend(is-text) 收據號碼
+        b-form-input#dummy_fee_number(v-model="AaNumber" placeholder="AAXXXXXXXX" :state="isNumberValid" size="sm" trim)
 
   template(#footer)
     .d-flex.justify-content-between.align-items.center
@@ -99,7 +99,7 @@ export default {
     today: '',
     operator: '', // 作業人員
     operatorName: '',
-    AbNumber: '', // 收據編號
+    AaNumber: '', // 收據編號
     reason: '' // 作廢原因
   }),
   computed: {
@@ -117,7 +117,7 @@ export default {
       return !this.$utils.empty(this.reason)
     },
     isNumberValid () {
-      return this.AbNumber.length === 10
+      return this.AaNumber.length === 10
     },
     isDisabled () {
       return !this.isOperatorValid || !this.isNumberValid || !this.isReasonValid || !this.isDateValid
@@ -171,7 +171,7 @@ export default {
     },
     add (e) {
       const operator = this.operator.replace(/[^A-Za-z0-9]/g, '')
-      const feeNumber = this.AbNumber.replace(/[^A-Za-z0-9]/g, '')
+      const feeNumber = this.AaNumber.replace(/[^A-Za-z0-9]/g, '')
       const reason = this.reason.replace(/['"]/g, '')
 
       this.confirm('確定要新增一個新的假資料以供作廢之用？').then((YN) => {

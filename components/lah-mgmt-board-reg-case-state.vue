@@ -366,7 +366,7 @@ export default {
         col: config.col,
         val: config.val
       }).then(({ data }) => {
-        console.assert(data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL, `更新案件「${config.col}」欄位回傳狀態碼有問題【${data.status}】`)
+        console.assert(this.$utils.statusCheck(data.status), `更新案件「${config.col}」欄位回傳狀態碼有問題【${data.status}】`)
         if (this.$utils.statusCheck(data.status)) {
           this.success(`「${config.col}」更新完成`, {
             title: '更新案件欄位'
