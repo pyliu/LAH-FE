@@ -15,7 +15,10 @@ b-card
         )
     lah-help-modal(ref="help", modal-title="無電腦給號規費收據作廢說明")
       h5 本項功能提供管理師在無電腦給號的情形下作廢規費單據。
-      h6 相關欄位定義參考如下
+      ul
+        li 電腦給號規則： 9 + year (3 digits) + serial (3 digits)
+        li 範例： 9111001、9111002 ... 以此類推
+      h6 相關欄位定義供參考
       ul
         li AA09 - 列印註記【1：已印，0：未印】
         li AA100 - 付款方式
@@ -41,7 +44,7 @@ b-card
 
   template(#footer)
     .d-flex.justify-content-between.align-items.center
-      small ※ 下一筆假資料電腦給號：{{ nextPcNumber }}
+      small ※ 下一筆電腦給號：{{ nextPcNumber }}
       lah-button.mx-auto(
         v-if="!isDisabled"
         icon="plus",
