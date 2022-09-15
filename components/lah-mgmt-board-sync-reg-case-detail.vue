@@ -10,8 +10,9 @@ b-card.border-0(no-body)
       b-table.text-center(
         :fields="fields"
         :items="columns",
-        hover,
         responsive="lg",
+        head-variant="dark",
+        hover,
         striped,
         bordered,
         small,
