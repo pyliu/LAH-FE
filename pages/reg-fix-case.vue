@@ -261,7 +261,7 @@ export default {
   fetchOnServer: false,
   fetch () {
     if (this.isBusy) {
-      this.notify('讀取中 ... 請稍後', { type: 'warning' })
+      this.warning('讀取中 ... 請稍後')
     } else {
       /**
        * Can not use FE cache for this page since I manipulate the bakedData at API side

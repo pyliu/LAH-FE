@@ -187,7 +187,7 @@ export default {
     // fill default value from RM52
     this.$utils.empty(this.deadlineDate) && this.resetDeadline()
     this.trigger('ready', this.ready)
-    this.$utils.warn(this.parentData)
+    // this.$utils.warn(this.parentData)
   },
   methods: {
     resetDeadline () {
