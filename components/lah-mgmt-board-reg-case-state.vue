@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card
+b-card(border-variant="secondary")
   template(#header)
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="2", size="lg") 登記案件狀態修正]

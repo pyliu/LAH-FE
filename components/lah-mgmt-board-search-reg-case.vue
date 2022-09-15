@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card
+b-card(border-variant="secondary")
   template(#header)
     .d-flex.align-items-center
       h6.mb-0.mt-1 #[lah-fa-icon(icon="1", size="lg", :variant="dataReady ? '' : 'danger'") 搜尋登記案件]
