@@ -142,7 +142,7 @@ export default {
       })
     },
     syncAll (e) {
-      this.confirm(`同步局端資料至本所資料庫【${this.caseId}】？`).then((YN) => {
+      this.confirm(`同步局端 ${this.$utils.caseId(this.caseId)} 案件資料至本所資料庫？`).then((YN) => {
         if (YN) {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.QUERY, {
