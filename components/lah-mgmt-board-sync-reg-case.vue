@@ -26,10 +26,8 @@ b-card
           span 點選
           lah-button.mx-1(icon="window-restore", variant="outline-success", pill) 詳情
           span 顯示詳細資料彈出視窗。
-        li.mt-1: .d-flex.align-items-center
-          | ※新版跨縣市回寫機制會在每一分鐘時自動回寫，故局端資料有可能會比較慢更新。【2019-06-26】
-        li.mt-1: .d-flex.align-items-center
-          | ※局端針對遠端連線同步異動資料庫有鎖IP，故IP不在局端白名單內或不再集中化內的伺服器主機將無法使用本功能。【2020-07-15】
+        li 跨縣市回寫機制會在#[b.text-primary 每分鐘(原則上)]自動回寫，故局端資料(約10分鐘更新)有可能會比較慢更新。【2019-06-26】
+        li 局端針對遠端連線同步異動資料庫#[b.text-danger 有鎖連線IP]，故IP不在局端白名單內或不在集中化內的伺服器主機將無法使用本功能。【2020-07-15】
         //-   span 點選
         //-   lah-button.mx-1(icon="trash", variant="outline-secondary", pill) 詳情
         //-   span 清除搜尋資料。
