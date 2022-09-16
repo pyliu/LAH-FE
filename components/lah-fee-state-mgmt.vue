@@ -2,14 +2,16 @@
 b-card.border-0(no-body)
   div(v-if="brief")
     b-row
-      b-col 結帳日期：{{ expaaData.AA01 }}
-      b-col 作業人員：{{ expaaData.AA39 }}
-    b-row.mt-1
       b-col 電腦給號：{{ expaaData.AA04 }}
       b-col 收據編號：{{ expaaData.AA05 }}
-    hr
+    b-row.my-1
+      b-col 結帳日期：{{ expaaData.AA01 }}
+      b-col(v-b-tooltip="expaaData.AA39") 作業人員：{{ operator }}
+    b-row
+      b-col 收費方式：{{ expaaData.AA100_CHT }}
+      b-col 實收金額：{{ expaaData.AA28 }}
 
-  .w-100(:class="vertical ? ['d-flex-column'] : ['d-flex']")
+  .w-100.mt-1(:class="vertical ? ['d-flex-column'] : ['d-flex']")
     //- 列印狀態
     .d-flex.flex-nowrap
       b-input-group(size="sm" prepend="列印狀態"): b-select(
@@ -102,6 +104,10 @@ export default {
     },
     validData () {
       return this.day !== '' && this.pcNumber !== '' && this.aaNumber !== ''
+    },
+    operator () {
+      const name = this.userNames[this.expaaData?.AA39]
+      return name || this.expaaData?.AA39
     }
   },
   watch: {
@@ -147,7 +153,7 @@ export default {
     },
     xhrAAXX (type, val, title) {
       this.isBusy = true
-      this.$axios.post(this.consts.API.JSON.QUERY, {
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
         type,
         date: this.day,
         number: this.pcNumber,

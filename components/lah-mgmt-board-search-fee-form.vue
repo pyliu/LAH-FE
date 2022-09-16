@@ -2,7 +2,7 @@
 b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="1", size="lg") 搜尋規費單據]
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="1", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? '' : 'jump'") 搜尋規費單據]
       b-button-group.ml-auto(size="sm")
         lah-button(
           icon="question",
@@ -15,9 +15,6 @@ b-card(border-variant="info")
         )
     lah-help-modal(ref="help", modal-title="搜尋規費單據說明")
       h5 本項功能提供管理師查詢規費單據，以利進行調整資料作業。
-      //- ul
-      //-   li 電腦給號規則： #[b.text-danger 9] + #[b.text-primary year (3 digits)] + #[b.text-success serial (3 digits)]
-      //-   li 範例： #[b.text-danger 9]#[b.text-primary 111]#[b.text-success 001]、9111002 ... 以此類推
       h6 規費資料集(EXPAA)相關欄位定義參考
       ul
         li AA01 - 收費日期
@@ -48,15 +45,6 @@ b-card(border-variant="info")
       :options="options"
     )
   .d-flex
-    lah-transition: b-input-group.text-nowrap.mr-1.fixed-year-input(
-      v-if="searchType === 'pc'",
-      prepend="年度"
-    )
-      b-select.h-100(
-        ref="year",
-        v-model="searchYear",
-        :options="searchYears"
-      )
     b-input-group.text-nowrap(
       :prepend="searchLabel"
     )
@@ -64,33 +52,53 @@ b-card(border-variant="info")
         ref="keyword",
         v-model="searchVal",
         :state="searchValOK",
-        :placeholder="searchPlaceholder"
+        :placeholder="searchPlaceholder",
+        @change="clearSearchData"
       )
-  //- .d-flex.align-items-center
-  //-   b-input-group(size="sm" title="民國年月日")
-  //-     b-input-group-prepend(is-text="") 結帳日期
-  //-     b-form-input#dummy_obsolete_date(v-model="today" placeholder="1090225" size="sm" trim="" :state="isDateValid")
-  //-   b-input-group.ml-1(size="sm")
-  //-     b-input-group-prepend(is-text="") 作廢原因
-  //-     b-form-input#dummy_obsolete_reason(v-model="reason" placeholder="卡紙" :state="isReasonValid" size="sm" trim="")
-  //- .d-flex.align-items-center.my-1
-  //-   b-input-group(size="sm" title="作業人員")
-  //-     b-input-group-prepend(is-text="") {{operatorName || '作業人員'}}
-  //-     b-form-input#dummy_operator(v-model="operator" placeholder="HAXXXX" size="sm" trim="" :state="isOperatorValid")
-  //-   b-input-group.ml-1(size="sm" title="AB開頭編號共10碼")
-  //-     b-input-group-prepend(is-text="") 收據號碼
-  //-     b-form-input#dummy_fee_number(v-model="AbNumber" placeholder="AAXXXXXXXX" :state="isNumberValid" size="sm" trim="")
+    lah-transition: b-input-group.text-nowrap.ml-1.fixed-year-input(
+      v-if="searchType === 'pc'",
+      prepend="年度"
+    )
+      b-select.h-100(
+        ref="year",
+        v-model="searchYear",
+        :options="searchYears",
+        @change="searchMaxPcNumber"
+      )
+
+  lah-transition: div(v-if="dataReady")
+    b-row.my-1
+      b-col 結帳日期：{{ expaaData.AA01 }}
+      b-col 作業人員：{{ userNames[expaaData.AA39] }}
+    b-row
+      b-col 收費方式：{{ expaaData.AA100_CHT }}
+      b-col 實收金額：{{ expaaData.AA28 }}
 
   template(#footer)
     .d-flex.justify-content-center.align-items.center
+      lah-button(
+        v-if="dataReady",
+        icon="window-restore",
+        variant="outline-success",
+        @click="detail",
+        pill
+      ) 詳情
       lah-button.text-nowrap(
+        v-else
         icon="search",
         action="swim",
         variant="outline-primary",
-        size="sm",
-        :disabled="!searchValOK"
+        :disabled="!searchValOK",
+        @click="search"
         pill
       ) 搜尋
+      lah-button.h-100.ml-1(
+        icon="arrow-rotate-left",
+        variant="outline-secondary",
+        action="cycle-alt",
+        @click="clearSearchData",
+        pill
+      ) 清除
 
 </template>
 
@@ -108,7 +116,7 @@ export default {
       { text: '規費單號', value: 'aa' }
     ],
     searchLabel: '電腦給號',
-    searchPlaceholder: '最多7位數字',
+    searchPlaceholder: 'e.g. 0054321',
     searchVal: ''
   }),
   computed: {
@@ -130,15 +138,24 @@ export default {
   },
   watch: {
     searchType (val) {
+      this.clearSearchData()
       this.searchLabel = (val === 'pc') ? '電腦給號' : '規費單號'
       this.searchPlaceholder = (val === 'pc') ? 'e.g. 0012345' : 'e.g. AA012345678'
+      this.searchVal = ''
       this.$refs.keyword?.focus()
+      if (val === 'pc') {
+        this.searchMaxPcNumber()
+      } else {
+        this.searchMaxAaNumber()
+      }
     }
   },
   created () {
     const now = new Date()
     this.year = now.getFullYear() - 1911
     this.prepareYears()
+    this.clearSearchData()
+    this.searchMaxPcNumber()
   },
   methods: {
     prepareYears () {
@@ -147,9 +164,9 @@ export default {
           this.searchYears = [...years]
         } else {
           // set year select options
-          const len = this.year - 103
+          const len = this.year - 104
           for (let i = 0; i <= len; i++) {
-            this.searchYears.push({ value: 103 + i, text: 103 + i })
+            this.searchYears.push({ value: 104 + i, text: 104 + i })
           }
           this.setCache('lah-case-input-group-year', this.searchYears, 24 * 60 * 60 * 1000) // cache for a day
         }
@@ -159,15 +176,59 @@ export default {
         }
       })
     },
+    searchMaxPcNumber () {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+        type: 'expaa_max_pc',
+        year: this.searchYear
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.searchVal = data.raw
+        } else {
+          this.warning(data.message, {
+            title: '搜尋最大電腦給號'
+          })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+    searchMaxAaNumber () {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+        type: 'expaa_latest_aa',
+        year: this.searchYear
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.searchVal = data.raw
+        } else {
+          this.warning(data.message, {
+            title: '搜尋最新單據編號'
+          })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
     search () {
       this.clearSearchData()
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'reg_case',
-        id: this.caseId
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+        type: `expaa_by_${this.searchType}`,
+        year: this.searchYear,
+        keyword: this.searchVal
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
-          this.$store.commit('inf/expaaData', data.baked)
+          if (Array.isArray(data.raw) && data.raw.length > 0) {
+            this.$store.commit('inf/expaaData', data.raw[0])
+          } else {
+            this.warning(`${this.searchYear} - ${this.searchVal}`, { title: '找不到規費資料' })
+            this.$utils.warn('API returned', data.raw)
+          }
         } else {
           this.alert(data.message, {
             title: '搜尋規費單據'
@@ -188,8 +249,8 @@ export default {
           expaaData: this.expaaData
         }
       }), {
-        title: `規費單據詳情 ${this.expaaData.AA04} - ${this.expaaData.AA05}`,
-        size: 'lg'
+        title: `規費詳情 ${this.expaaData.AA04} - ${this.expaaData.AA05}`,
+        size: 'md'
       })
     }
   }

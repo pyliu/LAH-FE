@@ -4,6 +4,13 @@ b-card
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="ban", size="lg", variant="danger") 無電腦給號規費收據作廢]
       b-button-group.ml-auto(size="sm")
+        b-button.text-nowrap(
+          variant="outline-info",
+          size="sm",
+          title="顯示全部資料",
+          @click="showTable",
+          pill
+        ) {{ year }}年 #[b-badge(variant="secondary", pill) {{ count }}]
         lah-button(
           icon="question",
           action="breath",
@@ -53,13 +60,6 @@ b-card
         @click="add",
         pill
       ) 確定新增
-      b-button.text-nowrap(
-        variant="outline-info",
-        size="sm",
-        title="顯示全部資料",
-        @click="showTable",
-        pill
-      ) {{ year }}年 #[b-badge(variant="secondary", pill) {{ count }}]
 
 </template>
 
@@ -153,7 +153,7 @@ export default {
     },
     query () {
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
         type: 'get_dummy_ob_fees'
       }).then((res) => {
         this.tableData = res.data.raw || []
@@ -161,6 +161,7 @@ export default {
           if (this.userNames[item.AA39]) {
             item.AA39 = `${item.AA39} ${this.userNames[item.AA39]}`
           }
+          return item
         })
         this.nextPcNumber = this.tableData.length > 0 ? parseInt(this.tableData[0].AA04) + 1 : `9${this.year}001`
       }).catch((err) => {
@@ -177,7 +178,7 @@ export default {
       this.confirm('確定要新增一個新的假資料以供作廢之用？').then((YN) => {
         if (YN) {
           this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.QUERY, {
+          this.$axios.post(this.$consts.API.JSON.MOIEXP, {
             type: 'add_dummy_ob_fees',
             today: this.today,
             pc_number: this.nextPcNumber,

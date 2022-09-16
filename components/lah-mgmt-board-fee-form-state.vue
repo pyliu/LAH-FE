@@ -4,6 +4,14 @@ b-card(border-variant="info")
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="2", size="lg") 規費單據狀態管理]
       b-button-group.ml-auto(size="sm")
+        lah-button.text-nowrap(
+          icon="window-restore",
+          variant="outline-success",
+          size="sm",
+          :disabled="!dataReady",
+          @click="detail"
+          pill
+        ) 詳情
         lah-button(
           icon="question",
           action="breath",
@@ -28,21 +36,13 @@ b-card(border-variant="info")
         li AA100 - 付款方式
 
   div(v-if="dataReady"): lah-fee-state-mgmt(
-    :expaa-data="expaaData"
+    :expaa-data="expaaData",
     brief
   )
-  h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費單據！
+  h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
-  template(#footer)
-    .d-flex.justify-content-center.align-items.center
-      lah-button.text-nowrap(
-        icon="window-restore",
-        variant="outline-success",
-        size="sm",
-        :disabled="!dataReady",
-        @click="detail"
-        pill
-      ) 詳情
+  //- template(#footer)
+  //-   .d-flex.justify-content-center.align-items.center
 
 </template>
 
@@ -78,8 +78,8 @@ export default {
           expaaData: this.expaaData
         }
       }), {
-        title: `規費單據詳情 ${this.expaaData.AA04} - ${this.expaaData.AA05}`,
-        size: 'lg'
+        title: `規費詳情 ${this.expaaData.AA04} - ${this.expaaData.AA05}`,
+        size: 'md'
       })
     }
   }

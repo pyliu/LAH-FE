@@ -116,8 +116,9 @@ b-card(border-variant="secondary")
       .text-center
         b-button#backup_temp_btn_all(@click="backupAll" variant="outline-primary" size="sm") 全部備份
         b-button.ml-1(@click="cleanAll" variant="danger" size="sm") 全部清除
-    lah-fa-icon(v-if="notFound" icon="exclamation-circle" variant="success" size="lg") 無暫存檔。
-    lah-fa-icon(v-if="loading" action="spin" icon="spinner" size="lg") 讀取中
+    .center-container-wh-100
+      lah-fa-icon(v-if="notFound" icon="exclamation-circle" variant="success" size="lg") 無暫存檔。
+      lah-fa-icon(v-if="loading" action="spin" icon="spinner" size="lg") 讀取中
 </template>
 
 <script>
