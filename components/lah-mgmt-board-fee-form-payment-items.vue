@@ -37,9 +37,9 @@ b-card(border-variant="info")
         li AC29 - 應收金額
         li AC30 - 實收金額
 
-  .center-container-wh-100(v-if="dataReady")
-    lah-fa-icon(v-if="isBusy", icon="spinner", spin)
-    lah-fa-icon(v-if="!found" icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！【年度：{{ expaaDataYear }} 電腦給號：{{ expaaDataPc }}】
+  div(v-if="dataReady")
+    .center-container-wh-100: lah-fa-icon(v-if="isBusy", icon="spinner", spin)
+    .center-container-wh-100: lah-fa-icon(v-if="!found" icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！【年度：{{ expaaDataYear }} 電腦給號：{{ expaaDataPc }}】
     div
       .d-flex.mb-2(v-if="expacList.length > 0")
         b-button(variant="outline-info" :pressed="true")
@@ -157,6 +157,7 @@ export default {
       }
     },
     queryExpacData () {
+      this.expacList = []
       if (this.queryOK) {
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.QUERY, {
