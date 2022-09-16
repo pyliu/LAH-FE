@@ -20,9 +20,14 @@ b-card(border-variant="info")
       //-   li 範例： #[b.text-danger 9]#[b.text-primary 111]#[b.text-success 001]、9111002 ... 以此類推
       h6 相關欄位定義供參考
       ul
-        li AA09 - 列印註記【1：已印，0：未印】
-        li AA08 - 收據狀態【1：正常，0：作廢】
-        li AA100 - 付款方式
+        li AC25 - 年分
+        li AC04 - 電腦給號
+        li AC16 - 收件年
+        li AC17 - 收件字
+        li AC18 - 收件號
+        li AC20 - 收費項目
+        li AC29 - 應收金額
+        li AC30 - 實收金額
 
   div(v-if="dataReady"): lah-fee-state-mgmt(
     :expaa-data="expaaData"

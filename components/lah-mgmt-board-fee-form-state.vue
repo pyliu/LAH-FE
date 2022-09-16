@@ -20,6 +20,9 @@ b-card(border-variant="info")
       //-   li 範例： #[b.text-danger 9]#[b.text-primary 111]#[b.text-success 001]、9111002 ... 以此類推
       h6 相關欄位定義供參考
       ul
+        li AA01 - 收費日期
+        li AA04 - 電腦給號
+        li AA05 - 收據編號
         li AA09 - 列印註記【1：已印，0：未印】
         li AA08 - 收據狀態【1：正常，0：作廢】
         li AA100 - 付款方式

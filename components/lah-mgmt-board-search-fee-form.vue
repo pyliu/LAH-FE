@@ -18,19 +18,54 @@ b-card(border-variant="info")
       //- ul
       //-   li 電腦給號規則： #[b.text-danger 9] + #[b.text-primary year (3 digits)] + #[b.text-success serial (3 digits)]
       //-   li 範例： #[b.text-danger 9]#[b.text-primary 111]#[b.text-success 001]、9111002 ... 以此類推
-      h6 相關欄位定義供參考
+      h6 規費資料集(EXPAA)相關欄位定義參考
       ul
+        li AA01 - 收費日期
+        li AA04 - 電腦給號
+        li AA05 - 收據編號
         li AA09 - 列印註記【1：已印，0：未印】
         li AA100 - 付款方式
         li AA106 - 悠遊卡繳費扣款結果
         li AA107 - 悠遊卡交易流水號
-        li AA28、AA39 - 規費資料集(EXPAA)中記載金額的兩個欄位
-        li AC29、AC30 - 規費項目資料集(EXPAC)中記載收費項目之金額
+        li AA27 - 應收金額
+        li AA28 - 實收金額
+      h6 收費項目資料集(EXPAC)相關欄位定義參考
+      ul
+        li AC25 - 年分
+        li AC04 - 電腦給號
+        li AC16 - 收件年
+        li AC17 - 收件字
+        li AC18 - 收件號
+        li AC20 - 收費項目
+        li AC29 - 應收金額
+        li AC30 - 實收金額
+
   //- .center-container-wh-100
-  b-form-group(label="搜尋選項"): b-radio-group(
-    v-model="searchType",
-    :options="options"
-  )
+  .d-flex.mb-2
+    lah-fa-icon.mr-2(icon="magnifying-glass-arrow-right", size="lg", append, action="breath") 搜尋選項
+    b-radio-group(
+      v-model="searchType",
+      :options="options"
+    )
+  .d-flex
+    lah-transition: b-input-group.text-nowrap.mr-1.fixed-year-input(
+      v-if="searchType === 'pc'",
+      prepend="年度"
+    )
+      b-select.h-100(
+        ref="year",
+        v-model="searchYear",
+        :options="searchYears"
+      )
+    b-input-group.text-nowrap(
+      :prepend="searchLabel"
+    )
+      b-input.h-100(
+        ref="keyword",
+        v-model="searchVal",
+        :state="searchValOK",
+        :placeholder="searchPlaceholder"
+      )
   //- .d-flex.align-items-center
   //-   b-input-group(size="sm" title="民國年月日")
   //-     b-input-group-prepend(is-text="") 結帳日期
@@ -50,8 +85,10 @@ b-card(border-variant="info")
     .d-flex.justify-content-center.align-items.center
       lah-button.text-nowrap(
         icon="search",
+        action="swim",
         variant="outline-primary",
         size="sm",
+        :disabled="!searchValOK"
         pill
       ) 搜尋
 
@@ -63,12 +100,16 @@ import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
 export default {
   components: { lahFeeDataDetailVue },
   data: () => ({
+    searchYear: '111',
+    searchYears: [],
     searchType: 'pc',
     options: [
-      { text: '日期', value: 'day' },
       { text: '電腦給號', value: 'pc' },
       { text: '規費單號', value: 'aa' }
-    ]
+    ],
+    searchLabel: '電腦給號',
+    searchPlaceholder: '最多7位數字',
+    searchVal: ''
   }),
   computed: {
     dataReady () {
@@ -76,19 +117,48 @@ export default {
     },
     expaaData () {
       return this.$store.getters['inf/expaaData']
+    },
+    searchValOK () {
+      if (this.$utils.empty(this.searchVal)) {
+        return null
+      }
+      if (this.searchType === 'pc') {
+        return this.searchVal.length < 8
+      }
+      return this.searchVal.length < 11
     }
   },
   watch: {
+    searchType (val) {
+      this.searchLabel = (val === 'pc') ? '電腦給號' : '規費單號'
+      this.searchPlaceholder = (val === 'pc') ? 'e.g. 0012345' : 'e.g. AA012345678'
+      this.$refs.keyword?.focus()
+    }
   },
   created () {
     const now = new Date()
     this.year = now.getFullYear() - 1911
-    this.today = this.year +
-        ('0' + (now.getMonth() + 1)).slice(-2) +
-        ('0' + now.getDate()).slice(-2)
-    // this.query()
+    this.prepareYears()
   },
   methods: {
+    prepareYears () {
+      this.getCache('lah-case-input-group-year').then((years) => {
+        if (years !== false) {
+          this.searchYears = [...years]
+        } else {
+          // set year select options
+          const len = this.year - 103
+          for (let i = 0; i <= len; i++) {
+            this.searchYears.push({ value: 103 + i, text: 103 + i })
+          }
+          this.setCache('lah-case-input-group-year', this.searchYears, 24 * 60 * 60 * 1000) // cache for a day
+        }
+      }).finally(() => {
+        if (this.$utils.empty(this.searchYears)) {
+          this.timeout(() => this.prepareYears(), 1000)
+        }
+      })
+    },
     search () {
       this.clearSearchData()
       this.isBusy = true
@@ -127,4 +197,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.fixed-year-input {
+  width: 200px;
+}
 </style>
