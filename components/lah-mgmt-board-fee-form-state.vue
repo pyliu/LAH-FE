@@ -59,6 +59,9 @@ export default {
     },
     expaaData () {
       return this.$store.getters['inf/expaaData']
+    },
+    bakedExpaaData () {
+      return this.$store.getters['inf/bakedExpaaData']
     }
   },
   watch: {

@@ -38,8 +38,33 @@ b-card(border-variant="info")
         li AC30 - 實收金額
 
   .center-container-wh-100(v-if="dataReady")
-    lah-fa-icon(icon="spinner", spin)
-    lah-fa-icon(v-if="notFound" icon="exclamation-circle" variant="success" size="lg") 無付款資料項目。
+    lah-fa-icon(v-if="isBusy", icon="spinner", spin)
+    lah-fa-icon(v-if="!found" icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！【年度：{{ expaaDataYear }} 電腦給號：{{ expaaDataPc }}】
+    div
+      .d-flex.mb-2(v-if="expacList.length > 0")
+        b-button(variant="outline-info" :pressed="true")
+          span.mr-1 規費年度
+          b-badge(variant="light") {{ expaaDataYear }} #[span.sr-only 規費年度]
+        b-button.ml-auto(variant="outline-info" :pressed="true")
+          span.mr-1 電腦給號
+          b-badge(variant="light") {{ expaaDataPc }} #[span.sr-only 電腦給號]
+      .border.border-dark.rounded.p-2.mb-2(v-for="(record, idx) in expacList")
+        .mb-1
+          b-button(variant="warning", @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])")
+            span.mr-1 案號
+            b-badge(variant="light") {{ record["AC16"] }}-{{ record["AC17"] }}-{{ record["AC18"] }} #[span.sr-only 案件號]
+          //- span 應收：{{ record["AC29"] }}
+          span.ml-1 實收金額：{{ record["AC30"] }}元
+        .d-flex
+          b-select(v-model="expacList[idx]['AC20']" :options="expeList" size="sm")
+            template(v-slot:first)
+              option(value disabled) -- 請選擇一個項目 --
+          lah-button.ml-1(
+            icon="edit",
+            size="sm",
+            variant="outline-primary",
+            @click="update(idx)"
+          ) 修改
   h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)
@@ -49,10 +74,13 @@ b-card(border-variant="info")
 
 <script>
 import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {
-  components: { lahFeeDataDetailVue },
+  components: { lahFeeDataDetailVue, lahRegCaseDetailVue },
   data: () => ({
+    expeList: [],
+    expacList: []
   }),
   computed: {
     dataReady () {
@@ -61,21 +89,124 @@ export default {
     expaaData () {
       return this.$store.getters['inf/expaaData']
     },
-    notFound () {
-      return true
+    bakedExpaaData () {
+      return this.$store.getters['inf/bakedExpaaData']
+    },
+    expaaDataYear () {
+      return this.expaaData?.AA01?.substring(0, 3)
+    },
+    expaaDataPc () {
+      return this.expaaData?.AA04
+    },
+    queryOK () {
+      return this.expaaDataYear && this.expaaDataPc
+    },
+    found () {
+      return this.expacList?.length > 0
     }
   },
   watch: {
+    expaaData (dontcare) {
+      this.queryExpacData()
+    }
   },
   created () {
-    const now = new Date()
-    this.year = now.getFullYear() - 1911
-    this.today = this.year +
-        ('0' + (now.getMonth() + 1)).slice(-2) +
-        ('0' + now.getDate()).slice(-2)
-    // this.query()
+    // const now = new Date()
+    // this.year = now.getFullYear() - 1911
+    // this.today = this.year +
+    //     ('0' + (now.getMonth() + 1)).slice(-2) +
+    //     ('0' + now.getDate()).slice(-2)
+    this.prepareExpeList()
+  },
+  mounted () {
+    // this.queryExpacData()
   },
   methods: {
+    async prepareExpeList () {
+      const cachedList = await this.getCache('MOIEXP.EXPE')
+      if (cachedList === false) {
+        // query MOIEXP.EXPE for the items
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+          type: 'expe'
+        }).then((res) => {
+          if (this.$utils.statusCheck(res.data.status)) {
+            if (res.data.data_count > 0) {
+              this.expeList = []
+              res.data.raw.forEach((element) => {
+                this.expeList.push({
+                  value: element.E20,
+                  text: `${element.E20}：${element.E21}`
+                })
+              })
+              // cache for 7 days
+              this.setCache('MOIEXP.EXPE', this.expeList, 7 * 24 * 60 * 60 * 1000)
+            } else {
+              this.warning('MOIEXP.EXPE沒有回傳資料，無法產生收費項目列表。')
+            }
+          } else {
+            this.alert(res.data.message)
+          }
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      } else {
+        this.expeList = [...cachedList]
+      }
+    },
+    queryExpacData () {
+      if (this.queryOK) {
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'expac',
+          year: this.expaaDataYear,
+          num: this.expaaDataPc
+        }).then((res) => {
+          if (this.$utils.statusCheck(res.data.status)) {
+            this.expacList = [...res.data.raw]
+          } else {
+            this.warning(
+            `找不到規費收費項目資料！【年度： ${this.expaaDataYear}, 電腦給號： ${this.expaaDataPc}】`,
+            { title: '查詢收費項目資料集' }
+            )
+          }
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      }
+    },
+    update (idx) {
+      const record = this.expacList[idx]
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'mod_expac',
+        year: record.AC25,
+        num: record.AC04,
+        code: record.AC20,
+        amount: record.AC30
+      }).then((res) => {
+        const found = this.expeList.find(element => element.value === record.AC20)
+        if (this.$utils.statusCheck(res.data.status)) {
+          this.success(`金額 ${record.AC30} 項目修正為「${found.text}」完成`, {
+            title: '修改收費項目',
+            subtitle: `${record.AC25}-${record.AC04}`
+          })
+        } else {
+          this.alert(`金額 ${record.AC30} 項目修正為「${found.text}」失敗`, {
+            title: '修改收費項目',
+            subtitle: `${record.AC25}-${record.AC04}`
+          })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
     detail () {
       this.modal(this.$createElement(lahFeeDataDetailVue, {
         props: {
@@ -84,6 +215,16 @@ export default {
       }), {
         title: `規費詳情 ${this.expaaData.AA04} - ${this.expaaData.AA05}`,
         size: 'md'
+      })
+    },
+    caseDetail (id) {
+      this.modal(this.$createElement(lahRegCaseDetailVue, {
+        props: {
+          caseId: id
+        }
+      }), {
+        title: `案件詳情 ${this.$utils.caseId(id)}`,
+        size: 'xl'
       })
     }
   }

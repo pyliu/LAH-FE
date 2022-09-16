@@ -126,6 +126,9 @@ export default {
     expaaData () {
       return this.$store.getters['inf/expaaData']
     },
+    bakedExpaaData () {
+      return this.$store.getters['inf/bakedExpaaData']
+    },
     searchValOK () {
       if (this.$utils.empty(this.searchVal)) {
         return null
@@ -177,6 +180,7 @@ export default {
       })
     },
     searchMaxPcNumber () {
+      this.clearSearchData()
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.MOIEXP, {
         type: 'expaa_max_pc',
@@ -196,6 +200,7 @@ export default {
       })
     },
     searchMaxAaNumber () {
+      this.clearSearchData()
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.MOIEXP, {
         type: 'expaa_latest_aa',
@@ -225,6 +230,7 @@ export default {
         if (this.$utils.statusCheck(data.status)) {
           if (Array.isArray(data.raw) && data.raw.length > 0) {
             this.$store.commit('inf/expaaData', data.raw[0])
+            this.$store.commit('inf/bakedExpaaData', data.baked)
           } else {
             this.warning(`${this.searchYear} - ${this.searchVal}`, { title: '找不到規費資料' })
             this.$utils.warn('API returned', data.raw)
@@ -242,6 +248,7 @@ export default {
     },
     clearSearchData () {
       this.$store.commit('inf/expaaData', undefined)
+      this.$store.commit('inf/bakedExpaaData', undefined)
     },
     detail () {
       this.modal(this.$createElement(lahFeeDataDetailVue, {
