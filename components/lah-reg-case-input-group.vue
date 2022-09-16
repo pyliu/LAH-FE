@@ -1,7 +1,7 @@
 <template lang="pug">
 .w-100(:class="vertical ? ['d-flex-column'] : ['d-flex']")
   b-input-group.text-nowrap(
-    size="sm",
+    :size="size",
     prepend="年",
     :class="vertical ? [] : ['fixed-width']"
   )
@@ -13,7 +13,7 @@
     )
       template(v-slot:first): b-form-select-option(:value="null" disabled) -- 年份 --
   b-input-group(
-    size="sm",
+    :size="size",
     prepend="字",
     :class="vertical ? ['my-1'] : ['mx-1']"
   )
@@ -34,7 +34,7 @@
           :value="item.replace(/[^A-Za-z0-9]/g, '')"
         ) {{item}}
   b-input-group.text-nowrap(
-    size="sm",
+    :size="size",
     prepend="號",
     :class="vertical ? [] : ['fixed-width']"
   )
@@ -56,7 +56,8 @@ export default {
   props: {
     type: { type: String, default: 'reg' },
     value: { type: String, default: '' },
-    vertical: { type: Boolean, default: false }
+    vertical: { type: Boolean, default: false },
+    size: { type: String, default: '' }
   },
   data: () => ({
     codes: {},
