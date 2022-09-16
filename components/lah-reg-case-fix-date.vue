@@ -16,7 +16,6 @@
         close-button
         label-close-button="關閉"
         v-b-tooltip.hover.left.v-warning
-        @input="update"
       )
       lah-button.ml-1(
         v-if="deadlineDateChanged",
@@ -45,11 +44,19 @@
         close-button
         label-close-button="關閉"
         v-b-tooltip.hover.left.v-warning
-        @input="update"
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
         :min="minDate"
         :max="maxDate"
         :state="settleDeliveredDate"
+      )
+      lah-button.ml-1(
+        icon="edit",
+        size="sm",
+        title="更新",
+        @click="update"
+        :variant="dataChanged ? 'primary' : 'outline-primary'",
+        :disabled="!dataChanged"
+        no-icon-gutter
       )
 
   div(v-else)
@@ -88,8 +95,8 @@ export default {
     updateDataset () {
       return {
         id: this.caseId,
-        delivered: this.deliveredDate,
-        deadline: this.deadlineDate
+        delivered: this.deliveredDate || '',
+        deadline: this.deadlineDate || ''
       }
     },
     deliveredDate () {
@@ -151,6 +158,10 @@ export default {
     },
     editable () {
       return this.parentData.RM45 === this.myid || this.authority.isAdmin || this.authority.isChief
+    },
+    dataChanged () {
+      // return this.origDataset.deadline !== this.updateDataset.deadline || this.origDataset.delivered !== this.updateDataset.delivered
+      return !this.$utils.equal(this.origDataset, this.updateDataset)
     }
   },
   watch: {
@@ -167,16 +178,16 @@ export default {
     this.updateDebounced = this.$utils.debounce(this.update, 1000)
     // keep init value
     this.origDataset.id = this.caseId
-    this.origDataset.delivered = this.deliveredDate
-    this.origDataset.deadline = this.deadlineDate
+    this.origDataset.delivered = this.deliveredDate || ''
+    this.origDataset.deadline = this.deadlineDate || ''
     // fix not reactively bug
     if (Array.isArray(this.parentData.REG_FIX_CASE_RECORD)) {
       this.parentData.REG_FIX_CASE_RECORD = {
         ...{
           case_no: this.caseId,
-          fix_deadline_date: this.deadlineDate,
+          fix_deadline_date: this.deadlineDate || '',
           note: '',
-          notify_delivered_date: this.deliveredDate
+          notify_delivered_date: this.deliveredDate || ''
         }
       }
     }
@@ -221,19 +232,25 @@ export default {
       })
     },
     update () {
-      if (!this.$utils.equal(this.origDataset, this.updateDataset)) {
+      if (this.dataChanged) {
+        const updateData = { ...this.updateDataset }
         // to update delivered date in sqlite db
         this.$axios.post(this.$consts.API.JSON.QUERY, {
           type: 'upd_reg_fix_case_data',
-          ...this.updateDataset
+          ...updateData
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            this.origDataset = { ...this.updateDataset }
+            this.origDataset = updateData
+            this.success(`期滿：${updateData.deadline}<br/>送達：${updateData.delivered}<br/>🟢 更新完成。`, {
+              title: '補正案件日期更新',
+              subtitle: updateData.id,
+              html: true
+            })
           } else if (this.retried < 5) {
             this.timeout(this.update, this.$utils.rand(800))
             this.retried++
           } else {
-            this.$utils.warn(data.message, this.updateDataset)
+            this.$utils.warn(data.message, updateData)
           }
         }).catch((err) => {
           this.alert(err.message)
@@ -241,6 +258,8 @@ export default {
         }).finally(() => {
           this.isBusy = false
         })
+      } else {
+        this.$utils.warn('data is the same ... dont update', this.origDataset, this.updateDataset)
       }
     }
   }
