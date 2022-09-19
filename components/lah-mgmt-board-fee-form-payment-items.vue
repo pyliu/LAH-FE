@@ -186,10 +186,10 @@ export default {
           if (this.$utils.statusCheck(res.data.status)) {
             this.expacList = [...res.data.raw]
           } else {
-            this.warning(
-            `找不到規費收費項目資料！【年度： ${this.expaaDataYear}, 電腦給號： ${this.expaaDataPc}】`,
-            { title: '查詢收費項目資料集' }
-            )
+            // this.warning(
+            // `找不到規費收費項目資料！【年度： ${this.expaaDataYear}, 電腦給號： ${this.expaaDataPc}】`,
+            // { title: '查詢收費項目資料集' }
+            // )
           }
         }).catch((err) => {
           this.$utils.error(err)
