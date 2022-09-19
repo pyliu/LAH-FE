@@ -134,6 +134,9 @@ export default {
   watch: {
     operator (val) {
       this.operatorName = this.userNames[val] || ''
+    },
+    tableData (val) {
+      this.nextPcNumber = val?.length > 0 ? parseInt(val[0].AA04) + 1 : `9${this.year}001`
     }
   },
   created () {
@@ -172,7 +175,6 @@ export default {
           }
           return item
         })
-        this.nextPcNumber = this.tableData.length > 0 ? parseInt(this.tableData[0].AA04) + 1 : `9${this.year}001`
       }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
