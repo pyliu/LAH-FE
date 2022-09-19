@@ -225,7 +225,8 @@ export default {
         },
         on: {
           'not-found': () => {
-            this.timeout(() => this.hideModal(), 1000)
+            this.hideModal()
+            this.warning(`⚠ 無法找到 ${this.$utils.caseId(id)} 登記案件資料。`)
           }
         }
       }), {
