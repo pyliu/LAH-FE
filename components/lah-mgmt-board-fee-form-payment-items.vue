@@ -38,26 +38,27 @@ b-card(border-variant="info")
         li AC30 - 實收金額
 
   div(v-if="dataReady")
+    .d-flex.mb-1
+      lah-button(
+        title="顯示規費詳情",
+        variant="info",
+        badge-variant="light",
+        show-badge,
+        :badge-text="expaaAaNumber",
+        @click="detail"
+      ) 憑證序號
+      lah-button.ml-auto(
+        title="顯示規費詳情",
+        variant="info",
+        badge-variant="light",
+        show-badge,
+        :badge-text="expaaDataPc",
+        @click="detail"
+      ) 電腦給號
+    hr
     .center-container-wh-100: lah-fa-icon(v-if="isBusy", icon="spinner", spin)
-    .center-container-wh-100: lah-fa-icon(v-if="!found" icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！【年度：{{ expaaDataYear }} 電腦給號：{{ expaaDataPc }}】
-    div
-      .d-flex(v-if="expacList.length > 0")
-        lah-button(
-          title="顯示規費詳情",
-          variant="info",
-          badge-variant="light",
-          show-badge,
-          :badge-text="expaaAaNumber",
-          @click="detail"
-        ) 規費單號
-        lah-button.ml-auto(
-          title="顯示規費詳情",
-          variant="info",
-          badge-variant="light",
-          show-badge,
-          :badge-text="expaaDataPc",
-          @click="detail"
-        ) 電腦給號
+    .center-container-wh-100: lah-fa-icon(v-if="!found" icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！
+    div(v-if="expacList.length > 0")
       .border.border-dark.rounded.p-2.my-2(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
         .d-flex.align-items-center.mb-1
           lah-button(

@@ -23,7 +23,8 @@ b-card
     lah-help-modal(ref="help", modal-title="無電腦給號規費收據作廢說明")
       h5 本項功能提供管理師在無電腦給號的情形下作廢規費單據。
       ul
-        li 電腦給號規則： #[b.text-danger 9] + #[b.text-primary year (3 digits)] + #[b.text-success serial (3 digits)]
+        li ⚠ 請注意「結帳日期」、「電腦給號」及「憑證序號」欄位正確性。
+        li 自動電腦給號規則： #[b.text-danger 9] + #[b.text-primary year (3 digits)] + #[b.text-success serial (3 digits)]
         li 範例： #[b.text-danger 9]#[b.text-primary 111]#[b.text-success 001]、9111002 ... 以此類推
       h6 相關欄位定義供參考
       ul
@@ -37,17 +38,21 @@ b-card
     .d-flex.align-items-center
       b-input-group(size="sm" title="民國年月日")
         b-input-group-prepend(is-text) 結帳日期
-        b-form-input#dummy_obsolete_date(v-model="today" placeholder="1090225" size="sm" trim :state="isDateValid")
-      b-input-group.ml-1(size="sm")
-        b-input-group-prepend(is-text) 作廢原因
-        b-form-input#dummy_obsolete_reason(v-model="reason" placeholder="卡紙" :state="isReasonValid" size="sm" trim)
+        b-form-input#dummy_obsolete_date(v-model="billDate" placeholder="1090225" size="sm" trim :state="isDateValid")
+      b-input-group(size="sm" title="e.g. 0065948")
+        b-input-group-prepend(is-text) 電腦給號
+        b-form-input#dummy_obsolete_pc(v-model="nextPcNumber" size="sm" trim :state="isPcValid")
     .d-flex.align-items-center.my-1
       b-input-group(size="sm" title="作業人員")
         b-input-group-prepend(is-text) {{operatorName || '作業人員'}}
         b-form-input#dummy_operator(v-model="operator" placeholder="HAXXXX" size="sm" trim :state="isOperatorValid")
       b-input-group.ml-1(size="sm" title="AA開頭編號共10碼")
-        b-input-group-prepend(is-text) 收據號碼
+        b-input-group-prepend(is-text) 憑證序號
         b-form-input#dummy_fee_number(v-model="AaNumber" placeholder="AAXXXXXXXX" :state="isNumberValid" size="sm" trim)
+    .d-flex.align-items-center
+      b-input-group(size="sm")
+        b-input-group-prepend(is-text) 作廢原因
+        b-form-textarea#dummy_obsolete_reason(v-model="reason" placeholder="e.g. 卡紙造成跳號" :state="isReasonValid" size="sm" trim)
 
   template(#footer)
     .d-flex.justify-content-between.align-items.center
@@ -96,7 +101,7 @@ export default {
     ],
     year: '111',
     nextPcNumber: 9111001, // 9 + year (3 digits) + serial (3 digits)
-    today: '',
+    billDate: '',
     operator: '', // 作業人員
     operatorName: '',
     AaNumber: '', // 收據編號
@@ -108,7 +113,7 @@ export default {
     },
     isDateValid () {
       const regex = /[0-9]{7}/i
-      return regex.test(this.today) && this.today.length === 7
+      return regex.test(this.billDate) && this.billDate.length === 7
     },
     isOperatorValid () {
       return this.userNames && Boolean(this.userNames[this.operator])
@@ -118,6 +123,9 @@ export default {
     },
     isNumberValid () {
       return this.AaNumber.length === 10
+    },
+    isPcValid () {
+      return parseInt(this.nextPcNumber) < 10000000
     },
     isDisabled () {
       return !this.isOperatorValid || !this.isNumberValid || !this.isReasonValid || !this.isDateValid
@@ -131,7 +139,7 @@ export default {
   created () {
     const now = new Date()
     this.year = now.getFullYear() - 1911
-    this.today = this.year +
+    this.billDate = this.year +
         ('0' + (now.getMonth() + 1)).slice(-2) +
         ('0' + now.getDate()).slice(-2)
     this.query()
@@ -176,19 +184,24 @@ export default {
       const feeNumber = this.AaNumber.replace(/[^A-Za-z0-9]/g, '')
       const reason = this.reason.replace(/['"]/g, '')
 
-      this.confirm('確定要新增一個新的假資料以供作廢之用？').then((YN) => {
+      this.confirm('確定要新增一筆作廢資料？').then((YN) => {
         if (YN) {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.MOIEXP, {
-            type: 'add_dummy_ob_fees',
-            today: this.today,
+            type: 'add_dummy_ob_fee',
+            bill_date: this.billDate,
             pc_number: this.nextPcNumber,
             fee_number: feeNumber,
             operator,
             reason
           }).then((res) => {
-            this.success(res.data.message, { title: '新增假規費資料' })
-            this.query()
+            if (this.$utils.statusCheck(res.data.status)) {
+              this.success(res.data.message, { title: '新增規費作廢資料' })
+              this.query()
+            } else {
+              this.info('憑證資料已存在。', { title: '新增規費作廢資料' })
+            }
+            this.clear()
           }).catch((err) => {
             this.$utils.error(err)
           }).finally(() => {
