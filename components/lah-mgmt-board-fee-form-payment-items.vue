@@ -56,9 +56,9 @@ b-card(border-variant="info")
         @click="detail"
       ) 電腦給號
     hr
-    .center-container-wh-100: lah-fa-icon(v-if="isBusy", icon="spinner", spin)
-    .center-container-wh-100: lah-fa-icon(v-if="!found" icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！
-    div(v-if="expacList.length > 0")
+    .center-container-wh-100(v-if="isBusy"): lah-fa-icon(icon="spinner", spin)
+    .center-container-wh-100(v-else-if="!found"): lah-fa-icon(icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！
+    div(v-else)
       .border.border-dark.rounded.p-2.my-2(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
         .d-flex.align-items-center.mb-1
           lah-button(
@@ -261,4 +261,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+hr {
+  margin: .5rem 0;
+}
 </style>
