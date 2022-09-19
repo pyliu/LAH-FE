@@ -1,4 +1,5 @@
 export default {
+  emit: ['ready', 'not-found'],
   name: 'regCaseBase',
   props: {
     parentData: { type: Object, default: undefined },
@@ -25,6 +26,7 @@ export default {
     bakedData (val) {
       // emit the data out
       this.trigger('dataReady', val)
+      !val && this.trigger('not-found')
     }
   },
   created () { this.bakedData = this.parentData },
@@ -43,6 +45,7 @@ export default {
             title: '讀取登記案件',
             type: 'warning'
           })
+          this.trigger('not-found')
         }
       }).catch((err) => {
         this.$utils.error(err)

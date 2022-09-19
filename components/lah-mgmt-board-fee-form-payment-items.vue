@@ -222,6 +222,11 @@ export default {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
         props: {
           caseId: id
+        },
+        on: {
+          'not-found': () => {
+            this.timeout(() => this.hideModal(), 1000)
+          }
         }
       }), {
         title: `案件詳情 ${this.$utils.caseId(id)}`,
