@@ -4,7 +4,7 @@ b-card.border-0(no-body)
   b-list-group(flush, size="sm")
     b-list-group-item(
       v-for="(item, key) in fallbackData",
-      :key="`fallback_${key}`"
+      :key="`fallback_${key}`",
       v-if="!['列印註記', '繳費方式代碼', '單據狀況', 'AA100_CHT'].includes(key)"
     )
       span {{key}}：{{item}}
