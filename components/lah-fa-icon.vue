@@ -1,7 +1,7 @@
 <template lang="pug">
 span.d-inline-flex.align-items-center.my-auto
   font-awesome-icon(
-    v-if="!append",
+    v-if="!append && !$utils.empty(icon)",
     :id="iconId",
     :icon="iconArray",
     :size="size",
@@ -17,7 +17,7 @@ span.d-inline-flex.align-items-center.my-auto
   )
   slot
   font-awesome-icon(
-    v-if="append",
+    v-if="append && !$utils.empty(icon)",
     :id="iconId",
     :icon="iconArray",
     :size="size",
