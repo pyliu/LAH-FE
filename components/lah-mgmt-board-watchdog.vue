@@ -117,8 +117,8 @@ b-card
 
   template(#footer)
     .d-flex.justify-content-between
-      lah-fa-icon(icon="dog", size="2x", variant="secondary")
-      lah-fa-icon(icon="paw", size="2x", variant="secondary")
+      lah-fa-icon(icon="dog", size="lg", variant="secondary")
+      lah-fa-icon(icon="paw", size="lg", variant="secondary")
 </template>
 
 <script>
