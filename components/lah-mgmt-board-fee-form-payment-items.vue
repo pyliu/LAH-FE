@@ -41,20 +41,36 @@ b-card(border-variant="info")
     .center-container-wh-100: lah-fa-icon(v-if="isBusy", icon="spinner", spin)
     .center-container-wh-100: lah-fa-icon(v-if="!found" icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！【年度：{{ expaaDataYear }} 電腦給號：{{ expaaDataPc }}】
     div
-      .d-flex.mb-2(v-if="expacList.length > 0")
-        b-button(variant="outline-info" :pressed="true")
-          span.mr-1 規費年度
-          b-badge(variant="light") {{ expaaDataYear }} #[span.sr-only 規費年度]
-        b-button.ml-auto(variant="outline-info" :pressed="true")
-          span.mr-1 電腦給號
-          b-badge(variant="light") {{ expaaDataPc }} #[span.sr-only 電腦給號]
-      .border.border-dark.rounded.p-2.mb-2(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
-        .mb-1
-          b-button(variant="warning", @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])")
-            span.mr-1 案號
-            b-badge(variant="light") {{ record["AC16"] }}-{{ record["AC17"] }}-{{ record["AC18"] }} #[span.sr-only 案件號]
+      .d-flex(v-if="expacList.length > 0")
+        lah-button(
+          variant="outline-info",
+          pressed,
+          :badge-text="expaaAaNumber",
+          badge-variant="light",
+          show-badge
+        ) 規費單號
+        lah-button.ml-auto(
+          variant="outline-info",
+          pressed,
+          :badge-text="expaaDataPc",
+          badge-variant="light",
+          show-badge
+        ) 電腦給號
+      .border.border-dark.rounded.p-2.my-2(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
+        .d-flex.align-items-center.mb-1
+          lah-button(
+            title="顯示案件詳情",
+            variant="warning",
+            badge-variant="light",
+            show-badge,
+            :badge-text="`${record.AC16}-${record.AC17}-${record.AC18}`",
+            @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])"
+          ) 案號
+          //- b-button(variant="warning", @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])")
+          //-   span.mr-1 案號
+          //-   b-badge(variant="light") {{ record["AC16"] }}-{{ record["AC17"] }}-{{ record["AC18"] }} #[span.sr-only 案件號]
           //- span 應收：{{ record["AC29"] }}
-          span.ml-1 實收金額：{{ record["AC30"] }}元
+          .ml-auto 實收金額：{{ record["AC30"] }}元
         .d-flex
           b-select(v-model="expacList[idx]['AC20']" :options="expeList" size="sm")
             template(v-slot:first)
@@ -97,6 +113,9 @@ export default {
     },
     expaaDataPc () {
       return this.expaaData?.AA04
+    },
+    expaaAaNumber () {
+      return this.expaaData?.AA05
     },
     queryOK () {
       return this.expaaDataYear && this.expaaDataPc
