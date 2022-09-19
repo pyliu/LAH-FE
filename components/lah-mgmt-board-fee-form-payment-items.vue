@@ -4,14 +4,14 @@ b-card(border-variant="info")
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="3", size="lg") 規費單據付款項目管理]
       b-button-group.ml-auto(size="sm")
-        lah-button.text-nowrap(
-          icon="window-restore",
-          variant="outline-success",
-          size="sm",
-          :disabled="!dataReady"
-          @click="detail"
-          pill
-        ) 詳情
+        //- lah-button.text-nowrap(
+        //-   icon="window-restore",
+        //-   variant="outline-success",
+        //-   size="sm",
+        //-   :disabled="!dataReady"
+        //-   @click="detail"
+        //-   pill
+        //- ) 詳情
         lah-button(
           icon="question",
           action="breath",
@@ -43,18 +43,20 @@ b-card(border-variant="info")
     div
       .d-flex(v-if="expacList.length > 0")
         lah-button(
-          variant="outline-info",
-          pressed,
-          :badge-text="expaaAaNumber",
+          title="顯示規費詳情",
+          variant="info",
           badge-variant="light",
-          show-badge
+          show-badge,
+          :badge-text="expaaAaNumber",
+          @click="detail"
         ) 規費單號
         lah-button.ml-auto(
-          variant="outline-info",
-          pressed,
-          :badge-text="expaaDataPc",
+          title="顯示規費詳情",
+          variant="info",
           badge-variant="light",
-          show-badge
+          show-badge,
+          :badge-text="expaaDataPc",
+          @click="detail"
         ) 電腦給號
       .border.border-dark.rounded.p-2.my-2(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
         .d-flex.align-items-center.mb-1
