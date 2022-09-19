@@ -1,20 +1,26 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  lah-fee-state-mgmt(:expaa-data="expaaData")
-  b-list-group(flush, size="sm")
-    b-list-group-item(
-      v-for="(item, key) in fallbackData",
-      :key="`fallback_${key}`",
-      v-if="!['列印註記', '繳費方式代碼', '單據狀況', 'AA100_CHT'].includes(key)"
-    )
-      span {{key}}：{{item}}
+  lah-fee-state-mgmt(
+    v-if="modification",
+    :expaa-data="expaaData",
+    :brief="modification"
+  )
+  .d-flex.mb-2(
+    v-for="(arr, key) in dataPairs",
+    :key="`data_pairs_${key}`"
+  )
+    b-col.hover(v-if="!ignoreFields.includes(arr[0][0])", cols="6") {{ arr[0][0] }}：{{ arr[0][1] }}
+    b-col.hover(v-if="arr[1] && !ignoreFields.includes(arr[1][0])") {{ arr[1][0] }}：{{ arr[1][1] }}
+
 </template>
 
 <script>
+import _chunk from 'lodash/chunk'
 export default {
   props: {
     expaaData: { type: Object, default: () => ({}) },
-    bakedExpaaData: { type: Object, default: () => ({}) }
+    bakedExpaaData: { type: Object, default: () => ({}) },
+    modification: { type: Boolean, default: false }
   },
   data: () => ({
   }),
@@ -31,6 +37,15 @@ export default {
       }
       return this.$store.getters['inf/expaaData'] || {}
     },
+    dataPairs () {
+      /**
+       * array e.g.
+         [0] => ['開單日期', '1110919']
+         [1] => ['電腦給號', '0066253']
+       */
+      const chunks = _chunk(Object.entries(this.fallbackData), 2)
+      return chunks
+    },
     day () {
       return this.expaaData?.AA01 || '' // 收據日期 e.g. '1110915'
     },
@@ -46,13 +61,23 @@ export default {
     },
     validData () {
       return this.day !== '' && this.pcNumber !== '' && this.aaNumber !== ''
+    },
+    ignoreFields () {
+      if (this.modification) {
+        return ['AA100_CHT', 'AA01', 'AA04', 'AA05', 'AA39', 'AA100', 'AA28']
+      }
+      return ['AA100_CHT']
     }
   },
   watch: {},
   created () {},
+  mounted () {},
   methods: {}
 }
 </script>
 
 <style lang="scss" scoped>
+.hover:hover {
+  background-color: rgb(187, 189, 189);
+}
 </style>
