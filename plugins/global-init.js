@@ -336,6 +336,10 @@ export default ({ $axios, store }, inject) => {
       }
       return false
     },
+    addComma (dollar) {
+      const str = (dollar).toLocaleString('en')
+      return parseInt(str).toLocaleString('en')
+    },
     msToHuman (remainMs) {
       const seconds = (remainMs / 1000).toFixed(1)
       const minutes = (remainMs / (1000 * 60)).toFixed(1)

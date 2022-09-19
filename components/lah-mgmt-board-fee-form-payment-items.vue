@@ -69,11 +69,7 @@ b-card(border-variant="info")
             :badge-text="`${record.AC16}-${record.AC17}-${record.AC18}`",
             @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])"
           ) 案號
-          //- b-button(variant="warning", @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])")
-          //-   span.mr-1 案號
-          //-   b-badge(variant="light") {{ record["AC16"] }}-{{ record["AC17"] }}-{{ record["AC18"] }} #[span.sr-only 案件號]
-          //- span 應收：{{ record["AC29"] }}
-          .ml-auto 實收金額：{{ record["AC30"] }}元
+          .ml-auto 實收金額：{{ $utils.addComma(record["AC30"]) }}元
         .d-flex
           b-select(v-model="expacList[idx]['AC20']" :options="expeList" size="sm")
             template(v-slot:first)

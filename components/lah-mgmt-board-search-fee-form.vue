@@ -75,7 +75,7 @@ b-card(border-variant="info")
       b-col 作業人員：{{ userNames[expaaData.AA39] }}
     b-row
       b-col 收費方式：{{ expaaData.AA100_CHT }}
-      b-col 實收金額：{{ expaaData.AA28 }}
+      b-col 實收金額：{{ $utils.addComma(expaaData.AA28) }}元
 
   template(#footer)
     .d-flex.justify-content-center.align-items.center
