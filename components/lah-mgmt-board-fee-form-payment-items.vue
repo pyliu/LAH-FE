@@ -48,7 +48,7 @@ b-card(border-variant="info")
         b-button.ml-auto(variant="outline-info" :pressed="true")
           span.mr-1 電腦給號
           b-badge(variant="light") {{ expaaDataPc }} #[span.sr-only 電腦給號]
-      .border.border-dark.rounded.p-2.mb-2(v-for="(record, idx) in expacList")
+      .border.border-dark.rounded.p-2.mb-2(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
         .mb-1
           b-button(variant="warning", @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])")
             span.mr-1 案號
