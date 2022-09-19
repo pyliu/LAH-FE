@@ -38,7 +38,7 @@ b-card(border-variant="info")
         li AC30 - 實收金額
 
   div(v-if="dataReady")
-    .d-flex.mb-1
+    .d-flex.justify-content-around.mb-1
       lah-button(
         title="顯示規費詳情",
         variant="info",
@@ -47,7 +47,7 @@ b-card(border-variant="info")
         :badge-text="expaaAaNumber",
         @click="detail"
       ) 憑證序號
-      lah-button.ml-auto(
+      lah-button(
         title="顯示規費詳情",
         variant="info",
         badge-variant="light",
