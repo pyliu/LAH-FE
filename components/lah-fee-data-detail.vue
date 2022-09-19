@@ -3,7 +3,8 @@ b-card.border-0(no-body)
   lah-fee-state-mgmt(:expaa-data="expaaData")
   b-list-group(flush, size="sm")
     b-list-group-item(
-      v-for="(item, key) in fallbackData"
+      v-for="(item, key) in fallbackData",
+      :key="`fallback_${key}`"
       v-if="!['列印註記', '繳費方式代碼', '單據狀況', 'AA100_CHT'].includes(key)"
     )
       span {{key}}：{{item}}
