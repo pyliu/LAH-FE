@@ -51,6 +51,9 @@ b-card(border-variant="info")
       b-input.h-100(
         ref="keyword",
         v-model="searchVal",
+        min="1",
+        max="9999999",
+        :type="searchType === 'pc' ? 'number' : 'text'",
         :state="searchValOK",
         :placeholder="searchPlaceholder",
         @change="clearSearchData"
