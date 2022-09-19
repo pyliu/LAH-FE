@@ -52,7 +52,7 @@ b-card
   template(#footer)
     .d-flex.justify-content-between.align-items.center
       small ※ 下一筆電腦給號：{{ nextPcNumber }}
-      lah-button.mx-auto(
+      lah-button.ml-auto(
         v-if="!isDisabled"
         icon="plus",
         size="sm",
