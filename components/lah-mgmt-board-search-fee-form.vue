@@ -56,7 +56,8 @@ b-card(border-variant="info")
         :type="searchType === 'pc' ? 'number' : 'text'",
         :state="searchValOK",
         :placeholder="searchPlaceholder",
-        @change="clearSearchData"
+        @change="clearSearchData",
+        @keyup.enter="search"
       )
     lah-transition: b-input-group.text-nowrap.ml-1.fixed-year-input(
       v-if="searchType === 'pc'",
