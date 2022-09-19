@@ -152,6 +152,7 @@ export default {
       })
     },
     query () {
+      this.clear()
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.MOIEXP, {
         type: 'get_dummy_ob_fees'
@@ -195,6 +196,12 @@ export default {
           })
         }
       })
+    },
+    clear () {
+      this.nextPcNumber = this.tableData.length > 0 ? parseInt(this.tableData[0].AA04) + 1 : `9${this.year}001`
+      this.feeNumber = ''
+      this.operator = ''
+      this.reason = ''
     }
   }
 }
