@@ -2,16 +2,23 @@
 b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="file-invoice-dollar", size="lg") 規費單據付款項目管理]
+      h6.mb-0.mt-1.mr-1
+        lah-fa-icon(
+          icon="file-invoice-dollar",
+          size="lg",
+          :action="dataReady ? 'breath' : ''"
+        )
+          span(v-if="dataReady") {{ expaaDataPc }} - {{ expaaAaNumber }} 收費項目
+          span(v-else) 規費收費項目管理
       b-button-group.ml-auto(size="sm")
-        //- lah-button.text-nowrap(
-        //-   icon="window-restore",
-        //-   variant="outline-success",
-        //-   size="sm",
-        //-   :disabled="!dataReady"
-        //-   @click="detail"
-        //-   pill
-        //- ) 詳情
+        lah-button.text-nowrap(
+          icon="window-restore",
+          variant="outline-success",
+          size="sm",
+          :disabled="!dataReady"
+          @click="detail"
+          pill
+        ) 詳情
         lah-button(
           icon="question",
           action="breath",
@@ -23,9 +30,6 @@ b-card(border-variant="info")
         )
     lah-help-modal(ref="help", modal-title="規費單據付款項目說明")
       h5 本項功能提供管理師修改規費單據付款項目功能。
-      //- ul
-      //-   li 電腦給號規則： #[b.text-danger 9] + #[b.text-primary year (3 digits)] + #[b.text-success serial (3 digits)]
-      //-   li 範例： #[b.text-danger 9]#[b.text-primary 111]#[b.text-success 001]、9111002 ... 以此類推
       h6 相關欄位定義供參考
       ul
         li AC25 - 年分
@@ -37,50 +41,33 @@ b-card(border-variant="info")
         li AC29 - 應收金額
         li AC30 - 實收金額
 
-  div(v-if="dataReady")
-    .d-flex.justify-content-around.mb-1
-      lah-button(
-        title="顯示規費詳情",
-        variant="info",
-        badge-variant="light",
-        show-badge,
-        :badge-text="expaaAaNumber",
-        @click="detail"
-      ) 憑證序號
-      lah-button(
-        title="顯示規費詳情",
-        variant="info",
-        badge-variant="light",
-        show-badge,
-        :badge-text="expaaDataPc",
-        @click="detail"
-      ) 電腦給號
-    hr
-    .center-container-wh-100(v-if="isBusy"): lah-fa-icon(icon="spinner", spin)
-    .center-container-wh-100(v-else-if="!found"): lah-fa-icon(icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！
-    div(v-else)
-      .border.border-dark.rounded.p-2.my-2(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
-        .d-flex.align-items-center.mb-1
-          lah-button(
-            title="顯示案件詳情",
-            variant="warning",
-            badge-variant="light",
-            show-badge,
-            :badge-text="`${record.AC16}-${record.AC17}-${record.AC18}`",
-            @click="caseDetail(record['AC16'] + record['AC17'] + record['AC18'])"
-          ) 案號
-          .ml-auto 實收金額：{{ $utils.addComma(record["AC30"]) }}元
-        .d-flex
-          b-select(v-model="expacList[idx]['AC20']" :options="expeList" size="sm")
-            template(v-slot:first)
-              option(value disabled) -- 請選擇一個項目 --
-          lah-button.ml-1(
-            icon="edit",
-            size="sm",
-            variant="outline-primary",
-            @click="update(idx)"
-          ) 修改
-  h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
+  lah-transition
+    .m-0(v-if="dataReady")
+      .center-container-wh-100(v-if="isBusy"): lah-fa-icon(icon="spinner", spin)
+      .center-container-wh-100(v-else-if="!found"): lah-fa-icon(icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！
+      ol(v-else)
+        li.my-1(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
+          .d-flex.align-items-center
+            .text-nowrap.mr-1 金額 {{ $utils.addComma(record.AC30) }} 元
+            b-select.h-100(v-model="expacList[idx].AC20" :options="expeList" size="sm")
+              template(v-slot:first)
+                option(value disabled) -- 請選擇一個項目 --
+            lah-button.ml-1(
+              icon="edit",
+              size="sm",
+              title="修改",
+              no-icon-gutter,
+              @click="update(idx)"
+            )
+            lah-button.ml-1(
+              icon="up-right-from-square",
+              size="sm",
+              variant="outline-secondary"
+              :title="`顯示 ${expacList[idx].AC16}-${expacList[idx].AC17}-${expacList[idx].AC18} 案件詳情`",
+              no-icon-gutter,
+              @click="caseDetail(`${expacList[idx].AC16}${expacList[idx].AC17}${expacList[idx].AC18}`)"
+            )
+    h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)
   //-   .d-flex.justify-content-center.align-items.center

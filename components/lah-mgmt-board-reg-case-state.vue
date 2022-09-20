@@ -2,7 +2,13 @@
 b-card(border-variant="secondary")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="hard-drive", size="lg", regular) 登記案件狀態修正]
+      h6.mb-0.mt-1.mr-1
+        lah-fa-icon(
+          icon="hard-drive",
+          size="lg",
+          :action="dataReady ? 'breath' : ''",
+          :regular="dataReady"
+        ) 登記案件狀態管理
       a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
       b-button-group.ml-auto(size="sm"): lah-button(
         icon="question",
@@ -27,54 +33,55 @@ b-card(border-variant="secondary")
         li: .d-flex.align-items-center
           div 使用方式請依各項目欄位選擇後更新修正。
 
-  h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
-  div(v-else)
-    h6.center(v-if="!wip"): lah-fa-icon(icon="circle-exclamation", variant="danger") 案件已結案，修改前請確認是否需要變更！
-    .form-row
-      b-input-group.col(size="sm")
-        b-input-group-prepend(is-text) 辦理情形
-        b-select.h-100(v-model="crsmsData['RM30']" :options="rm30_map")
-          template(v-slot:first): b-select-option(:value="null" disabled) -- 請選擇狀態 --
-      b-input-group.col-3(v-if="wip && rm30 !== rm30_orig" size="sm")
-        b-checkbox.my-auto(v-model="sync_rm30_1" name="reg_case_RM30_1_checkbox" switch)
-          small 同步作業人員
-      .filter-btn-group.col-auto(v-if="rm30 !== rm30_orig")
-        lah-button(icon="edit" @click="updateRM30" size="sm" variant="outline-primary") 更新
-    .form-row.my-1
-      b-input-group.col(size="sm")
-        b-input-group-prepend(is-text) 結案狀態
-        b-select.h-100(v-model="crsmsData['RM31']" :options="rm31_map")
-          template(v-slot:first): b-select-option(value) -- 無狀態 --
-      .filter-btn-group.col-auto(v-if="rm31 !== rm31_orig")
-        lah-button(icon="edit" @click="updateRM31" size="sm" variant="outline-primary") 更新
-    .form-row
-      b-input-group.col(size="sm")
-        b-input-group-prepend(is-text) 登記註記
-        b-select.h-100(v-model="crsmsData['RM39']" :options="rm39_map")
-          template(v-slot:first): b-select-option(value) -- 無狀態 --
-      .filter-btn-group.col-auto(v-if="rm39 !== rm39_orig")
-        lah-button(icon="edit" @click="updateRM39" size="sm" variant="outline-primary") 更新
-    .form-row.my-1
-      b-input-group.col(size="sm")
-        b-input-group-prepend(is-text) 地價註記
-        b-select.h-100(v-model="crsmsData['RM42']" :options="rm42_map")
-          template(v-slot:first): b-select-option(value) -- 無狀態 --
-      .filter-btn-group.col-auto(v-if="rm42 !== rm42_orig")
-        lah-button(icon="edit" @click="updateRM42" size="sm" variant="outline-primary") 更新
-    hr
-    .form-row
-      b-input-group.col(size="sm", v-b-tooltip="'RMXX'")
-        b-input-group-prepend(is-text) 其他欄位
-        b-input.h-100(v-model="rmXX", @input="restoreRMXXValue")
-      b-input-group.col.text-nowrap(size="sm")
-        b-input-group-prepend(is-text) 修改內容
-        b-form-input.h-100(v-model="rmXXValue")
-      .filter-btn-group.col-auto(v-if="validRMXX")
-        lah-button(icon="edit" @click="updateRMXX(upperCaseRmXX, rmXXValue)" size="sm" variant="outline-primary") 更新
-    .form-row.mt-1.ml-1(v-if="validRMXX")
-      lah-fa-icon(icon="eye", variant="success") 即將修正「{{ upperCaseRmXX }}」為「{{ rmXXValue }}」。
-    .form-row.mt-1.ml-1(v-else-if="!$utils.empty(rmXX)")
-      lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
+  lah-transition
+    h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
+    div(v-else)
+      h6.center(v-if="!wip"): lah-fa-icon(icon="circle-exclamation", variant="danger") 案件已結案，修改前請確認是否需要變更！
+      .form-row
+        b-input-group.col(size="sm")
+          b-input-group-prepend(is-text) 辦理情形
+          b-select.h-100(v-model="crsmsData['RM30']" :options="rm30_map")
+            template(v-slot:first): b-select-option(:value="null" disabled) -- 請選擇狀態 --
+        b-input-group.col-3(v-if="wip && rm30 !== rm30_orig" size="sm")
+          b-checkbox.my-auto(v-model="sync_rm30_1" name="reg_case_RM30_1_checkbox" switch)
+            small 同步作業人員
+        .filter-btn-group.col-auto(v-if="rm30 !== rm30_orig")
+          lah-button(icon="edit" @click="updateRM30" size="sm" variant="outline-primary" no-icon-gutter title="更新")
+      .form-row.my-1
+        b-input-group.col(size="sm")
+          b-input-group-prepend(is-text) 結案狀態
+          b-select.h-100(v-model="crsmsData['RM31']" :options="rm31_map")
+            template(v-slot:first): b-select-option(value) -- 無狀態 --
+        .filter-btn-group.col-auto(v-if="rm31 !== rm31_orig")
+          lah-button(icon="edit" @click="updateRM31" size="sm" variant="outline-primary" no-icon-gutter title="更新")
+      .form-row
+        b-input-group.col(size="sm")
+          b-input-group-prepend(is-text) 登記註記
+          b-select.h-100(v-model="crsmsData['RM39']" :options="rm39_map")
+            template(v-slot:first): b-select-option(value) -- 無狀態 --
+        .filter-btn-group.col-auto(v-if="rm39 !== rm39_orig")
+          lah-button(icon="edit" @click="updateRM39" size="sm" variant="outline-primary" no-icon-gutter title="更新")
+      .form-row.my-1
+        b-input-group.col(size="sm")
+          b-input-group-prepend(is-text) 地價註記
+          b-select.h-100(v-model="crsmsData['RM42']" :options="rm42_map")
+            template(v-slot:first): b-select-option(value) -- 無狀態 --
+        .filter-btn-group.col-auto(v-if="rm42 !== rm42_orig")
+          lah-button(icon="edit" @click="updateRM42" size="sm" variant="outline-primary" no-icon-gutter title="更新")
+      hr
+      .form-row
+        b-input-group.col(size="sm", v-b-tooltip="'RMXX'")
+          b-input-group-prepend(is-text) 其他欄位
+          b-input.h-100(v-model="rmXX", @input="restoreRMXXValue")
+        b-input-group.col.text-nowrap(size="sm")
+          b-input-group-prepend(is-text) 修改內容
+          b-form-input.h-100(v-model="rmXXValue")
+        .filter-btn-group.col-auto(v-if="validRMXX")
+          lah-button(icon="edit" @click="updateRMXX(upperCaseRmXX, rmXXValue)" size="sm" variant="outline-primary" no-icon-gutter title="更新")
+      .form-row.mt-1.ml-1(v-if="validRMXX")
+        lah-fa-icon(icon="eye", variant="success") 即將修正「{{ upperCaseRmXX }}」為「{{ rmXXValue }}」。
+      .form-row.mt-1.ml-1(v-else-if="!$utils.empty(rmXX)")
+        lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
 </template>
 
 <script>

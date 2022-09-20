@@ -2,7 +2,12 @@
 b-card(border-variant="secondary")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="memory", size="lg") 登記案件暫存檔]
+      h6.mb-0.mt-1.mr-1
+        lah-fa-icon(
+          icon="memory",
+          size="lg",
+          :action="dataReady ? 'breath' : ''"
+        ) 登記案件暫存檔
       a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
       b-button-group.ml-auto(size="sm"): lah-button(
         icon="question",
@@ -97,28 +102,29 @@ b-card(border-variant="secondary")
         li "MOIPRT.PNLPO" => "NA"
         li "MOIPRT.POA11" => "OA"
 
-  h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
-  div(v-else)
-    div(v-if="found")
-      div(v-for="(item, idx) in filtered")
-        h6.font-weight-bold.text-center(v-if="idx == 0")
-          lah-fa-icon(icon="triangle-exclamation", variant="warning") 請檢查下列暫存檔資訊，必要時請刪除。
-        b-button(@click="showSQL(item)" size="sm" variant="warning")
-          | {{ item[0] }}表格
-          span.badge.badge-light.ml-1
-            | {{ item[1].length }}
-            span.sr-only 暫存檔數量
-        small.ml-1
-          b-button(:id="'backup_temp_btn_' + idx" size="sm" variant="outline-primary" @click="backup(item, idx, $event)") 備份
-          b-button.ml-1(v-if="item[0] != 'MOICAT.RINDX' && item[0] != 'MOIPRT.PHIND'" :title="title(item)" size="sm" variant="outline-danger" @click="clean(item, idx, $event)") 清除
-        .small.my-2 － {{ item[2] }}
-      hr
-      .text-center
-        b-button#backup_temp_btn_all(@click="backupAll" variant="outline-primary" size="sm") 全部備份
-        b-button.ml-1(@click="cleanAll" variant="danger" size="sm") 全部清除
-    .center-container-wh-100
-      lah-fa-icon(v-if="notFound" icon="exclamation-circle" variant="success" size="lg") 無暫存檔。
-      lah-fa-icon(v-if="loading" action="spin" icon="spinner" size="lg") 讀取中
+  lah-transition
+    h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
+    div(v-else)
+      div(v-if="found")
+        div(v-for="(item, idx) in filtered")
+          h6.font-weight-bold.text-center(v-if="idx == 0")
+            lah-fa-icon(icon="triangle-exclamation", variant="warning") 請檢查下列暫存檔資訊，必要時請刪除。
+          b-button(@click="showSQL(item)" size="sm" variant="warning")
+            | {{ item[0] }}表格
+            span.badge.badge-light.ml-1
+              | {{ item[1].length }}
+              span.sr-only 暫存檔數量
+          small.ml-1
+            b-button(:id="'backup_temp_btn_' + idx" size="sm" variant="outline-primary" @click="backup(item, idx, $event)") 備份
+            b-button.ml-1(v-if="item[0] != 'MOICAT.RINDX' && item[0] != 'MOIPRT.PHIND'" :title="title(item)" size="sm" variant="outline-danger" @click="clean(item, idx, $event)") 清除
+          .small.my-2 － {{ item[2] }}
+        hr
+        .text-center
+          b-button#backup_temp_btn_all(@click="backupAll" variant="outline-primary" size="sm") 全部備份
+          b-button.ml-1(@click="cleanAll" variant="danger" size="sm") 全部清除
+      .center-container-wh-100
+        lah-fa-icon(v-if="notFound" icon="exclamation-circle" variant="success" size="lg") 無暫存檔。
+        lah-fa-icon(v-if="loading" action="spin" icon="spinner" size="lg") 讀取中
 </template>
 
 <script>

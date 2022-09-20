@@ -1,6 +1,13 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  div(v-if="brief")
+  .d-flex.justify-content-end.mb-2: lah-fa-icon.cursor(
+    size="sm",
+    :icon="briefOpen ? 'angles-up' : 'angles-down'",
+    :variant="briefOpen ? 'secondary' : 'info'",
+    @click="briefOpen = !briefOpen",
+    v-b-tooltip="'切換簡易描述顯示'"
+  )
+  b-collapse.mb-2(v-model="briefOpen")
     b-row
       b-col 電腦給號：{{ expaaData.AA04 }}
       b-col 收據編號：{{ expaaData.AA05 }}
@@ -11,7 +18,7 @@ b-card.border-0(no-body)
       b-col 收費方式：{{ expaaData.AA100_CHT }}
       b-col 實收金額：{{ $utils.addComma(expaaData.AA28) }}元
 
-  .w-100.mt-1(:class="vertical ? ['d-flex-column'] : ['d-flex']")
+  .w-100(:class="vertical ? ['d-flex-column'] : ['d-flex']")
     //- 列印狀態
     .d-flex.flex-nowrap
       b-input-group(size="sm" prepend="列印狀態"): b-select(
@@ -25,9 +32,9 @@ b-card.border-0(no-body)
         size="sm",
         variant="outline-primary",
         title="更新列印狀態",
-        :disabled="!validData"
+        :disabled="!validData",
+        no-icon-gutter
       )
-        span(v-if="vertical") 修改
     //- 付款方式
     .d-flex.flex-nowrap(:class="vertical ? ['my-1'] : ['mx-1']")
       b-input-group(size="sm" prepend="付款方式"): b-select(
@@ -41,9 +48,9 @@ b-card.border-0(no-body)
         size="sm",
         variant="outline-primary",
         title="更新付款方式",
-        :disabled="!validData"
+        :disabled="!validData",
+        no-icon-gutter
       )
-        span(v-if="vertical") 修改
     //- 作廢狀態
     .d-flex.flex-nowrap
       b-input-group(size="sm" prepend="收據狀態"): b-select(
@@ -57,9 +64,9 @@ b-card.border-0(no-body)
         size="sm",
         variant="outline-primary",
         title="更新收據狀態",
-        :disabled="!validData"
+        :disabled="!validData",
+        no-icon-gutter
       )
-        span(v-if="vertical") 修改
 </template>
 
 <script>
@@ -71,6 +78,7 @@ export default {
     brief: { type: Boolean, default: false }
   },
   data: () => ({
+    briefOpen: false,
     printOpts: [{
       value: 0,
       text: '未印[0]'
@@ -125,6 +133,7 @@ export default {
     this.obsoleteVal = this.expaaData.AA08
     this.printVal = this.expaaData.AA09
     this.paymentVal = this.expaaData.AA100
+    this.briefOpen = this.brief
   },
   methods: {
     async checkPaymentExpkData () {

@@ -2,7 +2,19 @@
 b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="hard-drive", size="lg") 規費單據狀態管理]
+      h6.mb-0.mt-1.mr-1
+        lah-fa-icon(
+          v-if="dataReady",
+          icon="hard-drive",
+          size="lg",
+          action="breath",
+          regular
+        ) {{ expaaData.AA04 }} - {{ expaaData.AA05 }} 狀態管理
+        lah-fa-icon(
+          v-else,
+          icon="hard-drive",
+          size="lg"
+        ) 規費單據狀態管理
       b-button-group.ml-auto(size="sm")
         lah-button.text-nowrap(
           v-if="dataReady",
@@ -35,11 +47,9 @@ b-card(border-variant="info")
         li AA08 - 收據狀態【1：正常，0：作廢】
         li AA100 - 付款方式
 
-  div(v-if="dataReady"): lah-fee-state-mgmt(
-    :expaa-data="expaaData",
-    brief
-  )
-  h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
+  lah-transition
+    div(v-if="dataReady"): lah-fee-state-mgmt(:expaa-data="expaaData")
+    h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)
   //-   .d-flex.justify-content-center.align-items.center
