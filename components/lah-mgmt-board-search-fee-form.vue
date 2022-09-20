@@ -95,7 +95,7 @@ b-card(border-variant="info")
         :disabled="!searchValOK",
         @click="search"
         pill
-      ) 搜尋
+      ) 查詢
       lah-button.ml-1(
         v-if="dataReady && stateButton",
         icon="floppy-disk",
