@@ -115,10 +115,10 @@ b-card
             lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(id) }}
             lah-button(icon="hammer", action="tick", variant="outline-secondary", @click="fixSurCase(id)") 修正
 
-  template(#footer)
-    .d-flex.justify-content-between
-      lah-fa-icon(icon="dog", size="lg", variant="secondary")
-      lah-fa-icon(icon="paw", size="lg", variant="secondary")
+  //- template(#footer)
+  //-   .d-flex.justify-content-between
+  //-     lah-fa-icon(icon="dog", size="lg", variant="secondary")
+  //-     lah-fa-icon(icon="paw", size="lg", variant="secondary")
 </template>
 
 <script>
