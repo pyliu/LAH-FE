@@ -2,7 +2,7 @@
 b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="3", size="lg") 規費單據付款項目管理]
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="file-invoice-dollar", size="lg") 規費單據付款項目管理]
       b-button-group.ml-auto(size="sm")
         //- lah-button.text-nowrap(
         //-   icon="window-restore",
@@ -129,16 +129,10 @@ export default {
     }
   },
   created () {
-    // const now = new Date()
-    // this.year = now.getFullYear() - 1911
-    // this.today = this.year +
-    //     ('0' + (now.getMonth() + 1)).slice(-2) +
-    //     ('0' + now.getDate()).slice(-2)
     this.prepareExpeList()
+    this.queryExpacData()
   },
-  mounted () {
-    // this.queryExpacData()
-  },
+  mounted () {},
   methods: {
     async prepareExpeList () {
       const cachedList = await this.getCache('MOIEXP.EXPE')

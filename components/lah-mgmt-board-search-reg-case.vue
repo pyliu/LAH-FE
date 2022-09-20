@@ -2,7 +2,7 @@
 b-card(border-variant="secondary")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1 #[lah-fa-icon(icon="1", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? '' : 'jump'") 搜尋登記案件]
+      h6.mb-0.mt-1 #[lah-fa-icon(icon="magnifying-glass", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? '' : 'swim'") 搜尋登記案件]
       a.text-primary.font-weight-bold(v-if="dataReady", href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
       b-button-group.ml-auto(size="sm")
         b-checkbox(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
@@ -52,15 +52,23 @@ b-card(border-variant="secondary")
     .d-flex.justify-content-center
       lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail", pill) 詳情
       lah-button(v-else, icon="search", @click="search", :disabled="!validCaseId", pill) 查詢
+      lah-button.ml-1(v-if="dataReady && stateButton", icon="floppy-disk", variant="outline-primary", @click="popupState", pill) 調整狀態
+      lah-button.ml-1(v-if="dataReady && tempButton", icon="memory", variant="warning", @click="popupTemp", pill) 暫存檔
       lah-button.h-100.ml-1(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", @click="clearSearchData", pill) 清除
 
 </template>
 
 <script>
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import lahMgmtBoardRegCaseStateVue from './lah-mgmt-board-reg-case-state.vue'
+import lahMgmtBoardRegCaseTmpVue from './lah-mgmt-board-reg-case-tmp.vue'
 
 export default {
-  components: { lahRegCaseDetailVue },
+  components: { lahRegCaseDetailVue, lahMgmtBoardRegCaseStateVue, lahMgmtBoardRegCaseTmpVue },
+  props: {
+    stateButton: { type: Boolean, default: false },
+    tempButton: { type: Boolean, default: false }
+  },
   data: () => ({
     caseId: '',
     vertical: false
@@ -144,6 +152,18 @@ export default {
       }), {
         title: `登記案件詳情 ${this.$utils.caseId(this.caseId)}`,
         size: 'xl'
+      })
+    },
+    popupState () {
+      this.modal(this.$createElement(lahMgmtBoardRegCaseStateVue), {
+        title: `登記案件狀態管理 ${this.$utils.caseId(this.caseId)}`,
+        size: 'md'
+      })
+    },
+    popupTemp () {
+      this.modal(this.$createElement(lahMgmtBoardRegCaseTmpVue), {
+        title: `登記案件暫存檔管理 ${this.$utils.caseId(this.caseId)}`,
+        size: 'md'
       })
     }
   }

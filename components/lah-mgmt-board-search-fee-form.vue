@@ -2,7 +2,7 @@
 b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="1", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? '' : 'jump'") 搜尋規費單據]
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="magnifying-glass-dollar", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? '' : 'swim'") 搜尋規費單據]
       b-button-group.ml-auto(size="sm")
         lah-button(
           icon="question",
@@ -96,7 +96,21 @@ b-card(border-variant="info")
         @click="search"
         pill
       ) 搜尋
-      lah-button.h-100.ml-1(
+      lah-button.ml-1(
+        v-if="dataReady",
+        icon="floppy-disk",
+        variant="outline-primary",
+        @click="popupState",
+        pill
+      ) 狀態管理
+      lah-button.ml-1(
+        v-if="dataReady",
+        icon="file-invoice-dollar",
+        variant="warning",
+        @click="popupPayment",
+        pill
+      ) 付款項目
+      lah-button.ml-1(
         icon="arrow-rotate-left",
         variant="outline-secondary",
         action="cycle-alt",
@@ -108,9 +122,11 @@ b-card(border-variant="info")
 
 <script>
 import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
+import lahMgmtBoardFeeFormStateVue from './lah-mgmt-board-fee-form-state.vue'
+import lahMgmtBoardFeeFormPaymentItemsVue from './lah-mgmt-board-fee-form-payment-items.vue'
 
 export default {
-  components: { lahFeeDataDetailVue },
+  components: { lahFeeDataDetailVue, lahMgmtBoardFeeFormStateVue, lahMgmtBoardFeeFormPaymentItemsVue },
   data: () => ({
     searchYear: '111',
     searchYears: [],
@@ -261,6 +277,18 @@ export default {
         }
       }), {
         title: `規費詳情 ${this.expaaData.AA04} - ${this.expaaData.AA05}`,
+        size: 'md'
+      })
+    },
+    popupState () {
+      this.modal(this.$createElement(lahMgmtBoardFeeFormStateVue), {
+        title: `登記案件狀態管理 ${this.$utils.caseId(this.caseId)}`,
+        size: 'md'
+      })
+    },
+    popupPayment () {
+      this.modal(this.$createElement(lahMgmtBoardFeeFormPaymentItemsVue), {
+        title: `登記案件暫存檔管理 ${this.$utils.caseId(this.caseId)}`,
         size: 'md'
       })
     }

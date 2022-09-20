@@ -2,7 +2,7 @@
 b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="2", size="lg") 規費單據狀態管理]
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="hard-drive", size="lg") 規費單據狀態管理]
       b-button-group.ml-auto(size="sm")
         lah-button.text-nowrap(
           icon="window-restore",
