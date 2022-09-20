@@ -4,6 +4,12 @@ b-card(border-variant="info")
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="magnifying-glass-dollar", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? 'breath' : 'bounce'") 搜尋規費單據]
       b-button-group.ml-auto(size="sm")
+        .d-flex
+          //- lah-fa-icon.mr-2(icon="magnifying-glass-arrow-right", size="lg", append, action="breath") 搜尋選項
+          b-radio-group(
+            v-model="searchType",
+            :options="options"
+          )
         lah-button(
           icon="question",
           action="breath",
@@ -38,12 +44,6 @@ b-card(border-variant="info")
         li AC30 - 實收金額
 
   //- .center-container-wh-100
-  .d-flex.mb-2
-    lah-fa-icon.mr-2(icon="magnifying-glass-arrow-right", size="lg", append, action="breath") 搜尋選項
-    b-radio-group(
-      v-model="searchType",
-      :options="options"
-    )
   .d-flex
     b-input-group.text-nowrap(
       :prepend="searchLabel"
