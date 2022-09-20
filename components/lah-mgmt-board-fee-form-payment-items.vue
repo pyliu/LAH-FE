@@ -47,7 +47,7 @@ b-card(border-variant="info")
       .center-container-wh-100(v-else-if="!found"): lah-fa-icon(icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！
       div(v-else)
         .my-1(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
-          .d-flex.align-items-center
+          .d-flex.align-items-center.hover
             lah-fa-icon.mr-auto(:icon="`${idx+1}`")
               b-select.h-100(v-model="record.AC20" :options="expeList" size="sm")
                 template(v-slot:first)
@@ -239,4 +239,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.hover:hover {
+  margin: .5rem 0;
+  padding: .5rem;
+  border: 2px dashed red;
+}
 </style>
