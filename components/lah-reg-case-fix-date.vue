@@ -160,7 +160,6 @@ export default {
       return this.parentData.RM45 === this.myid || this.authority.isAdmin || this.authority.isChief
     },
     dataChanged () {
-      // return this.origDataset.deadline !== this.updateDataset.deadline || this.origDataset.delivered !== this.updateDataset.delivered
       return !this.$utils.equal(this.origDataset, this.updateDataset)
     }
   },
@@ -176,10 +175,6 @@ export default {
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     this.updateDebounced = this.$utils.debounce(this.update, 1000)
-    // keep init value
-    this.origDataset.id = this.caseId
-    this.origDataset.delivered = this.deliveredDate || ''
-    this.origDataset.deadline = this.deadlineDate || ''
     // fix not reactively bug
     if (Array.isArray(this.parentData.REG_FIX_CASE_RECORD)) {
       this.parentData.REG_FIX_CASE_RECORD = {
@@ -198,6 +193,10 @@ export default {
     // fill default value from RM52
     this.$utils.empty(this.deadlineDate) && this.resetDeadline()
     this.trigger('ready', this.ready)
+    // keep init value
+    this.origDataset.id = this.caseId
+    this.origDataset.delivered = this.deliveredDate || ''
+    this.origDataset.deadline = this.deadlineDate || ''
     // this.$utils.warn(this.parentData)
   },
   methods: {
