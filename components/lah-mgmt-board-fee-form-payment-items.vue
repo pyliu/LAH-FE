@@ -48,25 +48,25 @@ b-card(border-variant="info")
       div(v-else)
         .my-1(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
           .d-flex.align-items-center
-            lah-fa-icon(:icon="`${idx+1}`")
-            b-select.h-100(v-model="record.AC20" :options="expeList" size="sm")
-              template(v-slot:first)
-                option(value disabled) -- 請選擇一個項目 --
-            lah-button.mx-1(
-              icon="edit",
-              size="sm",
-              title="修改",
-              no-icon-gutter,
-              @click="update(idx)"
-            )
-            lah-button(
-              icon="up-right-from-square",
-              size="sm",
-              variant="outline-secondary"
-              :title="`顯示 ${record.AC16}-${record.AC17}-${record.AC18} 案件詳情`",
-              no-icon-gutter,
-              @click="caseDetail(`${record.AC16}${record.AC17}${record.AC18}`)"
-            )
+            lah-fa-icon.mr-auto(:icon="`${idx+1}`")
+              b-select.h-100(v-model="record.AC20" :options="expeList" size="sm")
+                template(v-slot:first)
+                  option(value disabled) -- 請選擇一個項目 --
+              lah-button.mx-1(
+                icon="edit",
+                size="sm",
+                title="修改",
+                no-icon-gutter,
+                @click="update(idx)"
+              )
+              lah-button(
+                icon="up-right-from-square",
+                size="sm",
+                variant="outline-secondary"
+                :title="`顯示 ${record.AC16}-${record.AC17}-${record.AC18} 案件詳情`",
+                no-icon-gutter,
+                @click="caseDetail(`${record.AC16}${record.AC17}${record.AC18}`)"
+              )
             .text-nowrap.ml-1 金額 {{ $utils.addComma(record.AC30) }} 元
     h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
