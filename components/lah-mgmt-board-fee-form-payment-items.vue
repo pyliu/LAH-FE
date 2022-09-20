@@ -45,21 +45,21 @@ b-card(border-variant="info")
     .m-0(v-if="dataReady")
       .center-container-wh-100(v-if="isBusy"): lah-fa-icon(icon="spinner", spin)
       .center-container-wh-100(v-else-if="!found"): lah-fa-icon(icon="exclamation-circle" variant="success" size="lg") 找不到規費收費項目資料！
-      ol(v-else)
-        li.my-1(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
+      div(v-else)
+        .my-1(v-for="(record, idx) in expacList", :key="`payment_list_item_${idx}`")
           .d-flex.align-items-center
-            .text-nowrap.mr-1 金額 {{ $utils.addComma(record.AC30) }} 元
+            lah-fa-icon(:icon="`${idx+1}`")
             b-select.h-100(v-model="expacList[idx].AC20" :options="expeList" size="sm")
               template(v-slot:first)
                 option(value disabled) -- 請選擇一個項目 --
-            lah-button.ml-1(
+            lah-button.mx-1(
               icon="edit",
               size="sm",
               title="修改",
               no-icon-gutter,
               @click="update(idx)"
             )
-            lah-button.ml-1(
+            lah-button(
               icon="up-right-from-square",
               size="sm",
               variant="outline-secondary"
@@ -67,6 +67,7 @@ b-card(border-variant="info")
               no-icon-gutter,
               @click="caseDetail(`${expacList[idx].AC16}${expacList[idx].AC17}${expacList[idx].AC18}`)"
             )
+            .text-nowrap.ml-1 金額 {{ $utils.addComma(record.AC30) }} 元
     h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)
@@ -238,7 +239,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-hr {
-  margin: .5rem 0;
-}
 </style>

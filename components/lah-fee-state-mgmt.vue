@@ -10,7 +10,7 @@ b-card.border-0(no-body)
   b-collapse.mb-2(v-model="briefOpen")
     b-row
       b-col 電腦給號：{{ expaaData.AA04 }}
-      b-col 收據編號：{{ expaaData.AA05 }}
+      b-col 憑證序號：{{ expaaData.AA05 }}
     b-row.my-1
       b-col 結帳日期：{{ expaaData.AA01 }}
       b-col(v-b-tooltip="expaaData.AA39") 作業人員：{{ operator }}
