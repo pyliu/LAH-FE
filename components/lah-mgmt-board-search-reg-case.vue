@@ -53,7 +53,7 @@ b-card(border-variant="secondary")
       lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail", pill) 詳情
       lah-button(v-else, icon="search", @click="search", :disabled="!validCaseId", pill) 查詢
       lah-button.ml-1(v-if="dataReady && stateButton", icon="floppy-disk", variant="outline-primary", @click="popupState", pill) 調整狀態
-      lah-button.ml-1(v-if="dataReady && tempButton", icon="memory", variant="warning", @click="popupTemp", pill) 暫存檔
+      lah-button.ml-1(v-if="dataReady && tempButton", icon="memory", variant="outline-dark", @click="popupTemp", pill) 暫存檔
       lah-button.h-100.ml-1(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", @click="clearSearchData", pill) 清除
 
 </template>

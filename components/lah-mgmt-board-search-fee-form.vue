@@ -106,7 +106,7 @@ b-card(border-variant="info")
       lah-button.ml-1(
         v-if="dataReady",
         icon="file-invoice-dollar",
-        variant="warning",
+        variant="outline-dark",
         @click="popupPayment",
         pill
       ) 付款項目
