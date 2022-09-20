@@ -97,14 +97,14 @@ b-card(border-variant="info")
         pill
       ) 搜尋
       lah-button.ml-1(
-        v-if="dataReady",
+        v-if="dataReady && stateButton",
         icon="floppy-disk",
         variant="outline-primary",
         @click="popupState",
         pill
       ) 狀態管理
       lah-button.ml-1(
-        v-if="dataReady",
+        v-if="dataReady && paymentButton",
         icon="file-invoice-dollar",
         variant="outline-dark",
         @click="popupPayment",
@@ -127,6 +127,10 @@ import lahMgmtBoardFeeFormPaymentItemsVue from './lah-mgmt-board-fee-form-paymen
 
 export default {
   components: { lahFeeDataDetailVue, lahMgmtBoardFeeFormStateVue, lahMgmtBoardFeeFormPaymentItemsVue },
+  props: {
+    stateButton: { type: Boolean, default: false },
+    paymentButton: { type: Boolean, default: false }
+  },
   data: () => ({
     searchYear: '111',
     searchYears: [],
