@@ -2,7 +2,7 @@
 b-card(border-variant="secondary")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1 #[lah-fa-icon(icon="magnifying-glass", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? '' : 'swim'") 搜尋登記案件]
+      h6.mb-0.mt-1 #[lah-fa-icon(icon="magnifying-glass", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? 'breath' : 'swim'") 搜尋登記案件]
       a.text-primary.font-weight-bold(v-if="dataReady", href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
       b-button-group.ml-auto(size="sm")
         b-checkbox(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
