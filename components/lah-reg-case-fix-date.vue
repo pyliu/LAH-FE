@@ -9,7 +9,6 @@
         placeholder="補正期滿日期"
         boundary="viewport"
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-        :min="minDate"
         label-help="使用方向鍵操作移動日期"
         hide-header
         dropleft
@@ -45,7 +44,6 @@
         label-close-button="關閉"
         v-b-tooltip.hover.left.v-warning
         :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-        :min="minDate"
         :max="maxDate"
         :state="settleDeliveredDate"
       )
