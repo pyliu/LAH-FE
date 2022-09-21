@@ -2,7 +2,7 @@
 b-card
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="rotate", size="lg", :variant="'info'") 同步登記案件]
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="rotate", size="lg", :variant="'info'", :action="isBusy ? 'spin-fast' : ''") 同步登記案件]
       a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ formattedID }}
       b-button-group.ml-auto(size="sm")
         b-checkbox(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
