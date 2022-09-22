@@ -77,7 +77,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// .hover:hover {
+//   background-color: rgb(187, 189, 189);
+// }
 .hover:hover {
-  background-color: rgb(187, 189, 189);
+  // margin: .5rem 0;
+  // padding: .5rem;
+  border: 2px dashed red;
 }
 </style>
