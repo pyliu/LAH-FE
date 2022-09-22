@@ -344,6 +344,6 @@ export default {
 
 <style lang="scss" scoped>
 .fixed-width {
-  width: 275px;
+  width: 285px;
 }
 </style>
