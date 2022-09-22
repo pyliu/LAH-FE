@@ -7,8 +7,8 @@ b-card
         b-button.text-nowrap(
           variant="outline-info",
           size="sm",
-          title="顯示全部資料",
           @click="showTable",
+          v-b-tooltip="'顯示系統目前全部資料'",
           pill
         ) {{ year }}年 #[b-badge(variant="secondary", pill) {{ count }}]
         lah-button(

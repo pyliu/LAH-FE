@@ -5,7 +5,7 @@ b-card(border-variant="info")
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="magnifying-glass-dollar", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? 'breath' : 'swim'") 搜尋規費單據]
       b-button-group.ml-auto(size="sm")
         .d-flex
-          //- lah-fa-icon.mr-2(icon="magnifying-glass-arrow-right", size="lg", append, action="breath") 搜尋選項
+          .mr-1 依據：
           b-radio-group(
             v-model="searchType",
             :options="options"
@@ -17,9 +17,9 @@ b-card(border-variant="info")
           no-border,
           no-icon-gutter,
           @click="$refs.help.show()",
-          title="搜尋規費單據說明"
+          title="搜尋規費憑證說明"
         )
-    lah-help-modal(ref="help", modal-title="搜尋規費單據說明")
+    lah-help-modal(ref="help", modal-title="搜尋規費憑證說明")
       h5 本項功能提供管理師查詢規費單據，以利進行調整資料作業。
       h6 規費資料集(EXPAA)相關欄位定義參考
       ul
@@ -137,7 +137,7 @@ export default {
     searchType: 'pc',
     options: [
       { text: '電腦給號', value: 'pc' },
-      { text: '規費單號', value: 'aa' }
+      { text: '憑證序號', value: 'aa' }
     ],
     searchLabel: '電腦給號',
     searchPlaceholder: 'e.g. 0054321',
@@ -166,7 +166,7 @@ export default {
   watch: {
     searchType (val) {
       this.clearSearchData()
-      this.searchLabel = (val === 'pc') ? '電腦給號' : '規費單號'
+      this.searchLabel = (val === 'pc') ? '電腦給號' : '憑證序號'
       this.searchPlaceholder = (val === 'pc') ? 'e.g. 0012345' : 'e.g. AA012345678'
       this.searchVal = ''
       this.$refs.keyword?.focus()
