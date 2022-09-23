@@ -23,18 +23,31 @@ div(v-cloak)
             li 無電腦給號規費作廢
             li 其他系統狀態檢測
 
-  b-card-group(columns)
-    lah-mgmt-board-search-reg-case
-    lah-mgmt-board-search-fee-form
-    lah-mgmt-board-sync-reg-case
-  b-card-group(columns)
-    lah-mgmt-board-reg-case-state
-    lah-mgmt-board-fee-form-state
-    lah-mgmt-board-fee-form-obsolete
-  b-card-group(columns)
-    lah-mgmt-board-reg-case-tmp
-    lah-mgmt-board-fee-form-payment-items
-    lah-mgmt-board-watchdog
+  //- b-card-group(columns)
+  //-   lah-mgmt-board-search-reg-case
+  //-   lah-mgmt-board-search-fee-form
+  //-   lah-mgmt-board-sync-reg-case
+  //- b-card-group(columns)
+  //-   lah-mgmt-board-reg-case-state
+  //-   lah-mgmt-board-fee-form-state
+  //-   lah-mgmt-board-fee-form-obsolete
+  //- b-card-group(columns)
+  //-   lah-mgmt-board-reg-case-tmp
+  //-   lah-mgmt-board-fee-form-payment-items
+  //-   lah-mgmt-board-watchdog
+  .d-flex
+    .third-vw
+      lah-mgmt-board-search-reg-case
+      lah-mgmt-board-reg-case-state.my-3
+      lah-mgmt-board-reg-case-tmp
+    .third-vw.mx-3
+      lah-mgmt-board-search-fee-form
+      lah-mgmt-board-fee-form-state.my-3
+      lah-mgmt-board-fee-form-payment-items
+    .third-vw
+      lah-mgmt-board-sync-reg-case
+      lah-mgmt-board-fee-form-obsolete.my-3
+      lah-mgmt-board-watchdog
 </template>
 
 <script>
@@ -48,4 +61,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.third-vw {
+  width: calc(100vw / 3);
+}
 </style>
