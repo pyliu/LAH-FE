@@ -62,6 +62,6 @@ export default {
 
 <style lang="scss" scoped>
 .third-vw {
-  width: calc(100vw / 3);
+  width: calc(100vw / 3.1);
 }
 </style>
