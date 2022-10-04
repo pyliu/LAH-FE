@@ -38,12 +38,12 @@ div(v-cloak)
   .d-flex
     .third-vw
       lah-mgmt-board-search-reg-case
-      lah-mgmt-board-reg-case-state.my-3
-      lah-mgmt-board-reg-case-tmp
+      lah-transition: lah-mgmt-board-reg-case-state.my-3(v-if="crsmsDataReady")
+      lah-transition: lah-mgmt-board-reg-case-tmp(v-if="crsmsDataReady")
     .third-vw.mx-3
       lah-mgmt-board-search-fee-form
-      lah-mgmt-board-fee-form-state.my-3
-      lah-mgmt-board-fee-form-payment-items
+      lah-transition: lah-mgmt-board-fee-form-state.my-3(v-if="paymentDataReady")
+      lah-transition: lah-mgmt-board-fee-form-payment-items(v-if="paymentDataReady")
     .third-vw
       lah-mgmt-board-sync-reg-case
       lah-mgmt-board-fee-form-obsolete.my-3
@@ -56,7 +56,17 @@ export default {
   head: {
     title: '地政系統管理面板-桃園市地政局'
   },
-  fetchOnServer: false
+  fetchOnServer: false,
+  computed: {
+    crsmsData () { return this.$store.getters['inf/crsmsData'] },
+    expaaData () { return this.$store.getters['inf/expaaData'] },
+    crsmsDataReady () {
+      return Boolean(this.crsmsData?.ID)
+    },
+    paymentDataReady () {
+      return Boolean(this.expaaData?.AA05)
+    }
+  }
 }
 </script>
 
