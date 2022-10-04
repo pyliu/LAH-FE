@@ -2,7 +2,13 @@
 b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="magnifying-glass-dollar", size="lg", :variant="dataReady ? '' : 'danger'", :action="dataReady ? 'breath' : 'swim'") 搜尋規費單據]
+      h6.mb-0.mt-1.mr-1
+        lah-fa-icon(
+          :icon="dataReady ? 'square-check' : 'magnifying-glass-dollar'",
+          :variant="dataReady ? 'success' : 'danger'",
+          :action="dataReady ? 'breath' : 'swim'",
+          size="lg"
+        ) 搜尋規費單據
       b-button-group.ml-auto(size="sm")
         .d-flex
           .mr-1 依據：
