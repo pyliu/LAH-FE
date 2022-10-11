@@ -89,6 +89,7 @@ export default {
   }),
   computed: {
     headMessages () {
+      // collect records within 6 hrs
       const now = +new Date()
       const heads = this.messages.filter((item, idx, arr) => now - item.timestamp * 1000 < 6 * 60 * 60 * 1000)
       if (heads?.length !== 3) {
@@ -99,20 +100,18 @@ export default {
       return heads
     },
     light () {
-      const now = +new Date()
-      if (
-        this.headMessages?.length === 0 ||
-        now - this.headMessages[0]?.timestamp * 1000 > 6 * 60 * 60 * 1000
-      ) {
-        return 'warning'
-      }
-      const criteria = this.currentLogText(this.headMessages[0])
+      // find main DB record
+      const p8 = this.headMessages.find(item => item.subject?.includes('P8-2'))
+      const criteria = this.currentLogText(p8)
       let ans = this.headMessages.every((item, index, array) => {
         return criteria === this.currentLogText(item)
       })
-      ans = this.headMessages.every((item, index, array) => {
-        return this.switchoverText(item) === 'ACTIVE'
-      })
+      if (ans) {
+        ans = this.headMessages.every((item, index, array) => {
+          return this.switchoverText(item) === 'ACTIVE'
+        })
+      }
+      this.lightChanged(ans ? 'success' : 'danger', 'warning', 'LahMonitorBoardDataguard')
       return ans ? 'success' : 'danger'
     }
   },
