@@ -94,6 +94,7 @@ export default {
   },
   computed: {
     connectionText () {
+      // bureau needs ":993/imap/ssl/novalidate-cert"
       return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
     },
     isHA () {
