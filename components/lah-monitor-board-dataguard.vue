@@ -89,13 +89,20 @@ export default {
   }),
   computed: {
     headMessages () {
-      return this.messages.filter((item, idx, arr) => idx < 3)
+      const now = +new Date()
+      const heads = this.messages.filter((item, idx, arr) => now - item.timestamp * 1000 < 6 * 60 * 60 * 1000)
+      if (heads?.length !== 3) {
+        this.pushBrokenData(heads, 'P8-2')
+        this.pushBrokenData(heads, 'P7-102')
+        this.pushBrokenData(heads, 'hb-114')
+      }
+      return heads
     },
     light () {
       const now = +new Date()
       if (
-        this.headMessages.length === 0 ||
-        now - this.headMessages[0].timestamp * 1000 > 6 * 60 * 60 * 1000
+        this.headMessages?.length === 0 ||
+        now - this.headMessages[0]?.timestamp * 1000 > 6 * 60 * 60 * 1000
       ) {
         return 'warning'
       }
@@ -150,6 +157,20 @@ export default {
         return '0'
       }
       return arr[0][1]
+    },
+    pushBrokenData (messages, subject) {
+      if (!messages.find(item => item.subject?.includes(subject))) {
+        // push dummy data for the missing part
+        messages.push({
+          id: -1,
+          mailbox: 'INBOX',
+          message: `${subject} Data Guard is broken`,
+          receiver: '',
+          sender: 'pyliu@lah.host',
+          subject: `${subject} DataGuard STATE`,
+          timestamp: (+new Date()) / 1000
+        })
+      }
     }
   }
 }
