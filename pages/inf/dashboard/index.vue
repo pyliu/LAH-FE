@@ -122,7 +122,6 @@ export default {
       this.red = tmp.reduce((acc, item) => {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
-      console.warn(tmp)
     }
   }
 }
