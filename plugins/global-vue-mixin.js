@@ -517,12 +517,28 @@ Vue.mixin({
         console.warn('CustomEvent not defined?')
       }
     },
-    post (ep, configs, busy = true) {
+    post (apiEP, params, busy = true) {
       return new Promise((resolve, reject) => {
         if (busy) {
           this.isBusy = true
         }
-        this.$axios.post(ep, configs).then(({ data }) => {
+        this.$axios.post(apiEP, params).then(({ data }) => {
+          resolve(data)
+        }).catch((error) => {
+          reject(error)
+        }).finally(() => {
+          if (busy) {
+            this.isBusy = false
+          }
+        })
+      })
+    },
+    get (apiEP, params, busy = false) {
+      return new Promise((resolve, reject) => {
+        if (busy) {
+          this.isBusy = true
+        }
+        this.$axios.get(apiEP, { params }).then(({ data }) => {
           resolve(data)
         }).catch((error) => {
           reject(error)
