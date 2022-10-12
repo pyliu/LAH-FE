@@ -517,6 +517,22 @@ Vue.mixin({
         console.warn('CustomEvent not defined?')
       }
     },
+    post (ep, configs, busy = true) {
+      return new Promise((resolve, reject) => {
+        if (busy) {
+          this.isBusy = true
+        }
+        this.$axios.post(ep, configs).then(({ data }) => {
+          resolve(data)
+        }).catch((error) => {
+          reject(error)
+        }).finally(() => {
+          if (busy) {
+            this.isBusy = false
+          }
+        })
+      })
+    },
     setCache (key, val, expire_timeout = 0) {
       if (isEmpty(key) || this.$localForage === undefined) { return false }
       try {
