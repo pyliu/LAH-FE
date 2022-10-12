@@ -8,6 +8,9 @@ b-modal(
   :no-close-on-backdrop="noCloseOnBackdrop"
 )
   template(#modal-title): div(v-html="modalTitle")
+  .d-flex.justify-content-end(title="啟用SSL連線至郵件伺服器")
+    .mr-1 SSL
+    b-checkbox.my-auto(v-model="ssl", switch)
   b-input-group(prepend="郵件主機", size="lg")
     b-input(v-model="host", title="主機IP", :state="hostOK", placeholder="220.1.3x.xxx", trim)
   b-input-group.my-1(prepend="登入帳號", size="lg")
@@ -48,6 +51,7 @@ export default {
     hostOK: false,
     account: '',
     password: '',
+    ssl: false,
     messages: [],
     imapOK: false,
     imapTesting: false
@@ -57,8 +61,12 @@ export default {
       return {
         MONITOR_MAIL_HOST: this.host,
         MONITOR_MAIL_ACCOUNT: this.account,
-        MONITOR_MAIL_PASSWORD: this.password
+        MONITOR_MAIL_PASSWORD: this.password,
+        MONITOR_MAIL_SSL: this.ssl
       }
+    },
+    imapPort () {
+      return this.ssl ? 993 : 143
     }
   },
   watch: {
@@ -90,7 +98,7 @@ export default {
     this.addTestHostMessage()
   },
   mounted () {
-    this.loadConfig()
+    this.timeout(() => this.loadConfig(), 1000)
   },
   methods: {
     show () {
@@ -103,6 +111,7 @@ export default {
       this.host = this.systemConfigs.monitor?.host
       this.account = this.systemConfigs.monitor?.account
       this.password = this.systemConfigs.monitor?.password
+      this.ssl = this.systemConfigs.monitor?.ssl
     },
     addMessage (msg) {
       this.messages.unshift(`${this.$utils.time()} ${msg}`)
@@ -117,7 +126,8 @@ export default {
             type: 'imap_open',
             host: this.host,
             account: this.account,
-            password: this.password
+            password: this.password,
+            ssl: this.ssl
           })
           this.imapOK = this.$utils.statusCheck(data.status)
           return `${this.imapOK ? '✅' : '⚠️'} ${data.message}`
@@ -145,20 +155,34 @@ export default {
         const { data } = await this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'ping',
           ip,
-          port: 143
+          port: this.imapPort
         })
         this.hostOK = this.$utils.statusCheck(data.status)
-        return `${this.hostOK ? '✅' : '⚠️'} ${data.message} (埠號143)`
+        return `${this.hostOK ? '✅' : '⚠️'} ${data.message} (埠號${this.imapPort})`
       } catch (e) {
         this.$utils.error(e)
-        return `❌ ${ip}:143 測試失敗(${e.message})`
+        return `❌ ${ip}:${this.imapPort} 測試失敗(${e.message})`
       }
     },
     update () {
       this.quickUpdateConfig(this.payload, () => {
         // also update the store cached data
-        this.$store.commit('systemConfigs', this.payload)
+        /**
+         * MONITOR_MAIL_HOST: this.host,
+        MONITOR_MAIL_ACCOUNT: this.account,
+        MONITOR_MAIL_PASSWORD: this.password,
+        MONITOR_MAIL_SSL: this.ssl
+         */
+        this.$store.commit('systemConfigs', {
+          monitor: {
+            account: this.payload.MONITOR_MAIL_ACCOUNT,
+            host: this.payload.MONITOR_MAIL_HOST,
+            password: this.payload.MONITOR_MAIL_PASSWORD,
+            ssl: this.payload.MONITOR_MAIL_SSL
+          }
+        })
         this.hide()
+        console.warn(this.systemConfigs)
       })
     },
     quickUpdateConfig (configs, callback = undefined, notify = true) {
