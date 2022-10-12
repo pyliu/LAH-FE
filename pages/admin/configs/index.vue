@@ -975,10 +975,10 @@ export default {
         })
     },
     quick (configs, notify = true) {
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
+      this.post(this.$consts.API.JSON.QUERY, {
         type: 'update_configs',
         configs
-      }).then(({ data }) => {
+      }).then((data) => {
         const notifyOpts = { type: 'warning', subtitle: `${Object.keys(configs).length} 筆設定更新` }
         if (this.$utils.statusCheck(data.status)) {
           notifyOpts.type = 'success'
@@ -989,8 +989,6 @@ export default {
         notify && this.notify(data.message, notifyOpts)
       }).catch((error) => {
         this.$utils.error(error)
-      }).finally(() => {
-        this.isBusy = false
       })
     },
     changeMasterPassword () {

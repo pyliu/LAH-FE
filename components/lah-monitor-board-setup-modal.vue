@@ -162,11 +162,10 @@ export default {
       })
     },
     quickUpdateConfig (configs, callback = undefined, notify = true) {
-      this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
+      this.post(this.$consts.API.JSON.QUERY, {
         type: 'update_configs',
         configs
-      }).then(({ data }) => {
+      }).then((data) => {
         const notifyOpts = { type: 'warning', subtitle: `${Object.keys(configs).length} 筆設定更新` }
         if (this.$utils.statusCheck(data.status)) {
           notifyOpts.type = 'success'
@@ -175,8 +174,6 @@ export default {
         callback && callback.apply(this)
       }).catch((error) => {
         this.$utils.error(error)
-      }).finally(() => {
-        this.isBusy = false
       })
     }
   }
