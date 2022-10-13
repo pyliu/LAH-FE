@@ -45,7 +45,7 @@ b-card(:border-variant="border")
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
     .d-flex.justify-content-between.font-weight-bold
-      .mr-1 #[b-badge(variant="primary", pill) {{ currentLogNumber(item) }}]
+      .mr-1 #[b-badge(:variant="currentLogNumber(item) > 0 ? 'primary' : 'warning'", pill) {{ currentLogNumber(item) }}]
       .mr-1 #[b-badge(:variant="switchoverText(item) !== 'ACTIVE' ? 'danger' : 'success'", pill) {{ switchoverText(item) }}]
       a.truncate(
         href="#",
