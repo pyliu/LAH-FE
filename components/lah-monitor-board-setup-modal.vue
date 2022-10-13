@@ -73,13 +73,13 @@ export default {
     }
   },
   watch: {
-    host (val) {
+    host (dontcare) {
       this.addTestHostMessage()
     },
-    account (val) {
+    account (dontcare) {
       this.addTestImapMessage()
     },
-    password (val) {
+    password (dontcare) {
       this.addTestImapMessage()
     },
     monitorConfigs (dontcare) {
