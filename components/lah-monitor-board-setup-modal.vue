@@ -26,14 +26,15 @@ b-modal(
     @click="update"
   ) 確定修改
   lah-fa-icon(icon="list-alt", variant="secondary") 連線測試
-  b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
-    lah-fa-icon(
-      v-if="idx === 0"
-      icon="angle-double-right",
-      variant="danger",
-      action="move-fade-ltr"
-    )
-    span.ml-1 {{ msg }}
+  b-list-group(flush): transition-group(name="list"): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
+    .d-flex.align-items-center
+      lah-fa-icon(
+        v-if="idx === 0"
+        icon="angle-double-right",
+        variant="danger",
+        action="move-fade-ltr"
+      )
+      span.ml-1 {{ msg }}
 </template>
 
 <script>
@@ -70,6 +71,9 @@ export default {
     },
     monitorConfigs () {
       return this.systemConfigs?.monitor
+    },
+    configsReady () {
+      return !this.$utils.empty(this.monitorConfigs)
     }
   },
   watch: {
@@ -82,8 +86,14 @@ export default {
     password (dontcare) {
       this.addTestImapMessage()
     },
+    ssl (dontcare) {
+      this.addTestImapMessage()
+    },
     monitorConfigs (dontcare) {
       this.loadConfig()
+    },
+    configsReady (val) {
+      this.isBusy = !val
     }
   },
   created () {
@@ -102,6 +112,9 @@ export default {
       })
     }, 1500)
     this.addTestHostMessage()
+  },
+  mounted () {
+    this.loadConfig()
   },
   methods: {
     show () {
@@ -124,8 +137,8 @@ export default {
         try {
           this.imapOK = false
           this.imapTesting = true
-          this.addMessage('測試 IMAP 伺服器連線中 ... ')
-          const { data } = await this.$axios.post(this.$consts.API.JSON.MONITOR, {
+          this.addMessage(`測試${this.ssl ? 'SSL' : ''} IMAP 伺服器連線中 ... `)
+          const data = await this.post(this.$consts.API.JSON.MONITOR, {
             type: 'imap_open',
             host: this.host,
             account: this.account,
@@ -185,7 +198,6 @@ export default {
           }
         })
         this.hide()
-        console.warn(this.systemConfigs)
       })
     },
     quickUpdateConfig (configs, callback = undefined, notify = true) {
