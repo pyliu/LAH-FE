@@ -30,9 +30,10 @@ b-modal(
     .d-flex.align-items-center
       lah-fa-icon(
         v-if="idx === 0"
-        icon="angle-double-right",
-        variant="danger",
-        action="move-fade-ltr"
+        icon="bolt-lightning",
+        variant="primary",
+        action="bounce",
+        title="最新訊息"
       )
       span.ml-1 {{ msg }}
 </template>
