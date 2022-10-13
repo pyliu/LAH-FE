@@ -183,12 +183,6 @@ export default {
     update () {
       this.quickUpdateConfig(this.payload, () => {
         // also update the store cached data
-        /**
-         * MONITOR_MAIL_HOST: this.host,
-        MONITOR_MAIL_ACCOUNT: this.account,
-        MONITOR_MAIL_PASSWORD: this.password,
-        MONITOR_MAIL_SSL: this.ssl
-         */
         this.$store.commit('systemConfigs', {
           monitor: {
             account: this.payload.MONITOR_MAIL_ACCOUNT,
