@@ -31,11 +31,16 @@ b-modal(
       lah-fa-icon(
         v-if="idx === 0"
         icon="bolt-lightning",
-        variant="primary",
-        action="bounce",
+        variant="warning",
+        action="shake",
         title="最新訊息"
       )
-      span.ml-1 {{ msg }}
+      lah-fa-icon(
+        v-else
+        icon="clock-rotate-left",
+        title="歷史訊息"
+      )
+      .ml-1 {{ msg }}
 </template>
 
 <script>
