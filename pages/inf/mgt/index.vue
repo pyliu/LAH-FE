@@ -7,10 +7,11 @@ div(v-cloak)
           div 地政系統管理儀表板
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         div: a(
-        :href="`${this.legacyUrl}/dashboard.html`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ) 舊版
+          :href="`${this.legacyUrl}/dashboard.html`",
+          target="_blank",
+          rel="noreferrer noopener"
+        )
+          lah-fa-icon(icon="clock-rotate-left") 舊版
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 本頁面提供部分系統管理功能以協助管理師快速修正地政系統錯誤資料。
       ol
