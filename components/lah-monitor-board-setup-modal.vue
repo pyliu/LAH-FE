@@ -29,10 +29,10 @@ b-modal(
   b-list-group(flush): transition-group(name="list"): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
     .d-flex.align-items-center
       lah-fa-icon(
-        v-if="idx === 0"
-        icon="bolt-lightning",
-        variant="warning",
-        action="shake",
+        v-if="idx === messages.length - 1"
+        icon="angles-right",
+        variant="danger",
+        action="move-ltr",
         title="最新訊息"
       )
       lah-fa-icon(
@@ -137,7 +137,10 @@ export default {
       this.ssl = this.systemConfigs.monitor?.ssl
     },
     addMessage (msg) {
-      this.messages.unshift(`${this.$utils.time()} ${msg}`)
+      this.messages.push(`${this.$utils.time()} ${msg}`)
+      if (this.messages.length > 5) {
+        this.messages = this.messages.slice(-5)
+      }
     },
     async imapTest () {
       if (this.hostOK && !this.imapTesting) {
