@@ -137,7 +137,7 @@ export default {
         try {
           this.imapOK = false
           this.imapTesting = true
-          this.addMessage(`⚙ 測試${this.ssl ? 'SSL' : ''} IMAP 伺服器連線中 ... `)
+          this.addMessage(`🔘 測試${this.ssl ? 'SSL' : ''} IMAP 伺服器連線中 ... `)
           const data = await this.post(this.$consts.API.JSON.MONITOR, {
             type: 'imap_open',
             host: this.host,
