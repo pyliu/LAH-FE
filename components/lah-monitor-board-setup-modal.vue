@@ -67,6 +67,9 @@ export default {
     },
     imapPort () {
       return this.ssl ? 993 : 143
+    },
+    monitorConfigs () {
+      return this.systemConfigs?.monitor
     }
   },
   watch: {
@@ -78,6 +81,9 @@ export default {
     },
     password (val) {
       this.addTestImapMessage()
+    },
+    monitorConfigs (dontcare) {
+      this.loadConfig()
     }
   },
   created () {
@@ -96,9 +102,6 @@ export default {
       })
     }, 1500)
     this.addTestHostMessage()
-  },
-  mounted () {
-    this.timeout(() => this.loadConfig(), 1000)
   },
   methods: {
     show () {
