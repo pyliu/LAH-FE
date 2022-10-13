@@ -26,22 +26,21 @@ b-modal(
     @click="update"
   ) 確定修改
   lah-fa-icon(icon="list-alt", variant="secondary") 連線測試
-  b-list-group(flush): transition-group(name="list"): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
-    .d-flex.align-items-center
-      lah-fa-icon(
-        v-if="idx === messages.length - 1"
-        icon="angles-right",
-        variant="danger",
-        action="move-ltr",
-        title="最新訊息"
-      )
-      lah-fa-icon(
-        v-else
-        icon="clock-rotate-left",
-        variant="muted",
-        title="歷史訊息"
-      )
-      .ml-1.s-90 {{ msg }}
+  transition-group(name="list"): .d-flex.align-items-center.my-1.p-1(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
+    lah-fa-icon(
+      v-if="idx === messages.length - 1"
+      icon="angles-right",
+      variant="danger",
+      action="move-ltr",
+      title="最新訊息"
+    )
+    lah-fa-icon(
+      v-else
+      icon="clock-rotate-left",
+      variant="muted",
+      title="歷史訊息"
+    )
+    .ml-1 {{ msg }}
 </template>
 
 <script>
