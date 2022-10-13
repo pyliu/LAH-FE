@@ -41,7 +41,7 @@ b-modal(
         variant="muted",
         title="歷史訊息"
       )
-      .ml-1 {{ msg }}
+      .ml-1.s-90 {{ msg }}
 </template>
 
 <script>
