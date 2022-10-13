@@ -38,6 +38,7 @@ b-modal(
       lah-fa-icon(
         v-else
         icon="clock-rotate-left",
+        variant="muted",
         title="歷史訊息"
       )
       .ml-1 {{ msg }}
