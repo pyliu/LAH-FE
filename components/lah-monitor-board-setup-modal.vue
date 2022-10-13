@@ -137,7 +137,7 @@ export default {
         try {
           this.imapOK = false
           this.imapTesting = true
-          this.addMessage(`測試${this.ssl ? 'SSL' : ''} IMAP 伺服器連線中 ... `)
+          this.addMessage(`⚙ 測試${this.ssl ? 'SSL' : ''} IMAP 伺服器連線中 ... `)
           const data = await this.post(this.$consts.API.JSON.MONITOR, {
             type: 'imap_open',
             host: this.host,
@@ -155,12 +155,12 @@ export default {
         }
       }
       if (!this.hostOK) {
-        return `❗ ${this.host} 無法連線`
+        return `⚠ ${this.host} 無法連線`
       }
       if (this.imapTesting) {
-        return `測試 ${this.account} IMAP連線 ${this.host} 中 ... 🚧`
+        return `⚠ 測試 ${this.account} IMAP連線 ${this.host} 中 ... `
       }
-      return '未知的錯誤'
+      return '❌ 未知的錯誤'
     },
     async ping (ip) {
       this.hostOK = false
