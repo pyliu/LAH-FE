@@ -91,15 +91,14 @@ export default {
     headMessages () {
       // collect records within 6 hrs
       const now = +new Date()
+      // message array order is descending by timestamp
       // retrive message within a day
       let heads = this.messages.filter((item, idx, arr) => now - item.timestamp * 1000 < 24 * 60 * 60 * 1000)
-      // remove duplicates items (only keeos the latest one)
+      // remove duplicates items (only keeps the latest one)
       heads = heads.filter((value, index, self) => index === self.findIndex(t => t.subject === value.subject))
-      if (heads?.length < 3) {
-        this.pushBrokenData(heads, 'P8-2')
-        this.pushBrokenData(heads, 'P7-102')
-        this.pushBrokenData(heads, 'hb-114')
-      }
+      this.pushBrokenData(heads, 'P8-2')
+      this.pushBrokenData(heads, 'P7-102')
+      this.pushBrokenData(heads, 'hb-114')
       return heads
     },
     light () {
