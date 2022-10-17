@@ -91,8 +91,11 @@ export default {
     headMessages () {
       // collect records within 6 hrs
       const now = +new Date()
-      const heads = this.messages.filter((item, idx, arr) => now - item.timestamp * 1000 < 6 * 60 * 60 * 1000)
-      if (heads?.length !== 3) {
+      // retrive message within a day
+      let heads = this.messages.filter((item, idx, arr) => now - item.timestamp * 1000 < 24 * 60 * 60 * 1000)
+      // remove duplicates items (only keeos the latest one)
+      heads = heads.filter((value, index, self) => index === self.findIndex(t => t.subject === value.subject))
+      if (heads?.length < 3) {
         this.pushBrokenData(heads, 'P8-2')
         this.pushBrokenData(heads, 'P7-102')
         this.pushBrokenData(heads, 'hb-114')
