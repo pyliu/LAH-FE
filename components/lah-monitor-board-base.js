@@ -169,7 +169,8 @@ export default {
           })
           .then(({ data }) => {
             if (this.$utils.statusCheck(data.status)) {
-              this.messages = [...data.raw]
+              // sort by timestamp descending
+              this.messages = [...data.raw?.sort((a, b) => b.timestamp - a.timestamp)]
             } else {
               this.$utils.warn(data.message)
             }
