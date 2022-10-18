@@ -154,21 +154,20 @@ export default {
   },
   watch: {
     message (dontcare) {
-      clearTimeout(this.clearTimer)
       this.clearMessage()
     }
   },
-  created () {
-    this.clearMessage = this.$utils.debounce(() => {
-      this.timeout(() => {
-        this.message = ''
-      }, 5000).then((timer) => {
-        this.clearTimer = timer
-      })
-    }, 5000)
-  },
+  created () {},
   mounted () {},
   methods: {
+    clearMessage () {
+      clearTimeout(this.clearTimer)
+      this.timeout(() => {
+        this.message = ''
+      }, 10000).then((timer) => {
+        this.clearTimer = timer
+      })
+    },
     detail (caseId) {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
         props: { caseId }
