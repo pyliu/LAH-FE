@@ -66,6 +66,8 @@ b-card
         @click="checkSurCase"
       ) 測量問題案件檢測
 
+    lah-transition: div(v-if="!$utils.empty(message)") {{ message }}
+
     lah-transition(appear): b-card(v-if="foundRegCases")
       h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(登記)
       b-list-group(flush)
@@ -132,7 +134,9 @@ export default {
     regCases: [],
     valCases: [],
     surCases: [],
-    paymentData: []
+    paymentData: [],
+    message: '',
+    clearTimer: null
   }),
   computed: {
     foundRegCases () {
@@ -148,8 +152,21 @@ export default {
       return this.surCases?.length > 0
     }
   },
-  watch: {},
-  created () {},
+  watch: {
+    message (dontcare) {
+      this.clearMessage()
+    }
+  },
+  created () {
+    this.clearMessage = this.$utils.debounce(() => {
+      clearTimeout(this.clearTimer)
+      this.timeout(() => {
+        this.message = ''
+      }, 5000).then((timer) => {
+        this.clearTimer = timer
+      })
+    }, 5000)
+  },
   mounted () {},
   methods: {
     detail (caseId) {
@@ -164,9 +181,12 @@ export default {
       this.regCases = []
       this.valCases = []
       this.isBusy = true
+      this.message = `${this.timestamp()} 查詢中 ...`
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type
       }).then((res) => {
+        const caseType = type.startsWith('val') ? '地價' : '登記'
+        const prefix = `檢測「${caseType}案件」跨所註記問題`
         if (this.$utils.statusCheck(res.data.status)) {
           if (type === 'xcase-check') {
             this.regCases = res.data.case_ids
@@ -174,11 +194,13 @@ export default {
             this.valCases = res.data.case_ids
           }
         } else if (res.data.status === this.$consts.XHR_STATUS_CODE.DEFAULT_FAIL) {
-          this.success('🟢 目前一切正常', {
-            title: '檢測案件跨所註記問題'
-          })
+          this.message = `${this.timestamp()} 🟢 ${prefix}，目前一切正常`
+          // this.success('🟢 目前一切正常', {
+          //   title: '檢測案件跨所註記問題'
+          // })
         } else {
-          this.alert(res.data.message, { title: '檢測案件跨所註記問題' })
+          this.message = `${this.timestamp()} 🔴${prefix}，${res.data.messag}`
+          // this.alert(res.data.message, { title: '檢測案件跨所註記問題' })
         }
       }).catch((err) => {
         this.$utils.error(err)
@@ -198,17 +220,21 @@ export default {
         type,
         id
       }).then((res) => {
+        const caseType = type.endsWith('val') ? '地價' : '登記'
+        const prefix = `修正「${caseType}案件」跨所註記`
         if (this.$utils.statusCheck(res.data.status)) {
-          this.success(`${this.$utils.caseId(id)} 已修正跨所註記。`, {
-            title: '跨所註記遺失案件修正狀態',
-            subtitle: this.$utils.caseId(id)
-          })
+          this.message = `${this.timestamp()} 🟢 ${prefix} ${this.$utils.caseId(id)} 成功`
+          // this.success(`${this.$utils.caseId(id)} 已修正跨所註記。`, {
+          //   title: '跨所註記遺失案件修正狀態',
+          //   subtitle: this.$utils.caseId(id)
+          // })
           callback && callback()
         } else {
-          this.warning(`${this.$utils.caseId(id)} 跨所註記修正失敗！(${res.data.status})`, {
-            title: '跨所註記遺失案件修正狀態',
-            subtitle: this.$utils.caseId(id)
-          })
+          this.message = `${this.timestamp()} 🟡 ${prefix} ${this.$utils.caseId(id)} 失敗`
+          // this.warning(`${this.$utils.caseId(id)} 跨所註記修正失敗！(${res.data.status})`, {
+          //   title: '跨所註記遺失案件修正狀態',
+          //   subtitle: this.$utils.caseId(id)
+          // })
         }
       }).catch((err) => {
         this.$utils.error(err)
@@ -236,7 +262,8 @@ export default {
         if (this.$utils.statusCheck(res.data.status)) {
           this.paymentData = res.data.raw
         } else {
-          this.success(res.data.message, { title: '檢測悠遊卡付款問題' })
+          this.message = `${this.timestamp()} 🟢 檢測悠遊卡付款問題：${res.data.message}`
+          // this.success(res.data.message, { title: '檢測悠遊卡付款問題' })
         }
       }).catch((err) => {
         this.$utils.error(err)
@@ -288,10 +315,12 @@ export default {
             pc_num: pcNumber
           }).then((res) => {
             if (this.$utils.statusCheck(res.data.status)) {
-              this.success('修正 日期: ' + qday + ', 電腦給號: ' + pcNumber + ' 成功', { title: '悠遊卡付款失敗修正' })
+              this.message = `${this.timestamp()} 🟢 修正：日期: ${qday}, 電腦給號: ${pcNumber} 成功`
+              // this.success('修正 日期: ' + qday + ', 電腦給號: ' + pcNumber + ' 成功', { title: '悠遊卡付款失敗修正' })
               this.paymentData = this.paymentData.filter(item => !(item.AA01 === qday && item.AA04 === pcNumber))
             } else {
-              this.alert(res.data.message, { title: '悠遊卡付款失敗修正' })
+              this.message = `${this.timestamp()} 🔴 修正失敗：${res.data.message}`
+              // this.alert(res.data.message, { title: '悠遊卡付款失敗修正' })
             }
           }).catch((err) => {
             this.error = err
@@ -310,7 +339,8 @@ export default {
         if (this.$utils.statusCheck(res.data.status)) {
           this.surCases = res.data.ids
         } else {
-          this.success(res.data.message, { title: '檢測測量問題案件' })
+          this.message = `${this.timestamp()} 🟢 ${res.data.message}`
+          // this.success(res.data.message, { title: '檢測測量問題案件' })
         }
       }).catch((err) => {
         this.$utils.error(err)
@@ -331,17 +361,19 @@ export default {
             FIX_COUNT: true
           }).then((res) => {
             if (this.$utils.statusCheck(res.data.status)) {
-              this.success(`${this.$utils.caseId(id)} 案件修正成功！`, {
-                title: '修正複丈案件',
-                subtitle: id
-              })
+              this.message = `${this.timestamp()} 🟢 ${this.$utils.caseId(id)} 案件修正成功！`
+              // this.success(`${this.$utils.caseId(id)} 案件修正成功！`, {
+              //   title: '修正複丈案件',
+              //   subtitle: id
+              // })
               this.surCases = this.surCases.filter(item => item !== id)
             } else {
               const msg = '回傳狀態碼不正確!【' + res.data.message + '】'
-              this.alert(msg, {
-                title: '修正複丈案件失敗',
-                subtitle: id
-              })
+              this.message = `${this.timestamp()} 🟡 修正複丈案件失敗：${msg} (${id})`
+              // this.alert(msg, {
+              //   title: '修正複丈案件失敗',
+              //   subtitle: id
+              // })
             }
           }).catch((err) => {
             this.$utils.error(err)
@@ -350,6 +382,20 @@ export default {
           })
         }
       })
+    },
+    timestamp (full = false) {
+      const now = new Date()
+      if (full) {
+        return now.getFullYear() + '-' +
+          ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+          ('0' + now.getDate()).slice(-2) + ' ' +
+          ('0' + now.getHours()).slice(-2) + ':' +
+          ('0' + now.getMinutes()).slice(-2) + ':' +
+          ('0' + now.getSeconds()).slice(-2)
+      }
+      return ('0' + now.getHours()).slice(-2) + ':' +
+        ('0' + now.getMinutes()).slice(-2) + ':' +
+        ('0' + now.getSeconds()).slice(-2)
     }
   }
 }
