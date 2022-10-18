@@ -154,12 +154,12 @@ export default {
   },
   watch: {
     message (dontcare) {
+      clearTimeout(this.clearTimer)
       this.clearMessage()
     }
   },
   created () {
     this.clearMessage = this.$utils.debounce(() => {
-      clearTimeout(this.clearTimer)
       this.timeout(() => {
         this.message = ''
       }, 5000).then((timer) => {
