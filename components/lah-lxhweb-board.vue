@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card.shadow(:border-variant="borderVariant")
+b-card(:border-variant="borderVariant")
   template(#header)
     .d-flex.w-100.justify-content-between
       h6.my-auto.font-weight-bolder

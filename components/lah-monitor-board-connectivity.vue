@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body)
+b-card(no-body, :border-variant="borderVariant")
   template(#header): .d-flex
     lah-fa-icon.mr-auto(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
@@ -95,6 +95,7 @@ b-card(no-body)
 import LahMonitorBoardConnectivitySetup from '~/components/lah-monitor-board-connectivity-setup.vue'
 export default {
   name: 'LahMonitorBoardConnectivity',
+  emit: ['light-update'],
   components: { LahMonitorBoardConnectivitySetup },
   props: {
     maximized: { type: Boolean, default: false }
@@ -134,6 +135,12 @@ export default {
       if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'rgba(220, 53, 29, 0.6)' }
       if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'rgba(255, 193, 7, 0.6)' }
       return 'rgba(40, 167, 69, 0.6)'
+    },
+    borderVariant () {
+      if (this.light !== 'success') {
+        return this.light
+      }
+      return ''
     }
   },
   watch: {
@@ -144,6 +151,9 @@ export default {
     sortBy (val) {
       this.setCache('lah-monitor-board-connectivity-sortby', val)
       this.loadWatchTarget()
+    },
+    light (nlight, olight) {
+      this.emitLightUpdate(nlight, olight)
     }
   },
   async created () {
@@ -154,9 +164,11 @@ export default {
   mounted () {
     this.loadWatchTarget()
     // this.loadAPConnectionCount()
+    this.emitLightUpdate(this.light, '')
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
+    this.emitLightUpdate('', this.light)
   },
   methods: {
     loadWatchTarget () {
@@ -316,7 +328,14 @@ export default {
           this.isBusy = false
         })
     },
-    _reload () { /* placeholder for debouncing reload method */ }
+    _reload () { /* placeholder for debouncing reload method */ },
+    emitLightUpdate (n, o) {
+      this.$emit('light-update', {
+        name: 'LahMonitorBoardConnectivity',
+        new: n,
+        old: o
+      })
+    }
   }
 }
 </script>

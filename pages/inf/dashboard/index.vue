@@ -45,9 +45,9 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
   lah-transition: b-card-group.mb-4(deck, v-if="displayXAP")
-      lah-monitor-board-xap
-      lah-monitor-board-apconn
-      lah-monitor-board-connectivity
+      lah-monitor-board-xap(@light-update="lightUpdate")
+      lah-monitor-board-apconn(@light-update="lightUpdate")
+      lah-monitor-board-connectivity(@light-update="lightUpdate")
       //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
       //- lah-monitor-board-apconn(line, all)
   div(v-if="isHA")

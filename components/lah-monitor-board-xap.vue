@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body)
+b-card(no-body, :border-variant="borderVariant")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
@@ -61,6 +61,7 @@ b-card(no-body)
 import LahMonitorBoardXapTrend from '~/components/lah-monitor-board-xap-trend.vue'
 export default {
   name: 'LahMonitorBoardXap',
+  emit: ['light-update'],
   components: { LahMonitorBoardXapTrend },
   props: {
     maximized: { type: Boolean, default: false }
@@ -106,6 +107,12 @@ export default {
     light () {
       return this.apStyles[0]
     },
+    borderVariant () {
+      if (this.light !== 'success') {
+        return this.light
+      }
+      return ''
+    },
     cpuStyles () {
       // return [color, action, size, icon]
       if (this.jbossCpuUtilization > 90) { return ['danger', 'tremble', '2x', 'microchip'] }
@@ -128,6 +135,11 @@ export default {
       return ['success', 'breath', 'sm', 'wave-square']
     }
   },
+  watch: {
+    light (nlight, olight) {
+      this.emitLightUpdate(nlight, olight)
+    }
+  },
   created () {
     this.modalId = this.$utils.uuid()
   },
@@ -139,9 +151,11 @@ export default {
       this.$refs.chart?.build()
       this.loadAPConnectionCount()
     }, 0)
+    this.emitLightUpdate(this.light, '')
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
+    this.emitLightUpdate('', this.light)
   },
   methods: {
     popupTrending ({ detail }) {
@@ -233,6 +247,13 @@ export default {
           // reload every 15s
           this.timeout(this.loadAPConnectionCount, 15 * 1000).then((handler) => { this.reloadTimer = handler })
         })
+    },
+    emitLightUpdate (n, o) {
+      this.$emit('light-update', {
+        name: 'LahMonitorBoardXap',
+        new: n,
+        old: o
+      })
     }
   }
 }

@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body)
+b-card(no-body, :border-variant="borderVariant")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
@@ -100,6 +100,7 @@ b-card(no-body)
 import LahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'LahMonitorBoardApconn',
+  emit: ['light-update'],
   components: { LahUserCard },
   props: {
     maximized: { type: Boolean, default: false },
@@ -146,6 +147,12 @@ export default {
       if (this.loadItems.find(item => item[1] > this.lightCriteria.red * this.factor)) { return 'danger' }
       if (this.loadItems.find(item => item[1] > this.lightCriteria.yellow * this.factor)) { return 'warning' }
       return 'success'
+    },
+    borderVariant () {
+      if (this.light !== 'success') {
+        return this.light
+      }
+      return ''
     },
     totalCount () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
     dbStyles () {
@@ -194,7 +201,10 @@ export default {
   },
   watch: {
     allSwitch (dontcare) { this.reloadConn() },
-    apIp (dontcare) { this.reloadConn() }
+    apIp (dontcare) { this.reloadConn() },
+    light (nlight, olight) {
+      this.emitLightUpdate(nlight, olight)
+    }
   },
   created () {
     this.modalId = this.$utils.uuid()
@@ -205,6 +215,10 @@ export default {
   },
   mounted () {
     this.loadAPConnectionCount()
+    this.emitLightUpdate(this.light, '')
+  },
+  beforeDestroy () {
+    this.emitLightUpdate('', this.light)
   },
   methods: {
     reloadConn () { /* placeholder for loadAPConnectionCount  */ },
@@ -346,6 +360,13 @@ export default {
             this.reloadTimer = handler
           })
         })
+    },
+    emitLightUpdate (n, o) {
+      this.$emit('light-update', {
+        name: 'LahMonitorBoardApconn',
+        new: n,
+        old: o
+      })
     }
   }
 }
