@@ -66,7 +66,7 @@ div(v-cloak)
     b-card-group(deck)
       lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
       lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-lxhweb-board(target-ip="L3HWEB")
+      lah-lxhweb-board(@light-update="lightUpdate", target-ip="L3HWEB")
   div(v-else)
     b-card-group.mb-4(deck)
       lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
@@ -75,7 +75,7 @@ div(v-cloak)
     b-card-group.mb-4(deck)
       lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
       lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-lxhweb-board(target-ip="L3HWEB")
+      lah-lxhweb-board(@light-update="lightUpdate", target-ip="L3HWEB")
   hr
 </template>
 

@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card.shadow(border-variant="secondary")
+b-card.shadow(:border-variant="borderVariant")
   template(#header)
     .d-flex.w-100.justify-content-between
       h6.my-auto.font-weight-bolder
@@ -21,8 +21,9 @@ b-card.shadow(border-variant="secondary")
 
 <script>
 export default {
+  emit: ['light-update'],
   props: {
-    targetIp: { type: String, require: true }
+    targetIp: { type: String, require: true, default: 'L3HWEB' }
   },
   fetchOnServer: true,
   data: () => ({
@@ -85,6 +86,16 @@ export default {
       }
       return 'secondary'
     },
+    borderVariant () {
+      switch (this.headerLight) {
+        case 'danger':
+          return 'danger'
+        case 'warning':
+          return 'warning'
+        default:
+          return 'secondary'
+      }
+    },
     brokenTableCount () {
       return this.$utils.empty(this.brokenTableRaw) ? 0 : this.brokenTableRaw.length
     },
@@ -113,6 +124,15 @@ export default {
     },
     pingInterval () {
       return this.$utils.empty(this.configs) ? 5 * 60 * 1000 : parseInt(this.configs.PING_INTERVAL_SECONDS) * 1000
+    }
+  },
+  watch: {
+    headerLight (nlight, olight) {
+      this.$emit('light-update', {
+        name: 'LXHWEB-BOARD',
+        new: nlight,
+        old: olight
+      })
     }
   },
   mounted () {
