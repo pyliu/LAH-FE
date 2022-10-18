@@ -3,7 +3,7 @@ b-card(:border-variant="borderVariant")
   template(#header)
     .d-flex.w-100.justify-content-between
       h6.my-auto.font-weight-bolder
-        lah-fa-icon(icon="traffic-light" size="lg" :variant="headerLight")
+        lah-fa-icon(icon="circle" :variant="headerLight")
           | {{ header }}
       b-button-group
         lah-button(v-if="showBrokenBtn" icon="unlink" variant="danger" no-border action="damage" title="檢視損毀資料表" :badge-text="String(brokenTableCount)" @click="showBrokenTable")
