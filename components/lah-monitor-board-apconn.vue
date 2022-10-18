@@ -363,7 +363,7 @@ export default {
     },
     emitLightUpdate (n, o) {
       this.$emit('light-update', {
-        name: 'LahMonitorBoardApconn',
+        name: `LahMonitorBoardApconn${this.all}`,
         new: n,
         old: o
       })

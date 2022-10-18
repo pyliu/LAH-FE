@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body)
+b-card(no-body, :border-variant="borderVariant")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
@@ -62,6 +62,7 @@ b-card(no-body)
 <script>
 export default {
   name: 'LahMonitorBoardXapTrend',
+  emit: ['light-update'],
   props: {
     maximized: { type: Boolean, default: false },
     office: { type: String, default: '桃園所' },
@@ -113,6 +114,12 @@ export default {
       }
       return 'success'
     },
+    borderVariant () {
+      if (this.light !== 'success') {
+        return this.light
+      }
+      return ''
+    },
     apIp () {
       // xapMap from store
       const xaps = [...this.xapMap]
@@ -136,7 +143,10 @@ export default {
         this.load()
       }
     },
-    watchOffice (str) { this.header = `${str} 跨域AP 連線趨勢圖` }
+    watchOffice (str) { this.header = `${str} 跨域AP 連線趨勢圖` },
+    light (nlight, olight) {
+      this.emitLightUpdate(nlight, olight)
+    }
   },
   created () {
     this.modalId = this.$utils.uuid()
@@ -147,9 +157,11 @@ export default {
   },
   mounted () {
     this.load(true)
+    this.emitLightUpdate(this.light, '')
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
+    this.emitLightUpdate('', this.light)
   },
   methods: {
     popupMaximize () {
@@ -285,6 +297,13 @@ export default {
           clearTimeout(this.reloadTimer)
           this.timeout(() => this.load(), this.reloadTime * 1000).then((handler) => { this.reloadTimer = handler })
         })
+    },
+    emitLightUpdate (n, o) {
+      this.$emit('light-update', {
+        name: 'LahMonitorBoardXapTrend',
+        new: n,
+        old: o
+      })
     }
   }
 }

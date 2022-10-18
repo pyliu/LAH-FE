@@ -71,14 +71,14 @@ div(v-cloak)
       :interval="0"
     )
       b-carousel-slide: template(#img): b-card-group.card-body-fixed-height(deck)
-        lah-monitor-board-xap
-        lah-monitor-board-xap-trend(office="桃園所", watch-top-xap)
-        lah-monitor-board-apconn
+        lah-monitor-board-xap(@light-update="lightUpdate")
+        lah-monitor-board-xap-trend(office="桃園所", @light-update="lightUpdate", watch-top-xap)
+        lah-monitor-board-apconn(@light-update="lightUpdate")
       b-carousel-slide: template(#img): b-card-group.card-body-fixed-height(deck)
         //- lah-monitor-board-xap
-        lah-monitor-board-apconn(bar, all)
-        lah-monitor-board-connectivity
-        lah-lxhweb-board(target-ip="L3HWEB")
+        lah-monitor-board-apconn(bar, all, @light-update="lightUpdate")
+        lah-monitor-board-connectivity(@light-update="lightUpdate")
+        lah-lxhweb-board(target-ip="L3HWEB", @light-update="lightUpdate")
   b-carousel(
     ref="boards",
     :interval="0"
