@@ -127,11 +127,11 @@ export default {
     dbTotal: 0,
     jbossCpuUtilization: 0,
     lightCriteria: {
-      blalck: 32,
-      purple: 16,
-      red: 8,
-      yellow: 4,
-      green: 2,
+      blalck: 160,
+      purple: 80,
+      red: 40,
+      yellow: 30,
+      green: 20,
       gray: 0
     },
     reloadTimer: null
@@ -140,7 +140,7 @@ export default {
     word () { return this.allSwitch ? '系統' : '使用者' },
     header () { return `AP ${this.word} 連線狀態` },
     icon () { return this.allSwitch ? 'server' : 'users' },
-    factor () { return this.allSwitch ? 3 : 1 },
+    factor () { return this.allSwitch ? 5 : 1 },
     light () {
       if (this.loadItems.find(item => item[1] > this.lightCriteria.black * this.factor)) { return 'danger' }
       if (this.loadItems.find(item => item[1] > this.lightCriteria.purple * this.factor)) { return 'danger' }
