@@ -131,7 +131,7 @@ export default {
       purple: 80,
       red: 40,
       yellow: 30,
-      green: 20,
+      green: 4,
       gray: 0
     },
     reloadTimer: null
