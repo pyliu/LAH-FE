@@ -34,8 +34,10 @@ b-card(:border-variant="border")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫 HACMP 狀態，每天 08:00 及 13:00 檢查
-        li 每15分鐘重新檢查一次
+        li 顯示資料庫 HACMP 狀態
+        b-img(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
+        li 每天 08:00 及 13:00 檢查
+        li 每15分鐘重新更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
