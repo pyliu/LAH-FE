@@ -35,7 +35,7 @@ b-card(:border-variant="border")
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示資料庫 Data Guard 狀態
-        li 檢視P8-2、P7-102及hb-114內相關文字對應是否相符合，如下圖。
+        li 檢視P8-2、P7-102及hb-114內相關文字(log sequence及switchover status)狀態，如下圖。
         b-img(src="~/assets/img/mb_dataguard.jpg", fluid, thumbnail)
         li 每天 08:00 及 13:00 檢查
         li 儀錶板每15分鐘更新一次
