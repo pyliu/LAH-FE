@@ -170,19 +170,23 @@ export default {
         default:
           keyword = `未知選項 ${opt}`
       }
-      let found = this.messages.find(item =>
+      const notFound = {
+        from: 'oracle@orahaha1',
+        id: 0,
+        mailbox: 'INBOX',
+        message: `找不到 ${keyword} 已完成的通知郵件`,
+        subject: `${keyword} 未完成！`,
+        timestamp: this.$utils.nowTs() / 1000 - (ts) / 1000
+      }
+      if (this.messages.length === 0) {
+        return notFound
+      }
+      const found = this.messages.find(item =>
         item.subject.includes(keyword)
       )
       // prepare dummy item to indicate the missing info
       if (!found) {
-        found = {
-          from: 'oracle@orahaha1',
-          id: 0,
-          mailbox: 'INBOX',
-          message: `找不到 ${keyword} 已完成的通知郵件`,
-          subject: `${keyword} 未完成！`,
-          timestamp: this.$utils.nowTs() / 1000 - (ts) / 1000
-        }
+        return notFound
       }
       return found
     }
