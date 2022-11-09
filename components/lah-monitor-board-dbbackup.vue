@@ -95,11 +95,26 @@ export default {
     opt2Ms () {
       return this.opt4Ms
     },
-    opt2Message () { return this.findItem(2) },
+    opt2Message () {
+      if (this.messages.length === 0) {
+        return this.notFoundByOpt(2)
+      }
+      return this.findItem(2)
+    },
     opt4Ms () { return this.fetchDay * 24 * 60 * 60 * 1000 },
-    opt4Message () { return this.findItem(4) },
+    opt4Message () {
+      if (this.messages.length === 0) {
+        return this.notFoundByOpt(4)
+      }
+      return this.findItem(4)
+    },
     opt5Ms () { return 60 * 60 * 1000 },
-    opt5Message () { return this.findItem(5) },
+    opt5Message () {
+      if (this.messages.length === 0) {
+        return this.notFoundByOpt(5)
+      }
+      return this.findItem(5)
+    },
     headMessages () {
       return [this.opt2Message, this.opt4Message, this.opt5Message].filter(item => item)
     },
@@ -154,7 +169,7 @@ export default {
       }
       return cssList
     },
-    findItem (opt) {
+    notFoundByOpt (opt) {
       let keyword = `BACKUP OPTION ${opt}`
       let ts = 0
       switch (opt) {
@@ -170,7 +185,7 @@ export default {
         default:
           keyword = `未知選項 ${opt}`
       }
-      const notFound = {
+      return {
         from: 'oracle@orahaha1',
         id: 0,
         mailbox: 'INBOX',
@@ -178,9 +193,13 @@ export default {
         subject: `${keyword} 未完成！`,
         timestamp: this.$utils.nowTs() / 1000 - (ts) / 1000
       }
+    },
+    findItem (opt) {
+      const notFound = this.notFoundByOpt(opt)
       if (this.messages.length === 0) {
         return notFound
       }
+      const keyword = `BACKUP OPTION ${opt}`
       const found = this.messages.find(item =>
         item.subject.includes(keyword)
       )
