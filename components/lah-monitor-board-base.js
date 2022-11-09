@@ -159,7 +159,7 @@ export default {
     },
     load (type, keyword, days = 1) {
       return new Promise((resolve, reject) => {
-        this.messages.length = 0
+        this.messages = []
         this.isBusy = true
         this.$axios
           .post(this.$consts.API.JSON.MONITOR, {
