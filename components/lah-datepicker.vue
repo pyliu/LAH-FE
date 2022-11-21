@@ -1,37 +1,37 @@
 <template lang="pug">
-  .d-flex
-    b-datepicker(
-      v-model="startDateObj"
-      placeholder="📅 開始日期"
-      boundary="viewport"
-      title="開始日期"
-      label-help="可使用方向鍵操作移動"
-      :size="size"
-      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-      :max="today"
-      :state="stateIndicatorFlag"
-      value-as-date
-      hide-header
-      dropleft
-      v-b-tooltip.hover
-    )
-    .my-auto ～
-    b-datepicker(
-      v-model="endDateObj"
-      placeholder="📆 結束日期"
-      boundary="viewport"
-      title="結束日期"
-      label-help="可使用方向鍵操作移動"
-      :size="size"
-      :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-      :max="lastDayofMonth"
-      :min="startDateObj"
-      :state="stateIndicatorFlag"
-      value-as-date
-      hide-header
-      dark
-      v-b-tooltip.hover
-    )
+.d-flex
+  b-datepicker(
+    v-model="startDateObj"
+    placeholder="📅 開始日期"
+    boundary="viewport"
+    title="開始日期"
+    label-help="可使用方向鍵操作移動"
+    :size="size"
+    :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+    :max="today"
+    :state="stateIndicatorFlag"
+    value-as-date
+    hide-header
+    dropleft
+    v-b-tooltip.hover
+  )
+  .my-auto ～
+  b-datepicker(
+    v-model="endDateObj"
+    placeholder="📆 結束日期"
+    boundary="viewport"
+    title="結束日期"
+    label-help="可使用方向鍵操作移動"
+    :size="size"
+    :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+    :max="lastDayofMonth"
+    :min="startDateObj"
+    :state="stateIndicatorFlag"
+    value-as-date
+    hide-header
+    dark
+    v-b-tooltip.hover
+  )
 </template>
 
 <script>
