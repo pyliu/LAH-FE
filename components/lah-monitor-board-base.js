@@ -161,29 +161,31 @@ export default {
       return new Promise((resolve, reject) => {
         this.messages = []
         this.isBusy = true
-        this.$axios
-          .post(this.$consts.API.JSON.MONITOR, {
-            type,
-            keyword,
-            days
-          })
-          .then(({ data }) => {
-            if (this.$utils.statusCheck(data.status)) {
-              // sort by timestamp descending
-              this.messages = [...data.raw?.sort((a, b) => b.timestamp - a.timestamp)]
-            } else {
-              this.$utils.warn(data.message)
-            }
-            resolve(data)
-          })
-          .catch((err) => {
-            reject(new Error(err.message))
-            this.$utils.error(err)
-          })
-          .finally(() => {
-            this.updated = this.$utils.now().replace(this.today, '')
-            this.isBusy = false
-          })
+        this.$nextTick(() => {
+          this.$axios
+            .post(this.$consts.API.JSON.MONITOR, {
+              type,
+              keyword,
+              days
+            })
+            .then(({ data }) => {
+              if (this.$utils.statusCheck(data.status)) {
+                // sort by timestamp descending
+                this.messages = [...data.raw?.sort((a, b) => b.timestamp - a.timestamp)]
+              } else {
+                this.$utils.warn(data.message)
+              }
+              resolve(data)
+            })
+            .catch((err) => {
+              reject(new Error(err.message))
+              this.$utils.error(err)
+            })
+            .finally(() => {
+              this.updated = this.$utils.now().replace(this.today, '')
+              this.isBusy = false
+            })
+        })
       })
     },
     async reload () {
