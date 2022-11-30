@@ -2,17 +2,15 @@
 b-card(no-body, :border-variant="borderVariant")
   template(#header): .d-flex
     lah-fa-icon.mr-auto(icon="circle", :variant="light"): strong {{ header }}
-    b-link(:href="srmasWeatherUrl", target="_blank", title="開啟新視窗顯示SRMAS天氣圖") 網路天氣圖
     b-button-group(size="sm")
       lah-button(
-        icon="sync-alt",
-        action="ld-cycle",
-        variant="outline-secondary",
+        icon="cloud-sun",
+        :href="srmasWeatherUrl",
+        target="_blank",
         no-border,
         no-icon-gutter,
-        @click="reloadConn(true)",
-        title="重新讀取"
-      )
+        title="開啟新視窗顯示SRMAS天氣圖"
+      ) 天氣圖
       lah-button(
         :icon="type === 'bar' ? 'chart-line' : 'chart-bar'",
         variant="outline-info",
@@ -40,6 +38,15 @@ b-card(no-body, :border-variant="borderVariant")
         no-icon-gutter,
         @click="$refs.setup.show()",
         title="設定"
+      )
+      lah-button(
+        icon="sync-alt",
+        action="ld-cycle",
+        variant="outline-secondary",
+        no-border,
+        no-icon-gutter,
+        @click="reloadConn(true)",
+        title="重新讀取"
       )
       lah-button(
         v-if="!maximized",
