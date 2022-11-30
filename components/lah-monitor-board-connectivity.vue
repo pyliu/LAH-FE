@@ -2,6 +2,7 @@
 b-card(no-body, :border-variant="borderVariant")
   template(#header): .d-flex
     lah-fa-icon.mr-auto(icon="circle", :variant="light"): strong {{ header }}
+    b-link(:href="srmasWeatherUrl", target="_blank", title="開啟新視窗顯示SRMAS天氣圖") 網路天氣圖
     b-button-group(size="sm")
       lah-button(
         icon="sync-alt",
@@ -119,9 +120,22 @@ export default {
       { text: '名稱', value: 'name' },
       { text: 'IP', value: 'ip' },
       { text: '埠號', value: 'port' }
-    ]
+    ],
+    srmas: new Map([
+      ['HA', '220.1.34.251'],
+      ['HB', '220.1.35.95'],
+      ['HC', '220.1.36.16'],
+      ['HD', '220.1.37.93'],
+      ['HE', '220.1.38.127'],
+      ['HF', '220.1.39.126'],
+      ['HG', '220.1.40.76'],
+      ['HH', '220.1.41.64']
+    ])
   }),
   computed: {
+    srmasWeatherUrl () {
+      return `http://${this.srmas.get(this.site)}/plugins/Weathermap/${this.site}.html`
+    },
     light () {
       if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'danger' }
       if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'danger' }
