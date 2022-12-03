@@ -3,7 +3,7 @@ div
   lah-header
     lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 實價登錄案件控管
+        .my-auto 實價登錄案件控管 ({{ filterDataCount }})
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
           h5 請參照下列步驟搜尋
@@ -55,7 +55,7 @@ div
         )
         lah-button-xlsx.mx-1(
           :jsons="xlsxData",
-          header="非專業代理人案件"
+          header="實價登錄檢核案件"
         )
         lah-countdown-button(
           ref="countdown"
@@ -106,6 +106,7 @@ div
         :current-page="currentPage"
         :caption-append="captionRange"
         :max-height-offset="160"
+        no-caption
       )
     h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 
@@ -120,22 +121,22 @@ div
         :options="advOpts.sectIdOpts",
         title="段小段"
       )
-    //-   b-input-group(prepend="名稱"): b-select(
-    //-     v-model="advOpts.name",
-    //-     :options="advOpts.nameOpts",
-    //-     title="非專代名稱"
-    //-   )
-    //- .center.d-flex.my-1
-    //-   b-input-group.mr-1(prepend="電話"): b-select(
-    //-     v-model="advOpts.tel",
-    //-     :options="advOpts.telOpts",
-    //-     title="非專代電話"
-    //-   )
-    //-   b-input-group(prepend="日期"): b-select(
-    //-     v-model="advOpts.date",
-    //-     :options="advOpts.dateOpts",
-    //-     title="收件日期"
-    //-   )
+      b-input-group(prepend="申報書"): b-select(
+        v-model="advOpts.caseNo",
+        :options="advOpts.caseNoOpts",
+        title="申報書序號"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="地號"): b-select(
+        v-model="advOpts.landNum",
+        :options="advOpts.landNumOpts",
+        title="地號"
+      )
+      b-input-group(prepend="建號"): b-select(
+        v-model="advOpts.buildingNum",
+        :options="advOpts.buildingNumOpts",
+        title="建號"
+      )
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -223,13 +224,13 @@ export default {
     perPage: 20,
     advOpts: {
       sectId: '',
-      sectIdOpts: []
-      // name: '',
-      // nameOpts: [],
-      // tel: '',
-      // telOpts: [],
-      // date: '',
-      // dateOpts: []
+      sectIdOpts: [],
+      landNum: '',
+      landNumOpts: [],
+      caseNo: '',
+      caseNoOpts: [],
+      buildingNum: '',
+      buildingNumOpts: []
     }
   }),
   fetch () {
@@ -237,9 +238,6 @@ export default {
     this.reset()
     // restore cached data if found
     this.getCache(this.cacheKey).then((json) => {
-
-      console.warn(json.baked)
-
       if (this.forceReload || json === false) {
         if (this.isBusy) {
           this.notify('讀取中 ... 請稍後再試', { type: 'warning' })
@@ -306,15 +304,15 @@ export default {
       if (!this.$utils.empty(this.advOpts.sectId)) {
         tags.push(`段小段：${this.advOpts.sectId}`)
       }
-      // if (!this.$utils.empty(this.advOpts.name)) {
-      //   tags.push(`名稱：${this.advOpts.name}`)
-      // }
-      // if (!this.$utils.empty(this.advOpts.tel)) {
-      //   tags.push(`非專代電話：${this.advOpts.tel}`)
-      // }
-      // if (!this.$utils.empty(this.advOpts.date)) {
-      //   tags.push(`收件日期：${this.advOpts.date}`)
-      // }
+      if (!this.$utils.empty(this.advOpts.landNum)) {
+        tags.push(`地號：${this.advOpts.landNum}`)
+      }
+      if (!this.$utils.empty(this.advOpts.buildingNum)) {
+        tags.push(`建號：${this.advOpts.buildingNum}`)
+      }
+      if (!this.$utils.empty(this.advOpts.caseNo)) {
+        tags.push(`申報書序號：${this.advOpts.caseNo}`)
+      }
       return tags
     },
     filterRegBakedData () {
@@ -372,6 +370,9 @@ export default {
               case 'RM15':
                 obj['建號'] = value
                 break
+              case 'P1MP_CASENO':
+                obj['申報書序號'] = value
+                break
               default:
                 obj[key] = value
             }
@@ -384,10 +385,10 @@ export default {
       this.advOpts = {
         ...this.advOpts,
         ...{
-          sectId: ''
-          // name: '',
-          // tel: '',
-          // date: ''
+          sectId: '',
+          landNum: '',
+          buildingNum: '',
+          caseNo: ''
         }
       }
     },
@@ -395,18 +396,19 @@ export default {
       this.advOpts = {
         ...{
           sectId: '',
-          sectIdOpts: []
-          // name: '',
-          // nameOpts: [],
-          // tel: '',
-          // telOpts: [],
-          // date: '',
-          // dateOpts: []
+          sectIdOpts: [],
+          landNum: '',
+          landNumOpts: [],
+          buildingNum: '',
+          buildingNumOpts: [],
+          caseNo: '',
+          caseNoOpts: []
         }
       }
       if (val) {
         const tmp = [...new Map(val.map((item) => {
           return [
+            // 段代碼
             item.RM11,
             {
               value: item.RM11,
@@ -415,13 +417,14 @@ export default {
           ]
         }))].sort()
         this.advOpts.sectIdOpts = [...tmp.map(arr => arr[1])]
-        // this.advOpts.nameOpts = [...new Set(val.map(item => item.AB02))].sort()
-        // this.advOpts.telOpts = [...new Set(val.map(item => item.AB04_NON_SCRIVENER_TEL))].sort()
-        // this.advOpts.dateOpts = [...new Set(val.map(item => item.收件日期))].sort()
+        this.advOpts.landNumOpts = [...new Set(val.map(item => item.RM12))].sort().filter(val => val !== null)
+        this.advOpts.buildingNumOpts = [...new Set(val.map(item => item.RM15))].sort().filter(val => val !== null)
+        this.advOpts.caseNoOpts = [...new Set(val.map(item => item.P1MP_CASENO))].sort().filter(val => val !== null)
         this.advOpts.sectIdOpts.unshift('')
-        // this.advOpts.nameOpts.unshift('')
-        // this.advOpts.telOpts.unshift('')
-        // this.advOpts.dateOpts.unshift('')
+        this.advOpts.landNumOpts.unshift('')
+        this.advOpts.buildingNumOpts.unshift('')
+        this.advOpts.caseNoOpts.unshift('未輸入')
+        this.advOpts.caseNoOpts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -433,27 +436,27 @@ export default {
             return item.RM11.match(this.advOpts.sectId) !== null
           })
         }
-        // const checkName = !this.$utils.empty(this.advOpts.name)
-        // if (checkName) {
-        //   pipelineItems = pipelineItems.filter((item) => {
-        //     return item.AB02 === this.advOpts.name
-        //   })
-        // }
-        // const checkTel = !this.$utils.empty(this.advOpts.tel)
-        // if (checkTel) {
-        //   pipelineItems = pipelineItems.filter((item) => {
-        //     if (item.AB04_NON_SCRIVENER_TEL) {
-        //       return item.AB04_NON_SCRIVENER_TEL.match(this.advOpts.tel) !== null
-        //     }
-        //     return false
-        //   })
-        // }
-        // const checkDate = !this.$utils.empty(this.advOpts.date)
-        // if (checkDate) {
-        //   pipelineItems = pipelineItems.filter((item) => {
-        //     return item.收件日期.match(this.advOpts.date) !== null
-        //   })
-        // }
+        const checkLandNum = !this.$utils.empty(this.advOpts.landNum)
+        if (checkLandNum) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM12 === this.advOpts.landNum
+          })
+        }
+        const checkBuildingNum = !this.$utils.empty(this.advOpts.buildingNum)
+        if (checkBuildingNum) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM15 === this.advOpts.buildingNum
+          })
+        }
+        const checkCaseNo = !this.$utils.empty(this.advOpts.caseNo)
+        if (checkCaseNo) {
+          pipelineItems = pipelineItems.filter((item) => {
+            if (this.advOpts.caseNo === '未輸入') {
+              return this.$utils.empty(item.P1MP_CASENO)
+            }
+            return item.P1MP_CASENO === this.advOpts.caseNo
+          })
+        }
         return pipelineItems
       }
       return source
