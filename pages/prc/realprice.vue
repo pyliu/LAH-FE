@@ -95,6 +95,7 @@ div
       first-number
       aria-controls="scrivener-table"
       class="my-auto mr-2"
+      size="sm"
     )
   lah-transition
     div(v-if="committed")
