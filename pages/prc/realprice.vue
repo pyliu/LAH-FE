@@ -175,6 +175,11 @@ export default {
         key: '收件字號',
         sortable: true
       },
+      // {
+      //   key: 'RM123',
+      //   label: '收件字號',
+      //   sortable: true
+      // },
       {
         key: 'RM11',
         label: '段代碼',
