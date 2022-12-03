@@ -50,7 +50,7 @@ div
           size="lg",
           title="開啟進階搜尋視窗",
           @click="$refs.searchPlus.show()",
-          :disabled="!committed || paginationCount === 0",
+          :disabled="!committed",
           no-icon-gutter
         )
         lah-button-xlsx.mx-1(
@@ -171,6 +171,10 @@ export default {
     regBakedData: [],
     regFields: [
       {
+        key: '收件字號',
+        sortable: true
+      },
+      {
         key: 'RM11',
         label: '段代碼',
         sortable: true
@@ -193,10 +197,6 @@ export default {
       {
         key: 'P1MP_CASENO',
         label: '申報書序號',
-        sortable: true
-      },
-      {
-        key: '收件字號',
         sortable: true
       }
       // {
@@ -421,7 +421,9 @@ export default {
         this.advOpts.buildingNumOpts = [...new Set(val.map(item => item.RM15))].sort().filter(val => val !== null)
         this.advOpts.caseNoOpts = [...new Set(val.map(item => item.P1MP_CASENO))].sort().filter(val => val !== null)
         this.advOpts.sectIdOpts.unshift('')
+        this.advOpts.landNumOpts.unshift('無地號')
         this.advOpts.landNumOpts.unshift('')
+        this.advOpts.buildingNumOpts.unshift('無建號')
         this.advOpts.buildingNumOpts.unshift('')
         this.advOpts.caseNoOpts.unshift('未輸入')
         this.advOpts.caseNoOpts.unshift('')
@@ -439,12 +441,18 @@ export default {
         const checkLandNum = !this.$utils.empty(this.advOpts.landNum)
         if (checkLandNum) {
           pipelineItems = pipelineItems.filter((item) => {
+            if (this.advOpts.buildingNum === '無地號') {
+              return this.$utils.empty(item.RM12)
+            }
             return item.RM12 === this.advOpts.landNum
           })
         }
         const checkBuildingNum = !this.$utils.empty(this.advOpts.buildingNum)
         if (checkBuildingNum) {
           pipelineItems = pipelineItems.filter((item) => {
+            if (this.advOpts.buildingNum === '無建號') {
+              return this.$utils.empty(item.RM15)
+            }
             return item.RM15 === this.advOpts.buildingNum
           })
         }
