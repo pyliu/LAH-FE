@@ -8,6 +8,7 @@
     section.b-card-container
       b-card-group(deck)
         lah-index-card-link.fix-card-dimension(v-if="isSur", :icon="['far', 'calendar-alt']" to="/expire/sur") 測量逾期#[br]案件
+        lah-index-card-link.fix-card-dimension(v-else-if="isVal", :icon="['fas', 'receipt']" to="/prc/realprice") 實價登錄#[br]案件控管
         lah-index-card-link.fix-card-dimension(v-else,:icon="['far', 'calendar-check']" to="/expire") 即將逾期#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tie']" to="/ask-for-instructions") 取消請示#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'pager']" to="/reg-fix-case") 補正期滿#[br]案件
@@ -30,7 +31,8 @@ export default {
     title: '桃園市地政智慧控管系統'
   },
   computed: {
-    isSur () { return this.myinfo.unit === '測量課' }
+    isSur () { return this.myinfo.unit === '測量課' },
+    isVal () { return this.myinfo.unit === '地價課' }
   }
 }
 </script>

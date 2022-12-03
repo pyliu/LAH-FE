@@ -199,6 +199,10 @@ export default {
         key: 'P1MP_CASENO',
         label: '申報書序號',
         sortable: true
+      },
+      {
+        key: '申報註記',
+        sortable: false
       }
       // {
       //   key: 'P1MP_CASETYPE',

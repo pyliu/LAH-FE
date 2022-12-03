@@ -23,6 +23,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/").
         #[font-awesome-icon(:icon="['fas', 'house']", fixed-width, pull="left", size="lg")]
         智慧控管首頁
+      //- li: nuxt-link(to="/prc/realprice").
+      //-   #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
+      //-   實價登錄案件控管
 
       li: hr(v-if="displayAnnouncement")
 
