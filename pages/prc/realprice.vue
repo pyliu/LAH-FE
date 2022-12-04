@@ -99,16 +99,47 @@ div
     )
   lah-transition
     div(v-if="committed")
-      lah-reg-b-table(
+      //- lah-reg-b-table(
+      //-   :busy="isBusy"
+      //-   :baked-data="filterRegBakedData"
+      //-   :fields="regFields"
+      //-   :per-page="perPage"
+      //-   :current-page="currentPage"
+      //-   :caption-append="captionRange"
+      //-   :max-height-offset="160"
+      //-   no-caption
+      //- )
+      b-table.text-center(
+        v-if="committed"
+        id="val-realprice-table"
+        ref="realpriceTable"
+        caption-top
+        selectable
+        select-mode="single"
+        selected-variant="success"
+        :sticky-header="`${maxHeight}px`"
+        :responsive="'lg'"
+        :striped="true"
+        :hover="true"
+        :bordered="true"
+        :borderless="false"
+        :outlined="false"
+        :small="true"
+        :dark="false"
+        :fixed="false"
+        :foot-clone="false"
+        :no-border-collapse="true"
+        :head-variant="'dark'"
         :busy="isBusy"
-        :baked-data="filterRegBakedData"
+        :items="filterRegBakedData"
         :fields="regFields"
         :per-page="perPage"
         :current-page="currentPage"
-        :caption-append="captionRange"
-        :max-height-offset="160"
-        no-caption
       )
+        template(#table-busy): span.ld-txt 讀取中...
+        template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
+          {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item")
     h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 
   b-modal(
@@ -206,7 +237,8 @@ export default {
         sortable: true
       },
       {
-        key: '申報註記',
+        key: 'memo',
+        label: '申報註記',
         sortable: false
       }
       // {
@@ -241,7 +273,8 @@ export default {
       caseNoOpts: [],
       buildingNum: '',
       buildingNumOpts: []
-    }
+    },
+    maxHeight: 600
   }),
   fetch () {
     // reset cached data
@@ -349,7 +382,13 @@ export default {
       this.currentPage = 1
     }
   },
+  mounted () {
+    this.maxHeight = parseInt(window.innerHeight - 145)
+  },
   methods: {
+    popup (item) {
+      console.warn(item)
+    },
     reload () {
       this.forceReload = true
       this.$fetch()

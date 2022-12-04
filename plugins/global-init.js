@@ -109,7 +109,8 @@ export default ({ $axios, store }, inject) => {
         NOTIFICATION: '/api/notification_json_api.php',
         MONITOR: '/api/monitor_json_api.php',
         MYQUERY: '/api/myquery_json_api.php',
-        MOIEXP: '/api/moiexp_json_api.php'
+        MOIEXP: '/api/moiexp_json_api.php',
+        MOIPRC: '/api/moiprc_json_api.php'
       },
       FILE: {
         LOAD: '/api/load_file_api.php',
