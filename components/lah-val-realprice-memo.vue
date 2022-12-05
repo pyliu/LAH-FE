@@ -31,7 +31,8 @@ div(v-else)
         size="sm",
         variant="outline-primary",
         title="立即更新",
-        @click="update"
+        @click="update",
+        no-icon-gutter
       )
 
     .d-flex.text-nowrap.mb-1
@@ -42,6 +43,10 @@ div(v-else)
         size="sm",
         trim
       )
+    lah-transition: .text-right.small(
+      v-if="displayMessage"
+      :class="messageVariant"
+    ) {{ message }}
 </template>
 
 <script>
@@ -56,7 +61,10 @@ export default {
     origData: {
       declare_date: '',
       declare_note: ''
-    }
+    },
+    message: '',
+    messageVariant: 'text-secondary',
+    displayMessage: false
   }),
   computed: {
     dataChanged () {
@@ -82,6 +90,7 @@ export default {
     },
     modifiedMark () {
       if (this.dataChanged) { return ['update-mark'] }
+      if (!this.$utils.empty(this.declareDate)) { return ['green-mark'] }
       return []
     },
     updateData () {
@@ -93,12 +102,23 @@ export default {
     }
   },
   watch: {
-    parentData (val) {
+    parentData (dontcare) {
       this.syncOrigData()
+    },
+    message (val) {
+      if (val !== '') {
+        this.displayMessage = true
+        this.autoHideMessage()
+      }
     }
   },
   created () {
     this.syncOrigData()
+    this.autoHideMessage = this.$utils.debounce(() => {
+      this.message = ''
+      this.displayMessage = false
+      this.messageVariant = 'text-secondary'
+    }, 5000)
   },
   methods: {
     update () {
@@ -112,14 +132,19 @@ export default {
           declare_note: this.declareNote
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            this.success(data.message)
+            this.message = '✔ 更新完成！'
+            this.messageVariant = 'text-success'
             this.syncOrigData()
           } else {
+            this.message = `⚠ ${data.message}`
+            this.messageVariant = 'text-warning'
             this.warning(data.message, { title: this.parentData.P1MP_CASENO })
             this.$utils.warn(this.caseNo, data.message)
           }
         }).catch((err) => {
-          this.alert(err.message, { title: this.parentData.收件字號 })
+          this.message = `❌ ${err.message}`
+          this.messageVariant = 'text-danger'
+          this.alert(err.message, { title: this.parentData.P1MP_CASENO })
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
@@ -142,6 +167,11 @@ export default {
 .update-mark {
   border: 2px dashed red;
   border-radius: 5px;
-  padding: .25rem;
+  padding: .5rem;
+}
+.green-mark {
+  border: 2px solid green;
+  border-radius: 5px;
+  padding: .5rem;
 }
 </style>

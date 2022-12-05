@@ -85,7 +85,7 @@ div
     add-button-variant="white"
     add-button-text=""
   )
-  .d-flex.mb-1
+  .d-flex.justify-content-end.mb-1
     b-pagination(
       v-if="showPagination"
       v-model="currentPage"
@@ -93,7 +93,6 @@ div
       :per-page="perPage"
       last-number
       first-number
-      aria-controls="scrivener-table"
       class="my-auto mr-2"
       size="sm"
     )
@@ -159,15 +158,26 @@ div
         title="申報書序號"
       )
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="地號"): b-select(
+      b-input-group.mr-1(prepend="　地號"): b-select(
         v-model="advOpts.landNum",
         :options="advOpts.landNumOpts",
         title="地號"
       )
-      b-input-group(prepend="建號"): b-select(
+      b-input-group(prepend="　建號"): b-select(
         v-model="advOpts.buildingNum",
         :options="advOpts.buildingNumOpts",
         title="建號"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="申報日期"): b-select(
+        v-model="advOpts.declareDate",
+        :options="advOpts.declareDateOpts",
+        title="申報日期"
+      )
+      b-input-group(prepend="申報註記"): b-select(
+        v-model="advOpts.declareNote",
+        :options="advOpts.declareNoteOpts",
+        title="申報註記"
       )
     .center.d-flex.my-1
       lah-button(
@@ -272,7 +282,19 @@ export default {
       caseNo: '',
       caseNoOpts: [],
       buildingNum: '',
-      buildingNumOpts: []
+      buildingNumOpts: [],
+      declareDate: '',
+      declareDateOpts: [
+        { value: '', text: '' },
+        { value: true, text: '有' },
+        { value: false, text: '無' }
+      ],
+      declareNote: '',
+      declareNoteOpts: [
+        { value: '', text: '' },
+        { value: true, text: '有' },
+        { value: false, text: '無' }
+      ]
     },
     maxHeight: 600
   }),
@@ -356,6 +378,12 @@ export default {
       if (!this.$utils.empty(this.advOpts.caseNo)) {
         tags.push(`申報書序號：${this.advOpts.caseNo}`)
       }
+      if (this.advOpts.declareDate !== '') {
+        tags.push(`申報日期：${this.advOpts.declareDate ? '有' : '無'}`)
+      }
+      if (this.advOpts.declareNote !== '') {
+        tags.push(`申報備註：${this.advOpts.declareNote ? '有' : '無'}`)
+      }
       return tags
     },
     filterRegBakedData () {
@@ -425,6 +453,10 @@ export default {
               default:
                 obj[key] = value
             }
+          } else if (key === 'P1MP_DECLARE_DATE') {
+            obj['申報日期'] = value
+          } else if (key === 'P1MP_DECLARE_NOTE') {
+            obj['申報備註'] = value
           }
         }
         return obj
@@ -437,12 +469,15 @@ export default {
           sectId: '',
           landNum: '',
           buildingNum: '',
-          caseNo: ''
+          caseNo: '',
+          declareDate: '',
+          declareNote: ''
         }
       }
     },
     refreshAdvOptsSelect (val) {
       this.advOpts = {
+        ...this.advOpts,
         ...{
           sectId: '',
           sectIdOpts: [],
@@ -512,6 +547,34 @@ export default {
               return this.$utils.empty(item.P1MP_CASENO)
             }
             return item.P1MP_CASENO === this.advOpts.caseNo
+          })
+        }
+        const checkDeclareDate = this.advOpts.declareDate !== ''
+        if (checkDeclareDate) {
+          pipelineItems = pipelineItems.filter((item) => {
+            if (!this.$utils.empty(item.P1MP_CASENO)) {
+              const hasDate = !this.$utils.empty(item.P1MP_DECLARE_DATE)
+              if (this.advOpts.declareDate) {
+                return hasDate
+              } else {
+                return !hasDate
+              }
+            }
+            return false
+          })
+        }
+        const checkDeclareNote = this.advOpts.declareNote !== ''
+        if (checkDeclareNote) {
+          pipelineItems = pipelineItems.filter((item) => {
+            if (!this.$utils.empty(item.P1MP_CASENO)) {
+              const hasNote = !this.$utils.empty(item.P1MP_DECLARE_NOTE)
+              if (this.advOpts.declareNote) {
+                return hasNote
+              } else {
+                return !hasNote
+              }
+            }
+            return false
           })
         }
         return pipelineItems
