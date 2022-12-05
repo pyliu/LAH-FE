@@ -54,6 +54,7 @@ div(v-else)
 <script>
 export default {
   name: 'LahValRealpriceMemo',
+  emit: ['update'],
   props: {
     parentData: { type: Object, require: true, default: () => ({}) }
   },
@@ -152,6 +153,7 @@ export default {
             this.message = '✔ 更新完成！'
             this.messageVariant = 'text-success'
             this.syncOrigData()
+            this.$emit('update')
           } else {
             this.message = `⚠ ${data.message}`
             this.messageVariant = 'text-warning'

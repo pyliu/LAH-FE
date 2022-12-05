@@ -141,7 +141,7 @@ div
         template(#table-busy): span.ld-txt 讀取中...
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-        template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item")
+        template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item", @update="clearCache")
     h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 
   b-modal(
@@ -468,6 +468,9 @@ export default {
       this.committed = false
       this.regBakedData = []
       this.currentPage = 1
+    },
+    clearCache () {
+      this.removeCache(this.cacheKey)
     },
     loaded () {
       this.isBusy = false
