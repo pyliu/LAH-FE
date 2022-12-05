@@ -31,6 +31,7 @@ div(v-else)
         size="sm",
         variant="outline-primary",
         title="立即更新",
+        :disabled="noteState === false"
         @click="update",
         no-icon-gutter
       )
@@ -41,6 +42,7 @@ div(v-else)
         v-model="parentData.P1MP_DECLARE_NOTE",
         placeholder="... 申報備註資料 (最多200字) ...",
         size="sm",
+        :state="noteState",
         trim
       )
     lah-transition: .text-right.small(
@@ -88,6 +90,15 @@ export default {
     showNote () {
       return !this.$utils.empty(this.declareDate)
     },
+    noteLength () {
+      return this.$utils.length(this.declareNote)
+    },
+    noteState () {
+      if (this.$utils.empty(this.declareNote)) {
+        return null
+      }
+      return this.noteLength < 201
+    },
     modifiedMark () {
       if (this.dataChanged) { return ['update-mark'] }
       if (!this.$utils.empty(this.declareDate)) { return ['green-mark'] }
@@ -104,6 +115,12 @@ export default {
   watch: {
     parentData (dontcare) {
       this.syncOrigData()
+    },
+    noteState (val) {
+      if (val === false) {
+        this.message = `❌ 註記字數超過200字！`
+        this.messageVariant = 'text-danger'
+      }
     },
     message (val) {
       if (val !== '') {
