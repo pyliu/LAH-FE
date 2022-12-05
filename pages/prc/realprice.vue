@@ -186,6 +186,14 @@ div
         variant="outline-success"
       ) 重設
       small.text-muted.ml-2 找到 {{ filterDataCount }} 筆
+
+  b-modal(
+    ref="caseDetail",
+    :title="`案件詳情 - ${choosedItem ? choosedItem.RM123 : '未指定'}`",
+    size="xl",
+    hide-footer
+  )
+    lah-reg-case-detail(:parent-data="choosedItem")
 </template>
 
 <script>
@@ -296,7 +304,8 @@ export default {
         { value: false, text: '無' }
       ]
     },
-    maxHeight: 600
+    maxHeight: 600,
+    choosedItem: null
   }),
   fetch () {
     // reset cached data
@@ -415,7 +424,8 @@ export default {
   },
   methods: {
     popup (item) {
-      console.warn(item)
+      this.choosedItem = item
+      this.$refs.caseDetail.show()
     },
     reload () {
       this.forceReload = true
