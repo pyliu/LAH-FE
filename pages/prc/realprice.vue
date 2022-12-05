@@ -6,10 +6,12 @@ div
         .my-auto 實價登錄案件控管 ({{ filterDataCount }})
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
-          h5 請參照下列步驟搜尋
+          h5 請參照下列步驟搜尋及操作
           ol
-            li 選擇日期區間(預設為目前月份)
-            li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
+            li 選擇日期區間(預設為目前月份)後按 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
+            li 地價人員須自行輸入申報日期及備註，輸入後請按 #[lah-fa-icon(icon="edit" variant="primary" no-gutter)] 儲存
+            li 可利用 #[lah-fa-icon(icon="search-plus" variant="primary" no-gutter)] 篩選想顯示的資料
+            li 可利用 #[lah-fa-icon(icon="file-excel" regular variant="success" no-gutter)] 將顯示資料匯出為EXCEL檔案
 
       .d-flex
         b-datepicker(
