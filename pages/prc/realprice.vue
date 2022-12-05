@@ -91,12 +91,13 @@ div
     b-pagination(
       v-if="showPagination"
       v-model="currentPage"
-      :total-rows="paginationCount"
-      :per-page="perPage"
-      last-number
-      first-number
       class="my-auto mr-2"
       size="sm"
+      :total-rows="paginationCount"
+      :per-page="perPage"
+      :title="`共 ${filterDataCount} 件`"
+      last-number
+      first-number
     )
   lah-transition
     div(v-if="committed")
