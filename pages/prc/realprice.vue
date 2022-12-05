@@ -72,7 +72,6 @@ div
           :busy="isBusy"
           @end="reload"
           @click="reload"
-          no-badge
         )
 
   lah-transition: b-tags.border-0.mt-n4(
