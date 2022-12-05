@@ -183,6 +183,17 @@ div
         title="申報註記"
       )
     .center.d-flex.my-1
+      b-input-group.mr-1(prepend="登記註記"): b-select(
+        v-model="advOpts.regNote",
+        :options="advOpts.regNoteOpts",
+        title="登記處理註記"
+      )
+      b-input-group.mr-1(prepend="地價註記"): b-select(
+        v-model="advOpts.valNote",
+        :options="advOpts.valNoteOpts",
+        title="地價處理註記"
+      )
+    .center.d-flex.my-1
       lah-button(
         icon="recycle",
         @click="resetAdvOpts",
@@ -227,11 +238,10 @@ export default {
         key: '收件字號',
         sortable: true
       },
-      // {
-      //   key: 'RM123',
-      //   label: '收件字號',
-      //   sortable: true
-      // },
+      {
+        key: '收件日期',
+        sortable: true
+      },
       {
         key: 'RM11',
         label: '段代碼',
@@ -261,6 +271,16 @@ export default {
         key: 'memo',
         label: '申報註記',
         sortable: false
+      },
+      {
+        key: '登記處理註記',
+        label: '登記註記',
+        sortable: true
+      },
+      {
+        key: '地價處理註記',
+        label: '地價註記',
+        sortable: true
       }
       // {
       //   key: 'P1MP_CASETYPE',
@@ -305,7 +325,11 @@ export default {
         { value: '', text: '' },
         { value: true, text: '有' },
         { value: false, text: '無' }
-      ]
+      ],
+      regNote: '',
+      regNoteOpts: [],
+      valNote: '',
+      valNoteOpts: []
     },
     maxHeight: 600,
     choosedItem: null
@@ -396,6 +420,12 @@ export default {
       if (this.advOpts.declareNote !== '') {
         tags.push(`申報備註：${this.advOpts.declareNote ? '有' : '無'}`)
       }
+      if (!this.$utils.empty(this.advOpts.regNote)) {
+        tags.push(`登記處理註記：${this.advOpts.regNote}`)
+      }
+      if (!this.$utils.empty(this.advOpts.valNote)) {
+        tags.push(`地價處理註記：${this.advOpts.valNote}`)
+      }
       return tags
     },
     filterRegBakedData () {
@@ -484,7 +514,9 @@ export default {
           buildingNum: '',
           caseNo: '',
           declareDate: '',
-          declareNote: ''
+          declareNote: '',
+          regNote: '',
+          valNote: ''
         }
       }
     },
@@ -499,7 +531,11 @@ export default {
           buildingNum: '',
           buildingNumOpts: [],
           caseNo: '',
-          caseNoOpts: []
+          caseNoOpts: [],
+          regNote: '',
+          regNoteOpts: [],
+          valNote: '',
+          valNoteOpts: []
         }
       }
       if (val) {
@@ -517,6 +553,9 @@ export default {
         this.advOpts.landNumOpts = [...new Set(val.map(item => item.RM12))].sort().filter(val => val !== null)
         this.advOpts.buildingNumOpts = [...new Set(val.map(item => item.RM15))].sort().filter(val => val !== null)
         this.advOpts.caseNoOpts = [...new Set(val.map(item => item.P1MP_CASENO))].sort().filter(val => val !== null)
+        this.advOpts.regNoteOpts = [...new Set(val.map(item => item.登記處理註記))].sort().filter(val => !this.$utils.empty(val))
+        this.advOpts.valNoteOpts = [...new Set(val.map(item => item.地價處理註記))].sort().filter(val => !this.$utils.empty(val))
+
         this.advOpts.sectIdOpts.unshift('')
         this.advOpts.landNumOpts.unshift('無地號')
         this.advOpts.landNumOpts.unshift('')
@@ -524,6 +563,8 @@ export default {
         this.advOpts.buildingNumOpts.unshift('')
         this.advOpts.caseNoOpts.unshift('未輸入')
         this.advOpts.caseNoOpts.unshift('')
+        this.advOpts.regNoteOpts.unshift('')
+        this.advOpts.valNoteOpts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -590,6 +631,21 @@ export default {
             return false
           })
         }
+
+        const checkRegNote = !this.$utils.empty(this.advOpts.regNote)
+        if (checkRegNote) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.登記處理註記 === this.advOpts.regNote
+          })
+        }
+
+        const checkValNote = !this.$utils.empty(this.advOpts.valNote)
+        if (checkValNote) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.地價處理註記 === this.advOpts.valNote
+          })
+        }
+
         return pipelineItems
       }
       return source

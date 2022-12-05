@@ -39,7 +39,7 @@ div(v-else)
       b-textarea(
         v-show="showNote",
         v-model="parentData.P1MP_DECLARE_NOTE",
-        placeholder="... 申報備註資料 ...",
+        placeholder="... 申報備註資料 (最多200字) ...",
         size="sm",
         trim
       )
