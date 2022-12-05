@@ -118,7 +118,7 @@ export default {
     },
     noteState (val) {
       if (val === false) {
-        this.message = `❌ 註記字數超過200字！`
+        this.message = '❌ 註記字數超過200字！'
         this.messageVariant = 'text-danger'
       }
     },
