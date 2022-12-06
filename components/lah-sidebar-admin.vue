@@ -95,6 +95,13 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/message").
         #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
         傳送即時通訊息
+      li: hr
+      li: nuxt-link(to="/expire/sur").
+        #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
+        測量逾期案件
+      li: nuxt-link(to="/prc/realprice").
+        #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
+        實價登錄案件控管
 
       li: hr
 
