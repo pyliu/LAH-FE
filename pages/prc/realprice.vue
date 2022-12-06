@@ -149,15 +149,26 @@ div
     hide-footer
   )
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="　段小段"): b-select(
-        v-model="advOpts.sectId",
-        :options="advOpts.sectIdOpts",
-        title="段小段"
-      )
-      b-input-group(prepend="　收件日"): b-select(
+      b-input-group.mr-1(prepend="收件日期"): b-select(
         v-model="advOpts.rm07Date",
         :options="advOpts.rm07DateOpts",
         title="收件日期"
+      )
+      b-input-group(prepend="　收件字"): b-select(
+        v-model="advOpts.rm02",
+        :options="advOpts.rm02Opts",
+        title="收件字"
+      )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="申報序號"): b-select(
+        v-model="advOpts.caseNo",
+        :options="advOpts.caseNoOpts",
+        title="申報書序號"
+      )
+      b-input-group(prepend="　段小段"): b-select(
+        v-model="advOpts.sectId",
+        :options="advOpts.sectIdOpts",
+        title="段小段"
       )
     .center.d-flex.my-1
       b-input-group.mr-1(prepend="　　地號"): b-select(
@@ -176,7 +187,7 @@ div
         :options="advOpts.regNoteOpts",
         title="登記處理註記"
       )
-      b-input-group.mr-1(prepend="地價註記"): b-select(
+      b-input-group(prepend="地價註記"): b-select(
         v-model="advOpts.valNote",
         :options="advOpts.valNoteOpts",
         title="地價處理註記"
@@ -192,13 +203,6 @@ div
         :options="advOpts.declareNoteOpts",
         title="申報註記"
       )
-    .center.d-flex.my-1
-      b-input-group(prepend="申報序號"): b-select(
-        v-model="advOpts.caseNo",
-        :options="advOpts.caseNoOpts",
-        title="申報書序號"
-      )
-      b-input-group
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -337,7 +341,9 @@ export default {
       valNote: '',
       valNoteOpts: [],
       rm07Date: '',
-      rm07DateOpts: []
+      rm07DateOpts: [],
+      rm02: '',
+      rm02Opts: []
     },
     maxHeight: 600,
     choosedItem: null
@@ -437,6 +443,9 @@ export default {
       if (!this.$utils.empty(this.advOpts.rm07Date)) {
         tags.push(`收件日期：${this.advOpts.rm07Date}`)
       }
+      if (!this.$utils.empty(this.advOpts.rm02)) {
+        tags.push(`收件字：${this.advOpts.rm02}`)
+      }
       return tags
     },
     filterRegBakedData () {
@@ -531,7 +540,8 @@ export default {
           declareNote: '',
           regNote: '',
           valNote: '',
-          rm07Date: ''
+          rm07Date: '',
+          rm02: ''
         }
       }
     },
@@ -552,7 +562,9 @@ export default {
           valNote: '',
           valNoteOpts: [],
           rm07Date: '',
-          rm07DateOpts: []
+          rm07DateOpts: [],
+          rm02: '',
+          rm02Opts: []
         }
       }
       if (val) {
@@ -573,6 +585,7 @@ export default {
         this.advOpts.regNoteOpts = [...new Set(val.map(item => item.登記處理註記))].sort().filter(val => !this.$utils.empty(val))
         this.advOpts.valNoteOpts = [...new Set(val.map(item => item.地價處理註記))].sort().filter(val => !this.$utils.empty(val))
         this.advOpts.rm07DateOpts = [...new Set(val.map(item => item.收件日期))].sort().filter(val => val !== null)
+        this.advOpts.rm02Opts = [...new Set(val.map(item => item.RM02))].sort().filter(val => val !== null)
 
         this.advOpts.sectIdOpts.unshift('')
         this.advOpts.landNumOpts.unshift('無地號')
@@ -584,6 +597,7 @@ export default {
         this.advOpts.regNoteOpts.unshift('')
         this.advOpts.valNoteOpts.unshift('')
         this.advOpts.rm07DateOpts.unshift('')
+        this.advOpts.rm02Opts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -666,6 +680,12 @@ export default {
         if (checkRm07Date) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.收件日期 === this.advOpts.rm07Date
+          })
+        }
+        const checkRm02 = !this.$utils.empty(this.advOpts.rm02)
+        if (checkRm02) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM02 === this.advOpts.rm02
           })
         }
         return pipelineItems
