@@ -50,7 +50,7 @@
     "node-watch": "^0.7.1",
     "nuxt": "^2.15.8",
     "nuxt-fontawesome": "^0.4.0",
-    "qs": "^6.9.4",
+    "qs": "^6.10.3",
     "sqlite3": "^4.2.0",
     "vue-chartjs": "^4.0.3",
     "xlsx": "^0.18.3"
