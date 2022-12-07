@@ -16,28 +16,33 @@ div
           :jsons="xlsxData",
           header="實價登錄JSON檔案轉換"
         )
-  .d-flex.justify-content-end
-    b-file.fixed-width(v-model="file", accept="application/json")
-      template(slot="file-name" slot-scope="{ names }")
-        b-badge(variant="dark") {{ names[0] }}
-        b-badge(v-if="names.length > 1" variant="dark" class="ml-1").
-          + {{ names.length - 1 }} 更多檔案
-    lah-button.mx-1(
-      icon="upload",
-      title="上傳",
-      :disabled="file === null",
-      no-icon-gutter
-    )
-    lah-button(
-      icon="trash",
-      title="清除選擇",
-      variant="outline-secondary",
-      :disabled="file === null",
-      @click="file = null",
-      no-icon-gutter
-    )
-  .d-flex.justify-content-end.mb-1
-    b-pagination(
+  .d-flex.mb-1
+    .d-flex.flex-nowrap.mr-auto
+      b-file.fixed-width.mr-1(
+        v-model="file",
+        accept="application/json",
+        placeholder="請選擇JSON檔案",
+        browse-text="瀏覽"
+      )
+        template(slot="file-name" slot-scope="{ names }")
+          b-badge(variant="dark") {{ names[0] }}
+          b-badge(v-if="names.length > 1" variant="dark" class="ml-1").
+            + {{ names.length - 1 }} 更多檔案
+      //- lah-button.mx-1(
+      //-   icon="upload",
+      //-   title="上傳",
+      //-   :disabled="file === null",
+      //-   no-icon-gutter
+      //- )
+      lah-button(
+        v-if="file !== null"
+        icon="trash",
+        title="清除選擇",
+        variant="outline-success",
+        @click="file = null",
+        no-icon-gutter
+      )
+    b-pagination.my-auto(
       v-if="showPagination"
       v-model="currentPage"
       class="my-auto mr-2"
@@ -50,7 +55,6 @@ div
     )
   lah-transition
     b-table.text-center.fixed-height-table(
-      v-if="committed"
       ref="jsonTable"
       caption-top
       selectable
@@ -71,7 +75,6 @@ div
       :head-variant="'dark'"
       :busy="isBusy"
       :items="jsonData"
-      :fields="jsonFields"
       :per-page="perPage"
       :current-page="currentPage"
     )
@@ -79,11 +82,11 @@ div
       //- template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
       //-   {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
       //- template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item", @update="clearCache")
-    h3(v-else class="text-center"): lah-fa-icon(
-      icon="upload",
-      action="breath",
-      variant="primary"
-    ) 請選擇JSON檔案並上傳
+    //- h3(class="text-center"): lah-fa-icon(
+    //-   icon="upload",
+    //-   action="breath",
+    //-   variant="primary"
+    //- ) 請選擇JSON檔案並上傳
 
 </template>
 
@@ -108,8 +111,8 @@ export default {
   },
   data: () => ({
     committed: false,
-    regBakedData: [],
     file: null,
+    jsonData: [],
     jsonFields: [
       {
         key: '收件字號',
@@ -145,8 +148,20 @@ export default {
     }
   },
   watch: {
+    async file (val) {
+      try {
+        if (val) {
+          this.jsonData = [...JSON.parse(await val.text())]
+        } else {
+          this.clear()
+        }
+      } catch (e) {
+        this.$utils.error(e)
+      }
+    },
     jsonData (dontcare) {
       this.currentPage = 1
+      console.warn(dontcare)
     }
   },
   mounted () {
@@ -156,6 +171,7 @@ export default {
     show () {},
     clear () {
       this.file = null
+      this.jsonData = []
     },
     clearCache () {
       this.removeCache(this.cacheKey)
@@ -165,7 +181,7 @@ export default {
       this.committed = true
     },
     prepareFormattedJson () {
-      return []
+      return this.file ? this.jsonData : []
     }
   }
 }
