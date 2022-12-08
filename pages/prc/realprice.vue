@@ -455,7 +455,6 @@ export default {
       return this.filterRegBakedData.length
     },
     xlsxData () {
-      console.log(JSON.stringify(this.prepareRegJsons()))
       return this.prepareRegJsons()
     }
   },

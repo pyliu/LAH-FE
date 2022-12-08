@@ -35,15 +35,25 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
+      li(v-if="isVal"): nuxt-link(to="/prc").
+        #[font-awesome-icon(:icon="['fas', 'hotel']", fixed-width, size="lg")]
+        地價小幫手首頁
+      li(v-if="isVal"): nuxt-link(to="/prc/realprice").
+        #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
+        實價登錄案件控管
+      li(v-if="isVal"): nuxt-link(to="/prc/json-converter").
+        #[font-awesome-icon(:icon="['fas', 'right-left']", fixed-width, size="lg")]
+        實價登錄資料轉換
+      li(v-if="isVal"): hr
+
+      li(v-if="isSur"): nuxt-link(to="/expire/sur").
+        #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
+        測量逾期案件
+      li(v-if="isSur"): hr
+
       li: nuxt-link(to="/expire").
         #[font-awesome-icon(:icon="['far', 'calendar-check']", fixed-width, size="lg")]
         即將逾期案件(登記)
-      li: nuxt-link(to="/expire/sur").
-        #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
-        測量逾期案件
-      li: nuxt-link(to="/prc/realprice").
-        #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
-        實價登錄案件控管
       li: nuxt-link(to="/ask-for-instructions").
         #[font-awesome-icon(:icon="['fas', 'user-tie']", fixed-width, size="lg")]
         取消請示案件
@@ -170,6 +180,8 @@ export default {
     isAuthorized () {
       return this.authority.isAdmin
     },
+    isSur () { return this.myinfo.unit === '測量課' },
+    isVal () { return this.myinfo.unit === '地價課' },
     greeting () {
       const hours = new Date().getHours()
       return hours > 11 ? (hours > 17 ? '晚安' : '午安') : '早安'

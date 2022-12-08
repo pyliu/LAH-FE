@@ -17,12 +17,15 @@ b-sidebar#lah-sidebar(
     ul.mt-n3
       li: hr
 
-      li: nuxt-link(to="/inf").
-        #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
-        智慧監控首頁
       li: nuxt-link(to="/").
         #[font-awesome-icon(:icon="['fas', 'house']", fixed-width, pull="left", size="lg")]
         智慧控管首頁
+      li: nuxt-link(to="/inf").
+        #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
+        智慧監控首頁
+      li: nuxt-link(to="/prc").
+        #[font-awesome-icon(:icon="['fas', 'money-bill-wave']", fixed-width, pull="left", size="lg")]
+        地價小幫手首頁
       //- li: nuxt-link(to="/prc/realprice").
       //-   #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
       //-   實價登錄案件控管
@@ -95,13 +98,16 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/message").
         #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
         傳送即時通訊息
-      li: hr
-      li: nuxt-link(to="/expire/sur").
-        #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
-        測量逾期案件
-      li: nuxt-link(to="/prc/realprice").
-        #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
-        實價登錄案件控管
+      //- li: hr
+      //- li: nuxt-link(to="/expire/sur").
+      //-   #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
+      //-   測量逾期案件
+      //- li: nuxt-link(to="/prc/realprice").
+      //-   #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
+      //-   實價登錄案件控管
+      //- li: nuxt-link(to="/prc/json-converter").
+      //-   #[font-awesome-icon(:icon="['fas', 'right-left']", fixed-width, size="lg")]
+      //-   實價登錄資轉換
 
       li: hr
 
