@@ -43,7 +43,7 @@ b-sidebar#lah-sidebar(
         實價登錄案件控管
       li(v-if="isVal"): nuxt-link(to="/prc/json-converter").
         #[font-awesome-icon(:icon="['fas', 'right-left']", fixed-width, size="lg")]
-        實價登錄資料轉換
+        實價登錄JSON資料解析
       li(v-if="isVal"): hr
 
       li(v-if="isSur"): nuxt-link(to="/expire/sur").
