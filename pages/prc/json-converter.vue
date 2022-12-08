@@ -36,7 +36,7 @@ div
         @click="file = null",
         no-icon-gutter
       )
-      .d-flex.my-auto
+      .d-flex.my-auto.text-nowrap
         b-checkbox.mx-2(v-model="display.main") 主要
         b-checkbox(v-model="display.land") 土地
         b-checkbox.mx-2(v-model="display.build") 建物
@@ -377,6 +377,6 @@ export default {
 
 <style lang="scss" scoped>
 .fixed-width {
-  max-width: 250px;
+  max-width: 25vw;
 }
 </style>
