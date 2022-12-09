@@ -1,55 +1,51 @@
 <template lang="pug">
 div
-  .d-flex.justify-content-end.my-auto.text-nowrap
+  .d-flex.justify-content-end.my-auto.align-items-center.text-nowrap
+    lah-fa-icon.mr-1.my-auto(icon="display") 顯示選項
     b-checkbox.mx-2(v-model="display.main") 主要
     b-checkbox(v-model="display.land") 土地
     b-checkbox.mx-2(v-model="display.build") 建物
     b-checkbox(v-model="display.car") 車位
   lah-transition: .my-2(v-if="!$utils.empty(mainData) && display.main")
     h5 主要資料
-    //- lah-val-b-table(
-    //-   :ref-id="carData",
-    //-   :busy="isBusy",
-    //-   :items="mainData",
-    //-   :fields="mainFields"
-    //- )
-    h6.my-2 基本資料
-    lah-val-b-table(
+    .ml-3
+      h6.my-2 - 基本資料
+      lah-val-b-table(
       :busy="isBusy",
       :items="mainData",
       ref-id="basicData",
       :fields="basicFields"
     )
-    h6.my-2 不動產經紀業資料
-    lah-val-b-table(
+      h6.my-2 - 不動產經紀業資料
+      lah-val-b-table(
       :busy="isBusy",
       :items="mainData",
       ref-id="agentData",
       :fields="agentFields"
     )
-    h6.my-2 交易建物資料
-    lah-val-b-table(
-      :busy="isBusy",
-      :items="mainData",
-      ref-id="buildingData",
-      :fields="buildingFields"
-    )
-    h6.my-2 室內格局資料
-    lah-val-b-table(
-      :busy="isBusy",
-      :items="mainData",
-      ref-id="interiorData",
-      :fields="interiorFields"
-    )
-    h6.my-2 交易資料
-    lah-val-b-table(
-      :busy="isBusy",
-      :items="mainData",
-      ref-id="dealData",
-      :fields="dealFields"
-    )
-    h6.my-2 價格資料
-    lah-val-b-table(
+      h6.my-2 - 交易建物資料
+      lah-val-b-table(
+        :busy="isBusy",
+        :items="mainData",
+        ref-id="buildingData",
+        :fields="buildingFields"
+      )
+      h6.my-2 - 室內格局資料
+      lah-val-b-table(
+        :busy="isBusy",
+        :items="mainData",
+        ref-id="interiorData",
+        :fields="interiorFields"
+      )
+      h6.my-2 - 交易資料
+      lah-val-b-table(
+        :busy="isBusy",
+        :items="mainData",
+        ref-id="dealData",
+        :fields="dealFields"
+      )
+      h6.my-2 - 價格資料
+      lah-val-b-table(
       :busy="isBusy",
       :items="mainData",
       ref-id="priceData",

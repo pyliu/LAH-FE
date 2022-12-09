@@ -128,7 +128,7 @@ export default {
       this.modal(this.$createElement(lahValRealpriceJsonData, {
         props: { jsonData: this.jsons[index] }
       }), {
-        title: '詳細資料',
+        title: `詳細資料 - ${this.jsons[index][this.key].apply_no}`,
         size: 'xl'
       })
     },
