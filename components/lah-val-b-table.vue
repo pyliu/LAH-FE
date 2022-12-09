@@ -38,8 +38,14 @@ export default {
   },
   data: () => ({}),
   computed: {},
-  mounted () {},
-  methods: {}
+  methods: {
+    selectAllRows () {
+      this.$refs[this.refId]?.selectAllRows()
+    },
+    clearSelected () {
+      this.$refs[this.refId]?.clearSelected()
+    }
+  }
 }
 </script>
 

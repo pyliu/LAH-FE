@@ -13,6 +13,7 @@ div
     .ml-3
       h6.my-2 - 基本資料
       lah-val-b-table(
+        ref="basicData"
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
@@ -20,6 +21,7 @@ div
       )
       h6.my-2 - 不動產經紀業資料
       lah-val-b-table(
+        ref="agentData"
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
@@ -27,6 +29,7 @@ div
       )
       h6.my-2 - 交易建物資料
       lah-val-b-table(
+        ref="buildingData"
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
@@ -34,6 +37,7 @@ div
       )
       h6.my-2 - 室內格局資料
       lah-val-b-table(
+        ref="interiorData"
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
@@ -41,6 +45,7 @@ div
       )
       h6.my-2 - 交易資料
       lah-val-b-table(
+        ref="dealData"
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
@@ -48,6 +53,7 @@ div
       )
       h6.my-2 - 價格資料
       lah-val-b-table(
+        ref="priceData"
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
@@ -57,6 +63,7 @@ div
   lah-transition: .my-2(v-if="!$utils.empty(landData) && display.land")
     h5 土地資料
     lah-val-b-table(
+      ref="landData"
       :head-variant="headVariant",
       :busy="isBusy",
       :items="landData",
@@ -66,6 +73,7 @@ div
   lah-transition: .my-2(v-if="!$utils.empty(buildData) && display.build")
     h5 建物資料
     lah-val-b-table(
+      ref="buildData"
       :head-variant="headVariant",
       :busy="isBusy",
       :items="buildData",
@@ -75,6 +83,7 @@ div
   lah-transition: div(v-if="!$utils.empty(carData) && display.car")
     h5 停車位資料
     lah-val-b-table(
+      ref="carData"
       :head-variant="headVariant",
       :busy="isBusy",
       :items="carData",
@@ -744,6 +753,17 @@ export default {
     }
   },
   watch: {},
+  mounted () {
+    this.$refs.basicData?.selectAllRows()
+    this.$refs.agentData?.selectAllRows()
+    this.$refs.buildingData?.selectAllRows()
+    this.$refs.interiorData?.selectAllRows()
+    this.$refs.dealData?.selectAllRows()
+    this.$refs.priceData?.selectAllRows()
+    this.$refs.landData?.selectAllRows()
+    this.$refs.buildData?.selectAllRows()
+    this.$refs.carData?.selectAllRows()
+  },
   methods: {}
 }
 </script>
