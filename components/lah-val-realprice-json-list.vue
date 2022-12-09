@@ -12,6 +12,7 @@ b-table.text-center(
   no-border-collapse,
   select-mode="single",
   selected-variant="success",
+  @row-selected="handleRowSelected",
   :responsive="'lg'",
   :borderless="false",
   :outlined="false",
@@ -23,10 +24,13 @@ b-table.text-center(
   template(#table-busy): span.ld-txt 讀取中...
   template(#cell(apply_no)="{ item, index }")
     .d-flex.justify-content-center
-      .mr-1 {{ item.apply_no }}
-      lah-button.border-0(
-        icon="window-restore",
+      b-link(
         title="開啟詳細資料視窗",
+        @click="popup(index)"
+      ) {{ item.apply_no }}
+      lah-button.border-0(
+        title="開啟詳細資料視窗",
+        icon="window-restore",
         @click="popup(index)",
         no-icon-gutter
       )
@@ -47,6 +51,11 @@ export default {
       {
         key: 'apply_no',
         label: '備查序號',
+        sortable: true
+      },
+      {
+        key: 'case_no',
+        label: '申報序號',
         sortable: true
       },
       {
@@ -89,11 +98,6 @@ export default {
         sortable: true
       }
       // {
-      //   key: 'case_no',
-      //   label: '申報序號',
-      //   sortable: true
-      // },
-      // {
       //   key: 'case_kind',
       //   label: '案件種類',
       //   sortable: true
@@ -127,6 +131,9 @@ export default {
         title: '詳細資料',
         size: 'xl'
       })
+    },
+    handleRowSelected (rowArray) {
+      console.warn(rowArray)
     }
   }
 }

@@ -385,6 +385,9 @@ export default {
       return obj
     },
     prepareFormattedJson () {
+      if (this.showError) {
+        return []
+      }
       if (this.jsonData) {
         return [this.prepareTranslatedObj(this.jsonData)]
       } else {
