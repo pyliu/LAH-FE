@@ -133,7 +133,7 @@ export default {
       })
     },
     handleRowSelected (rowArray) {
-      console.warn(rowArray)
+      // console.warn(rowArray)
     }
   }
 }
