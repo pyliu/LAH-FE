@@ -35,7 +35,7 @@ div
         @click="file = null",
         no-icon-gutter
       )
-    .text-danger.my-auto.h5(v-if="showError") ⚠️ 不是支援的JSON格式檔案(資料需有 "ZWw1MDEw" 欄位)。
+    lah-transition: .text-danger.my-auto.h5(v-if="showError") ⚠️ 不是支援的JSON格式檔案(資料需有 "ZWw1MDEw" 欄位)。
   lah-val-realprice-json-list(
     v-if="validJsons",
     :jsons="jsons"
