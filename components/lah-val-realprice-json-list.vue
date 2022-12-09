@@ -55,6 +55,11 @@ export default {
         sortable: true
       },
       {
+        key: 'p1ma_typeB_1',
+        label: '建案',
+        sortable: true
+      },
+      {
         key: 'land_x46c',
         label: '所在區',
         sortable: true
@@ -65,9 +70,13 @@ export default {
         sortable: true
       },
       {
-        key: 'p1ma_typeB_1',
-        label: '建案',
+        key: 'p1ma_typeB_6',
+        label: '號',
         sortable: true
+      },
+      {
+        key: 'p1ma_typeB_5',
+        label: '棟別'
       },
       {
         key: 'p1ma_build10_1',
