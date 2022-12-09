@@ -752,7 +752,11 @@ export default {
       ]
     }
   },
-  watch: {},
+  watch: {
+    'display.dark' (val) {
+      this.setCache('val.realprice.json.data.display.dark', val)
+    }
+  },
   mounted () {
     this.$refs.basicData?.selectAllRows()
     this.$refs.agentData?.selectAllRows()
@@ -763,6 +767,9 @@ export default {
     this.$refs.landData?.selectAllRows()
     this.$refs.buildData?.selectAllRows()
     this.$refs.carData?.selectAllRows()
+    this.getCache('val.realprice.json.data.display.dark').then((flag) => {
+      this.display.dark = flag
+    })
   },
   methods: {}
 }
