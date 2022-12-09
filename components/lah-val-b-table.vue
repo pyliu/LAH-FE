@@ -6,6 +6,8 @@ b-table.text-center(
   :fields="fields",
   :head-variant="headVariant",
   :variant="variant",
+  :dark="headVariant === 'dark' ? false : true",
+  responsive,
   caption-top,
   selectable,
   striped,
@@ -15,10 +17,8 @@ b-table.text-center(
   no-border-collapse,
   select-mode="single",
   selected-variant="success",
-  :responsive="'lg'",
   :borderless="false",
   :outlined="false",
-  :dark="headVariant === 'dark' ? false : true",
   :fixed="false",
   :foot-clone="false"
 )
