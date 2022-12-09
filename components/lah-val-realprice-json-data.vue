@@ -16,7 +16,6 @@ div
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
-        ref-id="basicData",
         :fields="basicFields"
       )
       h6.my-2 - 不動產經紀業資料
@@ -24,7 +23,6 @@ div
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
-        ref-id="agentData",
         :fields="agentFields"
       )
       h6.my-2 - 交易建物資料
@@ -32,7 +30,6 @@ div
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
-        ref-id="buildingData",
         :fields="buildingFields"
       )
       h6.my-2 - 室內格局資料
@@ -40,7 +37,6 @@ div
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
-        ref-id="interiorData",
         :fields="interiorFields"
       )
       h6.my-2 - 交易資料
@@ -48,7 +44,6 @@ div
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
-        ref-id="dealData",
         :fields="dealFields"
       )
       h6.my-2 - 價格資料
@@ -56,7 +51,6 @@ div
         :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
-        ref-id="priceData",
         :fields="priceFields"
       )
 
@@ -64,7 +58,6 @@ div
     h5 土地資料
     lah-val-b-table(
       :head-variant="headVariant",
-      :ref-id="landData",
       :busy="isBusy",
       :items="landData",
       :fields="landFields"
@@ -74,7 +67,6 @@ div
     h5 建物資料
     lah-val-b-table(
       :head-variant="headVariant",
-      :ref-id="buildData",
       :busy="isBusy",
       :items="buildData",
       :fields="buildFields"
@@ -84,7 +76,6 @@ div
     h5 停車位資料
     lah-val-b-table(
       :head-variant="headVariant",
-      :ref-id="carData",
       :busy="isBusy",
       :items="carData",
       :fields="carFields"
