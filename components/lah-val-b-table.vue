@@ -4,6 +4,8 @@ b-table.text-center(
   :busy="busy",
   :items="items",
   :fields="fields",
+  :head-variant="headVariant",
+  :variant="variant",
   caption-top,
   selectable,
   striped,
@@ -16,10 +18,9 @@ b-table.text-center(
   :responsive="'lg'",
   :borderless="false",
   :outlined="false",
-  :dark="false",
+  :dark="headVariant === 'dark' ? false : true",
   :fixed="false",
-  :foot-clone="false",
-  :head-variant="'dark'"
+  :foot-clone="false"
 )
   template(#table-busy): span.ld-txt 讀取中...
 </template>
@@ -28,6 +29,8 @@ b-table.text-center(
 export default {
   name: 'LahValBTable',
   props: {
+    headVariant: { type: String, default: 'dark' },
+    variant: { type: String, default: '' },
     items: { type: Array, default: () => [] },
     fields: { type: Array, default: undefined },
     busy: { type: Boolean, default: false },

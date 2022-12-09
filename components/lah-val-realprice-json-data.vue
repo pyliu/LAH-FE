@@ -1,6 +1,8 @@
 <template lang="pug">
 div
   .d-flex.justify-content-end.my-auto.align-items-center.text-nowrap
+    lah-fa-icon.mr-1.my-auto(icon="palette") 深色顯示
+    b-checkbox.mx-2(v-model="display.dark", switch)
     lah-fa-icon.mr-1.my-auto(icon="display") 顯示選項
     b-checkbox.mx-2(v-model="display.main") 主要
     b-checkbox(v-model="display.land") 土地
@@ -11,20 +13,23 @@ div
     .ml-3
       h6.my-2 - 基本資料
       lah-val-b-table(
-      :busy="isBusy",
-      :items="mainData",
-      ref-id="basicData",
-      :fields="basicFields"
-    )
+        :head-variant="headVariant",
+        :busy="isBusy",
+        :items="mainData",
+        ref-id="basicData",
+        :fields="basicFields"
+      )
       h6.my-2 - 不動產經紀業資料
       lah-val-b-table(
-      :busy="isBusy",
-      :items="mainData",
-      ref-id="agentData",
-      :fields="agentFields"
-    )
+        :head-variant="headVariant",
+        :busy="isBusy",
+        :items="mainData",
+        ref-id="agentData",
+        :fields="agentFields"
+      )
       h6.my-2 - 交易建物資料
       lah-val-b-table(
+        :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
         ref-id="buildingData",
@@ -32,6 +37,7 @@ div
       )
       h6.my-2 - 室內格局資料
       lah-val-b-table(
+        :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
         ref-id="interiorData",
@@ -39,6 +45,7 @@ div
       )
       h6.my-2 - 交易資料
       lah-val-b-table(
+        :head-variant="headVariant",
         :busy="isBusy",
         :items="mainData",
         ref-id="dealData",
@@ -46,16 +53,18 @@ div
       )
       h6.my-2 - 價格資料
       lah-val-b-table(
-      :busy="isBusy",
-      :items="mainData",
-      ref-id="priceData",
-      :fields="priceFields"
-    )
+        :head-variant="headVariant",
+        :busy="isBusy",
+        :items="mainData",
+        ref-id="priceData",
+        :fields="priceFields"
+      )
 
   lah-transition: .my-2(v-if="!$utils.empty(landData) && display.land")
     h5 土地資料
     lah-val-b-table(
-      :ref-id="carData",
+      :head-variant="headVariant",
+      :ref-id="landData",
       :busy="isBusy",
       :items="landData",
       :fields="landFields"
@@ -64,7 +73,8 @@ div
   lah-transition: .my-2(v-if="!$utils.empty(buildData) && display.build")
     h5 建物資料
     lah-val-b-table(
-      :ref-id="carData",
+      :head-variant="headVariant",
+      :ref-id="buildData",
       :busy="isBusy",
       :items="buildData",
       :fields="buildFields"
@@ -73,6 +83,7 @@ div
   lah-transition: div(v-if="!$utils.empty(carData) && display.car")
     h5 停車位資料
     lah-val-b-table(
+      :head-variant="headVariant",
       :ref-id="carData",
       :busy="isBusy",
       :items="carData",
@@ -94,11 +105,15 @@ export default {
       main: true,
       land: true,
       build: true,
-      car: true
+      car: true,
+      dark: false
     },
     file: null
   }),
   computed: {
+    headVariant () {
+      return this.display.dark ? 'light' : 'dark'
+    },
     basicFields () {
       return [
         {
