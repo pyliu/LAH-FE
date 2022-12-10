@@ -3,7 +3,7 @@ div
   .d-flex.justify-content-end.my-auto.align-items-center.text-nowrap
     lah-fa-icon.mr-1.my-auto(icon="palette") 深色
     b-checkbox.mx-2(v-model="display.dark", switch)
-    lah-fa-icon.mr-1.my-auto(icon="display") 篩選選項
+    lah-fa-icon.mr-1.my-auto(icon="display") 篩選
     b-checkbox.mx-2(v-model="display.main") 主要
     b-checkbox(v-model="display.land") 土地
     b-checkbox.mx-2(v-model="display.build") 建物
