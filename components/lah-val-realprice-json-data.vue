@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   .d-flex.justify-content-end.my-auto.align-items-center.text-nowrap
-    lah-fa-icon.mr-1.my-auto(icon="palette") 深色
+    lah-fa-icon.mr-1.my-auto(icon="palette") 醒目
     b-checkbox.mx-2(v-model="display.dark", switch)
     lah-fa-icon.mr-1.my-auto(icon="display") 篩選
     b-checkbox.mx-2(v-model="display.main") 主要
