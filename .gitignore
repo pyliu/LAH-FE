@@ -94,3 +94,5 @@ sw.*
 
 # lock files
 *.lock
+
+thunder-tests/
