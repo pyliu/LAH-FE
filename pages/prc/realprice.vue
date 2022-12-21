@@ -140,6 +140,8 @@ div
         template(#table-busy): span.ld-txt 讀取中...
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        template(#cell(作業人員)="{ item }")
+          b-button(pill variant="outline-primary" @click="popupUser(item)" size="sm" v-b-tooltip.right="item.RM30_1") {{ item.作業人員 }}
         template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item", @update="clearCache")
     h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 
@@ -221,7 +223,9 @@ div
 </template>
 
 <script>
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
+  components: { lahUserCard },
   fetchOnServer: false,
   asyncData (nuxt) {
     const today = new Date()
@@ -250,6 +254,10 @@ export default {
       },
       {
         key: '收件日期',
+        sortable: true
+      },
+      {
+        key: '作業人員',
         sortable: true
       },
       {
@@ -479,6 +487,13 @@ export default {
     popup (item) {
       this.choosedItem = item
       this.$refs.caseDetail.show()
+    },
+    popupUser (item) {
+      const name = item.作業人員
+      const id = item.RM30_1
+      this.modal(this.$createElement(lahUserCard, { props: { name, id } }), {
+        title: `${id} ${name} 資訊`
+      })
     },
     reload () {
       this.forceReload = true
