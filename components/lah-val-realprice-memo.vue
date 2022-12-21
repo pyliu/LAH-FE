@@ -1,7 +1,8 @@
 /* eslint-disable no-irregular-whitespace */
 <template lang="pug">
-h6(v-if="$utils.empty(caseNo)") ⚠️ 無申報序號
-div(v-else)
+//- h6(v-if="$utils.empty(caseNo)") ⚠️ 無申報序號
+//- div(v-else)
+div
   .text-left(
     v-b-tooltip.hover.left.v-danger
     :title="dataChanged ? '請儲存更新狀態 ... ' : ``"
