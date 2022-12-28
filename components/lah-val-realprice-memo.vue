@@ -141,7 +141,7 @@ export default {
   },
   methods: {
     update () {
-      if (!this.$utils.empty(this.caseNo) && !this.isBusy) {
+      if (!this.isBusy) {
         this.isBusy = true
         // to update declare data in sqlite db
         this.$axios.post(this.$consts.API.JSON.MOIPRC, {
@@ -170,7 +170,7 @@ export default {
           this.isBusy = false
         })
       } else {
-        this.warning(`${this.caseNo} 沒有更新`)
+        this.warning('正在更新請稍後 ... ')
       }
     },
     syncOrigData () {
