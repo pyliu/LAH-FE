@@ -155,7 +155,9 @@ export default {
       }
     },
     editable () {
-      return this.parentData.RM45 === this.myid || this.authority.isAdmin || this.authority.isChief
+      // 1111226 #102 asked to allow everyone who can edit this information
+      return true
+      // return this.parentData.RM45 === this.myid || this.authority.isAdmin || this.authority.isChief
     },
     dataChanged () {
       return !this.$utils.equal(this.origDataset, this.updateDataset)
