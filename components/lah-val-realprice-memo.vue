@@ -146,7 +146,7 @@ export default {
         // to update declare data in sqlite db
         this.$axios.post(this.$consts.API.JSON.MOIPRC, {
           type: 'upd_val_realprice_memo',
-          case_no: this.caseNo,
+          case_no: this.caseNo || this.parentData.ID,
           declare_date: this.declareDate,
           declare_note: this.declareNote
         }).then(({ data }) => {
@@ -174,10 +174,10 @@ export default {
       }
     },
     syncOrigData () {
-      if (!this.$utils.empty(this.caseNo)) {
-        this.origData.declare_date = this.declareDate
-        this.origData.declare_note = this.declareNote
-      }
+      // if (!this.$utils.empty(this.caseNo)) {
+      this.origData.declare_date = this.declareDate
+      this.origData.declare_note = this.declareNote
+      // }
     }
   }
 }
