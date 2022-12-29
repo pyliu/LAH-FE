@@ -7,7 +7,8 @@ div
     :title="dataChanged ? '請儲存更新狀態 ... ' : ``"
     :class="modifiedMark"
   )
-    div(v-if="showTakenFields")
+    //- div(v-if="showTakenFields")
+    div
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1 領件狀態
         b-select(
@@ -52,7 +53,8 @@ div
           label-close-button="關閉"
         )
 
-    div(v-if="takenStatus === ''")
+    //- div(v-if="takenStatus === ''")
+    div
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1.text-nowrap 　借閱人
         strong.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
