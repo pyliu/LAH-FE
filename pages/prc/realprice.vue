@@ -189,8 +189,8 @@ div
       )
     .center.d-flex.my-1
       b-input-group.mr-1(prepend="申報日期"): b-select(
-        v-model="advOpts.declareDate",
-        :options="advOpts.declareDateOpts",
+        v-model="advOpts.declareDay",
+        :options="advOpts.declareDayOpts",
         title="申報日期"
       )
       b-input-group(prepend="申報註記"): b-select(
@@ -357,12 +357,8 @@ export default {
       caseNoOpts: [],
       buildingNum: '',
       buildingNumOpts: [],
-      declareDate: '',
-      declareDateOpts: [
-        { value: '', text: '' },
-        { value: true, text: '有' },
-        { value: false, text: '無' }
-      ],
+      declareDay: '',
+      declareDayOpts: [],
       declareNote: '',
       declareNoteOpts: [
         { value: '', text: '' },
@@ -466,8 +462,14 @@ export default {
       if (!this.$utils.empty(this.advOpts.caseNo)) {
         tags.push(`申報書序號：${this.advOpts.caseNo}`)
       }
-      if (this.advOpts.declareDate !== '') {
-        tags.push(`申報日期：${this.advOpts.declareDate ? '有' : '無'}`)
+      if (this.advOpts.declareDay !== '') {
+        let text = this.advOpts.declareDay
+        if (text === true) {
+          text = '有設定'
+        } else if (text === false) {
+          text = '無設定'
+        }
+        tags.push(`申報日期：${text}`)
       }
       if (this.advOpts.declareNote !== '') {
         tags.push(`申報備註：${this.advOpts.declareNote ? '有' : '無'}`)
@@ -614,7 +616,7 @@ export default {
           landNum: '',
           buildingNum: '',
           caseNo: '',
-          declareDate: '',
+          declareDay: '',
           declareNote: '',
           regNote: '',
           valNote: '',
@@ -650,7 +652,9 @@ export default {
           srDate: '',
           srDateOpts: [],
           srTime: '',
-          srTimeOpts: []
+          srTimeOpts: [],
+          declareDay: '',
+          declareDayOpts: []
         }
       }
       if (val) {
@@ -674,6 +678,7 @@ export default {
         this.advOpts.rm02Opts = [...new Set(val.map(item => item.RM02))].sort().filter(val => val !== null)
         this.advOpts.srDateOpts = [...new Set(val.map(item => item.SR_DATE))].sort().filter(val => val !== null)
         this.advOpts.srTimeOpts = [...new Set(val.map(item => `${item.SR_TIME?.substring(0, 2)}點`))].sort().filter(val => val !== null && val !== 'undefined點')
+        this.advOpts.declareDayOpts = [...new Set(val.map(item => item.P1MP_DECLARE_DATE))].sort().filter(val => !this.$utils.empty(val))
 
         this.advOpts.sectIdOpts.unshift('')
         this.advOpts.landNumOpts.unshift('無地號')
@@ -688,6 +693,9 @@ export default {
         this.advOpts.rm02Opts.unshift('')
         this.advOpts.srDateOpts.unshift('')
         this.advOpts.srTimeOpts.unshift('')
+        this.advOpts.declareDayOpts.unshift({ value: false, text: '無設定' })
+        this.advOpts.declareDayOpts.unshift({ value: true, text: '有設定' })
+        this.advOpts.declareDayOpts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -726,15 +734,16 @@ export default {
             return item.P1MP_CASENO === this.advOpts.caseNo
           })
         }
-        const checkDeclareDate = this.advOpts.declareDate !== ''
-        if (checkDeclareDate) {
+        const checkDeclareDay = this.advOpts.declareDay !== ''
+        if (checkDeclareDay) {
           pipelineItems = pipelineItems.filter((item) => {
-            const hasDate = !this.$utils.empty(item.P1MP_DECLARE_DATE)
-            if (this.advOpts.declareDate) {
-              return hasDate
-            } else {
-              return !hasDate
+            const declareDate = item.P1MP_DECLARE_DATE
+            if (this.advOpts.declareDay === true) {
+              return !this.$utils.empty(declareDate)
+            } else if (this.advOpts.declareDay === false) {
+              return this.$utils.empty(declareDate)
             }
+            return declareDate === this.advOpts.declareDay
           })
         }
         const checkDeclareNote = this.advOpts.declareNote !== ''
