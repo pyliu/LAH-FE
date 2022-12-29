@@ -491,7 +491,7 @@ export default {
         tags.push(`地價登錄日期：${this.addDateDivider(this.advOpts.srDate)}`)
       }
       if (!this.$utils.empty(this.advOpts.srTime)) {
-        tags.push(`地價登錄時間：${this.addTimeDivider(this.advOpts.srTime)}`)
+        tags.push(`地價登錄時間：${this.advOpts.srTime}`)
       }
       return tags
     },
