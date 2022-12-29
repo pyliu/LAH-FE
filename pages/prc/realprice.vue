@@ -155,17 +155,6 @@ div
     hide-footer
   )
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="收件日期"): b-select(
-        v-model="advOpts.rm07Date",
-        :options="advOpts.rm07DateOpts",
-        title="收件日期"
-      )
-      b-input-group(prepend="　收件字"): b-select(
-        v-model="advOpts.rm02",
-        :options="advOpts.rm02Opts",
-        title="收件字"
-      )
-    .center.d-flex.my-1
       b-input-group.mr-1(prepend="申報序號"): b-select(
         v-model="advOpts.caseNo",
         :options="advOpts.caseNoOpts",
@@ -215,11 +204,27 @@ div
         :options="advOpts.srDateOpts",
         title="地價登錄日期"
       )
-      b-input-group.mr-1(prepend="登錄時間"): b-select(
+      b-input-group(prepend="登錄時間"): b-select(
         v-model="advOpts.srTime",
         :options="advOpts.srTimeOpts",
         title="地價登錄時間"
       )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="　收件字"): b-select(
+        v-model="advOpts.rm02",
+        :options="advOpts.rm02Opts",
+        title="收件字"
+      )
+      b-input-group(prepend="　收件號")
+        //- b-input.mr-1(v-model="advOpts.caseWord", placeholder="... 收件字 ...", trim)
+        b-input(v-model="advOpts.rm03", placeholder="... 收件號 ...", trim)
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="收件日期"): b-select(
+        v-model="advOpts.rm07Date",
+        :options="advOpts.rm07DateOpts",
+        title="收件日期"
+      )
+      b-input-group
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -372,6 +377,7 @@ export default {
       rm07DateOpts: [],
       rm02: '',
       rm02Opts: [],
+      rm03: '',
       srDate: '',
       srDateOpts: [],
       srTime: '',
@@ -477,6 +483,9 @@ export default {
       }
       if (!this.$utils.empty(this.advOpts.rm02)) {
         tags.push(`收件字：${this.advOpts.rm02}`)
+      }
+      if (!this.$utils.empty(this.advOpts.rm03)) {
+        tags.push(`收件號：${this.advOpts.rm03}`)
       }
       if (!this.$utils.empty(this.advOpts.srDate)) {
         tags.push(`地價登錄日期：${this.addDateDivider(this.advOpts.srDate)}`)
@@ -605,6 +614,7 @@ export default {
           valNote: '',
           rm07Date: '',
           rm02: '',
+          rm03: '',
           srDate: '',
           srTime: ''
         }
@@ -630,6 +640,7 @@ export default {
           rm07DateOpts: [],
           rm02: '',
           rm02Opts: [],
+          rm03: '',
           srDate: '',
           srDateOpts: [],
           srTime: '',
@@ -685,7 +696,7 @@ export default {
         const checkLandNum = !this.$utils.empty(this.advOpts.landNum)
         if (checkLandNum) {
           pipelineItems = pipelineItems.filter((item) => {
-            if (this.advOpts.buildingNum === '無地號') {
+            if (this.advOpts.landNum === '無地號') {
               return this.$utils.empty(item.RM12)
             }
             return item.RM12 === this.advOpts.landNum
@@ -712,29 +723,25 @@ export default {
         const checkDeclareDate = this.advOpts.declareDate !== ''
         if (checkDeclareDate) {
           pipelineItems = pipelineItems.filter((item) => {
-            if (!this.$utils.empty(item.P1MP_CASENO)) {
-              const hasDate = !this.$utils.empty(item.P1MP_DECLARE_DATE)
-              if (this.advOpts.declareDate) {
-                return hasDate
-              } else {
-                return !hasDate
-              }
+            const hasDate = !this.$utils.empty(item.P1MP_DECLARE_DATE)
+            if (this.advOpts.declareDate) {
+              return hasDate
+            } else {
+              return !hasDate
             }
-            return false
           })
         }
         const checkDeclareNote = this.advOpts.declareNote !== ''
         if (checkDeclareNote) {
           pipelineItems = pipelineItems.filter((item) => {
-            if (!this.$utils.empty(item.P1MP_CASENO)) {
-              const hasNote = !this.$utils.empty(item.P1MP_DECLARE_NOTE)
-              if (this.advOpts.declareNote) {
-                return hasNote
-              } else {
-                return !hasNote
-              }
+            const hasDate = !this.$utils.empty(item.P1MP_DECLARE_DATE)
+            const hasNote = !this.$utils.empty(item.P1MP_DECLARE_NOTE)
+            // true - 有 ; false - 無
+            if (this.advOpts.declareNote) {
+              return hasNote && hasDate
+            } else {
+              return !hasNote
             }
-            return false
           })
         }
         const checkRegNote = !this.$utils.empty(this.advOpts.regNote)
@@ -759,6 +766,12 @@ export default {
         if (checkRm02) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.RM02 === this.advOpts.rm02
+          })
+        }
+        const checkRm03 = !this.$utils.empty(this.advOpts.rm03)
+        if (checkRm03) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM03.match(this.advOpts.rm03) !== null
           })
         }
         const checkSrDate = !this.$utils.empty(this.advOpts.srDate)
