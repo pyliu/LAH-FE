@@ -585,6 +585,12 @@ export default {
               case 'RM15':
                 obj['建號'] = value
                 break
+              case 'SR_DATE':
+                obj['地價登錄日期'] = value
+                break
+              case 'SR_TIME':
+                obj['地價登錄時間'] = value
+                break
               case 'P1MP_CASENO':
                 obj['申報書序號'] = value
                 break
