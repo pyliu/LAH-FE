@@ -115,6 +115,12 @@ export default {
     }
   },
   watch: {
+    declareDate (val) {
+      if (this.$utils.empty(val)) {
+        // eslint-disable-next-line vue/no-mutating-props
+        this.parentData.P1MP_DECLARE_NOTE = ''
+      }
+    },
     parentData (dontcare) {
       this.syncOrigData()
     },
