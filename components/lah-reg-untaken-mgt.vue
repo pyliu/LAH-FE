@@ -86,7 +86,6 @@ div
           placeholder="變更借閱日期"
           boundary="viewport"
           :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :min="minDate"
           :max="maxDate"
           label-help="使用方向鍵操作移動日期"
           hide-header
@@ -108,7 +107,6 @@ div
           placeholder="設定借閱歸還日期"
           boundary="viewport"
           :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :min="returnDateMin"
           :max="maxDate"
           label-help="使用方向鍵操作移動日期"
           hide-header
