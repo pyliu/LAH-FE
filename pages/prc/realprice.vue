@@ -144,6 +144,8 @@ div
           span {{ addDateDivider(item.SR_DATE) }}
         template(#cell(SR_TIME)="{ item }")
           span {{ addTimeDivider(item.SR_TIME) }}
+        template(#cell(RM54_1)="{ item }")
+          span {{ addDateDivider(item.RM54_1) }}
         template(#cell(作業人員)="{ item }")
           b-button(pill variant="outline-primary" @click="popupUser(item)" size="sm" v-b-tooltip.right="item.RM30_1") {{ item.作業人員 }}
         template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item", @update="clearCache")
@@ -176,7 +178,8 @@ div
         :options="advOpts.buildingNumOpts",
         title="建號"
       )
-    .center.d-flex.my-1
+    hr
+    .center.d-flex
       b-input-group.mr-1(prepend="登記註記"): b-select(
         v-model="advOpts.regNote",
         :options="advOpts.regNoteOpts",
@@ -209,7 +212,8 @@ div
         :options="advOpts.srTimeOpts",
         title="地價登錄時間"
       )
-    .center.d-flex.my-1
+    hr
+    .center.d-flex
       b-input-group.mr-1(prepend="　收件字"): b-select(
         v-model="advOpts.rm02",
         :options="advOpts.rm02Opts",
@@ -224,8 +228,13 @@ div
         :options="advOpts.rm07DateOpts",
         title="收件日期"
       )
-      b-input-group
-    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="登記日期"): b-select(
+        v-model="advOpts.rm54",
+        :options="advOpts.rm54Opts",
+        title="登記登錄日期"
+      )
+    hr
+    .center.d-flex
       lah-button(
         icon="recycle",
         @click="resetAdvOpts",
@@ -311,11 +320,6 @@ export default {
         sortable: false
       },
       {
-        key: '登記處理註記',
-        label: '登記註記',
-        sortable: true
-      },
-      {
         key: '地價處理註記',
         label: '地價註記',
         sortable: true
@@ -328,6 +332,16 @@ export default {
       {
         key: 'SR_TIME',
         label: '地價登錄時間',
+        sortable: true
+      },
+      {
+        key: '登記處理註記',
+        label: '登記註記',
+        sortable: true
+      },
+      {
+        key: 'RM54_1',
+        label: '登記登錄日期',
         sortable: true
       }
       // {
@@ -374,6 +388,8 @@ export default {
       rm02: '',
       rm02Opts: [],
       rm03: '',
+      rm54: '',
+      rm54Opts: [],
       srDate: '',
       srDateOpts: [],
       srTime: '',
@@ -488,6 +504,9 @@ export default {
       }
       if (!this.$utils.empty(this.advOpts.rm03)) {
         tags.push(`收件號：${this.advOpts.rm03}`)
+      }
+      if (!this.$utils.empty(this.advOpts.rm54)) {
+        tags.push(`登記登錄時間：${this.addDateDivider(this.advOpts.rm54)}`)
       }
       if (!this.$utils.empty(this.advOpts.srDate)) {
         tags.push(`地價登錄日期：${this.addDateDivider(this.advOpts.srDate)}`)
@@ -623,6 +642,7 @@ export default {
           rm07Date: '',
           rm02: '',
           rm03: '',
+          rm54: '',
           srDate: '',
           srTime: ''
         }
@@ -649,6 +669,8 @@ export default {
           rm02: '',
           rm02Opts: [],
           rm03: '',
+          rm54: '',
+          rm54Opts: [],
           srDate: '',
           srDateOpts: [],
           srTime: '',
@@ -679,6 +701,7 @@ export default {
         this.advOpts.srDateOpts = [...new Set(val.map(item => item.SR_DATE))].sort().filter(val => val !== null)
         this.advOpts.srTimeOpts = [...new Set(val.map(item => `${item.SR_TIME?.substring(0, 2)}點`))].sort().filter(val => val !== null && val !== 'undefined點')
         this.advOpts.declareDayOpts = [...new Set(val.map(item => item.P1MP_DECLARE_DATE))].sort().filter(val => !this.$utils.empty(val))
+        this.advOpts.rm54Opts = [...new Set(val.map(item => item.RM54_1))].sort().filter(val => val !== null)
 
         this.advOpts.sectIdOpts.unshift('')
         this.advOpts.landNumOpts.unshift('無地號')
@@ -696,6 +719,7 @@ export default {
         this.advOpts.declareDayOpts.unshift({ value: false, text: '無設定' })
         this.advOpts.declareDayOpts.unshift({ value: true, text: '有設定' })
         this.advOpts.declareDayOpts.unshift('')
+        this.advOpts.rm54Opts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -787,6 +811,12 @@ export default {
         if (checkRm03) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.RM03.match(this.advOpts.rm03) !== null
+          })
+        }
+        const checkRm54 = !this.$utils.empty(this.advOpts.rm54)
+        if (checkRm54) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM54_1 === this.advOpts.rm54
           })
         }
         const checkSrDate = !this.$utils.empty(this.advOpts.srDate)
