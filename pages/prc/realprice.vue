@@ -320,6 +320,16 @@ export default {
         sortable: false
       },
       {
+        key: '登記處理註記',
+        label: '登記註記',
+        sortable: true
+      },
+      {
+        key: 'RM54_1',
+        label: '登記登錄日期',
+        sortable: true
+      },
+      {
         key: '地價處理註記',
         label: '地價註記',
         sortable: true
@@ -332,16 +342,6 @@ export default {
       {
         key: 'SR_TIME',
         label: '地價登錄時間',
-        sortable: true
-      },
-      {
-        key: '登記處理註記',
-        label: '登記註記',
-        sortable: true
-      },
-      {
-        key: 'RM54_1',
-        label: '登記登錄日期',
         sortable: true
       }
       // {
