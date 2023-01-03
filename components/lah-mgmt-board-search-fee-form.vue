@@ -128,8 +128,8 @@ b-card(border-variant="info")
 
 <script>
 import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
-import lahMgmtBoardFeeFormStateVue from './lah-mgmt-board-fee-form-state.vue'
 import lahMgmtBoardFeeFormPaymentItemsVue from './lah-mgmt-board-fee-form-payment-items.vue'
+import lahMgmtBoardFeeFormStateVue from './lah-mgmt-board-fee-form-state.vue'
 
 export default {
   components: { lahFeeDataDetailVue, lahMgmtBoardFeeFormStateVue, lahMgmtBoardFeeFormPaymentItemsVue },
@@ -138,7 +138,7 @@ export default {
     paymentButton: { type: Boolean, default: false }
   },
   data: () => ({
-    searchYear: '111',
+    searchYear: '112',
     searchYears: [],
     searchType: 'pc',
     options: [
@@ -185,7 +185,7 @@ export default {
   },
   created () {
     const now = new Date()
-    this.year = now.getFullYear() - 1911
+    this.searchYear = now.getFullYear() - 1911
     this.prepareYears()
     this.clearSearchData()
     this.searchMaxPcNumber()
