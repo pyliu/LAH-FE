@@ -228,7 +228,7 @@ div
         :options="advOpts.rm07DateOpts",
         title="收件日期"
       )
-      b-input-group.mr-1(prepend="登記日期"): b-select(
+      b-input-group(prepend="登記日期"): b-select(
         v-model="advOpts.rm54",
         :options="advOpts.rm54Opts",
         title="登記登錄日期"
