@@ -606,6 +606,9 @@ export default {
               case 'RM15':
                 obj['建號'] = value
                 break
+              case 'RM54_1':
+                obj['登記登錄日期'] = value
+                break
               case 'SR_DATE':
                 obj['地價登錄日期'] = value
                 break
