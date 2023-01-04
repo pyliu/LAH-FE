@@ -33,7 +33,6 @@ div
           size="sm"
           :date-format-options="{ weekday: 'narrow' }"
           :max="today"
-          :min="startDateObj"
           hide-header
           dark
           value-as-date
@@ -141,13 +140,15 @@ div
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(SR_DATE)="{ item }")
-          span {{ addDateDivider(item.SR_DATE) }}
+          .text-nowrap {{ addDateDivider(item.SR_DATE) }}
         template(#cell(SR_TIME)="{ item }")
           span {{ addTimeDivider(item.SR_TIME) }}
         template(#cell(RM54_1)="{ item }")
-          span {{ addDateDivider(item.RM54_1) }}
+          .text-nowrap {{ addDateDivider(item.RM54_1) }}
         template(#cell(RM58_1)="{ item }")
-          span {{ addDateDivider(item.RM58_1) }}
+          .text-nowrap {{ addDateDivider(item.RM58_1) }}
+        template(#cell(收件日期)="{ item }")
+          .text-nowrap {{ item.收件日期 }}
         template(#cell(作業人員)="{ item }")
           b-button(pill variant="outline-primary" @click="popupUser(item)" size="sm" v-b-tooltip.right="item.RM30_1") {{ item.作業人員 }}
         template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item", @update="clearCache")
