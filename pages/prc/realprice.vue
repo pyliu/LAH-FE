@@ -147,6 +147,10 @@ div
           .text-nowrap {{ addDateDivider(item.RM54_1) }}
         template(#cell(RM58_1)="{ item }")
           .text-nowrap {{ addDateDivider(item.RM58_1) }}
+        template(#cell(RM12)="{ item }")
+          .text-nowrap {{ $utils.formatLandNumber(item.RM12) }}
+        template(#cell(RM15)="{ item }")
+          .text-nowrap {{ $utils.formatBuildNumber(item.RM15) }}
         template(#cell(收件日期)="{ item }")
           .text-nowrap {{ item.收件日期 }}
         template(#cell(作業人員)="{ item }")
@@ -720,8 +724,26 @@ export default {
           ]
         }))].sort()
         this.advOpts.sectIdOpts = [...tmp.map(arr => arr[1])]
-        this.advOpts.landNumOpts = [...new Set(val.map(item => item.RM12))].sort().filter(val => val !== null)
-        this.advOpts.buildingNumOpts = [...new Set(val.map(item => item.RM15))].sort().filter(val => val !== null)
+        this.advOpts.landNumOpts = this.$utils.sortBy(
+          this.$utils.uniqBy(
+            [...new Set(val.map(item => ({
+              value: item.RM12,
+              text: this.$utils.formatLandNumber(item.RM12)
+            })))].filter(val => val !== null && !this.$utils.empty(val.value)),
+            'value'
+          ),
+          'value'
+        )
+        this.advOpts.buildingNumOpts = this.$utils.sortBy(
+          this.$utils.uniqBy(
+            [...new Set(val.map(item => ({
+              value: item.RM15,
+              text: this.$utils.formatBuildNumber(item.RM15)
+            })))].filter(val => val !== null && !this.$utils.empty(val.value)),
+            'value'
+          ),
+          'value'
+        )
         this.advOpts.caseNoOpts = [...new Set(val.map(item => item.P1MP_CASENO))].sort().filter(val => val !== null)
         this.advOpts.regNoteOpts = [...new Set(val.map(item => item.登記處理註記))].sort().filter(val => !this.$utils.empty(val))
         this.advOpts.valNoteOpts = [...new Set(val.map(item => item.地價處理註記))].sort().filter(val => !this.$utils.empty(val))
