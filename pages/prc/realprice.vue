@@ -32,7 +32,7 @@ div
           boundary="viewport"
           size="sm"
           :date-format-options="{ weekday: 'narrow' }"
-          :max="today"
+          :min="startDateObj"
           hide-header
           dark
           value-as-date
