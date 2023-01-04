@@ -14,6 +14,7 @@ import remove from 'lodash/remove'
 import sortBy from 'lodash/sortBy'
 import sortedUniq from 'lodash/sortedUniq'
 import uniqBy from 'lodash/uniqBy'
+import uniqWith from 'lodash/uniqWith'
 import without from 'lodash/without'
 import _md5 from 'md5'
 // Require tw locale
@@ -165,6 +166,7 @@ export default ({ $axios, store }, inject) => {
     reject,
     sortedUniq,
     uniqBy,
+    uniqWith,
     orderBy,
     sortBy,
     md5: _md5,
