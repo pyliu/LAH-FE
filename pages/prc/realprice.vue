@@ -726,20 +726,20 @@ export default {
         this.advOpts.sectIdOpts = [...tmp.map(arr => arr[1])]
         this.advOpts.landNumOpts = this.$utils.sortBy(
           this.$utils.uniqWith(
-            [...new Set(val.map(item => ({
+            [...val.map(item => ({
               value: item.RM12,
               text: this.$utils.formatLandNumber(item.RM12)
-            })))].filter(val => val !== null && !this.$utils.empty(val.value)),
+            }))].filter(val => val !== null && !this.$utils.empty(val.value)),
             this.$utils.equal
           ),
           'value'
         )
         this.advOpts.buildingNumOpts = this.$utils.sortBy(
           this.$utils.uniqWith(
-            [...new Set(val.map(item => ({
+            [...val.map(item => ({
               value: item.RM15,
               text: this.$utils.formatBuildNumber(item.RM15)
-            })))].filter(val => val !== null && !this.$utils.empty(val.value)),
+            }))].filter(val => val !== null && !this.$utils.empty(val.value)),
             this.$utils.equal
           ),
           'value'
