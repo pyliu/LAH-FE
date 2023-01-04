@@ -146,6 +146,8 @@ div
           span {{ addTimeDivider(item.SR_TIME) }}
         template(#cell(RM54_1)="{ item }")
           span {{ addDateDivider(item.RM54_1) }}
+        template(#cell(RM58_1)="{ item }")
+          span {{ addDateDivider(item.RM58_1) }}
         template(#cell(作業人員)="{ item }")
           b-button(pill variant="outline-primary" @click="popupUser(item)" size="sm" v-b-tooltip.right="item.RM30_1") {{ item.作業人員 }}
         template(#cell(memo)="{ item }"): lah-val-realprice-memo(:parent-data="item", @update="clearCache")
@@ -233,6 +235,13 @@ div
         :options="advOpts.rm54Opts",
         title="登記登錄日期"
       )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="結案日期"): b-select(
+        v-model="advOpts.rm58",
+        :options="advOpts.rm58Opts",
+        title="結案日期"
+      )
+      b-input-group
     hr
     .center.d-flex
       lah-button(
@@ -343,6 +352,11 @@ export default {
         key: 'SR_TIME',
         label: '地價登錄時間',
         sortable: true
+      },
+      {
+        key: 'RM58_1',
+        label: '登記結案日期',
+        sortable: true
       }
       // {
       //   key: 'P1MP_INSDATE',
@@ -390,6 +404,8 @@ export default {
       rm03: '',
       rm54: '',
       rm54Opts: [],
+      rm58: '',
+      rm58Opts: [],
       srDate: '',
       srDateOpts: [],
       srTime: '',
@@ -508,6 +524,9 @@ export default {
       if (!this.$utils.empty(this.advOpts.rm54)) {
         tags.push(`登記登錄時間：${this.addDateDivider(this.advOpts.rm54)}`)
       }
+      if (!this.$utils.empty(this.advOpts.rm58)) {
+        tags.push(`登記結案時間：${this.addDateDivider(this.advOpts.rm58)}`)
+      }
       if (!this.$utils.empty(this.advOpts.srDate)) {
         tags.push(`地價登錄日期：${this.addDateDivider(this.advOpts.srDate)}`)
       }
@@ -609,6 +628,9 @@ export default {
               case 'RM54_1':
                 obj['登記登錄日期'] = value
                 break
+              case 'RM58_1':
+                obj['結案日期'] = value
+                break
               case 'SR_DATE':
                 obj['地價登錄日期'] = value
                 break
@@ -646,6 +668,7 @@ export default {
           rm02: '',
           rm03: '',
           rm54: '',
+          rm58: '',
           srDate: '',
           srTime: ''
         }
@@ -674,6 +697,8 @@ export default {
           rm03: '',
           rm54: '',
           rm54Opts: [],
+          rm58: '',
+          rm58Opts: [],
           srDate: '',
           srDateOpts: [],
           srTime: '',
@@ -705,6 +730,7 @@ export default {
         this.advOpts.srTimeOpts = [...new Set(val.map(item => `${item.SR_TIME?.substring(0, 2)}點`))].sort().filter(val => val !== null && val !== 'undefined點')
         this.advOpts.declareDayOpts = [...new Set(val.map(item => item.P1MP_DECLARE_DATE))].sort().filter(val => !this.$utils.empty(val))
         this.advOpts.rm54Opts = [...new Set(val.map(item => item.RM54_1))].sort().filter(val => val !== null)
+        this.advOpts.rm58Opts = [...new Set(val.map(item => item.RM58_1))].sort().filter(val => val !== null)
 
         this.advOpts.sectIdOpts.unshift('')
         this.advOpts.landNumOpts.unshift('無地號')
@@ -723,6 +749,7 @@ export default {
         this.advOpts.declareDayOpts.unshift({ value: true, text: '有設定' })
         this.advOpts.declareDayOpts.unshift('')
         this.advOpts.rm54Opts.unshift('')
+        this.advOpts.rm58Opts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -820,6 +847,12 @@ export default {
         if (checkRm54) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.RM54_1 === this.advOpts.rm54
+          })
+        }
+        const checkRm58 = !this.$utils.empty(this.advOpts.rm58)
+        if (checkRm58) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.RM58_1 === this.advOpts.rm58
           })
         }
         const checkSrDate = !this.$utils.empty(this.advOpts.srDate)
