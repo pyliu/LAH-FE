@@ -740,7 +740,9 @@ export default {
         this.advOpts.buildingNumOpts.unshift('')
         this.advOpts.caseNoOpts.unshift('未輸入')
         this.advOpts.caseNoOpts.unshift('')
+        this.advOpts.regNoteOpts.unshift('未更新')
         this.advOpts.regNoteOpts.unshift('')
+        this.advOpts.valNoteOpts.unshift('未更新')
         this.advOpts.valNoteOpts.unshift('')
         this.advOpts.rm07DateOpts.unshift('')
         this.advOpts.rm02Opts.unshift('')
@@ -817,12 +819,18 @@ export default {
         const checkRegNote = !this.$utils.empty(this.advOpts.regNote)
         if (checkRegNote) {
           pipelineItems = pipelineItems.filter((item) => {
+            if (this.advOpts.regNote === '未更新') {
+              return this.$utils.empty(item.登記處理註記)
+            }
             return item.登記處理註記 === this.advOpts.regNote
           })
         }
         const checkValNote = !this.$utils.empty(this.advOpts.valNote)
         if (checkValNote) {
           pipelineItems = pipelineItems.filter((item) => {
+            if (this.advOpts.valNote === '未更新') {
+              return this.$utils.empty(item.地價處理註記)
+            }
             return item.地價處理註記 === this.advOpts.valNote
           })
         }
