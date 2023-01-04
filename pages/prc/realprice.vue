@@ -246,7 +246,11 @@ div
         :options="advOpts.rm58Opts",
         title="結案日期"
       )
-      b-input-group
+      b-input-group(prepend="作業人員"): b-select(
+        v-model="advOpts.operator",
+        :options="advOpts.operatorOpts",
+        title="作業人員"
+      )
     hr
     .center.d-flex
       lah-button(
@@ -414,7 +418,9 @@ export default {
       srDate: '',
       srDateOpts: [],
       srTime: '',
-      srTimeOpts: []
+      srTimeOpts: [],
+      operator: '',
+      operatorOpts: []
     },
     maxHeight: 600,
     choosedItem: null
@@ -537,6 +543,9 @@ export default {
       }
       if (!this.$utils.empty(this.advOpts.srTime)) {
         tags.push(`地價登錄時間：${this.advOpts.srTime}`)
+      }
+      if (!this.$utils.empty(this.advOpts.operator)) {
+        tags.push(`作業人員：${this.advOpts.operator}`)
       }
       return tags
     },
@@ -675,7 +684,8 @@ export default {
           rm54: '',
           rm58: '',
           srDate: '',
-          srTime: ''
+          srTime: '',
+          operator: ''
         }
       }
     },
@@ -709,7 +719,9 @@ export default {
           srTime: '',
           srTimeOpts: [],
           declareDay: '',
-          declareDayOpts: []
+          declareDayOpts: [],
+          operator: '',
+          operatorOpts: []
         }
       }
       if (val) {
@@ -754,6 +766,7 @@ export default {
         this.advOpts.declareDayOpts = [...new Set(val.map(item => item.P1MP_DECLARE_DATE))].sort().filter(val => !this.$utils.empty(val))
         this.advOpts.rm54Opts = [...new Set(val.map(item => item.RM54_1))].sort().filter(val => val !== null)
         this.advOpts.rm58Opts = [...new Set(val.map(item => item.RM58_1))].sort().filter(val => val !== null)
+        this.advOpts.operatorOpts = [...new Set(val.map(item => item.作業人員))].sort().filter(val => val !== null)
 
         this.advOpts.sectIdOpts.unshift('')
         this.advOpts.landNumOpts.unshift('無地號')
@@ -775,6 +788,7 @@ export default {
         this.advOpts.declareDayOpts.unshift('')
         this.advOpts.rm54Opts.unshift('')
         this.advOpts.rm58Opts.unshift('')
+        this.advOpts.operatorOpts.unshift('')
       }
     },
     filterBakedData (source) {
@@ -896,6 +910,12 @@ export default {
         if (checkSrTime) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.SR_TIME?.startsWith(this.advOpts.srTime?.substring(0, 2))
+          })
+        }
+        const checkOperator = !this.$utils.empty(this.advOpts.operator)
+        if (checkOperator) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.作業人員 === this.advOpts.operator
           })
         }
         return pipelineItems
