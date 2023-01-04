@@ -1,21 +1,21 @@
 /* eslint-disable no-control-regex */
 /* eslint-disable prefer-regex-literals */
 /* eslint-disable prefer-promise-reject-errors */
-import $ from 'jquery'
-import isEqual from 'lodash/isEqual'
-import isEmpty from 'lodash/isEmpty'
-import debounce from 'lodash/debounce'
-import remove from 'lodash/remove'
-import without from 'lodash/without'
-import filter from 'lodash/filter'
-import reject from 'lodash/reject'
-import sortedUniq from 'lodash/sortedUniq'
-import uniqBy from 'lodash/uniqBy'
-import orderBy from 'lodash/orderBy'
-import sortBy from 'lodash/sortBy'
-import _md5 from 'md5'
 import uploadAxios from 'axios'
 import { format, formatDistanceToNow } from 'date-fns'
+import $ from 'jquery'
+import debounce from 'lodash/debounce'
+import filter from 'lodash/filter'
+import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
+import orderBy from 'lodash/orderBy'
+import reject from 'lodash/reject'
+import remove from 'lodash/remove'
+import sortBy from 'lodash/sortBy'
+import sortedUniq from 'lodash/sortedUniq'
+import uniqBy from 'lodash/uniqBy'
+import without from 'lodash/without'
+import _md5 from 'md5'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
 
@@ -401,6 +401,22 @@ export default ({ $axios, store }, inject) => {
     },
     length (chinese) {
       return chinese.replace(/[^\x00-\xFF]/g, 'xx').length
+    },
+    formatLandNumber (str) {
+      if (typeof str === 'string' && str.length === 8) {
+        const mainNumber = str.substring(0, 4).replace(/^0+/, '')
+        const subNumber = str.substring(4).replace(/^0+/, '')
+        return this.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+      }
+      return ''
+    },
+    formatBuildNumber (str) {
+      if (typeof str === 'string' && str.length === 8) {
+        const mainNumber = str.substring(0, 5).replace(/^0+/, '')
+        const subNumber = str.substring(5).replace(/^0+/, '')
+        return this.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
+      }
+      return ''
     },
     highlight (str, regex, css, title = '') {
       const chunks = highlightWords({
