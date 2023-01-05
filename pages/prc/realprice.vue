@@ -73,18 +73,25 @@ div
           @click="reload"
         )
 
-  lah-transition: b-tags.border-0.mt-n4(
-    v-if="advTags.length > 0",
-    v-model="advTags",
-    placeholder="",
-    tag-variant="info",
-    tag-pills,
-    no-outer-focus,
-    no-add-on-enter,
-    no-tag-remove,
-    add-button-variant="white"
-    add-button-text=""
-  )
+  .d-flex.justify-content-between
+    b-tags.border-0(
+      v-model="advTags",
+      placeholder="",
+      tag-variant="info",
+      tag-pills,
+      no-outer-focus,
+      no-add-on-enter,
+      no-tag-remove,
+      add-button-variant="white"
+      add-button-text="",
+      size="lg"
+    )
+    b-input-group.fixed-per-page(prepend="每頁顯示筆數"): b-input(
+      v-model="perPage",
+      type="number",
+      min="5",
+      max="100"
+    )
   .d-flex.justify-content-end.mb-1
     b-pagination(
       v-if="showPagination"
@@ -571,10 +578,14 @@ export default {
     },
     filterRegBakedData (dontcare) {
       this.currentPage = 1
+    },
+    perPage (val) {
+      val > 5 && this.setCache('realprice-perpage', val)
     }
   },
-  mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
+  async mounted () {
+    this.maxHeight = parseInt(window.innerHeight - 185)
+    this.perPage = await this.getCache('realprice-perpage') || 20
   },
   methods: {
     addDateDivider (str) {
@@ -935,5 +946,9 @@ export default {
 }
 .tags-input {
   width: 100vw;
+}
+.fixed-per-page {
+  max-width: 190px;
+  height: 100%;
 }
 </style>
