@@ -584,7 +584,7 @@ export default {
     }
   },
   async mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 185)
+    this.maxHeight = parseInt(window.innerHeight - 180)
     this.perPage = await this.getCache('realprice-perpage') || 20
   },
   methods: {
@@ -940,9 +940,6 @@ export default {
 <style lang="scss" scoped>
 .move-table-up {
   margin-top: -25px;
-}
-.fixed-height-table {
-  max-height: calc(100% - 135px);
 }
 .tags-input {
   width: 100vw;
