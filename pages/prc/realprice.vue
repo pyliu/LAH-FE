@@ -404,11 +404,7 @@ export default {
       declareDay: '',
       declareDayOpts: [],
       declareNote: '',
-      declareNoteOpts: [
-        { value: '', text: '' },
-        { value: true, text: '有' },
-        { value: false, text: '無' }
-      ],
+      declareNoteOpts: [],
       regNote: '',
       regNoteOpts: [],
       valNote: '',
@@ -731,6 +727,8 @@ export default {
           srTimeOpts: [],
           declareDay: '',
           declareDayOpts: [],
+          declareNote: '',
+          declareNoteOpts: [],
           operator: '',
           operatorOpts: []
         }
@@ -775,6 +773,7 @@ export default {
         this.advOpts.srDateOpts = [...new Set(val.map(item => item.SR_DATE))].sort().filter(val => val !== null)
         this.advOpts.srTimeOpts = [...new Set(val.map(item => `${item.SR_TIME?.substring(0, 2)}點`))].sort().filter(val => val !== null && val !== 'undefined點')
         this.advOpts.declareDayOpts = [...new Set(val.map(item => item.P1MP_DECLARE_DATE))].sort().filter(val => !this.$utils.empty(val))
+        this.advOpts.declareNoteOpts = [...new Set(val.map(item => item.P1MP_DECLARE_NOTE))].sort().filter(val => !this.$utils.empty(val))
         this.advOpts.rm54Opts = [...new Set(val.map(item => item.RM54_1))].sort().filter(val => val !== null)
         this.advOpts.rm58Opts = [...new Set(val.map(item => item.RM58_1))].sort().filter(val => val !== null)
         this.advOpts.operatorOpts = [...new Set(val.map(item => item.作業人員))].sort().filter(val => val !== null)
@@ -797,6 +796,9 @@ export default {
         this.advOpts.declareDayOpts.unshift({ value: false, text: '無設定' })
         this.advOpts.declareDayOpts.unshift({ value: true, text: '有設定' })
         this.advOpts.declareDayOpts.unshift('')
+        this.advOpts.declareNoteOpts.unshift({ value: false, text: '無' })
+        this.advOpts.declareNoteOpts.unshift({ value: true, text: '有' })
+        this.advOpts.declareNoteOpts.unshift('')
         this.advOpts.rm54Opts.unshift('')
         this.advOpts.rm58Opts.unshift('')
         this.advOpts.operatorOpts.unshift('')
@@ -856,11 +858,12 @@ export default {
             const hasDate = !this.$utils.empty(item.P1MP_DECLARE_DATE)
             const hasNote = !this.$utils.empty(item.P1MP_DECLARE_NOTE)
             // true - 有 ; false - 無
-            if (this.advOpts.declareNote) {
+            if (this.advOpts.declareNote === true) {
               return hasNote && hasDate
-            } else {
+            } else if (this.advOpts.declareNote === false) {
               return !hasNote
             }
+            return this.$utils.equal(item.P1MP_DECLARE_NOTE, this.advOpts.declareNote)
           })
         }
         const checkRegNote = !this.$utils.empty(this.advOpts.regNote)
