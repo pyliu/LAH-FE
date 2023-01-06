@@ -518,7 +518,13 @@ export default {
         tags.push(`申報日期：${text}`)
       }
       if (this.advOpts.declareNote !== '') {
-        tags.push(`申報備註：${this.advOpts.declareNote ? '有' : '無'}`)
+        let text = this.advOpts.declareNote
+        if (text === true) {
+          text = '有'
+        } else if (text === false) {
+          text = '無'
+        }
+        tags.push(`申報備註：${text}`)
       }
       if (!this.$utils.empty(this.advOpts.regNote)) {
         tags.push(`登記處理註記：${this.advOpts.regNote}`)
