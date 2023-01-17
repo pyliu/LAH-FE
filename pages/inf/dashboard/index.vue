@@ -56,6 +56,10 @@ div(v-cloak)
       lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
       lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
     b-card-group.mb-4(deck)
+      lah-monitor-board-L05.card-body-fixed-height(@light-update="lightUpdate", footer)
+      b-card
+      b-card
+    b-card-group.mb-4(deck)
       lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
       lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
       lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate", footer)

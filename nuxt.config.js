@@ -132,6 +132,14 @@ export default {
     axios: {
       // Default: baseURL; when the proxy option is true, it will become PREFIX instead of baseURL
       browserBaseURL: process.env.BROWSER_BASE_URL
+    },
+    monitor: {
+      host: {
+        L05: {
+          ip: process.env.MONITOR_HOST_L05_IP,
+          port: process.env.MONITOR_HOST_L05_PORT
+        }
+      }
     }
   },
   // should hold all env variables that are private and that should not be exposed on the frontend.
