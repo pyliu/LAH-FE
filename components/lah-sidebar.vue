@@ -17,7 +17,7 @@ b-sidebar#lah-sidebar(
     ul.mt-n3
       li: hr
 
-      li: nuxt-link(to="/").
+      li: nuxt-link(to="/reg").
         #[font-awesome-icon(:icon="['fas', 'home']", fixed-width, pull="left", size="lg")]
         智慧控管首頁
       li: nuxt-link(v-if="authority.isAdmin", to="/inf").

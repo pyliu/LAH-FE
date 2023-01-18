@@ -55,7 +55,7 @@ div
 </template>
 
 <script>
-import expiryBase from '~/pages/expire/expiry-base.js'
+import expiryBase from '~/pages/reg/expire/expiry-base.js'
 export default {
   mixins: [expiryBase],
   validate ({ params, store, redirect }) {

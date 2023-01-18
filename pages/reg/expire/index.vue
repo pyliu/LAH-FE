@@ -4,7 +4,7 @@ div
     .d-flex.w-100
       .d-flex.mr-auto.align-items-center
         .my-auto.mr-1 登記案件
-        b-badge.mr-1(pill, :variant="switchButtonVariant") 
+        b-badge.mr-1(pill, :variant="switchButtonVariant")
           span.ld-txt(v-if="filtering || isBusy") 處理中...
           span(v-else) {{ storeCaseCount }} 件
         b-form-radio-group.my-auto(
@@ -163,7 +163,7 @@ div
 </template>
 
 <script>
-import expiryBase from '~/pages/expire/expiry-base.js'
+import expiryBase from '~/pages/reg/expire/expiry-base.js'
 export default {
   // middleware: [ 'expireAuth' ],
   mixins: [expiryBase],

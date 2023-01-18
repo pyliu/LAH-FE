@@ -12,16 +12,6 @@ h3.d-flex.justify-content-between.py-3
   client-only: slot
   lah-transition: .d-flex
     lah-button.home-button.ml-1(
-      v-if="authority.isAdmin && showAdminHome"
-      icon="display"
-      size="lg"
-      action="ld-breath"
-      variant="primary"
-      title="回到智慧監控首頁"
-      to="/inf"
-      no-icon-gutter
-    )
-    lah-button.home-button.ml-1(
       v-if="showHome"
       :icon="icon"
       size="lg"
@@ -39,7 +29,6 @@ h3.d-flex.justify-content-between.py-3
 export default {
   computed: {
     showHome () { return this.$route.path !== '/' },
-    showAdminHome () { return this.$route.path !== '/inf' },
     icon () { return this.systemConfigs.mock ? 'laptop-code' : 'house-chimney' },
     variant () { return this.systemConfigs.mock ? 'success' : 'outline-dark' },
     title () { return this.systemConfigs.mock ? '注意：系統處於模擬模式' : '回到智慧控管系統首頁' }
