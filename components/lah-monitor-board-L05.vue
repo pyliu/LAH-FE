@@ -15,28 +15,55 @@ b-card(:border-variant="borderVariant")
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 從伺服器端 .env 檔案讀取 MONITOR_HOST_L05 設定為監控標的 (目前為 {{ ip }}:{{ port }})
+        li 被監控的伺服器需安裝「智慧監控應用程式介面」以提供分析資料
         li 5分鐘更新資料一次
-
-  div {{ this.message }}
-  div 同步資料夾：{{ this.syncDir }}
-  div 程式名稱：{{ this.perf?.proc }}
-  div 行程ID：{{ this.perf?.pid }}
-  .d-flex.align-items-center
-    .mr-1 最近 {{ this.logs.length }} 筆紀錄
+  template(#footer): client-only: .d-flex.align-items-center.justify-content-between.small
+    lah-countdown-button.border-0(
+      size="sm",
+      ref="countdown",
+      icon="sync-alt",
+      action="ld-cycle",
+      auto-start,
+      title="立即重新讀取",
+      variant="outline-secondary",
+      badge-variant="secondary",
+      :milliseconds="reloadMs",
+      :disabled="isBusy",
+      :busy="isBusy",
+      @end="checkL05Status",
+      @click="checkL05Status"
+    )
     lah-button(
-      v-if="this.logs.length > 0",
+      v-if="logs.length > 0"
       size="sm",
       @click="popLogs"
-    ) 顯示詳情
+    ) 傳送紀錄
+    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
+
+  .font-weight-bold.small {{ this.message }}
+  lah-transition: b-list-group.small(v-if="!isBusy", flush)
+    b-list-group-item 最近同步時間：{{ this.lastSyncTime }}
+    b-list-group-item(button) 同步資料夾：{{ this.syncDir }}
+    b-list-group-item 運作程式：{{ this.perf?.proc }} 行程代碼: {{ this.perf?.pid }}
+
   b-modal(
     ref="logs",
+    size="lg",
     :title="`${header} - 最近 ${logs.length} 筆紀錄`",
     hide-footer
   )
-    div(v-for="row in logs") {{ row.QryContent }} {{ row.QryResult }}
-  template(#footer): .d-flex.justify-content-end.small
-    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
-
+    b-table(
+      :items="logs",
+      :fields="logFields",
+      :busy="isBusy",
+      head-variant="dark",
+      striped,
+      hover,
+      bordered,
+      selectable
+    )
+      template(#cell(FinDate)="{ item }") {{ $utils.addDateDivider(item.FinDate, 'AD') }}
+      template(#cell(FinTime)="{ item }") {{ $utils.addTimeDivider(item.FinTime,) }}
 </template>
 
 <script>
@@ -45,9 +72,16 @@ export default {
   emit: ['light-update'],
   data: () => ({
     header: '建物圖籍同步異動',
+    reloadMs: 5 * 60 * 1000,
     reloadTimer: null,
     updatedTime: '',
-    statusData: null
+    statusData: null,
+    logFields: [
+      { key: 'FinDate', label: '日期', sortable: true },
+      { key: 'FinTime', label: '時間', sortable: true },
+      { key: 'QryContent', label: '內容', sortable: true },
+      { key: 'QryResult', label: '結果', sortable: true }
+    ]
   }),
   computed: {
     ip () {
@@ -69,7 +103,13 @@ export default {
       return this.statusData?.payload?.loading || {}
     },
     syncDir () {
-      return this.statusData?.payload?.path || '未取得同步資料夾資訊'
+      return this.statusData?.payload?.path || ''
+    },
+    lastSyncTime () {
+      if (this.logs.length > 0) {
+        return this.$utils.addDateDivider(this.logs[0].FinDate, 'AD') + ' ' + this.$utils.addTimeDivider(this.logs[0].FinTime)
+      }
+      return ''
     },
     light () {
       if (this.statusData === null) {
@@ -88,20 +128,18 @@ export default {
     }
   },
   watch: {
-    statusData (val) {
-      if (val) {
-        console.warn(val)
-      }
-    },
+    // statusData (val) {
+    //   if (val) {
+    //     console.warn(val)
+    //   }
+    // },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     }
   },
-  created () {
-    this.checkL05Status()
-  },
   mounted () {
     this.emitLightUpdate(this.light, '')
+    this.checkL05Status()
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
@@ -111,6 +149,7 @@ export default {
     checkL05Status () {
       clearTimeout(this.reloadTimer)
       this.statusData = null
+      this.isBusy = true
       this.$axios
         .get(this.statusAPIUrl)
         .then(({ data }) => {
@@ -122,7 +161,10 @@ export default {
         .finally(() => {
           this.updatedTime = this.$utils.now().split(' ')[1]
           // reload every 15s
-          this.timeout(this.checkL05Status, 5 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
+          this.timeout(this.checkL05Status, this.reloadMs).then((handler) => { this.reloadTimer = handler })
+          this.isBusy = false
+          this.$refs.countdown?.setCountdown(this.reloadMs)
+          this.$refs.countdown?.startCountdown()
         })
     },
     emitLightUpdate (n, o) {

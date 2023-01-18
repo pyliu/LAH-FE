@@ -401,9 +401,15 @@ export default ({ $axios, store }, inject) => {
         locale: zhTW
       })
     },
-    addDateDivider (str) {
-      if (this.$utils.empty(str)) {
+    addDateDivider (str, ad = false) {
+      if (this.empty(str)) {
         return ''
+      }
+      if (ad === 'AD' || ad === true) {
+        const Y = str.substring(0, 4)
+        const M = str.substring(4, 6)
+        const D = str.substring(6, 8)
+        return `${Y}-${M}-${D}`
       }
       const Y = str.substring(0, 3)
       const M = str.substring(3, 5)
@@ -411,7 +417,7 @@ export default ({ $axios, store }, inject) => {
       return `${Y}-${M}-${D}`
     },
     addTimeDivider (str) {
-      if (this.$utils.empty(str)) {
+      if (this.empty(str)) {
         return ''
       }
       const Y = str.substring(0, 2)
