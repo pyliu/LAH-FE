@@ -157,6 +157,17 @@ export default {
         })
         .catch((err) => {
           this.error = err
+          this.statusData = {
+            ...{
+              statusCode: -1,
+              message: `❌ 無法取得 ${this.statusAPIUrl} 狀態資料`,
+              payload: {
+                logs: [],
+                path: '',
+                loading: {}
+              }
+            }
+          }
         })
         .finally(() => {
           this.updatedTime = this.$utils.now().split(' ')[1]
