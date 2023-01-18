@@ -67,7 +67,7 @@ b-card(border-variant="info")
                 no-icon-gutter,
                 @click="caseDetail(`${record.AC16}${record.AC17}${record.AC18}`)"
               )
-            .text-nowrap.ml-1 金額 {{ $utils.addComma(record.AC30) }} 元
+            .text-nowrap.ml-1 金額 {{ $utils.addMoneyComma(record.AC30) }} 元
     h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)

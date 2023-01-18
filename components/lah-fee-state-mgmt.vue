@@ -16,7 +16,7 @@ b-card.border-0(no-body)
       b-col(v-b-tooltip="expaaData.AA39") 作業人員：{{ operator }}
     b-row
       b-col 收費方式：{{ expaaData.AA100_CHT }}
-      b-col 實收金額：{{ $utils.addComma(expaaData.AA28) }}元
+      b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
 
   .w-100(:class="vertical ? ['d-flex-column'] : ['d-flex']")
     //- 列印狀態
