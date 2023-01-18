@@ -133,6 +133,15 @@ export default {
       // Default: baseURL; when the proxy option is true, it will become PREFIX instead of baseURL
       browserBaseURL: process.env.BROWSER_BASE_URL
     },
+    webap: {
+      x: process.env.WEBAP_X,
+      reg: process.env.WEBAP_REG,
+      sur: process.env.WEBAP_SUR,
+      val: process.env.WEBAP_VAL,
+      use: process.env.WEBAP_USE,
+      ext: process.env.WEBAP_EXT,
+      taoyuan: process.env.WEBAP_TAOYUAN
+    },
     monitor: {
       host: {
         L05: {
