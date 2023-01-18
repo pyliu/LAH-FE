@@ -20,6 +20,12 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/reg").
         #[font-awesome-icon(:icon="['fas', 'home']", fixed-width, pull="left", size="lg")]
         智慧控管首頁
+      li: nuxt-link(to="/prc").
+        #[font-awesome-icon(:icon="['fas', 'money-bill-wave']", fixed-width, pull="left", size="lg")]
+        地價小幫手首頁
+      li: nuxt-link(to="/sur").
+        #[font-awesome-icon(:icon="['fas', 'map-location']", fixed-width, pull="left", size="lg")]
+        測量小幫手首頁
       li: nuxt-link(v-if="authority.isAdmin", to="/inf").
         #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
         智慧監控首頁

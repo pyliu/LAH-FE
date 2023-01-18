@@ -17,15 +17,18 @@ b-sidebar#lah-sidebar(
     ul.mt-n3
       li: hr
 
-      li: nuxt-link(to="/reg").
-        #[font-awesome-icon(:icon="['fas', 'house']", fixed-width, pull="left", size="lg")]
-        智慧控管首頁
       li: nuxt-link(to="/inf").
         #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
         智慧監控首頁
+      li: nuxt-link(to="/reg").
+        #[font-awesome-icon(:icon="['fas', 'house']", fixed-width, pull="left", size="lg")]
+        智慧控管首頁
       li: nuxt-link(to="/prc").
         #[font-awesome-icon(:icon="['fas', 'money-bill-wave']", fixed-width, pull="left", size="lg")]
         地價小幫手首頁
+      li: nuxt-link(to="/sur").
+        #[font-awesome-icon(:icon="['fas', 'map-location']", fixed-width, pull="left", size="lg")]
+        測量小幫手首頁
       //- li: nuxt-link(to="/prc/realprice").
       //-   #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
       //-   實價登錄案件控管
