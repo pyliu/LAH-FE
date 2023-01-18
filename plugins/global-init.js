@@ -339,7 +339,7 @@ export default ({ $axios, store }, inject) => {
       }
       return false
     },
-    addComma (dollar) {
+    addMoneyComma (dollar) {
       const str = (dollar).toLocaleString('en')
       return parseInt(str).toLocaleString('en')
     },
@@ -400,6 +400,24 @@ export default ({ $axios, store }, inject) => {
         includeSeconds: true,
         locale: zhTW
       })
+    },
+    addDateDivider (str) {
+      if (this.$utils.empty(str)) {
+        return ''
+      }
+      const Y = str.substring(0, 3)
+      const M = str.substring(3, 5)
+      const D = str.substring(5, 7)
+      return `${Y}-${M}-${D}`
+    },
+    addTimeDivider (str) {
+      if (this.$utils.empty(str)) {
+        return ''
+      }
+      const Y = str.substring(0, 2)
+      const M = str.substring(2, 4)
+      const D = str.substring(4, 6)
+      return `${Y}:${M}:${D}`
     },
     length (chinese) {
       return chinese.replace(/[^\x00-\xFF]/g, 'xx').length

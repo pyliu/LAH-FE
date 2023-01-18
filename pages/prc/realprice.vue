@@ -147,13 +147,13 @@ div
         template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
           {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
         template(#cell(SR_DATE)="{ item }")
-          .text-nowrap {{ addDateDivider(item.SR_DATE) }}
+          .text-nowrap {{ $utils.addDateDivider(item.SR_DATE) }}
         template(#cell(SR_TIME)="{ item }")
-          span {{ addTimeDivider(item.SR_TIME) }}
+          span {{ $utils.addTimeDivider(item.SR_TIME) }}
         template(#cell(RM54_1)="{ item }")
-          .text-nowrap {{ addDateDivider(item.RM54_1) }}
+          .text-nowrap {{ $utils.addDateDivider(item.RM54_1) }}
         template(#cell(RM58_1)="{ item }")
-          .text-nowrap {{ addDateDivider(item.RM58_1) }}
+          .text-nowrap {{ $utils.addDateDivider(item.RM58_1) }}
         template(#cell(RM12)="{ item }")
           .text-nowrap {{ $utils.formatLandNumber(item.RM12) }}
         template(#cell(RM15)="{ item }")
@@ -542,13 +542,13 @@ export default {
         tags.push(`收件號：${this.advOpts.rm03}`)
       }
       if (!this.$utils.empty(this.advOpts.rm54)) {
-        tags.push(`登記登錄時間：${this.addDateDivider(this.advOpts.rm54)}`)
+        tags.push(`登記登錄時間：${this.$utils.addDateDivider(this.advOpts.rm54)}`)
       }
       if (!this.$utils.empty(this.advOpts.rm58)) {
-        tags.push(`登記結案時間：${this.addDateDivider(this.advOpts.rm58)}`)
+        tags.push(`登記結案時間：${this.$utils.addDateDivider(this.advOpts.rm58)}`)
       }
       if (!this.$utils.empty(this.advOpts.srDate)) {
-        tags.push(`地價登錄日期：${this.addDateDivider(this.advOpts.srDate)}`)
+        tags.push(`地價登錄日期：${this.$utils.addDateDivider(this.advOpts.srDate)}`)
       }
       if (!this.$utils.empty(this.advOpts.srTime)) {
         tags.push(`地價登錄時間：${this.advOpts.srTime}`)
@@ -590,24 +590,6 @@ export default {
     this.perPage = await this.getCache('realprice-perpage') || 20
   },
   methods: {
-    addDateDivider (str) {
-      if (this.$utils.empty(str)) {
-        return ''
-      }
-      const Y = str.substring(0, 3)
-      const M = str.substring(3, 5)
-      const D = str.substring(5, 7)
-      return `${Y}-${M}-${D}`
-    },
-    addTimeDivider (str) {
-      if (this.$utils.empty(str)) {
-        return ''
-      }
-      const Y = str.substring(0, 2)
-      const M = str.substring(2, 4)
-      const D = str.substring(4, 6)
-      return `${Y}:${M}:${D}`
-    },
     popup (item) {
       this.choosedItem = item
       this.$refs.caseDetail.show()
