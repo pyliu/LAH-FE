@@ -20,7 +20,7 @@
 
 <script>
 export default {
-  middleware: ['isAdmin'],
+  middleware: ['isInf'],
   head: {
     title: '桃園市地政智慧監控系統'
   }

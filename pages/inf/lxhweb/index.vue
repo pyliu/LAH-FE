@@ -30,6 +30,7 @@ div(v-cloak)
 
 <script>
 export default {
+  middleware: ['isInf'],
   head: {
     title: '同步異動資料庫監控-桃園市地政局'
   },

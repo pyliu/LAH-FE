@@ -33,6 +33,7 @@ div(v-cloak)
 
 <script>
 export default {
+  middleware: ['isInf'],
   head: {
     title: '跨域伺服器監控-桃園市地政局'
   },

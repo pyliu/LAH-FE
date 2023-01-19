@@ -29,9 +29,6 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/sur").
         #[font-awesome-icon(:icon="['fas', 'map-location']", fixed-width, pull="left", size="lg")]
         測量小幫手首頁
-      //- li: nuxt-link(to="/prc/realprice").
-      //-   #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
-      //-   實價登錄案件控管
 
       li: hr(v-if="displayAnnouncement")
 
@@ -73,45 +70,18 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/admin/configs").
         #[font-awesome-icon(:icon="['fas', 'tasks']", fixed-width, size="lg")]
         系統參數設定
-      //- li(v-if="authority.isAdmin"): a(
-      //-   :href="`${this.legacyUrl}/monitor.html`",
-      //-   target="_blank",
-      //-   rel="noreferrer noopener"
-      //- ).
-      //-   #[font-awesome-icon(:icon="['fas', 'columns']", fixed-width, size="lg")]
-      //-   跨所伺服器監控面板
-
-      //- li(v-if="isAuthorized"): nuxt-link(to="/stats").
-      //-   #[font-awesome-icon(:icon="['fas', 'calculator']" size="lg")]
-      //-   統計看板
-      //- li(v-if="isAuthorized"): nuxt-link(to="/playground").
-      //-   #[font-awesome-icon(:icon="['fab', 'playstation']" size="lg")]
-      //-   測試
       li: nuxt-link(to="/admin").
         #[font-awesome-icon(:icon="['fas', 'cogs']", fixed-width, size="lg")]
         系統管理選單
 
       li: hr
 
-      li: nuxt-link(
-        to="/notification"
-      ).
+      li: nuxt-link(to="/notification").
         #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
         發布即時通公告
       li: nuxt-link(to="/message").
         #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
         傳送即時通訊息
-      //- li: hr
-      //- li: nuxt-link(to="/expire/sur").
-      //-   #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
-      //-   測量逾期案件
-      //- li: nuxt-link(to="/prc/realprice").
-      //-   #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
-      //-   實價登錄案件控管
-      //- li: nuxt-link(to="/prc/json-converter").
-      //-   #[font-awesome-icon(:icon="['fas', 'right-left']", fixed-width, size="lg")]
-      //-   實價登錄資轉換
-
       li: hr
 
       li: a(

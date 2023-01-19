@@ -53,7 +53,7 @@ div(v-cloak)
 
 <script>
 export default {
-  middleware: ['isAdmin'],
+  middleware: ['isInf'],
   head: {
     title: '地政系統管理面板-桃園市地政局'
   },

@@ -105,7 +105,7 @@ div(v-cloak)
 
 <script>
 export default {
-  middleware: ['isAdmin'],
+  middleware: ['isInf'],
   data: () => ({
     displayXAP: false,
     lightMap: new Map(),

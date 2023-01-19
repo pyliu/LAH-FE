@@ -1,8 +1,8 @@
 /* eslint-disable prefer-promise-reject-errors */
-import Vue from 'vue'
-import { mapActions, mapGetters } from 'vuex'
 import $ from 'jquery'
 import isEmpty from 'lodash/isEmpty'
+import Vue from 'vue'
+import { mapActions, mapGetters } from 'vuex'
 
 // inject to all Vue instances
 Vue.mixin({
@@ -80,7 +80,11 @@ Vue.mixin({
     myname () { return this.user.name },
     webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip },
     legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` },
-    componentName () { return this.$options.name || this.$ooptions._componentTag }
+    componentName () { return this.$options.name || this.$ooptions._componentTag },
+    isSur () { return this.myinfo?.unit === '測量課' },
+    isVal () { return this.myinfo?.unit === '地價課' },
+    isInf () { return this.myinfo?.unit === '資訊課' },
+    isReg () { return this.myinfo?.unit === '登記課' }
   },
   watch: {
     isBusy (flag) {
