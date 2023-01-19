@@ -2,8 +2,8 @@
 .h-100
   lah-header
     .d-flex.my-auto 桃園市地政總管家-主選單
-  .container
-    .anim-appear-1s.vh-full(v-if="isInf")
+  .container: lah-transition(appear, speed="fast")
+    .vh-full(v-if="isInf")
       .d-flex.mb-3
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/inf")
           lah-logo-monitoring.h-75.w-100
@@ -18,7 +18,7 @@
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/sur")
           lah-logo-sur.h-75.w-100
           h4.lah-shadow.center.mt-2 測量小幫手
-    .anim-appear-1s.vh-full.center(v-else)
+    .vh-full.center(v-else)
       .d-flex
         b-card.fixed-card-wh.center: nuxt-link(to="/reg")
           lah-logo.h-75.w-100
