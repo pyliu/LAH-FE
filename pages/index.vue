@@ -4,17 +4,17 @@
   .container: .anim-appear-1s
     .d-flex.mb-3
       b-card.fixed-card-wh.mr-3.center: nuxt-link(to="/reg")
-        lah-logo.h-75
+        lah-logo.h-75.w-100
         h4.lah-shadow.center.mt-2 智慧控管系統
       b-card.fixed-card-wh.center: nuxt-link(to="/inf")
-        lah-logo-monitoring.h-75
+        lah-logo-monitoring.h-75.w-100
         h4.lah-shadow.center.mt-2 智慧監控系統
     .d-flex
       b-card.fixed-card-wh.mr-3.center: nuxt-link(to="/prc")
-        lah-logo-val.h-75
+        lah-logo-val.h-75.w-100
         h4.lah-shadow.center.mt-2 地價小幫手
       b-card.fixed-card-wh.center: nuxt-link(to="/sur")
-        lah-logo-sur.h-75
+        lah-logo-sur.h-75.w-100
         h4.lah-shadow.center.mt-2 測量小幫手
   .version v{{ $config.pkgVersion }}
 </template>
