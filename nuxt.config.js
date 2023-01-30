@@ -136,7 +136,9 @@ export default {
     webap: {
       x: process.env.WEBAP_X,
       reg: process.env.WEBAP_REG,
+      reg2: process.env.WEBAP_REG2,
       sur: process.env.WEBAP_SUR,
+      sur2: process.env.WEBAP_SUR2,
       val: process.env.WEBAP_VAL,
       use: process.env.WEBAP_USE,
       ext: process.env.WEBAP_EXT,
