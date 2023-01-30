@@ -49,7 +49,7 @@ b-card(:border-variant="borderVariant")
     b-list-group-item
       lah-fa-icon(icon="clock", variant="primary") 最近同步時間：{{ this.lastSyncTime }}
     b-list-group-item(button)
-      lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
+      lah-fa-icon(icon="folder-open", variant="warning") 同步資料夾：{{ this.syncDir }}
     b-list-group-item
       .d-flex.justify-content-between
         lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ this.perf?.proc }}
