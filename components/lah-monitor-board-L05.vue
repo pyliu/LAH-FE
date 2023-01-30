@@ -4,6 +4,15 @@ b-card(:border-variant="borderVariant")
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        v-if="logs.length > 0",
+        icon="up-right-from-square",
+        size="sm",
+        @click="popLogs"
+        no-border,
+        no-icon-gutter,
+        title="顯示最近10筆傳送紀錄"
+      )
+      lah-button(
         icon="question",
         action="breath",
         variant="outline-success",
@@ -33,11 +42,6 @@ b-card(:border-variant="borderVariant")
       @end="checkL05Status",
       @click="checkL05Status"
     )
-    lah-button(
-      v-if="logs.length > 0"
-      size="sm",
-      @click="popLogs"
-    ) 傳送紀錄
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
   .font-weight-bold.small {{ this.message }}
