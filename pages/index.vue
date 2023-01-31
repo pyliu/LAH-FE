@@ -44,8 +44,8 @@ export default {
 @mixin hover-style(
   $width: 1px,
   $style: dashed,
-  $color: rgb(3, 125, 13),
-  $bg_color: rgb(216, 220, 218)
+  $color: var(--green),
+  $bg_color: var(--light)
 ) {
   background: {
     color: $bg_color;
