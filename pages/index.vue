@@ -56,20 +56,20 @@ export default {
     style: $style;
   }
 }
-.fixed-card-wh-inf {
-  height: 40vh;
-  width: 45vw;
-  &:hover {
-    @include hover-style(5px);
-  }
-}
+
 .fixed-card-wh {
   height: 40vh;
   width: 30vw;
   &:hover {
-    @include hover-style(3px);
+    @include hover-style(5px);
   }
 }
+
+.fixed-card-wh-inf {
+  @extend .fixed-card-wh;
+  width: 45vw;
+}
+
 .vh-full {
   height: calc(100vh - 100px);
 }

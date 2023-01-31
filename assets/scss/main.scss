@@ -10,12 +10,15 @@
 // General style overrides and custom classes
 @import 'theme';
 
-@mixin center() {
+
+%center-class {
   display: flex;
   align-items: center;
   justify-content: center;
-  // height: 100%;
-  // width: 100%;
+}
+
+@mixin center() {
+  @extend %center-class;
 }
 
 [v-cloak] {
