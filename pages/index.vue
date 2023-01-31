@@ -41,24 +41,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$hover_background_color: rgb(216, 220, 218);
-$hover_border_color: rgb(3, 125, 13);
-@mixin hover-style {
-  background-color: $hover_background_color;
-  border: 5px dotted $hover_border_color;
+@mixin hover-style(
+  $width: 1px,
+  $style: dashed,
+  $color: rgb(3, 125, 13),
+  $bg_color: rgb(216, 220, 218)
+) {
+  background: {
+    color: $bg_color;
+  }
+  border: {
+    color: $color;
+    width: $width;
+    style: $style;
+  }
 }
 .fixed-card-wh-inf {
   height: 40vh;
   width: 45vw;
   &:hover {
-    @include hover-style;
+    @include hover-style(5px);
   }
 }
 .fixed-card-wh {
   height: 40vh;
   width: 30vw;
   &:hover {
-    @include hover-style;
+    @include hover-style(3px);
   }
 }
 .vh-full {
