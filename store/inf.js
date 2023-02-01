@@ -2,12 +2,14 @@ export default {
   state: () => ({
     crsmsData: null,
     expaaData: null,
-    bakedExpaaData: null
+    bakedExpaaData: null,
+    monitorLightMap: new Map()
   }),
   getters: {
     crsmsData: state => state.crsmsData,
     expaaData: state => state.expaaData,
-    bakedExpaaData: state => state.bakedExpaaData
+    bakedExpaaData: state => state.bakedExpaaData,
+    monitorLightMap: state => state.monitorLightMap
   },
   mutations: {
     crsmsData (state, jsonPayload) {
@@ -27,6 +29,9 @@ export default {
         state.bakedExpaaData = jsonPayload
       }
       state.bakedExpaaData = { ...jsonPayload }
+    },
+    monitorLightMap (state, objPayload) {
+      state.monitorLightMap = objPayload
     }
   },
   namespaced: true,

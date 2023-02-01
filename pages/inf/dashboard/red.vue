@@ -3,8 +3,8 @@ div(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
-        .d-flex
-          .my-auto {{ site }} 智慧監控儀錶板
+        .d-flex.align-items-center
+          .my-auto 🔴 紅燈儀錶板 ({{ red }})
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -13,38 +13,17 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
-          lah-button(
-            icon="circle-right",
-            variant="outline-primary",
-            to="/inf/dashboard/carousel",
-            regular,
-            no-border,
-            no-icon-gutter,
-            title="走馬燈版本"
-          )
         .d-flex.align-items-center
-          b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
-            lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨域AP
-          lah-button.mr-1(
-            @click="$refs.setupModal.show()",
-            icon="cog",
-            variant="outline-secondary",
-            size="lg",
-            action="clock",
-            no-border,
-            no-icon-gutter,
-            title="設定"
-          )
-          b-link.mr-1(to="/inf/dashboard/red", title="檢視紅燈儀表板") 🔴 {{ red }}
-          b-link.mr-1(to="/inf/dashboard/yellow", title="檢視黃燈儀表板") 🟡 {{ yellow }}
-          b-link.mr-1(to="/inf/dashboard/green", title="檢視綠燈儀表板") 🟢 {{ green }}
-    lah-monitor-board-setup-modal(ref="setupModal")
+          b-link.mr-1(to="/inf/dashboard/yellow", title="檢視黃燈儀表板") 🟡 僅顯示黃燈 {{ yellow }}
+          b-link.mr-1(to="/inf/dashboard/green", title="檢視綠燈儀表板") 🟢 僅顯示綠燈 {{ green }}
+        .d-flex.align-items-center
+          b-link.mr-1(to="/inf/dashboard", title="回儀表板首頁"): lah-fa-icon(icon="arrow-left-long") 回儀表板首頁
+
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
-        li 提供顯示各監控標的狀態之功能
+        li 提供顯示紅燈狀態之儀錶板功能
         li 預設監控顯示一天內資料
-        li 目前監控設定：{{ connectionText }}
-  lah-transition: b-card-group.mb-4(deck, v-if="displayXAP")
+  lah-transition: b-card-group.mb-4(deck)
       lah-monitor-board-xap(@light-update="lightUpdate")
       lah-monitor-board-apconn(@light-update="lightUpdate")
       lah-monitor-board-connectivity(@light-update="lightUpdate")
@@ -87,7 +66,6 @@ div(v-cloak)
 export default {
   middleware: ['isInf'],
   data: () => ({
-    displayXAP: false,
     red: 0,
     yellow: 0,
     green: 0
@@ -96,33 +74,24 @@ export default {
     title: '智慧監控儀錶板-桃園市地政局'
   },
   computed: {
-    lightMap () {
-      return this.$store.getters['inf/monitorLightMap']
-    },
-    connectionText () {
-      // bureau ssl mail server needs this
-      if (this.systemConfigs?.monitor?.ssl) {
-        return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}:993/imap/ssl/novalidate-cert}INBOX`
-      }
-      return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
-    },
     isHA () {
       return this.site === 'HA'
+    },
+    lightMap () {
+      return this.$store.getters['inf/monitorLightMap']
     }
   },
   watch: {
-    displayXAP (flag) {
-      this.setCache('lah-display-XAP-flag', flag)
+    lightUpdate (val) {
+      console.warn(val)
     }
   },
-  async mounted () {
-    this.displayXAP = await this.getCache('lah-display-XAP-flag') || false
+  mounted () {
+    console.warn(this.lightMap)
+    this.refreshCounter()
   },
   methods: {
-    lightUpdate (payload) {
-      console.log(payload)
-      this.lightMap.set(payload.name, payload.new)
-      // this.lightMap[payload.name] = payload.new
+    refreshCounter () {
       const tmp = [...this.lightMap]
       this.green = tmp.reduce((acc, item) => {
         return item[1] === 'success' ? acc + 1 : acc
@@ -133,7 +102,10 @@ export default {
       this.red = tmp.reduce((acc, item) => {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
-      // this.$store.commit('inf/monitorLightMap', this.lightMap)
+    },
+    lightUpdate (payload) {
+      // this.lightMap.set(payload.name, payload.new)
+      // this.refreshCounter()
     }
   }
 }

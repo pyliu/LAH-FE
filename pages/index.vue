@@ -1,7 +1,7 @@
 <template lang="pug">
 .h-100
   lah-header
-    .d-flex.my-auto 桃園市地政總管家-主選單
+    .d-flex.my-auto 桃園市地政管家-主選單
   .container: lah-transition(appear, speed="fast")
     .vh-full(v-if="isInf")
       .d-flex.mb-3
