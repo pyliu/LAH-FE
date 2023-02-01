@@ -166,7 +166,7 @@ export default {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
       // reset filtering sfter light changed
-      this.filtering = false
+      // this.filtering = false
     },
     filterByLight (state = false) {
       this.filtering = state
