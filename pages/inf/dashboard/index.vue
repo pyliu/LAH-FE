@@ -26,7 +26,7 @@ div(v-cloak)
           //- b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
           //-   lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨域AP
           lah-button.mr-1(
-            v-if="filtering",
+            v-if="filtering !== false",
             icon="arrow-rotate-left",
             action="cycle-alt",
             no-border,
@@ -34,18 +34,21 @@ div(v-cloak)
             @click="filterByLight"
           ) 回復
           lah-button.mr-1(
+            v-if="filtering !== 'dander'",
             no-border,
             no-icon-gutter,
             title="檢視紅燈儀表板",
             @click="filterByLight('danger')"
           ) 🔴 {{ red }}
           lah-button.mr-1(
+            v-if="filtering !== 'warning'",
             no-border,
             no-icon-gutter,
             title="檢視黃燈儀表板",
             @click="filterByLight('warning')"
           ) 🟡 {{ yellow }}
           lah-button.mr-1(
+            v-if="filtering !== 'success'",
             no-border,
             no-icon-gutter,
             title="檢視綠燈儀表板",
@@ -58,7 +61,7 @@ div(v-cloak)
             action="clock",
             no-border,
             no-icon-gutter,
-            title="設定"
+            title="設定EMAIL伺服器"
           )
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-help-modal(:modal-id="'help-modal'", size="md")
