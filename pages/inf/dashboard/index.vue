@@ -26,6 +26,14 @@ div(v-cloak)
           //- b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
           //-   lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨域AP
           lah-button.mr-1(
+            v-if="filtering",
+            icon="arrow-rotate-left",
+            action="cycle-alt",
+            no-border,
+            title="顯示所有儀表板",
+            @click="resetFiltering"
+          ) 回復
+          lah-button.mr-1(
             no-border,
             no-icon-gutter,
             title="檢視紅燈儀表板",
@@ -156,12 +164,13 @@ export default {
       }, 0)
       // this.$utils.warn(this.lightMap)
     },
+    resetFiltering () {
+      this.filtering = false
+    },
     filterByLight (state = '') {
       this.filteredComponents.length = 0
       this.filtering = true
-      if (this.$utils.empty(state)) {
-        this.filtering = false
-      } else {
+      if (!this.$utils.empty(state)) {
         this.lightMap.forEach((value, key) => {
           if (value === state) {
             this.filteredComponents.push(key)

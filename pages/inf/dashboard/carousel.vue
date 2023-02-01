@@ -89,18 +89,18 @@ div(v-cloak)
         lah-monitor-board-hacmp(@light-update="lightUpdate")
         lah-monitor-board-dnp(@light-update="lightUpdate")
       b-card-group.mb-4.card-body-fixed-height(deck)
+        lah-monitor-board-L05(@light-update="lightUpdate")
         lah-monitor-board-srmas(@light-update="lightUpdate")
         lah-monitor-board-dbbackup(@light-update="lightUpdate")
-        lah-monitor-board-vmclone(@light-update="lightUpdate")
     b-carousel-slide: template(#img)
       b-card-group.mb-4.card-body-fixed-height(deck)
+        lah-monitor-board-vmclone(@light-update="lightUpdate")
         lah-monitor-board-tape(@light-update="lightUpdate")
         lah-monitor-board-apbackup(@light-update="lightUpdate")
-        lah-monitor-board-testdb(@light-update="lightUpdate")
       b-card-group.card-body-fixed-height(deck)
+        lah-monitor-board-testdb(@light-update="lightUpdate")
         lah-monitor-board-adsync(@light-update="lightUpdate")
         lah-monitor-board-ups(@light-update="lightUpdate")
-        b-card
 </template>
 
 <script>
