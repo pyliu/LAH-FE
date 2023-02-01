@@ -176,7 +176,8 @@ export default {
       this.red = tmp.reduce((acc, item) => {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
-      // this.$utils.warn(this.lightMap)
+      // reset filtering sfter light changed
+      this.filtering = false
     },
     filterByLight (state = false) {
       this.filtering = state
