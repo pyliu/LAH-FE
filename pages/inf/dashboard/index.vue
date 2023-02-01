@@ -31,7 +31,7 @@ div(v-cloak)
             action="cycle-alt",
             no-border,
             title="顯示所有儀表板",
-            @click="resetFiltering"
+            @click="filterByLight"
           ) 回復
           lah-button.mr-1(
             no-border,
@@ -120,8 +120,7 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
-    filtering: false,
-    filteredComponents: []
+    filtering: false
   }),
   head: {
     title: '智慧監控儀錶板-桃園市地政局'
@@ -139,6 +138,18 @@ export default {
     },
     isHA () {
       return this.site === 'HA'
+    },
+    filteredComponents () {
+      if (this.filtering === false) {
+        return []
+      }
+      const filtered = []
+      this.lightMap.forEach((value, key) => {
+         if (value === this.filtering) {
+           filtered.push(key)
+         }
+      })
+      return filtered
     }
   },
   watch: {
@@ -164,20 +175,8 @@ export default {
       }, 0)
       // this.$utils.warn(this.lightMap)
     },
-    resetFiltering () {
-      this.filtering = false
-    },
-    filterByLight (state = '') {
-      this.filteredComponents.length = 0
-      this.filtering = true
-      if (!this.$utils.empty(state)) {
-        this.lightMap.forEach((value, key) => {
-          if (value === state) {
-            this.filteredComponents.push(key)
-          }
-        })
-      }
-      this.$utils.warn(this.filteredComponents)
+    filterByLight (state = false) {
+      this.filtering = state
     }
   }
 }
