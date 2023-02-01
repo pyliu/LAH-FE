@@ -58,9 +58,12 @@ div(v-cloak)
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
-  lah-transition: div(v-if="filtering")
-    b-card-group(columns)
-      component(v-for="name in filteredComponents" :key="name" :is="name")
+  lah-transition: b-card-group(v-if="filtering", columns)
+    component(
+      v-for="name in filteredComponents",
+      :key="name",
+      :is="name"
+    )
   div(v-show="!filtering")
     client-only: b-card-group.mb-4(deck)
       lah-monitor-board-xap(@light-update="lightUpdate")
