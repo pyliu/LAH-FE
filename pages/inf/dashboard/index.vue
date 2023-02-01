@@ -22,29 +22,43 @@ div(v-cloak)
             no-icon-gutter,
             title="走馬燈版本"
           )
-        .d-flex.align-items-center
-          b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
-            lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨域AP
+        .d-flex.align-items-center: b-button-group(size="lg")
+          //- b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
+          //-   lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨域AP
+          lah-button.mr-1(
+            no-border,
+            no-icon-gutter,
+            title="檢視紅燈儀表板",
+            @click="filterByLight('danger')"
+          ) 🔴 {{ red }}
+          lah-button.mr-1(
+            no-border,
+            no-icon-gutter,
+            title="檢視黃燈儀表板",
+            @click="filterByLight('warning')"
+          ) 🟡 {{ yellow }}
+          lah-button.mr-1(
+            no-border,
+            no-icon-gutter,
+            title="檢視綠燈儀表板",
+            @click="filterByLight('success')"
+          ) 🟢 {{ green }}
           lah-button.mr-1(
             @click="$refs.setupModal.show()",
             icon="cog",
             variant="outline-secondary",
-            size="lg",
             action="clock",
             no-border,
             no-icon-gutter,
             title="設定"
           )
-          b-link.mr-1(to="/inf/dashboard/red", title="檢視紅燈儀表板") 🔴 {{ red }}
-          b-link.mr-1(to="/inf/dashboard/yellow", title="檢視黃燈儀表板") 🟡 {{ yellow }}
-          b-link.mr-1(to="/inf/dashboard/green", title="檢視綠燈儀表板") 🟢 {{ green }}
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
-  lah-transition: b-card-group.mb-4(deck, v-if="displayXAP")
+  lah-transition: b-card-group.mb-4(deck)
       lah-monitor-board-xap(@light-update="lightUpdate")
       lah-monitor-board-apconn(@light-update="lightUpdate")
       lah-monitor-board-connectivity(@light-update="lightUpdate")
@@ -90,7 +104,8 @@ export default {
     displayXAP: false,
     red: 0,
     yellow: 0,
-    green: 0
+    green: 0,
+    filteredConponents: []
   }),
   head: {
     title: '智慧監控儀錶板-桃園市地政局'
@@ -120,9 +135,7 @@ export default {
   },
   methods: {
     lightUpdate (payload) {
-      console.log(payload)
       this.lightMap.set(payload.name, payload.new)
-      // this.lightMap[payload.name] = payload.new
       const tmp = [...this.lightMap]
       this.green = tmp.reduce((acc, item) => {
         return item[1] === 'success' ? acc + 1 : acc
@@ -133,7 +146,18 @@ export default {
       this.red = tmp.reduce((acc, item) => {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
-      // this.$store.commit('inf/monitorLightMap', this.lightMap)
+      // this.$utils.warn(this.lightMap)
+    },
+    filterByLight (state = '') {
+      this.filteredConponents.length = 0
+      if (!this.$utils.empty(state)) {
+        this.lightMap.forEach((value, key) => {
+          if (value === state) {
+            this.filteredConponents.push(key)
+          }
+        })
+      }
+      this.$utils.warn(this.filteredConponents)
     }
   }
 }

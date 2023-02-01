@@ -21,6 +21,7 @@ b-card(:border-variant="borderVariant")
 
 <script>
 export default {
+  name: 'LahLxhwebBoard',
   emit: ['light-update'],
   props: {
     targetIp: { type: String, require: true, default: 'L3HWEB' }
@@ -129,7 +130,7 @@ export default {
   watch: {
     headerLight (nlight, olight) {
       this.$emit('light-update', {
-        name: 'LXHWEB-BOARD',
+        name: this.componentName,
         new: nlight,
         old: olight
       })
