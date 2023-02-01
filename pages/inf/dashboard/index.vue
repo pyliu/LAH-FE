@@ -58,42 +58,46 @@ div(v-cloak)
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
-  lah-transition: b-card-group.mb-4(deck)
+  lah-transition: div(v-if="filtering")
+    b-card-group(columns)
+      component(v-for="name in filteredComponents" :key="name" :is="name")
+  div(v-show="!filtering")
+    client-only: b-card-group.mb-4(deck)
       lah-monitor-board-xap(@light-update="lightUpdate")
       lah-monitor-board-apconn(@light-update="lightUpdate")
       lah-monitor-board-connectivity(@light-update="lightUpdate")
       //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
       //- lah-monitor-board-apconn(line, all)
-  div(v-if="isHA")
-    b-card-group.mb-4(deck)
-      lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
-    b-card-group.mb-4(deck)
-      lah-monitor-board-L05.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-lxhweb-board(@light-update="lightUpdate", target-ip="L3HWEB")
-    b-card-group.mb-4(deck)
-      lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate", footer)
-    b-card-group.mb-4(deck)
-      lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
-    b-card-group(deck)
-      lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
-      b-card
-      b-card
-  div(v-else)
-    b-card-group.mb-4(deck)
-      lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
-    b-card-group.mb-4(deck)
-      lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-      lah-lxhweb-board(@light-update="lightUpdate", target-ip="L3HWEB")
+    div(v-if="isHA")
+      b-card-group.mb-4(deck)
+        lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
+      b-card-group.mb-4(deck)
+        lah-monitor-board-L05.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-lxhweb-board(@light-update="lightUpdate", target-ip="L3HWEB")
+      b-card-group.mb-4(deck)
+        lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate", footer)
+      b-card-group.mb-4(deck)
+        lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
+      b-card-group(deck)
+        lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
+        b-card
+        b-card
+    div(v-else)
+      b-card-group.mb-4(deck)
+        lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
+      b-card-group.mb-4(deck)
+        lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-lxhweb-board(@light-update="lightUpdate", target-ip="L3HWEB")
   hr
 </template>
 
@@ -105,7 +109,8 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
-    filteredConponents: []
+    filtering: false,
+    filteredComponents: []
   }),
   head: {
     title: '智慧監控儀錶板-桃園市地政局'
@@ -131,7 +136,7 @@ export default {
     }
   },
   async mounted () {
-    this.displayXAP = await this.getCache('lah-display-XAP-flag') || false
+    // this.displayXAP = await this.getCache('lah-display-XAP-flag') || false
   },
   methods: {
     lightUpdate (payload) {
@@ -149,15 +154,18 @@ export default {
       // this.$utils.warn(this.lightMap)
     },
     filterByLight (state = '') {
-      this.filteredConponents.length = 0
-      if (!this.$utils.empty(state)) {
+      this.filteredComponents.length = 0
+      this.filtering = true
+      if (this.$utils.empty(state)) {
+        this.filtering = false
+      } else {
         this.lightMap.forEach((value, key) => {
           if (value === state) {
-            this.filteredConponents.push(key)
+            this.filteredComponents.push(key)
           }
         })
       }
-      this.$utils.warn(this.filteredConponents)
+      this.$utils.warn(this.filteredComponents)
     }
   }
 }
