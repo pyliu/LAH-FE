@@ -23,8 +23,6 @@ div(v-cloak)
             title="走馬燈版本"
           )
         .d-flex.align-items-center: b-button-group(size="lg")
-          //- b-checkbox.small.mr-1(v-model="displayXAP", title="顯示跨所AP狀態", switch)
-          //-   lah-fa-icon(:icon="displayXAP ? 'desktop' : 'server'", :variant="displayXAP ? 'primary' : 'dark'") 跨域AP
           lah-button.mr-1(
             v-if="filtering !== false",
             icon="arrow-rotate-left",
@@ -119,7 +117,6 @@ div(v-cloak)
 export default {
   middleware: ['isInf'],
   data: () => ({
-    displayXAP: false,
     red: 0,
     yellow: 0,
     green: 0,
@@ -154,14 +151,6 @@ export default {
       })
       return filtered
     }
-  },
-  watch: {
-    displayXAP (flag) {
-      this.setCache('lah-display-XAP-flag', flag)
-    }
-  },
-  async mounted () {
-    // this.displayXAP = await this.getCache('lah-display-XAP-flag') || false
   },
   methods: {
     lightUpdate (payload) {
