@@ -31,7 +31,7 @@ export default {
     showHome () { return this.$route.path !== '/' },
     icon () { return this.systemConfigs.mock ? 'laptop-code' : 'house-chimney' },
     variant () { return this.systemConfigs.mock ? 'success' : 'outline-dark' },
-    title () { return this.systemConfigs.mock ? '注意：系統處於模擬模式' : '回到智慧控管系統首頁' }
+    title () { return this.systemConfigs.mock ? '注意：系統處於模擬模式' : '回到地政智慧管家首頁' }
   }
 }
 </script>
