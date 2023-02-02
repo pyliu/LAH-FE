@@ -6,10 +6,10 @@ div(v-cloak)
         .d-flex.align-items-center
           .my-auto(v-if="filtering === false") {{ site }} 智慧監控儀錶板
           .d-flex.align-items-center(v-else)
-            lah-fa-icon.mr-1(icon="circle", :variant="filtering")
-            span(v-if="filtering === 'success'") 綠燈儀錶板
-            span(v-if="filtering === 'warning'") 黃燈儀錶板
-            span(v-if="filtering === 'danger'") 紅燈儀錶板
+            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'success'") 綠燈狀態儀錶板
+            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'warning'") 黃燈狀態儀錶板
+            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'danger'") 紅燈狀態儀錶板
+            span(v-if="filtering === 'warning&danger'") 🔴➕🟡 異常狀態儀錶板
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -35,7 +35,13 @@ div(v-cloak)
             no-border,
             title="顯示所有儀表板",
             @click="filtering = false"
-          ) 回復
+          ) 預設
+          lah-button.mr-1(
+            v-if="filtering !== 'warning&danger'",
+            no-border,
+            title="顯示異常儀表板",
+            @click="filtering = 'warning&danger'"
+          ) 🔴➕🟡 {{ red + yellow }}
           lah-button.mr-1(
             v-if="filtering !== 'danger'",
             no-border,
@@ -161,7 +167,9 @@ export default {
       tmp.forEach((item) => {
         const key = item[0]
         const value = item[1]
-        if (value === this.filtering) {
+        if (this.filtering === 'warning&danger' && ['warning', 'danger'].includes(value)) {
+          this.filterList.push(key)
+        } else if (value === this.filtering) {
           this.filterList.push(key)
         }
       })
