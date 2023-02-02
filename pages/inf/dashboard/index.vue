@@ -79,7 +79,7 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
   lah-transition: b-card-group(v-if="filtering !== false", columns)
-    transition-group(name="list"): component(
+    transition-group(name="list", mode="out-in"): component(
       v-for="(name, idx) in filterList",
       :key="`${name}-${idx}`",
       :is="name"
