@@ -45,6 +45,9 @@ div(v-cloak)
           )
           .mx-1 秒自動切換
         .d-flex.align-items-center
+          .mr-1 🔴 {{ red }}
+          .mr-1 🟡 {{ yellow }}
+          .mr-1 🟢 {{ green }}
           lah-button.mr-1(
             @click="$refs.setupModal.show()",
             icon="cog",
@@ -55,9 +58,6 @@ div(v-cloak)
             no-icon-gutter,
             title="設定"
           )
-          .mr-1 🔴 {{ red }}
-          .mr-1 🟡 {{ yellow }}
-          .mr-1 🟢 {{ green }}
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
