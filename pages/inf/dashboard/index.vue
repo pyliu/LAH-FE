@@ -41,21 +41,21 @@ div(v-cloak)
             no-border,
             no-icon-gutter,
             title="檢視紅燈儀表板",
-            @click="filterByLight('danger')"
+            @click="filtering = 'danger'"
           ) 🔴 {{ red }}
           lah-button.mr-1(
             v-if="filtering !== 'warning'",
             no-border,
             no-icon-gutter,
             title="檢視黃燈儀表板",
-            @click="filterByLight('warning')"
+            @click="filtering = 'warning'"
           ) 🟡 {{ yellow }}
           lah-button.mr-1(
             v-if="filtering !== 'success'",
             no-border,
             no-icon-gutter,
             title="檢視綠燈儀表板",
-            @click="filterByLight('success')"
+            @click="filtering = 'success'"
           ) 🟢 {{ green }}
           lah-button.mr-1(
             @click="$refs.setupModal.show()",
@@ -150,9 +150,8 @@ export default {
   watch: {
     filtering (val) {
       // after filtering flag changed, the list needs to be refreshed.
-      if (val !== false) {
-        this.refreshFilterList()
-      }
+      this.filterList.length = 0
+      this.refreshFilterList()
     }
   },
   mounted () {
@@ -166,7 +165,7 @@ export default {
           this.filterList.push(key)
         }
       })
-    }, 100)
+    }, 200)
   },
   methods: {
     lightUpdate (payload) {
@@ -184,10 +183,7 @@ export default {
       // refresh filter list after light changed
       this.refreshFilterList()
     },
-    refreshFilterList () { /* placeholder for debouncing */ },
-    filterByLight (state = false) {
-      this.filtering = state
-    }
+    refreshFilterList () { /* placeholder for debouncing */ }
   }
 }
 </script>
