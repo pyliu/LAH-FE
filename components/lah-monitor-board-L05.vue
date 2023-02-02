@@ -26,7 +26,7 @@ b-card(:border-variant="borderVariant")
         li 從伺服器端 .env 檔案讀取 MONITOR_HOST_L05 設定為監控標的 (目前為 {{ ip }}:{{ port }})
         li 被監控的伺服器需安裝「智慧監控應用程式介面」以提供分析資料
         li 5分鐘更新資料一次
-  template(#footer): client-only: .d-flex.align-items-center.justify-content-between.small
+  template(#footer, v-if="footer"): client-only: .d-flex.align-items-center.justify-content-between.small
     lah-countdown-button.border-0(
       size="sm",
       ref="countdown",
@@ -79,6 +79,9 @@ b-card(:border-variant="borderVariant")
 export default {
   name: 'LahMonitorBoardL05',
   emit: ['light-update'],
+  props: {
+    footer: { type: Boolean, default: false }
+  },
   data: () => ({
     header: '建物圖籍同步異動',
     reloadMs: 5 * 60 * 1000,
