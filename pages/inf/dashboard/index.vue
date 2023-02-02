@@ -74,11 +74,11 @@ div(v-cloak)
         li 目前監控設定：{{ connectionText }}
   lah-transition: b-card-group(v-if="filtering !== false", columns)
     transition-group(name="list"): component(
-      v-for="(name, idx) in filteredComponents",
+      v-for="(name, idx) in filterList",
       :key="`${name}-${idx}`",
       :is="name"
     )
-  h2.no-dashboard.center(v-if="filteredComponents.length === 0 && filtering !== false") ⚠ 無資料
+  h2.no-dashboard.center(v-if="filterList.length === 0 && filtering !== false") ⚠ 無資料
   div(v-show="filtering === false")
     client-only: b-card-group.mb-4(deck)
       lah-monitor-board-xap(@light-update="lightUpdate")
@@ -126,7 +126,8 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
-    filtering: false
+    filtering: false,
+    filterList: []
   }),
   head: {
     title: '智慧監控儀錶板-桃園市地政局'
@@ -144,19 +145,28 @@ export default {
     },
     isHA () {
       return this.site === 'HA'
-    },
-    filteredComponents () {
-      if (this.filtering === false) {
-        return []
+    }
+  },
+  watch: {
+    filtering (val) {
+      // after filtering flag changed, the list needs to be refreshed.
+      if (val !== false) {
+        this.refreshFilterList()
       }
-      const filtered = []
-      this.lightMap.forEach((value, key) => {
+    }
+  },
+  mounted () {
+    this.refreshFilterList = this.$utils.debounce(() => {
+      this.filterList.length = 0
+      const tmp = [...this.lightMap]
+      tmp.forEach((item) => {
+        const key = item[0]
+        const value = item[1]
         if (value === this.filtering) {
-          filtered.push(key)
+          this.filterList.push(key)
         }
       })
-      return filtered
-    }
+    }, 100)
   },
   methods: {
     lightUpdate (payload) {
@@ -171,9 +181,10 @@ export default {
       this.red = tmp.reduce((acc, item) => {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
-      // reset filtering sfter light changed
-      // this.filtering = false
+      // refresh filter list after light changed
+      this.refreshFilterList()
     },
+    refreshFilterList () { /* placeholder for debouncing */ },
     filterByLight (state = false) {
       this.filtering = state
     }
