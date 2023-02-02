@@ -3,8 +3,13 @@ div(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
-        .d-flex
-          .my-auto {{ site }} 智慧監控儀錶板
+        .d-flex.align-items-center
+          .my-auto(v-if="filtering === false") {{ site }} 智慧監控儀錶板
+          .d-flex.align-items-center(v-else)
+            lah-fa-icon.mr-1(icon="circle", :variant="filtering")
+            span(v-if="filtering === 'success'") 綠燈儀錶板
+            span(v-if="filtering === 'warning'") 黃燈儀錶板
+            span(v-if="filtering === 'danger'") 紅燈儀錶板
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -14,13 +19,13 @@ div(v-cloak)
             title="說明"
           )
           lah-button(
-            icon="circle-right",
+            icon="window-restore",
             variant="outline-primary",
             to="/inf/dashboard/carousel",
             regular,
             no-border,
             no-icon-gutter,
-            title="走馬燈版本"
+            title="輪播版本"
           )
         .d-flex.align-items-center: b-button-group(size="lg")
           lah-button.mr-1(
@@ -29,10 +34,10 @@ div(v-cloak)
             action="cycle-alt",
             no-border,
             title="顯示所有儀表板",
-            @click="filterByLight"
+            @click="filtering = false"
           ) 回復
           lah-button.mr-1(
-            v-if="filtering !== 'dander'",
+            v-if="filtering !== 'danger'",
             no-border,
             no-icon-gutter,
             title="檢視紅燈儀表板",
@@ -67,13 +72,14 @@ div(v-cloak)
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
-  lah-transition: b-card-group(v-if="filtering", columns)
-    component(
-      v-for="name in filteredComponents",
-      :key="name",
+  lah-transition: b-card-group(v-if="filtering !== false", columns)
+    transition-group(name="list"): component(
+      v-for="(name, idx) in filteredComponents",
+      :key="`${name}-${idx}`",
       :is="name"
     )
-  div(v-show="!filtering")
+  h2.no-dashboard.center(v-if="filteredComponents.length === 0 && filtering !== false") ⚠ 無資料
+  div(v-show="filtering === false")
     client-only: b-card-group.mb-4(deck)
       lah-monitor-board-xap(@light-update="lightUpdate")
       lah-monitor-board-apconn(@light-update="lightUpdate")
@@ -145,9 +151,9 @@ export default {
       }
       const filtered = []
       this.lightMap.forEach((value, key) => {
-         if (value === this.filtering) {
-           filtered.push(key)
-         }
+        if (value === this.filtering) {
+          filtered.push(key)
+        }
       })
       return filtered
     }
@@ -181,5 +187,8 @@ export default {
     height: calc((100vh - 450px) / 3);
     overflow: auto;
   }
+}
+.no-dashboard {
+  height: calc(100vh - 110px);
 }
 </style>
