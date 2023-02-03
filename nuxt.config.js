@@ -81,6 +81,7 @@ export default {
   ],
   content: {
     // Options, https://content.nuxtjs.org/v1/getting-started/installation/
+    liveEdit: false
   },
   bootstrapVue: {
     // Install the `IconsPlugin` plugin (in addition to `BootstrapVue` plugin)

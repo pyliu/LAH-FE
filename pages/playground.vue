@@ -121,16 +121,19 @@ div: client-only
       template(#header): .d-flex: .text-nowrap.my-auto 罕用字測試
       span       
 
+    b-card
+      template(#header): .d-flex: .text-nowrap.my-auto $content 測試
+      nuxt-content(:document="page")
 </template>
 
 <script>
-import { formatDistance, formatDistanceToNow, format } from 'date-fns'
+import { format, formatDistance, formatDistanceToNow } from 'date-fns'
 // Require Esperanto locale
 import { zhTW } from 'date-fns/locale'
 
 export default {
   // middleware: ['isAdmin'],
-  async asyncData ({ $axios }) {
+  async asyncData ({ $axios, $content }) {
     // SSR: returned object will replace the data inside "data" before rendering
     // http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01
     // return await $axios.get('http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 })
@@ -144,7 +147,9 @@ export default {
       ('0' + now.getMinutes()).slice(-2) +
       ':' +
       ('0' + now.getSeconds()).slice(-2)
+    const page = await $content('test').fetch()
     return {
+      page,
       list: [{ type: 'remote', text: '準備中 ... ', time }]
       // items: [
       //   ['桃園所', 40],
