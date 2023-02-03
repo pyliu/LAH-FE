@@ -123,7 +123,7 @@ div: client-only
 
     b-card
       template(#header): .d-flex: .text-nowrap.my-auto $content 測試
-      nuxt-content(:document="page")
+      nuxt-content(:document="testMD")
 </template>
 
 <script>
@@ -147,9 +147,9 @@ export default {
       ('0' + now.getMinutes()).slice(-2) +
       ':' +
       ('0' + now.getSeconds()).slice(-2)
-    const page = await $content('test').fetch()
+    const testMD = await $content('test').fetch()
     return {
-      page,
+      testMD,
       list: [{ type: 'remote', text: '準備中 ... ', time }]
       // items: [
       //   ['桃園所', 40],

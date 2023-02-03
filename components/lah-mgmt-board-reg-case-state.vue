@@ -73,6 +73,7 @@ b-card(border-variant="secondary")
         b-input-group.col(size="sm", v-b-tooltip="rmMap[upperCaseRmXX] || upperCaseRmXX")
           b-input-group-prepend(is-text) 其他欄位
           b-input.h-100(v-model="rmXX", @input="restoreRMXXValue")
+          lah-button.ml-1(icon="hand-pointer" @click="$refs.rmMap.show()" size="sm" variant="outline-primary" no-icon-gutter title="選取欄位")
         b-input-group.col.text-nowrap(size="sm")
           b-input-group-prepend(is-text) 修改內容
           b-form-input.h-100(v-model="rmXXValue")
@@ -82,6 +83,16 @@ b-card(border-variant="secondary")
         lah-fa-icon(icon="eye", variant="success") 即將修正「{{ rmMap[upperCaseRmXX] || upperCaseRmXX }}」為「{{ rmXXValue }}」。
       .form-row.mt-1.ml-1(v-else-if="!$utils.empty(rmXX)")
         lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
+  b-modal(
+    ref="rmMap",
+    title="選擇欲修改之 CRSMS 表格欄位",
+    center,
+    hide-footer
+  )
+    lah-button(
+      v-for="(item, idx) in Object.entries(rmMap)",
+      :key="`RM_${idx}`"
+    ) {{ item[0] }} {{ item[1] }}
 </template>
 
 <script>

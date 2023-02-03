@@ -81,7 +81,10 @@ export default {
   ],
   content: {
     // Options, https://content.nuxtjs.org/v1/getting-started/installation/
-    liveEdit: false
+    liveEdit: false,
+    extendParser: {
+      '.txt': file => file.split('\n').map(line => line.trim())
+    }
   },
   bootstrapVue: {
     // Install the `IconsPlugin` plugin (in addition to `BootstrapVue` plugin)
