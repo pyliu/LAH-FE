@@ -55,17 +55,7 @@ const state = () => ({
   systemConfigs: {},
   lastMessage: '',
   topXap: { x: '', y: 0 },
-  xapMap: new Map([
-    ['220.1.33.71', { name: '地政局', code: 'H0', ip: '220.1.33.71' }],
-    ['220.1.34.161', { name: '桃園所', code: 'HA', ip: '220.1.34.161' }],
-    ['220.1.35.123', { name: '中壢所', code: 'HB', ip: '220.1.35.123' }],
-    ['220.1.36.45', { name: '大溪所', code: 'HC', ip: '220.1.36.45' }],
-    ['220.1.37.246', { name: '楊梅所', code: 'HD', ip: '220.1.37.246' }],
-    ['220.1.38.30', { name: '蘆竹所', code: 'HE', ip: '220.1.38.30' }],
-    ['220.1.39.57', { name: '八德所', code: 'HF', ip: '220.1.39.57' }],
-    ['220.1.40.33', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
-    ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
-  ]),
+  xapMap: new Map(),
   imageMementoCapacity: 30,
   imageMemento: [],
   messageMementoCapacity: 30,
@@ -206,6 +196,7 @@ const actions = {
   nuxtServerInit ({ commit, dispatch }, nuxt) {
     try {
       commit('ip', nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress)
+      dispatch('loadXap')
       // query login require info by ip to use middleware to control authority
       dispatch('login')
     } catch (e) {
@@ -224,6 +215,13 @@ const actions = {
     }).finally(() => {
       logtimestamp(`${getters.ip} connected.`)
     })
+  },
+  async loadXap ({ $content, getters }) {
+    const json = await $content('xapMap').fetch()
+    for (const [key, value] of Object.entries(json)) {
+      // console.log(`${key}: ${value}`)
+      getters.xapMap.set(key, value)
+    }
   }
 }
 
