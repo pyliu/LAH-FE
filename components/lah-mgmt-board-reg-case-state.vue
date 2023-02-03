@@ -70,7 +70,7 @@ b-card(border-variant="secondary")
           lah-button(icon="edit" @click="updateRM42" size="sm" variant="outline-primary" no-icon-gutter title="更新")
       hr
       .form-row
-        b-input-group.col(size="sm", v-b-tooltip="'RMXX'")
+        b-input-group.col(size="sm", v-b-tooltip="rmMap[upperCaseRmXX] || upperCaseRmXX")
           b-input-group-prepend(is-text) 其他欄位
           b-input.h-100(v-model="rmXX", @input="restoreRMXXValue")
         b-input-group.col.text-nowrap(size="sm")
@@ -79,7 +79,7 @@ b-card(border-variant="secondary")
         .filter-btn-group.col-auto(v-if="validRMXX")
           lah-button(icon="edit" @click="updateRMXX(upperCaseRmXX, rmXXValue)" size="sm" variant="outline-primary" no-icon-gutter title="更新")
       .form-row.mt-1.ml-1(v-if="validRMXX")
-        lah-fa-icon(icon="eye", variant="success") 即將修正「{{ upperCaseRmXX }}」為「{{ rmXXValue }}」。
+        lah-fa-icon(icon="eye", variant="success") 即將修正「{{ rmMap[upperCaseRmXX] || upperCaseRmXX }}」為「{{ rmXXValue }}」。
       .form-row.mt-1.ml-1(v-else-if="!$utils.empty(rmXX)")
         lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
 </template>
@@ -288,7 +288,8 @@ export default {
     }
     ],
     rmXX: '',
-    rmXXValue: ''
+    rmXXValue: '',
+    rmMap: {}
   }),
   computed: {
     caseId () {
@@ -350,7 +351,9 @@ export default {
     }
   },
   created () {},
-  mounted () {},
+  async mounted () {
+    this.rmMap = { ...await this.$content('crsmsSchema').fetch() }
+  },
   methods: {
     detail () {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
