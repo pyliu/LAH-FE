@@ -4,7 +4,7 @@ export default function ({
 }) {
   const userinfo = store.getters.user
   const authority = store.getters.authority
-  // not admin/super => redirect to '/login'
+  // not admin/inf => redirect to '/login'
   if (!authority.isAdmin && !userinfo.unit !== '資訊課') {
     return redirect('/login')
   }
