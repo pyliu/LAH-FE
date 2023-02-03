@@ -196,7 +196,7 @@ const actions = {
   nuxtServerInit ({ commit, dispatch }, nuxt) {
     try {
       commit('ip', nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress)
-      dispatch('loadXap')
+      dispatch('loadXap', nuxt.$content)
       // query login require info by ip to use middleware to control authority
       dispatch('login')
     } catch (e) {
@@ -216,7 +216,7 @@ const actions = {
       logtimestamp(`${getters.ip} connected.`)
     })
   },
-  async loadXap ({ $content, getters }) {
+  async loadXap ({ getters }, $content) {
     const json = await $content('xapMap').fetch()
     for (const [key, value] of Object.entries(json)) {
       // console.log(`${key}: ${value}`)
