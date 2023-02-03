@@ -74,9 +74,14 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
     '@nuxtjs/localforage',
+    // nuxt2 needs v1 => yarn add @nuxt/content@^1
+    '@nuxt/content',
     // '@nuxt/content',
     'nuxt-fontawesome'
   ],
+  content: {
+    // Options, https://content.nuxtjs.org/v1/getting-started/installation/
+  },
   bootstrapVue: {
     // Install the `IconsPlugin` plugin (in addition to `BootstrapVue` plugin)
     icons: true,
