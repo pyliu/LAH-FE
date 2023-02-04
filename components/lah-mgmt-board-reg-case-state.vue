@@ -72,7 +72,7 @@ b-card(border-variant="secondary")
       .form-row
         b-input-group.col(size="sm", v-b-tooltip="rmMap[upperCaseRmXX] || upperCaseRmXX")
           b-input-group-prepend(is-text) 其他欄位
-          b-input.h-100(v-model="rmXX", @input="restoreRMXXValue")
+          b-input.h-100(v-model="rmXX")
           lah-button.ml-1(icon="hand-pointer" @click="$refs.rmMap.show()" size="sm" variant="outline-primary" no-icon-gutter title="選取欄位")
         b-input-group.col.text-nowrap(size="sm")
           b-input-group-prepend(is-text) 修改內容
@@ -368,6 +368,13 @@ export default {
     },
     filterKey (val) {
       this.prepareFilterColumns(val)
+    },
+    rmXX (dontcare) {
+      if (this.validRMXX) {
+        this.rmXXValue = this.crsmsData[this.upperCaseRmXX]
+      } else {
+        this.rmXXValue = ''
+      }
     }
   },
   async mounted () {
@@ -518,13 +525,6 @@ export default {
           callback && callback()
         }
       })
-    },
-    restoreRMXXValue () {
-      if (this.validRMXX) {
-        this.rmXXValue = this.crsmsData[this.upperCaseRmXX]
-      } else {
-        this.rmXXValue = ''
-      }
     },
     assignRMXX (val) {
       this.rmXX = val
