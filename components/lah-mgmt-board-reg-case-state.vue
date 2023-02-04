@@ -87,12 +87,16 @@ b-card(border-variant="secondary")
     ref="rmMap",
     title="選擇欲修改之 CRSMS 表格欄位",
     center,
-    hide-footer
+    hide-footer,
+    size="lg"
   )
-    lah-button(
-      v-for="(item, idx) in Object.entries(rmMap)",
-      :key="`RM_${idx}`"
-    ) {{ item[0] }} {{ item[1] }}
+    b-input.w-100.mb-2(v-model="filterKey", placeholder="篩選關鍵字")
+    transition-group(name="list", mode="out-in"): lah-button.float-left.mr-1.mb-1(
+      v-for="([key, name], idx) in filterColumns",
+      :key="`RM_${idx}`",
+      @click="assignRMXX(key)",
+      pill
+    ) {{ key }} {{ name }}
 </template>
 
 <script>
@@ -300,7 +304,9 @@ export default {
     ],
     rmXX: '',
     rmXXValue: '',
-    rmMap: {}
+    rmMap: {},
+    filterKey: '',
+    filterColumns: []
   }),
   computed: {
     caseId () {
@@ -359,11 +365,14 @@ export default {
       this.rm39_orig = this.crsmsData?.RM39 || ''
       this.rm42_orig = this.crsmsData?.RM42 || ''
       this.rmXX = ''
+    },
+    filterKey (val) {
+      this.prepareFilterColumns(val)
     }
   },
-  created () {},
   async mounted () {
     this.rmMap = { ...await this.$content('crsmsSchema').fetch() }
+    this.prepareFilterColumns()
   },
   methods: {
     detail () {
@@ -516,6 +525,24 @@ export default {
       } else {
         this.rmXXValue = ''
       }
+    },
+    assignRMXX (val) {
+      this.rmXX = val
+      this.$refs.rmMap?.hide()
+    },
+    filterKeyword (key, name, keyword) {
+      if (!key.startsWith('RM')) {
+        return false
+      }
+      if (this.$utils.empty(keyword)) {
+        return true
+      }
+      return key.includes(keyword) || name.includes(keyword)
+    },
+    prepareFilterColumns (val) {
+      this.filterColumns = Object.entries(this.rmMap).filter((item) => {
+        return this.filterKeyword(item[0], item[1], val)
+      })
     }
   }
 }
