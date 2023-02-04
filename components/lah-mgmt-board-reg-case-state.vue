@@ -85,25 +85,11 @@ b-card(border-variant="secondary")
         lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
   lah-list-picker(
     ref="picker",
+    :list="crsmsSchema",
+    @select="assignRMXX",
     size="lg",
-    pill,
-    :list="filterColumns",
-    @select="assignRMXX"
+    pill
   )
-  //- b-modal(
-  //-   ref="rmMap",
-  //-   title="選擇欲修改之 CRSMS 表格欄位",
-  //-   center,
-  //-   hide-footer,
-  //-   size="lg"
-  //- )
-  //-   b-input.w-100.mb-2(ref="AA", v-model="keyword", placeholder="篩選關鍵字")
-  //-   transition-group(name="list", mode="out-in"): lah-button.float-left.mr-1.mb-1(
-  //-     v-for="([key, name], idx) in filterColumns",
-  //-     :key="`RM_${idx}`",
-  //-     @click="assignRMXX(key)",
-  //-     pill
-  //-   ) {{ key }} {{ name }}
 </template>
 
 <script>
@@ -313,7 +299,7 @@ export default {
     rmXXValue: '',
     rmMap: {},
     keyword: '',
-    filterColumns: []
+    crsmsSchema: []
   }),
   computed: {
     caseId () {
@@ -381,9 +367,18 @@ export default {
       }
     }
   },
-  async mounted () {
-    this.rmMap = { ...await this.$content('crsmsSchema').fetch() }
-    this.prepareFilterColumns()
+  async created () {
+    this.rmMap = await this.$content('crsmsSchema').fetch()
+    this.crsmsSchema = [...Object.entries(this.rmMap)
+      .filter(item => item[0]?.startsWith('RM'))
+      .map((item) => {
+        return {
+          key: item[0],
+          label: `${item[0]} ${item[1]}`,
+          value: item[1],
+          raw: item
+        }
+      })]
   },
   methods: {
     detail () {
@@ -531,19 +526,11 @@ export default {
       })
     },
     assignRMXX (payload) {
-      this.rmXX = payload.value
+      this.rmXX = payload.key
       this.$refs.picker?.hide()
     },
     popupFilterModal () {
       this.$refs.picker.show()
-    },
-    prepareFilterColumns () {
-      this.filterColumns = Object.entries(this.rmMap).map((item) => {
-        return {
-          label: item[0],
-          value: item[1]
-        }
-      })
     }
   }
 }

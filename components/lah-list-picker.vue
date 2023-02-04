@@ -8,7 +8,7 @@ b-modal(
 )
   b-input.w-100.mb-2(ref="keyword", v-model="keyword", placeholder="篩選關鍵字")
   transition-group(name="list", mode="out-in"): lah-button.float-left.mr-1.mb-1(
-    v-for="(item, idx) in filtered",
+    v-for="(item, idx) in tmp",
     :key="`list_${item.label}_${idx}`",
     @click="emitSelection(item)",
     :pill="pill"
@@ -22,37 +22,42 @@ export default {
     /**
      * list item: {
      *   label: 'XXXX',
-     *   value: 'OOOO'
+     *   value: 'OOOO',
+     *   raw
      * }
      */
     list: { type: Array, default: () => [] },
     size: { type: String, default: 'md' },
     pill: { type: Boolean, default: false },
     title: { type: String, default: '選擇欲指定的資料' },
-    delay: { type: Number, default: 200 }
+    delay: { type: Number, default: 400 }
   },
   data: () => ({
     keyword: '',
-    filtered: []
+    tmp: []
   }),
   computed: {},
   watch: {
     keyword (val) {
       this.filter(val)
+    },
+    tmp (val) {
+      console.warn(val)
     }
   },
   created () {
-    this.filtered = [...this.list]
-  },
-  mounted () {
+    this.tmp = [...this.list]
     this.filter = this.$utils.debounce((val) => {
-      this.filtered = this.list.filter((item) => {
+      this.tmp = this.list.filter((item) => {
         if (this.$utils.empty(val)) {
           return true
         }
-        return item.label.includes(val) || item.value.includes(val)
+        return item.label.includes(val)
       })
     }, this.delay)
+  },
+  mounted () {
+    this.filter()
   },
   methods: {
     emitSelection (payload) {
@@ -65,9 +70,6 @@ export default {
       this.$refs.modal.hide()
     },
     filterKeyword (key, name, keyword) {
-      if (!key.startsWith('RM')) {
-        return false
-      }
       if (this.$utils.empty(keyword)) {
         return true
       }
