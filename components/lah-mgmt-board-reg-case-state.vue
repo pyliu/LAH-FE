@@ -72,8 +72,8 @@ b-card(border-variant="secondary")
       .form-row
         b-input-group.col(size="sm", v-b-tooltip="rmMap[upperCaseRmXX] || upperCaseRmXX")
           b-input-group-prepend(is-text) 其他欄位
-          b-input.h-100(v-model="rmXX")
-          lah-button.ml-1(icon="hand-pointer" @click="$refs.rmMap.show()" size="sm" variant="outline-primary" no-icon-gutter title="選取欄位")
+          b-input.h-100(v-model="rmXX", @click="popupFilterModal", readonly)
+          lah-button.ml-1(icon="hand-pointer", @click="popupFilterModal", size="sm" variant="outline-primary" no-icon-gutter title="選取欄位")
         b-input-group.col.text-nowrap(size="sm")
           b-input-group-prepend(is-text) 修改內容
           b-form-input.h-100(v-model="rmXXValue")
@@ -83,20 +83,27 @@ b-card(border-variant="secondary")
         lah-fa-icon(icon="eye", variant="success") 即將修正「{{ rmMap[upperCaseRmXX] || upperCaseRmXX }}」為「{{ rmXXValue }}」。
       .form-row.mt-1.ml-1(v-else-if="!$utils.empty(rmXX)")
         lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
-  b-modal(
-    ref="rmMap",
-    title="選擇欲修改之 CRSMS 表格欄位",
-    center,
-    hide-footer,
-    size="lg"
+  lah-list-picker(
+    ref="picker",
+    size="lg",
+    pill,
+    :list="filterColumns",
+    @select="assignRMXX"
   )
-    b-input.w-100.mb-2(v-model="filterKey", placeholder="篩選關鍵字")
-    transition-group(name="list", mode="out-in"): lah-button.float-left.mr-1.mb-1(
-      v-for="([key, name], idx) in filterColumns",
-      :key="`RM_${idx}`",
-      @click="assignRMXX(key)",
-      pill
-    ) {{ key }} {{ name }}
+  //- b-modal(
+  //-   ref="rmMap",
+  //-   title="選擇欲修改之 CRSMS 表格欄位",
+  //-   center,
+  //-   hide-footer,
+  //-   size="lg"
+  //- )
+  //-   b-input.w-100.mb-2(ref="AA", v-model="keyword", placeholder="篩選關鍵字")
+  //-   transition-group(name="list", mode="out-in"): lah-button.float-left.mr-1.mb-1(
+  //-     v-for="([key, name], idx) in filterColumns",
+  //-     :key="`RM_${idx}`",
+  //-     @click="assignRMXX(key)",
+  //-     pill
+  //-   ) {{ key }} {{ name }}
 </template>
 
 <script>
@@ -305,7 +312,7 @@ export default {
     rmXX: '',
     rmXXValue: '',
     rmMap: {},
-    filterKey: '',
+    keyword: '',
     filterColumns: []
   }),
   computed: {
@@ -365,9 +372,6 @@ export default {
       this.rm39_orig = this.crsmsData?.RM39 || ''
       this.rm42_orig = this.crsmsData?.RM42 || ''
       this.rmXX = ''
-    },
-    filterKey (val) {
-      this.prepareFilterColumns(val)
     },
     rmXX (dontcare) {
       if (this.validRMXX) {
@@ -526,22 +530,19 @@ export default {
         }
       })
     },
-    assignRMXX (val) {
-      this.rmXX = val
-      this.$refs.rmMap?.hide()
+    assignRMXX (payload) {
+      this.rmXX = payload.value
+      this.$refs.picker?.hide()
     },
-    filterKeyword (key, name, keyword) {
-      if (!key.startsWith('RM')) {
-        return false
-      }
-      if (this.$utils.empty(keyword)) {
-        return true
-      }
-      return key.includes(keyword) || name.includes(keyword)
+    popupFilterModal () {
+      this.$refs.picker.show()
     },
-    prepareFilterColumns (val) {
-      this.filterColumns = Object.entries(this.rmMap).filter((item) => {
-        return this.filterKeyword(item[0], item[1], val)
+    prepareFilterColumns () {
+      this.filterColumns = Object.entries(this.rmMap).map((item) => {
+        return {
+          label: item[0],
+          value: item[1]
+        }
       })
     }
   }
