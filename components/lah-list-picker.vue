@@ -40,9 +40,6 @@ export default {
   watch: {
     keyword (val) {
       this.filter(val)
-    },
-    tmp (val) {
-      console.warn(val)
     }
   },
   created () {
