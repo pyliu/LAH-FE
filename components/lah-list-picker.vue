@@ -62,6 +62,8 @@ export default {
     },
     show () {
       this.$refs.modal.show()
+      // I can not directly use this.$refs.keyword ... why??
+      this.timeout(() => this.$refs.keyword.$el.focus(), 0)
     },
     hide () {
       this.$refs.modal.hide()
