@@ -11,7 +11,8 @@ b-modal(
     v-for="(item, idx) in tmp",
     :key="`list_${item.label}_${idx}`",
     @click="emitSelection(item)",
-    :pill="pill"
+    :pill="pill",
+    :title="`選擇「${item.label || item.value || item.key}」`"
   ) {{ item.label }}
 </template>
 
@@ -21,6 +22,7 @@ export default {
   props: {
     /**
      * list item: {
+     *   key: 'EEEE',
      *   label: 'XXXX',
      *   value: 'OOOO',
      *   raw
