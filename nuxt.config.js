@@ -158,6 +158,10 @@ export default {
         L05: {
           ip: process.env.MONITOR_HOST_L05_IP,
           port: process.env.MONITOR_HOST_L05_PORT
+        },
+        Grafana: {
+          ip: process.env.GRAFANA_HOST,
+          port: process.env.GRAFANA_PORT
         }
       }
     }
