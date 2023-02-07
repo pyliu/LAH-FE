@@ -68,6 +68,9 @@ export default {
         return this.light
       }
       return ''
+    },
+    grafanaUrl () {
+      return `http://${this.$config.monitor.host.Grafana.ip}:${this.$config.monitor.host.Grafana.port}`
     }
   },
   watch: {
