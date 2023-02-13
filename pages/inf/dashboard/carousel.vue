@@ -14,12 +14,13 @@ div(v-cloak)
             title="說明"
           )
           lah-button(
-            icon="circle-left",
-            variant="outline-primary",
+            icon="angles-left",
+            variant="outline-secondary",
             to="/inf/dashboard",
             regular,
             no-border,
             no-icon-gutter,
+            size="lg",
             title="正常版本"
           )
         .d-flex.align-items-center

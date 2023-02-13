@@ -19,13 +19,14 @@ div(v-cloak)
             title="說明"
           )
           lah-button(
-            icon="window-restore",
+            icon="angles-right",
             variant="outline-primary",
             to="/inf/dashboard/carousel",
             regular,
             no-border,
             no-icon-gutter,
-            title="輪播版本"
+            title="輪播版本",
+            size="lg"
           )
         .d-flex.align-items-center: b-button-group(size="lg")
           lah-button.mr-1(
