@@ -9,7 +9,7 @@ div(v-cloak)
             lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'success'") 綠燈狀態儀錶板
             lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'warning'") 黃燈狀態儀錶板
             lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'danger'") 紅燈狀態儀錶板
-            span(v-if="filtering === 'warning&danger'") 🔴➕🟡 異常狀態儀錶板
+            span(v-if="filtering === 'warning&danger'") 🔴+🟡 異常狀態儀錶板
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -42,7 +42,7 @@ div(v-cloak)
             no-border,
             title="顯示異常儀表板",
             @click="filtering = 'warning&danger'"
-          ) 🔴➕🟡 {{ red + yellow }}
+          ) 🔴+🟡 {{ red + yellow }}
           lah-button.mr-1(
             v-if="filtering !== 'danger'",
             no-border,
@@ -86,7 +86,7 @@ div(v-cloak)
       :is="name"
     )
   h2.no-dashboard.center(v-if="filterList.length === 0 && filtering !== false") ⚠ 無資料
-  div(v-show="filtering === false")
+  lah-transition: div(v-show="filtering === false")
     client-only: b-card-group.mb-4(deck)
       lah-monitor-board-xap(@light-update="lightUpdate")
       lah-monitor-board-apconn(@light-update="lightUpdate")
