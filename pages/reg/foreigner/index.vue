@@ -4,8 +4,8 @@ div
     .d-flex.justify-content-between.w-100
       .d-flex
         .my-auto 外國人資料建置及查詢
-        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'")
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="$refs.help_modal.show()" title="說明")
+        lah-help-modal(ref="help_modal")
           h5 建檔說明
           ol
             li 點選上傳按鈕開啟介面
