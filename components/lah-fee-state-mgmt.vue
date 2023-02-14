@@ -152,9 +152,13 @@ export default {
             this.info(`已更新 ${this.paymentOptExpk.length} 筆付款項目資料。`, { title: "查詢規費付款項目" })
           } else {
             this.alert(`查無規費付款項目資料`, { title: "查詢規費付款項目" })
+            // retry
+            this.timeout(() => { this.checkPaymentExpkData() }, 400)
           }
         }).catch(err => {
           this.$utils.error(err)
+            // retry
+          this.timeout(() => { this.checkPaymentExpkData() }, 400)
         }).finally(() => {
           this.isBusy = false
         })
