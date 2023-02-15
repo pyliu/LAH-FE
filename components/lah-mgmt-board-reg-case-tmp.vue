@@ -309,7 +309,7 @@ export default {
         ).then((YN) => {
           if (YN) {
             this.isBusy = true
-            this.$http.post(this.$consts.API.JSON.QUERY, {
+            this.$axios.post(this.$consts.API.JSON.QUERY, {
               type: 'clear_temp_data',
               year: this.year,
               code: this.code,
