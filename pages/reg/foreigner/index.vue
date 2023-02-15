@@ -30,6 +30,8 @@ div
           icon="search"
           size="lg"
           title="搜尋"
+          action="swim"
+          variant="outline-dark"
           :disabled="isBusy || isWrongDaysPeriod"
           @click="$fetch"
           no-icon-gutter
@@ -39,31 +41,14 @@ div
           icon="file-circle-plus"
           size="lg"
           title="新建資料"
-          variant="primary"
           :disabled="isBusy"
+          @click="$refs.add.show()"
           no-icon-gutter
         )
         lah-button-xlsx(
           :jsons="xlsxData"
           header="土地參考資訊檔異動情形"
         )
-        //- lah-countdown-button(
-        //-   ref="countdown"
-        //-   title="立即重新讀取"
-        //-   variant="outline-secondary"
-        //-   badge-variant="secondary"
-        //-   icon="sync-alt"
-        //-   action="ld-cycle"
-        //-   size="lg"
-        //-   :milliseconds="cachedMs"
-        //-   :disabled="isBusy || isWrongDaysPeriod"
-        //-   :busy="isBusy"
-        //-   @end="reload"
-        //-   @click="reload"
-        //-   auto-start
-        //-   end-attention
-        //-   no-badge
-        //- )
 
   lah-pagination(
     v-model="pagination"
@@ -110,14 +95,12 @@ div
       {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
   b-modal(
     ref="add",
-    size="lg",
     hide-footer,
     no-close-on-backdrop,
     scrollable
   )
     template(#modal-title) 新增項目
-    b-spinner.my-auto(small type="grow")
-      strong.ld-txt 查詢中..
+    lah-reg-foreigner-case-addition
 </template>
 
 <script>
@@ -163,13 +146,6 @@ export default {
         this.reset()
         if (this.forceReload !== true && json) {
           this.rows = json.raw
-          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
-            if (this.$refs.countdown) {
-              this.$refs.countdown.setCountdown(remaining)
-              this.$refs.countdown.startCountdown()
-            }
-            this.notify(`查詢成功，找到 ${this.rows.length} 筆外國人資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
-          })
           this.committed = true
         } else {
           this.isBusy = true
@@ -178,8 +154,7 @@ export default {
             type: 'foreigner_pdf_list',
             keyword: this.keyword,
             start: this.dateRange.begin,
-            end: this.dateRange.end,
-            reload: this.forceReload
+            end: this.dateRange.end
           }).then(({ data }) => {
             this.rows = data.raw || []
             this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
@@ -237,23 +212,12 @@ export default {
     },
     reset () {
       this.committed = false
+      this.forceReload = false
       this.rows = []
       this.currentPage = 1
     },
     popup (data) {
       this.$refs.add?.show()
-    },
-    landNumber (item) {
-      const val = item.AA49
-      if (val) {
-        const mainNumber = val.substring(0, 4)
-        const subNumber = val.substring(4)
-        return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
-      }
-      return ''
-    },
-    humanTWDate (str) {
-      return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
     },
     getLabel (key) {
       const found = this.fields.find((item, idx, array) => {
