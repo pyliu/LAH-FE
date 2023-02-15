@@ -4,8 +4,8 @@ div
     .d-flex.justify-content-between.w-100
       .d-flex
         .my-auto 外國人資料建置及查詢
-        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'")
+        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="$refs.help_modal.show()" title="說明")
+        lah-help-modal(ref="help_modal")
           h5 建檔說明
           ol
             li 點選上傳按鈕開啟介面
@@ -20,7 +20,11 @@ div
             li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
       .d-flex.small
-        lah-datepicker.mr-1(v-model="dateRange")
+        lah-datepicker(v-model="dateRange")
+        b-input.h-100.mx-1(
+          v-model="keyword",
+          placeholder="關鍵字...(非必要)"
+        )
         lah-button(
           ref="search"
           icon="search"
@@ -30,7 +34,16 @@ div
           @click="$fetch"
           no-icon-gutter
         )
-        lah-button-xlsx.mx-1(
+        lah-button.mx-1(
+          ref="plus"
+          icon="file-circle-plus"
+          size="lg"
+          title="新建資料"
+          variant="primary"
+          :disabled="isBusy"
+          no-icon-gutter
+        )
+        lah-button-xlsx(
           :jsons="xlsxData"
           header="土地參考資訊檔異動情形"
         )
@@ -58,44 +71,43 @@ div
     :caption="foundText"
   )
 
-  lah-transition
-    b-table.text-center(
-      v-if="committed"
-      ref="table"
-      caption-top
-      selectable
-      select-mode="single"
-      selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
-      :busy="isBusy"
-      :items="rows"
-      :responsive="'lg'"
-      :striped="true"
-      :hover="true"
-      :bordered="true"
-      :borderless="false"
-      :outlined="false"
-      :small="true"
-      :dark="false"
-      :fixed="false"
-      :foot-clone="false"
-      :no-border-collapse="true"
-      :head-variant="'dark'"
-      :fields="fields"
-      :per-page="pagination.perPage"
-      :current-page="pagination.currentPage"
-    )
-      template(#table-busy): span.ld-txt 讀取中...
-      template(v-slot:cell(#)="{ item, index, rowSelected }")
-        template(v-if="rowSelected")
-          span(aria-hidden="true") &check;
-          span.sr-only 勾選
-        template(v-else)
-          span(aria-hidden="true") &nbsp;
-          span.sr-only 無勾選
-        span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-      template(#cell(RM01)="{ item }"): div: b-link(@click="popup(item)").
-        {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+  lah-transition: b-table.text-center(
+    v-if="committed"
+    ref="table"
+    select-mode="single"
+    selected-variant="success"
+    :sticky-header="`${maxHeight}px`"
+    :busy="isBusy"
+    :items="rows"
+    :responsive="'lg'"
+    :head-variant="'dark'"
+    :fields="fields"
+    :per-page="pagination.perPage"
+    :current-page="pagination.currentPage"
+    :borderless="false"
+    :outlined="false"
+    :dark="false"
+    :fixed="false"
+    :foot-clone="false"
+    caption-top
+    selectable
+    striped
+    hover
+    bordered
+    small
+    no-border-collapse
+  )
+    template(#table-busy): span.ld-txt 讀取中...
+    template(v-slot:cell(#)="{ item, index, rowSelected }")
+      template(v-if="rowSelected")
+        span(aria-hidden="true") &check;
+        span.sr-only 勾選
+      template(v-else)
+        span(aria-hidden="true") &nbsp;
+        span.sr-only 無勾選
+      span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
+    template(#cell(RM01)="{ item }"): div: b-link(@click="popup(item)").
+      {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
   b-modal(
     ref="add",
     size="lg",
@@ -112,6 +124,7 @@ div
 export default {
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
+    keyword: '',
     rows: [],
     dateRange: {
       begin: '',
@@ -130,50 +143,9 @@ export default {
         key: 'RM01',
         label: '收件案號',
         sortable: true
-      },
-      {
-        key: 'RM09',
-        label: '登記原因',
-        sortable: true
-      },
-      {
-        key: 'RM56_1',
-        label: '校對日期',
-        sortable: true
-      },
-      {
-        key: 'AA48',
-        label: '段代碼',
-        sortable: true
-      },
-      {
-        key: 'AA49',
-        label: '地號',
-        sortable: true
-      },
-      {
-        key: 'AS_TYPE',
-        label: '異動別',
-        sortable: true
-      },
-      // {
-      //   key: 'GG30_2',
-      //   label: '其他登記事項',
-      //   sortable: true
-      // },
-      {
-        key: 'AF08',
-        label: '土參類別',
-        sortable: true
-      },
-      {
-        key: 'AF09',
-        label: '土參內容',
-        sortable: true
       }
     ],
-    maxHeight: 600,
-    warnDays: 730
+    maxHeight: 600
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
@@ -196,29 +168,21 @@ export default {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
             }
-            this.notify(`查詢成功，找到 ${this.rows.length} 筆土地參考資訊檔異動情形資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            this.notify(`查詢成功，找到 ${this.rows.length} 筆外國人資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
           this.committed = true
         } else {
           this.isBusy = true
           this.committed = false
-          this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-            type: 'land_ref_change',
+          this.$axios.post(this.$consts.API.JSON.REG, {
+            type: 'foreigner_pdf_list',
+            keyword: this.keyword,
             start: this.dateRange.begin,
             end: this.dateRange.end,
             reload: this.forceReload
           }).then(({ data }) => {
             this.rows = data.raw || []
             this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-            const remainS = data.cache_remaining_time
-            const remainMs = remainS * 1000
-            if (remainMs && remainMs > 0) {
-              this.setCache(this.cacheKey, data, remainMs)
-              if (this.$refs.countdown) {
-                this.$refs.countdown.setCountdown(remainMs)
-                this.$refs.countdown.startCountdown()
-              }
-            }
           }).catch((err) => {
             this.alert(err.message)
             this.$utils.error(err)
@@ -232,13 +196,13 @@ export default {
     }
   },
   head: {
-    title: '土地參考資訊檔異動情形查詢-桃園市地政局'
+    title: '外國人資料建置及查詢-桃園市地政局'
   },
   computed: {
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
     cacheKey () { return `query_land_ref_change_${this.dateRange.begin}_${this.dateRange.end}` },
-    foundText () { return `找到 ${this.queryCount} 筆「土地參考資訊檔」案件異動資料` },
+    foundText () { return `找到 ${this.queryCount} 筆「外國人」資料` },
     daysPeriod () { return this.dateRange.days || 0 },
     isWrongDaysPeriod () { return this.daysPeriod < 1 },
     xlsxData () {
