@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card(:border-variant="borderVariant")
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
+    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
       lah-button(
         v-if="logs.length > 0",
