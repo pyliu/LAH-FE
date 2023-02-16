@@ -522,7 +522,6 @@ export default {
       const mainData = json[this.mainKey]
       const buildData = json[`${this.mainKey}${this.buildingPostfix}`]
       const carData = json[`${this.mainKey}${this.parkingPostfix}`]
-      console.log(buildData, json)
       const obj = {
         ...this.mapFieldData(mainData),
         ...this.mapFieldData(buildData, 'build'),
