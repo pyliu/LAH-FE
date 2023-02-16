@@ -44,10 +44,10 @@ b-card(:border-variant="borderVariant")
     )
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
-  .font-weight-bold.small {{ this.message }}
+  .font-weight-bold.text-center {{ this.message }}
   lah-transition: b-list-group.small(v-if="!isBusy", flush)
     b-list-group-item
-      lah-fa-icon(icon="clock", variant="primary") 最近同步時間：{{ this.lastSyncTime }}
+      lah-fa-icon(icon="clock", variant="primary") 最近狀態：{{ this.lastSyncTime }} - {{ this.lastSyncMessage }}
     b-list-group-item(button)
       lah-fa-icon(icon="folder-open", variant="warning") 同步資料夾：{{ this.syncDir }}
     b-list-group-item
@@ -120,6 +120,12 @@ export default {
     lastSyncTime () {
       if (this.logs.length > 0) {
         return this.$utils.addDateDivider(this.logs[0].FinDate, 'AD') + ' ' + this.$utils.addTimeDivider(this.logs[0].FinTime)
+      }
+      return ''
+    },
+    lastSyncMessage () {
+      if (this.logs.length > 0) {
+        return this.logs[0].QryResult
       }
       return ''
     },
