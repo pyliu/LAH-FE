@@ -93,6 +93,9 @@ b-sidebar#lah-sidebar(
       li(v-if="isReg || isInf"): nuxt-link(to="/non-scrivener-case").
         #[font-awesome-icon(:icon="['fas', 'user-tag']", fixed-width, size="lg")]
         非專業代理人案件
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/foreigner").
+        #[font-awesome-icon(:icon="['fas', 'users-rectangle']", fixed-width, size="lg")]
+        外國人資料查詢及建置
 
       li: hr
 

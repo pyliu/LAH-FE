@@ -5,7 +5,7 @@
     section.fixed-title-height.center: div
       lah-logo.mvh-50
       h3.title.lah-shadow.text-nowrap 桃園市地政智慧控管系統
-    section.b-card-container
+    section.b-card-container.my-n4
       b-card-group(deck)
         //- lah-index-card-link.fix-card-dimension(v-if="isSur", :icon="['far', 'calendar-alt']" to="/reg/reg/expire/sur") 測量逾期#[br]案件
         //- lah-index-card-link.fix-card-dimension(v-else-if="isVal", :icon="['fas', 'receipt']" to="/prc/realprice") 實價登錄#[br]案件控管
@@ -22,6 +22,13 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'border-all']" to="/reg/agriculture-375-change") 375租約#[br]異動
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-astronaut']" to="/reg/foreigner-case") 外人地權#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tag']" to="/reg/non-scrivener-case") 非專業代理人案件
+      b-card-group(deck)
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'users-rectangle']" to="/reg/foreigner") 外國人資料查詢及建置
+        //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'monument']" to="/reg/not-done-change") 未辦繼承標的註記異動
+        //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'landmark']" to="/reg/land-ref-change") 土地參考資訊檔異動
+        //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'border-all']" to="/reg/agriculture-375-change") 375租約#[br]異動
+        //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-astronaut']" to="/reg/foreigner-case") 外人地權#[br]案件
+        //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tag']" to="/reg/non-scrivener-case") 非專業代理人案件
   .version v{{ $config.pkgVersion }}
 </template>
 
