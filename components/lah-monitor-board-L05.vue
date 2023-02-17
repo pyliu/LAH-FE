@@ -42,18 +42,22 @@ b-card(:border-variant="borderVariant")
       @end="checkL05Status",
       @click="checkL05Status"
     )
+    .font-weight-bold {{ message }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
-  .font-weight-bold.text-center {{ this.message }}
   lah-transition: b-list-group.small(v-if="!isBusy", flush)
     b-list-group-item
-      lah-fa-icon(icon="clock", variant="primary") 最近狀態：{{ this.lastSyncTime }} - {{ this.lastSyncMessage }}
-    b-list-group-item(button)
-      lah-fa-icon(icon="folder-open", variant="warning") 同步資料夾：{{ this.syncDir }}
+      lah-fa-icon(icon="network-wired", :variant="light") 局端回應時間：{{ this.lastPingTime }}
+    b-list-group-item
+      .d-flex.justify-content-between
+        lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
+        lah-fa-icon(icon="clock", variant="secondary") {{ this.lastSyncTime }}
+    b-list-group-item
+      lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
     b-list-group-item
       .d-flex.justify-content-between
         lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ this.perf?.proc }}
-        lah-fa-icon(icon="gears", variant="success") 行程代碼: {{ this.perf?.pid }}
+        lah-fa-icon(icon="gears", variant="dark") 行程代碼: {{ this.perf?.pid }}
 
   b-modal(
     ref="logs",
@@ -116,6 +120,9 @@ export default {
     },
     syncDir () {
       return this.statusData?.payload?.path || ''
+    },
+    lastPingTime () {
+      return `${this.statusData?.payload?.ping}ms` || '無回應'
     },
     lastSyncTime () {
       if (this.logs.length > 0) {
