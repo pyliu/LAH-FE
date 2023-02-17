@@ -9,7 +9,11 @@ b-card(border-variant="secondary")
           :action="dataReady ? 'breath' : ''",
           :regular="dataReady"
         ) 登記案件狀態管理
-      a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
+      a.text-primary.font-weight-bold(
+        href="#",
+        @click="detail",
+        title="顯示案件詳情"
+      ) {{ $utils.caseId(caseId) }}
       b-button-group.ml-auto(size="sm"): lah-button(
         icon="question",
         action="breath",
@@ -36,7 +40,7 @@ b-card(border-variant="secondary")
   lah-transition
     h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
     div(v-else)
-      h6.center(v-if="!wip"): lah-fa-icon(icon="circle-exclamation", variant="danger") 案件已結案，修改前請確認是否需要變更！
+      h6.center(v-if="!wip"): lah-fa-icon(icon="circle-exclamation", variant="danger") 已結案，更新前請謹慎評估！
       .form-row
         b-input-group.col(size="sm")
           b-input-group-prepend(is-text) 辦理情形
@@ -321,6 +325,7 @@ export default {
       return this.showProgress
     },
     wip () {
+      console.warn(this.crsmsData, this.rm31_orig)
       return this.$utils.empty(this.rm31_orig)
     },
     rm30 () {
@@ -353,11 +358,7 @@ export default {
   },
   watch: {
     crsmsData (dontcare) {
-      this.rm30_orig = this.crsmsData?.RM30 || ''
-      this.rm31_orig = this.crsmsData?.RM31 || ''
-      this.rm39_orig = this.crsmsData?.RM39 || ''
-      this.rm42_orig = this.crsmsData?.RM42 || ''
-      this.rmXX = ''
+      this.saveOrigData()
     },
     rmXX (dontcare) {
       if (this.validRMXX) {
@@ -380,7 +381,17 @@ export default {
         }
       })]
   },
+  mounted () {
+    this.saveOrigData()
+  },
   methods: {
+    saveOrigData () {
+      this.rm30_orig = this.crsmsData?.RM30 || ''
+      this.rm31_orig = this.crsmsData?.RM31 || ''
+      this.rm39_orig = this.crsmsData?.RM39 || ''
+      this.rm42_orig = this.crsmsData?.RM42 || ''
+      this.rmXX = ''
+    },
     detail () {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
         props: {
