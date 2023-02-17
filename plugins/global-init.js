@@ -395,6 +395,22 @@ export default ({ $axios, store }, inject) => {
       const D = twDateStr.substring(5, 7) - 0
       return new Date(Y, M, D)
     },
+    adDateToTs (str, full = true) {
+      if (isEmpty(str)) { return false }
+      str = str.replaceAll('-', '').replaceAll(':', '')
+      const Y = str.substring(0, 4) - 0
+      const M = str.substring(4, 6) - 0 - 1
+      const D = str.substring(6, 8) - 0
+      let H = 0
+      let m = 0
+      let s = 0
+      if (full) {
+        H = str.substring(9, 11) - 0
+        m = str.substring(11, 13) - 0 - 1
+        s = str.substring(13, 15) - 0
+      }
+      return +new Date(Y, M, D, H, m, s)
+    },
     formatDistanceToNow (d = +new Date()) {
       return formatDistanceToNow(d, {
         addSuffix: true,
