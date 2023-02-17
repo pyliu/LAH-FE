@@ -1,100 +1,115 @@
 <template lang="pug">
 div
-  .w-100.mb-1(:class="vertical ? ['d-flex-column'] : ['d-flex']")
+  .d-flex.w-100
     b-input-group.text-nowrap(
       :size="size",
-      prepend="年",
-      :class="vertical ? [] : ['fixed-width']"
+      prepend="　年"
     )
-      b-form-select.h-100(
+      b-select.h-100(
         ref="year",
         v-model="year",
         :options="years",
         @change="emitInput"
       )
         template(v-slot:first): b-form-select-option(:value="null" disabled) -- 年份 --
-    b-input-group(
-      v-if="enableCode"
-      :size="size",
-      prepend="字",
-      :class="vertical ? ['my-1'] : ['ml-1']"
+    b-input-group.text-nowrap.ml-1(
+      prepend="　號",
+      :size="size"
     )
-      b-form-select.h-100(
-        ref="code",
-        v-model="code",
-        @change="emitInput"
-      )
-        template(v-slot:first): b-form-select-option(:value="null" disabled) -- 案件字 --
-        optgroup(
-          v-if="obj.options.length > 0",
-          v-for="obj in codeData",
-          :label="obj.label",
-          :class="codeBg(obj.label)"
-        )
-          option(
-            v-for="item in obj.options",
-            :value="item.replace(/[^A-Za-z0-9]/g, '')"
-          ) {{item}}
-    b-input-group.text-nowrap(
-      :size="size",
-      prepend="號",
-      :class="vertical ? ['my-1'] : ['fixed-width', 'ml-1']"
-    )
-      b-form-input.h-100(
+      b-input.h-100(
         ref="num",
         v-model="number",
+        type="number",
         title="最多6個數字",
         @input="emitInput",
         @keyup.enter="$emit('enter', $event)",
-        type="number",
         :step="step",
         :min="min",
-        :max="max"
+        :max="max",
+        :state="validNumber"
       )
-  b-file(
-    v-model="uploadFile",
-    accept="application/pdf",
-    browse-text="瀏覽",
+  .d-flex.w-100.my-1
+    b-input-group(
+      :size="size",
+      prepend="統編"
+    )
+      b-input.h-100(
+        v-model="foreignerId",
+        :state="validForeignerId"
+      )
+    b-input-group.ml-1(
+      :size="size",
+      prepend="姓名"
+    )
+      b-input.h-100(
+        v-model="foreignerName",
+        :state="validForeignerName"
+      )
+  b-input-group(
+    prepend="備註",
     :size="size"
   )
-   template(slot="file-name" slot-scope="{ names }")
-     b-badge(variant="dark") {{ names[0] }}
-     b-badge(v-if="names.length > 1" variant="dark" class="ml-1") + {{ names.length - 1 }} 個檔案
+    b-textarea(
+      v-model="foreignerNote",
+      placeholder="... 請輸入額外的描述 ...",
+      rows="8",
+      :state="validForeignerNote"
+    )
+  hr
+  b-input-group.text-nowrap(
+    prepend="掃描檔",
+    :size="size"
+  )
+    b-file(
+      v-model="uploadFile",
+      accept="application/pdf",
+      browse-text="瀏覽",
+      :state="valiUploadFile",
+      :size="size"
+    )
+    template(slot="file-name" slot-scope="{ names }")
+      b-badge(variant="dark") {{ names[0] }}
+      b-badge(v-if="names.length > 1" variant="dark" class="ml-1") + {{ names.length - 1 }} 個檔案
+  hr
+  .d-flex.justify-content-center
+    b-button-group
+      lah-button.mr-1(
+        icon="arrow-up-from-bracket",
+        action="move-fade-btt",
+        @click="upload"
+      ) 確認並上傳
+      lah-button(
+        variant="outline-secondary",
+        @click="cancel"
+      ) 取消
 </template>
 
 <script>
 export default {
+  emit: ['close', 'input'],
   props: {
     type: { type: String, default: 'reg' },
     value: { type: String, default: '' },
-    vertical: { type: Boolean, default: false },
-    size: { type: String, default: '' },
-    enableCode: { type: Boolean, default: false }
+    size: { type: String, default: '' }
   },
   data: () => ({
-    codes: {},
-    codeData: [],
+    foreignerId: '',
+    foreignerName: '',
+    foreignerNote: '',
+    uploadFile: null,
+    yearCachedKey: 'lah-reg-foreigner-case-addition-year',
     years: [],
     year: '112',
-    code: '',
     number: '',
     step: 10,
     min: 10,
     max: 999999,
-    retry: 3,
     codeCacheKey: 'lah-reg-case-input-group-code',
-    codeCacheKeyPermanent: 'lah-reg-case-input-group-code-permanent',
-    uploadFile: null
+    codeCacheKeyPermanent: 'lah-reg-case-input-group-code-permanent'
   }),
   computed: {
-    caseId () {
-      return `${this.year}${this.code}${String(this.number).padStart(6, '0')}`
-    },
     validYear () {
       return String(this.year).length === 3
-    },
-    validCode () {
-      return this.code.length === 4
     },
     validNumber () {
       const number = parseInt(this.number)
@@ -102,19 +117,22 @@ export default {
              number > 9 &&
              number < 1000000
     },
-    validCaseId () {
-      return this.validYear && this.validCode && this.validNumber
+    validForeignerId () {
+      return !this.$utils.empty(this.foreignerId)
+    },
+    validForeignerName () {
+      return !this.$utils.empty(this.foreignerName)
+    },
+    validForeignerNote () {
+      return null
+    },
+    valiUploadFile () {
+      return !this.$utils.empty(this.uploadFile)
     }
   },
   watch: {
-    year (dontcare) {
-      // this.getMaxNumber()
-    },
-    code (val) {
-      // this.getMaxNumber()
-    },
     uploadFile (val) {
-      console.warn(val)
+      // console.warn(val)
     }
   },
   created () {
@@ -124,45 +142,26 @@ export default {
   },
   mounted () {
     this.reloadYear()
-    this.reloadCode()
-    this.getMaxNumber = this.$utils.debounce(() => {
-      if (this.validYear && this.validCode) {
-        this.isBusy = true
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
-          type: 'max',
-          year: this.year,
-          code: this.code
-        }).then((res) => {
-          if (res.data.status === this.$consts.XHR_STATUS_CODE.SUCCESS_NORMAL) {
-            // update UI
-            this.number = res.data.max
-            this.emitInput()
-          } else {
-            this.$warn(`無法取得最大號 ${this.year}-${this.code}`)
-          }
-        }).catch((err) => {
-          this.$utils.error(err)
-        }).finally(() => {
-          this.isBusy = false
-        })
-      }
-    }, 400)
   },
   methods: {
     emitInput (e) {
-      this.$emit('input', this.caseId)
-    },
-    getMaxNumber: () => { /* placeholder for debounced method */ },
-    newCustomEvent: (name, val, target) => {
-      const evt = new CustomEvent(name, {
-        detail: val,
-        bubbles: true
+      this.$emit('input', {
+        year: this.year,
+        number: this.number,
+        foreignerId: this.foreignerId,
+        foreignerName: this.foreignerName,
+        foreignerNote: this.foreignerNote,
+        file: this.uploadFile
       })
-      Object.defineProperty(evt, 'target', { writable: false, value: target })
-      return evt
+    },
+    upload () {
+      this.$emit('close')
+    },
+    cancel () {
+      this.$emit('close')
     },
     reloadYear () {
-      this.getCache('lah-case-input-group-year').then((years) => {
+      this.getCache(this.yearCachedKey).then((years) => {
         if (years !== false) {
           this.years = [...years]
         } else {
@@ -171,192 +170,17 @@ export default {
           for (let i = 0; i <= len; i++) {
             this.years.push({ value: 87 + i, text: 87 + i })
           }
-          this.setCache('lah-case-input-group-year', this.years, 24 * 60 * 60 * 1000) // cache for a day
+          this.setCache(this.yearCachedKey, this.years, 24 * 60 * 60 * 1000) // cache for a day
         }
       }).finally(() => {
         if (this.$utils.empty(this.years)) {
           this.timeout(() => this.reloadYear(), 1000)
         }
       })
-    },
-    reloadCode () {
-      this.getCache(this.codeCacheKey).then((items) => {
-        if (!Array.isArray(items) || this.$utils.empty(items)) {
-          this.getDBCodeData()
-        } else {
-          this.restoreCodeData(items)
-        }
-      }).finally(() => {
-        if (this.$utils.empty(this.codes)) {
-          this.timeout(() => this.reloadCode(), 1000)
-        }
-      })
-    },
-    getDBCodeData () {
-      if (this.isBusy) { return }
-      this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'code_data',
-        year: this.year
-      }).then((res) => {
-        this.setCache(this.codeCacheKey, res.data.raw, 12 * 60 * 60 * 1000) // cache for half day
-        if (!this.$utils.empty(res.data.raw)) {
-          // no expire time
-          this.setCache(this.codeCacheKeyPermanent, res.data.raw, 0)
-        }
-        this.restoreCodeData(res.data.raw)
-      }).catch((err) => {
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-      })
-    },
-    resetCodes () {
-      this.codes = Object.assign({}, {
-        reg: {
-          HB: {
-            label: '登記案件-本所',
-            options: []
-          },
-          HXB1: {
-            label: '登記案件-本所收件(跨所)',
-            options: []
-          },
-          HBX1: {
-            label: '登記案件-他所收件(跨所)',
-            options: []
-          },
-          H2XX: {
-            label: '登記案件-本所收件(跨縣市)',
-            options: []
-          },
-          XXHB: {
-            label: '登記案件-他所收件(跨縣市)',
-            options: []
-          }
-        },
-        sur: {
-          HB: {
-            label: '測量案件',
-            options: []
-          }
-        },
-        prc: {
-          HB: {
-            label: '地價案件',
-            options: ['HB31 地價更正']
-          }
-        }
-      })
-    },
-    async restoreCodeData (items) {
-      // ITEM欄位：YEAR, CODE, CODE_NAME, COUNT, CODE_TYPE
-      // [109, HCB1, 壢溪登跨, 1213, reg.HXB1]
-      if (!Array.isArray(items)) {
-        items = await this.getCache(this.codeCacheKeyPermanent)
-      }
-
-      if (Array.isArray(items)) {
-        this.resetCodes()
-        items.forEach((item) => {
-          const type = item.CODE_TYPE.split('.')
-          // type => ['reg', 'HXB1']
-
-          if (this.$utils.empty(item.CODE_NAME)) { return false }
-          if (this.$utils.empty(this.codes[type[0]])) { return false }
-          if (this.$utils.empty(this.codes[type[0]][type[1]])) { return false }
-
-          const combined = item.CODE + ` ${item.CODE_NAME}` // 'HCB1 壢溪登跨'
-          const found = this.codes[type[0]][type[1]].options.find((i, idx, array) => { return i == combined })
-          if (!found) {
-            this.codes[type[0]][type[1]].options.push(combined)
-          }
-        })
-        // this.codes = Object.assign({}, this.codes);
-        this.arrangeCodeList()
-      } else if (--this.retry > 0) {
-        this.timeout(() => this.reloadCode(), 200)
-      } else {
-        this.notify({
-          title: '案件字還原',
-          subtitle: this.codeCacheKey,
-          message: '無法讀取案件「字」資料',
-          type: 'warning'
-        })
-        this.timeout(window.location.reload, 1000)
-      }
-    },
-    arrangeCodeList () {
-      this.codeData = []
-      switch (this.type) {
-        case 'reg':
-          this.codeData.push(this.codes.reg.HB)
-          this.codeData.push(this.codes.reg.HXB1)
-          this.codeData.push(this.codes.reg.HBX1)
-          this.codeData.push(this.codes.reg.H2XX)
-          this.codeData.push(this.codes.reg.XXHB)
-          this.step = this.min = 10
-          break
-        case 'sur':
-          this.codeData.push(this.codes.sur.HB)
-          this.step = this.min = 100
-          this.num = '000100'
-          break
-        case 'sync':
-          this.codeData.push(this.codes.reg.HXB1)
-          break
-        case 'tmp':
-          this.codeData.push(this.codes.reg.HB)
-          this.codeData.push(this.codes.prc.HB)
-          this.codeData.push(this.codes.reg.HXB1)
-          this.codeData.push(this.codes.reg.HBX1)
-          this.codeData.push(this.codes.reg.H2XX)
-          this.codeData.push(this.codes.reg.XXHB)
-          this.step = this.min = 1
-          break
-        default:
-          this.codeData.push(this.codes.reg.HB)
-          this.codeData.push(this.codes.reg.HXB1)
-          this.codeData.push(this.codes.reg.HBX1)
-          this.codeData.push(this.codes.prc.HB)
-          this.codeData.push(this.codes.sur.HB)
-          this.codeData.push(this.codes.reg.H2XX)
-          this.codeData.push(this.codes.reg.XXHB)
-          break
-      }
-    },
-    codeBg (label) {
-      let bgCss = ''
-      switch (label) {
-        case '登記案件-本所收件(跨所)':
-          bgCss = 'bg-primary text-white'
-          break
-        case '登記案件-他所收件(跨所)':
-          bgCss = 'bg-info text-white'
-          break
-        case '登記案件-本所收件(跨縣市)':
-          bgCss = 'bg-success text-white'
-          break
-        case '登記案件-他所收件(跨縣市)':
-          bgCss = 'bg-warning'
-          break
-        case '測量案件':
-          bgCss = 'bg-dark text-white'
-          break
-        case '地價案件':
-          bgCss = 'bg-secondary text-white'
-          break
-        default:
-          break
-      }
-      return bgCss
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.fixed-width {
-  width: 285px;
-}
 </style>

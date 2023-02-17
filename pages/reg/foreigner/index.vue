@@ -93,14 +93,15 @@ div
       span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
     template(#cell(RM01)="{ item }"): div: b-link(@click="popup(item)").
       {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+
   b-modal(
     ref="add",
     hide-footer,
     no-close-on-backdrop,
     scrollable
   )
-    template(#modal-title) 新增項目
-    lah-reg-foreigner-case-addition
+    template(#modal-title) 新增外國人資料
+    lah-reg-foreigner-case-addition(@close="$refs.add.hide()")
 </template>
 
 <script>
