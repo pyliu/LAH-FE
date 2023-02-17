@@ -40,7 +40,6 @@ b-card(border-variant="secondary")
   lah-transition
     h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
     div(v-else)
-      h6.center(v-if="!wip"): lah-fa-icon(icon="circle-exclamation", variant="danger") 已結案，更新前請謹慎評估！
       .form-row
         b-input-group.col(size="sm")
           b-input-group-prepend(is-text) 辦理情形
@@ -73,6 +72,7 @@ b-card(border-variant="secondary")
         .filter-btn-group.col-auto(v-if="rm42 !== rm42_orig")
           lah-button(icon="edit" @click="updateRM42" size="sm" variant="outline-primary" no-icon-gutter title="更新")
       hr
+      h6.center(v-if="!wip"): lah-fa-icon(icon="circle-exclamation", variant="danger") 已結案，更新前請謹慎評估！
       .form-row
         b-input-group.col(size="sm", v-b-tooltip="rmMap[upperCaseRmXX] || upperCaseRmXX")
           b-input-group-prepend(is-text) 其他欄位
@@ -86,7 +86,7 @@ b-card(border-variant="secondary")
       .form-row.mt-1.ml-1(v-if="validRMXX")
         lah-fa-icon(icon="eye", variant="success") 即將修正「{{ rmMap[upperCaseRmXX] || upperCaseRmXX }}」為「{{ rmXXValue }}」。
       .form-row.mt-1.ml-1(v-else-if="!$utils.empty(rmXX)")
-        lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在！
+        lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ upperCaseRmXX }}不存在或無法更新！
   lah-list-picker(
     ref="picker",
     :list="crsmsSchema",
@@ -352,7 +352,7 @@ export default {
       return `RM${this.rmXX}`.toUpperCase().replace('RMRM', 'RM')
     },
     validRMXX () {
-      return this.upperCaseRmXX in this.crsmsData
+      return this.upperCaseRmXX in this.crsmsData && !['RM01', 'RM02', 'RM03'].includes(this.upperCaseRmXX)
     }
   },
   watch: {
