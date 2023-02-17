@@ -7,7 +7,7 @@ b-card(:border-variant="borderVariant")
         v-if="logs.length > 0",
         icon="up-right-from-square",
         size="sm",
-        @click="popLogs"
+        @click="popLogs",
         no-border,
         no-icon-gutter,
         title="顯示最近10筆傳送紀錄"
@@ -48,7 +48,7 @@ b-card(:border-variant="borderVariant")
   lah-transition: b-list-group.small(v-if="!isBusy", flush)
     b-list-group-item
       lah-fa-icon(icon="network-wired", :variant="light") 局端回應時間：{{ this.lastPingTime }}
-    b-list-group-item
+    b-list-group-item(button, @click="popLogs")
       .d-flex.justify-content-between
         lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
         lah-fa-icon(icon="clock", variant="secondary") {{ this.lastSyncTime }}
