@@ -126,7 +126,10 @@ export default {
     },
     lastSyncTime () {
       if (this.logs.length > 0) {
-        return this.$utils.addDateDivider(this.logs[0].FinDate, 'AD') + ' ' + this.$utils.addTimeDivider(this.logs[0].FinTime)
+        // should like "20230217 093943"
+        const str = `${this.logs[0].FinDate} ${this.logs[0].FinTime}`
+        const ts = this.$utils.adDateToTs(str)
+        return this.$utils.formatDistanceToNow(ts)
       }
       return ''
     },
