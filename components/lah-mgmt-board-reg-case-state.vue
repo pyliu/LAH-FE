@@ -325,7 +325,6 @@ export default {
       return this.showProgress
     },
     wip () {
-      console.warn(this.crsmsData, this.rm31_orig)
       return this.$utils.empty(this.rm31_orig)
     },
     rm30 () {
