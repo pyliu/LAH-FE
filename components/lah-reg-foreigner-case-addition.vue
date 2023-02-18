@@ -64,7 +64,8 @@ div
       v-model="uploadFile",
       accept="application/pdf",
       browse-text="瀏覽",
-      :state="valiUploadFile",
+      placeholder="... 請選擇PDF ...",
+      :state="validUploadFile",
       :size="size"
     )
     template(slot="file-name" slot-scope="{ names }")
@@ -76,11 +77,14 @@ div
       lah-button.mr-1(
         icon="arrow-up-from-bracket",
         action="move-fade-btt",
+        :variant="ready ? 'primary' : 'outline-primary'"
+        :disabled="isBusy || !ready",
         @click="upload"
       ) 確認並上傳
       lah-button(
         variant="outline-secondary",
-        @click="cancel"
+        @click="cancel",
+        :disabled="isBusy"
       ) 取消
 </template>
 
@@ -103,11 +107,16 @@ export default {
     number: '',
     step: 10,
     min: 10,
-    max: 999999,
-    codeCacheKey: 'lah-reg-case-input-group-code',
-    codeCacheKeyPermanent: 'lah-reg-case-input-group-code-permanent'
+    max: 999999
   }),
   computed: {
+    ready () {
+      return this.validYear &&
+             this.validNumber &&
+             this.validForeignerId &&
+             this.validForeignerName &&
+             this.validUploadFile
+    },
     validYear () {
       return String(this.year).length === 3
     },
@@ -126,7 +135,7 @@ export default {
     validForeignerNote () {
       return null
     },
-    valiUploadFile () {
+    validUploadFile () {
       return !this.$utils.empty(this.uploadFile)
     }
   },
@@ -154,8 +163,45 @@ export default {
         file: this.uploadFile
       })
     },
+    add () {
+      if (this.uploadFile?.type === 'application/pdf') {
+        this.isBusy = true
+        const formData = new FormData()
+        formData.append('year', this.year)
+        formData.append('number', this.number)
+        formData.append('fid', this.foreignerId)
+        formData.append('fname', this.foreignerName)
+        formData.append('note', this.foreignerNote)
+        formData.append('file', this.uploadFile)
+        this.$upload.post(this.$consts.API.FILE.REG_FOREIGNER_PDF, formData).then(({ data }) => {
+          this.$utils.warn(data)
+          // if (!this.$utils.empty(data.encoded) && !this.$utils.empty(data.uri)) {
+          //   this.encoded = `${data.uri}${data.encoded}`
+          //   this.$store.commit('addImageMemento', this.encoded)
+          //   if (this.$utils.statusCheck(data.status)) {
+          //     this.notify(data.message, { title: '上傳圖檔結果', type: 'success' })
+          //   } else {
+          //     this.warning(data.message, { title: '上傳圖檔結果', type: 'warning' })
+          //   }
+          // } else {
+          //   this.warning('回傳的影像編碼有誤', { title: '上傳圖檔結果' })
+          // }
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+          this.$emit('close')
+        })
+      } else {
+        this.warning('檔案不是PDF')
+      }
+    },
     upload () {
-      this.$emit('close')
+      this.confirm('請確認要新增外國人資料？').then((YN) => {
+        if (YN) {
+          this.add()
+        }
+      })
     },
     cancel () {
       this.$emit('close')
