@@ -79,7 +79,7 @@ export default {
       if (this.uploadFile?.type === 'image/jpeg') {
         this.isBusy = true
         this.encoded = ''
-        const filename = this.uploadFile.name
+        // const filename = this.uploadFile.name
         const formData = new FormData()
         formData.append('file', this.uploadFile)
         formData.append('width', 400)
