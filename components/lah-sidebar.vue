@@ -15,6 +15,15 @@ b-sidebar#lah-sidebar(
         {{greeting}}
   client-only
     ul.mt-n3
+      li: hr(v-if="displayAnnouncement")
+
+      li: lah-timeline-announcement(
+        v-if="displayAnnouncement",
+        load-button,
+        :load-count="3",
+        @announcement-count="handleAnnouncementEvent($event)"
+      )
+
       li: hr
 
       li: nuxt-link(to="/reg").
@@ -29,15 +38,6 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(v-if="isInf", to="/inf").
         #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
         智慧監控首頁
-
-      li: hr(v-if="displayAnnouncement")
-
-      li: lah-timeline-announcement(
-        v-if="displayAnnouncement",
-        load-button,
-        :load-count="3",
-        @announcement-count="handleAnnouncementEvent($event)"
-      )
 
       li: hr
 
