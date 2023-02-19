@@ -5,7 +5,7 @@
     section.fixed-title-height.center: div
       lah-logo.mvh-50
       h3.title.lah-shadow.text-nowrap 桃園市地政智慧控管系統
-    section.b-card-container.my-n4
+    section.b-card-container
       b-card-group(deck)
         //- lah-index-card-link.fix-card-dimension(v-if="isSur", :icon="['far', 'calendar-alt']" to="/reg/reg/expire/sur") 測量逾期#[br]案件
         //- lah-index-card-link.fix-card-dimension(v-else-if="isVal", :icon="['fas', 'receipt']" to="/prc/realprice") 實價登錄#[br]案件控管
@@ -79,7 +79,7 @@ export default {
 
 .version {
   font-weight: 900;
-  position: absolute;
+  position: fixed;
   right: 10px;
   bottom: 10px;
 }
