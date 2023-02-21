@@ -124,9 +124,39 @@ export default {
     fields: [
       '#',
       {
-        key: 'RM01',
-        label: '收件案號',
+        key: 'year',
+        label: '年度',
         sortable: true
+      },
+      {
+        key: 'number',
+        label: '案號',
+        sortable: true
+      },
+      {
+        key: 'fid',
+        label: '統編',
+        sortable: true
+      },
+      {
+        key: 'fname',
+        label: '姓名',
+        sortable: true
+      },
+      {
+        key: 'modifytime',
+        label: '修改時間',
+        sortable: true
+      },
+      {
+        key: 'createtime',
+        label: '建立時間',
+        sortable: true
+      },
+      {
+        key: 'note',
+        label: '備註',
+        sortable: false
       }
     ],
     maxHeight: 600
