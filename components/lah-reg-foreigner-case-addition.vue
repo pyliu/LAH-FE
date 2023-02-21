@@ -92,8 +92,6 @@ div
 export default {
   emit: ['close', 'input'],
   props: {
-    type: { type: String, default: 'reg' },
-    value: { type: String, default: '' },
     size: { type: String, default: '' }
   },
   data: () => ({
