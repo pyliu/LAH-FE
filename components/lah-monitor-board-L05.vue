@@ -124,7 +124,7 @@ export default {
       return this.statusData?.payload?.ini?.localSyncPath || ''
     },
     lastPingTime () {
-      return `${this.statusData?.payload?.ping}ms` || '無回應'
+      return `${parseFloat(this.statusData?.payload?.ping).toFixed(1)} ms` || '無回應'
     },
     bureauSyncIp () {
       return this.statusData?.payload?.ini?.bureauSyncIp || ''
