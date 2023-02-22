@@ -47,7 +47,9 @@ b-card(:border-variant="borderVariant")
 
   lah-transition: b-list-group.small(v-if="!isBusy", flush)
     b-list-group-item
-      lah-fa-icon(icon="network-wired", :variant="light") 局端回應時間：{{ this.lastPingTime }}
+      .d-flex.justify-content-between
+        lah-fa-icon(icon="server", :variant="light", title="局端伺服器資訊") 局伺服器：{{ this.bureauSyncIp }}:{{ this.bureauSyncPort }}
+        lah-fa-icon(icon="stopwatch", :variant="light", title="回應時間") {{ this.lastPingTime }}
     b-list-group-item(button, @click="popLogs")
       .d-flex.justify-content-between
         lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
@@ -119,10 +121,16 @@ export default {
       return this.statusData?.payload?.loading || {}
     },
     syncDir () {
-      return this.statusData?.payload?.path || ''
+      return this.statusData?.payload?.ini?.localSyncPath || ''
     },
     lastPingTime () {
       return `${this.statusData?.payload?.ping}ms` || '無回應'
+    },
+    bureauSyncIp () {
+      return this.statusData?.payload?.ini?.bureauSyncIp || ''
+    },
+    bureauSyncPort () {
+      return this.statusData?.payload?.ini?.bureauSyncPort || ''
     },
     lastSyncTime () {
       if (this.logs.length > 0) {
@@ -156,11 +164,11 @@ export default {
     }
   },
   watch: {
-    // statusData (val) {
-    //   if (val) {
-    //     console.warn(val)
-    //   }
-    // },
+    statusData (val) {
+      if (val) {
+        console.warn(val)
+      }
+    },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     }
@@ -191,8 +199,9 @@ export default {
               message: `❌ 無法取得 ${this.statusAPIUrl} 狀態資料`,
               payload: {
                 logs: [],
-                path: '',
-                loading: {}
+                ini: {},
+                loading: {},
+                ping: ''
               }
             }
           }
