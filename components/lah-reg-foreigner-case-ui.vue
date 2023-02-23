@@ -64,8 +64,8 @@ div
       v-model="uploadFile",
       accept="application/pdf",
       browse-text="瀏覽",
-      placeholder="... 請選擇PDF ...",
-      :state="validUploadFile",
+      :placeholder="uploadFilePlaceholderText",
+      :state="uploadFileState",
       :size="size"
     )
     template(slot="file-name" slot-scope="{ names }")
@@ -79,7 +79,7 @@ div
         action="move-fade-btt",
         :variant="ready ? 'primary' : 'outline-primary'"
         :disabled="isBusy || !ready",
-        @click="upload"
+        @click="ok"
       ) 確認並上傳
       lah-button(
         variant="outline-secondary",
@@ -90,9 +90,10 @@ div
 
 <script>
 export default {
-  emit: ['close', 'input', 'add'],
+  emit: ['close', 'input', 'add', 'edit'],
   props: {
-    size: { type: String, default: '' }
+    size: { type: String, default: '' },
+    origData: { type: Object, default: () => ({}) }
   },
   data: () => ({
     foreignerId: '',
@@ -109,11 +110,35 @@ export default {
   }),
   computed: {
     ready () {
+      if (this.editMode) {
+        return this.validYear &&
+               this.validNumber &&
+               this.validForeignerId &&
+               this.validForeignerName
+      }
       return this.validYear &&
              this.validNumber &&
              this.validForeignerId &&
              this.validForeignerName &&
              this.validUploadFile
+    },
+    editId () {
+      return this.origData?.id
+    },
+    editMode () {
+      return this.editId !== undefined
+    },
+    uploadFileState () {
+      if (this.editMode) {
+        return null
+      }
+      return this.validUploadFile
+    },
+    uploadFilePlaceholderText () {
+      if (this.editMode) {
+        return '... 可選擇PDF更新(非必要) ...'
+      }
+      return '... 請選擇PDF ...'
     },
     validYear () {
       return String(this.year).length === 3
@@ -140,17 +165,30 @@ export default {
   watch: {
     uploadFile (val) {
       // console.warn(val)
+    },
+    origData (val) {
+      this.restoreOrigData()
     }
   },
   created () {
     // set year select options
     const d = new Date()
     this.year = (d.getFullYear() - 1911)
+    this.restoreOrigData()
   },
   mounted () {
     this.reloadYear()
   },
   methods: {
+    restoreOrigData () {
+      if (!this.$utils.empty(this.origData)) {
+        this.year = this.origData.year
+        this.number = this.origData.number
+        this.foreignerId = this.origData.fid
+        this.foreignerName = this.origData.fname
+        this.foreignerNote = this.origData.note
+      }
+    },
     emitInput (e) {
       this.$emit('input', {
         year: this.year,
@@ -159,6 +197,42 @@ export default {
         foreignerName: this.foreignerName,
         foreignerNote: this.foreignerNote,
         file: this.uploadFile
+      })
+    },
+    ok () {
+      if (this.editMode) {
+        this.confirm('請確認要編輯外國人資料？').then((YN) => {
+          if (YN) {
+            this.edit()
+          }
+        })
+      } else {
+        this.confirm('請確認要新增外國人資料？').then((YN) => {
+          if (YN) {
+            this.add()
+          }
+        })
+      }
+    },
+    cancel () {
+      this.$emit('close')
+    },
+    reloadYear () {
+      this.getCache(this.yearCachedKey).then((years) => {
+        if (years !== false) {
+          this.years = [...years]
+        } else {
+          // set year select options
+          const len = this.year - 87
+          for (let i = 0; i <= len; i++) {
+            this.years.push({ value: 87 + i, text: 87 + i })
+          }
+          this.setCache(this.yearCachedKey, this.years, 24 * 60 * 60 * 1000) // cache for a day
+        }
+      }).finally(() => {
+        if (this.$utils.empty(this.years)) {
+          this.timeout(() => this.reloadYear(), 1000)
+        }
       })
     },
     add () {
@@ -171,7 +245,7 @@ export default {
         formData.append('fname', this.foreignerName)
         formData.append('note', this.foreignerNote)
         formData.append('file', this.uploadFile)
-        this.$upload.post(this.$consts.API.FILE.REG_FOREIGNER_PDF, formData).then(({ data }) => {
+        this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
           const title = this.$utils.empty(data.payload) ? '新增外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
           const message = `${data.payload.fname} - ${data.message}`
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
@@ -194,32 +268,37 @@ export default {
         this.warning('檔案不是PDF')
       }
     },
-    upload () {
-      this.confirm('請確認要新增外國人資料？').then((YN) => {
-        if (YN) {
-          this.add()
+    edit () {
+      this.isBusy = true
+      const formData = new FormData()
+      formData.append('id', this.editId)
+      formData.append('year', this.year)
+      formData.append('number', this.number)
+      formData.append('fid', this.foreignerId)
+      formData.append('fname', this.foreignerName)
+      formData.append('note', this.foreignerNote)
+      if (this.uploadFile?.type === 'application/pdf') {
+        formData.append('file', this.uploadFile)
+      }
+      this.$upload.post(this.$consts.API.FILE.EDIT_REG_FOREIGNER_PDF, formData).then(({ data }) => {
+        const title = this.$utils.empty(data.payload) ? '編輯外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
+        console.warn(data)
+        const message = `${data.payload.fname} - ${data.message}`
+        this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
+        if (this.$utils.statusCheck(data.status)) {
+          this.$emit('edit', {
+            year: this.year,
+            number: this.number,
+            fid: this.foreignerId,
+            fname: this.foreignerName,
+            note: this.foreignerNote
+          })
         }
-      })
-    },
-    cancel () {
-      this.$emit('close')
-    },
-    reloadYear () {
-      this.getCache(this.yearCachedKey).then((years) => {
-        if (years !== false) {
-          this.years = [...years]
-        } else {
-          // set year select options
-          const len = this.year - 87
-          for (let i = 0; i <= len; i++) {
-            this.years.push({ value: 87 + i, text: 87 + i })
-          }
-          this.setCache(this.yearCachedKey, this.years, 24 * 60 * 60 * 1000) // cache for a day
-        }
+      }).catch((err) => {
+        this.$utils.error(err)
       }).finally(() => {
-        if (this.$utils.empty(this.years)) {
-          this.timeout(() => this.reloadYear(), 1000)
-        }
+        this.isBusy = false
+        this.$emit('close')
       })
     }
   }

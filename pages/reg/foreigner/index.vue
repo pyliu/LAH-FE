@@ -81,6 +81,7 @@ div
     bordered
     small
     no-border-collapse
+    @row-selected="rowSelected"
   )
     template(#table-busy): span.ld-txt 讀取中...
     template(v-slot:cell(操作)="{ item, index, rowSelected }")
@@ -102,7 +103,8 @@ div
           regular,
           no-icon-gutter,
           title="編輯",
-          icon="pen-to-square"
+          icon="pen-to-square",
+          @click="popupEdit(item)"
         )
         lah-button(
           no-icon-gutter,
@@ -122,9 +124,22 @@ div
     scrollable
   )
     template(#modal-title) 新增外國人資料
-    lah-reg-foreigner-case-addition(
+    lah-reg-foreigner-case-ui(
       @close="$refs.add.hide()",
       @add="handleAdd"
+    )
+
+  b-modal(
+    ref="edit",
+    hide-footer,
+    no-close-on-backdrop,
+    scrollable
+  )
+    template(#modal-title) 修改外國人資料
+    lah-reg-foreigner-case-ui(
+      :orig-data="editRecord"
+      @close="$refs.edit.hide()",
+      @edit="handleEdit"
     )
 </template>
 
@@ -134,6 +149,7 @@ export default {
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
     keyword: '',
+    editRecord: null,
     rows: [],
     dateRange: {
       begin: '',
@@ -251,7 +267,7 @@ export default {
       }
     },
     rows (val) {
-      console.warn(val)
+      // console.warn(val)
     }
   },
   mounted () {
@@ -271,13 +287,33 @@ export default {
         year: payload.year
       })
     },
+    rowSelected (items) {
+      if (Array.isArray(items) && items.length > 0) {
+        this.popupEdit(items[0])
+      }
+    },
+    popupEdit (record) {
+      this.editRecord = record
+      this.$refs.edit?.show()
+    },
+    handleEdit (payload) {
+      // const found = this.rows.find((row) => {
+      //   return row.id === payload.id
+      // })
+      // if (found) {
+      //   found.year = payload.year
+      //   found.number = payload.number
+      //   found.fid = payload.fid
+      //   found.fname = payload.fname
+      //   found.note = payload.note
+      //   found.modifytime = payload.modifytime
+      // }
+      this.$fetch()
+    },
     reset () {
       this.committed = false
       this.rows = []
       this.currentPage = 1
-    },
-    popup (dontcare) {
-      this.$refs.add?.show()
     },
     getLabel (key) {
       const found = this.fields.find((item, idx, array) => {
