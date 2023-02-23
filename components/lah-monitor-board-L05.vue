@@ -50,7 +50,7 @@ b-card(:border-variant="borderVariant")
       .d-flex.justify-content-between
         lah-fa-icon(icon="server", :variant="light", title="局端伺服器資訊") 局伺服器：{{ this.bureauSyncIp }}:{{ this.bureauSyncPort }}
         lah-fa-icon(icon="stopwatch", :variant="light", title="回應時間") {{ this.lastPingTime }}
-    b-list-group-item(button, @click="popLogs")
+    b-list-group-item(button, @click="popLogs", :title="lastSyncTimeRaw")
       .d-flex.justify-content-between
         lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
         lah-fa-icon(icon="clock", variant="secondary") {{ this.lastSyncTime }}
@@ -148,6 +148,13 @@ export default {
         const str = `${this.logs[0].FinDate} ${this.logs[0].FinTime}`
         const ts = this.$utils.adDateToTs(str)
         return this.$utils.formatDistanceToNow(ts)
+      }
+      return ''
+    },
+    lastSyncTimeRaw () {
+      if (this.logs.length > 0) {
+        // should like "20230217 093943"
+        return `${this.$utils.addDateDivider(this.logs[0].FinDate, true)} ${this.$utils.addTimeDivider(this.logs[0].FinTime)}`
       }
       return ''
     },
