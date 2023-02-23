@@ -9,6 +9,7 @@ div
         ref="year",
         v-model="year",
         :options="years",
+        :disabled="editMode",
         @change="emitInput"
       )
         template(v-slot:first): b-form-select-option(:value="null" disabled) -- 年份 --
@@ -75,12 +76,12 @@ div
   .d-flex.justify-content-center
     b-button-group
       lah-button.mr-1(
-        icon="arrow-up-from-bracket",
-        action="move-fade-btt",
+        :icon="editMode ? 'circle-check' : 'arrow-up-from-bracket'",
+        :action="editMode ? 'breath' : 'move-fade-btt'",
         :variant="ready ? 'primary' : 'outline-primary'"
         :disabled="isBusy || !ready",
         @click="ok"
-      ) 確認並上傳
+      ) 確認
       lah-button(
         variant="outline-secondary",
         @click="cancel",

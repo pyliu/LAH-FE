@@ -85,13 +85,13 @@ div
   )
     template(#table-busy): span.ld-txt 讀取中...
     template(v-slot:cell(操作)="{ item, index, rowSelected }")
-      template(v-if="rowSelected")
-        span.mr-1(aria-hidden="true") &check;
-        span.sr-only 勾選
-      template(v-else)
-        span(aria-hidden="true") &nbsp;
-        span.sr-only 無勾選
-      b-button-group
+      //- template(v-if="rowSelected")
+      //-   span.mr-1(aria-hidden="true") &check;
+      //-   span.sr-only 勾選
+      //- template(v-else)
+      //-   span(aria-hidden="true") &nbsp;
+      //-   span.sr-only 無勾選
+      b-button-group.mx-auto(style="min-width: 120px")
         lah-button(
           :href="downloadPDFUrl(item.id)",
           target="_blank",
@@ -113,9 +113,11 @@ div
           variant="danger"
         )
     template(#cell(createtime)="{ item }")
-      div {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
+      .mx-auto(style="width: 100px") {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
     template(#cell(modifytime)="{ item }")
-      div {{ $utils.toADDate(item.modifytime * 1000) }}
+      .mx-auto {{ $utils.toADDate(item.modifytime * 1000) }}
+    template(#cell(note)="{ item }")
+      .text-left(style="min-width: 300px; max-width: 500px;") {{ item.note }}
 
   b-modal(
     ref="add",
@@ -189,14 +191,14 @@ export default {
         sortable: true
       },
       {
-        key: 'modifytime',
-        label: '修改時間',
-        sortable: true
-      },
-      {
         key: 'note',
         label: '備註',
         sortable: false
+      },
+      {
+        key: 'modifytime',
+        label: '修改時間',
+        sortable: true
       }
     ],
     maxHeight: 600
