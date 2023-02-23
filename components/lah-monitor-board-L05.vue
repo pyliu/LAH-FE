@@ -55,7 +55,9 @@ b-card(:border-variant="borderVariant")
         lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
         lah-fa-icon(icon="clock", variant="secondary") {{ this.lastSyncTime }}
     b-list-group-item
-      lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
+      .d-flex.justify-content-between
+        lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
+        lah-fa-icon(icon="hourglass-half", variant="secondary") 同步間隔：{{ this.syncPeriod }}
     b-list-group-item
       .d-flex.justify-content-between
         lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ this.perf?.proc }}
@@ -122,6 +124,14 @@ export default {
     },
     syncDir () {
       return this.statusData?.payload?.ini?.localSyncPath || ''
+    },
+    syncPeriod () {
+      if (this.statusData?.payload?.ini?.syncPeriod) {
+        const totalMs = parseInt(this.statusData?.payload?.ini?.syncPeriod) * 1000
+        const parts = new Date(totalMs).toISOString().slice(11, 19).split(':')
+        return `${parts[1] !== '00' ? parts[1] + '時' : ''}${parts[2] !== '00' ? parts[2] + '分' : ''}`
+      }
+      return ''
     },
     lastPingTime () {
       return `${parseFloat(this.statusData?.payload?.ping).toFixed(1)} ms` || '無回應'
