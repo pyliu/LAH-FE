@@ -57,8 +57,7 @@ div
     :caption="foundText"
   )
 
-  lah-transition: b-table.text-center(
-    v-if="committed"
+  b-table.text-center(
     ref="table"
     select-mode="single"
     selected-variant="success"
@@ -111,7 +110,8 @@ div
           no-icon-gutter,
           title="刪除",
           icon="trash-can",
-          variant="danger"
+          variant="danger",
+          @click="remove(item)"
         )
     template(#cell(createtime)="{ item }")
       .mx-auto(style="width: 100px") {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
@@ -162,7 +162,6 @@ export default {
       perPage: 20,
       currentPage: 1
     },
-    committed: false,
     fields: [
       '操作',
       {
@@ -207,7 +206,7 @@ export default {
   // async asyncData (nuxt) {},
   fetch () {
     if (this.isBusy) {
-      this.notify('讀取中 ... 請稍後', { type: 'warning' })
+      this.warning('讀取中 ... 請稍後')
     } else {
       if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
         this.$utils.warn('dateRange is not ready ... postpone $fetch')
@@ -219,9 +218,8 @@ export default {
       this.$axios.post(this.$consts.API.JSON.REG, {
         type: 'foreigner_pdf_list',
         keyword: this.keyword,
-        // PHP timestamp
+        // convert to PHP timestamp which is in seconds
         start_ts: +this.$utils.twToAdDateObj(this.dateRange.begin) / 1000,
-        // PHP timestamp
         end_ts: +this.$utils.twToAdDateObj(this.dateRange.end) / 1000
       }).then(({ data }) => {
         if (Array.isArray(data.raw)) { this.rows = [...data.raw] }
@@ -230,7 +228,6 @@ export default {
         this.alert(err.message)
       }).finally(() => {
         this.isBusy = false
-        this.committed = true
       })
     }
   },
@@ -253,7 +250,13 @@ export default {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
+            if (key === 'createtime') {
+              obj[this.getLabel(key)] = this.$utils.toADDate(value * 1000, 'yyyy-LL-dd')
+            } else if (key === 'modifytime') {
+              obj[this.getLabel(key)] = this.$utils.toADDate(value * 1000)
+            } else {
+              obj[this.getLabel(key)] = value
+            }
           }
         }
         return obj
@@ -277,16 +280,17 @@ export default {
   methods: {
     handleAdd (payload) {
       // add to array head
-      this.rows.unshift({
-        id: payload.id,
-        createtime: +new Date() / 1000,
-        fid: payload.fid,
-        fname: payload.fname,
-        modifytime: +new Date() / 1000,
-        note: payload.note,
-        number: payload.number,
-        year: payload.year
-      })
+      // this.rows.unshift({
+      //   id: payload.id,
+      //   createtime: +new Date() / 1000,
+      //   fid: payload.fid,
+      //   fname: payload.fname,
+      //   modifytime: +new Date() / 1000,
+      //   note: payload.note,
+      //   number: payload.number,
+      //   year: payload.year
+      // })
+      this.$fetch()
     },
     rowSelected (items) {
       if (Array.isArray(items) && items.length > 0) {
@@ -300,8 +304,32 @@ export default {
     handleEdit (payload) {
       this.$fetch()
     },
+    remove (item) {
+      this.confirm(`
+        請確認是否要刪除本筆資料？<br/>
+        年度：${item.year}<br/>
+        案號：${item.number}<br/>
+        統編：${item.fid}<br/>
+        姓名：${item.fname}
+      `).then((YN) => {
+        if (YN) {
+          // remove_foreigner_pdf
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.REG, {
+            type: 'remove_foreigner_pdf',
+            id: item.id
+          }).then(({ data }) => {
+            this.rows = this.rows.filter(row => row.id !== item.id)
+            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' })
+          }).catch((err) => {
+            this.alert(err.message)
+          }).finally(() => {
+            this.isBusy = false
+          })
+        }
+      })
+    },
     reset () {
-      this.committed = false
       this.rows = []
       this.currentPage = 1
     },
