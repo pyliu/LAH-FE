@@ -395,6 +395,7 @@ Vue.mixin({
           variant: 'warning'
         }, opts)
         this.notify(message, merged)
+        this.$utils.warn(message)
       }
     },
     alert (message, opts = {}) {
@@ -410,6 +411,7 @@ Vue.mixin({
           variant: 'danger'
         }, opts)
         this.notify(message, merged)
+        this.$utils.error(message)
       }
     },
     attention (selector, opts = { name: 'flash', speed: 'faster' }) {
