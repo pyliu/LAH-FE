@@ -90,7 +90,7 @@ div
 
 <script>
 export default {
-  emit: ['close', 'input'],
+  emit: ['close', 'input', 'add'],
   props: {
     size: { type: String, default: '' }
   },
@@ -172,18 +172,18 @@ export default {
         formData.append('note', this.foreignerNote)
         formData.append('file', this.uploadFile)
         this.$upload.post(this.$consts.API.FILE.REG_FOREIGNER_PDF, formData).then(({ data }) => {
-          this.$utils.warn(data)
-          // if (!this.$utils.empty(data.encoded) && !this.$utils.empty(data.uri)) {
-          //   this.encoded = `${data.uri}${data.encoded}`
-          //   this.$store.commit('addImageMemento', this.encoded)
-          //   if (this.$utils.statusCheck(data.status)) {
-          //     this.notify(data.message, { title: '上傳圖檔結果', type: 'success' })
-          //   } else {
-          //     this.warning(data.message, { title: '上傳圖檔結果', type: 'warning' })
-          //   }
-          // } else {
-          //   this.warning('回傳的影像編碼有誤', { title: '上傳圖檔結果' })
-          // }
+          const title = this.$utils.empty(data.payload) ? '新增外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
+          const message = `${data.payload.fname} - ${data.message}`
+          this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
+          if (this.$utils.statusCheck(data.status)) {
+            this.$emit('add', {
+              year: this.year,
+              number: this.number,
+              fid: this.foreignerId,
+              fname: this.foreignerName,
+              note: this.foreignerNote
+            })
+          }
         }).catch((err) => {
           this.$utils.error(err)
         }).finally(() => {

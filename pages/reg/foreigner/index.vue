@@ -83,16 +83,37 @@ div
     no-border-collapse
   )
     template(#table-busy): span.ld-txt 讀取中...
-    template(v-slot:cell(#)="{ item, index, rowSelected }")
+    template(v-slot:cell(操作)="{ item, index, rowSelected }")
       template(v-if="rowSelected")
-        span(aria-hidden="true") &check;
+        span.mr-1(aria-hidden="true") &check;
         span.sr-only 勾選
       template(v-else)
         span(aria-hidden="true") &nbsp;
         span.sr-only 無勾選
-      span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-    template(#cell(RM01)="{ item }"): div: b-link(@click="popup(item)").
-      {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+      b-button-group
+        lah-button(
+          :href="downloadPDFUrl(item.id)",
+          target="_blank",
+          title="開啟新視窗下載",
+          icon="file-pdf",
+          no-icon-gutter
+        )
+        lah-button.mx-1(
+          regular,
+          no-icon-gutter,
+          title="編輯",
+          icon="pen-to-square"
+        )
+        lah-button(
+          no-icon-gutter,
+          title="刪除",
+          icon="trash-can",
+          variant="danger"
+        )
+    template(#cell(createtime)="{ item }")
+      div {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
+    template(#cell(modifytime)="{ item }")
+      div {{ $utils.toADDate(item.modifytime * 1000) }}
 
   b-modal(
     ref="add",
@@ -101,11 +122,15 @@ div
     scrollable
   )
     template(#modal-title) 新增外國人資料
-    lah-reg-foreigner-case-addition(@close="$refs.add.hide()")
+    lah-reg-foreigner-case-addition(
+      @close="$refs.add.hide()",
+      @add="handleAdd"
+    )
 </template>
 
 <script>
 export default {
+  fetchOnServer: false,
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
     keyword: '',
@@ -119,10 +144,9 @@ export default {
       perPage: 20,
       currentPage: 1
     },
-    forceReload: false,
     committed: false,
     fields: [
-      '#',
+      '操作',
       {
         key: 'year',
         label: '年度',
@@ -131,6 +155,11 @@ export default {
       {
         key: 'number',
         label: '案號',
+        sortable: true
+      },
+      {
+        key: 'createtime',
+        label: '建立日期',
         sortable: true
       },
       {
@@ -146,11 +175,6 @@ export default {
       {
         key: 'modifytime',
         label: '修改時間',
-        sortable: true
-      },
-      {
-        key: 'createtime',
-        label: '建立時間',
         sortable: true
       },
       {
@@ -172,32 +196,24 @@ export default {
         this.timeout(this.$fetch, 250)
         return
       }
-
-      this.getCache(this.cacheKey).then((json) => {
-        this.reset()
-        if (this.forceReload !== true && json) {
-          this.rows = json.raw
-          this.committed = true
-        } else {
-          this.isBusy = true
-          this.committed = false
-          this.$axios.post(this.$consts.API.JSON.REG, {
-            type: 'foreigner_pdf_list',
-            keyword: this.keyword,
-            start: this.dateRange.begin,
-            end: this.dateRange.end
-          }).then(({ data }) => {
-            this.rows = data.raw || []
-            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
-          }).catch((err) => {
-            this.alert(err.message)
-            this.$utils.error(err)
-          }).finally(() => {
-            this.isBusy = false
-            this.forceReload = false
-            this.committed = true
-          })
-        }
+      this.reset()
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.REG, {
+        type: 'foreigner_pdf_list',
+        keyword: this.keyword,
+        // PHP timestamp
+        start_ts: +this.$utils.twToAdDateObj(this.dateRange.begin) / 1000,
+        // PHP timestamp
+        end_ts: +this.$utils.twToAdDateObj(this.dateRange.end) / 1000
+      }).then(({ data }) => {
+        this.rows = [...data.raw]
+        this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+      }).catch((err) => {
+        this.alert(err.message)
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+        this.committed = true
       })
     }
   },
@@ -208,7 +224,10 @@ export default {
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
     cacheKey () { return `query_land_ref_change_${this.dateRange.begin}_${this.dateRange.end}` },
-    foundText () { return `找到 ${this.queryCount} 筆「外國人」資料` },
+    foundText () {
+      const message = `${this.dateRange.begin} ~ ${this.dateRange.end} 找到 ${this.queryCount} 筆「外國人」資料`
+      return this.$utils.empty(this.keyword) ? message : `${message}【關鍵字：${this.keyword}】`
+    },
     daysPeriod () { return this.dateRange.days || 0 },
     isWrongDaysPeriod () { return this.daysPeriod < 1 },
     xlsxData () {
@@ -225,29 +244,39 @@ export default {
       return jsons
     }
   },
-  fetchOnServer: false,
   watch: {
     daysPeriod (val) {
       if (val < 1) {
-        this.alert('開始日期應小於或等於結束日期', { pos: 'br' })
+        this.alert('開始日期應小於或等於結束日期')
       }
+    },
+    rows (val) {
+      console.warn(val)
     }
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)
   },
   methods: {
-    reload () {
-      this.forceReload = true
-      this.$fetch()
+    handleAdd (payload) {
+      // add to array head
+      this.rows.unshift({
+        id: payload.id,
+        createtime: +new Date() / 1000,
+        fid: payload.fid,
+        fname: payload.fname,
+        modifytime: +new Date() / 1000,
+        note: payload.note,
+        number: payload.number,
+        year: payload.year
+      })
     },
     reset () {
       this.committed = false
-      this.forceReload = false
       this.rows = []
       this.currentPage = 1
     },
-    popup (data) {
+    popup (dontcare) {
       this.$refs.add?.show()
     },
     getLabel (key) {
@@ -258,6 +287,9 @@ export default {
         return found.label
       }
       return key
+    },
+    downloadPDFUrl (id) {
+      return `http://${this.apiHost}:${this.apiPort}/get_reg_foreigner_pdf.php?id=${id}`
     }
   }
 }
