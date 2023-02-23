@@ -123,6 +123,9 @@ export default {
              this.validForeignerName &&
              this.validUploadFile
     },
+    createtime () {
+      return this.editMode ? this.origData?.createtime : ''
+    },
     editId () {
       return this.origData?.id
     },
@@ -194,10 +197,11 @@ export default {
       this.$emit('input', {
         year: this.year,
         number: this.number,
-        foreignerId: this.foreignerId,
-        foreignerName: this.foreignerName,
-        foreignerNote: this.foreignerNote,
-        file: this.uploadFile
+        fid: this.foreignerId,
+        fname: this.foreignerName,
+        note: this.foreignerNote,
+        file: this.uploadFile,
+        createtime: this.createtime
       })
     },
     ok () {
@@ -283,16 +287,17 @@ export default {
       }
       this.$upload.post(this.$consts.API.FILE.EDIT_REG_FOREIGNER_PDF, formData).then(({ data }) => {
         const title = this.$utils.empty(data.payload) ? '編輯外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
-        console.warn(data)
         const message = `${data.payload.fname} - ${data.message}`
         this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
         if (this.$utils.statusCheck(data.status)) {
           this.$emit('edit', {
+            id: this.editId,
             year: this.year,
             number: this.number,
             fid: this.foreignerId,
             fname: this.foreignerName,
-            note: this.foreignerNote
+            note: this.foreignerNote,
+            modifytime: Math.floor(+new Date() / 1000)
           })
         }
       }).catch((err) => {

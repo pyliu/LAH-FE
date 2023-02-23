@@ -23,7 +23,8 @@ div
         lah-datepicker(v-model="dateRange")
         b-input.h-100.mx-1(
           v-model="keyword",
-          placeholder="關鍵字...(非必要)"
+          placeholder="關鍵字...(非必要)",
+          @keyup.enter="$fetch"
         )
         lah-button(
           ref="search"
@@ -149,7 +150,6 @@ div
 export default {
   fetchOnServer: false,
   data: () => ({
-    cachedMs: 24 * 60 * 60 * 1000,
     keyword: '',
     editRecord: null,
     rows: [],
@@ -224,11 +224,10 @@ export default {
         // PHP timestamp
         end_ts: +this.$utils.twToAdDateObj(this.dateRange.end) / 1000
       }).then(({ data }) => {
-        this.rows = [...data.raw]
+        if (Array.isArray(data.raw)) { this.rows = [...data.raw] }
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
       }).catch((err) => {
         this.alert(err.message)
-        this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
         this.committed = true
@@ -299,17 +298,6 @@ export default {
       this.$refs.edit?.show()
     },
     handleEdit (payload) {
-      // const found = this.rows.find((row) => {
-      //   return row.id === payload.id
-      // })
-      // if (found) {
-      //   found.year = payload.year
-      //   found.number = payload.number
-      //   found.fid = payload.fid
-      //   found.fname = payload.fname
-      //   found.note = payload.note
-      //   found.modifytime = payload.modifytime
-      // }
       this.$fetch()
     },
     reset () {
