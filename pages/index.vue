@@ -3,7 +3,7 @@
   lah-header
     .d-flex.my-auto 桃園市地政管家-主選單
   .container: lah-transition(appear, speed="fast")
-    .vh-full(v-if="isInf")
+    .vh-full(v-if="isInf || authority.isAdmin")
       .d-flex.mb-3
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/inf")
           lah-logo-monitoring.h-75.w-100
