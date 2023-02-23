@@ -57,7 +57,7 @@ b-card(:border-variant="borderVariant")
     b-list-group-item
       .d-flex.justify-content-between
         lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
-        lah-fa-icon(icon="hourglass-half", variant="secondary") 同步間隔：{{ this.syncPeriod }}
+        lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ this.syncPeriod }}
     b-list-group-item
       .d-flex.justify-content-between
         lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ this.perf?.proc }}
