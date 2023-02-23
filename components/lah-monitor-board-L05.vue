@@ -126,10 +126,10 @@ export default {
       return this.statusData?.payload?.ini?.localSyncPath || ''
     },
     syncPeriod () {
+      // in minutes
       if (this.statusData?.payload?.ini?.syncPeriod) {
-        const totalMs = parseInt(this.statusData?.payload?.ini?.syncPeriod) * 1000
-        const parts = new Date(totalMs).toISOString().slice(11, 19).split(':')
-        return `${parts[1] !== '00' ? parts[1] + '時' : ''}${parts[2] !== '00' ? parts[2] + '分' : ''}`
+        const mins = parseInt(this.statusData?.payload?.ini?.syncPeriod)
+        return `${mins > 60 ? (mins / 60).toFixed(1) + '時' : `${mins}分`}`
       }
       return ''
     },
@@ -153,7 +153,7 @@ export default {
     },
     lastSyncTimeRaw () {
       if (this.logs.length > 0) {
-        // should like "20230217 093943"
+        // should like "2023-02-17 09:39:43"
         return `${this.$utils.addDateDivider(this.logs[0].FinDate, true)} ${this.$utils.addTimeDivider(this.logs[0].FinTime)}`
       }
       return ''
