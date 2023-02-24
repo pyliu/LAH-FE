@@ -361,7 +361,7 @@ export default ({ $axios, store }, inject) => {
     },
     now (tw = '') {
       // https://date-fns.org/v2.28.0/docs/format
-      if (tw === 'tw') {
+      if (tw.toUpperCase() === 'TW') {
         const now = new Date()
         now.setFullYear(now.getFullYear() - 1911)
         return format(now, 'yyy-LL-dd HH:mm:ss', { locale: zhTW })
@@ -369,18 +369,19 @@ export default ({ $axios, store }, inject) => {
       // e.g. 2022-01-22 16:06:23
       return format(new Date(), 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
     },
+    nowTs () { return +new Date() },
+    time () {
+      const fullAdDate = this.now(tw)
+      return fullAdDate.split(' ')[1]
+    },
     today (tw = '') {
       const fullAdDate = this.now(tw)
       return fullAdDate.split(' ')[0]
     },
-    time () {
-      return format(new Date(), 'HH:mm:ss', { locale: zhTW })
-    },
-    nowTs () { return +new Date() },
     toADDate (ts, fmt = 'yyyy-LL-dd HH:mm:ss') {
       return format(ts, fmt, { locale: zhTW })
     },
-    tsToAdDateStr (phpTs, full = false) {
+    phpTsToAdDateStr (phpTs, full = false) {
       // PHP time() generate ts by seconds, however js is milliseconds
       const formatted = format(phpTs * 1000, 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
       const parts = formatted.split(' ')
@@ -388,7 +389,7 @@ export default ({ $axios, store }, inject) => {
     },
     twDateStr (dateObj, full = false) {
       const regex = /[:\-\s]/ig
-      const ad = this.tsToAdDateStr(dateObj?.getTime() / 1000, full)?.replaceAll(regex, '')
+      const ad = this.phpTsToAdDateStr(dateObj?.getTime() / 1000, full)?.replaceAll(regex, '')
       const year = parseInt(ad.substring(0, 4)) - 1911
       return `${year}${ad.substring(4)}`
     },

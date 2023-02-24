@@ -14,7 +14,7 @@ b-card.border-0(no-body)
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
-        :title="$utils.tsToAdDateStr(item.timestamp, true)",
+        :title="$utils.phpTsToAdDateStr(item.timestamp, true)",
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
     .truncate.text-muted.small {{ item.message }}
@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     isToday (ts) {
-      const fullDt = this.$utils.tsToAdDateStr(ts, true)
+      const fullDt = this.$utils.phpTsToAdDateStr(ts, true)
       return this.today === fullDt.split(' ')[0]
     },
     popupLogContent (item) {

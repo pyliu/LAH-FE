@@ -14,7 +14,7 @@ b-card.border-0(no-body)
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
-        :title="$utils.tsToAdDateStr(item.bad.timestamp, true)",
+        :title="$utils.phpTsToAdDateStr(item.bad.timestamp, true)",
         :variant="isToday(item.bad.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(item.bad.timestamp * 1000) }}
     .truncate.text-muted.small {{ recoverMessage(item) }}
@@ -53,7 +53,7 @@ export default {
       return [...this.packedMessage(item).matchAll(/耗時[^<]+/gm)].join().replace('發生', '回復')
     },
     isToday (ts) {
-      const fullDt = this.$utils.tsToAdDateStr(ts, true)
+      const fullDt = this.$utils.phpTsToAdDateStr(ts, true)
       return this.today === fullDt.split(' ')[0]
     },
     popupLogContent (item) {

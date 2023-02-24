@@ -105,7 +105,7 @@ export default {
     },
     defaultDeadlineDate () {
       // RM52: 補正期滿日期
-      return this.$utils.tsToAdDateStr(+this.$utils.twToAdDateObj(this.parentData.RM52) / 1000)
+      return this.$utils.phpTsToAdDateStr(+this.$utils.twToAdDateObj(this.parentData.RM52) / 1000)
     },
     deadlineDate () {
       return this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date

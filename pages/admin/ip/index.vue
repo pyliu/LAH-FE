@@ -31,7 +31,7 @@
           :items="static"
           :fields="staticFields"
         )
-          template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.tsToAdDateStr(item.timestamp, false) }}
+          template(#cell(timestamp)="{ item }"): .text-nowrap {{ $utils.phpTsToAdDateStr(item.timestamp, false) }}
           template(#cell(entry_type)="{ item }"): div {{ item.entry_type === 'SERVER' ? '伺服器' : '其他終端' }}
           template(#cell(操作)="{ item }")
             b-button-group
@@ -250,7 +250,7 @@ export default {
       })
     },
     time (item) {
-      const full = this.$utils.tsToAdDateStr(item.timestamp, true)
+      const full = this.$utils.phpTsToAdDateStr(item.timestamp, true)
       const date = full.split(' ')[0]
       const time = full.split(' ')[1]
       const now = this.$utils.now()

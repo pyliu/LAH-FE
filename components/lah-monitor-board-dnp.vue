@@ -63,7 +63,7 @@ b-card(:border-variant="border")
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
-        :title="$utils.tsToAdDateStr(headMessage.timestamp, true)",
+        :title="$utils.phpTsToAdDateStr(headMessage.timestamp, true)",
         :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(headMessage.timestamp * 1000) }}
     .text-muted.small.dnp-content(v-html="extractDNPValues")

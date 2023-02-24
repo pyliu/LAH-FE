@@ -55,7 +55,7 @@ b-card(:border-variant="border")
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
-        :title="$utils.tsToAdDateStr(item.timestamp, true)",
+        :title="$utils.phpTsToAdDateStr(item.timestamp, true)",
         :variant="isToday(item.timestamp) ? 'success' : 'muted'"
       ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
     .truncate.text-muted.small {{ itemMessage(item) }}

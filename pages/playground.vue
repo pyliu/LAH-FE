@@ -105,7 +105,7 @@ div: client-only
     b-card
       template(#header): .d-flex: .text-nowrap.my-auto date-fns 測試
       ul
-        li 西元：{{ $utils.now() }} / {{ $utils.tsToAdDateStr(+new Date() / 1000) }}
+        li 西元：{{ $utils.now() }} / {{ $utils.phpTsToAdDateStr(+new Date() / 1000) }}
         li 民國：{{ $utils.now('tw') }} / {{ $utils.twDateStr(new Date()) }}
         li {{ formatDate(+new Date()) }} - {{ formatDate(new Date(2015, 8, 1)) }}: 離開 Y! {{ dateDistance }}
         li this.$utils.formatDistanceToNow() 👉 {{ $utils.formatDistanceToNow() }}

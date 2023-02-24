@@ -14,7 +14,7 @@ b-card
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
-        :title="$utils.tsToAdDateStr(item.timestamp, true)"
+        :title="$utils.phpTsToAdDateStr(item.timestamp, true)"
       ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
     .truncate.text-muted.small {{ item.message }}
 </template>
