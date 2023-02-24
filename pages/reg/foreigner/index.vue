@@ -92,7 +92,7 @@ div
       //- template(v-else)
       //-   span(aria-hidden="true") &nbsp;
       //-   span.sr-only 無勾選
-      b-button-group.mx-auto(style="min-width: 120px")
+      b-button-group.mx-auto
         lah-button(
           :href="downloadPDFUrl(item.id)",
           target="_blank",
@@ -164,31 +164,39 @@ export default {
       currentPage: 1
     },
     fields: [
-      '操作',
+      {
+        key: '操作',
+        thStyle: { width: '120px' }
+      },
       {
         key: 'year',
         label: '年度',
-        sortable: true
+        sortable: true,
+        thStyle: { width: '80px' }
       },
       {
         key: 'number',
         label: '案號',
-        sortable: true
+        sortable: true,
+        thStyle: { width: '90px' }
       },
       {
         key: 'createtime',
         label: '建立日期',
-        sortable: true
+        sortable: true,
+        thStyle: { width: '120px' }
       },
       {
         key: 'fid',
         label: '統編',
-        sortable: true
+        sortable: true,
+        thStyle: { width: '150px' }
       },
       {
         key: 'fname',
         label: '姓名',
-        sortable: true
+        sortable: true,
+        thStyle: { width: '150px' }
       },
       {
         key: 'note',
@@ -198,7 +206,8 @@ export default {
       {
         key: 'modifytime',
         label: '修改時間',
-        sortable: true
+        sortable: true,
+        thStyle: { width: '200px' }
       }
     ],
     maxHeight: 600
