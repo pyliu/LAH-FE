@@ -368,7 +368,14 @@ export default {
       if (this.$utils.empty(note)) {
         return ''
       }
-      return note.replace(/(\n|\r\n)/g, '<br/>').replace(/(\s)/g, '&nbsp;')
+      if (!this.$utils.empty(this.keyword)) {
+        note = this.$utils.highlight(
+          note,
+          this.keyword,
+          'highlight-yellow'
+        )
+      }
+      return note.replace(/(\n|\r\n)/g, '<br/>')
     }
   }
 }
