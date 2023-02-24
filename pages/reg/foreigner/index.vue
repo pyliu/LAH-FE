@@ -8,7 +8,15 @@ div
         lah-help-modal(ref="help_modal")
           h5 建檔說明
           ol
-            li 點選上傳按鈕開啟介面
+            li: .d-flex.align-items-center
+              span 點選上傳按鈕
+              lah-button.mx-1(
+                icon="file-circle-plus",
+                variant="outline-primary",
+                no-icon-gutter,
+                @click="$refs.add.show()"
+              )
+              span 開啟介面
             li 輸入必要資訊(年度、案號、統編、姓名)
             li 建議輸入備註說明以供後續搜尋使用
             li 選取掃描的PDF檔案(必要)
@@ -360,7 +368,7 @@ export default {
       if (this.$utils.empty(note)) {
         return ''
       }
-      return note.replace(/(\n|\r\n)/, '<br/>')
+      return note.replace(/(\n|\r\n)/g, '<br/>').replace(/(\s)/g, '&nbsp;')
     }
   }
 }
