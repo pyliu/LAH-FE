@@ -150,7 +150,7 @@ export default {
     validNumber () {
       const number = parseInt(this.number)
       return !this.$utils.empty(this.number) &&
-             number > 9 &&
+             number > 0 &&
              number < 1000000
     },
     validForeignerId () {
