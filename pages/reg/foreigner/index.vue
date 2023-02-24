@@ -115,11 +115,11 @@ div
           @click="remove(item)"
         )
     template(#cell(createtime)="{ item }")
-      .mx-auto(style="width: 100px") {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
+      .mx-auto {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
     template(#cell(modifytime)="{ item }")
       .mx-auto {{ $utils.toADDate(item.modifytime * 1000) }}
     template(#cell(note)="{ item }")
-      .text-left(style="min-width: 300px; max-width: 500px;") {{ item.note }}
+      .text-left {{ item.note }}
 
   b-modal(
     ref="add",
