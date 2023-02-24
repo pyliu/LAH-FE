@@ -244,13 +244,15 @@ export default {
       if (this.uploadFile?.type === 'application/pdf') {
         this.isBusy = true
         const formData = new FormData()
+        formData.append('type', 'add_foreigner_pdf')
         formData.append('year', this.year)
         formData.append('number', this.number)
         formData.append('fid', this.foreignerId)
         formData.append('fname', this.foreignerName)
         formData.append('note', this.foreignerNote)
         formData.append('file', this.uploadFile)
-        this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
+        // this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
+        this.$upload.post(this.$consts.API.JSON.REG, formData).then(({ data }) => {
           const title = this.$utils.empty(data.payload) ? '新增外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
           const message = `${data.payload.fname} - ${data.message}`
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
@@ -276,6 +278,7 @@ export default {
     edit () {
       this.isBusy = true
       const formData = new FormData()
+      formData.append('type', 'edit_foreigner_pdf')
       formData.append('id', this.editId)
       formData.append('year', this.year)
       formData.append('number', this.number)
@@ -285,7 +288,7 @@ export default {
       if (this.uploadFile?.type === 'application/pdf') {
         formData.append('file', this.uploadFile)
       }
-      this.$upload.post(this.$consts.API.FILE.EDIT_REG_FOREIGNER_PDF, formData).then(({ data }) => {
+      this.$upload.post(this.$consts.API.JSON.REG, formData).then(({ data }) => {
         const title = this.$utils.empty(data.payload) ? '編輯外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
         const message = `${data.payload.fname} - ${data.message}`
         this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)

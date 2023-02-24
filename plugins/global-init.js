@@ -123,9 +123,7 @@ export default ({ $axios, store }, inject) => {
         DATA: '/api/export_txt_data.php',
         PHOTO: '/api/upload_user_photo.php',
         IMAGE: '/api/upload_image.php',
-        BASE64: '/api/base64_image_convert.php',
-        ADD_REG_FOREIGNER_PDF: '/api/upload_reg_foreigner_pdf.php',
-        EDIT_REG_FOREIGNER_PDF: '/api/edit_reg_foreigner_pdf.php'
+        BASE64: '/api/base64_image_convert.php'
       }
     },
     AUTHORITY: {
