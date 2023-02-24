@@ -359,24 +359,24 @@ export default ({ $axios, store }, inject) => {
         return days + ' 天'
       }
     },
-    now () {
+    now (tw = '') {
       // https://date-fns.org/v2.28.0/docs/format
+      if (tw === 'tw') {
+        const now = new Date()
+        now.setFullYear(now.getFullYear() - 1911)
+        return format(now, 'yyy-LL-dd HH:mm:ss', { locale: zhTW })
+      }
       // e.g. 2022-01-22 16:06:23
       return format(new Date(), 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
     },
-    today () {
-      const fullAdDate = this.now()
+    today (tw = '') {
+      const fullAdDate = this.now(tw)
       return fullAdDate.split(' ')[0]
     },
     time () {
       return format(new Date(), 'HH:mm:ss', { locale: zhTW })
     },
     nowTs () { return +new Date() },
-    twNow () {
-      const now = new Date()
-      now.setFullYear(now.getFullYear() - 1911)
-      return format(now, 'yyy-LL-dd HH:mm:ss', { locale: zhTW })
-    },
     toADDate (ts, fmt = 'yyyy-LL-dd HH:mm:ss') {
       return format(ts, fmt, { locale: zhTW })
     },
