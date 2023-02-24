@@ -119,7 +119,7 @@ div
     template(#cell(modifytime)="{ item }")
       .mx-auto {{ $utils.toADDate(item.modifytime * 1000) }}
     template(#cell(note)="{ item }")
-      .text-left {{ item.note }}
+      .text-left(v-html="handleNoteText(item.note)")
 
   b-modal(
     ref="add",
@@ -354,6 +354,12 @@ export default {
     },
     downloadPDFUrl (id) {
       return `http://${this.apiHost}:${this.apiPort}/get_reg_foreigner_pdf.php?id=${id}`
+    },
+    handleNoteText (note) {
+      if (this.$utils.empty(note)) {
+        return ''
+      }
+      return note.replace(/(\n|\r\n)/, '<br/>')
     }
   }
 }
