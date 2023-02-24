@@ -129,6 +129,10 @@ div
       .mx-auto {{ $utils.toADDate(item.modifytime * 1000) }}
     template(#cell(note)="{ item }")
       .text-left(v-html="handleNoteText(item.note)")
+    template(#cell(fid)="{ item }")
+      .text-center(v-html="handleFidText(item.fid)")
+    template(#cell(fname)="{ item }")
+      .text-center(v-html="handleFnameText(item.fname)")
 
   b-modal(
     ref="add",
@@ -363,6 +367,32 @@ export default {
     },
     downloadPDFUrl (id) {
       return `http://${this.apiHost}:${this.apiPort}/get_reg_foreigner_pdf.php?id=${id}`
+    },
+    handleFidText (fid) {
+      if (this.$utils.empty(fid)) {
+        return ''
+      }
+      if (!this.$utils.empty(this.keyword)) {
+        fid = this.$utils.highlight(
+          fid,
+          this.keyword,
+          'highlight-yellow'
+        )
+      }
+      return fid
+    },
+    handleFnameText (fname) {
+      if (this.$utils.empty(fname)) {
+        return ''
+      }
+      if (!this.$utils.empty(this.keyword)) {
+        fname = this.$utils.highlight(
+          fname,
+          this.keyword,
+          'highlight-yellow'
+        )
+      }
+      return fname
     },
     handleNoteText (note) {
       if (this.$utils.empty(note)) {
