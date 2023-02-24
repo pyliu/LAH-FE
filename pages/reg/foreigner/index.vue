@@ -9,15 +9,16 @@ div
           h5 建檔說明
           ol
             li 點選上傳按鈕開啟介面
-            li 選取掃描的PDF檔案
-            li 輸入備註說明以供後續搜尋使用
+            li 輸入必要資訊(年度、案號、統編、姓名)
+            li 建議輸入備註說明以供後續搜尋使用
+            li 選取掃描的PDF檔案(必要)
             li 點擊上傳按鈕並等待完成
           hr
           h5 搜尋說明
           ol
             li 選擇查詢區間(預設為本月份)
             li 鍵入關鍵字(非必要)
-            li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
+            li 點擊 #[lah-fa-icon(icon="search" variant="dark") 搜尋]
 
       .d-flex.small
         lah-datepicker(v-model="dateRange")
