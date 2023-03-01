@@ -304,7 +304,8 @@ export default {
     regFields: [
       {
         key: '收件字號',
-        sortable: true
+        sortable: true,
+        thStyle: 'min-width: 190px'
       },
       {
         key: '收件日期',
