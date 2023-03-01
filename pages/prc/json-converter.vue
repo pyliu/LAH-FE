@@ -342,6 +342,11 @@ export default {
         sortable: true
       },
       {
+        key: 'land_rightv',
+        label: '權利持分',
+        sortable: true
+      },
+      {
         key: 'land_rightDeno',
         label: '分子',
         sortable: true
@@ -544,27 +549,51 @@ export default {
         if (arrayFilter === 'land') {
           data = data.reduce((acc, item, index, arr) => {
             acc.land_count++
+            acc.land_x48c = this.$utils.empty(acc.land_x48c) ? item.land_x48c : `${acc.land_x48c}、${item.land_x48c}`
+            acc.land_no = this.$utils.empty(acc.land_no) ? item.land_no : `${acc.land_no}、${item.land_no}`
+            acc.land_area = this.$utils.empty(acc.land_area) ? item.land_area : `${acc.land_area}、${item.land_area}`
             acc.land_area_sum += parseFloat(item.land_area || 0.0)
+            acc.land_rightc = this.$utils.empty(acc.land_rightc) ? item.land_rightc : `${acc.land_rightc}、${item.land_rightc}`
+            acc.land_rightv = this.$utils.empty(acc.land_rightv) ? `${item.land_rightDeno}/${item.land_rightNume}` : `${acc.land_rightv}、${item.land_rightDeno}/${item.land_rightNume}`
+            acc.land_usec = this.$utils.empty(acc.land_usec) ? item.land_usec : `${acc.land_usec}、${item.land_usec}`
+            acc.land_useText = this.$utils.empty(acc.land_useText) ? item.land_useText : `${acc.land_useText}、${item.land_useText}`
             return acc
           }, {
             land_count: 0.0,
-            land_area_sum: 0.0
+            land_x48c: '',
+            land_no: '',
+            land_area: '',
+            land_area_sum: 0.0,
+            land_rightc: '',
+            land_rightv: '',
+            land_usec: '',
+            land_useText: ''
           })
         } else if (arrayFilter === 'build') {
           data = data.reduce((acc, item, index, arr) => {
             acc.build_count++
+            // acc.build_areaB = this.$utils.empty(acc.build_areaB) ? item.build_areaB : `${acc.build_areaB}、${item.build_areaB}`
             acc.build_areaB_sum += parseFloat(item.build_areaB || 0.0)
+            // acc.build_areaE = this.$utils.empty(acc.build_areaE) ? item.build_areaE : `${acc.build_areaE}、${item.build_areaE}`
             acc.build_areaE_sum += parseFloat(item.build_areaE || 0.0)
+            // acc.build_areaM = this.$utils.empty(acc.build_areaM) ? item.build_areaM : `${acc.build_areaM}、${item.build_areaM}`
             acc.build_areaM_sum += parseFloat(item.build_areaM || 0.0)
+            // acc.build_areaP = this.$utils.empty(acc.build_areaP) ? item.build_areaP : `${acc.build_areaP}、${item.build_areaP}`
             acc.build_areaP_sum += parseFloat(item.build_areaP || 0.0)
+            // acc.build_areaU = this.$utils.empty(acc.build_areaU) ? item.build_areaU : `${acc.build_areaU}、${item.build_areaU}`
             acc.build_areaU_sum += parseFloat(item.build_areaU || 0.0)
             return acc
           }, {
             build_count: 0.0,
+            // build_areaB: '',
             build_areaB_sum: 0.0,
+            // build_areaE: '',
             build_areaE_sum: 0.0,
+            // build_areaM: '',
             build_areaM_sum: 0.0,
+            // build_areaP: '',
             build_areaP_sum: 0.0,
+            // build_areaU: '',
             build_areaU_sum: 0.0
           })
         } else if (arrayFilter === 'car') {
