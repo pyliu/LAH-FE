@@ -47,6 +47,9 @@ div
 </template>
 
 <script>
+import omit from 'lodash/omit'
+import pick from 'lodash/pick'
+
 export default {
   data: () => ({
     file: null,
@@ -56,7 +59,7 @@ export default {
     landPostfix: 'MQ==',
     buildingPostfix: 'Mg==',
     parkingPostfix: 'Mw==',
-    fields: [
+    concernFields: [
       {
         key: 'case_no',
         label: '申報序號',
@@ -247,7 +250,6 @@ export default {
         label: '裝潢費',
         sortable: true
       },
-      // main data moves to the end by val section request
       {
         key: 'p1sp_price0102',
         label: '家俱費',
@@ -406,6 +408,21 @@ export default {
         label: '所在樓層',
         sortable: true
       }
+    ],
+    p1spFields: [
+      'p1sp_price0101',
+      'p1sp_price0102',
+      'p1sp_price0106',
+      'p1sp_code0201',
+      'p1sp_code0202',
+      'p1sp_code0501',
+      'p1sp_code0502',
+      'p1sp_code0512',
+      'p1sp_code0509',
+      'p1sp_code0602',
+      'p1sp_code0505',
+      'p1sp_desc1301',
+      'p1sp_desc1401'
     ]
   }),
   head: {
@@ -431,7 +448,7 @@ export default {
     },
     keyLabelMap () {
       const keyLabelMap = new Map()
-      this.fields.forEach((field, idx, array) => {
+      this.concernFields.forEach((field, idx, array) => {
         keyLabelMap.set(field.key, field.label || field.key)
       })
       return keyLabelMap
@@ -526,12 +543,18 @@ export default {
     },
     prepareTranslatedObj (json) {
       const mainData = json[this.mainKey]
+
+      const restData = omit(mainData, this.p1spFields)
+      // speparate fields from main data
+      const p1spData = pick(mainData, this.p1spFields)
+
       const buildData = json[`${this.mainKey}${this.buildingPostfix}`]
       const carData = json[`${this.mainKey}${this.parkingPostfix}`]
       const obj = {
-        ...this.mapFieldData(mainData),
+        ...this.mapFieldData(restData),
         ...this.mapFieldData(buildData, 'build'),
-        ...this.mapFieldData(carData, 'car')
+        ...this.mapFieldData(carData, 'car'),
+        ...this.mapFieldData(p1spData)
       }
       return obj
     },
