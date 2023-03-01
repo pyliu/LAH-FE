@@ -544,19 +544,20 @@ export default {
     },
     mapFieldData (data, arrayFilter = undefined) {
       const obj = {}
+      const linebreak = String.fromCharCode(10)
       // the land/build/parking data will be array
       if (Array.isArray(data)) {
         if (arrayFilter === 'land') {
           data = data.reduce((acc, item, index, arr) => {
             acc.land_count++
-            acc.land_x48c = this.$utils.empty(acc.land_x48c) ? item.land_x48c : `${acc.land_x48c}、${item.land_x48c}`
-            acc.land_no = this.$utils.empty(acc.land_no) ? item.land_no : `${acc.land_no}、${item.land_no}`
-            acc.land_area = this.$utils.empty(acc.land_area) ? item.land_area : `${acc.land_area}、${item.land_area}`
+            acc.land_x48c = this.$utils.empty(acc.land_x48c) ? item.land_x48c : `${acc.land_x48c}${linebreak}${item.land_x48c}`
+            acc.land_no = this.$utils.empty(acc.land_no) ? item.land_no : `${acc.land_no}${linebreak}${item.land_no}`
+            acc.land_area = this.$utils.empty(acc.land_area) ? item.land_area : `${acc.land_area}${linebreak}${item.land_area}`
             acc.land_area_sum += parseFloat(item.land_area || 0.0)
-            acc.land_rightc = this.$utils.empty(acc.land_rightc) ? item.land_rightc : `${acc.land_rightc}、${item.land_rightc}`
-            acc.land_rightv = this.$utils.empty(acc.land_rightv) ? `${item.land_rightDeno}/${item.land_rightNume}` : `${acc.land_rightv}、${item.land_rightDeno}/${item.land_rightNume}`
-            acc.land_usec = this.$utils.empty(acc.land_usec) ? item.land_usec : `${acc.land_usec}、${item.land_usec}`
-            acc.land_useText = this.$utils.empty(acc.land_useText) ? item.land_useText : `${acc.land_useText}、${item.land_useText}`
+            acc.land_rightc = this.$utils.empty(acc.land_rightc) ? item.land_rightc : `${acc.land_rightc}${linebreak}${item.land_rightc}`
+            acc.land_rightv = this.$utils.empty(acc.land_rightv) ? `${item.land_rightDeno}/${item.land_rightNume}` : `${acc.land_rightv}${linebreak}${item.land_rightDeno}/${item.land_rightNume}`
+            acc.land_usec = this.$utils.empty(acc.land_usec) ? item.land_usec : `${acc.land_usec}${linebreak}${item.land_usec}`
+            acc.land_useText = this.$utils.empty(acc.land_useText) ? item.land_useText : `${acc.land_useText}${linebreak}${item.land_useText}`
             return acc
           }, {
             land_count: 0.0,
@@ -572,15 +573,15 @@ export default {
         } else if (arrayFilter === 'build') {
           data = data.reduce((acc, item, index, arr) => {
             acc.build_count++
-            // acc.build_areaB = this.$utils.empty(acc.build_areaB) ? item.build_areaB : `${acc.build_areaB}、${item.build_areaB}`
+            // acc.build_areaB = this.$utils.empty(acc.build_areaB) ? item.build_areaB : `${acc.build_areaB}${linebreak}${item.build_areaB}`
             acc.build_areaB_sum += parseFloat(item.build_areaB || 0.0)
-            // acc.build_areaE = this.$utils.empty(acc.build_areaE) ? item.build_areaE : `${acc.build_areaE}、${item.build_areaE}`
+            // acc.build_areaE = this.$utils.empty(acc.build_areaE) ? item.build_areaE : `${acc.build_areaE}${linebreak}${item.build_areaE}`
             acc.build_areaE_sum += parseFloat(item.build_areaE || 0.0)
-            // acc.build_areaM = this.$utils.empty(acc.build_areaM) ? item.build_areaM : `${acc.build_areaM}、${item.build_areaM}`
+            // acc.build_areaM = this.$utils.empty(acc.build_areaM) ? item.build_areaM : `${acc.build_areaM}${linebreak}${item.build_areaM}`
             acc.build_areaM_sum += parseFloat(item.build_areaM || 0.0)
-            // acc.build_areaP = this.$utils.empty(acc.build_areaP) ? item.build_areaP : `${acc.build_areaP}、${item.build_areaP}`
+            // acc.build_areaP = this.$utils.empty(acc.build_areaP) ? item.build_areaP : `${acc.build_areaP}${linebreak}${item.build_areaP}`
             acc.build_areaP_sum += parseFloat(item.build_areaP || 0.0)
-            // acc.build_areaU = this.$utils.empty(acc.build_areaU) ? item.build_areaU : `${acc.build_areaU}、${item.build_areaU}`
+            // acc.build_areaU = this.$utils.empty(acc.build_areaU) ? item.build_areaU : `${acc.build_areaU}${linebreak}${item.build_areaU}`
             acc.build_areaU_sum += parseFloat(item.build_areaU || 0.0)
             return acc
           }, {
@@ -599,12 +600,12 @@ export default {
         } else if (arrayFilter === 'car') {
           data = data.reduce((acc, item, index, arr) => {
             acc.car_count++
-            acc.car_typec = this.$utils.empty(acc.car_typec) ? item.car_typec : `${acc.car_typec}、${item.car_typec}`
-            acc.car_price = this.$utils.empty(acc.car_price) ? item.car_price : `${acc.car_price}、${item.car_price}`
+            acc.car_typec = this.$utils.empty(acc.car_typec) ? item.car_typec : `${acc.car_typec}${linebreak}${item.car_typec}`
+            acc.car_price = this.$utils.empty(acc.car_price) ? item.car_price : `${acc.car_price}${linebreak}${item.car_price}`
             acc.car_price_sum += parseFloat(item.car_price?.replaceAll(',', '') || 0.0)
-            acc.car_area = this.$utils.empty(acc.car_area) ? item.car_area : `${acc.car_area}、${item.car_area}`
+            acc.car_area = this.$utils.empty(acc.car_area) ? item.car_area : `${acc.car_area}${linebreak}${item.car_area}`
             acc.car_area_sum += parseFloat(item.car_area || 0.0)
-            acc.car_floorc = this.$utils.empty(acc.car_floorc) ? item.car_floorc : `${acc.car_floorc}、${item.car_floorc}`
+            acc.car_floorc = this.$utils.empty(acc.car_floorc) ? item.car_floorc : `${acc.car_floorc}${linebreak}${item.car_floorc}`
             return acc
           }, {
             car_count: 0.0,
