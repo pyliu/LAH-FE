@@ -48,7 +48,7 @@ b-sidebar#lah-sidebar(
         #[font-awesome-icon(:icon="['fas', 'receipt']", fixed-width, size="lg")]
         實價登錄案件控管
       li(v-if="isVal"): nuxt-link(to="/prc/json-converter").
-        #[font-awesome-icon(:icon="['fas', 'right-left']", fixed-width, size="lg")]
+        #[font-awesome-icon(:icon="['fas', 'file-import']", fixed-width, size="lg")]
         實價登錄JSON資料解析
       li(v-if="isVal"): hr
 
