@@ -24,12 +24,15 @@ div
           hr
           h5 搜尋說明
           ol
-            li 選擇查詢區間(預設為本月份)
+            li 選擇查詢區間(預設為本年度)
             li 鍵入關鍵字(非必要)
             li 點擊 #[lah-fa-icon(icon="search" variant="dark") 搜尋]
 
       .d-flex.small
-        lah-datepicker(v-model="dateRange")
+        lah-datepicker(
+          v-model="dateRange",
+          :begin="firstDayOfYear"
+        )
         b-input.h-100.mx-1(
           v-model="keyword",
           placeholder="關鍵字...(非必要)",
@@ -258,6 +261,9 @@ export default {
     title: '外國人資料查詢及建置-桃園市地政局'
   },
   computed: {
+    firstDayOfYear () {
+      return new Date(new Date().getFullYear(), 0, 1)
+    },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
     cacheKey () { return `query_land_ref_change_${this.dateRange.begin}_${this.dateRange.end}` },
@@ -295,10 +301,23 @@ export default {
     },
     rows (val) {
       // console.warn(val)
+    },
+    'dateRange.begin' (val) {
+      console.log(val)
     }
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)
+    // searching begin date set to Jan 1
+    // this.timeout(() => {
+    //   const now = new Date()
+    //   this.dateRange = {
+    //     ...this.dateRange,
+    //     ...{
+    //       begin: `${now.getFullYear() - 1911}0101`
+    //     }
+    //   }
+    // }, 400)
   },
   methods: {
     handleAdd (payload) {
