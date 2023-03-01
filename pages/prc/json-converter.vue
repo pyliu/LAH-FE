@@ -312,6 +312,11 @@ export default {
       },
       // ZWw1MDEw MQ== 👉 土地
       {
+        key: 'land_count',
+        label: '土地數量',
+        sortable: true
+      },
+      {
         key: 'land_x48c',
         label: '地段',
         sortable: true
@@ -324,6 +329,11 @@ export default {
       {
         key: 'land_area',
         label: '土地面積',
+        sortable: true
+      },
+      {
+        key: 'land_area_sum',
+        label: '土地總面積',
         sortable: true
       },
       {
@@ -359,26 +369,51 @@ export default {
       },
       {
         key: 'build_areaM',
+        label: '主建物面積',
+        sortable: true
+      },
+      {
+        key: 'build_areaM_sum',
         label: '主建物總面積',
         sortable: true
       },
       {
         key: 'build_areaB',
+        label: '陽台面積',
+        sortable: true
+      },
+      {
+        key: 'build_areaB_sum',
         label: '陽台總面積',
         sortable: true
       },
       {
         key: 'build_areaE',
+        label: '屋簷面積',
+        sortable: true
+      },
+      {
+        key: 'build_areaE_sum',
         label: '屋簷總面積',
         sortable: true
       },
       {
         key: 'build_areaU',
+        label: '雨遮面積',
+        sortable: true
+      },
+      {
+        key: 'build_areaU_sum',
         label: '雨遮總面積',
         sortable: true
       },
       {
         key: 'build_areaP',
+        label: '共有面積',
+        sortable: true
+      },
+      {
+        key: 'build_areaP_sum',
         label: '共有總面積',
         sortable: true
       },
@@ -395,11 +430,21 @@ export default {
       },
       {
         key: 'car_price',
+        label: '車位價格',
+        sortable: true
+      },
+      {
+        key: 'car_price_sum',
         label: '車位總價格',
         sortable: true
       },
       {
         key: 'car_area',
+        label: '車位面積',
+        sortable: true
+      },
+      {
+        key: 'car_area_sum',
         label: '車位總面積',
         sortable: true
       },
@@ -496,33 +541,42 @@ export default {
       const obj = {}
       // the land/build/parking data will be array
       if (Array.isArray(data)) {
-        if (arrayFilter === 'build') {
+        if (arrayFilter === 'land') {
+          data = data.reduce((acc, item, index, arr) => {
+            acc.land_count++
+            acc.land_area_sum += parseFloat(item.land_area || 0.0)
+            return acc
+          }, {
+            land_count: 0.0,
+            land_area_sum: 0.0
+          })
+        } else if (arrayFilter === 'build') {
           data = data.reduce((acc, item, index, arr) => {
             acc.build_count++
-            acc.build_areaB += parseFloat(item.build_areaB || 0.0)
-            acc.build_areaE += parseFloat(item.build_areaE || 0.0)
-            acc.build_areaM += parseFloat(item.build_areaM || 0.0)
-            acc.build_areaP += parseFloat(item.build_areaP || 0.0)
-            acc.build_areaU += parseFloat(item.build_areaU || 0.0)
+            acc.build_areaB_sum += parseFloat(item.build_areaB || 0.0)
+            acc.build_areaE_sum += parseFloat(item.build_areaE || 0.0)
+            acc.build_areaM_sum += parseFloat(item.build_areaM || 0.0)
+            acc.build_areaP_sum += parseFloat(item.build_areaP || 0.0)
+            acc.build_areaU_sum += parseFloat(item.build_areaU || 0.0)
             return acc
           }, {
             build_count: 0.0,
-            build_areaB: 0.0,
-            build_areaE: 0.0,
-            build_areaM: 0.0,
-            build_areaP: 0.0,
-            build_areaU: 0.0
+            build_areaB_sum: 0.0,
+            build_areaE_sum: 0.0,
+            build_areaM_sum: 0.0,
+            build_areaP_sum: 0.0,
+            build_areaU_sum: 0.0
           })
         } else if (arrayFilter === 'car') {
           data = data.reduce((acc, item, index, arr) => {
             acc.car_count++
-            acc.car_price += parseFloat(item.car_price?.replaceAll(',', '') || 0.0)
-            acc.car_area += parseFloat(item.car_area || 0.0)
+            acc.car_price_sum += parseFloat(item.car_price?.replaceAll(',', '') || 0.0)
+            acc.car_area_sum += parseFloat(item.car_area || 0.0)
             return acc
           }, {
             car_count: 0.0,
-            car_price: 0.0,
-            car_area: 0.0
+            car_price_sum: 0.0,
+            car_area_sum: 0.0
           })
         }
       }
@@ -549,10 +603,12 @@ export default {
       // keep fields except p1sp
       const restMainData = omit(mainData, this.p1spFields)
 
+      const landData = json[`${this.mainKey}${this.landPostfix}`]
       const buildData = json[`${this.mainKey}${this.buildingPostfix}`]
       const carData = json[`${this.mainKey}${this.parkingPostfix}`]
       const obj = {
         ...this.mapFieldData(restMainData),
+        ...this.mapFieldData(landData, 'land'),
         ...this.mapFieldData(buildData, 'build'),
         ...this.mapFieldData(carData, 'car'),
         ...this.mapFieldData(p1spData)
