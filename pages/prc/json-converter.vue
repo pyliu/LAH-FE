@@ -247,66 +247,6 @@ export default {
         label: '裝潢費',
         sortable: true
       },
-      {
-        key: 'p1sp_price0102',
-        label: '家俱費',
-        sortable: true
-      },
-      {
-        key: 'p1sp_price0106',
-        label: '其他費',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0201',
-        label: '親友交易',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0202',
-        label: '合建',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0501',
-        label: '急買急賣',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0502',
-        label: '民情風俗',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0512',
-        label: '期待因素',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0509',
-        label: '債務',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0602',
-        label: '地上權',
-        sortable: true
-      },
-      {
-        key: 'p1sp_code0505',
-        label: '毛胚屋',
-        sortable: true
-      },
-      {
-        key: 'p1sp_desc1301',
-        label: '解約原序號',
-        sortable: true
-      },
-      {
-        key: 'p1sp_desc1401',
-        label: '其他買受人',
-        sortable: true
-      },
       // ZWw1MDEw MQ== 👉 土地
       {
         key: 'land_x48c',
@@ -403,6 +343,67 @@ export default {
       {
         key: 'car_floorc',
         label: '所在樓層',
+        sortable: true
+      },
+      // main data moves to the end by val section request
+      {
+        key: 'p1sp_price0102',
+        label: '家俱費',
+        sortable: true
+      },
+      {
+        key: 'p1sp_price0106',
+        label: '其他費',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0201',
+        label: '親友交易',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0202',
+        label: '合建',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0501',
+        label: '急買急賣',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0502',
+        label: '民情風俗',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0512',
+        label: '期待因素',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0509',
+        label: '債務',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0602',
+        label: '地上權',
+        sortable: true
+      },
+      {
+        key: 'p1sp_code0505',
+        label: '毛胚屋',
+        sortable: true
+      },
+      {
+        key: 'p1sp_desc1301',
+        label: '解約原序號',
+        sortable: true
+      },
+      {
+        key: 'p1sp_desc1401',
+        label: '其他買受人',
         sortable: true
       }
     ]
