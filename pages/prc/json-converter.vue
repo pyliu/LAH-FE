@@ -511,6 +511,7 @@ export default {
       for (const [key, value] of Object.entries(data)) {
         const label = this.keyLabelMap.get(key)
         if (label) {
+          // p1ma_parkflag: 車位備註轉換
           if (key === 'p1ma_parkflag') {
             obj[label] = this.p1ma_parkflagText(value)
           } else {
