@@ -298,12 +298,6 @@ export default {
       if (val < 1) {
         this.alert('開始日期應小於或等於結束日期')
       }
-    },
-    rows (val) {
-      // console.warn(val)
-    },
-    'dateRange.begin' (val) {
-      console.log(val)
     }
   },
   mounted () {
