@@ -371,7 +371,7 @@ export default ({ $axios, store }, inject) => {
     },
     nowTs () { return +new Date() },
     time () {
-      const fullAdDate = this.now(tw)
+      const fullAdDate = this.now()
       return fullAdDate.split(' ')[1]
     },
     today (tw = '') {
