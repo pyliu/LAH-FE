@@ -343,27 +343,27 @@ export default {
       },
       {
         key: 'land_rightv',
-        label: '權利持分',
+        label: '土地持分',
         sortable: true
       },
       {
         key: 'land_rightDeno',
-        label: '分子',
+        label: '持分分子',
         sortable: true
       },
       {
         key: 'land_rightNume',
-        label: '分母',
+        label: '持分分母',
         sortable: true
       },
       {
         key: 'land_usec',
-        label: '分區',
+        label: '使用分區',
         sortable: true
       },
       {
         key: 'land_useText',
-        label: '次類別',
+        label: '次類別名稱',
         sortable: true
       },
       // ZWw1MDEw Mg== 👉 建物
