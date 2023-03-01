@@ -233,8 +233,8 @@ export default {
         sortable: true
       },
       {
-        key: 'p1ma_parkflad',
-        label: '車位單獨計價',
+        key: 'p1ma_parkflag',
+        label: '車位備註',
         sortable: true
       },
       {
@@ -511,7 +511,11 @@ export default {
       for (const [key, value] of Object.entries(data)) {
         const label = this.keyLabelMap.get(key)
         if (label) {
-          obj[label] = value
+          if (key === 'p1ma_parkflag') {
+            obj[label] = this.p1ma_parkflagText(value)
+          } else {
+            obj[label] = value
+          }
         } else {
           // obj[key] = value
         }
@@ -537,6 +541,16 @@ export default {
         return [this.prepareTranslatedObj(this.jsonData)]
       } else {
         return this.jsons.map(raw => this.prepareTranslatedObj(raw))
+      }
+    },
+    p1ma_parkflagText (val) {
+      switch (val) {
+        case '0':
+          return '車位單獨計價'
+        case '1':
+          return '車位已含總額'
+        default:
+          return val
       }
     }
   }

@@ -23,6 +23,8 @@ b-table.text-center(
   :foot-clone="false"
 )
   template(#table-busy): span.ld-txt 讀取中...
+  template(#cell(p1ma_parkflag)="{ item }")
+    div {{ p1ma_parkflagText(item) }}
 </template>
 
 <script>
@@ -44,6 +46,19 @@ export default {
     },
     clearSelected () {
       this.$refs[this.refId]?.clearSelected()
+    },
+    p1ma_parkflagText (row) {
+      if (row.p1ma_parkflag) {
+        switch (row.p1ma_parkflag) {
+          case '0':
+            return '車位單獨計價'
+          case '1':
+            return '車位已含總額'
+          default:
+            return row.p1ma_parkflag
+        }
+      }
+      return ''
     }
   }
 }

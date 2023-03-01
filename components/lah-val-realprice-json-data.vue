@@ -181,8 +181,8 @@ export default {
           sortable: true
         },
         {
-          key: 'p1ma_parkflad',
-          label: '車位單獨計價',
+          key: 'p1ma_parkflag',
+          label: '車位備註',
           sortable: true
         }
       ]
@@ -569,7 +569,7 @@ export default {
           sortable: true
         },
         {
-          key: 'p1ma_parkflad',
+          key: 'p1ma_parkflag',
           label: '車位單獨計價',
           sortable: true
         },
