@@ -450,7 +450,7 @@ export default {
       },
       {
         key: 'car_floorc',
-        label: '所在樓層',
+        label: '車位所在樓層',
         sortable: true
       }
     ],
@@ -570,13 +570,21 @@ export default {
         } else if (arrayFilter === 'car') {
           data = data.reduce((acc, item, index, arr) => {
             acc.car_count++
+            acc.car_typec = this.$utils.empty(acc.car_typec) ? item.car_typec : `${acc.car_typec}、${item.car_typec}`
+            acc.car_price = this.$utils.empty(acc.car_price) ? item.car_price : `${acc.car_price}、${item.car_price}`
             acc.car_price_sum += parseFloat(item.car_price?.replaceAll(',', '') || 0.0)
+            acc.car_area = this.$utils.empty(acc.car_area) ? item.car_area : `${acc.car_area}、${item.car_area}`
             acc.car_area_sum += parseFloat(item.car_area || 0.0)
+            acc.car_floorc = this.$utils.empty(acc.car_floorc) ? item.car_floorc : `${acc.car_floorc}、${item.car_floorc}`
             return acc
           }, {
             car_count: 0.0,
+            car_typec: '',
+            car_price: '',
             car_price_sum: 0.0,
-            car_area_sum: 0.0
+            car_area: '',
+            car_area_sum: 0.0,
+            car_floorc: ''
           })
         }
       }
