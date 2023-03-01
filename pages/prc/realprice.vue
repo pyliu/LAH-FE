@@ -144,8 +144,8 @@ div
         :current-page="currentPage"
       )
         template(#table-busy): span.ld-txt 讀取中...
-        template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
-          {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        template(#cell(收件字號)="{ item }"): b-link(@click="popup(item)" :title="item.收件字號")
+          lah-fa-icon(icon="window-restore" regular variant="primary") {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }}
         template(#cell(SR_DATE)="{ item }")
           .text-nowrap {{ $utils.addDateDivider(item.SR_DATE) }}
         template(#cell(SR_TIME)="{ item }")
@@ -342,7 +342,8 @@ export default {
       {
         key: 'memo',
         label: '申報註記',
-        sortable: false
+        sortable: false,
+        thStyle: 'min-width: 190px'
       },
       {
         key: '登記處理註記',
