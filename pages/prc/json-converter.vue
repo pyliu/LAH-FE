@@ -213,7 +213,7 @@ export default {
         sortable: true
       },
       {
-        key: 'p1ma_topprice',
+        key: 'p1ma_totprice',
         label: '總價',
         sortable: true
       },
