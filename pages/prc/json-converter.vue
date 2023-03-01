@@ -544,14 +544,15 @@ export default {
     prepareTranslatedObj (json) {
       const mainData = json[this.mainKey]
 
-      const restData = omit(mainData, this.p1spFields)
-      // speparate fields from main data
+      // extract p1sp fields from main data
       const p1spData = pick(mainData, this.p1spFields)
+      // keep fields except p1sp
+      const restMainData = omit(mainData, this.p1spFields)
 
       const buildData = json[`${this.mainKey}${this.buildingPostfix}`]
       const carData = json[`${this.mainKey}${this.parkingPostfix}`]
       const obj = {
-        ...this.mapFieldData(restData),
+        ...this.mapFieldData(restMainData),
         ...this.mapFieldData(buildData, 'build'),
         ...this.mapFieldData(carData, 'car'),
         ...this.mapFieldData(p1spData)
