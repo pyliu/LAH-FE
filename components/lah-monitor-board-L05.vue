@@ -182,9 +182,9 @@ export default {
   },
   watch: {
     statusData (val) {
-      if (val) {
-        console.warn(val)
-      }
+      // if (val) {
+      //   console.warn(val)
+      // }
     },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
