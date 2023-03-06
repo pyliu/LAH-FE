@@ -104,7 +104,7 @@ div
       template(#cell(GG01)="{ item }"): .text-nowrap {{ item.GG01 }}
       template(#cell(GG30_2)="{ item }"): .text-left.content-max-width {{ item.GG30_2 }}
       template(#cell(AF08)="{ item }"): .text-nowrap {{ item.AF08 }}:{{ item.AF08_CHT }}
-      template(#cell(AF09)="{ item }"): .text-left.content-max-width {{ item.AF09 }}
+      template(#cell(AF09)="{ item }"): .text-left {{ item.AF09 }}
   b-modal(
     :id="modalId"
     size="xl"
@@ -184,7 +184,8 @@ export default {
       {
         key: 'AF09',
         label: '土參內容',
-        sortable: true
+        sortable: true,
+        thStyle: 'width: 25%'
       }
     ],
     maxHeight: 600,
@@ -325,7 +326,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.content-max-width {
-  max-width: 300px;
-}
 </style>
