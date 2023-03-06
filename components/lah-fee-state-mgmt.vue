@@ -1,6 +1,6 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  .d-flex.justify-content-end.mb-2
+  .d-flex.justify-content-end.align-items-top.mb-2
     b-collapse.w-100.mr-auto(v-model="briefOpen")
       b-row
         b-col 電腦給號：{{ expaaData.AA04 }}
@@ -11,12 +11,12 @@ b-card.border-0(no-body)
       b-row
         b-col 收費方式：{{ expaaData.AA100_CHT }}
         b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
-    lah-fa-icon.cursor(
+    lah-button.border-0(
       size="sm",
+      title="切換簡易描述顯示",
       :icon="briefOpen ? 'angles-up' : 'angles-down'",
-      :variant="briefOpen ? 'secondary' : 'info'",
-      @click="briefOpen = !briefOpen",
-      v-b-tooltip="'切換簡易描述顯示'"
+      :variant="briefOpen ? 'outline-secondary' : 'outline-info'",
+      @click="briefOpen = !briefOpen"
     )
   .w-100(:class="vertical ? ['d-flex-column'] : ['d-flex']")
     //- 列印狀態
