@@ -19,15 +19,7 @@ div: client-only
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
   b-card-group(columns)
-    b-card
-      template(#header) 查詢 CMCRD 暫存測試
-      .truncate.d-flex.align-items-center
-        lah-button(@click="queryCMCRD") 查詢
-        .ml-1 {{ queryMessage }}
-      div(v-if="queryData.length > 0")
-        hr
-        b-table(:items="queryData")
-
+    lah-mgmt-board-cmcrd-check(embed)
     //- b-card
     //-   template(#header) 設定檔測試
     //-   div {{ openNewsData }}
@@ -287,7 +279,7 @@ export default {
               */
               const text = this.$consts.ipMap.get(item.est_ip)?.name
               if (text) {
-                const value = item.count
+                // const value = item.count
                 let found = this.chartItems.find((item) => {
                   return item.x === text
                 })
