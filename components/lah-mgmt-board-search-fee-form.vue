@@ -83,9 +83,10 @@ b-card(border-variant="info")
   //-   b-row
   //-     b-col 收費方式：{{ expaaData.AA100_CHT }}
   //-     b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
-  div(v-if="dataReady")
-    lah-mgmt-board-fee-form-state.mt-1(embed)
-    hr
+  lah-transition: div(v-if="dataReady")
+    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
+    lah-mgmt-board-fee-form-state.mt-n1(embed)
+    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
     lah-mgmt-board-fee-form-payment-items(embed)
 
   template(#footer)
