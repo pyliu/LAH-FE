@@ -1,23 +1,23 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  .d-flex.justify-content-end.mb-2: lah-fa-icon.cursor(
-    size="sm",
-    :icon="briefOpen ? 'angles-up' : 'angles-down'",
-    :variant="briefOpen ? 'secondary' : 'info'",
-    @click="briefOpen = !briefOpen",
-    v-b-tooltip="'切換簡易描述顯示'"
-  )
-  b-collapse.mb-2(v-model="briefOpen")
-    b-row
-      b-col 電腦給號：{{ expaaData.AA04 }}
-      b-col 憑證序號：{{ expaaData.AA05 }}
-    b-row.my-1
-      b-col 結帳日期：{{ expaaData.AA01 }}
-      b-col(v-b-tooltip="expaaData.AA39") 作業人員：{{ operator }}
-    b-row
-      b-col 收費方式：{{ expaaData.AA100_CHT }}
-      b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
-
+  .d-flex.justify-content-end.mb-2
+    b-collapse.w-100.mr-auto(v-model="briefOpen")
+      b-row
+        b-col 電腦給號：{{ expaaData.AA04 }}
+        b-col 憑證序號：{{ expaaData.AA05 }}
+      b-row.my-1
+        b-col 結帳日期：{{ expaaData.AA01 }}
+        b-col(v-b-tooltip="expaaData.AA39") 作業人員：{{ operator }}
+      b-row
+        b-col 收費方式：{{ expaaData.AA100_CHT }}
+        b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
+    lah-fa-icon.cursor(
+      size="sm",
+      :icon="briefOpen ? 'angles-up' : 'angles-down'",
+      :variant="briefOpen ? 'secondary' : 'info'",
+      @click="briefOpen = !briefOpen",
+      v-b-tooltip="'切換簡易描述顯示'"
+    )
   .w-100(:class="vertical ? ['d-flex-column'] : ['d-flex']")
     //- 列印狀態
     .d-flex.flex-nowrap
