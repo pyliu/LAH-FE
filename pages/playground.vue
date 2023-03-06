@@ -20,10 +20,19 @@ div: client-only
     .d-flex
   b-card-group(columns)
     b-card
-      template(#header) 設定檔測試
-      div {{ openNewsData }}
-      p {{ $config.baseURL }}
-      b-table(striped, hover, :items="configs")
+      template(#header) 查詢 CMCRD 暫存測試
+      .truncate.d-flex.align-items-center
+        lah-button(@click="queryCMCRD") 查詢
+        .ml-1 {{ queryMessage }}
+      div(v-if="queryData.length > 0")
+        hr
+        b-table(:items="queryData")
+
+    //- b-card
+    //-   template(#header) 設定檔測試
+    //-   div {{ openNewsData }}
+    //-   p {{ $config.baseURL }}
+    //-   b-table(striped, hover, :items="configs")
     b-card.p-2(no-body)
       template(#header) WEBSOCKET測試
       b-input-group.mb-2
@@ -182,7 +191,9 @@ export default {
       'doughnut',
       'radar'
     ],
-    timelineItems: []
+    timelineItems: [],
+    queryData: [],
+    queryMessage: ''
   }),
   head: {
     title: '測試-桃園市地政局'
@@ -230,6 +241,21 @@ export default {
     this.loadAnnouncements()
   },
   methods: {
+    queryCMCRD () {
+      this.queryMessage = '讀取中 ...'
+      this.$axios
+        .post(this.$consts.API.JSON.MOICAS, {
+          type: 'cmcrd_tmp_check',
+          year: '112'
+        }).then(({ data }) => {
+          this.queryMessage = data.message
+          this.queryData = [...data.raw]
+        }).catch((err) => {
+          this.error = err
+        }).finally(() => {
+          this.isBusy = false
+        })
+    },
     formatDate (d) {
       return format(d, 'yyyy-LL-dd HH:mm:ss', {
         locale: zhTW
