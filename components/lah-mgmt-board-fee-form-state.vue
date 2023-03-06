@@ -1,6 +1,13 @@
 <template lang="pug">
-b-card(border-variant="info")
-  template(#header)
+b-card(
+  border-variant="info",
+  :no-body="embed",
+  :class="embed ? ['border-0'] : []"
+)
+  template(
+    #header,
+    v-if="!embed"
+  )
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1
         lah-fa-icon(
@@ -48,8 +55,8 @@ b-card(border-variant="info")
         li AA100 - 付款方式
 
   lah-transition
-    div(v-if="dataReady"): lah-fee-state-mgmt(:expaa-data="expaaData")
-    h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
+    div(v-if="dataReady"): lah-fee-state-mgmt(:expaa-data="expaaData", :brief="embed")
+    h6.center(v-else-if="!embed"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)
   //-   .d-flex.justify-content-center.align-items.center
@@ -61,6 +68,9 @@ import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
 
 export default {
   components: { lahFeeDataDetailVue },
+  props: {
+    embed: { type: Boolean, default: false }
+  },
   data: () => ({
   }),
   computed: {

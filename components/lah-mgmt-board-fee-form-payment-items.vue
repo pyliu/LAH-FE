@@ -1,6 +1,13 @@
 <template lang="pug">
-b-card(border-variant="info")
-  template(#header)
+b-card(
+  :no-body="embed",
+  border-variant="info",
+  :class="embed ? ['border-0'] : []"
+)
+  template(
+    #header,
+    v-if="!embed"
+  )
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1
         lah-fa-icon(
@@ -68,7 +75,7 @@ b-card(border-variant="info")
                 @click="caseDetail(`${record.AC16}${record.AC17}${record.AC18}`)"
               )
             .text-nowrap.ml-1 金額 {{ $utils.addMoneyComma(record.AC30) }} 元
-    h5.center(v-else): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
+    h6.center(v-else-if="!embed"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)
   //-   .d-flex.justify-content-center.align-items.center
@@ -81,6 +88,9 @@ import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {
   components: { lahFeeDataDetailVue, lahRegCaseDetailVue },
+  props: {
+    embed: { type: Boolean, default: false }
+  },
   data: () => ({
     expeList: [],
     expacList: []

@@ -76,13 +76,17 @@ b-card(border-variant="info")
         @change="searchMaxPcNumber"
       )
 
-  lah-transition: div(v-if="dataReady")
-    b-row.my-1
-      b-col 結帳日期：{{ expaaData.AA01 }}
-      b-col 作業人員：{{ userNames[expaaData.AA39] }}
-    b-row
-      b-col 收費方式：{{ expaaData.AA100_CHT }}
-      b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
+  //- lah-transition: div(v-if="dataReady")
+  //-   b-row.my-1
+  //-     b-col 結帳日期：{{ expaaData.AA01 }}
+  //-     b-col 作業人員：{{ userNames[expaaData.AA39] }}
+  //-   b-row
+  //-     b-col 收費方式：{{ expaaData.AA100_CHT }}
+  //-     b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
+  div(v-if="dataReady")
+    lah-mgmt-board-fee-form-state.mt-1(embed)
+    hr
+    lah-mgmt-board-fee-form-payment-items(embed)
 
   template(#footer)
     .d-flex.justify-content-center.align-items.center

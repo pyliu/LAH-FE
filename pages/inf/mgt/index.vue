@@ -43,8 +43,8 @@ div(v-cloak)
       lah-transition: lah-mgmt-board-reg-case-tmp(v-if="crsmsDataReady")
     .third-vw.mx-3
       lah-mgmt-board-search-fee-form
-      lah-transition: lah-mgmt-board-fee-form-state.my-3(v-if="paymentDataReady")
-      lah-transition: lah-mgmt-board-fee-form-payment-items(v-if="paymentDataReady")
+      //- lah-transition: lah-mgmt-board-fee-form-state.my-3(v-if="paymentDataReady")
+      //- lah-transition: lah-mgmt-board-fee-form-payment-items(v-if="paymentDataReady")
     .third-vw
       lah-mgmt-board-sync-reg-case
       lah-mgmt-board-fee-form-obsolete.my-3
