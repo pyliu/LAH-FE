@@ -431,10 +431,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-hr {
-  margin-top: .5rem;
-  margin-bottom: .5rem;
-}
 .check-row {
   &:hover {
     background-color: rgb(226, 248, 225);

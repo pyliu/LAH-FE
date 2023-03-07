@@ -46,6 +46,11 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+hr {
+  margin-top: .5rem;
+  margin-bottom: .5rem;
+}
+
 a {
   color: var(--dark);
 }
