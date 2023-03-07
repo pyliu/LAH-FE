@@ -54,6 +54,12 @@ b-card(border-variant="secondary")
       b-col 收件日期：{{ crsmsData['收件日期'] }}
       b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }}
 
+  lah-transition: div(v-if="dataReady")
+    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 案件狀態更新
+    lah-mgmt-board-reg-case-state(embed)
+    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 暫存檔
+    lah-mgmt-board-reg-case-tmp(embed)
+
   template(#footer)
     .d-flex.justify-content-center
       lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail", pill) 詳情
@@ -65,9 +71,9 @@ b-card(border-variant="secondary")
 </template>
 
 <script>
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 import lahMgmtBoardRegCaseStateVue from './lah-mgmt-board-reg-case-state.vue'
 import lahMgmtBoardRegCaseTmpVue from './lah-mgmt-board-reg-case-tmp.vue'
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {
   components: { lahRegCaseDetailVue, lahMgmtBoardRegCaseStateVue, lahMgmtBoardRegCaseTmpVue },

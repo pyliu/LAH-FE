@@ -39,15 +39,15 @@ div(v-cloak)
   .d-flex
     .third-vw
       lah-mgmt-board-search-reg-case
-      lah-transition: lah-mgmt-board-reg-case-state.my-3(v-if="crsmsDataReady")
-      lah-transition: lah-mgmt-board-reg-case-tmp(v-if="crsmsDataReady")
+      lah-mgmt-board-sync-reg-case.my-3
+      //- lah-transition: lah-mgmt-board-reg-case-state.my-3(v-if="crsmsDataReady")
+      //- lah-transition: lah-mgmt-board-reg-case-tmp(v-if="crsmsDataReady")
     .third-vw.mx-3
       lah-mgmt-board-search-fee-form
+      lah-mgmt-board-fee-form-obsolete.my-3
       //- lah-transition: lah-mgmt-board-fee-form-state.my-3(v-if="paymentDataReady")
       //- lah-transition: lah-mgmt-board-fee-form-payment-items(v-if="paymentDataReady")
     .third-vw
-      lah-mgmt-board-sync-reg-case
-      lah-mgmt-board-fee-form-obsolete.my-3
       lah-mgmt-board-watchdog
 </template>
 

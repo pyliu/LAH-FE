@@ -1,6 +1,13 @@
 <template lang="pug">
-b-card(border-variant="secondary")
-  template(#header)
+b-card(
+  border-variant="secondary",
+  :no-body="embed",
+  :class="embed ? ['border-0'] : []"
+)
+  template(
+    #header,
+    v-if="!embed"
+  )
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1
         lah-fa-icon(
@@ -131,6 +138,9 @@ b-card(border-variant="secondary")
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   components: { lahRegCaseDetailVue },
+  props: {
+    embed: { type: Boolean, default: false }
+  },
   data: () => ({
     filtered: null,
     cleanAllBackupFlag: false,
