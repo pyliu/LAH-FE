@@ -15,14 +15,9 @@ div(v-cloak)
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 本頁面提供部分系統管理功能以協助管理師快速修正地政系統錯誤資料。
       ol
-        li 登記案件資料修正 (左邊欄)
-        li 規費資料修正 (中間欄)
-        li
-          span 其他 (右邊欄)
-          ol
-            li 同步異動資料庫與所端同步功能
-            li 無電腦給號規費作廢
-            li 其他系統狀態檢測
+        li 登記案件相關 (左邊欄)
+        li 規費資料相關 (中間欄)
+        li 其他檢測
 
   //- b-card-group(columns)
   //-   lah-mgmt-board-search-reg-case
