@@ -13,7 +13,7 @@ b-card
         title="快速檢測及修正說明"
       )
     lah-help-modal(ref="help", modal-title="快速檢測及修正說明", size="lg")
-      h5 本項功能提供下列四項檢測功能。
+      h5 本項功能提供下列5項檢測/查詢功能。
       ul
         li 登記案件跨所註記問題檢測 (CRSMS)
           ol
@@ -38,6 +38,10 @@ b-card
           ol
             li ※注意：本功能會清除問題欄位資料並將案件辦理情形改為【核定】，請確認後再執行。
             li 原因是 CMB0301 延期複丈功能，針對於有連件案件在做處理時，會自動根據MM24案件數，將後面的案件自動做延期複丈的更新。導致後續已結案的案件會被改成延期複丈的狀態 MM22='C' 就是 100、200、300、400為四連件，所以100的案件 MM24='4'，200、300、400 的 MM24='0' 延期複丈的問題再將100號做延期複丈的時候，會將200、300、400也做延期複丈的更新，所以如果400已經結案，100做延期複丈，那400號就會變成 MM22='C' MM23='A' MM24='4' 的異常狀態。
+        li 測量案件通知書暫存檔查詢
+          ol
+            li 測量課常有通知書無法產製出問題，經查狀況常為 CMCRD 表格中存有空白內容之暫存檔
+            li 本功能查詢後列出系統目前暫存檔以供管理師辨別並提供刪除功能(TODO)。
   //- .center-container-wh-100: div
   .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="magnifying-glass") 「登記案件」跨所註記
@@ -76,32 +80,6 @@ b-card
       @click="querySurCmcrdTmp"
     ) 查詢
   hr
-    //- b-button-group.w-100
-    //-   lah-button.w-50(
-    //-     icon="magnifying-glass",
-    //-     action="swim",
-    //-     title="檢測登記案件跨所註記遺失問題",
-    //-     @click="checkRegXcase"
-    //-   ) 「登記」跨所註記檢測
-    //-   lah-button.w-50.ml-1(
-    //-     icon="dollar-sign",
-    //-     action="measure",
-    //-     title="檢測地價案件跨所註記遺失問題",
-    //-     @click="checkValXcase"
-    //-   ) 「地價」跨所註記檢測
-    //- b-button-group.my-1.w-100
-    //-   lah-button.w-50(
-    //-     icon="credit-card",
-    //-     action="flip-h",
-    //-     title="檢測悠遊卡付款失敗問題(一周內)",
-    //-     @click="checkEzPayment"
-    //-   ) 悠遊卡付款問題檢測
-    //-   lah-button.w-50.ml-1(
-    //-     icon="location-dot",
-    //-     action="bounce",
-    //-     title="測量問題案件檢測",
-    //-     @click="checkSurCase"
-    //-   ) 測量問題案件檢測
 
   lah-transition: .my-1(v-if="!$utils.empty(message)") {{ message }}
 
