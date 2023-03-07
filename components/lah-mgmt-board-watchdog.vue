@@ -69,6 +69,13 @@ b-card
       @click="checkSurCase"
     ) 檢測
   hr
+  .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="file-circle-exclamation") 測量複丈通知書暫存檔
+    lah-button(
+      :title="`查詢所有 ${year} 年通知書暫存資料`",
+      @click="querySurCmcrdTmp"
+    ) 查詢
+  hr
     //- b-button-group.w-100
     //-   lah-button.w-50(
     //-     icon="magnifying-glass",
@@ -147,6 +154,9 @@ b-card
           lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(id) }}
           lah-button(icon="hammer", action="tick", variant="outline-secondary", @click="fixSurCase(id)") 修正
 
+  lah-transition(appear): b-card(v-if="foundSurCmcrdTmp")
+    lah-mgmt-board-cmcrd-check(:items="surCmcrdTmp", :message="message", embed)
+
   //- template(#footer)
   //-   .d-flex.justify-content-between
   //-     lah-fa-icon(icon="dog", size="lg", variant="secondary")
@@ -165,8 +175,10 @@ export default {
     valCases: [],
     surCases: [],
     paymentData: [],
+    surCmcrdTmp: [],
     message: '',
-    clearTimer: null
+    clearTimer: null,
+    year: ''
   }),
   computed: {
     foundRegCases () {
@@ -180,6 +192,9 @@ export default {
     },
     foundSurCases () {
       return this.surCases?.length > 0
+    },
+    foundSurCmcrdTmp () {
+      return this.surCmcrdTmp?.length > 0
     }
   },
   watch: {
@@ -187,7 +202,11 @@ export default {
       this.clearMessage()
     }
   },
-  created () {},
+  created () {
+    // default is this TW year
+    const now = new Date()
+    this.year = now.getFullYear() - 1911
+  },
   mounted () {},
   methods: {
     clearMessage () {
@@ -411,6 +430,20 @@ export default {
           })
         }
       })
+    },
+    querySurCmcrdTmp () {
+      this.$axios
+        .post(this.$consts.API.JSON.MOICAS, {
+          type: 'cmcrd_tmp_check',
+          year: this.year
+        }).then(({ data }) => {
+          this.message = `${this.ts()} ${data.message}`
+          this.surCmcrdTmp = [...data.raw]
+        }).catch((err) => {
+          this.error = err
+        }).finally(() => {
+          this.isBusy = false
+        })
     },
     ts (full = false) {
       const now = new Date()
