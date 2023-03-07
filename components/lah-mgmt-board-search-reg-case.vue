@@ -55,8 +55,10 @@ b-card(border-variant="secondary")
       b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }}
 
   lah-transition: div(v-if="dataReady")
+    hr
     .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 案件狀態更新
     lah-mgmt-board-reg-case-state(embed)
+    hr
     .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 暫存檔
     lah-mgmt-board-reg-case-tmp(embed)
 
