@@ -421,7 +421,7 @@ export default {
           type: 'cmcrd_tmp_check',
           year: this.year
         }).then(({ data }) => {
-          const status = Array.isArray(data.raw) ? '🟢' : '🟡'
+          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${this.ts()} ${status} ${data.message}`
           this.surCmcrdTmp = [...data.raw]
         }).catch((err) => {
