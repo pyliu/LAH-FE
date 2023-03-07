@@ -21,7 +21,15 @@ b-card(
   .truncate.d-flex.align-items-center(v-if="!emptyMessasge") {{ queryMessage }}
   div(v-if="queryData.length > 0")
     hr(v-if="!emptyMessasge")
-    b-table(:items="queryData")
+    b-table(
+      :fields="fields",
+      :items="queryData",
+      :busy="isBusy",
+      head-variant="dark",
+      striped,
+      hover,
+      small
+    )
 </template>
 
 <script>
@@ -35,7 +43,24 @@ export default {
   data: () => ({
     year: '112',
     queryMessage: '',
-    queryData: []
+    queryData: [],
+    fields: [
+      {
+        key: 'MC01',
+        label: '年度',
+        sortable: true
+      },
+      {
+        key: 'MC02',
+        label: '序號',
+        sortable: true
+      },
+      {
+        key: 'MC03',
+        label: '內容',
+        sortable: true
+      }
+    ]
   }),
   computed: {
     count () {
