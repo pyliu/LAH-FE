@@ -30,6 +30,15 @@ b-card(
       hover,
       small
     )
+      template(#cell(MC03)="{ item }")
+        lah-button(
+          v-if="isEmptyMC03(item)"
+          icon="trash",
+          variant="danger",
+          title="刪除這筆資料",
+          @click="remove(item)"
+        ) 刪除
+        div(v-else) {{ item.MC03 }}
 </template>
 
 <script>
@@ -106,6 +115,29 @@ export default {
         }).finally(() => {
           this.isBusy = false
         })
+    },
+    remove (item) {
+      this.confirm(`請確認刪除 ${item.MC01}-${item.MC02} 暫存資料?`).then((YN) => {
+        if (YN) {
+          this.queryMessage = '刪除中 ...'
+          this.$axios
+            .post(this.$consts.API.JSON.MOICAS, {
+              type: 'remove_cmcrd_tmp_record',
+              MC01: item.MC01,
+              MC02: item.MC02
+            }).then(({ data }) => {
+              this.queryMessage = data.message
+              this.timeout(this.fetch, 1000)
+            }).catch((err) => {
+              this.error = err
+            }).finally(() => {
+              this.isBusy = false
+            })
+        }
+      })
+    },
+    isEmptyMC03 (item) {
+      return this.$utils.empty(item.MC03)
     }
   }
 }
