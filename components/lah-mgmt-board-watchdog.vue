@@ -38,84 +38,114 @@ b-card
           ol
             li ※注意：本功能會清除問題欄位資料並將案件辦理情形改為【核定】，請確認後再執行。
             li 原因是 CMB0301 延期複丈功能，針對於有連件案件在做處理時，會自動根據MM24案件數，將後面的案件自動做延期複丈的更新。導致後續已結案的案件會被改成延期複丈的狀態 MM22='C' 就是 100、200、300、400為四連件，所以100的案件 MM24='4'，200、300、400 的 MM24='0' 延期複丈的問題再將100號做延期複丈的時候，會將200、300、400也做延期複丈的更新，所以如果400已經結案，100做延期複丈，那400號就會變成 MM22='C' MM23='A' MM24='4' 的異常狀態。
-  .center-container-wh-100: div
-    b-button-group.w-100
-      lah-button.w-50(
-        icon="magnifying-glass",
-        action="swim",
-        title="檢測登記案件跨所註記遺失問題",
-        @click="checkRegXcase"
-      ) 「登記」跨所註記檢測
-      lah-button.w-50.ml-1(
-        icon="dollar-sign",
-        action="measure",
-        title="檢測地價案件跨所註記遺失問題",
-        @click="checkValXcase"
-      ) 「地價」跨所註記檢測
-    b-button-group.my-1.w-100
-      lah-button.w-50(
-        icon="credit-card",
-        action="flip-h",
-        title="檢測悠遊卡付款失敗問題(一周內)",
-        @click="checkEzPayment"
-      ) 悠遊卡付款問題檢測
-      lah-button.w-50.ml-1(
-        icon="location-dot",
-        action="bounce",
-        title="測量問題案件檢測",
-        @click="checkSurCase"
-      ) 測量問題案件檢測
+  //- .center-container-wh-100: div
+  .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="magnifying-glass") 「登記案件」跨所註記
+    lah-button(
+      title="檢測登記案件跨所註記遺失問題",
+      @click="checkRegXcase",
+      no-icon-gutter
+    ) 檢測
+  hr
+  .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="dollar-sign") 「地價案件」跨所註記
+    lah-button(
+      title="檢測地價案件跨所註記遺失問題",
+      @click="checkValXcase",
+      no-icon-gutter
+    ) 檢測
+  hr
+  .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="credit-card") 規費悠遊卡付款問題
+    lah-button(
+      title="檢測悠遊卡付款失敗問題(一周內)",
+      @click="checkEzPayment"
+    ) 檢測
+  hr
+  .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="location-dot") 測量連件問題案件
+    lah-button(
+      title="測量問題案件檢測",
+      @click="checkSurCase"
+    ) 檢測
+  hr
+    //- b-button-group.w-100
+    //-   lah-button.w-50(
+    //-     icon="magnifying-glass",
+    //-     action="swim",
+    //-     title="檢測登記案件跨所註記遺失問題",
+    //-     @click="checkRegXcase"
+    //-   ) 「登記」跨所註記檢測
+    //-   lah-button.w-50.ml-1(
+    //-     icon="dollar-sign",
+    //-     action="measure",
+    //-     title="檢測地價案件跨所註記遺失問題",
+    //-     @click="checkValXcase"
+    //-   ) 「地價」跨所註記檢測
+    //- b-button-group.my-1.w-100
+    //-   lah-button.w-50(
+    //-     icon="credit-card",
+    //-     action="flip-h",
+    //-     title="檢測悠遊卡付款失敗問題(一周內)",
+    //-     @click="checkEzPayment"
+    //-   ) 悠遊卡付款問題檢測
+    //-   lah-button.w-50.ml-1(
+    //-     icon="location-dot",
+    //-     action="bounce",
+    //-     title="測量問題案件檢測",
+    //-     @click="checkSurCase"
+    //-   ) 測量問題案件檢測
 
-    lah-transition: div(v-if="!$utils.empty(message)") {{ message }}
+  lah-transition: div(v-if="!$utils.empty(message)") {{ message }}
 
-    lah-transition(appear): b-card(v-if="foundRegCases")
-      h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(登記)
-      b-list-group(flush)
-        b-list-group-item(
-          v-for="(item, index) in regCases",
-          :key="`reg_case_${index}`",
-          href="#",
-          @click="detail(item)"
-        )
-          .d-flex.align-items-center.justify-content-between
-            lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(item) }}
-            lah-button(icon="hammer", action="tick", variant="outline-primary", @click="fixRegCase(item)") 修正
+  lah-transition(appear): b-card(v-if="foundRegCases")
+    h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(登記)
+    b-list-group(flush)
+      b-list-group-item(
+        v-for="(item, index) in regCases",
+        :key="`reg_case_${index}`",
+        href="#",
+        @click="detail(item)"
+      )
+        .d-flex.align-items-center.justify-content-between
+          lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(item) }}
+          lah-button(icon="hammer", action="tick", variant="outline-primary", @click="fixRegCase(item)") 修正
 
-    lah-transition(appear): b-card(v-if="foundValCases")
-      h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(地價)
-      b-list-group(flush)
-        b-list-group-item(
-          v-for="(item, index) in valCases",
-          :key="`val_case_${index}`",
-          href="#",
-          @click="detail(item)"
-        )
-          .d-flex.align-items-center.justify-content-between
-            lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(item) }}
-            lah-button(icon="hammer", action="tick", variant="outline-info", @click="fixValCase(item)") 修正
+  lah-transition(appear): b-card(v-if="foundValCases")
+    h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(地價)
+    b-list-group(flush)
+      b-list-group-item(
+        v-for="(item, index) in valCases",
+        :key="`val_case_${index}`",
+        href="#",
+        @click="detail(item)"
+      )
+        .d-flex.align-items-center.justify-content-between
+          lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(item) }}
+          lah-button(icon="hammer", action="tick", variant="outline-info", @click="fixValCase(item)") 修正
 
-    lah-transition(appear): b-card(v-if="foundPaymentData")
-      h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列悠遊卡付款失敗問題
-      b-list-group(flush)
-        b-list-group-item(
-          v-for="(item, index) in paymentData"
-          :key="`payment_${index}`"
-        )
-          | 日期: {{ item["AA01"] }}, 電腦給號: {{ item["AA04"] }}, 實收金額: {{ item["AA28"] }}
-          b-badge(v-if="!$utils.empty(item['AA104'])", variant="danger") , 作廢原因: {{ item["AA104"] }}
-          | , 目前狀態: {{paymentStatus(item["AA106"]) }}
-          lah-button(v-if="$utils.empty(item['AA104'])", @click="paymentFix(item)", variant="outline-dark") 修正
+  lah-transition(appear): b-card(v-if="foundPaymentData")
+    h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列悠遊卡付款失敗問題
+    b-list-group(flush)
+      b-list-group-item(
+        v-for="(item, index) in paymentData"
+        :key="`payment_${index}`"
+      )
+        | 日期: {{ item["AA01"] }}, 電腦給號: {{ item["AA04"] }}, 實收金額: {{ item["AA28"] }}
+        b-badge(v-if="!$utils.empty(item['AA104'])", variant="danger") , 作廢原因: {{ item["AA104"] }}
+        | , 目前狀態: {{paymentStatus(item["AA106"]) }}
+        lah-button(v-if="$utils.empty(item['AA104'])", @click="paymentFix(item)", variant="outline-dark") 修正
 
-    lah-transition(appear): b-card(v-if="foundSurCases")
-      h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列有問題之測量案件
-      b-list-group(flush)
-        b-list-group-item(
-          v-for="(id, index) in surCases",
-          :key="`val_case_${id}`"
-        )
-          .d-flex.align-items-center.justify-content-between
-            lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(id) }}
-            lah-button(icon="hammer", action="tick", variant="outline-secondary", @click="fixSurCase(id)") 修正
+  lah-transition(appear): b-card(v-if="foundSurCases")
+    h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列有問題之測量案件
+    b-list-group(flush)
+      b-list-group-item(
+        v-for="(id, index) in surCases",
+        :key="`val_case_${id}`"
+      )
+        .d-flex.align-items-center.justify-content-between
+          lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(id) }}
+          lah-button(icon="hammer", action="tick", variant="outline-secondary", @click="fixSurCase(id)") 修正
 
   //- template(#footer)
   //-   .d-flex.justify-content-between
@@ -405,11 +435,11 @@ hr {
   margin-top: .5rem;
   margin-bottom: .5rem;
 }
-.vertical-center {
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
+.check-row {
+  &:hover {
+    background-color: rgb(226, 248, 225);
+    // padding: 5px;
+    border-radius: 10px;
+  }
 }
 </style>
