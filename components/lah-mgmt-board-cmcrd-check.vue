@@ -26,6 +26,7 @@ b-card(
 
 <script>
 export default {
+  emit: ['load'],
   props: {
     embed: { type: Boolean, default: false },
     items: { type: Array, default: () => ([]) },
@@ -44,7 +45,20 @@ export default {
       return this.$utils.empty(this.queryMessage)
     }
   },
-  watch: { },
+  watch: {
+    items (val) {
+      if (Array.isArray(val)) {
+        this.queryData = [...val]
+        this.queryMessage = this.message
+      } else {
+        this.queryData = []
+        this.queryMessage = ''
+      }
+    },
+    message (val) {
+      this.queryMessage = val
+    }
+  },
   created () {
     const now = new Date()
     this.year = now.getFullYear() - 1911
@@ -61,6 +75,7 @@ export default {
         }).then(({ data }) => {
           this.queryMessage = data.message
           this.queryData = [...data.raw]
+          this.$emit('load', data)
         }).catch((err) => {
           this.error = err
         }).finally(() => {

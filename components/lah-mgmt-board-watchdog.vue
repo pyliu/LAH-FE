@@ -103,7 +103,7 @@ b-card
     //-     @click="checkSurCase"
     //-   ) 測量問題案件檢測
 
-  lah-transition: div(v-if="!$utils.empty(message)") {{ message }}
+  lah-transition: .my-1(v-if="!$utils.empty(message)") {{ message }}
 
   lah-transition(appear): b-card(v-if="foundRegCases")
     h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(登記)
@@ -155,7 +155,7 @@ b-card
           lah-button(icon="hammer", action="tick", variant="outline-secondary", @click="fixSurCase(id)") 修正
 
   lah-transition(appear): b-card(v-if="foundSurCmcrdTmp")
-    lah-mgmt-board-cmcrd-check(:items="surCmcrdTmp", :message="message", embed)
+    lah-mgmt-board-cmcrd-check(:items="surCmcrdTmp", embed)
 
   //- template(#footer)
   //-   .d-flex.justify-content-between
@@ -200,6 +200,7 @@ export default {
   watch: {
     message (dontcare) {
       this.clearMessage()
+      // this.clearData()
     }
   },
   created () {
@@ -217,6 +218,15 @@ export default {
         this.clearTimer = timer
       })
     },
+    beforeFetch () {
+      this.isBusy = true
+      this.message = `${this.ts()} 查詢中 ...`
+      this.regCases = []
+      this.valCases = []
+      this.surCases = []
+      this.paymentData = []
+      this.surCmcrdTmp = []
+    },
     detail (caseId) {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
         props: { caseId }
@@ -226,10 +236,7 @@ export default {
       })
     },
     checkXcase (type) {
-      this.regCases = []
-      this.valCases = []
-      this.isBusy = true
-      this.message = `${this.ts()} 查詢中 ...`
+      this.beforeFetch()
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type
       }).then((res) => {
@@ -301,8 +308,7 @@ export default {
       })
     },
     checkEzPayment () {
-      this.paymentData = []
-      this.isBusy = true
+      this.beforeFetch()
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'ez-payment-check',
         qday: ''
@@ -379,8 +385,7 @@ export default {
       })
     },
     checkSurCase () {
-      this.surCases = []
-      this.isBusy = true
+      this.beforeFetch()
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: 'sur-problem-check'
       }).then((res) => {
@@ -432,12 +437,14 @@ export default {
       })
     },
     querySurCmcrdTmp () {
+      this.beforeFetch()
       this.$axios
         .post(this.$consts.API.JSON.MOICAS, {
           type: 'cmcrd_tmp_check',
           year: this.year
         }).then(({ data }) => {
-          this.message = `${this.ts()} ${data.message}`
+          const status = Array.isArray(data.raw) ? '🟢' : '🟡'
+          this.message = `${this.ts()} ${status} ${data.message}`
           this.surCmcrdTmp = [...data.raw]
         }).catch((err) => {
           this.error = err
