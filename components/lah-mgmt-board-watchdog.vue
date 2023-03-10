@@ -41,7 +41,7 @@ b-card
         li 測量案件通知書暫存檔查詢
           ol
             li 測量課常有通知書無法產製出問題，經查狀況常為 CMCRD 表格中存有空白內容之暫存檔
-            li 本功能查詢後列出系統目前暫存檔以供管理師辨別並提供刪除功能(TODO)。
+            li 本功能查詢後列出系統目前暫存檔以供管理師查看及管理。
   //- .center-container-wh-100: div
   .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="magnifying-glass") 「登記案件」跨所註記
