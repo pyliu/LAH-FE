@@ -53,7 +53,7 @@ div
           label-close-button="關閉"
         )
 
-      .d-flex.text-nowrap.mb-1
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenTime)")
         .my-auto.mr-1 更新時間
         .highlight-yellow {{ takenTime }}
     //- div(v-if="takenStatus === ''")
