@@ -112,13 +112,11 @@ export default {
   computed: {
     ready () {
       if (this.editMode) {
-        return this.validYear &&
-               this.validNumber &&
+        return this.validNumber &&
                this.validForeignerId &&
                this.validForeignerName
       }
-      return this.validYear &&
-             this.validNumber &&
+      return this.validNumber &&
              this.validForeignerId &&
              this.validForeignerName &&
              this.validUploadFile
