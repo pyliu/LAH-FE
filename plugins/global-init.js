@@ -360,6 +360,12 @@ export default ({ $axios, store }, inject) => {
         return days + ' 天'
       }
     },
+    formatDate (dateObj, formatStr = 'yyy-LL-dd HH:mm:ss') {
+      return format(dateObj, formatStr, { locale: zhTW })
+    },
+    formatTime (dateObj, formatStr = 'HH:mm:ss') {
+      return format(dateObj, formatStr, { locale: zhTW })
+    },
     now (tw = '') {
       // https://date-fns.org/v2.28.0/docs/format
       if (tw.toUpperCase() === 'TW') {

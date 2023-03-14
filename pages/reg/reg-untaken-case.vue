@@ -149,11 +149,18 @@ div
       //-     title="收件年"
       //-   )
       b-input-group.mr-1(prepend="　收件字")
-        //- b-input.mx-1(v-model="advOpts.caseYear", placeholder="... 收件年 ...", trim)
-        b-select(
+        //- b-select(
+        //-   v-model="advOpts.caseWord",
+        //-   :options="advOpts.caseWordOpts",
+        //-   title="收件字"
+        //- )
+        b-input(
           v-model="advOpts.caseWord",
-          :options="advOpts.caseWordOpts",
-          title="收件字"
+          title="收件字",
+          placeholder=".. 字代碼 ..",
+          debounce="800",
+          :state="validAdvTagsWord",
+          trim
         )
       b-input-group(prepend="　收件號")
         //- b-input.mr-1(v-model="advOpts.caseWord", placeholder="... 收件字 ...", trim)
@@ -330,7 +337,7 @@ export default {
         }
         if (!this.$utils.empty(this.advOpts.caseWord)) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseWord) !== null
+            return item.收件字號.match(this.advOpts.caseWord.toUpperCase()) !== null
           })
         }
         if (!this.$utils.empty(this.advOpts.caseYear)) {
@@ -372,7 +379,7 @@ export default {
         tags.push(`年：${this.advOpts.caseYear}`)
       }
       if (!this.$utils.empty(this.advOpts.caseWord)) {
-        tags.push(`字：${this.advOpts.caseWord}`)
+        tags.push(`字：${this.advOpts.caseWord.toUpperCase()}`)
       }
       if (!this.$utils.empty(this.advOpts.caseNum)) {
         tags.push(`號：${this.advOpts.caseNum}`)
@@ -390,6 +397,12 @@ export default {
         tags.push(`領件狀態：${this.advOpts.caseLight}`)
       }
       return tags
+    },
+    validAdvTagsWord () {
+      if (this.$utils.empty(this.advOpts.caseWord)) {
+        return null
+      }
+      return this.advOpts.caseWord.length === 4
     }
   },
   fetchOnServer: false,
@@ -417,7 +430,15 @@ export default {
         this.advOpts.caseCloserOpts = [...new Set(val.map(item => item.結案人員))].sort()
         this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].sort()
         this.advOpts.caseYearOpts = [...new Set(val.map(item => item.RM01))].sort()
-        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].sort()
+        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].sort((a, b) => {
+          if (a.startsWith('HA')) {
+            return -1
+          }
+          if (a === b) {
+            return 0
+          }
+          return a < b
+        })
 
         this.advOpts.caseReasonOpts.unshift('')
         this.advOpts.caseCloserOpts.unshift('')

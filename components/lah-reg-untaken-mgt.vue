@@ -53,6 +53,9 @@ div
           label-close-button="關閉"
         )
 
+      .d-flex.text-nowrap.mb-1
+        .my-auto.mr-1 更新時間
+        .highlight-yellow {{ takenTime }}
     //- div(v-if="takenStatus === ''")
     div
       .d-flex.text-nowrap.mb-1
@@ -179,6 +182,13 @@ export default {
     },
     takenDate () {
       return this.parentData.UNTAKEN_TAKEN_DATE || ''
+    },
+    takenTime () {
+      const ts = Date.parse(this.parentData.UNTAKEN_TAKEN_DATE)
+      if (ts) {
+        return this.$utils.formatTime(new Date(ts))
+      }
+      return ''
     },
     takenStatus () {
       return this.parentData.UNTAKEN_TAKEN_STATUS || ''
