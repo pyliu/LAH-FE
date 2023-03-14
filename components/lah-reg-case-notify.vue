@@ -5,18 +5,18 @@ div
       v-model="notifyFlag",
       switch
     ) {{ notifyFlag ? '是' : '否' }}
-    lah-transition(speed="fastest"): b-input(
-      v-if="notifyFlag",
-      v-model="note",
-      size="sm",
-      placeholder="請輸入公文文號",
-      title="請輸入公文文號",
-      :state="validNote",
-      trim
-    )
-  .d-flex.flex-nowrap.text-nowrap.p-1(v-else)
-    span(title="是否需要通知", :class="notifyFlag ? ['text-primary'] : ['text-success']") 📢：{{ notifyFlag ? '需通知' : '不需通知' }}
-    span.mx-1(v-if="notifyFlag", title="公文號", :class="$utils.empty(note) ? ['text-danger'] : []") {{ $utils.empty(note) ? '⚠ 尚未設定公文號' : `公文文號：${note}` }}
+    //- lah-transition(speed="fastest"): b-input(
+    //-   v-if="notifyFlag",
+    //-   v-model="note",
+    //-   size="sm",
+    //-   placeholder="請輸入公文文號",
+    //-   title="請輸入公文文號",
+    //-   :state="validNote",
+    //-   trim
+    //- )
+  //- .d-flex.flex-nowrap.text-nowrap.p-1(v-else)
+  //-   span(title="是否需要通知", :class="notifyFlag ? ['text-primary'] : ['text-success']") 📢：{{ notifyFlag ? '需通知' : '不需通知' }}
+  //-   span.mx-1(v-if="notifyFlag", title="公文號", :class="$utils.empty(note) ? ['text-danger'] : []") {{ $utils.empty(note) ? '⚠ 尚未設定公文號' : `公文文號：${note}` }}
 </template>
 
 <script>
@@ -33,7 +33,7 @@ export default {
   name: 'LahRegCaseAuthChecks',
   mixins: [regCaseBase],
   data: () => ({
-    notifyFlag: undefined,
+    notifyFlag: false,
     note: undefined,
     retried: 0
   }),
@@ -106,7 +106,7 @@ export default {
           this.parentData.CASE_NOTIFY_NOTE = this.note = data.raw.note
         } else {
           // this.$utils.warn(`${this.caseId} 無額外案件資料，使用預設值!`)
-          this.notifyFlag = true
+          this.notifyFlag = false
           this.parentData.CASE_NOTIFY_NOTE = ''
         }
       }).catch((err) => {
