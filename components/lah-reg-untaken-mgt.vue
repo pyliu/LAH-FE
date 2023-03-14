@@ -234,7 +234,9 @@ export default {
       return data
     },
     editable () {
-      return this.parentData.RM45 === this.myid || this.parentData.RM59 === this.myid || this.authority.isChief || this.authority.isAdmin
+      // open to all by reg section asked ...
+      return true
+      // return this.parentData.RM45 === this.myid || this.parentData.RM59 === this.myid || this.authority.isChief || this.authority.isAdmin
     },
     statusText () {
       return this.$utils.empty(this.parentData.UNTAKEN_TAKEN_STATUS) ? '尚未設定領件狀態' : this.parentData.UNTAKEN_TAKEN_STATUS
