@@ -117,11 +117,16 @@ div
           span.sr-only 無勾選
         span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
       template(#cell(收件字號)="{ item }"): div: b-link(@click="popup(item)").
-        {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+        {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
       template(#cell(登記原因)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
       template(#cell(結案日期)="{ item }"): .text-nowrap {{ item.結案日期.split(' ')[0] }}
       template(#cell(customize)="{ item }"): lah-reg-untaken-mgt(:parent-data="item" :case-id="item.ID")
       template(#cell(UNTAKEN_TAKEN_STATUS)="{ item }"): .text-nowrap {{ statusLight(item) }} {{ statusText(item) }}
+      template(#cell(UNTAKEN_TAKEN_DATETIME)="{ item }")
+        .d-flex-column
+          div {{ takenDate(item) }}
+          div {{ takenTime(item) }}
+
   b-modal(
     ref="caseDetail"
     size="xl"
@@ -228,6 +233,11 @@ export default {
         key: 'customize',
         label: '設定',
         sortable: false
+      },
+      {
+        key: 'UNTAKEN_TAKEN_DATETIME',
+        label: '領件時間',
+        sortable: true
       },
       {
         key: '收件字號',
@@ -507,6 +517,20 @@ export default {
           caseLight: ''
         }
       }
+    },
+    takenDate (item) {
+      const ts = Date.parse(item.UNTAKEN_TAKEN_DATE)
+      if (ts) {
+        return this.$utils.formatDate(new Date(ts))
+      }
+      return ''
+    },
+    takenTime (item) {
+      const ts = Date.parse(item.UNTAKEN_TAKEN_DATE)
+      if (ts) {
+        return this.$utils.formatTime(new Date(ts))
+      }
+      return ''
     }
   }
 }

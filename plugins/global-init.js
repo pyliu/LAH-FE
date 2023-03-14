@@ -360,7 +360,7 @@ export default ({ $axios, store }, inject) => {
         return days + ' 天'
       }
     },
-    formatDate (dateObj, formatStr = 'yyy-LL-dd HH:mm:ss') {
+    formatDate (dateObj, formatStr = 'yyy-LL-dd') {
       return format(dateObj, formatStr, { locale: zhTW })
     },
     formatTime (dateObj, formatStr = 'HH:mm:ss') {
