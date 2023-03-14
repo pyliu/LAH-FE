@@ -259,7 +259,7 @@ export default {
       {
         key: 'UNTAKEN_TAKEN_TIME',
         label: '領件時間',
-        sortable: false,
+        sortable: true,
         thStyle: 'width: 100px'
       },
       {
