@@ -122,10 +122,7 @@ div
       template(#cell(結案日期)="{ item }"): .text-nowrap {{ item.結案日期.split(' ')[0] }}
       template(#cell(customize)="{ item }"): lah-reg-untaken-mgt(:parent-data="item" :case-id="item.ID")
       template(#cell(UNTAKEN_TAKEN_STATUS)="{ item }"): .text-nowrap {{ statusLight(item) }} {{ statusText(item) }}
-      template(#cell(UNTAKEN_TAKEN_DATETIME)="{ item }")
-        .d-flex-column
-          div {{ takenDate(item) }}
-          div {{ takenTime(item) }}
+      template(#cell(UNTAKEN_TAKEN_DATETIME)="{ item }") {{ takenDate(item) }} {{ takenTime(item) }}
 
   b-modal(
     ref="caseDetail"
@@ -237,7 +234,8 @@ export default {
       {
         key: 'UNTAKEN_TAKEN_DATETIME',
         label: '領件時間',
-        sortable: true
+        sortable: true,
+        thStyle: 'width: 120px'
       },
       {
         key: '收件字號',
