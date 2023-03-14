@@ -199,6 +199,18 @@ div
       )
 
     .center.d-flex.my-1
+      b-input-group(prepend="領件日期"): b-select(
+        v-model="advOpts.caseTakenDate",
+        :options="advOpts.caseTakenDateOpts",
+        title="領件日期"
+      )
+      b-input-group(prepend="結案日期"): b-select(
+        v-model="advOpts.caseCloseDate",
+        :options="advOpts.caseCloseDateOpts",
+        title="結案日期"
+      )
+
+    .center.d-flex.my-1
       lah-button(
         icon="recycle",
         @click="resetAdvSearch",
@@ -295,7 +307,11 @@ export default {
         { text: '🟢 已領件', value: '🟢' },
         { text: '🟡 借閱中', value: '🟡' },
         { text: '🔴 未領件', value: '🔴' }
-      ]
+      ],
+      caseTakenDate: '',
+      caseTakenDateOpts: [],
+      caseCloseDate: '',
+      caseCloseDateOpts: []
     }
   }),
   // only worked at page level component
@@ -387,6 +403,16 @@ export default {
             return light === this.advOpts.caseLight
           })
         }
+        if (!this.$utils.empty(this.advOpts.caseTakenDate)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return this.takenDate(item) === this.advOpts.caseTakenDate
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.caseCloseDate)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return this.$utils.addDateDivider(item.RM58_1) === this.advOpts.caseCloseDate
+          })
+        }
         return pipelineItems
       }
       return this.rows
@@ -417,6 +443,12 @@ export default {
       if (!this.$utils.empty(this.advOpts.caseLight)) {
         tags.push(`領件狀態：${this.advOpts.caseLight}`)
       }
+      if (!this.$utils.empty(this.advOpts.caseTakenDate)) {
+        tags.push(`領件日期：${this.advOpts.caseTakenDate}`)
+      }
+      if (!this.$utils.empty(this.advOpts.caseCloseDate)) {
+        tags.push(`結案日期：${this.advOpts.caseCloseDate}`)
+      }
       return tags
     },
     validAdvTagsWord () {
@@ -443,7 +475,11 @@ export default {
           casePreliminator: '',
           casePreliminatorOpts: [],
           caseLight: '',
-          caseLightOpts: this.advOpts.caseLightOpts
+          caseLightOpts: this.advOpts.caseLightOpts,
+          caseTakenDate: '',
+          caseTakenDateOpts: [],
+          caseCloseDate: '',
+          caseCloseDateOpts: []
         }
       }
       if (val) {
@@ -460,12 +496,16 @@ export default {
           }
           return a < b
         })
+        this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].sort()
+        this.advOpts.caseCloseDateOpts = [...new Set(val.map(item => this.$utils.addDateDivider(item.RM58_1)))].sort()
 
         this.advOpts.caseReasonOpts.unshift('')
         this.advOpts.caseCloserOpts.unshift('')
         this.advOpts.casePreliminatorOpts.unshift('')
         this.advOpts.caseYearOpts.unshift('')
         this.advOpts.caseWordOpts.unshift('')
+        this.advOpts.caseTakenDateOpts.unshift('')
+        this.advOpts.caseCloseDateOpts.unshift('')
       }
     },
     daysPeriod (val) {
@@ -525,7 +565,9 @@ export default {
           caseReason: '',
           caseCloser: '',
           casePreliminator: '',
-          caseLight: ''
+          caseLight: '',
+          caseTakenDate: '',
+          caseCloseDate: ''
         }
       }
     },
