@@ -229,7 +229,8 @@ export default {
       {
         key: 'customize',
         label: '設定',
-        sortable: false
+        sortable: false,
+        thStyle: 'width: 250px'
       },
       {
         key: 'UNTAKEN_TAKEN_DATETIME',
