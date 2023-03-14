@@ -145,7 +145,7 @@ export default {
       return '... 請選擇PDF ...'
     },
     validYear () {
-      return String(this.year).length === 3
+      return parseInt(this.year) > 86
     },
     validNumber () {
       const number = parseInt(this.number)
