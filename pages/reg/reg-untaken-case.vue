@@ -496,7 +496,7 @@ export default {
           }
           return a < b
         })
-        this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].sort()
+        this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].filter(d => !this.$utils.empty(d)).sort()
         this.advOpts.caseCloseDateOpts = [...new Set(val.map(item => this.$utils.addDateDivider(item.RM58_1)))].sort()
 
         this.advOpts.caseReasonOpts.unshift('')
