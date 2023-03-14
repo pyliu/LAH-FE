@@ -326,7 +326,7 @@ export default {
           if (this.$utils.statusCheck(data.status)) {
             this.syncOrigData()
           } else {
-            this.warning(data.message, { title: this.parentData.收件字號 })
+            // this.warning(data.message, { title: this.parentData.收件字號 })
             this.$utils.warn(this.caseId, data.message)
           }
         }).catch((err) => {
