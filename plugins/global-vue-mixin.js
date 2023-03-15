@@ -25,6 +25,7 @@ Vue.mixin({
       'wsPort',
       'user',
       'userNames',
+      'siteUserNames',
       'authority',
       'server',
       'topXap',

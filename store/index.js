@@ -44,6 +44,7 @@ const state = () => ({
   server: {},
   user: {},
   userNames: undefined,
+  siteUserNames: undefined,
   authority: {
     isAdmin: false,
     isChief: false,
@@ -84,6 +85,7 @@ const getters = {
   },
   user: state => state.user,
   userNames: state => state.userNames,
+  siteUserNames: state => state.siteUserNames,
   authority: state => state.authority,
   systemConfigs: state => state.systemConfigs,
   apiHost: state => state.systemConfigs.API_SERVER_IP,
@@ -137,6 +139,28 @@ const mutations = {
   },
   userNames (state, json) {
     state.userNames = { ...json }
+    // prepare site use name map
+    if (json) {
+      const site = state.systemConfigs.site
+      const siteUsers = Object.entries(json).filter(arr => arr[0].startsWith(site)).sort((a, b) => {
+        // same user name has longer ID will set to the front
+        if (a[0].length > b[0].length) {
+          return -1
+        }
+        if (a[0].length === b[0].length) {
+          return 0
+        }
+        return 1
+      })
+      // regenerate obj from entries that remove duplicates by name
+      const tmp = uniqWith(siteUsers, (a, b) => {
+        return a[1] === b[1]
+      }).reduce((obj, [key, val]) => {
+        obj[key] = val
+        return obj
+      }, {})
+      state.siteUserNames = { ...tmp }
+    }
   },
   timestamp (state, dontcare) {
     state.timestamp = +new Date()
