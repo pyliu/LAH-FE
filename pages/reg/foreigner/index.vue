@@ -217,13 +217,14 @@ export default {
       {
         key: 'note',
         label: '備註',
-        sortable: false
+        sortable: false,
+        thStyle: { width: '300px' }
       },
       {
         key: 'modifytime',
         label: '修改時間',
         sortable: true,
-        thStyle: { width: '200px' }
+        thStyle: { width: '185px' }
       }
     ],
     maxHeight: 600
