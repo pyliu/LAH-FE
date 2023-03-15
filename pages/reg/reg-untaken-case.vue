@@ -431,12 +431,17 @@ export default {
         }
         if (!this.$utils.empty(this.advOpts.caseLentDate)) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.UNTAKEN_LENT_DATE === this.advOpts.caseLentDate
+            const d = item?.UNTAKEN_LENT_DATE
+            if (this.$utils.empty(d)) {
+              return false
+            }
+            return d.split('T')[0] === this.advOpts.caseLentDate
           })
         }
         if (!this.$utils.empty(this.advOpts.caseBorrower)) {
+          const id = this.advOpts.caseBorrower.split(' ')[0]
           pipelineItems = pipelineItems.filter((item) => {
-            return item.UNTAKEN_BORROWER === this.advOpts.caseBorrower
+            return item?.UNTAKEN_BORROWER === id
           })
         }
         return pipelineItems
@@ -479,7 +484,7 @@ export default {
         tags.push(`借閱日期：${this.advOpts.caseLentDate}`)
       }
       if (!this.$utils.empty(this.advOpts.caseBorrower)) {
-        tags.push(`借閱人：${this.advOpts.caseBorrower} ${this.userMap[this.caseBorrower]}`)
+        tags.push(`借閱人：${this.advOpts.caseBorrower}`)
       }
       return tags
     },
@@ -534,8 +539,20 @@ export default {
         })
         this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].filter(d => !this.$utils.empty(d)).sort()
         this.advOpts.caseCloseDateOpts = [...new Set(val.map(item => this.$utils.addDateDivider(item.RM58_1)))].sort()
-        this.advOpts.caseBorrowerOpts = [...new Set(val.map(item => this.borrower(item)))].filter(d => !this.$utils.empty(d)).sort()
-        this.advOpts.caseLentDateOpts = [...new Set(val.map(item => this.lentDate(item)))].filter(d => !this.$utils.empty(d)).sort()
+        this.advOpts.caseBorrowerOpts = [...new Set(val.map((item) => {
+          const bid = this.borrower(item)
+          if (this.$utils.empty(bid)) {
+            return ''
+          }
+          return `${bid} ${this.userNames[bid]}`
+        }))].filter(d => !this.$utils.empty(d)).sort()
+        this.advOpts.caseLentDateOpts = [...new Set(val.map((item) => {
+          const d = this.lentDate(item)
+          if (this.$utils.empty(d)) {
+            return ''
+          }
+          return d.split('T')[0]
+        }))].filter(d => !this.$utils.empty(d)).sort()
 
         this.advOpts.caseReasonOpts.unshift('')
         this.advOpts.caseCloserOpts.unshift('')
