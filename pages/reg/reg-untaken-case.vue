@@ -199,6 +199,18 @@ div
       )
 
     .center.d-flex.my-1
+      b-input-group(prepend="借閱人員"): b-select(
+        v-model="advOpts.caseBorrower",
+        :options="advOpts.caseBorrowerOpts",
+        title="借閱人員"
+      )
+      b-input-group(prepend="借閱日期"): b-select(
+        v-model="advOpts.caseLentDate",
+        :options="advOpts.caseLentDateOpts",
+        title="借閱日期"
+      )
+
+    .center.d-flex.my-1
       b-input-group(prepend="領件日期"): b-select(
         v-model="advOpts.caseTakenDate",
         :options="advOpts.caseTakenDateOpts",
@@ -216,7 +228,7 @@ div
         @click="resetAdvSearch",
         variant="outline-success"
       ) 重設
-      small.text-muted.ml-2 找到 {{ filteredDataCount }} 筆
+      small.text-primary.ml-2 找到 {{ filteredDataCount }} 筆
 </template>
 
 <script>
@@ -311,7 +323,11 @@ export default {
       caseTakenDate: '',
       caseTakenDateOpts: [],
       caseCloseDate: '',
-      caseCloseDateOpts: []
+      caseCloseDateOpts: [],
+      caseBorrower: '',
+      caseBorrowerOpts: [],
+      caseLentDate: '',
+      caseLentDateOpts: []
     }
   }),
   // only worked at page level component
@@ -413,6 +429,16 @@ export default {
             return this.$utils.addDateDivider(item.RM58_1) === this.advOpts.caseCloseDate
           })
         }
+        if (!this.$utils.empty(this.advOpts.caseLentDate)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.UNTAKEN_LENT_DATE === this.advOpts.caseLentDate
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.caseBorrower)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.UNTAKEN_BORROWER === this.advOpts.caseBorrower
+          })
+        }
         return pipelineItems
       }
       return this.rows
@@ -449,6 +475,12 @@ export default {
       if (!this.$utils.empty(this.advOpts.caseCloseDate)) {
         tags.push(`結案日期：${this.advOpts.caseCloseDate}`)
       }
+      if (!this.$utils.empty(this.advOpts.caseLentDate)) {
+        tags.push(`借閱日期：${this.advOpts.caseLentDate}`)
+      }
+      if (!this.$utils.empty(this.advOpts.caseBorrower)) {
+        tags.push(`借閱人：${this.advOpts.caseBorrower} ${this.userMap[this.caseBorrower]}`)
+      }
       return tags
     },
     validAdvTagsWord () {
@@ -479,7 +511,11 @@ export default {
           caseTakenDate: '',
           caseTakenDateOpts: [],
           caseCloseDate: '',
-          caseCloseDateOpts: []
+          caseCloseDateOpts: [],
+          caseBorrower: '',
+          caseBorrowerOpts: [],
+          caseLentDate: '',
+          caseLentDateOpts: []
         }
       }
       if (val) {
@@ -498,6 +534,8 @@ export default {
         })
         this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].filter(d => !this.$utils.empty(d)).sort()
         this.advOpts.caseCloseDateOpts = [...new Set(val.map(item => this.$utils.addDateDivider(item.RM58_1)))].sort()
+        this.advOpts.caseBorrowerOpts = [...new Set(val.map(item => this.borrower(item)))].filter(d => !this.$utils.empty(d)).sort()
+        this.advOpts.caseLentDateOpts = [...new Set(val.map(item => this.lentDate(item)))].filter(d => !this.$utils.empty(d)).sort()
 
         this.advOpts.caseReasonOpts.unshift('')
         this.advOpts.caseCloserOpts.unshift('')
@@ -506,6 +544,8 @@ export default {
         this.advOpts.caseWordOpts.unshift('')
         this.advOpts.caseTakenDateOpts.unshift('')
         this.advOpts.caseCloseDateOpts.unshift('')
+        this.advOpts.caseBorrowerOpts.unshift('')
+        this.advOpts.caseLentDateOpts.unshift('')
       }
     },
     daysPeriod (val) {
@@ -567,7 +607,9 @@ export default {
           casePreliminator: '',
           caseLight: '',
           caseTakenDate: '',
-          caseCloseDate: ''
+          caseCloseDate: '',
+          caseBorrower: '',
+          caseLentDate: ''
         }
       }
     },
@@ -584,6 +626,12 @@ export default {
         return this.$utils.formatTime(new Date(ts))
       }
       return ''
+    },
+    borrower (item) {
+      return item?.UNTAKEN_BORROWER || ''
+    },
+    lentDate (item) {
+      return item?.UNTAKEN_LENT_DATE || ''
     }
   }
 }
