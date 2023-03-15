@@ -180,17 +180,17 @@ div
         :options="advOpts.caseReasonOpts",
         title="登記原因"
       )
-      b-input-group(prepend="領件狀態"): b-select(
-        v-model="advOpts.caseLight",
-        :options="advOpts.caseLightOpts",
-        title="領件狀態"
-      )
-
-    .center.d-flex.my-1
       b-input-group(prepend="初審人員"): b-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
         title="初審人員"
+      )
+
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="結案日期"): b-select(
+        v-model="advOpts.caseCloseDate",
+        :options="advOpts.caseCloseDateOpts",
+        title="結案日期"
       )
       b-input-group(prepend="結案人員"): b-select(
         v-model="advOpts.caseCloser",
@@ -199,7 +199,19 @@ div
       )
 
     .center.d-flex.my-1
-      b-input-group(prepend="借閱人員"): b-select(
+      b-input-group.mr-1(prepend="領件狀態"): b-select(
+        v-model="advOpts.caseLight",
+        :options="advOpts.caseLightOpts",
+        title="領件狀態"
+      )
+      b-input-group(prepend="領件日期"): b-select(
+        v-model="advOpts.caseTakenDate",
+        :options="advOpts.caseTakenDateOpts",
+        title="領件日期"
+      )
+
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="借閱人員"): b-select(
         v-model="advOpts.caseBorrower",
         :options="advOpts.caseBorrowerOpts",
         title="借閱人員"
@@ -208,18 +220,6 @@ div
         v-model="advOpts.caseLentDate",
         :options="advOpts.caseLentDateOpts",
         title="借閱日期"
-      )
-
-    .center.d-flex.my-1
-      b-input-group(prepend="領件日期"): b-select(
-        v-model="advOpts.caseTakenDate",
-        :options="advOpts.caseTakenDateOpts",
-        title="領件日期"
-      )
-      b-input-group(prepend="結案日期"): b-select(
-        v-model="advOpts.caseCloseDate",
-        :options="advOpts.caseCloseDateOpts",
-        title="結案日期"
       )
 
     .center.d-flex.my-1
