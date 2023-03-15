@@ -40,7 +40,6 @@ div
           placeholder="選擇狀態變更日期"
           boundary="viewport"
           :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :min="minDate"
           :max="maxDate"
           label-help="使用方向鍵操作移動日期"
           hide-header
