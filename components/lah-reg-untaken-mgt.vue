@@ -32,7 +32,7 @@ div
         )
 
       .d-flex.text-nowrap.mb-1
-        .my-auto.mr-1 更新日期
+        .my-auto.mr-1 領件日期
         b-datepicker(
           size="sm"
           variant="primary"
@@ -53,7 +53,7 @@ div
         )
 
       .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenTime)")
-        .my-auto.mr-1 更新時間
+        .my-auto.mr-1 領件時間
         .highlight-yellow {{ takenTime }}
     //- div(v-if="takenStatus === ''")
     div
@@ -181,7 +181,7 @@ export default {
       return false
     },
     takenDate () {
-      return this.parentData.UNTAKEN_TAKEN_DATE || ''
+      return this.parentData.UNTAKEN_TAKEN_DATE.toString() || ''
     },
     takenTime () {
       const ts = Date.parse(this.parentData.UNTAKEN_TAKEN_DATE)
@@ -189,6 +189,16 @@ export default {
         return this.$utils.formatTime(new Date(ts))
       }
       return ''
+    },
+    origTakenDate () {
+      return this.origData.taken_date || ''
+    },
+    origTakenTime () {
+      const ts = Date.parse(this.origData.taken_date)
+      if (ts) {
+        return this.$utils.formatTime(new Date(ts))
+      }
+      return this.takenTime
     },
     takenStatus () {
       return this.parentData.UNTAKEN_TAKEN_STATUS || ''
@@ -232,9 +242,21 @@ export default {
       return []
     },
     updateData () {
+      // alter takenDate val to keep the orig timestamp
+      let altered = ''
+      if (!this.$utils.empty(this.origTakenTime) && this.takenDate?.includes('T')) {
+        altered = `${this.takenDate.split('T')[0]}T${this.origTakenTime}Z`
+        // prevent recursive update loop
+        if (this.parentData.UNTAKEN_TAKEN_DATE !== altered) {
+          this.$nextTick(() => {
+            this.parentData.UNTAKEN_TAKEN_DATE = altered
+          })
+        }
+      }
+      // console.warn('parent', this.parentData.UNTAKEN_TAKEN_DATE, 'orig', this.origTakenTime, 'modified', altered)
       const data = {
         id: this.caseId,
-        taken_date: this.takenDate,
+        taken_date: altered,
         taken_status: this.takenStatus,
         lent_date: this.lentDate,
         return_date: this.returnDate,
