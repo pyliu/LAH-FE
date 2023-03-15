@@ -120,6 +120,7 @@ div
           label-reset-button="重設"
           close-button
           label-close-button="關閉"
+          :state="!$utils.empty(parentData.UNTAKEN_RETURN_DATE)"
         )
 
     .d-flex.text-nowrap.mb-1(v-if="false")
