@@ -16,40 +16,48 @@ div
           :options="statusOpts",
           size="sm"
         )
-        lah-countdown-button.ml-1(
-          v-if="dataChanged"
-          ref="countdown"
-          icon="edit",
-          size="sm",
-          variant="outline-primary",
-          badge-variant="secondary"
-          title="立即更新",
-          :disabled="!dataChanged",
-          :milliseconds="debounceMs",
-          @click="update",
-          @end="update",
-          auto-start
-        )
+        lah-transition
+          b-button-group.ml-1(
+            v-if="dataChanged",
+            size="sm"
+          )
+            lah-button(
+              ref="countdown"
+              icon="edit",
+              variant="outline-primary",
+              badge-variant="secondary"
+              title="儲存",
+              @click="update",
+              no-icon-gutter
+            )
+            lah-button.ml-1(
+              icon="undo",
+              action="cycle-alt",
+              variant="success",
+              title="還原前設定值",
+              @click="backOrigData"
+              no-icon-gutter
+            )
 
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1 領件日期
         b-datepicker(
+          v-model="parentData.UNTAKEN_TAKEN_DATE"
+          boundary="viewport"
           size="sm"
           variant="primary"
-          v-model="parentData.UNTAKEN_TAKEN_DATE"
-          placeholder="選擇狀態變更日期"
-          boundary="viewport"
+          placeholder="... 變更領件日期 ..."
+          label-help="使用方向鍵操作移動日期"
+          label-today-button="今天"
+          label-reset-button="重設"
+          label-close-button="關閉"
           :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
           :max="maxDate"
-          label-help="使用方向鍵操作移動日期"
           hide-header
-          dropleft
           today-button
-          label-today-button="今天"
-          reset-button
-          label-reset-button="重設"
           close-button
-          label-close-button="關閉"
+          reset-button
+          value-as-date
         )
 
       .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenTime)")
@@ -176,12 +184,17 @@ export default {
       // pagination will re-use the same component in b-table ...
       // I need a way to determine if it is a user triggered data change
       if (!this.$utils.empty(this.origData)) {
-        return !this.$utils.equal(this.origData, this.updateData)
+        return this.origData.borrower !== this.updateData.borrower ||
+               this.origData.id !== this.updateData.id ||
+               this.origData.lent_date !== this.updateData.lent_date ||
+               this.origData.return_date !== this.updateData.return_date ||
+               this.origData.taken_date !== this.updateData.taken_date ||
+               this.origData.taken_status !== this.updateData.taken_status
       }
       return false
     },
     takenDate () {
-      return this.parentData.UNTAKEN_TAKEN_DATE.toString() || ''
+      return this.parentData.UNTAKEN_TAKEN_DATE || null
     },
     takenTime () {
       const ts = Date.parse(this.parentData.UNTAKEN_TAKEN_DATE)
@@ -242,28 +255,15 @@ export default {
       return []
     },
     updateData () {
-      // alter takenDate val to keep the orig timestamp
-      let altered = ''
-      if (!this.$utils.empty(this.origTakenTime) && this.takenDate?.includes('T')) {
-        altered = `${this.takenDate.split('T')[0]}T${this.origTakenTime}Z`
-        // prevent recursive update loop
-        if (this.parentData.UNTAKEN_TAKEN_DATE !== altered) {
-          this.$nextTick(() => {
-            this.parentData.UNTAKEN_TAKEN_DATE = altered
-          })
-        }
-      }
-      // console.warn('parent', this.parentData.UNTAKEN_TAKEN_DATE, 'orig', this.origTakenTime, 'modified', altered)
-      const data = {
+      return {
         id: this.caseId,
-        taken_date: altered,
+        taken_date: this.takenDate,
         taken_status: this.takenStatus,
         lent_date: this.lentDate,
         return_date: this.returnDate,
         borrower: this.borrower,
         note: this.note
       }
-      return data
     },
     editable () {
       // open to all by reg section asked ...
@@ -286,9 +286,13 @@ export default {
         } else if (this.$utils.empty(this.takenStatus)) {
           this.parentData.UNTAKEN_TAKEN_STATUS = '已領件'
         }
+        if (val.setHours) {
+          const now = new Date()
+          val?.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
+        }
       }
       this.skipTakenDateUpdate = false
-      this.$refs.countdown?.resetCountdown()
+      // this.$refs.countdown?.resetCountdown()
       this.updateDebounced()
     },
     takenStatus (val) {
@@ -301,7 +305,7 @@ export default {
         }
       }
       this.skipTakenStatusUpdate = false
-      this.$refs.countdown?.resetCountdown()
+      // this.$refs.countdown?.resetCountdown()
       this.updateDebounced()
     },
     lentDate (val) {
@@ -375,6 +379,14 @@ export default {
     },
     syncOrigData () {
       this.origData = { ...this.updateData }
+    },
+    backOrigData () {
+      this.parentData.UNTAKEN_TAKEN_STATUS = this.origData.taken_status
+      this.parentData.UNTAKEN_TAKEN_DATE = this.origData.taken_date
+      this.parentData.UNTAKEN_LENT_DATE = this.origData.lent_date
+      this.parentData.UNTAKEN_RETURN_DATE = this.origData.return_date
+      this.parentData.UNTAKEN_BORROWER = this.origData.borrower
+      this.parentData.UNTAKEN_NOTE = this.origData.note
     }
   }
 }
