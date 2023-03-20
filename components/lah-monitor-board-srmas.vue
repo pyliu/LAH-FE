@@ -127,7 +127,8 @@ export default {
     fetchDay: 1,
     monitorHrs: 8,
     duration: 0,
-    threadhold: 0
+    threadhold: 0,
+    regex: /主機：(\d+\.\d+\.\d+\.\d+)/gm
   }),
   computed: {
     messagesAfterThreadhold () {
@@ -213,13 +214,19 @@ export default {
       // active test the connectivity and elimitates the '裝置未回應' item
       const activeClearIdx = []
       bad.forEach((item, idx) => {
-        if (item.subject?.includes('裝置未回應')) {
-          const ip = item.subject?.split('-')[1]
-          if (this.ping(ip)) {
-            activeClearIdx.push(idx)
-            const succeedMessage = '🟢 目前 ping 值正常，可忽略此訊息！'
-            if (!item.message?.includes(succeedMessage)) {
-              item.message = `${succeedMessage}\n\n${item.message}`
+        // console.warn(item)
+        if (item.message?.includes('裝置未回應')) {
+          // find ip to ping
+          const result = Array.from(item.message?.matchAll(this.regex) || [])
+          if (result.length > 0) {
+            // exact matched ip in the Parentheses => (\d+\.\d+\.\d+\.\d+)
+            const ip = result[0][1]
+            if (this.ping(ip)) {
+              activeClearIdx.push(idx)
+              const succeedMessage = '🟢 目前 ping 值正常，可忽略此訊息！'
+              if (!item.message?.includes(succeedMessage)) {
+                item.message = `${succeedMessage}\n\n${item.message}`
+              }
             }
           }
         }
