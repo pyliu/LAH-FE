@@ -110,8 +110,8 @@ b-card(:border-variant="border")
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
-import lahMonitorBoardSrmasList from '~/components/lah-monitor-board-srmas-list.vue'
 import lahMonitorBoardSrmasFixed from '~/components/lah-monitor-board-srmas-fixed.vue'
+import lahMonitorBoardSrmasList from '~/components/lah-monitor-board-srmas-list.vue'
 
 export default {
   name: 'LahMonitorBoardSrmas',
@@ -155,10 +155,10 @@ export default {
       return 'success'
     },
     warnings () {
-      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.startsWith('異常告警')).reverse()
+      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('異常告警')).reverse()
     },
     restores () {
-      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.startsWith('回復通知'))
+      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復通知'))
     },
     fixed () {
       const bad = [...this.warnings]
