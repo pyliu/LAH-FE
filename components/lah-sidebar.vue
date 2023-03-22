@@ -52,45 +52,48 @@ b-sidebar#lah-sidebar(
         實價登錄JSON資料解析
       li(v-if="isVal"): hr
 
-      li(v-if="isSur"): nuxt-link(to="/expire/sur").
+      li(v-if="isSur"): nuxt-link(to="/sur/expire").
         #[font-awesome-icon(:icon="['far', 'calendar-alt']", fixed-width, size="lg")]
         測量逾期案件
       li(v-if="isSur"): hr
 
-      li(v-if="isReg || isInf"): nuxt-link(to="/expire").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/expire").
         #[font-awesome-icon(:icon="['far', 'calendar-check']", fixed-width, size="lg")]
         即將逾期案件(登記)
-      li(v-if="isReg || isInf"): nuxt-link(to="/ask-for-instructions").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/ask-for-instructions").
         #[font-awesome-icon(:icon="['fas', 'user-tie']", fixed-width, size="lg")]
         取消請示案件
-      li(v-if="isReg || isInf"): nuxt-link(to="/reg-fix-case").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/reg-fix-case").
         #[font-awesome-icon(:icon="['fas', 'pager']", fixed-width, size="lg")]
         補正期滿案件
-      li(v-if="isReg || isInf"): nuxt-link(to="/expiry-of-announcement").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/expiry-of-announcement").
         #[font-awesome-icon(:icon="['fa', 'sticky-note']", fixed-width, size="lg")]
         公告案件控管
-      li(v-if="isReg || isInf"): nuxt-link(to="/reg-untaken-case").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/reg-untaken-case").
         #[font-awesome-icon(:icon="['fas', 'stamp']", fixed-width, size="lg")]
         領件控管
-      li(v-if="isReg || isInf"): nuxt-link(to="/reg-not-done-case").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/reg-not-done-case").
         #[font-awesome-icon(:icon="['fas', 'bullhorn']", fixed-width, size="lg")]
         辦畢通知案件
-      li(v-if="isReg || isInf"): nuxt-link(to="/trust").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/foreigner-inheritance-restriction").
+        #[font-awesome-icon(:icon="['fas', 'earth-asia']", fixed-width, size="lg")]
+        外國人繼承限制繼承管制
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/trust").
         #[font-awesome-icon(:icon="['fas', 'money-check-alt']", fixed-width, size="lg")]
         信託相關案件
-      li(v-if="isReg || isInf"): nuxt-link(to="/not-done-change").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/not-done-change").
         #[font-awesome-icon(:icon="['fas', 'monument']", fixed-width, size="lg")]
         未辦繼承標的註記異動
-      li(v-if="isReg || isInf"): nuxt-link(to="/land-ref-change").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/land-ref-change").
         #[font-awesome-icon(:icon="['fas', 'landmark']", fixed-width, size="lg")]
         土地參考資訊檔異動
-      li(v-if="isReg || isInf"): nuxt-link(to="/agriculture-375-change").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/agriculture-375-change").
         #[font-awesome-icon(:icon="['fas', 'border-all']", fixed-width, size="lg")]
         375租約異動
-      li(v-if="isReg || isInf"): NuxtLink(to="/foreigner-case").
+      li(v-if="isReg || isInf"): NuxtLink(to="/reg/foreigner-case").
         #[font-awesome-icon(:icon="['fas', 'user-astronaut']", fixed-width, size="lg")]
         外人地權案件
-      li(v-if="isReg || isInf"): nuxt-link(to="/non-scrivener-case").
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/non-scrivener-case").
         #[font-awesome-icon(:icon="['fas', 'user-tag']", fixed-width, size="lg")]
         非專業代理人案件
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/foreigner").
