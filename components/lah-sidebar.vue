@@ -98,7 +98,7 @@ b-sidebar#lah-sidebar(
         非專業代理人案件
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/foreigner").
         #[font-awesome-icon(:icon="['fas', 'users-rectangle']", fixed-width, size="lg")]
-        外國人資料查詢及建置
+        外國人掃描資料
 
       li: hr
 

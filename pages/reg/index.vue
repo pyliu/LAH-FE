@@ -15,7 +15,7 @@
         lah-index-card-link.fix-card-dimension(:icon="['far', 'sticky-note']" to="/reg/expiry-of-announcement") 公告案件#[br]控管
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'stamp']" to="/reg/reg-untaken-case") 領件控管
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'bullhorn']" to="/reg/reg-not-done-case") 辦畢通知#[br]案件
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'earth-asia']" to="/reg/foreigner-inheritance-restriction") 外國人繼承限制管制
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'earth-asia']" to="/reg/foreigner-inheritance-restriction") 外國人繼承限制
       b-card-group.my-4(deck)
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'money-check-alt']" to="/reg/trust") 信託相關#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'monument']" to="/reg/not-done-change") 未辦繼承標的註記異動
@@ -23,7 +23,7 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'border-all']" to="/reg/agriculture-375-change") 375租約#[br]異動
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-astronaut']" to="/reg/foreigner-case") 外人地權#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tag']" to="/reg/non-scrivener-case") 非專業代理人案件
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'users-rectangle']" to="/reg/foreigner") 外國人資料查詢及建置
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'users-rectangle']" to="/reg/foreigner") 外國人掃描資料
       //- b-card-group(deck)
         //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'monument']" to="/reg/not-done-change") 未辦繼承標的註記異動
         //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'landmark']" to="/reg/land-ref-change") 土地參考資訊檔異動
