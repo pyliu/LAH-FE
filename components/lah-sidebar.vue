@@ -90,12 +90,12 @@ b-sidebar#lah-sidebar(
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/agriculture-375-change").
         #[font-awesome-icon(:icon="['fas', 'border-all']", fixed-width, size="lg")]
         375租約異動
-      li(v-if="isReg || isInf"): NuxtLink(to="/reg/foreigner-case").
-        #[font-awesome-icon(:icon="['fas', 'user-astronaut']", fixed-width, size="lg")]
-        外人地權案件
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/non-scrivener-case").
         #[font-awesome-icon(:icon="['fas', 'user-tag']", fixed-width, size="lg")]
         非專業代理人案件
+      li(v-if="isReg || isInf"): NuxtLink(to="/reg/foreigner-case").
+        #[font-awesome-icon(:icon="['fas', 'user-astronaut']", fixed-width, size="lg")]
+        外國人地權案件
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/foreigner").
         #[font-awesome-icon(:icon="['fas', 'users-rectangle']", fixed-width, size="lg")]
         外國人掃描資料
