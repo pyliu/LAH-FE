@@ -10,7 +10,7 @@ div
             li 查詢系統內其他登記事項註記符合下列情況案件。
               ul
                 li 註記內含「 ... 移轉與 ... 」(範例：本筆土地應於０００年０月０日前移轉與本國人，逾期辦理公開標售)
-                li 註記內不含「 ... 移請 ... 」(範例：．．．移請財政部國有財產數公開標售。)
+                li 註記內不含「 ... 移請 ... 」(範例：．．．移請財政部國有財產署公開標售。)
             li 狀態說明
               ul
                 li 🔴 - 已逾期，須盡速辦理
@@ -51,40 +51,85 @@ div
     :borderless="false",
     :outlined="false",
     caption-top,
-    selectable,
     hover,
     striped,
     bordered,
     small,
-    no-border-collapse
+    no-border-collapse,
+    selectable
   )
-    template(v-slot:cell(light)="{ item, index, rowSelected }")
-      .div {{ light(item) }}
-    template(v-slot:cell(deadline)="{ item, index, rowSelected }")
+    template(#cell(light)="row")
+      div {{ light(row.item) }}
+    template(#cell(deadline)="{ item, index, rowSelected }")
       .text-nowrap {{ deadline(item) }}
-    template(v-slot:cell(BA48)="{ item, index, rowSelected }")
-      div {{ item.BA48 }} {{ item.BA48_CHT }}
-    template(v-slot:cell(BA48)="{ item, index, rowSelected }")
-      div {{ item.BA48 }} {{ item.BA48_CHT }}
-    template(v-slot:cell(BA49)="{ item, index, rowSelected }")
+    template(#cell(BA48)="{ item }")
+      .text-nowrap(:title="item.BA48") {{ item.BA48_CHT }}
+    template(#cell(BA49)="{ item }")
       div {{ $utils.formatLandNumber(item.BA49) }}
-    template(v-slot:cell(BB05)="{ item, index, rowSelected }")
+    template(#cell(BB05)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.BB05) }}
-    template(v-slot:cell(BB06)="{ item, index, rowSelected }")
+    template(#cell(BB06)="{ item }")
       div(:title="item.BB06") {{ item.BB06_CHT }}
-    template(v-slot:cell(BB07)="{ item, index, rowSelected }")
+    template(#cell(BB07)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.BB07) }}
-    template(v-slot:cell(BB09)="{ item, index, rowSelected }")
-      div(:title="item.BB09") {{ item.BB09_CHT }}
-    template(v-slot:cell(BB15_1)="{ item, index, rowSelected }")
+    template(#cell(BB09)="{ item }")
+      .text-nowrap(:title="item.BB09") {{ item.BB09_CHT }}
+    template(#cell(BB15_1)="{ item }")
       div(:title="item.BB15_1") {{ item.BB15_1_CHT }}
-    template(v-slot:cell(LBIR_2)="{ item, index, rowSelected }")
+    template(#cell(LBIR_2)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.LBIR_2) }}
+    template(#cell(LADR)="{ item, detailsShowing, toggleDetails }")
+      .d-flex
+        .truncate {{ item.LADR }}
+        lah-button.border-0.ml-1(
+          :icon="detailsShowing ? 'caret-down' : 'caret-right'",
+          size="sm",
+          variant="outline-primary",
+          title="顯示詳情",
+          @click="toggleDetails"
+        )
+    template(#cell(GG30_2)="{ item, detailsShowing, toggleDetails }")
+      .d-flex
+        .truncate {{ item.GG30_2 }}
+        lah-button.border-0.ml-1(
+          :icon="detailsShowing ? 'caret-down' : 'caret-right'",
+          size="sm",
+          variant="outline-primary",
+          title="顯示詳情",
+          @click="toggleDetails"
+        )
 
+    template(#row-details="row")
+      b-card
+        b-card-title
+          div {{ `${light(row.item)} ${row.item.BA48} ${row.item.BA48_CHT} ${$utils.formatLandNumber(row.item.BA49)} 地號` }}
+        b-card-text: b-list-group(flush)
+          b-list-group-item: .d-flex.justify-content-between
+            .text-primary.font-weight-bold 移轉期限：{{ deadline(row.item) }}
+            b-link.card-link(
+              v-if="!$utils.empty(row.item.ID)",
+              href="#",
+              @click="popupCase(row.item)"
+            ) {{ row.item.收件字號 }}
+          b-list-group-item: .d-flex
+            .w-3rd 登記日期：{{ $utils.addDateDivider(row.item.BB05) }}
+            .w-3rd.text-center 登記原因：{{ row.item.BB06 }} {{ row.item.BB06_CHT }}
+            .w-3rd.text-right 發生日期：{{ $utils.addDateDivider(row.item.BB07) }}
+          b-list-group-item: .d-flex
+            .w-3rd 所有權人：{{ row.item.BB09 }}
+            .w-3rd.text-center 生日：{{ row.item.LBIR_2 }}
+            .w-3rd.text-right 地址：{{ row.item.LADR }}
+          b-list-group-item: .d-flex
+            .w-3rd 權狀字號：{{ row.item.BB16 }}
+            .w-3rd.text-center 權利範圍：{{ row.item.BB15_1 }} {{ row.item.BB15_1_CHT }}
+            .w-3rd.text-right 申報地價：{{ row.item.BB21 }}
+          b-list-group-item: .d-flex.justify-content-between
+            .highlight-yellow {{ row.item.GG30_2 }}
 </template>
 
 <script>
 import lahButton from '~/components/lah-button.vue'
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   components: { lahButton },
   data: () => ({
@@ -167,7 +212,7 @@ export default {
         key: 'GG30_2',
         label: '其他登記事項',
         sortable: false,
-        thStyle: 'min-width: 300px'
+        thStyle: 'width: 150px'
       }
     ],
     regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm
@@ -315,6 +360,23 @@ export default {
         }
       }
       return '🟢'
+    },
+    popupCase (item) {
+      this.modal(this.$createElement(lahRegCaseDetailVue, {
+        props: {
+          caseId: item.ID,
+          parentData: item
+        },
+        on: {
+          'not-found': () => {
+            this.hideModal()
+            this.warning(`⚠ 無法找到 ${this.$utils.caseId(item.ID)} 登記案件資料。`)
+          }
+        }
+      }), {
+        title: `案件詳情 ${this.$utils.caseId(item.ID)}`,
+        size: 'xl'
+      })
     }
   }
 }
@@ -323,5 +385,8 @@ export default {
 <style lang="scss" scoped>
 .vw-50 {
   width: 33vw;
+}
+.w-3rd {
+  width: 33.33%;
 }
 </style>
