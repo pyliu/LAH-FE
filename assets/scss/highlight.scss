@@ -1,0 +1,9 @@
+%highlight-base {
+  background-color: yellow;
+  font-weight: bolder;
+  padding: 2px;
+}
+
+.highlight, .highlight-yellow {
+  @extend %highlight-base;
+}
