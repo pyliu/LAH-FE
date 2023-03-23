@@ -423,6 +423,17 @@ export default ({ $axios, store }, inject) => {
       }
       return +new Date(Y, M, D, H, m, s)
     },
+    twAdSwitch (str) {
+      const formatted = str.replace('/[-/]/g', '')
+      // detect if it is AD date
+      if (formatted.match(/^\d{8}$/)) {
+        // to TW date
+        return parseInt(formatted.substring(0, 4)) - 1911 + formatted.substring(4)
+      } else if (formatted.match(/^\d{7}$/)) {
+        return parseInt(formatted.substring(0, 3)) + 1911 + formatted.substring(3)
+      }
+      return str
+    },
     formatDistanceToNow (d = +new Date()) {
       return formatDistanceToNow(d, {
         addSuffix: true,
