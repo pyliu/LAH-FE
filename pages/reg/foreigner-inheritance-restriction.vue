@@ -6,15 +6,16 @@ div
         .my-auto 外國人繼承限制
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
-          .h5 查詢系統內其他登記事項註記符合下列情況案件。
           ul
-            li 註記內含「 ... 移轉與 ... 」(範例：本筆土地應於０００年０月０日前移轉與本國人，逾期辦理公開標售)
-            li 註記內不含「 ... 移請 ... 」(範例：．．．移請財政部國有財產數公開標售。)
+            li 查詢系統內其他登記事項註記符合下列情況案件。
+              ul
+                li 註記內含「 ... 移轉與 ... 」(範例：本筆土地應於０００年０月０日前移轉與本國人，逾期辦理公開標售)
+                li 註記內不含「 ... 移請 ... 」(範例：．．．移請財政部國有財產數公開標售。)
             li 狀態說明
               ul
                 li 🔴 - 已逾期，須盡速辦理
-                li 🟡 - 需進行通知快逾期(半年)
-                li 🟢 - 正常
+                li 🟡 - 請進行通知作業
+                li 🟢 - 正常，未到期
             li 通知接收功能僅限有安裝桃園即時通的使用者
       .d-flex
         lah-button-xlsx.mr-1(
