@@ -49,7 +49,8 @@ export default {
       }
     },
     editable () {
-      return this.parentData.RM45 === this.myid || this.parentData.RM47 === this.myid || this.authority.isChief || this.authority.isAdmin
+      // return this.parentData.RM45 === this.myid || this.parentData.RM47 === this.myid || this.authority.isChief || this.authority.isAdmin
+      return true
     }
   },
   watch: {
