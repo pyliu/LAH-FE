@@ -43,7 +43,7 @@ div
   lah-transition: b-table(
     v-if="committed",
     head-variant="dark",
-    select-mode="single",
+    select-mode="multi",
     selected-variant="success",
     :busy="isBusy",
     :items="filteredData",
@@ -56,7 +56,8 @@ div
     bordered,
     small,
     no-border-collapse,
-    selectable
+    selectable,
+    responsive="md"
   )
     template(#cell(light)="row")
       div {{ light(row.item) }}
@@ -65,7 +66,7 @@ div
     template(#cell(BA48)="{ item }")
       .text-nowrap(:title="item.BA48") {{ item.BA48_CHT }}
     template(#cell(BA49)="{ item }")
-      div {{ $utils.formatLandNumber(item.BA49) }}
+      .text-nowrap {{ $utils.formatLandNumber(item.BA49) }}
     template(#cell(BB05)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.BB05) }}
     template(#cell(BB06)="{ item }")
@@ -73,34 +74,34 @@ div
     template(#cell(BB07)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.BB07) }}
     template(#cell(BB09)="{ item }")
-      .text-nowrap(:title="item.BB09") {{ item.BB09_CHT }}
+      div(:title="item.BB09") {{ item.BB09_CHT }}
     template(#cell(BB15_1)="{ item }")
       div(:title="item.BB15_1") {{ item.BB15_1_CHT }}
     template(#cell(LBIR_2)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.LBIR_2) }}
-    template(#cell(LADR)="{ item, detailsShowing, toggleDetails }")
+    template(#cell(LADR)="row")
       .d-flex
-        .truncate {{ item.LADR }}
+        .truncate-mvw {{ row.item.LADR }}
         lah-button.border-0.ml-1(
-          :icon="detailsShowing ? 'caret-down' : 'caret-right'",
+          :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
           size="sm",
           variant="outline-primary",
           title="顯示詳情",
-          @click="toggleDetails"
+          @click="toggle(row)"
         )
-    template(#cell(GG30_2)="{ item, detailsShowing, toggleDetails }")
+    template(#cell(GG30_2)="row")
       .d-flex
-        .truncate {{ item.GG30_2 }}
+        .truncate-mvw {{ row.item.GG30_2 }}
         lah-button.border-0.ml-1(
-          :icon="detailsShowing ? 'caret-down' : 'caret-right'",
+          :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
           size="sm",
           variant="outline-primary",
           title="顯示詳情",
-          @click="toggleDetails"
+          @click="toggle(row)"
         )
 
     template(#row-details="row")
-      b-card
+      lah-transition(appear): b-card
         b-card-title
           div {{ `${light(row.item)} ${row.item.BA48} ${row.item.BA48_CHT} ${$utils.formatLandNumber(row.item.BA49)} 地號` }}
         b-card-text: b-list-group(flush)
@@ -117,7 +118,7 @@ div
             .w-3rd.text-right 發生日期：{{ $utils.addDateDivider(row.item.BB07) }}
           b-list-group-item: .d-flex
             .w-3rd 所有權人：{{ row.item.BB09 }}
-            .w-3rd.text-center 生日：{{ row.item.LBIR_2 }}
+            .w-3rd.text-center 生日：{{ $utils.addDateDivider(row.item.LBIR_2) }}
             .w-3rd.text-right 地址：{{ row.item.LADR }}
           b-list-group-item: .d-flex
             .w-3rd 權狀字號：{{ row.item.BB16 }}
@@ -203,16 +204,15 @@ export default {
         label: '權狀字號',
         sortable: true
       },
-      {
-        key: 'BB21',
-        label: '申報地價',
-        sortable: true
-      },
+      // {
+      //   key: 'BB21',
+      //   label: '申報地價',
+      //   sortable: true
+      // },
       {
         key: 'GG30_2',
         label: '其他登記事項',
-        sortable: false,
-        thStyle: 'width: 150px'
+        sortable: false
       }
     ],
     regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm
@@ -320,6 +320,10 @@ export default {
       this.forceReload = true
       this.$fetch()
     },
+    toggle (row) {
+      row.toggleDetails?.call()
+      row.detailsShowing ? row.unselectRow?.call() : row.selectRow?.call()
+    },
     extractDueDate (str) {
       const matched = Array.from(str?.matchAll(this.regex))
       /** expect array result
@@ -388,5 +392,11 @@ export default {
 }
 .w-3rd {
   width: 33.33%;
+}
+.truncate-mvw {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(15vw - 0px);
 }
 </style>
