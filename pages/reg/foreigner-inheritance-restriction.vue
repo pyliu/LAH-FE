@@ -68,12 +68,18 @@ div
       div {{ item.BA48 }} {{ item.BA48_CHT }}
     template(v-slot:cell(BA49)="{ item, index, rowSelected }")
       div {{ $utils.formatLandNumber(item.BA49) }}
+    template(v-slot:cell(BB05)="{ item, index, rowSelected }")
+      .text-nowrap {{ $utils.addDateDivider(item.BB05) }}
     template(v-slot:cell(BB06)="{ item, index, rowSelected }")
       div(:title="item.BB06") {{ item.BB06_CHT }}
+    template(v-slot:cell(BB07)="{ item, index, rowSelected }")
+      .text-nowrap {{ $utils.addDateDivider(item.BB07) }}
     template(v-slot:cell(BB09)="{ item, index, rowSelected }")
       div(:title="item.BB09") {{ item.BB09_CHT }}
     template(v-slot:cell(BB15_1)="{ item, index, rowSelected }")
       div(:title="item.BB15_1") {{ item.BB15_1_CHT }}
+    template(v-slot:cell(LBIR_2)="{ item, index, rowSelected }")
+      .text-nowrap {{ $utils.addDateDivider(item.LBIR_2) }}
 
 </template>
 
@@ -161,7 +167,7 @@ export default {
         key: 'GG30_2',
         label: '其他登記事項',
         sortable: false,
-        thStyle: 'min-width: 500px'
+        thStyle: 'min-width: 300px'
       }
     ],
     regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm
