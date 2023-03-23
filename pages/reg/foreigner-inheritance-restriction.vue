@@ -10,6 +10,11 @@ div
           ul
             li 註記內含「 ... 移轉與 ... 」(範例：本筆土地應於０００年０月０日前移轉與本國人，逾期辦理公開標售)
             li 註記內不含「 ... 移請 ... 」(範例：．．．移請財政部國有財產數公開標售。)
+            li 狀態說明
+              ul
+                li 🔴 - 已逾期，須盡速辦理
+                li 🟡 - 需進行通知快逾期(半年)
+                li 🟢 - 正常
             li 通知接收功能僅限有安裝桃園即時通的使用者
       .d-flex
         lah-button-xlsx.mr-1(
@@ -52,6 +57,12 @@ div
     small,
     no-border-collapse
   )
+    template(v-slot:cell(light)="{ item, index, rowSelected }")
+      .div {{ light(item) }}
+    template(v-slot:cell(deadline)="{ item, index, rowSelected }")
+      .text-nowrap {{ deadline(item) }}
+    template(v-slot:cell(BA48)="{ item, index, rowSelected }")
+      div {{ item.BA48 }} {{ item.BA48_CHT }}
     template(v-slot:cell(BA48)="{ item, index, rowSelected }")
       div {{ item.BA48 }} {{ item.BA48_CHT }}
     template(v-slot:cell(BA49)="{ item, index, rowSelected }")
@@ -75,6 +86,16 @@ export default {
     cachedMs: 24 * 60 * 60 * 1000,
     bakedData: [],
     fields: [
+      {
+        key: 'light',
+        label: '狀態',
+        sortable: true
+      },
+      {
+        key: 'deadline',
+        label: '最後期限',
+        sortable: true
+      },
       {
         key: 'BA48',
         label: '地段',
@@ -141,7 +162,8 @@ export default {
         sortable: false,
         thStyle: 'min-width: 500px'
       }
-    ]
+    ],
+    regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm
   }),
   fetch () {
     // restore cached data if found
@@ -235,10 +257,57 @@ export default {
       // this.refreshAdvOptsSelect(val)
     }
   },
+  mounted () {
+    const test = '本筆土地應於１１０年９月３日前移轉與本國人，逾期辦理公開標售'
+    const d = this.extractDueDate(test)
+
+    console.warn(d, this.$utils.twDateStr(d))
+  },
   methods: {
     reload () {
       this.forceReload = true
       this.$fetch()
+    },
+    extractDueDate (str) {
+      const matched = Array.from(str?.matchAll(this.regex))
+      /** expect array result
+       * 0: 本筆土地應於１１０年９月３日前移轉與本國人"
+       * 1: "１１０"
+       * 2: "９"
+       * 3: "３"
+       * groups: undefined
+       * index: 0
+       * input: "本筆土地應於１１０年９月３日前移轉與本國人，逾期辦理公開標售"
+       */
+      if (Array.isArray(matched[0])) {
+        const year = 1911 + parseInt(this.$utils.convertDBytesNumber(matched[0][1]))
+        const month = this.$utils.convertDBytesNumber(matched[0][2]) - 1
+        const day = this.$utils.convertDBytesNumber(matched[0][3])
+        return new Date(year, month, day)
+      }
+      return false
+    },
+    deadline (item) {
+      const d = this.extractDueDate(item.GG30_2)
+      if (d) {
+        return this.$utils.addDateDivider(this.$utils.twDateStr(d))
+      }
+      return '無期限'
+    },
+    light (item) {
+      const dueDate = this.extractDueDate(item.GG30_2)
+      if (dueDate) {
+        const ts = dueDate.getTime()
+        const now = this.$utils.nowTs()
+        if (now > ts) {
+          return '🔴'
+        }
+        const offset = ts - now
+        if (offset < 6 * 30 * 24 * 60 * 60 * 1000) {
+          return '🟡'
+        }
+      }
+      return '🟢'
     }
   }
 }

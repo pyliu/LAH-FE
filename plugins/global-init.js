@@ -485,44 +485,47 @@ export default ({ $axios, store }, inject) => {
       return ''
     },
     convertDBytesNumber (str) {
-      const chars = []
-      for (let i = 0; i < str.length; i++) {
-        switch (str[i]) {
-          case '０':
-            chars.push(0)
-            break
-          case '１':
-            chars.push(1)
-            break
-          case '２':
-            chars.push(2)
-            break
-          case '３':
-            chars.push(3)
-            break
-          case '４':
-            chars.push(4)
-            break
-          case '５':
-            chars.push(5)
-            break
-          case '６':
-            chars.push(6)
-            break
-          case '７':
-            chars.push(7)
-            break
-          case '８':
-            chars.push(8)
-            break
-          case '９':
-            chars.push(9)
-            break
-          default:
-            break
+      if (str) {
+        const chars = []
+        for (let i = 0; i < str.length; i++) {
+          switch (str[i]) {
+            case '０':
+              chars.push(0)
+              break
+            case '１':
+              chars.push(1)
+              break
+            case '２':
+              chars.push(2)
+              break
+            case '３':
+              chars.push(3)
+              break
+            case '４':
+              chars.push(4)
+              break
+            case '５':
+              chars.push(5)
+              break
+            case '６':
+              chars.push(6)
+              break
+            case '７':
+              chars.push(7)
+              break
+            case '８':
+              chars.push(8)
+              break
+            case '９':
+              chars.push(9)
+              break
+            default:
+              break
+          }
         }
+        return chars.join('')
       }
-      return chars.join('')
+      return str
     },
     highlight (str, regex, css, title = '') {
       const chunks = highlightWords({
