@@ -87,7 +87,8 @@ div
           :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
           size="sm",
           title="顯示詳情",
-          @click="toggle(row)"
+          @click="toggle(row)",
+          no-icon-gutter
         )
     template(#cell(GG30_2)="row")
       .d-flex
@@ -97,7 +98,8 @@ div
           :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
           size="sm",
           title="顯示詳情",
-          @click="toggle(row)"
+          @click="toggle(row)",
+          no-icon-gutter
         )
 
     template(#row-details="row")
