@@ -84,8 +84,8 @@ div
         .truncate-mvw {{ row.item.LADR }}
         lah-button.border-0.ml-1(
           :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
+          :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
           size="sm",
-          variant="outline-primary",
           title="顯示詳情",
           @click="toggle(row)"
         )
@@ -94,8 +94,8 @@ div
         .truncate-mvw {{ row.item.GG30_2 }}
         lah-button.border-0.ml-1(
           :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
+          :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
           size="sm",
-          variant="outline-primary",
           title="顯示詳情",
           @click="toggle(row)"
         )
@@ -308,12 +308,6 @@ export default {
     bakedData (val) {
       // this.refreshAdvOptsSelect(val)
     }
-  },
-  mounted () {
-    const test = '本筆土地應於１１０年９月３日前移轉與本國人，逾期辦理公開標售'
-    const d = this.extractDueDate(test)
-
-    console.warn(d, this.$utils.twDateStr(d))
   },
   methods: {
     reload () {
