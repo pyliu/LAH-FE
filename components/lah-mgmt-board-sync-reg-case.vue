@@ -49,7 +49,13 @@ b-card
     b-row(v-if="FAIL_WITH_REMOTE_NO_RECORD"): b-col: .d-flex ⚫ 同步異動無 {{ formattedID }} 案件資料！
     b-row(v-if="FAIL_WITH_LOCAL_NO_RECORD"): b-col: .d-flex
       .h5 🔴 本所無 {{ formattedID }} 案件資料！
-      lah-button.ml-1(icon="cloud-arrow-down", variant="outline-primary", action="move-fade-ttb", title="於本所資料庫插入資料") 新增
+      lah-button.ml-1(
+        icon="cloud-arrow-down",
+        variant="outline-primary",
+        action="move-fade-ttb",
+        title="於本所資料庫插入資料",
+        @click="insert"
+      ) 新增
     b-row(v-if="SUCCESS_DATA_SYNCED"): b-col: .d-flex
       lah-fa-icon(icon="check-double", variant="success", size="lg")
       a.text-primary.text-nowrap.font-weight-bold.ml-1(href="#", @click="detail", title="顯示案件詳情") {{ formattedID }}
@@ -69,8 +75,8 @@ b-card
 </template>
 
 <script>
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 import lahMgmtBoardSyncRegCaseDetailVue from './lah-mgmt-board-sync-reg-case-detail.vue'
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {
   components: { lahRegCaseDetailVue, lahMgmtBoardSyncRegCaseDetailVue },
