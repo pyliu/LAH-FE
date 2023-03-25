@@ -105,15 +105,15 @@ div
     template(#row-details="row")
       lah-transition(appear): b-card
         b-card-title
-          div {{ `${light(row.item)} ${row.item.BA48} ${row.item.BA48_CHT} ${$utils.formatLandNumber(row.item.BA49)} 地號` }}
-        b-card-text: b-list-group(flush)
-          b-list-group-item: .d-flex.justify-content-between
-            .text-primary.font-weight-bold 移轉期限：{{ deadline(row.item) }}
+          .d-flex.justify-content-between
+            div {{ `${light(row.item)} ${row.item.BA48} ${row.item.BA48_CHT} ${$utils.formatLandNumber(row.item.BA49)} 地號` }}
+            .text-primary.font-weight-bold 最後期限：{{ deadline(row.item) }}
             b-link.card-link(
               v-if="!$utils.empty(row.item.ID)",
               href="#",
               @click="popupCase(row.item)"
             ) {{ row.item.收件字號 }}
+        b-card-text: b-list-group(flush)
           b-list-group-item: .d-flex
             .w-3rd 登記日期：{{ $utils.addDateDivider(row.item.BB05) }}
             .w-3rd.text-center 登記原因：{{ row.item.BB06 }} {{ row.item.BB06_CHT }}
