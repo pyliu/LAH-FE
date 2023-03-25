@@ -107,7 +107,9 @@ div
         b-card-title
           .d-flex.justify-content-between
             div {{ `${light(row.item)} ${row.item.BA48} ${row.item.BA48_CHT} ${$utils.formatLandNumber(row.item.BA49)} 地號` }}
-            .text-primary.font-weight-bold 最後期限：{{ deadline(row.item) }}
+            .font-weight-bold(
+              :class="deadlineCss(row.item)"
+            ) 最後期限：{{ deadline(row.item) }}
             b-link.card-link(
               v-if="!$utils.empty(row.item.ID)",
               href="#",
@@ -360,6 +362,15 @@ export default {
         }
       }
       return '🟢'
+    },
+    deadlineCss (item) {
+      const light = this.light(item)
+      if (light === '🔴') {
+        return ['text-danger']
+      } else if (light === '🟡') {
+        return ['text-warning']
+      }
+      return ['text-primary']
     },
     popupCase (item) {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
