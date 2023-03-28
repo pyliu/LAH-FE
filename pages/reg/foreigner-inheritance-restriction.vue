@@ -9,13 +9,16 @@ div
           ul
             li 查詢系統內其他登記事項註記符合下列情況案件。
               ul
-                li 註記內含「 ... 移轉與 ... 」(範例：本筆土地應於０００年０月０日前移轉與本國人，逾期辦理公開標售)
-                li 註記內不含「 ... 移請 ... 」(範例：．．．移請財政部國有財產署公開標售。)
+                li 「00」註記內含「 ... 移轉與 ... 」
+                li 範例：本筆土地應於０００年０月０日前移轉與本國人，逾期辦理公開標售
             li 狀態說明
               ul
                 li 🔴 - 已逾期，須盡速辦理
+                  ul
+                    li: .font-weight-bold 「GP」註記內不含「 ... 移請 ... 」
+                    li: .font-weight-bold 範例：「．．．移請財政部國有財產署公開標售。」
                 li 🟡 - 請進行通知作業
-                li 🟢 - 正常，未到期
+                li 🟢 - 正常，未到期或已辦畢
             li 通知接收功能僅限有安裝桃園即時通的使用者
       .d-flex
         lah-button-xlsx.mr-1(
@@ -39,7 +42,6 @@ div
           end-attention
           no-badge
         )
-
   lah-transition: b-table(
     v-if="committed",
     head-variant="dark",
@@ -128,8 +130,8 @@ div
             .w-3rd 權狀字號：{{ row.item.BB16 }}
             .w-3rd.text-center 權利範圍：{{ row.item.BB15_1 }} {{ row.item.BB15_1_CHT }}
             .w-3rd.text-right 申報地價：{{ row.item.BB21 }}
-          b-list-group-item: .d-flex.justify-content-between
-            .highlight-yellow {{ row.item.GG30_2 }}
+          b-list-group-item: .d-flex.justify-content-between.highlight-yellow
+            div(v-html="formatGG30_2(row.item.GG30_2)")
 </template>
 
 <script>
@@ -219,7 +221,8 @@ export default {
         sortable: false
       }
     ],
-    regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm
+    regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm,
+    doneRegex: /移請財政部國有財產署公開標售/gm
   }),
   fetch () {
     // restore cached data if found
@@ -322,6 +325,9 @@ export default {
       row.toggleDetails?.call()
       row.detailsShowing ? row.unselectRow?.call() : row.selectRow?.call()
     },
+    formatGG30_2 (str) {
+      return str?.split('\n').join('<br/>')
+    },
     extractDueDate (str) {
       const matched = Array.from(str?.matchAll(this.regex))
       /** expect array result
@@ -341,6 +347,10 @@ export default {
       }
       return false
     },
+    isDone (str) {
+      const matched = Array.from(str?.matchAll(this.doneRegex))
+      return matched.length > 0
+    },
     deadline (item) {
       const d = this.extractDueDate(item.GG30_2)
       if (d) {
@@ -349,16 +359,18 @@ export default {
       return '無期限'
     },
     light (item) {
-      const dueDate = this.extractDueDate(item.GG30_2)
-      if (dueDate) {
-        const ts = dueDate.getTime()
-        const now = this.$utils.nowTs()
-        if (now > ts) {
-          return '🔴'
-        }
-        const offset = ts - now
-        if (offset < 6 * 30 * 24 * 60 * 60 * 1000) {
-          return '🟡'
+      if (!this.isDone(item.GG30_2)) {
+        const dueDate = this.extractDueDate(item.GG30_2)
+        if (dueDate) {
+          const ts = dueDate.getTime()
+          const now = this.$utils.nowTs()
+          if (now > ts) {
+            return '🔴'
+          }
+          const offset = ts - now
+          if (offset < 6 * 30 * 24 * 60 * 60 * 1000) {
+            return '🟡'
+          }
         }
       }
       return '🟢'
