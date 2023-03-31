@@ -38,7 +38,10 @@ b-card(
           title="刪除這筆資料",
           @click="remove(item)"
         ) 刪除
-        div(v-else) {{ item.MC03 }}
+        div(
+          v-else,
+          v-html="item.MC03"
+        )
 </template>
 
 <script>
