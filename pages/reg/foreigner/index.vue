@@ -18,7 +18,7 @@ div
               )
               span 開啟介面
             li 輸入必要資訊【年度、案號、統編、姓名】
-            li 建議輸入備註說明以供後續搜尋使用【搜尋欄位：統編、姓名以及備註】
+            li 建議輸入備註說明以供後續搜尋使用【搜尋欄位：案號、統編、姓名以及備註】
             li 選取掃描的PDF檔案(必要)
             li 點擊上傳按鈕並等待完成
           hr
@@ -136,6 +136,8 @@ div
       .text-center(v-html="handleFidText(item.fid)")
     template(#cell(fname)="{ item }")
       .text-center(v-html="handleFnameText(item.fname)")
+    template(#cell(number)="{ item }")
+      .text-left(v-html="handleNumberText(item.number)")
 
   b-modal(
     ref="add",
@@ -381,6 +383,19 @@ export default {
     },
     downloadPDFUrl (id) {
       return `http://${this.apiHost}:${this.apiPort}/get_reg_foreigner_pdf.php?id=${id}`
+    },
+    handleNumberText (cid) {
+      if (this.$utils.empty(cid)) {
+        return ''
+      }
+      if (!this.$utils.empty(this.keyword)) {
+        cid = this.$utils.highlight(
+          cid,
+          this.keyword,
+          'highlight-yellow'
+        )
+      }
+      return cid
     },
     handleFidText (fid) {
       if (this.$utils.empty(fid)) {
