@@ -123,7 +123,7 @@ div
           no-icon-gutter,
           title="刪除",
           icon="trash-can",
-          variant="danger",
+          variant="outline-danger",
           @click="remove(item)"
         )
     template(#cell(createtime)="{ item }")
