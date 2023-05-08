@@ -15,7 +15,7 @@
         lah-index-card-link.fix-card-dimension(:icon="['far', 'sticky-note']" to="/reg/expiry-of-announcement") 公告案件#[br]控管
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'stamp']" to="/reg/reg-untaken-case") 領件控管
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'bullhorn']" to="/reg/reg-not-done-case") 辦畢通知#[br]案件
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'earth-asia']" to="/reg/foreigner-inheritance-restriction") 外國人繼承限制
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'earth-asia']" to="/reg/foreigner-inheritance-restriction") 外國人管制清冊
       b-card-group.my-4(deck)
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'money-check-alt']" to="/reg/trust") 信託相關#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'monument']" to="/reg/not-done-change") 未辦繼承標的註記異動

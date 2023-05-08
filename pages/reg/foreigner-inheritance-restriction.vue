@@ -3,7 +3,7 @@ div
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 外國人繼承限制
+        .my-auto 外國人管制清冊
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
           ul
