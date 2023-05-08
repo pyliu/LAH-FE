@@ -572,6 +572,8 @@ Vue.mixin({
           this.$utils.error(err)
         })
       } catch (err) {
+        // cache is possibly full, so lets clear it
+        this.clearCache()
         this.$utils.error(err)
         return false
       }
@@ -594,6 +596,8 @@ Vue.mixin({
           return item.value
         }
       } catch (err) {
+        // cache is possibly full, so lets clear it
+        this.clearCache()
         console.error(err)
       }
       return false
@@ -613,6 +617,8 @@ Vue.mixin({
           return expireTime - (now - ts) // milliseconds
         }
       } catch (err) {
+        // cache is possibly full, so lets clear it
+        this.clearCache()
         console.error(err)
       }
       return false
@@ -622,6 +628,8 @@ Vue.mixin({
       try {
         await this.$localForage.removeItem(key)
       } catch (err) {
+        // cache is possibly full, so lets clear it
+        this.clearCache()
         console.error(err)
       }
       return true
