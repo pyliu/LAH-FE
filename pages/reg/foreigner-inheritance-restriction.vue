@@ -23,7 +23,7 @@ div
       .d-flex
         lah-button-xlsx.mr-1(
           :jsons="xlsxData"
-          header="外國人繼承限制資料"
+          header="外國人管制清冊資料"
         )
         lah-countdown-button(
           ref="countdown"
@@ -241,7 +241,7 @@ export default {
             // console.warn(this.bakedData)
             this.notify(data.message, {
               type: this.$utils.statusCheck(data.status) ? 'info' : 'warning',
-              subtitle: '外人繼承限制查詢'
+              subtitle: '外人管制清冊查詢'
             })
             const remainS = data.cache_remaining_time // in seconds
             const remainMs = remainS * 1000
@@ -263,19 +263,22 @@ export default {
         }
       } else {
         this.bakedData = json.baked
+
+        console.warn(this.bakedData)
+
         this.committed = true
         this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
           if (this.$refs.countdown) {
             this.$refs.countdown.setCountdown(remaining)
             this.$refs.countdown.startCountdown()
           }
-          this.notify(`查詢成功，找到 ${this.bakedData.length} 筆外國人地權案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+          this.notify(`查詢成功，找到 ${this.bakedData.length} 筆外國人管制案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
         })
       }
     })
   },
   head: {
-    title: '外國人繼承限制-桃園市地政局'
+    title: '外國人管制清冊-桃園市地政局'
   },
   fetchOnServer: false,
   computed: {
