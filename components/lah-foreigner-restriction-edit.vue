@@ -14,7 +14,7 @@ b-card
         trim
       )
     b-input-group(title="回復或歸化本國籍日期")
-      b-input-group-prepend(is-text) 回復歸化日期
+      b-input-group-prepend(is-text) 回復或歸化日
       b-input(
         v-model="restore_local_date",
         placeholder="... 回復或歸化本國籍日期 ...",
