@@ -3,7 +3,7 @@ div
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 外國人管制清冊
+        .my-auto 外國人繼承管制清冊
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
           ul
@@ -96,8 +96,8 @@ div
       div(:title="item.BB06") {{ item.BB06_CHT }}
     template(#cell(BB07)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.BB07) }}
-    template(#cell(BB09)="{ item }")
-      div(:title="item.BB09") {{ item.BB09_CHT }}
+    //- template(#cell(BB09)="{ item }")
+    //-   div(:title="item.BB09") {{ item.BB09_CHT }}
     template(#cell(BB15_1)="{ item }")
       div(:title="item.BB15_1") {{ item.BB15_1_CHT }}
     template(#cell(LBIR_2)="{ item }")
@@ -195,7 +195,12 @@ export default {
       },
       {
         key: 'BB09',
-        label: '所有權人',
+        label: '統編',
+        sortable: true
+      },
+      {
+        key: 'BB09_CHT',
+        label: '姓名',
         sortable: true
       },
       {
@@ -203,11 +208,11 @@ export default {
         label: '出生日期',
         sortable: true
       },
-      {
-        key: 'LADR',
-        label: '住址',
-        sortable: true
-      },
+      // {
+      //   key: 'LADR',
+      //   label: '住址',
+      //   sortable: true
+      // },
       {
         key: 'BB15_1',
         label: '權利範圍',
@@ -217,17 +222,17 @@ export default {
         key: 'BB16',
         label: '權狀字號',
         sortable: true
-      },
+      }
       // {
       //   key: 'BB21',
       //   label: '申報地價',
       //   sortable: true
       // },
-      {
-        key: 'GG30_2',
-        label: '其他登記事項',
-        sortable: false
-      }
+      // {
+      //   key: 'GG30_2',
+      //   label: '其他登記事項',
+      //   sortable: false
+      // }
     ],
     regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm,
     doneRegex: /移請財政部國有財產署公開標售/gm
