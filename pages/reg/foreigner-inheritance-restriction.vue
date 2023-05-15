@@ -7,6 +7,10 @@ div
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
           ul
+            li: .d-flex.align-items-center
+              .mr-1 請使用
+              lah-button(icon="edit", size="sm", no-icon-gutter)
+              .ml-1 編輯按紐進行管制資料登錄/修改
             li 查詢系統內其他登記事項註記符合下列情況案件。
               ul
                 li 「00」（一般註記事項）註記內含「 ... 移轉與 ... 」
@@ -43,15 +47,17 @@ div
           no-badge
         )
   lah-transition: b-table(
+    ref="restriction",
     v-if="committed",
     head-variant="dark",
-    select-mode="multi",
+    select-mode="single",
     selected-variant="success",
     :busy="isBusy",
     :items="filteredData",
     :fields="fields",
     :borderless="false",
     :outlined="false",
+    @row-clicked="rowClicked",
     caption-top,
     hover,
     striped,
@@ -63,6 +69,13 @@ div
   )
     template(#cell(light)="row")
       div {{ light(row.item) }}
+    template(#cell(edit)="row")
+      lah-button(
+        icon="edit",
+        title="編輯詳細管制資料",
+        @click="popupEdit(row.item)",
+        no-icon-gutter
+      )
     template(#cell(deadline)="{ item, index, rowSelected }")
       .text-nowrap {{ deadline(item) }}
     template(#cell(BA48)="{ item }")
@@ -136,6 +149,7 @@ div
 
 <script>
 import lahButton from '~/components/lah-button.vue'
+import lahForeignerRestrictionEdit from '~/components/lah-foreigner-restriction-edit.vue'
 import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   components: { lahButton },
@@ -149,6 +163,10 @@ export default {
         key: 'light',
         label: '狀態',
         sortable: true
+      },
+      {
+        key: 'edit',
+        label: '編輯'
       },
       {
         key: 'deadline',
@@ -316,7 +334,7 @@ export default {
   },
   watch: {
     bakedData (val) {
-      // this.refreshAdvOptsSelect(val)
+      this.$utils.warn(val)
     }
   },
   methods: {
@@ -324,9 +342,16 @@ export default {
       this.forceReload = true
       this.$fetch()
     },
+    rowClicked (item, index, event) {
+      console.warn(item, index, event)
+      // console.log(this.$refs.restriction.$refs['item-rows'][index])
+      console.log(this.$refs.restriction)
+      // row.item && this.toggle(row.item)
+    },
     toggle (row) {
-      row.toggleDetails?.call()
-      row.detailsShowing ? row.unselectRow?.call() : row.selectRow?.call()
+      // console.warn(row)
+      row?.toggleDetails?.call()
+      row?.detailsShowing ? row?.unselectRow?.call() : row?.selectRow?.call()
     },
     formatGG30_2 (str) {
       const arr = str?.split('\n')
@@ -407,6 +432,41 @@ export default {
       }), {
         title: `案件詳情 ${this.$utils.caseId(item.ID)}`,
         size: 'xl'
+      })
+    },
+    popupEdit (item) {
+      if (!item.RESTRICTION_DATA) {
+        item.RESTRICTION_DATA = {
+          ...{
+            cert_no: '',
+            nation: '',
+            reg_date: item.RM33,
+            reg_caseno: item.收件字號?.replaceAll(/\s+/g, '').replace('年第號', ''),
+            transfer_date: '',
+            transfer_caseno: '',
+            transfer_local_date: '',
+            transfer_local_principle: '',
+            restore_local_date: '',
+            note: ''
+          }
+        }
+      }
+      this.modal(this.$createElement(lahForeignerRestrictionEdit, {
+        props: { origData: item },
+        on: {
+          update: (data) => {
+            item.RESTRICTION_DATA = {
+              ...data
+            }
+          },
+          saved: (data) => {
+            this.hideModal()
+          }
+        }
+      }), {
+        title: `編輯 ${item.BB09} ${item.BB09_CHT} - ${item.BB16} 權狀管制資料`,
+        size: 'lg',
+        noCloseOnBackdrop: true
       })
     }
   }

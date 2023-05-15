@@ -1,29 +1,29 @@
 <template lang="pug">
-  .d-flex.justify-content-between.my-1
-    b-pagination.my-auto(
-      v-model="current"
-      :total-rows="totalRows"
-      :per-page="value.perPage"
-      :size="size"
-      last-number
-      first-number
-      v-if="totalRows > 0"
-    )
-    div(v-else)
-    .my-auto.text-muted(v-html="caption")
-    b-input-group.my-auto.m0(
-      prepend="每頁"
-      append="筆"
-      :size="size"
-      :class="gridColumnClass"
-      v-if="totalRows > 0"
-    ): b-input.text-right(
-      v-model="pageCount"
-      type="number"
-      min="10"
-      number
-    )
-    div(v-else)
+.d-flex.justify-content-between.my-1
+  b-pagination.my-auto(
+    v-model="current"
+    :total-rows="totalRows"
+    :per-page="value.perPage"
+    :size="size"
+    last-number
+    first-number
+    v-if="totalRows > 0"
+  )
+  div(v-else)
+  .my-auto.text-muted(v-html="caption")
+  b-input-group.my-auto.m0(
+    prepend="每頁"
+    append="筆"
+    :size="size"
+    :class="gridColumnClass"
+    v-if="totalRows > 0"
+  ): b-input.text-right(
+    v-model="pageCount"
+    type="number"
+    min="10"
+    number
+  )
+  div(v-else)
 </template>
 
 <script>
