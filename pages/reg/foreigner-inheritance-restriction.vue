@@ -343,9 +343,9 @@ export default {
       this.$fetch()
     },
     rowClicked (item, index, event) {
-      console.warn(item, index, event)
+      // console.warn(item, index, event)
       // console.log(this.$refs.restriction.$refs['item-rows'][index])
-      console.log(this.$refs.restriction)
+      // console.log(this.$refs.restriction)
       // row.item && this.toggle(row.item)
     },
     toggle (row) {
