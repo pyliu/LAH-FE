@@ -3,6 +3,15 @@
 
 <script>
 export default {
+  emit: [],
+  component: {},
+  props: {},
+  data: () => ({}),
+  computed: {},
+  watch: {},
+  created () {},
+  mounted () {},
+  methods: {}
 }
 </script>
 
