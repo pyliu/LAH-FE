@@ -69,11 +69,19 @@ div
   )
     template(#cell(light)="row")
       div {{ light(row.item) }}
-    template(#cell(edit)="row")
-      lah-button(
+    template(#cell(op)="row"): .d-flex
+      lah-button.border-0(
         icon="edit",
         title="編輯詳細管制資料",
         @click="popupEdit(row.item)",
+        no-icon-gutter
+      )
+      lah-button.border-0.ml-1(
+        :icon="row.detailsShowing ? 'folder-open' : 'folder-closed'",
+        :variant="row.detailsShowing ? 'primary' : 'outline-primary'",
+        size="sm",
+        :title="row.detailsShowing ? '關閉詳細資料' : '顯示詳細資料'",
+        @click="toggle(row)",
         no-icon-gutter
       )
     template(#cell(deadline)="{ item, index, rowSelected }")
@@ -95,27 +103,9 @@ div
     template(#cell(LBIR_2)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.LBIR_2) }}
     template(#cell(LADR)="row")
-      .d-flex
-        .truncate-mvw {{ row.item.LADR }}
-        lah-button.border-0.ml-1(
-          :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
-          :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
-          size="sm",
-          title="顯示詳情",
-          @click="toggle(row)",
-          no-icon-gutter
-        )
+      .truncate-mvw {{ row.item.LADR }}
     template(#cell(GG30_2)="row")
-      .d-flex
-        .truncate-mvw {{ row.item.GG30_2 }}
-        lah-button.border-0.ml-1(
-          :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
-          :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
-          size="sm",
-          title="顯示詳情",
-          @click="toggle(row)",
-          no-icon-gutter
-        )
+      .truncate-mvw {{ row.item.GG30_2 }}
 
     template(#row-details="row")
       lah-transition(appear): b-card
@@ -165,8 +155,8 @@ export default {
         sortable: true
       },
       {
-        key: 'edit',
-        label: '編輯'
+        key: 'op',
+        label: '操作'
       },
       {
         key: 'deadline',
