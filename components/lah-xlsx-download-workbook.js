@@ -1,7 +1,8 @@
-import * as XLSX from 'xlsx'
 import { format } from 'date-fns'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
+// https://www.npmjs.com/package/xlsx
+import * as XLSX from 'xlsx'
 export default class Workbook {
   constructor () {
     // Singleton
