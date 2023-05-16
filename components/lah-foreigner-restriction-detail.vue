@@ -11,6 +11,37 @@ b-card
         href="#",
         @click="popupCase(origData)"
       ) {{ origData.收件字號 }}
+
+  //- b-card-text: b-list-group(flush)
+  //-   b-list-group-item: .d-flex
+  //-     .w-4th 登記日期：{{ $utils.addDateDivider(origData.BB05) }}
+  //-     .w-4th.text-center 登記原因：{{ origData.BB06 }} {{ origData.BB06_CHT }}
+  //-     .w-4th.text-center 發生日期：{{ $utils.addDateDivider(origData.BB07) }}
+  //-     .w-4th.text-right 權狀字號：{{ origData.BB16 }}
+  //-   b-list-group-item: .d-flex
+  //-     .w-4th 權利範圍：{{ origData.BB15_1 }} {{ origData.BB15_1_CHT }}
+  //-     .w-4th.text-center 申報地價：{{ origData.BB21 }}
+  //-     .w-4th.text-center 統編：{{ ownerId }}
+  //-     .w-4th.text-right 姓名：{{ ownerName }}
+  //-   b-list-group-item: .d-flex
+  //-     .w-4th 生日：{{ $utils.addDateDivider(origData.LBIR_2) }}
+  //-     .w-4th.text-center 國籍：{{ nation }}
+  //-     .w-4th.text-center
+  //-     .w-4th.text-right 地址：{{ origData.LADR }}
+  //-   b-list-group-item: .d-flex
+  //-     .w-4th 繼承登記日期：{{ $utils.addDateDivider(regDate) }}
+  //-     .w-4th.text-center 收件字號：{{ regCaseno }}
+  //-     .w-4th.text-center 移國產署標售日期：{{ $utils.addDateDivider(transferDate) }}
+  //-     .w-4th.text-right 移國產署標售文號：{{ transferCaseno }}
+  //-   b-list-group-item: .d-flex
+  //-     .w-4th 移轉本國人登記日期：{{ $utils.addDateDivider(transferLocalDate) }}
+  //-     .w-4th.text-center 移轉本國人登記原則：{{ transferLocalPrinciple }}
+  //-     .w-4th.text-center 回復或歸化本國籍日期：{{ $utils.addDateDivider(restoreLocalDate) }}
+  //-     .w-4th.text-right 備註：{{ note }}
+  //-   b-list-group-item: b-card
+  //-     h5 - 其他登記事項
+  //-     div(v-html="formatGG30_2(origData.GG30_2)")
+
   b-card-text: b-list-group(flush)
     b-list-group-item: .d-flex
       .w-3rd 登記日期：{{ $utils.addDateDivider(origData.BB05) }}
@@ -25,26 +56,26 @@ b-card
       .w-3rd.text-center 姓名：{{ ownerName }}
       .w-3rd.text-right 生日：{{ $utils.addDateDivider(origData.LBIR_2) }}
     b-list-group-item: .d-flex
-      .w-3rd 國籍：{{ nation }}
+      .w-3rd.font-weight-bolder 國籍：{{ nation }}
       .w-3rd.text-center
       .w-3rd.text-right 地址：{{ origData.LADR }}
     b-list-group-item: .d-flex
-      .w-3rd 繼承登記日期：{{ $utils.addDateDivider(regDate) }}
+      .w-3rd.font-weight-bolder 繼承登記日期：{{ $utils.addDateDivider(regDate) }}
       .w-3rd.text-center
-      .w-3rd.text-right 收件字號：{{ regCaseno }}
+      .w-3rd.text-right.font-weight-bolder 收件字號：{{ regCaseno }}
     b-list-group-item: .d-flex
-      .w-3rd 移國產署標售日期：{{ $utils.addDateDivider(transferDate) }}
+      .w-3rd.font-weight-bolder 移國產署標售日期：{{ $utils.addDateDivider(transferDate) }}
       .w-3rd.text-center
-      .w-3rd.text-right 移國產署標售文號：{{ transferCaseno }}
+      .w-3rd.text-right.font-weight-bolder 移國產署標售文號：{{ transferCaseno }}
     b-list-group-item: .d-flex
-      .w-3rd 移轉本國人登記日期：{{ $utils.addDateDivider(transferLocalDate) }}
-      .w-3rd.text-center 移轉本國人登記原則：{{ transferLocalPrinciple }}
-      .w-3rd.text-right 回復或歸化本國籍日期：{{ $utils.addDateDivider(restoreLocalDate) }}
+      .w-3rd.font-weight-bolder 移轉本國人登記日期：{{ $utils.addDateDivider(transferLocalDate) }}
+      .w-3rd.text-center.font-weight-bolder 移轉本國人登記原則：{{ transferLocalPrinciple }}
+      .w-3rd.text-right.font-weight-bolder 回復或歸化本國籍日期：{{ $utils.addDateDivider(restoreLocalDate) }}
     b-list-group-item: b-card
       h5 - 其他登記事項
-      div(v-html="formatGG30_2(origData.GG30_2)")
-      h5.mt-2 - 備註
-      div(v-html="note")
+      .ml-3(v-html="formatGG30_2(origData.GG30_2)")
+      h5.mt-2.font-weight-bolder - 備註
+      .ml-3.font-weight-bolder(v-html="note")
 </template>
 
 <script>
@@ -189,5 +220,8 @@ export default {
 <style lang="scss" scoped>
 .w-3rd {
   width: 33.33%;
+}
+.w-4th {
+  width: 25%;
 }
 </style>
