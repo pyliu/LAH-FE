@@ -24,8 +24,8 @@ b-card(
 </template>
 
 <script>
-import * as XLSX from 'xlsx'
 import FileSaver from 'file-saver'
+import * as XLSX from 'xlsx'
 import Workbook from './lah-xlsx-download-workbook.js'
 export default {
   name: 'LahXlsxDownload',
@@ -56,6 +56,7 @@ export default {
   },
   created () {
     this.workbook = new Workbook()
+    console.log(XLSX.utils)
   },
   mounted () {
     if (!this.$utils.empty(this.header)) {
@@ -74,6 +75,13 @@ export default {
       if (this.done) {
         this.addMessage('將轉換的資料加到 Workbook 中 ...')
         this.workbook.appendSheet(this.sheet)
+
+        // const tables = document.getElementsByTagName('table')
+        // for (let i = 0; i < tables.length; ++i) {
+        //   const ws = XLSX.utils.table_to_sheet(tables[i])
+        //   this.workbook.appendSheet(ws, 'Table' + i)
+        // }
+
         const filename = this.$utils.empty(this.filename) ? this.$utils.twDateStr(new Date(), true) : this.filename
         this.addMessage(`準備 ${filename}.xlsx ...`)
         FileSaver.saveAs(this.workbook.toBlob(), `${filename}.xlsx`)
