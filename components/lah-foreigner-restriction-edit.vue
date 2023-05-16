@@ -18,6 +18,7 @@ b-card
       b-input(
         v-model="restore_local_date",
         placeholder="... 回復或歸化本國籍日期 ...",
+        :state="isRestoreLocalDateValid"
         trim
       )
   .d-flex.mt-2
@@ -60,6 +61,7 @@ b-card
       b-input(
         v-model="transfer_local_date",
         placeholder="... 移轉本國人之登記日期 ...",
+        :state="isTransferLocalDateValid"
         trim
       )
     b-input-group(title="移轉本國人之登記原則")
@@ -117,19 +119,50 @@ export default {
       return this.origData.BB09_CHT
     },
     isNationValid () {
+      if (this.$utils.empty(this.nation)) {
+        return null
+      }
       return !this.$utils.empty(this.nation)
     },
     isRegDateValid () {
-      return !this.$utils.empty(this.reg_date)
+      if (this.$utils.empty(this.reg_date)) {
+        return null
+      }
+      return !isNaN(this.reg_date) &&
+             this.reg_date?.length === 7
     },
     isRegCasenoValid () {
+      if (this.$utils.empty(this.reg_caseno)) {
+        return null
+      }
       return !this.$utils.empty(this.reg_caseno)
     },
     isTransferDateValid () {
-      return !this.$utils.empty(this.transfer_date)
+      if (this.$utils.empty(this.transfer_date)) {
+        return null
+      }
+      return !isNaN(this.transfer_date) &&
+             this.transfer_date?.length === 7
     },
     isTransferCasenoValid () {
+      if (this.$utils.empty(this.transfer_caseno)) {
+        return null
+      }
       return !this.$utils.empty(this.transfer_caseno)
+    },
+    isTransferLocalDateValid () {
+      if (this.$utils.empty(this.transfer_local_date)) {
+        return null
+      }
+      return !isNaN(this.transfer_local_date) &&
+             this.transfer_local_date?.length === 7
+    },
+    isRestoreLocalDateValid () {
+      if (this.$utils.empty(this.restore_local_date)) {
+        return null
+      }
+      return !isNaN(this.restore_local_date) &&
+             this.restore_local_date?.length === 7
     },
     updateData () {
       return {

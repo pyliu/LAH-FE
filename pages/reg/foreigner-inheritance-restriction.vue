@@ -24,6 +24,7 @@ div
                 li 🟡 - 請進行通知作業
                 li 🟢 - 正常，未到期或已辦畢
             li 通知接收功能僅限有安裝桃園即時通的使用者
+            li ⭐PDF連結功能必須有該案登記收件字號並且於「外國人掃描資料」頁面上傳建檔後始能正常開啟。
       .d-flex
         lah-button-xlsx.mr-1(
           :jsons="xlsxData"
@@ -68,22 +69,35 @@ div
     responsive="md"
   )
     template(#cell(light)="row")
-      div {{ light(row.item) }}
-    template(#cell(op)="row"): .d-flex
-      lah-button.border-0(
-        icon="edit",
-        title="編輯詳細管制資料",
-        @click="popupEdit(row.item)",
-        no-icon-gutter
-      )
-      lah-button.border-0.ml-1(
-        :icon="row.detailsShowing ? 'folder-open' : 'folder-closed'",
-        :variant="row.detailsShowing ? 'primary' : 'outline-primary'",
-        size="sm",
-        :title="row.detailsShowing ? '關閉詳細資料' : '顯示詳細資料'",
-        @click="toggle(row)",
-        no-icon-gutter
-      )
+      .text-center {{ light(row.item) }}
+    template(#cell(op)="row"): .text-center
+      b-button-group(size="md")
+        lah-button.border-0(
+          v-if="hasRegCase(row.item)",
+          icon="file-pdf",
+          variant="outline-primary",
+          title="查看PDF掃描檔",
+          size="md",
+          @click="openPdf(row.item)",
+          no-icon-gutter,
+          regular,
+          v-b-tooltip.hover.righttop="pdfTooltip(row.item)"
+        )
+        lah-button.border-0(
+          :icon="row.detailsShowing ? 'folder-open' : 'folder-closed'",
+          :variant="row.detailsShowing ? 'primary' : 'outline-primary'",
+          size="md",
+          :title="row.detailsShowing ? '關閉詳細資料' : '顯示詳細資料'",
+          @click="toggle(row)",
+          no-icon-gutter
+        )
+        lah-button.border-0(
+          icon="edit",
+          title="編輯詳細管制資料",
+          size="md",
+          @click="popupEdit(row.item)",
+          no-icon-gutter
+        )
     template(#cell(deadline)="{ item, index, rowSelected }")
       .text-nowrap {{ deadline(item) }}
     template(#cell(BA48)="{ item }")
@@ -108,39 +122,12 @@ div
       .truncate-mvw {{ row.item.GG30_2 }}
 
     template(#row-details="row")
-      lah-transition(appear): b-card
-        b-card-title
-          .d-flex.justify-content-between
-            div {{ `${light(row.item)} ${row.item.BA48} ${row.item.BA48_CHT} ${$utils.formatLandNumber(row.item.BA49)} 地號` }}
-            .font-weight-bold(
-              :class="deadlineCss(row.item)"
-            ) 最後期限：{{ deadline(row.item) }}
-            b-link.card-link(
-              v-if="!$utils.empty(row.item.ID)",
-              href="#",
-              @click="popupCase(row.item)"
-            ) {{ row.item.收件字號 }}
-        b-card-text: b-list-group(flush)
-          b-list-group-item: .d-flex
-            .w-3rd 登記日期：{{ $utils.addDateDivider(row.item.BB05) }}
-            .w-3rd.text-center 登記原因：{{ row.item.BB06 }} {{ row.item.BB06_CHT }}
-            .w-3rd.text-right 發生日期：{{ $utils.addDateDivider(row.item.BB07) }}
-          b-list-group-item: .d-flex
-            .w-3rd 所有權人：{{ row.item.BB09 }}
-            .w-3rd.text-center 生日：{{ $utils.addDateDivider(row.item.LBIR_2) }}
-            .w-3rd.text-right 地址：{{ row.item.LADR }}
-          b-list-group-item: .d-flex
-            .w-3rd 權狀字號：{{ row.item.BB16 }}
-            .w-3rd.text-center 權利範圍：{{ row.item.BB15_1 }} {{ row.item.BB15_1_CHT }}
-            .w-3rd.text-right 申報地價：{{ row.item.BB21 }}
-          b-list-group-item: .d-flex.justify-content-between.highlight-yellow
-            div(v-html="formatGG30_2(row.item.GG30_2)")
+      lah-transition(appear): lah-foreigner-restriction-detail(:orig-data="row.item")
 </template>
 
 <script>
 import lahButton from '~/components/lah-button.vue'
 import lahForeignerRestrictionEdit from '~/components/lah-foreigner-restriction-edit.vue'
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   components: { lahButton },
   data: () => ({
@@ -152,11 +139,13 @@ export default {
       {
         key: 'light',
         label: '狀態',
-        sortable: true
+        sortable: true,
+        thStyle: 'text-align:center;width:60px;'
       },
       {
         key: 'op',
-        label: '操作'
+        label: '操作',
+        thStyle: 'text-align:center;width:140px;'
       },
       {
         key: 'deadline',
@@ -173,11 +162,11 @@ export default {
         label: '地號',
         sortable: true
       },
-      {
-        key: 'BB01',
-        label: '登記次序',
-        sortable: true
-      },
+      // {
+      //   key: 'BB01',
+      //   label: '登記次序',
+      //   sortable: true
+      // },
       {
         key: 'BB05',
         label: '登記日期',
@@ -201,6 +190,11 @@ export default {
       {
         key: 'BB09_CHT',
         label: '姓名',
+        sortable: true
+      },
+      {
+        key: 'RESTRICTION_DATA.nation',
+        label: '國籍',
         sortable: true
       },
       {
@@ -276,9 +270,6 @@ export default {
         }
       } else {
         this.bakedData = json.baked
-
-        console.warn(this.bakedData)
-
         this.committed = true
         this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
           if (this.$refs.countdown) {
@@ -329,7 +320,7 @@ export default {
   },
   watch: {
     bakedData (val) {
-      this.$utils.warn(val)
+      // this.$utils.warn(val)
     }
   },
   methods: {
@@ -403,32 +394,6 @@ export default {
       }
       return '🟢'
     },
-    deadlineCss (item) {
-      const light = this.light(item)
-      if (light === '🔴') {
-        return ['text-danger']
-      } else if (light === '🟡') {
-        return ['text-warning']
-      }
-      return ['text-primary']
-    },
-    popupCase (item) {
-      this.modal(this.$createElement(lahRegCaseDetailVue, {
-        props: {
-          caseId: item.ID,
-          parentData: item
-        },
-        on: {
-          'not-found': () => {
-            this.hideModal()
-            this.warning(`⚠ 無法找到 ${this.$utils.caseId(item.ID)} 登記案件資料。`)
-          }
-        }
-      }), {
-        title: `案件詳情 ${this.$utils.caseId(item.ID)}`,
-        size: 'xl'
-      })
-    },
     popupEdit (item) {
       if (!item.RESTRICTION_DATA) {
         item.RESTRICTION_DATA = {
@@ -456,6 +421,7 @@ export default {
           },
           saved: (data) => {
             this.hideModal()
+            this.reload()
           }
         }
       }), {
@@ -463,18 +429,22 @@ export default {
         size: 'lg',
         noCloseOnBackdrop: true
       })
+    },
+    openPdf (item) {
+      const url = `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/pdf/${item.BB03 || item.RM01}/${item.BB04_2 || item.RM03}_${item.BB09}_${item.BB09_CHT}.pdf`
+      this.$utils.openNewWindow(url)
+    },
+    pdfTooltip (item) {
+      return `將開啟 ${item.BB03} 年 ${item.BB04_2} 號 ${item.BB09} ${item.BB09_CHT} 已上傳的PDF掃描檔`
+    },
+    hasRegCase (item) {
+      return !this.$utils.empty(item.BB03) && !this.$utils.empty(item.BB04_2)
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.vw-50 {
-  width: 33vw;
-}
-.w-3rd {
-  width: 33.33%;
-}
 .truncate-mvw {
   white-space: nowrap;
   overflow: hidden;
