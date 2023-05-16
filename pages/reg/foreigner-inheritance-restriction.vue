@@ -3,7 +3,7 @@ div
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 外國人管制清冊
+        .my-auto 外國人繼承管制清冊
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
           ul
@@ -69,11 +69,19 @@ div
   )
     template(#cell(light)="row")
       div {{ light(row.item) }}
-    template(#cell(edit)="row")
-      lah-button(
+    template(#cell(op)="row"): .d-flex
+      lah-button.border-0(
         icon="edit",
         title="編輯詳細管制資料",
         @click="popupEdit(row.item)",
+        no-icon-gutter
+      )
+      lah-button.border-0.ml-1(
+        :icon="row.detailsShowing ? 'folder-open' : 'folder-closed'",
+        :variant="row.detailsShowing ? 'primary' : 'outline-primary'",
+        size="sm",
+        :title="row.detailsShowing ? '關閉詳細資料' : '顯示詳細資料'",
+        @click="toggle(row)",
         no-icon-gutter
       )
     template(#cell(deadline)="{ item, index, rowSelected }")
@@ -88,34 +96,16 @@ div
       div(:title="item.BB06") {{ item.BB06_CHT }}
     template(#cell(BB07)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.BB07) }}
-    template(#cell(BB09)="{ item }")
-      div(:title="item.BB09") {{ item.BB09_CHT }}
+    //- template(#cell(BB09)="{ item }")
+    //-   div(:title="item.BB09") {{ item.BB09_CHT }}
     template(#cell(BB15_1)="{ item }")
       div(:title="item.BB15_1") {{ item.BB15_1_CHT }}
     template(#cell(LBIR_2)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.LBIR_2) }}
     template(#cell(LADR)="row")
-      .d-flex
-        .truncate-mvw {{ row.item.LADR }}
-        lah-button.border-0.ml-1(
-          :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
-          :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
-          size="sm",
-          title="顯示詳情",
-          @click="toggle(row)",
-          no-icon-gutter
-        )
+      .truncate-mvw {{ row.item.LADR }}
     template(#cell(GG30_2)="row")
-      .d-flex
-        .truncate-mvw {{ row.item.GG30_2 }}
-        lah-button.border-0.ml-1(
-          :icon="row.detailsShowing ? 'caret-down' : 'caret-right'",
-          :variant="row.detailsShowing ? 'dark' : 'outline-primary'",
-          size="sm",
-          title="顯示詳情",
-          @click="toggle(row)",
-          no-icon-gutter
-        )
+      .truncate-mvw {{ row.item.GG30_2 }}
 
     template(#row-details="row")
       lah-transition(appear): b-card
@@ -165,8 +155,8 @@ export default {
         sortable: true
       },
       {
-        key: 'edit',
-        label: '編輯'
+        key: 'op',
+        label: '操作'
       },
       {
         key: 'deadline',
@@ -205,7 +195,12 @@ export default {
       },
       {
         key: 'BB09',
-        label: '所有權人',
+        label: '統編',
+        sortable: true
+      },
+      {
+        key: 'BB09_CHT',
+        label: '姓名',
         sortable: true
       },
       {
@@ -213,11 +208,11 @@ export default {
         label: '出生日期',
         sortable: true
       },
-      {
-        key: 'LADR',
-        label: '住址',
-        sortable: true
-      },
+      // {
+      //   key: 'LADR',
+      //   label: '住址',
+      //   sortable: true
+      // },
       {
         key: 'BB15_1',
         label: '權利範圍',
@@ -227,17 +222,17 @@ export default {
         key: 'BB16',
         label: '權狀字號',
         sortable: true
-      },
+      }
       // {
       //   key: 'BB21',
       //   label: '申報地價',
       //   sortable: true
       // },
-      {
-        key: 'GG30_2',
-        label: '其他登記事項',
-        sortable: false
-      }
+      // {
+      //   key: 'GG30_2',
+      //   label: '其他登記事項',
+      //   sortable: false
+      // }
     ],
     regex: /本筆土地應於([０１２３４５６７８９]{2,3})年([０１２３４５６７８９]{1,2})月([０１２３４５６７８９]{1,2})日前移轉與本國人/gm,
     doneRegex: /移請財政部國有財產署公開標售/gm

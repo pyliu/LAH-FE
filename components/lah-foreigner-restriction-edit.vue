@@ -6,7 +6,7 @@ b-card
     //-   div {{ ownerName }}
   .d-flex.mt-2
     b-input-group.mr-1(title="請輸入外國人的國籍")
-      b-input-group-prepend(is-text) 　　　　國籍
+      b-input-group-prepend(is-text) 外國人的國籍
       b-input(
         v-model="nation",
         placeholder="e.g. 美國",
@@ -14,7 +14,7 @@ b-card
         trim
       )
     b-input-group(title="回復或歸化本國籍日期")
-      b-input-group-prepend(is-text) 　　歸化日期
+      b-input-group-prepend(is-text) 回復或歸化日
       b-input(
         v-model="restore_local_date",
         placeholder="... 回復或歸化本國籍日期 ...",
@@ -22,7 +22,7 @@ b-card
       )
   .d-flex.mt-2
     b-input-group.mr-1(title="請輸入繼承登記日期")
-      b-input-group-prepend(is-text) 　　繼承日期
+      b-input-group-prepend(is-text) 繼承登記日期
       b-input(
         v-model="reg_date",
         placeholder="e.g. 1070930",
@@ -30,7 +30,7 @@ b-card
         trim
       )
     b-input-group(title="請輸入登記收件字號")
-      b-input-group-prepend(is-text) 　　收件字號
+      b-input-group-prepend(is-text) 登記收件字號
       b-input(
         v-model="reg_caseno",
         placeholder="e.g. 107桃資登字第146320號",
@@ -47,7 +47,7 @@ b-card
         trim
       )
     b-input-group(title="請輸入移請國產署標售文號")
-      b-input-group-prepend(is-text) 轉國產署案號
+      b-input-group-prepend(is-text) 轉國產署文號
       b-input(
         v-model="transfer_caseno",
         placeholder="e.g. 110桃地籍字第1100050865號",
