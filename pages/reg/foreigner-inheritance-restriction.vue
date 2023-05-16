@@ -24,7 +24,7 @@ div
                 li 🟡 - 請進行通知作業
                 li 🟢 - 正常，未到期或已辦畢
             li 通知接收功能僅限有安裝桃園即時通的使用者
-            li ⭐PDF連結功能必須有該案登記收件字號並且於「外國人掃描資料」頁面上傳建檔後始能正常開啟。
+            li ⭐PDF連結功能必須有該案登記收件字號並且於「#[b-link(to="/reg/foreigner") 外國人掃描資料]」頁面上傳建檔後始能正常開啟。
       .d-flex
         lah-button-xlsx.mr-1(
           :jsons="xlsxData"
