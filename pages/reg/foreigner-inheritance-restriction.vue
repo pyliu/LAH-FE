@@ -73,12 +73,12 @@ div
     template(#cell(op)="row"): .text-center
       b-button-group(size="md")
         lah-button.border-0(
-          v-if="hasRegCase(row.item)",
           icon="file-pdf",
           variant="outline-primary",
           title="查看PDF掃描檔",
           size="md",
           @click="openPdf(row.item)",
+          :class="hasRegCase(row.item) ? [] : ['invisible']"
           no-icon-gutter,
           regular,
           v-b-tooltip.hover.righttop="pdfTooltip(row.item)"
