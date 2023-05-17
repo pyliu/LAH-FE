@@ -113,7 +113,7 @@ div
     //- template(#cell(BB09)="{ item }")
     //-   div(:title="item.BB09") {{ item.BB09_CHT }}
     template(#cell(BB15_1)="{ item }")
-      div(:title="item.BB15_1") {{ item.BB15_1_CHT }}
+      div(:title="item.BB15_1") {{ item.BB15_1_CHT }} ({{ equityRatio(item) }})
     template(#cell(LBIR_2)="{ item }")
       .text-nowrap {{ $utils.addDateDivider(item.LBIR_2) }}
     template(#cell(LADR)="row")
@@ -439,6 +439,9 @@ export default {
     },
     hasRegCase (item) {
       return !this.$utils.empty(item.BB03) && !this.$utils.empty(item.BB04_2)
+    },
+    equityRatio (item) {
+      return `${item.BB15_3}/${item.BB15_2}`
     }
   }
 }

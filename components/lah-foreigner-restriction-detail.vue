@@ -49,8 +49,9 @@ b-card
       .w-3rd.text-right 發生日期：{{ $utils.addDateDivider(origData.BB07) }}
     b-list-group-item: .d-flex
       .w-3rd 權狀字號：{{ origData.BB16 }}
-      .w-3rd.text-center 權利範圍：{{ origData.BB15_1 }} {{ origData.BB15_1_CHT }}
-      .w-3rd.text-right 申報地價：{{ origData.BB21 }}
+      .w-3rd.text-center 權利範圍：{{ origData.BB15_1 }} {{ origData.BB15_1_CHT }} ({{ equityRatio }})
+      .w-3rd.text-right(v-if="$utils.empty(origData.AA11)") 申報地價：{{ origData.BB21 }}
+      .w-3rd.text-right(v-else) 使用分區：{{ origData.AA11_CHT }}
     b-list-group-item: .d-flex
       .w-3rd 統編：{{ ownerId }}
       .w-3rd.text-center 姓名：{{ ownerName }}
@@ -126,6 +127,9 @@ export default {
     },
     note () {
       return this.origData.RESTRICTION_DATA.note || ''
+    },
+    equityRatio () {
+      return `${this.origData.BB15_3}/${this.origData.BB15_2}`
     }
   },
   watch: {},
