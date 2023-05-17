@@ -2,49 +2,23 @@
 b-card
   b-card-title
     .d-flex.justify-content-between
-      div {{ `${light(origData)} ${origData.BA48} ${origData.BA48_CHT} ${$utils.formatLandNumber(origData.BA49)} 地號` }}
+      div {{ `${origData.BA48} ${origData.BA48_CHT} ${$utils.formatLandNumber(origData.BA49)} 地號` }}
       .font-weight-bold(
         :class="deadlineCss(origData)"
-      ) 最後期限：{{ deadline(origData) }}
+      ) {{ light(origData) }} 最後期限：{{ deadline(origData) }}
       b-link.card-link(
         v-if="!$utils.empty(origData.ID)",
         href="#",
         @click="popupCase(origData)"
       ) {{ origData.收件字號 }}
 
-  //- b-card-text: b-list-group(flush)
-  //-   b-list-group-item: .d-flex
-  //-     .w-4th 登記日期：{{ $utils.addDateDivider(origData.BB05) }}
-  //-     .w-4th.text-center 登記原因：{{ origData.BB06 }} {{ origData.BB06_CHT }}
-  //-     .w-4th.text-center 發生日期：{{ $utils.addDateDivider(origData.BB07) }}
-  //-     .w-4th.text-right 權狀字號：{{ origData.BB16 }}
-  //-   b-list-group-item: .d-flex
-  //-     .w-4th 權利範圍：{{ origData.BB15_1 }} {{ origData.BB15_1_CHT }}
-  //-     .w-4th.text-center 申報地價：{{ origData.BB21 }}
-  //-     .w-4th.text-center 統編：{{ ownerId }}
-  //-     .w-4th.text-right 姓名：{{ ownerName }}
-  //-   b-list-group-item: .d-flex
-  //-     .w-4th 生日：{{ $utils.addDateDivider(origData.LBIR_2) }}
-  //-     .w-4th.text-center 國籍：{{ nation }}
-  //-     .w-4th.text-center
-  //-     .w-4th.text-right 地址：{{ origData.LADR }}
-  //-   b-list-group-item: .d-flex
-  //-     .w-4th 繼承登記日期：{{ $utils.addDateDivider(regDate) }}
-  //-     .w-4th.text-center 收件字號：{{ regCaseno }}
-  //-     .w-4th.text-center 移國產署標售日期：{{ $utils.addDateDivider(transferDate) }}
-  //-     .w-4th.text-right 移國產署標售文號：{{ transferCaseno }}
-  //-   b-list-group-item: .d-flex
-  //-     .w-4th 移轉本國人登記日期：{{ $utils.addDateDivider(transferLocalDate) }}
-  //-     .w-4th.text-center 移轉本國人登記原則：{{ transferLocalPrinciple }}
-  //-     .w-4th.text-center 回復或歸化本國籍日期：{{ $utils.addDateDivider(restoreLocalDate) }}
-  //-     .w-4th.text-right 備註：{{ note }}
-  //-   b-list-group-item: b-card
-  //-     h5 - 其他登記事項
-  //-     div(v-html="formatGG30_2(origData.GG30_2)")
-
   b-card-text: b-list-group(flush)
     b-list-group-item: .d-flex
       .w-3rd 登記日期：{{ $utils.addDateDivider(origData.BB05) }}
+      //- .w-3rd
+      //-   b-button(variant="primary", pill, size="lg"): .d-flex.align-items-center
+      //-     .mr-1 登記日期
+      //-     b-badge(variant="light") {{ $utils.addDateDivider(origData.BB05) }}
       .w-3rd.text-center 登記原因：{{ origData.BB06 }} {{ origData.BB06_CHT }}
       .w-3rd.text-right 發生日期：{{ $utils.addDateDivider(origData.BB07) }}
     b-list-group-item: .d-flex
