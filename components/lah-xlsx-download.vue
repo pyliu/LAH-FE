@@ -56,7 +56,6 @@ export default {
   },
   created () {
     this.workbook = new Workbook()
-    console.log(XLSX.utils)
   },
   mounted () {
     if (!this.$utils.empty(this.header)) {
