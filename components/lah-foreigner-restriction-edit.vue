@@ -106,6 +106,7 @@ export default {
     transfer_local_date: '',
     transfer_local_principle: '',
     restore_local_date: '',
+    use_partition: '',
     note: ''
   }),
   computed: {
@@ -175,6 +176,7 @@ export default {
         transfer_local_date: this.transfer_local_date,
         transfer_local_principle: this.transfer_local_principle,
         restore_local_date: this.restore_local_date,
+        use_partition: this.use_partition,
         note: this.note
       }
     }
@@ -217,6 +219,7 @@ export default {
     this.transfer_local_date = this.origData.RESTRICTION_DATA.transfer_local_date
     this.transfer_local_principle = this.origData.RESTRICTION_DATA.transfer_local_principle
     this.restore_local_date = this.origData.RESTRICTION_DATA.restore_local_date
+    this.use_partition = this.origData.RESTRICTION_DATA.use_partition
     this.note = this.origData.RESTRICTION_DATA.note
   },
   mounted () {},
