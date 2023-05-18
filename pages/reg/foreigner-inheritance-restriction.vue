@@ -28,7 +28,6 @@ div
       .d-flex
         lah-button-xlsx.mr-1(
           :jsons="xlsxData"
-          :header-label="xlsxHeader"
           header="外國人管制清冊資料"
         )
         lah-countdown-button(
