@@ -304,6 +304,7 @@ export default {
     xlsxData () {
       const jsons = this.filteredData.map((data, idx, array) => {
         const obj = {}
+        obj['編號'] = `${idx + 1}`.padStart(3, '0')
         obj['直轄市、(縣)市'] = '桃園'
         obj['鄉鎮市區'] = data.AA46_CHT
         obj['段小段'] = data.BA48_CHT
