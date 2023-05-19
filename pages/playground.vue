@@ -19,7 +19,9 @@ div: client-only
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
   b-card-group(columns)
-    lah-mgmt-board-cmcrd-check(embed)
+    b-card
+      lah-ip-badge(ip="220.1.34.75", port="80")
+      lah-ip-badge(ip="220.1.34.211", :badge="false", size="lg")
     //- b-card
     //-   template(#header) 設定檔測試
     //-   div {{ openNewsData }}
