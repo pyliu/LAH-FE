@@ -8,7 +8,7 @@ b-button(
   v-b-tooltip="message"
 )
   span {{ ip }}
-  span(v-if="!$utils.empty(port)") :{{ port }}
+  span(v-if="validPort") :{{ port }}
   b-badge.ml-1(
     v-if="badge"
     :variant="badgeVariant"
@@ -21,20 +21,28 @@ export default {
   component: {},
   props: {
     ip: { type: String, default: '127.0.0.1', require: true },
-    port: { type: Number, default: 0 },
+    port: { type: String, default: '0' },
     pill: { type: Boolean, default: true },
     badge: { type: Boolean, default: true },
     size: { type: String, default: 'md' },
     badgeVariant: { type: String, default: 'light' },
-    period: { type: Number, default: -1 }
+    period: { type: String, default: '' }
   },
   data: () => ({
     latency: -1,
     message: ''
   }),
   computed: {
+    validPeriod () {
+      const periodInt = parseInt(this.period)
+      return periodInt > 0
+    },
+    validPort () {
+      const portInt = parseInt(this.port)
+      return portInt > 0 && portInt < 65535
+    },
     variant () {
-      if (this.latency > 200) {
+      if (this.latency > 200 || parseFloat(this.latency) === 0.0) {
         return 'danger'
       } else if (this.latency > 50) {
         return 'warning'
@@ -47,7 +55,7 @@ export default {
   watch: {},
   created () {},
   mounted () {
-    if (this.period > 0) {
+    if (this.validPeriod) {
       this.ping()
     }
   },
@@ -59,21 +67,19 @@ export default {
       this.$axios.post(this.$consts.API.JSON.IP, {
         type: 'ping',
         ip: this.ip,
-        port: this.port
+        port: this.validPort ? this.port : ''
       }).then(({ data }) => {
         this.message = data.message
-        if (this.$utils.statusCheck(data.status)) {
-          this.latency = data.latency
-        } else {
-          this.warning(data.message)
+        this.latency = data.latency
+        if (!this.$utils.statusCheck(data.status)) {
           this.$utils.warn(data.message)
         }
       }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
-        if (this.period > 0) {
-          this.timeout(this.ping, this.period)
+        if (this.validPeriod) {
+          this.timeout(this.ping, parseInt(this.period))
         }
       })
     }
