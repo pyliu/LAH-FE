@@ -8,6 +8,7 @@ b-button(
   v-b-tooltip="message"
 )
   span {{ ip }}
+  span(v-if="!$utils.empty(port)") :{{ port }}
   b-badge.ml-1(
     v-if="badge"
     :variant="badgeVariant"
@@ -24,7 +25,8 @@ export default {
     pill: { type: Boolean, default: true },
     badge: { type: Boolean, default: true },
     size: { type: String, default: 'md' },
-    badgeVariant: { type: String, default: 'light' }
+    badgeVariant: { type: String, default: 'light' },
+    period: { type: Number, default: -1 }
   },
   data: () => ({
     latency: -1,
@@ -44,7 +46,11 @@ export default {
   },
   watch: {},
   created () {},
-  mounted () {},
+  mounted () {
+    if (this.period > 0) {
+      this.ping()
+    }
+  },
   methods: {
     ping () {
       this.isBusy = true
@@ -66,6 +72,9 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
+        if (this.period > 0) {
+          this.timeout(this.ping, this.period)
+        }
       })
     }
   }

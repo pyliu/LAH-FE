@@ -20,7 +20,7 @@ div: client-only
     .d-flex
   b-card-group(columns)
     b-card
-      lah-ip-badge(ip="220.1.34.75", port="80")
+      lah-ip-badge(ip="220.1.34.17", port="8082", period="15000")
       lah-ip-badge(ip="220.1.34.211", :badge="false", size="lg")
     //- b-card
     //-   template(#header) 設定檔測試
