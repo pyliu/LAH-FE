@@ -73,7 +73,7 @@ b-card
       )
   .d-flex.mt-2
     b-input-group
-      b-input-group-prepend(is-text) 　　　　備註
+      b-input-group-prepend(is-text) &emsp;&emsp;&emsp;&emsp;備註
       b-textarea(
         v-model="note",
         placeholder="... 其他註記事項 ..."
