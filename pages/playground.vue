@@ -20,6 +20,8 @@ div: client-only
     .d-flex
   b-card-group(columns)
     b-card
+      lah-cert-badge(size="lg")
+    b-card
       lah-ip-badge(ip="220.1.34.17", port="8082", period="15000", size="lg")
       lah-ip-badge.ml-1(ip="220.1.34.233", :badge="false", size="lg")
     //- b-card
@@ -235,21 +237,6 @@ export default {
     this.loadAnnouncements()
   },
   methods: {
-    queryCMCRD () {
-      this.queryMessage = '讀取中 ...'
-      this.$axios
-        .post(this.$consts.API.JSON.MOICAS, {
-          type: 'cmcrd_tmp_check',
-          year: '112'
-        }).then(({ data }) => {
-          this.queryMessage = data.message
-          this.queryData = [...data.raw]
-        }).catch((err) => {
-          this.error = err
-        }).finally(() => {
-          this.isBusy = false
-        })
-    },
     formatDate (d) {
       return format(d, 'yyyy-LL-dd HH:mm:ss', {
         locale: zhTW

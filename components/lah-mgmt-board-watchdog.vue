@@ -44,6 +44,10 @@ b-card
             li 本功能查詢後列出系統目前暫存檔以供管理師查看及管理。
   //- .center-container-wh-100: div
   .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="file") 最新權狀序號
+    lah-cert-badge
+  hr
+  .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="magnifying-glass") 「登記案件」跨所註記
     lah-button(
       title="檢測登記案件跨所註記遺失問題",
