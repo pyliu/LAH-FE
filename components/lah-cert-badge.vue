@@ -62,7 +62,6 @@ export default {
           // type: 'moicat_rxseq',
           type: 'moicat_rxseq_latest'
         }).then(({ data }) => {
-          console.warn(data)
           this.message = data.message
           this.record = data.raw
         }).catch((err) => {
