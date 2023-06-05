@@ -20,7 +20,7 @@ div: client-only
     .d-flex
   b-card-group(columns)
     b-card
-      lah-chart(ref="regChart", :type="chartType")
+      lah-period-stats-chart
     b-card
       lah-cert-badge(size="lg")
     b-card
@@ -237,37 +237,8 @@ export default {
   },
   mounted () {
     this.loadAnnouncements()
-    this.testStats()
   },
   methods: {
-    testStats () {
-      this.$axios.post(this.$consts.API.JSON.STATS, {
-        type: 'stats_reg_period_count',
-        st: '1120605',
-        ed: '1120605'
-      }).then(({ data }) => {
-        this.$refs.regChart?.reset()
-        const chartItems = []
-        chartItems.push({ x: '08', y: parseInt(data.raw['08']), color: { R: 22, G: 11, B: 45 } })
-        chartItems.push({ x: '09', y: parseInt(data.raw['09']), color: { R: 122, G: 11, B: 45 } })
-        chartItems.push({ x: '10', y: parseInt(data.raw['10']), color: { R: 22, G: 111, B: 45 } })
-        chartItems.push({ x: '11', y: parseInt(data.raw['11']), color: { R: 22, G: 11, B: 145 } })
-        chartItems.push({ x: '12', y: parseInt(data.raw['12']), color: { R: 222, G: 11, B: 45 } })
-        chartItems.push({ x: '13', y: parseInt(data.raw['13']), color: { R: 22, G: 211, B: 45 } })
-        chartItems.push({ x: '14', y: parseInt(data.raw['14']), color: { R: 22, G: 11, B: 245 } })
-        chartItems.push({ x: '15', y: parseInt(data.raw['15']), color: { R: 25, G: 51, B: 55 } })
-        chartItems.push({ x: '16', y: parseInt(data.raw['16']), color: { R: 72, G: 17, B: 75 } })
-        chartItems.push({ x: '17', y: parseInt(data.raw['17']), color: { R: 29, G: 91, B: 49 } })
-        this.$refs.regChart.addDataset(chartItems, '6月份案件區間統計', 'line')
-        this.$refs.regChart.addDataset(chartItems, '06-05 ~ 06-05', 'bar')
-        this.$refs.regChart.build()
-        // console.warn(Object.entries(data.raw).sort((a, b) => parseInt(a[1]) < parseInt(b[1])))
-      }).catch((err) => {
-        this.error = err
-      }).finally(() => {
-        this.isBusy = false
-      })
-    },
     formatDate (d) {
       return format(d, 'yyyy-LL-dd HH:mm:ss', {
         locale: zhTW
