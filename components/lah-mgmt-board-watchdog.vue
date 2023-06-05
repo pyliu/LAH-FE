@@ -45,7 +45,7 @@ b-card
   //- .center-container-wh-100: div
   .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="file") 最新權狀序號
-    lah-cert-badge
+    lah-cert-badge(@fetched="handledUpdated")
   hr
   .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="magnifying-glass") 「登記案件」跨所註記
@@ -447,6 +447,9 @@ export default {
       return ('0' + now.getHours()).slice(-2) + ':' +
         ('0' + now.getMinutes()).slice(-2) + ':' +
         ('0' + now.getSeconds()).slice(-2)
+    },
+    handledUpdated (response) {
+      this.message = `${this.ts()} ${response.message}`
     }
   }
 }

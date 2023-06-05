@@ -15,7 +15,7 @@ b-button(
 
 <script>
 export default {
-  emit: [],
+  emit: ['fetched'],
   component: {},
   props: {
     pill: { type: Boolean, default: true },
@@ -64,6 +64,7 @@ export default {
         }).then(({ data }) => {
           this.message = data.message
           this.record = data.raw
+          this.$emit('fetched', data)
         }).catch((err) => {
           this.error = err
         }).finally(() => {
