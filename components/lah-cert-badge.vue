@@ -5,8 +5,7 @@ b-button(
   :size="size",
   :disabled="isBusy",
   @click="query",
-  title="重新讀取",
-  v-b-tooltip="message"
+  title="重新讀取"
 ): .d-flex.align-items-center
   span {{ certNo }}
   b-badge.ml-1(:variant="badgeVariant") {{ caseNo }}
