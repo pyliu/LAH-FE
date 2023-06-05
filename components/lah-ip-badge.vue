@@ -17,7 +17,7 @@ b-button(
 
 <script>
 export default {
-  emit: [],
+  emit: ['updated'],
   component: {},
   props: {
     ip: { type: String, default: '127.0.0.1', require: true },
@@ -74,6 +74,7 @@ export default {
         if (!this.$utils.statusCheck(data.status)) {
           this.$utils.warn(data.message)
         }
+        this.$emit('updated', data)
       }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
