@@ -3,14 +3,18 @@ b-button(
   :variant="variant",
   :pill="pill",
   :size="size",
+  :disabled="isBusy",
   @click="query",
   title="重新讀取",
   v-b-tooltip="message"
-)
+): .d-flex.align-items-center
   span {{ certNo }}
-  b-badge.ml-1(
-    :variant="badgeVariant"
-  ) {{ caseNo }}
+  b-badge.ml-1(:variant="badgeVariant") {{ caseNo }}
+  lah-transition: lah-fa-icon.ml-1(
+    v-if="isBusy",
+    icon="arrow-rotate-right",
+    action="spin"
+  )
 </template>
 
 <script>
@@ -30,13 +34,13 @@ export default {
   computed: {
     caseNo () {
       if (this.$utils.empty(this.record)) {
-        return this.message
+        return this.isBusy ? '讀取中' : '無案件資料'
       }
       return `${this.record.XS03}-${this.record.XS04_1}-${this.record.XS04_2}`
     },
     certNo () {
       if (this.$utils.empty(this.record)) {
-        return this.message
+        return this.isBusy ? '讀取中' : '無權狀資料'
       }
       return this.record.XS16
     },
