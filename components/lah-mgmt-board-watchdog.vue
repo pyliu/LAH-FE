@@ -47,10 +47,6 @@ b-card
             li 本功能查詢後列出系統目前暫存檔以供管理師查看及管理。
   //- .center-container-wh-100: div
   .d-flex.align-items-center.justify-content-between.check-row
-    lah-fa-icon.mr-1(icon="file") 最新權狀序號
-    lah-cert-badge(@fetched="handledUpdated")
-  hr
-  .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="magnifying-glass") 「登記案件」跨所註記
     lah-button(
       title="檢測登記案件跨所註記遺失問題",
@@ -86,6 +82,10 @@ b-card
       :title="`查詢所有 ${year} 年通知書暫存資料`",
       @click="querySurCmcrdTmp"
     ) 查詢
+  hr
+  .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="file") 最新權狀序號
+    lah-cert-badge(@fetched="handledUpdated")
   hr
 
   lah-transition: .my-1(v-if="!$utils.empty(message)") {{ message }}
