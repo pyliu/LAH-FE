@@ -13,8 +13,11 @@ b-card
         title="快速檢測及修正說明"
       )
     lah-help-modal(ref="help", modal-title="快速檢測及修正說明", size="lg")
-      h5 本項功能提供下列5項檢測/查詢功能。
+      h5 本項功能提供下列6項檢測/查詢功能。
       ul
+        li 最新權狀序號 (MOICAT.RXSEQ)
+          ul
+            li 顯示最新權狀序號及案件號
         li 登記案件跨所註記問題檢測 (CRSMS)
           ol
             li RM99 = 'Y'
