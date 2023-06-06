@@ -324,10 +324,9 @@ export default {
         }
       }
       // use chart.js directly
-      const ctx = this.id
       const that = this
       // this.$utils.warn(this.chartData.datasets[0].backgroundColor[this.chartData.datasets[0].backgroundColor.length - 1])
-      this.inst = new Chart(ctx, {
+      this.inst = new Chart(document.getElementById(this.id), {
         data: this.chartData,
         options: Object.assign({
           responsive: true,

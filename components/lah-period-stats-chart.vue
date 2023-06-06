@@ -1,5 +1,5 @@
 <template lang="pug">
-lah-chart(ref="chart")
+client-only: lah-chart(ref="chart")
 </template>
 
 <script>
@@ -7,46 +7,136 @@ export default {
   emit: ['fetched'],
   component: {},
   props: {
-    type: { type: String, default: 'reg' }
+    type: { type: String, default: 'reg' },
+    st: { type: String, default: '' },
+    ed: { type: String, default: '' }
   },
   data: () => ({
-    st: '1120501',
-    ed: '1120531'
+    aSt: '',
+    aEd: '',
+    today: '',
+    statsData: null,
+    colorMap: new Map(),
+    weekdayMap: new Map([
+      [1, '一'],
+      [2, '二'],
+      [3, '三'],
+      [4, '四'],
+      [5, '五'],
+      [6, '六'],
+      [0, '日']
+    ]),
+    refreshTimer: 300 * 1000, // 5 mins
+    greenColor: { R: 22, G: 211, B: 45 },
+    yellowColor: { R: 255, G: 235, B: 0 },
+    redColor: { R: 255, G: 8, B: 8 },
+    grayColor: { R: 211, G: 211, B: 211 }
   }),
-  fetch () {
-    this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.STATS, {
-      type: this.type?.toUpperCase() === 'SUR' ? 'stats_sur_period_count' : 'stats_reg_period_count',
-      st: this.st,
-      ed: this.ed
-    }).then(({ data }) => {
-      this.$refs.chart?.reset()
-      const chartItems = []
-      chartItems.push({ x: '08', y: parseInt(data.raw['08']), color: { R: 22, G: 11, B: 45 } })
-      chartItems.push({ x: '09', y: parseInt(data.raw['09']), color: { R: 122, G: 11, B: 45 } })
-      chartItems.push({ x: '10', y: parseInt(data.raw['10']), color: { R: 22, G: 111, B: 45 } })
-      chartItems.push({ x: '11', y: parseInt(data.raw['11']), color: { R: 22, G: 11, B: 145 } })
-      chartItems.push({ x: '12', y: parseInt(data.raw['12']), color: { R: 222, G: 11, B: 45 } })
-      chartItems.push({ x: '13', y: parseInt(data.raw['13']), color: { R: 22, G: 211, B: 45 } })
-      chartItems.push({ x: '14', y: parseInt(data.raw['14']), color: { R: 22, G: 11, B: 245 } })
-      chartItems.push({ x: '15', y: parseInt(data.raw['15']), color: { R: 25, G: 51, B: 55 } })
-      chartItems.push({ x: '16', y: parseInt(data.raw['16']), color: { R: 72, G: 17, B: 75 } })
-      chartItems.push({ x: '17', y: parseInt(data.raw['17']), color: { R: 29, G: 91, B: 49 } })
-      this.$refs.chart.addDataset(chartItems, '分時案件數統計', 'line')
-      this.$refs.chart.addDataset(chartItems, `${this.st} ~ ${this.ed}`, 'bar')
-      this.$refs.chart.build()
-    }).catch((err) => {
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
-    })
+  fetch () {},
+  computed: {
+    periodText () {
+      if (this.aSt === this.aEd) {
+        const d = this.$utils.twToAdDateObj(this.aSt)
+        const y = (d.getFullYear() - 1911).toString().padStart(3, '0')
+        const m = (d.getMonth() + 1).toString().padStart(2, '0')
+        const D = d.getDate().toString().padStart(2, '0')
+        return `${m}/${D} (${this.weekdayMap.get(d.getDay())})`
+      }
+      return `${this.aSt} ~ ${this.aEd}`
+    }
   },
-  computed: {},
-  watch: {},
-  created () {},
-  mounted () {},
+  watch: {
+    st (val) {
+      this.aSt = val
+      this.this.debounceQuery()
+    },
+    ed (val) {
+      this.aEd = val
+      this.this.debounceQuery()
+    }
+  },
+  created () {
+    this.today = this.$utils.today('TW').replace(/[-]+/g, '')
+    this.aSt = this.st
+    this.aEd = this.ed
+    if (this.$utils.empty(this.aSt)) {
+      this.aSt = this.today
+    }
+    if (this.$utils.empty(this.aEd)) {
+      this.aEd = this.aSt
+    }
+    this.debounceQuery = this.$utils.debounce(this.query, this.$utils.rand(10) * 100)
+  },
+  mounted () {
+    this.debounceQuery()
+    if (this.aSt === this.today) {
+      this.timeout(this.debounceQuery, this.refreshTimer)
+    }
+  },
   methods: {
-
+    query () {
+      if (!this.isBusy) {
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.STATS, {
+          type: this.type?.toUpperCase() === 'SUR' ? 'stats_sur_period_count' : 'stats_reg_period_count',
+          st: this.aSt,
+          ed: this.aEd
+        }).then(({ data }) => {
+          this.$emit('fetched', data)
+          this.statsData = data.raw
+          this.buildChart()
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+          if (this.aSt === this.today) {
+            this.timeout(this.debounceQuery, this.refreshTimer)
+          }
+        })
+      }
+    },
+    prepareColorMap () {
+      this.colorMap.clear()
+      if (this.statsData) {
+        // sorts by count and excludes 12, 17 clock data
+        const arr = Object.entries(this.statsData).sort((a, b) => a[1] - b[1]).filter((element, index, arr) => {
+          return !['12', '17'].includes(element[0])
+        })
+        // 2-3-3 👉 g-y-r
+        for (let i = 0; i < 8; i++) {
+          if (i < 2) {
+            this.colorMap.set(arr[i][0], this.greenColor)
+          } else if (i < 5) {
+            this.colorMap.set(arr[i][0], this.yellowColor)
+          } else {
+            this.colorMap.set(arr[i][0], this.redColor)
+          }
+        }
+      }
+    },
+    buildChart () {
+      if (this.$refs.chart) {
+        this.$refs.chart?.reset()
+        const chartItems = []
+        this.prepareColorMap()
+        chartItems.push({ x: '08', y: parseInt(this.statsData['08']), color: this.colorMap.get('08') })
+        chartItems.push({ x: '09', y: parseInt(this.statsData['09']), color: this.colorMap.get('09') })
+        chartItems.push({ x: '10', y: parseInt(this.statsData['10']), color: this.colorMap.get('10') })
+        chartItems.push({ x: '11', y: parseInt(this.statsData['11']), color: this.colorMap.get('11') })
+        chartItems.push({ x: '12', y: parseInt(this.statsData['12']), color: this.grayColor })
+        chartItems.push({ x: '13', y: parseInt(this.statsData['13']), color: this.colorMap.get('13') })
+        chartItems.push({ x: '14', y: parseInt(this.statsData['14']), color: this.colorMap.get('14') })
+        chartItems.push({ x: '15', y: parseInt(this.statsData['15']), color: this.colorMap.get('15') })
+        chartItems.push({ x: '16', y: parseInt(this.statsData['16']), color: this.colorMap.get('16') })
+        chartItems.push({ x: '17', y: parseInt(this.statsData['17']), color: this.grayColor })
+        this.$refs.chart?.addDataset(chartItems, this.periodText, 'line')
+        this.$refs.chart?.addDataset(chartItems, '分時案件數統計', 'bar')
+        this.$refs.chart?.build()
+      } else {
+        // retry after 100ms
+        this.timeout(this.buildChart, 100)
+      }
+    }
   }
 }
 </script>
