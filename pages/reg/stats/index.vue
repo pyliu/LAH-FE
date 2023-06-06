@@ -48,7 +48,6 @@ export default {
       const d = newDate.getDate().toString().padStart(2, '0')
       this.daysSorted.push(`${y}${m}${d}`)
     }
-    console.warn(this.daysSorted)
   },
   mounted () {
     this.display = true
