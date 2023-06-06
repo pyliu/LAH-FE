@@ -14,10 +14,24 @@
 
 <script>
 export default {
+  fetchOnServer: false,
+  async asyncData ({ $axios, $content }) {
+    const testMD = await $content('test').fetch()
+    return {
+      testMD
+    }
+  },
+  data: () => ({
+
+  }),
   head: {
     title: '樣板頁面-桃園市地政局'
   },
-  fetchOnServer: false
+  computed: {},
+  watch: {},
+  created () {},
+  mounted () {},
+  methods: {}
 }
 </script>
 
