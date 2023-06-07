@@ -53,8 +53,14 @@ div(v-cloak)
       centered
     )
       lah-period-stats-chart(:st="firstDayofMonth", :ed="today")
-  b-card-group(columns)
-    b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
+  b-card-group.mb-4(
+    deck,
+    v-for="(arr, idx) in daysChunk",
+    :key="`bcg_${idx}`"
+  )
+    b-card(v-for="(day, idx) in arr", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
+  //- b-card-group(columns)
+  //-   b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
 </template>
 
 <script>
@@ -68,6 +74,9 @@ export default {
     title: '分時案件統計資訊-桃園市地政局'
   },
   computed: {
+    daysChunk () {
+      return this.splitChunks(this.daysSorted, 3)
+    },
     todayText () {
       return `${this.$utils.today('TW')} 分時統計圖`
     },
@@ -107,7 +116,15 @@ export default {
     this.firstDayofLastMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth() - 1, 1))
     this.lastDayofLastMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth(), 0))
   },
-  mounted () {}
+  methods: {
+    splitChunks (arr, count) {
+      const result = []
+      for (let i = 0; i < arr.length; i += count) {
+        result.push(arr.slice(i, i + count))
+      }
+      return result
+    }
+  }
 }
 </script>
 
