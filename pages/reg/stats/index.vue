@@ -18,8 +18,9 @@ div(v-cloak)
             :title="lastMonthText"
           ) 上月統計
     lah-help-modal(:modal-id="'help-modal'" size="md")
-      h5 最近9天的登記案件分時統計數據(12及17點不計)
+      h5 最近9天的登記案件分時統計數據
       ul
+        li 12及17點不納入燈號顯示
         li 🟢 - 案件量較少的時段
         li 🟡 - 較繁忙的時段
         li 🔴 - 非常繁忙的時段
