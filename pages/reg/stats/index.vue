@@ -16,7 +16,12 @@ div(v-cloak)
             icon="chart-simple",
             @click="$refs.lastMonth?.show()",
             :title="lastMonthText"
-          ) 上月統計
+          ) 上個月
+          lah-button.ml-1(
+            icon="square-poll-vertical",
+            @click="$refs.thisMonth?.show()",
+            :title="thisMonthText"
+          ) 本月(迄今)
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 最近9天的登記案件分時統計數據
       ul
@@ -40,6 +45,14 @@ div(v-cloak)
       centered
     )
       lah-period-stats-chart(:st="firstDayofLastMonth", :ed="lastDayofLastMonth")
+    b-modal(
+      ref="thisMonth",
+      size="xl",
+      :title="thisMonthText",
+      hide-footer,
+      centered
+    )
+      lah-period-stats-chart(:st="firstDayofMonth", :ed="today")
   b-card-group(columns)
     b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
 </template>
@@ -60,6 +73,9 @@ export default {
     },
     lastMonthText () {
       return `${this.firstDayofLastMonth} ~ ${this.lastDayofLastMonth} 分時總量統計圖`
+    },
+    thisMonthText () {
+      return `${this.firstDayofMonth} ~ ${this.today} 分時總量統計圖`
     }
   },
   created () {
@@ -87,6 +103,7 @@ export default {
     }
 
     const today = new Date()
+    this.firstDayofMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth(), 1))
     this.firstDayofLastMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth() - 1, 1))
     this.lastDayofLastMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth(), 0))
   },
