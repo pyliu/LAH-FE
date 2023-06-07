@@ -48,18 +48,18 @@ export default {
   },
   watch: {
     st (val) {
-      this.aSt = val
+      this.aSt = val?.replace(/[-/]+/g, '')
       this.this.debounceQuery()
     },
     ed (val) {
-      this.aEd = val
+      this.aEd = val?.replace(/[-/]+/g, '')
       this.this.debounceQuery()
     }
   },
   created () {
-    this.today = this.$utils.today('TW').replace(/[-]+/g, '')
-    this.aSt = this.st
-    this.aEd = this.ed
+    this.today = this.$utils.today('TW').replace(/[-/]+/g, '')
+    this.aSt = this.st?.replace(/[-/]+/g, '')
+    this.aEd = this.ed?.replace(/[-/]+/g, '')
     if (this.$utils.empty(this.aSt)) {
       this.aSt = this.today
     }
