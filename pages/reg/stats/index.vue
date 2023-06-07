@@ -8,10 +8,12 @@ div(v-cloak)
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         b-button-group(size="lg")
           lah-button(
-            @click="$refs.today?.show()"
-          ) {{ $utils.today('TW') }}
+            icon="chart-column",
+            @click="$refs.today?.show()",
+            :title="$utils.today('TW')"
+          ) 顯示今天圖表
     lah-help-modal(:modal-id="'help-modal'" size="md")
-      h5 顯示最近9天的登記案件分時統計數據(12時及17時不列入燈號顯示)
+      h5 最近9天的登記案件分時統計數據(12及17點不計)
       ul
         li 🟢 - 案件量較少的時段
         li 🟡 - 較繁忙的時段

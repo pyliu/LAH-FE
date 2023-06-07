@@ -113,7 +113,7 @@ export default {
             // reverse color if we have 0 in stats
             if (i < 3) {
               this.colorMap.set(arr[i][0], this.redColor)
-            } else if (i < 6) {
+            } else if (i < 5) {
               this.colorMap.set(arr[i][0], this.greenColor)
             } else {
               this.colorMap.set(arr[i][0], this.yellowColor)
