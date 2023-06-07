@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex.mr-auto.align-items-center
-          div 分時登記案件統計資訊
+          div 分時測量案件統計資訊
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         b-button-group(size="lg")
           lah-button(
@@ -36,7 +36,7 @@ div(v-cloak)
       hide-footer,
       centered
     )
-      lah-period-stats-chart(:st="today", :ed="today")
+      lah-period-stats-chart(type="sur", :st="today", :ed="today")
     b-modal(
       ref="lastMonth",
       size="xl",
@@ -44,7 +44,7 @@ div(v-cloak)
       hide-footer,
       centered
     )
-      lah-period-stats-chart(:st="firstDayofLastMonth", :ed="lastDayofLastMonth")
+      lah-period-stats-chart(type="sur", :st="firstDayofLastMonth", :ed="lastDayofLastMonth")
     b-modal(
       ref="thisMonth",
       size="xl",
@@ -52,15 +52,15 @@ div(v-cloak)
       hide-footer,
       centered
     )
-      lah-period-stats-chart(:st="firstDayofMonth", :ed="today")
+      lah-period-stats-chart(type="sur", :st="firstDayofMonth", :ed="today")
   b-card-group.mb-4(
     deck,
     v-for="(arr, idx) in daysChunk",
     :key="`bcg_${idx}`"
   )
-    b-card(v-for="(day, idx) in arr", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
+    b-card(v-for="(day, idx) in arr", :key="`bc_${idx}`"): lah-period-stats-chart(type="sur", :st="day", :ed="day")
   //- b-card-group(columns)
-  //-   b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
+  //-   b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(type="sur", :st="day", :ed="day")
 </template>
 
 <script>
