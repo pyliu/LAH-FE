@@ -103,7 +103,7 @@ export default {
           return !['12', '17'].includes(element[0])
         })
         const hasZero = arr.some((ele, idx, arr) => {
-          return ele[1] === 0
+          return parseInt(ele[1]) === 0 || isNaN(ele[1])
         })
         // 2-3-3 👉 g-y-r
         for (let i = 0; i < 8; i++) {
