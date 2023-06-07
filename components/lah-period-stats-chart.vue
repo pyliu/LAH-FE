@@ -37,7 +37,7 @@ export default {
     periodText () {
       if (this.aSt === this.aEd) {
         const d = this.$utils.twToAdDateObj(this.aSt)
-        const y = (d.getFullYear() - 1911).toString().padStart(3, '0')
+        // const y = (d.getFullYear() - 1911).toString().padStart(3, '0')
         const m = (d.getMonth() + 1).toString().padStart(2, '0')
         const D = d.getDate().toString().padStart(2, '0')
         return `${m}/${D} (${this.weekdayMap.get(d.getDay())})`
@@ -102,14 +102,21 @@ export default {
         const arr = Object.entries(this.statsData).sort((a, b) => a[1] - b[1]).filter((element, index, arr) => {
           return !['12', '17'].includes(element[0])
         })
+        const allRecorded = arr.every((ele, idx, arr) => {
+          return ele[1] > 0
+        })
         // 2-3-3 👉 g-y-r
         for (let i = 0; i < 8; i++) {
-          if (i < 2) {
-            this.colorMap.set(arr[i][0], this.greenColor)
-          } else if (i < 5) {
-            this.colorMap.set(arr[i][0], this.yellowColor)
+          if (allRecorded) {
+            if (i < 2) {
+              this.colorMap.set(arr[i][0], this.greenColor)
+            } else if (i < 5) {
+              this.colorMap.set(arr[i][0], this.yellowColor)
+            } else {
+              this.colorMap.set(arr[i][0], this.redColor)
+            }
           } else {
-            this.colorMap.set(arr[i][0], this.redColor)
+            this.colorMap.set(arr[i][0], {})
           }
         }
       }

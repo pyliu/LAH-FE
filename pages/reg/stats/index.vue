@@ -3,16 +3,27 @@ div(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
-        .d-flex
+        .d-flex.mr-auto.align-items-center
           div 分時案件統計資訊
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-        //- div 右側選單區域
+        b-button-group(size="lg")
+          lah-button(
+            @click="$refs.today?.show()"
+          ) {{ $utils.today('TW') }}
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 顯示最近9天的登記案件分時統計數據(12時及17時不列入燈號顯示)
       ul
         li 🟢 - 案件量較少的時段
         li 🟡 - 較繁忙的時段
         li 🔴 - 非常繁忙的時段
+    b-modal(
+      ref="today",
+      size="xl",
+      :title="todayText",
+      hide-footer,
+      centered
+    )
+      lah-period-stats-chart(:st="today", :ed="today")
   b-card-group(columns)
     b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
 </template>
@@ -21,12 +32,19 @@ div(v-cloak)
 export default {
   fetchOnServer: false,
   data: () => ({
-    daysSorted: []
+    daysSorted: [],
+    today: ''
   }),
   head: {
     title: '分時案件統計資訊-桃園市地政局'
   },
+  computed: {
+    todayText () {
+      return `${this.$utils.today('TW')} 分時統計圖`
+    }
+  },
   created () {
+    this.today = this.$utils.today('TW').replaceAll('-', '')
     const goBackDays = 9
     const dayTs = 24 * 60 * 60 * 1000
     let ts = +new Date()
@@ -49,9 +67,7 @@ export default {
       this.daysSorted.push(`${y}${m}${d}`)
     }
   },
-  mounted () {
-    this.display = true
-  }
+  mounted () {}
 }
 </script>
 
