@@ -15,7 +15,7 @@ div(v-cloak)
           lah-button.ml-1(
             icon="chart-simple",
             @click="$refs.lastMonth?.show()",
-            :title="$utils.today('TW')"
+            :title="lastMonthText"
           ) 上月統計
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 最近9天的登記案件分時統計數據(12及17點不計)
@@ -58,7 +58,7 @@ export default {
       return `${this.$utils.today('TW')} 分時統計圖`
     },
     lastMonthText () {
-      return '上月份分時總量統計圖'
+      return `${this.firstDayofLastMonth} ~ ${this.lastDayofLastMonth} 分時總量統計圖`
     }
   },
   created () {
