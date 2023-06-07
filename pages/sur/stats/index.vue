@@ -23,7 +23,7 @@ div(v-cloak)
             :title="thisMonthText"
           ) 本月(迄今)
     lah-help-modal(:modal-id="'help-modal'" size="md")
-      h5 最近9天的登記案件分時統計數據
+      h5 最近9天的測量案件分時統計數據
       ul
         li 12及17點不納入燈號顯示
         li 🟢 - 案件量較少的時段
