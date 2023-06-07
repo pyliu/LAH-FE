@@ -24,6 +24,10 @@ b-button.text-nowrap(
     :append="iconAppend"
     :no-gutter="noIconGutter"
     :variant="iconVariant"
+    :flip="flip"
+    :rotate="rotate"
+    :spin="spin"
+    :mirror="mirror"
   )
   span.ld-txt(v-if="busy") 讀取中...
   span(v-show="!busy")
@@ -60,7 +64,11 @@ export default {
     busy: { type: Boolean, default: false },
     noIconGutter: { type: Boolean, default: false },
     noIcon: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false }
+    disabled: { type: Boolean, default: false },
+    flip: { type: Boolean, default: false },
+    spin: { type: Boolean, default: false },
+    rotate: { type: String, default: '0' },
+    mirror: { type: Boolean, default: false }
   },
   computed: {
     faIconPrefix () {

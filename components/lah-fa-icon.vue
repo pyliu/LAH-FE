@@ -9,8 +9,7 @@ span.d-inline-flex.align-items-center.my-auto
     :class="className",
     :spin="spin",
     :fixed-width="fixedWidth",
-    :rotate="rotate",
-    :flip="flip",
+    :flip="flipVar",
     :border="border",
     :transform="transform",
     @click="emitClick($event)"
@@ -25,8 +24,7 @@ span.d-inline-flex.align-items-center.my-auto
     :class="className",
     :spin="spin",
     :fixed-width="fixedWidth",
-    :rotate="rotate",
-    :flip="flip",
+    :flip="flipVar",
     :border="border",
     :transform="transform",
     @click="emitClick($event)"
@@ -49,7 +47,8 @@ export default {
     spin: { type: Boolean, default: false },
     flip: { type: Boolean, default: false },
     fixedWidth: { type: Boolean, default: false },
-    rotate: { type: Number, default: 0 },
+    rotate: { type: String, default: '0' },
+    mirror: { type: Boolean, default: false },
     border: { type: Boolean, default: false },
     pull: { type: String, default: 'left' }, // left or right
     transform: { type: String, default: '' }
@@ -72,6 +71,15 @@ export default {
     iconArray () {
       const pre = this.regular ? 'far' : (this.brand ? 'fab' : 'fas')
       return [pre, this.icon]
+    },
+    flipVar () {
+      if (this.flip === true) {
+        return true
+      }
+      if (this.mirror) {
+        return 'horizontal'
+      }
+      return false
     }
   },
   mounted () {
