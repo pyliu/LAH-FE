@@ -103,22 +103,13 @@ export default {
         // sorts by count and excludes 12, 17 clock data
         const arr = Object.entries(this.statsData).sort((a, b) => a[1] - b[1]).filter((element, index, arr) => {
           return !['12', '17'].includes(element[0])
-        })
-        const hasZero = arr.some((ele, idx, arr) => {
-          return parseInt(ele[1]) === 0 || isNaN(ele[1])
+        }).filter((ele, idx, arr) => {
+          // get rid of element that is 0
+          return parseInt(ele[1]) !== 0
         })
         // 2-3-3 👉 g-y-r
-        for (let i = 0; i < 8; i++) {
-          if (hasZero) {
-            // reverse color if we have 0 in stats
-            if (i < 3) {
-              this.colorMap.set(arr[i][0], this.redColor)
-            } else if (i < 5) {
-              this.colorMap.set(arr[i][0], this.greenColor)
-            } else {
-              this.colorMap.set(arr[i][0], this.yellowColor)
-            }
-          } else if (i < 2) {
+        for (let i = 0; i < arr.length; i++) {
+          if (i < 2) {
             this.colorMap.set(arr[i][0], this.greenColor)
           } else if (i < 5) {
             this.colorMap.set(arr[i][0], this.yellowColor)
