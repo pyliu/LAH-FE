@@ -14,7 +14,7 @@ div(v-cloak)
         li 🟡 - 較繁忙的時段
         li 🔴 - 非常繁忙的時段
   b-card-group(columns)
-    b-card(v-for="(day, idx) in daysSorted"): lah-period-stats-chart(:st="day", :ed="day", :key="idx")
+    b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
 </template>
 
 <script>
