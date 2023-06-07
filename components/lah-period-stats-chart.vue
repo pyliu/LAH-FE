@@ -26,7 +26,8 @@ export default {
       [6, '六'],
       [0, '日']
     ]),
-    refreshTimer: 300 * 1000, // 5 mins
+    timer: null,
+    timerMs: 300 * 1000, // 5 mins
     greenColor: { R: 22, G: 211, B: 45 },
     yellowColor: { R: 255, G: 235, B: 0 },
     redColor: { R: 255, G: 8, B: 8 },
@@ -70,9 +71,10 @@ export default {
   mounted () {
     this.debounceQuery()
     if (this.aSt === this.today) {
-      this.timeout(this.debounceQuery, this.refreshTimer)
+      this.timeout(this.debounceQuery, this.timerMs).then((handler) => { this.timer = handler })
     }
   },
+  beforeDestroy () { clearTimeout(this.timer) },
   methods: {
     query () {
       if (!this.isBusy) {
@@ -90,7 +92,7 @@ export default {
         }).finally(() => {
           this.isBusy = false
           if (this.aSt === this.today) {
-            this.timeout(this.debounceQuery, this.refreshTimer)
+            this.timeout(this.debounceQuery, this.timerMs).then((handler) => { this.timer = handler })
           }
         })
       }
