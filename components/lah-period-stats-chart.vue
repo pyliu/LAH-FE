@@ -102,21 +102,20 @@ export default {
         const arr = Object.entries(this.statsData).sort((a, b) => a[1] - b[1]).filter((element, index, arr) => {
           return !['12', '17'].includes(element[0])
         })
-        const allRecorded = arr.every((ele, idx, arr) => {
-          return ele[1] > 0
+        const hasZero = arr.some((ele, idx, arr) => {
+          return ele[1] === 0
         })
         // 2-3-3 👉 g-y-r
         for (let i = 0; i < 8; i++) {
-          if (allRecorded) {
-            if (i < 2) {
-              this.colorMap.set(arr[i][0], this.greenColor)
-            } else if (i < 5) {
-              this.colorMap.set(arr[i][0], this.yellowColor)
-            } else {
-              this.colorMap.set(arr[i][0], this.redColor)
-            }
-          } else {
+          if (hasZero) {
+            // random color
             this.colorMap.set(arr[i][0], {})
+          } else if (i < 2) {
+            this.colorMap.set(arr[i][0], this.greenColor)
+          } else if (i < 5) {
+            this.colorMap.set(arr[i][0], this.yellowColor)
+          } else {
+            this.colorMap.set(arr[i][0], this.redColor)
           }
         }
       }
