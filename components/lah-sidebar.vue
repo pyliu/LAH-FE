@@ -97,7 +97,7 @@ b-sidebar#lah-sidebar(
         #[font-awesome-icon(:icon="['fas', 'user-astronaut']", fixed-width, size="lg")]
         外國人地權案件
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/foreigner").
-        #[font-awesome-icon(:icon="['fas', 'users-rectangle']", fixed-width, size="lg")]
+        #[font-awesome-icon(:icon="['far', 'file-pdf']", fixed-width, size="lg")]
         外國人掃描資料
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/stats").
         #[font-awesome-icon(:icon="['fas', 'chart-line']", fixed-width, size="lg")]
