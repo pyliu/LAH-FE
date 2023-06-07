@@ -108,8 +108,14 @@ export default {
         // 2-3-3 👉 g-y-r
         for (let i = 0; i < 8; i++) {
           if (hasZero) {
-            // random color
-            this.colorMap.set(arr[i][0], {})
+            // reverse color if we have 0 in stats
+            if (i < 3) {
+              this.colorMap.set(arr[i][0], this.redColor)
+            } else if (i < 6) {
+              this.colorMap.set(arr[i][0], this.greenColor)
+            } else {
+              this.colorMap.set(arr[i][0], this.yellowColor)
+            }
           } else if (i < 2) {
             this.colorMap.set(arr[i][0], this.greenColor)
           } else if (i < 5) {
