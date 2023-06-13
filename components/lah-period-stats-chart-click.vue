@@ -1,5 +1,8 @@
 <template lang="pug">
-b-card.border-0(no-body): lah-reg-b-table(:bakedData="baked")
+b-card.border-0(no-body): lah-reg-b-table(
+  :bakedData="baked",
+  :max-height-offset="120"
+)
 </template>
 
 <script>
