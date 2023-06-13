@@ -150,7 +150,7 @@ export default {
         ed: this.aEd
       }
       this.trigger('click', qData)
-      this.modal(this.$createElement('lah-period-stats-chart-click', {
+      this.type === 'reg' && this.modal(this.$createElement('lah-period-stats-chart-click', {
         props: { ...qData }
       }), {
         size: 'lg',
