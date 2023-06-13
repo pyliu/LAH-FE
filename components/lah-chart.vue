@@ -6,6 +6,7 @@ b-card.border-0(no-body): canvas(:id="id") 圖形初始化失敗
 import Chart from 'chart.js/auto'
 
 export default {
+  emit: ['click'],
   props: {
     type: {
       type: String,

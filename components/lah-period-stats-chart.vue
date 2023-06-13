@@ -1,10 +1,10 @@
 <template lang="pug">
-client-only: lah-chart(ref="chart")
+client-only: lah-chart(ref="chart", @click="handleClick")
 </template>
 
 <script>
 export default {
-  emit: ['fetched'],
+  emit: ['fetched', 'click'],
   component: {},
   props: {
     type: { type: String, default: 'reg' },
@@ -141,6 +141,22 @@ export default {
         // retry after 100ms
         this.timeout(this.buildChart, 100)
       }
+    },
+    handleClick (payload) {
+      const clock = payload.detail.label.replace('點', '')
+      const qData = {
+        clock,
+        st: this.aSt,
+        ed: this.aEd
+      }
+      this.trigger('click', qData)
+      this.modal(this.$createElement('lah-period-stats-chart-click', {
+        props: { ...qData }
+      }), {
+        size: 'lg',
+        title: `${this.aSt} ~ ${this.aEd} ${payload.detail.label}案件列表`,
+        scrollable: false
+      })
     }
   }
 }
