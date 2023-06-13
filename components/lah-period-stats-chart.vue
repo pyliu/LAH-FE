@@ -3,9 +3,10 @@ client-only: lah-chart(ref="chart", @click="handleClick")
 </template>
 
 <script>
+import lahPeriodStatsChartClickVue from './lah-period-stats-chart-click.vue'
 export default {
   emit: ['fetched', 'click'],
-  component: {},
+  component: { lahPeriodStatsChartClickVue },
   props: {
     type: { type: String, default: 'reg' },
     st: { type: String, default: '' },
@@ -150,7 +151,7 @@ export default {
         ed: this.aEd
       }
       this.trigger('click', qData)
-      this.type === 'reg' && this.modal(this.$createElement('lah-period-stats-chart-click', {
+      this.type === 'reg' && this.modal(this.$createElement(lahPeriodStatsChartClickVue, {
         props: { ...qData }
       }), {
         size: 'lg',

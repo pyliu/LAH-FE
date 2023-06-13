@@ -12,6 +12,7 @@ b-card.border-0(no-body)
 export default {
   name: 'LahPeriodStatsChartClick',
   emit: ['fetched'],
+  components: {},
   props: {
     type: { type: String, default: 'reg' },
     st: { type: String, default: '' },
