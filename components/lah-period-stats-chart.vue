@@ -143,9 +143,9 @@ export default {
       }
     },
     handleClick (payload) {
-      const clock = payload.detail.label.replace('點', '')
       const qData = {
-        clock,
+        type: this.type,
+        clock: payload.detail.label.replace('點', ''),
         st: this.aSt,
         ed: this.aEd
       }
