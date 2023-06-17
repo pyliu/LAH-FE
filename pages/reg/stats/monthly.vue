@@ -18,8 +18,8 @@ div(v-cloak)
           icon="magnifying-glass",
           size="lg",
           title="重新搜尋",
-          :disabled="searching || isBusy",
-          @click="searching = true"
+          :disabled="globalQuery || isBusy",
+          @click="globalQuery = true"
           no-icon-gutter
         )
     lah-help-modal(:modal-id="'help-modal'" size="md")
@@ -100,7 +100,7 @@ export default {
       days: 0
     },
     readyCount: 0,
-    searching: false,
+    globalQuery: false,
     regFirstCount: NaN
   }),
   head: {
@@ -113,9 +113,8 @@ export default {
   },
   watch: {
     // dateRange (val) { console.warn(val) }
-    searching (flag) {
+    globalQuery (flag) {
       this.readyCount = 0
-      this.debounceReset()
       flag && this.$refs.regFirst?.query()
       flag && this.$refs.regFirstSub?.query()
       flag && this.$refs.regRM02_1?.query()
@@ -129,7 +128,7 @@ export default {
   created () {
     this.debounceReset = this.$utils.debounce(() => {
       this.readyCount = 0
-      this.searching = false
+      this.globalQuery = false
     }, 10000)
   },
   methods: {
@@ -137,9 +136,7 @@ export default {
     handleReady (e) {
       this.readyCount++
       if (this.readyCount === 8) {
-        this.searching = false
-      } else {
-        this.debounceReset()
+        this.globalQuery = false
       }
     }
   }
