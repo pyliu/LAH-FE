@@ -7,12 +7,12 @@ div(v-cloak)
           div 分時登記案件統計資訊
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         b-button-group(size="lg")
+          //- lah-button(
+          //-   icon="chart-column",
+          //-   @click="$refs.today?.show()",
+          //-   :title="$utils.today('TW')"
+          //- ) 今天
           lah-button(
-            icon="chart-column",
-            @click="$refs.today?.show()",
-            :title="$utils.today('TW')"
-          ) 今天
-          lah-button.ml-1(
             icon="chart-simple",
             @click="$refs.lastMonth?.show()",
             :title="lastMonthText"
@@ -22,6 +22,11 @@ div(v-cloak)
             @click="$refs.thisMonth?.show()",
             :title="thisMonthText"
           ) 本月(迄今)
+          lah-button.ml-1(
+            icon="calendar-day",
+            @click="$refs.day?.show()",
+            :title="dayText"
+          ) 指定日期
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 最近9天的登記案件分時統計數據
       ul
@@ -29,14 +34,6 @@ div(v-cloak)
         li 🟢 - 案件量較少的時段
         li 🟡 - 較繁忙的時段
         li 🔴 - 非常繁忙的時段
-    b-modal(
-      ref="today",
-      size="xl",
-      :title="todayText",
-      hide-footer,
-      centered
-    )
-      lah-period-stats-chart(:st="today", :ed="today")
     b-modal(
       ref="lastMonth",
       size="xl",
@@ -53,14 +50,24 @@ div(v-cloak)
       centered
     )
       lah-period-stats-chart(:st="firstDayofMonth", :ed="today")
+    b-modal(
+      ref="day",
+      size="xl",
+      :title="dayText",
+      hide-footer,
+      centered
+    )
+      b-datepicker(
+        v-model="day",
+        :max="$utils.today()"
+      )
+      lah-period-stats-chart(:st="twDay", :ed="twDay")
   b-card-group.mb-4(
     deck,
     v-for="(arr, idx) in daysChunk",
     :key="`bcg_${idx}`"
   )
     b-card(v-for="(day, idx) in arr", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
-  //- b-card-group(columns)
-  //-   b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
 </template>
 
 <script>
@@ -68,7 +75,8 @@ export default {
   fetchOnServer: false,
   data: () => ({
     daysSorted: [],
-    today: ''
+    today: '',
+    day: ''
   }),
   head: {
     title: '分時案件統計資訊-桃園市地政局'
@@ -77,14 +85,17 @@ export default {
     daysChunk () {
       return this.splitChunks(this.daysSorted, 3)
     },
-    todayText () {
-      return `${this.$utils.today('TW')} 分時統計圖`
-    },
     lastMonthText () {
       return `${this.firstDayofLastMonth} ~ ${this.lastDayofLastMonth} 分時總量統計圖`
     },
     thisMonthText () {
       return `${this.firstDayofMonth} ~ ${this.today} 分時總量統計圖`
+    },
+    dayText () {
+      return '指定日期顯示'
+    },
+    twDay () {
+      return this.$utils.twDateStr(new Date(this.day))
     }
   },
   created () {
@@ -115,6 +126,8 @@ export default {
     this.firstDayofMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth(), 1))
     this.firstDayofLastMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth() - 1, 1))
     this.lastDayofLastMonth = this.$utils.twDateStr(new Date(today.getFullYear(), today.getMonth(), 0))
+
+    this.day = this.$utils.today()
   },
   methods: {
     splitChunks (arr, count) {

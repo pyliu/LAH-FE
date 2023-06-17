@@ -50,11 +50,11 @@ export default {
   watch: {
     st (val) {
       this.aSt = val?.replace(/[-/]+/g, '')
-      this.this.debounceQuery()
+      this.debounceQuery()
     },
     ed (val) {
       this.aEd = val?.replace(/[-/]+/g, '')
-      this.this.debounceQuery()
+      this.debounceQuery()
     }
   },
   created () {
