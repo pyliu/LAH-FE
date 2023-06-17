@@ -36,13 +36,13 @@
 
 <script>
 export default {
+  emit: ['input'],
   props: {
     size: { type: String, default: 'sm' },
     value: { type: Object, default: () => ({ begin: '', end: '', days: 0 }), required: true },
     begin: { type: Date, default: () => (new Date(new Date().getFullYear(), new Date().getMonth(), 1)), required: false },
     end: { type: Date, default: () => (new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)), required: false }
   },
-  fetchOnServer: true,
   data: () => ({
     startDateObj: null,
     endDateObj: null,
@@ -51,15 +51,6 @@ export default {
     firstDayofMonth: null,
     lastDayofMonth: null
   }),
-  fetch () {
-    const today = new Date()
-    this.startDateObj = this.begin
-    this.endDateObj = this.end
-    this.yesterday = new Date(new Date().setDate(today.getDate() - 1))
-    this.today = today
-    this.firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    this.lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-  },
   computed: {
     days () {
       if (this.endDateObj && this.startDateObj) {
@@ -86,7 +77,9 @@ export default {
       return {
         begin: this.$utils.twDateStr(this.startDateObj),
         end: this.$utils.twDateStr(this.endDateObj),
-        days: this.days
+        days: this.days,
+        beginDate: this.startDateObj,
+        endDate: this.endDateObj
       }
     }
   },
@@ -97,6 +90,15 @@ export default {
     endDateObj (dontcare) {
       this.$emit('input', this.latestValue)
     }
+  },
+  created () {
+    const today = new Date()
+    this.startDateObj = this.begin
+    this.endDateObj = this.end
+    this.yesterday = new Date(new Date().setDate(today.getDate() - 1))
+    this.today = today
+    this.firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    this.lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
   },
   mounted () {
     // b-datepicker label centering/nowrap hack
