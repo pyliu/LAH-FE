@@ -5,7 +5,8 @@ b-card(
   b-card-title: .d-flex.align-items-center
     lah-transition
       lah-fa-icon(v-if="ready", icon="circle-check", variant="success", size="lg")
-      lah-fa-icon(v-else, icon="pause", variant="muted", size="lg")
+      lah-fa-icon(v-else-if="isBusy", icon="road-barrier", variant="muted", size="lg")
+      lah-fa-icon(v-else, icon="xmark", variant="muted", size="lg")
     .ml-1 第一次登記
     lah-transition: b-badge.ml-1(:variant="badgeVar", pill, v-if="ready") {{ count }}
     lah-transition: lah-button.ml-1(
