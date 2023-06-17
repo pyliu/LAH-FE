@@ -115,6 +115,7 @@ export default {
     // dateRange (val) { console.warn(val) }
     searching (flag) {
       this.readyCount = 0
+      this.debounceReset()
       flag && this.$refs.regFirst?.query()
       flag && this.$refs.regFirstSub?.query()
       flag && this.$refs.regRM02_1?.query()
@@ -124,6 +125,9 @@ export default {
       flag && this.$refs.regRM02_3?.query()
       flag && this.$refs.regRM02Sub_3?.query()
     }
+  },
+  created () {
+    this.debounceReset = this.$utils.debounce(() => { this.readyCount = 0 }, 10000)
   },
   methods: {
     handleDate (e) {},
