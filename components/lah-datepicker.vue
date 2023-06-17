@@ -1,5 +1,11 @@
 <template lang="pug">
 .d-flex
+  b-input.display-input(
+    v-if="!isADStyle",
+    :value="$utils.addDateDivider($utils.twDateStr(startDateObj))",
+    :size="size",
+    readonly
+  )
   b-datepicker(
     v-model="startDateObj"
     placeholder="📅 開始日期"
@@ -10,12 +16,19 @@
     :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
     :max="today"
     :state="stateIndicatorFlag"
+    :button-only="!isADStyle"
+    :dropleft="isADStyle"
     value-as-date
     hide-header
-    dropleft
     v-b-tooltip.hover
   )
   .my-auto ～
+  b-input.display-input(
+    v-if="!isADStyle",
+    :value="$utils.addDateDivider($utils.twDateStr(endDateObj))",
+    :size="size",
+    readonly
+  )
   b-datepicker(
     v-model="endDateObj"
     placeholder="📆 結束日期"
@@ -27,6 +40,7 @@
     :max="lastDayofMonth"
     :min="startDateObj"
     :state="stateIndicatorFlag"
+    :button-only="!isADStyle"
     value-as-date
     hide-header
     dark
@@ -38,6 +52,7 @@
 export default {
   emit: ['input'],
   props: {
+    type: { type: String, default: 'TW' },
     size: { type: String, default: 'sm' },
     value: { type: Object, default: () => ({ begin: '', end: '', days: 0 }), required: true },
     begin: { type: Date, default: () => (new Date(new Date().getFullYear(), new Date().getMonth(), 1)), required: false },
@@ -52,6 +67,9 @@ export default {
     lastDayofMonth: null
   }),
   computed: {
+    isADStyle () {
+      return this.type?.toUpperCase() === 'AD'
+    },
     days () {
       if (this.endDateObj && this.startDateObj) {
         const difference = this.endDateObj.getTime() - this.startDateObj.getTime()
@@ -110,4 +128,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.display-input {
+  width: 130px;
+  height: 100%;
+}
 </style>
