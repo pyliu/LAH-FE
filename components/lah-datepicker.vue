@@ -132,7 +132,7 @@ export default {
 
 <style lang="scss" scoped>
 .display-input {
-  width: 130px;
+  width: 135px;
   height: 100%;
 }
 </style>
