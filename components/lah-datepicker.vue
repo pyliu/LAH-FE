@@ -4,6 +4,7 @@
     v-if="!isADStyle",
     :value="$utils.addDateDivider($utils.twDateStr(startDateObj))",
     :size="size",
+    title="請按右側按鈕選取日期",
     readonly
   )
   b-datepicker(
@@ -27,6 +28,7 @@
     v-if="!isADStyle",
     :value="$utils.addDateDivider($utils.twDateStr(endDateObj))",
     :size="size",
+    title="請按右側按鈕選取日期",
     readonly
   )
   b-datepicker(
