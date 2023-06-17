@@ -127,7 +127,10 @@ export default {
     }
   },
   created () {
-    this.debounceReset = this.$utils.debounce(() => { this.readyCount = 0 }, 10000)
+    this.debounceReset = this.$utils.debounce(() => {
+      this.readyCount = 0
+      this.searching = false
+    }, 10000)
   },
   methods: {
     handleDate (e) {},
