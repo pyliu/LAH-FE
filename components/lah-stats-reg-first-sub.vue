@@ -22,6 +22,7 @@ b-card(
       icon="arrow-rotate-right",
       action="spin",
       title="重新查詢",
+      :variant="queryBtnVar",
       :disabled="isBusy",
       :spin="isBusy",
       pill,
@@ -76,6 +77,9 @@ export default {
         return 'warning'
       }
       return 'info'
+    },
+    queryBtnVar () {
+      return this.ready ? 'outline-success' : 'outline-primary'
     }
   },
   watch: {
