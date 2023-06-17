@@ -31,47 +31,55 @@ div(v-cloak)
       ref="regFirst",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
     lah-stats-reg-first-sub(
       ref="regFirstSub",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
     lah-stats-reg-rm02(
       ref="regRM02_1",
       :rm02="'HA81'",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
     lah-stats-reg-rm02-sub(
       ref="regRM02Sub_1",
       :rm02="'HA81'",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
     lah-stats-reg-rm02(
       ref="regRM02_2",
       :rm02="'HA87'",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
     lah-stats-reg-rm02-sub(
       ref="regRM02Sub_2",
       :rm02="'HA87'",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
     lah-stats-reg-rm02(
       ref="regRM02_3",
       :rm02="'HA85'",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
     lah-stats-reg-rm02-sub(
       ref="regRM02Sub_3",
       :rm02="'HA85'",
       :begin="dateRange.begin",
       :end="dateRange.end"
+      @ready="handleReady"
     )
 </template>
 
@@ -91,6 +99,7 @@ export default {
       end: '',
       days: 0
     },
+    readyCount: 0,
     searching: false,
     regFirstCount: NaN
   }),
@@ -105,6 +114,7 @@ export default {
   watch: {
     // dateRange (val) { console.warn(val) }
     searching (flag) {
+      this.readyCount = 0
       flag && this.$refs.regFirst?.query()
       flag && this.$refs.regFirstSub?.query()
       flag && this.$refs.regRM02_1?.query()
@@ -116,7 +126,13 @@ export default {
     }
   },
   methods: {
-    handleDate (e) {}
+    handleDate (e) {},
+    handleReady (e) {
+      this.readyCount++
+      if (this.readyCount === 8) {
+        this.searching = false
+      }
+    }
   }
 }
 </script>
