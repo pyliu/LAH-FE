@@ -138,6 +138,8 @@ export default {
       this.readyCount++
       if (this.readyCount === 8) {
         this.searching = false
+      } else {
+        this.debounceReset()
       }
     }
   }
