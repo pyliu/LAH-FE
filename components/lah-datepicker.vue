@@ -46,6 +46,7 @@
     value-as-date
     hide-header
     dark
+    nav-button-variant="light"
     v-b-tooltip.hover
   )
 </template>
