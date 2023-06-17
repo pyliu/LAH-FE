@@ -7,7 +7,7 @@
     title="請按右側按鈕選取日期",
     readonly
   )
-  b-datepicker(
+  client-only: b-datepicker(
     v-model="startDateObj"
     placeholder="📅 開始日期"
     boundary="viewport"
@@ -31,7 +31,7 @@
     title="請按右側按鈕選取日期",
     readonly
   )
-  b-datepicker(
+  client-only: b-datepicker(
     v-model="endDateObj"
     placeholder="📆 結束日期"
     boundary="viewport"

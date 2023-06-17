@@ -7,7 +7,7 @@ div(v-cloak)
           div 登記案件統計資訊
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
 
-        client-only: lah-datepicker(
+        lah-datepicker(
           v-model="dateRange",
           :begin="initBegin",
           :end="initEnd",
