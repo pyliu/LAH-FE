@@ -29,6 +29,7 @@ div(v-cloak)
         li HA81 - 桃資登
         li HA85 - 桃資速
         li HA87 - 桃資標
+  hr.mb-3
   b-card-group(deck)
     b-card.border-0(no-body)
       lah-stats-reg-first(
@@ -60,6 +61,23 @@ div(v-cloak)
       )
     b-card.border-0(no-body)
       lah-stats-reg-rm02(
+        ref="regRM02_3",
+        :rm02="'HA85'",
+        :begin="dateRange.begin",
+        :end="dateRange.end"
+        @ready="handleReady"
+      )
+      lah-stats-reg-rm02-sub.mt-3(
+        ref="regRM02Sub_3",
+        :rm02="'HA85'",
+        :begin="dateRange.begin",
+        :end="dateRange.end"
+        @ready="handleReady"
+      )
+  hr.my-3
+  b-card-group(deck)
+    b-card.border-0(no-body)
+      lah-stats-reg-rm02(
         ref="regRM02_2",
         :rm02="'HA87'",
         :begin="dateRange.begin",
@@ -74,20 +92,7 @@ div(v-cloak)
         @ready="handleReady"
       )
     b-card.border-0(no-body)
-      lah-stats-reg-rm02(
-        ref="regRM02_3",
-        :rm02="'HA85'",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
-      lah-stats-reg-rm02-sub.mt-3(
-        ref="regRM02Sub_3",
-        :rm02="'HA85'",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
+    b-card.border-0(no-body)
 </template>
 
 <script>
