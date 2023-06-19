@@ -39,6 +39,7 @@ b-card(
       @click="query"
     )
   b-card-sub-title(v-if="!$utils.empty(period)") {{ period }}
+  h6.mt-2.text-danger(v-if="missCaseNumber.length > 0") 缺號： {{ missCaseNumber.join('、') }}
   b-modal(
     ref="table",
     size="lg",
@@ -146,6 +147,23 @@ export default {
         return obj
       }) || []
       return jsons
+    },
+    missCaseNumber () {
+      const missing = []
+      if (this.count > 0) {
+        const numberList = this.raw.map((item, idx, arr) => {
+          return item.RM03
+        })
+        const first = parseInt(numberList[0])
+        const last = parseInt(numberList[numberList.length - 1])
+        for (let i = first; i < last; i += 10) {
+          const criteria = i.toString().padStart(6, '0')
+          if (!numberList.includes(criteria)) {
+            missing.push(criteria)
+          }
+        }
+      }
+      return missing
     }
   },
   watch: {
