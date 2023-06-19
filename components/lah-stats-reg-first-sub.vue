@@ -19,7 +19,7 @@ b-card(
       pill
     )
     lah-transition: lah-button.ml-1(
-      v-if="ready"
+      v-if="ready && count > 0"
       icon="window-maximize",
       title="顯示案件列表",
       :disabled="isBusy",
