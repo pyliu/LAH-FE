@@ -22,7 +22,7 @@ b-button.text-nowrap(
     :icon="icon"
     :size="iconSize"
     :append="iconAppend"
-    :no-gutter="noIconGutter || noText"
+    :no-gutter="noIconGutter || $utils.empty($refs.slot?.textContent) "
     :variant="iconVariant"
     :flip="flip"
     :rotate="rotate"
@@ -30,7 +30,7 @@ b-button.text-nowrap(
     :mirror="mirror"
   )
   span.ld-txt(v-if="busy") 讀取中...
-  span(ref="text", v-show="!busy")
+  span(ref="slot", v-show="!busy")
     slot
     b-badge.ml-1(
       v-if="showBadge"
@@ -76,8 +76,7 @@ export default {
     },
     showBadge () { return !this.$utils.empty(this.badgeText) },
     showIcon () { return !this.$utils.empty(this.icon) },
-    iconId () { return this.$refs.icon ? this.$refs.icon.iconId : '' },
-    noText () { return this.$utils.empty(this.$refs.text?.textContent) }
+    iconId () { return this.$refs.icon ? this.$refs.icon.iconId : '' }
   },
   methods: {
     emitClick (evt) {
