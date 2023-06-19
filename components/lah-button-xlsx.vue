@@ -8,6 +8,7 @@ lah-button(
   :variant="variant",
   :no-icon-gutter="noIconGutter",
   :disabled="disabled",
+  :pill="pill",
   @click="download"
 ): slot
 </template>
@@ -24,7 +25,8 @@ export default {
     variant: { type: String, default: 'outline-success' },
     size: { type: String, default: 'lg' },
     action: { type: String, default: 'move-fade-ltr' },
-    title: { type: String, default: '匯出EXCEL' }
+    title: { type: String, default: '匯出EXCEL' },
+    pill: { type: Boolean, default: false }
   },
   computed: {
     dataCount () {

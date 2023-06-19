@@ -9,6 +9,15 @@ b-card(
       lah-fa-icon(v-else, icon="xmark", variant="muted", size="lg")
     .ml-1 {{ rm02 }} 登記案件
     lah-transition: b-badge.ml-1(:variant="badgeVar", pill, v-if="ready") {{ count }}
+    lah-transition: lah-button-xlsx.ml-1(
+      v-if="count > 0",
+      regular,
+      icon="file-excel",
+      size="sm",
+      :variant="'success'",
+      :jsons="xlsxJsons",
+      pill
+    )
     lah-transition: lah-button.ml-1(
       v-if="ready"
       icon="window-maximize",
@@ -54,7 +63,39 @@ export default {
   },
   data: () => ({
     ready: false,
-    raw: []
+    raw: [],
+    xlsxFields: [
+      {
+        key: 'RM01',
+        label: '收件年',
+        sortable: true
+      },
+      {
+        key: 'RM02',
+        label: '收件字',
+        sortable: true
+      },
+      {
+        key: 'RM03',
+        label: '收件號',
+        sortable: true
+      },
+      {
+        key: 'RM09',
+        label: '登記原因代碼',
+        sortable: true
+      },
+      {
+        key: 'RM09_CHT',
+        label: '登記原因',
+        sortable: true
+      },
+      {
+        key: 'RM07_1',
+        label: '收件日期',
+        sortable: true
+      }
+    ]
   }),
   computed: {
     classNames () {
@@ -81,6 +122,19 @@ export default {
     },
     queryBtnVar () {
       return this.ready ? 'outline-success' : 'outline-primary'
+    },
+    xlsxJsons () {
+      const fieldKeys = this.xlsxFields.map((field, idx, array) => field.key)
+      const jsons = this.raw?.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      }) || []
+      return jsons
     }
   },
   watch: {
@@ -96,6 +150,15 @@ export default {
   created () {},
   mounted () {},
   methods: {
+    getLabel (key) {
+      const found = this.xlsxFields.find((item, idx, array) => {
+        return this.$utils.equal(item.key, key)
+      })
+      if (found && found.label) {
+        return found.label
+      }
+      return key
+    },
     query () {
       this.isBusy = true
       this.ready = false
