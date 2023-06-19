@@ -25,7 +25,10 @@ div(v-cloak)
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 {{ site }} 上個月(預設)的統計資料
       ul
-        li ...
+        li 第一次登記- 登記原因代碼 06
+        li HA81 - 桃資登
+        li HA85 - 桃資速
+        li HA87 - 桃資標
   b-card-group(columns)
     lah-stats-reg-first(
       ref="regFirst",
