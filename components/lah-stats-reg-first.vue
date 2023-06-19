@@ -39,6 +39,8 @@ b-card(
       @click="query"
     )
   b-card-sub-title(v-if="!$utils.empty(period)") {{ period }}
+  h6.mt-2(v-if="firstCase") 起始號：{{ firstCase.RM03 }}
+  h6.mt-2(v-if="lastCase") 終止號：{{ lastCase.RM03 }}
   h6.mt-2.text-danger(v-if="missCaseNumber.length > 0") 缺號： {{ missCaseNumber.join('、') }}
   b-modal(
     ref="table",
@@ -119,6 +121,18 @@ export default {
     },
     count () {
       return this.raw?.length || 0
+    },
+    firstCase () {
+      if (this.count > 0) {
+        return this.raw[0]
+      }
+      return undefined
+    },
+    lastCase () {
+      if (this.count > 0) {
+        return this.raw[this.count - 1]
+      }
+      return undefined
     },
     period () {
       if (this.$utils.empty(this.begin) || this.$utils.empty(this.end)) {
