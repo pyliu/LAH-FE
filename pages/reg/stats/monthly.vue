@@ -31,21 +31,21 @@ div(v-cloak)
           span -
           span {{ item.name }}
 
-  .d-flex.flex-wrap.justify-content-between
-    b-card.display-group(no-body)
+  lah-b-card-group
+    b-card.border-0(no-body)
       lah-stats-reg-first(
         ref="regFirst",
         :begin="dateRange.begin",
         :end="dateRange.end"
         @ready="handleReady"
       )
-      lah-stats-reg-first-sub.mt-3(
+      lah-stats-reg-first-sub.mt-1(
         ref="regFirstSub",
         :begin="dateRange.begin",
         :end="dateRange.end"
         @ready="handleReady"
       )
-    b-card.display-group(
+    b-card.border-0(
       v-for="(item, idx) in codes",
       :key="`code_${idx}`",
       no-body
@@ -58,7 +58,7 @@ div(v-cloak)
         :end="dateRange.end",
         @ready="handleReady"
       )
-      lah-stats-reg-rm02-sub.mt-3(
+      lah-stats-reg-rm02-sub.mt-1(
         :ref="`regRM02Sub_${idx}`",
         :rm02="item.code",
         :rm02-name="item.name",
@@ -136,9 +136,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.display-group {
-  width: 32vw;
-  border: 0;
-  margin-bottom: .75rem;
-}
 </style>
