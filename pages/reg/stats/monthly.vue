@@ -26,12 +26,13 @@ div(v-cloak)
       h5 {{ site }} 上個月(預設)的統計資料
       ul
         li 第一次登記- 登記原因代碼 02
-        li HA81 - 桃資登
-        li HA85 - 桃資速
-        li HA87 - 桃資標
-  hr.mb-3
-  b-card-group(deck)
-    b-card.border-0(no-body)
+        li(v-for="(item, idx) in codes", :key="`li_${idx}`")
+          span {{ item.code }}
+          span -
+          span {{ item.name }}
+
+  .d-flex.flex-wrap.justify-content-between
+    b-card.display-group(no-body)
       lah-stats-reg-first(
         ref="regFirst",
         :begin="dateRange.begin",
@@ -44,65 +45,39 @@ div(v-cloak)
         :end="dateRange.end"
         @ready="handleReady"
       )
-    b-card.border-0(no-body)
+    b-card.display-group(
+      v-for="(item, idx) in codes",
+      :key="`code_${idx}`",
+      no-body
+    )
       lah-stats-reg-rm02(
-        ref="regRM02_1",
-        :rm02="'HA81'",
+        :ref="`regRM02_${idx}`",
+        :rm02="item.code",
+        :rm02-name="item.name",
         :begin="dateRange.begin",
-        :end="dateRange.end"
+        :end="dateRange.end",
         @ready="handleReady"
       )
       lah-stats-reg-rm02-sub.mt-3(
-        ref="regRM02Sub_1",
-        :rm02="'HA81'",
+        :ref="`regRM02Sub_${idx}`",
+        :rm02="item.code",
+        :rm02-name="item.name",
         :begin="dateRange.begin",
-        :end="dateRange.end"
+        :end="dateRange.end",
         @ready="handleReady"
       )
-    b-card.border-0(no-body)
-      lah-stats-reg-rm02(
-        ref="regRM02_3",
-        :rm02="'HA85'",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
-      lah-stats-reg-rm02-sub.mt-3(
-        ref="regRM02Sub_3",
-        :rm02="'HA85'",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
-  hr.my-3
-  b-card-group(deck)
-    b-card.border-0(no-body)
-      lah-stats-reg-rm02(
-        ref="regRM02_2",
-        :rm02="'HA87'",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
-      lah-stats-reg-rm02-sub.mt-3(
-        ref="regRM02Sub_2",
-        :rm02="'HA87'",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
-    b-card.border-0(no-body)
-    b-card.border-0(no-body)
 </template>
 
 <script>
 export default {
   fetchOnServer: false,
-  asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error }) {
+  async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
+    const siteCodeMap = await $content('statsSiteCode').fetch()
     const today = new Date()
     return {
       initBegin: new Date(today.getFullYear(), today.getMonth() - 1, 1),
-      initEnd: new Date(today.getFullYear(), today.getMonth(), 0)
+      initEnd: new Date(today.getFullYear(), today.getMonth(), 0),
+      siteCodeMap
     }
   },
   data: () => ({
@@ -121,20 +96,24 @@ export default {
   computed: {
     period () {
       return `${this.$utils.addDateDivider(this.dateRange.begin)} ~ ${this.$utils.addDateDivider(this.dateRange.end)}`
+    },
+    codes () {
+      return this.siteCodeMap[this.site]
     }
   },
   watch: {
     // dateRange (val) { console.warn(val) }
     globalQuery (flag) {
-      this.readyCount = 0
-      flag && this.$refs.regFirst?.query()
-      flag && this.$refs.regFirstSub?.query()
-      flag && this.$refs.regRM02_1?.query()
-      flag && this.$refs.regRM02Sub_1?.query()
-      flag && this.$refs.regRM02_2?.query()
-      flag && this.$refs.regRM02Sub_2?.query()
-      flag && this.$refs.regRM02_3?.query()
-      flag && this.$refs.regRM02Sub_3?.query()
+      if (flag) {
+        this.readyCount = 0
+        Object.values(this.$refs).forEach((ref) => {
+          if (Array.isArray(ref)) {
+            ref[0].query()
+          } else {
+            ref.query()
+          }
+        })
+      }
     }
   },
   created () {
@@ -143,6 +122,7 @@ export default {
       this.globalQuery = false
     }, 10000)
   },
+  mounted () {},
   methods: {
     handleDate (e) {},
     handleReady (e) {
@@ -156,4 +136,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.display-group {
+  width: 32.5vw;
+  border: 0;
+  margin-bottom: .75rem;
+}
 </style>

@@ -7,7 +7,7 @@ b-card(
       lah-fa-icon(v-if="ready", icon="circle-check", variant="success", size="lg")
       lah-fa-icon(v-else-if="isBusy", icon="road-barrier", variant="muted", size="lg")
       lah-fa-icon(v-else, icon="xmark", variant="muted", size="lg")
-    .ml-1 {{ rm02 }} 登記案件
+    .ml-1 {{ rm02Name || rm02 }}({{ rm02 }}) 案件
     lah-transition: b-badge.ml-1(:variant="badgeVar", pill, v-if="ready") {{ count }}
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
@@ -78,6 +78,7 @@ export default {
   component: {},
   props: {
     rm02: { type: String, default: '' },
+    rm02Name: { type: String, default: '' },
     begin: { type: String, default: '' },
     end: { type: String, default: '' },
     noBorder: { type: Boolean, default: false }
