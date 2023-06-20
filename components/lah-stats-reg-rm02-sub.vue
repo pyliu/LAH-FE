@@ -40,7 +40,15 @@ b-card(
     )
   b-card-sub-title(v-if="!$utils.empty(period)"): .d-flex.justify-content-between
     span {{ period }}
-    span(:class="queryOK ? 'text-info' : 'text-danger'") {{ message }}
+    lah-fa-icon(
+      v-if="!$utils.empty(message)",
+      icon="circle-xmark",
+      size="sm",
+      role="button",
+      append,
+      :class="queryOK ? 'text-info' : 'text-danger'",
+      @click="message = ''"
+    ) {{ message }}
   b-modal(
     ref="table",
     size="lg",

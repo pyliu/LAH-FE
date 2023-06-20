@@ -40,7 +40,15 @@ b-card(
     )
   b-card-sub-title(v-if="!$utils.empty(period)"): .d-flex.justify-content-between
     span {{ period }}
-    span(:class="queryOK ? 'text-info' : 'text-danger'") {{ message }}
+    lah-fa-icon(
+      v-if="!$utils.empty(message)",
+      icon="circle-xmark",
+      size="sm",
+      role="button",
+      append,
+      :class="queryOK ? 'text-info' : 'text-danger'",
+      @click="message = ''"
+    ) {{ message }}
   h6.mt-2(v-if="firstCase") 起始號：{{ firstCase.RM03 }}
   h6.mt-2(v-if="lastCase") 終止號：{{ lastCase.RM03 }}
   h6.mt-2.text-danger(v-if="missCaseNumber.length > 0") 缺號： {{ missCaseNumber.join('、') }}
