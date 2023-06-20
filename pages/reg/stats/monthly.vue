@@ -137,7 +137,7 @@ export default {
 
 <style lang="scss" scoped>
 .display-group {
-  width: 32.5vw;
+  width: 32vw;
   border: 0;
   margin-bottom: .75rem;
 }
