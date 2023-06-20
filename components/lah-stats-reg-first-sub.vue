@@ -38,7 +38,9 @@ b-card(
       no-icon-gutter,
       @click="query"
     )
-  b-card-sub-title(v-if="!$utils.empty(period)") {{ period }}
+  b-card-sub-title(v-if="!$utils.empty(period)"): .d-flex.justify-content-between
+    span {{ period }}
+    span(:class="queryOK ? 'text-info' : 'text-danger'") {{ message }}
   b-modal(
     ref="table",
     size="lg",
@@ -70,7 +72,9 @@ export default {
   },
   data: () => ({
     ready: false,
+    queryOK: false,
     raw: [],
+    message: '',
     pagination: {
       perPage: 20,
       currentPage: 1
@@ -126,8 +130,11 @@ export default {
       return `${this.$utils.addDateDivider(this.begin)} ~ ${this.$utils.addDateDivider(this.end)}`
     },
     badgeVar () {
+      if (!this.queryOK) {
+        return 'danger'
+      }
       if (this.count === 0) {
-        return 'warning'
+        return 'secondary'
       }
       return 'info'
     },
@@ -150,15 +157,18 @@ export default {
   },
   watch: {
     begin (dontcare) {
-      this.raw = []
-      this.ready = false
+      this.reset()
     },
     end (dontcare) {
-      this.raw = []
-      this.ready = false
+      this.reset()
+    },
+    message (dontcare) {
+      // this.debounceClearMessage()
     }
   },
-  created () {},
+  created () {
+    this.debounceClearMessage = this.$utils.debounce(() => { this.message = '' }, 10000)
+  },
   mounted () {},
   methods: {
     getLabel (key) {
@@ -170,20 +180,28 @@ export default {
       }
       return key
     },
+    reset () {
+      this.ready = false
+      this.queryOK = false
+      this.message = ''
+      this.raw = []
+    },
     query () {
       this.isBusy = true
-      this.ready = false
-      this.raw = []
+      this.reset()
       this.$axios.post(this.$consts.API.JSON.STATS, {
         type: 'stats_reg_first_sub_count',
         st: this.begin,
         ed: this.end
       }).then(({ data }) => {
+        this.queryOK = this.$utils.statusCheck(data.status)
         this.raw = data.raw
+        this.message = data.message
         this.$emit('ready', data)
         this.ready = true
       }).catch((err) => {
         this.$utils.error(err)
+        this.message = err.toString()
       }).finally(() => {
         this.isBusy = false
       })
