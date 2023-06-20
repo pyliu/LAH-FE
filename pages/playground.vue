@@ -20,7 +20,7 @@ div: client-only
     .d-flex
   lah-b-card-group
     b-card
-      lah-period-stats-chart(st="1120605" ed="1120605")
+      lah-period-stats-chart
     b-card
       lah-cert-badge(size="lg")
     b-card
