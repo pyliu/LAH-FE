@@ -6,6 +6,7 @@ lah-transition: span(v-if="!hide")
     icon="circle-xmark",
     size="sm",
     role="button",
+    title="關閉訊息",
     :variant="closeVariant",
     @click="close"
   )
@@ -20,7 +21,7 @@ export default {
     autoHide: { type: Boolean, default: false },
     autoHideTime: { type: String, default: '10000' },
     closeMark: { type: Boolean, default: true },
-    closeVariant: { type: String, default: 'danger' }
+    closeVariant: { type: String, default: 'secondary' }
   },
   data: () => ({
     hide: false
