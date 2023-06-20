@@ -99,6 +99,9 @@ export default {
     },
     codes () {
       return this.siteCodeMap[this.site]
+    },
+    boardCount () {
+      return Object.values(this.$refs).length
     }
   },
   watch: {
@@ -127,7 +130,7 @@ export default {
     handleDate (e) {},
     handleReady (e) {
       this.readyCount++
-      if (this.readyCount === 8) {
+      if (this.readyCount === this.boardCount) {
         this.globalQuery = false
       }
     }
