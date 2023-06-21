@@ -26,17 +26,46 @@ export default {
     autoHide: { type: Boolean, default: false },
     autoHideTime: { type: String, default: '10000' },
     closeMark: { type: Boolean, default: true },
-    closeVariant: { type: String, default: 'secondary' }
+    closeVariant: { type: String, default: 'secondary' },
+    size: { type: String, default: '' }
   },
   data: () => ({
     hide: false
   }),
   computed: {
     className () {
-      if (this.border) {
-        return ['border', 'rounded', 'p-2', `border-${this.borderVariant}`]
+      let list = []
+      switch (this.size) {
+        case 'sm':
+          list.push('h6')
+          break
+        case 'md':
+          list.push('h5')
+          break
+        case 'lg':
+          list.push('h4')
+          break
+        case 'xl':
+          list.push('h3')
+          break
+        case 'h1':
+        case 'h2':
+        case 'h3':
+        case 'h4':
+        case 'h5':
+        case 'h6':
+          list.push(this.size)
+          break
+        default:
+          break
       }
-      return []
+      if (this.border) {
+        list = [
+          ...list,
+          ...['border', 'rounded', 'p-2', `border-${this.borderVariant}`]
+        ]
+      }
+      return list
     },
     autoHideTimeInt () {
       return parseInt(this.autoHideTime)

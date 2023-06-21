@@ -22,7 +22,7 @@ div: client-only
     b-card
       lah-period-stats-chart
     b-card
-      lah-message(:message="'測試'", border)
+      lah-message(:message="'測試'", border, size="h1")
       lah-cert-badge(size="lg")
       lah-ip-badge(ip="220.1.34.17", port="8082", period="15000", size="lg")
       lah-ip-badge.ml-1(ip="220.1.34.233", :badge="false", size="lg")
