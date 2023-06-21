@@ -23,14 +23,18 @@ div: client-only
       lah-period-stats-chart
     b-card
       lah-message.mr-1.mb-1(
+        ref="gm",
         message="測試<br/>If your div has a known width and height, then you basically need to set top and left to 50% to center the left-top corner of the div. You also need to set the margin-top and margin-left to the negative half of the div's height and width to shift the center towards the middle of the div.",
         border,
         size="h3",
         variant="dark",
-        border-variant="danger",
+        border-variant="secondary",
         close-variant="danger",
         shadow,
-        pos="bl"
+        pos="c",
+        auto-hide,
+        auto-hide-time="3000",
+        @close="$refs.gm.open()"
       )
       lah-cert-badge(size="lg")
       lah-ip-badge(ip="220.1.34.17", port="8082", period="15000", size="lg")

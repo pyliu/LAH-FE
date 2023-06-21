@@ -2,7 +2,7 @@
 lah-transition: span.lah-wrapper(
   v-if="!hide",
   :class="className",
-  v-clock
+  v-cloak
 )
   span(v-html="message")
   lah-fa-icon.ml-1(
@@ -19,7 +19,7 @@ lah-transition: span.lah-wrapper(
 
 <script>
 export default {
-  emit: ['hide', 'changed'],
+  emit: ['open', 'hide', 'changed'],
   component: {},
   props: {
     message: { type: String, default: '' },
@@ -129,10 +129,14 @@ export default {
       if (this.autoHide) {
         this.debounceHide()
       }
+    },
+    hide (val) {
+      this.$emit(val ? 'close' : 'open', this.message)
     }
   },
   created () {
     this.debounceHide = this.$utils.debounce(() => { this.hide = true }, this.autoHideTime)
+    this.debounceOpen = this.$utils.debounce(() => { this.hide = false }, 600)
   },
   mounted () {
     if (this.autoHide) {
@@ -140,9 +144,11 @@ export default {
     }
   },
   methods: {
+    open () {
+      this.debounceOpen()
+    },
     close () {
       this.hide = true
-      this.$emit('hide', this.message)
     }
   }
 }
