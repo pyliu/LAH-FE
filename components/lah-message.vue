@@ -21,6 +21,7 @@ export default {
   component: {},
   props: {
     message: { type: String, default: '' },
+    shadow: { type: Boolean, default: false },
     border: { type: Boolean, default: false },
     borderVariant: { type: String, default: '' },
     autoHide: { type: Boolean, default: false },
@@ -58,6 +59,9 @@ export default {
           break
         default:
           break
+      }
+      if (this.shadow) {
+        list.push('shadow')
       }
       if (this.border) {
         list = [
