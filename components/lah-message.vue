@@ -1,15 +1,17 @@
 <template lang="pug">
-lah-transition: span(
+lah-transition: span.lah-wrapper(
   v-if="!hide",
-  :class="className"
+  :class="className",
+  v-clock
 )
-  span {{ message }}
+  span(v-html="message")
   lah-fa-icon.ml-1(
     v-if="closeMark && !$utils.empty(message)",
     icon="circle-xmark",
     size="sm",
     role="button",
     title="關閉訊息",
+    :class="xmarkClassName",
     :variant="closeVariant",
     @click="close"
   )
@@ -30,7 +32,8 @@ export default {
     closeVariant: { type: String, default: 'secondary' },
     size: { type: String, default: '' },
     variant: { type: String, default: '' },
-    pill: { type: Boolean, default: false }
+    pill: { type: Boolean, default: false },
+    pos: { type: String, default: '' }
   },
   data: () => ({
     hide: false
@@ -62,17 +65,56 @@ export default {
         default:
           break
       }
+      switch (this.pos) {
+        case 'center':
+        case 'c':
+          list.push('lah-pos-center')
+          break
+        case 'top':
+        case 't':
+          list.push('lah-pos-top')
+          break
+        case 'top-right':
+        case 'tr':
+          list.push('lah-pos-top-right')
+          break
+        case 'top-left':
+        case 'tl':
+          list.push('lah-pos-top-left')
+          break
+        case 'bottom':
+        case 'b':
+          list.push('lah-pos-bottom')
+          break
+        case 'bottom-right':
+        case 'br':
+          list.push('lah-pos-bottom-right')
+          break
+        case 'bottom-left':
+        case 'bl':
+          list.push('lah-pos-bottom-left')
+          break
+        default:
+          break
+      }
       if (this.shadow) {
         list.push('shadow')
       }
       if (this.border) {
         list = [
           ...list,
-          ...['border', 'rounded', 'p-2', `border-${this.borderVariant}`]
+          ...['border', 'rounded', `p-${this.pill ? 5 : 3}`, `border-${this.borderVariant}`]
         ]
       }
       if (this.pill) {
         list.push('rounded-pill')
+      }
+      return list
+    },
+    xmarkClassName () {
+      const list = []
+      if (this.border) {
+        list.push('lah-xmark')
       }
       return list
     },
@@ -92,7 +134,11 @@ export default {
   created () {
     this.debounceHide = this.$utils.debounce(() => { this.hide = true }, this.autoHideTime)
   },
-  mounted () {},
+  mounted () {
+    if (this.autoHide) {
+      this.debounceHide()
+    }
+  },
   methods: {
     close () {
       this.hide = true
@@ -103,4 +149,71 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.lah-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.lah-xmark {
+  position: absolute;
+  top: .25rem;
+  right: 0;
+  cursor: pointer;
+  // transform: translate(50%, -50%);
+}
+@mixin posBase() {
+  z-index: 9999;
+  position: fixed;
+  max-width: 90vw;
+  max-height: 90vw;
+  // set the transform to the negative half of the div's relative width and height.
+  transform: translate(-50%, -50%);
+  background-color: white;
+}
+.lah-pos-center {
+  @include posBase();
+  left: 50%;
+  top: 50%;
+}
+.lah-pos-top {
+  @include posBase();
+  left: 50%;
+  top: 15%;
+}
+.lah-pos-bottom {
+  @include posBase();
+  left: 50%;
+  top: 85%;
+}
+.lah-pos-top-right {
+  @include posBase();
+  width: 30vw;
+  max-height: 25vw;
+  overflow: auto;
+  right: -12.5%;
+  top: 20%;
+}
+.lah-pos-top-left {
+  @include posBase();
+  width: 30vw;
+  max-height: 25vw;
+  overflow: auto;
+  left: 17.5%;
+  top: 20%;
+}
+.lah-pos-bottom-right {
+  @include posBase();
+  width: 30vw;
+  max-height: 25vw;
+  overflow: auto;
+  right: -12.5%;
+  bottom: -15%;
+}
+.lah-pos-bottom-left {
+  @include posBase();
+  width: 30vw;
+  max-height: 25vw;
+  overflow: auto;
+  left: 17.5%;
+  bottom: -15%;
+}
 </style>
