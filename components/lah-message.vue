@@ -1,5 +1,8 @@
 <template lang="pug">
-lah-transition: span.lah-wrapper(
+lah-transition(
+  :fade="fadeFlag",
+  :zoom="zoomFlag",
+): span.lah-wrapper(
   v-if="!hide",
   :class="className",
   v-cloak
@@ -33,10 +36,13 @@ export default {
     size: { type: String, default: '' },
     variant: { type: String, default: '' },
     pill: { type: Boolean, default: false },
-    pos: { type: String, default: '' }
+    pos: { type: String, default: '' },
+    animation: { type: String, default: 'auto' }
   },
   data: () => ({
-    hide: false
+    hide: false,
+    fadeFlag: false,
+    zoomFlag: false
   }),
   computed: {
     className () {
@@ -137,6 +143,20 @@ export default {
   created () {
     this.debounceHide = this.$utils.debounce(() => { this.hide = true }, this.autoHideTime)
     this.debounceOpen = this.$utils.debounce(() => { this.hide = false }, 600)
+    if (this.animation === 'auto') {
+      switch (this.$utils.rand(2)) {
+        case 0:
+          this.zoomFlag = true
+          break
+        case 1:
+          this.fadeFlag = true
+          break
+        default:
+          this.zoomFlag = false
+          this.fadeFlag = false
+          break
+      }
+    }
   },
   mounted () {
     if (this.autoHide) {

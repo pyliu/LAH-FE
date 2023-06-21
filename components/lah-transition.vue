@@ -157,7 +157,6 @@ export default {
       this.$emit('after-leave', e)
     },
     randAnimation () {
-      const count = this.animateTransitions.length
       const this_time = this.animateTransitions[this.$utils.rand(this.animateTransitions.length)]
       this.animated_in = `${this_time.in} ${this.utilityCss}`
       this.animated_out = `${this_time.out} ${this.utilityCss}`
