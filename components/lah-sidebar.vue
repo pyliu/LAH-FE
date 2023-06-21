@@ -102,6 +102,9 @@ b-sidebar#lah-sidebar(
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/stats").
         #[font-awesome-icon(:icon="['fas', 'chart-line']", fixed-width, size="lg")]
         分時案件統計
+      li(v-if="isReg || isInf"): nuxt-link(to="/reg/stats/monthly").
+        #[font-awesome-icon(:icon="['fas', 'calculator']", fixed-width, size="lg")]
+        案件統計資訊
 
       li: hr
 
