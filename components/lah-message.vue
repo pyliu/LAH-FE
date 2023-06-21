@@ -1,5 +1,8 @@
 <template lang="pug">
-lah-transition: span(v-if="!hide")
+lah-transition: span(
+  v-if="!hide",
+  :class="className"
+)
   span {{ message }}
   lah-fa-icon.ml-1(
     v-if="closeMark && !$utils.empty(message)",
@@ -18,6 +21,8 @@ export default {
   component: {},
   props: {
     message: { type: String, default: '' },
+    border: { type: Boolean, default: false },
+    borderVariant: { type: String, default: '' },
     autoHide: { type: Boolean, default: false },
     autoHideTime: { type: String, default: '10000' },
     closeMark: { type: Boolean, default: true },
@@ -27,6 +32,12 @@ export default {
     hide: false
   }),
   computed: {
+    className () {
+      if (this.border) {
+        return ['border', 'rounded', 'p-2', `border-${this.borderVariant}`]
+      }
+      return []
+    },
     autoHideTimeInt () {
       return parseInt(this.autoHideTime)
     }
