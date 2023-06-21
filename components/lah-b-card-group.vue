@@ -20,6 +20,6 @@ export default {
 <style lang="scss" scoped>
 .lah .card {
   width: 32vw;
-  margin-bottom: .5rem;
+  margin-bottom: 1.25rem;
 }
 </style>
