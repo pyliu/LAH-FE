@@ -28,14 +28,16 @@ export default {
     autoHideTime: { type: String, default: '10000' },
     closeMark: { type: Boolean, default: true },
     closeVariant: { type: String, default: 'secondary' },
-    size: { type: String, default: '' }
+    size: { type: String, default: '' },
+    variant: { type: String, default: '' },
+    pill: { type: Boolean, default: false }
   },
   data: () => ({
     hide: false
   }),
   computed: {
     className () {
-      let list = []
+      let list = [`text-${this.variant}`]
       switch (this.size) {
         case 'sm':
           list.push('h6')
@@ -68,6 +70,9 @@ export default {
           ...list,
           ...['border', 'rounded', 'p-2', `border-${this.borderVariant}`]
         ]
+      }
+      if (this.pill) {
+        list.push('rounded-pill')
       }
       return list
     },
