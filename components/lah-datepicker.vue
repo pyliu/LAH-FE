@@ -19,6 +19,7 @@
     :state="stateIndicatorFlag"
     :button-only="!isADStyle"
     :dropleft="isADStyle"
+    button-variant="primary"
     value-as-date
     hide-header
     v-b-tooltip.hover
