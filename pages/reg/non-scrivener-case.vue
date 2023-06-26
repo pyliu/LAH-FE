@@ -18,29 +18,9 @@ div
           v-model="caseType"
           :options="caseTypeOpts"
         )
-        b-datepicker(
-          v-model="startDateObj"
-          placeholder="開始日期"
-          boundary="viewport"
-          size="sm"
-          :date-format-options="{ weekday: 'narrow' }"
-          :max="yesterday"
-          value-as-date
-          hide-header
-          dropleft
-        )
-        .my-auto ～
-        b-datepicker.mr-1(
-          v-model="endDateObj"
-          placeholder="截止日期"
-          boundary="viewport"
-          size="sm"
-          :date-format-options="{ weekday: 'narrow' }"
-          :max="today"
-          :min="startDateObj"
-          hide-header
-          dark
-          value-as-date
+        lah-datepicker(
+          v-model="dateRange",
+          @input="handleDateChanged"
         )
         lah-button.mx-1(
           icon="search"
@@ -172,8 +152,6 @@ export default {
     const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
     const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
     return {
-      startDateObj: firstDayofMonth,
-      endDateObj: lastDayofMonth,
       startDate: `${firstDayofMonth.getFullYear() - 1911}${('0' + (firstDayofMonth.getMonth() + 1)).slice(-2)}${('0' + firstDayofMonth.getDate()).slice(-2)}`,
       endDate: `${lastDayofMonth.getFullYear() - 1911}${('0' + (lastDayofMonth.getMonth() + 1)).slice(-2)}${('0' + lastDayofMonth.getDate()).slice(-2)}`,
       firstDayofMonth,
@@ -187,6 +165,11 @@ export default {
     forceReload: false,
     committed: false,
     ignoreLandOffice: true,
+    dateRange: {
+      begin: '',
+      end: '',
+      days: 0
+    },
     regBakedData: [],
     regFields: [
       {
@@ -431,12 +414,6 @@ export default {
     }
   },
   watch: {
-    startDateObj (val) {
-      this.startDate = `${val.getFullYear() - 1911}${('0' + (val.getMonth() + 1)).slice(-2)}${('0' + val.getDate()).slice(-2)}`
-    },
-    endDateObj (val) {
-      this.endDate = `${val.getFullYear() - 1911}${('0' + (val.getMonth() + 1)).slice(-2)}${('0' + val.getDate()).slice(-2)}`
-    },
     caseType (val) {
       this.$fetch()
     },
@@ -457,6 +434,10 @@ export default {
     }
   },
   methods: {
+    handleDateChanged (data) {
+      this.startDate = data.begin
+      this.endDate = data.end
+    },
     reload () {
       this.forceReload = true
       this.$fetch()
