@@ -250,7 +250,7 @@ export default {
       if (val) {
         this.advOpts.caseReasonOpts = [...new Set(val.items.map(item => item.登記原因))].sort()
         this.advOpts.caseStateOpts = [...new Set(val.items.map(item => item.辦理情形))].sort()
-        this.advOpts.casePreliminatorOpts = [...new Set(val.items.map(item => item.初審人員))].sort()
+        this.advOpts.casePreliminatorOpts = [...new Set(val.items.map(item => item.初審人員))].sort().filter(item => item?.includes(this.site))
         this.advOpts.caseOperatorOpts = [...new Set(val.items.map(item => item.作業人員))].sort()
         this.advOpts.caseYearOpts = [...new Set(val.raw.map(item => item.RM01))].sort()
         this.advOpts.caseWordOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
