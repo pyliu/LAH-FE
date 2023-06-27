@@ -20,6 +20,9 @@ div: client-only
     .d-flex
   lah-b-card-group
     b-card
+      lah-datepicker(type="AD")
+      lah-datepicker
+    b-card
       lah-period-stats-chart
     b-card
       lah-message.mr-1.mb-1(
