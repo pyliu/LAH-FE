@@ -88,7 +88,7 @@ b-card
     lah-cert-badge(@fetched="handledUpdated")
   hr
 
-  lah-transition: .my-1(v-if="!$utils.empty(message)") {{ message }}
+  lah-message(:message="message", auto-hide, close-variant="danger")
 
   lah-transition(appear): b-card(v-if="foundRegCases")
     h5: lah-fa-icon(icon="triangle-exclamation", variant="warning") 找到下列跨所註記遺失案件(登記)
@@ -182,12 +182,7 @@ export default {
       return this.surCmcrdTmp?.length > 0
     }
   },
-  watch: {
-    message (dontcare) {
-      this.clearMessage()
-      // this.clearData()
-    }
-  },
+  watch: {},
   created () {
     // default is this TW year
     const now = new Date()
@@ -195,14 +190,6 @@ export default {
   },
   mounted () {},
   methods: {
-    clearMessage () {
-      clearTimeout(this.clearTimer)
-      this.timeout(() => {
-        this.message = ''
-      }, 10000).then((timer) => {
-        this.clearTimer = timer
-      })
-    },
     beforeFetch () {
       this.isBusy = true
       this.message = `${this.$utils.time()} 查詢中 ...`

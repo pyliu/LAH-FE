@@ -141,7 +141,7 @@ export default {
     }
   },
   created () {
-    this.debounceHide = this.$utils.debounce(() => { this.hide = true }, this.autoHideTime)
+    this.debounceHide = this.$utils.debounce(() => { this.hide = true }, this.autoHideTimeInt)
     this.debounceOpen = this.$utils.debounce(() => { this.hide = false }, 600)
     if (this.animation === 'auto') {
       switch (this.$utils.rand(2)) {
