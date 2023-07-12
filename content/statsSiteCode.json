@@ -5,12 +5,26 @@
     { "name": "桃資標", "code": "HA87" }
   ],
   "HB": [
-    { "name": "桃壢登", "code": "HB04" }
+    { "name": "壢登", "code": "HB04" },
+    { "name": "壢永", "code": "HB05" },
+    { "name": "壢速", "code": "HB06" }
   ],
   "HC": [],
-  "HD": [],
-  "HE": [],
+  "HD": [
+    { "name": "楊永", "code": "HD01" },
+    { "name": "楊地", "code": "HD02" },
+    { "name": "楊簡", "code": "HD03" }
+  ],
+  "HE": [
+    { "name": "蘆資", "code": "HE91" },
+    { "name": "蘆資永", "code": "HE92" },
+    { "name": "蘆資單", "code": "HE93" }
+  ],
   "HF": [],
   "HG": [],
-  "HH": []
+  "HH": [
+    { "name": "山資登", "code": "HH01" },
+    { "name": "山資速", "code": "HH02" },
+    { "name": "山茲總", "code": "HH04" }
+  ]
 }
