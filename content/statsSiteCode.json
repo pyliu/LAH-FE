@@ -9,7 +9,11 @@
     { "name": "壢永", "code": "HB05" },
     { "name": "壢速", "code": "HB06" }
   ],
-  "HC": [],
+  "HC": [
+    { "name": "溪電", "code": "HC58" },
+    { "name": "溪永電", "code": "HC59" },
+    { "name": "溪電速", "code": "HC60" }
+  ],
   "HD": [
     { "name": "楊永", "code": "HD01" },
     { "name": "楊地", "code": "HD02" },
