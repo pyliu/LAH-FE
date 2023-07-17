@@ -24,7 +24,11 @@
     { "name": "蘆資永", "code": "HE92" },
     { "name": "蘆資單", "code": "HE93" }
   ],
-  "HF": [],
+  "HF": [
+    { "name": "德資", "code": "HF51" },
+    { "name": "永資", "code": "HF50" },
+    { "name": "速資", "code": "HF52" }
+  ],
   "HG": [
     { "name": "平資", "code": "HG07" },
     { "name": "平永資", "code": "HG08" },
