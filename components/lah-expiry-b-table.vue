@@ -59,7 +59,7 @@
           size="sm"
           :title="buttonReviewerTitle(data.value)"
           pill
-          @click="$router.push(`/expire/${data.value}`)"
+          @click="$router.push(`/reg/expire/${data.value}`)"
         >
           <lah-avatar :id="data.value.split(' ')[0]" :name="data.value.split(' ')[1]">
             {{ data.value.split(' ')[0] }}
@@ -124,7 +124,6 @@
 import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'LahExpiryBTable',
-  components: { lahUserCard },
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
