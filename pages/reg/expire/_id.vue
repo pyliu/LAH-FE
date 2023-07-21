@@ -28,7 +28,7 @@ div
                 :busy="isBusy"
               ): strong {{ queryTitle }}
               span.my-auto.nl-1 切換顯示模式
-      b-link.small.my-auto(v-if="isAuthorized" to="/expire"): lah-fa-icon(icon="arrow-alt-circle-left" prefix="far") 回全部列表
+      b-link.small.my-auto(v-if="isAuthorized" to="/reg/expire"): lah-fa-icon(icon="arrow-alt-circle-left" prefix="far") 回全部列表
       lah-countdown-button(
         auto-start
         ref="countdown"
