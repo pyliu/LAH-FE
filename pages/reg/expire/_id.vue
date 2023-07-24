@@ -71,7 +71,7 @@ export default {
     return true
   },
   head: {
-    title: '初審即將逾期案件-桃園市地政局'
+    title: '初審(即將/已)逾期案件-桃園市地政局'
   },
   computed: {
     isAuthorized () {
