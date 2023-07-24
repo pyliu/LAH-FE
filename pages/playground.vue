@@ -27,14 +27,14 @@ div: client-only
     b-card
       lah-message.mr-1.mb-1(
         ref="gm",
-        message="測試<br/>If your div has a known width and height, then you basically need to set top and left to 50% to center the left-top corner of the div. You also need to set the margin-top and margin-left to the negative half of the div's height and width to shift the center towards the middle of the div.",
+        message="NUXT.js是一個基於Vue.js的開源JavaScript框架，用於構建現代化的單頁應用程序（SPA）和通用應用程序（Universal App）。它提供了一個簡單而強大的開發環境，使開發人員能夠快速構建出具有高性能和良好用戶體驗的應用程序。NUXT.js支持服務器端渲染（SSR），具有路由管理、自動代碼分割、熱模塊替換（HMR）等功能，並提供結構清晰的文件夾結構和靈活的配置文件。總結來說，NUXT.js是一個功能豐富且易於使用的框架，適合開發各種類型的應用程序。",
         border,
-        size="h3",
+        size="h5",
         variant="dark",
         border-variant="secondary",
         close-variant="danger",
         shadow,
-        pos="c",
+        pos="br",
         auto-hide,
         auto-hide-time="3000",
         @close="$refs.gm.open()"

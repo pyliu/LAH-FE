@@ -11,7 +11,7 @@ export default {
   computed: {
     cacheKey () { return this.isOverdueMode ? 'already-expired-all' : 'about-to-expire-all' },
     badgeVariant () { return this.isOverdueMode ? 'danger' : 'warning' },
-    queryType () { return this.isOverdueMode ? 'overdue_reg_cases' : 'almost_overdue_reg_cases' },
+    queryType () { return this.isOverdueMode ? 'overdue_reg_cases_filtered' : 'almost_overdue_reg_cases' },
     queryTitle () {
       if (this.isBusy) {
         return '讀取中'
