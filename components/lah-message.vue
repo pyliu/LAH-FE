@@ -33,7 +33,7 @@ export default {
     autoHideTime: { type: String, default: '10000' },
     closeMark: { type: Boolean, default: true },
     closeVariant: { type: String, default: 'secondary' },
-    size: { type: String, default: '' },
+    size: { type: String, default: 'md' },
     variant: { type: String, default: '' },
     pill: { type: Boolean, default: false },
     pos: { type: String, default: '' },
@@ -231,15 +231,15 @@ export default {
   width: 30vw;
   max-height: 25vw;
   overflow: auto;
-  right: -12.5%;
-  bottom: -15%;
+  right: -14%;
+  bottom: -12.5%;
 }
 .lah-pos-bottom-left {
   @include posBase();
   width: 30vw;
   max-height: 25vw;
   overflow: auto;
-  left: 17.5%;
-  bottom: -15%;
+  left: 14%;
+  bottom: -12.5%;
 }
 </style>
