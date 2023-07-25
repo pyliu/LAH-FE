@@ -153,13 +153,13 @@ export default {
       return this.$store.getters['expiry/list_by_id_count']
     },
     caseList () {
-      return this.$store.getters['expiry/list']
+      return this.$store.getters['expiry/list'] || []
     },
     caseListByID () {
       return this.$store.getters['expiry/list_by_id']
     },
     reviewerCaseList () {
-      return this.caseListByID[this.reviewerId]
+      return this.caseListByID ? this.caseListByID[this.reviewerId] : []
     },
     isOverdueMode () {
       return this.$store.getters['expiry/is_overdue_mode']
@@ -172,30 +172,7 @@ export default {
     allCaseMode () { return this.$utils.empty(this.reviewerId) },
     maxHeightStyle () { return `max-height: ${this.maxHeight}px` }
   },
-  watch: {
-    // totalPeople (val) {
-    //   val > 0 && this.allCaseMode && this.notify({
-    //     title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
-    //     message: `找到 ${val} 位相關人員案件`,
-    //     type: this.isOverdueMode ? 'danger' : 'warning'
-    //   })
-    // },
-    // totalCase (val) {
-    //   val > 0 && this.allCaseMode && this.notify({
-    //     title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
-    //     message: `共有 ${val} 件案件`,
-    //     type: this.isOverdueMode ? 'danger' : 'warning'
-    //   })
-    // },
-    // reviewerCaseList (val) {
-    //   val > 0 && !this.allCaseMode && this.notify({
-    //     title: this.isOverdueMode ? '已逾期案件' : '快逾期案件',
-    //     subtitle: this.reviewerId,
-    //     message: `找到 ${val.length} 件案件`,
-    //     type: this.isOverdueMode ? 'danger' : 'warning'
-    //   })
-    // }
-  },
+  watch: {},
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },

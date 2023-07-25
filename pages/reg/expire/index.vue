@@ -186,7 +186,7 @@ export default {
     }
   }),
   head: {
-    title: '登記逾期案件-桃園市地政局'
+    title: '登記(即將/已)逾期案件-桃園市地政局'
   },
   computed: {
     icon () { return this.isOverdueMode ? 'exclamation-triangle' : 'exclamation-circle' },
@@ -247,7 +247,7 @@ export default {
           caseReceiveOfficeOpts: []
         }
       }
-      if (val) {
+      if (val && val.items) {
         this.advOpts.caseReasonOpts = [...new Set(val.items.map(item => item.登記原因))].sort()
         this.advOpts.caseStateOpts = [...new Set(val.items.map(item => item.辦理情形))].sort()
         // only include own site people
@@ -286,28 +286,33 @@ export default {
     filterDebounced () { /** placeholder for debounced filter method */ },
     filter () {
       if (this.dataReady) {
-        let pipelineItems = this.queriedJson.items
+        let pipelineItems = this.queriedJson?.items || []
+
         const checkNum = !this.$utils.empty(this.advOpts.caseNum)
         if (checkNum) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.收件字號.match(this.advOpts.caseNum) !== null
           })
         }
+
         const checkWord = !this.$utils.empty(this.advOpts.caseWord)
         if (checkWord) {
           if (this.advOpts.caseWord === '本所關注案件') {
             const alphabet = this.site[1]
             const number = alphabet.charCodeAt(0) - 64
             pipelineItems = pipelineItems.filter((item) => {
-              const extractedWord = item.收件字號.match(/\(.+\)/gm)[0].replace(/[()]/gm, '')
-              // use regex to detect the local case word
-              const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
-              if (localCaseRegex.test(extractedWord)) {
-                return true
-              } else if (extractedWord.endsWith(`${alphabet}1`)) {
-                return true
-              } else if (extractedWord.startsWith(`H${number}`)) {
-                return true
+              const tmp = item.收件字號.match(/\(.+\)/gm)
+              if (Array.isArray(tmp)) {
+                const extractedWord = tmp[0].replace(/[()]/gm, '')
+                // use regex to detect the local case word
+                const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
+                if (localCaseRegex.test(extractedWord)) {
+                  return true
+                } else if (extractedWord.endsWith(`${alphabet}1`)) {
+                  return true
+                } else if (extractedWord.startsWith(`H${number}`)) {
+                  return true
+                }
               }
               return false
             })
@@ -317,30 +322,35 @@ export default {
             })
           }
         }
+
         const checkYear = !this.$utils.empty(this.advOpts.caseYear)
         if (checkYear) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
           })
         }
+
         const checkReason = !this.$utils.empty(this.advOpts.caseReason)
         if (checkReason) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.登記原因 === this.advOpts.caseReason
           })
         }
+
         const checkState = !this.$utils.empty(this.advOpts.caseState)
         if (checkState) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.辦理情形 === this.advOpts.caseState
           })
         }
+
         const checkPreliminator = !this.$utils.empty(this.advOpts.casePreliminator)
         if (checkPreliminator) {
           pipelineItems = pipelineItems.filter((item) => {
             return item.初審人員 === this.advOpts.casePreliminator
           })
         }
+
         const checkOperator = !this.$utils.empty(this.advOpts.caseOperator)
         if (checkOperator) {
           pipelineItems = pipelineItems.filter((item) => {

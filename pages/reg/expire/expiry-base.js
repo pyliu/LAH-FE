@@ -45,14 +45,14 @@ export default {
     commit (json) {
       if (!this.committed) {
         this.queriedJson = json
-        this.$store.commit('expiry/list', this.queriedJson.items || [])
-        this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
+        this.$store.commit('expiry/list', this.queriedJson?.items || [])
+        this.$store.commit('expiry/list_by_id', this.queriedJson?.items_by_id || {})
         this.committed = true
         if (this.$refs.countdown) {
           this.getCacheExpireRemainingTime(this.cacheKey).then(
             (remainMs) => {
-              this.$refs.countdown.setCountdown(remainMs)
-              this.$refs.countdown.startCountdown()
+              this.$refs.countdown?.setCountdown(remainMs)
+              this.$refs.countdown?.startCountdown()
               this.$utils.log(`${this.cacheKey} 快取資料將在 ${(remainMs / 1000).toFixed(1)} 秒後到期。`)
             }
           )
