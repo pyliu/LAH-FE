@@ -49,7 +49,7 @@ div
         :disabled="!dataReady"
       ) 進階搜尋
       lah-button-xlsx.mx-1(
-        :jsons="currentList"
+        :jsons="xlsxList"
         :header="queryTitle"
       )
       lah-button.mr-1(
@@ -224,6 +224,17 @@ export default {
     },
     currentList () {
       return this.$store.getters['expiry/list'] || []
+    },
+    xlsxList () {
+      const modified = []
+      this.currentList.forEach((element) => {
+        modified.push({
+          ...element,
+          // only keep name
+          初審人員: element.初審人員.split(' ')[0]
+        })
+      })
+      return modified
     }
   },
   watch: {
