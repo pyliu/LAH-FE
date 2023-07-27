@@ -121,7 +121,10 @@ div
     template(#cell(GG30_2)="row")
       .truncate-mvw {{ row.item.GG30_2 }}
     template(#cell(RESTRICTION_DATA.nation)="row")
-      b-link(@click="popupEdit(row.item)") {{ row.item.RESTRICTION_DATA.nation }}
+      b-link(
+        title="開啟編輯視窗",
+        @click="popupEdit(row.item)"
+      ) {{ row.item.RESTRICTION_DATA.nation }}
 
     template(#row-details="row")
       lah-transition(appear): lah-foreigner-restriction-detail(:orig-data="row.item")
