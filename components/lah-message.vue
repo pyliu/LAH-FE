@@ -33,7 +33,7 @@ export default {
     autoHideTime: { type: String, default: '10000' },
     closeMark: { type: Boolean, default: true },
     closeVariant: { type: String, default: 'secondary' },
-    size: { type: String, default: 'md' },
+    size: { type: String, default: '' },
     variant: { type: String, default: '' },
     pill: { type: Boolean, default: false },
     pos: { type: String, default: '' },
