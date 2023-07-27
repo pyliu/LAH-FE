@@ -139,6 +139,7 @@ export default {
     forceReload: false,
     committed: false,
     cachedMs: 24 * 60 * 60 * 1000,
+    useZoneData: [],
     bakedData: [],
     fields: [
       {
@@ -293,6 +294,7 @@ export default {
   computed: {
     dataReady () { return this.bakedData.length > 0 },
     cacheKey () { return 'foreigner-inheritance-restriction' },
+    useZoneCacheKey () { return 'foreigner-inheritance-restriction-use-zone' },
     filteredData () {
       return this.bakedData
     },
@@ -333,6 +335,9 @@ export default {
     bakedData (val) {
       // this.$utils.warn(val)
     }
+  },
+  created () {
+    this.prepareUseZoneCodeData()
   },
   methods: {
     reload () {
@@ -453,6 +458,33 @@ export default {
     },
     equityRatio (item) {
       return `${item.BB15_3}/${item.BB15_2}`
+    },
+    prepareUseZoneCodeData () {
+      this.getCache(this.useZoneCacheKey).then((json) => {
+        if (json === false) {
+          this.$axios.post(this.$consts.API.JSON.SYSTEM, {
+            type: 'rkeyn_use_zone'
+          }).then(({ data }) => {
+            if (Array.isArray(data.raw)) {
+              this.useZoneData = [...data.raw]
+              // a day ms
+              const cacheMs = 24 * 60 * 60 * 1000
+              this.setCache(this.useZoneCacheKey, data, cacheMs)
+            } else {
+              this.$utils.error('無法取得使用分區代碼資料。', data)
+            }
+          }).catch((err) => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+          })
+        } else if (Array.isArray(json.raw)) {
+          this.useZoneData = [...json.raw]
+          this.$utils.log('已從快取回復使用分區代碼資料。')
+        } else {
+          this.$utils.error('無法從快取回復使用分區代碼資料。')
+        }
+      })
     }
   }
 }
