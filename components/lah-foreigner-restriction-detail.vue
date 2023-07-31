@@ -43,7 +43,7 @@ b-card
       .w-3rd.text-right 生日：{{ $utils.addDateDivider(origData.LBIR_2) }}
     b-list-group-item: .d-flex
       .w-3rd.font-weight-bolder 國籍：{{ nation }}
-      .w-3rd.text-center
+      .w-3rd.text-center 使用分區：{{ usePartition }}
       .w-3rd.text-right 地址：{{ origData.LADR }}
     b-list-group-item: .d-flex
       .w-3rd.font-weight-bolder 繼承登記日期：{{ $utils.addDateDivider(regDate) }}
@@ -109,6 +109,9 @@ export default {
     },
     restoreLocalDate () {
       return this.origData.RESTRICTION_DATA.restore_local_date || ''
+    },
+    usePartition () {
+      return this.origData.RESTRICTION_DATA.use_partition || ''
     },
     note () {
       return this.origData.RESTRICTION_DATA.note || ''
