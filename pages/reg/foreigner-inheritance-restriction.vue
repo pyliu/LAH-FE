@@ -32,12 +32,12 @@ div
           header="依土地法第17條第1項各款規定管制清冊",
           variant="primary",
           :no-icon-gutter="false"
-        ) 依規定的管制清冊({{ xlsx17DataCount }})
+        ) 依規定({{ xlsx17DataCount }})
         lah-button-xlsx.mr-1(
           :jsons="xlsxNot17Data",
           header="依土地法第17條第1項各款以外規定管制清冊",
           :no-icon-gutter="false"
-        ) 依規定以外的管制清冊({{ xlsxNot17DataCount }})
+        ) 依規定各款以外({{ xlsxNot17DataCount }})
         lah-countdown-button(
           ref="countdown"
           icon="sync-alt"
