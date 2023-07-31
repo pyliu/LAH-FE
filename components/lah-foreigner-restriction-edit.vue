@@ -86,7 +86,7 @@ b-card
       )
   .d-flex.justify-content-between.mt-2
     b-checkbox(v-model="control") 依土地法第17條第1項各款以外規定管制
-    b-checkbox(v-model="logout") 註銷
+    b-checkbox.text-danger(v-model="logout") 註銷
   .d-flex.justify-content-center.mt-2
     lah-button(
       icon="floppy-disk",
