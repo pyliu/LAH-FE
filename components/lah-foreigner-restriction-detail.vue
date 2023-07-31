@@ -3,6 +3,17 @@ b-card
   b-card-title
     .d-flex.justify-content-between
       div {{ `${origData.BA48} ${origData.BA48_CHT} ${$utils.formatLandNumber(origData.BA49)} 地號` }}
+      div
+        lah-fa-icon(
+          v-if="isControlled(origData)",
+          icon="triangle-exclamation",
+          variant="warning"
+        ) 依土地法第17條第1項各款或各款以外規定管制
+        lah-fa-icon.ml-1(
+          v-if="isLogout(origData)",
+          icon="circle-xmark",
+          variant="danger"
+        ) 已註銷
       .font-weight-bold(
         :class="deadlineCss(origData)"
       ) {{ light(origData) }} 最後期限：{{ deadline(origData) }}
@@ -190,6 +201,14 @@ export default {
         title: `案件詳情 ${this.$utils.caseId(item.ID)}`,
         size: 'xl'
       })
+    },
+    isLogout (item) {
+      const val = item.RESTRICTION_DATA?.logout
+      return val === true || val === 'true'
+    },
+    isControlled (item) {
+      const val = item.RESTRICTION_DATA?.control
+      return val === true || val === 'true'
     }
   }
 }

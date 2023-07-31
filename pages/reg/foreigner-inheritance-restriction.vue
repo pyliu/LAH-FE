@@ -23,13 +23,21 @@ div
                     li: .font-weight-bold 範例：「．．．移請財政部國有財產署公開標售。」
                 li 🟡 - 請進行通知作業
                 li 🟢 - 正常，未到期或已辦畢
+                li ⚪ - 已註銷
             li 通知接收功能僅限有安裝桃園即時通的使用者
             li ⭐PDF連結功能必須有該案登記收件字號並且於「#[b-link(to="/reg/foreigner") 外國人掃描資料]」頁面上傳建檔後始能正常開啟。
       .d-flex
         lah-button-xlsx.mr-1(
-          :jsons="xlsxData"
-          header="外國人管制清冊資料"
-        )
+          :jsons="xlsx17Data",
+          header="依土地法第17條第1項各款或各款規定管制清冊",
+          variant="primary",
+          :no-icon-gutter="false"
+        ) 依規定的管制清冊
+        lah-button-xlsx.mr-1(
+          :jsons="xlsxNot17Data",
+          header="依土地法第17條第1項各款或各款以外規定管制清冊",
+          :no-icon-gutter="false"
+        ) 依規定以外的管制清冊
         lah-countdown-button(
           ref="countdown"
           icon="sync-alt"
@@ -306,25 +314,21 @@ export default {
       })
       return keyLabelMap
     },
-    xlsxData () {
+    xlsxAllData () {
       const jsons = this.filteredData.map((data, idx, array) => {
-        const obj = {}
-        obj['編號'] = `${idx + 1}`.padStart(3, '0')
-        obj['直轄市、(縣)市'] = '桃園'
-        obj['鄉鎮市區'] = data.AA46_CHT
-        obj['段小段'] = data.BA48_CHT
-        obj['地號'] = this.$utils.formatLandNumber(data.GG49)
-        obj['土地使用分區'] = data.AA11_CHT
-        obj['面積(平方公尺)'] = data.AA10
-        obj['權利範圍'] = `${data.BB15_1_CHT} ${this.equityRatio(data)}`
-        obj['所有權人'] = data.BB09_CHT
-        obj['國籍'] = data.RESTRICTION_DATA.nation
-        obj['繼承登記日期及收件字號'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.reg_date)}\r\n${data.RESTRICTION_DATA.reg_caseno}`
-        obj['移請國有財產署標售日期及文號'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_date)}\r\n${data.RESTRICTION_DATA.transfer_caseno}`
-        obj['移轉本國人之登記日期及原則'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_local_date)}\r\n${data.RESTRICTION_DATA.transfer_local_principle}`
-        obj['回復或歸化本國籍日期'] = data.RESTRICTION_DATA.restore_local_date
-        obj['備註'] = data.RESTRICTION_DATA.note
-        return obj
+        return this.exportCHTData(data, idx)
+      })
+      return jsons
+    },
+    xlsx17Data () {
+      const jsons = this.filteredData.filter(element => !this.isControlled(element)).map((data, idx, array) => {
+        return this.exportCHTData(data, idx)
+      })
+      return jsons
+    },
+    xlsxNot17Data () {
+      const jsons = this.filteredData.filter(element => this.isControlled(element)).map((data, idx, array) => {
+        return this.exportCHTData(data, idx)
       })
       return jsons
     }
@@ -390,7 +394,9 @@ export default {
       return '無期限'
     },
     light (item) {
-      if (!this.isDone(item.GG30_2)) {
+      if (this.isLogout(item)) {
+        return '⚪'
+      } else if (!this.isDone(item.GG30_2)) {
         const dueDate = this.extractDueDate(item.GG30_2)
         if (dueDate) {
           const ts = dueDate.getTime()
@@ -457,6 +463,33 @@ export default {
     },
     equityRatio (item) {
       return `${item.BB15_3}/${item.BB15_2}`
+    },
+    isLogout (item) {
+      const val = item.RESTRICTION_DATA?.logout
+      return val === true || val === 'true'
+    },
+    isControlled (item) {
+      const val = item.RESTRICTION_DATA?.control
+      return val === true || val === 'true'
+    },
+    exportCHTData (data, idx) {
+      const obj = {}
+      obj['編號'] = `${idx + 1}`.padStart(3, '0')
+      obj['直轄市、(縣)市'] = '桃園'
+      obj['鄉鎮市區'] = data.AA46_CHT
+      obj['段小段'] = data.BA48_CHT
+      obj['地號'] = this.$utils.formatLandNumber(data.GG49)
+      obj['土地使用分區'] = data.AA11_CHT
+      obj['面積(平方公尺)'] = data.AA10
+      obj['權利範圍'] = `${data.BB15_1_CHT} ${this.equityRatio(data)}`
+      obj['所有權人'] = data.BB09_CHT
+      obj['國籍'] = data.RESTRICTION_DATA.nation
+      obj['繼承登記日期及收件字號'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.reg_date)}\r\n${data.RESTRICTION_DATA.reg_caseno}`
+      obj['移請國有財產署標售日期及文號'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_date)}\r\n${data.RESTRICTION_DATA.transfer_caseno}`
+      obj['移轉本國人之登記日期及原則'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_local_date)}\r\n${data.RESTRICTION_DATA.transfer_local_principle}`
+      obj['回復或歸化本國籍日期'] = data.RESTRICTION_DATA.restore_local_date
+      obj['備註'] = data.RESTRICTION_DATA.note
+      return obj
     }
   }
 }

@@ -5,7 +5,7 @@ b-card
     //-   .mr-2 {{ ownerId }}
     //-   div {{ ownerName }}
   .d-flex.mt-2
-    b-input-group.mr-1(title="請選取土地使用分區")
+    b-input-group.mr-2(title="請選取土地使用分區")
       b-input-group-prepend(is-text) 土地使用分區
       b-select(
         v-model="use_partition",
@@ -20,7 +20,7 @@ b-card
         trim
       )
   .d-flex.mt-2
-    b-input-group.mr-1(title="請輸入繼承登記日期")
+    b-input-group.mr-2(title="請輸入繼承登記日期")
       b-input-group-prepend(is-text) 繼承登記日期
       b-input(
         v-model="reg_date",
@@ -37,7 +37,7 @@ b-card
         trim
       )
   .d-flex.mt-2
-    b-input-group.mr-1(title="請輸入移請國產署標售日期")
+    b-input-group.mr-2(title="請輸入移請國產署標售日期")
       b-input-group-prepend(is-text) 轉國產署日期
       b-input(
         v-model="transfer_date",
@@ -54,7 +54,7 @@ b-card
         trim
       )
   .d-flex.mt-2
-    b-input-group.mr-1(title="移轉本國人之登記日期")
+    b-input-group.mr-2(title="移轉本國人之登記日期")
       b-input-group-prepend(is-text) 轉本國人日期
       b-input(
         v-model="transfer_local_date",
@@ -70,7 +70,7 @@ b-card
         trim
       )
   .d-flex.mt-2
-    b-input-group.mr-1(title="回復或歸化本國籍日期")
+    b-input-group.mr-2(title="回復或歸化本國籍日期")
       b-input-group-prepend(is-text) 回復或歸化日
       b-input.h-100(
         v-model="restore_local_date",
@@ -79,7 +79,7 @@ b-card
         trim
       )
     b-input-group
-      b-input-group-prepend(is-text) &emsp;&emsp;&emsp;&emsp;備註
+      b-input-group-prepend(is-text) 備註
       b-textarea(
         v-model="note",
         placeholder="... 其他註記事項 ..."
@@ -88,7 +88,7 @@ b-card
     b-checkbox(v-model="control") 依土地法第17條第1項各款或各款以外規定管制
     b-checkbox(v-model="logout") 註銷
   .d-flex.justify-content-center.mt-2
-    lah-button.mr-1(
+    lah-button(
       icon="floppy-disk",
       size="lg",
       @click="save"
@@ -124,6 +124,7 @@ export default {
   }),
   computed: {
     useZoneOpts () {
+      // return this.useZoneData.filter(element => element.KRMK === '1').map((element, idx, arr) => {
       return this.useZoneData.map((element, idx, arr) => {
         return {
           text: element.KCNT,
@@ -240,10 +241,10 @@ export default {
     },
     note (dontcare) {
       this.$emit('update', this.updateData)
-    },
-    useZoneData (val) {
-      console.warn(val)
     }
+    // useZoneData (val) {
+    //   console.warn(val)
+    // }
   },
   created () {
     this.prepareUseZoneCodeData()
