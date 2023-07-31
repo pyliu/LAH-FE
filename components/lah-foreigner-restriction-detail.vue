@@ -8,7 +8,7 @@ b-card
           v-if="isControlled(origData)",
           icon="triangle-exclamation",
           variant="warning"
-        ) 依土地法第17條第1項各款或各款以外規定管制
+        ) 依土地法第17條第1項各款以外規定管制
         lah-fa-icon.ml-1(
           v-if="isLogout(origData)",
           icon="circle-xmark",
