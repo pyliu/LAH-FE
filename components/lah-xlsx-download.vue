@@ -54,9 +54,7 @@ export default {
       this.done = !this.$utils.empty(val)
     }
   },
-  created () {
-    this.workbook = new Workbook()
-  },
+  created () { },
   mounted () {
     if (!this.$utils.empty(this.header)) {
       this.addMessage(`準備 ${this.header} 資料轉換 ... `)
@@ -72,6 +70,9 @@ export default {
     },
     download () {
       if (this.done) {
+        if (!this.workbook) {
+          this.workbook = new Workbook()
+        }
         this.addMessage('將轉換的資料加到 Workbook 中 ...')
         this.workbook.appendSheet(this.sheet)
 
