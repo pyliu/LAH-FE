@@ -31,7 +31,7 @@
     "better-sqlite3": "^8.0.1",
     "bl": "1.2.3",
     "bootstrap": "^4.5.2",
-    "bootstrap-vue": "2.21.2",
+    "bootstrap-vue": "2.23.0",
     "chart.js": "3.9.1",
     "constantinople": "3.1.1",
     "core-js": "^3.9.1",
