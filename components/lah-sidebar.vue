@@ -38,6 +38,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(v-if="isInf", to="/inf").
         #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
         智慧監控首頁
+      li: nuxt-link(to="/lab").
+        #[font-awesome-icon(:icon="['fas', 'flask-vial']", fixed-width, pull="left", size="lg")]
+        實驗室首頁
 
       li: hr
 

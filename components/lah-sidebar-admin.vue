@@ -38,6 +38,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/sur").
         #[font-awesome-icon(:icon="['fas', 'map-location']", fixed-width, pull="left", size="lg")]
         測量小幫手首頁
+      li: nuxt-link(to="/lab").
+        #[font-awesome-icon(:icon="['fas', 'flask-vial']", fixed-width, pull="left", size="lg")]
+        實驗室首頁
 
       li: hr
 
