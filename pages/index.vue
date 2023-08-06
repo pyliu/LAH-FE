@@ -19,14 +19,18 @@
           lah-logo-sur.h-75.w-100
           h4.lah-shadow.center.mt-2 測量小幫手
     .vh-full.center(v-else)
-      .d-flex
-        b-card.fixed-card-wh.center: nuxt-link(to="/reg")
+      .d-flex.mb-3
+        b-card.fixed-card-wh-inf.center: nuxt-link(to="/reg")
           lah-logo.h-75.w-100
           h4.lah-shadow.center.mt-2 智慧控管系統
-        b-card.fixed-card-wh.mx-3.center: nuxt-link(to="/prc")
+        b-card.fixed-card-wh-inf.center.ml-3: nuxt-link(to="/lab")
+          lah-logo-lab.h-75.w-100
+          h4.lah-shadow.center.mt-2 智慧控管實驗室
+      .d-flex
+        b-card.fixed-card-wh-inf.mr-3.center: nuxt-link(to="/prc")
           lah-logo-val.h-75.w-100
           h4.lah-shadow.center.mt-2 地價小幫手
-        b-card.fixed-card-wh.center: nuxt-link(to="/sur")
+        b-card.fixed-card-wh-inf.center: nuxt-link(to="/sur")
           lah-logo-sur.h-75.w-100
           h4.lah-shadow.center.mt-2 測量小幫手
   .version v{{ $config.pkgVersion }}
