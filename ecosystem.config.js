@@ -32,7 +32,7 @@ module.exports = {
     error_file: '../logs/scheduler_err.log',
     cron_restart: '0 7 * * *',
     time: true,
-    watch: true,
+    watch: false,
     ignore_watch: ['[/\\]./', 'node_modules', '*.bat', '.git', '.vscode'],
     max_memory_restart: '256M',
     env: {
