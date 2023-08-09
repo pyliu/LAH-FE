@@ -105,7 +105,7 @@ export default {
       const heads = this.messages
         // retrive message within a day
         .filter((item, idx, arr) => now - item.timestamp * 1000 < 24 * 60 * 60 * 1000)
-        // remove duplicates items (only keeps the latest one)
+        // remove duplicated items (only keeps the latest one)
         .filter((value, index, self) => index === self.findIndex(t => t.subject === value.subject))
       this.pushBrokenData(heads, 'P8-2')
       this.pushBrokenData(heads, 'P7-102')
@@ -171,7 +171,11 @@ export default {
       return arr[0][1]
     },
     pushBrokenData (messages, subject) {
-      if (!messages.find(item => item.subject?.includes(subject))) {
+      // normal/uppercase string comparing ==> resolve hb-114/HB-114 issue
+      if (
+        !messages.find(item => item.subject?.includes(subject)) &&
+        !messages.find(item => item.subject?.includes(subject?.toUpperCase()))
+      ) {
         // push dummy data for the missing part
         messages.push({
           id: -1,
