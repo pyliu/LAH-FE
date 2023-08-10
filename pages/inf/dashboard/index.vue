@@ -110,10 +110,10 @@ div(v-cloak)
         lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
         lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate", footer)
         lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
-      b-card-group(deck)
-        lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
-        b-card
-        b-card
+      //- b-card-group(deck)
+      //-   lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
+      //-   b-card
+      //-   b-card
     div(v-else)
       b-card-group.mb-4(deck)
         lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
