@@ -3,23 +3,15 @@
   lah-header
     .d-flex.my-auto 桃園市地政管家-主選單
   .container: lah-transition(appear, speed="fast")
-    .vh-full(v-if="isInf || authority.isAdmin")
-      .d-flex.mb-3
+    .vh-full
+      .d-flex.mb-3(v-if="isInf || authority.isAdmin")
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/inf")
           lah-logo-monitoring.h-75.w-100
           h4.lah-shadow.center.mt-2 智慧監控系統
         b-card.fixed-card-wh-inf.ml-3.center: nuxt-link(to="/reg")
           lah-logo.h-75.w-100
           h4.lah-shadow.center.mt-2 智慧控管系統
-      .d-flex
-        b-card.fixed-card-wh-inf.mr-3.center: nuxt-link(to="/prc")
-          lah-logo-val.h-75.w-100
-          h4.lah-shadow.center.mt-2 地價小幫手
-        b-card.fixed-card-wh-inf.center: nuxt-link(to="/sur")
-          lah-logo-sur.h-75.w-100
-          h4.lah-shadow.center.mt-2 測量小幫手
-    .vh-full.center(v-else)
-      .d-flex.mb-3
+      .d-flex.mb-3(v-else)
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/reg")
           lah-logo.h-75.w-100
           h4.lah-shadow.center.mt-2 智慧控管系統
