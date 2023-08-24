@@ -70,7 +70,9 @@ export default {
   height: calc(100vh - 100px);
 }
 .version {
+  font-size: .75rem;
   font-weight: 900;
+  color: gray;
   position: absolute;
   right: 10px;
   bottom: 10px;
