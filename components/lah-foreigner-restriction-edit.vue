@@ -212,8 +212,13 @@ export default {
     }
   },
   watch: {
-    nation (dontcare) {
+    nation (val) {
       this.$emit('update', this.updateData)
+      if (val === '新加坡') {
+        this.$nextTick(() => { this.control = true })
+      } else {
+        this.$nextTick(() => { this.control = false })
+      }
     },
     reg_date (dontcare) {
       this.$emit('update', this.updateData)
