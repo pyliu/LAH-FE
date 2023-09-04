@@ -473,6 +473,9 @@ export default {
       return !this.$utils.empty(item.BB03) && !this.$utils.empty(item.BB04_2)
     },
     equityRatio (item) {
+      if (this.$utils.empty(item.BB15_3) || this.$utils.empty(item.BB15_2)) {
+        return ''
+      }
       return `${item.BB15_3}/${item.BB15_2}`
     },
     isLogout (item) {
@@ -487,19 +490,49 @@ export default {
       const obj = {}
       obj['編號'] = `${idx + 1}`.padStart(3, '0')
       obj['直轄市、(縣)市'] = '桃園'
-      obj['鄉鎮市區'] = data.AA46_CHT
-      obj['段小段'] = data.BA48_CHT
-      obj['地號'] = this.$utils.formatLandNumber(data.GG49)
+      obj['鄉鎮市區'] = data.AA46_CHT || ''
+      obj['段小段'] = data.BA48_CHT || ''
+      obj['地號'] = this.$utils.formatLandNumber(data.GG49) || ''
       obj['土地使用分區'] = data.RESTRICTION_DATA?.use_partition || data.AA11_CHT
-      obj['面積(平方公尺)'] = data.AA10
-      obj['權利範圍'] = `${data.BB15_1_CHT} ${this.equityRatio(data)}`
-      obj['所有權人'] = data.BB09_CHT
-      obj['國籍'] = data.RESTRICTION_DATA.nation
-      obj['繼承登記日期及收件字號'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.reg_date)}\r\n${data.RESTRICTION_DATA.reg_caseno}`
-      obj['移請國有財產署標售日期及文號'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_date)}\r\n${data.RESTRICTION_DATA.transfer_caseno}`
-      obj['移轉本國人之登記日期及原則'] = `${this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_local_date)}\r\n${data.RESTRICTION_DATA.transfer_local_principle}`
-      obj['回復或歸化本國籍日期'] = data.RESTRICTION_DATA.restore_local_date
-      obj['備註'] = data.RESTRICTION_DATA.note
+      obj['面積(平方公尺)'] = data.AA10 || ''
+
+      obj['權利範圍'] = ''
+      if (!this.$utils.empty(data.BB15_1_CHT)) {
+        obj['權利範圍'] += data.BB15_1_CHT
+      }
+      if (!this.$utils.empty(this.equityRatio(data))) {
+        obj['權利範圍'] += ` ${this.equityRatio(data)}`
+      }
+
+      obj['所有權人'] = data.BB09_CHT || ''
+      obj['國籍'] = data.RESTRICTION_DATA.nation || ''
+
+      obj['繼承登記日期及收件字號'] = ''
+      if (!this.$utils.empty(data.RESTRICTION_DATA.reg_date)) {
+        obj['繼承登記日期及收件字號'] += this.$utils.addDateDivider(data.RESTRICTION_DATA.reg_date)
+      }
+      if (!this.$utils.empty(data.RESTRICTION_DATA.reg_caseno)) {
+        obj['繼承登記日期及收件字號'] += `\r\n${data.RESTRICTION_DATA.reg_caseno}`
+      }
+
+      obj['移請國有財產署標售日期及文號'] = ''
+      if (!this.$utils.empty(data.RESTRICTION_DATA.transfer_date)) {
+        obj['移請國有財產署標售日期及文號'] += this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_date)
+      }
+      if (!this.$utils.empty(data.RESTRICTION_DATA.transfer_caseno)) {
+        obj['移請國有財產署標售日期及文號'] += `\r\n${data.RESTRICTION_DATA.transfer_caseno}`
+      }
+
+      obj['移轉本國人之登記日期及原則'] = ''
+      if (!this.$utils.empty(data.RESTRICTION_DATA.transfer_local_date)) {
+        obj['移轉本國人之登記日期及原則'] += this.$utils.addDateDivider(data.RESTRICTION_DATA.transfer_local_date)
+      }
+      if (!this.$utils.empty(data.RESTRICTION_DATA.transfer_local_principle)) {
+        obj['移轉本國人之登記日期及原則'] += `\r\n${data.RESTRICTION_DATA.transfer_local_principle}`
+      }
+
+      obj['回復或歸化本國籍日期'] = data.RESTRICTION_DATA.restore_local_date || ''
+      obj['備註'] = data.RESTRICTION_DATA.note || ''
       return obj
     }
   }
