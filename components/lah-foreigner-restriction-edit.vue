@@ -135,8 +135,8 @@ export default {
         }
       })
     },
-    certNo () {
-      return this.origData.RESTRICTION_DATA.cert_no || this.origData.BB16
+    pKey () {
+      return this.origData.RESTRICTION_DATA?.pkey || `${this.origData.BA48}${this.origData.BA49}${this.origData.BB09}`
     },
     ownerId () {
       return this.origData.BB09
@@ -195,7 +195,7 @@ export default {
     },
     updateData () {
       return {
-        cert_no: this.certNo,
+        pkey: this.pKey,
         nation: this.nation,
         reg_date: this.reg_date,
         reg_caseno: this.reg_caseno,

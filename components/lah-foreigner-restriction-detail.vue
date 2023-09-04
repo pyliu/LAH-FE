@@ -36,7 +36,7 @@ b-card
       .w-3rd 權狀字號：{{ origData.BB16 }}
       .w-3rd.text-center 權利範圍：{{ origData.BB15_1 }} {{ origData.BB15_1_CHT }} ({{ equityRatio }})
       .w-3rd.text-right(v-if="$utils.empty(origData.AA11)") 申報地價：{{ origData.BB21 }}
-      .w-3rd.text-right(v-else) 使用分區：{{ origData.AA11_CHT }}
+      .w-3rd.text-right(v-else) 使用分區：{{ origData.RESTRICTION_DATA.use_partition }}
     b-list-group-item: .d-flex
       .w-3rd 統編：{{ ownerId }}
       .w-3rd.text-center 姓名：{{ ownerName }}
@@ -77,8 +77,8 @@ export default {
     doneRegex: /移請財政部國有財產署公開標售/gm
   }),
   computed: {
-    certNo () {
-      return this.origData.RESTRICTION_DATA.cert_no || this.origData.BB16 || ''
+    pKey () {
+      return this.origData.RESTRICTION_DATA?.pkey || `${this.origData.BA48}${this.origData.BA49}${this.origData.BB09}`
     },
     ownerId () {
       return this.origData.BB09 || ''
@@ -122,7 +122,9 @@ export default {
   },
   watch: {},
   created () {},
-  mounted () {},
+  mounted () {
+    // console.warn(this.origData)
+  },
   methods: {
     extractDueDate (str) {
       const matched = Array.from(str?.matchAll(this.regex))
