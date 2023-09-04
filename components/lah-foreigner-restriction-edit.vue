@@ -126,6 +126,9 @@ export default {
     note: ''
   }),
   computed: {
+    twTodayInt () {
+      return parseInt(this.$utils.today('TW').replace(/-/g, ''))
+    },
     useZoneOpts () {
       // return this.useZoneData.filter(element => element.KRMK === '1').map((element, idx, arr) => {
       return this.useZoneData.map((element, idx, arr) => {
@@ -155,7 +158,8 @@ export default {
         return null
       }
       return !isNaN(this.reg_date) &&
-             this.reg_date?.length === 7
+             this.reg_date?.length === 7 &&
+             parseInt(this.reg_date?.replace(/^0+/, '')) <= this.twTodayInt
     },
     isRegCasenoValid () {
       if (this.$utils.empty(this.reg_caseno)) {
@@ -168,7 +172,8 @@ export default {
         return null
       }
       return !isNaN(this.transfer_date) &&
-             this.transfer_date?.length === 7
+             this.transfer_date?.length === 7 &&
+             parseInt(this.transfer_date?.replace(/^0+/, '')) <= this.twTodayInt
     },
     isTransferCasenoValid () {
       if (this.$utils.empty(this.transfer_caseno)) {
@@ -181,14 +186,16 @@ export default {
         return null
       }
       return !isNaN(this.transfer_local_date) &&
-             this.transfer_local_date?.length === 7
+             this.transfer_local_date?.length === 7 &&
+             parseInt(this.transfer_local_date?.replace(/^0+/, '')) <= this.twTodayInt
     },
     isRestoreLocalDateValid () {
       if (this.$utils.empty(this.restore_local_date)) {
         return null
       }
       return !isNaN(this.restore_local_date) &&
-             this.restore_local_date?.length === 7
+             this.restore_local_date?.length === 7 &&
+             parseInt(this.restore_local_date?.replace(/^0+/, '')) <= this.twTodayInt
     },
     isLogout () {
       return this.logout === 'true' || this.logout === true
