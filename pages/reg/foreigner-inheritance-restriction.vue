@@ -469,9 +469,6 @@ export default {
     pdfTooltip (item) {
       return `將開啟 ${item.BB03} 年 ${item.BB04_2} 號 ${item.BB09} ${item.BB09_CHT} 已上傳的PDF掃描檔`
     },
-    hasRegCase (item) {
-      return !this.$utils.empty(item.BB03) && !this.$utils.empty(item.BB04_2)
-    },
     equityRatio (item) {
       if (this.$utils.empty(item.BB15_3) || this.$utils.empty(item.BB15_2)) {
         return ''
