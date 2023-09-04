@@ -86,7 +86,7 @@ div
           title="查看PDF掃描檔",
           size="md",
           @click="openPdf(row.item)",
-          :class="hasRegCase(row.item) ? [] : ['invisible']"
+          :class="row.item.hasPDF ? [] : ['invisible']"
           no-icon-gutter,
           regular,
           v-b-tooltip.hover.righttop="pdfTooltip(row.item)"
