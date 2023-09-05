@@ -94,7 +94,7 @@ export default {
         case 'warning':
           return 'warning'
         default:
-          return 'secondary'
+          return 'muted'
       }
     },
     brokenTableCount () {
