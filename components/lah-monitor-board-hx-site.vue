@@ -57,7 +57,7 @@ export default {
       ['HG', {}],
       ['HH', {}]
     ]),
-    headerLight: 'warning'
+    headerLight: 'muted'
   }),
   computed: {
     borderVariant () {
@@ -78,7 +78,6 @@ export default {
   },
   created () {
     this.calcHeaderLight = this.$utils.debounce(() => {
-      this.headerLight = 'warning'
       const flag = this.statsMap.every((data) => {
         return data.status > 0
       })
@@ -88,6 +87,7 @@ export default {
   mounted () {},
   methods: {
     handleUpdated (data) {
+      this.headerLight = 'warning'
       this.statsMap.set(data.site, data)
       this.calcHeaderLight()
     },
