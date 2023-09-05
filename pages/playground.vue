@@ -42,9 +42,9 @@ div: client-only
       lah-cert-badge(size="lg")
       lah-ip-badge(ip="220.1.34.17", port="8082", period="15000", size="lg")
       lah-ip-badge.ml-1(ip="220.1.34.233", :badge="false", size="lg")
-      lah-site-status-badge.ml-1(site="HB", period="60000")
-      lah-site-status-badge.ml-1(site="FA", period="60000")
-      lah-site-status-badge.ml-1(site="HI", period="60000")
+      lah-site-status-badge.ml-1(watch-site="HB", period="60000")
+      lah-site-status-badge.ml-1(watch-site="FA", period="60000")
+      lah-site-status-badge.ml-1(watch-site="HI", period="60000")
     //- b-card
     //-   template(#header) 設定檔測試
     //-   div {{ openNewsData }}
@@ -137,6 +137,9 @@ div: client-only
         li this.$utils.formatDistanceToNow() 👉 {{ $utils.formatDistanceToNow() }}
 
     b-card
+      template(#header): .d-flex: .text-nowrap.my-auto $content 測試
+      nuxt-content(:document="testContent")
+    b-card
       template(#header): .d-flex: .text-nowrap.my-auto b-timeline 測試
       lah-notification-timeline(
         :items="timelineItems",
@@ -147,9 +150,6 @@ div: client-only
       template(#header): .d-flex: .text-nowrap.my-auto 罕用字測試
       span       
 
-    b-card
-      template(#header): .d-flex: .text-nowrap.my-auto $content 測試
-      nuxt-content(:document="testMD")
 </template>
 
 <script>
@@ -173,9 +173,9 @@ export default {
       ('0' + now.getMinutes()).slice(-2) +
       ':' +
       ('0' + now.getSeconds()).slice(-2)
-    const testMD = await $content('test').fetch()
+    const testContent = await $content('test').fetch()
     return {
-      testMD,
+      testContent,
       list: [{ type: 'remote', text: '準備中 ... ', time }]
       // items: [
       //   ['桃園所', 40],
@@ -256,6 +256,7 @@ export default {
   },
   mounted () {
     this.loadAnnouncements()
+    console.warn('testContent', this.testContent)
   },
   methods: {
     formatDate (d) {

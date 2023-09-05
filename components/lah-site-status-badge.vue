@@ -33,7 +33,9 @@ export default {
     status: 0,
     headers: [],
     message: '',
-    timer: null
+    timer: null,
+    officeCacheKey: 'office-cached-key',
+    officesData: []
   }),
   computed: {
     validPeriod () {
@@ -59,12 +61,10 @@ export default {
       return 'outline-danger'
     },
     name () {
-      // xapMap from store
-      const xaps = [...this.xapMap]
-      // item: ['220.1.XX.XX', { name: 'XXX', code: 'XX', ip: '220.1.XX.XX' }]
-      const found = xaps.find(item => item[1].code === this.watchSite)
-      const name = found ? found[1]?.name : this.watchSite
-      return this.short ? name.replace(/所/g, '') : name
+      // item: { ID: 'HX', NAME: 'XXX', ALIAS: 'XXX'}
+      const found = this.officesData.find(item => item.ID === this.watchSite)
+      const name = found ? found?.NAME : this.watchSite
+      return this.short ? name.replace(/(所|地政事務所)/g, '') : name
     },
     lightIcon () {
       if (this.status > 0) {
@@ -76,8 +76,14 @@ export default {
       return '🔴'
     }
   },
-  watch: {},
-  created () {},
+  watch: {
+    officesData (val) {
+      // console.warn(val)
+    }
+  },
+  created () {
+    this.prepareOfficesData()
+  },
   mounted () {
     this.check()
   },
@@ -85,6 +91,33 @@ export default {
     clearTimeout(this.timer)
   },
   methods: {
+    prepareOfficesData () {
+      this.getCache(this.officeCacheKey).then((json) => {
+        if (json === false) {
+          this.$axios.post(this.$consts.API.JSON.SYSTEM, {
+            type: 'all_offices'
+          }).then(({ data }) => {
+            if (Array.isArray(data.raw)) {
+              this.officesData = [...data.raw]
+              // a day ms
+              const cacheMs = 24 * 60 * 60 * 1000
+              this.setCache(this.useZoneCacheKey, data, cacheMs)
+            } else {
+              this.$utils.error('無法取得各地政事務所資料。', data)
+            }
+          }).catch((err) => {
+            this.alert(err.message)
+            this.$utils.error(err)
+          }).finally(() => {
+          })
+        } else if (Array.isArray(json.raw)) {
+          this.officesData = [...json.raw]
+          this.$utils.log('已從快取回復各地政事務所資料。')
+        } else {
+          this.$utils.error('無法從快取回復各地政事務所資料。')
+        }
+      })
+    },
     check () {
       this.isBusy = true
       this.message = '測試中 ... '
