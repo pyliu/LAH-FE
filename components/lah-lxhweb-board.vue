@@ -7,7 +7,7 @@ b-card(:border-variant="borderVariant")
           | {{ header }}
       b-button-group
         lah-button(v-if="showBrokenBtn" icon="unlink" variant="danger" no-border action="damage" title="檢視損毀資料表" :badge-text="String(brokenTableCount)" @click="showBrokenTable")
-          lah-button(v-if="alive" icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="ping")
+        lah-button(v-if="alive" icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="ping")
   .h-100(v-if="alive")
     .offices
       .office.center(v-for="entry in offices" :key="entry.SITE")
