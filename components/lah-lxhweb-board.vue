@@ -294,11 +294,11 @@ export default {
   height: 100%;
   align-content: flex-start;
   .office {
-    width: 24%;
+    width: 23.5%;
     height: 50%;
     border: 1px solid gray;
     border-radius: 15px;
-    margin: 0 calc(0.5%) calc(0.5%) 0;
+    margin: 0 calc(1.5%) calc(1.5%) 0;
   }
 }
 </style>
