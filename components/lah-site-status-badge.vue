@@ -119,7 +119,7 @@ export default {
       })
     },
     check () {
-      this.isBusy = true
+      // this.isBusy = true
       this.message = '測試中 ... '
       this.status = -2
       clearTimeout(this.timer)
