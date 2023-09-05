@@ -79,7 +79,7 @@ div(v-cloak)
         //- lah-monitor-board-xap
         lah-monitor-board-apconn(bar, all, @light-update="lightUpdate")
         lah-monitor-board-connectivity(@light-update="lightUpdate")
-        lah-lxhweb-board(target-ip="L3HWEB", @light-update="lightUpdate")
+        lah-monitor-board-lxhweb(target-ip="L3HWEB", @light-update="lightUpdate")
   b-carousel(
     ref="boards",
     :interval="0"
