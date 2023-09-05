@@ -42,6 +42,9 @@ div: client-only
       lah-cert-badge(size="lg")
       lah-ip-badge(ip="220.1.34.17", port="8082", period="15000", size="lg")
       lah-ip-badge.ml-1(ip="220.1.34.233", :badge="false", size="lg")
+      lah-site-status-badge.ml-1(site="HB", period="60000")
+      lah-site-status-badge.ml-1(site="FA", period="60000")
+      lah-site-status-badge.ml-1(site="HI", period="60000")
     //- b-card
     //-   template(#header) 設定檔測試
     //-   div {{ openNewsData }}
