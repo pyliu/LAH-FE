@@ -6,6 +6,12 @@ b-card(:border-variant="borderVariant")
         lah-fa-icon(icon="circle" :variant="headerLight")
           | 各所跨域AP服務狀態
       b-button-group
+        lah-button(
+          to="/inf/xap/connectivity",
+          icon="arrow-up-right-from-square",
+          no-border,
+          title="檢視全部"
+        )
         lah-button(icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="reload")
         lah-button(
           icon="question",
