@@ -24,11 +24,13 @@ div(v-cloak)
   client-only: lah-b-card-group
     transition-group(name="list", mode="out-in"): component.mr-2.mb-2(
       v-for="(data, idx) in officesData",
+      :ref="data.ID",
       :key="`${data.ID}-${idx}`",
       is="lahSiteStatusBadge",
       :watch-site="data.ID",
       :fill="false",
-      pill
+      pill,
+      @updated="handleUpdated"
     )
     //- lah-site-status-badge(watch-site="BB")
 </template>
@@ -46,10 +48,7 @@ export default {
   created () {
     this.prepareOfficesData()
   },
-  mounted () {
-    window.addEventListener('resize', this.$utils.debounce(() => window.location.reload(), 1000))
-    this.refresh()
-  },
+  mounted () {},
   methods: {
     prepareOfficesData () {
       this.getCache(this.officeCacheKey).then((json) => {
@@ -78,25 +77,8 @@ export default {
         }
       })
     },
-    refresh (minSec = '00:00') {
-      // refresh the page at tomorrow 08:00
-      const now = new Date()
-      const today =
-        now.getFullYear() +
-        '-' +
-        ('0' + (now.getMonth() + 1)).slice(-2) +
-        '-' +
-        ('0' + now.getDate()).slice(-2)
-      const tomorrow8am = new Date(`${today} 08:${minSec}`)
-      tomorrow8am.setDate(new Date().getDate() + 1)
-      const milliseconds = tomorrow8am - now
-      this.timeout(() => window.location.reload(), milliseconds).then((handler) => {
-        this.$utils.log(
-          `${Number.parseFloat(
-            milliseconds / 1000 / 60 / 60
-          ).toFixed(2)} hrs 候更新頁面 (${tomorrow8am})`
-        )
-      })
+    handleUpdated (data) {
+      console.warn(data)
     }
   }
 }
