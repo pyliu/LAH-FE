@@ -45,7 +45,7 @@ b-card(:border-variant="borderVariant")
 
 <script>
 export default {
-  name: 'LahLxhwebBoard',
+  name: 'LahMonitorBoardLxhweb',
   emit: ['light-update'],
   props: {
     targetIp: { type: String, require: true, default: 'L3HWEB' },
