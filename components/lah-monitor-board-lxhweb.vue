@@ -6,8 +6,32 @@ b-card(:border-variant="borderVariant")
         lah-fa-icon(icon="circle" :variant="headerLight")
           | {{ header }}
       b-button-group
+        lah-button(
+          v-if="link",
+          to="/inf/lxhweb",
+          icon="arrow-up-right-from-square",
+          no-border,
+          title="檢視全部"
+        )
         lah-button(v-if="showBrokenBtn" icon="unlink" variant="danger" no-border action="damage" title="檢視損毀資料表" :badge-text="String(brokenTableCount)" @click="showBrokenTable")
         lah-button(v-if="alive" icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="ping")
+        lah-button(
+          icon="question",
+          action="breath",
+          variant="outline-success",
+          no-border,
+          no-icon-gutter,
+          @click="$refs.help.show()",
+          title="說明"
+        )
+    lah-help-modal(ref="help", :modal-title="`各所同步異動監控說明`")
+      ul
+        li 顯示桃園市各所地政系統WEB版資料庫同步異動狀態
+        li 預設每5分鐘重新更新一次
+      hr
+      div 🟢 表示更新時間正常區間
+      div 🟡 表示更新時間大於15分鐘
+      div 🔴 表示超過30分鐘未更新
   .h-100(v-if="alive")
     .offices
       .office.center(v-for="entry in offices" :key="entry.SITE")
@@ -24,7 +48,8 @@ export default {
   name: 'LahLxhwebBoard',
   emit: ['light-update'],
   props: {
-    targetIp: { type: String, require: true, default: 'L3HWEB' }
+    targetIp: { type: String, require: true, default: 'L3HWEB' },
+    link: { type: Boolean, default: false }
   },
   fetchOnServer: true,
   data: () => ({
