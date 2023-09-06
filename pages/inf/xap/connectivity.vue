@@ -56,7 +56,15 @@ export default {
     title: '全國跨域主機服務監控-桃園市地政局'
   },
   computed: {},
+  watch: {
+    displayDanger (val) {
+      this.setCache('/inf/xap/connectivity/displayDanger', val, 7 * 24 * 60 * 60 * 1000)
+    }
+  },
   created () {
+    this.getCache('/inf/xap/connectivity/displayDanger').then((flag) => {
+      this.displayDanger = flag
+    })
     this.filterByLight = this.$utils.debounce(() => {
       this.red.length = 0
       this.yellow.length = 0
