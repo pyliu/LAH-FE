@@ -53,7 +53,7 @@ export default {
     yellow: []
   }),
   head: {
-    title: '全國跨域主機服務監控-桃園市地政局'
+    title: '全國地所跨域主機監控-桃園市地政局'
   },
   computed: {},
   watch: {
