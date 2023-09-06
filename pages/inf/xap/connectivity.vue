@@ -43,7 +43,7 @@ div(v-cloak)
 
 <script>
 export default {
-  middleware: ['isInf'],
+  // middleware: ['isInf'],
   data: () => ({
     displayDanger: false,
     officesData: [],

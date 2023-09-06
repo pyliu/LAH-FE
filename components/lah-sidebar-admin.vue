@@ -54,8 +54,8 @@ b-sidebar#lah-sidebar(
         #[font-awesome-icon(:icon="['fas', 'arrows-spin']", fixed-width, size="lg")]
         {{site}} 輪播儀錶板
       li: nuxt-link(to="/inf/xap/connectivity").
-        #[font-awesome-icon(:icon="['fas', 'bars-progress']", fixed-width, size="lg")]
-        全國跨域伺服器監控
+        #[font-awesome-icon(:icon="['fas', 'wave-square']", fixed-width, size="lg")]
+        全國地所伺服器監控
       li: nuxt-link(to="/inf/xap").
         #[font-awesome-icon(:icon="['fas', 'server']", fixed-width, size="lg")]
         {{site}} 跨域伺服器監控
