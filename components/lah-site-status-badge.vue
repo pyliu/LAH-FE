@@ -153,6 +153,7 @@ export default {
         this.status = cached.status
         // console.warn(`${this.watchSite} cache hit!!`)
         this.$emit('updated', cached)
+        this.nextRun()
       } else {
         this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'check_site_http',
@@ -171,9 +172,9 @@ export default {
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
+          this.nextRun()
         })
       }
-      this.nextRun()
     },
     nextRun () {
       // 100ms ~ 1000ms
