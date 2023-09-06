@@ -142,6 +142,9 @@ export default {
         this.headers = [...cached.raw]
         this.status = cached.status
         this.$emit('updated', cached)
+        if (this.validPeriod) {
+          this.timeout(this.check, parseInt(this.period)).then((handler) => { this.timer = handler })
+        }
       } else {
         this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'check_site_http',
