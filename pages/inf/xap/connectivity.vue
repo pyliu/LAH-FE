@@ -4,7 +4,8 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto 全國地所跨域主機監控
+          .my-auto
+            lah-fa-icon(icon="wave-square", append) 全國地所跨域主機監控
           lah-button(
             v-b-modal.help-modal,
             icon="info",
