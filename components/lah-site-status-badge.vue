@@ -37,7 +37,7 @@ export default {
     clearTimer: null,
     officeCacheKey: 'office-cached-key',
     officesData: [],
-    timestamp: +new Date()
+    updateTimestamp: +new Date()
   }),
   computed: {
     // validPeriod () {
@@ -81,10 +81,10 @@ export default {
       return this.$store.getters['inf/siteStatusCacheMap']
     },
     updateTime () {
-      return this.$utils.formatTime(new Date(this.timestamp))
+      return this.$utils.formatTime(new Date(this.updateTimestamp))
     },
     updateDate () {
-      return this.$utils.formatDate(new Date(this.timestamp))
+      return this.$utils.formatDate(new Date(this.updateTimestamp))
     }
   },
   watch: {
@@ -166,7 +166,7 @@ export default {
           }
           this.$emit('updated', data)
           this.siteStatusCacheMap.set(this.watchSite, data)
-          this.timestamp = +new Date()
+          this.updateTimestamp = +new Date()
         }).catch((err) => {
           this.$utils.error(err)
         }).finally(() => {
