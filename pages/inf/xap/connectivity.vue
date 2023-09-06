@@ -57,7 +57,7 @@ export default {
             type: 'all_offices'
           }).then(({ data }) => {
             if (Array.isArray(data.raw)) {
-              this.officesData = [...data.raw]
+              this.officesData = [...data.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
               // a day ms
               const cacheMs = 24 * 60 * 60 * 1000
               this.setCache(this.useZoneCacheKey, data, cacheMs)
@@ -70,7 +70,7 @@ export default {
           }).finally(() => {
           })
         } else if (Array.isArray(json.raw)) {
-          this.officesData = [...json.raw]
+          this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
           this.$utils.log('已從快取回復各地政事務所資料。')
         } else {
           this.$utils.error('無法從快取回復各地政事務所資料。')
@@ -78,7 +78,7 @@ export default {
       })
     },
     handleUpdated (data) {
-      console.warn(data)
+      console.warn('page handleUpdated', data)
     }
   }
 }

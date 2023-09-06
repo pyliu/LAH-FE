@@ -3,7 +3,7 @@ b-button(
   :variant="fill ? variant : outlineVariant",
   :pill="pill",
   :size="size",
-  @click="check",
+  @click="check(true)",
   title="重新測試",
   v-b-tooltip="message"
 )
@@ -88,7 +88,7 @@ export default {
   created () {
     this.prepareOfficesData()
     setInterval(() => {
-      this.siteStatusCacheMap.remove(this.watchSite)
+      this.siteStatusCacheMap.delete(this.watchSite)
     }, parseInt(this.period) || 60000)
   },
   mounted () {
@@ -106,10 +106,11 @@ export default {
             type: 'all_offices'
           }).then(({ data }) => {
             if (Array.isArray(data.raw)) {
-              this.officesData = [...data.raw]
+              // elimite out of date data
+              this.officesData = [...data.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
               // a day ms
               const cacheMs = 24 * 60 * 60 * 1000
-              this.setCache(this.useZoneCacheKey, data, cacheMs)
+              this.setCache(this.officeCacheKey, data, cacheMs)
             } else {
               this.$utils.error('無法取得各地政事務所資料。', data)
             }
@@ -119,18 +120,22 @@ export default {
           }).finally(() => {
           })
         } else if (Array.isArray(json.raw)) {
-          this.officesData = [...json.raw]
+          // elimite out of date data
+          this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
           this.$utils.log('已從快取回復各地政事務所資料。')
         } else {
           this.$utils.error('無法從快取回復各地政事務所資料。')
         }
       })
     },
-    check () {
+    check (force = false) {
       // this.isBusy = true
       this.message = '測試中 ... '
       this.status = -2
       clearTimeout(this.timer)
+      if (force) {
+        this.siteStatusCacheMap.delete(this.watchSite)
+      }
       const cached = this.siteStatusCacheMap.get(this.watchSite)
       if (cached) {
         this.message = cached.message
