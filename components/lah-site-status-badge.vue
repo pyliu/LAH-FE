@@ -5,9 +5,9 @@ b-button(
   :size="size",
   @click="check(true)",
   title="重新測試",
-  v-b-tooltip="message"
+  v-b-tooltip="`${message} ${updateTime}`"
 )
-  span.my-auto(v-if="!fill") {{ lightIcon }}
+  span.my-auto.mr-1(v-if="!fill") {{ lightIcon }}
   span {{ name }}
   b-badge.ml-1(
     v-if="badge && status < 1 && status !== -2"
@@ -36,7 +36,8 @@ export default {
     timer: null,
     clearTimer: null,
     officeCacheKey: 'office-cached-key',
-    officesData: []
+    officesData: [],
+    timestamp: +new Date()
   }),
   computed: {
     // validPeriod () {
@@ -78,6 +79,12 @@ export default {
     },
     siteStatusCacheMap () {
       return this.$store.getters['inf/siteStatusCacheMap']
+    },
+    updateTime () {
+      return this.$utils.formatTime(new Date(this.timestamp))
+    },
+    updateDate () {
+      return this.$utils.formatDate(new Date(this.timestamp))
     }
   },
   watch: {
@@ -159,6 +166,7 @@ export default {
           }
           this.$emit('updated', data)
           this.siteStatusCacheMap.set(this.watchSite, data)
+          this.timestamp = +new Date()
         }).catch((err) => {
           this.$utils.error(err)
         }).finally(() => {
