@@ -1,6 +1,6 @@
 <template lang="pug">
 b-button(
-  :variant="fill ? variant : outlineVariant",
+  :variant="fill || loading ? variant : outlineVariant",
   :pill="pill",
   :size="size",
   @click="check(true)",
@@ -10,8 +10,7 @@ b-button(
   lah-fa-icon.mr-1(
     v-if="loading"
     icon="spinner",
-    action="spin",
-    variant="warning"
+    action="spin"
   )
   span.mr-1(v-else-if="!fill") {{ lightIcon }}
   span {{ name }}
