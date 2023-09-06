@@ -13,7 +13,9 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
-    lah-help-modal(:modal-id="'help-modal'", size="md")
+        .d-flex.align-items-center
+          b-checkbox.my-auto(v-model="displayDanger", size="lg") 只顯示有問題的地所
+  lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
         li 每1分鐘左右重新更新一次
@@ -21,9 +23,13 @@ div(v-cloak)
       div 🟢 表示一切正常
       div 🟡 表示狀態更新中
       div 🔴 表示狀態錯誤
+  lah-transition: h3.center(v-if="displayDanger && red.length === 0")
+    lah-fa-icon.mr-1(icon="circle-check", variant="success")
+    span 目前各地所皆可正常連線
   client-only: lah-b-card-group
     transition-group(name="list", mode="out-in"): component.mr-2.mb-2(
       v-for="(data, idx) in officesData",
+      v-show="isOn(data)",
       :ref="data.ID",
       :key="`${data.ID}-${idx}`",
       is="lahSiteStatusBadge",
@@ -39,17 +45,40 @@ div(v-cloak)
 export default {
   middleware: ['isInf'],
   data: () => ({
-    officesData: []
+    displayDanger: false,
+    officesData: [],
+    officeStateMap: new Map(),
+    red: [],
+    green: [],
+    yellow: []
   }),
   head: {
     title: '全國跨域主機服務監控-桃園市地政局'
   },
   computed: {},
   created () {
+    this.filterByLight = this.$utils.debounce(() => {
+      this.red.length = 0
+      this.yellow.length = 0
+      this.green.length = 0
+      this.officeStateMap.forEach((value, key, map) => {
+        if (value.status > 0) {
+          this.green.push(key)
+        } else {
+          this.red.push(key)
+        }
+      })
+    }, 500)
     this.prepareOfficesData()
   },
   mounted () {},
   methods: {
+    isOn (data) {
+      if (this.displayDanger) {
+        return this.red.includes(data.ID)
+      }
+      return true
+    },
     prepareOfficesData () {
       this.getCache(this.officeCacheKey).then((json) => {
         if (json === false) {
@@ -78,7 +107,9 @@ export default {
       })
     },
     handleUpdated (data) {
-      // console.warn('page handleUpdated', data)
+      this.officeStateMap.set(data.site, data)
+      // debounced method with 500ms
+      this.filterByLight()
     }
   }
 }
