@@ -132,19 +132,13 @@ export default {
       // this.isBusy = true
       this.message = '測試中 ... '
       this.status = -2
-      clearTimeout(this.timer)
-      if (force) {
-        this.siteStatusCacheMap.delete(this.watchSite)
-      }
+      force && this.siteStatusCacheMap.delete(this.watchSite)
       const cached = this.siteStatusCacheMap.get(this.watchSite)
       if (cached) {
         this.message = cached.message
         this.headers = [...cached.raw]
         this.status = cached.status
         this.$emit('updated', cached)
-        if (this.validPeriod) {
-          this.timeout(this.check, parseInt(this.period)).then((handler) => { this.timer = handler })
-        }
       } else {
         this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'check_site_http',
@@ -162,11 +156,13 @@ export default {
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
-          if (this.validPeriod) {
-            this.timeout(this.check, parseInt(this.period)).then((handler) => { this.timer = handler })
-          }
         })
       }
+      this.nextRun()
+    },
+    nextRun () {
+      clearTimeout(this.timer)
+      this.validPeriod && this.timeout(this.check, parseInt(this.period)).then((handler) => { this.timer = handler })
     }
   }
 }
