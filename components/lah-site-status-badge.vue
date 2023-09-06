@@ -34,6 +34,7 @@ export default {
     headers: [],
     message: '',
     timer: null,
+    clearTimer: null,
     officeCacheKey: 'office-cached-key',
     officesData: []
   }),
@@ -74,6 +75,9 @@ export default {
         return '🟡'
       }
       return '🔴'
+    },
+    siteStatusCacheMap () {
+      return this.$store.getters['inf/siteStatusCacheMap']
     }
   },
   watch: {
@@ -83,12 +87,16 @@ export default {
   },
   created () {
     this.prepareOfficesData()
+    setInterval(() => {
+      this.siteStatusCacheMap.remove(this.watchSite)
+    }, parseInt(this.period) || 60000)
   },
   mounted () {
     this.check()
   },
   beforeDestroy () {
     clearTimeout(this.timer)
+    clearInterval(this.clearTimer)
   },
   methods: {
     prepareOfficesData () {
@@ -123,25 +131,34 @@ export default {
       this.message = '測試中 ... '
       this.status = -2
       clearTimeout(this.timer)
-      this.$axios.post(this.$consts.API.JSON.IP, {
-        type: 'check_site_http',
-        site: this.watchSite
-      }).then(({ data }) => {
-        this.message = data.message
-        this.headers = [...data.raw]
-        this.status = data.status
-        if (!this.$utils.statusCheck(this.status)) {
-          this.$utils.warn(data.message)
-        }
-        this.$emit('updated', data)
-      }).catch((err) => {
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-        if (this.validPeriod) {
-          this.timeout(this.check, parseInt(this.period)).then((handler) => { this.timer = handler })
-        }
-      })
+      const cached = this.siteStatusCacheMap.get(this.watchSite)
+      if (cached) {
+        this.message = cached.message
+        this.headers = [...cached.raw]
+        this.status = cached.status
+        this.$emit('updated', cached)
+      } else {
+        this.$axios.post(this.$consts.API.JSON.IP, {
+          type: 'check_site_http',
+          site: this.watchSite
+        }).then(({ data }) => {
+          this.message = data.message
+          this.headers = [...data.raw]
+          this.status = data.status
+          if (!this.$utils.statusCheck(this.status)) {
+            this.$utils.warn(data.message)
+          }
+          this.$emit('updated', data)
+          this.siteStatusCacheMap.set(this.watchSite, data)
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+          if (this.validPeriod) {
+            this.timeout(this.check, parseInt(this.period)).then((handler) => { this.timer = handler })
+          }
+        })
+      }
     }
   }
 }
