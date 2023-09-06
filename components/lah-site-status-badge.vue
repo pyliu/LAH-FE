@@ -25,7 +25,7 @@ export default {
     badge: { type: Boolean, default: true },
     size: { type: String, default: 'md' },
     badgeVariant: { type: String, default: 'light' },
-    period: { type: String, default: '' },
+    period: { type: String, default: '60000' },
     fill: { type: Boolean, default: true },
     short: { type: Boolean, default: false }
   },
@@ -39,10 +39,10 @@ export default {
     officesData: []
   }),
   computed: {
-    validPeriod () {
-      const periodInt = parseInt(this.period)
-      return periodInt > 0
-    },
+    // validPeriod () {
+    //   const periodInt = parseInt(this.period)
+    //   return periodInt > 0
+    // },
     variant () {
       if (this.status > 0) {
         return 'success'
@@ -87,7 +87,8 @@ export default {
   },
   created () {
     this.prepareOfficesData()
-    setInterval(() => {
+    this.clearTimer = setInterval(() => {
+      // console.warn(`${this.watchSite} delete cache.`)
       this.siteStatusCacheMap.delete(this.watchSite)
     }, parseInt(this.period) || 60000)
   },
@@ -129,6 +130,7 @@ export default {
       })
     },
     check (force = false) {
+      // console.warn(`${this.watchSite} start checking ...`)
       // this.isBusy = true
       this.message = '測試中 ... '
       this.status = -2
@@ -138,6 +140,7 @@ export default {
         this.message = cached.message
         this.headers = [...cached.raw]
         this.status = cached.status
+        // console.warn(`${this.watchSite} cache hit!!`)
         this.$emit('updated', cached)
       } else {
         this.$axios.post(this.$consts.API.JSON.IP, {
@@ -162,7 +165,7 @@ export default {
     },
     nextRun () {
       clearTimeout(this.timer)
-      this.validPeriod && this.timeout(this.check, parseInt(this.period)).then((handler) => { this.timer = handler })
+      this.timeout(this.check, parseInt(this.period) || 60000).then((handler) => { this.timer = handler })
     }
   }
 }

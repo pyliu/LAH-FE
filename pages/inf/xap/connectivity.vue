@@ -78,7 +78,7 @@ export default {
       })
     },
     handleUpdated (data) {
-      console.warn('page handleUpdated', data)
+      // console.warn('page handleUpdated', data)
     }
   }
 }
