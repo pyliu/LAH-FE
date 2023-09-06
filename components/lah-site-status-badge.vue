@@ -149,6 +149,10 @@ export default {
       })
     },
     check (force = false) {
+      if (!force && this.loading) {
+        this.nextRun()
+        return
+      }
       // console.warn(`${this.watchSite} start checking ...`)
       // this.isBusy = true
       this.message = '測試中 ... '
