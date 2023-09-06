@@ -46,7 +46,7 @@ b-card(:border-variant="borderVariant")
 
 <script>
 export default {
-  name: 'LahMonitorBoardHxSite',
+  name: 'LahMonitorBoardSiteHx',
   emit: ['light-update'],
   props: {
     updatePeriod: { type: String, default: '60000' }
