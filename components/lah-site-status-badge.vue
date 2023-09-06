@@ -6,8 +6,14 @@ b-button(
   @click="check(true)",
   title="重新測試",
   v-b-tooltip="`${message} ${updateTime}`"
-)
-  span.my-auto.mr-1(v-if="!fill") {{ lightIcon }}
+): .d-flex.align-items-center
+  lah-fa-icon.mr-1(
+    v-if="loading"
+    icon="spinner",
+    action="spin",
+    variant="warning"
+  )
+  span.mr-1(v-else-if="!fill") {{ lightIcon }}
   span {{ name }}
   b-badge.ml-1(
     v-if="badge && status < 1 && status !== -2"
@@ -85,6 +91,9 @@ export default {
     },
     updateDate () {
       return this.$utils.formatDate(new Date(this.updateTimestamp))
+    },
+    loading () {
+      return this.status === -2
     }
   },
   watch: {
