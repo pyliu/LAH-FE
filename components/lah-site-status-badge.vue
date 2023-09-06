@@ -65,7 +65,7 @@ export default {
       // item: { ID: 'HX', NAME: 'XXX', ALIAS: 'XXX'}
       const found = this.officesData.find(item => item.ID === this.watchSite)
       const name = found ? found?.NAME : this.watchSite
-      return this.short ? name.replace(/(所|地政事務所)/g, '') : name
+      return this.short ? name.replace(/(所|地政事務所)/g, '') : `${this.watchSite} ${name}`
     },
     lightIcon () {
       if (this.status > 0) {
