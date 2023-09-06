@@ -87,13 +87,17 @@ export default {
   },
   created () {
     this.prepareOfficesData()
+    // 100ms ~ 1000ms
+    const bounceMs = Math.floor(Math.random() * 1000) + 100
     this.clearTimer = setInterval(() => {
       // console.warn(`${this.watchSite} delete cache.`)
       this.siteStatusCacheMap.delete(this.watchSite)
-    }, parseInt(this.period) || 60000)
+    }, (parseInt(this.period) || 60000) + bounceMs)
   },
   mounted () {
-    this.check()
+    // 4ms ~ 400ms
+    const bounceMs = (Math.floor(Math.random() * 100) + 1) * 4
+    this.timeout(this.check, bounceMs)
   },
   beforeDestroy () {
     clearTimeout(this.timer)
@@ -164,8 +168,10 @@ export default {
       this.nextRun()
     },
     nextRun () {
+      // 100ms ~ 1000ms
+      const bounceMs = Math.floor(Math.random() * 1000) + 100
       clearTimeout(this.timer)
-      this.timeout(this.check, parseInt(this.period) || 60000).then((handler) => { this.timer = handler })
+      this.timeout(this.check, (parseInt(this.period) || 60000) + bounceMs).then((handler) => { this.timer = handler })
     }
   }
 }
