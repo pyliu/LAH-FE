@@ -149,7 +149,7 @@ export default {
       })
     },
     check (force = false) {
-      if (!force && this.loading) {
+      if (this.loading) {
         this.nextRun()
         return
       }
