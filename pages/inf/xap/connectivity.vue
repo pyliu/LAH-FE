@@ -16,7 +16,7 @@ div(v-cloak)
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
-        li 每5分鐘重新更新一次
+        li 每1分鐘左右重新更新一次
       hr
       div 🟢 表示一切正常
       div 🟡 表示狀態更新中
