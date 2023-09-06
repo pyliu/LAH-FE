@@ -10,7 +10,7 @@ b-card(:border-variant="borderVariant")
           to="/inf/xap/connectivity",
           icon="arrow-up-right-from-square",
           no-border,
-          title="檢視全部"
+          title="檢視全國事務所狀態"
         )
         lah-button(icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="reload")
         lah-button(
