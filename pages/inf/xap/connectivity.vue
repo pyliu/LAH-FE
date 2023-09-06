@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto 全國跨域主機監控
+          .my-auto 全國地所跨域主機監控
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -14,7 +14,7 @@ div(v-cloak)
             title="說明"
           )
         .d-flex.align-items-center
-          b-checkbox.my-auto(v-model="displayDanger", size="lg") 只顯示有問題的地所
+          b-checkbox.my-auto(v-model="displayDanger", size="lg") 只顯示連線狀態錯誤
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
