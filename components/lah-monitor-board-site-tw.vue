@@ -4,8 +4,26 @@ b-card(:border-variant="borderVariant")
     .d-flex.w-100.justify-content-between
       h6.my-auto.font-weight-bolder
         lah-fa-icon(icon="circle" :variant="headerLight")
-          | 全國地所跨域AP斷線一覽
+          | 全國地所跨域AP狀態
       b-button-group
+        lah-button(
+          variant="success",
+          title="正常數量"
+          pill,
+          no-icon,
+          v-b-tooltip.v-success
+        )
+          //- span.mr-1 告警
+          b-badge(variant="light", pill) {{ upCount }}
+        lah-button.mx-1(
+          variant="danger",
+          title="斷線數量"
+          pill,
+          no-icon,
+          v-b-tooltip.v-danger
+        )
+          //- span.mr-1 回復
+          b-badge(variant="light", pill) {{ downCount }}
         lah-button(
           to="/inf/xap/connectivity",
           icon="arrow-up-right-from-square",
@@ -37,8 +55,8 @@ b-card(:border-variant="borderVariant")
       div 🟢 表示一切正常
       div 🟡 表示狀態更新中
       div 🔴 表示狀態錯誤
-  .h-100(v-if="downCount > 0")
-    lah-site-status-badge(
+  .max-height(v-if="downCount > 0")
+    lah-site-status-badge.m-1(
       v-for="office in downOffices",
       :ref="office.id",
       :key="office.id"
@@ -49,7 +67,9 @@ b-card(:border-variant="borderVariant")
       short,
       @updated="handleUpdated"
     )
-  .center.h100(v-else)
+  .center.max-height(v-else-if="isBusy")
+    h4: lah-fa-icon(icon="spinner", variant="dark", action="spin") 讀取中 ...
+  .center.max-height(v-else)
     h4: lah-fa-icon(icon="circle-check", variant="success") 目前無斷線地所
 </template>
 
@@ -64,35 +84,7 @@ export default {
     officesData: []
   }),
   fetch () {
-    const officeCacheKey = 'office-cached-key'
-    // to get all offices data
-    this.getCache(officeCacheKey).then((json) => {
-      if (json === false) {
-        this.$axios.post(this.$consts.API.JSON.SYSTEM, {
-          type: 'all_offices'
-        }).then(({ data }) => {
-          if (Array.isArray(data.raw)) {
-            // elimite out of date data
-            this.officesData = [...data.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-            // a day ms
-            const cacheMs = 24 * 60 * 60 * 1000
-            this.setCache(officeCacheKey, data, cacheMs)
-          } else {
-            this.$utils.error('無法取得各地政事務所資料。', data)
-          }
-        }).catch((err) => {
-          this.alert(err.message)
-          this.$utils.error(err)
-        }).finally(() => {
-        })
-      } else if (Array.isArray(json.raw)) {
-        // elimite out of date data
-        this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-        this.$utils.log('已從快取回復各地政事務所資料。')
-      } else {
-        this.$utils.error('無法從快取回復各地政事務所資料。')
-      }
-    })
+    this.reload()
   },
   computed: {
     count () {
@@ -135,15 +127,18 @@ export default {
       })
     },
     officesData (val) {
-      // ALIAS, ID, NAME
-      console.warn(val)
+      // testing
+      // val.forEach((element, idx) => {
+      //   element.state = this.$utils.rand(5) !== 1 ? 'UP' : 'DOWN'
+      // })
     }
   },
   created () {},
-  mounted () { this.reload() },
+  mounted () {},
   methods: {
     reload () {
-      this.isBusy = false
+      this.isBusy = true
+      this.officesData = []
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
           type: 'stats_xap_stats'
@@ -165,4 +160,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.max-height {
+  max-height: 300px;
+  overflow: auto;
+}
 </style>
