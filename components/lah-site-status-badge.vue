@@ -6,7 +6,7 @@ b-button(
   @click="check(true)",
   title="重新測試",
   v-b-tooltip="`${message} ${updateTime}`"
-): .d-flex.align-items-center
+): .d-flex.align-items-center.justify-content-center
   lah-fa-icon.mr-1(
     v-if="loading"
     icon="spinner",
