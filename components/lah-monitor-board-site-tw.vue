@@ -37,12 +37,12 @@ b-card(:border-variant="borderVariant")
       div 🟢 表示一切正常
       div 🟡 表示狀態更新中
       div 🔴 表示狀態錯誤
-  .h-100(v-if="brokenOffices.length > 0")
+  .h-100(v-if="downCount > 0")
     lah-site-status-badge(
-      v-for="office in brokenOffices",
-      :ref="office",
-      :key="office"
-      :watch-site="office",
+      v-for="office in downOffices",
+      :ref="office.id",
+      :key="office.id"
+      :watch-site="office.id",
       :period="updatePeriod",
       :fill="false",
       :badge="false",
@@ -61,8 +61,7 @@ export default {
     updatePeriod: { type: String, default: '300000' } // 5 mins
   },
   data: () => ({
-    officesData: [],
-    brokenOffices: []
+    officesData: []
   }),
   fetch () {
     const officeCacheKey = 'office-cached-key'
@@ -96,8 +95,26 @@ export default {
     })
   },
   computed: {
+    count () {
+      return this.officesData.length
+    },
+    downOffices () {
+      return [...this.officesData.filter(siteData => siteData.state === 'DOWN')]
+    },
+    downCount () {
+      return this.downOffices.length
+    },
+    upOffices () {
+      return [...this.officesData.filter(siteData => siteData.state === 'UP')]
+    },
+    upCount () {
+      return this.upOffices.length
+    },
     headerLight () {
-      if (this.brokenOffices.length > 0) {
+      if (this.count === 0) {
+        return 'warning'
+      }
+      if (this.downCount > 0) {
         return 'danger'
       }
       return 'success'
@@ -119,18 +136,30 @@ export default {
     },
     officesData (val) {
       // ALIAS, ID, NAME
-      // console.warn(val)
+      console.warn(val)
     }
   },
   created () {},
-  mounted () {},
+  mounted () { this.reload() },
   methods: {
-    handleUpdated (data) {
-      if (data.status > 0) {
-        this.brokenOffices = [...this.brokenOffices.filter(site => site !== data.site)]
-      }
-    },
-    reload () {}
+    reload () {
+      this.isBusy = false
+      this.$axios
+        .post(this.$consts.API.JSON.STATS, {
+          type: 'stats_xap_stats'
+        })
+        .then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            this.officesData = [...data.raw]
+          }
+        })
+        .catch((err) => {
+          this.$utils.error(err)
+        })
+        .finally(() => {
+          this.isBusy = false
+        })
+    }
   }
 }
 </script>
