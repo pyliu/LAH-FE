@@ -17,7 +17,7 @@ b-card(:border-variant="borderVariant")
           b-badge(variant="light", pill) {{ upCount }}
         lah-button.mx-1(
           variant="danger",
-          title="斷線數量"
+          title="異常數量"
           pill,
           no-icon,
           v-b-tooltip.v-danger
