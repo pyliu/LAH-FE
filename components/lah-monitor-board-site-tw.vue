@@ -81,7 +81,8 @@ export default {
     updatePeriod: { type: String, default: '300000' } // 5 mins
   },
   data: () => ({
-    officesData: []
+    officesData: [],
+    timer: null
   }),
   fetch () {
     this.reload()
@@ -137,6 +138,7 @@ export default {
   mounted () {},
   methods: {
     reload () {
+      clearTimeout(this.timer)
       this.isBusy = true
       this.officesData = []
       this.$axios
@@ -153,6 +155,7 @@ export default {
         })
         .finally(() => {
           this.isBusy = false
+          this.timeout(this.reload, 5 * 60 * 1000).then((handle) => { this.timer = handle })
         })
     }
   }
