@@ -55,22 +55,21 @@ b-card(:border-variant="borderVariant")
       div 🟢 表示一切正常
       div 🟡 表示狀態更新中
       div 🔴 表示狀態錯誤
-  .max-height(v-if="downCount > 0")
-    lah-site-status-badge.m-1(
-      v-for="office in downOffices",
-      :ref="office.id",
-      :key="office.id"
-      :watch-site="office.id",
-      :period="updatePeriod",
-      :fill="false",
-      :badge="false",
-      short,
-      @updated="handleUpdated"
-    )
-  .center.max-height(v-else-if="isBusy")
-    h4: lah-fa-icon(icon="spinner", variant="dark", action="spin") 讀取中 ...
-  .center.max-height(v-else)
-    h4: lah-fa-icon(icon="circle-check", variant="success") 目前無斷線地所
+  .max-height
+    div(v-if="downCount > 0")
+      lah-site-status-badge.m-1(
+        v-for="office in downOffices",
+        :ref="office.id",
+        :key="office.id",
+        :static-data="office",
+        :fill="false",
+        :badge="false",
+        short
+      )
+    .mt-3.text-center(v-else-if="isBusy")
+      lah-fa-icon.h4(icon="spinner", variant="dark", action="spin") 讀取中 ...
+    .mt-3.text-center(v-else)
+      lah-fa-icon.h4(icon="circle-check", variant="success") 無偵測到異常
 </template>
 
 <script>
