@@ -4,7 +4,7 @@ b-card(:border-variant="borderVariant")
     .d-flex.w-100.justify-content-between
       h6.my-auto.font-weight-bolder
         lah-fa-icon(icon="circle" :variant="headerLight")
-          | 各所跨域AP服務狀態
+          | 桃園市跨域AP服務狀態
       b-button-group
         lah-button(
           to="/inf/xap/connectivity",
