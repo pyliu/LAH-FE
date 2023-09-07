@@ -32,7 +32,7 @@ export default {
         channel: this.channel,
         limit: this.limit
       }).then(({ data }) => {
-        console.warn(data)
+        // console.warn(data)
         if (this.$utils.statusCheck(data.status)) {
           this.list = [...data.raw]
         } else {
