@@ -32,7 +32,12 @@ export default {
     badgeVariant: { type: String, default: 'light' },
     period: { type: String, default: '60000' },
     fill: { type: Boolean, default: true },
-    short: { type: Boolean, default: false }
+    short: { type: Boolean, default: false },
+    /**
+     * serial / id / name / state / response / timestamp
+     * 1 / XX / XX地政事務所 / UP / HTTP/1.1 401 Unauthorized / 1694060279
+     */
+    staticData: { type: Object, default: null }
   },
   data: () => ({
     status: 0,
@@ -44,11 +49,39 @@ export default {
     officesData: [],
     updateTimestamp: +new Date()
   }),
+  fetch () {
+    this.getCache(this.officeCacheKey).then((json) => {
+      if (json === false) {
+        this.$axios.post(this.$consts.API.JSON.SYSTEM, {
+          type: 'all_offices'
+        }).then(({ data }) => {
+          if (Array.isArray(data.raw)) {
+            // elimite out of date data
+            this.officesData = [...data.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
+            // a day ms
+            const cacheMs = 24 * 60 * 60 * 1000
+            this.setCache(this.officeCacheKey, data, cacheMs)
+          } else {
+            this.$utils.error('無法取得各地政事務所資料。', data)
+          }
+        }).catch((err) => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+        })
+      } else if (Array.isArray(json.raw)) {
+        // elimite out of date data
+        this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
+        this.$utils.log('已從快取回復各地政事務所資料。')
+      } else {
+        this.$utils.error('無法從快取回復各地政事務所資料。')
+      }
+    })
+  },
   computed: {
-    // validPeriod () {
-    //   const periodInt = parseInt(this.period)
-    //   return periodInt > 0
-    // },
+    isStatic () {
+      return !this.$utils.empty(this.staticData)
+    },
     variant () {
       if (this.status > 0) {
         return 'success'
@@ -68,6 +101,9 @@ export default {
       return 'outline-danger'
     },
     name () {
+      if (this.isStatic) {
+        return this.short ? this.staticData.name.replace(/(所|地政事務所)/g, '') : `${this.staticData.id} ${this.staticData.name}`
+      }
       // item: { ID: 'HX', NAME: 'XXX', ALIAS: 'XXX'}
       const found = this.officesData.find(item => item.ID === this.watchSite)
       const name = found ? found?.NAME : this.watchSite
@@ -101,54 +137,36 @@ export default {
     }
   },
   created () {
-    this.prepareOfficesData()
-    // 100ms ~ 1000ms
-    const bounceMs = Math.floor(Math.random() * 1000) + 100
-    this.clearTimer = setInterval(() => {
-      // console.warn(`${this.watchSite} delete cache.`)
-      this.siteStatusCacheMap.delete(this.watchSite)
-    }, (parseInt(this.period) || 60000) + bounceMs)
+    if (this.isStatic) {
+      this.status = this.staticData.state === 'UP' ? 1 : 0
+      this.headers.push(this.staticData.response)
+      this.message = this.status > 0 ? `${this.staticData.id}服務正常` : `${this.staticData.id}服務異常`
+    } else {
+      // 100ms ~ 1000ms
+      const bounceMs = Math.floor(Math.random() * 1000) + 100
+      this.clearTimer = setInterval(() => {
+        // console.warn(`${this.watchSite} delete cache.`)
+        this.siteStatusCacheMap.delete(this.watchSite)
+      }, (parseInt(this.period) || 60000) + bounceMs)
+    }
   },
   mounted () {
-    // 4ms ~ 400ms
-    const bounceMs = (Math.floor(Math.random() * 100) + 1) * 4
-    this.timeout(this.check, bounceMs)
+    if (!this.isStatic) {
+      // 4ms ~ 400ms
+      const bounceMs = (Math.floor(Math.random() * 100) + 1) * 4
+      this.timeout(this.check, bounceMs)
+    }
   },
   beforeDestroy () {
     clearTimeout(this.timer)
     clearInterval(this.clearTimer)
   },
   methods: {
-    prepareOfficesData () {
-      this.getCache(this.officeCacheKey).then((json) => {
-        if (json === false) {
-          this.$axios.post(this.$consts.API.JSON.SYSTEM, {
-            type: 'all_offices'
-          }).then(({ data }) => {
-            if (Array.isArray(data.raw)) {
-              // elimite out of date data
-              this.officesData = [...data.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-              // a day ms
-              const cacheMs = 24 * 60 * 60 * 1000
-              this.setCache(this.officeCacheKey, data, cacheMs)
-            } else {
-              this.$utils.error('無法取得各地政事務所資料。', data)
-            }
-          }).catch((err) => {
-            this.alert(err.message)
-            this.$utils.error(err)
-          }).finally(() => {
-          })
-        } else if (Array.isArray(json.raw)) {
-          // elimite out of date data
-          this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-          this.$utils.log('已從快取回復各地政事務所資料。')
-        } else {
-          this.$utils.error('無法從快取回復各地政事務所資料。')
-        }
-      })
-    },
     check (force = false) {
+      if (this.isStatic) {
+        this.$utils.warn('static mode', this.staticData)
+        return
+      }
       if (this.loading) {
         this.nextRun()
         return
