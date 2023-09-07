@@ -14,7 +14,7 @@ div(v-cloak)
             title="說明"
           )
         .d-flex.align-items-center
-          b-checkbox.my-auto(v-model="displayDanger", size="lg") 只顯示連線狀態錯誤
+          b-checkbox.my-auto(v-model="displayDanger", size="lg") 連線狀態錯誤
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
