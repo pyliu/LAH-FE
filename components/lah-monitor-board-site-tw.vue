@@ -73,6 +73,16 @@ b-card(:border-variant="borderVariant")
       :badge="false",
       short
     )
+
+  //- template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
+  //-   ref="footer"
+  //-   :reload-ms="updatePeriod",
+  //-   :busy="isBusy",
+  //-   :fetch="$fetch",
+  //-   :reload="reload(true)",
+  //-   :update-time="updated"
+  //- )
+
 </template>
 
 <script>
@@ -80,12 +90,14 @@ export default {
   name: 'LahMonitorBoardSiteTw',
   emit: ['light-update'],
   props: {
-    updatePeriod: { type: String, default: '300000' } // 5 mins
+    updatePeriod: { type: String, default: '300000' }, // 5 mins
+    footer: { type: Boolean, default: true }
   },
   data: () => ({
     officesData: [],
     displayError: true,
-    timer: null
+    timer: null,
+    updated: ''
   }),
   fetch () {
     this.reload()
@@ -160,6 +172,7 @@ export default {
           if (this.$utils.statusCheck(data.status)) {
             this.officesData = [...data.raw]
           }
+          this.updated = this.$utils.formatTime(new Date())
         })
         .catch((err) => {
           this.$utils.error(err)
