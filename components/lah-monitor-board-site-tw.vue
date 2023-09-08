@@ -11,7 +11,8 @@ b-card(:border-variant="borderVariant")
           title="正常數量"
           pill,
           no-icon,
-          v-b-tooltip.v-success
+          v-b-tooltip.v-success,
+          @click="displayError = false"
         )
           //- span.mr-1 告警
           b-badge(variant="light", pill) {{ upCount }}
@@ -20,7 +21,8 @@ b-card(:border-variant="borderVariant")
           title="異常數量"
           pill,
           no-icon,
-          v-b-tooltip.v-danger
+          v-b-tooltip.v-danger,
+          @click="displayError = true"
         )
           //- span.mr-1 回復
           b-badge(variant="light", pill) {{ downCount }}
@@ -36,7 +38,7 @@ b-card(:border-variant="borderVariant")
           variant="outline-secondary",
           title="重新讀取",
           no-border,
-          @click="reload"
+          @click="reload(true)"
         )
         lah-button(
           icon="question",
@@ -49,27 +51,28 @@ b-card(:border-variant="borderVariant")
         )
     lah-help-modal(ref="help", :modal-title="`各所跨域AP服務狀態監控說明`")
       ul
-        li 顯示無法連線的地所(全國)
+        li 顯示各地所(全國)連線狀態
         li 每5分鐘重新更新一次
       hr
-      div 🟢 表示一切正常
-      div 🟡 表示狀態更新中
+      div 🟢 表示服務正常
+      div 🟡 表示連線逾時
       div 🔴 表示狀態錯誤
-  .max-height
-    div(v-if="downCount > 0")
-      lah-site-status-badge.m-1(
-        v-for="office in downOffices",
-        :ref="office.id",
-        :key="office.id",
-        :static-data="office",
-        :fill="false",
-        :badge="false",
-        short
-      )
-    .mt-3.text-center(v-else-if="isBusy")
-      lah-fa-icon.h4(icon="spinner", variant="dark", action="spin") 讀取中 ...
-    .mt-3.text-center(v-else)
-      lah-fa-icon.h4(icon="circle-check", variant="success") 無偵測到異常
+  .h-100.overflow-auto.max-height
+    lah-transition
+      .mt-3.text-center(v-if="isBusy")
+        lah-fa-icon.h4(icon="spinner", variant="dark", action="spin") 讀取中 ...
+      .mt-3.text-center(v-else-if="downCount === 0 && displayError")
+        lah-fa-icon.h4(icon="circle-check", variant="success") 無偵測到異常
+
+    lah-site-status-badge.m-1(
+      v-for="office in displayOffices",
+      :ref="office.id",
+      :key="office.id",
+      :static-data="office",
+      :fill="false",
+      :badge="false",
+      short
+    )
 </template>
 
 <script>
@@ -81,6 +84,7 @@ export default {
   },
   data: () => ({
     officesData: [],
+    displayError: true,
     timer: null
   }),
   fetch () {
@@ -89,6 +93,9 @@ export default {
   computed: {
     count () {
       return this.officesData.length
+    },
+    displayOffices () {
+      return this.displayError ? this.downOffices : this.upOffices
     },
     downOffices () {
       return [...this.officesData.filter(siteData => siteData.state === 'DOWN')]
@@ -104,9 +111,13 @@ export default {
     },
     headerLight () {
       if (this.count === 0) {
-        return 'warning'
+        return 'secondary'
       }
       if (this.downCount > 0) {
+        // only have timeout sites
+        if (this.downOffices.every(o => o.response === '')) {
+          return 'warning'
+        }
         return 'danger'
       }
       return 'success'
@@ -136,13 +147,14 @@ export default {
   created () {},
   mounted () {},
   methods: {
-    reload () {
+    reload (force = false) {
       clearTimeout(this.timer)
       this.isBusy = true
       this.officesData = []
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
-          type: 'stats_xap_stats'
+          type: 'stats_xap_stats',
+          force
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
@@ -163,7 +175,7 @@ export default {
 
 <style lang="scss" scoped>
 .max-height {
-  max-height: 300px;
+  max-height: 25vh;
   overflow: auto;
 }
 </style>

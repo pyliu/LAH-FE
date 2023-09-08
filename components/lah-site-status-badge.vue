@@ -1,6 +1,6 @@
 <template lang="pug">
 b-button(
-  :variant="fill || loading ? variant : outlineVariant",
+  :variant="btnVariant",
   :pill="pill",
   :size="size",
   @click="check(true)",
@@ -86,7 +86,10 @@ export default {
       if (this.status > 0) {
         return 'success'
       }
-      if (this.status === -2) {
+      if (this.loading) {
+        return 'light'
+      }
+      if (this.isTimeout) {
         return 'warning'
       }
       return 'danger'
@@ -95,10 +98,19 @@ export default {
       if (this.status > 0) {
         return 'outline-success'
       }
-      if (this.status === -2) {
+      if (this.loading) {
+        return 'outline-light'
+      }
+      if (this.isTimeout) {
         return 'outline-warning'
       }
       return 'outline-danger'
+    },
+    btnVariant () {
+      if (this.isStatic) {
+        return 'outline-secondary'
+      }
+      return this.fill || this.loading ? this.variant : this.outlineVariant
     },
     name () {
       if (this.isStatic) {
@@ -113,7 +125,10 @@ export default {
       if (this.status > 0) {
         return '🟢'
       }
-      if (this.status === -2) {
+      if (this.loading) {
+        return '⚪'
+      }
+      if (this.isTimeout) {
         return '🟡'
       }
       return '🔴'
@@ -129,6 +144,9 @@ export default {
     },
     loading () {
       return this.status === -2
+    },
+    isTimeout () {
+      return this.headers.length > 0 && this.$utils.empty(this.headers[0])
     }
   },
   watch: {
@@ -141,6 +159,10 @@ export default {
       this.status = this.staticData.state === 'UP' ? 1 : 0
       this.headers.push(this.staticData.response)
       this.message = this.status > 0 ? `${this.staticData.id}服務正常` : `${this.staticData.id}服務異常`
+      // override the message if there is no response (connection timeout)
+      if (this.isTimeout) {
+        this.message = `${this.staticData.id}測試連線逾時`
+      }
     } else {
       // 100ms ~ 1000ms
       const bounceMs = Math.floor(Math.random() * 1000) + 100
@@ -189,9 +211,12 @@ export default {
           type: 'check_site_http',
           site: this.watchSite
         }).then(({ data }) => {
-          this.message = data.message
           this.headers = [...data.raw]
           this.status = data.status
+          this.message = data.message
+          if (this.isTimeout) {
+            this.message = `${this.watchSite}測試連線逾時`
+          }
           if (!this.$utils.statusCheck(this.status)) {
             this.$utils.warn(data.message)
           }

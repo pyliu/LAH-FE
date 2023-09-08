@@ -100,7 +100,7 @@ export default {
     calcHeaderLight () {},
     reload () {
       this.offices.forEach((office) => {
-        this.$refs[office][0]?.check()
+        this.$refs[office][0]?.check(true)
       })
     },
     name (entry) {
