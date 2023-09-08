@@ -20,6 +20,8 @@ div: client-only
     .d-flex
   lah-b-card-group
     b-card.border-0(no-body)
+      lah-monitor-board-srmas
+    b-card.border-0(no-body)
       lah-monitor-board-site-tw
     b-card
       lah-datepicker(type="AD")

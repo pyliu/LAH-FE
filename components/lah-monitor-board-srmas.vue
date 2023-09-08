@@ -19,7 +19,7 @@ b-card(:border-variant="border")
         v-if="restores.length > 0",
         variant="success",
         :title="`${monitorHrs}小時內回復訊息`"
-        @click="showMails({ title: '回覆通知', icon: 'check-circle', variant: 'success', items: restores })",
+        @click="showMails({ title: '回復通知', icon: 'check-circle', variant: 'success', items: restores })",
         pill,
         no-icon,
         v-b-tooltip.v-success
@@ -125,7 +125,7 @@ export default {
     fetchType: 'sender',
     fetchKeyword: 'SRMAS',
     fetchDay: 1,
-    monitorHrs: 8,
+    monitorHrs: 12,
     duration: 0,
     threadhold: 0,
     regex: /主機：(\d+\.\d+\.\d+\.\d+)/gm
@@ -138,8 +138,7 @@ export default {
       return this.$utils.uniqBy(this.$utils.orderBy(tmp, 'timestamp').reverse(), 'subject')
     },
     headMessages () {
-      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
-      return filtered
+      return this.messages.filter((item, idx, arr) => idx < 3)
     },
     headMessage () {
       return this.headMessages[0]
@@ -156,10 +155,10 @@ export default {
       return 'success'
     },
     warnings () {
-      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('異常告警')).reverse()
+      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('異常', '告警', '警告')).reverse()
     },
     restores () {
-      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復通知'))
+      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
     },
     fixed () {
       const bad = [...this.warnings]
@@ -249,7 +248,7 @@ export default {
       this.duration = this.monitorHrs * 60 * 60 * 1000
       this.threadhold = (+new Date() - this.duration) / 1000
     }, 500)
-    this.monitorHrs = await this.getCache('monitorHrs') || 8
+    this.monitorHrs = await this.getCache('monitorHrs') || 12
     this.calcTime()
   },
   methods: {
