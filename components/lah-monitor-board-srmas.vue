@@ -240,6 +240,9 @@ export default {
     monitorHrs (val) {
       this.calcTime()
       this.setCache('monitorHrs', val)
+    },
+    messages (val) {
+      console.warn(val)
     }
   },
   async created () {
