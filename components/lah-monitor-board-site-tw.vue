@@ -115,7 +115,7 @@ export default {
       }
       if (this.downCount > 0) {
         // only have timeout sites
-        if (this.downOffices.every(o => o.response === '')) {
+        if (this.downOffices.every(o => this.$utils.empty(o.response))) {
           return 'warning'
         }
         return 'danger'
