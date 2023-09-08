@@ -73,8 +73,8 @@ div(v-cloak)
     )
       b-carousel-slide: template(#img): b-card-group.card-body-fixed-height(deck)
         lah-monitor-board-xap(@light-update="lightUpdate")
-        lah-monitor-board-xap-trend(office="桃園所", @light-update="lightUpdate", watch-top-xap)
-        lah-monitor-board-apconn(@light-update="lightUpdate")
+        lah-monitor-board-site-hx
+        lah-monitor-board-site-tw
       b-carousel-slide: template(#img): b-card-group.card-body-fixed-height(deck)
         //- lah-monitor-board-xap
         lah-monitor-board-apconn(bar, all, @light-update="lightUpdate")
@@ -99,9 +99,11 @@ div(v-cloak)
         lah-monitor-board-tape(@light-update="lightUpdate")
         lah-monitor-board-apbackup(@light-update="lightUpdate")
       b-card-group.card-body-fixed-height(deck)
+        lah-monitor-board-xap-trend(office="桃園所", @light-update="lightUpdate", watch-top-xap)
+        lah-monitor-board-apconn(@light-update="lightUpdate")
         lah-monitor-board-testdb(@light-update="lightUpdate")
-        lah-monitor-board-adsync(@light-update="lightUpdate")
-        lah-monitor-board-ups(@light-update="lightUpdate")
+        //- lah-monitor-board-adsync(@light-update="lightUpdate")
+        //- lah-monitor-board-ups(@light-update="lightUpdate")
 </template>
 
 <script>
