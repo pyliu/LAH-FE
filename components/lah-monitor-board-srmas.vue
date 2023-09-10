@@ -135,6 +135,11 @@ export default {
       const tmp = this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.threadhold
       })
+      // .map((item) => {
+      //   return {
+      //     id: item.id
+      //   }
+      // })
       return this.$utils.uniqBy(this.$utils.orderBy(tmp, 'timestamp').reverse(), 'subject')
     },
     headMessages () {
@@ -252,6 +257,7 @@ export default {
     this.monitorHrs = await this.getCache('monitorHrs') || 12
     this.calcTime()
   },
+  mounted () {},
   methods: {
     showMails (payload) {
       // destruvting obj entries to vars
