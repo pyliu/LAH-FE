@@ -6,6 +6,7 @@ import { format, formatDistanceToNow } from 'date-fns'
 import $ from 'jquery'
 import debounce from 'lodash/debounce'
 import difference from 'lodash/difference'
+import differenceWith from 'lodash/differenceWith'
 import filter from 'lodash/filter'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
@@ -173,6 +174,7 @@ export default ({ $axios, store }, inject) => {
     uniqWith,
     orderBy,
     sortBy,
+    differenceWith,
     difference,
     md5: _md5,
     /**
