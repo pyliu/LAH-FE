@@ -4,18 +4,30 @@
       <lah-transition appear>
         <div class="d-flex justify-content-between w-100">
           <div class="d-flex">
-            <div class="my-auto">信託案件檢索【八德版】</div>
-            <lah-button icon="question" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明"/>
+            <div class="my-auto">
+              信託案件檢索【八德版】
+            </div>
+            <lah-button
+              icon="question"
+              action="bounce"
+              variant="outline-success"
+              no-border
+              no-icon-gutter
+              title="說明"
+              @click="showModalById('help-modal')"
+            />
             <lah-help-modal :modal-id="'help-modal'">
               <h5>請參照下列步驟搜尋</h5>
               <ol>
                 <li>選擇年份</li>
                 <li>選擇查詢類別</li>
-                <li>點擊 <lah-fa-icon icon="search" variant="primary"/>搜尋</li>
+                <li>點擊 <lah-fa-icon icon="search" variant="primary" />搜尋</li>
               </ol>
-              <hr/>
+              <hr>
               <lah-fa-icon icon="caret-square-right" regular variant="primary">
-                <b-link to="/trust">切換為中壢版本</b-link>
+                <b-link to="/trust">
+                  切換為中壢版本
+                </b-link>
               </lah-fa-icon>
             </lah-help-modal>
           </div>
@@ -38,8 +50,10 @@
                 class="h-100"
                 @change="cached"
               >
-                <template v-slot:first>
-                  <b-form-select-option :value="null" disabled>-- 請選擇年份 --</b-form-select-option>
+                <template #first>
+                  <b-form-select-option :value="null" disabled>
+                    -- 請選擇年份 --
+                  </b-form-select-option>
                 </template>
               </b-form-select>
             </b-input-group>
@@ -51,8 +65,10 @@
                 class="h-100"
                 @change="cached"
               >
-                <template v-slot:first>
-                  <b-form-select-option :value="null" disabled>-- 請選擇部別 --</b-form-select-option>
+                <template #first>
+                  <b-form-select-option :value="null" disabled>
+                    -- 請選擇部別 --
+                  </b-form-select-option>
                 </template>
               </b-form-select>
             </b-input-group>
@@ -62,9 +78,9 @@
               size="lg"
               title="搜尋"
               :disabled="isBusy"
-              @click="search"
               class="mr-1"
               no-icon-gutter
+              @click="search"
             />
             <lah-countdown-button
               ref="countdown"
@@ -72,14 +88,14 @@
               action="ld-cycle"
               size="lg"
               :milliseconds="0"
-              @end="reload"
-              @click="reload"
               :disabled="isBusy"
               :busy="isBusy"
               variant="outline-secondary"
               badge-variant="secondary"
               title="強制重新搜尋"
               no-badge
+              @end="reload"
+              @click="reload"
             />
           </div>
         </div>
@@ -87,11 +103,11 @@
     </lah-header>
     <lah-transition appear>
       <b-table
-        id="trust-table"
         v-if="committed"
+        id="trust-table"
+        ref="table"
         :busy="isBusy"
         :items="rows"
-        ref="table"
         :responsive="'lg'"
         :striped="true"
         :hover="true"
@@ -116,28 +132,38 @@
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
         </template>
-        <template v-slot:cell(序號)="data">
+        <template #cell(序號)="data">
           {{ data.index + 1 }}
         </template>
         <template #cell(IS48)="{ item }">
-          <div class="text-nowrap">{{ item.IS48 }} {{ item.IS48_CHT }}</div>
+          <div class="text-nowrap">
+            {{ item.IS48 }} {{ item.IS48_CHT }}
+          </div>
         </template>
         <template #cell(IS49)="{ item }">
-          <div class="text-nowrap">{{ landBuildNumber(item) }}</div>
+          <div class="text-nowrap">
+            {{ landBuildNumber(item) }}
+          </div>
         </template>
         <template #cell(EE15_1)="{ item }">
-          <div class="d-flex justify-content-between" v-if="!($utils.empty(item.EE15_1) && $utils.empty(item.EE15_2) && $utils.empty(item.EE15_3))">
-            <strong>{{ item.EE15_1||'' }}</strong> <div class="text-nowrap">{{ item.EE15_3 }}／{{ item.EE15_2 }}</div>
+          <div v-if="!($utils.empty(item.EE15_1) && $utils.empty(item.EE15_2) && $utils.empty(item.EE15_3))" class="d-flex justify-content-between">
+            <strong>{{ item.EE15_1||'' }}</strong> <div class="text-nowrap">
+              {{ item.EE15_3 }}／{{ item.EE15_2 }}
+            </div>
           </div>
         </template>
         <template #cell(BB15_1)="{ item }">
-          <div class="d-flex justify-content-between" v-if="!($utils.empty(item.BB15_1) && $utils.empty(item.BB15_2) && $utils.empty(item.BB15_3))">
-            <strong>{{ item.BB15_1||'' }}</strong> <div class="text-nowrap">{{ item.BB15_3 }}／{{ item.BB15_2 }}</div>
+          <div v-if="!($utils.empty(item.BB15_1) && $utils.empty(item.BB15_2) && $utils.empty(item.BB15_3))" class="d-flex justify-content-between">
+            <strong>{{ item.BB15_1||'' }}</strong> <div class="text-nowrap">
+              {{ item.BB15_3 }}／{{ item.BB15_2 }}
+            </div>
           </div>
         </template>
         <template #cell(IS03)="{ item }">
           <div class="text-nowrap">
-            <b-link @click="popup(item)">{{ item.IS03 }}-{{ item.IS04_1 }}-{{ item.IS04_2 }}</b-link>
+            <b-link @click="popup(item)">
+              {{ item.IS03 }}-{{ item.IS04_1 }}-{{ item.IS04_2 }}
+            </b-link>
           </div>
         </template>
         <template #cell(GG30_2)="{ item }">
@@ -146,7 +172,11 @@
           </div>
         </template>
       </b-table>
-      <h3 v-else class="text-center"><lah-fa-icon action="breath" variant="primary">請點選查詢按鈕</lah-fa-icon></h3>
+      <h3 v-else class="text-center">
+        <lah-fa-icon action="breath" variant="primary">
+          請點選查詢按鈕
+        </lah-fa-icon>
+      </h3>
     </lah-transition>
     <b-modal
       :id="modalId"
@@ -157,23 +187,19 @@
       scrollable
     >
       <template #modal-title>
-        登記案件詳情 {{$utils.caseId(clickedId)}}
+        登記案件詳情 {{ $utils.caseId(clickedId) }}
       </template>
-      <h4 class="text-center text-info my-5" v-if="modalLoading">
-        <b-spinner small type="grow" class="my-auto"></b-spinner>
+      <h4 v-if="modalLoading" class="text-center text-info my-5">
+        <b-spinner small type="grow" class="my-auto" />
         <strong class="ld-txt">查詢中...</strong>
       </h4>
-      <lah-reg-case-detail :case-id="clickedId" @ready="modalLoading = !$event.detail"/>
+      <lah-reg-case-detail :case-id="clickedId" @ready="modalLoading = !$event.detail" />
     </b-modal>
   </div>
 </template>
 
 <script>
 export default {
-  head: {
-    title: "信託案件檢索-桃園市地政局",
-  },
-  fetchOnServer: false,
   data: () => ({
     modalId: 'this should be an uuid',
     modalLoading: true,
@@ -194,120 +220,124 @@ export default {
     committed: false,
     landFields: [
       {
-        key: "IS48",
+        key: 'IS48',
         label: '段代碼/名稱',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS49",
+        key: 'IS49',
         label: '地/建號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS01",
+        key: 'IS01',
         label: '登記次序',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS09",
+        key: 'IS09',
         label: '統一編號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "ISNAME",
+        key: 'ISNAME',
         label: '所有權人',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG30_2",
+        key: 'GG30_2',
         label: '其他登記內容',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "BB15_1",
+        key: 'BB15_1',
         label: '土地權利範圍',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS03",
+        key: 'IS03',
         label: '收件年字號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS05",
+        key: 'IS05',
         label: '登記日期',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "BB06_CHT",
+        key: 'BB06_CHT',
         label: '登記原因',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS_DATE",
+        key: 'IS_DATE',
         label: '異動日期',
-        sortable: true,
+        sortable: true
       }
     ],
     buildFields: [
       {
-        key: "IS48",
+        key: 'IS48',
         label: '段代碼/名稱',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS49",
+        key: 'IS49',
         label: '地/建號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS01",
+        key: 'IS01',
         label: '登記次序',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS09",
+        key: 'IS09',
         label: '統一編號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "ISNAME",
+        key: 'ISNAME',
         label: '所有權人',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "GG30_2",
+        key: 'GG30_2',
         label: '其他登記內容',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "EE15_1",
+        key: 'EE15_1',
         label: '建物權利範圍',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS03",
+        key: 'IS03',
         label: '收件年字號',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS05",
+        key: 'IS05',
         label: '登記日期',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "EE06_CHT",
+        key: 'EE06_CHT',
         label: '登記原因',
-        sortable: true,
+        sortable: true
       },
       {
-        key: "IS_DATE",
+        key: 'IS_DATE',
         label: '異動日期',
-        sortable: true,
+        sortable: true
       }
     ],
     maxHeight: 600
   }),
+  head: {
+    title: '信託案件檢索-桃園市地政局'
+  },
+  fetchOnServer: false,
   computed: {
     queryCount () { return this.rows.length },
     qryTypeText () {
@@ -330,17 +360,40 @@ export default {
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
     fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields },
     maxHeightStyle () {
-       return `max-height: ${this.maxHeight}px`
+      return `max-height: ${this.maxHeight}px`
     }
+  },
+  created () {
+    // restore cached data if found
+    const d = new Date()
+    this.year = (d.getFullYear() - 1911)
+    this.getCache(this.cacheKeyYear).then((years) => {
+      if (years !== false) {
+        this.years = years
+      } else {
+        // set year select options
+        const len = this.year - 104
+        for (let i = 0; i <= len; i++) {
+          this.years.push({ value: 104 + i, text: 104 + i })
+        }
+        this.years.reverse()
+        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000) // cache for a day
+      }
+      this.cached()
+    })
+    this.modalId = this.$utils?.uuid()
+  },
+  mounted () {
+    this.maxHeight = parseInt(window.innerHeight - 105)
   },
   methods: {
     cached () {
       this.reset()
-      this.getCache(this.cacheKey).then(json => {
+      this.getCache(this.cacheKey).then((json) => {
         if (json !== false) {
           this.rows = json.raw
           this.committed = true
-          this.getCacheExpireRemainingTime(this.cacheKey).then(remaining => {
+          this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
             this.notify(`查詢成功，找到 ${this.rows.length} 筆信託案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
         }
@@ -351,11 +404,11 @@ export default {
       this.search()
     },
     search () {
-      if(!this.isBusy) {
+      if (!this.isBusy) {
         this.isBusy = true
         this.committed = false
         this.$axios.post(this.$consts.API.JSON.PREFETCH, {
-          type: `reg_trust_case`,
+          type: 'reg_trust_case',
           year: this.year,
           query: this.qryType,
           reload: this.forceReload
@@ -366,7 +419,7 @@ export default {
           if (remain_ms && remain_ms > 0) {
             this.setCache(this.cacheKey, data, remain_ms)
           }
-        }).catch(err => {
+        }).catch((err) => {
           this.alert(err.message)
           this.$utils.error(err)
         }).finally(() => {
@@ -386,7 +439,7 @@ export default {
     },
     popup (data) {
       this.modalLoading = true
-      this.clickedId = `${data['IS03']}${data['IS04_1']}${data['IS04_2']}`
+      this.clickedId = `${data.IS03}${data.IS04_1}${data.IS04_2}`
       this.showModalById(this.modalId)
     },
     landBuildNumber (item) {
@@ -400,29 +453,6 @@ export default {
       const subNumber = val.substring(5).replace(/^[\s0]+/g, '')
       return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
     }
-  },
-  created () {
-    // restore cached data if found
-    var d = new Date();
-    this.year = (d.getFullYear() - 1911)
-    this.getCache(this.cacheKeyYear).then(years => {
-      if (years !== false) {
-        this.years = years;
-      } else {
-        // set year select options
-        let len = this.year - 104;
-        for (let i = 0; i <= len; i++) {
-            this.years.push({value: 104 + i, text: 104 + i});
-        }
-        this.years.reverse()
-        this.setCache(this.cacheKeyYear, this.years, 24 * 60 * 60 * 1000);  // cache for a day
-      }
-      this.cached()
-    })
-    this.modalId = this.$utils.uuid()
-  },
-  mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 105)
   }
 }
 </script>

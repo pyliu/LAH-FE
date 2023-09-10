@@ -45,7 +45,7 @@
             end-attention
             no-badge
           )
-    
+
     .d-flex.justify-content-between.mb-2(v-if="!$utils.empty(bakedData)")
       b-pagination.my-auto(
         v-model="currentPage"
@@ -63,7 +63,7 @@
         min="10"
         number
       )
-    
+
     lah-transition(appear): lah-reg-b-table(:busy="isBusy" :baked-data="bakedData" :fields="fields")
 
     b-modal(
@@ -80,8 +80,13 @@
 
 <script>
 export default {
-  head: {
-    title: '登記案件詳情目錄-桃園市地政局'
+  asyncData (ctx) {
+    // console.log(ctx)
+    return {
+      modalId: ctx.$utils?.uuid(),
+      pickedDate: new Date(),
+      cachedMs: 5 * 60 * 1000
+    }
   },
   data: () => ({
     modalLoading: true,
@@ -91,13 +96,8 @@ export default {
     perPage: 20,
     currentPage: 1
   }),
-  asyncData (ctx) {
-    // console.log(ctx)
-    return {
-      modalId: ctx.$utils.uuid(),
-      pickedDate: new Date(),
-      cachedMs: 5 * 60 * 1000
-    }
+  head: {
+    title: '登記案件詳情目錄-桃園市地政局'
   },
   computed: {
     foundText () { return `` }
@@ -105,7 +105,7 @@ export default {
   methods: {
     reload () {},
     dateDisabled (ymd, date) {
-      const weekday = date.getDay();
+      const weekday = date.getDay()
       // Disable weekends (Sunday = `0`, Saturday = `6`)
       // Return `true` if the date should be disabled
       return weekday === 0// || weekday === 6;

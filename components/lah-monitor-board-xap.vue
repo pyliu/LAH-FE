@@ -141,7 +141,7 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
+    this.modalId = this.$utils?.uuid()
   },
   mounted () {
     // let init chart process after mounted executed
