@@ -185,7 +185,7 @@ export default {
       // console.warn('RESTORE', val)
     },
     fixed (val) {
-      console.warn(val)
+      // console.warn(val)
     }
   },
   async created () {
