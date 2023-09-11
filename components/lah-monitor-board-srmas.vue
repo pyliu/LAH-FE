@@ -128,7 +128,6 @@ export default {
     monitorHrs: 12,
     duration: 0,
     threadhold: 0,
-    regex: /主機：(\d+\.\d+\.\d+\.\d+)/gm,
     fixed: [],
     problems: []
   }),
