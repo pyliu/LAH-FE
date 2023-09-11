@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto: lah-fa-icon(icon="wave-square", append) 全國地所跨域主機監控
+          .my-auto: lah-fa-icon(icon="wave-square") 即時地所跨域主機監控
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -14,7 +14,8 @@ div(v-cloak)
             title="說明"
           )
         .d-flex.align-items-center
-          b-checkbox.my-auto(v-model="displayDanger", size="lg") 連線狀態錯誤
+          b-checkbox.mr-1(v-model="displayShortName", size="lg") 顯示別名
+          b-checkbox(v-model="displayDanger", size="lg") 連線狀態錯誤
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
@@ -35,6 +36,7 @@ div(v-cloak)
       is="lahSiteStatusBadge",
       :watch-site="data.ID",
       :fill="false",
+      :short="displayShortName",
       pill,
       @updated="handleUpdated"
     )
@@ -46,6 +48,7 @@ export default {
   middleware: ['isInf'],
   data: () => ({
     displayDanger: false,
+    displayShortName: true,
     officesData: [],
     officeStateMap: new Map(),
     red: [],
@@ -59,11 +62,17 @@ export default {
   watch: {
     displayDanger (val) {
       this.setCache('/inf/xap/connectivity/displayDanger', val, 7 * 24 * 60 * 60 * 1000)
+    },
+    displayShortName (val) {
+      this.setCache('/inf/xap/connectivity/displayShortName', val, 7 * 24 * 60 * 60 * 1000)
     }
   },
   created () {
     this.getCache('/inf/xap/connectivity/displayDanger').then((flag) => {
       this.displayDanger = flag
+    })
+    this.getCache('/inf/xap/connectivity/displayShortName').then((flag) => {
+      this.displayShortName = flag
     })
     this.filterByLight = this.$utils.debounce(() => {
       this.red.length = 0
