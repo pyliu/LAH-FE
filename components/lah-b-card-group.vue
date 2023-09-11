@@ -1,6 +1,6 @@
 <template lang="pug">
 .d-flex.flex-wrap.justify-content-between.lah
- slot
+  slot
 </template>
 
 <script>
@@ -18,8 +18,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.lah .card {
-  width: 32vw;
-  margin-bottom: 1.25rem;
+.lah {
+  .card {
+    width: 32vw;
+    margin-bottom: 1.25rem;
+  }
 }
 </style>

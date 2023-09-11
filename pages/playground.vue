@@ -19,8 +19,7 @@ div: client-only
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
   lah-b-card-group
-    b-card.border-0(no-body)
-      lah-monitor-board-srmas
+    lah-monitor-board-srmas
     b-card.border-0(no-body)
       lah-monitor-board-site-tw
     b-card

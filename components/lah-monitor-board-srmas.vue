@@ -2,7 +2,8 @@
 b-card(:border-variant="border")
   template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
-    strong {{ monitorHrs }}小時內{{ header }}
+    strong(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
+    strong(v-else) {{ header }}({{ monitorHrs }}小時內)
     b-button-group.ml-auto(size="sm")
       lah-button(
         v-if="warnings.length > 0",
@@ -75,11 +76,10 @@ b-card(:border-variant="border")
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
-  .center.h3(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0")
-    .mr-1 {{ monitorHrs }}小時內一切正常
-    lah-fa-icon(icon="seedling", variant="success")
-  .center(v-else-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  div(v-else)
+  //- .normal-text(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0")
+  //-   lah-fa-icon(icon="seedling", variant="success", append) {{ monitorHrs }}小時內一切正常
+  .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
+  .max-height(v-else)
     lah-monitor-board-srmas-list.mb-2(
       v-if="problems.length > 0"
       title-text="無告警回復項目",
@@ -263,4 +263,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.normal-text {
+  position: absolute;
+  right: 10px;
+  top: 60px;
+  font-size: small;
+}
+.max-height {
+  max-height: 27.5vh !important;
+  overflow: auto !important;
+}
 </style>
