@@ -22,7 +22,7 @@ b-button(
 
 <script>
 export default {
-  emit: ['updated'],
+  emit: ['updated', 'click'],
   component: {},
   props: {
     watchSite: { type: String, default: 'HX', require: true },
