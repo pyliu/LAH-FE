@@ -27,7 +27,7 @@ b-card(:border-variant="borderVariant")
           //- span.mr-1 回復
           b-badge(variant="light", pill) {{ downCount }}
         lah-button(
-          to="/inf/xap/connectivity",
+          to="/inf/xap/broken_cached",
           icon="arrow-up-right-from-square",
           no-border,
           title="即時全國地所狀態"
