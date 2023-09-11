@@ -257,19 +257,6 @@ export default {
         title,
         size: 'lg'
       })
-    },
-    async ping (ip) {
-      try {
-        const { data } = await this.$axios.post(this.$consts.API.JSON.IP, {
-          type: 'ping',
-          ip
-        })
-        // this.$utils.log(ip, data)
-        return this.$utils.statusCheck(data.status)
-      } catch (e) {
-        this.$utils.error(e)
-      }
-      return false
     }
   }
 }
