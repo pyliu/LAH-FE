@@ -1,6 +1,6 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  .font-weight-bold
+  .d-flex.align-items-center.h6
     lah-fa-icon(:icon="titleIcon", :variant="variant") {{ titleText }}
     b-badge.ml-1.my-auto(:variant="variant", pill) {{ items.length }}
   div(v-for="(item, idx) in items")
@@ -10,7 +10,7 @@ b-card.border-0(no-body)
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ packedTitle(item) }}
+      ) {{ warnTitle(item) }}
       lah-fa-icon.small.my-auto.text-nowrap(
         icon="clock",
         regular,
@@ -21,7 +21,6 @@ b-card.border-0(no-body)
 </template>
 
 <script>
-import intersection from 'lodash/intersection'
 export default {
   name: 'LahMonitorBoardSrmasItem',
   props: {
@@ -39,18 +38,21 @@ export default {
     today () { return this.$utils.toADDate(new Date(), 'yyyy-LL-dd') }
   },
   methods: {
-    packedTitle (item) {
-      const badSubjectTokens = item.bad.subject?.split('-')
-      const goodSubjectTokens = item.good.subject?.split('-')
-      const commons = intersection(goodSubjectTokens, badSubjectTokens)
-      return commons.join('-')
+    warnTitle (item) {
+      const warnLines = item.bad.message.split('\r\n')
+      // ex:警告-設備無回應
+      const warnLineSubject = warnLines[0]
+      // ex: 主機：220.1.34.206
+      const warnHostLine = warnLines[1]
+      return `${warnLineSubject}(${warnHostLine})`
     },
     packedMessage (item) {
       const joins = [`🔴 ${item.bad.message}`, `🟢 ${item.good.message}`]
       return this.$utils.convertMarkd(joins.join('\n***\n'))
     },
     recoverMessage (item) {
-      return [...this.packedMessage(item).matchAll(/耗時[^<]+/gm)].join().replace('發生', '回復')
+      const goodLines = item.good.message.split('\r\n')
+      return goodLines[goodLines.length - 1]
     },
     isToday (ts) {
       const fullDt = this.$utils.phpTsToAdDateStr(ts, true)
@@ -58,7 +60,7 @@ export default {
     },
     popupLogContent (item) {
       this.modal(this.packedMessage(item), {
-        title: `${this.titleText} - ${this.packedTitle(item)}`,
+        title: `${this.titleText} - ${this.warnTitle(item)}`,
         size: this.modalSize,
         html: true
       })
