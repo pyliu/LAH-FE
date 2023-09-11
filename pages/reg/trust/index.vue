@@ -477,7 +477,7 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
+    this.modalId = this.$utils?.uuid()
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)

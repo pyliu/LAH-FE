@@ -207,7 +207,7 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
+    this.modalId = this.$utils?.uuid()
     this.reloadConn = this.$utils.debounce(this.loadAPConnectionCount, 500)
     this.allSwitch = this.all
     this.type = this.line ? 'line' : 'bar'

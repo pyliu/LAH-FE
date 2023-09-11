@@ -149,11 +149,11 @@ export default {
     }
   },
   created () {
-    this.modalId = this.$utils.uuid()
+    this.modalId = this.$utils?.uuid()
     this.chartType = this.type
     this.loadMins = this.mins
     this.watchOffice = this.office
-    this._load = this.$utils.debounce(this.load, 100)
+    this._load = this.$utils?.debounce(this.load, 100)
   },
   mounted () {
     this.load(true)

@@ -135,16 +135,21 @@ export default {
       const tmp = this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.threadhold
       })
+      // .map((item) => {
+      //   return {
+      //     id: item.id
+      //   }
+      // })
       return this.$utils.uniqBy(this.$utils.orderBy(tmp, 'timestamp').reverse(), 'subject')
     },
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
     },
-    headMessage () {
+    firstMessage () {
       return this.headMessages[0]
     },
     light () {
-      if (!this.headMessage) {
+      if (!this.firstMessage) {
         return 'warning'
       }
       // return this.problems.length > 0 ? 'danger' : 'success'
@@ -155,7 +160,8 @@ export default {
       return 'success'
     },
     warnings () {
-      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('異常', '告警', '警告')).reverse()
+      // return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('異常', '告警', '警告')).reverse()
+      return this.$utils.difference(this.messagesAfterThreadhold, this.restores)
     },
     restores () {
       return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
@@ -254,6 +260,7 @@ export default {
     this.monitorHrs = await this.getCache('monitorHrs') || 12
     this.calcTime()
   },
+  mounted () {},
   methods: {
     showMails (payload) {
       // destruvting obj entries to vars

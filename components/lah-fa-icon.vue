@@ -83,7 +83,7 @@ export default {
     }
   },
   mounted () {
-    this.iconId = this.$utils.uuid()
+    this.iconId = this.$utils?.uuid()
   },
   methods: {
     emitClick (evt, stopPropagation = false) {
