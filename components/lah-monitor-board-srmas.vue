@@ -2,7 +2,7 @@
 b-card(:border-variant="border")
   template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
-    strong {{ header }}
+    strong {{ monitorHrs }}小時內{{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
         v-if="warnings.length > 0",
@@ -75,10 +75,10 @@ b-card(:border-variant="border")
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
-  .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  .center.mt-4.h3(v-else-if="problems.length === 0 && fixed.length === 0")
+  .center.h3(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0")
     .mr-1 {{ monitorHrs }}小時內一切正常
     lah-fa-icon(icon="seedling", variant="success")
+  .center(v-else-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else)
     lah-monitor-board-srmas-list.mb-2(
       v-if="problems.length > 0"
@@ -87,13 +87,13 @@ b-card(:border-variant="border")
       variant="danger",
       :items="problems"
     )
-    lah-monitor-board-srmas-fixed(
-      v-if="fixed.length > 0"
-      title-text="已正常回復項目",
-      title-icon="check-double",
-      variant="success",
-      :items="fixed"
-    )
+  lah-monitor-board-srmas-fixed(
+    v-if="fixed.length > 0"
+    title-text="已正常回復項目",
+    title-icon="check-double",
+    variant="success",
+    :items="fixed"
+  )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -128,7 +128,9 @@ export default {
     monitorHrs: 12,
     duration: 0,
     threadhold: 0,
-    regex: /主機：(\d+\.\d+\.\d+\.\d+)/gm
+    regex: /主機：(\d+\.\d+\.\d+\.\d+)/gm,
+    fixed: [],
+    problems: []
   }),
   computed: {
     messagesAfterThreadhold () {
@@ -165,81 +167,6 @@ export default {
     },
     restores () {
       return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
-    },
-    fixed () {
-      const bad = [...this.warnings]
-      const fixed = []
-      // find warning without restore message
-      const goodLen = this.restores.length
-      for (let i = goodLen - 1; i >= 0; i--) {
-        const trimGoodHead = this.restores[i]?.subject?.replace('回復通知-', '')
-        let found = -1
-        bad.find((item, idx) => {
-          // found the restore notification that timestamp is after the warning one
-          if (
-            item.subject?.includes(trimGoodHead) &&
-            this.restores[i].timestamp > item.timestamp
-          ) {
-            found = idx
-            return true
-          }
-          return false
-        })
-        if (found !== -1) {
-          fixed.push({
-            bad: bad.splice(found, 1)[0],
-            good: this.restores[i]
-          })
-        }
-      }
-      // fixed.reverse()
-      return this.$utils.sortBy(fixed, item => item.bad.timestamp).reverse()
-      // return fixed
-    },
-    problems () {
-      let bad = [...this.warnings]
-      // find warning without restore message
-      const goodLen = this.restores.length
-      for (let i = goodLen - 1; i >= 0; i--) {
-        const trimGoodHead = this.restores[i]?.subject?.replace('回復通知-', '')
-        const clearIdx = []
-        bad.forEach((item, idx) => {
-          if (
-            item.subject?.includes(trimGoodHead) &&
-            this.restores[i].timestamp > item.timestamp
-          ) {
-            clearIdx.push(idx)
-          }
-        })
-        // remove clear warning
-        clearIdx.forEach(deletedIdx => bad.splice(deletedIdx, 1))
-        // clear previoius same warning
-        bad = [...bad.filter(item => !item.subject?.includes(trimGoodHead))]
-      }
-      // active test the connectivity and elimitates the '裝置未回應' item
-      const activeClearIdx = []
-      bad.forEach((item, idx) => {
-        // console.warn(item)
-        if (item.message?.includes('裝置未回應')) {
-          // find ip to ping
-          const result = Array.from(item.message?.matchAll(this.regex) || [])
-          if (result.length > 0) {
-            // exact matched ip in the Parentheses => (\d+\.\d+\.\d+\.\d+)
-            const ip = result[0][1]
-            if (this.ping(ip)) {
-              activeClearIdx.push(idx)
-              const succeedMessage = '🟢 目前 ping 值正常，可忽略此訊息！'
-              if (!item.message?.includes(succeedMessage)) {
-                item.message = `${succeedMessage}\n\n${item.message}`
-              }
-            }
-          }
-        }
-      })
-      // remove items that ping successfully
-      // activeClearIdx.forEach(idx => bad.splice(idx, 1))
-      bad.reverse()
-      return bad
     }
   },
   watch: {
@@ -248,6 +175,16 @@ export default {
       this.setCache('monitorHrs', val)
     },
     messagesAfterThreadhold (val) {
+      // console.warn(val)
+    },
+    warnings (val) {
+      // console.warn('WARN', val)
+      this.matchWarningRestores()
+    },
+    restores (val) {
+      // console.warn('RESTORE', val)
+    },
+    fixed (val) {
       console.warn(val)
     }
   },
@@ -257,11 +194,55 @@ export default {
       this.duration = this.monitorHrs * 60 * 60 * 1000
       this.threadhold = (+new Date() - this.duration) / 1000
     }, 500)
+    this.matchWarningRestores = this.$utils.debounce(() => {
+      const bad = [...this.warnings]
+      this.fixed = []
+      this.problems = []
+      // foreach restore message finds one with the same key(host) and timestamp is less it in warning array
+      this.restores.forEach((ritem, ridx, arr) => {
+        // eslint-disable-next-line quotes
+        const restoreLines = ritem.message.split("\r\n")
+        // ex: 主機：220.1.34.206
+        const restoreHostLine = restoreLines[1]
+        // find the warning one for this restore message
+        let found = -1
+        bad.find((witem, widx) => {
+          // eslint-disable-next-line quotes
+          const warnLines = witem.message.split("\r\n")
+          // ex: 主機：220.1.34.206
+          const warnHostLine = warnLines[1]
+          if (restoreHostLine === warnHostLine && ritem.id > witem.id) {
+            // host matches and restore message timestamp behides warning
+            found = widx
+            return true
+          }
+          return false
+        })
+        // console.warn('before', bad.length)
+        if (found !== -1) {
+          const bi = bad.splice(found, 1)[0]
+          const gi = ritem
+          // console.warn('match!', bi, gi)
+          this.fixed.push({
+            bad: bi,
+            good: gi
+          })
+        }
+        // console.warn('after', bad.length)
+      })
+      // sorting by bad item timestamp desc
+      this.fixed = [...this.$utils.sortBy(this.fixed, (item) => {
+        return item.bad.timestamp
+      })].reverse()
+      this.problems = [...bad]
+    }, 500)
     this.monitorHrs = await this.getCache('monitorHrs') || 12
     this.calcTime()
   },
   mounted () {},
   methods: {
+    calcTime () { /** debounced */ },
+    matchWarningRestores () { /** debounced */ },
     showMails (payload) {
       // destruvting obj entries to vars
       const { title, icon, variant, items } = payload
