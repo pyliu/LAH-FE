@@ -14,7 +14,8 @@ div(v-cloak)
             title="說明"
           )
         .d-flex.align-items-center
-          b-checkbox.my-auto(v-model="displayDanger", size="lg") 連線狀態錯誤
+          b-checkbox.mr-1(v-model="displayShortName", size="lg") 顯示別名
+          b-checkbox(v-model="displayDanger", size="lg") 連線狀態錯誤
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
@@ -33,6 +34,7 @@ div(v-cloak)
     :key="`${data.id}-${idx}`",
     :watch-site="data.id",
     :fill="false",
+    :short="displayShortName",
     pill,
     :static-data="data",
     @click="show(data)"
@@ -44,6 +46,7 @@ div(v-cloak)
 export default {
   data: () => ({
     displayDanger: false,
+    displayShortName: true,
     officesData: [],
     red: [],
     green: [],
