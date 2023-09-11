@@ -186,7 +186,8 @@ export default {
   methods: {
     check (force = false) {
       if (this.isStatic) {
-        this.$utils.warn('static mode', this.staticData)
+        // static mode only emit click event
+        this.$emit('click')
         return
       }
       if (this.loading) {

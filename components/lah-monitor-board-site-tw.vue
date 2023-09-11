@@ -71,7 +71,8 @@ b-card(:border-variant="borderVariant")
       :static-data="office",
       :fill="false",
       :badge="false",
-      short
+      short,
+      @click="show(office)"
     )
 
   //- template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
@@ -181,6 +182,25 @@ export default {
           this.isBusy = false
           this.timeout(this.reload, 5 * 60 * 1000).then((handle) => { this.timer = handle })
         })
+    },
+    show (office) {
+      /**
+       * id: "EA"
+         name: "XX地政事務所"
+         response: "HTTP/1.1 502 Proxy Error"
+         serial: 14550
+         state: "DOWN"
+        timestamp: 1694392448
+       */
+      this.modal(`
+        代碼: ${office.id}<br/>
+        名稱: ${office.name}<br/>
+        回應：${office.response}<br/>
+        更新：${this.$utils.formatTime(new Date(office.timestamp * 1000))}
+      `, {
+        title: `${office.name} 資訊`,
+        html: true
+      })
     }
   }
 }
