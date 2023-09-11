@@ -211,7 +211,7 @@ export default {
           const warnLines = witem.message.split("\r\n")
           // ex: 主機：220.1.34.206
           const warnHostLine = warnLines[1]
-          if (restoreHostLine === warnHostLine && ritem.id > witem.id) {
+          if (restoreHostLine === warnHostLine && ritem.timestamp >= witem.timestamp) {
             // host matches and restore message timestamp behides warning
             found = widx
             return true
