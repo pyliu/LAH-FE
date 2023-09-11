@@ -140,7 +140,7 @@ export default {
       //     id: item.id
       //   }
       // })
-      return this.$utils.uniqBy(this.$utils.orderBy(tmp, 'timestamp').reverse(), 'subject')
+      return this.$utils.uniqBy(this.$utils.orderBy(tmp, 'timestamp').reverse(), 'message')
     },
     headMessages () {
       return this.messages.filter((item, idx, arr) => idx < 3)
@@ -247,7 +247,7 @@ export default {
       this.calcTime()
       this.setCache('monitorHrs', val)
     },
-    messages (val) {
+    messagesAfterThreadhold (val) {
       console.warn(val)
     }
   },
