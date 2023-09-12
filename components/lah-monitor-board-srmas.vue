@@ -76,10 +76,8 @@ b-card(:border-variant="border")
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
-  //- .normal-text(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0")
-  //-   lah-fa-icon(icon="seedling", variant="success", append) {{ monitorHrs }}小時內一切正常
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  .monitor-board-mh(v-else)
+  div(v-else)
     lah-monitor-board-srmas-list.mb-2(
       v-if="problems.length > 0"
       title-text="無告警回復項目",
@@ -118,7 +116,8 @@ export default {
   components: { lahMonitorBoardRaw, lahMonitorBoardSrmasList, lahMonitorBoardSrmasFixed },
   mixins: [lahMonitorBoardBase],
   props: {
-    footer: { type: Boolean, default: false }
+    footer: { type: Boolean, default: false },
+    monitorBoardMH: { type: Boolean, default: false }
   },
   data: () => ({
     header: 'SRMAS分析',
@@ -262,10 +261,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.normal-text {
-  position: absolute;
-  right: 10px;
-  top: 60px;
-  font-size: small;
-}
 </style>

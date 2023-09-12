@@ -206,12 +206,12 @@ export default {
 </script>
 
 <style lang="scss">
-.card-body-fixed-height {
-  .card-body {
-    height: calc((100vh - 450px) / 3);
-    overflow: auto;
-  }
-}
+// .card-body-fixed-height {
+//   .card-body {
+//     height: calc((100vh - 450px) / 3);
+//     overflow: auto;
+//   }
+// }
 .no-dashboard {
   height: calc(100vh - 110px);
 }

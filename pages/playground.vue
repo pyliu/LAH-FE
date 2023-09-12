@@ -20,7 +20,7 @@ div: client-only
     .d-flex
   lah-b-card-group
     lah-office-down-timeline
-    lah-monitor-board-srmas
+    lah-monitor-board-srmas.card-body-fixed-height
     b-card.border-0(no-body)
       lah-monitor-board-site-tw
     b-card
