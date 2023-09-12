@@ -30,6 +30,7 @@ b-card(:border-variant="borderVariant")
           icon="link-slash",
           no-border,
           title="顯示離線紀錄",
+          variant="outline-danger",
           @click="showOfflineRecords"
         )
         lah-button(
