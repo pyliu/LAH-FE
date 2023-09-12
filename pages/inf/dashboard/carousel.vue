@@ -71,11 +71,11 @@ div(v-cloak)
       v-if="displayXAP",
       :interval="0"
     )
-      b-carousel-slide: template(#img): b-card-group.card-body-fixed-height(deck)
+      b-carousel-slide: template(#img): b-card-group.card-body-fixed-height-3(deck)
         lah-monitor-board-xap(@light-update="lightUpdate")
         lah-monitor-board-apconn(bar, all, @light-update="lightUpdate")
         lah-monitor-board-connectivity(@light-update="lightUpdate")
-      b-carousel-slide: template(#img): b-card-group.card-body-fixed-height(deck)
+      b-carousel-slide: template(#img): b-card-group.card-body-fixed-height-3(deck)
         //- lah-monitor-board-xap
         lah-monitor-board-site-hx(@light-update="lightUpdate")
         lah-monitor-board-site-tw(@light-update="lightUpdate")
@@ -85,20 +85,20 @@ div(v-cloak)
     :interval="0"
   )
     b-carousel-slide: template(#img)
-      b-card-group.mb-4.card-body-fixed-height(deck)
+      b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-dataguard(@light-update="lightUpdate")
         lah-monitor-board-hacmp(@light-update="lightUpdate")
         lah-monitor-board-dnp(@light-update="lightUpdate")
-      b-card-group.mb-4.card-body-fixed-height(deck)
+      b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-L05(@light-update="lightUpdate")
         lah-monitor-board-srmas(@light-update="lightUpdate")
         lah-monitor-board-dbbackup(@light-update="lightUpdate")
     b-carousel-slide: template(#img)
-      b-card-group.mb-4.card-body-fixed-height(deck)
+      b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-vmclone(@light-update="lightUpdate")
         lah-monitor-board-tape(@light-update="lightUpdate")
         lah-monitor-board-apbackup(@light-update="lightUpdate")
-      b-card-group.card-body-fixed-height(deck)
+      b-card-group.card-body-fixed-height-3(deck)
         lah-monitor-board-xap-trend(office="桃園所", @light-update="lightUpdate", watch-top-xap)
         lah-monitor-board-apconn(@light-update="lightUpdate")
         lah-monitor-board-testdb(@light-update="lightUpdate")
@@ -181,7 +181,7 @@ export default {
 </script>
 
 <style lang="scss">
-.card-body-fixed-height {
+.card-body-fixed-height-3 {
   .card-body {
     height: calc((100vh - 400px) / 3);
     overflow: auto;

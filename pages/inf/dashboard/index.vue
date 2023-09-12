@@ -95,37 +95,37 @@ div(v-cloak)
       //- lah-monitor-board-apconn(line, all)
     div(v-if="isHA")
       b-card-group.mb-4(deck)
-        lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-dataguard.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-hacmp.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-dnp.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       b-card-group.mb-4(deck)
-        lah-monitor-board-L05.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-L05.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-srmas.card-body-fixed-height-3(@light-update="lightUpdate", footer)
         lah-monitor-board-lxhweb(@light-update="lightUpdate", target-ip="L3HWEB", link)
       b-card-group.mb-4(deck)
-        lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-vmclone.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-tape.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-dbbackup.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-vmclone.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-tape.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       b-card-group.mb-4(deck)
-        lah-monitor-board-apbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-testdb.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-adsync.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-apbackup.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-testdb.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-adsync.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       b-card-group.mb-4(deck)
         lah-monitor-board-connectivity(@light-update="lightUpdate")
         lah-monitor-board-apconn(@light-update="lightUpdate")
         b-card
       //- b-card-group(deck)
-      //-   lah-monitor-board-ups.card-body-fixed-height(@light-update="lightUpdate", footer)
+      //-   lah-monitor-board-ups.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       //-   b-card
       //-   b-card
     div(v-else)
       b-card-group.mb-4(deck)
-        lah-monitor-board-dataguard.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-hacmp.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-dnp.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-dataguard.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-hacmp.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-dnp.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       b-card-group.mb-4(deck)
-        lah-monitor-board-srmas.card-body-fixed-height(@light-update="lightUpdate", footer)
-        lah-monitor-board-dbbackup.card-body-fixed-height(@light-update="lightUpdate", footer)
+        lah-monitor-board-srmas.card-body-fixed-height-3(@light-update="lightUpdate", footer)
+        lah-monitor-board-dbbackup.card-body-fixed-height-3(@light-update="lightUpdate", footer)
         lah-monitor-board-lxhweb(@light-update="lightUpdate", target-ip="L3HWEB", link)
       b-card-group.mb-4(deck)
         lah-monitor-board-apconn(@light-update="lightUpdate")
@@ -206,7 +206,7 @@ export default {
 </script>
 
 <style lang="scss">
-// .card-body-fixed-height {
+// .card-body-fixed-height-3 {
 //   .card-body {
 //     height: calc((100vh - 450px) / 3);
 //     overflow: auto;

@@ -135,9 +135,23 @@ blockquote p {
   overflow: auto !important;
 }
 
-.card-body-fixed-height {
+.card-body-fixed-height-3 {
   .card-body {
     height: calc((100vh - 450px) / 3);
+    overflow: auto;
+  }
+}
+
+.card-body-fixed-height-2 {
+  .card-body {
+    height: calc((100vh - 450px) / 2);
+    overflow: auto;
+  }
+}
+
+.card-body-fixed-height-1 {
+  .card-body {
+    height: calc((100vh - 450px) / 1);
     overflow: auto;
   }
 }
