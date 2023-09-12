@@ -16,6 +16,14 @@ div(v-cloak)
         .d-flex.align-items-center
           b-checkbox.mr-1(v-model="displayShortName", size="lg") 顯示別名
           b-checkbox(v-model="displayDanger", size="lg") 連線狀態錯誤
+          lah-button(
+            icon="link-slash",
+            no-border,
+            title="顯示離線紀錄",
+            variant="outline-danger",
+            size="lg",
+            @click="showOfflineRecords"
+          ) 顯示離線紀錄
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
@@ -44,7 +52,9 @@ div(v-cloak)
 </template>
 
 <script>
+import lahOfficeDownTimeline from '~/components/lah-office-down-timeline.vue'
 export default {
+  components: { lahOfficeDownTimeline },
   middleware: ['isInf'],
   data: () => ({
     displayDanger: false,
@@ -127,6 +137,15 @@ export default {
       this.officeStateMap.set(data.site, data)
       // debounced method with 500ms
       this.filterByLight()
+    },
+    showOfflineRecords () {
+      this.modal(this.$createElement(lahOfficeDownTimeline, {
+        props: {
+          maxHeight: false
+        }
+      }), {
+        title: '離線伺服器歷史資訊'
+      })
     }
   }
 }
