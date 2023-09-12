@@ -24,6 +24,22 @@ div(v-cloak)
             size="lg",
             @click="showOfflineRecords"
           ) 顯示離線紀錄
+          lah-countdown-button(
+            ref="countdown"
+            icon="sync-alt"
+            action="ld-cycle"
+            size="lg"
+            title="立即重新讀取"
+            variant="outline-secondary"
+            badge-variant="secondary"
+            auto-start
+            no-badge
+            @end="load"
+            @click="load"
+            :milliseconds="reloadMs"
+            :disabled="isBusy"
+            :busy="isBusy"
+          )
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
@@ -61,6 +77,7 @@ export default {
     red: [],
     green: [],
     yellow: [],
+    reloadMs: 5 * 60 * 1000,
     timer: null
   }),
   head: {
@@ -124,6 +141,8 @@ export default {
       })
     },
     load () {
+      this.isBusy = true
+      clearTimeout(this.timer)
       this.$axios.post(this.$consts.API.JSON.STATS, {
         type: 'stats_xap_stats_cached'
       }).then(({ data }) => {
@@ -136,9 +155,10 @@ export default {
         this.alert(err.message)
         this.$utils.error(err)
       }).finally(() => {
-        this.timeout(this.load, 5 * 60 * 1000).then((handler) => {
+        this.timeout(this.load, this.reloadMs).then((handler) => {
           this.timer = handler
         })
+        this.isBusy = false
       })
     },
     showOfflineRecords () {
