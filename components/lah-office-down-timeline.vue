@@ -30,6 +30,7 @@ b-card(:no-body="noBody")
     lah-help-modal(ref="help", :modal-title="`${header} 顯示說明`")
       ul
         li 顯示跨域伺服器離線統計
+        li 預設讀取前100筆歷史資料
 
   .center.h4.mt-3(v-if="itemsCount === 0")
     lah-fa-icon(
