@@ -107,7 +107,7 @@ export default {
       { text: '最新10筆', value: 'latest' },
       { text: '最近1天', value: 'day' },
       { text: '最近1週', value: 'week' },
-      { text: '最近1個月', value: 'month' },
+      { text: '最近1月', value: 'month' },
       { text: '最近1年', value: 'year' }
     ]
   }),
