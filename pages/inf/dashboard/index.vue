@@ -88,9 +88,9 @@ div(v-cloak)
   h2.no-dashboard.center(v-if="filterList.length === 0 && filtering !== false") ⚠ 無資料
   lah-transition: div(v-show="filtering === false")
     client-only: b-card-group.mb-4(deck)
-      lah-monitor-board-xap(@light-update="lightUpdate")
-      lah-monitor-board-site-hx(@light-update="lightUpdate")
-      lah-monitor-board-site-tw(@light-update="lightUpdate")
+      lah-monitor-board-xap.card-body-fixed-height-3(@light-update="lightUpdate")
+      lah-monitor-board-site-hx.card-body-fixed-height-3(@light-update="lightUpdate")
+      lah-monitor-board-site-tw.card-body-fixed-height-3(@light-update="lightUpdate")
       //- lah-monitor-board-xap-trend(office="桃園所" watch-top-xap)
       //- lah-monitor-board-apconn(line, all)
     div(v-if="isHA")
@@ -111,9 +111,9 @@ div(v-cloak)
         lah-monitor-board-testdb.card-body-fixed-height-3(@light-update="lightUpdate", footer)
         lah-monitor-board-adsync.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       b-card-group.mb-4(deck)
-        lah-monitor-board-connectivity(@light-update="lightUpdate")
-        lah-monitor-board-apconn(@light-update="lightUpdate")
-        b-card
+        lah-monitor-board-connectivity.card-body-fixed-height-3(@light-update="lightUpdate")
+        lah-monitor-board-apconn.card-body-fixed-height-3(@light-update="lightUpdate")
+        b-card.card-body-fixed-height-3
       //- b-card-group(deck)
       //-   lah-monitor-board-ups.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       //-   b-card
@@ -126,11 +126,11 @@ div(v-cloak)
       b-card-group.mb-4(deck)
         lah-monitor-board-srmas.card-body-fixed-height-3(@light-update="lightUpdate", footer)
         lah-monitor-board-dbbackup.card-body-fixed-height-3(@light-update="lightUpdate", footer)
-        lah-monitor-board-lxhweb(@light-update="lightUpdate", target-ip="L3HWEB", link)
+        lah-monitor-board-lxhweb.card-body-fixed-height-3(@light-update="lightUpdate", target-ip="L3HWEB", link)
       b-card-group.mb-4(deck)
-        lah-monitor-board-apconn(@light-update="lightUpdate")
-        lah-monitor-board-connectivity(@light-update="lightUpdate")
-        b-card
+        lah-monitor-board-apconn.card-body-fixed-height-3(@light-update="lightUpdate")
+        lah-monitor-board-connectivity.card-body-fixed-height-3(@light-update="lightUpdate")
+        b-card.card-body-fixed-height-3
   hr
 </template>
 

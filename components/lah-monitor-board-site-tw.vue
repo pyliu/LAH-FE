@@ -64,7 +64,7 @@ b-card(:border-variant="borderVariant")
       div 🟢 表示服務正常
       div 🟡 表示連線逾時
       div 🔴 表示狀態錯誤
-  .h-100.overflow-auto.monitor-board-mh
+  .h-100.overflow-auto
     lah-transition
       .mt-3.text-center(v-if="isBusy")
         lah-fa-icon.h4(icon="spinner", variant="dark", action="spin") 讀取中 ...
