@@ -21,6 +21,7 @@ div(v-cloak)
             no-border,
             title="顯示離線紀錄",
             variant="outline-danger",
+            size="md",
             @click="showOfflineRecords"
           ) 顯示離線紀錄
   lah-help-modal(:modal-id="'help-modal'", size="md")
