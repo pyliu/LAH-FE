@@ -129,3 +129,8 @@ blockquote p {
 .cursor {
   cursor: pointer;
 }
+
+.monitor-board-mh {
+  max-height: 30vh !important;
+  overflow: auto !important;
+}
