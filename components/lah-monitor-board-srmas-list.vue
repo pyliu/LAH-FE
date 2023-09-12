@@ -1,6 +1,6 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  .font-weight-bold
+  .d-flex.align-items-center.font-weight-bold
     lah-fa-icon(:icon="titleIcon", :variant="variant") {{ titleText }}
     b-badge.ml-1.my-auto(:variant="variant", pill) {{ items.length }}
   div(v-for="(item, idx) in items")
