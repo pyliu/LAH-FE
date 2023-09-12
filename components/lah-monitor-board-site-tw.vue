@@ -27,6 +27,12 @@ b-card(:border-variant="borderVariant")
           //- span.mr-1 回復
           b-badge(variant="light", pill) {{ downCount }}
         lah-button(
+          icon="link-slash",
+          no-border,
+          title="顯示離線紀錄",
+          @click="showOfflineRecords"
+        )
+        lah-button(
           to="/inf/xap/broken_cached",
           icon="arrow-up-right-from-square",
           no-border,
@@ -57,7 +63,7 @@ b-card(:border-variant="borderVariant")
       div 🟢 表示服務正常
       div 🟡 表示連線逾時
       div 🔴 表示狀態錯誤
-  .h-100.overflow-auto.max-height
+  .h-100.overflow-auto.monitor-board-mh
     lah-transition
       .mt-3.text-center(v-if="isBusy")
         lah-fa-icon.h4(icon="spinner", variant="dark", action="spin") 讀取中 ...
@@ -87,9 +93,11 @@ b-card(:border-variant="borderVariant")
 </template>
 
 <script>
+import lahOfficeDownTimeline from './lah-office-down-timeline.vue'
 export default {
   name: 'LahMonitorBoardSiteTw',
   emit: ['light-update'],
+  components: { lahOfficeDownTimeline },
   props: {
     updatePeriod: { type: String, default: '300000' }, // 5 mins
     footer: { type: Boolean, default: true }
@@ -201,14 +209,19 @@ export default {
         title: `${office.name} 資訊`,
         html: true
       })
+    },
+    showOfflineRecords () {
+      this.modal(this.$createElement(lahOfficeDownTimeline, {
+        props: {
+          maxHeight: false
+        }
+      }), {
+        title: '離線伺服器歷史資訊'
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.max-height {
-  max-height: 25vh;
-  overflow: auto;
-}
 </style>

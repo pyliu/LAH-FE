@@ -79,7 +79,7 @@ b-card(:border-variant="border")
   //- .normal-text(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0")
   //-   lah-fa-icon(icon="seedling", variant="success", append) {{ monitorHrs }}小時內一切正常
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
-  .max-height(v-else)
+  .monitor-board-mh(v-else)
     lah-monitor-board-srmas-list.mb-2(
       v-if="problems.length > 0"
       title-text="無告警回復項目",
@@ -87,13 +87,13 @@ b-card(:border-variant="border")
       variant="danger",
       :items="problems"
     )
-  lah-monitor-board-srmas-fixed(
-    v-if="fixed.length > 0"
-    title-text="已正常回復項目",
-    title-icon="check-double",
-    variant="success",
-    :items="fixed"
-  )
+    lah-monitor-board-srmas-fixed(
+      v-if="fixed.length > 0"
+      title-text="已正常回復項目",
+      title-icon="check-double",
+      variant="success",
+      :items="fixed"
+    )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -267,9 +267,5 @@ export default {
   right: 10px;
   top: 60px;
   font-size: small;
-}
-.max-height {
-  max-height: 27.5vh !important;
-  overflow: auto !important;
 }
 </style>

@@ -1,22 +1,58 @@
 <template lang="pug">
 b-card(:no-body="noBody")
-  .center(v-if="itemsCount === 0") ⚠ 無資料
-  b-list-group(v-else)
+  template(
+    v-if="!hideHeader",
+    #header
+  ): .d-flex.justify-content-between.align-items-center
+    lah-fa-icon(icon="link-slash") {{ header }}({{ itemsCount }})
+    b-button-group.ml-auto(size="sm")
+      lah-button(
+        v-if="!$refs.footer"
+        icon="sync-alt",
+        action="ld-cycle",
+        variant="outline-secondary",
+        no-border,
+        no-icon-gutter,
+        @click="load",
+        :title="`上次更新時間 ${updated}`",
+        :disabled="fetchingMonitorMail"
+      )
+      lah-button(
+        icon="question",
+        action="breath",
+        variant="outline-success",
+        no-border,
+        no-icon-gutter,
+        @click="$refs.help.show()",
+        title="說明"
+      )
+    lah-help-modal(ref="help", :modal-title="`${header} 顯示說明`")
+      ul
+        li 顯示跨域伺服器離線統計
+
+  .center.h4.mt-3(v-if="itemsCount === 0")
+    lah-fa-icon(
+      icon="triangle-exclamation",
+      variant="warning"
+    ) 無伺服器離線資料
+  b-list-group(
+    v-else,
+    :class="[maxHeight ? 'monitor-board-mh' : '']"
+  )
     transition-group(name="list"): b-list-group-item.flex-column.align-items-start(
       v-for="(item, index) in officesData",
       :key="`${item.timestamp}-${item.id}-${index}`"
     )
-      .item-head(:title="`${item.name}`")
+      .item-head.bg-danger(:title="`${item.name}`")
       .item-tail(v-if="index !== itemsCount - 1")
       b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", small)
       .item-content(v-if="!item.spinner")
         .d-flex.w-100.justify-content-between.font-weight-bold
           a.mb-1.truncate(
-            :title="cleanTags(item.name)",
-            v-html="item.name",
+            :title="item.id",
             v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
             href="javascript:void(0)"
-          )
+          ) {{ shorten(item.name) }}
           lah-fa-icon.small.my-auto.text-nowrap(
             icon="clock",
             regular,
@@ -27,8 +63,13 @@ b-card(:no-body="noBody")
           :id="`content-${index}-preview`",
           visible
         ): .small.mb-1.text-muted.w-100.truncate
-          |{{ cleanTags(item.message) }}
+          |{{ cleanTags(item.response) }}
 
+        b-collapse(:id="`content-${index}`")
+          .rounded.border.border-dark.mt-1.mb-1.p-2
+            .item-description.timeline-img(
+              v-html="formatText(item)"
+            )
 </template>
 
 <script>
@@ -39,34 +80,20 @@ import { zhTW } from 'date-fns/locale'
 export default {
   name: 'LahOfficeDownTimeline',
   components: {},
-  fetchOnServer: true,
   props: {
     dateFormat: { type: String, default: 'yyyy-MM-dd HH:mm:ss' },
     variant: { type: String, default: 'primary' },
     count: { type: String, default: '100' },
-    noBody: { type: Boolean, default: false }
+    noBody: { type: Boolean, default: false },
+    maxHeight: { type: Boolean, default: true },
+    hideHeader: { type: Boolean, default: false }
   },
   data: () => ({
+    header: '跨域伺服器斷線紀錄',
     officesData: [],
-    updated: ''
+    updated: '',
+    timer: null
   }),
-  fetch () {
-    this.isBusy = true
-    this.$axios.post(this.$consts.API.JSON.STATS, {
-      type: 'stats_xap_stats_down',
-      count: parseInt(this.count) || 100
-    }).then(({ data }) => {
-      if (this.$utils.statusCheck(data.status)) {
-        this.officesData = [...data.raw]
-      }
-    }).catch((err) => {
-      this.$utils.error(err)
-    }).finally(() => {
-      this.isBusy = false
-      this.timeout(this.reload, 5 * 60 * 1000).then((handle) => { this.timer = handle })
-      this.updated = this.$utils.formatTime(new Date())
-    })
-  },
   computed: {
     bootstrapVariant () {
       return this.variant || 'primary'
@@ -77,25 +104,58 @@ export default {
   },
   watch: {
     officesData (val) {
-      console.warn(val)
+      // console.warn(val)
     }
   },
+  created () { this.load() },
   mounted () {},
+  beforeDestroy () {
+    clearTimeout(this.timer)
+  },
   methods: {
+    load () {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.STATS, {
+        type: 'stats_xap_stats_down',
+        count: parseInt(this.count) || 100
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.officesData = [...data.raw]
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+        this.timeout(this.load, 5 * 60 * 1000).then((handle) => { this.timer = handle })
+        this.updated = this.$utils.formatTime(new Date())
+      })
+    },
     formatTimestamp (ts) {
       return formatDistanceToNow(new Date(ts * 1000), { addSuffix: true, locale: zhTW })
     },
+    shorten (name) {
+      return name?.replace(/(地政事務)/g, '')
+    },
+    formatText (item) {
+      return `<div class="text-right font-weight-bold">${item.id} ${item.name}</div>
+        離線時間：${this.$utils.phpTsToAdDateStr(item.timestamp, true)}<br/>
+        網站回應：${item.response}
+      `
+    },
     cleanTags (message) {
-      return this.cleanText(message)?.replace(/(<([^>]+)>)/gi, '')
+      return this.cleanText(message).replace(/(<([^>]+)>)/gi, '')
     },
     cleanText (text) {
-      const highlighted = this.$utils.highlightPipeline(text)
-      const domsafe = this.$utils.convertMarkd(highlighted)
-      if (/!\[.+\]\(data:image\/.+\)/gm.test(domsafe)) {
-        // convert for images ...
-        return this.$utils.convertInlineMarkd(domsafe?.repaceAll('\n', ''))
+      if (text) {
+        const highlighted = this.$utils?.highlightPipeline(text)
+        const domsafe = this.$utils?.convertMarkd(highlighted)
+        if (/!\[.+\]\(data:image\/.+\)/gm.test(domsafe)) {
+          // convert for images ...
+          return this.$utils.convertInlineMarkd(domsafe?.repaceAll('\n', ''))
+        }
+        return domsafe
       }
-      return domsafe
+      return ''
     }
   }
 }
@@ -133,5 +193,9 @@ export default {
 .item-description {
   display: block;
   text-align: left;
+}
+.max-height {
+  max-height: 30vh;
+  overflow: auto;
 }
 </style>
