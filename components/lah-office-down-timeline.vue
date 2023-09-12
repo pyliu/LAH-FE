@@ -35,10 +35,7 @@ b-card(:no-body="noBody")
       icon="triangle-exclamation",
       variant="warning"
     ) 無伺服器離線資料
-  b-list-group(
-    v-else,
-    :class="[maxHeight ? 'monitor-board-mh' : '']"
-  )
+  b-list-group(v-else)
     transition-group(name="list"): b-list-group-item.flex-column.align-items-start(
       v-for="(item, index) in officesData",
       :key="`${item.timestamp}-${item.id}-${index}`"
@@ -85,7 +82,6 @@ export default {
     variant: { type: String, default: 'primary' },
     count: { type: String, default: '100' },
     noBody: { type: Boolean, default: false },
-    maxHeight: { type: Boolean, default: true },
     hideHeader: { type: Boolean, default: false }
   },
   data: () => ({
@@ -193,9 +189,5 @@ export default {
 .item-description {
   display: block;
   text-align: left;
-}
-.max-height {
-  max-height: 30vh;
-  overflow: auto;
 }
 </style>
