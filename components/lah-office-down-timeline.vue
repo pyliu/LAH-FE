@@ -6,6 +6,7 @@ b-card(:no-body="noBody")
   ): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="link-slash") {{ header }}({{ itemsCount }})
     b-button-group.ml-auto(size="sm")
+      b-select(v-model="filter", :options="filterOpts")
       lah-button(
         v-if="hideFooter"
         icon="sync-alt",
@@ -99,7 +100,15 @@ export default {
     officesData: [],
     updated: '',
     reloadMs: 5 * 60 * 1000,
-    timer: null
+    timer: null,
+    filter: 'latest',
+    filterOpts: [
+      { text: '最近100筆', value: 'latest' },
+      { text: '最近1天', value: 'day' },
+      { text: '最近1週', value: 'week' },
+      { text: '最近1個月', value: 'month' },
+      { text: '最近1年', value: 'year' }
+    ]
   }),
   fetch () {
     this.load()
@@ -113,8 +122,8 @@ export default {
     }
   },
   watch: {
-    officesData (val) {
-      // console.warn(val)
+    filter (val) {
+      this.load()
     }
   },
   created () {},
@@ -134,7 +143,7 @@ export default {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.STATS, {
         type: 'stats_xap_stats_down',
-        count: parseInt(this.count) || 100
+        opt: this.filter
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           this.officesData = [...data.raw]
