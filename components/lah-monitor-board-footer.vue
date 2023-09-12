@@ -33,6 +33,11 @@ export default {
   computed: {
     displayFetchState () { return !this.$utils.empty(this.fetchState) }
   },
+  watch: {
+    updateTime (dontcare) {
+      this.reset(this.reloadMs)
+    }
+  },
   beforeDestroy () {
     this.$refs.countdown.pauseCountdown()
   },
