@@ -165,8 +165,8 @@ export default {
     },
     formatText (item) {
       return `<div class="text-right font-weight-bold">${item.id} ${item.name}</div>
-        離線時間：${this.$utils.phpTsToAdDateStr(item.timestamp, true)}<br/>
-        網站回應：${item.response}
+        網站回應：${item.response}<br/>
+        離線時間：${this.$utils.phpTsToAdDateStr(item.timestamp, true)}
       `
     },
     cleanTags (message) {
