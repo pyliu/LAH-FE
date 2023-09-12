@@ -60,7 +60,7 @@ b-card(:no-body="noBody")
 
         b-collapse(
           :id="`content-${index}-preview`",
-          visible
+          :visible="index !== 0"
         ): .small.mb-1.text-muted.w-100.truncate
           |{{ cleanTags(item.response) }}
 
