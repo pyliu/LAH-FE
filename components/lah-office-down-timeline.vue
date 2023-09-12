@@ -4,7 +4,7 @@ b-card(:no-body="noBody")
     v-if="!hideHeader",
     #header
   ): .d-flex.justify-content-between.align-items-center
-    lah-fa-icon(icon="link-slash") {{ header }}({{ itemsCount }})
+    lah-fa-icon(icon="link-slash") {{ header }} (#[strong {{ itemsCount }}]筆)
     b-button-group.ml-auto(size="sm")
       b-select(v-model="filter", :options="filterOpts")
       lah-button(
