@@ -7,7 +7,7 @@ b-card(:no-body="noBody")
     lah-fa-icon(icon="link-slash") {{ header }}({{ itemsCount }})
     b-button-group.ml-auto(size="sm")
       lah-button(
-        v-if="!$refs.footer"
+        v-if="hideFooter"
         icon="sync-alt",
         action="ld-cycle",
         variant="outline-secondary",
@@ -67,6 +67,15 @@ b-card(:no-body="noBody")
             .item-description.timeline-img(
               v-html="formatText(item)"
             )
+
+  template(#footer, v-if="!hideFooter"): client-only: lah-monitor-board-footer(
+    ref="footer"
+    :reload-ms="reloadMs",
+    :busy="isBusy",
+    :reload="load",
+    :update-time="updated"
+  )
+
 </template>
 
 <script>
@@ -82,14 +91,19 @@ export default {
     variant: { type: String, default: 'primary' },
     count: { type: String, default: '100' },
     noBody: { type: Boolean, default: false },
-    hideHeader: { type: Boolean, default: false }
+    hideHeader: { type: Boolean, default: false },
+    hideFooter: { type: Boolean, default: false }
   },
   data: () => ({
     header: '跨域伺服器斷線紀錄',
     officesData: [],
     updated: '',
+    reloadMs: 5 * 60 * 1000,
     timer: null
   }),
+  fetch () {
+    this.load()
+  },
   computed: {
     bootstrapVariant () {
       return this.variant || 'primary'
@@ -103,13 +117,20 @@ export default {
       // console.warn(val)
     }
   },
-  created () { this.load() },
-  mounted () {},
+  created () {},
+  mounted () {
+    this.timeout(() => {
+      if (this.officesData.length === 0) {
+        this.load()
+      }
+    }, 1000)
+  },
   beforeDestroy () {
     clearTimeout(this.timer)
   },
   methods: {
     load () {
+      clearTimeout(this.timer)
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.STATS, {
         type: 'stats_xap_stats_down',
@@ -122,7 +143,7 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
-        this.timeout(this.load, 5 * 60 * 1000).then((handle) => { this.timer = handle })
+        this.timeout(this.load, this.reloadMs).then((handle) => { this.timer = handle })
         this.updated = this.$utils.formatTime(new Date())
       })
     },
