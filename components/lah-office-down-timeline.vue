@@ -64,7 +64,7 @@ b-card(:no-body="noBody")
         ): .small.mb-1.text-muted.w-100.truncate
           |{{ cleanTags(item.response) }}
 
-        b-collapse(:id="`content-${index}`")
+        b-collapse(:id="`content-${index}`", :visible="index === 0")
           .rounded.border.border-dark.mt-1.mb-1.p-2
             .item-description.timeline-img(
               v-html="formatText(item)"
