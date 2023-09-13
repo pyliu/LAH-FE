@@ -17,7 +17,8 @@ export default {
   props: {
     variant: { type: String, default: 'muted' },
     seconds: { type: Number, default: 0 },
-    todayFullAdFormat: { type: Boolean, default: false }
+    todayFullAdFormat: { type: Boolean, default: false },
+    delay: { type: Number, default: 750 }
   },
   data: () => ({
     switchFormat: false
@@ -26,7 +27,7 @@ export default {
   watch: {},
   created () {
     // this.timer = setInterval(() => { this.mouseoverFlag = !this.mouseoverFlag }, 1000)
-    this.delayReset = this.$utils.debounce(() => { this.switchFormat = false }, 750)
+    this.delayReset = this.$utils.debounce(() => { this.switchFormat = false }, parseInt(this.delay) || 750)
   },
   mounted () {},
   beforeDestroy () {
