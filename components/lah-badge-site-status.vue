@@ -225,6 +225,7 @@ export default {
           this.siteStatusCacheMap.set(this.watchSite, data)
         }).catch((err) => {
           this.status = -1
+          this.message = err.toString()
           this.$utils.error(err)
         }).finally(() => {
           this.updateTimestamp = +new Date()
