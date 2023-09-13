@@ -36,7 +36,7 @@ div(v-cloak)
     lah-fa-icon.mr-1(icon="circle-check", variant="success")
     span 目前各地所皆可正常連線
   client-only
-    transition-group(name="list", mode="out-in"): component.mr-2.mb-2(
+    transition-group(name="list", mode="out-in"): component.m-3(
       v-for="(data, idx) in officesData",
       v-show="isOn(data)",
       :ref="data.ID",
