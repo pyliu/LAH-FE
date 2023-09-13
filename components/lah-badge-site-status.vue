@@ -196,7 +196,7 @@ export default {
       }
       // console.warn(`${this.watchSite} start checking ...`)
       // this.isBusy = true
-      this.message = '測試中 ... '
+      this.message = '檢測中 ... '
       this.status = -2
       force && this.siteStatusCacheMap.delete(this.watchSite)
       const cached = this.siteStatusCacheMap.get(this.watchSite)
@@ -223,10 +223,11 @@ export default {
           }
           this.$emit('updated', data)
           this.siteStatusCacheMap.set(this.watchSite, data)
-          this.updateTimestamp = +new Date()
         }).catch((err) => {
+          this.status = -1
           this.$utils.error(err)
         }).finally(() => {
+          this.updateTimestamp = +new Date()
           this.isBusy = false
           this.nextRun()
         })
