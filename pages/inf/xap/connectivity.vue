@@ -48,7 +48,6 @@ div(v-cloak)
       pill,
       @updated="handleUpdated"
     )
-    //- lah-site-status-badge(watch-site="BB")
 </template>
 
 <script>

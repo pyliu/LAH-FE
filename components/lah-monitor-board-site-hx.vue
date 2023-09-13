@@ -31,7 +31,7 @@ b-card(:border-variant="borderVariant")
       div 🟡 表示狀態更新中
       div 🔴 表示狀態錯誤
   .h-100: .offices
-    lah-site-status-badge.office(
+    lah-badge-site-status.office(
       v-for="office in offices",
       :ref="office",
       :key="office"
