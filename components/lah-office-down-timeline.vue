@@ -55,7 +55,8 @@ b-card(:no-body="noBody")
           lah-fa-icon.small.my-auto.text-nowrap(
             icon="clock",
             regular,
-            variant="muted"
+            variant="muted",
+            :title="formatADDatetime(item.timestamp)"
           ) {{ formatTimestamp(item.timestamp) }}
 
         b-collapse(
@@ -160,13 +161,16 @@ export default {
     formatTimestamp (ts) {
       return formatDistanceToNow(new Date(ts * 1000), { addSuffix: true, locale: zhTW })
     },
+    formatADDatetime (ts) {
+      return this.$utils.phpTsToAdDateStr(ts, true)
+    },
     shorten (name) {
       return name?.replace(/(地政事務)/g, '')
     },
     formatText (item) {
       return `
         網站回應：${item.response}<br/>
-        離線時間：${this.$utils.phpTsToAdDateStr(item.timestamp, true)}
+        離線時間：${this.formatADDatetime(item.timestamp)}
       `
     },
     cleanTags (message) {
