@@ -1,30 +1,28 @@
 <template lang="pug">
 div(v-cloak)
-  lah-header
-    lah-transition(appear)
-      .d-flex.justify-content-between.w-100
-        .d-flex
-          .my-auto: lah-fa-icon(icon="heart-pulse", action="breath") 全國地所跨域主機監控
-          lah-button(
-            v-b-modal.help-modal,
-            icon="info",
-            variant="outline-success",
-            no-border,
-            no-icon-gutter,
-            title="說明"
-          )
-        .d-flex.align-items-center
-          b-checkbox.mr-1(v-model="displayShortName", size="lg") 顯示別名
-          b-checkbox(v-model="displayDanger", size="lg") 連線狀態錯誤
-          lah-button(
-            icon="link-slash",
-            no-border,
-            title="顯示離線紀錄",
-            variant="outline-danger",
-            size="lg",
-            @click="showOfflineRecords"
-          ) 顯示離線紀錄
-          lah-countdown-button(
+  lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
+    .d-flex
+      .my-auto: lah-fa-icon(icon="heart-pulse", action="breath") 全國地所跨域主機監控
+      lah-button(
+        v-b-modal.help-modal,
+        icon="info",
+        variant="outline-success",
+        no-border,
+        no-icon-gutter,
+        title="說明"
+      )
+    .d-flex.align-items-center
+      b-checkbox.mr-1(v-model="displayShortName", size="lg") 顯示別名
+      b-checkbox(v-model="displayDanger", size="lg") 連線狀態錯誤
+      lah-button(
+        icon="link-slash",
+        no-border,
+        title="顯示離線紀錄",
+        variant="outline-danger",
+        size="lg",
+        @click="showOfflineRecords"
+      ) 顯示離線紀錄
+      lah-countdown-button(
             ref="countdown"
             icon="sync-alt"
             action="ld-cycle"
@@ -51,7 +49,7 @@ div(v-cloak)
   lah-transition: h3.center(v-if="displayDanger && red.length === 0")
     lah-fa-icon.mr-1(icon="circle-check", variant="success")
     span 目前各地所皆可正常連線
-  transition-group(name="list", mode="out-in"): lah-badge-site-status.m-3(
+  .d-flex.justify-content-between.flex-wrap: lah-badge-site-status.m-3(
     v-for="(data, idx) in officesData",
     v-if="isOn(data)",
     :ref="data.id",
@@ -59,8 +57,8 @@ div(v-cloak)
     :watch-site="data.id",
     :fill="false",
     :short="displayShortName",
-    pill,
     :static-data="data",
+    pill,
     @click="show(data)"
   )
 </template>

@@ -35,8 +35,7 @@ div(v-cloak)
   lah-transition: h3.center(v-if="displayDanger && red.length === 0")
     lah-fa-icon.mr-1(icon="circle-check", variant="success")
     span 目前各地所皆可正常連線
-  client-only
-    transition-group(name="list", mode="out-in"): component.m-3(
+  .d-flex.justify-content-between.flex-wrap: component.m-3(
       v-for="(data, idx) in officesData",
       v-show="isOn(data)",
       :ref="data.ID",
