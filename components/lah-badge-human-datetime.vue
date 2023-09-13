@@ -1,10 +1,13 @@
 <template lang="pug">
-lah-fa-icon.small.my-auto.text-nowrap(
+lah-fa-icon.small.text-nowrap(
   icon="clock",
   regular,
   :variant="variant",
-  :title="adDatetime()"
-) {{ humanText() }}
+  :title="switchFormat ? humanText() : adDatetime()",
+  @click="switchFormat = !switchFormat",
+  @mouseover="switchFormat = true",
+  @mouseleave="delayReset"
+) {{ switchFormat ? adDatetime() : humanText() }}
 </template>
 
 <script>
@@ -15,17 +18,28 @@ export default {
     variant: { type: String, default: 'muted' },
     seconds: { type: Number, default: 0 }
   },
-  data: () => ({}),
+  data: () => ({
+    switchFormat: false
+  }),
   computed: {},
   watch: {},
-  created () {},
+  created () {
+    // this.timer = setInterval(() => { this.mouseoverFlag = !this.mouseoverFlag }, 1000)
+    this.delayReset = this.$utils.debounce(() => { this.switchFormat = false }, 750)
+  },
   mounted () {},
+  beforeDestroy () {
+    // clearInterval(this.timer)
+  },
   methods: {
     humanText (ts) {
       return this.$utils.formatDistanceToNow((ts || this.seconds) * 1000)
     },
     adDatetime (ts) {
       return this.$utils.phpTsToAdDateStr(ts || this.seconds, true)
+    },
+    text () {
+
     }
   }
 }
