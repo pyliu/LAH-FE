@@ -62,12 +62,10 @@ b-card(:border-variant="border")
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
       ) {{ item.subject.replace(' DataGuard STATE', '') }}
-      lah-fa-icon.small.my-auto.text-nowrap(
-        icon="clock",
-        regular,
-        :title="$utils.phpTsToAdDateStr(item.timestamp, true)",
-        :variant="isToday(item.timestamp) ? 'success' : 'muted'"
-      ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
+      lah-badge-human-datetime(
+        :variant="isToday(item.timestamp) ? 'success' : 'muted'",
+        :seconds="item.timestamp"
+      )
     .truncate.text-muted.small {{ currentLogText(item) }} | SWITCHOVER STATUS: SESSIONS {{ switchoverText(item) }}
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"

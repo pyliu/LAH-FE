@@ -11,11 +11,7 @@ b-card
         @click="popupLogContent(item)",
         :title="item.subject"
       ) {{ item.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(
-        icon="clock",
-        regular,
-        :title="$utils.phpTsToAdDateStr(item.timestamp, true)"
-      ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
+      lah-badge-human-datetime(:seconds="item.timestamp")
     .truncate.text-muted.small {{ item.message }}
 </template>
 

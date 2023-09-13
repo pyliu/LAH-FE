@@ -55,12 +55,7 @@ b-card(:no-body="noBody")
             v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
             href="javascript:void(0)"
           ) {{ `${item.id} ${item.name}` }}
-          lah-fa-icon.small.my-auto.text-nowrap(
-            icon="clock",
-            regular,
-            variant="muted",
-            :title="formatADDatetime(item.timestamp)"
-          ) {{ formatTimestamp(item.timestamp) }}
+          lah-badge-human-datetime(:seconds="item.timestamp")
 
         b-collapse(
           :id="`content-${index}-preview`",
@@ -85,10 +80,6 @@ b-card(:no-body="noBody")
 </template>
 
 <script>
-import { formatDistanceToNow } from 'date-fns'
-// Require tw locale
-import { zhTW } from 'date-fns/locale'
-
 export default {
   name: 'LahOfficeDownTimeline',
   components: {},
@@ -161,19 +152,13 @@ export default {
         this.updated = this.$utils.formatTime(new Date())
       })
     },
-    formatTimestamp (ts) {
-      return formatDistanceToNow(new Date(ts * 1000), { addSuffix: true, locale: zhTW })
-    },
-    formatADDatetime (ts) {
-      return this.$utils.phpTsToAdDateStr(ts, true)
-    },
     shorten (name) {
       return name?.replace(/(地政事務)/g, '')
     },
     formatText (item) {
       return `
         網站回應：${item.response}<br/>
-        離線時間：${this.formatADDatetime(item.timestamp)}
+        離線時間：${this.$utils.phpTsToAdDateStr(item.timestamp, true)}
       `
     },
     cleanTags (message) {

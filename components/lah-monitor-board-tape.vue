@@ -54,12 +54,10 @@ b-card(:border-variant="border")
         title="顯示詳細記錄"
         :class="subjectCss(item)"
       ) {{ item.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(
-        icon="clock",
-        regular,
-        :title="$utils.phpTsToAdDateStr(item.timestamp, true)",
-        :variant="isToday(item.timestamp) ? 'success' : 'muted'"
-      ) {{ $utils.formatDistanceToNow(item.timestamp * 1000) }}
+      lah-badge-human-datetime(
+        :variant="isToday(item.timestamp) ? 'success' : 'muted'",
+        :seconds="item.timestamp"
+      )
     .truncate.text-muted.small {{ item.message }}
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"

@@ -11,12 +11,10 @@ b-card.border-0(no-body)
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
       ) {{ warnTitle(item) }}
-      lah-fa-icon.small.my-auto.text-nowrap(
-        icon="clock",
-        regular,
-        :title="$utils.phpTsToAdDateStr(item.bad.timestamp, true)",
-        :variant="isToday(item.bad.timestamp) ? 'success' : 'muted'"
-      ) {{ $utils.formatDistanceToNow(item.bad.timestamp * 1000) }}
+      lah-badge-human-datetime(
+        :variant="isToday(item.bad.timestamp) ? 'success' : 'muted'",
+        :seconds="item.bad.timestamp"
+      )
     .truncate.text-muted.small {{ recoverMessage(item) }}
 </template>
 

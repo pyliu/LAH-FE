@@ -59,12 +59,10 @@ b-card(:border-variant="border")
         @click="popupLogContent(headMessage)",
         title="顯示詳細記錄"
       ) {{ headMessage.subject }}
-      lah-fa-icon.small.my-auto.text-nowrap(
-        icon="clock",
-        regular,
-        :title="$utils.phpTsToAdDateStr(headMessage.timestamp, true)",
-        :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'"
-      ) {{ $utils.formatDistanceToNow(headMessage.timestamp * 1000) }}
+      lah-badge-human-datetime(
+        :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
+        :seconds="headMessage.timestamp"
+      )
     .truncate.text-muted.small(v-if="light !== 'danger'", v-html="extractedMessage")
     .text-danger.small(v-else, v-html="extractedError")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
