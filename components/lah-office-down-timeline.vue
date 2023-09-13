@@ -164,7 +164,7 @@ export default {
       return name?.replace(/(地政事務)/g, '')
     },
     formatText (item) {
-      return `<div class="text-right font-weight-bold">${item.id} ${item.name}</div>
+      return `
         網站回應：${item.response}<br/>
         離線時間：${this.$utils.phpTsToAdDateStr(item.timestamp, true)}
       `
