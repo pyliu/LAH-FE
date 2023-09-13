@@ -42,7 +42,10 @@ b-card(:no-body="noBody")
       v-for="(item, index) in officesData",
       :key="`${item.timestamp}-${item.id}-${index}`"
     )
-      .item-head.bg-danger(:title="`${item.name}`")
+      .item-head(
+        :title="`${shorten(item.name)}`",
+        :class="[circleBGColor(item)]"
+      )
       .item-tail(v-if="index !== itemsCount - 1")
       b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", small)
       .item-content(v-if="!item.spinner")
@@ -187,6 +190,20 @@ export default {
         return domsafe
       }
       return ''
+    },
+    circleBGColor (item) {
+      // php timestamp is in seconds
+      const now = this.$utils.nowTs() / 1000
+      const offset = now - item.timestamp
+      // in 2 hrs
+      if (offset < 7200) {
+        return 'bg-danger'
+      }
+      // in 4 hrs
+      if (offset < 14400) {
+        return 'bg-warning'
+      }
+      return 'bg-secondary'
     }
   }
 }
