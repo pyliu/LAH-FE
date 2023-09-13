@@ -81,10 +81,16 @@ div(v-cloak)
         li 目前監控設定：{{ connectionText }}
   lah-transition: b-card-group(v-if="filtering !== false", columns)
     transition-group(name="list", mode="out-in"): component(
-      v-for="(name, idx) in filterList",
+      v-for="(name, idx) in filterListShuffled",
       :key="`${name}-${idx}`",
-      :is="name"
+      :is="name",
+      class="card-body-fixed-height-3"
     )
+  //- lah-transition: lah-b-card-group(v-if="filtering !== false", columns)
+  //-   lah-transition(v-for="(name, idx) in filterListShuffled", appear): component.card-body-fixed-height-3(
+  //-     :key="`${name}-${idx}`",
+  //-     :is="name"
+  //-   )
   h2.no-dashboard.center(v-if="filterList.length === 0 && filtering !== false") ⚠ 無資料
   lah-transition: div(v-show="filtering === false")
     client-only: b-card-group.mb-4(deck)
@@ -135,6 +141,7 @@ div(v-cloak)
 </template>
 
 <script>
+import shuffle from 'lodash/shuffle'
 export default {
   middleware: ['isInf'],
   data: () => ({
@@ -160,12 +167,15 @@ export default {
     },
     isHA () {
       return this.site === 'HA'
+    },
+    filterListShuffled () {
+      return shuffle(this.filterList)
     }
   },
   watch: {
     filtering (val) {
       // after filtering flag changed, the list needs to be refreshed.
-      this.filterList.length = 0
+      this.filterList = []
       this.refreshFilterList()
     }
   },
