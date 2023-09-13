@@ -51,7 +51,7 @@ b-card(:no-body="noBody")
             :title="item.id",
             v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
             href="javascript:void(0)"
-          ) {{ shorten(item.name) }}
+          ) {{ `${item.id} ${item.name}` }}
           lah-fa-icon.small.my-auto.text-nowrap(
             icon="clock",
             regular,
