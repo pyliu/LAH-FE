@@ -41,7 +41,7 @@ div(v-cloak)
       v-show="isOn(data)",
       :ref="data.ID",
       :key="`${data.ID}-${idx}`",
-      is="lahSiteStatusBadge",
+      is="lahBadgeSiteStatus",
       :watch-site="data.ID",
       :fill="false",
       :short="displayShortName",
