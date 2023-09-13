@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100
         .d-flex
-          .my-auto: lah-fa-icon(icon="heart-pulse") 全國地所跨域主機監控
+          .my-auto: lah-fa-icon(icon="heart-pulse", action="breath") 全國地所跨域主機監控
           lah-button(
             v-b-modal.help-modal,
             icon="info",
