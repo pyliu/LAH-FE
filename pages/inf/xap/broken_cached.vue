@@ -49,7 +49,7 @@ div(v-cloak)
   lah-transition: h3.center(v-if="displayDanger && red.length === 0")
     lah-fa-icon.mr-1(icon="circle-check", variant="success")
     span 目前各地所皆可正常連線
-  .d-flex.justify-content-between.flex-wrap: lah-badge-site-status.m-3(
+  .d-flex.justify-content-between.flex-wrap: lah-badge-site-status.m-2(
     v-for="(data, idx) in officesData",
     v-if="isOn(data)",
     :ref="data.id",
