@@ -16,7 +16,8 @@ export default {
   component: {},
   props: {
     variant: { type: String, default: 'muted' },
-    seconds: { type: Number, default: 0 }
+    seconds: { type: Number, default: 0 },
+    todayFullAdFormat: { type: Boolean, default: false }
   },
   data: () => ({
     switchFormat: false
@@ -36,7 +37,11 @@ export default {
       return this.$utils.formatDistanceToNow((ts || this.seconds) * 1000)
     },
     adDatetime (ts) {
-      return this.$utils.phpTsToAdDateStr(ts || this.seconds, true)
+      const d = this.$utils.phpTsToAdDateStr(ts || this.seconds, true)
+      if (!this.todayFullAdFormat) {
+        return d.replace(this.$utils.today(), '').trim()
+      }
+      return d
     },
     text () {
 
