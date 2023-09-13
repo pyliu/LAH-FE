@@ -62,6 +62,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/lxhweb").
         #[font-awesome-icon(:icon="['fas', 'database']", fixed-width, size="lg")]
         {{site}} 同步異動監控
+      li: nuxt-link(to="/inf/xap/connectivity").
+        #[font-awesome-icon(:icon="['fas', 'wave-square']", fixed-width, size="lg")]
+        即時全國跨域主機監控
 
       li: hr
 
