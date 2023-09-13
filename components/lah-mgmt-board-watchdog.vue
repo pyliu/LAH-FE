@@ -85,7 +85,7 @@ b-card
   hr
   .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="file") 最新權狀序號
-    lah-cert-badge(@fetched="handledUpdated")
+    lah-badge-latest-certno(@fetched="handledUpdated")
   hr
 
   lah-message(:message="message", auto-hide, close-variant="danger")
