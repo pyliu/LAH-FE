@@ -71,16 +71,19 @@ b-card(:border-variant="borderVariant")
       .mt-3.text-center(v-else-if="downCount === 0 && displayError")
         lah-fa-icon.h4(icon="circle-check", variant="success") 無偵測到異常
 
-    lah-badge-site-status.m-1(
-      v-for="office in displayOffices",
-      :ref="office.id",
-      :key="office.id",
-      :static-data="office",
-      :fill="false",
-      :badge="false",
-      short,
-      @click="show(office)"
+    .d-flex.flex-wrap(
+      :class="displayError ? [] : ['justify-content-between']"
     )
+      lah-badge-site-status.m-1(
+        v-for="office in displayOffices",
+        :ref="office.id",
+        :key="office.id",
+        :static-data="office",
+        :fill="false",
+        :badge="false",
+        short,
+        @click="show(office)"
+      )
 
   //- template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
   //-   ref="footer"
