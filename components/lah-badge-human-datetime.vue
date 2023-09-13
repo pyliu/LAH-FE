@@ -26,13 +26,10 @@ export default {
   computed: {},
   watch: {},
   created () {
-    // this.timer = setInterval(() => { this.mouseoverFlag = !this.mouseoverFlag }, 1000)
     this.delayReset = this.$utils.debounce(() => { this.switchFormat = false }, parseInt(this.delay) || 750)
   },
   mounted () {},
-  beforeDestroy () {
-    // clearInterval(this.timer)
-  },
+  beforeDestroy () {},
   methods: {
     humanText (ts) {
       return this.$utils.formatDistanceToNow((ts || this.seconds) * 1000)
