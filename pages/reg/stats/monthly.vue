@@ -31,7 +31,7 @@ div(v-cloak)
           span -
           span {{ item.name }}
 
-  lah-b-card-group
+  lah-flex-item-group
     b-card.border-0(no-body)
       lah-stats-reg-first(
         ref="regFirst",

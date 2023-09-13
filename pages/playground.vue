@@ -18,7 +18,7 @@ div: client-only
         li WEBSOCKET_PORT：伺服器PORT
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
-  lah-b-card-group
+  lah-flex-item-group
     lah-office-down-timeline.card-body-fixed-height-3
     lah-monitor-board-srmas.card-body-fixed-height-3
     b-card.border-0(no-body)

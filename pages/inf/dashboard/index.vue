@@ -86,7 +86,7 @@ div(v-cloak)
       :is="name",
       class="card-body-fixed-height-3"
     )
-  //- lah-transition: lah-b-card-group(v-if="filtering !== false", columns)
+  //- lah-transition: lah-flex-item-group(v-if="filtering !== false", columns)
   //-   lah-transition(v-for="(name, idx) in filterListShuffled", appear): component.card-body-fixed-height-3(
   //-     :key="`${name}-${idx}`",
   //-     :is="name"
