@@ -1,5 +1,9 @@
 <template lang="pug">
-span.d-inline-flex.align-items-center.my-auto
+span.d-inline-flex.align-items-center.my-auto(
+  @mouseover="emitEvent('mouseover', $event)",
+  @mouseleave="emitEvent('mouseleave', $event)",
+  @click="emitEvent('click', $event)"
+)
   font-awesome-icon(
     v-if="!append && !$utils.empty(icon)",
     :id="iconId",
@@ -11,8 +15,7 @@ span.d-inline-flex.align-items-center.my-auto
     :fixed-width="fixedWidth",
     :flip="flipVar",
     :border="border",
-    :transform="transform",
-    @click="emitClick($event)"
+    :transform="transform"
   )
   slot
   font-awesome-icon(
@@ -26,13 +29,13 @@ span.d-inline-flex.align-items-center.my-auto
     :fixed-width="fixedWidth",
     :flip="flipVar",
     :border="border",
-    :transform="transform",
-    @click="emitClick($event)"
+    :transform="transform"
   )
 </template>
 
 <script>
 export default {
+  emit: ['click', 'mouseover', 'mouseleave'],
   props: {
     size: { type: String, default: '1x' },
     prefix: { type: String, default: 'fas' },
@@ -86,8 +89,8 @@ export default {
     this.iconId = this.$utils?.uuid()
   },
   methods: {
-    emitClick (evt, stopPropagation = false) {
-      this.$emit('click')
+    emitEvent (evtType, evt, stopPropagation = false) {
+      this.$emit(evtType)
       stopPropagation && evt?.stopPropagation()
     }
   }
