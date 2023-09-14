@@ -137,6 +137,7 @@ export default {
     load () {
       clearTimeout(this.timer)
       this.isBusy = true
+      this.officesData = []
       this.$axios.post(this.$consts.API.JSON.STATS, {
         type: 'stats_xap_stats_down',
         opt: this.filter
