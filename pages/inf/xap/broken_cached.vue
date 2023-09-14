@@ -161,7 +161,8 @@ export default {
     showOfflineRecords () {
       this.modal(this.$createElement(lahOfficeDownTimeline, {
         props: {
-          maxHeight: false
+          maxHeight: false,
+          hideFooter: true
         }
       }), {
         title: '離線伺服器歷史資訊'
