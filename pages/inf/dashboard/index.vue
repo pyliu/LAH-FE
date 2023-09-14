@@ -79,7 +79,7 @@ div(v-cloak)
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
-  lah-transition: b-card-group(v-if="filtering !== false", columns)
+  lah-transition: b-card-group(v-show="filtering !== false", columns)
     transition-group(name="list", mode="out-in"): component(
       v-for="(name, idx) in filterListShuffled",
       :key="`${name}-${idx}`",
