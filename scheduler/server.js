@@ -10,8 +10,8 @@ function randomDelay (min, max) {
 };
 try {
   const isDev = process.env.NODE_ENV !== 'production'
-  require('dotenv').config()
-  isDev && console.log(process.env)
+  const cfg = require('dotenv').config()
+  isDev && console.log(cfg)
   const baseAPIUrl = `http://${process.env.API_HOST}:${process.env.API_PORT}`
   const watchdogCronConfig = '0 */15 7-17 * * 0-6'
   console.log(`啟動 watchdog 排程 ${watchdogCronConfig}`)
