@@ -618,24 +618,25 @@ export default {
           })
         }
       }
-      for (const [key, value] of Object.entries(data)) {
-        const label = this.keyLabelMap.get(key)
-        if (label) {
-          // p1ma_parkflag: 車位備註轉換
-          if (key === 'p1ma_parkflag') {
-            obj[label] = this.p1ma_parkflagText(value)
+      if (data) {
+        for (const [key, value] of Object.entries(data)) {
+          const label = this.keyLabelMap.get(key)
+          if (label) {
+            // p1ma_parkflag: 車位備註轉換
+            if (key === 'p1ma_parkflag') {
+              obj[label] = this.p1ma_parkflagText(value)
+            } else {
+              obj[label] = value
+            }
           } else {
-            obj[label] = value
+            // obj[key] = value
           }
-        } else {
-          // obj[key] = value
         }
       }
       return obj
     },
     prepareTranslatedObj (json) {
       const mainData = json[this.mainKey]
-
       // extract p1sp fields from main data
       const p1spData = pick(mainData, this.p1spFields)
       // keep fields except p1sp
@@ -644,6 +645,7 @@ export default {
       const landData = json[`${this.mainKey}${this.landPostfix}`]
       const buildData = json[`${this.mainKey}${this.buildingPostfix}`]
       const carData = json[`${this.mainKey}${this.parkingPostfix}`]
+
       const obj = {
         ...this.mapFieldData(restMainData),
         ...this.mapFieldData(landData, 'land'),
@@ -660,7 +662,7 @@ export default {
       if (this.jsonData) {
         return [this.prepareTranslatedObj(this.jsonData)]
       } else {
-        return this.jsons.map(raw => this.prepareTranslatedObj(raw))
+        return this.jsons?.map(raw => this.prepareTranslatedObj(raw))
       }
     },
     p1ma_parkflagText (val) {

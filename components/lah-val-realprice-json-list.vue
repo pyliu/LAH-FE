@@ -125,9 +125,10 @@ export default {
       return `${item.p1ma_build10_1.replace(/^0+/, '')}/${item.p1ma_build9}`
     },
     popup (index) {
-      this.modal(this.$createElement(lahValRealpriceJsonData, {
+      const comp = this.$createElement(lahValRealpriceJsonData, {
         props: { jsonData: this.jsons[index] }
-      }), {
+      })
+      this.modal(comp, {
         title: `詳細資料 - ${this.jsons[index][this.key].apply_no}`,
         size: 'xl'
       })

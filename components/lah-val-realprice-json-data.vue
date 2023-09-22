@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div: client-only
   .d-flex.justify-content-end.my-auto.align-items-center.text-nowrap
     lah-fa-icon.mr-1.my-auto(icon="palette") 醒目
     b-checkbox.mx-2(v-model="display.dark", switch)
@@ -8,7 +8,7 @@ div
     b-checkbox(v-model="display.land") 土地
     b-checkbox.mx-2(v-model="display.build") 建物
     b-checkbox(v-model="display.car") 車位
-  lah-transition: .my-2(v-if="!$utils.empty(mainData) && display.main")
+  lah-transition: .my-2(v-if="!isEmpty(mainData) && display.main")
     h5 主要資料
     .ml-3
       h6.my-2 - 基本資料
@@ -60,7 +60,7 @@ div
         :fields="priceFields"
       )
 
-  lah-transition: .my-2(v-if="!$utils.empty(landData) && display.land")
+  lah-transition: .my-2(v-if="!isEmpty(landData) && display.land")
     h5 土地資料
     lah-val-b-table(
       ref="landData"
@@ -70,7 +70,7 @@ div
       :fields="landFields"
     )
 
-  lah-transition: .my-2(v-if="!$utils.empty(buildData) && display.build")
+  lah-transition: .my-2(v-if="!isEmpty(buildData) && display.build")
     h5 建物資料
     lah-val-b-table(
       ref="buildData"
@@ -80,7 +80,7 @@ div
       :fields="buildFields"
     )
 
-  lah-transition: div(v-if="!$utils.empty(carData) && display.car")
+  lah-transition: div(v-if="!isEmpty(carData) && display.car")
     h5 停車位資料
     lah-val-b-table(
       ref="carData"
@@ -92,6 +92,7 @@ div
 </template>
 
 <script>
+import isEmpty from 'lodash/isEmpty'
 export default {
   props: {
     jsonData: { type: Object, default: null, require: true }
@@ -771,7 +772,11 @@ export default {
       this.display.dark = flag
     })
   },
-  methods: {}
+  methods: {
+    isEmpty (val) {
+      return isEmpty(val)
+    }
+  }
 }
 </script>
 
