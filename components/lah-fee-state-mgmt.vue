@@ -67,6 +67,21 @@ b-card.border-0(no-body)
         :disabled="!validData",
         no-icon-gutter
       )
+    //- 作廢原因
+    .d-flex.flex-nowrap(v-if="obsoleteVal === 0")
+      b-input-group(size="sm" prepend="作廢原因"): b-input(
+        ref="obsoleteReason",
+        v-model="obsoleteReason"
+      )
+      lah-button.ml-1(
+        icon="edit",
+        @click="updateAA104",
+        size="sm",
+        variant="outline-primary",
+        title="更新作廢原因",
+        :disabled="!validData",
+        no-icon-gutter
+      )
 </template>
 
 <script>
@@ -99,6 +114,7 @@ export default {
       text: "正常[1]"
     }],
     obsoleteVal: 1,
+    obsoleteReason: ''
   }),
   computed: {
     day () {
@@ -131,6 +147,7 @@ export default {
   created () {
     this.checkPaymentExpkData()
     this.obsoleteVal = this.expaaData.AA08
+    this.obsoleteReason = this.expaaData.AA104
     this.printVal = this.expaaData.AA09
     this.paymentVal = this.expaaData.AA100
     this.briefOpen = this.brief
@@ -218,6 +235,17 @@ export default {
         this.confirm('確定要修改付款方式？').then((YN) => {
           if (YN) {
             this.xhrAAXX('expaa_AA100_update', this.paymentVal, '付款方式')
+          }
+        })
+      }
+    },
+    updateAA104 () {
+      if (this.noConfirm) {
+        this.xhrAAXX('expaa_AA104_update', this.obsoleteReason, '作廢原因')
+      } else {
+        this.confirm('確定要作廢原因？').then((YN) => {
+          if (YN) {
+            this.xhrAAXX('expaa_AA104_update', this.obsoleteReason, '作廢原因')
           }
         })
       }

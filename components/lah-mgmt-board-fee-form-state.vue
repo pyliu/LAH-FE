@@ -49,10 +49,12 @@ b-card(
       ul
         li AA01 - 收費日期
         li AA04 - 電腦給號
+        li AA08 - 作廢狀態
         li AA05 - 收據編號
         li AA09 - 列印註記【1：已印，0：未印】
         li AA08 - 收據狀態【1：正常，0：作廢】
         li AA100 - 付款方式
+        li AA104 - 作廢原因
 
   lah-transition
     div(v-if="dataReady"): lah-fee-state-mgmt(:expaa-data="expaaData", :brief="embed")
