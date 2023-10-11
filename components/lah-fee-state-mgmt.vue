@@ -68,7 +68,10 @@ b-card.border-0(no-body)
         no-icon-gutter
       )
     //- 作廢原因
-    .d-flex.flex-nowrap(v-if="obsoleteVal === 0")
+    lah-transition: .d-flex.flex-nowrap(
+      v-if="obsoleteVal === 0",
+      :class="vertical ? ['my-1'] : ['mx-1']"
+    )
       b-input-group(size="sm" prepend="作廢原因"): b-input(
         ref="obsoleteReason",
         v-model="obsoleteReason"
