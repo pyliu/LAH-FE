@@ -45,7 +45,8 @@ div(v-cloak)
     :fill="false",
     :short="displayShortName",
     pill,
-    @updated="handleUpdated"
+    @updated="handleUpdated",
+    :class="borderCss(data)"
   )
 </template>
 
@@ -125,9 +126,9 @@ export default {
           })
         } else if (Array.isArray(json.raw)) {
           this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-          this.$utils.log('已從快取回復各地政事務所資料。')
+          this.$utils.log('已從快取回復各地政事務所對應資料。')
         } else {
-          this.$utils.error('無法從快取回復各地政事務所資料。')
+          this.$utils.error('無法從快取回復各地政事務所對應資料。')
         }
       })
     },
@@ -145,6 +146,19 @@ export default {
       }), {
         title: '離線伺服器歷史資訊'
       })
+    },
+    borderCss (data) {
+      const css = []
+      if (data.state !== 'UP') {
+        css.push('border-danger')
+        css.push('shadow')
+      } else if (data.ID.startsWith('H')) {
+        css.push('border-info')
+        css.push('shadow')
+      } else {
+        css.push('border-light')
+      }
+      return css
     }
   }
 }
