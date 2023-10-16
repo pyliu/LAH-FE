@@ -59,7 +59,8 @@ div(v-cloak)
     :short="displayShortName",
     :static-data="data",
     pill,
-    @click="show(data)"
+    @click="show(data)",
+    :class="borderCss(data)"
   )
 </template>
 
@@ -169,6 +170,17 @@ export default {
       }), {
         title: '離線伺服器歷史資訊'
       })
+    },
+    borderCss (data) {
+      const css = []
+      if (data.state !== 'UP') {
+        css.push('border-danger')
+      } else if (data.id.startsWith('H')) {
+        css.push('border-info')
+      } else {
+        css.push('border-light')
+      }
+      return css
     }
   }
 }
