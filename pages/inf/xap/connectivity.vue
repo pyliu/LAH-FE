@@ -150,10 +150,7 @@ export default {
     borderCss (data) {
       const css = []
       if (data.ID.startsWith('H')) {
-        css.push('border-info')
         css.push('shadow')
-      } else {
-        css.push('border-light')
       }
       return css
     }
