@@ -117,7 +117,7 @@ export default {
               const cacheMs = 24 * 60 * 60 * 1000
               this.setCache(this.useZoneCacheKey, data, cacheMs)
             } else {
-              this.$utils.error('無法取得各地政事務所資料。', data)
+              this.$utils.error('無法取得各地政事務所對應資料。', data)
             }
           }).catch((err) => {
             this.alert(err.message)
@@ -149,10 +149,7 @@ export default {
     },
     borderCss (data) {
       const css = []
-      if (data.state !== 'UP') {
-        css.push('border-danger')
-        css.push('shadow')
-      } else if (data.ID.startsWith('H')) {
+      if (data.site.startsWith('H')) {
         css.push('border-info')
         css.push('shadow')
       } else {
