@@ -149,7 +149,7 @@ export default {
     },
     borderCss (data) {
       const css = []
-      if (data.site.startsWith('H')) {
+      if (data.ID.startsWith('H')) {
         css.push('border-info')
         css.push('shadow')
       } else {
