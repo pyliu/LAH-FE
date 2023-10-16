@@ -138,6 +138,7 @@ export default {
       })
     },
     load () {
+      console.warn('reload ... ')
       this.isBusy = true
       clearTimeout(this.timer)
       this.officesData = []
