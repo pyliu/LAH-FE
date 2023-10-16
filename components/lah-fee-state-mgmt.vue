@@ -69,7 +69,7 @@ b-card.border-0(no-body)
       )
     //- 作廢原因
     lah-transition: .d-flex.flex-nowrap(
-      v-if="obsoleteVal === 0",
+      v-if="$utils.empty(obsoleteVal)",
       :class="vertical ? ['my-1'] : ['mx-1']"
     )
       b-input-group(size="sm" prepend="作廢原因"): b-input(
