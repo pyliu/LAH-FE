@@ -153,7 +153,7 @@ export default {
         this.alert(err.message)
         this.$utils.error(err)
       }).finally(() => {
-        this.timeout(this.load, this.reloadMs).then((handler) => {
+        this.timeout(this.load.bind(this), this.reloadMs).then((handler) => {
           this.timer = handler
         })
         this.isBusy = false
