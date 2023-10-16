@@ -108,9 +108,11 @@ export default {
     }
   },
   created () { this.load() },
-  mounted () {},
+  mounted () {
+    this.timer = setInterval(this.load.bind(this), this.reloadMs)
+  },
   beforeDestroy () {
-    clearTimeout(this.timer)
+    clearInterval(this.timer)
   },
   methods: {
     isOn (data) {
@@ -139,9 +141,7 @@ export default {
       })
     },
     load () {
-      console.warn('reload ... ')
       this.isBusy = true
-      clearTimeout(this.timer)
       this.officesData = []
       this.$axios.post(this.$consts.API.JSON.STATS, {
         type: 'stats_xap_stats_cached'
@@ -155,9 +155,6 @@ export default {
         this.alert(err.message)
         this.$utils.error(err)
       }).finally(() => {
-        this.timeout(this.load.bind(this), this.reloadMs).then((handler) => {
-          this.timer = handler
-        })
         this.isBusy = false
       })
     },
@@ -175,8 +172,10 @@ export default {
       const css = []
       if (data.state !== 'UP') {
         css.push('border-danger')
+        css.push('shadow')
       } else if (data.id.startsWith('H')) {
         css.push('border-info')
+        css.push('shadow')
       } else {
         css.push('border-light')
       }
