@@ -62,7 +62,7 @@ export default {
             const cacheMs = 24 * 60 * 60 * 1000
             this.setCache(this.officeCacheKey, data, cacheMs)
           } else {
-            this.$utils.error('無法取得各地政事務所資料。', data)
+            this.$utils.error('無法取得各地政事務所對應資料。', data)
           }
         }).catch((err) => {
           this.alert(err.message)
@@ -72,7 +72,7 @@ export default {
       } else if (Array.isArray(json.raw)) {
         // elimite out of date data
         this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-        this.$utils.log('已從快取回復各地政事務所資料。')
+        this.$utils.log('已從快取回復各地政事務所對應資料。')
       } else {
         this.$utils.error('無法從快取回復各地政事務所資料。')
       }
