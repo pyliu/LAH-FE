@@ -29,14 +29,14 @@ b-button.text-nowrap(
     :spin="spin"
     :mirror="mirror"
   )
-  span.ld-txt(v-if="busy") 讀取中...
-  span(ref="slot", v-show="!busy")
-    slot
-    b-badge.ml-1(
-      v-if="showBadge"
-      :variant="badgeVariant"
-      :pill="badgePill"
-    ) {{ badgeText }}
+    span.ld-txt(v-if="busy") 讀取中...
+    span(ref="slot", v-show="!busy")
+      slot
+      b-badge.ml-1(
+        v-if="showBadge"
+        :variant="badgeVariant"
+        :pill="badgePill"
+      ) {{ badgeText }}
 </template>
 
 <script>

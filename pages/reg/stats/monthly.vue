@@ -66,8 +66,7 @@ div(v-cloak)
         :end="dateRange.end",
         @ready="handleReady"
       )
-    b-card.border-0
-      lah-stats-reg-cert-count
+    lah-stats-reg-cert-count
 </template>
 
 <script>

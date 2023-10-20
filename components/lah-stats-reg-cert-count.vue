@@ -8,7 +8,7 @@ b-card(
       lah-fa-icon(v-else-if="isBusy", icon="road-barrier", variant="muted", size="lg")
       lah-fa-icon(v-else, icon="xmark", variant="muted", size="lg")
     .ml-1 {{ todayDate }} 謄本核發案件統計
-    lah-transition: b-badge.ml-1(pill, v-if="ready") {{ count }}
+    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="本所+工作站") {{ count }}
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
       regular,
@@ -37,12 +37,27 @@ b-card(
       no-icon-gutter,
       @click="query"
     )
-  b-card-sub-title: .d-flex.justify-content-between
-    lah-message.text-info(:message="message")
+  .my-2(v-if="count > 0")
+    .d-flex.justify-content-around
+      h4 本所 #[b-badge(pill, variant="success") {{ inCount }}]
+      h4 工作站 #[b-badge(pill, variant="warning") {{ outCount }}]
+    .d-flex.justify-content-end.my-2.align-items-center
+      lah-message.text-info.mr-1(:message="message")
+      lah-button(
+        :icon="openOperatorSelect ? 'angles-up' : 'angles-down'",
+        :icon-append="true",
+        @click="openOperatorSelect = !openOperatorSelect",
+        title="按住 Ctrl/Shift 多選"
+      ) 選擇工作站人員
+    b-collapse(v-model="openOperatorSelect"): b-select(
+      v-model="operators",
+      :options="operatorOpts",
+      multiple
+    )
   b-modal(
     ref="table",
     size="lg",
-    :title="`案件列表 ${$utils.today('TW')}`",
+    :title="`謄本案件列表 ${$utils.today('TW')}`",
     hide-footer
   )
     lah-pagination(
@@ -50,13 +65,22 @@ b-card(
       :total-rows="count"
       :caption="`找到 ${count} 筆資料`"
     )
-    lah-reg-b-table(
+    b-table(
       :items="raw",
-      :max-height-offset="135"
+      :fields="xlsxFields",
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
+      head-variant="dark",
+      bordered,
+      hover,
+      striped,
+      small,
       no-caption
     )
+      template(#cell(MU13)="row")
+        span {{ $utils.addTimeDivider(row.item.MU13) }}
+      template(#cell(MU11)="row")
+        span {{ row.item.SR_NAME }} {{ row.item.MU11 }}
 </template>
 
 <script>
@@ -67,42 +91,44 @@ export default {
     noBorder: { type: Boolean, default: false }
   },
   data: () => ({
+    openOperatorSelect: true,
+    operators: [],
     ready: false,
     queryOK: false,
     raw: [],
     message: '',
-    // xlsxFields: [
-    //   {
-    //     key: 'RM01',
-    //     label: '收件年',
-    //     sortable: true
-    //   },
-    //   {
-    //     key: 'RM02',
-    //     label: '收件字',
-    //     sortable: true
-    //   },
-    //   {
-    //     key: 'RM03',
-    //     label: '收件號',
-    //     sortable: true
-    //   },
-    //   {
-    //     key: 'RM09',
-    //     label: '登記原因代碼',
-    //     sortable: true
-    //   },
-    //   {
-    //     key: 'RM09_CHT',
-    //     label: '登記原因',
-    //     sortable: true
-    //   },
-    //   {
-    //     key: 'RM07_1',
-    //     label: '收件日期',
-    //     sortable: true
-    //   }
-    // ],
+    xlsxFields: [
+      {
+        key: 'MU01',
+        label: '收件年',
+        sortable: true
+      },
+      {
+        key: 'MU02',
+        label: '收件字',
+        sortable: true
+      },
+      {
+        key: 'MU03',
+        label: '收件號',
+        sortable: true
+      },
+      {
+        key: 'MU11',
+        label: '收件人員',
+        sortable: true
+      },
+      // {
+      //   key: 'MU12',
+      //   label: '收件日期',
+      //   sortable: true
+      // },
+      {
+        key: 'MU13',
+        label: '收件時間',
+        sortable: true
+      }
+    ],
     pagination: {
       perPage: 20,
       currentPage: 1
@@ -126,28 +152,69 @@ export default {
       return this.raw?.length || 0
     },
     xlsxJsons () {
+      const fieldKeys = this.xlsxFields.map((field, idx, array) => field.key)
+      const jsons = this.raw?.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      }) || []
+      return jsons
+    },
+    operatorOpts () {
+      if (this.count > 0) {
+        const map = new Map()
+        this.$utils.sortBy(this.raw, 'MU11').forEach((row) => {
+          map.set(row.MU11, {
+            text: `${row.SR_NAME} ${row.MU11}`,
+            value: row.MU11
+          })
+        })
+        return Array.from(map.values())
+      }
       return []
+    },
+    outCount () {
+      if (this.operators.length > 0) {
+        const filtered = this.raw?.filter((element, idx, arr) => {
+          return this.operators.includes(element.MU11)
+        })
+        return filtered.length
+      }
+      return 0
+    },
+    inCount () {
+      return this.count - this.outCount
     }
   },
   watch: {
+    raw (dontcare) {
+      console.warn(this.operators)
+    },
     message (dontcare) {
-      // this.debounceClearMessage()
+      this.debounceClearMessage()
+    },
+    operators (val) {
+      console.warn(val)
     }
   },
   created () {
-    // this.debounceClearMessage = this.$utils.debounce(() => { this.message = '' }, 10000)
+    this.debounceClearMessage = this.$utils.debounce(() => { this.message = '' }, 5000)
   },
   mounted () {},
   methods: {
-    // getLabel (key) {
-    //   const found = this.xlsxFields.find((item, idx, array) => {
-    //     return this.$utils.equal(item.key, key)
-    //   })
-    //   if (found && found.label) {
-    //     return found.label
-    //   }
-    //   return key
-    // },
+    getLabel (key) {
+      const found = this.xlsxFields.find((item, idx, array) => {
+        return this.$utils.equal(item.key, key)
+      })
+      if (found && found.label) {
+        return found.label
+      }
+      return key
+    },
     reset () {
       this.ready = false
       this.queryOK = false
@@ -162,7 +229,6 @@ export default {
         st: this.todayRaw,
         ed: this.todayRaw
       }).then(({ data }) => {
-        console.warn(data)
         this.queryOK = this.$utils.statusCheck(data.status)
         this.raw = [...data.raw]
         this.message = data.message
