@@ -58,7 +58,7 @@ b-card(
         v-model="operators",
         tag-variant="primary",
         size="sm",
-        placeholder="輸入員工代碼",
+        placeholder="輸入工作站員工代碼",
         tag-pills,
         add-on-change,
         no-outer-focus
