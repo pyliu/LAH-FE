@@ -25,7 +25,7 @@ b-card(
       :disabled="isBusy",
       pill,
       no-icon-gutter,
-      @click="$refs.table.show()"
+      @click="displayCaseModal('all')"
     )
     lah-button.ml-1(
       icon="arrow-rotate-right",
@@ -39,8 +39,8 @@ b-card(
     )
   .my-2(v-if="count > 0")
     .d-flex.justify-content-around
-      h4 本所 #[b-badge(pill, variant="success") {{ inCount }}]
-      h4 工作站 #[b-badge(pill, variant="warning") {{ outCount }}]
+      b-link.h4(@click="displayCaseModal('in')", title="開啟本所核發案件列表") 本所 #[b-badge(pill, variant="success") {{ inCount }}]
+      b-link.h4(@click="displayCaseModal('out')", title="開啟工作站核發案件列表") 工作站 #[b-badge(pill, variant="warning") {{ outCount }}]
     .d-flex.my-1.align-items-center
       lah-fa-icon.h6(icon="angles-right", action="move-fade-ltr") 選擇工作站人員(按住 Ctrl/Shift 多選)，目前已選擇 {{ operatorsCount }} 人
       //- lah-button(
@@ -65,20 +65,20 @@ b-card(
         add-on-change,
         no-outer-focus
       )
-    lah-message.text-info(:message="message")
+    .text-right: lah-message.text-info(:message="message")
   b-modal(
     ref="table",
     size="lg",
-    :title="`謄本案件列表 ${$utils.today('TW')}`",
+    :title="displayTitle",
     hide-footer
   )
     lah-pagination(
       v-model="pagination",
-      :total-rows="count"
-      :caption="`找到 ${count} 筆資料`"
+      :total-rows="displayCount"
+      :caption="`找到 ${displayCount} 筆資料`"
     )
     b-table(
-      :items="raw",
+      :items="displayCase",
       :fields="xlsxFields",
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
@@ -103,6 +103,7 @@ export default {
     noBorder: { type: Boolean, default: false }
   },
   data: () => ({
+    caseType: 'all',
     openOperatorSelect: true,
     operators: [],
     ready: false,
@@ -192,17 +193,45 @@ export default {
       }
       return []
     },
+    outCase () {
+      const filtered = this.raw?.filter((element, idx, arr) => {
+        return this.operators.includes(element.MU11)
+      })
+      return filtered || []
+    },
     outCount () {
-      if (this.operators.length > 0) {
-        const filtered = this.raw?.filter((element, idx, arr) => {
-          return this.operators.includes(element.MU11)
-        })
-        return filtered.length
-      }
-      return 0
+      return this.outCase.length
+    },
+    inCase () {
+      const filtered = this.raw?.filter((element, idx, arr) => {
+        return !this.operators.includes(element.MU11)
+      })
+      return filtered || []
     },
     inCount () {
-      return this.count - this.outCount
+      return this.inCase.length
+    },
+    displayCase () {
+      if (this.caseType === 'in') {
+        return this.inCase
+      }
+      if (this.caseType === 'out') {
+        return this.outCase
+      }
+      return this.raw
+    },
+    displayCount () {
+      return this.displayCase.length
+    },
+    displayTitle () {
+      const today = this.$utils.today('TW')
+      if (this.caseType === 'in') {
+        return `本所(${this.site})謄本案件列表 ${today}`
+      }
+      if (this.caseType === 'out') {
+        return `工作站謄本案件列表 ${today}`
+      }
+      return `謄本案件列表 ${today}`
     }
   },
   watch: {
@@ -213,17 +242,21 @@ export default {
       }
     },
     message (dontcare) {
-      this.debounceClearMessage()
+      // this.debounceClearMessage()
     },
     operators (val) {
       this.setCache('lah-stats-reg-cert-count-operators', val)
     }
   },
   created () {
-    this.debounceClearMessage = this.$utils.debounce(() => { this.message = '' }, 5000)
+    // this.debounceClearMessage = this.$utils.debounce(() => { this.message = '' }, 5000)
   },
   mounted () {},
   methods: {
+    displayCaseModal (type = 'all') {
+      this.caseType = type
+      this.$refs.table.show()
+    },
     getLabel (key) {
       const found = this.xlsxFields.find((item, idx, array) => {
         return this.$utils.equal(item.key, key)
@@ -249,7 +282,7 @@ export default {
       }).then(({ data }) => {
         this.queryOK = this.$utils.statusCheck(data.status)
         this.raw = [...data.raw]
-        this.message = data.message
+        this.message = `${data.message} (更新時間 ${this.$utils.formatTime()})`
         this.$emit('ready', data)
         this.ready = true
       }).catch((err) => {
