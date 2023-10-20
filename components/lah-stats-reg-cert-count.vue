@@ -191,14 +191,17 @@ export default {
     }
   },
   watch: {
-    raw (dontcare) {
-      console.warn(this.operators)
+    async raw (dontcare) {
+      const cached = await this.getCache('lah-stats-reg-cert-count-operators')
+      if (Array.isArray(cached)) {
+        this.operators = [...cached]
+      }
     },
     message (dontcare) {
       this.debounceClearMessage()
     },
     operators (val) {
-      console.warn(val)
+      this.setCache('lah-stats-reg-cert-count-operators', val)
     }
   },
   created () {
