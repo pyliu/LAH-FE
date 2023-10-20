@@ -48,13 +48,13 @@ b-card(
         @click="openOperatorSelect = !openOperatorSelect",
         :title="`按住 Ctrl/Shift 多選(已選擇${operatorsCount})`"
       ) 選擇工作站人員({{ operatorsCount }})
-    b-collapse(v-model="openOperatorSelect")
+    b-collapse(v-model="openOperatorSelect"): .d-flex
       b-select(
         v-model="operators",
         :options="operatorOpts",
         multiple
       )
-      b-tags.mt-1(
+      b-tags.ml-1(
         v-model="operators",
         tag-variant="primary",
         size="sm",
