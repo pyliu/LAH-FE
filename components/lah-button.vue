@@ -17,7 +17,7 @@ b-button.text-nowrap(
 )
   lah-fa-icon(
     ref="icon"
-    v-if="!noIcon"
+    v-if="!noIcon && !iconAppend"
     :prefix="faIconPrefix"
     :icon="icon"
     :size="iconSize"
@@ -29,14 +29,27 @@ b-button.text-nowrap(
     :spin="spin"
     :mirror="mirror"
   )
-    span.ld-txt(v-if="busy") 讀取中...
-    span(ref="slot", v-show="!busy")
-      slot
-      b-badge.ml-1(
-        v-if="showBadge"
-        :variant="badgeVariant"
-        :pill="badgePill"
-      ) {{ badgeText }}
+  span.ld-txt(v-if="busy") 讀取中...
+  span(ref="slot", v-show="!busy")
+    slot
+    b-badge.ml-1(
+      v-if="showBadge"
+      :variant="badgeVariant"
+      :pill="badgePill"
+    ) {{ badgeText }}
+  lah-fa-icon.ml-1(
+    ref="icon"
+    v-if="!noIcon && iconAppend"
+    :prefix="faIconPrefix"
+    :icon="icon"
+    :size="iconSize"
+    :no-gutter="noIconGutter || $utils.empty($refs.slot?.textContent) "
+    :variant="iconVariant"
+    :flip="flip"
+    :rotate="rotate"
+    :spin="spin"
+    :mirror="mirror"
+  )
 </template>
 
 <script>
