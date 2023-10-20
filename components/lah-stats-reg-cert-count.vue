@@ -42,18 +42,28 @@ b-card(
       h4 本所 #[b-badge(pill, variant="success") {{ inCount }}]
       h4 工作站 #[b-badge(pill, variant="warning") {{ outCount }}]
     .d-flex.justify-content-end.my-2.align-items-center
-      lah-message.text-info.mr-1(:message="message")
       lah-button(
         :icon="openOperatorSelect ? 'angles-up' : 'angles-down'",
         :icon-append="true",
         @click="openOperatorSelect = !openOperatorSelect",
-        title="按住 Ctrl/Shift 多選"
-      ) 選擇工作站人員
-    b-collapse(v-model="openOperatorSelect"): b-select(
-      v-model="operators",
-      :options="operatorOpts",
-      multiple
-    )
+        :title="`按住 Ctrl/Shift 多選(已選擇${operatorsCount})`"
+      ) 選擇工作站人員({{ operatorsCount }})
+    b-collapse(v-model="openOperatorSelect")
+      b-select(
+        v-model="operators",
+        :options="operatorOpts",
+        multiple
+      )
+      b-tags.mt-1(
+        v-model="operators",
+        tag-variant="primary",
+        size="sm",
+        placeholder="輸入員工代碼",
+        tag-pills,
+        add-on-change,
+        no-outer-focus
+      )
+    lah-message.text-info(:message="message")
   b-modal(
     ref="table",
     size="lg",
@@ -163,6 +173,9 @@ export default {
         return obj
       }) || []
       return jsons
+    },
+    operatorsCount () {
+      return this.operators?.length || 0
     },
     operatorOpts () {
       if (this.count > 0) {
