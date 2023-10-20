@@ -41,13 +41,15 @@ b-card(
     .d-flex.justify-content-around
       h4 本所 #[b-badge(pill, variant="success") {{ inCount }}]
       h4 工作站 #[b-badge(pill, variant="warning") {{ outCount }}]
-    .d-flex.justify-content-end.my-2.align-items-center
-      lah-button(
-        :icon="openOperatorSelect ? 'angles-up' : 'angles-down'",
-        :icon-append="true",
-        @click="openOperatorSelect = !openOperatorSelect",
-        :title="`按住 Ctrl/Shift 多選(已選擇${operatorsCount})`"
-      ) 選擇工作站人員({{ operatorsCount }})
+    .d-flex.my-1.align-items-center
+      lah-fa-icon.h6(icon="angles-right", action="move-fade-ltr") 選擇工作站人員(按住 Ctrl/Shift 多選)，目前已選擇 {{ operatorsCount }} 人
+      //- lah-button(
+      //-   :icon="openOperatorSelect ? 'angles-up' : 'angles-down'",
+      //-   :icon-append="true",
+      //-   @click="openOperatorSelect = !openOperatorSelect",
+      //-   :title="`按住 Ctrl/Shift 多選(已選擇${operatorsCount})`"
+      //- ) 選擇工作站人員({{ operatorsCount }})
+
     b-collapse(v-model="openOperatorSelect"): .d-flex
       b-select(
         v-model="operators",
