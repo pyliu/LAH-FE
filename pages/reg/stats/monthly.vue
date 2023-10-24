@@ -32,6 +32,7 @@ div(v-cloak)
           span {{ item.name }}
 
   lah-flex-item-group
+    lah-stats-reg-cert-count
     b-card.border-0(no-body)
       lah-stats-reg-first(
         ref="regFirst",
@@ -66,7 +67,6 @@ div(v-cloak)
         :end="dateRange.end",
         @ready="handleReady"
       )
-    lah-stats-reg-cert-count
 </template>
 
 <script>
