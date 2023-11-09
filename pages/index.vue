@@ -17,7 +17,7 @@
           h4.lah-shadow.center.mt-2 智慧控管系統
         b-card.fixed-card-wh-inf.center.ml-3: nuxt-link(to="/lab")
           lah-logo-lab.h-75.w-100
-          h4.lah-shadow.center.mt-2 智慧控管實驗室
+          h4.lah-shadow.center.mt-2 地政資訊實驗室
       .d-flex
         b-card.fixed-card-wh-inf.mr-3.center: nuxt-link(to="/prc")
           lah-logo-val.h-75.w-100

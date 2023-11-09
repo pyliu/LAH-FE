@@ -40,7 +40,7 @@ b-sidebar#lah-sidebar(
         智慧監控首頁
       li: nuxt-link(to="/lab").
         #[font-awesome-icon(:icon="['fas', 'flask-vial']", fixed-width, pull="left", size="lg")]
-        實驗室首頁
+        地政資訊實驗室首頁
 
       li: hr
 

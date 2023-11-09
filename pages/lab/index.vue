@@ -4,7 +4,7 @@
   .container: .anim-appear-1s
     section.fixed-title-height.center: div
       lah-logo-lab.mvh-40
-      h3.title.lah-shadow.text-nowrap 地政智慧控管實驗室
+      h3.title.lah-shadow.text-nowrap 地政資訊實驗室
     section.b-card-container
       b-card-group(deck)
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
