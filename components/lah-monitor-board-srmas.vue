@@ -194,7 +194,6 @@ export default {
     }, 500)
     this.matchWarningRestores = this.$utils.debounce(() => {
       const bad = [...this.warnings]
-      console.warn(bad)
       this.fixed = []
       this.problems = []
       // foreach restore message finds one with the same key(host) and timestamp is less it in warning array
@@ -210,9 +209,9 @@ export default {
           const warnLines = witem.message.split("\r\n")
           // ex: 主機：220.1.34.206
           const warnHostLine = warnLines[1]
-          // if (restoreHostLine === warnHostLine && ritem.timestamp >= witem.timestamp) {
           // sometime the restore message will be sent before warning ... why? aske 👉 SRMAS by systex
-          if (restoreHostLine === warnHostLine && ritem.timestamp - witem.timestamp > -30000) {
+          // remove timestamp(seconds) comparing
+          if (restoreHostLine === warnHostLine) {
             // host matches and restore message timestamp behides warning
             found = widx
             return true
