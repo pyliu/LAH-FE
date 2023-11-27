@@ -193,7 +193,7 @@ export default {
       this.threadhold = (+new Date() - this.duration) / 1000
     }, 500)
     this.matchWarningRestores = this.$utils.debounce(() => {
-      const bad = [...this.warnings]
+      const bad = this.$utils.orderBy(this.warnings, 'timestamp')
       this.fixed = []
       this.problems = []
       // foreach restore message finds one with the same key(host) and timestamp is less it in warning array
