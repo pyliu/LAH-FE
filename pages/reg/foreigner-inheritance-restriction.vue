@@ -27,13 +27,18 @@ div
             li 通知接收功能僅限有安裝桃園即時通的使用者
             li ⭐PDF連結功能必須有該案登記收件字號並且於「#[b-link(to="/reg/foreigner") 外國人掃描資料]」頁面上傳建檔後始能正常開啟。
       .d-flex
-        lah-button-xlsx.mr-1(
-          :jsons="xlsx17Data",
-          header="依土地法第17條第1項各款規定管制清冊",
-          variant="primary",
-          :no-icon-gutter="false"
-        ) 依規定({{ xlsx17DataCount }})
-        lah-button-xlsx.mr-1(
+        //- lah-button-xlsx.mr-1(
+        //-   :jsons="xlsx17Data",
+        //-   header="依土地法第17條第1項各款規定管制清冊",
+        //-   variant="primary",
+        //-   :no-icon-gutter="false"
+        //- ) 依規定({{ xlsx17DataCount }})
+        //- lah-button-xlsx.mr-1(
+        //-   :jsons="xlsxNot17Data",
+        //-   header="依土地法第17條第1項各款以外規定管制清冊",
+        //-   :no-icon-gutter="false"
+        //- ) 依規定各款以外({{ xlsxNot17DataCount }})
+        lah-button-xlsx-php.mr-1(
           :jsons="xlsxNot17Data",
           header="依土地法第17條第1項各款以外規定管制清冊",
           :no-icon-gutter="false"
