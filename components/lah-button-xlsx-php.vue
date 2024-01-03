@@ -43,7 +43,7 @@ export default {
           jsonArray: this.jsons || []
         }
       }), {
-        title: `產製管制清冊 - ${this.header}`
+        title: `產製 - ${this.header}`
       })
     }
   }
