@@ -38,14 +38,15 @@ div
         //-   header="依土地法第17條第1項各款以外規定管制清冊",
         //-   :no-icon-gutter="false"
         //- ) 依規定各款以外({{ xlsxNot17DataCount }})
-        lah-button-xlsx-php.mr-1(
+        lah-button-xlsx-foreigner-restriction.mr-1(
           :jsons="xlsx17Data",
           :no-icon-gutter="false",
           variant="outline-primary",
           header="土地法第17條第1項規定管制清冊",
-          title="匯出依土地法第17條第1項規定管制清冊"
+          title="匯出依土地法第17條第1項規定管制清冊",
+          is17
         ) 管制清冊({{ xlsx17DataCount }})
-        lah-button-xlsx-php.mr-1(
+        lah-button-xlsx-foreigner-restriction.mr-1(
           :jsons="xlsxNot17Data",
           :no-icon-gutter="false",
           header="土地法第17條第1項各款以外規定管制清冊",

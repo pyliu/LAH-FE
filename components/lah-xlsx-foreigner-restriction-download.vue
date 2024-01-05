@@ -23,7 +23,7 @@ b-card(
 
 <script>
 export default {
-  name: 'LahXlsxPHPDownload',
+  name: 'LahXlsxForeignerRestrictionDownload',
   props: {
     header: { type: String, default: '' },
     filename: { type: String, default: '' },
@@ -36,11 +36,16 @@ export default {
     messages: [],
     done: false
   }),
-  computed: { },
+  computed: {
+    downloadUrl () {
+      return `http://${this.apiHost}:${this.apiPort}${this.$consts.API.FILE.XLSX}?type=file_inheritance_restriction_xlsx&site=${this.site}&is17`
+    }
+  },
   watch: { },
   created () { },
   mounted () {
     this.addMessage(`有 ${this.jsonArray.length} 筆資料。`)
+    this.addMessage(`download url ${this.downloadUrl}`)
     console.warn(this.jsonArray)
   },
   methods: {

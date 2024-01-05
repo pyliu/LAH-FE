@@ -14,9 +14,9 @@ lah-button(
 </template>
 
 <script>
-import lahXlsxPhpDownload from '~/components/lah-xlsx-php-download.vue'
+import lahXlsxForeignerRestrictionDownload from '~/components/lah-xlsx-foreigner-restriction-download.vue'
 export default {
-  components: { lahXlsxPhpDownload },
+  components: { lahXlsxForeignerRestrictionDownload },
   props: {
     jsons: { type: Array, default: () => ([]) },
     header: { type: String, default: '匯出XLSX檔案' },
@@ -25,7 +25,8 @@ export default {
     size: { type: String, default: 'lg' },
     action: { type: String, default: 'move-fade-ltr' },
     title: { type: String, default: '匯出EXCEL' },
-    pill: { type: Boolean, default: false }
+    pill: { type: Boolean, default: false },
+    is17: { type: Boolean, default: false }
   },
   computed: {
     dataCount () {
@@ -37,7 +38,7 @@ export default {
   },
   methods: {
     download () {
-      this.modal(this.$createElement(lahXlsxPhpDownload, {
+      this.modal(this.$createElement(lahXlsxForeignerRestrictionDownload, {
         props: {
           header: this.header,
           jsonArray: this.jsons || []
