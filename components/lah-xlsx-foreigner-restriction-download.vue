@@ -45,15 +45,40 @@ export default {
   created () { },
   mounted () {
     this.addMessage(`有 ${this.jsonArray.length} 筆資料。`)
-    this.addMessage(`download url ${this.downloadUrl}`)
-    console.warn(this.jsonArray)
   },
   methods: {
     addMessage (msg) {
       this.messages.unshift(`${this.$utils.time()}: ${msg}`)
     },
     process () {
+      this.isBusy = true
+
+      console.warn(this.jsonArray)
+      this.addMessage(`download url ${this.downloadUrl}`)
+
       this.addMessage(`準備 ${this.header} 資料轉換 ... `)
+      // set content response type to blob
+      this.$axios.post(this.$consts.API.FILE.XLSX, {
+        type: 'file_inheritance_restriction_xlsx',
+        jsons: this.jsonArray,
+        responseType: 'blob'
+      }).then(({ data }) => {
+        // create file link in browser's memory
+        const href = URL.createObjectURL(data)
+        // create "a" HTML element with href to file & click
+        const link = document.createElement('a')
+        link.href = href
+        link.setAttribute('download', 'file.xlsx')
+        document.body.appendChild(link)
+        link.click()
+        // clean up "a" element & remove ObjectURL
+        document.body.removeChild(link)
+        URL.revokeObjectURL(href)
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
     }
   }
 }
