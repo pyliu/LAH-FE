@@ -1,6 +1,6 @@
 {
   "name": "LAH-FE",
-  "version": "1.5.7",
+  "version": "1.6.0",
   "private": true,
   "scripts": {
     "dev": "nuxt",
