@@ -41,7 +41,8 @@ export default {
       this.modal(this.$createElement(lahXlsxForeignerRestrictionDownload, {
         props: {
           header: this.header,
-          jsonArray: this.jsons || []
+          jsonArray: this.jsons || [],
+          is17: this.is17
         }
       }), {
         title: `產製 - ${this.header}`

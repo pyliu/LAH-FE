@@ -3,13 +3,25 @@ b-card(
   :class="noBorder ? ['border-0'] : []"
   no-body
 )
-  .d-flex.justify-content-center: lah-button.my-1(
-    icon="gear",
-    action="cycle",
-    title="點我產製EXCEL檔案",
-    size="lg",
-    @click="process"
-  ) 開始產製
+  .d-flex.justify-content-center: lah-transition
+    lah-button.my-1(
+      v-if="!done",
+      icon="gear",
+      action="cycle",
+      title="點我產製EXCEL檔案",
+      size="lg",
+      @click="process"
+    ) 開始產製
+    lah-button.my-1(
+      v-else
+      :href="downloadUrl",
+      icon="download",
+      title="下載目前產製的EXCEL檔案",
+      size="lg",
+      variant="success",
+      link
+    ) 手動下載
+
   lah-fa-icon(icon="list-alt", variant="secondary") 處理紀錄
   b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
     lah-fa-icon(
@@ -22,12 +34,14 @@ b-card(
 </template>
 
 <script>
+import FileSaver from 'file-saver'
 export default {
   name: 'LahXlsxForeignerRestrictionDownload',
   props: {
     header: { type: String, default: '' },
     filename: { type: String, default: '' },
     jsonArray: { type: Array, default: () => [] },
+    is17: { type: Boolean, default: false },
     type: { type: String, default: '' },
     params: { type: Object, default: () => ({}) },
     noBorder: { type: Boolean, default: true }
@@ -38,7 +52,7 @@ export default {
   }),
   computed: {
     downloadUrl () {
-      return `http://${this.apiHost}:${this.apiPort}${this.$consts.API.FILE.XLSX}?type=file_inheritance_restriction_xlsx&site=${this.site}&is17`
+      return `http://${this.apiHost}:${this.apiPort}/export/HA.xlsx`
     }
   },
   watch: { },
@@ -52,28 +66,21 @@ export default {
     },
     process () {
       this.isBusy = true
-
-      console.warn(this.jsonArray)
-      this.addMessage(`download url ${this.downloadUrl}`)
-
+      this.done = false
       this.addMessage(`準備 ${this.header} 資料轉換 ... `)
       // set content response type to blob
       this.$axios.post(this.$consts.API.FILE.XLSX, {
         type: 'file_inheritance_restriction_xlsx',
-        jsons: this.jsonArray,
+        site: this.site,
+        is17: this.is17,
+        jsons: this.jsonArray
+      }, {
         responseType: 'blob'
       }).then(({ data }) => {
-        // create file link in browser's memory
-        const href = URL.createObjectURL(data)
-        // create "a" HTML element with href to file & click
-        const link = document.createElement('a')
-        link.href = href
-        link.setAttribute('download', 'file.xlsx')
-        document.body.appendChild(link)
-        link.click()
-        // clean up "a" element & remove ObjectURL
-        document.body.removeChild(link)
-        URL.revokeObjectURL(href)
+        this.addMessage('資料轉換完成 ✔')
+        const title = this.is17 ? '依土地法規定管制清冊' : '依土地法規定17條第1項各款以外管制清冊'
+        FileSaver.saveAs(data, `${this.site}_${title}_${this.$utils.today()}.xlsx`)
+        this.done = true
       }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
