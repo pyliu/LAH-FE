@@ -52,7 +52,7 @@ export default {
   }),
   computed: {
     downloadUrl () {
-      return `http://${this.apiHost}:${this.apiPort}/export/HA.xlsx`
+      return `http://${this.apiHost}:${this.apiPort}/export/${this.site}.xlsx`
     }
   },
   watch: { },
