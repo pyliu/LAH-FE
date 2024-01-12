@@ -104,11 +104,16 @@ export default {
       })
     },
     name (entry) {
-      for (const value of this.xapMap.values()) {
-        if (value.code === entry.SITE) {
-          return value.name
+      try {
+        for (const value of this.xapMap.values()) {
+          if (value.code === entry.SITE) {
+            return value.name
+          }
         }
+      } catch (e) {
+        this.$utils.error(e)
       }
+      return entry.SITE
     }
   }
 }
