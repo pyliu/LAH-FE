@@ -61,6 +61,7 @@ export default {
             // a day ms
             const cacheMs = 24 * 60 * 60 * 1000
             this.setCache(this.officeCacheKey, data, cacheMs)
+            this.$utils.log('已重新讀取各地政事務所對應資料。')
           } else {
             this.$utils.error('無法取得各地政事務所對應資料。', data)
           }
