@@ -130,14 +130,15 @@ div(v-cloak)
         lah-monitor-board-hacmp.card-body-fixed-height-3(@light-update="lightUpdate", footer)
         lah-monitor-board-dnp.card-body-fixed-height-3(@light-update="lightUpdate", footer)
       b-card-group.mb-4(deck)
+        lah-monitor-board-L05.card-body-fixed-height-3(@light-update="lightUpdate", footer)
         lah-monitor-board-dbbackup.card-body-fixed-height-3(@light-update="lightUpdate", footer)
         lah-monitor-board-site-hx.card-body-fixed-height-3(@light-update="lightUpdate")
         //- lah-monitor-board-srmas.card-body-fixed-height-3(@light-update="lightUpdate", footer)
-        lah-monitor-board-lxhweb.card-body-fixed-height-3(@light-update="lightUpdate", target-ip="L3HWEB", link)
       b-card-group.mb-4(deck)
+        lah-monitor-board-lxhweb.card-body-fixed-height-3(@light-update="lightUpdate", target-ip="L3HWEB", link)
         lah-monitor-board-apconn.card-body-fixed-height-3(@light-update="lightUpdate")
         lah-monitor-board-connectivity.card-body-fixed-height-3(@light-update="lightUpdate")
-        b-card.card-body-fixed-height-3
+        //- b-card.card-body-fixed-height-3
   hr
 </template>
 
