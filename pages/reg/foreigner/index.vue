@@ -31,7 +31,7 @@ div
       .d-flex.small
         lah-datepicker(
           v-model="dateRange",
-          :begin="firstDayOfYear"
+          :begin="firstDayOf2023"
         )
         b-input.h-100.mx-1(
           v-model="keyword",
@@ -264,8 +264,8 @@ export default {
     title: '外國人掃描資料-桃園市地政局'
   },
   computed: {
-    firstDayOfYear () {
-      return new Date(new Date().getFullYear(), 0, 1)
+    firstDayOf2023 () {
+      return new Date(2023, 0, 1)
     },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
