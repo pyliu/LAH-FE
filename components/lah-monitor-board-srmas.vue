@@ -121,8 +121,8 @@ export default {
   },
   data: () => ({
     header: 'SRMAS分析',
-    fetchType: 'sender',
-    fetchKeyword: 'SRMAS',
+    fetchType: 'sender', // lahMonitorBoardBase used
+    fetchKeyword: 'SRMAS', // lahMonitorBoardBase used
     fetchDay: 1,
     monitorHrs: 12,
     duration: 0,
@@ -191,7 +191,7 @@ export default {
     this.calcTime = this.$utils.debounce(() => {
       this.duration = this.monitorHrs * 60 * 60 * 1000
       this.threadhold = (+new Date() - this.duration) / 1000
-    }, 500)
+    }, 400)
     this.matchWarningRestores = this.$utils.debounce(() => {
       const bad = this.$utils.orderBy(this.warnings, 'timestamp')
       this.fixed = []
@@ -235,7 +235,7 @@ export default {
         return item.bad.timestamp
       })].reverse()
       this.problems = [...bad]
-    }, 500)
+    }, 400)
     this.monitorHrs = await this.getCache('monitorHrs') || 12
     this.calcTime()
   },

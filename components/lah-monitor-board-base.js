@@ -178,6 +178,11 @@ export default {
               } else {
                 this.$utils.warn(data.message)
               }
+              // SRMAS tolerance
+              if (this.$utils.empty(this.messages) && keyword === 'SRMAS') {
+                // default name of the systex SRMAS
+                this.load(type, 'LibreNMS', days)
+              }
               resolve(data)
             })
             .catch((err) => {
