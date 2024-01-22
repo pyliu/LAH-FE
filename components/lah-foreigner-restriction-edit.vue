@@ -139,7 +139,7 @@ export default {
       })
     },
     pKey () {
-      return this.origData.RESTRICTION_DATA?.pkey || `${this.origData.BA48}${this.origData.BA49}${this.origData.BB09}`
+      return this.origData.RESTRICTION_DATA?.pkey || `${this.origData.BA48}${this.origData.BA49}${this.origData.BB09}${this.origData.BB07}`
     },
     ownerId () {
       return this.origData.BB09

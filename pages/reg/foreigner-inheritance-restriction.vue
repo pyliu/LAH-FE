@@ -471,7 +471,7 @@ export default {
           }
         }
       }), {
-        title: `編輯 ${item.BB09} ${item.BB09_CHT} - ${item.BB16} 權狀管制資料`,
+        title: `編輯 ${item.BB09} ${item.BB09_CHT} - ${item.BB16} 管制資料`,
         size: 'lg',
         noCloseOnBackdrop: true
       })
