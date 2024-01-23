@@ -25,7 +25,7 @@ b-card(no-body, :border-variant="borderVariant")
       )
     lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示跨域AP連線數統計狀態 (⭐ AP需安裝#[a(href="/send_netstats.sh") 回報腳本] ⭐)
+        li 顯示跨域AP連線數統計狀態 (⭐ AP需安裝#[a(:href="netstatsSh" target="_blank") 回報腳本] ⭐)
         li #[lah-fa-icon(icon="database", variant="danger")] 顯示資料庫連線總數(超過3000會造成地政系統停擺)
         li #[lah-fa-icon(icon="wave-square", variant="success")] 顯示AP連線總數(數字越高有可能造成地政系統回應緩慢)
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
@@ -99,6 +99,9 @@ export default {
     ])
   }),
   computed: {
+    netstatsSh () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/send_netstats.sh`
+    },
     crossAPIp () {
       const found = [...this.crossApMap].find(arr => arr[1].code === this.site)
       return found[0]
