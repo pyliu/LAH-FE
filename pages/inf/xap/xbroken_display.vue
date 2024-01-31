@@ -10,7 +10,7 @@ div(v-cloak)
     lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
   //- below is the customize area
   //- b-card-group(deck)
-  lah-fa-icon.h1(icon="wave-square", action="squeeze", variant="success") 桃園市各所狀態
+  lah-fa-icon.h1(icon="wave-square", action="squeeze") 桃園市各所狀態
   hr.my-3
   .offices.justify-content-between
     lah-badge-site-status.office(
@@ -24,7 +24,11 @@ div(v-cloak)
       short-alt
     )
   .my-3
-  lah-fa-icon.h1(icon="heart-pulse", action="breath", variant="danger") 無法提供服務的地所 (更新時間：#[div {{ updatedTime }}])
+  lah-fa-icon.h1(
+    icon="heart-pulse",
+    action="heartbeat",
+    :variant="downOffices.length === 0 ? 'success' : 'danger'"
+  ) 無法提供服務的地所 (更新時間：#[div {{ updatedTime }}])
   hr.my-3
   .h1.center(
     v-if="downOffices.length === 0"
