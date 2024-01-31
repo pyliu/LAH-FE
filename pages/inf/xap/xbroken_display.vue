@@ -20,6 +20,7 @@ div(v-cloak)
       :watch-site="office",
       :period="hxTimer",
       :fill="true",
+      :badge="false",
       short-alt
     )
   .my-3
