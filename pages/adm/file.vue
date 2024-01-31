@@ -6,7 +6,7 @@ div
         .my-auto 檔案應用預約申請控管 ({{ queryCount }})
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="$refs.help_modal.show()" title="說明")
         lah-help-modal(ref="help_modal")
-          h5 建檔說明
+          h5 新建預約資料說明
           ol
             li: .d-flex.align-items-center
               span 點選上傳按鈕
@@ -17,15 +17,14 @@ div
                 @click="$refs.add.show()"
               )
               span 開啟介面
-            li 輸入必要資訊【年度、案號、統編、姓名】
-            li 建議輸入備註說明以供後續搜尋使用【搜尋欄位：案號、統編、姓名以及備註】
+            li 輸入必要資訊【收件字號、申請人、統編、收件日期、截止日期】
+            li 建議輸入備註說明以供後續搜尋使用
             li 選取掃描的PDF檔案(必要)
             li 點擊上傳按鈕並等待完成
           hr
           h5 搜尋說明
           ol
-            li 選擇查詢區間(預設為本年度)
-            li 鍵入關鍵字(非必要)
+            li 鍵入關鍵字
             li 點擊 #[lah-fa-icon(icon="search" variant="dark") 搜尋]
 
       .d-flex.small
@@ -35,7 +34,7 @@ div
         )
         b-input.h-100.mx-1(
           v-model="keyword",
-          placeholder="關鍵字...(非必要)",
+          placeholder="關鍵字...",
           @keyup.enter="$fetch"
         )
         lah-button(
@@ -183,50 +182,49 @@ export default {
     },
     fields: [
       {
+        key: 'serial',
+        label: '序號',
+        thStyle: { width: '50px' }
+      },
+      {
         key: '操作',
-        thStyle: { width: '120px' }
-      },
-      {
-        key: 'year',
-        label: '年度',
-        sortable: true,
-        thStyle: { width: '80px' }
-      },
-      {
-        key: 'number',
-        label: '案號',
-        sortable: true,
         thStyle: { width: '90px' }
       },
       {
-        key: 'createtime',
-        label: '建立日期',
+        key: 'number',
+        label: '收件字號',
+        sortable: true,
+        thStyle: { width: '150px' }
+      },
+      {
+        key: 'pid',
+        label: '統編',
         sortable: true,
         thStyle: { width: '120px' }
       },
       {
-        key: 'fid',
-        label: '統編',
+        key: 'pname',
+        label: '申請人',
         sortable: true,
         thStyle: { width: '150px' }
       },
       {
-        key: 'fname',
-        label: '姓名',
+        key: 'createtime',
+        label: '收件日期',
         sortable: true,
-        thStyle: { width: '150px' }
+        thStyle: { width: '120px' }
+      },
+      {
+        key: 'endtime',
+        label: '預約截止日期',
+        sortable: true,
+        thStyle: { width: '120px' }
       },
       {
         key: 'note',
         label: '備註',
         sortable: false,
         thStyle: { width: '300px' }
-      },
-      {
-        key: 'modifytime',
-        label: '修改時間',
-        sortable: true,
-        thStyle: { width: '185px' }
       }
     ],
     maxHeight: 600
@@ -244,8 +242,8 @@ export default {
       }
       this.reset()
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.REG, {
-        type: 'foreigner_pdf_list',
+      this.$axios.post(this.$consts.API.JSON.ADM, {
+        type: 'reserve_pdf_list',
         keyword: this.keyword,
         // convert to PHP timestamp which is in seconds
         start_ts: +this.$utils.twToAdDateObj(this.dateRange.begin) / 1000,
