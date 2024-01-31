@@ -145,7 +145,7 @@ div
     scrollable
   )
     template(#modal-title) 新增檔案應用預約資料
-    lah-reg-foreigner-case-ui(
+    lah-adm-reserve-file-case-ui(
       @close="$refs.add.hide()",
       @add="handleAdd"
     )
@@ -157,7 +157,7 @@ div
     scrollable
   )
     template(#modal-title) 修改檔案應用預約資料
-    lah-reg-foreigner-case-ui(
+    lah-adm-reserve-file-case-ui(
       :orig-data="editRecord"
       @close="$refs.edit.hide()",
       @edit="handleEdit"
