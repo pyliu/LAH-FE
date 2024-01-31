@@ -10,8 +10,15 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'calculator']" to="/reg/stats/monthly") 案件統計資訊
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'heart-pulse']" to="/inf/xap/broken_cached") 全國地所伺服器監控
-        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
-        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+        lah-index-card-link.fix-card-dimension(
+          v-if="isAdm || isInf",
+          :icon="['fas', 'file-contract']",
+          to="/adm/file"
+        ) 檔案應用預約申請
+        lah-index-card-link.fix-card-dimension(
+          :icon="['fas', 'tv']",
+          to="/inf/xap/xbroken_display"
+        ) 跨縣市ONLINE即時通
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
   .version v{{ $config.pkgVersion }}
@@ -24,7 +31,9 @@ export default {
   },
   computed: {
     isSur () { return this.myinfo.unit === '測量課' },
-    isVal () { return this.myinfo.unit === '地價課' }
+    isVal () { return this.myinfo.unit === '地價課' },
+    isAdm () { return this.myinfo.unit === '行政課' },
+    isInf () { return this.myinfo.unit === '資訊課' }
   }
 }
 </script>

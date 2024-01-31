@@ -33,6 +33,7 @@ export default {
     period: { type: String, default: '60000' },
     fill: { type: Boolean, default: true },
     short: { type: Boolean, default: false },
+    shortAlt: { type: Boolean, default: false },
     /**
      * serial / id / name / state / response / timestamp
      * 1 / XX / XX地政事務所 / UP / HTTP/1.1 401 Unauthorized / 1694060279
@@ -115,11 +116,17 @@ export default {
     },
     name () {
       if (this.isStatic) {
+        if (this.shortAlt) {
+          return `${this.staticData.id} ${this.staticData.name.replace(/(所|地政事務所)/g, '')}`
+        }
         return this.short ? this.staticData.name.replace(/(所|地政事務所)/g, '') : `${this.staticData.id} ${this.staticData.name}`
       }
       // item: { ID: 'HX', NAME: 'XXX', ALIAS: 'XXX'}
       const found = this.officesData.find(item => item.ID === this.watchSite)
       const name = found ? found?.NAME : this.watchSite
+      if (this.shortAlt) {
+        return `${this.watchSite} ${name.replace(/(所|地政事務所)/g, '')}`
+      }
       return this.short ? name.replace(/(所|地政事務所)/g, '') : `${this.watchSite} ${name}`
     },
     lightIcon () {
