@@ -109,7 +109,7 @@ export default {
   align-content: flex-start;
   .office {
     width: 11%;
-    height: 11vh;
+    height: 15vh;
     border: 1px solid gray;
     border-radius: 15px;
     font-size: xx-large;
@@ -117,7 +117,7 @@ export default {
 }
 .other-office {
   width: 11%;
-  height: 11vh;
+  height: 15vh;
   border: 1px solid gray;
   border-radius: 15px;
   font-size: xx-large;
