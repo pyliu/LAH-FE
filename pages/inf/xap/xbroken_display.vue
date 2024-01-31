@@ -12,7 +12,7 @@ div(v-cloak)
   //- b-card-group(deck)
   lah-fa-icon.h1(icon="wave-square", action="squeeze") 桃園市各所狀態
   hr.my-3
-  .offices.justify-content-between
+  client-only: .offices.justify-content-between
     lah-badge-site-status.office(
       v-for="office in offices",
       :ref="office",
@@ -50,13 +50,6 @@ div(v-cloak)
 
 <script>
 export default {
-  fetchOnServer: false,
-  async asyncData ({ $axios, $content }) {
-    const testMD = await $content('test').fetch()
-    return {
-      testMD
-    }
-  },
   data: () => ({
     offices: ['HA', 'HB', 'HC', 'HD', 'HE', 'HF', 'HG', 'HH'],
     hxTimer: '60000', // 1 min
@@ -65,6 +58,9 @@ export default {
     cachedHandler: null,
     updatedTime: ''
   }),
+  fetch () {
+    this.reload()
+  },
   head: {
     title: '跨縣市ONLINE即時通-桃園市地政局'
   },
@@ -75,13 +71,10 @@ export default {
   },
   watch: {},
   created () {},
-  mounted () {
-    this.reload()
-  },
+  mounted () {},
   methods: {
     reload (force = false) {
       clearTimeout(this.cachedHandler)
-      this.isBusy = true
       this.cachedOfficesData = []
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
@@ -98,8 +91,9 @@ export default {
           this.$utils.error(err)
         })
         .finally(() => {
-          this.isBusy = false
-          this.timeout(this.reload, this.cachedTimer).then((handle) => { this.cachedHandler = handle })
+          this.timeout(this.reload, this.cachedTimer).then((handle) => {
+            this.cachedHandler = handle
+          })
         })
     }
   }
