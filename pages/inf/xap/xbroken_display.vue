@@ -58,9 +58,7 @@ export default {
     cachedHandler: null,
     updatedTime: ''
   }),
-  fetch () {
-    this.reload()
-  },
+  fetch () {},
   head: {
     title: '跨縣市ONLINE即時通-桃園市地政局'
   },
@@ -70,7 +68,9 @@ export default {
     }
   },
   watch: {},
-  created () {},
+  created () {
+    this.reload()
+  },
   mounted () {},
   methods: {
     reload (force = false) {
