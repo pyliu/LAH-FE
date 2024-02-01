@@ -392,26 +392,41 @@ export default ({ $axios, store }, inject) => {
       return fullAdDate.split(' ')[0]
     },
     toADDate (ts, fmt = 'yyyy-LL-dd HH:mm:ss') {
-      return format(ts, fmt, { locale: zhTW })
+      if (ts) {
+        return format(ts, fmt, { locale: zhTW })
+      }
+      return ''
     },
     phpTsToAdDateStr (phpTs, full = false) {
-      // PHP time() generate ts by seconds, however js is milliseconds
-      const formatted = format(phpTs * 1000, 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
-      const parts = formatted.split(' ')
-      return full ? formatted : parts[0]
+      if (phpTs) {
+        // PHP time() generate ts by seconds, however js is milliseconds
+        const formatted = format(phpTs * 1000, 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
+        const parts = formatted.split(' ')
+        return full ? formatted : parts[0]
+      }
+      return ''
     },
     twDateStr (dateObj, full = false) {
-      const regex = /[:\-\s]/ig
-      const ad = this.phpTsToAdDateStr(dateObj?.getTime() / 1000, full)?.replaceAll(regex, '')
-      const year = parseInt(ad.substring(0, 4)) - 1911
-      return `${year}${ad.substring(4)}`
+      if (dateObj) {
+        const regex = /[:\-\s]/ig
+        const ad = this.phpTsToAdDateStr(dateObj?.getTime() / 1000, full)?.replaceAll(regex, '')
+        const year = parseInt(ad.substring(0, 4)) - 1911
+        return `${year}${ad.substring(4)}`
+      }
+      return ''
     },
     twToAdDateObj (twDateStr) {
       if (isEmpty(twDateStr)) { return null }
-      const Y = twDateStr.substring(0, 3) - 0 + 1911
-      const M = twDateStr.substring(3, 5) - 0 - 1
-      const D = twDateStr.substring(5, 7) - 0
-      return new Date(Y, M, D)
+      try {
+        const tmp = twDateStr.replaceAll(/[\\\-\s]/ig, '')
+        const Y = parseInt(tmp.substring(0, 3)) + 1911
+        const M = parseInt(tmp.substring(3, 5)) - 1
+        const D = parseInt(tmp.substring(5, 7))
+        return new Date(Y, M, D)
+      } catch (e) {
+        console.error(e)
+        return null
+      }
     },
     adDateToTs (str, full = true) {
       if (isEmpty(str)) { return false }
