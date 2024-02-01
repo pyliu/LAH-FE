@@ -37,7 +37,7 @@ b-card(:border-variant="borderVariant")
           to="/inf/xap/broken_cached",
           icon="arrow-up-right-from-square",
           no-border,
-          title="即時全國地所狀態"
+          title="全國地所狀態一覽"
         )
         lah-button(
           to="/inf/xap/xbroken_display",
