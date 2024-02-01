@@ -11,7 +11,7 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'calculator']" to="/reg/stats/monthly") 案件統計資訊
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'heart-pulse']" to="/inf/xap/broken_cached") 全國地所伺服器監控
         lah-index-card-link.fix-card-dimension(
-          v-if="isAdm || isInf",
+          v-if="isAdm || isInf || authority.isAdmin",
           :icon="['fas', 'file-contract']",
           to="/adm/file"
         ) 檔案應用預約申請
@@ -27,6 +27,9 @@
 export default {
   head: {
     title: '桃園市地政智慧控管系統實驗室'
+  },
+  mounted () {
+    console.warn(this.authority)
   }
 }
 </script>

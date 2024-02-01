@@ -85,7 +85,8 @@ Vue.mixin({
     isSur () { return this.myinfo?.unit === '測量課' },
     isVal () { return this.myinfo?.unit === '地價課' },
     isInf () { return this.myinfo?.unit === '資訊課' },
-    isReg () { return this.myinfo?.unit === '登記課' }
+    isReg () { return this.myinfo?.unit === '登記課' },
+    isAdm () { return this.myinfo?.unit === '行政課' }
   },
   watch: {
     isBusy (flag) {
