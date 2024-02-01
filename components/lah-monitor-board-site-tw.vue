@@ -40,6 +40,12 @@ b-card(:border-variant="borderVariant")
           title="即時全國地所狀態"
         )
         lah-button(
+          to="/inf/xap/xbroken_display",
+          icon="tv",
+          no-border,
+          title="跨縣市ONLINE即時通，服務無礙一點通"
+        )
+        lah-button(
           icon="sync",
           action="cycle",
           variant="outline-secondary",
