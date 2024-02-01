@@ -548,6 +548,10 @@ export default ({ $axios, store }, inject) => {
       }
       return str
     },
+    twIDCheck (idStr) {
+      const regex = /^[A-Z]{1}[0-9]{9}$/
+      return regex.test(idStr)
+    },
     highlight (str, regex, css, title = '') {
       const chunks = highlightWords({
         text: str,
