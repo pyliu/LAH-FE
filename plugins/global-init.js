@@ -463,7 +463,7 @@ export default ({ $axios, store }, inject) => {
       })
     },
     addDateDivider (str, ad = false) {
-      if (this.empty(str)) {
+      if (this.empty(str) || isNaN(str)) {
         return ''
       }
       if (ad === 'AD' || ad === true) {
