@@ -27,9 +27,6 @@
 export default {
   head: {
     title: '桃園市地政智慧控管系統實驗室'
-  },
-  mounted () {
-    console.warn(this.authority)
   }
 }
 </script>
