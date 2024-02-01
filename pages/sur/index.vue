@@ -10,7 +10,6 @@
       .d-flex.mx-auto
         lah-index-card-link.fix-card-dimension(:icon="['far', 'calendar-alt']" to="/sur/expire") 測量逾期#[br]案件
         lah-index-card-link.fix-card-dimension.ml-2(:icon="['fas', 'chart-line']" to="/sur/stats") 分時案件統計
-  .version v{{ $config.pkgVersion }}
 </template>
 
 <script>

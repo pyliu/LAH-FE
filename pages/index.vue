@@ -25,7 +25,6 @@
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/sur")
           lah-logo-sur.h-75.w-100
           h4.lah-shadow.center.mt-2 測量小幫手
-  .version v{{ $config.pkgVersion }}
 </template>
 
 <script>

@@ -10,7 +10,6 @@
       .d-flex.mx-auto
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'receipt']" to="/prc/realprice") 實價登錄#[br]案件控管
         lah-index-card-link.fix-card-dimension.ml-3(:icon="['fas', 'file-import']" to="/prc/json-converter") 實價登錄#[br]JSON解析
-  .version v{{ $config.pkgVersion }}
 </template>
 
 <script>

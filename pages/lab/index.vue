@@ -21,19 +21,12 @@
         ) 跨縣市ONLINE即時通
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
-  .version v{{ $config.pkgVersion }}
 </template>
 
 <script>
 export default {
   head: {
     title: '桃園市地政智慧控管系統實驗室'
-  },
-  computed: {
-    isSur () { return this.myinfo.unit === '測量課' },
-    isVal () { return this.myinfo.unit === '地價課' },
-    isAdm () { return this.myinfo.unit === '行政課' },
-    isInf () { return this.myinfo.unit === '資訊課' }
   }
 }
 </script>
@@ -70,12 +63,5 @@ export default {
 
 .mvh-40 {
   max-height: 35vh;
-}
-
-.version {
-  font-weight: 900;
-  position: fixed;
-  right: 10px;
-  bottom: 10px;
 }
 </style>

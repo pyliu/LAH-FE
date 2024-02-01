@@ -15,7 +15,6 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'wave-square']" to="/inf/xap/connectivity") 即時全國跨域主機監控
         //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'people-roof']" to="/admin/users") 使用者管理
         //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'tasks']" to="/admin/configs") 系統參數設定
-  .version v{{ $config.pkgVersion }}
 </template>
 
 <script>
