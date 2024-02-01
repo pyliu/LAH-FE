@@ -2,63 +2,68 @@
 div
   .d-flex.w-100
     b-input-group.text-nowrap(
-      :size="size",
-      prepend="　年"
-    )
-      b-select.h-100(
-        ref="year",
-        v-model="year",
-        :options="years",
-        :disabled="editMode",
-        @change="emitInput"
-      )
-        template(v-slot:first): b-form-select-option(:value="null" disabled) -- 年份 --
-    b-input-group.text-nowrap.ml-1(
-      prepend="　號",
+      prepend="收件日期",
       :size="size"
     )
       b-input.h-100(
-        ref="num",
-        v-model="number",
-        type="number",
-        title="最多6個數字",
-        @input="emitInput",
-        @keyup.enter="$emit('enter', $event)",
-        :step="step",
-        :min="min",
-        :max="max",
-        :state="validNumber"
+        ref="createdate",
+        v-model="createdate",
+        :state="validCreatedate"
+      )
+    b-input-group.text-nowrap.ml-1(
+      prepend="截止日期",
+      :size="size"
+    )
+      b-input(
+        ref="enddate",
+        v-model="enddate",
+        :state="validEnddate"
       )
   .d-flex.w-100.my-1
     b-input-group(
       :size="size",
-      prepend="統編"
+      prepend="　　統編"
     )
       b-input.h-100(
-        v-model="foreignerId",
-        :state="validForeignerId"
+        v-model="pId",
+        :state="validPId"
       )
     b-input-group.ml-1(
       :size="size",
-      prepend="姓名"
+      prepend="　　姓名"
     )
       b-input.h-100(
-        v-model="foreignerName",
-        :state="validForeignerName"
+        v-model="pName",
+        :state="validPName"
       )
-  b-input-group(
-    prepend="備註",
+
+  b-input-group.text-nowrap(
+    prepend="收件字號",
+    :size="size"
+  )
+    b-input.h-100(
+      ref="num",
+      v-model="number",
+      title="最多10碼",
+      :state="validNumber",
+      @input="emitInput",
+      @keyup.enter="$emit('enter', $event)",
+      placeholder="... 1130009096 ...."
+    )
+
+  b-input-group.my-1(
+    prepend="　　備註",
     :size="size"
   )
     b-textarea(
-      v-model="foreignerNote",
+      v-model="note",
       placeholder="... 請輸入額外的描述 ...",
       rows="8",
-      :state="validForeignerNote"
+      :state="validNote"
     )
   hr
   b-input-group.text-nowrap(
-    prepend="掃描檔",
+    prepend="　掃描檔",
     :size="size"
   )
     b-file(
@@ -94,35 +99,53 @@ export default {
   emit: ['close', 'input', 'add', 'edit'],
   props: {
     size: { type: String, default: '' },
-    origData: { type: Object, default: () => ({}) }
+    origData: { type: Object, default: () => ({}) },
+    latestId: { type: String, default: '' }
   },
   data: () => ({
-    foreignerId: '',
-    foreignerName: '',
-    foreignerNote: '',
-    uploadFile: null,
-    yearCachedKey: 'lah-reg-foreigner-case-addition-year',
-    years: [],
-    year: '112',
+    createdate: '',
     number: '',
-    step: 10,
-    min: 10,
-    max: 999999
+    pId: '',
+    pName: '',
+    note: '',
+    enddate: '',
+    uploadFile: null
   }),
   computed: {
     ready () {
       if (this.editMode) {
         return this.validNumber &&
-               this.validForeignerId &&
-               this.validForeignerName
+               this.validPId &&
+               this.validPName
       }
       return this.validNumber &&
-             this.validForeignerId &&
-             this.validForeignerName &&
+             this.validPId &&
+             this.validPName &&
              this.validUploadFile
     },
     createtime () {
-      return this.editMode ? this.origData?.createtime : ''
+      if (this.editMode) {
+        return this.origData?.createtime
+      }
+      // convert date string to ms
+      const ad = this.$utils.twToAdDateObj(this.createdate)
+      if (ad) {
+        // to php timestamp
+        return ad.getTime() / 1000
+      }
+      return 0
+    },
+    endtime () {
+      if (this.editMode) {
+        return this.origData?.endtime
+      }
+      // convert date string to ms
+      const ad = this.$utils.twToAdDateObj(this.enddate)
+      if (ad) {
+        // to php timestamp
+        return ad.getTime() / 1000
+      }
+      return 0
     },
     editId () {
       return this.origData?.id
@@ -140,28 +163,41 @@ export default {
       if (this.editMode) {
         return '... 可選擇PDF更新(非必要) ...'
       }
-      return '... 請選擇PDF ...'
-    },
-    validYear () {
-      return parseInt(this.year) > 86
+      return '... 請選擇預約檔案PDF ...'
     },
     validNumber () {
+      if (this.number?.length !== 10) {
+        return false
+      }
       const number = parseInt(this.number)
       return !this.$utils.empty(this.number) &&
-             number > 0 &&
-             number < 1000000
+             number > 1130000000
     },
-    validForeignerId () {
-      return !this.$utils.empty(this.foreignerId)
+    validPId () {
+      return this.$utils.twIDCheck(this.pId)
     },
-    validForeignerName () {
-      return !this.$utils.empty(this.foreignerName)
+    validPName () {
+      return this.$utils.length(this.pName) > 2
     },
-    validForeignerNote () {
+    validNote () {
       return null
     },
     validUploadFile () {
       return !this.$utils.empty(this.uploadFile)
+    },
+    validCreatedate () {
+      if (this.createdate) {
+        const tmp = this.createdate.replaceAll(/[:\-\s]/ig, '')
+        return tmp.length === 7
+      }
+      return false
+    },
+    validEnddate () {
+      if (this.enddate) {
+        const tmp = this.enddate.replaceAll(/[:\-\s]/ig, '')
+        return tmp.length === 7
+      }
+      return false
     }
   },
   watch: {
@@ -170,47 +206,70 @@ export default {
     },
     origData (val) {
       this.restoreOrigData()
+    },
+    createdate (val) {
+      if (this.validCreatedate) {
+        const ad = this.$utils.twToAdDateObj(val)
+        if (ad) {
+          // auto setting enddate a year later
+          ad.setFullYear(ad.getFullYear() + 1)
+          this.enddate = this.$utils.addDateDivider(this.$utils.twDateStr(ad))
+        }
+      } else {
+        this.enddate = ''
+      }
     }
+    // enddate (val) {},
+    // createtime (val) { console.warn('create', val, this.$utils.toADDate(val * 1000)) },
+    // endtime (val) { console.warn('end', val, this.$utils.toADDate(val * 1000)) }
   },
   created () {
-    // set year select options
-    const d = new Date()
-    this.year = (d.getFullYear() - 1911)
     this.restoreOrigData()
   },
   mounted () {
-    this.reloadYear()
+    if (!this.editMode) {
+      this.createdate = this.$utils.today('tw')
+    }
   },
   methods: {
+    msToTWDate (ms) {
+      const int = parseInt(ms)
+      if (int > 0) {
+        return this.$utils.twDateStr(new Date(int))
+      }
+      return ''
+    },
     restoreOrigData () {
       if (!this.$utils.empty(this.origData)) {
-        this.year = this.origData.year
+        this.createdate = this.msToTWDate(this.origData.createtime)
+        this.enddate = this.msToTWDate(this.origData.endtime)
         this.number = this.origData.number
-        this.foreignerId = this.origData.fid
-        this.foreignerName = this.origData.fname
-        this.foreignerNote = this.origData.note
+        this.pId = this.origData.pid
+        this.pName = this.origData.pname
+        this.note = this.origData.note
       }
     },
     emitInput (e) {
       this.$emit('input', {
-        year: this.year,
         number: this.number,
-        fid: this.foreignerId,
-        fname: this.foreignerName,
-        note: this.foreignerNote,
+        pid: this.pId,
+        pname: this.pName,
+        note: this.note,
         file: this.uploadFile,
-        createtime: this.createtime
+        // NOTE: ms => not date string
+        createtime: this.createtime,
+        endtime: this.endtime
       })
     },
     ok () {
       if (this.editMode) {
-        this.confirm('請確認要編輯外國人資料？').then((YN) => {
+        this.confirm('請確認要編輯預約資料？').then((YN) => {
           if (YN) {
             this.edit()
           }
         })
       } else {
-        this.confirm('請確認要新增外國人資料？').then((YN) => {
+        this.confirm('請確認要新增預約資料？').then((YN) => {
           if (YN) {
             this.add()
           }
@@ -220,38 +279,23 @@ export default {
     cancel () {
       this.$emit('close')
     },
-    reloadYear () {
-      this.getCache(this.yearCachedKey).then((years) => {
-        if (years !== false) {
-          this.years = [...years]
-        } else {
-          // set year select options
-          const len = this.year - 87
-          for (let i = 0; i <= len; i++) {
-            this.years.push({ value: 87 + i, text: 87 + i })
-          }
-          this.setCache(this.yearCachedKey, this.years, 24 * 60 * 60 * 1000) // cache for a day
-        }
-      }).finally(() => {
-        if (this.$utils.empty(this.years)) {
-          this.timeout(() => this.reloadYear(), 1000)
-        }
-      })
-    },
     add () {
       if (this.uploadFile?.type === 'application/pdf') {
         this.isBusy = true
         const formData = new FormData()
-        formData.append('type', 'add_foreigner_pdf')
-        formData.append('year', this.year)
+        formData.append('type', 'add_reserve_pdf')
+
         formData.append('number', this.number)
-        formData.append('fid', this.foreignerId)
-        formData.append('fname', this.foreignerName)
-        formData.append('note', this.foreignerNote)
+        formData.append('pid', this.pId)
+        formData.append('pname', this.pName)
+        formData.append('note', this.note)
+        formData.append('createtime', this.createtime)
+        formData.append('endtime', this.endtime)
+
         formData.append('file', this.uploadFile)
         // this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
-        this.$upload.post(this.$consts.API.JSON.REG, formData).then(({ data }) => {
-          const title = this.$utils.empty(data.payload) ? '新增外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
+        this.$upload.post(this.$consts.API.JSON.ADM, formData).then(({ data }) => {
+          const title = this.$utils.empty(data.payload) ? '新增預約資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
           const message = `${data.payload.fname} - ${data.message}`
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
           if (this.$utils.statusCheck(data.status)) {
@@ -276,29 +320,30 @@ export default {
     edit () {
       this.isBusy = true
       const formData = new FormData()
-      formData.append('type', 'edit_foreigner_pdf')
+      formData.append('type', 'edit_reserve_pdf')
       formData.append('id', this.editId)
-      formData.append('year', this.year)
       formData.append('number', this.number)
-      formData.append('fid', this.foreignerId)
-      formData.append('fname', this.foreignerName)
-      formData.append('note', this.foreignerNote)
+      formData.append('pid', this.pId)
+      formData.append('pname', this.pName)
+      formData.append('note', this.note)
+      formData.append('createtime', this.createtime)
+      formData.append('endtime', this.endtime)
       if (this.uploadFile?.type === 'application/pdf') {
         formData.append('file', this.uploadFile)
       }
-      this.$upload.post(this.$consts.API.JSON.REG, formData).then(({ data }) => {
-        const title = this.$utils.empty(data.payload) ? '編輯外國人資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
+      this.$upload.post(this.$consts.API.JSON.ADM, formData).then(({ data }) => {
+        const title = this.$utils.empty(data.payload) ? '編輯預約資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
         const message = `${data.payload.fname} - ${data.message}`
         this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
         if (this.$utils.statusCheck(data.status)) {
           this.$emit('edit', {
             id: this.editId,
-            year: this.year,
             number: this.number,
-            fid: this.foreignerId,
-            fname: this.foreignerName,
-            note: this.foreignerNote,
-            modifytime: Math.floor(+new Date() / 1000)
+            pid: this.pId,
+            pname: this.pName,
+            note: this.note,
+            createtime: this.createtime,
+            endtime: this.endtime
           })
         }
       }).catch((err) => {
