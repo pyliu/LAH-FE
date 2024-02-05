@@ -110,8 +110,9 @@ export default {
     port () {
       return this.$config.monitor.host.L05.port
     },
-    statusAPIUrl () {
-      return `http://${this.ip}:${this.port}/api/v1/l05`
+    L05APIUrl () {
+      // return `http://${this.ip}:${this.port}/api/v1/l05`
+      return '/l05proxy/api/v1/l05'
     },
     message () {
       return this.statusData?.message || '🟡 尚未取得狀態更新資料'
@@ -204,7 +205,7 @@ export default {
       this.statusData = null
       this.isBusy = true
       this.$axios
-        .get(this.statusAPIUrl)
+        .get(this.L05APIUrl)
         .then(({ data }) => {
           this.statusData = { ...data }
         })
@@ -213,7 +214,7 @@ export default {
           this.statusData = {
             ...{
               statusCode: -1,
-              message: `❌ 無法取得 ${this.statusAPIUrl} 狀態資料`,
+              message: `❌ 無法取得 ${this.L05APIUrl} 狀態資料`,
               payload: {
                 logs: [],
                 ini: {},

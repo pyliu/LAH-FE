@@ -110,6 +110,11 @@ export default {
       changeOrigin: true
       // pathRewrite: { '^/api': '' }
     },
+    '/l05proxy': {
+      target: `${process.env.PROTOCOL}://${process.env.MONITOR_HOST_L05_IP}:${process.env.MONITOR_HOST_L05_PORT}`,
+      changeOrigin: true,
+      pathRewrite: { '^/l05proxy': '' }
+    },
     '/img': {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
       changeOrigin: true,
