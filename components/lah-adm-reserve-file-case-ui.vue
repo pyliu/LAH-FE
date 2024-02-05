@@ -102,6 +102,7 @@ export default {
     origData: { type: Object, default: () => ({}) },
     latestId: { type: String, default: '' }
   },
+  fetchOnServer: false, // component don't fetch on server side to prevent wierd undefined error!!
   data: () => ({
     createdate: '',
     number: '',
@@ -109,7 +110,8 @@ export default {
     pName: '',
     note: '',
     enddate: '',
-    uploadFile: null
+    uploadFile: null,
+    dbLatestNumber: ''
   }),
   computed: {
     ready () {
@@ -170,8 +172,13 @@ export default {
         return false
       }
       const number = parseInt(this.number)
-      return !this.$utils.empty(this.number) &&
-             number > 1130000000
+      if (number) {
+        const now = new Date()
+        const year = now.getFullYear() - 1911 // TW
+        const criteria = this.$utils.empty(this.dbLatestNumber) ? parseInt(`${year}0000000`) : parseInt(this.dbLatestNumber)
+        return number > criteria
+      }
+      return false
     },
     validPId () {
       return this.$utils.twIDCheck(this.pId)
@@ -225,10 +232,40 @@ export default {
   },
   created () {
     this.restoreOrigData()
+    // add debounce timer for input event
+    this.emitInput = this.$utils.debounce(() => {
+      this.$emit('input', {
+        number: this.number,
+        pid: this.pId,
+        pname: this.pName,
+        note: this.note,
+        file: this.uploadFile,
+        // NOTE: ms => not date string
+        createtime: this.createtime,
+        endtime: this.endtime
+      })
+    }, 400)
+    // get current latest case number from DB
+    this.$axios.post(this.$consts.API.JSON.ADM, {
+      type: 'get_reserve_pdf_latest_number'
+    }).then(({ data }) => {
+      if (this.$utils.statusCheck(data.status)) {
+        this.dbLatestNumber = data.number
+      } else {
+        this.warning(data.message)
+      }
+    }).catch((e) => {
+      this.$utils.error(e)
+    }).finally(() => {
+    })
   },
   mounted () {
     if (!this.editMode) {
       this.createdate = this.$utils.today('tw')
+      // set default case number
+      const now = new Date()
+      const year = now.getFullYear() - 1911 // TW
+      this.number = this.$utils.empty(this.dbLatestNumber) ? `${year}0000001` : `${parseInt(this.dbLatestNumber) + 1}`
     }
   },
   methods: {
@@ -249,18 +286,7 @@ export default {
         this.note = this.origData.note
       }
     },
-    emitInput (e) {
-      this.$emit('input', {
-        number: this.number,
-        pid: this.pId,
-        pname: this.pName,
-        note: this.note,
-        file: this.uploadFile,
-        // NOTE: ms => not date string
-        createtime: this.createtime,
-        endtime: this.endtime
-      })
-    },
+    emitInput () { /** placeholder */ },
     ok () {
       if (this.editMode) {
         this.confirm('請確認要編輯預約資料？').then((YN) => {

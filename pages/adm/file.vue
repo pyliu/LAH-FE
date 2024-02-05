@@ -30,7 +30,7 @@ div
       .d-flex.small
         lah-datepicker(
           v-model="dateRange",
-          :begin="firstDayOf2024"
+          :begin="firstDayOf2024Feb"
         )
         b-input.h-100.mx-1(
           v-model="keyword",
@@ -262,8 +262,8 @@ export default {
     title: '檔案應用預約申請控管-桃園市地政局'
   },
   computed: {
-    firstDayOf2024 () {
-      return new Date(2024, 0, 1)
+    firstDayOf2024Feb () {
+      return new Date(2024, 1, 1)
     },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
