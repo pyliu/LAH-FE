@@ -42,27 +42,33 @@ b-card(:border-variant="borderVariant")
       @end="checkL05Status",
       @click="checkL05Status"
     )
-    .font-weight-bold {{ message }}
+    .font-weight-bold {{ statusMessage }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
-  lah-transition: b-list-group.small(v-if="!isBusy", flush)
-    b-list-group-item
-      .d-flex.justify-content-between
-        lah-fa-icon(icon="server", :variant="light", title="局端伺服器資訊") 局伺服器：{{ this.bureauSyncIp }}:{{ this.bureauSyncPort }}
-        lah-fa-icon(icon="stopwatch", :variant="light", title="回應時間") {{ this.lastPingTime }}
-    b-list-group-item(button, @click="popLogs", :title="lastSyncTimeRaw")
-      .d-flex.justify-content-between
-        lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
-        lah-fa-icon(icon="clock", variant="secondary") {{ this.lastSyncTime }}
-    b-list-group-item
-      .d-flex.justify-content-between
-        lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
-        lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ this.syncPeriod }}
-    b-list-group-item
-      .d-flex.justify-content-between
-        lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ this.perf?.proc }}
-        lah-fa-icon(icon="gears", variant="dark") 行程代碼: {{ this.perf?.pid }}
-
+  lah-transition
+    b-list-group.small(v-if="light === 'success'", flush)
+      b-list-group-item
+        .d-flex.justify-content-between
+          lah-fa-icon(icon="server", :variant="light", title="局端伺服器資訊") 局伺服器：{{ this.bureauSyncIp }}:{{ this.bureauSyncPort }}
+          lah-fa-icon(icon="stopwatch", :variant="light", title="回應時間") {{ this.lastPingTime }}
+      b-list-group-item(
+        v-if="logs.length > 0",
+        button,
+        @click="popLogs",
+        :title="lastSyncTimeRaw"
+      )
+        .d-flex.justify-content-between
+          lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
+          lah-fa-icon(icon="clock", variant="secondary") {{ this.lastSyncTime }}
+      b-list-group-item
+        .d-flex.justify-content-between
+          lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
+          lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ this.syncPeriod }}
+      b-list-group-item
+        .d-flex.justify-content-between
+          lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ this.perf?.proc }}
+          lah-fa-icon(icon="gears", variant="dark") 行程代碼: {{ this.perf?.pid }}
+    .center.h4(v-else) {{ message }}
   b-modal(
     ref="logs",
     size="lg",
@@ -116,6 +122,27 @@ export default {
     },
     message () {
       return this.statusData?.message || '🟡 尚未取得狀態更新資料'
+    },
+    statusMessage () {
+      // API response code translation
+      const statusCode = parseInt(this.statusData?.statusCode)
+      switch (statusCode) {
+        case 1: return '檢測正常'
+        case 0: return '檢測失敗'
+        case -1: return '認證失敗'
+        case -2: return '找不到'
+        case -3: return '重複'
+        case -4: return '過期'
+        case -5: return '沒有實作'
+        case -6: return '沒有變更'
+        case -7: return '未支援'
+        case -8: return '不存在'
+        case -9: return '沒有在執行'
+        case -10: return '沒有資料庫'
+        case -11: return '同步失敗'
+        case -12: return '無法連線'
+        default: return `❌ 無法取得 ${this.L05APIUrl} 狀態資料`
+      }
     },
     logs () {
       return this.statusData?.payload?.logs || []
