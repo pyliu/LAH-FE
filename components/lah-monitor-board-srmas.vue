@@ -76,7 +76,7 @@ b-card(:border-variant="border")
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
-  .center.h4(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無收到郵件資料
+  .center.h4(v-if="headMessages.length === 0") #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ fetchDay }}日內無收到任何通知郵件資料]
   div(v-else-if="problems.length > 0 || fixed.length > 0")
     lah-monitor-board-srmas-list.mb-2(
       v-if="problems.length > 0"
@@ -92,7 +92,7 @@ b-card(:border-variant="border")
       variant="success",
       :items="fixed"
     )
-  .center.h4(v-else) ⚠ {{ monitorHrs }}小時內未收到告警訊息
+  .center.h4(v-else) #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ monitorHrs }}小時內未收到告警訊息]
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
