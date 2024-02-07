@@ -8,7 +8,8 @@ b-card(:border-variant="borderVariant")
         v-if="files.length > 0"
         icon="cloud-arrow-up",
         variant="warning",
-        @click="popFiles"
+        @click="popFiles",
+        title="顯示待傳檔案列表"
       ) {{ files.length }} 筆待傳送
       lah-button(
         v-if="logs.length > 0",
