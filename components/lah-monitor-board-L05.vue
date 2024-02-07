@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(:border-variant="borderVariant")
+b-card(:border-variant="borderVariant", v-b-tooltip="message")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
@@ -42,7 +42,12 @@ b-card(:border-variant="borderVariant")
       @end="checkL05Status",
       @click="checkL05Status"
     )
-    .font-weight-bold {{ statusMessage }}
+    lah-button(
+      v-if="files.length > 0",
+      variant="warning",
+      @click="popFiles"
+    ) ⚠ 尚有 {{ files.length }} 筆資料待傳送
+    .font-weight-bold(v-else) {{ statusMessage }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
   lah-transition
@@ -87,6 +92,14 @@ b-card(:border-variant="borderVariant")
     )
       template(#cell(FinDate)="{ item }") {{ $utils.addDateDivider(item.FinDate, 'AD') }}
       template(#cell(FinTime)="{ item }") {{ $utils.addTimeDivider(item.FinTime,) }}
+  b-modal(
+    ref="files",
+    :title="`${header} - 待同步檔案`",
+    pill,
+    hide-footer
+  )
+    b-list-group.small(flush)
+      b-list-group-item(v-for="file in files") {{ file }}
 </template>
 
 <script>
@@ -143,6 +156,9 @@ export default {
         case -12: return '無法連線'
         default: return `❌ 無法取得 ${this.L05APIUrl} 狀態資料`
       }
+    },
+    files () {
+      return this.statusData?.payload?.files || []
     },
     logs () {
       return this.statusData?.payload?.logs || []
@@ -210,9 +226,9 @@ export default {
   },
   watch: {
     statusData (val) {
-      // if (val) {
-      //   console.warn(val)
-      // }
+      if (val) {
+        console.warn(val)
+      }
     },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
@@ -246,7 +262,8 @@ export default {
                 logs: [],
                 ini: {},
                 loading: {},
-                ping: ''
+                ping: '',
+                files: []
               }
             }
           }
@@ -269,6 +286,9 @@ export default {
     },
     popLogs () {
       this.$refs.logs?.show()
+    },
+    popFiles () {
+      this.$refs.files?.show()
     }
   }
 }
