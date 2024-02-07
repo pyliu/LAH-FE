@@ -140,6 +140,9 @@ export default {
       return this.statusData?.message || '🟡 尚未取得狀態更新資料'
     },
     statusMessage () {
+      if (this.isBusy) {
+        return '讀取中 ... '
+      }
       // API response code translation
       const statusCode = parseInt(this.statusData?.statusCode)
       switch (statusCode) {
