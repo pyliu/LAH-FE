@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(:border-variant="borderVariant", v-b-tooltip="message")
+b-card(:border-variant="borderVariant")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
@@ -50,30 +50,30 @@ b-card(:border-variant="borderVariant", v-b-tooltip="message")
     .font-weight-bold(v-else) {{ statusMessage }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
-  lah-transition
-    b-list-group.small(v-if="light === 'success'", flush)
-      b-list-group-item
-        .d-flex.justify-content-between
-          lah-fa-icon(icon="server", :variant="light", title="局端伺服器資訊") 局伺服器：{{ this.bureauSyncIp }}:{{ this.bureauSyncPort }}
-          lah-fa-icon(icon="stopwatch", :variant="light", title="回應時間") {{ this.lastPingTime }}
-      b-list-group-item(
-        v-if="logs.length > 0",
-        button,
-        @click="popLogs",
-        :title="lastSyncTimeRaw"
-      )
-        .d-flex.justify-content-between
-          lah-fa-icon(icon="envelope-open-text", :variant="light") 最新狀態：{{ this.lastSyncMessage }}
-          lah-fa-icon(icon="clock", variant="secondary") {{ this.lastSyncTime }}
-      b-list-group-item
-        .d-flex.justify-content-between
-          lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ this.syncDir }}
-          lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ this.syncPeriod }}
-      b-list-group-item
-        .d-flex.justify-content-between
-          lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ this.perf?.proc }}
-          lah-fa-icon(icon="gears", variant="dark") 行程代碼: {{ this.perf?.pid }}
-    .center.h4(v-else) {{ message }}
+  .center.h4(v-if="light === 'danger'") {{ message }}
+  b-list-group.small(v-else, flush)
+    b-list-group-item
+      .d-flex.justify-content-between
+        lah-fa-icon(icon="server", variant="secondary", title="局端伺服器資訊") 局伺服器：{{ bureauSyncIp }}:{{ bureauSyncPort }}
+        lah-fa-icon(icon="stopwatch", variant="secondary", title="回應時間") {{ lastPingTime }}
+    b-list-group-item(
+      v-if="logs.length > 0",
+      button,
+      @click="popLogs",
+      :title="lastSyncTimeRaw"
+    )
+      .d-flex.justify-content-between
+        lah-fa-icon(icon="envelope-open-text", variant="secondary") 最新狀態：{{ lastSyncMessage }}
+        lah-fa-icon(icon="clock", variant="secondary") {{ lastSyncTime }}
+    b-list-group-item
+      .d-flex.justify-content-between
+        lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ syncDir }}
+        lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ syncPeriod }}
+    b-list-group-item(v-if="perf.pid")
+      .d-flex.justify-content-between
+        lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.proc }}
+        lah-fa-icon(icon="gears", variant="dark") 行程代碼: {{ perf.pid }}
+
   b-modal(
     ref="logs",
     size="lg",
@@ -94,12 +94,12 @@ b-card(:border-variant="borderVariant", v-b-tooltip="message")
       template(#cell(FinTime)="{ item }") {{ $utils.addTimeDivider(item.FinTime,) }}
   b-modal(
     ref="files",
-    :title="`${header} - 待同步檔案`",
+    :title="`${header} - ${syncDir}`",
     pill,
     hide-footer
   )
     b-list-group.small(flush)
-      b-list-group-item(v-for="file in files") {{ file }}
+      b-list-group-item(v-for="(file, idx) in files", :key="idx") {{ file }}
 </template>
 
 <script>
@@ -209,7 +209,8 @@ export default {
       return ''
     },
     light () {
-      if (this.statusData === null) {
+      // XHR data not ready OR having pending files treats as warning state
+      if (this.statusData === null || this.files.length > 0) {
         return 'warning'
       }
       if (this.$utils.statusCheck(this.statusData?.statusCode)) {
