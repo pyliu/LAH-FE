@@ -104,10 +104,15 @@ b-card(:border-variant="borderVariant")
     pill,
     hide-footer
   )
-    b-list-group(flush): b-list-group-item(
-      v-for="(file, idx) in files",
-      :key="idx"
-    ) {{ file }}
+    b-list-group(flush): b-list-group-item.small(
+      v-for="(stats, idx) in files",
+      :key="`file_${idx}`"
+    ): .d-flex.justify-content-between
+      span {{ stats.name }}
+      span {{ parseFloat(stats.size / 1024).toFixed(1) }} KB
+      lah-badge-human-datetime(
+        :seconds="stats.mtimeMs / 1000"
+      )
 </template>
 
 <script>
