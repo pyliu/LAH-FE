@@ -72,7 +72,10 @@ b-card(:border-variant="borderVariant")
     b-list-group-item(v-if="perf.pid")
       .d-flex.justify-content-between
         lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.proc }}
-        lah-fa-icon(icon="gears", variant="dark") 行程代碼: {{ perf.pid }}
+        lah-fa-icon(
+          icon="gears",
+          variant="dark"
+        ) 行程代碼: {{ perf.pid || '未執行' }}
 
   b-modal(
     ref="logs",
