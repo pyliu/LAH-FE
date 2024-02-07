@@ -1,8 +1,15 @@
 <template lang="pug">
 b-card(:border-variant="borderVariant")
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }} - {{ ip }}:{{ port }}
+    lah-fa-icon(icon="circle", :variant="light")
+      strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
+      lah-button(
+        v-if="files.length > 0"
+        icon="cloud-arrow-up",
+        variant="warning",
+        @click="popFiles"
+      ) {{ files.length }} 筆待傳送
       lah-button(
         v-if="logs.length > 0",
         icon="up-right-from-square",
@@ -42,12 +49,7 @@ b-card(:border-variant="borderVariant")
       @end="checkL05Status",
       @click="checkL05Status"
     )
-    lah-button(
-      v-if="files.length > 0",
-      variant="warning",
-      @click="popFiles"
-    ) ⚠ 尚有 {{ files.length }} 筆資料待傳送
-    .font-weight-bold(v-else) {{ statusMessage }}
+    strong {{ message }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
   .center.h4(v-if="light === 'danger'") {{ message }}
@@ -97,12 +99,14 @@ b-card(:border-variant="borderVariant")
       template(#cell(FinTime)="{ item }") {{ $utils.addTimeDivider(item.FinTime,) }}
   b-modal(
     ref="files",
-    :title="`${header} - ${syncDir}`",
+    :title="`待同步共 ${files.length} 筆  - ${syncDir}`",
     pill,
     hide-footer
   )
-    b-list-group.small(flush)
-      b-list-group-item(v-for="(file, idx) in files", :key="idx") {{ file }}
+    b-list-group(flush): b-list-group-item(
+      v-for="(file, idx) in files",
+      :key="idx"
+    ) {{ file }}
 </template>
 
 <script>
