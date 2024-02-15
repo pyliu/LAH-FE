@@ -72,10 +72,11 @@ b-card(:border-variant="borderVariant")
       .d-flex.justify-content-between
         lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ syncDir }}
         lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ syncPeriod }}
-    b-list-group-item(v-if="perf.pid")
+    b-list-group-item(v-if="isRunning")
       .d-flex.justify-content-between
         lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.proc }}
         lah-fa-icon(
+          v-if="perf.pid",
           icon="gears",
           variant="dark"
         ) 行程代碼: {{ perf.pid || '未執行' }}
@@ -145,6 +146,9 @@ export default {
     L05APIUrl () {
       // return `http://${this.ip}:${this.port}/api/v1/l05`
       return '/l05proxy/api/v1/l05'
+    },
+    isRunning () {
+      return this.statusData?.payload?.isRunning
     },
     message () {
       return this.statusData?.message || '🟡 尚未取得狀態更新資料'
@@ -268,6 +272,7 @@ export default {
         .get(this.L05APIUrl)
         .then(({ data }) => {
           this.statusData = { ...data }
+          console.warn(this.statusData)
         })
         .catch((err) => {
           this.error = err
@@ -280,7 +285,8 @@ export default {
                 ini: {},
                 loading: {},
                 ping: '',
-                files: []
+                files: [],
+                isRunning: false
               }
             }
           }
