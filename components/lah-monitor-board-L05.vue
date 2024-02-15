@@ -272,7 +272,7 @@ export default {
         .get(this.L05APIUrl)
         .then(({ data }) => {
           this.statusData = { ...data }
-          console.warn(this.statusData)
+          // console.warn(this.statusData)
         })
         .catch((err) => {
           this.error = err
