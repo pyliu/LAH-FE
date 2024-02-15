@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-center.w-100.my-auto
         .d-flex
-          .h1 跨縣市ONLINE即時通，服務無礙一點通
+          .h1 跨域ONLINE即時通，服務無礙一點通
           //- lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         div
     lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
@@ -60,7 +60,7 @@ export default {
   }),
   fetch () {},
   head: {
-    title: '跨縣市ONLINE即時通-桃園市地政局'
+    title: '跨域ONLINE即時通-桃園市地政局'
   },
   computed: {
     downOffices () {
