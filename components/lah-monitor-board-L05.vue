@@ -76,10 +76,9 @@ b-card(:border-variant="borderVariant")
       .d-flex.justify-content-between
         lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.proc }}
         lah-fa-icon(
-          v-if="perf.pid",
           icon="gears",
           variant="dark"
-        ) 行程代碼: {{ perf.pid || '未執行' }}
+        ) 行程編號: {{ perf.pid || '未偵測到' }}
 
   b-modal(
     ref="logs",
@@ -148,7 +147,7 @@ export default {
       return '/l05proxy/api/v1/l05'
     },
     isRunning () {
-      return this.statusData?.payload?.isRunning
+      return parseInt(this.perf?.pid) > 0
     },
     message () {
       return this.statusData?.message || '🟡 尚未取得狀態更新資料'
