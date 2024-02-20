@@ -4,7 +4,7 @@
   .container: .anim-appear-1s
     section.fixed-title-height.center: div
       lah-logo.mvh
-      .title.lah-shadow.text-nowrap.h5 桃園市地政智慧控管系統
+      .title.lah-shadow.text-nowrap 桃園市地政智慧控管系統
     section.b-card-container
       b-card-group(deck)
         //- lah-index-card-link.fix-card-dimension(v-if="isSur", :icon="['far', 'calendar-alt']" to="/reg/reg/expire/sur") 測量逾期#[br]案件
