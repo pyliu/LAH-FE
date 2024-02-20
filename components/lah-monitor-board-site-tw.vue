@@ -43,7 +43,7 @@ b-card(:border-variant="borderVariant")
           to="/inf/xap/xbroken_display",
           icon="tv",
           no-border,
-          title="跨縣市ONLINE即時通，服務無礙一點通"
+          title="民眾端顯示頁面"
         )
         lah-button(
           icon="sync",
