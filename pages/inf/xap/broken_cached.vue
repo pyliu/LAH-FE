@@ -22,6 +22,12 @@ div(v-cloak)
         size="lg",
         @click="showOfflineRecords"
       ) 顯示離線紀錄
+      lah-button.mr-1(
+        to="/inf/xap/xbroken_display",
+        icon="tv",
+        size="lg",
+        title="民眾端顯示頁面"
+      )
       lah-countdown-button(
             ref="countdown"
             icon="sync-alt"
