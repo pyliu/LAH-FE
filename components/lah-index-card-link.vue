@@ -5,8 +5,23 @@ b-card.anim-appear-1s.shadow.lah-index-card-link(
   @blur="mouseleave"
   :no-body="noBody"
 )
-  nuxt-link(:to="to")
-    .mb-2.center(style="max-width: 56px; margin: auto;")
+  nuxt-link(
+    v-if="$utils.empty(href)",
+    :to="to",
+    :target="target",
+    :external="external"
+  )
+    .mb-2.center.icon-layout
+      font-awesome-icon(ref="icon" :icon="icon" :size="size" :class="variant" :spin="spin")
+    b-card-title.center(:title-tag="titleTag"): slot
+  a(
+    v-else,
+    :href="href",
+    :target="target",
+    noopener,
+    noreferrer
+  )
+    .mb-2.center.icon-layout
       font-awesome-icon(ref="icon" :icon="icon" :size="size" :class="variant" :spin="spin")
     b-card-title.center(:title-tag="titleTag"): slot
 </template>
@@ -14,7 +29,10 @@ b-card.anim-appear-1s.shadow.lah-index-card-link(
 <script>
 export default {
   props: {
+    href: { type: String, default: '' },
     to: { type: String, default: '/' },
+    target: { type: String, default: '' },
+    external: { type: Boolean, default: false },
     icon: { type: Array, default: () => ['far', 'times-circle'] },
     size: { type: String, default: '3x' },
     action: { type: String, default: undefined },
@@ -90,5 +108,9 @@ export default {
 }
 .card {
   border-width: 2px;
+}
+.icon-layout {
+  max-width: 56px;
+  margin: auto;
 }
 </style>

@@ -3,8 +3,8 @@
   lah-header
   .container: .anim-appear-1s
     section.fixed-title-height.center: div
-      lah-logo.mvh-50
-      h3.title.lah-shadow.text-nowrap 桃園市地政智慧控管系統
+      lah-logo.mvh
+      .title.lah-shadow.text-nowrap.h5 桃園市地政智慧控管系統
     section.b-card-container
       b-card-group(deck)
         //- lah-index-card-link.fix-card-dimension(v-if="isSur", :icon="['far', 'calendar-alt']" to="/reg/reg/expire/sur") 測量逾期#[br]案件
@@ -24,15 +24,18 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tag']" to="/reg/non-scrivener-case") 非專業代理人案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-astronaut']" to="/reg/foreigner-case") 外國人地權案件
         lah-index-card-link.fix-card-dimension(:icon="['far', 'file-pdf']" to="/reg/foreigner") 外國人掃描資料
-        //- lah-index-card-link.fix-card-dimension(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
-      //- b-card-group(deck)
-      //-   lah-index-card-link.fix-card-dimension(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
-      //-   lah-index-card-link.fix-card-dimension(:icon="['fas', 'calculator']" to="/reg/stats/monthly") 案件統計資訊
-      //-   lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
-      //-   lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
-      //-   lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
-      //-   lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
-      //-   lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+      b-card-group(deck)
+        lah-index-card-link.fix-card-dimension(
+          :icon="['fas', 'house-circle-check']",
+          href="http://220.1.33.80/PcQ.aspx",
+          target="_blank"
+        ) 私法人購置住宅
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'calculator']" to="/reg/stats/monthly") 案件統計資訊
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
 </template>
 
 <script>
@@ -57,7 +60,7 @@ export default {
 }
 
 .fixed-title-height {
-  height: 45vh;
+  height: 35vh;
 }
 
 .fix-card-dimension {
@@ -75,15 +78,7 @@ export default {
     height: 45%;
   }
 }
-
-.mvh-50 {
-  max-height: 50vh;
-}
-
-.version {
-  font-weight: 900;
-  position: fixed;
-  right: 10px;
-  bottom: 10px;
+.mvh {
+  max-height: 30vh;
 }
 </style>
