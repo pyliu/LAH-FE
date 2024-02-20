@@ -74,11 +74,11 @@ b-card(:border-variant="borderVariant")
         lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ syncPeriod }}
     b-list-group-item(v-if="isRunning")
       .d-flex.justify-content-between
-        lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.proc }}
+        lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.pid ? perf.proc : jarName }}
         lah-fa-icon(
           icon="gears",
           variant="dark"
-        ) 行程編號: {{ perf.pid || '未偵測到' }}
+        ) 行程編號: {{ perf.pid || 'java' }}
 
   b-modal(
     ref="logs",
@@ -146,8 +146,18 @@ export default {
       // return `http://${this.ip}:${this.port}/api/v1/l05`
       return '/l05proxy/api/v1/l05'
     },
+    jarName () {
+      return this.statusData?.payload?.jar
+    },
+    isJarRunning () {
+      return this.statusData?.payload?.isJarRunning
+    },
     isRunning () {
-      return parseInt(this.perf?.pid) > 0
+      if (parseInt(this.perf?.pid) > 0) {
+        return true
+      }
+      // return additional running checking result
+      return this.isJarRunning
     },
     message () {
       return this.statusData?.message || '🟡 尚未取得狀態更新資料'
@@ -285,7 +295,8 @@ export default {
                 loading: {},
                 ping: '',
                 files: [],
-                isRunning: false
+                isJarRunning: false,
+                jar: 'L05Schedule'
               }
             }
           }
