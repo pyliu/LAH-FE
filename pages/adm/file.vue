@@ -339,7 +339,6 @@ export default {
       this.$refs.edit?.show()
     },
     handleEdit (payload) {
-      console.warn(payload)
       // update latest data to rows
       const found = this.rows.find((item, idx, array) => {
         return item.id === payload.id
