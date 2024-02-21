@@ -419,6 +419,10 @@ export default ({ $axios, store }, inject) => {
       if (isEmpty(twDateStr)) { return null }
       try {
         const tmp = twDateStr.replaceAll(/[\\\-\s]/ig, '')
+        if (tmp.length !== 7) {
+          console.warn(`${twDateStr} is not a valid TW date string. (its length should 7 digits)`)
+          return null
+        }
         const Y = parseInt(tmp.substring(0, 3)) + 1911
         const M = parseInt(tmp.substring(3, 5)) - 1
         const D = parseInt(tmp.substring(5, 7))

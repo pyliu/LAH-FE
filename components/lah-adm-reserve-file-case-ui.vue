@@ -1,25 +1,42 @@
 <template lang="pug">
 div
-  .d-flex.w-100
+  b-input-group.text-nowrap(
+    prepend="收件字號",
+    :size="size"
+  )
+    b-input(
+      ref="num",
+      v-model="number",
+      title="最多10碼",
+      :state="validNumber",
+      @input="emitInput",
+      @keyup.enter="$emit('enter', $event)",
+      placeholder="... 1130009096 ....",
+      readonly
+    )
+  .d-flex.w-100.my-1
     b-input-group.text-nowrap(
       prepend="收件日期",
-      :size="size"
+      :size="size",
+      title="7碼民國日期"
     )
       b-input.h-100(
         ref="createdate",
         v-model="createdate",
-        :state="validCreatedate"
+        :state="validCreatedate",
+        :readonly="editMode"
       )
     b-input-group.text-nowrap.ml-1(
       prepend="截止日期",
-      :size="size"
+      :size="size",
+      title="7碼民國日期"
     )
       b-input(
         ref="enddate",
         v-model="enddate",
         :state="validEnddate"
       )
-  .d-flex.w-100.my-1
+  .d-flex.w-100
     b-input-group(
       :size="size",
       prepend="　　統編"
@@ -36,20 +53,6 @@ div
         v-model="pName",
         :state="validPName"
       )
-
-  b-input-group.text-nowrap(
-    prepend="收件字號",
-    :size="size"
-  )
-    b-input.h-100(
-      ref="num",
-      v-model="number",
-      title="最多10碼",
-      :state="validNumber",
-      @input="emitInput",
-      @keyup.enter="$emit('enter', $event)",
-      placeholder="... 1130009096 ...."
-    )
 
   b-input-group.my-1(
     prepend="　　備註",
@@ -123,7 +126,9 @@ export default {
       return this.validNumber &&
              this.validPId &&
              this.validPName &&
-             this.validUploadFile
+             this.validUploadFile &&
+             this.validCreatedate &&
+             this.validEnddate
     },
     createtime () {
       if (this.editMode) {
@@ -138,9 +143,9 @@ export default {
       return 0
     },
     endtime () {
-      if (this.editMode) {
-        return this.origData?.endtime
-      }
+      // if (this.editMode) {
+      //   return this.origData?.endtime
+      // }
       // convert date string to ms
       const ad = this.$utils.twToAdDateObj(this.enddate)
       if (ad) {
@@ -170,6 +175,9 @@ export default {
     validNumber () {
       if (this.number?.length !== 10) {
         return false
+      }
+      if (this.editMode) {
+        return true
       }
       const number = parseInt(this.number)
       if (number) {
@@ -201,8 +209,11 @@ export default {
     },
     validEnddate () {
       if (this.enddate) {
-        const tmp = this.enddate.replaceAll(/[:\-\s]/ig, '')
-        return tmp.length === 7
+        const ed = this.enddate.replaceAll(/[:\-\s]/ig, '')
+        if (ed.length === 7 && this.validCreatedate) {
+          const cd = this.createdate.replaceAll(/[:\-\s]/ig, '')
+          return parseInt(ed) >= parseInt(cd)
+        }
       }
       return false
     }
@@ -220,10 +231,19 @@ export default {
         if (ad) {
           // auto setting enddate a year later
           ad.setFullYear(ad.getFullYear() + 1)
-          this.enddate = this.$utils.addDateDivider(this.$utils.twDateStr(ad))
+          this.enddate = this.$utils.twDateStr(ad)
         }
       } else {
         this.enddate = ''
+      }
+    },
+    dbLatestNumber (val) {
+      if (!this.editMode) {
+        const int = parseInt(val)
+        // set default case number
+        const now = new Date()
+        const year = now.getFullYear() - 1911 // TW
+        this.number = int > 0 ? `${int + 1}` : `${year}0000001`
       }
     }
     // enddate (val) {},
@@ -261,18 +281,14 @@ export default {
   },
   mounted () {
     if (!this.editMode) {
-      this.createdate = this.$utils.today('tw')
-      // set default case number
-      const now = new Date()
-      const year = now.getFullYear() - 1911 // TW
-      this.number = this.$utils.empty(this.dbLatestNumber) ? `${year}0000001` : `${parseInt(this.dbLatestNumber) + 1}`
+      this.createdate = this.$utils.today('tw').replaceAll(/[:\-\s]/ig, '')
     }
   },
   methods: {
     msToTWDate (ms) {
       const int = parseInt(ms)
       if (int > 0) {
-        return this.$utils.twDateStr(new Date(int))
+        return this.$utils.twDateStr(new Date(int * 1000))
       }
       return ''
     },
@@ -321,16 +337,18 @@ export default {
         formData.append('file', this.uploadFile)
         // this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
         this.$upload.post(this.$consts.API.JSON.ADM, formData).then(({ data }) => {
-          const title = this.$utils.empty(data.payload) ? '新增預約資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
-          const message = `${data.payload.fname} - ${data.message}`
+          const title = this.$utils.empty(data.payload) ? '新增預約資料結果' : `${data.payload.number}-${data.payload.pid}`
+          const message = `${data.payload.pname} - ${data.message}`
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
           if (this.$utils.statusCheck(data.status)) {
             this.$emit('add', {
-              year: this.year,
-              number: this.number,
-              fid: this.foreignerId,
-              fname: this.foreignerName,
-              note: this.foreignerNote
+              id: data.payload.id,
+              number: data.payload.number,
+              pid: data.payload.pid,
+              pname: data.payload.pname,
+              note: data.payload.note,
+              createtime: data.payload.createtime,
+              endtime: data.payload.endtime
             })
           }
         }).catch((err) => {
@@ -340,7 +358,7 @@ export default {
           this.$emit('close')
         })
       } else {
-        this.warning('檔案不是PDF')
+        this.warning('選擇的檔案不是PDF')
       }
     },
     edit () {
@@ -358,8 +376,8 @@ export default {
         formData.append('file', this.uploadFile)
       }
       this.$upload.post(this.$consts.API.JSON.ADM, formData).then(({ data }) => {
-        const title = this.$utils.empty(data.payload) ? '編輯預約資料結果' : `${data.payload.year}-${data.payload.number}-${data.payload.fid}`
-        const message = `${data.payload.fname} - ${data.message}`
+        const title = this.$utils.empty(data.payload) ? '編輯預約資料結果' : `${data.payload.number}-${data.payload.pid}`
+        const message = `${data.payload?.pname} - ${data.message}`
         this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
         if (this.$utils.statusCheck(data.status)) {
           this.$emit('edit', {

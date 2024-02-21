@@ -105,7 +105,7 @@ div
       //-   span.sr-only 無勾選
       b-button-group.mx-auto
         lah-button(
-          :href="downloadPDFUrl(item.id)",
+          :href="downloadPDFUrl(item.number)",
           target="_blank",
           title="開啟新視窗下載",
           icon="file-pdf",
@@ -127,8 +127,8 @@ div
         )
     template(#cell(createtime)="{ item }")
       .mx-auto {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
-    template(#cell(modifytime)="{ item }")
-      .mx-auto {{ $utils.toADDate(item.modifytime * 1000) }}
+    template(#cell(endtime)="{ item }")
+      .mx-auto {{ $utils.toADDate(item.endtime * 1000, 'yyyy-LL-dd') }}
     template(#cell(note)="{ item }")
       .text-left(v-html="handleNoteText(item.note)")
     template(#cell(fid)="{ item }")
@@ -182,7 +182,7 @@ export default {
     },
     fields: [
       {
-        key: 'serial',
+        key: 'id',
         label: '序號',
         thStyle: { width: '50px' }
       },
@@ -249,6 +249,7 @@ export default {
         start_ts: +this.$utils.twToAdDateObj(this.dateRange.begin) / 1000,
         end_ts: +this.$utils.twToAdDateObj(this.dateRange.end) / 1000
       }).then(({ data }) => {
+        // console.warn(data.raw)
         if (Array.isArray(data.raw)) { this.rows = [...data.raw] }
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
       }).catch((err) => {
@@ -317,17 +318,16 @@ export default {
   methods: {
     handleAdd (payload) {
       // add to array head
-      // this.rows.unshift({
-      //   id: payload.id,
-      //   createtime: +new Date() / 1000,
-      //   fid: payload.fid,
-      //   fname: payload.fname,
-      //   modifytime: +new Date() / 1000,
-      //   note: payload.note,
-      //   number: payload.number,
-      //   year: payload.year
-      // })
-      this.$fetch()
+      this.rows.unshift({
+        id: payload.id,
+        createtime: payload.createtime,
+        pid: payload.pid,
+        pname: payload.pname,
+        endtime: payload.endtime,
+        note: payload.note,
+        number: payload.number
+      })
+      // this.$fetch()
     },
     rowSelected (items) {
       if (Array.isArray(items) && items.length > 0) {
@@ -339,21 +339,30 @@ export default {
       this.$refs.edit?.show()
     },
     handleEdit (payload) {
-      this.$fetch()
+      console.warn(payload)
+      // update latest data to rows
+      const found = this.rows.find((item, idx, array) => {
+        return item.id === payload.id
+      })
+      if (found) {
+        found.pid = payload.pid
+        found.pname = payload.pname
+        found.note = payload.note
+        found.endtime = payload.endtime
+      }
     },
     remove (item) {
       this.confirm(`
         請確認是否要刪除本筆資料？<br/>
-        年度：${item.year}<br/>
         案號：${item.number}<br/>
-        統編：${item.fid}<br/>
-        姓名：${item.fname}
+        統編：${item.pid}<br/>
+        姓名：${item.pname}
       `).then((YN) => {
         if (YN) {
           // remove_foreigner_pdf
           this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.REG, {
-            type: 'remove_foreigner_pdf',
+          this.$axios.post(this.$consts.API.JSON.ADM, {
+            type: 'remove_reserve_pdf',
             id: item.id
           }).then(({ data }) => {
             this.rows = this.rows.filter(row => row.id !== item.id)
@@ -379,8 +388,8 @@ export default {
       }
       return key
     },
-    downloadPDFUrl (id) {
-      return `http://${this.apiHost}:${this.apiPort}/get_reg_foreigner_pdf.php?id=${id}`
+    downloadPDFUrl (number) {
+      return `http://${this.apiHost}:${this.apiPort}/get_adm_reserve_pdf.php?number=${number}`
     },
     handleNumberText (cid) {
       if (this.$utils.empty(cid)) {
