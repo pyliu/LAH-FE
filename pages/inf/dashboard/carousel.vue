@@ -77,9 +77,9 @@ div(v-cloak)
         lah-monitor-board-connectivity(@light-update="lightUpdate")
       b-carousel-slide: template(#img): b-card-group.card-body-fixed-height-3(deck)
         //- lah-monitor-board-xap
+        lah-monitor-board-lxhweb(target-ip="L3HWEB", @light-update="lightUpdate")
         lah-monitor-board-site-hx(@light-update="lightUpdate")
         lah-monitor-board-site-tw(@light-update="lightUpdate")
-        lah-monitor-board-lxhweb(target-ip="L3HWEB", @light-update="lightUpdate")
   b-carousel(
     ref="boards",
     :interval="0"
@@ -93,7 +93,7 @@ div(v-cloak)
         lah-monitor-board-L05(@light-update="lightUpdate")
         lah-monitor-board-srmas(@light-update="lightUpdate")
         lah-monitor-board-dbbackup(@light-update="lightUpdate")
-    b-carousel-slide: template(#img)
+    b-carousel-slide(v-if="site === 'HA'"): template(#img)
       b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-vmclone(@light-update="lightUpdate")
         lah-monitor-board-tape(@light-update="lightUpdate")
