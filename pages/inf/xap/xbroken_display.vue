@@ -85,9 +85,11 @@ export default {
   created () {
     this.reload()
   },
-  async mounted () {
-    await this.animateGirlL()
-    await this.animateGirlR()
+  mounted () {
+    this.$nextTick(() => {
+      this.animateGirlL()
+      this.animateGirlR()
+    })
   },
   methods: {
     reload (force = false) {
