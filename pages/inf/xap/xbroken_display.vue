@@ -161,7 +161,7 @@ export default {
   left: 100px;
   width: 147.5px;
   height: 172.5px;
-  background-image: url(~/assets/img/taogirl_R.png);
+  background-image: url(~/assets/img/taogirl_morning_R.png);
   background-repeat: no-repeat;
   background-size: cover;
 }
