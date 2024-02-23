@@ -13,7 +13,7 @@ b-button(
     action="spin"
   )
   span.mr-1(v-else-if="!fill") {{ lightIcon }}
-  span {{ name }}
+  span(:class="textCss") {{ name }}
   b-badge.ml-1(
     v-if="badge && status < 1 && status !== -2"
     :variant="badgeVariant"
@@ -29,11 +29,13 @@ export default {
     pill: { type: Boolean, default: false },
     badge: { type: Boolean, default: true },
     size: { type: String, default: 'md' },
-    badgeVariant: { type: String, default: 'light' },
     period: { type: String, default: '60000' },
     fill: { type: Boolean, default: true },
     short: { type: Boolean, default: false },
     shortAlt: { type: Boolean, default: false },
+    badgeVariant: { type: String, default: 'light' },
+    textVariant: { type: String, default: '' },
+    textBold: { type: Boolean, default: false },
     /**
      * serial / id / name / state / response / timestamp
      * 1 / XX / XX地政事務所 / UP / HTTP/1.1 401 Unauthorized / 1694060279
@@ -155,6 +157,13 @@ export default {
     },
     isTimeout () {
       return this.headers.length > 0 && this.$utils.empty(this.headers[0])
+    },
+    textCss () {
+      const css = [this.textVariant]
+      if (!this.textBold) {
+        css.push('font-weight-bolder')
+      }
+      return css
     }
   },
   watch: {
