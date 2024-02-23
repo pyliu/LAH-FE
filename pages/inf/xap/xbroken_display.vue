@@ -1,5 +1,5 @@
 <template lang="pug">
-.p-2(v-cloak)
+.p-3(v-cloak)
   //- lah-header
   //-   lah-transition(appear)
   //-     .d-flex.justify-content-center.w-100.my-auto
@@ -157,8 +157,8 @@ export default {
 }
 .fix-logo {
   position: fixed;
-  bottom: 10px;
-  left: 10px;
+  bottom: 20px;
+  left: 20px;
   width: 329px;
   height: 97px;
   background-image: url(~/assets/img/taoyuan_logo.png);
@@ -167,7 +167,7 @@ export default {
 }
 .fix-taogirl-R {
   position: fixed;
-  top: 10px;
+  top: 20px;
   right: 100px;
   width: 147.5px;
   height: 172.5px;
@@ -177,7 +177,7 @@ export default {
 }
 .fix-taogirl-L {
   position: fixed;
-  top: 10px;
+  top: 20px;
   left: 100px;
   width: 147.5px;
   height: 172.5px;
