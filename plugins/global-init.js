@@ -160,6 +160,7 @@ export default ({ $axios, store }, inject) => {
 
   // like old fashion global functions, use this.$utils to access these methods in Vue
   const utility = {
+    $,
     /**
      * lodash ...
      */

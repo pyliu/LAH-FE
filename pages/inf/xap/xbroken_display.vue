@@ -69,7 +69,8 @@ export default {
     cachedTimer: 300000, // 5 mins
     cachedOfficesData: [],
     cachedHandler: null,
-    updatedTime: ''
+    updatedTime: '',
+    animatedTimerBase: 5000
   }),
   fetch () {},
   head: {
@@ -84,7 +85,10 @@ export default {
   created () {
     this.reload()
   },
-  mounted () {},
+  mounted () {
+    this.animateGirlL()
+    this.animateGirlR()
+  },
   methods: {
     reload (force = false) {
       clearTimeout(this.cachedHandler)
@@ -108,6 +112,20 @@ export default {
             this.cachedHandler = handle
           })
         })
+    },
+    animateGirlL () {
+      this.$utils.animated('.fix-taogirl-L', { speed: '' }).then((resolved) => {
+        const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
+        // console.warn(`Girl L next run will be triggered after ${timer} ms`)
+        this.timeout(this.animateGirlL, timer)
+      })
+    },
+    animateGirlR () {
+      this.$utils.animated('.fix-taogirl-R', { speed: '' }).then((resolved) => {
+        const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
+        // console.warn(`Girl R next run will be triggered after ${timer} ms`)
+        this.timeout(this.animateGirlR, timer)
+      })
     }
   }
 }
