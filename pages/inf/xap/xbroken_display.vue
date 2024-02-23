@@ -116,14 +116,14 @@ export default {
     animateGirlL () {
       this.$utils.animated('.fix-taogirl-L', { speed: '' }).then((resolved) => {
         const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
-        // console.warn(`Girl L next run will be triggered after ${timer} ms`)
+        console.warn(`Girl L next run will be triggered after ${timer} ms`)
         this.timeout(this.animateGirlL, timer)
       })
     },
     animateGirlR () {
       this.$utils.animated('.fix-taogirl-R', { speed: '' }).then((resolved) => {
         const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
-        // console.warn(`Girl R next run will be triggered after ${timer} ms`)
+        console.warn(`Girl R next run will be triggered after ${timer} ms`)
         this.timeout(this.animateGirlR, timer)
       })
     }
