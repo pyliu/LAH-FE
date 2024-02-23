@@ -85,9 +85,9 @@ export default {
   created () {
     this.reload()
   },
-  mounted () {
-    this.animateGirlL()
-    this.animateGirlR()
+  async mounted () {
+    await this.animateGirlL()
+    await this.animateGirlR()
   },
   methods: {
     reload (force = false) {
@@ -114,14 +114,14 @@ export default {
         })
     },
     animateGirlL () {
-      this.$utils.animated('.fix-taogirl-L', { speed: 'slow' }).then((resolved) => {
+      return this.$utils.animated('.fix-taogirl-L', { speed: 'slow' }).then((resolved) => {
         const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
         // console.warn(`Girl L next run will be triggered after ${timer} ms`)
         this.timeout(this.animateGirlL, timer)
       })
     },
     animateGirlR () {
-      this.$utils.animated('.fix-taogirl-R', { speed: 'slow' }).then((resolved) => {
+      return this.$utils.animated('.fix-taogirl-R', { speed: 'slow' }).then((resolved) => {
         const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
         // console.warn(`Girl R next run will be triggered after ${timer} ms`)
         this.timeout(this.animateGirlR, timer)
