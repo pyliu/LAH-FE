@@ -33,27 +33,34 @@ b-card
       | 區域：{{ bakedData.區名稱 }}【{{ bakedData.RM10 }}】
     b-list-group-item
       | 段小段：{{ bakedData.段小段 }}【{{ bakedData.段代碼 }}】
-    b-list-group-item  地號：{{ bakedData.地號 }} 
-    b-list-group-item  建號：{{ bakedData.建號 }} 
-    b-list-group-item  件數：{{ bakedData.件數 }} 
+    b-list-group-item  地號：{{ bakedData.地號 }}
+    b-list-group-item  建號：{{ bakedData.建號 }}
+    b-list-group-item  件數：{{ bakedData.件數 }}
     b-list-group-item
       | 登記處理註記：{{ bakedData.登記處理註記 }}
     b-list-group-item
       | 地價處理註記：{{ bakedData.地價處理註記 }}
-    b-list-group-item
-      | 手機號碼：{{ bakedData.手機號碼 }}
+    b-list-group-item(v-if="haveCellNumber")
+      span 手機號碼：{{ bakedData.手機號碼 }}
+    b-list-group-item(v-else)
+      .text-danger 手機號碼：[未輸入，將無法收到案件辦理情形簡訊]
 </template>
 
 <script>
+import lahAvatar from '~/components/lah-avatar.vue'
 import regCaseBase from '~/components/lah-reg-case-base.js'
 import lahUserCard from '~/components/lah-user-card.vue'
-import lahAvatar from '~/components/lah-avatar.vue'
 export default {
   name: 'LahRegCaseData',
   components: { lahUserCard, lahAvatar },
   mixins: [regCaseBase],
   props: {
     noTitle: { type: Boolean, default: false }
+  },
+  computed: {
+    haveCellNumber () {
+      return !this.$utils.empty(this.bakedData.手機號碼)
+    }
   },
   methods: {
     userinfo (name, id = '') {

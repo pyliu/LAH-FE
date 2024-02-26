@@ -52,7 +52,15 @@ b-card(border-variant="secondary")
         b(:class="crsmsData['結案與否'] === 'Y' ? ['text-success'] : ['text-danger']") {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
     b-row
       b-col 收件日期：{{ crsmsData['收件日期'] }}
-      b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }}
+      b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }} {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
+    b-row(title="案件辦理情形簡訊")
+      b-col 手機號碼：{{ $utils.empty(crsmsData['手機號碼']) ? '[未輸入]' : crsmsData['手機號碼'] }}
+      b-col
+        lah-fa-icon(
+          v-if="$utils.empty(crsmsData['手機號碼'])",
+          icon="circle-exclamation",
+          variant="danger"
+        ) 本案無法收到簡訊
 
   lah-transition: div(v-if="dataReady")
     hr
