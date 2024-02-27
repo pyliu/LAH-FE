@@ -9,10 +9,14 @@ b-card
       span.bg-info.text-white.rounded.p-1
         | 跨所案件 ({{ bakedData.資料收件所 }} =>
         | {{ bakedData.資料管轄所 }})
-    b-list-group-item(v-if="haveCellNumber")
-      span 手機號碼：{{ bakedData.手機號碼 }}
-    b-list-group-item(v-else)
-      .text-danger 手機號碼：[未輸入，將無法收到案件辦理情形簡訊]
+    b-list-group-item
+      lah-fa-icon(
+        icon="mobile-screen",
+        append,
+        :variant="haveCellNumber ? 'success' : 'danger'"
+      ) 手機號碼：{{ haveCellNumber ? bakedData.手機號碼 : '[未建檔，無法傳送辦理情形簡訊]' }}
+    //- b-list-group-item(v-else)
+    //-   .text-danger 手機號碼：[未輸入]
     b-list-group-item
       | 收件字號：
       a(:title="'收件資料 on ' + webapIp" href="javascript:void(0)" @click="$utils.openNewWindow(queryDataUrl, $event)")
