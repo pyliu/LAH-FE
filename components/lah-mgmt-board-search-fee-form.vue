@@ -53,6 +53,16 @@ b-card(border-variant="info")
 
   //- .center-container-wh-100
   .d-flex
+    lah-transition: b-input-group.text-nowrap.mr-1.fixed-year-input(
+      v-if="searchType === 'pc'",
+      prepend="年度"
+    )
+      b-select.h-100(
+        ref="year",
+        v-model="searchYear",
+        :options="searchYears",
+        @change="searchMaxPcNumber"
+      )
     b-input-group.text-nowrap(
       :prepend="searchLabel"
     )
@@ -67,17 +77,6 @@ b-card(border-variant="info")
         @change="clearSearchData",
         @keyup.enter="search"
       )
-    lah-transition: b-input-group.text-nowrap.ml-1.fixed-year-input(
-      v-if="searchType === 'pc'",
-      prepend="年度"
-    )
-      b-select.h-100(
-        ref="year",
-        v-model="searchYear",
-        :options="searchYears",
-        @change="searchMaxPcNumber"
-      )
-
   //- lah-transition: div(v-if="dataReady")
   //-   b-row.my-1
   //-     b-col 結帳日期：{{ expaaData.AA01 }}
