@@ -57,11 +57,12 @@ b-card(border-variant="secondary")
       b-col(title="案件辦理情形簡訊接收號碼")
         lah-fa-icon(
           icon="mobile-screen",
-          append
-        ) 手機號碼：{{ $utils.empty(crsmsData['手機號碼']) ? '[未輸入]' : crsmsData['手機號碼'] }}
+          append,
+          :variant="cellPhoneEmpty ? 'warning' : 'success'"
+        ) 手機號碼：{{ cellPhoneEmpty ? '[未輸入]' : crsmsData['手機號碼'] }}
       b-col
         lah-fa-icon(
-          v-if="$utils.empty(crsmsData['手機號碼'])",
+          v-if="cellPhoneEmpty",
           icon="circle-exclamation",
           variant="danger"
         ) 本案無法收到辦理情形簡訊
@@ -119,9 +120,12 @@ export default {
       }
       return true
     },
+    cellPhoneEmpty () {
+      return this.$utils.empty(this.crsmsData['手機號碼'])
+    },
     cellPhoneWarningCss () {
       const css = []
-      if (this.$utils.empty(this.crsmsData['手機號碼'])) {
+      if (this.cellPhoneEmpty) {
         css.push('danger-border')
       }
       return css
@@ -207,5 +211,6 @@ export default {
 .danger-border {
   border: 2px dashed red;
   padding: 5px 0;
+  margin: 0 2px;
 }
 </style>
