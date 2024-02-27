@@ -83,9 +83,24 @@ b-card
       @click="querySurCmcrdTmp"
     ) 查詢
   hr
-  .d-flex.align-items-center.justify-content-between.check-row
-    lah-fa-icon.mr-1(icon="file") 最新權狀序號
-    lah-badge-latest-certno(@fetched="handledUpdated")
+  //- .d-flex.align-items-center.justify-content-between.check-row
+  //-   lah-fa-icon.mr-1(icon="file") 最新權狀序號
+  //-   lah-badge-latest-certno(@fetched="handledUpdated")
+  //- hr
+  .d-flex.align-items-center.justify-content-between.check-row(title="輸入手機或EMAIL查詢")
+    .d-flex
+      lah-fa-icon.mr-1.text-nowrap(
+        icon="comment-sms"
+      ) 簡訊查詢
+      b-input(
+        v-model="smsKeyword",
+        size="sm",
+        placeholder="... 手機或EMAIL ..."
+      )
+    lah-button(
+      title="依條件查詢SMS紀錄",
+      @click="querySMS"
+    ) 查詢
   hr
 
   lah-message(:message="message", auto-hide, close-variant="danger")
@@ -161,9 +176,11 @@ export default {
     surCases: [],
     paymentData: [],
     surCmcrdTmp: [],
+    smsLogs: [],
     message: '',
     clearTimer: null,
-    year: ''
+    year: '',
+    smsKeyword: ''
   }),
   computed: {
     foundRegCases () {
@@ -418,6 +435,37 @@ export default {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${this.$utils.time()} ${status} ${data.message}`
           this.surCmcrdTmp = [...data.raw]
+        }).catch((err) => {
+          this.error = err
+        }).finally(() => {
+          this.isBusy = false
+        })
+    },
+    querySMS () {
+      this.$axios
+        .post(this.$consts.API.JSON.MOIADM, {
+          type: 'moiadm_smslog',
+          keyword: this.smsKeyword
+        }).then(({ data }) => {
+          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
+          this.message = `${this.$utils.time()} ${status} ${data.message}`
+          this.smsLogs = [...data.raw]
+          /**
+           * MS03 收件年
+           * MS04_1 收件字
+           * MS04_2 收件號
+           * MS07_1 傳送日期
+           * MS07_2 傳送時間
+           * MS14 手機號碼
+           * MS30 傳送狀態
+           *   I：補正, D：駁回, C：延期複丈, F：結案
+           * MS31 傳送結果
+           *   S：成功, F：失敗
+           * MS33 傳送記錄
+           * MS_TYPE 案件種類
+           *   R：登記, S：複丈
+           */
+          console.warn(this.smsLogs)
         }).catch((err) => {
           this.error = err
         }).finally(() => {
