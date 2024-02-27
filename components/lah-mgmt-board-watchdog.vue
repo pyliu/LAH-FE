@@ -99,7 +99,8 @@ b-card
       )
     lah-button(
       title="依條件查詢SMS紀錄",
-      @click="querySMS"
+      @click="querySMS",
+      :disabled="!validSMSKeyword"
     ) 查詢
   hr
 
@@ -197,6 +198,9 @@ export default {
     },
     foundSurCmcrdTmp () {
       return this.surCmcrdTmp?.length > 0
+    },
+    validSMSKeyword () {
+      return this.smsKeyword?.length > 1
     }
   },
   watch: {},
