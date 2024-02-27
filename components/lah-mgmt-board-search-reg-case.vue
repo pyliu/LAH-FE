@@ -58,14 +58,14 @@ b-card(border-variant="secondary")
         lah-fa-icon(
           icon="mobile-screen",
           append,
-          :variant="cellPhoneEmpty ? 'warning' : 'success'"
+          :variant="cellPhoneEmpty ? 'danger' : 'success'"
         ) 手機號碼：{{ cellPhoneEmpty ? '[未輸入]' : crsmsData['手機號碼'] }}
       b-col
         lah-fa-icon(
           v-if="cellPhoneEmpty",
-          icon="circle-exclamation",
-          variant="danger"
-        ) 本案無法收到辦理情形簡訊
+          icon="triangle-exclamation",
+          variant="warning"
+        ) 本案無傳送辦理情形簡訊
 
   lah-transition: div(v-if="dataReady")
     hr
