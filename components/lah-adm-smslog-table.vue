@@ -6,13 +6,14 @@ div
     .d-flex.align-items-center
       lah-fa-icon.text-nowrap(
         icon="comment-sms",
-        size="lg"
-      ) 簡訊查詢
+        size="2x",
+        append
+      ) 關鍵字
       b-input.mx-1.keyword-mw(
         v-model="keyword",
         placeholder="... 日期/手機/EMAIL ..."
       )
-      b-radio-group(
+      b-radio-group.text-nowrap(
         v-model="searchType"
         :options="searchOpts"
       )
@@ -75,8 +76,6 @@ div
       icon="triangle-exclamation",
       variant="warning"
     ) {{ `${keyword} 找不到資料` }}
-  b-modal(ref="detail", hide-footer, centered, no-close-on-backdrop, scrollable)
-    template(#modal-title)
 </template>
 
 <script>
