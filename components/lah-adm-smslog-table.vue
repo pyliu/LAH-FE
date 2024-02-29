@@ -4,18 +4,18 @@ div
     lah-message(:message="message")
     div
     .d-flex.align-items-center
-      lah-fa-icon.text-nowrap(
+      b-radio-group.text-nowrap(
+        v-model="searchType"
+        :options="searchOpts"
+      )
+      lah-fa-icon.text-nowrap.mx-1(
         icon="comment-sms",
         size="2x",
         append
       ) 關鍵字
-      b-input.mx-1.keyword-mw(
+      b-input.keyword-mw(
         v-model="keyword",
         placeholder="... 日期/手機/EMAIL ..."
-      )
-      b-radio-group.text-nowrap(
-        v-model="searchType"
-        :options="searchOpts"
       )
       lah-button.ml-1(
         title="依條件查詢SMS紀錄",
