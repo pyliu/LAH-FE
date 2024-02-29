@@ -376,10 +376,12 @@ export default ({ $axios, store }, inject) => {
     },
     now (tw = '') {
       // https://date-fns.org/v2.28.0/docs/format
-      if (tw.toUpperCase() === 'TW') {
+      if (tw.toUpperCase() === 'TW' || tw === true) {
         const now = new Date()
-        now.setFullYear(now.getFullYear() - 1911)
-        return format(now, 'yyy-LL-dd HH:mm:ss', { locale: zhTW })
+        const ad = format(now, 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
+        const adParts = ad.split('-')
+        const twy = parseInt(adParts[0]) - 1911
+        return `${twy}-${adParts[1]}-${adParts[2]}`
       }
       // e.g. 2022-01-22 16:06:23
       return format(new Date(), 'yyyy-LL-dd HH:mm:ss', { locale: zhTW })
