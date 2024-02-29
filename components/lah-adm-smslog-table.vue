@@ -106,7 +106,7 @@ export default {
   },
   created () {
     this.keyword = this.inKeyword
-    this.reloadDebounced = this.$utils.debounce(this.reload, 400)
+    this.reloadDebounced = this.$utils.debounce(this.reload, 800)
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
