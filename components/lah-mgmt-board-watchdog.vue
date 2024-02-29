@@ -199,11 +199,16 @@ export default {
       return this.surCmcrdTmp?.length > 0
     }
   },
-  watch: {},
+  watch: {
+    smsKeyword (val) {
+      console.warn(val?.replaceAll(/[-/]+/g, ''))
+    }
+  },
   created () {
     // default is this TW year
     const now = new Date()
     this.year = now.getFullYear() - 1911
+    this.smsKeyword = this.$utils.today('TW')
   },
   mounted () {},
   methods: {
@@ -445,7 +450,7 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MOIADM, {
           type: 'moiadm_smslog',
-          keyword: this.smsKeyword
+          keyword: this.smsKeyword?.replaceAll(/[-/]+/g, '')
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${this.$utils.time()} ${status} ${data.message}`
@@ -457,6 +462,8 @@ export default {
            * MS07_1 傳送日期
            * MS07_2 傳送時間
            * MS14 手機號碼
+           * MS_MAIL 電子郵件
+           * MS_NOTE 簡訊內容
            * MS30 傳送狀態
            *   I：補正, D：駁回, C：延期複丈, F：結案
            * MS31 傳送結果
