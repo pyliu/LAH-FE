@@ -67,6 +67,8 @@ div
         b-link(href="#", @click="keyword = item.MS_MAIL; searchType = 'email'") {{ item.MS_MAIL }}
       template(#cell(MS_NOTE)="{ item }")
         .text-left {{ item.MS_NOTE }}
+      template(#cell(MS31)="{ item }")
+        span {{ item.MS31 === 'S' ? '成功' : '失敗' }}
       //- template(#cell(MS_NOTE)="{ item }")
       //-   b-link(href="#", @click="keyword = item.MS_NOTE; searchType = 'note'") {{ item.MS_NOTE }}
     .h5.center(v-else): lah-fa-icon(
@@ -115,7 +117,7 @@ export default {
       { key: 'MS30', label: '傳送狀態', sortable: true },
       { key: 'MS31', label: '傳送結果', sortable: true },
       // { key: 'MS33', label: '傳送紀錄', sortable: true },
-      { key: 'MS_NOTE', label: '簡訊內容', sortable: true }
+      { key: 'MS_NOTE', label: '傳送內容', sortable: true }
     ],
     maxHeight: 600,
     maxHeightOffset: 230

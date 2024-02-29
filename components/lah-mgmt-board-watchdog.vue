@@ -453,7 +453,7 @@ export default {
           inKeyword: this.smsKeyword
         }
       }), {
-        title: `簡訊查詢 - ${this.smsKeyword}`,
+        title: '簡訊記錄檔查詢',
         size: 'xl',
         noCloseOnBackdrop: true,
         centered: false,
