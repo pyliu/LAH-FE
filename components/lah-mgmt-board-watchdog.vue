@@ -88,15 +88,15 @@ b-card
   //-   lah-badge-latest-certno(@fetched="handledUpdated")
   //- hr
   .d-flex.align-items-center.justify-content-between.check-row(title="輸入手機或EMAIL查詢")
-    .d-flex
-      lah-fa-icon.mr-1.text-nowrap(
-        icon="comment-sms"
-      ) 簡訊查詢
-      b-input(
-        v-model="smsKeyword",
-        size="sm",
-        placeholder="... 手機或EMAIL ..."
-      )
+    lah-fa-icon.text-nowrap(
+      icon="comment-sms"
+    ) 簡訊查詢
+    b-input.mx-1(
+      v-model="smsKeyword",
+      size="sm",
+      placeholder="... 手機或EMAIL ...",
+      @keyup.enter="querySMS"
+    )
     lah-button(
       title="依條件查詢SMS紀錄",
       @click="querySMS",
@@ -165,9 +165,10 @@ b-card
 </template>
 
 <script>
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
-  components: { lahRegCaseDetailVue },
+  components: { lahRegCaseDetailVue, lahAdmSmslogTableVue },
   data: () => ({
     // regCases: ['105HAB1016151', '105HAB1016150'],
     // valCases: ['105HAB1016130', '105HAB1016090'],
@@ -203,11 +204,7 @@ export default {
       return this.smsKeyword?.length > 1
     }
   },
-  watch: {
-    smsKeyword (val) {
-      console.warn(val?.replaceAll(/[-/]+/g, ''))
-    }
-  },
+  watch: {},
   created () {
     // default is this TW year
     const now = new Date()
@@ -451,37 +448,16 @@ export default {
         })
     },
     querySMS () {
-      this.$axios
-        .post(this.$consts.API.JSON.MOIADM, {
-          type: 'moiadm_smslog',
-          keyword: this.smsKeyword?.replaceAll(/[-/]+/g, '')
-        }).then(({ data }) => {
-          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
-          this.message = `${this.$utils.time()} ${status} ${data.message}`
-          this.smsLogs = [...data.raw]
-          /**
-           * MS03 收件年
-           * MS04_1 收件字
-           * MS04_2 收件號
-           * MS07_1 傳送日期
-           * MS07_2 傳送時間
-           * MS14 手機號碼
-           * MS_MAIL 電子郵件
-           * MS_NOTE 簡訊內容
-           * MS30 傳送狀態
-           *   I：補正, D：駁回, C：延期複丈, F：結案
-           * MS31 傳送結果
-           *   S：成功, F：失敗
-           * MS33 傳送記錄
-           * MS_TYPE 案件種類
-           *   R：登記, S：複丈
-           */
-          console.warn(this.smsLogs)
-        }).catch((err) => {
-          this.error = err
-        }).finally(() => {
-          this.isBusy = false
-        })
+      this.modal(this.$createElement(lahAdmSmslogTableVue, {
+        props: {
+          inKeyword: this.smsKeyword
+        }
+      }), {
+        title: `簡訊查詢 - ${this.smsKeyword}`,
+        size: 'xl',
+        noCloseOnBackdrop: true,
+        centered: false
+      })
     },
     handledUpdated (response) {
       this.message = `${this.$utils.time()} ${response.message}`
