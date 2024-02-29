@@ -456,7 +456,8 @@ export default {
         title: `簡訊查詢 - ${this.smsKeyword}`,
         size: 'xl',
         noCloseOnBackdrop: true,
-        centered: false
+        centered: false,
+        scrollable: false
       })
     },
     handledUpdated (response) {
