@@ -2,6 +2,7 @@
 div
   .d-flex.align-items-center.justify-content-between.mb-2(title="輸入手機或EMAIL查詢")
     lah-message(:message="message")
+    div
     .d-flex.align-items-center
       lah-fa-icon.text-nowrap(
         icon="comment-sms",
@@ -28,8 +29,12 @@ div
     :caption="`找到 ${count} 筆資料`"
   )
   lah-transition
+    .h5.center(v-if="isBusy"): lah-fa-icon(
+      icon="spinner",
+      action="spin"
+    ) 讀取中
     b-table.text-center.s-90(
-      v-if="count > 0",
+      v-else-if="count > 0",
       ref="tbl",
       striped,
       hover,
@@ -64,7 +69,10 @@ div
         .text-left {{ item.MS_NOTE }}
       //- template(#cell(MS_NOTE)="{ item }")
       //-   b-link(href="#", @click="keyword = item.MS_NOTE; searchType = 'note'") {{ item.MS_NOTE }}
-    .h5.center(v-else) {{ `${keyword} 找不到資料` }}
+    .h5.center(v-else): lah-fa-icon(
+      icon="triangle-exclamation",
+      variant="warning"
+    ) {{ `${keyword} 找不到資料` }}
   b-modal(ref="detail", hide-footer, centered, no-close-on-backdrop, scrollable)
     template(#modal-title)
 </template>
