@@ -105,10 +105,10 @@ export default {
   },
   watch: {
     searchType (val) {
-      this.reloadDebounced()
+      this.validSMSKeyword && this.reloadDebounced()
     },
     keyword (val) {
-      this.reloadDebounced()
+      this.validSMSKeyword && this.reloadDebounced()
     }
   },
   created () {
