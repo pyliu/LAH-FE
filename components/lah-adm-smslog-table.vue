@@ -27,7 +27,8 @@ div
     v-if="count > pagination.perPage"
     v-model="pagination",
     :total-rows="count"
-    :caption="`找到 ${count} 筆資料`"
+    :caption="`找到 ${count} 筆資料`",
+    @input="handlePaginationInput"
   )
   lah-transition
     .h5.center(v-if="isBusy"): lah-fa-icon(
@@ -135,14 +136,20 @@ export default {
       this.validSMSKeyword && this.reloadDebounced()
     }
   },
-  created () {
+  async created () {
     this.keyword = this.inKeyword
     this.reloadDebounced = this.$utils.debounce(this.reload, 800)
+    // restore setting by user
+    this.pagination.perPage = parseInt(await this.getCache('sms-log-table-perPage') || 12)
   },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    handlePaginationInput (payload) {
+      // remember user changed number
+      this.setCache('sms-log-table-perPage', payload.perPage)
+    },
     popup (item) {
       const id = `${item.MS03}-${item.MS04_1}-${item.MS04_2}`
       this.modal(this.$createElement(lahRegCaseDetailVue, {
