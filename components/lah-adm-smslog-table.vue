@@ -21,6 +21,12 @@ div
         @click="reload",
         :disabled="!validSMSKeyword"
       ) 更新
+  lah-transition: lah-pagination(
+    v-if="count > pagination.perPage"
+    v-model="pagination",
+    :total-rows="count"
+    :caption="`找到 ${count} 筆資料`"
+  )
   lah-transition
     b-table.text-center.s-90(
       v-if="count > 0",
@@ -35,6 +41,8 @@ div
       head-variant="dark"
       :items="logs",
       :fields="fields",
+      :per-page="pagination.perPage",
+      :current-page="pagination.currentPage",
       :busy="isBusy || busy",
       :sticky-header="`${maxHeight}px`"
     )
@@ -72,6 +80,10 @@ export default {
     busy: { type: Boolean, default: false }
   },
   data: () => ({
+    pagination: {
+      perPage: 12,
+      currentPage: 1
+    },
     message: '',
     keyword: '',
     searchType: '',
@@ -141,6 +153,7 @@ export default {
     },
     reload () {
       this.isBusy = true
+      this.pagination.currentPage = 1
       this.$axios
         .post(this.$consts.API.JSON.MOIADM, {
           type: 'moiadm_smslog',
