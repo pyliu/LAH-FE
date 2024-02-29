@@ -1,24 +1,26 @@
 <template lang="pug">
 div
-  .d-flex.align-items-center.justify-content-end.mb-2(title="輸入手機或EMAIL查詢")
-    lah-fa-icon.text-nowrap(
-      icon="comment-sms",
-      size="lg"
-    ) 簡訊查詢
-    b-input.mx-1.keyword-mw(
-      v-model="keyword",
-      placeholder="... 日期/手機/EMAIL ..."
-    )
-    b-radio-group(
-      v-model="searchType"
-      :options="searchOpts"
-    )
-    lah-button.ml-1(
-      title="依條件查詢SMS紀錄",
-      size="md",
-      @click="reload",
-      :disabled="!validSMSKeyword"
-    ) 更新
+  .d-flex.align-items-center.justify-content-between.mb-2(title="輸入手機或EMAIL查詢")
+    lah-message(:message="message")
+    .d-flex.align-items-center
+      lah-fa-icon.text-nowrap(
+        icon="comment-sms",
+        size="lg"
+      ) 簡訊查詢
+      b-input.mx-1.keyword-mw(
+        v-model="keyword",
+        placeholder="... 日期/手機/EMAIL ..."
+      )
+      b-radio-group(
+        v-model="searchType"
+        :options="searchOpts"
+      )
+      lah-button.ml-1(
+        title="依條件查詢SMS紀錄",
+        size="md",
+        @click="reload",
+        :disabled="!validSMSKeyword"
+      ) 更新
   lah-transition
     b-table.text-center.s-90(
       v-if="count > 0",
@@ -70,6 +72,7 @@ export default {
     busy: { type: Boolean, default: false }
   },
   data: () => ({
+    message: '',
     keyword: '',
     searchType: '',
     searchOpts: [
@@ -144,8 +147,8 @@ export default {
           keyword: this.keyword?.replaceAll(/[-/]+/g, ''),
           searchType: this.searchType
         }).then(({ data }) => {
-          // const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
-          // this.message = `${this.$utils.time()} ${status} ${data.message}`
+          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
+          this.message = `${status} ${data.message}`
           this.logs = [...data.raw]
           this.$emit('reload', {
             keyword: this.keyword,
