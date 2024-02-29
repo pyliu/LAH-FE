@@ -38,7 +38,12 @@ div
     )
       template(#table-busy)
       template(#cell(MS04_2)="{ item }")
-        .text-nowrap {{ `${item.MS03}-${item.MS04_1}-${item.MS04_2}` }}
+        span(v-if="item.MS04_1.startsWith('SM')") {{ `${item.MS03}-${item.MS04_1}-${item.MS04_2}` }}
+        b-link(
+          v-else,
+          href="#",
+          @click="popup(item)"
+        ) {{ `${item.MS03}-${item.MS04_1}-${item.MS04_2}` }}
       template(#cell(MS07_1)="{ item }")
         b-link(href="#", @click="keyword = item.MS07_1; searchType = 'date'") {{ item.MS07_1 }}
       template(#cell(MS14)="{ item }")
@@ -55,9 +60,11 @@ div
 </template>
 
 <script>
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   emit: ['reload'],
   name: 'LahAdmSmslogTable',
+  components: { lahRegCaseDetailVue },
   props: {
     inKeyword: { type: String, default: '' },
     busy: { type: Boolean, default: false }
@@ -112,6 +119,23 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    popup (item) {
+      const id = `${item.MS03}-${item.MS04_1}-${item.MS04_2}`
+      this.modal(this.$createElement(lahRegCaseDetailVue, {
+        props: {
+          caseId: id
+        },
+        on: {
+          'not-found': () => {
+            this.hideModal()
+            this.timeout(() => this.warning(`⚠ 無法找到 ${this.$utils.caseId(id)} 登記案件資料。`), 400)
+          }
+        }
+      }), {
+        title: `案件詳情 ${this.$utils.caseId(id)}`,
+        size: 'xl'
+      })
+    },
     reload () {
       this.isBusy = true
       this.$axios
