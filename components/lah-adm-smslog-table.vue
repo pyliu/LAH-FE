@@ -62,7 +62,9 @@ div
           @click="popup(item)"
         ) {{ `${item.MS03}-${item.MS04_1}-${item.MS04_2}` }}
       template(#cell(MS07_1)="{ item }")
-        b-link(href="#", @click="keyword = item.MS07_1; searchType = 'date'") {{ item.MS07_1 }}
+        b-link.text-nowrap(href="#", @click="keyword = item.MS07_1; searchType = 'date'") {{ $utils.addDateDivider(item.MS07_1) }}
+      template(#cell(MS07_2)="{ item }")
+        .text-nowrap {{ $utils.addTimeDivider(item.MS07_2) }}
       template(#cell(MS14)="{ item }")
         b-link(href="#", @click="keyword = item.MS14; searchType = 'cell'") {{ item.MS14 }}
       template(#cell(MS_MAIL)="{ item }")
