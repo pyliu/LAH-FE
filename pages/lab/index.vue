@@ -19,7 +19,7 @@
           :icon="['fas', 'tv']",
           to="/inf/xap/xbroken_display"
         ) 跨域ONLINE即時通
-        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'comment-sms']" to="/reg/sms") 簡訊紀錄查詢
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
 </template>
 

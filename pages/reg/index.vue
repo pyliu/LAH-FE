@@ -30,7 +30,7 @@
           href="http://220.1.33.80/PcQ.aspx",
           target="_blank"
         ) 私法人購置住宅
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'comment-sms']" to="/reg/sms") 簡訊紀錄查詢
         lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'calculator']" to="/reg/stats/monthly") 案件統計資訊
         lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
         lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
