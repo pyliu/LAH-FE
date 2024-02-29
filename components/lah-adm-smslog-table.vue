@@ -98,7 +98,7 @@ export default {
       { key: 'MS_NOTE', label: '簡訊內容', sortable: true }
     ],
     maxHeight: 600,
-    maxHeightOffset: 220
+    maxHeightOffset: 230
   }),
   computed: {
     count () { return this.logs?.length || 0 },
