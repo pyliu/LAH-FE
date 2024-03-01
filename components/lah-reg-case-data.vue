@@ -10,6 +10,7 @@ b-card
         | 跨所案件 ({{ bakedData.資料收件所 }} =>
         | {{ bakedData.資料管轄所 }})
     b-list-group-item
+      span 手機號碼：
       lah-fa-icon(
         icon="mobile-screen",
         append,
@@ -19,7 +20,7 @@ b-card
           v-if="haveCellNumber",
           @click="popupSMSLog(bakedData.手機號碼)",
           :title="`根據${bakedData.手機號碼}搜尋簡訊紀錄`"
-        ) 手機號碼：{{ bakedData.手機號碼 }}
+        ) {{ bakedData.手機號碼 }}
         span(v-else) [未建檔，無法傳送辦理情形簡訊]
     //- b-list-group-item(v-else)
     //-   .text-danger 手機號碼：[未輸入]
