@@ -80,7 +80,7 @@ div
     .h5.center(v-else): lah-fa-icon(
       icon="triangle-exclamation",
       variant="warning"
-    ) {{ `${keyword} 找不到資料` }}
+    ) {{ `${keyword} ${$utils.empty(searchTypeText) ? '' : `根據${searchTypeText}欄位搜尋`}找不到資料` }}
 </template>
 
 <script>
@@ -130,6 +130,17 @@ export default {
     count () { return this.logs?.length || 0 },
     validSMSKeyword () {
       return this.keyword?.length > 1
+    },
+    searchTypeText () {
+      switch (this.searchType) {
+        case 'cell':
+          return '手機號碼'
+        case 'date':
+          return '發送日期'
+        case 'email':
+          return '電子郵件'
+      }
+      return ''
     }
   },
   watch: {
