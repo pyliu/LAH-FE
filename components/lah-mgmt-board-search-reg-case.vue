@@ -59,7 +59,13 @@ b-card(border-variant="secondary")
           icon="mobile-screen",
           append,
           :variant="cellPhoneEmpty ? 'danger' : 'success'"
-        ) 手機號碼：{{ cellPhoneEmpty ? '[未輸入]' : crsmsData['手機號碼'] }}
+        )
+          span(v-if="cellPhoneEmpty") 手機號碼：[未輸入]
+          b-link(
+            v-else="cellPhoneEmpty",
+            @click="popupSMSLog(crsmsData['手機號碼'])",
+            :title="`根據${crsmsData['手機號碼']}搜尋簡訊紀錄`"
+          ) 手機號碼：{{ crsmsData['手機號碼'] }}
       b-col
         lah-fa-icon(
           v-if="cellPhoneEmpty",
@@ -86,12 +92,13 @@ b-card(border-variant="secondary")
 </template>
 
 <script>
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahMgmtBoardRegCaseStateVue from './lah-mgmt-board-reg-case-state.vue'
 import lahMgmtBoardRegCaseTmpVue from './lah-mgmt-board-reg-case-tmp.vue'
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {
-  components: { lahRegCaseDetailVue, lahMgmtBoardRegCaseStateVue, lahMgmtBoardRegCaseTmpVue },
+  components: { lahRegCaseDetailVue, lahMgmtBoardRegCaseStateVue, lahMgmtBoardRegCaseTmpVue, lahAdmSmslogTableVue },
   props: {
     stateButton: { type: Boolean, default: false },
     tempButton: { type: Boolean, default: false }
@@ -201,6 +208,19 @@ export default {
       this.modal(this.$createElement(lahMgmtBoardRegCaseTmpVue), {
         title: `登記案件暫存檔管理 ${this.$utils.caseId(this.caseId)}`,
         size: 'md'
+      })
+    },
+    popupSMSLog (keyword) {
+      this.modal(this.$createElement(lahAdmSmslogTableVue, {
+        props: {
+          inKeyword: keyword
+        }
+      }), {
+        title: '簡訊記錄檔查詢',
+        size: 'xl',
+        noCloseOnBackdrop: true,
+        centered: false,
+        scrollable: false
       })
     }
   }

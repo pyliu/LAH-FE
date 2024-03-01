@@ -14,7 +14,13 @@ b-card
         icon="mobile-screen",
         append,
         :variant="haveCellNumber ? 'success' : 'danger'"
-      ) 手機號碼：{{ haveCellNumber ? bakedData.手機號碼 : '[未建檔，無法傳送辦理情形簡訊]' }}
+      )
+        b-link(
+          v-if="haveCellNumber",
+          @click="popupSMSLog(bakedData.手機號碼)",
+          :title="`根據${bakedData.手機號碼}搜尋簡訊紀錄`"
+        ) 手機號碼：{{ bakedData.手機號碼 }}
+        span(v-else) [未建檔，無法傳送辦理情形簡訊]
     //- b-list-group-item(v-else)
     //-   .text-danger 手機號碼：[未輸入]
     b-list-group-item
@@ -51,12 +57,13 @@ b-card
 </template>
 
 <script>
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahAvatar from '~/components/lah-avatar.vue'
 import regCaseBase from '~/components/lah-reg-case-base.js'
 import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'LahRegCaseData',
-  components: { lahUserCard, lahAvatar },
+  components: { lahUserCard, lahAvatar, lahAdmSmslogTableVue },
   mixins: [regCaseBase],
   props: {
     noTitle: { type: Boolean, default: false }
@@ -70,6 +77,19 @@ export default {
     userinfo (name, id = '') {
       this.modal(this.$createElement('lah-user-card', { props: { name, id } }), {
         title: `${id} ${name} 資訊`
+      })
+    },
+    popupSMSLog (keyword) {
+      this.modal(this.$createElement(lahAdmSmslogTableVue, {
+        props: {
+          inKeyword: keyword
+        }
+      }), {
+        title: '簡訊記錄檔查詢',
+        size: 'xl',
+        noCloseOnBackdrop: true,
+        centered: false,
+        scrollable: false
       })
     }
   }

@@ -189,8 +189,8 @@ export default {
       this.isBusy = true
       this.pagination.currentPage = 1
       this.$axios
-        .post(this.$consts.API.JSON.MOIADM, {
-          type: 'moiadm_smslog',
+        .post(this.$consts.API.JSON.MOISMS, {
+          type: 'moisms_log_query',
           keyword: this.keyword?.replaceAll(/[-/]+/g, ''),
           searchType: this.searchType
         }).then(({ data }) => {
