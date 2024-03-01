@@ -135,7 +135,7 @@ export default {
       this.validSMSKeyword && this.reloadDebounced()
     },
     keyword (val) {
-      this.validSMSKeyword && this.reloadDebounced()
+      // this.validSMSKeyword && this.reloadDebounced()
     }
   },
   async created () {
