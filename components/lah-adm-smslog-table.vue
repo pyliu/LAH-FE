@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  .d-flex.align-items-center.justify-content-between.mb-2(title="輸入手機或EMAIL查詢")
+  .d-flex.align-items-center.justify-content-between.mb-2(title="輸入日期、手機或EMAIL查詢")
     lah-message(:message="message")
     div
     .d-flex.align-items-center
@@ -118,7 +118,7 @@ export default {
       { key: 'MS07_2', label: '傳送時間', sortable: true },
       { key: 'MS14', label: '手機號碼', sortable: true },
       { key: 'MS_MAIL', label: '電子郵件', sortable: true },
-      { key: 'MS30', label: '傳送狀態', sortable: true },
+      // { key: 'MS30', label: '傳送狀態', sortable: true },
       { key: 'MS31', label: '傳送結果', sortable: true },
       // { key: 'MS33', label: '傳送紀錄', sortable: true },
       { key: 'MS_NOTE', label: '傳送內容', sortable: true }
