@@ -141,7 +141,10 @@ export default {
     }
   },
   async created () {
-    this.keyword = this.inKeyword
+    if (!this.$utils.empty(this.inKeyword)) {
+      this.keyword = this.inKeyword
+      this.reload()
+    }
     this.reloadDebounced = this.$utils.debounce(this.reload, 800)
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('sms-log-table-perPage') || 12)
