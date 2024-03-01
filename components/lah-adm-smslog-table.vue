@@ -19,11 +19,12 @@ div
         @keyup.enter="reload"
       )
       lah-button.ml-1(
+        icon="magnifying-glass",
         title="依條件查詢SMS紀錄",
         size="md",
         @click="reload",
         :disabled="!validSMSKeyword"
-      ) 更新
+      ) 搜尋
   lah-transition: lah-pagination(
     v-if="count > pagination.perPage"
     v-model="pagination",
