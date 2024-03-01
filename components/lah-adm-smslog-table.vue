@@ -15,7 +15,8 @@ div
       ) 關鍵字
       b-input.keyword-mw(
         v-model="keyword",
-        placeholder="... 日期/手機/EMAIL ..."
+        placeholder="... 日期/手機/EMAIL ...",
+        @keyup.enter="reload"
       )
       lah-button.ml-1(
         title="依條件查詢SMS紀錄",
