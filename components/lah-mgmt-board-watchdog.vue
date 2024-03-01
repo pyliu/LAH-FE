@@ -453,7 +453,7 @@ export default {
           inKeyword: this.smsKeyword
         }
       }), {
-        title: '簡訊記錄檔查詢',
+        title: '地政系統簡訊綜合記錄檔查詢',
         size: 'xl',
         noCloseOnBackdrop: true,
         centered: false,

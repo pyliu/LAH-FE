@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div 簡訊記錄查詢
+          div 地政系統簡訊記錄綜合查詢
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         div
     lah-help-modal(:modal-id="'help-modal'")
@@ -20,7 +20,7 @@ div(v-cloak)
 export default {
   data: () => ({}),
   head: {
-    title: '簡訊記錄查詢-桃園市地政局'
+    title: '地政系統簡訊記錄綜合查詢-桃園市地政局'
   },
   computed: {},
   watch: {},
