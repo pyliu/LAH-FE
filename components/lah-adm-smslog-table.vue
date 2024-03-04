@@ -71,7 +71,11 @@ div
       template(#cell(SMS_CELL)="{ item }")
         b-link(href="#", @click="keyword = item.SMS_CELL; reloadDebounced();") {{ item.SMS_CELL }}
       template(#cell(SMS_MAIL)="{ item }")
-        b-link(href="#", @click="keyword = item.SMS_MAIL; reloadDebounced();") {{ item.SMS_MAIL }}
+        b-link(
+          href="#",
+          @click="keyword = item.SMS_MAIL; reloadDebounced();",
+          title="EMAIL/統編/操作人員ID ... 等"
+        ) {{ item.SMS_MAIL }}
       template(#cell(SMS_CONTENT)="{ item }")
         .text-left {{ item.SMS_CONTENT }}
       template(#cell(SMS_RESULT)="{ item }")
@@ -122,7 +126,7 @@ export default {
       { key: 'SMS_DATE', label: '日期', sortable: true },
       { key: 'SMS_TIME', label: '時間', sortable: true },
       { key: 'SMS_CELL', label: '手機號碼', sortable: true },
-      { key: 'SMS_MAIL', label: 'EMAIL/統編', sortable: true },
+      { key: 'SMS_MAIL', label: '其他', sortable: true },
       { key: 'SMS_RESULT', label: '結果', sortable: true },
       { key: 'SMS_CONTENT', label: '內容', sortable: true }
     ],
