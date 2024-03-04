@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   .d-flex.align-items-center.justify-content-between.mb-2(title="輸入日期、手機或EMAIL查詢")
-    lah-message(:message="message")
+    lah-message(:message="message", auto-hide)
     div
     .d-flex.align-items-center
       //- b-radio-group.text-nowrap(
