@@ -2,7 +2,7 @@
 b-container(v-cloak fluid)
   Nuxt
   lah-footer
-  .version v{{ $config.pkgVersion }}
+  .version.shadow v{{ $config.pkgVersion }}
 </template>
 
 <script>
@@ -48,5 +48,7 @@ export default {
   position: fixed;
   right: 10px;
   bottom: 10px;
+  background-color: white;
+  padding: 3px;
 }
 </style>
