@@ -314,8 +314,7 @@ export default ({ $axios, store }, inject) => {
         return ''
       }
       id = id.replace(/^[a-zA-Z0-9]$/g, '')
-      if (isEmpty(id) || id.length !== 13) {
-        this.warn(`id is not a valid string, can not convert to formatted case id. (${id})`)
+      if (id.length !== 13 || id.includes('-')) {
         return id
       }
       return `${id.substring(0, 3)}-${id.substring(3, 7)}-${id.substring(7)}`
