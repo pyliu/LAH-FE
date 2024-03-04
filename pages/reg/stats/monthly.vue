@@ -32,7 +32,10 @@ div(v-cloak)
           span {{ item.name }}
 
   lah-flex-item-group
-    lah-stats-reg-cert-count
+    lah-stats-reg-cert-count(
+      :begin="dateRange.begin",
+      :end="dateRange.end"
+    )
     b-card.border-0(no-body)
       lah-stats-reg-first(
         ref="regFirst",

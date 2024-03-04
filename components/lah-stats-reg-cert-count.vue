@@ -7,7 +7,7 @@ b-card(
       lah-fa-icon(v-if="ready", icon="circle-check", variant="success", size="lg")
       lah-fa-icon(v-else-if="isBusy", icon="road-barrier", variant="muted", size="lg")
       lah-fa-icon(v-else, icon="xmark", variant="muted", size="lg")
-    .ml-1 {{ todayDate }} 謄本核發案件統計
+    .ml-1 {{ period  }} 謄本核發案件統計
     lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="本所+工作站") {{ count }}
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
@@ -100,7 +100,9 @@ export default {
   emit: ['ready'],
   component: {},
   props: {
-    noBorder: { type: Boolean, default: false }
+    noBorder: { type: Boolean, default: false },
+    begin: { type: String, default: '' },
+    end: { type: String, default: '' }
   },
   data: () => ({
     caseType: 'all',
@@ -148,11 +150,11 @@ export default {
     }
   }),
   computed: {
-    todayRaw () {
-      return this.todayDate?.replaceAll('-', '')
-    },
-    todayDate () {
-      return this.$utils.today('TW')
+    period () {
+      if (this.$utils.empty(this.begin) || this.$utils.empty(this.end)) {
+        return ''
+      }
+      return `${this.$utils.addDateDivider(this.begin)} ~ ${this.$utils.addDateDivider(this.end)}`
     },
     classNames () {
       const list = []
@@ -246,6 +248,12 @@ export default {
     },
     operators (val) {
       this.setCache('lah-stats-reg-cert-count-operators', val)
+    },
+    begin (dontcare) {
+      this.reset()
+    },
+    end (dontcare) {
+      this.reset()
     }
   },
   created () {
@@ -277,8 +285,8 @@ export default {
       this.reset()
       this.$axios.post(this.$consts.API.JSON.STATS, {
         type: 'stats_reg_cert_case',
-        st: this.todayRaw,
-        ed: this.todayRaw
+        st: this.begin,
+        ed: this.end
       }).then(({ data }) => {
         this.queryOK = this.$utils.statusCheck(data.status)
         this.raw = [...data.raw]
