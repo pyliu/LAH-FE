@@ -80,7 +80,7 @@ div
           title="EMAIL/統編/操作人員ID ... 等"
         ) {{ item.SMS_MAIL }}
       template(#cell(SMS_CONTENT)="{ item }")
-        .text-left {{ item.SMS_CONTENT }}
+        .text-left(v-html="parseContent(item)")
       template(#cell(SMS_RESULT)="{ item }")
         span {{ item.SMS_RESULT === 'S' ? '成功' : '失敗' }}
       template(#cell(SMS_TYPE)="{ item }")
@@ -176,6 +176,9 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    parseContent (item) {
+      return this.$utils.convertInlineMarkd(item.SMS_CONTENT)
+    },
     caseId (item) {
       return `${item.SMS_YEAR}-${item.SMS_CODE}-${item.SMS_NUMBER}`
     },
