@@ -54,7 +54,10 @@ div
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
       :busy="isBusy || busy",
-      :sticky-header="`${maxHeight}px`"
+      :sticky-header="`${maxHeight}px`",
+      selectable
+      select-mode="single"
+      selected-variant="primary"
     )
       template(#table-busy)
       template(#cell(SMS_CODE)="{ item }")
