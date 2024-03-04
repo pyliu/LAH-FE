@@ -82,7 +82,17 @@ div
       template(#cell(SMS_CONTENT)="{ item }")
         .text-left(v-html="parseContent(item)")
       template(#cell(SMS_RESULT)="{ item }")
-        span {{ item.SMS_RESULT === 'S' ? '成功' : '失敗' }}
+        lah-fa-icon(
+          v-if="item.SMS_RESULT === 'S'",
+          icon="check",
+          variant="success",
+          append
+        ) 成功
+        lah-fa-icon(
+          v-else,
+          icon="triangle-exclamation",
+          variant="danger"
+        ) 失敗({{ item.SMS_RESULT }})
       template(#cell(SMS_TYPE)="{ item }")
         .text-primary(v-if="item.SMS_TYPE.includes('異動即時通')") {{ item.SMS_TYPE }}
         .text-success(v-else-if="item.SMS_TYPE.includes('案件辦理情形')") {{ item.SMS_TYPE }}
