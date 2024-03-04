@@ -481,10 +481,20 @@ export default ({ $axios, store }, inject) => {
         const D = str.substring(6, 8)
         return `${Y}-${M}-${D}`
       }
-      const Y = str.substring(0, 3)
-      const M = str.substring(3, 5)
-      const D = str.substring(5, 7)
-      return `${Y}-${M}-${D}`
+      if (str.length === 7) {
+        // e.g. 1130304
+        const Y = str.substring(0, 3)
+        const M = str.substring(3, 5)
+        const D = str.substring(5, 7)
+        return `${Y}-${M}-${D}`
+      } else if (str.length === 6) {
+        // e.g. 991116
+        const Y = str.substring(0, 2)
+        const M = str.substring(2, 4)
+        const D = str.substring(4, 6)
+        return `${Y}-${M}-${D}`
+      }
+      return str
     },
     addTimeDivider (str) {
       if (this.empty(str)) {
