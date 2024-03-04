@@ -56,25 +56,25 @@ div
       :sticky-header="`${maxHeight}px`"
     )
       template(#table-busy)
-      template(#cell(MS04_2)="{ item }")
-        span(v-if="item.MS04_1.startsWith('SM')") {{ `${item.MS03}-${item.MS04_1}-${item.MS04_2}` }}
+      template(#cell(SMS_CODE)="{ item }")
+        span(v-if="item.SMS_CODE.startsWith('SM')") {{ `${item.SMS_YEAR}-${item.SMS_CODE}-${item.SMS_NUMBER}` }}
         b-link(
           v-else,
           href="#",
           @click="popup(item)"
-        ) {{ `${item.MS03}-${item.MS04_1}-${item.MS04_2}` }}
-      template(#cell(MS07_1)="{ item }")
-        b-link.text-nowrap(href="#", @click="keyword = item.MS07_1; searchType = 'date'") {{ $utils.addDateDivider(item.MS07_1) }}
-      template(#cell(MS07_2)="{ item }")
-        .text-nowrap {{ $utils.addTimeDivider(item.MS07_2) }}
-      template(#cell(MS14)="{ item }")
-        b-link(href="#", @click="keyword = item.MS14; searchType = 'cell'") {{ item.MS14 }}
-      template(#cell(MS_MAIL)="{ item }")
-        b-link(href="#", @click="keyword = item.MS_MAIL; searchType = 'email'") {{ item.MS_MAIL }}
-      template(#cell(MS_NOTE)="{ item }")
-        .text-left {{ item.MS_NOTE }}
-      template(#cell(MS31)="{ item }")
-        span {{ item.MS31 === 'S' ? '成功' : '失敗' }}
+        ) {{ `${item.SMS_YEAR}-${item.SMS_CODE}-${item.SMS_NUMBER}` }}
+      template(#cell(SMS_DATE)="{ item }")
+        b-link.text-nowrap(href="#", @click="keyword = item.SMS_DATE; searchType = 'date'") {{ item.SMS_DATE }}
+      template(#cell(SMS_TIME)="{ item }")
+        .text-nowrap {{ item.MS07_2 }}
+      template(#cell(SMS_CELL)="{ item }")
+        b-link(href="#", @click="keyword = item.SMS_CELL; searchType = 'cell'") {{ item.SMS_CELL }}
+      template(#cell(SMS_MAIL)="{ item }")
+        b-link(href="#", @click="keyword = item.SMS_MAIL; searchType = 'email'") {{ item.SMS_MAIL }}
+      template(#cell(SMS_CONTENT)="{ item }")
+        .text-left {{ item.SMS_CONTENT }}
+      template(#cell(SMS_RESULT)="{ item }")
+        span {{ item.SMS_RESULT === 'S' ? '成功' : '失敗' }}
       //- template(#cell(MS_NOTE)="{ item }")
       //-   b-link(href="#", @click="keyword = item.MS_NOTE; searchType = 'note'") {{ item.MS_NOTE }}
     .h5.center(v-else): lah-fa-icon(
@@ -110,18 +110,16 @@ export default {
     ],
     logs: [],
     fields: [
-      // { key: 'MS03', label: '收件年', sortable: true },
-      // { key: 'MS04_1', label: '收件字', sortable: true },
-      { key: 'MS04_2', label: '收件字號', sortable: true },
-      { key: 'MS_TYPE', label: '案件種類', sortable: true },
-      { key: 'MS07_1', label: '傳送日期', sortable: true },
-      { key: 'MS07_2', label: '傳送時間', sortable: true },
-      { key: 'MS14', label: '手機號碼', sortable: true },
-      { key: 'MS_MAIL', label: '電子郵件', sortable: true },
-      // { key: 'MS30', label: '傳送狀態', sortable: true },
-      { key: 'MS31', label: '傳送結果', sortable: true },
-      // { key: 'MS33', label: '傳送紀錄', sortable: true },
-      { key: 'MS_NOTE', label: '傳送內容', sortable: true }
+      // { key: 'SMS_YEAR', label: '收件年', sortable: true },
+      { key: 'SMS_CODE', label: '收件字', sortable: true },
+      // { key: 'SMS_NUMBER', label: '收件號', sortable: true },
+      { key: 'SMS_TYPE', label: '案件種類', sortable: true },
+      { key: 'SMS_DATE', label: '傳送日期', sortable: true },
+      { key: 'SMS_TIME', label: '傳送時間', sortable: true },
+      { key: 'SMS_CELL', label: '手機號碼', sortable: true },
+      { key: 'SMS_MAIL', label: '電子郵件', sortable: true },
+      { key: 'SMS_RESULT', label: '傳送結果', sortable: true },
+      { key: 'SMS_CONTENT', label: '傳送內容', sortable: true }
     ],
     maxHeight: 600,
     maxHeightOffset: 230
