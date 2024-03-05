@@ -80,7 +80,7 @@ div
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
         b-link(
-          v-if="!$utils.empty(item.SMS_CELL)",
+          v-if="!$utils.empty(item.SMS_CELL?.trim())",
           href="#",
           @click="keyword = item.SMS_CELL; reloadDebounced();",
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
