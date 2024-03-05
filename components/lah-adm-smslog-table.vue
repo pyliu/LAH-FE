@@ -64,21 +64,36 @@ div
         b-link(
           v-if="validCaseCode(item)",
           href="#",
-          @click="popup(item)"
-        ) {{ caseId(item) }}
+          @click="popup(item)",
+          :title="`開啟 ${caseId(item)} 案件詳情`"
+        )
+          lah-fa-icon(icon="window-restore", variant="primary", append) {{ caseId(item) }}
         span(v-else) {{ caseId(item) }}
       template(#cell(SMS_DATE)="{ item }")
-        b-link.text-nowrap(href="#", @click="keyword = item.SMS_DATE; reloadDebounced();") {{ $utils.addDateDivider(item.SMS_DATE) }}
+        b-link.text-nowrap(
+          href="#",
+          @click="keyword = item.SMS_DATE; reloadDebounced();",
+          :title="`依日期 ${item.SMS_DATE} 搜尋`"
+        )
+          lah-fa-icon(icon="magnifying-glass", append) {{ $utils.addDateDivider(item.SMS_DATE) }}
       template(#cell(SMS_TIME)="{ item }")
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
-        b-link(href="#", @click="keyword = item.SMS_CELL; reloadDebounced();") {{ item.SMS_CELL }}
+        b-link(
+          v-if="!$utils.empty(item.SMS_CELL)",
+          href="#",
+          @click="keyword = item.SMS_CELL; reloadDebounced();",
+          :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
+        )
+          lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_CELL }}
       template(#cell(SMS_MAIL)="{ item }")
         b-link(
+          v-if="!$utils.empty(item.SMS_MAIL?.trim())",
           href="#",
           @click="keyword = item.SMS_MAIL; reloadDebounced();",
-          title="EMAIL/統編/操作人員ID ... 等"
-        ) {{ item.SMS_MAIL }}
+          title="依 EMAIL/統編/操作人員ID ... 等搜尋"
+        )
+          lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_MAIL }}
       template(#cell(SMS_CONTENT)="{ item }")
         .text-left(v-html="parseContent(item)")
       template(#cell(SMS_RESULT)="{ item }")
