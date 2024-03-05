@@ -102,7 +102,7 @@ div
         .text-left(v-html="parseContent(item)")
       template(#cell(SMS_RESULT)="{ item }")
         lah-fa-icon(
-          v-if="item.SMS_RESULT === 'S'",
+          v-if="item.SMS_RESULT === 'S' || item.SMS_RESULT?.startsWith('OK')",
           icon="check",
           variant="success",
           append
