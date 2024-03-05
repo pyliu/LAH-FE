@@ -186,10 +186,10 @@ export default {
   },
   watch: {
     searchType (val) {
-      this.validSMSKeyword && this.reloadDebounced()
+      this.reloadDebounced()
     },
     keyword (val) {
-      // this.validSMSKeyword && this.reloadDebounced()
+      // this.reloadDebounced()
     }
   },
   async created () {
