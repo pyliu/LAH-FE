@@ -1,9 +1,24 @@
 %highlight-base {
-  background-color: yellow;
+  background-color: gold;
   font-weight: bolder;
   padding: 2px;
 }
 
-.highlight, .highlight-yellow {
+.highlight, .highlight-yellow, .highlight-gold, .highlight-warning {
   @extend %highlight-base;
+}
+
+.highlight-orange {
+  @extend %highlight-base;
+  background-color: orange;
+}
+
+.highlight-success, .highlight-green {
+  @extend %highlight-base;
+  background-color: greenyellow;
+}
+
+.highlight-danger, .highlight-red {
+  @extend %highlight-base;
+  background-color: red;
 }

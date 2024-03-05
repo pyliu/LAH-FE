@@ -77,7 +77,7 @@ div
           :title="`依日期 ${item.SMS_DATE} 搜尋`"
         )
           lah-fa-icon(icon="magnifying-glass", append) {{ $utils.addDateDivider(item.SMS_DATE) }}
-        span(v-else) {{ $utils.addDateDivider(item.SMS_DATE) }}
+        .highlight-gold(v-else) {{ $utils.addDateDivider(item.SMS_DATE) }}
       template(#cell(SMS_TIME)="{ item }")
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
@@ -88,7 +88,7 @@ div
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
         )
           lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_CELL }}
-        span(v-else) {{ item.SMS_CELL }}
+        span(v-else, :class="$utils.empty(item.SMS_CELL?.trim()) ? [] : ['highlight-gold']") {{ item.SMS_CELL }}
       template(#cell(SMS_MAIL)="{ item }")
         b-link(
           v-if="!$utils.empty(item.SMS_MAIL?.trim()) && item.SMS_MAIL?.trim() !== keyword",
@@ -97,7 +97,7 @@ div
           title="依 EMAIL/統編/操作人員ID ... 等搜尋"
         )
           lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_MAIL }}
-        span(v-else) {{ item.SMS_MAIL }}
+        span(v-else, :class="$utils.empty(item.SMS_MAIL?.trim()) ? [] : ['highlight-gold']") {{ item.SMS_MAIL }}
       template(#cell(SMS_CONTENT)="{ item }")
         .text-left(v-html="parseContent(item)")
       template(#cell(SMS_RESULT)="{ item }")
