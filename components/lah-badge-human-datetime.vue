@@ -31,11 +31,17 @@ export default {
   mounted () {},
   beforeDestroy () {},
   methods: {
-    humanText (ts) {
-      return this.$utils.formatDistanceToNow((ts || this.seconds) * 1000)
+    humanText () {
+      if (this.seconds < 0) {
+        return `無法計算(${this.seconds})`
+      }
+      return this.$utils.formatDistanceToNow((this.seconds) * 1000)
     },
-    adDatetime (ts) {
-      const d = this.$utils.phpTsToAdDateStr(ts || this.seconds, true)
+    adDatetime () {
+      if (this.seconds < 0) {
+        return `無法計算(${this.seconds})`
+      }
+      const d = this.$utils.phpTsToAdDateStr(this.seconds, true)
       if (!this.todayFullAdFormat) {
         return d.replace(this.$utils.today(), '').trim()
       }
