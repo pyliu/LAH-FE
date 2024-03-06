@@ -182,8 +182,11 @@ export default {
     }
   },
   watch: {
-    keyword (val) {
-      // this.reloadDebounced()
+    filterTime (dontcare) {
+      this.resetPagination()
+    },
+    filterType (dontcare) {
+      this.resetPagination()
     }
   },
   async created () {
@@ -235,12 +238,21 @@ export default {
         size: 'xl'
       })
     },
+    resetPagination () {
+      this.pagination = {
+        ...{
+          perPage: this.pagination.perPage,
+          currentPage: 1
+        }
+      }
+    },
     reload () {
       if (this.validSMSKeyword) {
         this.isBusy = true
         this.logs = []
         this.filterTime = '全部'
         this.filterType = '全部'
+        this.resetPagination()
         this.$axios
           .post(this.$consts.API.JSON.MOISMS, {
             type: 'moisms_log_query',
