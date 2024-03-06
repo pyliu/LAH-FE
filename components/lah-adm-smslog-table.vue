@@ -174,7 +174,7 @@ export default {
       this.keyword = this.inKeyword
       this.reload()
     }
-    this.reloadDebounced = this.$utils.debounce(this.reload, 800)
+    this.reloadDebounced = this.$utils.debounce(this.reload, 400)
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('sms-log-table-perPage') || 12)
   },
