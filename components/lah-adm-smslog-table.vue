@@ -239,6 +239,8 @@ export default {
       if (this.validSMSKeyword) {
         this.isBusy = true
         this.logs = []
+        this.filterTime = '全部'
+        this.filterType = '全部'
         this.$axios
           .post(this.$consts.API.JSON.MOISMS, {
             type: 'moisms_log_query',
