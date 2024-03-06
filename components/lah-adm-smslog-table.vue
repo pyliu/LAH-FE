@@ -2,9 +2,9 @@
 div
   .d-flex.align-items-center.justify-content-between.mb-2
     .d-flex.align-items-center
-      lah-fa-icon(icon="filter")
+      lah-fa-icon(icon="filter", title="依據簡訊類別篩選")
         b-select.filter-mw(v-model="filterType", :options="filterTypeOpts")
-      lah-fa-icon.mx-1(icon="clock")
+      lah-fa-icon.mx-1(icon="clock", title="依據時間篩選")
         b-select.filter-mw(v-model="filterTime", :options="filterTimeOpts")
       span(v-if="filterTime !== '全部'") 點
     lah-message(:message="message", auto-hide)
