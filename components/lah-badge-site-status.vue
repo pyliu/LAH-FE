@@ -127,7 +127,8 @@ export default {
       const found = this.officesData.find(item => item.ID === this.watchSite)
       const name = found ? found?.NAME : this.watchSite
       if (this.shortAlt) {
-        return `${this.watchSite} ${name.replace(/(所|地政事務所)/g, '')}`
+        // return `${this.watchSite} ${name.replace(/(所|地政事務所)/g, '')}`
+        return `${name.replace(/(所|地政事務所)/g, '')}`
       }
       return this.short ? name.replace(/(所|地政事務所)/g, '') : `${this.watchSite} ${name}`
     },

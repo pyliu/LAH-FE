@@ -1,8 +1,13 @@
 <template lang="pug">
 div
-  .d-flex.align-items-center.justify-content-between.mb-2(title="輸入日期、手機或EMAIL查詢")
+  .d-flex.align-items-center.justify-content-between.mb-2
+    .d-flex.align-items-center
+      lah-fa-icon(icon="filter")
+        b-select.filter-mw(v-model="filterType", :options="filterTypeOpts")
+      lah-fa-icon.mx-1(icon="clock")
+        b-select.filter-mw(v-model="filterTime", :options="filterTimeOpts")
+      span(v-if="filterTime !== '全部'") 點
     lah-message(:message="message", auto-hide)
-    div
     .d-flex.align-items-center
       lah-fa-icon.text-nowrap.mx-1(
         icon="comment-sms",
@@ -12,6 +17,7 @@ div
       b-input.keyword-mw(
         v-model="keyword",
         placeholder="... 日期/手機/EMAIL ...",
+        title="輸入日期、手機或EMAIL查詢",
         :state="validSMSKeyword",
         @keyup.enter="reload"
       )
@@ -45,7 +51,7 @@ div
       no-border-collapse,
       small,
       head-variant="dark"
-      :items="logs",
+      :items="filteredLogs",
       :fields="fields",
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
@@ -135,13 +141,10 @@ export default {
     },
     message: '',
     keyword: '',
-    searchOpts: [
-      { text: '全部', value: '' },
-      { text: '日期', value: 'date' },
-      { text: '手機', value: 'cell' },
-      { text: '郵件', value: 'email' },
-      { text: '內容', value: 'note' }
-    ],
+    filterType: '全部',
+    filterTypeOpts: ['全部', '地籍異動即時通', '案件辦理情形', { text: '其他(住址隱匿/代收代寄)', value: '住址隱匿/代收代寄' }],
+    filterTime: '全部',
+    filterTimeOpts: ['全部', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
     logs: [],
     fields: [
       // { key: 'SMS_YEAR', label: '收件年', sortable: true },
@@ -159,9 +162,23 @@ export default {
     maxHeightOffset: 230
   }),
   computed: {
-    count () { return this.logs?.length || 0 },
+    count () { return this.filteredLogs?.length || 0 },
     validSMSKeyword () {
       return this.$utils.length(this.keyword) > 2
+    },
+    filteredLogs () {
+      let pipelineItems = [...this.logs]
+      if (this.filterType !== '全部') {
+        pipelineItems = pipelineItems.filter((item) => {
+          return item.SMS_TYPE === this.filterType
+        })
+      }
+      if (this.filterTime !== '全部') {
+        pipelineItems = pipelineItems.filter((item) => {
+          return item.SMS_TIME.startsWith(this.filterTime)
+        })
+      }
+      return pipelineItems
     }
   },
   watch: {
@@ -249,5 +266,8 @@ export default {
 <style lang="scss" scoped>
 .keyword-mw {
   max-width: 250px;
+}
+.filter-mw {
+  max-width: 160px;
 }
 </style>
