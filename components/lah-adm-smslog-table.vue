@@ -4,10 +4,6 @@ div
     lah-message(:message="message", auto-hide)
     div
     .d-flex.align-items-center
-      //- b-radio-group.text-nowrap(
-      //-   v-model="searchType"
-      //-   :options="searchOpts"
-      //- )
       lah-fa-icon.text-nowrap.mx-1(
         icon="comment-sms",
         size="2x",
@@ -116,12 +112,10 @@ div
         .text-primary(v-if="item.SMS_TYPE.includes('異動即時通')") {{ item.SMS_TYPE }}
         .text-success(v-else-if="item.SMS_TYPE.includes('案件辦理情形')") {{ item.SMS_TYPE }}
         .font-weight-bold(v-else) {{ item.SMS_TYPE }}
-      //- template(#cell(MS_NOTE)="{ item }")
-      //-   b-link(href="#", @click="keyword = item.MS_NOTE; searchType = 'note'") {{ item.MS_NOTE }}
     .h5.center(v-else): lah-fa-icon(
       icon="triangle-exclamation",
       variant="warning"
-    ) {{ `${keyword} ${$utils.empty(searchTypeText) ? '' : `根據${searchTypeText}欄位搜尋`}找不到資料` }}
+    ) {{ `「${keyword}」搜尋不到資料` }}
 </template>
 
 <script>
@@ -141,7 +135,6 @@ export default {
     },
     message: '',
     keyword: '',
-    searchType: '',
     searchOpts: [
       { text: '全部', value: '' },
       { text: '日期', value: 'date' },
@@ -169,25 +162,9 @@ export default {
     count () { return this.logs?.length || 0 },
     validSMSKeyword () {
       return this.$utils.length(this.keyword) > 2
-    },
-    searchTypeText () {
-      switch (this.searchType) {
-        case 'cell':
-          return '手機號碼'
-        case 'date':
-          return '發送日期'
-        case 'email':
-          return '電子郵件'
-        case 'note':
-          return '簡訊內容'
-      }
-      return ''
     }
   },
   watch: {
-    searchType (val) {
-      this.reloadDebounced()
-    },
     keyword (val) {
       // this.reloadDebounced()
     }
@@ -248,15 +225,13 @@ export default {
         this.$axios
           .post(this.$consts.API.JSON.MOISMS, {
             type: 'moisms_log_query',
-            keyword: this.keyword?.replaceAll(/[-/]+/g, ''),
-            searchType: this.searchType
+            keyword: this.keyword?.replaceAll(/[-/]+/g, '')
           }).then(({ data }) => {
             const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
             this.message = `${status} ${data.message}`
             this.logs = [...data.raw]
             this.$emit('reload', {
               keyword: this.keyword,
-              type: this.searchType,
               logs: this.logs
             })
           }).catch((err) => {
