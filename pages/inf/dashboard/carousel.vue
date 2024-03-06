@@ -118,7 +118,7 @@ export default {
     secs: 10
   }),
   head: {
-    title: '智慧監控走馬燈-桃園市地政局'
+    title: '智慧監控輪播-桃園市地政局'
   },
   computed: {
     connectionText () {

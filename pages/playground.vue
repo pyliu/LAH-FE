@@ -19,7 +19,7 @@ div: client-only
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
   lah-flex-item-group
-    lah-monitor-board-sms
+    lah-monitor-board-sms(footer)
     lah-office-down-timeline.card-body-fixed-height-3
     lah-monitor-board-srmas.card-body-fixed-height-3
     b-card.border-0(no-body)

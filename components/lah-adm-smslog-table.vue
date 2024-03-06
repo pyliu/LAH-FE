@@ -132,6 +132,7 @@ export default {
   components: { lahRegCaseDetailVue },
   props: {
     inKeyword: { type: String, default: '' },
+    inLogs: { type: Array, default: () => ([]) },
     busy: { type: Boolean, default: false }
   },
   data: () => ({
@@ -192,7 +193,8 @@ export default {
   async created () {
     if (!this.$utils.empty(this.inKeyword)) {
       this.keyword = this.inKeyword
-      this.reload()
+      this.logs = [...this.inLogs]
+      this.$utils.empty(this.inLogs) && this.reload()
     }
     this.reloadDebounced = this.$utils.debounce(this.reload, 400)
     // restore setting by user
@@ -269,7 +271,6 @@ export default {
             this.error = err
           }).finally(() => {
             this.isBusy = false
-            this.pagination.currentPage = 1
           })
       }
     }
