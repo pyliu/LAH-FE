@@ -48,20 +48,20 @@ b-card(:border-variant="border")
     ) 讀取中...
     section(v-else)
       .d-flex.justify-content-between.align-items-center
-        div - 地籍異動即時通
-        b-link(@click="popupSingleSMS(firstNotifyLog)") {{ firstNotifyLog.SMS_CELL }}
+        lah-fa-icon.font-weight-bold(icon="circle", :variant="firstNotifyLight") 地籍異動即時通
+        b-link(@click="popupSingleSMS(firstNotifyLog)") {{ firstNotifyLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstNotifyLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstNotifyLog)") {{ firstNotifyLog.SMS_CONTENT }}
       hr
       .d-flex.justify-content-between.align-items-center
-        div - 案件辦理情形
-        b-link(@click="popupSingleSMS(firstCaseLog)") {{ firstCaseLog.SMS_CELL }}
+        lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 案件辦理情形
+        b-link(@click="popupSingleSMS(firstCaseLog)") {{ firstCaseLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstCaseLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)") {{ firstCaseLog.SMS_CONTENT }}
       hr
       .d-flex.justify-content-between.align-items-center
-        div - 其他簡訊
-        b-link(@click="popupSingleSMS(firstOtherLog)") {{ firstOtherLog.SMS_CELL }}
+        lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他簡訊
+        b-link(@click="popupSingleSMS(firstOtherLog)") {{ firstOtherLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstOtherLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstOtherLog)") {{ firstOtherLog.SMS_CONTENT }}
 
@@ -97,6 +97,9 @@ export default {
     this.loadSMS()
   },
   computed: {
+    firstNotifyLight () {
+      return this.itemLight(this.firstNotifyLog)
+    },
     firstNotifyLog () {
       const log = this.notifyLogs[0]
       if (this.$utils.empty(log)) {
@@ -109,6 +112,9 @@ export default {
         return item.SMS_TYPE === '地籍異動即時通'
       })
     },
+    firstCaseLight () {
+      return this.itemLight(this.firstCaseLog)
+    },
     firstCaseLog () {
       const log = this.caseLogs[0]
       if (this.$utils.empty(log)) {
@@ -120,6 +126,9 @@ export default {
       return this.logs.filter((item) => {
         return item.SMS_TYPE === '案件辦理情形'
       })
+    },
+    firstOtherLight () {
+      return this.itemLight(this.firstOtherLog)
     },
     firstOtherLog () {
       const log = this.otherLogs[0]
@@ -141,8 +150,11 @@ export default {
     },
     light () {
       if (this.logs?.length !== 0) {
-        if (!this.firstCaseLog) {
+        const lights = [this.firstOtherLight, this.firstCaseLight, this.firstNotifyLight]
+        if (lights.find(light => light === 'danger')) {
           return 'danger'
+        } else if (lights.find(light => light === 'warning')) {
+          return 'warning'
         }
         return 'success'
       }
@@ -174,6 +186,15 @@ export default {
         new: n,
         old: o
       })
+    },
+    itemLight (item) {
+      if (!this.$utils.empty(item)) {
+        return this.isSuccess(item) ? 'success' : 'danger'
+      }
+      return 'secondary'
+    },
+    isSuccess (item) {
+      return item.SMS_RESULT === 'S' || item.SMS_RESULT?.startsWith('OK')
     },
     convertSeconds (item) {
       if (!this.$utils.empty(item)) {
@@ -235,18 +256,20 @@ export default {
       })
     },
     popupSingleSMS (item) {
-      this.modal(this.$createElement(lahAdmSmslogTableVue, {
-        props: {
-          inKeyword: this.today,
-          inLogs: [item]
-        }
-      }), {
-        title: '地政系統簡訊綜合記錄檔查詢',
-        size: 'xl',
-        noCloseOnBackdrop: true,
-        centered: false,
-        scrollable: false
-      })
+      if (item) {
+        this.modal(this.$createElement(lahAdmSmslogTableVue, {
+          props: {
+            inKeyword: this.today,
+            inLogs: [item]
+          }
+        }), {
+          title: '地政系統簡訊綜合記錄檔查詢',
+          size: 'xl',
+          noCloseOnBackdrop: true,
+          centered: false,
+          scrollable: false
+        })
+      }
     }
   }
 }
