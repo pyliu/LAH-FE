@@ -51,19 +51,19 @@ b-card(:border-variant="border")
         lah-fa-icon.font-weight-bold(icon="circle", :variant="firstNotifyLight") 地籍異動即時通
         b-link(@click="popupSingleSMS(firstNotifyLog)") {{ firstNotifyLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstNotifyLog)")
-      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstNotifyLog)") {{ firstNotifyLog.SMS_CONTENT }}
+      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstNotifyLog)") {{ isSuccess(firstNotifyLog) ? firstNotifyLog.SMS_CONTENT : firstNotifyLog.SMS_RESULT }}
       hr
       .d-flex.justify-content-between.align-items-center
         lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 案件辦理情形&emsp;
         b-link(@click="popupSingleSMS(firstCaseLog)") {{ firstCaseLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstCaseLog)")
-      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)") {{ firstCaseLog.SMS_CONTENT }}
+      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)") {{ isSuccess(firstCaseLog) ? firstCaseLog.SMS_CONTENT : firstCaseLog.SMS_RESULT }}
       hr
       .d-flex.justify-content-between.align-items-center
         lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他簡訊&emsp;&emsp;&emsp;
         b-link(@click="popupSingleSMS(firstOtherLog)") {{ firstOtherLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstOtherLog)")
-      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstOtherLog)") {{ firstOtherLog.SMS_CONTENT }}
+      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstOtherLog)") {{ isSuccess(firstOtherLog) ? firstOtherLog.SMS_CONTENT : firstOtherLog.SMS_RESULT }}
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -256,7 +256,7 @@ export default {
       })
     },
     popupSingleSMS (item) {
-      if (item) {
+      if (!this.$utils.empty(item)) {
         this.modal(this.$createElement(lahAdmSmslogTableVue, {
           props: {
             inKeyword: this.today,
