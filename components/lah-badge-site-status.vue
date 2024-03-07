@@ -119,7 +119,7 @@ export default {
     name () {
       if (this.isStatic) {
         if (this.shortAlt) {
-          return `${this.staticData.id} ${this.staticData.name.replace(/(所|地政事務所)/g, '')}`
+          return `${this.staticData.name.replace(/(所|地政事務所)/g, '')}`
         }
         return this.short ? this.staticData.name.replace(/(所|地政事務所)/g, '') : `${this.staticData.id} ${this.staticData.name}`
       }
