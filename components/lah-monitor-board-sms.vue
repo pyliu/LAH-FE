@@ -49,19 +49,19 @@ b-card(:border-variant="border")
     section(v-else)
       .d-flex.justify-content-between.align-items-center
         lah-fa-icon.font-weight-bold(icon="circle", :variant="firstNotifyLight") 地籍異動即時通
-        b-link(@click="popupSingleSMS(firstNotifyLog)", title="顯示簡訊內容視窗") {{ firstNotifyLog.SMS_CELL || firstNotifyLog.SMS_EMAIL || '本日尚無發送簡訊' }}
+        b-link(@click="popupSingleSMS(firstNotifyLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstNotifyLog) }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstNotifyLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstNotifyLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstNotifyLog) ? firstNotifyLog.SMS_CONTENT : firstNotifyLog.SMS_RESULT }}
       hr
       .d-flex.justify-content-between.align-items-center
         lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 案件辦理情形&emsp;
-        b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ firstCaseLog.SMS_CELL || firstCaseLog.SMS_EMAIL || '本日尚無發送簡訊' }}
+        b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstCaseLog) }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstCaseLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstCaseLog) ? firstCaseLog.SMS_CONTENT : firstCaseLog.SMS_RESULT }}
       hr
       .d-flex.justify-content-between.align-items-center
         lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他簡訊&emsp;&emsp;&emsp;
-        b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ firstOtherLog.SMS_CELL || firstOtherLog.SMS_EMAIL || '本日尚無發送簡訊' }}
+        b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstOtherLog) }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstOtherLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstOtherLog) ? firstOtherLog.SMS_CONTENT : firstOtherLog.SMS_RESULT }}
 
@@ -186,6 +186,15 @@ export default {
         new: n,
         old: o
       })
+    },
+    itemDisplayText (item) {
+      if (!this.$utils.empty(item.SMS_CELL)) {
+        return item.SMS_CELL
+      }
+      if (!this.$utils.empty(item.SMS_MAIL)) {
+        return item.SMS_MAIL
+      }
+      return '本日尚無發送簡訊'
     },
     itemLight (item) {
       if (!this.$utils.empty(item)) {
