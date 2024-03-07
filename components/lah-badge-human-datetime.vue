@@ -33,13 +33,13 @@ export default {
   methods: {
     humanText () {
       if (this.seconds < 0) {
-        return `無法計算(${this.seconds})`
+        return `無法顯示(${this.seconds})`
       }
       return this.$utils.formatDistanceToNow((this.seconds) * 1000)
     },
     adDatetime () {
       if (this.seconds < 0) {
-        return `無法計算(${this.seconds})`
+        return `無法顯示(${this.seconds})`
       }
       const d = this.$utils.phpTsToAdDateStr(this.seconds, true)
       if (!this.todayFullAdFormat) {

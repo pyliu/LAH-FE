@@ -54,13 +54,13 @@ b-card(:border-variant="border")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstNotifyLog)") {{ firstNotifyLog.SMS_CONTENT }}
       hr
       .d-flex.justify-content-between.align-items-center
-        lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 案件辦理情形
+        lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 案件辦理情形&emsp;
         b-link(@click="popupSingleSMS(firstCaseLog)") {{ firstCaseLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstCaseLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)") {{ firstCaseLog.SMS_CONTENT }}
       hr
       .d-flex.justify-content-between.align-items-center
-        lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他簡訊
+        lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他簡訊&emsp;&emsp;&emsp;
         b-link(@click="popupSingleSMS(firstOtherLog)") {{ firstOtherLog.SMS_CELL || '尚無發送簡訊' }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstOtherLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstOtherLog)") {{ firstOtherLog.SMS_CONTENT }}
