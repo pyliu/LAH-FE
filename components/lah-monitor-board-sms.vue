@@ -38,8 +38,8 @@ b-card(:border-variant="border")
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示找不到任何簡訊訊息
-      div 🔴 表示找不到案件辦理情形的簡訊
+      div 🟡 表示找不到任何簡訊發送的紀錄
+      div 🔴 表示最新簡訊發送有失敗的狀況
   slot
   lah-transition
     .center(v-if="isBusy"): lah-fa-icon(
