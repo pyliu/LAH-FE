@@ -169,7 +169,7 @@ export default {
       if (text) {
         const highlighted = this.$utils?.highlightPipeline(text)
         const domsafe = this.$utils?.convertMarkd(highlighted)
-        if (/!\[.+\]\(data:image\/.+\)/gm.test(domsafe)) {
+        if (/!\[.+\]\(data:image\/.+\)/gm.test(domsafe) && domsafe.repaceAll) {
           // convert for images ...
           return this.$utils.convertInlineMarkd(domsafe?.repaceAll('\n', ''))
         }
