@@ -4,9 +4,12 @@ div
     .d-flex.align-items-center
       lah-fa-icon(icon="filter", title="依據簡訊類別篩選")
         b-select.filter-mw(v-model="filterType", :options="filterTypeOpts")
-      lah-fa-icon.mx-1(icon="clock", title="依據時間篩選")
+      strong.mx-3 |
+      lah-fa-icon(icon="clock", title="依據時間篩選")
         b-select.filter-mw(v-model="filterTime", :options="filterTimeOpts")
-      span(v-if="filterTime !== '全部'") 點
+      .ml-1(v-if="filterTime !== '全部'") 點
+      strong.mx-3 |
+      b-checkbox.ml-1(v-model="watchFails", switch) 僅顯示傳送失敗
     lah-message(:message="message", auto-hide)
     .d-flex.align-items-center
       lah-fa-icon.text-nowrap.mx-1(
@@ -140,6 +143,7 @@ export default {
       perPage: 12,
       currentPage: 1
     },
+    watchFails: false,
     message: '',
     keyword: '',
     filterType: '全部',
@@ -169,6 +173,11 @@ export default {
     },
     filteredLogs () {
       let pipelineItems = [...this.logs]
+      if (this.watchFails) {
+        pipelineItems = pipelineItems.filter((item) => {
+          return item.SMS_RESULT !== 'S' && !item.SMS_RESULT?.startsWith('OK')
+        })
+      }
       if (this.filterType !== '全部') {
         pipelineItems = pipelineItems.filter((item) => {
           return item.SMS_TYPE === this.filterType
@@ -248,13 +257,17 @@ export default {
         }
       }
     },
+    reset () {
+      this.filterTime = '全部'
+      this.filterType = '全部'
+      this.watchFails = false
+      this.resetPagination()
+    },
     reload () {
       if (this.validSMSKeyword) {
         this.isBusy = true
         this.logs = []
-        this.filterTime = '全部'
-        this.filterType = '全部'
-        this.resetPagination()
+        this.reset()
         this.$axios
           .post(this.$consts.API.JSON.MOISMS, {
             type: 'moisms_log_query',

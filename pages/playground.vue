@@ -44,7 +44,7 @@ div: client-only
       //-   auto-hide-time="3000",
       //-   @close="$refs.gm.open()"
       //- )
-      lah-badge-latest-certno(size="lg")
+      //- lah-badge-latest-certno(size="lg")
       lah-badge-ip(ip="220.1.34.17", port="8082", period="15000", size="lg")
       lah-badge-ip.ml-1(ip="220.1.34.233", :badge="false", size="lg")
       lah-badge-site-status.ml-1(watch-site="HB", period="60000")
