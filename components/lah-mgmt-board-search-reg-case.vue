@@ -54,7 +54,13 @@ b-card(border-variant="secondary")
       b-col 收件日期：{{ crsmsData['收件日期'] }}
       b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }} {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
     b-row(:class="cellPhoneWarningCss")
-      b-col(title="案件辦理情形簡訊接收號碼")
+      b-col(title="案件辦理情形簡訊接收號碼"): .d-flex.align-items-center.text-nowrap
+        lah-fa-icon.mr-1(
+          v-if="!$utils.isMobileValid(crsmsData['手機號碼'])",
+          icon="ban",
+          variant="danger",
+          title="非有效之電話號碼"
+        )
         lah-fa-icon(
           icon="mobile-screen",
           append,
@@ -66,6 +72,7 @@ b-card(border-variant="secondary")
             @click="popupSMSLog(crsmsData['手機號碼'])",
             :title="`根據${crsmsData['手機號碼']}搜尋簡訊紀錄`"
           ) 手機號碼：{{ crsmsData['手機號碼'] }}
+
       b-col
         lah-fa-icon(
           v-if="cellPhoneEmpty",
