@@ -60,7 +60,7 @@ b-card(:border-variant="border")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstCaseLog) ? firstCaseLog.SMS_CONTENT : firstCaseLog.SMS_RESULT }}
       hr
       .d-flex.justify-content-between.align-items-center
-        .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他簡訊&emsp;&emsp;&emsp;
+        .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他類型&emsp;&emsp;&emsp;
         .truncate.text-center: b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstOtherLog) }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstOtherLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstOtherLog) ? firstOtherLog.SMS_CONTENT : firstOtherLog.SMS_RESULT }}
