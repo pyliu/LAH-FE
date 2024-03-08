@@ -299,8 +299,8 @@ export default ({ $axios, store }, inject) => {
       }
     },
     isMobileValid (num) {
-      const regex = /^09\\d{8}$/g
-      return regex.test(num)
+      const regex = /^09\d{8}$/g
+      return regex.test(num.trim())
     },
     isOfficeHours () {
       const now = new Date()
