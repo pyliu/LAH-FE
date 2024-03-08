@@ -298,6 +298,10 @@ export default ({ $axios, store }, inject) => {
           return `不支援的狀態碼【${statusCode}】`
       }
     },
+    isMobileValid (num) {
+      const regex = /^09\\d{8}$/g
+      return regex.test(num)
+    },
     isOfficeHours () {
       const now = new Date()
       if (now.getDay() === 0 || now.getDay() === 6) {
