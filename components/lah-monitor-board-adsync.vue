@@ -35,7 +35,7 @@ b-card(:border-variant="border")
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 AD SYNC 狀態，每天8點同步
-        li 儀錶板每15分鐘重新檢查一次
+        li 儀表板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常

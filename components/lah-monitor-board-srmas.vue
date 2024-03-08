@@ -64,7 +64,7 @@ b-card(:border-variant="border")
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 SRMAS 系統回報訊息分析統計
-        li 儀錶板每15分鐘重新檢查一次
+        li 儀表板每15分鐘重新檢查一次
       hr
       .d-flex.align-items-center
         span 👉 顯示最近

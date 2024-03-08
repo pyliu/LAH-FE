@@ -13,7 +13,7 @@ div: client-only
         title="說明"
       )
       lah-help-modal(ref="helpMpdal"): ul
-        li 顯示與自身相關的各項統計儀錶板
+        li 顯示與自身相關的各項統計儀表板
     .d-flex
   b-card-group(columns)
     b-card(no-body)

@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div 局端監控儀錶板
+          div 局端監控儀表板
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         div 右側選單區域
     lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
@@ -15,7 +15,7 @@ div(v-cloak)
 <script>
 export default {
   head: {
-    title: '局端監控儀錶板-桃園市地政局'
+    title: '局端監控儀表板-桃園市地政局'
   },
   fetchOnServer: false
 }

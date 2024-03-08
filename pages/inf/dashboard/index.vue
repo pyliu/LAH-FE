@@ -4,12 +4,12 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
         .d-flex.align-items-center
-          .my-auto(v-if="filtering === false") {{ site }} 智慧監控儀錶板
+          .my-auto(v-if="filtering === false") {{ site }} 智慧監控儀表板
           .d-flex.align-items-center(v-else)
-            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'success'") 綠燈狀態儀錶板
-            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'warning'") 黃燈狀態儀錶板
-            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'danger'") 紅燈狀態儀錶板
-            span(v-if="filtering === 'warning&danger'") 🔴+🟡 異常狀態儀錶板
+            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'success'") 綠燈狀態儀表板
+            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'warning'") 黃燈狀態儀表板
+            lah-fa-icon.mr-1.ml-2(icon="circle", :variant="filtering", v-if="filtering === 'danger'") 紅燈狀態儀表板
+            span(v-if="filtering === 'warning&danger'") 🔴+🟡 異常狀態儀表板
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -155,7 +155,7 @@ export default {
     filterList: []
   }),
   head: {
-    title: '智慧監控儀錶板-桃園市地政局'
+    title: '智慧監控儀表板-桃園市地政局'
   },
   computed: {
     lightMap () {

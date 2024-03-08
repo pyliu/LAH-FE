@@ -45,7 +45,7 @@ b-card(:border-variant="border")
         li 檢視P8-2、P7-102及hb-114內相關文字(log sequence及switchover status)狀態，如下圖。
         b-img(src="~/assets/img/mb_dataguard.jpg", fluid, thumbnail)
         li 每天 08:00 及 13:00 檢查
-        li 儀錶板每15分鐘更新一次
+        li 儀表板每15分鐘更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
