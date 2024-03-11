@@ -76,7 +76,7 @@ div
         span(v-else) {{ caseId(item) }}
       template(#cell(SMS_DATE)="{ item }")
         b-link.text-nowrap(
-          v-if="validateDateKeyword(item)",
+          v-if="notDateKeuword(item)",
           href="#",
           @click="keyword = item.SMS_DATE; reloadDebounced();",
           :title="`依日期 ${item.SMS_DATE} 搜尋`"
@@ -87,7 +87,7 @@ div
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
         b-link(
-          v-if="validateCellKeyword(item)",
+          v-if="notCellKeuword(item)",
           href="#",
           @click="keyword = item.SMS_CELL; reloadDebounced();",
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
@@ -126,7 +126,7 @@ div
     .h5.center(v-else): lah-fa-icon(
       icon="triangle-exclamation",
       variant="warning"
-    ) {{ `「${keyword}」搜尋不到資料` }}
+    ) {{ `「${sanitizedKeyword}」搜尋不到資料` }}
 </template>
 
 <script>
@@ -170,6 +170,23 @@ export default {
   }),
   computed: {
     count () { return this.filteredLogs?.length || 0 },
+    sanitizedKeyword () {
+      let w = this.keyword
+      if (w) {
+        if (w.includes('-')) {
+          // parse as TW date
+          const parts = w.split('-')
+          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}-${parts[2]?.padStart(2, '0')}`
+        }
+        if (w.includes('/')) {
+          // parse as TW date
+          const parts = w.split('/')
+          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}-${parts[2]?.padStart(2, '0')}`
+        }
+        return w?.replaceAll(/[-/]+/g, '')
+      }
+      return ''
+    },
     validSMSKeyword () {
       return !this.$utils.empty(this.keyword) && this.$utils.length(this.keyword) > 2
     },
@@ -230,15 +247,15 @@ export default {
                return item.SMS_CODE.startsWith(`H${val}`)
              })
     },
-    validateDateKeyword (item) {
+    notDateKeuword (item) {
       if (this.keyword) {
-        return item.SMS_DATE?.trim().replaceAll('-', '') !== this.keyword?.replaceAll('-', '')
+        return item.SMS_DATE?.trim().replaceAll('-', '') !== this.sanitizedKeyword
       }
       return false
     },
-    validateCellKeyword (item) {
+    notCellKeuword (item) {
       if (this.keyword) {
-        return !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL?.trim() !== this.keyword
+        return !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL?.trim() !== this.sanitizedKeyword
       }
       return false
     },
@@ -285,7 +302,7 @@ export default {
         this.$axios
           .post(this.$consts.API.JSON.MOISMS, {
             type: 'moisms_log_query',
-            keyword: this.keyword?.replaceAll(/[-/]+/g, '')
+            keyword: this.sanitizedKeyword
           }).then(({ data }) => {
             const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
             this.message = `${status} ${data.message}`
