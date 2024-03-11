@@ -24,7 +24,7 @@ div: client-only
     lah-monitor-board-srmas.card-body-fixed-height-3
     b-card.border-0(no-body)
       lah-monitor-board-site-tw
-    b-card
+    b-card.center
       lah-clock
     b-card
       lah-period-stats-chart

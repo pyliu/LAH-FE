@@ -29,8 +29,9 @@ div
         title="依條件查詢SMS紀錄",
         size="md",
         @click="reload",
-        :disabled="!validSMSKeyword"
-      ) 搜尋
+        :disabled="!validSMSKeyword",
+        no-icon-gutter
+      )
   lah-transition: lah-pagination(
     v-if="count > pagination.perPage"
     v-model="pagination",
