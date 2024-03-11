@@ -45,18 +45,18 @@ export default {
   },
   methods: {
     getAMPM (h) {
-      return h >= 12 ? 'PM' : 'AM'
+      return parseInt(h) >= 12 ? 'PM' : 'AM'
     },
     padTimeZero (n) {
       return n.toString().padStart(2, '0')
     },
     async updateDateTime () {
       const now = new Date()
-      // this.hours = this.padTimeZero(now.getHours())
+      this.hours = this.padTimeZero(now.getHours())
       this.minutes = this.padTimeZero(now.getMinutes())
       this.seconds = this.padTimeZero(now.getSeconds())
       this.hourtime = this.getAMPM(this.hours)
-      this.hours = this.padTimeZero(this.hours % HOUR || HOUR)
+      this.hours = this.padTimeZero(parseInt(this.hours) % HOUR || HOUR)
       this.timer = await this.timeout(this.updateDateTime, SECONDS)
     }
   }
