@@ -72,6 +72,11 @@ a {
   @include center();
 }
 
+.center-h100 {
+  @include center();
+  height: 100%;
+}
+
 .vertical-center {
   margin: 0;
   position: absolute;

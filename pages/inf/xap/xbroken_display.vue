@@ -58,7 +58,7 @@
       :badge="false",
       short-alt
     )
-  lah-clock.fix-clock
+  lah-clock.fix-clock.lah-shadow
   .fix-logo
   .fix-taogirl-L
   .fix-taogirl-R
