@@ -14,7 +14,7 @@
     .d-flex.my-5
       .h1 跨域ONLINE即時通，服務無礙一點通
   .my-4
-  lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市各地所服務狀態
+  lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所即時服務狀態
   hr.my-3
   client-only: .offices.justify-content-between
     lah-badge-site-status.office(
@@ -46,10 +46,10 @@
   .h1.center(
     v-if="downOffices.length === 0"
   ) 🟢 全國各地所皆可正常提供服務
-  .d-flex.justify-content-between.flex-wrap(
+  .d-flex.flex-wrap(
     v-else
   )
-    lah-badge-site-status.other-office.mr-2.mb-2(
+    lah-badge-site-status.other-office.mr-4.mb-4(
       v-for="office in downOffices",
       :ref="office.id",
       :key="office.id",
