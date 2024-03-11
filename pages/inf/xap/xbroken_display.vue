@@ -14,7 +14,7 @@
     .d-flex.my-5
       .h1 跨域ONLINE即時通，服務無礙一點通
   .my-4
-  lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所即時服務狀態
+  lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所#[strong.text-primary 即時]服務狀態
   hr.my-3
   client-only: .offices.justify-content-between
     lah-badge-site-status.office(
@@ -41,7 +41,7 @@
     lah-fa-icon.h3(
       icon="clock",
       variant="muted"
-    ) 更新時間：{{ updatedTime }}
+    ) 每5分鐘更新，上次更新：{{ updatedTime }}
   hr.my-3
   .h1.center(
     v-if="downOffices.length === 0"
