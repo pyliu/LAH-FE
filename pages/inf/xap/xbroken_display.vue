@@ -37,7 +37,7 @@
       :variant="downOffices.length === 0 ? 'success' : 'danger'"
     )
       span 無法提供服務的地所
-      span.ml-1(v-if="downOffices.length > 0") ({{ downOffices.length }})
+      span.ml-1 ({{ downOffices.length }})
     lah-fa-icon.h3(
       icon="clock",
       variant="muted"
