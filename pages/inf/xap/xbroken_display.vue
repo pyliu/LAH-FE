@@ -35,7 +35,9 @@
       icon="heart-pulse",
       action="heartbeat",
       :variant="downOffices.length === 0 ? 'success' : 'danger'"
-    ) 無法提供服務的地所
+    )
+      span 無法提供服務的地所
+      span.ml-1(v-if="downOffices.length > 0") ({{ downOffices.length }})
     lah-fa-icon.h3(
       icon="clock",
       variant="muted"
