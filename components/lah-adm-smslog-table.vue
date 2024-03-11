@@ -76,7 +76,7 @@ div
         span(v-else) {{ caseId(item) }}
       template(#cell(SMS_DATE)="{ item }")
         b-link.text-nowrap(
-          v-if="item.SMS_DATE?.trim().replaceAll('-', '') !== keyword.replaceAll('-', '')",
+          v-if="item.SMS_DATE?.trim().replaceAll('-', '') !== keyword?.replaceAll('-', '')",
           href="#",
           @click="keyword = item.SMS_DATE; reloadDebounced();",
           :title="`依日期 ${item.SMS_DATE} 搜尋`"
@@ -87,7 +87,7 @@ div
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
         b-link(
-          v-if="!$utils.empty(item.SMS_CELL?.trim()) && item.SMS_CELL?.trim() !== keyword",
+          v-if="!$utils.empty(item.SMS_CELL) && item.SMS_CELL?.trim() !== keyword",
           href="#",
           @click="keyword = item.SMS_CELL; reloadDebounced();",
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
@@ -171,7 +171,7 @@ export default {
   computed: {
     count () { return this.filteredLogs?.length || 0 },
     validSMSKeyword () {
-      return this.$utils.length(this.keyword) > 2
+      return !this.$utils.empty(this.keyword) && this.$utils.length(this.keyword) > 2
     },
     filteredLogs () {
       let pipelineItems = [...this.logs]
