@@ -76,7 +76,7 @@ div
         span(v-else) {{ caseId(item) }}
       template(#cell(SMS_DATE)="{ item }")
         b-link.text-nowrap(
-          v-if="item.SMS_DATE?.trim().replaceAll('-', '') !== keyword?.replaceAll('-', '')",
+          v-if="validateDateKeyword(item)",
           href="#",
           @click="keyword = item.SMS_DATE; reloadDebounced();",
           :title="`依日期 ${item.SMS_DATE} 搜尋`"
@@ -87,7 +87,7 @@ div
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
         b-link(
-          v-if="!$utils.empty(item.SMS_CELL) && item.SMS_CELL?.trim() !== keyword",
+          v-if="validateCellKeyword(item)",
           href="#",
           @click="keyword = item.SMS_CELL; reloadDebounced();",
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
@@ -229,6 +229,18 @@ export default {
              [1, 2, 3, 4, 5, 6, 7, 8].find((val, idx, arr) => {
                return item.SMS_CODE.startsWith(`H${val}`)
              })
+    },
+    validateDateKeyword (item) {
+      if (this.keyword) {
+        return item.SMS_DATE?.trim().replaceAll('-', '') !== this.keyword?.replaceAll('-', '')
+      }
+      return false
+    },
+    validateCellKeyword (item) {
+      if (this.keyword) {
+        return !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL?.trim() !== this.keyword
+      }
+      return false
     },
     handlePaginationInput (payload) {
       // remember user changed number
