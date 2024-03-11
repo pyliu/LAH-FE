@@ -44,10 +44,10 @@
   .h1.center(
     v-if="downOffices.length === 0"
   ) 🟢 全國各地所皆可正常提供服務
-  .d-flex.flex-wrap(
+  .d-flex.justify-content-between.flex-wrap(
     v-else
   )
-    lah-badge-site-status.other-office.m-1(
+    lah-badge-site-status.other-office.m-2(
       v-for="office in downOffices",
       :ref="office.id",
       :key="office.id",
