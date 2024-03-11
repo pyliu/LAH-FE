@@ -146,6 +146,7 @@ export default {
     border: 1px solid gray;
     border-radius: 15px;
     font-size: xx-large;
+    background-color: white;
   }
 }
 .other-office {
