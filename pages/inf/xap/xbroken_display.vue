@@ -49,7 +49,7 @@
   .d-flex.justify-content-between.flex-wrap(
     v-else
   )
-    lah-badge-site-status.other-office.m-2(
+    lah-badge-site-status.other-office.mr-2.mb-2(
       v-for="office in downOffices",
       :ref="office.id",
       :key="office.id",
@@ -157,6 +157,8 @@ export default {
   border: 1px solid gray;
   border-radius: 15px;
   font-size: xx-large;
+  background-color: lightgray;
+  color: black;
 }
 .fix-logo {
   position: fixed;
