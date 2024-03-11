@@ -25,8 +25,7 @@ div: client-only
     b-card.border-0(no-body)
       lah-monitor-board-site-tw
     b-card
-      lah-datepicker(type="AD")
-      lah-datepicker
+      lah-clock
     b-card
       lah-period-stats-chart
     b-card

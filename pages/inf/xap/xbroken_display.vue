@@ -58,6 +58,7 @@
       :badge="false",
       short-alt
     )
+  lah-clock.fix-clock
   .fix-logo
   .fix-taogirl-L
   .fix-taogirl-R
@@ -169,6 +170,12 @@ export default {
   background-image: url(~/assets/img/taoyuan_logo.png);
   background-repeat: no-repeat;
   background-size: cover;
+}
+.fix-clock {
+  position: fixed;
+  bottom: 0px;
+  right: 10px;
+  z-index: 1002;
 }
 .fix-taogirl-R {
   position: fixed;
