@@ -274,7 +274,7 @@ export default {
         }), {
           title: '地政系統簡訊綜合記錄檔查詢',
           size: 'xl',
-          noCloseOnBackdrop: true,
+          noCloseOnBackdrop: false,
           centered: false,
           scrollable: false
         })

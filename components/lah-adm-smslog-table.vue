@@ -177,12 +177,14 @@ export default {
         if (w.includes('-')) {
           // parse as TW date
           const parts = w.split('-')
-          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}-${parts[2]?.padStart(2, '0')}`
+          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
+          parts.length === 3 && !this.$utils.empty(parts[2]) && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
         }
         if (w.includes('/')) {
           // parse as TW date
           const parts = w.split('/')
-          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}-${parts[2]?.padStart(2, '0')}`
+          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
+          parts.length === 3 && !this.$utils.empty(parts[2]) && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
         }
         return w?.replaceAll(/[-/]+/g, '')
       }
