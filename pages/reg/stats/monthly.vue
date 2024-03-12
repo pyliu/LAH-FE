@@ -32,6 +32,10 @@ div(v-cloak)
           span {{ item.name }}
 
   lah-flex-item-group
+    lah-stats-sms-count(
+      :begin="dateRange.begin",
+      :end="dateRange.end"
+    )
     lah-stats-reg-cert-count(
       :begin="dateRange.begin",
       :end="dateRange.end"

@@ -8,10 +8,12 @@ div(v-cloak)
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         div
     lah-help-modal(:modal-id="'help-modal'")
-      .h5 請輸入關鍵字查詢
+      .h5 請參照下列資訊輸入關鍵字查詢
       ul
-        li 預設為今天日期
-        li 可根據電子郵件或是手機號碼查詢
+        li 今天日期(預設)，範例「1130312」
+        li 電子郵件
+        li 手機號碼
+        li 日期區間，範例「1130101 ~ 1130229」
   //- below is the customize area
   lah-adm-smslog-table(:inKeyword="$utils.today('TW')")
 </template>

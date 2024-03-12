@@ -206,9 +206,11 @@ export default {
     }
   },
   async created () {
+    if (Array.isArray(this.inLogs)) {
+      this.logs = [...this.inLogs]
+    }
     if (!this.$utils.empty(this.inKeyword)) {
       this.keyword = this.inKeyword
-      this.logs = [...this.inLogs]
       this.$utils.empty(this.inLogs) && this.reload()
     }
     this.reloadDebounced = this.$utils.debounce(this.reload, 400)
