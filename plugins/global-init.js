@@ -312,7 +312,15 @@ export default ({ $axios, store }, inject) => {
     rand (range) {
       return Math.floor(Math.random() * Math.floor(range || 100))
     },
-    trim (x) { return typeof x === 'string' ? x.replace(/^\s+|\s+$/gm, '') : '' },
+    trim (str, char = ' ') {
+      if (typeof str !== 'string') {
+        return str
+      }
+      if (char === ' ') {
+        return str.replace(/^\s+|\s+$/gm, '')
+      }
+      return str.split(char).filter(Boolean).join(char)
+    },
     caseId (id) {
       if (isEmpty(id)) {
         return ''
