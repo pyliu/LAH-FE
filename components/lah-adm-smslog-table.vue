@@ -172,23 +172,7 @@ export default {
   computed: {
     count () { return this.filteredLogs?.length || 0 },
     sanitizedKeyword () {
-      let w = this.keyword?.replace(/^[\s-/]+|[\s-/]+$/gm, '')
-      if (w) {
-        if (w.includes('-')) {
-          // parse as TW date
-          const parts = w.split('-')
-          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
-          parts.length === 3 && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
-        }
-        if (w.includes('/')) {
-          // parse as TW date
-          const parts = w.split('/')
-          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
-          parts.length === 3 && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
-        }
-        return w?.replaceAll(/[-/]+/g, '')
-      }
-      return w
+      return this.sanitizedDate(this.keyword)
     },
     validSMSKeyword () {
       return !this.$utils.empty(this.keyword) && this.$utils.length(this.keyword) > 2
@@ -235,6 +219,25 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    sanitizedDate (w) {
+      w = w?.replace(/^[\s-/]+|[\s-/]+$/gm, '')
+      if (w) {
+        if (w.includes('-')) {
+          // parse as TW date
+          const parts = w.split('-')
+          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
+          parts.length === 3 && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
+        }
+        if (w.includes('/')) {
+          // parse as TW date
+          const parts = w.split('/')
+          w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
+          parts.length === 3 && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
+        }
+        return w?.replaceAll(/[-/]+/g, '')
+      }
+      return w
+    },
     parseContent (item) {
       return this.$utils.convertInlineMarkd(item.SMS_CONTENT)
     },
@@ -313,7 +316,7 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MOISMS, {
           type: 'moisms_log_query',
-          keyword: this.sanitizedKeyword
+          keyword: this.sanitizedDate(this.keyword)
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${status} ${data.message}`
@@ -333,8 +336,8 @@ export default {
       this.$axios
         .post(this.$consts.API.JSON.MOISMS, {
           type: 'moisms_log_query_by_date',
-          st: begin?.replaceAll(/[-/]+/g, ''),
-          ed: end?.replaceAll(/[-/]+/g, '')
+          st: this.sanitizedDate(begin),
+          ed: this.sanitizedDate(end)
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${status} ${data.message}`
