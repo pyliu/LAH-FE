@@ -48,23 +48,6 @@ b-card(
     b-link.d-flex.justify-content-between.align-items-center.h5(@click="popupSMSLogs(otherLogs)")
       lah-fa-icon.font-weight-bold(icon="envelope") 其他類型(住址隱匿/代收代寄)
       b-badge(pill, variant="dark") {{ otherLogs.length }}
-    //- .d-flex.justify-content-between.align-items-center
-    //-   .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="landmark", :variant="firstNotifyLight") 地籍異動即時通
-    //-   .truncate.text-center: b-link(@click="popupSingleSMS(firstNotifyLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstNotifyLog) }}
-    //-   lah-badge-human-datetime(:seconds="convertSeconds(firstNotifyLog)")
-    //- .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstNotifyLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstNotifyLog) ? firstNotifyLog.SMS_CONTENT : firstNotifyLog.SMS_RESULT }}
-    //- hr
-    //- .d-flex.justify-content-between.align-items-center
-    //-   .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 案件辦理情形&emsp;
-    //-   .truncate.text-center: b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstCaseLog) }}
-    //-   lah-badge-human-datetime(:seconds="convertSeconds(firstCaseLog)")
-    //- .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstCaseLog) ? firstCaseLog.SMS_CONTENT : firstCaseLog.SMS_RESULT }}
-    //- hr
-    //- .d-flex.justify-content-between.align-items-center
-    //-   .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他類型&emsp;&emsp;&emsp;
-    //-   .truncate.text-center: b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstOtherLog) }}
-    //-   lah-badge-human-datetime(:seconds="convertSeconds(firstOtherLog)")
-    //- .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstOtherLog) ? firstOtherLog.SMS_CONTENT : firstOtherLog.SMS_RESULT }}
 
   b-modal(
     ref="table",
