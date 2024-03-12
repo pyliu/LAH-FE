@@ -172,7 +172,8 @@ export default {
   computed: {
     count () { return this.filteredLogs?.length || 0 },
     sanitizedKeyword () {
-      let w = this.keyword
+      // let w = this.$utils.trim(this.keyword, '-')
+      let w = this.keyword.replace(/^[\s-/]+|[\s-/]+$/gm, '')
       if (w) {
         if (w.includes('-')) {
           // parse as TW date
