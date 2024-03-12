@@ -302,24 +302,52 @@ export default {
         this.isBusy = true
         this.logs = []
         this.reset()
-        this.$axios
-          .post(this.$consts.API.JSON.MOISMS, {
-            type: 'moisms_log_query',
-            keyword: this.sanitizedKeyword
-          }).then(({ data }) => {
-            const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
-            this.message = `${status} ${data.message}`
-            this.logs = [...data.raw]
-            this.$emit('reload', {
-              keyword: this.keyword,
-              logs: this.logs
-            })
-          }).catch((err) => {
-            this.error = err
-          }).finally(() => {
-            this.isBusy = false
-          })
+        if (this.sanitizedKeyword.includes('~')) {
+          this.queryByDate()
+        } else {
+          this.queryByKeyword()
+        }
       }
+    },
+    queryByKeyword () {
+      this.$axios
+        .post(this.$consts.API.JSON.MOISMS, {
+          type: 'moisms_log_query',
+          keyword: this.sanitizedKeyword
+        }).then(({ data }) => {
+          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
+          this.message = `${status} ${data.message}`
+          this.logs = [...data.raw]
+          this.$emit('reload', {
+            keyword: this.keyword,
+            logs: this.logs
+          })
+        }).catch((err) => {
+          this.error = err
+        }).finally(() => {
+          this.isBusy = false
+        })
+    },
+    queryByDate () {
+      const [begin, end] = this.sanitizedKeyword.split(/\s*~\s*/)
+      this.$axios
+        .post(this.$consts.API.JSON.MOISMS, {
+          type: 'moisms_log_query_by_date',
+          st: begin?.replaceAll(/[-/]+/g, ''),
+          ed: end?.replaceAll(/[-/]+/g, '')
+        }).then(({ data }) => {
+          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
+          this.message = `${status} ${data.message}`
+          this.logs = [...data.raw]
+          this.$emit('reload', {
+            keyword: `${begin} ~ ${end}`,
+            logs: this.logs
+          })
+        }).catch((err) => {
+          this.error = err
+        }).finally(() => {
+          this.isBusy = false
+        })
     }
   }
 }
