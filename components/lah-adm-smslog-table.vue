@@ -172,24 +172,23 @@ export default {
   computed: {
     count () { return this.filteredLogs?.length || 0 },
     sanitizedKeyword () {
-      // let w = this.$utils.trim(this.keyword, '-')
-      let w = this.keyword.replace(/^[\s-/]+|[\s-/]+$/gm, '')
+      let w = this.keyword?.replace(/^[\s-/]+|[\s-/]+$/gm, '')
       if (w) {
         if (w.includes('-')) {
           // parse as TW date
           const parts = w.split('-')
           w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
-          parts.length === 3 && !this.$utils.empty(parts[2]) && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
+          parts.length === 3 && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
         }
         if (w.includes('/')) {
           // parse as TW date
           const parts = w.split('/')
           w = `${parts[0]?.padStart(3, '0')}-${parts[1]?.padStart(2, '0')}`
-          parts.length === 3 && !this.$utils.empty(parts[2]) && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
+          parts.length === 3 && (w = `${w}-${parts[2]?.padStart(2, '0')}`)
         }
         return w?.replaceAll(/[-/]+/g, '')
       }
-      return ''
+      return w
     },
     validSMSKeyword () {
       return !this.$utils.empty(this.keyword) && this.$utils.length(this.keyword) > 2
