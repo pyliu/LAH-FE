@@ -77,7 +77,7 @@ div
         span(v-else) {{ caseId(item) }}
       template(#cell(SMS_DATE)="{ item }")
         b-link.text-nowrap(
-          v-if="notDateKeyword(item)",
+          v-if="notDateKeyword(item) || !validSMSKeyword",
           href="#",
           @click="keyword = item.SMS_DATE; reloadDebounced();",
           :title="`依日期 ${item.SMS_DATE} 搜尋`"
@@ -88,7 +88,7 @@ div
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
         b-link(
-          v-if="notCellKeyword(item)",
+          v-if="notCellKeyword(item) || !validSMSKeyword",
           href="#",
           @click="keyword = item.SMS_CELL; reloadDebounced();",
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
