@@ -55,12 +55,12 @@ b-card(border-variant="secondary")
       b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }} {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
     b-row(:class="cellPhoneWarningCss")
       b-col(title="案件辦理情形簡訊接收號碼"): .d-flex.align-items-center.text-nowrap
-        lah-fa-icon.mr-1(
-          v-if="!$utils.isMobileValid(crsmsData['手機號碼'])",
-          icon="ban",
-          variant="danger",
-          title="非有效之電話號碼"
-        )
+        //- lah-fa-icon.mr-1(
+        //-   v-if="!$utils.isMobileValid(crsmsData['手機號碼'])",
+        //-   icon="ban",
+        //-   variant="danger",
+        //-   title="非有效之電話號碼"
+        //- )
         lah-fa-icon(
           icon="mobile-screen",
           append,
