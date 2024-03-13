@@ -31,13 +31,14 @@ b-card(
       small
     )
       template(#cell(MC03)="{ item }")
-        lah-button(
-          v-if="isEmptyMC03(item)"
-          icon="trash",
-          variant="danger",
-          title="刪除這筆資料",
-          @click="remove(item)"
-        ) 刪除
+        .d-flex.align-iterms-center(v-if="isEmptyMC03(item)")
+          lah-button(
+            icon="trash",
+            variant="danger",
+            title="刪除這筆資料",
+            @click="remove(item)"
+          ) 清除本筆資料
+          .ml-1(v-if="hasCase(item)") 案件狀態將回復為「外業中」，請重新進行補正作業
         div(
           v-else,
           v-html="item.MC03"
@@ -60,6 +61,16 @@ export default {
       {
         key: 'MC01',
         label: '年度',
+        sortable: true
+      },
+      {
+        key: 'CL02',
+        label: '收件字',
+        sortable: true
+      },
+      {
+        key: 'CL03',
+        label: '收件號',
         sortable: true
       },
       {
@@ -125,9 +136,12 @@ export default {
           this.queryMessage = '刪除中 ...'
           this.$axios
             .post(this.$consts.API.JSON.MOICAS, {
-              type: 'remove_cmcrd_tmp_record',
+              type: 'remove_sur_notify_application_tmp_record',
               MC01: item.MC01,
-              MC02: item.MC02
+              MC02: item.MC02,
+              YEAR: item.CL01,
+              CODE: item.CL02 || '',
+              NUM: item.CL03
             }).then(({ data }) => {
               this.queryMessage = data.message
               this.timeout(this.fetch, 1000)
@@ -141,6 +155,9 @@ export default {
     },
     isEmptyMC03 (item) {
       return this.$utils.empty(item.MC03)
+    },
+    hasCase (item) {
+      return !this.$utils.empty(item.CL02) && !this.$utils.empty(item.CL03)
     }
   }
 }
