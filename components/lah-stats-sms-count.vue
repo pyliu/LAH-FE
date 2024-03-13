@@ -179,10 +179,11 @@ export default {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${status} ${data.message}`
           this.raw = [...data.raw]
-          this.$emit('reload', {
-            keyword: `${this.begin} ~ ${this.end}`,
-            logs: this.raw
-          })
+          // this.$emit('reload', {
+          //   keyword: `${this.begin} ~ ${this.end}`,
+          //   logs: this.raw
+          // })
+          this.$emit('ready', data)
           this.ready = true
         }).catch((err) => {
           this.error = err

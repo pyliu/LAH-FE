@@ -35,12 +35,14 @@ div(v-cloak)
     lah-stats-sms-count(
       ref="smsCount",
       :begin="dateRange.begin",
-      :end="dateRange.end"
+      :end="dateRange.end",
+      @ready="handleReady"
     )
     lah-stats-reg-cert-count(
       ref="certCount",
       :begin="dateRange.begin",
-      :end="dateRange.end"
+      :end="dateRange.end",
+      @ready="handleReady"
     )
     b-card.border-0(no-body)
       lah-stats-reg-first(
