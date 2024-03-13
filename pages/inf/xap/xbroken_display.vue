@@ -4,7 +4,7 @@
   //-   lah-transition(appear)
   //-     .d-flex.justify-content-center.w-100.my-auto
   //-       .d-flex
-  //-         .h1 跨域ONLINE即時通，服務無礙一點通
+  //-         .h1 跨縣市ONLINE即時通，服務無礙一點通
   //-         //- lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
   //-       div
   //-   lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
@@ -12,7 +12,7 @@
   //- b-card-group(deck)
   .d-flex.justify-content-center.w-100.my-auto
     .d-flex.my-5
-      .h1 跨域ONLINE即時通，服務無礙一點通
+      .h1.lah-shadow 跨縣市ONLINE即時通，服務無礙一點通
   .my-4
   .d-flex.justify-content-between.align-items-center
     lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所服務狀態
@@ -23,7 +23,7 @@
     ) 上次更新：{{ TYUpdatedTime }}
   hr.my-3
   client-only: .offices.justify-content-between
-    lah-badge-site-status.office(
+    lah-badge-site-status.office.lah-shadow(
       v-for="office in offices",
       :ref="office",
       :key="office"
@@ -56,7 +56,7 @@
   .d-flex.flex-wrap(
     v-else
   )
-    lah-badge-site-status.other-office.mr-4.mb-4(
+    lah-badge-site-status.other-office.mr-4.mb-4.lah-shadow(
       v-for="office in downOffices",
       :ref="office.id",
       :key="office.id",
@@ -66,9 +66,9 @@
       short-alt
     )
   lah-clock.fix-clock.lah-shadow
-  .fix-logo
-  .fix-taogirl-L
-  .fix-taogirl-R
+  .fix-logo.lah-shadow
+  .fix-taogirl-L.lah-shadow
+  .fix-taogirl-R.lah-shadow
 </template>
 
 <script>
@@ -85,7 +85,7 @@ export default {
   }),
   fetch () {},
   head: {
-    title: '跨域ONLINE即時通-桃園市地政局'
+    title: '跨縣市ONLINE即時通-桃園市地政局'
   },
   computed: {
     downOffices () {
@@ -190,7 +190,7 @@ export default {
 }
 .fix-taogirl-R {
   position: fixed;
-  top: 20px;
+  top: 10px;
   right: 100px;
   width: 147.5px;
   height: 172.5px;
@@ -200,7 +200,7 @@ export default {
 }
 .fix-taogirl-L {
   position: fixed;
-  top: 20px;
+  top: 10px;
   left: 100px;
   width: 147.5px;
   height: 172.5px;
