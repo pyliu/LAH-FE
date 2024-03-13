@@ -155,8 +155,8 @@ b-card
           lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(id) }}
           lah-button(icon="hammer", action="tick", variant="outline-secondary", @click="fixSurCase(id)") 修正
 
-  lah-transition(appear): b-card(v-if="foundSurCmcrdTmp")
-    lah-mgmt-board-cmcrd-check(:items="surCmcrdTmp", embed)
+  //- lah-transition(appear): b-card(v-if="foundSurCmcrdTmp")
+  //-   lah-mgmt-board-cmcrd-check(:items="surCmcrdTmp", embed)
 
   //- template(#footer)
   //-   .d-flex.justify-content-between
@@ -165,10 +165,11 @@ b-card
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
+import lahMgmtBoardCmcrdCheckVue from '~/components/lah-mgmt-board-cmcrd-check.vue'
 export default {
-  components: { lahRegCaseDetailVue, lahAdmSmslogTableVue },
+  components: { lahRegCaseDetailVue, lahAdmSmslogTableVue, lahMgmtBoardCmcrdCheckVue },
   data: () => ({
     // regCases: ['105HAB1016151', '105HAB1016150'],
     // valCases: ['105HAB1016130', '105HAB1016090'],
@@ -431,6 +432,17 @@ export default {
         }
       })
     },
+    showSurCmcrdTmpModal (message) {
+      this.modal(this.$createElement(lahMgmtBoardCmcrdCheckVue, {
+        props: {
+          items: this.surCmcrdTmp,
+          embed: true
+        }
+      }), {
+        title: message,
+        size: 'lg'
+      })
+    },
     querySurCmcrdTmp () {
       this.beforeFetch()
       this.$axios
@@ -441,6 +453,7 @@ export default {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${this.$utils.time()} ${status} ${data.message}`
           this.surCmcrdTmp = [...data.raw]
+          this.showSurCmcrdTmpModal(this.message)
         }).catch((err) => {
           this.error = err
         }).finally(() => {
