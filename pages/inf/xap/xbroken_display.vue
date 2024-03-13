@@ -12,7 +12,7 @@
   //- b-card-group(deck)
   .d-flex.justify-content-center.w-100.my-auto
     .d-flex.my-5
-      .h1.lah-shadow 跨縣市ONLINE即時通，服務無礙一點通
+      .h1.lah-shadow.fonte-weight-bold 跨縣市#[span.text-success ONLINE]即時通，服務無礙一點通
   .my-4
   .d-flex.justify-content-between.align-items-center
     lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所服務狀態
@@ -65,8 +65,8 @@
       :badge="false",
       short-alt
     )
-  lah-clock.fix-clock.lah-shadow
-  .fix-logo.lah-shadow
+  lah-clock.fix-clock
+  .fix-logo
   .fix-taogirl-L.lah-shadow
   .fix-taogirl-R.lah-shadow
 </template>
