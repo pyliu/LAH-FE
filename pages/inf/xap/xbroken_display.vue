@@ -171,6 +171,7 @@ export default {
   font-size: xx-large;
   background-color: lightgray;
   color: black;
+  z-index: 1;
 }
 .fix-logo {
   position: fixed;
