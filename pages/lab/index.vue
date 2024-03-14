@@ -12,15 +12,26 @@
           :icon="['fas', 'file-contract']",
           to="/adm/file"
         ) 檔案應用預約申請
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calculator']" to="/reg/stats/monthly") 案件統計資訊
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'heart-pulse']" to="/inf/xap/broken_cached") 全國地所伺服器監控
         lah-index-card-link.fix-card-dimension(
           :icon="['fas', 'tv']",
           to="/inf/xap/xbroken_display"
         ) 跨縣市ONLINE即時通
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'comment-sms']" to="/reg/sms") 簡訊紀錄查詢
-        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'chart-line']" to="/reg/stats") 分時案件統計
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calculator']" to="/reg/stats/monthly") 案件統計資訊
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'heart-pulse']" to="/inf/xap/broken_cached") 全國地所伺服器監控
+        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
+      b-card-group.my-4(deck)
+        lah-index-card-link.fix-card-dimension(
+          v-if="isInf || authority.isAdmin",
+          :icon="['fas', 'landmark-flag']",
+          to="/bureau"
+        ) H0監控儀表板
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
 </template>
 
 <script>
