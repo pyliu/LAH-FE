@@ -31,16 +31,17 @@ b-card(
       small
     )
       template(#cell(MC03)="{ item }")
-        .d-flex.align-iterms-center(v-if="isEmptyMC03(item)")
-          lah-button(
-            icon="trash",
-            variant="danger",
-            title="刪除這筆資料",
-            @click="remove(item)"
-          ) 清除本筆資料
-          .ml-1(v-if="hasCase(item)") 案件狀態將回復為「外業中」，請重新進行補正作業
-        div(
-          v-else,
+        div(v-if="isEmptyMC03(item) || !hasCase(item)")
+          .d-flex.align-items-center
+            lah-button(
+              icon="trash",
+              variant="outline-danger",
+              title="刪除這筆資料",
+              @click="remove(item)"
+            ) 清除
+            .small.text-primary.ml-1(v-if="hasCase(item)") 案件狀態將回復為「外業中」，需重新進行補正作業
+          hr
+        p(
           v-html="item.MC03"
         )
 </template>
