@@ -171,7 +171,7 @@ export default {
   font-size: xx-large;
   background-color: lightgray;
   color: black;
-  z-index: 1;
+  z-index: 2;
 }
 .fix-logo {
   position: fixed;
@@ -187,7 +187,7 @@ export default {
   position: fixed;
   bottom: 0px;
   right: 10px;
-  z-index: 1002;
+  z-index: 1;
 }
 .fix-taogirl-R {
   position: fixed;
