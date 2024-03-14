@@ -165,9 +165,9 @@ b-card
 </template>
 
 <script>
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahMgmtBoardCmcrdCheckVue from '~/components/lah-mgmt-board-cmcrd-check.vue'
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   components: { lahRegCaseDetailVue, lahAdmSmslogTableVue, lahMgmtBoardCmcrdCheckVue },
   data: () => ({
@@ -447,7 +447,7 @@ export default {
       this.beforeFetch()
       this.$axios
         .post(this.$consts.API.JSON.MOICAS, {
-          type: 'cmcrd_tmp_check',
+          type: 'sur_notify_application_tmp_check',
           year: this.year
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
