@@ -11,6 +11,7 @@ b-card(
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="file-circle-exclamation", size="lg", variant="info") 測量複丈通知書暫存檔]
       b-button-group.ml-auto(size="sm")
         lah-button.mr-1(
+          v-if="foundDanglingData",
           icon="broom",
           variant="outline-danger",
           size="sm",
@@ -100,6 +101,14 @@ export default {
     },
     emptyMessasge () {
       return this.$utils.empty(this.queryMessage)
+    },
+    foundDanglingData () {
+      if (this.count > 0) {
+        return this.queryData.find((item) => {
+          return this.$utils.empty(item.CL02) || this.$utils.empty(item.CL03)
+        })
+      }
+      return false
     }
   },
   watch: {
