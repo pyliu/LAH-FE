@@ -165,9 +165,9 @@ b-card
 </template>
 
 <script>
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahMgmtBoardCmcrdCheckVue from '~/components/lah-mgmt-board-cmcrd-check.vue'
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   components: { lahRegCaseDetailVue, lahAdmSmslogTableVue, lahMgmtBoardCmcrdCheckVue },
   data: () => ({
@@ -206,7 +206,11 @@ export default {
     // default is this TW year
     const now = new Date()
     this.year = now.getFullYear() - 1911
-    this.smsKeyword = this.$utils.today('TW')
+    const firstDayofMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDayofMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const st = this.$utils.twDateStr(firstDayofMonth)
+    const ed = this.$utils.twDateStr(lastDayofMonth)
+    this.smsKeyword = `${st} ~ ${ed}`
   },
   mounted () {},
   methods: {
