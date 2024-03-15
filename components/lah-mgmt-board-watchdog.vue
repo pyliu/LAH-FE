@@ -99,13 +99,13 @@ b-card
   //-     @click="checkSurCase"
   //-   ) 檢測
   //- hr
-  .d-flex.align-items-center.justify-content-between.check-row
-    lah-fa-icon.mr-1(icon="file-circle-exclamation") 測量複丈通知書暫存檔
-    lah-button(
-      :title="`查詢所有 ${year} 年通知書暫存資料`",
-      @click="showSurCmcrdTmpModal"
-    ) 查詢
-  hr
+  //- .d-flex.align-items-center.justify-content-between.check-row
+  //-   lah-fa-icon.mr-1(icon="file-circle-exclamation") 測量複丈通知書暫存檔
+  //-   lah-button(
+  //-     :title="`查詢所有 ${year} 年通知書暫存資料`",
+  //-     @click="showSurCmcrdTmpModal"
+  //-   ) 查詢
+  //- hr
 
   lah-message(:message="message", auto-hide, close-variant="danger")
 
