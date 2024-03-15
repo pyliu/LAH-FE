@@ -64,6 +64,7 @@ b-card
       @keyup.enter="querySMS"
     )
     lah-button(
+      icon="magnifying-glass",
       title="依條件查詢SMS紀錄",
       @click="querySMS",
       :disabled="!validSMSKeyword"
