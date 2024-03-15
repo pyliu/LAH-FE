@@ -37,33 +37,7 @@ export default {
     year: '113',
     queryMessage: '',
     queryData: [],
-    fields: [
-      {
-        key: 'MC01',
-        label: '年度',
-        sortable: true
-      },
-      {
-        key: 'CL02',
-        label: '收件字',
-        sortable: true
-      },
-      {
-        key: 'CL03',
-        label: '收件號',
-        sortable: true
-      },
-      {
-        key: 'MC02',
-        label: '序號',
-        sortable: true
-      },
-      {
-        key: 'MC03',
-        label: '內容',
-        sortable: true
-      }
-    ]
+    timer: null
   }),
   computed: {
     count () {
@@ -92,6 +66,10 @@ export default {
   },
   mounted () {
     this.query()
+    this.timer = setInterval(this.query, 5 * 60 * 1000)
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
   },
   methods: {
     query () {
