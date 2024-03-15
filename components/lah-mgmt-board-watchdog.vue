@@ -2,7 +2,7 @@
 b-card
   template(#header)
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="screwdriver-wrench", size="lg", variant="info") 快速檢測＆修正]
+      lah-fa-icon(icon="screwdriver-wrench", size="lg", variant="info") 快速檢測＆修正
       b-button-group.ml-auto(size="sm"): lah-button(
         icon="question",
         action="breath",
@@ -45,7 +45,30 @@ b-card
           ol
             li 測量課常有通知書無法產製出問題，經查狀況為 CMCRD 表格中存有#[strong.text-primary 空白內容]或是#[strong.text-primary 沒有案件連結]的暫存檔影響流水號申請。
             li 本功能提供查詢後列出系統目前暫存檔以供管理師查看及管理。
-  //- .center-container-wh-100: div
+
+  .check-row
+    lah-mgmt-board-cmcrd-check-badge
+  hr
+  //- .d-flex.align-items-center.justify-content-between.check-row
+  //-   lah-fa-icon.mr-1(icon="file") 最新權狀序號
+  //-   lah-badge-latest-certno(@fetched="handledUpdated")
+  //- hr
+  .d-flex.align-items-center.justify-content-between.check-row(title="輸入手機或EMAIL查詢")
+    lah-fa-icon.text-nowrap(
+      icon="comment-sms"
+    ) 簡訊查詢
+    b-input.mx-1(
+      v-model="smsKeyword",
+      size="sm",
+      placeholder="... 手機或EMAIL ...",
+      @keyup.enter="querySMS"
+    )
+    lah-button(
+      title="依條件查詢SMS紀錄",
+      @click="querySMS",
+      :disabled="!validSMSKeyword"
+    ) 查詢
+  hr
   .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="magnifying-glass") 「登記案件」跨所註記
     lah-button(
@@ -69,38 +92,18 @@ b-card
       @click="checkEzPayment"
     ) 檢測
   hr
-  .d-flex.align-items-center.justify-content-between.check-row
-    lah-fa-icon.mr-1(icon="location-dot") 測量連件問題案件
-    lah-button(
-      title="測量問題案件檢測",
-      @click="checkSurCase"
-    ) 檢測
-  hr
+  //- .d-flex.align-items-center.justify-content-between.check-row
+  //-   lah-fa-icon.mr-1(icon="location-dot") 測量連件問題案件
+  //-   lah-button(
+  //-     title="測量問題案件檢測",
+  //-     @click="checkSurCase"
+  //-   ) 檢測
+  //- hr
   .d-flex.align-items-center.justify-content-between.check-row
     lah-fa-icon.mr-1(icon="file-circle-exclamation") 測量複丈通知書暫存檔
     lah-button(
       :title="`查詢所有 ${year} 年通知書暫存資料`",
       @click="showSurCmcrdTmpModal"
-    ) 查詢
-  hr
-  //- .d-flex.align-items-center.justify-content-between.check-row
-  //-   lah-fa-icon.mr-1(icon="file") 最新權狀序號
-  //-   lah-badge-latest-certno(@fetched="handledUpdated")
-  //- hr
-  .d-flex.align-items-center.justify-content-between.check-row(title="輸入手機或EMAIL查詢")
-    lah-fa-icon.text-nowrap(
-      icon="comment-sms"
-    ) 簡訊查詢
-    b-input.mx-1(
-      v-model="smsKeyword",
-      size="sm",
-      placeholder="... 手機或EMAIL ...",
-      @keyup.enter="querySMS"
-    )
-    lah-button(
-      title="依條件查詢SMS紀錄",
-      @click="querySMS",
-      :disabled="!validSMSKeyword"
     ) 查詢
   hr
 
@@ -162,9 +165,9 @@ b-card
 </template>
 
 <script>
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahMgmtBoardCmcrdCheckVue from '~/components/lah-mgmt-board-cmcrd-check.vue'
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   components: { lahRegCaseDetailVue, lahAdmSmslogTableVue, lahMgmtBoardCmcrdCheckVue },
   data: () => ({
@@ -427,7 +430,7 @@ export default {
     showSurCmcrdTmpModal () {
       this.modal(this.$createElement(lahMgmtBoardCmcrdCheckVue, {
         props: {
-          embed: false
+          embedMode: false
         }
       }), {
         title: '複丈通知書暫存檔列表',

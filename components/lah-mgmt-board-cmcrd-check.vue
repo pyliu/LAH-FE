@@ -1,11 +1,11 @@
 <template lang="pug">
 b-card(
-  :no-body="embed",
-  :class="embed ? ['border-0'] : []"
+  :no-body="embedMode",
+  :class="embedMode ? ['border-0'] : []"
 )
   template(
     #header,
-    v-if="!embed"
+    v-if="!embedMode"
   )
     .d-flex.align-items-center
       lah-fa-icon.h6(
@@ -32,43 +32,42 @@ b-card(
           pill
         ) 查詢
   .text-right: lah-message(:message="queryMessage", auto-hide)
-  div(v-if="queryData.length > 0")
-    hr(v-if="!emptyMessasge")
-    b-table(
-      :fields="fields",
-      :items="queryData",
-      :busy="isBusy",
-      head-variant="dark",
-      striped,
-      hover,
-      small
-    )
-      template(#cell(MC03)="{ item }")
-        div(v-if="isEmptyMC03(item) || !hasCase(item)")
-          .d-flex.align-items-center
-            lah-button(
-              icon="trash",
-              variant="outline-danger",
-              title="刪除這筆資料",
-              @click="remove(item)"
-            ) 清除
-            .small.text-primary.ml-1(v-if="hasCase(item)") 案件狀態將回復為「外業中」，需重新進行補正作業
-          hr
-        p(
-          v-html="item.MC03"
-        )
+  b-table(
+    v-if="queryData.length > 0"
+    :fields="fields",
+    :items="queryData",
+    :busy="isBusy",
+    head-variant="dark",
+    striped,
+    hover,
+    small
+  )
+    template(#cell(MC03)="{ item }")
+      div(v-if="isEmptyMC03(item) || !hasCase(item)")
+        .d-flex.align-items-center
+          lah-button(
+            icon="trash",
+            variant="outline-danger",
+            title="刪除這筆資料",
+            @click="remove(item)"
+          ) 清除
+          .small.text-primary.ml-1(v-if="hasCase(item)") 案件狀態將回復為「外業中」，需重新進行補正作業
+        hr
+      p(
+        v-html="item.MC03"
+      )
 </template>
 
 <script>
 export default {
   emit: ['load'],
   props: {
-    embed: { type: Boolean, default: false },
+    embedMode: { type: Boolean, default: false },
     items: { type: Array, default: () => ([]) },
     inMessage: { type: String, default: '' }
   },
   data: () => ({
-    year: '112',
+    year: '113',
     queryMessage: '',
     queryData: [],
     fields: [
