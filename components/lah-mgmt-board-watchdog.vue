@@ -80,7 +80,7 @@ b-card
     lah-fa-icon.mr-1(icon="file-circle-exclamation") 測量複丈通知書暫存檔
     lah-button(
       :title="`查詢所有 ${year} 年通知書暫存資料`",
-      @click="querySurCmcrdTmp"
+      @click="showSurCmcrdTmpModal"
     ) 查詢
   hr
   //- .d-flex.align-items-center.justify-content-between.check-row
@@ -155,9 +155,6 @@ b-card
           lah-fa-icon(icon="circle-exclamation", variant="danger") {{ $utils.caseId(id) }}
           lah-button(icon="hammer", action="tick", variant="outline-secondary", @click="fixSurCase(id)") 修正
 
-  //- lah-transition(appear): b-card(v-if="foundSurCmcrdTmp")
-  //-   lah-mgmt-board-cmcrd-check(:items="surCmcrdTmp", embed)
-
   //- template(#footer)
   //-   .d-flex.justify-content-between
   //-     lah-fa-icon(icon="dog", size="lg", variant="secondary")
@@ -178,7 +175,6 @@ export default {
     valCases: [],
     surCases: [],
     paymentData: [],
-    surCmcrdTmp: [],
     smsLogs: [],
     message: '',
     clearTimer: null,
@@ -197,9 +193,6 @@ export default {
     },
     foundSurCases () {
       return this.surCases?.length > 0
-    },
-    foundSurCmcrdTmp () {
-      return this.surCmcrdTmp?.length > 0
     },
     validSMSKeyword () {
       return this.smsKeyword?.length > 1
@@ -221,7 +214,6 @@ export default {
       this.valCases = []
       this.surCases = []
       this.paymentData = []
-      this.surCmcrdTmp = []
     },
     detail (caseId) {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
@@ -432,33 +424,15 @@ export default {
         }
       })
     },
-    showSurCmcrdTmpModal (message) {
+    showSurCmcrdTmpModal () {
       this.modal(this.$createElement(lahMgmtBoardCmcrdCheckVue, {
         props: {
-          items: this.surCmcrdTmp,
-          embed: true
+          embed: false
         }
       }), {
-        title: message,
+        title: '複丈通知書暫存檔列表',
         size: 'lg'
       })
-    },
-    querySurCmcrdTmp () {
-      this.beforeFetch()
-      this.$axios
-        .post(this.$consts.API.JSON.MOICAS, {
-          type: 'sur_notify_application_tmp_check',
-          year: this.year
-        }).then(({ data }) => {
-          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
-          this.message = `${this.$utils.time()} ${status} ${data.message}`
-          this.surCmcrdTmp = [...data.raw]
-          this.showSurCmcrdTmpModal(this.message)
-        }).catch((err) => {
-          this.error = err
-        }).finally(() => {
-          this.isBusy = false
-        })
     },
     querySMS () {
       this.modal(this.$createElement(lahAdmSmslogTableVue, {
