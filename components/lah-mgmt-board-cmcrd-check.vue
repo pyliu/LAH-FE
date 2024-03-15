@@ -8,7 +8,7 @@ b-card(
     v-if="!embed"
   )
     .d-flex.align-items-center
-      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="file-circle-exclamation", size="lg", variant="info") 測量複丈通知書暫存檔]
+      h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="file-circle-exclamation", size="lg", :variant="foundDanglingData ? 'danger' : 'success'") 測量複丈通知書暫存檔]
       b-button-group.ml-auto(size="sm")
         lah-button.mr-1(
           v-if="foundDanglingData",
