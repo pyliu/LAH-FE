@@ -1,6 +1,6 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  .d-flex.align-items-center
+  .d-flex.align-items-center(v-b-tooltip="`上次檢測時間：${lastUpdated}`")
     lah-fa-icon.h6(
       :icon="foundDanglingData ? 'file-circle-exclamation' : 'circle-check'",
       :variant="foundDanglingData ? 'danger' : 'success'"
@@ -37,7 +37,8 @@ export default {
     year: '113',
     queryMessage: '',
     queryData: [],
-    timer: null
+    timer: null,
+    lastUpdated: ''
   }),
   computed: {
     count () {
@@ -87,6 +88,7 @@ export default {
           this.error = err
         }).finally(() => {
           this.isBusy = false
+          this.lastUpdated = this.$utils.time()
         })
     },
     popup () {
