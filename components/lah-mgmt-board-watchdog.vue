@@ -92,13 +92,13 @@ b-card
       @click="checkEzPayment"
     ) 檢測
   hr
-  //- .d-flex.align-items-center.justify-content-between.check-row
-  //-   lah-fa-icon.mr-1(icon="location-dot") 測量連件問題案件
-  //-   lah-button(
-  //-     title="測量問題案件檢測",
-  //-     @click="checkSurCase"
-  //-   ) 檢測
-  //- hr
+  .d-flex.align-items-center.justify-content-between.check-row
+    lah-fa-icon.mr-1(icon="location-dot") 測量連件問題案件
+    lah-button(
+      title="測量問題案件檢測",
+      @click="checkSurCase"
+    ) 檢測
+  hr
   //- .d-flex.align-items-center.justify-content-between.check-row
   //-   lah-fa-icon.mr-1(icon="file-circle-exclamation") 測量複丈通知書暫存檔
   //-   lah-button(
