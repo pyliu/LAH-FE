@@ -17,7 +17,7 @@ b-card(
           @click="removeDanglingRecords",
           v-b-tooltip="`清除所有 ${year} 年無連結檔之孤立通知書暫存資料`",
           pill
-        ) 清除無連結之暫存資料
+        ) 清除無案件之暫存資料
         lah-button(
           icon="magnifying-glass",
           variant="outline-primary",
