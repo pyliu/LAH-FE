@@ -29,7 +29,7 @@ b-card(:border-variant="border")
         variant="outline-primary",
         no-border,
         title="打開查詢視窗",
-        @click="popupSMS"
+        @click="popupSMS(logs)"
       )
         span(v-if="isBusy") 讀取中
         span(v-else) 今日共{{ count }}則
@@ -290,7 +290,7 @@ export default {
           })
       }
     },
-    popupSMS (items = undefined) {
+    popupSMS (items) {
       this.modal(this.$createElement(lahAdmSmslogTableVue, {
         props: {
           inKeyword: this.today,
