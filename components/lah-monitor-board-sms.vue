@@ -9,14 +9,14 @@ b-card(:border-variant="border")
         variant="success",
         :title="`${okCount}則成功`",
         @click="popupSMS(ok)",
-        :disabled="isBusy"
+        v-if="!isBusy"
       )
       lah-button-count-badge(
         :count="failCount",
         variant="danger",
         :title="`${failCount}則失敗`",
         @click="popupSMS(fails)",
-        :disabled="isBusy"
+        v-if="!isBusy"
       )
       lah-button(
         icon="arrow-up-right-from-square",
