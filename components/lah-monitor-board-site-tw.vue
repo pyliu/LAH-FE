@@ -6,26 +6,18 @@ b-card(:border-variant="borderVariant")
         lah-fa-icon(icon="circle" :variant="headerLight")
           | 全國地所跨域AP狀態
       b-button-group
-        lah-button(
+        lah-button-count-badge(
+          :count="upCount",
           variant="success",
-          title="正常數量"
-          pill,
-          no-icon,
-          v-b-tooltip.v-success,
+          title="正常數量",
           @click="displayError = false"
         )
-          //- span.mr-1 告警
-          b-badge(variant="light", pill) {{ upCount }}
-        lah-button.mx-1(
+        lah-button-count-badge(
+          :count="downCount",
           variant="danger",
-          title="異常數量"
-          pill,
-          no-icon,
-          v-b-tooltip.v-danger,
+          title="異常數量",
           @click="displayError = true"
         )
-          //- span.mr-1 回復
-          b-badge(variant="light", pill) {{ downCount }}
         lah-button(
           icon="link-slash",
           no-border,
