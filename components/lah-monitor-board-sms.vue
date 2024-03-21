@@ -18,10 +18,9 @@ b-card(:border-variant="border")
         icon="arrow-up-right-from-square",
         variant="outline-primary",
         no-border,
-        no-icon-gutter,
         title="打開查詢視窗",
         @click="popupSMS"
-      )
+      ) 今日總計{{ count }}則
       lah-button(
         icon="question",
         action="breath",
@@ -97,6 +96,9 @@ export default {
     this.loadSMS()
   },
   computed: {
+    count () {
+      return this.logs?.length || 0
+    },
     firstNotifyLight () {
       return this.itemLight(this.firstNotifyLog)
     },
