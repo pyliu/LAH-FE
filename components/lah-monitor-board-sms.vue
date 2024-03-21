@@ -5,15 +5,25 @@ b-card(:border-variant="border")
     lah-fa-icon.font-weight-bold(icon="comment-sms", append) {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
-        v-if="!footer"
-        icon="sync-alt",
-        action="ld-cycle",
-        variant="outline-secondary",
-        no-border,
-        no-icon-gutter,
-        @click="reload",
-        :title="`上次更新時間 ${updated}`"
+        v-if="failCount > 0",
+        variant="danger",
+        :title="`${failCount}則失敗`"
+        @click="popupSMS(fails)",
+        pill,
+        no-icon,
+        v-b-tooltip.v-warning
       )
+        b-badge(variant="light", pill) {{ failCount }}
+      lah-button.mx-1(
+        v-if="okCount > 0",
+        variant="success",
+        :title="`${okCount}則成功`"
+        @click="popupSMS(ok)",
+        pill,
+        no-icon,
+        v-b-tooltip.v-success
+      )
+        b-badge(variant="light", pill) {{ okCount }}
       lah-button(
         icon="arrow-up-right-from-square",
         variant="outline-primary",
@@ -23,6 +33,16 @@ b-card(:border-variant="border")
       )
         span(v-if="isBusy") 讀取中
         span(v-else) 今日共{{ count }}則
+      lah-button(
+        v-if="!footer"
+        icon="sync-alt",
+        action="ld-cycle",
+        variant="outline-secondary",
+        no-border,
+        no-icon-gutter,
+        @click="reload",
+        :title="`上次更新時間 ${updated}`"
+      )
       lah-button(
         icon="question",
         action="breath",
@@ -100,6 +120,22 @@ export default {
   computed: {
     count () {
       return this.logs?.length || 0
+    },
+    fails () {
+      return this.logs.filter((item) => {
+        return item.SMS_RESULT !== 'S' && !item.SMS_RESULT?.startsWith('OK')
+      })
+    },
+    ok () {
+      return this.logs.filter((item) => {
+        return item.SMS_RESULT === 'S' || item.SMS_RESULT?.startsWith('OK')
+      })
+    },
+    failCount () {
+      return this.fails?.length || 0
+    },
+    okCount () {
+      return this.ok?.length || 0
     },
     firstNotifyLight () {
       return this.itemLight(this.firstNotifyLog)
@@ -254,11 +290,11 @@ export default {
           })
       }
     },
-    popupSMS () {
+    popupSMS (items = undefined) {
       this.modal(this.$createElement(lahAdmSmslogTableVue, {
         props: {
           inKeyword: this.today,
-          inLogs: this.logs
+          inLogs: items || this.logs
         }
       }), {
         title: '地政系統簡訊綜合記錄檔查詢',
