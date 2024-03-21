@@ -22,7 +22,7 @@ b-card(:border-variant="border")
         @click="popupSMS"
       )
         span(v-if="isBusy") 讀取中
-        span(v-else) 今日總計{{ count }}則
+        span(v-else) 今日共{{ count }}則
       lah-button(
         icon="question",
         action="breath",
