@@ -5,27 +5,20 @@ b-card(:border-variant="border")
     strong(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
     strong(v-else) {{ header }}({{ monitorHrs }}小時內)
     b-button-group.ml-auto(size="sm")
-      lah-button(
-        v-if="warnings.length > 0",
-        variant="warning",
-        :title="`${monitorHrs}小時內告警訊息`"
-        @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })",
-        pill,
-        no-icon,
-        v-b-tooltip.v-warning
-      )
-        //- span.mr-1 告警
-        b-badge(variant="light", pill) {{ warnings.length }}
-      lah-button.mx-1(
+      lah-button-count-badge(
         v-if="restores.length > 0",
+        :count="restores.length",
         variant="success",
-        :title="`${monitorHrs}小時內回復訊息`"
-        @click="showMails({ title: '回復通知', icon: 'check-circle', variant: 'success', items: restores })",
-        pill,
-        no-icon,
-        v-b-tooltip.v-success
+        :title="`${monitorHrs}小時內回復訊息`",
+        @click="showMails({ title: '回復通知', icon: 'check-circle', variant: 'success', items: restores })"
       )
-        //- span.mr-1 回復
+      lah-button-count-badge(
+        v-if="warnings.length > 0",
+        :count="warnings.length",
+        variant="warning",
+        :title="`${monitorHrs}小時內告警訊息`",
+        @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })"
+      )
         b-badge(variant="light", pill) {{ restores.length }}
       //- b-input-group.mx-1(size="sm", append="小時", style="max-width: 95px"): b-input(
       //-   v-model="monitorHrs",
