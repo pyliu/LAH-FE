@@ -4,16 +4,6 @@ b-card(:border-variant="border")
     lah-fa-icon(icon="circle", :variant="light")
     lah-fa-icon.font-weight-bold(icon="comment-sms", append) {{ header }}
     b-button-group.ml-auto(size="sm")
-      lah-button(
-        v-if="failCount > 0",
-        variant="danger",
-        :title="`${failCount}則失敗`"
-        @click="popupSMS(fails)",
-        pill,
-        no-icon,
-        v-b-tooltip.v-warning
-      )
-        b-badge(variant="light", pill) {{ failCount }}
       lah-button.mx-1(
         v-if="okCount > 0",
         variant="success",
@@ -24,6 +14,16 @@ b-card(:border-variant="border")
         v-b-tooltip.v-success
       )
         b-badge(variant="light", pill) {{ okCount }}
+      lah-button(
+        v-if="failCount > 0",
+        variant="danger",
+        :title="`${failCount}則失敗`"
+        @click="popupSMS(fails)",
+        pill,
+        no-icon,
+        v-b-tooltip.v-warning
+      )
+        b-badge(variant="light", pill) {{ failCount }}
       lah-button(
         icon="arrow-up-right-from-square",
         variant="outline-primary",
