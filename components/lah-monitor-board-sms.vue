@@ -5,14 +5,12 @@ b-card(:border-variant="border")
     lah-fa-icon.font-weight-bold(icon="comment-sms", append) {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button-count-badge(
-        v-if="okCount > 0",
         :count="okCount",
         variant="success",
         :title="`${okCount}則成功`",
         @click="popupSMS(ok)"
       )
       lah-button-count-badge(
-        v-if="failCount > 0",
         :count="failCount",
         variant="danger",
         :title="`${failCount}則失敗`",
