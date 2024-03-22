@@ -119,7 +119,7 @@ div
           icon="triangle-exclamation",
           variant="danger",
           size="lg"
-        ) 失敗({{ item.SMS_RESULT.includes('adblock') ? '已設定阻擋廣告簡訊' : item.SMS_RESULT }})
+        ) {{ item.SMS_RESULT.includes('adblock') ? '已設定阻擋廣告簡訊' : `失敗(${item.SMS_RESULT})` }}
       template(#cell(SMS_TYPE)="{ item }")
         .text-primary(v-if="item.SMS_TYPE.includes('異動即時通')") {{ item.SMS_TYPE }}
         .text-success(v-else-if="item.SMS_TYPE.includes('案件辦理情形')") {{ item.SMS_TYPE }}
