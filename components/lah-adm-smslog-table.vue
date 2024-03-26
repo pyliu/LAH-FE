@@ -77,7 +77,7 @@ div
         span(v-else) {{ caseId(item) }}
       template(#cell(SMS_DATE)="{ item }")
         b-link.text-nowrap(
-          v-if="notDateKeyword(item) || !validSMSKeyword",
+          v-if="(notDateKeyword(item) || !validSMSKeyword) && !displayMode",
           href="#",
           :title="`依日期 ${item.SMS_DATE} 搜尋`",
           @click="setKeyword(item.SMS_DATE)"
@@ -88,7 +88,7 @@ div
         .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
       template(#cell(SMS_CELL)="{ item }")
         b-link(
-          v-if="notCellKeyword(item) || !validSMSKeyword",
+          v-if="(notCellKeyword(item) || !validSMSKeyword) && !displayMode",
           href="#",
           @click="setKeyword(item.SMS_CELL)",
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
@@ -96,16 +96,16 @@ div
           .d-flex
             lah-fa-icon.mr-1(v-if="!$utils.isMobileValid(item.SMS_CELL)", icon="ban", variant="danger", title="非有效之電話號碼")
             lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_CELL }}
-        span(v-else, :class="$utils.empty(item.SMS_CELL?.trim()) ? [] : ['highlight-gold']") {{ item.SMS_CELL }}
+        span(v-else, :class="$utils.empty(item.SMS_CELL?.trim()) || displayMode ? [] : ['highlight-gold']") {{ item.SMS_CELL }}
       template(#cell(SMS_MAIL)="{ item }")
         b-link(
-          v-if="!$utils.empty(item.SMS_MAIL?.trim()) && item.SMS_MAIL?.trim() !== keyword",
+          v-if="(!$utils.empty(item.SMS_MAIL?.trim()) && item.SMS_MAIL?.trim() !== keyword) && !displayMode",
           href="#",
           @click="setKeyword(item.SMS_MAIL)",
           title="依 EMAIL/統編/操作人員ID ... 等搜尋"
         )
           lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_MAIL }}
-        span(v-else, :class="$utils.empty(item.SMS_MAIL?.trim()) ? [] : ['highlight-gold']") {{ item.SMS_MAIL }}
+        span(v-else, :class="$utils.empty(item.SMS_MAIL?.trim()) || displayMode ? [] : ['highlight-gold']") {{ item.SMS_MAIL }}
       template(#cell(SMS_CONTENT)="{ item }")
         .text-left(v-html="parseContent(item)")
       template(#cell(SMS_RESULT)="{ item }")
