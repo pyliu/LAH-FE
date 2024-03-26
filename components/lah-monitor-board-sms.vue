@@ -8,14 +8,14 @@ b-card(:border-variant="border")
         :count="okCount",
         variant="success",
         :title="`${okCount}則成功`",
-        @click="popupSMS(ok)",
+        @click="popupSMS(ok, '(成功)')",
         v-if="!isBusy"
       )
       lah-button-count-badge(
         :count="failCount",
         variant="danger",
         :title="`${failCount}則失敗`",
-        @click="popupSMS(fails)",
+        @click="popupSMS(fails, '(失敗)')",
         v-if="!isBusy"
       )
       lah-button(
@@ -23,7 +23,7 @@ b-card(:border-variant="border")
         variant="outline-primary",
         no-border,
         title="打開查詢視窗",
-        @click="popupSMS(logs)",
+        @click="popupSMS(logs, '(今日全部)')",
         :disabled="isBusy"
       )
         span(v-if="isBusy") 讀取中
@@ -285,7 +285,7 @@ export default {
           })
       }
     },
-    popupSMS (items) {
+    popupSMS (items, title = '') {
       if (!this.isBusy) {
         this.modal(this.$createElement(lahAdmSmslogTableVue, {
           props: {
@@ -293,7 +293,7 @@ export default {
             inLogs: items || this.logs
           }
         }), {
-          title: '地政系統簡訊綜合記錄檔查詢',
+          title: `${this.today} 地政系統簡訊綜合記錄檔查詢 ${title}`,
           size: 'xl',
           noCloseOnBackdrop: true,
           centered: false,
