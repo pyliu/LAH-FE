@@ -213,6 +213,9 @@ export default {
     },
     filterType (dontcare) {
       this.resetPagination()
+    },
+    watchFails (falg) {
+      this.resetPagination()
     }
   },
   async created () {
