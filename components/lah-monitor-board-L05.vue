@@ -105,7 +105,7 @@ b-card(:border-variant="borderVariant")
     hide-footer
   )
     b-list-group(flush): b-list-group-item.small(
-      v-for="(stats, idx) in orderedFiles",
+      v-for="(stats, idx) in files",
       :key="`file_${idx}`"
     ): .d-flex.justify-content-between
       span {{ stats.name }}
@@ -187,10 +187,7 @@ export default {
       }
     },
     files () {
-      return this.statusData?.payload?.files || []
-    },
-    orderedFiles () {
-      return this.$utils.orderBy(this.files, 'mtimeMs', 'desc')
+      return this.$utils.orderBy(this.statusData?.payload?.files || [], 'mtimeMs', 'desc')
     },
     logs () {
       return this.statusData?.payload?.logs || []
