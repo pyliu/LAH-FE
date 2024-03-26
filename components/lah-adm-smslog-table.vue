@@ -79,8 +79,8 @@ div
         b-link.text-nowrap(
           v-if="notDateKeyword(item) || !validSMSKeyword",
           href="#",
-          @click="keyword = item.SMS_DATE; reloadDebounced();",
-          :title="`依日期 ${item.SMS_DATE} 搜尋`"
+          :title="`依日期 ${item.SMS_DATE} 搜尋`",
+          @click="setKeyword(item.SMS_DATE)"
         )
           lah-fa-icon(icon="magnifying-glass", append) {{ $utils.addDateDivider(item.SMS_DATE) }}
         .highlight-gold(v-else) {{ $utils.addDateDivider(item.SMS_DATE) }}
@@ -90,7 +90,7 @@ div
         b-link(
           v-if="notCellKeyword(item) || !validSMSKeyword",
           href="#",
-          @click="keyword = item.SMS_CELL; reloadDebounced();",
+          @click="setKeyword(item.SMS_CELL)",
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
         )
           .d-flex
@@ -101,7 +101,7 @@ div
         b-link(
           v-if="!$utils.empty(item.SMS_MAIL?.trim()) && item.SMS_MAIL?.trim() !== keyword",
           href="#",
-          @click="keyword = item.SMS_MAIL; reloadDebounced();",
+          @click="setKeyword(item.SMS_MAIL)",
           title="依 EMAIL/統編/操作人員ID ... 等搜尋"
         )
           lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_MAIL }}
@@ -221,7 +221,7 @@ export default {
     }
     if (!this.$utils.empty(this.inKeyword)) {
       this.keyword = this.inKeyword
-      this.$utils.empty(this.inLogs) && this.reload()
+      !this.displayMode && this.reload()
     }
     this.reloadDebounced = this.$utils.debounce(this.reload, 400)
     // restore setting by user
@@ -363,6 +363,12 @@ export default {
         }).finally(() => {
           this.isBusy = false
         })
+    },
+    setKeyword (str) {
+      if (!this.displayMode) {
+        this.keyword = str
+        this.reloadDebounced()
+      }
     }
   }
 }
