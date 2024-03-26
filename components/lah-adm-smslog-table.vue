@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  .d-flex.align-items-center.justify-content-between.mb-2
+  .d-flex.align-items-center.justify-content-between.mb-2(v-if="!displayMode")
     .d-flex.align-items-center
       lah-fa-icon(icon="filter", title="依據簡訊類別篩選")
         b-select.filter-mw(v-model="filterType", :options="filterTypeOpts")
@@ -177,6 +177,9 @@ export default {
     maxHeightOffset: 230
   }),
   computed: {
+    displayMode () {
+      return !this.$utils.empty(this.inLogs)
+    },
     count () { return this.filteredLogs?.length || 0 },
     sanitizedKeyword () {
       return this.sanitizedDate(this.keyword)
