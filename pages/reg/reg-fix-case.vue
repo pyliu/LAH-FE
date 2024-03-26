@@ -467,15 +467,6 @@ export default {
       this.clickedData = data
       this.$refs.caseDetail.show()
     },
-    landNumber (item) {
-      const val = item.AA49
-      if (val) {
-        const mainNumber = val.substring(0, 4)
-        const subNumber = val.substring(4)
-        return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
-      }
-      return ''
-    },
     humanTWDate (str) {
       return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
     },

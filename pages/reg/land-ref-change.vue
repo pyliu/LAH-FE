@@ -97,7 +97,7 @@ div
         {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
       template(#cell(RM56_1)="{ item: { RM56_1 } }"): .text-nowrap {{ humanTWDate(RM56_1) }}
       template(#cell(AA48)="{ item }"): .text-nowrap {{ item.AA48 }}:{{ item.AA48_CHT }}
-      template(#cell(AA49)="{ item }"): .text-nowrap {{ landNumber(item) }}
+      template(#cell(AA49)="{ item }"): .text-nowrap {{ $utils.formatLandNumber(item.AA49) }}
       template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.RM09_CHT }}
       template(#cell(AS_TYPE)="{ item }"): .text-nowrap {{ item.AS_TYPE }}:{{ item.AS_TYPE_CHT }}
       template(#cell(GG00)="{ item }"): .text-nowrap {{ item.GG00 }}:{{ item.GG00_CHT }}
@@ -299,15 +299,6 @@ export default {
       this.modalLoading = true
       this.clickedId = `${data.RM01}${data.RM02}${data.RM03}`
       this.showModalById(this.modalId)
-    },
-    landNumber (item) {
-      const val = item.AA49
-      if (val) {
-        const mainNumber = val.substring(0, 4)
-        const subNumber = val.substring(4)
-        return this.$utils.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
-      }
-      return ''
     },
     humanTWDate (str) {
       return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
