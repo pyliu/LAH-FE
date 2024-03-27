@@ -38,7 +38,7 @@ b-card(
       no-icon-gutter
     )
 
-  section
+  section(v-if="ready")
     b-link.d-flex.justify-content-between.align-items-center.h5(@click="popupSMSLogs(notifyLogs)")
       lah-fa-icon.font-weight-bold(icon="landmark", variant="primary") 地籍異動即時通
       b-badge(pill, variant="primary") {{ notifyLogs.length }}
@@ -48,6 +48,7 @@ b-card(
     b-link.d-flex.justify-content-between.align-items-center.h5(@click="popupSMSLogs(otherLogs)")
       lah-fa-icon.font-weight-bold(icon="envelope") 其他類型(住址隱匿/代收代寄)
       b-badge(pill, variant="dark") {{ otherLogs.length }}
+  .h4.center(v-else) ⚠ 尚未準備好資料
 
   b-modal(
     ref="table",
@@ -194,8 +195,9 @@ export default {
     popupSMSLogs (logs) {
       this.modal(this.$createElement(lahAdmSmslogTableVue, {
         props: {
-          inLogs: [...logs],
-          inKeyword: this.period
+          inLogs: logs,
+          inKeyword: this.period,
+          displayMode: true
         }
       }), {
         title: '簡訊記錄檔查詢',

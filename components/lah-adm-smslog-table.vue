@@ -146,7 +146,8 @@ export default {
   props: {
     inKeyword: { type: String, default: '' },
     inLogs: { type: Array, default: () => ([]) },
-    busy: { type: Boolean, default: false }
+    busy: { type: Boolean, default: false },
+    displayMode: { type: Boolean, default: false }
   },
   data: () => ({
     pagination: {
@@ -177,9 +178,6 @@ export default {
     maxHeightOffset: 230
   }),
   computed: {
-    displayMode () {
-      return !this.$utils.empty(this.inLogs) && !this.keyword?.includes('~')
-    },
     count () { return this.filteredLogs?.length || 0 },
     sanitizedKeyword () {
       return this.sanitizedDate(this.keyword)
@@ -224,7 +222,7 @@ export default {
     }
     if (!this.$utils.empty(this.inKeyword)) {
       this.keyword = this.inKeyword
-      !this.displayMode && this.reload()
+      this.count === 0 && this.reload()
     }
     this.reloadDebounced = this.$utils.debounce(this.reload, 400)
     // restore setting by user

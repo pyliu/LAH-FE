@@ -290,7 +290,8 @@ export default {
         this.modal(this.$createElement(lahAdmSmslogTableVue, {
           props: {
             inKeyword: this.today,
-            inLogs: items || this.logs
+            inLogs: items || this.logs,
+            displayMode: true
           }
         }), {
           title: `${this.today} 地政系統簡訊綜合記錄檔查詢 ${title}`,
