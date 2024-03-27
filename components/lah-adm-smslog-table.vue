@@ -178,7 +178,7 @@ export default {
   }),
   computed: {
     displayMode () {
-      return !this.$utils.empty(this.inLogs)
+      return !this.$utils.empty(this.inLogs) && !this.keyword?.includes('~')
     },
     count () { return this.filteredLogs?.length || 0 },
     sanitizedKeyword () {
