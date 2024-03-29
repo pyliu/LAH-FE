@@ -12,6 +12,7 @@ b-card(:border-variant="borderVariant")
         title="顯示待傳檔案列表"
       ) {{ files.length }} 筆待傳送
       lah-button(
+        v-if="stdout.length > 0",
         icon="file-lines",
         size="sm",
         @click="popRuntimeLogs",
@@ -20,6 +21,7 @@ b-card(:border-variant="borderVariant")
         title="顯示最近100行的執行期間文字紀錄檔內容"
       )
       lah-button(
+        v-if="stderr.length > 0",
         icon="file-lines",
         size="sm",
         @click="popRuntimeErrorLogs",
@@ -29,6 +31,7 @@ b-card(:border-variant="borderVariant")
         title="顯示最近100行的執行期間錯誤文字紀錄檔內容"
       )
       lah-button(
+        v-if="sqlnet.length > 0",
         icon="code",
         size="sm",
         @click="popRuntimeSqlnetLogs",
