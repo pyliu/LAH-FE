@@ -12,6 +12,32 @@ b-card(:border-variant="borderVariant")
         title="顯示待傳檔案列表"
       ) {{ files.length }} 筆待傳送
       lah-button(
+        icon="file-lines",
+        size="sm",
+        @click="popRuntimeLogs",
+        no-border,
+        no-icon-gutter,
+        title="顯示最近100行的執行期間文字紀錄檔內容"
+      )
+      lah-button(
+        icon="file-lines",
+        size="sm",
+        @click="popRuntimeErrorLogs",
+        no-border,
+        no-icon-gutter,
+        variant="outline-danger",
+        title="顯示最近100行的執行期間錯誤文字紀錄檔內容"
+      )
+      lah-button(
+        icon="code",
+        size="sm",
+        @click="popRuntimeSqlnetLogs",
+        no-border,
+        no-icon-gutter,
+        variant="outline-dark",
+        title="顯示最近100行的執行期間錯誤文字紀錄檔內容"
+      )
+      lah-button(
         v-if="logs.length > 0",
         icon="up-right-from-square",
         size="sm",
@@ -113,6 +139,40 @@ b-card(:border-variant="borderVariant")
       lah-badge-human-datetime(
         :seconds="stats.mtimeMs / 1000"
       )
+
+  b-modal(
+    ref="stdout",
+    size="xl",
+    :title="`${header} - 最後100行的執行期間紀錄 - stdout`",
+    hide-footer
+  )
+    b-list-group(flush): b-list-group-item(
+      v-for="(out, idx) in stdout",
+      v-if="idx !== 0",
+      :key="`stdout_${idx}`"
+    ) \#{{ stdout.length - idx }}： {{ out }}
+  b-modal(
+    ref="stderr",
+    size="xl",
+    :title="`${header} - 最後100行的執行期間紀錄 - stderr`",
+    hide-footer
+  )
+    b-list-group(flush): b-list-group-item(
+      v-for="(err, idx) in stderr",
+      v-if="idx !== 0",
+      :key="`stderr_${idx}`"
+    ) \#{{ stderr.length - idx }}： {{ err }}
+  b-modal(
+    ref="sqlnet",
+    size="xl",
+    :title="`${header} - 最後100行的執行期間紀錄 - sqlnet`",
+    hide-footer
+  )
+    b-list-group(flush): b-list-group-item(
+      v-for="(sql, idx) in sqlnet",
+      v-if="idx !== 0",
+      :key="`sqlnet_${idx}`"
+    ) \#{{ sqlnet.length - idx }}： {{ sql }}
 </template>
 
 <script>
@@ -245,11 +305,32 @@ export default {
         return this.light
       }
       return ''
+    },
+    stdout () {
+      if (this.statusData) {
+        return [...this.statusData?.payload?.runtimeLogs?.stdout].reverse()
+      }
+      return []
+    },
+    stderr () {
+      if (this.statusData) {
+        return [...this.statusData?.payload?.runtimeLogs?.stderr].reverse()
+      }
+      return []
+    },
+    sqlnet () {
+      if (this.statusData) {
+        return [...this.statusData?.payload?.runtimeLogs?.sqlnet].reverse()
+      }
+      return []
     }
   },
   watch: {
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
+    },
+    statusData (val) {
+      // console.warn(val)
     }
   },
   mounted () {
@@ -305,6 +386,15 @@ export default {
     },
     popLogs () {
       this.$refs.logs?.show()
+    },
+    popRuntimeLogs () {
+      this.$refs.stdout?.show()
+    },
+    popRuntimeErrorLogs () {
+      this.$refs.stderr?.show()
+    },
+    popRuntimeSqlnetLogs () {
+      this.$refs.sqlnet?.show()
     },
     popFiles () {
       this.$refs.files?.show()
