@@ -111,7 +111,7 @@ b-card(:border-variant="borderVariant")
 
   b-modal(
     ref="logs",
-    size="lg",
+    size="xl",
     :title="`${header} - 最近 ${logs.length} 筆紀錄`",
     hide-footer
   )
