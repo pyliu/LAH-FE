@@ -111,7 +111,7 @@ b-card(:border-variant="borderVariant")
 
   b-modal(
     ref="logs",
-    size="xl",
+    size="lg",
     :title="`${header} - 最近 ${logs.length} 筆紀錄`",
     hide-footer
   )
@@ -123,10 +123,13 @@ b-card(:border-variant="borderVariant")
       striped,
       hover,
       bordered,
-      selectable
+      selectable,
+      responsive
     )
       template(#cell(FinDate)="{ item }") {{ $utils.addDateDivider(item.FinDate, 'AD') }}
       template(#cell(FinTime)="{ item }") {{ $utils.addTimeDivider(item.FinTime,) }}
+      template(#cell(QryContent)="{ item }")
+        .mw-cell.truncate(:title="item.QryContent") {{ item.QryContent }}
   b-modal(
     ref="files",
     :title="`待同步共 ${files.length} 筆  - ${syncDir}`",
@@ -404,4 +407,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.mw-cell {
+  max-width: 33vw;
+}
 </style>
