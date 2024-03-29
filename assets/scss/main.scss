@@ -49,6 +49,19 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .print-no-break {
+    break-inside: avoid;
+  }
+  .print-not-display {
+    display: none;
+  }
+}
+
 hr {
   margin-top: .5rem;
   margin-bottom: .5rem;
