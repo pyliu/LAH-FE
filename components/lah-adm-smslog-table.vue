@@ -314,7 +314,7 @@ export default {
       this.resetPagination()
     },
     reload () {
-      if (this.validSMSKeyword) {
+      if (this.validSMSKeyword && !this.displayMode) {
         this.isBusy = true
         this.logs = []
         this.reset()
