@@ -18,7 +18,7 @@ b-card(:border-variant="borderVariant")
         @click="popRuntimeLogs",
         no-border,
         no-icon-gutter,
-        title="顯示最近100行的執行期間文字紀錄檔內容"
+        title="顯示最近執行期間輸出"
       )
       lah-button(
         v-if="stderr.length > 0",
@@ -28,7 +28,7 @@ b-card(:border-variant="borderVariant")
         no-border,
         no-icon-gutter,
         variant="outline-danger",
-        title="顯示最近100行的執行期間錯誤文字紀錄檔內容"
+        title="顯示最近執行期間錯誤"
       )
       lah-button(
         v-if="sqlnet.length > 0",
@@ -38,7 +38,7 @@ b-card(:border-variant="borderVariant")
         no-border,
         no-icon-gutter,
         variant="outline-dark",
-        title="顯示最近100行的執行期間錯誤文字紀錄檔內容"
+        title="顯示連線執行期間錯誤"
       )
       lah-button(
         v-if="logs.length > 0",
@@ -146,36 +146,33 @@ b-card(:border-variant="borderVariant")
   b-modal(
     ref="stdout",
     size="xl",
-    :title="`${header} - 最後100行的執行期間紀錄 - stdout`",
+    :title="`${header} - 最後100行的執行紀錄 - stdout`",
     hide-footer
   )
     b-list-group(flush): b-list-group-item(
       v-for="(out, idx) in stdout",
-      v-if="idx !== 0",
       :key="`stdout_${idx}`"
-    ) \#{{ stdout.length - idx }}： {{ out }}
+    ) \#{{ idx }}： {{ out }}
   b-modal(
     ref="stderr",
     size="xl",
-    :title="`${header} - 最後100行的執行期間紀錄 - stderr`",
+    :title="`${header} - 最後100行的執行期間錯誤紀錄 - stderr`",
     hide-footer
   )
     b-list-group(flush): b-list-group-item(
       v-for="(err, idx) in stderr",
-      v-if="idx !== 0",
       :key="`stderr_${idx}`"
-    ) \#{{ stderr.length - idx }}： {{ err }}
+    ) \#{{ idx }}： {{ err }}
   b-modal(
     ref="sqlnet",
     size="xl",
-    :title="`${header} - 最後100行的執行期間紀錄 - sqlnet`",
+    :title="`${header} - 最後100行的SQLNET連線錯誤紀錄 - sqlnet`",
     hide-footer
   )
     b-list-group(flush): b-list-group-item(
       v-for="(sql, idx) in sqlnet",
-      v-if="idx !== 0",
       :key="`sqlnet_${idx}`"
-    ) \#{{ sqlnet.length - idx }}： {{ sql }}
+    ) \#{{ idx }}： {{ sql }}
 </template>
 
 <script>
@@ -311,19 +308,19 @@ export default {
     },
     stdout () {
       if (this.statusData) {
-        return [...this.statusData?.payload?.runtimeLogs?.stdout].reverse()
+        return [...this.statusData?.payload?.runtimeLogs?.stdout].filter(line => !this.$utils.empty(line))
       }
       return []
     },
     stderr () {
       if (this.statusData) {
-        return [...this.statusData?.payload?.runtimeLogs?.stderr].reverse()
+        return [...this.statusData?.payload?.runtimeLogs?.stderr].filter(line => !this.$utils.empty(line))
       }
       return []
     },
     sqlnet () {
       if (this.statusData) {
-        return [...this.statusData?.payload?.runtimeLogs?.sqlnet].reverse()
+        return [...this.statusData?.payload?.runtimeLogs?.sqlnet].filter(line => !this.$utils.empty(line))
       }
       return []
     }
