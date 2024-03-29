@@ -408,6 +408,6 @@ export default {
 
 <style lang="scss" scoped>
 .mw-cell {
-  max-width: 30vw;
+  max-width: 420px;
 }
 </style>
