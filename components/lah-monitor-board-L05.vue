@@ -74,7 +74,7 @@ b-card(:border-variant="borderVariant")
         lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ syncPeriod }}
     b-list-group-item(v-if="isRunning")
       .d-flex.justify-content-between
-        lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.pid ? perf.proc : jarName }}
+        lah-fa-icon(icon="terminal", variant="dark") 運作程式：{{ perf.pid ? perf.proc : '未發現' }}
         lah-fa-icon(
           icon="gears",
           variant="dark"
@@ -146,18 +146,11 @@ export default {
       // return `http://${this.ip}:${this.port}/api/v1/l05`
       return '/l05proxy/api/v1/l05'
     },
-    jarName () {
-      return this.statusData?.payload?.jar
-    },
-    isJarRunning () {
-      return this.statusData?.payload?.isJarRunning
-    },
     isRunning () {
       if (parseInt(this.perf?.pid) > 0) {
         return true
       }
-      // return additional running checking result
-      return this.isJarRunning
+      return false
     },
     message () {
       return this.statusData?.message || '🟡 尚未取得狀態更新資料'
@@ -289,9 +282,7 @@ export default {
                 ini: {},
                 loading: {},
                 ping: '',
-                files: [],
-                isJarRunning: false,
-                jar: 'L05Schedule'
+                files: []
               }
             }
           }
