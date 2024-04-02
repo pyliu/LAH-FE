@@ -307,7 +307,8 @@ export default {
         this.modal(this.$createElement(lahAdmSmslogTableVue, {
           props: {
             inKeyword: this.today,
-            inLogs: [item]
+            inLogs: [item],
+            displayMode: true
           }
         }), {
           title: '地政系統簡訊綜合記錄檔查詢',
