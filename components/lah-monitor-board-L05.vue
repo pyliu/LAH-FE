@@ -22,7 +22,7 @@ b-card(:border-variant="borderVariant")
       )
       lah-button(
         v-if="stderr.length > 0",
-        icon="file-lines",
+        icon="circle-exclamation",
         size="sm",
         @click="popRuntimeErrorLogs",
         no-border,
@@ -32,12 +32,12 @@ b-card(:border-variant="borderVariant")
       )
       lah-button(
         v-if="sqlnet.length > 0",
-        icon="code",
+        icon="server",
         size="sm",
         @click="popRuntimeSqlnetLogs",
         no-border,
         no-icon-gutter,
-        variant="outline-dark",
+        variant="outline-warning",
         title="顯示連線執行期間錯誤"
       )
       lah-button(
