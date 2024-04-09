@@ -27,6 +27,14 @@ b-card(:border-variant="border")
       //-   max=24
       //- )
       lah-button(
+        icon="cloud-sun-rain",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        @click="$utils.openNewWindow('/inf/weather/')",
+        title="開啟SRMAS天氣圖"
+      )
+      lah-button(
         v-if="!footer"
         icon="sync-alt",
         action="ld-cycle",

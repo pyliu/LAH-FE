@@ -32,7 +32,7 @@ export default {
 
   }),
   head: {
-    title: '樣板頁面-桃園市地政局'
+    title: 'SRMAS天氣圖-桃園市地政局'
   },
   computed: {
     srmasIp () {
