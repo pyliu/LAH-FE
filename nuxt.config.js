@@ -143,6 +143,7 @@ export default {
     websocketPort: process.env.WEBSOCKET_PORT,
     APIHost: process.env.API_HOST,
     APIPort: process.env.API_PORT,
+    SRMASHost: process.env.SRMAS_HOST,
     axios: {
       // Default: baseURL; when the proxy option is true, it will become PREFIX instead of baseURL
       browserBaseURL: process.env.BROWSER_BASE_URL
