@@ -20,14 +20,19 @@ b-card(:border-variant="border")
         li 顯示 SRMAS 天氣圖
         li 點擊圖片可帶出新視窗放大顯示
   slot
+  .center.h5(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
   b-link(
-    @click="$utils.openNewWindow(weatherImgUrl)",
+    v-show="!failed",
+    to="/inf/weather/",
     v-b-tooltip="`顯示${weatherImgUrl}`"
-  ): b-img(
-    :src="weatherImgUrl",
-    fluid,
-    thumbnail
   )
+    b-img(
+      :src="weatherImgUrl",
+      fluid,
+      thumbnail,
+      @load="failed = false",
+      @error="failed = true"
+    )
 
   //- template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
   //-   ref="footer"
@@ -50,7 +55,8 @@ export default {
     monitorBoardMH: { type: Boolean, default: false }
   },
   data: () => ({
-    header: 'SRMAS天氣圖'
+    header: 'SRMAS天氣圖',
+    failed: false
   }),
   computed: {
     srmasIp () {

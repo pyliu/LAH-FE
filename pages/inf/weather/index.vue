@@ -11,25 +11,30 @@ div(v-cloak)
       .h4 請在 .env 檔案輸入 SRMAS_HOST={{ srmasIp }} 資料以正常顯示
       .h5.text-muted 目前影像位址：{{ weatherImgUrl }}
   //- below is the customize area
-  .center: b-img.max-h(
-    :src="weatherImgUrl",
-    fluid,
-    thumbnail,
-    @click="$utils.openNewWindow(weatherImgUrl)"
-  )
+  .center
+    h4(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
+    b-img.max-h(
+      v-show="!failed",
+      :src="weatherImgUrl",
+      fluid,
+      thumbnail,
+      @click="$utils.openNewWindow(weatherImgUrl)",
+      @load="failed = false",
+      @error="failed = true"
+    )
 </template>
 
 <script>
 export default {
   fetchOnServer: false,
   async asyncData ({ $axios, $content }) {
-    const testMD = await $content('test').fetch()
-    return {
-      testMD
-    }
+    // const testMD = await $content('test').fetch()
+    // return {
+    //   testMD
+    // }
   },
   data: () => ({
-
+    failed: false
   }),
   head: {
     title: 'SRMAS天氣圖-桃園市地政局'
