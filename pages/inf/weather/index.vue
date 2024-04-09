@@ -11,7 +11,7 @@ div(v-cloak)
       .h4 請在 .env 檔案輸入 SRMAS_HOST={{ srmasIp }} 資料以正常顯示
       .h5.text-muted 目前影像位址：{{ weatherImgUrl }}
   //- below is the customize area
-  b-img(
+  .center: b-img.max-h(
     :src="weatherImgUrl",
     fluid,
     thumbnail,
@@ -52,4 +52,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.max-h {
+  max-height: calc(100vh - 100px);
+}
 </style>
