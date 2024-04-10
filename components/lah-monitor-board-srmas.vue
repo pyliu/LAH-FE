@@ -165,7 +165,17 @@ export default {
     failed: false,
     ts: 0,
     timer: null,
-    carouselSecs: 30
+    carouselSecs: 30,
+    srmas: new Map([
+      ['HA', '220.1.34.251'],
+      ['HB', '220.1.35.95'],
+      ['HC', '220.1.36.16'],
+      ['HD', '220.1.37.93'],
+      ['HE', '220.1.38.127'],
+      ['HF', '220.1.39.126'],
+      ['HG', '220.1.40.76'],
+      ['HH', '220.1.41.64']
+    ])
   }),
   computed: {
     messagesAfterThreadhold () {
@@ -204,7 +214,7 @@ export default {
       return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
     },
     srmasIp () {
-      return this.$config.SRMASHost
+      return this.$config.SRMASHost || this.srmas.get(this.site)
     },
     weatherImgUrl () {
       return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.ts}`
