@@ -1,6 +1,6 @@
 <template lang="pug">
-b-card(:border-variant="border")
-  template(#header): .d-flex.justify-content-between.align-items-center
+b-card(:class="bodyOnly ? ['border-0'] : []")
+  template(#header, v-if="!bodyOnly"): .d-flex.justify-content-between.align-items-center
     strong {{ header }}
     //- lah-fa-icon(icon="circle", :variant="light")
     //- strong(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
@@ -36,16 +36,6 @@ b-card(:border-variant="border")
       @error="failed = true"
     )
 
-  //- template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
-  //-   ref="footer"
-  //-   :reload-ms="reloadMs",
-  //-   :busy="isBusy",
-  //-   :fetch="$fetch",
-  //-   :reload="reload",
-  //-   :fetch-state="fetchingState",
-  //-   :update-time="updated"
-  //- )
-
 </template>
 
 <script>
@@ -53,8 +43,7 @@ export default {
   name: 'LahMonitorBoardSrmasWeather',
   components: {},
   props: {
-    footer: { type: Boolean, default: false },
-    monitorBoardMH: { type: Boolean, default: false }
+    bodyOnly: { type: Boolean, default: false }
   },
   data: () => ({
     header: 'SRMAS天氣圖',

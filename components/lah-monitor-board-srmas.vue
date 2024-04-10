@@ -35,6 +35,14 @@ b-card(:border-variant="border")
         title="開啟SRMAS天氣圖"
       )
       lah-button(
+        icon="repeat",
+        variant="outline-success",
+        no-border,
+        no-icon-gutter,
+        @click="$refs.carousel?.next()",
+        v-b-tooltip="'切換SRMAS天氣圖/郵件分析顯示'"
+      )
+      lah-button(
         v-if="!footer"
         icon="sync-alt",
         action="ld-cycle",
@@ -72,28 +80,51 @@ b-card(:border-variant="border")
         b-input.mx-1(v-model="monitorHrs", type="number", min=1, max=24, size="sm", style="width: 50px")
         span 小時內的資訊
       hr
+      .d-flex.align-items-center
+        span 👉 輪播切換秒數
+        b-input.mx-1(v-model="carouselSecs", type="number", min=3, max=300, size="sm", style="width: 60px")
+      hr
       div ⭐ 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
-  .center.h4(v-if="headMessages.length === 0") #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ fetchDay }}日內無收到任何通知郵件資料]
-  div(v-else-if="problems.length > 0 || fixed.length > 0")
-    lah-monitor-board-srmas-list.mb-2(
-      v-if="problems.length > 0"
-      title-text="無告警回復項目",
-      title-icon="exclamation-triangle",
-      variant="danger",
-      :items="problems"
-    )
-    lah-monitor-board-srmas-fixed(
-      v-if="fixed.length > 0"
-      title-text="已正常回復項目",
-      title-icon="check-double",
-      variant="success",
-      :items="fixed"
-    )
-  .center.h4(v-else) #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ monitorHrs }}小時內未收到告警訊息]
+  b-carousel(
+    ref="carousel",
+    :interval="carouselSecs * 1000"
+  )
+    b-carousel-slide: template(#img)
+      .center.h4(v-if="headMessages.length === 0") #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ fetchDay }}日內無收到任何通知郵件資料]
+      div(v-else-if="problems.length > 0 || fixed.length > 0")
+        lah-monitor-board-srmas-list.mb-2(
+          v-if="problems.length > 0"
+          title-text="無告警回復項目",
+          title-icon="exclamation-triangle",
+          variant="danger",
+          :items="problems"
+        )
+        lah-monitor-board-srmas-fixed(
+          v-if="fixed.length > 0"
+          title-text="已正常回復項目",
+          title-icon="check-double",
+          variant="success",
+          :items="fixed"
+        )
+      .center.h4(v-else) #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ monitorHrs }}小時內未收到告警訊息]
+    b-carousel-slide: template(#img)
+      .center.h5(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
+      b-link(
+        v-show="!failed",
+        @click="$utils.openNewWindow('/inf/weather/')",
+        v-b-tooltip="`顯示${weatherImgUrl}`"
+      )
+        b-img(
+          :src="weatherImgUrl",
+          fluid,
+          thumbnail,
+          @load="failed = false",
+          @error="failed = true"
+        )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -130,7 +161,11 @@ export default {
     duration: 0,
     threadhold: 0,
     fixed: [],
-    problems: []
+    problems: [],
+    failed: false,
+    ts: 0,
+    timer: null,
+    carouselSecs: 30
   }),
   computed: {
     messagesAfterThreadhold () {
@@ -167,12 +202,21 @@ export default {
     },
     restores () {
       return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
+    },
+    srmasIp () {
+      return this.$config.SRMASHost
+    },
+    weatherImgUrl () {
+      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.ts}`
     }
   },
   watch: {
     monitorHrs (val) {
       this.calcTime()
       this.setCache('monitorHrs', val)
+    },
+    carouselSecs (val) {
+      this.setCache('carouselSecs', val)
     },
     messagesAfterThreadhold (val) {
       // console.warn(val)
@@ -239,9 +283,17 @@ export default {
       this.problems = [...bad]
     }, 400)
     this.monitorHrs = await this.getCache('monitorHrs') || 12
+    this.carouselSecs = await this.getCache('carouselSecs') || 30
     this.calcTime()
   },
-  mounted () {},
+  mounted () {
+    this.timer = setInterval(() => {
+      this.ts = +new Date()
+    }, 60000)
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
+  },
   methods: {
     calcTime () { /** debounced */ },
     matchWarningRestores () { /** debounced */ },
