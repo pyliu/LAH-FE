@@ -7,9 +7,10 @@ div(v-cloak)
           div {{ site }} 天氣圖
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         //- div 右側選單區域
-    lah-help-modal(:modal-id="'help-modal'" size="xl")
-      .h4 請在 .env 檔案輸入 SRMAS_HOST={{ srmasIp }} 資料以正常顯示
-      .h5.text-muted 目前影像位址：{{ weatherImgUrl }}
+    lah-help-modal(:modal-id="'help-modal'" size="md"): ul
+      li 請在 .env 檔案輸入 SRMAS_HOST={{ srmasIp }} 資料以正常顯示
+      li 目前影像位址：{{ weatherImgUrl }}
+      li 每分鐘自動更新
   //- below is the customize area
   .center
     h4(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
@@ -34,7 +35,9 @@ export default {
     // }
   },
   data: () => ({
-    failed: false
+    failed: false,
+    ts: 0,
+    timer: null
   }),
   head: {
     title: 'SRMAS天氣圖-桃園市地政局'
@@ -44,13 +47,18 @@ export default {
       return this.$config.SRMASHost
     },
     weatherImgUrl () {
-      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png`
+      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.ts}`
     }
   },
   watch: {},
   created () {},
   mounted () {
-    console.log(this.$config)
+    this.timer = setInterval(() => {
+      this.ts = +new Date()
+    }, 60000)
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
   },
   methods: {}
 }

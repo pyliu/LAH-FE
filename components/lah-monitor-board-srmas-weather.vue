@@ -17,8 +17,10 @@ b-card(:border-variant="border")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示 SRMAS 天氣圖
+        li 顯示 SRMAS 天氣圖，請在 .env 檔案輸入 SRMAS_HOST={{ srmasIp }} 資料以正常顯示
         li 點擊圖片可帶出新視窗放大顯示
+        li 目前影像位址：{{ weatherImgUrl }}
+        li 每分鐘自動更新
   slot
   .center.h5(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
   b-link(
@@ -56,19 +58,28 @@ export default {
   },
   data: () => ({
     header: 'SRMAS天氣圖',
-    failed: false
+    failed: false,
+    ts: 0,
+    timer: null
   }),
   computed: {
     srmasIp () {
       return this.$config.SRMASHost
     },
     weatherImgUrl () {
-      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png`
+      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.ts}`
     }
   },
   watch: {},
   async created () {},
-  mounted () {},
+  mounted () {
+    this.timer = setInterval(() => {
+      this.ts = +new Date()
+    }, 60000)
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
+  },
   methods: {}
 }
 </script>
