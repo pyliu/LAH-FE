@@ -125,7 +125,7 @@ b-card(:border-variant="border")
           @load="failed = false",
           @error="failed = true"
         )
-
+  //- lah-button(@click="matchWarningRestores") test
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -208,10 +208,12 @@ export default {
     },
     warnings () {
       // return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('異常', '告警', '警告')).reverse()
-      return this.$utils.difference(this.messagesAfterThreadhold, this.restores)
+      const tmp = this.$utils.difference(this.messagesAfterThreadhold, this.restores)
+      return this.$utils.orderBy(tmp, 'timestamp', 'desc')
     },
     restores () {
-      return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
+      const tmp = this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
+      return this.$utils.orderBy(tmp, 'timestamp', 'desc')
     },
     srmasIp () {
       return this.$config.SRMASHost || this.srmas.get(this.site)
@@ -250,7 +252,7 @@ export default {
       this.threadhold = (+new Date() - this.duration) / 1000
     }, 400)
     this.matchWarningRestores = this.$utils.debounce(() => {
-      const bad = this.$utils.orderBy(this.warnings, 'timestamp')
+      const bad = [...this.warnings]
       this.fixed = []
       this.problems = []
       // foreach restore message finds one with the same key(host) and timestamp is less it in warning array
@@ -259,32 +261,34 @@ export default {
         const restoreLines = ritem.message.split("\r\n")?.map(line => line?.trim())
         // ex: 主機：220.1.34.206
         const restoreHostLine = restoreLines[1]
-        // console.warn('restore: ', restoreLines)
+        // restoreHostLine === '主機：220.1.34.250' && console.warn('restore: ', restoreLines)
         // find the warning one for this restore message
-        let found = -1
+        const founds = []
         bad.find((witem, widx) => {
           // eslint-disable-next-line quotes
           const warnLines = witem.message.split("\r\n")?.map(line => line?.trim())
           // ex: 主機：220.1.34.206
           const warnHostLine = warnLines[1]
-          // console.warn('warn: ', warnLines)
+          // restoreHostLine === '主機：220.1.34.250' && warnHostLine === '主機：220.1.34.250' && console.warn('warn: ', warnLines)
           // sometime the restore message will be sent before warning ... why? ask 👉 SRMAS by systex
           // 1130411 testing: add timestamp(seconds) comparing back
           if (restoreHostLine === warnHostLine && witem.timestamp <= ritem.timestamp) {
             // host matches and restore message timestamp behides warning
-            found = widx
+            founds.push(widx)
             return true
           }
           return false
         })
-        // console.warn('before', bad.length)
-        if (found !== -1) {
-          const bi = bad.splice(found, 1)[0]
-          const gi = ritem
-          // console.warn('match!', bi, gi)
-          this.fixed.push({
-            bad: bi,
-            good: gi
+        // console.warn(`${restoreHostLine} FOUND`, founds.length)
+        if (founds.length > 0) {
+          founds.forEach((found) => {
+            const bi = bad.splice(found, 1)[0]
+            const gi = ritem
+            // console.warn('match!', bi, gi)
+            this.fixed.push({
+              bad: bi,
+              good: gi
+            })
           })
         }
         // console.warn('after', bad.length)
