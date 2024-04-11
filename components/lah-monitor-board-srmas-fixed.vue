@@ -44,7 +44,7 @@ export default {
        * 3: "警示規則: 硬碟容量使用率大於80%"
        */
       const warnLines = item.bad.message.split('\r\n')
-      const warnHost = warnLines[1]?.replace('主機：', '')?.trim()
+      const warnHost = warnLines[1]?.replace(/^主機[：|:]\s*/ig, '')?.trim()
       let warnRule = '無法辨識的告警，請查看主控台'
       if (warnLines[0]?.includes('異常告警')) {
         /**
