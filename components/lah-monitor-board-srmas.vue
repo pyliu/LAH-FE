@@ -265,9 +265,9 @@ export default {
           const warnLines = witem.message.split("\r\n")
           // ex: 主機：220.1.34.206
           const warnHostLine = warnLines[1]
-          // sometime the restore message will be sent before warning ... why? aske 👉 SRMAS by systex
-          // remove timestamp(seconds) comparing
-          if (restoreHostLine === warnHostLine) {
+          // sometime the restore message will be sent before warning ... why? ask 👉 SRMAS by systex
+          // 1130411 testing: add timestamp(seconds) comparing back
+          if (restoreHostLine === warnHostLine && witem.timestamp <= ritem.timestamp) {
             // host matches and restore message timestamp behides warning
             found = widx
             return true
