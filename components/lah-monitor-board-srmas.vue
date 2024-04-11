@@ -237,6 +237,7 @@ export default {
     },
     restores (val) {
       // console.warn('RESTORE', val)
+      this.matchWarningRestores()
     },
     fixed (val) {
       // console.warn(val)
@@ -255,16 +256,18 @@ export default {
       // foreach restore message finds one with the same key(host) and timestamp is less it in warning array
       this.restores.forEach((ritem, ridx, arr) => {
         // eslint-disable-next-line quotes
-        const restoreLines = ritem.message.split("\r\n")
+        const restoreLines = ritem.message.split("\r\n")?.map(line => line?.trim())
         // ex: 主機：220.1.34.206
         const restoreHostLine = restoreLines[1]
+        // console.warn('restore: ', restoreLines)
         // find the warning one for this restore message
         let found = -1
         bad.find((witem, widx) => {
           // eslint-disable-next-line quotes
-          const warnLines = witem.message.split("\r\n")
+          const warnLines = witem.message.split("\r\n")?.map(line => line?.trim())
           // ex: 主機：220.1.34.206
           const warnHostLine = warnLines[1]
+          // console.warn('warn: ', warnLines)
           // sometime the restore message will be sent before warning ... why? ask 👉 SRMAS by systex
           // 1130411 testing: add timestamp(seconds) comparing back
           if (restoreHostLine === warnHostLine && witem.timestamp <= ritem.timestamp) {
