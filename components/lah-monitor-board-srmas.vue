@@ -96,15 +96,16 @@ b-card(:border-variant="border")
     b-carousel-slide: template(#img)
       .center.h4(v-if="headMessages.length === 0") #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ fetchDay }}日內無收到任何通知郵件資料]
       div(v-else-if="problems.length > 0 || fixed.length > 0")
-        lah-monitor-board-srmas-list.mb-2(
-          v-if="problems.length > 0"
+        lah-monitor-board-srmas-list(
+          v-if="problems.length > 0",
           title-text="無告警回復項目",
           title-icon="exclamation-triangle",
           variant="danger",
           :items="problems"
         )
+        hr(v-if="problems.length > 0")
         lah-monitor-board-srmas-fixed(
-          v-if="fixed.length > 0"
+          v-if="fixed.length > 0",
           title-text="已正常回復項目",
           title-icon="check-double",
           variant="success",
