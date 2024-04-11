@@ -35,7 +35,7 @@ b-card(:border-variant="border")
         title="開啟SRMAS天氣圖"
       )
       lah-button(
-        icon="repeat",
+        icon="arrows-left-right",
         variant="outline-success",
         no-border,
         no-icon-gutter,
