@@ -6,7 +6,7 @@ b-card.border-0(no-body)
   transition-group(name="list"): div(v-for="(item, idx) in items", :key="`srmas_${idx}`")
     .d-flex.justify-content-between.font-weight-bold.small
       lah-fa-icon(icon="angle-double-right")
-      a.truncate(
+      b-link.truncate(
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
@@ -15,7 +15,7 @@ b-card.border-0(no-body)
         :variant="isToday(item.timestamp) ? 'success' : 'muted'",
         :seconds="item.timestamp"
       )
-    .truncate.text-muted.small {{ item.message }}
+    .truncate.text-muted.small(@click="popupLogContent(item)") {{ item.message }}
 </template>
 
 <script>
@@ -25,7 +25,7 @@ export default {
     titleText: { type: String, default: 'SRMAS項目標題' },
     titleIcon: { type: String, default: 'exclamation-triangle' },
     variant: { type: String, default: 'dark' },
-    modalSize: { type: String, default: 'lg' },
+    modalSize: { type: String, default: 'md' },
     items: {
       type: Array,
       require: true,
