@@ -81,21 +81,21 @@ export default {
       const joins = [`🔴 ${item.bad.message}`, `🟢 ${item.good.message}`]
       return this.$utils.convertMarkd(joins.join('\n***\n'))
     },
-    recoverMessage (item) {
-      const offset = item.good.timestamp - item.bad.timestamp
-      // const goodLines = item.good.message.split('\r\n')
-      // return goodLines[goodLines.length - 1]
-      return `耗時 ${this.convertTimeOffset(offset)} 復原`
-    },
     convertTimeOffset (seconds) {
       const secNum = parseInt(seconds, 10)
       let hours = Math.floor(secNum / 3600)
-      let minutes = Math.floor((secNum - (hours * 3600)) / 60)
+      let minutes = Math.ceil((secNum - (hours * 3600)) / 60)
       let secs = secNum - (hours * 3600) - (minutes * 60)
       if (hours < 10) { hours = '0' + hours }
       if (minutes < 10) { minutes = '0' + minutes }
       if (secs < 10) { secs = '0' + secs }
       return hours + ':' + minutes + ':' + secs
+    },
+    recoverMessage (item) {
+      const offset = item.good.timestamp - item.bad.timestamp
+      // const goodLines = item.good.message.split('\r\n')
+      // return goodLines[goodLines.length - 1]
+      return `耗時 ${this.convertTimeOffset(offset)} 復原`
     },
     isToday (ts) {
       const fullDt = this.$utils.phpTsToAdDateStr(ts, true)
