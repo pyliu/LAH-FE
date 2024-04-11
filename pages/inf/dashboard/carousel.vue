@@ -81,12 +81,33 @@ div(v-cloak)
       lah-monitor-board-site-hx(@light-update="lightUpdate")
       lah-monitor-board-site-tw(@light-update="lightUpdate")
 
-  b-carousel(
-    v-if="isHA",
-    ref="boards",
-    :interval="0"
-  )
-    b-carousel-slide: template(#img)
+  //- b-carousel(
+  //-   v-if="isHA",
+  //-   ref="boards",
+  //-   :interval="0"
+  //- )
+  //-   b-carousel-slide: template(#img)
+  //-     b-card-group.mb-4.card-body-fixed-height-3(deck)
+  //-       lah-monitor-board-dataguard(@light-update="lightUpdate")
+  //-       lah-monitor-board-hacmp(@light-update="lightUpdate")
+  //-       lah-monitor-board-dnp(@light-update="lightUpdate")
+  //-     b-card-group.mb-4.card-body-fixed-height-3(deck)
+  //-       lah-monitor-board-L05(@light-update="lightUpdate")
+  //-       lah-monitor-board-srmas(@light-update="lightUpdate")
+  //-       lah-monitor-board-dbbackup(@light-update="lightUpdate")
+  //-   b-carousel-slide: template(#img)
+  //-     b-card-group.mb-4.card-body-fixed-height-3(deck)
+  //-       lah-monitor-board-vmclone(@light-update="lightUpdate")
+  //-       lah-monitor-board-tape(@light-update="lightUpdate")
+  //-       lah-monitor-board-apbackup(@light-update="lightUpdate")
+  //-     b-card-group.card-body-fixed-height-3(deck)
+  //-       lah-monitor-board-xap-trend(office="桃園所", @light-update="lightUpdate", watch-top-xap)
+  //-       lah-monitor-board-apconn(@light-update="lightUpdate")
+  //-       lah-monitor-board-testdb(@light-update="lightUpdate")
+        //- lah-monitor-board-adsync(@light-update="lightUpdate")
+        //- lah-monitor-board-ups(@light-update="lightUpdate")
+  lah-transition(v-if="isHA", slide)
+    div(v-if="haSwitch")
       b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-dataguard(@light-update="lightUpdate")
         lah-monitor-board-hacmp(@light-update="lightUpdate")
@@ -95,7 +116,7 @@ div(v-cloak)
         lah-monitor-board-L05(@light-update="lightUpdate")
         lah-monitor-board-srmas(@light-update="lightUpdate")
         lah-monitor-board-dbbackup(@light-update="lightUpdate")
-    b-carousel-slide: template(#img)
+    div(v-else)
       b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-vmclone(@light-update="lightUpdate")
         lah-monitor-board-tape(@light-update="lightUpdate")
@@ -106,7 +127,6 @@ div(v-cloak)
         lah-monitor-board-testdb(@light-update="lightUpdate")
         //- lah-monitor-board-adsync(@light-update="lightUpdate")
         //- lah-monitor-board-ups(@light-update="lightUpdate")
-
   div(v-else)
       b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-dataguard(@light-update="lightUpdate")
@@ -127,7 +147,8 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
-    secs: 10
+    secs: 10,
+    haSwitch: true
   }),
   head: {
     title: '智慧監控儀表板輪播-桃園市地政局'
@@ -180,11 +201,13 @@ export default {
     prev () {
       this.$refs.xap?.prev()
       this.$refs.boards?.prev()
+      this.haSwitch = !this.haSwitch
       this.resetTimer()
     },
     next () {
       this.$refs.xap?.next()
       this.$refs.boards?.next()
+      this.haSwitch = !this.haSwitch
       this.resetTimer()
     },
     resetTimer () {
