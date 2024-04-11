@@ -35,6 +35,7 @@ b-card(:border-variant="border")
         title="開啟SRMAS天氣圖"
       )
       lah-button(
+        v-if="!noCarousel",
         icon="arrows-left-right",
         variant="outline-success",
         no-border,
@@ -91,7 +92,7 @@ b-card(:border-variant="border")
   slot
   b-carousel(
     ref="carousel",
-    :interval="carouselSecs * 1000"
+    :interval="noCarousel ? 0 : carouselSecs * 1000"
   )
     b-carousel-slide: template(#img)
       .center.h4(v-if="headMessages.length === 0") #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ fetchDay }}日內無收到任何通知郵件資料]
@@ -151,7 +152,8 @@ export default {
   mixins: [lahMonitorBoardBase],
   props: {
     footer: { type: Boolean, default: false },
-    monitorBoardMH: { type: Boolean, default: false }
+    monitorBoardMH: { type: Boolean, default: false },
+    noCarousel: { type: Boolean, default: false }
   },
   data: () => ({
     header: 'SRMAS分析',

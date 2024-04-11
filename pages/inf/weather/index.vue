@@ -3,10 +3,14 @@ div(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
-        .d-flex
+        .d-flex.align-items-center
           div {{ site }} 天氣圖
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-        //- div 右側選單區域
+        b-button-group(size="lg")
+          lah-button(
+            icon="magnifying-glass-chart",
+            @click="openMonitorBoard"
+          ) SRMAS分析儀表板
     lah-help-modal(:modal-id="'help-modal'" size="md"): ul
       li 請在 .env 檔案輸入 SRMAS_HOST={{ srmasIp }} 資料以正常顯示
       li 目前影像位址：{{ weatherImgUrl }}
@@ -26,8 +30,10 @@ div(v-cloak)
 </template>
 
 <script>
+import lahMonitorBoardSrmas from '~/components/lah-monitor-board-srmas.vue'
 export default {
   fetchOnServer: false,
+  components: { lahMonitorBoardSrmas },
   async asyncData ({ $axios, $content }) {
     // const testMD = await $content('test').fetch()
     // return {
@@ -70,7 +76,16 @@ export default {
   beforeDestroy () {
     clearInterval(this.timer)
   },
-  methods: {}
+  methods: {
+    openMonitorBoard () {
+      this.modal(this.$createElement(lahMonitorBoardSrmas, {
+        props: { noCarousel: true }
+      }), {
+        title: 'SRMAS通知郵件分析儀表板',
+        size: 'lg'
+      })
+    }
+  }
 }
 </script>
 

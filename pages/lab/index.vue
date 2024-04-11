@@ -27,11 +27,17 @@
           :icon="['fas', 'landmark-flag']",
           to="/bureau"
         ) H0監控儀表板
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(v-else)
+        lah-index-card-link.fix-card-dimension(
+          v-if="isInf || authority.isAdmin",
+          :icon="['fas', 'cloud-sun-rain']"
+          to="/inf/weather/"
+        ) {{ site }} 機房天氣圖
+        lah-index-card-link.fix-card-dimension.invisible(v-else)
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
 </template>
 
 <script>
