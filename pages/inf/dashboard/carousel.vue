@@ -65,23 +65,24 @@ div(v-cloak)
         li 提供顯示各監控標的狀態之功能
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
-  lah-transition
-    b-carousel.mb-4(
-      ref="xap",
-      v-if="displayXAP",
-      :interval="0"
-    )
-      b-carousel-slide: template(#img): b-card-group.card-body-fixed-height-3(deck)
-        lah-monitor-board-xap(@light-update="lightUpdate")
-        lah-monitor-board-sms(@light-update="lightUpdate", footer)
-        //- lah-monitor-board-apconn(bar, all, @light-update="lightUpdate")
-        lah-monitor-board-connectivity(@light-update="lightUpdate")
-      b-carousel-slide: template(#img): b-card-group.card-body-fixed-height-3(deck)
-        //- lah-monitor-board-xap
-        lah-monitor-board-lxhweb(target-ip="L3HWEB", @light-update="lightUpdate")
-        lah-monitor-board-site-hx(@light-update="lightUpdate")
-        lah-monitor-board-site-tw(@light-update="lightUpdate")
+  lah-transition: b-carousel.mb-4(
+    ref="xap",
+    v-if="displayXAP",
+    :interval="0"
+  )
+    b-carousel-slide: template(#img): b-card-group.card-body-fixed-height-3(deck)
+      lah-monitor-board-xap(@light-update="lightUpdate")
+      lah-monitor-board-sms(@light-update="lightUpdate", footer)
+      //- lah-monitor-board-apconn(bar, all, @light-update="lightUpdate")
+      lah-monitor-board-connectivity(@light-update="lightUpdate")
+    b-carousel-slide: template(#img): b-card-group.card-body-fixed-height-3(deck)
+      //- lah-monitor-board-xap
+      lah-monitor-board-lxhweb(target-ip="L3HWEB", @light-update="lightUpdate")
+      lah-monitor-board-site-hx(@light-update="lightUpdate")
+      lah-monitor-board-site-tw(@light-update="lightUpdate")
+
   b-carousel(
+    v-if="isHA",
     ref="boards",
     :interval="0"
   )
@@ -94,7 +95,7 @@ div(v-cloak)
         lah-monitor-board-L05(@light-update="lightUpdate")
         lah-monitor-board-srmas(@light-update="lightUpdate")
         lah-monitor-board-dbbackup(@light-update="lightUpdate")
-    b-carousel-slide(v-if="site === 'HA'"): template(#img)
+    b-carousel-slide: template(#img)
       b-card-group.mb-4.card-body-fixed-height-3(deck)
         lah-monitor-board-vmclone(@light-update="lightUpdate")
         lah-monitor-board-tape(@light-update="lightUpdate")
@@ -105,6 +106,16 @@ div(v-cloak)
         lah-monitor-board-testdb(@light-update="lightUpdate")
         //- lah-monitor-board-adsync(@light-update="lightUpdate")
         //- lah-monitor-board-ups(@light-update="lightUpdate")
+
+  div(v-else)
+      b-card-group.mb-4.card-body-fixed-height-3(deck)
+        lah-monitor-board-dataguard(@light-update="lightUpdate")
+        lah-monitor-board-hacmp(@light-update="lightUpdate")
+        lah-monitor-board-dnp(@light-update="lightUpdate")
+      b-card-group.mb-4.card-body-fixed-height-3(deck)
+        lah-monitor-board-L05(@light-update="lightUpdate")
+        lah-monitor-board-srmas(@light-update="lightUpdate")
+        lah-monitor-board-dbbackup(@light-update="lightUpdate")
 </template>
 
 <script>
@@ -131,6 +142,9 @@ export default {
     },
     carouselInterval () {
       return this.secs * 1000
+    },
+    isHA () {
+      return this.site === 'HA'
     }
   },
   watch: {
