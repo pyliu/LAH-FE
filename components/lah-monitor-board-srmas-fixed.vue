@@ -5,7 +5,7 @@ b-card.border-0(no-body)
     b-badge.ml-1.my-auto(:variant="variant", pill) {{ items.length }}
   div(v-for="(item, idx) in items")
     .d-flex.justify-content-between.font-weight-bold.small
-      lah-fa-icon(icon="check", variant="success")
+      lah-fa-icon(icon="circle-check", variant="success", regular)
       b-link.truncate(
         href="#",
         @click="popupLogContent(item)",
@@ -83,19 +83,16 @@ export default {
     },
     convertTimeOffset (seconds) {
       const secNum = parseInt(seconds, 10)
-      let hours = Math.floor(secNum / 3600)
-      let minutes = Math.ceil((secNum - (hours * 3600)) / 60)
-      let secs = secNum - (hours * 3600) - (minutes * 60)
-      if (hours < 10) { hours = '0' + hours }
-      if (minutes < 10) { minutes = '0' + minutes }
-      if (secs < 10) { secs = '0' + secs }
-      return hours + ':' + minutes + ':' + secs
+      const secs = String(secNum % 60)
+      const minutes = String(Math.ceil(secNum / 60) % 60)
+      const hours = String(Math.floor(secNum / 3600) % 24)
+      return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${secs.padStart(2, '0')}`
     },
     recoverMessage (item) {
       const offset = item.good.timestamp - item.bad.timestamp
       // const goodLines = item.good.message.split('\r\n')
       // return goodLines[goodLines.length - 1]
-      return `耗時 ${this.convertTimeOffset(offset)} 復原`
+      return `約耗時 ${this.convertTimeOffset(offset)} 回復`
     },
     isToday (ts) {
       const fullDt = this.$utils.phpTsToAdDateStr(ts, true)
