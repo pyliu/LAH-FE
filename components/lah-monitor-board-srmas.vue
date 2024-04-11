@@ -316,7 +316,7 @@ export default {
     calcTime () { /** debounced */ },
     matchWarningRestores () { /** debounced */ },
     showMails (payload) {
-      // destruvting obj entries to vars
+      // destructing obj entries to vars
       const { title, icon, variant, items } = payload
       this.modal(this.$createElement(lahMonitorBoardSrmasList, {
         props: {

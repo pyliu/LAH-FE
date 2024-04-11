@@ -5,7 +5,10 @@ b-card.border-0(no-body)
     b-badge.ml-1.my-auto(:variant="variant", pill) {{ items.length }}
   transition-group(name="list"): div(v-for="(item, idx) in items", :key="`srmas_${idx}`")
     .d-flex.justify-content-between.font-weight-bold.small
-      lah-fa-icon(icon="triangle-exclamation", variant="warning")
+      lah-fa-icon(
+        :icon="isRestoreList ? 'circle-check' : 'triangle-exclamation'",
+        :variant="isRestoreList ? 'success' : 'warning'"
+      )
       b-link.truncate(
         href="#",
         @click="popupLogContent(item)",
@@ -33,7 +36,10 @@ export default {
     }
   },
   computed: {
-    today () { return this.$utils.toADDate(new Date(), 'yyyy-LL-dd') }
+    today () { return this.$utils.toADDate(new Date(), 'yyyy-LL-dd') },
+    isRestoreList () {
+      return this.variant === 'success'
+    }
   },
   methods: {
     warnTitle (item) {
@@ -72,6 +78,27 @@ export default {
          */
         const service = warnLines[3]?.replace('服務名稱:', '')?.trim()
         warnRule = `${service}服務異常`
+      } else if (warnLines[0]?.includes('回復')) {
+        /**
+         * 0: "通知-設備已回復"
+         * 1: "主機: 192.168.17.21"
+         * 2: "裝置: "
+         * 3: "嚴重性: warning"
+         * 4: " 耗時: 1m 57s 時間: 2024-04-11 06:40:24"
+         */
+        /**
+         * 0: "服務回復正常"
+         * 1: "主機：220.1.34.118"
+         * 2: "發生時間: 2024-04-11 07:08:29"
+         * 3: "服務名稱: AP 監控"
+         */
+        /**
+         * 0: "主機：220.2.34.26 回復通知"
+         * 1: "主機：220.2.34.26"
+         * 2: "發生時間: 2024-04-11 09:16:38"
+         * 3: "警示規則:  處理器平均使用率大於85%"
+         */
+        return warnLines[0]
       } else {
         console.warn(warnLines)
       }
@@ -79,6 +106,48 @@ export default {
     },
     peekMessage (item) {
       const warnLines = item.message.split('\r\n')
+      if (warnLines[0]?.includes('無回應')) {
+        /**
+         * 0: "警告-設備無回應"
+         * 1: "主機: 192.168.17.20"
+         * 2: "裝置: "
+         * 3: "嚴重性: warning"
+         * 4: "時間: 2024-04-11 06:42:27"
+         */
+        return `${warnLines[0]} ${warnLines[4]}`
+      }
+      if (warnLines[0]?.includes('回復')) {
+        /**
+         * 0: "通知-設備已回復"
+         * 1: "主機: 192.168.17.21"
+         * 2: "裝置: "
+         * 3: "嚴重性: warning"
+         * 4: " 耗時: 1m 57s 時間: 2024-04-11 06:40:24"
+         */
+        /**
+         * 0: "服務回復正常"
+         * 1: "主機：220.1.34.118"
+         * 2: "發生時間: 2024-04-11 07:08:29"
+         * 3: "服務名稱: AP 監控"
+         */
+        /**
+         * 0: "主機：220.2.34.26 回復通知"
+         * 1: "主機：220.2.34.26"
+         * 2: "發生時間: 2024-04-11 09:16:38"
+         * 3: "警示規則:  處理器平均使用率大於85%"
+         */
+        switch (warnLines[0]) {
+          case '通知-設備已回復':
+            return `${warnLines[1]}已回復回應`
+          case '服務回復正常':
+            return `${warnLines[3]} ${warnLines[1]} 已復原`
+        }
+        if (warnLines[0].includes('回復通知')) {
+          return `${warnLines[3]} 已復原`
+        }
+        console.warn(warnLines)
+        return '無法辨識的回覆通知訊息!'
+      }
       return `異常${warnLines[2]}`
     },
     isToday (ts) {
