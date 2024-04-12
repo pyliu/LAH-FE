@@ -102,7 +102,7 @@ export default {
       } else {
         console.warn(warnLines)
       }
-      return `${warnRule}(${warnHost})`
+      return `${warnRule} - ${warnHost}`
     },
     peekMessage (item) {
       const warnLines = item.message.split('\r\n')

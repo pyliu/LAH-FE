@@ -75,7 +75,7 @@ export default {
       } else {
         console.warn(warnLines)
       }
-      return `${warnRule}(${warnHost})`
+      return `${warnRule} - ${warnHost}`
     },
     packedMessage (item) {
       const joins = [`🔴 ${item.bad.message}`, `🟢 ${item.good.message}`]
