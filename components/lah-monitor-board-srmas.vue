@@ -166,8 +166,8 @@ export default {
     fixed: [],
     problems: [],
     failed: false,
-    ts: 0,
-    timer: null,
+    weatherPngTs: 0,
+    weatherPngTimer: null,
     carouselSecs: 30,
     srmas: new Map([
       ['HA', '220.1.34.251'],
@@ -222,7 +222,7 @@ export default {
       return this.$config.SRMASHost || this.srmas.get(this.site)
     },
     weatherImgUrl () {
-      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.ts}`
+      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.weatherPngTs}`
     }
   },
   watch: {
@@ -307,12 +307,12 @@ export default {
     this.calcTime()
   },
   mounted () {
-    this.timer = setInterval(() => {
-      this.ts = +new Date()
+    this.weatherPngTimer = setInterval(() => {
+      this.weatherPngTs = +new Date()
     }, 60000)
   },
   beforeDestroy () {
-    clearInterval(this.timer)
+    clearInterval(this.weatherPngTimer)
   },
   methods: {
     calcTime () { /** debounced */ },
