@@ -43,7 +43,7 @@ export default {
     endAttention: { type: Boolean, default: true },
     endAttentionStartVariant: { type: String, default: 'warning' },
     endAttentionEndVariant: { type: String, default: 'danger' },
-    endAttentionThreadhold: { type: Number, default: 3 }
+    endAttentionThreadhold: { type: Number, default: 10 }
   },
   data: () => ({
     variantMediator: 'primary'
