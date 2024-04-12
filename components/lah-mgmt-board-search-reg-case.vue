@@ -53,7 +53,7 @@ b-card(border-variant="secondary")
     b-row
       b-col 收件日期：{{ crsmsData['收件日期'] }}
       b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }} {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
-    b-row(:class="cellPhoneWarningCss")
+    b-row
       b-col(title="案件辦理情形簡訊接收號碼"): .d-flex.align-items-center.text-nowrap
         //- lah-fa-icon.mr-1(
         //-   v-if="!$utils.isMobileValid(crsmsData['手機號碼'])",
@@ -72,13 +72,17 @@ b-card(border-variant="secondary")
             @click="popupSMSLog(crsmsData['手機號碼'])",
             :title="`根據${crsmsData['手機號碼']}搜尋簡訊紀錄`"
           ) 手機號碼：{{ crsmsData['手機號碼'] }}
-
       b-col
         lah-fa-icon(
           v-if="cellPhoneEmpty",
           icon="triangle-exclamation",
           variant="warning"
         ) 本案無傳送辦理情形簡訊
+    b-row.danger-border.my-2(v-if="isChangeWrong")
+      b-col
+        h6: lah-fa-icon(icon="triangle-exclamation", variant="warning") 登記處理註記異動有誤
+        strong {{ changeWrongMessage }}
+        lah-mgmt-board-reg-case-fix-RM39G
 
   lah-transition: div(v-if="dataReady")
     hr
@@ -143,6 +147,12 @@ export default {
         css.push('danger-border')
       }
       return css
+    },
+    isChangeWrong () {
+      return this.crsmsData?.RM39 === 'G' || !this.$utils.empty(this.changeWrongMessage)
+    },
+    changeWrongMessage () {
+      return this.crsmsData['異動訊息'] || this.crsmsData?.RM38 || ''
     }
   },
   watch: {

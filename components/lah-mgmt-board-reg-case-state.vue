@@ -47,7 +47,7 @@ b-card(
   lah-transition
     h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋案件！
     div(v-else)
-      .form-row
+      .form-row(title="RM30")
         b-input-group.col(size="sm")
           b-input-group-prepend(is-text) 辦理情形
           b-select.h-100(v-model="crsmsData['RM30']" :options="rm30_map")
@@ -57,21 +57,21 @@ b-card(
             small 同步作業人員
         .filter-btn-group.col-auto(v-if="rm30 !== rm30_orig")
           lah-button(icon="edit" @click="updateRM30" size="sm" variant="outline-primary" no-icon-gutter title="更新")
-      .form-row.my-1
+      .form-row.my-1(title="RM31")
         b-input-group.col(size="sm")
           b-input-group-prepend(is-text) 結案狀態
           b-select.h-100(v-model="crsmsData['RM31']" :options="rm31_map")
             template(v-slot:first): b-select-option(value) -- 無狀態 --
         .filter-btn-group.col-auto(v-if="rm31 !== rm31_orig")
           lah-button(icon="edit" @click="updateRM31" size="sm" variant="outline-primary" no-icon-gutter title="更新")
-      .form-row
+      .form-row(title="RM39")
         b-input-group.col(size="sm")
           b-input-group-prepend(is-text) 登記註記
           b-select.h-100(v-model="crsmsData['RM39']" :options="rm39_map")
             template(v-slot:first): b-select-option(value) -- 無狀態 --
         .filter-btn-group.col-auto(v-if="rm39 !== rm39_orig")
           lah-button(icon="edit" @click="updateRM39" size="sm" variant="outline-primary" no-icon-gutter title="更新")
-      .form-row.my-1
+      .form-row.my-1(title="RM42")
         b-input-group.col(size="sm")
           b-input-group-prepend(is-text) 地價註記
           b-select.h-100(v-model="crsmsData['RM42']" :options="rm42_map")
