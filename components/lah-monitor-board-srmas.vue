@@ -233,16 +233,16 @@ export default {
     carouselSecs (val) {
       this.setCache('carouselSecs', val)
     },
-    messagesAfterThreadhold (val) {
-      // console.warn(val)
+    messagesAfterThreadhold (dontcare) {
+      this.matchWarningRestores()
     },
     warnings (val) {
       // console.warn('WARN', val)
-      this.matchWarningRestores()
+      // this.matchWarningRestores()
     },
     restores (val) {
       // console.warn('RESTORE', val)
-      this.matchWarningRestores()
+      // this.matchWarningRestores()
     },
     fixed (val) {
       // console.warn(val)
