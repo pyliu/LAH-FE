@@ -10,7 +10,11 @@ div(v-cloak)
           lah-button(
             icon="magnifying-glass-chart",
             @click="openMonitorBoard"
-          ) SRMAS分析儀表板
+          ) 分析儀表板
+          lah-button.ml-1(
+            icon="link",
+            @click="$utils.openNewWindow(`https://${srmasIp}`)"
+          ) SRMAS系統
     lah-help-modal(:modal-id="'help-modal'" size="md"): ul
       li 請在 .env 檔案輸入 SRMAS_HOST={{ srmasIp }} 資料以正常顯示
       li 目前影像位址：{{ weatherImgUrl }}
