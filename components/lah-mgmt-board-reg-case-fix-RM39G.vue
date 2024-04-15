@@ -29,23 +29,27 @@ b-card(
         @click="$refs.help.show()",
         title="登記案件狀態修正說明"
       )
-    lah-help-modal(ref="help", modal-title="登記案件修正異動有誤說明")
-      h5 基本說明
-      ul.h5
-        li: .d-flex.align-items-center
-          div 本項功能協助修正案件「異動有誤」至「異動完成」狀態。
-        li: .d-flex.align-items-center
-          div ⭐修正前請#[strong.text-danger 先請審查確認資料都有寫進正式檔]後再進行正
-      h5 將更動 {{ $utils.caseId(ID) }} 下列的表格中的案件資料
-      ul.h5
-        li
-          div "MOICAS.CRSMS" 登記案管－登記收件資料
-          ul
-            li 清空RM38
-            li RM39設為異動完成
-        li
-          div "MOICAT.RINDX" 登記暫存－案件索引表
-          ul: li 該案件IP_CODE皆設定為異動完成
+
+  lah-help-modal(ref="help", modal-title="登記案件修正異動有誤說明")
+    h5 基本說明
+    ul.h5
+      li: .d-flex.align-items-center
+        div 本項功能協助修正案件「異動有誤」至「異動完成」狀態。
+      li: .d-flex.align-items-center
+        div ⭐修正前請#[strong.text-danger 先請審查確認資料都有寫進正式檔]後再進行正
+    h5 將更動 {{ $utils.caseId(ID) }} 下列的表格中的案件資料
+    ul.h5
+      li
+        div "MOICAS.CRSMS" 登記案管－登記收件資料
+        ul
+          li RM30設定為異動完成
+          li RM38清空
+          li RM39設為異動完成
+          li RM40日期設為今天
+          li RM41時間設為修正時間
+      li
+        div "MOICAT.RINDX" 登記暫存－案件索引表
+        ul: li 該案件IP_CODE皆設定為異動完成
 
   lah-transition
     h5.center(v-if="!dataReady"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 查無 {{ $utils.caseId(ID) }} 案件資料！
@@ -64,6 +68,16 @@ b-card(
           b-col 結案日期：{{ caseData['結案日期'].split(' ')[0] }} {{ caseData['結案狀態'] }} ({{ caseData['結案與否'] }})
       .lah-flex.justify-content-end
         lah-button(icon="hammer", @click="fix") 立即修正
+        lah-button.ml-1(
+          v-if="embed",
+          icon="question",
+          action="breath",
+          variant="outline-success",
+          no-border,
+          no-icon-gutter,
+          @click="$refs.help.show()",
+          title="登記案件狀態修正說明"
+        )
       lah-fa-icon(icon="circle-exclamation", variant="danger") RM38 異動訊息
       .pl-2.small {{ $utils.empty(caseData.RM38) ? '[無資料]' : caseData.RM38 }}
 
