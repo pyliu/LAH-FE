@@ -325,7 +325,7 @@ export default ({ $axios, store }, inject) => {
       if (isEmpty(id)) {
         return ''
       }
-      id = id.replace(/^[a-zA-Z0-9]$/g, '')
+      id = id.replace(/^[a-zA-Z0-9-]$/g, '')
       if (id.length !== 13 || id.includes('-')) {
         return id
       }
