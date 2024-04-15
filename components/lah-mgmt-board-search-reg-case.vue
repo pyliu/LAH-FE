@@ -80,9 +80,7 @@ b-card(border-variant="secondary")
         ) 本案無傳送辦理情形簡訊
     b-row.danger-border.my-2(v-if="isChangeWrong")
       b-col
-        h6: lah-fa-icon(icon="triangle-exclamation", variant="warning") 登記處理註記異動有誤
-        strong {{ changeWrongMessage }}
-        lah-mgmt-board-reg-case-fix-RM39G
+        lah-mgmt-board-reg-case-fix-RM39G(embed, :case-id="caseId", @update="search")
 
   lah-transition: div(v-if="dataReady")
     hr

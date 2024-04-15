@@ -19,7 +19,8 @@ div: client-only
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
   lah-flex-item-group
-    lah-monitor-board-srmas-weather
+    //- lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
+    //- lah-monitor-board-srmas-weather
     lah-monitor-board-sms(footer)
     lah-office-down-timeline.card-body-fixed-height-3
     lah-monitor-board-srmas.card-body-fixed-height-3
@@ -27,111 +28,111 @@ div: client-only
       lah-monitor-board-site-tw
     b-card.center-h100
       lah-clock
-    b-card
-      lah-period-stats-chart
-    b-card
-      //- lah-message.mr-1.mb-1(
-      //-   ref="gm",
-      //-   message="NUXT.js是一個基於Vue.js的開源JavaScript框架，用於構建現代化的單頁應用程序（SPA）和通用應用程序（Universal App）。它提供了一個簡單而強大的開發環境，使開發人員能夠快速構建出具有高性能和良好用戶體驗的應用程序。NUXT.js支持服務器端渲染（SSR），具有路由管理、自動代碼分割、熱模塊替換（HMR）等功能，並提供結構清晰的文件夾結構和靈活的配置文件。總結來說，NUXT.js是一個功能豐富且易於使用的框架，適合開發各種類型的應用程序。",
-      //-   border,
-      //-   size="h5",
-      //-   variant="dark",
-      //-   border-variant="secondary",
-      //-   close-variant="danger",
-      //-   shadow,
-      //-   pos="br",
-      //-   auto-hide,
-      //-   auto-hide-time="3000",
-      //-   @close="$refs.gm.open()"
-      //- )
-      //- lah-badge-latest-certno(size="lg")
-      lah-badge-ip(ip="220.1.34.17", port="8082", period="15000", size="lg")
-      lah-badge-ip.ml-1(ip="220.1.34.233", :badge="false", size="lg")
-      lah-badge-site-status.ml-1(watch-site="HB", period="60000")
-      lah-badge-site-status.ml-1(watch-site="HI", period="60000")
+    //- b-card
+    //-   lah-period-stats-chart
+    //- b-card
+    //-   lah-message.mr-1.mb-1(
+    //-     ref="gm",
+    //-     message="NUXT.js是一個基於Vue.js的開源JavaScript框架，用於構建現代化的單頁應用程序（SPA）和通用應用程序（Universal App）。它提供了一個簡單而強大的開發環境，使開發人員能夠快速構建出具有高性能和良好用戶體驗的應用程序。NUXT.js支持服務器端渲染（SSR），具有路由管理、自動代碼分割、熱模塊替換（HMR）等功能，並提供結構清晰的文件夾結構和靈活的配置文件。總結來說，NUXT.js是一個功能豐富且易於使用的框架，適合開發各種類型的應用程序。",
+    //-     border,
+    //-     size="h5",
+    //-     variant="dark",
+    //-     border-variant="secondary",
+    //-     close-variant="danger",
+    //-     shadow,
+    //-     pos="br",
+    //-     auto-hide,
+    //-     auto-hide-time="3000",
+    //-     @close="$refs.gm.open()"
+    //-   )
+    //-   lah-badge-latest-certno(size="lg")
+    //-   lah-badge-ip(ip="220.1.34.17", port="8082", period="15000", size="lg")
+    //-   lah-badge-ip.ml-1(ip="220.1.34.233", :badge="false", size="lg")
+    //-   lah-badge-site-status.ml-1(watch-site="HB", period="60000")
+    //-   lah-badge-site-status.ml-1(watch-site="HI", period="60000")
     //- b-card
     //-   template(#header) 設定檔測試
     //-   div {{ openNewsData }}
     //-   p {{ $config.baseURL }}
     //-   b-table(striped, hover, :items="configs")
-    b-card.p-2(no-body)
-      template(#header) WEBSOCKET測試
-      b-input-group.mb-2
-        b-input(v-model="text", @keyup.enter="send")
-        lah-button(@click="send", brand) 傳送
-      .msg(ref="box", v-if="websocket !== undefined")
-        .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
-          p(v-if="item.type === 'remote'") {{ item.text }}
-          .time.s-50.mx-1.text-muted {{ item.time }}
-          p(v-if="item.type === 'mine'") {{ item.text }}
-      h5.center(v-else): lah-fa-icon(
-        icon="exclamation-circle",
-        variant="primary"
-      ).
-        請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
-    b-card
-      template(#header) 儲存BLOB影像測試
-      .d-flex
-        b-file(
-          v-model="image",
-          placeholder="*.jpg",
-          drop-placeholder="放開以設定上傳檔案",
-          accept="image/*"
-        ): template(
-          slot="file-name",
-          slot-scope="{ names }"
-        ): b-badge(
-          variant="primary"
-        ) {{ names[0] }}
-        lah-button.ml-1(
-          icon="upload",
-          variant="outline-primary",
-          title="上傳",
-          @click="upload",
-          :disabled="$utils.empty(image)",
-          no-icon-gutter
-        )
-    b-card
-      template(#header) BASE64影像上傳測試
-      .d-flex
-        b-file(
-          v-model="image",
-          placeholder="*.jpg",
-          drop-placeholder="放開以設定上傳檔案",
-          accept="image/*"
-        ): template(
-          slot="file-name",
-          slot-scope="{ names }"
-        ): b-badge(
-          variant="primary"
-        ) {{ names[0] }}
-        lah-button.ml-1(
-          icon="upload",
-          variant="outline-dark",
-          title="上傳",
-          @click="uploadBase64",
-          :disabled="$utils.empty(image)",
-          no-icon-gutter
-        )
-      b-img.my-1(:src="this.base64image", thumbnail, fluid)
-    b-card
-      template(#header) lah-image-upload 測試
-      lah-button.ml-1(
-        icon="image",
-        variant="outline-success",
-        title="打開上傳介面",
-        @click="openUpload",
-        no-icon-gutter
-      )
-    b-card
-      template(#header): .d-flex
-       .text-nowrap.my-auto.mr-1 lah-chart 測試
-       b-select.ml-auto(v-model="chartType", :options="chartOpts")
-      lah-chart(
-        ref="chart",
-        label="連線數"
-        :type="chartType"
-      )
+    //- b-card.p-2(no-body)
+    //-   template(#header) WEBSOCKET測試
+    //-   b-input-group.mb-2
+    //-     b-input(v-model="text", @keyup.enter="send")
+    //-     lah-button(@click="send", brand) 傳送
+    //-   .msg(ref="box", v-if="websocket !== undefined")
+    //-     .msg-item.d-flex.my-2(v-for="item in list", :class="msgClass(item)")
+    //-       p(v-if="item.type === 'remote'") {{ item.text }}
+    //-       .time.s-50.mx-1.text-muted {{ item.time }}
+    //-       p(v-if="item.type === 'mine'") {{ item.text }}
+    //-   h5.center(v-else): lah-fa-icon(
+    //-     icon="exclamation-circle",
+    //-     variant="primary"
+    //-   ).
+    //-     請確認 {{ $config.websocketHost }}:{{ $config.websocketPort }} 可連線
+    //- b-card
+    //-   template(#header) 儲存BLOB影像測試
+    //-   .d-flex
+    //-     b-file(
+    //-       v-model="image",
+    //-       placeholder="*.jpg",
+    //-       drop-placeholder="放開以設定上傳檔案",
+    //-       accept="image/*"
+    //-     ): template(
+    //-       slot="file-name",
+    //-       slot-scope="{ names }"
+    //-     ): b-badge(
+    //-       variant="primary"
+    //-     ) {{ names[0] }}
+    //-     lah-button.ml-1(
+    //-       icon="upload",
+    //-       variant="outline-primary",
+    //-       title="上傳",
+    //-       @click="upload",
+    //-       :disabled="$utils.empty(image)",
+    //-       no-icon-gutter
+    //-     )
+    //- b-card
+    //-   template(#header) BASE64影像上傳測試
+    //-   .d-flex
+    //-     b-file(
+    //-       v-model="image",
+    //-       placeholder="*.jpg",
+    //-       drop-placeholder="放開以設定上傳檔案",
+    //-       accept="image/*"
+    //-     ): template(
+    //-       slot="file-name",
+    //-       slot-scope="{ names }"
+    //-     ): b-badge(
+    //-       variant="primary"
+    //-     ) {{ names[0] }}
+    //-     lah-button.ml-1(
+    //-       icon="upload",
+    //-       variant="outline-dark",
+    //-       title="上傳",
+    //-       @click="uploadBase64",
+    //-       :disabled="$utils.empty(image)",
+    //-       no-icon-gutter
+    //-     )
+    //-   b-img.my-1(:src="this.base64image", thumbnail, fluid)
+    //- b-card
+    //-   template(#header) lah-image-upload 測試
+    //-   lah-button.ml-1(
+    //-     icon="image",
+    //-     variant="outline-success",
+    //-     title="打開上傳介面",
+    //-     @click="openUpload",
+    //-     no-icon-gutter
+    //-   )
+    //- b-card
+    //-   template(#header): .d-flex
+    //-    .text-nowrap.my-auto.mr-1 lah-chart 測試
+    //-    b-select.ml-auto(v-model="chartType", :options="chartOpts")
+    //-   lah-chart(
+    //-     ref="chart",
+    //-     label="連線數"
+    //-     :type="chartType"
+    //-   )
     b-card
       template(#header): .d-flex: .text-nowrap.my-auto date-fns 測試
       ul
