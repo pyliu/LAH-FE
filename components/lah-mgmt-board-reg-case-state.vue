@@ -221,7 +221,7 @@ export default {
     },
     {
       value: 'E',
-      text: 'D: 校對有誤'
+      text: 'E: 校對有誤'
     },
     {
       value: 'S',
