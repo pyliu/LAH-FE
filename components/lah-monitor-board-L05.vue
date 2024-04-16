@@ -12,35 +12,6 @@ b-card(:border-variant="borderVariant")
         title="顯示待傳檔案列表"
       ) {{ files.length }} 筆待傳送
       lah-button(
-        v-if="stdout.length > 0",
-        icon="file-lines",
-        size="sm",
-        @click="popRuntimeLogs",
-        no-border,
-        no-icon-gutter,
-        title="顯示最近執行期間輸出"
-      )
-      lah-button(
-        v-if="stderr.length > 0",
-        icon="circle-exclamation",
-        size="sm",
-        @click="popRuntimeErrorLogs",
-        no-border,
-        no-icon-gutter,
-        variant="outline-danger",
-        title="顯示最近執行期間錯誤"
-      )
-      lah-button(
-        v-if="sqlnet.length > 0",
-        icon="server",
-        size="sm",
-        @click="popRuntimeSqlnetLogs",
-        no-border,
-        no-icon-gutter,
-        variant="outline-warning",
-        title="顯示連線執行期間錯誤"
-      )
-      lah-button(
         v-if="logs.length > 0",
         icon="up-right-from-square",
         size="sm",
@@ -63,6 +34,49 @@ b-card(:border-variant="borderVariant")
         li 從伺服器端 .env 檔案讀取 MONITOR_HOST_L05 設定為監控標的 (目前為 {{ ip }}:{{ port }})
         li 被監控的伺服器需安裝「智慧監控應用程式介面」以提供分析資料
         li 5分鐘更新資料一次
+        li: .lah-flex.justify-content-start
+          span 擷取最近
+          b-input.mx-1(
+            v-model="logLimit",
+            type="number",
+            min="10",
+            style="width: 80px",
+            size="sm",
+            @change="checkL05StatusDebounced"
+          )
+          span 筆紀錄
+        li: .lah-flex.justify-content-start
+          span 相關LOG
+          b-button-group
+            lah-button(
+              v-if="stdout.length > 0",
+              icon="file-lines",
+              size="sm",
+              @click="popRuntimeLogs",
+              no-border,
+              no-icon-gutter,
+              title="顯示最近執行期間輸出"
+            )
+            lah-button(
+              v-if="stderr.length > 0",
+              icon="circle-exclamation",
+              size="sm",
+              @click="popRuntimeErrorLogs",
+              no-border,
+              no-icon-gutter,
+              variant="outline-danger",
+              title="顯示最近執行期間錯誤"
+            )
+            lah-button(
+              v-if="sqlnet.length > 0",
+              icon="server",
+              size="sm",
+              @click="popRuntimeSqlnetLogs",
+              no-border,
+              no-icon-gutter,
+              variant="outline-warning",
+              title="顯示連線執行期間錯誤"
+            )
   template(#footer, v-if="footer"): client-only: .d-flex.align-items-center.justify-content-between.small
     lah-countdown-button.border-0(
       size="sm",
@@ -196,7 +210,8 @@ export default {
       { key: 'FinTime', label: '時間', sortable: true },
       { key: 'QryContent', label: '內容', sortable: true },
       { key: 'QryResult', label: '結果', sortable: true }
-    ]
+    ],
+    logLimit: 30
   }),
   computed: {
     ip () {
@@ -207,7 +222,7 @@ export default {
     },
     L05APIUrl () {
       // return `http://${this.ip}:${this.port}/api/v1/l05`
-      return '/l05proxy/api/v1/l05'
+      return `/l05proxy/api/v1/l05?limit=${this.logLimit}`
     },
     isRunning () {
       if (parseInt(this.perf?.pid) > 0) {
@@ -334,11 +349,18 @@ export default {
     },
     statusData (val) {
       // console.warn(val)
+    },
+    logLimit (val) {
+      this.setCache('L05-Log-Limit', parseInt(val) || 30)
     }
+  },
+  async created () {
+    this.checkL05StatusDebounced = this.$utils.debounce(this.checkL05Status, 600)
+    this.logLimit = parseInt(await this.getCache('L05-Log-Limit')) || 30
   },
   mounted () {
     this.emitLightUpdate(this.light, '')
-    this.checkL05Status()
+    this.checkL05StatusDebounced()
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
