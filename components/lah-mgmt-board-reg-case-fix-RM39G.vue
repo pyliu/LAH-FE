@@ -34,7 +34,7 @@ b-card(
     h5 基本說明
     ul.h5
       li: .d-flex.align-items-center
-        div 本項功能協助修正案件「異動有誤」至「異動完成」狀態。
+        div 本項功能協助修正「未結案」之登記案件校對「異動有誤」至「異動完成」狀態。
       li: .d-flex.align-items-center
         div ⭐修正前請#[strong.text-danger 先請審查確認資料都有寫進正式檔]後再進行正
     h5 將更動 {{ $utils.caseId(ID) }} 下列的表格中的案件資料
@@ -42,11 +42,11 @@ b-card(
       li
         div "MOICAS.CRSMS" 登記案管－登記收件資料
         ul
-          li RM30設定為異動完成
-          li RM38清空
-          li RM39設為異動完成
-          li RM40日期設為今天
-          li RM41時間設為修正時間
+          li RM30辦理情形設定為異動完成
+          li RM38異動訊息清空
+          li RM39登記處理註記設為異動完成
+          li RM40註記日期設為修正日期
+          li RM41註記時間設為修正時間
       li
         div "MOICAT.RINDX" 登記暫存－案件索引表
         ul: li 該案件IP_CODE皆設定為異動完成
@@ -67,7 +67,11 @@ b-card(
           b-col 收件日期：{{ caseData['收件日期'] }}
           b-col 結案日期：{{ caseData['結案日期'].split(' ')[0] }} {{ caseData['結案狀態'] }} ({{ caseData['結案與否'] }})
       .lah-flex.justify-content-end
-        lah-button(icon="hammer", @click="fix") 立即修正
+        lah-button(
+          v-if="!isClose",
+          icon="hammer",
+          @click="fix"
+        ) 立即修正
         lah-button.ml-1(
           v-if="embed",
           icon="question",
@@ -194,6 +198,9 @@ export default {
     },
     prefix () {
       return `${this.year}-${this.code}-${this.number}`
+    },
+    isClose () {
+      return this.caseData.結案與否 === 'Y' || ['Z', 'F'].includes(this.caseData.RM30)
     }
   },
   watch: {
