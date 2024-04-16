@@ -27,6 +27,7 @@ b-card(:border-variant="border")
       //-   max=24
       //- )
       lah-button(
+        v-if="!currentPagePath.startsWith('/inf/weather')",
         icon="cloud-sun-rain",
         variant="outline-primary",
         no-border,
@@ -223,6 +224,9 @@ export default {
     },
     weatherImgUrl () {
       return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.weatherPngTs}`
+    },
+    currentPagePath () {
+      return this.$route.fullPath
     }
   },
   watch: {
@@ -310,6 +314,7 @@ export default {
     this.weatherPngTimer = setInterval(() => {
       this.weatherPngTs = +new Date()
     }, 60000)
+    // console.warn(this.currentPagePath)
   },
   beforeDestroy () {
     clearInterval(this.weatherPngTimer)
