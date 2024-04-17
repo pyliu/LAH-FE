@@ -144,6 +144,8 @@ b-card(:border-variant="borderVariant")
       template(#cell(FinTime)="{ item }") {{ $utils.addTimeDivider(item.FinTime,) }}
       template(#cell(QryContent)="{ item }")
         .mw-cell.truncate(:title="item.QryContent") {{ item.QryContent }}
+      template(#cell(QryResult)="{ item }")
+        span(:class="item.QryResult === '傳送成功' ? ['text-success'] : ['text-danger']") {{ item.QryResult }}
   b-modal(
     ref="files",
     :title="`待同步共 ${files.length} 筆  - ${syncDir}`",
@@ -155,7 +157,7 @@ b-card(:border-variant="borderVariant")
       :key="`file_${idx}`"
     ): .d-flex.justify-content-between
       span {{ stats.name }}
-      span {{ parseFloat(stats.size / 1024).toFixed(1) }} KB
+      span {{ parseFloat(stats.size / 1024).toFixed(2) }} KB
       lah-badge-human-datetime(
         :seconds="stats.mtimeMs / 1000"
       )
