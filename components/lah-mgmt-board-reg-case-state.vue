@@ -64,13 +64,13 @@ b-card(
             template(v-slot:first): b-select-option(value) -- 無狀態 --
         .filter-btn-group.col-auto(v-if="rm31 !== rm31_orig")
           lah-button(icon="edit" @click="updateRM31" size="sm" variant="outline-primary" no-icon-gutter title="更新")
-      //- .form-row(title="RM39")
-      //-   b-input-group.col(size="sm")
-      //-     b-input-group-prepend(is-text) 登記註記
-      //-     b-select.h-100(v-model="crsmsData['RM39']" :options="rm39_map")
-      //-       template(v-slot:first): b-select-option(value) -- 無狀態 --
-      //-   .filter-btn-group.col-auto(v-if="rm39 !== rm39_orig")
-      //-     lah-button(icon="edit" @click="updateRM39" size="sm" variant="outline-primary" no-icon-gutter title="更新")
+      .form-row(title="RM39")
+        b-input-group.col(size="sm")
+          b-input-group-prepend(is-text) 登記註記
+          b-select.h-100(v-model="crsmsData['RM39']" :options="rm39_map")
+            template(v-slot:first): b-select-option(value) -- 無狀態 --
+        .filter-btn-group.col-auto(v-if="rm39 !== rm39_orig")
+          lah-button(icon="edit" @click="updateRM39" size="sm" variant="outline-primary" no-icon-gutter title="更新")
       .form-row.my-1(title="RM42")
         b-input-group.col(size="sm")
           b-input-group-prepend(is-text) 地價註記
