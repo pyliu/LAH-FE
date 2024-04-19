@@ -85,13 +85,16 @@ export default {
         }
       */
       if (!this.busy && this.$refs.btn) {
+        // change button variant to indicate the time is running over (default is warning variantion)
         if (this.$refs.btn && this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
           this.$refs.btn && this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
           const oldVariant = this.variantMediator
           this.variantMediator = this.endAttentionStartVariant
+          // almost reach end (default is danger variantion)
           this.timeout(() => {
             this.variantMediator = this.endAttentionEndVariant
-          }, (this.endAttentionThreadhold - 1) * 1000)
+          }, (this.endAttentionThreadhold / 2) * 1000)
+          // clear animation when countdown is over
           this.timeout(() => {
             this.variantMediator = oldVariant
             this.$refs.btn && this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
