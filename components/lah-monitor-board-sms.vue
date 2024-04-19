@@ -23,7 +23,7 @@ b-card(:border-variant="border")
         variant="outline-primary",
         no-border,
         title="打開查詢視窗",
-        @click="popupSMS(logs, '(今日全部)')",
+        @click="popupSMS(logs, '(今日全部)', false)",
         :disabled="isBusy"
       )
         span(v-if="isBusy") 讀取中
@@ -285,13 +285,13 @@ export default {
           })
       }
     },
-    popupSMS (items, title = '') {
+    popupSMS (items, title = '', displayMode = true) {
       if (!this.isBusy) {
         this.modal(this.$createElement(lahAdmSmslogTableVue, {
           props: {
             inKeyword: this.today,
             inLogs: items || this.logs,
-            displayMode: true
+            displayMode
           }
         }), {
           title: `${this.today} 地政系統簡訊綜合記錄檔查詢 ${title}`,
@@ -302,13 +302,13 @@ export default {
         })
       }
     },
-    popupSingleSMS (item) {
+    popupSingleSMS (item, displayMode = true) {
       if (!this.$utils.empty(item)) {
         this.modal(this.$createElement(lahAdmSmslogTableVue, {
           props: {
             inKeyword: this.today,
             inLogs: [item],
-            displayMode: true
+            displayMode
           }
         }), {
           title: '地政系統簡訊綜合記錄檔查詢',
