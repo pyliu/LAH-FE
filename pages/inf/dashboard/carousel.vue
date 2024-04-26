@@ -1,70 +1,68 @@
 <template lang="pug">
 div(v-cloak)
-  lah-header
-    lah-transition(appear)
-      .d-flex.justify-content-between.align-items-center.w-100
-        .d-flex
-          .my-auto {{ site }} 智慧監控輪播
-          lah-button(
-            v-b-modal.help-modal,
-            icon="info",
-            variant="outline-success",
-            no-border,
-            no-icon-gutter,
-            title="說明"
-          )
-          lah-button(
-            icon="angles-left",
-            variant="outline-secondary",
-            to="/inf/dashboard",
-            regular,
-            no-border,
-            no-icon-gutter,
-            size="lg",
-            title="正常版本"
-          )
-        .d-flex.align-items-center
-          lah-countdown-button(
-            ref="countdown",
-            icon="tv",
-            action="slide-rtl",
-            auto-start,
-            title="立即切換版面",
-            variant="outline-primary",
-            badge-variant="secondary",
-            :milliseconds="carouselInterval",
-            @end="next()",
-            @click="next()"
-          ) 切換版面
-          .mx-1 每
-          b-spinbutton(
-            v-model="secs",
-            min="0",
-            max="180",
-            title="設定為0會停止自動切換面板",
-            inline
-          )
-          .mx-1 秒自動切換
-        .d-flex.align-items-center
-          .mr-1 🔴 {{ red }}
-          .mr-1 🟡 {{ yellow }}
-          .mr-1 🟢 {{ green }}
-          lah-button.mr-1(
-            @click="$refs.setupModal.show()",
-            icon="cog",
-            variant="outline-secondary",
-            size="lg",
-            action="clock",
-            no-border,
-            no-icon-gutter,
-            title="設定"
-          )
-    lah-monitor-board-setup-modal(ref="setupModal")
-    lah-help-modal(:modal-id="'help-modal'", size="md")
-      ul
-        li 提供顯示各監控標的狀態之功能
-        li 預設監控顯示一天內資料
-        li 目前監控設定：{{ connectionText }}
+  lah-header: lah-transition(appear): .d-flex.justify-content-between.align-items-center.w-100
+    .d-flex
+      .my-auto {{ site }} 智慧監控輪播
+      lah-button(
+        v-b-modal.help-modal,
+        icon="info",
+        variant="outline-success",
+        no-border,
+        no-icon-gutter,
+        title="說明"
+      )
+      lah-button(
+        icon="angles-left",
+        variant="outline-secondary",
+        to="/inf/dashboard",
+        regular,
+        no-border,
+        no-icon-gutter,
+        size="lg",
+        title="正常版本"
+      )
+    .d-flex.align-items-center
+      lah-countdown-button(
+        ref="countdown",
+        icon="tv",
+        action="slide-rtl",
+        auto-start,
+        title="立即切換版面",
+        variant="outline-primary",
+        badge-variant="secondary",
+        :milliseconds="carouselInterval",
+        @end="next()",
+        @click="next()"
+      ) 切換版面
+      .mx-1 每
+      b-spinbutton(
+        v-model="secs",
+        min="0",
+        max="180",
+        title="設定為0會停止自動切換面板",
+        inline
+      )
+      .mx-1 秒自動切換
+    .d-flex.align-items-center
+      .mr-1 🔴 {{ red }}
+      .mr-1 🟡 {{ yellow }}
+      .mr-1 🟢 {{ green }}
+      lah-button.mr-1(
+        @click="$refs.setupModal.show()",
+        icon="cog",
+        variant="outline-secondary",
+        size="lg",
+        action="clock",
+        no-border,
+        no-icon-gutter,
+        title="設定"
+      )
+  lah-monitor-board-setup-modal(ref="setupModal")
+  lah-help-modal(:modal-id="'help-modal'", size="md")
+    ul
+      li 提供顯示各監控標的狀態之功能
+      li 預設監控顯示一天內資料
+      li 目前監控設定：{{ connectionText }}
   lah-transition: b-carousel.mb-4(
     ref="xap",
     v-if="displayXAP",
