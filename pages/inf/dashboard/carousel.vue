@@ -144,7 +144,7 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
-    secs: 10,
+    secs: 30,
     haSwitch: true
   }),
   head: {
