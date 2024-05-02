@@ -168,12 +168,12 @@ export default {
   watch: {
     secs (val) {
       const int = parseInt(val)
-      this.setCache('monitorBoardsCarouselSecs', int && int > 0 ? int : 10)
+      this.setCache('monitorBoardsCarouselSecs', int && int > 0 ? int : 30)
       this.resetTimer()
     }
   },
   async created () {
-    this.secs = await this.getCache('monitorBoardsCarouselSecs') || 10
+    this.secs = await this.getCache('monitorBoardsCarouselSecs') || 30
   },
   mounted () {
     this.$nextTick(() => { this.displayXAP = true })
