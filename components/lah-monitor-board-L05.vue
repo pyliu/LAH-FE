@@ -109,7 +109,7 @@ b-card(:border-variant="borderVariant")
       :title="lastSyncTimeRaw"
     )
       .d-flex.justify-content-between
-        lah-fa-icon(icon="envelope-open-text", :variant="lastSyncMessage === '傳送成功' ? ['secondary'] : ['danger']") 最新狀態：{{ lastSyncMessage }}
+        lah-fa-icon(icon="envelope-open-text", :variant="lastSyncMessage === '傳送成功' ? 'secondary' : 'danger'") 最新狀態：{{ lastSyncMessage }}
         lah-fa-icon(icon="clock", variant="secondary") {{ lastSyncTime }}
     b-list-group-item
       .d-flex.justify-content-between
