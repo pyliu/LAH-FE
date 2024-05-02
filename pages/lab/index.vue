@@ -26,7 +26,7 @@
           v-if="isInf || authority.isAdmin",
           :icon="['fas', 'landmark-flag']",
           to="/bureau"
-        ) H0監控儀表板
+        ) {{ site }} 監控輪播
         lah-index-card-link.fix-card-dimension.invisible(v-else)
         lah-index-card-link.fix-card-dimension(
           v-if="isInf || authority.isAdmin",
