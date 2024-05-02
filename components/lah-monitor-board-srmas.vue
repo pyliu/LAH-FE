@@ -81,8 +81,8 @@ b-card(:border-variant="border")
         span 👉 顯示最近
         b-input.mx-1(v-model="monitorHrs", type="number", min=1, max=24, size="sm", style="width: 50px")
         span 小時內的資訊
-      hr
-      .d-flex.align-items-center
+      hr(v-if="!noCarousel")
+      .d-flex.align-items-center(v-if="!noCarousel")
         span 👉 輪播切換秒數
         b-input.mx-1(v-model="carouselSecs", type="number", min=3, max=300, size="sm", style="width: 60px")
       hr
@@ -91,29 +91,23 @@ b-card(:border-variant="border")
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
+  div(v-if="noCarousel")
+    lah-monitor-board-srmas-analysis(
+      :items="messages",
+      :hours="parseInt(monitorHrs)",
+      @updated="handleUpdated"
+    )
   b-carousel(
+    v-else
     ref="carousel",
-    :interval="noCarousel ? 0 : carouselSecs * 1000"
+    :interval="carouselSecs * 1000"
   )
     b-carousel-slide: template(#img)
-      .center.h4(v-if="headMessages.length === 0") #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ fetchDay }}日內無收到任何通知郵件資料]
-      div(v-else-if="problems.length > 0 || fixed.length > 0")
-        lah-monitor-board-srmas-list(
-          v-if="problems.length > 0",
-          title-text="無告警回復項目",
-          title-icon="exclamation-triangle",
-          variant="danger",
-          :items="problems"
-        )
-        hr(v-if="problems.length > 0")
-        lah-monitor-board-srmas-fixed(
-          v-if="fixed.length > 0",
-          title-text="已正常回復項目",
-          title-icon="check-double",
-          variant="success",
-          :items="fixed"
-        )
-      .center.h4(v-else) #[lah-fa-icon(icon="triangle-exclamation", variant="warning") {{ monitorHrs }}小時內未收到告警訊息]
+      lah-monitor-board-srmas-analysis(
+        :items="messages",
+        :hours="parseInt(monitorHrs)",
+        @updated="handleUpdated"
+      )
     b-carousel-slide: template(#img)
       .center.h5(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
       b-link(
@@ -144,12 +138,13 @@ b-card(:border-variant="border")
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardSrmasAnalysis from '~/components/lah-monitor-board-srmas-analysis.vue'
 import lahMonitorBoardSrmasFixed from '~/components/lah-monitor-board-srmas-fixed.vue'
 import lahMonitorBoardSrmasList from '~/components/lah-monitor-board-srmas-list.vue'
 
 export default {
   name: 'LahMonitorBoardSrmas',
-  components: { lahMonitorBoardRaw, lahMonitorBoardSrmasList, lahMonitorBoardSrmasFixed },
+  components: { lahMonitorBoardRaw, lahMonitorBoardSrmasAnalysis, lahMonitorBoardSrmasFixed, lahMonitorBoardSrmasList },
   mixins: [lahMonitorBoardBase],
   props: {
     footer: { type: Boolean, default: false },
@@ -178,7 +173,8 @@ export default {
       ['HE', '220.1.38.127'],
       ['HF', '220.1.39.126'],
       ['HG', '220.1.40.76'],
-      ['HH', '220.1.41.64']
+      ['HH', '220.1.41.64'],
+      ['H0', '220.1.33.123']
     ])
   }),
   computed: {
@@ -186,11 +182,6 @@ export default {
       const tmp = this.messages.filter((item, idx, arr) => {
         return item.timestamp > this.threadhold
       })
-      // .map((item) => {
-      //   return {
-      //     id: item.id
-      //   }
-      // })
       return this.$utils.uniqBy(this.$utils.orderBy(tmp, 'timestamp').reverse(), 'message')
     },
     headMessages () {
@@ -211,7 +202,6 @@ export default {
       return 'success'
     },
     warnings () {
-      // return this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('異常', '告警', '警告')).reverse()
       const tmp = this.$utils.difference(this.messagesAfterThreadhold, this.restores)
       return this.$utils.orderBy(tmp, 'timestamp', 'desc')
     },
@@ -231,97 +221,39 @@ export default {
   },
   watch: {
     monitorHrs (val) {
-      this.calcTime()
       this.setCache('monitorHrs', val)
+      this.calcTime()
     },
     carouselSecs (val) {
       this.setCache('carouselSecs', val)
-    },
-    messagesAfterThreadhold (dontcare) {
-      this.matchWarningRestores()
-    },
-    warnings (val) {
-      // console.warn('WARN', val)
-      // this.matchWarningRestores()
-    },
-    restores (val) {
-      // console.warn('RESTORE', val)
-      // this.matchWarningRestores()
-    },
-    fixed (val) {
-      // console.warn(val)
     }
   },
   async created () {
-    // debounce the input event
-    this.calcTime = this.$utils.debounce(() => {
-      this.duration = this.monitorHrs * 60 * 60 * 1000
-      this.threadhold = (+new Date() - this.duration) / 1000
-    }, 400)
-    this.matchWarningRestores = this.$utils.debounce(() => {
-      const bad = [...this.warnings]
-      this.fixed = []
-      this.problems = []
-      // foreach restore message finds one with the same key(host) and timestamp is less it in warning array
-      this.restores.forEach((ritem, ridx, arr) => {
-        // eslint-disable-next-line quotes
-        const restoreLines = ritem.message.split("\r\n")?.map(line => line?.trim())
-        // ex: 主機：220.1.34.206
-        const restoreHostLine = restoreLines[1]
-        // restoreHostLine === '主機：220.1.34.250' && console.warn('restore: ', restoreLines)
-        // find the warning one for this restore message
-        const founds = []
-        bad.find((witem, widx) => {
-          // eslint-disable-next-line quotes
-          const warnLines = witem.message.split("\r\n")?.map(line => line?.trim())
-          // ex: 主機：220.1.34.206
-          const warnHostLine = warnLines[1]
-          // restoreHostLine === '主機：220.1.34.250' && warnHostLine === '主機：220.1.34.250' && console.warn('warn: ', warnLines)
-          // sometime the restore message will be sent before warning ... why? ask 👉 SRMAS by systex
-          // 1130411 testing: add timestamp(seconds) comparing back
-          if (restoreHostLine === warnHostLine && witem.timestamp <= ritem.timestamp) {
-            // host matches and restore message timestamp behides warning
-            founds.push(widx)
-            return true
-          }
-          return false
-        })
-        // console.warn(`${restoreHostLine} FOUND`, founds.length)
-        if (founds.length > 0) {
-          founds.forEach((found) => {
-            const bi = bad.splice(found, 1)[0]
-            const gi = ritem
-            // console.warn('match!', bi, gi)
-            this.fixed.push({
-              bad: bi,
-              good: gi
-            })
-          })
-        }
-        // console.warn('after', bad.length)
-      })
-      // sorting by bad item timestamp desc
-      this.fixed = [...this.$utils.sortBy(this.fixed, (item) => {
-        return item.bad.timestamp
-      })].reverse()
-      this.problems = [...bad]
-    }, 400)
     this.monitorHrs = await this.getCache('monitorHrs') || 12
     this.carouselSecs = await this.getCache('carouselSecs') || 30
-    this.calcTime()
+    this.calcTime = this.$utils.debounce(() => {
+      const hours = parseInt(this.monitorHrs) || 12
+      this.duration = hours * 60 * 60 * 1000
+      this.threadhold = (+new Date() - this.duration) / 1000
+    }, 100)
   },
   mounted () {
     this.weatherPngTimer = setInterval(() => {
       this.weatherPngTs = +new Date()
     }, 60000)
-    // console.warn(this.currentPagePath)
+    this.calcTime()
   },
   beforeDestroy () {
     clearInterval(this.weatherPngTimer)
   },
   methods: {
     calcTime () { /** debounced */ },
-    matchWarningRestores () { /** debounced */ },
+    handleUpdated ({ detail }) {
+      if (detail) {
+        this.fixed = [...detail.fixed]
+        this.problems = [...detail.problems]
+      }
+    },
     showMails (payload) {
       // destructing obj entries to vars
       const { title, icon, variant, items } = payload
