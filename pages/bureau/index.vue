@@ -89,7 +89,7 @@ export default {
     ])
   }),
   head: {
-    title: '局端監控儀表板-桃園市地政局'
+    title: '監控輪播-桃園市地政局'
   },
   computed: {
     carouselInterval () {
