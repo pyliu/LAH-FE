@@ -84,7 +84,7 @@ export default {
   },
   watch: {
     baked (arr) {
-      console.warn(arr)
+      // console.warn(arr)
     }
   },
   async created () {
