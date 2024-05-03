@@ -150,7 +150,7 @@ export default {
        */
       const warnLines = item.message.split('\r\n')
       const warnHost = warnLines[1]?.replace(/^主機[：|:]\s*/ig, '')?.trim()
-      let warnRule = '無法辨識的告警，請查看主控台'
+      let warnRule = '無法辨識的告警，請查看網頁開發主控台資訊(F12)'
       if (warnLines[0]?.includes('異常告警')) {
         /**
          * 0: "主機：220.1.34.250 異常告警"
