@@ -66,19 +66,20 @@ div(v-cloak)
             :items="restores"
           )
       b-carousel-slide: template(#img)
-        .center.h5(v-if="weatherImageFailed") 無法讀取 {{ weatherImgUrl }} 影像
-        b-link(
-          v-show="!weatherImageFailed",
-          @click="$utils.openNewWindow('/inf/weather/')",
-          v-b-tooltip="`顯示${weatherImgUrl}`"
-        )
-          b-img(
-            :src="weatherImgUrl",
-            fluid,
-            thumbnail,
-            @load="weatherImageFailed = false",
-            @error="weatherImageFailed = true"
+        .center
+          .h5(v-if="weatherImageFailed") 無法讀取 {{ weatherImgUrl }} 影像
+          b-link(
+            v-show="!weatherImageFailed",
+            @click="$utils.openNewWindow('/inf/weather/')",
+            v-b-tooltip="`顯示${weatherImgUrl}`"
           )
+            b-img.img-mh(
+              :src="weatherImgUrl",
+              fluid,
+              thumbnail,
+              @load="weatherImageFailed = false",
+              @error="weatherImageFailed = true"
+            )
 
   lah-monitor-board-setup-modal(ref="setupModal")
 </template>
@@ -179,5 +180,8 @@ export default {
 }
 .card-deck .card {
   margin: 15px;
+}
+.img-mh {
+  max-height: calc((100vh - 100px)) !important;
 }
 </style>
