@@ -143,6 +143,7 @@ import lahMonitorBoardSrmasFixed from '~/components/lah-monitor-board-srmas-fixe
 import lahMonitorBoardSrmasList from '~/components/lah-monitor-board-srmas-list.vue'
 
 export default {
+  emit: ['updated'],
   name: 'LahMonitorBoardSrmas',
   components: { lahMonitorBoardRaw, lahMonitorBoardSrmasAnalysis, lahMonitorBoardSrmasFixed, lahMonitorBoardSrmasList },
   mixins: [lahMonitorBoardBase],
@@ -252,6 +253,7 @@ export default {
       if (detail) {
         this.fixed = [...detail.fixed]
         this.problems = [...detail.problems]
+        this.trigger('updated', detail)
       }
     },
     showMails (payload) {

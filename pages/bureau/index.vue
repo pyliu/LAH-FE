@@ -42,14 +42,29 @@ div(v-cloak)
   b-card.p-1.border-0(no-body, v-cloak)
     b-carousel(ref="carousel", :interval="0")
       b-carousel-slide: template(#img)
-        b-card-group.row(deck)
+        b-card-group.row-sync(deck)
           lah-monitor-board-lxhweb(ref="lxhweb1" target-ip="L1HWEB")
           lah-monitor-board-lxhweb(ref="lxhweb2" target-ip="L2HWEB")
-        b-card-group.row(deck)
+        b-card-group.row-sync(deck)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
-        lah-monitor-board-srmas(no-carousel, footer)
+        b-card-group.row-srmas(deck)
+          lah-monitor-board-srmas.h-100.overflow-auto(no-carousel, @updated="handleMessageUpdated")
+          lah-monitor-board-srmas-weather.h-100.overflow-auto
+        b-card-group.row-srmas.mt-3(deck)
+          b-card.h-100.overflow-auto: lah-monitor-board-srmas-list(
+            title-text='告警郵件列表',
+            title-icon='triangle-exclamation',
+            variant="warning",
+            :items="warnings"
+          )
+          b-card.h-100.overflow-auto: lah-monitor-board-srmas-list(
+            title-text='回復郵件列表',
+            title-icon='circle-check',
+            variant="success",
+            :items="restores"
+          )
       b-carousel-slide: template(#img)
         .center.h5(v-if="weatherImageFailed") 無法讀取 {{ weatherImgUrl }} 影像
         b-link(
@@ -72,6 +87,14 @@ div(v-cloak)
 export default {
   fetchOnServer: false,
   data: () => ({
+    // SRMAS fixed problems
+    fixed: [],
+    // still be problem
+    problems: [],
+    // raw warnings
+    warnings: [],
+    // raw restores
+    restores: [],
     secs: 30,
     weatherPngTs: 0,
     weatherPngTimer: null,
@@ -132,16 +155,29 @@ export default {
     resetTimer () {
       this.$refs.countdown?.setCountdown(this.carouselInterval)
       this.carouselInterval > 0 && this.$refs.countdown?.startCountdown()
+    },
+    handleMessageUpdated ({ detail }) {
+      if (detail) {
+        this.fixed = [...detail.fixed]
+        this.problems = [...detail.problems]
+        this.warnings = [...detail.warnings]
+        this.restores = [...detail.restores]
+      }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.row {
-  height: 42.5vh !important;
+.row-sync {
+  height: calc((100vh - 100px) / 2) !important;
+  // padding: .75rem;
+}
+.row-srmas {
+  height: calc((100vh - 150px) / 2) !important;
+  margin-bottom: 15px;
 }
 .card-deck .card {
-  margin: 5px;
+  margin: 15px;
 }
 </style>

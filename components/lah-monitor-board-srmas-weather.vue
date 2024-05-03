@@ -22,19 +22,20 @@ b-card(:class="bodyOnly ? ['border-0'] : []")
         li 目前影像位址：{{ weatherImgUrl }}
         li 每分鐘自動更新
   slot
-  .center.h5(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
-  b-link(
-    v-show="!failed",
-    to="/inf/weather/",
-    v-b-tooltip="`顯示${weatherImgUrl}`"
-  )
-    b-img(
-      :src="weatherImgUrl",
-      fluid,
-      thumbnail,
-      @load="failed = false",
-      @error="failed = true"
+  .center
+    h5(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
+    b-link(
+      v-show="!failed",
+      to="/inf/weather/",
+      v-b-tooltip="`顯示${weatherImgUrl}`"
     )
+      b-img.h-100(
+        :src="weatherImgUrl",
+        fluid,
+        thumbnail,
+        @load="failed = false",
+        @error="failed = true"
+      )
 
 </template>
 

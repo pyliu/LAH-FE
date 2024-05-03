@@ -131,7 +131,9 @@ export default {
       this.problems = [...bad]
       this.trigger('updated', {
         fixed: this.fixed,
-        problems: this.problems
+        problems: this.problems,
+        warnings: this.warnings,
+        restores: this.restores
       })
     }, 400)
     this.calcTime()
