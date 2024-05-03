@@ -6,7 +6,7 @@ export default {
     header: '監控儀表板BASE',
     messages: [],
     updated: '',
-    reloadMs: 15 * 60 * 1000,
+    reloadMs: 10 * 60 * 1000,
     reloadTimer: null,
     lastFetchTimestamp: 0,
     fetchingState: ''
