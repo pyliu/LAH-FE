@@ -8,7 +8,7 @@
       :bordered="true"
       :borderless="false"
       :outlined="false"
-      :small="true"
+      :small="small"
       :dark="false"
       :fixed="false"
       :foot-clone="false"
@@ -136,8 +136,8 @@
           <span aria-hidden="true">&nbsp;</span>
           <span class="sr-only">Not selected</span>
         </template>
-        <b-link @click="userinfo(item['初審人員'], item['RM45'])">
-          <b-button variant="outline-secondary" size="sm" pill>
+        <b-link v-if="!$utils.empty(item['初審人員'])" @click="userinfo(item['初審人員'], item['RM45'])">
+          <b-button variant="outline-primary" size="sm" pill>
             <lah-avatar :id="item['RM45']" :name="item['初審人員']">
               {{ item["初審人員"] }}
             </lah-avatar>
@@ -240,7 +240,8 @@ export default {
     onlyPopupDetail: { type: Boolean, default: true },
     captionAppend: { type: String, default: '' },
     maxHeightOffset: { type: Number, default: 105 },
-    caseReload: { type: Boolean, default: false }
+    caseReload: { type: Boolean, default: false },
+    small: { type: Boolean, default: true }
   },
   data: () => ({
     transProps: {

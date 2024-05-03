@@ -6,8 +6,19 @@ div(v-cloak)
         .d-flex
           div {{ formattedDay }} 案件追蹤 (共{{ count }}件)
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-        div
-          b-input(v-model="qday", @input="debouncedReload")
+        .d-flex
+          b-input(v-model="qday")
+          lah-countdown-button.ml-1(
+            ref="countdown",
+            icon="magnifying-glass",
+            auto-start,
+            title="搜尋",
+            variant="outline-primary",
+            badge-variant="secondary",
+            :milliseconds="reloadMs",
+            @end="$fetch",
+            @click="$fetch"
+          )
     lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
   //- below is the customize area
   lah-transition: lah-pagination(
@@ -21,6 +32,9 @@ div(v-cloak)
     :baked-data="baked",
     :per-page="pagination.perPage",
     :current-page="pagination.currentPage",
+    :busy="isBusy",
+    :small="false",
+    type="lg",
     no-caption
   )
 </template>
@@ -29,7 +43,6 @@ div(v-cloak)
 export default {
   fetchOnServer: false,
   data: () => ({
-    reloadTimer: null,
     reloadMs: 60 * 1000,
     qday: '',
     baked: [],
@@ -39,19 +52,24 @@ export default {
     }
   }),
   fetch () {
-    this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
-    this.baked = []
-    this.$axios.post(this.$consts.API.JSON.QUERY, {
-      type: 'reg_cases_by_day',
-      qday: this.qday
-    }).then(({ data }) => {
-      console.warn(data)
-      data.data_count > 0 && (this.baked = [...data.baked])
-    }).catch((err) => {
-      console.warn(err)
-    }).finally(() => {
-
-    })
+    if (!this.isBusy) {
+      this.isBusy = true
+      this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
+      this.baked = []
+      this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'reg_cases_by_day',
+        qday: this.qday
+      }).then(({ data }) => {
+        console.warn(data)
+        data.data_count > 0 && (this.baked = [...data.baked])
+      }).catch((err) => {
+        console.warn(err)
+      }).finally(() => {
+        this.$refs.countdown?.setCountdown(this.reloadMs)
+        this.reloadMs > 0 && this.$refs.countdown?.startCountdown()
+        this.isBusy = false
+      })
+    }
   },
   head: {
     title: '今日案件追蹤-桃園市地政局'
@@ -70,22 +88,12 @@ export default {
     }
   },
   async created () {
-    this.debouncedReload = this.$utils.debounce(() => {
-      this.$fetch()
-    }, 500)
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
   },
-  mounted () {
-    this.reloadTimer = setInterval(() => {
-      this.$fetch()
-    }, this.reloadMs)
-  },
-  beforeDestroy () {
-    clearInterval(this.reloadTimer)
-  },
+  mounted () {},
+  beforeDestroy () {},
   methods: {
-    debouncedReload () { /** placeholder */ },
     handlePaginationInput (payload) {
       // remember user changed number
       this.setCache('reg-today-table-perPage', payload.perPage)
