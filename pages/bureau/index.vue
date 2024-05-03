@@ -38,7 +38,7 @@ div(v-cloak)
             no-icon-gutter,
             title="設定"
           )
-    lah-help-modal(:modal-id="'help-modal'" size="xl")
+    lah-help-modal(:modal-id="'help-modal'" size="md")
       .h5 顯示監控畫面輪播
   b-card.p-1.border-0(no-body, v-cloak)
     b-carousel(ref="carousel", :interval="0")
