@@ -58,7 +58,8 @@ div(v-cloak)
           lah-monitor-board-srmas-weather.card-body-fixed-height-2
         b-card-group.row-srmas(deck)
           b-card.card-body-fixed-height-2
-            template(#header): .strong SRMAS告警郵件
+            template(#header): lah-fa-icon(icon="flag", variant="warning")
+              strong SRMAS告警郵件
             lah-monitor-board-srmas-list(
               title-text='告警郵件列表',
               title-icon='triangle-exclamation',
@@ -66,7 +67,8 @@ div(v-cloak)
               :items="warnings"
             )
           b-card.card-body-fixed-height-2
-            template(#header): .strong SRMAS回復郵件
+            template(#header): lah-fa-icon(icon="circle-check", regular, variant="success")
+              strong SRMAS回復郵件
             lah-monitor-board-srmas-list(
               title-text='回復郵件列表',
               title-icon='circle-check',

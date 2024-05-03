@@ -6,7 +6,7 @@ b-card.border-0(no-body)
   transition-group(name="list"): div(v-for="(item, idx) in items", :key="`srmas_${idx}`")
     .d-flex.justify-content-between.font-weight-bold.small
       lah-fa-icon(
-        :icon="isRestoreList ? 'circle-check' : 'triangle-exclamation'",
+        :icon="isRestoreList ? 'circle-check' : 'circle-exclamation'",
         :variant="isRestoreList ? 'success' : 'warning'"
       )
       b-link.truncate(

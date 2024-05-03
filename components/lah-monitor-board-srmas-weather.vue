@@ -1,7 +1,8 @@
 <template lang="pug">
 b-card(:class="bodyOnly ? ['border-0'] : []")
   template(#header, v-if="!bodyOnly"): .d-flex.justify-content-between.align-items-center
-    strong {{ header }}
+    lah-fa-icon(icon="cloud-sun-rain", variant="primary")
+      strong {{ header }}
     //- lah-fa-icon(icon="circle", :variant="light")
     //- strong(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
     //- strong(v-else) {{ header }}({{ monitorHrs }}小時內)
