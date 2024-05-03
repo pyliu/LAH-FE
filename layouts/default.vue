@@ -49,6 +49,9 @@ export default {
   right: 10px;
   bottom: 10px;
   background-color: white;
-  padding: 3px;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 10px;
+  font-size: smaller;
 }
 </style>
