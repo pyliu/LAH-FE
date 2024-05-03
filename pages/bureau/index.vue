@@ -172,7 +172,6 @@ export default {
 <style lang="scss" scoped>
 .row-sync {
   height: calc((100vh - 100px) / 2) !important;
-  // padding: .75rem;
 }
 .row-srmas {
   height: calc((100vh - 150px) / 2) !important;
