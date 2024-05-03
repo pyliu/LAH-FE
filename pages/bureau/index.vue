@@ -57,18 +57,22 @@ div(v-cloak)
           )
           lah-monitor-board-srmas-weather.card-body-fixed-height-2
         b-card-group.row-srmas(deck)
-          b-card.card-body-fixed-height-2: lah-monitor-board-srmas-list(
-            title-text='告警郵件列表',
-            title-icon='triangle-exclamation',
-            variant="warning",
-            :items="warnings"
-          )
-          b-card.card-body-fixed-height-2: lah-monitor-board-srmas-list(
-            title-text='回復郵件列表',
-            title-icon='circle-check',
-            variant="success",
-            :items="restores"
-          )
+          b-card.card-body-fixed-height-2
+            template(#header): .strong SRMAS告警郵件
+            lah-monitor-board-srmas-list(
+              title-text='告警郵件列表',
+              title-icon='triangle-exclamation',
+              variant="warning",
+              :items="warnings"
+            )
+          b-card.card-body-fixed-height-2
+            template(#header): .strong SRMAS回復郵件
+            lah-monitor-board-srmas-list(
+              title-text='回復郵件列表',
+              title-icon='circle-check',
+              variant="success",
+              :items="restores"
+            )
       b-carousel-slide: template(#img)
         .center
           .h5(v-if="weatherImageFailed") 無法讀取 {{ weatherImgUrl }} 影像
@@ -175,7 +179,7 @@ export default {
 
 <style lang="scss" scoped>
 .row-sync {
-  height: calc((100vh - 100px) / 2) !important;
+  height: calc((100vh - 120px) / 2) !important;
 }
 .row-srmas {
   // height: calc((100vh - 150px) / 2) !important;
@@ -185,11 +189,10 @@ export default {
     overflow: auto;
   }
 }
-
-.card-deck .card {
-  margin: 15px;
-}
 .img-mh {
   max-height: calc((100vh - 100px)) !important;
+}
+.card-deck{
+  margin-bottom: 15px;
 }
 </style>
