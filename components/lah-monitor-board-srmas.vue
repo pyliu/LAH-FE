@@ -91,12 +91,11 @@ b-card(:border-variant="border")
       div 🟡 表示找不到任何郵件訊息
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
-  div(v-if="noCarousel")
-    lah-monitor-board-srmas-analysis(
-      :items="messages",
-      :hours="parseInt(monitorHrs)",
-      @updated="handleUpdated"
-    )
+  div(v-if="noCarousel"): lah-monitor-board-srmas-analysis(
+    :items="messages",
+    :hours="parseInt(monitorHrs)",
+    @updated="handleUpdated"
+  )
   b-carousel(
     v-else
     ref="carousel",

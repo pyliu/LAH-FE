@@ -45,21 +45,25 @@ div(v-cloak)
         b-card-group.row-sync(deck)
           lah-monitor-board-lxhweb(ref="lxhweb1" target-ip="L1HWEB")
           lah-monitor-board-lxhweb(ref="lxhweb2" target-ip="L2HWEB")
-        b-card-group.row-sync(deck)
+        b-card-group.row-sync.row-sync(deck)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
         b-card-group.row-srmas(deck)
-          lah-monitor-board-srmas.h-100.overflow-auto(no-carousel, @updated="handleMessageUpdated")
-          lah-monitor-board-srmas-weather.h-100.overflow-auto
-        b-card-group.row-srmas.mt-3(deck)
-          b-card.h-100.overflow-auto: lah-monitor-board-srmas-list(
+          lah-monitor-board-srmas.card-body-fixed-height-2(
+            no-carousel,
+            footer,
+            @updated="handleMessageUpdated"
+          )
+          lah-monitor-board-srmas-weather.card-body-fixed-height-2
+        b-card-group.row-srmas(deck)
+          b-card.card-body-fixed-height-2: lah-monitor-board-srmas-list(
             title-text='告警郵件列表',
             title-icon='triangle-exclamation',
             variant="warning",
             :items="warnings"
           )
-          b-card.h-100.overflow-auto: lah-monitor-board-srmas-list(
+          b-card.card-body-fixed-height-2: lah-monitor-board-srmas-list(
             title-text='回復郵件列表',
             title-icon='circle-check',
             variant="success",
@@ -174,9 +178,14 @@ export default {
   height: calc((100vh - 100px) / 2) !important;
 }
 .row-srmas {
-  height: calc((100vh - 150px) / 2) !important;
-  margin-bottom: 15px;
+  // height: calc((100vh - 150px) / 2) !important;
+  // margin-bottom: 15px;
+  .card-body {
+    height: calc((100vh - 150px) / 2);
+    overflow: auto;
+  }
 }
+
 .card-deck .card {
   margin: 15px;
 }
