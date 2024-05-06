@@ -7,6 +7,13 @@ div(v-cloak)
           div {{ site}} 監控輪播
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         .d-flex.align-items-center
+          b-spinbutton(
+            v-model="secs",
+            min="0",
+            title="設定為0會停止自動切換面板",
+            inline
+          )
+          .mx-1 秒
           lah-countdown-button(
             ref="countdown",
             icon="tv",
@@ -18,17 +25,8 @@ div(v-cloak)
             :milliseconds="carouselInterval",
             @end="next()",
             @click="next()"
-          ) 切換版面
-          .mx-1 每
-          b-spinbutton(
-            v-model="secs",
-            min="0",
-            title="設定為0會停止自動切換面板",
-            inline
-          )
-          .mx-1 秒自動切換
-        div
-          lah-button.mr-1(
+          ) 切換
+          lah-button.ml-1(
             @click="$refs.setupModal.show()",
             icon="cog",
             variant="outline-secondary",
