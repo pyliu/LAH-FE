@@ -40,6 +40,7 @@ export default {
     hours: { type: Number, default: 12 }
   },
   data: () => ({
+    debounceMs: 400,
     duration: 0,
     threadhold: 0,
     problems: [],
@@ -69,10 +70,8 @@ export default {
     hours (val) {
       this.calcTime()
     },
-    items (val) {
-      this.matchWarningRestores()
-    },
     messagesAfterThreadhold (dontcare) {
+      // items updated will update messagesAfterThreadhold ...
       this.matchWarningRestores()
     }
   },
@@ -81,7 +80,7 @@ export default {
       const hours = parseInt(this.hours) || 12
       this.duration = hours * 60 * 60 * 1000
       this.threadhold = (+new Date() - this.duration) / 1000
-    }, 400)
+    }, this.debounceMs)
     this.matchWarningRestores = this.$utils.debounce(() => {
       const bad = [...this.warnings]
       this.fixed = []
@@ -135,8 +134,11 @@ export default {
         warnings: this.warnings,
         restores: this.restores
       })
-    }, 400)
+    }, this.debounceMs)
+  },
+  mounted () {
     this.calcTime()
+    this.matchWarningRestores()
   },
   methods: {
     calcTime () { /** debounced */ },
