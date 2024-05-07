@@ -146,6 +146,7 @@ export default {
     this.rebuildQueue = this.$utils.debounce(() => {
       // console.warn('queue before: ', this.queue)
       const tmp = []
+      // this.qtime = data.baked[0].RM105_2
       for (let i = 0; i < this.baked.length && tmp.length < this.maxQueueSize; i++) {
         // dedup
         if (tmp.includes(this.baked[i].RM03)) {
@@ -156,6 +157,10 @@ export default {
           this.queue.shift()
         }
         tmp.push(this.baked[i].RM03)
+        // remember the minimum time for next querying
+        if (this.baked[i].RM03 < this.qtime) {
+          this.qtime = this.baked[i].RM105_2
+        }
         // add to queue tail
         this.queue.push(this.baked[i])
       }
