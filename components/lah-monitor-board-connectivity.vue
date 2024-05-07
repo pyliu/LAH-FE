@@ -78,8 +78,7 @@ b-card(no-body, :border-variant="borderVariant")
       hide-footer
     )
       lah-monitor-board-connectivity-setup(@update="onSetupUpdate")
-  //- b-carousel(
-  //- )
+
   .center.my-5(v-if="loadItems.length === 0") ⚠ 無監控標的資料
   lah-chart(
     v-show="loadItems.length > 0",

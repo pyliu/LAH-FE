@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div {{ formattedDay }} 案件追蹤
+          div {{ formattedDay }} 案件追蹤 (第{{ slideIdx + 1 }}頁)
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         .d-flex
           b-input(v-model="qday")
@@ -27,9 +27,15 @@ div(v-cloak)
             @click="$refs.table.show()"
           )
     lah-help-modal(:modal-id="'help-modal'")
-      h1 這是說明視窗
+      h1 顯示最新36件案件異動資料，每頁12件，輪播間隔{{ slideMs / 1000 }}秒
   //- display cards
-  .text-center: lah-reg-tracking-cards(:rows="queue")
+  b-carousel(ref="carousel", v-model="slideIdx", :interval="slideMs")
+    b-carousel-slide: template(#img)
+      lah-reg-tracking-cards(:rows="queue")
+    b-carousel-slide(v-if="queue2.length !== 0"): template(#img)
+      lah-reg-tracking-cards(:rows="queue2")
+    b-carousel-slide(v-if="queue3.length !== 0"): template(#img)
+      lah-reg-tracking-cards(:rows="queue3")
   //- b-card-group.mt-4(deck)
   //-   b-card(v-for="(row, idx) in secondDeck", :key="`second_deck_${idx}`")
   //-     .h1 {{ row.RM03 }}
@@ -67,6 +73,8 @@ export default {
   fetchOnServer: false,
   data: () => ({
     reloadMs: 60 * 1000,
+    slideMs: 10 * 1000,
+    slideIdx: 0,
     qday: '',
     qtime: '000000',
     pagination: {
@@ -83,6 +91,8 @@ export default {
       { key: '異動時間', sortable: true }
     ],
     queue: [],
+    queue2: [],
+    queue3: [],
     maxQueueSize: 12
   }),
   fetch () {
@@ -90,27 +100,28 @@ export default {
       this.isBusy = true
       this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
       // this.baked = []
-      console.warn(this.$utils.now())
       // this.queue = []
       this.$axios.post(this.$consts.API.JSON.MOICAS, {
         type: 'crsmslog',
         qday: this.qday,
-        qtime: this.qtime
+        qtime: '000000'
+        // qtime: this.qtime
       }).then(({ data }) => {
-        if (data.baked.length > 0) {
-          // store the latest update time
-          this.qtime = data.baked[0].RM105_2
-          if (this.baked.length === 0) {
-            this.baked = [...data.baked]
-          } else {
-            // push data to head of array
-            data.baked.reverse().forEach((row) => {
-              this.baked.unshift(row)
-            })
-          }
-        } else {
-          console.warn('No new update.')
-        }
+        this.baked = [...data.baked]
+        // if (data.baked.length > 0) {
+        //   // store the latest update time
+        //   this.qtime = data.baked[0].RM105_2
+        //   if (this.baked.length === 0) {
+        //     this.baked = [...data.baked]
+        //   } else {
+        //     // push data to head of array
+        //     data.baked.reverse().forEach((row) => {
+        //       this.baked.unshift(row)
+        //     })
+        //   }
+        // } else {
+        //   console.warn('No new update.')
+        // }
         this.rebuildQueue()
       }).catch((err) => {
         console.warn(err)
@@ -146,7 +157,7 @@ export default {
     this.rebuildQueue = this.$utils.debounce(() => {
       // console.warn('queue before: ', this.queue)
       const tmp = []
-      // this.qtime = data.baked[0].RM105_2
+      let y = 0
       for (let i = 0; i < this.baked.length && tmp.length < this.maxQueueSize; i++) {
         // dedup
         if (tmp.includes(this.baked[i].RM03)) {
@@ -158,11 +169,48 @@ export default {
         }
         tmp.push(this.baked[i].RM03)
         // remember the minimum time for next querying
-        if (this.baked[i].RM03 < this.qtime) {
-          this.qtime = this.baked[i].RM105_2
-        }
+        // if (this.baked[i].RM03 < this.qtime) {
+        //   this.qtime = this.baked[i].RM105_2
+        // }
         // add to queue tail
         this.queue.push(this.baked[i])
+        y++
+      }
+      let z = 0
+      for (; y < this.baked.length && tmp.length < this.maxQueueSize * 2; y++) {
+        // dedup
+        if (tmp.includes(this.baked[y].RM03)) {
+          continue
+        }
+        if (this.queue2.length >= this.maxQueueSize) {
+          // remove head
+          this.queue2.shift()
+        }
+        tmp.push(this.baked[y].RM03)
+        // remember the minimum time for next querying
+        // if (this.baked[i].RM03 < this.qtime) {
+        //   this.qtime = this.baked[i].RM105_2
+        // }
+        // add to queue tail
+        this.queue2.push(this.baked[y])
+        z++
+      }
+      for (; z < this.baked.length && tmp.length < this.maxQueueSize * 3; z++) {
+        // dedup
+        if (tmp.includes(this.baked[z].RM03)) {
+          continue
+        }
+        if (this.queue3.length >= this.maxQueueSize) {
+          // remove head
+          this.queue3.shift()
+        }
+        tmp.push(this.baked[z].RM03)
+        // remember the minimum time for next querying
+        // if (this.baked[i].RM03 < this.qtime) {
+        //   this.qtime = this.baked[i].RM105_2
+        // }
+        // add to queue tail
+        this.queue3.push(this.baked[z])
       }
     }, 400)
   },
