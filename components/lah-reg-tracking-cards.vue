@@ -17,7 +17,13 @@ transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
         b-badge.ml-1(variant="light", pill) {{ row['辦理情形'] }}
     .d-flex.justify-content-between.center.h4.mt-3
       span 異動人員：{{ hideName(row['異動人員']) }}
-      lah-fa-icon(icon="clock", regular) {{ $utils.addTimeDivider(row.RM105_2) }}
+      lah-fa-icon(
+        icon="clock",
+        :action="idx === 0 ? 'clock' : ''",
+        :variant="idx === 0 ? 'success' : 'muted'",
+        :size="idx === 0 ? 'lg' : '1x'"
+        regular
+      ) {{ $utils.addTimeDivider(row.RM105_2) }}
 </template>
 
 <script>
