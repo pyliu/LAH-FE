@@ -17,7 +17,8 @@ div(v-cloak)
             badge-variant="secondary",
             :milliseconds="reloadMs",
             @end="$fetch",
-            @click="$fetch"
+            @click="$fetch",
+            :disabled="buttonDisabled"
           )
           lah-button.ml-1(
             icon="arrow-up-right-from-square",
@@ -107,9 +108,11 @@ export default {
     queue: [],
     queue2: [],
     queue3: [],
-    maxQueueSize: 12
+    maxQueueSize: 12,
+    buttonDisabled: false
   }),
   fetch () {
+    this.buttonDisabled = true
     this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
     this.$axios.post(this.$consts.API.JSON.MOICAS, {
       type: 'crsmslog',
@@ -125,6 +128,7 @@ export default {
       this.$refs.countdown?.setCountdown(this.reloadMs)
       this.reloadMs > 0 && this.$refs.countdown?.startCountdown()
       this.isBusy = false
+      this.buttonDisabled = false
     })
   },
   head: {
@@ -143,7 +147,7 @@ export default {
       // console.warn(arr)
     },
     qtime (n, o) {
-      console.warn(`qtime changed from ${o} to ${n}`)
+      // console.warn(`qtime changed from ${o} to ${n}`)
     }
   },
   async created () {
@@ -163,10 +167,6 @@ export default {
           this.queue.shift()
         }
         tmp.push(this.baked[i].RM03)
-        // remember the minimum time for next querying
-        // if (this.baked[i].RM03 < this.qtime) {
-        //   this.qtime = this.baked[i].RM105_2
-        // }
         // add to queue tail
         this.queue.push(this.baked[i])
         y++
@@ -182,10 +182,6 @@ export default {
           this.queue2.shift()
         }
         tmp.push(this.baked[y].RM03)
-        // remember the minimum time for next querying
-        // if (this.baked[i].RM03 < this.qtime) {
-        //   this.qtime = this.baked[i].RM105_2
-        // }
         // add to queue tail
         this.queue2.push(this.baked[y])
         z++
@@ -200,10 +196,6 @@ export default {
           this.queue3.shift()
         }
         tmp.push(this.baked[z].RM03)
-        // remember the minimum time for next querying
-        // if (this.baked[i].RM03 < this.qtime) {
-        //   this.qtime = this.baked[i].RM105_2
-        // }
         // add to queue tail
         this.queue3.push(this.baked[z])
       }
