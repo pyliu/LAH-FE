@@ -68,7 +68,8 @@ div(v-cloak)
       type="lg",
       :baked-data="baked",
       :per-page="pagination.perPage",
-      :current-page="pagination.currentPage"
+      :current-page="pagination.currentPage",
+      :case-reload="true"
     )
     //- b-table(
     //-   :items="baked",

@@ -1,5 +1,5 @@
 <template lang="pug">
-div(v-if="bakedData !== undefined")
+div(v-if="!$utils.empty(bakedData)")
   //- <!-- header flow table -->
   lah-reg-case-flow(compact :parent-data="bakedData")
   //- <!-- detail info card -->
@@ -12,7 +12,7 @@ h4.text-center.text-info.my-5(v-else)
 </template>
 
 <script>
-import regCaseBase from '~/components/lah-reg-case-base.js'
+import regCaseBase from '~/components/lah-reg-case-base.js';
 
 export default {
   name: 'LahRegCaseDetail',
