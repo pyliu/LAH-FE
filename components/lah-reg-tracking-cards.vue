@@ -1,35 +1,58 @@
 <template lang="pug">
 transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
   b-card(v-for="(row, idx) in rows", :key="`tracking_card_${idx}`")
-    .center.h1.text-primary.font-weight-bold {{ row['收件字'] }} {{ row.RM03 }}
+    .center.h1.text-primary.font-weight-bold(@click="popup(row)") {{ row['收件字'] }} {{ row.RM03 }}
     .center.h2.my-2.font-weight-bold {{ row['登記原因'] }}
     .center
       b-button(
         size="lg",
-        :variant="row['燈號']"
+        :variant="light(row)"
       ): .d-flex.align-items-center.h1
         span 狀態
         b-badge.ml-1(variant="light", pill) {{ row['辦理情形'] }}
-    .d-flex.justify-content-between.center.h3.mt-3
+    .d-flex.justify-content-between.center.h4.mt-3
       span 異動人員：{{ hideName(row['異動人員']) }}
       lah-fa-icon(icon="clock", regular) {{ $utils.addTimeDivider(row.RM105_2) }}
 </template>
 
 <script>
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
 export default {
   emit: [],
-  component: {},
+  component: { lahRegCaseDetailVue },
   props: {
     rows: { type: Array, default: () => ([]) }
   },
-  data: () => ({}),
+  data: () => ({
+    greenState: ['結案', '異動完成', '歸檔'],
+    yellowState: ['登錄', '校對']
+  }),
   computed: {},
   watch: {},
   created () {},
   mounted () {},
   methods: {
+    light (row) {
+      if (this.greenState.includes(row['辦理情形'])) {
+        return 'success'
+      }
+      if (this.yellowState.includes(row['辦理情形'])) {
+        return 'warning'
+      }
+      return 'info'
+    },
     hideName (name) {
       return name[0] + 'Ｏ' + name.slice(2)
+    },
+    popup (row) {
+      this.modal(this.$createElement(lahRegCaseDetailVue, {
+        props: {
+          caseId: row.ID
+        }
+      }), {
+        title: `案件詳情 ${this.$utils.caseId(row.ID)}`,
+        size: 'xl'
+      })
     }
   }
 }
