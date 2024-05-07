@@ -31,7 +31,12 @@ div(v-cloak)
       h3 - 每頁12件
       h3 - 輪播間隔{{ slideMs / 1000 }}秒
   //- display cards
-  b-carousel(ref="carousel", v-model="slideIdx", :interval="slideMs", indicators)
+  b-carousel(
+    ref="carousel",
+    v-model="slideIdx",
+    :interval="slideMs",
+    indicators
+  )
     b-carousel-slide: template(#img)
       lah-reg-tracking-cards(:rows="queue")
     b-carousel-slide(v-if="queue2.length !== 0"): template(#img)
@@ -59,15 +64,21 @@ div(v-cloak)
       :caption="`找到 ${count} 筆資料`",
       @input="handlePaginationInput"
     )
-    b-table(
-      :items="baked",
-      :fields="fields",
+    lah-reg-b-table(
+      type="lg",
+      :baked-data="baked",
       :per-page="pagination.perPage",
-      :current-page="pagination.currentPage",
-      :busy="isBusy",
-      :small="false",
-      no-caption
+      :current-page="pagination.currentPage"
     )
+    //- b-table(
+    //-   :items="baked",
+    //-   :fields="fields",
+    //-   :per-page="pagination.perPage",
+    //-   :current-page="pagination.currentPage",
+    //-   :busy="isBusy",
+    //-   :small="false",
+    //-   no-caption
+    //- )
 </template>
 
 <script>
