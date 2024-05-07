@@ -12,7 +12,7 @@ transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
         size="lg",
         :variant="light(row)",
         @click="popup(row)"
-      ): .d-flex.align-items-center.h1
+      ): .d-flex.align-items-center.h1.my-auto
         span 狀態
         b-badge.ml-1(variant="light", pill) {{ row['辦理情形'] }}
     .d-flex.justify-content-between.center.h4.mt-3
