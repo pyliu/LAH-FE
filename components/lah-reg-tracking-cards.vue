@@ -29,9 +29,9 @@ export default {
     rows: { type: Array, default: () => ([]) }
   },
   data: () => ({
-    greenState: ['結案', '異動完成', '歸檔'],
+    greenState: ['結案', '異動完成', '歸檔', '公告'],
     yellowState: ['登錄', '校對'],
-    redState: ['撤回', '駁回', '請示', '展期']
+    redState: ['撤回', '駁回', '請示', '展期', '補正']
   }),
   computed: {},
   watch: {},
@@ -47,6 +47,9 @@ export default {
       }
       if (this.redState.includes(row['辦理情形'])) {
         return 'danger'
+      }
+      if (row['辦理情形'].includes('初核')) {
+        return 'secondary'
       }
       return 'info'
     },
