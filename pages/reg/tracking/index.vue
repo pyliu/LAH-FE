@@ -29,16 +29,12 @@ div(v-cloak)
     lah-help-modal(:modal-id="'help-modal'")
       h1 這是說明視窗
   //- display cards
-  b-card-group(deck)
-    b-card(v-for="(row, idx) in firstDeck", :key="`first_deck_${idx}`")
-      .h1 {{ row.RM03 }}
-      .h1 {{ row['辦理情形'] }}
-      .h1 {{ $utils.addTimeDivider(row.RM105_2) }}
-  b-card-group.mt-4(deck)
-    b-card(v-for="(row, idx) in secondDeck", :key="`second_deck_${idx}`")
-      .h1 {{ row.RM03 }}
-      .h1 {{ row['辦理情形'] }}
-      .h1 {{ $utils.addTimeDivider(row.RM105_2) }}
+  .text-center: lah-reg-tracking-cards(:rows="queue")
+  //- b-card-group.mt-4(deck)
+  //-   b-card(v-for="(row, idx) in secondDeck", :key="`second_deck_${idx}`")
+  //-     .h1 {{ row.RM03 }}
+  //-     .h1 {{ row['辦理情形'] }}
+  //-     .h1 {{ $utils.addTimeDivider(row.RM105_2) }}
   //- below is the customize area
   b-modal(
     ref="table",
@@ -89,7 +85,7 @@ export default {
       { key: '異動時間', sortable: true }
     ],
     queue: [],
-    maxQueueSize: 8
+    maxQueueSize: 12
   }),
   fetch () {
     if (!this.isBusy) {
@@ -97,7 +93,7 @@ export default {
       this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
       // this.baked = []
       console.warn(this.$utils.now())
-      this.queue = []
+      // this.queue = []
       this.$axios.post(this.$consts.API.JSON.MOICAS, {
         type: 'crsmslog',
         qday: this.qday,
@@ -136,19 +132,19 @@ export default {
     },
     formattedDay () {
       return this.$utils.addDateDivider(this.qday)
-    },
-    firstDeck () {
-      if (this.queue.length < 5) {
-        return this.queue
-      }
-      return this.queue.slice(0, 4)
-    },
-    secondDeck () {
-      if (this.queue.length < 5) {
-        return []
-      }
-      return this.queue.slice(4, 8)
     }
+    // firstDeck () {
+    //   if (this.queue.length < 5) {
+    //     return this.queue
+    //   }
+    //   return this.queue.slice(0, 4)
+    // },
+    // secondDeck () {
+    //   if (this.queue.length < 5) {
+    //     return []
+    //   }
+    //   return this.queue.slice(4, 8)
+    // }
   },
   watch: {
     baked (arr) {
@@ -162,18 +158,20 @@ export default {
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
     this.rebuildQueue = this.$utils.debounce(() => {
+      console.warn('queue before: ', this.queue)
       const tmp = []
-      for (let i = 0; i < this.baked.length; i++) {
+      for (let i = 0; i < this.baked.length && tmp.length < this.maxQueueSize; i++) {
         // dedup
         if (tmp.includes(this.baked[i].RM03)) {
           continue
         }
-        tmp.push(this.baked[i].RM03)
-        // add to queue
-        this.queue.push(this.baked[i])
         if (this.queue.length >= this.maxQueueSize) {
-          break
+          // remove head
+          this.queue.shift()
         }
+        tmp.push(this.baked[i].RM03)
+        // add to queue tail
+        this.queue.push(this.baked[i])
       }
     }, 400)
   },
