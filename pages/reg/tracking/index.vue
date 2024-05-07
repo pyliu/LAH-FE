@@ -67,8 +67,6 @@ export default {
   fetchOnServer: false,
   data: () => ({
     reloadMs: 60 * 1000,
-    pageTimer: null,
-    pageCount: 1,
     qday: '',
     qtime: '000000',
     pagination: {
@@ -133,22 +131,10 @@ export default {
     formattedDay () {
       return this.$utils.addDateDivider(this.qday)
     }
-    // firstDeck () {
-    //   if (this.queue.length < 5) {
-    //     return this.queue
-    //   }
-    //   return this.queue.slice(0, 4)
-    // },
-    // secondDeck () {
-    //   if (this.queue.length < 5) {
-    //     return []
-    //   }
-    //   return this.queue.slice(4, 8)
-    // }
   },
   watch: {
     baked (arr) {
-      console.warn(arr)
+      // console.warn(arr)
     },
     qtime (n, o) {
       console.warn(`qtime changed from ${o} to ${n}`)
@@ -158,7 +144,7 @@ export default {
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
     this.rebuildQueue = this.$utils.debounce(() => {
-      console.warn('queue before: ', this.queue)
+      // console.warn('queue before: ', this.queue)
       const tmp = []
       for (let i = 0; i < this.baked.length && tmp.length < this.maxQueueSize; i++) {
         // dedup
@@ -175,21 +161,8 @@ export default {
       }
     }, 400)
   },
-  mounted () {
-    // this.pageTimer = setInterval(() => {
-    //   const perPage = this.pagination.perPage
-    //   const pages = this.count / perPage
-    //   this.pagination = {
-    //     ...{
-    //       currentPage: (++this.pageCount % pages) + 1,
-    //       perPage
-    //     }
-    //   }
-    // }, 5000)
-  },
-  beforeDestroy () {
-    clearInterval(this.pageTimer)
-  },
+  mounted () {},
+  beforeDestroy () {},
   methods: {
     rebuildQueue () { /** placeholder */ },
     handlePaginationInput (payload) {
