@@ -11,14 +11,15 @@ div(v-cloak)
           lah-countdown-button.ml-1(
             ref="countdown",
             icon="arrows-rotate",
+            action="cycle",
             auto-start,
-            title="搜尋",
+            title="讀取",
             variant="outline-primary",
             badge-variant="secondary",
             :milliseconds="reloadMs",
+            :busy="buttonDisabled",
             @end="$fetch",
-            @click="$fetch",
-            :disabled="buttonDisabled"
+            @click="$fetch"
           )
           lah-button.ml-1(
             icon="arrow-up-right-from-square",
