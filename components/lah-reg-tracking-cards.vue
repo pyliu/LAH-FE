@@ -5,12 +5,13 @@ transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
     :key="`tracking_card_${idx}`",
     :border-variant="border(row)"
   )
-    .center.h1.text-primary.font-weight-bold(@click="popup(row)") {{ row['收件字'] }} {{ row.RM03 }}
+    .center.h1.text-primary.font-weight-bold {{ row['收件字'] }} {{ row.RM03 }}
     .center.h2.my-2.font-weight-bold {{ row['登記原因'] }}
     .center
       b-button(
         size="lg",
-        :variant="light(row)"
+        :variant="light(row)",
+        @click="popup(row)"
       ): .d-flex.align-items-center.h1
         span 狀態
         b-badge.ml-1(variant="light", pill) {{ row['辦理情形'] }}
