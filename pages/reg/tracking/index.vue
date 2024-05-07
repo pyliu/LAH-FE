@@ -32,18 +32,20 @@ div(v-cloak)
       h3 - 每頁12件
       h3 - 輪播間隔{{ slideMs / 1000 }}秒
   //- display cards
+  .center.h1(v-if="queueChunks.length === 0") ⚠ 尚無案件
   b-carousel(
+    v-else
     ref="carousel",
     v-model="slideIdx",
     :interval="slideMs",
     indicators
   )
     b-carousel-slide: template(#img)
-      lah-reg-tracking-cards(:rows="queue")
-    b-carousel-slide(v-if="queue2.length !== 0"): template(#img)
-      lah-reg-tracking-cards(:rows="queue2")
-    b-carousel-slide(v-if="queue3.length !== 0"): template(#img)
-      lah-reg-tracking-cards(:rows="queue3")
+      lah-reg-tracking-cards(:rows="queueChunks[0]")
+    b-carousel-slide(v-if="queueChunks.length > 0"): template(#img)
+      lah-reg-tracking-cards(:rows="queueChunks[1]")
+    b-carousel-slide(v-if="queueChunks.length > 1"): template(#img)
+      lah-reg-tracking-cards(:rows="queueChunks[2]")
   //- b-card-group.mt-4(deck)
   //-   b-card(v-for="(row, idx) in secondDeck", :key="`second_deck_${idx}`")
   //-     .h1 {{ row.RM03 }}
@@ -105,9 +107,7 @@ export default {
       { key: '作業人員', sortable: true },
       { key: '異動時間', sortable: true }
     ],
-    queue: [],
-    queue2: [],
-    queue3: [],
+    queueChunks: [],
     maxQueueSize: 12,
     buttonDisabled: false
   }),
@@ -120,8 +120,8 @@ export default {
       qtime: '000000'
       // qtime: this.qtime
     }).then(({ data }) => {
-      this.baked = [...data.baked]
-      this.rebuildQueue()
+      // uniq by RM01+RM02+RM03
+      this.baked = [...this.$utils.uniqBy(data.baked, row => `${row.RM01}${row.RM02}${row.RM03}`)]
     }).catch((err) => {
       console.warn(err)
     }).finally(() => {
@@ -144,67 +144,23 @@ export default {
   },
   watch: {
     baked (arr) {
-      // console.warn(arr)
+      // for display cards
+      this.queueChunks = this.$utils.chunk(arr, this.maxQueueSize)
     },
     qtime (n, o) {
       // console.warn(`qtime changed from ${o} to ${n}`)
+    },
+    queueChunks (arr) {
+      // console.warn(arr)
     }
   },
   async created () {
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
-    this.rebuildQueue = this.$utils.debounce(() => {
-      // console.warn('queue before: ', this.queue)
-      const tmp = []
-      let y = 0
-      for (let i = 0; i < this.baked.length && tmp.length < this.maxQueueSize; i++) {
-        // dedup
-        if (tmp.includes(this.baked[i].RM03)) {
-          continue
-        }
-        if (this.queue.length >= this.maxQueueSize) {
-          // remove head
-          this.queue.shift()
-        }
-        tmp.push(this.baked[i].RM03)
-        // add to queue tail
-        this.queue.push(this.baked[i])
-        y++
-      }
-      let z = 0
-      for (; y < this.baked.length && tmp.length < this.maxQueueSize * 2; y++) {
-        // dedup
-        if (tmp.includes(this.baked[y].RM03)) {
-          continue
-        }
-        if (this.queue2.length >= this.maxQueueSize) {
-          // remove head
-          this.queue2.shift()
-        }
-        tmp.push(this.baked[y].RM03)
-        // add to queue tail
-        this.queue2.push(this.baked[y])
-        z++
-      }
-      for (; z < this.baked.length && tmp.length < this.maxQueueSize * 3; z++) {
-        // dedup
-        if (tmp.includes(this.baked[z].RM03)) {
-          continue
-        }
-        if (this.queue3.length >= this.maxQueueSize) {
-          // remove head
-          this.queue3.shift()
-        }
-        tmp.push(this.baked[z].RM03)
-        // add to queue tail
-        this.queue3.push(this.baked[z])
-      }
-    }, 400)
   },
   mounted () {},
   beforeDestroy () {},
   methods: {
-    rebuildQueue () { /** placeholder */ },
     handlePaginationInput (payload) {
       // remember user changed number
       this.setCache('reg-today-table-perPage', payload.perPage)
