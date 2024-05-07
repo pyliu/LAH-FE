@@ -27,9 +27,11 @@ div(v-cloak)
             @click="$refs.table.show()"
           )
     lah-help-modal(:modal-id="'help-modal'")
-      h1 顯示最新36件案件異動資料，每頁12件，輪播間隔{{ slideMs / 1000 }}秒
+      h2 顯示最新36件案件異動資料
+      h3 - 每頁12件
+      h3 - 輪播間隔{{ slideMs / 1000 }}秒
   //- display cards
-  b-carousel(ref="carousel", v-model="slideIdx", :interval="slideMs")
+  b-carousel(ref="carousel", v-model="slideIdx", :interval="slideMs", indicators)
     b-carousel-slide: template(#img)
       lah-reg-tracking-cards(:rows="queue")
     b-carousel-slide(v-if="queue2.length !== 0"): template(#img)
@@ -96,44 +98,25 @@ export default {
     maxQueueSize: 12
   }),
   fetch () {
-    if (!this.isBusy) {
-      this.isBusy = true
-      this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
-      // this.baked = []
-      // this.queue = []
-      this.$axios.post(this.$consts.API.JSON.MOICAS, {
-        type: 'crsmslog',
-        qday: this.qday,
-        qtime: '000000'
-        // qtime: this.qtime
-      }).then(({ data }) => {
-        this.baked = [...data.baked]
-        // if (data.baked.length > 0) {
-        //   // store the latest update time
-        //   this.qtime = data.baked[0].RM105_2
-        //   if (this.baked.length === 0) {
-        //     this.baked = [...data.baked]
-        //   } else {
-        //     // push data to head of array
-        //     data.baked.reverse().forEach((row) => {
-        //       this.baked.unshift(row)
-        //     })
-        //   }
-        // } else {
-        //   console.warn('No new update.')
-        // }
-        this.rebuildQueue()
-      }).catch((err) => {
-        console.warn(err)
-      }).finally(() => {
-        this.$refs.countdown?.setCountdown(this.reloadMs)
-        this.reloadMs > 0 && this.$refs.countdown?.startCountdown()
-        this.isBusy = false
-      })
-    }
+    this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
+    this.$axios.post(this.$consts.API.JSON.MOICAS, {
+      type: 'crsmslog',
+      qday: this.qday,
+      qtime: '000000'
+      // qtime: this.qtime
+    }).then(({ data }) => {
+      this.baked = [...data.baked]
+      this.rebuildQueue()
+    }).catch((err) => {
+      console.warn(err)
+    }).finally(() => {
+      this.$refs.countdown?.setCountdown(this.reloadMs)
+      this.reloadMs > 0 && this.$refs.countdown?.startCountdown()
+      this.isBusy = false
+    })
   },
   head: {
-    title: '今日案件追蹤-桃園市地政局'
+    title: '登記案件追蹤-桃園市地政局'
   },
   computed: {
     count () {
