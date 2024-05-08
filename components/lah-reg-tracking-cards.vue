@@ -16,23 +16,25 @@ transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
         span 狀態
         b-badge.ml-1(variant="light", pill) {{ row['辦理情形'] }}
     .d-flex.justify-content-between.center.h4.mt-3
-      span 異動人員：{{ hideName(row['異動人員']) }}
+      span 作業人員：{{ hideName(row['作業人員']) }}
       lah-fa-icon(
         icon="clock",
         :action="idx === 0 ? 'clock' : ''",
         :variant="idx === 0 ? 'success' : 'muted'",
         :size="idx === 0 ? 'lg' : '1x'"
         regular
-      ) {{ $utils.addTimeDivider(row.RM105_2) }}
+      ) {{ $utils.addTimeDivider(lastTime(row)) }}
+    .serial \#{{ serialStart + idx }}
 </template>
 
 <script>
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   emit: [],
   component: { lahRegCaseDetailVue },
   props: {
-    rows: { type: Array, default: () => ([]) }
+    rows: { type: Array, default: () => ([]) },
+    serialStart: { type: Number, default: 1 }
   },
   data: () => ({
     greenState: ['結案', '異動完成', '歸檔', '公告'],
@@ -66,6 +68,24 @@ export default {
     hideName (name) {
       return name[0] + 'Ｏ' + name.slice(2)
     },
+    lastTime (row) {
+      return row.RM107_2 ||
+             row.RM106_2 ||
+             row.RM93_2 ||
+             row.RM91_2 ||
+             row.RM87 ||
+             row.RM84 ||
+             row.RM81 ||
+             row.RM62_2 ||
+             row.RM58_2 ||
+             row.RM56_2 ||
+             row.RM54_2 ||
+             row.RM53_2 ||
+             row.RM48_2 ||
+             row.RM46_2 ||
+             row.RM44_2 ||
+             row.RM07_2
+    },
     popup (row) {
       this.modal(this.$createElement(lahRegCaseDetailVue, {
         props: {
@@ -87,5 +107,10 @@ export default {
     margin-bottom: 1.25rem;
     margin-right: 1.25rem;
   }
+}
+.serial {
+  position: absolute;
+  top: 5px;
+  left: 5px;
 }
 </style>

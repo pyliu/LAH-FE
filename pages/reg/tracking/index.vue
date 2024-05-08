@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div {{ formattedDay }} 案件追蹤 (第{{ slideIdx + 1 }}頁)
+          div {{ formattedDay }} 案件追蹤 (第{{ slideIdx + 1 }}頁，第 {{ 1 + slideIdx * 12 }} 至 {{ (slideIdx + 1) * 12 }} 件)
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         .d-flex
           b-input(v-model="qday")
@@ -31,22 +31,30 @@ div(v-cloak)
     lah-help-modal(:modal-id="'help-modal'")
       h2 顯示最新36件案件異動資料
       h3 - 每頁12件
-      h3 - 輪播間隔{{ slideMs / 1000 }}秒
+      h3: .d-flex.align-items-center.my-auto
+        .mr-1 - 輪播間隔
+        b-spinbutton(
+          v-model="slideSecs",
+          min="0",
+          title="設定為0會停止自動切換面板",
+          inline
+        )
+        .ml-1 秒切換
   //- display cards
   .center.h1(v-if="queueChunks.length === 0") ⚠ 尚無案件
   b-carousel(
     v-else
     ref="carousel",
     v-model="slideIdx",
-    :interval="slideMs",
+    :interval="slideSecs * 1000",
     indicators
   )
     b-carousel-slide: template(#img)
       lah-reg-tracking-cards(:rows="queueChunks[0]")
     b-carousel-slide(v-if="queueChunks.length > 1"): template(#img)
-      lah-reg-tracking-cards(:rows="queueChunks[1]")
+      lah-reg-tracking-cards(:rows="queueChunks[1]", :serial-start="13")
     b-carousel-slide(v-if="queueChunks.length > 2"): template(#img)
-      lah-reg-tracking-cards(:rows="queueChunks[2]")
+      lah-reg-tracking-cards(:rows="queueChunks[2]", :serial-start="25")
   //- b-card-group.mt-4(deck)
   //-   b-card(v-for="(row, idx) in secondDeck", :key="`second_deck_${idx}`")
   //-     .h1 {{ row.RM03 }}
@@ -91,7 +99,7 @@ export default {
   fetchOnServer: false,
   data: () => ({
     reloadMs: 60 * 1000,
-    slideMs: 10 * 1000,
+    slideSecs: 10,
     slideIdx: 0,
     qday: '',
     qtime: '000000',
@@ -116,13 +124,13 @@ export default {
     this.buttonDisabled = true
     this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
     this.$axios.post(this.$consts.API.JSON.MOICAS, {
-      type: 'crsmslog',
-      qday: this.qday,
-      qtime: '000000'
+      type: 'crsms_update_by_date',
+      qday: this.qday
       // qtime: this.qtime
     }).then(({ data }) => {
       // uniq by RM01+RM02+RM03
-      this.baked = [...this.$utils.uniqBy(data.baked, row => `${row.RM01}${row.RM02}${row.RM03}`)]
+      // this.baked = [...this.$utils.uniqBy(data.baked, row => `${row.RM01}${row.RM02}${row.RM03}`)]
+      this.baked = [...data.baked]
     }).catch((err) => {
       console.warn(err)
     }).finally(() => {
@@ -130,6 +138,7 @@ export default {
       this.reloadMs > 0 && this.$refs.countdown?.startCountdown()
       this.isBusy = false
       this.buttonDisabled = false
+      this.slideIdx = 0
     })
   },
   head: {
@@ -153,11 +162,15 @@ export default {
     },
     queueChunks (arr) {
       // console.warn(arr)
+    },
+    slideSecs (val) {
+      this.setCache('lah-reg-tracking-slide-secs', val)
     }
   },
   async created () {
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
+    this.slideSecs = parseInt(await this.getCache('lah-reg-tracking-slide-secs')) || 10
   },
   mounted () {},
   beforeDestroy () {},

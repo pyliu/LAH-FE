@@ -89,7 +89,7 @@ export default {
     },
     showBadge () { return !this.$utils.empty(this.badgeText) },
     showIcon () { return !this.$utils.empty(this.icon) },
-    iconId () { return this.$refs.icon ? this.$refs.icon.iconId : '' }
+    iconId () { return this.$refs.icon?.iconId || '' }
   },
   methods: {
     emitClick (evt) {
