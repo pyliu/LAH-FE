@@ -195,13 +195,13 @@ export default {
   },
   watch: {
     baked (arr) {
-      console.warn(arr)
+      // console.warn(arr)
     },
     qtime (n, o) {
       // console.warn(`qtime changed from ${o} to ${n}`)
     },
     queueChunks (arr) {
-      console.warn(arr)
+      // console.warn(arr)
     },
     slideSecs (val) {
       this.setCache('lah-reg-tracking-slide-secs', val)
