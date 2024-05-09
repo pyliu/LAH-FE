@@ -110,7 +110,7 @@ export default {
   fetchOnServer: false,
   data: () => ({
     reloadMs: 60 * 1000,
-    slideSecs: 10,
+    slideSecs: 15,
     slideIdx: 0,
     qday: '',
     qtime: '000000',
