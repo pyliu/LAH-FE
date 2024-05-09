@@ -4,10 +4,10 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div {{ formattedDay }} 案件追蹤 (第{{ slideIdx + 1 }}頁，第 {{ 1 + slideIdx * 12 }} 至 {{ (slideIdx + 1) * 12 }} 件)
+          div {{ formattedDay }} 異動案件追蹤 (第{{ slideIdx + 1 }}頁，第 {{ 1 + slideIdx * 12 }} 至 {{ (slideIdx + 1) * 12 }} 件)
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         .d-flex
-          b-input(v-model="qday")
+          b-input(v-model="qday", @keyup.enter="$fetch()", style="width: 100px")
           lah-countdown-button.ml-1(
             ref="countdown",
             icon="arrows-rotate",
@@ -41,7 +41,7 @@ div(v-cloak)
         )
         .ml-1 秒切換
   //- display cards
-  .center.h1(v-if="queueChunks.length === 0") ⚠ 尚無案件
+  .center.h1.mt-5(v-if="queueChunks.length === 0") ⚠ 尚無異動案件資料
   b-carousel(
     v-else
     ref="carousel",
@@ -68,7 +68,7 @@ div(v-cloak)
     scrollable,
     no-close-on-backdrop
   )
-    template(#modal-title) 詳細異動清單
+    template(#modal-title) 詳細異動案件清單
     lah-transition: lah-pagination(
       v-if="count > pagination.perPage"
       v-model="pagination",
@@ -121,16 +121,21 @@ export default {
     buttonDisabled: false
   }),
   fetch () {
+    if (this.buttonDisabled) {
+      this.warning('查詢中，請稍後 ... ')
+      return
+    }
     this.buttonDisabled = true
     this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
     this.$axios.post(this.$consts.API.JSON.MOICAS, {
-      type: 'crsms_update_by_date',
+      // type: 'crsms_update_by_date',
+      type: 'crsmslog',
       qday: this.qday
       // qtime: this.qtime
     }).then(({ data }) => {
-      // uniq by RM01+RM02+RM03
-      // this.baked = [...this.$utils.uniqBy(data.baked, row => `${row.RM01}${row.RM02}${row.RM03}`)]
-      this.baked = [...data.baked]
+      // use 'crsmslog' type query needs to do uniq by RM01+RM02+RM03
+      this.baked = [...this.$utils.uniqBy(data.baked, row => `${row.RM01}${row.RM02}${row.RM03}`)]
+      // this.baked = [...data.baked]
     }).catch((err) => {
       console.warn(err)
     }).finally(() => {
@@ -142,7 +147,7 @@ export default {
     })
   },
   head: {
-    title: '登記案件追蹤-桃園市地政局'
+    title: '登記異動案件追蹤-桃園市地政局'
   },
   computed: {
     count () {
