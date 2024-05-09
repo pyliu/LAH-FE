@@ -72,7 +72,8 @@ export default {
       return name[0] + 'Ｏ' + name.slice(2)
     },
     lastTime (row) {
-      return row.RM107_2 ||
+      return row.RM105_2 || // 異動時間
+             row.RM107_2 ||
              row.RM106_2 ||
              row.RM93_2 ||
              row.RM91_2 ||
