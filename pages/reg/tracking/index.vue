@@ -58,7 +58,8 @@ div(v-cloak)
     v-else
     ref="carousel",
     v-model="slideIdx",
-    :interval="slideSecs * 1000"
+    :interval="slideSecs * 1000",
+    no-hover-pause
   )
     b-carousel-slide: template(#img)
       lah-reg-tracking-cards(:rows="queueChunks[0]", :query-day="qday")
