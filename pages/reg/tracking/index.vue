@@ -202,7 +202,7 @@ export default {
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
     this.slideSecs = parseInt(await this.getCache('lah-reg-tracking-slide-secs')) || 10
-    this.easyCase = await this.getCache('lah-reg-tracking-easy-case-flag') || false
+    this.easyCase = await this.getCache('lah-reg-tracking-easy-case-flag') || true
   },
   mounted () {},
   beforeDestroy () {},
