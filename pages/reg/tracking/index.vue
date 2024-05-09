@@ -140,8 +140,8 @@ export default {
     this.buttonDisabled = true
     this.$utils.empty(this.qday) && (this.qday = this.$utils.today('TW').replaceAll('-', ''))
     this.$axios.post(this.$consts.API.JSON.MOICAS, {
-      // type: 'crsms_update_by_date',
-      type: 'crsmslog',
+      type: 'crsms_update_by_date',
+      // type: 'crsmslog',
       qday: this.qday
       // qtime: this.qtime
     }).then(({ data }) => {
