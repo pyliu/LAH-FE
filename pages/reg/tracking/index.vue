@@ -4,44 +4,49 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div {{ formattedDay }} 異動案件追蹤 (第{{ slideIdx + 1 }}頁，第 {{ 1 + slideIdx * 12 }} 至 {{ (slideIdx + 1) * 12 }} 件)
+          .my-auto {{ formattedDay }} {{ caseText }}異動追蹤 (第{{ slideIdx + 1 }}頁，第 {{ 1 + slideIdx * 12 }} 至 {{ (slideIdx + 1) * 12 }} 件)
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-        .d-flex
-          b-input(v-model="qday", @keyup.enter="$fetch()", style="width: 100px")
-          lah-countdown-button.ml-1(
-            ref="countdown",
-            icon="arrows-rotate",
-            action="cycle",
-            auto-start,
-            title="讀取",
-            variant="outline-primary",
-            badge-variant="secondary",
-            :milliseconds="reloadMs",
-            :busy="buttonDisabled",
-            @end="$fetch",
-            @click="$fetch"
-          )
-          lah-button.ml-1(
-            icon="arrow-up-right-from-square",
-            auto-start,
-            title="搜尋",
-            variant="outline-secondary",
-            @click="$refs.table.show()"
-          )
+        .d-flex.align-items-center
+          //- b-checkbox(v-model="easyCase", switch) 簡易案件
+          //- .mx-1
+          b-input.my-auto(v-model="qday", @keyup.enter="$fetch()", style="width: 100px; height: 50px;")
+          b-button-group(size="lg")
+            lah-countdown-button.mx-1(
+              ref="countdown",
+              icon="arrows-rotate",
+              action="cycle",
+              auto-start,
+              title="讀取",
+              variant="outline-primary",
+              badge-variant="secondary",
+              :milliseconds="reloadMs",
+              :busy="buttonDisabled",
+              @end="$fetch",
+              @click="$fetch"
+            )
+            lah-button(
+              icon="arrow-up-right-from-square",
+              title="顯示所有異動案件",
+              variant="outline-secondary",
+              @click="$refs.table.show()"
+            )
     lah-help-modal(:modal-id="'help-modal'")
-      h2 顯示最新36件案件異動資料
-      h3 - 每頁12件
-      h3: .d-flex.align-items-center.my-auto
-        .mr-1 - 輪播間隔
-        b-spinbutton(
-          v-model="slideSecs",
-          min="0",
-          title="設定為0會停止自動切換面板",
-          inline
-        )
-        .ml-1 秒切換
+      h5 顯示最新 {{ maxQueueSize * 3 }} 件{{ caseText }}異動資料
+      ul
+        li 每頁 {{ maxQueueSize }} 件
+        li: .d-flex.align-items-center.my-auto
+          .mr-1 輪播間隔
+          b-spinbutton(
+            v-model="slideSecs",
+            min="0",
+            title="設定為0會停止自動切換面板",
+            inline
+          )
+          .ml-1 秒切換
+        li
+          b-checkbox(v-model="easyCase", switch) 僅顯示簡易案件
   //- display cards
-  .center.h1.mt-5(v-if="queueChunks.length === 0") ⚠ 尚無異動案件資料
+  .center.h1.mt-5(v-if="queueChunks.length === 0") ⚠ 無{{ caseText }}異動資料
   b-carousel(
     v-else
     ref="carousel",
@@ -116,9 +121,14 @@ export default {
       { key: '作業人員', sortable: true },
       { key: '異動時間', sortable: true }
     ],
-    queueChunks: [],
+    // queueChunks: [],
     maxQueueSize: 12,
-    buttonDisabled: false
+    buttonDisabled: false,
+    easyCase: true,
+    easyReason: ['出生日期更正', '住址更正', '住址變更', '更正',
+      '更名', '姓名更正', '拋棄', '門牌整編', '持分合併',
+      '書狀換給', '書狀補給', '清償', '混同', '統一編號更正',
+      '部份拋棄', '部份清償', '註記', '塗銷註記']
   }),
   fetch () {
     if (this.buttonDisabled) {
@@ -150,17 +160,30 @@ export default {
     title: '登記異動案件追蹤-桃園市地政局'
   },
   computed: {
+    caseText () {
+      return this.easyCase ? '簡易案件' : '案件'
+    },
     count () {
       return this.baked?.length || 0
     },
     formattedDay () {
       return this.$utils.addDateDivider(this.qday)
+    },
+    trackingCase () {
+      if (this.easyCase) {
+        return this.baked.filter((row) => {
+          return this.easyReason.includes(row.RM09_CHT)
+        })
+      }
+      return this.baked
+    },
+    queueChunks () {
+      return this.$utils.chunk(this.trackingCase, this.maxQueueSize)
     }
   },
   watch: {
     baked (arr) {
-      // for display cards
-      this.queueChunks = this.$utils.chunk(arr, this.maxQueueSize)
+      // console.warn(arr)
     },
     qtime (n, o) {
       // console.warn(`qtime changed from ${o} to ${n}`)
@@ -170,12 +193,16 @@ export default {
     },
     slideSecs (val) {
       this.setCache('lah-reg-tracking-slide-secs', val)
+    },
+    easyCase (flag) {
+      this.setCache('lah-reg-tracking-easy-case-flag', flag)
     }
   },
   async created () {
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
     this.slideSecs = parseInt(await this.getCache('lah-reg-tracking-slide-secs')) || 10
+    this.easyCase = await this.getCache('lah-reg-tracking-easy-case-flag') || false
   },
   mounted () {},
   beforeDestroy () {},
