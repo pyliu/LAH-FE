@@ -1,6 +1,6 @@
 <template lang="pug">
 transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
-  b-card(
+  b-card.lah-shadow(
     v-for="(row, idx) in rows",
     :key="`tracking_card_${idx}`",
     :border-variant="border(row)"
