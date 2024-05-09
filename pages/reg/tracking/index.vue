@@ -9,9 +9,9 @@ div(v-cloak)
         .d-flex.align-items-center
           //- b-checkbox(v-model="easyCase", switch) 簡易案件
           //- .mx-1
-          b-input.my-auto(v-model="qday", @keyup.enter="$fetch()", style="width: 100px; height: 50px;")
+          b-input.my-auto.mr-1(v-model="qday", @keyup.enter="$fetch()", style="width: 100px; height: 50px;")
           b-button-group(size="lg")
-            lah-countdown-button.mx-1(
+            lah-countdown-button(
               ref="countdown",
               icon="arrows-rotate",
               action="cycle",
@@ -24,11 +24,18 @@ div(v-cloak)
               @end="$fetch",
               @click="$fetch"
             )
-            lah-button(
+            lah-button.mx-1(
               icon="arrow-up-right-from-square",
               title="顯示所有異動案件",
               variant="outline-secondary",
               @click="$refs.table.show()"
+            )
+            lah-button(
+              icon="tv",
+              action="move-fade-rtl",
+              title="切換版面",
+              variant="outline-info",
+              @click="$refs.carousel.next()"
             )
     lah-help-modal(:modal-id="'help-modal'")
       h5 顯示最新 {{ maxQueueSize * 3 }} 件{{ caseText }}異動資料
@@ -51,8 +58,7 @@ div(v-cloak)
     v-else
     ref="carousel",
     v-model="slideIdx",
-    :interval="slideSecs * 1000",
-    indicators
+    :interval="slideSecs * 1000"
   )
     b-carousel-slide: template(#img)
       lah-reg-tracking-cards(:rows="queueChunks[0]")
