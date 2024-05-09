@@ -174,7 +174,16 @@ export default {
     trackingCase () {
       if (this.easyCase) {
         return this.baked.filter((row) => {
-          // RM08 - 收件類別
+          /**
+           * RM08 - 收件類別
+           * 1 一般案件
+           * 2 專辦案件
+           * 3 急速件
+           * 9 簡易案件
+           * Q 逕為案件
+           * R 囑託案件
+           * X 跨縣市收辦案件
+           */
           return row.RM08 === '9'
         })
       }
@@ -186,13 +195,13 @@ export default {
   },
   watch: {
     baked (arr) {
-      // console.warn(arr)
+      console.warn(arr)
     },
     qtime (n, o) {
       // console.warn(`qtime changed from ${o} to ${n}`)
     },
     queueChunks (arr) {
-      // console.warn(arr)
+      console.warn(arr)
     },
     slideSecs (val) {
       this.setCache('lah-reg-tracking-slide-secs', val)
