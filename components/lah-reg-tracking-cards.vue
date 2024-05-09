@@ -34,7 +34,8 @@ export default {
   component: { lahRegCaseDetailVue },
   props: {
     rows: { type: Array, default: () => ([]) },
-    serialStart: { type: Number, default: 1 }
+    serialStart: { type: Number, default: 1 },
+    queryDay: { type: String, default: '' }
   },
   data: () => ({
     greenState: ['結案', '異動完成', '歸檔', '公告'],
@@ -72,42 +73,42 @@ export default {
       return name[0] + 'Ｏ' + name.slice(2)
     },
     latestTime (row) {
-      const today = this.$utils.today('TW').replaceAll('-', '')
+      // const today = this.$utils.today('TW').replaceAll('-', '')
       let ok = false
       // 異動時間
-      !ok && today === row.RM105_1 && (ok = row.RM105_2)
+      !ok && this.queryDay === row.RM105_1 && (ok = row.RM105_2)
       // 秘書
-      !ok && today === row.RM107_1 && (ok = row.RM107_2)
+      !ok && this.queryDay === row.RM107_1 && (ok = row.RM107_2)
       // 課長
-      !ok && today === row.RM106_1 && (ok = row.RM106_2)
+      !ok && this.queryDay === row.RM106_1 && (ok = row.RM106_2)
       // 撤回
-      !ok && today === row.RM93_1 && (ok = row.RM93_2)
+      !ok && this.queryDay === row.RM93_1 && (ok = row.RM93_2)
       // 歸檔
-      // !ok && today === row.RM91_1 && (ok = row.RM91_2)
+      // !ok && this.queryDay === row.RM91_1 && (ok = row.RM91_2)
       // 展期
-      !ok && today === row.RM86 && (ok = row.RM87)
+      !ok && this.queryDay === row.RM86 && (ok = row.RM87)
       // 補正
-      !ok && today === row.RM53_1 && (ok = row.RM53_2)
+      !ok && this.queryDay === row.RM53_1 && (ok = row.RM53_2)
       // 駁回
-      !ok && today === row.RM48_1 && (ok = row.RM48_2)
+      !ok && this.queryDay === row.RM48_1 && (ok = row.RM48_2)
       // 取消請示
-      !ok && today === row.RM83 && (ok = row.RM84)
+      !ok && this.queryDay === row.RM83 && (ok = row.RM84)
       // 請示
-      !ok && today === row.RM80 && (ok = row.RM81)
+      !ok && this.queryDay === row.RM80 && (ok = row.RM81)
       // 結案
-      !ok && today === row.RM58_1 && (ok = row.RM58_2)
+      !ok && this.queryDay === row.RM58_1 && (ok = row.RM58_2)
       // 校對
-      !ok && today === row.RM56_1 && (ok = row.RM56_2)
+      !ok && this.queryDay === row.RM56_1 && (ok = row.RM56_2)
       // 登錄
-      !ok && today === row.RM54_1 && (ok = row.RM54_2)
+      !ok && this.queryDay === row.RM54_1 && (ok = row.RM54_2)
       // 複審
-      !ok && today === row.RM46_1 && (ok = row.RM46_2)
+      !ok && this.queryDay === row.RM46_1 && (ok = row.RM46_2)
       // 准登
-      !ok && today === row.RM62_1 && (ok = row.RM62_2)
+      !ok && this.queryDay === row.RM62_1 && (ok = row.RM62_2)
       // 初審
-      !ok && today === row.RM44_1 && (ok = row.RM44_2)
+      !ok && this.queryDay === row.RM44_1 && (ok = row.RM44_2)
       // 收件
-      !ok && today === row.RM07_1 && (ok = row.RM07_2)
+      !ok && this.queryDay === row.RM07_1 && (ok = row.RM07_2)
       return ok
     },
     popup (row) {
