@@ -222,42 +222,42 @@ export default {
   beforeDestroy () {},
   methods: {
     latestUpdateTime (row) {
-      const today = this.$utils.today('TW').replaceAll('-', '')
+      const targetDate = this.$utils.empty(this.qday) ? this.$utils.today('TW').replaceAll('-', '') : this.qday
       let ok = false
       // 異動時間
-      !ok && today === row.RM105_1 && (ok = row.RM105_2)
+      !ok && targetDate === row.RM105_1 && (ok = row.RM105_2)
       // 秘書
-      !ok && today === row.RM107_1 && (ok = row.RM107_2)
+      !ok && targetDate === row.RM107_1 && (ok = row.RM107_2)
       // 課長
-      !ok && today === row.RM106_1 && (ok = row.RM106_2)
+      !ok && targetDate === row.RM106_1 && (ok = row.RM106_2)
       // 撤回
-      !ok && today === row.RM93_1 && (ok = row.RM93_2)
+      !ok && targetDate === row.RM93_1 && (ok = row.RM93_2)
       // 歸檔
-      // !ok && today === row.RM91_1 && (ok = row.RM91_2)
+      // !ok && targetDate === row.RM91_1 && (ok = row.RM91_2)
       // 展期
-      !ok && today === row.RM86 && (ok = row.RM87)
+      !ok && targetDate === row.RM86 && (ok = row.RM87)
       // 補正
-      !ok && today === row.RM53_1 && (ok = row.RM53_2)
+      !ok && targetDate === row.RM53_1 && (ok = row.RM53_2)
       // 駁回
-      !ok && today === row.RM48_1 && (ok = row.RM48_2)
+      !ok && targetDate === row.RM48_1 && (ok = row.RM48_2)
       // 取消請示
-      !ok && today === row.RM83 && (ok = row.RM84)
+      !ok && targetDate === row.RM83 && (ok = row.RM84)
       // 請示
-      !ok && today === row.RM80 && (ok = row.RM81)
+      !ok && targetDate === row.RM80 && (ok = row.RM81)
       // 結案
-      !ok && today === row.RM58_1 && (ok = row.RM58_2)
+      !ok && targetDate === row.RM58_1 && (ok = row.RM58_2)
       // 校對
-      !ok && today === row.RM56_1 && (ok = row.RM56_2)
+      !ok && targetDate === row.RM56_1 && (ok = row.RM56_2)
       // 登錄
-      !ok && today === row.RM54_1 && (ok = row.RM54_2)
+      !ok && targetDate === row.RM54_1 && (ok = row.RM54_2)
       // 複審
-      !ok && today === row.RM46_1 && (ok = row.RM46_2)
+      !ok && targetDate === row.RM46_1 && (ok = row.RM46_2)
       // 准登
-      !ok && today === row.RM62_1 && (ok = row.RM62_2)
+      !ok && targetDate === row.RM62_1 && (ok = row.RM62_2)
       // 初審
-      !ok && today === row.RM44_1 && (ok = row.RM44_2)
+      !ok && targetDate === row.RM44_1 && (ok = row.RM44_2)
       // 收件
-      // !ok && today === row.RM07_1 && (ok = row.RM07_2)
+      // !ok && targetDate === row.RM07_1 && (ok = row.RM07_2)
       return ok
     },
     checkWithCurrentTime (tmp, current) {

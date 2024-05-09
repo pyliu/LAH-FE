@@ -73,42 +73,42 @@ export default {
       return name[0] + 'Ｏ' + name.slice(2)
     },
     latestTime (row) {
-      // const today = this.$utils.today('TW').replaceAll('-', '')
+      const qday = this.$utils.empty(qday) ? this.$utils.today('TW').replaceAll('-', '') : qday
       let ok = false
       // 異動時間
-      !ok && this.queryDay === row.RM105_1 && (ok = row.RM105_2)
+      !ok && qday === row.RM105_1 && (ok = row.RM105_2)
       // 秘書
-      !ok && this.queryDay === row.RM107_1 && (ok = row.RM107_2)
+      !ok && qday === row.RM107_1 && (ok = row.RM107_2)
       // 課長
-      !ok && this.queryDay === row.RM106_1 && (ok = row.RM106_2)
+      !ok && qday === row.RM106_1 && (ok = row.RM106_2)
       // 撤回
-      !ok && this.queryDay === row.RM93_1 && (ok = row.RM93_2)
+      !ok && qday === row.RM93_1 && (ok = row.RM93_2)
       // 歸檔
-      // !ok && this.queryDay === row.RM91_1 && (ok = row.RM91_2)
+      // !ok && qday === row.RM91_1 && (ok = row.RM91_2)
       // 展期
-      !ok && this.queryDay === row.RM86 && (ok = row.RM87)
+      !ok && qday === row.RM86 && (ok = row.RM87)
       // 補正
-      !ok && this.queryDay === row.RM53_1 && (ok = row.RM53_2)
+      !ok && qday === row.RM53_1 && (ok = row.RM53_2)
       // 駁回
-      !ok && this.queryDay === row.RM48_1 && (ok = row.RM48_2)
+      !ok && qday === row.RM48_1 && (ok = row.RM48_2)
       // 取消請示
-      !ok && this.queryDay === row.RM83 && (ok = row.RM84)
+      !ok && qday === row.RM83 && (ok = row.RM84)
       // 請示
-      !ok && this.queryDay === row.RM80 && (ok = row.RM81)
+      !ok && qday === row.RM80 && (ok = row.RM81)
       // 結案
-      !ok && this.queryDay === row.RM58_1 && (ok = row.RM58_2)
+      !ok && qday === row.RM58_1 && (ok = row.RM58_2)
       // 校對
-      !ok && this.queryDay === row.RM56_1 && (ok = row.RM56_2)
+      !ok && qday === row.RM56_1 && (ok = row.RM56_2)
       // 登錄
-      !ok && this.queryDay === row.RM54_1 && (ok = row.RM54_2)
+      !ok && qday === row.RM54_1 && (ok = row.RM54_2)
       // 複審
-      !ok && this.queryDay === row.RM46_1 && (ok = row.RM46_2)
+      !ok && qday === row.RM46_1 && (ok = row.RM46_2)
       // 准登
-      !ok && this.queryDay === row.RM62_1 && (ok = row.RM62_2)
+      !ok && qday === row.RM62_1 && (ok = row.RM62_2)
       // 初審
-      !ok && this.queryDay === row.RM44_1 && (ok = row.RM44_2)
+      !ok && qday === row.RM44_1 && (ok = row.RM44_2)
       // 收件
-      !ok && this.queryDay === row.RM07_1 && (ok = row.RM07_2)
+      !ok && qday === row.RM07_1 && (ok = row.RM07_2)
       return ok
     },
     popup (row) {
