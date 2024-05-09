@@ -124,11 +124,7 @@ export default {
     // queueChunks: [],
     maxQueueSize: 12,
     buttonDisabled: false,
-    easyCase: true,
-    easyReason: ['出生日期更正', '住址更正', '住址變更', '更正',
-      '更名', '姓名更正', '拋棄', '門牌整編', '持分合併',
-      '書狀換給', '書狀補給', '清償', '混同', '統一編號更正',
-      '部份拋棄', '部份清償', '註記', '塗銷註記']
+    easyCase: true
   }),
   fetch () {
     if (this.buttonDisabled) {
@@ -172,7 +168,8 @@ export default {
     trackingCase () {
       if (this.easyCase) {
         return this.baked.filter((row) => {
-          return this.easyReason.includes(row.RM09_CHT)
+          // RM08 - 收件類別
+          return row.RM08 === '9'
         })
       }
       return this.baked
