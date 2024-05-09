@@ -66,6 +66,9 @@ export default {
       return light === 'info' ? '' : light
     },
     hideName (name) {
+      if (name === 'XXXXXXXX') {
+        return '尚未排定'
+      }
       return name[0] + 'Ｏ' + name.slice(2)
     },
     lastTime (row) {
