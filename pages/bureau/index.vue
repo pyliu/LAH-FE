@@ -18,7 +18,6 @@ div(v-cloak)
             ref="countdown",
             icon="tv",
             action="slide-rtl",
-            auto-start,
             title="立即切換版面",
             variant="outline-primary",
             badge-variant="secondary",
@@ -152,6 +151,9 @@ export default {
     this.weatherPngTimer = setInterval(() => {
       this.weatherPngTs = +new Date()
     }, 60000)
+    if (this.secs > 0) {
+      this.$refs.countdown?.start()
+    }
   },
   beforeDestroy () {
     clearInterval(this.weatherPngTimer)
