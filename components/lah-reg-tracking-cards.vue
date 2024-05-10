@@ -5,7 +5,7 @@ transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
     :key="`tracking_card_${idx}`",
     :border-variant="border(row)"
   )
-    .center.h1.text-primary.font-weight-bold {{ row['收件字'] }} {{ row.RM03 }}
+    .center.h1.case-no {{ row['收件字'] }} {{ row.RM03 }}
     .center.h2.my-2.font-weight-bold {{ row['登記原因'] }}
     .center
       b-button(
@@ -131,6 +131,10 @@ export default {
     width: 23vw;
     margin-bottom: 1.25rem;
     margin-right: 1.25rem;
+    .case-no {
+      color: #4c66d1;
+      font-weight: bolder;
+    }
   }
 }
 .serial {
