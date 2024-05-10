@@ -76,7 +76,7 @@ div(v-cloak)
             )
       b-carousel-slide: template(#img)
         .center
-          .h5(v-if="weatherImageFailed") 無法讀取 {{ weatherImgUrl }} 影像
+          .h5(v-if="weatherImageFailed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
           b-link(
             v-show="!weatherImageFailed",
             @click="$utils.openNewWindow('/inf/weather/')",

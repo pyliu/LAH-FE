@@ -21,7 +21,7 @@ div(v-cloak)
       li 每分鐘自動更新
   //- below is the customize area
   .center
-    h4(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
+    h4(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
     b-img.max-h(
       v-show="!failed",
       :src="weatherImgUrl",

@@ -24,7 +24,7 @@ b-card(:class="bodyOnly ? ['border-0'] : []")
         li 每分鐘自動更新
   slot
   .center
-    h5(v-if="failed") 無法讀取 {{ weatherImgUrl }} 影像
+    h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
     b-link(
       v-show="!failed",
       to="/inf/weather/",
