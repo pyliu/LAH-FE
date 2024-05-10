@@ -19,9 +19,10 @@ transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
       span 作業人員：{{ hideName(row['作業人員']) }}
       lah-fa-icon(
         icon="clock",
+        title="更新時間",
         :action="idx === 0 ? 'clock' : ''",
         :variant="idx === 0 ? 'success' : 'muted'",
-        :size="idx === 0 ? 'lg' : '1x'"
+        :size="idx === 0 ? 'lg' : '1x'",
         regular
       ) {{ $utils.addTimeDivider(latestTime(row)) }}
     .serial \#{{ serialStart + idx }}
