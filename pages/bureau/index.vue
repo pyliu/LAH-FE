@@ -44,19 +44,19 @@ div(v-cloak)
         b-card-group.row-sync(deck)
           lah-monitor-board-lxhweb(ref="lxhweb1" target-ip="L1HWEB")
           lah-monitor-board-lxhweb(ref="lxhweb2" target-ip="L2HWEB")
-        b-card-group.row-sync.row-sync(deck)
+        b-card-group.row-sync(deck)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
-        b-card-group.row-srmas(deck)
-          lah-monitor-board-srmas.card-body-fixed-height-2(
+        b-card-group.row-srmas.card-body-fixed-height-2(deck)
+          lah-monitor-board-srmas(
             no-carousel,
             footer,
             @updated="handleMessageUpdated"
           )
-          lah-monitor-board-srmas-weather.card-body-fixed-height-2
-        b-card-group.row-srmas(deck)
-          b-card.card-body-fixed-height-2
+          lah-monitor-board-srmas-weather
+        b-card-group.row-srmas.card-body-fixed-height-2(deck)
+          b-card
             template(#header): lah-fa-icon(icon="flag", variant="warning")
               strong SRMAS告警郵件
             lah-monitor-board-srmas-list(
@@ -65,7 +65,7 @@ div(v-cloak)
               variant="warning",
               :items="warnings"
             )
-          b-card.card-body-fixed-height-2
+          b-card
             template(#header): lah-fa-icon(icon="circle-check", regular, variant="success")
               strong SRMAS回復郵件
             lah-monitor-board-srmas-list(
@@ -75,20 +75,21 @@ div(v-cloak)
               :items="restores"
             )
       b-carousel-slide: template(#img)
-        .center
-          .h5(v-if="weatherImageFailed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-          b-link(
-            v-show="!weatherImageFailed",
-            @click="$utils.openNewWindow('/inf/weather/')",
-            v-b-tooltip="`顯示${weatherImgUrl}`"
+        .h5.center(v-if="weatherImageFailed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
+        b-link(
+          v-show="!weatherImageFailed",
+          @click="$utils.openNewWindow('/inf/weather/')",
+          v-b-tooltip="`顯示${weatherImgUrl}`"
+        )
+          b-img.img-mh(
+            :src="weatherImgUrl",
+            fluid,
+            thumbnail,
+            center,
+            rounded,
+            @load="weatherImageFailed = false",
+            @error="weatherImageFailed = true"
           )
-            b-img.img-mh(
-              :src="weatherImgUrl",
-              fluid,
-              thumbnail,
-              @load="weatherImageFailed = false",
-              @error="weatherImageFailed = true"
-            )
 
   lah-monitor-board-setup-modal(ref="setupModal")
 </template>
@@ -138,12 +139,15 @@ export default {
   watch: {
     secs (val) {
       const int = parseInt(val)
-      this.setCache('bureauMonitorCarouselSecs', int && int > 0 ? int : 30)
+      this.setCache('bureauMonitorCarouselSecs', int > -1 ? int : 30)
       this.resetTimer()
     }
   },
   async created () {
-    this.secs = await this.getCache('bureauMonitorCarouselSecs') || 30
+    this.secs = await this.getCache('bureauMonitorCarouselSecs')
+    if (!parseInt(this.secs)) {
+      this.secs = 30
+    }
   },
   mounted () {
     this.weatherPngTimer = setInterval(() => {
