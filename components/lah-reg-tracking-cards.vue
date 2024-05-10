@@ -132,7 +132,7 @@ export default {
     width: 23vw;
     // margin-bottom: 1.25rem;
     // margin-right: 1.25rem;
-    margin: .75rem;
+    margin: .5rem;
     .case-no {
       color: #4c66d1;
       font-weight: bolder;
