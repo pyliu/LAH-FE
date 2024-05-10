@@ -138,14 +138,13 @@ export default {
   },
   watch: {
     secs (val) {
-      const int = parseInt(val)
-      this.setCache('bureauMonitorCarouselSecs', int > -1 ? int : 30)
+      this.setCache('bureauMonitorCarouselSecs', val)
       this.resetTimer()
     }
   },
   async created () {
-    this.secs = await this.getCache('bureauMonitorCarouselSecs')
-    if (!parseInt(this.secs)) {
+    this.secs = parseInt(await this.getCache('bureauMonitorCarouselSecs'))
+    if (this.secs !== 0 && !this.secs) {
       this.secs = 30
     }
   },
