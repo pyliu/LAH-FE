@@ -67,11 +67,6 @@ div(v-cloak)
       lah-reg-tracking-cards(:rows="queueChunks[1]", :serial-start="13", :query-day="qday")
     b-carousel-slide(v-if="queueChunks.length > 2"): template(#img)
       lah-reg-tracking-cards(:rows="queueChunks[2]", :serial-start="25", :query-day="qday")
-  //- b-card-group.mt-4(deck)
-  //-   b-card(v-for="(row, idx) in secondDeck", :key="`second_deck_${idx}`")
-  //-     .h1 {{ row.RM03 }}
-  //-     .h1 {{ row['辦理情形'] }}
-  //-     .h1 {{ $utils.addTimeDivider(row.RM105_2) }}
   //- below is the customize area
   b-modal(
     ref="table",

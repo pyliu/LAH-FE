@@ -1,5 +1,5 @@
 <template lang="pug">
-transition-group.d-flex.justify-content-between.flex-wrap.lah(name="list")
+.cards.d-flex.justify-content-between.flex-wrap(name="list")
   b-card.lah-shadow(
     v-for="(row, idx) in rows",
     :key="`tracking_card_${idx}`",
@@ -127,11 +127,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.lah {
+.cards {
   .card {
     width: 23vw;
-    margin-bottom: 1.25rem;
-    margin-right: 1.25rem;
+    // margin-bottom: 1.25rem;
+    // margin-right: 1.25rem;
+    margin: .75rem;
     .case-no {
       color: #4c66d1;
       font-weight: bolder;
