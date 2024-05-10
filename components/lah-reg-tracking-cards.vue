@@ -1,5 +1,5 @@
 <template lang="pug">
-.cards.d-flex.justify-content-between.flex-wrap(name="list")
+.cards.d-flex.justify-content-around.flex-wrap(name="list")
   b-card.lah-shadow(
     v-for="(row, idx) in rows",
     :key="`tracking_card_${idx}`",
@@ -11,7 +11,8 @@
       b-button(
         size="lg",
         :variant="light(row)",
-        @click="popup(row)"
+        @click="popup(row)",
+        :pressed="['結案', '校對'].includes(row['辦理情形'])"
       ): .d-flex.align-items-center.h1.my-auto
         span 狀態
         b-badge.ml-1(variant="light", pill) {{ row['辦理情形'] }}
@@ -132,7 +133,7 @@ export default {
     width: 23vw;
     // margin-bottom: 1.25rem;
     // margin-right: 1.25rem;
-    margin: .5rem;
+    margin: .75rem;
     .case-no {
       color: #4c66d1;
       font-weight: bolder;
