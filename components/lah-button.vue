@@ -105,7 +105,22 @@ export default {
       flag ? this.mouseenter() : this.mouseleave()
     }
   },
+  created () {
+    this.mouseenter = this.$utils.debounce(() => {
+      if (!this.noIcon) {
+        const movement = this.actionByBusy ? `ld-${this.actionByBusy.replace('ld-', '')}` : 'ld-breath'
+        // movement is 'undefined' will be random effect
+        this.$utils.addAnimation(`#${this.iconId}`, movement)
+      }
+    }, 50)
+    this.mouseleave = this.$utils.debounce(() => {
+      if (!this.noIcon) {
+        this.$utils.clearAnimation(`#${this.iconId}`)
+      }
+    }, 50)
+  },
   methods: {
+    debounceBusySwitch () { /** placeholder */ },
     emitClick (evt) {
       if (this.$utils.empty(this.to)) {
         this.$emit('click', evt)
@@ -117,18 +132,8 @@ export default {
     handleIconId (id) {
       this.iconId = id
     },
-    mouseenter () {
-      if (!this.noIcon) {
-        const movement = this.actionByBusy ? `ld-${this.actionByBusy.replace('ld-', '')}` : 'ld-breath'
-        // movement is 'undefined' will be random effect
-        this.$utils.addAnimation(`#${this.iconId}`, movement)
-      }
-    },
-    mouseleave () {
-      if (!this.noIcon) {
-        this.$utils.clearAnimation(`#${this.iconId}`)
-      }
-    }
+    mouseenter () { /** placeholder */ },
+    mouseleave () { /** placeholder */ }
   }
 }
 </script>
