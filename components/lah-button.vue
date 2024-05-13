@@ -114,7 +114,7 @@ export default {
       }
     }, 50)
     this.mouseleave = this.$utils.debounce(() => {
-      if (!this.noIcon) {
+      if (!this.noIcon && !this.busy) {
         this.$utils.clearAnimation(`#${this.iconId}`)
       }
     }, 50)
