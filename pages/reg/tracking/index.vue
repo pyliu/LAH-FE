@@ -14,7 +14,7 @@ div(v-cloak)
             :key="`slide_button_${idx}`",
             :pressed="idx === slideIdx",
             @click="slideIdx = idx",
-            v-if="idx < 4",
+            v-if="idx < slideCount",
             size="lg"
           ) {{ idx + 1 }}
         .d-flex.align-items-center
@@ -49,7 +49,7 @@ div(v-cloak)
               @click="$refs.carousel.next()"
             )
     lah-help-modal(:modal-id="'help-modal'")
-      h5 顯示最新 {{ maxQueueSize * 3 }} 件{{ caseText }}異動資料
+      h5 顯示最新 {{ maxQueueSize * slideCount }} 件{{ caseText }}異動資料
       ul
         li 每頁 {{ maxQueueSize }} 件
         li: .d-flex.align-items-center.my-auto
@@ -75,7 +75,7 @@ div(v-cloak)
     b-carousel-slide(
       v-for="(chunk,idx) in queueChunks",
       :key="`slide_${idx}`",
-      v-if="idx < 4"
+      v-if="idx < slideCount"
     ): template(#img)
       lah-reg-tracking-cards(:rows="chunk", :query-day="qday", :serial-start="1 + idx * 12")
   //- below is the customize area
@@ -119,6 +119,7 @@ export default {
     reloadMs: 60 * 1000,
     slideSecs: 15,
     slideIdx: 0,
+    slideCount: 4,
     qday: '',
     qtime: '000000',
     pagination: {
