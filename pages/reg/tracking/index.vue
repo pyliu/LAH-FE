@@ -61,12 +61,12 @@ div(v-cloak)
     :interval="slideSecs * 1000",
     no-hover-pause
   )
-    b-carousel-slide: template(#img)
-      lah-reg-tracking-cards(:rows="queueChunks[0]", :query-day="qday")
-    b-carousel-slide(v-if="queueChunks.length > 1"): template(#img)
-      lah-reg-tracking-cards(:rows="queueChunks[1]", :serial-start="13", :query-day="qday")
-    b-carousel-slide(v-if="queueChunks.length > 2"): template(#img)
-      lah-reg-tracking-cards(:rows="queueChunks[2]", :serial-start="25", :query-day="qday")
+    b-carousel-slide(
+      v-for="(chunk,idx) in queueChunks",
+      :key="`slide_${idx}`",
+      v-if="idx < 4"
+    ): template(#img)
+      lah-reg-tracking-cards(:rows="chunk", :query-day="qday", :serial-start="1 + idx * 12")
   //- below is the customize area
   b-modal(
     ref="table",
@@ -211,7 +211,7 @@ export default {
   async created () {
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('reg-today-table-perPage') || 20)
-    this.slideSecs = parseInt(await this.getCache('lah-reg-tracking-slide-secs')) || 10
+    this.slideSecs = parseInt(await this.getCache('lah-reg-tracking-slide-secs')) || 15
     this.easyCase = await this.getCache('lah-reg-tracking-easy-case-flag') || true
   },
   mounted () {},
