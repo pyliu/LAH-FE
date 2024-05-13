@@ -27,7 +27,8 @@ b-button.text-nowrap(
     :flip="flip"
     :rotate="rotate"
     :spin="spin"
-    :mirror="mirror"
+    :mirror="mirror",
+    @icon="handleIconId"
   )
   span.ld-txt(v-if="busy") 讀取中...
   span(ref="slot", v-show="!busy")
@@ -48,7 +49,8 @@ b-button.text-nowrap(
     :flip="flip"
     :rotate="rotate"
     :spin="spin"
-    :mirror="mirror"
+    :mirror="mirror",
+    @icon="handleIconId"
   )
 </template>
 
@@ -83,13 +85,23 @@ export default {
     rotate: { type: String, default: '0' },
     mirror: { type: Boolean, default: false }
   },
+  data: () => ({
+    iconId: ''
+  }),
   computed: {
     faIconPrefix () {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas'
     },
     showBadge () { return !this.$utils.empty(this.badgeText) },
-    showIcon () { return !this.$utils.empty(this.icon) },
-    iconId () { return this.$refs.icon?.iconId || '' }
+    showIcon () { return !this.$utils.empty(this.icon) }
+  },
+  watch: {
+    iconId (val) {
+      this.$emit('icon', val)
+    },
+    busy (flag) {
+      flag ? this.mouseenter() : this.mouseleave()
+    }
   },
   methods: {
     emitClick (evt) {
@@ -99,6 +111,9 @@ export default {
         this.$router.push(this.to)
       }
       evt.stopPropagation()
+    },
+    handleIconId (id) {
+      this.iconId = id
     },
     mouseenter () {
       if (!this.noIcon) {

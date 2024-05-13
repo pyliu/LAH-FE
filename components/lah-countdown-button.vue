@@ -9,6 +9,7 @@ lah-button.align-middle(
   :no-icon-gutter="noBadge"
   :disabled="busy"
   @click="$emit('click', $event)"
+  @icon="handleIcon"
 )
   slot
   b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
@@ -46,19 +47,13 @@ export default {
     endAttentionThreadhold: { type: Number, default: 10 }
   },
   data: () => ({
-    variantMediator: 'primary'
+    variantMediator: 'primary',
+    iconId: ''
   }),
   computed: {},
   watch: {
     variant (val) {
       this.variantMediator = val
-    },
-    busy (flag) {
-      if (flag) {
-        this.$refs.btn && this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
-      } else {
-        this.$refs.btn && this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
-      }
     }
   },
   created () {
@@ -70,6 +65,9 @@ export default {
     }
   },
   methods: {
+    handleIcon (payload) {
+      this.iconId = payload
+    },
     handleProgress (payload) {
       /* payload: {
           days: this.days,
@@ -87,7 +85,7 @@ export default {
       if (!this.busy && this.$refs.btn) {
         // change button variant to indicate the time is running over (default is warning variantion)
         if (this.$refs.btn && this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
-          this.$refs.btn && this.$utils.addAnimation(`#${this.$refs.btn.iconId}`, this.action)
+          this.$utils.addAnimation(`#${this.iconId}`, this.action)
           const oldVariant = this.variantMediator
           this.variantMediator = this.endAttentionStartVariant
           // almost reach end (default is danger variantion)
@@ -97,7 +95,7 @@ export default {
           // clear animation when countdown is over
           this.timeout(() => {
             this.variantMediator = oldVariant
-            this.$refs.btn && this.$utils.clearAnimation(`#${this.$refs.btn.iconId}`)
+            this.$utils.clearAnimation(`#${this.iconId}`)
           }, this.endAttentionThreadhold * 1000)
         }
         if (parseInt(payload.totalSeconds) === 1) {

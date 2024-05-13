@@ -35,7 +35,7 @@ span.d-inline-flex.align-items-center.my-auto(
 
 <script>
 export default {
-  emit: ['click', 'mouseover', 'mouseleave'],
+  emit: ['click', 'mouseover', 'mouseleave', 'icon'],
   props: {
     size: { type: String, default: '1x' },
     prefix: { type: String, default: 'fas' },
@@ -83,6 +83,12 @@ export default {
         return 'horizontal'
       }
       return false
+    }
+  },
+  watch: {
+    iconId (val) {
+      // emit icon-id out
+      this.$emit('icon', val)
     }
   },
   mounted () {
