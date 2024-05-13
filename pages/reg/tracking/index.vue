@@ -22,8 +22,7 @@ div(v-cloak)
           b-button-group(size="lg")
             lah-countdown-button(
               ref="countdown",
-              icon="calendar-days",
-              action="flip-h",
+              icon="gauge-high",
               auto-start,
               title="讀取",
               variant="outline-primary",
