@@ -12,7 +12,7 @@
         size="lg",
         :variant="light(row)",
         @click="popup(row)",
-        :pressed="['結案', '校對'].includes(row['辦理情形'])"
+        :pressed="['異動完成', '歸檔', '公告', '校對'].includes(row['辦理情形'])"
       ): .d-flex.align-items-center.h1.my-auto
         span 狀態
         b-badge.ml-1(variant="light", pill) {{ row['辦理情形'] }}

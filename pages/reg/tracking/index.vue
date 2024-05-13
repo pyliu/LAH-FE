@@ -6,9 +6,7 @@ div(v-cloak)
         .d-flex
           .my-auto {{ formattedDay }} {{ caseText }}異動追蹤
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-        b-button-group(
-          :title="`第${ slideIdx + 1 }頁，第 ${ 1 + slideIdx * 12 } 至 ${ (slideIdx + 1) * 12 } 件`"
-        )
+        b-button-group(v-b-popover.hover.bottom="`第${ slideIdx + 1 }頁，第 ${ 1 + slideIdx * 12 } 至 ${ (slideIdx + 1) * 12 } 件`")
           lah-button.border-0(
             v-for="(chunk,idx) in queueChunks",
             :key="`slide_button_${idx}`",
