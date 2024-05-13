@@ -9,7 +9,6 @@ lah-button.align-middle(
   :no-icon-gutter="noBadge"
   :disabled="busy"
   @click="$emit('click', $event)"
-  @icon="handleIcon"
 )
   slot
   b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
@@ -47,8 +46,7 @@ export default {
     endAttentionThreadhold: { type: Number, default: 10 }
   },
   data: () => ({
-    variantMediator: 'primary',
-    iconId: ''
+    variantMediator: 'primary'
   }),
   computed: {},
   watch: {
@@ -65,9 +63,6 @@ export default {
     }
   },
   methods: {
-    handleIcon (payload) {
-      this.iconId = payload
-    },
     handleProgress (payload) {
       /* payload: {
           days: this.days,
@@ -85,7 +80,7 @@ export default {
       if (!this.busy && this.$refs.btn) {
         // change button variant to indicate the time is running over (default is warning variantion)
         if (this.$refs.btn && this.endAttention && parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
-          this.$utils.addAnimation(`#${this.iconId}`, this.action)
+          this.$refs.btn?.mouseenter()
           const oldVariant = this.variantMediator
           this.variantMediator = this.endAttentionStartVariant
           // almost reach end (default is danger variantion)
@@ -95,7 +90,7 @@ export default {
           // clear animation when countdown is over
           this.timeout(() => {
             this.variantMediator = oldVariant
-            this.$utils.clearAnimation(`#${this.iconId}`)
+            this.$refs.btn?.mouseleave()
           }, this.endAttentionThreadhold * 1000)
         }
         if (parseInt(payload.totalSeconds) === 1) {
