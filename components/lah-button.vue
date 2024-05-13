@@ -19,7 +19,7 @@ b-button.text-nowrap(
     ref="icon"
     v-if="!noIcon && !iconAppend"
     :prefix="faIconPrefix"
-    :icon="icon"
+    :icon="iconByBusy"
     :size="iconSize"
     :append="iconAppend"
     :no-gutter="noIconGutter || $utils.empty($refs.slot?.textContent) "
@@ -42,7 +42,7 @@ b-button.text-nowrap(
     ref="icon"
     v-if="!noIcon && iconAppend"
     :prefix="faIconPrefix"
-    :icon="icon"
+    :icon="iconByBusy"
     :size="iconSize"
     :no-gutter="noIconGutter || $utils.empty($refs.slot?.textContent) "
     :variant="iconVariant"
@@ -93,7 +93,9 @@ export default {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas'
     },
     showBadge () { return !this.$utils.empty(this.badgeText) },
-    showIcon () { return !this.$utils.empty(this.icon) }
+    showIcon () { return !this.$utils.empty(this.icon) },
+    iconByBusy () { return this.busy ? 'arrows-rotate' : this.icon },
+    actionByBusy () { return this.busy ? 'cycle' : this.action }
   },
   watch: {
     iconId (val) {
@@ -117,7 +119,7 @@ export default {
     },
     mouseenter () {
       if (!this.noIcon) {
-        const movement = this.action ? `ld-${this.action.replace('ld-', '')}` : 'ld-breath'
+        const movement = this.actionByBusy ? `ld-${this.actionByBusy.replace('ld-', '')}` : 'ld-breath'
         // movement is 'undefined' will be random effect
         this.$utils.addAnimation(`#${this.iconId}`, movement)
       }
