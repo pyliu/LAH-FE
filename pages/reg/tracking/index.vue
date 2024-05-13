@@ -4,8 +4,18 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          .my-auto {{ formattedDay }} {{ caseText }}異動追蹤 (第{{ slideIdx + 1 }}頁，第 {{ 1 + slideIdx * 12 }} 至 {{ (slideIdx + 1) * 12 }} 件)
+          .my-auto {{ formattedDay }} {{ caseText }}異動追蹤
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+        b-button-group(
+          :title="`第${ slideIdx + 1 }頁，第 ${ 1 + slideIdx * 12 } 至 ${ (slideIdx + 1) * 12 } 件`"
+        )
+          lah-button.border-0(
+            v-for="(chunk,idx) in queueChunks",
+            :pressed="idx === slideIdx",
+            @click="slideIdx = idx",
+            v-if="idx < 4",
+            size="lg"
+          ) {{ idx + 1 }}
         .d-flex.align-items-center
           //- b-checkbox(v-model="easyCase", switch) 簡易案件
           //- .mx-1
