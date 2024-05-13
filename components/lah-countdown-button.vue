@@ -61,6 +61,7 @@ export default {
     if (this.autoStart) {
       this.startCountdown()
     }
+    // console.warn(this.$refs.btn)
   },
   methods: {
     handleProgress (payload) {
