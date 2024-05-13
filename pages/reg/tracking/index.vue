@@ -11,6 +11,7 @@ div(v-cloak)
         )
           lah-button.border-0(
             v-for="(chunk,idx) in queueChunks",
+            :key="`slide_button_${idx}`",
             :pressed="idx === slideIdx",
             @click="slideIdx = idx",
             v-if="idx < 4",
