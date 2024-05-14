@@ -106,6 +106,7 @@ export default {
     }
   },
   created () {
+    // multiple events will holds for 50ms
     this.mouseenter = this.$utils.debounce(() => {
       if (!this.noIcon) {
         const movement = this.actionByBusy ? `ld-${this.actionByBusy.replace('ld-', '')}` : 'ld-breath'
@@ -120,7 +121,8 @@ export default {
     }, 50)
   },
   methods: {
-    debounceBusySwitch () { /** placeholder */ },
+    mouseenter () { /** placeholder */ },
+    mouseleave () { /** placeholder */ },
     emitClick (evt) {
       if (this.$utils.empty(this.to)) {
         this.$emit('click', evt)
@@ -131,9 +133,7 @@ export default {
     },
     handleIconId (id) {
       this.iconId = id
-    },
-    mouseenter () { /** placeholder */ },
-    mouseleave () { /** placeholder */ }
+    }
   }
 }
 </script>
