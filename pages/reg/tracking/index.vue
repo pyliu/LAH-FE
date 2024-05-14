@@ -22,7 +22,7 @@ div(v-cloak)
           b-button-group(size="lg")
             lah-countdown-button(
               ref="countdown",
-              icon="gauge-high",
+              icon="magnifying-glass",
               auto-start,
               title="讀取",
               variant="outline-primary",
