@@ -139,7 +139,8 @@ export default {
     // queueChunks: [],
     maxQueueSize: 12,
     buttonDisabled: false,
-    easyCase: true
+    easyCase: true,
+    reloadTimer: null
   }),
   fetch () {
     if (this.buttonDisabled) {
@@ -227,8 +228,13 @@ export default {
     this.slideSecs = parseInt(await this.getCache('lah-reg-tracking-slide-secs')) || 15
     this.easyCase = await this.getCache('lah-reg-tracking-easy-case-flag') || true
   },
-  mounted () {},
-  beforeDestroy () {},
+  mounted () {
+    // reload page after 1hr to prevent Out of Memory issue
+    this.reloadTimer = setInterval(() => { location.reload() }, 60 * 60 * 1000)
+  },
+  beforeDestroy () {
+    clearInterval(this.reloadTimer)
+  },
   methods: {
     latestUpdateTime (row) {
       const targetDate = this.$utils.empty(this.qday) ? this.$utils.today('TW').replaceAll('-', '') : this.qday
