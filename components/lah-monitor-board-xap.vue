@@ -97,7 +97,9 @@ export default {
       ['220.1.39.57', { name: '八德所', code: 'HF', ip: '220.1.39.57' }],
       ['220.1.40.33', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
       ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
-    ])
+    ]),
+    apJndiXaLocalThreshold: 990,
+    apJndiLocalThreshold: 2500
   }),
   computed: {
     netstatsSh () {
@@ -130,9 +132,9 @@ export default {
        * jndi-name local, max-pool-size is 2500
        **/
       // return [color, action, size, icon]
-      if (this.dbTotal > 2400) { return ['danger', 'tremble', '2x', 'bomb'] }
-      if (this.dbTotal > 2200) { return ['danger', 'shiver', 'lg', 'database'] }
-      if (this.dbTotal > 1800) { return ['warning', 'beat', '1x', 'database'] }
+      if (this.dbTotal > this.apJndiLocalThreshold * 0.95) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.dbTotal > this.apJndiLocalThreshold * 0.85) { return ['danger', 'shiver', 'lg', 'database'] }
+      if (this.dbTotal > this.apJndiLocalThreshold * 0.75) { return ['warning', 'beat', '1x', 'database'] }
       return ['success', 'breath', 'sm', 'database']
     },
     apStyles () {
@@ -141,9 +143,9 @@ export default {
        * jbdi-name xaLocal, max-pool-size is 990
        **/
       // return [color, action, size, icon]
-      if (this.apTotal > 990) { return ['danger', 'tremble', '2x', 'bomb'] }
-      if (this.apTotal > 660) { return ['danger', 'shiver', 'lg', 'server'] }
-      if (this.apTotal > 495) { return ['warning', 'beat', '1x', 'server'] }
+      if (this.apTotal > this.apJndiXaLocalThreshold * 0.95) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.apTotal > this.apJndiXaLocalThreshold * 0.85) { return ['danger', 'shiver', 'lg', 'server'] }
+      if (this.apTotal > this.apJndiXaLocalThreshold * 0.75) { return ['warning', 'beat', '1x', 'server'] }
       return ['success', 'breath', 'sm', 'wave-square']
     }
   },
