@@ -124,17 +124,25 @@ export default {
       return ['success', 'breath', 'sm', 'microchip']
     },
     dbStyles () {
+      /**
+       * AP side, /opt/jboss/server/default/deploy/moiland-ds.xml
+       * jndi-name local, max-pool-size is 2500
+       **/
       // return [color, action, size, icon]
-      if (this.dbTotal > 2800) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.dbTotal > 2400) { return ['danger', 'tremble', '2x', 'bomb'] }
       if (this.dbTotal > 2200) { return ['danger', 'shiver', 'lg', 'database'] }
       if (this.dbTotal > 1800) { return ['warning', 'beat', '1x', 'database'] }
       return ['success', 'breath', 'sm', 'database']
     },
     apStyles () {
+      /**
+       * AP side, /opt/jboss/server/default/deploy/moiland-ds.xml
+       * jbdi-name xaLocal, max-pool-size is 990
+       **/
       // return [color, action, size, icon]
-      if (this.apTotal > 1000) { return ['danger', 'tremble', '2x', 'bomb'] }
-      if (this.apTotal > 750) { return ['danger', 'shiver', 'lg', 'server'] }
-      if (this.apTotal > 500) { return ['warning', 'beat', '1x', 'server'] }
+      if (this.apTotal > 990) { return ['danger', 'tremble', '2x', 'bomb'] }
+      if (this.apTotal > 660) { return ['danger', 'shiver', 'lg', 'server'] }
+      if (this.apTotal > 495) { return ['warning', 'beat', '1x', 'server'] }
       return ['success', 'breath', 'sm', 'wave-square']
     }
   },
