@@ -27,8 +27,8 @@ b-card(no-body, :border-variant="borderVariant")
       ul
         li 顯示跨域AP連線數統計狀態 (⭐ AP需安裝#[a(:href="netstatsSh" target="_blank") 回報腳本] ⭐)
         li AP連線設定檔路徑 /opt/jboss/server/default/deploy/moiland-ds.xml
-        li #[lah-fa-icon(icon="database", variant="danger")] 顯示資料庫連線總數(超過3000會造成地政系統停擺, 桃園所AP端設定上限2500)
-        li #[lah-fa-icon(icon="wave-square", variant="success")] 顯示AP連線總數(桃園所AP端設定最高990)
+        li #[lah-fa-icon(icon="database", variant="danger")] 顯示資料庫連線總數(AP端設定上限{{ apJndiLocalThreshold }})
+        li #[lah-fa-icon(icon="wave-square", variant="success")] 顯示AP連線總數(AP端設定最高{{ apJndiXaLocalThreshold }})
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
 
