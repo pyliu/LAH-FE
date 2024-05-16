@@ -98,8 +98,8 @@ export default {
       ['220.1.40.33', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
       ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
     ]),
-    apJndiXaLocalThreshold: 990,
-    apJndiLocalThreshold: 2500
+    apJndiXaLocalThreshold: 0,
+    apJndiLocalThreshold: 0
   }),
   computed: {
     netstatsSh () {
@@ -156,6 +156,8 @@ export default {
   },
   created () {
     this.modalId = this.$utils?.uuid()
+    this.apJndiLocalThreshold = this.systemConfigs.webap_jndi_local || 2500
+    this.apJndiXaLocalThreshold = this.systemConfigs.webap_jndi_xalocal || 990
   },
   mounted () {
     // let init chart process after mounted executed
