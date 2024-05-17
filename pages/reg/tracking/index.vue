@@ -220,6 +220,17 @@ export default {
     },
     easyCase (flag) {
       this.setCache('lah-reg-tracking-easy-case-flag', flag)
+    },
+    buttonDisabled (flag) {
+      if (flag) {
+        // set idx to 0
+        this.slideIdx = 0
+        // stop sliding
+        this.slideSecs = 0
+      } else {
+        // start sliding
+        this.slideSecs = 15
+      }
     }
   },
   async created () {
