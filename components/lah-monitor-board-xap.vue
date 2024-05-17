@@ -98,8 +98,8 @@ export default {
       ['220.1.40.33', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
       ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
     ]),
-    apJndiXaLocalThreshold: 0,
-    apJndiLocalThreshold: 0
+    apJndiXaLocalThreshold: 990,
+    apJndiLocalThreshold: 2500
   }),
   computed: {
     netstatsSh () {
