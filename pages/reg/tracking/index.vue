@@ -229,8 +229,8 @@ export default {
     this.easyCase = await this.getCache('lah-reg-tracking-easy-case-flag') || true
   },
   mounted () {
-    // reload page after 1hr to prevent Out of Memory issue
-    this.reloadTimer = setInterval(() => { location.reload() }, 60 * 60 * 1000)
+    // reload page after 30 minutes to prevent Out of Memory issue
+    this.reloadTimer = setInterval(() => { location.reload() }, 30 * 60 * 1000)
   },
   beforeDestroy () {
     clearInterval(this.reloadTimer)
