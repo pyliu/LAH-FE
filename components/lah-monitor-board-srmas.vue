@@ -156,7 +156,7 @@ export default {
     fetchType: 'sender', // lahMonitorBoardBase used
     fetchKeyword: 'SRMAS', // lahMonitorBoardBase used
     fetchDay: 1,
-    monitorHrs: 12,
+    monitorHrs: 1,
     duration: 0,
     threadhold: 0,
     fixed: [],
@@ -228,19 +228,19 @@ export default {
       this.setCache('carouselSecs', val)
     }
   },
-  async created () {
-    this.monitorHrs = await this.getCache('monitorHrs') || 12
-    this.carouselSecs = await this.getCache('carouselSecs') || 30
+  created () {
     this.calcTime = this.$utils.debounce(() => {
       const hours = parseInt(this.monitorHrs) || 12
       this.duration = hours * 60 * 60 * 1000
       this.threadhold = (+new Date() - this.duration) / 1000
     }, 100)
   },
-  mounted () {
+  async mounted () {
     this.weatherPngTimer = setInterval(() => {
       this.weatherPngTs = +new Date()
     }, 60000)
+    this.monitorHrs = parseInt(await this.getCache('monitorHrs')) || 12
+    this.carouselSecs = parseInt(await this.getCache('carouselSecs')) || 30
     this.calcTime()
   },
   beforeDestroy () {
