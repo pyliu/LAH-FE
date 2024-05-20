@@ -78,9 +78,9 @@ b-carousel(
 
   b-carousel-slide(v-if="easyCases.length > 0"): template(#img)
     .center.h1.my-3
-      lah-fa-icon(icon="star", regular, action="clock")
+      lah-fa-icon(icon="gear", action="clock")
         span 最新#[span.text-info 簡易案件]辦理情形
-      lah-fa-icon(icon="star", regular, action="clock")
+      lah-fa-icon.ml-1(icon="gear", action="clock")
     lah-reg-tracking-cards(:rows="easyCases", :query-day="easyCaseQueryDay", :serial-start="1")
   //- below is the customize area
 
