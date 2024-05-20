@@ -139,7 +139,7 @@ export default {
   },
   mounted () {
     this.reload()
-    this.refreshTrackingCase()
+    this.loadEasyCaseState()
     this.$nextTick(() => {
       this.animateGirlL()
       this.animateGirlR()
@@ -188,7 +188,7 @@ export default {
         this.timeout(this.animateGirlR, timer)
       })
     },
-    refreshTrackingCase () {
+    loadEasyCaseState () {
       this.$axios.post(this.$consts.API.JSON.MOICAS, {
         type: 'crsms_update_by_date',
         qday: this.easyCaseQueryDay
@@ -199,7 +199,7 @@ export default {
       }).catch((err) => {
         console.warn(err)
       }).finally(() => {
-        this.timeout(this.refreshTrackingCase, 60 * 1000)
+        this.timeout(this.loadEasyCaseState, 60 * 1000)
       })
     },
     latestUpdateTime (row) {
