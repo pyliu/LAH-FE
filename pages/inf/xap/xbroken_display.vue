@@ -1,74 +1,89 @@
 <template lang="pug">
-.p-3(v-cloak)
-  //- lah-header
-  //-   lah-transition(appear)
-  //-     .d-flex.justify-content-center.w-100.my-auto
-  //-       .d-flex
-  //-         .h1 跨縣市ONLINE即時通，服務無礙一點通
-  //-         //- lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-  //-       div
-  //-   lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
+b-carousel(
+  ref="carousel",
+  v-model="slideIdx",
+  :interval="slideInterval",
+  no-hover-pause
+)
+  b-carousel-slide: template(#img): .p-3(v-cloak)
+    //- lah-header
+    //-   lah-transition(appear)
+    //-     .d-flex.justify-content-center.w-100.my-auto
+    //-       .d-flex
+    //-         .h1 跨縣市ONLINE即時通，服務無礙一點通
+    //-         //- lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+    //-       div
+    //-   lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
+    //- below is the customize area
+    //- b-card-group(deck)
+    .d-flex.justify-content-center.w-100.my-auto
+      .d-flex.my-5
+        .h1.lah-shadow.fonte-weight-bold 跨縣市#[span.text-success ONLINE]即時通，服務無礙一點通
+    .my-4
+    .d-flex.justify-content-between.align-items-center
+      lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所服務狀態
+      lah-fa-icon.h4(
+        icon="clock",
+        variant="primary",
+        action="clock"
+      ) 上次更新：{{ TYUpdatedTime }}
+    hr.my-3
+    client-only: .offices.justify-content-between
+      lah-badge-site-status.office.lah-shadow(
+        v-for="office in offices",
+        :ref="office",
+        :key="office"
+        :watch-site="office",
+        :period="hxTimer",
+        :fill="false",
+        :badge="false",
+        text-variant="",
+        text-bold,
+        short-alt,
+        @updated="handleTYSitesUpdated"
+      )
+    .my-3
+    .d-flex.justify-content-between.align-items-center
+      lah-fa-icon.h2(
+        icon="heart-pulse",
+        action="heartbeat",
+        :variant="downOffices.length === 0 ? 'success' : 'danger'"
+      )
+        span 無法提供服務的地所
+        span.ml-1 ({{ downOffices.length }})
+      lah-fa-icon.h4(
+        icon="clock",
+        variant="muted"
+      ) 上次更新：{{ updatedTime }}
+    hr.my-3
+    .h1.center(
+      v-if="downOffices.length === 0"
+    ) 🟢 全國各地所皆可正常提供服務
+    .d-flex.flex-wrap(
+      v-else
+    )
+      lah-badge-site-status.other-office.mr-4.mb-4.lah-shadow(
+        v-for="office in downOffices",
+        :ref="office.id",
+        :key="office.id",
+        :static-data="office",
+        :fill="false",
+        :badge="false",
+        short-alt
+      )
+    lah-clock.fix-clock
+    .fix-logo
+    .fix-taogirl-L.lah-shadow
+    .fix-taogirl-R.lah-shadow
+
+  b-carousel-slide(v-if="queueChunks.length > 0"): template(#img)
+    .center.h1.my-3
+      lah-fa-icon(icon="star", regular, action="clock")
+        span 最新#[span.text-info 簡易案件]辦理情形
+      lah-fa-icon(icon="star", regular, action="clock")
+    lah-reg-tracking-cards(:rows="queueChunks[0]", :query-day="easyCaseQueryDay", :serial-start="1")
   //- below is the customize area
-  //- b-card-group(deck)
-  .d-flex.justify-content-center.w-100.my-auto
-    .d-flex.my-5
-      .h1.lah-shadow.fonte-weight-bold 跨縣市#[span.text-success ONLINE]即時通，服務無礙一點通
-  .my-4
-  .d-flex.justify-content-between.align-items-center
-    lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所服務狀態
-    lah-fa-icon.h4(
-      icon="clock",
-      variant="primary",
-      action="clock"
-    ) 上次更新：{{ TYUpdatedTime }}
-  hr.my-3
-  client-only: .offices.justify-content-between
-    lah-badge-site-status.office.lah-shadow(
-      v-for="office in offices",
-      :ref="office",
-      :key="office"
-      :watch-site="office",
-      :period="hxTimer",
-      :fill="false",
-      :badge="false",
-      text-variant="",
-      text-bold,
-      short-alt,
-      @updated="handleTYSitesUpdated"
-    )
-  .my-3
-  .d-flex.justify-content-between.align-items-center
-    lah-fa-icon.h2(
-      icon="heart-pulse",
-      action="heartbeat",
-      :variant="downOffices.length === 0 ? 'success' : 'danger'"
-    )
-      span 無法提供服務的地所
-      span.ml-1 ({{ downOffices.length }})
-    lah-fa-icon.h4(
-      icon="clock",
-      variant="muted"
-    ) 上次更新：{{ updatedTime }}
-  hr.my-3
-  .h1.center(
-    v-if="downOffices.length === 0"
-  ) 🟢 全國各地所皆可正常提供服務
-  .d-flex.flex-wrap(
-    v-else
-  )
-    lah-badge-site-status.other-office.mr-4.mb-4.lah-shadow(
-      v-for="office in downOffices",
-      :ref="office.id",
-      :key="office.id",
-      :static-data="office",
-      :fill="false",
-      :badge="false",
-      short-alt
-    )
-  lah-clock.fix-clock
-  .fix-logo
-  .fix-taogirl-L.lah-shadow
-  .fix-taogirl-R.lah-shadow
+
 </template>
 
 <script>
@@ -81,7 +96,12 @@ export default {
     cachedHandler: null,
     updatedTime: '',
     TYUpdatedTime: '',
-    animatedTimerBase: 5000
+    animatedTimerBase: 5000,
+    slideInterval: 30000,
+    slideIdx: 0,
+    maxQueueSize: 12,
+    easyCaseQueryDay: '',
+    easyCases: []
   }),
   fetch () {},
   head: {
@@ -90,13 +110,34 @@ export default {
   computed: {
     downOffices () {
       return [...this.cachedOfficesData.filter(siteData => siteData.state === 'DOWN')]
+    },
+    trackingCase () {
+      return this.easyCases.filter((row) => {
+        /**
+         * RM08 - 收件類別
+         * 1 一般案件
+         * 2 專辦案件
+         * 3 急速件
+         * 9 簡易案件
+         * Q 逕為案件
+         * R 囑託案件
+         * X 跨縣市收辦案件
+         */
+        return row.RM08 === '9'
+      })
+    },
+    queueChunks () {
+      return this.$utils.chunk(this.trackingCase, this.maxQueueSize)
     }
   },
   watch: {},
   created () {
-    this.reload()
+    // today, TW, e.g. 1130521
+    this.easyCaseQueryDay = this.$utils.today('TW').replaceAll('-', '')
   },
   mounted () {
+    this.reload()
+    this.refreshTrackingCase()
     this.$nextTick(() => {
       this.animateGirlL()
       this.animateGirlR()
@@ -142,6 +183,59 @@ export default {
         // console.warn(`Girl R next run will be triggered after ${timer} ms`)
         this.timeout(this.animateGirlR, timer)
       })
+    },
+    refreshTrackingCase () {
+      this.$axios.post(this.$consts.API.JSON.MOICAS, {
+        type: 'crsms_update_by_date',
+        qday: this.easyCaseQueryDay
+      }).then(({ data }) => {
+        this.easyCases = [...this.$utils.orderBy(data.baked, [(row) => {
+          return this.latestUpdateTime(row)
+        }], ['desc'])]
+      }).catch((err) => {
+        console.warn(err)
+      }).finally(() => {
+        this.timeout(this.refreshTrackingCase, 60 * 1000)
+      })
+    },
+    latestUpdateTime (row) {
+      const targetDate = this.easyCaseQueryDay
+      let ok = false
+      // 異動時間
+      !ok && targetDate === row.RM105_1 && (ok = row.RM105_2)
+      // 秘書
+      !ok && targetDate === row.RM107_1 && (ok = row.RM107_2)
+      // 課長
+      !ok && targetDate === row.RM106_1 && (ok = row.RM106_2)
+      // 撤回
+      !ok && targetDate === row.RM93_1 && (ok = row.RM93_2)
+      // 歸檔
+      // !ok && targetDate === row.RM91_1 && (ok = row.RM91_2)
+      // 展期
+      !ok && targetDate === row.RM86 && (ok = row.RM87)
+      // 補正
+      !ok && targetDate === row.RM53_1 && (ok = row.RM53_2)
+      // 駁回
+      !ok && targetDate === row.RM48_1 && (ok = row.RM48_2)
+      // 取消請示
+      !ok && targetDate === row.RM83 && (ok = row.RM84)
+      // 請示
+      !ok && targetDate === row.RM80 && (ok = row.RM81)
+      // 結案
+      !ok && targetDate === row.RM58_1 && (ok = row.RM58_2)
+      // 校對
+      !ok && targetDate === row.RM56_1 && (ok = row.RM56_2)
+      // 登錄
+      !ok && targetDate === row.RM54_1 && (ok = row.RM54_2)
+      // 複審
+      !ok && targetDate === row.RM46_1 && (ok = row.RM46_2)
+      // 准登
+      !ok && targetDate === row.RM62_1 && (ok = row.RM62_2)
+      // 初審
+      !ok && targetDate === row.RM44_1 && (ok = row.RM44_2)
+      // 收件
+      // !ok && targetDate === row.RM07_1 && (ok = row.RM07_2)
+      return ok
     }
   }
 }
