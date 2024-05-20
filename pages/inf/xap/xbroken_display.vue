@@ -16,7 +16,7 @@ b-carousel(
     //-   lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
     //- below is the customize area
     //- b-card-group(deck)
-    .d-flex.justify-content-center.w-100.my-auto
+    .d-flex.justify-content-center.w-100.my-auto(@click="$refs.carousel.next()", title="切換版面")
       .d-flex.my-5
         .h1.lah-shadow.fonte-weight-bold 跨縣市#[span.text-success ONLINE]即時通，服務無礙一點通
     .my-4
@@ -77,10 +77,10 @@ b-carousel(
     .fix-taogirl-R.lah-shadow
 
   b-carousel-slide(v-if="easyCases.length > 0"): template(#img)
-    .center.h1.my-3
-      lah-fa-icon(icon="gear", action="clock")
+    .center.h1.my-3(@click="$refs.carousel.next()", title="切換版面")
+      lah-fa-icon(icon="gear", :variant="reloadEasyCase ? 'warning' : ''", :action="reloadEasyCase ? 'cycle' : 'clock'")
         span 最新#[span.text-info 簡易案件]辦理情形
-      lah-fa-icon.ml-1(icon="gear", action="clock")
+      lah-fa-icon.ml-1(icon="gear", :variant="reloadEasyCase ? 'warning' : ''", :action="reloadEasyCase ? 'cycle' : 'clock'")
     lah-reg-tracking-cards(:rows="easyCases", :query-day="easyCaseQueryDay", :serial-start="1")
   //- below is the customize area
 
@@ -101,7 +101,8 @@ export default {
     slideIdx: 0,
     maxQueueSize: 12,
     easyCaseQueryDay: '',
-    easyCases: []
+    easyCases: [],
+    reloadEasyCase: false
   }),
   fetch () {},
   head: {
@@ -169,6 +170,7 @@ export default {
       })
     },
     loadEasyCaseState () {
+      this.reloadEasyCase = true
       this.$axios.post(this.$consts.API.JSON.MOICAS, {
         type: 'crsms_update_by_date',
         qday: this.easyCaseQueryDay
@@ -192,6 +194,7 @@ export default {
         console.warn(err)
       }).finally(() => {
         this.timeout(this.loadEasyCaseState, 60 * 1000)
+        this.reloadEasyCase = false
       })
     },
     latestUpdateTime (row) {
