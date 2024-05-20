@@ -76,12 +76,12 @@ b-carousel(
     .fix-taogirl-L.lah-shadow
     .fix-taogirl-R.lah-shadow
 
-  b-carousel-slide(v-if="latestEasyCases.length > 0"): template(#img)
+  b-carousel-slide(v-if="easyCases.length > 0"): template(#img)
     .center.h1.my-3
       lah-fa-icon(icon="star", regular, action="clock")
         span 最新#[span.text-info 簡易案件]辦理情形
       lah-fa-icon(icon="star", regular, action="clock")
-    lah-reg-tracking-cards(:rows="latestEasyCases", :query-day="easyCaseQueryDay", :serial-start="1")
+    lah-reg-tracking-cards(:rows="easyCases", :query-day="easyCaseQueryDay", :serial-start="1")
   //- below is the customize area
 
 </template>
@@ -101,8 +101,7 @@ export default {
     slideIdx: 0,
     maxQueueSize: 12,
     easyCaseQueryDay: '',
-    easyCases: [],
-    latestEasyCases: []
+    easyCases: []
   }),
   fetch () {},
   head: {
@@ -111,28 +110,9 @@ export default {
   computed: {
     downOffices () {
       return [...this.cachedOfficesData.filter(siteData => siteData.state === 'DOWN')]
-    },
-    trackingCase () {
-      return this.easyCases.filter((row) => {
-        /**
-         * RM08 - 收件類別
-         * 1 一般案件
-         * 2 專辦案件
-         * 3 急速件
-         * 9 簡易案件
-         * Q 逕為案件
-         * R 囑託案件
-         * X 跨縣市收辦案件
-         */
-        return row.RM08 === '9'
-      })
     }
   },
-  watch: {
-    trackingCase (arr) {
-      this.latestEasyCases = [...arr.slice(0, this.maxQueueSize)]
-    }
-  },
+  watch: {},
   created () {
     // today, TW, e.g. 1130521
     this.easyCaseQueryDay = this.$utils.today('TW').replaceAll('-', '')
@@ -195,7 +175,19 @@ export default {
       }).then(({ data }) => {
         this.easyCases = [...this.$utils.orderBy(data.baked, [(row) => {
           return this.latestUpdateTime(row)
-        }], ['desc'])]
+        }], ['desc'])].filter((row) => {
+          /**
+           * RM08 - 收件類別
+           * 1 一般案件
+           * 2 專辦案件
+           * 3 急速件
+           * 9 簡易案件
+           * Q 逕為案件
+           * R 囑託案件
+           * X 跨縣市收辦案件
+           */
+          return row.RM08 === '9'
+        }).slice(0, this.maxQueueSize)
       }).catch((err) => {
         console.warn(err)
       }).finally(() => {
