@@ -142,6 +142,8 @@ export default {
       this.animateGirlL()
       this.animateGirlR()
     })
+    // reload the page to prevent Out of Memory issue on EDGE
+    this.timeout(() => location.reload(), 30 * 60 * 1000)
   },
   methods: {
     handleTYSitesUpdated (dontcare) {
