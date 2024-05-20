@@ -76,12 +76,12 @@ b-carousel(
     .fix-taogirl-L.lah-shadow
     .fix-taogirl-R.lah-shadow
 
-  b-carousel-slide(v-if="queueChunks.length > 0"): template(#img)
+  b-carousel-slide(v-if="latestEasyCases.length > 0"): template(#img)
     .center.h1.my-3
       lah-fa-icon(icon="star", regular, action="clock")
         span 最新#[span.text-info 簡易案件]辦理情形
       lah-fa-icon(icon="star", regular, action="clock")
-    lah-reg-tracking-cards(:rows="queueChunks[0]", :query-day="easyCaseQueryDay", :serial-start="1")
+    lah-reg-tracking-cards(:rows="latestEasyCases", :query-day="easyCaseQueryDay", :serial-start="1")
   //- below is the customize area
 
 </template>
@@ -101,7 +101,8 @@ export default {
     slideIdx: 0,
     maxQueueSize: 12,
     easyCaseQueryDay: '',
-    easyCases: []
+    easyCases: [],
+    latestEasyCases: []
   }),
   fetch () {},
   head: {
@@ -125,12 +126,13 @@ export default {
          */
         return row.RM08 === '9'
       })
-    },
-    queueChunks () {
-      return this.$utils.chunk(this.trackingCase, this.maxQueueSize)
     }
   },
-  watch: {},
+  watch: {
+    trackingCase (arr) {
+      this.latestEasyCases = [...arr.slice(0, this.maxQueueSize)]
+    }
+  },
   created () {
     // today, TW, e.g. 1130521
     this.easyCaseQueryDay = this.$utils.today('TW').replaceAll('-', '')
@@ -143,7 +145,7 @@ export default {
       this.animateGirlR()
     })
     // reload the page to prevent Out of Memory issue on EDGE
-    this.timeout(() => location.reload(), 30 * 60 * 1000)
+    // this.timeout(() => location.reload(), 30 * 60 * 1000)
   },
   methods: {
     handleTYSitesUpdated (dontcare) {
