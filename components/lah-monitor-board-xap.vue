@@ -40,15 +40,15 @@ b-card(no-body, :border-variant="borderVariant")
       :action="dbStyles[1]",
       :size="dbStyles[2]",
       :icon="dbStyles[3]",
-      :title="`資料庫總連線數，最大承受${apJndiLocalThreshold}`"
-    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }} / {{ apJndiLocalThreshold }}]
+      :title="`資料庫連線數，${ dbTotal } / ${ apJndiLocalThreshold }`"
+    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbPercent }}]
     lah-fa-icon(
       :variant="apStyles[0]",
       :action="apStyles[1]",
       :size="apStyles[2]",
       :icon="apStyles[3]",
-      :title="`各所加總連線數，最大承受${apJndiXaLocalThreshold}`"
-    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ apTotal }} / {{ apJndiXaLocalThreshold }}]
+      :title="`AP加總連線數，${ apTotal } / ${ apJndiXaLocalThreshold }`"
+    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ apPercent }}]
     lah-fa-icon(
       :variant="cpuStyles[0]",
       :action="cpuStyles[1]",
@@ -148,6 +148,12 @@ export default {
       if (this.apTotal > this.apJndiXaLocalThreshold * 0.85) { return ['danger', 'shiver', 'lg', 'server'] }
       if (this.apTotal > this.apJndiXaLocalThreshold * 0.75) { return ['warning', 'beat', '1x', 'server'] }
       return ['success', 'breath', 'sm', 'wave-square']
+    },
+    dbPercent () {
+      return `${((this.dbTotal / this.apJndiLocalThreshold) * 100).toFixed(1)}%`
+    },
+    apPercent () {
+      return `${((this.apTotal / this.apJndiXaLocalThreshold) * 100).toFixed(1)}%`
     }
   },
   watch: {
