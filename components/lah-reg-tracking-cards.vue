@@ -130,6 +130,7 @@ export default {
 <style lang="scss" scoped>
 .cards {
   .card {
+    border-width: 3px;
     width: 23vw;
     // margin-bottom: 1.25rem;
     // margin-right: 1.25rem;
