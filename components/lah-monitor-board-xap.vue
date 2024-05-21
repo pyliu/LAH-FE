@@ -39,15 +39,16 @@ b-card(no-body, :border-variant="borderVariant")
       :variant="dbStyles[0]",
       :action="dbStyles[1]",
       :size="dbStyles[2]",
-      :icon="dbStyles[3]"
-    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
+      :icon="dbStyles[3]",
+      :title="`資料庫總連線數，最大承受${apJndiLocalThreshold}`"
+    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }} / {{ apJndiLocalThreshold }}]
     lah-fa-icon(
       :variant="apStyles[0]",
       :action="apStyles[1]",
       :size="apStyles[2]",
-      :icon="apStyles[3]"
-      title="各所加總連線數"
-    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ apTotal }}]
+      :icon="apStyles[3]",
+      :title="`各所加總連線數，最大承受${apJndiXaLocalThreshold}`"
+    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ apTotal }} / {{ apJndiXaLocalThreshold }}]
     lah-fa-icon(
       :variant="cpuStyles[0]",
       :action="cpuStyles[1]",
