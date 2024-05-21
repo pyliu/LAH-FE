@@ -37,6 +37,11 @@ b-card(
         div 本項功能協助修正「未結案」之登記案件校對「異動有誤」至「異動完成」狀態。
       li: .d-flex.align-items-center
         div ⭐修正前請#[strong.text-danger 先請審查確認資料都有寫進正式檔]後再執行
+    h5 精誠提供語法範例 👇
+    ul
+      li SELECT * FROM SRSINDX WHERE IS03='{{ year }}' AND IS04_1='{{ code }}' AND IS04_2='{{ number }}';
+      li SELECT * FROM SRCLOR WHERE CC03='{{ year }}' AND CC04_1='{{ code }}' AND CC04_2='{{ number }}';
+      li SELECT * FROM WRCLOR WHERE CC03='{{ year }}' AND CC04_1='{{ code }}' AND CC04_2='{{ number }}';
     h5 將更動 {{ $utils.caseId(ID) }} 下列的表格中的案件資料
     ul.h5
       li
