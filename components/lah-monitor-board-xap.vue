@@ -4,7 +4,7 @@ b-card(no-body, :border-variant="borderVariant")
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
-        v-if="!maximized"
+        v-if="!maximized",
         icon="window-maximize",
         variant="outline-primary",
         no-border,
@@ -12,6 +12,13 @@ b-card(no-body, :border-variant="borderVariant")
         regular,
         @click="popupMaximize",
         title="放大顯示"
+      )
+      lah-button(
+        icon="gear",
+        variant="outline-secondary",
+        no-border,
+        no-icon-gutter,
+        title="設定"
       )
       lah-button(
         v-if="!maximized"
