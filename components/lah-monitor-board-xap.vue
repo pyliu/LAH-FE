@@ -18,7 +18,7 @@ b-card(no-body, :border-variant="borderVariant")
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="popupSettings",
+        @click="showModalById(modalId)",
         title="設定"
       )
       lah-button(
@@ -238,9 +238,6 @@ export default {
         title: '跨域AP監控',
         size: 'xl'
       })
-    },
-    popupSettings () {
-      this.showModalById(this.modalId)
     },
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
