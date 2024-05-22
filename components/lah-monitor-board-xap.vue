@@ -15,6 +15,7 @@ b-card(no-body, :border-variant="borderVariant")
       )
       lah-button(
         icon="gear",
+        action="clock",
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
@@ -197,7 +198,7 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
       })
-    }, 800)
+    }, 1000)
   },
   mounted () {
     // let init chart process after mounted executed
