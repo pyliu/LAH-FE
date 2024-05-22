@@ -18,6 +18,7 @@ b-card(no-body, :border-variant="borderVariant")
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
+        @click="popupSettings",
         title="設定"
       )
       lah-button(
@@ -34,8 +35,14 @@ b-card(no-body, :border-variant="borderVariant")
       ul
         li 顯示跨域AP連線數統計狀態 (⭐ AP需安裝#[a(:href="netstatsSh" target="_blank") 回報腳本] ⭐)
         li AP連線設定檔路徑 /opt/jboss/server/default/deploy/moiland-ds.xml
-        li #[lah-fa-icon(icon="database", variant="danger")] 顯示資料庫連線總數(AP端設定上限{{ apJndiLocalThreshold }})
-        li #[lah-fa-icon(icon="wave-square", variant="success")] 顯示AP連線總數(AP端設定最高{{ apJndiXaLocalThreshold }})
+        li: .d-flex.align-items-center
+          lah-fa-icon(icon="database", variant="danger") 顯示資料庫連線總數
+          b-input-group.ml-1.mb-1.fixed-input(prepend="上限設定", size="sm")
+            b-input(v-model="apJndiLocalThreshold", type="number", @input="updateThresholds")
+        li: .d-flex.align-items-center
+          lah-fa-icon(icon="wave-square", variant="success") 顯示AP連線總數
+          b-input-group.ml-1.mb-1.fixed-input(prepend="上限設定", size="sm")
+            b-input(v-model="apJndiXaLocalThreshold", type="number", @input="updateThresholds")
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
 
@@ -166,12 +173,31 @@ export default {
   watch: {
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
-    }
+    },
+    apJndiLocalThreshold (dontcare) { this.updateThresholds() },
+    apJndiXaLocalThreshold (dontcare) { this.updateThresholds() }
   },
   created () {
     this.modalId = this.$utils?.uuid()
     this.apJndiLocalThreshold = this.systemConfigs.webap_jndi_local || 2500
     this.apJndiXaLocalThreshold = this.systemConfigs.webap_jndi_xalocal || 990
+    this.updateThresholds = this.$utils.debounce(() => {
+      this.$axios.post(this.$consts.API.JSON.SYSTEM, {
+        type: 'set_webap_jndi',
+        local: this.apJndiLocalThreshold,
+        xalocal: this.apJndiXaLocalThreshold
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.systemConfigs.webap_jndi_local = this.apJndiLocalThreshold
+          this.systemConfigs.webap_jndi_xalocal = this.apJndiXaLocalThreshold
+        } else {
+          this.warning(data.message)
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+      })
+    }, 800)
   },
   mounted () {
     // let init chart process after mounted executed
@@ -188,6 +214,7 @@ export default {
     this.emitLightUpdate('', this.light)
   },
   methods: {
+    updateThresholds () { /** placeholder */ },
     popupTrending ({ detail }) {
       /*
         label: "XX所"
@@ -211,6 +238,9 @@ export default {
         title: '跨域AP監控',
         size: 'xl'
       })
+    },
+    popupSettings () {
+      this.showModalById(this.modalId)
     },
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
@@ -290,4 +320,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.fixed-input {
+  width: 150px;
+}
 </style>
