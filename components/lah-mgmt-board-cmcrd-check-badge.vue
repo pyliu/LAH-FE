@@ -8,15 +8,15 @@ b-card.border-0(no-body)
     ) 複丈通知書暫存檔檢測
     .ml-auto {{ queryMessage }}
     b-button-group.ml-auto(size="sm")
-      lah-button.mr-1(
-        v-if="foundDanglingData",
-        icon="broom",
-        variant="outline-danger",
-        size="sm",
-        @click="removeDanglingRecords",
-        v-b-tooltip="`清除所有 ${year} 年無連結檔之孤立通知書暫存資料`",
-        pill
-      ) 清除無案件之暫存資料
+      //- lah-button.mr-1(
+      //-   v-if="foundDanglingData",
+      //-   icon="broom",
+      //-   variant="outline-danger",
+      //-   size="sm",
+      //-   @click="removeDanglingRecords",
+      //-   v-b-tooltip="`清除所有 ${year} 年無連結檔之孤立通知書暫存資料`",
+      //-   pill
+      //- ) 清除無案件之暫存資料
       lah-button(
         :icon="foundDanglingData ? 'circle-exclamation' : 'window-maximize'",
         :variant="foundDanglingData ? 'danger' : 'outline-primary'",
