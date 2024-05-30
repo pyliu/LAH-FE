@@ -222,6 +222,7 @@ export default {
         point: {element: BarElement, datasetIndex: 0, index: 5}
         value: 34
       */
+      const found = [...this.crossApMap].find(arr => arr[1].name === detail.label)
       this.modal(this.$createElement('LahMonitorBoardXapTrend', {
         props: {
           maximized: true,
@@ -230,7 +231,7 @@ export default {
           mins: 60
         }
       }), {
-        title: `${detail.label}跨域AP連線趨勢`,
+        title: `${detail.label}跨域AP連線趨勢圖 - ${found[0]}`,
         size: 'xl'
       })
     },

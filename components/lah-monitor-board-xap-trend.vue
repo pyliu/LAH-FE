@@ -143,7 +143,7 @@ export default {
         this.load()
       }
     },
-    watchOffice (str) { this.header = `${str} 跨域AP 連線趨勢圖` },
+    watchOffice (str) { this.header = `${str}跨域AP連線趨勢圖 - ${this.apIp}` },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     }
@@ -284,7 +284,7 @@ export default {
             this.warning(
               `取得跨所 AP ${this.watchOffice} ${this.apIp} 連線資料失敗。狀態碼：${data.status}`,
               {
-                title: `跨所 AP ${this.watchOffice} 連線趨勢圖`
+                title: `跨所 AP ${this.watchOffice} ${this.apIp} 連線趨勢圖`
               }
             )
           }
