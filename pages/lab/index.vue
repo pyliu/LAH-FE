@@ -8,10 +8,9 @@
     section.b-card-container
       b-card-group(deck)
         lah-index-card-link.fix-card-dimension(
-          v-if="isAdm || isInf || authority.isAdmin",
-          :icon="['fas', 'file-contract']",
-          to="/adm/file"
-        ) 檔案應用預約申請
+          :icon="['fas', 'file-invoice']",
+          to="/reg/cusmm"
+        ) 謄本調閱紀錄檢索
         lah-index-card-link.fix-card-dimension(
           :icon="['fas', 'tv']",
           to="/inf/xap/xbroken_display"
@@ -22,6 +21,12 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'heart-pulse']" to="/inf/xap/broken_cached") 全國地所伺服器監控
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
       b-card-group.my-4(deck)
+        lah-index-card-link.fix-card-dimension(
+          v-if="isAdm || isInf || authority.isAdmin",
+          :icon="['fas', 'file-contract']",
+          to="/adm/file"
+        ) 檔案應用預約申請
+        lah-index-card-link.fix-card-dimension.invisible(v-else)
         lah-index-card-link.fix-card-dimension(
           v-if="isInf || authority.isAdmin",
           :icon="['fas', 'landmark-flag']",

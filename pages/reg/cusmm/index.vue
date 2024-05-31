@@ -357,7 +357,7 @@ export default {
     this.searchType === 'reg' ? this.loadReg() : this.loadSur()
   },
   head: {
-    title: '非專業代理人案件-桃園市地政局'
+    title: '謄本調閱紀錄檢索-桃園市地政局'
   },
   computed: {
     md5Hash () {
@@ -489,7 +489,7 @@ export default {
           this.regBakedData = json.baked
           this.doneCommitted()
           this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
-            this.notify(`查詢成功，找到 ${this.regBakedData.length} 筆非專業代理人登記案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            this.notify(`查詢成功，找到 ${this.regBakedData.length} 筆謄本調閱紀錄。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
@@ -535,7 +535,7 @@ export default {
           this.surBakedData = json.baked
           this.doneCommitted()
           this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
-            this.notify(`查詢成功，找到 ${this.surBakedData.length} 筆非專業代理人測量案件。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            this.notify(`查詢成功，找到 ${this.surBakedData.length} 筆謄本調閱紀錄。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
             if (this.$refs.countdown) {
               this.$refs.countdown.setCountdown(remaining)
               this.$refs.countdown.startCountdown()
