@@ -69,21 +69,23 @@ div
   lah-pagination(
     v-if="showPagination",
     v-model="pagination",
-    :total-rows="paginationCount"
+    :total-rows="paginationCount",
+    :caption="`${tableCaption} - ${rows.length}筆`"
   )
-  lah-transition
-    b-table(
-      :busy="isBusy"
-      :items="rows"
-      :fields="fields"
-      :per-page="pagination.perPage"
-      :current-page="pagination.currentPage"
-      :caption-append="tableCaption",
-      small,
-      hover,
-      striped,
-      bordered
-    )
+  b-table(
+    :busy="isBusy"
+    :items="rows"
+    :fields="fields"
+    :per-page="pagination.perPage"
+    :current-page="pagination.currentPage"
+    :caption-append="tableCaption",
+    :head-variant="'dark'",
+    :sticky-header="`${maxHeight}px`",
+    small,
+    hover,
+    striped,
+    bordered
+  )
 
 </template>
 
@@ -147,7 +149,9 @@ export default {
     searchTypeOpts: [
       { text: '日期', value: 'date' },
       { text: '統編', value: 'id' }
-    ]
+    ],
+    maxHeight: 600,
+    maxHeightOffset: 160
   }),
   fetch () {
     this.isBusy = true
@@ -177,7 +181,7 @@ export default {
   computed: {
     tableCaption () {
       if (this.searchType === 'date') {
-        return `【${this.startDate.substring(0, 3)}-${this.startDate.substring(3, 5)}-${this.startDate.substring(5)} ~ ${this.endDate.substring(0, 3)}-${this.endDate.substring(3, 5)}-${this.endDate.substring(5)}】`
+        return `${this.$utils.addDateDivider(this.startDate.toString())} ~ ${this.$utils.addDateDivider(this.endDate.toString())}`
       }
       return this.pid
     },
@@ -203,6 +207,11 @@ export default {
     },
     rows (dontcare) {
       this.updatePagination(1, this.pagination.perPage)
+    }
+  },
+  mounted () {
+    if (!this.$isServer && window) {
+      this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
     }
   },
   methods: {
