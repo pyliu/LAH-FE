@@ -42,7 +42,7 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'wand-magic-sparkles']" to="/reg/tracking") 案件追蹤查詢
         lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
         lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
+        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
 </template>
 
 <script>
