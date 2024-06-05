@@ -121,8 +121,6 @@ export default {
       perPage: 20,
       currentPage: 1
     },
-    currentPage: 1,
-    perPage: 20,
     searchType: 'date',
     searchTypeOpts: [
       { text: '日期', value: 'date' },
@@ -181,12 +179,17 @@ export default {
     hidePersonals (flag) {},
     rows (dontcare) {
       this.updatePagination(1, this.pagination.perPage)
+    },
+    pagination (val) {
+      this.setCache('cusmm-pagination', val)
     }
   },
-  mounted () {
+  async mounted () {
     if (!this.$isServer && window) {
       this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
     }
+    const cached = await this.getCache('cusmm-pagination')
+    this.updatePagination(1, cached?.perPage || 20)
   },
   methods: {
     handleDateChanged (data) {
