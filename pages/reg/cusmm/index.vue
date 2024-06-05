@@ -67,7 +67,10 @@ div
       small,
       hover,
       striped,
-      bordered
+      bordered,
+      selectable,
+      select-mode="single",
+      selected-variant="warning"
     )
       template(#cell(收件日期)="{ item }")
         .text-nowrap {{ $utils.addDateDivider(item['收件日期']) }}
