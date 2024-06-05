@@ -20,7 +20,8 @@ div
         lah-datepicker.h-100(
           v-if="searchType === 'date'",
           v-model="dateRange",
-          :begin="new Date()"
+          :begin="new Date()",
+          :end="new Date()",
           @input="handleDateChanged"
         )
         b-input.h-100(
@@ -50,7 +51,7 @@ div
     v-if="showPagination",
     v-model="pagination",
     :total-rows="paginationCount",
-    :caption="`${tableCaption} - ${rows.length}筆`"
+    :caption="`${tableCaption} - ${paginationCount}筆`"
   )
   b-table(
     :busy="isBusy"
@@ -80,11 +81,11 @@ export default {
     const today = new Date()
     // const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
     // const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    // const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
     return {
       dateRange: {
         begin: `${today.getFullYear() - 1911}${('0' + (today.getMonth() + 1)).slice(-2)}${('0' + today.getDate()).slice(-2)}`,
-        end: `${lastDayofMonth.getFullYear() - 1911}${('0' + (lastDayofMonth.getMonth() + 1)).slice(-2)}${('0' + lastDayofMonth.getDate()).slice(-2)}`,
+        end: `${today.getFullYear() - 1911}${('0' + (today.getMonth() + 1)).slice(-2)}${('0' + today.getDate()).slice(-2)}`,
         days: 0
       }
     }
