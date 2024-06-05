@@ -50,27 +50,30 @@ div
   lah-pagination(
     v-if="showPagination",
     v-model="pagination",
-    :total-rows="paginationCount",
-    :caption="`${tableCaption} - ${paginationCount}筆`"
+    :total-rows="dataCount",
+    :caption="`${tableCaption} - ${dataCount}筆`"
   )
-  b-table(
-    :busy="isBusy"
-    :items="rows"
-    :fields="fields"
-    :per-page="pagination.perPage"
-    :current-page="pagination.currentPage"
-    :caption-append="tableCaption",
-    :head-variant="'dark'",
-    :sticky-header="`${maxHeight}px`",
-    small,
-    hover,
-    striped,
-    bordered
-  )
-    template(#cell(收件日期)="{ item }")
-      .text-nowrap {{ $utils.addDateDivider(item['收件日期']) }}
-    template(#cell(收件時間)="{ item }")
-      .text-nowrap {{ $utils.addTimeDivider(item['收件時間']) }}
+  lah-transition
+    b-table(
+      v-if="dataCount > 0",
+      :busy="isBusy"
+      :items="rows"
+      :fields="fields"
+      :per-page="pagination.perPage"
+      :current-page="pagination.currentPage"
+      :caption-append="tableCaption",
+      :head-variant="'dark'",
+      :sticky-header="`${maxHeight}px`",
+      small,
+      hover,
+      striped,
+      bordered
+    )
+      template(#cell(收件日期)="{ item }")
+        .text-nowrap {{ $utils.addDateDivider(item['收件日期']) }}
+      template(#cell(收件時間)="{ item }")
+        .text-nowrap {{ $utils.addTimeDivider(item['收件時間']) }}
+    .center.h2.mt-3(v-else) ⚠ 請重新查詢
 
 </template>
 
@@ -170,7 +173,7 @@ export default {
     showPagination () {
       return this.rows?.length > this.pagination.perPage
     },
-    paginationCount () {
+    dataCount () {
       return this.rows?.length
     },
     xlsxData () {
