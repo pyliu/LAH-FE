@@ -9,7 +9,7 @@ div
           h5 請參照下列步驟搜尋
           ol
             li 可切換日期或是統編查詢
-            li 日期區間查詢預設這個月
+            li 日期區間查詢預設今天
             li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
 
       .d-flex.align-items-center.h-100
