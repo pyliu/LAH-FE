@@ -24,11 +24,12 @@ div
           @input="handleDateChanged"
         )
         b-input.h-100(
-          v-show="searchType !== 'date'",
+          v-else,
           ref="pid",
           v-model="pid",
-          placeholder="... A123456789 ..."
-          @keyup.enter="$fetch"
+          placeholder="... A123456789 ...",
+          @keyup.enter="$fetch",
+          autofocus
         )
         //- b-checkbox.ml-1.text-nowrap(v-model="hidePersonals", switch) 遮蔽個資
         lah-button.mx-1(
@@ -173,9 +174,7 @@ export default {
   },
   watch: {
     searchType (val) {
-      if (val !== 'date') {
-        this.$refs.pid.focus()
-      }
+      this.rows = []
     },
     hidePersonals (flag) {},
     rows (dontcare) {
