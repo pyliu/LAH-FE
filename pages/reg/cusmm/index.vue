@@ -77,14 +77,10 @@ export default {
   fetchOnServer: false,
   asyncData (nuxt) {
     const today = new Date()
-    const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
-    const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    // const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
+    // const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
     const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
     return {
-      firstDayofMonth,
-      lastDayofMonth,
-      today,
-      yesterday,
       dateRange: {
         begin: `${today.getFullYear() - 1911}${('0' + (today.getMonth() + 1)).slice(-2)}${('0' + today.getDate()).slice(-2)}`,
         end: `${lastDayofMonth.getFullYear() - 1911}${('0' + (lastDayofMonth.getMonth() + 1)).slice(-2)}${('0' + lastDayofMonth.getDate()).slice(-2)}`,
@@ -152,6 +148,7 @@ export default {
       this.$utils.error(err)
     }).finally(() => {
       this.isBusy = false
+      this.updatePagination(1, this.pagination.perPage)
     })
   },
   head: {
@@ -176,8 +173,9 @@ export default {
   },
   watch: {
     searchType (val) {
-      this.updatePagination(1, this.pagination.perPage)
-      val !== 'date' && this.$refs.pid.focus()
+      if (val !== 'date') {
+        this.$refs.pid.focus()
+      }
     },
     hidePersonals (flag) {},
     rows (dontcare) {
