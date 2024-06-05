@@ -38,7 +38,7 @@ div
           size="lg"
           title="搜尋"
           @click="reload"
-          :disabled="isBusy"
+          :disabled="isBusy || !queryOK"
           :busy="isBusy"
           no-icon-gutter
         )
@@ -171,6 +171,12 @@ export default {
     },
     xlsxData () {
       return this.rows
+    },
+    queryOK () {
+      if (this.searchType !== 'date' && this.$utils.length(this.pid) < 4) {
+        return false
+      }
+      return true
     }
   },
   watch: {

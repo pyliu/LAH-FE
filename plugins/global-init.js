@@ -519,7 +519,7 @@ export default ({ $axios, store }, inject) => {
       return `${Y}:${M}:${D}`
     },
     length (chinese) {
-      return chinese.replace(/[^\x00-\xFF]/g, 'xx').length
+      return chinese?.replace(/[^\x00-\xFF]/g, 'xx')?.length
     },
     formatLandNumber (str) {
       if (typeof str === 'string' && str.length === 8) {
