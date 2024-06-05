@@ -290,10 +290,10 @@ Vue.mixin({
                     break
                   case 'warning':
                   case 'yellow':
-                    opts.toaster = 'b-toaster-bottom-left'
+                    opts.toaster = 'b-toaster-top-right'
                     break
                   default:
-                    opts.toaster = 'b-toaster-bottom-right'
+                    opts.toaster = 'b-toaster-top-right'
                 }
             }
             // merge default setting
