@@ -131,6 +131,10 @@ export default {
     maxHeightOffset: 160
   }),
   fetch () {
+    if (this.isBusy || !this.queryOK) {
+      !this.queryOK && this.warning('輸入關鍵字長度不符合規格(大於4個字元)')
+      return
+    }
     this.isBusy = true
     let axiosOpts = {
       type: 'cusmm_by_pid',
