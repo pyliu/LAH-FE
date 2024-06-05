@@ -20,6 +20,7 @@ div
         lah-datepicker.h-100(
           v-if="searchType === 'date'",
           v-model="dateRange",
+          :begin="new Date()"
           @input="handleDateChanged"
         )
         b-input.h-100(
@@ -64,6 +65,10 @@ div
     striped,
     bordered
   )
+    template(#cell(收件日期)="{ item }")
+      .text-nowrap {{ $utils.addDateDivider(item['收件日期']) }}
+    template(#cell(收件時間)="{ item }")
+      .text-nowrap {{ $utils.addTimeDivider(item['收件時間']) }}
 
 </template>
 
@@ -76,22 +81,20 @@ export default {
     const firstDayofMonth = new Date(today.getFullYear(), today.getMonth(), 1)
     const lastDayofMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
     return {
-      startDate: `${firstDayofMonth.getFullYear() - 1911}${('0' + (firstDayofMonth.getMonth() + 1)).slice(-2)}${('0' + firstDayofMonth.getDate()).slice(-2)}`,
-      endDate: `${lastDayofMonth.getFullYear() - 1911}${('0' + (lastDayofMonth.getMonth() + 1)).slice(-2)}${('0' + lastDayofMonth.getDate()).slice(-2)}`,
       firstDayofMonth,
       lastDayofMonth,
       today,
-      yesterday
+      yesterday,
+      dateRange: {
+        begin: `${today.getFullYear() - 1911}${('0' + (today.getMonth() + 1)).slice(-2)}${('0' + today.getDate()).slice(-2)}`,
+        end: `${lastDayofMonth.getFullYear() - 1911}${('0' + (lastDayofMonth.getMonth() + 1)).slice(-2)}${('0' + lastDayofMonth.getDate()).slice(-2)}`,
+        days: 0
+      }
     }
   },
   data: () => ({
     hidePersonals: true,
     pid: '',
-    dateRange: {
-      begin: '',
-      end: '',
-      days: 0
-    },
     rows: [],
     fields: [
       { key: '收件年', sortable: true },
@@ -107,9 +110,9 @@ export default {
       { key: '收件時間', sortable: true },
       { key: '申請類別', sortable: true },
       { key: '段代碼', sortable: true },
-      { key: '段小段', sortable: true },
-      { key: '鄉慎市區代碼', sortable: true },
-      { key: '鄉鎮市區', sortable: true },
+      { key: '段小段', label: '段名', sortable: true },
+      { key: '鄉鎮市區代碼', label: '區代碼', sortable: true },
+      { key: '鄉鎮市區', label: '區名', sortable: true },
       { key: '地建別', sortable: true },
       { key: '鄉鎮市區', sortable: true },
       { key: '登記簿謄本張數', sortable: true },
@@ -138,8 +141,8 @@ export default {
     if (this.searchType === 'date') {
       axiosOpts = {
         type: 'cusmm_by_date',
-        begin: this.startDate,
-        end: this.endDate
+        begin: this.dateRange.begin,
+        end: this.dateRange.end
       }
     }
     this.$axios.post(this.$consts.API.JSON.MOICAS, axiosOpts).then(({ data }) => {
@@ -157,7 +160,7 @@ export default {
   computed: {
     tableCaption () {
       if (this.searchType === 'date') {
-        return `${this.$utils.addDateDivider(this.startDate.toString())} ~ ${this.$utils.addDateDivider(this.endDate.toString())}`
+        return `${this.$utils.addDateDivider(this.dateRange.begin.toString())} ~ ${this.$utils.addDateDivider(this.dateRange.end.toString())}`
       }
       return this.pid
     },
@@ -179,11 +182,13 @@ export default {
     hidePersonals (flag) {},
     rows (dontcare) {
       this.updatePagination(1, this.pagination.perPage)
+      // console.warn(dontcare)
     },
     pagination (val) {
       this.setCache('cusmm-pagination', val)
     }
   },
+  created () {},
   async mounted () {
     if (!this.$isServer && window) {
       this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
@@ -192,10 +197,7 @@ export default {
     this.updatePagination(1, cached?.perPage || 20)
   },
   methods: {
-    handleDateChanged (data) {
-      this.startDate = data.begin
-      this.endDate = data.end
-    },
+    handleDateChanged (data) {},
     reload () {
       this.$fetch()
     },
