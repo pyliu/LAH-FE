@@ -73,7 +73,8 @@ div
         .text-nowrap {{ $utils.addDateDivider(item['收件日期']) }}
       template(#cell(收件時間)="{ item }")
         .text-nowrap {{ $utils.addTimeDivider(item['收件時間']) }}
-    .center.h2.mt-3(v-else) ⚠ 請重新查詢
+    .center.h2.mt-3(v-else-if="isBusy"): .ld-txt 讀取中 ...
+    .center.h2.mt-3(v-else) ⚠ 無資料，請重新查詢 ⚠
 
 </template>
 
@@ -150,6 +151,7 @@ export default {
         end: this.dateRange.end
       }
     }
+    this.rows = []
     this.$axios.post(this.$consts.API.JSON.MOICAS, axiosOpts).then(({ data }) => {
       this.rows = [...data.raw]
     }).catch((err) => {
