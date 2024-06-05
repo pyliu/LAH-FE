@@ -39,33 +39,10 @@ div
           :busy="isBusy"
           no-icon-gutter
         )
-        //- lah-button(
-        //-   icon="search-plus",
-        //-   size="lg",
-        //-   title="開啟進階搜尋視窗",
-        //-   @click="$refs.searchPlus.show()",
-        //-   :disabled="paginationCount === 0",
-        //-   no-icon-gutter
-        //- )
         lah-button-xlsx(
           :jsons="xlsxData",
           header="謄本調閱紀錄"
         )
-        //- lah-countdown-button.ml-1(
-        //-   ref="countdown"
-        //-   icon="sync-alt"
-        //-   action="ld-cycle"
-        //-   size="lg"
-        //-   variant="outline-secondary"
-        //-   badge-variant="secondary"
-        //-   title="強制重新搜尋"
-        //-   :milliseconds="0"
-        //-   :disabled="isBusy"
-        //-   :busy="isBusy"
-        //-   @end="reload"
-        //-   @click="reload"
-        //-   no-badge
-        //- )
 
   lah-pagination(
     v-if="showPagination",
@@ -200,12 +177,8 @@ export default {
     searchType (val) {
       this.updatePagination(1, this.pagination.perPage)
       val !== 'date' && this.$refs.pid.focus()
-      console.warn(this.$refs.pid)
-      // this.reload()
     },
-    hidePersonals (flag) {
-      // this.reload()
-    },
+    hidePersonals (flag) {},
     rows (dontcare) {
       this.updatePagination(1, this.pagination.perPage)
     }
@@ -236,13 +209,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.move-table-up {
-  margin-top: -25px;
-}
-.fixed-height-table {
-  max-height: calc(100% - 135px);
-}
-.tags-input {
-  width: 100vw;
-}
 </style>
