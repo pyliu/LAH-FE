@@ -26,7 +26,8 @@ div
           v-show="searchType !== 'date'",
           ref="pid",
           v-model="pid",
-          placeholder="A123456789"
+          placeholder="... A123456789 ..."
+          @keyup.enter="$fetch"
         )
         //- b-checkbox.ml-1.text-nowrap(v-model="hidePersonals", switch) 遮蔽個資
         lah-button.mx-1(
@@ -50,21 +51,21 @@ div
           :jsons="xlsxData",
           header="謄本調閱紀錄"
         )
-        lah-countdown-button.ml-1(
-          ref="countdown"
-          icon="sync-alt"
-          action="ld-cycle"
-          size="lg"
-          variant="outline-secondary"
-          badge-variant="secondary"
-          title="強制重新搜尋"
-          :milliseconds="0"
-          :disabled="isBusy"
-          :busy="isBusy"
-          @end="reload"
-          @click="reload"
-          no-badge
-        )
+        //- lah-countdown-button.ml-1(
+        //-   ref="countdown"
+        //-   icon="sync-alt"
+        //-   action="ld-cycle"
+        //-   size="lg"
+        //-   variant="outline-secondary"
+        //-   badge-variant="secondary"
+        //-   title="強制重新搜尋"
+        //-   :milliseconds="0"
+        //-   :disabled="isBusy"
+        //-   :busy="isBusy"
+        //-   @end="reload"
+        //-   @click="reload"
+        //-   no-badge
+        //- )
 
   lah-pagination(
     v-if="showPagination",
@@ -157,7 +158,7 @@ export default {
     this.isBusy = true
     let axiosOpts = {
       type: 'cusmm_by_pid',
-      pid: this.pid
+      pid: this.pid?.toUpperCase()
     }
     if (this.searchType === 'date') {
       axiosOpts = {
