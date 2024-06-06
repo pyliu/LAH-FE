@@ -120,6 +120,7 @@ export default {
       { key: '鄉鎮市區', label: '區名', sortable: true },
       { key: '地建別', sortable: true },
       { key: '鄉鎮市區', sortable: true },
+      // { key: '電子資料登記謄本張數', sortable: true },
       { key: '登記簿謄本張數', sortable: true },
       { key: '地價謄本張數', sortable: true },
       { key: '地籍圖謄本張數', sortable: true },
