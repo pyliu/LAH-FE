@@ -146,7 +146,7 @@ div(v-cloak)
 <script>
 import shuffle from 'lodash/shuffle'
 export default {
-  middleware: ['isInf'],
+  // middleware: ['isInf'], // authority control
   data: () => ({
     red: 0,
     yellow: 0,
