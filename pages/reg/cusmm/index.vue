@@ -6,9 +6,8 @@ div: client-only
         .my-auto 謄本調閱紀錄檢索
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
-          .d-flex.h5
-            .mr-1 - XLSX匯出遮蔽個資
-            b-checkbox(v-model="hidePersonals", switch)
+          .d-flex.justify-content-end.h5
+            b-checkbox(v-model="hidePersonals", switch) XLSX匯出遮蔽個資
           h5 請參照下列步驟搜尋
           ol
             li 可切換日期或是統編查詢
