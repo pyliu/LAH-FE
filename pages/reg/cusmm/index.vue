@@ -46,7 +46,7 @@ div: client-only
         )
         lah-button-xlsx(
           :jsons="xlsxData",
-          header="謄本調閱紀錄"
+          :header="`謄本調閱紀錄(${hidePersonals ? '遮蔽個資' : '★不遮蔽個資★'})`"
         )
 
   lah-pagination(
