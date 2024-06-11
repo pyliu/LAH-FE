@@ -1,11 +1,14 @@
 <template lang="pug">
-div
+div: client-only
   lah-header
     lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
         .my-auto 謄本調閱紀錄檢索
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
+          .d-flex.h5
+            .mr-1 - XLSX匯出遮蔽個資
+            b-checkbox(v-model="hidePersonals", switch)
           h5 請參照下列步驟搜尋
           ol
             li 可切換日期或是統編查詢
@@ -76,6 +79,14 @@ div
         .text-nowrap {{ $utils.addDateDivider(item['收件日期']) }}
       template(#cell(收件時間)="{ item }")
         .text-nowrap {{ $utils.addTimeDivider(item['收件時間']) }}
+      //- template(#cell(申請人統編)="{ item }")
+      //-   .text-nowrap {{ hidePersonalInfo(item['申請人統編']) }}
+      //- template(#cell(申請人姓名)="{ item }")
+      //-   .text-nowrap {{ hidePersonalInfo(item['申請人姓名']) }}
+      //- template(#cell(代理人統編)="{ item }")
+      //-   .text-nowrap {{ hidePersonalInfo(item['代理人統編']) }}
+      //- template(#cell(代理人姓名)="{ item }")
+        .text-nowrap {{ hidePersonalInfo(item['代理人姓名']) }}
     .center.h2.mt-3(v-else-if="isBusy"): .ld-txt 讀取中 ...
     .center.h2.mt-3(v-else) ⚠ 無資料，請重新查詢 ⚠
 
@@ -183,7 +194,14 @@ export default {
       return this.rows?.length
     },
     xlsxData () {
-      return this.rows
+      return this.rows.map((row) => {
+        const copiedArray = JSON.parse(JSON.stringify(row))
+        copiedArray['申請人統編'] = this.hidePersonalInfo(row['申請人統編'])
+        copiedArray['代理人統編'] = this.hidePersonalInfo(row['代理人統編'])
+        copiedArray['申請人姓名'] = this.hidePersonalInfo(row['申請人姓名'])
+        copiedArray['代理人姓名'] = this.hidePersonalInfo(row['代理人姓名'])
+        return copiedArray
+      })
     },
     queryOK () {
       if (this.searchType !== 'date' && this.$utils.length(this.pid) < 4) {
@@ -225,6 +243,19 @@ export default {
           perPage: pageCount
         }
       }
+    },
+    hidePersonalInfo (text) {
+      if (this.hidePersonals && text) {
+        // pid, uses a regular expression to specifically match the pattern of a string starting with a capital letter (A-Z).
+        if (/^\p{Lu}/u.test(text) && text.length === 10) {
+          return text.slice(0, 4) + 'XXX' + text.slice(7)
+        }
+        // human name
+        if (text.length <= 4) {
+          return text[0] + 'Ｏ' + text[text.length - 1]
+        }
+      }
+      return text
     }
   }
 }
