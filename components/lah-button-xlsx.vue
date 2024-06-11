@@ -25,7 +25,7 @@ export default {
     variant: { type: String, default: 'outline-success' },
     size: { type: String, default: 'lg' },
     action: { type: String, default: 'move-fade-ltr' },
-    title: { type: String, default: '匯出EXCEL' },
+    title: { type: String, default: '匯出XLSX檔案' },
     pill: { type: Boolean, default: false }
   },
   computed: {
@@ -44,7 +44,7 @@ export default {
           jsonArray: this.jsons || []
         }
       }), {
-        title: `下載EXCEL檔案 - ${this.header}`
+        title: `下載XLSX檔案 - ${this.header}`
       })
     }
   }
