@@ -77,7 +77,7 @@ b-card(border-variant="secondary")
           v-if="cellPhoneEmpty",
           icon="triangle-exclamation",
           variant="warning"
-        ) 本案無傳送辦理情形簡訊
+        ) 本案可能無法傳送辦理情形簡訊
     b-row.danger-border.my-2(v-if="isChangeWrong")
       b-col
         lah-mgmt-board-reg-case-fix-RM39G(embed, :case-id="caseId", @update="search")
