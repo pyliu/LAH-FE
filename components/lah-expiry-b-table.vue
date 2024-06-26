@@ -192,10 +192,15 @@ export default {
       })
     },
     distanceFromNow (val) {
-      const head = val.substring(0, 3)
-      const adHead = 1911 + parseInt(val)
-      const adDate = val.replace(head, adHead)
-      return this.$utils.formatDistanceToNow(+new Date(adDate))
+      try {
+        const head = val.substring(0, 3)
+        const adHead = 1911 + parseInt(val)
+        const adDate = val.replace(head, adHead)
+        return this.$utils.formatDistanceToNow(+new Date(adDate))
+      } catch (ex) {
+        console.warn(`不是正常的日期時間，期望字串範例 👉 "113-06-26 15:58:00"，實際值 👉 "${val}"`)
+        return '無法解析日期時間'
+      }
     }
   }
 }
