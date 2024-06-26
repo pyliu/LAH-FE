@@ -478,11 +478,16 @@ export default ({ $axios, store }, inject) => {
       return str
     },
     formatDistanceToNow (d = +new Date()) {
-      return formatDistanceToNow(d, {
-        addSuffix: true,
-        includeSeconds: true,
-        locale: zhTW
-      })
+      try {
+        return formatDistanceToNow(d, {
+          addSuffix: true,
+          includeSeconds: true,
+          locale: zhTW
+        })
+      } catch (ex) {
+        console.warn(`不是正常的時間戳記，實際值 👉 "${d}"`)
+        return `無法轉換時間戳記 ${d}`
+      }
     },
     addDateDivider (str, ad = false) {
       if (this.empty(str) || isNaN(str)) {
