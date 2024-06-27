@@ -85,6 +85,7 @@ export default {
       { key: 'SMS_MAIL', label: '其他', sortable: true },
       { key: 'SMS_RESULT', label: '結果', sortable: true },
       { key: 'SMS_CONTENT', label: '內容', sortable: true }
+      // { key: 'SMS_APIMSG', label: 'API回應訊息', sortable: true }
     ],
     pagination: {
       perPage: 20,
