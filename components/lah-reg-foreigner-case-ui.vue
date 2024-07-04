@@ -9,7 +9,6 @@ div
         ref="year",
         v-model="year",
         :options="years",
-        :disabled="editMode",
         @change="emitInput"
       )
         template(v-slot:first): b-form-select-option(:value="null" disabled) -- 年份 --
@@ -279,6 +278,7 @@ export default {
       formData.append('type', 'edit_foreigner_pdf')
       formData.append('id', this.editId)
       formData.append('year', this.year)
+      formData.append('old_year', this.origData.year)
       formData.append('number', this.number)
       formData.append('fid', this.foreignerId)
       formData.append('fname', this.foreignerName)
