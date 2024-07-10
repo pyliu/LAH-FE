@@ -69,6 +69,15 @@ export default {
       }
       return ''
     },
+    attentionCss () {
+      if (this.light === 'danger') {
+        return 'scale-danger'
+      }
+      if (this.light === 'warning') {
+        return 'scale-warning'
+      }
+      return ''
+    },
     grafanaUrl () {
       return `http://${this.$config.monitor.host.Grafana.ip}:${this.$config.monitor.host.Grafana.port}`
     }
