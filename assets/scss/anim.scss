@@ -1,3 +1,47 @@
+@mixin anim-keyframes($duration, $keyframe) {
+  animation: $duration $keyframe;
+  margin: auto;
+}
+
+@mixin anim-keyframes-infinite($duration, $keyframe) {
+  animation: $duration $keyframe ease-in-out infinite;
+  margin: auto;
+}
+
+@mixin anim-typing($w, $d) {
+  width: $w;
+  animation: typing $d steps(8), blink .5s step-end infinite alternate;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid;
+}
+
+@mixin scale-keyframes($name, $scale) {
+  @keyframes #{$name} {
+    // @content;
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale($scale);
+    }
+    100% {
+        transform: scale(1);
+    }
+  }
+}
+
+@include scale-keyframes(scale-warning, 1.025);
+@include scale-keyframes(scale-danger, 1.05);
+
+.scale-warning {
+  animation: scale-warning 3s ease infinite;
+}
+
+.scale-danger {
+  animation: scale-danger 3s ease infinite;
+}
+
 @keyframes appear {
   0% {
     opacity: 0;
@@ -28,17 +72,8 @@
   }
 }
 
-@mixin anim-keyframes($d, $k) {
-  animation: $d $k;
-  margin: auto;
-}
-
-@mixin anim-typing($w, $d) {
-  width: $w;
-  animation: typing $d steps(8), blink .5s step-end infinite alternate;
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 2px solid;
+.ld-txt {
+  @include anim-typing(8ch, .5s);
 }
 
 .anim-appear-1s {
@@ -58,10 +93,6 @@
 }
 .slide-leave-active {
   animation: slide-to 0.3s forwards reverse linear;
-}
-
-.ld-txt {
-  @include anim-typing(8ch, .5s);
 }
 
 .list-enter-active, .list-leave-active {
