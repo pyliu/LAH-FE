@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(:border-variant="border")
+b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
     lah-fa-icon.font-weight-bold(icon="comment-sms", append) {{ header }}

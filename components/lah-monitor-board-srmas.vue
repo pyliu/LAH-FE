@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(:border-variant="border")
+b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
     strong(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)

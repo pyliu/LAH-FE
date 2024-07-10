@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(:border-variant="borderVariant")
+b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
       strong {{ header }} - {{ ip }}:{{ port }}
@@ -319,12 +319,6 @@ export default {
         return 'success'
       }
       return 'danger'
-    },
-    borderVariant () {
-      if (this.light !== 'success') {
-        return this.light
-      }
-      return ''
     },
     stdout () {
       if (this.statusData) {
