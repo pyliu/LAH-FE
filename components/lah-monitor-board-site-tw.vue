@@ -95,7 +95,7 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
 </template>
 
 <script>
-import lahOfficeDownTimeline from './lah-office-down-timeline.vue'
+import lahOfficeDownTimeline from '~/components/lah-office-down-timeline.vue'
 export default {
   name: 'LahMonitorBoardSiteTw',
   emit: ['light-update'],
@@ -150,6 +150,15 @@ export default {
         return this.headerLight
       }
       return 'muted'
+    },
+    attentionCss () {
+      if (this.headerLight === 'danger') {
+        return 'scale-danger'
+      }
+      if (this.headerLight === 'warning') {
+        return 'scale-warning'
+      }
+      return ''
     }
   },
   watch: {

@@ -194,6 +194,15 @@ export default {
         return 'success'
       }
       return 'warning'
+    },
+    attentionCss () {
+      if (this.light === 'danger') {
+        return 'scale-danger'
+      }
+      if (this.light === 'warning') {
+        return 'scale-warning'
+      }
+      return ''
     }
   },
   watch: {

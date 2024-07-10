@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body, :border-variant="borderVariant")
+b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
   template(#header): .d-flex
     lah-fa-icon.mr-auto(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
@@ -159,6 +159,15 @@ export default {
     borderVariant () {
       if (this.light !== 'success') {
         return this.light
+      }
+      return ''
+    },
+    attentionCss () {
+      if (this.light === 'danger') {
+        return 'scale-danger'
+      }
+      if (this.light === 'warning') {
+        return 'scale-warning'
       }
       return ''
     }

@@ -71,6 +71,15 @@ export default {
         return this.headerLight
       }
       return 'muted'
+    },
+    attentionCss () {
+      if (this.headerLight === 'danger') {
+        return 'scale-danger'
+      }
+      if (this.headerLight === 'warning') {
+        return 'scale-warning'
+      }
+      return ''
     }
   },
   watch: {

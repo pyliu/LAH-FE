@@ -310,6 +310,12 @@ export default {
       }
       return ''
     },
+    border () {
+      if (this.light !== 'success') {
+        return this.light
+      }
+      return ''
+    },
     light () {
       // XHR data not ready OR having pending files treats as warning state
       if (this.statusData === null || this.files.length > 0) {
@@ -319,6 +325,15 @@ export default {
         return 'success'
       }
       return 'danger'
+    },
+    attentionCss () {
+      if (this.light === 'danger') {
+        return 'scale-danger'
+      }
+      if (this.light === 'warning') {
+        return 'scale-warning'
+      }
+      return ''
     },
     stdout () {
       if (this.statusData) {

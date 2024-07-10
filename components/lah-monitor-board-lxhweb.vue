@@ -122,6 +122,15 @@ export default {
           return 'muted'
       }
     },
+    attentionCss () {
+      if (this.headerLight === 'danger') {
+        return 'scale-danger'
+      }
+      if (this.headerLight === 'warning') {
+        return 'scale-warning'
+      }
+      return ''
+    },
     brokenTableCount () {
       return this.$utils.empty(this.brokenTableRaw) ? 0 : this.brokenTableRaw.length
     },
