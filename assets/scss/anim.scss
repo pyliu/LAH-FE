@@ -31,8 +31,8 @@
   }
 }
 
-@include scale-keyframes(scale-warning, 1.025);
-@include scale-keyframes(scale-danger, 1.05);
+@include scale-keyframes(scale-warning, 1.0125);
+@include scale-keyframes(scale-danger, 1.025);
 
 .scale-warning {
   animation: scale-warning 3s ease infinite;
