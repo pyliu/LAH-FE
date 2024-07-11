@@ -1,5 +1,6 @@
 import pkg from './package.json'
 export default {
+  // ssr: false, // Disable Server Side rendering
   server: {
     // bind to all possible addresses
     host: '0.0.0.0'
