@@ -127,7 +127,13 @@ export default {
     },
     apTotal () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
     light () {
-      return this.apStyles[0]
+      if (this.apStyles[0] === 'danger' || this.dbStyles[0] === 'danger' || this.cpuStyles[0] === 'danger') {
+        return 'danger'
+      }
+      if (this.apStyles[0] === 'warning' || this.dbStyles[0] === 'warning' || this.cpuStyles[0] === 'warning') {
+        return 'warning'
+      }
+      return 'success'
     },
     borderVariant () {
       if (this.light !== 'success') {
