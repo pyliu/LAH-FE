@@ -35,7 +35,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         variant="outline-secondary",
         no-border,
         no-icon-gutter,
-        @click="reload",
+        @click="loadSMS",
         :title="`上次更新時間 ${updated}`"
       )
       lah-button(
