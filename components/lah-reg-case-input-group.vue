@@ -108,10 +108,6 @@ export default {
     // set year select options
     const d = new Date()
     this.year = (d.getFullYear() - 1911)
-  },
-  mounted () {
-    this.reloadYear()
-    this.reloadCode()
     this.getMaxNumber = this.$utils.debounce(() => {
       if (this.validYear && this.validCode) {
         this.isBusy = true
@@ -134,7 +130,10 @@ export default {
         })
       }
     }, 400)
+    this.reloadYear()
+    this.reloadCode()
   },
+  mounted () {},
   methods: {
     emitInput (e) {
       this.$emit('input', this.caseId)
@@ -202,23 +201,23 @@ export default {
       this.codes = Object.assign({}, {
         reg: {
           HB: {
-            label: '登記案件-本所',
+            label: '本所案件',
             options: []
           },
           HXB1: {
-            label: '登記案件-本所收件(跨所)',
+            label: '跨所案件-本所收件',
             options: []
           },
           HBX1: {
-            label: '登記案件-他所收件(跨所)',
+            label: '跨所案件-他所收件',
             options: []
           },
           H2XX: {
-            label: '登記案件-本所收件(跨縣市)',
+            label: '跨縣市案件-本所收件',
             options: []
           },
           XXHB: {
-            label: '登記案件-他所收件(跨縣市)',
+            label: '跨縣市案件-他所收件',
             options: []
           }
         },
@@ -239,6 +238,7 @@ export default {
     async restoreCodeData (items) {
       // ITEM欄位：YEAR, CODE, CODE_NAME, COUNT, CODE_TYPE
       // [109, HCB1, 壢溪登跨, 1213, reg.HXB1]
+
       if (!Array.isArray(items)) {
         items = await this.getCache(this.codeCacheKeyPermanent)
       }
@@ -246,21 +246,30 @@ export default {
       if (Array.isArray(items)) {
         this.resetCodes()
         items.forEach((item) => {
-          const type = item.CODE_TYPE.split('.')
           // type => ['reg', 'HXB1']
+          const type = item.CODE_TYPE.split('.')
+
+          // temp fix for reg.H2XX issue
+          if (type.length < 2) {
+            type[0] = 'reg'
+            type[1] = 'H2XX'
+          }
+          // console.warn(item, type)
 
           if (this.$utils.empty(item.CODE_NAME)) { return false }
           if (this.$utils.empty(this.codes[type[0]])) { return false }
           if (this.$utils.empty(this.codes[type[0]][type[1]])) { return false }
 
           const combined = item.CODE + ` ${item.CODE_NAME}` // 'HCB1 壢溪登跨'
-          const found = this.codes[type[0]][type[1]].options.find((i, idx, array) => { return i == combined })
+          const found = this.codes[type[0]][type[1]].options.find((i, idx, array) => { return i === combined })
           if (!found) {
             this.codes[type[0]][type[1]].options.push(combined)
           }
         })
         // this.codes = Object.assign({}, this.codes);
         this.arrangeCodeList()
+
+        // console.warn(this.codes)
       } else if (--this.retry > 0) {
         this.timeout(() => this.reloadCode(), 200)
       } else {
@@ -315,16 +324,16 @@ export default {
     codeBg (label) {
       let bgCss = ''
       switch (label) {
-        case '登記案件-本所收件(跨所)':
+        case '跨所案件-本所收件':
           bgCss = 'bg-primary text-white'
           break
-        case '登記案件-他所收件(跨所)':
+        case '跨所案件-他所收件':
           bgCss = 'bg-info text-white'
           break
-        case '登記案件-本所收件(跨縣市)':
+        case '跨縣市案件-本所收件':
           bgCss = 'bg-success text-white'
           break
-        case '登記案件-他所收件(跨縣市)':
+        case '跨縣市案件-他所收件':
           bgCss = 'bg-warning'
           break
         case '測量案件':
