@@ -70,7 +70,8 @@ export default {
     type: { type: String, default: 'line' },
     rightmost: { type: Boolean, default: true },
     watchTopXap: { type: Boolean, default: false },
-    reloadTime: { type: Number, default: 60 }
+    reloadTime: { type: Number, default: 60 },
+    enableAttention: { type: Boolean, default: false }
   },
   data: () => ({
     header: '',
@@ -121,11 +122,13 @@ export default {
       return ''
     },
     attentionCss () {
-      if (this.light === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.light === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.light === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.light === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     },

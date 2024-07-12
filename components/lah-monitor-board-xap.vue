@@ -81,7 +81,8 @@ export default {
   emit: ['light-update'],
   components: { LahMonitorBoardXapTrend },
   props: {
-    maximized: { type: Boolean, default: false }
+    maximized: { type: Boolean, default: false },
+    enableAttention: { type: Boolean, default: false }
   },
   data: () => ({
     header: '跨域AP各所連線狀態',
@@ -142,11 +143,13 @@ export default {
       return ''
     },
     attentionCss () {
-      if (this.light === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.light === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.light === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.light === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     },

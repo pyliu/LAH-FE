@@ -98,7 +98,8 @@ export default {
   emit: ['light-update'],
   components: { lahAdmSmslogTableVue },
   props: {
-    footer: { type: Boolean, default: false }
+    footer: { type: Boolean, default: false },
+    enableAttention: { type: Boolean, default: false }
   },
   data: () => ({
     header: '地政系統簡訊狀態監控',
@@ -196,11 +197,13 @@ export default {
       return 'warning'
     },
     attentionCss () {
-      if (this.light === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.light === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.light === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.light === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     }

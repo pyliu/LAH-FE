@@ -105,7 +105,8 @@ export default {
   emit: ['light-update'],
   components: { LahMonitorBoardConnectivitySetup },
   props: {
-    maximized: { type: Boolean, default: false }
+    maximized: { type: Boolean, default: false },
+    enableAttention: { type: Boolean, default: false }
   },
   data: () => ({
     header: '系統連線狀態監控',
@@ -163,11 +164,13 @@ export default {
       return ''
     },
     attentionCss () {
-      if (this.light === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.light === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.light === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.light === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     }

@@ -199,7 +199,8 @@ export default {
   name: 'LahMonitorBoardL05',
   emit: ['light-update'],
   props: {
-    footer: { type: Boolean, default: false }
+    footer: { type: Boolean, default: false },
+    enableAttention: { type: Boolean, default: false }
   },
   data: () => ({
     header: '建物圖籍同步異動',
@@ -327,11 +328,13 @@ export default {
       return 'danger'
     },
     attentionCss () {
-      if (this.light === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.light === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.light === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.light === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     },
