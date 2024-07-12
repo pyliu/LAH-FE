@@ -112,8 +112,7 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
-    attentionList: [],
-    testSwitch: false
+    attentionList: []
   }),
   head: {
     title: '智慧監控儀表板-桃園市地政局'
@@ -136,11 +135,7 @@ export default {
       return this.site === 'HA'
     }
   },
-  watch: {
-    attentionList (val) {
-      console.warn(val)
-    }
-  },
+  watch: {},
   mounted () {
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       // to add warning/danger card to highlight group
