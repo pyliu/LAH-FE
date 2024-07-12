@@ -47,7 +47,7 @@ div(v-cloak)
 
   section.highlight-group(v-if="highlightCount > 0")
     h3 ❗ 警示面板(#[span.text-danger.font-weight-bolder {{ highlightCount }}])
-    lah-flex-item-group: component.fixed-dimension(
+    lah-flex-item-group: component(
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`",
       :is="obj.compName",
@@ -179,10 +179,5 @@ export default {
 .highlight-group {
   border-bottom: 2px dashed gray;
   margin-bottom: 15px;
-}
-.fixed-dimension {
-  width: calc((100vw - 300px) / 3);
-  height: calc((100vh - 80px) / 3);
-  overflow: auto;
 }
 </style>
