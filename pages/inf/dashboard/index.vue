@@ -45,7 +45,7 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
 
-  section(v-if="highlightCount > 0")
+  section.highlight-group(v-if="highlightCount > 0")
     h3 ❗ 警示面板(#[span.text-danger.font-weight-bolder {{ highlightCount }}])
     lah-flex-item-group: component.fixed-dimension(
       v-for="(obj, idx) in attentionList",
@@ -177,13 +177,8 @@ export default {
 
 <style lang="scss">
 .highlight-group {
-  padding: 10px 10px 0 10px;
-  border: 2px dashed red;
+  border-bottom: 2px dashed gray;
   margin-bottom: 15px;
-  .card {
-    max-height: calc((100vh - 80) / 3);
-    overflow: auto;
-  }
 }
 .fixed-dimension {
   width: calc((100vw - 300px) / 3);
