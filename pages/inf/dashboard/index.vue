@@ -51,6 +51,11 @@ div(v-cloak)
     ref="highlight",
     columns
   )
+    transition-group(name="list", mode="out-in"): component.card-body-fixed-height-3(
+      v-for="(obj, idx) in attentionList",
+      :key="`${obj.compName}-${idx}`",
+      :is="obj.compName"
+    )
 
   div
     client-only: b-card-group.mb-4(deck)
@@ -104,14 +109,13 @@ div(v-cloak)
 </template>
 
 <script>
-import shuffle from 'lodash/shuffle'
 export default {
   middleware: ['isInf'], // authority control
   data: () => ({
     red: 0,
     yellow: 0,
     green: 0,
-    filterList: [],
+    attentionList: [],
     testSwitch: false
   }),
   head: {
@@ -119,7 +123,8 @@ export default {
   },
   computed: {
     showHighlight () {
-      return (this.yellow + this.red) > 0
+      // return (this.yellow + this.red) > 0
+      return this.attentionList.length > 0
     },
     lightMap () {
       return this.$store.getters['inf/monitorLightMap']
@@ -133,41 +138,26 @@ export default {
     },
     isHA () {
       return this.site === 'HA'
-    },
-    filterListShuffled () {
-      return shuffle(this.filterList)
     }
   },
-  watch: {},
+  watch: {
+    attentionList (val) {
+      console.warn(val)
+    }
+  },
   mounted () {
     this.refreshHighlightGroup = this.$utils.debounce(() => {
-      const targetEl = this.$refs.highlight || this.$('#highlight')
-      targetEl.innerHTML = ''
       // to add warning/danger card to highlight group
+      this.attentionList = []
       for (const [key, value] of this.lightMap) {
         if (['warning', 'danger'].includes(value)) {
-          // console.warn(this.$refs[key].$el.outerHTML)
-          // const vnode = this.$createElement(this.$refs[key].$el);
-          // console.warn(vnode)
-          const htmlString = this.$refs[key].$el.outerHTML
-          const parser = new DOMParser()
-          const doc = parser.parseFromString(htmlString, 'text/html')
-          const div = doc.querySelector('div')
-          const canvas = doc.querySelector('canvas')
-          if (canvas) {
-            console.warn(canvas)
-            canvas.outerHTML = `
-              <div class="text-center my-3">
-                <h2>狀態圖形請看下面</h2>
-              </div>
-            `
-          }
-          // this.$refs.container.appendChild(paragraph);
-          // Accessing the raw DOM element
-          targetEl.appendChild(div)
+          this.attentionList.push({
+            compName: key.charAt(0).toLowerCase() + key.slice(1),
+            state: value
+          })
         }
       }
-    }, 2000)
+    }, 3000)
   },
   methods: {
     lightUpdate (payload) {
@@ -190,17 +180,8 @@ export default {
 </script>
 
 <style lang="scss">
-// .card-body-fixed-height-3 {
-//   .card-body {
-//     height: calc((100vh - 450px) / 3);
-//     overflow: auto;
-//   }
-// }
-.no-dashboard {
-  height: calc(100vh - 110px);
-}
 .highlight-group {
-  padding: 10px;
+  padding: 10px 10px 0 10px;
   border: 2px dashed red;
   margin-bottom: 15px;
   .card {
