@@ -46,7 +46,7 @@ div(v-cloak)
         li 目前監控設定：{{ connectionText }}
 
   section.highlight-group(v-if="highlightCount > 0")
-    h3 ❗ 警示面板(#[span.text-danger.font-weight-bolder {{ highlightCount }}])
+    .h3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
     lah-flex-item-group: component(
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`",

@@ -1,19 +1,19 @@
-.text-bold-red {
+.text-bold-red, .text-bold-danger {
   color:red;
   font-weight: bold;
 }
 
-.text-bold-blue {
+.text-bold-blue, .text-bold-info {
   color:blue;
   font-weight: bold;
 }
 
-.text-bold-orange {
+.text-bold-orange, .text-bold-warning {
   color:orange;
   font-weight: bold;
 }
 
-.text-bold-green {
+.text-bold-green, .text-bold-success {
   color:limegreen;
   font-weight: bold;
 }

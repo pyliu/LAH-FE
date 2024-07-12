@@ -22,4 +22,5 @@
 .highlight-danger, .highlight-red {
   @extend %highlight-base;
   background-color: red;
+  color:white;
 }
