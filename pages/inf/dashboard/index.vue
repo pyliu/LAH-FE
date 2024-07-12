@@ -47,14 +47,12 @@ div(v-cloak)
 
   section(v-if="highlightCount > 0")
     h3 ❗ 警示面板(#[span.text-danger.font-weight-bolder {{ highlightCount }}])
-    hr
     lah-flex-item-group: component.fixed-dimension(
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`",
       :is="obj.compName",
       enable-attention
     )
-    hr
 
   div
     client-only: b-card-group.mb-4(deck)
