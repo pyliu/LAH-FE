@@ -45,17 +45,15 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
 
-  lah-transition: b-card-group.highlight-group(
-    v-if="showHighlight",
-    id="highlight",
-    ref="highlight",
-    columns
-  )
-    transition-group(name="list", mode="out-in"): component.card-body-fixed-height-3(
+  section(v-if="highlightCount > 0")
+    h3 ❗ 警示面板({{ highlightCount }})
+    hr
+    lah-flex-item-group: component.fixed-dimension(
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`",
       :is="obj.compName"
     )
+    hr
 
   div
     client-only: b-card-group.mb-4(deck)
@@ -122,9 +120,8 @@ export default {
     title: '智慧監控儀表板-桃園市地政局'
   },
   computed: {
-    showHighlight () {
-      // return (this.yellow + this.red) > 0
-      return this.attentionList.length > 0
+    highlightCount () {
+      return this.attentionList.length
     },
     lightMap () {
       return this.$store.getters['inf/monitorLightMap']
@@ -157,7 +154,7 @@ export default {
           })
         }
       }
-    }, 3000)
+    }, 5000)
   },
   methods: {
     lightUpdate (payload) {
@@ -188,5 +185,10 @@ export default {
     max-height: calc((100vh - 80) / 3);
     overflow: auto;
   }
+}
+.fixed-dimension {
+  width: calc((100vw - 300px) / 3);
+  height: calc((100vh - 80px) / 3);
+  overflow: auto;
 }
 </style>

@@ -1,7 +1,11 @@
+
 export default {
   emit: ['light-update'],
   name: 'lahMonitorBoardBase',
   fetchOnServer: false,
+  props: {
+    enableAttention: { type: Boolean, default: false }
+  },
   data: () => ({
     header: '監控儀表板BASE',
     messages: [],
@@ -70,11 +74,13 @@ export default {
       return ''
     },
     attentionCss () {
-      if (this.light === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.light === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.light === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.light === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     },
