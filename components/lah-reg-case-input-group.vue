@@ -63,7 +63,7 @@ export default {
     codes: {},
     codeData: [],
     years: [],
-    year: '111',
+    year: '113',
     code: '',
     number: '',
     step: 10,
@@ -149,7 +149,7 @@ export default {
     },
     reloadYear () {
       this.getCache('lah-case-input-group-year').then((years) => {
-        if (years !== false) {
+        if (Array.isArray(years) && years.includes(this.year)) {
           this.years = [...years]
         } else {
           // set year select options

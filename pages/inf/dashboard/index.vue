@@ -139,17 +139,17 @@ export default {
   mounted () {
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       // to add warning/danger card to highlight group
-      this.attentionList = []
+      const tmp = []
       for (const [key, value] of this.lightMap) {
         if (['warning', 'danger'].includes(value)) {
-          this.attentionList.push({
+          tmp.push({
             compName: key.charAt(0).toLowerCase() + key.slice(1),
             state: value
           })
         }
       }
       // order by state
-      this.attentionList = this.$utils.orderBy(this.attentionList, 'state')
+      this.attentionList = this.$utils.orderBy(tmp, 'state')
     }, 5000)
   },
   methods: {
