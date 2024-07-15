@@ -51,7 +51,7 @@ div(v-cloak)
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`",
       :is="obj.compName",
-      enable-attention
+      :enable-attention="obj.state === 'danger'"
     )
 
   div
