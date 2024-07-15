@@ -125,7 +125,7 @@ export default {
   },
   mounted () {
     // update the reload timer to 1hrs
-    this.reloadMs = 1 * 60 * 60 * 1000 + this.$utils.rand(60)
+    this.reloadMs = (1 * 60 * 60 + this.$utils.rand(60)) * 1000
   }
 }
 </script>
