@@ -142,6 +142,10 @@ export default {
         default: return 'OUTDATED'
       }
     }
+  },
+  mounted () {
+    // update the reload timer to 1hrs
+    this.reloadMs = 1 * 60 * 60 * 1000
   }
 }
 </script>

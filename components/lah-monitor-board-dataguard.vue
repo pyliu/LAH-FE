@@ -126,6 +126,10 @@ export default {
       return ans ? 'success' : 'danger'
     }
   },
+  mounted () {
+    // update the reload timer to 1hrs
+    this.reloadMs = 1 * 60 * 60 * 1000
+  },
   methods: {
     logSeqMatches (item) {
       const regex = /Current\s+log\s+sequence\s+(\d+)/gm

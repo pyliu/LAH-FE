@@ -122,6 +122,10 @@ export default {
       }
       return this.foundFs.length === 7 ? 'success' : 'danger'
     }
+  },
+  mounted () {
+    // update the reload timer to 1hrs
+    this.reloadMs = 1 * 60 * 60 * 1000
   }
 }
 </script>
