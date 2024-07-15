@@ -45,7 +45,7 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
 
-  section.highlight-group.mt-n4(v-if="highlightCount > 0")
+  lah-transition: section.highlight-group.mt-n4(v-if="highlightCount > 0")
     .h3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
     lah-flex-item-group: component(
       v-for="(obj, idx) in attentionList",
@@ -161,7 +161,7 @@ export default {
     // using animation to catch attention
     this.attentionTimer = setInterval(() => {
       this.dangerList.forEach((card) => {
-        this.timeout(() => this.attention(`#${card.compName}-top`), this.$utils.rand(10) * 1000)
+        this.timeout(() => this.attention(`#${card.compName}-top`, { speed: 'normal' }), this.$utils.rand(10) * 1000)
       })
     }, 15 * 1000)
   },
