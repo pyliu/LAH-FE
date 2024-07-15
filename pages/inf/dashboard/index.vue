@@ -200,6 +200,6 @@ export default {
   margin-bottom: 15px;
 }
 .card-top-fixed-height {
-  height: calc((100vh - 80px) / 3);
+  height: calc((100vh - 150px) / 3);
 }
 </style>
