@@ -47,8 +47,9 @@ div(v-cloak)
 
   lah-transition: section.highlight-group.mt-n4(v-if="highlightCount > 0")
     .h3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
-    lah-flex-item-group: component(
+    .d-flex.flex-wrap: .col-md-4.mb-3(
       v-for="(obj, idx) in attentionList",
+    ): component.card-top-fixed-height(
       :id="`${obj.compName}-top`",
       :key="`${obj.compName}-${idx}`",
       :is="obj.compName",
@@ -197,5 +198,8 @@ export default {
 .highlight-group {
   border-bottom: 2px dashed gray;
   margin-bottom: 15px;
+}
+.card-top-fixed-height {
+  height: calc((100vh - 80px) / 3);
 }
 </style>
