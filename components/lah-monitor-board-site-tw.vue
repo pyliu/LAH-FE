@@ -102,7 +102,8 @@ export default {
   components: { lahOfficeDownTimeline },
   props: {
     updatePeriod: { type: String, default: '300000' }, // 5 mins
-    footer: { type: Boolean, default: true }
+    footer: { type: Boolean, default: true },
+    enableAttention: { type: Boolean, default: false }
   },
   data: () => ({
     officesData: [],
@@ -152,11 +153,13 @@ export default {
       return 'muted'
     },
     attentionCss () {
-      if (this.headerLight === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.headerLight === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.headerLight === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.headerLight === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     }

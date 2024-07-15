@@ -49,7 +49,8 @@ export default {
   name: 'LahMonitorBoardSiteHx',
   emit: ['light-update'],
   props: {
-    updatePeriod: { type: String, default: '60000' }
+    updatePeriod: { type: String, default: '60000' },
+    enableAttention: { type: Boolean, default: false }
   },
   data: () => ({
     offices: ['HA', 'HB', 'HC', 'HD', 'HE', 'HF', 'HG', 'HH'],
@@ -73,11 +74,13 @@ export default {
       return 'muted'
     },
     attentionCss () {
-      if (this.headerLight === 'danger') {
-        return 'scale-danger'
-      }
-      if (this.headerLight === 'warning') {
-        return 'scale-warning'
+      if (this.enableAttention) {
+        if (this.headerLight === 'danger') {
+          return 'scale-danger'
+        }
+        if (this.headerLight === 'warning') {
+          return 'scale-warning'
+        }
       }
       return ''
     }
