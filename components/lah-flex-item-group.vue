@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.flex-wrap.justify-content-between.lah
+.d-flex.flex-wrap.justify-content-around.lah
   slot
 </template>
 

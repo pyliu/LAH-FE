@@ -148,6 +148,8 @@ export default {
           })
         }
       }
+      // order by state
+      this.attentionList = this.$utils.orderBy(this.attentionList, 'state')
     }, 5000)
   },
   methods: {
