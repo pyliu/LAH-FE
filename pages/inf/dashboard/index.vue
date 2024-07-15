@@ -161,9 +161,9 @@ export default {
     // using animation to catch attention
     this.attentionTimer = setInterval(() => {
       this.dangerList.forEach((card) => {
-        this.timeout(() => this.attention(`#${card.compName}-top`), (1 + this.$utils.rand(15)) * 1000)
+        this.timeout(() => this.attention(`#${card.compName}-top`), this.$utils.rand(10) * 1000)
       })
-    }, 30 * 1000)
+    }, 15 * 1000)
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
