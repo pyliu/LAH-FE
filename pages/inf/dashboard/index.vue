@@ -49,9 +49,10 @@ div(v-cloak)
     .h3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
     lah-flex-item-group: component(
       v-for="(obj, idx) in attentionList",
+      :id="`${obj.compName}-top`",
       :key="`${obj.compName}-${idx}`",
       :is="obj.compName",
-      :enable-attention="obj.state === 'danger'"
+      :enable-attention="false"
     )
 
   div
@@ -112,12 +113,18 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
-    attentionList: []
+    attentionList: [],
+    attentionTimer: null
   }),
   head: {
     title: '智慧監控儀表板-桃園市地政局'
   },
   computed: {
+    dangerList () {
+      return this.attentionList.filter((item) => {
+        return item.state === 'danger'
+      })
+    },
     highlightCount () {
       return this.attentionList.length
     },
@@ -151,6 +158,15 @@ export default {
       // order by state
       this.attentionList = this.$utils.orderBy(tmp, 'state')
     }, 5000)
+    // using animation to catch attention
+    this.attentionTimer = setInterval(() => {
+      this.dangerList.forEach((card) => {
+        this.timeout(() => this.attention(`#${card.compName}-top`), (1 + this.$utils.rand(15)) * 1000)
+      })
+    }, 30 * 1000)
+  },
+  beforeDestroy () {
+    clearInterval(this.attentionTimer)
   },
   methods: {
     lightUpdate (payload) {
