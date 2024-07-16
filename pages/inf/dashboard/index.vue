@@ -55,8 +55,8 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
 
-  lah-transition: section.highlight-group.mt-n4(v-if="highlightCount > 0 && topWarning")
-    .h3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
+  lah-transition: section.highlight-group.mt-n3(v-if="highlightCount > 0 && topWarning")
+    .h3.ml-3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
     .d-flex.flex-wrap: .col-md-4.mb-3(
       v-for="(obj, idx) in attentionList",
     ): component.card-top-fixed-height(
