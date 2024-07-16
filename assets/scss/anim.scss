@@ -102,3 +102,11 @@
   opacity: 0;
   transform: translateX(-30px);
 }
+
+.list-reverse-enter-active, .list-reverse-leave-active {
+  transition: all .4s;
+}
+.list-reverse-enter, .list-reverse-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
