@@ -210,7 +210,7 @@ export default {
           this.systemConfigs.webap_jndi_local = this.apJndiLocalThreshold
           this.systemConfigs.webap_jndi_xalocal = this.apJndiXaLocalThreshold
         } else {
-          this.warning(data.message)
+          // this.warning(data.message)
         }
       }).catch((err) => {
         this.$utils.error(err)
