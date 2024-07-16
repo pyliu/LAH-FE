@@ -57,7 +57,7 @@ div(v-cloak)
 
   lah-transition: section.highlight-group.mt-n3(v-if="highlightCount > 0 && topWarning")
     .h3.ml-3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
-    transition-group.d-flex.flex-wrap(name="list"): .col-md-4.mb-3(
+    transition-group.d-flex.flex-wrap(name="list-reverse"): .col-md-4.mb-3(
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`"
     ): component.card-top-fixed-height(
@@ -138,6 +138,11 @@ export default {
         return item.state === 'danger'
       })
     },
+    warningList () {
+      return this.attentionList.filter((item) => {
+        return item.state === 'warning'
+      })
+    },
     highlightCount () {
       return this.attentionList.length
     },
@@ -177,6 +182,13 @@ export default {
         this.timeout(
           // 'slower', 'slow', '', 'fast', 'faster' (3s, 2s, 1s, 800ms, 500ms)
           () => this.attention(`#${card.compName}-top`, { speed: '1s' }),
+          this.$utils.rand(15) * 1000
+        )
+      })
+      this.warningList.forEach((card) => {
+        this.timeout(
+          // 'slower', 'slow', '', 'fast', 'faster' (3s, 2s, 1s, 800ms, 500ms)
+          () => this.attention(`#${card.compName}-top`, { name: 'headShake' }),
           this.$utils.rand(15) * 1000
         )
       })
