@@ -57,11 +57,11 @@ div(v-cloak)
 
   lah-transition: section.highlight-group.mt-n3(v-if="highlightCount > 0 && topWarning")
     .h3.ml-3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
-    .d-flex.flex-wrap: .col-md-4.mb-3(
+    transition-group.d-flex.flex-wrap(name="list"): .col-md-4.mb-3(
       v-for="(obj, idx) in attentionList",
+      :key="`${obj.compName}-${idx}`"
     ): component.card-top-fixed-height(
       :id="`${obj.compName}-top`",
-      :key="`${obj.compName}-${idx}`",
       :is="obj.compName",
       :enable-attention="false"
     )
