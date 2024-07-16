@@ -27,7 +27,7 @@ div(v-cloak)
         lah-button(
           :icon="topWarning ? 'bell' : 'bell-slash'",
           :pressed="topWarning",
-          :variant="topWarning ? 'warning' : 'light'",
+          :variant="topWarning ? 'info' : 'light'",
           :class="topWarning ? ['text-white', 'font-weight-bold'] : []",
           @click="topWarning = !topWarning",
           regular,
