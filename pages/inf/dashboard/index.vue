@@ -28,7 +28,7 @@ div(v-cloak)
           :icon="topWarning ? 'bell' : 'bell-slash'",
           :pressed="topWarning",
           :variant="topWarning ? 'warning' : 'light'",
-          :class="topWarning ? ['text-white'] : []",
+          :class="topWarning ? ['text-white', 'font-weight-bold'] : []",
           @click="topWarning = !topWarning",
           regular,
           size="lg"
