@@ -31,7 +31,7 @@ div(v-cloak)
           @click="topWarning = !topWarning",
           :variant="topWarning ? 'primary' : 'light'",
           size="lg"
-        ) {{ topWarning ? '顯示警示' : '已停用警示' }}
+        ) {{ topWarning ? '已啟用警示優先顯示' : '已停用警示優先顯示' }}
 
         .d-flex.align-items-center
           .mr-1 🔴 {{ red }}
