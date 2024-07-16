@@ -24,6 +24,15 @@ div(v-cloak)
             size="lg"
           )
 
+        lah-button(
+          :icon="topWarning ? 'bell' : 'bell-slash'",
+          regular,
+          :pressed="topWarning",
+          @click="topWarning = !topWarning",
+          :variant="topWarning ? 'primary' : 'light'",
+          size="lg"
+        ) {{ topWarning ? '顯示警示' : '已停用警示' }}
+
         .d-flex.align-items-center
           .mr-1 🔴 {{ red }}
           .mr-1 🟡 {{ yellow }}
@@ -45,7 +54,7 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
 
-  lah-transition: section.highlight-group.mt-n4(v-if="highlightCount > 0")
+  lah-transition: section.highlight-group.mt-n4(v-if="highlightCount > 0 && topWarning")
     .h3 🔴 + 🟡 = #[span.s-200.text-bold-danger {{ highlightCount }}]
     .d-flex.flex-wrap: .col-md-4.mb-3(
       v-for="(obj, idx) in attentionList",
@@ -116,7 +125,8 @@ export default {
     yellow: 0,
     green: 0,
     attentionList: [],
-    attentionTimer: null
+    attentionTimer: null,
+    topWarning: true
   }),
   head: {
     title: '智慧監控儀表板-桃園市地政局'
@@ -201,5 +211,6 @@ export default {
 }
 .card-top-fixed-height {
   height: calc((100vh - 150px) / 3);
+  overflow: auto;
 }
 </style>
