@@ -26,10 +26,11 @@ div(v-cloak)
 
         lah-button(
           :icon="topWarning ? 'bell' : 'bell-slash'",
-          regular,
           :pressed="topWarning",
+          :variant="topWarning ? 'warning' : 'light'",
+          :class="topWarning ? ['text-white'] : []",
           @click="topWarning = !topWarning",
-          :variant="topWarning ? 'primary' : 'light'",
+          regular,
           size="lg"
         ) {{ topWarning ? '已啟用警示優先顯示' : '已停用警示優先顯示' }}
 
@@ -175,11 +176,11 @@ export default {
       this.dangerList.forEach((card) => {
         this.timeout(
           // 'slower', 'slow', '', 'fast', 'faster' (3s, 2s, 1s, 800ms, 500ms)
-          () => this.attention(`#${card.compName}-top`, { speed: 'slow' }),
-          this.$utils.rand(10) * 1000
+          () => this.attention(`#${card.compName}-top`, { speed: '1s' }),
+          this.$utils.rand(15) * 1000
         )
       })
-    }, 15 * 1000)
+    }, 30 * 1000)
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
