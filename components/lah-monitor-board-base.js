@@ -102,6 +102,8 @@ export default {
     }
   },
   created () {
+    // provides time span for various comp reloading
+    this.reloadMs = 10 * 60 * 1000 + this.$utils.rand(30) * 1000
     this.lightChanged('warning', '', this.componentName)
     this.clearFetchingState = this.$utils.debounce(() => { this.fetchingState = '' }, 5000)
   },
