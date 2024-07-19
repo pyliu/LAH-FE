@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body, :border-variant="borderVariant")
+b-card(ref="card", no-body, :border-variant="borderVariant")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
@@ -68,7 +68,7 @@ b-card(no-body, :border-variant="borderVariant")
       div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - 連線數大於32
 
   .center.h-100.my-5(v-if="loadItems.length === 0") ⚠ {{ apIp }} 無資料
-  lah-chart(v-show="loadItems.length > 0", ref="chart", :type="type", @click="popupUser")
+  lah-chart(v-show="loadItems.length > 0", ref="chart", :type="type", @click="popupUser", :aspect-ratio="aspectRatio")
 
   template(#footer): .d-flex.justify-content-between.align-items-center.small
     lah-fa-icon(
@@ -133,7 +133,8 @@ export default {
       green: 4,
       gray: 0
     },
-    reloadTimer: null
+    reloadTimer: null,
+    aspectRatio: 0
   }),
   computed: {
     word () { return this.allSwitch ? '系統' : '使用者' },
@@ -349,6 +350,7 @@ export default {
           this.error = err
         })
         .finally(() => {
+          this.aspectRatio = this.$refs.card.offsetWidth / (this.$refs.card.offsetHeight - 130)
           this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
           // reload every 60s
