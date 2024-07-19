@@ -55,98 +55,114 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
 
-  client-only: transition-group.d-flex.flex-wrap(name="list-reverse")
+  transition-group.d-flex.flex-wrap.justify-content-around(name="list-reverse")
     //- attention boards
-    .col-md-4.mb-3(
+    .col-md-4(
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`"
     ): component.card-body-fixed-height-3(
       :id="`${obj.compName}-attention`",
+      :ref="`${obj.compName}-attention`",
       :is="obj.compName",
       :enable-attention="false",
-      :ref="`${obj.compName}-attention`"
+      :footer="isFooterEnable(obj.compName)"
     )
     //- common boards
-    .col-md-4.mb-3(
+    .col-md-4(
       key="lahMonitorBoardXap-fix",
-      :class="isInAttention('lahMonitorBoardXap') ? ['invisible'] : []"
+      v-show="!isInAttention('LahMonitorBoardXap')"
     ): lah-monitor-board-xap.card-body-fixed-height-3(
       ref="LahMonitorBoardXap",
       @light-update="lightUpdate"
     )
-    .col-md-4.mb-3(key="lahMonitorBoardSrmas-fix"): lah-monitor-board-srmas.card-body-fixed-height-3(
-      ref="LahMonitorBoardSrmas",
-      @light-update="lightUpdate",
-      footer
-    )
-    .col-md-4.mb-3(key="lahMonitorBoardSms-fix"): lah-monitor-board-sms.card-body-fixed-height-3(
-      ref="LahMonitorBoardSms",
-      @light-update="lightUpdate",
-      footer
-    )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardDataguard-fix"
+    .col-md-4(
+      key="lahMonitorBoardDataguard-fix",
+      v-show="!isInAttention('LahMonitorBoardDataguard')"
     ): lah-monitor-board-dataguard.card-body-fixed-height-3(
       ref="LahMonitorBoardDataguard",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardHacmp-fix"
+    .col-md-4(
+      key="lahMonitorBoardSrmas-fix",
+      v-show="!isInAttention('LahMonitorBoardSrmas')"
+    ): lah-monitor-board-srmas.card-body-fixed-height-3(
+      ref="LahMonitorBoardSrmas",
+      @light-update="lightUpdate",
+      footer
+    )
+    .col-md-4(
+      key="lahMonitorBoardHacmp-fix",
+      v-show="!isInAttention('LahMonitorBoardHacmp')"
     ): lah-monitor-board-hacmp.card-body-fixed-height-3(
       ref="LahMonitorBoardHacmp",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardDnp-fix"
+    .col-md-4(
+      key="lahMonitorBoardDnp-fix",
+      v-show="!isInAttention('LahMonitorBoardDnp')"
     ): lah-monitor-board-dnp.card-body-fixed-height-3(
       ref="LahMonitorBoardDnp",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardL05-fix"
+    .col-md-4(
+      key="lahMonitorBoardSms-fix",
+      v-show="!isInAttention('LahMonitorBoardSms')"
+    ): lah-monitor-board-sms.card-body-fixed-height-3(
+      ref="LahMonitorBoardSms",
+      @light-update="lightUpdate",
+      footer
+    )
+    .col-md-4(
+      key="lahMonitorBoardL05-fix",
+      v-show="!isInAttention('LahMonitorBoardL05')"
     ): lah-monitor-board-L05.card-body-fixed-height-3(
       ref="LahMonitorBoardL05",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardSiteHx-fix"
+    .col-md-4(
+      key="lahMonitorBoardSiteHx-fix",
+      v-show="!isInAttention('LahMonitorBoardSiteHx')"
     ): lah-monitor-board-site-hx.card-body-fixed-height-3(
       ref="LahMonitorBoardSiteHx",
       @light-update="lightUpdate"
     )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardSiteTw-fix"
-    ): lah-monitor-board-site-tw.card-body-fixed-height-3(
-      ref="LahMonitorBoardSiteTw",
-      @light-update="lightUpdate"
-    )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardDbbackup-fix"
-    ): lah-monitor-board-dbbackup.card-body-fixed-height-3(
-      ref="LahMonitorBoardDbbackup",
-      @light-update="lightUpdate",
-      footer
-    )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardConnectivity-fix"
-    ): lah-monitor-board-connectivity.card-body-fixed-height-3(
-      ref="LahMonitorBoardConnectivity",
-      @light-update="lightUpdate"
-    )
-    .col-md-4.mb-3(
-      key="lahMonitorBoardLxhweb-fix"
+    .col-md-4(
+      key="lahMonitorBoardLxhweb-fix",
+      v-show="!isInAttention('LahMonitorBoardLxhweb')"
     ): lah-monitor-board-lxhweb.card-body-fixed-height-3(
       ref="LahMonitorBoardLxhweb",
       @light-update="lightUpdate",
       target-ip="L3HWEB",
       link
     )
+    .col-md-4(
+      key="lahMonitorBoardSiteTw-fix",
+      v-show="!isInAttention('LahMonitorBoardSiteTw')"
+    ): lah-monitor-board-site-tw.card-body-fixed-height-3(
+      ref="LahMonitorBoardSiteTw",
+      @light-update="lightUpdate"
+    )
+    .col-md-4(
+      key="lahMonitorBoardDbbackup-fix",
+      v-show="!isInAttention('LahMonitorBoardDbbackup')"
+    ): lah-monitor-board-dbbackup.card-body-fixed-height-3(
+      ref="LahMonitorBoardDbbackup",
+      @light-update="lightUpdate",
+      footer
+    )
+    .col-md-4(
+      key="lahMonitorBoardConnectivity-fix",
+      v-show="!isInAttention('LahMonitorBoardConnectivity')"
+    ): lah-monitor-board-connectivity.card-body-fixed-height-3(
+      ref="LahMonitorBoardConnectivity",
+      @light-update="lightUpdate"
+    )
     //- HA only boards
-    .col-md-4.mb-3(
+    .col-md-4(
       v-if="isHA",
       v-show="!isInAttention('lahMonitorBoardVmclone')",
       key="lahMonitorBoardVmclone-fix"
@@ -155,46 +171,50 @@ div(v-cloak)
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
+    .col-md-4(
       v-if="isHA",
-      key="lahMonitorBoardTape-fix"
+      key="lahMonitorBoardTape-fix",
+      v-show="!isInAttention('LahMonitorBoardTape')"
     ): lah-monitor-board-tape.card-body-fixed-height-3(
       ref="LahMonitorBoardTape",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
+    .col-md-4(
       v-if="isHA",
-      key="lahMonitorBoardApbackup-fix"
+      key="lahMonitorBoardApbackup-fix",
+      v-show="!isInAttention('LahMonitorBoardApbackup')"
     ): lah-monitor-board-apbackup.card-body-fixed-height-3(
       ref="LahMonitorBoardApbackup",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
+    .col-md-4(
       v-if="isHA",
-      key="lahMonitorBoardTestdb-fix"
+      key="lahMonitorBoardTestdb-fix",
+      v-show="!isInAttention('LahMonitorBoardTestdb')"
     ): lah-monitor-board-testdb.card-body-fixed-height-3(
       ref="LahMonitorBoardTestdb",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
+    .col-md-4(
       v-if="isHA",
-      key="lahMonitorBoardAdsync-fix"
+      key="lahMonitorBoardAdsync-fix",
+      v-show="!isInAttention('LahMonitorBoardAdsync')"
     ): lah-monitor-board-adsync.card-body-fixed-height-3(
       ref="LahMonitorBoardAdsync",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4.mb-3(
+    .col-md-4(
       v-if="isHA",
-      key="lahMonitorBoardApconn-fix"
+      key="lahMonitorBoardApconn-fix",
+      v-show="!isInAttention('LahMonitorBoardApconn')"
     ): lah-monitor-board-apconn.card-body-fixed-height-3(
       ref="LahMonitorBoardApconn",
       @light-update="lightUpdate"
     )
-    //- non-HA boards
 </template>
 
 <script>
@@ -293,7 +313,17 @@ export default {
     },
     refreshHighlightGroup () { /* placeholder for debouncing */ },
     isInAttention (name) {
-      return this.$refs[`${name}-attention`]
+      const clean = name[0]?.toUpperCase() + name?.slice(1)
+      return this.lightMap.has(clean) &&
+             this.lightMap.get(clean) !== 'success'
+    },
+    isFooterEnable (name) {
+      if (name) {
+        const opts = this.$refs[`${name[0]?.toUpperCase() + name?.slice(1)}`]?.$options
+        const footer = opts?.propsData?.footer
+        return footer
+      }
+      return false
     }
   }
 }
@@ -304,8 +334,9 @@ export default {
   border-bottom: 2px dashed gray;
   margin-bottom: 15px;
 }
-/* .card-top-fixed-height {
+.col-md-4 .card {
   height: calc((100vh - 150px) / 3);
   overflow: auto;
-} */
+  margin-bottom: 1.25rem;
+}
 </style>
