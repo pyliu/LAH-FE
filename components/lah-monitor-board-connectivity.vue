@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
+b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionCss]")
   template(#header): .d-flex
     lah-fa-icon.mr-auto(icon="circle", :variant="light"): strong {{ header }}
     b-button-group(size="sm")
@@ -87,7 +87,8 @@ b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
     :backgroundColor="backgroundColor",
     @click="popupNote"
     :tooltip-title-callback="titleTooltip",
-    :tooltip-label-callback="labelTooltip"
+    :tooltip-label-callback="labelTooltip",
+    :aspect-ratio="aspectRatio"
   )
 
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
@@ -115,6 +116,7 @@ export default {
     updatedTime: '',
     datasetIdx: 0,
     loadItems: [],
+    aspectRatio: 0,
     lightCriteria: {
       blalck: 160,
       purple: 80,
@@ -355,6 +357,7 @@ export default {
           this.alert(err.toString(), { title: '讀取連線資料失敗' })
         })
         .finally(() => {
+          this.aspectRatio = this.$refs.card.offsetWidth / (this.$refs.card.offsetHeight - 130)
           this.updatedTime = this.$utils.now().split(' ')[1]
           this.timeout(() => this.reloadConn(), 15 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
           this.isBusy = false
