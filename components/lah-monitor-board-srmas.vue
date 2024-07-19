@@ -108,19 +108,20 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @updated="handleUpdated"
       )
     b-carousel-slide: template(#img)
-      .center.h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-      .center: b-link(
-        v-show="!failed",
-        @click="$utils.openNewWindow('/inf/weather/')",
-        v-b-tooltip="`顯示${weatherImgUrl}`"
-      )
-        b-img(
-          :src="weatherImgUrl",
-          fluid,
-          thumbnail,
-          @load="failed = false",
-          @error="failed = true"
+      .center
+        .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
+        b-link(
+          v-show="!failed",
+          @click="$utils.openNewWindow('/inf/weather/')",
+          v-b-tooltip="`顯示${weatherImgUrl}`"
         )
+          b-img(
+            :src="weatherImgUrl",
+            fluid,
+            thumbnail,
+            @load="failed = false",
+            @error="failed = true"
+          )
   //- lah-button(@click="matchWarningRestores") test
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"

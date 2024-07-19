@@ -17,18 +17,16 @@ div(v-cloak)
       ul
         li 提供顯示跨域伺服器狀態。
         li 跨域伺服器#[b.text-danger 需安裝 #[a(href="/send_netstats.sh") send_netstats.sh]] 腳本定期回報該主機之連線數回後端紀錄才能正常顯示。
-  client-only
-    b-card-group.mb-2(deck)
-      lah-monitor-board-xap
-      lah-monitor-board-connectivity
-    b-card-group.mb-2(deck)
-      lah-monitor-board-xap-trend(
-        office="桃園所",
-        watch-top-xap,
-        :reload-time="15"
-      )
-      lah-monitor-board-apconn
-      //- lah-monitor-board-apconn(line, all)
+
+  lah-flex-item-group
+    .col-md-6(key="1"): lah-monitor-board-xap.fixed-height
+    .col-md-6(key="2"): lah-monitor-board-connectivity.fixed-height
+    .col-md-6(key="3"): lah-monitor-board-xap-trend.fixed-height(
+      office="桃園所",
+      watch-top-xap,
+      :reload-time="15"
+    )
+    .col-md-6(key="4"): lah-monitor-board-apconn.fixed-height
 </template>
 
 <script>
@@ -67,4 +65,12 @@ export default {
 </script>
 
 <style lang="scss">
+.col-md-6 {
+  margin-bottom: 1.25rem;
+}
+.fixed-height {
+  .card {
+    height: calc((100vh - 350px) / 2);
+  }
+}
 </style>
