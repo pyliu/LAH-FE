@@ -136,6 +136,9 @@ export default {
     },
     aspectRatio (dontcare) {
       this.rebuild()
+    },
+    viewportRatio (dontcare) {
+      this.rebuild()
     }
   },
   created () {
