@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex.flex-wrap.justify-content-around.lah
+.lah.d-flex.flex-wrap.justify-content-around
   slot
 </template>
 
@@ -20,11 +20,15 @@ export default {
 <style lang="scss" scoped>
 .lah {
   .card {
-    width: 32vw;
-    // width: calc((100vw - 300px) / 3);
-    height: calc((100vh - 80px) / 3);
+    width: 31vw;
+    height: calc((100vh - 165px) / 3);
     overflow: auto;
     margin-bottom: 1.25rem;
+    .card-body {
+      // height: calc((100vh - 300px) / 3);
+      overflow: auto;
+      .card { width: 100%; }
+    }
   }
 }
 </style>
