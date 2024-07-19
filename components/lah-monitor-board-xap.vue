@@ -47,7 +47,11 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
 
-  lah-chart(ref="chart", @click="popupTrending", :aspect-ratio="aspectRatio")
+  lah-chart(
+    ref="chart",
+    @click="popupTrending",
+    :aspect-ratio="aspectRatio"
+  )
 
   template(#footer): .d-flex.justify-content-between.small
     lah-fa-icon(
@@ -116,10 +120,15 @@ export default {
       ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
     ]),
     apJndiXaLocalThreshold: 990,
-    apJndiLocalThreshold: 2500,
-    aspectRatio: 3.7
+    apJndiLocalThreshold: 2500
   }),
   computed: {
+    aspectRatio () {
+      // if (this.$refs.card) {
+      //   return this.$refs.card.offsetWidth / this.$refs.card.offsetHeight
+      // }
+      return 0
+    },
     netstatsSh () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/send_netstats.sh`
     },
@@ -321,7 +330,6 @@ export default {
           this.error = err
         })
         .finally(() => {
-          this.aspectRatio = this.$refs.card.offsetWidth / (this.$refs.card.offsetHeight - 130)
           this.updatedTime = this.$utils.now().split(' ')[1]
           // reload every 15s
           this.timeout(this.loadAPConnectionCount, 15 * 1000).then((handler) => { this.reloadTimer = handler })

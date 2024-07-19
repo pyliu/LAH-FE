@@ -122,19 +122,30 @@ export default {
     inst: null,
     chartData: null
   }),
+  computed: {
+    viewportRatio () {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const ratio = width / (height - 50)
+      return ratio?.toFixed(2) || 0
+    }
+  },
   watch: {
-    type (val) {
-      this.chartData.datasets.forEach(ds => (ds.type = val))
-      this.build()
+    type (dontcare) {
+      this.rebuild()
     },
     aspectRatio (dontcare) {
-      this.build()
+      this.rebuild()
     }
   },
   created () {
     this.id = this.uuid()
     this.update = this.$utils.debounce(() => this.inst && this.inst.update(), 100)
     this.reset()
+    this.rebuild = this.$utils.debounce(() => {
+      this.chartData.datasets.forEach(ds => (ds.type = this.type))
+      this.build()
+    }, 400)
   },
   beforeDestroy () {
     this.destroy()
@@ -334,7 +345,7 @@ export default {
         data: this.chartData,
         options: Object.assign({
           responsive: true,
-          maintainAspectRatio: true,
+          maintainAspectRatio: false,
           aspectRatio: that.aspectRatio || +that.viewportRatio,
           elements: {
             point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
@@ -379,7 +390,8 @@ export default {
         // afterwards we remove the element again
         link.remove()
       }
-    }
+    },
+    rebuild () { /** placeholder */ }
   }
 }
 </script>
