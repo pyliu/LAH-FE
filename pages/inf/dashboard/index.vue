@@ -13,16 +13,16 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
-          lah-button(
-            icon="angles-right",
-            variant="outline-primary",
-            to="/inf/dashboard/carousel",
-            regular,
-            no-border,
-            no-icon-gutter,
-            title="輪播版本",
-            size="lg"
-          )
+          //- lah-button(
+          //-   icon="angles-right",
+          //-   variant="outline-primary",
+          //-   to="/inf/dashboard/carousel",
+          //-   regular,
+          //-   no-border,
+          //-   no-icon-gutter,
+          //-   title="輪播版本",
+          //-   size="lg"
+          //- )
 
         //- lah-button(
         //-   :icon="topWarning ? 'bell' : 'bell-slash'",
