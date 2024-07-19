@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card.border-0(no-body): canvas(:id="id") 圖形初始化失敗
+div: canvas(:id="id") 圖形初始化失敗
 </template>
 
 <script>
