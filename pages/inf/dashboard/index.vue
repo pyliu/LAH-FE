@@ -55,7 +55,8 @@ div(v-cloak)
         li 預設監控顯示一天內資料
         li 目前監控設定：{{ connectionText }}
 
-  transition-group.d-flex.flex-wrap.justify-content-between(name="list-reverse")
+  //- transition-group.d-flex.flex-wrap.justify-content-evenly(name="list-reverse")
+  lah-flex-item-group
     //- attention boards
     .col-md-4(
       v-for="(obj, idx) in attentionList",
