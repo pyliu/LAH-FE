@@ -126,6 +126,9 @@ export default {
     type (val) {
       this.chartData.datasets.forEach(ds => (ds.type = val))
       this.build()
+    },
+    aspectRatio (dontcare) {
+      this.build()
     }
   },
   created () {

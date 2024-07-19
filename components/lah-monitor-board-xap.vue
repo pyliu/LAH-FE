@@ -228,7 +228,7 @@ export default {
       this.loadAPConnectionCount()
     }, 0)
     this.emitLightUpdate(this.light, '')
-    this.aspectRatio = this.$refs.card.offsetWidth / (this.$refs.card.offsetHeight - 120)
+    this.aspectRatio = this.$refs.card.offsetWidth / (this.$refs.card.offsetHeight - 130)
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
