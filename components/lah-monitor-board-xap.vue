@@ -4,6 +4,14 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        icon="link",
+        to="/inf/xap",
+        variant="outline-primary",
+        no-border,
+        no-icon-gutter,
+        title="切換至整頁顯示"
+      )
+      lah-button(
         v-if="!maximized",
         icon="window-maximize",
         variant="outline-primary",
