@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
+b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
     b-button-group.ml-auto(size="sm")
@@ -47,7 +47,7 @@ b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
 
-  lah-chart(ref="chart", @click="popupTrending")
+  lah-chart(ref="chart", @click="popupTrending", :aspect-ratio="aspectRatio")
 
   template(#footer): .d-flex.justify-content-between.small
     lah-fa-icon(
@@ -116,7 +116,8 @@ export default {
       ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
     ]),
     apJndiXaLocalThreshold: 990,
-    apJndiLocalThreshold: 2500
+    apJndiLocalThreshold: 2500,
+    aspectRatio: 3.7
   }),
   computed: {
     netstatsSh () {
@@ -227,6 +228,7 @@ export default {
       this.loadAPConnectionCount()
     }, 0)
     this.emitLightUpdate(this.light, '')
+    this.aspectRatio = this.$refs.card.offsetWidth / (this.$refs.card.offsetHeight - 120)
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
