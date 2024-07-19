@@ -21,12 +21,12 @@ div: client-only
   lah-flex-item-group
     //- lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
     //- lah-monitor-board-srmas-weather
-    lah-monitor-board-sms(footer)
-    lah-office-down-timeline.card-body-fixed-height-3
-    lah-monitor-board-srmas.card-body-fixed-height-3
-    b-card.border-0(no-body)
+    .col-md-4(key="mb-sms"): lah-monitor-board-sms(footer)
+    .col-md-4(key="office-down"): lah-office-down-timeline.card-body-fixed-height-3
+    .col-md-4(key="mb-srmas"): lah-monitor-board-srmas.card-body-fixed-height-3
+    .col-md-4(key="site-tw"): b-card.border-0.card-body-fixed-height-3(no-body)
       lah-monitor-board-site-tw
-    b-card.center-h100
+    .col-md-4(key="lah-clock"): b-card.card-body-fixed-height-3
       lah-clock
     //- b-card
     //-   lah-period-stats-chart
@@ -133,7 +133,7 @@ div: client-only
     //-     label="連線數"
     //-     :type="chartType"
     //-   )
-    b-card
+    .col-md-4(key="date-fns"): b-card
       template(#header): .d-flex: .text-nowrap.my-auto date-fns 測試
       ul
         li 西元：{{ $utils.now() }} / {{ $utils.phpTsToAdDateStr(+new Date() / 1000) }}
@@ -141,17 +141,17 @@ div: client-only
         li {{ formatDate(+new Date()) }} - {{ formatDate(new Date(2015, 8, 1)) }}: 離開 Y! {{ dateDistance }}
         li this.$utils.formatDistanceToNow() 👉 {{ $utils.formatDistanceToNow() }}
 
-    b-card
+    .col-md-4(key="content-test"): b-card
       template(#header): .d-flex: .text-nowrap.my-auto $content 測試
       nuxt-content(:document="testContent")
-    b-card
+    .col-md-4(key="timeline-test"): b-card
       template(#header): .d-flex: .text-nowrap.my-auto b-timeline 測試
       lah-notification-timeline(
         :items="timelineItems",
         :loading="isBusy"
       )
 
-    b-card
+    .col-md-4(key="rare-word"): b-card
       template(#header): .d-flex: .text-nowrap.my-auto 罕用字測試
       span       
 
@@ -611,6 +611,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.col-md-4 {
+  margin-bottom: 1.25rem;
+}
 .msg {
   width: 100%;
   height: 400px;
