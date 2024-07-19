@@ -335,7 +335,7 @@ export default {
   border-bottom: 2px dashed gray;
   margin-bottom: 15px;
 }
-.col-md-4 .card {
+.col-md-4 > .card {
   height: calc((100vh - 150px) / 3);
   overflow: auto;
   margin-bottom: 1.25rem;
