@@ -109,7 +109,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     b-carousel-slide: template(#img)
       .center.h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-      b-link(
+      .center: b-link(
         v-show="!failed",
         @click="$utils.openNewWindow('/inf/weather/')",
         v-b-tooltip="`顯示${weatherImgUrl}`"

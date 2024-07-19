@@ -87,7 +87,7 @@ div(v-cloak)
     .col-md-4(
       key="lahMonitorBoardSrmas-fix",
       v-show="!isInAttention('LahMonitorBoardSrmas')"
-    ): lah-monitor-board-srmas.card-body-fixed-height-3(
+    ): lah-monitor-board-srmas.card-body-fixed-height-3.fix-img(
       ref="LahMonitorBoardSrmas",
       @light-update="lightUpdate",
       footer
@@ -339,5 +339,10 @@ export default {
   height: calc((100vh - 150px) / 3);
   overflow: auto;
   margin-bottom: 1.25rem;
+}
+.fix-img {
+  img {
+    height: calc(100vh / 3 - 200px);
+  }
 }
 </style>
