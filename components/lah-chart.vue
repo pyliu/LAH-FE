@@ -124,12 +124,20 @@ export default {
     chartData: null
   }),
   computed: {
-    // viewportRatio () {
-    //   const width = window.innerWidth
-    //   const height = window.innerHeight
-    //   const ratio = width / (height - 50)
-    //   return ratio?.toFixed(2) || 0
-    // }
+    containerDimensionRatio () {
+      let ratio = 0
+      try {
+        const width = this.$refs.container.$el.clientWidth;
+        const height = this.$refs.container.$el.clientHeight;
+        // const width = window.innerWidth
+        // const height = window.innerHeight
+        ratio = parseFloat(width / height)
+        console warn('chart dr', ratio)
+      } catch (ex) {
+        console warn(ex)
+      }
+      return ratio?.toFixed(2)
+    }
   },
   watch: {
     type (dontcare) {
