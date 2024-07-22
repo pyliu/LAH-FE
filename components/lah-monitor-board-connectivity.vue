@@ -87,7 +87,8 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
     :backgroundColor="backgroundColor",
     @click="popupNote"
     :tooltip-title-callback="titleTooltip",
-    :tooltip-label-callback="labelTooltip"
+    :tooltip-label-callback="labelTooltip",
+    :legend="false"
   )
 
   template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small

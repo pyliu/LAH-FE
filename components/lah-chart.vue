@@ -303,7 +303,6 @@ export default {
         case 'doughnut':
           // put legend to the right for some chart type
           opts.plugins.legend = {
-            display: this.legend,
             position: opts.legend_pos || 'right',
             labels: { font: { size: +this.labelFontSize } }
           }
@@ -342,6 +341,11 @@ export default {
           label: this.tooltipLabelCallback
         }
       }
+      // legend
+      opts.plugins.legend = Object.assign(
+        { display: this.legend }, // default
+        opts.plugins.legend
+      )
       // use chart.js directly
       const that = this
       // this.$utils.warn(this.chartData.datasets[0].backgroundColor[this.chartData.datasets[0].backgroundColor.length - 1])
