@@ -1,5 +1,5 @@
 <template lang="pug">
-.char-container(ref="container"): canvas(ref="canvas", :id="id") 圖形初始化失敗
+.chart-container(ref="container"): canvas(ref="canvas", :id="id") 圖形初始化失敗
 </template>
 
 <script>
@@ -417,12 +417,12 @@ export default {
 
 <style lang="scss" scoped>
 .modal-body {
-  .char-container {
+  .chart-container {
     width: 100%;
     height: 65vh;
   }
 }
-.char-container {
+.chart-container {
   position: relative;
   height: 100%;
   // canvas {
