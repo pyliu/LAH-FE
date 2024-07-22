@@ -42,7 +42,13 @@ Vue.mixin({
       'fetchingMonitorMail',
       'fetchedMonitorMailCount'
     ]),
-    viewportRatio () { return ((window.innerWidth) * 1.08).toFixed(2) / (window.innerHeight - 85 - 120).toFixed(2) },
+    viewportRatio () {
+      const vr = parseFloat((window.innerWidth / window.innerHeight).toFixed(2)) + 1.325
+      const vr2 = (window.innerWidth * 1.08).toFixed(2) / (window.innerHeight - 85 - 120).toFixed(2)
+      console.warn(vr, vr2)
+      return vr
+      // return (window.innerWidth * 1.08).toFixed(2) / (window.innerHeight - 85 - 120).toFixed(2)
+    },
     site () {
       if (this.systemConfigs && this.systemConfigs.site) {
         return this.systemConfigs.site

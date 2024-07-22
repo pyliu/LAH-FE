@@ -1,5 +1,5 @@
 <template lang="pug">
-div: canvas(:id="id") 圖形初始化失敗
+.char-container(ref="container"): canvas(ref="canvas", :id="id") 圖形初始化失敗
 </template>
 
 <script>
@@ -115,6 +115,7 @@ export default {
       type: Number,
       default: 14
     },
+    maintainAspectRatio: { type: Boolean, default: false },
     aspectRatio: { type: Number, default: () => 0 }
   },
   data: () => ({
@@ -123,12 +124,12 @@ export default {
     chartData: null
   }),
   computed: {
-    viewportRatio () {
-      const width = window.innerWidth
-      const height = window.innerHeight
-      const ratio = width / (height - 50)
-      return ratio?.toFixed(2) || 0
-    }
+    // viewportRatio () {
+    //   const width = window.innerWidth
+    //   const height = window.innerHeight
+    //   const ratio = width / (height - 50)
+    //   return ratio?.toFixed(2) || 0
+    // }
   },
   watch: {
     type (dontcare) {
@@ -348,12 +349,14 @@ export default {
         data: this.chartData,
         options: Object.assign({
           responsive: true,
-          maintainAspectRatio: false,
-          aspectRatio: that.aspectRatio || +that.viewportRatio,
+          maintainAspectRatio: that.maintainAspectRatio,
+          aspectRatio: +that.aspectRatio || +that.viewportRatio,
           elements: {
             point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
             line: { tension: that.type === 'line' ? 0.35 : 0.1, fill: that.chartData.datasets.length === 1, stepped: false }
           },
+          onResize: that.resizeCallback.bind(that),
+          resizeDelay: 400,
           onClick (e) {
             const payload = {}
             /**
@@ -379,6 +382,12 @@ export default {
         }, opts)
       })
       this.update()
+      // tweak canvas dimension
+      // const canvas = this.$refs.canvas
+      // const container = this.$refs.container
+      // canvas.style.width = `${container.clientWidth - 30}px`
+      // canvas.style.height = `${container.clientHeight - 30}px`
+      // console.warn(this.$refs.canvas, canvas.width, canvas.height)
     },
     toBase64Image () {
       return this.inst.toBase64Image()
@@ -394,10 +403,27 @@ export default {
         link.remove()
       }
     },
-    rebuild () { /** placeholder */ }
+    rebuild () { /** placeholder */ },
+    resizeCallback (inst, dimension) {
+      // dimension example: {width: 382.7, height: 133.5}
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.modal-body {
+  .char-container {
+    width: 100%;
+    height: 65vh;
+  }
+}
+.char-container {
+  position: relative;
+  height: 100%;
+  // canvas {
+  //   position: absolute;
+  //   height: 100%;
+  // }
+}
 </style>

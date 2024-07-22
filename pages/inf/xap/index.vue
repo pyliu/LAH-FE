@@ -69,7 +69,7 @@ export default {
   margin-bottom: 1.25rem;
 }
 .fixed-height {
-  .card {
+  canvas {
     height: calc((100vh - 350px) / 2);
   }
 }

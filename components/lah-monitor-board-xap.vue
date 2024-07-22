@@ -58,7 +58,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
   lah-chart(
     ref="chart",
     @click="popupTrending",
-    :aspect-ratio="aspectRatio"
+    :legend="false"
   )
 
   template(#footer): .d-flex.justify-content-between.small
@@ -131,12 +131,6 @@ export default {
     apJndiLocalThreshold: 2500
   }),
   computed: {
-    aspectRatio () {
-      // if (this.$refs.card) {
-      //   return this.$refs.card.offsetWidth / this.$refs.card.offsetHeight
-      // }
-      return 0
-    },
     netstatsSh () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/send_netstats.sh`
     },

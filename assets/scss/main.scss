@@ -164,21 +164,21 @@ blockquote p {
 }
 
 .card-body-fixed-height-3 {
-  .card-body {
+  > .card-body {
     height: calc((100vh - 450px) / 3);
     overflow: auto;
   }
 }
 
 .card-body-fixed-height-2 {
-  .card-body {
+  > .card-body {
     height: calc((100vh - 450px) / 2);
     overflow: auto;
   }
 }
 
 .card-body-fixed-height-1 {
-  .card-body {
+  > .card-body {
     height: calc((100vh - 450px) / 1);
     overflow: auto;
   }
