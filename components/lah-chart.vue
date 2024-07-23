@@ -124,19 +124,24 @@ export default {
     chartData: null
   }),
   computed: {
+    viewportRatio () {
+      const vr = parseFloat((window.innerWidth / window.innerHeight).toFixed(2)) + 1.325
+      // const vr2 = (window.innerWidth * 1.08).toFixed(2) / (window.innerHeight - 85 - 120).toFixed(2)
+      // console.warn(vr, vr2)
+      return vr
+    },
     containerDimensionRatio () {
       let ratio = 0
       try {
-        const width = this.$refs.container.$el.clientWidth;
-        const height = this.$refs.container.$el.clientHeight;
+        const width = this.$refs.container.clientWidth
+        const height = this.$refs.container.clientHeight
         // const width = window.innerWidth
         // const height = window.innerHeight
         ratio = parseFloat(width / height)
-        console warn('chart dr', ratio)
       } catch (ex) {
-        console warn(ex)
+        console.warn(ex)
       }
-      return ratio?.toFixed(2)
+      return ratio.toFixed(2)
     }
   },
   watch: {
@@ -159,6 +164,7 @@ export default {
       this.build()
     }, 400)
   },
+  mounted () {},
   beforeDestroy () {
     this.destroy()
   },
