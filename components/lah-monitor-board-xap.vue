@@ -54,6 +54,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
             b-input(v-model="apJndiXaLocalThreshold", type="number", @input="updateThresholds")
         li #[lah-fa-icon(icon="clock", regular)] 顯示資料更新時間
         li 15秒更新資料一次
+      b-img(src="~/assets/img/jboss_tweak.jpg", fluid, thumbnail)
 
   lah-chart(
     ref="chart",
