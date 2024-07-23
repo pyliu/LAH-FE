@@ -69,14 +69,14 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
       :size="dbStyles[2]",
       :icon="dbStyles[3]",
       :title="`資料庫連線數，${ dbTotal } / ${ apJndiLocalThreshold }`"
-    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbPercent }}]
+    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ maximized ? `${dbTotal} / ${apJndiLocalThreshold} - ${dbPercent}` : dbPercent }}]
     lah-fa-icon(
       :variant="apStyles[0]",
       :action="apStyles[1]",
       :size="apStyles[2]",
       :icon="apStyles[3]",
       :title="`AP加總連線數，${ apTotal } / ${ apJndiXaLocalThreshold }`"
-    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ apPercent }}]
+    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ maximized ? `${ apTotal } / ${ apJndiXaLocalThreshold } - ${apPercent}` : apPercent }}]
     lah-fa-icon(
       :variant="cpuStyles[0]",
       :action="cpuStyles[1]",

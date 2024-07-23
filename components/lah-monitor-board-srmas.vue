@@ -115,7 +115,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           @click="$utils.openNewWindow('/inf/weather/')",
           v-b-tooltip="`顯示${weatherImgUrl}`"
         )
-          b-img(
+          b-img.fit-img(
             :src="weatherImgUrl",
             fluid,
             thumbnail,
@@ -276,4 +276,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.fit-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
 </style>
