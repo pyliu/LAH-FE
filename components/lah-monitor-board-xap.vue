@@ -40,7 +40,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
         @click="showModalById(modalId)",
         title="說明"
       )
-    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`")
+    lah-help-modal(:modal-id="modalId", :modal-title="`${header} 監控說明`", size="lg")
       ul
         li 顯示跨域AP連線數統計狀態 (⭐ AP需安裝#[a(:href="netstatsSh" target="_blank") 回報腳本] ⭐)
         li AP連線設定檔路徑 /opt/jboss/server/default/deploy/moiland-ds.xml (請自行手動編輯並重啟JBOSS套用)
