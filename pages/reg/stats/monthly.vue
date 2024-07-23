@@ -32,36 +32,35 @@ div(v-cloak)
           span {{ item.name }}
 
   lah-flex-item-group
-    lah-stats-sms-count(
+    .col-md-4(key="smsCount"): lah-stats-sms-count(
       ref="smsCount",
       :begin="dateRange.begin",
       :end="dateRange.end",
       @ready="handleReady"
     )
-    lah-stats-reg-cert-count(
+    .col-md-4(key="certCount"): lah-stats-reg-cert-count(
       ref="certCount",
       :begin="dateRange.begin",
       :end="dateRange.end",
       @ready="handleReady"
     )
-    b-card.border-0(no-body)
+    .col-md-4(key="regFirst"): b-card.border-0.w-100(no-body)
       lah-stats-reg-first(
         ref="regFirst",
         :begin="dateRange.begin",
         :end="dateRange.end"
         @ready="handleReady"
       )
-      lah-stats-reg-first-sub.mt-1(
+      lah-stats-reg-first-sub.mt-2(
         ref="regFirstSub",
         :begin="dateRange.begin",
         :end="dateRange.end"
         @ready="handleReady"
       )
-    b-card.border-0(
+    .col-md-4(
       v-for="(item, idx) in codes",
       :key="`code_${idx}`",
-      no-body
-    )
+    ): b-card.border-0.w-100(no-body)
       lah-stats-reg-rm02(
         :ref="`regRM02_${idx}`",
         :rm02="item.code",
@@ -70,7 +69,7 @@ div(v-cloak)
         :end="dateRange.end",
         @ready="handleReady"
       )
-      lah-stats-reg-rm02-sub.mt-1(
+      lah-stats-reg-rm02-sub.mt-2(
         :ref="`regRM02Sub_${idx}`",
         :rm02="item.code",
         :rm02-name="item.name",
@@ -151,4 +150,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.col-md-4 {
+  margin-bottom: 1.25rem;
+  > .card {
+    height: 100%;
+  }
+}
 </style>

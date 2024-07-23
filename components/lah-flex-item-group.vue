@@ -25,7 +25,7 @@ export default {
   > * {
     align-items: stretch; /* Stretch child elements to fill the height */
   }
-  .card {
+  > .card {
     width: 31vw;
     // height: calc((100vh - 165px) / 3);
     // overflow: hidden;

@@ -156,10 +156,12 @@ blockquote p {
 }
 
 .align-items-stretch > * {
+  display: flex;
   align-items: stretch; /* Stretch child elements to fill the height */
 }
 
 .justify-content-evenly {
+  display: flex;
   justify-content: space-evenly;
 }
 
