@@ -62,12 +62,9 @@ div(v-cloak)
         :max="$utils.today()"
       )
       lah-period-stats-chart(:st="twDay", :ed="twDay")
-  b-card-group.mb-4(
-    deck,
-    v-for="(arr, idx) in daysChunk",
-    :key="`bcg_${idx}`"
-  )
-    b-card(v-for="(day, idx) in arr", :key="`bc_${idx}`"): lah-period-stats-chart(:st="day", :ed="day")
+  lah-flex-item-group
+    .col-md-4(v-for="(day, idx) in daysSorted", :key="`day_${idx}`")
+      b-card: lah-period-stats-chart(:st="day", :ed="day")
 </template>
 
 <script>
@@ -82,9 +79,6 @@ export default {
     title: '分時案件統計資訊-桃園市地政局'
   },
   computed: {
-    daysChunk () {
-      return this.splitChunks(this.daysSorted, 3)
-    },
     lastMonthText () {
       return `${this.firstDayofLastMonth} ~ ${this.lastDayofLastMonth} 分時總量統計圖`
     },
@@ -142,4 +136,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.col-md-4 > .card {
+  height: calc((100vh - 150px) / 3);
+  overflow: auto;
+  margin-bottom: 1.25rem;
+}
 </style>

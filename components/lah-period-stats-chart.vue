@@ -140,7 +140,7 @@ export default {
         this.$refs.chart?.build()
       } else {
         // retry after 100ms
-        this.timeout(this.buildChart, 100)
+        this.timeout(this.buildChart, 400)
       }
     },
     handleClick (payload) {
