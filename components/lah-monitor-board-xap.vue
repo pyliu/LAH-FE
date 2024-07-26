@@ -69,20 +69,20 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
       :size="dbStyles[2]",
       :icon="dbStyles[3]",
       :title="`資料庫連線數，${ dbTotal } / ${ apJndiLocalThreshold }`"
-    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ maximized ? `${dbTotal} / ${apJndiLocalThreshold} - ${dbPercent}` : dbPercent }}]
+    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill, :class="scaleCss(dbStyles[0])") {{ maximized ? `${dbTotal} / ${apJndiLocalThreshold} - ${dbPercent}` : dbPercent }}]
     lah-fa-icon(
       :variant="apStyles[0]",
       :action="apStyles[1]",
       :size="apStyles[2]",
       :icon="apStyles[3]",
       :title="`AP加總連線數，${ apTotal } / ${ apJndiXaLocalThreshold }`"
-    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill) {{ maximized ? `${ apTotal } / ${ apJndiXaLocalThreshold } - ${apPercent}` : apPercent }}]
+    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill, :class="scaleCss(apStyles[0])") {{ maximized ? `${ apTotal } / ${ apJndiXaLocalThreshold } - ${apPercent}` : apPercent }}]
     lah-fa-icon(
       :variant="cpuStyles[0]",
       :action="cpuStyles[1]",
       :size="cpuStyles[2]",
       :icon="cpuStyles[3]"
-    ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill) {{ jbossCpuUtilization }} %]
+    ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill, :class="scaleCss(cpuStyles[0])") {{ jbossCpuUtilization }} %]
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
@@ -344,6 +344,15 @@ export default {
         new: n,
         old: o
       })
+    },
+    scaleCss (light) {
+      if (light === 'danger') {
+        return ['scale-danger-number']
+      }
+      if (light === 'warning') {
+        return ['scale-warning-number']
+      }
+      return []
     }
   }
 }
@@ -352,5 +361,35 @@ export default {
 <style lang="scss" scoped>
 .fixed-input {
   width: 150px;
+}
+.scale-warning-number {
+  animation: scale-warning 1.5s ease infinite;
+}
+
+.scale-danger-number {
+  animation: scale-danger 3s ease infinite;
+}
+
+@keyframes scale-warning {
+  0% {
+      transform: scale(1);
+  }
+  50% {
+      transform: scale(1.3);
+  }
+  100% {
+      transform: scale(1);
+  }
+}
+@keyframes scale-danger {
+  0% {
+      transform: scale(1);
+  }
+  50% {
+      transform: scale(1.6);
+  }
+  100% {
+      transform: scale(1);
+  }
 }
 </style>
