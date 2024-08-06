@@ -13,7 +13,7 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
-        .d-flex.align-items-center
+        .d-flex.align-items-center.justify-content-space-between
           b-checkbox.mr-1(v-model="displayShortName", size="lg") 顯示別名
           b-checkbox(v-model="displayDanger", size="lg") 連線狀態錯誤
           lah-button(
