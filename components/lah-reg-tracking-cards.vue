@@ -1,5 +1,5 @@
 <template lang="pug">
-.cards.d-flex.justify-content-around.flex-wrap(name="list")
+.cards.d-flex.justify-content-space-between.flex-wrap(name="list")
   b-card.lah-shadow(
     v-for="(row, idx) in rows",
     :key="`tracking_card_${idx}`",

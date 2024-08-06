@@ -160,11 +160,15 @@ blockquote p {
   align-items: stretch; /* Stretch child elements to fill the height */
 }
 
-.justify-content-evenly {
+.justify-content-space-evenly {
   display: flex;
   justify-content: space-evenly;
 }
 
+.justify-content-space-between {
+  display: flex;
+  justify-content: space-between;
+}
 .card-body-fixed-height-3 {
   > .card-body {
     height: calc((100vh - 450px) / 3);

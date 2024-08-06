@@ -21,7 +21,8 @@ export default {
 .lah {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  // justify-content: space-evenly;
+  justify-content: space-between;
   > * {
     align-items: stretch; /* Stretch child elements to fill the height */
   }

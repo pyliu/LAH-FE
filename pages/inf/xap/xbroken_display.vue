@@ -59,7 +59,7 @@ b-carousel(
     .h1.center(
       v-if="downOffices.length === 0"
     ) 🟢 全國各地所皆可正常提供服務
-    .d-flex.flex-wrap(
+    .d-flex.flex-wrap.justify-content-space-between(
       v-else
     )
       lah-badge-site-status.other-office.mr-4.mb-4.lah-shadow(
