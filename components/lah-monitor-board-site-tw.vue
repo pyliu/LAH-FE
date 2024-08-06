@@ -69,7 +69,7 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
       .mt-3.text-center(v-else-if="downCount === 0 && displayError")
         lah-fa-icon.h4(icon="circle-check", variant="success") 無偵測到異常
 
-    .d-flex.flex-wrap(
+    .d-flex.flex-wrap.justify-content-evenly(
       :class="displayError ? [] : ['justify-content-between']"
     )
       lah-badge-site-status.m-1(
