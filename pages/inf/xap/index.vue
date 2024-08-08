@@ -66,6 +66,9 @@ export default {
 
 <style lang="scss">
 .col-md-6 {
+  > .card {
+    overflow: hidden;
+  }
   margin-bottom: 1.25rem;
 }
 .fixed-height {
