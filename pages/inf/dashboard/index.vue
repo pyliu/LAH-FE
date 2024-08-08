@@ -304,7 +304,16 @@ export default {
       return this.site === 'HA'
     }
   },
-  watch: {},
+  watch: {
+    col2 (flag) {
+      this.setCache('dashboard-col2', flag)
+    }
+  },
+  created () {
+    this.getCache('dashboard-col2').then((flag)=> {
+      this.col2 = flag
+    })
+  },
   mounted () {
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       // to add warning/danger card to highlight group
