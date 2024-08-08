@@ -13,33 +13,18 @@ div(v-cloak)
             no-icon-gutter,
             title="說明"
           )
-          //- lah-button(
-          //-   icon="angles-right",
-          //-   variant="outline-primary",
-          //-   to="/inf/dashboard/carousel",
-          //-   regular,
-          //-   no-border,
-          //-   no-icon-gutter,
-          //-   title="輪播版本",
-          //-   size="lg"
-          //- )
-
-        lah-button(
-          :icon="col2 ? 'table-cells-large' : 'table-cells'",
-          :pressed="col2",
-          :variant="col2 ? 'info' : 'light'",
-          :class="col2 ? ['text-white', 'font-weight-bold'] : []",
-          @click="col2 = !col2",
-          regular,
-          size="lg"
-        ) {{ col2 ? '2欄顯示' : '3欄顯示' }}
 
         .d-flex.align-items-center
+          b-checkbox.mr-1.mt-2(
+            v-model="col2",
+            switch,
+            size="lg"
+          ) 4格顯示
           .mr-1 🔴 {{ red }}
           .mr-1 🟡 {{ yellow }}
           .mr-1 🟢 {{ green }}
           b-button-group(size="lg")
-            lah-button.mr-1(
+            lah-button.mx-1(
               @click="$refs.setupModal.show()",
               icon="cog",
               variant="outline-secondary",
