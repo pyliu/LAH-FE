@@ -439,9 +439,9 @@ export default {
 .chart-container {
   position: relative;
   height: 100%;
-  // canvas {
-  //   position: absolute;
-  //   height: 100%;
-  // }
+  canvas {
+    position: absolute;
+    height: 100%;
+  }
 }
 </style>
