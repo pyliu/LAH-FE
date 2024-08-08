@@ -24,15 +24,15 @@ div(v-cloak)
           //-   size="lg"
           //- )
 
-        //- lah-button(
-        //-   :icon="topWarning ? 'bell' : 'bell-slash'",
-        //-   :pressed="topWarning",
-        //-   :variant="topWarning ? 'info' : 'light'",
-        //-   :class="topWarning ? ['text-white', 'font-weight-bold'] : []",
-        //-   @click="topWarning = !topWarning",
-        //-   regular,
-        //-   size="lg"
-        //- ) {{ topWarning ? '已啟用警示優先顯示' : '已停用警示優先顯示' }}
+        lah-button(
+          :icon="col2 ? 'table-cells-large' : 'table-cells'",
+          :pressed="col2",
+          :variant="col2 ? 'info' : 'light'",
+          :class="col2 ? ['text-white', 'font-weight-bold'] : []",
+          @click="col2 = !col2",
+          regular,
+          size="lg"
+        ) {{ col2 ? '2欄顯示' : '3欄顯示' }}
 
         .d-flex.align-items-center
           .mr-1 🔴 {{ red }}
@@ -58,10 +58,12 @@ div(v-cloak)
   //- transition-group.d-flex.flex-wrap.justify-content-evenly(name="list-reverse")
   lah-flex-item-group
     //- attention boards
-    .col-md-4(
+    div(
+      :class="colCss",
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`"
-    ): component.card-body-fixed-height-3(
+    ): component(
+      :class="heightCss",
       :id="`${obj.compName}-attention`",
       :ref="`${obj.compName}-attention`",
       :is="obj.compName",
@@ -69,22 +71,27 @@ div(v-cloak)
       :footer="isFooterEnable(obj.compName)"
     )
     //- common boards
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardXap-fix",
       v-show="!isInAttention('LahMonitorBoardXap')"
-    ): lah-monitor-board-xap.card-body-fixed-height-3(
+    ): lah-monitor-board-xap(
+      :class="heightCss",
       ref="LahMonitorBoardXap",
       @light-update="lightUpdate"
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardDataguard-fix",
       v-show="!isInAttention('LahMonitorBoardDataguard')"
-    ): lah-monitor-board-dataguard.card-body-fixed-height-3(
+    ): lah-monitor-board-dataguard(
+      :class="heightCss",
       ref="LahMonitorBoardDataguard",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardSrmas-fix",
       v-show="!isInAttention('LahMonitorBoardSrmas')"
     ): lah-monitor-board-srmas.card-body-fixed-height-3.fix-img(
@@ -92,127 +99,157 @@ div(v-cloak)
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardHacmp-fix",
       v-show="!isInAttention('LahMonitorBoardHacmp')"
-    ): lah-monitor-board-hacmp.card-body-fixed-height-3(
+    ): lah-monitor-board-hacmp(
+      :class="heightCss",
       ref="LahMonitorBoardHacmp",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardDnp-fix",
       v-show="!isInAttention('LahMonitorBoardDnp')"
-    ): lah-monitor-board-dnp.card-body-fixed-height-3(
+    ): lah-monitor-board-dnp(
+      :class="heightCss",
       ref="LahMonitorBoardDnp",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardSms-fix",
       v-show="!isInAttention('LahMonitorBoardSms')"
-    ): lah-monitor-board-sms.card-body-fixed-height-3(
+    ): lah-monitor-board-sms(
+      :class="heightCss",
       ref="LahMonitorBoardSms",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardL05-fix",
       v-show="!isInAttention('LahMonitorBoardL05')"
-    ): lah-monitor-board-L05.card-body-fixed-height-3(
+    ): lah-monitor-board-L05(
+      :class="heightCss",
       ref="LahMonitorBoardL05",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardSiteHx-fix",
       v-show="!isInAttention('LahMonitorBoardSiteHx')"
-    ): lah-monitor-board-site-hx.card-body-fixed-height-3(
+    ): lah-monitor-board-site-hx(
+      :class="heightCss",
       ref="LahMonitorBoardSiteHx",
       @light-update="lightUpdate"
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardLxhweb-fix",
       v-show="!isInAttention('LahMonitorBoardLxhweb')"
-    ): lah-monitor-board-lxhweb.card-body-fixed-height-3(
+    ): lah-monitor-board-lxhweb(
+      :class="heightCss",
       ref="LahMonitorBoardLxhweb",
       @light-update="lightUpdate",
       target-ip="L3HWEB",
       link
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardSiteTw-fix",
       v-show="!isInAttention('LahMonitorBoardSiteTw')"
-    ): lah-monitor-board-site-tw.card-body-fixed-height-3(
+    ): lah-monitor-board-site-tw(
+      :class="heightCss",
       ref="LahMonitorBoardSiteTw",
       @light-update="lightUpdate"
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardDbbackup-fix",
       v-show="!isInAttention('LahMonitorBoardDbbackup')"
-    ): lah-monitor-board-dbbackup.card-body-fixed-height-3(
+    ): lah-monitor-board-dbbackup(
+      :class="heightCss",
       ref="LahMonitorBoardDbbackup",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       key="lahMonitorBoardConnectivity-fix",
       v-show="!isInAttention('LahMonitorBoardConnectivity')"
-    ): lah-monitor-board-connectivity.card-body-fixed-height-3(
+    ): lah-monitor-board-connectivity(
+      :class="heightCss",
       ref="LahMonitorBoardConnectivity",
       @light-update="lightUpdate"
     )
     //- HA only boards
-    .col-md-4(
+    div(
+      :class="colCss",
       v-if="isHA",
       v-show="!isInAttention('lahMonitorBoardVmclone')",
       key="lahMonitorBoardVmclone-fix"
-    ): lah-monitor-board-vmclone.card-body-fixed-height-3(
+    ): lah-monitor-board-vmclone(
+      :class="heightCss",
       ref="LahMonitorBoardVmclone",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       v-if="isHA",
       key="lahMonitorBoardTape-fix",
       v-show="!isInAttention('LahMonitorBoardTape')"
-    ): lah-monitor-board-tape.card-body-fixed-height-3(
+    ): lah-monitor-board-tape(
+      :class="heightCss",
       ref="LahMonitorBoardTape",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       v-if="isHA",
       key="lahMonitorBoardApbackup-fix",
       v-show="!isInAttention('LahMonitorBoardApbackup')"
-    ): lah-monitor-board-apbackup.card-body-fixed-height-3(
+    ): lah-monitor-board-apbackup(
+      :class="heightCss",
       ref="LahMonitorBoardApbackup",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       v-if="isHA",
       key="lahMonitorBoardTestdb-fix",
       v-show="!isInAttention('LahMonitorBoardTestdb')"
-    ): lah-monitor-board-testdb.card-body-fixed-height-3(
+    ): lah-monitor-board-testdb(
+      :class="heightCss",
       ref="LahMonitorBoardTestdb",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       v-if="isHA",
       key="lahMonitorBoardAdsync-fix",
       v-show="!isInAttention('LahMonitorBoardAdsync')"
-    ): lah-monitor-board-adsync.card-body-fixed-height-3(
+    ): lah-monitor-board-adsync(
+      :class="heightCss",
       ref="LahMonitorBoardAdsync",
       @light-update="lightUpdate",
       footer
     )
-    .col-md-4(
+    div(
+      :class="colCss",
       v-if="isHA",
       key="lahMonitorBoardApconn-fix",
       v-show="!isInAttention('LahMonitorBoardApconn')"
-    ): lah-monitor-board-apconn.card-body-fixed-height-3(
+    ): lah-monitor-board-apconn(
+      :class="heightCss",
       ref="LahMonitorBoardApconn",
       @light-update="lightUpdate"
     )
@@ -227,12 +264,19 @@ export default {
     green: 0,
     attentionList: [],
     attentionTimer: null,
-    topWarning: true
+    topWarning: true,
+    col2: false
   }),
   head: {
     title: '智慧監控儀表板-桃園市地政局'
   },
   computed: {
+    colCss () {
+      return this.col2 ? ['col-md-6'] : ['col-md-4']
+    },
+    heightCss () {
+      return this.col2 ? ['card-body-fixed-height-2'] : ['card-body-fixed-height-3']
+    },
     dangerList () {
       return this.attentionList.filter((item) => {
         return item.state === 'danger'
@@ -338,7 +382,12 @@ export default {
 .col-md-4 > .card {
   height: calc((100vh - 150px) / 3);
   overflow: auto;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+}
+.col-md-6 > .card {
+  height: calc((100vh - 150px) / 2);
+  overflow: auto;
+  margin-bottom: 1rem;
 }
 .fix-img {
   img {

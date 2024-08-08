@@ -69,8 +69,8 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
       .mt-3.text-center(v-else-if="downCount === 0 && displayError")
         lah-fa-icon.h4(icon="circle-check", variant="success") 無偵測到異常
 
-    .d-flex.flex-wrap.justify-content-space-between(
-      :class="displayError ? [] : ['justify-content-between']"
+    .d-flex.flex-wrap(
+      :class="displayError ? [] : ['justify-content-space-between']"
     )
       lah-badge-site-status.m-1(
         v-for="office in displayOffices",
