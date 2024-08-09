@@ -238,6 +238,17 @@ div(v-cloak)
       ref="LahMonitorBoardApconn",
       @light-update="lightUpdate"
     )
+    div(
+      :class="colCss",
+      v-if="isHA",
+      key="lahMonitorBoardUps-fix",
+      v-show="!isInAttention('LahMonitorBoardUps')"
+    ): lah-monitor-board-ups(
+      :class="heightCss",
+      ref="LahMonitorBoardUps",
+      @light-update="lightUpdate",
+      footer
+    )
 </template>
 
 <script>

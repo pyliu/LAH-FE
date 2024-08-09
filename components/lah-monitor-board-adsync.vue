@@ -80,17 +80,17 @@ export default {
     footer: { type: Boolean, default: false }
   },
   data: () => ({
-    header: 'AD 同步',
+    header: 'AD 同步狀態',
     fetchType: 'subject',
     fetchKeyword: 'ad sync',
-    fetchDay: 3
+    fetchDay: 5
   }),
   computed: {
     todayNoAdSyncMessage () {
       return `${this.today} 無 AD 同步資訊`
     },
     headMessages () {
-      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
+      const filtered = this.messages.filter((item, idx, arr) => idx < 5)
       const ts = +new Date() / 1000
       if (filtered[0] && ts - filtered[0].timestamp > 24 * 60 * 60) {
         // insert dummy item to indicate danger
