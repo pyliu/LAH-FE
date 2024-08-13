@@ -83,7 +83,8 @@ export default {
     header: 'AD 同步狀態',
     fetchType: 'subject',
     fetchKeyword: 'ad sync',
-    fetchDay: 5
+    fetchDay: 5,
+    fetchConvert: true
   }),
   computed: {
     todayNoAdSyncMessage () {

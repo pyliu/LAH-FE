@@ -18,7 +18,7 @@ export default {
   fetch () {
     const nowTs = this.$utils.nowTs()
     if (this.needRefetch) {
-      this.load(this.fetchType, this.fetchKeyword, this.fetchDay).then((data) => {
+      this.load(this.fetchType, this.fetchKeyword, this.fetchDay, this.fetchConvert).then((data) => {
         // successful loaded
         this.lastFetchTimestamp = nowTs
         this.fetchingState = '✔ 已更新'
@@ -177,7 +177,7 @@ export default {
           })
       })
     },
-    load (type, keyword, days = 1) {
+    load (type, keyword, days = 1, convert = false) {
       return new Promise((resolve, reject) => {
         this.messages = []
         this.isBusy = true
@@ -186,7 +186,8 @@ export default {
             .post(this.$consts.API.JSON.MONITOR, {
               type,
               keyword,
-              days
+              days,
+              convert
             })
             .then(({ data }) => {
               if (this.$utils.statusCheck(data.status)) {
@@ -198,7 +199,7 @@ export default {
               // SRMAS tolerance
               if (this.$utils.empty(this.messages) && keyword === 'SRMAS') {
                 // default name of the systex SRMAS
-                this.load(type, 'LibreNMS', days)
+                this.load(type, 'LibreNMS', days, convert)
               }
               resolve(data)
             })
