@@ -122,6 +122,11 @@ export default {
       return 'success'
     }
   },
+  watch: {
+    headMessages (arr) {
+      // console.warn(arr)
+    }
+  },
   methods: {
     subjectLight (item) {
       const list = this.subjectCss(item)

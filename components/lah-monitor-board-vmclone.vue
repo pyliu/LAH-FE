@@ -90,7 +90,8 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'vm-clone',
     fetchDay: 7,
-    dummyMessage: '未發現監控郵件'
+    dummyMessage: '未發現監控郵件',
+    fetchConvert: true
   }),
   computed: {
     vc135Message () {
