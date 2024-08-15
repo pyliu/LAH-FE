@@ -172,6 +172,16 @@ div(v-cloak)
       ref="LahMonitorBoardConnectivity",
       @light-update="lightUpdate"
     )
+    div(
+      :class="colCss",
+      key="lahMonitorBoardXapTrend-fix",
+      v-show="!isInAttention('LahMonitorBoardXapTrend')"
+    ): lah-monitor-board-xap-trend(
+      office="桃園所",
+      watch-top-xap,
+      :reload-time="15",
+      @light-update="lightUpdate"
+    )
     //- HA only boards
     div(
       :class="colCss",
