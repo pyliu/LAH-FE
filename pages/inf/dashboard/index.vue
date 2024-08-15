@@ -53,8 +53,7 @@ div(v-cloak)
       :ref="`${obj.compName}-attention`",
       :is="obj.compName",
       :enable-attention="false",
-      :footer="isFooterEnable(obj.compName)",
-      watch-top-xap
+      :footer="isFooterEnable(obj.compName)"
     )
     //- common boards
     div(

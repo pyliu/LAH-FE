@@ -171,6 +171,9 @@ export default {
     this._load = this.$utils?.debounce(this.load, 100)
   },
   mounted () {
+    if (this.$utils.empty(this.office)) {
+      this.watchOffice = this.topXap?.x || '桃園所'
+    }
     this._load()
     this.emitLightUpdate(this.light, '')
   },
