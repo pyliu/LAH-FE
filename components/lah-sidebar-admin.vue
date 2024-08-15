@@ -50,9 +50,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/dashboard").
         #[font-awesome-icon(:icon="['fas', 'desktop']", fixed-width, size="lg")]
         {{site}} 監控儀表板
-      li: nuxt-link(to="/inf/dashboard/carousel").
-        #[font-awesome-icon(:icon="['fas', 'arrows-spin']", fixed-width, size="lg")]
-        {{site}} 輪播儀表板
+      //- li: nuxt-link(to="/inf/dashboard/carousel").
+      //-   #[font-awesome-icon(:icon="['fas', 'arrows-spin']", fixed-width, size="lg")]
+      //-   {{site}} 輪播儀表板
       li: nuxt-link(to="/inf/xap/connectivity").
         #[font-awesome-icon(:icon="['fas', 'wave-square']", fixed-width, size="lg")]
         即時全國跨域主機監控
