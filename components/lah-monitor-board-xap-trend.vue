@@ -48,8 +48,8 @@ b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
       hr
       h5 #[lah-fa-icon(icon="palette") 顏色說明]
       div #[lah-fa-icon(icon="circle", style="color: rgb(40, 167, 69)")] 綠色 - 連線數 0 ~ 100
-      div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - 連線數 101 ~ 200
-      div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - 連線數 201 以上
+      div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - 連線數 226 ~ 450
+      div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - 連線數 451 以上
   lah-chart(ref="chart", :type="chartType", :legend="false")
 
   template(#footer): .d-flex.justify-content-between.small
