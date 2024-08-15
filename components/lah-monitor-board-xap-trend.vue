@@ -171,7 +171,7 @@ export default {
     this._load = this.$utils?.debounce(this.load, 100)
   },
   mounted () {
-    this.load(true)
+    this._load()
     this.emitLightUpdate(this.light, '')
   },
   beforeDestroy () {
@@ -252,7 +252,7 @@ export default {
             item.x = this.toTime(now - i * 60 * 1000)
           }
         }
-        this.$refs.chart.setLabels(this.loadItems.map(item => item.x))
+        this.$refs.chart?.setLabels(this.loadItems.map(item => item.x))
       }
 
       this.$axios
