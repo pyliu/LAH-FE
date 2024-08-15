@@ -65,7 +65,7 @@ export default {
   emit: ['light-update'],
   props: {
     maximized: { type: Boolean, default: false },
-    office: { type: String, default: '桃園所' },
+    office: { type: String, default: '' },
     mins: { type: Number, default: 15 },
     type: { type: String, default: 'line' },
     rightmost: { type: Boolean, default: true },
@@ -151,7 +151,7 @@ export default {
     },
     topXap (office) {
       // this var is in the store and mixin by plugins/global-vue-mixin.js
-      if (this.watchTopXap) {
+      if (this.watchTopXap || this.$utils.empty(this.office)) {
         this.watchOffice = office.x
         this._load()
       }
