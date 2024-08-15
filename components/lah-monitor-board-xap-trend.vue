@@ -93,8 +93,8 @@ export default {
     loadItems: [],
     datasetIdx: 0,
     lightCriteria: {
-      red: 400,
-      yellow: 200,
+      red: 500,
+      yellow: 250,
       green: 0
     }
   }),
