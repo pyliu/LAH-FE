@@ -150,12 +150,15 @@ export default {
       this._load()
     },
     topXap (office) {
+      // this var is in the store and mixin by plugins/global-vue-mixin.js
       if (this.watchTopXap) {
         this.watchOffice = office.x
-        this.load()
+        this._load()
       }
     },
-    watchOffice (str) { this.header = `${str}跨域AP連線趨勢圖 - ${this.apIp}` },
+    watchOffice (str) {
+      this.header = `${str}-跨域AP連線趨勢圖 - ${this.apIp}`
+    },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     }
@@ -289,7 +292,7 @@ export default {
               if (this.chartType === 'line' && this.loadItems.length > 0) {
                 const item = this.rightmost ? this.loadItems[this.loadItems.length - 1] : this.loadItems[0]
                 const fillColor = `rgba(${item.color.R}, ${item.color.G}, ${item.color.B}, 0.6)`
-                this.$refs.chart.setLineFillColor(this.datasetIdx, fillColor)
+                this.$refs.chart?.setLineFillColor(this.datasetIdx, fillColor)
               }
             }
           } else {
