@@ -67,6 +67,15 @@ div(v-cloak)
     )
     div(
       :class="colCss",
+      key="lahMonitorBoardXapTrend-fix",
+      v-show="!isInAttention('LahMonitorBoardXapTrend')"
+    ): lah-monitor-board-xap-trend(
+      watch-top-xap,
+      :reload-time="15",
+      @light-update="lightUpdate"
+    )
+    div(
+      :class="colCss",
       key="lahMonitorBoardDataguard-fix",
       v-show="!isInAttention('LahMonitorBoardDataguard')"
     ): lah-monitor-board-dataguard(
@@ -170,15 +179,6 @@ div(v-cloak)
     ): lah-monitor-board-connectivity(
       :class="heightCss",
       ref="LahMonitorBoardConnectivity",
-      @light-update="lightUpdate"
-    )
-    div(
-      :class="colCss",
-      key="lahMonitorBoardXapTrend-fix",
-      v-show="!isInAttention('LahMonitorBoardXapTrend')"
-    ): lah-monitor-board-xap-trend(
-      watch-top-xap,
-      :reload-time="15",
       @light-update="lightUpdate"
     )
     //- HA only boards
