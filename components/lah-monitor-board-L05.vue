@@ -319,7 +319,7 @@ export default {
     },
     light () {
       // XHR data not ready OR having pending files treats as warning state
-      if (this.statusData === null || this.files.length > 0) {
+      if (this.statusData === null || this.files.length > 0 || !this.isRunning) {
         return 'warning'
       }
       if (this.$utils.statusCheck(this.statusData?.statusCode)) {
