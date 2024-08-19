@@ -62,7 +62,6 @@ export default {
       return this.$utils.orderBy(tmp, 'timestamp', 'desc')
     },
     restores () {
-      console.warn(this.messagesAfterThreadhold)
       const tmp = this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復') || item.message?.includes('got acknowledged'))
       return this.$utils.orderBy(tmp, 'timestamp', 'desc')
     }
