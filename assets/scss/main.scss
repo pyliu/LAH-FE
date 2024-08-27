@@ -100,6 +100,17 @@ a {
   transform: translateY(-50%);
 }
 
+.grid-vertical-center {
+  display: grid;
+  place-items: center;
+}
+
+.flex-vertical-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .center-container-wh-100 {
   @include center();
   height: 100%;
