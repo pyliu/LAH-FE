@@ -19,7 +19,7 @@ div(v-cloak)
             v-model="col2",
             switch,
             size="lg"
-          ) 4格顯示
+          ) 2欄顯示
           .mr-1 🔴 {{ red }}
           .mr-1 🟡 {{ yellow }}
           .mr-1 🟢 {{ green }}
