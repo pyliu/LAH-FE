@@ -5,6 +5,7 @@ import uploadAxios from 'axios'
 import { format, formatDistanceToNow } from 'date-fns'
 import $ from 'jquery'
 import chunk from 'lodash/chunk'
+import compact from 'lodash/compact'
 import debounce from 'lodash/debounce'
 import difference from 'lodash/difference'
 import differenceWith from 'lodash/differenceWith'
@@ -182,6 +183,7 @@ export default ({ $axios, store }, inject) => {
     differenceWith,
     difference,
     chunk,
+    compact,
     md5: _md5,
     /**
      * marked
