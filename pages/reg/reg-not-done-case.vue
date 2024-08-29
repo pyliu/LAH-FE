@@ -170,7 +170,7 @@ div
       )
 
     .center.d-flex.my-1
-      b-input-group(prepend="初審人員"): b-select(
+      b-input-group.mr-1(prepend="初審人員"): b-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
         title="初審人員"
@@ -179,6 +179,18 @@ div
         v-model="advOpts.caseLight",
         :options="advOpts.caseLightOpts",
         title="逾期狀態"
+      )
+
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="代理統編"): b-select(
+        v-model="advOpts.proxyId",
+        :options="advOpts.proxyIdOpts",
+        title="代理人統編"
+      )
+      b-input-group(prepend="代理姓名"): b-select(
+        v-model="advOpts.proxyName",
+        :options="advOpts.proxyNameOpts",
+        title="代理人姓名"
       )
 
     .center.d-flex.my-1
@@ -276,7 +288,11 @@ export default {
         { text: '🟢 正常', value: 'success' },
         { text: '🟡 快到期', value: 'warning' },
         { text: '🔴 已逾期', value: 'danger' }
-      ]
+      ],
+      proxyName: '',
+      proxyNameOpts: [],
+      proxyId: '',
+      proxyIdOpts: []
     }
   }),
   // only worked at page level component
@@ -361,6 +377,16 @@ export default {
             return item.燈號 === this.advOpts.caseLight
           })
         }
+        if (!this.$utils.empty(this.advOpts.proxyName)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.代理人姓名 === this.advOpts.proxyName
+          })
+        }
+        if (!this.$utils.empty(this.advOpts.proxyId)) {
+          pipelineItems = pipelineItems.filter((item) => {
+            return item.代理人統編 === this.advOpts.proxyId
+          })
+        }
         return pipelineItems
       }
       return this.rows
@@ -388,13 +414,19 @@ export default {
       if (!this.$utils.empty(this.advOpts.caseLight)) {
         tags.push(`逾期燈號狀態：${this.advOpts.caseLight}`)
       }
+      if (!this.$utils.empty(this.advOpts.proxyName)) {
+        tags.push(`代理人姓名：${this.advOpts.proxyName}`)
+      }
+      if (!this.$utils.empty(this.advOpts.proxyId)) {
+        tags.push(`代理人統編：${this.advOpts.proxyId}`)
+      }
       return tags
     }
   },
   fetchOnServer: false,
   watch: {
     rows (val) {
-      console.warn(val)
+      // console.warn(val)
       this.advOpts = {
         ...{
           caseYear: '',
@@ -409,21 +441,29 @@ export default {
           casePreliminator: '',
           casePreliminatorOpts: [],
           caseLight: '',
-          caseLightOpts: this.advOpts.caseLightOpts
+          caseLightOpts: this.advOpts.caseLightOpts,
+          proxyName: '',
+          proxyNameOpts: [],
+          proxyId: '',
+          proxyIdOpts: []
         }
       }
       if (val) {
         this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].sort()
         this.advOpts.caseStateOpts = [...new Set(val.map(item => item.辦理情形))].sort()
-        this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].sort()
+        this.advOpts.casePreliminatorOpts = this.$utils.compact([...new Set(val.map(item => item.初審人員))].sort())
         this.advOpts.caseYearOpts = [...new Set(val.map(item => item.RM01))].sort()
         this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].sort()
+        this.advOpts.proxyNameOpts = this.$utils.compact([...new Set(val.map(item => item.代理人姓名))].sort())
+        this.advOpts.proxyIdOpts = this.$utils.compact([...new Set(val.map(item => item.代理人統編))].sort())
 
         this.advOpts.caseReasonOpts.unshift('')
         this.advOpts.caseStateOpts.unshift('')
         this.advOpts.casePreliminatorOpts.unshift('')
         this.advOpts.caseYearOpts.unshift('')
         this.advOpts.caseWordOpts.unshift('')
+        this.advOpts.proxyNameOpts.unshift('')
+        this.advOpts.proxyIdOpts.unshift('')
       }
     }
   },
@@ -465,7 +505,9 @@ export default {
           caseReason: '',
           caseState: '',
           casePreliminator: '',
-          caseLight: ''
+          caseLight: '',
+          proxyName: '',
+          proxyId: ''
         }
       }
     }
