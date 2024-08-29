@@ -228,6 +228,18 @@ export default {
         sortable: true
       },
       {
+        key: '代理人姓名',
+        sortable: true
+      },
+      {
+        key: '代理人住址',
+        sortable: true
+      },
+      {
+        key: '代理人電話',
+        sortable: true
+      },
+      {
         key: 'RM09',
         label: '登記原因',
         sortable: true
@@ -382,6 +394,7 @@ export default {
   fetchOnServer: false,
   watch: {
     rows (val) {
+      console.warn(val)
       this.advOpts = {
         ...{
           caseYear: '',
