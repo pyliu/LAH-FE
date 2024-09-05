@@ -194,7 +194,7 @@ export default {
   created () {
     const now = new Date()
     this.searchYear = now.getFullYear() - 1911
-    this.searchYears = [this.searchYear]
+    this.searchYears = [{ text: this.searchYear, value: this.searchYear }]
     this.prepareYears()
     this.clearSearchData()
     this.searchMaxPcNumber()
@@ -214,7 +214,7 @@ export default {
         this.setCache('lah-case-input-group-year', this.searchYears, 24 * 60 * 60 * 1000) // cache for a day
       }
       if (this.$utils.empty(this.searchYears)) {
-        this.timeout(() => this.prepareYears(), 1000)
+        this.timeout(this.prepareYears, 400)
       }
     },
     searchMaxPcNumber () {
