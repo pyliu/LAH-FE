@@ -146,7 +146,7 @@ export default {
     paymentButton: { type: Boolean, default: false }
   },
   data: () => ({
-    searchYear: '112',
+    searchYear: '113',
     searchYears: [],
     searchType: 'pc',
     options: [
@@ -194,28 +194,28 @@ export default {
   created () {
     const now = new Date()
     this.searchYear = now.getFullYear() - 1911
+    this.searchYears = [this.searchYear]
     this.prepareYears()
     this.clearSearchData()
     this.searchMaxPcNumber()
   },
   methods: {
-    prepareYears () {
-      this.getCache('lah-case-input-group-year').then((years) => {
-        if (years !== false) {
-          this.searchYears = [...years]
-        } else {
-          // set year select options
-          const len = this.year - 104
-          for (let i = 0; i <= len; i++) {
-            this.searchYears.push({ value: 104 + i, text: 104 + i })
-          }
-          this.setCache('lah-case-input-group-year', this.searchYears, 24 * 60 * 60 * 1000) // cache for a day
+    async prepareYears () {
+      const years = await this.getCache('lah-case-input-group-year')
+      if (years !== false) {
+        this.searchYears = [...years]
+      } else {
+        this.searchYears = []
+        // set year select options
+        const len = this.year - 104
+        for (let i = 0; i <= len; i++) {
+          this.searchYears.push({ value: 104 + i, text: 104 + i })
         }
-      }).finally(() => {
-        if (this.$utils.empty(this.searchYears)) {
-          this.timeout(() => this.prepareYears(), 1000)
-        }
-      })
+        this.setCache('lah-case-input-group-year', this.searchYears, 24 * 60 * 60 * 1000) // cache for a day
+      }
+      if (this.$utils.empty(this.searchYears)) {
+        this.timeout(() => this.prepareYears(), 1000)
+      }
     },
     searchMaxPcNumber () {
       this.clearSearchData()
