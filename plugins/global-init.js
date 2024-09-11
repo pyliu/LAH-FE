@@ -121,7 +121,8 @@ export default ({ $axios, store }, inject) => {
         MOIADM: '/api/moiadm_json_api.php',
         MOISMS: '/api/moisms_json_api.php',
         REG: '/api/reg_json_api.php',
-        ADM: '/api/adm_json_api.php'
+        ADM: '/api/adm_json_api.php',
+        XCASE: '/api/xcase_json_api.php'
       },
       FILE: {
         LOAD: '/api/load_file_api.php',

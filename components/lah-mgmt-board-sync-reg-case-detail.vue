@@ -110,7 +110,7 @@ export default {
       this.confirm(`確定要同步 ${column} 欄位？`).then((YN) => {
         if (YN) {
           this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.QUERY, {
+          this.$axios.post(this.$consts.API.JSON.XCASE, {
             type: 'sync_xcase_column',
             id: this.caseId,
             column
@@ -145,7 +145,7 @@ export default {
       this.confirm(`同步局端 ${this.$utils.caseId(this.caseId)} 案件資料至本所資料庫？`).then((YN) => {
         if (YN) {
           this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.QUERY, {
+          this.$axios.post(this.$consts.API.JSON.XCASE, {
             type: 'sync_xcase',
             id: this.caseId
           }).then((res) => {

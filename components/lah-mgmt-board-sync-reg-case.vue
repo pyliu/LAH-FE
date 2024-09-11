@@ -142,7 +142,7 @@ export default {
       if (this.validCaseId) {
         this.clear()
         this.isBusy = true
-        this.$axios.post(this.$consts.API.JSON.QUERY, {
+        this.$axios.post(this.$consts.API.JSON.XCASE, {
           type: 'diff_xcase',
           id: this.caseId
         }).then((res) => {
@@ -231,7 +231,7 @@ export default {
       this.confirm('確定要將同步異動資料新增於本所資料庫(CRSMS)？').then((YN) => {
         if (YN) {
           this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.QUERY, {
+          this.$axios.post(this.$consts.API.JSON.XCASE, {
             type: 'inst_xcase',
             id: this.caseId
           }).then((res) => {
@@ -260,7 +260,7 @@ export default {
         if (YN) {
           // this.clear()
           this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.QUERY, {
+          this.$axios.post(this.$consts.API.JSON.XCASE, {
             type: 'sync_xcase_fix_data',
             id: this.caseId
           }).then(({ data }) => {
