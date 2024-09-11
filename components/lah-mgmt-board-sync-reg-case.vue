@@ -5,7 +5,7 @@ b-card
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="rotate", size="lg", :variant="'info'", :action="isBusy ? 'spin-fast' : ''") 同步登記案件]
       a.text-primary.font-weight-bold(href="#", @click="detail", title="顯示案件詳情") {{ formattedID }}
       b-button-group.ml-auto(size="sm")
-        b-checkbox(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
+        b-checkbox.my-auto(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
         lah-button(
           icon="question",
           action="breath",
@@ -70,7 +70,14 @@ b-card
     .d-flex.justify-content-center
       //- lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="popup", pill) 詳情
       lah-button(icon="code-compare", @click="check", :disabled="!validCaseId", pill) 比對
-      lah-button.h-100.ml-1(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", @click="clear", pill) 清除
+      lah-button.mx-1(
+        icon="magnet",
+        variant="outline-info",
+        @click="syncFix",
+        :disabled="!validCaseId",
+        pill
+      ) 同步補正資料
+      lah-button.h-100(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", @click="clear", pill) 清除
 
 </template>
 
@@ -239,6 +246,30 @@ export default {
                 title: '新增遠端案件資料',
                 subtitle: this.caseId
               })
+            }
+          }).catch((err) => {
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+          })
+        }
+      })
+    },
+    syncFix () {
+      this.confirm('將直接進行補正資料更新作業，要繼續？').then((YN) => {
+        if (YN) {
+          // this.clear()
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.QUERY, {
+            type: 'sync_xcase_fix_data',
+            id: this.caseId
+          }).then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              this.success(`👉 ${data.raw}`, {
+                title: data.message
+              })
+            } else {
+              this.warning(data.message)
             }
           }).catch((err) => {
             this.$utils.error(err)
