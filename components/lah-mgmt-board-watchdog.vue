@@ -233,7 +233,7 @@ export default {
     },
     checkXcase (type) {
       this.beforeFetch()
-      this.$axios.post(this.$consts.API.JSON.QUERY, { type }).then((res) => {
+      this.$axios.post(this.$consts.API.JSON.XCASE, { type }).then((res) => {
         const caseType = type.startsWith('val') ? '地價' : '登記'
         const prefix = `檢測「${caseType}案件」跨所註記問題`
         if (this.$utils.statusCheck(res.data.status)) {
@@ -265,7 +265,7 @@ export default {
     },
     fixCase (type, id, callback) {
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
+      this.$axios.post(this.$consts.API.JSON.XCASE, {
         type,
         id
       }).then((res) => {
