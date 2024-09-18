@@ -144,7 +144,6 @@ export default {
     this.ping()
     this.checkL3Fix = this.$utils.debounce(() => {
       this.l3hwebCRCLDData = false
-      this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.XCASE, {
         type: 'check_xcase_fix_data',
         id: this.caseId
@@ -157,7 +156,6 @@ export default {
       }).catch((err) => {
         this.$utils.error(err)
       }).finally(() => {
-        this.isBusy = false
       })
     }, 1000)
   },
