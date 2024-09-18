@@ -70,14 +70,15 @@ b-card
     .d-flex.justify-content-center
       //- lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="popup", pill) 詳情
       lah-button(icon="code-compare", @click="check", :disabled="!validCaseId", pill) 比對
-      lah-button.mx-1(
+      lah-button.h-100.mx-1(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", @click="clear", pill) 清除
+      lah-button(
+        v-if="showCRCRDFixButton",
         icon="magnet",
         variant="outline-info",
         @click="syncFix",
         :disabled="!validCaseId",
         pill
       ) 同步補正資料
-      lah-button.h-100(icon="arrow-rotate-left", variant="outline-secondary", action="cycle-alt", @click="clear", pill) 清除
 
 </template>
 
@@ -95,7 +96,8 @@ export default {
     connectable: false,
     FAIL_WITH_REMOTE_NO_RECORD: false,
     FAIL_WITH_LOCAL_NO_RECORD: false,
-    SUCCESS_DATA_SYNCED: false
+    SUCCESS_DATA_SYNCED: false,
+    l3hwebCRCLDData: false
   }),
   computed: {
     formattedID () {
@@ -119,14 +121,18 @@ export default {
         return false
       }
       return true
+    },
+    showCRCRDFixButton () {
+      return this.l3hwebCRCLDData !== false
     }
   },
   watch: {
     caseId (val) {
       this.clear()
+      // checks CRCLD data
+      this.checkL3Fix()
     },
     l3hwebData (val) {
-      // console.warn(val)
     },
     vertical (val) {
       this.setCache('lah-mgmt-board-sync-reg-case-vertical', val)
@@ -136,6 +142,24 @@ export default {
     this.vertical = await this.getCache('lah-mgmt-board-sync-reg-case-vertical') || false
     this.l3hwebIp = this.systemConfigs.l3hweb_db_ip || '220.1.33.5'
     this.ping()
+    this.checkL3Fix = this.$utils.debounce(() => {
+      this.l3hwebCRCLDData = false
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.XCASE, {
+        type: 'check_xcase_fix_data',
+        id: this.caseId
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.l3hwebCRCLDData = data.raw
+        } else {
+          this.$utils.warn(data.message)
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    }, 1000)
   },
   methods: {
     check () {
@@ -255,6 +279,7 @@ export default {
         }
       })
     },
+    checkL3Fix () { /** placeholder for debounce method */ },
     syncFix () {
       this.confirm('將直接進行補正資料更新作業，要繼續？').then((YN) => {
         if (YN) {
