@@ -75,8 +75,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 
 export default {
   name: 'LahMonitorBoardVmclone',
@@ -104,7 +104,8 @@ export default {
       return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: 'vm-clone-7 6-04:00' })
     },
     headMessages () {
-      return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
+      // return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
+      return [this.vc135Message, this.vc7Message].filter(item => item)
     },
     light () {
       let light = 'success'
@@ -114,9 +115,9 @@ export default {
       if (!this.vc135Message || this.subjectCss(this.vc135Message).includes('text-danger')) {
         light = 'danger'
       }
-      if (!this.vc24Message || this.subjectCss(this.vc24Message).includes('text-danger')) {
-        light = 'danger'
-      }
+      // if (!this.vc24Message || this.subjectCss(this.vc24Message).includes('text-danger')) {
+      //   light = 'danger'
+      // }
       if (!this.vc7Message || this.subjectCss(this.vc7Message).includes('text-danger')) {
         light = 'danger'
       }
@@ -180,11 +181,11 @@ export default {
         (ts - item.timestamp * 1000 > vc135Ms)
       ) {
         cssList.push('text-danger')
-      } else if (
-        item.subject?.includes('vm-clone-24') &&
-        (ts - item.timestamp * 1000 > vc24Ms)
-      ) {
-        cssList.push('text-danger')
+      // } else if (
+      //   item.subject?.includes('vm-clone-24') &&
+      //   (ts - item.timestamp * 1000 > vc24Ms)
+      // ) {
+      //   cssList.push('text-danger')
       } else if (
         item.subject?.includes('vm-clone-7') &&
         (!this.isSaturday && (ts - item.timestamp * 1000) > (vc7Ms + 12 * 60 * 60 * 1000))
