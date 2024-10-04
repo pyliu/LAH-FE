@@ -163,6 +163,8 @@ export default {
             if (this.$utils.statusCheck(data.status)) {
               this.notify(data.message)
               this.$store.commit('fetchedMonitorMailCount', data.data_count)
+              // reload message array
+              this.load()
             } else {
               this.warning(data.message)
             }
