@@ -163,12 +163,12 @@ export default {
             if (this.$utils.statusCheck(data.status)) {
               this.notify(data.message)
               this.$store.commit('fetchedMonitorMailCount', data.data_count)
-              // reload message array
-              if (!this.$utils.empty(this.fetchType) && !this.$utils.empty(this.fetchKeyword)) {
-                this.load(this.fetchType, this.fetchKeyword, this.fetchDay || 1)
-              }
             } else {
               this.warning(data.message)
+            }
+            // reload message array
+            if (!this.$utils.empty(this.fetchType) && !this.$utils.empty(this.fetchKeyword)) {
+              this.load(this.fetchType, this.fetchKeyword, this.fetchDay || 1)
             }
             resolve(data)
           })
