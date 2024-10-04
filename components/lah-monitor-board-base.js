@@ -164,7 +164,9 @@ export default {
               this.notify(data.message)
               this.$store.commit('fetchedMonitorMailCount', data.data_count)
               // reload message array
-              this.load()
+              if (!this.$utils.empty(this.fetchType) && !this.$utils.empty(this.fetchKeyword)) {
+                this.load(this.fetchType, this.fetchKeyword, this.fetchDay || 1)
+              }
             } else {
               this.warning(data.message)
             }
