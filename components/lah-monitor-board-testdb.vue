@@ -69,8 +69,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 
 export default {
   name: 'LahMonitorBoardTestdb',
@@ -123,7 +123,8 @@ export default {
         return 'warning'
       }
       const now = +new Date()
-      const ts = this.isMonday ? 4 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+      // To check if timestamp is over 2 days long on Monday, otherwise a day
+      const ts = this.isMonday ? 2 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
       if ((now - this.headMessages[0].timestamp * 1000) > ts) {
         this.$emit('danger', this.headMessages[0])
         return 'danger'
