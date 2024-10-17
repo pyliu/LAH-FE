@@ -20,8 +20,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
         variant="outline-primary",
         no-border,
         no-icon-gutter,
-        @click="popupMessages('subject', 'test system imp state', 7)",
-        title="讀取7天內訊息"
+        @click="popupMessages('subject', 'test system imp state', 31)",
+        title="讀取31天內訊息"
       )
       lah-button(
         icon="question",
@@ -83,7 +83,7 @@ export default {
     header: '測試資料庫匯入作業',
     fetchType: 'subject',
     fetchKeyword: 'test system imp state',
-    fetchDay: 7
+    fetchDay: 31
   }),
   computed: {
     todayNoDBImportMessage () {
