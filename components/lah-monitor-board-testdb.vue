@@ -89,17 +89,32 @@ export default {
     todayNoDBImportMessage () {
       return `${this.today} 無測試 DB 匯入資訊`
     },
+    lastFridayNoDBImportMessage () {
+      return `${this.lastFriday} 無測試 DB 匯入資訊`
+    },
     headMessages () {
       const filtered = this.messages.filter((item, idx, arr) => idx < 3)
-      const ts = +new Date() / 1000
-      if (filtered[0] && ts - filtered[0].timestamp > 7 * 24 * 60 * 60) {
+
+      const expectStr = `DATE=${this.lastFriday}`
+      const regex = new RegExp(expectStr, 'gm')
+      const matched = [...this.itemMessage(filtered[0]).matchAll(regex)].join('')
+      if (matched.length === 0) {
         // insert dummy item to indicate danger
         filtered.unshift({
-          subject: this.todayNoDBImportMessage,
+          subject: this.lastFridayNoDBImportMessage,
           message: '...',
-          timestamp: filtered[0].timestamp + 24 * 60 * 60
+          timestamp: filtered[0]?.timestamp + 24 * 60 * 60
         })
       }
+      // const ts = +new Date() / 1000
+      // if (filtered[0] && ts - filtered[0].timestamp > 7 * 24 * 60 * 60) {
+      //   // insert dummy item to indicate danger
+      //   filtered.unshift({
+      //     subject: this.todayNoDBImportMessage,
+      //     message: '...',
+      //     timestamp: filtered[0].timestamp + 24 * 60 * 60
+      //   })
+      // }
       return filtered
     },
     headMessage () {
@@ -110,12 +125,12 @@ export default {
         this.$emit('warning', `${this.header}找不到紀錄郵件!`)
         return 'warning'
       }
-      if (this.headMessage.subject === this.todayNoDBImportMessage) {
+      if (this.headMessage.subject === this.lastFridayNoDBImportMessage) {
         // if (this.isMonday) {
         //   this.$emit('warning', `${this.header}，週日無備份檔，所以無還原。`)
         //   return 'warning'
         // }
-        this.$emit('danger', `${this.header}找不到最近匯入紀錄的郵件!`)
+        this.$emit('danger', `${this.header}找不到上週五匯入紀錄！`)
         return 'danger'
       }
       // the case that the message can not find yesterday "DATE=XXXXXX" string
@@ -123,10 +138,6 @@ export default {
         return 'warning'
       }
       const now = +new Date()
-
-      // To check if timestamp is over 2 days long on Monday, otherwise a day
-      // const ts = this.isMonday ? 2 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
-
       // There is no message for over 7 days long, treats it RED
       const ts = 7 * 24 * 60 * 60 * 1000
       if ((now - this.headMessages[0].timestamp * 1000) > ts) {
@@ -141,6 +152,45 @@ export default {
         return 'danger'
       }
       return 'success'
+    },
+    lastFriday () {
+      const lastFriday = new Date()
+      const dayStr = lastFriday.getDay()
+      const diff = (dayStr <= 5) ? (7 - (5 - dayStr)) : (dayStr - 5)
+      // Adjust the date to the previous Friday
+      lastFriday.setDate(lastFriday.getDate() - diff)
+
+      const year = lastFriday.getFullYear().toString().slice(-2)
+      const month = (lastFriday.getMonth() + 1).toString().padStart(2, '0')
+      const day = lastFriday.getDate().toString().padStart(2, '0')
+      // Format the date as "YYMMDD", e.g. "241011"
+      return `${year}${month}${day}`
+    },
+    last2Friday () {
+      const lastFriday = new Date()
+      const dayStr = lastFriday.getDay()
+      const diff = (dayStr <= 5) ? (7 - (5 - dayStr)) : (dayStr - 5)
+      // Adjust the date to the previous Friday
+      lastFriday.setDate(lastFriday.getDate() - diff - 7)
+
+      const year = lastFriday.getFullYear().toString().slice(-2)
+      const month = (lastFriday.getMonth() + 1).toString().padStart(2, '0')
+      const day = lastFriday.getDate().toString().padStart(2, '0')
+      // Format the date as "YYMMDD", e.g. "241011"
+      return `${year}${month}${day}`
+    },
+    last3Friday () {
+      const lastFriday = new Date()
+      const dayStr = lastFriday.getDay()
+      const diff = (dayStr <= 5) ? (7 - (5 - dayStr)) : (dayStr - 5)
+      // Adjust the date to the previous Friday
+      lastFriday.setDate(lastFriday.getDate() - diff - 14)
+
+      const year = lastFriday.getFullYear().toString().slice(-2)
+      const month = (lastFriday.getMonth() + 1).toString().padStart(2, '0')
+      const day = lastFriday.getDate().toString().padStart(2, '0')
+      // Format the date as "YYMMDD", e.g. "241011"
+      return `${year}${month}${day}`
     }
   },
   created () {
@@ -159,13 +209,13 @@ export default {
       return '🟢'
     },
     subjectCss (item) {
-      if (item.subject === this.todayNoDBImportMessage) {
-        if (this.isMonday) {
-          return ['text-warning']
-        }
-        return ['text-danger']
-      }
-      if (this.itemMessage(item).startsWith('找不到')) {
+      // if (item.subject === this.todayNoDBImportMessage) {
+      //   if (this.isMonday) {
+      //     return ['text-warning']
+      //   }
+      //   return ['text-danger']
+      // }
+      if (this.itemMessage(item).startsWith('⚠')) {
         return ['text-warning']
       }
       // parsing message for the successful text
@@ -187,16 +237,20 @@ export default {
     },
     itemMessage (item) {
       if (item) {
-        // const dateParts = new Date(item.timestamp * 1000).toString().split(' ')
-        // e.g. "Wed Jan 12"
-        // const search = `${dateParts[0]} ${dateParts[1]} ${dateParts[2] - 0}`
-        // find yesterday dump date
-        const search = `DATE=${this.$utils.toADDate(item.timestamp * 1000 - 24 * 60 * 60 * 1000, 'yyLLdd')}`
+        const ts = +new Date() / 1000
+        const offset = ts - item.timestamp
+        // find last Friday dump date
+        let search = `DATE=${this.lastFriday}`
+        if (offset > 7 * 24 * 60 * 60) {
+          search = `DATE=${this.last2Friday}`
+        } else if (offset > 14 * 24 * 60 * 60) {
+          search = `DATE=${this.last3Friday}`
+        }
         const lastIdx = item.message.lastIndexOf(search)
         if (lastIdx !== -1) {
           return item.message.substring(lastIdx)
         } else {
-          return `找不到 ${search} 日期標示`
+          return `⚠ 找不到 ${search} 日期標示\n\n${item.message}`
         }
       }
       return ''
