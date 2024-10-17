@@ -51,7 +51,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="popupExtractMessage(item)",
         title="顯示詳細記錄"
         :class="subjectCss(item)"
-      ) {{ item.subject }}
+      ) {{ alteredSubject(item) }}
       lah-badge-human-datetime(
         :variant="isToday(item.timestamp) ? 'success' : 'muted'",
         :seconds="item.timestamp"
@@ -227,6 +227,21 @@ export default {
         return ['text-danger']
       }
       return []
+    },
+    alteredSubject (item) {
+      if (item) {
+        const ts = +new Date() / 1000
+        const offset = ts - item.timestamp
+        // find last Friday dump date
+        let subject = `上週五(${this.lastFriday})匯入狀態`
+        if (offset > 7 * 24 * 60 * 60) {
+          subject = `兩周前(${this.last2Friday})匯入狀態`
+        } else if (offset > 14 * 24 * 60 * 60) {
+          subject = `三周前(${this.last3Friday})匯入狀態`
+        }
+        return subject
+      }
+      return '找不到 subject 欄位資料'
     },
     popupExtractMessage (item) {
       this.modal(this.itemMessage(item).replaceAll('\n', '<br/>'), {
