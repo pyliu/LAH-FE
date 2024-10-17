@@ -83,7 +83,7 @@ export default {
     header: '測試資料庫匯入作業',
     fetchType: 'subject',
     fetchKeyword: 'test system imp state',
-    fetchDay: 1
+    fetchDay: 7
   }),
   computed: {
     todayNoDBImportMessage () {
@@ -92,7 +92,7 @@ export default {
     headMessages () {
       const filtered = this.messages.filter((item, idx, arr) => idx < 3)
       const ts = +new Date() / 1000
-      if (filtered[0] && ts - filtered[0].timestamp > 24 * 60 * 60) {
+      if (filtered[0] && ts - filtered[0].timestamp > 7 * 24 * 60 * 60) {
         // insert dummy item to indicate danger
         filtered.unshift({
           subject: this.todayNoDBImportMessage,
@@ -111,11 +111,11 @@ export default {
         return 'warning'
       }
       if (this.headMessage.subject === this.todayNoDBImportMessage) {
-        if (this.isMonday) {
-          this.$emit('warning', `${this.header}，週日無備份檔，所以無還原。`)
-          return 'warning'
-        }
-        this.$emit('danger', `${this.header}找不到今日匯入紀錄的郵件!`)
+        // if (this.isMonday) {
+        //   this.$emit('warning', `${this.header}，週日無備份檔，所以無還原。`)
+        //   return 'warning'
+        // }
+        this.$emit('danger', `${this.header}找不到最近匯入紀錄的郵件!`)
         return 'danger'
       }
       // the case that the message can not find yesterday "DATE=XXXXXX" string
@@ -123,8 +123,12 @@ export default {
         return 'warning'
       }
       const now = +new Date()
+
       // To check if timestamp is over 2 days long on Monday, otherwise a day
-      const ts = this.isMonday ? 2 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+      // const ts = this.isMonday ? 2 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+
+      // There is no message for over 7 days long, treats it RED
+      const ts = 7 * 24 * 60 * 60 * 1000
       if ((now - this.headMessages[0].timestamp * 1000) > ts) {
         this.$emit('danger', this.headMessages[0])
         return 'danger'
@@ -141,7 +145,7 @@ export default {
   },
   created () {
     // testdb import will not execute on weenend
-    this.fetchDay = this.isMonday ? 4 : 3
+    // this.fetchDay = this.isMonday ? 4 : 3
   },
   methods: {
     subjectLight (item) {
