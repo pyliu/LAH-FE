@@ -134,7 +134,7 @@ export default {
         return 'danger'
       }
       // the case that the message can not find yesterday "DATE=XXXXXX" string
-      if (this.itemMessage(this.headMessage).startsWith('找不到')) {
+      if (this.itemMessage(this.headMessage).startsWith('⚠')) {
         return 'warning'
       }
       const now = +new Date()
