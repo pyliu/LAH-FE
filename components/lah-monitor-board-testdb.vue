@@ -218,7 +218,7 @@ export default {
   created () {
     // store date strings of 3 weeks ago by Friday
     this.dates = this.getDatesSincePreviousFriday(3)
-    console.warn(this.lastFridayMessage)
+    // console.warn(this.lastFridayMessage)
   },
   methods: {
     subjectLight (item) {
@@ -326,6 +326,9 @@ export default {
       const regex = new RegExp(expectStr, 'gm')
       const matched = [...message.matchAll(regex)].join('')
       return matched.length !== 0
+    },
+    formatDateString (str) {
+      return `20${str?.substring(0, 2)}/${str?.substring(2, 4)}/${str?.substring(4)}`
     }
   }
 }
