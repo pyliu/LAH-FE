@@ -223,8 +223,7 @@ div(v-cloak)
     ): lah-monitor-board-testdb(
       :class="heightCss",
       ref="LahMonitorBoardTestdb",
-      @light-update="lightUpdate",
-      footer
+      @light-update="lightUpdate"
     )
     div(
       :class="colCss",

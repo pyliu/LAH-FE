@@ -51,7 +51,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="popupExtractMessage(item)",
         title="顯示詳細記錄"
         :class="subjectCss(item)"
-      ) {{ alteredSubject(item) }}
+      ) {{ weekSubject(item) }}
       lah-badge-human-datetime(
         :variant="isToday(item.timestamp) ? 'success' : 'muted'",
         :seconds="item.timestamp"
@@ -87,40 +87,34 @@ export default {
     dates: []
   }),
   computed: {
-    todayNoDBImportMessage () {
-      return `${this.today} 無測試 DB 匯入資訊`
-    },
-    lastFridayNoDBImportMessage () {
-      return `${this.lastFriday} 無測試 DB 匯入資訊`
+    recentNoDBImportMessage () {
+      return '最近一周無測試DB匯入資訊'
     },
     headMessages () {
-      const filtered = this.messages.filter((item, idx, arr) => idx < 3)
-
-      const expectStr = `DATE=${this.lastFriday}`
-      const regex = new RegExp(expectStr, 'gm')
-      const matched = [...this.itemMessage(filtered[0]).matchAll(regex)].join('')
-      if (matched.length === 0) {
-        // insert dummy item to indicate danger
-        filtered.unshift({
-          subject: this.lastFridayNoDBImportMessage,
-          message: '...',
-          timestamp: parseInt(+new Date() / 1000)
-        })
-      }
-      return filtered
+      return [
+        this.lastFridayMessage,
+        this.last2FridayMessage,
+        this.last3FridayMessage
+      ]
     },
     headMessage () {
       return this.headMessages[0]
+        ? this.headMessages[0]
+        : {
+            subject: this.recentNoDBImportMessage,
+            message: '...',
+            timestamp: parseInt(+new Date() / 1000)
+          }
     },
     light () {
       if (this.headMessages.length === 0) {
         this.$emit('warning', `${this.header}找不到紀錄郵件!`)
         return 'warning'
       }
-      if (this.headMessage.subject === this.lastFridayNoDBImportMessage) {
-        this.$emit('danger', `${this.header}找不到上週五匯入紀錄！`)
-        return 'danger'
-      }
+      // if (this.headMessage.subject === this.recentNoDBImportMessage) {
+      //   this.$emit('danger', `${this.header}找不到最近一周匯入紀錄！`)
+      //   return 'danger'
+      // }
       // the case that the message can not find yesterday "DATE=XXXXXX" string
       if (this.itemMessage(this.headMessage).startsWith('⚠')) {
         return 'warning'
@@ -129,32 +123,102 @@ export default {
       // There is no message for over 7 days long, treats it RED
       const ts = 7 * 24 * 60 * 60 * 1000
       if ((now - this.headMessages[0].timestamp * 1000) > ts) {
-        this.$emit('danger', this.headMessages[0])
+        this.$emit('danger', this.headMessage)
         return 'danger'
       }
-      const expectStr = 'No dump file'
-      const regex = new RegExp(expectStr, 'gm')
-      const matched = [...this.itemMessage(this.headMessages[0]).matchAll(regex)].join('')
-      if (matched.length > 0) {
-        this.$emit('danger', this.headMessages[0])
+      if (this.detectNoDumpFileString(this.headMessage)) {
+        this.$emit('danger', this.headMessage)
         return 'danger'
       }
       return 'success'
     },
+    firstDuration () {
+      return this.dates.slice(14)
+    },
     lastFriday () {
-      return this.dates[14]
+      return this.firstDuration[0]
+    },
+    lastFridayTs () {
+      return +new Date(`20${this.lastFriday?.substring(0, 2)}/${this.lastFriday?.substring(2, 4)}/${this.lastFriday?.substring(4)}`) / 1000
+    },
+    lastFridayMessage () {
+      // the latest message in firstDuration
+      const filtered = this.$utils.sortBy(
+        this.messages.filter((item, idx, arr) => {
+          // console.warn(item)
+          return item.timestamp > this.lastFridayTs
+        }),
+        ['timestamp']
+      ).reverse()
+      return filtered.length > 0
+        ? filtered[0]
+        : {
+            subject: `${this.lastFriday}後無匯入資訊`,
+            message: `${this.lastFriday}後無匯入測試資料庫的資料`,
+            timestamp: parseInt(this.lastFridayTs)
+          }
+    },
+    secondDuration () {
+      return this.dates.slice(7, 14)
     },
     last2Friday () {
-      return this.dates[7]
+      return this.secondDuration[0]
+    },
+    last2FridayTs () {
+      return +new Date(`20${this.last2Friday?.substring(0, 2)}/${this.last2Friday?.substring(2, 4)}/${this.last2Friday?.substring(4)}`) / 1000
+    },
+    last2FridayMessage () {
+      // the latest message in secondDuration
+      const filtered = this.$utils.sortBy(
+        this.messages.filter((item, idx, arr) => {
+          // console.warn(item)
+          return item.timestamp < this.lastFridayTs && item.timestamp >= this.last2FridayTs
+        }),
+        ['timestamp']
+      ).reverse()
+      return filtered.length > 0
+        ? filtered[0]
+        : {
+            subject: `${this.last2Friday} ~ ${this.lastFriday}間無匯入資料`,
+            message: `${this.last2Friday} ~ ${this.lastFriday}間無匯入測試資料庫的資料`,
+            timestamp: parseInt(this.last2FridayTs)
+          }
+    },
+    thirdDuration () {
+      return this.dates.slice(0, 7)
     },
     last3Friday () {
-      return this.dates[0]
+      return this.thirdDuration[0]
+    },
+    last3FridayTs () {
+      return +new Date(`20${this.last3Friday?.substring(0, 2)}/${this.last3Friday?.substring(2, 4)}/${this.last3Friday?.substring(4)}`) / 1000
+    },
+    last3FridayMessage () {
+      // the latest message in thirdDuration
+      const filtered = this.$utils.sortBy(
+        this.messages.filter((item, idx, arr) => {
+          // console.warn(item)
+          return item.timestamp < this.last2FridayTs && item.timestamp >= this.last3FridayTs
+        }),
+        ['timestamp']
+      ).reverse()
+      return filtered.length > 0
+        ? filtered[0]
+        : {
+            subject: `${this.last3Friday} ~ ${this.last2Friday}間無匯入資料`,
+            message: `${this.last3Friday} ~ ${this.last2Friday}間無匯入測試資料庫的資料`,
+            timestamp: parseInt(this.last3FridayTs)
+          }
     }
   },
+  watch: {
+    messages (arr) { console.warn(arr) },
+    lastFridayMessage (arr) { console.warn(arr) }
+  },
   created () {
-    // store date strings of 3 weeks ago
+    // store date strings of 3 weeks ago by Friday
     this.dates = this.getDatesSincePreviousFriday(3)
-    console.warn(this.lastFriday, this.last2Friday, this.last3Friday)
+    console.warn(this.lastFridayMessage)
   },
   methods: {
     subjectLight (item) {
@@ -162,43 +226,31 @@ export default {
       if (list.includes('text-danger')) {
         return '🔴'
       }
-      if (list.includes('text-warning')) {
+      if (list.includes('warning')) {
         return '🟡'
       }
       return '🟢'
     },
     subjectCss (item) {
-      // if (item.subject === this.todayNoDBImportMessage) {
-      //   if (this.isMonday) {
-      //     return ['text-warning']
-      //   }
-      //   return ['text-danger']
-      // }
       if (this.itemMessage(item).startsWith('⚠')) {
-        return ['text-warning']
+        return ['warning']
       }
       // parsing message for the successful text
-      const message = this.itemMessage(item)
-      const expectStr = 'No dump file'
-      const regex = new RegExp(expectStr, 'gm')
-      const matched = [...message.matchAll(regex)].join('')
-      if (matched.length > 0) {
+      if (this.detectNoDumpFileString(item)) {
         return ['text-danger']
       }
       return []
     },
-    alteredSubject (item) {
+    weekSubject (item) {
       if (item) {
-        const ts = +new Date() / 1000
-        const offset = ts - item.timestamp
-        // find last Friday dump date
-        let subject = `上週五(${this.lastFriday})匯入狀態`
-        if (offset > 7 * 24 * 60 * 60) {
-          subject = `兩周前(${this.last2Friday})匯入狀態`
-        } else if (offset > 14 * 24 * 60 * 60) {
-          subject = `三周前(${this.last3Friday})匯入狀態`
+        if (item.timestamp >= this.lastFridayTs) {
+          return `${this.lastFriday}後的匯入狀態`
+        } else if (item.timestamp >= this.last2FridayTs) {
+          return `${this.last2Friday} ~ ${this.lastFriday} 匯入狀態`
+        } else if (item.timestamp >= this.last3FridayTs) {
+          return `${this.last3Friday} ~ ${this.last2Friday} 匯入狀態`
         }
-        return subject
+        return '三周前的匯入紀錄'
       }
       return '找不到 subject 欄位資料'
     },
@@ -237,6 +289,7 @@ export default {
     },
     getDatesSincePreviousFriday (weekOffset = 1) {
       let parsedOffset = parseInt(weekOffset)
+      // default sets to last Friday
       if (parsedOffset < 0 || isNaN(parsedOffset)) {
         parsedOffset = 1
       }
@@ -259,6 +312,20 @@ export default {
         currentDateWithoutTime.setDate(currentDateWithoutTime.getDate() + 1)
       }
       return dates
+    },
+    detectDateStrings (item, weekDuration = 1) {
+      const expectStr = `DATE=${this.lastFriday}`
+      const regex = new RegExp(expectStr, 'gm')
+      const matched = [...this.itemMessage(item).matchAll(regex)].join('')
+      return matched.length !== 0
+    },
+    detectNoDumpFileString (item) {
+      // parsing message for the successful text
+      const message = this.itemMessage(item)
+      const expectStr = 'No dump file'
+      const regex = new RegExp(expectStr, 'gm')
+      const matched = [...message.matchAll(regex)].join('')
+      return matched.length !== 0
     }
   }
 }
