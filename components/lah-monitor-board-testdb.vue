@@ -212,8 +212,8 @@ export default {
     }
   },
   watch: {
-    messages (arr) { console.warn(arr) },
-    lastFridayMessage (arr) { console.warn(arr) }
+    // messages (arr) { console.warn(arr) },
+    // lastFridayMessage (arr) { console.warn(arr) }
   },
   created () {
     // store date strings of 3 weeks ago by Friday
@@ -244,7 +244,7 @@ export default {
     weekSubject (item) {
       if (item) {
         if (item.timestamp >= this.lastFridayTs) {
-          return `${this.lastFriday} 後的匯入狀態`
+          return `${this.lastFriday} 後匯入狀態`
         } else if (item.timestamp >= this.last2FridayTs) {
           return `${this.last2Friday} ~ ${this.lastFriday} 匯入狀態`
         } else if (item.timestamp >= this.last3FridayTs) {
