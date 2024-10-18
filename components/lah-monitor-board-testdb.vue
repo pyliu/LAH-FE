@@ -20,7 +20,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         variant="outline-primary",
         no-border,
         no-icon-gutter,
-        @click="popupMessages('subject', 'test system imp state', 31)",
+        @click="popupMessages(fetchType, fetchKeyword, 31)",
         title="讀取31天內訊息"
       )
       lah-button(
@@ -83,7 +83,8 @@ export default {
     header: '測試資料庫匯入作業',
     fetchType: 'subject',
     fetchKeyword: 'test db import status',
-    fetchDay: 31
+    fetchDay: 31,
+    dates: []
   }),
   computed: {
     todayNoDBImportMessage () {
@@ -106,15 +107,6 @@ export default {
           timestamp: parseInt(+new Date() / 1000)
         })
       }
-      // const ts = +new Date() / 1000
-      // if (filtered[0] && ts - filtered[0].timestamp > 7 * 24 * 60 * 60) {
-      //   // insert dummy item to indicate danger
-      //   filtered.unshift({
-      //     subject: this.todayNoDBImportMessage,
-      //     message: '...',
-      //     timestamp: filtered[0].timestamp + 24 * 60 * 60
-      //   })
-      // }
       return filtered
     },
     headMessage () {
@@ -126,10 +118,6 @@ export default {
         return 'warning'
       }
       if (this.headMessage.subject === this.lastFridayNoDBImportMessage) {
-        // if (this.isMonday) {
-        //   this.$emit('warning', `${this.header}，週日無備份檔，所以無還原。`)
-        //   return 'warning'
-        // }
         this.$emit('danger', `${this.header}找不到上週五匯入紀錄！`)
         return 'danger'
       }
@@ -154,48 +142,19 @@ export default {
       return 'success'
     },
     lastFriday () {
-      const lastFriday = new Date()
-      const dayStr = lastFriday.getDay()
-      const diff = (dayStr <= 5) ? (7 - (5 - dayStr)) : (dayStr - 5)
-      // Adjust the date to the previous Friday
-      lastFriday.setDate(lastFriday.getDate() - diff)
-
-      const year = lastFriday.getFullYear().toString().slice(-2)
-      const month = (lastFriday.getMonth() + 1).toString().padStart(2, '0')
-      const day = lastFriday.getDate().toString().padStart(2, '0')
-      // Format the date as "YYMMDD", e.g. "241011"
-      return `${year}${month}${day}`
+      return this.dates[14]
     },
     last2Friday () {
-      const lastFriday = new Date()
-      const dayStr = lastFriday.getDay()
-      const diff = (dayStr <= 5) ? (7 - (5 - dayStr)) : (dayStr - 5)
-      // Adjust the date to the previous Friday
-      lastFriday.setDate(lastFriday.getDate() - diff - 7)
-
-      const year = lastFriday.getFullYear().toString().slice(-2)
-      const month = (lastFriday.getMonth() + 1).toString().padStart(2, '0')
-      const day = lastFriday.getDate().toString().padStart(2, '0')
-      // Format the date as "YYMMDD", e.g. "241011"
-      return `${year}${month}${day}`
+      return this.dates[7]
     },
     last3Friday () {
-      const lastFriday = new Date()
-      const dayStr = lastFriday.getDay()
-      const diff = (dayStr <= 5) ? (7 - (5 - dayStr)) : (dayStr - 5)
-      // Adjust the date to the previous Friday
-      lastFriday.setDate(lastFriday.getDate() - diff - 14)
-
-      const year = lastFriday.getFullYear().toString().slice(-2)
-      const month = (lastFriday.getMonth() + 1).toString().padStart(2, '0')
-      const day = lastFriday.getDate().toString().padStart(2, '0')
-      // Format the date as "YYMMDD", e.g. "241011"
-      return `${year}${month}${day}`
+      return this.dates[0]
     }
   },
   created () {
-    // testdb import will not execute on weenend
-    // this.fetchDay = this.isMonday ? 4 : 3
+    // store date strings of 3 weeks ago
+    this.dates = this.getDatesSincePreviousFriday(3)
+    console.warn(this.lastFriday, this.last2Friday, this.last3Friday)
   },
   methods: {
     subjectLight (item) {
@@ -265,10 +224,41 @@ export default {
         if (lastIdx !== -1) {
           return item.message.substring(lastIdx)
         } else {
-          return `⚠ 找不到 ${search} 日期標示\n\n${item.message}`
+          return `⚠ 找不到 ${search} 日期標示請查看下面紀錄👇\n\n${item.message}`
         }
       }
       return ''
+    },
+    formatDateYYMMDD (date) {
+      const yy = String(date.getFullYear()).slice(-2)
+      const mm = String(date.getMonth() + 1).padStart(2, '0') // Months are zero-based
+      const dd = String(date.getDate()).padStart(2, '0')
+      return `${yy}${mm}${dd}`
+    },
+    getDatesSincePreviousFriday (weekOffset = 1) {
+      let parsedOffset = parseInt(weekOffset)
+      if (parsedOffset < 0 || isNaN(parsedOffset)) {
+        parsedOffset = 1
+      }
+
+      const prevFriday = new Date()
+      const dayStr = prevFriday.getDay()
+      // Calculate the difference from last Friday
+      const diff = (dayStr <= 5) ? (7 - (5 - dayStr)) : (dayStr - 5)
+      // Adjust the date to the previous Friday by parsedOffset
+      prevFriday.setDate(prevFriday.getDate() - diff - (parsedOffset - 1) * 7)
+
+      const dates = []
+      const today = new Date()
+      const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+      // set start date for while loop
+      const currentDateWithoutTime = new Date(prevFriday.getFullYear(), prevFriday.getMonth(), prevFriday.getDate())
+      // eslint-disable-next-line no-unmodified-loop-condition
+      while (todayWithoutTime > currentDateWithoutTime) {
+        dates.push(this.formatDateYYMMDD(currentDateWithoutTime))
+        currentDateWithoutTime.setDate(currentDateWithoutTime.getDate() + 1)
+      }
+      return dates
     }
   }
 }
