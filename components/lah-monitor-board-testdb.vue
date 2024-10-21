@@ -146,7 +146,6 @@ export default {
       // the latest message in secondDuration
       const filtered = this.$utils.sortBy(
         this.messages.filter((item, idx, arr) => {
-          // console.warn(item)
           return item.timestamp < this.lastFridayTs && item.timestamp >= this.last2FridayTs
         }),
         ['timestamp']
@@ -187,10 +186,9 @@ export default {
     }
   },
   watch: {
-    // messages (arr) { console.warn(arr) },
-    // headMessages (arr) {
-    //   console.warn(arr)
-    // }
+    last2FridayMessage (val) {
+      console.warn(val)
+    }
   },
   created () {
     // store date strings of 3 weeks ago by Friday
@@ -242,7 +240,7 @@ export default {
         const dates = this.getDurationByTimestamp(item.timestamp)
         for (let i = 0; i < dates.length; i++) {
           const search = `DATE=${dates[i]}`
-          console.warn(search)
+          // console.warn(search)
           const lastIdx = item.message.lastIndexOf(search)
           // if (search === 'DATE=241016') {
           //   console.warn(search, lastIdx, item)
@@ -257,16 +255,15 @@ export default {
     getDurationByTimestamp (ts) {
       const val = parseInt(ts)
       if (val > 0) {
-        const now = +new Date() / 1000
-        const offset = now - val
-        // date strings by ts
-        if (offset >= 14 * 24 * 60 * 60) {
-          return this.thirdDuration
-        } else if (offset >= 7 * 24 * 60 * 60) {
+        if (val > this.lastFridayTs) {
+          return this.firstDuration
+        } else if (val > this.last2FridayTs) {
           return this.secondDuration
+        } else if (val > this.last3FridayTs) {
+          return this.thirdDuration
         }
       }
-      return this.firstDuration
+      return []
     },
     formatDateYYMMDD (date) {
       const yy = String(date.getFullYear()).slice(-2)
