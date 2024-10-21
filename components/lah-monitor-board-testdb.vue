@@ -42,8 +42,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       div 🟡 表示{{ fetchDay }}天內未獲得完整郵件清單，或是找不到上周五匯入的紀錄
       div 🔴 表示最新匯入紀錄找到「No dump file」字串
   slot
-  .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
-  div(v-else, v-for="(item, idx) in headMessages" :key="`head_${idx}`")
+  div(v-for="(item, idx) in headMessages" :key="`head_${idx}`")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
       a.truncate(
@@ -87,9 +86,6 @@ export default {
     dates: []
   }),
   computed: {
-    recentNoDBImportMessage () {
-      return '最近一周無測試DB匯入資訊'
-    },
     headMessages () {
       return [
         this.lastFridayMessage,
@@ -99,32 +95,11 @@ export default {
     },
     headMessage () {
       return this.headMessages[0]
-        ? this.headMessages[0]
-        : {
-            subject: this.recentNoDBImportMessage,
-            message: '...',
-            timestamp: parseInt(+new Date() / 1000)
-          }
     },
     light () {
-      if (this.headMessages.length === 0) {
-        this.$emit('warning', `${this.header}找不到紀錄郵件!`)
-        return 'warning'
-      }
-      // if (this.headMessage.subject === this.recentNoDBImportMessage) {
-      //   this.$emit('danger', `${this.header}找不到最近一周匯入紀錄！`)
-      //   return 'danger'
-      // }
       // the case that the message can not find yesterday "DATE=XXXXXX" string
       if (this.itemMessage(this.headMessage).startsWith('⚠')) {
         return 'warning'
-      }
-      const now = +new Date()
-      // There is no message for over 7 days long, treats it RED
-      const ts = 7 * 24 * 60 * 60 * 1000
-      if ((now - this.headMessages[0].timestamp * 1000) > ts) {
-        this.$emit('danger', this.headMessage)
-        return 'danger'
       }
       if (this.detectNoDumpFileString(this.headMessage)) {
         this.$emit('danger', this.headMessage)
@@ -146,14 +121,14 @@ export default {
       const filtered = this.$utils.sortBy(
         this.messages.filter((item, idx, arr) => {
           // console.warn(item)
-          return item.timestamp > this.lastFridayTs
+          return item.timestamp >= this.lastFridayTs
         }),
         ['timestamp']
       ).reverse()
       return filtered.length > 0
         ? filtered[0]
         : {
-            subject: `${this.lastFriday}後無匯入資訊`,
+            subject: `⚠ ${this.lastFriday}後無匯入資訊`,
             message: `${this.lastFriday}後無匯入測試資料庫的資料`,
             timestamp: parseInt(this.lastFridayTs)
           }
@@ -179,7 +154,7 @@ export default {
       return filtered.length > 0
         ? filtered[0]
         : {
-            subject: `${this.last2Friday} ~ ${this.lastFriday}間無匯入資料`,
+            subject: `⚠ ${this.last2Friday} ~ ${this.lastFriday}間無匯入資料`,
             message: `${this.last2Friday} ~ ${this.lastFriday}間無匯入測試資料庫的資料`,
             timestamp: parseInt(this.last2FridayTs)
           }
@@ -205,7 +180,7 @@ export default {
       return filtered.length > 0
         ? filtered[0]
         : {
-            subject: `${this.last3Friday} ~ ${this.last2Friday}間無匯入資料`,
+            subject: `⚠ ${this.last3Friday} ~ ${this.last2Friday}間無匯入資料`,
             message: `${this.last3Friday} ~ ${this.last2Friday}間無匯入測試資料庫的資料`,
             timestamp: parseInt(this.last3FridayTs)
           }
@@ -213,12 +188,13 @@ export default {
   },
   watch: {
     // messages (arr) { console.warn(arr) },
-    // lastFridayMessage (arr) { console.warn(arr) }
+    // headMessages (arr) {
+    //   console.warn(arr)
+    // }
   },
   created () {
     // store date strings of 3 weeks ago by Friday
     this.dates = this.getDatesSincePreviousFriday(3)
-    // console.warn(this.lastFridayMessage)
   },
   methods: {
     subjectLight (item) {
@@ -244,11 +220,11 @@ export default {
     weekSubject (item) {
       if (item) {
         if (item.timestamp >= this.lastFridayTs) {
-          return `${this.lastFriday} 後匯入狀態`
+          return `${this.formatDateString(this.lastFriday)} 後匯入狀態`
         } else if (item.timestamp >= this.last2FridayTs) {
-          return `${this.last2Friday} ~ ${this.lastFriday} 匯入狀態`
+          return `${this.formatDateString(this.last2Friday)} ~ ${this.formatDateString(this.lastFriday)} 匯入狀態`
         } else if (item.timestamp >= this.last3FridayTs) {
-          return `${this.last3Friday} ~ ${this.last2Friday} 匯入狀態`
+          return `${this.formatDateString(this.last3Friday)} ~ ${this.formatDateString(this.last2Friday)} 匯入狀態`
         }
         return '三周前的匯入紀錄'
       }
@@ -263,23 +239,34 @@ export default {
     },
     itemMessage (item) {
       if (item) {
-        const ts = +new Date() / 1000
-        const offset = ts - item.timestamp
-        // find last Friday dump date
-        let search = `DATE=${this.lastFriday}`
-        if (offset > 7 * 24 * 60 * 60) {
-          search = `DATE=${this.last2Friday}`
-        } else if (offset > 14 * 24 * 60 * 60) {
-          search = `DATE=${this.last3Friday}`
-        }
-        const lastIdx = item.message.lastIndexOf(search)
-        if (lastIdx !== -1) {
-          return item.message.substring(lastIdx)
-        } else {
-          return `⚠ 找不到 ${search} 日期標示請查看下面紀錄👇\n\n${item.message}`
+        const dates = this.getDurationByTimestamp(item.timestamp)
+        for (let i = 0; i < dates.length; i++) {
+          const search = `DATE=${dates[i]}`
+          console.warn(search)
+          const lastIdx = item.message.lastIndexOf(search)
+          // if (search === 'DATE=241016') {
+          //   console.warn(search, lastIdx, item)
+          // }
+          if (lastIdx !== -1) {
+            return item.message.substring(lastIdx)
+          }
         }
       }
-      return ''
+      return `⚠ 找不到日期標示請查看下面紀錄👇\n\n${item.message}`
+    },
+    getDurationByTimestamp (ts) {
+      const val = parseInt(ts)
+      if (val > 0) {
+        const now = +new Date() / 1000
+        const offset = now - val
+        // date strings by ts
+        if (offset >= 14 * 24 * 60 * 60) {
+          return this.thirdDuration
+        } else if (offset >= 7 * 24 * 60 * 60) {
+          return this.secondDuration
+        }
+      }
+      return this.firstDuration
     },
     formatDateYYMMDD (date) {
       const yy = String(date.getFullYear()).slice(-2)

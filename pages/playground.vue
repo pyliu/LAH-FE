@@ -21,13 +21,15 @@ div: client-only
   lah-flex-item-group
     //- lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
     //- lah-monitor-board-srmas-weather
-    .col-md-4(key="mb-sms"): lah-monitor-board-sms(footer)
-    .col-md-4(key="office-down"): lah-office-down-timeline.card-body-fixed-height-3
-    .col-md-4(key="mb-srmas"): lah-monitor-board-srmas.card-body-fixed-height-3
-    .col-md-4(key="site-tw"): b-card.border-0.card-body-fixed-height-3(no-body)
-      lah-monitor-board-site-tw
+    .col-md-4(key="mb-testdb"): lah-monitor-board-testdb(footer)
+    //- .col-md-4(key="mb-sms"): lah-monitor-board-sms(footer)
+    //- .col-md-4(key="office-down"): lah-office-down-timeline.card-body-fixed-height-3
+    //- .col-md-4(key="mb-srmas"): lah-monitor-board-srmas.card-body-fixed-height-3
+    //- .col-md-4(key="site-tw"): b-card.border-0.card-body-fixed-height-3(no-body)
+    //-   lah-monitor-board-site-tw
     .col-md-4(key="lah-clock"): b-card.card-body-fixed-height-3.center-h100
       lah-clock
+
     //- b-card
     //-   lah-period-stats-chart
     //- b-card
@@ -158,9 +160,9 @@ div: client-only
 </template>
 
 <script>
-import { format, formatDistance, formatDistanceToNow } from 'date-fns'
+import { format, formatDistance, formatDistanceToNow } from 'date-fns';
 // Require Esperanto locale
-import { zhTW } from 'date-fns/locale'
+import { zhTW } from 'date-fns/locale';
 
 export default {
   // middleware: ['isAdmin'],
