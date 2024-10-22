@@ -136,6 +136,9 @@ export default {
     secondDuration () {
       return this.dates.slice(7, 14)
     },
+    last2Thursday () {
+      return this.secondDuration[6]
+    },
     last2Friday () {
       return this.secondDuration[0]
     },
@@ -160,6 +163,9 @@ export default {
     },
     thirdDuration () {
       return this.dates.slice(0, 7)
+    },
+    last3Thursday () {
+      return this.thirdDuration[6]
     },
     last3Friday () {
       return this.thirdDuration[0]
@@ -220,9 +226,9 @@ export default {
         if (item.timestamp >= this.lastFridayTs) {
           return `${this.formatDateString(this.lastFriday)} 後匯入狀態`
         } else if (item.timestamp >= this.last2FridayTs) {
-          return `${this.formatDateString(this.last2Friday)} ~ ${this.formatDateString(this.lastFriday)} 匯入狀態`
+          return `${this.formatDateString(this.last2Friday)} ~ ${this.formatDateString(this.last2Thursday)} 匯入狀態`
         } else if (item.timestamp >= this.last3FridayTs) {
-          return `${this.formatDateString(this.last3Friday)} ~ ${this.formatDateString(this.last2Friday)} 匯入狀態`
+          return `${this.formatDateString(this.last3Friday)} ~ ${this.formatDateString(this.last3Thursday)} 匯入狀態`
         }
         return '三周前的匯入紀錄'
       }
