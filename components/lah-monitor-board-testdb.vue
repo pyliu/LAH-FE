@@ -224,11 +224,11 @@ export default {
     weekSubject (item) {
       if (item) {
         if (item.timestamp >= this.lastFridayTs) {
-          return `${this.formatDateString(this.lastFriday)} 後匯入狀態`
+          return `${this.formatDateString(this.lastFriday)} 後`
         } else if (item.timestamp >= this.last2FridayTs) {
-          return `${this.formatDateString(this.last2Friday)} ~ ${this.formatDateString(this.last2Thursday)} 匯入狀態`
+          return `${this.formatDateString(this.last2Friday)} ~ ${this.formatDateString(this.last2Thursday)}`
         } else if (item.timestamp >= this.last3FridayTs) {
-          return `${this.formatDateString(this.last3Friday)} ~ ${this.formatDateString(this.last3Thursday)} 匯入狀態`
+          return `${this.formatDateString(this.last3Friday)} ~ ${this.formatDateString(this.last3Thursday)}`
         }
         return '三周前的匯入紀錄'
       }
