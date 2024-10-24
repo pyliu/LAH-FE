@@ -116,7 +116,7 @@ export default {
       if (this.$refs.footer) {
         this.$refs.footer.reset(restartTimerMs)
       } else {
-        this.$utils.warn('找不到監控儀表板 footer 組件，無法重新設定倒數按鍵！')
+        // this.$utils.warn('找不到監控儀表板 footer 組件，無法重新設定倒數按鍵！')
         this.timeout(() => this.$fetch(), restartTimerMs)
       }
     },
