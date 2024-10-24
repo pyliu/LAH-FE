@@ -21,7 +21,7 @@ div: client-only
   lah-flex-item-group
     //- lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
     //- lah-monitor-board-srmas-weather
-    .col-md-4(key="mb-testdb"): lah-monitor-board-testdb(footer)
+    .col-md-4(key="mb-testdb"): lah-monitor-board-sms-notify(footer)
     //- .col-md-4(key="mb-sms"): lah-monitor-board-sms(footer)
     //- .col-md-4(key="office-down"): lah-office-down-timeline.card-body-fixed-height-3
     //- .col-md-4(key="mb-srmas"): lah-monitor-board-srmas.card-body-fixed-height-3

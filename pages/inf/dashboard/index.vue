@@ -185,6 +185,17 @@ div(v-cloak)
     div(
       :class="colCss",
       v-if="isHA",
+      key="lahMonitorBoardSmsNotify-fix",
+      v-show="!isInAttention('LahMonitorBoardSmsNotify')"
+    ): lah-monitor-board-sms-notify(
+      :class="heightCss",
+      ref="LahMonitorBoardSmsNotify",
+      @light-update="lightUpdate",
+      footer
+    )
+    div(
+      :class="colCss",
+      v-if="isHA",
       v-show="!isInAttention('lahMonitorBoardVmclone')",
       key="lahMonitorBoardVmclone-fix"
     ): lah-monitor-board-vmclone(

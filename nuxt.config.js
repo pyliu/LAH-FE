@@ -116,6 +116,11 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^/l05proxy': '' }
     },
+    '/smsproxy': {
+      target: `${process.env.PROTOCOL}://${process.env.MONITOR_HOST_SMS_IP}:${process.env.MONITOR_HOST_SMS_PORT}`,
+      changeOrigin: true,
+      pathRewrite: { '^/smsproxy': '' }
+    },
     '/img': {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
       changeOrigin: true,
@@ -165,6 +170,11 @@ export default {
         L05: {
           ip: process.env.MONITOR_HOST_L05_IP,
           port: process.env.MONITOR_HOST_L05_PORT
+        },
+        SMS: {
+          ip: process.env.MONITOR_HOST_SMS_IP,
+          port: process.env.MONITOR_HOST_SMS_PORT,
+          dir: process.env.MONITOR_HOST_SMS_DIR
         },
         Grafana: {
           ip: process.env.GRAFANA_HOST,
