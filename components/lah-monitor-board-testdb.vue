@@ -191,11 +191,7 @@ export default {
           }
     }
   },
-  watch: {
-    last2FridayMessage (val) {
-      console.warn(val)
-    }
-  },
+  watch: {},
   created () {
     // store date strings of 3 weeks ago by Friday
     this.dates = this.getDatesSincePreviousFriday(3)
