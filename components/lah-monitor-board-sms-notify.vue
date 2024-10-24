@@ -35,7 +35,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       @end="checkSMSStatus",
       @click="checkSMSStatus"
     )
-    //- strong {{ statusMessage }}
+    strong {{ this.$utils.today('TW') }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
   .h6.text-danger(v-if="light !== 'success'") {{ message }}
