@@ -49,31 +49,6 @@ b-card(:border-variant="border", :class="[attentionCss]")
       strong 前{{ idx }}次
       strong 開始：{{ chunk.startTime }}
       strong 結束{{ chunk.endTime }}
-    //- p.overflow-hidden(v-html="$utils.convertInlineMarkd(lastChunk.log)")
-    //- ul: li(v-for="chunk in chunks")
-    //-   .d-flex
-    //-     span {{ chunk.startTime }}
-    //-     span {{ chunk.endTime }}
-
-  //- b-list-group.small(v-else, flush)
-  //-   b-list-group-item
-  //-     .d-flex.justify-content-between
-  //-       lah-fa-icon(icon="server", variant="secondary", title="局端伺服器資訊") 局伺服器：{{ bureauSyncIp }}:{{ bureauSyncPort }}
-  //-       lah-fa-icon(icon="stopwatch", variant="secondary", title="回應時間") {{ lastPingTime }}
-  //-   b-list-group-item(
-  //-     v-if="logs.length > 0",
-  //-     button,
-  //-     @click="popLogs",
-  //-     :title="lastSyncTimeRaw"
-  //-   )
-  //-     .d-flex.justify-content-between
-  //-       lah-fa-icon(icon="envelope-open-text", :variant="lastSyncMessage === '傳送成功' ? 'secondary' : 'danger'") 最新狀態：{{ lastSyncMessage }}
-  //-       lah-fa-icon(icon="clock", variant="secondary") {{ lastSyncTime }}
-  //-   b-list-group-item
-  //-     .d-flex.justify-content-between
-  //-       lah-fa-icon(icon="folder-open", variant="secondary") 同步資料夾：{{ syncDir }}
-  //-       lah-fa-icon(icon="arrows-rotate", variant="secondary") 同步間隔：{{ syncPeriod }}
-
 </template>
 
 <script>
@@ -303,7 +278,7 @@ export default {
     },
     emitLightUpdate (n, o) {
       this.$emit('light-update', {
-        name: 'LahMonitorBoardL05',
+        name: 'LahMonitorBoardSmsNotify',
         new: n,
         old: o
       })
@@ -313,7 +288,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.mw-cell {
-  max-width: 420px;
-}
 </style>

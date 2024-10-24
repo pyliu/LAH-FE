@@ -196,8 +196,8 @@ div(v-cloak)
     div(
       :class="colCss",
       v-if="isHA",
-      v-show="!isInAttention('lahMonitorBoardVmclone')",
       key="lahMonitorBoardVmclone-fix"
+      v-show="!isInAttention('lahMonitorBoardVmclone')",
     ): lah-monitor-board-vmclone(
       :class="heightCss",
       ref="LahMonitorBoardVmclone",
@@ -379,6 +379,8 @@ export default {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
       this.refreshHighlightGroup()
+      // console.warn(payload)
+      // console.warn(this.lightMap.size)
     },
     refreshHighlightGroup () { /* placeholder for debouncing */ },
     isInAttention (name) {
