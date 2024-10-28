@@ -50,9 +50,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
   .h6.text-danger(v-if="light !== 'success'") {{ message }}
   section(v-if="lastChunk")
-    .d-flex.justify-content-between
+    .d-flex
       strong 👉 最近掃描
-      strong 開始：{{ lastChunk.startTime }}
+      .mx-1 開始：{{ lastChunk.startTime }}
       strong 結束{{ lastChunk.endTime }}
     hr
     //- li(v-for="(chunk, idx) in recentChunks", v-if="idx !== 0").d-flex.justify-content-between
