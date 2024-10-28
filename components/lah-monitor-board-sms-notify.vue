@@ -51,22 +51,41 @@ b-card(:border-variant="border", :class="[attentionCss]")
   .h6.text-danger(v-if="light !== 'success'") {{ message }}
   section(v-if="lastChunk")
     .d-flex.justify-content-between
-      strong 👉 最新掃描時間
+      strong 👉 最近掃描
       strong 開始：{{ lastChunk.startTime }}
       strong 結束{{ lastChunk.endTime }}
     hr
-    li(v-for="(chunk, idx) in recentChunks", v-if="idx !== 0").d-flex.justify-content-between
-      strong 前{{ idx }}次
-      strong 開始：{{ chunk.startTime }}
-      strong 結束{{ chunk.endTime }}
+    //- li(v-for="(chunk, idx) in recentChunks", v-if="idx !== 0").d-flex.justify-content-between
+    //-   strong 前{{ idx }}次
+    //-   strong 開始：{{ chunk.startTime }}
+    //-   strong 結束{{ chunk.endTime }}
+    .d-flex.justify-content-between(
+      v-for="(log, idx) in lastestCellLogs",
+      v-if="idx < 3"
+    )
+      span {{ $utils.addTimeDivider(log.SMS_TIME) }}
+      b-link(
+        @click="popupCase(log)",
+        title="開啟案件詳細資料"
+      ) {{ `${log.SMS_YEAR}-${log.SMS_CODE}-${log.SMS_NUMBER}` }}
+      b-link(
+        @click="popupLog(log)",
+        v-b-popover.hover.left="log.SMS_CONTENT"
+      ) {{ log.SMS_CELL }}
+      b-link(
+        :class="log.SMS_RESULT === 'S' ? ['text-success'] : ['text-danger']",
+        :title="log.SMS_RESULT === 'S' ? '成功' : '失敗'",
+        @click="popupLog(log)"
+      ) {{ log.SMS_RESULT === 'S' ? '✔' : '⚠' }}
 </template>
 
 <script>
 import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
 export default {
   name: 'LahMonitorBoardSmsNotify',
   emit: ['light-update'],
-  components: { lahAdmSmslogTableVue },
+  components: { lahAdmSmslogTableVue, lahRegCaseDetailVue },
   props: {
     footer: { type: Boolean, default: false },
     enableAttention: { type: Boolean, default: false }
@@ -147,6 +166,9 @@ export default {
         ]
       }
       return false
+    },
+    lastestCellLogs () {
+      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL))
     },
     message () {
       return this.responseData?.message || '🟡 尚未取得紀錄資料'
@@ -334,6 +356,26 @@ export default {
           scrollable: false
         })
       }
+    },
+    popupCase (log) {
+      const caseId = `${log.SMS_YEAR}-${log.SMS_CODE}-${log.SMS_NUMBER}`
+      this.modal(this.$createElement(lahRegCaseDetailVue, {
+        props: {
+          caseId
+        },
+        on: {
+          'not-found': () => {
+            this.hideModal()
+            this.warning(`⚠ 無法找到 ${this.$utils.caseId(caseId)} 登記案件資料。`)
+          }
+        }
+      }), {
+        title: `案件詳情 ${this.$utils.caseId(caseId)}`,
+        size: 'xl'
+      })
+    },
+    popupLog (log) {
+      this.modal(log.SMS_CONTENT)
     }
   }
 }

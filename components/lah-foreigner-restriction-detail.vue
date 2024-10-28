@@ -65,10 +65,10 @@ b-card
 </template>
 
 <script>
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
 export default {
   emit: [],
-  component: {},
+  component: { lahRegCaseDetailVue },
   props: {
     origData: { type: Object, default: () => ({}) }
   },
