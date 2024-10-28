@@ -373,7 +373,9 @@ export default {
       })
     },
     popupLog (log) {
-      this.modal(log.SMS_CONTENT)
+      this.modal(log.SMS_CONTENT, {
+        title: `簡訊內容送給${log.SMS_CELL}`
+      })
     }
   }
 }
