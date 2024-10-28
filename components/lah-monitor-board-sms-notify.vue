@@ -374,7 +374,7 @@ export default {
     },
     popupLog (log) {
       this.modal(log.SMS_CONTENT, {
-        title: `簡訊內容送給${log.SMS_CELL}`
+        title: `簡訊內容送給 ${log.SMS_CELL} ${log.SMS_RESULT === 'S' ? '成功 ✔' : '失敗 ⚠'}`
       })
     }
   }
