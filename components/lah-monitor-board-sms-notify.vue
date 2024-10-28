@@ -74,7 +74,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       ) {{ log.SMS_CELL }}
       b-link(
         :class="log.SMS_RESULT === 'S' ? ['text-success'] : ['text-danger']",
-        :title="log.SMS_RESULT === 'S' ? '成功' : '失敗'",
+        :title="log.SMS_RESULT === 'S' ? '成功' : `失敗(${log.SMS_RESULT})`",
         @click="popupLog(log)"
       ) {{ log.SMS_RESULT === 'S' ? '✔' : '⚠' }}
 </template>
