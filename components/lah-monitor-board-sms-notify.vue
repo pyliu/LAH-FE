@@ -68,15 +68,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="popupCase(log)",
         title="開啟案件詳細資料"
       ) {{ `${log.SMS_YEAR}-${log.SMS_CODE}-${log.SMS_NUMBER}` }}
-      b-link(
-        @click="popupLog(log)",
-        v-b-popover.hover.left="log.SMS_CONTENT"
-      ) {{ log.SMS_CELL }}
-      b-link(
-        :class="log.SMS_RESULT === 'S' ? ['text-success'] : ['text-danger']",
-        :title="log.SMS_RESULT === 'S' ? '成功' : `失敗(${log.SMS_RESULT})`",
-        @click="popupLog(log)"
-      ) {{ log.SMS_RESULT === 'S' ? '✔' : '⚠' }}
+      .d-flex
+        b-link(
+          @click="popupLog(log)",
+          v-b-popover.hover.left="log.SMS_CONTENT"
+        ) {{ log.SMS_CELL }}
+        b-link.ml-1(
+          :class="log.SMS_RESULT === 'S' ? ['text-success'] : ['text-danger']",
+          :title="log.SMS_RESULT === 'S' ? '成功' : `失敗(${log.SMS_RESULT})`",
+          @click="popupLog(log)"
+        ) {{ log.SMS_RESULT === 'S' ? '✔' : '⚠' }}
 </template>
 
 <script>
@@ -231,9 +232,6 @@ export default {
   watch: {
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
-    },
-    logs (val) {
-      console.warn(val)
     }
   },
   created () {
