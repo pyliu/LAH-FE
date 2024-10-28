@@ -52,7 +52,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
   section(v-if="lastChunk")
     .d-flex
       strong 👉 最近掃描
-      .mx-1 開始：{{ lastChunk.startTime }}
+      strong.mx-1 開始：{{ lastChunk.startTime }}
       strong 結束{{ lastChunk.endTime }}
     hr
     //- li(v-for="(chunk, idx) in recentChunks", v-if="idx !== 0").d-flex.justify-content-between
