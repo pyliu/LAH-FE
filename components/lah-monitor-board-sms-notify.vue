@@ -5,6 +5,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
       strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        icon="arrow-up-right-from-square",
+        variant="outline-primary",
+        no-border,
+        title="打開查詢視窗",
+        @click="popupSMSLogs(logs)",
+        :disabled="isBusy"
+      )
+        span(v-if="isBusy") 讀取中
+        span(v-else) 已發送{{ logs.length }}則
+      lah-button(
         icon="question",
         action="breath",
         variant="outline-success",
@@ -52,9 +62,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
 export default {
   name: 'LahMonitorBoardSmsNotify',
   emit: ['light-update'],
+  components: { lahAdmSmslogTableVue },
   props: {
     footer: { type: Boolean, default: false },
     enableAttention: { type: Boolean, default: false }
@@ -64,7 +76,9 @@ export default {
     reloadMs: 5 * 60 * 1000,
     reloadTimer: null,
     updatedTime: '',
-    responseData: null
+    responseData: null,
+    logs: [],
+    today: ''
   }),
   computed: {
     ip () {
@@ -196,12 +210,13 @@ export default {
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     },
-    chunks (val) {
-      // console.warn(val)
+    logs (val) {
+      console.warn(val)
     }
   },
   created () {
     this.checkSMSStatusDebounced = this.$utils.debounce(this.checkSMSStatus, 400)
+    this.today = this.$utils.today('TW').replaceAll('-', '')
   },
   mounted () {
     this.emitLightUpdate(this.light, '')
@@ -274,6 +289,8 @@ export default {
           this.isBusy = false
           this.$refs.countdown?.setCountdown(this.reloadMs)
           this.$refs.countdown?.startCountdown()
+          // also load logs
+          this.loadLogs()
         })
     },
     emitLightUpdate (n, o) {
@@ -282,6 +299,41 @@ export default {
         new: n,
         old: o
       })
+    },
+    loadLogs () {
+      this.logs = []
+      this.$axios
+        .post(this.$consts.API.JSON.MOISMS, {
+          type: 'moiadm_smslog_query_by_date',
+          st: this.today,
+          ed: this.today
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            this.logs = [...data.raw]
+          } else {
+            this.warning(data.message)
+          }
+        }).catch((err) => {
+          this.error = err
+        }).finally(() => {
+        })
+    },
+    popupSMSLogs (arr, displayMode = true) {
+      if (!this.$utils.empty(arr) && Array.isArray(arr)) {
+        this.modal(this.$createElement(lahAdmSmslogTableVue, {
+          props: {
+            inKeyword: this.today,
+            inLogs: arr,
+            displayMode
+          }
+        }), {
+          title: '地籍異動即時通記錄檔查詢',
+          size: 'xl',
+          noCloseOnBackdrop: false,
+          centered: false,
+          scrollable: false
+        })
+      }
     }
   }
 }
