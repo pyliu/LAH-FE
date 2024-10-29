@@ -5,7 +5,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
       lah-button(
-        icon="arrow-up-right-from-square",
+        icon="comment-sms",
         variant="outline-primary",
         no-border,
         title="打開查詢視窗",
@@ -13,7 +13,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :disabled="isBusy"
       )
         span(v-if="isBusy") 讀取中
-        span(v-else) 已發送{{ logs.length }}則
+        span(v-else) 已發{{ logs.length }}則
       lah-button(
         icon="question",
         action="breath",
@@ -64,11 +64,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
       v-if="idx < 3"
     )
       span {{ $utils.addTimeDivider(log.SMS_TIME) }}
-      div(v-if="log.SMS_CODE.includes('SM')") {{ `${log.SMS_YEAR}-${log.SMS_CODE}-${log.SMS_NUMBER}` }}
       b-link(
-        v-else,
-        @click="popupCase(log)",
-        title="開啟案件詳細資料"
+        @click="isRegCaseId(log) ? popupCase(log) : popupLog(log)",
+        :title="isRegCaseId(log) ? '開啟案件詳細資料' : '查看傳送簡訊內容'"
       ) {{ `${log.SMS_YEAR}-${log.SMS_CODE}-${log.SMS_NUMBER}` }}
       .d-flex
         b-link(
@@ -80,6 +78,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :title="log.SMS_RESULT === 'S' ? '成功' : `失敗(${log.SMS_RESULT})`",
           @click="popupLog(log)"
         ) {{ log.SMS_RESULT === 'S' ? '✔' : '⚠' }}
+    .d-flex.justify-content-end.small: b-link(@click="popupSMSLogs(logs)")
+      lah-fa-icon(icon="ellipsis", action="wander-h") 更多
 </template>
 
 <script>
@@ -339,6 +339,9 @@ export default {
           this.error = err
         }).finally(() => {
         })
+    },
+    isRegCaseId (log) {
+      return !log?.SMS_CODE?.startsWith('SM')
     },
     popupSMSLogs (arr, displayMode = true) {
       if (!this.$utils.empty(arr) && Array.isArray(arr)) {
