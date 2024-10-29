@@ -48,11 +48,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
     strong {{ $utils.today('TW') }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
-  .h6.text-danger(v-if="light !== 'success'") {{ message }}
   section(v-if="lastChunk")
-    .d-flex.justify-content-between
-      strong 最新批次掃描時間
-      strong.mx-1 開始：{{ lastChunk.startTime }}
+    .d-flex.justify-content-between(title="最新系統掃描時間")
+      strong 開始：{{ lastChunk.startTime }}
       strong 結束{{ lastChunk.endTime }}
     hr
     //- li(v-for="(chunk, idx) in recentChunks", v-if="idx !== 0").d-flex.justify-content-between
@@ -78,8 +76,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :title="log.SMS_RESULT === 'S' ? '成功' : `失敗(${log.SMS_RESULT})`",
           @click="popupLog(log)"
         ) {{ log.SMS_RESULT === 'S' ? '✔' : '⚠' }}
-    .d-flex.justify-content-end.small.font-weight-bold
-      b-link(
+    .d-flex.justify-content-end.mt-1
+      lah-message.h6.mr-auto(
+        auto-hide,
+        :message="message"
+        :variant="light === 'danger' ? 'danger' : 'success'"
+      )
+      b-link.small.font-weight-bold(
         @click="popupSMSLogs(logs)",
         title="查看今日已發送列表"
       )
