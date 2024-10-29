@@ -50,8 +50,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
   .h6.text-danger(v-if="light !== 'success'") {{ message }}
   section(v-if="lastChunk")
-    .d-flex
-      strong 👉 最近掃描
+    .d-flex.justify-content-between
+      strong 最新批次掃描時間
       strong.mx-1 開始：{{ lastChunk.startTime }}
       strong 結束{{ lastChunk.endTime }}
     hr
@@ -78,8 +78,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :title="log.SMS_RESULT === 'S' ? '成功' : `失敗(${log.SMS_RESULT})`",
           @click="popupLog(log)"
         ) {{ log.SMS_RESULT === 'S' ? '✔' : '⚠' }}
-    .d-flex.justify-content-end.small: b-link(@click="popupSMSLogs(logs)")
-      lah-fa-icon(icon="ellipsis", action="wander-h") 更多
+    .d-flex.justify-content-end.small.font-weight-bold
+      b-link(
+        @click="popupSMSLogs(logs)",
+        title="查看今日已發送列表"
+      )
+        lah-fa-icon(icon="ellipsis", action="wander-h") 更多
 </template>
 
 <script>
