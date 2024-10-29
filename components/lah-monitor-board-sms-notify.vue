@@ -64,14 +64,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
       v-if="idx < 3"
     )
       span {{ $utils.addTimeDivider(log.SMS_TIME) }}
+      div(v-if="log.SMS_CODE.includes('SM')") {{ `${log.SMS_YEAR}-${log.SMS_CODE}-${log.SMS_NUMBER}` }}
       b-link(
+        v-else,
         @click="popupCase(log)",
         title="開啟案件詳細資料"
       ) {{ `${log.SMS_YEAR}-${log.SMS_CODE}-${log.SMS_NUMBER}` }}
       .d-flex
         b-link(
           @click="popupLog(log)",
-          v-b-popover.hover.left="log.SMS_CONTENT"
+          v-b-popover.hover.topleft="log.SMS_CONTENT"
         ) {{ log.SMS_CELL }}
         b-link.ml-1(
           :class="log.SMS_RESULT === 'S' ? ['text-success'] : ['text-danger']",
@@ -169,7 +171,7 @@ export default {
       return false
     },
     lastestCellLogs () {
-      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL))
+      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09'))
     },
     message () {
       return this.responseData?.message || '🟡 尚未取得紀錄資料'
@@ -374,7 +376,7 @@ export default {
     },
     popupLog (log) {
       this.modal(log.SMS_CONTENT, {
-        title: `簡訊內容送給 ${log.SMS_CELL} ${log.SMS_RESULT === 'S' ? '成功 ✔' : '失敗 ⚠'}`
+        title: `簡訊內容 👉 ${log.SMS_CELL} ${log.SMS_RESULT === 'S' ? '成功 ✔' : '失敗 ⚠'}`
       })
     }
   }
