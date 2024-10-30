@@ -4,7 +4,7 @@
     .d-flex.my-auto 業務小幫手-主選單
   lah-transition(appear, speed="fast"): .mx-5.d-flex
     .vh-full.col-md-4(v-if="displayAnnouncement")
-      .h4 📢 最新即時通公告
+      .h4.mt-n5 📢 最新即時通公告
       lah-timeline-announcement.timeline-height(
         open-first,
         no-border,
