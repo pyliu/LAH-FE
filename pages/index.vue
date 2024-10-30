@@ -1,9 +1,27 @@
 <template lang="pug">
 .h-100
   lah-header
-    .d-flex.my-auto 業務小幫手-主選單
-  lah-transition(appear, speed="fast"): .mx-5.d-flex
-    .vh-full.col-md-4.mt-n5(v-if="displayAnnouncement")
+    .d-flex.my-auto {{ office }} 地政事務所入口網
+  lah-transition(appear, speed="fast"): .container.d-flex
+    .vh-full.col-md-6
+      .h1
+        .mb-2(v-if="isInf || authority.isAdmin"): nuxt-link(to="/inf"): .d-flex.align-items-center
+          b-img.brand(src="~/assets/img/MONITOR.jpg")
+          .lah-shadow.ml-2 智慧監控系統
+        .mb-2: nuxt-link(to="/reg"): .d-flex.align-items-center
+          b-img.brand(src="~/assets/img/REG.jpg")
+          .lah-shadow.ml-2 智慧控管系統
+        .mb-2: nuxt-link(to="/prc"): .d-flex.align-items-center
+          b-img.brand(src="~/assets/img/VAL.jpg")
+          .lah-shadow.ml-2 地價小幫手
+        .mb-2: nuxt-link(to="/sur"): .d-flex.align-items-center
+          b-img.brand(src="~/assets/img/SUR.jpg")
+          .lah-shadow.ml-2 測量小幫手
+        .mb-2: nuxt-link(to="/inf"): .d-flex.align-items-center
+          b-img.brand(src="~/assets/img/INF.jpg")
+          .lah-shadow.ml-2 資訊實驗室
+
+    .vh-full.col-md-6(v-if="displayAnnouncement")
       lah-fa-icon.h4(
         icon="bullhorn",
         style="text-decoration: underline",
@@ -17,28 +35,6 @@
         :load-button="false",
         @announcement-count="handleAnnouncementEvent($event)"
       )
-    .vh-full
-      .d-flex.mb-3(v-if="isInf || authority.isAdmin")
-        b-card.fixed-card-wh-inf.center: nuxt-link(to="/inf")
-          lah-logo-monitoring.h-75.w-100
-          h4.lah-shadow.center.mt-2 智慧監控系統
-        b-card.fixed-card-wh-inf.ml-3.center: nuxt-link(to="/reg")
-          lah-logo.h-75.w-100
-          h4.lah-shadow.center.mt-2 智慧控管系統
-      .d-flex.mb-3(v-else)
-        b-card.fixed-card-wh-inf.center: nuxt-link(to="/reg")
-          lah-logo.h-75.w-100
-          h4.lah-shadow.center.mt-2 智慧控管系統
-        b-card.fixed-card-wh-inf.center.ml-3: nuxt-link(to="/lab")
-          lah-logo-lab.h-75.w-100
-          h4.lah-shadow.center.mt-2 地政資訊實驗室
-      .d-flex
-        b-card.fixed-card-wh-inf.mr-3.center: nuxt-link(to="/prc")
-          lah-logo-val.h-75.w-100
-          h4.lah-shadow.center.mt-2 地價小幫手
-        b-card.fixed-card-wh-inf.center: nuxt-link(to="/sur")
-          lah-logo-sur.h-75.w-100
-          h4.lah-shadow.center.mt-2 測量小幫手
 </template>
 
 <script>
@@ -47,7 +43,10 @@ export default {
     displayAnnouncement: true
   }),
   head: {
-    title: '業務小幫手'
+    title: '地政事務所入口網'
+  },
+  computed: {
+    office () { return this.site }
   },
   methods: {
     handleAnnouncementEvent (payload) {
@@ -97,6 +96,10 @@ export default {
 
 .timeline-height {
   height: calc(100vh - 200px) !important;
+}
+
+.brand {
+  max-width: 256px;
 }
 
 .version {
