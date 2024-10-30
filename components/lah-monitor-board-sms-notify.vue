@@ -54,13 +54,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
   section(v-if="lastChunk")
     .d-flex.justify-content-between(title="最新系統掃描時間")
+      strong 最近掃描時間
       strong 開始：{{ lastChunk.startTime }}
       strong 結束{{ lastChunk.endTime }}
     hr
-    //- li(v-for="(chunk, idx) in recentChunks", v-if="idx !== 0").d-flex.justify-content-between
-    //-   strong 前{{ idx }}次
-    //-   strong 開始：{{ chunk.startTime }}
-    //-   strong 結束{{ chunk.endTime }}
+    .center.h4(v-if="lastestChangedCount === 0") {{ $utils.today('TW') }} 尚未有異動通知案件
     .d-flex.justify-content-between(
       v-for="(log, idx) in lastestChangedCellLogs",
       v-if="idx < 3"
