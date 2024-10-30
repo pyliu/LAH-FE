@@ -3,8 +3,12 @@
   lah-header
     .d-flex.my-auto 業務小幫手-主選單
   lah-transition(appear, speed="fast"): .mx-5.d-flex
-    .vh-full.col-md-4(v-if="displayAnnouncement")
-      .h4.mt-n5 📢 最新即時通公告
+    .vh-full.col-md-4.mt-n5(v-if="displayAnnouncement")
+      lah-fa-icon.h4(
+        icon="bullhorn",
+        style="text-decoration: underline",
+        variant="info"
+      ) 最新即時通公告
       lah-timeline-announcement.timeline-height(
         open-first,
         no-border,
