@@ -7,8 +7,10 @@
       .h4 📢 最新即時通公告
       lah-timeline-announcement.timeline-height(
         open-first,
+        no-border,
         :init-count="5",
         :load-count="3",
+        :load-button="false",
         @announcement-count="handleAnnouncementEvent($event)"
       )
     .vh-full
