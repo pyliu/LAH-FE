@@ -86,7 +86,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
       b-link.small.font-weight-bold(
         v-if="lastestChangedCount > 3",
-        @click="popupSMSLogs(lastestChangedCellLogs)",
+        @click="popupSMSLogs(lastestChangedCellLogs, '僅異動部分')",
         title="查看今日異動已發送列表"
       )
         lah-fa-icon(icon="ellipsis", action="wander-h") 更多
