@@ -4,16 +4,20 @@ b-card(:border-variant="border", :class="[attentionCss]")
     lah-fa-icon(icon="circle", :variant="light")
       strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
-      lah-button(
-        icon="comment-sms",
-        variant="outline-primary",
-        no-border,
-        title="打開查詢視窗",
-        @click="popupSMSLogs(logs)",
-        :disabled="isBusy"
+      lah-button-count-badge(
+        :count="lastestChangedCellLogs.length",
+        variant="primary",
+        :title="`異動已發送${lastestChangedCellLogs.length}則`",
+        @click="popupSMSLogs(lastestChangedCellLogs, '僅異動部分')",
+        v-if="!isBusy && lastestChangedCellLogs.length > 0"
+      ) 異動
+      lah-button-count-badge(
+        :count="logs.length",
+        variant="success",
+        :title="`全部已發送${logs.length}則`",
+        @click="popupSMSLogs(logs, '全部')",
+        v-if="!isBusy && logs.length > 0"
       )
-        span(v-if="isBusy") 讀取中
-        span(v-else) 已發{{ logs.length }}則
       lah-button(
         icon="question",
         action="breath",
@@ -58,7 +62,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     //-   strong 開始：{{ chunk.startTime }}
     //-   strong 結束{{ chunk.endTime }}
     .d-flex.justify-content-between(
-      v-for="(log, idx) in lastestCellLogs",
+      v-for="(log, idx) in lastestChangedCellLogs",
       v-if="idx < 3"
     )
       span {{ $utils.addTimeDivider(log.SMS_TIME) }}
@@ -83,9 +87,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :variant="light === 'danger' ? 'danger' : 'success'"
       )
       b-link.small.font-weight-bold(
-        v-if="lastestCellLogs.length > 3",
-        @click="popupSMSLogs(logs)",
-        title="查看今日已發送列表"
+        v-if="lastestChangedCellLogs.length > 3",
+        @click="popupSMSLogs(lastestChangedCellLogs)",
+        title="查看今日異動已發送列表"
       )
         lah-fa-icon(icon="ellipsis", action="wander-h") 更多
 </template>
@@ -178,8 +182,8 @@ export default {
       }
       return false
     },
-    lastestCellLogs () {
-      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09'))
+    lastestChangedCellLogs () {
+      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && !item.SMS_CODE.startsWith('SM'))
     },
     message () {
       return this.responseData?.message || '🟡 尚未取得紀錄資料'
@@ -351,16 +355,16 @@ export default {
     isRegCaseId (log) {
       return !log?.SMS_CODE?.startsWith('SM')
     },
-    popupSMSLogs (arr, displayMode = true) {
+    popupSMSLogs (arr, title) {
       if (!this.$utils.empty(arr) && Array.isArray(arr)) {
         this.modal(this.$createElement(lahAdmSmslogTableVue, {
           props: {
             inKeyword: this.today,
             inLogs: arr,
-            displayMode
+            displayMode: true
           }
         }), {
-          title: '地籍異動即時通記錄檔查詢',
+          title: `地籍異動即時通記錄檔查詢 - ${title}`,
           size: 'xl',
           noCloseOnBackdrop: false,
           centered: false,
