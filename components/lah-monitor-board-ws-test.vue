@@ -88,7 +88,7 @@ export default {
               command: '@read_file',
               timestamp: +new Date(),
               payload: {
-                path: 'r:\\exchange\\test.pdf',
+                path: 'r:\\exchange\\BALABALA1.pdf',
                 channel: 'system'
               }
             })
@@ -102,20 +102,23 @@ export default {
           }
           this.websocket.onmessage = (e) => {
             const response = JSON.parse(e.data)
-            if (response.command === '@read_file' && response.binary) {
+            if (
+              response.command === '@ack_read_file' &&
+              response.success &&
+              response.payload.binary
+            ) {
               // Binary data received
               console.log('Binary data received!')
               // Decode the Base64 data into a Blob
-              const binaryString = atob(response.payload)
+              const binaryString = atob(response.payload.data)
               const arrayBuffer = new Uint8Array(binaryString.split('').map(char => char.charCodeAt(0)))
               const blob = new Blob([arrayBuffer], { type: 'application/pdf' }) // Adjust the MIME type as needed
               // Process the binary data using FileSaver.js
-              FileSaver.saveAs(blob, 'test.pdf')
+              FileSaver.saveAs(blob, response.payload.filename, { type: response.payload.mime })
             } else {
               // Text data received
               console.log('Text data received:', response)
-              const tmp = JSON.parse(e.data)
-              console.log(tmp)
+              console.log(response.payload)
             }
           }
           resolve('connect OK')

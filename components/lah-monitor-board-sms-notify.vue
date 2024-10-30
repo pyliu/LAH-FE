@@ -83,6 +83,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :variant="light === 'danger' ? 'danger' : 'success'"
       )
       b-link.small.font-weight-bold(
+        v-if="logs.length > 3",
         @click="popupSMSLogs(logs)",
         title="查看今日已發送列表"
       )
