@@ -1,8 +1,8 @@
 <template lang="pug">
 .h-100
   lah-header
-    .d-flex.my-auto 桃園市地政管家-主選單
-  .container: lah-transition(appear, speed="fast")
+    .d-flex.my-auto 業務小幫手-主選單
+  lah-transition(appear, speed="fast"): .mx-3.d-flex
     .vh-full
       .d-flex.mb-3(v-if="isInf || authority.isAdmin")
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/inf")
@@ -25,12 +25,31 @@
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/sur")
           lah-logo-sur.h-75.w-100
           h4.lah-shadow.center.mt-2 測量小幫手
+    .vh-full.col-md-4(v-if="displayAnnouncement")
+      lah-timeline-announcement(
+        load-button,
+        :init-count="14",
+        :load-count="3",
+        @announcement-count="handleAnnouncementEvent($event)"
+      )
 </template>
 
 <script>
 export default {
+  data: () => ({
+    displayAnnouncement: true
+  }),
   head: {
-    title: '桃園市地政總管家系統'
+    title: '業務小幫手'
+  },
+  methods: {
+    handleAnnouncementEvent (payload) {
+      if (payload.count && payload.count > 0) {
+        this.displayAnnouncement = true
+      } else {
+        this.displayAnnouncement = false
+      }
+    }
   }
 }
 </script>
@@ -54,7 +73,7 @@ export default {
 
 .fixed-card-wh {
   height: 40vh;
-  width: 30vw;
+  //width: 30vw;
   &:hover {
     @include hover-style(5px);
   }
@@ -62,7 +81,7 @@ export default {
 
 .fixed-card-wh-inf {
   @extend .fixed-card-wh;
-  width: 45vw;
+  //width: 45vw;
 }
 
 .vh-full {

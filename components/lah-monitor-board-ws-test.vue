@@ -37,7 +37,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
         li 測試 WEBSOCKET 用
       hr
   slot
-  .h5 TEST WS
+  .d-flex
+    b-input(v-model="file")
+    lah-button.ml-1(@click="getFile") GET
+  lah-fa-icon.mt-2(icon="message", regular) {{ message }}
   //- template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
   //-   ref="footer"
   //-   :reload-ms="reloadMs",
@@ -59,22 +62,25 @@ export default {
   data: () => ({
     header: 'WebSocket 測試',
     websocket: null,
-    receivedChunks: []
+    message: '',
+    file: 'r:\\exchange\\BALABALA.pdf'
   }),
   computed: {
     light () {
       return 'gray'
     },
     border () { return '' },
-    attentionCss () { return [] }
+    attentionCss () { return [] },
+    connected () {
+      return this.websocket !== null && this.websocket.readyState === WebSocket.OPEN
+    }
   },
-  mounted () {
-    this.connect().then((msg) => {
-      console.log(msg)
-    }).catch((e) => {
-      console.warn(e)
-    })
+  watch: {
+    file (val) {
+      console.warn(val)
+    }
   },
+  mounted () {},
   methods: {
     connect () {
       return new Promise((resolve, reject) => {
@@ -82,17 +88,8 @@ export default {
           this.websocket && this.websocket.close()
           this.websocket = new WebSocket('ws://127.0.0.1:8082')
           this.websocket.onopen = (e) => {
-            // to register in wss
-            this.receivedChunks = []
-            const jsonString = JSON.stringify({
-              command: '@read_file',
-              timestamp: +new Date(),
-              payload: {
-                path: 'r:\\exchange\\BALABALA1.pdf',
-                channel: 'system'
-              }
-            })
-            this.websocket.send(jsonString)
+            console.log('websocket opened!')
+            resolve('Connection Opened')
           }
           this.websocket.onclose = () => {
             console.log('websocket closed!')
@@ -103,12 +100,13 @@ export default {
           this.websocket.onmessage = (e) => {
             const response = JSON.parse(e.data)
             if (
-              response.command === '@ack_read_file' &&
+              response.command === '@read_file_ack' &&
               response.success &&
               response.payload.binary
             ) {
               // Binary data received
               console.log('Binary data received!')
+              this.message = response.payload.message
               // Decode the Base64 data into a Blob
               const binaryString = atob(response.payload.data)
               const arrayBuffer = new Uint8Array(binaryString.split('').map(char => char.charCodeAt(0)))
@@ -119,13 +117,41 @@ export default {
               // Text data received
               console.log('Text data received:', response)
               console.log(response.payload)
+              this.message = response.payload.message
             }
           }
-          resolve('connect OK')
+          this.websocket.onping = (e) => {
+            this.message = `PING: ${this.$utils.now()}`
+          }
+          this.websocket.onpong = (e) => {
+            this.message = `PONG: ${this.$utils.now()}`
+          }
         } catch (e) {
           reject(e)
         }
       })
+    },
+    send () {
+      const jsonString = JSON.stringify({
+        command: '@read_file',
+        timestamp: +new Date(),
+        payload: {
+          path: this.file,
+          channel: 'system'
+        }
+      })
+      this.websocket.send(jsonString)
+    },
+    getFile () {
+      if (this.connected) {
+        this.send()
+      } else {
+        this.connect().then(() => {
+          this.send()
+        }).catch((e) => {
+          console.warn(e)
+        })
+      }
     }
   }
 }

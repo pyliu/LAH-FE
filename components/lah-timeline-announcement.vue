@@ -16,7 +16,7 @@ b-card(:class="cardCss", no-body, title="最新公告").announcement-timeline
       )
       b-select.border-0(
         v-model="selectedCount",
-        :options="[1, 3, 5]"
+        :options="[1, 3, 5, 10]"
       )
       lah-button.border-0(
         icon="caret-down",

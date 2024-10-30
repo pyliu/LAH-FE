@@ -5,11 +5,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
       strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
       lah-button-count-badge(
-        :count="lastestChangedCellLogs.length",
+        :count="lastestChangedCount",
         variant="primary",
-        :title="`異動已發送${lastestChangedCellLogs.length}則`",
+        :title="`異動已發送${lastestChangedCount}則`",
         @click="popupSMSLogs(lastestChangedCellLogs, '僅異動部分')",
-        v-if="!isBusy && lastestChangedCellLogs.length > 0"
+        v-if="!isBusy && lastestChangedCount > 0"
       ) 異動
       lah-button-count-badge(
         :count="logs.length",
@@ -87,7 +87,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :variant="light === 'danger' ? 'danger' : 'success'"
       )
       b-link.small.font-weight-bold(
-        v-if="lastestChangedCellLogs.length > 3",
+        v-if="lastestChangedCount > 3",
         @click="popupSMSLogs(lastestChangedCellLogs)",
         title="查看今日異動已發送列表"
       )
@@ -184,6 +184,9 @@ export default {
     },
     lastestChangedCellLogs () {
       return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && !item.SMS_CODE.startsWith('SM'))
+    },
+    lastestChangedCount () {
+      return this.lastestChangedCellLogs.length
     },
     message () {
       return this.responseData?.message || '🟡 尚未取得紀錄資料'
