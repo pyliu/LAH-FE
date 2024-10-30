@@ -1,7 +1,10 @@
 <template lang="pug">
 .h-100
   lah-header
-    .d-flex.my-auto {{ office }} 地政事務所入口網
+    lah-fa-icon.h1.my-auto(
+      icon="people-roof"
+    )
+      span.ml-1 {{ office }} 地政事務所入口網
   lah-transition(appear, speed="fast"): .container.d-flex
     .vh-full.col-md-6
       .h1
@@ -17,7 +20,7 @@
         .mb-5: nuxt-link(to="/sur"): .d-flex.align-items-center
           b-img.brand.lah-shadow(src="~/assets/img/SUR.jpg")
           .lah-shadow.ml-4 測量小幫手
-        .mb-5: nuxt-link(to="/inf"): .d-flex.align-items-center
+        .mb-5: nuxt-link(to="/lab"): .d-flex.align-items-center
           b-img.brand.lah-shadow(src="~/assets/img/INF.jpg")
           .lah-shadow.ml-4 資訊實驗室
 
