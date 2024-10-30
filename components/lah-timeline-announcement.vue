@@ -1,7 +1,8 @@
 <template lang="pug">
 b-card(:class="cardCss", no-body, title="最新公告").announcement-timeline
   lah-notification-timeline(
-    :items="timelineItems"
+    :items="timelineItems",
+    :open-first="openFirst"
   )
   .d-flex.justify-content-end(v-if="!noMore && loadButton")
     b-button-group(size="sm")
@@ -36,7 +37,8 @@ export default {
     initCount: { type: Number, default: 1 },
     loadButton: { type: Boolean, default: true },
     loadCount: { type: Number, default: 1 },
-    noBorder: { type: Boolean, default: false }
+    noBorder: { type: Boolean, default: false },
+    openFirst: { type: Boolean, default: false }
   },
   data: () => ({
     timelineItems: [],

@@ -28,11 +28,14 @@ b-card.p-3.border-0(no-body)
 
         b-collapse(
           :id="`content-${index}-preview`",
-          visible
+          :visible="openFirst && index === 0 ? false : true"
         ): .small.mb-1.text-muted.w-100.truncate
           |{{ cleanTags(item.content) }}
 
-        b-collapse(:id="`content-${index}`")
+        b-collapse(
+          :id="`content-${index}`",
+          :visible="openFirst && index === 0 ? true : false"
+        )
           .rounded.border.border-dark.mt-1.mb-1.p-2
             .item-description.timeline-img(
               @click="handleContentClick($event)",
@@ -48,10 +51,10 @@ b-card.p-3.border-0(no-body)
 </template>
 
 <script>
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns';
 // Require tw locale
-import { zhTW } from 'date-fns/locale'
-import lahUserCard from '~/components/lah-user-card.vue'
+import { zhTW } from 'date-fns/locale';
+import lahUserCard from '~/components/lah-user-card.vue';
 
 export default {
   name: 'LahNotificationTimeline',
@@ -65,7 +68,8 @@ export default {
     dateFormat: { type: String, default: 'yyyy-MM-dd HH:mm:ss' },
     variant: { type: String, default: 'primary' },
     humanFriendlyTime: { type: Boolean, default: true },
-    loading: { type: Boolean, default: false }
+    loading: { type: Boolean, default: false },
+    openFirst: { type: Boolean, default: false }
   },
   computed: {
     bootstrapVariant () {

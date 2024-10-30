@@ -2,7 +2,15 @@
 .h-100
   lah-header
     .d-flex.my-auto 業務小幫手-主選單
-  lah-transition(appear, speed="fast"): .mx-3.d-flex
+  lah-transition(appear, speed="fast"): .mx-5.d-flex
+    .vh-full.col-md-4(v-if="displayAnnouncement")
+      .h4 📢 最新即時通公告
+      lah-timeline-announcement.timeline-height(
+        open-first,
+        :init-count="5",
+        :load-count="3",
+        @announcement-count="handleAnnouncementEvent($event)"
+      )
     .vh-full
       .d-flex.mb-3(v-if="isInf || authority.isAdmin")
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/inf")
@@ -25,13 +33,6 @@
         b-card.fixed-card-wh-inf.center: nuxt-link(to="/sur")
           lah-logo-sur.h-75.w-100
           h4.lah-shadow.center.mt-2 測量小幫手
-    .vh-full.col-md-4(v-if="displayAnnouncement")
-      lah-timeline-announcement(
-        load-button,
-        :init-count="14",
-        :load-count="3",
-        @announcement-count="handleAnnouncementEvent($event)"
-      )
 </template>
 
 <script>
@@ -87,6 +88,11 @@ export default {
 .vh-full {
   height: calc(100vh - 100px);
 }
+
+.timeline-height {
+  height: calc(100vh - 200px) !important;
+}
+
 .version {
   font-size: .75rem;
   font-weight: 900;
