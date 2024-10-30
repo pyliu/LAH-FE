@@ -5,21 +5,21 @@
   lah-transition(appear, speed="fast"): .container.d-flex
     .vh-full.col-md-6
       .h1
-        .mb-2(v-if="isInf || authority.isAdmin"): nuxt-link(to="/inf"): .d-flex.align-items-center
-          b-img.brand(src="~/assets/img/MONITOR.jpg")
-          .lah-shadow.ml-2 智慧監控系統
-        .mb-2: nuxt-link(to="/reg"): .d-flex.align-items-center
-          b-img.brand(src="~/assets/img/REG.jpg")
-          .lah-shadow.ml-2 智慧控管系統
-        .mb-2: nuxt-link(to="/prc"): .d-flex.align-items-center
-          b-img.brand(src="~/assets/img/VAL.jpg")
-          .lah-shadow.ml-2 地價小幫手
-        .mb-2: nuxt-link(to="/sur"): .d-flex.align-items-center
-          b-img.brand(src="~/assets/img/SUR.jpg")
-          .lah-shadow.ml-2 測量小幫手
-        .mb-2: nuxt-link(to="/inf"): .d-flex.align-items-center
-          b-img.brand(src="~/assets/img/INF.jpg")
-          .lah-shadow.ml-2 資訊實驗室
+        .mb-5(v-if="isInf || authority.isAdmin"): nuxt-link(to="/inf"): .d-flex.align-items-center
+          b-img.brand.lah-shadow(src="~/assets/img/MONITOR.jpg")
+          .lah-shadow.ml-4 智慧監控系統
+        .mb-5: nuxt-link(to="/reg"): .d-flex.align-items-center
+          b-img.brand.lah-shadow(src="~/assets/img/REG.jpg")
+          .lah-shadow.ml-4 智慧控管系統
+        .mb-5: nuxt-link(to="/prc"): .d-flex.align-items-center
+          b-img.brand.lah-shadow(src="~/assets/img/VAL.jpg")
+          .lah-shadow.ml-4 地價小幫手
+        .mb-5: nuxt-link(to="/sur"): .d-flex.align-items-center
+          b-img.brand.lah-shadow(src="~/assets/img/SUR.jpg")
+          .lah-shadow.ml-4 測量小幫手
+        .mb-5: nuxt-link(to="/inf"): .d-flex.align-items-center
+          b-img.brand.lah-shadow(src="~/assets/img/INF.jpg")
+          .lah-shadow.ml-4 資訊實驗室
 
     .vh-full.col-md-6(v-if="displayAnnouncement")
       lah-fa-icon.h4(
