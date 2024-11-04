@@ -88,7 +88,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       hr
       div ⭐ 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示找不到任何郵件訊息
+      div 🟡 表示找不到任何郵件或是「SRMAS天氣圖影像」無法正常讀取
       div 🔴 表示有「告警通知」但無「回復通知」之項目
   slot
   div(v-if="noCarousel"): lah-monitor-board-srmas-analysis(
@@ -192,7 +192,7 @@ export default {
       return this.headMessages[0]
     },
     light () {
-      if (!this.firstMessage) {
+      if (!this.firstMessage || this.failed) {
         return 'warning'
       }
       // return this.problems.length > 0 ? 'danger' : 'success'

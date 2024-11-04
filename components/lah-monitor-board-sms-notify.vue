@@ -130,6 +130,10 @@ export default {
       // return `/l05proxy/api/v1/l05?limit=${this.logLimit}`
       return '/smsproxy/api/v1/log'
     },
+    ProcessAPIUrl () {
+      // return `/l05proxy/api/v1/l05?limit=${this.logLimit}`
+      return '/smsproxy/api/v1/processes'
+    },
     logPath () {
       return `${this.exeDir}/${this.twToday}moniter_sms.log`
     },
@@ -256,6 +260,7 @@ export default {
   mounted () {
     this.emitLightUpdate(this.light, '')
     this.checkSMSStatusDebounced()
+    this.checkProcess()
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
@@ -326,6 +331,18 @@ export default {
           this.$refs.countdown?.startCountdown()
           // also load logs
           this.loadLogs()
+        })
+    },
+    checkProcess () {
+      this.$axios
+        .get(this.ProcessAPIUrl)
+        .then(({ data }) => {
+          console.warn(data)
+        })
+        .catch((err) => {
+          this.error = err
+        })
+        .finally(() => {
         })
     },
     emitLightUpdate (n, o) {
