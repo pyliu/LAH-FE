@@ -9,7 +9,11 @@
       //- b-card-group(deck)
       .d-flex.mx-auto
         lah-index-card-link.fix-card-dimension(:icon="['far', 'calendar-alt']" to="/sur/expire") 測量逾期#[br]案件
-        lah-index-card-link.fix-card-dimension.ml-2(:icon="['fas', 'house-chimney-crack']" to="/sur/destruction") 逕辦建物滅失控管
+        lah-index-card-link.fix-card-dimension.ml-2(
+          v-if="authority.isAdmin",
+          :icon="['fas', 'house-chimney-crack']",
+          to="/sur/destruction"
+        ) 逕辦建物滅失控管
         lah-index-card-link.fix-card-dimension.ml-2(:icon="['fas', 'chart-line']" to="/sur/stats") 分時案件統計
 </template>
 

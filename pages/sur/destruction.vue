@@ -30,7 +30,7 @@ div
       .d-flex.small
         lah-datepicker(
           v-model="dateRange",
-          :begin="firstDayOf2024Feb"
+          :begin="firstDayOf2024Nov"
         )
         b-input.h-100.mx-1(
           v-model="keyword",
@@ -52,14 +52,14 @@ div
           ref="plus"
           icon="file-circle-plus"
           size="lg"
-          title="新建資料"
+          title="新建控管資料"
           :disabled="isBusy"
           @click="$refs.add.show()"
           no-icon-gutter
         )
         lah-button-xlsx(
           :jsons="xlsxData"
-          header="外國人資料查詢"
+          header="逕辦建物滅失資料查詢"
         )
 
   lah-pagination(
@@ -260,11 +260,11 @@ export default {
     }
   },
   head: {
-    title: '檔案應用預約申請控管-桃園市地政局'
+    title: '逕辦建物滅失控管-桃園市地政局'
   },
   computed: {
-    firstDayOf2024Feb () {
-      return new Date(2024, 1, 1)
+    firstDayOf2024Nov () {
+      return new Date(2024, 10, 1)
     },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
