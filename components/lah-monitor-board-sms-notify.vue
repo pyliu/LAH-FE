@@ -337,7 +337,7 @@ export default {
       this.$axios
         .get(this.ProcessAPIUrl)
         .then(({ data }) => {
-          console.warn(data)
+          this.$utils.warn(data)
         })
         .catch((err) => {
           this.error = err
