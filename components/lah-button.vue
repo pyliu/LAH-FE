@@ -31,7 +31,10 @@ b-button.text-nowrap(
     @icon="handleIconId"
   )
   span.ld-txt(v-if="busy") 讀取中...
-  span.ml-1(ref="slot", v-show="!busy")
+  span(
+    ref="slot",
+    v-show="!busy"
+  )
     slot
     b-badge.ml-1(
       v-if="showBadge"
