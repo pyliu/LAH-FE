@@ -32,7 +32,7 @@ marked.setOptions({
   breaks: true
 })
 
-export default ({ $axios, store }, inject) => {
+export default ({ $axios, store, $config }, inject) => {
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
     dayMilliseconds: 8640000,
@@ -162,7 +162,6 @@ export default ({ $axios, store }, inject) => {
       ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
     ])
   }
-
   // like old fashion global functions, use this.$utils to access these methods in Vue
   const utility = {
     $,
@@ -658,8 +657,16 @@ export default ({ $axios, store }, inject) => {
       }
       return str
     },
-    log: console.log.bind(console),
-    warn: console.warn.bind(console),
+    log () {
+      if ($config.isDev) {
+        console.log(...arguments)
+      }
+    },
+    warn () {
+      if ($config.isDev) {
+        console.warn(...arguments)
+      }
+    },
     assert: console.assert.bind(console),
     error: console.error.bind(console)
   }

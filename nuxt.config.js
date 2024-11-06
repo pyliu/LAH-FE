@@ -181,7 +181,8 @@ export default {
           port: process.env.GRAFANA_PORT
         }
       }
-    }
+    },
+    isDev: process.env.NODE_ENV !== 'production'
   },
   // should hold all env variables that are private and that should not be exposed on the frontend.
   // only available on server using same $config
