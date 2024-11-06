@@ -59,7 +59,7 @@ div
         )
         lah-button-xlsx(
           :jsons="xlsxData"
-          header="外國人資料查詢"
+          header="檔案應用預約申請資料查詢"
         )
 
   lah-pagination(
