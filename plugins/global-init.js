@@ -659,12 +659,14 @@ export default ({ $axios, store, $config }, inject) => {
     },
     log () {
       if ($config.isDev) {
-        console.log(...arguments)
+        const err = new Error()
+        console.log(err.stack.split('\n')[2], ...arguments)
       }
     },
     warn () {
       if ($config.isDev) {
-        console.warn(...arguments)
+        const err = new Error()
+        console.warn(err.stack.split('\n')[2], ...arguments)
       }
     },
     assert: console.assert.bind(console),
