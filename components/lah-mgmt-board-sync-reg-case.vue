@@ -138,8 +138,6 @@ export default {
   watch: {
     caseId (val) {
       this.clear()
-      // checks CRCLD data
-      this.checkL3Fix()
     },
     isL3CRCLDAvailable (flag) {
       // continue to get L3 fix data back
@@ -162,7 +160,7 @@ export default {
     this.vertical = await this.getCache('lah-mgmt-board-sync-reg-case-vertical') || false
     this.l3hwebIp = this.systemConfigs.l3hweb_db_ip || '220.1.33.5'
     this.ping()
-    this.checkL3Fix = this.$utils.debounce(() => {
+    this.checkL3FixData = this.$utils.debounce(() => {
       this.l3hwebCRCLDData = false
       this.$axios.post(this.$consts.API.JSON.XCASE, {
         type: 'check_xcase_fix_data',
@@ -227,6 +225,9 @@ export default {
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
+        }).finally(() => {
+          // checks CRCLD data
+          this.checkL3FixData()
         })
       }
     },
@@ -235,6 +236,8 @@ export default {
       this.FAIL_WITH_REMOTE_NO_RECORD = false
       this.FAIL_WITH_LOCAL_NO_RECORD = false
       this.SUCCESS_DATA_SYNCED = false
+      this.l3hwebCRCLDData = false
+      this.l3hwebCRCRDData = false
     },
     detail () {
       if (this.validCaseId) {
@@ -297,7 +300,7 @@ export default {
         }
       })
     },
-    checkL3Fix () { /** placeholder for debounce method */ },
+    checkL3FixData () { /** placeholder for debounce method */ },
     getL3FixData () {
       this.isBusy = true
       this.l3hwebCRCRDData = false
