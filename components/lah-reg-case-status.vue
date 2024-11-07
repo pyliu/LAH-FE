@@ -259,16 +259,10 @@ export default {
       return this.ready && this.bakedData.結案與否 === 'N'
     },
     hasFixData () {
-      return this.bakedCaseId && !this.$utils.empty(this.bakedData?.通知補正日期)
+      return !this.$utils.empty(this.id) && !this.$utils.empty(this.bakedData?.通知補正日期)
     },
     fixDataText () {
-      return this.localCRCRDData?.RC05 || '⚠ 本地資料庫無資料，請先確認該案件有同步過來❗'
-    },
-    bakedCaseId () {
-      if (this.bakedData) {
-        return `${this.bakedData.RM01}${this.bakedData.RM02}${this.bakedData.RM03}`
-      }
-      return false
+      return this.localCRCRDData?.RC05 || '⚠ 本地資料庫無資料，若為跨所案件請先確認該案件有同步過來❗'
     }
   },
   watch: {
@@ -287,7 +281,7 @@ export default {
       this.localCRCRDData = false
       this.$axios.post(this.$consts.API.JSON.XCASE, {
         type: 'get_local_fix_data',
-        id: this.bakedCaseId
+        id: this.id
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           this.localCRCRDData = { ...data.raw }
