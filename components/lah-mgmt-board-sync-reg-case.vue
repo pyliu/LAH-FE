@@ -66,15 +66,29 @@ b-card
       lah-button(icon="window-restore", variant="outline-success", @click="popup") 顯示
       //- lah-button.ml-1(icon="arrows-rotate", variant="success", action="cycle") 同步全部欄位
     b-row(v-if="isL3CRCLDAvailable"): b-col: .h6.mt-3.mb-0
-      strong 找到 {{ FixDataSite }} 伺服器補正的資料 👇
-      p.my-2 {{ FixDataText }}
-      .d-flex.justify-content-end: lah-button(
-        icon="magnet",
-        variant="outline-info",
-        @click="syncL3FixData",
-        :disabled="!validCaseId",
-        pill
-      ) 同步回本所
+      .d-flex.justify-content-between
+        lah-fa-icon.font-weight-bold(
+          v-if="fixDataSyncNeeded",
+          icon="triangle-exclamation",
+          variant="danger",
+          size="lg"
+        ) 找到 {{ L3FixDataSite }} 伺服器補正通知內容
+        lah-fa-icon.font-weight-bold(
+          v-else,
+          regular,
+          icon="file-lines",
+          size="lg"
+        ) {{ formattedID }} 補正通知內容
+        lah-button(
+          v-if="fixDataSyncNeeded",
+          icon="magnet",
+          variant="info",
+          action="metronome",
+          @click="syncL3FixData",
+          :disabled="!validCaseId",
+          title="將補正通知資料抓回本所資料庫"
+        ) 同步
+      p.my-2 {{ L3FixDataText }}
 
   template(#footer)
     .d-flex.justify-content-center
@@ -100,7 +114,8 @@ export default {
     FAIL_WITH_LOCAL_NO_RECORD: false,
     SUCCESS_DATA_SYNCED: false,
     l3hwebCRCLDData: false,
-    l3hwebCRCRDData: false
+    l3hwebCRCRDData: false,
+    localCRCRDData: false
   }),
   computed: {
     formattedID () {
@@ -128,11 +143,20 @@ export default {
     isL3CRCLDAvailable () {
       return this.l3hwebCRCLDData !== false
     },
-    FixDataSite () {
+    L3FixDataSite () {
       return this.l3hwebCRCRDData?.RC06 || ''
     },
-    FixDataText () {
+    L3FixDataText () {
       return this.l3hwebCRCRDData?.RC05 || ''
+    },
+    LocalFixDataSite () {
+      return this.localCRCRDData?.RC06 || ''
+    },
+    LocalFixDataText () {
+      return this.localCRCRDData?.RC05 || ''
+    },
+    fixDataSyncNeeded () {
+      return !this.$utils.equal(this.L3FixDataText, this.LocalFixDataText)
     }
   },
   watch: {
@@ -140,17 +164,20 @@ export default {
       this.clear()
     },
     isL3CRCLDAvailable (flag) {
-      // continue to get L3 fix data back
-      flag && this.getL3FixData()
+      // continue to get L3/Local fix data back
+      flag && this.getL3FixData().then(this.getLocalFixData)
     },
     l3hwebData (val) {
-      this.$utils.warn('l3hwebData', val)
+      this.$utils.warn(val)
     },
     l3hwebCRCLDData (val) {
-      this.$utils.warn('l3hwebCRCLDData', val)
+      this.$utils.warn(val)
     },
     l3hwebCRCRDData (val) {
-      this.$utils.warn('l3hwebCRCRDData', val)
+      this.$utils.warn(val)
+    },
+    localCRCRDData (val) {
+      this.$utils.warn(val)
     },
     vertical (val) {
       this.setCache('lah-mgmt-board-sync-reg-case-vertical', val)
@@ -238,6 +265,7 @@ export default {
       this.SUCCESS_DATA_SYNCED = false
       this.l3hwebCRCLDData = false
       this.l3hwebCRCRDData = false
+      this.localCRCRDData = false
     },
     detail () {
       if (this.validCaseId) {
@@ -301,15 +329,15 @@ export default {
       })
     },
     checkL3FixData () { /** placeholder for debounce method */ },
-    getL3FixData () {
+    getLocalFixData () {
       this.isBusy = true
-      this.l3hwebCRCRDData = false
+      this.localCRCRDData = false
       this.$axios.post(this.$consts.API.JSON.XCASE, {
-        type: 'get_xcase_fix_data',
+        type: 'get_local_fix_data',
         id: this.caseId
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
-          this.l3hwebCRCRDData = { ...data.raw }
+          this.localCRCRDData = { ...data.raw }
         } else {
           this.warning(data.message)
         }
@@ -317,6 +345,29 @@ export default {
         this.$utils.error(err)
       }).finally(() => {
         this.isBusy = false
+      })
+    },
+    getL3FixData () {
+      return new Promise((resolve, reject) => {
+        this.isBusy = true
+        this.l3hwebCRCRDData = false
+        this.$axios.post(this.$consts.API.JSON.XCASE, {
+          type: 'get_xcase_fix_data',
+          id: this.caseId
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            this.l3hwebCRCRDData = { ...data.raw }
+            resolve(data.message)
+          } else {
+            this.warning(data.message)
+            reject(data.message)
+          }
+        }).catch((err) => {
+          this.$utils.error(err)
+          reject(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
       })
     },
     syncL3FixData () {
