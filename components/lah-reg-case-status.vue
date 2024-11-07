@@ -3,15 +3,17 @@
     <b-card-title v-if="!noTitle">
       辦理情形
       <b-link :href="queryStatusUrl" target="_blank" title="開啟新視窗">
-        <lah-fa-icon append icon="share-square" no-gutter/>
+        <lah-fa-icon append icon="share-square" no-gutter />
       </b-link>
     </b-card-title>
-    <b-list-group flush compact v-if="ready">
+    <b-list-group v-if="ready" flush compact>
       <b-list-group-item>
         <b-form-row>
-          <b-col :title="bakedData.預定結案日期"
-            >預定結案：<span v-html="bakedData.限辦期限"></span
-          ></b-col>
+          <b-col
+            :title="bakedData.預定結案日期"
+          >
+            預定結案：<span v-html="bakedData.限辦期限" />
+          </b-col>
           <b-col :title="bakedData.結案與否">
             結案與否：
             <span v-if="ongoing" class="text-danger"><strong>尚未結案！</strong></span>
@@ -111,7 +113,7 @@
       <b-list-group-item v-if="!$utils.empty(bakedData.駁回日期)">
         <b-form-row>
           <b-col>駁回日期：{{ bakedData.駁回日期 }}</b-col>
-          <b-col></b-col>
+          <b-col />
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.公告日期)">
@@ -122,14 +124,23 @@
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.通知補正日期)">
         <b-form-row>
-          <b-col>通知補正：{{ bakedData.通知補正日期 }}</b-col>
+          <b-col>
+            <span>通知補正：{{ bakedData.通知補正日期 }}</span>
+            <lah-button
+              v-if="hasFixData"
+              pill
+              @click="showFixDataText"
+            >
+              通知內容
+            </lah-button>
+          </b-col>
           <b-col>補正期滿：{{ bakedData.補正期滿日期 }} 天數：{{ bakedData.補正期限 }}</b-col>
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.補正日期)">
         <b-form-row>
           <b-col>補正日期：{{ bakedData.補正日期 }}</b-col>
-          <b-col></b-col>
+          <b-col />
         </b-form-row>
       </b-list-group-item>
       <b-list-group-item v-if="!$utils.empty(bakedData.請示人員)">
@@ -228,27 +239,70 @@
 </template>
 
 <script>
-import regCaseBase from "~/components/lah-reg-case-base.js"
-import lahUserCard from '~/components/lah-user-card.vue'
-import lahAvatar from '~/components/lah-avatar.vue'
+import lahAvatar from '~/components/lah-avatar.vue';
+import regCaseBase from '~/components/lah-reg-case-base.js';
+import lahUserCard from '~/components/lah-user-card.vue';
 
 export default {
-  name: "lah-reg-case-status",
+  name: 'LahRegCaseStatus',
   components: { lahUserCard, lahAvatar },
   mixins: [regCaseBase],
   props: {
-    noTitle: { type: Boolean, default: false },
+    noTitle: { type: Boolean, default: false }
   },
+  data: () => ({
+    localCRCRDData: false
+  }),
   computed: {
-    ongoing() {
+    ongoing () {
       // 'E' => 請示
-      return this.ready && this.bakedData.結案與否 === "N";
+      return this.ready && this.bakedData.結案與否 === 'N'
     },
+    hasFixData () {
+      return this.bakedCaseId && !this.$utils.empty(this.bakedData?.通知補正日期)
+    },
+    fixDataText () {
+      return this.localCRCRDData?.RC05
+    },
+    bakedCaseId () {
+      if (this.bakedData) {
+        return `${this.bakedData.RM01}${this.bakedData.RM02}${this.bakedData.RM03}`
+      }
+      return false
+    }
+  },
+  watch: {
+    hasFixData (flag) {
+      flag && this.getLocalFixData()
+    }
   },
   methods: {
     userinfo (name, id = '') {
-      this.modal(this.$createElement('lah-user-card', { props: { name: name, id: id } }), {
+      this.modal(this.$createElement(lahUserCard, { props: { name, id } }), {
         title: `${id} ${name} 資訊`
+      })
+    },
+    getLocalFixData () {
+      this.isBusy = true
+      this.localCRCRDData = false
+      this.$axios.post(this.$consts.API.JSON.XCASE, {
+        type: 'get_local_fix_data',
+        id: this.bakedCaseId
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.localCRCRDData = { ...data.raw }
+        } else {
+          this.warning(data.message)
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+    showFixDataText () {
+      this.modal(this.fixDataText, {
+        title: `${this.bakedData.RM01}-${this.bakedData.RM02}-${this.bakedData.RM03} 補正通知內容`
       })
     }
   }
