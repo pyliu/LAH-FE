@@ -262,7 +262,7 @@ export default {
       return this.bakedCaseId && !this.$utils.empty(this.bakedData?.通知補正日期)
     },
     fixDataText () {
-      return this.localCRCRDData?.RC05
+      return this.localCRCRDData?.RC05 || '⚠ 本地資料庫無資料，請先確認該案件有同步過來❗'
     },
     bakedCaseId () {
       if (this.bakedData) {
