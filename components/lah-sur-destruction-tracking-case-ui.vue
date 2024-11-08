@@ -394,22 +394,31 @@ export default {
         const formData = new FormData()
         formData.append('type', 'add_destruction_tracking')
         formData.append('number', this.number)
+        formData.append('issue_date', this.issueDate)
+        formData.append('apply_date', this.applyDate)
+        formData.append('section_code', this.sectionCode)
+        formData.append('land_number', this.landNumber)
+        formData.append('building_number', this.buildingNumber)
+        formData.append('address', this.address)
+        formData.append('occupancy_permit', this.occupancyPermit)
+        formData.append('construction_permit', this.constructionPermit)
         formData.append('note', this.note)
+        formData.append('done', this.done)
         formData.append('file', this.uploadFile)
         // this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
         this.$upload.post(this.$consts.API.JSON.SUR, formData).then(({ data }) => {
-          const title = this.$utils.empty(data.payload) ? '新增預約資料結果' : `${data.payload.number}-${data.payload.pid}`
+          const title = this.$utils.empty(data.payload) ? '新增追蹤資料結果' : `${data.payload.number}-${data.payload.pid}`
           const message = `${data.payload.pname} - ${data.message}`
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
           if (this.$utils.statusCheck(data.status)) {
             this.$emit('add', {
               id: data.payload.id,
-              number: data.payload.number,
-              pid: data.payload.pid,
-              pname: data.payload.pname,
-              note: data.payload.note,
-              createtime: data.payload.createtime,
-              endtime: data.payload.endtime
+              number: data.payload.number
+              // pid: data.payload.pid,
+              // pname: data.payload.pname,
+              // note: data.payload.note,
+              // createtime: data.payload.createtime,
+              // endtime: data.payload.endtime
             })
           }
         }).catch((err) => {
@@ -428,23 +437,32 @@ export default {
       formData.append('type', 'edit_destruction_tracking')
       formData.append('id', this.editId)
       formData.append('number', this.number)
+      formData.append('issue_date', this.issueDate)
+      formData.append('apply_date', this.applyDate)
+      formData.append('section_code', this.sectionCode)
+      formData.append('land_number', this.landNumber)
+      formData.append('building_number', this.buildingNumber)
+      formData.append('address', this.address)
+      formData.append('occupancy_permit', this.occupancyPermit)
+      formData.append('construction_permit', this.constructionPermit)
       formData.append('note', this.note)
+      formData.append('done', this.done)
       if (this.uploadFile?.type === 'application/pdf') {
         formData.append('file', this.uploadFile)
       }
       this.$upload.post(this.$consts.API.JSON.SUR, formData).then(({ data }) => {
-        const title = this.$utils.empty(data.payload) ? '編輯預約資料結果' : `${data.payload.number}-${data.payload.pid}`
+        const title = this.$utils.empty(data.payload) ? '編輯追蹤資料結果' : `${data.payload.number}-${data.payload.pid}`
         const message = `${data.payload?.pname} - ${data.message}`
         this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
         if (this.$utils.statusCheck(data.status)) {
           this.$emit('edit', {
             id: this.editId,
-            number: this.number,
-            pid: this.pId,
-            pname: this.pName,
-            note: this.note,
-            createtime: this.createtime,
-            endtime: this.endtime
+            number: this.number
+            // pid: this.pId,
+            // pname: this.pName,
+            // note: this.note,
+            // createtime: this.createtime,
+            // endtime: this.endtime
           })
         }
       }).catch((err) => {
