@@ -354,13 +354,6 @@ export default {
       }).finally(() => {
       })
     },
-    msToTWDate (ms) {
-      const int = parseInt(ms)
-      if (int > 0) {
-        return this.$utils.twDateStr(new Date(int * 1000))
-      }
-      return ''
-    },
     restoreOrigData () {
       if (!this.$utils.empty(this.origData)) {
         this.number = this.origData.number
@@ -379,13 +372,13 @@ export default {
     emitInput () { /** placeholder */ },
     ok () {
       if (this.editMode) {
-        this.confirm('請確認要編輯預約資料？').then((YN) => {
+        this.confirm('請確認要編輯追蹤資料？').then((YN) => {
           if (YN) {
             this.edit()
           }
         })
       } else {
-        this.confirm('請確認要新增預約資料？').then((YN) => {
+        this.confirm('請確認要新增追蹤資料？').then((YN) => {
           if (YN) {
             this.add()
           }
