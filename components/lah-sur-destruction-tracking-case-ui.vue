@@ -165,16 +165,16 @@ export default {
   }),
   computed: {
     ready () {
-      if (this.editMode) {
-        return this.validNumber &&
-               this.validIssueDate &&
-               this.validApplyDate
-      }
       return this.validNumber &&
+             this.validSectionCode &&
+             this.validLandNumber &&
+             this.validBuildingNumber &&
+             this.validAddress &&
+             this.validOccupancyPermit &&
+             this.validConstructionPermit &&
              this.validUploadFile &&
              this.validIssueDate &&
-             this.validApplyDate &&
-             this.validEnddate
+             this.validApplyDate
     },
     createtime () {
       if (this.editMode) {
@@ -271,16 +271,6 @@ export default {
         return tmp.length === 7
       }
       return false
-    },
-    validEnddate () {
-      if (this.enddate) {
-        const ed = this.enddate.replaceAll(/[:\-\s]/ig, '')
-        if (ed.length === 7 && this.validIssueDate) {
-          const cd = this.createdate.replaceAll(/[:\-\s]/ig, '')
-          return parseInt(ed) >= parseInt(cd)
-        }
-      }
-      return false
     }
   },
   watch: {
@@ -321,28 +311,19 @@ export default {
     this.emitInput = this.$utils.debounce(() => {
       this.$emit('input', {
         number: this.number,
-        pid: this.pId,
-        pname: this.pName,
+        issueDate: this.issueDate,
+        applyDate: this.applyDate,
+        sectionCode: this.sectionCode,
+        landNumber: this.landNumber,
+        buildingNumber: this.buildingNumber,
+        address: this.address,
+        occupancyPermit: this.occupancyPermit,
+        constructionPermit: this.constructionPermit,
         note: this.note,
-        file: this.uploadFile,
-        // NOTE: ms => not date string
-        createtime: this.createtime,
-        endtime: this.endtime
+        done: this.done,
+        file: this.uploadFile
       })
     }, 400)
-    // get current latest case number from DB
-    this.$axios.post(this.$consts.API.JSON.ADM, {
-      type: 'get_reserve_pdf_latest_number'
-    }).then(({ data }) => {
-      if (this.$utils.statusCheck(data.status)) {
-        this.dbLatestNumber = data.number
-      } else {
-        this.warning(data.message)
-      }
-    }).catch((e) => {
-      this.$utils.error(e)
-    }).finally(() => {
-    })
     // prepare section opts
     this.loadSections()
   },
@@ -382,11 +363,16 @@ export default {
     },
     restoreOrigData () {
       if (!this.$utils.empty(this.origData)) {
-        this.createdate = this.msToTWDate(this.origData.createtime)
-        this.enddate = this.msToTWDate(this.origData.endtime)
         this.number = this.origData.number
-        this.pId = this.origData.pid
-        this.pName = this.origData.pname
+        this.issueDate = this.origData.issueDate
+        this.applyDate = this.origData.applyDate
+        this.sectionCode = this.origData.sectionCode
+        this.landNumber = this.origData.landNumber
+        this.buildingNumber = this.origData.buildingNumber
+        this.address = this.origData.address
+        this.occupancyPermit = this.origData.occupancyPermit
+        this.constructionPermit = this.origData.constructionPermit
+        this.done = this.origData.done
         this.note = this.origData.note
       }
     },
