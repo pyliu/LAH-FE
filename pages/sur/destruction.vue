@@ -3,7 +3,8 @@ div
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 逕辦建物滅失控管 ({{ queryCount }})
+        .my-auto
+          lah-fa-icon(icon="house-chimney-crack", append, variant="danger") 逕辦建物滅失控管 ({{ queryCount }})
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="$refs.help_modal.show()" title="說明")
         lah-help-modal(ref="help_modal")
           h5 新建控管資料說明
@@ -26,7 +27,11 @@ div
           ol
             li 鍵入關鍵字
             li 點擊 #[lah-fa-icon(icon="search" variant="dark") 搜尋]
-
+          hr
+          h5 即時通說明
+          ol
+            li 案件到期7天前會每日發送一封訊息至測量課頻道
+            li 已完成之案件請勾選「辦畢」，免除追蹤
       .d-flex.small
         lah-datepicker(
           v-model="dateRange",
@@ -52,7 +57,7 @@ div
           ref="plus"
           icon="file-circle-plus"
           size="lg"
-          title="新建控管資料"
+          title="新建逕辦建物滅失追蹤資料"
           :disabled="isBusy"
           @click="$refs.add.show()"
           no-icon-gutter
@@ -125,27 +130,28 @@ div
           variant="outline-danger",
           @click="remove(item)"
         )
-    template(#cell(createtime)="{ item }")
-      .mx-auto {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
-    template(#cell(endtime)="{ item }")
-      .mx-auto {{ $utils.toADDate(item.endtime * 1000, 'yyyy-LL-dd') }}
+    template(#cell(issue_date)="{ item }")
+      .mx-auto {{ $utils.addDateDivider(item.issue_date) }}
+    template(#cell(apply_date)="{ item }")
+      .mx-auto {{ $utils.addDateDivider(item.apply_date) }}
     template(#cell(note)="{ item }")
-      .text-left(v-html="handleNoteText(item.note)")
-    template(#cell(fid)="{ item }")
-      .text-center(v-html="handleFidText(item.fid)")
-    template(#cell(fname)="{ item }")
-      .text-center(v-html="handleFnameText(item.fname)")
-    template(#cell(number)="{ item }")
-      .text-left(v-html="handleNumberText(item.number)")
+      .text-left(v-html="handleHighlightText(item.note)")
+    template(#cell(address)="{ item }")
+      .text-left(v-html="handleHighlightText(item.address)")
+    template(#cell(occupancy_permit)="{ item }")
+      .text-left(v-html="handleHighlightText(item.occupancy_permit)")
+    template(#cell(construction_permit)="{ item }")
+      .text-left(v-html="handleHighlightText(item.construction_permit)")
 
   b-modal(
     ref="add",
     hide-footer,
     no-close-on-backdrop,
-    scrollable
+    scrollable,
+    size="lg"
   )
-    template(#modal-title) 新增檔案應用預約資料
-    lah-adm-reserve-file-case-ui(
+    template(#modal-title) 新增逕辦建物滅失追蹤資料
+    lah-sur-destruction-tracking-case-ui(
       @close="$refs.add.hide()",
       @add="handleAdd"
     )
@@ -154,10 +160,11 @@ div
     ref="edit",
     hide-footer,
     no-close-on-backdrop,
-    scrollable
+    scrollable,
+    size="lg"
   )
-    template(#modal-title) 修改檔案應用預約資料
-    lah-adm-reserve-file-case-ui(
+    template(#modal-title) 修改逕辦建物滅失追蹤資料
+    lah-sur-destruction-tracking-case-ui(
       :orig-data="editRecord"
       @close="$refs.edit.hide()",
       @edit="handleEdit"
@@ -192,33 +199,57 @@ export default {
       },
       {
         key: 'number',
-        label: '收件字號',
+        label: '字號',
         sortable: true,
         thStyle: { width: '150px' }
       },
       {
-        key: 'pid',
-        label: '統編',
+        key: 'issue_date',
+        label: '發文日期',
         sortable: true,
         thStyle: { width: '120px' }
       },
       {
-        key: 'pname',
-        label: '申請人',
+        key: 'section_code',
+        label: '地段',
         sortable: true,
         thStyle: { width: '150px' }
       },
       {
-        key: 'createtime',
-        label: '收件日期',
+        key: 'land_number',
+        label: '地號',
         sortable: true,
-        thStyle: { width: '120px' }
+        thStyle: { width: '150px' }
       },
       {
-        key: 'endtime',
-        label: '預約截止日期',
+        key: 'building_number',
+        label: '建號',
         sortable: true,
-        thStyle: { width: '120px' }
+        thStyle: { width: '150px' }
+      },
+      {
+        key: 'address',
+        label: '拆除地址',
+        sortable: true,
+        thStyle: { width: '300px' }
+      },
+      {
+        key: 'apply_date',
+        label: '申請日期',
+        sortable: true,
+        thStyle: { width: '150px' }
+      },
+      {
+        key: 'occupancy_permit',
+        label: '使用執照',
+        sortable: true,
+        thStyle: { width: '150px' }
+      },
+      {
+        key: 'construction_permit',
+        label: '建築執照',
+        sortable: true,
+        thStyle: { width: '150px' }
       },
       {
         key: 'note',
@@ -242,12 +273,12 @@ export default {
       }
       this.reset()
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.ADM, {
-        type: 'reserve_pdf_list',
+      this.$axios.post(this.$consts.API.JSON.SUR, {
+        type: 'destruction_tracking_list',
         keyword: this.keyword,
         // convert to PHP timestamp which is in seconds
-        start_ts: +this.$utils.twToAdDateObj(this.dateRange.begin) / 1000,
-        end_ts: +this.$utils.twToAdDateObj(this.dateRange.end) / 1000
+        tw_start: this.dateRange.begin,
+        tw_end: this.dateRange.end
       }).then(({ data }) => {
         // console.warn(data.raw)
         if (Array.isArray(data.raw)) { this.rows = [...data.raw] }
@@ -388,59 +419,24 @@ export default {
       return key
     },
     downloadPDFUrl (number) {
-      return `http://${this.apiHost}:${this.apiPort}/get_adm_reserve_pdf.php?number=${number}`
+      return `http://${this.apiHost}:${this.apiPort}/get_sur_destruction_pdf.php?number=${number}`
     },
-    handleNumberText (cid) {
-      if (this.$utils.empty(cid)) {
+    handleHighlightText (text) {
+      if (this.$utils.empty(text)) {
         return ''
       }
       if (!this.$utils.empty(this.keyword)) {
-        cid = this.$utils.highlight(
-          cid,
+        text = this.$utils.highlight(
+          text,
           this.keyword,
           'highlight-yellow'
         )
       }
-      return cid
-    },
-    handleFidText (fid) {
-      if (this.$utils.empty(fid)) {
-        return ''
-      }
-      if (!this.$utils.empty(this.keyword)) {
-        fid = this.$utils.highlight(
-          fid,
-          this.keyword,
-          'highlight-yellow'
-        )
-      }
-      return fid
-    },
-    handleFnameText (fname) {
-      if (this.$utils.empty(fname)) {
-        return ''
-      }
-      if (!this.$utils.empty(this.keyword)) {
-        fname = this.$utils.highlight(
-          fname,
-          this.keyword,
-          'highlight-yellow'
-        )
-      }
-      return fname
+      return text
     },
     handleNoteText (note) {
-      if (this.$utils.empty(note)) {
-        return ''
-      }
-      if (!this.$utils.empty(this.keyword)) {
-        note = this.$utils.highlight(
-          note,
-          this.keyword,
-          'highlight-yellow'
-        )
-      }
-      return note.replace(/(\n|\r\n)/g, '<br/>')
+      const tmp = this.handleHighlightText(note)
+      return tmp.replace(/(\n|\r\n)/g, '<br/>')
     }
   }
 }
