@@ -145,12 +145,6 @@ export default {
   },
   fetchOnServer: false, // component don't fetch on server side to prevent wierd undefined error!!
   data: () => ({
-    createdate: '',
-    pId: '',
-    pName: '',
-    enddate: '',
-    dbLatestNumber: '',
-
     uploadFile: null,
     number: '',
     issueDate: '',
@@ -180,30 +174,6 @@ export default {
       }
       return tmp && this.isValidBuildingNumber
     },
-    createtime () {
-      if (this.editMode) {
-        return this.origData?.createtime
-      }
-      // convert date string to ms
-      const ad = this.$utils.twToAdDateObj(this.createdate)
-      if (ad) {
-        // to php timestamp
-        return ad.getTime() / 1000
-      }
-      return 0
-    },
-    endtime () {
-      // if (this.editMode) {
-      //   return this.origData?.endtime
-      // }
-      // convert date string to ms
-      const ad = this.$utils.twToAdDateObj(this.enddate)
-      if (ad) {
-        // to php timestamp
-        return ad.getTime() / 1000
-      }
-      return 0
-    },
     editId () {
       return this.origData?.id
     },
@@ -228,13 +198,6 @@ export default {
       }
       if (this.editMode) {
         return true
-      }
-      const number = parseInt(this.number)
-      if (number) {
-        const now = new Date()
-        const year = now.getFullYear() - 1911 // TW
-        const criteria = this.$utils.empty(this.dbLatestNumber) ? parseInt(`${year}0000000`) : parseInt(this.dbLatestNumber)
-        return number > criteria
       }
       return false
     },
@@ -301,20 +264,11 @@ export default {
     isValidApplyDate () {
       return this.$utils.isValidTWDate(this.formattedApplyDate)
     },
-    formData () {
-      const formData = new FormData()
-      formData.append('number', this.number)
-      formData.append('issue_date', this.formattedIssueDate)
-      formData.append('apply_date', this.formattedApplyDate)
-      formData.append('section_code', this.sectionCode)
-      formData.append('land_number', this.landNumber)
-      formData.append('building_number', this.buildingNumber)
-      formData.append('address', this.address)
-      formData.append('occupancy_permit', this.occupancyPermit)
-      formData.append('construction_permit', this.constructionPermit)
-      formData.append('note', this.note)
-      formData.append('done', this.done)
-      return Object.fromEntries(formData.entries())
+    keyData () {
+      return {
+        ...Object.fromEntries(this.prepareFormData().entries()),
+        file: this.uploadFile
+      }
     }
   },
   watch: {
@@ -324,55 +278,20 @@ export default {
     origData (val) {
       this.restoreOrigData()
     },
-    createdate (val) {
-      if (this.isValidIssueDate) {
-        const ad = this.$utils.twToAdDateObj(val)
-        if (ad) {
-          // auto setting enddate a year later
-          ad.setFullYear(ad.getFullYear() + 1)
-          this.enddate = this.$utils.twDateStr(ad)
-        }
-      } else {
-        this.enddate = ''
-      }
-    },
-    dbLatestNumber (val) {
-      if (!this.editMode) {
-        const int = parseInt(val)
-        // set default case number
-        const now = new Date()
-        const year = now.getFullYear() - 1911 // TW
-        this.number = int > 0 ? `${int + 1}` : `${year}0000001`
-      }
+    keyData (val) {
+      this.$utils.warn(val)
     }
   },
   created () {
     this.restoreOrigData()
     // add debounce timer for input event
     this.emitInput = this.$utils.debounce(() => {
-      this.$emit('input', {
-        number: this.number,
-        issueDate: this.issueDate,
-        applyDate: this.applyDate,
-        sectionCode: this.sectionCode,
-        landNumber: this.landNumber,
-        buildingNumber: this.buildingNumber,
-        address: this.address,
-        occupancyPermit: this.occupancyPermit,
-        constructionPermit: this.constructionPermit,
-        note: this.note,
-        done: this.done,
-        file: this.uploadFile
-      })
+      this.$emit('input', this.keyData)
     }, 400)
     // prepare section opts
     this.loadSections()
   },
-  mounted () {
-    if (!this.editMode) {
-      this.createdate = this.$utils.today('tw').replaceAll(/[:\-\s]/ig, '')
-    }
-  },
+  mounted () {},
   methods: {
     loadSections () {
       // get current latest case number from DB
@@ -492,11 +411,6 @@ export default {
           this.$emit('edit', {
             id: this.editId,
             number: this.number
-            // pid: this.pId,
-            // pname: this.pName,
-            // note: this.note,
-            // createtime: this.createtime,
-            // endtime: this.endtime
           })
         }
       }).catch((err) => {
