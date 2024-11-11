@@ -51,7 +51,8 @@ div
     )
       b-input.h-100(
         v-model="landNumber",
-        :state="validLandNumber"
+        :state="validLandNumber",
+        v-b-popover.hover.focus.top="displayLandNumber"
       )
     b-input-group.ml-1(
       :size="size",
@@ -59,7 +60,8 @@ div
     )
       b-input.h-100(
         v-model="buildingNumber",
-        :state="validBuildingNumber"
+        :state="validBuildingNumber",
+        v-b-popover.hover.focus.top="displayBuildingNumber"
       )
 
   .d-flex.w-100.my-1
@@ -237,11 +239,35 @@ export default {
     validSectionCode () {
       return !this.$utils.empty(this.sectionCode)
     },
+    formattedLandNumber () {
+      return this.$utils.formatTo8Digits(this.landNumber, 'land')
+    },
+    displayLandNumber () {
+      return this.$utils.formatLandNumber(this.formattedLandNumber)
+    },
     validLandNumber () {
-      return !this.$utils.empty(this.landNumber)
+      if (this.landNumber.length > 4 && !this.landNumber.includes('-')) {
+        return false
+      }
+      const tmp = parseInt(this.formattedLandNumber)
+      return tmp < 99999999 &&
+             tmp > 9999 &&
+             this.formattedLandNumber.length === 8
+    },
+    formattedBuildingNumber () {
+      return this.$utils.formatTo8Digits(this.buildingNumber, 'building')
+    },
+    displayBuildingNumber () {
+      return this.$utils.formatBuildNumber(this.formattedBuildingNumber)
     },
     validBuildingNumber () {
-      return !this.$utils.empty(this.buildingNumber)
+      if (this.buildingNumber.length > 5 && !this.buildingNumber.includes('-')) {
+        return false
+      }
+      const tmp = parseInt(this.formattedBuildingNumber)
+      return tmp < 99999999 &&
+             tmp > 999 &&
+             this.formattedBuildingNumber.length === 8
     },
     validAddress () {
       return !this.$utils.empty(this.address)
@@ -258,19 +284,17 @@ export default {
     validUploadFile () {
       return !this.$utils.empty(this.uploadFile)
     },
+    formattedIssueDate () {
+      return this.issueDate?.replaceAll(/[:\-\s]/ig, '') || ''
+    },
     validIssueDate () {
-      if (this.issueDate) {
-        const tmp = this.issueDate.replaceAll(/[:\-\s]/ig, '')
-        return tmp.length === 7
-      }
-      return false
+      return this.$utils.validTWDate(this.formattedIssueDate)
+    },
+    formattedApplyDate () {
+      return this.applyDate?.replaceAll(/[:\-\s]/ig, '') || ''
     },
     validApplyDate () {
-      if (this.applyDate) {
-        const tmp = this.applyDate.replaceAll(/[:\-\s]/ig, '')
-        return tmp.length === 7
-      }
-      return false
+      return this.$utils.validTWDate(this.formattedApplyDate)
     }
   },
   watch: {
@@ -300,9 +324,9 @@ export default {
         const year = now.getFullYear() - 1911 // TW
         this.number = int > 0 ? `${int + 1}` : `${year}0000001`
       }
-    }
-    // enddate (val) {},
-    // createtime (val) { console.warn('create', val, this.$utils.toADDate(val * 1000)) },
+    },
+    displayLandNumber (val) { this.$utils.warn(val) },
+    displayBuildingNumber (val) { this.$utils.warn(val) }
     // endtime (val) { console.warn('end', val, this.$utils.toADDate(val * 1000)) }
   },
   created () {
@@ -394,8 +418,8 @@ export default {
         const formData = new FormData()
         formData.append('type', 'add_destruction_tracking')
         formData.append('number', this.number)
-        formData.append('issue_date', this.issueDate)
-        formData.append('apply_date', this.applyDate)
+        formData.append('issue_date', this.formattedIssueDate)
+        formData.append('apply_date', this.formattedApplyDate)
         formData.append('section_code', this.sectionCode)
         formData.append('land_number', this.landNumber)
         formData.append('building_number', this.buildingNumber)
@@ -437,8 +461,8 @@ export default {
       formData.append('type', 'edit_destruction_tracking')
       formData.append('id', this.editId)
       formData.append('number', this.number)
-      formData.append('issue_date', this.issueDate)
-      formData.append('apply_date', this.applyDate)
+      formData.append('issue_date', this.formattedIssueDate)
+      formData.append('apply_date', this.formattedApplyDate)
       formData.append('section_code', this.sectionCode)
       formData.append('land_number', this.landNumber)
       formData.append('building_number', this.buildingNumber)
