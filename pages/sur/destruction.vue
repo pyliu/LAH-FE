@@ -359,7 +359,7 @@ export default {
         land_number: payload.land_number,
         building_number: payload.building_number,
         address: payload.address,
-        addroccupancy_permitess: payload.occupancy_permit,
+        occupancy_permit: payload.occupancy_permit,
         construction_permit: payload.construction_permit,
         note: payload.note,
         done: payload.done
