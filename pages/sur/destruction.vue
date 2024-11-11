@@ -351,12 +351,18 @@ export default {
       // add to array head
       this.rows.unshift({
         id: payload.id,
-        createtime: payload.createtime,
-        pid: payload.pid,
-        pname: payload.pname,
-        endtime: payload.endtime,
+        updatetime: payload.updatetime,
+        number: payload.number,
+        issue_date: payload.issue_date,
+        apply_date: payload.apply_date,
+        section_code: payload.section_code,
+        land_number: payload.land_number,
+        building_number: payload.building_number,
+        address: payload.address,
+        addroccupancy_permitess: payload.occupancy_permit,
+        construction_permit: payload.construction_permit,
         note: payload.note,
-        number: payload.number
+        done: payload.done
       })
       // this.$fetch()
     },
@@ -374,25 +380,18 @@ export default {
       const found = this.rows.find((item, idx, array) => {
         return item.id === payload.id
       })
-      if (found) {
-        found.pid = payload.pid
-        found.pname = payload.pname
-        found.note = payload.note
-        found.endtime = payload.endtime
-      }
+      // if (found) {}
     },
     remove (item) {
       this.confirm(`
         請確認是否要刪除本筆資料？<br/>
-        案號：${item.number}<br/>
-        統編：${item.pid}<br/>
-        姓名：${item.pname}
+        公文號：${item.number}<br/>
       `).then((YN) => {
         if (YN) {
           // remove_foreigner_pdf
           this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.ADM, {
-            type: 'remove_reserve_pdf',
+          this.$axios.post(this.$consts.API.JSON.SUR, {
+            type: 'remove_destruction_tracking',
             id: item.id
           }).then(({ data }) => {
             this.rows = this.rows.filter(row => row.id !== item.id)

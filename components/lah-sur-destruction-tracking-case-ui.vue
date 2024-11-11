@@ -194,12 +194,10 @@ export default {
     },
     isValidNumber () {
       if (this.number?.length !== 10) {
+        this.$utils.warn(`公文字號長度應該要10碼 (${this.number?.length})`)
         return false
       }
-      if (this.editMode) {
-        return true
-      }
-      return false
+      return true
     },
     isValidSectionCode () {
       return !this.$utils.empty(this.sectionCode)
@@ -212,6 +210,7 @@ export default {
     },
     isValidLandNumber () {
       if (this.landNumber.length > 4 && !this.landNumber.includes('-')) {
+        this.$utils.warn(`沒有 "-" 的狀況下地號最多4碼 (${this.landNumber?.length})`)
         return false
       }
       const tmp = parseInt(this.formattedLandNumber)
@@ -230,6 +229,7 @@ export default {
         return null
       }
       if (this.buildingNumber.length > 5 && !this.buildingNumber.includes('-')) {
+        this.$utils.warn(`沒有 "-" 的狀況下建號號最多5碼 (${this.buildingNumber?.length})`)
         return false
       }
       const tmp = parseInt(this.formattedBuildingNumber)
@@ -239,15 +239,6 @@ export default {
     },
     isValidAddress () {
       return !this.$utils.empty(this.address)
-    },
-    isValidNote () {
-      return null
-    },
-    isValidOccupancyPermit () {
-      return null// !this.$utils.empty(this.occupancyPermit)
-    },
-    isValidConstructionPermit () {
-      return null// !this.$utils.empty(this.constructionPermit)
     },
     isValidUploadFile () {
       return !this.$utils.empty(this.uploadFile)
@@ -269,6 +260,18 @@ export default {
         ...Object.fromEntries(this.prepareFormData().entries()),
         file: this.uploadFile
       }
+    },
+    /**
+     * Not restricted for now
+     */
+    isValidNote () {
+      return null
+    },
+    isValidOccupancyPermit () {
+      return null
+    },
+    isValidConstructionPermit () {
+      return null
     }
   },
   watch: {
@@ -354,13 +357,14 @@ export default {
       formData.append('issue_date', this.formattedIssueDate)
       formData.append('apply_date', this.formattedApplyDate)
       formData.append('section_code', this.sectionCode)
-      formData.append('land_number', this.landNumber)
-      formData.append('building_number', this.buildingNumber)
+      formData.append('land_number', this.formattedLandNumber)
+      formData.append('building_number', this.formattedBuildingNumber)
       formData.append('address', this.address)
       formData.append('occupancy_permit', this.occupancyPermit)
       formData.append('construction_permit', this.constructionPermit)
       formData.append('note', this.note)
       formData.append('done', this.done)
+      formData.append('updatetime', Math.floor(+new Date() / 1000))
       return formData
     },
     add () {
@@ -372,17 +376,12 @@ export default {
         // this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
         this.$upload.post(this.$consts.API.JSON.SUR, formData).then(({ data }) => {
           const title = this.$utils.empty(data.payload) ? '新增追蹤資料結果' : `${data.payload.number}-${data.payload.pid}`
-          const message = `${data.payload.pname} - ${data.message}`
+          const message = `${data.message}`
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
           if (this.$utils.statusCheck(data.status)) {
             this.$emit('add', {
-              id: data.payload.id,
-              number: data.payload.number
-              // pid: data.payload.pid,
-              // pname: data.payload.pname,
-              // note: data.payload.note,
-              // createtime: data.payload.createtime,
-              // endtime: data.payload.endtime
+              ...Object.fromEntries(formData.entries()),
+              id: data.payload.id
             })
           }
         }).catch((err) => {
