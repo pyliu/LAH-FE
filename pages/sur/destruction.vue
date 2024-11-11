@@ -250,13 +250,13 @@ export default {
         label: '建築執照',
         sortable: true,
         thStyle: { width: '150px' }
-      },
-      {
-        key: 'note',
-        label: '備註',
-        sortable: false,
-        thStyle: { width: '300px' }
       }
+      // {
+      //   key: 'note',
+      //   label: '備註',
+      //   sortable: false,
+      //   thStyle: { width: '300px' }
+      // }
     ],
     maxHeight: 600
   }),
