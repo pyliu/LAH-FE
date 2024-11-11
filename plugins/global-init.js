@@ -480,17 +480,44 @@ export default ({ $axios, store, $config }, inject) => {
       }
       return str
     },
-    validTWDate (str, notOverToday = true) {
+    isValidTWDate (str, todayLimit = true) {
       // e.g. 1131111
       if (!str?.match(/^\d{7}$/)) {
         return false
       }
-      if (notOverToday) {
+      const year = str.substring(0, 3)
+      const month = str.substring(3, 5)
+      const day = str.substring(5)
+      if (todayLimit) {
         const tmp = parseInt(str)
         const today = parseInt(this.today('TW').replace(/[-/]/g, ''))
-        return tmp <= today
+        return tmp <= today && this.isValidDate(year, month, day)
       }
-      return true
+      return this.isValidDate(year, month, day)
+    },
+    isValidDate (iyear, imonth, iday) {
+      const pyear = parseInt(iyear)
+      const month = parseInt(imonth)
+      const day = parseInt(iday)
+      // Basic range checks
+      if (!Number.isInteger(pyear) || !Number.isInteger(month) || !Number.isInteger(day)) {
+        return false
+      }
+      // Convert ROC year to CE year
+      const ceYear = pyear < 200 ? pyear + 1911 : pyear
+      if (ceYear < 1 || month < 1 || month > 12 || day < 1) {
+        return false
+      }
+      // Get last day of the month
+      const lastDayOfMonth = new Date(ceYear, month, 0).getDate()
+      if (day > lastDayOfMonth) {
+        return false
+      }
+      // Check if resulting date is valid
+      const date = new Date(ceYear, month - 1, day)
+      return date.getFullYear() === ceYear &&
+             date.getMonth() === month - 1 &&
+             date.getDate() === day
     },
     formatDistanceToNow (d = +new Date()) {
       try {
