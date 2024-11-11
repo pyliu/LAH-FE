@@ -470,7 +470,7 @@ export default ({ $axios, store, $config }, inject) => {
       return +new Date(Y, M, D, H, m, s)
     },
     twAdSwitch (str) {
-      const formatted = str.replace('/[-/]/g', '')
+      const formatted = str.replace(/[-/]/g, '')
       // detect if it is AD date
       if (formatted.match(/^\d{8}$/)) {
         // to TW date
@@ -479,6 +479,18 @@ export default ({ $axios, store, $config }, inject) => {
         return parseInt(formatted.substring(0, 3)) + 1911 + formatted.substring(3)
       }
       return str
+    },
+    validTWDate (str, notOverToday = true) {
+      // e.g. 1131111
+      if (!str?.match(/^\d{7}$/)) {
+        return false
+      }
+      if (notOverToday) {
+        const tmp = parseInt(str)
+        const today = parseInt(this.today('TW').replace(/[-/]/g, ''))
+        return tmp <= today
+      }
+      return true
     },
     formatDistanceToNow (d = +new Date()) {
       try {
@@ -529,18 +541,40 @@ export default ({ $axios, store, $config }, inject) => {
     length (chinese) {
       return chinese?.replace(/[^\x00-\xFF]/g, 'xx')?.length
     },
+    formatTo8Digits (numberString, landOrBuild) {
+      if (numberString?.length < 10) {
+        const parts = numberString.split('-')
+        if (landOrBuild === 'land') {
+          if (parts.length > 1) {
+            const paddedParts = parts.map(part => part.padStart(4, '0'))
+            const mergedString = paddedParts.join('')
+            return mergedString
+          }
+          return numberString.padStart(4, '0').padEnd(8, '0')
+        } else if (landOrBuild === 'building') {
+          if (parts.length > 1) {
+            return `${parts[0].padStart(5, '0')}${parts[1].padStart(3, '0')}`
+          }
+          return numberString.padStart(5, '0').padEnd(8, '0')
+        }
+      }
+      this.warn('the string length must less than 10 to be formatted.')
+      return numberString
+    },
     formatLandNumber (str) {
-      if (typeof str === 'string' && str.length === 8) {
-        const mainNumber = str.substring(0, 4).replace(/^0+/, '')
-        const subNumber = str.substring(4).replace(/^0+/, '')
+      const tmp = this.formatTo8Digits(str, 'land')
+      if (typeof tmp === 'string' && tmp.length === 8) {
+        const mainNumber = tmp.substring(0, 4).replace(/^0+/, '')
+        const subNumber = tmp.substring(4).replace(/^0+/, '')
         return this.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
       }
       return ''
     },
     formatBuildNumber (str) {
-      if (typeof str === 'string' && str.length === 8) {
-        const mainNumber = str.substring(0, 5).replace(/^0+/, '')
-        const subNumber = str.substring(5).replace(/^0+/, '')
+      const tmp = this.formatTo8Digits(str, 'building')
+      if (typeof tmp === 'string' && tmp.length === 8) {
+        const mainNumber = tmp.substring(0, 5).replace(/^0+/, '')
+        const subNumber = tmp.substring(5).replace(/^0+/, '')
         return this.empty(subNumber) ? mainNumber : `${mainNumber}-${subNumber}`
       }
       return ''
