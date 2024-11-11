@@ -9,7 +9,7 @@ div
       b-input.h-100(
         ref="issueDate",
         v-model="issueDate",
-        :state="validIssueDate",
+        :state="isValidIssueDate",
         :readonly="editMode"
       )
     b-input-group.text-nowrap.ml-1(
@@ -20,7 +20,7 @@ div
       b-input(
         ref="number",
         v-model="number",
-        :state="validNumber"
+        :state="isValidNumber"
       )
 
   .d-flex.w-100.my-1
@@ -31,7 +31,7 @@ div
     )
       b-input.h-100(
         v-model="applyDate",
-        :state="validApplyDate"
+        :state="isValidApplyDate"
       )
     b-input-group.ml-1(
       :size="size",
@@ -40,7 +40,7 @@ div
       b-select.h-100(
         v-model="sectionCode",
         :options="sectionOpts",
-        :state="validSectionCode"
+        :state="isValidSectionCode"
       )
 
   .d-flex.w-100
@@ -51,7 +51,7 @@ div
     )
       b-input.h-100(
         v-model="landNumber",
-        :state="validLandNumber",
+        :state="isValidLandNumber",
         v-b-popover.hover.focus.top="displayLandNumber"
       )
     b-input-group.ml-1(
@@ -60,7 +60,7 @@ div
     )
       b-input.h-100(
         v-model="buildingNumber",
-        :state="validBuildingNumber",
+        :state="isValidBuildingNumber",
         v-b-popover.hover.focus.top="displayBuildingNumber"
       )
 
@@ -71,7 +71,7 @@ div
     )
       b-input.h-100(
         v-model="occupancyPermit",
-        :state="validOccupancyPermit"
+        :state="isValidOccupancyPermit"
       )
     b-input-group.ml-1(
       :size="size",
@@ -79,7 +79,7 @@ div
     )
       b-input.h-100(
         v-model="constructionPermit",
-        :state="validConstructionPermit"
+        :state="isValidConstructionPermit"
       )
   hr
   b-input-group.my-1(
@@ -90,7 +90,7 @@ div
       v-model="address",
       placeholder="... 請輸入地址 ...",
       rows="2",
-      :state="validAddress"
+      :state="isValidAddress"
     )
   //- hr
   //- b-input-group.my-1(
@@ -100,7 +100,7 @@ div
   //-   b-textarea(
   //-     v-model="note",
   //-     rows="4",
-  //-     :state="validNote"
+  //-     :state="isValidNote"
   //-   )
   hr
   b-input-group.text-nowrap(
@@ -167,16 +167,18 @@ export default {
   }),
   computed: {
     ready () {
-      return this.validNumber &&
-             this.validSectionCode &&
-             this.validLandNumber &&
-             this.validBuildingNumber &&
-             this.validAddress &&
-             this.validOccupancyPermit &&
-             this.validConstructionPermit &&
-             this.validUploadFile &&
-             this.validIssueDate &&
-             this.validApplyDate
+      const tmp = this.isValidNumber &&
+             this.isValidSectionCode &&
+             this.isValidLandNumber &&
+             this.isValidAddress &&
+             this.isValidUploadFile &&
+             this.isValidIssueDate &&
+             this.isValidApplyDate
+      // building number is not necessary
+      if (this.isValidBuildingNumber === null) {
+        return tmp
+      }
+      return tmp && this.isValidBuildingNumber
     },
     createtime () {
       if (this.editMode) {
@@ -212,7 +214,7 @@ export default {
       if (this.editMode) {
         return null
       }
-      return this.validUploadFile
+      return this.isValidUploadFile
     },
     uploadFilePlaceholderText () {
       if (this.editMode) {
@@ -220,7 +222,7 @@ export default {
       }
       return '... 請選擇預約檔案PDF ...'
     },
-    validNumber () {
+    isValidNumber () {
       if (this.number?.length !== 10) {
         return false
       }
@@ -236,7 +238,7 @@ export default {
       }
       return false
     },
-    validSectionCode () {
+    isValidSectionCode () {
       return !this.$utils.empty(this.sectionCode)
     },
     formattedLandNumber () {
@@ -245,7 +247,7 @@ export default {
     displayLandNumber () {
       return this.$utils.formatLandNumber(this.formattedLandNumber)
     },
-    validLandNumber () {
+    isValidLandNumber () {
       if (this.landNumber.length > 4 && !this.landNumber.includes('-')) {
         return false
       }
@@ -260,7 +262,10 @@ export default {
     displayBuildingNumber () {
       return this.$utils.formatBuildNumber(this.formattedBuildingNumber)
     },
-    validBuildingNumber () {
+    isValidBuildingNumber () {
+      if (this.$utils.empty(this.buildingNumber)) {
+        return null
+      }
       if (this.buildingNumber.length > 5 && !this.buildingNumber.includes('-')) {
         return false
       }
@@ -269,32 +274,47 @@ export default {
              tmp > 999 &&
              this.formattedBuildingNumber.length === 8
     },
-    validAddress () {
+    isValidAddress () {
       return !this.$utils.empty(this.address)
     },
-    validNote () {
+    isValidNote () {
       return null
     },
-    validOccupancyPermit () {
-      return !this.$utils.empty(this.occupancyPermit)
+    isValidOccupancyPermit () {
+      return null// !this.$utils.empty(this.occupancyPermit)
     },
-    validConstructionPermit () {
-      return !this.$utils.empty(this.constructionPermit)
+    isValidConstructionPermit () {
+      return null// !this.$utils.empty(this.constructionPermit)
     },
-    validUploadFile () {
+    isValidUploadFile () {
       return !this.$utils.empty(this.uploadFile)
     },
     formattedIssueDate () {
       return this.issueDate?.replaceAll(/[:\-\s]/ig, '') || ''
     },
-    validIssueDate () {
-      return this.$utils.validTWDate(this.formattedIssueDate)
+    isValidIssueDate () {
+      return this.$utils.isValidTWDate(this.formattedIssueDate)
     },
     formattedApplyDate () {
       return this.applyDate?.replaceAll(/[:\-\s]/ig, '') || ''
     },
-    validApplyDate () {
-      return this.$utils.validTWDate(this.formattedApplyDate)
+    isValidApplyDate () {
+      return this.$utils.isValidTWDate(this.formattedApplyDate)
+    },
+    formData () {
+      const formData = new FormData()
+      formData.append('number', this.number)
+      formData.append('issue_date', this.formattedIssueDate)
+      formData.append('apply_date', this.formattedApplyDate)
+      formData.append('section_code', this.sectionCode)
+      formData.append('land_number', this.landNumber)
+      formData.append('building_number', this.buildingNumber)
+      formData.append('address', this.address)
+      formData.append('occupancy_permit', this.occupancyPermit)
+      formData.append('construction_permit', this.constructionPermit)
+      formData.append('note', this.note)
+      formData.append('done', this.done)
+      return Object.fromEntries(formData.entries())
     }
   },
   watch: {
@@ -305,7 +325,7 @@ export default {
       this.restoreOrigData()
     },
     createdate (val) {
-      if (this.validIssueDate) {
+      if (this.isValidIssueDate) {
         const ad = this.$utils.twToAdDateObj(val)
         if (ad) {
           // auto setting enddate a year later
@@ -324,10 +344,7 @@ export default {
         const year = now.getFullYear() - 1911 // TW
         this.number = int > 0 ? `${int + 1}` : `${year}0000001`
       }
-    },
-    displayLandNumber (val) { this.$utils.warn(val) },
-    displayBuildingNumber (val) { this.$utils.warn(val) }
-    // endtime (val) { console.warn('end', val, this.$utils.toADDate(val * 1000)) }
+    }
   },
   created () {
     this.restoreOrigData()
@@ -412,22 +429,26 @@ export default {
     cancel () {
       this.$emit('close')
     },
+    prepareFormData () {
+      const formData = new FormData()
+      formData.append('number', this.number)
+      formData.append('issue_date', this.formattedIssueDate)
+      formData.append('apply_date', this.formattedApplyDate)
+      formData.append('section_code', this.sectionCode)
+      formData.append('land_number', this.landNumber)
+      formData.append('building_number', this.buildingNumber)
+      formData.append('address', this.address)
+      formData.append('occupancy_permit', this.occupancyPermit)
+      formData.append('construction_permit', this.constructionPermit)
+      formData.append('note', this.note)
+      formData.append('done', this.done)
+      return formData
+    },
     add () {
       if (this.uploadFile?.type === 'application/pdf') {
         this.isBusy = true
-        const formData = new FormData()
+        const formData = this.prepareFormData()
         formData.append('type', 'add_destruction_tracking')
-        formData.append('number', this.number)
-        formData.append('issue_date', this.formattedIssueDate)
-        formData.append('apply_date', this.formattedApplyDate)
-        formData.append('section_code', this.sectionCode)
-        formData.append('land_number', this.landNumber)
-        formData.append('building_number', this.buildingNumber)
-        formData.append('address', this.address)
-        formData.append('occupancy_permit', this.occupancyPermit)
-        formData.append('construction_permit', this.constructionPermit)
-        formData.append('note', this.note)
-        formData.append('done', this.done)
         formData.append('file', this.uploadFile)
         // this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
         this.$upload.post(this.$consts.API.JSON.SUR, formData).then(({ data }) => {
@@ -457,20 +478,9 @@ export default {
     },
     edit () {
       this.isBusy = true
-      const formData = new FormData()
+      const formData = this.prepareFormData()
       formData.append('type', 'edit_destruction_tracking')
       formData.append('id', this.editId)
-      formData.append('number', this.number)
-      formData.append('issue_date', this.formattedIssueDate)
-      formData.append('apply_date', this.formattedApplyDate)
-      formData.append('section_code', this.sectionCode)
-      formData.append('land_number', this.landNumber)
-      formData.append('building_number', this.buildingNumber)
-      formData.append('address', this.address)
-      formData.append('occupancy_permit', this.occupancyPermit)
-      formData.append('construction_permit', this.constructionPermit)
-      formData.append('note', this.note)
-      formData.append('done', this.done)
       if (this.uploadFile?.type === 'application/pdf') {
         formData.append('file', this.uploadFile)
       }
