@@ -89,8 +89,7 @@ b-card(border-variant="info")
     .d-flex.align-items-center.my-1
       lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
       lah-button.ml-1(
-        icon="rotate",
-        action="spin",
+       icon="download",
         variant="outline-success",
         @click="$refs.formState?.reloadPaymentList()"
         no-icon-gutter,
@@ -106,8 +105,7 @@ b-card(border-variant="info")
     .d-flex.align-items-center.my-1
       lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
       lah-button.ml-1(
-        icon="rotate",
-        action="spin",
+       icon="download",
         variant="outline-success",
         @click="$refs.paymentItems?.prepareExpeList(true)"
         no-icon-gutter,
