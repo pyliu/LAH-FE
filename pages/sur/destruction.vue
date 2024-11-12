@@ -130,6 +130,13 @@ div
           variant="outline-danger",
           @click="remove(item)"
         )
+    template(#cell(done)="{ item }")
+      b-checkbox.mt-1(
+        v-model="item.done",
+        @change="switchDone(item)",
+        :disabled="isBusy",
+        switch
+      ) 辦畢
     template(#cell(issue_date)="{ item }")
       .mx-auto {{ $utils.addDateDivider(item.issue_date) }}
     template(#cell(apply_date)="{ item }")
@@ -204,10 +211,14 @@ export default {
         thStyle: { width: '90px' }
       },
       {
+        key: 'done',
+        label: '辦畢',
+        sortable: false
+      },
+      {
         key: 'number',
-        label: '字號',
-        sortable: true,
-        thStyle: { width: '150px' }
+        label: '發文字號',
+        sortable: true
       },
       {
         key: 'issue_date',
@@ -467,6 +478,24 @@ export default {
     handleNoteText (note) {
       const tmp = this.handleHighlightText(note)
       return tmp.replace(/(\n|\r\n)/g, '<br/>')
+    },
+    switchDone (item) {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.SUR, {
+        type: 'switch_done_destruction_tracking',
+        id: item?.id,
+        done: item.done
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.success(data.message)
+        } else {
+          this.warning(data.message)
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
     }
   }
 }

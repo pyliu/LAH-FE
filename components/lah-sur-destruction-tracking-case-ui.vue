@@ -198,7 +198,7 @@ export default {
       if (this.editMode) {
         return '... 可選擇PDF更新(非必要) ...'
       }
-      return '... 請選擇預約檔案PDF ...'
+      return '... 請選擇電子檔PDF ...'
     },
     isValidNumber () {
       if (this.number?.length !== 10) {
