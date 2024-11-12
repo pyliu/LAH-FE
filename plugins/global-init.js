@@ -12,6 +12,7 @@ import differenceWith from 'lodash/differenceWith'
 import filter from 'lodash/filter'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import isEqualWith from 'lodash/isEqualWith'
 import orderBy from 'lodash/orderBy'
 import reject from 'lodash/reject'
 import remove from 'lodash/remove'
@@ -171,6 +172,7 @@ export default ({ $axios, store, $config }, inject) => {
      */
     empty: isEmpty, // '0' is not empty
     equal: isEqual,
+    equalWith: isEqualWith,
     debounce,
     remove,
     filter,
