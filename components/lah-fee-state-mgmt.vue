@@ -179,7 +179,7 @@ export default {
             this.paymentOptExpk = [...res.data.raw]
             // set expire time to 7 days
             this.setCache(this.paymentOptExpkCacheKey, this.paymentOptExpk, 7 * 24 * 60 * 60 * 1000)
-            this.info(`已更新 ${this.paymentOptExpk.length} 筆付款項目資料。`, { title: "更新規費「付款項目」清單" })
+            this.info(`已更新 ${this.paymentOptExpk.length} 筆付款項目資料。`, { title: "更新「付款項目」清單" })
           } else {
             this.alert(`查無規費付款項目資料`, { title: "查詢規費付款項目" })
             // retry
