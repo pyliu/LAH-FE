@@ -9,8 +9,7 @@ div
       b-input.h-100(
         ref="issueDate",
         v-model="issueDate",
-        :state="isValidIssueDate",
-        :readonly="editMode"
+        :state="isValidIssueDate"
       )
     b-input-group.text-nowrap.ml-1(
       prepend="發文字號",
@@ -20,9 +19,15 @@ div
       b-input(
         ref="number",
         v-model="number",
-        :state="isValidNumber"
+        :state="isValidNumber",
+        :readonly="editMode",
+        v-b-popover.hover.focus.left="numberErrorMessage",
+        @input="checkNumber"
       )
-
+  //- lah-message.my-auto(
+  //-   :message="numberErrorMessage",
+  //-   variant="danger"
+  //- )
   .d-flex.w-100.my-1
     b-input-group(
       :size="size",
@@ -157,17 +162,20 @@ export default {
     constructionPermit: '',
     note: '',
     done: false,
-    sectionOpts: []
+    sectionOpts: [],
+    exists: false
   }),
   computed: {
     ready () {
-      const tmp = this.isValidNumber &&
+      let tmp = this.isValidNumber &&
              this.isValidSectionCode &&
              this.isValidLandNumber &&
              this.isValidAddress &&
-             this.isValidUploadFile &&
              this.isValidIssueDate &&
              this.isValidApplyDate
+      if (tmp && !this.editMode) {
+        tmp = tmp && this.isValidUploadFile
+      }
       // building number is not necessary
       if (this.isValidBuildingNumber === null) {
         return tmp
@@ -197,7 +205,16 @@ export default {
         this.$utils.warn(`公文字號長度應該要10碼 (${this.number?.length})`)
         return false
       }
+      if (!this.editMode && this.exists) {
+        return false
+      }
       return true
+    },
+    numberErrorMessage () {
+      if (this.exists && this.number?.length === 10) {
+        return `已有發文字號為「${this.number}」的追蹤資料，請查明 ⚠`
+      }
+      return ''
     },
     isValidSectionCode () {
       return !this.$utils.empty(this.sectionCode)
@@ -209,7 +226,7 @@ export default {
       return this.$utils.formatLandNumber(this.formattedLandNumber)
     },
     isValidLandNumber () {
-      if (this.landNumber.length > 4 && !this.landNumber.includes('-')) {
+      if (this.landNumber?.length > 4 && !this.landNumber?.includes('-')) {
         this.$utils.warn(`沒有 "-" 的狀況下地號最多4碼 (${this.landNumber?.length})`)
         return false
       }
@@ -258,7 +275,8 @@ export default {
     keyData () {
       return {
         ...Object.fromEntries(this.prepareFormData().entries()),
-        file: this.uploadFile
+        file: this.uploadFile,
+        id: this.editId
       }
     },
     /**
@@ -275,14 +293,8 @@ export default {
     }
   },
   watch: {
-    uploadFile (val) {
-      // console.warn(val)
-    },
     origData (val) {
       this.restoreOrigData()
-    },
-    keyData (val) {
-      this.$utils.warn(val)
     }
   },
   created () {
@@ -291,17 +303,39 @@ export default {
     this.emitInput = this.$utils.debounce(() => {
       this.$emit('input', this.keyData)
     }, 400)
+    // for checking existence of the number
+    this.checkNumber = this.$utils.debounce(() => {
+      if (!this.editMode && this.number?.length === 10) {
+        this.exists = false
+        this.$axios.post(this.$consts.API.JSON.SUR, {
+          type: 'destruction_tracking_number_exist',
+          number: this.number
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            // no record will return null
+            this.exists = data.raw !== null
+            this.$utils.warn(`已檢查 ${this.number} 是否已建立。(${this.exists})`)
+          } else {
+            this.warning(data.message)
+          }
+        }).catch((e) => {
+          this.$utils.error(e)
+        }).finally(() => {
+        })
+      }
+    }, 400)
     // prepare section opts
     this.loadSections()
   },
-  mounted () {},
+  mounted () {
+  },
   methods: {
+    checkNumber () { /** placeholder */ },
     loadSections () {
-      // get current latest case number from DB
+      // prepare sections options
       this.$axios.post(this.$consts.API.JSON.MOIADM, {
         type: 'host_sections'
       }).then(({ data }) => {
-        // this.$utils.warn(data)
         if (this.$utils.statusCheck(data.status)) {
           data.raw.forEach((element) => {
             this.sectionOpts.push({
@@ -309,6 +343,23 @@ export default {
               value: element.code
             })
           })
+          this.$utils.warn('已重新讀取段代碼資料')
+        } else {
+          this.warning(data.message)
+        }
+      }).catch((e) => {
+        this.$utils.error(e)
+      }).finally(() => {
+      })
+    },
+    loadCreatedNumbers () {
+      // prepare sections options
+      this.$axios.post(this.$consts.API.JSON.SUR, {
+        type: 'destruction_tracking_number_list'
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.createdNumbers = [...data.raw]
+          this.$utils.warn(`已重新讀 ${data.data_count} 筆追蹤資料`)
         } else {
           this.warning(data.message)
         }
@@ -320,14 +371,14 @@ export default {
     restoreOrigData () {
       if (!this.$utils.empty(this.origData)) {
         this.number = this.origData.number
-        this.issueDate = this.origData.issueDate
-        this.applyDate = this.origData.applyDate
-        this.sectionCode = this.origData.sectionCode
-        this.landNumber = this.origData.landNumber
-        this.buildingNumber = this.origData.buildingNumber
+        this.issueDate = this.origData.issue_date
+        this.applyDate = this.origData.apply_date
+        this.sectionCode = this.origData.section_code
+        this.landNumber = this.$utils.formatLandNumber(this.origData.land_number)
+        this.buildingNumber = this.$utils.formatBuildNumber(this.origData.building_number)
         this.address = this.origData.address
-        this.occupancyPermit = this.origData.occupancyPermit
-        this.constructionPermit = this.origData.constructionPermit
+        this.occupancyPermit = this.origData.occupancy_permit
+        this.constructionPermit = this.origData.construction_permit
         this.done = this.origData.done
         this.note = this.origData.note
       }
@@ -380,7 +431,7 @@ export default {
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
           if (this.$utils.statusCheck(data.status)) {
             this.$emit('add', {
-              ...Object.fromEntries(formData.entries()),
+              ...this.keyData,
               id: data.payload.id
             })
           }
@@ -404,10 +455,11 @@ export default {
       }
       this.$upload.post(this.$consts.API.JSON.SUR, formData).then(({ data }) => {
         const title = this.$utils.empty(data.payload) ? '編輯追蹤資料結果' : `${data.payload.number}-${data.payload.pid}`
-        const message = `${data.payload?.pname} - ${data.message}`
+        const message = `${data.message}`
         this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
         if (this.$utils.statusCheck(data.status)) {
           this.$emit('edit', {
+            ...this.keyData,
             id: this.editId,
             number: this.number
           })

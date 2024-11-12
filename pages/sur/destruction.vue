@@ -37,12 +37,12 @@ div
           v-model="dateRange",
           :begin="firstDayOf2024Nov"
         )
-        b-input.h-100.mx-1(
-          v-model="keyword",
-          placeholder="關鍵字...",
-          @keyup.enter="$fetch"
-        )
-        lah-button(
+        //- b-input.h-100.mx-1(
+        //-   v-model="keyword",
+        //-   placeholder="關鍵字...",
+        //-   @keyup.enter="$fetch"
+        //- )
+        lah-button.ml-1(
           ref="search"
           icon="search"
           size="lg"
@@ -394,11 +394,23 @@ export default {
       this.$refs.edit?.show()
     },
     handleEdit (payload) {
+      this.$utils.warn(payload)
       // update latest data to rows
       const found = this.rows.find((item, idx, array) => {
         return item.id === payload.id
       })
-      // if (found) {}
+      if (found) {
+        found.issue_date = payload.issue_date
+        found.apply_date = payload.apply_date
+        found.section_code = payload.section_code
+        found.land_number = this.$utils.formatLandNumber(payload.land_number)
+        found.building_number = this.$utils.formatBuildNumber(payload.building_number)
+        found.address = payload.address
+        found.occupancy_permit = payload.occupancy_permit
+        found.construction_permit = payload.construction_permit
+        found.done = payload.done
+        found.note = payload.note
+      }
     },
     remove (item) {
       this.confirm(`
