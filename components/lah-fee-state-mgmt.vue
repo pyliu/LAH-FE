@@ -42,6 +42,16 @@ b-card.border-0(no-body)
         v-model="paymentVal",
         :options="paymentOpts"
       )
+      //- lah-button.ml-1(
+      //-   icon="rotate",
+      //-   action="spin",
+      //-   @click="checkPaymentExpkData(true)",
+      //-   size="sm",
+      //-   variant="outline-success",
+      //-   title="重新讀取付款方式清單",
+      //-   no-icon-gutter
+      //-   v-b-tooltip
+      //- )
       lah-button.ml-1(
         icon="edit",
         @click="updateAA100",
@@ -156,8 +166,8 @@ export default {
     this.briefOpen = this.brief
   },
   methods: {
-    async checkPaymentExpkData () {
-      const cachedExpk = await this.getCache(this.paymentOptExpkCacheKey)
+    async checkPaymentExpkData (forceRefresh = false) {
+      const cachedExpk = forceRefresh ? false : await this.getCache(this.paymentOptExpkCacheKey)
       if (cachedExpk) {
         this.paymentOptExpk = [...cachedExpk]
       } else {

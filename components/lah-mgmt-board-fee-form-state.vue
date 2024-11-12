@@ -57,7 +57,11 @@ b-card(
         li AA104 - 作廢原因
 
   lah-transition
-    div(v-if="dataReady"): lah-fee-state-mgmt(:expaa-data="expaaData", :brief="embed")
+    div(v-if="dataReady"): lah-fee-state-mgmt(
+      ref="stateMgmt",
+      :expaa-data="expaaData",
+      :brief="embed"
+    )
     h6.center(v-else-if="!embed"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
   //- template(#footer)
@@ -66,7 +70,7 @@ b-card(
 </template>
 
 <script>
-import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
+import lahFeeDataDetailVue from './lah-fee-data-detail.vue';
 
 export default {
   components: { lahFeeDataDetailVue },
@@ -97,6 +101,11 @@ export default {
     // this.query()
   },
   methods: {
+    async reloadPaymentList () {
+      this.$utils.warn('開始重新讀取「付款方式」清單')
+      await this.$refs.stateMgmt?.checkPaymentExpkData(true)
+      this.$utils.warn('「付款方式」清單已更新')
+    },
     detail () {
       this.modal(this.$createElement(lahFeeDataDetailVue, {
         props: {

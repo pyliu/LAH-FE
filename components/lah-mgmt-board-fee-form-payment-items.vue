@@ -37,6 +37,8 @@ b-card(
         )
     lah-help-modal(ref="help", modal-title="規費單據付款項目說明")
       h5 本項功能提供管理師修改規費單據付款項目功能。
+      h6 ⚠ 收費項目清單預設會暫存7天，若出納於#[strong.text-danger 近七天有異動]，請按下方按鈕更新之。
+        lah-button(icon="rotate", @click="prepareExpeList(true)") 更新收費項目清單
       h6 相關欄位定義供參考
       ul
         li AC25 - 年分
@@ -83,8 +85,8 @@ b-card(
 </template>
 
 <script>
-import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import lahFeeDataDetailVue from './lah-fee-data-detail.vue';
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue';
 
 export default {
   components: { lahFeeDataDetailVue, lahRegCaseDetailVue },
@@ -132,9 +134,10 @@ export default {
   },
   mounted () {},
   methods: {
-    async prepareExpeList () {
-      const cachedList = await this.getCache('MOIEXP.EXPE')
+    async prepareExpeList (forceRefresh = false) {
+      const cachedList = forceRefresh ? false : await this.getCache('MOIEXP.EXPE')
       if (cachedList === false) {
+        this.$utils.warn('開始重新讀取「收費項目」清單')
         // query MOIEXP.EXPE for the items
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.MOIEXP, {
@@ -149,8 +152,9 @@ export default {
                   text: `${element.E20}：${element.E21}`
                 })
               })
-              // cache for 7 days
+              // cache for 1 days
               this.setCache('MOIEXP.EXPE', this.expeList, 7 * 24 * 60 * 60 * 1000)
+              this.$utils.warn('「收費項目」清單已更新')
             } else {
               this.warning('MOIEXP.EXPE沒有回傳資料，無法產生收費項目列表。')
             }

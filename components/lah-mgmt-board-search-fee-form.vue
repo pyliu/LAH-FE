@@ -34,7 +34,7 @@ b-card(border-variant="info")
         li AA05 - 收據編號
         li AA08 - 收據狀態【1：正常，0：作廢】
         li AA09 - 列印註記【1：已印，0：未印】
-        li AA100 - 付款方式
+        li.text-danger AA100 - 付款方式 (清單暫存7天，若近期有更動請手動更新)
         li AA104 - 作廢原因
         li AA106 - 悠遊卡繳費扣款結果
         li AA107 - 悠遊卡交易流水號
@@ -47,7 +47,7 @@ b-card(border-variant="info")
         li AC16 - 收件年
         li AC17 - 收件字
         li AC18 - 收件號
-        li AC20 - 收費項目
+        li.text-danger AC20 - 收費項目 (清單暫存7天，若近期有更動請手動更新)
         li AC29 - 應收金額
         li AC30 - 實收金額
 
@@ -86,11 +86,39 @@ b-card(border-variant="info")
   //-     b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
   lah-transition: div(v-if="dataReady")
     hr
-    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
-    lah-mgmt-board-fee-form-state.mt-n1(embed)
+    .d-flex.align-items-center.my-1
+      lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
+      lah-button.ml-1(
+        icon="rotate",
+        action="spin",
+        variant="outline-success",
+        @click="$refs.formState?.reloadPaymentList()"
+        no-icon-gutter,
+        title="重新讀取付款方式清單",
+        v-b-tooltip,
+        pill
+      )
+    lah-mgmt-board-fee-form-state.mt-n1(
+      ref="formState",
+      embed
+    )
     hr
-    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
-    lah-mgmt-board-fee-form-payment-items(embed)
+    .d-flex.align-items-center.my-1
+      lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
+      lah-button.ml-1(
+        icon="rotate",
+        action="spin",
+        variant="outline-success",
+        @click="$refs.paymentItems?.prepareExpeList(true)"
+        no-icon-gutter,
+        title="重新讀取收費項目清單",
+        v-b-tooltip,
+        pill
+      )
+    lah-mgmt-board-fee-form-payment-items(
+      ref="paymentItems",
+      embed
+    )
 
   template(#footer)
     .d-flex.justify-content-center.align-items.center
@@ -135,9 +163,9 @@ b-card(border-variant="info")
 </template>
 
 <script>
-import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
-import lahMgmtBoardFeeFormPaymentItemsVue from './lah-mgmt-board-fee-form-payment-items.vue'
-import lahMgmtBoardFeeFormStateVue from './lah-mgmt-board-fee-form-state.vue'
+import lahFeeDataDetailVue from './lah-fee-data-detail.vue';
+import lahMgmtBoardFeeFormPaymentItemsVue from './lah-mgmt-board-fee-form-payment-items.vue';
+import lahMgmtBoardFeeFormStateVue from './lah-mgmt-board-fee-form-state.vue';
 
 export default {
   components: { lahFeeDataDetailVue, lahMgmtBoardFeeFormStateVue, lahMgmtBoardFeeFormPaymentItemsVue },
