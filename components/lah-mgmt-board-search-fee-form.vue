@@ -88,14 +88,14 @@ b-card(border-variant="info")
     hr
     .d-flex.align-items-center.my-1
       lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
-      lah-button.ml-1(
+      lah-button.ml-1.border-0(
        icon="download",
         variant="outline-success",
         @click="$refs.formState?.reloadPaymentList()"
         no-icon-gutter,
-        title="重新讀取付款方式清單",
-        v-b-tooltip,
-        pill
+        title="重新讀取「付款方式」清單",
+        size="sm",
+        v-b-tooltip
       )
     lah-mgmt-board-fee-form-state.mt-n1(
       ref="formState",
@@ -104,14 +104,14 @@ b-card(border-variant="info")
     hr
     .d-flex.align-items-center.my-1
       lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
-      lah-button.ml-1(
+      lah-button.ml-1.border-0(
        icon="download",
         variant="outline-success",
         @click="$refs.paymentItems?.prepareExpeList(true)"
         no-icon-gutter,
-        title="重新讀取收費項目清單",
-        v-b-tooltip,
-        pill
+        title="重新讀取「收費項目」清單",
+        size="sm",
+        v-b-tooltip
       )
     lah-mgmt-board-fee-form-payment-items(
       ref="paymentItems",
