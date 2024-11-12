@@ -112,7 +112,7 @@ div
         lah-button(
           :href="downloadPDFUrl(item.number)",
           target="_blank",
-          title="開啟新視窗下載",
+          title="檢視電子檔",
           icon="file-pdf",
           no-icon-gutter
         )
@@ -134,6 +134,12 @@ div
       .mx-auto {{ $utils.addDateDivider(item.issue_date) }}
     template(#cell(apply_date)="{ item }")
       .mx-auto {{ $utils.addDateDivider(item.apply_date) }}
+    template(#cell(section_code)="{ item }")
+      span {{ sectionMap.get(item.section_code) }}
+    template(#cell(land_number)="{ item }")
+      span {{ $utils.formatLandNumber(item.land_number) }}
+    template(#cell(building_number)="{ item }")
+      span {{ $utils.formatBuildNumber(item.building_number) }}
     template(#cell(note)="{ item }")
       .text-left(v-html="handleHighlightText(item.note)")
     template(#cell(address)="{ item }")
@@ -258,6 +264,7 @@ export default {
       //   thStyle: { width: '300px' }
       // }
     ],
+    sectionMap: new Map(),
     maxHeight: 600
   }),
   // only worked at page level component
@@ -333,20 +340,31 @@ export default {
       }
     }
   },
+  created () {
+    this.loadSectionMap()
+  },
   mounted () {
     this.maxHeight = parseInt(window.innerHeight - 145)
-    // searching begin date set to Jan 1
-    // this.timeout(() => {
-    //   const now = new Date()
-    //   this.dateRange = {
-    //     ...this.dateRange,
-    //     ...{
-    //       begin: `${now.getFullYear() - 1911}0101`
-    //     }
-    //   }
-    // }, 400)
   },
   methods: {
+    loadSectionMap () {
+      // prepare sections options
+      this.$axios.post(this.$consts.API.JSON.MOIADM, {
+        type: 'host_sections'
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          data.raw.forEach((element) => {
+            this.sectionMap.set(element.code, element.name)
+          })
+          this.$utils.warn(`已準備 ${this.sectionMap.size} 筆段代碼對應表`)
+        } else {
+          this.warning(data.message)
+        }
+      }).catch((e) => {
+        this.$utils.error(e)
+      }).finally(() => {
+      })
+    },
     handleAdd (payload) {
       // add to array head
       this.rows.unshift({
@@ -385,7 +403,8 @@ export default {
     remove (item) {
       this.confirm(`
         請確認是否要刪除本筆資料？<br/>
-        公文號：${item.number}<br/>
+        字號：${item.number}<br/>
+        發文日期：${this.$utils.addDateDivider(item.issue_date)}<br/>
       `).then((YN) => {
         if (YN) {
           // remove_foreigner_pdf
