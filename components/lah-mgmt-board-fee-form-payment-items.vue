@@ -85,8 +85,8 @@ b-card(
 </template>
 
 <script>
-import lahFeeDataDetailVue from './lah-fee-data-detail.vue';
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue';
+import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {
   components: { lahFeeDataDetailVue, lahRegCaseDetailVue },
@@ -154,7 +154,7 @@ export default {
               })
               // cache for 1 days
               this.setCache('MOIEXP.EXPE', this.expeList, 7 * 24 * 60 * 60 * 1000)
-              this.info(`已更新 ${this.expeList.length} 筆收費項目資料`)
+              this.info(`已更新 ${this.expeList.length} 筆收費項目資料`, { title: '更新「收費項目」清單' })
               this.$utils.warn('「收費項目」清單已更新')
             } else {
               this.warning('MOIEXP.EXPE沒有回傳資料，無法產生收費項目列表。')
