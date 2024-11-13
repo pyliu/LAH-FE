@@ -32,17 +32,18 @@ div
           ol
             li 案件到期7天前會每日發送一封訊息至測量課頻道
             li 已完成之案件請勾選「辦畢」，免除追蹤
-      .d-flex.small
-        lah-datepicker(
+      .d-flex.align-items-center
+        div 申請日期
+        lah-datepicker.h-100.mx-1(
           v-model="dateRange",
-          :begin="firstDayOf2024Nov"
+          :begin="firstDayOf2024"
         )
         //- b-input.h-100.mx-1(
         //-   v-model="keyword",
         //-   placeholder="關鍵字...",
         //-   @keyup.enter="$fetch"
         //- )
-        lah-button.ml-1(
+        lah-button(
           ref="search"
           icon="search"
           size="lg"
@@ -313,8 +314,8 @@ export default {
     title: '逕辦建物滅失控管-桃園市地政局'
   },
   computed: {
-    firstDayOf2024Nov () {
-      return new Date(2024, 10, 1)
+    firstDayOf2024 () {
+      return new Date(2024, 0, 1)
     },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
@@ -331,10 +332,8 @@ export default {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
-            if (key === 'createtime') {
-              obj[this.getLabel(key)] = this.$utils.toADDate(value * 1000, 'yyyy-LL-dd')
-            } else if (key === 'modifytime') {
-              obj[this.getLabel(key)] = this.$utils.toADDate(value * 1000)
+            if (key === 'section_code') {
+              obj[this.getLabel(key)] = this.sectionMap.get(key)
             } else {
               obj[this.getLabel(key)] = value
             }
