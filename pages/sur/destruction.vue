@@ -110,7 +110,7 @@ div
       //-   span.sr-only 無勾選
       b-button-group.mx-auto
         lah-button(
-          :href="downloadPDFUrl(item.number)",
+          :href="downloadPDFUrl(item)",
           target="_blank",
           title="檢視電子檔",
           icon="file-pdf",
@@ -211,18 +211,20 @@ export default {
         thStyle: { width: '90px' }
       },
       {
-        key: 'done',
-        label: '辦畢',
-        sortable: false
-      },
-      {
         key: 'number',
         label: '發文字號',
-        sortable: true
+        sortable: true,
+        thStyle: { width: '150px' }
       },
       {
         key: 'issue_date',
         label: '發文日期',
+        sortable: true,
+        thStyle: { width: '120px' }
+      },
+      {
+        key: 'apply_date',
+        label: '申請日期',
         sortable: true,
         thStyle: { width: '120px' }
       },
@@ -251,12 +253,6 @@ export default {
         thStyle: { width: '300px' }
       },
       {
-        key: 'apply_date',
-        label: '申請日期',
-        sortable: true,
-        thStyle: { width: '150px' }
-      },
-      {
         key: 'occupancy_permit',
         label: '使用執照',
         sortable: true,
@@ -268,6 +264,11 @@ export default {
         sortable: true,
         thStyle: { width: '150px' }
       }
+      // {
+      //   key: 'done',
+      //   label: '辦畢',
+      //   sortable: false
+      // },
       // {
       //   key: 'note',
       //   label: '備註',
@@ -459,8 +460,8 @@ export default {
       }
       return key
     },
-    downloadPDFUrl (number) {
-      return `http://${this.apiHost}:${this.apiPort}/get_sur_destruction_pdf.php?number=${number}`
+    downloadPDFUrl (item) {
+      return `http://${this.apiHost}:${this.apiPort}/get_sur_destruction_pdf.php?id=${item.id}`
     },
     handleHighlightText (text) {
       if (this.$utils.empty(text)) {

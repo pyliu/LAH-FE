@@ -1,5 +1,50 @@
 <template lang="pug">
 div
+  //- lah-message.my-auto(
+  //-   :message="numberErrorMessage",
+  //-   variant="danger"
+  //- )
+  .d-flex.w-100
+    b-input-group(
+      :size="size",
+      prepend="申請日期",
+      title="7碼民國日期"
+    )
+      b-input.h-100(
+        v-model="applyDate",
+        :state="isValidApplyDate"
+      )
+    b-input-group.ml-1(
+      :size="size",
+      prepend="　　地段"
+    )
+      b-select.h-100(
+        v-model="sectionCode",
+        :options="sectionOpts",
+        :state="isValidSectionCode"
+      )
+
+  .d-flex.w-100.my-1
+    b-input-group(
+      :size="size",
+      prepend="　　地號",
+      title="8碼地號"
+    )
+      b-input.h-100(
+        v-model="landNumber",
+        :state="isValidLandNumber",
+        v-b-popover.hover.focus.top="displayLandNumber"
+      )
+    b-input-group.ml-1(
+      :size="size",
+      prepend="　　建號"
+    )
+      b-input.h-100(
+        v-model="buildingNumber",
+        :state="isValidBuildingNumber",
+        v-b-popover.hover.focus.top="displayBuildingNumber"
+      )
+
   .d-flex.w-100
     b-input-group.text-nowrap(
       prepend="發文日期",
@@ -20,53 +65,8 @@ div
         ref="number",
         v-model="number",
         :state="isValidNumber",
-        :readonly="editMode",
         v-b-popover.hover.focus.left="numberErrorMessage",
         @input="checkNumber"
-      )
-  //- lah-message.my-auto(
-  //-   :message="numberErrorMessage",
-  //-   variant="danger"
-  //- )
-  .d-flex.w-100.my-1
-    b-input-group(
-      :size="size",
-      prepend="申請日期",
-      title="7碼民國日期"
-    )
-      b-input.h-100(
-        v-model="applyDate",
-        :state="isValidApplyDate"
-      )
-    b-input-group.ml-1(
-      :size="size",
-      prepend="　　地段"
-    )
-      b-select.h-100(
-        v-model="sectionCode",
-        :options="sectionOpts",
-        :state="isValidSectionCode"
-      )
-
-  .d-flex.w-100
-    b-input-group(
-      :size="size",
-      prepend="　　地號",
-      title="8碼地號"
-    )
-      b-input.h-100(
-        v-model="landNumber",
-        :state="isValidLandNumber",
-        v-b-popover.hover.focus.top="displayLandNumber"
-      )
-    b-input-group.ml-1(
-      :size="size",
-      prepend="　　建號"
-    )
-      b-input.h-100(
-        v-model="buildingNumber",
-        :state="isValidBuildingNumber",
-        v-b-popover.hover.focus.top="displayBuildingNumber"
       )
 
   .d-flex.w-100.my-1
@@ -167,20 +167,26 @@ export default {
   }),
   computed: {
     ready () {
-      let tmp = this.isValidNumber &&
-             this.isValidSectionCode &&
-             this.isValidLandNumber &&
-             this.isValidAddress &&
-             this.isValidIssueDate &&
-             this.isValidApplyDate
+      let tmp = this.isValidSectionCode &&
+                this.isValidLandNumber &&
+                this.isValidAddress &&
+                this.isValidApplyDate
       if (tmp && !this.editMode) {
         tmp = tmp && this.isValidUploadFile
       }
       // building number is not necessary
-      if (this.isValidBuildingNumber === null) {
-        return tmp
+      if (this.isValidBuildingNumber !== null) {
+        tmp = tmp && this.isValidBuildingNumber
       }
-      return tmp && this.isValidBuildingNumber
+      // doc number is not necessary
+      if (this.isValidNumber !== null) {
+        tmp = tmp && this.isValidNumber
+      }
+      // issue date is not necessary
+      if (this.isValidIssueDate !== null) {
+        tmp = tmp && this.isValidIssueDate
+      }
+      return tmp
     },
     editId () {
       return this.origData?.id
@@ -201,6 +207,9 @@ export default {
       return '... 請選擇電子檔PDF ...'
     },
     isValidNumber () {
+      if (this.$utils.empty(this.number)) {
+        return null
+      }
       if (this.number?.length !== 10) {
         this.$utils.warn(`公文字號長度應該要10碼 (${this.number?.length})`)
         return false
@@ -264,6 +273,9 @@ export default {
       return this.issueDate?.replaceAll(/[:\-\s]/ig, '') || ''
     },
     isValidIssueDate () {
+      if (this.$utils.empty(this.formattedIssueDate)) {
+        return null
+      }
       return this.$utils.isValidTWDate(this.formattedIssueDate)
     },
     formattedApplyDate () {
