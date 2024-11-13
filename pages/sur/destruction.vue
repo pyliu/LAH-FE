@@ -18,7 +18,7 @@ div
                 @click="$refs.add.show()"
               )
               span 開啟介面
-            li 輸入必要資訊【發文日期、字號、地段、建號 ... 等】
+            li 輸入必要資訊【申請日期、地段、建號、電子檔 ... 等】
             li 建議輸入備註說明以供後續搜尋使用
             li 選取掃描的PDF檔案(必要)
             li 點擊上傳按鈕並等待完成
@@ -36,7 +36,7 @@ div
         div 申請日期
         lah-datepicker.h-100.mx-1(
           v-model="dateRange",
-          :begin="firstDayOfSixMonthsAgo"
+          :begin="firstDayOfNineMonthsAgo"
         )
         //- b-input.h-100.mx-1(
         //-   v-model="keyword",
@@ -322,9 +322,9 @@ export default {
     title: '逕辦建物滅失控管-桃園市地政局'
   },
   computed: {
-    firstDayOfSixMonthsAgo () {
+    firstDayOfNineMonthsAgo () {
       const now = new Date()
-      now.setMonth(now.getMonth() - 6)
+      now.setMonth(now.getMonth() - 9)
       now.setDate(1)
       return now
     },
