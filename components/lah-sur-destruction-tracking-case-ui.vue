@@ -207,7 +207,7 @@ export default {
       return '... 請選擇電子檔PDF ...'
     },
     isValidNumber () {
-      if (this.$utils.empty(this.number)) {
+      if (this.$utils.empty(this.number) && this.$utils.empty(this.formattedIssueDate)) {
         return null
       }
       if (this.number?.length !== 10) {
@@ -273,7 +273,7 @@ export default {
       return this.issueDate?.replaceAll(/[:\-\s]/ig, '') || ''
     },
     isValidIssueDate () {
-      if (this.$utils.empty(this.formattedIssueDate)) {
+      if (this.$utils.empty(this.formattedIssueDate) && this.$utils.empty(this.number)) {
         return null
       }
       return this.$utils.isValidTWDate(this.formattedIssueDate)
