@@ -333,7 +333,7 @@ export default {
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
             if (key === 'section_code') {
-              obj[this.getLabel(key)] = this.sectionMap.get(key)
+              obj[this.getLabel(key)] = this.sectionMap.get(value)
             } else {
               obj[this.getLabel(key)] = value
             }
