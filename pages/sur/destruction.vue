@@ -36,7 +36,7 @@ div
         div 申請日期
         lah-datepicker.h-100.mx-1(
           v-model="dateRange",
-          :begin="firstDayOf2024"
+          :begin="firstDayOfSixMonthsAgo"
         )
         //- b-input.h-100.mx-1(
         //-   v-model="keyword",
@@ -139,15 +139,17 @@ div
         switch
       ) 辦畢
     template(#cell(issue_date)="{ item }")
-      .mx-auto {{ $utils.addDateDivider(item.issue_date) }}
+      .mx-auto.text-nowrap {{ $utils.addDateDivider(item.issue_date) }}
     template(#cell(apply_date)="{ item }")
-      .mx-auto {{ $utils.addDateDivider(item.apply_date) }}
+      .mx-auto.text-nowrap {{ $utils.addDateDivider(item.apply_date) }}
+    template(#cell(due_date)="{ item }")
+      .mx-auto.text-nowrap {{ dueDate(item) }}
     template(#cell(section_code)="{ item }")
       span {{ sectionMap.get(item.section_code) }}
     template(#cell(land_number)="{ item }")
-      span {{ $utils.formatLandNumber(item.land_number) }}
+      .text-nowrap {{ $utils.formatLandNumber(item.land_number) }}
     template(#cell(building_number)="{ item }")
-      span {{ $utils.formatBuildNumber(item.building_number) }}
+      .text-nowrap {{ $utils.formatBuildNumber(item.building_number) }}
     template(#cell(note)="{ item }")
       .text-left(v-html="handleHighlightText(item.note)")
     template(#cell(address)="{ item }")
@@ -226,6 +228,12 @@ export default {
       {
         key: 'apply_date',
         label: '申請日期',
+        sortable: true,
+        thStyle: { width: '120px' }
+      },
+      {
+        key: 'due_date',
+        label: '到期日期',
         sortable: true,
         thStyle: { width: '120px' }
       },
@@ -314,8 +322,11 @@ export default {
     title: '逕辦建物滅失控管-桃園市地政局'
   },
   computed: {
-    firstDayOf2024 () {
-      return new Date(2024, 0, 1)
+    firstDayOfSixMonthsAgo () {
+      const now = new Date()
+      now.setMonth(now.getMonth() - 6)
+      now.setDate(1)
+      return now
     },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
@@ -496,6 +507,11 @@ export default {
       }).finally(() => {
         this.isBusy = false
       })
+    },
+    dueDate (item) {
+      const applyDate = this.$utils.twToAdDateObj(item.apply_date)
+      applyDate.setMonth(applyDate.getMonth() + 6)
+      return this.$utils.addDateDivider(this.$utils.twDateStr(applyDate))
     }
   }
 }
