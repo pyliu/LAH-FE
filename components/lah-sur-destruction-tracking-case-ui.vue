@@ -5,47 +5,6 @@ div
   //-   variant="danger"
   //- )
   .d-flex.w-100
-    b-input-group(
-      :size="size",
-      prepend="申請日期",
-      title="7碼民國日期"
-    )
-      b-input.h-100(
-        v-model="applyDate",
-        :state="isValidApplyDate"
-      )
-    b-input-group.ml-1(
-      :size="size",
-      prepend="　　地段"
-    )
-      b-select.h-100(
-        v-model="sectionCode",
-        :options="sectionOpts",
-        :state="isValidSectionCode"
-      )
-
-  .d-flex.w-100.my-1
-    b-input-group(
-      :size="size",
-      prepend="　　地號",
-      title="8碼地號"
-    )
-      b-input.h-100(
-        v-model="landNumber",
-        :state="isValidLandNumber",
-        v-b-popover.hover.focus.top="displayLandNumber"
-      )
-    b-input-group.ml-1(
-      :size="size",
-      prepend="　　建號"
-    )
-      b-input.h-100(
-        v-model="buildingNumber",
-        :state="isValidBuildingNumber",
-        v-b-popover.hover.focus.top="displayBuildingNumber"
-      )
-
-  .d-flex.w-100
     b-input-group.text-nowrap(
       prepend="發文日期",
       :size="size",
@@ -67,6 +26,47 @@ div
         :state="isValidNumber",
         v-b-popover.hover.focus.left="numberErrorMessage",
         @input="checkNumber"
+      )
+
+  .d-flex.w-100.my-1
+    b-input-group(
+      :size="size",
+      prepend="申請日期",
+      title="7碼民國日期"
+    )
+      b-input.h-100(
+        v-model="applyDate",
+        :state="isValidApplyDate"
+      )
+    b-input-group.ml-1(
+      :size="size",
+      prepend="　　地段"
+    )
+      b-select.h-100(
+        v-model="sectionCode",
+        :options="sectionOpts",
+        :state="isValidSectionCode"
+      )
+
+  .d-flex.w-100
+    b-input-group(
+      :size="size",
+      prepend="　　地號",
+      title="8碼地號"
+    )
+      b-input.h-100(
+        v-model="landNumber",
+        :state="isValidLandNumber",
+        v-b-popover.hover.focus.top="displayLandNumber"
+      )
+    b-input-group.ml-1(
+      :size="size",
+      prepend="　　建號"
+    )
+      b-input.h-100(
+        v-model="buildingNumber",
+        :state="isValidBuildingNumber",
+        v-b-popover.hover.focus.top="displayBuildingNumber"
       )
 
   .d-flex.w-100.my-1
@@ -167,7 +167,9 @@ export default {
   }),
   computed: {
     ready () {
-      let tmp = this.isValidSectionCode &&
+      let tmp = this.isValidNumber &&
+                this.isValidIssueDate &&
+                this.isValidSectionCode &&
                 this.isValidLandNumber &&
                 this.isValidAddress &&
                 this.isValidApplyDate
@@ -177,14 +179,6 @@ export default {
       // building number is not necessary
       if (this.isValidBuildingNumber !== null) {
         tmp = tmp && this.isValidBuildingNumber
-      }
-      // doc number is not necessary
-      if (this.isValidNumber !== null) {
-        tmp = tmp && this.isValidNumber
-      }
-      // issue date is not necessary
-      if (this.isValidIssueDate !== null) {
-        tmp = tmp && this.isValidIssueDate
       }
       return tmp
     },
@@ -207,9 +201,6 @@ export default {
       return '... 請選擇電子檔PDF ...'
     },
     isValidNumber () {
-      if (this.$utils.empty(this.number) && this.$utils.empty(this.formattedIssueDate)) {
-        return null
-      }
       if (this.number?.length !== 10) {
         this.$utils.warn(`公文字號長度應該要10碼 (${this.number?.length})`)
         return false
@@ -273,9 +264,6 @@ export default {
       return this.issueDate?.replaceAll(/[:\-\s]/ig, '') || ''
     },
     isValidIssueDate () {
-      if (this.$utils.empty(this.formattedIssueDate) && this.$utils.empty(this.number)) {
-        return null
-      }
       return this.$utils.isValidTWDate(this.formattedIssueDate)
     },
     formattedApplyDate () {
@@ -391,7 +379,7 @@ export default {
         this.address = this.origData.address
         this.occupancyPermit = this.origData.occupancy_permit
         this.constructionPermit = this.origData.construction_permit
-        this.done = this.origData.done
+        this.done = Boolean(this.origData.done)
         this.note = this.origData.note
       }
     },
@@ -438,14 +426,13 @@ export default {
         formData.append('file', this.uploadFile)
         // this.$upload.post(this.$consts.API.FILE.ADD_REG_FOREIGNER_PDF, formData).then(({ data }) => {
         this.$upload.post(this.$consts.API.JSON.SUR, formData).then(({ data }) => {
-          const title = this.$utils.empty(data.payload) ? '新增追蹤資料結果' : `${data.payload.number}-${data.payload.pid}`
+          // this.$utils.warn(data.payload)
+          const title = this.$utils.empty(data.payload) ? '新增追蹤資料結果' : `${data.payload.number}-${data.payload.id}`
           const message = `${data.message}`
           this.timeout(() => this.notify(message, { title, type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' }), 400)
           if (this.$utils.statusCheck(data.status)) {
-            this.$emit('add', {
-              ...this.keyData,
-              id: data.payload.id
-            })
+            this.$utils.warn(data.payload)
+            this.$emit('add', data.payload)
           }
         }).catch((err) => {
           this.$utils.error(err)

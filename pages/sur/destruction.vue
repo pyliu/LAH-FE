@@ -30,8 +30,8 @@ div
           hr
           h5 即時通說明
           ol
-            li 案件到期(自申請日起6個月)7天前會每日發送一封訊息至測量課頻道
-            li 輸入發文字號視為已完成，可免除追蹤
+            li 案件到期(自收到公文日期起6個月)7天前會每日發送一封訊息至測量課頻道
+            li 勾選解除列管，可免除追蹤通知
       .d-flex.align-items-center
         div 申請日期
         lah-datepicker.h-100.mx-1(
@@ -110,21 +110,27 @@ div
       //-   span(aria-hidden="true") &nbsp;
       //-   span.sr-only 無勾選
       b-button-group.mx-auto
-        lah-button(
+        b-checkbox.my-auto(
+          switch,
+          v-model="item.done",
+          :title="item.done ? '已解除列管' : '列管中'",
+          @change="switchDone(item)"
+        ) {{ isDone(item) ? '✅' : '⚠' }}
+        lah-button.border-0.mx-1(
           :href="downloadPDFUrl(item)",
           target="_blank",
           title="檢視電子檔",
           icon="file-pdf",
           no-icon-gutter
         )
-        lah-button.mx-1(
+        lah-button.border-0(
           regular,
           no-icon-gutter,
           title="編輯",
           icon="pen-to-square",
           @click="popupEdit(item)"
         )
-        lah-button(
+        lah-button.border-0.ml-1(
           no-icon-gutter,
           title="刪除",
           icon="trash-can",
@@ -143,7 +149,8 @@ div
     template(#cell(apply_date)="{ item }")
       .mx-auto.text-nowrap {{ $utils.addDateDivider(item.apply_date) }}
     template(#cell(due_date)="{ item }")
-      .mx-auto.text-nowrap {{ dueDate(item) }}
+      .mx-auto.text-nowrap.highlight(v-if="isDone(item)") 解除列管
+      .mx-auto.text-nowrap(v-else) {{ dueDate(item) }}
     template(#cell(section_code)="{ item }")
       span {{ sectionMap.get(item.section_code) }}
     template(#cell(land_number)="{ item }")
@@ -210,8 +217,7 @@ export default {
         thStyle: { width: '50px' }
       },
       {
-        key: '操作',
-        thStyle: { width: '90px' }
+        key: '操作'
       },
       {
         key: 'number',
@@ -308,8 +314,13 @@ export default {
         tw_start: this.dateRange.begin,
         tw_end: this.dateRange.end
       }).then(({ data }) => {
-        // console.warn(data.raw)
-        if (Array.isArray(data.raw)) { this.rows = [...data.raw] }
+        if (Array.isArray(data.raw)) {
+          data.raw.forEach((row) => {
+            // tweak the value from API to Boolean value for b-checkbox
+            row.done = row.done === 'true' || row.done === true
+          })
+          this.rows = [...data.raw]
+        }
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
       }).catch((err) => {
         this.alert(err.message)
@@ -402,7 +413,7 @@ export default {
         occupancy_permit: payload.occupancy_permit,
         construction_permit: payload.construction_permit,
         note: payload.note,
-        done: payload.done
+        done: this.isDone(payload)
       })
       // this.$fetch()
     },
@@ -509,9 +520,12 @@ export default {
       })
     },
     dueDate (item) {
-      const applyDate = this.$utils.twToAdDateObj(item.apply_date)
-      applyDate.setMonth(applyDate.getMonth() + 6)
-      return this.$utils.addDateDivider(this.$utils.twDateStr(applyDate))
+      const issueDate = this.$utils.twToAdDateObj(item.issue_date)
+      issueDate.setMonth(issueDate.getMonth() + 6)
+      return this.$utils.addDateDivider(this.$utils.twDateStr(issueDate))
+    },
+    isDone (item) {
+      return item.done === 'true' || item.done === true
     }
   }
 }
