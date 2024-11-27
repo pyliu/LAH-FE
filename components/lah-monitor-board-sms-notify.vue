@@ -71,7 +71,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       .d-flex
         b-link(
           @click="popupLog(log)",
-          v-b-popover.hover.topleft="log.SMS_CONTENT"
+          v-b-popover.hover.left="log.SMS_CONTENT"
         ) {{ log.SMS_CELL }}
         b-link.ml-1(
           :class="log.SMS_RESULT === 'S' ? ['text-success'] : ['text-danger']",
