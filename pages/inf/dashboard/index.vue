@@ -272,7 +272,7 @@ div(v-cloak)
 
 <script>
 export default {
-  middleware: ['isInf'], // authority control
+  // middleware: ['isInf'], // authority control
   data: () => ({
     red: 0,
     yellow: 0,
