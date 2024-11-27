@@ -1,5 +1,5 @@
 <template lang="pug">
-.lah-chat
+client-only.lah-chat
   h5.center.my-5(v-if="noMessage")
     b-icon.mr-1(icon="shield-fill-exclamation" variant="warning")
     span 目前未收到任何訊息

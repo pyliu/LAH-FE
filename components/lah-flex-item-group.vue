@@ -1,5 +1,5 @@
 <template lang="pug">
-transition-group.lah(name="list-reverse")
+client-only: transition-group.lah(name="list-reverse")
   slot
 </template>
 
