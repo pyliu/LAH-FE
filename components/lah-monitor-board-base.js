@@ -93,7 +93,8 @@ export default {
       this.lightChanged(nVal, oVal, this.componentName)
     },
     fetchedMonitorMailCount (nVal, oVal) {
-      this.$fetch && this.$fetch()
+      this.$utils.warn('fetchedMonitorMailCount', nVal, oVal)
+      this.$fetch()
     },
     fetchingState (dontcare) {
       this.clearFetchingState()
