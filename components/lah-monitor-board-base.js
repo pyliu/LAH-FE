@@ -17,7 +17,7 @@ export default {
   }),
   fetch () {
     const nowTs = this.$utils.nowTs()
-    if (this.needRefetch) {
+    if (this.needRefetch || this.fetchedMonitorMailCount > 0) {
       this.load(this.fetchType, this.fetchKeyword, this.fetchDay, this.fetchConvert)
         .then((data) => {
           // successful loaded
