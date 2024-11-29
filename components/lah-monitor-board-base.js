@@ -18,16 +18,18 @@ export default {
   fetch () {
     const nowTs = this.$utils.nowTs()
     if (this.needRefetch) {
-      this.load(this.fetchType, this.fetchKeyword, this.fetchDay, this.fetchConvert).then((data) => {
-        // successful loaded
-        this.lastFetchTimestamp = nowTs
-        this.fetchingState = '✔ 已更新'
-      }).catch((err) => {
-        this.$utils.warn(err)
-      }).finally(() => {
-        // set auto reloading timeout
-        this.resetCountdownCounter(this.reloadMs)
-      })
+      this.load(this.fetchType, this.fetchKeyword, this.fetchDay, this.fetchConvert)
+        .then((data) => {
+          // successful loaded
+          this.lastFetchTimestamp = nowTs
+          this.fetchingState = '✔ 已更新'
+        })
+        .catch((e) => {
+          this.$utils.warn(e)
+        }).finally(() => {
+          // set auto reloading timeout
+          this.resetCountdownCounter(this.reloadMs)
+        })
     } else {
       if (this.lastFetchTimestamp === 0) {
         this.lastFetchTimestamp = nowTs
@@ -105,44 +107,8 @@ export default {
     this.reloadMs = 10 * 60 * 1000 + this.$utils.rand(30) * 1000
     this.lightChanged('warning', '', this.componentName)
     this.clearFetchingState = this.$utils.debounce(() => { this.fetchingState = '' }, 5000)
-    this.load = this.$utils.debounce((type, keyword, days = 1, convert = false) => {
-      // loaded this comp owned message by type/keyword
-      return new Promise((resolve, reject) => {
-        this.messages = []
-        this.isBusy = true
-        this.$nextTick(() => {
-          this.$axios
-            .post(this.$consts.API.JSON.MONITOR, {
-              type,
-              keyword,
-              days,
-              convert
-            })
-            .then(({ data }) => {
-              if (this.$utils.statusCheck(data.status)) {
-                // sort by timestamp descending
-                this.messages = [...data.raw?.sort((a, b) => b.timestamp - a.timestamp)]
-              } else {
-                this.$utils.warn(data.message)
-              }
-              // SRMAS tolerance
-              if (this.$utils.empty(this.messages) && keyword === 'SRMAS') {
-                // default name of the systex SRMAS
-                this.load(type, 'LibreNMS', days, convert)
-              }
-              resolve(data)
-            })
-            .catch((err) => {
-              reject(new Error(err.message))
-              this.$utils.error(err)
-            })
-            .finally(() => {
-              this.updated = this.$utils.now().replace(this.today, '')
-              this.isBusy = false
-            })
-        })
-      })
-    }, 250)
+    // debounced Promise method
+    this.load = this.$utils.debouncePromise(this.load, 250)
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
@@ -219,7 +185,44 @@ export default {
           })
       })
     },
-    load (type, keyword, days = 1, convert = false) { /** placeholder */ },
+    load (type, keyword, days = 1, convert = false) {
+      // loaded this comp owned message by type/keyword
+      return new Promise((resolve, reject) => {
+        this.messages = []
+        this.isBusy = true
+        this.$nextTick(() => {
+          this.$axios
+            .post(this.$consts.API.JSON.MONITOR, {
+              type,
+              keyword,
+              days,
+              convert
+            })
+            .then(({ data }) => {
+              if (this.$utils.statusCheck(data.status)) {
+                // sort by timestamp descending
+                this.messages = [...data.raw?.sort((a, b) => b.timestamp - a.timestamp)]
+              } else {
+                this.$utils.warn(data.message)
+              }
+              // SRMAS tolerance
+              if (this.$utils.empty(this.messages) && keyword === 'SRMAS') {
+                // default name of the systex SRMAS
+                this.load(type, 'LibreNMS', days, convert)
+              }
+              resolve(data)
+            })
+            .catch((err) => {
+              reject(new Error(err.message))
+              this.$utils.error(err)
+            })
+            .finally(() => {
+              this.updated = this.$utils.now().replace(this.today, '')
+              this.isBusy = false
+            })
+        })
+      })
+    },
     async reload () {
       try {
         this.isBusy = true

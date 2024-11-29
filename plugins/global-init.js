@@ -174,6 +174,19 @@ export default ({ $axios, store, $config }, inject) => {
     equal: isEqual,
     equalWith: isEqualWith,
     debounce,
+    debouncePromise (func, delay) {
+      let timeoutId
+      return (...args) => {
+        return new Promise((resolve, reject) => {
+          clearTimeout(timeoutId)
+          timeoutId = setTimeout(() => {
+            func(...args)
+              .then(resolve)
+              .catch(reject)
+          }, delay)
+        })
+      }
+    },
     remove,
     filter,
     without,
