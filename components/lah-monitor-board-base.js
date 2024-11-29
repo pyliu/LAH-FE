@@ -17,7 +17,7 @@ export default {
   }),
   fetch () {
     const nowTs = this.$utils.nowTs()
-    if (this.needRefetch || this.fetchedMonitorMailCount > 0) {
+    if (this.needRefetch) {
       this.load(this.fetchType, this.fetchKeyword, this.fetchDay, this.fetchConvert)
         .then((data) => {
           // successful loaded
@@ -55,7 +55,7 @@ export default {
         this.$utils.warn('fetchDay', this.fetchDay)
       }
       const passed = +new Date() - this.lastFetchTimestamp
-      return passed > this.reloadMs * 0.8
+      return passed > this.reloadMs * 0.8 || this.fetchedMonitorMailCount > 0
     },
     today () {
       // e.g. 2022-01-26
