@@ -73,8 +73,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 
 export default {
   name: 'LahMonitorBoardDbbackup',

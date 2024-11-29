@@ -1,6 +1,6 @@
 
 export default {
-  emit: ['light-update'],
+  emit: ['light-update', 'mail-checked'],
   name: 'lahMonitorBoardBase',
   fetchOnServer: false,
   props: {
@@ -93,9 +93,7 @@ export default {
       this.lightChanged(nVal, oVal, this.componentName)
     },
     fetchedMonitorMailCount (nVal, oVal) {
-      if (nVal > 0) {
-        this.$fetch && this.$fetch()
-      }
+      this.$fetch && this.$fetch()
     },
     fetchingState (dontcare) {
       this.clearFetchingState()
@@ -178,10 +176,12 @@ export default {
           })
           .finally(() => {
             this.$store.commit('fetchingMonitorMail', false)
+            this.$emit('mail-checked')
           })
       })
     },
     load (type, keyword, days = 1, convert = false) {
+      // loaded this comp owned message by type/keyword
       return new Promise((resolve, reject) => {
         this.messages = []
         this.isBusy = true
@@ -222,7 +222,7 @@ export default {
       try {
         this.isBusy = true
         const data = await this.checkMail()
-        // doing $fetch next time forcely
+        // new mail! doing $fetch next time forcely
         if (data.data_count > 0) {
           this.lastFetchTimestamp = 0
         }
