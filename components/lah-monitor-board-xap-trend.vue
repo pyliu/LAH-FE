@@ -260,7 +260,7 @@ export default {
 
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
-          type: 'stats_ap_conn_history',
+          type: 'stats_xap_conn_history',
           ap_ip: this.apIp,
           count: parseInt(this.loadMins)
         })
