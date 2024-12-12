@@ -322,7 +322,7 @@ export default {
         return 'danger'
       }
       // XHR data not ready OR having pending files treats as warning state
-      if (this.statusData === null || this.files.length > 0 || !this.isRunning) {
+      if (this.statusData === null || this.files.length > 0) {
         return 'warning'
       }
       return 'success'
