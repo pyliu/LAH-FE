@@ -44,8 +44,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
         li 顯示資料庫 Data Guard 狀態
         li 檢視P8-2、P7-102及hb-114內相關文字(log sequence及switchover status)狀態，如下圖。
         b-img(src="~/assets/img/mb_dataguard.jpg", fluid, thumbnail)
-        li 每天 08:00 及 13:00 檢查
-        li 儀表板每15分鐘更新一次
+        li 每天 08:00 ~ 17:00 每小時檢查一次
+        li 儀表板約每小時更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -79,8 +79,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 
 export default {
   name: 'LahMonitorBoardDataguard',

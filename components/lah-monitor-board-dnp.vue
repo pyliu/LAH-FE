@@ -43,8 +43,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
       ul
         li 顯示資料庫兩個NODE的 DNP 連線狀態
         b-img(src="~/assets/img/mb_dnp.jpg", fluid, thumbnail)
-        li 伺服器每天 08:00 及 13:00 自我檢查1次
-        li 儀錶鈑每15分鐘更新檢查監控郵件一次
+        li 伺服器每天 08:00 ~ 17:00 每小時自我檢查1次
+        li 儀表板約每60分鐘更新檢查監控郵件一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -77,8 +77,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 
 export default {
   name: 'LahMonitorBoardDnp',

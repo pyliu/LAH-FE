@@ -43,8 +43,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
       ul
         li 顯示資料庫 HACMP 狀態
         b-img(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
-        li 每天 08:00 及 13:00 檢查
-        li 每15分鐘重新更新一次
+        li 每天 08:00 ~ 17:00 每小時檢查一次
+        li 儀表板約60分鐘重新更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -77,8 +77,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 
 export default {
   name: 'LahMonitorBoardHacmp',
