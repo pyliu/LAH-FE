@@ -325,6 +325,9 @@ export default {
       if (this.statusData === null || this.files.length > 0) {
         return 'warning'
       }
+      if (this.site === 'HA' && !this.isRunning) {
+        return 'warning'
+      }
       return 'success'
     },
     attentionCss () {
