@@ -64,8 +64,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
           :seconds="headMessage.timestamp"
         )
-      lah-flex-item-group
-        .col-6.text-nowrap(v-for="(fs, idx) in hacmpFSResult", :key="`fs_${idx}`") {{ fs }}
+      lah-flex-item-group.small
+        .col-4.text-nowrap(v-for="(fs, idx) in hacmpFSResult", :key="`fs_${idx}`") {{ fs }}
     section.mt-1
       .d-flex.justify-content-between.font-weight-bold.mb-1
         a.truncate(
