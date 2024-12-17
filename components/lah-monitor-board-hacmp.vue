@@ -53,18 +53,37 @@ b-card(:border-variant="border", :class="[attentionCss]")
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
   div(v-else)
-    .d-flex.justify-content-between.font-weight-bold
-      a.truncate(
-        href="#",
-        @click="popupLogContent(headMessage)",
-        title="顯示詳細記錄"
-      ) {{ headMessage.subject }}
-      lah-badge-human-datetime(
-        :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
-        :seconds="headMessage.timestamp"
+    section
+      .d-flex.justify-content-between.font-weight-bold.mb-1
+        a.truncate(
+          href="#",
+          @click="popupLogContent(headMessage)",
+          title="顯示詳細記錄"
+        ) {{ hacmpFSMessage }}
+        lah-badge-human-datetime(
+          :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
+          :seconds="headMessage.timestamp"
+        )
+      lah-flex-item-group
+        .col-6.text-nowrap(v-for="(fs, idx) in hacmpFSResult", :key="`fs_${idx}`") {{ fs }}
+    section.mt-1
+      .d-flex.justify-content-between.font-weight-bold.mb-1
+        a.truncate(
+          href="#",
+          @click="popupLogContent(headMessage)",
+          title="顯示詳細記錄"
+        ) ⚠ 最近錯誤訊息
+        lah-badge-human-datetime(
+          :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
+          :seconds="headMessage.timestamp"
+        )
+      b-table.small(
+        :items="errpt",
+        head-variant="dark",
+        small,
+        hover,
+        striped
       )
-    .truncate.text-muted.small(v-if="light !== 'danger'", v-html="extractedMessage")
-    .text-danger.small(v-else, v-html="extractedError")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -92,25 +111,99 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'hacmp',
     fetchDay: 1,
-    foundFsRegex: /\/.+\s+datavg\s+\w+\s+ORAH[A-H]HA1,ORAH[A-H]HA2/igm
+    requireFS: ['/ARCH', '/BACKUP', '/oracle', '/WEB/DB1', '/WEB/DB2', '/WEB/DB3', '/WEB/DB4']
   }),
   computed: {
     headMessage () {
       return this.messages[0]
     },
-    foundFs () {
-      const message = this.headMessage.message || ''
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      return [...message.matchAll(this.foundFsRegex)]
+    messageChunks () {
+      if (this.headMessage) {
+        // Split the text into chunks using both separators
+        return this.headMessage.message?.split(/\*{7,}/)
+      }
+      return []
     },
-    extractedMessage () {
-      return this.$utils.convertMarkd(`✅ 已找到下列系統所需資料夾\n${this.foundFs.join('\n')}`)
+    hacmpFSCapacity () {
+      if (this.messageChunks.length > 0) {
+        const lines = this.messageChunks[2].trim().split('\r\n')
+        /**
+         * remove the first and last line
+         * first always 👉 Filesystem    GB blocks      Free %Used    Iused %Iused Mounted on
+         * last always 👉 errpt
+         */
+        return lines.slice(1, -1).map((item) => {
+          const tokens = item.trim().split(/\s+/)
+          return {
+            file_system: tokens[0], // e.g. /dev/hd4
+            gb_blocks: tokens[1], // e.g. 2.00
+            free: tokens[2], // e.g. 1.64
+            used: tokens[3], // e.g. 18%
+            Iused: tokens[4], // e.g. 25002
+            Iused_percent: tokens[5], // e.g. 7%
+            mounted_on: tokens[6] // e.g. /
+          }
+        })
+      }
+      return []
     },
-    extractedError () {
-      const regex = /.+unreachable.+/gm
-      const message = this.headMessage.message || ''
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      return [...message.matchAll(regex)].join('<br/>')
+    hacmpFS () {
+      if (this.messageChunks.length > 0) {
+        const lines = this.messageChunks[1].trim().split('\r\n')
+        /**
+         * remove the first and last line
+         * first always 👉 #File System    Volume Group      Resource Group                      Node List
+         * last always 👉 df -g
+         */
+        return lines.slice(1, -1).map((item) => {
+          const tokens = item.trim().split(/\s+/)
+          return {
+            file_system: tokens[0], // e.g. /oracle
+            volume_group: tokens[1], // e.g. datavg
+            resource_group: tokens[2], // e.g. reg_ctl
+            node_list: tokens[3], // e.g. ORAHAHA1,ORAHAHA2
+            used: this.hacmpFSCapacity.find(item => item.mounted_on === tokens[0])?.used || ''
+          }
+        })
+      }
+      return []
+    },
+    hacmpFSResult () {
+      return this.requireFS.map((fs) => {
+        return `
+          ${this.hacmpFS.find(item => item.file_system === fs) ? '🟢' : '🔴'}
+          ${fs}
+          ${this.hacmpFS.find(item => item.file_system === fs) ? '已用' : ''}
+          ${this.hacmpFS.find(item => item.file_system === fs)?.used || ''}
+        `
+      })
+    },
+    hacmpFSMessage () {
+      return this.hacmpFS.length === this.requireFS.length
+        ? '✅ HACMP資料夾檢查通過'
+        : '❌ HACMP資料夾數量有誤，請檢查'
+    },
+    errpt () {
+      if (this.messageChunks.length > 0) {
+        const lines = this.messageChunks[3].trim().split('\r\n')
+        /**
+         * remove the first and last line
+         * first always 👉 IDENTIFIER TIMESTAMP  T C RESOURCE_NAME  DESCRIPTION
+         * last always 👉 e.g. Tue Dec 17 14:00:06 CST 2024
+         */
+        return lines.slice(1, -1).map((item) => {
+          const tokens = item.trim().split(/\s+/)
+          return {
+            IDENTIFIER: tokens[0], // e.g. DCB47997
+            TIMESTAMP: tokens[1], // e.g. 1112221224
+            T: tokens[2], // e.g. T
+            C: tokens[3], // e.g. H
+            RESOURCE_NAME: tokens[4], // e.g. hdisk3
+            DESCRIPTION: tokens[5] // e.g. DISK OPERATION ERROR
+          }
+        })
+      }
+      return []
     },
     light () {
       const now = +new Date()
@@ -120,8 +213,11 @@ export default {
       ) {
         return 'warning'
       }
-      return this.foundFs.length === 7 ? 'success' : 'danger'
+      return this.hacmpFS.length === 7 ? 'success' : 'danger'
     }
+  },
+  watch: {
+    hacmpFSCapacity (val) { this.$utils.warn(val) }
   },
   mounted () {
     // update the reload timer to 1hrs
