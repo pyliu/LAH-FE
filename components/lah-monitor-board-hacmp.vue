@@ -199,7 +199,7 @@ export default {
             T: tokens[2], // e.g. T
             C: tokens[3], // e.g. H
             RESOURCE_NAME: tokens[4], // e.g. hdisk3
-            DESCRIPTION: tokens[5] // e.g. DISK OPERATION ERROR
+            DESCRIPTION: tokens.splice(5).join(' ') // e.g. DISK OPERATION ERROR
           }
         })
       }
