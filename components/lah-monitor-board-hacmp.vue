@@ -198,8 +198,8 @@ export default {
     },
     hacmpFSMessage () {
       return this.hacmpFS.length === this.requireFS.length
-        ? '✅ HACMP的掛載檢查通過'
-        : '❌ HACMP的掛載數量有誤，請檢查'
+        ? 'HACMP的掛載資料夾檢查通過✅'
+        : 'HACMP的掛載資料夾數量有誤❌ ... 請檢查'
     },
     errpt () {
       if (this.messageChunks.length > 0) {
