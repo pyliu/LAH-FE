@@ -277,10 +277,10 @@ export default {
     },
     dfLight (fsResult) {
       const percent = parseInt(fsResult.trim().split(/\s+/)[3]?.replace(/^[%]+|[%]+$/g, ''))
-      if (percent > 80) {
+      if (percent > this.lightCruteria.danger) {
         return 'danger'
       }
-      if (percent > 70) {
+      if (percent > this.lightCruteria.warning) {
         return 'warning'
       }
       return 'success'
