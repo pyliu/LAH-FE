@@ -41,15 +41,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫 HACMP 狀態共7個資料夾
+        li 顯示資料庫 HACMP 狀態共7個掛載的資料夾
           ul: li /ARCH, /BACKUP, /oracle, /WEB/DB1, /WEB/DB2, /WEB/DB3, /WEB/DB4
         li 每天 08:00 ~ 17:00 每小時檢查一次
         li 儀表板約60分鐘重新更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示狀態未更新或是有資料夾使用量超過 {{ lightCruteria.warning }}%
-      div 🔴 表示檢測有錯誤或是有資料夾使用量超過 {{ lightCruteria.danger }}%
+      div 🟡 表示狀態未更新或是有掛載的資料夾使用量超過 {{ lightCruteria.warning }}%
+      div 🔴 表示檢測有錯誤或是有掛載的資料夾使用量超過 {{ lightCruteria.danger }}%
       b-img.mt-2(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
@@ -198,8 +198,8 @@ export default {
     },
     hacmpFSMessage () {
       return this.hacmpFS.length === this.requireFS.length
-        ? '✅ HACMP資料夾檢查通過'
-        : '❌ HACMP資料夾數量有誤，請檢查'
+        ? '✅ HACMP的掛載檢查通過'
+        : '❌ HACMP的掛載數量有誤，請檢查'
     },
     errpt () {
       if (this.messageChunks.length > 0) {
@@ -279,7 +279,7 @@ export default {
       const capacity = this.hacmpFSCapacity.find(item => item.mounted_on === fs)
       return `
         裝置：${capacity?.file_system}<br/>
-        資料夾：${capacity?.mounted_on}<br/>
+        掛載：${capacity?.mounted_on}<br/>
         容量：${capacity?.gb_blocks} GB<br/>
         剩餘：${capacity?.free} GB<br/>
         使用率：${capacity?.used}
