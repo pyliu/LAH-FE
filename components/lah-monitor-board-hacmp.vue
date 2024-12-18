@@ -67,10 +67,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
         )
       lah-flex-item-group.small
         .col-4.text-nowrap.hover(
-          v-for="(fs, idx) in hacmpFSResult",
+          v-for="(fs, idx) in requireFS",
           :key="`fs_${idx}`",
           v-b-popover.hover.html="dfPopover(fs)"
-        ) {{ fs }}
+        ) {{ hacmpDesc(fs) }}
     section.mt-1
       .d-flex.justify-content-between.font-weight-bold.mb-1
         a.truncate(
@@ -177,25 +177,6 @@ export default {
       }
       return []
     },
-    hacmpFSResult () {
-      return this.requireFS.map((fs) => {
-        const df = this.hacmpFS.find(item => item.file_system === fs)
-        const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
-        let light = '🟢'
-        if (percent > this.lightCruteria.danger) {
-          light = '🔴'
-        }
-        if (percent > this.lightCruteria.warning) {
-          light = '🟡'
-        }
-        return `
-          ${light}
-          ${fs}
-          ${df ? '已用' : ''}
-          ${df?.used || ''}
-        `
-      })
-    },
     hacmpFSMessage () {
       return this.hacmpFS.length === this.requireFS.length
         ? 'HACMP的掛載資料夾檢查通過✅'
@@ -264,6 +245,23 @@ export default {
     this.reloadMs = (1 * 60 * 60 + this.$utils.rand(60)) * 1000
   },
   methods: {
+    hacmpDesc (fs) {
+      const df = this.hacmpFS.find(item => item.file_system === fs)
+      const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
+      let light = '🟢'
+      if (percent > this.lightCruteria.danger) {
+        light = '🔴'
+      }
+      if (percent > this.lightCruteria.warning) {
+        light = '🟡'
+      }
+      return `
+        ${light}
+        ${fs}
+        ${df ? '已用' : ''}
+        ${df?.used || ''}
+      `
+    },
     dfLight (fsResult) {
       const percent = parseInt(fsResult.trim().split(/\s+/)[3]?.replace(/^[%]+|[%]+$/g, ''))
       if (percent > 80) {
@@ -274,8 +272,7 @@ export default {
       }
       return 'success'
     },
-    dfPopover (fsResult) {
-      const fs = fsResult.trim().split(/\s+/)[1]
+    dfPopover (fs) {
       const capacity = this.hacmpFSCapacity.find(item => item.mounted_on === fs)
       return `
         裝置：${capacity?.file_system}<br/>
