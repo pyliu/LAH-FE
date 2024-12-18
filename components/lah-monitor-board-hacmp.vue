@@ -118,8 +118,8 @@ export default {
     fetchDay: 1,
     requireFS: ['/ARCH', '/BACKUP', '/oracle', '/WEB/DB1', '/WEB/DB2', '/WEB/DB3', '/WEB/DB4'],
     lightCruteria: {
-      danger: 80,
-      warning: 75
+      danger: 85,
+      warning: 80
     }
   }),
   computed: {
