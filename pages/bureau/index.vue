@@ -129,7 +129,7 @@ export default {
       return this.secs * 1000
     },
     srmasIp () {
-      return this.$config.SRMASHost || this.srmas.get(this.site)
+      return this.$config.monitor.host.SRMAS.ip || this.srmas.get(this.site)
     },
     weatherImgUrl () {
       return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.weatherPngTs}`

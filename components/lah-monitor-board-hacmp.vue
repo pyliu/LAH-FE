@@ -243,6 +243,9 @@ export default {
   mounted () {
     // update the reload timer to 1hrs
     this.reloadMs = (1 * 60 * 60 + this.$utils.rand(60)) * 1000
+    this.lightCruteria.danger = this.$config.monitor.capacity.threshold.danger
+    this.lightCruteria.warning = this.$config.monitor.capacity.threshold.warning
+    this.$utils.warn(this.$config)
   },
   methods: {
     hacmpDesc (fs) {

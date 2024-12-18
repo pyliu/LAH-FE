@@ -149,7 +149,6 @@ export default {
     websocketPort: process.env.WEBSOCKET_PORT,
     APIHost: process.env.API_HOST,
     APIPort: process.env.API_PORT,
-    SRMASHost: process.env.SRMAS_HOST,
     axios: {
       // Default: baseURL; when the proxy option is true, it will become PREFIX instead of baseURL
       browserBaseURL: process.env.BROWSER_BASE_URL
@@ -179,6 +178,15 @@ export default {
         Grafana: {
           ip: process.env.GRAFANA_HOST,
           port: process.env.GRAFANA_PORT
+        },
+        SRMAS: {
+          ip: process.env.SRMAS_HOST
+        }
+      },
+      capacity: {
+        threshold: {
+          danger: process.env.CAPACITY_DANGER || 85,
+          warning: process.env.CAPACITY_WARNING || 80
         }
       }
     },

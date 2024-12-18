@@ -34,7 +34,7 @@ div(v-cloak)
 </template>
 
 <script>
-import lahMonitorBoardSrmas from '~/components/lah-monitor-board-srmas.vue'
+import lahMonitorBoardSrmas from '~/components/lah-monitor-board-srmas.vue';
 export default {
   fetchOnServer: false,
   components: { lahMonitorBoardSrmas },
@@ -64,7 +64,7 @@ export default {
   },
   computed: {
     srmasIp () {
-      return this.$config.SRMASHost || this.srmas.get(this.site)
+      return this.$config.monitor.host.SRMAS.ip || this.srmas.get(this.site)
     },
     weatherImgUrl () {
       return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.ts}`
