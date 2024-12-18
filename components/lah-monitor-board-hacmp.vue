@@ -41,15 +41,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫 HACMP 狀態
-        b-img(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
+        li 顯示資料庫 HACMP 狀態共7個資料夾
+          ul: li /ARCH, /BACKUP, /oracle, /WEB/DB1, /WEB/DB2, /WEB/DB3, /WEB/DB4
         li 每天 08:00 ~ 17:00 每小時檢查一次
         li 儀表板約60分鐘重新更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示狀態未更新
-      div 🔴 表示狀態錯誤
+      div 🟡 表示狀態未更新或是有資料夾使用量超過 {{ lightCruteria.warning }}%
+      div 🔴 表示檢測有錯誤或是有資料夾使用量超過 {{ lightCruteria.danger }}%
+      b-img.mt-2(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
   div(v-else)
@@ -65,7 +66,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :seconds="headMessage.timestamp"
         )
       lah-flex-item-group.small
-        .col-4.text-nowrap(v-for="(fs, idx) in hacmpFSResult", :key="`fs_${idx}`") {{ fs }}
+        .col-4.text-nowrap.hover(
+          v-for="(fs, idx) in hacmpFSResult",
+          :key="`fs_${idx}`",
+          v-b-popover.hover.html="dfPopover(fs)"
+        ) {{ fs }}
     section.mt-1
       .d-flex.justify-content-between.font-weight-bold.mb-1
         a.truncate(
@@ -111,7 +116,11 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'hacmp',
     fetchDay: 1,
-    requireFS: ['/ARCH', '/BACKUP', '/oracle', '/WEB/DB1', '/WEB/DB2', '/WEB/DB3', '/WEB/DB4']
+    requireFS: ['/ARCH', '/BACKUP', '/oracle', '/WEB/DB1', '/WEB/DB2', '/WEB/DB3', '/WEB/DB4'],
+    lightCruteria: {
+      danger: 80,
+      warning: 75
+    }
   }),
   computed: {
     headMessage () {
@@ -170,11 +179,20 @@ export default {
     },
     hacmpFSResult () {
       return this.requireFS.map((fs) => {
+        const df = this.hacmpFS.find(item => item.file_system === fs)
+        const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
+        let light = '🟢'
+        if (percent > this.lightCruteria.danger) {
+          light = '🔴'
+        }
+        if (percent > this.lightCruteria.warning) {
+          light = '🟡'
+        }
         return `
-          ${this.hacmpFS.find(item => item.file_system === fs) ? '🟢' : '🔴'}
+          ${light}
           ${fs}
-          ${this.hacmpFS.find(item => item.file_system === fs) ? '已用' : ''}
-          ${this.hacmpFS.find(item => item.file_system === fs)?.used || ''}
+          ${df ? '已用' : ''}
+          ${df?.used || ''}
         `
       })
     },
@@ -213,15 +231,60 @@ export default {
       ) {
         return 'warning'
       }
-      return this.hacmpFS.length === 7 ? 'success' : 'danger'
+      if (this.hacmpFS.length !== this.requireFS.length) {
+        return 'danger'
+      }
+      const lightArr = []
+      this.requireFS.forEach((fs) => {
+        const df = this.hacmpFS.find(item => item.file_system === fs)
+        const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
+        let light = '🟢'
+        if (percent > this.lightCruteria.danger) {
+          light = '🔴'
+        }
+        if (percent > this.lightCruteria.warning) {
+          light = '🟡'
+        }
+        lightArr.push(light)
+      })
+      if (lightArr.includes('🔴')) {
+        return 'danger'
+      }
+      if (lightArr.includes('🟡')) {
+        return 'warning'
+      }
+      return 'success'
     }
   },
   watch: {
-    hacmpFSCapacity (val) { this.$utils.warn(val) }
+    // hacmpFSCapacity (val) { this.$utils.warn(val) }
   },
   mounted () {
     // update the reload timer to 1hrs
     this.reloadMs = (1 * 60 * 60 + this.$utils.rand(60)) * 1000
+  },
+  methods: {
+    dfLight (fsResult) {
+      const percent = parseInt(fsResult.trim().split(/\s+/)[3]?.replace(/^[%]+|[%]+$/g, ''))
+      if (percent > 80) {
+        return 'danger'
+      }
+      if (percent > 70) {
+        return 'warning'
+      }
+      return 'success'
+    },
+    dfPopover (fsResult) {
+      const fs = fsResult.trim().split(/\s+/)[1]
+      const capacity = this.hacmpFSCapacity.find(item => item.mounted_on === fs)
+      return `
+        裝置：${capacity?.file_system}<br/>
+        資料夾：${capacity?.mounted_on}<br/>
+        容量：${capacity?.gb_blocks} GB<br/>
+        剩餘：${capacity?.free} GB<br/>
+        使用率：${capacity?.used}
+      `
+    }
   }
 }
 </script>
@@ -229,5 +292,10 @@ export default {
 <style lang="scss" scoped>
 ul {
   padding-left: 21.25px;
+}
+.hover:hover {
+  background-color: lightcoral;
+  color: white;
+  font-weight: bolder;
 }
 </style>
