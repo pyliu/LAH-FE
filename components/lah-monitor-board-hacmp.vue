@@ -248,8 +248,8 @@ export default {
   },
   methods: {
     formatErrptTimestamp (timestamp) {
-      if (typeof timestamp !== 'string' || timestamp.length !== 10) {
-        return 'Invalid timestamp format' // Handle invalid input
+      if (!/^\d{10}$/.test(timestamp)) {
+        return '時間戳記格式不符' // Handle invalid input
       }
       const month = timestamp.slice(0, 2)
       const day = timestamp.slice(2, 4)
