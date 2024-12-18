@@ -194,7 +194,7 @@ export default {
           const tokens = item.trim().split(/\s+/)
           return {
             IDENTIFIER: tokens[0], // e.g. DCB47997
-            TIMESTAMP: tokens[1], // e.g. 1112221224
+            TIMESTAMP: this.formatErrptTimestamp(tokens[1]), // e.g. 1112221224
             T: tokens[2], // e.g. T
             C: tokens[3], // e.g. H
             RESOURCE_NAME: tokens[4], // e.g. hdisk3
@@ -220,11 +220,11 @@ export default {
         const df = this.hacmpFS.find(item => item.file_system === fs)
         const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
         let light = '🟢'
-        if (percent > this.lightCruteria.danger) {
-          light = '🔴'
-        }
         if (percent > this.lightCruteria.warning) {
           light = '🟡'
+        }
+        if (percent > this.lightCruteria.danger) {
+          light = '🔴'
         }
         lightArr.push(light)
       })
@@ -247,6 +247,17 @@ export default {
     this.lightCruteria.warning = this.$config.monitor.capacity.threshold.warning
   },
   methods: {
+    formatErrptTimestamp (timestamp) {
+      if (typeof timestamp !== 'string' || timestamp.length !== 10) {
+        return 'Invalid timestamp format' // Handle invalid input
+      }
+      const month = timestamp.slice(0, 2)
+      const day = timestamp.slice(2, 4)
+      const hour = timestamp.slice(4, 6)
+      const minute = timestamp.slice(6, 8)
+      const second = timestamp.slice(8, 10)
+      return `${month}-${day} ${hour}:${minute}:${second}`
+    },
     hacmpDesc (fs) {
       const df = this.hacmpFS.find(item => item.file_system === fs)
       const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
