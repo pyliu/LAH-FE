@@ -38,6 +38,8 @@ export default {
         console.error('讀取 userNames 失敗', e)
       }
     }
+    // debug for runtime config
+    this.$utils.warn(this.$config)
   }
 }
 </script>
