@@ -262,11 +262,11 @@ export default {
       const df = this.hacmpFS.find(item => item.file_system === fs)
       const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
       let light = '🟢'
-      if (percent > this.lightCruteria.danger) {
-        light = '🔴'
-      }
       if (percent > this.lightCruteria.warning) {
         light = '🟡'
+      }
+      if (percent > this.lightCruteria.danger) {
+        light = '🔴'
       }
       return `
         ${light}
