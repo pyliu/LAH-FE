@@ -43,7 +43,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       ul
         li 顯示資料庫 HACMP 狀態共7個掛載的資料夾
           ul: li /ARCH, /BACKUP, /oracle, /WEB/DB1, /WEB/DB2, /WEB/DB3, /WEB/DB4
-        li 每天 08:00 ~ 17:00 每小時檢查一次
+        li 每天 08:00 ~ 17:00 每小時檢查一次(桃園所)
         li 儀表板約60分鐘重新更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
