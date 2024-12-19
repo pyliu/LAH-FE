@@ -53,12 +53,9 @@ div(v-cloak)
       centered
     )
       lah-period-stats-chart(type="sur", :st="firstDayofMonth", :ed="today")
-  b-card-group.mb-4(
-    deck,
-    v-for="(arr, idx) in daysChunk",
-    :key="`bcg_${idx}`"
-  )
-    b-card(v-for="(day, idx) in arr", :key="`bc_${idx}`"): lah-period-stats-chart(type="sur", :st="day", :ed="day")
+  lah-flex-item-group
+    .col-md-4(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`")
+      b-card: lah-period-stats-chart(type="sur", :st="day", :ed="day")
   //- b-card-group(columns)
   //-   b-card(v-for="(day, idx) in daysSorted", :key="`bc_${idx}`"): lah-period-stats-chart(type="sur", :st="day", :ed="day")
 </template>
@@ -129,4 +126,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.col-md-4 > .card {
+  height: calc((100vh - 150px) / 3);
+  overflow: auto;
+  margin-bottom: 1.25rem;
+}
 </style>

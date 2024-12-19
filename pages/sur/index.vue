@@ -13,7 +13,7 @@
           :icon="['fas', 'house-chimney-crack']",
           to="/sur/destruction"
         ) 逕辦建物滅失控管
-        //- lah-index-card-link.fix-card-dimension.ml-2(:icon="['fas', 'chart-line']" to="/sur/stats") 分時案件統計
+        lah-index-card-link.fix-card-dimension.ml-2(:icon="['fas', 'chart-line']" to="/sur/stats") 分時案件統計
 </template>
 
 <script>
