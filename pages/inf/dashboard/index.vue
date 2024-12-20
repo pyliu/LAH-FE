@@ -36,9 +36,13 @@ div(v-cloak)
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
-        li 提供顯示各監控標的狀態之功能
-        li 預設監控顯示一天內資料
-        li 目前監控設定：{{ connectionText }}
+        li 提供顯示各監控標的狀態之功能，以下三種方式讀取資料
+          ul
+            li 讀取電子郵件分析，如「SRMAS分析」、「資料庫 XXXX」、「XXX 備份」 ... 等類
+            li 伺服器需安裝『智慧監控API』服務，如「建物圖籍同步異動」、「地籍異動即時通」
+            li 使用本系統後端API，如「L3同步異動」、「跨縣市AP服務狀態」 ... 等類
+        li 電子郵件監控預設是擷取一天內資料，其他項原則是趙個儀表板設定時間更新
+        li 目前電子郵件監控設定：{{ connectionText }}
 
   //- transition-group.d-flex.flex-wrap.justify-content-evenly(name="list-reverse")
   lah-flex-item-group
