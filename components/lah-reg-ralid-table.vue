@@ -1,11 +1,10 @@
 <template lang="pug">
 client-only
   b-table.text-center(
-    v-if="count > 0",
     ref="section_search_tbl",
-    :items="json.raw",
+    :items="filteredData",
     :fields="fields",
-    :busy="!json",
+    :busy="isBusy",
     responsive="sm",
     head-variant="dark",
     primary-key="段代碼",
@@ -19,17 +18,17 @@ client-only
     template(v-slot:cell(面積)="{ item }")
       span(v-b-tooltip.d400="area(item.面積)") {{ areaM2(item.面積) }}
     template(v-slot:cell(土地標示部筆數)="{ item }") {{ format(item.土地標示部筆數) }} 筆
-  lah-fa-icon(v-else, icon="exclamation-triangle", variant="danger", size="lg") 查無區段資料
 </template>
 
 <script>
 export default {
   emit: [],
   component: {},
-  props: {},
+  props: {
+    keyword: { type: String, default: '' }
+  },
   data: () => ({
-    json: [],
-    text: '',
+    rows: [],
     fields: [
       {
         key: '區代碼',
@@ -57,28 +56,35 @@ export default {
     ]
   }),
   computed: {
-    count () { return this.json.data_count || 0 },
-    cacheKey () { return `lah-reg-ralid-table-${this.text}` }
+    count () { return this.rows?.length || 0 },
+    cacheKey () { return `lah-reg-ralid-table-${this.text}` },
+    filteredData () {
+      if (!this.$utils.empty(this.keyword)) {
+        return this.rows.filter((row) => {
+          return row.段代碼.includes(this.keyword) || row.段名稱.includes(this.keyword)
+        })
+      }
+      return this.rows
+    }
   },
   watch: {
-    json (val) { this.$utils.warn(val) }
+    rows (val) { this.$utils.warn(val) }
   },
   created () {},
   mounted () { this.query() },
   methods: {
     query () {
-      this.json = []
-      this.getCache(this.cacheKey).then((json) => {
-        if (json) {
-          this.json = json
+      this.rows = []
+      this.getCache(this.cacheKey).then((rows) => {
+        if (rows) {
+          this.rows = rows
         } else {
           this.isBusy = true
           this.$axios.post(this.$consts.API.JSON.QUERY, {
-            type: 'ralid',
-            text: this.text
+            type: 'ralid'
           }).then(({ data }) => {
-            this.json = data
-            this.setCache(this.cacheKey, data, 24 * 60 * 60 * 1000)
+            this.rows = data.raw || []
+            this.setCache(this.cacheKey, this.rows, 24 * 60 * 60 * 1000)
           }).catch((err) => {
             this.$utils.error(err)
           }).finally(() => {
