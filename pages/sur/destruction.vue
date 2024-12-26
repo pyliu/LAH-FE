@@ -150,6 +150,7 @@ div
       .mx-auto.text-nowrap {{ $utils.addDateDivider(item.apply_date) }}
     template(#cell(due_date)="{ item }")
       .mx-auto.text-nowrap.highlight(v-if="isDone(item)") 解除列管
+      .mx-auto.text-nowrap.highlight-danger(v-if="isOverdue(item)") {{ dueDate(item) }}
       .mx-auto.text-nowrap(v-else) {{ dueDate(item) }}
     template(#cell(section_code)="{ item }")
       span {{ sectionMap.get(item.section_code) }}
@@ -523,6 +524,12 @@ export default {
       const issueDate = this.$utils.twToAdDateObj(item.issue_date)
       issueDate.setMonth(issueDate.getMonth() + 6)
       return this.$utils.addDateDivider(this.$utils.twDateStr(issueDate))
+    },
+    isOverdue (item) {
+      const overdueDate = this.$utils.twToAdDateObj(item.issue_date)
+      overdueDate.setMonth(overdueDate.getMonth() + 6)
+      const now = new Date()
+      return now > overdueDate
     },
     isDone (item) {
       return item.done === 'true' || item.done === true
