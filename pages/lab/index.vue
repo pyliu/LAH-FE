@@ -40,7 +40,7 @@
         ) {{ site }} 機房天氣圖
         lah-index-card-link.fix-card-dimension.invisible(v-else)
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'wand-magic-sparkles']" to="/reg/tracking") 案件追蹤查詢
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'panorama']" to="/reg/ralid") 土地標示部綜合查詢
         lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
 </template>
