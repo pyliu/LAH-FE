@@ -66,18 +66,31 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :seconds="headMessage.timestamp"
         )
       lah-flex-item-group.small
-        .col-4.text-nowrap.hover(
+        .col-4.hover(
           v-for="(fs, idx) in requireFS",
           :key="`fs_${idx}`",
           v-b-popover.hover.html="dfPopover(fs)"
-        ) {{ hacmpDesc(fs) }}
-    section.mt-1
+        )
+          .d-flex.justify-content-between.align-items-center
+            strong {{ fs }}
+            span {{ `${progress(fs)}%` }}
+          b-progress(
+            :variant="progressLight(fs)",
+            :value="progress(fs)",
+            max="100",
+            animated,
+            striped
+          )
+    section.mt-1(v-if="errpt.length > 0")
       .d-flex.justify-content-between.font-weight-bold.mb-1
         a.truncate(
           href="#",
           @click="popupLogContent(headMessage)",
           title="顯示詳細記錄"
-        ) ⚠ 最近錯誤訊息
+        ): lah-fa-icon(
+          icon="triangle-exclamation",
+          variant="danger"
+        ) 伺服器錯誤訊息({{ errpt.length }})
         lah-badge-human-datetime(
           :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
           :seconds="headMessage.timestamp"
@@ -179,8 +192,8 @@ export default {
     },
     hacmpFSMessage () {
       return this.hacmpFS.length === this.requireFS.length
-        ? 'HACMP的掛載資料夾檢查通過✅'
-        : 'HACMP的掛載資料夾數量有誤❌ ... 請檢查'
+        ? '✅ 掛載資料夾'
+        : '❌ 掛載資料夾數量有誤 ... 請檢查'
     },
     errpt () {
       if (this.messageChunks.length > 0) {
@@ -258,23 +271,6 @@ export default {
       const second = timestamp.slice(8, 10)
       return `${month}-${day} ${hour}:${minute}:${second}`
     },
-    hacmpDesc (fs) {
-      const df = this.hacmpFS.find(item => item.file_system === fs)
-      const percent = parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
-      let light = '🟢'
-      if (percent > this.lightCruteria.warning) {
-        light = '🟡'
-      }
-      if (percent > this.lightCruteria.danger) {
-        light = '🔴'
-      }
-      return `
-        ${light}
-        ${fs}
-        ${df ? '已用' : ''}
-        ${df?.used || ''}
-      `
-    },
     dfLight (fsResult) {
       const percent = parseInt(fsResult.trim().split(/\s+/)[3]?.replace(/^[%]+|[%]+$/g, ''))
       if (percent > this.lightCruteria.danger) {
@@ -294,6 +290,20 @@ export default {
         剩餘：${capacity?.free} GB<br/>
         使用率：${capacity?.used}
       `
+    },
+    progress (fs) {
+      const df = this.hacmpFSCapacity.find(item => item.mounted_on === fs)
+      return parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
+    },
+    progressLight (fs) {
+      const percent = this.progress(fs)
+      if (percent > this.lightCruteria.danger) {
+        return 'danger'
+      }
+      if (percent > this.lightCruteria.warning) {
+        return 'warning'
+      }
+      return 'success'
     }
   }
 }
@@ -302,10 +312,5 @@ export default {
 <style lang="scss" scoped>
 ul {
   padding-left: 21.25px;
-}
-.hover:hover {
-  background-color: lightcoral;
-  color: white;
-  font-weight: bolder;
 }
 </style>
