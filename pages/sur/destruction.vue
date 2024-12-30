@@ -36,7 +36,7 @@ div
         div 申請日期
         lah-datepicker.h-100.mx-1(
           v-model="dateRange",
-          :begin="firstDayOfYearAgo"
+          :begin="firstDayOf2YearAgo"
         )
         //- b-input.h-100.mx-1(
         //-   v-model="keyword",
@@ -334,9 +334,9 @@ export default {
     title: '逕辦建物滅失控管-桃園市地政局'
   },
   computed: {
-    firstDayOfYearAgo () {
+    firstDayOf2YearAgo () {
       const now = new Date()
-      now.setMonth(now.getMonth() - 12)
+      now.setMonth(now.getMonth() - 24)
       now.setDate(1)
       return now
     },
