@@ -81,7 +81,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
             animated,
             striped
           )
-    section.mt-1(v-if="errpt.length > 0")
+    hr(v-if="errpt.length > 0")
+    div(v-if="errpt.length > 0")
       .d-flex.justify-content-between.font-weight-bold.mb-1
         a.truncate(
           href="#",
@@ -91,10 +92,6 @@ b-card(:border-variant="border", :class="[attentionCss]")
           icon="triangle-exclamation",
           variant="danger"
         ) 伺服器錯誤訊息({{ errpt.length }})
-        lah-badge-human-datetime(
-          :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
-          :seconds="headMessage.timestamp"
-        )
       b-table.small(
         :items="errpt",
         head-variant="dark",
