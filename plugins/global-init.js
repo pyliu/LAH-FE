@@ -117,6 +117,7 @@ export default ({ $axios, store, $config }, inject) => {
         MYQUERY: '/api/myquery_json_api.php',
         MOIEXP: '/api/moiexp_json_api.php',
         MOIPRC: '/api/moiprc_json_api.php',
+        MOICAD: '/api/moicad_json_api.php',
         MOICAS: '/api/moicas_json_api.php',
         MOICAT: '/api/moicat_json_api.php',
         MOIADM: '/api/moiadm_json_api.php',
