@@ -10,6 +10,7 @@ import debounce from 'lodash/debounce'
 import difference from 'lodash/difference'
 import differenceWith from 'lodash/differenceWith'
 import filter from 'lodash/filter'
+import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import isEqualWith from 'lodash/isEqualWith'
@@ -195,6 +196,7 @@ export default ({ $axios, store, $config }, inject) => {
     sortedUniq,
     uniqBy,
     uniqWith,
+    groupBy,
     orderBy,
     sortBy,
     differenceWith,
