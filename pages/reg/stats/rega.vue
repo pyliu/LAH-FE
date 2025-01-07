@@ -49,7 +49,11 @@ div(v-cloak)
         title="點擊開啟案件列表",
         @click="caseList(item)"
       ).d-flex.justify-content-between.align-items-center
-        .col-4(v-for="(token, idx) in item.ITEM_NAME.split('/')", :key="`${item.ITEM}_${idx}`") {{ token }}
+        .col-4(
+          v-for="(token, idx) in item.ITEM_NAME.split('/')",
+          :key="`${item.ITEM}_${idx}`",
+          :class="itemNameCss(item, idx)"
+        ) {{ token }}
 
   b-modal(
     ref="cases",
@@ -248,6 +252,16 @@ export default {
     handlePaginationInput (payload) {
       // remember user changed number
       this.setCache('rega-perPage', payload.perPage)
+    },
+    itemNameCss (item, idx) {
+      if (idx === 0) {
+        return ['text-info']
+      }
+      const tokens = item.ITEM_NAME.split('/')
+      if (idx === 1 && tokens.length !== 2) {
+        return ['text-success']
+      }
+      return ['font-weight-bold']
     }
   }
 }

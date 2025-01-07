@@ -12,6 +12,7 @@ export default {
     updated: '',
     reloadMs: 10 * 60 * 1000,
     reloadTimer: null,
+    resetTimer: null,
     lastFetchTimestamp: 0,
     fetchingState: ''
   }),
@@ -112,6 +113,7 @@ export default {
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
+    clearTimeout(this.resetTimer)
   },
   methods: {
     resetCountdownCounter (restartTimerMs) {
@@ -120,7 +122,7 @@ export default {
         this.$refs.footer.reset(restartTimerMs)
       } else {
         // this.$utils.warn('找不到監控儀表板 footer 組件，無法重新設定倒數按鍵！')
-        this.timeout(() => this.$fetch(), restartTimerMs)
+        this.timeout(() => this.$fetch(), restartTimerMs).then((handler) => { this.resetTimer = handler })
       }
     },
     truncate (content) {
