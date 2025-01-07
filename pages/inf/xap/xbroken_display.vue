@@ -129,6 +129,9 @@ export default {
     // reload the page to prevent Out of Memory issue on EDGE
     // this.timeout(() => location.reload(), 30 * 60 * 1000)
   },
+  beforeDestroy () {
+    clearTimeout(this.cachedHandler)
+  },
   methods: {
     handleTYSitesUpdated (dontcare) {
       this.TYUpdatedTime = this.$utils.formatTime(new Date())

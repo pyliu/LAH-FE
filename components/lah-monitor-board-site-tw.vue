@@ -95,7 +95,7 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
 </template>
 
 <script>
-import lahOfficeDownTimeline from '~/components/lah-office-down-timeline.vue'
+import lahOfficeDownTimeline from '~/components/lah-office-down-timeline.vue';
 export default {
   name: 'LahMonitorBoardSiteTw',
   emit: ['light-update'],
@@ -181,6 +181,9 @@ export default {
   },
   created () {},
   mounted () {},
+  beforeDestroy () {
+    clearTimeout(this.timer)
+  },
   methods: {
     reload (force = false) {
       clearTimeout(this.timer)
