@@ -23,10 +23,8 @@ div(v-cloak)
           no-icon-gutter
         )
     lah-help-modal(:modal-id="'help-modal'" size="md")
-      h5 {{ site }} 日期區間(預設上個月)的統計資料案件查詢頁面
-      ul
-        li X!@#@$
-
+      h5 查詢 {{ site }} 統計資料案件，預設撈上個月的資料
+      ul: li 點擊該列即可顯示案件列表
   b-table(
     ref="display",
     :items="items",
