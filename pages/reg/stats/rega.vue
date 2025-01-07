@@ -19,7 +19,7 @@ div(v-cloak)
           size="lg",
           title="重新搜尋",
           :disabled="isBusy",
-          @click="getRegaData",
+          @click="getRegaData(true)",
           no-icon-gutter
         )
     lah-help-modal(:modal-id="'help-modal'" size="md")
@@ -49,7 +49,7 @@ div(v-cloak)
     template(#cell(ITEM_NAME)="{ item }")
       b-link(
         title="點擊開啟案件列表",
-        @click="selectedRow = item; $refs.cases.show();"
+        @click="caseList(item)"
       ).d-flex.justify-content-between.align-items-center
         .col-4(v-for="(token, idx) in item.ITEM_NAME.split('/')", :key="`${item.ITEM}_${idx}`") {{ token }}
 
@@ -192,7 +192,7 @@ export default {
   },
   created () {},
   mounted () {
-    setTimeout(() => this.getRegaData(), 400)
+    setTimeout(() => this.getRegaData(false), 400)
   },
   methods: {
     handleDate (e) {},
@@ -203,13 +203,14 @@ export default {
         this.$utils.warn(data)
       })
     },
-    getRegaData () {
+    getRegaData (reload = false) {
       if (!this.isBusy) {
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.MOICAD, {
           type: 'rega',
           st: this.dateRange.begin,
-          ed: this.dateRange.end
+          ed: this.dateRange.end,
+          reload
         }).then(({ data }) => {
           this.groupByItem = { ...this.$utils.groupBy(data.raw, 'ITEM') }
         }).finally(() => {
@@ -240,6 +241,11 @@ export default {
         title: `案件詳情 ${this.$utils.caseId(id)}`,
         size: 'xl'
       })
+    },
+    caseList (item) {
+      this.selectedRow = item
+      this.pagination.currentPage = 1
+      this.$refs.cases?.show()
     },
     handlePaginationInput (payload) {
       // remember user changed number
