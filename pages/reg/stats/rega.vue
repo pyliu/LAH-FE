@@ -187,8 +187,8 @@ export default {
     selectedCaseCount () { return this.selectedCases.length }
   },
   watch: {
-    items (val) { this.$utils.warn(val) },
-    selectedRow (val) { this.$utils.warn(val) }
+    // items (val) { this.$utils.warn(val) },
+    // selectedRow (val) { this.$utils.warn(val) }
   },
   created () {},
   mounted () {
