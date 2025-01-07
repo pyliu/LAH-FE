@@ -79,11 +79,7 @@ export default {
       return !this.$utils.empty(this.bakedData.手機號碼)
     }
   },
-  watch: {
-    bakedData (val) {
-      this.$utils.warn(val)
-    }
-  },
+  watch: {},
   methods: {
     userinfo (name, id = '') {
       this.modal(this.$createElement('lah-user-card', { props: { name, id } }), {
