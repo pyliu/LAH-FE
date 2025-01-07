@@ -49,8 +49,12 @@ b-card
       | 區域：{{ bakedData.區名稱 }}【{{ bakedData.RM10 }}】
     b-list-group-item
       | 段小段：{{ bakedData.段小段 }}【{{ bakedData.段代碼 }}】
-    b-list-group-item  地號：{{ bakedData.地號 }}
-    b-list-group-item  建號：{{ bakedData.建號 }}
+    b-list-group-item.d-flex.justify-content-between.align-items-center
+      div 地號：{{ bakedData.地號 }}
+      div 土地面積：{{ bakedData.土地面積 || '未輸入' }}
+    b-list-group-item.d-flex.justify-content-between.align-items-center
+      div 建號：{{ bakedData.建號 }}
+      div 建物面積：{{ bakedData.建物面積 || '未輸入' }}
     b-list-group-item  件數：{{ bakedData.件數 }}
     b-list-group-item
       | 登記處理註記：{{ bakedData.登記處理註記 }}
@@ -59,10 +63,10 @@ b-card
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
-import lahAvatar from '~/components/lah-avatar.vue'
-import regCaseBase from '~/components/lah-reg-case-base.js'
-import lahUserCard from '~/components/lah-user-card.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
+import lahAvatar from '~/components/lah-avatar.vue';
+import regCaseBase from '~/components/lah-reg-case-base.js';
+import lahUserCard from '~/components/lah-user-card.vue';
 export default {
   name: 'LahRegCaseData',
   components: { lahUserCard, lahAvatar, lahAdmSmslogTableVue },
@@ -73,6 +77,11 @@ export default {
   computed: {
     haveCellNumber () {
       return !this.$utils.empty(this.bakedData.手機號碼)
+    }
+  },
+  watch: {
+    bakedData (val) {
+      this.$utils.warn(val)
     }
   },
   methods: {
