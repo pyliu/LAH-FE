@@ -45,7 +45,7 @@ div(v-cloak)
     @row-selected="rowSelected"
   )
     template(#cell(ITEM_NAME)="{ item }")
-      b-link(
+      b-link.hover(
         title="點擊開啟案件列表",
         @click="caseList(item)"
       ).d-flex.justify-content-between.align-items-center
@@ -268,10 +268,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.col-md-4 {
-  margin-bottom: 1.25rem;
-  > .card {
-    height: 100%;
-  }
+.hover:hover {
+  font-size: 1.1rem;
+  position: relative;
+  display: block;
+  background-color: rgb(250, 220, 225);
+  text-decoration: none;
 }
 </style>
