@@ -101,7 +101,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant")
 </template>
 
 <script>
-import LahUserCard from '~/components/lah-user-card.vue'
+import LahUserCard from '~/components/lah-user-card.vue';
 export default {
   name: 'LahMonitorBoardApconn',
   emit: ['light-update'],
@@ -223,6 +223,7 @@ export default {
   },
   beforeDestroy () {
     this.emitLightUpdate('', this.light)
+    clearTimeout(this.reloadTimer)
   },
   methods: {
     reloadConn () { /* placeholder for loadAPConnectionCount  */ },
