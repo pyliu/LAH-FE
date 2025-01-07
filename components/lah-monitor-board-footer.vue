@@ -39,12 +39,15 @@ export default {
     }
   },
   beforeDestroy () {
-    this.$refs.countdown.pauseCountdown()
+    this.stop()
   },
   methods: {
     reset (ms) {
       this.$refs.countdown.setCountdown(ms)
       this.$refs.countdown.startCountdown()
+    },
+    stop () {
+      this.$refs.countdown.pauseCountdown()
     }
   }
 }

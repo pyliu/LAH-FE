@@ -114,6 +114,7 @@ export default {
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
     clearTimeout(this.resetTimer)
+    this.$refs.footer?.stop()
   },
   methods: {
     resetCountdownCounter (restartTimerMs) {
