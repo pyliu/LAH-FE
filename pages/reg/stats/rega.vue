@@ -46,24 +46,33 @@ div(v-cloak)
     small,
     @row-selected="rowSelected"
   )
-    //- template(#cell(ITEM_NAME)="{ item }")
-    //-   .d-flex.justify-content-around.align-items-center
-    //-     div(v-for="(token, idx) in item.ITEM_NAME.split('/')", :key="`${item.ITEM}_${idx}`") {{ token }}
+    template(#cell(ITEM_NAME)="{ item }")
+      b-link(
+        title="點擊開啟案件列表",
+        @click="selectedRow = item; $refs.cases.show();"
+      ).d-flex.justify-content-between.align-items-center
+        .col-4(v-for="(token, idx) in item.ITEM_NAME.split('/')", :key="`${item.ITEM}_${idx}`") {{ token }}
 
   b-modal(
     ref="cases",
     hide-footer,
     no-close-on-backdrop,
-    scrollable,
-    size="lg"
+    scrollable
   )
-    template(#modal-title) {{ selectedRow?.ITEM_NAME || '統計案件資料列表' }}
+    template(#modal-title) {{ selectedRow?.ITEM_NAME || '統計案件資料列表' }} ({{ selectedRow?.COUNT }}件)
+    lah-pagination(
+      v-if="selectedCaseCount > pagination.perPage"
+      v-model="pagination",
+      :total-rows="selectedCaseCount",
+      @input="handlePaginationInput"
+    )
     b-table(
-      :items="selectedItems",
+      :items="selectedCases",
       :fields="selectedFields",
       :busy="isBusy",
-      :responsive="'lg'",
       :head-variant="'dark'",
+      :per-page="pagination.perPage",
+      :current-page="pagination.currentPage",
       class="text-center",
       caption-top,
       striped,
@@ -75,21 +84,10 @@ div(v-cloak)
         b-link(@click="popup(item.ID)") {{ $utils.caseId(item.ID) }}
       template(#cell(RA40)="{ item }")
         div {{ $utils.addDateDivider(item.RA40) }}
-
-    b-modal(
-      ref="detail"
-      hide-footer
-      centered
-      no-close-on-backdrop
-      size="xl"
-      scrollable
-    )
-      template(#modal-title) 登記案件詳情 {{ $utils.caseId(clickedID) }}
-      lah-reg-case-detail(:case-id="clickedID")
-    </b-modal>
 </template>
 
 <script>
+import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue';
 export default {
   fetchOnServer: false,
   async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
@@ -109,7 +107,7 @@ export default {
     },
     rows: [],
     fields: [
-      { key: 'ITEM_NAME', label: '工作項目', sortable: true },
+      { key: 'ITEM_NAME', label: '工作項目', sortable: true, thStyle: { width: '33vw' } },
       { key: 'ITEM', label: '項目', sortable: true },
       { key: 'COUNT', label: '件數', sortable: true },
       { key: 'LAND_COUNT', label: '土地筆數', sortable: true },
@@ -118,12 +116,15 @@ export default {
       { key: 'BUILD_AREA', label: '建物面積', sortable: true }
     ],
     groupByItem: {},
-    selectedRow: [],
+    selectedRow: {},
     selectedFields: [
       { key: 'ID', label: '案號', sortable: true },
       { key: 'RA40', label: '註記日期', sortable: true }
     ],
-    clickedID: ''
+    pagination: {
+      perPage: 20,
+      currentPage: 1
+    }
   }),
   head: {
     title: '登記統計資料案件查詢-桃園市地政局'
@@ -182,9 +183,8 @@ export default {
       }
       return []
     },
-    selectedItems () {
-      return this.selectedRow?.CASES || []
-    }
+    selectedCases () { return this.selectedRow?.CASES || [] },
+    selectedCaseCount () { return this.selectedCases.length }
   },
   watch: {
     items (val) { this.$utils.warn(val) },
@@ -220,12 +220,30 @@ export default {
     rowSelected (rows) {
       if (Array.isArray(rows) && rows.length > 0) {
         this.selectedRow = rows[0]
+        this.pagination.currentPage = 1
         this.$refs.cases?.show()
       }
     },
     popup (ID) {
-      this.clickedID = ID.replace(/^[a-zA-Z0-9]$/g, '')
-      this.$refs.detail?.show()
+      const id = this.$utils.caseId(ID)
+      this.modal(this.$createElement(lahRegCaseDetail, {
+        props: {
+          caseId: id
+        },
+        on: {
+          'not-found': () => {
+            this.hideModal()
+            this.timeout(() => this.warning(`⚠ 無法找到 ${this.$utils.caseId(id)} 登記案件資料。`), 400)
+          }
+        }
+      }), {
+        title: `案件詳情 ${this.$utils.caseId(id)}`,
+        size: 'xl'
+      })
+    },
+    handlePaginationInput (payload) {
+      // remember user changed number
+      this.setCache('rega-perPage', payload.perPage)
     }
   }
 }
