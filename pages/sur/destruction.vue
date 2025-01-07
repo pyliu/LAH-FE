@@ -150,7 +150,7 @@ div
       .mx-auto.text-nowrap {{ $utils.addDateDivider(item.apply_date) }}
     template(#cell(due_date)="{ item }")
       .mx-auto.text-nowrap.highlight(v-if="isDone(item)") 解除列管
-      .mx-auto.text-nowrap.highlight-danger(v-if="isOverdue(item)") {{ dueDate(item) }}
+      .mx-auto.text-nowrap.highlight-danger(v-else-if="isOverdue(item)") {{ dueDate(item) }}
       .mx-auto.text-nowrap(v-else) {{ dueDate(item) }}
     template(#cell(section_code)="{ item }")
       span {{ sectionMap.get(item.section_code) }}
