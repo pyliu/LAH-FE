@@ -4,7 +4,7 @@
   .container: .anim-appear-1s
     section.fixed-title-height.center: div
       lah-logo-monitoring.mvh-50
-      h3.title.lah-shadow.text-nowrap 地政資訊智慧監控系統
+      h3.title.lah-shadow.text-nowrap 地政資訊資訊系統監控
     section.b-card-container
       b-card-group(deck)
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'person-chalkboard']" to="/inf/mgt") 系統管理面板
@@ -21,7 +21,7 @@
 export default {
   middleware: ['isInf'],
   head: {
-    title: '桃園市地政智慧監控系統'
+    title: '桃園市地政資訊系統監控'
   }
 }
 </script>
