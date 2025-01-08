@@ -43,7 +43,8 @@ export default {
   data: () => ({
     timelineItems: [],
     selectedCount: 1,
-    noMore: false
+    noMore: false,
+    cacheMs: 15 * 60 * 1000
   }),
   computed: {
     cardCss () {
@@ -61,38 +62,44 @@ export default {
     this.loadInitBatch()
   },
   methods: {
-    loadInitBatch () {
-      this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
-        type: 'get_notification',
-        channel: 'announcement',
-        limit: this.initCount
-      }).then(({ data }) => {
-        /**
-         * message example: {
-            content: "⚠️ 為因應連續假期 ... "
-            create_datetime: "2022-04-01 15:07:24"
-            expire_datetime: ""
-            flag: 0
-            from_ip: "192.168.XX.XX"
-            id: 29
-            priority: 2
-            sender: "HAXXXXXXXX"
-            title: "通報 ..."
+    async loadInitBatch () {
+      const cached = await this.getCache('lah-timeline-announcement')
+      if (cached) {
+        this.timelineItems = [...this.timelineItems, ...cached.raw]
+      } else {
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
+          type: 'get_notification',
+          channel: 'announcement',
+          limit: this.initCount
+        }).then(({ data }) => {
+          /**
+           * message example: {
+              content: "⚠️ 為因應連續假期 ... "
+              create_datetime: "2022-04-01 15:07:24"
+              expire_datetime: ""
+              flag: 0
+              from_ip: "192.168.XX.XX"
+              id: 29
+              priority: 2
+              sender: "HAXXXXXXXX"
+              title: "通報 ..."
+            }
+          */
+          if (this.$utils.statusCheck(data.status)) {
+            this.timelineItems = [...this.timelineItems, ...data.raw]
+            this.setCache('lah-timeline-announcement', data, this.cacheMs)
+          } else {
+            this.$utils.warn(data.message)
           }
-         */
-        if (this.$utils.statusCheck(data.status)) {
-          this.timelineItems = [...this.timelineItems, ...data.raw]
-        } else {
-          this.$utils.warn(data.message)
-        }
-      }).catch((err) => {
-        this.alert(err.message)
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-        this.$emit('announcement-count', { count: this.timelineItems?.length || 0 })
-      })
+        }).catch((err) => {
+          this.alert(err.message)
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+          this.$emit('announcement-count', { count: this.timelineItems?.length || 0 })
+        })
+      }
     },
     loadMore (count) {
       this.isBusy = true
