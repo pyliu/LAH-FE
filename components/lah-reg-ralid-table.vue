@@ -15,6 +15,10 @@ client-only
     no-border-collapse,
     caption-top
   )
+    template(v-slot:cell(段代碼)="{ item }")
+      span(v-html="highlight(item.段代碼)")
+    template(v-slot:cell(段名稱)="{ item }")
+      span(v-html="highlight(item.段名稱)")
     template(v-slot:cell(面積)="{ item }")
       span(v-b-tooltip.d400="area(item.面積)") {{ areaM2(item.面積) }}
     template(v-slot:cell(土地標示部筆數)="{ item }") {{ format(item.土地標示部筆數) }} 筆
@@ -101,6 +105,13 @@ export default {
     },
     areaM2 (val) {
       return val ? this.format(val) + ' 平方米' : ''
+    },
+    highlight (text) {
+      return this.$utils.highlight(
+        text,
+        this.keyword,
+        'highlight-yellow'
+      )
     }
   }
 }
