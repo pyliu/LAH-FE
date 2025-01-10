@@ -102,10 +102,10 @@ b-card(border-variant="secondary")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
-import lahMgmtBoardRegCaseStateVue from './lah-mgmt-board-reg-case-state.vue'
-import lahMgmtBoardRegCaseTmpVue from './lah-mgmt-board-reg-case-tmp.vue'
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
+import lahMgmtBoardRegCaseStateVue from './lah-mgmt-board-reg-case-state.vue';
+import lahMgmtBoardRegCaseTmpVue from './lah-mgmt-board-reg-case-tmp.vue';
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue';
 
 export default {
   components: { lahRegCaseDetailVue, lahMgmtBoardRegCaseStateVue, lahMgmtBoardRegCaseTmpVue, lahAdmSmslogTableVue },

@@ -93,8 +93,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   name: 'LahMonitorBoardSmsNotify',
   emit: ['light-update'],

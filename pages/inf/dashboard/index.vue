@@ -119,6 +119,16 @@ div(v-cloak)
     )
     div(
       :class="colCss",
+      key="lahMonitorBoardSmsNotify-fix",
+      v-show="!isInAttention('LahMonitorBoardSmsNotify')"
+    ): lah-monitor-board-sms-notify(
+      :class="heightCss",
+      ref="LahMonitorBoardSmsNotify",
+      @light-update="lightUpdate",
+      footer
+    )
+    div(
+      :class="colCss",
       key="lahMonitorBoardSms-fix",
       v-show="!isInAttention('LahMonitorBoardSms')"
     ): lah-monitor-board-sms(
@@ -186,17 +196,6 @@ div(v-cloak)
       @light-update="lightUpdate"
     )
     //- HA only boards
-    div(
-      :class="colCss",
-      v-if="isHA",
-      key="lahMonitorBoardSmsNotify-fix",
-      v-show="!isInAttention('LahMonitorBoardSmsNotify')"
-    ): lah-monitor-board-sms-notify(
-      :class="heightCss",
-      ref="LahMonitorBoardSmsNotify",
-      @light-update="lightUpdate",
-      footer
-    )
     div(
       :class="colCss",
       v-if="isHA",
