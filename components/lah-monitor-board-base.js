@@ -160,7 +160,7 @@ export default {
       })
     },
     checkMail () {
-      if (!this.isDestroyed) {
+      if (this.isDestroyed) {
         this.$utils.warn(`${this.$options.name} destroyed. Stop checking mail.`)
         return
       }
@@ -195,7 +195,7 @@ export default {
       })
     },
     load (type, keyword, days = 1, convert = false) {
-      if (!this.isDestroyed) {
+      if (this.isDestroyed) {
         this.$utils.warn(`${this.$options.name} destroyed. Stop loading action.`)
         return
       }
