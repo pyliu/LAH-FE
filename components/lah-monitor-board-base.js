@@ -14,7 +14,8 @@ export default {
     reloadTimer: null,
     resetTimer: null,
     lastFetchTimestamp: 0,
-    fetchingState: ''
+    fetchingState: '',
+    isDestroyed: false
   }),
   fetch () {
     const nowTs = this.$utils.nowTs()
@@ -115,6 +116,7 @@ export default {
     clearTimeout(this.reloadTimer)
     clearTimeout(this.resetTimer)
     this.$refs.footer?.stop()
+    this.isDestroyed = true
   },
   methods: {
     resetCountdownCounter (restartTimerMs) {
@@ -123,7 +125,7 @@ export default {
         this.$refs.footer.reset(restartTimerMs)
       } else {
         // this.$utils.warn('找不到監控儀表板 footer 組件，無法重新設定倒數按鍵！')
-        this.timeout(() => this.$fetch(), restartTimerMs).then((handler) => { this.resetTimer = handler })
+        !this.isDestroyed && this.timeout(() => this.$fetch(), restartTimerMs).then((handler) => { this.resetTimer = handler })
       }
     },
     truncate (content) {
@@ -158,6 +160,10 @@ export default {
       })
     },
     checkMail () {
+      if (!this.isDestroyed) {
+        this.$utils.warn(`${this.$options.name} destroyed. Stop checking mail.`)
+        return
+      }
       return new Promise((resolve, reject) => {
         this.$store.commit('fetchedMonitorMailCount', 0)
         this.$store.commit('fetchingMonitorMail', true)
@@ -189,6 +195,10 @@ export default {
       })
     },
     load (type, keyword, days = 1, convert = false) {
+      if (!this.isDestroyed) {
+        this.$utils.warn(`${this.$options.name} destroyed. Stop loading action.`)
+        return
+      }
       // loaded this comp owned message by type/keyword
       return new Promise((resolve, reject) => {
         this.messages = []
