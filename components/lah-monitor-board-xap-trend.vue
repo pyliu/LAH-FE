@@ -96,7 +96,8 @@ export default {
       red: 450,
       yellow: 225,
       green: 0
-    }
+    },
+    isDestroyed: false
   }),
   computed: {
     nowItem () {
@@ -178,8 +179,10 @@ export default {
     this.emitLightUpdate(this.light, '')
   },
   beforeDestroy () {
-    clearTimeout(this.reloadTimer)
+    this.isDestroyed = true
     this.emitLightUpdate('', this.light)
+    // the reloading action not terminated correctly, so I added delay to wait some time ...
+    clearTimeout(this.reloadTimer)
   },
   methods: {
     popupMaximize () {
@@ -243,6 +246,10 @@ export default {
     },
     _load () { /* placeholder for load method debounced */ },
     load () {
+      if (this.isDestroyed) {
+        this.$utils.warn(`${this.$options.name} has been destroyed. Loading action will not be executed.`)
+        return
+      }
       this.loadItems.length === 0 && this.reset()
       // update label
       if (this.labelNeedUpdate() && this.loadItems.length > 0) {
@@ -311,8 +318,8 @@ export default {
           this.$utils.error('讀取AP連線歷史紀錄失敗', err)
         })
         .finally(() => {
-          this.updatedTime = this.$utils.now().split(' ')[1]
           clearTimeout(this.reloadTimer)
+          this.updatedTime = this.$utils.now().split(' ')[1]
           this.timeout(() => this.load(), this.reloadTime * 1000).then((handler) => { this.reloadTimer = handler })
         })
     },
