@@ -11,7 +11,7 @@ b-card
         | {{ bakedData.資料管轄所 }})
     b-list-group-item: .d-flex.align-items-center
       span 手機號碼：
-      lah-fa-icon.mr-1(v-if="!$utils.isMobileValid(bakedData.手機號碼)", icon="ban", variant="danger", title="非有效之電話號碼")
+      lah-fa-icon.mr-1(v-if="!$utils.isMobileValid(bakedData.手機號碼)", icon="ban", variant="danger", title="非有效之手機號碼")
       lah-fa-icon(
         icon="mobile-screen",
         append,

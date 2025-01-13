@@ -94,7 +94,7 @@ div
           :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
         )
           .d-flex
-            lah-fa-icon.mr-1(v-if="!$utils.isMobileValid(item.SMS_CELL)", icon="ban", variant="danger", title="非有效之電話號碼")
+            lah-fa-icon.mr-1(v-if="!$utils.isMobileValid(item.SMS_CELL)", icon="ban", variant="danger", title="非有效之手機號碼")
             lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_CELL }}
         span(v-else, :class="$utils.empty(item.SMS_CELL?.trim()) || displayMode ? [] : ['highlight-gold']") {{ item.SMS_CELL }}
       template(#cell(SMS_MAIL)="{ item }")
