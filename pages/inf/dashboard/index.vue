@@ -149,6 +149,16 @@ div(v-cloak)
     )
     div(
       :class="colCss",
+      key="lahMonitorBoardApbackup-fix",
+      v-show="!isInAttention('LahMonitorBoardApbackup')"
+    ): lah-monitor-board-apbackup(
+      :class="heightCss",
+      ref="LahMonitorBoardApbackup",
+      @light-update="lightUpdate",
+      footer
+    )
+    div(
+      :class="colCss",
       key="lahMonitorBoardSiteHx-fix",
       v-show="!isInAttention('LahMonitorBoardSiteHx')"
     ): lah-monitor-board-site-hx(
@@ -221,17 +231,6 @@ div(v-cloak)
     div(
       :class="colCss",
       v-if="isHA",
-      key="lahMonitorBoardApbackup-fix",
-      v-show="!isInAttention('LahMonitorBoardApbackup')"
-    ): lah-monitor-board-apbackup(
-      :class="heightCss",
-      ref="LahMonitorBoardApbackup",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      v-if="isHA",
       key="lahMonitorBoardTestdb-fix",
       v-show="!isInAttention('LahMonitorBoardTestdb')"
     ): lah-monitor-board-testdb(
@@ -280,6 +279,14 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
+    haCompList: [
+      'lahMonitorBoardUps',
+      'lahMonitorBoardApconn',
+      'lahMonitorBoardAdsync',
+      'lahMonitorBoardTestdb',
+      'lahMonitorBoardTape',
+      'lahMonitorBoardVmclone'
+    ],
     attentionList: [],
     attentionTimer: null,
     topWarning: true,
@@ -370,6 +377,9 @@ export default {
   },
   methods: {
     lightUpdate (payload) {
+      if (!this.isHA && this.haCompList.includes(payload.name)) {
+        return
+      }
       this.lightMap.set(payload.name, payload.new)
       const tmp = [...this.lightMap]
       this.green = tmp.reduce((acc, item) => {
@@ -398,6 +408,9 @@ export default {
         return footer
       }
       return false
+    },
+    isHAComponent (name) {
+      return this.haCompList.includes(name)
     }
   }
 }
