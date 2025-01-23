@@ -126,7 +126,7 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'hacmp',
     fetchDay: 1,
-    requireFS: ['/ARCH', '/BACKUP', '/oracle', '/WEB/DB1', '/WEB/DB2', '/WEB/DB3', '/WEB/DB4'],
+    requireFS: ['/ARCH', '/WEB/DB1', '/WEB/DB2', '/WEB/DB3', '/WEB/DB4', '/BACKUP', '/oracle'],
     lightCruteria: {
       danger: 85,
       warning: 80
