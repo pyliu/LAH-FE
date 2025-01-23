@@ -50,9 +50,9 @@ export default {
        * 3: "警示規則: 硬碟容量使用率大於80%"
        */
       let warnLines = item.message.split('\r\n')
-      if (warnLines.length !== 4) {
+      if (warnLines.length < 4) {
         // HF has this kind of message: "異常告警-220.1.38.55-記憶體使用率超過80%"
-        console.warn('SRMAS mesaage is not what I expected.', item.message)
+        console.warn('SRMAS訊息無法辨識', item.message)
         warnLines = item.message.split('-')
       }
       let warnHost = warnLines[1]?.replace(/^主機[：|:]\s*/ig, '')?.trim()
