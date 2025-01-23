@@ -49,8 +49,18 @@ export default {
        * 2: "發生時間: 2024-04-11 14:12:30"
        * 3: "警示規則: 硬碟容量使用率大於80%"
        */
-      const warnLines = item.message.split('\r\n')
-      const warnHost = warnLines[1]?.replace(/^主機[：|:]\s*/ig, '')?.trim()
+      let warnLines = item.message.split('\r\n')
+      if (warnLines.length !== 4) {
+        // HF has this kind of message: "異常告警-220.1.38.55-記憶體使用率超過80%"
+        console.warn('SRMAS mesaage is not what I expected.', item.message)
+        warnLines = item.message.split('-')
+      }
+      let warnHost = warnLines[1]?.replace(/^主機[：|:]\s*/ig, '')?.trim()
+      if (!warnHost) {
+        // directly finding ip address ...
+        const matches = item.message?.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/g)
+        warnHost = matches[0] || '無法找到伺服器IP'
+      }
       let warnRule = '無法辨識的告警，請查看主控台'
       if (warnLines[0]?.includes('異常告警')) {
         /**
@@ -59,7 +69,8 @@ export default {
          * 2: "發生時間: 2024-04-11 14:12:30"
          * 3: "警示規則: 硬碟容量使用率大於80%"
          */
-        warnRule = warnLines[3]?.replace('警示規則: ', '')?.trim()
+        // warnLines[2] in HF is like "記憶體使用率超過80%"
+        warnRule = warnLines[3]?.replace('警示規則: ', '')?.trim() || warnLines[2]
       } else if (warnLines[0]?.includes('無回應')) {
         /**
          * 0: "警告-設備無回應"
