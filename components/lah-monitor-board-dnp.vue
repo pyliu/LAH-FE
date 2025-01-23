@@ -4,13 +4,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
     b-button-group.ml-auto(size="sm")
-      lah-button(
-        icon="chart-simple",
-        :href="grafanaUrl",
-        target="_blank",
-        no-border,
-        title="開啟新視窗顯示詳細DB儀表板"
-      ) 詳細資訊
+      //- lah-button(
+      //-   icon="chart-simple",
+      //-   :href="grafanaUrl",
+      //-   target="_blank",
+      //-   no-border,
+      //-   title="開啟新視窗顯示詳細DB儀表板"
+      //- ) 詳細資訊
       lah-button(
         v-if="!footer"
         icon="sync-alt",
