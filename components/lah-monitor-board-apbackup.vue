@@ -41,6 +41,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示 AP Server 備份狀態，每天晚上9點做備份
+        li 各AP應有 cron 工作每天晚上9點去執行 /BACKUP/APBackup.sh 並送出電子郵件通知，如需更改郵件收送的清單請編輯 DR.conf 檔案
         li 每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
@@ -74,8 +75,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 
 export default {
   name: 'LahMonitorBoardApbackup',
