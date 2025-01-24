@@ -42,7 +42,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
       ul
         li 顯示 AP Server 備份狀態，每天晚上9點做備份
         li 各AP應有 cron 工作每天晚上9點去執行 /BACKUP/APBackup.sh 並送出電子郵件通知，如需更改郵件收送的清單請編輯 DR.conf 檔案
-        li 每15分鐘重新檢查一次
+        li 如需重新執行備份請以 root 登入該 AP 執行 /BACKUP/APBackup.sh 將資料備份到 DDVE (220.1.3X.81)
+        li 儀表板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
