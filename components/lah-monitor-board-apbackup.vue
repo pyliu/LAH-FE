@@ -92,7 +92,7 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'AP Server',
     fetchDay: 1,
-    regex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm,
+    regex: /.+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm,
     // AP Server (apha14) files backup failure!!
     failRegex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(failure)!!/gm,
     expectAPs: 8
