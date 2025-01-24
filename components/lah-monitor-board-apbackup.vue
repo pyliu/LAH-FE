@@ -1,6 +1,6 @@
 <template lang="pug">
 b-card(:border-variant="border", :class="[attentionCss]")
-  template(#header): .d-flex.justify-content-between
+  template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
     .d-flex.ml-auto.align-items-center(v-b-tooltip="`今日回報數量 👉 ${headMessages.length}`")
