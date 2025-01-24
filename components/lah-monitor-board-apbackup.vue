@@ -3,12 +3,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
     strong {{ header }}
-    .d-flex.ml-auto
+    .d-flex.ml-auto.align-items-center(v-b-tooltip="`今日回報數量 👉 ${headMessages.length}`")
       small.my-auto.mr-1(
-        v-b-tooltip="`目前${headMessages.length}`"
         :class="missingMail ? ['p-1', 'bg-warning', 'rounded'] : []"
-      ) {{ `${missingMail ? '⚠' : ''} 預期回報AP個數` }}
-      b-input(v-model="expectAPs", type="number", min="1", size="sm", style="max-width:50px")
+      ) {{ `${missingMail ? '⚠' : '🟢'} 已收到` }}
+      span {{ headMessages.length }}
+      .mx-1 /
+      b-input(v-model="expectAPs", type="number", min="1", size="sm", style="max-width:50px", title="預期收到回報的AP數量")
       b-button-group(size="sm")
         lah-button(
           v-if="!footer"
