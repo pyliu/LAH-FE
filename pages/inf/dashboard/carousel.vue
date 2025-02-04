@@ -14,7 +14,7 @@ div(v-cloak)
       lah-button(
         icon="angles-left",
         variant="outline-secondary",
-        to="/inf/dashboard",
+        :to="isHA ? '/inf/dashboard/HA' : '/inf/dashboard/HX'",
         regular,
         no-border,
         no-icon-gutter,

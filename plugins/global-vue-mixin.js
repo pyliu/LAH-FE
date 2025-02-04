@@ -75,6 +75,9 @@ Vue.mixin({
       }
       return 'HA'
     },
+    isHA () {
+      return this.site === 'HA'
+    },
     myinfo () { return isEmpty(this.user) ? { id: '', name: '' } : this.user },
     myid () { return this.user.id },
     myname () { return this.user.name },

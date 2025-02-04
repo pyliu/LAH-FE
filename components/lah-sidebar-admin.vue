@@ -47,9 +47,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/mgt").
         #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
         地政系統管理面板
-      li: nuxt-link(to="/inf/dashboard").
+      li: nuxt-link(:to="isHA ? '/inf/dashboard/HA' : '/inf/dashboard/HX'").
         #[font-awesome-icon(:icon="['fas', 'desktop']", fixed-width, size="lg")]
-        {{site}} 監控儀表板
+        {{site}} 智慧監控儀表板
       //- li: nuxt-link(to="/inf/dashboard/carousel").
       //-   #[font-awesome-icon(:icon="['fas', 'arrows-spin']", fixed-width, size="lg")]
       //-   {{site}} 輪播儀表板
@@ -113,8 +113,8 @@ b-sidebar#lah-sidebar(
 </template>
 
 <script>
-import lahAvatar from '~/components/lah-avatar.vue'
-import LahUserCard from '~/components/lah-user-card.vue'
+import lahAvatar from '~/components/lah-avatar.vue';
+import LahUserCard from '~/components/lah-user-card.vue';
 export default {
   components: { lahAvatar, LahUserCard },
   fetchOnServer: false,

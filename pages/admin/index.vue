@@ -15,7 +15,7 @@ div(v-cloak)
       lah-index-card-link(:icon="['fas', 'people-roof']" to="/admin/users" no-body size="5x" icon-variant="primary" action="rubber-h") 使用者資訊管理
       lah-index-card-link(:icon="['fas', 'network-wired']" icon-variant="dark" no-body size="5x" to="/admin/ip" action="jelly") IP對應名稱設定管理
     b-card-group.row(deck)
-      lah-index-card-link(:icon="['fas', 'traffic-light']" to="/inf/dashboard" no-body size="5x" icon-variant="danger" action="breath") {{ site }} 智慧監控儀表板
+      lah-index-card-link(:icon="['fas', 'traffic-light']" :to="isHA ? '/inf/dashboard/HA' : '/inf/dashboard/HX'" no-body size="5x" icon-variant="danger" action="breath") {{ site }} 智慧監控儀表板
       lah-index-card-link(:icon="['fas', 'database']" to="/inf/lxhweb" no-body size="5x" icon-variant="info" action="flip-h") 同步異動監控
       lah-index-card-link(:icon="['fas', 'server']" to="/inf/xap" no-body size="5x" icon-variant="warning" action="bounceAlt") 跨縣市AP監控
     b-card-group.row(deck)
