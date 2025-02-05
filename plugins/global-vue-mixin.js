@@ -75,6 +75,9 @@ Vue.mixin({
       }
       return 'HA'
     },
+    siteName () {
+      return this.$consts.siteMap.get(this.site).name || '未知所別'
+    },
     isHA () {
       return this.site === 'HA'
     },

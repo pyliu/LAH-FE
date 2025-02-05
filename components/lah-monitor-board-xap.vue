@@ -117,17 +117,6 @@ export default {
       { x: '龜山所', y: 0, color: { R: 136, G: 72, B: 152 } },
       { x: '地政局', y: 0, color: { R: 207, G: 207, B: 207 } }
     ],
-    crossApMap: new Map([
-      ['220.1.33.71', { name: '地政局', code: 'H0', ip: '220.1.33.71' }],
-      ['220.1.34.161', { name: '桃園所', code: 'HA', ip: '220.1.34.161' }],
-      ['220.1.35.123', { name: '中壢所', code: 'HB', ip: '220.1.35.123' }],
-      ['220.1.36.45', { name: '大溪所', code: 'HC', ip: '220.1.36.45' }],
-      ['220.1.37.246', { name: '楊梅所', code: 'HD', ip: '220.1.37.246' }],
-      ['220.1.38.30', { name: '蘆竹所', code: 'HE', ip: '220.1.38.30' }],
-      ['220.1.39.57', { name: '八德所', code: 'HF', ip: '220.1.39.57' }],
-      ['220.1.40.33', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
-      ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
-    ]),
     apJndiXaLocalThreshold: 990,
     apJndiLocalThreshold: 2500
   }),
@@ -136,7 +125,7 @@ export default {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/send_netstats.sh`
     },
     crossAPIp () {
-      const found = [...this.crossApMap].find(arr => arr[1].code === this.site)
+      const found = [...this.$consts.siteMap].find(arr => arr[1].code === this.site)
       return found[0]
     },
     apTotal () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
@@ -253,7 +242,7 @@ export default {
         point: {element: BarElement, datasetIndex: 0, index: 5}
         value: 34
       */
-      const found = [...this.crossApMap].find(arr => arr[1].name === detail.label)
+      const found = [...this.$consts.siteMap].find(arr => arr[1].name === detail.label)
       this.modal(this.$createElement('LahMonitorBoardXapTrend', {
         props: {
           maximized: true,
@@ -309,12 +298,12 @@ export default {
               */
               item.name.includes('資料庫') && (this.dbTotal = item.count)
               item.name.includes('JBOSS_CPU_USAGE') && (this.jbossCpuUtilization = item.count)
-              const text = this.crossApMap.get(item.est_ip)?.name
+              const text = this.$consts.ipMap.get(item.est_ip)?.name
               const currentValue = tmp.get(text)
               if (currentValue !== undefined) {
                 tmp.set(text, item.count + currentValue)
               } else {
-                // this.$utils.warn('item.est_ip 不在 crossApMap 內無法新增至 loadItems 裡', item)
+                // this.$utils.warn('item.est_ip 不在 $consts.ipMap 內無法新增至 loadItems 裡', item)
               }
             })
             this.loadItems = [...tmp]

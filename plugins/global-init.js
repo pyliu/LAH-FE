@@ -164,6 +164,17 @@ export default ({ $axios, store, $config }, inject) => {
       ['220.1.39.57', { name: '八德所', code: 'HF', ip: '220.1.39.57' }],
       ['220.1.40.33', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
       ['220.1.41.20', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
+    ]),
+    siteMap: new Map([
+      ['H0', { name: '地政局', code: 'H0', ip: '220.1.33.71' }],
+      ['HA', { name: '桃園所', code: 'HA', ip: '220.1.34.161' }],
+      ['HB', { name: '中壢所', code: 'HB', ip: '220.1.35.123' }],
+      ['HC', { name: '大溪所', code: 'HC', ip: '220.1.36.45' }],
+      ['HD', { name: '楊梅所', code: 'HD', ip: '220.1.37.246' }],
+      ['HE', { name: '蘆竹所', code: 'HE', ip: '220.1.38.30' }],
+      ['HF', { name: '八德所', code: 'HF', ip: '220.1.39.57' }],
+      ['HG', { name: '平鎮所', code: 'HG', ip: '220.1.40.33' }],
+      ['HH', { name: '龜山所', code: 'HH', ip: '220.1.41.20' }]
     ])
   }
   // like old fashion global functions, use this.$utils to access these methods in Vue

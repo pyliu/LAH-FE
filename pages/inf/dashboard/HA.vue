@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
         .d-flex.align-items-center
-          .my-auto 桃園所智慧監控儀表板
+          .my-auto 桃園所監控儀表板
           lah-button(
             v-b-modal.help-modal,
             icon="info",
