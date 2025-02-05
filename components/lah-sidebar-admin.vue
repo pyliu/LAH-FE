@@ -47,7 +47,7 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/mgt").
         #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
         地政系統管理面板
-      li: nuxt-link(:to="isHA ? '/inf/dashboard/HA' : '/inf/dashboard/HX'").
+      li: nuxt-link(:to="isDevOffice ? '/inf/dashboard/HA' : '/inf/dashboard/HX'").
         #[font-awesome-icon(:icon="['fas', 'desktop']", fixed-width, size="lg")]
         {{site}} 智慧監控儀表板
       //- li: nuxt-link(to="/inf/dashboard/carousel").

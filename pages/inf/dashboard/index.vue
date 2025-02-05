@@ -49,7 +49,7 @@ div(v-cloak)
     section.b-card-container.center
       b-card-group(deck)
         lah-index-card-link.fix-card-dimension(:icon="['fab', 'watchman-monitoring']" to="/inf/dashboard/HA") 桃園所
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'tv']" to="/inf/dashboard/HX") {{ isHA ? '其他所' : siteName }}
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'tv']" to="/inf/dashboard/HX") {{ isDevOffice ? '其他所' : siteName }}
 
 </template>
 

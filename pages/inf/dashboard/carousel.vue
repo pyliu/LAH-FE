@@ -14,7 +14,7 @@ div(v-cloak)
       lah-button(
         icon="angles-left",
         variant="outline-secondary",
-        :to="isHA ? '/inf/dashboard/HA' : '/inf/dashboard/HX'",
+        :to="isDevOffice ? '/inf/dashboard/HA' : '/inf/dashboard/HX'",
         regular,
         no-border,
         no-icon-gutter,
@@ -80,7 +80,7 @@ div(v-cloak)
       lah-monitor-board-site-tw.card-body-fixed-height-3(@light-update="lightUpdate")
 
   //- b-carousel(
-  //-   v-if="isHA",
+  //-   v-if="isDevOffice",
   //-   ref="boards",
   //-   :interval="0"
   //- )
@@ -105,7 +105,7 @@ div(v-cloak)
         //- lah-monitor-board-adsync(@light-update="lightUpdate")
         //- lah-monitor-board-ups(@light-update="lightUpdate")
 
-  lah-transition(v-if="isHA"): div(v-show="haSwitch")
+  lah-transition(v-if="isDevOffice"): div(v-show="haSwitch")
     b-card-group.mb-4(deck)
       lah-monitor-board-dataguard.card-body-fixed-height-3(@light-update="lightUpdate")
       lah-monitor-board-hacmp.card-body-fixed-height-3(@light-update="lightUpdate")
@@ -114,7 +114,7 @@ div(v-cloak)
       lah-monitor-board-L05.card-body-fixed-height-3(@light-update="lightUpdate")
       lah-monitor-board-srmas.card-body-fixed-height-3(@light-update="lightUpdate")
       lah-monitor-board-dbbackup.card-body-fixed-height-3(@light-update="lightUpdate")
-  lah-transition(v-if="isHA"): div(v-show="!haSwitch")
+  lah-transition(v-if="isDevOffice"): div(v-show="!haSwitch")
     b-card-group.mb-4(deck)
       lah-monitor-board-vmclone.card-body-fixed-height-3(@light-update="lightUpdate")
       lah-monitor-board-tape.card-body-fixed-height-3(@light-update="lightUpdate")
@@ -124,7 +124,7 @@ div(v-cloak)
       lah-monitor-board-apconn.card-body-fixed-height-3(@light-update="lightUpdate")
       lah-monitor-board-testdb.card-body-fixed-height-3(@light-update="lightUpdate")
 
-  div(v-if="!isHA")
+  div(v-if="!isDevOffice")
       b-card-group.mb-4(deck)
         lah-monitor-board-dataguard.card-body-fixed-height-3(@light-update="lightUpdate")
         lah-monitor-board-hacmp.card-body-fixed-height-3(@light-update="lightUpdate")
@@ -160,9 +160,6 @@ export default {
     },
     carouselInterval () {
       return this.secs * 1000
-    },
-    isHA () {
-      return this.site === 'HA'
     }
   },
   watch: {

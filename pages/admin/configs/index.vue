@@ -493,7 +493,7 @@
           </b-input-group>
         </b-card>
         <b-card
-          v-if="isHA"
+          v-if="isDevOffice"
           v-cloak
           header-bg-variant="primary"
           header-text-variant="white"
@@ -896,7 +896,7 @@
 </template>
 
 <script>
-import lahTransition from '~/components/lah-transition.vue'
+import lahTransition from '~/components/lah-transition.vue';
 export default {
   components: { lahTransition },
   middleware: ['isAdmin'],
@@ -936,8 +936,7 @@ export default {
     isMockModeEnabled () {
       return this.loadedConfigs.ENABLE_MOCK_MODE === true || this.loadedConfigs.ENABLE_MOCK_MODE === 'true'
     },
-    isHB () { return this.site === 'HB' },
-    isHA () { return this.site === 'HA' }
+    isHB () { return this.site === 'HB' }
   },
   watch: {
     masterPassword (val) {

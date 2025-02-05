@@ -78,7 +78,7 @@ Vue.mixin({
     siteName () {
       return this.$consts.siteMap.get(this.site)?.name || '未知所別'
     },
-    isHA () {
+    isDevOffice () {
       return this.site === 'HA'
     },
     myinfo () { return isEmpty(this.user) ? { id: '', name: '' } : this.user },

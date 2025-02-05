@@ -251,9 +251,6 @@ export default {
         return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}:993/imap/ssl/novalidate-cert}INBOX`
       }
       return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
-    },
-    isHA () {
-      return this.site === 'HA'
     }
   },
   watch: {
