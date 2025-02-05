@@ -125,7 +125,7 @@ export default {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/send_netstats.sh`
     },
     crossAPIp () {
-      const found = [...this.$consts.siteMap].find(arr => arr[1].code === this.site)
+      const found = [...this.$consts.ipMap].find(arr => arr[1].code === this.site)
       return found[0]
     },
     apTotal () { return this.loadItems.reduce((acc, item) => acc + item[1], 0) },
@@ -242,7 +242,7 @@ export default {
         point: {element: BarElement, datasetIndex: 0, index: 5}
         value: 34
       */
-      const found = [...this.$consts.siteMap].find(arr => arr[1].name === detail.label)
+      const found = [...this.$consts.ipMap].find(arr => arr[1].name === detail.label)
       this.modal(this.$createElement('LahMonitorBoardXapTrend', {
         props: {
           maximized: true,
