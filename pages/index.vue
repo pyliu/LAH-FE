@@ -10,7 +10,7 @@
       .h1
         .mb-5(v-if="isInf || authority.isAdmin"): nuxt-link(to="/inf"): .d-flex.align-items-center
           b-img.brand.lah-shadow(src="~/assets/img/MONITOR.jpg")
-          .lah-shadow.ml-4 資訊系統監控
+          .lah-shadow.ml-4 智慧監控系統
         .mb-5: nuxt-link(to="/reg"): .d-flex.align-items-center
           b-img.brand.lah-shadow(src="~/assets/img/REG.jpg")
           .lah-shadow.ml-4 智慧控管系統
