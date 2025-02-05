@@ -1,0 +1,219 @@
+<template lang="pug">
+b-card(:class="classNames")
+  b-card-title: .d-flex.align-items-center
+    lah-transition
+      lah-fa-icon(v-if="ready", icon="circle-check", variant="success", size="lg")
+      lah-fa-icon(v-else-if="isBusy", icon="road-barrier", variant="muted", size="lg")
+      lah-fa-icon(v-else, icon="question", variant="muted", size="lg")
+    .ml-1 初審案件統計
+    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="所有類型小計") {{ count }}
+    lah-transition: lah-button-xlsx.ml-1(
+      v-if="count > 0",
+      regular,
+      icon="file-excel",
+      size="sm",
+      :variant="'success'",
+      :jsons="xlsxJsons",
+      pill
+    )
+    lah-transition: lah-button.ml-1(
+      v-if="ready && raw.length > 0"
+      icon="window-maximize",
+      title="顯示詳細列表",
+      :disabled="isBusy",
+      pill,
+      no-icon-gutter,
+      @click="$refs.table.show()"
+    )
+    lah-button.ml-1(
+      icon="arrow-rotate-right",
+      action="spin",
+      title="重新查詢",
+      :disabled="isBusy",
+      :spin="isBusy",
+      @click="query",
+      pill,
+      no-icon-gutter
+    )
+  b-card-sub-title.text-right {{ period  }}
+  section.my-2(v-if="ready")
+    //- b-link.d-flex.justify-content-between.align-items-center.h5(@click="popupSMSLogs(notifyLogs)")
+    //-   lah-fa-icon.font-weight-bold(icon="landmark", variant="primary") 地籍異動即時通
+    //-   b-badge(pill, variant="primary") {{ notifyLogs.length }}
+    //- b-link.d-flex.justify-content-between.align-items-center.h5.my-3(@click="popupSMSLogs(caseLogs)")
+    //-   lah-fa-icon.font-weight-bold(icon="scroll", variant="success") 案件辦理情形
+    //-   b-badge(pill, variant="success") {{ caseLogs.length }}
+    //- b-link.d-flex.justify-content-between.align-items-center.h5(@click="popupSMSLogs(otherLogs)")
+    //-   lah-fa-icon.font-weight-bold(icon="envelope") 其他類型(住址隱匿/代收代寄)
+    //-   b-badge(pill, variant="dark") {{ otherLogs.length }}
+  .h4.center.my-2(v-else) ⚠ 尚無資料
+
+  b-modal(
+    ref="table",
+    size="xl",
+    title="初審案件統計",
+    hide-footer
+  )
+    lah-transition: lah-pagination(
+      v-if="raw.length > pagination.perPage"
+      v-model="pagination",
+      :total-rows="count"
+      :caption="`找到 ${count} 筆資料`",
+      @input="handlePaginationInput"
+    )
+    b-table.text-center.s-90(
+      ref="tbl",
+      striped,
+      hover,
+      responsive,
+      bordered,
+      caption-top,
+      no-border-collapse,
+      small,
+      head-variant="dark"
+      :items="raw",
+      :fields="fields",
+      :per-page="pagination.perPage",
+      :current-page="pagination.currentPage",
+      :busy="isBusy",
+      selectable
+      select-mode="single"
+      selected-variant="primary"
+    )
+        template(#table-busy)
+</template>
+
+<script>
+export default {
+  emit: ['ready'],
+  props: {
+    noBorder: { type: Boolean, default: false },
+    begin: { type: String, default: '' },
+    end: { type: String, default: '' }
+  },
+  data: () => ({
+    ready: false,
+    queryOK: false,
+    raw: [],
+    message: '',
+    /** raw data example 👉 {
+     *   easy_case_count: "4224"
+     *   initial_id: "HA020207"
+     *   initial_name: "周宏昭"
+     *   normal_case_count: "2671"
+     *   office_name: "HA"
+     * }
+     */
+    fields: [
+      { key: 'office_name', label: '日期', sortable: false },
+      { key: 'initial_id', label: '初審代碼', sortable: true },
+      { key: 'initial_name', label: '初審姓名', sortable: true },
+      { key: 'easy_case_count', label: '簡易案件', sortable: true },
+      { key: 'normal_case_count', label: '一般案件', sortable: true }
+    ],
+    pagination: {
+      perPage: 20,
+      currentPage: 1
+    }
+  }),
+  computed: {
+    period () {
+      if (this.$utils.empty(this.begin) || this.$utils.empty(this.end)) {
+        return ''
+      }
+      return `${this.$utils.addDateDivider(this.begin)} ~ ${this.$utils.addDateDivider(this.end)}`
+    },
+    classNames () {
+      const list = []
+      if (this.noBorder) {
+        list.push('border-0')
+      }
+      return list
+    },
+    count () {
+      return this.raw?.length || 0
+    },
+    xlsxJsons () {
+      const fieldKeys = this.fields.map((field, idx, array) => field.key)
+      const jsons = this.raw?.map((data, idx, array) => {
+        const obj = {}
+        for (const [key, value] of Object.entries(data)) {
+          if (fieldKeys.includes(key)) {
+            obj[this.getLabel(key)] = value
+          }
+        }
+        return obj
+      }) || []
+      return jsons
+    }
+  },
+  watch: {
+    message (dontcare) {
+      // this.debounceClearMessage()
+    },
+    begin (dontcare) {
+      this.reset()
+    },
+    end (dontcare) {
+      this.reset()
+    },
+    raw (val) {
+      this.$utils.warn(val)
+    }
+  },
+  async created () {
+    // restore setting by user
+    this.pagination.perPage = parseInt(await this.getCache('reg-initial-review-table-perPage') || 20)
+  },
+  mounted () {},
+  methods: {
+    getLabel (key) {
+      const found = this.fields.find((item, idx, array) => {
+        return this.$utils.equal(item.key, key)
+      })
+      if (found && found.label) {
+        return found.label
+      }
+      return key
+    },
+    reset () {
+      this.ready = false
+      this.queryOK = false
+      this.message = ''
+      this.raw = []
+      this.pagination.currentPage = 1
+    },
+    query () {
+      this.isBusy = true
+      this.reset()
+      this.$axios
+        .post(this.$consts.API.JSON.STATS, {
+          type: 'stats_reg_initail_review_count',
+          st: this.begin,
+          ed: this.end
+        }).then(({ data }) => {
+          const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
+          this.message = `${status} ${data.message}`
+          this.raw = [...data.raw]
+          // this.$emit('reload', {
+          //   keyword: `${this.begin} ~ ${this.end}`,
+          //   logs: this.raw
+          // })
+          this.$emit('ready', data)
+          this.ready = true
+        }).catch((err) => {
+          this.error = err
+        }).finally(() => {
+          this.isBusy = false
+        })
+    },
+    handlePaginationInput (payload) {
+      // remember user changed number
+      this.setCache('reg-initial-review-table-perPage', payload.perPage)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+</style>

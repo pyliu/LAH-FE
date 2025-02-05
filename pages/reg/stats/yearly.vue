@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex.mr-auto.align-items-center
-          div 登記案件統計資訊
+          div 登記案件年度統計資訊
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
 
         lah-datepicker(
@@ -14,16 +14,16 @@ div(v-cloak)
           size="lg",
           @input="handleDate"
         )
-        lah-button.ml-1(
-          icon="magnifying-glass",
-          size="lg",
-          title="重新搜尋",
-          :disabled="globalQuery || isBusy",
-          @click="globalQuery = true"
-          no-icon-gutter
-        )
+        //- lah-button.ml-1(
+        //-   icon="magnifying-glass",
+        //-   size="lg",
+        //-   title="重新搜尋",
+        //-   :disabled="globalQuery || isBusy",
+        //-   @click="globalQuery = true"
+        //-   no-icon-gutter
+        //- )
     lah-help-modal(:modal-id="'help-modal'" size="md")
-      h5 {{ siteName }}上個月(預設)的統計資料
+      h5 {{ siteName }}去年(預設)的統計資料
       ul
         li 第一次登記- 登記原因代碼 02
         li(v-for="(item, idx) in codes", :key="`li_${idx}`")
@@ -32,51 +32,12 @@ div(v-cloak)
           span {{ item.name }}
 
   lah-flex-item-group
-    .col-md-4(key="smsCount"): lah-stats-sms-count(
+    .col-md-4(key="smsCount"): lah-stats-reg-initial-review(
       ref="smsCount",
       :begin="dateRange.begin",
       :end="dateRange.end",
       @ready="handleReady"
     )
-    .col-md-4(key="certCount"): lah-stats-reg-cert-count(
-      ref="certCount",
-      :begin="dateRange.begin",
-      :end="dateRange.end",
-      @ready="handleReady"
-    )
-    .col-md-4(key="regFirst"): b-card.border-0.w-100(no-body)
-      lah-stats-reg-first(
-        ref="regFirst",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
-      lah-stats-reg-first-sub.mt-2(
-        ref="regFirstSub",
-        :begin="dateRange.begin",
-        :end="dateRange.end"
-        @ready="handleReady"
-      )
-    .col-md-4(
-      v-for="(item, idx) in codes",
-      :key="`code_${idx}`",
-    ): b-card.border-0.w-100(no-body)
-      lah-stats-reg-rm02(
-        :ref="`regRM02_${idx}`",
-        :rm02="item.code",
-        :rm02-name="item.name",
-        :begin="dateRange.begin",
-        :end="dateRange.end",
-        @ready="handleReady"
-      )
-      lah-stats-reg-rm02-sub.mt-2(
-        :ref="`regRM02Sub_${idx}`",
-        :rm02="item.code",
-        :rm02-name="item.name",
-        :begin="dateRange.begin",
-        :end="dateRange.end",
-        @ready="handleReady"
-      )
 </template>
 
 <script>
@@ -86,8 +47,8 @@ export default {
     const siteCodeMap = await $content('statsSiteCode').fetch()
     const today = new Date()
     return {
-      initBegin: new Date(today.getFullYear(), today.getMonth() - 1, 1),
-      initEnd: new Date(today.getFullYear(), today.getMonth(), 0),
+      initBegin: new Date(today.getFullYear() - 1, 0, 1),
+      initEnd: new Date(today.getFullYear() - 1, 11, 31),
       siteCodeMap
     }
   },
