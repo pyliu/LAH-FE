@@ -54,7 +54,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
   section(v-if="lastChunk")
     .d-flex.justify-content-between(title="最新系統掃描時間")
-      strong 最近掃描時間
+      strong 異動排程掃描時間
       strong 開始：{{ lastChunk.startTime }}
       strong 結束{{ lastChunk.endTime }}
     hr
@@ -93,8 +93,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
 export default {
   name: 'LahMonitorBoardSmsNotify',
   emit: ['light-update'],
