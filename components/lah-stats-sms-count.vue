@@ -48,7 +48,7 @@ b-card(
     b-link.d-flex.justify-content-between.align-items-center.h5(@click="popupSMSLogs(otherLogs)")
       lah-fa-icon.font-weight-bold(icon="envelope") 其他類型(住址隱匿/代收代寄)
       b-badge(pill, variant="dark") {{ otherLogs.length }}
-  .h4.center(v-else) ⚠ 尚未準備好資料
+  .h4.center(v-else) ⚠ 請設定區間後查詢
 
   b-modal(
     ref="table",
@@ -60,7 +60,7 @@ b-card(
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
 export default {
   emit: ['ready'],
   component: { lahAdmSmslogTableVue },

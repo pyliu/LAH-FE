@@ -14,14 +14,14 @@ div(v-cloak)
           size="lg",
           @input="handleDate"
         )
-        lah-button.ml-1(
-          icon="magnifying-glass",
-          size="lg",
-          title="重新搜尋",
-          :disabled="globalQuery || isBusy",
-          @click="globalQuery = true"
-          no-icon-gutter
-        )
+        //- lah-button.ml-1(
+        //-   icon="magnifying-glass",
+        //-   size="lg",
+        //-   title="重新搜尋",
+        //-   :disabled="globalQuery || isBusy",
+        //-   @click="globalQuery = true"
+        //-   no-icon-gutter
+        //- )
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 {{ siteName }}上個月(預設)的統計資料
       ul
