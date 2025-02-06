@@ -29,7 +29,6 @@ b-card(:class="classNames")
       icon="magnifying-glass",
       title="重新查詢",
       :disabled="isBusy",
-      :spin="isBusy",
       @click="query",
       pill,
       no-icon-gutter
