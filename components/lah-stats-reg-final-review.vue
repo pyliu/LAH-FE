@@ -5,7 +5,7 @@ b-card(:class="classNames")
       lah-fa-icon(v-if="ready", icon="circle-check", variant="success", size="lg")
       lah-fa-icon(v-else-if="isBusy", icon="spinner", variant="muted", size="lg", action="spin")
       lah-fa-icon(v-else, icon="question", variant="muted", size="lg")
-    .ml-1 初審案件統計
+    .ml-1 複審案件統計
     lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="小計") {{ count }}
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
@@ -41,12 +41,12 @@ b-card(:class="classNames")
     div(v-else)
       b-link.d-flex.justify-content-between.align-items-center.h5(
         v-for="(item, idx) in raw",
-        :key="`initial_${idx}`",
+        :key="`final_${idx}`",
         v-if="idx < 3",
         @click="popup(item)"
       )
-        .font-weight-bold {{ idx + 1 }}. {{ item.initial_name }}
-        b-badge(pill, :variant="idx === 0 ? 'primary' : idx === 1 ? 'info' : 'secondary'") {{ item.total_case_count }}
+        .font-weight-bold {{ idx + 1 }}. {{ item.final_name }}
+        b-badge(pill, :variant="idx === 0 ? 'primary' : idx === 1 ? 'info' : 'secondary'") {{ item.case_count }}
       .d-flex.justify-content-end: b-link.small.font-weight-bold(
         v-if="raw.length > 3",
         @click="$refs.table.show()",
@@ -57,8 +57,7 @@ b-card(:class="classNames")
 
   b-modal(
     ref="table",
-    size="lg",
-    title="初審案件統計",
+    title="複審案件統計",
     hide-footer
   )
     lah-transition: lah-pagination(
@@ -103,22 +102,11 @@ export default {
     queryOK: false,
     raw: [],
     message: '',
-    /** raw data example 👉 {
-     *   easy_case_count: "4224"
-     *   initial_id: "HA020207"
-     *   initial_name: "周宏昭"
-     *   normal_case_count: "2671"
-     *   total_case_count: "6895"
-     *   office_name: "HA"
-     * }
-     */
     fields: [
       { key: 'office_name', label: '所別', sortable: false },
-      { key: 'initial_id', label: '初審代碼', sortable: true },
-      { key: 'initial_name', label: '初審姓名', sortable: true },
-      { key: 'easy_case_count', label: '簡易案件', sortable: true },
-      { key: 'normal_case_count', label: '一般案件', sortable: true },
-      { key: 'total_case_count', label: '案件量合計', sortable: true }
+      { key: 'final_id', label: '複審代碼', sortable: true },
+      { key: 'final_name', label: '複審姓名', sortable: true },
+      { key: 'case_count', label: '案件量', sortable: true }
     ],
     pagination: {
       perPage: 20,
@@ -197,7 +185,7 @@ export default {
       this.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
-          type: 'stats_reg_initail_review_count',
+          type: 'stats_reg_final_review_count',
           st: this.begin,
           ed: this.end
         }).then(({ data }) => {
@@ -218,7 +206,7 @@ export default {
     },
     handlePaginationInput (payload) {
       // remember user changed number
-      this.setCache('reg-initial-review-table-perPage', payload.perPage)
+      this.setCache('reg-final-review-table-perPage', payload.perPage)
     },
     popup (item) {}
   }

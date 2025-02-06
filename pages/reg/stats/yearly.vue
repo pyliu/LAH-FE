@@ -24,16 +24,28 @@ div(v-cloak)
         //- )
     lah-help-modal(:modal-id="'help-modal'" size="md")
       h5 {{ siteName }}去年(預設)的統計資料
-      ul
-        li 第一次登記- 登記原因代碼 02
-        li(v-for="(item, idx) in codes", :key="`li_${idx}`")
-          span {{ item.code }}
-          span -
-          span {{ item.name }}
+      //- ul
+      //-   li 第一次登記- 登記原因代碼 02
+      //-   li(v-for="(item, idx) in codes", :key="`li_${idx}`")
+      //-     span {{ item.code }}
+      //-     span -
+      //-     span {{ item.name }}
 
   lah-flex-item-group
-    .col-md-4(key="smsCount"): lah-stats-reg-initial-review(
-      ref="smsCount",
+    .col-md-4(key="reg-initial"): lah-stats-reg-initial-review(
+      ref="regInitial",
+      :begin="dateRange.begin",
+      :end="dateRange.end",
+      @ready="handleReady"
+    )
+    .col-md-4(key="reg-final"): lah-stats-reg-final-review(
+      ref="regFinal",
+      :begin="dateRange.begin",
+      :end="dateRange.end",
+      @ready="handleReady"
+    )
+    .col-md-4(key="reg-chief"): lah-stats-reg-chief-review(
+      ref="regChief",
       :begin="dateRange.begin",
       :end="dateRange.end",
       @ready="handleReady"
@@ -63,7 +75,7 @@ export default {
     regFirstCount: NaN
   }),
   head: {
-    title: '登記案件月統計資訊-桃園市地政局'
+    title: '登記案件年度統計資訊-桃園市地政局'
   },
   computed: {
     period () {
