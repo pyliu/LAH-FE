@@ -160,9 +160,6 @@ export default {
     },
     end (dontcare) {
       this.reset()
-    },
-    raw (val) {
-      this.$utils.warn(val)
     }
   },
   async created () {
