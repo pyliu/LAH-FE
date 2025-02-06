@@ -85,7 +85,15 @@ b-card(:class="classNames")
       select-mode="single"
       selected-variant="primary"
     )
-        template(#table-busy)
+      template(#table-busy)
+      template(#cell(序號)="data")
+        template(v-if="data.rowSelected")
+          span(aria-hidden="true") &check;
+          span(class="sr-only") Selected
+        template(v-else)
+          span(aria-hidden="true") &nbsp;
+          span(class="sr-only") Not selected
+        span {{ (pagination.perPage * (pagination.currentPage - 1)) + data.index + 1 }}
 </template>
 
 <script>
@@ -102,6 +110,7 @@ export default {
     raw: [],
     message: '',
     fields: [
+      '序號',
       { key: 'office_name', label: '所別', sortable: false },
       { key: 'chief_id', label: '課長代碼', sortable: true },
       { key: 'chief_name', label: '課長姓名', sortable: true },
