@@ -219,7 +219,7 @@
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue'
+import lahUserCard from '~/components/lah-user-card.vue';
 export default {
   name: 'LahRegBTable',
   // eslint-disable-next-line vue/no-unused-components
@@ -536,22 +536,22 @@ export default {
     trClass (item, type) {
       if (item && type === 'row') { return this.color ? item['紅綠燈背景CSS'] : `filter-${item['燈號']}` }
     },
-    passedTime (item, time_duration_secs) {
-      if (isNaN(time_duration_secs) || this.$utils.empty(time_duration_secs)) { return false }
-      if (time_duration_secs == '0' && this.$utils.empty(item['結案代碼'])) {
+    passedTime (item, timeDurationSecs) {
+      if (isNaN(timeDurationSecs) || this.$utils.empty(timeDurationSecs)) { return false }
+      if (timeDurationSecs === '0' && this.$utils.empty(item['結案代碼'])) {
         return '<i class="fa fa-tools ld ld-clock"></i> 作業中'
       }
-      if (time_duration_secs < 60) { return '耗時 ' + time_duration_secs + ' 秒' }
-      if (time_duration_secs < 3600) {
+      if (timeDurationSecs < 60) { return '耗時 ' + timeDurationSecs + ' 秒' }
+      if (timeDurationSecs < 3600) {
         return (
           '耗時 ' +
-          Number.parseFloat(time_duration_secs / 60).toFixed(2) +
+          Number.parseFloat(timeDurationSecs / 60).toFixed(2) +
           ' 分鐘'
         )
       }
       return (
         '耗時 ' +
-        Number.parseFloat(time_duration_secs / 60 / 60).toFixed(2) +
+        Number.parseFloat(timeDurationSecs / 60 / 60).toFixed(2) +
         ' 小時'
       )
     },
