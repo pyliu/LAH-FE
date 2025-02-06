@@ -35,7 +35,7 @@ b-card(:class="classNames")
     )
   b-card-sub-title.text-right {{ period  }}
   section.my-2(v-if="ready")
-    .h4.center.my-2(v-if="raw.length === 0") 查無資料
+    .h4.center.my-2(v-if="count === 0") 查無資料
     div(v-else)
       b-link.d-flex.justify-content-between.align-items-center.h5(
         v-for="(item, idx) in raw",
@@ -60,7 +60,7 @@ b-card(:class="classNames")
     hide-footer
   )
     lah-transition: lah-pagination(
-      v-if="raw.length > pagination.perPage"
+      v-if="count > pagination.perPage"
       v-model="pagination",
       :total-rows="count"
       :caption="`找到 ${count} 筆資料`",
@@ -97,8 +97,11 @@ b-card(:class="classNames")
 </template>
 
 <script>
+import LahRegInitialReviewTable from './lah-reg-initial-review-table.vue';
+
 export default {
   emit: ['ready'],
+  components: { LahRegInitialReviewTable },
   props: {
     noBorder: { type: Boolean, default: false },
     begin: { type: String, default: '' },
@@ -224,7 +227,24 @@ export default {
       // remember user changed number
       this.setCache('reg-initial-review-table-perPage', payload.perPage)
     },
-    popup (item) {}
+    popup (item) {
+      this.modal(this.$createElement(LahRegInitialReviewTable, {
+        props: {
+          userId: item.initial_id,
+          begin: this.begin,
+          end: this.end,
+          tableSize: 'md'
+        },
+        on: {
+          'not-found': () => {
+            this.hideModal()
+          }
+        }
+      }), {
+        title: `初審 ${item.initial_id} ${item.initial_name} 案件詳情 ${this.begin} ~ ${this.end}`,
+        size: 'xl'
+      })
+    }
   }
 }
 </script>

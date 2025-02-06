@@ -17,7 +17,7 @@ b-card(:class="classNames")
       pill
     )
     lah-transition: lah-button.ml-1(
-      v-if="ready && raw.length > 0"
+      v-if="ready && count > 0"
       icon="window-maximize",
       title="顯示詳細列表",
       :disabled="isBusy",
@@ -35,7 +35,7 @@ b-card(:class="classNames")
     )
   b-card-sub-title.text-right {{ period  }}
   section.my-2(v-if="ready")
-    .h4.center.my-2(v-if="raw.length === 0") 查無資料
+    .h4.center.my-2(v-if="count === 0") 查無資料
     div(v-else)
       b-link.d-flex.justify-content-between.align-items-center.h5(
         v-for="(item, idx) in raw",
@@ -46,7 +46,7 @@ b-card(:class="classNames")
         .font-weight-bold {{ idx + 1 }}. {{ item.final_name }}
         b-badge(pill, :variant="idx === 0 ? 'primary' : idx === 1 ? 'info' : 'secondary'") {{ item.case_count }}
       .d-flex.justify-content-end: b-link.small.font-weight-bold(
-        v-if="raw.length > 3",
+        v-if="count > 3",
         @click="$refs.table.show()",
         title="查看所有資料"
       )
@@ -59,7 +59,7 @@ b-card(:class="classNames")
     hide-footer
   )
     lah-transition: lah-pagination(
-      v-if="raw.length > pagination.perPage"
+      v-if="count > pagination.perPage"
       v-model="pagination",
       :total-rows="count"
       :caption="`找到 ${count} 筆資料`",
