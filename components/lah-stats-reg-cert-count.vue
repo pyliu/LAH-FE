@@ -5,7 +5,7 @@ b-card(
   b-card-title: .d-flex.align-items-center
     lah-transition
       lah-fa-icon(v-if="ready", icon="circle-check", variant="success", size="lg")
-      lah-fa-icon(v-else-if="isBusy", icon="road-barrier", variant="muted", size="lg")
+      lah-fa-icon(v-else-if="isBusy", icon="spinner", variant="muted", size="lg", action="spin")
       lah-fa-icon(v-else, icon="xmark", variant="muted", size="lg")
     .ml-1 {{ period  }} 謄本核發案件統計
     lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="本所+工作站") {{ count }}
@@ -28,8 +28,7 @@ b-card(
       @click="displayCaseModal('all')"
     )
     lah-button.ml-1(
-      icon="arrow-rotate-right",
-      action="spin",
+      icon="magnifying-glass",
       title="重新查詢",
       :disabled="isBusy",
       :spin="isBusy",

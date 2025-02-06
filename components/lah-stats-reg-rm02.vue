@@ -28,8 +28,7 @@ b-card(
       @click="$refs.table.show()"
     )
     lah-button.ml-1(
-      icon="arrow-rotate-right",
-      action="spin",
+      icon="magnifying-glass",
       title="重新查詢",
       :variant="queryBtnVar",
       :disabled="isBusy",
