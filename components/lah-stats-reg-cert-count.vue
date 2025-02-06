@@ -66,6 +66,7 @@ b-card(
         no-outer-focus
       )
     .text-right: lah-message.text-info(:message="message")
+  .h4.center.my-2(v-else) ⚠ 請設定區間後查詢
   b-modal(
     ref="table",
     size="lg",
