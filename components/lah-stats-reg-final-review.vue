@@ -74,15 +74,16 @@ b-card(:class="classNames")
       caption-top,
       no-border-collapse,
       small,
-      head-variant="dark"
+      head-variant="dark",
       :items="raw",
       :fields="fields",
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
       :busy="isBusy",
-      selectable
-      select-mode="single"
-      selected-variant="primary"
+      selectable,
+      select-mode="single",
+      selected-variant="primary",
+      @row-selected="handleRowSelected"
     )
       template(#table-busy)
       template(#cell(序號)="data")
@@ -96,8 +97,11 @@ b-card(:class="classNames")
 </template>
 
 <script>
+import LahRegFinalReviewTable from './lah-reg-final-review-table.vue';
+
 export default {
   emit: ['ready'],
+  components: { LahRegFinalReviewTable },
   props: {
     noBorder: { type: Boolean, default: false },
     begin: { type: String, default: '' },
@@ -212,7 +216,30 @@ export default {
       // remember user changed number
       this.setCache('reg-final-review-table-perPage', payload.perPage)
     },
-    popup (item) {}
+    popup (item) {
+      this.modal(this.$createElement(LahRegFinalReviewTable, {
+        props: {
+          userId: item.final_id,
+          begin: this.begin,
+          end: this.end,
+          tableSize: 'md'
+        },
+        on: {
+          'not-found': () => {
+            this.hideModal()
+          }
+        }
+      }), {
+        title: `複審 ${item.final_id} ${item.final_name} 案件詳情 ${this.begin} ~ ${this.end}`,
+        size: 'xl'
+      })
+    },
+    handleRowSelected (payload) {
+      if (payload?.length > 0) {
+        // this.$utils.warn('row selected', payload)
+        this.popup(payload[0])
+      }
+    }
   }
 }
 </script>
