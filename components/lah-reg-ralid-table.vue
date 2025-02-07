@@ -8,6 +8,9 @@ client-only
     responsive="sm",
     head-variant="dark",
     primary-key="段代碼",
+    select-mode="single",
+    selected-variant="success",
+    selectable,
     striped,
     hover,
     bordered,
@@ -71,9 +74,7 @@ export default {
       return this.rows
     }
   },
-  watch: {
-    rows (val) { this.$utils.warn(val) }
-  },
+  watch: {},
   created () {},
   mounted () { this.query() },
   methods: {
