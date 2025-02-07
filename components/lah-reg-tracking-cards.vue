@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
 export default {
   emit: [],
   component: { lahRegCaseDetailVue },
@@ -131,7 +131,7 @@ export default {
 .cards {
   .card {
     border-width: 3px;
-    width: 23vw;
+    width: 22.5vw;
     // margin-bottom: 1.25rem;
     // margin-right: 1.25rem;
     margin: .75rem;
