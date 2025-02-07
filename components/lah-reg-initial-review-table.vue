@@ -1,31 +1,18 @@
 <template lang="pug">
 div
   .d-flex.justify-content-between
-    span {{ modeText }}
-    b-link(@click="reload") 重新讀取
-  lah-transition: lah-pagination(
-    v-if="count > pagination.perPage"
-    v-model="pagination",
-    :total-rows="count"
-    :caption="`找到 ${count} 筆資料`"
-  )
+    span 👉 {{ modeText }}
+    b-link.text-light(@click="reload", title="非必要勿使用") 重新讀取
   lah-reg-b-table(
     ref="tbl",
     :baked-data="filtered",
     :busy="isBusy",
-    :max-height-offset="135"
-    :per-page="pagination.perPage",
-    :current-page="pagination.currentPage",
+    :max-height-offset="135",
     :type="tableSize",
+    @count-changed="handlePaginationCount"
+    enable-keyword-filter
     no-caption
   )
-    //- template(v-slot:cell(段代碼)="{ item }")
-    //-   span(v-html="highlight(item.段代碼)")
-    //- template(v-slot:cell(段名稱)="{ item }")
-    //-   span(v-html="highlight(item.段名稱)")
-    //- template(v-slot:cell(面積)="{ item }")
-    //-   span(v-b-tooltip.d400="area(item.面積)") {{ areaM2(item.面積) }}
-    //- template(v-slot:cell(土地標示部筆數)="{ item }") {{ format(item.土地標示部筆數) }} 筆
 </template>
 
 <script>
@@ -40,11 +27,8 @@ export default {
     mode: { type: String, default: 'all' }
   },
   data: () => ({
-    rows: [],
-    pagination: {
-      perPage: 15,
-      currentPage: 1
-    }
+    keyword: '',
+    rows: []
   }),
   computed: {
     modeText () {
@@ -66,9 +50,7 @@ export default {
       return this.rows
     }
   },
-  watch: {
-    // rows (val) { this.$utils.warn(val) }
-  },
+  watch: {},
   created () {},
   mounted () { this.query() },
   methods: {
@@ -99,16 +81,8 @@ export default {
         this.isBusy = false
       })
     },
-    highlight (text) {
-      return this.$utils.highlight(
-        text,
-        this.keyword,
-        'highlight-yellow'
-      )
-    },
     reset () {
       this.rows = []
-      this.pagination.currentPage = 1
     }
   }
 }

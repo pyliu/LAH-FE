@@ -1,5 +1,16 @@
 <template>
   <div>
+    <div v-if="enableKeywordFilter" class="d-flex align-items-center justify-content-end">
+      <b-input v-model="keyword" size="sm" class="col-2" placeholder="... 輸入關鍵字篩選案件 ..." />
+    </div>
+    <lah-transition>
+      <lah-pagination
+        v-if="count > pagination.perPage"
+        v-model="pagination"
+        :total-rows="pagination.count"
+        :caption="`找到 ${pagination.count} 筆資料`"
+      />
+    </lah-transition>
     <b-table
       ref="bTable"
       :items="filtered"
@@ -7,13 +18,12 @@
       :busy="isBusy || busy"
       :responsive="'lg'"
       :table-variant="tableVariant"
-      :caption="caption"
       :tbody-tr-class="trClass"
       :tbody-transition-props="transProps"
-      :per-page="perPage"
-      :current-page="currentPage"
       :sticky-header="maxHeightPx"
       :small="small"
+      :per-page="pagination.perPage"
+      :current-page="pagination.currentPage"
 
       head-variant="dark"
       primary-key="序號"
@@ -76,7 +86,11 @@
       </template>
 
       <template #cell(序號)="row">
-        {{ row.index + 1 }}
+        {{ (pagination.currentPage - 1) * pagination.perPage + row.index + 1 }}
+      </template>
+
+      <template #cell(#)="row">
+        {{ (pagination.currentPage - 1) * pagination.perPage + row.index + 1 }}
       </template>
 
       <template #cell(燈號)="row">
@@ -236,14 +250,12 @@ export default {
     iconVariant: { type: String, default: '' },
     busy: { type: Boolean, default: false },
     tableVariant: { type: String, default: '' },
-    perPage: { type: Number, default: 0 },
-    currentPage: { type: Number, default: 1 },
     onlyPopupDetail: { type: Boolean, default: true },
     captionAppend: { type: String, default: '' },
     maxHeightOffset: { type: Number, default: 105 },
     caseReload: { type: Boolean, default: false },
     small: { type: Boolean, default: true },
-    filterKeyword: { type: String, default: '' }
+    enableKeywordFilter: { type: Boolean, default: false }
   },
   data: () => ({
     transProps: {
@@ -252,12 +264,18 @@ export default {
     modalLoading: true,
     clickedId: undefined,
     clickedData: undefined,
-    maxHeight: 300
+    maxHeight: 300,
+    keyword: '',
+    pagination: {
+      perPage: 15,
+      currentPage: 1,
+      count: 0
+    }
   }),
   computed: {
     filtered () {
-      if (!this.$utils.empty(this.filterKeyword)) {
-        const regex = new RegExp(this.filterKeyword)
+      if (!this.$utils.empty(this.keyword)) {
+        const regex = new RegExp(this.keyword)
         const tmp = this.bakedData?.filter((row) => {
           return regex.test(row.收件字號) ||
                  regex.test(row.RM07_1) ||
@@ -519,9 +537,20 @@ export default {
     },
     maxHeightPx () { return `${this.maxHeight}px` }
   },
+  watch: {
+    count (val) {
+      this.pagination.count = val
+    },
+    'pagination.perPage' (val) {
+      this.setCache('lah-reg-b-table-perPage', val)
+    }
+  },
   mounted () {
     if (!this.$isServer && window) {
       this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+      this.getCache('lah-reg-b-table-perPage').then((val) => {
+        this.pagination.perPage = parseInt(val) || 15
+      })
     }
   },
   methods: {
@@ -589,14 +618,17 @@ export default {
       return item['請示燈號'] === 'danger' ? '逾期案件' : (item['公告燈號'] === 'warning' ? '快到期案件' : '正常案件')
     },
     highlight (text, css = 'highlight-yellow') {
-      if (!this.$utils.empty(this.filterKeyword)) {
+      if (!this.$utils.empty(this.keyword)) {
         return this.$utils.highlight(
           text,
-          this.filterKeyword,
+          this.keyword,
           css
         )
       }
       return text
+    },
+    reset () {
+      this.pagination.currentPage = 1
     }
   }
 }
