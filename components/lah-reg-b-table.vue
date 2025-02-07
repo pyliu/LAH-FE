@@ -1,8 +1,11 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div>
-    <div v-if="enableKeywordFilter" class="d-flex align-items-center justify-content-end">
-      <b-input v-model="keyword" size="sm" class="col-2" placeholder="... 輸入關鍵字篩選案件 ..." />
-    </div>
+    <lah-transition appear>
+      <div v-if="enableKeywordFilter" class="d-flex align-items-center justify-content-end mb-1">
+        <b-input v-model="keyword" size="sm" class="col-2" placeholder="... 輸入關鍵字篩選案件 ..." />
+      </div>
+    </lah-transition>
     <lah-transition>
       <lah-pagination
         v-if="count > pagination.perPage"
@@ -55,12 +58,16 @@
             :icon="icon"
             :variant="iconVariant"
           />
-          <span v-if="mute">{{ bakedContent(row) }}</span>
+          <span v-if="mute" v-html="highlightBakedContent(row)" />
           <span v-else-if="onlyPopupDetail">
-            <b-link @click="popup(row.item)">{{ bakedContent(row) }}</b-link>
+            <b-link @click="popup(row.item)">
+              <span v-html="highlightBakedContent(row)" />
+            </b-link>
           </span>
           <span v-else>
-            <NuxtLink :to="`/regcase/${bakedContent(row)}`">{{ bakedContent(row) }}</NuxtLink>
+            <NuxtLink :to="`/regcase/${bakedContent(row)}`">
+              <span v-html="highlightBakedContent(row)" />
+            </NuxtLink>
             <b-link @click="popup(row.item)"><lah-fa-icon icon="window-restore" regular /></b-link>
           </span>
         </div>
@@ -74,15 +81,46 @@
             :icon="icon"
             :variant="iconVariant"
           />
-          <span v-if="mute">{{ bakedContent(row) }}</span>
+          <span v-if="mute" v-html="highlightBakedContent(row)" />
           <span v-else-if="onlyPopupDetail">
-            <b-link @click="popup(row.item)">{{ bakedContent(row) }}</b-link>
+            <b-link @click="popup(row.item)">
+              <span v-html="highlightBakedContent(row)" />
+            </b-link>
           </span>
           <span v-else>
-            <NuxtLink :to="`/regcase/${row.item['收件字號']}`">{{ row.item['收件字號'] }}</NuxtLink>
-            <b-link @click="popup(row.item)"><lah-fa-icon icon="window-restore" regular variant="primary" /></b-link>
+            <NuxtLink :to="`/regcase/${bakedContent(row)}`">
+              <span v-html="highlightBakedContent(row)" />
+            </NuxtLink>
+            <b-link @click="popup(row.item)"><lah-fa-icon icon="window-restore" regular /></b-link>
           </span>
         </div>
+      </template>
+
+      <template #cell(收件時間)="row">
+        <div v-html="highlight(row.item.收件時間)" />
+      </template>
+
+      <template #cell(收件日期)="row">
+        <div class="text-nowrap" v-html="highlight(row.item.收件日期)" />
+      </template>
+
+      <template #cell(登記原因)="row">
+        <div v-html="highlight(reason(row))" />
+      </template>
+      <template #cell(RM09)="row">
+        <div v-html="highlight(reason(row))" />
+      </template>
+
+      <template #cell(辦理情形)="row">
+        <div v-html="highlight(row.item.辦理情形)" />
+      </template>
+
+      <template #cell(作業人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item.作業人員, item.RM30_1)"
+          v-html="highlight(item.作業人員)"
+        />
       </template>
 
       <template #cell(序號)="row">
@@ -134,13 +172,6 @@
         <span v-b-popover.hover.focus.d400="row.item['收件時間']">{{ row.item["RM07_1"] }}</span>
       </template>
 
-      <template #cell(登記原因)="row">
-        {{ reason(row) }}
-      </template>
-      <template #cell(RM09)="row">
-        {{ reason(row) }}
-      </template>
-
       <template #cell(初審人員)="{ item, rowSelected }">
         <template v-if="rowSelected">
           <span aria-hidden="true">&check;</span>
@@ -170,12 +201,6 @@
           href="javascript:void(0)"
           @click="userinfo(item['收件人員'], item['RM96'])"
         >{{ item["收件人員"] }}</a>
-      </template>
-      <template #cell(作業人員)="{ item }">
-        <a
-          href="javascript:void(0)"
-          @click="userinfo(item['作業人員'], item['RM30_1'])"
-        >{{ item["作業人員"] }}</a>
       </template>
       <template #cell(准登人員)="{ item }">
         <a
@@ -207,9 +232,6 @@
       </template>
       <template #cell(校對日期)="{ item }">
         <span class="text-nowrap">{{ item.校對日期.split(' ')[0] }}</span>
-      </template>
-      <template #cell(收件日期)="{ item }">
-        <span class="text-nowrap">{{ item.收件日期 }}</span>
       </template>
     </b-table>
     <b-modal
@@ -274,14 +296,16 @@ export default {
   }),
   computed: {
     filtered () {
-      if (!this.$utils.empty(this.keyword)) {
+      if (this.$utils.length(this.keyword) > 1) {
         const regex = new RegExp(this.keyword)
         const tmp = this.bakedData?.filter((row) => {
+          // 篩選下列欄位
           return regex.test(row.收件字號) ||
-                 regex.test(row.RM07_1) ||
-                 regex.test(row.RM09) ||
+                 regex.test(row.收件時間) ||
+                 regex.test(row.收件日期) ||
                  regex.test(row.辦理情形) ||
-                 regex.test(row.登記原因)
+                 regex.test(row.登記原因) ||
+                 regex.test(row.作業人員)
         })
         this.$emit('count-changed', tmp?.length)
         return tmp
@@ -571,6 +595,9 @@ export default {
     bakedContent (row) {
       return row.item[row.field.label]
     },
+    highlightBakedContent (row) {
+      return this.highlight(row.item[row.field.label])
+    },
     reason (row) {
       return (
         row.item.RM09 +
@@ -618,7 +645,7 @@ export default {
       return item['請示燈號'] === 'danger' ? '逾期案件' : (item['公告燈號'] === 'warning' ? '快到期案件' : '正常案件')
     },
     highlight (text, css = 'highlight-yellow') {
-      if (!this.$utils.empty(this.keyword)) {
+      if (this.$utils.length(this.keyword) > 1) {
         return this.$utils.highlight(
           text,
           this.keyword,
