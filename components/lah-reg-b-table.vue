@@ -572,6 +572,7 @@ export default {
   watch: {
     count (val) {
       this.pagination.count = val
+      this.pagination.currentPage = 1
     },
     'pagination.perPage' (val) {
       this.setCache('lah-reg-b-table-perPage', val)
