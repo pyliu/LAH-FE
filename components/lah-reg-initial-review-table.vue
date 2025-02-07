@@ -44,7 +44,7 @@ export default {
       return '全部案件'
     },
     count () { return this.filtered?.length || 0 },
-    cacheKey () { return `lah-reg-initial-review-table-${this.userId}` },
+    cacheKey () { return `lah-reg-initial-review-table-${this.userId}-${this.begin}-${this.end}` },
     filtered () {
       if (this.modeVal === 'easy') {
         return this.rows.filter(row => row.RM08 === '9')
