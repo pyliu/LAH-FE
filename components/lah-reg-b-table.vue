@@ -2,34 +2,34 @@
   <div>
     <b-table
       ref="bTable"
-      :responsive="'lg'"
-      :striped="true"
-      :hover="true"
-      :bordered="true"
-      :borderless="false"
-      :outlined="false"
-      :small="small"
-      :dark="false"
-      :fixed="false"
-      :foot-clone="false"
-      :no-border-collapse="true"
-      :head-variant="'dark'"
-      :table-variant="tableVariant"
-      :caption="caption"
-      :items="bakedData"
+      :items="filtered"
       :fields="tblFields"
       :busy="isBusy || busy"
+      :responsive="'lg'"
+      :table-variant="tableVariant"
+      :caption="caption"
       :tbody-tr-class="trClass"
       :tbody-transition-props="transProps"
       :per-page="perPage"
       :current-page="currentPage"
       :sticky-header="maxHeightPx"
+      :small="small"
 
+      head-variant="dark"
       primary-key="序號"
       class="text-center"
       select-mode="single"
       selected-variant="success"
 
+      :borderless="false"
+      :outlined="false"
+      :dark="false"
+      :fixed="false"
+      :foot-clone="false"
+      striped
+      hover
+      bordered
+      no-border-collapse
       caption-top
       selectable
     >
@@ -221,6 +221,7 @@
 <script>
 import lahUserCard from '~/components/lah-user-card.vue';
 export default {
+  emit: ['count-changed'],
   name: 'LahRegBTable',
   // eslint-disable-next-line vue/no-unused-components
   components: { lahUserCard },
@@ -241,7 +242,8 @@ export default {
     captionAppend: { type: String, default: '' },
     maxHeightOffset: { type: Number, default: 105 },
     caseReload: { type: Boolean, default: false },
-    small: { type: Boolean, default: true }
+    small: { type: Boolean, default: true },
+    filterKeyword: { type: String, default: '' }
   },
   data: () => ({
     transProps: {
@@ -253,6 +255,22 @@ export default {
     maxHeight: 300
   }),
   computed: {
+    filtered () {
+      if (!this.$utils.empty(this.filterKeyword)) {
+        const regex = new RegExp(this.filterKeyword)
+        const tmp = this.bakedData?.filter((row) => {
+          return regex.test(row.收件字號) ||
+                 regex.test(row.RM07_1) ||
+                 regex.test(row.RM09) ||
+                 regex.test(row.辦理情形) ||
+                 regex.test(row.登記原因)
+        })
+        this.$emit('count-changed', tmp?.length)
+        return tmp
+      }
+      this.$emit('count-changed', this.bakedData?.length)
+      return this.bakedData
+    },
     tblFields () {
       if (!this.$utils.empty(this.fields)) { return this.fields }
       switch (this.type) {
@@ -489,7 +507,7 @@ export default {
       }
     },
     count () {
-      return this.bakedData ? this.bakedData.length : 0
+      return this.filtered?.length || 0
     },
     caption () {
       if (this.mute || this.noCaption) { return '' }
@@ -569,6 +587,16 @@ export default {
     },
     askLightTitle (item) {
       return item['請示燈號'] === 'danger' ? '逾期案件' : (item['公告燈號'] === 'warning' ? '快到期案件' : '正常案件')
+    },
+    highlight (text, css = 'highlight-yellow') {
+      if (!this.$utils.empty(this.filterKeyword)) {
+        return this.$utils.highlight(
+          text,
+          this.filterKeyword,
+          css
+        )
+      }
+      return text
     }
   }
 }
