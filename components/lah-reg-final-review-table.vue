@@ -28,7 +28,7 @@ export default {
   }),
   computed: {
     count () { return this.rows?.length || 0 },
-    cacheKey () { return `lah-reg-initial-review-table-${this.userId}` }
+    cacheKey () { return `lah-reg-final-review-table-${this.userId}` }
   },
   watch: {},
   created () {},
