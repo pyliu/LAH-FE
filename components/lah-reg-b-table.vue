@@ -3,7 +3,13 @@
   <div>
     <lah-transition appear>
       <div v-if="enableKeywordFilter" class="d-flex align-items-center justify-content-end mb-1">
-        <b-input v-model="keyword" size="sm" class="col-2" placeholder="... 輸入關鍵字篩選案件 ..." />
+        <b-input
+          v-model="keyword"
+          v-b-tooltip.left="'篩選 收件字號、收件時間、收件日期、辦理情形、登記原因、作業人員 等欄位'"
+          size="sm"
+          class="col-2"
+          placeholder="... 輸入關鍵字篩選案件 ..."
+        />
       </div>
     </lah-transition>
     <lah-transition>
@@ -45,6 +51,8 @@
       no-border-collapse
       caption-top
       selectable
+
+      @row-selected="handleRowSelected"
     >
       <template #table-busy>
         <span class="ld-txt">讀取中...</span>
@@ -656,6 +664,12 @@ export default {
     },
     reset () {
       this.pagination.currentPage = 1
+    },
+    handleRowSelected (payload) {
+      if (payload?.length > 0) {
+        // this.$utils.warn('row selected', payload)
+        this.popup(payload[0])
+      }
     }
   }
 }

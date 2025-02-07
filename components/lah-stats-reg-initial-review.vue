@@ -81,9 +81,10 @@ b-card(:class="classNames")
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
       :busy="isBusy",
-      selectable
-      select-mode="single"
-      selected-variant="primary"
+      selectable,
+      select-mode="single",
+      selected-variant="primary",
+      @row-selected="handleRowSelected"
     )
       template(#table-busy)
       template(#cell(序號)="data")
@@ -223,17 +224,14 @@ export default {
           this.isBusy = false
         })
     },
-    handlePaginationInput (payload) {
-      // remember user changed number
-      this.setCache('reg-initial-review-table-perPage', payload.perPage)
-    },
-    popup (item) {
+    popup (item, mode = 'all') {
       this.modal(this.$createElement(LahRegInitialReviewTable, {
         props: {
           userId: item.initial_id,
           begin: this.begin,
           end: this.end,
-          tableSize: 'md'
+          tableSize: 'md',
+          mode
         },
         on: {
           'not-found': () => {
@@ -244,6 +242,16 @@ export default {
         title: `初審 ${item.initial_id} ${item.initial_name} 案件詳情 ${this.begin} ~ ${this.end}`,
         size: 'xl'
       })
+    },
+    handlePaginationInput (payload) {
+      // remember user changed number
+      this.setCache('reg-initial-review-table-perPage', payload.perPage)
+    },
+    handleRowSelected (payload) {
+      if (payload?.length > 0) {
+        // this.$utils.warn('row selected', payload)
+        this.popup(payload[0])
+      }
     }
   }
 }

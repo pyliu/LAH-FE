@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   .d-flex.justify-content-between
-    span 👉 {{ modeText }}
+    b-input-group.col-2.ml-n3(prepend="類別", size="sm"): b-select(v-model="modeVal", :options="modeOpts")
     b-link.text-light(@click="reload", title="非必要勿使用") 重新讀取
   lah-reg-b-table(
     ref="tbl",
@@ -9,9 +9,7 @@ div
     :busy="isBusy",
     :max-height-offset="135",
     :type="tableSize",
-    @count-changed="handlePaginationCount"
     enable-keyword-filter
-    no-caption
   )
 </template>
 
@@ -27,14 +25,20 @@ export default {
     mode: { type: String, default: 'all' }
   },
   data: () => ({
+    modeVal: '',
+    modeOpts: [
+      { value: 'all', text: '全部案件' },
+      { value: 'normal', text: '一般案件' },
+      { value: 'easy', text: '簡易案件' }
+    ],
     keyword: '',
     rows: []
   }),
   computed: {
     modeText () {
-      if (this.mode === 'easy') {
+      if (this.modeVal === 'easy') {
         return '簡易案件'
-      } else if (this.mode === 'normal') {
+      } else if (this.modeVal === 'normal') {
         return '一般案件'
       }
       return '全部案件'
@@ -42,16 +46,16 @@ export default {
     count () { return this.filtered?.length || 0 },
     cacheKey () { return `lah-reg-initial-review-table-${this.userId}` },
     filtered () {
-      if (this.mode === 'easy') {
+      if (this.modeVal === 'easy') {
         return this.rows.filter(row => row.RM08 === '9')
-      } else if (this.mode === 'normal') {
+      } else if (this.modeVal === 'normal') {
         return this.rows.filter(row => row.RM08 !== '9')
       }
       return this.rows
     }
   },
   watch: {},
-  created () {},
+  created () { this.modeVal = this.mode },
   mounted () { this.query() },
   methods: {
     query (force = false) {
