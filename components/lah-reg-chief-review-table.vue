@@ -31,9 +31,9 @@ export default {
       { key: '辦理情形', sortable: true },
       { key: '初審人員', sortable: true },
       { key: '複審人員', sortable: true },
-      { key: '移轉課長', sortable: true },
+      { key: '移轉課長', sortable: true, label: '課長' },
       { key: '收件時間', sortable: true },
-      { key: '結案日期', sortable: true }
+      { key: '結案日期', sortable: true, label: '結案時間' }
     ]
   }),
   computed: {

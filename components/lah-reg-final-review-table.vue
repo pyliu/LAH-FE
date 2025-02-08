@@ -33,7 +33,7 @@ export default {
       { key: '初審人員', sortable: true },
       { key: '複審人員', sortable: true },
       { key: '收件時間', sortable: true },
-      { key: '結案日期', sortable: true }
+      { key: '結案日期', sortable: true, label: '結案時間' }
     ]
   }),
   computed: {
