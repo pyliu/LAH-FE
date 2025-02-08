@@ -5,7 +5,6 @@
       <div v-if="enableKeywordFilter" class="d-flex align-items-center justify-content-end mb-1">
         <b-input
           v-model="keyword"
-          v-b-tooltip.left="`篩選 ${tblKeys.join(', ')} 等欄位`"
           size="sm"
           class="col-2"
           placeholder="... 輸入關鍵字篩選案件 ..."
