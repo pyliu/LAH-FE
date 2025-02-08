@@ -5,7 +5,7 @@
       <div v-if="enableKeywordFilter" class="d-flex align-items-center justify-content-end mb-1">
         <b-input
           v-model="keyword"
-          v-b-tooltip.left="'篩選 收件字號、收件時間、收件日期、辦理情形、登記原因、作業人員 等欄位'"
+          v-b-tooltip.left="`篩選 ${tblKeys.join(', ')} 等欄位`"
           size="sm"
           class="col-2"
           placeholder="... 輸入關鍵字篩選案件 ..."
@@ -56,29 +56,6 @@
     >
       <template #table-busy>
         <span class="ld-txt">讀取中...</span>
-      </template>
-
-      <template #cell(RM01)="row">
-        <div v-b-popover.hover.focus.d400="{ content: row.item['結案狀態'], variant: row.item['燈號'] }">
-          <lah-fa-icon
-            v-if="showIcon"
-            prefix="fas"
-            :icon="icon"
-            :variant="iconVariant"
-          />
-          <span v-if="mute" v-html="highlightBakedContent(row)" />
-          <span v-else-if="onlyPopupDetail">
-            <b-link @click="popup(row.item)">
-              <span v-html="highlightBakedContent(row)" />
-            </b-link>
-          </span>
-          <span v-else>
-            <NuxtLink :to="`/regcase/${bakedContent(row)}`">
-              <span v-html="highlightBakedContent(row)" />
-            </NuxtLink>
-            <b-link @click="popup(row.item)"><lah-fa-icon icon="window-restore" regular /></b-link>
-          </span>
-        </div>
       </template>
 
       <template #cell(收件字號)="row">
@@ -307,19 +284,21 @@ export default {
       if (this.$utils.length(this.keyword) > 1) {
         const regex = new RegExp(this.keyword)
         const tmp = this.bakedData?.filter((row) => {
-          // 篩選下列欄位
-          return regex.test(row.收件字號) ||
-                 regex.test(row.收件時間) ||
-                 regex.test(row.收件日期) ||
-                 regex.test(row.辦理情形) ||
-                 regex.test(row.登記原因) ||
-                 regex.test(row.作業人員)
+          // 使用 keys 陣列中的值，動態篩選欄位
+          return this.tblKeys.some((key) => {
+            // 檢查 row 物件是否具有當前 key 屬性，且值通過 regex 測試
+            return Object.prototype.hasOwnProperty.call(row, key) && regex.test(row[key])
+          })
         })
         this.$emit('count-changed', tmp?.length)
         return tmp
       }
       this.$emit('count-changed', this.bakedData?.length)
       return this.bakedData
+    },
+    tblKeys () {
+      // 使用 map() 方法提取 key 欄位的值
+      return this.tblFields.map(column => column.key)
     },
     tblFields () {
       if (!this.$utils.empty(this.fields)) { return this.fields }

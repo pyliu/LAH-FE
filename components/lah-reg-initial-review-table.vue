@@ -9,6 +9,7 @@ div
     :busy="isBusy",
     :max-height-offset="135",
     :type="tableSize",
+    :fields="fields"
     enable-keyword-filter
   )
 </template>
@@ -32,7 +33,16 @@ export default {
       { value: 'easy', text: '簡易案件' }
     ],
     keyword: '',
-    rows: []
+    rows: [],
+    fields: [
+      { key: '收件字號', sortable: true },
+      { key: '登記原因', sortable: true },
+      { key: '辦理情形', sortable: true },
+      { key: '初審人員', sortable: true },
+      { key: '作業人員', sortable: true },
+      { key: '收件時間', sortable: true },
+      { key: '結案日期', sortable: true }
+    ]
   }),
   computed: {
     modeText () {
