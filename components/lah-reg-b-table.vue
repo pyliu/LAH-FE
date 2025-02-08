@@ -85,6 +85,10 @@
         <div v-html="highlight(row.item.收件時間)" />
       </template>
 
+      <template #cell(結案日期)="row">
+        <div v-html="highlight(row.item.結案日期)" />
+      </template>
+
       <template #cell(收件日期)="row">
         <div class="text-nowrap" v-html="highlight(row.item.收件日期)" />
       </template>
@@ -105,6 +109,22 @@
           href="javascript:void(0)"
           @click="userinfo(item.作業人員, item.RM30_1)"
           v-html="highlight(item.作業人員)"
+        />
+      </template>
+
+      <template #cell(複審人員)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item.複審人員, item.RM47)"
+          v-html="highlight(item.複審人員)"
+        />
+      </template>
+
+      <template #cell(移轉課長)="{ item }">
+        <a
+          href="javascript:void(0)"
+          @click="userinfo(item.移轉課長, item.RM106)"
+          v-html="highlight(item.移轉課長)"
         />
       </template>
 

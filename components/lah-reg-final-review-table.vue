@@ -5,6 +5,7 @@ div
   lah-reg-b-table(
     ref="tbl",
     :baked-data="rows",
+    :fields="fields",
     :busy="isBusy",
     :max-height-offset="135",
     :type="tableSize",
@@ -24,7 +25,16 @@ export default {
   },
   data: () => ({
     keyword: '',
-    rows: []
+    rows: [],
+    fields: [
+      { key: '收件字號', sortable: true },
+      { key: '登記原因', sortable: true },
+      { key: '辦理情形', sortable: true },
+      { key: '初審人員', sortable: true },
+      { key: '複審人員', sortable: true },
+      { key: '收件時間', sortable: true },
+      { key: '結案日期', sortable: true }
+    ]
   }),
   computed: {
     count () { return this.rows?.length || 0 },
