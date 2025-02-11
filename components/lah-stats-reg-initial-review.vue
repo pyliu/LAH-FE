@@ -33,7 +33,7 @@ b-card(:class="classNames")
       pill,
       no-icon-gutter
     )
-  b-card-sub-title.text-right {{ period  }}
+  b-card-sub-title.font-weight-bold.text-right 查詢區間：{{ period  }}
   section.my-2(v-if="ready")
     .h4.center.my-2(v-if="count === 0") 查無資料
     div(v-else)
