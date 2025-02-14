@@ -55,6 +55,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
   div(v-else)
     section
+      lah-message.font-weight-bold.mb-1(
+        v-if="isTodayErrpt",
+        :message="firstErrptDesc",
+        close-variant="danger",
+        size="sm",
+        :close-mark="false"
+      )
       .d-flex.justify-content-between.font-weight-bold.mb-1
         a.truncate(
           href="#",
@@ -192,6 +199,16 @@ export default {
         ? '✅ 掛載資料夾'
         : '❌ 掛載資料夾數量有誤 ... 請檢查'
     },
+    isTodayErrpt () {
+      if (this.headErrpt === false) {
+        return false
+      }
+      const days = this.daysAgo(this.headErrpt)
+      return parseInt(days) === 0
+    },
+    firstErrptDesc () {
+      return `🟡 今天伺服器有錯誤訊息 「${this.headErrpt?.DESCRIPTION}」`
+    },
     errpt () {
       if (this.messageChunks.length > 0) {
         const lines = this.messageChunks[3].trim().split('\r\n')
@@ -214,6 +231,12 @@ export default {
       }
       return []
     },
+    headErrpt () {
+      if (this.errpt.length > 0) {
+        return this.errpt[0]
+      }
+      return false
+    },
     light () {
       const now = +new Date()
       if (
@@ -222,6 +245,7 @@ export default {
       ) {
         return 'warning'
       }
+
       if (this.hacmpFS.length !== this.requireFS.length) {
         return 'danger'
       }
@@ -244,11 +268,16 @@ export default {
       if (lightArr.includes('🟡')) {
         return 'warning'
       }
+
+      if (this.isTodayErrpt) {
+        return 'warning'
+      }
+
       return 'success'
     }
   },
   watch: {
-    // hacmpFSCapacity (val) { this.$utils.warn(val) }
+    // errpt (val) { this.$utils.warn(val) }
   },
   mounted () {
     // update the reload timer to 1hrs
@@ -257,6 +286,33 @@ export default {
     this.lightCruteria.warning = this.$config.monitor.capacity.threshold.warning
   },
   methods: {
+    daysAgo (message) {
+      // 1. 檢查輸入的訊息是否為物件，且包含 TIMESTAMP 屬性
+      if (!message.TIMESTAMP) {
+        return false
+      }
+      const dateTimeStr = message.TIMESTAMP
+      // 2. 將 TIMESTAMP 字串轉換為 Date 物件
+      const [datePart, timePart] = dateTimeStr.split(' ') // 分割日期和時間
+      // eslint-disable-next-line prefer-const
+      let [month, day, year] = datePart.split('-') // 分割日期
+      const [hour, minute, second] = timePart.split(':') // 分割時間
+
+      // 如果年份不存在，則預設為今年
+      if (!year) {
+        year = new Date().getFullYear()
+      }
+
+      // 注意：月份從 0 開始，所以需要減 1
+      const messageDate = new Date(year, month - 1, day, hour, minute, second)
+      // 3. 取得現在的日期
+      const now = new Date()
+      // 4. 計算時間差 (毫秒)
+      const timeDiff = now.getTime() - messageDate.getTime()
+      // 5. 將毫秒轉換為天數
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
+      return days // 回傳天數
+    },
     formatErrptTimestamp (timestamp) {
       if (!/^\d{10}$/.test(timestamp)) {
         return '時間戳記格式不符' // Handle invalid input
