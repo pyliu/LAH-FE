@@ -186,7 +186,7 @@ div
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue'
+import lahUserCard from '~/components/lah-user-card.vue';
 export default {
   components: { lahUserCard },
   data: () => ({
@@ -394,14 +394,6 @@ export default {
     },
     caseQueryUrl (MM01, MM02, MM03) {
       return `http://${this.webapIp}:9080/Land${this.site}/CAS/CMC01/CMC0102.jsp?reciveYear=${MM01}&reciveId=${MM02}&reciveNumber=${MM03}`
-    },
-    userinfo (name, id = '') {
-      const h = this.$createElement
-      name !== 'XXXXXXXX' && this.modal(h(lahUserCard, {
-        props: { id, name }
-      }), {
-        title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
-      })
     },
     resetCountdown (ms) {
       this.$refs.countdown?.setCountdown(ms)

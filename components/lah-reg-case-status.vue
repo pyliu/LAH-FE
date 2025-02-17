@@ -271,11 +271,6 @@ export default {
     }
   },
   methods: {
-    userinfo (name, id = '') {
-      this.modal(this.$createElement(lahUserCard, { props: { name, id } }), {
-        title: `${id} ${name} 資訊`
-      })
-    },
     getLocalFixData () {
       this.isBusy = true
       this.localCRCRDData = false

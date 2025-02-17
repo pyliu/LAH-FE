@@ -4,7 +4,7 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex.mr-auto.align-items-center
-          div 登記案件年度統計資訊
+          div 年度統計資訊
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
 
         lah-datepicker(
@@ -14,22 +14,8 @@ div(v-cloak)
           size="lg",
           @input="handleDate"
         )
-        //- lah-button.ml-1(
-        //-   icon="magnifying-glass",
-        //-   size="lg",
-        //-   title="重新搜尋",
-        //-   :disabled="globalQuery || isBusy",
-        //-   @click="globalQuery = true"
-        //-   no-icon-gutter
-        //- )
     lah-help-modal(:modal-id="'help-modal'" size="md")
-      h5 {{ siteName }}去年(預設)的統計資料
-      //- ul
-      //-   li 第一次登記- 登記原因代碼 02
-      //-   li(v-for="(item, idx) in codes", :key="`li_${idx}`")
-      //-     span {{ item.code }}
-      //-     span -
-      //-     span {{ item.name }}
+      lah-fa-icon.h6(icon="info") {{ siteName }}去年(預設，仍可選擇想要的區間)的統計資料，請依需求點選個別儀表板查詢。
 
   lah-flex-item-group
     .col-md-4(key="reg-initial"): lah-stats-reg-initial-review(
@@ -46,6 +32,12 @@ div(v-cloak)
     )
     .col-md-4(key="reg-chief"): lah-stats-reg-chief-review(
       ref="regChief",
+      :begin="dateRange.begin",
+      :end="dateRange.end",
+      @ready="handleReady"
+    )
+    .col-md-4(key="adm-notification"): lah-stats-adm-notification(
+      ref="admNotification",
       :begin="dateRange.begin",
       :end="dateRange.end",
       @ready="handleReady"
@@ -71,11 +63,10 @@ export default {
       days: 0
     },
     readyCount: 0,
-    globalQuery: false,
     regFirstCount: NaN
   }),
   head: {
-    title: '登記案件年度統計資訊-桃園市地政局'
+    title: '年度統計資訊-桃園市地政局'
   },
   computed: {
     period () {
@@ -90,23 +81,10 @@ export default {
   },
   watch: {
     // dateRange (val) { console.warn(val) }
-    globalQuery (flag) {
-      if (flag) {
-        this.readyCount = 0
-        Object.values(this.$refs).forEach((ref) => {
-          if (Array.isArray(ref)) {
-            ref[0].query()
-          } else {
-            ref.query()
-          }
-        })
-      }
-    }
   },
   created () {
     this.debounceReset = this.$utils.debounce(() => {
       this.readyCount = 0
-      this.globalQuery = false
     }, 10000)
   },
   mounted () {},
@@ -114,9 +92,6 @@ export default {
     handleDate (e) {},
     handleReady (e) {
       this.readyCount++
-      if (this.readyCount === this.boardCount) {
-        this.globalQuery = false
-      }
     }
   }
 }

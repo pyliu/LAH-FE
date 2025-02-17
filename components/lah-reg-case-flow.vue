@@ -34,8 +34,8 @@ b-card.border-0(
 </template>
 
 <script>
-import regCaseBase from '~/components/lah-reg-case-base.js'
-import lahUserCard from '~/components/lah-user-card.vue'
+import regCaseBase from '~/components/lah-reg-case-base.js';
+import lahUserCard from '~/components/lah-user-card.vue';
 export default {
   name: 'LahRegCaseFlow',
   components: { lahUserCard },
@@ -91,13 +91,7 @@ export default {
       }
     ]
   }),
-  methods: {
-    userinfo (name, id) {
-      this.modal(this.$createElement('lah-user-card', { props: { name, id } }), {
-        title: `${id} ${name} 資訊`
-      })
-    }
-  }
+  methods: {}
 }
 </script>
 

@@ -81,11 +81,6 @@ export default {
   },
   watch: {},
   methods: {
-    userinfo (name, id = '') {
-      this.modal(this.$createElement('lah-user-card', { props: { name, id } }), {
-        title: `${id} ${name} 資訊`
-      })
-    },
     popupSMSLog (keyword) {
       this.modal(this.$createElement(lahAdmSmslogTableVue, {
         props: {

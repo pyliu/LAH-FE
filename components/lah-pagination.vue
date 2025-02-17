@@ -20,7 +20,7 @@
   ): b-input.text-right(
     v-model="pageCount"
     type="number"
-    min="10"
+    min="3"
     number
   )
   div(v-else)

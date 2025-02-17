@@ -40,7 +40,7 @@
         ) {{ site }} 機房天氣圖
         lah-index-card-link.fix-card-dimension.invisible(v-else)
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'calendar-days']" to="/reg/stats/monthly") 每月案件統計
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calendar-check']" to="/reg/stats/yearly") 年度案件統計
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calendar-check']" to="/lab/yearly") 年度案件統計
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'panorama']" to="/reg/ralid") 土地標示部綜合查詢
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室

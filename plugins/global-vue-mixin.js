@@ -485,6 +485,14 @@ Vue.mixin({
         }
       })
     },
+    userinfo (name, id = '') {
+      const h = this.$createElement
+      name !== 'XXXXXXXX' && this.modal(h('lah-user-card', {
+        props: { id, name }
+      }), {
+        title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
+      })
+    },
     confirm (message, opts = {}) {
       return new Promise((resolve, reject) => {
         if (this.$isServer) {
