@@ -487,18 +487,17 @@ Vue.mixin({
     },
     userinfo (name, id = '') {
       const props = {}
+      // 判斷有無中文
       if (/[\u4E00-\u9FFF]/.test(name)) {
-        props.id = name
-      } else {
         props.name = name
+      } else {
+        props.id = name
       }
       if (!isEmpty(id)) {
         props.id = id
       }
       const h = this.$createElement
-      name !== 'XXXXXXXX' && this.modal(h('lah-user-card', {
-        props
-      }), {
+      name !== 'XXXXXXXX' && this.modal(h('lah-user-card', { props }), {
         title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
       })
     },
