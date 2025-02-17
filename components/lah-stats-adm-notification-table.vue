@@ -61,7 +61,7 @@
         .mx-auto(v-html="highlight(item.create_datetime)")
       template(#cell(channel)="{ item }")
         b-link.mx-auto(
-          @click="userinfo(channelName(item), item.channel)",
+          @click="userinfo('', item.channel)",
           v-html="highlight(channelName(item))"
         )
       template(#cell(title)="{ item }")
@@ -110,12 +110,14 @@ export default {
   computed: {
     filtered () {
       if (this.$utils.length(this.keyword) > 1) {
-        const regex = new RegExp(this.keyword)
-        const tmp = this.items?.filter((row) => {
-          // 使用 keys 陣列中的值，動態篩選欄位
+        const regex = new RegExp(`${this.keyword}`, 'u')
+        const tmp = this.items?.filter((item) => {
           return this.tblKeys.some((key) => {
-            // 檢查 row 物件是否具有當前 key 屬性，且值通過 regex 測試
-            return Object.prototype.hasOwnProperty.call(row, key) && regex.test(row[key])
+            if (Object.prototype.hasOwnProperty.call(item, key)) {
+              const value = item[key] || '' // 針對空值做處理
+              return key === 'channel' ? regex.test(this.channelName(value)) : regex.test(value)
+            }
+            return false
           })
         })
         this.$emit('count-changed', tmp?.length)
@@ -181,15 +183,15 @@ export default {
     }
   },
   methods: {
-    channelName (row) {
-      let name = this.channelMap.get(row.channel)
+    channelName (item) {
+      let name = this.channelMap.get(item.channel)
       if (!name) {
-        name = this.userNames[row.channel]
+        name = this.userNames[item.channel]
       }
       if (name) {
-        return `${row.channel}:${name}`
+        return `${item.channel} ${name}`
       }
-      return row.channel
+      return item.channel
     },
     highlight (text, css = 'highlight-yellow') {
       if (this.$utils.length(this.keyword) > 1) {

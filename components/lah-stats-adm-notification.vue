@@ -40,9 +40,9 @@ b-card(:class="classNames")
       b-link.d-flex.justify-content-between.align-items-center.h5(
         v-for="(item, idx) in top3Channels",
         :key="`channel_${idx}`",
-        @click="popup(channelName(item))"
+        @click="popup(item.name)"
       )
-        .font-weight-bold {{ idx + 1 }}. {{ channelName(item) }}
+        .font-weight-bold {{ idx + 1 }}. {{ item.name }} {{ item.channel }}
         b-badge(pill, :variant="idx === 0 ? 'primary' : idx === 1 ? 'info' : 'secondary'") {{ item.count }}
       .d-flex.justify-content-end: b-link.small.font-weight-bold(
         @click="popup",
@@ -136,9 +136,9 @@ export default {
           channelCounts[channel].count++ // 增加計數
         } else {
           channelCounts[channel] = { // 初始化 channel 資訊
-            count: 1
+            count: 1,
+            name: this.channelName(item)
             // 在這裡加入其他你需要的資訊，例如：
-            // name: item.channelName, // 假設你的物件中有 channelName 屬性
             // description: item.channelDescription
           }
         }
@@ -150,9 +150,9 @@ export default {
       // 將結果轉換為你想要的格式 (包含 channel 和其他資訊)
       const formattedTop3 = top3.map(([channel, info]) => ({
         channel,
+        name: info.name,
         count: info.count
         // 在這裡加入其他你需要的資訊
-        // name: info.name,
         // description: info.description
       }))
       return formattedTop3
