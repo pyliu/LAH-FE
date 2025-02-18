@@ -11,7 +11,6 @@
       b-input-group.col-3(prepend="標題", size="sm"): b-select(v-model="selectedTitle", :options="titleOpts")
       b-input-group.col-3.mr-n3(prepend="頻道", size="sm"): b-select(v-model="selectedChannel", :options="channelOpts")
     lah-transition: lah-pagination(
-      v-if="count > pagination.perPage"
       v-model="pagination"
       :total-rows="count"
       :caption="`找到 ${count} 筆資料`"

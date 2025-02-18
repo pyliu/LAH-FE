@@ -13,7 +13,6 @@
     </lah-transition>
     <lah-transition>
       <lah-pagination
-        v-if="count > pagination.perPage"
         v-model="pagination"
         :total-rows="pagination.count"
         :caption="`找到 ${pagination.count} 筆資料`"
