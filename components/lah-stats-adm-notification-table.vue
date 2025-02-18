@@ -115,6 +115,7 @@ export default {
           return this.tblKeys.some((key) => {
             if (Object.prototype.hasOwnProperty.call(item, key)) {
               const value = item[key] || '' // 針對空值做處理
+              this.$utils.warn('checking ', key)
               return key === 'channel' ? regex.test(this.channelName(value)) : regex.test(value)
             }
             return false

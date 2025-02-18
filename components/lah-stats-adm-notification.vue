@@ -37,10 +37,9 @@ b-card(:class="classNames")
   section.my-2(v-if="ready")
     .h4.center.my-2(v-if="count === 0") 查無資料
     div(v-else)
-      b-link.d-flex.justify-content-between.align-items-center.h5(
+      .d-flex.justify-content-between.align-items-center.h5(
         v-for="(item, idx) in top3Channels",
-        :key="`channel_${idx}`",
-        @click="popup(item.name)"
+        :key="`channel_${idx}`"
       )
         .font-weight-bold {{ idx + 1 }}. {{ item.name }} {{ item.channel }}
         b-badge(pill, :variant="idx === 0 ? 'primary' : idx === 1 ? 'info' : 'secondary'") {{ item.count }}
