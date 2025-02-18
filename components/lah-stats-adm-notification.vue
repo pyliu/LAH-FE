@@ -37,9 +37,10 @@ b-card(:class="classNames")
   section.my-2(v-if="ready")
     .h4.center.my-2(v-if="count === 0") 查無資料
     div(v-else)
-      .d-flex.justify-content-between.align-items-center.h5(
+      b-link.d-flex.justify-content-between.align-items-center.h5(
         v-for="(item, idx) in top3Channels",
-        :key="`channel_${idx}`"
+        :key="`channel_${idx}`",
+        @click="popup(item.channel)"
       )
         .font-weight-bold {{ idx + 1 }}. {{ item.name }} {{ item.channel }}
         b-badge(pill, :variant="idx === 0 ? 'primary' : idx === 1 ? 'info' : 'secondary'") {{ item.count }}
@@ -220,12 +221,12 @@ export default {
       }
       return name || row.channel
     },
-    popup (keyword) {
+    popup (channel) {
       this.modal(this.$createElement(lahStatsAdmNotificationTable, {
         props: {
           items: this.raw,
           fields: this.fiedls,
-          inKeyword: typeof keyword === 'string' ? keyword : ''
+          inChannel: typeof channel === 'string' ? channel : ''
         }
       }), {
         title: '系統發送即時通知詳情',

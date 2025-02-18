@@ -1,12 +1,15 @@
 <!-- eslint-disable vue/no-v-html -->
 <template lang="pug">
   div
-    lah-transition(appear): .d-flex.align-items-center.justify-content-end.mb-1(v-if="enableKeywordFilter")
-      b-input.col-2(
+    lah-transition(appear): .d-flex.align-items-center.justify-content-between.mb-1(v-if="enableKeywordFilter")
+      b-input-group.col-3.ml-n3(prepend="關鍵字", size="sm"): b-input(
         v-model="keyword",
         size="sm",
-        placeholder="... 輸入關鍵字篩選案件 ..."
+        placeholder=""
       )
+      b-input-group.col-3(prepend="日期", size="sm"): b-select(v-model="selectedDate", :options="dateOpts")
+      b-input-group.col-3(prepend="標題", size="sm"): b-select(v-model="selectedTitle", :options="titleOpts")
+      b-input-group.col-3.mr-n3(prepend="頻道", size="sm"): b-select(v-model="selectedChannel", :options="channelOpts")
     lah-transition: lah-pagination(
       v-if="count > pagination.perPage"
       v-model="pagination"
@@ -62,7 +65,7 @@
       template(#cell(channel)="{ item }")
         b-link.mx-auto(
           @click="userinfo('', item.channel)",
-          v-html="highlight(channelName(item))"
+          v-html="highlight(channelName(item.channel))"
         )
       template(#cell(title)="{ item }")
         .mx-auto(v-html="highlight(item.title)")
@@ -87,13 +90,16 @@ export default {
     captionAppend: { type: String, default: '' },
     small: { type: Boolean, default: true },
     enableKeywordFilter: { type: Boolean, default: true },
-    inKeyword: { type: String, default: '' }
+    inChannel: { type: String, default: '' }
   },
   data: () => ({
     transProps: {
       name: 'rollIn'
     },
     keyword: '',
+    selectedChannel: '',
+    selectedTitle: '',
+    selectedDate: '',
     pagination: {
       perPage: 5,
       currentPage: 1
@@ -109,23 +115,45 @@ export default {
   }),
   computed: {
     filtered () {
-      if (this.$utils.length(this.keyword) > 1) {
-        const regex = new RegExp(`${this.keyword}`, 'u')
-        const tmp = this.items?.filter((item) => {
-          return this.tblKeys.some((key) => {
-            if (Object.prototype.hasOwnProperty.call(item, key)) {
-              const value = item[key] || '' // 針對空值做處理
-              this.$utils.warn('checking ', key)
-              return key === 'channel' ? regex.test(this.channelName(value)) : regex.test(value)
-            }
-            return false
+      let tmp = this.items
+      try {
+        // filter by keyword
+        if (this.$utils.length(this.keyword) > 1) {
+          const regex = new RegExp(`${this.keyword}`, 'u')
+          tmp = tmp.filter((item) => {
+            return this.tblKeys.some((key) => {
+              if (Object.prototype.hasOwnProperty.call(item, key)) {
+                const value = item[key] || '' // 針對空值做處理
+                return key === 'channel' ? regex.test(this.channelName(value)) : regex.test(value)
+              }
+              return false
+            })
           })
-        })
+        }
+        // filter by title
+        if (!this.$utils.empty(this.selectedTitle)) {
+          tmp = tmp.filter((item) => {
+            return item.title === this.selectedTitle
+          })
+        }
+        // filter by channel
+        if (!this.$utils.empty(this.selectedChannel)) {
+          tmp = tmp.filter((item) => {
+            return item.channel === this.selectedChannel
+          })
+        }
+        // filter by date
+        if (!this.$utils.empty(this.selectedDate)) {
+          tmp = tmp.filter((item) => {
+            return item.create_datetime.startsWith(this.selectedDate)
+          })
+        }
+      } catch (ex) {
+        this.$utils.warn(ex)
+      } finally {
         this.$emit('count-changed', tmp?.length)
-        return tmp
       }
-      this.$emit('count-changed', this.items?.length)
-      return this.items
+      return tmp
     },
     tblKeys () {
       // 使用 map() 方法提取 key 欄位的值
@@ -163,6 +191,52 @@ export default {
     },
     sort () {
       return this.$utils.empty(this.mute)
+    },
+    channelOpts () {
+      const tmp = this.$utils.orderBy(
+        this.$utils.uniqBy(
+          this.filtered.map((item) => {
+            return {
+              value: item.channel,
+              text: this.channelName(item.channel)
+            }
+          }),
+          'value'
+        ),
+        ['value'],
+        'asc'
+      )
+      // add empty value at head
+      tmp.unshift({ value: '', text: '' })
+      return tmp
+    },
+    titleOpts () {
+      const tmp = this.$utils.orderBy(
+        this.$utils.uniqBy(
+          this.filtered.map((item) => {
+            return item.title
+          })
+        ),
+        [],
+        'asc'
+      )
+      // add empty value at head
+      tmp.unshift('')
+      return tmp
+    },
+    dateOpts () {
+      const tmp = this.$utils.orderBy(
+        this.$utils.uniqBy(
+          this.filtered.map((item) => {
+            return item.create_datetime.match(/^\d{4}-\d{2}-\d{2}/)[0]
+          })
+        ),
+        [],
+        'asc'
+      )
+      // add empty value at head
+      tmp.unshift('')
+      return tmp
     }
   },
   watch: {
@@ -178,21 +252,21 @@ export default {
       this.getCache('lah-stats-adm-notification-table-perPage').then((val) => {
         this.pagination.perPage = parseInt(val) || 5
       })
-      if (!this.$utils.empty(this.inKeyword)) {
-        this.keyword = this.inKeyword
+      if (!this.$utils.empty(this.inChannel)) {
+        this.selectedChannel = this.inChannel
       }
     }
   },
   methods: {
-    channelName (item) {
-      let name = this.channelMap.get(item.channel)
+    channelName (channel) {
+      let name = this.channelMap.get(channel)
       if (!name) {
-        name = this.userNames[item.channel]
+        name = this.userNames[channel]
       }
       if (name) {
-        return `${item.channel} ${name}`
+        return `${channel} ${name}`
       }
-      return item.channel
+      return channel
     },
     highlight (text, css = 'highlight-yellow') {
       if (this.$utils.length(this.keyword) > 1) {
