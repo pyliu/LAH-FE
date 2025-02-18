@@ -2,14 +2,15 @@
 <template lang="pug">
   div
     lah-transition(appear): .d-flex.align-items-center.justify-content-between.mb-1(v-if="enableKeywordFilter")
-      b-input-group.col-3.ml-n3(prepend="關鍵字", size="sm"): b-input(
+      b-input-group(prepend="關鍵字", size="sm"): b-input(
         v-model="keyword",
         size="sm",
         placeholder=""
       )
-      b-input-group.col-3(prepend="日期", size="sm"): b-select(v-model="selectedDate", :options="dateOpts")
-      b-input-group.col-3(prepend="標題", size="sm"): b-select(v-model="selectedTitle", :options="titleOpts")
-      b-input-group.col-3.mr-n3(prepend="頻道", size="sm"): b-select(v-model="selectedChannel", :options="channelOpts")
+      b-input-group.mx-1(prepend="日期", size="sm"): b-select(v-model="selectedDate", :options="dateOpts")
+      b-input-group(prepend="標題", size="sm"): b-select(v-model="selectedTitle", :options="titleOpts")
+      b-input-group.mx-1(prepend="頻道", size="sm"): b-select(v-model="selectedChannel", :options="channelOpts")
+      lah-button(@click="reset") 重設
     lah-transition: lah-pagination(
       v-model="pagination"
       :total-rows="count"
@@ -279,6 +280,10 @@ export default {
     },
     reset () {
       this.pagination.currentPage = 1
+      this.selectedChannel = ''
+      this.selectedDate = ''
+      this.keyword = ''
+      this.selectedTitle = ''
     },
     handleRowSelected (payload) {
       if (payload?.length > 0) {
