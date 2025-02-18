@@ -138,7 +138,10 @@
 </template>
 
 <script>
+import lahUserCard from '~/components/lah-user-card.vue';
+
 export default {
+  components: { lahUserCard },
   middleware: ['isAdmin'],
   data: () => ({
     tableItems: [],
@@ -274,7 +277,7 @@ export default {
     popupUserInfo (data) {
       if (!this.$utils.empty(data)) {
         const obj = Array.isArray(data) ? data[0] : data
-        this.modal(this.$createElement('lah-user-card', { props: { raw: [obj] } }), {
+        this.modal(this.$createElement(lahUserCard, { props: { raw: [obj] } }), {
           title: `${obj.id} ${obj.name} 資訊`
         })
       }

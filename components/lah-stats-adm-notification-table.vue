@@ -75,9 +75,11 @@
 </template>
 
 <script>
+import lahUserCard from './lah-user-card.vue';
 export default {
   emit: ['count-changed'],
   name: 'LahStatsAdmNotificationTable',
+  components: { lahUserCard },
   props: {
     items: { type: Array, default: () => ([]) },
     fields: { type: Array, default: undefined },
