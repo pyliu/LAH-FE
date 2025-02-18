@@ -3,6 +3,7 @@
   div
     lah-transition(appear): .d-flex.align-items-center.justify-content-between.mb-1(v-if="enableKeywordFilter")
       b-input-group(prepend="關鍵字", size="sm"): b-input(
+        ref="keyword",
         v-model="keyword",
         size="sm",
         placeholder=""
@@ -284,6 +285,7 @@ export default {
       this.selectedDate = ''
       this.keyword = ''
       this.selectedTitle = ''
+      this.$refs.keyword?.focus()
     },
     handleRowSelected (payload) {
       if (payload?.length > 0) {
