@@ -71,22 +71,24 @@ b-card(
         b-row
           b-col 收件日期：{{ caseData['收件日期'] }}
           b-col 結案日期：{{ caseData['結案日期'].split(' ')[0] }} {{ caseData['結案狀態'] }} ({{ caseData['結案與否'] }})
-      .lah-flex.justify-content-end
-        lah-button(
-          v-if="!isClose",
-          icon="hammer",
-          @click="fix"
-        ) 立即修正
-        lah-button.ml-1(
-          v-if="embed",
-          icon="question",
-          action="breath",
-          variant="outline-success",
-          no-border,
-          no-icon-gutter,
-          @click="$refs.help.show()",
-          title="登記案件狀態修正說明"
-        )
+      .lah-flex.justify-content-justify-content-between
+        div ⚠ 修正前請#[strong.text-danger 先請審查確認]異動資料都有寫進正式檔
+        b-button-group
+          lah-button(
+            v-if="!isClose",
+            icon="hammer",
+            @click="fix"
+          ) 立即修正
+          lah-button.ml-1(
+            v-if="embed",
+            icon="question",
+            action="breath",
+            variant="outline-success",
+            no-border,
+            no-icon-gutter,
+            @click="$refs.help.show()",
+            title="登記案件狀態修正說明"
+          )
       lah-fa-icon(icon="circle-exclamation", variant="danger") RM38 異動訊息
       .pl-2.small {{ $utils.empty(caseData.RM38) ? '[無資料]' : caseData.RM38 }}
 
@@ -116,7 +118,7 @@ b-card(
 </template>
 
 <script>
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue';
 export default {
   emit: ['update'],
   components: { lahRegCaseDetailVue },
@@ -295,8 +297,8 @@ export default {
     },
     fix () {
       this.confirm(
-        '確定要修正登記處理註記異常狀態？',
-        { title: '請確認修正處理註記' }
+        '⚠ 請確定異動資料皆有正確寫入，才能修正此異常狀態 ... 要執行？',
+        { title: '修正異動有誤處理註記' }
       ).then((YN) => {
         if (YN) {
           this.isBusy = true
