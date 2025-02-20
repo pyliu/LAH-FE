@@ -90,7 +90,7 @@ export default {
   data: () => ({
     header: 'AP Server 備份',
     fetchType: 'subject',
-    fetchKeyword: 'AP Server',
+    fetchKeyword: 'Backup Information',
     fetchDay: 1,
     regex: /.+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm,
     // AP Server (apha14) files backup failure!!
