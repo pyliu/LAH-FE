@@ -48,7 +48,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示狀態未更新或是有掛載的資料夾使用量超過 {{ lightCruteria.warning }}%
+      div 🟡 表示狀態未更新或是主機有錯誤訊息或是有掛載的資料夾使用量超過 {{ lightCruteria.warning }}%
       div 🔴 表示檢測有錯誤或是有掛載的資料夾使用量超過 {{ lightCruteria.danger }}%
       b-img.mt-2(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
   slot
