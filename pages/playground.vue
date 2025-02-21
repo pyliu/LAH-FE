@@ -19,6 +19,13 @@ div: client-only
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
   lah-flex-item-group
+    .col-md-4.mb-3(
+      key="lah-mbhacmp",
+      :style="'max-height: 25vh; overflow: auto;'"
+    ): lah-monitor-board-hacmp(
+      ref="LahMonitorBoardHacmp",
+      footer
+    )
     .col-md-4(key="lah-mbsrc"): lah-mgmt-board-sync-reg-case
     .col-md-4(key="lah-mbwt"): lah-monitor-board-ws-test
     //- lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
