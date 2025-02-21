@@ -80,8 +80,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
         )
           .d-flex.justify-content-between.align-items-center
             strong {{ fs }}
-            span {{ `${progress(fs)}%` }}
+            span {{ isFSOK(fs) ? `${progress(fs)}%` : '🔴' }}
           b-progress(
+            v-if="isFSOK(fs)"
             :variant="progressLight(fs)",
             :value="progress(fs)",
             max="100",
@@ -150,6 +151,12 @@ export default {
       }
       return []
     },
+    hacmpFSOK () {
+      if (this.hacmpFS.length !== this.requireFS.length) {
+        return false
+      }
+      return this.hacmpFS.every(fs => !this.$utils.empty(fs.used))
+    },
     hacmpFSCapacity () {
       if (this.messageChunks.length > 0) {
         const lines = this.messageChunks[2].trim().split('\r\n')
@@ -195,9 +202,9 @@ export default {
       return []
     },
     hacmpFSMessage () {
-      return this.hacmpFS.length === this.requireFS.length
+      return this.hacmpFSOK
         ? '✅ 掛載資料夾'
-        : '❌ 掛載資料夾數量有誤 ... 請檢查'
+        : '❌ 掛載資料夾狀態有誤 ... 請檢查'
     },
     isTodayErrpt () {
       if (this.headErrpt === false) {
@@ -246,7 +253,7 @@ export default {
         return 'warning'
       }
 
-      if (this.hacmpFS.length !== this.requireFS.length) {
+      if (!this.hacmpFSOK) {
         return 'danger'
       }
       const lightArr = []
@@ -277,7 +284,7 @@ export default {
     }
   },
   watch: {
-    // errpt (val) { this.$utils.warn(val) }
+    hacmpFS (val) { this.$utils.warn(val) }
   },
   mounted () {
     // update the reload timer to 1hrs
@@ -336,21 +343,27 @@ export default {
     },
     dfPopover (fs) {
       const capacity = this.hacmpFSCapacity.find(item => item.mounted_on === fs)
-      return `
-        裝置：${capacity?.file_system}<br/>
-        掛載：${capacity?.mounted_on}<br/>
-        容量：${capacity?.gb_blocks} GB<br/>
-        剩餘：${capacity?.free} GB<br/>
-        使用率：${capacity?.used}
-      `
+      if (capacity) {
+        return `
+          裝置：${capacity.file_system}<br/>
+          掛載：${capacity.mounted_on}<br/>
+          容量：${capacity.gb_blocks} GB<br/>
+          剩餘：${capacity.free} GB<br/>
+          使用率：${capacity.used}
+        `
+      }
+      return '⚠異常，無使用容量資訊'
     },
     progress (fs) {
       const df = this.hacmpFSCapacity.find(item => item.mounted_on === fs)
       return parseInt(df?.used?.replace(/^[%]+|[%]+$/g, ''))
     },
+    isFSOK (fs) {
+      return !isNaN(this.progress(fs))
+    },
     progressLight (fs) {
       const percent = this.progress(fs)
-      if (percent > this.lightCruteria.danger) {
+      if (isNaN(percent) || percent > this.lightCruteria.danger) {
         return 'danger'
       }
       if (percent > this.lightCruteria.warning) {
