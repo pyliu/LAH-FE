@@ -110,7 +110,7 @@ export default {
       this.foundNodes = [...this.headContent.matchAll(this.nodeRegex)]
       const tmp = this.foundNodes.join(' ↔ ')
       if (this.$utils.empty(tmp)) {
-        return '找不到找不到 /ORAH[A-H]HA[1-2]/igm 配對資訊'
+        return '找不到 /ORAH[A-H]HA[1-2]/igm 配對資訊'
       }
       return tmp
     },
