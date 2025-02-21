@@ -108,7 +108,11 @@ export default {
     extractNodes () {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.foundNodes = [...this.headContent.matchAll(this.nodeRegex)]
-      return this.foundNodes.join(' ↔ ')
+      const tmp = this.foundNodes.join(' ↔ ')
+      if (this.$utils.empty(tmp)) {
+        return '找不到找不到 /ORAH[A-H]HA[1-2]/igm 配對資訊'
+      }
+      return tmp
     },
     extractDNPValues () {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
