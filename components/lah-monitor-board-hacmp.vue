@@ -39,7 +39,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`", size="lg")
       ul
         li 顯示主資料庫HACMP狀態
           ul
@@ -54,7 +54,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       div 🟢 表示一切正常
       div 🟡 表示狀態未更新或是主機有錯誤訊息或是有掛載的資料夾使用量超過 {{ lightCruteria.warning }}%
       div 🔴 表示檢測有錯誤或是有掛載的資料夾使用量超過 {{ lightCruteria.danger }}%
-      b-img.mt-2(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
+      b-img.mt-2.shadow.w-100(src="~/assets/img/mb_hacmp.jpg", fluid, thumbnail)
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
   div(v-else)

@@ -39,7 +39,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`", size="lg")
       ul
         li 顯示主資料庫兩個NODE之間連線狀態
           ul
@@ -48,7 +48,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         li 分析電子郵件以顯示資料庫兩個NODE的 DNP 連線狀態。
         li 依 crontab 設定時間檢查後並送出電子郵件通知(桃園所 👉 每天 08:00 ~ 17:00 每小時檢查一次)。
         li 儀表板約每60分鐘更新檢查監控郵件一次。
-      b-img(src="~/assets/img/mb_dnp.jpg", fluid, thumbnail)
+      b-img.w-100.shadow(src="~/assets/img/mb_dnp.jpg", fluid, thumbnail)
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常

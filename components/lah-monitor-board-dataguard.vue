@@ -39,7 +39,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`", size="lg")
       ul
         li 顯示主、備份及副中心(中壢)資料庫之同步狀態
           ul
@@ -50,7 +50,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         li 檢視P8-2(主)、P7-102(備份)及hb-114(副中心)內相關文字(log sequence及switchover status)狀態，如下圖。
         li 依 crontab 設定時間檢查後並送出電子郵件通知(桃園所 👉 每天 08:00 ~ 17:00 每小時檢查一次)。
         li 儀表板約每小時更新一次。
-      b-img.shadow(src="~/assets/img/mb_dataguard.jpg", fluid, thumbnail)
+      b-img.w-100.shadow(src="~/assets/img/mb_dataguard.jpg", fluid, thumbnail)
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
