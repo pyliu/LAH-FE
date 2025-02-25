@@ -277,7 +277,7 @@ export default {
       }
       // order by state
       this.attentionList = this.$utils.orderBy(tmp, 'state')
-    }, 1000)
+    }, 5000)
     // using animation to catch attention
     this.attentionTimer = setInterval(() => {
       this.dangerList.forEach((card) => {
