@@ -234,7 +234,12 @@ export default {
       return false
     },
     message () {
-      return this.statusData?.message || '🟡 尚未取得狀態更新資料'
+      const tmp = this.statusData?.message || '🟡 尚未取得狀態更新資料'
+      if (tmp.includes('未偵測到同步程式')) {
+        // skip l05 process existence message
+        return ''
+      }
+      return tmp
     },
     statusMessage () {
       if (this.isBusy) {
