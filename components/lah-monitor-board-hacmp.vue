@@ -41,9 +41,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫 HACMP 狀態共7個掛載的資料夾
+        li 顯示主資料庫HACMP狀態
+          ul
+            li 請於 crontab 安裝 ⭐#[b-link.text-danger.font-weight-bold(:href="checkHacmpSh" target="_blank" title="下載腳本") check-hacmp-fs.sh]⭐ 以利完成後送出通知電子郵件
+            li e.g. 在 root 的 crontab 新增「0 8-17 * * 1-6 /scripts/check-hacmp-fs.sh > /dev/null」於辦公時間每小時執行一次(請自行依擺放腳本位置修正路徑)
+        li 分析電子郵件內文以顯示是否掛載7個資料夾
           ul: li /ARCH, /BACKUP, /oracle, /WEB/DB1, /WEB/DB2, /WEB/DB3, /WEB/DB4
-        li 每天 08:00 ~ 17:00 每小時檢查一次(桃園所)
+        li 依上述 crontab 設定時間檢查(桃園所 👉 每天 08:00 ~ 17:00 每小時檢查一次)
         li 儀表板約60分鐘重新更新一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
@@ -141,6 +145,9 @@ export default {
     }
   }),
   computed: {
+    checkHacmpSh () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/check-hacmp-fs.sh`
+    },
     headMessage () {
       return this.messages[0]
     },
@@ -284,7 +291,7 @@ export default {
     }
   },
   watch: {
-    hacmpFS (val) { this.$utils.warn(val) }
+    // hacmpFS (val) { this.$utils.warn(val) }
   },
   mounted () {
     // update the reload timer to 1hrs

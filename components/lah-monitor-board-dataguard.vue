@@ -41,11 +41,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示資料庫 Data Guard 狀態
-        li 檢視P8-2、P7-102及hb-114內相關文字(log sequence及switchover status)狀態，如下圖。
-        b-img(src="~/assets/img/mb_dataguard.jpg", fluid, thumbnail)
-        li 每天 08:00 ~ 17:00 每小時檢查一次
+        li 顯示主、備份及副中心(中壢)資料庫之同步狀態
+          ul
+            li 請於各主機裡 crontab 安裝 ⭐#[b-link.text-danger.font-weight-bold(:href="checkDataguardSh" target="_blank" title="下載腳本") check-dataguard.sh]⭐ 以利完成後送出通知電子郵件
+            li 將此檔案跟上面的腳本放在一起 ⭐#[b-link.text-primary.font-weight-bold(:href="checkDataguardSQL" target="_blank" title="下載SQL") check-dataguard.sql]⭐ 以利腳本執行SQL步驟
+            li e.g. 在 root 的 crontab 新增「0 8-17 * * 1-6 /scripts/check-dataguard.sh > /dev/null」於辦公時間每小時執行一次(請自行依擺放腳本位置修正路徑)
+        li 分析電子郵件以顯示各資料庫 Data Guard 狀態
+        li 檢視P8-2(主)、P7-102(備份)及hb-114(副中心)內相關文字(log sequence及switchover status)狀態，如下圖。
+        li 依 crontab 設定時間檢查後並送出電子郵件通知(桃園所 👉 每天 08:00 ~ 17:00 每小時檢查一次)
         li 儀表板約每小時更新一次
+      b-img.shadow(src="~/assets/img/mb_dataguard.jpg", fluid, thumbnail)
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
       div 🟢 表示一切正常
@@ -96,6 +101,12 @@ export default {
     fetchDay: 1
   }),
   computed: {
+    checkDataguardSh () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/check-dataguard.sh`
+    },
+    checkDataguardSQL () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/check-dataguard.sql`
+    },
     headMessages () {
       // collect records within 6 hrs
       const now = +new Date()
