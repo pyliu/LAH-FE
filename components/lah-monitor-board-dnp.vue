@@ -92,7 +92,7 @@ export default {
     footer: { type: Boolean, default: false }
   },
   data: () => ({
-    header: '資料庫 DNP',
+    header: '資料庫 PowerHA',
     fetchType: 'subject',
     fetchKeyword: 'smitty dnp check',
     fetchDay: 1,
