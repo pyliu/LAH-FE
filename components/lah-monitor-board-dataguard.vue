@@ -43,7 +43,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       ul
         li 顯示主、備份及副中心(中壢)資料庫之同步狀態
           ul
-            li 請於各主機裡 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkDataguardSh" target="_blank" title="下載腳本") check-dataguard.sh]」以利完成後送出通知電子郵件。(⭐請依各實際環境修正腳本內路徑及收件者資訊⭐)
+            li 請於各主機裡 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkDataguardSh" target="_blank" title="下載腳本") check-dataguard.sh]」以利完成後送出通知電子郵件。(⭐請依各所實際環境修正腳本內路徑及收件者資訊⭐)
             li 將此檔案 ⭐#[b-link.text-primary.font-weight-bold(:href="checkDataguardSQL" target="_blank" title="下載SQL") check-dataguard.sql]⭐ 跟上面的腳本放在一起以利腳本執行SQL步驟
             li e.g. 在 root 的 crontab 新增「0 8-17 * * 1-6 /scripts/check-dataguard.sh > /dev/null」於辦公時間每小時執行一次(請自行依擺放腳本位置修正路徑)
         li 分析電子郵件以顯示各資料庫 Data Guard 狀態。
