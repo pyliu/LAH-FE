@@ -5,18 +5,25 @@ b-card(:border-variant="border", :class="[attentionCss]")
       strong {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
       lah-button-count-badge(
+        v-if="!isBusy && failedCellLogsLength > 0",
+        :count="failedCellLogsLength",
+        variant="danger",
+        :title="`失敗${failedCellLogsLength}則`",
+        @click="popupSMSLogs(failedCellLogs, '失敗部分')"
+      ) 異動
+      lah-button-count-badge(
+        v-if="!isBusy && lastestChangedCount > 0",
         :count="lastestChangedCount",
         variant="primary",
         :title="`異動已發送${lastestChangedCount}則`",
-        @click="popupSMSLogs(lastestChangedCellLogs, '僅異動部分')",
-        v-if="!isBusy && lastestChangedCount > 0"
+        @click="popupSMSLogs(lastestChangedCellLogs, '僅異動部分')"
       ) 異動
       lah-button-count-badge(
+        v-if="!isBusy && logs.length > 0",
         :count="logs.length",
         variant="success",
         :title="`全部已發送${logs.length}則`",
-        @click="popupSMSLogs(logs, '全部')",
-        v-if="!isBusy && logs.length > 0"
+        @click="popupSMSLogs(logs, '全部')"
       )
       lah-button(
         icon="question",
@@ -184,6 +191,15 @@ export default {
       }
       return false
     },
+    failedCellLogs () {
+      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && item.SMS_RESULT === 'F')
+    },
+    failedCellLogsLength () {
+      return this.failedCellLogs?.length || 0
+    },
+    top3LastestChangedCellLogs () {
+      return this.lastestChangedCellLogs.slice(0, 3)
+    },
     lastestChangedCellLogs () {
       return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && !item.SMS_CODE.startsWith('SM'))
     },
@@ -232,6 +248,10 @@ export default {
         !this.$utils.statusCheck(this.responseData?.statusCode) ||
         this.stLines.length !== this.edLines.length
       ) {
+        return 'danger'
+      }
+      // any top 3 changed messages has FAIL state
+      if (this.top3LastestChangedCellLogs.some(sms => sms.SMS_RESULT === 'F')) {
         return 'danger'
       }
       return 'success'
