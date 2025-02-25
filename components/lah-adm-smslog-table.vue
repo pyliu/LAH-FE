@@ -221,9 +221,6 @@ export default {
     },
     watchFails (falg) {
       this.resetPagination()
-    },
-    logs (val) {
-      this.$utils.warn(val)
     }
   },
   async created () {
