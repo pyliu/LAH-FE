@@ -10,7 +10,7 @@ div
       .ml-1(v-if="filterTime !== '全部'") 點
       strong.mx-3 |
       b-checkbox.ml-1(v-model="watchFails", switch) 僅顯示傳送失敗
-    lah-message(:message="message", auto-hide)
+    lah-message(:message="message", auto-hide, :variant="messageVariant")
     .d-flex.align-items-center
       lah-fa-icon.text-nowrap.mx-1(
         icon="comment-sms",
@@ -156,6 +156,7 @@ export default {
     },
     watchFails: false,
     message: '',
+    messageVariant: 'info',
     keyword: '',
     filterType: '全部',
     filterTypeOpts: [
@@ -339,7 +340,8 @@ export default {
           keyword: this.sanitizedDate(this.keyword)
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
-          this.message = `${status} ${data.message}`
+          this.messageVariant = this.$utils.statusCheck(data.status) ? 'info' : 'warning'
+          this.message = `${status} ${data.message} (共 ${data.raw.length} 筆)`
           this.logs = [...data.raw]
           this.$emit('reload', {
             keyword: this.keyword,
@@ -360,7 +362,8 @@ export default {
           ed: this.sanitizedDate(end)
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
-          this.message = `${status} ${data.message}`
+          this.messageVariant = this.$utils.statusCheck(data.status) ? 'info' : 'warning'
+          this.message = `${status} ${data.message} (共 ${data.raw.length} 筆)`
           this.logs = [...data.raw]
           this.$emit('reload', {
             keyword: `${begin} ~ ${end}`,

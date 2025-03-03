@@ -76,6 +76,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstCaseLog) ? firstCaseLog.SMS_CONTENT : firstCaseLog.SMS_RESULT }}
       hr
       .d-flex.justify-content-between.align-items-center
+        .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 指定送達處所
+        .truncate.text-center: b-link(@click="popupSingleSMS(firstAddressLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstAddressLog) }}
+        lah-badge-human-datetime(:seconds="convertSeconds(firstAddressLog)")
+      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstAddressLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstAddressLog) ? firstAddressLog.SMS_CONTENT : firstAddressLog.SMS_RESULT }}
+      hr
+      .d-flex.justify-content-between.align-items-center
         .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他類型&emsp;&emsp;&emsp;
         .truncate.text-center: b-link(@click="popupSingleSMS(firstOtherLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstOtherLog) }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstOtherLog)")
@@ -92,7 +98,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
 export default {
   name: 'LahMonitorBoardSms',
   emit: ['light-update'],
@@ -163,6 +169,21 @@ export default {
         return item.SMS_TYPE === '案件辦理情形'
       })
     },
+    firstAddressLight () {
+      return this.itemLight(this.firstAddressLog)
+    },
+    firstAddressLog () {
+      const log = this.addressLogs[0]
+      if (this.$utils.empty(log)) {
+        return {}
+      }
+      return log
+    },
+    addressLogs () {
+      return this.logs.filter((item) => {
+        return item.SMS_TYPE === '指定送達處所'
+      })
+    },
     firstOtherLight () {
       return this.itemLight(this.firstOtherLog)
     },
@@ -175,7 +196,7 @@ export default {
     },
     otherLogs () {
       return this.logs.filter((item) => {
-        return !['案件辦理情形', '地籍異動即時通'].includes(item.SMS_TYPE)
+        return !['案件辦理情形', '地籍異動即時通', '指定送達處所'].includes(item.SMS_TYPE)
       })
     },
     border () {
