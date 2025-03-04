@@ -123,8 +123,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 
 export default {
   name: 'LahMonitorBoardHacmp',
@@ -221,7 +221,7 @@ export default {
       return parseInt(days) === 0
     },
     firstErrptDesc () {
-      return `🟡 今天伺服器有錯誤訊息 「${this.headErrpt?.DESCRIPTION}」`
+      return `🟡 24小時內有錯誤訊息 「${this.headErrpt?.DESCRIPTION}」`
     },
     errpt () {
       if (this.messageChunks.length > 0) {
