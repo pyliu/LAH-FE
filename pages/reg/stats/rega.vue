@@ -57,6 +57,7 @@ div(v-cloak)
 
   b-modal(
     ref="cases",
+    size="lg",
     hide-footer,
     no-close-on-backdrop,
     scrollable
@@ -89,7 +90,7 @@ div(v-cloak)
 </template>
 
 <script>
-import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue';
+import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
 export default {
   fetchOnServer: false,
   async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
@@ -121,7 +122,11 @@ export default {
     selectedRow: {},
     selectedFields: [
       { key: 'ID', label: '案號', sortable: true },
-      { key: 'RA40', label: '註記日期', sortable: true }
+      { key: 'RA40', label: '註記日期', sortable: true },
+      { key: 'RA10', label: '土地面積', sortable: true },
+      { key: 'RECA', label: '土地筆數', sortable: true },
+      { key: 'RA08', label: '建物面積', sortable: true },
+      { key: 'RECD', label: '建物筆數', sortable: true }
     ],
     pagination: {
       perPage: 20,
@@ -173,9 +178,10 @@ export default {
               return f
             }, 0),
             CASES: this.groupByItem[key].reduce((acc, currentItem) => {
+              this.$utils.warn(currentItem)
               acc.push({
                 ID: `${currentItem.RA03}${currentItem.RA04_1}${currentItem.RA04_2}`,
-                RA40: currentItem.RA40
+                ...currentItem
               })
               return acc
             }, [])
