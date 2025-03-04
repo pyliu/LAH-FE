@@ -19,19 +19,19 @@ div: client-only
         li 修改前端伺服器之「.env」檔案已變更上開設定值
     .d-flex
   lah-flex-item-group
-    .col-md-4.mb-3(
-      key="lah-mbhacmp",
-      :style="'max-height: 25vh; overflow: auto;'"
-    ): lah-monitor-board-hacmp(
-      ref="LahMonitorBoardHacmp",
-      footer
-    )
+    //- .col-md-4.mb-3(
+    //-   key="lah-mbhacmp",
+    //-   :style="'max-height: 25vh; overflow: auto;'"
+    //- ): lah-monitor-board-hacmp(
+    //-   ref="LahMonitorBoardHacmp",
+    //-   footer
+    //- )
     .col-md-4(key="lah-mbsrc"): lah-mgmt-board-sync-reg-case
     .col-md-4(key="lah-mbwt"): lah-monitor-board-ws-test
-    //- lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
+    .col-md-4(key="lah-mbrcfr"): lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
     //- lah-monitor-board-srmas-weather
     .col-md-4(key="lah-mbsn"): lah-monitor-board-sms-notify(footer)
-    //- .col-md-4(key="mb-sms"): lah-monitor-board-sms(footer)
+    .col-md-4(key="mb-sms"): lah-monitor-board-sms(footer)
     //- .col-md-4(key="office-down"): lah-office-down-timeline.card-body-fixed-height-3
     //- .col-md-4(key="mb-srmas"): lah-monitor-board-srmas.card-body-fixed-height-3
     //- .col-md-4(key="site-tw"): b-card.border-0.card-body-fixed-height-3(no-body)

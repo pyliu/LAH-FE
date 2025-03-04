@@ -178,7 +178,6 @@ export default {
               return f
             }, 0),
             CASES: this.groupByItem[key].reduce((acc, currentItem) => {
-              this.$utils.warn(currentItem)
               acc.push({
                 ID: `${currentItem.RA03}${currentItem.RA04_1}${currentItem.RA04_2}`,
                 ...currentItem
