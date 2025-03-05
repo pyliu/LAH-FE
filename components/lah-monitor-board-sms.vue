@@ -98,7 +98,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 export default {
   name: 'LahMonitorBoardSms',
   emit: ['light-update'],
@@ -262,7 +262,7 @@ export default {
       if (!this.$utils.empty(item.SMS_MAIL)) {
         return item.SMS_MAIL
       }
-      return '本日尚無發送簡訊'
+      return '本日尚無發送資料'
     },
     itemLight (item) {
       if (!this.$utils.empty(item)) {
