@@ -66,7 +66,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         href="#",
         @click="popupLogContent(item)",
         title="顯示詳細記錄"
-      ) {{ item.subject.replace(' DataGuard STATE', '') }}
+      ) {{ dbHostName(item) }}
       lah-badge-human-datetime(
         :variant="isToday(item.timestamp) ? 'success' : 'muted'",
         :seconds="item.timestamp"
@@ -84,8 +84,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 
 export default {
   name: 'LahMonitorBoardDataguard',
@@ -142,6 +142,18 @@ export default {
     this.reloadMs = (1 * 60 * 60 + this.$utils.rand(60)) * 1000
   },
   methods: {
+    dbHostName (item) {
+      const code = item.subject?.replace(' DataGuard STATE', '')?.toUpperCase()
+      switch (code) {
+        case 'P8-2':
+          return '主要(局端P8-2)'
+        case 'P7-102':
+          return '備份(所端P7-102)'
+        case 'HB-114':
+          return '備援(副中心HB-114)'
+      }
+      return code
+    },
     logSeqMatches (item) {
       const regex = /Current\s+log\s+sequence\s+(\d+)/gm
       return [...item.message.matchAll(regex)]
