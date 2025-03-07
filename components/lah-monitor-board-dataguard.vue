@@ -146,11 +146,11 @@ export default {
       const code = item.subject?.replace(' DataGuard STATE', '')?.toUpperCase()
       switch (code) {
         case 'P8-2':
-          return '主要(局端 P8-2)'
+          return '主要 (局端 P8-2)'
         case 'P7-102':
-          return '備份(所端 P7-102)'
+          return '備份 (所端 P7-102)'
         case 'HB-114':
-          return '備援(副中心 HB-114)'
+          return '備援 (副中心 HB-114)'
       }
       return code
     },
