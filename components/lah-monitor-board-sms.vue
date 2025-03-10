@@ -5,18 +5,20 @@ b-card(:border-variant="border", :class="[attentionCss]")
     lah-fa-icon.font-weight-bold(icon="comment-sms", append) {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button-count-badge(
+        v-if="okCount > 0",
         :count="okCount",
         variant="success",
         :title="`${okCount}則成功`",
         @click="popupSMS(ok, '(成功)')",
-        v-if="!isBusy"
+        :disabled="isBusy"
       )
       lah-button-count-badge(
+        v-if="failCount > 0",
         :count="failCount",
         variant="danger",
         :title="`${failCount}則失敗`",
         @click="popupSMS(fails, '(失敗)')",
-        v-if="!isBusy"
+        :disabled="isBusy"
       )
       lah-button(
         icon="arrow-up-right-from-square",
