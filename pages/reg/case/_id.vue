@@ -5,7 +5,16 @@
 </template>
 
 <script>
+import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
 export default {
+  components: {
+    lahRegCaseDetail
+  },
+  data () {
+    return {
+      isBusy: true
+    }
+  },
   head: {
     title: '登記案件詳細內容-桃園市地政局'
   },
