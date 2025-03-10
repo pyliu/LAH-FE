@@ -42,7 +42,7 @@
           <b-link @click="popup(data)">{{ data.value }} <lah-fa-icon icon="window-restore" regular /></b-link>
         </span>
         <span v-else>
-          <NuxtLink :to="`/regcase/${data.value}`">{{ data.value }}</NuxtLink>
+          <NuxtLink :to="`/reg/case/${data.value}`">{{ data.value }}</NuxtLink>
           <b-link @click="popup(data)"><lah-fa-icon icon="window-restore" regular /></b-link>
         </span>
         <!-- <NuxtLink :to="`/regcase/${data.value}`">

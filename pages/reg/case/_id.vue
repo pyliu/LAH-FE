@@ -7,7 +7,7 @@
 <script>
 export default {
   head: {
-    title: `登記案件詳細內容-桃園市地政局`,
+    title: '登記案件詳細內容-桃園市地政局'
   },
   computed: {
     caseId () { return this.$route.params.id || '' },
