@@ -68,8 +68,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 
 export default {
   name: 'LahMonitorBoardTestdb',
@@ -233,7 +233,7 @@ export default {
     popupExtractMessage (item) {
       this.modal(this.itemMessage(item).replaceAll('\n', '<br/>'), {
         title: `${this.header} - ${item.subject}`,
-        size: 'md',
+        size: 'lg',
         html: true
       })
     },
