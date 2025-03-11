@@ -70,8 +70,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
         a.truncate(
           href="#",
           @click="popupLogContent(headMessage)",
-          title="顯示詳細記錄"
-        ) {{ hacmpFSMessage }}
+          title="顯示詳細記錄",
+          v-html="hacmpFSMessage"
+        )
         lah-badge-human-datetime(
           :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
           :seconds="headMessage.timestamp"
@@ -142,7 +143,8 @@ export default {
     lightCruteria: {
       danger: 85,
       warning: 80
-    }
+    },
+    errorLines: []
   }),
   computed: {
     checkHacmpSh () {
@@ -160,6 +162,7 @@ export default {
     },
     hacmpFSOK () {
       if (this.hacmpFS.length !== this.requireFS.length) {
+        this.$utils.error(this.hacmpFS, this.requireFS)
         return false
       }
       return this.hacmpFS.every(fs => !this.$utils.empty(fs.used))
@@ -189,29 +192,66 @@ export default {
     },
     hacmpFS () {
       if (this.messageChunks.length > 0) {
-        const lines = this.messageChunks[1].trim().split('\r\n')
         /**
-         * remove the first and last line
-         * first always 👉 #File System    Volume Group      Resource Group                      Node List
-         * last always 👉 df -g
+         * expect [1] will be below
+         *
+         * #File System Volume Group Resource Group Node List
+         * /oracle datavg reg_ctl ORAHAHA1,ORAHAHA2
+         * /ARCH datavg reg_ctl ORAHAHA1,ORAHAHA2
+         * /WEB/DB1 datavg reg_ctl ORAHAHA1,ORAHAHA2
+         * /WEB/DB2 datavg reg_ctl ORAHAHA1,ORAHAHA2
+         * /WEB/DB3 datavg reg_ctl ORAHAHA1,ORAHAHA2
+         * /WEB/DB4 datavg reg_ctl ORAHAHA1,ORAHAHA2
+         * /BACKUP datavg reg_ctl ORAHAHA1,ORAHAHA2
+         *  df -g
+         *
+         * ERROR got below
+         *
+         * clhaver[211]: cannot connect to node ORAHAHA2 rc=-1 errno=0
+         * cl_showfs2: The command will not be run because the following nodes are unreachable: ORAHAHA2
+         * df -g
+         *
          */
-        return lines.slice(1, -1).map((item) => {
-          const tokens = item.trim().split(/\s+/)
-          return {
-            file_system: tokens[0], // e.g. /oracle
-            volume_group: tokens[1], // e.g. datavg
-            resource_group: tokens[2], // e.g. reg_ctl
-            node_list: tokens[3], // e.g. ORAHAHA1,ORAHAHA2
-            used: this.hacmpFSCapacity.find(item => item.mounted_on === tokens[0])?.used || ''
-          }
+        const lines = this.messageChunks[1].trim().split('\r\n')
+        if (lines.length === 9) {
+          this.$nextTick(() => {
+            // clean error lines
+            this.errorLines = []
+          })
+          /**
+           * remove the first and last line
+           * first always 👉 #File System    Volume Group      Resource Group                      Node List
+           * last always 👉 df -g
+           */
+          return lines.slice(1, -1).map((item) => {
+            const tokens = item.trim().split(/\s+/)
+            return {
+              file_system: tokens[0], // e.g. /oracle
+              volume_group: tokens[1], // e.g. datavg
+              resource_group: tokens[2], // e.g. reg_ctl
+              node_list: tokens[3], // e.g. ORAHAHA1,ORAHAHA2
+              used: this.hacmpFSCapacity.find(item => item.mounted_on === tokens[0])?.used || ''
+            }
+          })
+        }
+        // add error lines
+        this.$nextTick(() => {
+          this.$utils.error('HACMP檢查檢查錯誤', lines)
+          // remove last line 👉 "df -g"
+          this.errorLines = lines.slice(0, -1)
         })
+        return []
       }
       return []
     },
     hacmpFSMessage () {
-      return this.hacmpFSOK
-        ? '✅ 掛載資料夾'
-        : '❌ 掛載資料夾狀態有誤 ... 請檢查'
+      if (this.hacmpFSOK) {
+        return '✅ 掛載資料夾正常'
+      }
+      if (this.errorLines.length > 0) {
+        return `❌ 有錯誤訊息 ... 請檢查<br/>${this.errorLines.join('<br/>')}`
+      }
+      return ''
     },
     isTodayErrpt () {
       if (this.headErrpt === false) {
