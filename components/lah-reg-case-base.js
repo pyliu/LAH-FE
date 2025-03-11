@@ -46,6 +46,10 @@ export default {
   },
   created () { this.bakedData = this.parentData },
   fetch () {
+    if (this.isBusy) {
+      this.$utils.warn(`${this.ID}案件讀取中 ... `)
+      return false
+    }
     // case-id prop-in is valid then uses it for fetching data
     if (this.validID && (this.reload || !this.bakedData)) {
       this.isBusy = true

@@ -22,8 +22,8 @@ export default {
       this.trigger('ready', flag)
     }
   },
-  mounted () {
-    this.trigger('ready', this.ready)
+  created () {
+    this.$fetch()
   }
 }
 </script>
