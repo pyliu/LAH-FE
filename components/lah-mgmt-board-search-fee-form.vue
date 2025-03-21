@@ -161,9 +161,9 @@ b-card(border-variant="info")
 </template>
 
 <script>
-import lahFeeDataDetailVue from './lah-fee-data-detail.vue';
-import lahMgmtBoardFeeFormPaymentItemsVue from './lah-mgmt-board-fee-form-payment-items.vue';
-import lahMgmtBoardFeeFormStateVue from './lah-mgmt-board-fee-form-state.vue';
+import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
+import lahMgmtBoardFeeFormPaymentItemsVue from './lah-mgmt-board-fee-form-payment-items.vue'
+import lahMgmtBoardFeeFormStateVue from './lah-mgmt-board-fee-form-state.vue'
 
 export default {
   components: { lahFeeDataDetailVue, lahMgmtBoardFeeFormStateVue, lahMgmtBoardFeeFormPaymentItemsVue },
@@ -221,9 +221,11 @@ export default {
     const now = new Date()
     this.searchYear = now.getFullYear() - 1911
     this.searchYears = [{ text: this.searchYear, value: this.searchYear }]
-    this.prepareYears()
     this.clearSearchData()
     this.searchMaxPcNumber()
+  },
+  mounted () {
+    this.prepareYears()
   },
   methods: {
     async prepareYears () {
