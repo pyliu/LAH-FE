@@ -77,8 +77,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base';
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
+import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 
 export default {
   name: 'LahMonitorBoardApbackup',
@@ -93,8 +93,8 @@ export default {
     fetchKeyword: 'AP Server',
     fetchDay: 1,
     regex: /.+\((.+)\)\s+files\s+backup\s+(successful|.+)\./gm,
-    // AP Server (apha14) files backup failure!!
-    failRegex: /AP\s+Server\s+\((.+)\)\s+files\s+backup\s+(failure)!!/gm,
+    // "AP Server (apha14) files backup failure!!"" OR "20.1.34.205 (apha01) files backup failure!!""
+    failRegex: /(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|AP\s+Server)\s+\((.+)\)\s+files\s+backup\s+(failure|success)(?:!!)*/gm,
     expectAPs: 8
   }),
   computed: {
