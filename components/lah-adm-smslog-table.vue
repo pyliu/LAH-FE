@@ -138,7 +138,7 @@ div
 </template>
 
 <script>
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue';
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   emit: ['reload'],
   name: 'LahAdmSmslogTable',
@@ -162,9 +162,11 @@ export default {
     filterTypeOpts: [
       '全部',
       '地籍異動即時通',
-      '指定送達處所',
       '案件辦理情形',
-      { text: '其他(住址隱匿/代收代寄/手動)', value: '其他(住址隱匿/代收代寄/手動)' }
+      '跨域代收代寄',
+      '住址隱匿',
+      '指定送達處所',
+      { text: '手動建檔', value: '手動' }
     ],
     filterTime: '全部',
     filterTimeOpts: ['全部', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
