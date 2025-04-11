@@ -103,12 +103,14 @@ export default {
     proxy: true,
     credentials: false,
     https: process.env.PROTOCOL === 'https',
+    // timeout: 0, // 設定 timeout 為 0 以禁用超時
     debug: false
   },
   proxy: {
     '/api': {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
       changeOrigin: true
+      // proxyTimeout: 60000 // Timeout in milliseconds (60 seconds)
       // pathRewrite: { '^/api': '' }
     },
     '/l05proxy': {
