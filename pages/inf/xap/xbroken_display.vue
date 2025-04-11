@@ -98,7 +98,7 @@ export default {
     updatedTime: '',
     TYUpdatedTime: '',
     animatedTimerBase: 5000,
-    slideInterval: 30000,
+    slideInterval: 0,
     slideIdx: 0,
     maxQueueSize: 12,
     easyCaseQueryDay: '',
