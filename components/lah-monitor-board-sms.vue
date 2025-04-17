@@ -76,12 +76,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
         .truncate.text-center: b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstCaseLog) }}
         lah-badge-human-datetime(:seconds="convertSeconds(firstCaseLog)")
       .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstCaseLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstCaseLog) ? firstCaseLog.SMS_CONTENT : firstCaseLog.SMS_RESULT }}
-      hr
-      .d-flex.justify-content-between.align-items-center
-        .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 指定送達處所
-        .truncate.text-center: b-link(@click="popupSingleSMS(firstAddressLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstAddressLog) }}
-        lah-badge-human-datetime(:seconds="convertSeconds(firstAddressLog)")
-      .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstAddressLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstAddressLog) ? firstAddressLog.SMS_CONTENT : firstAddressLog.SMS_RESULT }}
+      //- hr
+      //- .d-flex.justify-content-between.align-items-center
+      //-   .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstCaseLight") 指定送達處所
+      //-   .truncate.text-center: b-link(@click="popupSingleSMS(firstAddressLog)", title="顯示簡訊內容視窗") {{ itemDisplayText(firstAddressLog) }}
+      //-   lah-badge-human-datetime(:seconds="convertSeconds(firstAddressLog)")
+      //- .truncate.small.text-muted: b-link(@click="popupSingleSMS(firstAddressLog)", title="顯示簡訊內容視窗") {{ isSuccess(firstAddressLog) ? firstAddressLog.SMS_CONTENT : firstAddressLog.SMS_RESULT }}
       hr
       .d-flex.justify-content-between.align-items-center
         .text-nowrap.mr-1: lah-fa-icon.font-weight-bold(icon="circle", :variant="firstOtherLight") 其他類型&emsp;&emsp;&emsp;
@@ -198,7 +198,7 @@ export default {
     },
     otherLogs () {
       return this.logs.filter((item) => {
-        return !['案件辦理情形', '地籍異動即時通', '指定送達處所'].includes(item.SMS_TYPE)
+        return !['案件辦理情形', '地籍異動即時通'].includes(item.SMS_TYPE)
       })
     },
     border () {
