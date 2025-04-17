@@ -273,6 +273,12 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
+    /** element in attentionList
+     * e.g. {
+     *   compName: "lahMonitorBoardSrmas"
+     *   state: "danger"
+     * }
+     */
     attentionList: [],
     attentionTimer: null,
     topWarning: true,
