@@ -152,7 +152,7 @@ export default {
     /**
    * 格式化 GG30_2 欄位內容
    * @param {string | null | undefined} str - 原始字串，可能包含特定分隔符
-   * @returns {string} 格式化後的字串
+   * @returns {string} 格式化後的 HTML 字串
    */
     formatGG30_2 (str) {
       // separate symbol in backend is '　' because of encoding problem it display as '�' in frontend
@@ -163,14 +163,14 @@ export default {
         return str || ''
       }
       // 處理第一部分
-      let tmp = `一般註記事項：${arr[0]}`
+      let tmp = `一般註記事項：${this.$utils.escape(arr[0])}`
       // 處理第二部分（如果有）
       if (arr[1]) {
         // 從 arr[1] 中移除重複顯示字樣，並去除前後空格
         const cleanedContent = arr[1].replace('列冊管制期滿', '').replace('，', '').trim()
         // 將固定的標籤和清理後的內容附加到結果字串
         // 即使 cleanedContent 為空，標籤 "列冊管理期滿：" 仍會顯示
-        tmp += `<br/>列冊管理期滿：${cleanedContent}`
+        tmp += `<br/>列冊管理期滿：${this.$utils.escape(cleanedContent)}`
       }
       return tmp
     },
