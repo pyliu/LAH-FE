@@ -9,6 +9,7 @@ import compact from 'lodash/compact'
 import debounce from 'lodash/debounce'
 import difference from 'lodash/difference'
 import differenceWith from 'lodash/differenceWith'
+import escape from 'lodash/escape'
 import filter from 'lodash/filter'
 import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
@@ -214,6 +215,7 @@ export default ({ $axios, store, $config }, inject) => {
     difference,
     chunk,
     compact,
+    escape,
     md5: _md5,
     /**
      * marked
