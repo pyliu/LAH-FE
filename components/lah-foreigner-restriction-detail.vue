@@ -162,9 +162,9 @@ export default {
         // 返回空字串或原始輸入，視需求而定
         return str || ''
       }
-      // 處理第一部分
+      // 處理第一部分 GG30_1:00 👉 一般註記事項
       let tmp = `一般註記事項：${this.$utils.escape(arr[0])}`
-      // 處理第二部分（如果有）
+      // 處理第二部分（如果有 GG30_1:GP 👉 列冊管制期滿）
       if (arr[1]) {
         // 從 arr[1] 中移除重複顯示字樣，並去除前後空格
         const cleanedContent = arr[1].replace('列冊管制期滿', '').replace('，', '').trim()
