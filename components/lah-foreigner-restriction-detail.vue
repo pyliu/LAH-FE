@@ -155,9 +155,8 @@ export default {
    * @returns {string} 格式化後的字串
    */
     formatGG30_2 (str) {
-      this.$utils.warn(str)
+      // separate symbol in backend is '　' because of encoding problem it display as '�' in frontend
       const arr = str?.split('�')
-
       // 處理輸入為 null/undefined 或分割失敗的情況
       if (!arr || arr.length === 0) {
         // 返回空字串或原始輸入，視需求而定
