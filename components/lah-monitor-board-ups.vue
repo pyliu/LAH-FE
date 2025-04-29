@@ -20,7 +20,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         variant="outline-primary",
         no-border,
         no-icon-gutter,
-        @click="popupMessages('subject', 'Daily Email from NMC', 7)",
+        @click="popupMessages('subject', fetchKeyword, 7)",
         title="讀取7天內訊息"
       )
       lah-button(
