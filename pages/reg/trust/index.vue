@@ -19,7 +19,7 @@ div
             li 登記收件原因為 CU, CW, CV, CX, CY 之案件
           hr
           //- lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件年字號」開啟案件詳情視窗
-          lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/trust/HF") 切換為八德版本
+          lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/reg/trust/HF") 切換為八德版本
       .d-flex.small
         lah-datepicker.mr-1(v-model="dateRange")
 
@@ -450,7 +450,16 @@ export default {
     },
     xlsxData () {
       const fieldKeys = this.qryType === 'reg_reason'
-        ? this.$refs.regTbl?.tblFields?.map((field, idx, array) => field.key)
+        // ? this.$refs.regTbl?.tblFields?.map((field, idx, array) => field.key)
+        ? [
+            '收件字號',
+            '登記原因',
+            '辦理情形',
+            '初審人員',
+            '作業人員',
+            '收件時間',
+            '限辦時間'
+          ]
         : this.obliterateFields.map((field, idx, array) => field.key)
       const data = this.qryType === 'reg_reason' ? this.rows : this.filteredRows
       const jsons = data.map((data, idx, array) => {
@@ -474,6 +483,9 @@ export default {
   watch: {
     rows (val) {
       this.refreshAdvOptsSelect(val)
+    },
+    xlsxData (val) {
+      this.$utils.warn(val)
     }
   },
   created () {
