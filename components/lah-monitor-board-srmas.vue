@@ -214,7 +214,7 @@ export default {
       return this.$config.monitor.host.SRMAS.ip || this.srmas.get(this.site)
     },
     weatherImgUrl () {
-      return `https://${this.srmasIp}/plugins/Weathermap/${this.site}.png?ts=${this.weatherPngTs}`
+      return `https://${this.srmasIp}/plugins/Weathermap/output/${this.site}.png?ts=${this.weatherPngTs}`
     },
     currentPagePath () {
       return this.$route.fullPath

@@ -142,7 +142,7 @@ export default {
   }),
   computed: {
     srmasWeatherUrl () {
-      return `http://${this.srmas.get(this.site)}/plugins/Weathermap/${this.site}.html`
+      return `http://${this.srmas.get(this.site)}/plugins/Weathermap/output/${this.site}.html`
     },
     light () {
       if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'danger' }
