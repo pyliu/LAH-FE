@@ -114,7 +114,8 @@ export default {
       }
       if (this.headMessage.subject === this.todayNoTapeMessage) {
         if (this.isMonday) {
-          return 'warning'
+          // No tape message on Monday is normal
+          return 'success'
         }
         return 'danger'
       }
