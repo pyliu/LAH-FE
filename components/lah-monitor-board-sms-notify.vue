@@ -89,7 +89,6 @@ b-card(:border-variant="border", :class="[attentionCss]")
       lah-message.h6.mr-auto(
         auto-hide,
         :message="message"
-        :variant="light === 'danger' ? 'danger' : 'success'"
       )
       b-link.small.font-weight-bold(
         v-if="lastestChangedCount > 3",
@@ -259,16 +258,13 @@ export default {
     },
     light () {
       // XHR data not ready treats as warning state
-      if (this.responseData === null) {
-        return 'warning'
-      }
-      if (
-        !this.$utils.statusCheck(this.responseData?.statusCode) ||
-        this.stLines.length !== this.edLines.length
-      ) {
-        // this.$utils.warn('statusCode', this.responseData?.statusCode)
+      if (this.responseData === null || this.stLines.length !== this.edLines.length) {
         // this.$utils.warn('st', this.stLines)
         // this.$utils.warn('ed', this.edLines)
+        return 'warning'
+      }
+      if (!this.$utils.statusCheck(this.responseData?.statusCode)) {
+        // this.$utils.warn('statusCode', this.responseData?.statusCode)
         return 'danger'
       }
       // any top 3 changed messages has FAIL state
@@ -333,6 +329,7 @@ export default {
       }
       return []
     },
+    /*
     extractBatch (text) {
       // 定義正則表達式，匹配符合格式的區塊
       const regex = /確認案件!!開始時間:(\d{2}:\d{2}:\d{2})([\s\S]*?)確認案件!!結束時間:(\d{2}:\d{2}:\d{2})/g
@@ -348,6 +345,7 @@ export default {
       }
       return chunks
     },
+    */
     checkSMSStatus () {
       clearTimeout(this.reloadTimer)
       this.responseData = null
