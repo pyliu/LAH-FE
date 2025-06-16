@@ -142,15 +142,17 @@ export default {
       if (list.includes('text-danger')) {
         return '🔴'
       }
-      if (list.includes('text-warning')) {
+      // No tape message on Monday is normal
+      if (list.includes('text-warning') && !this.isMonday) {
         return '🟡'
       }
       return '🟢'
     },
     subjectCss (item) {
       if (item.subject === this.todayNoTapeMessage) {
+        // No tape message on Monday is normal
         if (this.isMonday) {
-          return ['text-warning']
+          return ['text-success']
         }
         return ['text-danger']
       }
