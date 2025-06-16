@@ -59,11 +59,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
     strong {{ $utils.today('TW') }}
     lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
-  section(v-if="lastChunk")
+  section
     .d-flex.justify-content-between(title="最新系統掃描時間")
-      strong 異動排程掃描時間
-      strong 開始：{{ lastChunk.startTime }}
-      strong 結束{{ lastChunk.endTime }}
+      strong {{ scheduledTaskStatus }}
+      strong 開始：{{ latestStLine }}
+      strong 結束：{{ latestStLine > latestEdLine ? '尚未完成' : latestEdLine }}
     hr
     .center.h4(v-if="lastestChangedCount === 0") {{ $utils.today('TW') }} 尚未有異動通知案件
     .d-flex.justify-content-between(
@@ -100,8 +100,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   name: 'LahMonitorBoardSmsNotify',
   emit: ['light-update'],
@@ -154,6 +154,12 @@ export default {
       }
       return []
     },
+    latestStLine () {
+      if (this.stLines?.length > 0) {
+        return this.stLines[this.stLines?.length - 1]
+      }
+      return '尚未啟動'
+    },
     edLines () {
       const raw = this.responseData?.payload?.raw || ''
       if (!this.$utils.empty(raw)) {
@@ -161,36 +167,48 @@ export default {
       }
       return []
     },
-    chunks () {
-      const raw = this.responseData?.payload?.raw || ''
-      if (!this.$utils.empty(raw)) {
-        return this.extractBatch(raw)
+    latestEdLine () {
+      if (this.edLines?.length > 0) {
+        return this.edLines[this.edLines?.length - 1]
       }
-      return []
+      return '尚未啟動'
     },
-    chunksLength () {
-      return this.chunks.length
-    },
-    lastChunk () {
-      if (this.chunksLength > 0) {
-        return this.chunks[this.chunksLength - 1]
+    scheduledTaskStatus () {
+      if (this.latestStLine > this.latestEdLine) {
+        return '🚧異動掃描進行中'
       }
-      return false
+      return '✅異動掃描已完成'
     },
-    recentChunks () {
-      if (this.chunksLength > 0) {
-        if (this.chunksLength < 5) {
-          return [...this.chunks].reverse()
-        }
-        return [
-          this.chunks[this.chunksLength - 1],
-          this.chunks[this.chunksLength - 2],
-          this.chunks[this.chunksLength - 3],
-          this.chunks[this.chunksLength - 4]
-        ]
-      }
-      return false
-    },
+    // chunks () {
+    //   const raw = this.responseData?.payload?.raw || ''
+    //   if (!this.$utils.empty(raw)) {
+    //     return this.extractBatch(raw)
+    //   }
+    //   return []
+    // },
+    // chunksLength () {
+    //   return this.chunks.length
+    // },
+    // lastChunk () {
+    //   if (this.chunksLength > 0) {
+    //     return this.chunks[this.chunksLength - 1]
+    //   }
+    //   return false
+    // },
+    // recentChunks () {
+    //   if (this.chunksLength > 0) {
+    //     if (this.chunksLength < 5) {
+    //       return [...this.chunks].reverse()
+    //     }
+    //     return [
+    //       this.chunks[this.chunksLength - 1],
+    //       this.chunks[this.chunksLength - 2],
+    //       this.chunks[this.chunksLength - 3],
+    //       this.chunks[this.chunksLength - 4]
+    //     ]
+    //   }
+    //   return false
+    // },
     failedCellLogs () {
       return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && item.SMS_RESULT === 'F')
     },
@@ -248,10 +266,14 @@ export default {
         !this.$utils.statusCheck(this.responseData?.statusCode) ||
         this.stLines.length !== this.edLines.length
       ) {
+        // this.$utils.warn('statusCode', this.responseData?.statusCode)
+        // this.$utils.warn('st', this.stLines)
+        // this.$utils.warn('ed', this.edLines)
         return 'danger'
       }
       // any top 3 changed messages has FAIL state
       if (this.top3LastestChangedCellLogs.some(sms => sms.SMS_RESULT === 'F')) {
+        // this.$utils.warn('top3', this.top3LastestChangedCellLogs)
         return 'danger'
       }
       return 'success'
@@ -271,6 +293,14 @@ export default {
   watch: {
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
+      if (nlight === 'danger') {
+        this.reloadMs = 1 * 60 * 1000
+      } else {
+        this.reloadMs = 5 * 60 * 1000
+      }
+    },
+    responseData (val) {
+      this.$utils.warn('responseData', val)
     }
   },
   created () {
