@@ -98,7 +98,7 @@ export default {
         // insert dummy item to indicate danger
         filtered.unshift({
           subject: this.todayNoTapeMessage,
-          message: '...',
+          message: this.isMonday ? '星期一無備份資訊是正常的情況' : '請檢查是否為前一天沒在P7主機裡先放入磁帶?',
           timestamp: filtered[0].timestamp + 24 * 60 * 60
         })
       }
