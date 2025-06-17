@@ -173,6 +173,9 @@ export default {
       return '尚未啟動'
     },
     scheduledTaskStatus () {
+      if (this.$utils.empty(this.stLines)) {
+        return '排程尚未啟動'
+      }
       if (this.latestStLine > this.latestEdLine) {
         return '🚧異動掃描進行中'
       }
