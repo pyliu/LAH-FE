@@ -179,10 +179,10 @@ export default {
       if (this.latestStLine !== '未啟動' && this.latestEdLine === '未完成') {
         return '🚧異動掃描進行中'
       }
-      // if (this.latestStLine > this.latestEdLine) {
-      //   return '🚧異動掃描進行中'
-      // }
-      return '✅異動掃描已完成'
+      if (this.latestStLine > this.latestEdLine) {
+        return '✅異動掃描已完成'
+      }
+      return '❌掃描作業異常'
     },
     // chunks () {
     //   const raw = this.responseData?.payload?.raw || ''
