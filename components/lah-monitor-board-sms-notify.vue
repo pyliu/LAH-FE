@@ -298,7 +298,7 @@ export default {
   watch: {
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
-      if (nlight === 'danger') {
+      if (nlight !== 'success') {
         this.reloadMs = 1 * 60 * 1000
       } else {
         this.reloadMs = 5 * 60 * 1000
