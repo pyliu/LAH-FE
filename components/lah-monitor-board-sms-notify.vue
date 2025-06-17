@@ -168,7 +168,10 @@ export default {
     },
     latestEdLine () {
       if (this.edLines?.length > 0) {
-        return this.edLines[this.edLines?.length - 1]
+        const last = this.edLines[this.edLines?.length - 1]
+        if (this.latestStLine < last) {
+          return last
+        }
       }
       return '未完成'
     },
