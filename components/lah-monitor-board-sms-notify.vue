@@ -187,36 +187,6 @@ export default {
       }
       return '❌掃描作業異常'
     },
-    // chunks () {
-    //   const raw = this.responseData?.payload?.raw || ''
-    //   if (!this.$utils.empty(raw)) {
-    //     return this.extractBatch(raw)
-    //   }
-    //   return []
-    // },
-    // chunksLength () {
-    //   return this.chunks.length
-    // },
-    // lastChunk () {
-    //   if (this.chunksLength > 0) {
-    //     return this.chunks[this.chunksLength - 1]
-    //   }
-    //   return false
-    // },
-    // recentChunks () {
-    //   if (this.chunksLength > 0) {
-    //     if (this.chunksLength < 5) {
-    //       return [...this.chunks].reverse()
-    //     }
-    //     return [
-    //       this.chunks[this.chunksLength - 1],
-    //       this.chunks[this.chunksLength - 2],
-    //       this.chunks[this.chunksLength - 3],
-    //       this.chunks[this.chunksLength - 4]
-    //     ]
-    //   }
-    //   return false
-    // },
     failedCellLogs () {
       return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && item.SMS_RESULT === 'F')
     },
@@ -338,23 +308,6 @@ export default {
       }
       return []
     },
-    /*
-    extractBatch (text) {
-      // 定義正則表達式，匹配符合格式的區塊
-      const regex = /確認案件!!開始時間:(\d{2}:\d{2}:\d{2})([\s\S]*?)確認案件!!結束時間:(\d{2}:\d{2}:\d{2})/g
-      const matches = text.matchAll(regex)
-      // 將匹配結果轉換為陣列
-      const chunks = []
-      for (const match of matches) {
-        chunks.push({
-          startTime: match[1].trim(),
-          log: match[2].trim(),
-          endTime: match[3].trim()
-        })
-      }
-      return chunks
-    },
-    */
     checkSMSStatus () {
       clearTimeout(this.reloadTimer)
       this.responseData = null
