@@ -273,6 +273,7 @@ export default {
       } else {
         this.reloadMs = 5 * 60 * 1000
       }
+      this.resetTimer()
     },
     responseData (val) {
       this.$utils.warn('responseData', val)
@@ -308,6 +309,13 @@ export default {
       }
       return []
     },
+    resetTimer () {
+      clearTimeout(this.reloadTimer)
+      // reload every 15s
+      this.timeout(this.checkSMSStatus, this.reloadMs).then((handler) => { this.reloadTimer = handler })
+      this.$refs.countdown?.setCountdown(this.reloadMs)
+      this.$refs.countdown?.startCountdown()
+    },
     checkSMSStatus () {
       clearTimeout(this.reloadTimer)
       this.responseData = null
@@ -333,12 +341,9 @@ export default {
           }
         })
         .finally(() => {
-          this.updatedTime = this.$utils.now().split(' ')[1]
-          // reload every 15s
-          this.timeout(this.checkSMSStatus, this.reloadMs).then((handler) => { this.reloadTimer = handler })
           this.isBusy = false
-          this.$refs.countdown?.setCountdown(this.reloadMs)
-          this.$refs.countdown?.startCountdown()
+          this.updatedTime = this.$utils.now().split(' ')[1]
+          this.resetTimer()
           // also load logs
           this.loadLogs()
         })
