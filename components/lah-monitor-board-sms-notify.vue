@@ -157,7 +157,7 @@ export default {
       if (this.stLines?.length > 0) {
         return this.stLines[this.stLines?.length - 1]
       }
-      return '尚未啟動'
+      return '未啟動'
     },
     edLines () {
       const raw = this.responseData?.payload?.raw || ''
@@ -170,15 +170,18 @@ export default {
       if (this.edLines?.length > 0) {
         return this.edLines[this.edLines?.length - 1]
       }
-      return '尚未啟動'
+      return '未完成'
     },
     scheduledTaskStatus () {
       if (this.$utils.empty(this.stLines)) {
         return '排程尚未啟動'
       }
-      if (this.latestStLine > this.latestEdLine) {
+      if (this.latestStLine !== '未啟動' && this.latestEdLine === '未完成') {
         return '🚧異動掃描進行中'
       }
+      // if (this.latestStLine > this.latestEdLine) {
+      //   return '🚧異動掃描進行中'
+      // }
       return '✅異動掃描已完成'
     },
     // chunks () {
