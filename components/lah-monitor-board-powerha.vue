@@ -173,6 +173,9 @@ export default {
       return null
     },
     headBatchDatetime () {
+      if (this.$utils.empty(this.headP8_51)) {
+        return 'N/A'
+      }
       try {
         const date = new Date(this.headP8_51.timestamp * 1000) // 將 UNIX 時間戳轉換為毫秒
         const year = date.getFullYear()
@@ -464,6 +467,25 @@ export default {
       return uniqueErrorsMap
     },
     /**
+     * (新增) 擷取所有檔案系統的掛載點
+     * @param {string} logContent - 日誌檔案的完整文字內容。
+     * @returns {Array<string>} - 包含所有掛載點的字串陣列。
+     */
+    getAllMountPoints (logContent) {
+      const mountPoints = []
+      const fsSectionMatch = logContent.match(/--> Filesystem usage \(in GB\)...([\s\S]*?)--> I\/O statistics/)
+      if (fsSectionMatch && fsSectionMatch[1]) {
+        const lines = fsSectionMatch[1].trim().split('\n').slice(1) // 略過標頭
+        lines.forEach((line) => {
+          const parts = line.trim().split(/\s+/)
+          if (parts.length > 1) { // 確保是有效行
+            mountPoints.push(parts[parts.length - 1]) // 最後一個元素就是掛載點
+          }
+        })
+      }
+      return mountPoints
+    },
+    /**
      * 將陣列或 Map 轉換為易於閱讀的換行字串
      * @param {Array|Map} data - 要格式化的資料
      * @returns {string} - 格式化後的字串，若無資料則回傳 "無"
@@ -499,14 +521,16 @@ export default {
           cluster: this.getClusterStatus(logContent51),
           filesystem: this.getFileSystemUsage(logContent51, 80),
           oracleErrors: this.getUniqueOracleErrors(logContent51),
-          aixErrors: this.getAIXErrors(logContent51)
+          aixErrors: this.getAIXErrors(logContent51),
+          mountPoints: this.getAllMountPoints(logContent51)
         }
 
         const dataP852 = {
           cluster: this.getClusterStatus(logContent52),
           filesystem: this.getFileSystemUsage(logContent52, 80),
           oracleErrors: this.getUniqueOracleErrors(logContent52),
-          aixErrors: this.getAIXErrors(logContent52)
+          aixErrors: this.getAIXErrors(logContent52),
+          mountPoints: this.getAllMountPoints(logContent52)
         }
 
         // 準備格式化後的字串
@@ -526,6 +550,10 @@ export default {
         const aixErrorCount51 = dataP851.aixErrors.length
         const aixErrorCount52 = dataP852.aixErrors.length
 
+        // (新增) 為了比對，將掛載點陣列排序後轉為字串
+        const mountPointsStr51 = [...dataP851.mountPoints].sort().join('\n')
+        const mountPointsStr52 = [...dataP852.mountPoints].sort().join('\n')
+
         this.reportData.length = 0
         // 進行比對及資料收集
         this.reportData.push({
@@ -539,6 +567,12 @@ export default {
           p8_51: nodeState51,
           p8_52: nodeState52,
           '⚠': nodeState51 === nodeState52 ? '✅' : '❌'
+        })
+        this.reportData.push({
+          項目: 'Filesystem 目錄',
+          p8_51: mountPointsStr51,
+          p8_52: mountPointsStr52,
+          '⚠': mountPointsStr51 === mountPointsStr52 ? '✅' : '❌'
         })
         this.reportData.push({
           項目: 'Filesystem > 80%',
