@@ -92,8 +92,18 @@ div(v-cloak)
       :class="colCss",
       key="lahMonitorBoardSrmas-fix",
       v-show="!isInAttention('LahMonitorBoardSrmas')"
-    ): lah-monitor-board-srmas.card-body-fixed-height-3.fix-img(
+    ): lah-monitor-board-srmas(
       ref="LahMonitorBoardSrmas",
+      @light-update="lightUpdate",
+      footer
+    )
+    div(
+      :class="colCss",
+      key="lahMonitorBoardPowerha-fix",
+      v-show="!isInAttention('lahMonitorBoardPowerha')"
+    ): lah-monitor-board-powerha(
+      :class="heightCss",
+      ref="lahMonitorBoardPowerha",
       @light-update="lightUpdate",
       footer
     )
