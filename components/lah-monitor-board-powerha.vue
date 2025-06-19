@@ -311,9 +311,9 @@ export default {
     // headBatch (val) {
     //   this.$utils.warn('headBatch', val)
     // },
-    // 'nodes.p8_51' () {
-    //   this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
-    // },
+    'nodes.p8_51' () {
+      this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
+    },
     // 'nodes.p8_52' () {
     //   this.$utils.warn('nodes.p8_52', this.nodes.p8_52)
     // },
@@ -1020,12 +1020,28 @@ export default {
           item: '節點狀態',
           p8_51: (() => {
             try {
-              return JSON.stringify(this.nodes.p8_51.clusterInfo.nodes.map(n => `${n.name}: ${n.state}`), null, 2)
+              const namePrefix = this.nodes.p8_51.clusterInfo.clusterName.split('1_')[0]
+              const state = this.nodes.p8_51.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}1`)).state
+              if (state === 'ONLINE') {
+                return '<b class="text-success">ONLINE</b>'
+              }
+              return `<b class="text-danger">${state}</b>`
             } catch (err) {
               return err.message
             }
           })(),
-          p8_52: nodeState52,
+          p8_52: (() => {
+            try {
+              const namePrefix = this.nodes.p8_52.clusterInfo.clusterName.split('1_')[0]
+              const state = this.nodes.p8_52.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}2`)).state
+              if (state === 'ONLINE') {
+                return '<b class="text-danger">ONLINE</b>'
+              }
+              return `<b class="text-secondary">${state}</b>`
+            } catch (err) {
+              return err.message
+            }
+          })(),
           result: nodeState51 === nodeState52 ? '✅' : '❌'
         })
 
