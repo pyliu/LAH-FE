@@ -97,7 +97,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     )
       template(#cell(p8_51)="{ item }")
         div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
-          div(v-if="item.p8_51.length === 0") 無
+          .text-left(v-if="item.p8_51.length === 0") 無
           .d-flex.justify-content-between.flex-wrap(v-else)
             b-button.m-1.d-flex.align-items-center(
               v-for="(fs, idx) in item.p8_51"
@@ -114,7 +114,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         .text-left(v-else v-html="item.p8_51")
       template(#cell(p8_52)="{ item }")
         div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
-          div(v-if="item.p8_51.length === 0") 無
+          .text-left(v-if="item.p8_51.length === 0") 無
           .d-flex.justify-content-between.flex-wrap(v-else)
             b-button.m-1.d-flex.align-items-center(
               v-for="(fs, idx) in item.p8_52"
