@@ -245,6 +245,7 @@ export default {
       { key: 'p8_51', label: '節點51', thStyle: { width: '40%' } },
       { key: 'p8_52', label: '節點52', thStyle: { width: '40%' } }
     ],
+    parsedClusterStatus: {},
     maxHeight: 600
   }),
   computed: {
@@ -368,36 +369,6 @@ export default {
       }
       return null // Status not found
     },
-    // Method 2: More robust parsing of the cluster status section
-    parsedClusterStatus () {
-      const dataObj = { ...this.headBatch }
-      // Check if p8_51 messages exist
-      if (dataObj === null || !dataObj.messages || !dataObj.messages.p8_51 || dataObj.messages.p8_51.length === 0) {
-        this.$utils.warn('this!!')
-        return null
-      }
-      const message = dataObj.messages.p8_51[0].message
-      // Extract the cluster status section
-      const clusterStatusMatch = message.match(/Node\s+State\s*\n-+\s+-+\s*\n([\s\S]*?)\n\n/)
-      if (clusterStatusMatch) {
-        const statusSection = clusterStatusMatch[1]
-        const lines = statusSection.split('\n')
-        const nodeStatuses = {}
-        lines.forEach((line) => {
-          const match = line.match(/(\w+)\s+(\w+)\s*$/)
-          if (match) {
-            nodeStatuses[match[1]] = match[2]
-          }
-        })
-        return {
-          nodeStatuses,
-          isORAHAHA1Offline: nodeStatuses.ORAHAHA1 === 'OFFLINE',
-          isORAHAHA2Offline: nodeStatuses.ORAHAHA2 === 'OFFLINE'
-        }
-      }
-
-      return null
-    },
     // Method 3: Quick one-liner check
     isP8_51OfflineQuick () {
       const message = this.headBatch?.messages?.p8_51?.[0]?.message
@@ -416,9 +387,10 @@ export default {
     // },
     headBatch (val) {
       this.$utils.warn('headBatch', val)
-      this.$utils.warn('parsedClusterStatus', this.parsedClusterStatus)
-      this.$utils.warn('isP8_51Offline', this.isP8_51Offline)
-      this.$utils.warn('isP8_51OfflineQuick', this.isP8_51OfflineQuick)
+      this.$nextTick(() => {
+        this.parseClusterStatus()
+        this.$utils.warn('parsedClusterStatus', this.parsedClusterStatus)
+      })
     },
     // 'nodes.p8_51' () {
     //   this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
@@ -429,9 +401,9 @@ export default {
     // reportData () {
     //   this.$utils.warn('reportData', this.reportData)
     // },
-    parsedClusterStatus (val) {
-      this.$utils.warn('parsedClusterStatus', val)
-    },
+    // parsedClusterStatus (val) {
+    //   this.$utils.warn('parsedClusterStatus', val)
+    // },
     headP8_51 (val) {
       // this.$utils.warn('headP8_51', val)
       this.nodes.p8_51.clusterInfo = this.getClusterStatus(val.message)
@@ -478,6 +450,42 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    parseClusterStatus () {
+      const dataObj = this.headBatch
+
+      // Check if p8_51 messages exist
+      if (dataObj === null) {
+        return null
+      }
+
+      const message = dataObj.messages.p8_51[0].message
+
+      // Extract the cluster status section
+      const clusterStatusMatch = message.match(/Node\s+State\s*\n-+\s+-+\s*\n([\s\S]*?)\n\n/)
+
+      if (clusterStatusMatch) {
+        const statusSection = clusterStatusMatch[1]
+        const lines = statusSection.split('\n')
+        const nodeStatuses = {}
+
+        lines.forEach((line) => {
+          const match = line.match(/(\w+)\s+(\w+)\s*$/)
+          if (match) {
+            nodeStatuses[match[1]] = match[2]
+          }
+        })
+
+        this.parsedClusterStatus = {
+          nodeStatuses,
+          isORAHAHA1Offline: nodeStatuses.ORAHAHA1 === 'OFFLINE',
+          isORAHAHA2Offline: nodeStatuses.ORAHAHA2 === 'OFFLINE'
+        }
+
+        return this.parsedClusterStatus // <-- Return the parsed result
+      }
+
+      return null // Only return null if no match found
+    },
     isTimestampNHoursAgo (timestampStr, targetHours, toleranceHours = 0.1) {
       const timestampDate = new Date(timestampStr)
       const now = new Date()
