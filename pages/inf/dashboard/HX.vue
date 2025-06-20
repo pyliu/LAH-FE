@@ -109,14 +109,24 @@ div(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardDnp-fix",
-      v-show="!isInAttention('LahMonitorBoardDnp')"
-    ): lah-monitor-board-dnp(
+      key="lahMonitorBoardPowerha-fix",
+      v-show="!isInAttention('lahMonitorBoardPowerha')"
+    ): lah-monitor-board-powerha(
       :class="heightCss",
-      ref="LahMonitorBoardDnp",
+      ref="lahMonitorBoardPowerha",
       @light-update="lightUpdate",
       footer
     )
+    //- div(
+    //-   :class="colCss",
+    //-   key="lahMonitorBoardDnp-fix",
+    //-   v-show="!isInAttention('LahMonitorBoardDnp')"
+    //- ): lah-monitor-board-dnp(
+    //-   :class="heightCss",
+    //-   ref="LahMonitorBoardDnp",
+    //-   @light-update="lightUpdate",
+    //-   footer
+    //- )
     div(
       :class="colCss",
       key="lahMonitorBoardSmsNotify-fix",

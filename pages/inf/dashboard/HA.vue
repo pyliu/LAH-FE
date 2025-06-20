@@ -117,16 +117,16 @@ div(v-cloak)
       @light-update="lightUpdate",
       footer
     )
-    div(
-      :class="colCss",
-      key="lahMonitorBoardDnp-fix",
-      v-show="!isInAttention('LahMonitorBoardDnp')"
-    ): lah-monitor-board-dnp(
-      :class="heightCss",
-      ref="LahMonitorBoardDnp",
-      @light-update="lightUpdate",
-      footer
-    )
+    //- div(
+    //-   :class="colCss",
+    //-   key="lahMonitorBoardDnp-fix",
+    //-   v-show="!isInAttention('LahMonitorBoardDnp')"
+    //- ): lah-monitor-board-dnp(
+    //-   :class="heightCss",
+    //-   ref="LahMonitorBoardDnp",
+    //-   @light-update="lightUpdate",
+    //-   footer
+    //- )
     div(
       :class="colCss",
       key="lahMonitorBoardSmsNotify-fix",

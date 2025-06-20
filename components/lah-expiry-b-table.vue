@@ -169,8 +169,7 @@ export default {
     },
     count () { return this.tableItems ? this.tableItems.length : 0 },
     buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' },
-    allCaseMode () { return this.$utils.empty(this.reviewerId) },
-    maxHeightStyle () { return `max-height: ${this.maxHeight}px` }
+    allCaseMode () { return this.$utils.empty(this.reviewerId) }
   },
   watch: {},
   mounted () {

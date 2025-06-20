@@ -61,18 +61,75 @@ b-card(:border-variant="border", :class="[attentionCss]")
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
   div(v-else)
-    .d-flex.justify-content-between.font-weight-bold
-      b-badge.my-auto.mr-1(:variant="light", pill) {{ badgeText }}
-      a.truncate(
-        href="#",
-        @click="popupLogContent(headMessage)",
-        title="顯示詳細記錄"
-      ) {{ extractNodes }}
-      lah-badge-human-datetime(
-        :variant="isToday(headMessage.timestamp) ? 'success' : 'muted'",
-        :seconds="headMessage.timestamp"
-      )
-    .text-muted.small.dnp-content(v-html="extractDNPValues")
+
+    b-table(
+      :items="briefData"
+      :fields="briefFields"
+      striped
+      hover
+      responsive
+      bordered
+      caption-top
+      no-border-collapse
+      small
+      head-variant="dark"
+      class="s-80"
+      selectable
+      select-mode="single"
+      selected-variant="success"
+      :sticky-header="`${maxHeight}px`"
+      @row-selected="$refs.detail.show()"
+    )
+      template(#cell(item)="{ item }")
+        div(v-if="item.item === '檔案系統超過 80%'") 超過 80%
+        div(v-else) {{ item.item }}
+      template(#cell(p8_51)="{ item }")
+        div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
+          div(v-if="item.p8_51.length === 0") 無
+          .d-flex.justify-content-between.flex-wrap(v-else)
+            b-button.m-1.d-flex.align-items-center(
+              v-for="(fs, idx) in item.p8_51"
+              :key="`fs_btn_${idx}`"
+              :size="'sm'"
+              variant="outline-secondary"
+              pill
+            )
+              .mr-1 {{ fs.mountedOn }}
+              b-badge(
+                pill
+                :variant="fsVariant(fs.usedPercent)"
+              ) {{ fs.usedPercent }}%
+
+        h6(v-else-if="item.item === '節點狀態'"): b-badge(
+          :variant="item.p8_51 === 'ONLINE' ? 'success' : 'danger'"
+          pill
+        ) {{ item.p8_51 }}
+
+        div(v-else v-html="item.p8_51")
+      template(#cell(p8_52)="{ item }")
+        div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
+          div(v-if="item.p8_51.length === 0") 無
+          .d-flex.justify-content-between.flex-wrap(v-else)
+            b-button.m-1.d-flex.align-items-center(
+              v-for="(fs, idx) in item.p8_52"
+              :key="`fs_btn_${idx}`"
+              :size="'sm'"
+              variant="outline-secondary"
+              pill
+            )
+              .mr-1 {{ fs.mountedOn }}
+              b-badge(
+                pill
+                :variant="fsVariant(fs.usedPercent)"
+              ) {{ fs.usedPercent }}%
+
+        h6(v-else-if="item.item === '節點狀態'"): b-badge(
+          :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
+          pill
+        ) {{ item.p8_52 }}
+
+        div(v-else v-html="item.p8_52")
+
   b-modal(
     ref="detail",
     size="xl",
@@ -90,14 +147,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
       no-border-collapse
       small
       head-variant="dark"
-      class="text-center s-90"
+      class="s-90"
       selectable
       select-mode="single"
       selected-variant="success"
+      :sticky-header="`${maxHeight}px`"
     )
       template(#cell(p8_51)="{ item }")
         div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
-          .text-left(v-if="item.p8_51.length === 0") 無
+          div(v-if="item.p8_51.length === 0") 無
           .d-flex.justify-content-between.flex-wrap(v-else)
             b-button.m-1.d-flex.align-items-center(
               v-for="(fs, idx) in item.p8_51"
@@ -111,10 +169,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
                 pill
                 :variant="fsVariant(fs.usedPercent)"
               ) {{ fs.usedPercent }}%
-        .text-left(v-else v-html="item.p8_51")
+
+        h4(v-else-if="item.item === '節點狀態'"): b-badge(
+          :variant="item.p8_51 === 'ONLINE' ? 'success' : 'danger'"
+          pill
+        ) {{ item.p8_51 }}
+
+        div(v-else v-html="item.p8_51")
       template(#cell(p8_52)="{ item }")
         div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
-          .text-left(v-if="item.p8_51.length === 0") 無
+          div(v-if="item.p8_51.length === 0") 無
           .d-flex.justify-content-between.flex-wrap(v-else)
             b-button.m-1.d-flex.align-items-center(
               v-for="(fs, idx) in item.p8_52"
@@ -128,7 +192,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
                 pill
                 :variant="fsVariant(fs.usedPercent)"
               ) {{ fs.usedPercent }}%
-        .text-left(v-else v-html="item.p8_52")
+
+        h4(v-else-if="item.item === '節點狀態'"): b-badge(
+          :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
+          pill
+        ) {{ item.p8_52 }}
+
+        div(v-else v-html="item.p8_52")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -149,7 +219,8 @@ export default {
   components: { lahMonitorBoardRaw },
   mixins: [lahMonitorBoardBase],
   props: {
-    footer: { type: Boolean, default: false }
+    footer: { type: Boolean, default: false },
+    maxHeightOffset: { type: Number, default: 170 }
   },
   data: () => ({
     header: '資料庫 PowerHA',
@@ -167,7 +238,12 @@ export default {
       { key: 'p8_52', label: '節點52', sortable: false, thStyle: { width: '40%' } },
       { key: 'result', label: '檢測', sortable: true }
     ],
-
+    briefFields: [
+      { key: 'item', label: '項目', sortable: true, thStyle: { width: '20%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } },
+      { key: 'p8_51', label: '節點51', thStyle: { width: '40%' } },
+      { key: 'p8_52', label: '節點52', thStyle: { width: '40%' } }
+    ],
+    maxHeight: 600,
     nodeRegex: /ORAH[A-H]HA[1-2]/igm,
     foundNodes: [],
     // dnpRegex: /DNP.+ORAH[A-H]HA[1-2]\n\s+PgSpFree.+\n/igm,
@@ -253,52 +329,85 @@ export default {
       }
       return null
     },
+    briefData () {
+      if (this.$utils.empty(this.reportData)) {
+        return []
+      }
+      const targetItems = ['節點狀態', 'Oracle 程式數', '檔案系統超過 80%', 'Oracle 錯誤', 'AIX 錯誤']
+      return targetItems
+        .map(targetItem => this.reportData.find(item => item.item === targetItem))
+        .filter(item => item !== undefined) // Remove any undefined items if not found
+    },
     light () {
-      const now = +new Date()
       if (
-        this.$utils.empty(this.headMessage) ||
-        now - this.headMessage.timestamp * 1000 > 6 * 60 * 60 * 1000
+        this.$utils.empty(this.headBatch) ||
+        Math.abs((new Date() - new Date(this.headBatch.timestamp * 1000)) / (1000 * 60 * 60) - 2) <= 0.1
       ) {
         return 'warning'
       }
-      return this.foundNodes.length === 2 ? 'success' : 'danger'
-    },
-    emojiLight () {
-      switch (this.light) {
-        case 'danger': return '🔴'
-        case 'success': return '🟢'
-        default: return '🟡'
+      if (!this.headBatch.hasBoth) {
+        return 'danger'
       }
-    },
-    badgeText () {
-      switch (this.light) {
-        case 'danger': return 'BROKEN'
-        case 'success': return 'ACTIVE'
-        default: return 'OUTDATED'
-      }
+      return 'success'
     },
     headMessage () {
       return this.messages[0]
     },
-    headContent () {
-      return this.headMessage.message || ''
-    },
-    extractNodes () {
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.foundNodes = [...this.headContent.matchAll(this.nodeRegex)]
-      const tmp = this.foundNodes.join(' ↔ ')
-      if (this.$utils.empty(tmp)) {
-        return '找不到 /ORAH[A-H]HA[1-2]/igm 配對資訊'
+    // Method 1: Simple check using string search in the message
+    isP8_51Offline () {
+      const dataObj = this.headBatch
+      // Check if p8_51 messages exist
+      if (!dataObj.messages || !dataObj.messages.p8_51 || dataObj.messages.p8_51.length === 0) {
+        return null // No data available
       }
-      return tmp
-    },
-    extractDNPValues () {
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.foundDNPValues = [...this.headContent.matchAll(this.dnpRegex)]
-      if (this.foundDNPValues.length > 1) {
-        return this.$utils.convertMarkd('- ' + this.foundDNPValues[0] + '- ' + this.foundDNPValues[1])
+      // Get the first (or latest) message from p8_51
+      const p8_51Message = dataObj.messages.p8_51[0].message
+      // Look for ORAHAHA1 node status in the message
+      // Since p8_51 corresponds to ORAHAHA1, check if ORAHAHA1 is OFFLINE
+      const orahaha1Match = p8_51Message.match(/ORAHAHA1\s+(\w+)/)
+
+      if (orahaha1Match) {
+        return orahaha1Match[1] === 'OFFLINE'
       }
-      return this.$utils.convertMarkd(this.foundDNPValues.join('\n'))
+      return null // Status not found
+    },
+    // Method 2: More robust parsing of the cluster status section
+    parsedClusterStatus () {
+      const dataObj = { ...this.headBatch }
+      // Check if p8_51 messages exist
+      if (dataObj === null || !dataObj.messages || !dataObj.messages.p8_51 || dataObj.messages.p8_51.length === 0) {
+        this.$utils.warn('this!!')
+        return null
+      }
+      const message = dataObj.messages.p8_51[0].message
+      // Extract the cluster status section
+      const clusterStatusMatch = message.match(/Node\s+State\s*\n-+\s+-+\s*\n([\s\S]*?)\n\n/)
+      if (clusterStatusMatch) {
+        const statusSection = clusterStatusMatch[1]
+        const lines = statusSection.split('\n')
+        const nodeStatuses = {}
+        lines.forEach((line) => {
+          const match = line.match(/(\w+)\s+(\w+)\s*$/)
+          if (match) {
+            nodeStatuses[match[1]] = match[2]
+          }
+        })
+        return {
+          nodeStatuses,
+          isORAHAHA1Offline: nodeStatuses.ORAHAHA1 === 'OFFLINE',
+          isORAHAHA2Offline: nodeStatuses.ORAHAHA2 === 'OFFLINE'
+        }
+      }
+
+      return null
+    },
+    // Method 3: Quick one-liner check
+    isP8_51OfflineQuick () {
+      const message = this.headBatch?.messages?.p8_51?.[0]?.message
+      if (!message) { return false }
+      // Regular expression to match ORAHAHA1 followed by any whitespace and then OFFLINE
+      const regex = /ORAHAHA1\s+OFFLINE/
+      return regex.test(message)
     }
   },
   watch: {
@@ -308,17 +417,23 @@ export default {
     // allBatches (val) {
     //   this.$utils.warn('allBatches', val)
     // },
-    // headBatch (val) {
-    //   this.$utils.warn('headBatch', val)
-    // },
-    'nodes.p8_51' () {
-      this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
+    headBatch (val) {
+      this.$utils.warn('headBatch', val)
+      this.$utils.warn('parsedClusterStatus', this.parsedClusterStatus)
+      this.$utils.warn('isP8_51Offline', this.isP8_51Offline)
+      this.$utils.warn('isP8_51OfflineQuick', this.isP8_51OfflineQuick)
     },
+    // 'nodes.p8_51' () {
+    //   this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
+    // },
     // 'nodes.p8_52' () {
     //   this.$utils.warn('nodes.p8_52', this.nodes.p8_52)
     // },
-    reportData () {
-      this.$utils.warn('reportData', this.reportData)
+    // reportData () {
+    //   this.$utils.warn('reportData', this.reportData)
+    // },
+    parsedClusterStatus (val) {
+      this.$utils.warn('parsedClusterStatus', val)
     },
     headP8_51 (val) {
       // this.$utils.warn('headP8_51', val)
@@ -363,8 +478,21 @@ export default {
   mounted () {
     // update the reload timer to 1hrs
     this.reloadMs = (1 * 60 * 60 + this.$utils.rand(60)) * 1000
+    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    isTimestampNHoursAgo (timestampStr, targetHours, toleranceHours = 0.1) {
+      const timestampDate = new Date(timestampStr)
+      const now = new Date()
+      const diffInHours = (now - timestampDate) / (1000 * 60 * 60)
+      return {
+        timestamp: timestampStr,
+        currentTime: now.toLocaleString(),
+        differenceInHours: Math.round(diffInHours * 100) / 100,
+        isTargetHoursAgo: Math.abs(diffInHours - targetHours) <= toleranceHours,
+        actualHoursAgo: Math.round(diffInHours)
+      }
+    },
     fsVariant (usedPercent) {
       const parsedInt = parseInt(usedPercent)
       if (parsedInt > 80) {
@@ -375,6 +503,18 @@ export default {
         return 'info'
       }
       return 'success'
+    },
+    // Helper function to get both node statuses
+    getBothNodeStatuses () {
+      const clusterStatus = this.parseClusterStatus(this.headBatch)
+      if (clusterStatus) {
+        return {
+          p8_51_ORAHAHA1_isOffline: clusterStatus.isORAHAHA1Offline,
+          p8_52_ORAHAHA2_isOffline: clusterStatus.isORAHAHA2Offline,
+          nodeStatuses: clusterStatus.nodeStatuses
+        }
+      }
+      return null
     },
     /**
      * 擷取 HACMP/PowerHA 叢集名稱
@@ -1021,11 +1161,7 @@ export default {
           p8_51: (() => {
             try {
               const namePrefix = this.nodes.p8_51.clusterInfo.clusterName.split('1_')[0]
-              const state = this.nodes.p8_51.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}1`)).state
-              if (state === 'ONLINE') {
-                return '<b class="text-success">ONLINE</b>'
-              }
-              return `<b class="text-danger">${state}</b>`
+              return this.nodes.p8_51.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}1`)).state || 'N/A'
             } catch (err) {
               return err.message
             }
@@ -1033,11 +1169,7 @@ export default {
           p8_52: (() => {
             try {
               const namePrefix = this.nodes.p8_52.clusterInfo.clusterName.split('1_')[0]
-              const state = this.nodes.p8_52.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}2`)).state
-              if (state === 'ONLINE') {
-                return '<b class="text-danger">ONLINE</b>'
-              }
-              return `<b class="text-secondary">${state}</b>`
+              return this.nodes.p8_52.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}2`)).state || 'N/A'
             } catch (err) {
               return err.message
             }
@@ -1111,9 +1243,7 @@ export default {
           p8_52: this.nodes.p8_52.oracleProcs,
           result: '✅'
         })
-        // this.nodes.p8_52.ioStats = this.getIoStats(val.message)
-        // this.nodes.p8_52.haDataVgMounts = this.getHADataVgMounts(val.message)
-        // this.nodes.p8_52.allMounts = this.getAllMountPoints(val.message)
+
         this.reportData.push({
           item: 'I/O 統計',
           p8_51: this.formatIOStatsHtmlDisplay(this.nodes.p8_51.ioStats),
