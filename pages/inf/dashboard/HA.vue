@@ -62,6 +62,16 @@ div(v-cloak)
     //- common boards
     div(
       :class="colCss",
+      key="lahMonitorBoardPowerha-fix",
+      v-show="!isInAttention('lahMonitorBoardPowerha')"
+    ): lah-monitor-board-powerha(
+      :class="heightCss",
+      ref="lahMonitorBoardPowerha",
+      @light-update="lightUpdate",
+      footer
+    )
+    div(
+      :class="colCss",
       key="lahMonitorBoardXap-fix",
       v-show="!isInAttention('LahMonitorBoardXap')"
     ): lah-monitor-board-xap(
@@ -93,17 +103,8 @@ div(v-cloak)
       key="lahMonitorBoardSrmas-fix",
       v-show="!isInAttention('LahMonitorBoardSrmas')"
     ): lah-monitor-board-srmas(
-      ref="LahMonitorBoardSrmas",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      key="lahMonitorBoardPowerha-fix",
-      v-show="!isInAttention('lahMonitorBoardPowerha')"
-    ): lah-monitor-board-powerha(
       :class="heightCss",
-      ref="lahMonitorBoardPowerha",
+      ref="LahMonitorBoardSrmas",
       @light-update="lightUpdate",
       footer
     )
