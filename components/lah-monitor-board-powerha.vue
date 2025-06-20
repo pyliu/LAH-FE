@@ -245,12 +245,7 @@ export default {
       { key: 'p8_51', label: '節點51', thStyle: { width: '40%' } },
       { key: 'p8_52', label: '節點52', thStyle: { width: '40%' } }
     ],
-    maxHeight: 600,
-    nodeRegex: /ORAH[A-H]HA[1-2]/igm,
-    foundNodes: [],
-    // dnpRegex: /DNP.+ORAH[A-H]HA[1-2]\n\s+PgSpFree.+\n/igm,
-    dnpRegex: /DNP.+ORAH[A-H]HA[1-2]\r\n\s+PgSpFree.+\r\n/igm,
-    foundDNPValues: []
+    maxHeight: 600
   }),
   computed: {
     checkAIXSh51 () {
