@@ -61,7 +61,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       div 🟡 表示狀態未更新
       div 🔴 表示狀態錯誤
   slot
-  .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料
+  .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料，請參照說明確認AIX節點是否有安裝檢測腳本。
   div(v-else)
 
     b-table(
