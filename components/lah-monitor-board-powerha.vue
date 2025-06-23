@@ -106,7 +106,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           pill
         ) {{ item.p8_51 }}
 
-        h4(v-else-if="item.item === 'AIX 錯誤'")
+        div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button.s-70(
             v-if="item.p8_51 !== '無'"
             variant="outline-danger"
@@ -138,7 +138,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           pill
         ) {{ item.p8_52 }}
 
-        h4(v-else-if="item.item === 'AIX 錯誤'")
+        div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button.s-70(
             v-if="item.p8_52 !== '無'"
             variant="outline-danger"
@@ -194,7 +194,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           pill
         ) {{ item.p8_51 }}
 
-        h4(v-else-if="item.item === 'AIX 錯誤'")
+        div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button(
             v-if="item.p8_51 !== '無'"
             variant="outline-danger"
@@ -226,7 +226,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           pill
         ) {{ item.p8_52 }}
 
-        h4(v-else-if="item.item === 'AIX 錯誤'")
+        div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button(
             v-if="item.p8_52 !== '無'"
             variant="outline-danger"
