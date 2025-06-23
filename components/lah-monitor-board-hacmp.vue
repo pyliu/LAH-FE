@@ -41,7 +41,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`", size="lg")
       ul
-        li 顯示主資料庫HACMP狀態
+        li 顯示資料庫主節點(51)HACMP狀態
           ul
             li 請於 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkHacmpSh" target="_blank" title="下載腳本") check-hacmp-fs.sh]」以利完成後送出通知電子郵件。(⭐請依各實際環境修正腳本內路徑及收件者資訊⭐)
             li e.g. 在 root 的 crontab 新增「0 8-17 * * 1-6 /scripts/check-hacmp-fs.sh > /dev/null」於辦公時間每小時執行一次(請自行依擺放腳本位置修正路徑)。
@@ -135,7 +135,7 @@ export default {
     footer: { type: Boolean, default: false }
   },
   data: () => ({
-    header: '資料庫 HACMP',
+    header: '資料庫主節點(51) HACMP',
     fetchType: 'subject',
     fetchKeyword: 'hacmp',
     fetchDay: 1,
