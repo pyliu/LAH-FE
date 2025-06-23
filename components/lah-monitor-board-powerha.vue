@@ -106,6 +106,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
           pill
         ) {{ item.p8_51 }}
 
+        h4(v-else-if="item.item === 'AIX 錯誤'")
+          lah-button.s-70(
+            v-if="item.p8_51 !== '無'"
+            variant="outline-danger"
+            pill,
+            @click="popupErrptModal(nodes.p8_51.errpts, 'P8-51')"
+          ) {{ item.p8_51 }}
+          div(v-else) 無
+
         div(v-else v-html="item.p8_51")
       template(#cell(p8_52)="{ item }")
         div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
@@ -128,6 +137,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
           pill
         ) {{ item.p8_52 }}
+
+        h4(v-else-if="item.item === 'AIX 錯誤'")
+          lah-button.s-70(
+            v-if="item.p8_52 !== '無'"
+            variant="outline-danger"
+            pill,
+            @click="popupErrptModal(nodes.p8_52.errpts, 'P8-52')"
+          ) {{ item.p8_52 }}
+          div(v-else) 無
 
         div(v-else v-html="item.p8_52")
 
@@ -176,6 +194,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
           pill
         ) {{ item.p8_51 }}
 
+        h4(v-else-if="item.item === 'AIX 錯誤'")
+          lah-button(
+            v-if="item.p8_51 !== '無'"
+            variant="outline-danger"
+            pill,
+            @click="popupErrptModal(nodes.p8_51.errpts, 'P8-51')"
+          ) {{ item.p8_51 }}
+          div(v-else) 無
+
         div(v-else v-html="item.p8_51")
       template(#cell(p8_52)="{ item }")
         div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
@@ -198,6 +225,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
           pill
         ) {{ item.p8_52 }}
+
+        h4(v-else-if="item.item === 'AIX 錯誤'")
+          lah-button(
+            v-if="item.p8_52 !== '無'"
+            variant="outline-danger"
+            pill,
+            @click="popupErrptModal(nodes.p8_52.errpts, 'P8-52')"
+          ) {{ item.p8_52 }}
+          div(v-else) 無
 
         div(v-else v-html="item.p8_52")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
@@ -391,12 +427,12 @@ export default {
         this.$utils.warn('parsedClusterStatus', this.parsedClusterStatus)
       })
     },
-    // 'nodes.p8_51' () {
-    //   this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
-    // },
-    // 'nodes.p8_52' () {
-    //   this.$utils.warn('nodes.p8_52', this.nodes.p8_52)
-    // },
+    'nodes.p8_51' () {
+      this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
+    },
+    'nodes.p8_52' () {
+      this.$utils.warn('nodes.p8_52', this.nodes.p8_52)
+    },
     // reportData () {
     //   this.$utils.warn('reportData', this.reportData)
     // },
@@ -417,6 +453,7 @@ export default {
       this.nodes.p8_51.ioStats = this.getIoStats(val.message)
       this.nodes.p8_51.haDataVgMounts = this.getHADataVgMounts(val.message)
       this.nodes.p8_51.allMounts = this.getAllMountPoints(val.message)
+      this.nodes.p8_51.errpts = this.parseAixHealthCheckErrpt(val.message)
       // force reactive
       this.nodes.p8_51 = { ...this.nodes.p8_51 }
       this.prepareReportData()
@@ -435,6 +472,7 @@ export default {
       this.nodes.p8_52.ioStats = this.getIoStats(val.message)
       this.nodes.p8_52.haDataVgMounts = this.getHADataVgMounts(val.message)
       this.nodes.p8_52.allMounts = this.getAllMountPoints(val.message)
+      this.nodes.p8_52.errpts = this.parseAixHealthCheckErrpt(val.message)
       // force reactive
       this.nodes.p8_52 = { ...this.nodes.p8_52 }
       this.prepareReportData()
@@ -449,6 +487,105 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    /**
+     * 將 AIX errpt 的摘要時間戳 (格式 MMDDHHmmYY) 轉換為 'MM-DD HH:mm:ss'。
+     * @param {string} timestampStr 原始的時間戳字串，例如 "0622090225"。
+     * @returns {string} 格式化後的時間戳，例如 "06-22 09:02:00"。
+     */
+    formatErrptTimestamp (timestampStr) {
+      // errpt 摘要中的時間戳格式為 MMDDHHmmYY，共 10 個字元。
+      if (timestampStr && timestampStr.length === 10) {
+        const month = timestampStr.substring(0, 2)
+        const day = timestampStr.substring(2, 4)
+        const hour = timestampStr.substring(4, 6)
+        const minute = timestampStr.substring(6, 8)
+        // 注意：原始時間戳不包含秒數，這裡我們將其預設為 '00'。
+        const seconds = '00'
+
+        return `${month}-${day} ${hour}:${minute}:${seconds}`
+      }
+      // 如果時間戳格式不符合預期，則回傳原始字串。
+      return timestampStr
+    },
+    /**
+     * 解析日誌文字，並從 errpt 區段中提取資訊，轉換成 JSON 物件陣列。
+     * @param {string} logText 包含 errpt 區段的完整日誌文字。
+     * @returns {Array<Object>} 一個包含 errpt 每一行資訊的 JSON 物件陣列。
+     */
+    parseAixHealthCheckErrpt (logText) {
+      // 1. 將輸入的文字按行分割成陣列。
+      const lines = logText.split('\n')
+
+      // 2. 找到 '--> Error Summary:' 這一行的索引，作為解析的起點。
+      const summaryStartIndex = lines.findIndex(line => line.includes('--> Error Summary:'))
+
+      // 如果找不到摘要區段，則回傳一個空陣列。
+      if (summaryStartIndex === -1) {
+        console.log("在日誌中找不到 '--> Error Summary:' 區段。")
+        return []
+      }
+
+      // 3. 找到 '--> Detailed Error Report' 作為摘要區段的結束點。
+      // 如果找不到，就解析到檔案結尾。
+      let summaryEndIndex = lines.findIndex(line => line.includes('--> Detailed Error Report'))
+      if (summaryEndIndex === -1) {
+        summaryEndIndex = lines.length
+      }
+
+      // 4. 確定資料行的範圍。資料從 '--> Error Summary:' 下方兩行開始 (跳過標題和欄位名)。
+      const dataLines = lines.slice(summaryStartIndex + 2, summaryEndIndex)
+
+      const resultArray = []
+
+      // 5. 遍歷每一行資料。
+      for (const line of dataLines) {
+        // 如果是空行，就跳過。
+        if (line.trim() === '') {
+          continue
+        }
+
+        // 6. 使用正規表示式按一或多個空格來分割行。
+        const parts = line.trim().split(/\s+/)
+
+        // 一行 errpt 資料至少應有 5 個部分。
+        if (parts.length >= 5) {
+          // 7. 將分割後的各部分賦值給對應的欄位，並建立 JSON 物件。
+          const jsonObject = {
+            IDENTIFIER: parts[0],
+            TIMESTAMP: this.formatErrptTimestamp(parts[1]),
+            T: parts[2],
+            C: parts[3],
+            RESOURCE_NAME: parts[4],
+            DESCRIPTION: parts.slice(5).join(' ')
+          }
+
+          // 8. 將建立好的 JSON 物件加入到結果陣列中。
+          resultArray.push(jsonObject)
+        }
+      }
+
+      return resultArray
+    },
+    popupErrptModal (errpts, title = '') {
+      this.modal(this.$createElement('b-table', {
+        props: {
+          items: errpts,
+          headVariant: 'dark',
+          small: true,
+          hover: true,
+          striped: true
+        },
+        on: {
+          // 'not-found': () => {
+          //   this.hideModal()
+          //   this.warning(`⚠ 無法找到 ${this.$utils.caseId(item.ID)} 登記案件資料。`)
+          // }
+        }
+      }), {
+        title: `AIX 錯誤詳情 - ${title}`,
+        size: 'lg'
+      })
+    },
     parseClusterStatus () {
       const dataObj = this.headBatch
 
