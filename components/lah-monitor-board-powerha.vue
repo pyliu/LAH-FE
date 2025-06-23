@@ -441,41 +441,45 @@ export default {
     // },
     headP8_51 (val) {
       // this.$utils.warn('headP8_51', val)
-      this.nodes.p8_51.clusterInfo = this.getClusterStatus(val.message)
-      this.nodes.p8_51.highUsageFileSystems = this.getFileSystemUsage(val.message)
-      this.nodes.p8_51.oracleErrors = this.getOracleErrors(val.message)
-      this.nodes.p8_51.aixErrors = this.getAIXErrors(val.message)
-      this.nodes.p8_51.uniqueErrorsMap = this.getUniqueOracleErrors(val.message)
-      this.nodes.p8_51.hacmpPids = this.getHacmpSubsystems(val.message)
-      this.nodes.p8_51.dnpValues = this.getDnpValues(val.message)
-      this.nodes.p8_51.memoryStats = this.getMemoryStats(val.message)
-      this.nodes.p8_51.oracleProcs = this.getOracleProcessCount(val.message)
-      this.nodes.p8_51.ioStats = this.getIoStats(val.message)
-      this.nodes.p8_51.haDataVgMounts = this.getHADataVgMounts(val.message)
-      this.nodes.p8_51.allMounts = this.getAllMountPoints(val.message)
-      this.nodes.p8_51.errpts = this.parseAixHealthCheckErrpt(val.message)
-      // force reactive
-      this.nodes.p8_51 = { ...this.nodes.p8_51 }
-      this.prepareReportData()
+      if (!this.$utils.empty(val)) {
+        this.nodes.p8_51.clusterInfo = this.getClusterStatus(val.message)
+        this.nodes.p8_51.highUsageFileSystems = this.getFileSystemUsage(val.message)
+        this.nodes.p8_51.oracleErrors = this.getOracleErrors(val.message)
+        this.nodes.p8_51.aixErrors = this.getAIXErrors(val.message)
+        this.nodes.p8_51.uniqueErrorsMap = this.getUniqueOracleErrors(val.message)
+        this.nodes.p8_51.hacmpPids = this.getHacmpSubsystems(val.message)
+        this.nodes.p8_51.dnpValues = this.getDnpValues(val.message)
+        this.nodes.p8_51.memoryStats = this.getMemoryStats(val.message)
+        this.nodes.p8_51.oracleProcs = this.getOracleProcessCount(val.message)
+        this.nodes.p8_51.ioStats = this.getIoStats(val.message)
+        this.nodes.p8_51.haDataVgMounts = this.getHADataVgMounts(val.message)
+        this.nodes.p8_51.allMounts = this.getAllMountPoints(val.message)
+        this.nodes.p8_51.errpts = this.parseAixHealthCheckErrpt(val.message)
+        // force reactive
+        this.nodes.p8_51 = { ...this.nodes.p8_51 }
+        this.prepareReportData()
+      }
     },
     headP8_52 (val) {
       // this.$utils.warn('headP8_52', val)
-      this.nodes.p8_52.clusterInfo = this.getClusterStatus(val.message)
-      this.nodes.p8_52.highUsageFileSystems = this.getFileSystemUsage(val.message)
-      this.nodes.p8_52.oracleErrors = this.getOracleErrors(val.message)
-      this.nodes.p8_52.aixErrors = this.getAIXErrors(val.message)
-      this.nodes.p8_52.uniqueErrorsMap = this.getUniqueOracleErrors(val.message)
-      this.nodes.p8_52.hacmpPids = this.getHacmpSubsystems(val.message)
-      this.nodes.p8_52.dnpValues = this.getDnpValues(val.message)
-      this.nodes.p8_52.memoryStats = this.getMemoryStats(val.message)
-      this.nodes.p8_52.oracleProcs = this.getOracleProcessCount(val.message)
-      this.nodes.p8_52.ioStats = this.getIoStats(val.message)
-      this.nodes.p8_52.haDataVgMounts = this.getHADataVgMounts(val.message)
-      this.nodes.p8_52.allMounts = this.getAllMountPoints(val.message)
-      this.nodes.p8_52.errpts = this.parseAixHealthCheckErrpt(val.message)
-      // force reactive
-      this.nodes.p8_52 = { ...this.nodes.p8_52 }
-      this.prepareReportData()
+      if (!this.$utils.empty(val)) {
+        this.nodes.p8_52.clusterInfo = this.getClusterStatus(val.message)
+        this.nodes.p8_52.highUsageFileSystems = this.getFileSystemUsage(val.message)
+        this.nodes.p8_52.oracleErrors = this.getOracleErrors(val.message)
+        this.nodes.p8_52.aixErrors = this.getAIXErrors(val.message)
+        this.nodes.p8_52.uniqueErrorsMap = this.getUniqueOracleErrors(val.message)
+        this.nodes.p8_52.hacmpPids = this.getHacmpSubsystems(val.message)
+        this.nodes.p8_52.dnpValues = this.getDnpValues(val.message)
+        this.nodes.p8_52.memoryStats = this.getMemoryStats(val.message)
+        this.nodes.p8_52.oracleProcs = this.getOracleProcessCount(val.message)
+        this.nodes.p8_52.ioStats = this.getIoStats(val.message)
+        this.nodes.p8_52.haDataVgMounts = this.getHADataVgMounts(val.message)
+        this.nodes.p8_52.allMounts = this.getAllMountPoints(val.message)
+        this.nodes.p8_52.errpts = this.parseAixHealthCheckErrpt(val.message)
+        // force reactive
+        this.nodes.p8_52 = { ...this.nodes.p8_52 }
+        this.prepareReportData()
+      }
     }
   },
   created () {
