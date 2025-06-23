@@ -424,7 +424,7 @@ export default {
       this.$utils.warn('headBatch', val)
       this.$nextTick(() => {
         this.parseClusterStatus()
-        this.$utils.warn('parsedClusterStatus', this.parsedClusterStatus)
+        // this.$utils.warn('parsedClusterStatus', this.parsedClusterStatus)
       })
     },
     'nodes.p8_51' () {
@@ -592,17 +592,13 @@ export default {
     },
     parseClusterStatus () {
       const dataObj = this.headBatch
-
       // Check if p8_51 messages exist
       if (dataObj === null) {
         return null
       }
-
       const message = dataObj.messages.p8_51[0].message
-
       // Extract the cluster status section
       const clusterStatusMatch = message.match(/Node\s+State\s*\n-+\s+-+\s*\n([\s\S]*?)\n\n/)
-
       if (clusterStatusMatch) {
         const statusSection = clusterStatusMatch[1]
         const lines = statusSection.split('\n')
@@ -623,7 +619,6 @@ export default {
 
         return this.parsedClusterStatus // <-- Return the parsed result
       }
-
       return null // Only return null if no match found
     },
     isTimestampNHoursAgo (timestampStr, targetHours, toleranceHours = 0.1) {
