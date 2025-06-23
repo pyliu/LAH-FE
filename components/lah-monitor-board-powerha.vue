@@ -45,10 +45,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
           ul
             li: ol
               li 請於 NODE1 的 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkAIXSh51" target="_blank" title="下載腳本") health_check_aix_51_HX.sh]」以利完成後送出通知電子郵件。(⭐請依各所實際環境修正腳本內路徑及收件者資訊⭐)
-              li e.g. 在 root 的 crontab 新增「0,15,30,45 7-17 * * 1-6 /ha/health_check_aix_51_HA.sh > /dev/null」於辦公時間每小時執行一次(請自行依擺放腳本位置修正路徑)。
+              li e.g. 在 root 的 crontab 新增「0,15,30,45 7-17 * * 1-6 /ha/health_check_aix_51_HA.sh > /dev/null」於辦公時間每15分鐘執行一次(請自行依擺放腳本位置修正路徑)。
             li: ol
               li 請於 NODE2 的 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkAIXSh52" target="_blank" title="下載腳本") health_check_aix_52.sh]」以利完成後送出通知電子郵件。(⭐請依各所實際環境修正腳本內收件者資訊⭐)
-              li e.g. 在 root 的 crontab 新增「0,15,30,45 7-17 * * 1-6 /ha/health_check_aix_52.sh > /dev/null」於辦公時間每小時執行一次(請自行依擺放腳本位置修正路徑)。
+              li e.g. 在 root 的 crontab 新增「0,15,30,45 7-17 * * 1-6 /ha/health_check_aix_52.sh > /dev/null」於辦公時間每15分鐘執行一次(請自行依擺放腳本位置修正路徑)。
         li 分析電子郵件以顯示資料庫兩個NODE的啟用狀態。
         li 依 crontab 設定時間檢查後並送出電子郵件通知(桃園所 👉 每天 07:00 ~ 17:45 每15分鐘檢查一次)。
         li 儀表板預設約每15分鐘更新檢查監控郵件一次。
