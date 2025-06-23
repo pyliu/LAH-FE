@@ -80,6 +80,16 @@ div(v-cloak)
     )
     div(
       :class="colCss",
+      key="lahMonitorBoardPowerha-fix",
+      v-show="!isInAttention('lahMonitorBoardPowerha')"
+    ): lah-monitor-board-powerha(
+      :class="heightCss",
+      ref="lahMonitorBoardPowerha",
+      @light-update="lightUpdate",
+      footer
+    )
+    div(
+      :class="colCss",
       key="lahMonitorBoardDataguard-fix",
       v-show="!isInAttention('LahMonitorBoardDataguard')"
     ): lah-monitor-board-dataguard(
@@ -104,16 +114,6 @@ div(v-cloak)
     ): lah-monitor-board-hacmp(
       :class="heightCss",
       ref="LahMonitorBoardHacmp",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      key="lahMonitorBoardPowerha-fix",
-      v-show="!isInAttention('lahMonitorBoardPowerha')"
-    ): lah-monitor-board-powerha(
-      :class="heightCss",
-      ref="lahMonitorBoardPowerha",
       @light-update="lightUpdate",
       footer
     )
