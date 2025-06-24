@@ -290,6 +290,8 @@ export default {
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
+    this.$refs.countdown?.resetCountdown()
+    this.$refs.countdown?.pauseCountdown()
     this.emitLightUpdate('', this.light)
   },
   methods: {
