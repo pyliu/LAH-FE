@@ -50,8 +50,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
               li 請於 NODE2 的 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkAIXSh52" target="_blank" title="下載腳本") health_check_aix_52.sh]」以利完成後送出通知電子郵件。(⭐請依各所實際環境修正腳本內收件者資訊⭐)
               li e.g. 在 root 的 crontab 新增「0,15,30,45 7-17 * * 1-6 /ha/health_check_aix_52.sh > /dev/null」於辦公時間每15分鐘執行一次(請自行依擺放腳本位置修正路徑)。
         li 分析電子郵件以顯示資料庫兩個NODE的啟用狀態。
-        li 依 crontab 設定時間檢查後並送出電子郵件通知(桃園所 👉 每天 07:00 ~ 17:45 每15分鐘檢查一次)。
+        li 依 crontab 設定時間檢查後並送出電子郵件通知 (桃園所 👉 每天 07:00 ~ 17:45 每15分鐘檢查一次)。
         li 儀表板預設約每15分鐘更新檢查監控郵件一次。
+        hr
         h6 ✨ 腳本相關設定請依各所調整，如郵件收件者、HXWEB ... 等，但是郵件標題 "[Health Check] - p8_" 請勿修改，智慧監控是依規則此抓郵件的。
         h6 ✨ AIX主機要認得的郵件伺服器(不然寄不出郵件) 👉 /etc/hosts 加入 entry (以桃園所設定為例 👉 220.1.34.50 mail.ha.cenweb.land.moi)
       hr
