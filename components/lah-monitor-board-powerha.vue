@@ -2,7 +2,7 @@
 b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
-    strong {{ header }} - {{ headBatchDatetime }}
+    strong {{ header }} - {{ clusterName }}
     b-button-group.ml-auto(size="sm")
       lah-button(
         v-if="!footer"
@@ -102,10 +102,18 @@ b-card(:border-variant="border", :class="[attentionCss]")
                 :variant="fsVariant(fs.usedPercent)"
               ) {{ fs.usedPercent }}%
 
-        h6(v-else-if="item.item === '節點狀態'"): b-badge(
-          :variant="item.p8_51 === 'ONLINE' ? 'success' : 'danger'"
-          pill
-        ) {{ item.p8_51 }}
+        h6.text-nowrap(v-else-if="item.item === '節點狀態'")
+          b-badge(
+            :variant="item.p8_51 === 'ONLINE' ? 'success' : 'danger'"
+            pill
+          ) {{ item.p8_51 }}
+
+        h6(v-else-if="item.item === '叢集狀態'")
+          b-badge(
+            :variant="item.p8_51.code === 'ST_STABLE' ? 'success' : 'danger'"
+            pill
+            :title="`${item.p8_51.code} - ${item.p8_51.description}`"
+          ) {{ item.p8_51.name }}
 
         div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button.s-70(
@@ -134,10 +142,18 @@ b-card(:border-variant="border", :class="[attentionCss]")
                 :variant="fsVariant(fs.usedPercent)"
               ) {{ fs.usedPercent }}%
 
-        h6(v-else-if="item.item === '節點狀態'"): b-badge(
-          :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
-          pill
-        ) {{ item.p8_52 }}
+        h6.text-nowrap(v-else-if="item.item === '節點狀態'")
+          b-badge(
+            :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
+            pill
+          ) {{ item.p8_52 }}
+
+        h6(v-else-if="item.item === '叢集狀態'")
+          b-badge(
+            :variant="item.p8_52.code === 'ST_STABLE' ? 'success' : 'danger'"
+            pill
+            :title="`${item.p8_52.code} - ${item.p8_52.description}`"
+          ) {{ item.p8_52.name }}
 
         div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button.s-70(
@@ -153,7 +169,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
   b-modal(
     ref="detail",
     size="xl",
-    :title="`51/52 節點回報總覽 ${headBatchDatetime}`",
+    :title="`${clusterName} P8 51/52 節點回報總覽 - ${headBatchDatetime}`",
     hide-footer
   )
     b-table(
@@ -190,10 +206,19 @@ b-card(:border-variant="border", :class="[attentionCss]")
                 :variant="fsVariant(fs.usedPercent)"
               ) {{ fs.usedPercent }}%
 
-        h4(v-else-if="item.item === '節點狀態'"): b-badge(
-          :variant="item.p8_51 === 'ONLINE' ? 'success' : 'danger'"
-          pill
-        ) {{ item.p8_51 }}
+        h4(v-else-if="item.item === '節點狀態'")
+          b-badge(
+            :variant="item.p8_51 === 'ONLINE' ? 'success' : 'danger'"
+            pill
+          ) {{ item.p8_51 }}
+
+        h5(v-else-if="item.item === '叢集狀態'")
+          b-badge(
+            :variant="item.p8_51.code === 'ST_STABLE' ? 'success' : 'danger'"
+            pill
+            :title="`${item.p8_51.code} - ${item.p8_51.description}`"
+          ) {{ item.p8_51.name }}
+          span.mx-2.s-85 {{  item.p8_51.description }}
 
         div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button(
@@ -222,10 +247,19 @@ b-card(:border-variant="border", :class="[attentionCss]")
                 :variant="fsVariant(fs.usedPercent)"
               ) {{ fs.usedPercent }}%
 
-        h4(v-else-if="item.item === '節點狀態'"): b-badge(
-          :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
-          pill
-        ) {{ item.p8_52 }}
+        h4(v-else-if="item.item === '節點狀態'")
+          b-badge(
+            :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
+            pill
+          ) {{ item.p8_52 }}
+
+        h5(v-else-if="item.item === '叢集狀態'")
+          b-badge(
+            :variant="item.p8_52.code === 'ST_STABLE' ? 'success' : 'danger'"
+            pill
+            :title="`${item.p8_52.code} - ${item.p8_52.description}`"
+          ) {{ item.p8_52.name }}
+          span.mx-2.s-85 {{  item.p8_52.description }}
 
         div(v-else-if="item.item === 'AIX 錯誤'")
           lah-button(
@@ -272,10 +306,10 @@ export default {
     },
     reportData: [],
     reportFields: [
+      { key: 'result', label: '檢測', sortable: true, thStyle: { width: '15px', textAlign: 'center' } },
       { key: 'item', label: '項目', sortable: true, thStyle: { width: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } },
       { key: 'p8_51', label: '節點51', sortable: false, thStyle: { width: '40%' } },
-      { key: 'p8_52', label: '節點52', sortable: false, thStyle: { width: '40%' } },
-      { key: 'result', label: '檢測', sortable: true }
+      { key: 'p8_52', label: '節點52', sortable: false, thStyle: { width: '40%' } }
     ],
     briefFields: [
       { key: 'item', label: '項目', sortable: true, thStyle: { width: '20%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } },
@@ -283,7 +317,50 @@ export default {
       { key: 'p8_52', label: '節點52', thStyle: { width: '40%' } }
     ],
     parsedClusterStatus: {},
-    maxHeight: 600
+    maxHeight: 600,
+    HA_STATE_DEFINITIONS: {
+      ST_STABLE: {
+        name: '穩定狀態',
+        type: 'normal',
+        description: '叢集處於靜態的穩定狀態，所有服務已就緒。'
+      },
+      ST_INIT: {
+        name: '初始化中',
+        type: 'processing',
+        description: '叢集服務剛啟動，節點正在讀取設定並準備加入叢集。'
+      },
+      ST_JOINING: {
+        name: '節點加入中',
+        type: 'processing',
+        description: '一個節點正在加入現有的叢集，此為短暫的過渡狀態。'
+      },
+      ST_VARYON: {
+        name: '資源上線中',
+        type: 'processing',
+        description: '正在啟動 (Vary On) 一個資源群組，例如開機或手動啟動服務。'
+      },
+      ST_VARYOFF: {
+        name: '資源離線中',
+        type: 'processing',
+        description: '正在停止 (Vary Off) 一個資源群組。'
+      },
+      ST_MOVE: {
+        name: '資源移動中',
+        type: 'warning',
+        description: '正在進行故障轉移 (Failover) 或手動移動資源。若長時間停留在此狀態，代表可能發生問題。'
+      },
+      ST_RECOVERY: {
+        name: '恢復模式',
+        type: 'warning',
+        description: '叢集偵測到錯誤後，嘗試進入恢復模式解決問題，建議檢查日誌了解原因。'
+      },
+      ST_BARRIER: {
+        name: '同步屏障',
+        type: 'processing',
+        description: '一個過渡狀態，叢集正在等待所有節點完成某個步驟以達到同步。'
+      }
+    // 您未來可以依需求在此處新增更多狀態定義
+    }
   }),
   computed: {
     checkAIXSh51 () {
@@ -364,55 +441,76 @@ export default {
       }
       return null
     },
+    clusterName () {
+      if (this.is51Online) {
+        return this.getClusterName(this.headP8_51.message)
+      }
+      if (this.is52Online) {
+        return this.getClusterName(this.headP8_52.message)
+      }
+      return 'N/A'
+    },
+    is51Online () {
+      // Check if p8_51 messages exist
+      if (!this.headP8_51) {
+        return null // No data available
+      }
+      // Look for ORAHAHA1 node status in the message
+      // Since p8_51 corresponds to ORAHAHA1, check if ORAHAHA1 is OFFLINE
+      const orahxha1Match = this.headP8_51.message.match(/ORAH[A-H]HA1\s+(\w+)/)
+      if (orahxha1Match) {
+        return orahxha1Match[1] === 'ONLINE'
+      }
+      return null // Status not found
+    },
+    is52Online () {
+      // Check if p8_51 messages exist
+      if (!this.headP8_52) {
+        return null // No data available
+      }
+      // Look for ORAHAHA1 node status in the message
+      // Since p8_51 corresponds to ORAHAHA1, check if ORAHAHA1 is OFFLINE
+      const orahxha2Match = this.headP8_52.message.match(/ORAH[A-H]HA2\s+(\w+)/)
+      if (orahxha2Match) {
+        return orahxha2Match[1] === 'ONLINE'
+      }
+      return null // Status not found
+    },
     briefData () {
       if (this.$utils.empty(this.reportData)) {
         return []
       }
-      const targetItems = ['節點狀態', 'AIX 錯誤', '檔案系統超過 80%', 'Oracle 錯誤', 'Oracle 程式數']
+      const targetItems = ['節點狀態', '叢集狀態', 'AIX 錯誤', 'Oracle 錯誤']
       return targetItems
         .map(targetItem => this.reportData.find(item => item.item === targetItem))
         .filter(item => item !== undefined) // Remove any undefined items if not found
     },
     light () {
+      // 優先權 1: 檢查資料批次本身是否有問題 (例如過舊或為空)
       if (
         this.$utils.empty(this.headBatch) ||
         Math.abs((new Date() - new Date(this.headBatch.timestamp * 1000)) / (1000 * 60 * 60) - 2) <= 0.1
       ) {
         return 'warning'
       }
+      // 優先權 2: 檢查是否兩台主機的日誌都有收到
       if (!this.headBatch.hasBoth) {
         return 'danger'
       }
+      // 優先權 3: 檢查叢集的 "Current State"
+      if (this.is52Online) {
+        if (this.nodes.p8_52?.clusterInfo?.nodes[1]?.clusterState !== 'ST_STABLE') {
+          return 'danger'
+        }
+        return 'warning'
+      } else if (this.is51Online && this.nodes.p8_51?.clusterInfo?.nodes[1]?.clusterState !== 'ST_STABLE') {
+        return 'danger'
+      }
+      // 如果以上所有危險或警告條件都未觸發，代表一切正常 (狀態為 ST_STABLE)
       return 'success'
     },
     headMessage () {
       return this.messages[0]
-    },
-    // Method 1: Simple check using string search in the message
-    isP8_51Offline () {
-      const dataObj = this.headBatch
-      // Check if p8_51 messages exist
-      if (!dataObj.messages || !dataObj.messages.p8_51 || dataObj.messages.p8_51.length === 0) {
-        return null // No data available
-      }
-      // Get the first (or latest) message from p8_51
-      const p8_51Message = dataObj.messages.p8_51[0].message
-      // Look for ORAHAHA1 node status in the message
-      // Since p8_51 corresponds to ORAHAHA1, check if ORAHAHA1 is OFFLINE
-      const orahaha1Match = p8_51Message.match(/ORAHAHA1\s+(\w+)/)
-
-      if (orahaha1Match) {
-        return orahaha1Match[1] === 'OFFLINE'
-      }
-      return null // Status not found
-    },
-    // Method 3: Quick one-liner check
-    isP8_51OfflineQuick () {
-      const message = this.headBatch?.messages?.p8_51?.[0]?.message
-      if (!message) { return false }
-      // Regular expression to match ORAHAHA1 followed by any whitespace and then OFFLINE
-      const regex = /ORAHAHA1\s+OFFLINE/
-      return regex.test(message)
     }
   },
   watch: {
@@ -493,6 +591,25 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
   },
   methods: {
+    /**
+     * 查詢 PowerHA 叢集狀態的詳細定義
+     * @param {string} stateCode - 要查詢的狀態碼 (例如 "ST_STABLE")。
+     * @returns {object} - 包含狀態詳細資訊的物件。
+     */
+    getHAStateDefinition (stateCode) {
+    // 嘗試從定義庫中尋找對應的狀態
+      const definition = this.HA_STATE_DEFINITIONS[stateCode]
+      // 如果找到了，就回傳該定義
+      if (definition) {
+        return definition
+      }
+      // 如果沒找到，回傳一個預設的「未知狀態」物件
+      return {
+        name: `未知狀態(${stateCode})`,
+        type: '未知',
+        description: `找不到狀態碼 "${stateCode}" 的相關資訊。`
+      }
+    },
     /**
      * 將 AIX errpt 的摘要時間戳 (格式 MMDDHHmmYY) 轉換為 'MM-DD HH:mm:ss'。
      * @param {string} timestampStr 原始的時間戳字串，例如 "0622090225"。
@@ -677,6 +794,29 @@ export default {
       return 'N/A'
     },
     /**
+     * 從 "Details of PowerHA SystemMirror cluster manager" 的區塊中，
+     * 擷取 "Current state" 的值。
+     * @param {string} logContent - 完整的日誌文字內容。
+     * @returns {string} - "Current state" 的值 (例如 "ST_STABLE")，若找不到則回傳 "N/A"。
+     */
+    getClusterManagerState (logContent) {
+      // 1. 建立一個正規表示式來尋找整個區塊並擷取目標值
+      //    - Details of PowerHA...:  先定位到這個固定的標題
+      //    - [\s\S]*?:              接著非貪婪地匹配任何字元 (包含換行)
+      //    - Current state:\s*:     找到目標標籤
+      //    - (\S+):                 最後，捕獲我們需要的狀態值
+      const regex = /Details of PowerHA SystemMirror cluster manager:[\s\S]*?Current state:\s*(\S+)/
+      // 2. 執行匹配
+      const match = logContent.match(regex)
+      // 3. 檢查是否成功匹配到，並回傳結果
+      //    如果匹配成功，我們要的結果在捕獲組 1 的位置 (索引為 1)
+      if (match && match[1]) {
+        return match[1]
+      }
+      // 4. 如果沒有找到，回傳一個預設值
+      return 'N/A'
+    },
+    /**
      * 擷取叢集中各節點的狀態
      * @param {string} logContent - 日誌檔案的完整文字內容。
      * @returns {Array<object>} 包含節點物件的陣列，例如 [{ name: 'ORAHAHA1', state: 'ONLINE' }]
@@ -693,7 +833,11 @@ export default {
           if (line.startsWith('ORA')) {
             const parts = line.split(/\s+/)
             if (parts.length >= 2) {
-              nodes.push({ name: parts[0], state: parts[1] })
+              nodes.push({
+                name: parts[0],
+                state: parts[1],
+                clusterState: this.getClusterManagerState(logContent)
+              })
             }
           }
         }
@@ -1292,8 +1436,11 @@ export default {
       try {
         // 0. 清除之前 reportData 資料
         this.reportData.length = 0
+        const ha1Regex = /^ORAH[A-H]HA1/i
+        const ha2Regex = /^ORAH[A-H]HA2/i
         const clusterName51 = this.nodes.p8_51.clusterInfo.clusterName
         const clusterName52 = this.nodes.p8_52.clusterInfo.clusterName
+
         this.reportData.push({
           item: '叢集名稱',
           p8_51: clusterName51,
@@ -1301,27 +1448,26 @@ export default {
           result: clusterName51 === clusterName52 ? '✅' : '❌'
         })
 
-        const nodeState51 = this.formatForDisplay(this.nodes.p8_51.clusterInfo.nodes.map(n => `${n.name}: ${n.state}`))
-        const nodeState52 = this.formatForDisplay(this.nodes.p8_52.clusterInfo.nodes.map(n => `${n.name}: ${n.state}`))
         this.reportData.push({
           item: '節點狀態',
-          p8_51: (() => {
-            try {
-              const regex = /^ORAH[A-H]HA1/i
-              return this.nodes.p8_51.clusterInfo.nodes.find(n => regex.test(n.name)).state || 'N/A'
-            } catch (err) {
-              return err.message
-            }
-          })(),
-          p8_52: (() => {
-            try {
-              const regex = /^ORAH[A-H]HA2/i
-              return this.nodes.p8_52.clusterInfo.nodes.find(n => regex.test(n.name)).state || 'N/A'
-            } catch (err) {
-              return err.message
-            }
-          })(),
-          result: nodeState51 === nodeState52 ? '✅' : '❌'
+          p8_51: this.is51Online ? 'ONLINE' : 'OFFLINE',
+          p8_52: this.is52Online ? 'ONLINE' : 'OFFLINE',
+          result: this.is51Online && !this.is52Online ? '✅' : '❌'
+        })
+
+        const p851ClusterState = this.nodes.p8_51.clusterInfo.nodes.find(n => ha1Regex.test(n.name)).clusterState
+        const p852ClusterState = this.nodes.p8_52.clusterInfo.nodes.find(n => ha2Regex.test(n.name)).clusterState
+        this.reportData.push({
+          item: '叢集狀態',
+          p8_51: {
+            code: p851ClusterState,
+            ...this.getHAStateDefinition(p851ClusterState)
+          },
+          p8_52: {
+            code: p852ClusterState,
+            ...this.getHAStateDefinition(p852ClusterState)
+          },
+          result: p851ClusterState === 'ST_STABLE' && p852ClusterState === 'ST_STABLE' ? '✅' : '❌'
         })
 
         this.reportData.push({
@@ -1347,7 +1493,7 @@ export default {
           item: 'AIX 錯誤',
           p8_51: aixErrorCount51 > 0 ? `${aixErrorCount51} 個錯誤` : '無',
           p8_52: aixErrorCount52 > 0 ? `${aixErrorCount52} 個錯誤` : '無',
-          result: aixErrorCount51 === aixErrorCount52 ? '✅' : '❌'
+          result: aixErrorCount51 === 0 && aixErrorCount52 === 0 ? '✅' : '❌'
         })
 
         const allmounts51 = this.nodes.p8_51.allMounts
@@ -1388,7 +1534,7 @@ export default {
           item: 'Oracle 程式數',
           p8_51: this.nodes.p8_51.oracleProcs,
           p8_52: this.nodes.p8_52.oracleProcs,
-          result: '✅'
+          result: this.nodes.p8_51.oracleProcs > 0 ? '✅' : '❌'
         })
 
         this.reportData.push({
