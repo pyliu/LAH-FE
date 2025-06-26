@@ -110,9 +110,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
         h6(v-else-if="item.item === '叢集狀態'")
           b-badge(
-            :variant="item.p8_51.code === 'ST_STABLE' ? 'success' : 'danger'"
-            pill
+            :variant="clusterVariant(item.p8_51.type)"
             :title="`${item.p8_51.code} - ${item.p8_51.description}`"
+            pill
           ) {{ item.p8_51.name }}
 
         div(v-else-if="item.item === 'AIX 錯誤'")
@@ -150,9 +150,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
         h6(v-else-if="item.item === '叢集狀態'")
           b-badge(
-            :variant="item.p8_52.code === 'ST_STABLE' ? 'success' : 'danger'"
-            pill
+            :variant="clusterVariant(item.p8_52.type)"
             :title="`${item.p8_52.code} - ${item.p8_52.description}`"
+            pill
           ) {{ item.p8_52.name }}
 
         div(v-else-if="item.item === 'AIX 錯誤'")
@@ -214,9 +214,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
         h5(v-else-if="item.item === '叢集狀態'")
           b-badge(
-            :variant="item.p8_51.code === 'ST_STABLE' ? 'success' : 'danger'"
-            pill
+            :variant="clusterVariant(item.p8_51.type)"
             :title="`${item.p8_51.code} - ${item.p8_51.description}`"
+            pill
           ) {{ item.p8_51.name }}
           span.mx-2.s-85 {{  item.p8_51.description }}
 
@@ -255,9 +255,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
         h5(v-else-if="item.item === '叢集狀態'")
           b-badge(
-            :variant="item.p8_52.code === 'ST_STABLE' ? 'success' : 'danger'"
-            pill
+            :variant="clusterVariant(item.p8_52.type)"
             :title="`${item.p8_52.code} - ${item.p8_52.description}`"
+            pill
           ) {{ item.p8_52.name }}
           span.mx-2.s-85 {{  item.p8_52.description }}
 
@@ -762,6 +762,14 @@ export default {
         return 'info'
       }
       return 'success'
+    },
+    clusterVariant (type) {
+      if (type === 'normal') {
+        return 'success'
+      } else if (type === 'processing') {
+        return 'warning'
+      }
+      return 'danger'
     },
     // Helper function to get both node statuses
     getBothNodeStatuses () {
