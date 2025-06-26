@@ -318,6 +318,16 @@ export default {
     ],
     parsedClusterStatus: {},
     maxHeight: 600,
+    /**
+     * PowerHA 叢集狀態定義庫
+     * 儲存了各個狀態碼的詳細資訊，包括中文名稱、狀態類型和說明。
+     * 狀態類型 (type):
+     * - 'normal': 正常，最理想的狀態。
+     * - 'processing': 處理中，正常操作下的過渡狀態。
+     * - 'warning': 警告，代表有潛在風險，或長時間處於 processing 狀態。
+     * - 'danger': 危險，代表發生嚴重錯誤，需要立即介入。
+     * - 'unknown': 未知，在定義庫中找不到的狀態。
+     */
     HA_STATE_DEFINITIONS: {
       ST_STABLE: {
         name: '穩定狀態',
