@@ -265,6 +265,7 @@ export default {
     fetchType: 'subject',
     fetchKeyword: '[Health Check] - p8_',
     fetchDay: 1,
+    nodeRegex: /ORAH[A-H]HA[1-2]/igm,
     nodes: {
       p8_51: {},
       p8_52: {}
@@ -661,11 +662,17 @@ export default {
      * 擷取 HACMP/PowerHA 叢集名稱
      * @param {string} logContent - 日誌檔案的完整文字內容。
      * @returns {string} 叢集名稱，若找不到則回傳 "N/A"。
+     * 完整工作流程是：
+     * 搜尋：在日誌內容中尋找 Cluster Name: 開頭的段落。
+     * 擷取：如果找到了，就把後面的叢集名稱（如 ORAHAHA1_cluster）抓出來。
+     * 清理：將抓出來的名稱結尾多餘的 _cluster 字樣去掉。
+     * 回傳：回傳清理後的乾淨名稱（如 ORAHAHA1）。
+     * 備用：如果從頭到尾都沒找到，就回傳 'N/A'。
      */
     getClusterName (logContent) {
       const clusterNameMatch = logContent.match(/Cluster Name:\s*(\S+)/)
       if (clusterNameMatch && clusterNameMatch[1]) {
-        return clusterNameMatch[1]
+        return clusterNameMatch[1].replace(/_cluster$/i, '')
       }
       return 'N/A'
     },
@@ -683,12 +690,11 @@ export default {
         const lines = nodeStateSection.trim().split('\n')
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim()
-          if (line === '' || line.startsWith('#')) {
-            break
-          }
-          const parts = line.split(/\s+/)
-          if (parts.length >= 2) {
-            nodes.push({ name: parts[0], state: parts[1] })
+          if (line.startsWith('ORA')) {
+            const parts = line.split(/\s+/)
+            if (parts.length >= 2) {
+              nodes.push({ name: parts[0], state: parts[1] })
+            }
           }
         }
       }
@@ -1301,16 +1307,16 @@ export default {
           item: '節點狀態',
           p8_51: (() => {
             try {
-              const namePrefix = this.nodes.p8_51.clusterInfo.clusterName.split('1_')[0]
-              return this.nodes.p8_51.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}1`)).state || 'N/A'
+              const regex = /^ORAH[A-H]HA1/i
+              return this.nodes.p8_51.clusterInfo.nodes.find(n => regex.test(n.name)).state || 'N/A'
             } catch (err) {
               return err.message
             }
           })(),
           p8_52: (() => {
             try {
-              const namePrefix = this.nodes.p8_52.clusterInfo.clusterName.split('1_')[0]
-              return this.nodes.p8_52.clusterInfo.nodes.find(n => n.name.startsWith(`${namePrefix}2`)).state || 'N/A'
+              const regex = /^ORAH[A-H]HA2/i
+              return this.nodes.p8_52.clusterInfo.nodes.find(n => regex.test(n.name)).state || 'N/A'
             } catch (err) {
               return err.message
             }
