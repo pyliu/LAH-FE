@@ -334,6 +334,11 @@ export default {
         type: 'processing',
         description: '一個節點正在加入現有的叢集，此為短暫的過渡狀態。'
       },
+      ST_EXITING: {
+        name: '節點退出中',
+        type: 'processing',
+        description: '一個節點正在退出叢集。'
+      },
       ST_VARYON: {
         name: '資源上線中',
         type: 'processing',
@@ -349,15 +354,35 @@ export default {
         type: 'warning',
         description: '正在進行故障轉移 (Failover) 或手動移動資源。若長時間停留在此狀態，代表可能發生問題。'
       },
+      ST_BARRIER: {
+        name: '同步屏障',
+        type: 'processing',
+        description: '一個過渡狀態，叢集正在等待所有節點完成某個步驟以達到同步。'
+      },
       ST_RECOVERY: {
         name: '恢復模式',
         type: 'warning',
         description: '叢集偵測到錯誤後，嘗試進入恢復模式解決問題，建議檢查日誌了解原因。'
       },
-      ST_BARRIER: {
-        name: '同步屏障',
-        type: 'processing',
-        description: '一個過渡狀態，叢集正在等待所有節點完成某個步驟以達到同步。'
+      ST_RP_FAILED: {
+        name: '資源群組錯誤',
+        type: 'danger',
+        description: '一個事件腳本執行失敗，資源群組處於錯誤狀態，需要立即檢查！'
+      },
+      ST_UNSTABLE: {
+        name: '不穩定狀態',
+        type: 'danger',
+        description: '叢集處於不穩定狀態，可能發生網路分區或嚴重問題，需要立即調查。'
+      },
+      EVENT_ERROR: {
+        name: '事件錯誤',
+        type: 'danger',
+        description: '一個重要的叢集事件執行失敗，請立即檢查 clstrmgr.out 和 hacmp.out 日誌。'
+      },
+      CONFIG_TOO_SMALL: {
+        name: '配置空間不足',
+        type: 'danger',
+        description: '叢集配置所需的空間不足，可能導致操作失敗。'
       }
     // 您未來可以依需求在此處新增更多狀態定義
     }
@@ -527,12 +552,12 @@ export default {
         // this.$utils.warn('parsedClusterStatus', this.parsedClusterStatus)
       })
     },
-    'nodes.p8_51' () {
-      this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
-    },
-    'nodes.p8_52' () {
-      this.$utils.warn('nodes.p8_52', this.nodes.p8_52)
-    },
+    // 'nodes.p8_51' () {
+    //   this.$utils.warn('nodes.p8_51', this.nodes.p8_51)
+    // },
+    // 'nodes.p8_52' () {
+    //   this.$utils.warn('nodes.p8_52', this.nodes.p8_52)
+    // },
     // reportData () {
     //   this.$utils.warn('reportData', this.reportData)
     // },
@@ -766,7 +791,7 @@ export default {
     clusterVariant (type) {
       if (type === 'normal') {
         return 'success'
-      } else if (type === 'processing') {
+      } else if (['processing', 'warning'].includes(type)) {
         return 'warning'
       }
       return 'danger'
