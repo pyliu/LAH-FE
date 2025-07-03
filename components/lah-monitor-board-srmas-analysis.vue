@@ -82,8 +82,8 @@ export default {
       this.threadhold = (+new Date() - this.duration) / 1000
     }, this.debounceMs)
     this.matchWarningRestores = this.$utils.debounce(() => {
-      this.$utils.warn('warnings', this.warnings)
-      this.$utils.warn('restores', this.restores)
+      // this.$utils.warn('warnings', this.warnings)
+      // this.$utils.warn('restores', this.restores)
       // 輔助函式：從郵件內文中解析出主機名稱
       const getHost = (message) => {
         const lines = message?.split('\r\n')?.map(line => line?.trim())
