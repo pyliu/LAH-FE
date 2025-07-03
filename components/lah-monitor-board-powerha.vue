@@ -302,7 +302,7 @@ export default {
     fetchType: 'subject',
     fetchKeyword: '[Health Check] - p8_',
     fetchDay: 1,
-    nodeRegex: /ORAH[A-H]HA[1-2]/igm,
+    nodeRegex: /ORAH[0A-H]HA[1-2]/igm,
     nodes: {
       p8_51: {},
       p8_52: {}
@@ -495,7 +495,7 @@ export default {
       }
       // Look for ORAHAHA1 node status in the message
       // Since p8_51 corresponds to ORAHAHA1, check if ORAHAHA1 is OFFLINE
-      const orahxha1Match = this.headP8_51.message.match(/ORAH[A-H]HA1\s+(\w+)/)
+      const orahxha1Match = this.headP8_51.message.match(/ORAH[0A-H]HA1\s+(\w+)/)
       if (orahxha1Match) {
         return orahxha1Match[1] === 'ONLINE'
       }
@@ -1482,8 +1482,8 @@ export default {
       try {
         // 0. 清除之前 reportData 資料
         this.reportData.length = 0
-        const ha1Regex = /^ORAH[A-H]HA1/i
-        const ha2Regex = /^ORAH[A-H]HA2/i
+        const ha1Regex = /^ORAH[0A-H]HA1/i
+        const ha2Regex = /^ORAH[0A-H]HA2/i
         const clusterName51 = this.nodes.p8_51.clusterInfo.clusterName
         const clusterName52 = this.nodes.p8_52.clusterInfo.clusterName
 
