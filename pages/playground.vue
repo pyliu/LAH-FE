@@ -29,6 +29,7 @@ div: client-only
     .col-md-4(key="lah-powerha"): lah-monitor-board-powerha(footer)
     .col-md-4(key="lah-mbsrc"): lah-mgmt-board-sync-reg-case
     .col-md-4(key="lah-mbwt"): lah-monitor-board-ws-test
+    //- .col-md-4(key="lah-mbwt"): lah-monitor-board-srmas
     .col-md-4(key="lah-mbrcfr"): lah-mgmt-board-reg-case-fix-RM39G(case-id="113-HBA1-018240")
     //- lah-monitor-board-srmas-weather
     .col-md-4(key="lah-mbsn"): lah-monitor-board-sms-notify(footer)

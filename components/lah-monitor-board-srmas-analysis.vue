@@ -82,52 +82,91 @@ export default {
       this.threadhold = (+new Date() - this.duration) / 1000
     }, this.debounceMs)
     this.matchWarningRestores = this.$utils.debounce(() => {
-      const bad = [...this.warnings]
-      this.fixed = []
-      this.problems = []
-      // foreach restore message finds one with the same key(host) and timestamp is less it in warning array
-      this.restores.forEach((ritem, ridx, arr) => {
-        // eslint-disable-next-line quotes
-        const restoreLines = ritem.message.split("\r\n")?.map(line => line?.trim())
-        // ex: 主機：220.1.34.206
-        const restoreHostLine = restoreLines[1]
-        // restoreHostLine === '主機：220.1.34.250' && console.warn('restore: ', restoreLines)
-        // find the warning one for this restore message
-        const founds = []
-        bad.find((witem, widx) => {
-          // eslint-disable-next-line quotes
-          const warnLines = witem.message.split("\r\n")?.map(line => line?.trim())
-          // ex: 主機：220.1.34.206
-          const warnHostLine = warnLines[1]
-          // restoreHostLine === '主機：220.1.34.250' && warnHostLine === '主機：220.1.34.250' && console.warn('warn: ', warnLines)
-          // sometime the restore message will be sent before warning ... why? ask 👉 SRMAS by systex
-          // 1130411 testing: add timestamp(seconds) comparing back
-          if (restoreHostLine === warnHostLine && witem.timestamp <= ritem.timestamp) {
-            // host matches and restore message timestamp behides warning
-            founds.push(widx)
-            return true
-          }
-          return false
-        })
-        // console.warn(`${restoreHostLine} FOUND`, founds.length)
-        if (founds.length > 0) {
-          founds.forEach((found) => {
-            const bi = bad.splice(found, 1)[0]
-            const gi = ritem
-            // console.warn('match!', bi, gi)
-            this.fixed.push({
-              bad: bi,
-              good: gi
-            })
-          })
+      this.$utils.warn('warnings', this.warnings)
+      this.$utils.warn('restores', this.restores)
+      // 輔助函式：從郵件內文中解析出主機名稱
+      const getHost = (message) => {
+        const lines = message?.split('\r\n')?.map(line => line?.trim())
+        // 主機資訊通常在第二行，格式為 "主機：220.1.34.206" 或 "主機: 192.168.17.20"
+        const hostLine = lines?.[1]
+        if (!hostLine) {
+          return null
         }
-        // console.warn('after', bad.length)
+        return hostLine.replace(/^主機[：|:]\s*/i, '')?.trim()
+      }
+
+      // 步驟 1: 為了高效查找，將警告按主機名稱分組
+      const warningsByHost = new Map()
+      this.warnings.forEach((warning) => {
+        const host = getHost(warning.message)
+        if (host) {
+          if (!warningsByHost.has(host)) {
+            warningsByHost.set(host, [])
+          }
+          warningsByHost.get(host).push(warning)
+        }
       })
-      // sorting by bad item timestamp desc
-      this.fixed = [...this.$utils.sortBy(this.fixed, (item) => {
-        return item.bad.timestamp
-      })].reverse()
-      this.problems = [...bad]
+
+      // 步驟 2: 將回復訊息按時間戳排序 (由舊到新)，以便按時間順序處理事件
+      const sortedRestores = [...this.restores].sort((a, b) => a.timestamp - b.timestamp)
+
+      const fixedPairs = []
+
+      // 步驟 3: 遍歷每一筆回復事件。一筆回復應清除所有在此之前的告警。
+      for (const restore of sortedRestores) {
+        const restoreHost = getHost(restore.message)
+        const restoreTimestamp = restore.timestamp
+
+        // 如果回復訊息中沒有主機資訊，或者該主機沒有任何警告，則跳過
+        if (!restoreHost || !warningsByHost.has(restoreHost)) {
+          continue
+        }
+
+        const hostWarnings = warningsByHost.get(restoreHost)
+        const matchedWarnings = []
+        const remainingWarnings = []
+
+        // 將此主機的告警分為「已修復」和「未修復」兩組
+        for (const warning of hostWarnings) {
+          if (warning.timestamp <= restoreTimestamp) {
+            matchedWarnings.push(warning)
+          } else {
+            remainingWarnings.push(warning)
+          }
+        }
+
+        // 如果有找到被此回復事件修復的告警
+        if (matchedWarnings.length > 0) {
+          // 將所有被修復的告警與此回復事件配對
+          for (const matchedWarning of matchedWarnings) {
+            fixedPairs.push({
+              bad: matchedWarning,
+              good: restore
+            })
+          }
+          // 更新Map，只留下發生在此回復事件之後的告警
+          if (remainingWarnings.length > 0) {
+            warningsByHost.set(restoreHost, remainingWarnings)
+          } else {
+            // 若該主機所有告警皆已修復，則從Map中移除
+            warningsByHost.delete(restoreHost)
+          }
+        }
+      }
+
+      // 步驟 4: Map 中剩餘的所有警告都是未解決的問題
+      const problemItems = []
+      for (const warnings of warningsByHost.values()) {
+        problemItems.push(...warnings)
+      }
+
+      // 步驟 5: 設定最終的組件資料
+      // 將 problems 根據時間戳排序以便顯示 (最新優先)
+      this.problems = this.$utils.orderBy(problemItems, 'timestamp', 'desc')
+      // 將 fixedPairs 根據原始警告的時間戳排序以便顯示 (最新優先)
+      this.fixed = this.$utils.orderBy(fixedPairs, item => item.bad.timestamp, 'desc')
+
+      // 步驟 6: 發送 'updated' 事件並附上結果
       this.trigger('updated', {
         fixed: this.fixed,
         problems: this.problems,
