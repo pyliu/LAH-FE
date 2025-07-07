@@ -63,6 +63,9 @@ export default {
     }
     // console.warn(this.$refs.btn)
   },
+  beforeDestroy () {
+    this.pauseCountdown()
+  },
   methods: {
     handleProgress (payload) {
       /* payload: {
