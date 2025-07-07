@@ -518,7 +518,7 @@ export default {
       if (this.$utils.empty(this.reportData)) {
         return []
       }
-      const targetItems = ['節點狀態', '叢集狀態', 'AIX 錯誤', 'Oracle 錯誤']
+      const targetItems = ['節點狀態', '叢集狀態', 'AIX 錯誤', 'Oracle 錯誤', '檔案系統超過 80%', 'Oracle 程式數']
       return targetItems
         .map(targetItem => this.reportData.find(item => item.item === targetItem))
         .filter(item => item !== undefined) // Remove any undefined items if not found
