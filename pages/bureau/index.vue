@@ -4,13 +4,13 @@ div(v-cloak)
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
-          div {{ site}} 監控輪播
+          div {{ site }} 監控輪播 - {{ currentCarouselTitle }}
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         .d-flex.align-items-center
           b-spinbutton(
             v-model="secs",
             min="0",
-            title="設定為0會停止自動切換面板",
+            title="0 - 停止自動切換",
             inline
           )
           .mx-1 秒
@@ -36,9 +36,14 @@ div(v-cloak)
             title="設定"
           )
     lah-help-modal(:modal-id="'help-modal'" size="md")
-      .h5 顯示監控畫面輪播
+      .h6(v-if="carouselInterval === 0") 因輪播秒數設定為 #[strong.text-danger 0] ，請手動切換下列要撥放之面板
+      .h6(v-else) 顯示 {{ site }} 監控畫面輪播，每 #[strong.text-primary {{ carouselInterval / 1000 }}] 秒依下列順序輪播
+      ol
+        li 同步異動監控
+        li 分析儀表板
+        li SRMAS天氣圖
   b-card.p-1.border-0(no-body, v-cloak)
-    b-carousel(ref="carousel", :interval="0")
+    b-carousel(ref="carousel", :interval="0", v-model="carouselIndex")
       b-carousel-slide: template(#img)
         b-card-group.row-sync(deck)
           lah-monitor-board-lxhweb(ref="lxhweb1" target-ip="L1HWEB")
@@ -47,14 +52,13 @@ div(v-cloak)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
-        b-card-group.row-srmas.card-body-fixed-height-2(deck)
+        b-card-group.row-srmas(deck)
+          lah-monitor-board-powerha
           lah-monitor-board-srmas(
             no-carousel,
-            footer,
             @updated="handleMessageUpdated"
           )
-          lah-monitor-board-srmas-weather
-        b-card-group.row-srmas.card-body-fixed-height-2(deck)
+        b-card-group.row-srmas(deck)
           b-card
             template(#header): lah-fa-icon(icon="flag", variant="warning")
               strong SRMAS告警郵件
@@ -97,6 +101,7 @@ div(v-cloak)
 export default {
   fetchOnServer: false,
   data: () => ({
+    carouselIndex: 0,
     // SRMAS fixed problems
     fixed: [],
     // still be problem
@@ -105,7 +110,7 @@ export default {
     warnings: [],
     // raw restores
     restores: [],
-    secs: 30,
+    secs: 0,
     weatherPngTs: 0,
     weatherPngTimer: null,
     weatherImageFailed: false,
@@ -127,6 +132,14 @@ export default {
   computed: {
     carouselInterval () {
       return this.secs * 1000
+    },
+    currentCarouselTitle () {
+      switch (this.carouselIndex) {
+        case 0: return '同步異動'
+        case 1: return 'PowerHA & 郵件分析'
+        case 2: return 'SRMAS天氣圖'
+        default: return '未定義版面'
+      }
     },
     srmasIp () {
       return this.$config.monitor.host.SRMAS.ip || this.srmas.get(this.site)
@@ -151,12 +164,11 @@ export default {
     this.weatherPngTimer = setInterval(() => {
       this.weatherPngTs = +new Date()
     }, 60000)
-    if (this.secs > 0) {
-      this.$refs.countdown?.start()
-    }
+    this.resetTimer()
   },
   beforeDestroy () {
     clearInterval(this.weatherPngTimer)
+    this.$refs.countdown?.pauseCountdown()
   },
   methods: {
     prev () {
@@ -169,7 +181,7 @@ export default {
     },
     resetTimer () {
       this.$refs.countdown?.setCountdown(this.carouselInterval)
-      this.carouselInterval > 0 && this.$refs.countdown?.startCountdown()
+      this.carouselInterval !== 0 && this.$refs.countdown?.startCountdown()
     },
     handleMessageUpdated ({ detail }) {
       if (detail) {
@@ -187,12 +199,14 @@ export default {
 .row-sync {
   height: calc((100vh - 120px) / 2) !important;
 }
-.row-srmas {
+::v-deep .row-srmas {
   // height: calc((100vh - 150px) / 2) !important;
   // margin-bottom: 15px;
-  .card-body {
-    height: calc((100vh - 150px) / 2);
-    overflow: auto;
+  .card {
+    .card-body {
+      height: calc((100vh - 250px) / 2);
+      overflow: auto;
+    }
   }
 }
 .img-mh {
@@ -200,5 +214,36 @@ export default {
 }
 .card-deck{
   margin-bottom: 15px;
+}
+/*
+  修正 BootstrapVue b-spinbutton 按鈕圖示的垂直置中問題 (垂直模式)。
+  這個問題通常發生在垂直模式下，因為按鈕的 padding 被移除 (p-0)，
+  導致沒有足夠的空間讓圖示垂直置中。
+
+  您可以將此 CSS 片段加到您的全域樣式表。
+  如果您想在 Vue 的 <style scoped> 中使用，請在選擇器前加上 `::v-deep`。
+  例如： `::v-deep .b-form-spinbutton > button.btn`
+*/
+/*
+  1. 針對 b-spinbutton 中的按鈕
+  我們給予按鈕一個相對定位的參考點，並設定一個最小高度，
+  確保有足夠的垂直空間來置中圖示。
+*/
+::v-deep .b-form-spinbutton > button.btn.btn-sm {
+  position: relative;
+  /* 稍微增加按鈕高度，您可以微調此數值以達到最佳視覺效果 */
+  min-height: 1.3em;
+  padding: 0 1rem
+}
+
+/*
+  2. 針對按鈕內的 SVG 圖示
+  我們使用絕對定位，並結合 transform 來達成完美的垂直和水平置中。
+*/
+::v-deep .b-form-spinbutton > button.btn.btn-sm > svg.b-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
