@@ -44,6 +44,9 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
+      li: nuxt-link(to="/bureau").
+        #[font-awesome-icon(:icon="['fas', 'tv']", fixed-width, pull="left", size="lg")]
+        {{ site }}監控輪播
       li: nuxt-link(to="/inf/mgt").
         #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
         地政系統管理面板
@@ -113,8 +116,8 @@ b-sidebar#lah-sidebar(
 </template>
 
 <script>
-import lahAvatar from '~/components/lah-avatar.vue';
-import LahUserCard from '~/components/lah-user-card.vue';
+import lahAvatar from '~/components/lah-avatar.vue'
+import LahUserCard from '~/components/lah-user-card.vue'
 export default {
   components: { lahAvatar, LahUserCard },
   fetchOnServer: false,

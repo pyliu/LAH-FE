@@ -26,6 +26,9 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
+      li: nuxt-link(v-if="isH0 || isInf", to="/bureau").
+        #[font-awesome-icon(:icon="['fas', 'tv']", fixed-width, pull="left", size="lg")]
+        {{ site }}監控輪播
       li: nuxt-link(to="/reg").
         #[font-awesome-icon(:icon="['fas', 'home']", fixed-width, pull="left", size="lg")]
         智慧控管首頁

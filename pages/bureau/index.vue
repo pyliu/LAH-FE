@@ -136,8 +136,8 @@ export default {
     currentCarouselTitle () {
       switch (this.carouselIndex) {
         case 0: return '同步異動'
-        case 1: return 'PowerHA & 郵件分析'
-        case 2: return 'SRMAS天氣圖'
+        case 1: return 'PowerHA監控'
+        case 2: return 'SRMAS郵件分析'
         default: return '未定義版面'
       }
     },
