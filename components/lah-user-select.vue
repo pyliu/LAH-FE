@@ -48,9 +48,14 @@ export default {
     }
   },
   watch: {
+    siteUserNames (val) {
+      this.names = { ...val }
+    }
   },
   created () {
     this.keyword = this.initKeyword || this.site
+  },
+  mounted () {
     this.names = { ...this.siteUserNames }
   },
   methods: {
