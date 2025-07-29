@@ -16,7 +16,7 @@ div
         variant="outline-primary"
         rounded
         @click="update(id)"
-      ) {{ id }}:{{ siteUserNames[id].replace(/^(桃園|中壢|大溪|楊梅|蘆竹|八德|平鎮|龜山|龍潭|復興)/g, '').replace(/^(所)/g, '').replace(/([1-9_\s]|離職|分機)/g, '') }}
+      ) {{ id }}:{{ names[id] }}
   h4.center.mt-1(v-else) 查無資料
 </template>
 
@@ -35,7 +35,7 @@ export default {
     filtered () {
       if (this.$utils.empty(this.keyword) ||
           // chinese chars length hack
-          this.keyword.replace(/[^\x00-\xFF]/g, 'xx').length < 2
+          this.keyword?.replace(/[^\x00-\xFF]/g, 'xx').length < 2
       ) {
         return []
       }
@@ -48,17 +48,50 @@ export default {
     }
   },
   watch: {
-    siteUserNames (val) {
-      this.names = { ...val }
+    names (val) {
+      this.$utils.warn(val)
     }
   },
   created () {
     this.keyword = this.initKeyword || this.site
   },
   mounted () {
-    this.names = { ...this.siteUserNames }
+    this.fetchUsers()
   },
   methods: {
+    async fetchUsers () {
+      const cached = await this.getCache('lah-user-select-users')
+      if (cached) {
+        this.prepareNames(cached)
+      } else {
+        this.isBusy = true
+        this.users = []
+        this.$axios.post(this.$consts.API.JSON.USER, {
+          type: 'department_users',
+          valid: true,
+          department: 'all'
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            // set cache to one day
+            this.setCache('lah-user-select-users', data.raw, 86400 * 1000)
+            this.prepareNames(data.raw)
+          } else {
+            this.notify(data.message, { type: 'warning' })
+          }
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
+      }
+    },
+    prepareNames (sqliteUsers) {
+      const resultObject = sqliteUsers?.reduce((acc, item) => {
+        acc[item.id] = item.name
+        return acc
+      }, {})
+      this.names = { ...resultObject }
+    },
     update (id) {
       this.trigger('update', id)
       this.keyword = id
