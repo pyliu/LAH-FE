@@ -27,7 +27,7 @@ export default {
   },
   data: () => ({
     keyword: '',
-    userNames: {}
+    names: {}
   }),
   fetch () {
   },
@@ -41,9 +41,9 @@ export default {
       }
       const idRE = new RegExp(`^${this.keyword}`, 'gi')
       const nameRE = new RegExp(`${this.keyword}`, 'gi')
-      return Object.keys(this.userNames).filter((id) => {
-        return (id.match(idRE) && !this.userNames[id].match(/^(登記|地價|測量|資訊|主任|秘書|第|服|會|地|TEST|HH|建)/gi)) ||
-               (this.userNames[id] && this.userNames[id].match(nameRE))
+      return Object.keys(this.names).filter((id) => {
+        return (id.match(idRE) && !this.names[id].match(/^(登記|地價|測量|資訊|主任|秘書|第|服|會|地|TEST|HH|建)/gi)) ||
+               (this.names[id] && this.names[id].match(nameRE))
       })
     }
   },
@@ -51,7 +51,7 @@ export default {
   },
   created () {
     this.keyword = this.initKeyword || this.site
-    this.userNames = { ...this.siteUserNames }
+    this.names = { ...this.siteUserNames }
   },
   methods: {
     update (id) {
