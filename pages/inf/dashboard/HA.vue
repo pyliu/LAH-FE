@@ -51,7 +51,7 @@ div(v-cloak)
       :class="colCss",
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`"
-    ): component(
+    ): component.lah-shadow(
       :class="heightCss",
       :id="`${obj.compName}-attention`",
       :ref="`${obj.compName}-attention`",
@@ -300,7 +300,7 @@ export default {
   },
   computed: {
     colCss () {
-      return this.col2 ? ['col-md-6', 'lah-shadow'] : ['col-md-4', 'lah-shadow']
+      return this.col2 ? ['col-md-6'] : ['col-md-4']
     },
     heightCss () {
       return this.col2 ? ['card-body-fixed-height-2'] : ['card-body-fixed-height-3']

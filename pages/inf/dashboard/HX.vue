@@ -51,7 +51,7 @@ div(v-cloak)
       :class="colCss",
       v-for="(obj, idx) in attentionList",
       :key="`${obj.compName}-${idx}`"
-    ): component(
+    ): component.lah-shadow(
       :class="heightCss",
       :id="`${obj.compName}-attention`",
       :ref="`${obj.compName}-attention`",
