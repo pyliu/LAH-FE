@@ -300,7 +300,7 @@ export default {
   },
   computed: {
     colCss () {
-      return this.col2 ? ['col-md-6'] : ['col-md-4']
+      return this.col2 ? ['col-md-6', 'lah-shadow'] : ['col-md-4', 'lah-shadow']
     },
     heightCss () {
       return this.col2 ? ['card-body-fixed-height-2'] : ['card-body-fixed-height-3']
