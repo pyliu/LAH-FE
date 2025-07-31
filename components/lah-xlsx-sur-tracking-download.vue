@@ -29,8 +29,8 @@ b-card(
       //- ) 手動下載
 
   lah-fa-icon(icon="list-alt", variant="secondary") 處理紀錄
-  b-list-group(flush): b-list-group-item(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
-    lah-fa-icon(
+  b-list-group(flush): b-list-group-item.d-flex.align-items-center(v-for="(msg, idx) in messages" :key="`${idx}_msg`")
+    lah-fa-icon.mr-1(
       v-if="idx === 0"
       icon="angle-double-right",
       variant="danger",
