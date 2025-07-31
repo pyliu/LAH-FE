@@ -57,7 +57,9 @@ export default {
   }),
   computed: {
     downloadUrl () {
-      return `http://${this.apiHost}:${this.apiPort}/export/${this.site.toUpperCase()}.xlsx`
+      // 增加一個時間戳記作為查詢參數，確保每次下載都不會從快取中獲取
+      const timestamp = new Date().getTime()
+      return `http://${this.apiHost}:${this.apiPort}/export/${this.site.toUpperCase()}.xlsx?_t=${timestamp}`
     }
   },
   watch: { },
