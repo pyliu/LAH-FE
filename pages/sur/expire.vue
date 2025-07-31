@@ -27,9 +27,13 @@ div
           @click="$refs.searchPlus.show()",
           :disabled="!dataReady"
         ) 進階搜尋
-        lah-button-xlsx.mr-1(
-          :jsons="xlsxData"
-          :header="`測量${queryText}案件查詢`"
+        //- lah-button-xlsx.mr-1(
+        //-   :jsons="xlsxData"
+        //-   :header="`測量${queryText}案件查詢`"
+        //- )
+        lah-button-xlsx-sur-tracking.mr-1(
+          :jsons="xlsxDataTracking"
+          :header="`測量${queryText}案件追蹤表`"
         )
         lah-countdown-button(
           ref="countdown",
@@ -186,7 +190,7 @@ div
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue';
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   components: { lahUserCard },
   data: () => ({
@@ -371,6 +375,28 @@ export default {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           obj[this.getLabel(key)] = value
+        }
+        return obj
+      })
+      return jsons
+    },
+    xlsxDataTracking () {
+      const jsons = this.filteredData.map((data, idx, array) => {
+        const obj = {
+          收件字號: `${data.MM01}-${data.MM02}-${data.MM03}`,
+          收件時間: `${this.$utils.addDateDivider(data.MM04_1)} ${this.$utils.addTimeDivider(data.MM04_2)}`,
+          // 複丈原因代碼: data.MM06,
+          複丈原因: data.MM06_CHT,
+          // 辦理情形代碼: data.MM22,
+          辦理情形: data.MM22_CHT,
+          // 測量員代碼: data.MD04,
+          測量員: data.MD04_CHT,
+          // 延期複丈原因代碼: data.MD12,
+          延期複丈原因: data.MD12_CHT,
+          複丈時間: `${this.$utils.addDateDivider(data.MD05_1)} ${this.$utils.addTimeDivider(data.MD05_2)}`,
+          // 結案時間: `${this.$utils.addDateDivider(data.MD06_1)} ${this.$utils.addTimeDivider(data.MD06_2)}`,
+          逾期時間: `${this.$utils.addDateDivider(data.MM21_1)} ${this.$utils.addTimeDivider(data.MM21_2)}`,
+          承辦人簽章: ''
         }
         return obj
       })

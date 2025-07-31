@@ -173,7 +173,7 @@ export default {
     noteFlag: false,
     minDate: new Date(),
     maxDate: new Date(),
-    statusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄到家', 'i領件', 'i郵箱'],
+    statusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'],
     skipTakenDateUpdate: false,
     skipTakenStatusUpdate: false,
     debounceMs: 30 * 1000,
