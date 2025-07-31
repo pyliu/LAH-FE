@@ -43,7 +43,8 @@ export default {
           jsonArray: this.jsons || []
         }
       }), {
-        title: `產製 - ${this.header}`
+        title: `產製 - ${this.header}`,
+        noCloseOnBackdrop: true
       })
     }
   }

@@ -11,6 +11,7 @@ b-card(
       title="點我產製EXCEL檔案",
       size="lg",
       @click="process"
+      :spin="isBusy"
     ) {{ isBusy ? '產製中...勿關閉視窗' : '開始產製' }}
     .my-1(v-else)
       h6 ✅ 產製完成，請查看下載視窗(Ctrl + J)另存新檔後開啟。
