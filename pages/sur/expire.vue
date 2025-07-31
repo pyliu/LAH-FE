@@ -14,10 +14,14 @@ div
         lah-help-modal(:modal-id="'help-modal'")
           h5 案件搜尋說明
           ul
-            li 全部未結案的案件：只顯示未結案案件(MOICAS.CMSMS的MM23「結案已否」為空值表示尚未結案)【排除收件字ST的案件】。
-            li 即將逾期案件：逾期日期 #[b.text-danger 3日] 內的案件 (MOICAS.CMSMS的MM21_1逾期日期)。
-            li 已逾期案件：未結案案件且應結日期已逾今天。
-            li 切換為#[nuxt-link(to="/expire") 登記案件]
+            li 逾期：未結案案件且應結日期已超過今天。
+            li 即將逾期：逾期日期 #[b.text-danger 3日] 內的案件。
+              ul: li MOICAS.CMSMS 的 MM21_1 逾期日期
+            li 未結案：只顯示未結案案件。
+              ul
+                li MOICAS.CMSMS 的 MM23「結案已否」為空值表示尚未結案
+                li 排除收件字ST的案件
+            //- li 切換為#[nuxt-link(to="/expire") 登記案件]
 
       .d-flex.small
         lah-button.mr-1(
@@ -33,7 +37,7 @@ div
         //- )
         lah-button-xlsx-sur-tracking.mr-1(
           :jsons="xlsxDataTracking"
-          :header="`測量${queryText}案件追蹤表`"
+          :header="`測量${queryText}案件催辦單`"
         )
         lah-countdown-button(
           ref="countdown",
@@ -383,20 +387,26 @@ export default {
     xlsxDataTracking () {
       const jsons = this.filteredData.map((data, idx, array) => {
         const obj = {
-          收件字號: `${data.MM01}-${data.MM02}-${data.MM03}`,
-          收件時間: `${this.$utils.addDateDivider(data.MM04_1)} ${this.$utils.addTimeDivider(data.MM04_2)}`,
-          // 複丈原因代碼: data.MM06,
+          收件年: data.MM01,
+          收件字: data.MM02_CHT,
+          收件號: data.MM03,
           複丈原因: data.MM06_CHT,
+          收件日期: data.MM04_1,
+          複丈日期: data.MD05_1,
+          逾期日期: data.MM21_1,
+          測量員: data.MD04_CHT
+          // 收件字號: `${data.MM01}-${data.MM02}-${data.MM03}`,
+          // 收件時間: `${this.$utils.addDateDivider(data.MM04_1)} ${this.$utils.addTimeDivider(data.MM04_2)}`,
+          // 複丈原因代碼: data.MM06,
           // 辦理情形代碼: data.MM22,
-          辦理情形: data.MM22_CHT,
+          // 辦理情形: data.MM22_CHT,
           // 測量員代碼: data.MD04,
-          測量員: data.MD04_CHT,
           // 延期複丈原因代碼: data.MD12,
-          延期複丈原因: data.MD12_CHT,
-          複丈時間: `${this.$utils.addDateDivider(data.MD05_1)} ${this.$utils.addTimeDivider(data.MD05_2)}`,
+          // 延期複丈原因: data.MD12_CHT,
+          // 複丈時間: `${this.$utils.addDateDivider(data.MD05_1)} ${this.$utils.addTimeDivider(data.MD05_2)}`,
           // 結案時間: `${this.$utils.addDateDivider(data.MD06_1)} ${this.$utils.addTimeDivider(data.MD06_2)}`,
-          逾期時間: `${this.$utils.addDateDivider(data.MM21_1)} ${this.$utils.addTimeDivider(data.MM21_2)}`,
-          承辦人簽章: ''
+          // 逾期時間: `${this.$utils.addDateDivider(data.MM21_1)} ${this.$utils.addTimeDivider(data.MM21_2)}`,
+          // 承辦人簽章: ''
         }
         return obj
       })
