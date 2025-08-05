@@ -82,7 +82,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
 
   //- 卡片頁尾 (可選)
-  template(#footer, v-show="footer"): client-only: lah-monitor-board-footer(
+  template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer",
     :reload-ms="reloadMs",
     :busy="isBusy",
@@ -243,6 +243,13 @@ export default {
   mounted () {
     this.reloadMs = (15 * 60 + this.$utils.rand(60)) * 1000
     this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+    // monitor board usually use footer to control timer to reload; but this one is special
+    if (!this.footer) {
+      this.reloadTimer = setInterval(() => { this.reload() }, this.reloadMs)
+    }
+  },
+  beforeDestroy () {
+    clearTimeout(this.reloadTimer)
   },
   methods: {
     processAllNodeData (batch) {
@@ -597,3 +604,6 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+</style>

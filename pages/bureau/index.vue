@@ -52,13 +52,13 @@ div(v-cloak)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
-        lah-monitor-board-powerha-compare
-        //- b-card-group.row-srmas(deck)
-        //-   lah-monitor-board-powerha-compare
-        //-   lah-monitor-board-srmas(
-        //-     no-carousel,
-        //-     @updated="handleMessageUpdated"
-        //-   )
+        lah-monitor-board-powerha-compare(:max-height-offset="1.25 * 170")
+      b-carousel-slide: template(#img)
+        lah-monitor-board-srmas(
+          no-carousel,
+          @updated="handleMessageUpdated",
+          footer
+        )
         //- b-card-group.row-srmas(deck)
         //-   b-card
         //-     template(#header): lah-fa-icon(icon="flag", variant="warning")
@@ -78,22 +78,6 @@ div(v-cloak)
         //-       variant="success",
         //-       :items="restores"
         //-     )
-      b-carousel-slide: template(#img)
-        .h5.center(v-if="weatherImageFailed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-        b-link(
-          v-show="!weatherImageFailed",
-          @click="$utils.openNewWindow('/inf/weather/')",
-          v-b-tooltip="`顯示${weatherImgUrl}`"
-        )
-          b-img.img-mh(
-            :src="weatherImgUrl",
-            fluid,
-            thumbnail,
-            center,
-            rounded,
-            @load="weatherImageFailed = false",
-            @error="weatherImageFailed = true"
-          )
 
   lah-monitor-board-setup-modal(ref="setupModal")
 </template>

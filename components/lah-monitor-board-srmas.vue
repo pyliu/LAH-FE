@@ -281,4 +281,12 @@ export default {
   height: auto;
   object-fit: contain;
 }
+.card {
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
+  .card-body {
+    max-height: calc(100vh - 220px);
+    overflow: auto;
+  }
+}
 </style>
