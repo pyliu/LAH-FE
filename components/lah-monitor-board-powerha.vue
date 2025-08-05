@@ -40,29 +40,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
         title="說明"
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`", size="lg")
-      h5 ⭐需於兩個節點安裝監控腳本(請自行依擺放腳本位置修正路徑)
-      ol
-        li 請於 NODE1 的 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkAIXSh51" target="_blank" title="下載腳本") health_check_aix_51_HX.sh]」以利完成後送出通知電子郵件。
-        li e.g. 在 root 的 crontab 新增「#[span.text-primary.font-weight-bold 0,15,30,45 7-17 * * 1-6 /ha/health_check_aix_51_HA.sh > /dev/null]」於辦公時間每15分鐘執行一次。
-      ol
-        li 請於 NODE2 的 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkAIXSh52" target="_blank" title="下載腳本") health_check_aix_52.sh]」以利完成後送出通知電子郵件。
-        li e.g. 在 root 的 crontab 新增「#[span.text-primary.font-weight-bold 0,15,30,45 7-17 * * 1-6 /ha/health_check_aix_52.sh > /dev/null]」於辦公時間每15分鐘執行一次。
-      ul
-        li 儀表板分析收到的電子郵件以顯示資料庫兩個NODE的狀態。
-        li 安裝腳本後將依 crontab 設定時間檢查後並送出電子郵件通知 (桃園所 👉 每天 07:00 ~ 17:45 每15分鐘檢查一次)。
-        li 儀表板預設約每15分鐘更新檢查監控郵件一次。
-      hr
-      h6 ✨ 腳本相關設定#[span.text-danger.font-weight-bold 請依各所實際環境調整]，如郵件收件者、路徑資料夾名稱，如HXWEB ... 等
-      ul: li 注意：郵件標題 "[Health Check] - p8_" 請勿修改，智慧監控是依規則此抓郵件的。
-      h6 ✨ AIX主機要認得的郵件伺服器(不然寄不出郵件)
-      ul: li /etc/hosts 加入 entry (以桃園所設定為例 👉 220.1.34.50 mail.ha.cenweb.land.moi)
-      hr
-      h5 燈號說明
-      ul
-        li 🟢 綠燈 (正常)：ST_STABLE，所有服務都已就緒，處於靜態的、穩定的待命或線上服務狀態。。
-        li 🟡 黃燈 (處理中)：沒找到監控郵件或是其他下列狀態：ST_INIT, ST_JOINING, ST_VARYON, ST_VARYOFF, ST_MOVE 等(這些狀態在正常操作下應該只會短暫出現)。
-        li 🔴 紅燈 (警示)：如果叢集長時間 (例如，超過 5-10 分鐘) 停留在任何一個「黃燈」狀態，特別是 ST_MOVE，這通常代表資源群組在移動過程中被卡住了，可能是儲存、網路或應用程式本身出了問題，需要立即介入調查。如果出現 ST_RECOVERY 狀態，也值得您去檢查系統日誌，了解先前發生了什麼錯誤。
-      hr
+      lah-powerha-help-content
+
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料，請參照說明確認AIX節點是否有安裝檢測腳本。
   div(v-else)
@@ -175,105 +154,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
     :title="`${clusterName} P8 51/52 節點回報總覽 - ${headBatchDatetime}`",
     hide-footer
   )
-    b-table(
-      :items="reportData"
-      :fields="reportFields"
-      striped
-      hover
-      responsive
-      bordered
-      caption-top
-      no-border-collapse
-      small
-      head-variant="dark"
-      class="s-90"
-      selectable
-      select-mode="single"
-      selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
-    )
-      template(#cell(p8_51)="{ item }")
-        div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
-          div(v-if="item.p8_51.length === 0") 無
-          .d-flex.justify-content-between.flex-wrap(v-else)
-            b-button.m-1.d-flex.align-items-center(
-              v-for="(fs, idx) in item.p8_51"
-              :key="`fs_btn_${idx}`"
-              :size="'sm'"
-              variant="outline-secondary"
-              pill
-            )
-              .mr-1 {{ fs.mountedOn }}
-              b-badge(
-                pill
-                :variant="fsVariant(fs.usedPercent)"
-              ) {{ fs.usedPercent }}%
+    lah-monitor-board-powerha-compare(:show-header="false")
 
-        h4(v-else-if="item.item === '節點狀態'")
-          b-badge(
-            :variant="item.p8_51 === 'ONLINE' ? 'success' : 'danger'"
-            pill
-          ) {{ item.p8_51 }}
-
-        h5(v-else-if="item.item === '叢集狀態'")
-          b-badge(
-            :variant="clusterVariant(item.p8_51.type)"
-            :title="`${item.p8_51.code} - ${item.p8_51.description}`"
-            pill
-          ) {{ item.p8_51.name }}
-          span.mx-2.s-85 {{  item.p8_51.description }}
-
-        div(v-else-if="item.item === 'AIX 錯誤'")
-          lah-button(
-            v-if="item.p8_51 !== '無'"
-            variant="outline-danger"
-            pill,
-            @click="popupErrptModal(nodes.p8_51.errpts, 'P8-51')"
-          ) {{ item.p8_51 }}
-          div(v-else) 無
-
-        div(v-else v-html="item.p8_51")
-      template(#cell(p8_52)="{ item }")
-        div(v-if="item.item === '檔案系統' || item.item === '檔案系統超過 80%'")
-          div(v-if="item.p8_51.length === 0") 無
-          .d-flex.justify-content-between.flex-wrap(v-else)
-            b-button.m-1.d-flex.align-items-center(
-              v-for="(fs, idx) in item.p8_52"
-              :key="`fs_btn_${idx}`"
-              :size="'sm'"
-              variant="outline-secondary"
-              pill
-            )
-              .mr-1 {{ fs.mountedOn }}
-              b-badge(
-                pill
-                :variant="fsVariant(fs.usedPercent)"
-              ) {{ fs.usedPercent }}%
-
-        h4(v-else-if="item.item === '節點狀態'")
-          b-badge(
-            :variant="item.p8_52 === 'ONLINE' ? 'danger' : 'secondary'"
-            pill
-          ) {{ item.p8_52 }}
-
-        h5(v-else-if="item.item === '叢集狀態'")
-          b-badge(
-            :variant="clusterVariant(item.p8_52.type)"
-            :title="`${item.p8_52.code} - ${item.p8_52.description}`"
-            pill
-          ) {{ item.p8_52.name }}
-          span.mx-2.s-85 {{  item.p8_52.description }}
-
-        div(v-else-if="item.item === 'AIX 錯誤'")
-          lah-button(
-            v-if="item.p8_52 !== '無'"
-            variant="outline-danger"
-            pill,
-            @click="popupErrptModal(nodes.p8_52.errpts, 'P8-52')"
-          ) {{ item.p8_52 }}
-          div(v-else) 無
-
-        div(v-else v-html="item.p8_52")
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -287,11 +169,14 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import { BRIEF_REPORT_FIELDS, HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/components/lah-monitor-board-powerha-constants'
+import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-content.vue'
+import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 
 export default {
   name: 'LahMonitorBoardPowerha',
-  components: { lahMonitorBoardRaw },
+  components: { lahMonitorBoardRaw, LahPowerhaHelpContent, LahPowerhaReportCell },
   mixins: [lahMonitorBoardBase],
   props: {
     footer: { type: Boolean, default: false },
@@ -308,17 +193,8 @@ export default {
       p8_52: {}
     },
     reportData: [],
-    reportFields: [
-      { key: 'result', label: '檢測', sortable: true, thStyle: { width: '15px', textAlign: 'center' } },
-      { key: 'item', label: '項目', sortable: true, thStyle: { width: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } },
-      { key: 'p8_51', label: '節點51', sortable: false, thStyle: { width: '40%' } },
-      { key: 'p8_52', label: '節點52', sortable: false, thStyle: { width: '40%' } }
-    ],
-    briefFields: [
-      { key: 'item', label: '項目', sortable: true, thStyle: { width: '20%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } },
-      { key: 'p8_51', label: '節點51', thStyle: { width: '40%' } },
-      { key: 'p8_52', label: '節點52', thStyle: { width: '40%' } }
-    ],
+    reportFields: [...REPORT_FIELDS],
+    briefFields: [...BRIEF_REPORT_FIELDS],
     parsedClusterStatus: {},
     maxHeight: 600,
     /**
@@ -331,82 +207,9 @@ export default {
      * - 'danger': 危險，代表發生嚴重錯誤，需要立即介入。
      * - 'unknown': 未知，在定義庫中找不到的狀態。
      */
-    HA_STATE_DEFINITIONS: {
-      ST_STABLE: {
-        name: '穩定狀態',
-        type: 'normal',
-        description: '叢集處於靜態的穩定狀態，所有服務已就緒。'
-      },
-      ST_INIT: {
-        name: '初始化中',
-        type: 'processing',
-        description: '叢集服務剛啟動，節點正在讀取設定並準備加入叢集。'
-      },
-      ST_JOINING: {
-        name: '節點加入中',
-        type: 'processing',
-        description: '一個節點正在加入現有的叢集，此為短暫的過渡狀態。'
-      },
-      ST_EXITING: {
-        name: '節點退出中',
-        type: 'processing',
-        description: '一個節點正在退出叢集。'
-      },
-      ST_VARYON: {
-        name: '資源上線中',
-        type: 'processing',
-        description: '正在啟動 (Vary On) 一個資源群組，例如開機或手動啟動服務。'
-      },
-      ST_VARYOFF: {
-        name: '資源離線中',
-        type: 'processing',
-        description: '正在停止 (Vary Off) 一個資源群組。'
-      },
-      ST_MOVE: {
-        name: '資源移動中',
-        type: 'warning',
-        description: '正在進行故障轉移 (Failover) 或手動移動資源。若長時間停留在此狀態，代表可能發生問題。'
-      },
-      ST_BARRIER: {
-        name: '同步屏障',
-        type: 'processing',
-        description: '一個過渡狀態，叢集正在等待所有節點完成某個步驟以達到同步。'
-      },
-      ST_RECOVERY: {
-        name: '恢復模式',
-        type: 'warning',
-        description: '叢集偵測到錯誤後，嘗試進入恢復模式解決問題，建議檢查日誌了解原因。'
-      },
-      ST_RP_FAILED: {
-        name: '資源群組錯誤',
-        type: 'danger',
-        description: '一個事件腳本執行失敗，資源群組處於錯誤狀態，需要立即檢查！'
-      },
-      ST_UNSTABLE: {
-        name: '不穩定狀態',
-        type: 'danger',
-        description: '叢集處於不穩定狀態，可能發生網路分區或嚴重問題，需要立即調查。'
-      },
-      EVENT_ERROR: {
-        name: '事件錯誤',
-        type: 'danger',
-        description: '一個重要的叢集事件執行失敗，請立即檢查 clstrmgr.out 和 hacmp.out 日誌。'
-      },
-      CONFIG_TOO_SMALL: {
-        name: '配置空間不足',
-        type: 'danger',
-        description: '叢集配置所需的空間不足，可能導致操作失敗。'
-      }
-    // 您未來可以依需求在此處新增更多狀態定義
-    }
+    HA_STATE_DEFINITIONS
   }),
   computed: {
-    checkAIXSh51 () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/health_check_aix_51_HA.sh`
-    },
-    checkAIXSh52 () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/health_check_aix_52.sh`
-    },
     allBatches () {
       try {
         // Group messages by timestamp (minute precision)

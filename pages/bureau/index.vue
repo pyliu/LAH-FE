@@ -40,8 +40,8 @@ div(v-cloak)
       .h6(v-else) 顯示 {{ site }} 監控畫面輪播，每 #[strong.text-primary {{ carouselInterval / 1000 }}] 秒依下列順序輪播
       ol
         li 同步異動監控
-        li 分析儀表板
-        li SRMAS天氣圖
+        li PowerHA監控
+        li SRMAS警示、回復郵件分析
   b-card.p-1.border-0(no-body, v-cloak)
     b-carousel(ref="carousel", :interval="0", v-model="carouselIndex")
       b-carousel-slide: template(#img)
@@ -52,31 +52,32 @@ div(v-cloak)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
-        b-card-group.row-srmas(deck)
-          lah-monitor-board-powerha
-          lah-monitor-board-srmas(
-            no-carousel,
-            @updated="handleMessageUpdated"
-          )
-        b-card-group.row-srmas(deck)
-          b-card
-            template(#header): lah-fa-icon(icon="flag", variant="warning")
-              strong SRMAS告警郵件
-            lah-monitor-board-srmas-list(
-              title-text='告警郵件列表',
-              title-icon='triangle-exclamation',
-              variant="warning",
-              :items="warnings"
-            )
-          b-card
-            template(#header): lah-fa-icon(icon="circle-check", regular, variant="success")
-              strong SRMAS回復郵件
-            lah-monitor-board-srmas-list(
-              title-text='回復郵件列表',
-              title-icon='circle-check',
-              variant="success",
-              :items="restores"
-            )
+        lah-monitor-board-powerha-compare
+        //- b-card-group.row-srmas(deck)
+        //-   lah-monitor-board-powerha-compare
+        //-   lah-monitor-board-srmas(
+        //-     no-carousel,
+        //-     @updated="handleMessageUpdated"
+        //-   )
+        //- b-card-group.row-srmas(deck)
+        //-   b-card
+        //-     template(#header): lah-fa-icon(icon="flag", variant="warning")
+        //-       strong SRMAS告警郵件
+        //-     lah-monitor-board-srmas-list(
+        //-       title-text='告警郵件列表',
+        //-       title-icon='triangle-exclamation',
+        //-       variant="warning",
+        //-       :items="warnings"
+        //-     )
+        //-   b-card
+        //-     template(#header): lah-fa-icon(icon="circle-check", regular, variant="success")
+        //-       strong SRMAS回復郵件
+        //-     lah-monitor-board-srmas-list(
+        //-       title-text='回復郵件列表',
+        //-       title-icon='circle-check',
+        //-       variant="success",
+        //-       :items="restores"
+        //-     )
       b-carousel-slide: template(#img)
         .h5.center(v-if="weatherImageFailed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
         b-link(
