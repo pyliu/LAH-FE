@@ -169,10 +169,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import { BRIEF_REPORT_FIELDS, HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/components/lah-monitor-board-powerha-constants'
 import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-content.vue'
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import { BRIEF_REPORT_FIELDS, HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
 
 export default {
   name: 'LahMonitorBoardPowerha',

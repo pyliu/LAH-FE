@@ -95,7 +95,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import { HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/components/lah-monitor-board-powerha-constants'
+import { HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
 import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-content.vue'
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 // 1. 在此明確地引入 lah-monitor-board-raw 組件
