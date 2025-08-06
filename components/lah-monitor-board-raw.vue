@@ -34,7 +34,7 @@ export default {
     }
   },
   created () {
-    this._reload = this.$utils.debounce(this.reload, 1000)
+    this._reload = this.$utils.debounce(this.reload, 400)
     this.daysBefore = this.days || 1
   },
   methods: {
