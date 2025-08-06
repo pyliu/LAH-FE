@@ -6,7 +6,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     //- 狀態指示燈
     lah-fa-icon(icon="circle", :variant="light")
     //- 標題
-    strong {{ headerTitle }} - {{ clusterName }} - {{ headBatchDatetime }}
+    strong {{ header }} - {{ clusterName }} - {{ headBatchDatetime }}
     //- 右上角按鈕群組
     b-button-group.ml-auto(size="sm")
       lah-button(
@@ -39,7 +39,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
 
   //- 說明彈窗 (Modal)
-  lah-help-modal(ref="help", :modal-title="`${headerTitle} 監控說明`", size="lg")
+  lah-help-modal(ref="help", :modal-title="`${header} 監控說明`", size="lg")
     lah-powerha-help-content
 
   //- 主要內容插槽
@@ -112,7 +112,7 @@ export default {
     maxHeightOffset: { type: Number, default: 170 }
   },
   data: () => ({
-    headerTitle: '資料庫 PowerHA',
+    header: '資料庫 PowerHA',
     fetchType: 'subject',
     fetchKeyword: '[Health Check] - p8_',
     fetchDay: 1,
