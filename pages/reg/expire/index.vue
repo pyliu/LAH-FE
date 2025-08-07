@@ -228,11 +228,19 @@ export default {
     xlsxList () {
       const modified = []
       this.currentList.forEach((element) => {
-        modified.push({
+        let tmp = {
           ...element,
           // only keep name
           初審人員: element.初審人員.split(' ')[0]
-        })
+        }
+        if (this.isOverdueMode) {
+          tmp = {
+            ...tmp,
+            // bureau wants to add this field
+            逾期未辦結原因: ''
+          }
+        }
+        modified.push(tmp)
       })
       return modified
     }
