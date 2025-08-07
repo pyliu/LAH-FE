@@ -556,7 +556,7 @@ export default {
       if (dataObj === null) {
         return null
       }
-      const message = dataObj.messages.p8_51[0].message
+      const message = dataObj.messages.p8_51[0]?.message || ''
       // Extract the cluster status section
       const clusterStatusMatch = message.match(/Node\s+State\s*\n-+\s+-+\s*\n([\s\S]*?)\n\n/)
       if (clusterStatusMatch) {
