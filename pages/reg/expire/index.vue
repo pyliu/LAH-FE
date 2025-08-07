@@ -21,39 +21,53 @@ div
           @click="$refs.help.show()",
           title="說明"
         )
-        lah-help-modal(ref="help"): .h-6.text-nowrap: ul
-          li 搜尋15天內的案件
-          li
-            .d-flex
-              .my-auto 請使用
-              lah-button.mx-2(
-                :icon="icon"
-                :badgeText="queryCount.toString()"
-                :variant="switchButtonVariant"
-                :disabled="isBusy"
-                :busy="isBusy"
-                @click="isOverdueMode = !isOverdueMode"
-                title="按我切換模式"
-              )
-                strong {{ queryTitle }}
-              .my-auto 切換顯示模式
-          li 預定結案時間剩餘4小時內將判定為即將逾期案件
-          li 切換為#[nuxt-link(to="/expire/sur") 測量案件]
-          li #[a(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 切換成舊版本模式]
+        lah-help-modal(ref="help")
+          .h-6.text-nowrap: ul
+            li 搜尋15天內的案件
+            li
+              .d-flex
+                .my-auto 請使用
+                lah-button.mx-2(
+                  :icon="icon"
+                  :badgeText="queryCount.toString()"
+                  :variant="switchButtonVariant"
+                  :disabled="isBusy"
+                  :busy="isBusy"
+                  @click="isOverdueMode = !isOverdueMode"
+                  title="按我切換模式"
+                )
+                  strong {{ queryTitle }}
+                .my-auto 切換顯示模式
+            li 預定結案時間剩餘4小時內將判定為即將逾期案件
+            li 進階篩選選項說明：各篩選項目內是OR，項目之間是AND
+          hr
+          .d-flex.justify-content-center.my-2
+            lah-button.mx-2(
+              icon="ruler-combined",
+              to="/sur/expire",
+              variant="outline-primary"
+            ) 切換為測量案件
+            lah-button.mx-2(
+              icon="history",
+              :href="`${legacyUrl}/overdue_reg_cases.html`",
+              target="_blank",
+              rel="noreferrer noopener",
+              variant="outline-secondary"
+            ) 切換成舊版本模式
 
       a.small.text-muted.mr-2.align-self-center(
         href="#",
         @click.prevent="reset",
-        title="重新設定為預設搜尋選項",
+        title="重新設定為預設篩選選項",
         style="font-size: 0.85rem;"
       ) 重設
       lah-button(
         icon="search-plus",
         size="lg",
-        title="開啟進階搜尋視窗",
+        title="開啟進階篩選視窗",
         @click="$refs.searchPlus.show()",
         :disabled="!dataReady"
-      ) 進階搜尋
+      ) 進階篩選
       lah-button-xlsx.mx-1(
         :jsons="xlsxList"
         :header="queryTitle"
@@ -116,7 +130,7 @@ div
   )
     template(#modal-title)
       .d-flex.align-items-center
-        span 進階搜尋
+        span 進階篩選
         small.text-muted.ml-2 按住 Ctrl 鍵進行選擇/取消
     .center.d-flex
       b-input-group.mr-1(prepend="　收件字")
