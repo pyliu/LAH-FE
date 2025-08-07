@@ -2,7 +2,7 @@
   div
     lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 取消請示案件
+        .my-auto 請示(取消)案件
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
           .h5 搜尋說明：
@@ -10,7 +10,7 @@
             li 根據收件日期區間查詢
             li 取消請示日期(RM83)欄位不為空值之案件
           hr
-          .h5 取消請示案件狀態說明：
+          .h5 請示(取消)案件狀態說明：
           .mx-2: lah-fa-icon(icon="circle" variant="danger") 有申請取消請示紀錄且#[strong.text-danger 已]逾期案件
           .mx-2: lah-fa-icon(icon="circle" variant="warning") 有申請取消請示紀錄且於預訂結案日結案之案件
           .mx-2: lah-fa-icon(icon="circle" variant="success") 有申請取消請示紀錄且#[strong 未]逾期案件
@@ -30,7 +30,7 @@
         )
         lah-button-xlsx.mx-1(
           :jsons="xlsxData"
-          header="取消請示案件"
+          header="請示(取消)案件"
         )
         lah-countdown-button(
           ref="countdown"
@@ -159,14 +159,14 @@ export default {
           this.bakedData = json.baked || []
           this.resetCountdown()
           this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
-            this.notify(`查詢成功，找到 ${this.bakedData.length} 筆取消請示案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
+            this.notify(`查詢成功，找到 ${this.bakedData.length} 筆請示(取消)案件資料。`, { subtitle: `(快取) ${this.$utils.msToHuman(remaining)} 後更新` })
           })
         }
       })
     }
   },
   head: {
-    title: '取消請示案件查詢-桃園市地政局'
+    title: '請示(取消)案件查詢-桃園市地政局'
   },
   fetchOnServer: false,
   computed: {

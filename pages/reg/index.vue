@@ -10,7 +10,7 @@
         //- lah-index-card-link.fix-card-dimension(v-if="isSur", :icon="['far', 'calendar-alt']" to="/reg/reg/expire/sur") 測量逾期#[br]案件
         //- lah-index-card-link.fix-card-dimension(v-else-if="isVal", :icon="['fas', 'receipt']" to="/prc/realprice") 實價登錄#[br]案件控管
         lah-index-card-link.fix-card-dimension(:icon="['far', 'calendar-check']" to="/reg/expire") 即將逾期#[br]案件
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tie']" to="/reg/ask-for-instructions") 取消請示#[br]案件
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'user-tie']" to="/reg/ask-for-instructions") 請示(取消)案件
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'pager']" to="/reg/reg-fix-case") 補正期滿#[br]案件
         lah-index-card-link.fix-card-dimension(:icon="['far', 'sticky-note']" to="/reg/expiry-of-announcement") 公告案件#[br]控管
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'stamp']" to="/reg/reg-untaken-case") 領件控管

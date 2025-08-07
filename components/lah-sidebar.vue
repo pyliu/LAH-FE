@@ -68,7 +68,7 @@ b-sidebar#lah-sidebar(
         即將逾期案件(登記)
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/ask-for-instructions").
         #[font-awesome-icon(:icon="['fas', 'user-tie']", fixed-width, size="lg")]
-        取消請示案件
+        請示(取消)案件
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/reg-fix-case").
         #[font-awesome-icon(:icon="['fas', 'pager']", fixed-width, size="lg")]
         補正期滿案件
