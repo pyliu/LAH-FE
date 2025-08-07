@@ -132,6 +132,7 @@ div
       .d-flex.align-items-center
         span 進階篩選
         small.text-muted.ml-2 按住 Ctrl 鍵進行選擇/取消
+
     .center.d-flex
       b-input-group.mr-1(prepend="　收件字")
         b-form-select(
@@ -179,6 +180,27 @@ div
         multiple,
         :select-size="4"
       )
+
+    lah-transition(class="my-3 p-0")
+      b-tags.border-0(
+        v-if="advTags.length > 0",
+        :value="advTags",
+        @input="handleTagsChange",
+        add-button-variant="white"
+        add-button-text="",
+        size="lg",
+        tag-pills,
+        no-outer-focus,
+        no-add-on-enter
+      )
+        template(#default="{ tags, removeTag }")
+          b-tag(
+            v-for="tag in tags",
+            :key="tag",
+            :variant="getTagVariant(tag)",
+            :title="tag",
+            @remove="removeTag(tag)"
+          ) {{ tag }}
 
     hr
     .center.d-flex.my-1
@@ -482,7 +504,7 @@ export default {
 .dynamic-table-height::v-deep .b-table-sticky-header {
   /* 100vh is the full viewport height.
      Subtracting a fixed value for the header, tags, and padding.
-     This value might need fine-tuning. Let's start with 165px.
+     This value might need fine-tuning.
    */
   max-height: calc(100vh - 165px) !important;
 }
