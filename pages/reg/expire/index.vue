@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  lah-header
+  lah-header(ref="lahHeader")
     .d-flex.w-100
       .d-flex.mr-auto.align-items-center
         .my-auto.mr-1 登記案件
@@ -21,7 +21,7 @@ div
           @click="$refs.help.show()",
           title="說明"
         )
-        lah-help-modal(ref="help"): .h6.text-nowrap: ul
+        lah-help-modal(ref="help"): .h-6.text-nowrap: ul
           li 搜尋15天內的案件
           li
             .d-flex
@@ -41,6 +41,12 @@ div
           li 切換為#[nuxt-link(to="/expire/sur") 測量案件]
           li #[a(:href="`${this.legacyUrl}/overdue_reg_cases.html`" target="_blank" rel="noreferrer noopener") 切換成舊版本模式]
 
+      a.small.text-muted.mr-2.align-self-center(
+        href="#",
+        @click.prevent="reset",
+        title="重新設定為預設搜尋選項",
+        style="font-size: 0.85rem;"
+      ) 重設
       lah-button(
         icon="search-plus",
         size="lg",
@@ -75,84 +81,93 @@ div
         @end="$fetch"
         @click="reload"
       )
-  lah-transition: b-tags.border-0.mt-n4(
-    v-if="advTags.length > 0",
-    v-model="advTags",
-    placeholder="",
-    tag-variant="info",
-    add-button-variant="white"
-    add-button-text="",
-    size="lg",
-    tag-pills,
-    no-outer-focus,
-    no-add-on-enter,
-    no-tag-remove
+  lah-transition(ref="tagsContainer", class="p-0 py-2")
+    b-tags.border-0.mt-n4(
+      v-if="advTags.length > 0",
+      :value="advTags",
+      @input="handleTagsChange",
+      add-button-variant="white"
+      add-button-text="",
+      size="lg",
+      tag-pills,
+      no-outer-focus,
+      no-add-on-enter
+    )
+      template(#default="{ tags, removeTag }")
+        b-tag(
+          v-for="tag in tags",
+          :key="tag",
+          :variant="getTagVariant(tag)",
+          :title="tag",
+          @remove="removeTag(tag)"
+        ) {{ tag }}
+
+  lah-transition(appear): lah-expiry-b-table.dynamic-table-height(
+    :busy="!committed || filtering",
+    only-popup-detail,
+    sticky-header
   )
-  lah-transition(appear): lah-expiry-b-table(:busy="!committed || filtering", only-popup-detail)
   lah-transition.center.h3(v-if="queryCount === 0 && committed") 無資料👍
 
   b-modal(
     ref="searchPlus",
-    title="進階搜尋",
-    hide-footer
+    hide-footer,
+    size="lg"
   )
+    template(#modal-title)
+      .d-flex.align-items-center
+        span 進階搜尋
+        small.text-muted.ml-2 按住 Ctrl 鍵進行選擇/取消
     .center.d-flex
-      //- b-input-group(prepend="年")
-      //-   b-select(
-      //-     v-model="advOpts.caseYear",
-      //-     :options="advOpts.caseYearOpts",
-      //-     title="收件年"
-      //-   )
       b-input-group.mr-1(prepend="　收件字")
-        //- b-input.mx-1(v-model="advOpts.caseYear", placeholder="... 收件年 ...", trim)
-        b-select(
+        b-form-select(
           v-model="advOpts.caseWord",
           :options="advOpts.caseWordOpts",
-          title="收件字"
+          title="收件字",
+          multiple,
+          :select-size="4"
         )
-      b-input-group(prepend="　收件號")
-        //- b-input.mr-1(v-model="advOpts.caseWord", placeholder="... 收件字 ...", trim)
-        b-input(v-model="advOpts.caseNum", trim)
+      b-input-group.input-group-height-hack(prepend="　收件號")
+        b-input(
+          v-model="advOpts.caseNum",
+          trim,
+          placeholder="... 可輸入部分 ..."
+        )
 
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="登記原因"): b-select(
+      b-input-group.mr-1(prepend="登記原因"): b-form-select(
         v-model="advOpts.caseReason",
         :options="advOpts.caseReasonOpts",
-        title="登記原因"
+        title="登記原因",
+        multiple,
+        :select-size="4"
       )
-      b-input-group(prepend="辦理情形"): b-select(
+      b-input-group(prepend="辦理情形"): b-form-select(
         v-model="advOpts.caseState",
         :options="advOpts.caseStateOpts",
-        title="辦理情形"
+        title="辦理情形",
+        multiple,
+        :select-size="4"
       )
 
     .center.d-flex
-      b-input-group.mr-1(prepend="初審人員"): b-select(
+      b-input-group.mr-1(prepend="初審人員"): b-form-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
-        title="初審人員"
+        title="初審人員",
+        multiple,
+        :select-size="4"
       )
-      b-input-group(prepend="作業人員"): b-select(
+      b-input-group(prepend="作業人員"): b-form-select(
         v-model="advOpts.caseOperator",
         :options="advOpts.caseOperatorOpts",
-        title="作業人員"
+        title="作業人員",
+        multiple,
+        :select-size="4"
       )
 
-    //- .center.d-flex.my-1
-    //-   b-input-group.mr-1(prepend="收件所別"): b-select(
-    //-     v-model="advOpts.caseReceiveOffice",
-    //-     :options="advOpts.caseReceiveOfficeOpts",
-    //-     title="收件所別"
-    //-   )
-    //-   b-input-group
-
+    hr
     .center.d-flex.my-1
-      lah-button.mr-1(
-        v-if="false",
-        icon="check-circle",
-        @click="filter",
-        variant="outline-primary"
-      ) 確定
       lah-button(
         icon="recycle",
         @click="reset",
@@ -169,19 +184,28 @@ export default {
   mixins: [expiryBase],
   data: () => ({
     filtering: false,
+    tagColorMap: {
+      年: 'secondary',
+      字: 'primary',
+      號: 'info',
+      登記原因: 'success',
+      辦理情形: 'warning',
+      初審人員: 'danger',
+      作業人員: 'dark'
+    },
     advOpts: {
       caseYear: '',
-      caseWord: '',
+      caseWord: [],
       caseNum: '',
-      caseReason: '',
+      caseReason: [],
       caseReasonOpts: [],
-      caseState: '',
+      caseState: [],
       caseStateOpts: [],
-      casePreliminator: '',
+      casePreliminator: [],
       casePreliminatorOpts: [],
-      caseOperator: '',
+      caseOperator: [],
       caseOperatorOpts: [],
-      caseReceiveOffice: '',
+      caseReceiveOffice: [],
       caseReceiveOfficeOpts: []
     }
   }),
@@ -193,30 +217,21 @@ export default {
     dataReady () { return this.queriedJson && this.queriedJson.items?.length > 0 },
     advTags () {
       const tags = []
-      if (!this.$utils.empty(this.advOpts.caseYear)) {
-        tags.push(`年：${this.advOpts.caseYear}`)
+      const generateTags = (prefix, values) => {
+        if (Array.isArray(values) && values.length > 0) {
+          values.forEach(val => tags.push(`${prefix}：${val}`))
+        } else if (!Array.isArray(values) && !this.$utils.empty(values)) {
+          tags.push(`${prefix}：${values}`)
+        }
       }
-      if (!this.$utils.empty(this.advOpts.caseWord)) {
-        tags.push(`字：${this.advOpts.caseWord}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseNum)) {
-        tags.push(`號：${this.advOpts.caseNum}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseReason)) {
-        tags.push(`登記原因：${this.advOpts.caseReason}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseState)) {
-        tags.push(`辦理情形：${this.advOpts.caseState}`)
-      }
-      if (!this.$utils.empty(this.advOpts.casePreliminator)) {
-        tags.push(`初審人員：${this.advOpts.casePreliminator}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseOperator)) {
-        tags.push(`作業人員：${this.advOpts.caseOperator}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseReceiveOffice)) {
-        tags.push(`收件所別：${this.advOpts.caseReceiveOffice}`)
-      }
+      generateTags('年', this.advOpts.caseYear)
+      generateTags('字', this.advOpts.caseWord)
+      generateTags('號', this.advOpts.caseNum)
+      generateTags('登記原因', this.advOpts.caseReason)
+      generateTags('辦理情形', this.advOpts.caseState)
+      generateTags('初審人員', this.advOpts.casePreliminator)
+      generateTags('作業人員', this.advOpts.caseOperator)
+      generateTags('收件所別', this.advOpts.caseReceiveOffice)
       return tags
     },
     storeCaseCount () {
@@ -247,139 +262,178 @@ export default {
   },
   watch: {
     queriedJson (val) {
+      // reset advOpts to default state but keep opts arrays for new values
       this.advOpts = {
-        ...{
-          caseYear: '',
-          caseYearOpts: [],
-          caseWord: '',
-          caseWordOpts: [],
-          caseNum: '',
-          caseReason: '',
-          caseReasonOpts: [],
-          caseState: '',
-          caseStateOpts: [],
-          casePreliminator: '',
-          casePreliminatorOpts: [],
-          caseOperator: '',
-          caseOperatorOpts: [],
-          caseReceiveOffice: '',
-          caseReceiveOfficeOpts: []
-        }
+        caseYear: '',
+        caseWord: [],
+        caseNum: '',
+        caseReason: [],
+        caseReasonOpts: [],
+        caseState: [],
+        caseStateOpts: [],
+        casePreliminator: [],
+        casePreliminatorOpts: [],
+        caseOperator: [],
+        caseOperatorOpts: [],
+        caseReceiveOffice: [],
+        caseReceiveOfficeOpts: []
       }
+
       if (val && val.items) {
+        // dynamically generate options for select dropdowns
         this.advOpts.caseReasonOpts = [...new Set(val.items.map(item => item.登記原因))].sort()
         this.advOpts.caseStateOpts = [...new Set(val.items.map(item => item.辦理情形))].sort()
-        // only include own site people
         this.advOpts.casePreliminatorOpts = [...new Set(val.items.map(item => item.初審人員))].sort().filter(item => item?.includes(this.site))
         this.advOpts.caseOperatorOpts = [...new Set(val.items.map(item => item.作業人員))].sort()
         this.advOpts.caseYearOpts = [...new Set(val.raw.map(item => item.RM01))].sort()
         this.advOpts.caseWordOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
         this.advOpts.caseReceiveOfficeOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
 
-        this.advOpts.caseReasonOpts.unshift('')
-        this.advOpts.caseStateOpts.unshift('')
-        this.advOpts.casePreliminatorOpts.unshift('')
-        this.advOpts.caseOperatorOpts.unshift('')
-        this.advOpts.caseYearOpts.unshift('')
-        this.advOpts.caseReceiveOfficeOpts.unshift('')
-
         this.$store.commit('expiry/list', this.queriedJson.items || [])
         this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
 
-        // set default to own case option
-        this.advOpts.caseWordOpts.unshift('本所關注案件')
-        this.advOpts.caseWordOpts.unshift('')
-        this.advOpts.caseWord = '本所關注案件'
+        // Set default selections after options are populated
+        this.setDefaultCaseWords()
       }
     },
-    advTags (dontcare) {
-      this.filtering = true
-      this.filterDebounced()
+    advOpts: {
+      handler () {
+        this.filtering = true
+        this.filterDebounced()
+      },
+      deep: true
     }
   },
   created () {
-    this.filterDebounced = this.$utils.debounce(this.filter, 1000)
-    // console.warn(this.$utils.now('TW').replaceAll(/[-\s:]/g, ''))
+    this.filterDebounced = this.$utils.debounce(this.filter, 400)
   },
   methods: {
     filterDebounced () { /** placeholder for debounced filter method */ },
-    filter () {
-      if (this.dataReady) {
-        let pipelineItems = this.queriedJson?.items || []
-
-        const checkNum = !this.$utils.empty(this.advOpts.caseNum)
-        if (checkNum) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseNum) !== null
-          })
+    getTagVariant (tag) {
+      const [prefix] = tag.split('：')
+      return this.tagColorMap[prefix.trim()] || 'secondary'
+    },
+    handleTagsChange (tags) {
+      // This event is fired when the v-model changes (e.g., a tag is removed).
+      // We need to find which tag was removed.
+      if (tags.length < this.advTags.length) {
+        const removedTag = this.advTags.find(t => !tags.includes(t))
+        if (removedTag) {
+          this.removeAdvTag(removedTag)
         }
+      }
+    },
+    removeAdvTag (tag) {
+      const [prefix, value] = tag.split('：')
+      const trimmedValue = value?.trim()
+      if (!prefix || !trimmedValue) {
+        return
+      }
+      // Based on the prefix, update the corresponding advOpts property
+      switch (prefix.trim()) {
+        case '年':
+          this.advOpts.caseYear = ''
+          break
+        case '字':
+          this.advOpts.caseWord = this.advOpts.caseWord.filter(v => v !== trimmedValue)
+          break
+        case '號':
+          this.advOpts.caseNum = ''
+          break
+        case '登記原因':
+          this.advOpts.caseReason = this.advOpts.caseReason.filter(v => v !== trimmedValue)
+          break
+        case '辦理情形':
+          this.advOpts.caseState = this.advOpts.caseState.filter(v => v !== trimmedValue)
+          break
+        case '初審人員':
+          this.advOpts.casePreliminator = this.advOpts.casePreliminator.filter(v => v !== trimmedValue)
+          break
+        case '作業人員':
+          this.advOpts.caseOperator = this.advOpts.caseOperator.filter(v => v !== trimmedValue)
+          break
+        case '收件所別':
+          this.advOpts.caseReceiveOffice = this.advOpts.caseReceiveOffice.filter(v => v !== trimmedValue)
+          break
+      }
+    },
+    setDefaultCaseWords () {
+      if (!this.dataReady) {
+        this.advOpts.caseWord = []
+        return
+      }
+      const defaultCaseWords = new Set()
+      const allItems = this.queriedJson?.items || []
 
-        const checkWord = !this.$utils.empty(this.advOpts.caseWord)
-        if (checkWord) {
-          if (this.advOpts.caseWord === '本所關注案件') {
-            const alphabet = this.site[1]
-            const number = alphabet.charCodeAt(0) - 64
-            pipelineItems = pipelineItems.filter((item) => {
-              const tmp = item.收件字號.match(/\(.+\)/gm)
-              if (Array.isArray(tmp)) {
-                const extractedWord = tmp[0].replace(/[()]/gm, '')
-                // use regex to detect the local case word
-                const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
-                if (localCaseRegex.test(extractedWord)) {
-                  return true
-                } else if (extractedWord.endsWith(`${alphabet}1`)) {
-                  return true
-                } else if (extractedWord.startsWith(`H${number}`)) {
-                  return true
-                }
-              }
-              return false
-            })
-          } else {
-            pipelineItems = pipelineItems.filter((item) => {
-              return item.收件字號.match(this.advOpts.caseWord) !== null
-            })
+      allItems.forEach((item) => {
+        const localCaseMatch = item.收件字號.match(/\((.+)\)/)
+        if (localCaseMatch && localCaseMatch[1]) {
+          const extractedWord = localCaseMatch[1]
+          const alphabet = this.site[1]
+          const number = alphabet.charCodeAt(0) - 64
+          const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
+
+          if (localCaseRegex.test(extractedWord) || extractedWord.endsWith(`${alphabet}1`) || extractedWord.startsWith(`H${number}`)) {
+            defaultCaseWords.add(extractedWord)
           }
         }
+      })
+      this.advOpts.caseWord = [...defaultCaseWords]
+    },
+    filter () {
+      if (this.dataReady) {
+        let pipelineItems = [...this.queriedJson?.items] || []
 
+        // Filter by case word
+        const checkWord = this.advOpts.caseWord.length > 0
+        if (checkWord) {
+          pipelineItems = pipelineItems.filter((item) => {
+            const localCaseMatch = item.收件字號.match(/\((.+)\)/)
+            if (localCaseMatch && localCaseMatch[1]) {
+              const extractedWord = localCaseMatch[1]
+              return this.advOpts.caseWord.includes(extractedWord)
+            }
+            return false
+          })
+        }
+
+        // Filter by case number
+        const checkNum = !this.$utils.empty(this.advOpts.caseNum)
+        if (checkNum) {
+          pipelineItems = pipelineItems.filter(item => item.收件字號.includes(this.advOpts.caseNum))
+        }
+
+        // Filter by case year
         const checkYear = !this.$utils.empty(this.advOpts.caseYear)
         if (checkYear) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
-          })
+          pipelineItems = pipelineItems.filter(item => item.收件字號.startsWith(`${this.advOpts.caseYear}年`))
         }
 
-        const checkReason = !this.$utils.empty(this.advOpts.caseReason)
+        // Filter by case reason
+        const checkReason = this.advOpts.caseReason.length > 0
         if (checkReason) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.登記原因 === this.advOpts.caseReason
-          })
+          pipelineItems = pipelineItems.filter(item => this.advOpts.caseReason.includes(item.登記原因))
         }
 
-        const checkState = !this.$utils.empty(this.advOpts.caseState)
+        // Filter by case state
+        const checkState = this.advOpts.caseState.length > 0
         if (checkState) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.辦理情形 === this.advOpts.caseState
-          })
+          pipelineItems = pipelineItems.filter(item => this.advOpts.caseState.includes(item.辦理情形))
         }
 
-        const checkPreliminator = !this.$utils.empty(this.advOpts.casePreliminator)
+        // Filter by preliminator
+        const checkPreliminator = this.advOpts.casePreliminator.length > 0
         if (checkPreliminator) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.初審人員 === this.advOpts.casePreliminator
-          })
+          pipelineItems = pipelineItems.filter(item => this.advOpts.casePreliminator.includes(item.初審人員))
         }
 
-        const checkOperator = !this.$utils.empty(this.advOpts.caseOperator)
+        // Filter by operator
+        const checkOperator = this.advOpts.caseOperator.length > 0
         if (checkOperator) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.作業人員 === this.advOpts.caseOperator
-          })
+          pipelineItems = pipelineItems.filter(item => this.advOpts.caseOperator.includes(item.作業人員))
         }
+
         this.$store.commit('expiry/list', pipelineItems)
-        // this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
-        // this.$refs.searchPlus.hide()
-        // this.notify(`篩選完成，找到 ${this.storeCaseCount} 筆案件。`)
       } else {
         this.warning('無資料無法篩選!')
       }
@@ -388,22 +442,34 @@ export default {
     reset () {
       this.advOpts = {
         ...this.advOpts,
-        ...{
-          caseYear: '',
-          caseWord: '本所關注案件',
-          caseNum: '',
-          caseReason: '',
-          caseState: '',
-          casePreliminator: '',
-          caseOperator: '',
-          caseReceiveOffice: ''
-        }
+        caseYear: '',
+        caseWord: [],
+        caseNum: '',
+        caseReason: [],
+        caseState: [],
+        casePreliminator: [],
+        caseOperator: [],
+        caseReceiveOffice: []
       }
-      this.$store.commit('expiry/list', this.queriedJson.items || [])
+      // re-apply the default selections
+      this.setDefaultCaseWords()
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.input-group-height-hack {
+  align-self: stretch;
+}
+.input-group-height-hack::v-deep .form-control {
+  height: 100%;
+}
+.dynamic-table-height::v-deep .b-table-sticky-header {
+  /* 100vh is the full viewport height.
+     Subtracting a fixed value for the header, tags, and padding.
+     This value might need fine-tuning. Let's start with 165px.
+   */
+  max-height: calc(100vh - 165px) !important;
+}
 </style>
