@@ -57,7 +57,7 @@ div(v-cloak)
       :ref="`${obj.compName}-attention`",
       :is="obj.compName",
       :enable-attention="false",
-      :footer="isFooterEnable(obj.compName)"
+      :footer="false"
     )
     //- common boards
     div(
