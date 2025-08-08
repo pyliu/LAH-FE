@@ -64,8 +64,8 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
 
   // 1. 保存一份原始的 $axios.post 方法
   const originalPost = $axios.post.bind($axios)
-  // 【修正】: 將最大嘗試次數調整為 8，以使最長等待時間接近 10 秒
-  const attemptMax = 8
+  // 【修正】: 將最大嘗試次數調整為 13，以使最長等待時間接近 20 秒
+  const attemptMax = 13
   const baseDelay = 100 // 基礎延遲時間 (ms)
   const maxDelay = 2000 // 最大延遲時間 (ms)
 
