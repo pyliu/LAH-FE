@@ -73,36 +73,40 @@ export default function ({ $axios, redirect, store }, inject) {
   const postWithConcurrencyCheck = function (...args) {
     /**
      * @description 內部遞迴函式，用於檢查並執行 post
+     * @param {number} [attempt=1] - 當前的嘗試次數
      */
-    const checkAndPost = async () => {
+    const checkAndPost = async (attempt = 1) => {
+      // 【需求 1】: 檢查重試次數是否超過上限 (5次)
+      if (attempt > 5) {
+        console.warn(`[Axios Post] 重試已達 ${attempt - 1} 次上限，直接發送請求...`)
+        return originalPost(...args)
+      }
+
       // 2. 檢查是否有「其他」請求正在進行中。
-      //    因為這個檢查發生在當前請求的 onRequest 觸發之前，
-      //    所以只要 pendingRequests > 0，就表示有其他請求還在處理。
       if (pendingRequests > 0) {
         // 3. 若有其他請求，則隨機等待 100-300ms
-        //    使用原生 JS 產生隨機數。若專案有 lodash，也可以使用 _.random(100, 300)
         const delay = Math.floor(Math.random() * (300 - 100 + 1)) + 100
-        console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試...`)
+        console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
 
         // 等待指定時間
         await new Promise(resolve => setTimeout(resolve, delay))
 
-        // 4. 等待結束後，再次呼叫自己進行檢查
-        return checkAndPost()
+        // 4. 等待結束後，再次呼叫自己進行檢查，並增加嘗試次數
+        return checkAndPost(attempt + 1)
       } else {
         // 5. 如果沒有其他請求，就執行原始的 post 方法
         return originalPost(...args)
       }
     }
 
-    // 直接返回內部 async 函式所產生的 Promise
+    // 直接返回內部 async 函式所產生的 Promise，從第 1 次嘗試開始
     return checkAndPost()
   }
 
   // 6. 覆寫 $axios.post 方法，讓所有 this.$axios.post 的呼叫都使用我們的新邏輯
   $axios.post = postWithConcurrencyCheck
 
-  // 【修正】: 將原始的 post 方法直接掛載到 $axios 實例上
+  // 將原始的 post 方法直接掛載到 $axios 實例上
   // 這樣就可以在 Vue component 中透過 this.$axios.oPost() 來呼叫它
   $axios.oPost = originalPost
 
