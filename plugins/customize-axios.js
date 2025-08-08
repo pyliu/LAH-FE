@@ -64,7 +64,9 @@ export default function ({ $axios, redirect, store }, inject) {
 
   // 1. 保存一份原始的 $axios.post 方法
   const originalPost = $axios.post.bind($axios)
-
+  const attemptMax = 20
+  const upperBound = 400
+  const lowerBound = 100
   /**
    * @description 帶有併發檢查的 post 方法
    * @param {...any} args - 傳遞給原始 post 方法的參數 (url, data, config)
@@ -76,16 +78,16 @@ export default function ({ $axios, redirect, store }, inject) {
      * @param {number} [attempt=1] - 當前的嘗試次數
      */
     const checkAndPost = async (attempt = 1) => {
-      // 【需求 1】: 檢查重試次數是否超過上限 (5次)
-      if (attempt > 5) {
+      // 【需求 1】: 檢查重試次數是否超過上限
+      if (attempt > attemptMax) {
         console.warn(`[Axios Post] 重試已達 ${attempt - 1} 次上限，直接發送請求...`)
         return originalPost(...args)
       }
 
       // 2. 檢查是否有「其他」請求正在進行中。
       if (pendingRequests > 0) {
-        // 3. 若有其他請求，則隨機等待 100-300ms
-        const delay = Math.floor(Math.random() * (300 - 100 + 1)) + 100
+        // 3. 若有其他請求，則隨機等待 lowerBound - upperBound 區間
+        const delay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound
         // console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
 
         // 等待指定時間
