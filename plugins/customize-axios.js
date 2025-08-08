@@ -1,5 +1,5 @@
+import random from 'lodash/random'
 import qs from 'qs'
-// import _ from 'lodash'; // 如果您的專案中已經安裝並配置了 lodash，可以取消註解此行來使用 _.random
 
 export default function ({ $axios, redirect, store }, inject) {
   /**
@@ -86,8 +86,8 @@ export default function ({ $axios, redirect, store }, inject) {
 
       // 2. 檢查是否有「其他」請求正在進行中。
       if (pendingRequests > 0) {
-        // 3. 若有其他請求，則隨機等待 lowerBound - upperBound 區間
-        const delay = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound
+        // 3. 【修正】若有其他請求，使用 lodash/random 隨機等待 lowerBound - upperBound 區間
+        const delay = random(lowerBound, upperBound)
         // console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
 
         // 等待指定時間
