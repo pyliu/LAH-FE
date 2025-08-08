@@ -1,7 +1,7 @@
 import random from 'lodash/random'
 import qs from 'qs'
 
-export default function ({ $axios, redirect, store }, inject) {
+export default function ({ $axios, redirect, store, isDev }, inject) {
   /**
    * @description 追蹤當前正在進行中的請求數量
    */
@@ -50,7 +50,7 @@ export default function ({ $axios, redirect, store }, inject) {
     pendingRequests--
 
     if ($axios.isCancel(error)) {
-      console.log('Request canceled:', error.message)
+      isDev && console.log('Request canceled:', error.message)
     } else {
       console.error('Axios Error:', error)
       // 在此處可以根據錯誤狀態碼進行統一處理，例如導向到錯誤頁面
@@ -80,7 +80,7 @@ export default function ({ $axios, redirect, store }, inject) {
     const checkAndPost = async (attempt = 1) => {
       // 【需求 1】: 檢查重試次數是否超過上限
       if (attempt > attemptMax) {
-        console.warn(`[Axios Post] 重試已達 ${attempt - 1} 次上限，直接發送請求...`)
+        isDev && console.warn(`[Axios Post] 重試已達 ${attempt - 1} 次上限，直接發送請求...`, args)
         return originalPost(...args)
       }
 
@@ -88,7 +88,7 @@ export default function ({ $axios, redirect, store }, inject) {
       if (pendingRequests > 0) {
         // 3. 【修正】若有其他請求，使用 lodash/random 隨機等待 lowerBound - upperBound 區間
         const delay = random(lowerBound, upperBound)
-        // console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
+        isDev && console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
 
         // 等待指定時間
         await new Promise(resolve => setTimeout(resolve, delay))
