@@ -64,9 +64,11 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
 
   // 1. 保存一份原始的 $axios.post 方法
   const originalPost = $axios.post.bind($axios)
-  const attemptMax = 20
-  const upperBound = 400
-  const lowerBound = 100
+  // 【修正】: 將最大嘗試次數調整為 8，以使最長等待時間接近 10 秒
+  const attemptMax = 8
+  const baseDelay = 100 // 基礎延遲時間 (ms)
+  const maxDelay = 2000 // 最大延遲時間 (ms)
+
   /**
    * @description 帶有併發檢查的 post 方法
    * @param {...any} args - 傳遞給原始 post 方法的參數 (url, data, config)
@@ -78,25 +80,31 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
      * @param {number} [attempt=1] - 當前的嘗試次數
      */
     const checkAndPost = async (attempt = 1) => {
-      // 【需求 1】: 檢查重試次數是否超過上限
+      // 檢查重試次數是否超過上限
       if (attempt > attemptMax) {
         isDev && console.warn(`[Axios Post] 重試已達 ${attempt - 1} 次上限，直接發送請求...`, args)
         return originalPost(...args)
       }
 
-      // 2. 檢查是否有「其他」請求正在進行中。
+      // 檢查是否有「其他」請求正在進行中。
       if (pendingRequests > 0) {
-        // 3. 【修正】若有其他請求，使用 lodash/random 隨機等待 lowerBound - upperBound 區間
-        const delay = random(lowerBound, upperBound)
-        isDev && console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
+        // 實現類似 TCP 的指數退避 + 抖動 (Jitter) 的延遲機制
+        // 1. 計算指數增長的延遲
+        const exponentialDelay = baseDelay * Math.pow(2, attempt - 1)
+        // 2. 加上一個隨機的抖動值 (這裡設定為 0-100ms)，避免同時重試
+        const delayWithJitter = exponentialDelay + random(0, 100)
+        // 3. 確保延遲時間不超過最大值
+        const finalDelay = Math.min(delayWithJitter, maxDelay)
+
+        isDev && console.log(`[Axios Post] 偵測到壅塞，啟用指數退避機制，延遲 ${finalDelay}ms 後重試... (第 ${attempt} 次)`)
 
         // 等待指定時間
-        await new Promise(resolve => setTimeout(resolve, delay))
+        await new Promise(resolve => setTimeout(resolve, finalDelay))
 
-        // 4. 等待結束後，再次呼叫自己進行檢查，並增加嘗試次數
+        // 等待結束後，再次呼叫自己進行檢查，並增加嘗試次數
         return checkAndPost(attempt + 1)
       } else {
-        // 5. 如果沒有其他請求，就執行原始的 post 方法
+        // 如果沒有其他請求，就執行原始的 post 方法
         return originalPost(...args)
       }
     }
@@ -105,7 +113,7 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
     return checkAndPost()
   }
 
-  // 6. 覆寫 $axios.post 方法，讓所有 this.$axios.post 的呼叫都使用我們的新邏輯
+  // 覆寫 $axios.post 方法，讓所有 this.$axios.post 的呼叫都使用我們的新邏輯
   $axios.post = postWithConcurrencyCheck
 
   // 將原始的 post 方法直接掛載到 $axios 實例上
