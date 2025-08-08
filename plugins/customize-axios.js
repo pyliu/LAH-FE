@@ -86,7 +86,7 @@ export default function ({ $axios, redirect, store }, inject) {
       if (pendingRequests > 0) {
         // 3. 若有其他請求，則隨機等待 100-300ms
         const delay = Math.floor(Math.random() * (300 - 100 + 1)) + 100
-        console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
+        // console.log(`[Axios Post] 偵測到其他請求正在進行中，延遲 ${delay}ms 後重試... (第 ${attempt} 次)`)
 
         // 等待指定時間
         await new Promise(resolve => setTimeout(resolve, delay))
