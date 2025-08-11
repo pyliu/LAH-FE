@@ -61,7 +61,7 @@
     .my-auto.text-nowrap.mr-1 補正期滿：{{ parentData.REG_FIX_CASE_RECORD.fix_deadline_date }}
     .my-auto.text-nowrap.mr-1 通知送達：{{ parentData.REG_FIX_CASE_RECORD.notify_delivered_date }}
 
-  lah-transition: .p-1.mt-1.small(v-if="!$utils.empty(deliveredDate)")
+  lah-transition: .d-flex.justify-content-end.align-items-center.p-1.mt-1(v-if="!$utils.empty(deliveredDate)")
     b-badge.p-2.mr-2(pill, :class="classes") 調整到期日期：{{ dueDate }}
     b-badge.p-2(pill, :class="classes") 預計可駁回日：{{ rejectDate }}
 </template>
@@ -120,7 +120,7 @@ export default {
       const dd = new Date(this.deliveredDate)
       // RM52_TYPE === '1' => Month
       const factor = this.parentData.RM52_TYPE === '1' ? 30 : 1
-      // don't follow this.parentData.RM52_DAY, fixed to 20
+      // 1140811: don't follow this.parentData.RM52_DAY, fixed to 20
       const days = factor * 20
       dd.setDate(dd.getDate() + days)
       /**
@@ -266,4 +266,5 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>
