@@ -117,7 +117,8 @@ div
       template(#cell(lah-reg-case-fix-date)="{ item }")
         lah-reg-case-fix-date(
           :case-id="`${item.RM01}${item.RM02}${item.RM03}`",
-          :parent-data="item"
+          :parent-data="item",
+          days="20"
         )
       template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
   b-modal(

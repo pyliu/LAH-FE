@@ -79,6 +79,9 @@ export default {
   */
   name: 'LahRegCaseFixDate',
   mixins: [regCaseBase],
+  props: {
+    days: { type: String, default: '15' }
+  },
   data: () => ({
     minDate: new Date(),
     maxDate: new Date(),
@@ -120,8 +123,8 @@ export default {
       const dd = new Date(this.deliveredDate)
       // RM52_TYPE === '1' => Month
       const factor = this.parentData.RM52_TYPE === '1' ? 30 : 1
-      // 1140811: don't follow this.parentData.RM52_DAY, fixed to 20
-      const days = factor * 20
+      // 1140811: don't follow this.parentData.RM52_DAY
+      const days = factor * (parseInt(this.days) || 15)
       dd.setDate(dd.getDate() + days)
       /**
        * 'en-ZA' => 2020/08/19 (year/month/day)
