@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAH-FE 專案資訊圖表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Brilliant Blues -->
+    <!-- Application Structure Plan: The infographic is structured as a single, scrollable narrative page with a sticky navigation header. The flow is designed to guide the user from a high-level overview to specific details: 1. Overview (Hook), 2. Tech Stack (Core Components), 3. Architecture (Structural Deep-Dive), 4. Code Patterns (Implementation Details). This logical progression makes the complex report information digestible. The key interaction is the visual, interactive file tree in the 'Architecture' section, which turns an abstract list into a tangible, explorable diagram, significantly improving usability over a static report. -->
+    <!-- Visualization & Content Choices: Report Info: Tech Stack -> Goal: Compare/Inform -> Viz: Donut Chart (Chart.js) & Card Grid -> Justification: The donut chart provides a quick, high-level comparison of technology categories, while the cards offer detailed information for each item. This combination serves both quick glances and in-depth exploration. | Report Info: Project Structure -> Goal: Organize/Inform -> Viz: Interactive HTML/CSS Flowchart -> Justification: A flowchart built with styled HTML divs is used instead of a simple list. This visually represents the project's hierarchy and relationships between directories, which is more intuitive and engaging for the user. It avoids the use of prohibited SVG/Mermaid. | Report Info: Key Stats (e.g., number of components) -> Goal: Inform -> Viz: Large Number Display -> Justification: Highlights the most important metrics immediately, making them stand out. All implemented using Tailwind and Chart.js Canvas. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', '微軟正黑體', 'Microsoft JhengHei';
+            background-color: #f0f9ff;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-sky-50 text-slate-800">
+
+    <header class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 border-b border-sky-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-[#03045e]">LAH-FE 資訊圖表</span>
+                </div>
+                <nav class="hidden md:flex md:space-x-8">
+                    <a href="#overview" class="font-medium text-gray-600 hover:text-[#0077b6]">專案總覽</a>
+                    <a href="#tech-stack" class="font-medium text-gray-600 hover:text-[#0077b6]">技術棧</a>
+                    <a href="#architecture" class="font-medium text-gray-600 hover:text-[#0077b6]">核心架構</a>
+                    <a href="#code-patterns" class="font-medium text-gray-600 hover:text-[#0077b6]">程式碼模式</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <section id="overview" class="text-center mb-24">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-[#03045e] mb-4">地政智慧管控系統</h1>
+            <p class="text-xl text-slate-600 max-w-3xl mx-auto">
+                一個基於 Nuxt.js v2 的前端應用，旨在提供全面的地政業務管理功能，包含案件管理、系統監控與數據統計。
+            </p>
+            <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <p class="text-4xl font-bold text-[#0077b6]">270+</p>
+                    <p class="text-slate-500 mt-1">總檔案數</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <p class="text-4xl font-bold text-[#0077b6]">180+</p>
+                    <p class="text-slate-500 mt-1">Vue 組件</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <p class="text-4xl font-bold text-[#0077b6]">4</p>
+                    <p class="text-slate-500 mt-1">Vuex 模組</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <p class="text-4xl font-bold text-[#0077b6]">2017</p>
+                    <p class="text-slate-500 mt-1">核心架構年份</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-stack" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">技術棧組成</h2>
+                <p class="text-lg text-slate-600">此專案採用一套成熟的技術組合，視覺化圖表展示了各類技術的佔比。</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="chart-container">
+                    <canvas id="techStackChart"></canvas>
+                </div>
+                <div id="tech-details" class="space-y-4">
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">核心架構解析</h2>
+                <p class="text-lg text-slate-600">專案遵循 Nuxt.js 的標準目錄結構，實現了清晰的職責分離。</p>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <div id="architecture-flow" class="space-y-4">
+                </div>
+            </div>
+        </section>
+
+        <section id="code-patterns" class="mb-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">主要程式碼模式</h2>
+                <p class="text-lg text-slate-600">專案中廣泛使用的設計模式與開發慣例。</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-xl font-bold text-[#0077b6] mb-2">選項式 API</h3>
+                    <p class="text-slate-600">所有 Vue 組件均採用 Vue 2 的標準 Options API 寫法，結構清晰，易於理解。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-xl font-bold text-[#0077b6] mb-2">Mixins 邏輯複用</h3>
+                    <p class="text-slate-600">透過 `*-base.js` 和全域 mixin 檔案，在多個組件間共享和複用通用邏輯。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-xl font-bold text-[#0077b6] mb-2">深度整合 BootstrapVue</h3>
+                    <p class="text-slate-600">UI 元素大量基於 BootstrapVue 組件，如 `b-table` 和 `b-modal`，加速開發流程。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-xl font-bold text-[#0077b6] mb-2">集中式 API 管理</h3>
+                    <p class="text-slate-600">使用 Axios 插件統一攔截請求與回應，集中處理錯誤和 Loading 狀態。</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-xl font-bold text-[#0077b6] mb-2">模組化 Vuex</h3>
+                    <p class="text-slate-600">按業務功能將 Vuex 狀態拆分為獨立模組，有效管理大型應用的複雜狀態。</p>
+                </div>
+                 <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-xl font-bold text-[#0077b6] mb-2">路由中間件權限</h3>
+                    <p class="text-slate-600">利用 Middleware 在路由跳轉前進行權限檢查，保護特定頁面的存取安全。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#03045e] text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sky-200">
+            <p>LAH-FE Infographic &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const techStackData = [
+                { name: 'Nuxt.js', desc: '核心框架', category: '框架' },
+                { name: 'Vue.js', desc: 'JS 框架', category: '框架' },
+                { name: 'BootstrapVue', desc: 'UI 框架', category: 'UI' },
+                { name: '@nuxtjs/axios', desc: 'HTTP 客戶端', category: '工具庫' },
+                { name: 'SASS/SCSS', desc: 'CSS 預處理器', category: 'UI' },
+                { name: 'vue-chartjs', desc: '圖表庫', category: 'UI' },
+                { name: 'ESLint', desc: '程式碼檢查', category: '工具庫' },
+                { name: 'Lodash', desc: 'JS 工具庫', category: '工具庫' },
+                { name: 'Font Awesome', desc: '圖示庫', category: 'UI' },
+                { name: 'Express', desc: '伺服器', category: '後端' },
+                { name: 'PM2', desc: '程序管理', category: '後端' }
+            ];
+
+            const techDetailsContainer = document.getElementById('tech-details');
+            techStackData.forEach(tech => {
+                const item = document.createElement('div');
+                item.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center';
+                item.innerHTML = `
+                    <div class="w-12 h-12 rounded-full bg-[#90e0ef] flex items-center justify-center mr-4">
+                        <span class="text-2xl font-bold text-[#0077b6]">${tech.name.substring(0,1)}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">${tech.name}</h4>
+                        <p class="text-sm text-slate-500">${tech.desc}</p>
+                    </div>
+                `;
+                techDetailsContainer.appendChild(item);
+            });
+
+            const categoryCounts = techStackData.reduce((acc, tech) => {
+                acc[tech.category] = (acc[tech.category] || 0) + 1;
+                return acc;
+            }, {});
+
+            const techStackChartCtx = document.getElementById('techStackChart').getContext('2d');
+            new Chart(techStackChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryCounts),
+                    datasets: [{
+                        label: '技術分類',
+                        data: Object.values(categoryCounts),
+                        backgroundColor: ['#0077b6', '#00b4d8', '#90e0ef', '#caf0f8'],
+                        borderColor: '#f0f9ff',
+                        borderWidth: 4,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#475569',
+                                padding: 20,
+                                font: { size: 14 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                      return label.join(' ');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const architectureData = {
+                'assets/': '存放 SCSS 樣式、圖片和字體等靜態資源。',
+                'components/': '存放可重用的 Vue 組件，是 UI 的基本構成單位。',
+                'layouts/': '定義應用的整體佈局，如頁首、側邊欄和頁尾。',
+                'middleware/': '存放路由中間件，用於頁面訪問前的權限驗證。',
+                'pages/': '存放頁面級組件，其目錄結構自動生成應用路由。',
+                'plugins/': '存放需要注入到全域 Vue 實例的插件。',
+                'store/': '存放 Vuex 狀態管理檔案，按模組劃分業務狀態。',
+                'nuxt.config.js': '專案的核心設定檔，定義模組、代理和構建規則。'
+            };
+            
+            const architectureFlowContainer = document.getElementById('architecture-flow');
+            Object.entries(architectureData).forEach(([key, value], index, arr) => {
+                const isLast = index === arr.length - 1;
+                const node = document.createElement('div');
+                node.className = 'flex flex-col items-center';
+                node.innerHTML = `
+                    <div class="bg-[#00b4d8] text-white font-mono font-semibold py-2 px-5 rounded-lg shadow-md">
+                        ${key}
+                    </div>
+                    <div class="text-center text-slate-600 mt-2 mb-4 max-w-md">${value}</div>
+                    ${!isLast ? '<div class="text-2xl text-[#90e0ef]">↓</div>' : ''}
+                `;
+                architectureFlowContainer.appendChild(node);
+            });
+        });
+    </script>
+</body>
+</html>
