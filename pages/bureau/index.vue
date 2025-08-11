@@ -5,7 +5,7 @@ div(v-cloak)
       .d-flex.justify-content-between.w-100.my-auto
         .d-flex
           div {{ site }} 監控輪播 - {{ currentCarouselTitle }}
-          lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+          //- lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         .d-flex.align-items-center
           b-spinbutton(
             v-model="secs",
