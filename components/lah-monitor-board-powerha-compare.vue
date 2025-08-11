@@ -255,7 +255,6 @@ export default {
           const topOffset = this.$el.getBoundingClientRect().top
           const newHeight = window.innerHeight - topOffset - this.maxHeightOffset
           this.maxHeight = Math.max(200, newHeight)
-          this.$utils.warn(topOffset, newHeight, this.maxHeight)
         }
       })
     }
