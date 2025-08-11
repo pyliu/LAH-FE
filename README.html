@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAH-FE 互動式分析報告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Slate and Sky -->
+    <!-- Application Structure Plan: The application is designed as a single-page dashboard with a fixed top navigation bar for easy access to different sections (Overview, Tech Stack, Architecture, Code Patterns). This thematic structure allows users to explore the report's content non-linearly, which is more intuitive than a static document. The core interaction is the file-tree explorer in the 'Architecture' section, allowing users to click on directories to understand their purpose, making the complex project structure digestible. This design prioritizes user-driven exploration and quick information retrieval over a passive reading experience. -->
+    <!-- Visualization & Content Choices: Report Info: Tech Stack -> Goal: Compare -> Viz: Card Grid & Donut Chart -> Interaction: Hover on cards, hover on chart segments -> Justification: Cards provide organized detail for each technology. A donut chart gives a quick visual summary of the technology categories' proportions. | Report Info: Project Directory Structure -> Goal: Organize/Inform -> Presentation: Interactive HTML list styled as a file tree -> Interaction: Click to show details -> Justification: This transforms a boring list into an engaging, explorable diagram, making it easier to understand the project's layout. | Report Info: Code Conventions -> Goal: Inform -> Presentation: Accordion-style list -> Interaction: Click to expand -> Justification: Hides complexity by default, allowing users to focus on one concept at a time. All implemented using Tailwind and Chart.js Canvas. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', '微軟正黑體', 'Microsoft JhengHei';
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-700">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-slate-800">LAH-FE 分析報告</span>
+                </div>
+                <nav class="hidden md:flex md:space-x-8">
+                    <a href="#overview" class="text-gray-600 hover:text-sky-600 font-medium">總覽</a>
+                    <a href="#tech-stack" class="text-gray-600 hover:text-sky-600 font-medium">技術棧</a>
+                    <a href="#architecture" class="text-gray-600 hover:text-sky-600 font-medium">專案結構</a>
+                    <a href="#code-patterns" class="text-gray-600 hover:text-sky-600 font-medium">程式碼模式</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <section id="overview" class="mb-20">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">專案概觀</h2>
+            <p class="text-lg text-slate-600 leading-relaxed max-w-4xl">
+                這是一個基於 **Nuxt.js v2** 的前端應用程式，專案名稱為 `lah-fe`，推測為「地政資訊中心前端 (Land Administration Hub - Frontend)」。從其功能與結構分析，此系統是一個為地政業務設計的內部智慧管控平台，整合了案件管理、系統監控、數據統計及使用者權限等多項核心功能。專案的技術選型與程式碼風格反映了約 2017 年的主流實踐，以 Vue 2 的選項式 API 為主，架構清晰，為後續維護奠定了良好基礎。
+            </p>
+        </section>
+
+        <section id="tech-stack" class="mb-20">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">技術棧</h2>
+            <p class="text-lg text-slate-600 mb-10 max-w-4xl">
+                此專案採用了一套成熟且經過驗證的技術組合，以 Nuxt.js 為核心，搭配 BootstrapVue 進行 UI 開發。這套組合在當時提供了高效的開發體驗與穩定的伺服器端渲染能力。以下是專案所使用的主要技術及其分佈。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <!-- Tech stack data will be injected here -->
+                </div>
+                <div class="chart-container">
+                    <canvas id="techStackChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="mb-20">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">專案結構</h2>
+             <p class="text-lg text-slate-600 mb-10 max-w-4xl">
+                專案遵循 Nuxt.js 的標準目錄結構，職責劃分明確。這種約定優於配置的方式，讓開發者能快速理解不同檔案的功能定位。您可以點擊下方的目錄或檔案名稱，來查看其詳細說明。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-4 bg-white p-4 rounded-lg border border-slate-200">
+                    <ul id="file-tree" class="text-base">
+                        <!-- File tree will be injected here -->
+                    </ul>
+                </div>
+                <div class="md:col-span-8">
+                    <div id="architecture-details" class="sticky top-24 bg-white p-6 rounded-lg border border-slate-200 shadow-sm min-h-[300px]">
+                        <h3 id="details-title" class="text-xl font-bold text-slate-800 mb-2">點擊左側項目查看說明</h3>
+                        <p id="details-content" class="text-slate-600 leading-relaxed">請從左側的專案結構中選擇一個目錄或檔案，以在此處查看其詳細的功能說明。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="code-patterns" class="mb-20">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">程式碼模式與慣例</h2>
+            <p class="text-lg text-slate-600 mb-10 max-w-4xl">
+                專案在長期開發下形成了一套穩定且一致的編碼慣例。這些模式不僅確保了程式碼的可讀性，也提高了團隊協作的效率。
+            </p>
+            <div id="patterns-container" class="space-y-4">
+                <!-- Code patterns will be injected here -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2025 LAH-FE 互動式分析報告</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const techStackData = [
+                { name: 'Nuxt.js', version: '~2.15.8', desc: '核心框架', category: '框架' },
+                { name: 'Vue.js', version: '2.6.14', desc: 'JS 框架', category: '框架' },
+                { name: 'BootstrapVue', version: '~2.21.2', desc: 'UI 框架', category: 'UI' },
+                { name: '@nuxtjs/axios', version: '~5.13.6', desc: 'HTTP 客戶端', category: '工具庫' },
+                { name: 'SASS/SCSS', version: '~1.32.13', desc: 'CSS 預處理器', category: 'UI' },
+                { name: 'vue-chartjs', version: '~3.5.1', desc: '圖表庫', category: 'UI' },
+                { name: 'ESLint', version: '~7.29.0', desc: '程式碼檢查', category: '工具庫' },
+                { name: 'Lodash', version: '~4.17.21', desc: 'JS 工具庫', category: '工具庫' },
+                { name: 'Font Awesome', version: '~5.15.4', desc: '圖示庫', category: 'UI' },
+                { name: 'Express', version: '~4.17.1', desc: '伺服器', category: '後端' },
+                { name: 'PM2', version: '^5.1.0', desc: '程序管理', category: '後端' }
+            ];
+
+            const techContainer = document.querySelector('.grid-cols-2.sm\\:grid-cols-3');
+            techStackData.forEach(tech => {
+                const card = `
+                    <div class="bg-white p-4 rounded-lg border border-slate-200 hover:shadow-md hover:border-sky-300 transition-all duration-300">
+                        <h4 class="font-bold text-slate-800">${tech.name}</h4>
+                        <p class="text-sm text-slate-500">${tech.desc}</p>
+                        <p class="text-xs text-slate-400 mt-2">v${tech.version}</p>
+                    </div>
+                `;
+                techContainer.innerHTML += card;
+            });
+            
+            const categoryCounts = techStackData.reduce((acc, tech) => {
+                acc[tech.category] = (acc[tech.category] || 0) + 1;
+                return acc;
+            }, {});
+
+            const techStackChartCtx = document.getElementById('techStackChart').getContext('2d');
+            new Chart(techStackChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryCounts),
+                    datasets: [{
+                        label: '技術分類',
+                        data: Object.values(categoryCounts),
+                        backgroundColor: [
+                            'rgba(56, 189, 248, 0.7)', // sky-400
+                            'rgba(16, 185, 129, 0.7)', // emerald-500
+                            'rgba(249, 115, 22, 0.7)', // orange-500
+                            'rgba(139, 92, 246, 0.7)', // violet-500
+                            'rgba(239, 68, 68, 0.7)'   // red-500
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#475569',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const architectureData = {
+                'assets/': '存放靜態資源，如 SCSS 樣式檔案、圖片和字體。`main.scss` 是主要的樣式進入點，並在 `_variables.scss` 中定義了顏色等變數，這是一個很好的實踐。',
+                'components/': '存放可重用的 Vue 組件。此專案的組件數量非常龐大，且遵循 `lah-*.vue` 的命名規則，例如 `lah-button.vue`、`lah-reg-case-detail.vue`。這表明專案有著良好的組件化實踐。',
+                'layouts/': '存放應用程式的佈局。`default.vue` 是預設佈局，包含了共用的 `lah-header`、`lah-sidebar` 和 `lah-footer`，定義了整個應用的基本外觀。',
+                'middleware/': '存放路由中間件。例如 `isAdmin.js`、`isInf.js` 用於在進入特定頁面前進行權限驗證，這是保護頁面訪問權限的標準做法。',
+                'pages/': '存放應用的頁面和路由。目錄結構直接對應到 URL 路徑。例如 `pages/reg/case/index.vue` 對應 `/reg/case` 路徑。子目錄如 `reg`、`sur`、`inf`、`admin` 等清楚地劃分了不同的業務模組。',
+                'plugins/': '存放需要注入到 Vue 實例的插件。例如 `fontawesome.js` 用於設定 Font Awesome 圖示，`customize-axios.js` 用於攔截和客製化 Axios 的請求/回應。`global-vue-mixin.js` 提供了全域的 mixin，這在舊專案中很常見。',
+                'store/': '存放 Vuex 狀態管理檔案。採用了模組化的 Vuex store，例如 `inf.js`、`regcase.js`，分別管理不同業務模組的狀態，這有助於大型應用的狀態維護。',
+                'nuxt.config.js': '專案的核心設定檔。定義了 head 標籤、CSS、插件、模組、代理 (proxy) 等。可以看到專案啟用了 `bootstrap-vue/nuxt`、`@nuxtjs/axios` 等模組，並設定了 API 代理來解決跨域問題。'
+            };
+
+            const fileTreeContainer = document.getElementById('file-tree');
+            Object.keys(architectureData).forEach(key => {
+                const isDir = key.endsWith('/');
+                const li = document.createElement('li');
+                li.className = 'mb-1';
+                li.innerHTML = `
+                    <a href="#" class="flex items-center p-1 rounded-md hover:bg-sky-100 cursor-pointer" data-key="${key}">
+                        <span class="mr-2">${isDir ? '📁' : '📄'}</span>
+                        <span class="font-mono ${isDir ? 'font-semibold' : ''}">${key}</span>
+                    </a>
+                `;
+                fileTreeContainer.appendChild(li);
+            });
+
+            const detailsTitle = document.getElementById('details-title');
+            const detailsContent = document.getElementById('details-content');
+
+            fileTreeContainer.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = e.target.closest('a');
+                if (target) {
+                    const key = target.dataset.key;
+                    detailsTitle.textContent = key;
+                    detailsContent.textContent = architectureData[key];
+                    
+                    document.querySelectorAll('#file-tree a').forEach(a => a.classList.remove('bg-sky-200'));
+                    target.classList.add('bg-sky-200');
+                }
+            });
+
+            const patternsData = [
+                { title: '選項式 API (Options API)', content: '所有 `.vue` 組件都使用 Vue 2 的標準寫法，將 `data`、`methods`、`computed`、`watch`、`created` 等選項分開定義。' },
+                { title: 'Mixin 的使用', content: '在 `plugins/global-vue-mixin.js` 中定義了全域的 mixin，並且在 `components` 目錄下有名為 `*-base.js` 的檔案（如 `lah-reg-case-base.js`），這很可能是被多個相關組件共用的 mixin，用來抽取重複的邏輯。' },
+                { title: 'BootstrapVue 的深度使用', content: '從組件庫來看，`b-table`、`b-card`、`b-modal`、`b-form-*` 等組件被廣泛使用，是構成 UI 的主要元素。' },
+                { title: 'API 請求', content: '透過 `this.$axios` 發起 API 請求，並在 `plugins/customize-axios.js` 中統一處理錯誤和 loading 狀態，這是一個很好的集中管理機制。' },
+                { title: '狀態管理 (Vuex)', content: '`store/index.js` 處理全域狀態，例如使用者身份驗證 (`auth`)。`store/inf.js`, `store/regcase.js` 等模組化檔案處理特定業務的狀態，職責分明。Actions 用於處理非同步操作，Mutations 用於同步修改 state，遵循 Vuex 的標準流程。' }
+            ];
+
+            const patternsContainer = document.getElementById('patterns-container');
+            patternsData.forEach((pattern, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-white border border-slate-200 rounded-lg overflow-hidden';
+                div.innerHTML = `
+                    <button class="w-full text-left p-4 flex justify-between items-center hover:bg-slate-50 focus:outline-none" data-index="${index}">
+                        <span class="font-semibold text-lg text-slate-800">${pattern.title}</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                    </button>
+                    <div class="hidden p-4 border-t border-slate-200">
+                        <p class="text-slate-600">${pattern.content}</p>
+                    </div>
+                `;
+                patternsContainer.appendChild(div);
+            });
+
+            patternsContainer.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (button) {
+                    const content = button.nextElementSibling;
+                    const arrow = button.querySelector('span:last-child');
+                    
+                    const isHidden = content.classList.contains('hidden');
+                    if(isHidden) {
+                        content.classList.remove('hidden');
+                        arrow.classList.add('rotate-180');
+                    } else {
+                        content.classList.add('hidden');
+                        arrow.classList.remove('rotate-180');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
