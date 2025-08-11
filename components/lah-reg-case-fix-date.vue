@@ -120,7 +120,8 @@ export default {
       const dd = new Date(this.deliveredDate)
       // RM52_TYPE === '1' => Month
       const factor = this.parentData.RM52_TYPE === '1' ? 30 : 1
-      const days = factor * (parseInt(this.parentData.RM52_DAY) || 15)
+      // don't follow this.parentData.RM52_DAY, fixed to 20
+      const days = factor * 20
       dd.setDate(dd.getDate() + days)
       /**
        * 'en-ZA' => 2020/08/19 (year/month/day)

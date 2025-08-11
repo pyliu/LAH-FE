@@ -9,7 +9,7 @@ div
           h5 資料庫搜尋說明
           ul
             li 搜尋補正、補正初核案件的資料
-            li 補正期限為15個日曆天
+            li 補正期限為20個日曆天(地政系統設定是15天，但蘆竹所提案修正為20天)
             li 設定「通知送達日期」後將自動計算「送達期滿日期」及「可駁回日期」
           hr
           h5 請參照下列步驟搜尋
@@ -49,7 +49,7 @@ div
           no-badge
         )
 
-  lah-transition(class="p-0 py-2"): b-tags.border-0.mt-n4(
+  lah-transition: b-tags.border-0.mt-n4.p-0.py-2(
     v-if="advTags.length > 0",
     :value="advTags",
     @input="handleTagsChange",
