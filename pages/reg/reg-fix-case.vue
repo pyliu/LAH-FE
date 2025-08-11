@@ -18,13 +18,19 @@ div
             li 點擊 #[lah-fa-icon(icon="sync" variant="muted") 重新搜尋]
 
       .d-flex.small
+        a.small.text-muted.mr-2.align-self-center(
+          href="#",
+          @click.prevent="resetAdvSearch",
+          title="重新設定為預設篩選選項",
+          style="font-size: 0.85rem;"
+        ) 重設
         lah-button.mr-1(
           icon="search-plus",
           size="lg",
-          title="開啟進階搜尋視窗",
+          title="開啟進階篩選視窗",
           @click="$refs.searchPlus.show()",
           :disabled="!dataReady"
-        ) 進階搜尋
+        ) 進階篩選
         lah-countdown-button(
           ref="countdown"
           title="立即重新讀取"
@@ -43,18 +49,24 @@ div
           no-badge
         )
 
-  lah-transition: b-tags.border-0.mt-n4(
+  lah-transition(class="p-0 py-2"): b-tags.border-0.mt-n4(
     v-if="advTags.length > 0",
-    v-model="advTags",
-    placeholder="",
-    tag-variant="info",
+    :value="advTags",
+    @input="handleTagsChange",
+    add-button-variant="white",
+    add-button-text="",
     tag-pills,
     no-outer-focus,
-    no-add-on-enter,
-    no-tag-remove,
-    add-button-variant="white"
-    add-button-text=""
+    no-add-on-enter
   )
+    template(#default="{ tags, removeTag }")
+      b-tag(
+        v-for="tag in tags",
+        :key="tag",
+        :variant="getTagVariant(tag)",
+        :title="tag",
+        @remove="removeTag(tag)"
+      ) {{ tag }}
 
   lah-pagination(
     v-model="pagination"
@@ -124,58 +136,54 @@ div
 
   b-modal(
     ref="searchPlus",
-    title="進階搜尋",
     hide-footer
   )
+    template(#modal-title)
+      .d-flex.align-items-center
+        span 進階篩選
+        small.text-muted.ml-2 按住 Ctrl 鍵進行選擇/取消
     .center.d-flex
-      //- b-input-group(prepend="年")
-      //-   b-select(
-      //-     v-model="advOpts.caseYear",
-      //-     :options="advOpts.caseYearOpts",
-      //-     title="收件年"
-      //-   )
       b-input-group.mr-1(prepend="　收件字")
-        //- b-input.mx-1(v-model="advOpts.caseYear", placeholder="... 收件年 ...", trim)
-        b-select(
+        b-form-select(
           v-model="advOpts.caseWord",
           :options="advOpts.caseWordOpts",
-          title="收件字"
+          title="收件字",
+          multiple,
+          :select-size="4"
         )
-      b-input-group(prepend="　收件號")
-        //- b-input.mr-1(v-model="advOpts.caseWord", placeholder="... 收件字 ...", trim)
+      b-input-group.input-group-height-hack(prepend="　收件號")
         b-input(v-model="advOpts.caseNum", placeholder="... 收件號 ...", trim)
-
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="登記原因"): b-select(
+      b-input-group.mr-1(prepend="登記原因"): b-form-select(
         v-model="advOpts.caseReason",
         :options="advOpts.caseReasonOpts",
-        title="登記原因"
+        title="登記原因",
+        multiple,
+        :select-size="4"
       )
-      b-input-group(prepend="辦理情形"): b-select(
+      b-input-group(prepend="辦理情形"): b-form-select(
         v-model="advOpts.caseState",
         :options="advOpts.caseStateOpts",
-        title="辦理情形"
+        title="辦理情形",
+        multiple,
+        :select-size="4"
       )
-
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="通知補正"): b-select(
+      b-input-group.mr-1(prepend="通知補正"): b-form-select(
         v-model="advOpts.caseFixDate",
         :options="advOpts.caseFixDateOpts",
-        title="通知補正日期"
+        title="通知補正日期",
+        multiple,
+        :select-size="4"
       )
-      b-input-group(prepend="初審人員"): b-select(
+      b-input-group(prepend="初審人員"): b-form-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
-        title="初審人員"
+        title="初審人員",
+        multiple,
+        :select-size="4"
       )
-
-    //- .center.d-flex
-    //-   b-input-group(prepend="補正期滿"): b-select(
-    //-     v-model="advOpts.caseFixDeadline",
-    //-     :options="advOpts.caseFixDeadlineOpts",
-    //-     title="補正期滿日期"
-    //-   )
-
+    hr
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -222,15 +230,6 @@ export default {
         label: '通知補正',
         sortable: true
       },
-      // {
-      //   key: '補正期滿日期',
-      //   label: '補正期滿',
-      //   sortable: true
-      // },
-      // {
-      //   key: '補正日期',
-      //   sortable: true
-      // },
       {
         key: 'lah-reg-case-fix-date',
         label: '其他設定',
@@ -238,34 +237,38 @@ export default {
       }
     ],
     maxHeight: 600,
+    tagColorMap: {
+      年: 'secondary',
+      字: 'primary',
+      號: 'info',
+      登記原因: 'success',
+      辦理情形: 'warning',
+      初審人員: 'danger',
+      通知補正: 'dark'
+    },
     advOpts: {
       caseYear: '',
       caseYearOpts: [],
-      caseWord: '',
+      caseWord: [],
       caseWordOpts: [],
       caseNum: '',
-      caseReason: '',
+      caseReason: [],
       caseReasonOpts: [],
-      caseState: '',
+      caseState: [],
       caseStateOpts: [],
-      casePreliminator: '',
+      casePreliminator: [],
       casePreliminatorOpts: [],
-      caseFixDate: '',
+      caseFixDate: [],
       caseFixDateOpts: [],
-      caseFixDeadline: '',
+      caseFixDeadline: [],
       caseFixDeadlineOpts: []
     }
   }),
-  // only worked at page level component
-  // async asyncData (nuxt) {},
   fetchOnServer: false,
   fetch () {
     if (this.isBusy) {
       this.warning('讀取中 ... 請稍後')
     } else {
-      /**
-       * Can not use FE cache for this page since I manipulate the bakedData at API side
-       */
       this.isBusy = true
       this.committed = false
       this.$axios.post(this.$consts.API.JSON.PREFETCH, {
@@ -302,106 +305,63 @@ export default {
     cacheKey () { return 'query_reg_fix_case' },
     foundText () { return `找到 ${this.queryCount} 筆「補正」、「補正初核」案件資料` },
     filterRows () {
-      if (this.advTags.length > 0) {
-        let pipelineItems = this.rows
-        const checkNum = !this.$utils.empty(this.advOpts.caseNum)
-        if (checkNum) {
-          pipelineItems = pipelineItems?.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseNum) !== null
-          })
-        }
-        const checkWord = !this.$utils.empty(this.advOpts.caseWord)
-        if (checkWord) {
-          if (this.advOpts.caseWord === '本所關注案件') {
-            const alphabet = this.site[1]
-            const number = alphabet.charCodeAt(0) - 64
-            const matchRegex = /年\s?\(?.+\)?\s?第/gm
-            pipelineItems = pipelineItems?.filter((item) => {
-              let extractedWord = item.RM02 ? item.RM02 : (item.收件字號.match(matchRegex) ? item.收件字號.match(matchRegex)[0] : '')
-              extractedWord = extractedWord?.replace(/[()\s年第]/gm, '')
-              // use regex to detect the local case word
-              const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
-              if (localCaseRegex.test(extractedWord)) {
-                return true
-              } else if (extractedWord.endsWith(`${alphabet}1`)) {
-                return true
-              } else if (extractedWord.startsWith(`H${number}`)) {
-                return true
-              }
-              return false
-            })
-          } else {
-            pipelineItems = pipelineItems?.filter((item) => {
-              return item.收件字號.match(this.advOpts.caseWord) !== null
-            })
-          }
-        }
-        const checkYear = !this.$utils.empty(this.advOpts.caseYear)
-        if (checkYear) {
-          pipelineItems = pipelineItems?.filter((item) => {
-            return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
-          })
-        }
-        const checkReason = !this.$utils.empty(this.advOpts.caseReason)
-        if (checkReason) {
-          pipelineItems = pipelineItems?.filter((item) => {
-            return item.登記原因 === this.advOpts.caseReason
-          })
-        }
-        const checkState = !this.$utils.empty(this.advOpts.caseState)
-        if (checkState) {
-          pipelineItems = pipelineItems?.filter((item) => {
-            return item.辦理情形 === this.advOpts.caseState
-          })
-        }
-        const checkPreliminator = !this.$utils.empty(this.advOpts.casePreliminator)
-        if (checkPreliminator) {
-          pipelineItems = pipelineItems?.filter((item) => {
-            return item.初審人員 === this.advOpts.casePreliminator
-          })
-        }
-        const checkFixDate = !this.$utils.empty(this.advOpts.caseFixDate)
-        if (checkFixDate) {
-          pipelineItems = pipelineItems?.filter((item) => {
-            return item.通知補正日期 === this.advOpts.caseFixDate
-          })
-        }
-        const checkFixDeadline = !this.$utils.empty(this.advOpts.caseFixDeadline)
-        if (checkFixDeadline) {
-          pipelineItems = pipelineItems?.filter((item) => {
-            return item.補正期滿日期 === this.advOpts.caseFixDeadline
-          })
-        }
-        return pipelineItems
+      if (this.advTags.length === 0) {
+        return this.rows
       }
-      return this.rows
+      let pipelineItems = [...this.rows]
+      const checkNum = !this.$utils.empty(this.advOpts.caseNum)
+      if (checkNum) {
+        pipelineItems = pipelineItems.filter(item => item.收件字號.includes(this.advOpts.caseNum))
+      }
+      const checkWord = this.advOpts.caseWord.length > 0
+      if (checkWord) {
+        pipelineItems = pipelineItems.filter((item) => {
+          return this.advOpts.caseWord.includes(item.RM02)
+        })
+      }
+      const checkYear = !this.$utils.empty(this.advOpts.caseYear)
+      if (checkYear) {
+        pipelineItems = pipelineItems.filter(item => item.收件字號.startsWith(`${this.advOpts.caseYear}年`))
+      }
+      const checkReason = this.advOpts.caseReason.length > 0
+      if (checkReason) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseReason.includes(item.登記原因))
+      }
+      const checkState = this.advOpts.caseState.length > 0
+      if (checkState) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseState.includes(item.辦理情形))
+      }
+      const checkPreliminator = this.advOpts.casePreliminator.length > 0
+      if (checkPreliminator) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.casePreliminator.includes(item.初審人員))
+      }
+      const checkFixDate = this.advOpts.caseFixDate.length > 0
+      if (checkFixDate) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseFixDate.includes(item.通知補正日期))
+      }
+      const checkFixDeadline = this.advOpts.caseFixDeadline.length > 0
+      if (checkFixDeadline) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseFixDeadline.includes(item.補正期滿日期))
+      }
+      return pipelineItems
     },
     advTags () {
       const tags = []
-      if (!this.$utils.empty(this.advOpts.caseYear)) {
-        tags.push(`年：${this.advOpts.caseYear}`)
+      const generateTags = (prefix, values) => {
+        if (Array.isArray(values) && values.length > 0) {
+          values.forEach(val => tags.push(`${prefix}：${val}`))
+        } else if (!Array.isArray(values) && !this.$utils.empty(values)) {
+          tags.push(`${prefix}：${values}`)
+        }
       }
-      if (!this.$utils.empty(this.advOpts.caseWord)) {
-        tags.push(`字：${this.advOpts.caseWord}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseNum)) {
-        tags.push(`號：${this.advOpts.caseNum}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseReason)) {
-        tags.push(`登記原因：${this.advOpts.caseReason}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseState)) {
-        tags.push(`辦理情形：${this.advOpts.caseState}`)
-      }
-      if (!this.$utils.empty(this.advOpts.casePreliminator)) {
-        tags.push(`初審人員：${this.advOpts.casePreliminator}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseFixDate)) {
-        tags.push(`通知補正：${this.advOpts.caseFixDate}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseFixDeadline)) {
-        tags.push(`補正期滿：${this.advOpts.caseFixDeadline}`)
-      }
+      generateTags('年', this.advOpts.caseYear)
+      generateTags('字', this.advOpts.caseWord)
+      generateTags('號', this.advOpts.caseNum)
+      generateTags('登記原因', this.advOpts.caseReason)
+      generateTags('辦理情形', this.advOpts.caseState)
+      generateTags('初審人員', this.advOpts.casePreliminator)
+      generateTags('通知補正', this.advOpts.caseFixDate)
+      generateTags('補正期滿', this.advOpts.caseFixDeadline)
       return tags
     }
   },
@@ -411,41 +371,30 @@ export default {
         ...{
           caseYear: '',
           caseYearOpts: [],
-          caseWord: '',
+          caseWord: [],
           caseWordOpts: [],
           caseNum: '',
-          caseReason: '',
+          caseReason: [],
           caseReasonOpts: [],
-          caseState: '',
+          caseState: [],
           caseStateOpts: [],
-          casePreliminator: '',
+          casePreliminator: [],
           casePreliminatorOpts: [],
-          caseFixDate: '',
+          caseFixDate: [],
           caseFixDateOpts: [],
-          caseFixDeadline: '',
+          caseFixDeadline: [],
           caseFixDeadlineOpts: []
         }
       }
       if (val) {
-        this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].sort()
-        this.advOpts.caseStateOpts = [...new Set(val.map(item => item.辦理情形))].sort()
-        this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].sort()
-        this.advOpts.caseYearOpts = [...new Set(val.map(item => item.RM01))].sort()
-        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].sort()
-        this.advOpts.caseFixDateOpts = [...new Set(val.map(item => item.通知補正日期))].sort()
-        this.advOpts.caseFixDeadlineOpts = [...new Set(val.map(item => item.補正期滿日期))].sort()
-
-        this.advOpts.caseReasonOpts.unshift('')
-        this.advOpts.caseStateOpts.unshift('')
-        this.advOpts.casePreliminatorOpts.unshift('')
-        this.advOpts.caseYearOpts.unshift('')
-        this.advOpts.caseFixDateOpts.unshift('')
-        this.advOpts.caseFixDeadlineOpts.unshift('')
-
-        // set default to own case option
-        this.advOpts.caseWordOpts.unshift('本所關注案件')
-        this.advOpts.caseWordOpts.unshift('')
-        this.advOpts.caseWord = '本所關注案件'
+        this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].filter(item => !this.$utils.empty(item)).sort()
+        this.advOpts.caseStateOpts = [...new Set(val.map(item => item.辦理情形))].filter(item => !this.$utils.empty(item)).sort()
+        this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].filter(item => !this.$utils.empty(item)).sort()
+        this.advOpts.caseYearOpts = [...new Set(val.map(item => item.RM01))].filter(item => !this.$utils.empty(item)).sort()
+        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].filter(item => !this.$utils.empty(item)).sort()
+        this.advOpts.caseFixDateOpts = [...new Set(val.map(item => item.通知補正日期))].filter(item => !this.$utils.empty(item)).sort()
+        this.advOpts.caseFixDeadlineOpts = [...new Set(val.map(item => item.補正期滿日期))].filter(item => !this.$utils.empty(item)).sort()
+        this.setDefaultCaseWords()
       }
     }
   },
@@ -453,6 +402,71 @@ export default {
     this.maxHeight = parseInt(window.innerHeight - 145)
   },
   methods: {
+    getTagVariant (tag) {
+      const [prefix] = tag.split('：')
+      return this.tagColorMap[prefix.trim()] || 'secondary'
+    },
+    handleTagsChange (tags) {
+      if (tags.length < this.advTags.length) {
+        const removedTag = this.advTags.find(t => !tags.includes(t))
+        if (removedTag) {
+          this.removeAdvTag(removedTag)
+        }
+      }
+    },
+    removeAdvTag (tag) {
+      const [prefix, value] = tag.split('：')
+      const trimmedValue = value?.trim()
+      if (!prefix || !trimmedValue) {
+        return
+      }
+      switch (prefix.trim()) {
+        case '年':
+          this.advOpts.caseYear = ''
+          break
+        case '字':
+          this.advOpts.caseWord = this.advOpts.caseWord.filter(v => v !== trimmedValue)
+          break
+        case '號':
+          this.advOpts.caseNum = ''
+          break
+        case '登記原因':
+          this.advOpts.caseReason = this.advOpts.caseReason.filter(v => v !== trimmedValue)
+          break
+        case '辦理情形':
+          this.advOpts.caseState = this.advOpts.caseState.filter(v => v !== trimmedValue)
+          break
+        case '初審人員':
+          this.advOpts.casePreliminator = this.advOpts.casePreliminator.filter(v => v !== trimmedValue)
+          break
+        case '通知補正':
+          this.advOpts.caseFixDate = this.advOpts.caseFixDate.filter(v => v !== trimmedValue)
+          break
+        case '補正期滿':
+          this.advOpts.caseFixDeadline = this.advOpts.caseFixDeadline.filter(v => v !== trimmedValue)
+          break
+      }
+    },
+    setDefaultCaseWords () {
+      if (!this.dataReady) {
+        this.advOpts.caseWord = []
+        return
+      }
+      const defaultCaseWords = new Set()
+      const allItems = this.rows || []
+      allItems.forEach((item) => {
+        const extractedWord = item.RM02
+        if (extractedWord) {
+          const alphabet = this.site[1]
+          const number = alphabet.charCodeAt(0) - 64
+          const localCaseRegex = new RegExp(`${this.site}[0-9]{1,2}`, 'gim')
+          if (localCaseRegex.test(extractedWord) || extractedWord.endsWith(`${alphabet}1`) || extractedWord.startsWith(`H${number}`)) {
+            defaultCaseWords.add(extractedWord)
+          }
+        }
+      })
+      this.advOpts.caseWord = [...defaultCaseWords]
+    },
     reload () {
       this.forceReload = true
       this.$fetch()
@@ -473,21 +487,29 @@ export default {
     resetAdvSearch () {
       this.advOpts = {
         ...this.advOpts,
-        ...{
-          caseYear: '',
-          caseWord: '本所關注案件',
-          caseNum: '',
-          caseReason: '',
-          caseState: '',
-          casePreliminator: '',
-          caseFixDate: '',
-          caseFixDeadline: ''
-        }
+        caseYear: '',
+        caseWord: [],
+        caseNum: '',
+        caseReason: [],
+        caseState: [],
+        casePreliminator: [],
+        caseFixDate: [],
+        caseFixDeadline: []
       }
+      this.setDefaultCaseWords()
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.input-group-height-hack {
+  align-self: stretch;
+}
+.input-group-height-hack::v-deep .form-control {
+  height: 100%;
+}
+::v-deep .b-form-tag {
+  font-size: 85%;
+}
 </style>
