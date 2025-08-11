@@ -63,7 +63,7 @@
 
   lah-transition: .d-flex.justify-content-end.align-items-center.p-1.mt-1(v-if="!$utils.empty(deliveredDate)")
     b-badge.p-2.mr-2(pill, :class="classes") 調整到期日期：{{ dueDate }}
-    b-badge.p-2(pill, :class="classes") 預計可駁回日：{{ rejectDate }}
+    b-badge.p-2(pill, :class="classes") 可駁回日期：{{ rejectDate }}
 </template>
 
 <script>
