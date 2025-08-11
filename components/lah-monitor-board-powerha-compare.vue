@@ -95,25 +95,23 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
 <script>
 import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
-import { HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
 import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-content.vue'
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
-// 1. 在此明確地引入 lah-monitor-board-raw 組件
 import LahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import { HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
 
 export default {
   name: 'LahMonitorBoardPowerhaCompare',
   components: {
     LahPowerhaReportCell,
     LahPowerhaHelpContent,
-    // 2. 在此註冊 lah-monitor-board-raw 組件
     LahMonitorBoardRaw
   },
   mixins: [lahMonitorBoardBase],
   props: {
     showHeader: { type: Boolean, default: true },
     footer: { type: Boolean, default: false },
-    maxHeightOffset: { type: Number, default: 170 }
+    maxHeightOffset: { type: Number, default: 125 }
   },
   data: () => ({
     header: '資料庫 PowerHA',
@@ -125,7 +123,10 @@ export default {
       p8_52: {}
     },
     reportData: [],
-    maxHeight: 600
+    maxHeight: 600,
+    resizeObserver: null,
+    // 修改說明：新增 zoomDetectorFrame 屬性來存放 iframe 實例
+    zoomDetectorFrame: null
   }),
   computed: {
     reportFields () {
@@ -173,7 +174,7 @@ export default {
         return 'N/A'
       }
       try {
-        const date = new Date(this.headP8_51.timestamp * 1000) // 將 UNIX 時間戳轉換為毫秒
+        const date = new Date(this.headP8_51.timestamp * 1000)
         const year = date.getFullYear()
         const month = String(date.getMonth() + 1).padStart(2, '0')
         const day = String(date.getDate()).padStart(2, '0')
@@ -246,14 +247,67 @@ export default {
   },
   mounted () {
     this.reloadMs = (15 * 60 + this.$utils.rand(60)) * 1000
-    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
-    // monitor board usually use footer to control timer to reload; but this one is special
+
+    // 1. 高度計算函式
+    this.updateMaxHeight = () => {
+      this.$nextTick(() => {
+        if (this.$el?.getBoundingClientRect) {
+          const topOffset = this.$el.getBoundingClientRect().top
+          const newHeight = window.innerHeight - topOffset - this.maxHeightOffset
+          this.maxHeight = Math.max(200, newHeight)
+          this.$utils.warn(topOffset, newHeight, this.maxHeight)
+        }
+      })
+    }
+    // 2. Debounced 版本的函式
+    this.debouncedUpdateHeight = this.$utils.debounce(this.updateMaxHeight, 150)
+    // 3. ResizeObserver
+    this.resizeObserver = new ResizeObserver(this.debouncedUpdateHeight)
+    this.resizeObserver.observe(this.$el)
+    // 4. 'resize' 事件監聽
+    window.addEventListener('resize', this.debouncedUpdateHeight)
+
+    // 5. 新增：建立並設定隱藏的 iframe 用於偵測縮放
+    this.zoomDetectorFrame = document.createElement('iframe')
+    // 設定樣式使其完全不可見且不影響佈局
+    const frameStyle = this.zoomDetectorFrame.style
+    frameStyle.position = 'absolute'
+    frameStyle.top = '-9999px'
+    frameStyle.left = '-9999px'
+    frameStyle.width = '100%'
+    frameStyle.height = '100%'
+    frameStyle.border = 'none'
+    frameStyle.opacity = '0'
+    frameStyle.pointerEvents = 'none' // 避免攔截滑鼠事件
+    // 附加到元件 DOM 中
+    this.$el.appendChild(this.zoomDetectorFrame)
+    // 監聽 iframe 內部的 resize 事件，這是偵測縮放的關鍵
+    this.zoomDetectorFrame.contentWindow.addEventListener('resize', this.debouncedUpdateHeight)
+    // 6. 立即執行一次以設定初始高度
+    this.updateMaxHeight()
+
     if (!this.footer) {
       this.reloadTimer = setInterval(() => { this.reload() }, this.reloadMs)
     }
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
+    // 1. 移除 'resize' 事件監聽器
+    window.removeEventListener('resize', this.debouncedUpdateHeight)
+    // 2. 停止 ResizeObserver
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+    }
+    // 3. 新增：清理 iframe 相關的資源
+    if (this.zoomDetectorFrame) {
+      // 移除 iframe 上的事件監聽器
+      this.zoomDetectorFrame.contentWindow.removeEventListener('resize', this.debouncedUpdateHeight)
+      // 從 DOM 中移除 iframe
+      if (this.zoomDetectorFrame.parentNode) {
+        this.zoomDetectorFrame.parentNode.removeChild(this.zoomDetectorFrame)
+      }
+      this.zoomDetectorFrame = null
+    }
   },
   methods: {
     processAllNodeData (batch) {

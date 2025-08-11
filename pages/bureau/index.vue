@@ -52,32 +52,13 @@ div(v-cloak)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
-        lah-monitor-board-powerha-compare(:max-height-offset="1.25 * 170")
+        lah-monitor-board-powerha-compare.card-h(:max-height-offset="125")
       b-carousel-slide: template(#img)
-        lah-monitor-board-srmas(
+        lah-monitor-board-srmas.card-h(
           no-carousel,
           @updated="handleMessageUpdated",
           footer
         )
-        //- b-card-group.row-srmas(deck)
-        //-   b-card
-        //-     template(#header): lah-fa-icon(icon="flag", variant="warning")
-        //-       strong SRMAS告警郵件
-        //-     lah-monitor-board-srmas-list(
-        //-       title-text='告警郵件列表',
-        //-       title-icon='triangle-exclamation',
-        //-       variant="warning",
-        //-       :items="warnings"
-        //-     )
-        //-   b-card
-        //-     template(#header): lah-fa-icon(icon="circle-check", regular, variant="success")
-        //-       strong SRMAS回復郵件
-        //-     lah-monitor-board-srmas-list(
-        //-       title-text='回復郵件列表',
-        //-       title-icon='circle-check',
-        //-       variant="success",
-        //-       :items="restores"
-        //-     )
 
   lah-monitor-board-setup-modal(ref="setupModal")
 </template>
@@ -184,18 +165,8 @@ export default {
 .row-sync {
   height: calc((100vh - 120px) / 2) !important;
 }
-::v-deep .row-srmas {
-  // height: calc((100vh - 150px) / 2) !important;
-  // margin-bottom: 15px;
-  .card {
-    .card-body {
-      height: calc((100vh - 250px) / 2);
-      overflow: auto;
-    }
-  }
-}
-.img-mh {
-  max-height: calc((100vh - 100px)) !important;
+.card-h {
+  height: calc(100vh - 120px) !important;
 }
 .card-deck{
   margin-bottom: 15px;
