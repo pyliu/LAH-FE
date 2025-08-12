@@ -5,6 +5,7 @@ client-only
     :items="filteredData",
     :fields="fields",
     :busy="isBusy",
+    :sticky-header="`${maxHeight}px`",
     responsive="sm",
     head-variant="dark",
     primary-key="段代碼",
@@ -72,6 +73,12 @@ export default {
         })
       }
       return this.rows
+    },
+    maxHeight () {
+      if (!this.$isServer && window) {
+        return window.innerHeight - 120
+      }
+      return 600
     }
   },
   watch: {},
