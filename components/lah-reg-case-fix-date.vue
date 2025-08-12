@@ -62,8 +62,8 @@
     .my-auto.text-nowrap.mr-1 通知送達：{{ parentData.REG_FIX_CASE_RECORD.notify_delivered_date }}
 
   lah-transition: .d-flex.justify-content-end.align-items-center.p-1.mt-1(v-if="!$utils.empty(deliveredDate)")
-    b-badge.p-2.mr-2(pill, :class="classes") 調整到期日期：{{ dueDate }}
-    b-badge.p-2(pill, :class="classes") 可駁回日期：{{ rejectDate }}
+    b-badge.p-2.mr-2(pill, :class="overduedBadgeClass") 調整到期日期：{{ dueDate }}
+    b-badge.p-2(pill, :class="allowRejectBadgeClass") 可駁回日期：{{ rejectDate }}
 </template>
 
 <script>
@@ -89,7 +89,8 @@ export default {
     origDataset: {
       id: '',
       delivered: '',
-      deadline: ''
+      deadline: '',
+      note: ''
     }
   }),
   computed: {
@@ -97,7 +98,8 @@ export default {
       return {
         id: this.caseId,
         delivered: this.deliveredDate || '',
-        deadline: this.deadlineDate || ''
+        deadline: this.deadlineDate || '',
+        note: this.note || ''
       }
     },
     deliveredDate () {
@@ -115,6 +117,12 @@ export default {
     },
     deadlineDateChanged () {
       return !this.$utils.empty(this.deadlineDate) && this.defaultDeadlineDate !== this.deadlineDate
+    },
+    note () {
+      return this.parentData.REG_FIX_CASE_RECORD.note
+    },
+    noteChanged () {
+      return !this.$utils.empty(this.note) && this.defaultDeadlineDate !== this.note
     },
     dueDate () {
       if (this.$utils.empty(this.deliveredDate)) {
@@ -150,12 +158,15 @@ export default {
       }
       return 'green'
     },
-    classes () {
+    overduedBadgeClass () {
+      return [`badge-${this.light}`]
+    },
+    allowRejectBadgeClass () {
       switch (this.light) {
-        case 'red': return ['bg-danger', 'text-white', 'font-weight-bold']
-        case 'yellow': return ['bg-warning']
+        case 'red': return ['badge-green']
+        case 'yellow': return ['badge-info']
         default:
-          return ['bg-success', 'text-white']
+          return ['badge-muted']
       }
     },
     editable () {
@@ -201,7 +212,7 @@ export default {
     this.origDataset.id = this.caseId
     this.origDataset.delivered = this.deliveredDate || ''
     this.origDataset.deadline = this.deadlineDate || ''
-    // this.$utils.warn(this.parentData)
+    this.$utils.warn(this.parentData.REG_FIX_CASE_RECORD)
   },
   methods: {
     resetDeadline () {
@@ -270,4 +281,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.badge-red {
+  background-color: var(--danger);
+  color: white;
+  font-weight: bold;
+}
+.badge-yellow {
+  background-color: var(--warning);
+}
+.badge-green {
+  background-color: var(--success);
+  color: white;
+}
+.badge-info {
+  background-color: var(--info);
+  color: white;
+}
+.badge-muted {
+  background-color: var(--secondary);
+  color: white;
+}
 </style>
