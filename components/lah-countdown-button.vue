@@ -6,6 +6,7 @@ lah-button.align-middle(
   :size="size"
   :action="action"
   :busy="busy"
+  :spin="busy"
   :no-icon-gutter="noBadge"
   :disabled="busy"
   @click="$emit('click', $event)"
