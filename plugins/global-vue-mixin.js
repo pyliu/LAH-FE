@@ -668,7 +668,6 @@ Vue.mixin({
     },
     calcStickyHeaderMaxHeight (offset = 0) {
       this.$nextTick(() => {
-        this.$utils.warn(`Offset is ${offset}`)
         if (offset === 0) {
           offset = this.stickyHeaderMaxHeightDefaultOffset
         }
