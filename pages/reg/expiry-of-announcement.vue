@@ -52,7 +52,12 @@ div
     add-button-variant="white"
     add-button-text=""
   )
-  lah-transition(appear): lah-reg-b-table(:busy="isBusy || filtering" :baked-data="filterBakedData" :fields="fields")
+  lah-transition(appear): lah-reg-b-table(
+    :busy="isBusy || filtering"
+    :baked-data="filterBakedData"
+    :fields="fields"
+    :alt-max-height-offset="80"
+  )
   lah-transition.center.h3: lah-fa-icon(
     v-cloak
     v-if="queryCount === 0 && !isBusy"

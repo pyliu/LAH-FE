@@ -53,7 +53,7 @@ b-card(
     )
     lah-reg-b-table(
       :baked-data="raw",
-      :max-height-offset="135"
+      :alt-max-height-offset="135"
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
       no-caption

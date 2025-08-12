@@ -106,16 +106,6 @@ div
     )
   lah-transition
     div(v-if="committed")
-      //- lah-reg-b-table(
-      //-   :busy="isBusy"
-      //-   :baked-data="filterRegBakedData"
-      //-   :fields="regFields"
-      //-   :per-page="perPage"
-      //-   :current-page="currentPage"
-      //-   :caption-append="captionRange"
-      //-   :max-height-offset="160"
-      //-   no-caption
-      //- )
       b-table.text-center(
         v-if="committed"
         id="val-realprice-table"

@@ -7,7 +7,7 @@ div
     :baked-data="rows",
     :fields="fields",
     :busy="isBusy",
-    :max-height-offset="135",
+    :alt-max-height-offset="135",
     :type="tableSize",
     enable-keyword-filter
   )

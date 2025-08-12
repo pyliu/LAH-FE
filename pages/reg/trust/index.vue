@@ -95,7 +95,6 @@ div
       :baked-data="rows"
       :per-page="pagination.perPage"
       :current-page="pagination.currentPage"
-      :max-height-offset="145"
       no-caption
     )
     b-table(

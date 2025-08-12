@@ -244,6 +244,7 @@ export default {
   },
   created () {
     this.prepareReportData = this.$utils.debounce(this.buildReport, 400)
+    this.maxHeightOffset = 125
   },
   mounted () {
     this.reloadMs = (15 * 60 + this.$utils.rand(60)) * 1000

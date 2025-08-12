@@ -281,7 +281,8 @@ export default {
     captionAppend: { type: String, default: '' },
     caseReload: { type: Boolean, default: false },
     small: { type: Boolean, default: true },
-    enableKeywordFilter: { type: Boolean, default: false }
+    enableKeywordFilter: { type: Boolean, default: false },
+    altMaxHeightOffset: { type: Number, default: 0 }
   },
   data: () => ({
     transProps: {
@@ -532,17 +533,17 @@ export default {
         default:
           return [
             {
-              key: 'RM01',
+              key: '收件字號',
               label: '收件字號',
               sortable: this.sort
             },
             {
-              key: 'RM07_1',
+              key: '收件日期',
               label: '收件日期',
               sortable: this.sort
             },
             {
-              key: 'RM09',
+              key: '登記原因',
               label: '登記原因',
               sortable: this.sort
             },
@@ -554,7 +555,7 @@ export default {
       }
     },
     count () {
-      return this.filtered?.length || 0
+      return this.filtered.length
     },
     caption () {
       if (this.mute || this.noCaption) { return '' }
@@ -568,19 +569,41 @@ export default {
   },
   watch: {
     count (val) {
-      this.pagination.count = val
-      this.pagination.currentPage = 1
+      this.pagination = {
+        ...this.pagination,
+        count: val,
+        currentPage: 1
+      }
     },
     'pagination.perPage' (val) {
       this.setCache('lah-reg-b-table-perPage', val)
+    },
+    bakedData (arr) {
+      this.$utils.warn('backedData', arr)
+    },
+    filtered (arr) {
+      this.$utils.warn('filtered', arr)
     }
   },
-  mounted () {
-    if (!this.$isServer && window) {
-      this.getCache('lah-reg-b-table-perPage').then((val) => {
-        this.pagination.perPage = parseInt(val) || 15
-      })
+  created () {
+    if (this.altMaxHeightOffset !== 0) {
+      this.maxHeightOffset = parseInt(this.altMaxHeightOffset) || 125
     }
+  },
+  async mounted () {
+    if (!this.$isServer && window) {
+      const val = await this.getCache('lah-reg-b-table-perPage')
+      this.pagination = {
+        ...this.pagination,
+        perPage: parseInt(val) || 15
+      }
+      // this.pagination.perPage = parseInt(val) || 15
+    }
+    this.$nextTick(() => {
+      // don't know why not triggered in watch
+      this.pagination.count = this.filtered.length
+      this.pagination.currentPage = 1
+    })
   },
   methods: {
     popup (data) {
@@ -656,7 +679,7 @@ export default {
     },
     handleRowSelected (payload) {
       if (payload?.length > 0) {
-        // this.$utils.warn('row selected', payload)
+        this.$utils.warn('row selected', payload)
         this.popup(payload[0])
       }
     }

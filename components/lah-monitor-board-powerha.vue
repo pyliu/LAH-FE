@@ -154,7 +154,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     :title="`${clusterName} P8 51/52 節點回報總覽 - ${headBatchDatetime}`",
     hide-footer
   )
-    lah-monitor-board-powerha-compare(:show-header="false", :max-height-offset="1.25 * 170")
+    lah-monitor-board-powerha-compare(:show-header="false")
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"

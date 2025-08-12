@@ -92,7 +92,7 @@ div
         :per-page="perPage"
         :current-page="currentPage"
         :caption-append="captionRange"
-        :max-height-offset="160"
+        :alt-max-height-offset="60"
         v-if="caseType === 'reg'"
       )
       lah-reg-b-table(
@@ -103,7 +103,7 @@ div
         :per-page="perPage"
         :current-page="currentPage"
         :caption-append="captionRange"
-        :max-height-offset="160"
+        :alt-max-height-offset="60"
       )
     h3(v-else class="text-center"): lah-fa-icon(icon="search" action="breath" variant="primary") 請點擊查詢按鈕
 

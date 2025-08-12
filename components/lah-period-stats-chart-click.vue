@@ -3,7 +3,7 @@ b-card.border-0(no-body)
   lah-reg-b-table(
     v-if="type === 'reg'"
     :bakedData="baked",
-    :max-height-offset="120"
+    :alt-max-height-offset="120"
   )
   .center.h5(v-else) ⚠ 尚不支援測量案件顯示
 </template>

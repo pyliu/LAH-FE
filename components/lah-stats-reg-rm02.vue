@@ -49,14 +49,8 @@ b-card(
     :title="`${rm02} 登記案件列表 ${period}`",
     hide-footer
   )
-    lah-pagination(
-      v-model="pagination",
-      :total-rows="count"
-      :caption="`找到 ${count} 筆資料`"
-    )
     lah-reg-b-table(
       :baked-data="raw",
-      :max-height-offset="135"
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
       no-caption
