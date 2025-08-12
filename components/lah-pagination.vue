@@ -55,6 +55,9 @@ export default {
     },
     pageCount (val) {
       this.$emit('input', { ...this.value, perPage: val })
+    },
+    'value.perPage' (val) {
+      this.pageCount = val
     }
   },
   mounted () {
