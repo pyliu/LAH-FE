@@ -233,8 +233,9 @@ export default {
       },
       {
         key: 'lah-reg-case-fix-date',
-        label: '其他設定',
-        sortable: false
+        label: '送達通知設定',
+        sortable: false,
+        thStyle: { width: '300px' }
       }
     ],
     tagColorMap: {
