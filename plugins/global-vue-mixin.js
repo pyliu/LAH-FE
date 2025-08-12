@@ -666,9 +666,10 @@ Vue.mixin({
         console.error(err)
       }
     },
-    calcStickyHeaderMaxHeight () {
+    calcStickyHeaderMaxHeight (offset = 0) {
       this.$nextTick(() => {
-        this.stickyHeaderMaxHeight = parseInt(window.innerHeight - this.stickyHeaderMaxHeightOffset)
+        this.$utils.empty(offset) && (offset = this.stickyHeaderMaxHeightOffset)
+        this.stickyHeaderMaxHeight = parseInt(window.innerHeight - offset)
         this.$utils.warn(`計算 stickyHeaderMaxHeight ... ${this.stickyHeaderMaxHeight}px`)
       })
     }
