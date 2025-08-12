@@ -90,7 +90,7 @@ div
       selectable,
       select-mode="single",
       selected-variant="success",
-      :sticky-header="`${maxHeight}px`",
+      :sticky-header="`${stickyHeaderMaxHeight}px`",
       :busy="isBusy",
       :items="rows",
       :responsive="'lg'",
@@ -274,7 +274,6 @@ export default {
         sortable: true
       }
     ],
-    maxHeight: 600,
     warnDays: 180
   }),
   async fetch () {
@@ -424,7 +423,7 @@ export default {
     this.modalId = this.$utils?.uuid()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
+    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     reload () {

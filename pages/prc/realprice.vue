@@ -124,7 +124,7 @@ div
         selectable
         select-mode="single"
         selected-variant="success"
-        :sticky-header="`${maxHeight}px`"
+        :sticky-header="`${stickyHeaderMaxHeight}px`"
         :responsive="'lg'"
         :striped="true"
         :hover="true"
@@ -427,7 +427,6 @@ export default {
       operator: '',
       operatorOpts: []
     },
-    maxHeight: 600,
     choosedItem: null
   }),
   fetch () {
@@ -588,7 +587,7 @@ export default {
     }
   },
   async mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 180)
+    this.calcStickyHeaderMaxHeight(180)
     this.perPage = await this.getCache('realprice-perpage') || 20
   },
   methods: {

@@ -258,7 +258,7 @@
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue';
+import lahUserCard from '~/components/lah-user-card.vue'
 export default {
   emit: ['count-changed'],
   name: 'LahRegBTable',
@@ -289,7 +289,6 @@ export default {
     modalLoading: true,
     clickedId: undefined,
     clickedData: undefined,
-    maxHeight: 300,
     keyword: '',
     pagination: {
       perPage: 15,
@@ -564,7 +563,7 @@ export default {
     sort () {
       return this.$utils.empty(this.mute)
     },
-    maxHeightPx () { return `${this.maxHeight}px` }
+    maxHeightPx () { return `${this.stickyHeaderMaxHeight}px` }
   },
   watch: {
     count (val) {
@@ -577,7 +576,7 @@ export default {
   },
   mounted () {
     if (!this.$isServer && window) {
-      this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+      this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
       this.getCache('lah-reg-b-table-perPage').then((val) => {
         this.pagination.perPage = parseInt(val) || 15
       })

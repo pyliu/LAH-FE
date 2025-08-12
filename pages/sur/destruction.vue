@@ -79,7 +79,7 @@ div
     ref="table"
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${maxHeight}px`"
+    :sticky-header="`${stickyHeaderMaxHeight}px`"
     :busy="isBusy"
     :items="rows"
     :responsive="'lg'"
@@ -292,8 +292,7 @@ export default {
       //   thStyle: { width: '300px' }
       // }
     ],
-    sectionMap: new Map(),
-    maxHeight: 600
+    sectionMap: new Map()
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
@@ -378,7 +377,7 @@ export default {
     this.loadSectionMap()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
+    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     loadSectionMap () {

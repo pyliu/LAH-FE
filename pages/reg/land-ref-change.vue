@@ -65,7 +65,7 @@ div
       selectable
       select-mode="single"
       selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
+      :sticky-header="`${stickyHeaderMaxHeight}px`"
       :busy="isBusy"
       :items="rows"
       :responsive="'lg'"
@@ -188,7 +188,6 @@ export default {
         thStyle: 'width: 25%'
       }
     ],
-    maxHeight: 600,
     warnDays: 730
   }),
   // only worked at page level component
@@ -283,7 +282,7 @@ export default {
     this.modalId = this.$utils?.uuid()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
+    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     reload () {

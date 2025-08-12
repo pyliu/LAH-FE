@@ -85,7 +85,7 @@ div
       selectable
       select-mode="single"
       selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
+      :sticky-header="`${stickyHeaderMaxHeight}px`"
       :busy="isBusy"
       :items="filteredData"
       :responsive="'lg'"
@@ -256,7 +256,6 @@ export default {
         sortable: false
       }
     ],
-    maxHeight: 600,
     fetchMode: 'overdue',
     fetchModeOpts: [
       { text: '逾期', value: 'overdue' },
@@ -422,7 +421,7 @@ export default {
     }
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
+    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     becauseOfRain (MD12) {

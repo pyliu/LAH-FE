@@ -78,7 +78,7 @@ div
     selectable
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${maxHeight}px`"
+    :sticky-header="`${stickyHeaderMaxHeight}px`"
     :busy="isBusy"
     :items="filteredData"
     :responsive="'lg'"
@@ -269,7 +269,6 @@ export default {
         sortable: true
       }
     ],
-    maxHeight: 600,
     advOpts: {
       caseYear: '',
       caseYearOpts: [],
@@ -470,7 +469,7 @@ export default {
   created () {
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
+    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     reload () {

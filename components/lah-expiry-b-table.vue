@@ -19,7 +19,7 @@
       :items="tableItems"
       :fields="fields"
       :busy="isBusy || busy"
-      :sticky-header="`${maxHeight}px`"
+      :sticky-header="`${stickyHeaderMaxHeight}px`"
     >
       <template #table-busy>
         <div class="text-center text-danger my-5">
@@ -142,8 +142,7 @@ export default {
       { key: '限辦期限', sortable: true }
     ],
     clickedId: undefined,
-    modalLoading: true,
-    maxHeight: 600
+    modalLoading: true
   }),
   computed: {
     totalCase () {
@@ -173,7 +172,7 @@ export default {
   },
   watch: {},
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+    this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
   },
   methods: {
     popup (data) {

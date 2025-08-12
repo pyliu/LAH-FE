@@ -331,8 +331,7 @@ export default {
         label: '異動日期',
         sortable: true
       }
-    ],
-    maxHeight: 600
+    ]
   }),
   head: {
     title: '信託案件檢索-桃園市地政局'
@@ -356,11 +355,11 @@ export default {
     },
     caption () { return `${this.year}年 共找到 ${this.queryCount} 筆「${this.qryTypeText}」信託資料` },
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
-    cacheKeyYear () { return `reg_trust_case_years` },
+    cacheKeyYear () { return 'reg_trust_case_years' },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
     fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields },
     maxHeightStyle () {
-      return `max-height: ${this.maxHeight}px`
+      return `max-height: ${this.stickyHeaderMaxHeight}px`
     }
   },
   created () {
@@ -384,7 +383,7 @@ export default {
     this.modalId = this.$utils?.uuid()
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 105)
+    this.calcStickyHeaderMaxHeight(105)
   },
   methods: {
     cached () {

@@ -65,7 +65,7 @@ div: client-only
       :current-page="pagination.currentPage"
       :caption-append="tableCaption",
       :head-variant="'dark'",
-      :sticky-header="`${maxHeight}px`",
+      :sticky-header="`${stickyHeaderMaxHeight}px`",
       small,
       hover,
       striped,
@@ -145,7 +145,6 @@ export default {
       { text: '日期', value: 'date' },
       { text: '統編', value: 'id' }
     ],
-    maxHeight: 600,
     maxHeightOffset: 160
   }),
   fetch () {
@@ -225,7 +224,7 @@ export default {
   created () {},
   async mounted () {
     if (!this.$isServer && window) {
-      this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+      this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
     }
     const cached = await this.getCache('cusmm-pagination')
     this.updatePagination(1, cached?.perPage || 20)

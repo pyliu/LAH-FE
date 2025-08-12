@@ -74,7 +74,7 @@ div
     ref="table"
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${maxHeight}px`"
+    :sticky-header="`${stickyHeaderMaxHeight}px`"
     :busy="isBusy"
     :items="rows"
     :responsive="'lg'"
@@ -228,8 +228,7 @@ export default {
         sortable: true,
         thStyle: { width: '185px' }
       }
-    ],
-    maxHeight: 600
+    ]
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
@@ -304,7 +303,7 @@ export default {
     }
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
+    this.calcStickyHeaderMaxHeight(145)
     // searching begin date set to Jan 1
     // this.timeout(() => {
     //   const now = new Date()

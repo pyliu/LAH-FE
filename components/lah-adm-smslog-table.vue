@@ -60,7 +60,7 @@ div
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
       :busy="isBusy || busy",
-      :sticky-header="`${maxHeight}px`",
+      :sticky-header="`${stickyHeaderMaxHeight}px`",
       selectable
       select-mode="single"
       selected-variant="primary"
@@ -184,7 +184,6 @@ export default {
       { key: 'SMS_CONTENT', label: '內容', sortable: true }
       // { key: 'SMS_APIMSG', label: 'API回應訊息', sortable: true }
     ],
-    maxHeight: 600,
     maxHeightOffset: 230
   }),
   computed: {
@@ -239,7 +238,7 @@ export default {
     this.pagination.perPage = parseInt(await this.getCache('sms-log-table-perPage') || 12)
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+    this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
   },
   methods: {
     sanitizedDate (w) {

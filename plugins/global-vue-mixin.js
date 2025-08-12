@@ -10,7 +10,7 @@ Vue.mixin({
     isBusy: false,
     busyIconSize: undefined,
     stickyHeaderMaxHeight: 600,
-    stickyHeaderMaxHeightOffset: 160
+    stickyHeaderMaxHeightDefaultOffset: 160
   }),
   computed: {
     ...mapGetters([
@@ -668,9 +668,12 @@ Vue.mixin({
     },
     calcStickyHeaderMaxHeight (offset = 0) {
       this.$nextTick(() => {
-        this.$utils.empty(offset) && (offset = this.stickyHeaderMaxHeightOffset)
-        this.stickyHeaderMaxHeight = parseInt(window.innerHeight - offset)
-        this.$utils.warn(`計算 stickyHeaderMaxHeight ... ${this.stickyHeaderMaxHeight}px`)
+        this.$utils.warn(`Offset is ${offset}`)
+        if (offset === 0) {
+          offset = this.stickyHeaderMaxHeightDefaultOffset
+        }
+        this.stickyHeaderMaxHeight = Math.max(200, parseInt(window.innerHeight - offset))
+        this.$utils.warn(`計算 stickyHeaderMaxHeight ... Math.max(200, window.innerHeight - ${offset} = ${this.stickyHeaderMaxHeight})`)
       })
     }
   }

@@ -61,7 +61,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       selectable
       select-mode="single"
       selected-variant="success"
-      :sticky-header="`${maxHeight}px`"
+      :sticky-header="`${stickyHeaderMaxHeight}px`"
       @row-selected="$refs.detail.show()"
     )
       template(#cell(item)="{ item }")
@@ -196,7 +196,6 @@ export default {
     reportFields: [...REPORT_FIELDS],
     briefFields: [...BRIEF_REPORT_FIELDS],
     parsedClusterStatus: {},
-    maxHeight: 600,
     /**
      * PowerHA 叢集狀態定義庫
      * 儲存了各個狀態碼的詳細資訊，包括中文名稱、狀態類型和說明。
@@ -429,7 +428,7 @@ export default {
   mounted () {
     // set the reload timer to 15 mins
     this.reloadMs = (15 * 60 + this.$utils.rand(60)) * 1000
-    this.maxHeight = parseInt(window.innerHeight - this.maxHeightOffset)
+    this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
   },
   methods: {
     /**

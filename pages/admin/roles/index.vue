@@ -95,7 +95,7 @@
         :busy="isBusy"
         sticky-header
 
-        :style="`max-height: ${maxHeight}px`"
+        :style="`max-height: ${stickyHeaderMaxHeight}px`"
         primary-key="序號"
 
         @row-selected="popupUserInfo"
@@ -138,7 +138,7 @@
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue';
+import lahUserCard from '~/components/lah-user-card.vue'
 
 export default {
   components: { lahUserCard },
@@ -182,8 +182,7 @@ export default {
       { text: '會計', value: 8 },
       { text: '系統管理者', value: 3 },
       { text: '超級管理者', value: 2 }
-    ],
-    maxHeight: 300
+    ]
   }),
   async fetch () {
     const { data } = await this.$axios.post(this.$consts.API.JSON.USER, {
@@ -209,7 +208,7 @@ export default {
     }
   },
   mounted () {
-    this.maxHeight = window.innerHeight - 115
+    this.calcStickyHeaderMaxHeight(115)
   },
   methods: {
     add () {

@@ -73,7 +73,7 @@ div
     ref="table"
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${maxHeight}px`"
+    :sticky-header="`${stickyHeaderMaxHeight}px`"
     :busy="isBusy"
     :items="rows"
     :responsive="'lg'"
@@ -226,8 +226,7 @@ export default {
         sortable: false,
         thStyle: { width: '300px' }
       }
-    ],
-    maxHeight: 600
+    ]
   }),
   // only worked at page level component
   // async asyncData (nuxt) {},
@@ -303,17 +302,7 @@ export default {
     }
   },
   mounted () {
-    this.maxHeight = parseInt(window.innerHeight - 145)
-    // searching begin date set to Jan 1
-    // this.timeout(() => {
-    //   const now = new Date()
-    //   this.dateRange = {
-    //     ...this.dateRange,
-    //     ...{
-    //       begin: `${now.getFullYear() - 1911}0101`
-    //     }
-    //   }
-    // }, 400)
+    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     handleAdd (payload) {

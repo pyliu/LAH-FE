@@ -65,7 +65,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       selectable,
       select-mode="single",
       selected-variant="success",
-      :sticky-header="`${maxHeight}px`"
+      :sticky-header="`${stickyHeaderMaxHeight}px`"
     )
       template(#cell(p8_51)="{ item }"): lah-powerha-report-cell(
         :item="item",
@@ -123,7 +123,6 @@ export default {
       p8_52: {}
     },
     reportData: [],
-    maxHeight: 600,
     resizeObserver: null,
     // 修改說明：新增 zoomDetectorFrame 屬性來存放 iframe 實例
     zoomDetectorFrame: null
@@ -253,8 +252,7 @@ export default {
       this.$nextTick(() => {
         if (this.$el?.getBoundingClientRect) {
           const topOffset = this.$el.getBoundingClientRect().top
-          const newHeight = window.innerHeight - topOffset - this.maxHeightOffset
-          this.maxHeight = Math.max(200, newHeight)
+          this.calcStickyHeaderMaxHeight(topOffset - this.maxHeightOffset)
         }
       })
     }
