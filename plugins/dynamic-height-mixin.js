@@ -32,7 +32,7 @@ export default {
         if (this.$el?.getBoundingClientRect) {
           const topOffset = this.$el.getBoundingClientRect().top
           const newHeight = window.innerHeight - topOffset - this.maxHeightOffset
-          this.maxHeight = Math.max(200, newHeight)
+          this.maxHeight = Math.max(600, newHeight)
           // this.$utils.warn(`動態高度更新(Mixin): top=${topOffset}, new=${newHeight}, final=${this.maxHeight}`)
         }
       })
