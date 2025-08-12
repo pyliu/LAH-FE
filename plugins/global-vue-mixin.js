@@ -8,7 +8,9 @@ import { mapActions, mapGetters } from 'vuex'
 Vue.mixin({
   data: () => ({
     isBusy: false,
-    busyIconSize: undefined
+    busyIconSize: undefined,
+    stickyHeaderMaxHeight: 600,
+    stickyHeaderMaxHeightOffset: 160
   }),
   computed: {
     ...mapGetters([
@@ -663,6 +665,12 @@ Vue.mixin({
       } catch (err) {
         console.error(err)
       }
+    },
+    calcStickyHeaderMaxHeight () {
+      this.$nextTick(() => {
+        this.stickyHeaderMaxHeight = parseInt(window.innerHeight - this.stickyHeaderMaxHeightOffset)
+        this.$utils.warn(`計算 stickyHeaderMaxHeight ... ${this.stickyHeaderMaxHeight}px`)
+      })
     }
   }
 })
