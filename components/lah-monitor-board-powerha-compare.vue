@@ -65,7 +65,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       selectable,
       select-mode="single",
       selected-variant="success",
-      :sticky-header="`${stickyHeaderMaxHeight}px`"
+      :sticky-header="`${maxHeight}px`"
     )
       template(#cell(p8_51)="{ item }"): lah-powerha-report-cell(
         :item="item",
@@ -99,6 +99,8 @@ import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-c
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import LahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import { HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
+// 引入新建的 Mixin
+import dynamicHeight from '~/plugins/dynamicHeight.js'
 
 export default {
   name: 'LahMonitorBoardPowerhaCompare',
@@ -107,11 +109,12 @@ export default {
     LahPowerhaHelpContent,
     LahMonitorBoardRaw
   },
-  mixins: [lahMonitorBoardBase],
+  // 使用 Mixin
+  mixins: [lahMonitorBoardBase, dynamicHeight],
   props: {
     showHeader: { type: Boolean, default: true },
-    footer: { type: Boolean, default: false },
-    maxHeightOffset: { type: Number, default: 125 }
+    footer: { type: Boolean, default: false }
+    // maxHeightOffset 已被移除，因為 Mixin 中有預設值。若需客製化可保留。
   },
   data: () => ({
     header: '資料庫 PowerHA',
@@ -122,10 +125,8 @@ export default {
       p8_51: {},
       p8_52: {}
     },
-    reportData: [],
-    resizeObserver: null,
-    // 修改說明：新增 zoomDetectorFrame 屬性來存放 iframe 實例
-    zoomDetectorFrame: null
+    reportData: []
+    // maxHeight, resizeObserver, zoomDetectorFrame 都已移至 Mixin
   }),
   computed: {
     reportFields () {
@@ -246,65 +247,12 @@ export default {
   },
   mounted () {
     this.reloadMs = (15 * 60 + this.$utils.rand(60)) * 1000
-
-    // 1. 高度計算函式
-    this.updateMaxHeight = () => {
-      this.$nextTick(() => {
-        if (this.$el?.getBoundingClientRect) {
-          const topOffset = this.$el.getBoundingClientRect().top
-          this.calcStickyHeaderMaxHeight(topOffset - this.maxHeightOffset)
-        }
-      })
-    }
-    // 2. Debounced 版本的函式
-    this.debouncedUpdateHeight = this.$utils.debounce(this.updateMaxHeight, 150)
-    // 3. ResizeObserver
-    this.resizeObserver = new ResizeObserver(this.debouncedUpdateHeight)
-    this.resizeObserver.observe(this.$el)
-    // 4. 'resize' 事件監聽
-    window.addEventListener('resize', this.debouncedUpdateHeight)
-
-    // 5. 新增：建立並設定隱藏的 iframe 用於偵測縮放
-    this.zoomDetectorFrame = document.createElement('iframe')
-    // 設定樣式使其完全不可見且不影響佈局
-    const frameStyle = this.zoomDetectorFrame.style
-    frameStyle.position = 'absolute'
-    frameStyle.top = '-9999px'
-    frameStyle.left = '-9999px'
-    frameStyle.width = '100%'
-    frameStyle.height = '100%'
-    frameStyle.border = 'none'
-    frameStyle.opacity = '0'
-    frameStyle.pointerEvents = 'none' // 避免攔截滑鼠事件
-    // 附加到元件 DOM 中
-    this.$el.appendChild(this.zoomDetectorFrame)
-    // 監聽 iframe 內部的 resize 事件，這是偵測縮放的關鍵
-    this.zoomDetectorFrame.contentWindow.addEventListener('resize', this.debouncedUpdateHeight)
-    // 6. 立即執行一次以設定初始高度
-    this.updateMaxHeight()
-
     if (!this.footer) {
       this.reloadTimer = setInterval(() => { this.reload() }, this.reloadMs)
     }
   },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
-    // 1. 移除 'resize' 事件監聽器
-    window.removeEventListener('resize', this.debouncedUpdateHeight)
-    // 2. 停止 ResizeObserver
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect()
-    }
-    // 3. 新增：清理 iframe 相關的資源
-    if (this.zoomDetectorFrame) {
-      // 移除 iframe 上的事件監聽器
-      this.zoomDetectorFrame.contentWindow.removeEventListener('resize', this.debouncedUpdateHeight)
-      // 從 DOM 中移除 iframe
-      if (this.zoomDetectorFrame.parentNode) {
-        this.zoomDetectorFrame.parentNode.removeChild(this.zoomDetectorFrame)
-      }
-      this.zoomDetectorFrame = null
-    }
   },
   methods: {
     processAllNodeData (batch) {
