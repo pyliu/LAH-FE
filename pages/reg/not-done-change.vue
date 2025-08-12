@@ -85,7 +85,7 @@ div
     selectable
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${stickyHeaderMaxHeight}px`"
+    :sticky-header="`${maxHeight}px`"
     :busy="isBusy"
     :items="filteredData"
     :responsive="'lg'"
@@ -196,7 +196,9 @@ div
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
+  mixins: [dynamicHeight],
   // only worked at page level component
   async asyncData (nuxt) {},
   data: () => ({
@@ -457,8 +459,8 @@ export default {
       }
     }
   },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(145)
+  created () {
+    this.maxHeightOffset = 145
   },
   methods: {
     reload () {

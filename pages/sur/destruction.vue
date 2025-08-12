@@ -79,7 +79,7 @@ div
     ref="table"
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${stickyHeaderMaxHeight}px`"
+    :sticky-header="`${maxHeight}px`"
     :busy="isBusy"
     :items="rows"
     :responsive="'lg'"
@@ -196,8 +196,10 @@ div
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   fetchOnServer: false,
+  mixins: [dynamicHeight],
   data: () => ({
     keyword: '',
     editRecord: null,
@@ -375,9 +377,7 @@ export default {
   },
   created () {
     this.loadSectionMap()
-  },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(145)
+    this.maxHeightOffset = 145
   },
   methods: {
     loadSectionMap () {

@@ -19,14 +19,9 @@
  * }
  */
 export default {
-  props: {
-    maxHeightOffset: {
-      type: Number,
-      default: 125
-    }
-  },
   data: () => ({
     maxHeight: 600,
+    maxHeightOffset: 150,
     resizeObserver: null,
     zoomDetectorFrame: null
   }),

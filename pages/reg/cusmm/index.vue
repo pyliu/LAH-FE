@@ -65,7 +65,7 @@ div: client-only
       :current-page="pagination.currentPage"
       :caption-append="tableCaption",
       :head-variant="'dark'",
-      :sticky-header="`${stickyHeaderMaxHeight}px`",
+      :sticky-header="`${maxHeight}px`",
       small,
       hover,
       striped,
@@ -92,8 +92,10 @@ div: client-only
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   fetchOnServer: false,
+  mixins: [dynamicHeight],
   asyncData (nuxt) {
     const today = new Date()
     // const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
@@ -144,8 +146,7 @@ export default {
     searchTypeOpts: [
       { text: '日期', value: 'date' },
       { text: '統編', value: 'id' }
-    ],
-    maxHeightOffset: 160
+    ]
   }),
   fetch () {
     if (this.isBusy || !this.queryOK) {
@@ -221,11 +222,10 @@ export default {
       this.setCache('cusmm-pagination', val)
     }
   },
-  created () {},
+  created () {
+    this.maxHeightOffset = 160
+  },
   async mounted () {
-    if (!this.$isServer && window) {
-      this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
-    }
     const cached = await this.getCache('cusmm-pagination')
     this.updatePagination(1, cached?.perPage || 20)
   },

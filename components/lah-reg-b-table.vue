@@ -259,11 +259,13 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   emit: ['count-changed'],
   name: 'LahRegBTable',
   // eslint-disable-next-line vue/no-unused-components
   components: { lahUserCard },
+  mixins: [dynamicHeight],
   props: {
     bakedData: { type: Array, default: () => ([]) },
     type: { type: String, default: '' },
@@ -277,7 +279,6 @@ export default {
     tableVariant: { type: String, default: '' },
     onlyPopupDetail: { type: Boolean, default: true },
     captionAppend: { type: String, default: '' },
-    maxHeightOffset: { type: Number, default: 105 },
     caseReload: { type: Boolean, default: false },
     small: { type: Boolean, default: true },
     enableKeywordFilter: { type: Boolean, default: false }
@@ -563,7 +564,7 @@ export default {
     sort () {
       return this.$utils.empty(this.mute)
     },
-    maxHeightPx () { return `${this.stickyHeaderMaxHeight}px` }
+    maxHeightPx () { return `${this.maxHeight}px` }
   },
   watch: {
     count (val) {
@@ -576,7 +577,6 @@ export default {
   },
   mounted () {
     if (!this.$isServer && window) {
-      this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
       this.getCache('lah-reg-b-table-perPage').then((val) => {
         this.pagination.perPage = parseInt(val) || 15
       })

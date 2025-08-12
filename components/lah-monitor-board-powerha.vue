@@ -61,7 +61,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       selectable
       select-mode="single"
       selected-variant="success"
-      :sticky-header="`${stickyHeaderMaxHeight}px`"
+      :sticky-header="`${maxHeight}px`"
       @row-selected="$refs.detail.show()"
     )
       template(#cell(item)="{ item }")
@@ -173,14 +173,14 @@ import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-c
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import { BRIEF_REPORT_FIELDS, HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 
 export default {
   name: 'LahMonitorBoardPowerha',
   components: { lahMonitorBoardRaw, LahPowerhaHelpContent, LahPowerhaReportCell },
-  mixins: [lahMonitorBoardBase],
+  mixins: [lahMonitorBoardBase, dynamicHeight],
   props: {
-    footer: { type: Boolean, default: false },
-    maxHeightOffset: { type: Number, default: 170 }
+    footer: { type: Boolean, default: false }
   },
   data: () => ({
     header: '資料庫 PowerHA',
@@ -428,7 +428,6 @@ export default {
   mounted () {
     // set the reload timer to 15 mins
     this.reloadMs = (15 * 60 + this.$utils.rand(60)) * 1000
-    this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
   },
   methods: {
     /**

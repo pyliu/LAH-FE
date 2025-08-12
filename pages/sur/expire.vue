@@ -85,7 +85,7 @@ div
       selectable
       select-mode="single"
       selected-variant="success"
-      :sticky-header="`${stickyHeaderMaxHeight}px`"
+      :sticky-header="`${maxHeight}px`"
       :busy="isBusy"
       :items="filteredData"
       :responsive="'lg'"
@@ -195,8 +195,10 @@ div
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   components: { lahUserCard },
+  mixins: [dynamicHeight],
   data: () => ({
     cachedMs: 15 * 60 * 1000,
     modalLoading: true,
@@ -419,9 +421,6 @@ export default {
     rows (val) {
       this.refreshAdvOptsSelect(val)
     }
-  },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     becauseOfRain (MD12) {

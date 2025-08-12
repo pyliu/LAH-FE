@@ -83,7 +83,7 @@ div
       selectable
       select-mode="single"
       selected-variant="success"
-      :sticky-header="`${stickyHeaderMaxHeight}px`"
+      :sticky-header="`${maxHeight}px`"
       :busy="isBusy"
       :items="filterRows"
       :responsive="'lg'"
@@ -194,7 +194,9 @@ div
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
+  mixins: [dynamicHeight],
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
     modalLoading: true,
@@ -398,8 +400,8 @@ export default {
       }
     }
   },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(175)
+  created () {
+    this.maxHeightOffset = 175
   },
   methods: {
     getTagVariant (tag) {

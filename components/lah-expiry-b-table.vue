@@ -19,7 +19,7 @@
       :items="tableItems"
       :fields="fields"
       :busy="isBusy || busy"
-      :sticky-header="`${stickyHeaderMaxHeight}px`"
+      :sticky-header="`${maxHeight}px`"
     >
       <template #table-busy>
         <div class="text-center text-danger my-5">
@@ -122,12 +122,13 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   name: 'LahExpiryBTable',
+  mixins: [dynamicHeight],
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
-    maxHeightOffset: { type: Number, default: 105 },
     onlyPopupDetail: { type: Boolean, default: false }
   },
   data: () => ({
@@ -171,9 +172,6 @@ export default {
     allCaseMode () { return this.$utils.empty(this.reviewerId) }
   },
   watch: {},
-  mounted () {
-    this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
-  },
   methods: {
     popup (data) {
       this.modalLoading = true

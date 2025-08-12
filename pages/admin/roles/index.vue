@@ -93,9 +93,7 @@
         :items="tableItems"
         :fields="tableFields"
         :busy="isBusy"
-        sticky-header
-
-        :style="`max-height: ${stickyHeaderMaxHeight}px`"
+        :sticky-header="`${maxHeight}px`"
         primary-key="序號"
 
         @row-selected="popupUserInfo"
@@ -139,9 +137,11 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 
 export default {
   components: { lahUserCard },
+  mixins: [dynamicHeight],
   middleware: ['isAdmin'],
   data: () => ({
     tableItems: [],
@@ -206,9 +206,6 @@ export default {
       const selected = this.addRoleOpts.find((item, idx, array) => { return item.value === this.addRole })
       return selected ? selected.text : ''
     }
-  },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(115)
   },
   methods: {
     add () {

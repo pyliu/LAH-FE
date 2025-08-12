@@ -529,9 +529,6 @@ export default {
       }
     }
   },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(145)
-  },
   methods: {
     show () {},
     clear () {

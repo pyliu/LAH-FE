@@ -74,7 +74,7 @@ div
     ref="table"
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${stickyHeaderMaxHeight}px`"
+    :sticky-header="`${maxHeight}px`"
     :busy="isBusy"
     :items="rows"
     :responsive="'lg'"
@@ -166,8 +166,10 @@ div
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   fetchOnServer: false,
+  mixins: [dynamicHeight],
   data: () => ({
     keyword: '',
     editRecord: null,
@@ -302,19 +304,7 @@ export default {
       }
     }
   },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(145)
-    // searching begin date set to Jan 1
-    // this.timeout(() => {
-    //   const now = new Date()
-    //   this.dateRange = {
-    //     ...this.dateRange,
-    //     ...{
-    //       begin: `${now.getFullYear() - 1911}0101`
-    //     }
-    //   }
-    // }, 400)
-  },
+  mounted () { },
   methods: {
     handleAdd (payload) {
       // add to array head

@@ -126,8 +126,7 @@
         :per-page="perPage"
         :current-page="currentPage"
 
-        sticky-header
-        :style="maxHeightStyle"
+        :sticky-header="`${maxHeight}px`"
       >
         <template #table-busy>
           <span class="ld-txt">讀取中...</span>
@@ -199,7 +198,9 @@
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
+  mixins: [dynamicHeight],
   data: () => ({
     modalId: 'this should be an uuid',
     modalLoading: true,
@@ -357,10 +358,7 @@ export default {
     cacheKey () { return `reg_trust_case_${this.qryType}_${this.year}` },
     cacheKeyYear () { return 'reg_trust_case_years' },
     isValid () { return !this.$utils.empty(this.year) && !this.$utils.empty(this.qryType) },
-    fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields },
-    maxHeightStyle () {
-      return `max-height: ${this.stickyHeaderMaxHeight}px`
-    }
+    fields () { return this.qryType === 'B' || this.qryType === 'TB' ? this.landFields : this.buildFields }
   },
   created () {
     // restore cached data if found
@@ -381,9 +379,7 @@ export default {
       this.cached()
     })
     this.modalId = this.$utils?.uuid()
-  },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(105)
+    this.maxHeightOffset = 105
   },
   methods: {
     cached () {

@@ -73,7 +73,7 @@ div
     ref="table"
     select-mode="single"
     selected-variant="success"
-    :sticky-header="`${stickyHeaderMaxHeight}px`"
+    :sticky-header="`${maxHeight}px`"
     :busy="isBusy"
     :items="rows"
     :responsive="'lg'"
@@ -165,8 +165,10 @@ div
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   fetchOnServer: false,
+  mixins: [dynamicHeight],
   data: () => ({
     keyword: '',
     editRecord: null,
@@ -300,9 +302,6 @@ export default {
         this.alert('開始日期應小於或等於結束日期')
       }
     }
-  },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(145)
   },
   methods: {
     handleAdd (payload) {

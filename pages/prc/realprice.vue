@@ -124,7 +124,7 @@ div
         selectable
         select-mode="single"
         selected-variant="success"
-        :sticky-header="`${stickyHeaderMaxHeight}px`"
+        :sticky-header="`${maxHeight}px`"
         :responsive="'lg'"
         :striped="true"
         :hover="true"
@@ -278,9 +278,11 @@ div
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 export default {
   components: { lahUserCard },
   fetchOnServer: false,
+  mixins: [dynamicHeight],
   asyncData (nuxt) {
     const today = new Date()
     const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
@@ -586,8 +588,11 @@ export default {
       val > 5 && this.setCache('realprice-perpage', val)
     }
   },
+  created () {
+    // in dynamicHeight mixin
+    this.maxHeightOffset = 200
+  },
   async mounted () {
-    this.calcStickyHeaderMaxHeight(180)
     this.perPage = await this.getCache('realprice-perpage') || 20
   },
   methods: {

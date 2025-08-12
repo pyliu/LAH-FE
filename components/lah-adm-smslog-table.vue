@@ -60,7 +60,7 @@ div
       :per-page="pagination.perPage",
       :current-page="pagination.currentPage",
       :busy="isBusy || busy",
-      :sticky-header="`${stickyHeaderMaxHeight}px`",
+      :sticky-header="`${maxHeight}px`",
       selectable
       select-mode="single"
       selected-variant="primary"
@@ -138,11 +138,14 @@ div
 </template>
 
 <script>
+import dynamicHeight from '~/plugins/dynamic-height-mixin'
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+
 export default {
   emit: ['reload'],
   name: 'LahAdmSmslogTable',
   components: { lahRegCaseDetailVue },
+  mixins: [dynamicHeight],
   props: {
     inKeyword: { type: String, default: '' },
     inLogs: { type: Array, default: () => ([]) },
@@ -183,8 +186,7 @@ export default {
       { key: 'SMS_RESULT', label: '結果', sortable: true },
       { key: 'SMS_CONTENT', label: '內容', sortable: true }
       // { key: 'SMS_APIMSG', label: 'API回應訊息', sortable: true }
-    ],
-    maxHeightOffset: 230
+    ]
   }),
   computed: {
     count () { return this.filteredLogs?.length || 0 },
@@ -236,9 +238,6 @@ export default {
     this.reloadDebounced = this.$utils.debounce(this.reload, 400)
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('sms-log-table-perPage') || 12)
-  },
-  mounted () {
-    this.calcStickyHeaderMaxHeight(this.maxHeightOffset)
   },
   methods: {
     sanitizedDate (w) {
