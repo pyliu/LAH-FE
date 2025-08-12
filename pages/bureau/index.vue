@@ -52,7 +52,7 @@ div(v-cloak)
           lah-monitor-board-lxhweb(ref="lxhweb3" target-ip="L1HWEB_Alt")
           lah-monitor-board-lxhweb(ref="lxhweb4" target-ip="L3HWEB")
       b-carousel-slide: template(#img)
-        lah-monitor-board-powerha-compare.card-h(:max-height-offset="125")
+        lah-monitor-board-powerha-compare.card-h
       b-carousel-slide: template(#img)
         lah-monitor-board-srmas.card-h(
           no-carousel,
