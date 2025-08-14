@@ -16,7 +16,7 @@ b-card
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 export default {
   mixins: [lahMonitorBoardBase],
   props: {

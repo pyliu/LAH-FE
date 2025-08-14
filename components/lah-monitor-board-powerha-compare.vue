@@ -94,7 +94,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-content.vue'
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import LahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'

@@ -136,7 +136,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/components/lah-monitor-board-base'
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import lahMonitorBoardSrmasAnalysis from '~/components/lah-monitor-board-srmas-analysis.vue'
 import lahMonitorBoardSrmasFixed from '~/components/lah-monitor-board-srmas-fixed.vue'
