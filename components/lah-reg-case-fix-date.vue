@@ -47,6 +47,13 @@
         :max="maxDate"
         :state="settleDeliveredDate"
       )
+    .d-flex.my-1
+      small.my-auto.text-nowrap.mr-1 補正字號
+      b-input(
+        size="sm"
+        v-model="parentData.REG_FIX_CASE_RECORD.note"
+        placeholder="... 請填入補正字號 ..."
+      )
       lah-button.ml-1(
         icon="edit",
         size="sm",
