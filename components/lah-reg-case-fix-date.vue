@@ -182,7 +182,12 @@ export default {
       // return this.parentData.RM45 === this.myid || this.authority.isAdmin || this.authority.isChief
     },
     dataChanged () {
-      return !this.$utils.equal(this.origDataset, this.updateDataset)
+      const res = this.$utils.equal(this.origDataset, this.updateDataset)
+      if (!res) {
+        this.$utils.warn('orig: ', this.origDataset)
+        this.$utils.warn('updt: ', this.updateDataset)
+      }
+      return !res
     }
   },
   watch: {
@@ -219,7 +224,7 @@ export default {
     this.origDataset.id = this.caseId
     this.origDataset.delivered = this.deliveredDate || ''
     this.origDataset.deadline = this.deadlineDate || ''
-    this.$utils.warn(this.parentData.REG_FIX_CASE_RECORD)
+    this.origDataset.note = this.note || ''
   },
   methods: {
     resetDeadline () {
