@@ -57,7 +57,7 @@
       lah-button.ml-1(
         icon="edit",
         size="sm",
-        title="更新",
+        title="更新以儲存變更資訊",
         @click="update"
         :variant="dataChanged ? 'primary' : 'outline-primary'",
         :disabled="!dataChanged"
