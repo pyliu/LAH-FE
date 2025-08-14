@@ -138,7 +138,7 @@ div
 </template>
 
 <script>
-import dynamicHeight from '~/plugins/dynamic-height-mixin'
+import dynamicHeight from '~/mixins/dynamic-height-mixin'
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 
 export default {

@@ -173,7 +173,7 @@ import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-c
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import { BRIEF_REPORT_FIELDS, HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
-import dynamicHeight from '~/plugins/dynamic-height-mixin'
+import dynamicHeight from '~/mixins/dynamic-height-mixin'
 
 export default {
   name: 'LahMonitorBoardPowerha',

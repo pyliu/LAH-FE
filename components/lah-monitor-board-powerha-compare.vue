@@ -100,7 +100,7 @@ import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-
 import LahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import { HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
 // 引入新建的 Mixin
-import dynamicHeight from '~/plugins/dynamic-height-mixin.js'
+import dynamicHeight from '~/mixins/dynamic-height-mixin.js'
 
 export default {
   name: 'LahMonitorBoardPowerhaCompare',

@@ -259,7 +259,7 @@
 
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
-import dynamicHeight from '~/plugins/dynamic-height-mixin'
+import dynamicHeight from '~/mixins/dynamic-height-mixin'
 export default {
   emit: ['count-changed'],
   name: 'LahRegBTable',

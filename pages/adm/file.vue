@@ -165,7 +165,7 @@ div
 </template>
 
 <script>
-import dynamicHeight from '~/plugins/dynamic-height-mixin'
+import dynamicHeight from '~/mixins/dynamic-height-mixin'
 export default {
   fetchOnServer: false,
   mixins: [dynamicHeight],
