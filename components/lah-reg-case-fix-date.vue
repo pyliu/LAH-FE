@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import regCaseBase from '~/components/lah-reg-case-base.js'
+import regCaseBase from '~/mixins/lah-reg-case-base.js'
 
 export default {
   /* from lah-reg-case-base.js

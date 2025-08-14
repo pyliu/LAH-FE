@@ -155,7 +155,7 @@ div
 </template>
 
 <script>
-import regCaseBase from '~/components/lah-reg-case-base.js'
+import regCaseBase from '~/mixins/lah-reg-case-base.js'
 import lahUserSelect from '~/components/lah-user-select.vue'
 
 export default {

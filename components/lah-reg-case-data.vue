@@ -65,7 +65,7 @@ b-card
 <script>
 import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
 import lahAvatar from '~/components/lah-avatar.vue';
-import regCaseBase from '~/components/lah-reg-case-base.js';
+import regCaseBase from '~/mixins/lah-reg-case-base.js';
 import lahUserCard from '~/components/lah-user-card.vue';
 export default {
   name: 'LahRegCaseData',

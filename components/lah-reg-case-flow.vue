@@ -34,7 +34,7 @@ b-card.border-0(
 </template>
 
 <script>
-import regCaseBase from '~/components/lah-reg-case-base.js';
+import regCaseBase from '~/mixins/lah-reg-case-base.js';
 import lahUserCard from '~/components/lah-user-card.vue';
 export default {
   name: 'LahRegCaseFlow',

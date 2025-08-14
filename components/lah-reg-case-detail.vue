@@ -12,7 +12,7 @@ h4.text-center.text-info.my-5(v-else)
 </template>
 
 <script>
-import regCaseBase from '~/components/lah-reg-case-base.js';
+import regCaseBase from '~/mixins/lah-reg-case-base.js';
 
 export default {
   name: 'LahRegCaseDetail',
