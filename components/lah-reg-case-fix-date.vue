@@ -53,6 +53,7 @@
         size="sm"
         v-model="parentData.REG_FIX_CASE_RECORD.note"
         placeholder="... 請填入補正字號 ..."
+        :maxlength="15"
       )
       lah-button.ml-1(
         icon="edit",
