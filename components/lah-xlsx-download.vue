@@ -26,7 +26,7 @@ b-card(
 <script>
 import FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
-import Workbook from './lah-xlsx-download-workbook.js'
+import Workbook from '../mixins/lah-xlsx-download-workbook.js'
 export default {
   name: 'LahXlsxDownload',
   props: {
