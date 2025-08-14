@@ -279,7 +279,7 @@
 </template>
 
 <script>
-import userBase from '~/components/lah-user-base.js'
+import userBase from '~/mixins/lah-user-base.js'
 
 export default {
   name: 'LahUserEditCard',
