@@ -223,7 +223,7 @@
 
             const patternsData = [
                 { title: '選項式 API (Options API)', content: '所有 `.vue` 組件都使用 Vue 2 的標準寫法，將 `data`、`methods`、`computed`、`watch`、`created` 等選項分開定義。' },
-                { title: 'Mixin 的使用', content: '在 `plugins/global-vue-mixin.js` 中定義了全域的 mixin，並且在 `components` 目錄下有名為 `*-base.js` 的檔案（如 `lah-reg-case-base.js`），這很可能是被多個相關組件共用的 mixin，用來抽取重複的邏輯。' },
+                { title: 'Mixin 的使用', content: '在 `mixins/global-vue-mixin.js` 中定義了全域的 mixin，並且在 `components` 目錄下有名為 `*-base.js` 的檔案（如 `lah-reg-case-base.js`），這很可能是被多個相關組件共用的 mixin，用來抽取重複的邏輯。' },
                 { title: 'BootstrapVue 的深度使用', content: '從組件庫來看，`b-table`、`b-card`、`b-modal`、`b-form-*` 等組件被廣泛使用，是構成 UI 的主要元素。' },
                 { title: 'API 請求', content: '透過 `this.$axios` 發起 API 請求，並在 `plugins/customize-axios.js` 中統一處理錯誤和 loading 狀態，這是一個很好的集中管理機制。' },
                 { title: '狀態管理 (Vuex)', content: '`store/index.js` 處理全域狀態，例如使用者身份驗證 (`auth`)。`store/inf.js`, `store/regcase.js` 等模組化檔案處理特定業務的狀態，職責分明。Actions 用於處理非同步操作，Mutations 用於同步修改 state，遵循 Vuex 的標準流程。' }
