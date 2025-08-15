@@ -6,7 +6,7 @@ export default function ({ app }) {
     // 檢查 $axios 上是否有我們擴充的 cancelAll 方法
     if (typeof app.$axios.cancelAll === 'function') {
       // 呼叫全局取消方法
-      app.$axios.cancelAll(`路由從 ${from.path} 切換至 ${to.path}`)
+      app.$axios.cancelAll(`路由從 ${from.path} 切換至 ${to.path} 取消目前所有XHR請求`)
     }
     // 繼續執行路由跳轉
     next()

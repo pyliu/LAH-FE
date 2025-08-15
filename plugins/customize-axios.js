@@ -31,7 +31,7 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
    */
   $axios.onRequest((config) => {
     pendingRequests++
-    isDev && console.log(`onRequest: 目前 axios request count is ${pendingRequests}`)
+    isDev && console.log(`onRequest: 目前 axios request count is ${pendingRequests}`, config)
 
     if (config.data && config.headers[config.method]['Content-Type'] === 'application/x-www-form-urlencoded') {
       config.data = qs.stringify(config.data)
@@ -48,7 +48,7 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
    */
   $axios.onResponse((response) => {
     pendingRequests--
-    isDev && console.log(`onResponse: 目前 axios request count is ${pendingRequests}`)
+    isDev && console.log(`onResponse: 目前 axios request count is ${pendingRequests}`, response)
     return response
   })
 
