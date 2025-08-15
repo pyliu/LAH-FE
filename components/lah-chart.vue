@@ -284,7 +284,7 @@ export default {
           this.chartData.datasets[datasetIdx].backgroundColor[foundIdx] = this.backgroundColor(item, this.opacity)
         }
         // redraw the chart
-        this.update()
+        this?.update()
       } else {
         this.$utils.warn(`${this.$options.name}: 沒找到 "${label}" 在 datasets[${datasetIdx}] 內, ${value} 不會被更新.`, this.chartData)
       }
@@ -315,7 +315,7 @@ export default {
         this.$utils.warn(`沒有發現 ${label} 的 dataset，刪除失敗。`)
       } else {
         this.chartData.datasets.splice(foundIdx, 1)
-        this.update()
+        this?.update()
       }
       return foundIdx
     },
@@ -419,7 +419,7 @@ export default {
               }
             }, opts)
           })
-          this.update()
+          this?.update()
         })
       } catch (ex) {
         this.$utils.warn(`[lah-chart] 元件 ${this.id} 渲染失敗：${ex.message}`)
