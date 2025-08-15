@@ -263,7 +263,8 @@ export default ({ $axios, store, $config }, inject) => {
               resolve(`${opts.name} animation ended.`)
             })
           } else {
-            reject(`${selector} not found, can't apply animation effect.`)
+            this.$utils.warn(`${selector} not found, can't apply animation effect.`)
+            reject(false)
           }
         } else {
           reject('Only apply animation on client side, this animated call will be ignored.')
