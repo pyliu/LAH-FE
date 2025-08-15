@@ -263,7 +263,7 @@ export default ({ $axios, store, $config }, inject) => {
               resolve(`${opts.name} animation ended.`)
             })
           } else {
-            console.warn(`${selector} not found, can't apply animation effect.`)
+            this.warn(`${selector} not found, can't apply animation effect.`)
             reject(false)
           }
         } else {
