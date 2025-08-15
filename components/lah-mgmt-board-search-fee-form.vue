@@ -233,11 +233,13 @@ export default {
       if (years !== false) {
         this.searchYears = [...years]
       } else {
-        this.searchYears = []
+        this.searchYears = [{ text: this.searchYear, value: this.searchYear }]
         // set year select options
         const len = this.year - 104
         for (let i = 0; i <= len; i++) {
-          this.searchYears.push({ value: 104 + i, text: 104 + i })
+          if (104 + i !== this.searchYear) {
+            this.searchYears.push({ value: 104 + i, text: 104 + i })
+          }
         }
         this.setCache('lah-case-input-group-year', this.searchYears, 24 * 60 * 60 * 1000) // cache for a day
       }
