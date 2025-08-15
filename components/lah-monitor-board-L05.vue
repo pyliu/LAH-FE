@@ -347,20 +347,32 @@ export default {
       return ''
     },
     stdout () {
-      if (this.statusData) {
-        return [...this.statusData?.payload?.runtimeLogs?.stdout].filter(line => !this.$utils.empty(line))
+      try {
+        if (this.statusData) {
+          return [...this.statusData?.payload?.runtimeLogs?.stdout].filter(line => !this.$utils.empty(line))
+        }
+      } catch (error) {
+        this.$utils.warn('獲取 stdout 日誌時發生錯誤:', error)
       }
       return []
     },
     stderr () {
-      if (this.statusData) {
-        return [...this.statusData?.payload?.runtimeLogs?.stderr].filter(line => !this.$utils.empty(line))
+      try {
+        if (this.statusData) {
+          return [...this.statusData?.payload?.runtimeLogs?.stderr].filter(line => !this.$utils.empty(line))
+        }
+      } catch (error) {
+        this.$utils.warn('獲取 stderr 日誌時發生錯誤:', error)
       }
       return []
     },
     sqlnet () {
-      if (this.statusData) {
-        return [...this.statusData?.payload?.runtimeLogs?.sqlnet].filter(line => !this.$utils.empty(line))
+      try {
+        if (this.statusData) {
+          return [...this.statusData?.payload?.runtimeLogs?.sqlnet].filter(line => !this.$utils.empty(line))
+        }
+      } catch (error) {
+        this.$utils.warn('獲取 sqlnet 日誌時發生錯誤:', error)
       }
       return []
     }
