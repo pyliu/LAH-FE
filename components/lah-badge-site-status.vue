@@ -230,17 +230,22 @@ export default {
           type: 'check_site_http',
           site: this.watchSite
         }).then(({ data }) => {
-          this.headers = [...data.raw]
-          this.status = data.status
-          this.message = data.message
-          if (this.isTimeout) {
-            this.message = `${this.watchSite}測試連線逾時`
+          if (this.$utils.statusCheck(data.status)) {
+            this.$utils.log(`${this.watchSite}測試連線成功`)
+            this.headers = [...data.raw]
+            this.status = data.status
+            this.message = data.message
+            if (this.isTimeout) {
+              this.message = `${this.watchSite}測試連線逾時`
+            }
+            if (!this.$utils.statusCheck(this.status)) {
+              this.$utils.warn(data.message)
+            }
+            this.$emit('updated', data)
+            this.siteStatusCacheMap.set(this.watchSite, data)
+          } else {
+            this.$utils.warn(`${this.watchSite}測試連線失敗`, data)
           }
-          if (!this.$utils.statusCheck(this.status)) {
-            this.$utils.warn(data.message)
-          }
-          this.$emit('updated', data)
-          this.siteStatusCacheMap.set(this.watchSite, data)
         }).catch((err) => {
           this.status = -1
           this.message = err.toString()
