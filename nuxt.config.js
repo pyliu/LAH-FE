@@ -57,7 +57,9 @@ export default {
     { src: '~/plugins/customize-axios' },
     { src: '~/plugins/fontawesome' },
     { src: '~/plugins/global-init' },
-    { src: '~/mixins/global-vue-mixin' }
+    { src: '~/mixins/global-vue-mixin' },
+    // 註冊路由切換插件
+    { src: '~/plugins/cancel-axios-on-route-change.js', ssr: false }
   ],
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
