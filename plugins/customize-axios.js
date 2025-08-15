@@ -1,4 +1,3 @@
-import random from 'lodash/random'
 import qs from 'qs'
 
 export default function ({ $axios, redirect, store, isDev }, inject) {
@@ -90,42 +89,42 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
     return Promise.reject(error)
   })
 
-  const originalPost = $axios.post.bind($axios)
-  const attemptMax = 3
-  const baseDelay = 100
-  const maxDelay = 1000
-  const postWithConcurrencyCheck = function (...args) {
-    // 從參數中取得 config 物件，以便讀取 cancelId
-    const config = args[2] || {}
+  // const originalPost = $axios.post.bind($axios)
+  // const attemptMax = 3
+  // const baseDelay = 100
+  // const maxDelay = 1000
+  // const postWithConcurrencyCheck = function (...args) {
+  //   // 從參數中取得 config 物件，以便讀取 cancelId
+  //   const config = args[2] || {}
 
-    const checkAndPost = async (attempt = 1) => {
-      // --- 修改開始：在每次重試前檢查請求是否已被取消 ---
-      // 如果請求有 cancelId，且這個 Id 已經不在我們的追蹤 Map 中，
-      // 表示它已經被外部呼叫了 cancel() 或 cancelAll()
-      if (config.cancelId && !cancelTokens.has(config.cancelId)) {
-        isDev && console.log(`[Axios Post] 請求 '${config.cancelId}' 在等待期間已被取消，中止重試。`)
-        // 中止後續的重試或請求
-        return Promise.resolve(false)
-      }
-      // --- 修改結束 ---
+  //   const checkAndPost = async (attempt = 1) => {
+  //     // --- 修改開始：在每次重試前檢查請求是否已被取消 ---
+  //     // 如果請求有 cancelId，且這個 Id 已經不在我們的追蹤 Map 中，
+  //     // 表示它已經被外部呼叫了 cancel() 或 cancelAll()
+  //     if (config.cancelId && !cancelTokens.has(config.cancelId)) {
+  //       isDev && console.log(`[Axios Post] 請求 '${config.cancelId}' 在等待期間已被取消，中止重試。`)
+  //       // 中止後續的重試或請求
+  //       return Promise.resolve(false)
+  //     }
+  //     // --- 修改結束 ---
 
-      if (attempt > attemptMax) {
-        isDev && console.warn(`[Axios Post] 重試已達 ${attempt - 1} 次上限，直接發送請求...`, args)
-        return originalPost(...args)
-      }
-      if (pendingRequests > 0) {
-        const exponentialDelay = baseDelay * Math.pow(2, attempt - 1)
-        const delayWithJitter = exponentialDelay + random(0, 100)
-        const finalDelay = Math.min(delayWithJitter, maxDelay)
-        // isDev && console.log(`[Axios Post] 偵測到壅塞，啟用指數退避機制，延遲 ${finalDelay}ms 後重試... (第 ${attempt} 次)`)
-        await new Promise(resolve => setTimeout(resolve, finalDelay))
-        return checkAndPost(attempt + 1)
-      } else {
-        return originalPost(...args)
-      }
-    }
-    return checkAndPost()
-  }
-  $axios.post = postWithConcurrencyCheck
-  $axios.oPost = originalPost
+  //     if (attempt > attemptMax) {
+  //       isDev && console.warn(`[Axios Post] 重試已達 ${attempt - 1} 次上限，直接發送請求...`, args)
+  //       return originalPost(...args)
+  //     }
+  //     if (pendingRequests > 0) {
+  //       const exponentialDelay = baseDelay * Math.pow(2, attempt - 1)
+  //       const delayWithJitter = exponentialDelay + random(0, 100)
+  //       const finalDelay = Math.min(delayWithJitter, maxDelay)
+  //       // isDev && console.log(`[Axios Post] 偵測到壅塞，啟用指數退避機制，延遲 ${finalDelay}ms 後重試... (第 ${attempt} 次)`)
+  //       await new Promise(resolve => setTimeout(resolve, finalDelay))
+  //       return checkAndPost(attempt + 1)
+  //     } else {
+  //       return originalPost(...args)
+  //     }
+  //   }
+  //   return checkAndPost()
+  // }
+  // $axios.post = postWithConcurrencyCheck
+  // $axios.oPost = originalPost
 }
