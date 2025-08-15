@@ -301,7 +301,7 @@ export default ({ $axios, store, $config }, inject) => {
         win.focus()
       }
     },
-    statusCheck (statusCode) { return statusCode > 0 },
+    statusCheck (statusCode) { return statusCode > 0 && statusCode !== 'cancelled' },
     message (statusCode) {
       switch (statusCode) {
         case 0:
