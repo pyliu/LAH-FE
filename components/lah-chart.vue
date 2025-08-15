@@ -157,7 +157,7 @@ export default {
     }
   },
   created () {
-    this.id = this.uuid()
+    this.id = this.$utils.uuid()
     this.update = this.$utils.debounce(() => {
       if (this.inst && !this.isDestroyed) {
         try {
