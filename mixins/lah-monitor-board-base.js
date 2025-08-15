@@ -15,8 +15,7 @@ export default {
     resetTimer: null,
     lastFetchTimestamp: 0,
     fetchingState: '',
-    isDestroyed: false,
-    axiosCancelId: ''
+    isDestroyed: false
   }),
   fetch () {
     const nowTs = this.$utils.nowTs()
@@ -45,9 +44,6 @@ export default {
     }
   },
   computed: {
-    axiosCancelIdCheckMail () {
-      return `${this.axiosCancelId}-check-mail`
-    },
     needRefetch () {
       // none of this criteria fits, no needs to fetch
       if (
@@ -109,7 +105,6 @@ export default {
     }
   },
   created () {
-    this.axiosCancelId = this.$options.name
     // provides time span for various comp reloading
     this.reloadMs = 10 * 60 * 1000 + this.$utils.rand(30) * 1000
     this.lightChanged('warning', '', this.componentName)
@@ -118,8 +113,6 @@ export default {
     this.load = this.$utils.debouncePromise(this.load, 250)
   },
   beforeDestroy () {
-    this.$axios.cancel(this.axiosCancelId)
-    this.$axios.cancel(this.axiosCancelIdCheckMail)
     clearTimeout(this.reloadTimer)
     clearTimeout(this.resetTimer)
     this.$refs.footer?.stop()
@@ -177,8 +170,6 @@ export default {
         this.$axios
           .post(this.$consts.API.JSON.MONITOR, {
             type: 'check_mail'
-          }, {
-            cancelId: this.axiosCancelIdCheckMail
           })
           .then(({ data }) => {
             if (this.$utils.statusCheck(data.status)) {
@@ -220,8 +211,6 @@ export default {
               keyword,
               days,
               convert
-            }, {
-              cancelId: this.axiosCancelId
             })
             .then(({ data }) => {
               if (this.$utils.statusCheck(data.status)) {
