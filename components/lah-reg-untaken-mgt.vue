@@ -67,7 +67,7 @@ div
     div
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1.text-nowrap 　借閱人
-        strong.my-auto.mr-1(v-if="!$utils.empty(borrower)") {{ borrower }}:{{ borrowerName }}
+        strong.my-auto.mr-1(v-if="!$utils.empty(borrower)", :title="`${borrower}:${borrowerName}`") {{ borrowerName }}
         lah-button(
           icon="user-friends",
           title="選擇",
@@ -155,8 +155,8 @@ div
 </template>
 
 <script>
-import regCaseBase from '~/mixins/lah-reg-case-base.js'
 import lahUserSelect from '~/components/lah-user-select.vue'
+import regCaseBase from '~/mixins/lah-reg-case-base.js'
 
 export default {
   /* from lah-reg-case-base.js
