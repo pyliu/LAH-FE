@@ -160,7 +160,11 @@ export default {
     this.id = this.uuid()
     this.update = this.$utils.debounce(() => {
       if (this.inst && !this.isDestroyed) {
-        this.inst.update()
+        try {
+          this.inst.update()
+        } catch (ex) {
+          this.$utils.warn(`[lah-chart] 更新圖表時發生錯誤：${ex.message}`)
+        }
       }
     }, 100)
     this.reset()
@@ -316,112 +320,110 @@ export default {
       return foundIdx
     },
     build (opts = { plugins: {} }) {
+      try {
       // 如果元件已被銷毀，則立即中止所有後續的渲染操作
-      if (this.isDestroyed) {
-        return
-      }
-      this.destroy()
-      switch (this.type) {
-        case 'pie':
-        case 'polarArea':
-        case 'doughnut':
-          // put legend to the right for some chart type
-          opts.plugins.legend = {
-            position: opts.legend_pos || 'right',
-            labels: { font: { size: +this.labelFontSize } }
-          }
-          break
-        case 'radar':
-          break
-        default:
-          opts.scales = {
-            yAxes: {
-              display: this.yAxes,
-              beginAtZero: this.beginAtZero
-            },
-            xAxes: {
-              display: this.xAxes
-            }
-          }
-      }
-      // update title
-      opts.plugins.title = {
-        display: !this.$utils.empty(this.title),
-        text: this.title,
-        position: this.titlePos,
-        font: { size: +this.titleFontSize }
-      }
-      // subtitle
-      opts.plugins.subtitle = {
-        display: !this.$utils.empty(this.subtitle),
-        text: this.subtitle
-      }
-      // tooltip
-      opts.plugins.tooltip = {
-        enabled: !this.noTooltip,
-        backgroundColor: this.tooltipBackgroundColor,
-        callbacks: {
-          title: this.tooltipTitleCallback,
-          label: this.tooltipLabelCallback
-        }
-      }
-      // legend
-      opts.plugins.legend = Object.assign(
-        { display: this.legend }, // default
-        opts.plugins.legend
-      )
-      // use chart.js directly
-      const that = this
-      this.$nextTick(() => {
-        if (that.isDestroyed || !document.getElementById(this.id)) {
-          this.$utils.warn(`[lah-chart] 元件 ${this.id} 已銷毀或 canvas 不存在，中止渲染。`)
+        if (this.isDestroyed) {
           return
         }
-        // this.$utils.warn(this.chartData.datasets[0].backgroundColor[this.chartData.datasets[0].backgroundColor.length - 1])
-        this.inst = new Chart(document.getElementById(this.id), {
-          data: this.chartData,
-          options: Object.assign({
-            responsive: true,
-            maintainAspectRatio: that.maintainAspectRatio,
-            aspectRatio: +that.aspectRatio || +that.viewportRatio,
-            elements: {
-              point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
-              line: { tension: that.type === 'line' ? 0.35 : 0.1, fill: that.chartData.datasets.length === 1, stepped: false }
-            },
-            onResize: that.resizeCallback.bind(that),
-            resizeDelay: 400,
-            onClick (e) {
-              const payload = {}
-              /**
+        this.destroy()
+        switch (this.type) {
+          case 'pie':
+          case 'polarArea':
+          case 'doughnut':
+          // put legend to the right for some chart type
+            opts.plugins.legend = {
+              position: opts.legend_pos || 'right',
+              labels: { font: { size: +this.labelFontSize } }
+            }
+            break
+          case 'radar':
+            break
+          default:
+            opts.scales = {
+              yAxes: {
+                display: this.yAxes,
+                beginAtZero: this.beginAtZero
+              },
+              xAxes: {
+                display: this.xAxes
+              }
+            }
+        }
+        // update title
+        opts.plugins.title = {
+          display: !this.$utils.empty(this.title),
+          text: this.title,
+          position: this.titlePos,
+          font: { size: +this.titleFontSize }
+        }
+        // subtitle
+        opts.plugins.subtitle = {
+          display: !this.$utils.empty(this.subtitle),
+          text: this.subtitle
+        }
+        // tooltip
+        opts.plugins.tooltip = {
+          enabled: !this.noTooltip,
+          backgroundColor: this.tooltipBackgroundColor,
+          callbacks: {
+            title: this.tooltipTitleCallback,
+            label: this.tooltipLabelCallback
+          }
+        }
+        // legend
+        opts.plugins.legend = Object.assign(
+          { display: this.legend }, // default
+          opts.plugins.legend
+        )
+        // use chart.js directly
+        const that = this
+        this.$nextTick(() => {
+          if (that.isDestroyed || !document.getElementById(this.id)) {
+            this.$utils.warn(`[lah-chart] 元件 ${this.id} 已銷毀或 canvas 不存在，中止渲染。`)
+            return
+          }
+          // this.$utils.warn(this.chartData.datasets[0].backgroundColor[this.chartData.datasets[0].backgroundColor.length - 1])
+          this.inst = new Chart(document.getElementById(this.id), {
+            data: this.chartData,
+            options: Object.assign({
+              responsive: true,
+              maintainAspectRatio: that.maintainAspectRatio,
+              aspectRatio: +that.aspectRatio || +that.viewportRatio,
+              elements: {
+                point: { pointStyle: 'circle', radius: 4, hoverRadius: 6, borderWidth: 1, hoverBorderWidth: 2 },
+                line: { tension: that.type === 'line' ? 0.35 : 0.1, fill: that.chartData.datasets.length === 1, stepped: false }
+              },
+              onResize: that.resizeCallback.bind(that),
+              resizeDelay: 400,
+              onClick (e) {
+                const payload = {}
+                /**
              * getElementAtEvent is replaced with chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false)
              * getElementsAtEvent is replaced with chart.getElementsAtEventForMode(e, 'index', { intersect: true }, false)
              * getElementsAtXAxis is replaced with chart.getElementsAtEventForMode(e, 'index', { intersect: false }, false)
              * getDatasetAtEvent is replaced with chart.getElementsAtEventForMode(e, 'dataset', { intersect: true }, false)
              */
-              const element = that.inst.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false)
-              if (!that.$utils.empty(element)) {
-                payload.point = element[0]
-                if (payload.point) {
-                // point e.g. {element: e, datasetIndex: 0, index: 14}
-                  const idx = payload.point.index
-                  const datasetIdx = payload.point.datasetIndex // only one dataset, it should be always be 0
-                  payload.label = that.inst.data.labels[idx]
-                  payload.value = that.inst.data.datasets[datasetIdx].data[idx]
+                const element = that.inst.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false)
+                if (!that.$utils.empty(element)) {
+                  payload.point = element[0]
+                  if (payload.point) {
+                    // point e.g. {element: e, datasetIndex: 0, index: 14}
+                    const idx = payload.point.index
+                    const datasetIdx = payload.point.datasetIndex // only one dataset, it should be always be 0
+                    payload.label = that.inst.data.labels[idx]
+                    payload.value = that.inst.data.datasets[datasetIdx].data[idx]
+                  }
+                  // parent uses a handle function to catch the event, e.g. catchClick(e) { const payload = e.detail; const target = e.target; ... }
+                  that.trigger('click', payload)
                 }
-                // parent uses a handle function to catch the event, e.g. catchClick(e) { const payload = e.detail; const target = e.target; ... }
-                that.trigger('click', payload)
               }
-            }
-          }, opts)
+            }, opts)
+          })
+          this.update()
         })
-        this.update()
-      })
-      // tweak canvas dimension
-      // const canvas = this.$refs.canvas
-      // const container = this.$refs.container
-      // canvas.style.width = `${container.clientWidth - 30}px`
-      // canvas.style.height = `${container.clientHeight - 30}px`
-      // console.warn(this.$refs.canvas, canvas.width, canvas.height)
+      } catch (ex) {
+        this.$utils.warn(`[lah-chart] 元件 ${this.id} 渲染失敗：${ex.message}`)
+      }
     },
     toBase64Image () {
       return this.inst.toBase64Image()
