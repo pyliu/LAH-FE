@@ -16,28 +16,26 @@ div
           :options="statusOpts",
           size="sm"
         )
-        lah-transition
-          b-button-group.ml-1(
-            v-if="dataChanged",
-            size="sm"
+        b-button-group.ml-1(size="sm")
+          lah-button(
+            ref="countdown"
+            icon="edit",
+            variant="outline-primary",
+            badge-variant="secondary"
+            title="儲存",
+            @click="update",
+            :disabled="!dataChanged",
+            no-icon-gutter
           )
-            lah-button(
-              ref="countdown"
-              icon="edit",
-              variant="outline-primary",
-              badge-variant="secondary"
-              title="儲存",
-              @click="update",
-              no-icon-gutter
-            )
-            lah-button.ml-1(
-              icon="undo",
-              action="cycle-alt",
-              variant="success",
-              title="還原前設定值",
-              @click="backOrigData"
-              no-icon-gutter
-            )
+          lah-button.ml-1(
+            icon="undo",
+            action="cycle-alt",
+            variant="success",
+            title="還原前設定值",
+            @click="backOrigData"
+            :disabled="!dataChanged"
+            no-icon-gutter
+          )
 
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1 領件日期
@@ -67,7 +65,7 @@ div
     div
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1.text-nowrap 　借閱人
-        strong.my-auto.mr-1(v-if="!$utils.empty(borrower)", :title="`${borrower}:${borrowerName}`") {{ borrowerName }}
+        strong.my-auto.mr-1(:title="`${borrower} ${borrowerName}`") {{ borrowerName }}
         lah-button(
           icon="user-friends",
           title="選擇",
@@ -286,7 +284,7 @@ export default {
         } else if (this.$utils.empty(this.takenStatus)) {
           this.parentData.UNTAKEN_TAKEN_STATUS = '已領件'
         }
-        if (val.setHours) {
+        if (val?.setHours) {
           const now = new Date()
           val?.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
         }

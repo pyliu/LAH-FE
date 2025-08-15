@@ -232,8 +232,10 @@ div
 </template>
 
 <script>
+import lahRegUntakenMgt from '~/components/lah-reg-untaken-mgt.vue'
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
 export default {
+  components: { lahRegUntakenMgt },
   mixins: [dynamicHeight],
   data: () => ({
     cachedMs: 24 * 60 * 60 * 1000,
