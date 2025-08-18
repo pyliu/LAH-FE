@@ -25,7 +25,7 @@ div
           title="重新設定為預設篩選選項",
           style="font-size: 0.85rem;"
         ) 重設
-        lah-button.mr-1(
+        lah-button(
           icon="search-plus",
           size="lg",
           title="開啟進階篩選視窗",
