@@ -32,6 +32,10 @@ div
           @click="$refs.searchPlus.show()",
           :disabled="!dataReady"
         ) 進階篩選
+        lah-button-xlsx.mx-1(
+          :jsons="xlsxData"
+          header="補正案件"
+        )
         lah-countdown-button(
           ref="countdown"
           title="立即重新讀取"
@@ -366,6 +370,39 @@ export default {
       generateTags('通知補正', this.advOpts.caseFixDate)
       generateTags('補正期滿', this.advOpts.caseFixDeadline)
       return tags
+    },
+    xlsxData () {
+      // prepare json objects for xlsx exporting
+      const jsons = this.filterRows.map((data, idx, array) => {
+        /**
+         * REG_FIX_CASE_RECORD 範例物件:
+         * {
+         *   case_no: "114HA81159330",
+         *   fix_deadline_date: "2025-08-18",
+         *   note: null,
+         *   notify_delivered_date: "2025-08-05"
+         * }
+         */
+        const obj = {
+          收件年: data.RM01,
+          收件字: data.收件字,
+          收件號: data.RM03,
+          收件日期: data.收件日期,
+          登記原因: data.登記原因,
+          辦理情形: data.辦理情形,
+          初審人員: data.初審人員,
+          // 使用可選串連運算子 (?.) 來安全地存取屬性
+          // 如果 data.REG_FIX_CASE_RECORD 是 null 或 undefined，這些欄位的值將會是 undefined
+          補正字號: data.REG_FIX_CASE_RECORD?.note,
+          通知補正日期: data.通知補正日期,
+          補正期滿日期: data.補正期滿日期,
+          // 將西元年份轉換為民國年份
+          通知送達日期: this.toMinguoDate(data.REG_FIX_CASE_RECORD?.notify_delivered_date),
+          調整期滿日期: this.toMinguoDate(data.REG_FIX_CASE_RECORD?.fix_deadline_date)
+        }
+        return obj
+      })
+      return jsons
     }
   },
   watch: {
@@ -486,6 +523,14 @@ export default {
     },
     humanTWDate (str) {
       return `${str.substring(0, 3)}-${str.substring(3, 5)}-${str.substring(5)}`
+    },
+    toMinguoDate (dateString) {
+      if (!dateString) { return '' }
+      const [year, month, day] = dateString.split('-')
+      const parsedYear = parseInt(year)
+      if (parsedYear < 1911) { return dateString }
+      const minguoYear = parsedYear - 1911
+      return `${minguoYear}-${month}-${day}`
     },
     resetAdvSearch () {
       this.advOpts = {
