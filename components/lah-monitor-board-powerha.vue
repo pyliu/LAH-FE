@@ -44,6 +44,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
   slot
   .center(v-if="$utils.empty(headMessage)") ⚠ {{ fetchDay }}日內無資料，請參照說明確認AIX節點是否有安裝檢測腳本。
+  h5(v-else-if="this.reportData.length === 0") ⚠ 無法解析資料批次，請確認 AIX 節點是否正確寄送分析郵件。(51、52皆有回報郵件才能進行分析)
   div(v-else)
 
     b-table(
@@ -168,12 +169,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-content.vue'
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import { BRIEF_REPORT_FIELDS, HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 
 export default {
   name: 'LahMonitorBoardPowerha',
@@ -240,6 +241,7 @@ export default {
           messages: data
         }))
 
+        this.$utils.warn(batches)
         return batches.sort((a, b) => b.timestamp.localeCompare(a.timestamp))
       } catch (error) {
         console.error('Error analyzing batches:', error)
@@ -283,10 +285,10 @@ export default {
     },
     clusterName () {
       if (this.is51Online) {
-        return this.getClusterName(this.headP8_51.message)
+        return this.getClusterName(this.headP8_51?.message)
       }
       if (this.is52Online) {
-        return this.getClusterName(this.headP8_52.message)
+        return this.getClusterName(this.headP8_52?.message)
       }
       return 'N/A'
     },
@@ -1391,6 +1393,7 @@ export default {
           result: '✅'
         })
       } catch (err) {
+        this.reportData.length = 0
         this.$utils.error('執行過程中發生錯誤:', err.message)
       }
     }
