@@ -45,7 +45,6 @@ div
           no-badge
         )
 
-  // MODIFIED: 替換 b-tags 為 b-form-tag 的 v-for 迴圈
   lah-transition
     .d-flex.flex-wrap.align-items-center.border-0.mt-n3.p-0.my-2(v-if="advTags.length > 0")
       b-form-tag(
@@ -74,6 +73,7 @@ div
   b-modal(
     ref="searchPlus",
     title="進階篩選 - 按住 Ctrl 鍵可多選",
+    size="lg",
     hide-footer
   )
     b-form-row.mb-1
@@ -260,6 +260,11 @@ export default {
               const found = this.advOpts.caseLightOpts.find(opt => opt.value === val)
               text = found ? found.text : val
             }
+            // MODIFIED: 處理初審人員標籤顯示問題
+            if (type === 'casePreliminators') {
+              const found = this.advOpts.casePreliminatorOpts.find(opt => opt.value === val)
+              text = found ? found.text : val
+            }
             tags.push({ type, value: val, text: `${prefix}：${text}`, variant })
           })
         } else if (!this.$utils.empty(value)) {
@@ -308,17 +313,30 @@ export default {
   },
   watch: {
     bakedData (val) {
-      // 先執行一次完整的清空重設
-      this.reset(false) // 傳入 false 避免重複觸發預選
+      this.reset(false)
       if (val?.length > 0) {
         const caseWordOptions = [...new Set(val.map(item => item.RM02))].sort()
         this.advOpts.caseWordOpts = caseWordOptions
-        // MODIFIED: 呼叫統一個方法來設定預選
         this.applyDefaultCaseWordsSelection()
 
         this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].sort()
         this.advOpts.caseStateOpts = [...new Set(val.map(item => item.辦理情形))].sort()
-        this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].sort()
+
+        // MODIFIED: 修正初審人員選項重複的問題
+        const preliminatorMap = new Map()
+        val.forEach((item) => {
+          if (!preliminatorMap.has(item.初審人員)) {
+            preliminatorMap.set(item.初審人員, {
+              text: `${item.RM45} ${item.初審人員}`,
+              value: item.初審人員
+            })
+          }
+        })
+        const uniquePreliminators = [...preliminatorMap.values()]
+        // 以代碼排序
+        uniquePreliminators.sort((a, b) => a.text.localeCompare(b.text))
+        this.advOpts.casePreliminatorOpts = uniquePreliminators
+
         this.advOpts.caseAnnouncementDateOpts = [...new Set(val.map(item => item.公告日期))].sort()
         this.advOpts.caseAnnouncementDeadlineOpts = [...new Set(val.map(item => item.公告期滿日期))].sort()
         this.advOpts.caseLightOpts = [
@@ -331,7 +349,6 @@ export default {
     }
   },
   methods: {
-    // ADDED: 建立一個統一的方法來處理預選邏輯
     applyDefaultCaseWordsSelection () {
       const caseWordOptions = this.advOpts.caseWordOpts
       if (caseWordOptions?.length > 0) {
@@ -367,7 +384,6 @@ export default {
         this.$fetch()
       })
     },
-    // MODIFIED: 修改 reset 方法
     reset (applyDefault = true) {
       this.advOpts.caseNum = ''
       this.advOpts.caseWords = []
@@ -377,7 +393,6 @@ export default {
       this.advOpts.caseLights = []
       this.advOpts.caseAnnouncementDates = []
       this.advOpts.caseAnnouncementDeadlines = []
-      // 只有在點擊按鈕時 (預設情況) 才執行預選
       if (applyDefault) {
         this.applyDefaultCaseWordsSelection()
       }
