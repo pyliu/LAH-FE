@@ -238,10 +238,8 @@ export default {
     dataReady () { return this.bakedData?.length > 0 },
     queryCount () { return this.bakedData.length },
     cacheKey () { return 'reg_rm30_H_case' },
-    // MODIFIED: advTags 現在回傳物件陣列，包含 variant, type, value 等資訊
     advTags () {
       const tags = []
-      // 為不同篩選類型定義樣式與前綴
       const config = [
         { type: 'caseNum', prefix: '號', variant: 'secondary' },
         { type: 'caseWords', prefix: '字', variant: 'primary' },
@@ -255,18 +253,15 @@ export default {
 
       config.forEach(({ type, prefix, variant }) => {
         const value = this.advOpts[type]
-        // 處理陣列類型的篩選 (例如：收件字、登記原因)
         if (Array.isArray(value)) {
           value.forEach((val) => {
             let text = val
-            // 特殊處理：狀態燈號顯示文字而非原始值
             if (type === 'caseLights') {
               const found = this.advOpts.caseLightOpts.find(opt => opt.value === val)
               text = found ? found.text : val
             }
             tags.push({ type, value: val, text: `${prefix}：${text}`, variant })
           })
-        // 處理字串類型的篩選 (例如：收件號)
         } else if (!this.$utils.empty(value)) {
           tags.push({ type, value, text: `${prefix}：${value}`, variant })
         }
@@ -290,7 +285,6 @@ export default {
         const deadlineMatch = this.advOpts.caseAnnouncementDeadlines.length === 0 || this.advOpts.caseAnnouncementDeadlines.includes(item.公告期滿日期)
         return numMatch && wordMatch && reasonMatch && stateMatch && preliminatorMatch && lightMatch && announcementMatch && deadlineMatch
       })
-      // NOTE: 使用 $nextTick 延遲更新狀態，避免 computed property 的潛在問題
       this.$nextTick(() => {
         this.filtering = false
       })
@@ -314,13 +308,13 @@ export default {
   },
   watch: {
     bakedData (val) {
-      this.reset()
-      if (val) {
+      // 先執行一次完整的清空重設
+      this.reset(false) // 傳入 false 避免重複觸發預選
+      if (val?.length > 0) {
         const caseWordOptions = [...new Set(val.map(item => item.RM02))].sort()
         this.advOpts.caseWordOpts = caseWordOptions
-        // MODIFIED: 增加 H[1-8] 開頭的預選條件
-        const regex = /^H[A-H]|^H[1-8]|[A-H]1$/
-        this.advOpts.caseWords = caseWordOptions.filter(opt => regex.test(opt))
+        // MODIFIED: 呼叫統一個方法來設定預選
+        this.applyDefaultCaseWordsSelection()
 
         this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].sort()
         this.advOpts.caseStateOpts = [...new Set(val.map(item => item.辦理情形))].sort()
@@ -337,13 +331,18 @@ export default {
     }
   },
   methods: {
-    // ADDED: 處理 b-form-tag 移除事件的方法
+    // ADDED: 建立一個統一的方法來處理預選邏輯
+    applyDefaultCaseWordsSelection () {
+      const caseWordOptions = this.advOpts.caseWordOpts
+      if (caseWordOptions?.length > 0) {
+        const regex = /^H[A-H]|^H[1-8]|[A-H]1$/
+        this.advOpts.caseWords = caseWordOptions.filter(opt => regex.test(opt))
+      }
+    },
     removeAdvTag (tagToRemove) {
       const { type, value } = tagToRemove
-      // 如果是收件號(字串)，直接清空
       if (type === 'caseNum') {
         this.advOpts.caseNum = ''
-      // 如果是其他(陣列)，從陣列中移除該項目
       } else if (Array.isArray(this.advOpts[type])) {
         const index = this.advOpts[type].indexOf(value)
         if (index > -1) {
@@ -368,7 +367,8 @@ export default {
         this.$fetch()
       })
     },
-    reset () {
+    // MODIFIED: 修改 reset 方法
+    reset (applyDefault = true) {
       this.advOpts.caseNum = ''
       this.advOpts.caseWords = []
       this.advOpts.caseReasons = []
@@ -377,6 +377,10 @@ export default {
       this.advOpts.caseLights = []
       this.advOpts.caseAnnouncementDates = []
       this.advOpts.caseAnnouncementDeadlines = []
+      // 只有在點擊按鈕時 (預設情況) 才執行預選
+      if (applyDefault) {
+        this.applyDefaultCaseWordsSelection()
+      }
     }
   }
 }
