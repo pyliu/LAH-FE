@@ -107,7 +107,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :hours="parseInt(monitorHrs)",
         @updated="handleUpdated"
       )
-    b-carousel-slide: template(#img)
+    b-carousel-slide(v-if="!failed"): template(#img)
       .center
         .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
         b-link(
@@ -118,10 +118,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
           b-img.fit-img(
             :src="weatherImgUrl",
             fluid,
-            thumbnail,
-            @load="failed = false",
-            @error="failed = true"
+            thumbnail
           )
+  b-img.fit-img.d-none(
+    :src="weatherImgUrl",
+    @load="failed = false",
+    @error="failed = true"
+  )
   //- lah-button(@click="matchWarningRestores") test
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -136,11 +139,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import lahMonitorBoardSrmasAnalysis from '~/components/lah-monitor-board-srmas-analysis.vue'
 import lahMonitorBoardSrmasFixed from '~/components/lah-monitor-board-srmas-fixed.vue'
 import lahMonitorBoardSrmasList from '~/components/lah-monitor-board-srmas-list.vue'
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 
 export default {
   emit: ['updated'],
