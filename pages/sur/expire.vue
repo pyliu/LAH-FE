@@ -242,11 +242,11 @@ export default {
         label: '複丈時間',
         sortable: true
       },
-      {
-        key: 'MD06_1',
-        label: '結案時間',
-        sortable: true
-      },
+      // {
+      //   key: 'MD06_1',
+      //   label: '結案時間',
+      //   sortable: true
+      // },
       {
         key: 'MM21_1',
         label: '逾期時間',
