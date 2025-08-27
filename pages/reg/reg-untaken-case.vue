@@ -584,6 +584,11 @@ export default {
         caseBorrower: [],
         caseLentDate: []
       }
+      // MODIFIED: Use $nextTick to ensure DOM is updated before recalculating
+      this.$nextTick(() => {
+        // wait transition animation finish then re-calculate
+        this.timeout(this.calculateTableHeight, 800)
+      })
     },
     takenDate (item) {
       const ts = Date.parse(item.UNTAKEN_TAKEN_DATE)
