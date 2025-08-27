@@ -23,8 +23,20 @@ div
             li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
 
       .d-flex.small
+        b-link.s-90.text-muted.mr-1.align-self-center(
+          v-if="advTags.length > 0"
+          href="#"
+          @click.prevent="resetAdvSearch"
+        ) 重設
+        lah-button.mr-1(
+          icon="search-plus",
+          size="lg",
+          title="開啟進階篩選視窗",
+          @click="$refs.searchPlus.show()",
+          :disabled="!dataReady"
+          no-icon-gutter
+        ) 進階篩選
         lah-datepicker.mr-1(v-model="dateRange")
-
         lah-button.mr-1(
           ref="search"
           icon="search"
@@ -32,14 +44,6 @@ div
           title="搜尋"
           :disabled="isBusy || isWrongDaysPeriod"
           @click="$fetch"
-          no-icon-gutter
-        )
-        lah-button.mr-1(
-          icon="search-plus",
-          size="lg",
-          title="開啟進階搜尋視窗",
-          @click="$refs.searchPlus.show()",
-          :disabled="!dataReady"
           no-icon-gutter
         )
         lah-countdown-button(
@@ -59,19 +63,17 @@ div
           end-attention
           no-badge
         )
-
-  lah-transition: b-tags.border-0.mt-n4(
-    v-if="advTags.length > 0",
-    v-model="advTags",
-    placeholder="",
-    tag-variant="info",
-    tag-pills,
-    no-outer-focus,
-    no-add-on-enter,
-    no-tag-remove,
-    add-button-variant="white"
-    add-button-text=""
-  )
+  lah-transition
+    .d-flex.flex-wrap.align-items-center.border-0.mt-n4.p-0.py-2(v-if="advTags.length > 0")
+      b-form-tag(
+        v-for="(tag, idx) in advTags"
+        :key="`tag-${idx}`"
+        @remove="removeAdvTag(tag)"
+        :title="`移除篩選：${tag.text}`"
+        :variant="tag.variant"
+        pill
+        class="mr-1 mb-1"
+      ) {{ tag.text }}
 
   lah-pagination(
     v-model="pagination"
@@ -122,7 +124,6 @@ div
       template(#cell(結案日期)="{ item }"): .text-nowrap {{ item.結案日期.split(' ')[0] }}
       template(#cell(customize)="{ item }"): lah-reg-untaken-mgt(:parent-data="item" :case-id="item.ID")
       template(#cell(UNTAKEN_TAKEN_STATUS)="{ item }"): .text-nowrap {{ statusLight(item) }} {{ statusText(item) }}
-      //- template(#cell(UNTAKEN_TAKEN_DATE)="{ item }") {{ takenDate(item) }} {{ takenTime(item) }}
       template(#cell(UNTAKEN_TAKEN_TIME)="{ item }") {{ takenDate(item) }} {{ takenTime(item) }}
 
   b-modal(
@@ -141,89 +142,95 @@ div
 
   b-modal(
     ref="searchPlus",
-    title="進階搜尋",
+    title="進階篩選",
+    size="lg",
     hide-footer
   )
+    template(#modal-title)
+      .d-flex.align-items-center
+        span 進階篩選
+        small.text-muted.ml-2 按住 Ctrl 鍵可多選
     .center.d-flex
-      //- b-input-group(prepend="年")
-      //-   b-select(
-      //-     v-model="advOpts.caseYear",
-      //-     :options="advOpts.caseYearOpts",
-      //-     title="收件年"
-      //-   )
-      b-input-group.mr-1(prepend="　收件字")
-        //- b-select(
-        //-   v-model="advOpts.caseWord",
-        //-   :options="advOpts.caseWordOpts",
-        //-   title="收件字"
-        //- )
-        b-input(
-          v-model="advOpts.caseWord",
-          title="收件字",
-          placeholder=".. 字代碼 ..",
-          debounce="800",
-          :state="validAdvTagsWord",
-          trim
-        )
-      b-input-group(prepend="　收件號")
-        //- b-input.mr-1(v-model="advOpts.caseWord", placeholder="... 收件字 ...", trim)
-        b-input(
-          v-model="advOpts.caseNum",
-          placeholder="... 收件號 ...",
-          debounce="800",
-          trim
-        )
-
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="登記原因"): b-select(
+      b-input-group.mr-1(prepend="　收件字"): b-form-select(
+        v-model="advOpts.caseWord",
+        :options="advOpts.caseWordOpts",
+        title="收件字",
+        multiple,
+        :select-size="4"
+      )
+      b-input-group.align-self-stretch(prepend="　收件號")
+        b-input.h-100(
+          v-model="advOpts.caseId",
+          placeholder="... 可輸入部分收件號 ...",
+          debounce="800",
+          trim
+        )
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="登記原因"): b-form-select(
         v-model="advOpts.caseReason",
         :options="advOpts.caseReasonOpts",
-        title="登記原因"
+        title="登記原因",
+        multiple,
+        :select-size="4"
       )
-      b-input-group(prepend="初審人員"): b-select(
+      b-input-group(prepend="初審人員"): b-form-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
-        title="初審人員"
+        title="初審人員",
+        multiple,
+        :select-size="4"
       )
 
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="結案日期"): b-select(
-        v-model="advOpts.caseCloseDate",
-        :options="advOpts.caseCloseDateOpts",
-        title="結案日期"
-      )
-      b-input-group(prepend="結案人員"): b-select(
+      b-input-group.mr-1(prepend="結案人員"): b-form-select(
         v-model="advOpts.caseCloser",
         :options="advOpts.caseCloserOpts",
-        title="結案人員"
+        title="結案人員",
+        multiple,
+        :select-size="4"
+      )
+      b-input-group(prepend="結案日期"): b-form-select(
+        v-model="advOpts.caseCloseDate",
+        :options="advOpts.caseCloseDateOpts",
+        title="結案日期",
+        multiple,
+        :select-size="4"
       )
 
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="領件狀態"): b-select(
+      b-input-group.mr-1(prepend="領件狀態"): b-form-select(
         v-model="advOpts.caseLight",
         :options="advOpts.caseLightOpts",
-        title="領件狀態"
+        title="領件狀態",
+        multiple,
+        :select-size="4"
       )
-      b-input-group(prepend="領件日期"): b-select(
+      b-input-group(prepend="領件日期"): b-form-select(
         v-model="advOpts.caseTakenDate",
         :options="advOpts.caseTakenDateOpts",
-        title="領件日期"
+        title="領件日期",
+        multiple,
+        :select-size="4"
       )
-
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="借閱人員"): b-select(
+      b-input-group.mr-1(prepend="借閱人員"): b-form-select(
         v-model="advOpts.caseBorrower",
         :options="advOpts.caseBorrowerOpts",
-        title="借閱人員"
+        title="借閱人員",
+        multiple,
+        :select-size="4"
       )
-      b-input-group(prepend="借閱日期"): b-select(
+      b-input-group(prepend="借閱日期"): b-form-select(
         v-model="advOpts.caseLentDate",
         :options="advOpts.caseLentDateOpts",
-        title="借閱日期"
+        title="借閱日期",
+        multiple,
+        :select-size="4"
       )
 
     .center.d-flex.my-1
-      lah-button(
+      lah-button.mr-auto(
         icon="recycle",
         @click="resetAdvSearch",
         variant="outline-success"
@@ -255,86 +262,43 @@ export default {
     committed: false,
     fields: [
       '#',
-      {
-        key: 'UNTAKEN_TAKEN_STATUS',
-        label: '狀態',
-        sortable: true
-      },
-      {
-        key: 'customize',
-        label: '設定',
-        sortable: false,
-        thStyle: 'width: 250px'
-      },
-      // {
-      //   key: 'UNTAKEN_TAKEN_DATE',
-      //   label: '領件日期',
-      //   sortable: true,
-      //   thStyle: 'width: 120px'
-      // },
-      {
-        key: 'UNTAKEN_TAKEN_TIME',
-        label: '領件時間',
-        sortable: true,
-        thStyle: 'width: 100px'
-      },
-      {
-        key: '收件字號',
-        sortable: true
-      },
-      {
-        key: '收件日期',
-        sortable: true
-      },
-      {
-        key: '登記原因',
-        sortable: true
-      },
-      {
-        key: '初審人員',
-        sortable: true
-      },
-      {
-        key: '結案日期',
-        sortable: true
-      },
-      {
-        key: '結案人員',
-        sortable: true
-      }
+      { key: 'UNTAKEN_TAKEN_STATUS', label: '狀態', sortable: true },
+      { key: 'customize', label: '設定', sortable: false, thStyle: 'width: 250px' },
+      { key: 'UNTAKEN_TAKEN_TIME', label: '領件時間', sortable: true, thStyle: 'width: 100px' },
+      { key: '收件字號', sortable: true },
+      { key: '收件日期', sortable: true },
+      { key: '登記原因', sortable: true },
+      { key: '初審人員', sortable: true },
+      { key: '結案日期', sortable: true },
+      { key: '結案人員', sortable: true }
     ],
     warnDays: 730,
     advOpts: {
-      caseYear: '',
-      caseYearOpts: [],
-      caseWord: '',
+      caseId: '',
+      caseWord: [],
       caseWordOpts: [],
-      caseNum: '',
-      caseReason: '',
+      caseReason: [],
       caseReasonOpts: [],
-      caseCloser: '',
+      caseCloser: [],
       caseCloserOpts: [],
-      casePreliminator: '',
+      casePreliminator: [],
       casePreliminatorOpts: [],
-      caseLight: '',
+      caseLight: [],
       caseLightOpts: [
-        { text: '', value: '' },
         { text: '🟢 已領件', value: '🟢' },
         { text: '🟡 借閱中', value: '🟡' },
         { text: '🔴 未領件', value: '🔴' }
       ],
-      caseTakenDate: '',
+      caseTakenDate: [],
       caseTakenDateOpts: [],
-      caseCloseDate: '',
+      caseCloseDate: [],
       caseCloseDateOpts: [],
-      caseBorrower: '',
+      caseBorrower: [],
       caseBorrowerOpts: [],
-      caseLentDate: '',
+      caseLentDate: [],
       caseLentDateOpts: []
     }
   }),
-  // only worked at page level component
-  // async asyncData (nuxt) {},
   fetch () {
     if (this.isBusy) {
       this.notify('讀取中 ... 請稍後', { type: 'warning' })
@@ -384,188 +348,123 @@ export default {
     daysPeriod () { return this.dateRange.days || 0 },
     isWrongDaysPeriod () { return this.daysPeriod < 1 },
     filteredData () {
-      if (this.advTags.length > 0) {
-        let pipelineItems = this.rows
-        if (!this.$utils.empty(this.advOpts.caseNum)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseNum) !== null
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseWord)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseWord.toUpperCase()) !== null
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseYear)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseReason)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.登記原因 === this.advOpts.caseReason
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseCloser)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.結案人員 === this.advOpts.caseCloser
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.casePreliminator)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.初審人員 === this.advOpts.casePreliminator
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseLight)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            const light = this.statusLight(item)
-            return light === this.advOpts.caseLight
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseTakenDate)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return this.takenDate(item) === this.advOpts.caseTakenDate
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseCloseDate)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return this.$utils.addDateDivider(item.RM58_1) === this.advOpts.caseCloseDate
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseLentDate)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            const d = item?.UNTAKEN_LENT_DATE
-            if (this.$utils.empty(d)) {
-              return false
-            }
-            return d.split('T')[0] === this.advOpts.caseLentDate
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseBorrower)) {
-          const id = this.advOpts.caseBorrower.split(' ')[0]
-          pipelineItems = pipelineItems.filter((item) => {
-            return item?.UNTAKEN_BORROWER === id
-          })
-        }
-        return pipelineItems
+      if (this.advTags.length === 0) {
+        return this.rows
       }
-      return this.rows
+      let pipelineItems = [...this.rows]
+      // String filters
+      // MODIFIED: Filter by RM03 for caseId
+      if (!this.$utils.empty(this.advOpts.caseId)) {
+        pipelineItems = pipelineItems.filter(item => item.RM03.includes(this.advOpts.caseId.toUpperCase()))
+      }
+      // Array filters
+      if (this.advOpts.caseWord.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseWord.includes(item.RM02))
+      }
+      if (this.advOpts.caseReason.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseReason.includes(item.登記原因))
+      }
+      if (this.advOpts.caseCloser.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseCloser.includes(item.結案人員))
+      }
+      if (this.advOpts.casePreliminator.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.casePreliminator.includes(item.初審人員))
+      }
+      if (this.advOpts.caseLight.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseLight.includes(this.statusLight(item)))
+      }
+      if (this.advOpts.caseTakenDate.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseTakenDate.includes(this.takenDate(item)))
+      }
+      if (this.advOpts.caseCloseDate.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseCloseDate.includes(this.$utils.addDateDivider(item.RM58_1)))
+      }
+      if (this.advOpts.caseLentDate.length > 0) {
+        pipelineItems = pipelineItems.filter((item) => {
+          const d = item?.UNTAKEN_LENT_DATE?.split('T')[0]
+          return this.advOpts.caseLentDate.includes(d)
+        })
+      }
+      if (this.advOpts.caseBorrower.length > 0) {
+        pipelineItems = pipelineItems.filter((item) => {
+          const borrowerId = item?.UNTAKEN_BORROWER
+          if (this.$utils.empty(borrowerId)) { return false }
+          const borrowerText = `${borrowerId} ${this.userNames[borrowerId]}`
+          return this.advOpts.caseBorrower.includes(borrowerText)
+        })
+      }
+      return pipelineItems
     },
     filteredDataCount () {
       return this.filteredData.length
     },
+    // MODIFIED: Assign a unique variant for each tag type
     advTags () {
       const tags = []
-      if (!this.$utils.empty(this.advOpts.caseYear)) {
-        tags.push(`年：${this.advOpts.caseYear}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseWord)) {
-        tags.push(`字：${this.advOpts.caseWord.toUpperCase()}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseNum)) {
-        tags.push(`號：${this.advOpts.caseNum}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseReason)) {
-        tags.push(`登記原因：${this.advOpts.caseReason}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseCloser)) {
-        tags.push(`結案人員：${this.advOpts.caseCloser}`)
-      }
-      if (!this.$utils.empty(this.advOpts.casePreliminator)) {
-        tags.push(`初審人員：${this.advOpts.casePreliminator}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseLight)) {
-        tags.push(`領件狀態：${this.advOpts.caseLight}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseTakenDate)) {
-        tags.push(`領件日期：${this.advOpts.caseTakenDate}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseCloseDate)) {
-        tags.push(`結案日期：${this.advOpts.caseCloseDate}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseLentDate)) {
-        tags.push(`借閱日期：${this.advOpts.caseLentDate}`)
-      }
-      if (!this.$utils.empty(this.advOpts.caseBorrower)) {
-        tags.push(`借閱人：${this.advOpts.caseBorrower}`)
-      }
+      const config = [
+        { key: 'caseWord', prefix: '收件字', variant: 'primary' },
+        { key: 'caseId', prefix: '收件號', variant: 'info' },
+        { key: 'caseReason', prefix: '登記原因', variant: 'success' },
+        { key: 'casePreliminator', prefix: '初審人員', variant: 'secondary' },
+        { key: 'caseCloser', prefix: '結案人員', variant: 'danger' },
+        { key: 'caseCloseDate', prefix: '結案日期', variant: 'dark' },
+        { key: 'caseLight', prefix: '領件狀態', variant: 'warning' },
+        { key: 'caseTakenDate', prefix: '領件日期', variant: 'light' },
+        { key: 'caseBorrower', prefix: '借閱人員', variant: 'primary' },
+        { key: 'caseLentDate', prefix: '借閱日期', variant: 'info' }
+      ]
+
+      config.forEach(({ key, prefix, variant }) => {
+        const value = this.advOpts[key]
+        if (Array.isArray(value)) {
+          value.forEach(val => tags.push({ type: key, value: val, text: `${prefix}：${val}`, variant }))
+        } else if (!this.$utils.empty(value)) {
+          tags.push({ type: key, value, text: `${prefix}：${value.toUpperCase()}`, variant })
+        }
+      })
       return tags
-    },
-    validAdvTagsWord () {
-      if (this.$utils.empty(this.advOpts.caseWord)) {
-        return null
-      }
-      return this.advOpts.caseWord.length === 4
     }
   },
   fetchOnServer: false,
   watch: {
     rows (val) {
+      const lightOpts = this.advOpts.caseLightOpts
       this.advOpts = {
-        ...{
-          caseYear: '',
-          caseYearOpts: [],
-          caseWord: '',
-          caseWordOpts: [],
-          caseNum: '',
-          caseReason: '',
-          caseReasonOpts: [],
-          caseCloser: '',
-          caseCloserOpts: [],
-          casePreliminator: '',
-          casePreliminatorOpts: [],
-          caseLight: '',
-          caseLightOpts: this.advOpts.caseLightOpts,
-          caseTakenDate: '',
-          caseTakenDateOpts: [],
-          caseCloseDate: '',
-          caseCloseDateOpts: [],
-          caseBorrower: '',
-          caseBorrowerOpts: [],
-          caseLentDate: '',
-          caseLentDateOpts: []
-        }
+        caseId: '',
+        caseWord: [],
+        caseWordOpts: [],
+        caseReason: [],
+        caseReasonOpts: [],
+        caseCloser: [],
+        caseCloserOpts: [],
+        casePreliminator: [],
+        casePreliminatorOpts: [],
+        caseLight: [],
+        caseLightOpts: lightOpts,
+        caseTakenDate: [],
+        caseTakenDateOpts: [],
+        caseCloseDate: [],
+        caseCloseDateOpts: [],
+        caseBorrower: [],
+        caseBorrowerOpts: [],
+        caseLentDate: [],
+        caseLentDateOpts: []
       }
       if (val) {
-        this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].sort()
-        this.advOpts.caseCloserOpts = [...new Set(val.map(item => item.結案人員))].sort()
-        this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].sort()
-        this.advOpts.caseYearOpts = [...new Set(val.map(item => item.RM01))].sort()
-        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].sort((a, b) => {
-          if (a.startsWith('HA')) {
-            return -1
-          }
-          if (a === b) {
-            return 0
-          }
-          return a < b
-        })
-        this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].filter(d => !this.$utils.empty(d)).sort()
-        this.advOpts.caseCloseDateOpts = [...new Set(val.map(item => this.$utils.addDateDivider(item.RM58_1)))].sort()
+        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].filter(Boolean).sort()
+        this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].filter(Boolean).sort()
+        this.advOpts.caseCloserOpts = [...new Set(val.map(item => item.結案人員))].filter(Boolean).sort()
+        this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].filter(Boolean).sort()
+        this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].filter(Boolean).sort()
+        this.advOpts.caseCloseDateOpts = [...new Set(val.map(item => this.$utils.addDateDivider(item.RM58_1)))].filter(Boolean).sort()
         this.advOpts.caseBorrowerOpts = [...new Set(val.map((item) => {
           const bid = this.borrower(item)
-          if (this.$utils.empty(bid)) {
-            return ''
-          }
-          return `${bid} ${this.userNames[bid]}`
-        }))].filter(d => !this.$utils.empty(d)).sort()
+          return bid ? `${bid} ${this.userNames[bid]}` : ''
+        }))].filter(Boolean).sort()
         this.advOpts.caseLentDateOpts = [...new Set(val.map((item) => {
           const d = this.lentDate(item)
-          if (this.$utils.empty(d)) {
-            return ''
-          }
-          return d.split('T')[0]
-        }))].filter(d => !this.$utils.empty(d)).sort()
-
-        this.advOpts.caseReasonOpts.unshift('')
-        this.advOpts.caseCloserOpts.unshift('')
-        this.advOpts.casePreliminatorOpts.unshift('')
-        this.advOpts.caseYearOpts.unshift('')
-        this.advOpts.caseWordOpts.unshift('')
-        this.advOpts.caseTakenDateOpts.unshift('')
-        this.advOpts.caseCloseDateOpts.unshift('')
-        this.advOpts.caseBorrowerOpts.unshift('')
-        this.advOpts.caseLentDateOpts.unshift('')
+          return d ? d.split('T')[0] : ''
+        }))].filter(Boolean).sort()
       }
     },
     daysPeriod (val) {
@@ -578,12 +477,19 @@ export default {
     this.maxHeightOffset = 145
   },
   methods: {
+    removeAdvTag (tagToRemove) {
+      const { type, value } = tagToRemove
+      if (this.advOpts[type] && Array.isArray(this.advOpts[type])) {
+        const index = this.advOpts[type].indexOf(value)
+        if (index > -1) {
+          this.advOpts[type].splice(index, 1)
+        }
+      } else {
+        this.advOpts[type] = ''
+      }
+    },
     statusLight (item) {
-      if (
-        !this.$utils.empty(item?.UNTAKEN_BORROWER) &&
-        // !this.$utils.empty(item?.UNTAKEN_LENT_DATE) &&
-        this.$utils.empty(item?.UNTAKEN_RETURN_DATE)
-      ) {
+      if (!this.$utils.empty(item?.UNTAKEN_BORROWER) && this.$utils.empty(item?.UNTAKEN_RETURN_DATE)) {
         return '🟡'
       } else if (this.$utils.empty(item?.UNTAKEN_TAKEN_STATUS)) {
         return '🔴'
@@ -618,34 +524,25 @@ export default {
     resetAdvSearch () {
       this.advOpts = {
         ...this.advOpts,
-        ...{
-          caseYear: '',
-          caseWord: '',
-          caseNum: '',
-          caseReason: '',
-          caseCloser: '',
-          casePreliminator: '',
-          caseLight: '',
-          caseTakenDate: '',
-          caseCloseDate: '',
-          caseBorrower: '',
-          caseLentDate: ''
-        }
+        caseId: '',
+        caseWord: [],
+        caseReason: [],
+        caseCloser: [],
+        casePreliminator: [],
+        caseLight: [],
+        caseTakenDate: [],
+        caseCloseDate: [],
+        caseBorrower: [],
+        caseLentDate: []
       }
     },
     takenDate (item) {
       const ts = Date.parse(item.UNTAKEN_TAKEN_DATE)
-      if (ts) {
-        return this.$utils.formatDate(new Date(ts))
-      }
-      return ''
+      return ts ? this.$utils.formatDate(new Date(ts)) : ''
     },
     takenTime (item) {
       const ts = Date.parse(item.UNTAKEN_TAKEN_DATE)
-      if (ts) {
-        return this.$utils.formatTime(new Date(ts))
-      }
-      return ''
+      return ts ? this.$utils.formatTime(new Date(ts)) : ''
     },
     borrower (item) {
       return item?.UNTAKEN_BORROWER || ''
