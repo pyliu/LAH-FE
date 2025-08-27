@@ -72,10 +72,11 @@ div
         :title="`移除篩選：${tag.text}`"
         :variant="tag.variant"
         pill
-        class="mr-1 mb-1"
+        class="mr-1 mb-1 adv-tag-style"
       ) {{ tag.text }}
 
   lah-pagination(
+    ref="pagination"
     v-model="pagination"
     :total-rows="filteredDataCount"
     :caption="foundText"
@@ -240,11 +241,10 @@ div
 
 <script>
 import lahRegUntakenMgt from '~/components/lah-reg-untaken-mgt.vue'
-import dynamicHeight from '~/mixins/dynamic-height-mixin'
 export default {
   components: { lahRegUntakenMgt },
-  mixins: [dynamicHeight],
   data: () => ({
+    maxHeight: 400, // default height
     cachedMs: 24 * 60 * 60 * 1000,
     modalLoading: true,
     clickedData: undefined,
@@ -335,6 +335,7 @@ export default {
         this.isBusy = false
         this.forceReload = false
         this.committed = true
+        this.calculateTableHeight()
       })
     }
   },
@@ -353,7 +354,6 @@ export default {
       }
       let pipelineItems = [...this.rows]
       // String filters
-      // MODIFIED: Filter by RM03 for caseId
       if (!this.$utils.empty(this.advOpts.caseId)) {
         pipelineItems = pipelineItems.filter(item => item.RM03.includes(this.advOpts.caseId.toUpperCase()))
       }
@@ -398,7 +398,6 @@ export default {
     filteredDataCount () {
       return this.filteredData.length
     },
-    // MODIFIED: Assign a unique variant for each tag type
     advTags () {
       const tags = []
       const config = [
@@ -417,7 +416,15 @@ export default {
       config.forEach(({ key, prefix, variant }) => {
         const value = this.advOpts[key]
         if (Array.isArray(value)) {
-          value.forEach(val => tags.push({ type: key, value: val, text: `${prefix}：${val}`, variant }))
+          value.forEach((val) => {
+            let textToShow = val
+            if (key === 'casePreliminator' || key === 'caseCloser') {
+              const opts = key === 'casePreliminator' ? this.advOpts.casePreliminatorOpts : this.advOpts.caseCloserOpts
+              const found = opts.find(opt => opt.value === val)
+              if (found) { textToShow = found.text }
+            }
+            tags.push({ type: key, value: val, text: `${prefix}：${textToShow}`, variant })
+          })
         } else if (!this.$utils.empty(value)) {
           tags.push({ type: key, value, text: `${prefix}：${value.toUpperCase()}`, variant })
         }
@@ -427,6 +434,9 @@ export default {
   },
   fetchOnServer: false,
   watch: {
+    advTags () {
+      this.calculateTableHeight()
+    },
     rows (val) {
       const lightOpts = this.advOpts.caseLightOpts
       this.advOpts = {
@@ -453,8 +463,29 @@ export default {
       if (val) {
         this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].filter(Boolean).sort()
         this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].filter(Boolean).sort()
-        this.advOpts.caseCloserOpts = [...new Set(val.map(item => item.結案人員))].filter(Boolean).sort()
-        this.advOpts.casePreliminatorOpts = [...new Set(val.map(item => item.初審人員))].filter(Boolean).sort()
+
+        const preliminatorMap = new Map()
+        val.forEach((item) => {
+          if (item.初審人員 && !preliminatorMap.has(item.初審人員)) {
+            preliminatorMap.set(item.初審人員, {
+              text: `${item.RM45} ${item.初審人員}`,
+              value: item.初審人員
+            })
+          }
+        })
+        this.advOpts.casePreliminatorOpts = [...preliminatorMap.values()].sort((a, b) => a.text.localeCompare(b.text))
+
+        const closerMap = new Map()
+        val.forEach((item) => {
+          if (item.結案人員 && !closerMap.has(item.結案人員)) {
+            closerMap.set(item.結案人員, {
+              text: `${item.RM59} ${item.結案人員}`,
+              value: item.結案人員
+            })
+          }
+        })
+        this.advOpts.caseCloserOpts = [...closerMap.values()].sort((a, b) => a.text.localeCompare(b.text))
+
         this.advOpts.caseTakenDateOpts = [...new Set(val.map(item => this.takenDate(item)))].filter(Boolean).sort()
         this.advOpts.caseCloseDateOpts = [...new Set(val.map(item => this.$utils.addDateDivider(item.RM58_1)))].filter(Boolean).sort()
         this.advOpts.caseBorrowerOpts = [...new Set(val.map((item) => {
@@ -466,6 +497,7 @@ export default {
           return d ? d.split('T')[0] : ''
         }))].filter(Boolean).sort()
       }
+      this.calculateTableHeight()
     },
     daysPeriod (val) {
       if (val < 1) {
@@ -473,10 +505,27 @@ export default {
       }
     }
   },
-  created () {
-    this.maxHeightOffset = 145
+  mounted () {
+    this.calculateTableHeight()
+    window.addEventListener('resize', this.calculateTableHeight)
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.calculateTableHeight)
   },
   methods: {
+    calculateTableHeight () {
+      this.$nextTick(() => {
+        const paginationEl = this.$refs.pagination?.$el
+        if (paginationEl) {
+          const rect = paginationEl.getBoundingClientRect()
+          const viewportHeight = window.innerHeight
+          const availableHeight = viewportHeight - rect.bottom
+          const bottomOffset = 15
+          const newMaxHeight = availableHeight - bottomOffset
+          this.maxHeight = Math.max(200, newMaxHeight)
+        }
+      })
+    },
     removeAdvTag (tagToRemove) {
       const { type, value } = tagToRemove
       if (this.advOpts[type] && Array.isArray(this.advOpts[type])) {
@@ -555,4 +604,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.adv-tag-style {
+  font-size: 0.95rem;
+}
 </style>
