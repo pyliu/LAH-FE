@@ -627,35 +627,45 @@ export default {
       return 'success'
     },
     xlsxData () {
-      // prepare json objects for xlsx exporting
-      const jsons = this.filteredData.map((data, idx, array) => {
-        /**
-         * REG_FIX_CASE_RECORD 範例物件:
-         * {
-         *   case_no: "114HA81159330",
-         *   fix_deadline_date: "2025-08-18",
-         *   note: null,
-         *   notify_delivered_date: "2025-08-05"
-         * }
-         */
+      // helper function to format date and time safely
+      const formatToMinguoDate = (dateString) => {
+        if (this.$utils.empty(dateString)) {
+          return ''
+        }
+        const date = new Date(dateString)
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+          return ''
+        }
+        const year = date.getFullYear() - 1911
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+      const formatTime = (dateString) => {
+        const ts = Date.parse(dateString)
+        return ts ? this.$utils.formatTime(new Date(ts)) : ''
+      }
+      const jsons = this.filteredData.map((data) => {
         const obj = {
           收件年: data.RM01,
-          收件字: data.收件字,
+          收件字: data.RM02,
           收件號: data.RM03,
           收件日期: data.收件日期,
           登記原因: data.登記原因,
-          辦理情形: data.辦理情形,
           初審人員: data.初審人員,
-          發件人員: data.UNTAKEN_NOTE,
-          借閱人員: data.UNTAKEN_BORROWER,
-          借閱日期: data.UNTAKEN_LENT_DATE,
-          歸還日期: data.UNTAKEN_RETURN_DATE,
-          領件日期: data.UNTAKEN_TAKEN_DATE,
+          發件人員: this.userNames[data.UNTAKEN_NOTE] || data.UNTAKEN_NOTE || '',
+          借閱人員: this.userNames[data.UNTAKEN_BORROWER] || data.UNTAKEN_BORROWER || '',
+          借閱日期: formatToMinguoDate(data.UNTAKEN_LENT_DATE),
+          借閱時間: formatTime(data.UNTAKEN_LENT_DATE),
+          歸還日期: formatToMinguoDate(data.UNTAKEN_RETURN_DATE),
+          歸還時間: formatTime(data.UNTAKEN_RETURN_DATE),
+          領件日期: formatToMinguoDate(data.UNTAKEN_TAKEN_DATE),
+          領件時間: formatTime(data.UNTAKEN_TAKEN_DATE),
           領件狀態: data.UNTAKEN_TAKEN_STATUS
         }
         return obj
       })
-      this.$utils.warn('xlsx data', this.filteredData)
       return jsons
     }
   },
@@ -844,26 +854,25 @@ export default {
       this.progressMax = targetCases.length
 
       try {
-        for (const item of targetCases) {
-          // Here you would make the actual API call
-          await this.handleBatchSingleUpdate(item)
-          this.progress++
-        }
-        this.success(`成功更新 ${this.progressMax} 筆案件`)
+        const tasks = targetCases.map(item => this.handleBatchSingleUpdate(item))
+        const results = await Promise.all(tasks)
+        const successCount = results.filter(Boolean).length
+        this.success(`成功更新 ${successCount} / ${this.progressMax} 筆案件`)
       } catch (error) {
         this.$utils.error(error)
         this.alert('批次更新時發生錯誤', { title: '錯誤' })
       } finally {
         this.timeout(() => {
-          this.$refs.batchUpdateModal.hide()
           this.batchProcessing = false
           this.progress = 0
           this.progressMax = 0
+          this.$refs.batchUpdateModal.hide()
           this.reload() // Reload data in the main table
         }, 2000)
       }
     },
     async handleBatchSingleUpdate (item) {
+      this.progress++
       const updateData = {
         id: item.ID,
         taken_date: `${this.batchReceiveDate} ${this.batchReceiveTime}` || '',
@@ -874,22 +883,23 @@ export default {
         note: this.user.id
       }
       // to update untaken data in sqlite db
-      await this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'upd_reg_cert_taken_date',
-        ...updateData
-      }).then(({ data }) => {
+      try {
+        const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'upd_reg_cert_taken_date',
+          ...updateData
+        })
         if (this.$utils.statusCheck(data.status)) {
-          this.$utils.warn('OK', updateData)
+          this.$utils.log('OK', updateData)
+          return true
         } else {
-          // this.warning(data.message, { title: this.parentData.收件字號 })
           this.$utils.error(item.ID, data.message)
+          return false
         }
-      }).catch((err) => {
+      } catch (err) {
         this.alert(err.message, { title: item.收件字號 })
         this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-      })
+        return false
+      }
     },
     prefillBatchStartNumber () {
       this.batchNumS = this.caseNumberRangeForBatch.min || ''
