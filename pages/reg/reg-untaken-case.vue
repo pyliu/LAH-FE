@@ -33,9 +33,18 @@ div
           size="lg",
           title="開啟進階篩選視窗",
           @click="$refs.searchPlus.show()",
-          :disabled="!dataReady"
+          :disabled="!dataReady",
           no-icon-gutter
         ) 進階篩選
+        lah-button.mr-1(
+          icon="layer-group",
+          size="lg",
+          title="批次修改設定",
+          variant="outline-info",
+          @click="openBatchUpdateModal",
+          :disabled="!dataReady",
+          no-icon-gutter
+        ) 批次修改
         lah-datepicker.mr-1(v-model="dateRange")
         lah-button.mr-1(
           ref="search"
@@ -237,6 +246,105 @@ div
         variant="outline-success"
       ) 重設
       small.text-primary.ml-2 找到 {{ filteredDataCount }} 筆
+
+  b-modal(
+    ref="batchUpdateModal",
+    title="批次修改領件狀態",
+    size="md",
+    no-close-on-backdrop,
+    :hide-header-close="batchProcessing"
+  )
+    b-form-fieldset(:disabled="batchProcessing")
+      .d-flex
+        b-input-group.mr-1(prepend="　收件年"): b-form-select(
+          v-model="batchYear",
+          :options="batchYearOpts",
+          :state="!$utils.empty(batchYear)"
+        )
+        b-input-group(prepend="　收件字"): b-form-select(
+          v-model="batchWord",
+          :options="batchWordOpts",
+          :state="!$utils.empty(batchWord)"
+        )
+      .d-flex.my-1
+        b-input-group.mr-1(prepend="收件號起"): b-input(
+          v-model="batchNumS",
+          placeholder="... 000001 ...",
+          :state="isStartNumState",
+          trim,
+          @blur="formatCaseNumber('batchNumS')"
+        )
+        b-input-group(prepend="收件號迄"): b-input(
+          v-model="batchNumE",
+          placeholder="... 000100 ...",
+          :state="isEndNumState",
+          trim,
+          @blur="formatCaseNumber('batchNumE')"
+        )
+      hr
+      .d-flex.justify-content-between
+        .d-flex.text-nowrap.w-50.p-1
+          .my-auto.mr-1 領件狀態
+          b-select.h-100(
+            v-model="batchReceiveStatus",
+            :options="batchStatusOpts"
+          )
+
+        .d-flex.text-nowrap.w-50.p-1
+          .my-auto.mr-1 領件日期
+          b-datepicker(
+            v-model="batchReceiveDate"
+            boundary="viewport"
+            variant="primary"
+            placeholder="... 變更領件日期 ..."
+            label-help="使用方向鍵操作移動日期"
+            label-today-button="今天"
+            label-reset-button="重設"
+            label-close-button="關閉"
+            :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+            :max="maxDate"
+            hide-header
+            today-button
+            close-button
+            reset-button
+          )
+    hr
+    div(v-if="batchProcessing")
+      lah-message(
+        :message="batchProgressMessage",
+        variant="info"
+      )
+      b-progress.mt-2(
+        :value="progress",
+        :max="progressMax",
+        :variant="progressVariant",
+        show-progress,
+        animated,
+        :precision="0"
+      )
+    div(v-else)
+      div.text-monospace.p-2(v-if="isBatchFormInvalid")
+        lah-message(
+          :message="batchMessage",
+          variant="danger"
+        )
+      div.text-monospace.border.p-2(v-else)
+        div 針對 #[strong.text-info {{ batchYear }}-{{ batchWord }}] 區間 #[strong.text-danger {{ batchNumS }} ~ {{ batchNumE }}]
+        div 設定為 #[strong.text-success {{ batchReceiveStatus }}]
+        div 領件日期為 #[strong.text-success {{ batchReceiveDate }}]
+        div 領件時間為 #[strong.text-info {{ batchReceiveTime }}]
+
+    template(#modal-footer="{ cancel }")
+      lah-button(
+        :icon="batchProcessing ? 'spinner' : 'check'"
+        :spin="batchProcessing"
+        variant="primary"
+        :disabled="isBatchFormInvalid || batchProcessing"
+        @click="handleBatchUpdate"
+        pill
+      )
+        span {{ batchProcessing ? '處理中' : '確認送出' }}
+
 </template>
 
 <script>
@@ -297,7 +405,24 @@ export default {
       caseBorrowerOpts: [],
       caseLentDate: [],
       caseLentDateOpts: []
-    }
+    },
+    // Batch Update Options (flattened)
+    batchYear: '',
+    batchYearOpts: [],
+    batchWord: '',
+    batchWordOpts: [],
+    batchNumS: '',
+    batchNumE: '',
+    batchReceiveStatus: '',
+    batchReceiveDate: null,
+    batchReceiveTime: null,
+    // Other batch update states
+    batchStatusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'],
+    batchMessage: '',
+    maxDate: new Date(),
+    batchProcessing: false,
+    progress: 0,
+    progressMax: 0
   }),
   fetch () {
     if (this.isBusy) {
@@ -430,6 +555,72 @@ export default {
         }
       })
       return tags
+    },
+    caseNumberRangeForBatch () {
+      const { batchYear, batchWord } = this
+      if (!this.$utils.empty(batchYear) && !this.$utils.empty(batchWord)) {
+        const numbers = this.rows
+          .filter(item => item.RM01 === batchYear && item.RM02 === batchWord)
+          .map(item => item.RM03)
+          .sort((a, b) => a.localeCompare(b))
+        if (numbers.length > 0) {
+          return {
+            min: numbers[0],
+            max: numbers[numbers.length - 1]
+          }
+        }
+      }
+      return { min: null, max: null }
+    },
+    isStartNumState () {
+      const { batchNumS } = this
+      if (this.$utils.empty(batchNumS)) { return null }
+      const range = this.caseNumberRangeForBatch
+      if (!range.min) { return null } // Can't validate without a range
+      // A valid start number must be >= min and <= max (in case user only fills start)
+      return batchNumS >= range.min && batchNumS <= range.max
+    },
+    isEndNumState () {
+      const { batchNumE } = this
+      if (this.$utils.empty(batchNumE)) { return null }
+      const range = this.caseNumberRangeForBatch
+      if (!range.max) { return null } // Can't validate without a range
+      // A valid end number must be <= max and >= min (in case user only fills end)
+      return batchNumE <= range.max && batchNumE >= range.min
+    },
+    isBatchFormInvalid () {
+      // 1. Check for empty fields
+      if (this.$utils.empty(this.batchYear) || this.$utils.empty(this.batchWord) || this.$utils.empty(this.batchNumS) || this.$utils.empty(this.batchNumE) || this.$utils.empty(this.batchReceiveStatus) || this.$utils.empty(this.batchReceiveDate)) {
+        return true
+      }
+      // 2. Check for logical validity
+      const orderValid = this.batchNumS <= this.batchNumE
+      const startInRange = this.isStartNumState
+      const endInRange = this.isEndNumState
+      // Any invalid state (false) will make the form invalid
+      if (orderValid === false || startInRange === false || endInRange === false) {
+        return true
+      }
+      // All checks passed
+      return false
+    },
+    batchProgressMessage () {
+      if (this.progress < this.progressMax) {
+        return `批次處理中，請勿關閉視窗 ... ${this.progress} / ${this.progressMax}`
+      }
+      return '批次處理完成 ... 等待重新整理資料'
+    },
+    progressVariant () {
+      if (this.progressMax === 0) {
+        return 'secondary'
+      }
+      const percentage = (this.progress / this.progressMax) * 100
+      if (percentage <= 75) {
+        return 'secondary'
+      } else if (percentage <= 90) {
+        return 'warning'
+      }
+      return 'success'
     }
   },
   fetchOnServer: false,
@@ -496,6 +687,10 @@ export default {
           const d = this.lentDate(item)
           return d ? d.split('T')[0] : ''
         }))].filter(Boolean).sort()
+
+        // For batch update modal
+        this.batchYearOpts = [...new Set(val.map(item => item.RM01))].filter(Boolean).sort()
+        this.batchWordOpts = [...new Set(val.map(item => item.RM02))].filter(Boolean).sort()
       }
       this.calculateTableHeight()
     },
@@ -503,7 +698,31 @@ export default {
       if (val < 1) {
         this.alert('開始日期應小於或等於結束日期', { pos: 'tr' })
       }
+    },
+    batchYear () {
+      this.prefillBatchStartNumber()
+    },
+    batchWord () {
+      this.prefillBatchStartNumber()
+    },
+    batchNumS () {
+      this.validateBatchRangeDebounced()
+    },
+    batchNumE () {
+      this.validateBatchRangeDebounced()
+    },
+    batchReceiveDate (newDate) {
+      if (newDate) {
+        // When a date is picked, automatically set the time to now
+        this.batchReceiveTime = this.$utils.formatTime(new Date())
+      } else {
+        // When date is cleared, clear the time
+        this.batchReceiveTime = null
+      }
     }
+  },
+  created () {
+    this.validateBatchRangeDebounced = this.$utils.debounce(this.validateBatchRange, 1200)
   },
   mounted () {
     this.calculateTableHeight()
@@ -513,6 +732,132 @@ export default {
     window.removeEventListener('resize', this.calculateTableHeight)
   },
   methods: {
+    validateBatchRange () {
+      // Clear message first
+      this.batchMessage = ''
+      const { batchNumS, batchNumE, batchYear, batchWord } = this
+      const range = this.caseNumberRangeForBatch
+      const orderValid = batchNumS <= batchNumE
+
+      if (!this.$utils.empty(batchNumS) && !this.$utils.empty(batchNumE) && !orderValid) {
+        this.batchMessage = `收件號起號 ${batchNumS} 不可大於迄號 ${batchNumE}`
+        return
+      }
+      if (!this.$utils.empty(batchNumS) && this.isStartNumState === false) {
+        this.batchMessage = `收件號起號 ${batchNumS} 超出 ${batchYear}-${batchWord} 的資料範圍 (${range.min} ~ ${range.max})`
+        return
+      }
+      if (!this.$utils.empty(batchNumE) && this.isEndNumState === false) {
+        this.batchMessage = `收件號迄號 ${batchNumE} 超出 ${batchYear}-${batchWord} 的資料範圍 (${range.min} ~ ${range.max})`
+      }
+    },
+    formatCaseNumber (key) {
+      const value = this[key]
+      if (this.$utils.empty(value)) {
+        return
+      }
+      const formatted = String(value).replace(/\D/g, '').substring(0, 6).padStart(6, '0')
+      if (formatted !== value) {
+        this[key] = formatted
+      }
+    },
+    openBatchUpdateModal () {
+      // Reset advanced search filters
+      this.resetAdvSearch()
+      // Reset batch update modal form data
+      this.batchYear = ''
+      this.batchWord = ''
+      this.batchNumS = ''
+      this.batchNumE = ''
+      this.batchReceiveStatus = ''
+      this.batchReceiveDate = null
+      this.batchReceiveTime = null
+      this.batchMessage = ''
+      // Set the default year to the max year in options
+      if (this.batchYearOpts.length > 0) {
+        // Math.max can handle string numbers correctly
+        const maxYear = Math.max(...this.batchYearOpts)
+        this.batchYear = String(maxYear)
+      }
+      // Show the modal
+      this.$refs.batchUpdateModal.show()
+    },
+    async handleBatchUpdate () {
+      if (this.isBatchFormInvalid) {
+        this.batchMessage = '請填寫所有必填欄位或修正錯誤'
+        return
+      }
+      this.batchProcessing = true
+      this.batchMessage = '' // Clear previous error messages
+
+      // Find target cases
+      const targetCases = this.rows.filter(item =>
+        item.RM01 === this.batchYear &&
+        item.RM02 === this.batchWord &&
+        item.RM03 >= this.batchNumS &&
+        item.RM03 <= this.batchNumE
+      )
+
+      if (targetCases.length === 0) {
+        this.batchMessage = '在指定的區間內找不到任何案件可供更新'
+        this.batchProcessing = false
+        return
+      }
+
+      this.progress = 0
+      this.progressMax = targetCases.length
+
+      try {
+        for (const item of targetCases) {
+          // Here you would make the actual API call
+          await this.handleBatchSingleUpdate(item)
+          this.progress++
+        }
+        this.success(`成功更新 ${this.progressMax} 筆案件`)
+      } catch (error) {
+        this.$utils.error(error)
+        this.alert('批次更新時發生錯誤', { title: '錯誤' })
+      } finally {
+        this.timeout(() => {
+          this.$refs.batchUpdateModal.hide()
+          this.batchProcessing = false
+          this.progress = 0
+          this.progressMax = 0
+          this.reload() // Reload data in the main table
+        }, 2000)
+      }
+    },
+    async handleBatchSingleUpdate (item) {
+      const updateData = {
+        id: item.ID,
+        taken_date: `${this.batchReceiveDate} ${this.batchReceiveTime}` || '',
+        taken_status: this.batchReceiveStatus || '',
+        borrower: '',
+        lent_date: '',
+        return_date: '',
+        note: ''
+      }
+      // to update untaken data in sqlite db
+      await this.$axios.post(this.$consts.API.JSON.QUERY, {
+        type: 'upd_reg_cert_taken_date',
+        ...updateData
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.$utils.warn('OK', updateData)
+        } else {
+          // this.warning(data.message, { title: this.parentData.收件字號 })
+          this.$utils.error(item.ID, data.message)
+        }
+      }).catch((err) => {
+        this.alert(err.message, { title: item.收件字號 })
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+    prefillBatchStartNumber () {
+      this.batchNumS = this.caseNumberRangeForBatch.min || ''
+    },
     calculateTableHeight () {
       this.$nextTick(() => {
         const paginationEl = this.$refs.pagination?.$el
@@ -584,7 +929,7 @@ export default {
         caseBorrower: [],
         caseLentDate: []
       }
-      // MODIFIED: Use $nextTick to ensure DOM is updated before recalculating
+      // Use $nextTick to wait for DOM update and then timeout to wait for transition
       this.$nextTick(() => {
         // wait transition animation finish then re-calculate
         this.timeout(this.calculateTableHeight, 800)
