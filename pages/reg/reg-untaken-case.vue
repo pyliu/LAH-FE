@@ -55,6 +55,10 @@ div
           @click="$fetch"
           no-icon-gutter
         )
+        lah-button-xlsx.mr-1(
+          :jsons="xlsxData"
+          header="領件控管案件"
+        )
         lah-countdown-button(
           ref="countdown"
           title="立即重新讀取"
@@ -621,6 +625,38 @@ export default {
         return 'warning'
       }
       return 'success'
+    },
+    xlsxData () {
+      // prepare json objects for xlsx exporting
+      const jsons = this.filteredData.map((data, idx, array) => {
+        /**
+         * REG_FIX_CASE_RECORD 範例物件:
+         * {
+         *   case_no: "114HA81159330",
+         *   fix_deadline_date: "2025-08-18",
+         *   note: null,
+         *   notify_delivered_date: "2025-08-05"
+         * }
+         */
+        const obj = {
+          收件年: data.RM01,
+          收件字: data.收件字,
+          收件號: data.RM03,
+          收件日期: data.收件日期,
+          登記原因: data.登記原因,
+          辦理情形: data.辦理情形,
+          初審人員: data.初審人員,
+          發件人員: data.UNTAKEN_NOTE,
+          借閱人員: data.UNTAKEN_BORROWER,
+          借閱日期: data.UNTAKEN_LENT_DATE,
+          歸還日期: data.UNTAKEN_RETURN_DATE,
+          領件日期: data.UNTAKEN_TAKEN_DATE,
+          領件狀態: data.UNTAKEN_TAKEN_STATUS
+        }
+        return obj
+      })
+      this.$utils.warn('xlsx data', this.filteredData)
+      return jsons
     }
   },
   fetchOnServer: false,
