@@ -62,7 +62,7 @@ div
         .my-auto.mr-1 領件時間
         .highlight-yellow {{ takenTime }}
       .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(setter)")
-        .my-auto.mr-1 設定人員
+        .my-auto.mr-1 發件人員
         div {{ setter }} {{ setterName }}
     //- div(v-if="takenStatus === ''")
     div
