@@ -61,6 +61,9 @@ div
       .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenTime)")
         .my-auto.mr-1 領件時間
         .highlight-yellow {{ takenTime }}
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(setter)")
+        .my-auto.mr-1 設定人員
+        div {{ setter }} {{ setterName }}
     //- div(v-if="takenStatus === ''")
     div
       .d-flex.text-nowrap.mb-1
@@ -235,6 +238,12 @@ export default {
     note () {
       return this.parentData.UNTAKEN_NOTE || ''
     },
+    setter () {
+      return this.parentData.UNTAKEN_NOTE || ''
+    },
+    setterName () {
+      return this.userNames[this.setter] || ''
+    },
     showReturnDate () {
       return this.lentDate !== null && this.lentDate !== ''
     },
@@ -260,7 +269,7 @@ export default {
         lent_date: this.lentDate,
         return_date: this.returnDate,
         borrower: this.borrower,
-        note: this.note
+        note: this.note || this.user.id
       }
     },
     editable () {

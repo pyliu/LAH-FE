@@ -835,7 +835,7 @@ export default {
         borrower: '',
         lent_date: '',
         return_date: '',
-        note: ''
+        note: this.user.id
       }
       // to update untaken data in sqlite db
       await this.$axios.post(this.$consts.API.JSON.QUERY, {
