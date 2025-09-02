@@ -654,7 +654,7 @@ export default {
           收件日期: data.收件日期,
           登記原因: data.登記原因,
           初審人員: data.初審人員,
-          發件人員: this.userNames[data.UNTAKEN_NOTE] || data.UNTAKEN_NOTE || '',
+          發件人員: this.$utils.empty(data.UNTAKEN_TAKEN_DATE) ? '' : this.userNames[data.UNTAKEN_NOTE] || data.UNTAKEN_NOTE || '',
           借閱人員: this.userNames[data.UNTAKEN_BORROWER] || data.UNTAKEN_BORROWER || '',
           借閱日期: formatToMinguoDate(data.UNTAKEN_LENT_DATE),
           借閱時間: formatTime(data.UNTAKEN_LENT_DATE),
