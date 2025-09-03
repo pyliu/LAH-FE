@@ -935,7 +935,7 @@ export default {
     },
     async handleBatchSingleUpdate (item) {
       this.progress++
-      const takenDate = this.$utils.empty(this.batchReceiveStatus) ? '' : `${this.batchReceiveDate}T${this.batchReceiveTime}Z`
+      const takenDate = this.$utils.empty(this.batchReceiveStatus) ? '' : `${this.batchReceiveDate} ${this.batchReceiveTime}`
       const updateData = {
         id: item.ID,
         taken_date: takenDate,
