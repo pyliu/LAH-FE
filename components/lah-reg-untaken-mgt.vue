@@ -269,7 +269,7 @@ export default {
         lent_date: this.lentDate,
         return_date: this.returnDate,
         borrower: this.borrower,
-        note: this.note || this.user.id
+        note: this.$utils.empty(this.takenStatus) ? '' : this.note || this.user.id
       }
     },
     editable () {

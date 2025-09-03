@@ -880,7 +880,7 @@ export default {
         borrower: '',
         lent_date: '',
         return_date: '',
-        note: this.user.id
+        note: this.$utils.empty(this.batchReceiveStatus) ? '' : this.user.id
       }
       // to update untaken data in sqlite db
       try {
