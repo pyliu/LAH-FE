@@ -5,7 +5,7 @@ div
       .d-flex
         .my-auto 領件管控查詢
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'")
+        lah-help-modal(:modal-id="'help-modal'", size="lg")
           h5 資料庫搜尋說明
           ul
             li 搜尋已結案但未歸檔的登記案件資料
@@ -16,6 +16,17 @@ div
             li 🟢 已領件
             li 🟡 借閱中
             li 🔴 未領件
+          hr
+          h5 進階篩選
+          ul
+            li 針對目前已載入的資料進行篩選，可按住 Ctrl 鍵進行多選。
+            li 篩選條件會以標籤形式顯示在主畫面上，點擊標籤上的 "x" 可移除該條件。
+          hr
+          h5 批次修改
+          ul
+            li 針對指定「收件年、字、號」區間的案件，進行批次的領件狀態與日期更新。
+            li 執行前會先清空所有「進階篩選」條件。
+            li 所有欄位皆為必填，且需通過驗證，「確認送出」按鈕才能點擊。
           hr
           h5 請參照下列步驟搜尋
           ol
