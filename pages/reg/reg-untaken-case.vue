@@ -359,6 +359,7 @@ div
       div 「領件狀態」設定為 #[strong.text-success {{ $utils.empty(batchReceiveStatus) ? '(未領件)' : batchReceiveStatus }}]
       div 「領件日期」設定為 #[strong.text-success {{ $utils.empty(batchReceiveDate) ? '(清空)' : batchReceiveDate }}]
       div 「領件時間」設定為 #[strong.text-success {{ $utils.empty(batchReceiveTime) ? '(清空)' : batchReceiveTime }}]
+      div 「發件人員」設定為 #[strong.text-primary {{ user.name }}]
 
     template(#modal-footer="{ cancel }")
       lah-button(
