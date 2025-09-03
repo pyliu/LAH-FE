@@ -935,14 +935,14 @@ export default {
     },
     async handleBatchSingleUpdate (item) {
       this.progress++
-      const takenDate = this.$utils.empty(this.batchReceiveStatus) ? '' : `${this.batchReceiveDate} ${this.batchReceiveTime}`
+      const takenDate = this.$utils.empty(this.batchReceiveStatus) ? null : new Date(`${this.batchReceiveDate} ${this.batchReceiveTime}`)
       const updateData = {
         id: item.ID,
         taken_date: takenDate,
         taken_status: this.batchReceiveStatus || '',
-        borrower: '',
-        lent_date: '',
-        return_date: '',
+        borrower: item?.UNTAKEN_BORROWER || '',
+        lent_date: item?.UNTAKEN_LENT_DATE || '',
+        return_date: item?.UNTAKEN_RETURN_DATE || '',
         note: this.user.id
       }
       // to update untaken data in sqlite db

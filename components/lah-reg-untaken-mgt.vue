@@ -198,7 +198,7 @@ export default {
       if (typeof this.parentData.UNTAKEN_TAKEN_DATE === 'string') {
         return new Date(this.parentData.UNTAKEN_TAKEN_DATE)
       }
-      return this.parentData.UNTAKEN_TAKEN_DATE || null
+      return this.parentData.UNTAKEN_TAKEN_DATE || ''
     },
     takenStatus () {
       return this.parentData.UNTAKEN_TAKEN_STATUS || ''
@@ -247,7 +247,7 @@ export default {
     updateData () {
       return {
         id: this.caseId,
-        taken_date: this.takenDate,
+        taken_date: this.takenDate instanceof Date && !isNaN(this.takenDate.getTime()) ? this.takenDate : '',
         taken_status: this.takenStatus,
         lent_date: this.lentDate,
         return_date: this.returnDate,
@@ -268,22 +268,26 @@ export default {
   },
   watch: {
     takenDate (val) {
-      // 同步更新 editableTime
-      if (val instanceof Date) {
-        // if time is 00:00:00, it means the date is changed from datepicker, so set current time
-        if (val.getHours() === 0 && val.getMinutes() === 0 && val.getSeconds() === 0) {
-          const now = new Date()
-          val.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
+      try {
+        // 同步更新 editableTime
+        if (val instanceof Date) {
+          // if time is 00:00:00, it means the date is changed from datepicker, so set current time
+          if (val.getHours() === 0 && val.getMinutes() === 0 && val.getSeconds() === 0) {
+            const now = new Date()
+            val.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
+          }
+          // update the time display if different
+          const formattedTime = this.$utils.formatTime(val)
+          if (this.editableTime !== formattedTime) {
+            this.editableTime = formattedTime
+          }
+        } else {
+          this.editableTime = ''
         }
-        // update the time display if different
-        const formattedTime = this.$utils.formatTime(val)
-        if (this.editableTime !== formattedTime) {
-          this.editableTime = formattedTime
-        }
-      } else {
-        this.editableTime = ''
+        this.updateDebounced()
+      } catch (error) {
+        this.$utils.warn('無法變更取件時間', error)
       }
-      this.updateDebounced()
     },
     editableTime (newTimeStr) {
       if (newTimeStr && this.takenDate instanceof Date) {
@@ -322,14 +326,15 @@ export default {
     },
     caseId (dontcare) {
       this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
+      if (this.$utils.empty(this.takenDate)) {
+        this.editableTime = ''
+      }
       try {
-        if (this.takenDate instanceof Date) {
+        if (this.takenDate instanceof Date && !isNaN(this.takenDate.getTime())) {
           this.editableTime = this.$utils.formatTime(this.takenDate)
-        } else {
-          this.editableTime = ''
         }
       } catch (error) {
-        this.$utils.error('caseId changed 無法設定取件時間', error)
+        this.$utils.warn('caseId changed 無法設定取件時間', error)
       }
       this.syncOrigData()
     },
