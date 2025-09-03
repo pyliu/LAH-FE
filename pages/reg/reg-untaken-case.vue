@@ -165,14 +165,6 @@ div
         span 進階篩選
         small.text-muted.ml-2 按住 Ctrl 鍵可多選
     .center.d-flex
-    .center.d-flex.my-1
-      b-input-group.mr-1(prepend="　收件字"): b-form-select(
-        v-model="advOpts.caseWord",
-        :options="advOpts.caseWordOpts",
-        title="收件字",
-        multiple,
-        :select-size="4"
-      )
       b-input-group.align-self-stretch(prepend="　收件號")
         b-input.h-100(
           v-model="advOpts.caseId",
@@ -181,17 +173,32 @@ div
           trim
         )
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="登記原因"): b-form-select(
+      b-input-group.mr-1(prepend="　收件字"): b-form-select(
+        v-model="advOpts.caseWord",
+        :options="advOpts.caseWordOpts",
+        title="收件字",
+        multiple,
+        :select-size="4"
+      )
+      b-input-group(prepend="登記原因"): b-form-select(
         v-model="advOpts.caseReason",
         :options="advOpts.caseReasonOpts",
         title="登記原因",
         multiple,
         :select-size="4"
       )
-      b-input-group(prepend="初審人員"): b-form-select(
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="初審人員"): b-form-select(
         v-model="advOpts.casePreliminator",
         :options="advOpts.casePreliminatorOpts",
         title="初審人員",
+        multiple,
+        :select-size="4"
+      )
+      b-input-group(prepend="發件人員"): b-form-select(
+        v-model="advOpts.caseSetter",
+        :options="advOpts.caseSetterOpts",
+        title="發件人員",
         multiple,
         :select-size="4"
       )
@@ -243,8 +250,8 @@ div
         :select-size="4"
       )
 
-    .center.d-flex.my-1
-      lah-button.mr-auto(
+    .center.mt-2
+      lah-button.mr-1(
         icon="recycle",
         @click="resetAdvSearch",
         variant="outline-success"
@@ -405,6 +412,8 @@ export default {
       caseTakenDateOpts: [],
       caseCloseDate: [],
       caseCloseDateOpts: [],
+      caseSetter: [],
+      caseSetterOpts: [],
       caseBorrower: [],
       caseBorrowerOpts: [],
       caseLentDate: [],
@@ -508,6 +517,9 @@ export default {
       if (this.advOpts.caseCloseDate.length > 0) {
         pipelineItems = pipelineItems.filter(item => this.advOpts.caseCloseDate.includes(this.$utils.addDateDivider(item.RM58_1)))
       }
+      if (this.advOpts.caseSetter.length > 0) {
+        pipelineItems = pipelineItems.filter(item => this.advOpts.caseSetter.includes(item.UNTAKEN_NOTE))
+      }
       if (this.advOpts.caseLentDate.length > 0) {
         pipelineItems = pipelineItems.filter((item) => {
           const d = item?.UNTAKEN_LENT_DATE?.split('T')[0]
@@ -538,6 +550,7 @@ export default {
         { key: 'caseCloseDate', prefix: '結案日期', variant: 'dark' },
         { key: 'caseLight', prefix: '領件狀態', variant: 'warning' },
         { key: 'caseTakenDate', prefix: '領件日期', variant: 'light' },
+        { key: 'caseSetter', prefix: '發件人員', variant: 'info' },
         { key: 'caseBorrower', prefix: '借閱人員', variant: 'primary' },
         { key: 'caseLentDate', prefix: '借閱日期', variant: 'info' }
       ]
@@ -547,8 +560,9 @@ export default {
         if (Array.isArray(value)) {
           value.forEach((val) => {
             let textToShow = val
-            if (key === 'casePreliminator' || key === 'caseCloser') {
-              const opts = key === 'casePreliminator' ? this.advOpts.casePreliminatorOpts : this.advOpts.caseCloserOpts
+            if (key === 'casePreliminator' || key === 'caseCloser' || key === 'caseSetter') {
+              let opts
+              if (key === 'casePreliminator') { opts = this.advOpts.casePreliminatorOpts } else if (key === 'caseCloser') { opts = this.advOpts.caseCloserOpts } else { opts = this.advOpts.caseSetterOpts }
               const found = opts.find(opt => opt.value === val)
               if (found) { textToShow = found.text }
             }
@@ -654,7 +668,7 @@ export default {
           收件日期: data.收件日期,
           登記原因: data.登記原因,
           初審人員: data.初審人員,
-          發件人員: this.$utils.empty(data.UNTAKEN_TAKEN_DATE) ? '' : this.userNames[data.UNTAKEN_NOTE] || data.UNTAKEN_NOTE || '',
+          發件人員: this.userNames[data.UNTAKEN_NOTE] || data.UNTAKEN_NOTE || '',
           借閱人員: this.userNames[data.UNTAKEN_BORROWER] || data.UNTAKEN_BORROWER || '',
           借閱日期: formatToMinguoDate(data.UNTAKEN_LENT_DATE),
           借閱時間: formatTime(data.UNTAKEN_LENT_DATE),
@@ -692,6 +706,8 @@ export default {
         caseTakenDateOpts: [],
         caseCloseDate: [],
         caseCloseDateOpts: [],
+        caseSetter: [],
+        caseSetterOpts: [],
         caseBorrower: [],
         caseBorrowerOpts: [],
         caseLentDate: [],
@@ -733,6 +749,18 @@ export default {
           const d = this.lentDate(item)
           return d ? d.split('T')[0] : ''
         }))].filter(Boolean).sort()
+        // new setter opts
+        const setterMap = new Map()
+        val.forEach((item) => {
+          const setterId = item?.UNTAKEN_NOTE
+          if (setterId && !setterMap.has(setterId)) {
+            setterMap.set(setterId, {
+              text: `${setterId} ${this.userNames[setterId] || ''}`.trim(),
+              value: setterId
+            })
+          }
+        })
+        this.advOpts.caseSetterOpts = [...setterMap.values()].sort((a, b) => a.text.localeCompare(b.text))
 
         // For batch update modal
         this.batchYearOpts = [...new Set(val.map(item => item.RM01))].filter(Boolean).sort()
@@ -866,8 +894,8 @@ export default {
           this.batchProcessing = false
           this.progress = 0
           this.progressMax = 0
-          this.$refs.batchUpdateModal.hide()
-          this.reload() // Reload data in the main table
+          // this.$refs.batchUpdateModal.hide()
+          // this.reload() // Reload data in the main table
         }, 2000)
       }
     },
@@ -875,12 +903,12 @@ export default {
       this.progress++
       const updateData = {
         id: item.ID,
-        taken_date: `${this.batchReceiveDate} ${this.batchReceiveTime}` || '',
+        taken_date: this.$utils.formatDate(this.batchReceiveDate, `yyyy-MM-dd ${this.batchReceiveTime}`) || '',
         taken_status: this.batchReceiveStatus || '',
         borrower: '',
         lent_date: '',
         return_date: '',
-        note: this.$utils.empty(this.batchReceiveStatus) ? '' : this.user.id
+        note: this.user.id
       }
       // to update untaken data in sqlite db
       try {
@@ -973,7 +1001,8 @@ export default {
         caseTakenDate: [],
         caseCloseDate: [],
         caseBorrower: [],
-        caseLentDate: []
+        caseLentDate: [],
+        caseSetter: []
       }
       // Use $nextTick to wait for DOM update and then timeout to wait for transition
       this.$nextTick(() => {
