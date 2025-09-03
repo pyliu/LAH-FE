@@ -337,10 +337,10 @@ export default {
         this.$utils.warn('caseId changed 無法設定取件時間', error)
       }
       this.syncOrigData()
-    },
-    updateData (n, o) {
-      this.$utils.warn('updateData changed', n, o)
     }
+    // updateData (n, o) {
+    //   this.$utils.warn('updateData changed', n, o)
+    // }
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')

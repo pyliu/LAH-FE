@@ -312,6 +312,7 @@ div
           b-select.h-100(
             v-model="batchReceiveStatus",
             :options="batchStatusOpts"
+            size="sm"
           )
 
         .d-flex.text-nowrap.w-50.p-1
@@ -327,6 +328,8 @@ div
             label-close-button="關閉"
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
             :max="maxDate"
+            :state="$utils.empty(batchReceiveStatus) ? true : !$utils.empty(batchReceiveStatus) && !$utils.empty(batchReceiveDate)"
+            size="sm"
             hide-header
             today-button
             close-button
@@ -353,16 +356,16 @@ div
       )
     .text-monospace.border.p-2.mt-2(v-else)
       div 針對 #[strong.text-info {{ batchYear }}-{{ batchWord }}] 區間 #[strong.text-danger {{ batchNumS }} ~ {{ batchNumE }}]
-      div 設定為 #[strong.text-success {{ $utils.empty(batchReceiveStatus) ? '(清空)' : batchReceiveStatus }}]
+      div 設定為 #[strong.text-success {{ $utils.empty(batchReceiveStatus) ? '(未領件)' : batchReceiveStatus }}]
       div 領件日期為 #[strong.text-success {{ $utils.empty(batchReceiveDate) ? '(清空)' : batchReceiveDate }}]
-      div 領件時間為 #[strong.text-info {{ $utils.empty(batchReceiveTime) ? '(清空)' : batchReceiveTime }}]
+      div 領件時間為 #[strong.text-success {{ $utils.empty(batchReceiveTime) ? '(清空)' : batchReceiveTime }}]
 
     template(#modal-footer="{ cancel }")
       lah-button(
         :icon="batchProcessing ? 'spinner' : 'check'"
         :spin="batchProcessing"
         variant="primary"
-        :disabled="isBatchFormInvalid || batchProcessing"
+        :disabled="isBatchFormInvalid || batchProcessing  || (!$utils.empty(batchReceiveStatus) && $utils.empty(batchReceiveDate))"
         @click="handleBatchUpdate"
         pill
       )
@@ -916,10 +919,12 @@ export default {
       this.progressMax = targetCases.length
 
       try {
-        const tasks = targetCases.map(item => this.handleBatchSingleUpdate(item))
-        const results = await Promise.all(tasks)
-        const successCount = results.filter(Boolean).length
-        this.success(`成功更新 ${successCount} / ${this.progressMax} 筆案件`)
+        for (let i = 0; i < targetCases.length; i++) {
+          this.handleBatchSingleUpdate(targetCases[i])
+          // add delay to wait backend sqlite db ready
+          await new Promise(resolve => setTimeout(resolve, 150))
+        }
+        this.success(`成功更新 ${this.progress} / ${this.progressMax} 筆案件`)
       } catch (error) {
         this.$utils.error(error)
         this.alert('批次更新時發生錯誤', { title: '錯誤' })
@@ -938,7 +943,7 @@ export default {
       const takenDate = this.$utils.empty(this.batchReceiveStatus) ? null : new Date(`${this.batchReceiveDate} ${this.batchReceiveTime}`)
       const updateData = {
         id: item.ID,
-        taken_date: takenDate,
+        taken_date: this.$utils.isValidDateObject(takenDate) ? takenDate : '',
         taken_status: this.batchReceiveStatus || '',
         borrower: item?.UNTAKEN_BORROWER || '',
         lent_date: item?.UNTAKEN_LENT_DATE || '',
