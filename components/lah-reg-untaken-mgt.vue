@@ -7,7 +7,6 @@ div
     :title="dataChanged ? '請儲存更新狀態 ... ' : ``"
     :class="modifiedMark"
   )
-    //- div(v-if="showTakenFields")
     div
       .d-flex.text-nowrap.mb-1
         .my-auto.mr-1 領件狀態
@@ -37,7 +36,7 @@ div
             no-icon-gutter
           )
 
-      .d-flex.text-nowrap.mb-1
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenStatus)")
         .my-auto.mr-1 領件日期
         b-datepicker(
           v-model="parentData.UNTAKEN_TAKEN_DATE"
@@ -58,87 +57,86 @@ div
           value-as-date
         )
 
-      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenTime)")
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenStatus)")
         .my-auto.mr-1 領件時間
-        .highlight-yellow {{ takenTime }}
+        b-timepicker(
+          v-model="editableTime",
+          locale="zh-TW",
+          size="sm",
+          placeholder="設定領件時間",
+          show-seconds,
+          label-no-time-selected="未選擇時間",
+          label-close-button="關閉"
+        )
+
       .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(setter) && !$utils.empty(takenStatus)")
         .my-auto.mr-1 發件人員
         div {{ setter }} {{ setterName }}
-    //- div(v-if="takenStatus === ''")
-    div
-      .d-flex.text-nowrap.mb-1
-        .my-auto.mr-1.text-nowrap 　借閱人
-        strong.my-auto.mr-1(:title="`${borrower} ${borrowerName}`") {{ borrowerName }}
-        lah-button(
-          icon="user-friends",
-          title="選擇",
-          size="sm",
-          @click="selectUser",
-          :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'",
-          no-icon-gutter
-        )
-        lah-button.ml-1(
-          v-if="!$utils.empty(borrower)",
-          icon="undo",
-          action="cycle-alt",
-          variant="secondary",
-          size="sm",
-          title="清除借閱人",
-          @click="borrowerClean"
-          no-icon-gutter
-        )
+      div
+        .d-flex.text-nowrap.mb-1
+          .my-auto.mr-1.text-nowrap 　借閱人
+          strong.my-auto.mr-1(:title="`${borrower} ${borrowerName}`") {{ borrowerName }}
+          lah-button(
+            icon="user-friends",
+            title="選擇",
+            size="sm",
+            @click="selectUser",
+            :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'",
+            no-icon-gutter
+          )
+          lah-button.ml-1(
+            v-if="!$utils.empty(borrower)",
+            icon="undo",
+            action="cycle-alt",
+            variant="secondary",
+            size="sm",
+            title="清除借閱人",
+            @click="borrowerClean"
+            no-icon-gutter
+          )
 
-      .d-flex.text-nowrap.mb-1(v-if="showLentDate")
-        .my-auto.mr-1 借出日期
-        b-datepicker(
-          size="sm"
-          variant="primary"
-          v-model="parentData.UNTAKEN_LENT_DATE"
-          placeholder="變更借閱日期"
-          boundary="viewport"
-          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :max="maxDate"
-          label-help="使用方向鍵操作移動日期"
-          hide-header
-          dropleft
-          today-button
-          label-today-button="今天"
-          reset-button
-          label-reset-button="重設"
-          close-button
-          label-close-button="關閉"
-        )
+        .d-flex.text-nowrap.mb-1(v-if="showLentDate")
+          .my-auto.mr-1 借出日期
+          b-datepicker(
+            size="sm"
+            variant="primary"
+            v-model="parentData.UNTAKEN_LENT_DATE"
+            placeholder="變更借閱日期"
+            boundary="viewport"
+            :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+            :max="maxDate"
+            label-help="使用方向鍵操作移動日期"
+            hide-header
+            dropleft
+            today-button
+            label-today-button="今天"
+            reset-button
+            label-reset-button="重設"
+            close-button
+            label-close-button="關閉"
+          )
 
-      .d-flex.text-nowrap.mb-1(v-if="showReturnDate")
-        .my-auto.mr-1 歸還日期
-        b-datepicker(
-          size="sm"
-          variant="primary"
-          v-model="parentData.UNTAKEN_RETURN_DATE"
-          placeholder="設定借閱歸還日期"
-          boundary="viewport"
-          :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-          :max="maxDate"
-          label-help="使用方向鍵操作移動日期"
-          hide-header
-          dropleft
-          today-button
-          label-today-button="今天"
-          reset-button
-          label-reset-button="重設"
-          close-button
-          label-close-button="關閉"
-          :state="!$utils.empty(parentData.UNTAKEN_RETURN_DATE)"
-        )
-
-    .d-flex.text-nowrap.mb-1(v-if="false")
-      b-checkbox.my-auto.mr-1.text-nowrap(v-model="noteFlag" size="sm") 備忘錄
-      b-textarea(
-        v-show="noteFlag"
-        v-model="parentData.UNTAKEN_NOTE"
-        size="sm"
-        trim
-      )
+        .d-flex.text-nowrap.mb-1(v-if="showReturnDate")
+          .my-auto.mr-1 歸還日期
+          b-datepicker(
+            size="sm"
+            variant="primary"
+            v-model="parentData.UNTAKEN_RETURN_DATE"
+            placeholder="設定借閱歸還日期"
+            boundary="viewport"
+            :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+            :max="maxDate"
+            label-help="使用方向鍵操作移動日期"
+            hide-header
+            dropleft
+            today-button
+            label-today-button="今天"
+            reset-button
+            label-reset-button="重設"
+            close-button
+            label-close-button="關閉"
+            :state="!$utils.empty(parentData.UNTAKEN_RETURN_DATE)"
+          )
 
   .text-left(v-else)
     div(:class="statusCss") {{ statusText }}
@@ -174,11 +172,13 @@ export default {
     noteFlag: false,
     minDate: new Date(),
     maxDate: new Date(),
-    statusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'],
-    skipTakenDateUpdate: false,
-    skipTakenStatusUpdate: false,
+    statusOpts: [{
+      text: '未領件',
+      value: ''
+    }, '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'],
     debounceMs: 30 * 1000,
-    origData: {}
+    origData: {},
+    editableTime: ''
   }),
   computed: {
     dataChanged () {
@@ -195,24 +195,10 @@ export default {
       return false
     },
     takenDate () {
+      if (typeof this.parentData.UNTAKEN_TAKEN_DATE === 'string') {
+        return new Date(this.parentData.UNTAKEN_TAKEN_DATE)
+      }
       return this.parentData.UNTAKEN_TAKEN_DATE || null
-    },
-    takenTime () {
-      const ts = Date.parse(this.parentData.UNTAKEN_TAKEN_DATE)
-      if (ts) {
-        return this.$utils.formatTime(new Date(ts))
-      }
-      return ''
-    },
-    origTakenDate () {
-      return this.origData.taken_date || ''
-    },
-    origTakenTime () {
-      const ts = Date.parse(this.origData.taken_date)
-      if (ts) {
-        return this.$utils.formatTime(new Date(ts))
-      }
-      return this.takenTime
     },
     takenStatus () {
       return this.parentData.UNTAKEN_TAKEN_STATUS || ''
@@ -256,9 +242,6 @@ export default {
     },
     modifiedMark () {
       if (this.dataChanged) { return ['update-mark'] }
-      // if (this.takenStatus !== '') { return ['bg-success', 'text-white', 'p-1'] }
-      // if (this.borrower !== '' && this.$utils.empty(this.returnDate)) { return ['bg-warning', 'p-1'] }
-      // if (!this.$utils.empty(this.returnDate)) { return ['bg-light', 'p-1'] }
       return []
     },
     updateData () {
@@ -275,7 +258,6 @@ export default {
     editable () {
       // open to all by reg section asked ...
       return true
-      // return this.parentData.RM45 === this.myid || this.parentData.RM59 === this.myid || this.authority.isChief || this.authority.isAdmin
     },
     statusText () {
       return this.$utils.empty(this.parentData.UNTAKEN_TAKEN_STATUS) ? '尚未設定領件狀態' : this.parentData.UNTAKEN_TAKEN_STATUS
@@ -286,39 +268,43 @@ export default {
   },
   watch: {
     takenDate (val) {
-      if (!this.skipTakenDateUpdate) {
-        this.skipTakenStatusUpdate = true
-        if (this.$utils.empty(val)) {
-          this.parentData.UNTAKEN_TAKEN_STATUS = ''
-        } else if (this.$utils.empty(this.takenStatus)) {
-          this.parentData.UNTAKEN_TAKEN_STATUS = '已領件'
-        }
-        if (val?.setHours) {
+      // 同步更新 editableTime
+      if (val instanceof Date) {
+        // if time is 00:00:00, it means the date is changed from datepicker, so set current time
+        if (val.getHours() === 0 && val.getMinutes() === 0 && val.getSeconds() === 0) {
           const now = new Date()
-          val?.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
+          val.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
         }
+        // update the time display if different
+        const formattedTime = this.$utils.formatTime(val)
+        if (this.editableTime !== formattedTime) {
+          this.editableTime = formattedTime
+        }
+      } else {
+        this.editableTime = ''
       }
-      this.skipTakenDateUpdate = false
-      // this.$refs.countdown?.resetCountdown()
       this.updateDebounced()
     },
-    takenStatus (val) {
-      if (!this.skipTakenStatusUpdate) {
-        this.skipTakenDateUpdate = true
-        if (this.$utils.empty(val)) {
-          this.parentData.UNTAKEN_TAKEN_DATE = null
-        } else if (this.$utils.empty(this.takenDate)) {
-          this.parentData.UNTAKEN_TAKEN_DATE = new Date()
+    editableTime (newTimeStr) {
+      if (newTimeStr && this.takenDate instanceof Date) {
+        const [hours, minutes, seconds] = newTimeStr.split(':')
+        const newDate = new Date(this.takenDate)
+        newDate.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || 0))
+
+        if (newDate.getTime() !== this.takenDate.getTime()) {
+          this.parentData.UNTAKEN_TAKEN_DATE = newDate
         }
       }
-      this.skipTakenStatusUpdate = false
-      // this.$refs.countdown?.resetCountdown()
+    },
+    takenStatus (val) {
+      if (this.$utils.empty(val)) {
+        this.parentData.UNTAKEN_TAKEN_DATE = null
+      } else if (this.$utils.empty(this.takenDate)) {
+        this.parentData.UNTAKEN_TAKEN_DATE = new Date()
+      }
       this.updateDebounced()
     },
     lentDate (val) {
-      // if (this.$utils.empty(this.parentData.UNTAKEN_LENT_DATE)) {
-      //   this.parentData.UNTAKEN_BORROWER = ''
-      // }
       if (this.$utils.empty(val)) {
         this.parentData.UNTAKEN_RETURN_DATE = null
       }
@@ -335,9 +321,20 @@ export default {
       this.noteFlag = !this.$utils.empty(val)
     },
     caseId (dontcare) {
-    // RM58_1: 結案日期
       this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
+      try {
+        if (this.takenDate instanceof Date) {
+          this.editableTime = this.$utils.formatTime(this.takenDate)
+        } else {
+          this.editableTime = ''
+        }
+      } catch (error) {
+        this.$utils.error('caseId changed 無法設定取件時間', error)
+      }
       this.syncOrigData()
+    },
+    updateData (n, o) {
+      this.$utils.warn('updateData changed', n, o)
     }
   },
   created () {
@@ -345,7 +342,16 @@ export default {
     !this.$utils.empty(this.note) && (this.noteFlag = true)
     this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
     // to make init state for dataChanged correctly
-    this.timeout(this.syncOrigData, 400)
+    this.timeout(() => {
+      this.syncOrigData()
+      try {
+        if (this.takenDate instanceof Date) {
+          this.editableTime = this.$utils.formatTime(this.takenDate)
+        }
+      } catch (error) {
+        this.$utils.warn('無法設定取件時間', error)
+      }
+    }, 400)
   },
   methods: {
     update () {
@@ -359,7 +365,6 @@ export default {
           if (this.$utils.statusCheck(data.status)) {
             this.syncOrigData()
           } else {
-            // this.warning(data.message, { title: this.parentData.收件字號 })
             this.$utils.warn(this.caseId, data.message)
           }
         }).catch((err) => {
@@ -389,9 +394,9 @@ export default {
     },
     backOrigData () {
       this.parentData.UNTAKEN_TAKEN_STATUS = this.origData.taken_status
-      this.parentData.UNTAKEN_TAKEN_DATE = this.origData.taken_date
-      this.parentData.UNTAKEN_LENT_DATE = this.origData.lent_date
-      this.parentData.UNTAKEN_RETURN_DATE = this.origData.return_date
+      this.parentData.UNTAKEN_TAKEN_DATE = this.origData.taken_date ? new Date(this.origData.taken_date) : null
+      this.parentData.UNTAKEN_LENT_DATE = this.origData.lent_date ? new Date(this.origData.lent_date) : null
+      this.parentData.UNTAKEN_RETURN_DATE = this.origData.return_date ? new Date(this.origData.return_date) : null
       this.parentData.UNTAKEN_BORROWER = this.origData.borrower
       this.parentData.UNTAKEN_NOTE = this.origData.note
     }
