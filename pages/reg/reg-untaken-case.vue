@@ -355,10 +355,10 @@ div
         :precision="0"
       )
     .text-monospace.border.p-2.mt-2(v-else)
-      div 針對 #[strong.text-info {{ batchYear }}-{{ batchWord }}] 區間 #[strong.text-danger {{ batchNumS }} ~ {{ batchNumE }}]
-      div 設定為 #[strong.text-success {{ $utils.empty(batchReceiveStatus) ? '(未領件)' : batchReceiveStatus }}]
-      div 領件日期為 #[strong.text-success {{ $utils.empty(batchReceiveDate) ? '(清空)' : batchReceiveDate }}]
-      div 領件時間為 #[strong.text-success {{ $utils.empty(batchReceiveTime) ? '(清空)' : batchReceiveTime }}]
+      div 針對 #[strong.text-info {{ batchYear }}-{{ batchWord }}] 區間 #[strong.text-info {{ batchNumS }} ~ {{ batchNumE }}] 共有 #[strong.text-danger {{ batchCases.length }}] 筆案件
+      div 「領件狀態」設定為 #[strong.text-success {{ $utils.empty(batchReceiveStatus) ? '(未領件)' : batchReceiveStatus }}]
+      div 「領件日期」設定為 #[strong.text-success {{ $utils.empty(batchReceiveDate) ? '(清空)' : batchReceiveDate }}]
+      div 「領件時間」設定為 #[strong.text-success {{ $utils.empty(batchReceiveTime) ? '(清空)' : batchReceiveTime }}]
 
     template(#modal-footer="{ cancel }")
       lah-button(
@@ -699,6 +699,14 @@ export default {
         return obj
       })
       return jsons
+    },
+    batchCases () {
+      return this.rows.filter(item =>
+        item.RM01 === this.batchYear &&
+        item.RM02 === this.batchWord &&
+        item.RM03 >= this.batchNumS &&
+        item.RM03 <= this.batchNumE
+      )
     }
   },
   fetchOnServer: false,
@@ -811,10 +819,10 @@ export default {
       }
     },
     batchYear () {
-      this.prefillBatchStartNumber()
+      this.prefillBatchStEdNumber()
     },
     batchWord () {
-      this.prefillBatchStartNumber()
+      this.prefillBatchStEdNumber()
     },
     batchNumS () {
       this.validateBatchRangeDebounced()
@@ -893,50 +901,45 @@ export default {
       // Show the modal
       this.$refs.batchUpdateModal.show()
     },
-    async handleBatchUpdate () {
+    handleBatchUpdate () {
       if (this.isBatchFormInvalid) {
         this.batchMessage = '請填寫所有必填欄位或修正錯誤'
         return
       }
-      this.batchProcessing = true
       this.batchMessage = '' // Clear previous error messages
 
-      // Find target cases
-      const targetCases = this.rows.filter(item =>
-        item.RM01 === this.batchYear &&
-        item.RM02 === this.batchWord &&
-        item.RM03 >= this.batchNumS &&
-        item.RM03 <= this.batchNumE
-      )
-
-      if (targetCases.length === 0) {
+      if (this.batchCases.length === 0) {
         this.batchMessage = '在指定的區間內找不到任何案件可供更新'
         this.batchProcessing = false
         return
       }
 
-      this.progress = 0
-      this.progressMax = targetCases.length
-
-      try {
-        for (let i = 0; i < targetCases.length; i++) {
-          this.handleBatchSingleUpdate(targetCases[i])
-          // add delay to wait backend sqlite db ready
-          await new Promise(resolve => setTimeout(resolve, 150))
-        }
-        this.success(`成功更新 ${this.progress} / ${this.progressMax} 筆案件`)
-      } catch (error) {
-        this.$utils.error(error)
-        this.alert('批次更新時發生錯誤', { title: '錯誤' })
-      } finally {
-        this.timeout(() => {
-          this.batchProcessing = false
+      this.progressMax = this.batchCases.length
+      this.confirm(`請確認要批次變更領件狀態？<br/>一旦變更無法復原，共 ${this.progressMax} 件待處理。`).then(async (YN) => {
+        if (YN) {
           this.progress = 0
-          this.progressMax = 0
-          this.$refs.batchUpdateModal.hide()
-          this.reload() // Reload data in the main table
-        }, 2000)
-      }
+          this.batchProcessing = true
+          try {
+            for (let i = 0; i < this.batchCases.length; i++) {
+              this.handleBatchSingleUpdate(this.batchCases[i])
+              // add delay to wait backend sqlite db ready
+              await new Promise(resolve => setTimeout(resolve, 150))
+            }
+            this.success(`成功更新 ${this.progress} / ${this.progressMax} 筆案件`)
+          } catch (error) {
+            this.$utils.error(error)
+            this.alert('批次更新時發生錯誤', { title: '錯誤' })
+          } finally {
+            this.timeout(() => {
+              this.batchProcessing = false
+              this.progress = 0
+              this.progressMax = 0
+              this.$refs.batchUpdateModal.hide()
+              this.reload() // Reload data in the main table
+            }, 2000)
+          }
+        }
+      })
     },
     async handleBatchSingleUpdate (item) {
       this.progress++
@@ -969,8 +972,9 @@ export default {
         return false
       }
     },
-    prefillBatchStartNumber () {
+    prefillBatchStEdNumber () {
       this.batchNumS = this.caseNumberRangeForBatch.min || ''
+      this.batchNumE = this.caseNumberRangeForBatch.max || ''
     },
     calculateTableHeight () {
       this.$nextTick(() => {
