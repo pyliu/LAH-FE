@@ -9,13 +9,13 @@ div
   )
     div
       .d-flex.text-nowrap.mb-1
-        .my-auto.mr-1 領件狀態
+        .my-auto 領件狀態
         b-select(
           v-model="parentData.UNTAKEN_TAKEN_STATUS",
           :options="statusOpts",
           size="sm"
         )
-        b-button-group.ml-1(size="sm")
+        b-button-group.ml-1(v-if="dataChanged", size="sm")
           lah-button(
             ref="countdown"
             icon="edit",
