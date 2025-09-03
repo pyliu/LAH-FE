@@ -714,8 +714,27 @@ export default {
         caseLentDateOpts: []
       }
       if (val) {
-        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].filter(Boolean).sort()
-        this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].filter(Boolean).sort()
+        const wordMap = new Map()
+        val.forEach((item) => {
+          if (item.RM02 && !wordMap.has(item.RM02)) {
+            wordMap.set(item.RM02, {
+              text: `${item.RM02} ${item.收件字}`,
+              value: item.RM02
+            })
+          }
+        })
+        this.advOpts.caseWordOpts = [...wordMap.values()].sort((a, b) => a.text.localeCompare(b.text))
+
+        const reasonMap = new Map()
+        val.forEach((item) => {
+          if (item.登記原因 && !reasonMap.has(item.登記原因)) {
+            reasonMap.set(item.登記原因, {
+              text: `${item.RM09} ${item.登記原因}`,
+              value: item.登記原因
+            })
+          }
+        })
+        this.advOpts.caseReasonOpts = [...reasonMap.values()].sort((a, b) => a.text.localeCompare(b.text))
 
         const preliminatorMap = new Map()
         val.forEach((item) => {
