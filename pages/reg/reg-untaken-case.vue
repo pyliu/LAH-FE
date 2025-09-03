@@ -288,7 +288,7 @@ div
           :options="batchWordOpts",
           :state="!$utils.empty(batchWord)"
         )
-      .d-flex.my-1
+      .d-flex.my-1(v-if="!$utils.empty(batchWord)")
         b-input-group.mr-1(prepend="收件號起"): b-input(
           v-model="batchNumS",
           placeholder="... 000001 ...",
@@ -303,6 +303,8 @@ div
           trim,
           @blur="formatCaseNumber('batchNumE')"
         )
+
+    section(v-if="!isBatchFormInvalid")
       hr
       .d-flex.justify-content-between
         .d-flex.text-nowrap.w-50.p-1
@@ -318,7 +320,7 @@ div
             v-model="batchReceiveDate"
             boundary="viewport"
             variant="primary"
-            placeholder="... 變更領件日期 ..."
+            placeholder="... 清空設定 ..."
             label-help="使用方向鍵操作移動日期"
             label-today-button="今天"
             label-reset-button="重設"
@@ -330,8 +332,13 @@ div
             close-button
             reset-button
           )
-    hr
-    div(v-if="batchProcessing")
+
+    .text-monospace.p-2.mt-2(v-if="isBatchFormInvalid")
+      lah-message(
+        :message="batchMessage",
+        variant="danger"
+      )
+    section.mt-2(v-else-if="batchProcessing")
       lah-message(
         :message="batchProgressMessage",
         variant="info"
@@ -344,17 +351,11 @@ div
         animated,
         :precision="0"
       )
-    div(v-else)
-      div.text-monospace.p-2(v-if="isBatchFormInvalid")
-        lah-message(
-          :message="batchMessage",
-          variant="danger"
-        )
-      div.text-monospace.border.p-2(v-else)
-        div 針對 #[strong.text-info {{ batchYear }}-{{ batchWord }}] 區間 #[strong.text-danger {{ batchNumS }} ~ {{ batchNumE }}]
-        div 設定為 #[strong.text-success {{ batchReceiveStatus }}]
-        div 領件日期為 #[strong.text-success {{ batchReceiveDate }}]
-        div 領件時間為 #[strong.text-info {{ batchReceiveTime }}]
+    .text-monospace.border.p-2.mt-2(v-else)
+      div 針對 #[strong.text-info {{ batchYear }}-{{ batchWord }}] 區間 #[strong.text-danger {{ batchNumS }} ~ {{ batchNumE }}]
+      div 設定為 #[strong.text-success {{ $utils.empty(batchReceiveStatus) ? '(清空)' : batchReceiveStatus }}]
+      div 領件日期為 #[strong.text-success {{ $utils.empty(batchReceiveDate) ? '(清空)' : batchReceiveDate }}]
+      div 領件時間為 #[strong.text-info {{ $utils.empty(batchReceiveTime) ? '(清空)' : batchReceiveTime }}]
 
     template(#modal-footer="{ cancel }")
       lah-button(
@@ -441,7 +442,10 @@ export default {
     batchReceiveDate: null,
     batchReceiveTime: null,
     // Other batch update states
-    batchStatusOpts: ['', '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'],
+    batchStatusOpts: [{
+      text: '未領件',
+      value: ''
+    }, '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'],
     batchMessage: '',
     maxDate: new Date(),
     batchProcessing: false,
@@ -619,7 +623,7 @@ export default {
     },
     isBatchFormInvalid () {
       // 1. Check for empty fields
-      if (this.$utils.empty(this.batchYear) || this.$utils.empty(this.batchWord) || this.$utils.empty(this.batchNumS) || this.$utils.empty(this.batchNumE) || this.$utils.empty(this.batchReceiveStatus) || this.$utils.empty(this.batchReceiveDate)) {
+      if (this.$utils.empty(this.batchYear) || this.$utils.empty(this.batchWord) || this.$utils.empty(this.batchNumS) || this.$utils.empty(this.batchNumE)) {
         return true
       }
       // 2. Check for logical validity
@@ -924,16 +928,17 @@ export default {
           this.batchProcessing = false
           this.progress = 0
           this.progressMax = 0
-          // this.$refs.batchUpdateModal.hide()
-          // this.reload() // Reload data in the main table
+          this.$refs.batchUpdateModal.hide()
+          this.reload() // Reload data in the main table
         }, 2000)
       }
     },
     async handleBatchSingleUpdate (item) {
       this.progress++
+      const takenDate = this.$utils.empty(this.batchReceiveStatus) ? '' : `${this.batchReceiveDate}T${this.batchReceiveTime}Z`
       const updateData = {
         id: item.ID,
-        taken_date: this.$utils.formatDate(this.batchReceiveDate, `yyyy-MM-dd ${this.batchReceiveTime}`) || '',
+        taken_date: takenDate,
         taken_status: this.batchReceiveStatus || '',
         borrower: '',
         lent_date: '',
@@ -947,10 +952,10 @@ export default {
           ...updateData
         })
         if (this.$utils.statusCheck(data.status)) {
-          this.$utils.log('OK', updateData)
+          this.$utils.warn(`更新 ${item.ID} 資料成功`, updateData)
           return true
         } else {
-          this.$utils.error(item.ID, data.message)
+          this.$utils.error(item.ID, data.message, updateData)
           return false
         }
       } catch (err) {
