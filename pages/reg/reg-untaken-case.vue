@@ -312,7 +312,6 @@ div
           b-select.h-100(
             v-model="batchReceiveStatus",
             :options="batchStatusOpts"
-            size="sm"
           )
 
         .d-flex.text-nowrap.w-50.p-1
@@ -321,7 +320,7 @@ div
             v-model="batchReceiveDate"
             boundary="viewport"
             variant="primary"
-            placeholder="... 清空設定 ..."
+            placeholder=""
             label-help="使用方向鍵操作移動日期"
             label-today-button="今天"
             label-reset-button="重設"
@@ -329,7 +328,6 @@ div
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
             :max="maxDate"
             :state="$utils.empty(batchReceiveStatus) ? true : !$utils.empty(batchReceiveStatus) && !$utils.empty(batchReceiveDate)"
-            size="sm"
             hide-header
             today-button
             close-button
