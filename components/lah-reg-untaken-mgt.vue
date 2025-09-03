@@ -276,13 +276,11 @@ export default {
             const now = new Date()
             val.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
           }
-          // update the time display if different
           const formattedTime = this.$utils.formatTime(val)
-          if (this.editableTime !== formattedTime) {
+          // only when editableTime is empty then sets current time to it
+          if (this.$utils.empty(this.editableTime)) {
             this.editableTime = formattedTime
           }
-        } else {
-          this.editableTime = ''
         }
         this.updateDebounced()
       } catch (error) {
