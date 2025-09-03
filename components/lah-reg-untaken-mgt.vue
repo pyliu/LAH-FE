@@ -324,7 +324,7 @@ export default {
       this.update()
       this.noteFlag = !this.$utils.empty(val)
     },
-    caseId (dontcare) {
+    caseId (val) {
       this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
       if (this.$utils.empty(this.takenDate)) {
         this.editableTime = ''
@@ -336,6 +336,7 @@ export default {
       } catch (error) {
         this.$utils.warn('caseId changed 無法設定取件時間', error)
       }
+      this.$utils.warn(val, this.takenDate, this.editableTime)
       this.syncOrigData()
     }
     // updateData (n, o) {
@@ -346,17 +347,17 @@ export default {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
     !this.$utils.empty(this.note) && (this.noteFlag = true)
     this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
+    this.syncOrigData()
     // to make init state for dataChanged correctly
-    this.timeout(() => {
-      this.syncOrigData()
+    this.$nextTick(() => {
       try {
-        if (this.takenDate instanceof Date) {
+        if (this.$utils.isValidDateObject(this.takenDate)) {
           this.editableTime = this.$utils.formatTime(this.takenDate)
         }
       } catch (error) {
-        this.$utils.warn('無法設定取件時間', error)
+        this.$utils.warn('無法回復取件時間', error)
       }
-    }, 400)
+    })
   },
   methods: {
     update () {
