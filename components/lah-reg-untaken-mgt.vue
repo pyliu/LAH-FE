@@ -247,7 +247,7 @@ export default {
     updateData () {
       return {
         id: this.caseId,
-        taken_date: this.takenDate instanceof Date && !isNaN(this.takenDate.getTime()) ? this.takenDate : '',
+        taken_date: this.$utils.isValidDateObject(this.takenDate) ? this.takenDate : '',
         taken_status: this.takenStatus,
         lent_date: this.lentDate,
         return_date: this.returnDate,
@@ -270,7 +270,7 @@ export default {
     takenDate (val) {
       try {
         // 同步更新 editableTime
-        if (val instanceof Date) {
+        if (this.$utils.isValidDateObject(val)) {
           // if time is 00:00:00, it means the date is changed from datepicker, so set current time
           if (val.getHours() === 0 && val.getMinutes() === 0 && val.getSeconds() === 0) {
             const now = new Date()
@@ -290,7 +290,7 @@ export default {
       }
     },
     editableTime (newTimeStr) {
-      if (newTimeStr && this.takenDate instanceof Date) {
+      if (newTimeStr && this.$utils.isValidDateObject(this.takenDate)) {
         const [hours, minutes, seconds] = newTimeStr.split(':')
         const newDate = new Date(this.takenDate)
         newDate.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || 0))
@@ -330,7 +330,7 @@ export default {
         this.editableTime = ''
       }
       try {
-        if (this.takenDate instanceof Date && !isNaN(this.takenDate.getTime())) {
+        if (this.$utils.isValidDateObject(this.takenDate)) {
           this.editableTime = this.$utils.formatTime(this.takenDate)
         }
       } catch (error) {

@@ -418,10 +418,16 @@ export default ({ $axios, store, $config }, inject) => {
       }
     },
     formatDate (dateObj = new Date(), formatStr = 'yyy-LL-dd') {
-      return format(dateObj, formatStr, { locale: zhTW })
+      if (this.isValidDateObject(dateObj)) {
+        return format(dateObj, formatStr, { locale: zhTW })
+      }
+      return ''
     },
     formatTime (dateObj = new Date(), formatStr = 'HH:mm:ss') {
-      return format(dateObj, formatStr, { locale: zhTW })
+      if (this.isValidDateObject(dateObj)) {
+        return format(dateObj, formatStr, { locale: zhTW })
+      }
+      return ''
     },
     now (tw = '') {
       // https://date-fns.org/v2.28.0/docs/format
@@ -511,6 +517,14 @@ export default ({ $axios, store, $config }, inject) => {
         return parseInt(formatted.substring(0, 3)) + 1911 + formatted.substring(3)
       }
       return str
+    },
+    /**
+     * 檢查傳入的值是否為一個有效的 Date 物件
+     * @param {*} d - 欲檢查的值
+     * @returns {boolean}
+     */
+    isValidDateObject (d) {
+      return d instanceof Date && !isNaN(d.getTime())
     },
     isValidTWDate (str, todayLimit = true) {
       // e.g. 1131111
