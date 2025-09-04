@@ -1,3 +1,4 @@
+/* eslint-disable no-irregular-whitespace */
 <template lang="pug">
 div
   lah-header: lah-transition(appear)
@@ -20,6 +21,7 @@ div
           h5 進階篩選
           ul
             li 針對目前已載入的資料進行篩選，可按住 Ctrl 鍵進行多選。
+            li 「收件號」欄位支援兩種搜尋模式：(1) 輸入部分文字進行模糊比對 (2) 輸入數字區間 (例如：#[strong 120-450]) 進行範圍搜尋。
             li 篩選條件會以標籤形式顯示在主畫面上，點擊標籤上的 "x" 可移除該條件。
           hr
           h5 批次修改
@@ -179,7 +181,7 @@ div
       b-input-group.align-self-stretch(prepend="　收件號")
         b-input.h-100(
           v-model="advOpts.caseId",
-          placeholder="... 可輸入部分收件號 ...",
+          placeholder="... 可輸入部分收件號或區間 (如 120-450) ...",
           debounce="800",
           trim
         )
@@ -272,9 +274,9 @@ div
   b-modal(
     ref="batchUpdateModal",
     title="批次修改領件狀態",
-    size="md",
     no-close-on-backdrop,
-    :hide-header-close="batchProcessing"
+    :hide-header-close="batchProcessing",
+    size="lg"
   )
     b-form-fieldset(:disabled="batchProcessing")
       .d-flex
@@ -306,35 +308,36 @@ div
 
     section(v-if="!isBatchFormInvalid")
       hr
-      .d-flex.justify-content-between
-        .d-flex.text-nowrap.w-50.p-1
-          .my-auto.mr-1 領件狀態
-          b-select.h-100(
-            v-model="batchReceiveStatus",
-            :options="batchStatusOpts",
-            :disabled="batchProcessing"
-          )
-
-        .d-flex.text-nowrap.w-50.p-1
-          .my-auto.mr-1 領件日期
-          b-datepicker(
-            v-model="batchReceiveDate"
-            boundary="viewport"
-            variant="primary"
-            placeholder=""
-            label-help="使用方向鍵操作移動日期"
-            label-today-button="今天"
-            label-reset-button="重設"
-            label-close-button="關閉"
-            :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
-            :max="maxDate"
-            :state="$utils.empty(batchReceiveStatus) ? true : !$utils.empty(batchReceiveStatus) && !$utils.empty(batchReceiveDate)"
-            :disabled="batchProcessing || $utils.empty(batchReceiveStatus)"
-            hide-header
-            today-button
-            close-button
-            reset-button
-          )
+      b-row.align-items-center.no-gutters
+        b-col.p-1(cols="5")
+          .d-flex.align-items-center
+            .text-nowrap.mr-1 領件狀態
+            b-select.flex-grow-1(
+              v-model="batchReceiveStatus",
+              :options="batchStatusOpts",
+              :disabled="batchProcessing"
+            )
+        b-col.p-1(cols="7")
+          .d-flex.align-items-center
+            .text-nowrap.mr-1 領件日期
+            b-datepicker.flex-grow-1(
+              v-model="batchReceiveDate"
+              boundary="viewport"
+              variant="primary"
+              placeholder=""
+              label-help="使用方向鍵操作移動日期"
+              label-today-button="今天"
+              label-reset-button="重設"
+              label-close-button="關閉"
+              :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
+              :max="maxDate"
+              :state="$utils.empty(batchReceiveStatus) ? true : !$utils.empty(batchReceiveStatus) && !$utils.empty(batchReceiveDate)"
+              :disabled="batchProcessing || $utils.empty(batchReceiveStatus)"
+              hide-header
+              today-button
+              close-button
+              reset-button
+            )
 
     .text-monospace.p-2.mt-2(v-if="isBatchFormInvalid")
       lah-message(
@@ -510,9 +513,35 @@ export default {
         return this.rows
       }
       let pipelineItems = [...this.rows]
-      // String filters
+      // MODIFIED: Handle caseId with range search
       if (!this.$utils.empty(this.advOpts.caseId)) {
-        pipelineItems = pipelineItems.filter(item => item.RM03.includes(this.advOpts.caseId.toUpperCase()))
+        const query = this.advOpts.caseId.trim()
+        const rangeParts = query.split('-')
+
+        let isRangeSearch = false
+        let startNum, endNum
+
+        // Check for a valid range format "number-number"
+        if (rangeParts.length === 2) {
+          const potentialStart = Number(rangeParts[0])
+          const potentialEnd = Number(rangeParts[1])
+          if (!isNaN(potentialStart) && !isNaN(potentialEnd) && potentialStart <= potentialEnd) {
+            isRangeSearch = true
+            startNum = potentialStart
+            endNum = potentialEnd
+          }
+        }
+
+        if (isRangeSearch) {
+          // Perform range filtering
+          pipelineItems = pipelineItems.filter((item) => {
+            const itemNum = parseInt(item.RM03, 10)
+            return !isNaN(itemNum) && itemNum >= startNum && itemNum <= endNum
+          })
+        } else {
+          // Fallback to original 'includes' search
+          pipelineItems = pipelineItems.filter(item => item.RM03.includes(query.toUpperCase()))
+        }
       }
       // Array filters
       if (this.advOpts.caseWord.length > 0) {
@@ -1086,5 +1115,8 @@ export default {
 <style lang="scss" scoped>
 .adv-tag-style {
   font-size: 0.95rem;
+}
+::v-deep .modal-dialog {
+  max-width: 525px;
 }
 </style>
