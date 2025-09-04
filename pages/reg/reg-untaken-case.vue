@@ -276,7 +276,7 @@ div
     title="批次修改領件狀態",
     no-close-on-backdrop,
     :hide-header-close="batchProcessing",
-    size="lg"
+    size="xl"
   )
     b-form-fieldset(:disabled="batchProcessing")
       .d-flex
@@ -1116,7 +1116,8 @@ export default {
 .adv-tag-style {
   font-size: 0.95rem;
 }
-::v-deep .modal-dialog {
+// trick to limit batch update modal width
+::v-deep .modal-dialog.modal-xl {
   max-width: 525px;
 }
 </style>
