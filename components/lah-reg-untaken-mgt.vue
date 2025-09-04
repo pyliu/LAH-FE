@@ -189,16 +189,41 @@ export default {
                this.origData.id !== this.updateData.id ||
                this.origData.lent_date !== this.updateData.lent_date ||
                this.origData.return_date !== this.updateData.return_date ||
-               this.origData.taken_date !== this.updateData.taken_date ||
-               this.origData.taken_status !== this.updateData.taken_status
+               this.origData.taken_status !== this.updateData.taken_status ||
+               this.isTakenDateChanged
       }
       return false
     },
     takenDate () {
-      if (typeof this.parentData.UNTAKEN_TAKEN_DATE === 'string') {
-        return new Date(this.parentData.UNTAKEN_TAKEN_DATE)
+      try {
+        if (typeof this.parentData.UNTAKEN_TAKEN_DATE === 'string' && !this.$utils.empty(this.parentData.UNTAKEN_TAKEN_DATE)) {
+          return new Date(this.parentData.UNTAKEN_TAKEN_DATE)
+        }
+        return this.parentData.UNTAKEN_TAKEN_DATE || ''
+      } finally {
+        // need to sync editableTime when takenDate changed outside
+        this.$nextTick(() => {
+          this.editableTime = this.$utils.formatTime(this.parentData.UNTAKEN_TAKEN_DATE)
+        })
       }
-      return this.parentData.UNTAKEN_TAKEN_DATE || ''
+    },
+    isTakenDateChanged () {
+      const origDate = this.origData.taken_date
+      const newDate = this.updateData.taken_date
+
+      const isOrigValid = this.$utils.isValidDateObject(origDate)
+      const isNewValid = this.$utils.isValidDateObject(newDate)
+
+      // 情況1：兩者都是有效的 Date 物件
+      if (isOrigValid && isNewValid) {
+        // 比較時間戳 (timestamp) 是最準確的方式
+        return origDate.getTime() !== newDate.getTime()
+      }
+
+      // 情況2：其中一個有效，另一個無效 (例如從 null 變為 Date，或反之)
+      // 這種情況兩者的有效性必定不同 (true !== false)，代表已變更
+      // 如果兩者都無效 (例如 null 和 '' or undefined)，有效性相同 (false !== false)，代表未變更
+      return isOrigValid !== isNewValid
     },
     takenStatus () {
       return this.parentData.UNTAKEN_TAKEN_STATUS || ''
@@ -291,6 +316,7 @@ export default {
       }
     },
     editableTime (newTimeStr) {
+      // this.$utils.warn('editableTime changed', newTimeStr, this.takenDate)
       if (newTimeStr && this.$utils.isValidDateObject(this.takenDate)) {
         const [hours, minutes, seconds] = newTimeStr.split(':')
         const newDate = new Date(this.takenDate)
@@ -327,22 +353,17 @@ export default {
     },
     caseId (val) {
       this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
-      if (this.$utils.empty(this.takenDate)) {
+      if (this.$utils.isValidDateObject(this.takenDate)) {
         this.editableTime = ''
-      }
-      try {
-        if (this.$utils.isValidDateObject(this.takenDate)) {
+      } else {
+        try {
           this.editableTime = this.$utils.formatTime(this.takenDate)
+        } catch (error) {
+          this.$utils.warn('caseId changed 無法設定取件時間', error)
         }
-      } catch (error) {
-        this.$utils.warn('caseId changed 無法設定取件時間', error)
       }
-      this.$utils.warn(val, this.takenDate, this.editableTime)
       this.syncOrigData()
     }
-    // updateData (n, o) {
-    //   this.$utils.warn('updateData changed', n, o)
-    // }
   },
   created () {
     !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
@@ -350,15 +371,14 @@ export default {
     this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
     this.syncOrigData()
     // to make init state for dataChanged correctly
-    this.$nextTick(() => {
+    this.timeout(() => {
       try {
-        if (this.$utils.isValidDateObject(this.takenDate)) {
-          this.editableTime = this.$utils.formatTime(this.takenDate)
-        }
+        this.editableTime = this.$utils.formatTime(this.takenDate)
+        // this.$utils.warn(`${this.caseId} editableTime init 👉 `, this.editableTime, this.takenDate)
       } catch (error) {
         this.$utils.warn('無法回復取件時間', error)
       }
-    })
+    }, 400)
   },
   methods: {
     update () {
@@ -372,7 +392,7 @@ export default {
           if (this.$utils.statusCheck(data.status)) {
             this.syncOrigData()
           } else {
-            this.$utils.warn(this.caseId, data.message)
+            this.$utils.warn(`${this.caseId} upd_reg_cert_taken_date failed`, data.message)
           }
         }).catch((err) => {
           this.alert(err.message, { title: this.parentData.收件字號 })
