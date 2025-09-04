@@ -120,6 +120,7 @@ div
       :sticky-header="`${maxHeight}px`"
       :busy="isBusy"
       :items="filteredData"
+      :fields="fields"
       :responsive="'lg'"
       :striped="true"
       :hover="true"
@@ -132,7 +133,6 @@ div
       :foot-clone="false"
       :no-border-collapse="true"
       :head-variant="'dark'"
-      :fields="fields"
       :per-page="pagination.perPage"
       :current-page="pagination.currentPage"
     )
@@ -402,7 +402,7 @@ export default {
       '#',
       { key: 'UNTAKEN_TAKEN_STATUS', label: '狀態', sortable: true },
       { key: 'customize', label: '設定', sortable: false, thStyle: 'width: 250px' },
-      { key: 'UNTAKEN_TAKEN_TIME', label: '領件時間', sortable: true, thStyle: 'width: 100px' },
+      // { key: 'UNTAKEN_TAKEN_TIME', label: '領件時間', sortable: true, thStyle: 'width: 100px' },
       { key: '收件字號', sortable: true },
       { key: '收件日期', sortable: true },
       { key: '登記原因', sortable: true },
