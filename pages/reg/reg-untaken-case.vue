@@ -924,7 +924,7 @@ export default {
             for (let i = 0; i < this.batchCases.length; i++) {
               this.handleBatchSingleUpdate(this.batchCases[i])
               // add delay to wait backend sqlite db ready
-              await new Promise(resolve => setTimeout(resolve, 150))
+              await new Promise(resolve => setTimeout(resolve, 250))
             }
             this.success(`成功更新 ${this.progress} / ${this.progressMax} 筆案件`)
           } catch (error) {
