@@ -329,7 +329,7 @@ div
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
             :max="maxDate"
             :state="$utils.empty(batchReceiveStatus) ? true : !$utils.empty(batchReceiveStatus) && !$utils.empty(batchReceiveDate)"
-            :disabled="batchProcessing"
+            :disabled="batchProcessing || $utils.empty(batchReceiveStatus)"
             hide-header
             today-button
             close-button
@@ -443,8 +443,8 @@ export default {
     batchNumS: '',
     batchNumE: '',
     batchReceiveStatus: '',
-    batchReceiveDate: null,
-    batchReceiveTime: null,
+    batchReceiveDate: '',
+    batchReceiveTime: '',
     // Other batch update states
     batchStatusOpts: [{
       text: '未領件',
@@ -831,13 +831,23 @@ export default {
     batchNumE () {
       this.validateBatchRangeDebounced()
     },
-    batchReceiveDate (newDate) {
-      if (newDate) {
-        // When a date is picked, automatically set the time to now
-        this.batchReceiveTime = this.$utils.formatTime(new Date())
+    batchReceiveStatus (newStatus) {
+      if (this.$utils.empty(newStatus)) {
+        // If status is cleared, also clear date and time
+        this.$nextTick(() => {
+          this.batchReceiveDate = ''
+          this.batchReceiveTime = ''
+        })
+      }
+      // set date to today
+      const today = new Date()
+      this.batchReceiveDate = this.$utils.formatDate(today)
+    },
+    batchReceiveDate (val) {
+      if (this.$utils.empty(val)) {
+        this.batchReceiveTime = ''
       } else {
-        // When date is cleared, clear the time
-        this.batchReceiveTime = null
+        this.batchReceiveTime = this.$utils.formatTime(new Date())
       }
     }
   },
@@ -890,8 +900,8 @@ export default {
       this.batchNumS = ''
       this.batchNumE = ''
       this.batchReceiveStatus = ''
-      this.batchReceiveDate = null
-      this.batchReceiveTime = null
+      this.batchReceiveDate = ''
+      this.batchReceiveTime = ''
       this.batchMessage = ''
       // Set the default year to the max year in options
       if (this.batchYearOpts.length > 0) {

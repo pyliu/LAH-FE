@@ -197,7 +197,7 @@ export default {
     takenDate () {
       try {
         if (typeof this.parentData.UNTAKEN_TAKEN_DATE === 'string' && !this.$utils.empty(this.parentData.UNTAKEN_TAKEN_DATE)) {
-          return new Date(this.parentData.UNTAKEN_TAKEN_DATE)
+          return new Date(Date.parse(this.parentData.UNTAKEN_TAKEN_DATE))
         }
         return this.parentData.UNTAKEN_TAKEN_DATE || ''
       } finally {
