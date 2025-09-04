@@ -311,7 +311,8 @@ div
           .my-auto.mr-1 領件狀態
           b-select.h-100(
             v-model="batchReceiveStatus",
-            :options="batchStatusOpts"
+            :options="batchStatusOpts",
+            :disabled="batchProcessing"
           )
 
         .d-flex.text-nowrap.w-50.p-1
@@ -328,6 +329,7 @@ div
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
             :max="maxDate"
             :state="$utils.empty(batchReceiveStatus) ? true : !$utils.empty(batchReceiveStatus) && !$utils.empty(batchReceiveDate)"
+            :disabled="batchProcessing"
             hide-header
             today-button
             close-button
