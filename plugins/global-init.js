@@ -417,11 +417,11 @@ export default ({ $axios, store, $config }, inject) => {
         return days + ' 天'
       }
     },
-    formatDate (dateObj = new Date(), formatStr = 'yyy-LL-dd') {
+    formatDate (dateObj = new Date(), formatStr = 'yyyy-MM-dd') {
       return this.formatTime(dateObj, formatStr)
     },
     formatTime (dateObj = new Date(), formatStr = 'HH:mm:ss') {
-      if (this.empty(dateObj)) { return '' }
+      if (!dateObj || dateObj === '') { return '' }
       if (dateObj instanceof Date && this.isValidDateObject(dateObj)) {
         return format(dateObj, formatStr, { locale: zhTW })
       } else if (typeof dateObj === 'string' && !isNaN(Date.parse(dateObj))) {
