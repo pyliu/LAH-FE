@@ -418,14 +418,16 @@ export default ({ $axios, store, $config }, inject) => {
       }
     },
     formatDate (dateObj = new Date(), formatStr = 'yyy-LL-dd') {
-      if (this.isValidDateObject(dateObj)) {
-        return format(dateObj, formatStr, { locale: zhTW })
-      }
-      return ''
+      return this.formatTime(dateObj, formatStr)
     },
     formatTime (dateObj = new Date(), formatStr = 'HH:mm:ss') {
-      if (this.isValidDateObject(dateObj)) {
+      if (this.empty(dateObj)) { return '' }
+      if (dateObj instanceof Date && this.isValidDateObject(dateObj)) {
         return format(dateObj, formatStr, { locale: zhTW })
+      } else if (typeof dateObj === 'string' && !isNaN(Date.parse(dateObj))) {
+        return format(new Date(Date.parse(dateObj)), formatStr, { locale: zhTW })
+      } else {
+        this.warn('日期物件無效，無法轉換日期時間字串', typeof dateObj, dateObj)
       }
       return ''
     },
