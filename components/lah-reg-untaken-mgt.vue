@@ -316,7 +316,6 @@ export default {
       }
     },
     editableTime (newTimeStr) {
-      // this.$utils.warn('editableTime changed', newTimeStr, this.takenDate)
       if (newTimeStr && this.$utils.isValidDateObject(this.takenDate)) {
         const [hours, minutes, seconds] = newTimeStr.split(':')
         const newDate = new Date(this.takenDate)
@@ -374,7 +373,6 @@ export default {
     this.timeout(() => {
       try {
         this.editableTime = this.$utils.formatTime(this.takenDate)
-        // this.$utils.warn(`${this.caseId} editableTime init 👉 `, this.editableTime, this.takenDate)
       } catch (error) {
         this.$utils.warn('無法回復取件時間', error)
       }
