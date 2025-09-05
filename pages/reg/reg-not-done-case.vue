@@ -23,14 +23,6 @@ div
             li 請避免選擇過大的日期範圍，以免查詢時間過長導致失敗。
           hr
           h5.d-flex.align-items-center
-            lah-fa-icon(icon="traffic-light" variant="secondary")
-            span.ml-2 燈號說明
-          .d-flex.justify-content-around
-            span #[lah-fa-icon(icon="circle" variant="success")] 正常
-            span #[lah-fa-icon(icon="circle" variant="warning")] 今日到期
-            span #[lah-fa-icon(icon="circle" variant="danger")] 已逾期
-          hr
-          h5.d-flex.align-items-center
             lah-fa-icon(icon="filter" variant="secondary")
             span.ml-2 進階篩選
           ul
@@ -161,13 +153,6 @@ div
       span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
     template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
       {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-    //- template(v-slot:cell(燈號)="{ item }")
-    //-   .text-left: lah-fa-icon(
-    //-     prefix="fas"
-    //-     icon="circle"
-    //-     :variant="item.燈號"
-    //-     v-b-tooltip.hover.left
-    //-   ) {{ lightDesc(item.燈號) }}
     template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
     template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
     template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
@@ -288,11 +273,6 @@ export default {
     showTagsToggle: false, // visibility of the toggle button
     fields: [
       '#',
-      // {
-      //   key: '燈號',
-      //   label: '逾期燈號',
-      //   sortable: true
-      // },
       {
         key: 'customize',
         label: '辦畢通知',
@@ -470,7 +450,7 @@ export default {
         { key: 'casePreliminator', condition: (item, val) => val.includes(item.初審人員) },
         { key: 'caseReviewer', condition: (item, val) => val.includes(item.複審人員) },
         // NOTE: This filter requires backend to provide 'CASE_NOTIFY_AUTHORITY' field with 1 or 0
-        { key: 'caseNotify', condition: (item, val) => (parseInt(val) === parseInt(item.CASE_NOTIFY_AUTHORITY)) },
+        { key: 'caseNotify', condition: (item, val) => val.includes(String(item.CASE_NOTIFY_AUTHORITY)) },
         { key: 'proxyName', condition: (item, val) => val.includes(item.代理人姓名) },
         { key: 'proxyId', condition: (item, val) => val.includes(item.代理人統編) }
       ]
@@ -481,6 +461,10 @@ export default {
         const value = this.advOpts[filter.key]
         // Use lodash's isEmpty to handle both empty strings and empty arrays
         if (!_.isEmpty(value)) {
+          // Special handling for 'caseNotify': if all options are selected, it means "ALL", so we skip filtering.
+          if (filter.key === 'caseNotify' && value.length === this.advOpts.caseNotifyOpts.length) {
+            continue
+          }
           pipelineItems = pipelineItems.filter(item => filter.condition(item, value))
         }
       }
@@ -534,14 +518,6 @@ export default {
       return tags
     },
     xlsxData () {
-      // const lightDesc = (light) => {
-      //   if (light === 'danger') {
-      //     return '已逾期'
-      //   } else if (light === 'warning') {
-      //     return '今日到期'
-      //   }
-      //   return '正常'
-      // }
       const notifyDesc = (status) => {
         if (status === 1) { return '已通知' }
         if (status === 0) { return '未通知' }
@@ -629,14 +605,6 @@ export default {
       this.clickedData = data
       this.$refs.caseDetail.show()
     },
-    // lightDesc (light) {
-    //   if (light === 'danger') {
-    //     return '已逾期'
-    //   } else if (light === 'warning') {
-    //     return '今日到期'
-    //   }
-    //   return '正常'
-    // },
     resetAdvSearch () {
       this.advOpts = {
         ...this.advOpts,
