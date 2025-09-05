@@ -56,11 +56,12 @@
 export default {
   emit: ['input'],
   props: {
+    // (() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d })()
     type: { type: String, default: 'TW' },
     size: { type: String, default: 'sm' },
     value: { type: Object, default: () => ({ begin: '', end: '', days: 0 }), required: true },
-    begin: { type: Date, default: () => (new Date(new Date().getFullYear(), new Date().getMonth(), 1)), required: false },
-    end: { type: Date, default: () => (new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)), required: false }
+    begin: { type: Date, default: () => (() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d })(), required: false },
+    end: { type: Date, default: () => (new Date()), required: false }
   },
   data: () => ({
     startDateObj: null,
