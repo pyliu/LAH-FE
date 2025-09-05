@@ -13,17 +13,37 @@ div
           @click="showModalById('help-modal')"
           title="說明"
         )
-        lah-help-modal(:modal-id="'help-modal'")
-          h5 資料庫搜尋說明
+        lah-help-modal(:modal-id="'help-modal'" size="lg" modal-title="辦畢通知控管說明")
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="database" variant="secondary")
+            span.ml-2 資料庫搜尋
           ul
-            li 請選擇 #[strong.text-primary 收件日期] 區間進行搜尋
-            li 搜尋近#[strong.text-primary 1個月]内「已結案未歸檔」登記案件的資料。(區間過大造成查詢失敗，請#[strong.text-danger 縮短搜尋區間])
-            li 預設皆需要辦畢通知申請人，輸入「公文文號」即代表完成。
+            li 系統預設載入 #[strong.text-primary 近一個月] 的「已結案未歸檔」登記案件資料。
+            li 您可以手動調整 #[strong.text-primary 收件日期] 區間，然後點擊 #[lah-fa-icon(icon="search" variant="primary")] 按鈕進行搜尋。
+            li 請避免選擇過大的日期範圍，以免查詢時間過長導致失敗。
           hr
-          h5 請參照下列步驟搜尋
-          ol
-            li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
-            li 點擊 #[lah-fa-icon(icon="sync" variant="muted") 重新搜尋]
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="traffic-light" variant="secondary")
+            span.ml-2 燈號說明
+          .d-flex.justify-content-around
+            span #[lah-fa-icon(icon="circle" variant="success")] 正常
+            span #[lah-fa-icon(icon="circle" variant="warning")] 今日到期
+            span #[lah-fa-icon(icon="circle" variant="danger")] 已逾期
+          hr
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="filter" variant="secondary")
+            span.ml-2 進階篩選
+          ul
+            li 點擊 #[strong 進階篩選] 按鈕可針對目前已載入的資料進行二次過濾。
+            li 所有篩選欄位皆支援 #[strong 多重選取]。
+            li 「收件號」欄位支援區間搜尋，例如輸入 #[strong 200-900] 可篩選出該範圍內的案件。
+            li 已設定的篩選條件會以 #[b-tag(variant="info" pill) 標籤] 的形式顯示在主畫面上，點擊標籤上的 "x" 即可快速移除該條件。
+          hr
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="file-excel" regular variant="secondary")
+            span.ml-2 EXCEL 匯出
+          ul
+            li 點擊 #[lah-fa-icon(icon="file-excel" regular variant="success")] 按鈕，可以將目前表格中 #[strong (已篩選)] 的資料匯出成 XLSX 檔。
 
       .d-flex.small
         b-link.s-85.my-auto.mr-2(
@@ -47,6 +67,11 @@ div
           :disabled="isBusy || isWrongDaysPeriod"
           @click="$fetch"
           no-icon-gutter
+        )
+        lah-button-xlsx.mr-1(
+          :jsons="xlsxData"
+          header="辦畢通知控管"
+          :disabled="!dataReady"
         )
         lah-countdown-button(
           ref="countdown"
@@ -136,13 +161,13 @@ div
       span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
     template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
       {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
-    template(v-slot:cell(燈號)="{ item }")
-      .text-left: lah-fa-icon(
-        prefix="fas"
-        icon="circle"
-        :variant="item.燈號"
-        v-b-tooltip.hover.left
-      ) {{ lightDesc(item.燈號) }}
+    //- template(v-slot:cell(燈號)="{ item }")
+    //-   .text-left: lah-fa-icon(
+    //-     prefix="fas"
+    //-     icon="circle"
+    //-     :variant="item.燈號"
+    //-     v-b-tooltip.hover.left
+    //-   ) {{ lightDesc(item.燈號) }}
     template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
     template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
     template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
@@ -178,10 +203,10 @@ div
           title="收件字",
           multiple
         )
-      b-input-group(prepend="逾期狀態"): b-select(
-        v-model="advOpts.caseLight",
-        :options="advOpts.caseLightOpts",
-        title="逾期狀態",
+      b-input-group(prepend="辦畢通知"): b-select(
+        v-model="advOpts.caseNotify",
+        :options="advOpts.caseNotifyOpts",
+        title="辦畢通知狀態",
         multiple
       )
 
@@ -263,15 +288,16 @@ export default {
     showTagsToggle: false, // visibility of the toggle button
     fields: [
       '#',
-      {
-        key: '燈號',
-        label: '逾期燈號',
-        sortable: true
-      },
+      // {
+      //   key: '燈號',
+      //   label: '逾期燈號',
+      //   sortable: true
+      // },
       {
         key: 'customize',
         label: '辦畢通知',
-        sortable: false
+        sortable: false,
+        thStyle: { width: '220px' }
       },
       {
         key: '收件字號',
@@ -329,11 +355,10 @@ export default {
       casePreliminatorOpts: [],
       caseReviewer: [], // multiple select
       caseReviewerOpts: [],
-      caseLight: [], // multiple select
-      caseLightOpts: [
-        { text: '🟢 正常', value: 'success' },
-        { text: '🟡 快到期', value: 'warning' },
-        { text: '🔴 已逾期', value: 'danger' }
+      caseNotify: [], // multiple select
+      caseNotifyOpts: [
+        { text: '🟢 已通知', value: '1' },
+        { text: '🔴 未通知', value: '0' }
       ],
       proxyName: [], // multiple select
       proxyNameOpts: [],
@@ -419,20 +444,21 @@ export default {
           condition: (item, val) => {
             if (!item.RM03) { return false } // Guard for safety
             const numVal = val.trim()
-            // Range search logic (e.g., "200-900")
-            if (numVal.includes('-')) {
-              const parts = numVal.split('-')
-              if (parts.length === 2) {
-                const start = parseInt(parts[0], 10)
-                const end = parseInt(parts[1], 10)
+
+            // Range search logic with regex to handle spaces around dash
+            if (/\d+\s*[-~]\s*\d+/.test(numVal)) {
+              const match = numVal.match(/(\d+)\s*[-~]\s*(\d+)/)
+              if (match) {
+                const start = parseInt(match[1], 10)
+                const end = parseInt(match[2], 10)
                 const itemNum = parseInt(item.RM03, 10)
                 if (!isNaN(start) && !isNaN(end) && !isNaN(itemNum)) {
                   return itemNum >= start && itemNum <= end
                 }
               }
-              // Don't match if the range format is invalid
               return false
             }
+
             // Fallback to simple 'contains' search on RM03 for single numbers
             return item.RM03.includes(numVal)
           }
@@ -443,7 +469,8 @@ export default {
         { key: 'caseState', condition: (item, val) => val.includes(item.辦理情形) },
         { key: 'casePreliminator', condition: (item, val) => val.includes(item.初審人員) },
         { key: 'caseReviewer', condition: (item, val) => val.includes(item.複審人員) },
-        { key: 'caseLight', condition: (item, val) => val.includes(item.燈號) },
+        // NOTE: This filter requires backend to provide 'CASE_NOTIFY_AUTHORITY' field with 1 or 0
+        { key: 'caseNotify', condition: (item, val) => (parseInt(val) === parseInt(item.CASE_NOTIFY_AUTHORITY)) },
         { key: 'proxyName', condition: (item, val) => val.includes(item.代理人姓名) },
         { key: 'proxyId', condition: (item, val) => val.includes(item.代理人統編) }
       ]
@@ -470,7 +497,7 @@ export default {
         caseState: { label: '辦理情形', variant: 'info' },
         casePreliminator: { label: '初審人員', variant: 'dark' },
         caseReviewer: { label: '複審人員', variant: 'secondary' },
-        caseLight: { label: '逾期燈號狀態', variant: 'warning' },
+        caseNotify: { label: '辦畢通知', variant: 'warning' },
         proxyName: { label: '代理人姓名', variant: 'danger' },
         proxyId: { label: '代理人統編', variant: 'light' }
       }
@@ -481,10 +508,15 @@ export default {
           const { label, variant } = tagConfig[key]
           if (Array.isArray(values)) {
             values.forEach((value) => {
+              // For caseNotify, display text instead of value
+              const textValue = key === 'caseNotify'
+                ? (this.advOpts.caseNotifyOpts.find(opt => opt.value === value)?.text || value)
+                : value
+              const displayText = textValue.trim() // Remove icon for tag text
               tags.push({
                 key, // e.g., 'caseReason'
                 value, // e.g., '買賣'
-                text: `${label}：${value}`,
+                text: `${label}：${displayText}`,
                 variant
               })
             })
@@ -500,6 +532,35 @@ export default {
         }
       }
       return tags
+    },
+    xlsxData () {
+      // const lightDesc = (light) => {
+      //   if (light === 'danger') {
+      //     return '已逾期'
+      //   } else if (light === 'warning') {
+      //     return '今日到期'
+      //   }
+      //   return '正常'
+      // }
+      const notifyDesc = (status) => {
+        if (status === 1) { return '已通知' }
+        if (status === 0) { return '未通知' }
+        return '未知'
+      }
+      return this.filteredData.map(item => ({
+        // 逾期燈號: lightDesc(item.燈號),
+        辦畢通知狀態: notifyDesc(item.CASE_NOTIFY_AUTHORITY),
+        收件字號: item.收件字號,
+        收件日期: item.收件日期,
+        預定結案日期: item.預定結案日期,
+        登記原因: `${item.RM09}:${item.登記原因}`,
+        辦理情形: `${item.RM30}:${item.辦理情形}`,
+        初審人員: item.初審人員,
+        複審人員: item.複審人員,
+        代理人姓名: item.代理人姓名,
+        代理人住址: item.代理人住址,
+        代理人電話: item.代理人電話
+      }))
     }
   },
 
@@ -520,7 +581,7 @@ export default {
         if (container) {
           // Show toggle if the content scroll height is larger than the container's
           // visible (client) height. A hardcoded pixel value is used for reliability.
-          this.showTagsToggle = container.scrollHeight > 45 // Approx 2.8rem
+          this.showTagsToggle = container.scrollHeight > 39 // Approx 2.4rem
         } else {
           this.showTagsToggle = false
         }
@@ -568,14 +629,14 @@ export default {
       this.clickedData = data
       this.$refs.caseDetail.show()
     },
-    lightDesc (light) {
-      if (light === 'danger') {
-        return '已逾期'
-      } else if (light === 'warning') {
-        return '今日到期'
-      }
-      return '正常'
-    },
+    // lightDesc (light) {
+    //   if (light === 'danger') {
+    //     return '已逾期'
+    //   } else if (light === 'warning') {
+    //     return '今日到期'
+    //   }
+    //   return '正常'
+    // },
     resetAdvSearch () {
       this.advOpts = {
         ...this.advOpts,
@@ -586,7 +647,7 @@ export default {
           caseState: [],
           casePreliminator: [],
           caseReviewer: [],
-          caseLight: [],
+          caseNotify: [],
           proxyName: [],
           proxyId: []
         }
