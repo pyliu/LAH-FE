@@ -484,7 +484,7 @@ export default {
 
         this.$store.commit('expiry/list', pipelineItems)
       } else {
-        this.warning('無資料無法篩選!')
+        this.$utils.warn('無資料無法篩選!')
       }
       this.filtering = false
     },
