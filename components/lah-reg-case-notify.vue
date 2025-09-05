@@ -60,13 +60,13 @@ export default {
     note (n, o) {
       if (n !== undefined) {
         this.parentData.CASE_NOTIFY_NOTE = n
-        o !== undefined && this.updateDebounced()
+        this.validNote && this.updateDebounced()
       }
     },
     notifyFlag (flag, oFlag) {
       if (flag !== undefined) {
         this.parentData.CASE_NOTIFY_AUTHORITY = flag ? 1 : 0
-        oFlag !== undefined && this.update()
+        oFlag !== undefined && this.updateDebounced()
       }
     },
     parentData (dontcare) {
