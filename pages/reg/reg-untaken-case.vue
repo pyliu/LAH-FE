@@ -516,7 +516,7 @@ export default {
       // MODIFIED: Handle caseId with range search
       if (!this.$utils.empty(this.advOpts.caseId)) {
         const query = this.advOpts.caseId.trim()
-        const rangeParts = query.split('-')
+        const rangeParts = query.split(/\s*[-~]\s*/)
 
         let isRangeSearch = false
         let startNum, endNum
