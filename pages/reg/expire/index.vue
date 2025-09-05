@@ -21,39 +21,32 @@ div
           @click="$refs.help.show()",
           title="說明"
         )
-        lah-help-modal(ref="help")
-          .h-6.text-nowrap: ul
-            li 搜尋15天內的案件
-            li
-              .d-flex
-                .my-auto 請使用
-                lah-button.mx-2(
-                  :icon="icon"
-                  :badgeText="queryCount.toString()"
-                  :variant="switchButtonVariant"
-                  :disabled="isBusy"
-                  :busy="isBusy"
-                  @click="isOverdueMode = !isOverdueMode"
-                  title="按我切換模式"
-                )
-                  strong {{ queryTitle }}
-                .my-auto 切換顯示模式
-            li 預定結案時間剩餘4小時內將判定為即將逾期案件
-            li 進階篩選選項說明：各篩選項目內是OR，項目之間是AND
+        lah-help-modal(ref="help" size="lg" modal-title="登記逾期案件說明")
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="lightbulb" regular, variant="secondary")
+            span.ml-2 功能說明
+          ul
+            li 本頁面顯示 #[strong 近15日內] 的「即將逾期」或「已逾期」登記案件。
+            li #[strong 即將逾期]：案件的預定結案時間剩餘 #[strong 4小時] 以內。
+            li #[strong 已逾期]：案件已超過預定結案時間。
+            li 點擊 #[lah-fa-icon(icon="exclamation-circle")] #[strong 即將逾期] / #[lah-fa-icon(icon="exclamation-triangle")] #[strong 逾期] 按鈕可切換兩種模式。
           hr
-          .d-flex.justify-content-center.my-2
-            lah-button.mx-2(
-              icon="ruler-combined",
-              to="/sur/expire",
-              variant="outline-primary"
-            ) 切換為測量案件
-            lah-button.mx-2(
-              icon="history",
-              :href="`${legacyUrl}/overdue_reg_cases.html`",
-              target="_blank",
-              rel="noreferrer noopener",
-              variant="outline-secondary"
-            ) 切換成舊版本模式
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="filter", variant="secondary")
+            span.ml-2 進階篩選
+          ul
+            li 點擊 #[strong 進階篩選] 按鈕可針對目前已載入的資料進行二次過濾。
+            li 所有下拉選單皆支援按住 #[kbd Ctrl] 鍵進行 #[strong 多重選取]。
+            li 「收件號」欄位支援區間搜尋，例如輸入 #[strong 100-900] 可篩選出該範圍內的案件。
+            li 已設定的篩選條件會以 #[b-tag(variant="primary" pill) 標籤] 的形式顯示在主畫面上，點擊標籤上的 "x" 即可快速移除該條件。
+          hr
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="cogs", variant="secondary")
+            span.ml-2 其他功能
+          ul
+            li #[strong EXCEL匯出]：點擊 #[lah-fa-icon(icon="file-excel" regular variant="success")] 按鈕，可以將目前表格中 #[strong (已篩選)] 的資料匯出成 XLSX 檔。
+            li #[strong 切換案件類型]：點擊 #[lah-button(icon="ruler-combined" size="sm" variant="outline-primary" no-icon-gutter)] 可切換至測量案件逾期頁面。
+            li #[strong 舊版頁面]：若有需要，可點擊 #[lah-button(icon="history" size="sm" variant="outline-secondary" no-icon-gutter)] 前往舊版系統頁面。
 
       a.small.text-muted.mr-2.align-self-center(
         href="#",
@@ -146,7 +139,7 @@ div
         b-input(
           v-model="advOpts.caseNum",
           trim,
-          placeholder="... 可輸入部分 ..."
+          placeholder="... 可輸入部分或區間 (如 100-900) ..."
         )
 
     .center.d-flex.my-1
@@ -436,7 +429,27 @@ export default {
         // Filter by case number
         const checkNum = !this.$utils.empty(this.advOpts.caseNum)
         if (checkNum) {
-          pipelineItems = pipelineItems.filter(item => item.收件字號.includes(this.advOpts.caseNum))
+          const query = this.advOpts.caseNum.trim()
+          const rangeMatch = query.match(/^(\d+)\s*[-~]\s*(\d+)$/)
+
+          if (rangeMatch) {
+            const startNum = parseInt(rangeMatch[1], 10)
+            const endNum = parseInt(rangeMatch[2], 10)
+            this.$utils.warn(startNum, endNum)
+            if (!isNaN(startNum) && !isNaN(endNum) && startNum <= endNum) {
+              pipelineItems = pipelineItems.filter((item) => {
+                const regex1 = /第\s*(\d+)\s*號/
+                const match1 = item.收件字號.match(regex1)
+                const RM03 = match1 ? match1[1] : null
+                if (RM03) {
+                  return !isNaN(RM03) && RM03 >= startNum && RM03 <= endNum
+                }
+                return false
+              })
+            }
+          } else {
+            pipelineItems = pipelineItems.filter(item => item.RM03?.includes(query))
+          }
         }
 
         // Filter by case year
