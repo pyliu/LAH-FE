@@ -59,7 +59,7 @@ export default {
     note (n, o) {
       if (n !== undefined) {
         this.parentData.CASE_NOTIFY_NOTE = n
-        this.validNote && this.updateDebounced()
+        (this.validNote || this.$utils.empty(n)) && this.updateDebounced()
       }
     },
     notifyFlag (flag, oFlag) {
