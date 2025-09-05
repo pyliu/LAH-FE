@@ -57,9 +57,11 @@ export default {
       this.trigger('ready', flag)
     },
     note (n, o) {
-      if (n !== undefined) {
+      if (!this.$utils.empty(n)) {
         this.parentData.CASE_NOTIFY_NOTE = n
-        (this.validNote || this.$utils.empty(n)) && this.updateDebounced()
+        this.validNote && this.updateDebounced()
+      } else {
+        this.updateDebounced()
       }
     },
     notifyFlag (flag, oFlag) {
