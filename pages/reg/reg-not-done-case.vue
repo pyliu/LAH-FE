@@ -3,13 +3,13 @@ div
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 登記案件辦畢通知查詢
+        .my-auto 辦畢通知控管
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
         lah-help-modal(:modal-id="'help-modal'")
           h5 資料庫搜尋說明
           ul
-            li 搜尋未結案登記案件的資料
-            li 預設都是需要辦畢通知申請人，輸入公文文號後即代表完成(欄位會顯示 ✔ )。
+            li 搜尋近#[strong.text-primary 3個月]內「已結案未歸檔」登記案件的資料。(區間過大造成查詢失敗，需於伺服器#[strong.text-danger 增加 PHP memory_limit ]設定)
+            li 預設皆需要辦畢通知申請人，輸入「公文文號」即代表完成。
           hr
           h5 請參照下列步驟搜尋
           ol
@@ -203,6 +203,7 @@ div
 </template>
 
 <script>
+import _ from 'lodash'
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
 export default {
   mixins: [dynamicHeight],
@@ -333,64 +334,43 @@ export default {
     }
   },
   head: {
-    title: '登記案件辦畢通知查詢-桃園市地政局'
+    title: '辦畢通知控管-桃園市地政局'
   },
   computed: {
     dataReady () { return this.rows.length > 0 },
     filterDataCount () { return this.filteredData.length },
     cacheKey () { return 'query_reg_not_done_case' },
-    foundText () { return `找到 ${this.filterDataCount} 筆「未結案」案件資料` },
+    foundText () { return `找到 ${this.filterDataCount} 筆「已結案未歸檔」案件資料` },
     filteredData () {
-      if (this.advTags.length > 0) {
-        let pipelineItems = this.rows
-        if (!this.$utils.empty(this.advOpts.caseNum)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseNum) !== null
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseWord)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(this.advOpts.caseWord) !== null
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseYear)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.收件字號.match(`${this.advOpts.caseYear}年`) !== null
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseReason)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.登記原因 === this.advOpts.caseReason
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseState)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.辦理情形 === this.advOpts.caseState
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.casePreliminator)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.初審人員 === this.advOpts.casePreliminator
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.caseLight)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.燈號 === this.advOpts.caseLight
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.proxyName)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.代理人姓名 === this.advOpts.proxyName
-          })
-        }
-        if (!this.$utils.empty(this.advOpts.proxyId)) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.代理人統編 === this.advOpts.proxyId
-          })
-        }
-        return pipelineItems
+      if (this.advTags.length === 0) {
+        return this.rows
       }
-      return this.rows
+
+      // REFACTORED: Use a configuration array for cleaner, more maintainable filtering logic.
+      const filters = [
+        { key: 'caseNum', condition: (item, val) => item.收件字號.includes(val) },
+        { key: 'caseWord', condition: (item, val) => item.收件字號.includes(val) },
+        { key: 'caseYear', condition: (item, val) => item.收件字號.includes(`${val}年`) },
+        { key: 'caseReason', condition: (item, val) => item.登記原因 === val },
+        { key: 'caseState', condition: (item, val) => item.辦理情形 === val },
+        { key: 'casePreliminator', condition: (item, val) => item.初審人員 === val },
+        { key: 'caseLight', condition: (item, val) => item.燈號 === val },
+        { key: 'proxyName', condition: (item, val) => item.代理人姓名 === val },
+        { key: 'proxyId', condition: (item, val) => item.代理人統編 === val }
+      ]
+
+      // Start with a shallow copy of the original data array
+      let pipelineItems = [...this.rows]
+
+      // Sequentially apply each active filter
+      for (const filter of filters) {
+        const value = this.advOpts[filter.key]
+        if (!this.$utils.empty(value)) {
+          pipelineItems = pipelineItems.filter(item => filter.condition(item, value))
+        }
+      }
+
+      return pipelineItems
     },
     advTags () {
       const tags = []
@@ -427,7 +407,8 @@ export default {
   fetchOnServer: false,
   watch: {
     rows (val) {
-      // console.warn(val)
+      // REFACTORED: Use lodash for cleaner and more robust option generation.
+      // Reset advOpts before populating new options
       this.advOpts = {
         ...{
           caseYear: '',
@@ -442,29 +423,32 @@ export default {
           casePreliminator: '',
           casePreliminatorOpts: [],
           caseLight: '',
-          caseLightOpts: this.advOpts.caseLightOpts,
+          caseLightOpts: this.advOpts.caseLightOpts, // Keep static options
           proxyName: '',
           proxyNameOpts: [],
           proxyId: '',
           proxyIdOpts: []
         }
       }
-      if (val) {
-        this.advOpts.caseReasonOpts = [...new Set(val.map(item => item.登記原因))].sort()
-        this.advOpts.caseStateOpts = [...new Set(val.map(item => item.辦理情形))].sort()
-        this.advOpts.casePreliminatorOpts = this.$utils.compact([...new Set(val.map(item => item.初審人員))].sort())
-        this.advOpts.caseYearOpts = [...new Set(val.map(item => item.RM01))].sort()
-        this.advOpts.caseWordOpts = [...new Set(val.map(item => item.RM02))].sort()
-        this.advOpts.proxyNameOpts = this.$utils.compact([...new Set(val.map(item => item.代理人姓名))].sort())
-        this.advOpts.proxyIdOpts = this.$utils.compact([...new Set(val.map(item => item.代理人統編))].sort())
-
-        this.advOpts.caseReasonOpts.unshift('')
-        this.advOpts.caseStateOpts.unshift('')
-        this.advOpts.casePreliminatorOpts.unshift('')
-        this.advOpts.caseYearOpts.unshift('')
-        this.advOpts.caseWordOpts.unshift('')
-        this.advOpts.proxyNameOpts.unshift('')
-        this.advOpts.proxyIdOpts.unshift('')
+      if (!_.isEmpty(val)) {
+        // A helper function to generate sorted, unique options for dropdowns
+        const genOptions = (key, useCompact = false) => {
+          let opts = _.map(val, key)
+          if (useCompact) {
+            opts = _.compact(opts)
+          }
+          opts = _.uniq(opts)
+          opts = _.sortBy(opts)
+          // Prepend an empty value for the 'all' selection
+          return ['', ...opts]
+        }
+        this.advOpts.caseReasonOpts = genOptions('登記原因')
+        this.advOpts.caseStateOpts = genOptions('辦理情形')
+        this.advOpts.casePreliminatorOpts = genOptions('初審人員', true)
+        this.advOpts.caseYearOpts = genOptions('RM01')
+        this.advOpts.caseWordOpts = genOptions('RM02')
+        this.advOpts.proxyNameOpts = genOptions('代理人姓名', true)
+        this.advOpts.proxyIdOpts = genOptions('代理人統編', true)
       }
     }
   },
