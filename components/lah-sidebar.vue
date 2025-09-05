@@ -80,7 +80,7 @@ b-sidebar#lah-sidebar(
         領件控管
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/reg-not-done-case").
         #[font-awesome-icon(:icon="['fas', 'bullhorn']", fixed-width, size="lg")]
-        辦畢通知案件
+        辦畢通知控管
       li(v-if="isReg || isInf"): nuxt-link(to="/reg/foreigner-inheritance-restriction").
         #[font-awesome-icon(:icon="['fas', 'earth-asia']", fixed-width, size="lg")]
         外國人繼承限制繼承管制
