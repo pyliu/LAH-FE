@@ -151,8 +151,8 @@ div
         span(aria-hidden="true") &nbsp;
         span.sr-only 無勾選
       span {{ index + 1 + (pagination.currentPage - 1) * pagination.perPage }}
-    template(#cell(收件字號)="{ item }"): .align-middle: b-link(@click="popup(item)").
-      {{ item.收件字號 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
+    template(#cell(收件字號)="{ item }"): .align-middle.text-nowrap: b-link(@click="popup(item)" :title="item.收件字號").
+      {{ `${item.RM01}-${item.RM02}-${item.RM03}` }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
     template(#cell(預定結案日期)="{ item }"): .text-nowrap {{ item.預定結案日期.split(' ')[0] }}
     template(#cell(RM09)="{ item }"): .text-nowrap {{ item.RM09 }}:{{ item.登記原因 }}
     template(#cell(辦理情形)="{ item }"): .text-nowrap {{ item.RM30 }}:{{ item.辦理情形 }}
