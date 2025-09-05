@@ -524,8 +524,9 @@ export default {
         return '未知'
       }
       return this.filteredData.map(item => ({
-        // 逾期燈號: lightDesc(item.燈號),
         辦畢通知狀態: notifyDesc(item.CASE_NOTIFY_AUTHORITY),
+        // NOTE: This field requires backend to provide 'CASE_NOTIFY_NOTE'
+        公文文號: item.CASE_NOTIFY_NOTE,
         收件字號: item.收件字號,
         收件日期: item.收件日期,
         預定結案日期: item.預定結案日期,
