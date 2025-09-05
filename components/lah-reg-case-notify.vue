@@ -6,7 +6,6 @@ div
       switch
     ) {{ notifyFlag ? '是' : '否' }}
     lah-transition(speed="fastest"): b-input(
-      v-if="notifyFlag",
       v-model="note",
       size="sm",
       placeholder="請輸入公文文號",
@@ -72,6 +71,9 @@ export default {
     parentData (dontcare) {
       // to let the component refresh in b-table
       this.refresh()
+    },
+    validNote (flag) {
+      this.notifyFlag = flag
     }
   },
   created () {
