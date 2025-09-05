@@ -465,7 +465,7 @@ export default {
     } else {
       if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
         this.$utils.warn('dateRange is not ready ... postpone $fetch')
-        this.timeout(this.$fetch, 250)
+        this.timeout(this.$fetch, 400)
         return
       }
 
