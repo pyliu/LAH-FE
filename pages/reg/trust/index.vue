@@ -82,6 +82,7 @@ div
   )
 
   lah-pagination(
+    v-if="!(qryType === 'reg_reason' && committed)"
     v-model="pagination"
     :total-rows="queryCount"
     :caption="caption"
@@ -93,8 +94,6 @@ div
       ref="regTbl"
       type="md"
       :baked-data="rows"
-      :per-page="pagination.perPage"
-      :current-page="pagination.currentPage"
       no-caption
     )
     b-table(
@@ -485,7 +484,7 @@ export default {
       this.refreshAdvOptsSelect(val)
     },
     xlsxData (val) {
-      this.$utils.warn(val)
+      // this.$utils.warn(val)
     }
   },
   created () {
