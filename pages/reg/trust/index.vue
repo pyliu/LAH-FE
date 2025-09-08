@@ -4,7 +4,15 @@ div
     .d-flex.justify-content-between.w-100
       .d-flex
         .my-auto 信託案件檢索
-        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
+        lah-button(
+          icon="info"
+          action="bounce"
+          variant="outline-success"
+          no-border
+          no-icon-gutter
+          @click="showModalById('help-modal')"
+          title="說明"
+        )
         lah-help-modal(:modal-id="'help-modal'")
           h5 請參照下列步驟搜尋
           ol
@@ -18,9 +26,22 @@ div
             li 信託註記查詢-建物
             li 登記收件原因為 CU, CW, CV, CX, CY 之案件
           hr
-          //- lah-fa-icon(icon="lightbulb" regular variant="warning") 點擊「收件年字號」開啟案件詳情視窗
           lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/reg/trust/HF") 切換為八德版本
       .d-flex.small
+        b-link.my-auto.mr-1.s-85.text-nowrap(
+          v-if="advTags.length > 0"
+          @click="resetAdvOpts"
+          title="清除所有篩選條件"
+        ) 重設
+        lah-button.mr-1(
+          v-if="showAdvSearch",
+          icon="search-plus",
+          size="lg",
+          title="開啟進階篩選視窗",
+          @click="$refs.searchPlus.show()",
+          :disabled="disableAdvSearch",
+          no-icon-gutter
+        ) 進階篩選
         lah-datepicker.mr-1(v-model="dateRange")
 
         b-input-group.text-nowrap.mr-1: b-form-select.h-100(
@@ -37,15 +58,6 @@ div
           title="搜尋"
           :disabled="isBusy || $utils.empty(qryType) || !validDateRange"
           @click="$fetch"
-          no-icon-gutter
-        )
-        lah-button.ml-1(
-          v-if="showAdvSearch",
-          icon="search-plus",
-          size="lg",
-          title="開啟進階搜尋視窗",
-          @click="$refs.searchPlus.show()",
-          :disabled="disableAdvSearch",
           no-icon-gutter
         )
         lah-button-xlsx.mx-1(
@@ -68,18 +80,29 @@ div
           @click="reload"
         )
 
-  lah-transition: b-tags.border-0.mt-n4(
-    v-if="advTags.length > 0",
-    v-model="advTags",
-    placeholder="",
-    tag-variant="info",
-    tag-pills,
-    no-outer-focus,
-    no-add-on-enter,
-    no-tag-remove,
-    add-button-variant="white"
-    add-button-text=""
-  )
+  lah-transition
+    .d-flex.mt-n3(v-if="advTags.length > 0")
+      .mr-auto.tags-container(
+        ref="tagsContainer"
+        :class="{ 'tags-collapsed': !tagsExpanded }"
+      )
+        b-tag.mr-1.my-1(
+          v-for="(tag, index) in advTags"
+          :key="`${tag.key}-${tag.value}-${index}`"
+          :variant="tag.variant"
+          @remove="removeAdvTag(tag)"
+          pill
+          removable
+        ) {{ tag.text }}
+      lah-button(
+        v-if="showTagsToggle"
+        :icon="tagsExpanded ? 'angle-double-up' : 'angle-double-down'"
+        variant="link"
+        size="sm"
+        @click="tagsExpanded = !tagsExpanded"
+        :title="tagsExpanded ? '收合篩選條件' : '顯示所有篩選條件'"
+        no-icon-gutter
+      )
 
   lah-pagination(
     v-if="!(qryType === 'reg_reason' && committed)"
@@ -98,7 +121,6 @@ div
     )
     b-table(
       v-else-if="committed"
-
       id="trust-table"
       ref="table"
       no-caption
@@ -134,9 +156,10 @@ div
         {{ item.RM123 }} #[lah-fa-icon(icon="window-restore" regular variant="primary")]
       template(#cell(GG30_1)="{ item }"): div.
         【{{ item.GG30_1 }}】{{ item.GG30_1_CHT }} {{ item.GG30_2 }}
-    h3.text-center(
-      v-else
-    ): lah-fa-icon(action="breath" variant="primary") 請點選查詢按鈕
+      template(#cell(GS_TYPE)="{ item }"): div.
+         {{ item.GS_TYPE }}:{{ GS_TYPEText(item.GS_TYPE) }}
+    h3.text-center(v-else): lah-fa-icon(action="breath" variant="primary") 請點選查詢按鈕
+
   b-modal(
     :id="modalId"
     size="xl"
@@ -153,49 +176,54 @@ div
 
   b-modal(
     ref="searchPlus",
-    title="進階搜尋",
+    title="進階篩選",
+    size="md",
     hide-footer
   )
     .center.d-flex.my-1
-      b-input-group.mr-1(prepend="日期"): b-select(
+      b-input-group.mr-1(prepend="收件號"): b-input(
+        v-model="advOpts.caseNum",
+        placeholder="... 部分或區間如 100 - 900 ...",
+        trim
+      )
+      b-input-group(prepend="登記日期"): b-select(
         v-model="advOpts.date",
         :options="advOpts.dateOpts",
         title="登記日期"
       )
-      b-input-group(prepend="類別"): b-select(
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="異動類別"): b-select(
         v-model="advOpts.class",
         :options="advOpts.classOpts",
         title="異動類別"
       )
-    .center.d-flex.my-1
-      b-input-group.mr-1(prepend="原因"): b-select(
+      b-input-group(prepend="登記原因"): b-select(
         v-model="advOpts.reason",
         :options="advOpts.reasonOpts",
         title="登記原因"
       )
-      b-input-group(prepend="地號"): b-select(
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="地/建號"): b-select(
         v-model="advOpts.number",
         :options="advOpts.numberOpts",
         title="地或建號"
       )
-    .center.d-flex.my-1
-      b-input-group.mr-1(prepend="統編"): b-select(
-        v-model="advOpts.id",
-        :options="advOpts.idOpts",
-        title="統編"
-      )
-      b-input-group(prepend="名稱"): b-select(
-        v-model="advOpts.name",
-        :options="advOpts.nameOpts",
-        title="名稱"
-      )
-    .center.d-flex.my-1
-      b-input-group.mr-1(prepend="段名"): b-select(
+      b-input-group(prepend="段小段"): b-select(
         v-model="advOpts.section",
         :options="advOpts.sectionOpts",
         title="段小段代碼及名稱"
       )
-      b-input-group
+    .center.d-flex.my-1
+      b-input-group.mr-1(prepend="權利人統編"): b-select(
+        v-model="advOpts.id",
+        :options="advOpts.idOpts",
+        title="權利人統編"
+      )
+      b-input-group(prepend="權利人名稱"): b-select(
+        v-model="advOpts.name",
+        :options="advOpts.nameOpts",
+        title="權利人名稱"
+      )
     .center.d-flex.my-1
       lah-button(
         icon="recycle",
@@ -207,6 +235,7 @@ div
 
 <script>
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
+
 export default {
   mixins: [dynamicHeight],
   data: () => ({
@@ -232,56 +261,16 @@ export default {
       { value: 'reg_reason', text: '登記收件查詢' }
     ],
     obliterateFields: [
-      {
-        key: 'RM33',
-        label: '登記日期',
-        sortable: true
-      },
-      {
-        key: 'GS_TYPE',
-        label: '異動類別',
-        sortable: true
-      },
-      {
-        key: 'GG48',
-        label: '段名稱',
-        sortable: true
-      },
-      {
-        key: 'GG49',
-        label: '地/建號',
-        sortable: true
-      },
-      {
-        key: 'GG01',
-        label: '登記次序',
-        sortable: true
-      },
-      {
-        key: 'BB09',
-        label: '統編',
-        sortable: true
-      },
-      {
-        key: 'LNAM',
-        label: '姓名',
-        sortable: true
-      },
-      {
-        key: 'RM123',
-        label: '收件字號',
-        sortable: true
-      },
-      {
-        key: 'RM09',
-        label: '登記原因',
-        sortable: true
-      },
-      {
-        key: 'GG30_1',
-        label: '代碼內容',
-        sortable: true
-      }
+      { key: 'RM33', label: '登記日期', sortable: true },
+      { key: 'GS_TYPE', label: '異動類別', sortable: true },
+      { key: 'GG48', label: '段名稱', sortable: true },
+      { key: 'GG49', label: '地/建號', sortable: true },
+      { key: 'GG01', label: '登記次序', sortable: true },
+      { key: 'BB09', label: '統編', sortable: true },
+      { key: 'LNAM', label: '姓名', sortable: true },
+      { key: 'RM123', label: '收件字號', sortable: true },
+      { key: 'RM09', label: '登記原因', sortable: true },
+      { key: 'GG30_1', label: '代碼內容', sortable: true }
     ],
     advOpts: {
       id: '',
@@ -297,8 +286,11 @@ export default {
       number: '',
       numberOpts: [],
       section: '',
-      sectionOpts: []
-    }
+      sectionOpts: [],
+      caseNum: ''
+    },
+    tagsExpanded: false,
+    showTagsToggle: false
   }),
   fetch () {
     if (this.$utils.empty(this.dateRange.begin) || this.$utils.empty(this.dateRange.end)) {
@@ -348,13 +340,14 @@ export default {
   },
   fetchOnServer: false,
   computed: {
-    dataReady () { return this.queryCount > 0 },
+    dataReady () {
+      return this.queryCount > 0
+    },
     queryCount () {
       if (this.qryType === 'reg_reason') {
         return this.rows?.length || 0
-      } else {
-        return this.filteredRows.length || 0
       }
+      return this.filteredRows.length || 0
     },
     qryTypeText () {
       switch (this.qryType) {
@@ -368,88 +361,106 @@ export default {
           return `不支援的型別【${this.qryType}】`
       }
     },
-    caption () { return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料` },
-    cacheKey () { return `reg_trust_case_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}` },
-    validDateRange () { return this.dateRange.days > 0 },
-    showAdvSearch () { return this.qryType !== 'reg_reason' },
-    disableAdvSearch () { return this.rows.length === 0 || !this.committed },
+    caption () {
+      return `找到 ${this.queryCount} 筆「${this.qryTypeText}」資料`
+    },
+    cacheKey () {
+      return `reg_trust_case_${this.qryType}_${this.dateRange.begin}_${this.dateRange.end}`
+    },
+    validDateRange () {
+      return this.dateRange.days > 0
+    },
+    showAdvSearch () {
+      return this.qryType !== 'reg_reason'
+    },
+    disableAdvSearch () {
+      return this.rows.length === 0 || !this.committed
+    },
     advTags () {
       const tags = []
-      if (!this.$utils.empty(this.advOpts.id)) {
-        tags.push(`統編：${this.advOpts.id}`)
+      const tagConfig = {
+        caseNum: { label: '收件號', variant: 'primary' },
+        date: { label: '登記日期', variant: 'secondary' },
+        class: { label: '異動類別', variant: 'success' },
+        reason: { label: '登記原因', variant: 'info' },
+        number: { label: '地/建號', variant: 'dark' },
+        section: { label: '段小段', variant: 'warning' },
+        id: { label: '權利人統編', variant: 'danger' },
+        name: { label: '權利人名稱', variant: 'light' }
       }
-      if (!this.$utils.empty(this.advOpts.name)) {
-        tags.push(`名稱：${this.advOpts.name}`)
-      }
-      if (!this.$utils.empty(this.advOpts.date)) {
-        tags.push(`登記日期：${this.advOpts.date}`)
-      }
-      if (!this.$utils.empty(this.advOpts.class)) {
-        tags.push(`異動類別：${this.advOpts.class}`)
-      }
-      if (!this.$utils.empty(this.advOpts.reason)) {
-        tags.push(`登記原因：${this.advOpts.reason}`)
-      }
-      if (!this.$utils.empty(this.advOpts.number)) {
-        tags.push(`地/建號：${this.advOpts.number}`)
-      }
-      if (!this.$utils.empty(this.advOpts.section)) {
-        tags.push(`段代碼：${this.advOpts.section}`)
+
+      for (const key in tagConfig) {
+        const value = this.advOpts[key]
+        if (!this.$utils.empty(value)) {
+          const { label, variant } = tagConfig[key]
+          tags.push({
+            key,
+            value,
+            text: `${label}：${value}`,
+            variant
+          })
+        }
       }
       return tags
     },
     filteredRows () {
-      if (this.advTags.length > 0) {
-        let pipelineItems = this.rows
-        const checkId = !this.$utils.empty(this.advOpts.id)
-        if (checkId) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.BB09.match(this.advOpts.id) !== null
-          })
-        }
-        const checkName = !this.$utils.empty(this.advOpts.name)
-        if (checkName) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.LNAM.match === this.advOpts.name
-          })
-        }
-        const checkDate = !this.$utils.empty(this.advOpts.date)
-        if (checkDate) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.RM33.match(this.advOpts.date) !== null
-          })
-        }
-        const checkClass = !this.$utils.empty(this.advOpts.class)
-        if (checkClass) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.GS_TYPE.match(this.advOpts.class) !== null
-          })
-        }
-        const checkReason = !this.$utils.empty(this.advOpts.reason)
-        if (checkReason) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.RM09.match(this.advOpts.reason) !== null
-          })
-        }
-        const checkNumber = !this.$utils.empty(this.advOpts.number)
-        if (checkNumber) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.GG49.match(this.advOpts.number) !== null
-          })
-        }
-        const checkSection = !this.$utils.empty(this.advOpts.section)
-        if (checkSection) {
-          pipelineItems = pipelineItems.filter((item) => {
-            return item.GG48.match(this.advOpts.section) !== null
-          })
-        }
-        return pipelineItems
+      if (this.advTags.length === 0) {
+        return this.rows
       }
-      return this.rows
+      let pipelineItems = [...this.rows]
+
+      // Filter by case number
+      if (!this.$utils.empty(this.advOpts.caseNum)) {
+        const query = this.advOpts.caseNum.trim()
+        const rangeMatch = query.match(/^(\d+)\s*[-~]\s*(\d+)$/)
+        pipelineItems = pipelineItems.filter((item) => {
+          const caseIdParts = item.RM123?.split('-') || []
+          const numPart = caseIdParts.length > 0 ? caseIdParts[caseIdParts.length - 1] : ''
+
+          if (rangeMatch) {
+            const startNum = parseInt(rangeMatch[1], 10)
+            const endNum = parseInt(rangeMatch[2], 10)
+            const itemNum = parseInt(numPart, 10)
+            if (!isNaN(startNum) && !isNaN(endNum) && !isNaN(itemNum)) {
+              return itemNum >= startNum && itemNum <= endNum
+            }
+            return false
+          }
+          return numPart.includes(query)
+        })
+      }
+      // Filter by ID
+      if (!this.$utils.empty(this.advOpts.id)) {
+        pipelineItems = pipelineItems.filter(item => item.BB09.match(this.advOpts.id) !== null)
+      }
+      // Filter by name
+      if (!this.$utils.empty(this.advOpts.name)) {
+        pipelineItems = pipelineItems.filter(item => item.LNAM.match === this.advOpts.name)
+      }
+      // Filter by date
+      if (!this.$utils.empty(this.advOpts.date)) {
+        pipelineItems = pipelineItems.filter(item => item.RM33.match(this.advOpts.date) !== null)
+      }
+      // Filter by class
+      if (!this.$utils.empty(this.advOpts.class)) {
+        pipelineItems = pipelineItems.filter(item => item.GS_TYPE.match(this.advOpts.class) !== null)
+      }
+      // Filter by reason
+      if (!this.$utils.empty(this.advOpts.reason)) {
+        pipelineItems = pipelineItems.filter(item => item.RM09.match(this.advOpts.reason) !== null)
+      }
+      // Filter by land/building number
+      if (!this.$utils.empty(this.advOpts.number)) {
+        pipelineItems = pipelineItems.filter(item => item.GG49.match(this.advOpts.number) !== null)
+      }
+      // Filter by section
+      if (!this.$utils.empty(this.advOpts.section)) {
+        pipelineItems = pipelineItems.filter(item => item.GG48.match(this.advOpts.section) !== null)
+      }
+      return pipelineItems
     },
     xlsxData () {
       const fieldKeys = this.qryType === 'reg_reason'
-        // ? this.$refs.regTbl?.tblFields?.map((field, idx, array) => field.key)
         ? [
             '收件字號',
             '登記原因',
@@ -459,11 +470,11 @@ export default {
             '收件時間',
             '限辦時間'
           ]
-        : this.obliterateFields.map((field, idx, array) => field.key)
+        : this.obliterateFields.map(field => field.key)
       const data = this.qryType === 'reg_reason' ? this.rows : this.filteredRows
-      const jsons = data.map((data, idx, array) => {
+      const jsons = data.map((item) => {
         const obj = {}
-        for (const [key, value] of Object.entries(data)) {
+        for (const [key, value] of Object.entries(item)) {
           if (fieldKeys?.includes(key)) {
             if (this.qryType === 'reg_reason') {
               obj[key] = value
@@ -483,8 +494,16 @@ export default {
     rows (val) {
       this.refreshAdvOptsSelect(val)
     },
-    xlsxData (val) {
-      // this.$utils.warn(val)
+    advTags () {
+      this.tagsExpanded = false
+      this.$nextTick(() => {
+        const container = this.$refs.tagsContainer
+        if (container) {
+          this.showTagsToggle = container.scrollHeight > 39 // Approx 2.4rem
+        } else {
+          this.showTagsToggle = false
+        }
+      })
     }
   },
   created () {
@@ -520,42 +539,58 @@ export default {
     resetAdvOpts () {
       this.advOpts = {
         ...this.advOpts,
-        ...{
-          id: '',
-          name: '',
-          date: '',
-          class: '',
-          reason: '',
-          number: '',
-          section: ''
-        }
+        id: '',
+        name: '',
+        date: '',
+        class: '',
+        reason: '',
+        number: '',
+        section: '',
+        caseNum: ''
+      }
+    },
+    removeAdvTag (tagToRemove) {
+      const { key } = tagToRemove
+      if (this.advOpts[key] !== undefined) {
+        this.advOpts[key] = ''
       }
     },
     refreshAdvOptsSelect (val) {
       this.advOpts = {
-        ...{
-          id: '',
-          idOpts: [],
-          name: '',
-          nameOpts: [],
-          date: '',
-          dateOpts: [],
-          class: '',
-          classOpts: [],
-          reason: '',
-          reasonOpts: [],
-          number: '',
-          numberOpts: [],
-          section: '',
-          sectionOpts: []
-        }
+        id: '',
+        idOpts: [],
+        name: '',
+        nameOpts: [],
+        date: '',
+        dateOpts: [],
+        class: '',
+        classOpts: [],
+        reason: '',
+        reasonOpts: [],
+        number: '',
+        numberOpts: [],
+        section: '',
+        sectionOpts: [],
+        caseNum: ''
       }
       if (val) {
-        this.advOpts.idOpts = [...new Set(val.map(item => item.BB09))].sort()
-        this.advOpts.nameOpts = [...new Set(val.map(item => item.LNAM))].sort()
-        this.advOpts.dateOpts = [...new Set(val.map(item => item.RM33))].sort()
-        this.advOpts.classOpts = [...new Set(val.map(item => item.GS_TYPE))].sort()
+        this.advOpts.idOpts = ['', ...new Set(val.map(item => item.BB09))].sort()
+        this.advOpts.nameOpts = ['', ...new Set(val.map(item => item.LNAM))].sort()
+        this.advOpts.dateOpts = ['', ...new Set(val.map(item => item.RM33))].sort()
+        this.advOpts.classOpts = [
+          '',
+          ...this.$utils.orderBy(
+            this.$utils.uniqBy(val.map((item) => {
+              return {
+                value: item.GS_TYPE,
+                text: `${item.GS_TYPE}：${this.GS_TYPEText(item.GS_TYPE)}`
+              }
+            }), 'value'),
+            'value'
+          )
+        ]
         this.advOpts.reasonOpts = [
+          '',
           ...this.$utils.orderBy(
             this.$utils.uniqBy(val.map((item) => {
               return { value: item.RM09, text: `${item.RM09}：${item.RM09_CHT}` }
@@ -563,8 +598,9 @@ export default {
             'value'
           )
         ]
-        this.advOpts.numberOpts = [...new Set(val.map(item => item.GG49))].sort()
+        this.advOpts.numberOpts = ['', ...new Set(val.map(item => item.GG49))].sort()
         this.advOpts.sectionOpts = [
+          '',
           ...this.$utils.orderBy(
             this.$utils.uniqBy(val.map((item) => {
               return { value: item.GG48, text: `${item.GG48}：${item.GG48_CHT}` }
@@ -572,13 +608,20 @@ export default {
             'value'
           )
         ]
-        this.advOpts.idOpts.unshift('')
-        this.advOpts.nameOpts.unshift('')
-        this.advOpts.dateOpts.unshift('')
-        this.advOpts.classOpts.unshift('')
-        this.advOpts.reasonOpts.unshift('')
-        this.advOpts.numberOpts.unshift('')
-        this.advOpts.sectionOpts.unshift('')
+      }
+    },
+    GS_TYPEText (type) {
+      switch (type) {
+        case 'A':
+          return '新增'
+        case 'D':
+          return '刪除'
+        case 'M':
+          return '更新前'
+        case 'N':
+          return '更新後'
+        default:
+          return type
       }
     }
   }
@@ -586,4 +629,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.tags-container {
+  transition: max-height 0.25s ease-in-out;
+  font-size: 1.25rem;
+}
+.tags-container.tags-collapsed {
+  max-height: 2.4rem; /* Approx one line of tags with margin */
+  overflow: hidden;
+}
 </style>
