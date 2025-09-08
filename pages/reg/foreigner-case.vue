@@ -319,9 +319,6 @@ export default {
   watch: {
     bakedData (val) {
       this.refreshAdvOptsSelect(val)
-    },
-    filteredData (val) {
-      this.$utils.warn(val)
     }
   },
   methods: {
