@@ -131,10 +131,10 @@ export default {
         key: '登記原因',
         sortable: true
       },
-      {
-        key: '辦理情形',
-        sortable: true
-      },
+      // {
+      //   key: '辦理情形',
+      //   sortable: true
+      // },
       {
         key: '校對日期',
         sortable: true
@@ -155,31 +155,31 @@ export default {
         key: '義務人姓名',
         sortable: true
       },
-      // {
-      //   key: '土地筆數',
-      //   sortable: true
-      // },
-      // {
-      //   key: '土地面積',
-      //   sortable: true
-      // },
-      // {
-      //   key: '建物筆數',
-      //   sortable: true
-      // },
-      // {
-      //   key: '建物面積',
-      //   sortable: true
-      // },
       {
-        key: '外國人類別',
+        key: '土地筆數',
         sortable: true
       },
       {
-        key: '結案與否',
-        label: '結案',
+        key: '土地面積',
+        sortable: true
+      },
+      {
+        key: '建物筆數',
+        sortable: true
+      },
+      {
+        key: '建物面積',
+        sortable: true
+      },
+      {
+        key: '外國人類別',
         sortable: true
       }
+      // {
+      //   key: '結案與否',
+      //   label: '結案',
+      //   sortable: true
+      // }
     ],
     advOpts: {
       code: '',
@@ -319,6 +319,9 @@ export default {
   watch: {
     bakedData (val) {
       this.refreshAdvOptsSelect(val)
+    },
+    filteredData (val) {
+      this.$utils.warn(val)
     }
   },
   methods: {
