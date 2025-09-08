@@ -13,20 +13,35 @@ div
           @click="showModalById('help-modal')"
           title="說明"
         )
-        lah-help-modal(:modal-id="'help-modal'")
-          h5 請參照下列步驟搜尋
-          ol
-            li 選擇查詢區間
-            li 選擇查詢類別
-            li 點擊 #[lah-fa-icon(icon="search" variant="primary") 搜尋]
+        lah-help-modal(:modal-id="'help-modal'" size="lg" modal-title="信託案件檢索說明")
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="database" variant="secondary")
+            span.ml-2 資料庫搜尋
+          ul
+            li 請先設定 #[strong.text-primary 查詢區間] 與 #[strong.text-primary 案件類型]，再點擊 #[lah-fa-icon(icon="search" variant="primary")] 按鈕進行搜尋。
+            li
+              | 支援以下三種查詢類別：
+              ul
+                li #[strong 信託註記查詢-土地]
+                li #[strong 信託註記查詢-建物]
+                li #[strong 登記收件查詢] (原因為CU, CW, CV, CX, CY)
           hr
-          h5 支援以下三種查詢類別
-          ol
-            li 信託註記查詢-土地
-            li 信託註記查詢-建物
-            li 登記收件原因為 CU, CW, CV, CX, CY 之案件
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="filter" variant="secondary")
+            span.ml-2 進階篩選
+          ul
+            li 針對「信託註記查詢」的結果，可點擊 #[strong 進階篩選] 按鈕進行二次過濾。
+            li 「收件號」欄位支援區間搜尋，例如輸入 #[strong 100-900] 可篩選出該範圍內的案件。
+            li 所有下拉選單皆為單選。
+            li 已設定的篩選條件會以 #[b-tag(variant="info" pill) 標籤] 的形式顯示在主畫面上，點擊標籤上的 "x" 即可快速移除該條件。
           hr
-          lah-fa-icon(icon="caret-square-right" regular variant="primary"): b-link(to="/reg/trust/HF") 切換為八德版本
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="cogs" variant="secondary")
+            span.ml-2 其他功能
+          ul
+            li #[strong EXCEL匯出]：點擊 #[lah-fa-icon(icon="file-excel" regular variant="success")] 按鈕，可以將目前表格中 #[strong (已篩選)] 的資料匯出成 XLSX 檔。
+            li #[strong 切換版本]：點擊 #[b-link(to="/reg/trust/HF") 八德版本] 可切換八德所固有查詢版本。
+
       .d-flex.small
         b-link.my-auto.mr-1.s-85.text-nowrap(
           v-if="advTags.length > 0"
@@ -81,7 +96,7 @@ div
         )
 
   lah-transition
-    .d-flex.mt-n4(v-if="advTags.length > 0")
+    .d-flex.mt-n3(v-if="advTags.length > 0")
       .mr-auto.tags-container(
         ref="tagsContainer"
         :class="{ 'tags-collapsed': !tagsExpanded }"
