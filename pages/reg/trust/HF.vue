@@ -25,8 +25,8 @@
               </ol>
               <hr>
               <lah-fa-icon icon="caret-square-right" regular variant="primary">
-                <b-link to="/trust">
-                  切換為中壢版本
+                <b-link to="/reg/trust">
+                  切換為智慧控管版本
                 </b-link>
               </lah-fa-icon>
             </lah-help-modal>
