@@ -81,7 +81,7 @@ div
         )
 
   lah-transition
-    .d-flex.mt-n3(v-if="advTags.length > 0")
+    .d-flex.mt-n4(v-if="advTags.length > 0")
       .mr-auto.tags-container(
         ref="tagsContainer"
         :class="{ 'tags-collapsed': !tagsExpanded }"
@@ -435,7 +435,7 @@ export default {
       }
       // Filter by name
       if (!this.$utils.empty(this.advOpts.name)) {
-        pipelineItems = pipelineItems.filter(item => item.LNAM.match === this.advOpts.name)
+        pipelineItems = pipelineItems.filter(item => item.LNAM.match(this.advOpts.name) !== null)
       }
       // Filter by date
       if (!this.$utils.empty(this.advOpts.date)) {
