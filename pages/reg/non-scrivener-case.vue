@@ -5,13 +5,34 @@ div
       .d-flex
         .my-auto 非專業代理人案件檢索
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'")
-          h5 請參照下列步驟搜尋
-          ol
-            li 切換登記或測量案件
-            li 選擇日期區間(預設為目前月份)
-            li 點擊 #[lah-fa-icon(icon="search" variant="primary" no-gutter)] 搜尋
-            li 利用「忽略地政事務所」開關切換是否顯示地政事務所代理案件
+        lah-help-modal(:modal-id="'help-modal'" size="lg" modal-title="非專業代理人案件檢索說明")
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="database" variant="secondary")
+            span.ml-2 資料庫搜尋
+          ul
+            li 請先選擇 #[strong.text-primary 案件類型] (登記 / 測量) 與 #[strong.text-primary 日期區間]。
+            li 系統預設的日期區間為 #[strong 當月]。
+            li 設定完成後，點擊 #[lah-fa-icon(icon="search" variant="primary")] 按鈕進行搜尋。
+          hr
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="filter" variant="secondary")
+            span.ml-2 進階篩選
+          ul
+            li 點擊 #[strong 進階篩選] 按鈕可針對目前已載入的資料進行二次過濾。
+            li
+              | 支援的篩選欄位包含：
+              ul
+                li 非專代統編
+                li 非專代名稱
+                li 非專代電話
+                li 收件日期
+            li 已設定的篩選條件會以 #[b-tag(variant="info" pill) 標籤] 的形式顯示在主畫面上。
+          hr
+          h5.d-flex.align-items-center
+            lah-fa-icon(icon="file-excel" regular variant="secondary")
+            span.ml-2 EXCEL 匯出
+          ul
+            li 點擊 #[lah-fa-icon(icon="file-excel" regular variant="success")] 按鈕，可以將目前表格中 #[strong (已篩選)] 的資料匯出成 XLSX 檔。
 
       .d-flex
         b-form-radio-group.d-flex.text-nowrap.my-auto.small(
@@ -34,11 +55,11 @@ div
         lah-button(
           icon="search-plus",
           size="lg",
-          title="開啟進階搜尋視窗",
+          title="開啟進階篩選視窗",
           @click="$refs.searchPlus.show()",
           :disabled="!committed || paginationCount === 0",
           no-icon-gutter
-        )
+        ) 進階篩選
         lah-button-xlsx.mx-1(
           :jsons="xlsxData",
           header="非專業代理人案件"
@@ -71,18 +92,6 @@ div
     add-button-variant="white"
     add-button-text=""
   )
-  .d-flex.mb-1
-    b-pagination(
-      v-if="showPagination"
-      v-model="currentPage"
-      :total-rows="paginationCount"
-      :per-page="perPage"
-      last-number
-      first-number
-      aria-controls="scrivener-table"
-      class="my-auto mr-2"
-    )
-    b-checkbox.my-auto.ml-auto(v-model="ignoreLandOffice", switch) 忽略地政事務所
   lah-transition
     div(v-if="committed")
       lah-reg-b-table(
@@ -109,7 +118,7 @@ div
 
   b-modal(
     ref="searchPlus",
-    title="進階搜尋",
+    title="進階篩選",
     hide-footer
   )
     .center.d-flex.my-1
