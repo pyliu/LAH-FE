@@ -177,7 +177,7 @@ div
   b-modal(
     ref="searchPlus",
     title="進階篩選",
-    size="md",
+    size="lg",
     hide-footer
   )
     .center.d-flex.my-1
@@ -633,8 +633,20 @@ export default {
   transition: max-height 0.25s ease-in-out;
   font-size: 1.25rem;
 }
+
 .tags-container.tags-collapsed {
-  max-height: 2.4rem; /* Approx one line of tags with margin */
+  max-height: 2.4rem;
+  /* Approx one line of tags with margin */
   overflow: hidden;
+}
+
+.input-group .input-group-prepend .input-group-text {
+  min-width: 6.75rem;
+  text-align: center;
+}
+
+// trick to limit batch update modal width
+::v-deep .modal-dialog.modal-lg {
+  max-width: 575px;
 }
 </style>
