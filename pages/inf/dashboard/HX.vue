@@ -34,15 +34,43 @@ div(v-cloak)
               title="設定EMAIL伺服器"
             )
     lah-monitor-board-setup-modal(ref="setupModal")
-    lah-help-modal(:modal-id="'help-modal'", size="md")
+    lah-help-modal(:modal-id="'help-modal'", size="lg", modal-title="智慧監控儀表板說明")
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="lightbulb" regular, variant="secondary")
+        span.ml-2 功能總覽
+      p 本儀表板旨在提供一個集中式的監控畫面，即時顯示各項系統服務與硬體設備的健康狀態。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="traffic-light", variant="secondary")
+        span.ml-2 燈號與狀態
       ul
-        li 提供顯示各監控標的狀態之功能，以下三種方式讀取資料
+        li 頁面頂端會即時統計目前所有監控項目的燈號數量：
           ul
-            li 讀取電子郵件分析，如「SRMAS分析」、「資料庫 XXXX」、「XXX 備份」 ... 等類
-            li 伺服器需安裝『智慧監控API』服務，如「建物圖籍同步異動」、「地籍異動即時通」
-            li 使用本系統後端API，如「L3同步異動」、「跨縣市AP服務狀態」 ... 等類
-        li 電子郵件監控方式預設是擷取一天內資料來分析，其他則是依照各別設定時間更新
-        li 目前電子郵件監控設定：{{ connectionText }}
+            li 🔴 #[strong 紅燈]：表示監控項目發生嚴重錯誤或中斷。
+            li 🟡 #[strong 黃燈]：表示監控項目出現警告或潛在問題。
+            li 🟢 #[strong 綠燈]：表示監控項目運作正常。
+        li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂，並透過動畫效果提醒管理人員注意。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="database", variant="secondary")
+        span.ml-2 資料來源
+      p 本儀表板透過以下三種方式獲取監控數據：
+      ol
+        li #[strong 電子郵件分析]：讀取特定郵件伺服器的郵件，分析主旨與內容來判斷服務狀態（例如：SRMAS、資料庫備份等）。
+        li #[strong 智慧監控API]：呼叫安裝於遠端伺服器上的客製化API，獲取服務的即時狀態（例如：建物圖籍同步、地籍異動即時通等）。
+        li #[strong 系統後端API]：直接存取本系統後端的API，查詢內部服務狀態（例如：L3同步、跨縣市AP服務等）。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="columns", variant="secondary")
+        span.ml-2 版面配置
+      ul
+        li 勾選頁首的 #[strong 2欄顯示] 開關，可以將儀表板在兩欄與三欄之間切換，以適應不同的螢幕尺寸與觀看習慣。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="cog", variant="secondary")
+        span.ml-2 設定
+      ul
+        li 點擊 #[lah-fa-icon(icon="cog")] 按鈕可以設定用於 #[strong 電子郵件分析] 的郵件伺服器連線資訊。
 
   //- transition-group.d-flex.flex-wrap.justify-content-evenly(name="list-reverse")
   lah-flex-item-group
