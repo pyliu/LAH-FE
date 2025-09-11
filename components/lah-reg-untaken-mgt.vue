@@ -136,7 +136,7 @@ div
             label-reset-button="重設"
             close-button
             label-close-button="關閉"
-            :state="!$utils.empty(updateData.return_date)"
+            :state="updateData.return_date !== null"
             value-as-date
           )
 
@@ -208,7 +208,7 @@ export default {
       return !this.$utils.empty(this.updateData.borrower)
     },
     showReturnDate () {
-      return !this.$utils.empty(this.updateData.lent_date)
+      return this.updateData.lent_date !== null
     },
     modifiedMark () {
       return this.dataChanged ? ['update-mark'] : []
