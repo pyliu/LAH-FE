@@ -85,7 +85,7 @@ div
             no-icon-gutter
           )
           lah-button.ml-1(
-            v-if="!$utils.empty(updateData.borrower)",
+            v-if="updateData.return_date === null && hasBorrower",
             icon="undo",
             action="cycle-alt",
             variant="secondary",
