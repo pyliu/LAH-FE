@@ -11,6 +11,7 @@ import difference from 'lodash/difference'
 import differenceWith from 'lodash/differenceWith'
 import escape from 'lodash/escape'
 import filter from 'lodash/filter'
+import get from 'lodash/get'
 import groupBy from 'lodash/groupBy'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
@@ -216,6 +217,7 @@ export default ({ $axios, store, $config }, inject) => {
     chunk,
     compact,
     escape,
+    get,
     md5: _md5,
     /**
      * marked

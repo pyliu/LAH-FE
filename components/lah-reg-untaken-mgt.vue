@@ -156,8 +156,6 @@ div
 </template>
 
 <script>
-// import get from 'lodash'
-import lodashGet from 'lodash/get'
 import lahUserSelect from '~/components/lah-user-select.vue'
 import regCaseBase from '~/mixins/lah-reg-case-base.js'
 
@@ -284,12 +282,12 @@ export default {
       }
     },
     initializeData (sourceData) {
-      // Use lodash to safely lodashGet values, providing defaults
       const newData = {
         id: this.caseId,
-        taken_status: lodashGet(sourceData, 'UNTAKEN_TAKEN_STATUS', ''),
-        borrower: lodashGet(sourceData, 'UNTAKEN_BORROWER', ''),
-        note: lodashGet(sourceData, 'UNTAKEN_NOTE', ''),
+        // Use lodash "get" to safely get values, providing defaults
+        taken_status: this.$utils.get(sourceData, 'UNTAKEN_TAKEN_STATUS', ''),
+        borrower: this.$utils.get(sourceData, 'UNTAKEN_BORROWER', ''),
+        note: this.$utils.get(sourceData, 'UNTAKEN_NOTE', ''),
         taken_date: sourceData.UNTAKEN_TAKEN_DATE ? new Date(sourceData.UNTAKEN_TAKEN_DATE) : null,
         lent_date: sourceData.UNTAKEN_LENT_DATE ? new Date(sourceData.UNTAKEN_LENT_DATE) : null,
         return_date: sourceData.UNTAKEN_RETURN_DATE ? new Date(sourceData.UNTAKEN_RETURN_DATE) : null
