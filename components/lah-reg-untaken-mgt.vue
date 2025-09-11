@@ -11,7 +11,7 @@ div
       .d-flex.text-nowrap.mb-1
         .my-auto 領件狀態
         b-select(
-          v-model="parentData.UNTAKEN_TAKEN_STATUS",
+          v-model="updateData.taken_status",
           :options="statusOpts",
           size="sm"
         )
@@ -36,10 +36,10 @@ div
             no-icon-gutter
           )
 
-      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenStatus)")
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(updateData.taken_status)")
         .my-auto.mr-1 領件日期
         b-datepicker(
-          v-model="parentData.UNTAKEN_TAKEN_DATE"
+          v-model="updateData.taken_date"
           boundary="viewport"
           size="sm"
           variant="primary"
@@ -57,7 +57,7 @@ div
           value-as-date
         )
 
-      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(takenStatus)")
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(updateData.taken_status)")
         .my-auto.mr-1 領件時間
         b-timepicker(
           v-model="editableTime",
@@ -69,23 +69,23 @@ div
           label-close-button="關閉"
         )
 
-      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(setter) && !$utils.empty(takenStatus)")
+      .d-flex.text-nowrap.mb-1(v-if="!$utils.empty(setter) && !$utils.empty(updateData.taken_status)")
         .my-auto.mr-1 發件人員
         div {{ setter }} {{ setterName }}
       div
         .d-flex.text-nowrap.mb-1
           .my-auto.mr-1.text-nowrap 　借閱人
-          strong.my-auto.mr-1(:title="`${borrower} ${borrowerName}`") {{ borrowerName }}
+          strong.my-auto.mr-1(:title="`${updateData.borrower} ${borrowerName}`") {{ borrowerName }}
           lah-button(
             icon="user-friends",
             title="選擇",
             size="sm",
             @click="selectUser",
-            :variant="$utils.empty(borrower) ? 'outline-dark' : 'dark'",
+            :variant="$utils.empty(updateData.borrower) ? 'outline-dark' : 'dark'",
             no-icon-gutter
           )
           lah-button.ml-1(
-            v-if="!$utils.empty(borrower)",
+            v-if="!$utils.empty(updateData.borrower)",
             icon="undo",
             action="cycle-alt",
             variant="secondary",
@@ -100,7 +100,7 @@ div
           b-datepicker(
             size="sm"
             variant="primary"
-            v-model="parentData.UNTAKEN_LENT_DATE"
+            v-model="updateData.lent_date"
             placeholder="變更借閱日期"
             boundary="viewport"
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
@@ -114,6 +114,7 @@ div
             label-reset-button="重設"
             close-button
             label-close-button="關閉"
+            value-as-date
           )
 
         .d-flex.text-nowrap.mb-1(v-if="showReturnDate")
@@ -121,7 +122,7 @@ div
           b-datepicker(
             size="sm"
             variant="primary"
-            v-model="parentData.UNTAKEN_RETURN_DATE"
+            v-model="updateData.return_date"
             placeholder="設定借閱歸還日期"
             boundary="viewport"
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
@@ -135,12 +136,13 @@ div
             label-reset-button="重設"
             close-button
             label-close-button="關閉"
-            :state="!$utils.empty(parentData.UNTAKEN_RETURN_DATE)"
+            :state="!$utils.empty(updateData.return_date)"
+            value-as-date
           )
 
   .text-left(v-else)
     div(:class="statusCss") {{ statusText }}
-    .text-nowrap(v-if="hasBorrower") 借閱人：{{ borrower }} {{ borrowerName }}
+    .text-nowrap(v-if="hasBorrower") 借閱人：{{ updateData.borrower }} {{ borrowerName }}
 
   b-modal(
     ref="borrower"
@@ -154,241 +156,173 @@ div
 </template>
 
 <script>
+// import get from 'lodash'
+import lodashGet from 'lodash/get'
 import lahUserSelect from '~/components/lah-user-select.vue'
 import regCaseBase from '~/mixins/lah-reg-case-base.js'
 
 export default {
-  /* from lah-reg-case-base.js
-  props: {
-    parentData: { type: Object, default: undefined },
-    // the id format should be '109HB04001234'
-    caseId: { type: String, default: '' }
-  },
-  */
   name: 'LahRegUntakenMgt',
   components: { lahUserSelect },
   mixins: [regCaseBase],
   data: () => ({
-    noteFlag: false,
     minDate: new Date(),
     maxDate: new Date(),
-    statusOpts: [{
-      text: '未領件',
-      value: ''
-    }, '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'],
-    debounceMs: 30 * 1000,
-    origData: {},
+    statusOpts: [
+      { text: '未領件', value: '' },
+      '已領件', '免發狀', '附件領回', '內部更正', '駁回', '撤回', '郵寄', 'i領件'
+    ],
+    origData: {}, // Stores the original state of the data
+    updateData: { // Represents the current, possibly modified state
+      id: '',
+      taken_date: null,
+      taken_status: '',
+      lent_date: null,
+      return_date: null,
+      borrower: '',
+      note: ''
+    },
     editableTime: ''
   }),
   computed: {
     dataChanged () {
-      // pagination will re-use the same component in b-table ...
-      // I need a way to determine if it is a user triggered data change
-      if (!this.$utils.empty(this.origData)) {
-        return this.origData.borrower !== this.updateData.borrower ||
-               this.origData.id !== this.updateData.id ||
-               this.origData.lent_date !== this.updateData.lent_date ||
-               this.origData.return_date !== this.updateData.return_date ||
-               this.origData.taken_status !== this.updateData.taken_status ||
-               this.isTakenDateChanged
+      if (this.$utils.empty(this.origData)) {
+        return false
       }
-      return false
-    },
-    takenDate () {
-      try {
-        if (typeof this.parentData.UNTAKEN_TAKEN_DATE === 'string' && !this.$utils.empty(this.parentData.UNTAKEN_TAKEN_DATE)) {
-          return new Date(Date.parse(this.parentData.UNTAKEN_TAKEN_DATE))
-        }
-        return this.parentData.UNTAKEN_TAKEN_DATE || ''
-      } finally {
-        // need to sync editableTime when takenDate changed outside
-        this.$nextTick(() => {
-          this.editableTime = this.$utils.formatTime(this.parentData.UNTAKEN_TAKEN_DATE)
-        })
-      }
-    },
-    isTakenDateChanged () {
-      const origDate = this.origData.taken_date
-      const newDate = this.updateData.taken_date
-
-      const isOrigValid = this.$utils.isValidDateObject(origDate)
-      const isNewValid = this.$utils.isValidDateObject(newDate)
-
-      // 情況1：兩者都是有效的 Date 物件
-      if (isOrigValid && isNewValid) {
-        // 比較時間戳 (timestamp) 是最準確的方式
-        return origDate.getTime() !== newDate.getTime()
-      }
-
-      // 情況2：其中一個有效，另一個無效 (例如從 null 變為 Date，或反之)
-      // 這種情況兩者的有效性必定不同 (true !== false)，代表已變更
-      // 如果兩者都無效 (例如 null 和 '' or undefined)，有效性相同 (false !== false)，代表未變更
-      return isOrigValid !== isNewValid
-    },
-    takenStatus () {
-      return this.parentData.UNTAKEN_TAKEN_STATUS || ''
-    },
-    lentDate () {
-      return this.parentData.UNTAKEN_LENT_DATE || ''
-    },
-    returnDate () {
-      return this.parentData.UNTAKEN_RETURN_DATE || ''
-    },
-    returnDateMin () {
-      return new Date(this.lentDate)
-    },
-    hasBorrower () {
-      return !this.$utils.empty(this.borrower)
-    },
-    borrower () {
-      return this.parentData.UNTAKEN_BORROWER || ''
-    },
-    borrowerName () {
-      return this.userNames[this.borrower] || ''
-    },
-    note () {
-      return this.parentData.UNTAKEN_NOTE || ''
+      // Normalize and compare the original and current data states
+      const normalizedOrig = JSON.stringify(this.normalizeData(this.origData))
+      const normalizedUpdate = JSON.stringify(this.normalizeData(this.updateData))
+      return normalizedOrig !== normalizedUpdate
     },
     setter () {
-      return this.parentData.UNTAKEN_NOTE || ''
+      return this.updateData.note || ''
     },
     setterName () {
       return this.userNames[this.setter] || ''
     },
-    showReturnDate () {
-      return this.lentDate !== null && this.lentDate !== ''
+    borrowerName () {
+      return this.userNames[this.updateData.borrower] || ''
+    },
+    hasBorrower () {
+      return !this.$utils.empty(this.updateData.borrower)
     },
     showLentDate () {
-      return this.borrower !== ''
+      return !this.$utils.empty(this.updateData.borrower)
     },
-    showTakenFields () {
-      return this.borrower === '' ||
-             (this.returnDate !== null && this.returnDate !== '')
+    showReturnDate () {
+      return !this.$utils.empty(this.updateData.lent_date)
     },
     modifiedMark () {
-      if (this.dataChanged) { return ['update-mark'] }
-      return []
-    },
-    updateData () {
-      return {
-        id: this.caseId,
-        taken_date: this.$utils.isValidDateObject(this.takenDate) ? this.takenDate : '',
-        taken_status: this.takenStatus,
-        lent_date: this.lentDate,
-        return_date: this.returnDate,
-        borrower: this.borrower,
-        note: this.$utils.empty(this.takenStatus) ? '' : this.note || this.user.id
-      }
+      return this.dataChanged ? ['update-mark'] : []
     },
     editable () {
-      // open to all by reg section asked ...
       return true
     },
     statusText () {
-      return this.$utils.empty(this.parentData.UNTAKEN_TAKEN_STATUS) ? '尚未設定領件狀態' : this.parentData.UNTAKEN_TAKEN_STATUS
+      return this.$utils.empty(this.updateData.taken_status) ? '尚未設定領件狀態' : this.updateData.taken_status
     },
     statusCss () {
-      return this.$utils.empty(this.parentData.UNTAKEN_TAKEN_STATUS) ? ['text-danger'] : ['text-success']
+      return this.$utils.empty(this.updateData.taken_status) ? ['text-danger'] : ['text-success']
     }
   },
   watch: {
-    takenDate (val) {
-      try {
-        // 同步更新 editableTime
-        if (this.$utils.isValidDateObject(val)) {
-          // if time is 00:00:00, it means the date is changed from datepicker, so set current time
-          if (val.getHours() === 0 && val.getMinutes() === 0 && val.getSeconds() === 0) {
-            const now = new Date()
-            val.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
-          }
-          // only when editableTime is empty then sets current time to it
-          if (this.$utils.empty(this.editableTime)) {
-            this.editableTime = this.$utils.formatTime(val)
-          } else {
-            // set current editableTime back to val
-            const [hours, minutes, seconds] = this.editableTime.split(':')
-            val.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || 0))
-          }
+    // Watch parentData to initialize/reset the component's state
+    parentData: {
+      handler (val) {
+        this.initializeData(val)
+      },
+      immediate: true,
+      deep: true
+    },
+    'updateData.taken_date' (val) {
+      if (this.$utils.isValidDateObject(val)) {
+        if (val.getHours() === 0 && val.getMinutes() === 0 && val.getSeconds() === 0) {
+          const now = new Date()
+          val.setHours(now.getHours(), now.getMinutes(), now.getSeconds())
         }
-        this.updateDebounced()
-      } catch (error) {
-        this.$utils.warn('無法變更取件時間', error)
+        if (this.$utils.empty(this.editableTime)) {
+          this.editableTime = this.$utils.formatTime(val)
+        } else {
+          const [hours, minutes, seconds] = this.editableTime.split(':')
+          val.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || 0))
+        }
+      }
+    },
+    'updateData.taken_status' (val) {
+      if (this.$utils.empty(val)) {
+        this.updateData.taken_date = null
+        this.editableTime = ''
+      } else if (!this.updateData.taken_date) {
+        this.updateData.taken_date = new Date()
       }
     },
     editableTime (newTimeStr) {
-      if (newTimeStr && this.$utils.isValidDateObject(this.takenDate)) {
+      if (newTimeStr && this.$utils.isValidDateObject(this.updateData.taken_date)) {
         const [hours, minutes, seconds] = newTimeStr.split(':')
-        const newDate = new Date(this.takenDate)
+        const newDate = new Date(this.updateData.taken_date)
         newDate.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds || 0))
-
-        if (newDate.getTime() !== this.takenDate.getTime()) {
-          this.parentData.UNTAKEN_TAKEN_DATE = newDate
+        if (newDate.getTime() !== this.updateData.taken_date.getTime()) {
+          this.updateData.taken_date = newDate
         }
       }
-    },
-    takenStatus (val) {
-      if (this.$utils.empty(val)) {
-        this.parentData.UNTAKEN_TAKEN_DATE = null
-      } else if (this.$utils.empty(this.takenDate)) {
-        this.parentData.UNTAKEN_TAKEN_DATE = new Date()
-      }
-      this.updateDebounced()
-    },
-    lentDate (val) {
-      if (this.$utils.empty(val)) {
-        this.parentData.UNTAKEN_RETURN_DATE = null
-      }
-      this.update()
-    },
-    returnDate (dontcare) {
-      this.update()
-    },
-    borrower (dontcare) {
-      this.update()
-    },
-    note (val) {
-      this.update()
-      this.noteFlag = !this.$utils.empty(val)
-    },
-    caseId (val) {
-      this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
-      if (this.$utils.isValidDateObject(this.takenDate)) {
-        this.editableTime = ''
-      } else {
-        try {
-          this.editableTime = this.$utils.formatTime(this.takenDate)
-        } catch (error) {
-          this.$utils.warn('caseId changed 無法設定取件時間', error)
-        }
-      }
-      this.syncOrigData()
     }
   },
   created () {
-    !this.parentData && !this.caseId && this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
-    !this.$utils.empty(this.note) && (this.noteFlag = true)
-    this.updateDebounced = this.$utils.debounce(this.update, this.debounceMs)
-    this.syncOrigData()
-    // to make init state for dataChanged correctly
-    this.timeout(() => {
-      try {
-        this.editableTime = this.$utils.formatTime(this.takenDate)
-      } catch (error) {
-        this.$utils.warn('無法回復取件時間', error)
-      }
-    }, 400)
+    if (!this.parentData && !this.caseId) {
+      this.$utils.error('No :parent-data or :case-id attribute specified for this component!')
+    }
+    this.minDate = this.$utils.twToAdDateObj(this.parentData.RM58_1)
   },
   methods: {
+    // A helper function to normalize data for comparison
+    normalizeData (data) {
+      return {
+        ...data,
+        taken_date: data.taken_date ? new Date(data.taken_date).toISOString() : null,
+        lent_date: data.lent_date ? new Date(data.lent_date).toISOString() : null,
+        return_date: data.return_date ? new Date(data.return_date).toISOString() : null
+      }
+    },
+    initializeData (sourceData) {
+      // Use lodash to safely lodashGet values, providing defaults
+      const newData = {
+        id: this.caseId,
+        taken_status: lodashGet(sourceData, 'UNTAKEN_TAKEN_STATUS', ''),
+        borrower: lodashGet(sourceData, 'UNTAKEN_BORROWER', ''),
+        note: lodashGet(sourceData, 'UNTAKEN_NOTE', ''),
+        taken_date: sourceData.UNTAKEN_TAKEN_DATE ? new Date(sourceData.UNTAKEN_TAKEN_DATE) : null,
+        lent_date: sourceData.UNTAKEN_LENT_DATE ? new Date(sourceData.UNTAKEN_LENT_DATE) : null,
+        return_date: sourceData.UNTAKEN_RETURN_DATE ? new Date(sourceData.UNTAKEN_RETURN_DATE) : null
+      }
+
+      this.updateData = { ...newData }
+      this.origData = { ...newData } // Store a clean copy
+
+      // Sync time display
+      if (this.updateData.taken_date) {
+        this.editableTime = this.$utils.formatTime(this.updateData.taken_date)
+      } else {
+        this.editableTime = ''
+      }
+    },
     update () {
       if (this.dataChanged && !this.isBusy) {
         this.isBusy = true
-        // to update untaken data in sqlite db
+        // Prepare data for API, converting Date objects to a suitable string format if needed
+        const payload = {
+          ...this.updateData,
+          note: this.$utils.empty(this.updateData.taken_status) ? '' : this.updateData.note || this.user.id,
+          taken_date: this.updateData.taken_date || '',
+          lent_date: this.updateData.lent_date || '',
+          return_date: this.updateData.return_date || ''
+        }
         this.$axios.post(this.$consts.API.JSON.QUERY, {
           type: 'upd_reg_cert_taken_date',
-          ...this.updateData
+          ...payload
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            this.syncOrigData()
+            // Sync origData with the new state after successful update
+            this.origData = { ...this.updateData }
           } else {
             this.$utils.warn(`${this.caseId} upd_reg_cert_taken_date failed`, data.message)
           }
@@ -400,30 +334,29 @@ export default {
         })
       }
     },
+    backOrigData () {
+      // Restore the editable data from the original snapshot
+      this.updateData = { ...this.origData }
+      // Also sync time display
+      if (this.updateData.taken_date) {
+        this.editableTime = this.$utils.formatTime(this.updateData.taken_date)
+      } else {
+        this.editableTime = ''
+      }
+    },
     borrowerSelected (payload) {
-      this.parentData.UNTAKEN_BORROWER = payload.detail
-      this.parentData.UNTAKEN_LENT_DATE = new Date()
-      this.parentData.UNTAKEN_RETURN_DATE = null
+      this.updateData.borrower = payload.detail
+      this.updateData.lent_date = new Date()
+      this.updateData.return_date = null
       this.$refs.borrower.hide()
     },
     borrowerClean () {
-      this.parentData.UNTAKEN_BORROWER = ''
-      this.parentData.UNTAKEN_LENT_DATE = null
-      this.parentData.UNTAKEN_RETURN_DATE = null
+      this.updateData.borrower = ''
+      this.updateData.lent_date = null
+      this.updateData.return_date = null
     },
     selectUser () {
       this.$refs.borrower.show()
-    },
-    syncOrigData () {
-      this.origData = { ...this.updateData }
-    },
-    backOrigData () {
-      this.parentData.UNTAKEN_TAKEN_STATUS = this.origData.taken_status
-      this.parentData.UNTAKEN_TAKEN_DATE = this.origData.taken_date ? new Date(this.origData.taken_date) : null
-      this.parentData.UNTAKEN_LENT_DATE = this.origData.lent_date ? new Date(this.origData.lent_date) : null
-      this.parentData.UNTAKEN_RETURN_DATE = this.origData.return_date ? new Date(this.origData.return_date) : null
-      this.parentData.UNTAKEN_BORROWER = this.origData.borrower
-      this.parentData.UNTAKEN_NOTE = this.origData.note
     }
   }
 }
