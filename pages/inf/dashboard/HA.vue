@@ -404,7 +404,13 @@ export default {
   },
   methods: {
     konamiSecret () {
-      this.success('觸發彩蛋！')
+      this.success('觸發 KONAMI 彩蛋')
+      this.$axios.cancelAll('KONAMI：取消目前所有XHR請求')
+      this.confirm('想要重新整理頁面嗎？', { title: 'I am KONAMI' }).then((YN) => {
+        this.$utils.warn(YN)
+        if (YN) {
+        }
+      })
     },
     handleKeydown (e) {
       if (this.konamiCode.includes(e.key)) {
