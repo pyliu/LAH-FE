@@ -1121,4 +1121,7 @@ export default {
 ::v-deep .modal-dialog.modal-lg {
   width: 685px;
 }
+::v-deep .form-control.is-valid {
+  min-width: 130px;
+}
 </style>
