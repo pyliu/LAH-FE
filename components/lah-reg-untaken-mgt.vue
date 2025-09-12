@@ -348,7 +348,7 @@ export default {
       this.$refs.borrower.hide()
     },
     borrowerClean () {
-      this.confirm('<strong class="text-danger">若想保存僅設定歸還日期即可。</strong><br/>確定要清除借閱人設定？', { title: '清除借閱人' }).then((YN) => {
+      this.confirm('<strong class="text-danger">若想保存僅設定歸還日期即可。</strong><br/>👉 請確定要清除借閱人設定 ❓', { title: '⚠ 清除借閱人' }).then((YN) => {
         if (!YN) { return }
         this.updateData.borrower = ''
         this.updateData.lent_date = null
