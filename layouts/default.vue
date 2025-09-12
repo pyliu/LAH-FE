@@ -75,9 +75,8 @@ export default {
       this.success('觸發 KONAMI 彩蛋')
       this.$axios.cancelAll('KONAMI：取消目前所有XHR請求')
       this.confirm('想要重新整理頁面嗎？', { title: 'KONAMI +30 Lifes' }).then((YN) => {
-        this.$utils.warn(YN)
         if (YN) {
-          //
+          window.location.reload()
         }
       })
     }
