@@ -371,4 +371,7 @@ export default {
   border-radius: 5px;
   padding: .25rem;
 }
+::v-deep .form-control.form-control-sm {
+  min-width: 115px;
+}
 </style>
