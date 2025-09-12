@@ -86,9 +86,8 @@ div
           )
           lah-button.ml-1(
             v-if="updateData.return_date === null && hasBorrower",
-            icon="undo",
-            action="cycle-alt",
-            variant="secondary",
+            icon="delete-left",
+            variant="danger",
             size="sm",
             title="清除借閱人",
             @click="borrowerClean"
