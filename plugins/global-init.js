@@ -217,7 +217,6 @@ export default ({ $axios, store, $config }, inject) => {
     chunk,
     compact,
     escape,
-    get,
     md5: _md5,
     /**
      * marked
@@ -297,6 +296,15 @@ export default ({ $axios, store, $config }, inject) => {
       return $(selector || '*').removeClass('ld').attr('class', function (i, c) {
         return c ? c.replace(/(^|\s+)ld-\S+/g, '') : ''
       })
+    },
+    /**
+     * Get object property value by string path, if not found return default value
+     * @param {`*`} property
+     * @param {*} def
+     * @returns string
+     */
+    get (property, def = '') {
+      return get(property, def)
     },
     openNewWindow (url, e) {
       if (window) {
