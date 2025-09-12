@@ -355,6 +355,7 @@ export default {
         this.updateData.return_date = null
       }).catch(() => {
         // User cancelled the action
+        this.$utils.warn('使用者取消清除借閱人設定')
       })
     },
     selectUser () {
