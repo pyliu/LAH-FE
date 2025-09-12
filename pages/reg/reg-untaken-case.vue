@@ -90,16 +90,28 @@ div
           no-badge
         )
   lah-transition
-    .d-flex.flex-wrap.align-items-center.border-0.mt-n4.p-0.py-2(v-if="advTags.length > 0")
-      b-form-tag(
-        v-for="(tag, idx) in advTags"
-        :key="`tag-${idx}`"
-        @remove="removeAdvTag(tag)"
-        :title="`移除篩選：${tag.text}`"
-        :variant="tag.variant"
-        pill
-        class="mr-1 mb-1 adv-tag-style"
-      ) {{ tag.text }}
+    .d-flex.mt-n4(v-if="advTags.length > 0")
+      .mr-auto.tags-container(
+        ref="tagsContainer"
+        :class="{ 'tags-collapsed': !tagsExpanded }"
+      )
+        b-form-tag.mr-1.my-1.adv-tag-style(
+          v-for="(tag, idx) in advTags"
+          :key="`tag-${idx}`"
+          @remove="removeAdvTag(tag)"
+          :title="`移除篩選：${tag.text}`"
+          :variant="tag.variant"
+          pill
+        ) {{ tag.text }}
+      lah-button(
+        v-if="showTagsToggle"
+        :icon="tagsExpanded ? 'angle-double-up' : 'angle-double-down'"
+        variant="link"
+        size="sm"
+        @click="tagsExpanded = !tagsExpanded"
+        :title="tagsExpanded ? '收合篩選條件' : '顯示所有篩選條件'"
+        no-icon-gutter
+      )
 
   lah-pagination(
     ref="pagination"
@@ -457,7 +469,9 @@ export default {
     maxDate: new Date(),
     batchProcessing: false,
     progress: 0,
-    progressMax: 0
+    progressMax: 0,
+    tagsExpanded: false,
+    showTagsToggle: false
   }),
   fetch () {
     if (this.isBusy) {
@@ -741,8 +755,20 @@ export default {
   },
   fetchOnServer: false,
   watch: {
-    advTags () {
-      this.calculateTableHeight()
+    advTags: {
+      handler (newVal, oldVal) {
+        this.calculateTableHeight()
+        this.tagsExpanded = false
+        this.$nextTick(() => {
+          const container = this.$refs.tagsContainer
+          if (container) {
+            this.showTagsToggle = container.scrollHeight > 40
+          } else {
+            this.showTagsToggle = false
+          }
+        })
+      },
+      deep: true
     },
     rows (val) {
       const lightOpts = this.advOpts.caseLightOpts
@@ -1040,6 +1066,28 @@ export default {
         this.advOpts[type] = ''
       }
     },
+    resetAdvSearch () {
+      this.advOpts = {
+        ...this.advOpts,
+        caseId: '',
+        caseWord: [],
+        caseReason: [],
+        caseCloser: [],
+        casePreliminator: [],
+        caseLight: [],
+        caseTakenDate: [],
+        caseCloseDate: [],
+        caseBorrower: [],
+        caseLentDate: [],
+        caseSetter: []
+      }
+      // Use $nextTick to wait for DOM update and then timeout to wait for transition
+      this.$nextTick(() => {
+        // wait transition animation finish then re-calculate
+        this.timeout(this.calculateTableHeight, 800)
+        this.pagination.currentPage = 1
+      })
+    },
     statusLight (item) {
       if (!this.$utils.empty(item?.UNTAKEN_BORROWER) && this.$utils.empty(item?.UNTAKEN_RETURN_DATE)) {
         return '🟡'
@@ -1073,28 +1121,6 @@ export default {
       this.clickedData = data
       this.$refs.caseDetail.show()
     },
-    resetAdvSearch () {
-      this.advOpts = {
-        ...this.advOpts,
-        caseId: '',
-        caseWord: [],
-        caseReason: [],
-        caseCloser: [],
-        casePreliminator: [],
-        caseLight: [],
-        caseTakenDate: [],
-        caseCloseDate: [],
-        caseBorrower: [],
-        caseLentDate: [],
-        caseSetter: []
-      }
-      // Use $nextTick to wait for DOM update and then timeout to wait for transition
-      this.$nextTick(() => {
-        // wait transition animation finish then re-calculate
-        this.timeout(this.calculateTableHeight, 800)
-        this.pagination.currentPage = 1
-      })
-    },
     takenDate (item) {
       const ts = Date.parse(item.UNTAKEN_TAKEN_DATE)
       return ts ? this.$utils.formatDate(new Date(ts)) : ''
@@ -1116,6 +1142,13 @@ export default {
 <style lang="scss" scoped>
 .adv-tag-style {
   font-size: 0.95rem;
+}
+.tags-container {
+  transition: max-height 0.25s ease-in-out;
+}
+.tags-container.tags-collapsed {
+  max-height: 2.4rem; /* Approx one line of tags with margin */
+  overflow: hidden;
 }
 // trick to limit batch update modal width
 ::v-deep .modal-dialog.modal-lg {
