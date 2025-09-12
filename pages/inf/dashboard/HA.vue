@@ -310,15 +310,7 @@ export default {
     attentionList: [],
     attentionTimer: null,
     topWarning: true,
-    col2: false,
-    konamiCode: [
-      'ArrowUp', 'ArrowUp',
-      'ArrowDown', 'ArrowDown',
-      'ArrowLeft', 'ArrowRight',
-      'ArrowLeft', 'ArrowRight',
-      'b', 'a'
-    ],
-    userInputSequence: []
+    col2: false
   }),
   head: {
     title: '桃園所智慧監控儀表板-桃園市地政局'
@@ -365,7 +357,6 @@ export default {
     })
   },
   mounted () {
-    window.addEventListener('keydown', this.handleKeydown)
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       // to add warning/danger card to highlight group
       const tmp = []
@@ -399,37 +390,9 @@ export default {
     }, 30 * 1000)
   },
   beforeDestroy () {
-    window.removeEventListener('keydown', this.handleKeydown)
     clearInterval(this.attentionTimer)
   },
   methods: {
-    konamiSecret () {
-      this.success('觸發 KONAMI 彩蛋')
-      this.$axios.cancelAll('KONAMI：取消目前所有XHR請求')
-      this.confirm('想要重新整理頁面嗎？', { title: 'KONAMI +30 Lifes' }).then((YN) => {
-        this.$utils.warn(YN)
-        if (YN) {
-        }
-      })
-    },
-    handleKeydown (e) {
-      if (this.konamiCode.includes(e.key)) {
-        this.userInputSequence.push(e.key)
-        // Trim the sequence to the length of the Konami code
-        if (this.userInputSequence.length > this.konamiCode.length) {
-          this.userInputSequence.shift()
-        }
-        // Check if the sequence matches
-        if (JSON.stringify(this.userInputSequence) === JSON.stringify(this.konamiCode)) {
-          this.konamiSecret()
-          // Reset sequence after activation
-          this.userInputSequence = []
-        }
-      } else {
-        // Reset if the wrong key is pressed
-        this.userInputSequence = []
-      }
-    },
     lightUpdate (payload) {
       this.lightMap.set(payload.name, payload.new)
       const tmp = [...this.lightMap]

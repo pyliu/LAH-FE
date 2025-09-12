@@ -7,6 +7,13 @@ b-container(v-cloak fluid)
 
 <script>
 export default {
+  data () {
+    return {
+      // Konami Code sequence
+      konamiCode: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'],
+      userInputSequence: []
+    }
+  },
   created () {
     // this.$acts.cancel('page cahnged ... previous axios request has been cancelled!')
     this.login()
@@ -40,6 +47,40 @@ export default {
     }
     // debug for runtime config
     this.$utils.warn(this.$config)
+    window.addEventListener('keydown', this.handleKeydown)
+  },
+  beforeDestroy () {
+    window.removeEventListener('keydown', this.handleKeydown)
+  },
+  methods: {
+    handleKeydown (e) {
+      if (this.konamiCode.includes(e.key)) {
+        this.userInputSequence.push(e.key)
+        // Trim the sequence to the length of the Konami code
+        if (this.userInputSequence.length > this.konamiCode.length) {
+          this.userInputSequence.shift()
+        }
+        // Check if the sequence matches
+        if (JSON.stringify(this.userInputSequence) === JSON.stringify(this.konamiCode)) {
+          this.konamiSecret()
+          // Reset sequence after activation
+          this.userInputSequence = []
+        }
+      } else {
+        // Reset if the wrong key is pressed
+        this.userInputSequence = []
+      }
+    },
+    konamiSecret () {
+      this.success('觸發 KONAMI 彩蛋')
+      this.$axios.cancelAll('KONAMI：取消目前所有XHR請求')
+      this.confirm('想要重新整理頁面嗎？', { title: 'KONAMI +30 Lifes' }).then((YN) => {
+        this.$utils.warn(YN)
+        if (YN) {
+          //
+        }
+      })
+    }
   }
 }
 </script>
