@@ -348,9 +348,14 @@ export default {
       this.$refs.borrower.hide()
     },
     borrowerClean () {
-      this.updateData.borrower = ''
-      this.updateData.lent_date = null
-      this.updateData.return_date = null
+      this.confirm('確定要清除借閱人設定？', { title: '清除借閱人' }).then((YN) => {
+        if (!YN) { return }
+        this.updateData.borrower = ''
+        this.updateData.lent_date = null
+        this.updateData.return_date = null
+      }).catch(() => {
+        // User cancelled the action
+      })
     },
     selectUser () {
       this.$refs.borrower.show()
