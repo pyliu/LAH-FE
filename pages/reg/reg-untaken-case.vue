@@ -955,7 +955,7 @@ export default {
       }
 
       this.progressMax = this.batchCases.length
-      this.confirm(`請確認要批次變更領件狀態？<br/>一旦變更無法復原，共 ${this.progressMax} 件待處理。`).then(async (YN) => {
+      this.confirm(`⚠ 請確認，此操作將一旦變更無法復原，共 <strong class="text-danger">${this.progressMax}</strong> 件待處理。`, { title: '批次變更領件狀態' }).then(async (YN) => {
         if (YN) {
           this.progress = 0
           this.batchProcessing = true
