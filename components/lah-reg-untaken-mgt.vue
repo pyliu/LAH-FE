@@ -84,7 +84,7 @@ div
             :variant="$utils.empty(updateData.borrower) ? 'outline-dark' : 'dark'",
             no-icon-gutter
           )
-          lah-button.ml-1(
+          lah-button.border-0.ml-1(
             v-if="updateData.return_date === null && hasBorrower",
             icon="delete-left",
             variant="outline-danger",
