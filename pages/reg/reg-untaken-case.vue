@@ -1088,6 +1088,7 @@ export default {
         caseLentDate: [],
         caseSetter: []
       }
+      this.pagination.currentPage = 1
       // Use $nextTick to wait for DOM update and then timeout to wait for transition
       this.$nextTick(() => {
         // wait transition animation finish then re-calculate
