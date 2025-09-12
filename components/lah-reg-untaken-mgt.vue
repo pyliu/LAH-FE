@@ -100,7 +100,8 @@ div
             size="sm"
             variant="primary"
             v-model="updateData.lent_date"
-            placeholder="變更借閱日期"
+            placeholder="借閱日期"
+            title="點選設定借閱日期"
             boundary="viewport"
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
             :max="maxDate"
@@ -122,10 +123,12 @@ div
             size="sm"
             variant="primary"
             v-model="updateData.return_date"
-            placeholder="設定借閱歸還日期"
+            placeholder="點選設定"
+            title="點選設定借閱歸還日期"
             boundary="viewport"
             :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
             :max="maxDate"
+            :state="updateData.return_date !== null"
             label-help="使用方向鍵操作移動日期"
             hide-header
             dropleft
@@ -135,7 +138,6 @@ div
             label-reset-button="重設"
             close-button
             label-close-button="關閉"
-            :state="updateData.return_date !== null"
             value-as-date
           )
 
