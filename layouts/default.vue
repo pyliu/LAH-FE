@@ -9,9 +9,23 @@ b-container(v-cloak fluid)
 export default {
   data () {
     return {
-      // Konami Code sequence
-      konamiCode: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'],
+      // Konami Code sequences and their identifiers
+      konamiCodes: [
+        {
+          name: 'default',
+          sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
+        },
+        {
+          name: 'adminToggle',
+          sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'B', 'A']
+        }
+      ],
       userInputSequence: []
+    }
+  },
+  computed: {
+    isAdmin () {
+      return this.$store.getters.authority?.isAdmin
     }
   },
   created () {
@@ -54,21 +68,33 @@ export default {
   },
   methods: {
     handleKeydown (e) {
-      if (this.konamiCode.includes(e.key)) {
-        this.userInputSequence.push(e.key)
-        // Trim the sequence to the length of the Konami code
-        if (this.userInputSequence.length > this.konamiCode.length) {
-          this.userInputSequence.shift()
-        }
-        // Check if the sequence matches
-        if (JSON.stringify(this.userInputSequence) === JSON.stringify(this.konamiCode)) {
-          this.konamiSecret()
-          // Reset sequence after activation
+      // Ignore modifier keys like Shift if they are pressed alone
+      if (e.key === 'Shift') {
+        return
+      }
+
+      const key = e.key
+      this.userInputSequence.push(key)
+
+      // Check against all konami codes
+      this.konamiCodes.forEach((code) => {
+        // Check if the end of the user sequence matches the code sequence
+        const userSequenceEnd = this.userInputSequence.slice(-code.sequence.length)
+        if (JSON.stringify(userSequenceEnd) === JSON.stringify(code.sequence)) {
+          if (code.name === 'default') {
+            this.konamiSecret()
+          } else if (code.name === 'adminToggle') {
+            this.toggleAdminSecret()
+          }
+          // Reset sequence to prevent multiple triggers
           this.userInputSequence = []
         }
-      } else {
-        // Reset if the wrong key is pressed
-        this.userInputSequence = []
+      })
+
+      // Optional: limit the size of userInputSequence to prevent it from growing indefinitely
+      const longestCodeLength = Math.max(...this.konamiCodes.map(c => c.sequence.length))
+      if (this.userInputSequence.length > longestCodeLength) {
+        this.userInputSequence.shift()
       }
     },
     konamiSecret () {
@@ -80,6 +106,21 @@ export default {
           window.location.reload()
         }
       })
+    },
+    toggleAdminSecret () {
+      // Toggle admin status
+      const newAdminState = !this.isAdmin
+      this.$store.commit('admin', newAdminState)
+      // Notify user
+      if (newAdminState) {
+        this.success('🎉 管理者權限已開啟 🎉', {
+          title: '彩蛋觸發'
+        })
+      } else {
+        this.warning('管理者權限已關閉', {
+          title: '彩蛋觸發'
+        })
+      }
     }
   }
 }
