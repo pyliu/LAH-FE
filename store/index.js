@@ -2,49 +2,67 @@ import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import uniqWith from 'lodash/uniqWith'
 
+/**
+ * Custom error logger for Axios interceptor.
+ * @param {Error} error - The error object.
+ */
 const logerror = (error) => {
   if (error.response) {
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx
-    console.error(error.response.data)
-    console.error(error.response.status)
-    console.error(error.response.headers)
+    console.error('Error Response Data:', error.response.data)
+    console.error('Error Response Status:', error.response.status)
+    console.error('Error Response Headers:', error.response.headers)
   } else if (error.request) {
     // The request was made but no response was received
-    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-    // http.ClientRequest in node.js
-    console.error(error.request)
+    console.error('Error Request:', error.request)
   } else {
     // Something happened in setting up the request that triggered an Error
-    console.error('Error', error.message)
+    console.error('Error Message:', error.message)
   }
-  console.error(error.config)
-}
-const timestamp = () => {
-  // e.g. 2020-12-03 10:23:00
-  const now = new Date()
-  return now.getFullYear() + '-' +
-    ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
-    ('0' + now.getDate()).slice(-2) + ' ' +
-    ('0' + now.getHours()).slice(-2) + ':' +
-    ('0' + now.getMinutes()).slice(-2) + ':' +
-    ('0' + now.getSeconds()).slice(-2)
-}
-const logtimestamp = (message) => {
-  const ts = timestamp()
-  console.log(`${ts} ${message}`)
+  console.error('Error Config:', error.config)
 }
 
-const state = () => ({
+/**
+ * Returns a formatted timestamp string.
+ * @returns {string} e.g., "2023-09-15 14:30:00"
+ */
+const timestamp = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${('0' + (now.getMonth() + 1)).slice(-2)}-${('0' + now.getDate()).slice(-2)} ${('0' + now.getHours()).slice(-2)}:${('0' + now.getMinutes()).slice(-2)}:${('0' + now.getSeconds()).slice(-2)}`
+}
+
+/**
+ * Logs a message with a prepended timestamp.
+ * @param {string} message - The message to log.
+ */
+const logtimestamp = (message) => {
+  console.log(`${timestamp()} ${message}`)
+}
+
+/**
+ * The state object for the Vuex store.
+ */
+export const state = () => ({
+  // A timestamp to track the last update.
   timestamp: +new Date(),
+  // User authentication status.
   loggedIn: false,
+  // Client IP address.
   ip: '0.0.0.0',
+  // List of IPs considered as admin.
   adminIps: ['127.0.0.1', '::1'],
+  // List of API server IPs.
   apiSvrIps: [],
+  // Information about the server environment.
   server: {},
+  // Current logged-in user's data.
   user: {},
+  // A map of all user IDs to names.
   userNames: undefined,
+  // A map of user IDs to names for the current site.
   siteUserNames: undefined,
+  // User authority and permissions.
   authority: {
     isAdmin: false,
     isChief: false,
@@ -53,19 +71,32 @@ const state = () => ({
     isUserMgtStaff: false,
     isNotifyMgtStaff: false
   },
+  // System-wide configurations.
   systemConfigs: {},
+  // The last received message for global display.
   lastMessage: '',
+  // State for the top XAP component.
   topXap: { x: '', y: 0 },
+  // A map for XAP configurations.
   xapMap: new Map(),
+  // Capacity for the image memento.
   imageMementoCapacity: 30,
+  // An array acting as a memento for images.
   imageMemento: [],
+  // Capacity for the message memento.
   messageMementoCapacity: 30,
+  // An array acting as a memento for messages.
   messageMemento: [],
+  // Flag indicating if monitor mail is being fetched.
   fetchingMonitorMail: false,
+  // Count of fetched monitor mails.
   fetchedMonitorMailCount: 0
 })
 
-const getters = {
+/**
+ * Getters for derived state.
+ */
+export const getters = {
   loggedIn: state => state.loggedIn,
   ip: state => state.ip,
   adminIps: state => state.adminIps,
@@ -99,109 +130,116 @@ const getters = {
   imageMementoCapacity: state => state.imageMementoCapacity,
   imageMemento: state => state.imageMemento,
   latestImageMemento: state => state.imageMemento.length > 0 ? state.imageMemento[state.imageMemento.length - 1] : undefined,
-  imageMementoCacheKey: state => 'imageMementoCached',
   messageMementoCapacity: state => state.messageMementoCapacity,
   messageMemento: state => state.messageMemento,
   latestMessageMemento: state => state.messageMemento.length > 0 ? state.messageMemento[state.messageMemento.length - 1] : undefined,
-  messageMementoCacheKey: state => 'messageMementoCached',
   fetchingMonitorMail: state => state.fetchingMonitorMail,
   fetchedMonitorMailCount: state => state.fetchedMonitorMailCount
 }
 
-// only sync operation
-const mutations = {
+/**
+ * Mutations for synchronous state changes.
+ */
+export const mutations = {
+  /**
+   * Sets the client IP and determines admin status.
+   * @param {object} state - The Vuex state.
+   * @param {string} ip - The client's IP address.
+   */
   ip (state, ip) {
     state.ip = ip
-    // treat localhost ip as admin
     state.authority.isAdmin = state.adminIps.includes(ip)
   },
-  login (state, obj) {
-    // expected json obj format is { status, message, server, ips, user, configs }
-    state.user = { ...obj.user }
-    state.systemConfigs = { ...state.systemConfigs, ...obj.configs }
-    state.authority = { ...state.authority, ...obj.configs.authority }
-    state.server = { ...state.server, ...obj.server }
-    state.apiSvrIps = [...obj.ips]
+  /**
+   * Updates state upon successful login.
+   * @param {object} state - The Vuex state.
+   * @param {object} payload - The login response data.
+   */
+  login (state, payload) {
+    state.user = { ...payload.user }
+    state.systemConfigs = { ...state.systemConfigs, ...payload.configs }
+    state.authority = { ...state.authority, ...payload.configs.authority }
+    state.server = { ...state.server, ...payload.server }
+    state.apiSvrIps = [...payload.ips]
     state.loggedIn = true
   },
+  /**
+   * Merges new configurations into the systemConfigs state.
+   * @param {object} state - The Vuex state.
+   * @param {object} payload - The configuration object to merge.
+   */
   systemConfigs (state, payload) {
     state.systemConfigs = { ...state.systemConfigs, ...payload }
   },
-  lastMessage (state, string) { state.lastMessage = string },
+  /**
+   * Sets the last message.
+   * @param {object} state - The Vuex state.
+   * @param {string} message - The message content.
+   */
+  lastMessage (state, message) {
+    state.lastMessage = message
+  },
+  /**
+   * Sets the admin flag.
+   * @param {object} state - The Vuex state.
+   * @param {boolean} flag - The new admin status.
+   */
   admin (state, flag) {
     state.authority.isAdmin = flag
   },
-  mock (state, flag) {
-    state.systemConfigs.mock = flag
-  },
-  avatar (state, flag) {
-    state.systemConfigs.avatar = flag
-  },
+  /**
+   * Updates the user names mapping and filters for the current site.
+   * @param {object} state - The Vuex state.
+   * @param {object} json - The user names object from API.
+   */
   userNames (state, json) {
     state.userNames = { ...json }
-    // prepare site use name map
     if (json) {
       const site = state.systemConfigs.site
-      const siteUsers = Object.entries(json).filter(arr => arr[0].startsWith(site)).sort((a, b) => {
-        // same user name has longer ID will set to the front
-        if (a[0].length > b[0].length) {
-          return -1
-        }
-        if (a[0].length === b[0].length) {
-          return 0
-        }
-        return 1
-      })
-      // regenerate obj from entries that remove duplicates by name
-      const tmp = uniqWith(siteUsers, (a, b) => {
-        return a[1] === b[1]
-      }).reduce((obj, [key, val]) => {
-        obj[key] = val
-        return obj
-      }, {})
-      state.siteUserNames = { ...tmp }
+      // Filter users belonging to the current site and sort them.
+      const siteUsers = Object.entries(json)
+        .filter(([id]) => id.startsWith(site))
+        .sort(([idA], [idB]) => idB.length - idA.length) // Longer ID first for same name
+      // Remove duplicates by name, keeping the one with the longer ID.
+      const uniqueSiteUsers = uniqWith(siteUsers, (a, b) => a[1] === b[1])
+        .reduce((obj, [key, val]) => {
+          obj[key] = val
+          return obj
+        }, {})
+      state.siteUserNames = { ...uniqueSiteUsers }
     }
   },
-  timestamp (state, dontcare) {
+  /**
+   * Updates the timestamp to the current time.
+   * @param {object} state - The Vuex state.
+   */
+  timestamp (state) {
     state.timestamp = +new Date()
   },
-  imageMementoCapacity (state, capacity) { state.imageMementoCapacity = parseInt(capacity) || 30 },
-  imageMemento (state, arr) {
-    if (Array.isArray(arr)) {
-      state.imageMemento = [...arr]
-    }
-  },
+  /**
+   * Adds an image to the memento, managing capacity.
+   * @param {object} state - The Vuex state.
+   * @param {string} base64data - The base64 encoded image data.
+   */
   addImageMemento (state, base64data) {
-    this.$config.isDev && console.log(timestamp(), '新增 image data 到 store。 [Vuex::addImageMemento]')
     if (state.imageMemento.length >= state.imageMementoCapacity) {
       state.imageMemento.shift()
-      this.$config.isDev && console.log(timestamp(), '移除最早的 image data。 [Vuex::addImageMemento]')
-      state.imageMemento.length = state.imageMementoCapacity
     }
     state.imageMemento.push(base64data)
-    // remove duplication
-    state.imageMemento = [...uniqWith(state.imageMemento, isEqual)]
-    this.$config.isDev && console.log(timestamp(), `現在暫存 image data 數量為 ${state.imageMemento.length}。 [Vuex::addImageMemento]`)
+    state.imageMemento = uniqWith(state.imageMemento, isEqual)
   },
-  messageMementoCapacity (state, capacity) { state.messageMementoCapacity = parseInt(capacity) || 30 },
-  messageMemento (state, arr) {
-    if (Array.isArray(arr)) {
-      state.messageMemento = [...arr]
-    }
-  },
+  /**
+   * Adds a message to the memento, managing capacity.
+   * @param {object} state - The Vuex state.
+   * @param {*} data - The message data to add.
+   */
   addMessageMemento (state, data) {
-    this.$config.isDev && console.log(timestamp(), '新增 message data 到 store。 [Vuex::addMessageMemento]', data)
     if (state.messageMemento.length >= state.messageMementoCapacity) {
-      const removed = state.messageMemento.shift()
-      this.$config.isDev && console.log(timestamp(), '移除最早的 message data。 [Vuex::addMessageMemento]', removed)
-      state.messageMemento.length = state.messageMementoCapacity
+      state.messageMemento.shift()
     }
     state.messageMemento.push(data)
-    // remove duplication
-    state.messageMemento = [...state.messageMemento.filter(function (item, pos) {
-      return state.messageMemento.indexOf(item) === pos
-    })]
-    this.$config.isDev && console.log(timestamp(), `現在暫存 message data 數量為 ${state.messageMemento.length}。 [Vuex::addMessageMemento]`)
+    // A simpler way to get unique values for primitive arrays
+    state.messageMemento = [...new Set(state.messageMemento)]
   },
   topXap (state, office) {
     state.topXap = { ...office }
@@ -214,37 +252,58 @@ const mutations = {
   }
 }
 
-// support async operation
-const actions = {
-  // Nuxt provided hook feature for Vuex, calling at server side when store initializing
-  nuxtServerInit ({ commit, dispatch }, nuxt) {
+/**
+ * Actions for asynchronous operations.
+ */
+export const actions = {
+  /**
+   * Nuxt-specific action for server-side initialization.
+   */
+  nuxtServerInit ({ commit, dispatch }, { req, $content }) {
     try {
-      commit('ip', nuxt.req.connection.remoteAddress || nuxt.req.socket.remoteAddress)
-      dispatch('loadXap', nuxt.$content)
-      // query login require info by ip to use middleware to control authority
+      commit('ip', req.connection.remoteAddress || req.socket.remoteAddress)
+      // Load XAP config from content file at server side
+      dispatch('loadXap', $content)
+      // Login action is dispatched to fetch user data before client-side render.
       dispatch('login')
     } catch (e) {
-      console.error(e)
+      console.error('Error in nuxtServerInit:', e)
     }
   },
+  /**
+   * Performs a login request to the backend if the user is not already logged in.
+   */
   login ({ commit, getters }) {
-    !getters.loggedIn && this.$axios.post(this.$consts.API.JSON.AUTH, {
-    // !getters.loggedIn && this.$axios.post(`${this.$config.apiServerURL}${this.$consts.API.JSON.AUTH}`, {
-      type: 'login',
-      req_ip: getters.ip
-    }).then((res) => {
-      commit('login', res.data)
-    }).catch((error) => {
-      logerror(error)
-    }).finally(() => {
-      logtimestamp(`${getters.ip} connected.`)
-    })
+    if (!getters.loggedIn) {
+      this.$axios.post(this.$consts.API.JSON.AUTH, {
+        type: 'login',
+        req_ip: getters.ip
+      }).then((res) => {
+        commit('login', res.data)
+      }).catch((error) => {
+        logerror(error)
+      }).finally(() => {
+        logtimestamp(`${getters.ip} connected.`)
+      })
+    }
   },
+  /**
+   * Loads XAP map configuration from Nuxt content.
+   * NOTE: This action is intended to be called during nuxtServerInit
+   * as $content is not available on the client-side in this project setup.
+   */
   async loadXap ({ getters }, $content) {
-    const json = await $content('xapMap').fetch()
-    for (const [key, value] of Object.entries(json)) {
-      // console.log(`${key}: ${value}`)
-      getters.xapMap.set(key, value)
+    try {
+      if (!$content) {
+        console.warn('Nuxt content is not available, skipping loadXap.')
+        return
+      }
+      const json = await $content('xapMap').fetch()
+      for (const [key, value] of Object.entries(json)) {
+        getters.xapMap.set(key, value)
+      }
+    } catch (e) {
+      console.error('Failed to load XAP map:', e)
     }
   }
 }
