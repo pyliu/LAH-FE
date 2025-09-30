@@ -58,7 +58,10 @@ div
           :disabled="!dataReady",
           no-icon-gutter
         ) 批次修改
-        lah-datepicker.mr-1(v-model="dateRange")
+        lah-datepicker.mr-1(
+          v-model="dateRange",
+          :begin="dateBegin"
+        )
         lah-button.mr-1(
           ref="search"
           icon="search"
@@ -390,7 +393,7 @@ div
 </template>
 
 <script>
-import lahRegUntakenMgt from '~/components/lah-reg-untaken-mgt.vue'
+import lahRegUntakenMgt from '~/components/lah-reg-untaken-mgt.vue';
 export default {
   components: { lahRegUntakenMgt },
   data: () => ({
@@ -399,6 +402,11 @@ export default {
     modalLoading: true,
     clickedData: undefined,
     rows: [],
+    dateBegin: (() => {
+      const d = new Date()
+      d.setDate(d.getDate() - 7)
+      return d
+    })(),
     dateRange: {
       begin: '',
       end: '',
