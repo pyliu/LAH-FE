@@ -18,7 +18,7 @@ div
             lah-fa-icon(icon="database" variant="secondary")
             span.ml-2 資料庫搜尋
           ul
-            li 系統預設載入 #[strong.text-primary 近一個月] 的「已結案未歸檔」登記案件資料。
+            li 系統預設載入 #[strong.text-primary 近一個月] 的「已結案」登記案件資料。
             li 您可以手動調整 #[strong.text-primary 收件日期] 區間，然後點擊 #[lah-fa-icon(icon="search" variant="primary")] 按鈕進行搜尋。
             li 請避免選擇過大的日期範圍，以免查詢時間過長導致失敗。
           hr
@@ -404,7 +404,7 @@ export default {
       return `query_reg_not_done_case_${this.dateRange.begin}_${this.dateRange.end}`
     },
     foundText () {
-      return `找到 ${this.filterDataCount} 筆「已結案未歸檔」案件資料`
+      return `找到 ${this.filterDataCount} 筆「已結案」案件資料`
     },
     daysPeriod () {
       return this.dateRange.days || 0
