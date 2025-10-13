@@ -107,7 +107,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :hours="parseInt(monitorHrs)",
         @updated="handleUpdated"
       )
-    b-carousel-slide(v-if="!failed"): template(#img)
+    b-carousel-slide: template(#img)
       .center
         .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
         b-link(
