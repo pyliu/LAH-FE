@@ -45,8 +45,6 @@ div
             span.ml-2 其他功能
           ul
             li #[strong EXCEL匯出]：點擊 #[lah-fa-icon(icon="file-excel" regular variant="success")] 按鈕，可以將目前表格中 #[strong (已篩選)] 的資料匯出成 XLSX 檔。
-            li #[strong 切換案件類型]：點擊 #[lah-button(icon="ruler-combined" size="sm" variant="outline-primary" no-icon-gutter)] 可切換至測量案件逾期頁面。
-            li #[strong 舊版頁面]：若有需要，可點擊 #[lah-button(icon="history" size="sm" variant="outline-secondary" no-icon-gutter)] 前往舊版系統頁面。
 
       a.small.text-muted.mr-2.align-self-center(
         href="#",
