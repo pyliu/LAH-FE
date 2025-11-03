@@ -14,7 +14,7 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
         )
         lah-button-count-badge(
           :count="downCount",
-          variant="danger",
+          :variant="headerLight",
           title="異常數量",
           @click="displayError = true"
         )

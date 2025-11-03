@@ -86,18 +86,6 @@ export default {
     isStatic () {
       return !this.$utils.empty(this.staticData)
     },
-    variant () {
-      if (this.status > 0) {
-        return 'success'
-      }
-      if (this.loading) {
-        return 'light'
-      }
-      if (this.isTimeout) {
-        return 'warning'
-      }
-      return 'danger'
-    },
     outlineVariant () {
       if (this.status > 0) {
         return 'outline-success'
@@ -132,17 +120,34 @@ export default {
       }
       return this.short ? name.replace(/(所|地政事務所)/g, '') : `${this.watchSite} ${name}`
     },
-    lightIcon () {
+    variant () {
       if (this.status > 0) {
-        return '🟢'
+        return 'success'
       }
       if (this.loading) {
-        return '⚪'
+        return 'light'
       }
-      if (this.isTimeout) {
-        return '🟡'
+      if (this.isStatic && this.staticData.id.startsWith('H')) {
+        return 'danger'
       }
-      return '🔴'
+      // if (this.isTimeout) {
+      //   return 'warning'
+      // }
+      return 'warning'
+    },
+    lightIcon () {
+      switch (this.variant) {
+        case 'success':
+          return '🟢'
+        case 'light':
+          return '⚪'
+        case 'warning':
+          return '🟡'
+        case 'danger':
+          return '🔴'
+        default:
+          return '❓'
+      }
     },
     siteStatusCacheMap () {
       return this.$store.getters['inf/siteStatusCacheMap']
