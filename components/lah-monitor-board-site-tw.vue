@@ -138,11 +138,23 @@ export default {
         return 'secondary'
       }
       if (this.downCount > 0) {
-        // only have timeout sites
-        if (this.downOffices.every(o => this.$utils.empty(o.response))) {
-          return 'warning'
+        /** json ex:
+         * id: "AA"
+         * name: "古亭地政事務所"
+         * response: "HTTP/1.1 502 Proxy Error"
+         * serial: 725726
+         * state: "DOWN"
+         */
+        const HxDown = this.downOffices.find(o => o.id.startsWith('H'))
+        if (HxDown) {
+          this.$utils.warn(`H0 has down office ${HxDown.id} ${HxDown.name}. (${HxDown.response})`, HxDown)
+          return 'dnager'
         }
-        return 'danger'
+        // only have timeout sites
+        // if (this.downOffices.every(o => this.$utils.empty(o.response))) {
+        //   return 'warning'
+        // }
+        return 'warning'
       }
       return 'success'
     },
