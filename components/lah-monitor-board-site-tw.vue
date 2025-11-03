@@ -60,8 +60,8 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
         li 每5分鐘重新更新一次
       hr
       div 🟢 表示服務正常
-      div 🟡 表示連線逾時
-      div 🔴 表示狀態錯誤
+      div 🟡 表示其他縣市地所連線錯誤
+      div 🔴 表示有桃園市地所連線錯誤
   .h-100.overflow-auto
     lah-transition
       .mt-3.text-center(v-if="isBusy")
