@@ -246,7 +246,8 @@ export default {
           hideFooter: true
         }
       }), {
-        title: '離線伺服器歷史資訊'
+        title: '離線伺服器歷史資訊',
+        size: 'lg'
       })
     }
   }
