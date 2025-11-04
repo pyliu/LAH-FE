@@ -103,7 +103,9 @@ export default {
       { text: '最近1天', value: 'day' },
       { text: '最近1週', value: 'week' },
       { text: '最近1月', value: 'month' },
-      { text: '最近1年', value: 'year' }
+      { text: '最近1季', value: 'quater' },
+      { text: '最近半年(須耐心等候查詢)', value: 'half-year' },
+      { text: '最近1年(須非常耐心等候查詢)', value: 'year' }
     ]
   }),
   fetch () {
