@@ -34,7 +34,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示今日({{ today }})跨所案件回寫狀態監控資訊
+        li 顯示今日({{ today }})跨所案件回寫狀態監控資訊(排除子號)
         li 儀表板每{{ reloadMs / 1000 / 60 }}分鐘重新檢查一次
       hr
       div 🟢 表示一切正常
