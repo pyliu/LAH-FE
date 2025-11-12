@@ -145,16 +145,16 @@ div(v-cloak)
       @light-update="lightUpdate",
       footer
     )
-    //- div(
-    //-   :class="colCss",
-    //-   key="lahMonitorBoardDnp-fix",
-    //-   v-show="!isInAttention('LahMonitorBoardDnp')"
-    //- ): lah-monitor-board-dnp(
-    //-   :class="heightCss",
-    //-   ref="LahMonitorBoardDnp",
-    //-   @light-update="lightUpdate",
-    //-   footer
-    //- )
+    div(
+      :class="colCss",
+      key="lahMonitorBoardXcaseSync-fix",
+      v-show="!isInAttention('LahMonitorBoardXcaseSync')"
+    ): lah-monitor-board-xcase-sync(
+      :class="heightCss",
+      ref="LahMonitorBoardXcaseSync",
+      @light-update="lightUpdate",
+      footer
+    )
     div(
       :class="colCss",
       key="lahMonitorBoardSmsNotify-fix",

@@ -26,6 +26,7 @@ div: client-only
     //-   ref="LahMonitorBoardHacmp",
     //-   footer
     //- )
+    //- .col-md-4(key="lah-xcase-sync"): lah-monitor-board-xcase-sync(footer)
     .col-md-4(key="lah-powerha"): lah-monitor-board-powerha(footer)
     .col-md-4(key="lah-mbsrc"): lah-mgmt-board-sync-reg-case
     .col-md-4(key="lah-mbwt"): lah-monitor-board-ws-test
@@ -171,9 +172,9 @@ div: client-only
 </template>
 
 <script>
-import { format, formatDistance, formatDistanceToNow } from 'date-fns'
+import { format, formatDistance, formatDistanceToNow } from 'date-fns';
 // Require Esperanto locale
-import { zhTW } from 'date-fns/locale'
+import { zhTW } from 'date-fns/locale';
 
 export default {
   // middleware: ['isAdmin'],

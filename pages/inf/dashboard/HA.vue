@@ -147,6 +147,16 @@ div(v-cloak)
     )
     div(
       :class="colCss",
+      key="lahMonitorBoardXcaseSync-fix",
+      v-show="!isInAttention('LahMonitorBoardXcaseSync')"
+    ): lah-monitor-board-xcase-sync(
+      :class="heightCss",
+      ref="LahMonitorBoardXcaseSync",
+      @light-update="lightUpdate",
+      footer
+    )
+    div(
+      :class="colCss",
       key="lahMonitorBoardSmsNotify-fix",
       v-show="!isInAttention('LahMonitorBoardSmsNotify')"
     ): lah-monitor-board-sms-notify(
