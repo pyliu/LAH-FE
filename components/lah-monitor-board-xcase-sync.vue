@@ -62,6 +62,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
           .text-area.d-flex.flex-column
             //- 地區名稱
             span.area-name {{ getAreaName(code.id) }}
+            //- 新增：最大案件號
+            span.local-max {{ code.details.localMax }} 號
 
   b-modal(
     ref="found",
@@ -365,4 +367,10 @@ export default {
   line-height: 1.3; /* 調整行高 */
 }
 
+/* 新增：最大號樣式 */
+.local-max {
+  font-size: 0.85rem; /* 縮小字體 */
+  color: #6c757d;   /* 輔助文字顏色 (Bootstrap secondary) */
+  line-height: 1.2;
+}
 </style>
