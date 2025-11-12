@@ -5,6 +5,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
     .font-weight-bold {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
+        v-if="light === 'danger'"
+        icon="link-slash",
+        variant="outline-danger",
+        no-border,
+        no-icon-gutter,
+        @click="$refs.found.show()",
+        title="顯示問題案件"
+      )
+      lah-button(
         v-if="!footer"
         icon="sync-alt",
         action="ld-cycle",
@@ -53,6 +62,24 @@ b-card(:border-variant="border", :class="[attentionCss]")
           .text-area.d-flex.flex-column
             //- 地區名稱
             span.area-name {{ getAreaName(code.id) }}
+
+  b-modal(
+    ref="found",
+    hide-footer,
+    centered,
+    scrollable
+  )
+    template(#modal-title) 跨所未回寫案件列表 ({{ caseIds.length }})
+    b-list-group(flush)
+      b-list-group-item(v-for="(caseId, idx) in caseIds" :key="caseId")
+        .d-flex.justify-content-between
+          div {{ caseId }}
+          lah-button(
+            icon="bug-slash"
+            variant="danger"
+            @click="fix(caseId)"
+          ) 修正
+
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -183,8 +210,12 @@ export default {
             const status = data?.found?.length === 0 ? '🟢' : '⚠'
             this.message = `${status} ${data.message}`
             this.caseIds = [...data.found]
-            this.$emit('reload', { caseIds: this.caseIds })
             this.infoRaw = data.raw
+            // if (this.$utils.empty(this.caseIds)) {
+            //   // prepare mock data
+            //   this.caseIds = ['114-HBA1-080010', '114-HGA1-012090']
+            // }
+            this.$emit('reload', { caseIds: this.caseIds })
           }).catch((err) => {
             this.error = err
           }).finally(() => {
@@ -192,6 +223,42 @@ export default {
             this.updated = this.$utils.now('TW').replace(this.today, '')
           })
       }
+    },
+    /**
+     * 根據 id 修正問題案件
+     * @param {string} id - 案件 ID (例如 '114-HDA1-014530')
+     */
+    fix (id) {
+      this.confirm('確定要將同步異動資料新增於本所資料庫(CRSMS)？').then((YN) => {
+        if (YN) {
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.XCASE, {
+            type: 'inst_xcase',
+            id
+          }).then((res) => {
+            if (this.$utils.statusCheck(res.data.status)) {
+              this.success('新增成功', {
+                title: '新增遠端案件資料',
+                subtitle: id
+              })
+              // 修改：從 caseIds 陣列中移除已修正的 id
+              const index = this.caseIds.indexOf(id)
+              if (index > -1) {
+                this.caseIds.splice(index, 1)
+              }
+            } else {
+              this.warning(res.data.message, {
+                title: '新增遠端案件資料',
+                subtitle: id
+              })
+            }
+          }).catch((err) => {
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+          })
+        }
+      })
     },
     /**
      * 根據 ID 前兩碼獲取地區名稱
