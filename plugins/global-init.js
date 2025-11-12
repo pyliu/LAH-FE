@@ -790,7 +790,8 @@ export default ({ $axios, store, $config }, inject) => {
       }
     },
     assert: console.assert.bind(console),
-    error: console.error.bind(console)
+    error: console.error.bind(console),
+    table: console.table.bind(console)
   }
   // all injected var can be used by {varname} in Vue and ${varname} in Nuxt, e.g. this.$http (Vue), $http (Nuxt)
   inject('consts', consts)
