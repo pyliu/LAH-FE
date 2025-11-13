@@ -17,11 +17,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
         icon="sync-alt",
         action="ld-cycle",
         variant="outline-secondary",
-        no-border,
-        no-icon-gutter,
         @click="checkXCaseSyncStatus",
-        :title="`上次更新時間 ${updated}`"
-      )
+        :title="`上次更新時間 ${updated}`",
+        no-border
+      ) {{ updated }}
       lah-button(
         icon="question",
         action="breath",

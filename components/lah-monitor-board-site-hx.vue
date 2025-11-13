@@ -12,7 +12,14 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
           no-border,
           title="檢視全國事務所狀態"
         )
-        lah-button(icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="reload")
+        lah-button(
+          icon="sync"
+          variant="outline-secondary"
+          action="cycle"
+          title="重新讀取"
+          @click="reload"
+          no-border
+        ) {{ updatedTime }}
         lah-button(
           icon="question",
           action="breath",
@@ -108,6 +115,7 @@ export default {
       this.headerLight = 'warning'
       this.statsMap.set(data.site, data)
       this.calcHeaderLight()
+      this.updatedTime = this.$utils.time()
     },
     calcHeaderLight () {},
     reload () {

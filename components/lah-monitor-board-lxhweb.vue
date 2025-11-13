@@ -14,7 +14,15 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
           title="檢視全部"
         )
         lah-button(v-if="showBrokenBtn" icon="unlink" variant="danger" no-border action="damage" title="檢視損毀資料表" :badge-text="String(brokenTableCount)" @click="showBrokenTable")
-        lah-button(v-if="alive" icon="sync" variant="outline-secondary" no-border action="cycle" title="重新讀取" @click="ping")
+        lah-button(
+          v-if="alive"
+          icon="sync"
+          variant="outline-secondary"
+          action="cycle"
+          title="重新讀取"
+          @click="ping"
+          no-border
+        ) {{ updatedTime }}
         lah-button(
           icon="question",
           action="breath",
@@ -58,7 +66,8 @@ export default {
     pingMessage: '',
     offices: [],
     pingTimer: null,
-    brokenTableRaw: []
+    brokenTableRaw: [],
+    updatedTime: ''
   }),
   fetch () {
     this.$axios.post(this.$consts.API.JSON.LXHWEB, {
@@ -66,6 +75,7 @@ export default {
     }).then(({ data }) => {
       if (this.$utils.statusCheck(data.status)) {
         this.configs = Object.assign(this.configs, data.raw)
+        this.updatedTime = this.$utils.time()
       } else {
         this.$utils.error(data.message)
       }
