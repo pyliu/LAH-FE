@@ -217,7 +217,7 @@ export default {
     name (entry) {
       for (const value of this.xapMap.values()) {
         if (value.code === entry.SITE) {
-          return value.name
+          return value.name?.replace('所', '') || entry.SITE
         }
       }
     },
