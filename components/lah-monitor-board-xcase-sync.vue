@@ -5,13 +5,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
     .font-weight-bold {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
-        v-if="light === 'danger'"
         icon="link-slash",
         variant="outline-danger",
-        no-border,
-        no-icon-gutter,
+        title="顯示問題案件",
+        :disabled="light !== 'danger'",
         @click="$refs.found.show()",
-        title="顯示問題案件"
+        no-border,
+        no-icon-gutter
       )
       lah-button(
         v-if="!footer"
@@ -34,7 +34,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示今日({{ today }})跨所案件回寫狀態監控資訊(排除子號)
+        li 顯示今日({{ today }})跨所非子號案件回寫狀態監控資訊
         li 儀表板每{{ reloadMs / 1000 / 60 }}分鐘重新檢查一次
       hr
       div 🟢 表示一切正常
@@ -58,7 +58,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           )
             //- 修改：僅在 count > 0 時顯示數量
             span(v-if="code.details.foundIds.length > 0") {{ code.details.foundIds.length }}
-          //- 文字區塊 (垂直堆疊)
+           //- 文字區塊 (垂直堆疊)
           .text-area.d-flex.flex-column
             //- 地區名稱
             span.area-name {{ getAreaName(code.id) }}
@@ -77,8 +77,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
         .d-flex.justify-content-between
           div {{ caseId }}
           lah-button(
-            icon="bug-slash"
-            variant="danger"
+            icon="bug-slash",
+            variant="danger",
             @click="fix(caseId)"
           ) 修正
 
