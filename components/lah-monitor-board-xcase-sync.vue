@@ -11,7 +11,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :disabled="light !== 'danger'",
         @click="$refs.found.show()",
         no-border
-      ) 問題案件 ({{ caseIds.length }})
+      ) 未回寫案件 ({{ caseIds.length }})
       lah-button(
         v-if="!footer"
         icon="sync-alt",
