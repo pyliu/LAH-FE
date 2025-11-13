@@ -5,7 +5,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     .font-weight-bold {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
-        icon="link-slash",
+        icon="arrow-up-right-from-square",
         variant="outline-danger",
         title="顯示有問題案件列表",
         :disabled="light !== 'danger'",
