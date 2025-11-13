@@ -6,8 +6,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
     b-button-group.ml-auto(size="sm")
       lah-button(
         icon="arrow-up-right-from-square",
-        variant="outline-danger",
         title="顯示有問題案件列表",
+        :variant="light === 'danger' ? 'danger' : 'outline-secondary'",
         :disabled="light !== 'danger'",
         @click="$refs.found.show()",
         no-border
