@@ -7,7 +7,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       lah-button(
         icon="link-slash",
         variant="outline-danger",
-        title="顯示問題案件",
+        title="顯示有問題案件列表",
         :disabled="light !== 'danger'",
         @click="$refs.found.show()",
         no-border
