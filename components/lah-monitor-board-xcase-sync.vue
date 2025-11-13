@@ -119,7 +119,8 @@ export default {
       HF: '八德',
       HG: '平鎮',
       HH: '龜山'
-    }
+    },
+    reloadTimer: null
   }),
   fetch () {
     this.today = this.$utils.today('TW')
@@ -188,9 +189,15 @@ export default {
   created () {},
   mounted () {
     this.emitLightUpdate(this.light, '')
+    if (!this.footer) {
+      this.reloadTimer = setInterval(() => {
+        this.checkXCaseSyncStatus()
+      }, this.reloadMs)
+    }
   },
   beforeDestroy () {
     this.emitLightUpdate('', this.light)
+    clearInterval(this.reloadTimer)
   },
   methods: {
     emitLightUpdate (n, o) {
