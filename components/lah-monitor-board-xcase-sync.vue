@@ -53,16 +53,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
           :class="getCardBorderClass(code)"
           v-b-tooltip="`收件字：${code.id} 所端最新：${code.details.localMax}`"
         )
-          .status-dot.mr-2(
+          .status-dot.mr-1(
             :class="getStatusClass(code)"
           )
-            //- 修改：僅在 count > 0 時顯示數量
+            //- 僅在 count > 0 時顯示數量
             span(v-if="code.details.foundIds.length > 0") {{ code.details.foundIds.length }}
-           //- 文字區塊 (垂直堆疊)
+          //- 文字區塊 (垂直堆疊)
           .text-area.d-flex.flex-column
             //- 地區名稱
             span.area-name {{ getAreaName(code.id) }}
-            //- 新增：最大案件號
+            //- 最大案件號
             span.local-max {{ code.details.localMax }} 號
 
   b-modal(
