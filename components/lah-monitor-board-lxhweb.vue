@@ -22,7 +22,7 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
           title="重新讀取"
           @click="ping"
           no-border
-        ) {{ updatedTime }}
+        ) {{ isBusy ? '讀取中...' : updatedTime }}
         lah-button(
           icon="question",
           action="breath",

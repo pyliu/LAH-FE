@@ -20,7 +20,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="checkXCaseSyncStatus",
         :title="`上次更新時間 ${updated}`",
         no-border
-      ) {{ updated }}
+      ) {{ isBusy ? '讀取中...' : updated }}
       lah-button(
         icon="question",
         action="breath",
