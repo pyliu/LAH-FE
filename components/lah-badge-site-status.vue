@@ -16,7 +16,7 @@ b-button(
   //- span(:class="textCss") {{ name }}
   .d-flex.flex-column
     span.office-name {{ name }}
-    span.updated-time {{ updateTime }}
+    span.updated-time(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? updateTimeToNow : updateTime }}
   b-badge.ml-1(
     v-if="badge && status < 1 && status !== -2"
     :variant="badgeVariant"
@@ -43,7 +43,9 @@ export default {
      * serial / id / name / state / response / timestamp
      * 1 / XX / XX地政事務所 / UP / HTTP/1.1 401 Unauthorized / 1694060279
      */
-    staticData: { type: Object, default: null }
+    staticData: { type: Object, default: null },
+    displayUpdateTime: { type: Boolean, default: false },
+    displayUpdateTimeToNow: { type: Boolean, default: false }
   },
   data: () => ({
     status: 0,
@@ -157,6 +159,9 @@ export default {
     },
     updateTime () {
       return this.$utils.formatTime(new Date(this.updateTimestamp))
+    },
+    updateTimeToNow () {
+      return this.$utils.formatDistanceToNow(+new Date(`${this.updateDate} ${this.updateTime}`))
     },
     updateDate () {
       return this.$utils.formatDate(new Date(this.updateTimestamp))
