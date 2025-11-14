@@ -285,6 +285,7 @@ export default {
           if (this.$utils.statusCheck(data.status)) {
             // array of {SITE: 'HB', UPDATE_DATETIME: '2020-10-08 21:47:00'}
             this.offices = data.raw
+            this.updatedTime = this.$utils.time()
           } else {
             // this.notify(`${data.message}`, {
             //   title: '同步異動主機狀態檢視',
