@@ -350,13 +350,13 @@ export default {
       if (this.$utils.empty(entry)) { return '' }
       return this.$utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))
     },
-    // 新增：取得 Tooltip 設定
+    // 取得 Tooltip 設定
     getTooltipConfig (entry) {
       const site = entry.SITE
       const variant = this.areaColorMap[site] || 'secondary' // 預設 secondary
       const title = this.displayUpdateTimeToNow ? this.getTime(entry) : this.getTimeToNow(entry)
       return {
-        title,
+        title: `${this.name(entry)} 最後更新時間: ${title}`,
         variant
       }
     }
