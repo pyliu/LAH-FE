@@ -44,7 +44,10 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
     .offices
       .office.center(v-for="entry in offices" :key="entry.SITE")
         lah-fa-icon(v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))" size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
-          | {{ name(entry) }}
+        .d-flex.flex-column
+          span.office-name {{ name(entry) }}
+          //- 最大案件號
+          span.time-passed {{ $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME)) }}
   .center.h-100(v-else)
     h5.font-weight-bold
       lah-fa-icon(icon="exclamation-triangle" szie="lg" variant="danger" action="breath")
@@ -343,6 +346,20 @@ export default {
     border: 1px solid gray;
     border-radius: 15px;
     margin: 0 calc(1.5%) calc(1.5%) 0;
+    /* 地區名稱字型 */
+    .office-name {
+      text-align: left;
+      // font-size: 1.1rem;
+      font-weight: 500;
+      color: #333;
+      line-height: 1.3; /* 調整行高 */
+    }
+    /* 新增：最大號樣式 */
+    .time-passed {
+      font-size: 0.85rem; /* 縮小字體 */
+      color: #6c757d;   /* 輔助文字顏色 (Bootstrap secondary) */
+      line-height: 1.2;
+    }
   }
 }
 </style>
