@@ -19,11 +19,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="popupSMSLogs(lastestChangedCellLogs, '僅異動部分')"
       ) 異動
       lah-button-count-badge(
-        v-if="!isBusy && logs.length > 0",
-        :count="logs.length",
+        v-if="!isBusy && notificationLogs.length > 0",
+        :count="notificationLogs.length",
         variant="success",
-        :title="`全部已發送${logs.length}則`",
-        @click="popupSMSLogs(logs, '全部')"
+        :title="`全部已發送${notificationLogs.length}則`",
+        @click="popupSMSLogs(notificationLogs, '全部')"
       )
       lah-button(
         icon="question",
@@ -99,8 +99,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
 export default {
   name: 'LahMonitorBoardSmsNotify',
   emit: ['light-update'],
@@ -187,8 +187,11 @@ export default {
       }
       return '❌掃描作業異常'
     },
+    notificationLogs () {
+      return this.logs.filter(item => item.SMS_TYPE === '地籍異動即時通')
+    },
     failedCellLogs () {
-      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && item.SMS_RESULT === 'F')
+      return this.notificationLogs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && item.SMS_RESULT === 'F')
     },
     failedCellLogsLength () {
       return this.failedCellLogs?.length || 0
@@ -197,7 +200,7 @@ export default {
       return this.lastestChangedCellLogs.slice(0, 3)
     },
     lastestChangedCellLogs () {
-      return this.logs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && !item.SMS_CODE.startsWith('SM'))
+      return this.notificationLogs.filter(item => !this.$utils.empty(item.SMS_CELL) && item.SMS_CELL.startsWith('09') && !item.SMS_CODE.startsWith('SM'))
     },
     lastestChangedCount () {
       return this.lastestChangedCellLogs.length
@@ -277,6 +280,9 @@ export default {
     },
     responseData (val) {
       this.$utils.warn('responseData', val)
+    },
+    logs (val) {
+      this.$utils.warn(val.length, this.notificationLogs.length, this.lastestChangedCellLogs.length)
     }
   },
   created () {
