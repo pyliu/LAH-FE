@@ -137,5 +137,14 @@ export default {
   border: 1px solid black;
   border-radius: 10px;
   font-size: smaller;
+  /* 修改：設置初始很透明 */
+  opacity: 0.125;
+  /* 修改：添加過渡動畫效果 */
+  transition: opacity 0.3s ease;
+
+  /* 修改：滑鼠懸停時變不透明 */
+  &:hover {
+    opacity: 1;
+  }
 }
 </style>
