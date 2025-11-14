@@ -48,7 +48,6 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
       :badge="false",
       short,
       display-update-time,
-      display-update-time-to-now,
       @updated="handleUpdated"
     )
 </template>

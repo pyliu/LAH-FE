@@ -42,11 +42,11 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
       div 🔴 表示超過30分鐘未更新
   .h-100(v-if="alive")
     .offices
-      .office.center(v-for="entry in offices" :key="entry.SITE")
+      .office.center(v-for="entry in offices" :key="entry.SITE" v-b-tooltip="`${getTimeToNow(entry)}`")
         lah-fa-icon(v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))" size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
         .d-flex.flex-column
           span.office-name {{ name(entry) }}
-          span.time-passed(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME)) : entry.UPDATE_DATETIME.split(' ')[1] }}
+          span.time-passed(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? getTimeToNow(entry) : getTime(entry) }}
   .center.h-100(v-else)
     h5.font-weight-bold
       lah-fa-icon(icon="exclamation-triangle" szie="lg" variant="danger" action="breath")
@@ -329,6 +329,14 @@ export default {
           title: '同步異動損毀表格'
         })
       }
+    },
+    getTime (entry) {
+      if (this.$utils.empty(entry)) { return '' }
+      return entry.UPDATE_DATETIME?.split(' ')[1]
+    },
+    getTimeToNow (entry) {
+      if (this.$utils.empty(entry)) { return '' }
+      return this.$utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))
     }
   }
 }

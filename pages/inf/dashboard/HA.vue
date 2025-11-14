@@ -212,7 +212,8 @@ div(v-cloak)
       ref="LahMonitorBoardLxhweb",
       @light-update="lightUpdate",
       target-ip="L3HWEB",
-      link
+      link,
+      display-update-time
     )
     div(
       :class="colCss",
