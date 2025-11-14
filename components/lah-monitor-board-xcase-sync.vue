@@ -133,7 +133,7 @@ export default {
       HE: 'info', // 蘆竹
       HF: 'dark', // 八德
       HG: 'secondary', // 平鎮
-      HH: 'primary' // 龜山 (reuse)
+      HH: 'light' // 龜山
     },
     reloadTimer: null
   }),
