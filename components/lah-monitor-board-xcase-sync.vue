@@ -72,8 +72,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
     template(#modal-title) 跨所未回寫案件列表 ({{ caseIds.length }})
     b-list-group(flush)
       b-list-group-item(v-for="(caseId, idx) in caseIds" :key="caseId")
-        .d-flex.justify-content-between
-          div {{ caseId }}
+        .d-flex.justify-content-between.align-items-center
+          div
+            //- 修改：新增所別顯示、綁定 variant、加上 .badge-lg
+            b-badge.mr-1.badge-lg(
+              :variant="getAreaVariant(caseId)"
+            ) {{ getAreaNameFromCaseId(caseId) }}
+            span {{ caseId }}
           lah-button(
             icon="bug-slash",
             variant="danger",
@@ -118,6 +123,17 @@ export default {
       HF: '八德',
       HG: '平鎮',
       HH: '龜山'
+    },
+    // 新增：ID 到顏色的映射表
+    areaColorMap: {
+      HA: 'primary', // 桃園
+      HB: 'success', // 中壢
+      HC: 'danger', // 大溪
+      HD: 'warning', // 楊梅
+      HE: 'info', // 蘆竹
+      HF: 'dark', // 八德
+      HG: 'secondary', // 平鎮
+      HH: 'primary' // 龜山 (reuse)
     },
     reloadTimer: null
   }),
@@ -220,7 +236,7 @@ export default {
             this.infoRaw = data.raw
             // if (this.$utils.empty(this.caseIds)) {
             //   // prepare mock data
-            //   this.caseIds = ['114-HBA1-080010', '114-HGA1-012090']
+            //   this.caseIds = ['114-HBA1-080010', '114-HGA1-012090', '114-HDA1-014530']
             // }
             this.$emit('reload', { caseIds: this.caseIds })
           }).catch((err) => {
@@ -268,7 +284,7 @@ export default {
       })
     },
     /**
-     * 根據 ID 前兩碼獲取地區名稱
+     * 根據 ID 前兩碼獲取地區名稱 (用於儀表板)
      * @param {string} id - 項目 ID (例如 'HB-01')
      */
     getAreaName (id) {
@@ -276,6 +292,32 @@ export default {
       const prefix = id ? id.substring(0, 2) : ''
       // 從 areaNameMap 中尋找對應名稱，如果找不到就顯示原 id
       return this.areaNameMap[prefix] || id
+    },
+    /**
+     * 從 caseId 中提取所別代碼並獲取地區名稱 (用於未回寫列表)
+     * @param {string} caseId - 案件 ID (例如 '114-HBA1-080010')
+     */
+    getAreaNameFromCaseId (caseId) {
+      if (typeof caseId !== 'string' || caseId.length < 6) {
+        return '' // 檢查無效輸入
+      }
+      // 提取第 5 和第 6 個字元 (例如 'HB')
+      const prefix = caseId.substring(4, 6)
+      // 從 areaNameMap 中尋找對應名稱，找不到返回空字串
+      return this.areaNameMap[prefix] || ''
+    },
+    /**
+     * 新增：從 caseId 中提取所別代碼並獲取對應的 Bootstrap 顏色
+     * @param {string} caseId - 案件 ID (例如 '114-HBA1-080010')
+     */
+    getAreaVariant (caseId) {
+      if (typeof caseId !== 'string' || caseId.length < 6) {
+        return 'secondary' // 檢查無效輸入
+      }
+      // 提取第 5 和第 6 個字元 (例如 'HB')
+      const prefix = caseId.substring(4, 6)
+      // 從 areaColorMap 中尋找對應顏色，找不到返回 'secondary'
+      return this.areaColorMap[prefix] || 'secondary'
     },
     /**
      * 根據 foundIds 決定燈號顏色
@@ -377,5 +419,11 @@ export default {
   font-size: 0.85rem; /* 縮小字體 */
   color: #6c757d;   /* 輔助文字顏色 (Bootstrap secondary) */
   line-height: 1.2;
+}
+
+/* 新增：加大 badge 樣式 */
+.badge-lg {
+  font-size: 0.9rem;  /* 稍大字體 */
+  padding: 0.4em 0.6em; /* 增加內距 */
 }
 </style>
