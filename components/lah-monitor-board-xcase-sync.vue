@@ -39,7 +39,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
       div
         strong 標題燈號 (整體狀態)：
       div 🟢 表示一切正常 (未回寫案件數 = 0)
-      div 🔴 表示有案件回寫異常 (未回寫案件數 > 0)
+      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1)
+      div 🔴 表示有多個案件回寫異常 (未回寫案件數 > 1)
       hr
       div
         strong 儀表板所別方塊 (依管轄所別)：
@@ -181,7 +182,10 @@ export default {
       return ''
     },
     light () {
-      if (this.caseIds?.length !== 0) {
+      if (this.caseIds?.length === 1) {
+        return 'warning'
+      }
+      if (this.caseIds?.length > 1) {
         return 'danger'
       }
       return 'success'
