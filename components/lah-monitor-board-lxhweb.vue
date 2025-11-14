@@ -46,7 +46,7 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
         lah-fa-icon(v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))" size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
         .d-flex.flex-column
           span.office-name {{ name(entry) }}
-          span.time-passed {{ $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME)) }}
+          span.time-passed(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME)) : entry.UPDATE_DATETIME.split(' ')[1] }}
   .center.h-100(v-else)
     h5.font-weight-bold
       lah-fa-icon(icon="exclamation-triangle" szie="lg" variant="danger" action="breath")
@@ -59,7 +59,9 @@ export default {
   emit: ['light-update'],
   props: {
     targetIp: { type: String, require: true, default: 'L3HWEB' },
-    link: { type: Boolean, default: false }
+    link: { type: Boolean, default: false },
+    displayUpdateTime: { type: Boolean, default: false },
+    displayUpdateTimeToNow: { type: Boolean, default: false }
   },
   fetchOnServer: true,
   data: () => ({
