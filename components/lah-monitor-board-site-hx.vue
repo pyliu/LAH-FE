@@ -153,6 +153,20 @@ export default {
     border: 1px solid gray;
     border-radius: 15px;
     margin: 0 calc(1.5%) calc(1.5%) 0;
+    /* 所名稱字型 */
+    .office-name {
+      text-align: left;
+      // font-size: 1.1rem;
+      font-weight: 500;
+      color: #333;
+      line-height: 1.3; /* 調整行高 */
+    }
+    /* 經過時間樣式 */
+    .updated-time {
+      font-size: 0.85rem; /* 縮小字體 */
+      color: #6c757d;   /* 輔助文字顏色 (Bootstrap secondary) */
+      line-height: 1.2;
+    }
   }
 }
 </style>

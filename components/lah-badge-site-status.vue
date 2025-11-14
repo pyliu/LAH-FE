@@ -5,7 +5,7 @@ b-button(
   :size="size",
   @click="check(true)",
   title="重新測試",
-  v-b-tooltip="`${message} ${updateTime}`"
+  v-b-tooltip="`${updateTime}: ${message}`"
 ): .d-flex.align-items-center.justify-content-center
   lah-fa-icon.mr-1(
     v-if="loading"
@@ -13,7 +13,10 @@ b-button(
     action="spin"
   )
   span.mr-1(v-else-if="!fill") {{ lightIcon }}
-  span(:class="textCss") {{ name }}
+  //- span(:class="textCss") {{ name }}
+  .d-flex.flex-column
+    span.office-name {{ name }}
+    span.updated-time {{ updateTime }}
   b-badge.ml-1(
     v-if="badge && status < 1 && status !== -2"
     :variant="badgeVariant"
@@ -273,4 +276,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* 所名稱字型 */
+.office-name {
+  text-align: left;
+  // font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.3; /* 調整行高 */
+}
+/* 經過時間樣式 */
+.updated-time {
+  font-size: 0.85rem; /* 縮小字體 */
+  color: #6c757d;   /* 輔助文字顏色 (Bootstrap secondary) */
+  line-height: 1.2;
+}
 </style>
