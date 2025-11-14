@@ -42,9 +42,9 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
       div 🔴 表示超過30分鐘未更新
   .h-100(v-if="alive")
     .offices
-      //- 修改：v-b-tooltip 改為綁定 getTooltipConfig(entry)
+      //- v-b-tooltip 改為綁定 getTooltipConfig(entry)
       .office.center(v-for="entry in offices" :key="entry.SITE" v-b-tooltip="getTooltipConfig(entry)")
-        lah-fa-icon(v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))" size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
+        lah-fa-icon(size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
         .d-flex.flex-column
           span.office-name {{ name(entry) }}
           span.time-passed(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? getTimeToNow(entry) : getTime(entry) }}
