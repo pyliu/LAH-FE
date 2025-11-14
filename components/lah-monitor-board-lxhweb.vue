@@ -354,7 +354,7 @@ export default {
     getTooltipConfig (entry) {
       const site = entry.SITE
       const variant = this.areaColorMap[site] || 'secondary' // 預設 secondary
-      const title = this.displayUpdateTimeToNow ? this.getTimeToNow(entry) : this.getTime(entry)
+      const title = this.displayUpdateTimeToNow ? this.getTime(entry) : this.getTimeToNow(entry)
       return {
         title,
         variant
