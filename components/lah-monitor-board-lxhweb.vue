@@ -42,7 +42,7 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
       div 🔴 表示超過30分鐘未更新
   .h-100(v-if="alive")
     .offices
-      .office.center(v-for="entry in offices" :key="entry.SITE" v-b-tooltip="`${getTimeToNow(entry)}`")
+      .office.center(v-for="entry in offices" :key="entry.SITE" v-b-tooltip="displayUpdateTimeToNow ? getTime(entry) : getTimeToNow(entry)")
         lah-fa-icon(v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))" size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
         .d-flex.flex-column
           span.office-name {{ name(entry) }}

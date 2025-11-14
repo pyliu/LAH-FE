@@ -5,7 +5,7 @@ b-button(
   :size="size",
   @click="check(true)",
   title="重新測試",
-  v-b-tooltip="`${updateTime}: ${message} (${updateTimeToNow})`"
+  v-b-tooltip="`${updateTime}: ${message} (${displayUpdateTimeToNow ? updateTime : updateTimeToNow})`"
 ): .d-flex.align-items-center.justify-content-center
   lah-fa-icon.mr-1(
     v-if="loading"
