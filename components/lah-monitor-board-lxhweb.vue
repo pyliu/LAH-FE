@@ -42,7 +42,8 @@ b-card(:border-variant="borderVariant", :class="[attentionCss]")
       div 🔴 表示超過30分鐘未更新
   .h-100(v-if="alive")
     .offices
-      .office.center(v-for="entry in offices" :key="entry.SITE" v-b-tooltip="displayUpdateTimeToNow ? getTime(entry) : getTimeToNow(entry)")
+      //- 修改：v-b-tooltip 改為綁定 getTooltipConfig(entry)
+      .office.center(v-for="entry in offices" :key="entry.SITE" v-b-tooltip="getTooltipConfig(entry)")
         lah-fa-icon(v-b-popover.hover.focus.top="'最後更新時間: ' + $utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))" size="lg" icon="circle" :variant="light(entry)" :action="action(entry)")
         .d-flex.flex-column
           span.office-name {{ name(entry) }}
@@ -71,7 +72,18 @@ export default {
     offices: [],
     pingTimer: null,
     brokenTableRaw: [],
-    updatedTime: ''
+    updatedTime: '',
+    // 新增：所別顏色對應 (用於 tooltip)
+    areaColorMap: {
+      HA: 'primary',
+      HB: 'success',
+      HC: 'danger',
+      HD: 'warning',
+      HE: 'info',
+      HF: 'dark',
+      HG: 'secondary',
+      HH: 'light'
+    }
   }),
   fetch () {
     this.$axios.post(this.$consts.API.JSON.LXHWEB, {
@@ -337,6 +349,16 @@ export default {
     getTimeToNow (entry) {
       if (this.$utils.empty(entry)) { return '' }
       return this.$utils.formatDistanceToNow(+new Date(entry.UPDATE_DATETIME))
+    },
+    // 新增：取得 Tooltip 設定
+    getTooltipConfig (entry) {
+      const site = entry.SITE
+      const variant = this.areaColorMap[site] || 'secondary' // 預設 secondary
+      const title = this.displayUpdateTimeToNow ? this.getTimeToNow(entry) : this.getTime(entry)
+      return {
+        title,
+        variant
+      }
     }
   }
 }

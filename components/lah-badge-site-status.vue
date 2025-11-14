@@ -5,7 +5,7 @@ b-button(
   :size="size",
   @click="check(true)",
   title="重新測試",
-  v-b-tooltip="`${updateTime}: ${message} (${displayUpdateTimeToNow ? updateTime : updateTimeToNow})`"
+  v-b-tooltip="tooltipConfig"
 ): .d-flex.align-items-center.justify-content-center
   lah-fa-icon.mr-1(
     v-if="loading"
@@ -55,7 +55,18 @@ export default {
     clearTimer: null,
     officeCacheKey: 'office-cached-key',
     officesData: [],
-    updateTimestamp: +new Date()
+    updateTimestamp: +new Date(),
+    // 所別顏色對應 (用於 tooltip)
+    areaColorMap: {
+      HA: 'primary',
+      HB: 'success',
+      HC: 'danger',
+      HD: 'warning',
+      HE: 'info',
+      HF: 'dark',
+      HG: 'secondary',
+      HH: 'light'
+    }
   }),
   fetch () {
     this.getCache(this.officeCacheKey).then((json) => {
@@ -178,6 +189,16 @@ export default {
         css.push('font-weight-bolder')
       }
       return css
+    },
+    // 新增：Tooltip 設定
+    tooltipConfig () {
+      // 根據 watchSite 或 staticData.id 決定 variant
+      const site = this.isStatic ? this.staticData.id : this.watchSite
+      const variant = this.areaColorMap[site] || 'secondary' // 預設 secondary
+      return {
+        title: `${this.updateTime}: ${this.message} (${this.displayUpdateTimeToNow ? this.updateTime : this.updateTimeToNow})`,
+        variant
+      }
     }
   },
   watch: {

@@ -30,14 +30,22 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.help.show()",
         title="說明"
       )
+    //- 修改：更新說明 modal 內容
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示今日({{ today }})跨所非子號案件回寫狀態監控資訊
         li 儀表板每{{ reloadMs / 1000 / 60 }}分鐘重新檢查一次
       hr
-      div 🟢 表示一切正常
-      div 🟡 表示連線伺服器異常
-      div 🔴 表示有案件回寫異常的狀況
+      div
+        strong 標題燈號 (整體狀態)：
+      div 🟢 表示一切正常 (未回寫案件數 = 0)
+      div 🔴 表示有案件回寫異常 (未回寫案件數 > 0)
+      hr
+      div
+        strong 儀表板所別方塊 (依管轄所別)：
+      div 🟢 (預設邊框) - 該管轄所無未回寫案件
+      div 🟡 (黃色邊框) - 該管轄所有 1 筆未回寫案件
+      div 🔴 (紅色邊框) - 該管轄所有 2 筆 (含) 以上未回寫案件
   slot
   lah-transition
     .center(v-if="isBusy"): lah-fa-icon(
@@ -49,7 +57,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         .office.center(
           v-for="(code, idx) in formattedInfo" :key="`${code.id}_card`"
           :class="getCardBorderClass(code)"
-          v-b-tooltip="`收件字：${code.id} 所端最新：${code.details.localMax}`"
+          v-b-tooltip="getTooltipConfig(code)"
         )
           .status-dot.mr-1(
             :class="getStatusClass(code)"
@@ -115,7 +123,7 @@ export default {
     reloadMs: 15 * 60 * 1000,
     // ID 到名稱的映射表
     areaNameMap: {
-      HA: '桃園', // 假設 '桃園' 的 ID 開頭為 HA
+      HA: '桃園', // 假設 '桃園' の ID 開頭為 HA
       HB: '中壢',
       HC: '大溪',
       HD: '楊梅',
@@ -124,7 +132,7 @@ export default {
       HG: '平鎮',
       HH: '龜山'
     },
-    // 新增：ID 到顏色的映射表
+    // ID 到顏色的映射表
     areaColorMap: {
       HA: 'primary', // 桃園
       HB: 'success', // 中壢
@@ -284,6 +292,21 @@ export default {
       })
     },
     /**
+     * 新增：取得儀表板 office 方塊的 Tooltip 設定
+     * @param {object} code - 格式化後的 info 物件
+     */
+    getTooltipConfig (code) {
+      // const site = code.id // 'HA', 'HB' etc.
+      // 修改：擷取 code.id 的前兩個字元
+      const site = code.id ? code.id.substring(0, 2) : ''
+      const variant = this.areaColorMap[site] || 'secondary' // 預設 secondary
+      const title = `收件字：${code.id} 所端最新：${code.details.localMax}`
+      return {
+        title,
+        variant
+      }
+    },
+    /**
      * 根據 ID 前兩碼獲取地區名稱 (用於儀表板)
      * @param {string} id - 項目 ID (例如 'HB-01')
      */
@@ -307,7 +330,7 @@ export default {
       return this.areaNameMap[prefix] || ''
     },
     /**
-     * 新增：從 caseId 中提取所別代碼並獲取對應的 Bootstrap 顏色
+     * 從 caseId 中提取所別代碼並獲取對應的 Bootstrap 顏色
      * @param {string} caseId - 案件 ID (例如 '114-HBA1-080010')
      */
     getAreaVariant (caseId) {
@@ -331,7 +354,7 @@ export default {
       return 'dot-green' // 綠燈
     },
     /**
-     * 新增：根據 foundIds 決定卡片邊框顏色
+     * 根據 foundIds 決定卡片邊框顏色
      * @param {object} code - 完整的項目物件
      */
     getCardBorderClass (code) {
