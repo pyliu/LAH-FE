@@ -71,7 +71,8 @@ export default {
       ['HG', {}],
       ['HH', {}]
     ]),
-    headerLight: 'muted'
+    headerLight: 'muted',
+    updatedTime: ''
   }),
   computed: {
     borderVariant () {
