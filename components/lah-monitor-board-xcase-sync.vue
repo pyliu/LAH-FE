@@ -315,12 +315,12 @@ export default {
     sendFixedNotificationToInf (id) {
       this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
         type: 'add_notification',
+        title: '跨所案件未回寫已修正通知',
+        content: `✔ 案件 ${id} 已由所端修正跨所未回寫問題。`,
         from_ip: this.ip,
         priority: 3,
         channels: ['inf'],
         sender: this.myid || this.ip || 'system',
-        title: '跨所案件未回寫已修正通知',
-        content: `✔ 案件 ${id} 已由所端修正跨所未回寫問題。`,
         create_datetime: this.$utils.now()
       }).then((res) => {
         if (!this.$utils.statusCheck(res.data.status)) {
