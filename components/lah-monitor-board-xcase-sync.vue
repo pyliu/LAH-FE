@@ -7,7 +7,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       lah-button(
         icon="arrow-up-right-from-square",
         title="顯示有問題案件列表",
-        :variant="light === 'danger' ? 'danger' : 'outline-secondary'",
+        :variant="light === 'danger' ? 'danger' : light === 'warning' ? 'warning' : 'outline-secondary'",
         :disabled="caseIds.length === 0",
         @click="$refs.found.show()",
         no-border
@@ -352,8 +352,10 @@ export default {
      */
     getStatusClass (code) {
       // 檢查 code.details.foundIds 是否存在且長度大於 0
-      if (code && code.details && code.details.foundIds.length > 0) {
+      if (code && code.details && code.details.foundIds.length > 1) {
         return 'dot-red' // 紅燈
+      } else if (code && code.details && code.details.foundIds.length === 1) {
+        return 'dot-yellow' // 黃燈
       }
       return 'dot-green' // 綠燈
     },
@@ -421,6 +423,11 @@ export default {
 /* 綠燈 */
 .dot-green {
   background-color: #28a745; /* Bootstrap success green */
+}
+
+/* 黃燈 */
+.dot-yellow {
+  background-color: #ffc107; /* Bootstrap warning yellow */
 }
 
 /* 紅燈 */
