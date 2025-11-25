@@ -117,8 +117,8 @@ export default {
       { x: '龜山所', y: 0, color: { R: 136, G: 72, B: 152 } },
       { x: '地政局', y: 0, color: { R: 207, G: 207, B: 207 } }
     ],
-    apJndiXaLocalThreshold: 990,
-    apJndiLocalThreshold: 2500
+    apJndiXaLocalThreshold: 1250,
+    apJndiLocalThreshold: 3000
   }),
   computed: {
     netstatsSh () {
@@ -200,8 +200,8 @@ export default {
   },
   created () {
     this.modalId = this.$utils?.uuid()
-    this.apJndiLocalThreshold = this.systemConfigs.webap_jndi_local || 2500
-    this.apJndiXaLocalThreshold = this.systemConfigs.webap_jndi_xalocal || 990
+    this.apJndiLocalThreshold = this.systemConfigs.webap_jndi_local || 3000
+    this.apJndiXaLocalThreshold = this.systemConfigs.webap_jndi_xalocal || 1250
     this.updateThresholds = this.$utils.debounce(() => {
       this.$axios.post(this.$consts.API.JSON.SYSTEM, {
         type: 'set_webap_jndi',
