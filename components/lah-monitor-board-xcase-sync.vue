@@ -90,7 +90,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
             span {{ caseId }}
           lah-button(
             icon="bug-slash",
-            variant="danger",
+            variant="outline-danger",
             @click="fix(caseId)"
           ) 修正
 
