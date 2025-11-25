@@ -203,8 +203,11 @@ export default {
     }
   },
   watch: {
-    caseIds (val) {
-      // console.warn(val)
+    caseIds (n, o) {
+      // if (n.length === 0 && o.length > 0) {
+      //   // 從有問題到無問題，重新檢查一次以確保狀態正確
+      //   this.checkXCaseSyncStatus()
+      // }
     },
     formattedInfo (val) {
       // console.table(val)
@@ -276,10 +279,23 @@ export default {
                 title: '新增遠端案件資料',
                 subtitle: id
               })
-              // 修改：從 caseIds 陣列中移除已修正的 id
+              // 1. 從 caseIds 陣列中移除已修正的 id
               const index = this.caseIds.indexOf(id)
               if (index > -1) {
                 this.caseIds.splice(index, 1)
+              }
+              // 2. 從 infoRaw 裡移除該 id 的資料，以即時更新 UI (例如燈號和數字)
+              if (this.infoRaw) {
+                // infoRaw 結構為 { 'HA': { foundIds: [...] }, ... }
+                // 我們需要遍歷所有的所別資料來找到並移除該 id
+                Object.values(this.infoRaw).forEach((officeData) => {
+                  if (officeData && Array.isArray(officeData.foundIds)) {
+                    const foundIdx = officeData.foundIds.indexOf(id)
+                    if (foundIdx > -1) {
+                      officeData.foundIds.splice(foundIdx, 1)
+                    }
+                  }
+                })
               }
             } else {
               this.warning(res.data.message, {
