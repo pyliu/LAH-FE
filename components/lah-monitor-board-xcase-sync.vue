@@ -297,6 +297,7 @@ export default {
                   }
                 })
               }
+              this.sendFixedNotificationToInf(id)
             } else {
               this.warning(res.data.message, {
                 title: '新增遠端案件資料',
@@ -309,6 +310,27 @@ export default {
             this.isBusy = false
           })
         }
+      })
+    },
+    sendFixedNotificationToInf (id) {
+      this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
+        type: 'add_notification',
+        from_ip: this.ip,
+        priority: 3,
+        channels: ['inf'],
+        sender: this.myid || this.ip || 'system',
+        title: '跨所案件未回寫已修正通知',
+        content: `✔ 案件 ${id} 已由所端修正跨所未回寫問題。`,
+        create_datetime: this.$utils.now()
+      }).then((res) => {
+        if (!this.$utils.statusCheck(res.data.status)) {
+          this.warning(res.data.message, {
+            title: '通知資訊課已修正跨所案件失敗',
+            subtitle: id
+          })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
       })
     },
     /**
