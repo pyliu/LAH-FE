@@ -8,7 +8,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         icon="arrow-up-right-from-square",
         title="顯示有問題案件列表",
         :variant="light === 'danger' ? 'danger' : 'outline-secondary'",
-        :disabled="light !== 'danger'",
+        :disabled="caseIds.length === 0",
         @click="$refs.found.show()",
         no-border
       ) 未回寫案件 ({{ caseIds.length }})
