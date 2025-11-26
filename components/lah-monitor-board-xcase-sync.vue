@@ -129,8 +129,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       responsive,
       show-empty,
       small,
-      head-variant="dark",
-      class="s-95"
+      head-variant="dark"
     )
       template(#empty)
         .text-center.text-muted 目前無待處理資料
@@ -141,7 +140,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         span.text-nowrap {{ data.item.DATE_TIME ? data.item.DATE_TIME.split('.')[0] : '' }}
       //- 流向 (From -> To)
       template(#cell(org)="data")
-        .text-nowrap
+        .text-nowrap.s-120
           b-badge.mr-1(variant="secondary") {{ getAreaName(data.item.FROM_ORG_ID) }}
           lah-fa-icon(icon="arrow-right", variant="secondary", size="xs")
           b-badge.ml-1(variant="primary") {{ getAreaName(data.item.TO_ORG_ID) }}
