@@ -2,8 +2,14 @@
 b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
-    .font-weight-bold {{ header }}
+    .font-weight-bold.truncate(:title="header") {{ header }}
     b-button-group.ml-auto(size="sm")
+      lah-button-count-badge(
+        :count="publicationHistory.length",
+        :variant="publicationHistoryLight",
+        :title="`${publicationHistoryReloadMs / 1000 / 60} 分鐘內本所待處理的 PUBLICATION_HISTORY 資料`"
+      )
+        b-badge(variant="light", pill) {{ publicationHistory.length }}
       lah-button(
         icon="arrow-up-right-from-square",
         title="顯示有問題案件列表",
@@ -19,6 +25,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         variant="outline-secondary",
         @click="checkXCaseSyncStatus",
         :title="`上次更新時間 ${updated}`",
+        :spin="isBusy",
         no-border
       ) {{ isBusy ? '讀取中...' : updated }}
       lah-button(
@@ -120,11 +127,11 @@ export default {
     updated: '',
     infoRaw: null,
     caseIds: [],
+    publicationHistory: [],
     message: '讀取中',
-    reloadMs: 15 * 60 * 1000,
     // ID 到名稱的映射表
     areaNameMap: {
-      HA: '桃園', // 假設 '桃園' の ID 開頭為 HA
+      HA: '桃園', // '桃園' の ID 開頭為 HA
       HB: '中壢',
       HC: '大溪',
       HD: '楊梅',
@@ -144,7 +151,10 @@ export default {
       HG: 'secondary', // 平鎮
       HH: 'light' // 龜山
     },
-    reloadTimer: null
+    reloadMs: 15 * 60 * 1000,
+    reloadTimer: null,
+    publicationHistoryReloadMs: 1 * 60 * 1000,
+    publicationHistoryReloadTimer: null
   }),
   fetch () {
     this.today = this.$utils.today('TW')
@@ -190,6 +200,15 @@ export default {
       }
       return 'success'
     },
+    publicationHistoryLight () {
+      if (this.publicationHistory.length < 10) {
+        return 'success'
+      }
+      if (this.publicationHistory.length < 30) {
+        return 'warning'
+      }
+      return 'danger'
+    },
     attentionCss () {
       if (this.enableAttention) {
         if (this.light === 'danger') {
@@ -212,6 +231,9 @@ export default {
     formattedInfo (val) {
       // console.table(val)
     },
+    publicationHistory (val) {
+      console.table('PUBLICATION_HISTORY WATCHER', val)
+    },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     }
@@ -224,10 +246,14 @@ export default {
         this.checkXCaseSyncStatus()
       }, this.reloadMs)
     }
+    this.publicationHistoryReloadTimer = setInterval(() => {
+      this.loadPublicationHistory()
+    }, this.publicationHistoryReloadMs)
   },
   beforeDestroy () {
     this.emitLightUpdate('', this.light)
     clearInterval(this.reloadTimer)
+    clearInterval(this.publicationHistoryReloadTimer)
   },
   methods: {
     emitLightUpdate (n, o) {
@@ -259,6 +285,7 @@ export default {
           }).finally(() => {
             this.isBusy = false
             this.updated = this.$utils.now('TW').replace(this.today, '')
+          }).finally(() => {
           })
       }
     },
@@ -331,6 +358,32 @@ export default {
         }
       }).catch((err) => {
         this.$utils.error(err)
+      })
+    },
+    /**
+     * Load PUBLICATION_HISTORY data
+     *
+     */
+    loadPublicationHistory () {
+      const d = new Date()
+      const year = d.getFullYear()
+      // getMonth() 回傳 0-11，所以必須 +1
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      // 讀取目前資料庫中 PENDING 的 PUBLICATION_HISTORY 資料
+      this.$axios.post(this.$consts.API.JSON.MOIADM, {
+        type: 'moiadm_publication_history',
+        date: `${year}/${month}/${day}`,
+        status: 'rdy'
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.publicationHistory = [...data.raw]
+        } else {
+          this.warning(data.message)
+        }
+      }).catch((e) => {
+        this.$utils.error(e)
+      }).finally(() => {
       })
     },
     /**
