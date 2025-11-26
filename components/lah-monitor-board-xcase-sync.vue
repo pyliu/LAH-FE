@@ -4,7 +4,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     lah-fa-icon(icon="circle", :variant="light")
     .font-weight-bold.truncate(:title="header") {{ header }}
     b-button-group.ml-auto(size="sm")
-      //- 點擊按鈕開啟 history modal
+      //- 點擊按鈕開啟 history modal，僅在有資料時顯示
       lah-button-count-badge.cursor-pointer(
         v-if="publicationHistory.length > 0",
         @click="$refs.history.show()",
@@ -15,6 +15,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
         b-badge(variant="light", pill) {{ publicationHistory.length }}
 
+      //- 顯示有問題案件列表按鈕，僅在有案件時顯示
       lah-button(
         v-if="caseIds.length > 0",
         icon="arrow-up-right-from-square",
@@ -54,9 +55,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
       hr
       div
         strong 標題燈號 (整體狀態)：
-      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 &lt; 50)
-      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 &gt;= 50)
-      div 🔴 表示有多個案件回寫異常 (未回寫案件數 &gt; 1 或 待處理歷程 &gt;= 100)
+      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 &lt; {{ publicationHistoryLightCriteria.success }})
+      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 &gt;= {{ publicationHistoryLightCriteria.success }})
+      div 🔴 表示有多個案件回寫異常 (未回寫案件數 &gt; 1 或 待處理歷程 &gt;= {{ publicationHistoryLightCriteria.warning }})
       hr
       div
         strong 儀表板所別方塊：
@@ -173,6 +174,13 @@ export default {
     infoRaw: null,
     caseIds: [],
     publicationHistory: [],
+    publicationHistoryReloadMs: 1 * 60 * 1000,
+    publicationHistoryReloadTimer: null,
+    // 修改：將閾值提取為變數，方便統一管理與顯示
+    publicationHistoryLightCriteria: {
+      success: 50,
+      warning: 100
+    },
     historyFields: [
       { key: 'index', label: '#' },
       { key: 'DATE_TIME', label: '時間', sortable: true, thClass: 'text-nowrap' },
@@ -192,7 +200,30 @@ export default {
       HE: '蘆竹',
       HF: '八德',
       HG: '平鎮',
-      HH: '龜山'
+      HH: '龜山',
+      H0: '地政局',
+      // 新增其他縣市對應
+      A0: '台北市',
+      B0: '台中市',
+      C0: '基隆市',
+      D0: '台南市',
+      E0: '高雄市',
+      F0: '新北市',
+      G0: '宜蘭縣',
+      I0: '嘉義市',
+      J0: '新竹縣',
+      K0: '苗栗縣',
+      M0: '南投縣',
+      N0: '彰化縣',
+      O0: '新竹市',
+      P0: '雲林縣',
+      Q0: '嘉義縣',
+      T0: '屏東縣',
+      U0: '花蓮縣',
+      V0: '台東縣',
+      W0: '金門縣',
+      X0: '澎湖縣',
+      Z0: '連江縣'
     },
     // ID 到顏色的映射表
     areaColorMap: {
@@ -207,9 +238,7 @@ export default {
       HH: 'light' // 龜山
     },
     reloadMs: 15 * 60 * 1000,
-    reloadTimer: null,
-    publicationHistoryReloadMs: 1 * 60 * 1000,
-    publicationHistoryReloadTimer: null
+    reloadTimer: null
   }),
   fetch () {
     this.today = this.$utils.today('TW')
@@ -274,10 +303,10 @@ export default {
       return 'success'
     },
     publicationHistoryLight () {
-      if (this.publicationHistory.length < 50) {
+      if (this.publicationHistory.length < this.publicationHistoryLightCriteria.success) {
         return 'success'
       }
-      if (this.publicationHistory.length < 100) {
+      if (this.publicationHistory.length < this.publicationHistoryLightCriteria.warning) {
         return 'warning'
       }
       return 'danger'
@@ -450,12 +479,14 @@ export default {
     getAreaName (id) {
       if (id === 'LOCALHOST') { return '本所' }
       const prefix = id ? id.substring(0, 2) : ''
-      return this.areaNameMap[prefix] || id
+      // 嘗試精確匹配，若無則嘗試使用首字母通用匹配 (例如 A1 -> A0)
+      return this.areaNameMap[prefix] || this.areaNameMap[prefix.charAt(0) + '0'] || id
     },
     getAreaNameFromCaseId (caseId) {
       if (typeof caseId !== 'string' || caseId.length < 6) { return '' }
       const prefix = caseId.substring(4, 6)
-      return this.areaNameMap[prefix] || ''
+      // 嘗試精確匹配，若無則嘗試使用首字母通用匹配
+      return this.areaNameMap[prefix] || this.areaNameMap[prefix.charAt(0) + '0'] || ''
     },
     getAreaVariant (caseId) {
       if (typeof caseId !== 'string' || caseId.length < 6) { return 'secondary' }
