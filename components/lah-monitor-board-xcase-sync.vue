@@ -269,10 +269,10 @@ export default {
       return 'success'
     },
     publicationHistoryLight () {
-      if (this.publicationHistory.length < 3) {
+      if (this.publicationHistory.length < 50) {
         return 'success'
       }
-      if (this.publicationHistory.length < 5) {
+      if (this.publicationHistory.length < 100) {
         return 'warning'
       }
       return 'danger'
