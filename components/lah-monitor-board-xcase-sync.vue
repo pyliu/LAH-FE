@@ -126,9 +126,14 @@ b-card(:border-variant="border", :class="[attentionCss]")
       :fields="historyFields",
       striped,
       hover,
-      small,
       responsive,
-      show-empty
+      show-empty,
+      small,
+      head-variant="dark",
+      class="s-95",
+      selectable,
+      select-mode="single",
+      selected-variant="success"
     )
       template(#empty)
         .text-center.text-muted 目前無待處理資料
