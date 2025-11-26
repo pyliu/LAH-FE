@@ -4,10 +4,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
     lah-fa-icon(icon="circle", :variant="light")
     .font-weight-bold.truncate(:title="header") {{ header }}
     b-button-group.ml-auto(size="sm")
-      lah-button-count-badge(
+      //- 修改：新增 @click 事件開啟 history modal，並加入 cursor-pointer 樣式
+      lah-button-count-badge.cursor-pointer(
+        @click="$refs.history.show()",
         :count="publicationHistory.length",
         :variant="publicationHistoryLight",
-        :title="`${publicationHistoryReloadMs / 1000 / 60} 分鐘內本所待處理的 PUBLICATION_HISTORY 資料`"
+        :title="`${publicationHistoryReloadMs / 1000 / 60} 分鐘內本所待處理的 PUBLICATION_HISTORY 資料 (點擊查看詳情)`"
       )
         b-badge(variant="light", pill) {{ publicationHistory.length }}
       lah-button(
@@ -101,6 +103,37 @@ b-card(:border-variant="border", :class="[attentionCss]")
             @click="fix(caseId)"
           ) 修正
 
+  //- 新增：Publication History Modal
+  b-modal(
+    ref="history",
+    hide-footer,
+    size="xl",
+    scrollable
+  )
+    template(#modal-title) 待處理 Publication History ({{ publicationHistory.length }})
+    b-table(
+      :items="publicationHistory",
+      :fields="historyFields",
+      striped,
+      hover,
+      small,
+      responsive,
+      show-empty
+    )
+      template(#empty)
+        .text-center.text-muted 目前無待處理資料
+      //- 序號
+      template(#cell(index)="data") {{ data.index + 1 }}
+      //- 流向 (From -> To)
+      template(#cell(org)="data")
+        .text-nowrap
+          b-badge.mr-1(variant="secondary") {{ getAreaName(data.item.FROM_ORG_ID) }}
+          lah-fa-icon(icon="arrow-right", variant="secondary", size="xs")
+          b-badge.ml-1(variant="primary") {{ getAreaName(data.item.TO_ORG_ID) }}
+      //- SQL 內容 (自動換行)
+      template(#cell(SQL)="data")
+        .text-muted.small.text-wrap.text-break(style="max-width: 500px") {{ data.item.SQL }}
+
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -128,6 +161,15 @@ export default {
     infoRaw: null,
     caseIds: [],
     publicationHistory: [],
+    // 新增：History Table 欄位定義
+    historyFields: [
+      { key: 'index', label: '#' },
+      { key: 'DATE_TIME', label: '時間', sortable: true, thClass: 'text-nowrap' },
+      { key: 'PUBLICATION_NAME', label: '名稱', sortable: true, thClass: 'text-nowrap' },
+      { key: 'org', label: '流向', thClass: 'text-nowrap' },
+      { key: 'TABLE_DESCRIPTION', label: '資料表', sortable: true, thClass: 'text-nowrap' },
+      { key: 'SQL', label: '內容' }
+    ],
     message: '讀取中',
     // ID 到名稱的映射表
     areaNameMap: {
@@ -232,7 +274,7 @@ export default {
       // console.table(val)
     },
     publicationHistory (val) {
-      console.table('PUBLICATION_HISTORY WATCHER', val)
+      this.$utils.warn('PUBLICATION_HISTORY 監控', val)
     },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
@@ -550,5 +592,10 @@ export default {
 .badge-lg {
   font-size: 0.9rem;  /* 稍大字體 */
   padding: 0.4em 0.6em; /* 增加內距 */
+}
+
+/* 新增：可點擊的滑鼠樣式 */
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>
