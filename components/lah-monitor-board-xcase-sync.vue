@@ -141,9 +141,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
       //- 流向 (From -> To)
       template(#cell(org)="data")
         .text-nowrap.s-120
-          b-badge.mr-1(variant="secondary") {{ getAreaName(data.item.FROM_ORG_ID) }}
+          b-badge.mr-1 {{ getAreaName(data.item.FROM_ORG_ID) }}
           lah-fa-icon(icon="arrow-right", variant="secondary", size="xs")
-          b-badge.ml-1(variant="primary") {{ getAreaName(data.item.TO_ORG_ID) }}
+          //- 修改：使用 getSiteVariant 動態取得顏色
+          b-badge.ml-1(:variant="getSiteVariant(data.item.TO_ORG_ID)") {{ getAreaName(data.item.TO_ORG_ID) }}
       //- SQL 內容 (自動換行)
       template(#cell(SQL)="data")
         .text-muted.small.text-wrap.text-break(style="max-width: 500px") {{ data.item.SQL }}
@@ -493,6 +494,13 @@ export default {
       if (typeof caseId !== 'string' || caseId.length < 6) { return 'secondary' }
       const prefix = caseId.substring(4, 6)
       return this.areaColorMap[prefix] || 'secondary'
+    },
+    /**
+     * 根據所別代碼 (siteId) 取得對應顏色
+     * @param {string} id - 所別代碼 (例如 'HA')
+     */
+    getSiteVariant (id) {
+      return this.areaColorMap[id] || 'primary'
     },
     /**
      * 根據 foundIds 決定燈號顏色
