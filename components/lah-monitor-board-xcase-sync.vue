@@ -234,19 +234,19 @@ export default {
       return ''
     },
     light () {
-      if (this.caseIds?.length === 1) {
+      if (this.caseIds?.length === 1 || this.publicationHistoryLight === 'warning') {
         return 'warning'
       }
-      if (this.caseIds?.length > 1) {
+      if (this.caseIds?.length > 1 || this.publicationHistoryLight === 'danger') {
         return 'danger'
       }
       return 'success'
     },
     publicationHistoryLight () {
-      if (this.publicationHistory.length < 10) {
+      if (this.publicationHistory.length < 30) {
         return 'success'
       }
-      if (this.publicationHistory.length < 30) {
+      if (this.publicationHistory.length < 100) {
         return 'warning'
       }
       return 'danger'
