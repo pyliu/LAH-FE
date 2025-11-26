@@ -6,6 +6,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     b-button-group.ml-auto(size="sm")
       //- 點擊按鈕開啟 history modal
       lah-button-count-badge.cursor-pointer(
+        v-if="publicationHistory.length > 0",
         @click="$refs.history.show()",
         :count="publicationHistory.length",
         :variant="publicationHistoryLight",
@@ -14,13 +15,14 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
         b-badge(variant="light", pill) {{ publicationHistory.length }}
       lah-button(
+        v-if="caseIds.length > 0",
         icon="arrow-up-right-from-square",
         title="顯示有問題案件列表",
         :variant="light === 'danger' ? 'danger' : light === 'warning' ? 'warning' : 'outline-secondary'",
         :disabled="caseIds.length === 0",
         @click="$refs.found.show()",
         no-border
-      ) 未回寫案件 ({{ caseIds.length }})
+      ) 他所未回寫案件 ({{ caseIds.length }})
       lah-button(
         v-if="!footer"
         icon="sync-alt",
@@ -47,9 +49,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
       hr
       div
         strong 標題燈號 (整體狀態)：
-      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 < 30)
-      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 >= 30)
-      div 🔴 表示有多個案件回寫異常 (未回寫案件數 > 1 或 待處理歷程 >= 100)
+      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 &lt; 3)
+      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 &gt;= 3)
+      div 🔴 表示有多個案件回寫異常 (未回寫案件數 &gt; 1 或 待處理歷程 &gt;= 5)
       hr
       div
         strong 儀表板所別方塊：
@@ -71,8 +73,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
           v-b-tooltip="getTooltipConfig(code)"
           @click="handleCardClick(code)"
         )
+          //- 修改：當數量 > 99 時，加入 'large' class 放大燈號
           .status-dot.mr-1(
-            :class="getStatusClass(code)"
+            :class="[getStatusClass(code), { 'large': code.details.foundIds.length > 99 }]"
           )
             //- 僅在 count > 0 時顯示數量
             span(v-if="code.details.foundIds.length > 0") {{ code.details.foundIds.length }}
@@ -176,7 +179,7 @@ export default {
     message: '讀取中',
     // ID 到名稱的映射表
     areaNameMap: {
-      LOCALHOST: '本所', // 新增本所對應
+      LOCALHOST: '本所', // 新增本所對應 (Fallback)
       HA: '桃園',
       HB: '中壢',
       HC: '大溪',
@@ -210,8 +213,10 @@ export default {
   computed: {
     formattedInfo () {
       // 1. 處理本所節點 (Local Node)
+      // 修改：嘗試使用 this.site 作為 ID，若無則使用 'LOCALHOST'，這樣 getAreaName 就能正確對應到所名
+      const localId = this.site || 'LOCALHOST'
       const localNode = {
-        id: 'LOCALHOST',
+        id: localId,
         isLocal: true, // 標記為本所
         details: {
           // 將 foundIds 指向 publicationHistory 陣列，這樣 length 屬性就會正確反映數量
@@ -425,7 +430,7 @@ export default {
       // 本所特殊 Tooltip
       if (code.isLocal) {
         return {
-          title: `本所待處理：${this.publicationHistory.length} 筆`,
+          title: `${this.getAreaName(code.id)}待處理：${this.publicationHistory.length} 筆`,
           variant: this.publicationHistoryLight // success/warning/danger 對應 bootstrap tooltip
         }
       }
@@ -539,6 +544,18 @@ export default {
   font-size: 0.8rem;
   font-weight: bold;
   user-select: none;
+  /* 修改：加入動畫過渡，讓大小變化較平滑
+    但主要目的是為了 .large 樣式
+  */
+  transition: all 0.3s ease;
+
+  &.large {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    /* 確保大圓圈不會破壞版面，微調 margin */
+    margin-right: 0.25rem !important;
+  }
 }
 
 /* 綠燈 */
