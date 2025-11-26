@@ -14,6 +14,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :title="`${publicationHistoryReloadMs / 1000 / 60} 分鐘內本所待處理的 PUBLICATION_HISTORY 資料 (點擊查看詳情)`"
       )
         b-badge(variant="light", pill) {{ publicationHistory.length }}
+
       lah-button(
         v-if="caseIds.length > 0",
         icon="arrow-up-right-from-square",
@@ -23,8 +24,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.found.show()",
         no-border
       ) 他所未回寫案件 ({{ caseIds.length }})
+
       lah-button(
-        v-if="!footer"
+        v-if="!footer",
         icon="sync-alt",
         action="ld-cycle",
         variant="outline-secondary",
@@ -33,6 +35,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :spin="isBusy",
         no-border
       ) {{ isBusy ? '讀取中...' : updated }}
+
       lah-button(
         icon="question",
         action="breath",
@@ -42,6 +45,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.help.show()",
         title="說明"
       )
+
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示今日({{ today }})跨所非子號案件回寫狀態監控資訊
