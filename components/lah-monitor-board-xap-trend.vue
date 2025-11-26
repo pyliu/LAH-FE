@@ -1,7 +1,8 @@
 <template lang="pug">
 b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
-    lah-fa-icon(icon="circle", :variant="light"): strong {{ header }}
+    lah-fa-icon(icon="circle", :variant="light")
+    .font-weight-bold.truncate(:title="header") {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button(
         icon="sync-alt",

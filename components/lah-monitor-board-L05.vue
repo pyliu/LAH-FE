@@ -1,8 +1,8 @@
 <template lang="pug">
 b-card(:border-variant="border", :class="[attentionCss]")
-  template(#header): .d-flex.justify-content-between
+  template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
-      strong {{ header }} - {{ ip }}:{{ port }}
+    strong.truncate(:title="header") {{ header }} - {{ ip }}:{{ port }}
     b-button-group.ml-auto(size="sm")
       lah-button(
         v-if="files.length > 0"

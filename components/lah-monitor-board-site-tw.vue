@@ -2,7 +2,7 @@
 b-card(:border-variant="borderVariant", :class="[attentionCss]")
   template(#header)
     .d-flex.w-100.justify-content-between
-      h6.my-auto.font-weight-bolder
+      h6.my-auto.font-weight-bolder.truncate(title="全國地所跨域AP狀態監控")
         lah-fa-icon(icon="circle" :variant="headerLight")
           | 全國地所跨域AP狀態
       b-button-group

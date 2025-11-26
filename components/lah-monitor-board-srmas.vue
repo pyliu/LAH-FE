@@ -2,8 +2,8 @@
 b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
-    strong(v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
-    strong(v-else) {{ header }}({{ monitorHrs }}小時內)
+    strong.truncate(:title="`${header}(${monitorHrs}小時內)`", v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
+    strong.truncate(:title="`${header}(${monitorHrs}小時內)`", v-else) {{ header }}({{ monitorHrs }}小時內)
     b-button-group.ml-auto(size="sm")
       lah-button-count-badge(
         v-if="restores.length > 0",

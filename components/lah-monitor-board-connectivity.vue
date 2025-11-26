@@ -1,7 +1,8 @@
 <template lang="pug">
 b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionCss]")
-  template(#header): .d-flex
-    lah-fa-icon.mr-auto(icon="circle", :variant="light"): strong {{ header }}
+  template(#header): .d-flex.justify-content-between.align-items-center
+    lah-fa-icon.mr-auto(icon="circle", :variant="light")
+    strong.truncate(:title="header") {{ header }}
     b-button-group(size="sm")
       lah-button(
         icon="cloud-sun",
@@ -100,7 +101,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
 </template>
 
 <script>
-import LahMonitorBoardConnectivitySetup from '~/components/lah-monitor-board-connectivity-setup.vue'
+import LahMonitorBoardConnectivitySetup from '~/components/lah-monitor-board-connectivity-setup.vue';
 export default {
   name: 'LahMonitorBoardConnectivity',
   emit: ['light-update'],

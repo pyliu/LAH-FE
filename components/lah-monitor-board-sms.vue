@@ -2,7 +2,7 @@
 b-card(:border-variant="border", :class="[attentionCss]")
   template(#header): .d-flex.justify-content-between
     lah-fa-icon(icon="circle", :variant="light")
-    lah-fa-icon.font-weight-bold(icon="comment-sms", append) {{ header }}
+    lah-fa-icon.font-weight-bold.truncate(:title="header", icon="comment-sms", append) {{ header }}
     b-button-group.ml-auto(size="sm")
       lah-button-count-badge(
         v-if="okCount > 0",
@@ -100,7 +100,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
 export default {
   name: 'LahMonitorBoardSms',
   emit: ['light-update'],

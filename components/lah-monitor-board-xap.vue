@@ -165,7 +165,7 @@ export default {
     dbStyles () {
       /**
        * AP side, /opt/jboss/server/default/deploy/moiland-ds.xml
-       * jndi-name local, max-pool-size is 2500
+       * jndi-name local, max-pool-size is 3000
        **/
       // return [color, action, size, icon]
       if (this.dbTotal > this.apJndiLocalThreshold * 0.95) { return ['danger', 'tremble', '2x', 'bomb'] }
@@ -176,7 +176,7 @@ export default {
     apStyles () {
       /**
        * AP side, /opt/jboss/server/default/deploy/moiland-ds.xml
-       * jbdi-name xaLocal, max-pool-size is 990
+       * jbdi-name xaLocal, max-pool-size is 1250
        **/
       // return [color, action, size, icon]
       if (this.apTotal > this.apJndiXaLocalThreshold * 0.95) { return ['danger', 'tremble', '2x', 'bomb'] }
