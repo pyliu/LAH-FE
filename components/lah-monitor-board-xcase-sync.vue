@@ -50,12 +50,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
       ul
         li 顯示今日({{ today }})跨所非子號案件回寫狀態監控資訊
         li 儀表板每{{ reloadMs / 1000 / 60 }}分鐘重新檢查一次
+        li 本所回寫待處理計數每{{ publicationHistoryReloadMs / 1000 / 60 }}分鐘重新檢查一次
       hr
       div
         strong 標題燈號 (整體狀態)：
-      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 &lt; 3)
-      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 &gt;= 3)
-      div 🔴 表示有多個案件回寫異常 (未回寫案件數 &gt; 1 或 待處理歷程 &gt;= 5)
+      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 &lt; 50)
+      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 &gt;= 50)
+      div 🔴 表示有多個案件回寫異常 (未回寫案件數 &gt; 1 或 待處理歷程 &gt;= 100)
       hr
       div
         strong 儀表板所別方塊：
