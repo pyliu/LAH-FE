@@ -19,7 +19,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :disabled="caseIds.length === 0",
         @click="$refs.found.show()",
         no-border
-      ) 未回寫案件 ({{ caseIds.length }})
+      ) 未回寫 ({{ caseIds.length }})
       lah-button(
         v-if="!footer"
         icon="sync-alt",
