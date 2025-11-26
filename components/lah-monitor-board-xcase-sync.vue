@@ -4,11 +4,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
     lah-fa-icon(icon="circle", :variant="light")
     .font-weight-bold.truncate(:title="header") {{ header }}
     b-button-group.ml-auto(size="sm")
-      //- 修改：新增 @click 事件開啟 history modal，並加入 cursor-pointer 樣式
+      //- 點擊按鈕開啟 history modal
       lah-button-count-badge.cursor-pointer(
         @click="$refs.history.show()",
         :count="publicationHistory.length",
         :variant="publicationHistoryLight",
+        :action="publicationHistoryLight !== 'success' ? 'breath' : ''",
         :title="`${publicationHistoryReloadMs / 1000 / 60} 分鐘內本所待處理的 PUBLICATION_HISTORY 資料 (點擊查看詳情)`"
       )
         b-badge(variant="light", pill) {{ publicationHistory.length }}
@@ -19,7 +20,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :disabled="caseIds.length === 0",
         @click="$refs.found.show()",
         no-border
-      ) 未回寫 ({{ caseIds.length }})
+      ) 未回寫案件 ({{ caseIds.length }})
       lah-button(
         v-if="!footer"
         icon="sync-alt",
@@ -39,7 +40,6 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.help.show()",
         title="說明"
       )
-    //- 修改：更新說明 modal 內容
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示今日({{ today }})跨所非子號案件回寫狀態監控資訊
@@ -47,15 +47,15 @@ b-card(:border-variant="border", :class="[attentionCss]")
       hr
       div
         strong 標題燈號 (整體狀態)：
-      div 🟢 表示一切正常 (未回寫案件數 = 0)
-      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1)
-      div 🔴 表示有多個案件回寫異常 (未回寫案件數 > 1)
+      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 < 30)
+      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 >= 30)
+      div 🔴 表示有多個案件回寫異常 (未回寫案件數 > 1 或 待處理歷程 >= 100)
       hr
       div
-        strong 儀表板所別方塊 (依管轄所別)：
-      div 🟢 (預設邊框) - 該管轄所無未回寫案件
-      div 🟡 (黃色邊框) - 該管轄所有 1 筆未回寫案件
-      div 🔴 (紅色邊框) - 該管轄所有 2 筆 (含) 以上未回寫案件
+        strong 儀表板所別方塊：
+      div 🟢 (預設邊框) - 該管轄所無未回寫案件 / 本所待處理極少
+      div 🟡 (黃色邊框) - 該管轄所有 1 筆未回寫案件 / 本所待處理量偏多
+      div 🔴 (紅色邊框) - 該管轄所有 2 筆 (含) 以上未回寫案件 / 本所待處理量過多
   slot
   lah-transition
     .center(v-if="isBusy"): lah-fa-icon(
@@ -64,10 +64,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
     ) 讀取中...
     .h-100(v-else)
       .offices
+        //- 修改：加入點擊事件 handleCardClick，並動態加入 cursor-pointer
         .office.center(
           v-for="(code, idx) in formattedInfo" :key="`${code.id}_card`"
-          :class="getCardBorderClass(code)"
+          :class="[getCardBorderClass(code), {'cursor-pointer': code.isLocal}]"
           v-b-tooltip="getTooltipConfig(code)"
+          @click="handleCardClick(code)"
         )
           .status-dot.mr-1(
             :class="getStatusClass(code)"
@@ -78,8 +80,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
           .text-area.d-flex.flex-column
             //- 地區名稱
             span.area-name {{ getAreaName(code.id) }}
-            //- 最大案件號
-            span.local-max {{ code.details.localMax }} 號
+            //- 最大案件號 / 待處理狀態 (本所不顯示 '號')
+            span.local-max {{ code.details.localMax }} {{ code.isLocal ? '' : '號' }}
 
   b-modal(
     ref="found",
@@ -92,7 +94,6 @@ b-card(:border-variant="border", :class="[attentionCss]")
       b-list-group-item(v-for="(caseId, idx) in caseIds" :key="caseId")
         .d-flex.justify-content-between.align-items-center
           div
-            //- 修改：新增所別顯示、綁定 variant、加上 .badge-lg
             b-badge.mr-1.badge-lg(
               :variant="getAreaVariant(caseId)"
             ) {{ getAreaNameFromCaseId(caseId) }}
@@ -103,7 +104,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
             @click="fix(caseId)"
           ) 修正
 
-  //- 新增：Publication History Modal
+  //- Publication History Modal
   b-modal(
     ref="history",
     hide-footer,
@@ -124,6 +125,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
         .text-center.text-muted 目前無待處理資料
       //- 序號
       template(#cell(index)="data") {{ data.index + 1 }}
+      //- 時間 (截斷毫秒)
+      template(#cell(DATE_TIME)="data")
+        span.text-nowrap {{ data.item.DATE_TIME ? data.item.DATE_TIME.split('.')[0] : '' }}
       //- 流向 (From -> To)
       template(#cell(org)="data")
         .text-nowrap
@@ -161,7 +165,6 @@ export default {
     infoRaw: null,
     caseIds: [],
     publicationHistory: [],
-    // 新增：History Table 欄位定義
     historyFields: [
       { key: 'index', label: '#' },
       { key: 'DATE_TIME', label: '時間', sortable: true, thClass: 'text-nowrap' },
@@ -173,7 +176,8 @@ export default {
     message: '讀取中',
     // ID 到名稱的映射表
     areaNameMap: {
-      HA: '桃園', // '桃園' の ID 開頭為 HA
+      LOCALHOST: '本所', // 新增本所對應
+      HA: '桃園',
       HB: '中壢',
       HC: '大溪',
       HD: '楊梅',
@@ -184,6 +188,7 @@ export default {
     },
     // ID 到顏色的映射表
     areaColorMap: {
+      LOCALHOST: 'primary',
       HA: 'primary', // 桃園
       HB: 'success', // 中壢
       HC: 'danger', // 大溪
@@ -204,28 +209,44 @@ export default {
   },
   computed: {
     formattedInfo () {
-      if (this.$utils.empty(this.infoRaw)) {
-        return []
+      // 1. 處理本所節點 (Local Node)
+      const localNode = {
+        id: 'LOCALHOST',
+        isLocal: true, // 標記為本所
+        details: {
+          // 將 foundIds 指向 publicationHistory 陣列，這樣 length 屬性就會正確反映數量
+          foundIds: this.publicationHistory,
+          // 用於第二行顯示文字
+          localMax: `待處理 ${this.publicationHistory.length} 筆`
+        }
       }
-      // 1. 將物件轉換為容易處理的陣列結構
+
+      if (this.$utils.empty(this.infoRaw)) {
+        // 如果沒有遠端資料，至少回傳本所
+        return [localNode]
+      }
+
+      // 2. 將物件轉換為容易處理的陣列結構 (遠端所別)
       const dataArray = Object.entries(this.infoRaw).map(([key, value]) => {
         return {
           id: key,
-          details: value
+          details: value,
+          isLocal: false
         }
       })
-      // 2. 進行雙重條件排序
+
+      // 3. 進行雙重條件排序
       dataArray.sort((a, b) => {
         const countA = a.details.foundIds.length
         const countB = b.details.foundIds.length
-        // 主要排序條件：比較 foundIds 數量 (降序: B - A)
         if (countB !== countA) {
-          return countB - countA // 如果數量不同，直接根據數量排序
+          return countB - countA
         }
-        // 次要排序條件：如果數量相同，則依 id 字母順序排序 (升序: A.localeCompare(B))
         return a.id.localeCompare(b.id)
       })
-      return dataArray
+
+      // 4. 將本所資料插在最前面
+      return [localNode, ...dataArray]
     },
     border () {
       if (this.light !== 'success') {
@@ -234,19 +255,19 @@ export default {
       return ''
     },
     light () {
-      if (this.caseIds?.length === 1 || this.publicationHistoryLight === 'warning') {
-        return 'warning'
-      }
       if (this.caseIds?.length > 1 || this.publicationHistoryLight === 'danger') {
         return 'danger'
+      }
+      if (this.caseIds?.length === 1 || this.publicationHistoryLight === 'warning') {
+        return 'warning'
       }
       return 'success'
     },
     publicationHistoryLight () {
-      if (this.publicationHistory.length < 30) {
+      if (this.publicationHistory.length < 3) {
         return 'success'
       }
-      if (this.publicationHistory.length < 100) {
+      if (this.publicationHistory.length < 5) {
         return 'warning'
       }
       return 'danger'
@@ -264,18 +285,9 @@ export default {
     }
   },
   watch: {
-    caseIds (n, o) {
-      // if (n.length === 0 && o.length > 0) {
-      //   // 從有問題到無問題，重新檢查一次以確保狀態正確
-      //   this.checkXCaseSyncStatus()
-      // }
-    },
-    formattedInfo (val) {
-      // console.table(val)
-    },
-    publicationHistory (val) {
-      this.$utils.warn('PUBLICATION_HISTORY 監控', val)
-    },
+    caseIds (n, o) {},
+    formattedInfo (val) {},
+    publicationHistory (val) {},
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     }
@@ -305,6 +317,16 @@ export default {
         old: o
       })
     },
+    /**
+     * 處理卡片點擊事件
+     * @param {object} code
+     */
+    handleCardClick (code) {
+      // 如果是本所，顯示 publicationHistory Modal
+      if (code.isLocal) {
+        this.$refs.history.show()
+      }
+    },
     checkXCaseSyncStatus () {
       if (!this.isBusy) {
         this.isBusy = true
@@ -317,24 +339,15 @@ export default {
             this.message = `${status} ${data.message}`
             this.caseIds = [...data.found]
             this.infoRaw = data.raw
-            // if (this.$utils.empty(this.caseIds)) {
-            //   // prepare mock data
-            //   this.caseIds = ['114-HBA1-080010', '114-HGA1-012090', '114-HDA1-014530']
-            // }
             this.$emit('reload', { caseIds: this.caseIds })
           }).catch((err) => {
             this.error = err
           }).finally(() => {
             this.isBusy = false
             this.updated = this.$utils.now('TW').replace(this.today, '')
-          }).finally(() => {
           })
       }
     },
-    /**
-     * 根據 id 修正問題案件
-     * @param {string} id - 案件 ID (例如 '114-HDA1-014530')
-     */
     fix (id) {
       this.confirm('確定要將同步異動資料新增於本所資料庫(CRSMS)？').then((YN) => {
         if (YN) {
@@ -344,19 +357,12 @@ export default {
             id
           }).then((res) => {
             if (this.$utils.statusCheck(res.data.status)) {
-              this.success('新增成功', {
-                title: '新增遠端案件資料',
-                subtitle: id
-              })
-              // 1. 從 caseIds 陣列中移除已修正的 id
+              this.success('新增成功', { title: '新增遠端案件資料', subtitle: id })
               const index = this.caseIds.indexOf(id)
               if (index > -1) {
                 this.caseIds.splice(index, 1)
               }
-              // 2. 從 infoRaw 裡移除該 id 的資料，以即時更新 UI (例如燈號和數字)
               if (this.infoRaw) {
-                // infoRaw 結構為 { 'HA': { foundIds: [...] }, ... }
-                // 我們需要遍歷所有的所別資料來找到並移除該 id
                 Object.values(this.infoRaw).forEach((officeData) => {
                   if (officeData && Array.isArray(officeData.foundIds)) {
                     const foundIdx = officeData.foundIds.indexOf(id)
@@ -368,10 +374,7 @@ export default {
               }
               this.sendFixedNotificationToInf(id)
             } else {
-              this.warning(res.data.message, {
-                title: '新增遠端案件資料',
-                subtitle: id
-              })
+              this.warning(res.data.message, { title: '新增遠端案件資料', subtitle: id })
             }
           }).catch((err) => {
             this.$utils.error(err)
@@ -393,26 +396,17 @@ export default {
         create_datetime: this.$utils.now()
       }).then((res) => {
         if (!this.$utils.statusCheck(res.data.status)) {
-          this.warning(res.data.message, {
-            title: '通知資訊課已修正跨所案件失敗',
-            subtitle: id
-          })
+          this.warning(res.data.message, { title: '通知資訊課已修正跨所案件失敗', subtitle: id })
         }
       }).catch((err) => {
         this.$utils.error(err)
       })
     },
-    /**
-     * Load PUBLICATION_HISTORY data
-     *
-     */
     loadPublicationHistory () {
       const d = new Date()
       const year = d.getFullYear()
-      // getMonth() 回傳 0-11，所以必須 +1
       const month = String(d.getMonth() + 1).padStart(2, '0')
       const day = String(d.getDate()).padStart(2, '0')
-      // 讀取目前資料庫中 PENDING 的 PUBLICATION_HISTORY 資料
       this.$axios.post(this.$consts.API.JSON.MOIADM, {
         type: 'moiadm_publication_history',
         date: `${year}/${month}/${day}`,
@@ -425,86 +419,80 @@ export default {
         }
       }).catch((e) => {
         this.$utils.error(e)
-      }).finally(() => {
       })
     },
-    /**
-     * 新增：取得儀表板 office 方塊的 Tooltip 設定
-     * @param {object} code - 格式化後的 info 物件
-     */
     getTooltipConfig (code) {
-      // const site = code.id // 'HA', 'HB' etc.
-      // 修改：擷取 code.id 的前兩個字元
+      // 本所特殊 Tooltip
+      if (code.isLocal) {
+        return {
+          title: `本所待處理：${this.publicationHistory.length} 筆`,
+          variant: this.publicationHistoryLight // success/warning/danger 對應 bootstrap tooltip
+        }
+      }
       const site = code.id ? code.id.substring(0, 2) : ''
-      const variant = this.areaColorMap[site] || 'secondary' // 預設 secondary
+      const variant = this.areaColorMap[site] || 'secondary'
       const title = `收件字：${code.id} 所端最新：${code.details.localMax}`
       return {
         title,
         variant
       }
     },
-    /**
-     * 根據 ID 前兩碼獲取地區名稱 (用於儀表板)
-     * @param {string} id - 項目 ID (例如 'HB-01')
-     */
     getAreaName (id) {
-      // 取得 ID 的前兩個字元 (例如 'HB')
+      if (id === 'LOCALHOST') { return '本所' }
       const prefix = id ? id.substring(0, 2) : ''
-      // 從 areaNameMap 中尋找對應名稱，如果找不到就顯示原 id
       return this.areaNameMap[prefix] || id
     },
-    /**
-     * 從 caseId 中提取所別代碼並獲取地區名稱 (用於未回寫列表)
-     * @param {string} caseId - 案件 ID (例如 '114-HBA1-080010')
-     */
     getAreaNameFromCaseId (caseId) {
-      if (typeof caseId !== 'string' || caseId.length < 6) {
-        return '' // 檢查無效輸入
-      }
-      // 提取第 5 和第 6 個字元 (例如 'HB')
+      if (typeof caseId !== 'string' || caseId.length < 6) { return '' }
       const prefix = caseId.substring(4, 6)
-      // 從 areaNameMap 中尋找對應名稱，找不到返回空字串
       return this.areaNameMap[prefix] || ''
     },
-    /**
-     * 從 caseId 中提取所別代碼並獲取對應的 Bootstrap 顏色
-     * @param {string} caseId - 案件 ID (例如 '114-HBA1-080010')
-     */
     getAreaVariant (caseId) {
-      if (typeof caseId !== 'string' || caseId.length < 6) {
-        return 'secondary' // 檢查無效輸入
-      }
-      // 提取第 5 和第 6 個字元 (例如 'HB')
+      if (typeof caseId !== 'string' || caseId.length < 6) { return 'secondary' }
       const prefix = caseId.substring(4, 6)
-      // 從 areaColorMap 中尋找對應顏色，找不到返回 'secondary'
       return this.areaColorMap[prefix] || 'secondary'
     },
     /**
      * 根據 foundIds 決定燈號顏色
-     * @param {object} code - 完整的項目物件
+     * 修改：針對 本所 (isLocal) 使用 publicationHistoryLight 判斷
      */
     getStatusClass (code) {
-      // 檢查 code.details.foundIds 是否存在且長度大於 0
-      if (code && code.details && code.details.foundIds.length > 1) {
-        return 'dot-red' // 紅燈
-      } else if (code && code.details && code.details.foundIds.length === 1) {
-        return 'dot-yellow' // 黃燈
+      if (code.isLocal) {
+        // publicationHistoryLight 回傳: 'success', 'warning', 'danger'
+        // 需要對應到 CSS: 'dot-green', 'dot-yellow', 'dot-red'
+        switch (this.publicationHistoryLight) {
+          case 'danger': return 'dot-red'
+          case 'warning': return 'dot-yellow'
+          default: return 'dot-green'
+        }
       }
-      return 'dot-green' // 綠燈
+      // 其他所別的原本邏輯
+      if (code && code.details && code.details.foundIds.length > 1) {
+        return 'dot-red'
+      } else if (code && code.details && code.details.foundIds.length === 1) {
+        return 'dot-yellow'
+      }
+      return 'dot-green'
     },
     /**
      * 根據 foundIds 決定卡片邊框顏色
-     * @param {object} code - 完整的項目物件
+     * 修改：針對 本所 (isLocal) 使用 publicationHistoryLight 判斷
      */
     getCardBorderClass (code) {
+      if (code.isLocal) {
+        if (this.publicationHistoryLight === 'danger') { return 'border-danger' }
+        if (this.publicationHistoryLight === 'warning') { return 'border-warning' }
+        return ''
+      }
+      // 其他所別的原本邏輯
       const count = code?.details?.foundIds?.length || 0
       if (count > 1) {
-        return 'border-danger' // 數量 > 1
+        return 'border-danger'
       }
       if (count === 1) {
-        return 'border-warning' // 數量 == 1
+        return 'border-warning'
       }
-      return '' // 數量 == 0，使用預設
+      return ''
     }
   }
 }
