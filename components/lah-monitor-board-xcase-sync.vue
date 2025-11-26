@@ -130,10 +130,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       show-empty,
       small,
       head-variant="dark",
-      class="s-95",
-      selectable,
-      select-mode="single",
-      selected-variant="success"
+      class="s-95"
     )
       template(#empty)
         .text-center.text-muted 目前無待處理資料
