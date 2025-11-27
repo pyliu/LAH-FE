@@ -201,7 +201,7 @@ export default {
     historyFields: [
       { key: 'index', label: '#' },
       { key: 'DATE_TIME', label: '時間', sortable: true, thClass: 'text-nowrap' },
-      { key: 'PUBLICATION_NAME', label: '名稱', sortable: true, thClass: 'text-nowrap' },
+      { key: 'PUBLICATION_NAME', label: '傳送分類', sortable: true, thClass: 'text-nowrap' },
       { key: 'org', label: '流向', thClass: 'text-nowrap' },
       { key: 'TABLE_DESCRIPTION', label: '資料表', sortable: true, thClass: 'text-nowrap' },
       { key: 'SQL', label: '內容' }
@@ -566,7 +566,7 @@ export default {
       // 本所特殊 Tooltip
       if (code.isLocal) {
         return {
-          title: `${this.getAreaName(code.id)}待處理：${this.publicationHistory.length} 筆`,
+          title: `${this.getAreaName(code.id)}待處理：${this.delegatePublicationHistory.length} 筆`,
           variant: this.publicationHistoryLight // success/warning/danger 對應 bootstrap tooltip
         }
       }
