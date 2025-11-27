@@ -120,9 +120,22 @@ b-card(:border-variant="border", :class="[attentionCss]")
     size="xl",
     scrollable
   )
-    template(#modal-title) 待處理 Publication History ({{ publicationHistory.length }})
+    template(#modal-title) 待處理 Publication History ({{ filteredPublicationHistory.length }}/{{ publicationHistory.length }})
+    //- 修改：篩選介面使用 b-select (除時間外)
+    .d-flex.flex-wrap.justify-content-start.mb-2
+      b-input-group.mb-2.mr-2(size="sm", prepend="時間", style="width: 200px")
+        b-form-input.h-100(v-model="filters.time", placeholder="YYYY-MM-DD...", trim)
+      b-input-group.mb-2.mr-2(size="sm", prepend="名稱", style="width: 200px")
+        b-form-select.h-100(v-model="filters.name", :options="uniqueNames")
+      b-input-group.mb-2.mr-2(size="sm", prepend="流向", style="width: 200px")
+        b-form-select.h-100(v-model="filters.org", :options="uniqueOrgs")
+      b-input-group.mb-2.mr-2(size="sm", prepend="資料表", style="width: 200px")
+        b-form-select.h-100(v-model="filters.table", :options="uniqueTables")
+      b-button.mb-2(size="sm", variant="outline-secondary", @click="resetFilters", title="清除篩選")
+        lah-fa-icon(icon="times") 清除
+
     b-table(
-      :items="publicationHistory",
+      :items="filteredPublicationHistory",
       :fields="historyFields",
       striped,
       hover,
@@ -141,7 +154,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
       //- 流向 (From -> To)
       template(#cell(org)="data")
         .text-nowrap.s-120
-          b-badge.mr-1 {{ getAreaName(data.item.FROM_ORG_ID) }}
+          //- 修改：使用 getSiteVariant 動態取得顏色
+          b-badge.mr-1(:variant="getSiteVariant(data.item.FROM_ORG_ID)") {{ getAreaName(data.item.FROM_ORG_ID) }}
           lah-fa-icon(icon="arrow-right", variant="secondary", size="xs")
           //- 修改：使用 getSiteVariant 動態取得顏色
           b-badge.ml-1(:variant="getSiteVariant(data.item.TO_ORG_ID)") {{ getAreaName(data.item.TO_ORG_ID) }}
@@ -191,6 +205,13 @@ export default {
       { key: 'TABLE_DESCRIPTION', label: '資料表', sortable: true, thClass: 'text-nowrap' },
       { key: 'SQL', label: '內容' }
     ],
+    // 新增：篩選欄位綁定變數
+    filters: {
+      time: '',
+      name: '',
+      org: '',
+      table: ''
+    },
     message: '讀取中',
     // ID 到名稱的映射表
     areaNameMap: {
@@ -247,6 +268,57 @@ export default {
     this.checkXCaseSyncStatus()
   },
   computed: {
+    // 新增：計算不重複的名稱選項
+    uniqueNames () {
+      const list = this.publicationHistory.map(i => i.PUBLICATION_NAME).filter(n => n)
+      const unique = [...new Set(list)].sort()
+      return [{ text: '全部', value: '' }, ...unique.map(x => ({ text: x, value: x }))]
+    },
+    // 新增：計算不重複的流向選項 (含中文名稱)
+    uniqueOrgs () {
+      const list = []
+      this.publicationHistory.forEach((i) => {
+        if (i.FROM_ORG_ID) { list.push(i.FROM_ORG_ID) }
+        if (i.TO_ORG_ID) { list.push(i.TO_ORG_ID) }
+      })
+      const uniqueIds = [...new Set(list)]
+      const options = uniqueIds.map(id => ({ text: this.getAreaName(id) || id, value: id }))
+      // 依中文名稱排序
+      options.sort((a, b) => a.text.localeCompare(b.text, 'zh-Hant'))
+      return [{ text: '全部', value: '' }, ...options]
+    },
+    // 新增：計算不重複的資料表選項
+    uniqueTables () {
+      const list = this.publicationHistory.map(i => i.TABLE_DESCRIPTION).filter(n => n)
+      const unique = [...new Set(list)].sort()
+      return [{ text: '全部', value: '' }, ...unique.map(x => ({ text: x, value: x }))]
+    },
+    // 新增：過濾後的 Publication History
+    filteredPublicationHistory () {
+      // 如果沒有資料，直接回傳空陣列
+      if (this.publicationHistory.length === 0) { return [] }
+
+      const { time, name, org, table } = this.filters
+
+      // 如果沒有設定任何篩選條件，回傳原始資料
+      if (!time && !name && !org && !table) { return this.publicationHistory }
+
+      return this.publicationHistory.filter((item) => {
+        // 時間篩選 (模糊比對)
+        const matchTime = !time || (item.DATE_TIME || '').includes(time)
+
+        // 名稱篩選 (精確比對)
+        const matchName = !name || item.PUBLICATION_NAME === name
+
+        // 資料表篩選 (精確比對)
+        const matchTable = !table || item.TABLE_DESCRIPTION === table
+
+        // 流向篩選 (檢查 FROM 或 TO 是否符合選取的 ID)
+        const matchOrg = !org || item.FROM_ORG_ID === org || item.TO_ORG_ID === org
+
+        return matchTime && matchName && matchTable && matchOrg
+      })
+    },
     formattedInfo () {
       // 1. 處理本所節點 (Local Node)
       // 修改：嘗試使用 this.site 作為 ID，若無則使用 'LOCALHOST'，這樣 getAreaName 就能正確對應到所名
@@ -357,6 +429,13 @@ export default {
         new: n,
         old: o
       })
+    },
+    // 新增：重置篩選條件
+    resetFilters () {
+      this.filters.time = ''
+      this.filters.name = ''
+      this.filters.org = ''
+      this.filters.table = ''
     },
     /**
      * 處理卡片點擊事件
