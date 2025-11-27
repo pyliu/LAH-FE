@@ -124,7 +124,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     //- 修改：篩選介面使用 b-select (除時間外)
     .d-flex.flex-wrap.justify-content-start.mb-2
       b-input-group.mb-2.mr-2(size="sm", prepend="時間", style="width: 200px")
-        b-form-input.h-100(v-model="filters.time", placeholder="YYYY-MM-DD...", trim)
+        b-form-input.h-100(v-model="filters.time", placeholder="HH:MM:SS...", trim)
       b-input-group.mb-2.mr-2(size="sm", prepend="名稱", style="width: 200px")
         b-form-select.h-100(v-model="filters.name", :options="uniqueNames")
       b-input-group.mb-2.mr-2(size="sm", prepend="流向", style="width: 200px")
@@ -148,20 +148,20 @@ b-card(:border-variant="border", :class="[attentionCss]")
         .text-center.text-muted 目前無待處理資料
       //- 序號
       template(#cell(index)="data") {{ data.index + 1 }}
-      //- 時間 (截斷毫秒)
+      //- 時間 (截斷毫秒，僅顯示時間)
       template(#cell(DATE_TIME)="data")
-        span.text-nowrap {{ data.item.DATE_TIME ? data.item.DATE_TIME.split('.')[0] : '' }}
+        span.text-nowrap {{ data.item.DATE_TIME ? data.item.DATE_TIME.split(' ')[1].split('.')[0] : '' }}
       //- 流向 (From -> To)
       template(#cell(org)="data")
         .text-nowrap.s-120
           //- 修改：使用 getSiteVariant 動態取得顏色
-          b-badge.mr-1(:variant="getSiteVariant(data.item.FROM_ORG_ID)") {{ getAreaName(data.item.FROM_ORG_ID) }}
-          lah-fa-icon(icon="arrow-right", variant="secondary", size="xs")
+          // b-badge.mr-1(:variant="getSiteVariant(data.item.FROM_ORG_ID)") {{ getAreaName(data.item.FROM_ORG_ID) }}
+          // lah-fa-icon(icon="arrow-right", variant="secondary", size="xs")
           //- 修改：使用 getSiteVariant 動態取得顏色
           b-badge.ml-1(:variant="getSiteVariant(data.item.TO_ORG_ID)") {{ getAreaName(data.item.TO_ORG_ID) }}
-      //- SQL 內容 (自動換行)
+      //- SQL 內容 (自動換行，平滑展開)
       template(#cell(SQL)="data")
-        .text-muted.small.text-wrap.text-break(style="max-width: 500px") {{ data.item.SQL }}
+        .sql-text.text-muted.small {{ data.item.SQL }}
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -274,11 +274,11 @@ export default {
       const unique = [...new Set(list)].sort()
       return [{ text: '全部', value: '' }, ...unique.map(x => ({ text: x, value: x }))]
     },
-    // 新增：計算不重複的流向選項 (含中文名稱)
+    // 新增：計算不重複的流向選項 (含中文名稱，只計算 TO)
     uniqueOrgs () {
       const list = []
       this.publicationHistory.forEach((i) => {
-        if (i.FROM_ORG_ID) { list.push(i.FROM_ORG_ID) }
+        // if (i.FROM_ORG_ID) { list.push(i.FROM_ORG_ID) } // 移除 FROM
         if (i.TO_ORG_ID) { list.push(i.TO_ORG_ID) }
       })
       const uniqueIds = [...new Set(list)]
@@ -313,8 +313,8 @@ export default {
         // 資料表篩選 (精確比對)
         const matchTable = !table || item.TABLE_DESCRIPTION === table
 
-        // 流向篩選 (檢查 FROM 或 TO 是否符合選取的 ID)
-        const matchOrg = !org || item.FROM_ORG_ID === org || item.TO_ORG_ID === org
+        // 流向篩選 (只檢查 TO)
+        const matchOrg = !org || item.TO_ORG_ID === org
 
         return matchTime && matchName && matchTable && matchOrg
       })
@@ -726,5 +726,28 @@ export default {
 /* 新增：可點擊的滑鼠樣式 */
 .cursor-pointer {
   cursor: pointer;
+}
+
+/* 新增：SQL 文字平滑展開樣式 */
+.sql-text {
+  max-width: 500px;
+  /* 初始狀態：單行截斷 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  word-break: break-all; /* 確保長字串換行 */
+
+  /* 動畫設定 */
+  max-height: 1.5em; /* 預設高度約一行 */
+  transition: max-height 0.5s ease;
+
+  cursor: help;
+
+  &:hover {
+    -webkit-line-clamp: unset; /* 解除行數限制 */
+    max-height: 400px; /* 設定一個足夠大的高度以容納內容 */
+    overflow-y: auto; /* 內容過多時顯示捲軸 */
+  }
 }
 </style>
