@@ -120,7 +120,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     size="xl",
     scrollable
   )
-    template(#modal-title) 待處理 Publication History ({{ filteredPublicationHistory.length }}/{{ publicationHistory.length }})
+    template(#modal-title) 本所待傳送之 Publication History 資料 ({{ filteredPublicationHistory.length }}/{{ publicationHistory.length }})
     //- 修改：篩選介面使用 b-select (除時間外)
     .d-flex.flex-wrap.justify-content-start.mb-2
       b-input-group.mb-2.mr-2(size="sm", prepend="時間", style="width: 200px")
