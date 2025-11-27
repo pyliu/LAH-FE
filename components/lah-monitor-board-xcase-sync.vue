@@ -125,7 +125,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
     .d-flex.flex-wrap.justify-content-end.mb-2
       b-input-group.mb-2.mr-2(size="sm", prepend="時間", style="width: 200px")
         b-form-input.h-100(v-model="filters.time", placeholder="HH:MM:SS...", trim)
-      b-input-group.mb-2.mr-2(size="sm", prepend="名稱", style="width: 200px")
+      b-input-group.mb-2.mr-2(size="sm", prepend="傳送分類", style="width: 200px")
         b-form-select.h-100(v-model="filters.name", :options="uniqueNames")
       //- 修改：移除 (TO) 字樣
       b-input-group.mb-2.mr-2(size="sm", prepend="流向", style="width: 200px")
