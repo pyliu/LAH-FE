@@ -123,8 +123,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
     template(#modal-title) 待處理 Publication History ({{ filteredPublicationHistory.length }}/{{ publicationHistory.length }})
     //- 修改：篩選介面使用 b-select (除時間外)
     .d-flex.flex-wrap.justify-content-end.mb-2
+      //- 修改：時間篩選改成下拉選單 (小時)
       b-input-group.mb-2.mr-2(size="sm", prepend="時間", style="width: 200px")
-        b-form-input.h-100(v-model="filters.time", placeholder="HH:MM:SS...", trim)
+        b-form-select.h-100(v-model="filters.time", :options="hourOptions")
       b-input-group.mb-2.mr-2(size="sm", prepend="傳送分類", style="width: 200px")
         b-form-select.h-100(v-model="filters.name", :options="uniqueNames")
       //- 修改：移除 (TO) 字樣
@@ -271,6 +272,29 @@ export default {
     this.loadPublicationHistory()
   },
   computed: {
+    // 修改：僅列出目前資料中出現過的小時
+    hourOptions () {
+      const hours = new Set()
+      this.publicationHistory.forEach((item) => {
+        // 假設 DATE_TIME 格式為 "YYYY-MM-DD HH:MM:SS.mmm"
+        if (item.DATE_TIME) {
+          const timePart = item.DATE_TIME.split(' ')[1]
+          if (timePart) {
+            const hour = timePart.split(':')[0]
+            if (hour) {
+              hours.add(hour)
+            }
+          }
+        }
+      })
+      // 排序小時
+      const sortedHours = [...hours].sort()
+      // 組合選項
+      return [
+        { text: '全部', value: '' },
+        ...sortedHours.map(h => ({ text: `${h} 時`, value: h }))
+      ]
+    },
     // 新增：安全取得站點代碼 (Fallback)
     mySite () {
       return this.site || 'LOCALHOST'
@@ -322,8 +346,13 @@ export default {
       if (!time && !name && !org && !table) { return this.publicationHistory }
 
       return this.publicationHistory.filter((item) => {
-        // 時間篩選 (模糊比對)
-        const matchTime = !time || (item.DATE_TIME || '').includes(time)
+        // 時間篩選 (比對時間起頭，精確匹配小時)
+        // item.DATE_TIME 格式預期為 "YYYY-MM-DD HH:MM:SS.mmm"
+        const matchTime = !time || (() => {
+          const dt = item.DATE_TIME || ''
+          const timePart = dt.split(' ')[1] || '' // 取得 "HH:MM:SS.mmm"
+          return timePart.startsWith(time) // 檢查是否以 "08" (或其他選定的小時) 開頭
+        })()
 
         // 名稱篩選 (模糊比對，為了支援 _delegate 這種包含式搜尋)
         const matchName = !name || (item.PUBLICATION_NAME || '').includes(name)
