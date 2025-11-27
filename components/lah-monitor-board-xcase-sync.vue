@@ -122,7 +122,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
   )
     template(#modal-title) 待處理 Publication History ({{ filteredPublicationHistory.length }}/{{ publicationHistory.length }})
     //- 修改：篩選介面使用 b-select (除時間外)
-    .d-flex.flex-wrap.justify-content-end.mb-2
+    //- 新增：sticky-top bg-white 等樣式讓篩選區塊固定在上方
+    .d-flex.flex-wrap.justify-content-end.mb-2.sticky-top.bg-white.py-2.border-bottom(style="top: 0; z-index: 10")
       //- 修改：時間篩選改成下拉選單 (小時)
       b-input-group.mb-2.mr-2(size="sm", prepend="時間", style="width: 200px")
         b-form-select.h-100(v-model="filters.time", :options="hourOptions")
