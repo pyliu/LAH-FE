@@ -8,12 +8,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
       lah-button-count-badge.cursor-pointer(
         v-if="publicationHistory.length > 0",
         @click="$refs.history.show()",
-        :count="publicationHistory.length",
+        :count="delegatePublicationHistory.length",
         :variant="publicationHistoryLight",
         :action="publicationHistoryLight !== 'success' ? 'breath' : ''",
-        :title="`${publicationHistoryReloadMs / 1000 / 60} 分鐘內本所待處理的 PUBLICATION_HISTORY 資料 (點擊查看詳情)`"
+        :title="`${publicationHistoryReloadMs / 1000 / 60} 分鐘內本所待處理的 PUBLICATION_HISTORY 資料 (監控標的: ${targetDelegateName})`"
       )
-        b-badge(variant="light", pill) {{ publicationHistory.length }}
+        b-badge(variant="light", pill) {{ delegatePublicationHistory.length }}
 
       //- 顯示有問題案件列表按鈕，僅在有案件時顯示
       lah-button(
@@ -55,9 +55,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
       hr
       div
         strong 標題燈號 (整體狀態)：
-      div 🟢 表示一切正常 (未回寫案件數 = 0 且 待處理歷程 &lt; {{ publicationHistoryLightCriteria.success }})
-      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 待處理歷程 &gt;= {{ publicationHistoryLightCriteria.success }})
-      div 🔴 表示有多個案件回寫異常 (未回寫案件數 &gt; 1 或 待處理歷程 &gt;= {{ publicationHistoryLightCriteria.warning }})
+      div 🟢 表示一切正常 (未回寫案件數 = 0 且 {{ targetDelegateName }} 待處理歷程 &lt; {{ publicationHistoryLightCriteria.success }})
+      div 🟡 表示有案件回寫異常 (未回寫案件數 = 1 或 {{ targetDelegateName }} 待處理歷程 &gt;= {{ publicationHistoryLightCriteria.success }})
+      div 🔴 表示有多個案件回寫異常 (未回寫案件數 &gt; 1 或 {{ targetDelegateName }} 待處理歷程 &gt;= {{ publicationHistoryLightCriteria.warning }})
       hr
       div
         strong 儀表板所別方塊：
@@ -120,13 +120,14 @@ b-card(:border-variant="border", :class="[attentionCss]")
     size="xl",
     scrollable
   )
-    template(#modal-title) 本所待傳送之 Publication History 資料 ({{ filteredPublicationHistory.length }}/{{ publicationHistory.length }})
+    template(#modal-title) 待處理 Publication History ({{ filteredPublicationHistory.length }}/{{ publicationHistory.length }})
     //- 修改：篩選介面使用 b-select (除時間外)
-    .d-flex.flex-wrap.justify-content-start.mb-2
+    .d-flex.flex-wrap.justify-content-end.mb-2
       b-input-group.mb-2.mr-2(size="sm", prepend="時間", style="width: 200px")
         b-form-input.h-100(v-model="filters.time", placeholder="HH:MM:SS...", trim)
       b-input-group.mb-2.mr-2(size="sm", prepend="名稱", style="width: 200px")
         b-form-select.h-100(v-model="filters.name", :options="uniqueNames")
+      //- 修改：移除 (TO) 字樣
       b-input-group.mb-2.mr-2(size="sm", prepend="流向", style="width: 200px")
         b-form-select.h-100(v-model="filters.org", :options="uniqueOrgs")
       b-input-group.mb-2.mr-2(size="sm", prepend="資料表", style="width: 200px")
@@ -208,6 +209,7 @@ export default {
     // 新增：篩選欄位綁定變數
     filters: {
       time: '',
+      // 修改：預設篩選包含 _delegate
       name: '',
       org: '',
       table: ''
@@ -266,12 +268,28 @@ export default {
   fetch () {
     this.today = this.$utils.today('TW')
     this.checkXCaseSyncStatus()
+    this.loadPublicationHistory()
   },
   computed: {
+    // 新增：安全取得站點代碼 (Fallback)
+    mySite () {
+      return this.site || 'LOCALHOST'
+    },
+    // 新增：計算目標監控名稱
+    targetDelegateName () {
+      return `${this.mySite}_delegate`
+    },
+    // 修改：使用 mySite 進行精確的 _delegate 監控
+    delegatePublicationHistory () {
+      return this.publicationHistory.filter(item =>
+        item.PUBLICATION_NAME && item.PUBLICATION_NAME.includes(this.targetDelegateName)
+      )
+    },
     // 新增：計算不重複的名稱選項
     uniqueNames () {
       const list = this.publicationHistory.map(i => i.PUBLICATION_NAME).filter(n => n)
       const unique = [...new Set(list)].sort()
+      // 新增：如果有 _delegate，把它放在前面或是讓下拉選單預設選中 (v-model 已經處理預設值)
       return [{ text: '全部', value: '' }, ...unique.map(x => ({ text: x, value: x }))]
     },
     // 新增：計算不重複的流向選項 (含中文名稱，只計算 TO)
@@ -307,8 +325,8 @@ export default {
         // 時間篩選 (模糊比對)
         const matchTime = !time || (item.DATE_TIME || '').includes(time)
 
-        // 名稱篩選 (精確比對)
-        const matchName = !name || item.PUBLICATION_NAME === name
+        // 名稱篩選 (模糊比對，為了支援 _delegate 這種包含式搜尋)
+        const matchName = !name || (item.PUBLICATION_NAME || '').includes(name)
 
         // 資料表篩選 (精確比對)
         const matchTable = !table || item.TABLE_DESCRIPTION === table
@@ -321,16 +339,14 @@ export default {
     },
     formattedInfo () {
       // 1. 處理本所節點 (Local Node)
-      // 修改：嘗試使用 this.site 作為 ID，若無則使用 'LOCALHOST'，這樣 getAreaName 就能正確對應到所名
-      const localId = this.site || 'LOCALHOST'
       const localNode = {
-        id: localId,
+        id: this.mySite,
         isLocal: true, // 標記為本所
         details: {
-          // 將 foundIds 指向 publicationHistory 陣列，這樣 length 屬性就會正確反映數量
-          foundIds: this.publicationHistory,
+          // 修改：將 foundIds 指向 delegatePublicationHistory，讓監控儀表板的數字只反映 _delegate 的數量
+          foundIds: this.delegatePublicationHistory,
           // 用於第二行顯示文字
-          localMax: `待處理 ${this.publicationHistory.length} 筆`
+          localMax: `待處理 ${this.delegatePublicationHistory.length} 筆`
         }
       }
 
@@ -377,10 +393,11 @@ export default {
       return 'success'
     },
     publicationHistoryLight () {
-      if (this.publicationHistory.length < this.publicationHistoryLightCriteria.success) {
+      // 修改：燈號判斷使用 delegatePublicationHistory 的數量
+      if (this.delegatePublicationHistory.length < this.publicationHistoryLightCriteria.success) {
         return 'success'
       }
-      if (this.publicationHistory.length < this.publicationHistoryLightCriteria.warning) {
+      if (this.delegatePublicationHistory.length < this.publicationHistoryLightCriteria.warning) {
         return 'warning'
       }
       return 'danger'
@@ -405,7 +422,10 @@ export default {
       this.emitLightUpdate(nlight, olight)
     }
   },
-  created () {},
+  created () {
+    // 預設篩選使用 computed 的 targetDelegateName
+    this.filters.name = this.targetDelegateName
+  },
   mounted () {
     this.emitLightUpdate(this.light, '')
     if (!this.footer) {
@@ -433,7 +453,8 @@ export default {
     // 新增：重置篩選條件
     resetFilters () {
       this.filters.time = ''
-      this.filters.name = ''
+      // 修改：重置時回到預設值
+      this.filters.name = this.targetDelegateName
       this.filters.org = ''
       this.filters.table = ''
     },
