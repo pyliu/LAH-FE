@@ -782,7 +782,7 @@ export default {
 
 /* 新增：SQL 文字平滑展開樣式 */
 .sql-text {
-  max-width: 500px;
+  max-width: 600px;
   /* 初始狀態：單行截斷 */
   display: -webkit-box;
   -webkit-box-orient: vertical;
