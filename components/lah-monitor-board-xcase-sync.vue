@@ -800,6 +800,9 @@ export default {
     -webkit-line-clamp: unset; /* 解除行數限制 */
     max-height: 400px; /* 設定一個足夠大的高度以容納內容 */
     overflow-y: auto; /* 內容過多時顯示捲軸 */
+    color: black !important;
+    font-size: large;
+    font-weight: bold;
   }
 }
 </style>
