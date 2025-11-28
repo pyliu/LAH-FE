@@ -448,14 +448,15 @@ export default {
     caseIds (n, o) {},
     formattedInfo (val) {},
     publicationHistory (val) {},
+    'delegatePublicationHistory.length' (val) {
+      // 預設篩選使用 computed 的 targetDelegateName
+      this.filters.name = val > 0 ? this.targetDelegateName : ''
+    },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     }
   },
-  created () {
-    // 預設篩選使用 computed 的 targetDelegateName
-    this.filters.name = this.targetDelegateName
-  },
+  created () {},
   mounted () {
     this.emitLightUpdate(this.light, '')
     if (!this.footer) {
@@ -484,7 +485,7 @@ export default {
     resetFilters () {
       this.filters.time = ''
       // 修改：重置時回到預設值
-      this.filters.name = this.targetDelegateName
+      this.filters.name = this.delegatePublicationHistory.length > 0 ? this.targetDelegateName : ''
       this.filters.org = ''
       this.filters.table = ''
     },
