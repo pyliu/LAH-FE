@@ -212,7 +212,7 @@ export default {
     filters: {
       time: '',
       // 修改：預設篩選包含 _delegate
-      name: '',
+      name: undefined,
       org: '',
       table: ''
     },
@@ -449,8 +449,10 @@ export default {
     formattedInfo (val) {},
     publicationHistory (val) {},
     'delegatePublicationHistory.length' (val) {
-      // 預設篩選使用 computed 的 targetDelegateName
-      this.filters.name = val > 0 ? this.targetDelegateName : ''
+      if (this.filters.name === undefined) {
+        // 預設篩選使用 computed 的 targetDelegateName
+        this.filters.name = val > 0 ? this.targetDelegateName : ''
+      }
     },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
