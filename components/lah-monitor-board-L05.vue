@@ -239,6 +239,10 @@ export default {
         // skip l05 process existence message
         return ''
       }
+      if (tmp.includes('局端伺服器無法連線')) {
+        // skip l05 process existence message
+        return ` ❌ 局端伺服器 ${this.bureauSyncIp}:${this.bureauSyncPort} 無法連線，請通知地政局承辦檢查。`
+      }
       return tmp
     },
     statusMessage () {
@@ -247,6 +251,7 @@ export default {
       }
       // API response code translation
       const statusCode = parseInt(this.statusData?.statusCode)
+      this.$utils.warn('statusCode:', statusCode)
       switch (statusCode) {
         case 1: return '檢測正常'
         case 0: return '檢測失敗'
