@@ -317,15 +317,19 @@ export default {
       // 新增：如果有 _delegate，把它放在前面或是讓下拉選單預設選中 (v-model 已經處理預設值)
       return [{ text: '全部', value: '' }, ...unique.map(x => ({ text: x, value: x }))]
     },
-    // 新增：計算不重複的流向選項 (含中文名稱，只計算 TO)
+    // 修改：計算不重複的流向選項 (使用中文名稱，避免重複顯示)
     uniqueOrgs () {
-      const list = []
+      const nameSet = new Set()
       this.publicationHistory.forEach((i) => {
-        // if (i.FROM_ORG_ID) { list.push(i.FROM_ORG_ID) } // 移除 FROM
-        if (i.TO_ORG_ID) { list.push(i.TO_ORG_ID) }
+        if (i.TO_ORG_ID) {
+          // 轉換成中文名稱後再存入 Set，確保不重複
+          nameSet.add(this.getAreaName(i.TO_ORG_ID))
+        }
       })
-      const uniqueIds = [...new Set(list)]
-      const options = uniqueIds.map(id => ({ text: this.getAreaName(id) || id, value: id }))
+
+      // 使用 Set 轉回陣列
+      const options = [...nameSet].map(name => ({ text: name, value: name }))
+
       // 依中文名稱排序
       options.sort((a, b) => a.text.localeCompare(b.text, 'zh-Hant'))
       return [{ text: '全部', value: '' }, ...options]
@@ -361,8 +365,9 @@ export default {
         // 資料表篩選 (精確比對)
         const matchTable = !table || item.TABLE_DESCRIPTION === table
 
-        // 流向篩選 (只檢查 TO)
-        const matchOrg = !org || item.TO_ORG_ID === org
+        // 流向篩選 (只檢查 TO，並將 ID 轉為名稱比對)
+        // 修改：比對轉換後的中文名稱，以支援合併後的選項
+        const matchOrg = !org || this.getAreaName(item.TO_ORG_ID) === org
 
         return matchTime && matchName && matchTable && matchOrg
       })
