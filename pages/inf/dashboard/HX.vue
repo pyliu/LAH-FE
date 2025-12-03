@@ -1,5 +1,5 @@
 <template lang="pug">
-div(v-cloak)
+div.monitor-dashboard(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
@@ -371,6 +371,15 @@ export default {
 </script>
 
 <style lang="scss">
+.monitor-dashboard {
+  /* Ignored desktop font size settings */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Force a base font size to avoid system scaling issues that break fixed-height layouts */
+  font-size: 16px;
+}
 .highlight-group {
   border-bottom: 2px dashed gray;
   margin-bottom: 15px;
