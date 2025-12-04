@@ -567,7 +567,7 @@ export default {
       this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
         type: 'add_notification',
         title: '跨所案件未回寫已修正通知',
-        content: `✔ 案件 ${id} 已於所端系管修正跨所未回寫問題。`,
+        content: `✔ 案件 ${id} 已由系管操作修正未回寫問題。`,
         from_ip: this.ip,
         priority: 3,
         channels: ['inf'],
