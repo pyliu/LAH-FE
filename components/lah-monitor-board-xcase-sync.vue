@@ -571,7 +571,7 @@ export default {
         from_ip: this.ip,
         priority: 3,
         channels: ['inf'],
-        sender: this.myid || this.ip || 'system',
+        sender: this.myid || this.ip || '系統管理者',
         create_datetime: this.$utils.now()
       }).then((res) => {
         if (!this.$utils.statusCheck(res.data.status)) {
