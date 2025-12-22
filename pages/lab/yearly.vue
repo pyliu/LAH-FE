@@ -36,6 +36,12 @@ div(v-cloak)
       :end="dateRange.end",
       @ready="handleReady"
     )
+    .col-md-4(key="reg-hundred-years-owner"): lah-stats-reg-hundred-years-land-owner(
+      ref="regHundredYearsOwner",
+      :begin="dateRange.begin",
+      :end="dateRange.end",
+      @ready="handleReady"
+    )
     .col-md-4(key="adm-notification"): lah-stats-adm-notification(
       ref="admNotification",
       :begin="dateRange.begin",
