@@ -84,7 +84,7 @@ b-card(:class="classNames")
 
   b-modal(
     ref="table",
-    title="土地所有權人資料",
+    :title="`${ownerType === 'land' ? '土地' : '建物'}所有權人資料`",
     size="xl",
     hide-footer
   )
