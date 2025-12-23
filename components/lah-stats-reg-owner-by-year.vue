@@ -5,7 +5,7 @@ b-card(:class="classNames")
       lah-fa-icon(v-if="ready", icon="circle-check", variant="success", size="lg")
       lah-fa-icon(v-else-if="isBusy", icon="spinner", variant="muted", size="lg", action="spin")
       lah-fa-icon(v-else, icon="question", variant="muted", size="lg")
-    .ml-1 土地所有權人統計
+    .ml-1 {{ ownerType === 'land' ? '土地所有權人' : '建物所有權人' }}統計
     lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="小計") {{ count }}
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
@@ -33,15 +33,37 @@ b-card(:class="classNames")
       pill,
       no-icon-gutter
     )
-  b-card-sub-title.font-weight-bold.d-flex.align-items-center.justify-content-end
-    span 民國
-    b-input.mx-1(
-      v-model="birthYear",
-      size="sm",
-      style="width: 3em;",
-      @keyup.enter="query"
-    )
-    span 年出生
+  b-card-sub-title.font-weight-bold.d-flex.align-items-center.justify-content-between
+    .d-flex.align-items-center.flex-nowrap
+      span 類型：
+      b-select(
+        v-model="ownerType",
+        size="sm",
+        :disabled="isBusy",
+        @change="reset",
+        style="width: 5em;"
+      )
+        option(value="land") 土地
+        option(value="building") 建物
+    .d-flex.align-items-center.flex-nowrap
+      span 民國
+      b-input.mx-1(
+        ref="birthYearInput",
+        v-model="birthYear",
+        size="sm",
+        style="width: 5em;",
+        list="birth-years",
+        @keyup.enter="query",
+        :disabled="isBusy",
+        no-wheel
+      )
+      datalist#birth-years
+        option(
+          v-for="opt in ageRangeOptions"
+          :key="opt.year"
+          :value="opt.year"
+        ) {{ opt.label }}
+      span 年出生({{ displayAge }}歲)
   section.my-2(v-if="ready")
     .h4.center.my-2(v-if="count === 0") 查無資料
     div(v-else)
@@ -58,7 +80,7 @@ b-card(:class="classNames")
         title="查看所有資料"
       )
         lah-fa-icon(icon="ellipsis", action="wander-h") 更多
-  .h4.center.my-2(v-else) ⚠ 請設定出生年後查詢
+  .h4.center.my-3(v-else) ⚠ 請設定查詢類型、出生年後查詢。
 
   b-modal(
     ref="table",
@@ -66,18 +88,19 @@ b-card(:class="classNames")
     size="xl",
     hide-footer
   )
-    lah-reg-hundred-years-land-owner-table(
+    lah-reg-owner-table(
       :raw="raw",
-      table-size="xl"
+      table-size="xl",
+      table-type="land"
     )
 </template>
 
 <script>
-import LahRegHundredYearsLandOwnerTable from './lah-reg-hundred-years-land-owner-table.vue';
+import LahRegOwnerTable from './lah-reg-owner-table.vue';
 
 export default {
   emit: ['ready'],
-  component: { LahRegHundredYearsLandOwnerTable },
+  component: { LahRegOwnerTable },
   props: {
     noBorder: { type: Boolean, default: false },
     begin: { type: String, default: '' },
@@ -89,10 +112,13 @@ export default {
     raw: [],
     message: '',
     birthYear: '115',
+    ownerType: 'land',
     fields: [
       { key: '資料集代號', sortable: true },
+      { key: '段號', sortable: true },
       { key: '段名', sortable: true },
       { key: '地號', sortable: true },
+      { key: '建號', sortable: true },
       { key: '登次', sortable: true },
       { key: '權利範圍類別', sortable: true },
       { key: '分母', sortable: true },
@@ -112,9 +138,6 @@ export default {
       const allGroups = this.groupDataByTaxId(this.raw)
       // 直接利用 slice 取出索引 0, 1, 2 的資料
       return allGroups.slice(0, 3)
-    },
-    period () {
-      return this.getBirthYearForCentenarian(this.begin)
     },
     classNames () {
       const list = []
@@ -138,13 +161,33 @@ export default {
         return obj
       }) || []
       return jsons
+    },
+    ageRangeOptions () {
+      const currentTaiwanYear = new Date().getFullYear() - 1911
+      const options = []
+      for (let age = 99; age <= 105; age++) {
+        const year = (currentTaiwanYear - age).toString().padStart(3, '0')
+        options.push({
+          year,
+          label: `${year} - ${age}歲`
+        })
+      }
+      return options
+    },
+    // 新增：根據輸入的 birthYear 計算顯示歲數
+    displayAge () {
+      if (!this.birthYear) { return '' }
+      const currentTaiwanYear = new Date().getFullYear() - 1911
+      // 將輸入的值轉為數字進行計算
+      const age = currentTaiwanYear - parseInt(this.birthYear, 10)
+      return age
     }
   },
   watch: {},
-  created () {
-    this.birthYear = this.getBirthYearForCentenarian(this.begin)
+  created () {},
+  mounted () {
+    this.birthYear = this.ageRangeOptions[1].year
   },
-  mounted () {},
   methods: {
     getLabel (key) {
       const found = this.fields.find((item, idx, array) => {
@@ -166,8 +209,8 @@ export default {
       this.reset()
       this.$axios
         .post(this.$consts.API.JSON.STATS, {
-          type: 'stats_reg_hundred_years_owner_data',
-          owner_type: 'land',
+          type: 'stats_reg_owner_data',
+          owner_type: this.ownerType,
           birth_year: this.birthYear
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
@@ -182,39 +225,16 @@ export default {
         })
     },
     popup (payload) {
-      this.modal(this.$createElement(LahRegHundredYearsLandOwnerTable, {
+      this.modal(this.$createElement(LahRegOwnerTable, {
         props: {
           raw: payload.items,
-          tableSize: 'xl'
+          tableSize: 'xl',
+          tableType: this.ownerType
         }
       }), {
         title: `${payload.key}`,
         size: 'xl'
       })
-    },
-    /**
-     * 根據民國年月日字串推算 100 歲的出生民國年
-     * 範例輸入: "1130101" -> 輸出: "013"
-     * * @param {string} rocDateString - 民國年月日字串 (如 1130101)
-     * @returns {string} - 補足三位數的民國出生年份
-     */
-    getBirthYearForCentenarian (rocDateString) {
-      if (!rocDateString || rocDateString.length < 5) {
-        return ''
-      }
-      // 1. 取得年份部分
-      // 因為日期格式固定為 MMDD (4碼)，所以從索引 0 開始擷取到倒數第 4 位之前
-      const yearStr = rocDateString.substring(0, rocDateString.length - 4)
-      const currentRocYear = parseInt(yearStr, 10)
-      // 2. 計算 100 歲的出生年
-      const birthRocYear = currentRocYear - 100
-      // 3. 格式化回傳
-      // 使用 padStart 補零，確保結果如 "013" (若小於 0 則代表民國前，可依需求調整邏輯)
-      if (birthRocYear < 0) {
-        // 處理民國前的情況（選擇性實作）
-        return `民國前 ${Math.abs(birthRocYear)} 年`
-      }
-      return birthRocYear.toString().padStart(3, '0')
     },
     /**
      * 依據「所有權人統編 + 姓名」進行分類，並按數量由大到小排序

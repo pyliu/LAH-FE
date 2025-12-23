@@ -17,7 +17,7 @@ div
     small,
     head-variant="dark",
     :items="rows",
-    :fields="fields",
+    :fields="fieldsToUse",
     :per-page="pagination.perPage",
     :current-page="pagination.currentPage",
     :busy="isBusy"
@@ -39,15 +39,18 @@ export default {
   component: {},
   props: {
     raw: { type: Array, default: () => [] },
-    tableSize: { type: String, default: 'xl' }
+    tableSize: { type: String, default: 'xl' },
+    tableType: { type: String, default: 'land' }
   },
   data: () => ({
     keyword: '',
     rows: [],
     fields: [
       { key: '資料集代號', sortable: true },
+      { key: '段號', sortable: true },
       { key: '段名', sortable: true },
       { key: '地號', sortable: true },
+      { key: '建號', sortable: true },
       { key: '登次', sortable: true },
       { key: '權利範圍類別', sortable: true },
       { key: '分母', sortable: true },
@@ -68,7 +71,16 @@ export default {
   }),
   computed: {
     count () { return this.rows?.length || 0 },
-    cacheKey () { return 'lah-reg-hundred-years-owner-table' }
+    cacheKey () { return `lah-reg-${this.tableType}-owner-table` },
+    landFields () {
+      return this.fields.filter(f => f.key !== '建號')
+    },
+    buildingFields () {
+      return this.fields.filter(f => f.key !== '地號')
+    },
+    fieldsToUse () {
+      return this.tableType === 'land' ? this.landFields : this.buildingFields
+    }
   },
   watch: {
     raw (newVal) {
