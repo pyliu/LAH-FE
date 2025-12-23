@@ -91,7 +91,7 @@ b-card(:class="classNames")
     lah-reg-owner-table(
       :raw="raw",
       table-size="xl",
-      table-type="land"
+      :table-type="ownerType"
     )
 </template>
 
