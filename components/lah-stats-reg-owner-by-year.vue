@@ -80,7 +80,7 @@ b-card(:class="classNames")
         title="查看所有資料"
       )
         lah-fa-icon(icon="ellipsis", action="wander-h") 更多
-  .h4.center.my-3(v-else) ⚠ 請設定查詢類型、出生年後查詢。
+  .h4.center.my-3(v-else) ⚠ 請設定「類型」、「出生年」後查詢。
 
   b-modal(
     ref="table",
