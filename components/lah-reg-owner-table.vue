@@ -76,7 +76,7 @@ export default {
       return this.fields.filter(f => f.key !== '建號')
     },
     buildingFields () {
-      return this.fields.filter(f => f.key !== '地號')
+      return this.fields.filter(f => f.key !== '地號' && f.key !== '住址')
     },
     fieldsToUse () {
       return this.tableType === 'land' ? this.landFields : this.buildingFields
