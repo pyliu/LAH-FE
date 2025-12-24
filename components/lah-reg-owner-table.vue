@@ -13,9 +13,9 @@ div
     //- 所有權人篩選選單 (統編 + 姓名) - 當選項超過一人時才顯示
     .ml-auto.mb-1(
       v-if="showFilter",
-      style="min-width: 180px;"
+      style="min-width: 200px;"
     )
-      b-input-group(size="sm", prepend="所有權人")
+      b-input-group(size="sm")
         b-form-select(
           v-model="selectedOwner",
           :options="ownerOptions"
@@ -104,34 +104,50 @@ export default {
       return this.tableType === 'land' ? this.landFields : this.buildingFields
     },
     /**
-     * 生成排序過且不重複的所有權人選單 (統編 + 姓名)
+     * 生成篩選選單
+     * 排序邏輯：1. 筆數 (降序) 2. 統編+姓名 (升序)
      */
     ownerOptions () {
-      const ownerList = _.chain(this.raw)
-        .filter(item => item['所有權人姓名'] || item['所有權人統編'])
-        .map((item) => {
-          const id = item['所有權人統編'] || '無統編'
-          const name = item['所有權人姓名'] || '無姓名'
-          return {
-            value: `${id}|${name}`,
-            text: `[${id}] ${name}`
-          }
-        })
-        .uniqBy('value')
-        .value()
+      // 1. 根據 統編|姓名 進行分組統計筆數
+      const grouped = _.groupBy(this.raw, (item) => {
+        const id = item['所有權人統編'] || '無統編'
+        const name = item['所有權人姓名'] || '無姓名'
+        return `${id}|${name}`
+      })
 
-      const sorted = ownerList.sort((a, b) => a.text.localeCompare(b.text, 'zh-TW'))
+      // 2. 轉換為選項格式並包含計數
+      const ownerList = _.map(grouped, (items, key) => {
+        const [id, name] = key.split('|')
+        return {
+          value: key,
+          text: `[${id}] ${name}`,
+          count: items.length
+        }
+      })
+
+      // 3. 多重排序
+      const sorted = ownerList.sort((a, b) => {
+        // 第一優先：筆數由大到小
+        if (b.count !== a.count) {
+          return b.count - a.count
+        }
+        // 第二優先：中文語系排序 (統編與姓名)
+        return a.text.localeCompare(b.text, 'zh-TW')
+      })
 
       return [
         { value: '', text: '--- 全部所有權人 ---' },
-        ...sorted
+        ...sorted.map(opt => ({
+          value: opt.value,
+          text: `${opt.text} (${opt.count} 筆)`
+        }))
       ]
     },
     /**
      * 判斷是否顯示篩選 UI
-     * ownerOptions 預設包含一個「全部」選項，長度大於 2 代表至少有兩個不同的所有權人
      */
     showFilter () {
+      // 扣除「全部」選項後，若唯一所有權人數量 > 1 則顯示
       return this.ownerOptions.length > 2
     }
   },
