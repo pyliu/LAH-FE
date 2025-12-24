@@ -10,8 +10,11 @@ div
         :caption="`找到 ${count} 筆資料`"
       )
 
-    //- 所有權人篩選選單 (統編 + 姓名)
-    .ml-auto.mb-1(style="min-width: 200px;")
+    //- 所有權人篩選選單 (統編 + 姓名) - 當選項超過一人時才顯示
+    .ml-auto.mb-1(
+      v-if="showFilter",
+      style="min-width: 180px;"
+    )
       b-input-group(size="sm", prepend="所有權人")
         b-form-select(
           v-model="selectedOwner",
@@ -104,27 +107,32 @@ export default {
      * 生成排序過且不重複的所有權人選單 (統編 + 姓名)
      */
     ownerOptions () {
-      // 1. 提取並建立複合物件
       const ownerList = _.chain(this.raw)
         .filter(item => item['所有權人姓名'] || item['所有權人統編'])
         .map((item) => {
           const id = item['所有權人統編'] || '無統編'
           const name = item['所有權人姓名'] || '無姓名'
           return {
-            value: `${id}|${name}`, // 作為唯一的識別 value
-            text: `[${id}] ${name}` // 顯示格式：[統編] 姓名
+            value: `${id}|${name}`,
+            text: `[${id}] ${name}`
           }
         })
         .uniqBy('value')
         .value()
 
-      // 2. 使用 localeCompare 進行排序
       const sorted = ownerList.sort((a, b) => a.text.localeCompare(b.text, 'zh-TW'))
 
       return [
         { value: '', text: '--- 全部所有權人 ---' },
         ...sorted
       ]
+    },
+    /**
+     * 判斷是否顯示篩選 UI
+     * ownerOptions 預設包含一個「全部」選項，長度大於 2 代表至少有兩個不同的所有權人
+     */
+    showFilter () {
+      return this.ownerOptions.length > 2
     }
   },
   watch: {
@@ -146,7 +154,6 @@ export default {
       if (!this.selectedOwner) {
         this.rows = [...this.raw]
       } else {
-        // 解析複合 value 進行精確篩選
         const [targetId, targetName] = this.selectedOwner.split('|')
         this.rows = this.raw.filter((item) => {
           const id = item['所有權人統編'] || '無統編'
