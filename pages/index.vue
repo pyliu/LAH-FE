@@ -30,7 +30,7 @@
         style="text-decoration: underline",
         variant="info"
       ) 最新即時通公告
-      lah-timeline-announcement.timeline-height(
+      lah-timeline-announcement.timeline-height.overflow-auto(
         open-first,
         no-border,
         :init-count="5",
