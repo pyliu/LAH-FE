@@ -121,6 +121,7 @@ div(v-cloak)
 
       //- 右側：顯示開關與關鍵字搜尋
       .d-flex.my-auto.align-items-center
+        //- 預設勾選大頭照與IP
         b-form-checkbox(v-model="showAvatar" switch class="mr-3" title="顯示") 大頭照
         b-form-checkbox(v-model="showIp" switch class="mr-3" title="顯示") IP
         b-form-checkbox-group(v-model="filter" :options="filterOptions")
@@ -221,11 +222,13 @@ export default {
       { html: '↓', value: true, disabled: false },
       { html: '↑', value: false, disabled: false }
     ],
-    showAvatar: false,
-    showIp: false,
+    // 修改：預設值改為 true
+    showAvatar: true,
+    showIp: true,
 
     // 資料篩選與搜尋
     keyword: '',
+    // 預設已勾選 "在職" ('on')
     filter: ['on'],
     filterOptions: [
       { text: '在職', value: 'on' },
@@ -339,9 +342,17 @@ export default {
   },
 
   mounted () {
-    // 還原用戶顯示偏好
-    this.showAvatar = localStorage.getItem('user_mgt_show_avatar') === 'true'
-    this.showIp = localStorage.getItem('user_mgt_show_ip') === 'true'
+    // 讀取用戶顯示偏好，若無紀錄則保持 data 內的預設值 (true)
+    const cachedAvatar = localStorage.getItem('user_mgt_show_avatar')
+    const cachedIp = localStorage.getItem('user_mgt_show_ip')
+
+    if (cachedAvatar !== null) {
+      this.showAvatar = cachedAvatar === 'true'
+    }
+
+    if (cachedIp !== null) {
+      this.showIp = cachedIp === 'true'
+    }
   },
 
   methods: {
