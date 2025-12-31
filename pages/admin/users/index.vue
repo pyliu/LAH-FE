@@ -1,5 +1,6 @@
 <template lang="pug">
 div(v-cloak)
+  //- 頁面標題列
   lah-header: lah-transition(appear)
     .d-flex.w-100
       .d-flex.mr-auto
@@ -22,6 +23,7 @@ div(v-cloak)
           @click="add"
         )
 
+  //- 幫助說明 Modal
   lah-help-modal(:modal-id="'help-modal'" size="lg")
     ul
       li: .d-inline-flex.justify-content-around
@@ -64,46 +66,13 @@ div(v-cloak)
       b-button.mr-1(variant="outline-info" size="sm") {{ office }}XXXX 政ＯＯ
       span 公告管理
 
-    //- b-modal(
-    //-   id="upload-ui"
-    //-   title="批次檔上傳更新"
-    //-   size="lg"
-    //-   hide-footer
-    //-   scrollable
-    //-   no-close-on-backdrop
-    //- )
-    //-   b-button-group.d-flex.justify-content-end.mb-2(size="lg")
-    //-     lah-button(icon="file-excel" href="/xlsx/user_import.tpl.xlsx" variant="muted" icon-variant="success") 匯入範例檔下載
-    //-     lah-button(icon="file-excel" regular variant="muted" icon-variant="success" @click="exportXlsx") 匯出全部使用者
-    //-   b-form-group(
-    //-     label="匯入使用者檔案"
-    //-     label-for="file-land_data_upload"
-    //-     label-cols-sm="2"
-    //-     label-size="md"
-    //-     title="*.xlsx"
-    //-   ): b-input-group(id="file-land_data_upload" size="md"): b-file(
-    //-     ref="file-land_data_upload"
-    //-     v-model="userXlsx"
-    //-     placeholder="請選擇XLSX檔案"
-    //-     drop-placeholder="放開以設定上傳檔案"
-    //-     accept=".xlsx, .XLSX"
-    //-   )
-    //-     template(slot="file-name" slot-scope="{ names }")
-    //-       b-badge(variant="dark") {{ names[0] }}
-    //-       b-badge.ml-1(v-if="names.length > 1" variant="dark" class="") + {{ names.length - 1 }} More files
-    //-     template(#append): lah-button(
-    //-       icon="upload"
-    //-       variant="outline-primary"
-    //-       title="上傳"
-    //-       :disabled="$utils.empty(userXlsx)"
-    //-       @click="upload"
-    //-     )
-
   hr
+
+  //- 主要控制區塊：篩選、排序、顯示設定
   section
-    //- 顯示控制UI
     .d-flex.justify-content-between.mb-2
-      .d-flex
+      //- 左側：分類與排序
+      .d-flex.align-items-center
         b-form-radio-group(
           v-model="selectedGroup"
           :options="groupOptions"
@@ -111,46 +80,72 @@ div(v-cloak)
           button-variant="outline-dark"
           class="my-auto"
           title="分類"
+          size="sm"
         )
         b-form-radio-group(
           v-model="sortOrder"
           :options="sortOpts"
           class="ml-3 my-auto"
+          size="sm"
         )
-      span.text-muted.my-auto.lah-shadow 找到 #[b-badge( pill class="my-auto" variant="info") {{ users.length }}] 個使用者
-      .d-flex.my-auto
+
+      //- 中間：計數顯示
+      span.text-muted.my-auto.lah-shadow 找到 #[b-badge( pill class="my-auto" variant="info") {{ filteredUsers.length }}] 個使用者
+
+      //- 右側：顯示開關與關鍵字搜尋
+      .d-flex.my-auto.align-items-center
         b-form-checkbox(v-model="showAvatar" switch class="mr-3" title="顯示") 大頭照
         b-form-checkbox(v-model="showIp" switch class="mr-3" title="顯示") IP
         b-form-checkbox-group(v-model="filter" :options="filterOptions")
 
+        b-input.ml-3(
+          v-model="keyword"
+          placeholder="搜尋姓名、ID 或 IP..."
+          size="sm"
+          style="width: 220px"
+          trim
+        )
+
   hr
-  //- 名牌顯示區塊
+
+  //- 使用者列表區塊 (依照分組顯示)
   section.mb-3(v-for="category in categories" :key="category.NAME")
     h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
       span {{ translateGroupName(category.NAME) }}
       b-badge.ml-1.my-auto(pill variant="info") {{ category.LIST.length }}
 
-    b-collapse(:id="$utils.md5(category.NAME)" visible): b-button(
-      v-for="user in category.LIST"
-      :key="user['id']"
-      :data-id="user['id']"
-      :data-name="user['name']"
-      :variant="variant(user)"
-      :pill="showAvatar"
-      :title="role(user)"
-      size="sm"
-      class="mx-1 my-1 shadow"
-      @click="edit(user)"
-    )
-      b-avatar(v-if="showAvatar" button variant="light" :size="'1.5rem'" :src="avatarSrc(user)")
-      span.ml-1 {{ user["id"].padStart(6, '&ensp;') }}
-      span.ml-1 {{ user["name"].padEnd(3, '　') }}
-      .text-dark.text-center.font-weight-bolder(v-if="showIp")
-        span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
-        span.text-info .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
+    b-collapse(:id="$utils.md5(category.NAME)" visible)
+      //- 使用 flex-wrap 讓固定寬度的名牌自動換行排列
+      .d-flex.flex-wrap.align-items-center
+        b-button(
+          v-for="user in category.LIST"
+          :key="user['id']"
+          :data-id="user['id']"
+          :data-name="user['name']"
+          :variant="variant(user)"
+          :pill="showAvatar"
+          :title="role(user)"
+          size="sm"
+          class="mx-1 my-1 shadow d-inline-flex align-items-center user-badge"
+          @click="edit(user)"
+        )
+          //- 大頭照區塊
+          .mr-2(v-if="showAvatar")
+            b-avatar(variant="light" size="3rem" :src="avatarSrc(user)")
+
+          //- 資訊文字區塊
+          .d-flex.flex-column.align-items-start.justify-content-center
+            div
+              span.font-weight-bold.mr-1 {{ user["id"] }}
+              span {{ user["name"] }}
+            .small.font-weight-bolder(v-if="showIp")
+              //- IP 顯示：前兩碼跟隨文字色，後兩碼根據背景動態高亮
+              span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
+              span(:class="ipClass(user)") .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
 
   hr
 
+  //- 編輯使用者 Modal
   b-modal(
     id="edit-user-modal"
     :title="editUserTitle"
@@ -161,6 +156,7 @@ div(v-cloak)
   )
     lah-user-edit-card(:raw="[clickedUser]" @saved="saved($event)")
 
+  //- 新增使用者 Modal
   b-modal(
     id="add-user-modal"
     title="手動新增使用者"
@@ -173,14 +169,15 @@ div(v-cloak)
 </template>
 
 <script>
-import lahUserCard from '~/components/lah-user-card.vue'
-import lahUserEditCard from '~/components/lah-user-edit-card.vue'
-import lahUserAddCard from '~/components/lah-user-add-card.vue'
+import lahUserAddCard from '~/components/lah-user-add-card.vue';
+import lahUserEditCard from '~/components/lah-user-edit-card.vue';
 
 export default {
-  components: { lahUserCard, lahUserEditCard, lahUserAddCard },
+  components: { lahUserEditCard, lahUserAddCard },
   middleware: ['isAdmin'],
+
   data: () => ({
+    // UI 控制
     selectedGroup: 'unit',
     groupOptions: [
       { text: '部門', value: 'unit' },
@@ -198,16 +195,21 @@ export default {
     ],
     showAvatar: false,
     showIp: false,
-    userXlsx: null,
+
+    // 資料篩選與搜尋
     keyword: '',
-    users: [],
     filter: ['on'],
     filterOptions: [
       { text: '在職', value: 'on' },
       { text: '離職', value: 'off' }
     ],
+
+    // 核心資料
+    users: [],
     clickedUser: { id: '', name: '' }
   }),
+
+  // Nuxt Fetch Hook
   fetch () {
     this.isBusy = true
     this.$axios.post(this.$consts.API.JSON.USER, {
@@ -224,16 +226,32 @@ export default {
       this.isBusy = false
     })
   },
+
   head: {
     title: '員工資訊管理-桃園市地政局'
   },
+
   fetchOnServer: true,
+
   computed: {
+    // 根據篩選條件決定 API 請求類型
     type () {
       if (this.filter.length === 2) { return 'all_users' }
       if (this.filter.includes('on')) { return 'on_board_users' }
       if (this.filter.includes('off')) { return 'off_board_users' }
       return ''
+    },
+    // 關鍵字搜尋邏輯
+    filteredUsers () {
+      if (this.$utils.empty(this.keyword)) {
+        return this.users
+      }
+      const k = this.keyword.toLowerCase()
+      return this.users.filter((user) => {
+        return (user.id && user.id.toLowerCase().includes(k)) ||
+               (user.name && user.name.toLowerCase().includes(k)) ||
+               (user.ip && user.ip.includes(k))
+      })
     },
     office () {
       if (this.systemConfigs) {
@@ -241,6 +259,7 @@ export default {
       }
       return this.site
     },
+    // 分組邏輯核心
     categories () {
       switch (this.selectedGroup) {
         case 'unit':
@@ -256,98 +275,70 @@ export default {
         case 'role':
           return this.groupByRole()
         default:
-          return [{ NAME: '未分類', LIST: this.users }]
+          return [{ NAME: '未分類', LIST: this.filteredUsers }]
       }
     },
-    importUrl () {
-      return `http://${this.apiHost}:${this.apiPort}${this.$consts.API.XLSX.USER_IMPORT}`
-    },
-    exportXlsxUrl () {
-      return `http://${this.apiHost}:${this.apiPort}${this.$consts.API.FILE.XLSX}?type=all_users_export`
-    },
+    // 預先排序好的清單，供 groupBy 使用
     usersByIpAsc () {
-      return [...this.users].sort((a, b) => {
+      return [...this.filteredUsers].sort((a, b) => {
         const bv = this.$utils.ipv4Int(b.ip)
         const av = this.$utils.ipv4Int(a.ip)
-        if (bv > av) {
-          return -1
-        }
-        if (bv < av) {
-          return 1
-        }
+        if (bv > av) { return -1 }
+        if (bv < av) { return 1 }
         return 0
       })
     },
     usersById () {
-      return [...this.users].sort(function (a, b) {
-        if (b.id > a.id) {
-          return -1
-        }
-        if (b.id < a.id) {
-          return 1
-        }
+      return [...this.filteredUsers].sort(function (a, b) {
+        if (b.id > a.id) { return -1 }
+        if (b.id < a.id) { return 1 }
         return 0
       })
     },
-    L3HWEBIp () {
-      if (this.systemConfigs && this.systemConfigs.lxhweb) {
-        return this.systemConfigs.lxhweb.ORA_DB_L3HWEB_IP
-      }
-      return '220.1.33.5'
-    },
-    L3HWEBPort () {
-      if (this.systemConfigs && this.systemConfigs.lxhweb) {
-        return this.systemConfigs.lxhweb.ORA_DB_L3HWEB_PORT
-      }
-      return '1521'
-    },
     editUserTitle () { return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊` }
   },
+
   watch: {
     type (val) {
       this.users = []
       if (val !== '') {
         this.$fetch()
       }
-    }
-  },
-  methods: {
-    exportXlsx () {
-      this.$utils.openNewWindow(this.exportXlsxUrl, { target: { title: '下載使用者XLSX清單' } })
     },
+    // 記住用戶顯示偏好
+    showAvatar (val) { localStorage.setItem('user_mgt_show_avatar', val) },
+    showIp (val) { localStorage.setItem('user_mgt_show_ip', val) }
+  },
+
+  mounted () {
+    // 還原用戶顯示偏好
+    this.showAvatar = localStorage.getItem('user_mgt_show_avatar') === 'true'
+    this.showIp = localStorage.getItem('user_mgt_show_ip') === 'true'
+  },
+
+  methods: {
+    // --- 資料分組與排序邏輯 ---
     translateGroupName (name) {
-      if (parseInt(name) === 1) {
-        return '男生'
-      }
-      if (parseInt(name) === 0) {
-        return '女生'
-      }
+      if (parseInt(name) === 1) { return '男生' }
+      if (parseInt(name) === 0) { return '女生' }
       return this.$utils.empty(name) ? '未設定' : name
     },
     groupBy (field) {
       const filtered = []
       const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
-      sortTarget.forEach((item, idx, array) => {
-        const found = filtered.find((category, d, arr) => {
-          return category.NAME === item[field]
-        })
+
+      sortTarget.forEach((item) => {
+        const found = filtered.find(category => category.NAME === item[field])
         if (found) {
           found.LIST.push(item)
         } else {
-          filtered.push({
-            NAME: item[field],
-            LIST: [item]
-          })
+          filtered.push({ NAME: item[field], LIST: [item] })
         }
       })
       filtered.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
       return filtered
     },
     groupByRole () {
-      /*
-      if (userAuthority.isUserMgtStaff) { return '人事管理者' }
-      if (userAuthority.isNotifyMgtStaff) { return '公告管理者' }
-      */
       const filtered = [
         { NAME: '系統管理者', LIST: [] },
         { NAME: '主管', LIST: [] },
@@ -357,7 +348,8 @@ export default {
         { NAME: '一般使用者', LIST: [] }
       ]
       const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
-      sortTarget.forEach((item, idx, array) => {
+
+      sortTarget.forEach((item) => {
         const userAuthority = this.getAuthority(item)
         if (userAuthority.isAdmin) { return filtered[0].LIST.push(item) }
         if (userAuthority.isChief) { return filtered[1].LIST.push(item) }
@@ -370,63 +362,24 @@ export default {
       return filtered
     },
     sortAsc (a, b) {
-      // LIST count is the same, I will use the NAME for sorting
       if ((b.LIST.length - a.LIST.length) === 0) {
         const regex = /^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$/g
         const bv = b.NAME.match(regex) ? this.$utils.ipv4Int(b.NAME) : b.NAME
         const av = a.NAME.match(regex) ? this.$utils.ipv4Int(a.NAME) : a.NAME
-        if (bv > av) {
-          return 1
-        }
-        if (bv < av) {
-          return -1
-        }
+        if (bv > av) { return 1 }
+        if (bv < av) { return -1 }
         return 0
       }
       return b.LIST.length - a.LIST.length
     },
     sortDesc (a, b) {
       const val = this.sortAsc(a, b)
-      if (val > 0) {
-        return -1
-      }
-      if (val < 0) {
-        return 1
-      }
+      if (val > 0) { return -1 }
+      if (val < 0) { return 1 }
       return 0
     },
-    upload () {
-      this.confirm('請確定要上傳更新？').then((answer) => {
-        if (answer) {
-          if (this.$utils.empty(this.userXlsx)) {
-            this.alert('請先選擇一個符合格式的XLSX檔')
-          } else {
-            this.isBusy = true
-            const formData = new FormData()
-            formData.append('file', this.userXlsx)
-            this.$upload.post(this.importUrl, formData)
-              .then(({ data }) => {
-                const opts = { type: 'warning', title: '匯入使用者資料通知' }
-                if (this.$utils.statusCheck(data.status)) {
-                  opts.type = 'success'
-                  // refresh all list
-                  this.$fetch()
-                }
-                this.notify(data.message, opts)
-              })
-              .catch((err) => {
-                this.$utils.error(err)
-              })
-              .finally(() => {
-                this.isBusy = false
-                this.userXlsx = null
-              })
-          }
-        } else {
-          this.$utils.warn('cancelled confirmation of uploading user xlsx!')
-        }
-      })
-    },
+
+    // --- CRUD 操作 ---
     add () {
       this.showModalById('add-user-modal')
     },
@@ -445,20 +398,14 @@ export default {
       this.notify(`更新 ${this.clickedUser.id} ${this.clickedUser.name} 完成`, { type: 'success' })
     },
     update (userData) {
-      // update the cached user data
-      let foundIdx
-      const user = this.users.find((item, idx, array) => {
-        if (item.id === userData.id) {
-          foundIdx = idx
-        }
-        return item.id === userData.id
-      })
-      if (foundIdx !== undefined) {
-        // refresh current data
-        this.users[foundIdx] = { ...user, ...userData }
-        this.users = [...this.users]
+      const foundIdx = this.users.findIndex(item => item.id === userData.id)
+      if (foundIdx !== -1) {
+        // 使用解構更新，觸發 Vue 2 反應性
+        this.users.splice(foundIdx, 1, { ...this.users[foundIdx], ...userData })
       }
     },
+
+    // --- 顯示輔助函式 ---
     variant (user) {
       const userAuthority = this.getAuthority(user)
       if (userAuthority.isDisabled || !this.$utils.empty(user.offboard_date)) { return 'secondary' }
@@ -490,6 +437,16 @@ export default {
         isNotifyMgtStaff: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === (authority & this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT)
       }
     },
+    // 根據按鈕背景判斷 IP 後半段的文字顏色 (視覺優化)
+    ipClass (user) {
+      const v = this.variant(user)
+      // 深色背景 (藍、紅、綠、灰) -> 使用亮黃色 + 粗體
+      if (['primary', 'danger', 'success', 'secondary'].includes(v)) {
+        return 'ip-text-light'
+      }
+      // 淺色背景 (黃、白) -> 使用深藍色 + 粗體
+      return 'ip-text-dark'
+    },
     avatarSrc (user) {
       return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
     },
@@ -501,4 +458,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.user-badge {
+  width: 240px;
+  justify-content: flex-start !important;
+  transition: transform 0.25s ease; // 平滑的放大效果
+  position: relative; // 確保 z-index 生效，避免 hover 時被遮擋
+
+  &:hover {
+    transform: scale(1.25); // 使用 transform 放大，不會影響文檔流 (不會推擠旁邊的元素)
+    z-index: 10; // 確保放大時覆蓋在其他元素之上
+  }
+
+  // 修正 outline 樣式在 hover 時，背景變深導致深色文字看不清的問題
+  // 針對 outline-dark 和 outline-info，hover 時將 ip-text-dark 轉為 ip-text-light 的樣式
+  &.btn-outline-dark:hover,
+  &.btn-outline-info:hover {
+    .ip-text-dark {
+      color: #FFEB3B !important;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+    }
+  }
+}
+
+/* 深色背景上的高亮顯示：亮黃色 + 粗體 + 微陰影 */
+.ip-text-light {
+  color: #FFEB3B !important;
+  font-weight: 900;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+}
+
+/* 淺色背景上的高亮顯示：深藍色 + 粗體 */
+.ip-text-dark {
+  color: #0033cc !important;
+  font-weight: 900;
+}
 </style>
