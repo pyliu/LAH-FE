@@ -23,48 +23,75 @@ div(v-cloak)
           @click="add"
         )
 
-  //- 幫助說明 Modal
+  //- 幫助說明 Modal (優化版)
   lah-help-modal(:modal-id="'help-modal'" size="lg")
-    ul
-      li: .d-inline-flex.justify-content-around
-        span 利用
-        lah-button(
-          icon="user-plus"
-          variant="outline-primary"
-          class="mx-1 mt-n1"
-          no-icon-gutter
-          @click="add"
-        )
-        span 新增或
-        b-button(
-          variant="outline-success"
-          class="mx-1 mt-n1"
-          size="sm"
-        ) {{ site }}ＯＯＯＯ 桃園地政
-        span 編輯使用者。
+    h5.font-weight-bold.text-primary 💡 操作指南
+    ul.pl-4
+      li.mb-2
+        span.font-weight-bold 新增使用者：
+        span 點擊右上角的
+        lah-button(icon="user-plus" variant="outline-primary" size="sm" no-icon-gutter class="mx-1")
+        span 按鈕，填寫必要資訊後即可建立新帳號。
+
+      li.mb-2
+        span.font-weight-bold 編輯使用者：
+        span 點擊列表中的任一使用者名牌
+        b-button(variant="outline-dark" size="sm" class="mx-1") 使用者名牌
+        span ，即可修改其詳細資料或權限設定。
+
+      li.mb-2
+        span.font-weight-bold 搜尋與篩選：
+        span 可利用右側搜尋框輸入
+        b-badge(variant="light") 姓名
+        span 、
+        b-badge(variant="light") ID
+        span  或
+        b-badge(variant="light") IP
+        span  快速查找，系統會自動 <span class="bg-warning text-dark px-1">高亮</span> 比對到的文字；亦可勾選「在職/離職」進行過濾。
 
     hr
-    .mx-2.my-1
-      b-button.mr-1(variant="outline-dark" size="sm") {{ office }}XXXX 劉ＯＯ
-      span 正常使用者
-    .mx-2.my-1
-      b-button.mr-1(variant="secondary" size="sm") {{ office }}XXXX 邦ＯＯ
-      span 被停用使用者
-    .mx-2.my-1
-      b-button.mr-1(variant="danger" size="sm") {{ office }}XXXX 渝ＯＯ
-      span 系統管理者
-    .mx-2.my-1
-      b-button.mr-1(variant="primary" size="sm") {{ office }}XXXX 桃ＯＯ
-      span 主管
-    .mx-2.my-1
-      b-button.mr-1(variant="warning" size="sm") {{ office }}XXXX 園ＯＯ
-      span 研考
-    .mx-2.my-1
-      b-button.mr-1(variant="success" size="sm") {{ office }}XXXX 地ＯＯ
-      span 人員管理
-    .mx-2.my-1
-      b-button.mr-1(variant="outline-info" size="sm") {{ office }}XXXX 政ＯＯ
-      span 公告管理
+
+    h5.font-weight-bold.text-primary 🎨 顯示設定
+    ul.pl-4
+      li.mb-2
+        span.font-weight-bold 大頭照開關：
+        span 開啟後將顯示使用者頭像，滑鼠懸停於名牌上可放大 1.25 倍檢視。
+      li.mb-2
+        span.font-weight-bold IP 顯示：
+        span 開啟後顯示 IP 位址，深色背景時後兩碼會
+        span.ip-text-light.bg-dark.px-1 亮黃顯示
+        span ，淺色背景則為
+        span.ip-text-dark.bg-light.px-1 深藍色
+        span ，方便辨識網段。
+      li.mb-2
+        span.font-weight-bold 分組排序：
+        span 支援按部門、職稱、角色等多種維度分組，並可切換升/降冪排序。
+
+    hr
+
+    h5.font-weight-bold.text-primary 🏷️ 角色權限圖例
+    .row.no-gutters
+      .col-6.col-md-4.p-1.d-flex.align-items-center
+        b-button.mr-2(variant="outline-dark" size="sm" style="width: 80px; white-space: nowrap") 正常人員
+        span.small 一般人員
+      .col-6.col-md-4.p-1.d-flex.align-items-center
+        b-button.mr-2(variant="secondary" size="sm" style="width: 80px; white-space: nowrap") 被停用
+        span.small 離職/停用
+      .col-6.col-md-4.p-1.d-flex.align-items-center
+        b-button.mr-2(variant="danger" size="sm" style="width: 80px; white-space: nowrap") 系統管理
+        span.small 最高權限
+      .col-6.col-md-4.p-1.d-flex.align-items-center
+        b-button.mr-2(variant="primary" size="sm" style="width: 80px; white-space: nowrap") 主管
+        span.small 主管人員
+      .col-6.col-md-4.p-1.d-flex.align-items-center
+        b-button.mr-2(variant="warning" size="sm" style="width: 80px; white-space: nowrap") 研考
+        span.small 研考人員
+      .col-6.col-md-4.p-1.d-flex.align-items-center
+        b-button.mr-2(variant="success" size="sm" style="width: 80px; white-space: nowrap") 人員管理
+        span.small 人事管理
+      .col-6.col-md-4.p-1.d-flex.align-items-center
+        b-button.mr-2(variant="outline-info" size="sm" style="width: 80px; white-space: nowrap") 公告管理
+        span.small 公告發布
 
   hr
 
@@ -136,12 +163,13 @@ div(v-cloak)
           //- 資訊文字區塊
           .d-flex.flex-column.align-items-start.justify-content-center
             div
-              span.font-weight-bold.mr-1 {{ user["id"] }}
-              span {{ user["name"] }}
+              //- 使用 v-html 渲染帶有高亮效果的 ID 與 姓名
+              span.font-weight-bold.mr-1(v-html="highlight(user.id)")
+              span(v-html="highlight(user.name)")
             .small.font-weight-bolder(v-if="showIp")
-              //- IP 顯示：前兩碼跟隨文字色，後兩碼根據背景動態高亮
-              span {{ ipParts(user)[0] }}.{{ ipParts(user)[1] }}
-              span(:class="ipClass(user)") .{{ ipParts(user)[2] }}.{{ ipParts(user)[3] }}
+              //- IP 顯示：保留樣式邏輯，並分別對前後段進行高亮處理
+              span(v-html="highlight(ipParts(user)[0] + '.' + ipParts(user)[1])")
+              span(:class="ipClass(user)" v-html="highlight('.' + ipParts(user)[2] + '.' + ipParts(user)[3])")
 
   hr
 
@@ -317,6 +345,14 @@ export default {
   },
 
   methods: {
+    // --- 高亮搜尋文字 ---
+    highlight (text) {
+      if (!text) { return '' }
+      if (this.$utils.empty(this.keyword)) { return text }
+      // 使用正則表達式進行全域不分大小寫替換，並加上 Bootstrap 高亮樣式
+      const regex = new RegExp(`(${this.keyword})`, 'gi')
+      return text.toString().replace(regex, '<span class="bg-warning text-dark font-weight-bold px-1 rounded">$1</span>')
+    },
     // --- 資料分組與排序邏輯 ---
     translateGroupName (name) {
       if (parseInt(name) === 1) { return '男生' }
