@@ -38,7 +38,7 @@ try {
     isDev && console.log('執行 scheduler 請求')
     axios.post(
       url,
-      qs.stringify({ type: 'reqular' })
+      qs.stringify({ type: 'regular' })
     ).then(({ data }) => {
       isDev && console.log(data.message)
     }).catch((err) => {
