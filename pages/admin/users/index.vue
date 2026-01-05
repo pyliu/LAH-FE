@@ -75,8 +75,8 @@ div(v-cloak)
         b-button.mr-2(variant="outline-dark" size="sm" style="width: 80px; white-space: nowrap") 正常人員
         span.small 一般人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="secondary" size="sm" style="width: 80px; white-space: nowrap") 被停用
-        span.small 離職/停用
+        b-button.mr-2(variant="secondary" size="sm" style="width: 80px; white-space: nowrap") 離職
+        span.small 離職人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
         b-button.mr-2(variant="danger" size="sm" style="width: 80px; white-space: nowrap") 系統管理
         span.small 最高權限
@@ -465,7 +465,7 @@ export default {
     },
     role (user) {
       const userAuthority = this.getAuthority(user)
-      if (userAuthority.isDisabled || !this.$utils.empty(user.offboard_date)) { return '已被停用' }
+      if (userAuthority.isDisabled || !this.$utils.empty(user.offboard_date)) { return '已離職' }
       if (userAuthority.isAdmin) { return '系統管理者' }
       if (userAuthority.isChief) { return '主管' }
       if (userAuthority.isRAE) { return '研考' }

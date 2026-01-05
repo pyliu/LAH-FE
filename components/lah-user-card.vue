@@ -19,7 +19,7 @@
               variant="danger"
               action="breath"
               v-if="isDisabled || !$utils.empty(userData.offboard_date)"
-            ) 已停用
+            ) 已離職
 
           b-card-text.d-flex.flex-column.small
             div ＩＤ：{{ userData.id }}
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import userBase from '~/mixins/lah-user-base.js'
+import userBase from '~/mixins/lah-user-base.js';
 
 export default {
   name: 'LahUserCard',
