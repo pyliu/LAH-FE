@@ -645,7 +645,7 @@ export default {
             // 若 resetAns 為 true (使用者選「是」)，則同時解鎖並重設密碼
             // 若 resetAns 為 false (使用者選「否」)，則僅解鎖
             const payload = {
-              type: 'unlock_ad_user',
+              type: 'ad_user_unlock',
               id: this.userData.id,
               password: resetAns ? 'a.000000' : null
             }
@@ -695,7 +695,7 @@ export default {
             this.isBusy = true
             // 串接實際 AD 密碼重置 API，並帶入 newPassword
             this.$axios.post(this.$consts.API.JSON.USER, {
-              type: 'reset_ad_pw',
+              type: 'ad_pw_reset',
               id: this.userData.id,
               password: newPassword
             }).then(({ data }) => {
