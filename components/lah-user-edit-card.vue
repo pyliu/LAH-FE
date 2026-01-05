@@ -92,18 +92,30 @@
         )
 
     //- ==========================================
-    //- 4. 擴充資訊顯示切換開關
+    //- 4. 操作與擴充顯示控制列
     //- ==========================================
-    .d-flex.justify-content-end.mb-2.toogle-block(
-      @click="showOthers = !showOthers"
-      style="cursor: pointer"
-      title="切換其他欄位顯示"
-    )
-      .mr-1 {{ showOthers ? '隱藏其他資訊欄位' : '顯示其他資訊欄位' }}
-      lah-fa-icon(
-        :icon="showOthers ? 'angle-double-up' : 'angle-double-down'"
-        :action="showOthers ? 'move-fade-btt' : 'move-fade-ttb'"
+    .d-flex.justify-content-between.mb-2.align-items-center
+      //- 左側：儲存變更按鈕
+      lah-button(
+        icon="save"
+        :variant="saveButtonVariant"
+        @click="save"
+        :disabled="saveButtonDisabled"
+        size="sm"
+      ) 儲存變更
+
+      //- 右側：切換其他欄位顯示
+      //- [修正] toogle-block -> toggle-block
+      .d-flex.align-items-center.toggle-block(
+        @click="showOthers = !showOthers"
+        style="cursor: pointer"
+        title="切換其他欄位顯示"
       )
+        .mr-1 {{ showOthers ? '隱藏其他資訊欄位' : '顯示其他資訊欄位' }}
+        lah-fa-icon(
+          :icon="showOthers ? 'angle-double-up' : 'angle-double-down'"
+          :action="showOthers ? 'move-fade-btt' : 'move-fade-ttb'"
+        )
 
     //- ==========================================
     //- 5. 擴充資訊區塊 (包含較少更動的欄位)
@@ -232,13 +244,29 @@
     //- ==========================================
     //- 6. 底部操作按鈕區
     //- ==========================================
-    b-button-group.d-flex.justify-content-between
-      lah-button(
-        icon="save"
-        :variant="saveButtonVariant"
-        @click="save"
-        :disabled="saveButtonDisabled"
-      ) 儲存變更
+    //- 使用 .d-flex.justify-content-end 讓內容靠右
+    .d-flex.justify-content-end
+      //- AD 操作按鈕組
+      lah-button.mr-2(
+        icon="unlock"
+        variant="warning"
+        @click="unlockAd"
+        :disabled="isDisabled"
+        v-b-tooltip.hover
+        title="解除 AD 帳號鎖定"
+        pill
+      ) AD 解鎖
+      lah-button.mr-2(
+        icon="key"
+        variant="danger"
+        @click="changeAdPassword"
+        :disabled="isDisabled"
+        v-b-tooltip.hover
+        title="重設 AD 密碼"
+        pill
+      ) AD 密碼
+
+      //- 圖片上傳按鈕 (保持在最右側)
       lah-button(
         icon="user-circle"
         regular
@@ -586,13 +614,113 @@ export default {
       this.$consts.AUTHORITY.USER_MANAGEMENT === (this.$consts.AUTHORITY.USER_MANAGEMENT & authority) && this.authorities.push(this.$consts.AUTHORITY.USER_MANAGEMENT)
       this.$consts.AUTHORITY.CHIEF === (this.$consts.AUTHORITY.CHIEF & authority) && this.authorities.push(this.$consts.AUTHORITY.CHIEF)
       this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === (this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION & authority) && this.authorities.push(this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION)
+    },
+
+    /**
+     * 解除 AD 帳號鎖定 (包含詢問是否重設密碼)
+     */
+    unlockAd () {
+      // 第一步：確認是否解鎖
+      this.$bvModal.msgBoxConfirm(`確定要解除 ${this.userData.id} 的 AD 帳號鎖定嗎？`, {
+        title: 'AD 解鎖確認',
+        size: 'md',
+        okVariant: 'warning',
+        okTitle: '確定解鎖',
+        cancelTitle: '取消',
+        centered: true
+      }).then((ans) => {
+        if (ans) {
+          // 第二步：詢問是否順便重設密碼
+          this.$bvModal.msgBoxConfirm(`是否要同時將 ${this.userData.id} 的 AD 密碼重設為預設值 (a.000000)？`, {
+            title: '重設密碼選項',
+            size: 'md',
+            okVariant: 'danger',
+            okTitle: '是，同時重設密碼',
+            cancelVariant: 'outline-secondary',
+            cancelTitle: '否，僅解鎖',
+            centered: true
+          }).then((resetAns) => {
+            this.isBusy = true
+
+            // 準備 API payload
+            // 若 resetAns 為 true (使用者選「是」)，則同時解鎖並重設密碼
+            // 若 resetAns 為 false (使用者選「否」)，則僅解鎖
+            const payload = {
+              type: 'unlock_ad_user',
+              id: this.userData.id,
+              password: resetAns ? 'a.000000' : null
+            }
+            // 串接實際 API
+            this.$axios.post(this.$consts.API.JSON.USER, payload).then(({ data }) => {
+              if (this.$utils.statusCheck(data.status)) {
+                this.success(data.message)
+              } else {
+                this.warning(data.message)
+              }
+            }).catch((err) => {
+              this.$utils.error(err)
+            }).finally(() => {
+              this.isBusy = false
+            })
+          })
+        }
+      })
+    },
+
+    /**
+     * 變更 AD 密碼 (實作 UI 互動與輸入框)
+     */
+    changeAdPassword () {
+      // 1. 確認是否要變更
+      this.$bvModal.msgBoxConfirm(`確定要重設 ${this.userData.id} 的 AD 密碼嗎？`, {
+        title: '重設 AD 密碼',
+        size: 'md',
+        okVariant: 'danger',
+        okTitle: '繼續',
+        cancelTitle: '取消',
+        centered: true
+      }).then((ans) => {
+        if (ans) {
+          // 2. 彈出輸入框供輸入新密碼，預設為 a.000000
+          // 注意：BootstraVue msgBoxConfirm 不支援 input，這裡使用原生 prompt 簡單實作
+          // 若要更美觀可改用自定義 Modal
+          const newPassword = prompt(`請輸入 ${this.userData.id} 的新 AD 密碼：`, 'a.000000')
+
+          if (newPassword !== null) { // 使用者未按取消
+            if (this.$utils.empty(newPassword)) {
+              // [修正] 統一使用 notify 方法
+              this.notify('密碼不得為空', { type: 'warning' })
+              return
+            }
+
+            this.isBusy = true
+            // 串接實際 AD 密碼重置 API，並帶入 newPassword
+            this.$axios.post(this.$consts.API.JSON.USER, {
+              type: 'reset_ad_pw',
+              id: this.userData.id,
+              password: newPassword
+            }).then(({ data }) => {
+              if (this.$utils.statusCheck(data.status)) {
+                this.success(data.message)
+              } else {
+                this.warning(data.message)
+              }
+            }).catch((err) => {
+              this.$utils.error(err)
+            }).finally(() => {
+              this.isBusy = false
+            })
+          }
+        }
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.toogle-block:hover {
+// [修正] 修正拼字錯誤
+.toggle-block:hover {
   font-weight: bolder;
   text-decoration: underline;
 }
