@@ -105,7 +105,6 @@
       ) 儲存變更
 
       //- 右側：切換其他欄位顯示
-      //- [修正] toogle-block -> toggle-block
       .d-flex.align-items-center.toggle-block(
         @click="showOthers = !showOthers"
         style="cursor: pointer"
@@ -650,12 +649,13 @@ export default {
               id: this.userData.id,
               password: resetAns ? 'a.000000' : null
             }
+
             // 串接實際 API
             this.$axios.post(this.$consts.API.JSON.USER, payload).then(({ data }) => {
               if (this.$utils.statusCheck(data.status)) {
-                this.success(data.message)
+                this.notify(data.message, { type: 'success' })
               } else {
-                this.warning(data.message)
+                this.notify(data.message, { type: 'warning' })
               }
             }).catch((err) => {
               this.$utils.error(err)
@@ -688,7 +688,6 @@ export default {
 
           if (newPassword !== null) { // 使用者未按取消
             if (this.$utils.empty(newPassword)) {
-              // [修正] 統一使用 notify 方法
               this.notify('密碼不得為空', { type: 'warning' })
               return
             }
@@ -701,9 +700,9 @@ export default {
               password: newPassword
             }).then(({ data }) => {
               if (this.$utils.statusCheck(data.status)) {
-                this.success(data.message)
+                this.notify(data.message, { type: 'success' })
               } else {
-                this.warning(data.message)
+                this.notify(data.message, { type: 'warning' })
               }
             }).catch((err) => {
               this.$utils.error(err)
@@ -719,7 +718,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// [修正] 修正拼字錯誤
 .toggle-block:hover {
   font-weight: bolder;
   text-decoration: underline;
