@@ -61,7 +61,7 @@
         )
           template(#cell(序號)="{ index }") {{ index + 1 }}
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ time(item) }}
-          template(#cell(entry_desc)="{ item }"): .text-nowrap {{ this.userNames[item.entry_id] || item.entry_desc }}
+          template(#cell(entry_desc)="{ item }"): .text-nowrap {{ userNames[item.entry_id] || item.entry_desc }}
 
           //- [修改] IP 欄位：按鈕換成 upload icon
           template(#cell(ip)="{ item }")
