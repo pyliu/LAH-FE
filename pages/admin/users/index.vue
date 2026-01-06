@@ -15,6 +15,16 @@ div(v-cloak)
         )
 
       b-button-group.my-auto(size="lg")
+        //- [新增] AD 設定按鈕 (動態顏色與提示)
+        lah-button.mr-1(
+          icon="cogs"
+          :variant="adConfigVariant"
+          title="AD 連線設定"
+          @click="showAdConfigModal"
+          v-b-tooltip.hover
+          :title="adConfigTooltip"
+        ) AD 設定
+
         lah-button(
           icon="user-plus"
           variant="outline-primary"
@@ -28,6 +38,14 @@ div(v-cloak)
     h5.font-weight-bold.text-primary 💡 操作指南
     ul.pl-4
       li.mb-2
+        span.font-weight-bold AD 連線設定：
+        span 點擊右上角的
+        lah-button(icon="cogs" variant="outline-secondary" size="sm" no-icon-gutter class="mx-1") AD 設定
+        span 按鈕，可設定 AD 主機資訊、測試連線並同步使用者。若按鈕顯示為
+        lah-button(icon="cogs" variant="outline-danger" size="sm" no-icon-gutter class="mx-1") AD 設定
+        span ，表示目前連線設定不完整，請儘速設定。
+
+      li.mb-2
         span.font-weight-bold 新增使用者：
         span 點擊右上角的
         lah-button(icon="user-plus" variant="outline-primary" size="sm" no-icon-gutter class="mx-1")
@@ -37,7 +55,7 @@ div(v-cloak)
         span.font-weight-bold 編輯使用者：
         span 點擊列表中的任一使用者名牌
         b-button(variant="outline-dark" size="sm" class="mx-1") 使用者名牌
-        span ，即可修改其詳細資料或權限設定。
+        span ，即可修改其詳細資料、權限設定，或執行 AD 解鎖/重設密碼。
 
       li.mb-2
         span.font-weight-bold 搜尋與篩選：
@@ -169,8 +187,11 @@ div(v-cloak)
               span(v-html="highlight(user.name)")
             .small.font-weight-bolder(v-if="showIp")
               //- IP 顯示：保留樣式邏輯，並分別對前後段進行高亮處理
-              span(v-html="highlight(ipParts(user)[0] + '.' + ipParts(user)[1])")
-              span(:class="ipClass(user)" v-html="highlight('.' + ipParts(user)[2] + '.' + ipParts(user)[3])")
+              template(v-if="isValidIp(user)")
+                span(v-html="highlight(ipParts(user)[0] + '.' + ipParts(user)[1])")
+                span(:class="ipClass(user)" v-html="highlight('.' + ipParts(user)[2] + '.' + ipParts(user)[3])")
+              template(v-else)
+                span.text-muted 無IP
 
   hr
 
@@ -195,14 +216,30 @@ div(v-cloak)
     no-close-on-backdrop
   )
     lah-user-add-card(@added="added($event)")
+
+  //- [新增] AD 設定 Modal
+  b-modal(
+    id="ad-config-modal"
+    title="AD 連線設定"
+    size="lg"
+    hide-footer
+    no-close-on-backdrop
+  )
+    lah-ad-config-card(
+      :init-data="adConfig"
+      @saved="adConfigSaved"
+      @reload="loadAdConfig"
+      @synced="$fetch"
+    )
 </template>
 
 <script>
+import lahAdConfigCard from '~/components/lah-ad-config-card.vue';
 import lahUserAddCard from '~/components/lah-user-add-card.vue';
 import lahUserEditCard from '~/components/lah-user-edit-card.vue';
 
 export default {
-  components: { lahUserEditCard, lahUserAddCard },
+  components: { lahUserEditCard, lahUserAddCard, lahAdConfigCard },
   middleware: ['isAdmin'],
 
   data: () => ({
@@ -237,12 +274,16 @@ export default {
 
     // 核心資料
     users: [],
-    clickedUser: { id: '', name: '' }
+    clickedUser: { id: '', name: '' },
+
+    // [新增] AD 設定資料
+    adConfig: {}
   }),
 
   // Nuxt Fetch Hook
   fetch () {
     this.isBusy = true
+    // 取得使用者資料
     this.$axios.post(this.$consts.API.JSON.USER, {
       type: this.type
     }).then(({ data }) => {
@@ -256,6 +297,9 @@ export default {
     }).finally(() => {
       this.isBusy = false
     })
+
+    // 載入 AD 設定以檢查狀態
+    this.loadAdConfig()
   },
 
   head: {
@@ -326,7 +370,23 @@ export default {
         return 0
       })
     },
-    editUserTitle () { return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊` }
+    editUserTitle () { return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊` },
+    // 檢查 AD 設定是否完整
+    isAdConfigValid () {
+      return !this.$utils.empty(this.adConfig.AD_HOST) &&
+             !this.$utils.empty(this.adConfig.AD_PORT) &&
+             !this.$utils.empty(this.adConfig.BASE_DN) &&
+             !this.$utils.empty(this.adConfig.QUERY_USER) &&
+             !this.$utils.empty(this.adConfig.QUERY_PASSWORD)
+    },
+    // 根據 AD 設定狀態決定按鈕顏色
+    adConfigVariant () {
+      return this.isAdConfigValid ? 'outline-secondary' : 'outline-danger'
+    },
+    // 根據 AD 設定狀態決定提示文字
+    adConfigTooltip () {
+      return this.isAdConfigValid ? 'AD 連線設定已完成' : 'AD 連線設定不完整，請點擊設定'
+    }
   },
 
   watch: {
@@ -452,6 +512,33 @@ export default {
       }
     },
 
+    // --- AD Config ---
+    showAdConfigModal () {
+      this.loadAdConfig()
+      this.showModalById('ad-config-modal')
+    },
+    loadAdConfig () {
+      // 這裡模擬從後端載入設定
+      // 實際專案應改為 this.$axios.post(...)
+      this.$axios.post(this.$consts.API.JSON.USER, {
+        type: 'ad_config'
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.adConfig = { ...data.raw }
+          // this.$utils.warn('AD 連線設定載入完成', this.adConfig)
+        } else {
+          // this.notify(data.message, { type: 'warning' })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      })
+    },
+    adConfigSaved (newConfig) {
+      // 設定儲存後的處理，例如關閉視窗或更新本地資料
+      this.adConfig = { ...newConfig }
+      this.hideModalById('ad-config-modal')
+    },
+
     // --- 顯示輔助函式 ---
     variant (user) {
       const userAuthority = this.getAuthority(user)
@@ -496,6 +583,9 @@ export default {
     },
     avatarSrc (user) {
       return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
+    },
+    isValidIp (user) {
+      return user.ip && user.ip.split('.').length === 4
     },
     ipParts (user) {
       return user.ip.split('.')
