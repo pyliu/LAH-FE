@@ -16,7 +16,8 @@ div(v-cloak)
 
       b-button-group.my-auto(size="lg")
         //- [新增] AD 設定按鈕 (動態顏色與提示)
-        lah-button.mr-1(
+        //- [修正] 加入 .text-nowrap 防止文字換行
+        lah-button.mr-1.text-nowrap(
           icon="cogs"
           :variant="adConfigVariant"
           title="AD 連線設定"
@@ -26,7 +27,8 @@ div(v-cloak)
         ) AD 設定
 
         //- [修改] 更新 IP 按鈕 (移除 no-icon-gutter 以保留間距)
-        lah-button.mr-1(
+        //- [修正] 加入 .text-nowrap 防止文字換行
+        lah-button.mr-1.text-nowrap(
           icon="network-wired"
           variant="outline-info"
           title="獲取動態 IP 列表並比對更新"
@@ -43,44 +45,50 @@ div(v-cloak)
         )
 
   //- 幫助說明 Modal (優化版)
-  lah-help-modal(:modal-id="'help-modal'" size="lg")
+  //- [修正] size 改為 xl 以解決斷行問題
+  lah-help-modal(:modal-id="'help-modal'" size="xl")
     h5.font-weight-bold.text-primary 💡 操作指南
     ul.pl-4
       li.mb-2
-        span.font-weight-bold 更新 IP：
-        span 點擊
-        lah-button(icon="network-wired" variant="outline-info" size="sm" class="mx-1") 更新 IP
-        span 系統會抓取最近 7 天的登入紀錄。若發現新 IP，單一筆會自動更新；多筆則會跳出視窗供您選擇。
+        .d-flex.align-items-center.flex-wrap
+          span.font-weight-bold 更新 IP：
+          span 點擊
+          lah-button(icon="network-wired" variant="outline-info" size="sm" class="mx-1") 更新 IP
+          span 系統會抓取最近 7 天的登入紀錄。若發現新 IP，單一筆會自動更新；多筆則會跳出視窗供您選擇。
 
       li.mb-2
-        span.font-weight-bold AD 連線設定：
-        span 點擊右上角的
-        lah-button(icon="cogs" variant="outline-secondary" size="sm" no-icon-gutter class="mx-1") AD 設定
-        span 按鈕，可設定 AD 主機資訊、測試連線並同步使用者。若按鈕顯示為
-        lah-button(icon="cogs" variant="outline-danger" size="sm" no-icon-gutter class="mx-1") AD 設定
-        span ，表示目前連線設定不完整，請儘速設定。
+        .d-flex.align-items-center.flex-wrap
+          span.font-weight-bold AD 連線設定：
+          span 點擊右上角的
+          lah-button(icon="cogs" variant="outline-secondary" size="sm" no-icon-gutter class="mx-1") AD 設定
+          span 按鈕，可設定 AD 主機資訊、測試連線並同步使用者。若按鈕顯示為
+          lah-button(icon="cogs" variant="outline-danger" size="sm" no-icon-gutter class="mx-1") AD 設定
+          span ，表示目前連線設定不完整，請儘速設定。
 
       li.mb-2
-        span.font-weight-bold 新增使用者：
-        span 點擊右上角的
-        lah-button(icon="user-plus" variant="outline-primary" size="sm" no-icon-gutter class="mx-1")
-        span 按鈕，填寫必要資訊後即可建立新帳號。
+        .d-flex.align-items-center.flex-wrap
+          span.font-weight-bold 新增使用者：
+          span 點擊右上角的
+          lah-button(icon="user-plus" variant="outline-primary" size="sm" no-icon-gutter class="mx-1")
+          span 按鈕，填寫必要資訊後即可建立新帳號。
 
       li.mb-2
-        span.font-weight-bold 編輯使用者：
-        span 點擊列表中的任一使用者名牌
-        b-button(variant="outline-dark" size="sm" class="mx-1") 使用者名牌
-        span ，即可修改其詳細資料、權限設定，或執行 AD 解鎖/重設密碼。
+        .d-flex.align-items-center.flex-wrap
+          span.font-weight-bold 編輯使用者：
+          span 點擊列表中的任一使用者名牌
+          b-button(variant="outline-dark" size="sm" class="mx-1") 使用者名牌
+          span ，即可修改其詳細資料、權限設定，或執行 AD 解鎖/重設密碼。
 
       li.mb-2
-        span.font-weight-bold 搜尋與篩選：
-        span 可利用右側搜尋框輸入
-        b-badge(variant="light") 姓名
-        span 、
-        b-badge(variant="light") ID
-        span  或
-        b-badge(variant="light") IP
-        span  快速查找，系統會自動 <span class="bg-warning text-dark px-1">高亮</span> 比對到的文字；亦可勾選「在職/離職」進行過濾。
+        .d-flex.align-items-center.flex-wrap
+          span.font-weight-bold 搜尋與篩選：
+          span 可利用右側搜尋框輸入
+          b-badge.mx-1(variant="light") 姓名
+          span 、
+          b-badge.mx-1(variant="light") ID
+          span  或
+          b-badge.mx-1(variant="light") IP
+          span  快速查找，系統會自動 <span class="bg-warning text-dark px-1 mx-1">高亮</span> 比對到的文字；亦可勾選「在職/離職」進行過濾。
 
     hr
 
