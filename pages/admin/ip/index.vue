@@ -11,6 +11,7 @@
       .d-flex
 
     b-card-group(deck)
+      //- 左側：靜態 IP 對應表
       b-card.fixed-vh
         template(#header): .d-flex.justify-content-between
           h4 靜態IP對應表
@@ -38,6 +39,7 @@
               lah-button.mr-1(icon="edit" variant="outline-primary" no-icon-gutter title="編輯" @click="edit(item)" pill)
               lah-button(icon="times" variant="outline-danger" no-icon-gutter title="移除" @click="remove(item)" pill)
 
+      //- 右側：使用者回報 IP 對應表
       b-card.fixed-vh
         template(#header)
           h4 使用者回報IP對應表
@@ -60,6 +62,22 @@
           template(#cell(序號)="{ index }") {{ index + 1 }}
           template(#cell(timestamp)="{ item }"): .text-nowrap {{ time(item) }}
           template(#cell(entry_desc)="{ item }"): .text-nowrap {{ userNames ? userNames[item.entry_id] : item.entry_desc }}
+
+          //- [修改] IP 欄位：按鈕換成 upload icon
+          template(#cell(ip)="{ item }")
+            .d-flex.justify-content-between.align-items-center
+              span {{ item.ip }}
+              lah-button(
+                icon="upload"
+                variant="outline-secondary"
+                size="sm"
+                no-icon-gutter
+                pill
+                title="將此 IP 更新至使用者資料"
+                @click="updateUserIp(item)"
+              )
+
+    //- Modal 區塊保持不變
     b-modal(
       id="replace-static-modal"
       hide-footer
@@ -116,6 +134,7 @@ export default {
       { key: 'timestamp', label: '更新日期', sortable: true },
       { key: 'note', label: '備註', sortable: true }
     ],
+    // [修改] 移除 action 欄位，保留 ip 欄位
     dynamicFields: [
       '序號',
       { key: 'ip', label: '連線位址', sortable: true },
@@ -255,6 +274,31 @@ export default {
       const time = full.split(' ')[1]
       const now = this.$utils.now()
       return now.startsWith(date) ? time : date
+    },
+    // [更新] 更新使用者 IP 資訊 (upd_ip)
+    updateUserIp (item) {
+      if (this.isBusy) { return }
+
+      this.confirm(`確定要將使用者 ${item.entry_id} 的 IP 更新為 ${item.ip} 嗎？`).then((ans) => {
+        if (ans) {
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.USER, {
+            type: 'upd_ip', // 修改為 upd_ip
+            id: item.entry_id,
+            ip: item.ip
+          }).then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              this.notify(data.message, { type: 'success' })
+            } else {
+              this.warning(data.message)
+            }
+          }).catch((err) => {
+            this.$utils.error(err)
+          }).finally(() => {
+            this.isBusy = false
+          })
+        }
+      })
     }
   }
 }

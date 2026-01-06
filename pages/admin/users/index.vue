@@ -25,6 +25,15 @@ div(v-cloak)
           :title="adConfigTooltip"
         ) AD 設定
 
+        //- [修改] 更新 IP 按鈕 (移除 no-icon-gutter 以保留間距)
+        lah-button.mr-1(
+          icon="network-wired"
+          variant="outline-info"
+          title="獲取動態 IP 列表並比對更新"
+          @click="getDynamicIPEntries"
+          :disabled="isBusy"
+        ) 更新 IP
+
         lah-button(
           icon="user-plus"
           variant="outline-primary"
@@ -37,6 +46,12 @@ div(v-cloak)
   lah-help-modal(:modal-id="'help-modal'" size="lg")
     h5.font-weight-bold.text-primary 💡 操作指南
     ul.pl-4
+      li.mb-2
+        span.font-weight-bold 更新 IP：
+        span 點擊
+        lah-button(icon="network-wired" variant="outline-info" size="sm" class="mx-1") 更新 IP
+        span 系統會抓取最近 7 天的登入紀錄。若發現新 IP，單一筆會自動更新；多筆則會跳出視窗供您選擇。
+
       li.mb-2
         span.font-weight-bold AD 連線設定：
         span 點擊右上角的
@@ -217,7 +232,7 @@ div(v-cloak)
   )
     lah-user-add-card(@added="added($event)")
 
-  //- [新增] AD 設定 Modal
+  //- AD 設定 Modal
   b-modal(
     id="ad-config-modal"
     title="AD 連線設定"
@@ -231,6 +246,39 @@ div(v-cloak)
       @reload="loadAdConfig"
       @synced="$fetch"
     )
+
+  //- [新增] IP 衝突解決 Modal
+  b-modal(
+    id="ip-conflict-modal"
+    title="IP 更新選擇"
+    size="xl"
+    hide-footer
+    scrollable
+  )
+    p.text-muted 以下使用者被偵測到有多個潛在的 IP 更新，請選擇正確的 IP 進行更新：
+    b-table(
+      :items="ipConflictList"
+      :fields="conflictFields"
+      striped
+      hover
+      bordered
+    )
+      //- 候選 IP 選擇區
+      template(#cell(candidates)="{ item }")
+        b-form-radio-group(v-model="item.selectedIp" stacked)
+          b-form-radio(v-for="cand in item.candidates" :value="cand.ip" :key="cand.ip")
+            span.mr-2.font-weight-bold {{ cand.ip }}
+            span.small.text-muted (最後登入: {{ cand.timestamp }})
+
+      //- 操作按鈕
+      template(#cell(action)="{ item }")
+        lah-button(
+          icon="check"
+          size="sm"
+          variant="outline-primary"
+          @click="updateUserIp(item.id, item.selectedIp)"
+          :disabled="!item.selectedIp"
+        ) 更新
 </template>
 
 <script>
@@ -276,8 +324,19 @@ export default {
     users: [],
     clickedUser: { id: '', name: '' },
 
-    // [新增] AD 設定資料
-    adConfig: {}
+    // AD 設定資料
+    adConfig: {},
+
+    // [新增] 動態 IP 相關資料
+    dynamicIPEntries: [],
+    ipConflictList: [],
+    conflictFields: [
+      { key: 'id', label: 'ID', sortable: true },
+      { key: 'name', label: '姓名', sortable: true },
+      { key: 'currentIp', label: '目前 IP' },
+      { key: 'candidates', label: '候選 IP (請選擇)' },
+      { key: 'action', label: '操作', class: 'text-center' }
+    ]
   }),
 
   // Nuxt Fetch Hook
@@ -398,7 +457,11 @@ export default {
     },
     // 記住用戶顯示偏好
     showAvatar (val) { localStorage.setItem('user_mgt_show_avatar', val) },
-    showIp (val) { localStorage.setItem('user_mgt_show_ip', val) }
+    showIp (val) { localStorage.setItem('user_mgt_show_ip', val) },
+    // [新增] 監控 dynamicIPEntries 變動並記錄
+    dynamicIPEntries (val) {
+      this.$utils.warn('Dynamic IP entries fetched:', val.length)
+    }
   },
 
   mounted () {
@@ -537,6 +600,140 @@ export default {
       // 設定儲存後的處理，例如關閉視窗或更新本地資料
       this.adConfig = { ...newConfig }
       this.hideModalById('ad-config-modal')
+    },
+
+    // [新增] 獲取動態 IP 列表並比對
+    getDynamicIPEntries () {
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.IP, {
+        type: 'dynamic_ip_entries',
+        offset: 604800 // 7 days
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.dynamicIPEntries = [...data.raw]
+          this.notify('動態 IP 列表更新完成，開始比對...', { type: 'success' })
+          // 觸發比對邏輯
+          this.checkIpUpdates(this.dynamicIPEntries)
+        } else {
+          this.notify(data.message, { type: 'warning' })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+
+    // [新增] 比對 IP 更新邏輯
+    async checkIpUpdates (entries) {
+      const userMap = {} // entry_id -> [entries]
+      entries.forEach((entry) => {
+        if (!userMap[entry.entry_id]) { userMap[entry.entry_id] = [] }
+        userMap[entry.entry_id].push(entry)
+      })
+
+      const toUpdate = []
+      const conflicts = []
+
+      this.users.forEach((user) => {
+        const userEntries = userMap[user.id]
+        if (userEntries) {
+          // 過濾出與目前 IP 不同的唯一 IP 候選
+          const uniqueIps = [...new Set(userEntries.map(e => e.ip))].filter(ip => ip !== user.ip)
+
+          if (uniqueIps.length === 1) {
+            // 只有一個候選且不同 -> 加入自動更新清單
+            toUpdate.push({ id: user.id, ip: uniqueIps[0], name: user.name })
+          } else if (uniqueIps.length > 1) {
+            // 多個候選 -> 加入衝突清單
+            // 整理候選名單詳細資訊 (包含時間)
+            const candidates = uniqueIps.map((ip) => {
+              const latestEntry = userEntries.filter(e => e.ip === ip).sort((a, b) => b.timestamp - a.timestamp)[0]
+              return {
+                ip,
+                timestamp: this.$utils.phpTsToAdDateStr(latestEntry.timestamp, true)
+              }
+            })
+
+            conflicts.push({
+              id: user.id,
+              name: user.name,
+              currentIp: user.ip,
+              candidates,
+              selectedIp: null // 供 v-model 使用
+            })
+          }
+        }
+      })
+
+      // 處理單一 IP 自動更新
+      if (toUpdate.length > 0) {
+        const ans = await this.confirm(`發現 ${toUpdate.length} 筆單一 IP 更新，是否自動更新？`)
+        if (ans) {
+          // [修改] 使用序列執行方式更新，避免並發鎖定 SQLite
+          await this.processUpdatesSequentially(toUpdate)
+          this.notify(`已完成 ${toUpdate.length} 筆 IP 更新`, { type: 'success' })
+        }
+      }
+
+      // 處理多 IP 衝突 (開啟 Modal)
+      if (conflicts.length > 0) {
+        this.ipConflictList = conflicts
+        this.showModalById('ip-conflict-modal')
+      } else if (toUpdate.length === 0) {
+        this.notify('比對完成，目前使用者的 IP 皆為最新或無新紀錄。', { type: 'info' })
+      }
+    },
+
+    // [新增] 序列處理更新請求 (避免 SQLite Busy)
+    async processUpdatesSequentially (updateList) {
+      this.isBusy = true
+      try {
+        for (const item of updateList) {
+          // 依序執行，並等待完成
+          await this.updateUserIp(item.id, item.ip, true)
+          // 可以適當加入小延遲，減緩後端壓力 (選擇性)
+          // await this.$utils.sleep(100);
+        }
+      } catch (err) {
+        this.$utils.error('批次更新過程發生錯誤', err)
+      } finally {
+        this.isBusy = false
+      }
+    },
+
+    // [新增] 執行 API 更新 IP (支援 Promise 回傳)
+    updateUserIp (id, ip, silent = false) {
+      // 回傳 Promise 以便 await 使用
+      return this.$axios.post(this.$consts.API.JSON.USER, {
+        type: 'upd_ip',
+        id,
+        ip
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          if (!silent) {
+            this.notify(`${id} IP 已更新為 ${ip}`, { type: 'success' })
+          }
+          // 同步更新前端資料
+          this.update({ id, ip })
+
+          // 如果是從 Modal 操作的，移除該筆衝突紀錄
+          if (this.ipConflictList.length > 0) {
+            this.ipConflictList = this.ipConflictList.filter(item => item.id !== id)
+            if (this.ipConflictList.length === 0) {
+              this.hideModalById('ip-conflict-modal')
+            }
+          }
+        } else {
+          // 即使失敗也當作 resolve，以免中斷整個批次，但記錄警告
+          this.warning(`更新失敗 ${id}: ${data.message}`)
+        }
+        return data // 回傳資料供參考
+      }).catch((err) => {
+        this.$utils.error(err)
+        // 錯誤也當作 resolve，避免中斷迴圈
+        return null
+      })
     },
 
     // --- 顯示輔助函式 ---
