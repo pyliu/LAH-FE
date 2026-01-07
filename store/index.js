@@ -273,14 +273,49 @@ export const actions = {
   /**
    * Performs a login request to the backend if the user is not already logged in.
    */
-  login ({ commit, getters }) {
+  async login ({ commit, getters }) {
+    /**
+     * Attempts to retrieve login info from localForage cache.
+     */
+    const key = 'loginInfo'
+    try {
+      const item = await this.$localForage.getItem(key)
+      if (!isEmpty(item)) {
+        const ts = item.timestamp
+        const expireTime = item.expire_ms || 0
+        const now = +new Date()
+        if (expireTime !== 0 && now - ts > expireTime) {
+          await this.$localForage.removeItem(key)
+        } else {
+          this.$utils.warn('Using cached login info.')
+          commit('login', item.value)
+        }
+      }
+    } catch (err) {
+      // cache is possibly full, so lets clear it
+      this.$localForage.clear()
+      this.$utils.error(err)
+    }
     if (!getters.loggedIn) {
       this.$axios.post(this.$consts.API.JSON.AUTH, {
         type: 'login',
         req_ip: getters.ip
-      }).then((res) => {
+      }).then(async (res) => {
         commit('login', res.data)
+        /**
+         * Cache the login info in localForage with an 8-hour expiration.
+         */
+        this.$utils.warn('Caching login info.')
+        const item = {
+          key,
+          value: res.data,
+          timestamp: +new Date(), // == new Date().getTime()
+          expire_ms: 8 * 60 * 60 * 1000// milliseconds
+        }
+        await this.$localForage.setItem(key, item)
       }).catch((error) => {
+        // cache is possibly full, so lets clear it
+        this.$localForage.clear()
         logerror(error)
       }).finally(() => {
         logtimestamp(`${getters.ip} connected.`)
