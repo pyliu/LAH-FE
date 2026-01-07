@@ -25,7 +25,7 @@ div(v-cloak)
           :title="adConfigTooltip"
         ) AD 設定
 
-        //- 更新 IP 按鈕 (獲取動態 IP 列表並比對)
+        //- 更新 IP 按鈕 (獲取登入紀錄並依權重更新 IP)
         lah-button.mr-1.text-nowrap(
           icon="network-wired"
           variant="outline-info"
@@ -42,7 +42,7 @@ div(v-cloak)
           @click="add"
         )
 
-  //- 幫助說明 Modal (XL 大小解決排版問題)
+  //- 幫助說明 Modal
   lah-help-modal(:modal-id="'help-modal'" size="xl")
     h5.font-weight-bold.text-primary 💡 操作指南
     ul.pl-4
@@ -63,7 +63,7 @@ div(v-cloak)
       li.mb-2
         .d-flex.align-items-center.flex-wrap
           span.font-weight-bold 警示顯示：
-          span 若使用者資料中 #[span.ip-alert-style 無 IP]，系統會以亮紅色醒目字體顯示，提醒管理者該人員可能尚未配置或回報電腦位址。
+          span 若使用者資料中 #[span.ip-alert-style 無 IP] 或 IP #[b 尾數為 .0]，系統會以亮紅色醒目字體顯示。
 
     hr
 
@@ -164,12 +164,12 @@ div(v-cloak)
               span(v-html="highlight(user.name)")
             .small.font-weight-bolder(v-if="showIp")
               template(v-if="isValidIp(user)")
-                //- 正常 IP 顯示：維持原本的對比色邏輯
+                //- 正常 IP 顯示
                 span(v-html="highlight(ipParts(user)[0] + '.' + ipParts(user)[1])")
                 span(:class="ipClass(user)" v-html="highlight('.' + ipParts(user)[2] + '.' + ipParts(user)[3])")
               template(v-else)
-                //- 無 IP 顯示：套用醒目警示樣式
-                span.ip-alert-style 無 IP
+                //- 無 IP 或 IP 尾數為 .0 顯示：套用醒目警示樣式
+                span.ip-alert-style {{ user.ip && user.ip.endsWith('.0') ? user.ip : '無 IP' }}
 
   hr
 
@@ -407,7 +407,7 @@ export default {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.IP, {
         type: 'dynamic_ip_entries',
-        offset: 86400 // 1 days
+        offset: 604800 // 7 days
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           this.dynamicIPEntries = [...data.raw]
@@ -491,7 +491,7 @@ export default {
       try {
         const { data } = await this.$axios.post(this.$consts.API.JSON.USER, { type: 'upd_ip', id, ip })
         if (this.$utils.statusCheck(data.status)) {
-          if (!silent) { this.notify(`${id} IP 已更新`, { type: 'success' }) }
+          if (!silent) { this.notify(`${id} IP 已成功更新為 ${ip}`, { type: 'success' }) }
           this.update({ id, ip })
           if (this.ipConflictList.length > 0) {
             this.ipConflictList = this.ipConflictList.filter(item => item.id !== id)
@@ -540,7 +540,17 @@ export default {
       return ['primary', 'danger', 'success', 'secondary'].includes(v) ? 'ip-text-light' : 'ip-text-dark'
     },
     avatarSrc (user) { return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar` },
-    isValidIp (user) { return user.ip && user.ip.split('.').length === 4 },
+
+    /**
+     * 判定是否為有效的顯示 IP
+     * [修改] 加入判定：若 IP 尾數為 .0 也視為無效 IP
+     */
+    isValidIp (user) {
+      if (!user.ip || typeof user.ip !== 'string') { return false }
+      const parts = user.ip.split('.')
+      // 必須有四段且最後一段不為 '0'
+      return parts.length === 4 && parts[3] !== '0'
+    },
     ipParts (user) { return user.ip.split('.') }
   }
 }
@@ -568,7 +578,7 @@ export default {
 // 深藍色高亮樣式 (用於淺色底名牌)
 .ip-text-dark { color: #0033cc !important; font-weight: 900; }
 
-// [醒目樣式] 亮紅色、粗體、文字陰影（僅用於「無 IP」情況）
+// [醒目樣式] 亮紅色、粗體、文字陰影（用於「無 IP」或「尾數 .0」情況）
 .ip-alert-style {
   color: #ff3b3b !important;
   font-weight: 900 !important;
