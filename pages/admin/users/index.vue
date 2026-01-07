@@ -407,7 +407,7 @@ export default {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.IP, {
         type: 'dynamic_ip_entries',
-        offset: 604800 // 7 days
+        offset: 86400 // 1 days
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           this.dynamicIPEntries = [...data.raw]
