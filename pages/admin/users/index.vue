@@ -42,7 +42,7 @@ div(v-cloak)
           @click="add"
         )
 
-  //- 幫助說明 Modal
+  //- 幫助說明 Modal (XL 大小解決排版問題)
   lah-help-modal(:modal-id="'help-modal'" size="xl")
     h5.font-weight-bold.text-primary 💡 操作指南
     ul.pl-4
@@ -63,7 +63,7 @@ div(v-cloak)
       li.mb-2
         .d-flex.align-items-center.flex-wrap
           span.font-weight-bold 警示顯示：
-          span 若使用者資料中 #[span.ip-alert-style 無 IP] 或 IP #[b 尾數為 .0]，系統會以亮紅色醒目字體顯示。
+          span 若使用者資料中 #[span.ip-alert-style 無 IP] 或 IP #[b 尾數為 .0]，系統會以亮紅色醒目字體顯示，提醒管理者該人員可能尚未配置或回報電腦位址。
 
     hr
 
@@ -78,13 +78,13 @@ div(v-cloak)
     h5.font-weight-bold.text-primary 🏷️ 角色權限圖例
     .row.no-gutters
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="outline-dark" size="sm" style="width: 85px; white-space: nowrap") 正常人員
-        span.small 一般權限人員
+        b-button.mr-2(variant="outline-secondary" size="sm" style="width: 85px; white-space: nowrap") 一般人員
+        span.small 預設權限人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
         b-button.mr-2(variant="secondary" size="sm" style="width: 85px; white-space: nowrap") 離職
         span.small 已離職人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="danger" size="sm" style="width: 85px; white-space: nowrap") 系統管理
+        b-button.mr-2(variant="outline-success" size="sm" style="width: 85px; white-space: nowrap") 系統管理
         span.small 最高權限管理者
       .col-6.col-md-4.p-1.d-flex.align-items-center
         b-button.mr-2(variant="primary" size="sm" style="width: 85px; white-space: nowrap") 主管
@@ -491,7 +491,7 @@ export default {
       try {
         const { data } = await this.$axios.post(this.$consts.API.JSON.USER, { type: 'upd_ip', id, ip })
         if (this.$utils.statusCheck(data.status)) {
-          if (!silent) { this.notify(`${id} IP 已成功更新為 ${ip}`, { type: 'success' }) }
+          if (!silent) { this.notify(`${id} IP 已更新`, { type: 'success' }) }
           this.update({ id, ip })
           if (this.ipConflictList.length > 0) {
             this.ipConflictList = this.ipConflictList.filter(item => item.id !== id)
@@ -508,12 +508,12 @@ export default {
     variant (user) {
       const auth = this.getAuthority(user)
       if (auth.isDisabled) { return 'secondary' }
-      if (auth.isAdmin) { return 'danger' }
+      if (auth.isAdmin) { return 'outline-success' }
       if (auth.isChief) { return 'primary' }
       if (auth.isRAE) { return 'warning' }
       if (auth.isUserMgtStaff) { return 'success' }
       if (auth.isNotifyMgtStaff) { return 'outline-info' }
-      return 'outline-dark'
+      return 'outline-secondary'
     },
     role (user) {
       const auth = this.getAuthority(user)
@@ -537,13 +537,14 @@ export default {
     },
     ipClass (user) {
       const v = this.variant(user)
-      return ['primary', 'danger', 'success', 'secondary'].includes(v) ? 'ip-text-light' : 'ip-text-dark'
+      // 根據 Bootstrap 語意判斷背景深淺
+      return ['primary', 'success', 'secondary'].includes(v) ? 'ip-text-light' : 'ip-text-dark'
     },
     avatarSrc (user) { return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar` },
 
     /**
      * 判定是否為有效的顯示 IP
-     * [修改] 加入判定：若 IP 尾數為 .0 也視為無效 IP
+     * 加入判定：若 IP 尾數為 .0 也視為無效 IP
      */
     isValidIp (user) {
       if (!user.ip || typeof user.ip !== 'string') { return false }
@@ -576,7 +577,11 @@ export default {
 .ip-text-light { color: #FFEB3B !important; font-weight: 900; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); }
 
 // 深藍色高亮樣式 (用於淺色底名牌)
-.ip-text-dark { color: #0033cc !important; font-weight: 900; }
+.ip-text-dark {
+  color: #0033cc !important;
+  font-weight: 900;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
 
 // [醒目樣式] 亮紅色、粗體、文字陰影（用於「無 IP」或「尾數 .0」情況）
 .ip-alert-style {
