@@ -26,7 +26,7 @@
           )
             lah-button(
               icon="users-cog"
-              variant="outline-dark"
+              variant="outline-info"
               @click="syncAdUsers"
               :disabled="isBusy || !adConnectionVerified"
             ) 同步 AD 使用者
