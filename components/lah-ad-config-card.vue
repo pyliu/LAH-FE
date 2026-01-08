@@ -157,12 +157,12 @@
         label-for="agent-url"
         label-cols-sm="2"
         label-size="md"
-        description="⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址"
+        description="⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址 [需於 AD 伺服器執行 AD_Password_Agent.ps1 以提供 API 服務]"
       ): b-input(
         id="agent-url"
         v-model="config.AD_AGENT_URL"
         trim
-        placeholder="http://..."
+        placeholder="http://220.1.XX.XX:8888/reset-password"
       )
 
       b-form-group(
@@ -170,7 +170,7 @@
         label-for="agent-key"
         label-cols-sm="2"
         label-size="md"
-        description="👉 Agent API 的金鑰 [必須與 Agent 端設定相符]"
+        description="👉 Agent API 的金鑰 [必須與 AD_Password_Agent.ps1 裡設定相符]"
       ): b-input(
         id="agent-key"
         v-model="config.AD_AGENT_KEY"
