@@ -6,14 +6,49 @@
         h6.mb-0.font-weight-bold
           lah-fa-icon(icon="network-wired").mr-1
           | AD 連線設定
-        lah-button(
-          icon="sync-alt"
-          action="spin"
-          variant="outline-primary"
-          size="sm"
-          @click="$emit('reload')"
-          title="重新載入設定"
-        )
+        //- .d-flex.justify-content-between.align-items-center
+        b-button-group.my-auto(size="sm")
+          //- 左側：測試連線按鈕
+          lah-button.mr-1(
+            icon="plug"
+            variant="outline-success"
+            @click="testConnection"
+            :disabled="isBusy"
+            v-b-tooltip.hover
+            title="測試目前設定是否可連線 AD"
+          ) 測試連線
+
+          //- 中間：同步 AD 使用者按鈕 (需先通過連線測試)
+          //- 使用 span 包裹以在 disabled 狀態下也能顯示 tooltip
+          span(
+            v-b-tooltip.hover
+            :title="adConnectionVerified ? '立即從 AD 同步使用者資料至系統' : '請先通過「測試連線」驗證設定'"
+          )
+            lah-button(
+              icon="users-cog"
+              variant="outline-dark"
+              @click="syncAdUsers"
+              :disabled="isBusy || !adConnectionVerified"
+            ) 同步 AD 使用者
+
+          //- 右側：儲存按鈕
+          lah-button.mx-1(
+            icon="save"
+            :variant="isModified ? 'primary' : 'outline-primary'"
+            :disabled="!isModified || isBusy"
+            :loading="isBusy"
+            @click="save"
+            title="儲存目前的 AD 連線設定"
+            no-icon-gutter
+          )
+          lah-button(
+            icon="sync-alt"
+            action="cycle"
+            variant="outline-secondary"
+            @click="$emit('reload')"
+            title="重新載入設定"
+            no-icon-gutter
+          )
 
     //- ==========================================
     //- 1. 主機與連接埠設定
@@ -108,9 +143,7 @@
 
       //- 佔位用，保持排版平衡
       b-card.border-0(no-body)
-
     hr
-
     //- ==========================================
     //- 4. AD Agent 設定 (進階設定) - 已移除收合/展開功能
     //- ==========================================
@@ -146,42 +179,6 @@
         trim
         placeholder="API Key"
       )
-
-    //- ==========================================
-    //- 5. 底部操作區
-    //- ==========================================
-    .d-flex.justify-content-between.align-items-center
-      //- 左側：測試連線按鈕
-      lah-button(
-        icon="plug"
-        variant="outline-info"
-        @click="testConnection"
-        :disabled="isBusy"
-        v-b-tooltip.hover
-        title="測試目前設定是否可連線 AD"
-      ) 測試連線
-
-      //- 中間：同步 AD 使用者按鈕 (需先通過連線測試)
-      //- 使用 span 包裹以在 disabled 狀態下也能顯示 tooltip
-      span(
-        v-b-tooltip.hover
-        :title="adConnectionVerified ? '立即從 AD 同步使用者資料至系統' : '請先通過「測試連線」驗證設定'"
-      )
-        lah-button(
-          icon="users-cog"
-          variant="outline-primary"
-          @click="syncAdUsers"
-          :disabled="isBusy || !adConnectionVerified"
-        ) 同步 AD 使用者
-
-      //- 右側：儲存按鈕
-      lah-button(
-        icon="save"
-        variant="primary"
-        @click="save"
-        :disabled="!isModified || isBusy"
-        :loading="isBusy"
-      ) 儲存設定
 
 </template>
 
