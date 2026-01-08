@@ -126,7 +126,7 @@
         label-for="agent-url"
         label-cols-sm="2"
         label-size="md"
-        description="用於執行重設密碼等進階操作的代理程式 API 位址"
+        description="⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址 [必須於 AD 伺服器執行 AD_Password_Agent.ps1 以啟動服務，要注意防火牆設定]"
       ): b-input(
         id="agent-url"
         v-model="config.AD_AGENT_URL"
@@ -139,7 +139,7 @@
         label-for="agent-key"
         label-cols-sm="2"
         label-size="md"
-        description="Agent API 的驗證金鑰"
+        description="👉 Agent API 的金鑰 [必須與 Agent 端 (AD_Password_Agent.ps1) 裡設定相符]"
       ): b-input(
         id="agent-key"
         v-model="config.AD_AGENT_KEY"
