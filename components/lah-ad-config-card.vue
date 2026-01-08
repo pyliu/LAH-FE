@@ -6,7 +6,7 @@
         h6.mb-0.font-weight-bold
           lah-fa-icon(icon="network-wired").mr-1
           | AD 連線設定
-        //- .d-flex.justify-content-between.align-items-center
+        //- 操作按鈕群組
         b-button-group.my-auto(size="sm")
           //- 左側：測試連線按鈕
           lah-button.mr-1(
@@ -19,7 +19,6 @@
           ) 測試連線
 
           //- 中間：同步 AD 使用者按鈕 (需先通過連線測試)
-          //- 使用 span 包裹以在 disabled 狀態下也能顯示 tooltip
           span(
             v-b-tooltip.hover
             :title="adConnectionVerified ? '立即從 AD 同步使用者資料至系統' : '請先通過「測試連線」驗證設定'"
@@ -145,10 +144,9 @@
       b-card.border-0(no-body)
     hr
     //- ==========================================
-    //- 4. AD Agent 設定 (進階設定) - 已移除收合/展開功能
+    //- 4. AD Agent 設定 (進階設定)
     //- ==========================================
 
-    //- 直接顯示標題，說明功能用途
     h6.mb-3.font-weight-bold.text-muted
       lah-fa-icon(icon="cogs").mr-1
       | AD Agent 設定 (變動密碼功能須設定此處)
@@ -159,7 +157,7 @@
         label-for="agent-url"
         label-cols-sm="2"
         label-size="md"
-        description="⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址 [必須於 AD 伺服器執行 AD_Password_Agent.ps1 以啟動服務，要注意防火牆設定]"
+        description="⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址"
       ): b-input(
         id="agent-url"
         v-model="config.AD_AGENT_URL"
@@ -172,13 +170,48 @@
         label-for="agent-key"
         label-cols-sm="2"
         label-size="md"
-        description="👉 Agent API 的金鑰 [必須與 Agent 端 (AD_Password_Agent.ps1) 裡設定相符]"
+        description="👉 Agent API 的金鑰 [必須與 Agent 端設定相符]"
       ): b-input(
         id="agent-key"
         v-model="config.AD_AGENT_KEY"
         trim
         placeholder="API Key"
       )
+
+    //- ==========================================
+    //- 5. 詳細資訊 Modal (用於顯示同步結果)
+    //- ==========================================
+    b-modal(
+      ref="sync-detail-modal"
+      title="AD 同步作業結果"
+      size="lg"
+      scrollable
+      hide-footer
+    )
+      //- 顯示主要訊息通知 (API 回傳的 message)
+      .alert.alert-info.shadow-sm.mb-3(v-if="syncResultMessage")
+        lah-fa-icon(icon="info-circle").mr-2
+        span {{ syncResultMessage }}
+
+      //- 顯示詳細訊息 (API 回傳的 raw.detail 訊息陣列)
+      section(v-if="syncDetails")
+        h6.font-weight-bold.mb-2
+          lah-fa-icon(icon="list-ul").mr-1
+          | 詳細同步紀錄：
+
+        //- 若為陣列，以清單方式呈現
+        ul.list-unstyled.pl-3(v-if="Array.isArray(syncDetails)")
+          li.mb-2.border-bottom.pb-1(v-for="(msg, idx) in syncDetails" :key="idx")
+            lah-fa-icon(icon="caret-right" variant="secondary").mr-2
+            span.small {{ msg }}
+
+        //- 備援：若非陣列，以 pre 方式呈現
+        pre.p-3.bg-light.rounded.border(v-else) {{ syncDetails }}
+
+      //- 若兩者皆無
+      .text-center.py-5.text-muted(v-if="!syncResultMessage && !syncDetails")
+        lah-fa-icon(icon="exclamation-triangle" size="2x").mb-2
+        div 無法取得同步回傳內容
 
 </template>
 
@@ -206,7 +239,9 @@ export default {
     origConfig: {},
     showPassword: false,
     isBusy: false,
-    adConnectionVerified: false // 新增：是否已通過連線測試
+    adConnectionVerified: false,
+    syncResultMessage: '', // 儲存同步結果主要訊息 (message)
+    syncDetails: null // 儲存同步詳細內容 (raw.detail)
   }),
   computed: {
     // 檢查是否有變更
@@ -225,14 +260,12 @@ export default {
   watch: {
     initData: {
       handler (val) {
-        // 深拷貝以避免直接修改 props
         this.config = { ...val }
         this.origConfig = { ...val }
       },
       deep: true,
       immediate: true
     },
-    // 監聽 config 變更，若有變更則重置驗證狀態
     config: {
       handler () {
         this.adConnectionVerified = false
@@ -241,7 +274,6 @@ export default {
     }
   },
   created () {
-    // 初始化設定
     this.config = { ...this.initData }
     this.origConfig = { ...this.initData }
     this.apiUrl = this.$consts.API.JSON.USER
@@ -255,7 +287,6 @@ export default {
       }
 
       this.isBusy = true
-      // 重置驗證狀態
       this.adConnectionVerified = false
 
       try {
@@ -268,7 +299,6 @@ export default {
           throw new Error(res.data.message || '連線測試未通過')
         }
 
-        // 標記驗證通過
         this.adConnectionVerified = true
         this.notify('AD 連線測試成功', { type: 'success' })
       } catch (err) {
@@ -279,14 +309,13 @@ export default {
       }
     },
 
-    // 同步 AD 使用者 (新增功能)
+    // 同步 AD 使用者
     async syncAdUsers () {
       if (!this.adConnectionVerified) {
         this.notify('請先執行測試連線', { type: 'warning' })
         return
       }
 
-      // 再次確認
       const confirm = await this.$bvModal.msgBoxConfirm('同步操作可能會花費一些時間，且會更新系統內的使用者資料。確定要執行嗎？', {
         title: '同步 AD 使用者確認',
         okVariant: 'warning',
@@ -305,13 +334,13 @@ export default {
         })
 
         if (this.$utils.statusCheck(res.data.status)) {
-          // 顯示後端回傳的詳細統計訊息
-          this.notify(res.data.message, {
-            title: '同步作業完成',
-            type: 'success',
-            autoHideDelay: 10000 // 延長顯示時間讓使用者閱讀統計
-          })
-          // [新增] 同步成功後發送事件，通知父元件重新整理
+          // [修改] 將訊息與 detail 一併存入並開啟 Modal 顯示
+          this.syncResultMessage = res.data.message
+          // 根據要求：detail 在 raw 裡面，是一個訊息陣列
+          this.syncDetails = res.data.raw?.detail || null
+
+          this.$refs['sync-detail-modal']?.show()
+
           this.$emit('synced')
         } else {
           throw new Error(res.data.message || '同步作業失敗')
@@ -331,7 +360,6 @@ export default {
         return
       }
 
-      // 確認視窗
       const confirm = await this.$bvModal.msgBoxConfirm('確定要儲存目前的 AD 連線設定嗎？', {
         title: '儲存確認',
         okVariant: 'primary',
@@ -344,9 +372,8 @@ export default {
 
       this.isBusy = true
       try {
-        // 呼叫實際儲存 API
         const res = await this.$axios.post(this.apiUrl, {
-          type: 'ad_update_config', // 請確認後端接收的 type
+          type: 'ad_update_config',
           config: this.config
         })
 
@@ -354,9 +381,7 @@ export default {
           throw new Error(res.data.message || '儲存失敗')
         }
 
-        // 更新原始資料快照
         this.origConfig = { ...this.config }
-
         this.notify('設定已儲存', { type: 'success' })
         this.$emit('saved', this.config)
       } catch (err) {
@@ -371,46 +396,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.user-badge {
-  width: 240px;
-  justify-content: flex-start !important;
-  transition: transform 0.25s ease; // 平滑的放大效果
-  position: relative; // 確保 z-index 生效，避免 hover 時被遮擋
-
-  &:hover {
-    transform: scale(1.25); // 使用 transform 放大，不會影響文檔流 (不會推擠旁邊的元素)
-    z-index: 10; // 確保放大時覆蓋在其他元素之上
-  }
-
-  // 修正 outline 樣式在 hover 時，背景變深導致深色文字看不清的問題
-  // 針對 outline-dark 和 outline-info，hover 時將 ip-text-dark 轉為 ip-text-light 的樣式
-  &.btn-outline-dark:hover,
-  &.btn-outline-info:hover {
-    .ip-text-dark {
-      color: #FFEB3B !important;
-      text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
-    }
-  }
-}
-
-/* 深色背景上的高亮顯示：亮黃色 + 粗體 + 微陰影 */
-.ip-text-light {
-  color: #FFEB3B !important;
-  font-weight: 900;
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
-}
-
-/* 淺色背景上的高亮顯示：深藍色 + 粗體 */
-.ip-text-dark {
-  color: #0033cc !important;
-  font-weight: 900;
-}
-
 .optional-border {
   border-style: dashed;
   border-width: 2px;
   border-radius: .75rem;
-  border-color: #adb5bd; // Bootstrap gray-500
-  background-color: #f8f9fa; // Bootstrap light
+  border-color: #adb5bd;
+  background-color: #f8f9fa;
+}
+
+// 確保詳細資訊 Modal 內的 pre 內容不會超出寬度
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 450px;
+  overflow-y: auto;
 }
 </style>
