@@ -50,7 +50,7 @@
           )
 
     //- ==========================================
-    //- 1. 主機與連接埠設定
+    //- 1. 主機與Base DN設定
     //- ==========================================
     b-card-group(deck)
       b-card.border-0(no-body)
@@ -68,25 +68,6 @@
         )
       b-card.border-0(no-body)
         b-form-group(
-          label="連接埠 (Port)"
-          label-for="ad-port"
-          label-cols-sm="3"
-          label-size="md"
-        ): b-input(
-          id="ad-port"
-          v-model="config.AD_PORT"
-          :state="!$utils.empty(config.AD_PORT)"
-          type="number"
-          trim
-          placeholder="例如：389"
-        )
-
-    //- ==========================================
-    //- 2. Base DN 與 查詢帳號
-    //- ==========================================
-    b-card-group(deck)
-      b-card.border-0(no-body)
-        b-form-group(
           label="Base DN"
           label-for="base-dn"
           label-cols-sm="3"
@@ -98,6 +79,11 @@
           trim
           placeholder="例如：DC=HA,DC=LAND,DC=MOI"
         )
+
+    //- ==========================================
+    //- 2. 查詢帳號 與 查詢密碼設定 (含顯示切換)
+    //- ==========================================
+    b-card-group(deck)
       b-card.border-0(no-body)
         b-form-group(
           label="查詢帳號"
@@ -111,11 +97,6 @@
           trim
           placeholder="AD 查詢專用帳號"
         )
-
-    //- ==========================================
-    //- 3. 密碼設定 (含顯示切換)
-    //- ==========================================
-    b-card-group(deck)
       b-card.border-0(no-body)
         b-form-group(
           label="查詢密碼"
@@ -139,6 +120,25 @@
                 title="顯示/隱藏密碼"
               )
                 lah-fa-icon(:icon="showPassword ? 'eye-slash' : 'eye'")
+
+    //- ==========================================
+    //- 3. 連接埠設定
+    //- ==========================================
+    //- b-card-group(deck)
+    //-   b-card.border-0(no-body)
+    //-     b-form-group(
+    //-       label="連接埠 (Port)"
+    //-       label-for="ad-port"
+    //-       label-cols-sm="3"
+    //-       label-size="md"
+    //-     ): b-input(
+    //-       id="ad-port"
+    //-       v-model="config.AD_PORT"
+    //-       :state="!$utils.empty(config.AD_PORT)"
+    //-       type="number"
+    //-       trim
+    //-       placeholder="例如：389"
+    //-     )
 
       //- 佔位用，保持排版平衡
       b-card.border-0(no-body)
