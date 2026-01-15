@@ -6,20 +6,14 @@ b-carousel(
   no-hover-pause
 )
   b-carousel-slide: template(#img): .p-3(v-cloak)
-    //- lah-header
-    //-   lah-transition(appear)
-    //-     .d-flex.justify-content-center.w-100.my-auto
-    //-       .d-flex
-    //-         .h1 跨縣市ONLINE即時通，服務無礙一點通
-    //-         //- lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-    //-       div
-    //-   lah-help-modal(:modal-id="'help-modal'" size="xl"): lah-button(icon="exclamation-circle" variant="danger")
-    //- below is the customize area
-    //- b-card-group(deck)
+    //- 標題區塊
     .d-flex.justify-content-center.w-100.my-auto(@click="$refs.carousel.next()", title="切換版面")
       .d-flex.my-5
         .h1.lah-shadow.fonte-weight-bold 跨縣市#[span.text-success ONLINE]即時通，服務無礙一點通
+
     .my-4
+
+    //- 桃園市地所狀態標題
     .d-flex.justify-content-between.align-items-center
       lah-fa-icon.h2(icon="wave-square", action="squeeze") 桃園市所屬地所服務狀態
       lah-fa-icon.h4(
@@ -28,8 +22,10 @@ b-carousel(
         action="clock"
       ) 上次更新：{{ TYUpdatedTime }}
     hr.my-3
-    client-only: .offices.justify-content-between
-      lah-badge-site-status.office.lah-shadow(
+
+    //- 桃園市地所區塊 [修改] 統一使用 justify-content-start 依序排列
+    client-only: .d-flex.flex-wrap.justify-content-start
+      lah-badge-site-status.office.mr-4.mb-4.lah-shadow(
         v-for="office in offices",
         :ref="office",
         :key="office"
@@ -42,7 +38,10 @@ b-carousel(
         short-alt,
         @updated="handleTYSitesUpdated"
       )
+
     .my-3
+
+    //- 無法提供服務的地所標題
     .d-flex.justify-content-between.align-items-center
       lah-fa-icon.h2(
         icon="heart-pulse",
@@ -56,10 +55,12 @@ b-carousel(
         variant="muted"
       ) 上次更新：{{ updatedTime }}
     hr.my-3
+
+    //- 無法提供服務地所清單
     .h1.center(
       v-if="downOffices.length === 0"
     ) 🟢 全國各地所皆可正常提供服務
-    .d-flex.flex-wrap.justify-content-space-between(
+    .d-flex.flex-wrap.justify-content-start(
       v-else
     )
       lah-badge-site-status.other-office.mr-4.mb-4.lah-shadow(
@@ -71,11 +72,14 @@ b-carousel(
         :badge="false",
         short-alt
       )
+
+    //- 固定顯示元件
     lah-clock.fix-clock
     .fix-logo
     .fix-taogirl-L.lah-shadow
     .fix-taogirl-R.lah-shadow
 
+  //- 簡易案件辦理情形幻燈片
   b-carousel-slide(v-if="easyCases.length > 0"): template(#img)
     .center.h1.my-3(@click="$refs.carousel.next()", title="切換版面")
       lah-fa-icon(icon="gear", :variant="reloadEasyCase ? 'warning' : ''", :action="reloadEasyCase ? 'cycle' : 'clock'")
@@ -83,7 +87,6 @@ b-carousel(
         span(v-else) 最新#[span.text-info 簡易案件]辦理情形
       lah-fa-icon.ml-1(icon="gear", :variant="reloadEasyCase ? 'warning' : ''", :action="reloadEasyCase ? 'cycle' : 'clock'")
     lah-reg-tracking-cards(:rows="easyCases", :query-day="easyCaseQueryDay", :serial-start="1")
-  //- below is the customize area
 
 </template>
 
@@ -105,7 +108,6 @@ export default {
     easyCases: [],
     reloadEasyCase: false
   }),
-  fetch () {},
   head: {
     title: '跨縣市ONLINE即時通-桃園市地政局'
   },
@@ -114,9 +116,7 @@ export default {
       return [...this.cachedOfficesData.filter(siteData => siteData.state === 'DOWN')]
     }
   },
-  watch: {},
   created () {
-    // today, TW, e.g. 1130521
     this.easyCaseQueryDay = this.$utils.today('TW').replaceAll('-', '')
   },
   mounted () {
@@ -126,8 +126,6 @@ export default {
       this.animateGirlL()
       this.animateGirlR()
     })
-    // reload the page to prevent Out of Memory issue on EDGE
-    // this.timeout(() => location.reload(), 30 * 60 * 1000)
   },
   beforeDestroy () {
     clearTimeout(this.cachedHandler)
@@ -162,14 +160,12 @@ export default {
     animateGirlL () {
       return this.$utils.animated('.fix-taogirl-L', { speed: 'slow' }).then((resolved) => {
         const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
-        // console.warn(`Girl L next run will be triggered after ${timer} ms`)
         this.timeout(this.animateGirlL, timer)
       })
     },
     animateGirlR () {
       return this.$utils.animated('.fix-taogirl-R', { speed: 'slow' }).then((resolved) => {
         const timer = this.animatedTimerBase + this.$utils.rand(this.animatedTimerBase)
-        // console.warn(`Girl R next run will be triggered after ${timer} ms`)
         this.timeout(this.animateGirlR, timer)
       })
     },
@@ -182,16 +178,6 @@ export default {
         this.easyCases = [...this.$utils.orderBy(data.baked, [(row) => {
           return this.latestUpdateTime(row)
         }], ['desc'])].filter((row) => {
-          /**
-           * RM08 - 收件類別
-           * 1 一般案件
-           * 2 專辦案件
-           * 3 急速件
-           * 9 簡易案件
-           * Q 逕為案件
-           * R 囑託案件
-           * X 跨縣市收辦案件
-           */
           return row.RM08 === '9'
         }).slice(0, this.maxQueueSize)
       }).catch((err) => {
@@ -204,72 +190,54 @@ export default {
     latestUpdateTime (row) {
       const targetDate = this.easyCaseQueryDay
       let ok = false
-      // 異動時間
       !ok && targetDate === row.RM105_1 && (ok = row.RM105_2)
-      // 秘書
       !ok && targetDate === row.RM107_1 && (ok = row.RM107_2)
-      // 課長
       !ok && targetDate === row.RM106_1 && (ok = row.RM106_2)
-      // 撤回
       !ok && targetDate === row.RM93_1 && (ok = row.RM93_2)
-      // 歸檔
-      // !ok && targetDate === row.RM91_1 && (ok = row.RM91_2)
-      // 展期
       !ok && targetDate === row.RM86 && (ok = row.RM87)
-      // 補正
       !ok && targetDate === row.RM53_1 && (ok = row.RM53_2)
-      // 駁回
       !ok && targetDate === row.RM48_1 && (ok = row.RM48_2)
-      // 取消請示
       !ok && targetDate === row.RM83 && (ok = row.RM84)
-      // 請示
       !ok && targetDate === row.RM80 && (ok = row.RM81)
-      // 結案
       !ok && targetDate === row.RM58_1 && (ok = row.RM58_2)
-      // 校對
       !ok && targetDate === row.RM56_1 && (ok = row.RM56_2)
-      // 登錄
       !ok && targetDate === row.RM54_1 && (ok = row.RM54_2)
-      // 複審
       !ok && targetDate === row.RM46_1 && (ok = row.RM46_2)
-      // 准登
       !ok && targetDate === row.RM62_1 && (ok = row.RM62_2)
-      // 初審
       !ok && targetDate === row.RM44_1 && (ok = row.RM44_2)
-      // 收件
-      // !ok && targetDate === row.RM07_1 && (ok = row.RM07_2)
       return ok
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.offices {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  height: 100%;
-  align-content: flex-start;
-  .office {
-    width: 11%;
-    height: 15vh;
-    border: 1px solid gray;
-    border-radius: 15px;
-    font-size: xx-large;
-    background-color: white;
-  }
-}
-.other-office {
+<style hide-scroll lang="scss" scoped>
+// [修改] 統一區塊樣式設定
+.office, .other-office {
   width: 11%;
   height: 15vh;
   border: 1px solid gray;
   border-radius: 15px;
   font-size: xx-large;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    z-index: 10;
+  }
+}
+
+.office {
+  background-color: white;
+}
+
+.other-office {
   background-color: lightgray;
   color: black;
   z-index: 2;
 }
+
+// 固定的裝飾元件樣式
 .fix-logo {
   position: fixed;
   bottom: 20px;
