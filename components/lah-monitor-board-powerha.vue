@@ -323,9 +323,17 @@ export default {
         return []
       }
       const targetItems = ['節點狀態', '叢集狀態', 'AIX 錯誤', 'Oracle 錯誤', '檔案系統超過 80%', 'Oracle 程式數']
-      return targetItems
+      const filtered = targetItems
         .map(targetItem => this.reportData.find(item => item.item === targetItem))
         .filter(item => item !== undefined) // Remove any undefined items if not found
+
+      // [修改] 排序邏輯：將結果為 ❌ (錯誤) 或 ⚠ (警示) 的欄位排在最前面
+      const orderMap = { '❌': 0, '⚠': 1, '✅': 2 }
+      return filtered.sort((a, b) => {
+        const pA = orderMap[a.result] ?? 99
+        const pB = orderMap[b.result] ?? 99
+        return pA - pB
+      })
     },
     light () {
       // 優先權 1: 檢查資料批次本身是否有問題 (例如過舊或為空)
@@ -339,6 +347,15 @@ export default {
       if (!this.headBatch.hasBoth) {
         return 'danger'
       }
+
+      // [修改] 優先權 2.5: 檢查硬碟用量。若任一節點發現硬碟使用率超過 80%，燈號轉為紅燈 (danger)
+      if (
+        (this.nodes.p8_51?.highUsageFileSystems?.length > 0) ||
+        (this.nodes.p8_52?.highUsageFileSystems?.length > 0)
+      ) {
+        return 'danger'
+      }
+
       // 優先權 3: 檢查叢集的 "Current State"
       if (this.is52Online) {
         if (this.nodes.p8_52?.clusterInfo?.nodes[1]?.clusterState !== 'ST_STABLE') {
@@ -452,7 +469,7 @@ export default {
       }
     },
     /**
-     * 將 AIX errpt 的摘要時間戳 (格式 MMDDHHmmYY) 轉換為 'MM-DD HH:mm:ss'。
+     * 將 AIX errpt 的摘要時間戳 (格式 MMDDHHmmYY)轉換為 'MM-DD HH:mm:ss'。
      * @param {string} timestampStr 原始的時間戳字串，例如 "0622090225"。
      * @returns {string} 格式化後的時間戳，例如 "06-22 09:02:00"。
      */
@@ -1391,6 +1408,14 @@ export default {
           p8_51: this.formatIOStatsHtmlDisplay(this.nodes.p8_51.ioStats),
           p8_52: this.formatIOStatsHtmlDisplay(this.nodes.p8_52.ioStats),
           result: '✅'
+        })
+
+        // [修改] 對完整的報告資料進行置頂排序，確保詳細對話框也呈現錯誤置頂效果
+        const orderMap = { '❌': 0, '⚠': 1, '✅': 2 }
+        this.reportData.sort((a, b) => {
+          const pA = orderMap[a.result] ?? 99
+          const pB = orderMap[b.result] ?? 99
+          return pA - pB
         })
       } catch (err) {
         this.reportData.length = 0
