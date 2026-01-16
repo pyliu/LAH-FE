@@ -94,11 +94,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 import LahPowerhaHelpContent from '~/components/lah-monitor-board-powerha-help-content.vue'
 import LahPowerhaReportCell from '~/components/lah-monitor-board-powerha-report-cell.vue'
 import LahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 import { HA_STATE_DEFINITIONS, REPORT_FIELDS } from '~/constants/lah-monitor-board-powerha-constants'
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 // 引入新建的 Mixin
 import dynamicHeight from '~/mixins/dynamic-height-mixin.js'
 
@@ -226,6 +226,10 @@ export default {
       if (this.isBatchStale) { return 'warning' }
       if (this.isMissingLogs) { return 'danger' }
       if (this.isClusterUnstable) { return 'danger' }
+      // [修改] 新增：硬碟使用率超過 80% 時燈號變為紅色
+      if (this.nodes.p8_51?.highUsageFileSystems?.length > 0 || this.nodes.p8_52?.highUsageFileSystems?.length > 0) {
+        return 'danger'
+      }
       return 'success'
     },
     headMessage () {
@@ -305,6 +309,10 @@ export default {
           { item: 'Oracle 程式數', p8_51: this.nodes.p8_51.oracleProcs, p8_52: this.nodes.p8_52.oracleProcs, result: this.nodes.p8_51.oracleProcs > 0 ? '✅' : '❌' },
           { item: 'I/O 統計', p8_51: this.nodes.p8_51.ioStats, p8_52: this.nodes.p8_52.ioStats, result: '✅' }
         ]
+
+        // [修改] 新增：有錯誤(❌)或警示(⚠)的欄位置頂
+        const orderMap = { '❌': 0, '⚠': 1, '✅': 2 }
+        this.reportData.sort((a, b) => (orderMap[a.result] ?? 99) - (orderMap[b.result] ?? 99))
       } catch (err) {
         this.$utils.error('建立報告時發生錯誤:', err)
         this.reportData = []
