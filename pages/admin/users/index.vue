@@ -51,7 +51,7 @@ div(v-cloak)
           span.font-weight-bold 更新 IP：
           span 點擊
           lah-button(icon="network-wired" variant="outline-info" size="sm" class="mx-1") 更新 IP
-          span 系統會抓取最近 7 天的登入紀錄。優先權：符合 #[b 192.168.1x.x - 8x.x] 內部網段者優先。若判定唯一則自動更新；多筆衝突則會提示。
+          span 系統會抓取最近 7 天的登入紀錄。優先權：符合 #[b 本所內部網段 (依據站點代碼動態計算，排除設備網段)] 者優先。若判定唯一則自動更新；多筆衝突則會提示。
 
       li.mb-2
         .d-flex.align-items-center.flex-wrap
@@ -420,14 +420,45 @@ export default {
     },
 
     /**
-     * 優先網段定義：192.168.1x.x ~ 192.168.8x.x
+     * 優先網段定義：根據此站點代碼 (HA~HH) 決定 IP 優先權
+     * 計算方式:
+     * 1. 取得站點代碼的第二個字元 (A~H)。
+     * 2. 利用 ASCII Code 計算對應數值 (A=1, B=2, ... H=8)。
+     * 3. 網段第三碼起始值為 (數值 * 10)，例如 HA -> 10, HB -> 20。
+     * 4. 有效範圍為 起始值 ~ 起始值+9，例如 HA -> 10~19。
+     * 5. 特別排除網段的後三碼 (x7, x8, x9)，視為設備保留區段。
+     * 6. [新增] 嚴格排除 192.168.72.x 等不符合計算規則的網段
+     *
+     * 範例:
+     * HA (A=65-64=1) -> 1*10 = 10 -> 範圍 10 ~ 19 -> 排除 17, 18, 19 -> 有效 10 ~ 16
+     * HB (B=66-64=2) -> 2*10 = 20 -> 範圍 20 ~ 29 -> 排除 27, 28, 29 -> 有效 20 ~ 26
      */
     isPriorityIp (ip) {
       if (!ip) { return false }
       const parts = ip.split('.').map(Number)
+      // 固定網段 192.168
       if (parts[0] !== 192 || parts[1] !== 168) { return false }
-      // 第三段為 1x 到 8x (即 10 ~ 89)
-      return parts[2] >= 10 && parts[2] <= 89
+
+      // 取得站點代碼 (e.g. HA, HB...)
+      const site = this.site || ''
+      // 取第 2 碼 (A..H)
+      const code = site.length > 1 ? site.charAt(1).toUpperCase() : ''
+
+      if (code >= 'A' && code <= 'H') {
+        // A(65)-64=1 -> 1*10=10 (HA)
+        // H(72)-64=8 -> 8*10=80 (HH)
+        const idx = code.charCodeAt(0) - 64
+        const start = idx * 10
+        // 原本範圍是 start ~ start+9
+        // 依據需求排除後三碼 (x7, x8, x9)，故結束點為 start + 6
+        // 例如 HA: 10 ~ 16 (排除 17, 18, 19)
+        const end = start + 6
+
+        // 判斷第三段 IP 是否在範圍內
+        return parts[2] >= start && parts[2] <= end
+      }
+
+      return false
     },
 
     async checkIpUpdates (entries) {
@@ -444,18 +475,22 @@ export default {
         const records = userMap[user.id]
         if (!records) { return }
 
-        const diffIps = [...new Set(records.map(r => r.ip))].filter(ip => ip !== user.ip)
+        // 過濾出與目前 IP 不同，且符合站點網段的 IP
+        // [新增] 加入 this.isPriorityIp(ip) 確保排除非本所或設備網段的 IP
+        const diffIps = [...new Set(records.map(r => r.ip))]
+          .filter(ip => ip !== user.ip && this.isPriorityIp(ip))
+
         if (diffIps.length === 0) { return }
 
-        const prioritizedIps = diffIps.filter(this.isPriorityIp)
+        // 因為已經先用 isPriorityIp 過濾過，這裡所有的 diffIps 都是符合優先權的 IP
+        // 這裡我們不再需要區分 prioritizedIps 和 diffIps，因為只有符合條件的才會留下來
 
-        if (prioritizedIps.length === 1) {
-          autoUpdateList.push({ id: user.id, ip: prioritizedIps[0], name: user.name })
-        } else if (prioritizedIps.length === 0 && diffIps.length === 1) {
+        if (diffIps.length === 1) {
+          // 情況 A：只有一個符合條件的新 IP -> 直接列入自動更新
           autoUpdateList.push({ id: user.id, ip: diffIps[0], name: user.name })
         } else {
-          const pool = prioritizedIps.length > 0 ? prioritizedIps : diffIps
-          const candidates = pool.map((ip) => {
+          // 情況 B：有多個符合條件的新 IP -> 進入手動選擇
+          const candidates = diffIps.map((ip) => {
             const latest = records.filter(r => r.ip === ip).sort((a, b) => b.timestamp - a.timestamp)[0]
             return { ip, timestamp: this.$utils.phpTsToAdDateStr(latest.timestamp, true) }
           })
@@ -464,7 +499,28 @@ export default {
       })
 
       if (autoUpdateList.length > 0) {
-        const ans = await this.confirm(`偵測到 ${autoUpdateList.length} 位人員具備內部網段之 IP 變動，是否執行同步？`)
+        // 改用客製化 VNode 顯示詳細清單
+        const h = this.$createElement
+        const messageNode = h('div', [
+          h('p', `偵測到 ${autoUpdateList.length} 位人員具備內部網段之 IP 變動，是否執行同步？`),
+          h('ul', { class: 'pl-4 text-left', style: { maxHeight: '300px', overflowY: 'auto' } },
+            autoUpdateList.map(item => h('li', { class: 'mb-1' }, [
+              h('span', { class: 'font-weight-bold mr-2' }, `${item.id} ${item.name}`),
+              h('span', { class: 'text-muted' }, '➔'),
+              h('span', { class: 'text-primary ml-2 font-weight-bold' }, item.ip)
+            ]))
+          )
+        ])
+
+        const ans = await this.$bvModal.msgBoxConfirm(messageNode, {
+          title: 'IP 自動更新確認',
+          size: 'md',
+          okVariant: 'success',
+          okTitle: '確認更新',
+          cancelTitle: '取消',
+          centered: true
+        })
+
         if (ans) { await this.processUpdatesSequentially(autoUpdateList) }
       }
 
