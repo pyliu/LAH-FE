@@ -25,7 +25,15 @@ div(v-cloak)
           :title="adConfigTooltip"
         ) AD 設定
 
-        //- 更新 IP 按鈕 (獲取登入紀錄並依權重更新 IP)
+        //- IP 列表按鈕
+        lah-button.mr-1.text-nowrap(
+          icon="list-ul"
+          variant="outline-secondary"
+          title="檢視目前使用者 IP 清單"
+          @click="showIpListModal"
+        ) IP 清單
+
+        //- 更新 IP 按鈕
         lah-button.mr-1.text-nowrap(
           icon="network-wired"
           variant="outline-info"
@@ -52,6 +60,13 @@ div(v-cloak)
           span 點擊
           lah-button(icon="network-wired" variant="outline-info" size="sm" class="mx-1") 更新 IP
           span 系統會抓取最近 7 天的登入紀錄。優先權：符合 #[b 本所內部網段 (依據站點代碼動態計算，排除設備網段)] 者優先。若判定唯一則自動更新；多筆衝突則會提示。
+
+      li.mb-2
+        .d-flex.align-items-center.flex-wrap
+          span.font-weight-bold IP 清單：
+          span 點擊
+          lah-button(icon="list-ul" variant="outline-secondary" size="sm" class="mx-1") IP 清單
+          span 可查看目前系統內所有使用者的 IP 設定狀況，支援快速篩選與匯出。
 
       li.mb-2
         .d-flex.align-items-center.flex-wrap
@@ -173,7 +188,78 @@ div(v-cloak)
 
   hr
 
-  //- 各種對話視窗
+  //- [修正] IP 列表檢視 Modal (加入篩選連動)
+  b-modal(
+    id="ip-list-modal"
+    title="使用者 IP 對應清單"
+    size="xl"
+    hide-footer
+    scrollable
+  )
+    .d-flex.justify-content-between.mb-3.flex-wrap
+      //- 關鍵字搜尋
+      b-input-group(class="mr-2 mb-2" style="width: 250px")
+        b-input-group-prepend(is-text)
+          lah-fa-icon(icon="search")
+        //- [修正] 增加 .h-100 css
+        b-form-input.h-100(v-model="ipListFilter" placeholder="搜尋 ID、姓名、IP...")
+
+      //- 課室篩選
+      b-input-group(class="mr-2 mb-2" style="width: 200px")
+        b-input-group-prepend(is-text) 課室
+        b-form-select.h-100(v-model="ipListUnit" :options="unitOptions")
+          template(#first)
+            b-form-select-option(value="") 全部
+
+      //- 職稱篩選
+      b-input-group(class="mr-2 mb-2" style="width: 200px")
+        b-input-group-prepend(is-text) 職稱
+        b-form-select.h-100(v-model="ipListTitle" :options="titleOptions")
+          template(#first)
+            b-form-select-option(value="") 全部
+
+      //- 匯出按鈕
+      div.mb-2
+        lah-button(
+          icon="file-excel"
+          variant="outline-success"
+          size="md"
+          @click="exportIpList"
+          title="匯出篩選結果為 Excel (CSV)"
+        ) 匯出
+
+    //- 表格資料改用 filteredIpList，移除內建 filter 屬性以避免雙重過濾
+    b-table(
+      :items="filteredIpList"
+      :fields="ipListFields"
+      striped
+      hover
+      bordered
+      responsive
+      small
+      head-variant="dark"
+      :per-page="15"
+      :current-page="ipListPage"
+    )
+      template(#cell(ip)="{ item }")
+        div(v-if="isValidIp(item)")
+          span.text-primary.font-weight-bold {{ item.ip }}
+        div(v-else)
+          span.ip-alert-style {{ item.ip || '無' }}
+
+      template(#cell(unit)="{ item }")
+        b-badge(variant="light") {{ item.unit }} - {{ item.title }}
+
+    //- 分頁總數連動篩選結果
+    b-pagination(
+      v-model="ipListPage"
+      :total-rows="filteredIpList.length"
+      :per-page="15"
+      align="center"
+      class="mt-3"
+    )
+
+  //- 編輯使用者 Modal
   b-modal(id="edit-user-modal" :title="editUserTitle" size="lg" hide-footer scrollable no-close-on-backdrop)
     lah-user-edit-card(:raw="[clickedUser]" @saved="saved($event)")
 
@@ -184,7 +270,7 @@ div(v-cloak)
     lah-ad-config-card(:init-data="adConfig" @saved="adConfigSaved" @reload="loadAdConfig" @synced="$fetch")
 
   b-modal(id="ip-conflict-modal" title="IP 更新選擇" size="xl" hide-footer scrollable)
-    p.text-muted 偵測到以下人員有多筆登入紀錄。系統已過濾目前 IP，請點選欲套用的正確地址：
+    p.text-muted 偵測到以下人員有多筆符合規則的 IP 紀錄。系統已過濾目前 IP，請點選欲套用的正確地址：
     b-table(:items="ipConflictList" :fields="conflictFields" striped hover bordered responsive)
       template(#cell(candidates)="{ item }")
         b-form-radio-group(v-model="item.selectedIp" stacked)
@@ -246,6 +332,18 @@ export default {
       { key: 'currentIp', label: '目前 IP' },
       { key: 'candidates', label: '候選 IP (請點選)' },
       { key: 'action', label: '操作', class: 'text-center' }
+    ],
+    // IP 列表相關
+    ipListFilter: '',
+    ipListUnit: '', // 課室篩選
+    ipListTitle: '', // 職稱篩選
+    ipListPage: 1,
+    ipListFields: [
+      { key: 'id', label: '帳號', sortable: true },
+      { key: 'name', label: '姓名', sortable: true },
+      { key: 'unit', label: '單位職稱', sortable: true },
+      { key: 'ip', label: 'IP 位址', sortable: true },
+      { key: 'ext', label: '分機', sortable: true }
     ]
   }),
 
@@ -310,13 +408,58 @@ export default {
       return c.AD_HOST && c.AD_PORT && c.BASE_DN && c.QUERY_USER && c.QUERY_PASSWORD
     },
     adConfigVariant () { return this.isAdConfigValid ? 'outline-secondary' : 'outline-danger' },
-    adConfigTooltip () { return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新' }
+    adConfigTooltip () { return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新' },
+
+    // 提取所有不重複的課室
+    unitOptions () {
+      const units = [...new Set(this.users.map(u => u.unit).filter(Boolean))]
+      return units.sort().map(u => ({ value: u, text: u }))
+    },
+    // 提取所有不重複的職稱
+    titleOptions () {
+      const titles = [...new Set(this.users.map(u => u.title).filter(Boolean))]
+      return titles.sort().map(t => ({ value: t, text: t }))
+    },
+    // IP 列表綜合篩選邏輯
+    filteredIpList () {
+      return this.users.filter((user) => {
+        // 1. 關鍵字過濾 (ID, Name, IP)
+        let keywordMatch = true
+        if (this.ipListFilter) {
+          const k = this.ipListFilter.toLowerCase()
+          keywordMatch = (user.id && user.id.toLowerCase().includes(k)) ||
+                         (user.name && user.name.toLowerCase().includes(k)) ||
+                         (user.ip && user.ip.includes(k))
+        }
+
+        // 2. 課室過濾
+        let unitMatch = true
+        if (this.ipListUnit) {
+          unitMatch = user.unit === this.ipListUnit
+        }
+
+        // 3. 職稱過濾
+        let titleMatch = true
+        if (this.ipListTitle) {
+          titleMatch = user.title === this.ipListTitle
+        }
+
+        return keywordMatch && unitMatch && titleMatch
+      })
+    }
   },
 
   watch: {
     type (val) { this.users = []; if (val !== '') { this.$fetch() } },
     showAvatar (val) { localStorage.setItem('user_mgt_show_avatar', val) },
-    showIp (val) { localStorage.setItem('user_mgt_show_ip', val) }
+    showIp (val) { localStorage.setItem('user_mgt_show_ip', val) },
+    dynamicIPEntries (val) {
+      this.$utils.warn('Dynamic IP entries fetched:', val.length)
+    },
+    // 當篩選條件變動時，重置分頁回第一頁
+    filteredIpList () {
+      this.ipListPage = 1
+    }
   },
 
   mounted () {
@@ -327,6 +470,29 @@ export default {
   },
 
   methods: {
+    // 顯示 IP 列表 Modal
+    showIpListModal () {
+      this.showModalById('ip-list-modal')
+    },
+
+    // 匯出篩選後的 IP 列表
+    exportIpList () {
+      const csvContent = [
+        ['帳號', '姓名', '單位', '職稱', 'IP', '分機'],
+        ...this.filteredIpList.map(u => [u.id, u.name, u.unit, u.title, u.ip || '', u.ext || ''])
+      ].map(e => e.join(',')).join('\n')
+
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+      link.setAttribute('href', url)
+      link.setAttribute('download', `ip_list_${this.$utils.now().split(' ')[0]}.csv`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+
     highlight (text) {
       if (!text || this.$utils.empty(this.keyword)) { return text }
       const regex = new RegExp(`(${this.keyword})`, 'gi')
@@ -476,21 +642,18 @@ export default {
         if (!records) { return }
 
         // 過濾出與目前 IP 不同，且符合站點網段的 IP
-        // [新增] 加入 this.isPriorityIp(ip) 確保排除非本所或設備網段的 IP
-        const diffIps = [...new Set(records.map(r => r.ip))]
+        // [新增] 強制使用 isPriorityIp 過濾，不符合者直接忽略
+        const validDiffIps = [...new Set(records.map(r => r.ip))]
           .filter(ip => ip !== user.ip && this.isPriorityIp(ip))
 
-        if (diffIps.length === 0) { return }
+        if (validDiffIps.length === 0) { return }
 
-        // 因為已經先用 isPriorityIp 過濾過，這裡所有的 diffIps 都是符合優先權的 IP
-        // 這裡我們不再需要區分 prioritizedIps 和 diffIps，因為只有符合條件的才會留下來
-
-        if (diffIps.length === 1) {
+        if (validDiffIps.length === 1) {
           // 情況 A：只有一個符合條件的新 IP -> 直接列入自動更新
-          autoUpdateList.push({ id: user.id, ip: diffIps[0], name: user.name })
+          autoUpdateList.push({ id: user.id, ip: validDiffIps[0], name: user.name })
         } else {
           // 情況 B：有多個符合條件的新 IP -> 進入手動選擇
-          const candidates = diffIps.map((ip) => {
+          const candidates = validDiffIps.map((ip) => {
             const latest = records.filter(r => r.ip === ip).sort((a, b) => b.timestamp - a.timestamp)[0]
             return { ip, timestamp: this.$utils.phpTsToAdDateStr(latest.timestamp, true) }
           })
@@ -528,7 +691,7 @@ export default {
         this.ipConflictList = manualConflictList
         this.showModalById('ip-conflict-modal')
       } else if (autoUpdateList.length === 0) {
-        this.notify('目前所有使用者 IP 皆正確。', { type: 'info' })
+        this.notify('目前無符合內部網段規則的 IP 變動。', { type: 'info' })
       }
     },
 
