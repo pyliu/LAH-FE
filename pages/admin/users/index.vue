@@ -66,7 +66,7 @@ div(v-cloak)
           span.font-weight-bold IP 清單：
           span 點擊
           lah-button(icon="list-ul" variant="outline-secondary" size="sm" class="mx-1") IP 清單
-          span 可查看目前系統內所有使用者的 IP 設定狀況，支援快速篩選與匯出。
+          span 可查看目前系統內所有使用者的 IP 設定狀況，點擊表格中的任一列即可編輯該使用者資訊。
 
       li.mb-2
         .d-flex.align-items-center.flex-wrap
@@ -188,7 +188,7 @@ div(v-cloak)
 
   hr
 
-  //- [修正] IP 列表檢視 Modal (加入篩選連動)
+  //- IP 列表檢視 Modal (加入篩選連動)
   b-modal(
     id="ip-list-modal"
     title="使用者 IP 對應清單"
@@ -198,21 +198,20 @@ div(v-cloak)
   )
     .d-flex.justify-content-between.mb-3.flex-wrap
       //- 關鍵字搜尋
-      b-input-group(class="mr-2 mb-2" style="width: 250px")
+      b-input-group(size="sm" class="mr-2 mb-2" style="width: 250px")
         b-input-group-prepend(is-text)
           lah-fa-icon(icon="search")
-        //- [修正] 增加 .h-100 css
         b-form-input.h-100(v-model="ipListFilter" placeholder="搜尋 ID、姓名、IP...")
 
       //- 課室篩選
-      b-input-group(class="mr-2 mb-2" style="width: 200px")
+      b-input-group(size="sm" class="mr-2 mb-2" style="width: 200px")
         b-input-group-prepend(is-text) 課室
         b-form-select.h-100(v-model="ipListUnit" :options="unitOptions")
           template(#first)
             b-form-select-option(value="") 全部
 
       //- 職稱篩選
-      b-input-group(class="mr-2 mb-2" style="width: 200px")
+      b-input-group(size="sm" class="mr-2 mb-2" style="width: 200px")
         b-input-group-prepend(is-text) 職稱
         b-form-select.h-100(v-model="ipListTitle" :options="titleOptions")
           template(#first)
@@ -228,7 +227,7 @@ div(v-cloak)
           title="匯出篩選結果為 Excel (CSV)"
         ) 匯出
 
-    //- 表格資料改用 filteredIpList，移除內建 filter 屬性以避免雙重過濾
+    //- 表格資料改用 filteredIpList
     b-table(
       :items="filteredIpList"
       :fields="ipListFields"
@@ -240,7 +239,15 @@ div(v-cloak)
       head-variant="dark"
       :per-page="15"
       :current-page="ipListPage"
+      @row-clicked="edit"
+      tbody-tr-class="pointer"
     )
+      //- 在名字前顯示 Avatar
+      template(#cell(name)="{ item }")
+        .d-flex.align-items-center
+          b-avatar.mr-2(size="sm" :src="avatarSrc(item)" variant="light")
+          span {{ item.name }}
+
       template(#cell(ip)="{ item }")
         div(v-if="isValidIp(item)")
           span.text-primary.font-weight-bold {{ item.ip }}
@@ -808,5 +815,10 @@ export default {
   font-weight: 900 !important;
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 1px 1px 1px rgba(0, 0, 0, 0.2);
   letter-spacing: 0.5px;
+}
+
+// [新增] 表格行點擊手勢
+.pointer {
+  cursor: pointer;
 }
 </style>
