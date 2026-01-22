@@ -27,6 +27,7 @@ div: client-only
     //-   footer
     //- )
     //- .col-md-4(key="lah-xcase-sync"): lah-monitor-board-xcase-sync(footer)
+    .col-md-8(key="lah-printer"): lah-monitor-board-printer(footer)
     .col-md-4(key="lah-powerha"): lah-monitor-board-powerha(footer)
     .col-md-4(key="lah-mbsrc"): lah-mgmt-board-sync-reg-case
     .col-md-4(key="lah-mbwt"): lah-monitor-board-ws-test
