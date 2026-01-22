@@ -74,24 +74,12 @@ div.monitor-dashboard(v-cloak)
 
   //- transition-group.d-flex.flex-wrap.justify-content-evenly(name="list-reverse")
   lah-flex-item-group
-    //- attention boards
-    div(
-      :class="colCss",
-      v-for="(obj, idx) in attentionList",
-      :key="`${obj.compName}-${idx}`"
-    ): component.lah-shadow(
-      :class="heightCss",
-      :id="`${obj.compName}-attention`",
-      :ref="`${obj.compName}-attention`",
-      :is="obj.compName",
-      :enable-attention="false",
-      :footer="false"
-    )
     //- common boards
+    //- 使用 CSS order 屬性進行排序：紅燈(-2) > 黃燈(-1) > 綠燈(0)
     div(
       :class="colCss",
-      key="lahMonitorBoardXap-fix",
-      v-show="!isInAttention('LahMonitorBoardXap')"
+      :style="{ order: getOrder('LahMonitorBoardXap') }",
+      key="lahMonitorBoardXap-fix"
     ): lah-monitor-board-xap(
       :class="heightCss",
       ref="LahMonitorBoardXap",
@@ -99,8 +87,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardXapTrend-fix",
-      v-show="!isInAttention('LahMonitorBoardXapTrend')"
+      :style="{ order: getOrder('LahMonitorBoardXapTrend') }",
+      key="lahMonitorBoardXapTrend-fix"
     ): lah-monitor-board-xap-trend(
       watch-top-xap,
       :reload-time="15",
@@ -108,8 +96,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardPowerha-fix",
-      v-show="!isInAttention('lahMonitorBoardPowerha')"
+      :style="{ order: getOrder('lahMonitorBoardPowerha') }",
+      key="lahMonitorBoardPowerha-fix"
     ): lah-monitor-board-powerha(
       :class="heightCss",
       ref="lahMonitorBoardPowerha",
@@ -118,8 +106,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardDataguard-fix",
-      v-show="!isInAttention('LahMonitorBoardDataguard')"
+      :style="{ order: getOrder('LahMonitorBoardDataguard') }",
+      key="lahMonitorBoardDataguard-fix"
     ): lah-monitor-board-dataguard(
       :class="heightCss",
       ref="LahMonitorBoardDataguard",
@@ -128,8 +116,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardSrmas-fix",
-      v-show="!isInAttention('LahMonitorBoardSrmas')"
+      :style="{ order: getOrder('LahMonitorBoardSrmas') }",
+      key="lahMonitorBoardSrmas-fix"
     ): lah-monitor-board-srmas.card-body-fixed-height-3.fix-img(
       ref="LahMonitorBoardSrmas",
       @light-update="lightUpdate",
@@ -137,8 +125,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardHacmp-fix",
-      v-show="!isInAttention('LahMonitorBoardHacmp')"
+      :style="{ order: getOrder('LahMonitorBoardHacmp') }",
+      key="lahMonitorBoardHacmp-fix"
     ): lah-monitor-board-hacmp(
       :class="heightCss",
       ref="LahMonitorBoardHacmp",
@@ -147,8 +135,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardSmsNotify-fix",
-      v-show="!isInAttention('LahMonitorBoardSmsNotify')"
+      :style="{ order: getOrder('LahMonitorBoardSmsNotify') }",
+      key="lahMonitorBoardSmsNotify-fix"
     ): lah-monitor-board-sms-notify(
       :class="heightCss",
       ref="LahMonitorBoardSmsNotify",
@@ -157,8 +145,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardSms-fix",
-      v-show="!isInAttention('LahMonitorBoardSms')"
+      :style="{ order: getOrder('LahMonitorBoardSms') }",
+      key="lahMonitorBoardSms-fix"
     ): lah-monitor-board-sms(
       :class="heightCss",
       ref="LahMonitorBoardSms",
@@ -167,8 +155,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardL05-fix",
-      v-show="!isInAttention('LahMonitorBoardL05')"
+      :style="{ order: getOrder('LahMonitorBoardL05') }",
+      key="lahMonitorBoardL05-fix"
     ): lah-monitor-board-L05(
       :class="heightCss",
       ref="LahMonitorBoardL05",
@@ -177,8 +165,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardApbackup-fix",
-      v-show="!isInAttention('LahMonitorBoardApbackup')"
+      :style="{ order: getOrder('LahMonitorBoardApbackup') }",
+      key="lahMonitorBoardApbackup-fix"
     ): lah-monitor-board-apbackup(
       :class="heightCss",
       ref="LahMonitorBoardApbackup",
@@ -187,8 +175,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardXcaseSync-fix",
-      v-show="!isInAttention('LahMonitorBoardXcaseSync')"
+      :style="{ order: getOrder('LahMonitorBoardXcaseSync') }",
+      key="lahMonitorBoardXcaseSync-fix"
     ): lah-monitor-board-xcase-sync(
       :class="heightCss",
       ref="LahMonitorBoardXcaseSync",
@@ -196,8 +184,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardSiteHx-fix",
-      v-show="!isInAttention('LahMonitorBoardSiteHx')"
+      :style="{ order: getOrder('LahMonitorBoardSiteHx') }",
+      key="lahMonitorBoardSiteHx-fix"
     ): lah-monitor-board-site-hx(
       :class="heightCss",
       ref="LahMonitorBoardSiteHx",
@@ -205,8 +193,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardLxhweb-fix",
-      v-show="!isInAttention('LahMonitorBoardLxhweb')"
+      :style="{ order: getOrder('LahMonitorBoardLxhweb') }",
+      key="lahMonitorBoardLxhweb-fix"
     ): lah-monitor-board-lxhweb(
       :class="heightCss",
       ref="LahMonitorBoardLxhweb",
@@ -217,8 +205,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardSiteTw-fix",
-      v-show="!isInAttention('LahMonitorBoardSiteTw')"
+      :style="{ order: getOrder('LahMonitorBoardSiteTw') }",
+      key="lahMonitorBoardSiteTw-fix"
     ): lah-monitor-board-site-tw(
       :class="heightCss",
       ref="LahMonitorBoardSiteTw",
@@ -226,8 +214,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardDbbackup-fix",
-      v-show="!isInAttention('LahMonitorBoardDbbackup')"
+      :style="{ order: getOrder('LahMonitorBoardDbbackup') }",
+      key="lahMonitorBoardDbbackup-fix"
     ): lah-monitor-board-dbbackup(
       :class="heightCss",
       ref="LahMonitorBoardDbbackup",
@@ -236,8 +224,8 @@ div.monitor-dashboard(v-cloak)
     )
     div(
       :class="colCss",
-      key="lahMonitorBoardConnectivity-fix",
-      v-show="!isInAttention('LahMonitorBoardConnectivity')"
+      :style="{ order: getOrder('LahMonitorBoardConnectivity') }",
+      key="lahMonitorBoardConnectivity-fix"
     ): lah-monitor-board-connectivity(
       :class="heightCss",
       ref="LahMonitorBoardConnectivity",
@@ -365,6 +353,24 @@ export default {
         return footer
       }
       return false
+    },
+    /**
+     * Determines the visual order of the component based on its status.
+     * Flexbox order: smaller number comes first.
+     * Danger (Red): -2
+     * Warning (Yellow): -1
+     * Normal (Green/Success): 0
+     */
+    getOrder (name) {
+      if (!name) return 0
+      // normalized camelCase name to match what is stored in attentionList
+      const camel = name.charAt(0).toLowerCase() + name.slice(1)
+      const item = this.attentionList.find(x => x.compName === camel)
+      if (item) {
+        if (item.state === 'danger') return -2
+        if (item.state === 'warning') return -1
+      }
+      return 0
     }
   }
 }
