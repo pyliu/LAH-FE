@@ -105,6 +105,7 @@ client-only: .monitor-dashboard(v-cloak)
         :class="[heightCss, board.extraClass]"
         v-bind="board.props"
         :footer="board.footer"
+        :border-variant="board.pinned ? 'primary' : ''"
         @light-update="lightUpdate($event, board)"
       )
 
