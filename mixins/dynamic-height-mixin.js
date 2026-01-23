@@ -63,19 +63,23 @@ export default {
     this.updateMaxHeight()
   },
   beforeDestroy () {
-    // 1. 移除 'resize' 事件監聽器
-    window.removeEventListener('resize', this.debouncedUpdateHeight)
-    // 2. 停止 ResizeObserver
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect()
-    }
-    // 3. 清理 iframe 相關的資源
-    if (this.zoomDetectorFrame) {
-      this.zoomDetectorFrame.contentWindow.removeEventListener('resize', this.debouncedUpdateHeight)
-      if (this.zoomDetectorFrame.parentNode) {
-        this.zoomDetectorFrame.parentNode.removeChild(this.zoomDetectorFrame)
+    try {
+      // 1. 移除 'resize' 事件監聽器
+      window?.removeEventListener('resize', this.debouncedUpdateHeight)
+      // 2. 停止 ResizeObserver
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect()
       }
-      this.zoomDetectorFrame = null
+      // 3. 清理 iframe 相關的資源
+      if (this.zoomDetectorFrame) {
+        this.zoomDetectorFrame.contentWindow.removeEventListener('resize', this.debouncedUpdateHeight)
+        if (this.zoomDetectorFrame.parentNode) {
+          this.zoomDetectorFrame.parentNode.removeChild(this.zoomDetectorFrame)
+        }
+        this.zoomDetectorFrame = null
+      }
+    } catch (err) {
+      this.$utils.error(err)
     }
   }
 }
