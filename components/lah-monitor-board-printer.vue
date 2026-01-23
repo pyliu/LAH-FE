@@ -117,7 +117,7 @@ b-card(
 
     h6.font-weight-bold.mb-2 功能說明
     ul
-      li 監控伺服器 (Server IP) 上的實體印表機狀態。
+      li 監控伺服器 (利用本儀表板的 server-ip prop 參數指定伺服器IP) 上的實體印表機狀態。
       //- [新增] 部署說明
       li.text-danger
         strong 部署需求：
@@ -127,10 +127,10 @@ b-card(
         .mt-2
           b-button-group(size="sm")
             //- [修改] 改用 @click 觸發下載，避開直接 href 導致的 about:blank#blocked
-            b-button(variant="outline-primary" @click="downloadAgent")
+            b-button(variant="outline-primary" @click="downloadAgent" pill)
               lah-fa-icon(icon="download").mr-1
               span 下載 Agent 腳本
-            b-button(variant="outline-info" @click="downloadGuide")
+            b-button.ml-1(variant="outline-info" @click="downloadGuide" pill)
               lah-fa-icon(icon="file-pdf").mr-1
               span 下載部署指南
       li
@@ -447,7 +447,7 @@ export default {
   props: {
     footer: { type: Boolean, default: false },
     id: { type: String, default: 'default' },
-    size: { type: String, default: 'lg' },
+    size: { type: String, default: 'xs' },
     serverIp: { type: String, default: '127.0.0.1' },
     serverPort: { type: String, default: '8888' },
     apiKey: { type: String, default: 'YourSecretApiKey123' },
