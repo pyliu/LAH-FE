@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import Chart from 'chart.js/auto'
+import Chart from 'chart.js/auto';
 
 export default {
   emit: ['click'],
@@ -126,6 +126,9 @@ export default {
   }),
   computed: {
     viewportRatio () {
+      if (window === undefined) {
+        return 1.78 // default 16:9
+      }
       const vr = parseFloat((window.innerWidth / window.innerHeight).toFixed(2)) + 1.325
       // const vr2 = (window.innerWidth * 1.08).toFixed(2) / (window.innerHeight - 85 - 120).toFixed(2)
       // console.warn(vr, vr2)
