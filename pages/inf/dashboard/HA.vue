@@ -72,260 +72,26 @@ div.monitor-dashboard(v-cloak)
       ul
         li 點擊 #[lah-fa-icon(icon="cog")] 按鈕可以設定用於 #[strong 電子郵件分析] 的郵件伺服器連線資訊。
 
-  lah-flex-item-group
-    //- common boards
-    //- 使用 CSS order 屬性進行排序：紅燈(-2) > 黃燈(-1) > 綠燈(0)
+  //- 使用 transition-group 來實現排序動畫
+  transition-group.d-flex.flex-wrap.align-content-start(
+    tag="div",
+    name="board-list"
+  )
     div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardXap') }",
-      key="lahMonitorBoardXap-fix"
-    ): lah-monitor-board-xap(
-      :class="heightCss",
-      ref="LahMonitorBoardXap",
-      @light-update="lightUpdate"
+      v-for="(board, idx) in sortedBoards"
+      :key="`${board.comp}-${idx}`"
+      :class="colCss"
     )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardXapTrend') }",
-      key="lahMonitorBoardXapTrend-fix"
-    ): lah-monitor-board-xap-trend(
-      watch-top-xap,
-      :reload-time="15",
-      @light-update="lightUpdate"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('lahMonitorBoardPowerha') }",
-      key="lahMonitorBoardPowerha-fix"
-    ): lah-monitor-board-powerha(
-      :class="heightCss",
-      ref="lahMonitorBoardPowerha",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardDataguard') }",
-      key="lahMonitorBoardDataguard-fix"
-    ): lah-monitor-board-dataguard(
-      :class="heightCss",
-      ref="LahMonitorBoardDataguard",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardSrmas') }",
-      key="lahMonitorBoardSrmas-fix"
-    ): lah-monitor-board-srmas(
-      :class="heightCss",
-      ref="LahMonitorBoardSrmas",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardHacmp') }",
-      key="lahMonitorBoardHacmp-fix"
-    ): lah-monitor-board-hacmp(
-      :class="heightCss",
-      ref="LahMonitorBoardHacmp",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardSmsNotify') }",
-      key="lahMonitorBoardSmsNotify-fix"
-    ): lah-monitor-board-sms-notify(
-      :class="heightCss",
-      ref="LahMonitorBoardSmsNotify",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardSms') }",
-      key="lahMonitorBoardSms-fix"
-    ): lah-monitor-board-sms(
-      :class="heightCss",
-      ref="LahMonitorBoardSms",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardL05') }",
-      key="lahMonitorBoardL05-fix"
-    ): lah-monitor-board-L05(
-      :class="heightCss",
-      ref="LahMonitorBoardL05",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardApbackup') }",
-      key="lahMonitorBoardApbackup-fix"
-    ): lah-monitor-board-apbackup(
-      :class="heightCss",
-      ref="LahMonitorBoardApbackup",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardXcaseSync') }",
-      key="lahMonitorBoardXcaseSync-fix"
-    ): lah-monitor-board-xcase-sync(
-      :class="heightCss",
-      ref="LahMonitorBoardXcaseSync",
-      @light-update="lightUpdate"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardSiteHx') }",
-      key="lahMonitorBoardSiteHx-fix"
-    ): lah-monitor-board-site-hx(
-      :class="heightCss",
-      ref="LahMonitorBoardSiteHx",
-      @light-update="lightUpdate"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardLxhweb') }",
-      key="lahMonitorBoardLxhweb-fix"
-    ): lah-monitor-board-lxhweb(
-      :class="heightCss",
-      ref="LahMonitorBoardLxhweb",
-      @light-update="lightUpdate",
-      target-ip="L3HWEB",
-      link,
-      display-update-time
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardSiteTw') }",
-      key="lahMonitorBoardSiteTw-fix"
-    ): lah-monitor-board-site-tw(
-      :class="heightCss",
-      ref="LahMonitorBoardSiteTw",
-      @light-update="lightUpdate"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardDbbackup') }",
-      key="lahMonitorBoardDbbackup-fix"
-    ): lah-monitor-board-dbbackup(
-      :class="heightCss",
-      ref="LahMonitorBoardDbbackup",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardPrinter58') }",
-      key="lahMonitorBoardPrinter58-fix"
-    ): lah-monitor-board-printer(
-      :class="heightCss",
-      ref="LahMonitorBoardPrinter58",
-      @light-update="lightUpdate",
-      footer,
-      size="xs",
-      server-ip="220.1.34.58"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardPrinter212') }",
-      key="lahMonitorBoardPrinter212-fix"
-    ): lah-monitor-board-printer(
-      :class="heightCss",
-      ref="LahMonitorBoardPrinter212",
-      @light-update="lightUpdate",
-      footer,
-      size="xs",
-      server-ip="220.1.34.212"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardPrinter214') }",
-      key="lahMonitorBoardPrinter214-fix"
-    ): lah-monitor-board-printer(
-      :class="heightCss",
-      ref="LahMonitorBoardPrinter214",
-      @light-update="lightUpdate",
-      footer,
-      size="xs",
-      server-ip="220.1.34.214"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardConnectivity') }",
-      key="lahMonitorBoardConnectivity-fix"
-    ): lah-monitor-board-connectivity(
-      :class="heightCss",
-      ref="LahMonitorBoardConnectivity",
-      @light-update="lightUpdate"
-    )
-    //- HA only boards
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardVmclone') }",
-      key="lahMonitorBoardVmclone-fix"
-    ): lah-monitor-board-vmclone(
-      :class="heightCss",
-      ref="LahMonitorBoardVmclone",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardTape') }",
-      key="lahMonitorBoardTape-fix"
-    ): lah-monitor-board-tape(
-      :class="heightCss",
-      ref="LahMonitorBoardTape",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardTestdb') }",
-      key="lahMonitorBoardTestdb-fix"
-    ): lah-monitor-board-testdb(
-      :class="heightCss",
-      ref="LahMonitorBoardTestdb",
-      @light-update="lightUpdate"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardAdsync') }",
-      key="lahMonitorBoardAdsync-fix"
-    ): lah-monitor-board-adsync(
-      :class="heightCss",
-      ref="LahMonitorBoardAdsync",
-      @light-update="lightUpdate",
-      footer
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardApconn') }",
-      key="lahMonitorBoardApconn-fix"
-    ): lah-monitor-board-apconn(
-      :class="heightCss",
-      ref="LahMonitorBoardApconn",
-      @light-update="lightUpdate"
-    )
-    div(
-      :class="colCss",
-      :style="{ order: getOrder('LahMonitorBoardUps') }",
-      key="lahMonitorBoardUps-fix"
-    ): lah-monitor-board-ups(
-      :class="heightCss",
-      ref="LahMonitorBoardUps",
-      @light-update="lightUpdate",
-      footer
-    )
+      component(
+        :is="board.comp"
+        :ref="toCamelCase(board.comp)"
+        :id="toCamelCase(board.comp) + '-attention'"
+        :class="heightCss"
+        v-bind="board.props"
+        :footer="board.footer"
+        @light-update="lightUpdate"
+      )
+
 </template>
 
 <script>
@@ -344,7 +110,36 @@ export default {
     attentionList: [],
     attentionTimer: null,
     topWarning: true,
-    col2: false
+    col2: false,
+    // 定義所有面板的配置
+    boards: [
+      { comp: 'lah-monitor-board-xap', footer: false },
+      { comp: 'lah-monitor-board-xap-trend', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
+      { comp: 'lah-monitor-board-powerha', footer: true },
+      { comp: 'lah-monitor-board-dataguard', footer: true },
+      { comp: 'lah-monitor-board-srmas', footer: true },
+      { comp: 'lah-monitor-board-hacmp', footer: true },
+      { comp: 'lah-monitor-board-sms-notify', footer: true },
+      { comp: 'lah-monitor-board-sms', footer: true },
+      { comp: 'lah-monitor-board-L05', footer: true },
+      { comp: 'lah-monitor-board-apbackup', footer: true },
+      { comp: 'lah-monitor-board-xcase-sync', footer: false },
+      { comp: 'lah-monitor-board-site-hx', footer: false },
+      { comp: 'lah-monitor-board-lxhweb', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
+      { comp: 'lah-monitor-board-site-tw', footer: false },
+      { comp: 'lah-monitor-board-dbbackup', footer: true },
+      { comp: 'lah-monitor-board-connectivity', footer: false },
+      // HA only boards
+      { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.212' } },
+      { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.214' } },
+      { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.58' } },
+      { comp: 'lah-monitor-board-vmclone', footer: true },
+      { comp: 'lah-monitor-board-tape', footer: true },
+      { comp: 'lah-monitor-board-testdb', footer: false },
+      { comp: 'lah-monitor-board-adsync', footer: true },
+      { comp: 'lah-monitor-board-apconn', footer: false },
+      { comp: 'lah-monitor-board-ups', footer: true }
+    ]
   }),
   head: {
     title: '桃園所智慧監控儀表板-桃園市地政局'
@@ -378,6 +173,14 @@ export default {
         return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}:993/imap/ssl/novalidate-cert}INBOX`
       }
       return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
+    },
+    // 動態排序列表：Danger(-2) > Warning(-1) > Normal(0)
+    sortedBoards () {
+      // 複製一份陣列以免修改到原始資料
+      const list = [...this.boards]
+      return list.sort((a, b) => {
+        return this.getWeight(a.comp) - this.getWeight(b.comp)
+      })
     }
   },
   watch: {
@@ -442,17 +245,18 @@ export default {
       this.refreshHighlightGroup()
     },
     refreshHighlightGroup () { /* placeholder for debouncing */ },
-    /**
-     * Determines the visual order of the component based on its status.
-     * Flexbox order: smaller number comes first.
-     * Danger (Red): -2
-     * Warning (Yellow): -1
-     * Normal (Green/Success): 0
-     */
-    getOrder (name) {
-      if (!name) { return 0 }
-      // normalized camelCase name to match what is stored in attentionList
-      const camel = name.charAt(0).toLowerCase() + name.slice(1)
+    isInAttention (name) {
+      const clean = name[0]?.toUpperCase() + name?.slice(1)
+      return this.lightMap.has(clean) &&
+             this.lightMap.get(clean) !== 'success'
+    },
+    // Helper to convert kebab-case to camelCase
+    toCamelCase (str) {
+      return str.replace(/-([a-z])/g, g => g[1].toUpperCase())
+    },
+    // 計算權重：紅燈 -2, 黃燈 -1, 正常 0 (保持原順序)
+    getWeight (compName) {
+      const camel = this.toCamelCase(compName)
       const item = this.attentionList.find(x => x.compName === camel)
       if (item) {
         if (item.state === 'danger') { return -2 }
@@ -493,5 +297,10 @@ export default {
   img {
     height: calc(100vh / 3 - 200px);
   }
+}
+
+/* 列表排序動畫 */
+.board-list-move {
+  transition: transform 1s;
 }
 </style>
