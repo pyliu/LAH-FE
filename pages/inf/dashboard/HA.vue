@@ -86,7 +86,7 @@ div.monitor-dashboard(v-cloak)
         :is="board.comp"
         :ref="toCamelCase(board.comp)"
         :id="toCamelCase(board.comp) + '-attention'"
-        :class="heightCss"
+        :class="[heightCss, board.extraClass]"
         v-bind="board.props"
         :footer="board.footer"
         @light-update="lightUpdate"
@@ -117,7 +117,7 @@ export default {
       { comp: 'lah-monitor-board-xap-trend', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
       { comp: 'lah-monitor-board-powerha', footer: true },
       { comp: 'lah-monitor-board-dataguard', footer: true },
-      { comp: 'lah-monitor-board-srmas', footer: true },
+      { comp: 'lah-monitor-board-srmas', footer: true, extraClass: 'fix-img' },
       { comp: 'lah-monitor-board-hacmp', footer: true },
       { comp: 'lah-monitor-board-sms-notify', footer: true },
       { comp: 'lah-monitor-board-sms', footer: true },
