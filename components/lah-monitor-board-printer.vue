@@ -67,8 +67,8 @@ b-card(
         title="說明與設定"
       )
 
-  //- [修改] 說明 Modal 增加設定區塊，標題增加顯示 IP
-  lah-help-modal(ref="help", :modal-title="`${header} 設定與說明 - ${serverIp}`", size="lg")
+  //- [修改] 說明 Modal 增加設定區塊
+  lah-help-modal(ref="help", :modal-title="`${header} 設定與說明`", size="lg")
     //- 設定區塊
     div.mb-4.p-3.bg-light.rounded
       h6.font-weight-bold.mb-3
@@ -117,7 +117,7 @@ b-card(
 
     h6.font-weight-bold.mb-2 功能說明
     ul
-      li 監控伺服器 (利用本儀表板的 server-ip prop 參數指定伺服器IP) 上的實體印表機狀態。
+      li 監控伺服器 (Server IP) 上的實體印表機狀態。
       //- [新增] 部署說明
       li.text-danger
         strong 部署需求：
@@ -126,11 +126,11 @@ b-card(
         span  腳本。
         .mt-2
           b-button-group(size="sm")
-            //- [修改] 改用 @click 觸發下載，避開直接 href 導致的 about:blank#blocked
-            b-button(variant="outline-primary" @click="downloadAgent" pill)
+            //- [修改] 改回使用 href 屬性，避開 window.open 被瀏覽器阻擋的問題
+            b-button(variant="outline-primary" :href="agentDownloadUrl" target="_blank")
               lah-fa-icon(icon="download").mr-1
               span 下載 Agent 腳本
-            b-button.ml-1(variant="outline-info" @click="downloadGuide" pill)
+            b-button(variant="outline-info" :href="guideDownloadUrl" target="_blank")
               lah-fa-icon(icon="file-pdf").mr-1
               span 下載部署指南
       li
@@ -175,10 +175,10 @@ b-card(
     hide-footer
     body-class="p-0"
   )
-    //- 傳入 printers 陣列，指定 size 為 lg，關閉 footer
+    //- 傳入 printers 陣列，指定 size 為 xl (顯示包含 Location 的詳細欄位)，關閉 footer
     lah-monitor-board-printer(
       :in-printers="printers"
-      size="lg"
+      size="xl"
       :footer="false"
       :server-ip="serverIp"
       :server-port="serverPort"
@@ -425,6 +425,18 @@ b-card(
             title="清除此印表機佇列"
           )
 
+      //- [新增] XL 模式的插槽：Location
+      template(#cell(Location)="{ item }")
+        b-badge(v-if="item.Location" variant="light") {{ item.Location }}
+
+      //- [新增] XL 模式的插槽：Driver
+      template(#cell(Driver)="{ item }")
+        div.text-truncate(style="max-width: 200px;" :title="item.Driver || item.DriverName") {{ item.Driver || item.DriverName }}
+
+      //- [新增] XL 模式的插槽：ErrorDetails
+      template(#cell(ErrorDetails)="{ item }")
+        div.text-danger.small {{ item.ErrorDetails || item.DetailedStatus }}
+
   template(#footer, v-if="footer && !isDisplayMode"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -447,7 +459,7 @@ export default {
   props: {
     footer: { type: Boolean, default: false },
     id: { type: String, default: 'default' },
-    size: { type: String, default: 'xs' },
+    size: { type: String, default: 'lg' },
     serverIp: { type: String, default: '127.0.0.1' },
     serverPort: { type: String, default: '8888' },
     apiKey: { type: String, default: 'YourSecretApiKey123' },
@@ -469,17 +481,7 @@ export default {
       serverLogs: '',
       printers: [],
 
-      fullTableFields: [
-        { key: 'Name', label: '名稱', sortable: true },
-        { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
-        { key: 'IP', label: 'IP', sortable: true },
-        { key: 'Jobs', label: '佇列', sortable: true, class: 'text-center' },
-        { key: 'Location', label: '位置', sortable: true },
-        { key: 'Driver', label: '驅動程式', sortable: true },
-        { key: 'PortName', label: '連接埠', sortable: true },
-        { key: 'ShareName', label: '共用名稱', sortable: true },
-        { key: 'ErrorDetails', label: '錯誤細節', sortable: true }
-      ],
+      // [移除] 舊的 fullTableFields 定義，現在由 printerFields(xl) 動態處理
 
       printTarget: '',
       pdfFile: null,
@@ -493,7 +495,8 @@ export default {
         { value: 'xs', text: '儀表板 (XS)' },
         { value: 'sm', text: '精簡列表 (SM)' },
         { value: 'md', text: '標準列表 (MD)' },
-        { value: 'lg', text: '詳細列表 (LG)' }
+        { value: 'lg', text: '詳細列表 (LG)' },
+        { value: 'xl', text: '完整列表 (XL)' } // [新增] XL 選項
       ]
     }
   },
@@ -540,12 +543,26 @@ export default {
           { key: 'Name', label: '印表機名稱', sortable: true },
           { key: 'IP', label: 'IP', sortable: true }
         ]
+      } else if (this.localSize === 'xl') {
+        // [新增] xl 模式：包含詳細欄位 (Location, Driver, etc.)
+        return [
+          { key: 'action', label: '操作', class: 'text-center' },
+          { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
+          { key: 'Name', label: '名稱', sortable: true },
+          { key: 'IP', label: 'IP', sortable: true },
+          { key: 'Location', label: '位置', sortable: true },
+          { key: 'Jobs', label: '佇列', sortable: true, class: 'text-center' },
+          { key: 'Driver', label: '驅動程式', sortable: true },
+          // { key: 'PortName', label: '連接埠', sortable: true }, // 可選
+          { key: 'ErrorDetails', label: '錯誤細節', sortable: true }
+        ]
       } else {
         // lg (default)
         return [
           { key: 'action', label: '操作', class: 'text-center' },
           { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
           { key: 'Name', label: '印表機名稱', sortable: true },
+          { key: 'Location', label: '位置', sortable: true },
           { key: 'IP', label: 'IP', sortable: true },
           { key: 'Jobs', label: '佇列數', sortable: true, class: 'text-center' }
         ]
@@ -648,7 +665,7 @@ export default {
     inPrinters (newVal) {
       if (newVal && newVal.length > 0) {
         this.printers = [...newVal]
-        this.updated = this.$utils.time()
+        this.updated = this.$utils.now()
       }
     }
   },
@@ -658,7 +675,7 @@ export default {
     // [新增] created 時檢查是否為展示模式
     if (this.inPrinters && this.inPrinters.length > 0) {
       this.printers = [...this.inPrinters]
-      this.updated = this.$utils.time()
+      this.updated = this.$utils.now()
     }
   },
   mounted () {
@@ -770,7 +787,7 @@ export default {
     async reload () {
       // [新增] 展示模式下不執行 API 請求，僅更新時間
       if (this.isDisplayMode) {
-        this.updated = this.$utils.time()
+        this.updated = this.$utils.now()
         return
       }
 
@@ -783,10 +800,10 @@ export default {
         })
         if (data && data.data && Array.isArray(data.data.data)) {
           this.printers = data.data.data
-          this.updated = this.$utils.time()
+          this.updated = this.$utils.now()
         } else if (data && Array.isArray(data.data)) {
           this.printers = data.data
-          this.updated = this.$utils.time()
+          this.updated = this.$utils.now()
         } else {
           this.$utils.warn('無法解析回傳資料結構，保留現有資料', data)
         }
@@ -899,15 +916,19 @@ export default {
             duplex: this.duplex
           },
           headers: {
+            // [修改] 使用 apiKey prop
             'X-API-KEY': this.apiKey,
             'Content-Type': 'application/pdf'
+            // 原生 axios 不會自動加 CLIENT_IP，所以不需要設為 undefined
           }
         })
+
         this.notify('PDF 已傳送列印', { type: 'success' })
         this.$refs.printModal.hide()
         this.pdfFile = null
         setTimeout(this.reload, 2000)
       } catch (err) {
+        // 捕捉 axios 錯誤
         const msg = err.response?.data?.message || err.message
         this.alert(`列印失敗: ${msg}`)
       } finally {
