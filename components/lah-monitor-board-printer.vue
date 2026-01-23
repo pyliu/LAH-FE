@@ -67,8 +67,8 @@ b-card(
         title="說明與設定"
       )
 
-  //- [修改] 說明 Modal 增加設定區塊
-  lah-help-modal(ref="help", :modal-title="`${header} 設定與說明`", size="lg")
+  //- [修改] 說明 Modal 增加設定區塊，標題增加顯示 IP
+  lah-help-modal(ref="help", :modal-title="`${header} 設定與說明 - ${serverIp}`", size="lg")
     //- 設定區塊
     div.mb-4.p-3.bg-light.rounded
       h6.font-weight-bold.mb-3
