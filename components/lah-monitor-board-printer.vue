@@ -22,10 +22,11 @@ b-card(
       )
 
     b-button-group.ml-auto(size="sm")
-      //- [移除] 原本在此的 localSize 下拉選單與 dashboardStyle 按鈕，已移至 Help Modal
+      //- [修改] 移除 Header 上的顯示設定 UI (已移至 Help Modal)
 
-      //- 完整列表按鈕
+      //- 完整列表按鈕 (避免在 Display Mode 下再次顯示此按鈕，造成無限 Modal)
       lah-button(
+        v-if="!isDisplayMode"
         icon="list",
         variant="outline-info",
         no-border,
@@ -42,9 +43,9 @@ b-card(
         @click="fetchServerLogs",
         title="查看伺服器紀錄 (最後100行)"
       )
-      //- 只有在不顯示 footer 時才顯示 header 的重新整理按鈕
+      //- [修改] 在展示模式(isDisplayMode)或不顯示footer時，顯示header的重新整理按鈕
       lah-button(
-        v-if="!footer"
+        v-if="!footer && !isDisplayMode"
         icon="sync-alt",
         action="ld-cycle",
         variant="outline-secondary",
@@ -54,15 +55,7 @@ b-card(
         :title="`上次更新時間 ${updated}`",
         :disabled="isBusy"
       )
-      //- 深度自癒按鈕 (API F)
-      lah-button(
-        icon="medkit",
-        variant="outline-danger",
-        no-border,
-        no-icon-gutter,
-        @click="triggerSelfHeal",
-        title="觸發深度自癒流程 (重啟 Spooler)"
-      )
+      //- [移除] 深度自癒按鈕已移至說明 Modal
 
       lah-button(
         icon="question",
@@ -104,6 +97,20 @@ b-card(
             size="sm"
           )
 
+    //- [新增] 維護區塊 (從 Header 移入)
+    div.mb-4.p-3.bg-light.rounded
+      h6.font-weight-bold.mb-3
+        lah-fa-icon(icon="tools").mr-2
+        span 系統維護
+
+      div.d-flex.align-items-center
+        lah-button(
+          icon="medkit",
+          variant="outline-danger",
+          @click="triggerSelfHeal"
+        ) 觸發深度自癒
+        span.ml-2.text-muted 重新啟動 Spooler 服務
+
     hr
 
     h6.font-weight-bold.mb-2 功能說明
@@ -124,9 +131,12 @@ b-card(
       li
         strong PDF 列印：
         span 可上傳 PDF 檔案至指定印表機進行列印測試 (僅 Ready 狀態顯示)。
-      li
+      li(v-if="!isDisplayMode")
         strong 自動更新：
         span 每 {{ reloadMs / 60000 }} 分鐘自動重新整理一次。
+      li(v-else)
+        strong 展示模式：
+        span 資料由外部提供，本組件不執行自動更新。
 
   //- [新增] 伺服器紀錄 Modal
   b-modal(
@@ -140,48 +150,24 @@ b-card(
     div.text-center.text-muted.py-5(v-else) 暫無紀錄或載入中...
 
   //- [新增] 完整資料列表 Modal
+  //- [修改] 使用遞迴組件顯示完整列表
   b-modal(
     ref="fullTableModal"
     :title="`完整印表機清單 - ${serverIp}:${serverPort}`"
     size="xl"
     hide-footer
+    body-class="p-0"
   )
-    //- Modal 內部的篩選工具列
-    .d-flex.justify-content-end.mb-2
-      b-form-select(
-        v-model="filterStatus"
-        :options="statusOptions"
-        size="sm"
-        style="width: auto; min-width: 150px;"
-        title="依狀態篩選"
-      )
-
-    //- items 改為 filteredPrinters 支援篩選
-    b-table(
-      :items="filteredPrinters"
-      :fields="fullTableFields"
-      striped
-      hover
-      responsive
-      bordered
-      small
-      head-variant="dark"
-      show-empty
-      class="s-90"
-      selectable
-      select-mode="single"
-      selected-variant="success"
-      @row-clicked="onRowClick"
-      tbody-tr-class="pointer"
+    //- 傳入 printers 陣列，指定 size 為 lg，關閉 footer
+    lah-monitor-board-printer(
+      :in-printers="printers"
+      size="lg"
+      :footer="false"
+      :server-ip="serverIp"
+      :server-port="serverPort"
+      :api-key="apiKey"
+      class="border-0 shadow-none"
     )
-      template(#cell(Status)="{ item }")
-        b-badge(:variant="getPaperBadgeVariant(item.Status)") {{ formatStatus(item.Status) }}
-      template(#cell(Jobs)="{ item }")
-        span(:class="{'text-danger font-weight-bold': getJobsCount(item.Jobs) > 0}") {{ getJobsCount(item.Jobs) }}
-      template(#cell(Driver)="{ item }")
-        div.text-truncate(style="max-width: 200px;" :title="item.Driver || item.DriverName") {{ item.Driver || item.DriverName }}
-      template(#cell(ErrorDetails)="{ item }")
-        div.text-danger.small {{ item.ErrorDetails || item.DetailedStatus }}
 
   //- 詳細資料 Modal
   b-modal(
@@ -422,7 +408,7 @@ b-card(
             title="清除此印表機佇列"
           )
 
-  template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
+  template(#footer, v-if="footer && !isDisplayMode"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
     :busy="isBusy",
@@ -448,7 +434,9 @@ export default {
     serverIp: { type: String, default: '127.0.0.1' },
     serverPort: { type: String, default: '8888' },
     apiKey: { type: String, default: 'YourSecretApiKey123' },
-    reloadMs: { type: Number, default: 300000 }
+    reloadMs: { type: Number, default: 300000 },
+    // [新增] 外部注入印表機資料 (展示模式用)
+    inPrinters: { type: Array, default: () => [] }
   },
   data () {
     return {
@@ -458,7 +446,6 @@ export default {
       header: '列印伺服器監控',
       filterStatus: 'not_ready',
       localSize: this.size,
-      // [新增] 儀表板樣式：'horizontal' (1x4) 或 'grid' (2x2)
       dashboardStyle: 'horizontal',
       selectedPrinter: null,
       cancelSource: null,
@@ -494,7 +481,15 @@ export default {
     }
   },
   computed: {
+    // [新增] 判斷是否為展示模式
+    isDisplayMode () {
+      return this.inPrinters && this.inPrinters.length > 0
+    },
+    // [修改] 如果 light 為 success (綠燈)，不顯示邊框 (return 空字串)
     border () {
+      if (this.light === 'success') {
+        return ''
+      }
       return this.light
     },
     attentionCss () {
@@ -529,7 +524,8 @@ export default {
         ]
       }
     },
-    light () {
+    // [新增] 佇列燈號邏輯 (從原 light 搬移)
+    queueLight () {
       if (this.printers.length === 0) { return 'warning' }
       const totalJobs = this.printers.reduce((sum, printer) => {
         return sum + this.getJobsCount(printer.Jobs)
@@ -537,6 +533,24 @@ export default {
       if (totalJobs > 10) { return 'danger' }
       if (totalJobs > 5) { return 'warning' }
       return 'success'
+    },
+    // [新增] 狀態燈號邏輯 (檢查錯誤與警告)
+    notReadyLight () {
+      if (this.printers.length === 0) { return 'success' }
+      // 收集所有印表機的狀態顏色
+      const statuses = this.printers.map(p => this.getPaperBadgeVariant(p.Status))
+      if (statuses.includes('danger')) { return 'danger' }
+      if (statuses.includes('warning')) { return 'warning' }
+      return 'success'
+    },
+    // [修改] 綜合燈號 (佇列或狀態有問題都顯示)
+    light () {
+      return this.queueLight
+      // // 只要有一個是 danger 就是 danger
+      // if (this.queueLight === 'danger' || this.notReadyLight === 'danger') { return 'danger' }
+      // // 只要有一個是 warning 就是 warning
+      // if (this.queueLight === 'warning' || this.notReadyLight === 'warning') { return 'warning' }
+      // return 'success'
     },
     statusOptions () {
       const uniqueStatuses = [...new Set(this.printers.map(p => p.Status || 'Unknown'))].sort()
@@ -588,10 +602,7 @@ export default {
         jobs: totalJobs
       }
     },
-    // [新增] 計算 dashboard 每欄佔用的格數
     dashboardColCols () {
-      // grid (田字) = 2x2 -> 每欄 6
-      // horizontal (橫向) = 1x4 -> 每欄 3
       return this.dashboardStyle === 'grid' ? 6 : 3
     }
   },
@@ -602,16 +613,28 @@ export default {
     localSize () {
       this.storeConfig()
     },
-    // [新增] 監聽 dashboardStyle 變更
     dashboardStyle () {
       this.storeConfig()
     },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
+    },
+    // [新增] 監聽外部傳入的印表機資料
+    inPrinters (newVal) {
+      if (newVal && newVal.length > 0) {
+        this.printers = [...newVal]
+        this.updated = this.$utils.now()
+      }
     }
   },
   created () {
     this.debouncedFetchStatus = _.debounce(this.fetchStatusFromApi, 300)
+
+    // [新增] created 時檢查是否為展示模式
+    if (this.inPrinters && this.inPrinters.length > 0) {
+      this.printers = [...this.inPrinters]
+      this.updated = this.$utils.now()
+    }
   },
   mounted () {
     this.emitLightUpdate(this.light, '')
@@ -620,10 +643,17 @@ export default {
       const config = JSON.parse(cachedConfig)
       this.filterStatus = config.filterStatus || this.filterStatus
       this.localSize = config.localSize || this.localSize
-      // [新增] 讀取 dashboardStyle
       this.dashboardStyle = config.dashboardStyle || this.dashboardStyle
     }
-    this.reload()
+
+    // [修改] 如果是展示模式，強制使用 prop 的 size，忽略快取
+    if (this.isDisplayMode) {
+      this.localSize = this.size
+    }
+    // [修改] 只有非展示模式才自動載入
+    else {
+      this.reload()
+    }
   },
   beforeDestroy () {
     this.emitLightUpdate('', this.light)
@@ -697,7 +727,6 @@ export default {
       localStorage.setItem(this.storageKey, JSON.stringify({
         filterStatus: this.filterStatus,
         localSize: this.localSize,
-        // [新增] 儲存 dashboardStyle
         dashboardStyle: this.dashboardStyle
       }))
     },
@@ -707,6 +736,12 @@ export default {
       return 0
     },
     async reload () {
+      // [新增] 展示模式下不執行 API 請求，僅更新時間
+      if (this.isDisplayMode) {
+        this.updated = this.$utils.now()
+        return
+      }
+
       this.isBusy = true
       try {
         const { data } = await axios.get(`${this.apiUrlBase}/printers`, {
@@ -733,6 +768,7 @@ export default {
       this.$refs.detailModal.show()
       const localPrinter = this.printers.find(p => p.Name === name)
       this.selectedPrinter = localPrinter || null
+      // 展示模式下也可以查詢詳細狀態，視需求而定，這裡保留原邏輯
       this.debouncedFetchStatus(name)
     },
     cancelRequest () {
@@ -913,7 +949,6 @@ export default {
       if (s.includes('warning') || s.includes('toner')) { return 'warning' }
       return 'success'
     },
-    // [新增] 儀表板樣式切換方法
     toggleDashboardStyle () {
       this.dashboardStyle = this.dashboardStyle === 'grid' ? 'horizontal' : 'grid'
     },
