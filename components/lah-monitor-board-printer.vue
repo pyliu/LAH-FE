@@ -25,8 +25,10 @@ b-card(
       //- [修改] 移除 Header 上的顯示設定 UI (已移至 Help Modal)
 
       //- 完整列表按鈕 (避免在 Display Mode 下再次顯示此按鈕，造成無限 Modal)
+      //- [修改] 當目前顯示模式已經是 xl 時，隱藏此按鈕
+      //- [修改] 位置互換：移至切換模式按鈕之前
       lah-button(
-        v-if="!isDisplayMode"
+        v-if="!isDisplayMode && localSize !== 'xl'"
         icon="list",
         variant="outline-info",
         no-border,
@@ -34,15 +36,31 @@ b-card(
         @click="$refs.fullTableModal.show()",
         title="顯示完整詳細列表"
       )
-      //- 伺服器紀錄按鈕
+
+      //- [新增] 儀表板排列切換按鈕 (只在 XS 顯示)
       lah-button(
-        icon="file-alt",
-        variant="outline-dark",
+        v-if="localSize === 'xs'"
+        :icon="dashboardStyle === 'grid' ? 'th-list' : 'th-large'"
+        variant="outline-primary"
+        no-border
+        no-icon-gutter
+        @click="toggleDashboardStyle"
+        :title="`切換排列 (目前: ${dashboardStyle === 'grid' ? '田字' : '橫向'})`"
+      )
+
+      //- [新增] 循環切換顯示模式按鈕
+      //- [修改] 位置互換：移至完整列表按鈕之後
+      lah-button(
+        icon="tv",
+        variant="outline-primary",
         no-border,
         no-icon-gutter,
-        @click="fetchServerLogs",
-        title="查看伺服器紀錄 (最後100行)"
+        @click="cycleSize",
+        :title="`切換顯示模式 (目前: ${localSize})`"
       )
+
+      //- [移除] 伺服器紀錄按鈕 (移至 Help Modal)
+
       //- [修改] 在展示模式(isDisplayMode)或不顯示footer時，顯示header的重新整理按鈕
       lah-button(
         v-if="!footer && !isDisplayMode"
@@ -106,12 +124,20 @@ b-card(
         span 系統維護
 
       div.d-flex.align-items-center
-        lah-button(
+        lah-button.mr-2(
           icon="medkit",
           variant="outline-danger",
           @click="triggerSelfHeal"
+          title="重新啟動 Spooler 服務"
         ) 觸發深度自癒
-        span.ml-2.text-muted 重新啟動 Spooler 服務
+
+        //- [移動] 伺服器紀錄按鈕
+        lah-button(
+          icon="file-alt",
+          variant="outline-dark",
+          @click="fetchServerLogs"
+          title="查看伺服器紀錄 (最後100行)"
+        ) 查看紀錄
 
     hr
 
@@ -176,10 +202,11 @@ b-card(
     hide-footer
     body-class="p-0"
   )
-    //- 傳入 printers 陣列，指定 size 為 lg，關閉 footer
+    //- [修改] 將預設 size 改為 xl
+    //- 傳入 printers 陣列，關閉 footer
     lah-monitor-board-printer(
       :in-printers="printers"
-      size="lg"
+      size="xl"
       :footer="false"
       :server-ip="serverIp"
       :server-port="serverPort"
@@ -236,6 +263,10 @@ b-card(
             b-list-group-item.d-flex.justify-content-between.align-items-center(v-if="selectedPrinter.ErrorDetails")
               span.text-muted 錯誤訊息
               b-badge(variant="danger") {{ selectedPrinter.ErrorDetails }}
+            //- [新增] 備註欄位顯示
+            b-list-group-item.d-flex.justify-content-between.align-items-center(v-if="selectedPrinter.Comment")
+              span.text-muted 備註 (Comment)
+              span.text-truncate(style="max-width: 150px;" :title="selectedPrinter.Comment") {{ selectedPrinter.Comment }}
 
       //- 底部：操作按鈕區
       hr
@@ -434,9 +465,17 @@ b-card(
       template(#cell(Driver)="{ item }")
         div.text-truncate(style="max-width: 200px;" :title="item.Driver || item.DriverName") {{ item.Driver || item.DriverName }}
 
+      //- [新增] XL 模式的插槽：Comment
+      template(#cell(Comment)="{ item }")
+        div.text-truncate(style="max-width: 150px;" :title="item.Comment") {{ item.Comment }}
+
       //- [新增] XL 模式的插槽：ErrorDetails
       template(#cell(ErrorDetails)="{ item }")
         div.text-danger.small {{ item.ErrorDetails || item.DetailedStatus }}
+
+      //- [新增] XL 模式的插槽：PortName
+      template(#cell(PortName)="{ item }")
+        div.text-truncate(style="max-width: 150px;" :title="item.PortName") {{ item.PortName }}
 
   template(#footer, v-if="footer && !isDisplayMode"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -461,7 +500,7 @@ export default {
   props: {
     footer: { type: Boolean, default: false },
     id: { type: String, default: 'default' },
-    size: { type: String, default: 'lg' },
+    size: { type: String, default: 'xs' }, // [修改] 預設值改為 xs
     serverIp: { type: String, default: '127.0.0.1' },
     serverPort: { type: String, default: '8888' },
     apiKey: { type: String, default: 'YourSecretApiKey123' },
@@ -543,6 +582,7 @@ export default {
         return [
           { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
           { key: 'Name', label: '印表機名稱', sortable: true },
+          { key: 'Location', label: '位置', sortable: true },
           { key: 'IP', label: 'IP', sortable: true }
         ]
       } else if (this.localSize === 'xl') {
@@ -552,12 +592,14 @@ export default {
           { key: 'action', label: '操作', class: 'text-center' },
           { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
           { key: 'Name', label: '名稱', sortable: true },
-          { key: 'IP', label: 'IP', sortable: true },
           { key: 'Location', label: '位置', sortable: true },
+          { key: 'IP', label: 'IP', sortable: true },
           { key: 'Jobs', label: '佇列', sortable: true, class: 'text-center' },
-          { key: 'Driver', label: '驅動程式', sortable: true },
           // { key: 'PortName', label: '連接埠', sortable: true }, // 可選
-          { key: 'ErrorDetails', label: '錯誤細節', sortable: true }
+          { key: 'Comment', label: '備註', sortable: true },
+          { key: 'ErrorDetails', label: '錯誤細節', sortable: true },
+          { key: 'Driver', label: '驅動程式', sortable: true },
+          { key: 'PortName', label: '連接埠', sortable: true } // [新增] PortName
         ]
       } else {
         // lg (default)
@@ -717,6 +759,13 @@ export default {
         centered: true,
         okVariant: 'danger'
       })
+    },
+    // [新增] 循環切換 Size
+    cycleSize () {
+      const options = this.sizeOptions.map(o => o.value)
+      const idx = options.indexOf(this.localSize)
+      const nextIdx = (idx + 1) % options.length
+      this.localSize = options[nextIdx]
     },
     // [修改] 移除 downloadAgent 方法
     // [修改] 移除 downloadGuide 方法
