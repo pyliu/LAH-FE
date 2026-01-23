@@ -498,12 +498,15 @@ export default {
     }
   },
   computed: {
+    downloadUrlBase () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}`
+    },
     // [新增] 下載連結
     agentDownloadUrl () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/Printer_API_Agent.ps1`
+      return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent.ps1`
     },
     guideDownloadUrl () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/Printer_API_Agent_Windows_Server_部署指南.pdf`
+      return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent_Windows_Server_部署指南.pdf`
     },
     // [新增] 判斷是否為展示模式
     isDisplayMode () {
@@ -695,11 +698,10 @@ export default {
         okVariant: 'danger'
       })
     },
-    // [新增] 下載 Agent 腳本
+    // [修改] 使用 window.open 來觸發下載，避開 href 導致的 about:blank#blocked
     downloadAgent () {
       window.open(this.agentDownloadUrl, '_blank')
     },
-    // [新增] 下載部署指南
     downloadGuide () {
       window.open(this.guideDownloadUrl, '_blank')
     },
@@ -839,6 +841,7 @@ export default {
         }
       }
     },
+    // [修改] 取得伺服器日誌，並反轉內容
     async fetchServerLogs () {
       this.isBusy = true
       this.serverLogs = ''
@@ -847,15 +850,26 @@ export default {
           params: { lines: 100 },
           headers: { 'X-API-KEY': this.apiKey }
         })
+
         let content = data
         if (data && data.data) {
           content = data.data
         }
-        if (typeof content === 'object') {
+
+        // [新增] 日誌反轉邏輯
+        if (typeof content === 'string') {
+          // 如果是純文字，按行分割 -> 反轉 -> 重新組合
+          this.serverLogs = content.split('\n').reverse().join('\n')
+        } else if (Array.isArray(content)) {
+          // 如果是陣列，直接反轉
+          this.serverLogs = JSON.stringify(content.reverse(), null, 2)
+        } else if (typeof content === 'object') {
+          // 如果是物件，轉字串 (無法反轉，除非轉換為 entries)
           this.serverLogs = JSON.stringify(content, null, 2)
         } else {
           this.serverLogs = content
         }
+
         this.$refs.logsModal.show()
       } catch (err) {
         this.alert(`無法取得紀錄: ${err.message}`)
