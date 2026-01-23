@@ -1,5 +1,5 @@
 <template lang="pug">
-div.monitor-dashboard(v-cloak)
+client-only: .monitor-dashboard(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
