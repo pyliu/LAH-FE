@@ -648,7 +648,7 @@ export default {
     inPrinters (newVal) {
       if (newVal && newVal.length > 0) {
         this.printers = [...newVal]
-        this.updated = this.$utils.now()
+        this.updated = this.$utils.time()
       }
     }
   },
@@ -658,7 +658,7 @@ export default {
     // [新增] created 時檢查是否為展示模式
     if (this.inPrinters && this.inPrinters.length > 0) {
       this.printers = [...this.inPrinters]
-      this.updated = this.$utils.now()
+      this.updated = this.$utils.time()
     }
   },
   mounted () {
@@ -770,7 +770,7 @@ export default {
     async reload () {
       // [新增] 展示模式下不執行 API 請求，僅更新時間
       if (this.isDisplayMode) {
-        this.updated = this.$utils.now()
+        this.updated = this.$utils.time()
         return
       }
 
@@ -783,10 +783,10 @@ export default {
         })
         if (data && data.data && Array.isArray(data.data.data)) {
           this.printers = data.data.data
-          this.updated = this.$utils.now()
+          this.updated = this.$utils.time()
         } else if (data && Array.isArray(data.data)) {
           this.printers = data.data
-          this.updated = this.$utils.now()
+          this.updated = this.$utils.time()
         } else {
           this.$utils.warn('無法解析回傳資料結構，保留現有資料', data)
         }
