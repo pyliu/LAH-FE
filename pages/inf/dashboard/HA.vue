@@ -24,7 +24,15 @@ client-only: .monitor-dashboard(v-cloak)
           .mr-1 🟡 {{ yellow }}
           .mr-1 🟢 {{ green }}
           b-button-group(size="lg")
-            lah-button.mx-1(
+            lah-button.mr-1(
+              @click="$refs.printerSetupModal.show()",
+              icon="print",
+              variant="outline-secondary",
+              no-border,
+              no-icon-gutter,
+              title="設定列印伺服器"
+            )
+            lah-button(
               @click="$refs.setupModal.show()",
               icon="cog",
               variant="outline-secondary",
@@ -34,6 +42,7 @@ client-only: .monitor-dashboard(v-cloak)
               title="設定EMAIL伺服器"
             )
     lah-monitor-board-setup-modal(ref="setupModal")
+    lah-monitor-board-printer-setup-modal(ref="printerSetupModal")
     lah-help-modal(:modal-id="'help-modal'", size="lg", modal-title="智慧監控儀表板說明")
       h5.d-flex.align-items-center
         lah-fa-icon(icon="lightbulb" regular, variant="secondary")
@@ -50,6 +59,15 @@ client-only: .monitor-dashboard(v-cloak)
             li 🟡 #[strong 黃燈]：表示監控項目出現警告或潛在問題。
             li 🟢 #[strong 綠燈]：表示監控項目運作正常。
         li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂，並透過動畫效果提醒管理人員注意。
+        li 若燈號狀態相同，則依照 #[strong 更新時間] 排序，越近更新的會排在越前面。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="thumbtack", variant="secondary")
+        span.ml-2 釘選功能
+      p 您可以點擊每個面板右上角的 #[lah-fa-icon(icon="thumbtack", variant="danger")] 圖釘圖示來固定該面板。
+      ul
+        li 被釘選的面板在綠燈狀態下，會排在未釘選的面板前面。
+        li 排序優先級：#[strong 紅燈 > 黃燈 > 已釘選 > 一般]。
       hr
       h5.d-flex.align-items-center
         lah-fa-icon(icon="database", variant="secondary")
@@ -59,30 +77,27 @@ client-only: .monitor-dashboard(v-cloak)
         li #[strong 電子郵件分析]：讀取特定郵件伺服器的郵件，分析主旨與內容來判斷服務狀態（例如：SRMAS、資料庫備份等）。
         li #[strong 智慧監控API]：呼叫安裝於遠端伺服器上的客製化API，獲取服務的即時狀態（例如：建物圖籍同步、地籍異動即時通等）。
         li #[strong 系統後端API]：直接存取本系統後端的API，查詢內部服務狀態（例如：L3同步、跨縣市AP服務等）。
-      hr
-      h5.d-flex.align-items-center
-        lah-fa-icon(icon="columns", variant="secondary")
-        span.ml-2 版面配置
-      ul
-        li 勾選頁首的 #[strong 2欄顯示] 開關，可以將儀表板在兩欄與三欄之間切換，以適應不同的螢幕尺寸與觀看習慣。
-      hr
-      h5.d-flex.align-items-center
-        lah-fa-icon(icon="cog", variant="secondary")
-        span.ml-2 設定
-      ul
-        li 點擊 #[lah-fa-icon(icon="cog")] 按鈕可以設定用於 #[strong 電子郵件分析] 的郵件伺服器連線資訊。
 
   //- 使用 transition-group 來實現排序動畫
-  //- 關鍵：key 必須是穩定的 id，不能使用 index
+  //- 渲染 currentSortedBoards 而非 computed 屬性
   transition-group.d-flex.flex-wrap.align-content-start(
     tag="div",
     name="board-list"
   )
     div(
-      v-for="board in sortedBoards"
+      v-for="board in currentSortedBoards"
       :key="board.id"
       :class="colCss"
+      style="position: relative"
     )
+      //- 釘選按鈕 (絕對定位)
+      .pin-btn(
+        @click="togglePin(board)"
+        :class="{ active: board.pinned }"
+        title="釘選/取消釘選此面板"
+      )
+        lah-fa-icon(icon="thumbtack", :variant="board.pinned ? 'danger' : 'secondary'")
+
       component(
         :is="board.comp"
         :ref="toCamelCase(board.comp)"
@@ -96,8 +111,11 @@ client-only: .monitor-dashboard(v-cloak)
 </template>
 
 <script>
+import LahMonitorBoardPrinterSetupModal from '~/components/lah-monitor-board-printer-setup-modal.vue';
+
 export default {
   // middleware: ['isInf'], // authority control
+  components: { LahMonitorBoardPrinterSetupModal },
   data: () => ({
     red: 0,
     yellow: 0,
@@ -130,10 +148,6 @@ export default {
       { comp: 'lah-monitor-board-site-tw', footer: false },
       { comp: 'lah-monitor-board-dbbackup', footer: true },
       { comp: 'lah-monitor-board-connectivity', footer: false },
-      // HA only boards - Printers
-      { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.212' } },
-      { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.214' } },
-      { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.58' } },
       // Other HA boards
       { comp: 'lah-monitor-board-vmclone', footer: true },
       { comp: 'lah-monitor-board-tape', footer: true },
@@ -141,7 +155,13 @@ export default {
       { comp: 'lah-monitor-board-adsync', footer: true },
       { comp: 'lah-monitor-board-apconn', footer: false },
       { comp: 'lah-monitor-board-ups', footer: true }
-    ]
+    ],
+    // 儲存已釘選的 ID 列表
+    pinnedIds: [],
+    // 實際渲染在畫面上的列表 (經過去抖動處理)
+    currentSortedBoards: [],
+    // 用於存放防抖函數
+    debouncedSort: null
   }),
   head: {
     title: '桃園所智慧監控儀表板-桃園市地政局'
@@ -176,31 +196,53 @@ export default {
       }
       return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
     },
-    // 動態排序列表：Danger(-2) > Warning(-1) > Normal(0)
-    sortedBoards () {
-      // 複製一份陣列以免修改到原始資料，避免此處的 sort 影響到原始 boards 順序
-      const list = [...this.boards]
-      return list.sort((a, b) => {
-        return this.getWeight(a) - this.getWeight(b)
-      })
+    // 用於監聽設定變更
+    monitorPrintersConfig () {
+      return this.systemConfigs?.monitor_printers
     }
   },
   watch: {
     col2 (flag) {
       this.setCache('dashboard-col2', flag)
+    },
+    // 當設定變更時，重新載入印表機面板
+    monitorPrintersConfig: {
+      handler () {
+        this.mergePrinterBoards()
+      },
+      immediate: true
     }
   },
   created () {
-    // 為每個 board 賦予唯一的 ID，這對於 transition-group 的排序動畫至關重要
-    this.boards.forEach((board, index) => {
-      // 建立一個基礎的唯一 ID，如果有 IP 則包含 IP 以利識別
-      const suffix = board.props?.serverIp ? `-${board.props.serverIp}` : ''
-      // 使用 non-reactive property 寫入 id，因為這個 id 永遠不會變
-      board.id = `${board.comp}${suffix}-${index}`
+    // 初始化防抖排序函數，延遲 3000ms 執行，避免畫面頻繁跳動
+    this.debouncedSort = this.$utils.debounce(this.sortBoards, 3000)
 
-      // 初始化 realName，方便 Vue 追蹤響應
-      this.$set(board, 'realName', null)
+    // 讀取釘選紀錄
+    this.getCache('dashboard-pinned-ha').then((ids) => {
+      this.pinnedIds = ids || []
+      // 同步到 boards
+      this.boards.forEach(b => {
+        if (this.pinnedIds.includes(b.id)) {
+          this.$set(b, 'pinned', true)
+        }
+      })
+      // 讀取完釘選後，執行一次排序初始化
+      this.sortBoards()
     })
+
+    // 為靜態 boards 賦予 ID
+    this.boards.forEach((board, index) => {
+      if (!board.id) {
+        const suffix = board.props?.serverIp ? `-${board.props.serverIp}` : ''
+        board.id = `${board.comp}${suffix}-${index}`
+        this.$set(board, 'realName', null)
+        this.$set(board, 'lastUpdate', 0)
+        this.$set(board, 'pinned', false) // 預設不釘選
+      }
+    })
+    
+    // 初始化 currentSortedBoards
+    this.currentSortedBoards = [...this.boards]
 
     this.getCache('dashboard-col2').then((flag) => {
       this.col2 = flag
@@ -212,18 +254,15 @@ export default {
       const tmp = []
       for (const [key, value] of this.lightMap) {
         if (['warning', 'danger'].includes(value)) {
-          // 注意：這裡將 key 轉為首字母小寫 (camelCase)
           tmp.push({
             compName: key.charAt(0).toLowerCase() + key.slice(1),
             state: value
           })
         }
       }
-      // order by state
       this.attentionList = this.$utils.orderBy(tmp, 'state')
     }, 5000)
 
-    // using animation to catch attention
     this.attentionTimer = setInterval(() => {
       this.dangerList.forEach((card) => {
         this.timeout(
@@ -240,21 +279,92 @@ export default {
         )
       })
     }, 30 * 1000)
-
-    // 初始化時先執行一次，以捕捉 store 中已存在的狀態
+    
     this.refreshHighlightGroup()
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
   },
   methods: {
+    // 執行排序並更新顯示列表 (核心邏輯)
+    sortBoards () {
+      const list = [...this.boards]
+      this.currentSortedBoards = list.sort((a, b) => {
+        // 第一順位：狀態權重 (-3 < -2 < -1 < 0)
+        const weightDiff = this.getWeight(a) - this.getWeight(b)
+        if (weightDiff !== 0) {
+          return weightDiff
+        }
+        // 第二順位：更新時間 (越新越大 -> 越大排越前)
+        const timeA = a.lastUpdate || 0
+        const timeB = b.lastUpdate || 0
+        return timeB - timeA
+      })
+    },
+    togglePin (board) {
+      this.$set(board, 'pinned', !board.pinned)
+      
+      // 更新 Cache
+      if (board.pinned) {
+        if (!this.pinnedIds.includes(board.id)) {
+          this.pinnedIds.push(board.id)
+        }
+      } else {
+        this.pinnedIds = this.pinnedIds.filter(id => id !== board.id)
+      }
+      this.setCache('dashboard-pinned-ha', this.pinnedIds)
+      
+      // 釘選操作屬於使用者主動行為，應立即重排，不需要防抖
+      this.sortBoards()
+    },
+    mergePrinterBoards () {
+      try {
+        const configStr = this.systemConfigs?.monitor_printers
+        const printers = configStr ? JSON.parse(configStr) : []
+
+        const baseBoards = this.boards.filter(b => b.comp !== 'lah-monitor-board-printer')
+
+        const newPrinterBoards = printers.map((p, idx) => {
+          const board = {
+            comp: 'lah-monitor-board-printer',
+            footer: true,
+            props: {
+              size: 'xs',
+              serverIp: p.ip,
+              serverPort: String(p.port),
+              apiKey: p.key
+            }
+          }
+          board.id = `printer-${p.ip}-${p.port}`
+          this.$set(board, 'realName', null)
+          this.$set(board, 'lastUpdate', 0)
+          
+          // 檢查是否已釘選
+          const isPinned = this.pinnedIds.includes(board.id)
+          this.$set(board, 'pinned', isPinned)
+          
+          return board
+        })
+
+        this.boards = [...baseBoards, ...newPrinterBoards]
+        // 面板增減後，立即執行一次排序
+        this.sortBoards()
+
+      } catch (e) {
+        console.error('Failed to parse printer configs', e)
+      }
+    },
     lightUpdate (payload, board) {
       // 動態綁定：將組件發出的真實名稱記錄到 board 物件中
-      if (board && payload && payload.name) {
-        // 更新 board.realName，觸發 computed 重算
-        if (board.realName !== payload.name) {
-          this.$set(board, 'realName', payload.name)
+      if (board) {
+        if (payload && payload.name) {
+          // 更新 board.realName，觸發 computed 重算
+          if (board.realName !== payload.name) {
+            this.$set(board, 'realName', payload.name)
+          }
         }
+        // 更新最後更新時間
+        this.$set(board, 'lastUpdate', new Date().getTime())
       }
 
       this.lightMap.set(payload.name, payload.new)
@@ -268,7 +378,11 @@ export default {
       this.red = tmp.reduce((acc, item) => {
         return item[1] === 'danger' ? acc + 1 : acc
       }, 0)
+      
       this.refreshHighlightGroup()
+      
+      // 這裡改為呼叫防抖版本的排序，避免畫面頻繁跳動
+      this.debouncedSort()
     },
     refreshHighlightGroup () { /* placeholder for debouncing */ },
     isInAttention (name) {
@@ -276,50 +390,42 @@ export default {
       return this.lightMap.has(clean) &&
              this.lightMap.get(clean) !== 'success'
     },
-    // Helper to convert kebab-case to camelCase
+    isFooterEnable (name) {
+      if (name) {
+        const opts = this.$refs[`${name[0]?.toUpperCase() + name?.slice(1)}`]?.$options
+        const footer = opts?.propsData?.footer
+        return footer
+      }
+      return false
+    },
     toCamelCase (str) {
       return str.replace(/-([a-z])/g, g => g[1].toUpperCase())
     },
-    // 統一將首字母轉小寫，確保與 attentionList 中的 compName 格式一致
     normalizeName (name) {
-      if (!name) { return '' }
+      if (!name) return ''
       return name.charAt(0).toLowerCase() + name.slice(1)
     },
-    // 計算權重：紅燈 -2, 黃燈 -1, 正常 0 (保持原順序)
+    // 計算權重
+    // Danger: -3
+    // Warning: -2
+    // Pinned: -1
+    // Normal: 0
     getWeight (board) {
-      // 1. 取得用於比對的名稱
-      // 優先使用動態綁定的真實名稱 (realName)
-      // 如果沒有 realName (剛載入)，則使用組件標籤名稱轉 camelCase
-      const searchName = board.realName || this.toCamelCase(board.comp)
-
-      // 2. 針對 Printer 這類有 IP 的組件，如果還沒有 realName，嘗試預測其可能的名稱
-      // 假設後端命名規則可能為 "LahMonitorBoardPrinter-IP" 或類似格式
-      // 這裡僅作簡單處理，最準確的還是等 light-update 回傳 realName
+      let searchName = board.realName || this.toCamelCase(board.comp)
       if (!board.realName && board.comp.includes('printer') && board.props?.serverIp) {
-        // 這是一個備用嘗試，如果您的組件命名規則不同，這裡可能需要調整
-        // 但通常 realName 更新後就會修正
+         // printer fallback logic
       }
 
-      // 3. 統一轉成首字母小寫進行比對
-      const normalizedSearchName = this.normalizeName(searchName)
+      // 直接從 lightMap 獲取最新狀態，而不依賴可能延遲的 attentionList
+      // 這確保了即使 attentionList 更新較慢，排序邏輯也能捕捉到最新的紅燈/黃燈
+      const status = this.lightMap.get(searchName)
+      
+      if (status === 'danger') return -3
+      if (status === 'warning') return -2
+      
+      // 若無異常，檢查是否釘選
+      if (board.pinned) { return -1 }
 
-      // 4. 在 attentionList 中搜尋
-      // attentionList 中的 compName 已經在 refreshHighlightGroup 中統一轉為首字母小寫了
-      const item = this.attentionList.find((x) => {
-        // 比對標準化後的名稱
-        if (x.compName === normalizedSearchName) { return true }
-
-        // 模糊比對：如果 searchName 包含 IP，嘗試比對
-        // 這是為了解決部分組件名稱不一致的問題
-        if (board.props?.serverIp && x.compName.includes(board.props.serverIp)) { return true }
-
-        return false
-      })
-
-      if (item) {
-        if (item.state === 'danger') { return -2 }
-        if (item.state === 'warning') { return -1 }
-      }
       return 0
     }
   }
@@ -357,8 +463,24 @@ export default {
   }
 }
 
-/* 列表排序動畫 - 必須配合 transition-group 使用 */
+/* 列表排序動畫 */
 .board-list-move {
   transition: transform 1s;
+}
+
+/* 釘選按鈕樣式 */
+.pin-btn {
+  position: absolute;
+  top: 5px; /* 原本是 10px，往上移動 5px */
+  right: 20px; /* 原本是 25px，往右移動 5px */
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0.1;
+  transition: opacity 0.3s;
+  font-size: 1.1rem;
+
+  &:hover, &.active {
+    opacity: 1;
+  }
 }
 </style>
