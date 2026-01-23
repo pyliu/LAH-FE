@@ -22,27 +22,7 @@ b-card(
       )
 
     b-button-group.ml-auto(size="sm")
-      //- [新增] 儀表板樣式切換按鈕 (僅在 XS 模式顯示)
-      lah-button(
-        v-if="localSize === 'xs'"
-        :icon="dashboardStyle === 'grid' ? 'columns' : 'th-large'"
-        variant="outline-secondary"
-        no-border
-        no-icon-gutter
-        @click="toggleDashboardStyle"
-        :title="`切換為${dashboardStyle === 'grid' ? '橫向' : '田字'}排列`"
-        class="mr-1"
-      )
-
-      //- [新增] 顯示模式切換 UI (可 Cache)
-      b-form-select(
-        v-model="localSize"
-        :options="sizeOptions"
-        size="sm"
-        class="mr-1"
-        style="width: auto;"
-        title="切換顯示模式"
-      )
+      //- [移除] 原本在此的 localSize 下拉選單與 dashboardStyle 按鈕，已移至 Help Modal
 
       //- 完整列表按鈕
       lah-button(
@@ -91,19 +71,50 @@ b-card(
         no-border,
         no-icon-gutter,
         @click="$refs.help.show()",
-        title="說明"
+        title="說明與設定"
       )
 
-  //- 說明 Modal
-  lah-help-modal(ref="help", :modal-title="`${header} 說明`", size="lg")
+  //- [修改] 說明 Modal 增加設定區塊
+  lah-help-modal(ref="help", :modal-title="`${header} 設定與說明`", size="lg")
+    //- 設定區塊
+    div.mb-4.p-3.bg-light.rounded
+      h6.font-weight-bold.mb-3
+        lah-fa-icon(icon="cog").mr-2
+        span 顯示設定
+
+      div.d-flex.flex-wrap.align-items-center
+        b-form-group.mb-0.mr-4(label="顯示模式" label-for="size-select" label-cols="auto" content-cols="auto")
+          b-form-select#size-select(
+            v-model="localSize"
+            :options="sizeOptions"
+            size="sm"
+          )
+
+        b-form-group.mb-0(
+          v-if="localSize === 'xs'"
+          label="儀表板排列"
+          label-cols="auto"
+          content-cols="auto"
+        )
+          b-form-radio-group(
+            v-model="dashboardStyle"
+            :options="[{ text: '橫向 (1x4)', value: 'horizontal' }, { text: '田字 (2x2)', value: 'grid' }]"
+            buttons
+            button-variant="outline-secondary"
+            size="sm"
+          )
+
+    hr
+
+    h6.font-weight-bold.mb-2 功能說明
     ul
       li 監控伺服器 (Server IP) 上的實體印表機狀態。
       li
         strong 狀態燈號：
         span 綠燈表示所有印表機正常，紅燈表示有錯誤或無法連線。
       li
-        strong 顯示模式 (Size)：
-        span 可切換「儀表板(XS)」或列表模式，系統會自動記憶您的選擇。
+        strong 狀態篩選：
+        span 使用標題旁的下拉選單可過濾顯示特定狀態的印表機。
       li
         strong 深度自癒：
         span 強制重啟伺服器 Print Spooler 服務並清理暫存，用於解決卡單問題。
