@@ -55,7 +55,7 @@ b-card(
         :title="`上次更新時間 ${updated}`",
         :disabled="isBusy"
       )
-      //- [移除] 深度自癒按鈕已移至說明 Modal
+      //- 深度自癒按鈕 (API F) (已移至 Help Modal)
 
       lah-button(
         icon="question",
@@ -81,6 +81,8 @@ b-card(
             v-model="localSize"
             :options="sizeOptions"
             size="sm"
+            :disabled="isDisplayMode"
+            title="展示模式下依外部設定為主"
           )
 
         b-form-group.mb-0(
@@ -116,6 +118,21 @@ b-card(
     h6.font-weight-bold.mb-2 功能說明
     ul
       li 監控伺服器 (Server IP) 上的實體印表機狀態。
+      //- [新增] 部署說明
+      li.text-danger
+        strong 部署需求：
+        span 需在列印伺服器上安裝並執行
+        code Printer_API_Agent.ps1
+        span  腳本。
+        .mt-2
+          b-button-group(size="sm")
+            //- [修改] 改用 @click 觸發下載，避開直接 href 導致的 about:blank#blocked
+            b-button(variant="outline-primary" @click="downloadAgent")
+              lah-fa-icon(icon="download").mr-1
+              span 下載 Agent 腳本
+            b-button(variant="outline-info" @click="downloadGuide")
+              lah-fa-icon(icon="file-pdf").mr-1
+              span 下載部署指南
       li
         strong 狀態燈號：
         span 綠燈表示所有印表機正常，紅燈表示有錯誤或無法連線。
@@ -481,6 +498,13 @@ export default {
     }
   },
   computed: {
+    // [新增] 下載連結
+    agentDownloadUrl () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/Printer_API_Agent.ps1`
+    },
+    guideDownloadUrl () {
+      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/Printer_API_Agent_Windows_Server_部署指南.pdf`
+    },
     // [新增] 判斷是否為展示模式
     isDisplayMode () {
       return this.inPrinters && this.inPrinters.length > 0
@@ -524,7 +548,7 @@ export default {
         ]
       }
     },
-    // [新增] 佇列燈號邏輯 (從原 light 搬移)
+    // [新增] 佇列燈號邏輯
     queueLight () {
       if (this.printers.length === 0) { return 'warning' }
       const totalJobs = this.printers.reduce((sum, printer) => {
@@ -534,21 +558,19 @@ export default {
       if (totalJobs > 5) { return 'warning' }
       return 'success'
     },
-    // [新增] 狀態燈號邏輯 (檢查錯誤與警告)
+    // [新增] 狀態燈號邏輯
     notReadyLight () {
       if (this.printers.length === 0) { return 'success' }
-      // 收集所有印表機的狀態顏色
       const statuses = this.printers.map(p => this.getPaperBadgeVariant(p.Status))
       if (statuses.includes('danger')) { return 'danger' }
       if (statuses.includes('warning')) { return 'warning' }
       return 'success'
     },
-    // [修改] 綜合燈號 (佇列或狀態有問題都顯示)
+    // [修改] 綜合燈號：使用 queueLight
     light () {
       return this.queueLight
-      // // 只要有一個是 danger 就是 danger
+      // 保留以下邏輯方便測試 (綜合判斷)
       // if (this.queueLight === 'danger' || this.notReadyLight === 'danger') { return 'danger' }
-      // // 只要有一個是 warning 就是 warning
       // if (this.queueLight === 'warning' || this.notReadyLight === 'warning') { return 'warning' }
       // return 'success'
     },
@@ -672,6 +694,14 @@ export default {
         centered: true,
         okVariant: 'danger'
       })
+    },
+    // [新增] 下載 Agent 腳本
+    downloadAgent () {
+      window.open(this.agentDownloadUrl, '_blank')
+    },
+    // [新增] 下載部署指南
+    downloadGuide () {
+      window.open(this.guideDownloadUrl, '_blank')
     },
     getStatusTooltip (item) {
       const status = this.formatStatus(item.Status)
