@@ -73,13 +73,14 @@ div.monitor-dashboard(v-cloak)
         li 點擊 #[lah-fa-icon(icon="cog")] 按鈕可以設定用於 #[strong 電子郵件分析] 的郵件伺服器連線資訊。
 
   //- 使用 transition-group 來實現排序動畫
+  //- 關鍵：key 必須是穩定的 id，不能使用 index
   transition-group.d-flex.flex-wrap.align-content-start(
     tag="div",
     name="board-list"
   )
     div(
-      v-for="(board, idx) in sortedBoards"
-      :key="`${board.comp}-${idx}`"
+      v-for="board in sortedBoards"
+      :key="board.id"
       :class="colCss"
     )
       component(
@@ -89,7 +90,7 @@ div.monitor-dashboard(v-cloak)
         :class="[heightCss, board.extraClass]"
         v-bind="board.props"
         :footer="board.footer"
-        @light-update="lightUpdate"
+        @light-update="lightUpdate($event, board)"
       )
 
 </template>
@@ -129,10 +130,11 @@ export default {
       { comp: 'lah-monitor-board-site-tw', footer: false },
       { comp: 'lah-monitor-board-dbbackup', footer: true },
       { comp: 'lah-monitor-board-connectivity', footer: false },
-      // HA only boards
+      // HA only boards - Printers
       { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.212' } },
       { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.214' } },
       { comp: 'lah-monitor-board-printer', footer: true, props: { size: 'xs', serverIp: '220.1.34.58' } },
+      // Other HA boards
       { comp: 'lah-monitor-board-vmclone', footer: true },
       { comp: 'lah-monitor-board-tape', footer: true },
       { comp: 'lah-monitor-board-testdb', footer: false },
@@ -176,10 +178,10 @@ export default {
     },
     // 動態排序列表：Danger(-2) > Warning(-1) > Normal(0)
     sortedBoards () {
-      // 複製一份陣列以免修改到原始資料
+      // 複製一份陣列以免修改到原始資料，避免此處的 sort 影響到原始 boards 順序
       const list = [...this.boards]
       return list.sort((a, b) => {
-        return this.getWeight(a.comp) - this.getWeight(b.comp)
+        return this.getWeight(a) - this.getWeight(b)
       })
     }
   },
@@ -189,6 +191,17 @@ export default {
     }
   },
   created () {
+    // 為每個 board 賦予唯一的 ID，這對於 transition-group 的排序動畫至關重要
+    this.boards.forEach((board, index) => {
+      // 建立一個基礎的唯一 ID，如果有 IP 則包含 IP 以利識別
+      const suffix = board.props?.serverIp ? `-${board.props.serverIp}` : ''
+      // 使用 non-reactive property 寫入 id，因為這個 id 永遠不會變
+      board.id = `${board.comp}${suffix}-${index}`
+
+      // 初始化 realName，方便 Vue 追蹤響應
+      this.$set(board, 'realName', null)
+    })
+
     this.getCache('dashboard-col2').then((flag) => {
       this.col2 = flag
     })
@@ -199,6 +212,7 @@ export default {
       const tmp = []
       for (const [key, value] of this.lightMap) {
         if (['warning', 'danger'].includes(value)) {
+          // 注意：這裡將 key 轉為首字母小寫 (camelCase)
           tmp.push({
             compName: key.charAt(0).toLowerCase() + key.slice(1),
             state: value
@@ -208,6 +222,7 @@ export default {
       // order by state
       this.attentionList = this.$utils.orderBy(tmp, 'state')
     }, 5000)
+
     // using animation to catch attention
     this.attentionTimer = setInterval(() => {
       this.dangerList.forEach((card) => {
@@ -225,12 +240,23 @@ export default {
         )
       })
     }, 30 * 1000)
+
+    // 初始化時先執行一次，以捕捉 store 中已存在的狀態
+    this.refreshHighlightGroup()
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
   },
   methods: {
-    lightUpdate (payload) {
+    lightUpdate (payload, board) {
+      // 動態綁定：將組件發出的真實名稱記錄到 board 物件中
+      if (board && payload && payload.name) {
+        // 更新 board.realName，觸發 computed 重算
+        if (board.realName !== payload.name) {
+          this.$set(board, 'realName', payload.name)
+        }
+      }
+
       this.lightMap.set(payload.name, payload.new)
       const tmp = [...this.lightMap]
       this.green = tmp.reduce((acc, item) => {
@@ -254,10 +280,42 @@ export default {
     toCamelCase (str) {
       return str.replace(/-([a-z])/g, g => g[1].toUpperCase())
     },
+    // 統一將首字母轉小寫，確保與 attentionList 中的 compName 格式一致
+    normalizeName (name) {
+      if (!name) { return '' }
+      return name.charAt(0).toLowerCase() + name.slice(1)
+    },
     // 計算權重：紅燈 -2, 黃燈 -1, 正常 0 (保持原順序)
-    getWeight (compName) {
-      const camel = this.toCamelCase(compName)
-      const item = this.attentionList.find(x => x.compName === camel)
+    getWeight (board) {
+      // 1. 取得用於比對的名稱
+      // 優先使用動態綁定的真實名稱 (realName)
+      // 如果沒有 realName (剛載入)，則使用組件標籤名稱轉 camelCase
+      const searchName = board.realName || this.toCamelCase(board.comp)
+
+      // 2. 針對 Printer 這類有 IP 的組件，如果還沒有 realName，嘗試預測其可能的名稱
+      // 假設後端命名規則可能為 "LahMonitorBoardPrinter-IP" 或類似格式
+      // 這裡僅作簡單處理，最準確的還是等 light-update 回傳 realName
+      if (!board.realName && board.comp.includes('printer') && board.props?.serverIp) {
+        // 這是一個備用嘗試，如果您的組件命名規則不同，這裡可能需要調整
+        // 但通常 realName 更新後就會修正
+      }
+
+      // 3. 統一轉成首字母小寫進行比對
+      const normalizedSearchName = this.normalizeName(searchName)
+
+      // 4. 在 attentionList 中搜尋
+      // attentionList 中的 compName 已經在 refreshHighlightGroup 中統一轉為首字母小寫了
+      const item = this.attentionList.find((x) => {
+        // 比對標準化後的名稱
+        if (x.compName === normalizedSearchName) { return true }
+
+        // 模糊比對：如果 searchName 包含 IP，嘗試比對
+        // 這是為了解決部分組件名稱不一致的問題
+        if (board.props?.serverIp && x.compName.includes(board.props.serverIp)) { return true }
+
+        return false
+      })
+
       if (item) {
         if (item.state === 'danger') { return -2 }
         if (item.state === 'warning') { return -1 }
@@ -299,7 +357,7 @@ export default {
   }
 }
 
-/* 列表排序動畫 */
+/* 列表排序動畫 - 必須配合 transition-group 使用 */
 .board-list-move {
   transition: transform 1s;
 }
