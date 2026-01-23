@@ -68,7 +68,7 @@ b-card(
       )
 
   //- [修改] 說明 Modal 增加設定區塊
-  lah-help-modal(ref="help", :modal-title="`${header} 設定與說明`", size="lg")
+  lah-help-modal(ref="help", :modal-title="`${header} 設定與說明 - ${serverIp}`", size="lg")
     //- 設定區塊
     div.mb-4.p-3.bg-light.rounded
       h6.font-weight-bold.mb-3
@@ -127,10 +127,11 @@ b-card(
         .mt-2
           b-button-group(size="sm")
             //- [修改] 改回使用 href 屬性，避開 window.open 被瀏覽器阻擋的問題
-            b-button(variant="outline-primary" :href="agentDownloadUrl" target="_blank")
+            //- [修改] 使用 apiSvrIp 和 apiSvrPort
+            b-button(variant="outline-primary" :href="agentDownloadUrl" target="_blank" pill)
               lah-fa-icon(icon="download").mr-1
               span 下載 Agent 腳本
-            b-button(variant="outline-info" :href="guideDownloadUrl" target="_blank")
+            b-button.ml-1(variant="outline-info" :href="guideDownloadUrl" target="_blank" pill)
               lah-fa-icon(icon="file-pdf").mr-1
               span 下載部署指南
       li
@@ -175,10 +176,10 @@ b-card(
     hide-footer
     body-class="p-0"
   )
-    //- 傳入 printers 陣列，指定 size 為 xl (顯示包含 Location 的詳細欄位)，關閉 footer
+    //- 傳入 printers 陣列，指定 size 為 lg，關閉 footer
     lah-monitor-board-printer(
       :in-printers="printers"
-      size="xl"
+      size="lg"
       :footer="false"
       :server-ip="serverIp"
       :server-port="serverPort"
@@ -449,6 +450,7 @@ b-card(
 </template>
 
 <script>
+// [新增] 引入 mapState
 import axios from 'axios';
 import _ from 'lodash';
 import dynamicHeight from '~/mixins/dynamic-height-mixin.js';
@@ -501,10 +503,10 @@ export default {
     }
   },
   computed: {
+    // [修改] 下載連結 (使用 apiSvrIp 和 apiSvrPort)
     downloadUrlBase () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     },
-    // [新增] 下載連結
     agentDownloadUrl () {
       return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent.ps1`
     },
@@ -545,6 +547,7 @@ export default {
         ]
       } else if (this.localSize === 'xl') {
         // [新增] xl 模式：包含詳細欄位 (Location, Driver, etc.)
+        // [修改] Status 移到 Name 前面
         return [
           { key: 'action', label: '操作', class: 'text-center' },
           { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
@@ -715,13 +718,8 @@ export default {
         okVariant: 'danger'
       })
     },
-    // [修改] 使用 window.open 來觸發下載，避開 href 導致的 about:blank#blocked
-    downloadAgent () {
-      window.open(this.agentDownloadUrl, '_blank')
-    },
-    downloadGuide () {
-      window.open(this.guideDownloadUrl, '_blank')
-    },
+    // [修改] 移除 downloadAgent 方法
+    // [修改] 移除 downloadGuide 方法
     getStatusTooltip (item) {
       const status = this.formatStatus(item.Status)
       const error = item.ErrorDetails || item.DetailedStatus
@@ -942,8 +940,10 @@ export default {
         centered: true
       })
       if (!confirm) { return }
+
       this.isBusy = true
       try {
+        // [修正] 使用原生 axios
         await axios.get(`${this.apiUrlBase}/printer/refresh`, {
           params: { name },
           headers: { 'X-API-KEY': this.apiKey }
@@ -968,8 +968,10 @@ export default {
         centered: true
       })
       if (!confirm) { return }
+
       this.isBusy = true
       try {
+        // [修正] 使用原生 axios
         await axios.get(`${this.apiUrlBase}/printer/clear`, {
           params: { name },
           headers: { 'X-API-KEY': this.apiKey }
@@ -994,8 +996,10 @@ export default {
         centered: true
       })
       if (!confirm) { return }
+
       this.isBusy = true
       try {
+        // [修正] 使用原生 axios
         await axios.get(`${this.apiUrlBase}/service/self-heal`, {
           headers: { 'X-API-KEY': this.apiKey }
         })
