@@ -102,10 +102,9 @@ client-only: .monitor-dashboard(v-cloak)
         :is="board.comp"
         :ref="toCamelCase(board.comp)"
         :id="toCamelCase(board.comp) + '-attention'"
-        :class="[heightCss, board.extraClass]"
+        :class="[heightCss, board.extraClass, board.pinned ? 'pinned-highlight' : '']"
         v-bind="board.props"
         :footer="board.footer"
-        :border-variant="board.pinned ? 'primary' : ''"
         @light-update="lightUpdate($event, board)"
       )
 
@@ -481,5 +480,11 @@ export default {
   &:hover, &.active {
     opacity: 1;
   }
+}
+
+/* 釘選高亮樣式 (強制覆蓋) */
+.pinned-highlight {
+  border: 1px solid #007bff !important; /* Bootstrap Primary Color */
+  box-shadow: 0 0 0.2rem rgba(0, 123, 255, 0.5); /* 增加一點陰影讓它更明顯 */
 }
 </style>

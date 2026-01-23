@@ -102,10 +102,9 @@ client-only: .monitor-dashboard(v-cloak)
         :is="board.comp"
         :ref="toCamelCase(board.comp)"
         :id="toCamelCase(board.comp) + '-attention'"
-        :class="[heightCss, board.extraClass]"
+        :class="[heightCss, board.extraClass, board.pinned ? 'pinned-highlight' : '']"
         v-bind="board.props"
         :footer="board.footer"
-        :border-variant="board.pinned ? 'primary' : ''"
         @light-update="lightUpdate($event, board)"
       )
 
@@ -417,14 +416,13 @@ export default {
          // printer fallback logic
       }
 
-      // 直接從 lightMap 獲取最新狀態，而不依賴可能延遲的 attentionList
-      // 這確保了即使 attentionList 更新較慢，排序邏輯也能捕捉到最新的紅燈/黃燈
+      // 直接從 lightMap 獲取最新狀態
       const status = this.lightMap.get(searchName)
       
       if (status === 'danger') return -3
       if (status === 'warning') return -2
       
-      // 若無異常，檢查是否釘選
+      // 若無異常，檢查是否被釘選
       if (board.pinned) { return -1 }
 
       return 0
@@ -472,8 +470,8 @@ export default {
 /* 釘選按鈕樣式 */
 .pin-btn {
   position: absolute;
-  top: 5px; /* 原本是 10px，往上移動 5px */
-  right: 20px; /* 原本是 25px，往右移動 5px */
+  top: 5px;
+  right: 20px;
   z-index: 1000;
   cursor: pointer;
   opacity: 0.1;
@@ -483,5 +481,11 @@ export default {
   &:hover, &.active {
     opacity: 1;
   }
+}
+
+/* 釘選高亮樣式 (強制覆蓋) */
+.pinned-highlight {
+  border: 1px solid #007bff !important; /* Bootstrap Primary Color */
+  box-shadow: 0 0 0.2rem rgba(0, 123, 255, 0.5); /* 增加一點陰影讓它更明顯 */
 }
 </style>
