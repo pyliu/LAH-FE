@@ -130,7 +130,7 @@ b-card(
           @click="triggerSelfHeal"
           title="重新啟動 Spooler 服務"
         ) 觸發深度自癒
-
+        
         //- [移動] 伺服器紀錄按鈕
         lah-button(
           icon="file-alt",
@@ -359,25 +359,58 @@ b-card(
   //- [修改] 增加外層 flex 與 overflow 類別，確保表格或儀表板能正確捲動
   div.d-flex.flex-column.flex-grow-1.overflow-hidden(v-else)
     //- XS 尺寸：儀表板顯示
-    //- [修改] 增加 overflow-auto 與 flex-grow-1
-    div.overflow-auto.flex-grow-1(v-if="localSize === 'xs'")
-      //- [修改] 綁定 dashboardColCols 來動態決定 3 (橫向) 或 6 (田字)
-      b-row.text-center(no-gutters)
-        b-col.p-1(:cols="dashboardColCols")
-          b-card.h-100.shadow-sm(bg-variant="success" text-variant="white" body-class="p-2 d-flex flex-column justify-content-center" style="min-height: 100px;")
-            h1.mb-0.font-weight-bold {{ dashboardStats.ready }}
+    //- [修改] 改用 h-100 撐滿高度，並移除 overflow-auto 以避免卷軸，實現自動縮放
+    div.h-100(v-if="localSize === 'xs'")
+      //- [修改] b-row 增加 h-100
+      b-row.text-center.h-100(no-gutters)
+        //- [修改] 針對每一個 col 設定高度，若為 grid 則高度減半 (50%)，橫向則全高 (100%)
+        b-col.p-1(
+          :cols="dashboardColCols"
+          :style="{ height: dashboardStyle === 'grid' ? '50%' : '100%' }"
+        )
+          //- [修改] b-card 移除 min-height, 增加 h-100, 調整 padding 為 p-1
+          b-card.h-100.shadow-sm(
+            bg-variant="success" 
+            text-variant="white" 
+            body-class="p-1 d-flex flex-column justify-content-center align-items-center"
+          )
+            h2.mb-0.font-weight-bold {{ dashboardStats.ready }}
             div.small 正常
-        b-col.p-1(:cols="dashboardColCols")
-          b-card.h-100.shadow-sm(bg-variant="warning" text-variant="dark" body-class="p-2 d-flex flex-column justify-content-center" style="min-height: 100px;")
-            h1.mb-0.font-weight-bold {{ dashboardStats.warning }}
+        
+        b-col.p-1(
+          :cols="dashboardColCols"
+          :style="{ height: dashboardStyle === 'grid' ? '50%' : '100%' }"
+        )
+          b-card.h-100.shadow-sm(
+            bg-variant="warning" 
+            text-variant="dark" 
+            body-class="p-1 d-flex flex-column justify-content-center align-items-center"
+          )
+            h2.mb-0.font-weight-bold {{ dashboardStats.warning }}
             div.small 警告
-        b-col.p-1(:cols="dashboardColCols")
-          b-card.h-100.shadow-sm(bg-variant="danger" text-variant="white" body-class="p-2 d-flex flex-column justify-content-center" style="min-height: 100px;")
-            h1.mb-0.font-weight-bold {{ dashboardStats.error }}
+
+        b-col.p-1(
+          :cols="dashboardColCols"
+          :style="{ height: dashboardStyle === 'grid' ? '50%' : '100%' }"
+        )
+          b-card.h-100.shadow-sm(
+            bg-variant="danger" 
+            text-variant="white" 
+            body-class="p-1 d-flex flex-column justify-content-center align-items-center"
+          )
+            h2.mb-0.font-weight-bold {{ dashboardStats.error }}
             div.small 異常
-        b-col.p-1(:cols="dashboardColCols")
-          b-card.h-100.shadow-sm(bg-variant="info" text-variant="white" body-class="p-2 d-flex flex-column justify-content-center" style="min-height: 100px;")
-            h1.mb-0.font-weight-bold {{ dashboardStats.jobs }}
+
+        b-col.p-1(
+          :cols="dashboardColCols"
+          :style="{ height: dashboardStyle === 'grid' ? '50%' : '100%' }"
+        )
+          b-card.h-100.shadow-sm(
+            bg-variant="info" 
+            text-variant="white" 
+            body-class="p-1 d-flex flex-column justify-content-center align-items-center"
+          )
+            h2.mb-0.font-weight-bold {{ dashboardStats.jobs }}
             div.small 佇列
 
     //- 其他尺寸：列表顯示
@@ -472,7 +505,7 @@ b-card(
       //- [新增] XL 模式的插槽：ErrorDetails
       template(#cell(ErrorDetails)="{ item }")
         div.text-danger.small {{ item.ErrorDetails || item.DetailedStatus }}
-
+      
       //- [新增] XL 模式的插槽：PortName
       template(#cell(PortName)="{ item }")
         div.text-truncate(style="max-width: 150px;" :title="item.PortName") {{ item.PortName }}
