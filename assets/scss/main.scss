@@ -191,6 +191,11 @@ blockquote p {
   > .card-body {
     height: calc((100vh - 450px) / 2) !important;
     overflow: auto;
+    // 新增：當處於 2 列佈局模式時，字體放大 1.5 倍
+    // 使用 &::v-deep 強制穿透所有子組件
+    &::v-deep {
+      font-size: 1.5rem;
+    }
   }
 }
 
@@ -198,6 +203,11 @@ blockquote p {
   > .card-body {
     height: calc((100vh - 450px) / 1) !important;
     overflow: auto;
+    // 新增：當處於 2 列佈局模式時，字體放大 1.5 倍
+    // 使用 &::v-deep 強制穿透所有子組件
+    &::v-deep {
+      font-size: 1.75rem;
+    }
   }
 }
 
