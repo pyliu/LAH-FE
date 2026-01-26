@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card(:class="bodyOnly ? ['border-0'] : []")
+b-card.h-100.flex-column(:class="bodyOnly ? ['border-0'] : []", body-class="d-flex flex-column justify-content-center align-items-center overflow-hidden")
   template(#header, v-if="!bodyOnly"): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="cloud-sun-rain", variant="primary")
       strong {{ header }}
@@ -24,17 +24,20 @@ b-card(:class="bodyOnly ? ['border-0'] : []")
         li 每分鐘自動更新
   slot
   h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-  b-link(
+
+  //- 修改說明: 使用 flex-grow-1 讓連結佔滿剩餘空間，並利用 min-height: 0 解決 flex item 溢出問題
+  b-link.d-flex.align-items-center.justify-content-center.flex-grow-1.w-100(
     v-show="!failed",
     to="/inf/weather/",
-    v-b-tooltip="`顯示${weatherImgUrl}`"
+    v-b-tooltip="`顯示${weatherImgUrl}`",
+    style="min-height: 0; overflow: hidden;"
   )
+    //- 修改說明: 移除 fluid, center，改用 CSS 控制最大高度與寬度，確保圖片在容器內縮放 (contain)
     b-img(
       :src="weatherImgUrl",
-      fluid,
       thumbnail,
       rounded,
-      center,
+      style="max-height: 100%; max-width: 100%; object-fit: contain;",
       @load="failed = false",
       @error="failed = true"
     )

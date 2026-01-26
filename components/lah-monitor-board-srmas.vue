@@ -1,5 +1,6 @@
 <template lang="pug">
-b-card(:border-variant="border", :class="[attentionCss]")
+//- 移除 h-100，改由 CSS 控制固定高度以符合儀表板一致性
+b-card.flex-column(:border-variant="border", :class="[attentionCss]", body-class="d-flex flex-column overflow-hidden")
   template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
     strong.truncate(:title="`${header}(${monitorHrs}小時內)`", v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
@@ -20,12 +21,6 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="showMails({ title: '異常告警', icon: 'exclamation-circle', variant: 'warning', items: warnings })"
       )
         b-badge(variant="light", pill) {{ restores.length }}
-      //- b-input-group.mx-1(size="sm", append="小時", style="max-width: 95px"): b-input(
-      //-   v-model="monitorHrs",
-      //-   type="number",
-      //-   min=1,
-      //-   max=24
-      //- )
       lah-button(
         v-if="!currentPagePath.startsWith('/inf/weather')",
         icon="cloud-sun-rain",
@@ -90,42 +85,59 @@ b-card(:border-variant="border", :class="[attentionCss]")
       div 🟢 表示一切正常
       div 🟡 表示找不到任何郵件或是「SRMAS天氣圖影像」無法正常讀取
       div 🔴 表示有「告警通知」但無「回復通知」之項目
+
+  //- 插槽
   slot
-  div(v-if="noCarousel"): lah-monitor-board-srmas-analysis(
-    :items="messages",
-    :hours="parseInt(monitorHrs)",
-    @updated="handleUpdated"
-  )
-  b-carousel(
+
+  //- Mode 1: 無輪播模式
+  .overflow-auto.flex-grow-1.w-100(v-if="noCarousel", style="min-height: 0")
+    lah-monitor-board-srmas-analysis(
+      :items="messages",
+      :hours="parseInt(monitorHrs)",
+      @updated="handleUpdated"
+    )
+
+  //- Mode 2: 輪播模式
+  b-carousel.flex-grow-1.w-100(
     v-else
     ref="carousel",
-    :interval="carouselSecs * 1000"
+    :interval="carouselSecs * 1000",
+    style="min-height: 0;"
   )
-    b-carousel-slide: template(#img)
-      lah-monitor-board-srmas-analysis(
-        :items="messages",
-        :hours="parseInt(monitorHrs)",
-        @updated="handleUpdated"
-      )
-    b-carousel-slide: template(#img)
-      .center
+    //- Slide 1: Analysis List
+    b-carousel-slide.h-100: template(#img)
+      .overflow-auto.h-100.w-100
+        lah-monitor-board-srmas-analysis(
+          :items="messages",
+          :hours="parseInt(monitorHrs)",
+          @updated="handleUpdated"
+        )
+
+    //- Slide 2: Weather Image
+    b-carousel-slide.h-100: template(#img)
+      .d-flex.flex-column.justify-content-center.align-items-center.h-100.w-100
         .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-        b-link(
+        b-link.d-flex.align-items-center.justify-content-center.flex-grow-1.w-100(
           v-show="!failed",
           @click="$utils.openNewWindow('/inf/weather/')",
-          v-b-tooltip="`顯示${weatherImgUrl}`"
+          v-b-tooltip="`顯示${weatherImgUrl}`",
+          style="min-height: 0; overflow: hidden;"
         )
-          b-img.fit-img(
+          b-img(
             :src="weatherImgUrl",
-            fluid,
-            thumbnail
+            thumbnail,
+            style="max-height: 100%; max-width: 100%; object-fit: contain;",
+            @load="failed = false",
+            @error="failed = true"
           )
-  b-img.fit-img.d-none(
+
+  //- 隱藏的圖片
+  b-img.d-none(
     :src="weatherImgUrl",
     @load="failed = false",
     @error="failed = true"
   )
-  //- lah-button(@click="matchWarningRestores") test
+
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -279,17 +291,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.fit-img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
+// 強制輪播組件內部繼承高度
+::v-deep .carousel-inner,
+::v-deep .carousel-item {
+  height: 100%;
 }
+
+// 恢復 legacy 系統的固定高度計算，確保與其他儀表板一致
 .card {
-  max-height: calc(100vh - 120px);
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+// 讓 body 自動填滿 card 扣除 header 後的剩餘空間，並處理溢出
+::v-deep .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  .card-body {
-    max-height: calc(100vh - 220px);
-    overflow: auto;
-  }
+  // 移除舊的 max-height，由 flex 自動計算
 }
 </style>
