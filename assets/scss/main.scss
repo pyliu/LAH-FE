@@ -236,41 +236,38 @@ blockquote p {
   > .card-body {
     height: calc((100vh - 450px) / 1) !important;
     overflow: auto;
+
+    // --- 字體放大專區 (針對 1 列佈局模式 - 放大 1.75 倍) ---
     // 1. 設定容器基準字體大小
-    font-size: 1.75rem !important;    
-    // 2. 強制讓一般文字元素繼承父層大小 (解決部分被重設為 1rem 的問題)
-    p, span, div, a, li, b, strong, label {
-      font-size: inherit;
-    }
+    font-size: 1.75rem;
+    line-height: 1.5;
 
-    // 3. 針對 Bootstrap 的特定組件進行強制覆蓋
-    // 表格內容 (最常見沒有變大的部分)
-    .table th, 
-    .table td,
+    // 2. 針對 Bootstrap 的特定組件進行覆蓋
+    // 表格
     .table {
-      font-size: 1.5rem !important; 
+      font-size: 1.75rem;
+      th, td {
+        font-size: inherit;
+      }
     }
 
-    // 按鈕與輸入框
-    .btn, 
-    .form-control,
-    .custom-select,
+    // 按鈕與輸入框 (排除小尺寸變體)
+    .btn:not(.btn-sm):not(.btn-xs), 
+    .form-control:not(.form-control-sm),
+    .custom-select:not(.custom-select-sm),
     .input-group-text {
-      font-size: 1.5rem !important;
+      font-size: 1.75rem;
     }
 
-    // 標籤 (Badge) - 通常需要比本文稍小一點，這裡設定為 1.2rem
+    // 標籤 (Badge)
     .badge {
-      font-size: 1.2rem !important;
+      font-size: 0.85em;
     }
 
-    // Icon (FontAwesome 等) - 設定為 1em 讓它相對於當前字體大小縮放
+    // Icon
     .fa, .fas, .far, .fab, .bi, svg {
       font-size: 1em;
     }
-    
-    // 修正行高，避免字變大後行距太擠
-    line-height: 1.5;
   }
 }
 
