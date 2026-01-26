@@ -1,6 +1,7 @@
 <template lang="pug">
-//- 移除 h-100，改由 CSS 控制固定高度以符合儀表板一致性
-b-card.flex-column(:border-variant="border", :class="[attentionCss]", body-class="d-flex flex-column overflow-hidden")
+//- 恢復 max-height 策略，這是防止被大量資料撐高的關鍵
+//- 加入 overflow-hidden 確保圓角與內部溢出被切斷
+b-card.flex-column.srmas-card(:border-variant="border", :class="[attentionCss]", body-class="d-flex flex-column overflow-hidden")
   template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon(icon="circle", :variant="light")
     strong.truncate(:title="`${header}(${monitorHrs}小時內)`", v-if="messagesAfterThreadhold.length > 0 && problems.length === 0") {{ header }} ({{ monitorHrs }}小時內正常)
@@ -89,7 +90,8 @@ b-card.flex-column(:border-variant="border", :class="[attentionCss]", body-class
   //- 插槽
   slot
 
-  //- Mode 1: 無輪播模式
+  //- Mode 1: 無輪播模式 (Analysis only)
+  //- 注意: 加入 min-height: 0 是 Flexbox 子元素正確滾動的關鍵
   .overflow-auto.flex-grow-1.w-100(v-if="noCarousel", style="min-height: 0")
     lah-monitor-board-srmas-analysis(
       :items="messages",
@@ -117,6 +119,7 @@ b-card.flex-column(:border-variant="border", :class="[attentionCss]", body-class
     b-carousel-slide.h-100: template(#img)
       .d-flex.flex-column.justify-content-center.align-items-center.h-100.w-100
         .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
+        //- 圖片容器: 確保不溢出
         b-link.d-flex.align-items-center.justify-content-center.flex-grow-1.w-100(
           v-show="!failed",
           @click="$utils.openNewWindow('/inf/weather/')",
@@ -297,19 +300,21 @@ export default {
   height: 100%;
 }
 
-// 恢復 legacy 系統的固定高度計算，確保與其他儀表板一致
-.card {
-  height: calc(100vh - 120px);
+// 關鍵修正：
+// 1. 使用 max-height 而非 height，確保卡片不會無限制生長
+// 2. calc(100vh - 120px) 是 legacy 系統的標準高度扣除
+.srmas-card {
+  max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
 }
 
-// 讓 body 自動填滿 card 扣除 header 後的剩餘空間，並處理溢出
+// 讓 body 自動填滿空間，但 min-height: 0 確保它會觸發 scroll 而非撐開父容器
 ::v-deep .card-body {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0; // 這是防止 Flexbox 子元素溢出的魔法屬性
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  // 移除舊的 max-height，由 flex 自動計算
+  overflow: hidden; // 確保內容不溢出
 }
 </style>
