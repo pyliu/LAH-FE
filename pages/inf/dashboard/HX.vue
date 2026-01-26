@@ -136,7 +136,7 @@ export default {
       { comp: 'lah-monitor-board-xap-trend', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
       { comp: 'lah-monitor-board-powerha', footer: true },
       { comp: 'lah-monitor-board-dataguard', footer: true },
-      { comp: 'lah-monitor-board-srmas', footer: true, extraClass: 'fix-img' },
+      { comp: 'lah-monitor-board-srmas', footer: true },
       { comp: 'lah-monitor-board-hacmp', footer: true },
       { comp: 'lah-monitor-board-sms-notify', footer: true },
       { comp: 'lah-monitor-board-sms', footer: true },
@@ -455,11 +455,6 @@ export default {
   height: calc((100vh - 150px) / 2);
   overflow: auto;
   margin-bottom: 1rem;
-}
-.fix-img {
-  img {
-    height: calc(100vh / 3 - 200px);
-  }
 }
 /* 列表排序動畫 - 必須配合 transition-group 使用 */
 .board-list-move {
