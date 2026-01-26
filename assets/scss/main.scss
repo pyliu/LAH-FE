@@ -191,11 +191,44 @@ blockquote p {
   > .card-body {
     height: calc((100vh - 450px) / 2) !important;
     overflow: auto;
-    // 新增：當處於 2 列佈局模式時，字體放大 1.5 倍
-    // 使用 &::v-deep 強制穿透所有子組件
-    &::v-deep {
-      font-size: 1.5rem;
+
+    // --- 字體放大專區 (針對 2 列佈局模式) ---
+    // 1. 設定容器基準字體大小
+    font-size: 1.5rem !important;
+    
+    // 2. 強制讓一般文字元素繼承父層大小 (解決部分被重設為 1rem 的問題)
+    p, span, div, a, li, b, strong, label {
+      font-size: inherit;
     }
+
+    // 3. 針對 Bootstrap 的特定組件進行強制覆蓋
+    // 表格內容 (最常見沒有變大的部分)
+    .table th, 
+    .table td,
+    .table {
+      font-size: 1.5rem !important; 
+    }
+
+    // 按鈕與輸入框
+    .btn, 
+    .form-control,
+    .custom-select,
+    .input-group-text {
+      font-size: 1.5rem !important;
+    }
+
+    // 標籤 (Badge) - 通常需要比本文稍小一點，這裡設定為 1.2rem
+    .badge {
+      font-size: 1.2rem !important;
+    }
+
+    // Icon (FontAwesome 等) - 設定為 1em 讓它相對於當前字體大小縮放
+    .fa, .fas, .far, .fab, .bi, svg {
+      font-size: 1em;
+    }
+    
+    // 修正行高，避免字變大後行距太擠
+    line-height: 1.5;
   }
 }
 
@@ -203,11 +236,41 @@ blockquote p {
   > .card-body {
     height: calc((100vh - 450px) / 1) !important;
     overflow: auto;
-    // 新增：當處於 2 列佈局模式時，字體放大 1.5 倍
-    // 使用 &::v-deep 強制穿透所有子組件
-    &::v-deep {
-      font-size: 1.75rem;
+    // 1. 設定容器基準字體大小
+    font-size: 1.75rem !important;    
+    // 2. 強制讓一般文字元素繼承父層大小 (解決部分被重設為 1rem 的問題)
+    p, span, div, a, li, b, strong, label {
+      font-size: inherit;
     }
+
+    // 3. 針對 Bootstrap 的特定組件進行強制覆蓋
+    // 表格內容 (最常見沒有變大的部分)
+    .table th, 
+    .table td,
+    .table {
+      font-size: 1.5rem !important; 
+    }
+
+    // 按鈕與輸入框
+    .btn, 
+    .form-control,
+    .custom-select,
+    .input-group-text {
+      font-size: 1.5rem !important;
+    }
+
+    // 標籤 (Badge) - 通常需要比本文稍小一點，這裡設定為 1.2rem
+    .badge {
+      font-size: 1.2rem !important;
+    }
+
+    // Icon (FontAwesome 等) - 設定為 1em 讓它相對於當前字體大小縮放
+    .fa, .fas, .far, .fab, .bi, svg {
+      font-size: 1em;
+    }
+    
+    // 修正行高，避免字變大後行距太擠
+    line-height: 1.5;
   }
 }
 
