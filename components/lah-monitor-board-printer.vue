@@ -368,19 +368,16 @@ b-card(
           :cols="dashboardColCols"
           :style="{ height: dashboardStyle === 'grid' ? '50%' : '100%' }"
         )
-          //- [修改] 使用 SVG 顯示文字以實現自動縮放，並調整 body-class 為 flex-column 且 overflow-hidden
+          //- [修改] 使用 SVG 同時顯示數字與標籤，確保整體依比例縮放
           b-card.h-100.shadow-sm(
             bg-variant="success"
             text-variant="white"
-            body-class="p-1 d-flex flex-column align-items-center overflow-hidden"
+            body-class="p-1 d-flex align-items-center justify-content-center overflow-hidden"
           )
-            //- [新增] SVG 容器：佔用剩餘空間 (flex-grow-1)，內容置中
-            div.flex-grow-1.w-100.d-flex.align-items-center.justify-content-center.overflow-hidden
-              //- [新增] SVG 文字：使用 viewBox 自動縮放，fill="currentColor" 繼承卡片文字顏色
-              svg(viewBox="0 0 100 50" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
-                text(x="50" y="50%" dy=".35em" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="40") {{ dashboardStats.ready }}
-            //- [修改] 標籤固定大小 (flex-shrink-0)
-            div.small.flex-shrink-0 正常
+            //- SVG 畫布：viewBox 0 0 100 70 用於容納數字與下方標籤
+            svg(viewBox="0 0 100 70" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
+              text(x="50" y="42" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="38") {{ dashboardStats.ready }}
+              text(x="50" y="62" text-anchor="middle" fill="currentColor" font-size="14") 正常
 
         b-col.p-1(
           :cols="dashboardColCols"
@@ -389,12 +386,11 @@ b-card(
           b-card.h-100.shadow-sm(
             bg-variant="warning"
             text-variant="dark"
-            body-class="p-1 d-flex flex-column align-items-center overflow-hidden"
+            body-class="p-1 d-flex align-items-center justify-content-center overflow-hidden"
           )
-            div.flex-grow-1.w-100.d-flex.align-items-center.justify-content-center.overflow-hidden
-              svg(viewBox="0 0 100 50" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
-                text(x="50" y="50%" dy=".35em" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="40") {{ dashboardStats.warning }}
-            div.small.flex-shrink-0 警告
+            svg(viewBox="0 0 100 70" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
+              text(x="50" y="42" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="38") {{ dashboardStats.warning }}
+              text(x="50" y="62" text-anchor="middle" fill="currentColor" font-size="14") 警告
 
         b-col.p-1(
           :cols="dashboardColCols"
@@ -403,12 +399,11 @@ b-card(
           b-card.h-100.shadow-sm(
             bg-variant="danger"
             text-variant="white"
-            body-class="p-1 d-flex flex-column align-items-center overflow-hidden"
+            body-class="p-1 d-flex align-items-center justify-content-center overflow-hidden"
           )
-            div.flex-grow-1.w-100.d-flex.align-items-center.justify-content-center.overflow-hidden
-              svg(viewBox="0 0 100 50" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
-                text(x="50" y="50%" dy=".35em" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="40") {{ dashboardStats.error }}
-            div.small.flex-shrink-0 異常
+            svg(viewBox="0 0 100 70" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
+              text(x="50" y="42" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="38") {{ dashboardStats.error }}
+              text(x="50" y="62" text-anchor="middle" fill="currentColor" font-size="14") 異常
 
         b-col.p-1(
           :cols="dashboardColCols"
@@ -417,12 +412,11 @@ b-card(
           b-card.h-100.shadow-sm(
             bg-variant="info"
             text-variant="white"
-            body-class="p-1 d-flex flex-column align-items-center overflow-hidden"
+            body-class="p-1 d-flex align-items-center justify-content-center overflow-hidden"
           )
-            div.flex-grow-1.w-100.d-flex.align-items-center.justify-content-center.overflow-hidden
-              svg(viewBox="0 0 100 50" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
-                text(x="50" y="50%" dy=".35em" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="40") {{ dashboardStats.jobs }}
-            div.small.flex-shrink-0 佇列
+            svg(viewBox="0 0 100 70" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
+              text(x="50" y="42" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="38") {{ dashboardStats.jobs }}
+              text(x="50" y="62" text-anchor="middle" fill="currentColor" font-size="14") 佇列
 
     //- 其他尺寸：列表顯示
     //- [修改] 增加 mb-0 移除下方 margin
