@@ -883,11 +883,35 @@ export default {
       if (Array.isArray(jobs)) { return jobs.length }
       return 0
     },
-    async reload () {
+    async reload (force = false) {
       // [新增] 展示模式下不執行 API 請求，僅更新時間
       if (this.isDisplayMode) {
         this.updated = this.$utils.now()
         return
+      }
+
+      // [新增] 判斷是否為強制更新 (來自點擊事件或指定 true)
+      const isForce = force === true || (typeof force === 'object' && force.type === 'click')
+
+      const cacheKey = `lah-monitor-board-printer-cache-${this.serverIp}`
+      const now = Date.now()
+
+      // [新增] 檢查快取
+      if (!isForce) {
+        const cached = localStorage.getItem(cacheKey)
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached)
+            // 檢查快取是否過期
+            if (now - parsed.timestamp < this.reloadMs) {
+              this.printers = parsed.data
+              this.updated = parsed.updated || this.$utils.now()
+              return // 快取有效，不發送請求
+            }
+          } catch (e) {
+            console.error('Cache parsing error', e)
+          }
+        }
       }
 
       this.isBusy = true
@@ -906,6 +930,13 @@ export default {
         } else {
           this.$utils.warn('無法解析回傳資料結構，保留現有資料', data)
         }
+
+        // [新增] 更新成功後寫入快取
+        localStorage.setItem(cacheKey, JSON.stringify({
+          timestamp: now,
+          updated: this.updated,
+          data: this.printers
+        }))
       } catch (err) {
         this.$utils.error('列印伺服器API錯誤，保留現有資料', err)
       } finally {
@@ -1032,7 +1063,8 @@ export default {
         this.notify('PDF 已傳送列印', { type: 'success' })
         this.$refs.printModal.hide()
         this.pdfFile = null
-        setTimeout(this.reload, 2000)
+        // [修改] 強制重新載入
+        setTimeout(() => this.reload(true), 2000)
       } catch (err) {
         // 捕捉 axios 錯誤
         const msg = err.response?.data?.message || err.message
@@ -1057,8 +1089,9 @@ export default {
           headers: { 'X-API-KEY': this.apiKey }
         })
         this.notify('指令已發送', { type: 'success' })
+        // [修改] 強制重新載入
         setTimeout(() => {
-          this.reload()
+          this.reload(true)
           if (this.selectedPrinter && this.selectedPrinter.Name === name) {
             this.checkStatus(name)
           }
@@ -1084,7 +1117,8 @@ export default {
         })
         this.notify('重啟指令已發送，請稍候...', { type: 'warning' })
         // Wait a bit and reload
-        setTimeout(this.reload, 5000)
+        // [修改] 強制重新載入
+        setTimeout(() => this.reload(true), 5000)
       } catch (err) {
         this.alert(`啟動失敗: ${err.message}`)
       } finally {
@@ -1107,8 +1141,9 @@ export default {
           headers: { 'X-API-KEY': this.apiKey }
         })
         this.notify('清除指令已發送', { type: 'success' })
+        // [修改] 強制重新載入
         setTimeout(() => {
-          this.reload()
+          this.reload(true)
           if (this.selectedPrinter && this.selectedPrinter.Name === name) {
             this.checkStatus(name)
           }
@@ -1134,7 +1169,8 @@ export default {
           headers: { 'X-API-KEY': this.apiKey }
         })
         this.notify('自癒流程已啟動，請稍候...', { type: 'warning' })
-        setTimeout(this.reload, 5000)
+        // [修改] 強制重新載入
+        setTimeout(() => this.reload(true), 5000)
       } catch (err) {
         this.alert(`啟動失敗: ${err.message}`)
       } finally {
