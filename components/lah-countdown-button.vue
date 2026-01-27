@@ -17,7 +17,7 @@ lah-button.align-middle(
       ref="cd"
       :time="milliseconds"
       :auto-start="false"
-      @end="$emit('end', $event)"
+      @end="handleComponentEnd"
       @start="$emit('start', $event)"
       @progress="handleProgress"
     ): template(slot-scope="props").
@@ -49,9 +49,10 @@ export default {
   },
   data: () => ({
     variantMediator: 'primary',
-    expectedEndTime: 0 // 新增：用來追蹤預計結束的絕對時間
+    expectedEndTime: 0,
+    checkTimer: null, // 看門狗計時器
+    isEnded: false // 防止重複觸發的旗標
   }),
-  computed: {},
   watch: {
     variant (val) {
       this.variantMediator = val
@@ -64,57 +65,95 @@ export default {
     if (this.autoStart) {
       this.startCountdown()
     }
-    // 新增：監聽可見性變化，解決背景執行時被瀏覽器降頻的問題
     document.addEventListener('visibilitychange', this.handleVisibilityChange)
   },
   beforeDestroy () {
+    this.stopWatchdog()
     this.pauseCountdown()
     document.removeEventListener('visibilitychange', this.handleVisibilityChange)
   },
   methods: {
-    // 新增：處理頁面喚醒時的時間校準
-    handleVisibilityChange () {
-      // 只有在「可見」且「正在倒數中」(expectedEndTime > 0) 才需要校準
-      if (document.visibilityState === 'visible' && this.expectedEndTime > 0) {
+    // 統一處理元件內部的 end 事件
+    handleComponentEnd () {
+      // 如果已經由看門狗觸發過，這裡就不再處理
+      if (!this.isEnded) {
+        this.triggerEnd()
+      }
+    },
+    // 看門狗邏輯：每5秒檢查一次絕對時間
+    startWatchdog () {
+      this.stopWatchdog() // 先清除舊的
+      this.isEnded = false
+      // 每 5000ms 檢查一次，這在大多數背景標籤頁中仍能運作，且降低負擔
+      this.checkTimer = setInterval(() => {
+        this.checkTime()
+      }, 5000)
+    },
+    stopWatchdog () {
+      if (this.checkTimer) {
+        clearInterval(this.checkTimer)
+        this.checkTimer = null
+      }
+    },
+    // 檢查時間是否已到
+    checkTime () {
+      if (this.expectedEndTime > 0) {
         const now = Date.now()
-        const remaining = this.expectedEndTime - now
+        // 給予 500ms 的緩衝，避免剛好等於時的邊界問題
+        if (now >= (this.expectedEndTime - 500)) {
+          this.triggerEnd()
+        }
+      }
+    },
+    // 頁面喚醒時的處理
+    handleVisibilityChange () {
+      if (document.visibilityState === 'visible') {
+        // 1. 喚醒時立即檢查一次看門狗
+        this.checkTime()
 
-        if (this.$refs.cd) {
-          if (remaining <= 0) {
-            // 時間已到，強制結束
+        // 2. 如果還沒結束，進行時間校準
+        if (!this.isEnded && this.expectedEndTime > 0) {
+          const now = Date.now()
+          const remaining = this.expectedEndTime - now
 
-            // 1. 清除預期時間，避免重複進入
-            this.expectedEndTime = 0
-
-            // 2. 歸零組件顯示
-            this.$refs.cd.totalMilliseconds = 0
-
-            // 3. 停止組件內部計時
-            this.$refs.cd.end()
-
-            // 4. 【關鍵修正】強制手動觸發 end 事件
-            // 解決了手動調用 end() 或背景休眠導致組件內部不觸發 @end 的問題
-            this.$emit('end')
-          } else {
-            // 時間未到，修正剩餘時間
+          if (remaining > 0 && this.$refs.cd) {
+            // 校準組件顯示時間
             this.$refs.cd.totalMilliseconds = remaining
-
-            // 如果因為瀏覽器降頻導致內部狀態停止，這裡確保它繼續運行
-            if (this.$refs.cd.counting === false) {
+            // 確保組件仍在運行（有時瀏覽器會暫停它）
+            if (!this.$refs.cd.counting) {
               this.$refs.cd.start()
             }
           }
         }
       }
     },
+    // 【核心補救方法】強制結束並發送事件
+    triggerEnd () {
+      // 雙重鎖定，防止多次觸發
+      if (this.isEnded) { return }
+      this.isEnded = true
+
+      this.stopWatchdog()
+      this.expectedEndTime = 0
+
+      // 強制更新 UI 為 00:00:00
+      if (this.$refs.cd) {
+        this.$refs.cd.totalMilliseconds = 0
+        this.$refs.cd.end()
+      }
+
+      // 使用 setTimeout 確保脫離當前執行堆疊，讓父組件能接收到
+      setTimeout(() => {
+        console.warn('🕒 倒數結束，強制觸發 fetch', new Date().toLocaleTimeString())
+        this.$emit('end')
+      }, 0)
+    },
     handleProgress (payload) {
       if (!this.busy && this.$refs.btn) {
-        // 使用 <= 增加容錯，避免因為時間校準導致跳過剛好等於 threadhold 的那一幀
         if (this.$refs.btn && this.endAttention && parseInt(payload.totalSeconds) <= this.endAttentionThreadhold && parseInt(payload.totalSeconds) > 0) {
           if (this.variantMediator !== this.endAttentionStartVariant && this.variantMediator !== this.endAttentionEndVariant) {
             this.$refs.btn?.mouseenter()
           }
-
           if (parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
             const oldVariant = this.variantMediator
             this.variantMediator = this.endAttentionStartVariant
@@ -133,34 +172,41 @@ export default {
       }
     },
     resetCountdown () {
+      this.stopWatchdog()
       this.expectedEndTime = 0
+      this.isEnded = false
       this.$refs.cd && (this.$refs.cd.totalMilliseconds = this.milliseconds)
     },
     setCountdown (milliseconds) {
-      // 重設時間意味著之前的預計結束時間作廢
+      this.stopWatchdog()
       this.expectedEndTime = 0
+      this.isEnded = false
       this.$refs.cd && (this.$refs.cd.totalMilliseconds = milliseconds || this.milliseconds)
     },
     startCountdown () {
       if (this.$refs.cd) {
-        // 啟動時，基於當前剩餘的毫秒數計算「預計結束時間」
         const currentRemaining = this.$refs.cd.totalMilliseconds
         if (currentRemaining > 0) {
           this.expectedEndTime = Date.now() + currentRemaining
           this.$refs.cd.start()
           this.$refs.badge && this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
+
+          // 啟動看門狗
+          this.startWatchdog()
+        } else {
+          // 如果時間已經是 0，直接觸發結束
+          this.triggerEnd()
         }
       }
     },
     endCountdown () {
-      this.expectedEndTime = 0
-      this.$refs.cd && this.$refs.cd.end()
+      this.triggerEnd()
     },
     pauseCountdown () {
+      this.stopWatchdog()
       this.expectedEndTime = 0
       this.$refs.cd && this.$refs.cd.pause()
     }
   }
 }
 </script>
-<style></style>
