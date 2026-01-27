@@ -74,7 +74,7 @@ export default {
   methods: {
     // 新增：處理頁面喚醒時的時間校準
     handleVisibilityChange () {
-      // 只有在「可見」且「正在倒數中」才需要校準
+      // 只有在「可見」且「正在倒數中」(expectedEndTime > 0) 才需要校準
       if (document.visibilityState === 'visible' && this.expectedEndTime > 0) {
         const now = Date.now()
         const remaining = this.expectedEndTime - now
@@ -82,15 +82,27 @@ export default {
         if (this.$refs.cd) {
           if (remaining <= 0) {
             // 時間已到，強制結束
-            // 注意：Vue-countdown 需要先歸零再 end，確保狀態正確
-            this.$refs.cd.totalMilliseconds = 0
-            this.$refs.cd.end()
+
+            // 1. 清除預期時間，避免重複進入
             this.expectedEndTime = 0
+
+            // 2. 歸零組件顯示
+            this.$refs.cd.totalMilliseconds = 0
+
+            // 3. 停止組件內部計時
+            this.$refs.cd.end()
+
+            // 4. 【關鍵修正】強制手動觸發 end 事件
+            // 解決了手動調用 end() 或背景休眠導致組件內部不觸發 @end 的問題
+            this.$emit('end')
           } else {
             // 時間未到，修正剩餘時間
             this.$refs.cd.totalMilliseconds = remaining
-            // 某些瀏覽器策略可能會完全暫停 requestAnimationFrame，這裡確保狀態是 running
-            // 這裡不需調用 start()，因為 vue-countdown 內部通常只需更新數值即可
+
+            // 如果因為瀏覽器降頻導致內部狀態停止，這裡確保它繼續運行
+            if (this.$refs.cd.counting === false) {
+              this.$refs.cd.start()
+            }
           }
         }
       }
@@ -99,17 +111,11 @@ export default {
       if (!this.busy && this.$refs.btn) {
         // 使用 <= 增加容錯，避免因為時間校準導致跳過剛好等於 threadhold 的那一幀
         if (this.$refs.btn && this.endAttention && parseInt(payload.totalSeconds) <= this.endAttentionThreadhold && parseInt(payload.totalSeconds) > 0) {
-          // 這裡加一個簡單的鎖或是檢查當前顏色，避免重複觸發動畫導致閃爍
-          // 考慮到盡量少改動舊邏輯，這裡維持原樣，但請注意若大幅度時間跳躍可能會讓動畫看起來突然
           if (this.variantMediator !== this.endAttentionStartVariant && this.variantMediator !== this.endAttentionEndVariant) {
             this.$refs.btn?.mouseenter()
-            // ... existing animation logic ...
-            // 為了保持穩定，這裡僅在剛好命中的時候觸發原邏輯，或者你可以接受小幅度的動畫跳過
-            // 考慮到 legacy 維護，我們暫不重寫這塊動畫邏輯，專注於時間準確性
           }
 
           if (parseInt(payload.totalSeconds) === this.endAttentionThreadhold) {
-            // 保留原始觸發點
             const oldVariant = this.variantMediator
             this.variantMediator = this.endAttentionStartVariant
             this.timeout(() => {
