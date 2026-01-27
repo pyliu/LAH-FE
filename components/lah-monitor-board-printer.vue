@@ -131,12 +131,20 @@ b-card(
           title="重新啟動 Spooler 服務"
         ) 觸發深度自癒
 
+        //- [新增] 重啟腳本按鈕
+        lah-button.mr-2(
+          icon="redo-alt",
+          variant="outline-warning",
+          @click="restartScript"
+          title="重新啟動 PowerShell Agent 腳本"
+        ) 重啟腳本
+
         //- [移動] 伺服器紀錄按鈕
         lah-button(
           icon="file-alt",
           variant="outline-dark",
           @click="fetchServerLogs"
-          title="查看伺服器紀錄 (最後100行)"
+          title="查看伺服器紀錄 (最後500行)"
         ) 查看紀錄
 
     hr
@@ -170,6 +178,9 @@ b-card(
         strong 深度自癒：
         span 強制重啟伺服器 Print Spooler 服務並清理暫存，用於解決卡單問題。
       li
+        strong 重啟腳本：
+        span 重新啟動伺服器上的 Agent 腳本，用於解決腳本卡死或更新後重啟。
+      li
         strong 單機重整：
         span 針對特定印表機執行暫停與恢復操作。
       li
@@ -183,14 +194,17 @@ b-card(
         span 資料由外部提供，本組件不執行自動更新。
 
   //- [新增] 伺服器紀錄 Modal
+  //- [修改] title 顯示 500 行，並新增 @shown 事件
   b-modal(
     ref="logsModal",
-    title="伺服器紀錄 (最後100行)"
+    title="伺服器紀錄 (最後500行)"
     size="xl"
     scrollable
     hide-footer
+    @shown="scrollLogsToBottom"
   )
-    pre.bg-dark.text-white.p-3.rounded(v-if="serverLogs" style="font-size: 0.85rem; min-height: 400px;") {{ serverLogs }}
+    //- [修改] 新增 ref="logsContent" 以便控制捲動
+    pre.bg-dark.text-white.p-3.rounded(ref="logsContent" v-if="serverLogs" style="font-size: 0.85rem; min-height: 400px;") {{ serverLogs }}
     div.text-center.text-muted.py-5(v-else) 暫無紀錄或載入中...
 
   //- [新增] 完整資料列表 Modal
@@ -943,13 +957,13 @@ export default {
         }
       }
     },
-    // [修改] 取得伺服器日誌，並反轉內容
+    // [修改] 取得伺服器日誌，移除反轉，改為正序，增加行數至500
     async fetchServerLogs () {
       this.isBusy = true
       this.serverLogs = ''
       try {
         const { data } = await axios.get(`${this.apiUrlBase}/server/logs`, {
-          params: { lines: 100 },
+          params: { lines: 500 }, // 修改為 500 行
           headers: { 'X-API-KEY': this.apiKey }
         })
 
@@ -958,15 +972,9 @@ export default {
           content = data.data
         }
 
-        // [新增] 日誌反轉邏輯
-        if (typeof content === 'string') {
-          // 如果是純文字，按行分割 -> 反轉 -> 重新組合
-          this.serverLogs = content.split('\n').reverse().join('\n')
-        } else if (Array.isArray(content)) {
-          // 如果是陣列，直接反轉
-          this.serverLogs = JSON.stringify(content.reverse(), null, 2)
-        } else if (typeof content === 'object') {
-          // 如果是物件，轉字串 (無法反轉，除非轉換為 entries)
+        // [修改] 移除反轉邏輯，保持正序
+        if (typeof content === 'object') {
+          // 如果是物件或陣列，轉字串方便顯示
           this.serverLogs = JSON.stringify(content, null, 2)
         } else {
           this.serverLogs = content
@@ -978,6 +986,19 @@ export default {
       } finally {
         this.isBusy = false
       }
+    },
+    // [新增] 捲動日誌到最下方
+    scrollLogsToBottom () {
+      this.$nextTick(() => {
+        const pre = this.$refs.logsContent
+        if (pre) {
+          // 找到捲軸容器 (通常是 modal-body，也就是 pre 的父元素)
+          const modalBody = pre.parentElement
+          if (modalBody) {
+            modalBody.scrollTop = modalBody.scrollHeight
+          }
+        }
+      })
     },
     openPrintModal (name) {
       this.printTarget = name
@@ -1044,6 +1065,28 @@ export default {
         }, 2000)
       } catch (err) {
         this.alert(`操作失敗: ${err.message}`)
+      } finally {
+        this.isBusy = false
+      }
+    },
+    async restartScript () {
+      const confirm = await this.$bvModal.msgBoxConfirm('確定要重新啟動伺服器上的 Agent 腳本嗎？\n這將會暫時中斷監控連線。', {
+        title: '重啟腳本確認',
+        okVariant: 'warning',
+        centered: true
+      })
+      if (!confirm) { return }
+
+      this.isBusy = true
+      try {
+        await axios.get(`${this.apiUrlBase}/server/restart-script`, {
+          headers: { 'X-API-KEY': this.apiKey }
+        })
+        this.notify('重啟指令已發送，請稍候...', { type: 'warning' })
+        // Wait a bit and reload
+        setTimeout(this.reload, 5000)
+      } catch (err) {
+        this.alert(`啟動失敗: ${err.message}`)
       } finally {
         this.isBusy = false
       }
