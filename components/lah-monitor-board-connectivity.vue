@@ -1,10 +1,16 @@
 <template lang="pug">
-b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionCss]")
+b-card(
+  ref="card",
+  no-body,
+  :border-variant="borderVariant",
+  :class="[attentionCss]"
+)
   template(#header): .d-flex.justify-content-between.align-items-center
     lah-fa-icon.mr-auto(icon="circle", :variant="light")
     strong.truncate(:title="header") {{ header }}
     b-button-group(size="sm")
       lah-button(
+        v-if="site",
         icon="cloud-sun",
         :href="srmasWeatherUrl",
         target="_blank",
@@ -17,7 +23,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
         variant="outline-info",
         no-border,
         no-icon-gutter,
-        @click="type = type === 'bar' ? 'line' : 'bar'",
+        @click="toggleChartType",
         title="切換圖形"
       )
       lah-button(
@@ -31,7 +37,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
         title="放大顯示"
       )
       lah-button(
-        v-if="authority.isAdmin",
+        v-if="isAdmin",
         icon="cog",
         action="cycle",
         variant="outline-dark",
@@ -59,6 +65,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
         @click="$refs.help.show()",
         title="說明"
       )
+
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
         li 顯示偵測系統連線狀態
@@ -67,11 +74,12 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
         li 15分鐘更新資料一次(效能考量)，但可透過 #[lah-fa-icon(icon="sync-alt", variant="secondary")] 更新最新資料
       hr
       h5 #[lah-fa-icon(icon="palette") 顏色說明]
-      div #[lah-fa-icon(icon="circle", style="color: rgb(177, 221, 150)")] 綠色 - PING值小於等於20ms
-      div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - PING值小於等於40ms
-      div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - PING值小於等於80ms
-      div #[lah-fa-icon(icon="circle", style="color: rgb(204, 0, 204)")] 紫色 - PING值小於等於160ms
-      div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - PING值161ms以上
+      div #[lah-fa-icon(icon="circle", style="color: rgb(177, 221, 150)")] 綠色 - PING值小於等於 {{ lightCriteria.yellow }}ms
+      div #[lah-fa-icon(icon="circle", style="color: rgb(255, 193, 7)")] 黃色 - PING值小於等於 {{ lightCriteria.red }}ms
+      div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - PING值小於等於 {{ lightCriteria.purple }}ms
+      div #[lah-fa-icon(icon="circle", style="color: rgb(204, 0, 204)")] 紫色 - PING值小於等於 {{ lightCriteria.black }}ms
+      div #[lah-fa-icon(icon="circle", style="color: rgb(51, 51, 51)")] 黑色 - PING值 {{ lightCriteria.black + 1 }}ms以上
+
     b-modal(
       ref="setup",
       size="xl",
@@ -81,31 +89,50 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
       lah-monitor-board-connectivity-setup(@update="onSetupUpdate")
 
   .center.my-5(v-if="loadItems.length === 0") ⚠ 無監控標的資料
+
   lah-chart(
     v-show="loadItems.length > 0",
     ref="chart",
     :type="type"
-    :backgroundColor="backgroundColor",
+    :opacity="0.6"
     @click="popupNote"
     :tooltip-title-callback="titleTooltip",
     :tooltip-label-callback="labelTooltip",
     :legend="false"
   )
 
-  template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.small
-    span
-      lah-fa-icon(icon="server" :style="`color: ${colorCode}`")
-      span {{ loadItems.length }} 個監控系統
-    b-form-radio-group(v-model="sortBy", :options="sortByOpts")
-    lah-fa-icon.text-muted(icon="clock", reqular) {{ updatedTime }}
+  template(#footer, v-if="loadItems.length > 0")
+    .d-flex.justify-content-between.align-items-center.mb-2.small
+      span
+        lah-fa-icon(icon="server" :style="`color: ${colorCode}`")
+        span.ml-1 {{ loadItems.length }} 個監控系統
+      b-form-radio-group(
+        v-model="sortBy",
+        :options="sortByOpts",
+        size="sm",
+        button-variant="outline-secondary",
+        buttons
+      )
+
+    lah-monitor-board-footer(
+      :reload-ms="15 * 60 * 1000",
+      :busy="isBusy",
+      :update-time="updatedTime",
+      @fetch="reloadConn(false)",
+      @reload="reloadConn(true)"
+    )
 </template>
 
 <script>
 import LahMonitorBoardConnectivitySetup from '~/components/lah-monitor-board-connectivity-setup.vue';
+import LahMonitorBoardFooter from '~/components/lah-monitor-board-footer.vue';
+
 export default {
   name: 'LahMonitorBoardConnectivity',
-  emit: ['light-update'],
-  components: { LahMonitorBoardConnectivitySetup },
+  components: {
+    LahMonitorBoardConnectivitySetup,
+    LahMonitorBoardFooter
+  },
   props: {
     maximized: { type: Boolean, default: false },
     enableAttention: { type: Boolean, default: false }
@@ -113,12 +140,11 @@ export default {
   data: () => ({
     header: '系統連線狀態監控',
     type: 'bar',
-    reloadTimer: null,
     updatedTime: '',
     datasetIdx: 0,
     loadItems: [],
     lightCriteria: {
-      blalck: 160,
+      black: 160,
       purple: 80,
       red: 40,
       yellow: 20,
@@ -130,7 +156,7 @@ export default {
       { text: 'IP', value: 'ip' },
       { text: '埠號', value: 'port' }
     ],
-    srmas: new Map([
+    srmasMap: new Map([
       ['HA', '220.1.34.251'],
       ['HB', '220.1.35.95'],
       ['HC', '220.1.36.16'],
@@ -139,40 +165,53 @@ export default {
       ['HF', '220.1.39.126'],
       ['HG', '220.1.40.76'],
       ['HH', '220.1.41.64']
-    ])
+    ]),
+    isBusy: false
   }),
   computed: {
+    isAdmin () {
+      return this.authority && this.authority.isAdmin
+    },
     srmasWeatherUrl () {
-      return `http://${this.srmas.get(this.site)}/plugins/Weathermap/output/${this.site}.html`
+      if (!this.site || !this.srmasMap.has(this.site)) { return '#' }
+      return `http://${this.srmasMap.get(this.site)}/plugins/Weathermap/output/${this.site}.html`
+    },
+    worstItem () {
+      const criticalLevels = ['black', 'purple', 'red', 'yellow']
+      for (const level of criticalLevels) {
+        const threshold = this.lightCriteria[level]
+        const found = this.loadItems.find(item => item.y > threshold)
+        if (found) { return { level, item: found } }
+      }
+      return { level: 'green', item: null }
     },
     light () {
-      if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'danger' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'danger' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'danger' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'warning' }
-      return 'success'
+      const map = {
+        black: 'danger',
+        purple: 'danger',
+        red: 'danger',
+        yellow: 'warning',
+        green: 'success'
+      }
+      return map[this.worstItem.level]
     },
     colorCode () {
-      if (this.loadItems.find(item => item.y > this.lightCriteria.black)) { return 'rgba(51, 51, 51, 0.6)' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.purple)) { return 'rgba(204, 0, 204, 0.6)' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.red)) { return 'rgba(220, 53, 29, 0.6)' }
-      if (this.loadItems.find(item => item.y > this.lightCriteria.yellow)) { return 'rgba(255, 193, 7, 0.6)' }
-      return 'rgba(40, 167, 69, 0.6)'
+      const map = {
+        black: 'rgba(51, 51, 51, 0.6)',
+        purple: 'rgba(204, 0, 204, 0.6)',
+        red: 'rgba(220, 53, 29, 0.6)',
+        yellow: 'rgba(255, 193, 7, 0.6)',
+        green: 'rgba(40, 167, 69, 0.6)'
+      }
+      return map[this.worstItem.level]
     },
     borderVariant () {
-      if (this.light !== 'success') {
-        return this.light
-      }
-      return ''
+      return this.light !== 'success' ? this.light : ''
     },
     attentionCss () {
       if (this.enableAttention) {
-        if (this.light === 'danger') {
-          return 'scale-danger'
-        }
-        if (this.light === 'warning') {
-          return 'scale-warning'
-        }
+        if (this.light === 'danger') { return 'scale-danger' }
+        if (this.light === 'warning') { return 'scale-warning' }
       }
       return ''
     }
@@ -187,7 +226,11 @@ export default {
       this.loadWatchTarget()
     },
     light (nlight, olight) {
-      this.emitLightUpdate(nlight, olight)
+      this.$emit('light-update', {
+        name: 'LahMonitorBoardConnectivity',
+        new: nlight,
+        old: olight
+      })
     }
   },
   async created () {
@@ -197,57 +240,70 @@ export default {
   },
   mounted () {
     this.loadWatchTarget()
-    // this.loadAPConnectionCount()
-    this.emitLightUpdate(this.light, '')
-  },
-  beforeDestroy () {
-    clearTimeout(this.reloadTimer)
-    this.emitLightUpdate('', this.light)
   },
   methods: {
+    toggleChartType () {
+      this.type = this.type === 'bar' ? 'line' : 'bar'
+    },
+    sortItems (a, b) {
+      let aVal, bVal
+      switch (this.sortBy) {
+        case 'name':
+          aVal = a.name
+          bVal = b.name
+          break
+        case 'port':
+          aVal = a.port
+          bVal = b.port
+          break
+        default:
+          aVal = this.$utils.ipv4Int(a.ip)
+          bVal = this.$utils.ipv4Int(b.ip)
+      }
+      if (aVal > bVal) { return 1 }
+      if (aVal < bVal) { return -1 }
+      return 0
+    },
+    // 新增：根據 Latency 返回 lah-chart 支援的 RGB 格式對象
+    getRGB (latency) {
+      // 黑色
+      if (latency > this.lightCriteria.black) { return { R: 51, G: 51, B: 51 } }
+      // 紫色
+      if (latency > this.lightCriteria.purple) { return { R: 204, G: 0, B: 204 } }
+      // 紅色
+      if (latency > this.lightCriteria.red) { return { R: 220, G: 53, B: 29 } }
+      // 黃色
+      if (latency > this.lightCriteria.yellow) { return { R: 255, G: 193, B: 7 } }
+      // 綠色 (預設)
+      return { R: 40, G: 167, B: 69 }
+    },
     loadWatchTarget () {
+      this.isBusy = true
       this.$axios
-        .post(this.$consts.API.JSON.MONITOR, {
-          type: 'monitor_targets'
-        })
+        .post(this.$consts.API.JSON.MONITOR, { type: 'monitor_targets' })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            // initializing monitor list entries from DB
             this.loadItems = []
             this.$refs.chart?.reset()
-            // raw is array of { 'AP31': {ip: 'xxx.xxx.xxx.31', name: 'AP31', port: '', note: 'XXX'} }
-            data.raw.sort((a, b) => {
-              let aVal, bVal
-              switch (this.sortBy) {
-                case 'name':
-                  aVal = a.name
-                  bVal = b.name
-                  break
-                case 'port':
-                  aVal = a.port
-                  bVal = b.port
-                  break
-                default:
-                  aVal = this.$utils.ipv4Int(a.ip)
-                  bVal = this.$utils.ipv4Int(b.ip)
-              }
-              if (aVal > bVal) { return 1 }
-              if (aVal < bVal) { return -1 }
-              return 0
-            }).forEach((rawObj) => {
+
+            data.raw.sort(this.sortItems).forEach((rawObj) => {
               this.loadItems.push({
                 ip: rawObj.ip,
                 port: rawObj.port,
                 status: 'DOWN',
-                timestamp: '20201005181631',
+                timestamp: '',
                 note: rawObj.note,
                 x: ['ip', 'port'].includes(this.sortBy) ? `${rawObj.ip}:${rawObj.port}` : rawObj.name,
-                y: 0.0 // latency
+                y: 0.0,
+                // 關鍵修改：初始化時就帶上顏色對象，讓 lah-chart 讀取
+                color: this.getRGB(0)
               })
             })
-            // build the chart skeleton from loaded targets
+
+            // addDataset 會自動讀取 item.color 並套用
             this.datasetIdx = this.$refs.chart?.addDataset(this.loadItems, '回應時間(ms)', this.type)
-            // add a bit delay to make the chart build successfully
+
+            // 由於直接透過數據驅動顏色，這裡不再需要手動 syncBarColors
             this.timeout(() => this.$refs.chart?.build(), 100)
           } else {
             this.warning(data.message, { title: '讀取監測目標' })
@@ -270,7 +326,6 @@ export default {
       if (found) {
         const combined = `${found.note}\nIP: ${found.ip}\n監測埠號: ${found.port}`
         return combined.split('\n')
-        // this.modal(found.note.replaceAll('\n', '<br/>'), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
       } else {
         const currentVal = entry.dataset.data[entry.dataIndex]
         return ` ${entry.label}：${currentVal}`
@@ -284,7 +339,10 @@ export default {
       const found = this.loadItems.find(item => item.x === detail.label)
       if (found) {
         const combined = `${found.note}\nIP: ${found.ip}\n監測埠號: ${found.port}`
-        this.modal(this.$utils.convertMarkd(combined), { title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`, html: true })
+        this.modal(this.$utils.convertMarkd(combined), {
+          title: `${found.x} - 回應時間 ${found.y.toFixed(2)} ms`,
+          html: true
+        })
       } else {
         this.$utils.warn('找不到監控項目', detail)
       }
@@ -302,49 +360,40 @@ export default {
         }
       )
     },
-    backgroundColor (item, opacity = 0.6) {
-      if (item.y > this.lightCriteria.black) { return `rgba(51, 51, 51, ${opacity})` }
-      if (item.y > this.lightCriteria.purple) { return `rgba(204, 0, 204, ${opacity})` }
-      if (item.y > this.lightCriteria.red) { return `rgba(220, 53, 29, ${opacity})` }
-      if (item.y > this.lightCriteria.yellow) { return `rgba(255, 193, 7, ${opacity})` }
-      return `rgba(40, 167, 69, ${opacity})`
-    },
     reloadConn (force = false) {
-      clearTimeout(this.reloadTimer)
       this.isBusy = true
       this.$axios
         .post(this.$consts.API.JSON.MONITOR, {
           type: 'monitor_targets_history',
           force,
-          timeout: this.loadItems.length * 1000 + 3000 // maximum number of timeout in milliseconds
+          timeout: this.loadItems.length * 1000 + 3000
         })
         .then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            // array of { target_ip: 'xxx.xxx.xxx.xxx:xxxx', latency: 2000.0, status: 'DOWN', log_time: '20201005181631' }
             data.raw.forEach((item) => {
-              const found = this.loadItems.find((oitem, idx, array) => {
+              const found = this.loadItems.find((oitem) => {
                 const parts = item.target_ip.split(':')
                 const ip = parts[0]
-                // no port, just compares with ip
                 if (item.target_ip.endsWith(':')) {
                   return oitem.ip === ip
                 }
                 const port = parseInt(parts[1])
                 const oport = parseInt(oitem.port)
-                // this.$utils.warn(oitem.ip, ip, oport, port)
                 return oitem.ip === ip && oport === port
               })
+
               if (found) {
-                // the dataset item format is ['text', 123]
                 found.y = item.latency
                 found.status = item.status
                 found.timestamp = item.log_time
+                // 關鍵修改：更新數值的同時，也更新顏色對象
+                found.color = this.getRGB(item.latency)
+
+                // lah-chart 的 updateData 支援讀取傳入的 color 並更新圖表
                 this.$refs.chart?.updateData(found, this.datasetIdx)
-              } else {
-                this.$utils.warn(`找不到 ${item.target_ip} 資料。`)
               }
             })
-            // line chart fill color sync
+
             if (this.type === 'line' && this.loadItems.length > 0) {
               this.$refs.chart?.setLineFillColor(this.datasetIdx, this.colorCode)
             }
@@ -354,25 +403,16 @@ export default {
         })
         .catch((err) => {
           this.$utils.error('讀取連線資料失敗', err)
-          this.alert(err.toString(), { title: '讀取連線資料失敗' })
+          if (force) {
+            this.alert(err.toString(), { title: '讀取連線資料失敗' })
+          }
         })
         .finally(() => {
           this.updatedTime = this.$utils.now().split(' ')[1]
-          this.timeout(() => this.reloadConn(), 15 * 60 * 1000).then((handler) => { this.reloadTimer = handler })
           this.isBusy = false
         })
     },
-    _reload () { /* placeholder for debouncing reload method */ },
-    emitLightUpdate (n, o) {
-      this.$emit('light-update', {
-        name: 'LahMonitorBoardConnectivity',
-        new: n,
-        old: o
-      })
-    }
+    _reload () { /* debounced placeholder */ }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-</style>
