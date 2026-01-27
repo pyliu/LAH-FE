@@ -186,6 +186,9 @@ b-card(
       li
         strong PDF 列印：
         span 可上傳 PDF 檔案至指定印表機進行列印測試 (僅 Ready 狀態顯示)。
+      li
+        strong 資訊編輯：
+        span 可在詳細資訊視窗中編輯印表機的「位置」與「備註」。
       li(v-if="!isDisplayMode")
         strong 自動更新：
         span 每 {{ reloadMs / 60000 }} 分鐘自動重新整理一次。
@@ -229,11 +232,13 @@ b-card(
     )
 
   //- 詳細資料 Modal
+  //- [修改] 使用 detailModalTitle computed 屬性
   b-modal(
     ref="detailModal"
-    :title="selectedPrinter ? `${selectedPrinter.Name} - 詳細資訊` : '載入中...'"
+    :title="detailModalTitle"
     size="lg"
     hide-footer
+    @hide="cancelEdit"
   )
     div(v-if="selectedPrinter")
       //- 上半部：狀態摘要
@@ -243,10 +248,13 @@ b-card(
             h5.mb-1 {{ selectedPrinter.Name }}
             div.text-muted
               span.mr-2 IP: {{ selectedPrinter.IP || 'N/A' }}
-              b-badge(v-if="selectedPrinter.Location" variant="light") {{ selectedPrinter.Location }}
+              //- [修改] 如果正在編輯，隱藏 badge
+              b-badge(v-if="selectedPrinter.Location && !isEditing" variant="light") {{ selectedPrinter.Location }}
 
           div.text-right
+            //- [修改] 狀態標籤增加 loading spinner 提示 (isDetailLoading 為 false 時會移除)
             b-badge.p-2.mb-1(:variant="getPaperBadgeVariant(selectedPrinter.Status)" pill)
+              lah-fa-icon.mr-1(v-if="isDetailLoading" icon="spinner" action="spin")
               span.h6.mb-0 {{ formatStatus(selectedPrinter.Status) }}
             div.small.text-danger(v-if="selectedPrinter.ErrorDetails || selectedPrinter.DetailedStatus") {{ selectedPrinter.ErrorDetails || selectedPrinter.DetailedStatus }}
 
@@ -261,9 +269,13 @@ b-card(
             b-list-group-item.d-flex.justify-content-between.align-items-center
               span.text-muted 驅動程式 (Driver)
               span.text-truncate(style="max-width: 200px;" :title="selectedPrinter.Driver || selectedPrinter.DriverName") {{ selectedPrinter.Driver || selectedPrinter.DriverName || 'Unknown' }}
-            b-list-group-item.d-flex.justify-content-between.align-items-center(v-if="selectedPrinter.Location")
+
+            //- [修改] 位置欄位：支援編輯模式
+            b-list-group-item.d-flex.justify-content-between.align-items-center
               span.text-muted 位置 (Location)
-              span {{ selectedPrinter.Location }}
+              div(v-if="isEditing" style="flex: 1; margin-left: 10px;")
+                b-form-input(v-model="editForm.location" size="sm" placeholder="請輸入位置")
+              span(v-else) {{ selectedPrinter.Location || '未設定' }}
 
         //- [右側] 1.共用名稱 2.連接埠 3.錯誤訊息
         b-col(cols="12" md="6")
@@ -277,37 +289,83 @@ b-card(
             b-list-group-item.d-flex.justify-content-between.align-items-center(v-if="selectedPrinter.ErrorDetails")
               span.text-muted 錯誤訊息
               b-badge(variant="danger") {{ selectedPrinter.ErrorDetails }}
-            //- [新增] 備註欄位顯示
-            b-list-group-item.d-flex.justify-content-between.align-items-center(v-if="selectedPrinter.Comment")
+
+            //- [修改] 備註欄位：支援編輯模式
+            b-list-group-item.d-flex.justify-content-between.align-items-center
               span.text-muted 備註 (Comment)
-              span.text-truncate(style="max-width: 150px;" :title="selectedPrinter.Comment") {{ selectedPrinter.Comment }}
+              div(v-if="isEditing" style="flex: 1; margin-left: 10px;")
+                b-form-input(v-model="editForm.comment" size="sm" placeholder="請輸入備註")
+              span.text-truncate(v-else style="max-width: 150px;" :title="selectedPrinter.Comment") {{ selectedPrinter.Comment || '無' }}
 
       //- 底部：操作按鈕區
       hr
 
       .d-flex.justify-content-end.flex-wrap
-        lah-button.mr-2.mb-2(
-          v-if="selectedPrinter.Status === 'Ready'"
-          icon="file-pdf",
-          variant="outline-dark",
-          @click="openPrintModal(selectedPrinter.Name)",
-          title="上傳 PDF 進行列印測試"
-        ) PDF 測試列印
+        //- [新增] 編輯模式按鈕組
+        template(v-if="isEditing")
+          lah-button.mr-2.mb-2(
+            icon="save"
+            variant="success"
+            @click="updatePrinterInfo"
+            :loading="isBusy"
+            :disabled="isBusy"
+          ) 儲存變更
+          lah-button.mb-2(
+            icon="times"
+            variant="outline-secondary"
+            @click="cancelEdit"
+            :disabled="isBusy"
+          ) 取消
 
-        lah-button.mr-2.mb-2(
-          icon="trash-alt",
-          variant="outline-danger",
-          @click="clearQueue(selectedPrinter.Name)",
-          :disabled="getJobsCount(selectedPrinter.Jobs) === 0"
-          title="強制清除所有佇列工作"
-        ) 清除佇列
+        //- 一般模式按鈕組
+        template(v-else)
+          //- [新增] 編輯資訊按鈕
+          //- [修改] 增加 disabled 條件
+          lah-button.mr-auto.mb-2(
+            icon="edit"
+            variant="outline-primary"
+            @click="initEdit"
+            title="編輯位置與備註"
+            :disabled="isBusy || isDetailLoading"
+          ) 編輯資訊
 
-        lah-button.mb-2(
-          icon="sync",
-          variant="primary",
-          @click="refreshPrinter(selectedPrinter.Name)",
-          title="暫停並重新啟動此印表機 (WMI)"
-        ) 重新整理 (修復)
+          //- [新增] 更新狀態按鈕 (手動觸發更新)
+          lah-button.mr-2.mb-2(
+            icon="sync-alt",
+            variant="outline-success",
+            @click="fetchStatusFromApi(selectedPrinter.Name)",
+            :loading="isDetailLoading",
+            :disabled="isBusy || isDetailLoading",
+            title="從伺服器讀取最新狀態"
+          ) 更新狀態
+
+          //- [修改] 增加 disabled 條件
+          lah-button.mr-2.mb-2(
+            v-if="selectedPrinter.Status === 'Ready'"
+            icon="file-pdf",
+            variant="outline-dark",
+            @click="openPrintModal(selectedPrinter.Name)",
+            title="上傳 PDF 進行列印測試",
+            :disabled="isBusy || isDetailLoading"
+          ) PDF 測試列印
+
+          //- [修改] 增加 disabled 條件
+          lah-button.mr-2.mb-2(
+            icon="trash-alt",
+            variant="outline-danger",
+            @click="clearQueue(selectedPrinter.Name)",
+            :disabled="getJobsCount(selectedPrinter.Jobs) === 0 || isBusy || isDetailLoading"
+            title="強制清除所有佇列工作"
+          ) 清除佇列
+
+          //- [修改] 增加 disabled 條件
+          lah-button.mb-2(
+            icon="sync",
+            variant="primary",
+            @click="refreshPrinter(selectedPrinter.Name)",
+            title="暫停並重新啟動此印表機 (WMI)",
+            :disabled="isBusy || isDetailLoading"
+          ) 嘗試修復
 
     div.text-center.py-5(v-else)
       lah-fa-icon(icon="spinner" action="spin" size="2x")
@@ -468,14 +526,16 @@ b-card(
             variant="outline-dark",
             no-icon-gutter,
             @click.stop="openPrintModal(item.Name)",
-            title="上傳 PDF 進行列印測試"
+            title="上傳 PDF 進行列印測試",
+            :disabled="isBusy"
           )
           lah-button.ml-1(
             icon="sync",
             variant="outline-primary",
             no-icon-gutter,
             @click.stop="refreshPrinter(item.Name)",
-            title="重新整理此印表機 (WMI Suspend/Resume)"
+            title="重新整理此印表機 (WMI Suspend/Resume)",
+            :disabled="isBusy"
           )
 
       template(#cell(Status)="{ item }")
@@ -563,6 +623,7 @@ export default {
   data () {
     return {
       isBusy: false,
+      isDetailLoading: false, // [新增] 詳細資訊讀取中狀態
       updated: '',
       fetchingState: null,
       header: '列印伺服器監控',
@@ -570,6 +631,12 @@ export default {
       localSize: this.size,
       dashboardStyle: 'horizontal',
       selectedPrinter: null,
+      // [新增] 編輯模式相關狀態
+      isEditing: false,
+      editForm: {
+        location: '',
+        comment: ''
+      },
       cancelSource: null,
       serverLogs: '',
       printers: [],
@@ -594,6 +661,12 @@ export default {
     }
   },
   computed: {
+    // [新增] 詳細資訊 Modal 標題
+    detailModalTitle () {
+      if (!this.selectedPrinter) { return '載入中...' }
+      const loadingText = this.isDetailLoading ? ' (更新中...)' : ''
+      return `${this.selectedPrinter.Name} - 詳細資訊${loadingText}`
+    },
     // [修改] 下載連結 (使用 apiSvrIp 和 apiSvrPort)
     downloadUrlBase () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
@@ -947,8 +1020,9 @@ export default {
       this.$refs.detailModal.show()
       const localPrinter = this.printers.find(p => p.Name === name)
       this.selectedPrinter = localPrinter || null
-      // 展示模式下也可以查詢詳細狀態，視需求而定，這裡保留原邏輯
-      this.debouncedFetchStatus(name)
+      // [修改] 移除自動 loading，等待手動按鈕觸發
+      // this.isDetailLoading = true
+      // this.debouncedFetchStatus(name)
     },
     cancelRequest () {
       if (this.cancelSource) {
@@ -957,8 +1031,13 @@ export default {
       }
     },
     async fetchStatusFromApi (name) {
+      // [新增] 開始讀取狀態
+      this.isDetailLoading = true
       this.cancelRequest()
-      this.cancelSource = axios.CancelToken.source()
+      // [新增] 儲存當前 cancel source 以便在 finally 中比對
+      const source = axios.CancelToken.source()
+      this.cancelSource = source
+
       try {
         const { data } = await axios.get(`${this.apiUrlBase}/printer/status`, {
           params: { name },
@@ -975,7 +1054,6 @@ export default {
         } else {
           this.$utils.warn('API 回傳詳細資料無效，保留顯示快取資料', data)
         }
-        this.cancelSource = null
       } catch (err) {
         if (axios.isCancel(err)) {
           return
@@ -985,6 +1063,12 @@ export default {
           this.$refs.detailModal.hide()
         } else {
           this.$utils.warn('無法取得最新詳細狀態，顯示快取資料', err)
+        }
+      } finally {
+        // [新增] 只有當前的請求結束時才關閉 loading 狀態，避免被舊請求的 cancellation 關閉
+        if (this.cancelSource === source) {
+          this.isDetailLoading = false
+          this.cancelSource = null
         }
       }
     },
@@ -1173,6 +1257,75 @@ export default {
         setTimeout(() => this.reload(true), 5000)
       } catch (err) {
         this.alert(`啟動失敗: ${err.message}`)
+      } finally {
+        this.isBusy = false
+      }
+    },
+    // [新增] 初始化編輯模式
+    initEdit () {
+      if (this.selectedPrinter) {
+        this.editForm.location = this.selectedPrinter.Location || ''
+        this.editForm.comment = this.selectedPrinter.Comment || ''
+        this.isEditing = true
+      }
+    },
+    // [新增] 取消編輯
+    cancelEdit () {
+      this.isEditing = false
+      this.editForm.location = ''
+      this.editForm.comment = ''
+    },
+    // [新增] 更新印表機資訊 API
+    async updatePrinterInfo () {
+      if (!this.selectedPrinter) { return }
+
+      this.isBusy = true
+      try {
+        // [修改] 改用 GET 並透過 params 傳遞參數 (axios 會自動編碼)
+        await axios.get(`${this.apiUrlBase}/printer/update`, {
+          params: {
+            name: this.selectedPrinter.Name,
+            location: this.editForm.location,
+            comment: this.editForm.comment
+          },
+          headers: { 'X-API-KEY': this.apiKey }
+        })
+
+        this.notify('資訊已更新', { type: 'success' })
+        this.isEditing = false
+
+        // 1. 更新 selectedPrinter (確保 Modal 顯示正確)
+        this.$set(this.selectedPrinter, 'Location', this.editForm.location)
+        this.$set(this.selectedPrinter, 'Comment', this.editForm.comment)
+
+        // 2. 更新 printers 列表 (確保列表/儀表板顯示正確)
+        const idx = this.printers.findIndex(p => p.Name === this.selectedPrinter.Name)
+        if (idx !== -1) {
+          const updatedPrinter = { ...this.printers[idx] }
+          updatedPrinter.Location = this.editForm.location
+          updatedPrinter.Comment = this.editForm.comment
+
+          // [修正] 直接更新陣列參照，這會同時觸發 Vue 2 列表更新 以及 子組件的 prop watcher
+          const newPrinters = [...this.printers]
+          newPrinters[idx] = updatedPrinter
+          this.printers = newPrinters
+        }
+
+        // 3. [關鍵] 更新 localStorage 快取
+        // 這樣可以讓其他組件實例 (如 Parent/Child) 在下次 reload 時讀取到最新資料
+        const cacheKey = `lah-monitor-board-printer-cache-${this.serverIp}`
+        const now = Date.now()
+        // 讀取當前快取以保留其他欄位 (雖然後面是覆蓋 data)
+        localStorage.setItem(cacheKey, JSON.stringify({
+          timestamp: now,
+          updated: this.updated,
+          data: this.printers
+        }))
+
+        // 4. [修改] 移除強制 reload，避免伺服器資料延遲導致畫面回朔
+        // setTimeout(() => this.reload(true), 1000)
+      } catch (err) {
+        this.alert(`更新失敗: ${err.message}`)
       } finally {
         this.isBusy = false
       }
