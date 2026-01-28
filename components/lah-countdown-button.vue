@@ -211,22 +211,20 @@ export default {
               this.loop()
             }
           }
-        } else {
+        } else if (this.remainingTime === 0 && !this.busy) {
           // 死鎖救援：00:00 且長時間無動作
-          if (this.remainingTime === 0 && !this.busy) {
-            if (diff < -2000) {
-              console.warn('🕒 倒數組件喚醒：偵測到狀態卡死 (00:00 且無動作)，正在嘗試救援...')
-              this.$emit('end')
+          if (diff < -2000) {
+            console.warn('🕒 倒數組件喚醒：偵測到狀態卡死 (00:00 且無動作)，正在嘗試救援...')
+            this.$emit('end')
 
-              if (this.autoStart) {
-                setTimeout(() => {
-                  if (!this.isRunning && this.remainingTime === 0) {
-                    console.warn('🔄 父組件無響應，執行 Fail-safe 自動重啟')
-                    this.remainingTime = this.milliseconds
-                    this.startCountdown()
-                  }
-                }, 1000)
-              }
+            if (this.autoStart) {
+              setTimeout(() => {
+                if (!this.isRunning && this.remainingTime === 0) {
+                  console.warn('🔄 父組件無響應，執行 Fail-safe 自動重啟')
+                  this.remainingTime = this.milliseconds
+                  this.startCountdown()
+                }
+              }, 1000)
             }
           }
         }
