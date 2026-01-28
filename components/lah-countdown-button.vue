@@ -36,7 +36,7 @@ export default {
     endAttention: { type: Boolean, default: true },
     endAttentionStartVariant: { type: String, default: 'warning' },
     endAttentionEndVariant: { type: String, default: 'danger' },
-    // ✅ 修正：使用正確拼寫 Threshold
+    // 使用正確拼寫 Threshold
     endAttentionThreshold: { type: Number, default: 10 }
   },
   data: () => ({
@@ -48,11 +48,12 @@ export default {
     isRunning: false,
 
     // 計時器 ID
-    rAFId: null, // UI 更新用 (頁面可見時運作)
-    endTimerId: null, // 結束觸發用 (背景執行時兜底)
+    rAFId: null, // UI 更新用
+    endTimerId: null, // 結束觸發用
+    autoRestartId: null, // 自動重啟用 (新增)
 
     lastSecondChecked: -1,
-    animationTimeouts: [] // 用於清理動畫計時器
+    animationTimeouts: []
   }),
   computed: {
     hours () { return Math.floor(this.remainingTime / 3600000) },
@@ -100,6 +101,9 @@ export default {
       if (msToCount <= 0) {
         msToCount = this.milliseconds > 0 ? this.milliseconds : 15 * 60 * 1000
       }
+
+      // 【修復】立即更新剩餘時間，防止 UI 在啟動瞬間顯示 00:00
+      this.remainingTime = msToCount
 
       this.endTime = Date.now() + msToCount
       this.isRunning = true
@@ -162,7 +166,6 @@ export default {
       this.lastSecondChecked = -1
     },
 
-    // 🛡️ 關鍵修正：清理計時器並重置外觀
     cleanup () {
       if (this.rAFId) {
         cancelAnimationFrame(this.rAFId)
@@ -172,14 +175,16 @@ export default {
         clearTimeout(this.endTimerId)
         this.endTimerId = null
       }
+      if (this.autoRestartId) {
+        clearTimeout(this.autoRestartId)
+        this.autoRestartId = null
+      }
       this.animationTimeouts.forEach(id => clearTimeout(id))
       this.animationTimeouts = []
 
-      // 【修復】強制重置 variant，防止顏色卡在紅色(danger)
       if (this.variantMediator !== this.variant) {
         this.variantMediator = this.variant
       }
-      // 【修復】強制重置按鈕的 hover/active 狀態
       if (this.$refs.btn && typeof this.$refs.btn.mouseleave === 'function') {
         this.$refs.btn.mouseleave()
       }
@@ -190,13 +195,26 @@ export default {
       this.isRunning = false
       this.remainingTime = 0
 
-      // 非同步觸發，避免阻塞
+      // 1. 通知父組件
       setTimeout(() => {
         this.$emit('end')
       }, 0)
+
+      // 2. 【關鍵修復】自動循環機制
+      // 如果啟用了 autoStart，給父組件 1 秒鐘的時間去處理 reset/fetch。
+      // 如果 1 秒後組件還是停止狀態，則自動重新開始倒數。
+      if (this.autoStart) {
+        this.autoRestartId = setTimeout(() => {
+          if (!this.isRunning && this.remainingTime === 0) {
+            // console.log('🔄 自動循環重啟')
+            // 重置時間為預設值並啟動
+            this.remainingTime = this.milliseconds
+            this.startCountdown()
+          }
+        }, 1000)
+      }
     },
 
-    // 頁面喚醒時的狀態檢查與救援
     handleVisibilityChange () {
       if (document.visibilityState === 'visible') {
         const now = Date.now()
@@ -212,15 +230,15 @@ export default {
             }
           }
         } else if (this.remainingTime === 0 && !this.busy) {
-          // 死鎖救援：00:00 且長時間無動作
           if (diff < -2000) {
-            console.warn('🕒 倒數組件喚醒：偵測到狀態卡死 (00:00 且無動作)，正在嘗試救援...')
+            // 補發 end 事件
             this.$emit('end')
 
+            // 如果是 autoStart，確保它會重啟
             if (this.autoStart) {
-              setTimeout(() => {
+              if (this.autoRestartId) { clearTimeout(this.autoRestartId) }
+              this.autoRestartId = setTimeout(() => {
                 if (!this.isRunning && this.remainingTime === 0) {
-                  console.warn('🔄 父組件無響應，執行 Fail-safe 自動重啟')
                   this.remainingTime = this.milliseconds
                   this.startCountdown()
                 }
@@ -235,7 +253,6 @@ export default {
 
     checkAnimations (totalSeconds) {
       if (!this.busy && this.$refs.btn) {
-        // 使用正確的拼寫 endAttentionThreshold
         if (this.endAttention && totalSeconds <= this.endAttentionThreshold && totalSeconds > 0) {
           if (this.variantMediator !== this.endAttentionStartVariant && this.variantMediator !== this.endAttentionEndVariant) {
             this.$refs.btn?.mouseenter?.()
