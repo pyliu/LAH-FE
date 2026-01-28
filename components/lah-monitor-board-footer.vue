@@ -35,7 +35,9 @@ export default {
     busy: { type: Boolean, default: false },
     // 移除了 fetchingMonitorMail prop 以避免與 Mixin 衝突
     fetchState: { type: String, default: '' },
-    updateTime: { type: String, default: '' }
+    updateTime: { type: String, default: '' },
+    fetch: { type: Function, default: () => {} },
+    reload: { type: Function, default: () => {} }
   },
   computed: {
     displayFetchState () {
@@ -72,9 +74,11 @@ export default {
     },
     handleFetch () {
       this.$emit('fetch')
+      this.fetch()
     },
     handleReload () {
       this.$emit('reload')
+      this.reload()
     }
     // 移除了 checkVisibility 與 mounted/destroy 監聽，因為已下放至按鈕組件處理
   }
