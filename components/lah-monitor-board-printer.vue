@@ -616,7 +616,14 @@ export default {
     serverIp: { type: String, default: '127.0.0.1' },
     serverPort: { type: String, default: '8888' },
     apiKey: { type: String, default: 'YourSecretApiKey123' },
-    reloadMs: { type: Number, default: 300000 },
+    reloadMs: {
+      type: [Number, String], // 同時接受 Number 和 String
+      default: 300000,
+      validator (value) {
+        // 驗證轉換後的值是否為有效數字
+        return !isNaN(Number(value)) && Number(value) > 0
+      }
+    },
     // [新增] 外部注入印表機資料 (展示模式用)
     inPrinters: { type: Array, default: () => [] }
   },

@@ -36,7 +36,7 @@ export default {
     endAttention: { type: Boolean, default: true },
     endAttentionStartVariant: { type: String, default: 'warning' },
     endAttentionEndVariant: { type: String, default: 'danger' },
-    // ✅ 修正：拼寫已更正為 Threshold
+    // ✅ 修正：使用正確拼寫 Threshold
     endAttentionThreshold: { type: Number, default: 10 }
   },
   data: () => ({
@@ -162,6 +162,7 @@ export default {
       this.lastSecondChecked = -1
     },
 
+    // 🛡️ 關鍵修正：清理計時器並重置外觀
     cleanup () {
       if (this.rAFId) {
         cancelAnimationFrame(this.rAFId)
@@ -173,6 +174,15 @@ export default {
       }
       this.animationTimeouts.forEach(id => clearTimeout(id))
       this.animationTimeouts = []
+
+      // 【修復】強制重置 variant，防止顏色卡在紅色(danger)
+      if (this.variantMediator !== this.variant) {
+        this.variantMediator = this.variant
+      }
+      // 【修復】強制重置按鈕的 hover/active 狀態
+      if (this.$refs.btn && typeof this.$refs.btn.mouseleave === 'function') {
+        this.$refs.btn.mouseleave()
+      }
     },
 
     handleEnd () {
@@ -180,21 +190,44 @@ export default {
       this.isRunning = false
       this.remainingTime = 0
 
+      // 非同步觸發，避免阻塞
       setTimeout(() => {
         this.$emit('end')
       }, 0)
     },
 
+    // 頁面喚醒時的狀態檢查與救援
     handleVisibilityChange () {
-      if (document.visibilityState === 'visible' && this.isRunning) {
+      if (document.visibilityState === 'visible') {
         const now = Date.now()
         const diff = this.endTime - now
-        if (diff <= 0) {
-          this.handleEnd()
+
+        if (this.isRunning) {
+          if (diff <= 0) {
+            this.handleEnd()
+          } else {
+            this.remainingTime = diff
+            if (!this.rAFId) {
+              this.loop()
+            }
+          }
         } else {
-          this.remainingTime = diff
-          if (!this.rAFId) {
-            this.loop()
+          // 死鎖救援：00:00 且長時間無動作
+          if (this.remainingTime === 0 && !this.busy) {
+            if (diff < -2000) {
+              console.warn('🕒 倒數組件喚醒：偵測到狀態卡死 (00:00 且無動作)，正在嘗試救援...')
+              this.$emit('end')
+
+              if (this.autoStart) {
+                setTimeout(() => {
+                  if (!this.isRunning && this.remainingTime === 0) {
+                    console.warn('🔄 父組件無響應，執行 Fail-safe 自動重啟')
+                    this.remainingTime = this.milliseconds
+                    this.startCountdown()
+                  }
+                }, 1000)
+              }
+            }
           }
         }
       }
