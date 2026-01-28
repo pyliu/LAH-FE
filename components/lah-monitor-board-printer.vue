@@ -593,8 +593,8 @@ b-card(
     ref="footer",
     :reload-ms="reloadMs",
     :busy="isBusy",
-    @end="reload",
-    @reload="reload(true)",
+    :fetch="reload",
+    :reload="() => { reload(true) }",
     :fetch-state="fetchingState",
     :update-time="updated"
   )
@@ -986,6 +986,7 @@ export default {
             if (now - parsed.timestamp < this.reloadMs) {
               this.printers = parsed.data
               this.updated = parsed.updated || this.$utils.now()
+              console.warn(`${this.serverIp} 快取有效，使用快取資料，距離上次更新 ${(now - parsed.timestamp) / 1000}s 秒`)
               return // 快取有效，不發送請求
             }
           } catch (e) {
