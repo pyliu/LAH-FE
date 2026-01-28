@@ -132,11 +132,12 @@ export default {
     col2: false,
     // 定義所有面板的配置
     boards: [
-      { comp: 'lah-monitor-board-xap', footer: false },
+      // 範例：將 pinned: true 加入，即可預設釘選此面板 (若使用者無快取紀錄)
+      { comp: 'lah-monitor-board-xap', footer: false, pinned: true },
       { comp: 'lah-monitor-board-xap-trend', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
-      { comp: 'lah-monitor-board-powerha', footer: true },
-      { comp: 'lah-monitor-board-dataguard', footer: true },
-      { comp: 'lah-monitor-board-srmas', footer: true },
+      { comp: 'lah-monitor-board-powerha', footer: true, pinned: true },
+      { comp: 'lah-monitor-board-dataguard', footer: true, pinned: true },
+      { comp: 'lah-monitor-board-srmas', footer: true, extraClass: 'fix-img' },
       { comp: 'lah-monitor-board-hacmp', footer: true },
       { comp: 'lah-monitor-board-sms-notify', footer: true },
       { comp: 'lah-monitor-board-sms', footer: true },
@@ -151,7 +152,7 @@ export default {
       // Other HA boards
       { comp: 'lah-monitor-board-vmclone', footer: true },
       { comp: 'lah-monitor-board-tape', footer: true },
-      { comp: 'lah-monitor-board-testdb', footer: true },
+      { comp: 'lah-monitor-board-testdb', footer: false },
       { comp: 'lah-monitor-board-adsync', footer: true },
       { comp: 'lah-monitor-board-apconn', footer: false },
       { comp: 'lah-monitor-board-ups', footer: true }
@@ -217,28 +218,34 @@ export default {
     // 初始化防抖排序函數，延遲 3000ms 執行，避免畫面頻繁跳動
     this.debouncedSort = this.$utils.debounce(this.sortBoards, 3000)
 
-    // 讀取釘選紀錄
-    this.getCache('dashboard-pinned-ha').then((ids) => {
-      this.pinnedIds = ids || []
-      // 同步到 boards
-      this.boards.forEach(b => {
-        if (this.pinnedIds.includes(b.id)) {
-          this.$set(b, 'pinned', true)
-        }
-      })
-      // 讀取完釘選後，執行一次排序初始化
-      this.sortBoards()
-    })
-
-    // 為靜態 boards 賦予 ID
+    // 為靜態 boards 賦予 ID 並初始化狀態
     this.boards.forEach((board, index) => {
       if (!board.id) {
         const suffix = board.props?.serverIp ? `-${board.props.serverIp}` : ''
         board.id = `${board.comp}${suffix}-${index}`
         this.$set(board, 'realName', null)
         this.$set(board, 'lastUpdate', 0)
-        this.$set(board, 'pinned', false) // 預設不釘選
+        // 優先使用 data 中的 pinned 設定，若無則預設為 false
+        this.$set(board, 'pinned', board.pinned === true)
       }
+    })
+
+    // 讀取釘選紀錄
+    this.getCache('dashboard-pinned-ha').then((ids) => {
+      if (Array.isArray(ids)) {
+        // Case 1: 有快取紀錄 (以使用者紀錄為準)
+        this.pinnedIds = ids
+        this.boards.forEach(b => {
+          this.$set(b, 'pinned', this.pinnedIds.includes(b.id))
+        })
+      } else {
+        // Case 2: 無快取紀錄 (首次載入，以程式碼預設值為準)
+        this.pinnedIds = this.boards
+          .filter(b => b.pinned)
+          .map(b => b.id)
+      }
+      // 執行一次排序初始化
+      this.sortBoards()
     })
     
     // 初始化 currentSortedBoards
@@ -317,13 +324,16 @@ export default {
       // 釘選操作屬於使用者主動行為，應立即重排，不需要防抖
       this.sortBoards()
     },
+    // 根據系統設定動態合併印表機面板
     mergePrinterBoards () {
       try {
         const configStr = this.systemConfigs?.monitor_printers
         const printers = configStr ? JSON.parse(configStr) : []
 
+        // 1. 移除現有的印表機面板 (避免重複)
         const baseBoards = this.boards.filter(b => b.comp !== 'lah-monitor-board-printer')
 
+        // 2. 根據設定建立新的印表機面板
         const newPrinterBoards = printers.map((p, idx) => {
           const board = {
             comp: 'lah-monitor-board-printer',
@@ -331,10 +341,12 @@ export default {
             props: {
               size: 'xs',
               serverIp: p.ip,
+              // 強制轉型為字串，解決 Vue Prop Type 檢查錯誤
               serverPort: String(p.port),
               apiKey: p.key
             }
           }
+          // 產生穩定 ID：printer-{IP}-{Port}
           board.id = `printer-${p.ip}-${p.port}`
           this.$set(board, 'realName', null)
           this.$set(board, 'lastUpdate', 0)
@@ -346,8 +358,8 @@ export default {
           return board
         })
 
+        // 3. 更新 this.boards 並立即重排
         this.boards = [...baseBoards, ...newPrinterBoards]
-        // 面板增減後，立即執行一次排序
         this.sortBoards()
 
       } catch (e) {
@@ -416,13 +428,14 @@ export default {
          // printer fallback logic
       }
 
-      // 直接從 lightMap 獲取最新狀態
+      // 直接從 lightMap 獲取最新狀態，而不依賴可能延遲的 attentionList
+      // 這確保了即使 attentionList 更新較慢，排序邏輯也能捕捉到最新的紅燈/黃燈
       const status = this.lightMap.get(searchName)
       
       if (status === 'danger') return -3
       if (status === 'warning') return -2
       
-      // 若無異常，檢查是否被釘選
+      // 若無異常，檢查是否釘選
       if (board.pinned) { return -1 }
 
       return 0
@@ -456,6 +469,12 @@ export default {
   overflow: auto;
   margin-bottom: 1rem;
 }
+.fix-img {
+  img {
+    height: calc(100vh / 3 - 200px);
+  }
+}
+
 /* 列表排序動畫 */
 .board-list-move {
   transition: transform 1s;

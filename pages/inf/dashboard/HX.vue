@@ -132,11 +132,11 @@ export default {
     col2: false,
     // 定義所有面板的配置
     boards: [
-      { comp: 'lah-monitor-board-xap', footer: false },
+      { comp: 'lah-monitor-board-xap', footer: false, pinned: true },
       { comp: 'lah-monitor-board-xap-trend', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
-      { comp: 'lah-monitor-board-powerha', footer: true },
-      { comp: 'lah-monitor-board-dataguard', footer: true },
-      { comp: 'lah-monitor-board-srmas', footer: true },
+      { comp: 'lah-monitor-board-powerha', footer: true, pinned: true },
+      { comp: 'lah-monitor-board-dataguard', footer: true, pinned: true },
+      { comp: 'lah-monitor-board-srmas', footer: true, extraClass: 'fix-img' },
       { comp: 'lah-monitor-board-hacmp', footer: true },
       { comp: 'lah-monitor-board-sms-notify', footer: true },
       { comp: 'lah-monitor-board-sms', footer: true },
@@ -213,28 +213,34 @@ export default {
     // 初始化防抖排序函數，延遲 3000ms 執行，避免畫面頻繁跳動
     this.debouncedSort = this.$utils.debounce(this.sortBoards, 3000)
 
-    // 讀取釘選紀錄 (使用 dashboard-pinned-hx 以區隔 HA)
-    this.getCache('dashboard-pinned-hx').then((ids) => {
-      this.pinnedIds = ids || []
-      // 同步到 boards
-      this.boards.forEach(b => {
-        if (this.pinnedIds.includes(b.id)) {
-          this.$set(b, 'pinned', true)
-        }
-      })
-      // 讀取完釘選後，執行一次排序初始化
-      this.sortBoards()
-    })
-
-    // 為靜態 boards 賦予 ID
+    // 為靜態 boards 賦予 ID 並初始化狀態
     this.boards.forEach((board, index) => {
       if (!board.id) {
         const suffix = board.props?.serverIp ? `-${board.props.serverIp}` : ''
         board.id = `${board.comp}${suffix}-${index}`
         this.$set(board, 'realName', null)
         this.$set(board, 'lastUpdate', 0)
-        this.$set(board, 'pinned', false)
+        // 優先使用 data 中的 pinned 設定，若無則預設為 false
+        this.$set(board, 'pinned', board.pinned === true)
       }
+    })
+
+    // 讀取釘選紀錄 (使用 dashboard-pinned-hx 以區隔 HA)
+    this.getCache('dashboard-pinned-hx').then((ids) => {
+      if (Array.isArray(ids)) {
+        // Case 1: 有快取紀錄 (以使用者紀錄為準)
+        this.pinnedIds = ids
+        this.boards.forEach(b => {
+          this.$set(b, 'pinned', this.pinnedIds.includes(b.id))
+        })
+      } else {
+        // Case 2: 無快取紀錄 (首次載入，以程式碼預設值為準)
+        this.pinnedIds = this.boards
+          .filter(b => b.pinned)
+          .map(b => b.id)
+      }
+      // 執行一次排序初始化
+      this.sortBoards()
     })
     
     // 初始化 currentSortedBoards
@@ -455,6 +461,11 @@ export default {
   height: calc((100vh - 150px) / 2);
   overflow: auto;
   margin-bottom: 1rem;
+}
+.fix-img {
+  img {
+    height: calc(100vh / 3 - 200px);
+  }
 }
 /* 列表排序動畫 - 必須配合 transition-group 使用 */
 .board-list-move {
