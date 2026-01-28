@@ -957,7 +957,6 @@ export default {
       return 0
     },
     async reload (force = false) {
-      this.$utils.warn('Reloading printer data...')
       // [新增] 展示模式下不執行 API 請求，僅更新時間
       if (this.isDisplayMode) {
         this.updated = this.$utils.now()
