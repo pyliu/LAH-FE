@@ -1,9 +1,9 @@
 <template lang="pug">
-//- [修改] 加上 position-relative 確保 Overlay 能正確覆蓋此卡片
-b-card.flex-column.srmas-card.position-relative(
+//- [修改] 加上 overflow-hidden 確保 Overlay 不會超出圓角
+b-card.flex-column.srmas-card.position-relative.overflow-hidden(
   :border-variant="border",
   :class="[attentionCss]",
-  body-class="d-flex flex-column"
+  no-body
 )
   template(#header)
     .d-flex.justify-content-between.align-items-center
@@ -91,73 +91,71 @@ b-card.flex-column.srmas-card.position-relative(
         div 🟡 表示找不到任何郵件或是「SRMAS天氣圖影像」無法正常讀取
         div 🔴 表示有「告警通知」但無「回復通知」之項目
 
-    //- [新增] 放大顯示層 (Overlay)
-    //- 放在 header slot 內是為了避開 card-body 的 overflow:hidden 限制
-    //- 使用 position:absolute 覆蓋整個卡片
-    transition(name="fade")
-      .srmas-zoom-overlay(
-        v-if="isHoveringImg",
-        @mouseleave="isHoveringImg = false",
-        @click="$utils.openNewWindow('/inf/weather/')"
+  .card-body.d-flex.flex-column
+    //- Mode 1: 無輪播模式 (Analysis only)
+    .overflow-auto.flex-grow-1.w-100(v-if="noCarousel", style="min-height: 0")
+      lah-monitor-board-srmas-analysis(
+        :items="messages",
+        :hours="parseInt(monitorHrs)",
+        @updated="handleUpdated"
       )
-        b-img(
-          :src="weatherImgUrl",
-          style="max-height: 100%; max-width: 100%; object-fit: contain;"
-        )
 
-  //- 插槽
-  slot
-
-  //- Mode 1: 無輪播模式 (Analysis only)
-  .overflow-auto.flex-grow-1.w-100(v-if="noCarousel", style="min-height: 0")
-    lah-monitor-board-srmas-analysis(
-      :items="messages",
-      :hours="parseInt(monitorHrs)",
-      @updated="handleUpdated"
+    //- Mode 2: 輪播模式
+    b-carousel.flex-grow-1.w-100(
+      v-else
+      ref="carousel",
+      :interval="carouselSecs * 1000",
+      style="min-height: 0;"
     )
-
-  //- Mode 2: 輪播模式
-  b-carousel.flex-grow-1.w-100(
-    v-else
-    ref="carousel",
-    :interval="carouselSecs * 1000",
-    style="min-height: 0;"
-  )
-    //- Slide 1: Analysis List
-    b-carousel-slide.h-100: template(#img)
-      .overflow-auto.h-100.w-100
-        lah-monitor-board-srmas-analysis(
-          :items="messages",
-          :hours="parseInt(monitorHrs)",
-          @updated="handleUpdated"
-        )
-
-    //- Slide 2: Weather Image
-    b-carousel-slide.h-100: template(#img)
-      .d-flex.flex-column.justify-content-center.align-items-center.h-100.w-100
-        .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-        b-link.d-flex.align-items-center.justify-content-center.flex-grow-1.w-100(
-          v-show="!failed",
-          @click="$utils.openNewWindow('/inf/weather/')",
-          v-b-tooltip="`顯示${weatherImgUrl}`",
-          style="min-height: 0;"
-        )
-          //- [修改] 只需要 mouseenter 來觸發 Overlay 顯示
-          b-img(
-            :src="weatherImgUrl",
-            thumbnail,
-            style="max-height: 100%; max-width: 100%; object-fit: contain; cursor: zoom-in;",
-            @load="failed = false",
-            @error="failed = true",
-            @mouseenter="isHoveringImg = true"
+      //- Slide 1: Analysis List
+      b-carousel-slide.h-100: template(#img)
+        .overflow-auto.h-100.w-100
+          lah-monitor-board-srmas-analysis(
+            :items="messages",
+            :hours="parseInt(monitorHrs)",
+            @updated="handleUpdated"
           )
 
-  //- 隱藏的圖片
-  b-img.d-none(
-    :src="weatherImgUrl",
-    @load="failed = false",
-    @error="failed = true"
-  )
+      //- Slide 2: Weather Image
+      b-carousel-slide.h-100: template(#img)
+        .d-flex.flex-column.justify-content-center.align-items-center.h-100.w-100
+          .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
+          b-link.d-flex.align-items-center.justify-content-center.flex-grow-1.w-100(
+            v-show="!failed",
+            @click="$utils.openNewWindow('/inf/weather/')",
+            v-b-tooltip="`顯示${weatherImgUrl}`",
+            style="min-height: 0;"
+          )
+            //- 觸發 Overlay 的圖片
+            b-img(
+              :src="weatherImgUrl",
+              thumbnail,
+              style="max-height: 100%; max-width: 100%; object-fit: contain; cursor: zoom-in;",
+              @load="failed = false",
+              @error="failed = true",
+              @mouseenter="isHoveringImg = true"
+            )
+
+    //- 隱藏的圖片(用於預加載/錯誤偵測)
+    b-img.d-none(
+      :src="weatherImgUrl",
+      @load="failed = false",
+      @error="failed = true"
+    )
+
+  //- 放大顯示層 (Overlay)
+  //- [修改] 樣式調整以達到滿版效果
+  transition(name="fade")
+    .srmas-zoom-overlay(
+      v-if="isHoveringImg",
+      @mouseleave="isHoveringImg = false",
+      @click="$utils.openNewWindow('/inf/weather/')"
+    )
+      //- [修改] 使用 width: 100% 和 height: 100% 配合 object-fit: contain
+      b-img(
+        :src="weatherImgUrl",
+        style="width: 100%; height: 100%; object-fit: contain;"
+      )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -325,28 +323,36 @@ export default {
   flex-direction: column;
 }
 
-::v-deep .card-body {
+.card-body {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden; // 恢復隱藏，列表滾動由內部容器負責
+  overflow: hidden;
 }
 
-// [新增] 放大預覽層樣式
+// 放大預覽層樣式
 .srmas-zoom-overlay {
-  position: absolute; // 相對於 srmas-card 定位
+  position: absolute;
+  // [修改] 強制撐滿四邊
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
-  z-index: 1050; // 足夠高以覆蓋 header/body/footer
-  background-color: white; // 遮擋下方內容
+
+  z-index: 9999; // 確保在最上層
+  background-color: white; // 遮擋底部內容
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
-  border-radius: 0.25rem; // 配合卡片圓角
+
+  // [修改] 移除 padding 以便讓圖片可以真正撐滿
+  padding: 0;
+
+  border-radius: 0.25rem;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   cursor: pointer;
 }
