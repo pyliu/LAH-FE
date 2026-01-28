@@ -151,7 +151,7 @@ export default {
       // Other HA boards
       { comp: 'lah-monitor-board-vmclone', footer: true },
       { comp: 'lah-monitor-board-tape', footer: true },
-      { comp: 'lah-monitor-board-testdb', footer: false },
+      { comp: 'lah-monitor-board-testdb', footer: true },
       { comp: 'lah-monitor-board-adsync', footer: true },
       { comp: 'lah-monitor-board-apconn', footer: false },
       { comp: 'lah-monitor-board-ups', footer: true }
