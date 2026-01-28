@@ -589,13 +589,12 @@ b-card(
       template(#cell(PortName)="{ item }")
         div.text-truncate(style="max-width: 150px;" :title="item.PortName") {{ item.PortName }}
 
-  template(#footer): lah-monitor-board-footer(
-    v-if="footer && !isDisplayMode",
+  template(#footer, v-if="footer && !isDisplayMode"): lah-monitor-board-footer(
     ref="footer",
     :reload-ms="reloadMs",
     :busy="isBusy",
     @end="reload",
-    @reload="reload",
+    @reload="reload(true)",
     :fetch-state="fetchingState",
     :update-time="updated"
   )
@@ -958,6 +957,7 @@ export default {
       return 0
     },
     async reload (force = false) {
+      this.$utils.warn('Reloading printer data...')
       // [新增] 展示模式下不執行 API 請求，僅更新時間
       if (this.isDisplayMode) {
         this.updated = this.$utils.now()
