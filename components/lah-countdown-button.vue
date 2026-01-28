@@ -1,6 +1,8 @@
 <template lang="pug">
+//- 使用 v-on="$listeners" 將所有事件(包含 click) 直接透傳給內部的 lah-button
 lah-button.align-middle(
   ref="btn"
+  v-on="$listeners"
   :icon="icon"
   :variant="variantMediator"
   :size="size"
@@ -9,28 +11,18 @@ lah-button.align-middle(
   :spin="busy"
   :no-icon-gutter="noBadge"
   :disabled="busy"
-  @click="$emit('click', $event)"
 )
   slot
   b-badge.ml-1(v-show="!noBadge" ref="badge" :variant="badgeVariant")
-    //- 將 auto-start 設為 false，我們將手動控制時間更新
-    //- 移除 @progress，因為我們將手動計算進度
-    countdown(
-      ref="cd"
-      :time="displayTime"
-      :auto-start="false"
-    ): template(slot-scope="props").
-        #[span(v-if="props.hours > 0") {{ props.hours.toString().padStart(2, '0') }}:]
-        #[span(v-if="props.minutes > 0") {{ props.minutes.toString().padStart(2, '0') }}:]{{ props.seconds.toString().padStart(2, '0') }}
+    span(v-if="hours > 0") {{ padZero(hours) }}:
+    span(v-if="minutes > 0") {{ padZero(minutes) }}:
+    span {{ padZero(seconds) }}
     span.sr-only 倒數
 </template>
 
 <script>
-import VueCountdown from '@chenfengyuan/vue-countdown';
-
 export default {
   name: 'LahCountdownButton',
-  components: { countdown: VueCountdown },
   props: {
     variant: { type: String, default: 'primary' },
     badgeVariant: { type: String, default: 'light' },
@@ -48,12 +40,23 @@ export default {
   },
   data: () => ({
     variantMediator: 'primary',
-    displayTime: 0, // 給 UI 顯示用的剩餘時間
-    targetTime: 0, // 預計結束的絕對時間戳 (Epoch ms)
-    watchdogTimer: null, // 驅動計時器
-    isRunning: false, // 內部運行狀態
-    lastTotalSeconds: -1 // 記錄上一次的秒數，避免重複觸發秒級動畫
+
+    // 時間狀態
+    remainingTime: 0,
+    endTime: 0,
+    isRunning: false,
+
+    // 現代化計時器 ID
+    rAFId: null, // requestAnimationFrame ID (UI 用)
+    endTimerId: null, // setTimeout ID (結束觸發用)
+
+    lastSecondChecked: -1
   }),
+  computed: {
+    hours () { return Math.floor(this.remainingTime / 3600000) },
+    minutes () { return Math.floor((this.remainingTime % 3600000) / 60000) },
+    seconds () { return Math.floor((this.remainingTime % 60000) / 1000) }
+  },
   watch: {
     variant (val) {
       this.variantMediator = val
@@ -61,10 +64,8 @@ export default {
     milliseconds: {
       immediate: true,
       handler (val) {
-        this.displayTime = val
-        // 若在靜止狀態下，確保 UI 也同步更新
-        if (!this.isRunning && this.$refs.cd) {
-          this.$refs.cd.totalMilliseconds = val
+        if (!this.isRunning) {
+          this.remainingTime = val
         }
       }
     }
@@ -79,111 +80,132 @@ export default {
     document.addEventListener('visibilitychange', this.handleVisibilityChange)
   },
   beforeDestroy () {
-    this.stopLogic()
+    this.cleanup()
     document.removeEventListener('visibilitychange', this.handleVisibilityChange)
   },
   methods: {
-    // --- 核心控制邏輯 ---
+    padZero (num) {
+      return num.toString().padStart(2, '0')
+    },
+
+    // ─── 現代化核心控制 ───
 
     startCountdown () {
-      this.stopLogic()
+      this.cleanup()
 
-      const ms = this.milliseconds > 0 ? this.milliseconds : 15 * 60 * 1000
-      this.targetTime = Date.now() + ms
+      let msToCount = this.remainingTime
+      if (msToCount <= 0) {
+        msToCount = this.milliseconds > 0 ? this.milliseconds : 15 * 60 * 1000
+      }
+
+      this.endTime = Date.now() + msToCount
       this.isRunning = true
-      this.lastTotalSeconds = Math.ceil(ms / 1000)
+      this.lastSecondChecked = -1
 
-      // 更新 UI 初始狀態
-      this.updateDisplay(ms)
+      // 1. 設定結束觸發器
+      this.endTimerId = setTimeout(() => {
+        this.remainingTime = 0
+        this.handleEnd()
+      }, msToCount)
 
-      // 使用 100ms 的頻率進行驅動，解決 UI 卡頓問題
-      // 這種方式將 countdown 組件降級為純顯示器，邏輯完全由我們控制
-      this.watchdogTimer = setInterval(this.checkTime, 100)
+      // 2. 啟動 UI 渲染迴圈
+      this.loop()
 
       this.$emit('start')
-      this.$refs.badge && this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
-    },
-
-    pauseCountdown () {
-      this.stopLogic()
-      // 暫停時 UI 停留在當前剩餘時間
-    },
-
-    resetCountdown () {
-      this.stopLogic()
-      this.displayTime = this.milliseconds
-      this.updateDisplay(this.milliseconds)
-    },
-
-    setCountdown (ms) {
-      this.stopLogic()
-      this.displayTime = ms || this.milliseconds
-      this.updateDisplay(this.displayTime)
-    },
-
-    stopLogic () {
-      this.isRunning = false
-      this.targetTime = 0
-      this.lastTotalSeconds = -1
-      if (this.watchdogTimer) {
-        clearInterval(this.watchdogTimer)
-        this.watchdogTimer = null
+      if (this.$refs.badge && typeof this.attention === 'function') {
+        this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
       }
     },
 
-    // --- 驅動核心 ---
-
-    checkTime () {
-      if (!this.isRunning || this.targetTime === 0) { return }
+    // UI 渲染迴圈 (requestAnimationFrame)
+    loop () {
+      if (!this.isRunning) { return }
 
       const now = Date.now()
-      const remaining = this.targetTime - now
+      const diff = this.endTime - now
 
-      if (remaining <= 0) {
-        this.triggerEnd()
-      } else {
-        // 1. 強制更新 UI 時間
-        this.updateDisplay(remaining)
+      if (diff <= 0) {
+        this.remainingTime = 0
+        if (this.isRunning) { this.handleEnd() }
+        return
+      }
 
-        // 2. 觸發秒級邏輯 (動畫等)
-        const currentTotalSeconds = Math.ceil(remaining / 1000)
-        if (currentTotalSeconds !== this.lastTotalSeconds) {
-          this.lastTotalSeconds = currentTotalSeconds
-          this.handleUiProgress({ totalSeconds: currentTotalSeconds })
+      this.remainingTime = diff
+
+      // 檢查動畫 (每秒一次)
+      const currentSec = Math.ceil(diff / 1000)
+      if (currentSec !== this.lastSecondChecked) {
+        this.lastSecondChecked = currentSec
+        this.checkAnimations(currentSec)
+      }
+
+      // 請求下一幀
+      this.rAFId = requestAnimationFrame(this.loop)
+    },
+
+    pauseCountdown () {
+      this.cleanup()
+      this.isRunning = false
+    },
+
+    resetCountdown () {
+      this.cleanup()
+      this.isRunning = false
+      this.remainingTime = this.milliseconds
+      this.lastSecondChecked = -1
+    },
+
+    setCountdown (ms) {
+      this.cleanup()
+      this.isRunning = false
+      this.remainingTime = ms || this.milliseconds
+      this.lastSecondChecked = -1
+    },
+
+    cleanup () {
+      if (this.rAFId) {
+        cancelAnimationFrame(this.rAFId)
+        this.rAFId = null
+      }
+      if (this.endTimerId) {
+        clearTimeout(this.endTimerId)
+        this.endTimerId = null
+      }
+    },
+
+    handleEnd () {
+      this.cleanup()
+      this.isRunning = false
+      this.remainingTime = 0
+
+      setTimeout(() => {
+        this.$emit('end')
+      }, 0)
+    },
+
+    handleVisibilityChange () {
+      if (document.visibilityState === 'visible' && this.isRunning) {
+        const now = Date.now()
+        const diff = this.endTime - now
+        if (diff <= 0) {
+          this.handleEnd()
+        } else {
+          this.remainingTime = diff
+          if (!this.rAFId) {
+            this.loop()
+          }
         }
       }
     },
 
-    updateDisplay (ms) {
-      // 只有當 ms 有變動且組件存在時才更新，雖然 vue-countdown 內部可能已有優化
-      if (this.$refs.cd) {
-        // 直接修改 totalMilliseconds 會觸發 vue-countdown 的 computed 重新計算
-        this.$refs.cd.totalMilliseconds = ms < 0 ? 0 : ms
-      }
-    },
+    // ─── 動畫邏輯 ───
 
-    triggerEnd () {
-      this.stopLogic()
-      this.updateDisplay(0)
-      this.$emit('end')
-    },
-
-    handleVisibilityChange () {
-      // 喚醒時立即執行一次檢查，修正可能的背景偏差
-      if (document.visibilityState === 'visible') {
-        this.checkTime()
-      }
-    },
-
-    // --- UI 動畫邏輯 ---
-    handleUiProgress (payload) {
+    checkAnimations (totalSeconds) {
       if (!this.busy && this.$refs.btn) {
-        const totalSeconds = payload.totalSeconds
-
-        // 警告區間動畫
         if (this.endAttention && totalSeconds <= this.endAttentionThreadhold && totalSeconds > 0) {
           if (this.variantMediator !== this.endAttentionStartVariant && this.variantMediator !== this.endAttentionEndVariant) {
-            this.$refs.btn?.mouseenter()
+            // 安全訪問
+            if (this.$refs.btn.mouseenter) { this.$refs.btn.mouseenter() }
           }
           if (totalSeconds === this.endAttentionThreadhold) {
             const oldVariant = this.variantMediator
@@ -195,14 +217,14 @@ export default {
 
             this.timeout(() => {
               this.variantMediator = oldVariant
-              this.$refs.btn?.mouseleave()
+              if (this.$refs.btn.mouseleave) { this.$refs.btn.mouseleave() }
             }, this.endAttentionThreadhold * 1000)
           }
         }
-
-        // 最後一秒心跳加速
         if (totalSeconds === 1) {
-          this.attention(this.$el, { speed: 'faster' })
+          if (typeof this.attention === 'function') {
+            this.attention(this.$el, { speed: 'faster' })
+          }
         }
       }
     }
