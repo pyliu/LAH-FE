@@ -1,5 +1,5 @@
 <template lang="pug">
-//- 使用 v-on="$listeners" 將所有事件(包含 click) 直接透傳給內部的 lah-button
+//- 使用 v-on="$listeners" 確保所有父組件綁定的事件(如 click)都能透傳到內部的 lah-button
 lah-button.align-middle(
   ref="btn"
   v-on="$listeners"
@@ -36,7 +36,8 @@ export default {
     endAttention: { type: Boolean, default: true },
     endAttentionStartVariant: { type: String, default: 'warning' },
     endAttentionEndVariant: { type: String, default: 'danger' },
-    endAttentionThreadhold: { type: Number, default: 10 }
+    // ✅ 修正：拼寫已更正為 Threshold
+    endAttentionThreshold: { type: Number, default: 10 }
   },
   data: () => ({
     variantMediator: 'primary',
@@ -46,11 +47,12 @@ export default {
     endTime: 0,
     isRunning: false,
 
-    // 現代化計時器 ID
-    rAFId: null, // requestAnimationFrame ID (UI 用)
-    endTimerId: null, // setTimeout ID (結束觸發用)
+    // 計時器 ID
+    rAFId: null, // UI 更新用 (頁面可見時運作)
+    endTimerId: null, // 結束觸發用 (背景執行時兜底)
 
-    lastSecondChecked: -1
+    lastSecondChecked: -1,
+    animationTimeouts: [] // 用於清理動畫計時器
   }),
   computed: {
     hours () { return Math.floor(this.remainingTime / 3600000) },
@@ -65,7 +67,7 @@ export default {
       immediate: true,
       handler (val) {
         if (!this.isRunning) {
-          this.remainingTime = val
+          this.remainingTime = Math.max(0, val)
         }
       }
     }
@@ -88,12 +90,13 @@ export default {
       return num.toString().padStart(2, '0')
     },
 
-    // ─── 現代化核心控制 ───
+    // ─── 核心控制邏輯 ───
 
     startCountdown () {
       this.cleanup()
 
       let msToCount = this.remainingTime
+      // 防呆：如果剩餘時間 <= 0，重置為預設值
       if (msToCount <= 0) {
         msToCount = this.milliseconds > 0 ? this.milliseconds : 15 * 60 * 1000
       }
@@ -102,7 +105,7 @@ export default {
       this.isRunning = true
       this.lastSecondChecked = -1
 
-      // 1. 設定結束觸發器
+      // 1. 設定精確的結束觸發器
       this.endTimerId = setTimeout(() => {
         this.remainingTime = 0
         this.handleEnd()
@@ -112,12 +115,10 @@ export default {
       this.loop()
 
       this.$emit('start')
-      if (this.$refs.badge && typeof this.attention === 'function') {
-        this.attention(this.$refs.badge, { name: 'flash', speed: 'fast' })
-      }
+      this.triggerAttention('flash', 'fast')
     },
 
-    // UI 渲染迴圈 (requestAnimationFrame)
+    // UI 渲染迴圈
     loop () {
       if (!this.isRunning) { return }
 
@@ -132,14 +133,13 @@ export default {
 
       this.remainingTime = diff
 
-      // 檢查動畫 (每秒一次)
+      // 每秒檢查一次動畫
       const currentSec = Math.ceil(diff / 1000)
       if (currentSec !== this.lastSecondChecked) {
         this.lastSecondChecked = currentSec
         this.checkAnimations(currentSec)
       }
 
-      // 請求下一幀
       this.rAFId = requestAnimationFrame(this.loop)
     },
 
@@ -151,14 +151,14 @@ export default {
     resetCountdown () {
       this.cleanup()
       this.isRunning = false
-      this.remainingTime = this.milliseconds
+      this.remainingTime = Math.max(0, this.milliseconds)
       this.lastSecondChecked = -1
     },
 
     setCountdown (ms) {
       this.cleanup()
       this.isRunning = false
-      this.remainingTime = ms || this.milliseconds
+      this.remainingTime = Math.max(0, ms || this.milliseconds)
       this.lastSecondChecked = -1
     },
 
@@ -171,6 +171,8 @@ export default {
         clearTimeout(this.endTimerId)
         this.endTimerId = null
       }
+      this.animationTimeouts.forEach(id => clearTimeout(id))
+      this.animationTimeouts = []
     },
 
     handleEnd () {
@@ -202,30 +204,41 @@ export default {
 
     checkAnimations (totalSeconds) {
       if (!this.busy && this.$refs.btn) {
-        if (this.endAttention && totalSeconds <= this.endAttentionThreadhold && totalSeconds > 0) {
+        // 使用正確的拼寫 endAttentionThreshold
+        if (this.endAttention && totalSeconds <= this.endAttentionThreshold && totalSeconds > 0) {
           if (this.variantMediator !== this.endAttentionStartVariant && this.variantMediator !== this.endAttentionEndVariant) {
-            // 安全訪問
-            if (this.$refs.btn.mouseenter) { this.$refs.btn.mouseenter() }
+            this.$refs.btn?.mouseenter?.()
           }
-          if (totalSeconds === this.endAttentionThreadhold) {
+
+          if (totalSeconds === this.endAttentionThreshold) {
             const oldVariant = this.variantMediator
             this.variantMediator = this.endAttentionStartVariant
 
-            this.timeout(() => {
-              this.variantMediator = this.endAttentionEndVariant
-            }, (this.endAttentionThreadhold / 2) * 1000)
+            const t1 = setTimeout(() => {
+              if (this.isRunning) { this.variantMediator = this.endAttentionEndVariant }
+            }, (this.endAttentionThreshold / 2) * 1000)
 
-            this.timeout(() => {
-              this.variantMediator = oldVariant
-              if (this.$refs.btn.mouseleave) { this.$refs.btn.mouseleave() }
-            }, this.endAttentionThreadhold * 1000)
+            const t2 = setTimeout(() => {
+              if (this.isRunning) {
+                this.variantMediator = oldVariant
+                this.$refs.btn?.mouseleave?.()
+              }
+            }, this.endAttentionThreshold * 1000)
+
+            this.animationTimeouts.push(t1, t2)
           }
         }
+
         if (totalSeconds === 1) {
-          if (typeof this.attention === 'function') {
-            this.attention(this.$el, { speed: 'faster' })
-          }
+          this.triggerAttention(null, 'faster')
         }
+      }
+    },
+
+    triggerAttention (name, speed) {
+      if (this.$refs.badge && typeof this.attention === 'function') {
+        const el = name === 'flash' ? this.$refs.badge : this.$el
+        this.attention(el, { name: name || 'flash', speed })
       }
     }
   }
