@@ -589,12 +589,13 @@ b-card(
       template(#cell(PortName)="{ item }")
         div.text-truncate(style="max-width: 150px;" :title="item.PortName") {{ item.PortName }}
 
-  template(#footer, v-if="footer && !isDisplayMode"): client-only: lah-monitor-board-footer(
-    ref="footer"
+  template(#footer): lah-monitor-board-footer(
+    v-if="footer && !isDisplayMode",
+    ref="footer",
     :reload-ms="reloadMs",
     :busy="isBusy",
-    :fetch="reload",
-    :reload="reload",
+    @end="reload",
+    @reload="reload",
     :fetch-state="fetchingState",
     :update-time="updated"
   )
