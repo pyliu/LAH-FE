@@ -21,6 +21,11 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'heart-pulse']" to="/inf/xap/broken_cached") 全國地所伺服器監控
         //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...owrap 地政資訊實驗室
       b-card-group.my-4(deck)
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calendar-days']" to="/reg/stats/monthly") 每月案件統計
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calendar-check']" to="/lab/yearly") 年度案件統計
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'panorama']" to="/reg/ralid") 土地標示部綜合查詢
+        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
+        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
         lah-index-card-link.fix-card-dimension(
           v-if="isAdm || isInf || authority.isAdmin",
           :icon="['fas', 'file-contract']",
@@ -39,11 +44,6 @@
           to="/inf/weather/"
         ) {{ site }} 機房天氣圖
         lah-index-card-link.fix-card-dimension.invisible(v-else)
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calendar-days']" to="/reg/stats/monthly") 每月案件統計
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'calendar-check']" to="/lab/yearly") 年度案件統計
-        lah-index-card-link.fix-card-dimension(:icon="['fas', 'panorama']" to="/reg/ralid") 土地標示部綜合查詢
-        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
-        //- lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") 地政資訊實驗室
 </template>
 
 <script>
