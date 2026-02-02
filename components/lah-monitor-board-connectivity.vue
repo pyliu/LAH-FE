@@ -47,6 +47,7 @@ b-card(
         title="設定"
       )
       lah-button(
+        v-if="!footer",
         icon="sync-alt",
         action="ld-cycle",
         variant="outline-secondary",
@@ -115,7 +116,9 @@ b-card(
       )
 
     lah-monitor-board-footer(
-      :reload-ms="15 * 60 * 1000",
+      v-if="footer",
+      ref="footer",
+      :reload-ms="reloadMs",
       :busy="isBusy",
       :update-time="updatedTime",
       @fetch="reloadConn(false)",
@@ -135,7 +138,8 @@ export default {
   },
   props: {
     maximized: { type: Boolean, default: false },
-    enableAttention: { type: Boolean, default: false }
+    enableAttention: { type: Boolean, default: false },
+    footer: { type: Boolean, default: true }
   },
   data: () => ({
     header: '系統連線狀態監控',
@@ -166,7 +170,9 @@ export default {
       ['HG', '220.1.40.76'],
       ['HH', '220.1.41.64']
     ]),
-    isBusy: false
+    isBusy: false,
+    reloadMs: 15 * 60 * 1000,
+    reloadTimer: null
   }),
   computed: {
     isAdmin () {
@@ -240,6 +246,14 @@ export default {
   },
   mounted () {
     this.loadWatchTarget()
+    if (!this.footer) {
+      this.reloadTimer = setInterval(() => {
+        this.reloadConn()
+      }, this.reloadMs)
+    }
+  },
+  beforeDestroy () {
+    clearInterval(this.reloadTimer)
   },
   methods: {
     toggleChartType () {
@@ -351,7 +365,8 @@ export default {
       this.modal(
         this.$createElement('LahMonitorBoardConnectivity', {
           props: {
-            maximized: true
+            maximized: true,
+            footer: false
           }
         }),
         {
