@@ -635,7 +635,7 @@ export default {
       fetchingState: null,
       header: '列印伺服器監控',
       filterStatus: 'not_ready',
-      localSize: this.size,
+      localSize: 'xs',
       dashboardStyle: 'horizontal',
       selectedPrinter: null,
       // [新增] 編輯模式相關狀態
@@ -854,6 +854,7 @@ export default {
       this.printers = [...this.inPrinters]
       this.updated = this.$utils.now()
     }
+    this.localSize = this.size
   },
   mounted () {
     this.emitLightUpdate(this.light, '')
