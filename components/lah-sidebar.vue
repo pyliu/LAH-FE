@@ -114,21 +114,24 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
-      li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(
-        to="/notification"
-      ).
-        #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
-        發布即時通公告
-      li: nuxt-link(to="/message").
-        #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
-        傳送即時通訊息
+      li: nuxt-link(to="/inf/xap/broken_cached").
+        #[font-awesome-icon(:icon="['fas', 'heart-pulse']", fixed-width, size="lg")]
+        全國跨域主機監控
+      //- li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(
+      //-   to="/notification"
+      //- ).
+      //-   #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
+      //-   發布即時通公告
+      //- li: nuxt-link(to="/message").
+      //-   #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
+      //-   傳送即時通訊息
       li: a(
-        :href="`${this.legacyUrl}/shortcuts.html`",
+        :href="`${this.legacyUrl}/project/bookmark/`",
         target="_blank",
         rel="noreferrer noopener"
       ).
         #[font-awesome-icon(:icon="['far', 'bookmark']", fixed-width, size="lg")]
-        書籤
+        所內書籤索引
       li: nuxt-link(to="/users").
         #[font-awesome-icon(:icon="['far', 'user-circle']", fixed-width, size="lg")]
         員工名錄
@@ -192,8 +195,8 @@ b-sidebar#lah-sidebar(
 </template>
 
 <script>
-import lahAvatar from '~/components/lah-avatar.vue'
-import LahUserCard from '~/components/lah-user-card.vue'
+import lahAvatar from '~/components/lah-avatar.vue';
+import LahUserCard from '~/components/lah-user-card.vue';
 export default {
   components: { lahAvatar, LahUserCard },
   fetchOnServer: false,

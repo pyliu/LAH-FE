@@ -56,9 +56,12 @@ b-sidebar#lah-sidebar(
       //- li: nuxt-link(to="/inf/dashboard/carousel").
       //-   #[font-awesome-icon(:icon="['fas', 'arrows-spin']", fixed-width, size="lg")]
       //-   {{site}} 輪播儀表板
+      li: nuxt-link(to="/inf/xap/broken_cached").
+        #[font-awesome-icon(:icon="['fas', 'heart-pulse']", fixed-width, size="lg")]
+        全國跨域主機監控
       li: nuxt-link(to="/inf/xap/connectivity").
         #[font-awesome-icon(:icon="['fas', 'wave-square']", fixed-width, size="lg")]
-        即時全國跨域主機監控
+        全國跨域主機監控(即時)
       li: nuxt-link(to="/inf/xap").
         #[font-awesome-icon(:icon="['fas', 'server']", fixed-width, size="lg")]
         {{site}} 跨域伺服器監控
@@ -116,8 +119,8 @@ b-sidebar#lah-sidebar(
 </template>
 
 <script>
-import lahAvatar from '~/components/lah-avatar.vue'
-import LahUserCard from '~/components/lah-user-card.vue'
+import lahAvatar from '~/components/lah-avatar.vue';
+import LahUserCard from '~/components/lah-user-card.vue';
 export default {
   components: { lahAvatar, LahUserCard },
   fetchOnServer: false,
