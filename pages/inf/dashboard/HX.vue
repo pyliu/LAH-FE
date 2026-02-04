@@ -15,14 +15,25 @@ client-only: .monitor-dashboard(v-cloak)
           )
 
         .d-flex.align-items-center
-          b-checkbox.mr-1.mt-2(
-            v-model="col2",
-            switch,
-            size="lg"
-          ) 2欄顯示
-          .mr-1 🔴 {{ red }}
-          .mr-1 🟡 {{ yellow }}
-          .mr-1 🟢 {{ green }}
+          //- Mod: 加入 title 提示，增加 UX
+          .mr-1(title="異常項目數量") 🔴 {{ red }}
+          .mr-1(title="警告項目數量") 🟡 {{ yellow }}
+          .mr-1(title="正常項目數量") 🟢 {{ green }}
+          //- Mod: 新增灰/白燈，用於顯示載入中或未知的項目，補足數字差額
+          .mr-1(v-if="gray > 0", title="載入中或未知狀態數量") ⚪ {{ gray }}
+
+          //- Mod: 優化 UI，將 Checkbox 改為圖示按鈕切換，節省空間並符合操作直覺
+          //- 3欄模式(預設)顯示 th-large (放大) 圖示；2欄模式顯示 th (標準) 圖示
+          lah-button.mr-1(
+            @click="col2 = !col2",
+            :icon="col2 ? 'th' : 'th-large'",
+            size="lg",
+            variant="outline-secondary",
+            no-border,
+            no-icon-gutter,
+            :title="col2 ? '切換為標準三欄檢視' : '切換為放大兩欄檢視'"
+          )
+
           b-button-group(size="lg")
             lah-button.mr-1(
               @click="$refs.printerSetupModal.show()",
@@ -58,6 +69,8 @@ client-only: .monitor-dashboard(v-cloak)
             li 🔴 #[strong 紅燈]：表示監控項目發生嚴重錯誤或中斷。
             li 🟡 #[strong 黃燈]：表示監控項目出現警告或潛在問題。
             li 🟢 #[strong 綠燈]：表示監控項目運作正常。
+            //- Mod: 更新文件說明
+            li ⚪ #[strong 白燈/灰燈]：表示監控項目正在初始化、載入中或狀態未知。
         li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂，並透過動畫效果提醒管理人員注意。
         li 若燈號狀態相同，則依照 #[strong 更新時間] 排序，越近更新的會排在越前面。
       hr
@@ -120,6 +133,8 @@ export default {
     red: 0,
     yellow: 0,
     green: 0,
+    // Mod: 新增 gray 用於統計未知狀態
+    gray: 0,
     /** element in attentionList
      * e.g. {
      * compName: "lahMonitorBoardSrmas"
@@ -230,7 +245,7 @@ export default {
       if (Array.isArray(ids)) {
         // Case 1: 有快取紀錄 (以使用者紀錄為準)
         this.pinnedIds = ids
-        this.boards.forEach(b => {
+        this.boards.forEach((b) => {
           this.$set(b, 'pinned', this.pinnedIds.includes(b.id))
         })
       } else {
@@ -242,7 +257,7 @@ export default {
       // 執行一次排序初始化
       this.sortBoards()
     })
-    
+
     // 初始化 currentSortedBoards
     this.currentSortedBoards = [...this.boards]
 
@@ -281,7 +296,7 @@ export default {
         )
       })
     }, 30 * 1000)
-    
+
     this.refreshHighlightGroup()
   },
   beforeDestroy () {
@@ -305,7 +320,7 @@ export default {
     },
     togglePin (board) {
       this.$set(board, 'pinned', !board.pinned)
-      
+
       // 更新 Cache
       if (board.pinned) {
         if (!this.pinnedIds.includes(board.id)) {
@@ -315,7 +330,7 @@ export default {
         this.pinnedIds = this.pinnedIds.filter(id => id !== board.id)
       }
       this.setCache('dashboard-pinned-hx', this.pinnedIds)
-      
+
       // 釘選操作屬於使用者主動行為，應立即重排，不需要防抖
       this.sortBoards()
     },
@@ -345,18 +360,17 @@ export default {
           board.id = `printer-${p.ip}-${p.port}`
           this.$set(board, 'realName', null)
           this.$set(board, 'lastUpdate', 0)
-          
+
           // 檢查是否已釘選
           const isPinned = this.pinnedIds.includes(board.id)
           this.$set(board, 'pinned', isPinned)
-          
+
           return board
         })
 
         // 3. 更新 this.boards 並立即重排
         this.boards = [...baseBoards, ...newPrinterBoards]
         this.sortBoards()
-
       } catch (e) {
         console.error('Failed to parse printer configs', e)
       }
@@ -375,19 +389,30 @@ export default {
       }
 
       this.lightMap.set(payload.name, payload.new)
-      const tmp = [...this.lightMap]
-      this.green = tmp.reduce((acc, item) => {
-        return item[1] === 'success' ? acc + 1 : acc
-      }, 0)
-      this.yellow = tmp.reduce((acc, item) => {
-        return item[1] === 'warning' ? acc + 1 : acc
-      }, 0)
-      this.red = tmp.reduce((acc, item) => {
-        return item[1] === 'danger' ? acc + 1 : acc
-      }, 0)
-      
+
+      // Mod: 優化統計邏輯，解決數字對不起來的問題
+      let r = 0; let y = 0; let g = 0
+
+      // 使用 for...of 遍歷一次，替代原本的三次 reduce，提升效能
+      for (const value of this.lightMap.values()) {
+        if (value === 'danger') r++
+        else if (value === 'warning') y++
+        else if (value === 'success') g++
+      }
+
+      this.red = r
+      this.yellow = y
+      this.green = g
+
+      // Mod: 計算「灰色/未知」狀態的數量
+      // 公式：目前畫面上的總卡片數 - (紅 + 黃 + 綠)
+      // 這樣可以確保加總 (紅+黃+綠+灰) 永遠等於儀表板上的卡片總數
+      const totalCards = this.currentSortedBoards.length
+      const calculatedGray = totalCards - r - y - g
+      this.gray = calculatedGray > 0 ? calculatedGray : 0
+
       this.refreshHighlightGroup()
-      
+
       // 這裡改為呼叫防抖版本的排序，避免畫面頻繁跳動
       this.debouncedSort()
     },
@@ -418,17 +443,17 @@ export default {
     // Pinned: -1
     // Normal: 0
     getWeight (board) {
-      let searchName = board.realName || this.toCamelCase(board.comp)
+      const searchName = board.realName || this.toCamelCase(board.comp)
       if (!board.realName && board.comp.includes('printer') && board.props?.serverIp) {
-         // printer fallback logic
+        // printer fallback logic
       }
 
       // 直接從 lightMap 獲取最新狀態
       const status = this.lightMap.get(searchName)
-      
+
       if (status === 'danger') return -3
       if (status === 'warning') return -2
-      
+
       // 若無異常，檢查是否被釘選
       if (board.pinned) { return -1 }
 
