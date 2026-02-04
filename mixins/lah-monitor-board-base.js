@@ -1,4 +1,3 @@
-
 export default {
   emit: ['light-update', 'mail-checked'],
   name: 'lahMonitorBoardBase',
@@ -18,26 +17,33 @@ export default {
     isDestroyed: false
   }),
   fetch () {
-    const nowTs = this.$utils.nowTs()
+    // 修正：統一使用毫秒，避免 $utils.nowTs() 可能回傳秒單位的問題
+    const nowMs = Date.now()
+
     if (this.needRefetch) {
       this.load(this.fetchType, this.fetchKeyword, this.fetchDay, this.fetchConvert)
         .then((data) => {
           // successful loaded
-          this.lastFetchTimestamp = nowTs
+          // 修正：只有在成功載入後才更新 timestamp
+          this.lastFetchTimestamp = Date.now()
           this.fetchingState = '✔ 已更新'
         })
         .catch((e) => {
           this.$utils.warn(e)
+          // 失敗時不更新 timestamp，讓下一次檢查能再次觸發
         }).finally(() => {
           // set auto reloading timeout
           this.resetCountdownCounter(this.reloadMs)
         })
     } else {
       if (this.lastFetchTimestamp === 0) {
-        this.lastFetchTimestamp = nowTs
+        this.lastFetchTimestamp = nowMs
       }
-      const offset = this.reloadMs - nowTs + this.lastFetchTimestamp
-      const restartTimerMs = offset > 0 ? offset : this.reloadMs
+      // 計算剩餘時間：(上次更新時間 + 間隔) - 現在時間
+      const offset = (this.lastFetchTimestamp + this.reloadMs) - nowMs
+      // 確保至少有 1秒 的延遲，避免負數或零導致立即迴圈
+      const restartTimerMs = offset > 1000 ? offset : this.reloadMs
+
       this.fetchingState = `🕓 ${+(Math.round((restartTimerMs / 1000 / 60) + 'e+1') + 'e-1')}分後更新`
       // set auto reloading timeout
       this.resetCountdownCounter(restartTimerMs)
@@ -45,7 +51,8 @@ export default {
   },
   computed: {
     needRefetch () {
-      // none of this criteria fits, no needs to fetch
+      // 1. Validation check
+      // 修正：如果參數無效，必須回傳 false 阻斷請求
       if (
         this.$utils.empty(this.fetchType) ||
         this.$utils.empty(this.fetchKeyword) ||
@@ -55,8 +62,16 @@ export default {
         this.$utils.warn('fetchType', this.fetchType)
         this.$utils.warn('fetchKeyword', this.fetchKeyword)
         this.$utils.warn('fetchDay', this.fetchDay)
+        return false // <--- 新增此行
       }
-      const passed = +new Date() - this.lastFetchTimestamp
+
+      // 2. Time passed calculation
+      // 修正：統一使用 Date.now() 確保單位為毫秒
+      const passed = Date.now() - this.lastFetchTimestamp
+
+      // 3. Condition
+      // 0.8 係數是為了容錯，確保當 setTimeout 在 reloadMs 醒來時，passed 一定會大於門檻
+      // 避免因為 CPU 排程導致 setTimeout 提早 1ms 醒來而判定不需要更新
       return passed > this.reloadMs * 0.8 || this.fetchedMonitorMailCount > 0
     },
     today () {
@@ -97,6 +112,7 @@ export default {
       this.lightChanged(nVal, oVal, this.componentName)
     },
     fetchedMonitorMailCount (nVal, oVal) {
+      // 當偵測到新郵件時，觸發 fetch 檢查是否需要更新
       this.$utils.warn('fetchedMonitorMailCount', nVal, oVal)
       this.$fetch()
     },
@@ -124,7 +140,7 @@ export default {
       if (this.$refs.footer) {
         this.$refs.footer.reset(restartTimerMs)
       } else {
-        // this.$utils.warn('找不到監控儀表板 footer 組件，無法重新設定倒數按鍵！')
+        // Fallback if footer component is missing
         !this.isDestroyed && this.timeout(() => this.$fetch(), restartTimerMs).then((handler) => { this.resetTimer = handler })
       }
     },
@@ -204,7 +220,6 @@ export default {
         this.messages = []
         this.isBusy = true
         this.$nextTick(() => {
-          // this.$utils.warn('cancelId', this.$options.name)
           this.$axios
             .post(this.$consts.API.JSON.MONITOR, {
               type,
