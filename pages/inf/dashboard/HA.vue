@@ -29,7 +29,7 @@ client-only: .monitor-dashboard(v-cloak)
             @click="col2 = !col2",
             :icon="col2 ? 'th' : 'th-large'",
             size="lg",
-            variant="outline-info",
+            variant="outline-dark",
             no-border,
             no-icon-gutter,
             :title="col2 ? '切換為標準三欄檢視' : '切換為放大兩欄檢視'"
@@ -39,7 +39,7 @@ client-only: .monitor-dashboard(v-cloak)
             lah-button.mr-1(
               @click="$refs.printerSetupModal.show()",
               icon="print",
-              variant="outline-secondary",
+              variant="outline-primary",
               no-border,
               no-icon-gutter,
               title="設定列印伺服器"
