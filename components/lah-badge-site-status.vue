@@ -17,9 +17,10 @@ b-button(
   .d-flex.flex-column
     span.office-name {{ name }}
     span.updated-time(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? updateTimeToNow : updateTime }}
-  b-badge.ml-1(
+  b-badge.ml-1.truncate-badge(
     v-if="badge && status < 1 && status !== -2"
     :variant="badgeVariant"
+    :title="headers[0]"
   ) {{ headers[0] }}
 </template>
 
@@ -91,7 +92,10 @@ export default {
       HF: 'dark',
       HG: 'secondary',
       HH: 'light'
-    }
+    },
+    // 新增：用於驅動時間更新的變數
+    now: +new Date(),
+    nowTimer: null
   }),
   fetch () {
     this.getCache(this.officeCacheKey).then((json) => {
@@ -158,7 +162,12 @@ export default {
       return this.$utils.formatTime(new Date(this.updateTimestamp))
     },
     updateTimeToNow () {
-      return this.$utils.formatDistanceToNow(+new Date(`${this.updateDate} ${this.updateTime}`))
+      // 透過引用 this.now 來觸發重新計算
+      // 實際上計算還是依賴 this.updateTimestamp
+      if (this.now > 0) {
+        return this.$utils.formatDistanceToNow(this.updateTimestamp)
+      }
+      return ''
     },
     updateDate () {
       return this.$utils.formatDate(new Date(this.updateTimestamp))
@@ -173,7 +182,7 @@ export default {
       const site = this.isStatic ? this.staticData.id : this.watchSite
       const variant = this.areaColorMap[site] || 'secondary'
       return {
-        title: `${this.updateTime}: ${this.message} (${this.displayUpdateTimeToNow ? this.updateTime : this.updateTimeToNow})`,
+        title: `${this.updateTime}: ${this.message} (${this.displayUpdateTimeToNow ? this.updateTimeToNow : this.updateTime})`,
         variant
       }
     }
@@ -190,10 +199,17 @@ export default {
         this.siteStatusCacheMap.delete(this.watchSite)
       }, (parseInt(this.period) || 60000) + bounceMs)
     }
+
+    // 若開啟相對時間顯示，啟動計時器每 5 秒更新一次 this.now
+    if (this.displayUpdateTimeToNow) {
+      this.nowTimer = setInterval(() => {
+        this.now = +new Date()
+      }, 5000)
+    }
   },
   mounted () {
     if (!this.isStatic) {
-      // 隨機延遲啟動，避免同時塞進 Queue (雖然有 Queue 保護，分散一點還是比較好)
+      // 隨機延遲啟動，避免同時塞進 Queue
       const bounceMs = (Math.floor(Math.random() * 100) + 1) * 10
       this.timeout(this.check, bounceMs)
     }
@@ -202,6 +218,7 @@ export default {
     this.isDestroyed = true
     clearTimeout(this.timer)
     clearInterval(this.clearTimer)
+    clearInterval(this.nowTimer)
   },
   methods: {
     check (force = false) {
@@ -210,8 +227,7 @@ export default {
         return
       }
       if (this.loading) {
-        // 如果已經在載入中，通常不需重複觸發，但為了安全起見，可以安排下次檢查
-        // 這裡我們選擇等待
+        // 如果已經在載入中，通常不需重複觸發
         return
       }
 
@@ -265,7 +281,7 @@ export default {
           if (this.isDestroyed) { return }
           // 網路錯誤
           this.status = -1
-          this.message = err.message || '連線錯誤'
+          this.message = err.toString()
           this.$utils.error(err)
           // 發送失敗事件給父層
           this.$emit('updated', { site: this.watchSite, status: -1, message: this.message })
@@ -300,5 +316,14 @@ export default {
   font-size: 0.85rem;
   color: #6c757d;
   line-height: 1.2;
+}
+/* 限制 Badge 最大寬度並處理溢出 */
+.truncate-badge {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }
 </style>
