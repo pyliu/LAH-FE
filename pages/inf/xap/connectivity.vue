@@ -45,22 +45,33 @@ div.h-100(v-cloak)
 
   //- UI Grid: 使用 lah-badge-site-status 元件
   transition-group(name="list", tag="div").dashboard-grid.p-3(v-else)
-    lah-badge-site-status(
+    div(
       v-for="data in sortedOffices",
       v-show="isOn(data)",
       :key="data.ID",
-      :ref="data.ID",
-      :watch-site="data.ID",
-      :short="displayShortName",
-      :period="reloadMs",
-      :fill="false",
-      :display-update-time="true",
-      display-update-time-to-now,
-      pill,
-      block,
-      class="modern-shadow h-100",
-      @updated="handleUpdated"
+      style="position: relative"
     )
+      //- 釘選按鈕 (使用絕對定位在 Grid Cell 內)
+      .pin-btn(
+        @click="togglePin(data.ID)"
+        :class="{ active: pinnedIds.includes(data.ID) }"
+        title="釘選/取消釘選此面板"
+      )
+        lah-fa-icon(icon="thumbtack", :variant="pinnedIds.includes(data.ID) ? 'danger' : 'secondary'")
+
+      lah-badge-site-status.h-100(
+        :ref="data.ID",
+        :watch-site="data.ID",
+        :short="displayShortName",
+        :period="reloadMs",
+        :fill="false",
+        :display-update-time="true",
+        display-update-time-to-now,
+        pill,
+        tile,
+        :pinned="pinnedIds.includes(data.ID)",
+        @updated="handleUpdated"
+      )
 
 </template>
 
@@ -75,15 +86,14 @@ export default {
     displayDanger: false,
     displayShortName: true,
     officesData: [],
-    officeStateMap: new Map(), // 用於儲存各站點回報的狀態
+    officeStateMap: new Map(),
     sortedOffices: [],
     red: [],
     green: [],
     yellow: [],
-    reloadMs: '60000', // 傳給元件的更新頻率 (字串或數字)
-
-    // 定義快取鍵值
-    officeCacheKey: 'connectivity_offices_list'
+    reloadMs: '60000',
+    officeCacheKey: 'connectivity_offices_list',
+    pinnedIds: [] // 新增釘選列表
   }),
   head: {
     title: '全國地所跨域主機監控-桃園市地政局'
@@ -103,6 +113,10 @@ export default {
     this.getCache('/inf/xap/connectivity/displayShortName').then((flag) => {
       if (flag !== null && flag !== undefined) { this.displayShortName = flag }
     })
+    // 讀取釘選
+    this.getCache('dashboard-pinned-connectivity').then((ids) => {
+      this.pinnedIds = ids || []
+    })
 
     // 防抖排序
     this.filterByLight = this.$utils.debounce(this.processSorting, 500)
@@ -115,6 +129,15 @@ export default {
         return this.red.includes(data.ID) || this.yellow.includes(data.ID)
       }
       return true
+    },
+    togglePin (id) {
+      if (this.pinnedIds.includes(id)) {
+        this.pinnedIds = this.pinnedIds.filter(item => item !== id)
+      } else {
+        this.pinnedIds.push(id)
+      }
+      this.setCache('dashboard-pinned-connectivity', this.pinnedIds)
+      this.filterByLight() // 立即觸發排序
     },
 
     prepareOfficesData () {
@@ -135,31 +158,20 @@ export default {
 
     handleOfficeData (data) {
       if (Array.isArray(data.raw)) {
-        // 過濾不需要的站點
         this.officesData = data.raw.filter(item => !['CB', 'CC'].includes(item.ID))
-        // 初始化 sortedOffices
         this.sortedOffices = [...this.officesData]
-
         this.setCache(this.officeCacheKey, data, 24 * 60 * 60 * 1000)
       } else {
         this.$utils.error('無法取得各地政事務所對應資料。')
       }
     },
 
-    // 接收子元件回報的狀態更新
     handleUpdated (data) {
-      // 由於 lah-badge-site-status 內的 emit('updated', data) 回傳的是 API response
-      // 我們需要知道是哪個 site。但因為我們在 v-for 中，無法直接得知是哪個子元件觸發 (除非改寫子元件)
-      // 不過我們可以利用 Map 的特性，這裡我們假設 update 觸發時我們重新計算整體燈號
-      // *修正*: 我們需要將狀態存入 Map 以供排序使用。
-      // 由於 lah-badge-site-status 不一定會回傳 ID，我們在排序時主要依賴 status。
-      // 為了簡單起見，我們這裡從 sortedOffices 中找到對應的物件更新其暫存狀態 (如果需要)
-      // 但因為子元件自己維護狀態，父層主要負責「排序」。
-
-      // 由於無法直接從 event data 獲取 ID (除非修改子元件)，
-      // 我們這裡主要做的是「重新掃描所有子元件的狀態」來進行排序
-      // 這需要訪問 $refs
-      this.filterByLight()
+      const siteId = data.site || data.ID
+      if (siteId) {
+        this.$set(this.officeStateMap, siteId, data.status)
+        this.filterByLight()
+      }
     },
 
     processSorting () {
@@ -167,52 +179,43 @@ export default {
       this.green = []
       this.yellow = []
 
-      const statusMap = {}
-
-      // 遍歷所有 ref 獲取當前狀態
       this.officesData.forEach((office) => {
-        const ref = this.$refs[office.ID]
-        // ref 可能是陣列 (因為 v-for)
-        const component = Array.isArray(ref) ? ref[0] : ref
-
-        if (component) {
-          const status = component.status
-          statusMap[office.ID] = status
-
-          if (status > 0) { this.green.push(office.ID) } else if (status === 0 || status === -2) { this.yellow.push(office.ID) } else { this.red.push(office.ID) }
-        } else {
-          // 元件還沒掛載，預設黃燈
-          statusMap[office.ID] = 0
-          this.yellow.push(office.ID)
-        }
+        const status = this.officeStateMap[office.ID] !== undefined ? this.officeStateMap[office.ID] : -2
+        if (status > 0) { this.green.push(office.ID) } else if (status === 0 || status === -2) { this.yellow.push(office.ID) } else { this.red.push(office.ID) }
       })
 
-      // 複製並排序
       const tempSorted = [...this.officesData]
 
       this.sortedOffices = tempSorted.sort((a, b) => {
-        const statusA = statusMap[a.ID]
-        const statusB = statusMap[b.ID]
+        const statusA = this.officeStateMap[a.ID] !== undefined ? this.officeStateMap[a.ID] : -2
+        const statusB = this.officeStateMap[b.ID] !== undefined ? this.officeStateMap[b.ID] : -2
 
-        // 權重計算: 紅( <0 ) -> 綠( >0 ) -> 黃( 0, -2 )
-        const getWeight = (s) => {
+        // 權重計算: 紅( <0, !=-2 ) -> 綠( >0 ) -> 黃( 0, -2 )
+        const getWeight = (s, id) => {
           if (s === -1) { return 0 } // Red
           if (s > 0) { return 1 } // Green
-          return 2 // Yellow (Loading/Waiting)
+          if (this.pinnedIds.includes(id)) { return 1.5 } // Pinned but loading (Optional logic)
+          return 2 // Yellow
         }
 
-        const wA = getWeight(statusA)
-        const wB = getWeight(statusB)
+        // 釘選的項目在同燈號下優先
+        const isPinnedA = this.pinnedIds.includes(a.ID)
+        const isPinnedB = this.pinnedIds.includes(b.ID)
+
+        const wA = getWeight(statusA, a.ID)
+        const wB = getWeight(statusB, b.ID)
 
         if (wA !== wB) { return wA - wB }
 
-        // 其次：桃園市優先
+        // 如果燈號相同，釘選的排前面
+        if (isPinnedA && !isPinnedB) { return -1 }
+        if (!isPinnedA && isPinnedB) { return 1 }
+
         const aTaoyuan = a.ID.startsWith('H')
         const bTaoyuan = b.ID.startsWith('H')
         if (aTaoyuan && !bTaoyuan) { return -1 }
         if (!aTaoyuan && bTaoyuan) { return 1 }
 
-        // 最後：ID 排序
         return a.ID.localeCompare(b.ID)
       })
     },
@@ -234,24 +237,27 @@ export default {
 <style lang="scss" scoped>
 .dashboard-grid {
   display: grid;
-  // 調整最小寬度以適應 badge
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); // 加大寬度至 240px
+  // 加大至 240px 以確保完整顯示
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
   height: calc(100vh - 85px);
   overflow-y: auto;
   align-content: start;
 }
 
-// 增加陰影讓 badge 在 grid 中更好看
-.modern-shadow {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border-radius: 5px; // 配合 badge 的圓角
+// 釘選按鈕樣式
+.pin-btn {
+  position: absolute;
+  top: 5px;
+  right: 15px; // 微調位置
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0.2; // 預設微透
+  transition: opacity 0.3s;
+  font-size: 1.1rem;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1;
+  &:hover, &.active {
+    opacity: 1;
   }
 }
 

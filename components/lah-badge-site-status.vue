@@ -1,49 +1,69 @@
 <template lang="pug">
 b-button(
-  :variant="btnVariant",
-  :pill="pill",
+  :variant="tile ? 'outline-light' : btnVariant",
+  :pill="pill && !tile",
   :size="size",
   @click="check(true)",
   title="重新測試",
-  v-b-tooltip="tooltipConfig"
-): .d-flex.align-items-center.justify-content-center
+  v-b-tooltip="tooltipConfig",
+  :class="['site-status-btn', tileClasses]"
+)
+  //- 讀取中轉圈 (共用)
   lah-fa-icon.mr-1(
     v-if="loading"
     icon="spinner",
     action="spin"
   )
-  span.mr-1(v-else-if="!fill") {{ lightIcon }}
-  //- span(:class="textCss") {{ name }}
-  .d-flex.flex-column
-    span.office-name {{ name }}
-    span.updated-time(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? updateTimeToNow : updateTime }}
-  b-badge.ml-1.truncate-badge(
-    v-if="badge && status < 1 && status !== -2"
-    :variant="badgeVariant"
-    :title="headers[0]"
-  ) {{ headers[0] }}
+
+  //- 一般模式 (原有 Layout)
+  .d-flex.align-items-center.justify-content-center(v-if="!tile")
+    span.mr-1(v-if="!fill && !loading") {{ lightIcon }}
+    .d-flex.flex-column
+      span.office-name {{ name }}
+      span.updated-time(v-if="displayUpdateTime") {{ displayUpdateTimeToNow ? updateTimeToNow : updateTime }}
+    b-badge.ml-1.truncate-badge(
+      v-if="badge && status < 1 && status !== -2"
+      :variant="badgeVariant"
+      :title="headers[0]"
+    ) {{ headers[0] }}
+
+  //- 卡片模式 (Tile Mode Layout) - 模仿 broken_cached 風格
+  .d-flex.flex-column.align-items-center.justify-content-center.w-100(v-else)
+    //- 上半部：燈號 + 名稱
+    .d-flex.align-items-center.mb-1
+      template(v-if="!loading")
+        //- 使用 FontAwesome 圖示
+        lah-fa-icon.mr-1(v-if="variant === 'success'", icon="circle-check", variant="success")
+        lah-fa-icon.mr-1(v-else-if="variant === 'danger'", icon="circle-xmark", variant="danger", action="breath")
+        lah-fa-icon.mr-1(v-else-if="variant === 'warning'", icon="triangle-exclamation", variant="warning")
+        lah-fa-icon.mr-1(v-else, icon="question-circle", variant="secondary")
+
+      span.office-name.font-weight-bold {{ name }}
+
+    //- 下半部：訊息 (錯誤訊息或時間)
+    //- 如果有錯誤訊息 (Badge內容)，顯示錯誤訊息
+    .error-msg.w-100(v-if="status < 1 && status !== -2")
+      | {{ headers[0] || message }}
+    //- 否則顯示時間 (如果開啟)
+    .updated-time.mt-1(v-else-if="displayUpdateTime")
+      | {{ displayUpdateTimeToNow ? updateTimeToNow : updateTime }}
+
 </template>
 
 <script>
 // --- 全域請求佇列控制 (Global Request Queue) ---
-// 這確保即使有 60+ 個元件實例，同時也只有 MAX_CONCURRENT 個請求在進行
 const REQUEST_QUEUE = []
-const MAX_CONCURRENT = 4 // 限制同時 4 個請求，避免瀏覽器卡死
+const MAX_CONCURRENT = 4
 let ACTIVE_COUNT = 0
 
 const processQueue = () => {
   if (REQUEST_QUEUE.length === 0 || ACTIVE_COUNT >= MAX_CONCURRENT) { return }
-
   const { task, resolve, reject } = REQUEST_QUEUE.shift()
   ACTIVE_COUNT++
-
-  task()
-    .then(resolve)
-    .catch(reject)
-    .finally(() => {
-      ACTIVE_COUNT--
-      processQueue() // 遞迴處理下一個
-    })
+  task().then(resolve).catch(reject).finally(() => {
+    ACTIVE_COUNT--
+    processQueue()
+  })
 }
 
 const enqueueRequest = (task) => {
@@ -71,7 +91,10 @@ export default {
     textBold: { type: Boolean, default: false },
     staticData: { type: Object, default: null },
     displayUpdateTime: { type: Boolean, default: false },
-    displayUpdateTimeToNow: { type: Boolean, default: false }
+    displayUpdateTimeToNow: { type: Boolean, default: false },
+    // 新增屬性
+    tile: { type: Boolean, default: false }, // 是否啟用卡片模式
+    pinned: { type: Boolean, default: false } // 是否被釘選
   },
   data: () => ({
     status: 0,
@@ -93,33 +116,25 @@ export default {
       HG: 'secondary',
       HH: 'light'
     },
-    // 新增：用於驅動時間更新的變數
     now: +new Date(),
     nowTimer: null
   }),
   fetch () {
     this.getCache(this.officeCacheKey).then((json) => {
       if (json === false) {
-        this.$axios.post(this.$consts.API.JSON.SYSTEM, {
-          type: 'all_offices'
-        }).then(({ data }) => {
+        this.$axios.post(this.$consts.API.JSON.SYSTEM, { type: 'all_offices' }).then(({ data }) => {
           if (Array.isArray(data.raw)) {
             this.officesData = [...data.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-            const cacheMs = 24 * 60 * 60 * 1000
-            this.setCache(this.officeCacheKey, data, cacheMs)
+            this.setCache(this.officeCacheKey, data, 24 * 60 * 60 * 1000)
           }
-        }).catch((err) => {
-          this.$utils.error(err)
-        })
+        }).catch((err) => { this.$utils.error(err) })
       } else if (Array.isArray(json.raw)) {
         this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
       }
     })
   },
   computed: {
-    isStatic () {
-      return !this.$utils.empty(this.staticData)
-    },
+    isStatic () { return !this.$utils.empty(this.staticData) },
     outlineVariant () {
       if (this.status > 0) { return 'outline-success' }
       if (this.loading) { return 'outline-light' }
@@ -148,36 +163,19 @@ export default {
     },
     lightIcon () {
       switch (this.variant) {
-        case 'success': return '🟢'
-        case 'light': return '⚪'
-        case 'warning': return '🟡'
-        case 'danger': return '🔴'
-        default: return '❓'
+        case 'success': return '🟢'; case 'light': return '⚪'
+        case 'warning': return '🟡'; case 'danger': return '🔴'; default: return '❓'
       }
     },
-    siteStatusCacheMap () {
-      return this.$store.getters['inf/siteStatusCacheMap']
-    },
-    updateTime () {
-      return this.$utils.formatTime(new Date(this.updateTimestamp))
-    },
+    siteStatusCacheMap () { return this.$store.getters['inf/siteStatusCacheMap'] },
+    updateTime () { return this.$utils.formatTime(new Date(this.updateTimestamp)) },
     updateTimeToNow () {
-      // 透過引用 this.now 來觸發重新計算
-      // 實際上計算還是依賴 this.updateTimestamp
-      if (this.now > 0) {
-        return this.$utils.formatDistanceToNow(this.updateTimestamp)
-      }
+      if (this.now > 0) { return this.$utils.formatDistanceToNow(this.updateTimestamp) }
       return ''
     },
-    updateDate () {
-      return this.$utils.formatDate(new Date(this.updateTimestamp))
-    },
-    loading () {
-      return this.status === -2
-    },
-    isTimeout () {
-      return this.headers.length > 0 && this.$utils.empty(this.headers[0])
-    },
+    updateDate () { return this.$utils.formatDate(new Date(this.updateTimestamp)) },
+    loading () { return this.status === -2 },
+    isTimeout () { return this.headers.length > 0 && this.$utils.empty(this.headers[0]) },
     tooltipConfig () {
       const site = this.isStatic ? this.staticData.id : this.watchSite
       const variant = this.areaColorMap[site] || 'secondary'
@@ -185,6 +183,25 @@ export default {
         title: `${this.updateTime}: ${this.message} (${this.displayUpdateTimeToNow ? this.updateTimeToNow : this.updateTime})`,
         variant
       }
+    },
+    // 動態 CSS 類別
+    tileClasses () {
+      const classes = []
+      if (this.tile) {
+        classes.push('modern-tile')
+        // 根據狀態設定邊框顏色
+        if (this.pinned) {
+          classes.push('pinned-border')
+        } else if (this.status > 0) {
+          // 正常狀態下，若是桃園所顯示 info 色，否則 light
+          classes.push(this.watchSite.startsWith('H') ? 'border-info' : 'border-light')
+        } else if (this.loading) {
+          classes.push('border-warning bg-warning-light')
+        } else {
+          classes.push('border-danger bg-danger-light')
+        }
+      }
+      return classes
     }
   },
   created () {
@@ -199,17 +216,12 @@ export default {
         this.siteStatusCacheMap.delete(this.watchSite)
       }, (parseInt(this.period) || 60000) + bounceMs)
     }
-
-    // 若開啟相對時間顯示，啟動計時器每 5 秒更新一次 this.now
     if (this.displayUpdateTimeToNow) {
-      this.nowTimer = setInterval(() => {
-        this.now = +new Date()
-      }, 5000)
+      this.nowTimer = setInterval(() => { this.now = +new Date() }, 5000)
     }
   },
   mounted () {
     if (!this.isStatic) {
-      // 隨機延遲啟動，避免同時塞進 Queue
       const bounceMs = (Math.floor(Math.random() * 100) + 1) * 10
       this.timeout(this.check, bounceMs)
     }
@@ -222,14 +234,8 @@ export default {
   },
   methods: {
     check (force = false) {
-      if (this.isStatic) {
-        this.$emit('click')
-        return
-      }
-      if (this.loading) {
-        // 如果已經在載入中，通常不需重複觸發
-        return
-      }
+      if (this.isStatic) { this.$emit('click'); return }
+      if (this.loading) { return }
 
       this.message = '檢測中 ... '
       this.status = -2
@@ -240,55 +246,40 @@ export default {
         this.message = cached.message
         this.headers = [...cached.raw]
         this.status = cached.status
-        // 補上 site 屬性，確保父層能識別
         cached.site = this.watchSite
         this.$emit('updated', cached)
         this.nextRun()
       } else {
-        // 定義 Axios 任務
         const task = () => this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'check_site_http',
           site: this.watchSite
-        }, {
-          timeout: 2500 // 2.5秒超時
-        })
+        }, { timeout: 2500 }) // 2.5s Timeout
 
-        // 放入佇列執行
         enqueueRequest(task).then(({ data }) => {
           if (this.isDestroyed) { return }
-
           if (this.$utils.statusCheck(data.status)) {
-            // 成功
             this.$utils.log(`${this.watchSite}測試連線成功`)
             this.headers = [...data.raw]
             this.status = data.status
             this.message = data.message
-            if (this.isTimeout) {
-              this.message = `${this.watchSite}測試連線逾時`
-            }
-            // 補上 site 屬性
+            if (this.isTimeout) { this.message = `${this.watchSite}測試連線逾時` }
             data.site = this.watchSite
             this.$emit('updated', data)
             this.siteStatusCacheMap.set(this.watchSite, data)
           } else {
-            // 邏輯錯誤
             this.$utils.warn(`${this.watchSite}測試連線失敗`, data)
-            this.status = -1 // 標記為錯誤
-            // 發送失敗事件給父層
+            this.status = -1
             this.$emit('updated', { site: this.watchSite, status: -1, message: data.message })
           }
         }).catch((err) => {
           if (this.isDestroyed) { return }
-          // 網路錯誤
           this.status = -1
           this.message = err.toString()
           this.$utils.error(err)
-          // 發送失敗事件給父層
           this.$emit('updated', { site: this.watchSite, status: -1, message: this.message })
         }).finally(() => {
           if (!this.isDestroyed) {
             this.updateTimestamp = +new Date()
-            // 移除 isBusy，status 改變就會更新 UI
             this.nextRun()
           }
         })
@@ -304,20 +295,69 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/* 所名稱字型 */
-.office-name {
-  text-align: left;
-  font-weight: 500;
-  color: #333;
-  line-height: 1.3;
+.site-status-btn {
+  /* 移除預設按鈕邊框，由 tile 樣式接管 */
+  &.modern-tile {
+    border-width: 2px !important;
+    border-style: solid !important;
+    background-color: white !important;
+    color: #333 !important; /* 強制文字顏色 */
+    height: 100%;
+    width: 100%;
+    min-height: 80px;
+
+    /* 陰影與動畫 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+  }
 }
-/* 經過時間樣式 */
-.updated-time {
-  font-size: 0.85rem;
-  color: #6c757d;
+
+/* 狀態樣式 */
+.bg-danger-light {
+  background-color: #fff5f5 !important;
+  animation: pulse-danger-border 2s infinite;
+}
+.bg-warning-light {
+  background-color: #fff3cd !important;
+  animation: pulse-warning-border 2s infinite;
+}
+.pinned-border {
+  border: 1.5px solid black !important;
+  box-shadow: 0 0 0.1rem rgba(0, 123, 255, 0.5);
+}
+
+/* 動畫 Keyframes */
+@keyframes pulse-danger-border {
+  0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+@keyframes pulse-warning-border {
+  0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+.office-name {
   line-height: 1.2;
 }
-/* 限制 Badge 最大寬度並處理溢出 */
+.updated-time {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+.error-msg {
+  font-size: 0.85rem;
+  color: #dc3545;
+  word-break: break-all;
+  white-space: normal; /* 允許換行 */
+  line-height: 1.2;
+}
 .truncate-badge {
   max-width: 120px;
   overflow: hidden;
