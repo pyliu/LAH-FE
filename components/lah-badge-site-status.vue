@@ -1,7 +1,7 @@
 <template lang="pug">
 b-button(
   :variant="tile ? 'outline-light' : btnVariant",
-  :pill="pill && !tile",
+  :pill="pill",
   :size="size",
   @click="check(true)",
   title="重新測試",
@@ -15,7 +15,7 @@ b-button(
     action="spin"
   )
 
-  //- 一般模式 (原有 Layout)
+  //- 一般模式
   .d-flex.align-items-center.justify-content-center(v-if="!tile")
     span.mr-1(v-if="!fill && !loading") {{ lightIcon }}
     .d-flex.flex-column
@@ -27,12 +27,11 @@ b-button(
       :title="headers[0]"
     ) {{ headers[0] }}
 
-  //- 卡片模式 (Tile Mode Layout) - 模仿 broken_cached 風格
+  //- 卡片模式 (Tile Mode Layout)
   .d-flex.flex-column.align-items-center.justify-content-center.w-100(v-else)
     //- 上半部：燈號 + 名稱
     .d-flex.align-items-center.mb-1
       template(v-if="!loading")
-        //- 使用 FontAwesome 圖示
         lah-fa-icon.mr-1(v-if="variant === 'success'", icon="circle-check", variant="success")
         lah-fa-icon.mr-1(v-else-if="variant === 'danger'", icon="circle-xmark", variant="danger", action="breath")
         lah-fa-icon.mr-1(v-else-if="variant === 'warning'", icon="triangle-exclamation", variant="warning")
@@ -41,10 +40,10 @@ b-button(
       span.office-name.font-weight-bold {{ name }}
 
     //- 下半部：訊息 (錯誤訊息或時間)
-    //- 如果有錯誤訊息 (Badge內容)，顯示錯誤訊息
+    //- 若有訊息內容 (headers[0]) 則顯示訊息內容
     .error-msg.w-100(v-if="status < 1 && status !== -2")
       | {{ headers[0] || message }}
-    //- 否則顯示時間 (如果開啟)
+    //- 否則顯示時間
     .updated-time.mt-1(v-else-if="displayUpdateTime")
       | {{ displayUpdateTimeToNow ? updateTimeToNow : updateTime }}
 
@@ -55,20 +54,37 @@ b-button(
 const REQUEST_QUEUE = []
 const MAX_CONCURRENT = 4
 let ACTIVE_COUNT = 0
+let MOUNTED_COUNT = 0
 
 const processQueue = () => {
   if (REQUEST_QUEUE.length === 0 || ACTIVE_COUNT >= MAX_CONCURRENT) { return }
+
+  while (REQUEST_QUEUE.length > 0) {
+    const head = REQUEST_QUEUE[0]
+    if (head.context && head.context.isDestroyed) {
+      REQUEST_QUEUE.shift()
+    } else {
+      break
+    }
+  }
+
+  if (REQUEST_QUEUE.length === 0) { return }
+
   const { task, resolve, reject } = REQUEST_QUEUE.shift()
   ACTIVE_COUNT++
-  task().then(resolve).catch(reject).finally(() => {
-    ACTIVE_COUNT--
-    processQueue()
-  })
+
+  task()
+    .then(resolve)
+    .catch(reject)
+    .finally(() => {
+      ACTIVE_COUNT--
+      processQueue()
+    })
 }
 
-const enqueueRequest = (task) => {
+const enqueueRequest = (task, context) => {
   return new Promise((resolve, reject) => {
-    REQUEST_QUEUE.push({ task, resolve, reject })
+    REQUEST_QUEUE.push({ task, resolve, reject, context })
     processQueue()
   })
 }
@@ -92,9 +108,7 @@ export default {
     staticData: { type: Object, default: null },
     displayUpdateTime: { type: Boolean, default: false },
     displayUpdateTimeToNow: { type: Boolean, default: false },
-    // 新增屬性
-    tile: { type: Boolean, default: false }, // 是否啟用卡片模式
-    pinned: { type: Boolean, default: false } // 是否被釘選
+    tile: { type: Boolean, default: false }
   },
   data: () => ({
     status: 0,
@@ -159,7 +173,8 @@ export default {
       if (this.status > 0) { return 'success' }
       if (this.loading) { return 'light' }
       if (this.isStatic && this.staticData.id.startsWith('H')) { return 'danger' }
-      return 'warning'
+      if (this.status === 0) { return 'warning' }
+      return 'danger'
     },
     lightIcon () {
       switch (this.variant) {
@@ -173,9 +188,8 @@ export default {
       if (this.now > 0) { return this.$utils.formatDistanceToNow(this.updateTimestamp) }
       return ''
     },
-    updateDate () { return this.$utils.formatDate(new Date(this.updateTimestamp)) },
     loading () { return this.status === -2 },
-    isTimeout () { return this.headers.length > 0 && this.$utils.empty(this.headers[0]) },
+    isTimeout () { return this.headers.length > 0 && (this.headers[0]?.includes('逾時') || this.$utils.empty(this.headers[0])) },
     tooltipConfig () {
       const site = this.isStatic ? this.staticData.id : this.watchSite
       const variant = this.areaColorMap[site] || 'secondary'
@@ -184,21 +198,18 @@ export default {
         variant
       }
     },
-    // 動態 CSS 類別
     tileClasses () {
       const classes = []
       if (this.tile) {
         classes.push('modern-tile')
-        // 根據狀態設定邊框顏色
-        if (this.pinned) {
-          classes.push('pinned-border')
-        } else if (this.status > 0) {
-          // 正常狀態下，若是桃園所顯示 info 色，否則 light
-          classes.push(this.watchSite.startsWith('H') ? 'border-info' : 'border-light')
-        } else if (this.loading) {
+        // 優先處理異常
+        if (this.loading || this.status === 0) {
           classes.push('border-warning bg-warning-light')
-        } else {
+        } else if (this.status < 0) {
           classes.push('border-danger bg-danger-light')
+        } else {
+          // 正常
+          classes.push(this.watchSite.startsWith('H') ? 'border-info' : 'border-light')
         }
       }
       return classes
@@ -209,7 +220,6 @@ export default {
       this.status = this.staticData.state === 'UP' ? 1 : 0
       this.headers.push(this.staticData.response)
       this.message = this.status > 0 ? `${this.staticData.id}服務正常` : `${this.staticData.id}服務異常`
-      if (this.isTimeout) { this.message = `${this.staticData.id}測試連線逾時` }
     } else {
       const bounceMs = Math.floor(Math.random() * 1000) + 100
       this.clearTimer = setInterval(() => {
@@ -221,13 +231,19 @@ export default {
     }
   },
   mounted () {
+    MOUNTED_COUNT++
     if (!this.isStatic) {
       const bounceMs = (Math.floor(Math.random() * 100) + 1) * 10
       this.timeout(this.check, bounceMs)
     }
   },
   beforeDestroy () {
+    MOUNTED_COUNT--
     this.isDestroyed = true
+    if (MOUNTED_COUNT <= 0) {
+      REQUEST_QUEUE.length = 0
+      MOUNTED_COUNT = 0
+    }
     clearTimeout(this.timer)
     clearInterval(this.clearTimer)
     clearInterval(this.nowTimer)
@@ -237,8 +253,11 @@ export default {
       if (this.isStatic) { this.$emit('click'); return }
       if (this.loading) { return }
 
+      // [核心修正] 開始檢查前，清空舊的 headers 訊息
+      this.headers = []
       this.message = '檢測中 ... '
       this.status = -2
+
       force && this.siteStatusCacheMap.delete(this.watchSite)
 
       const cached = this.siteStatusCacheMap.get(this.watchSite)
@@ -253,30 +272,39 @@ export default {
         const task = () => this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'check_site_http',
           site: this.watchSite
-        }, { timeout: 2500 }) // 2.5s Timeout
+        }, { timeout: 2500 })
 
-        enqueueRequest(task).then(({ data }) => {
+        enqueueRequest(task, this).then(({ data }) => {
           if (this.isDestroyed) { return }
-          if (this.$utils.statusCheck(data.status)) {
-            this.$utils.log(`${this.watchSite}測試連線成功`)
+          // 401 也視為成功
+          if (this.$utils.statusCheck(data.status) || data.status === 401) {
             this.headers = [...data.raw]
             this.status = data.status
             this.message = data.message
-            if (this.isTimeout) { this.message = `${this.watchSite}測試連線逾時` }
             data.site = this.watchSite
             this.$emit('updated', data)
             this.siteStatusCacheMap.set(this.watchSite, data)
           } else {
-            this.$utils.warn(`${this.watchSite}測試連線失敗`, data)
             this.status = -1
             this.$emit('updated', { site: this.watchSite, status: -1, message: data.message })
           }
         }).catch((err) => {
           if (this.isDestroyed) { return }
-          this.status = -1
-          this.message = err.toString()
-          this.$utils.error(err)
-          this.$emit('updated', { site: this.watchSite, status: -1, message: this.message })
+
+          // [核心修正] 強化逾時判定邏輯
+          const errStr = err.toString().toLowerCase()
+          const isTimeout = err.code === 'ECONNABORTED' || errStr.includes('timeout') || errStr.includes('exceeded')
+
+          if (isTimeout) {
+            this.status = 0
+            this.message = '連線逾時'
+            this.headers = ['連線逾時']
+          } else {
+            this.status = -1
+            this.message = err.toString()
+            this.headers = [this.message]
+          }
+          this.$emit('updated', { site: this.watchSite, status: this.status, message: this.message })
         }).finally(() => {
           if (!this.isDestroyed) {
             this.updateTimestamp = +new Date()
@@ -296,17 +324,15 @@ export default {
 
 <style lang="scss" scoped>
 .site-status-btn {
-  /* 移除預設按鈕邊框，由 tile 樣式接管 */
   &.modern-tile {
     border-width: 2px !important;
     border-style: solid !important;
     background-color: white !important;
-    color: #333 !important; /* 強制文字顏色 */
+    color: #333 !important;
     height: 100%;
     width: 100%;
     min-height: 80px;
-
-    /* 陰影與動畫 */
+    border-radius: 12px !important; // 確保足夠圓潤
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
@@ -315,10 +341,20 @@ export default {
       box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
       z-index: 10;
     }
+
+    &.border-warning {
+      border-color: #ffc107 !important;
+      box-shadow: 0 0 0.2rem rgba(255, 193, 7, 0.5);
+    }
+    &.border-danger {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0.2rem rgba(220, 53, 69, 0.5);
+    }
+    &.border-info { border-color: #17a2b8 !important; }
+    &.border-light { border-color: #f8f9fa !important; }
   }
 }
 
-/* 狀態樣式 */
 .bg-danger-light {
   background-color: #fff5f5 !important;
   animation: pulse-danger-border 2s infinite;
@@ -327,12 +363,7 @@ export default {
   background-color: #fff3cd !important;
   animation: pulse-warning-border 2s infinite;
 }
-.pinned-border {
-  border: 1.5px solid black !important;
-  box-shadow: 0 0 0.1rem rgba(0, 123, 255, 0.5);
-}
 
-/* 動畫 Keyframes */
 @keyframes pulse-danger-border {
   0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
@@ -345,25 +376,21 @@ export default {
 }
 
 .office-name {
-  line-height: 1.2;
+  text-align: left;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.3;
 }
 .updated-time {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #6c757d;
+  line-height: 1.2;
 }
 .error-msg {
   font-size: 0.85rem;
   color: #dc3545;
   word-break: break-all;
-  white-space: normal; /* 允許換行 */
+  white-space: normal;
   line-height: 1.2;
-}
-.truncate-badge {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
 }
 </style>
