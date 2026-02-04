@@ -28,7 +28,7 @@ client-only: .monitor-dashboard(v-cloak)
             @click="col2 = !col2",
             :icon="col2 ? 'th' : 'th-large'",
             size="lg",
-            variant="outline-secondary",
+            variant="outline-info",
             no-border,
             no-icon-gutter,
             :title="col2 ? '切換為標準三欄檢視' : '切換為放大兩欄檢視'"
