@@ -17,7 +17,7 @@ div.h-100.d-flex.flex-column.bg-light.overflow-hidden
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 400 140"
             preserveAspectRatio="xMidYMid meet"
-            style="max-height: 25vh; width: 100%; max-width: 500px;"
+            style="max-height: 22.5vh; width: 22.5vw; max-width: 600px;"
           )
             defs
               linearGradient#lab-grad(x1="0%" y1="0%" x2="100%" y2="100%")

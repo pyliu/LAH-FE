@@ -17,7 +17,7 @@ div.h-100.d-flex.flex-column.bg-light.overflow-hidden
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 450 160"
             preserveAspectRatio="xMidYMid meet"
-            style="max-height: 30vh; width: 100%; max-width: 600px;"
+            style="max-height: 30vh; width: 33vw; max-width: 600px;"
           )
             defs
               //- 金幣漸層
