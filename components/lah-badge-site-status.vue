@@ -272,7 +272,7 @@ export default {
         const task = () => this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'check_site_http',
           site: this.watchSite
-        }, { timeout: 2500 })
+        }, { timeout: 5000 })
 
         enqueueRequest(task, this).then(({ data }) => {
           if (this.isDestroyed) { return }
