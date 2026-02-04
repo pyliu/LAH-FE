@@ -24,9 +24,38 @@ b-button(
 </template>
 
 <script>
+// --- 全域請求佇列控制 (Global Request Queue) ---
+// 這確保即使有 60+ 個元件實例，同時也只有 MAX_CONCURRENT 個請求在進行
+const REQUEST_QUEUE = []
+const MAX_CONCURRENT = 4 // 限制同時 4 個請求，避免瀏覽器卡死
+let ACTIVE_COUNT = 0
+
+const processQueue = () => {
+  if (REQUEST_QUEUE.length === 0 || ACTIVE_COUNT >= MAX_CONCURRENT) { return }
+
+  const { task, resolve, reject } = REQUEST_QUEUE.shift()
+  ACTIVE_COUNT++
+
+  task()
+    .then(resolve)
+    .catch(reject)
+    .finally(() => {
+      ACTIVE_COUNT--
+      processQueue() // 遞迴處理下一個
+    })
+}
+
+const enqueueRequest = (task) => {
+  return new Promise((resolve, reject) => {
+    REQUEST_QUEUE.push({ task, resolve, reject })
+    processQueue()
+  })
+}
+// -------------------------------------------
+
 export default {
   emit: ['updated', 'click'],
-  component: {},
+  name: 'LahBadgeSiteStatus',
   props: {
     watchSite: { type: String, default: 'HX', require: true },
     pill: { type: Boolean, default: false },
@@ -39,10 +68,6 @@ export default {
     badgeVariant: { type: String, default: 'light' },
     textVariant: { type: String, default: '' },
     textBold: { type: Boolean, default: false },
-    /**
-     * serial / id / name / state / response / timestamp
-     * 1 / XX / XX地政事務所 / UP / HTTP/1.1 401 Unauthorized / 1694060279
-     */
     staticData: { type: Object, default: null },
     displayUpdateTime: { type: Boolean, default: false },
     displayUpdateTimeToNow: { type: Boolean, default: false }
@@ -56,7 +81,7 @@ export default {
     officeCacheKey: 'office-cached-key',
     officesData: [],
     updateTimestamp: +new Date(),
-    // 所別顏色對應 (用於 tooltip)
+    isDestroyed: false,
     areaColorMap: {
       HA: 'primary',
       HB: 'success',
@@ -75,26 +100,15 @@ export default {
           type: 'all_offices'
         }).then(({ data }) => {
           if (Array.isArray(data.raw)) {
-            // elimite out of date data
             this.officesData = [...data.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-            // a day ms
             const cacheMs = 24 * 60 * 60 * 1000
             this.setCache(this.officeCacheKey, data, cacheMs)
-            this.$utils.log('已重新讀取各地政事務所對應資料。')
-          } else {
-            this.$utils.error('無法取得各地政事務所對應資料。', data)
           }
         }).catch((err) => {
-          this.alert(err.message)
           this.$utils.error(err)
-        }).finally(() => {
         })
       } else if (Array.isArray(json.raw)) {
-        // elimite out of date data
         this.officesData = [...json.raw.filter(item => !['CB', 'CC'].includes(item.ID))]
-        this.$utils.log('已從快取回復各地政事務所對應資料。')
-      } else {
-        this.$utils.error('無法從快取回復各地政事務所資料。')
       }
     })
   },
@@ -103,66 +117,38 @@ export default {
       return !this.$utils.empty(this.staticData)
     },
     outlineVariant () {
-      if (this.status > 0) {
-        return 'outline-success'
-      }
-      if (this.loading) {
-        return 'outline-light'
-      }
-      if (this.isTimeout) {
-        return 'outline-warning'
-      }
+      if (this.status > 0) { return 'outline-success' }
+      if (this.loading) { return 'outline-light' }
+      if (this.isTimeout) { return 'outline-warning' }
       return 'outline-danger'
     },
     btnVariant () {
-      if (this.isStatic) {
-        return 'outline-secondary'
-      }
+      if (this.isStatic) { return 'outline-secondary' }
       return this.fill || this.loading ? this.variant : this.outlineVariant
     },
     name () {
       if (this.isStatic) {
-        if (this.shortAlt) {
-          return `${this.staticData.name.replace(/(所|地政事務所)/g, '')}`
-        }
+        if (this.shortAlt) { return `${this.staticData.name.replace(/(所|地政事務所)/g, '')}` }
         return this.short ? this.staticData.name.replace(/(所|地政事務所)/g, '') : `${this.staticData.id} ${this.staticData.name}`
       }
-      // item: { ID: 'HX', NAME: 'XXX', ALIAS: 'XXX'}
       const found = this.officesData.find(item => item.ID === this.watchSite)
       const name = found ? found?.NAME : this.watchSite
-      if (this.shortAlt) {
-        // return `${this.watchSite} ${name.replace(/(所|地政事務所)/g, '')}`
-        return `${name.replace(/(所|地政事務所)/g, '')}`
-      }
+      if (this.shortAlt) { return `${name.replace(/(所|地政事務所)/g, '')}` }
       return this.short ? name.replace(/(所|地政事務所)/g, '') : `${this.watchSite} ${name}`
     },
     variant () {
-      if (this.status > 0) {
-        return 'success'
-      }
-      if (this.loading) {
-        return 'light'
-      }
-      if (this.isStatic && this.staticData.id.startsWith('H')) {
-        return 'danger'
-      }
-      // if (this.isTimeout) {
-      //   return 'warning'
-      // }
+      if (this.status > 0) { return 'success' }
+      if (this.loading) { return 'light' }
+      if (this.isStatic && this.staticData.id.startsWith('H')) { return 'danger' }
       return 'warning'
     },
     lightIcon () {
       switch (this.variant) {
-        case 'success':
-          return '🟢'
-        case 'light':
-          return '⚪'
-        case 'warning':
-          return '🟡'
-        case 'danger':
-          return '🔴'
-        default:
-          return '❓'
+        case 'success': return '🟢'
+        case 'light': return '⚪'
+        case 'warning': return '🟡'
+        case 'danger': return '🔴'
+        default: return '❓'
       }
     },
     siteStatusCacheMap () {
@@ -183,27 +169,13 @@ export default {
     isTimeout () {
       return this.headers.length > 0 && this.$utils.empty(this.headers[0])
     },
-    textCss () {
-      const css = [this.textVariant]
-      if (!this.textBold) {
-        css.push('font-weight-bolder')
-      }
-      return css
-    },
-    // 新增：Tooltip 設定
     tooltipConfig () {
-      // 根據 watchSite 或 staticData.id 決定 variant
       const site = this.isStatic ? this.staticData.id : this.watchSite
-      const variant = this.areaColorMap[site] || 'secondary' // 預設 secondary
+      const variant = this.areaColorMap[site] || 'secondary'
       return {
         title: `${this.updateTime}: ${this.message} (${this.displayUpdateTimeToNow ? this.updateTime : this.updateTimeToNow})`,
         variant
       }
-    }
-  },
-  watch: {
-    officesData (val) {
-      // console.warn(val)
     }
   },
   created () {
@@ -211,60 +183,66 @@ export default {
       this.status = this.staticData.state === 'UP' ? 1 : 0
       this.headers.push(this.staticData.response)
       this.message = this.status > 0 ? `${this.staticData.id}服務正常` : `${this.staticData.id}服務異常`
-      // override the message if there is no response (connection timeout)
-      if (this.isTimeout) {
-        this.message = `${this.staticData.id}測試連線逾時`
-      }
+      if (this.isTimeout) { this.message = `${this.staticData.id}測試連線逾時` }
     } else {
-      // 100ms ~ 1000ms
       const bounceMs = Math.floor(Math.random() * 1000) + 100
       this.clearTimer = setInterval(() => {
-        // console.warn(`${this.watchSite} delete cache.`)
         this.siteStatusCacheMap.delete(this.watchSite)
       }, (parseInt(this.period) || 60000) + bounceMs)
     }
   },
   mounted () {
     if (!this.isStatic) {
-      // 4ms ~ 400ms
-      const bounceMs = (Math.floor(Math.random() * 100) + 1) * 4
+      // 隨機延遲啟動，避免同時塞進 Queue (雖然有 Queue 保護，分散一點還是比較好)
+      const bounceMs = (Math.floor(Math.random() * 100) + 1) * 10
       this.timeout(this.check, bounceMs)
     }
   },
   beforeDestroy () {
+    this.isDestroyed = true
     clearTimeout(this.timer)
     clearInterval(this.clearTimer)
   },
   methods: {
     check (force = false) {
       if (this.isStatic) {
-        // static mode only emit click event
         this.$emit('click')
         return
       }
       if (this.loading) {
-        this.nextRun()
+        // 如果已經在載入中，通常不需重複觸發，但為了安全起見，可以安排下次檢查
+        // 這裡我們選擇等待
         return
       }
-      // console.warn(`${this.watchSite} start checking ...`)
-      // this.isBusy = true
+
       this.message = '檢測中 ... '
       this.status = -2
       force && this.siteStatusCacheMap.delete(this.watchSite)
+
       const cached = this.siteStatusCacheMap.get(this.watchSite)
       if (cached) {
         this.message = cached.message
         this.headers = [...cached.raw]
         this.status = cached.status
-        // console.warn(`${this.watchSite} cache hit!!`)
+        // 補上 site 屬性，確保父層能識別
+        cached.site = this.watchSite
         this.$emit('updated', cached)
         this.nextRun()
       } else {
-        this.$axios.post(this.$consts.API.JSON.IP, {
+        // 定義 Axios 任務
+        const task = () => this.$axios.post(this.$consts.API.JSON.IP, {
           type: 'check_site_http',
           site: this.watchSite
-        }).then(({ data }) => {
+        }, {
+          timeout: 20000 // 20秒超時
+        })
+
+        // 放入佇列執行
+        enqueueRequest(task).then(({ data }) => {
+          if (this.isDestroyed) { return }
+
           if (this.$utils.statusCheck(data.status)) {
+            // 成功
             this.$utils.log(`${this.watchSite}測試連線成功`)
             this.headers = [...data.raw]
             this.status = data.status
@@ -272,27 +250,35 @@ export default {
             if (this.isTimeout) {
               this.message = `${this.watchSite}測試連線逾時`
             }
-            if (!this.$utils.statusCheck(this.status)) {
-              this.$utils.warn(data.message)
-            }
+            // 補上 site 屬性
+            data.site = this.watchSite
             this.$emit('updated', data)
             this.siteStatusCacheMap.set(this.watchSite, data)
           } else {
+            // 邏輯錯誤
             this.$utils.warn(`${this.watchSite}測試連線失敗`, data)
+            this.status = -1 // 標記為錯誤
+            // 發送失敗事件給父層
+            this.$emit('updated', { site: this.watchSite, status: -1, message: data.message })
           }
         }).catch((err) => {
+          if (this.isDestroyed) { return }
+          // 網路錯誤
           this.status = -1
-          this.message = err.toString()
+          this.message = err.message || '連線錯誤'
           this.$utils.error(err)
+          // 發送失敗事件給父層
+          this.$emit('updated', { site: this.watchSite, status: -1, message: this.message })
         }).finally(() => {
-          this.updateTimestamp = +new Date()
-          this.isBusy = false
-          this.nextRun()
+          if (!this.isDestroyed) {
+            this.updateTimestamp = +new Date()
+            // 移除 isBusy，status 改變就會更新 UI
+            this.nextRun()
+          }
         })
       }
     },
     nextRun () {
-      // 100ms ~ 1000ms
       const bounceMs = Math.floor(Math.random() * 1000) + 100
       clearTimeout(this.timer)
       this.timeout(this.check, (parseInt(this.period) || 60000) + bounceMs).then((handler) => { this.timer = handler })
@@ -305,15 +291,14 @@ export default {
 /* 所名稱字型 */
 .office-name {
   text-align: left;
-  // font-size: 1.1rem;
   font-weight: 500;
   color: #333;
-  line-height: 1.3; /* 調整行高 */
+  line-height: 1.3;
 }
 /* 經過時間樣式 */
 .updated-time {
-  font-size: 0.85rem; /* 縮小字體 */
-  color: #6c757d;   /* 輔助文字顏色 (Bootstrap secondary) */
+  font-size: 0.85rem;
+  color: #6c757d;
   line-height: 1.2;
 }
 </style>
