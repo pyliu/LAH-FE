@@ -12,8 +12,96 @@ div.h-100.d-flex.flex-column.bg-light.overflow-hidden
 
         //- 上方 Slogan 區域
         .text-center.mb-3.anim-appear-1s
-          //- 修改: 使用測量專用 Logo，設定 vh 高度與隱藏類別
-          lah-logo-sur.mb-2.slogan-img(style="max-height: 30vh;")
+          //- SVG Banner: 測量外業主題
+          svg.mb-2.slogan-img(
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 500 160"
+            preserveAspectRatio="xMidYMid meet"
+            style="max-height: 30vh; width: 100%; max-width: 600px;"
+          )
+            defs
+              //- 儀器漸層
+              linearGradient#device-grad(x1="0%" y1="0%" x2="100%" y2="0%")
+                stop(offset="0%" stop-color="#f57f17")
+                stop(offset="100%" stop-color="#ffb74d")
+              //- 地圖漸層
+              linearGradient#map-grad(x1="0%" y1="0%" x2="0%" y2="100%")
+                stop(offset="0%" stop-color="#e1f5fe")
+                stop(offset="100%" stop-color="#b3e5fc")
+              //- 陰影濾鏡
+              filter#shadow(x="-20%" y="-20%" width="140%" height="140%")
+                feGaussianBlur(in="SourceAlpha" stdDeviation="2")
+                feOffset(dx="1" dy="2" result="offsetblur")
+                feComponentTransfer
+                  feFuncA(type="linear" slope="0.3")
+                feMerge
+                  feMergeNode(in="offsetblur")
+                  feMergeNode(in="SourceGraphic")
+
+            //- 背景裝飾：等高線/地形
+            g(opacity="0.3")
+              path(d="M0,140 Q100,100 200,130 T400,120 T500,140 V160 H0 Z" fill="#c8e6c9")
+              path(d="M0,160 Q150,130 300,150 T500,150 V160 H0 Z" fill="#81c784")
+
+            //- 左側：地籍圖紙
+            g(transform="translate(60, 30) rotate(-5)")
+              rect(x="0" y="0" width="80" height="100" rx="2" fill="url(#map-grad)" stroke="#0277bd" stroke-width="2" filter="url(#shadow)")
+              //- 圖紙內容：地塊線條
+              path(d="M10,10 H70 M10,10 V90 M10,90 H70 M70,10 V90" fill="none" stroke="#0277bd" stroke-width="1" stroke-dasharray="2,2")
+              path(d="M20,30 L60,30 L60,70 L40,70 L40,50 L20,50 Z" fill="#fff9c4" stroke="#fbc02d" stroke-width="2")
+              //- 紅色界址點
+              circle(cx="20" cy="30" r="2" fill="red")
+              circle(cx="60" cy="30" r="2" fill="red")
+              circle(cx="60" cy="70" r="2" fill="red")
+              circle(cx="40" cy="70" r="2" fill="red")
+              circle(cx="40" cy="50" r="2" fill="red")
+              circle(cx="20" cy="50" r="2" fill="red")
+
+            //- 右側：測量標桿 (稜鏡)
+            g(transform="translate(380, 20)")
+              //- 桿身
+              rect(x="0" y="20" width="6" height="120" fill="#e0e0e0" stroke="#9e9e9e" stroke-width="1")
+              //- 紅白相間
+              rect(x="0" y="20" width="6" height="20" fill="#d32f2f")
+              rect(x="0" y="60" width="6" height="20" fill="#d32f2f")
+              rect(x="0" y="100" width="6" height="20" fill="#d32f2f")
+              //- 頂部稜鏡圓頭
+              circle(cx="3" cy="20" r="12" fill="#29b6f6" stroke="#01579b" stroke-width="2")
+              circle(cx="3" cy="20" r="5" fill="#fff")
+              //- 標桿跳動動畫
+              animateTransform(attributeName="transform" type="translate" values="380,20; 380,15; 380,20" dur="2s" repeatCount="indefinite")
+
+            //- 中央：全站儀 (Total Station)
+            g(transform="translate(200, 40)")
+              //- 腳架 (Tripod)
+              line(x1="50" y1="60" x2="10" y2="120" stroke="#455a64" stroke-width="4" stroke-linecap="round")
+              line(x1="50" y1="60" x2="90" y2="120" stroke="#455a64" stroke-width="4" stroke-linecap="round")
+              line(x1="50" y1="60" x2="50" y2="115" stroke="#455a64" stroke-width="4" stroke-linecap="round")
+
+              //- 儀器底座
+              path(d="M35,60 L65,60 L60,50 L40,50 Z" fill="#37474f")
+
+              //- 儀器主體
+              g
+                rect(x="30" y="20" width="40" height="30" rx="5" fill="url(#device-grad)" filter="url(#shadow)")
+                //- 鏡頭與鏡筒
+                circle(cx="30" cy="35" r="12" fill="#263238")
+                circle(cx="30" cy="35" r="8" fill="#4fc3f7")
+                //- 望遠鏡筒部分
+                rect(x="10" y="30" width="20" height="10" fill="#37474f")
+
+                //- 儀器旋轉/掃描動畫
+                animateTransform(attributeName="transform" type="rotate" values="0 50 55; -5 50 55; 0 50 55" dur="4s" repeatCount="indefinite")
+
+              //- 雷射測距線 (連接儀器與標桿)
+              line(x1="30" y1="35" x2="180" y2="0" stroke="#f44336" stroke-width="2" stroke-dasharray="5,5" opacity="0.6")
+                 animate(attributeName="opacity" values="0;0.8;0" dur="1s" repeatCount="indefinite")
+
+            //- 數據顯示框 (浮動)
+            g(transform="translate(280, 40)")
+              rect(x="0" y="0" width="60" height="30" rx="4" fill="white" stroke="#90a4ae" stroke-width="1" opacity="0.9")
+              text(x="10" y="20" font-family="monospace" font-size="12" fill="#2e7d32" font-weight="bold") 125.4m
+
           h1.font-weight-bold.text-dark.lah-shadow.text-nowrap 地政測量小幫手
           p.text-muted.h4.mt-1 測量案件管理與統計分析系統
 
