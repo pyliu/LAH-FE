@@ -12,59 +12,56 @@ div.h-100.d-flex.flex-column.bg-light.overflow-hidden
 
         //- 上方 Slogan 區域
         .text-center.mb-3.anim-appear-1s
-          //- SVG Banner: 專業監控中心 (更清晰人物版)
-          //- 修改: max-height 40vh, max-width 1000px
+          //- SVG Banner: 專業監控中心
           svg.mb-2.slogan-img(
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1000 400"
+            viewBox="0 0 1200 400"
             preserveAspectRatio="xMidYMid meet"
-            style="max-height: 40vh; width: 33vw;"
+            style="max-height: 40vh; width: 33vw; max-width: 600px;"
           )
             defs
-              //- 濾鏡：螢幕光暈
-              filter#screen-glow
-                feGaussianBlur(stdDeviation="3" result="coloredBlur")
+              //- 螢幕光暈
+              filter#glow
+                feGaussianBlur(stdDeviation="2.5" result="coloredBlur")
                 feMerge
                   feMergeNode(in="coloredBlur")
                   feMergeNode(in="SourceGraphic")
+              //- 漸層色
+              linearGradient#screen-grad(x1="0%" y1="0%" x2="0%" y2="100%")
+                stop(offset="0%" stop-color="#1c2326")
+                stop(offset="100%" stop-color="#263238")
+              linearGradient#chair-grad(x1="0%" y1="0%" x2="100%" y2="0%")
+                stop(offset="0%" stop-color="#37474f")
+                stop(offset="100%" stop-color="#546e7a")
 
-              //- 漸層：螢幕背景
-              linearGradient#monitor-bg(x1="0%" y1="0%" x2="0%" y2="100%")
-                stop(offset="0%" stop-color="#263238")
-                stop(offset="100%" stop-color="#37474f")
+            //- 地板與背景牆
+            rect(x="0" y="280" width="1000" height="20" fill="#cfd8dc")
 
-              //- 漸層：地板反射
-              linearGradient#floor-grad(x1="0%" y1="0%" x2="0%" y2="100%")
-                stop(offset="0%" stop-color="#cfd8dc")
-                stop(offset="100%" stop-color="#eceff1")
-
-            //- 1. 背景環境
-            //- 地板
-            rect(x="0" y="350" width="1000" height="50" fill="url(#floor-grad)")
-
-            //- 背景牆伺服器 (左)
+            //- 背景：伺服器機櫃 (左側)
             g(transform="translate(100, 50)")
               rect(x="0" y="0" width="100" height="300" rx="4" fill="#455a64" stroke="#263238" stroke-width="2")
-              //- 燈號矩陣
-              pattern#rack-lights(x="0" y="0" width="100" height="20" patternUnits="userSpaceOnUse")
+              //- 伺服器單元與閃爍燈號
+              pattern#server-rack(x="0" y="0" width="100" height="20" patternUnits="userSpaceOnUse")
                 rect(x="5" y="2" width="90" height="16" rx="2" fill="#37474f")
                 circle(cx="20" cy="10" r="2" fill="#00e676")
                 circle(cx="30" cy="10" r="2" fill="#2979ff")
-              rect(x="0" y="0" width="100" height="300" fill="url(#rack-lights)" opacity="0.4")
-              //- 動態閃爍點
+              rect(x="0" y="0" width="100" height="300" fill="url(#server-rack)" opacity="0.4")
+              //- 隨機閃爍燈號
               circle(cx="20" cy="40" r="3" fill="#00e676")
-                animate(attributeName="opacity" values="1;0.2;1" dur="0.5s" repeatCount="indefinite")
+                animate(attributeName="opacity" values="1;0.3;1" dur="0.5s" repeatCount="indefinite")
               circle(cx="30" cy="120" r="3" fill="#ffeb3b")
-                animate(attributeName="opacity" values="1;0.2;1" dur="1.2s" repeatCount="indefinite")
+                animate(attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite")
+              circle(cx="20" cy="200" r="3" fill="#ff1744")
+                animate(attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite")
 
-            //- 背景牆伺服器 (右)
+            //- 背景：伺服器機櫃 (右側)
             g(transform="translate(800, 50)")
               rect(x="0" y="0" width="100" height="300" rx="4" fill="#455a64" stroke="#263238" stroke-width="2")
-              rect(x="0" y="0" width="100" height="300" fill="url(#rack-lights)" opacity="0.4")
-              circle(cx="80" cy="80" r="3" fill="#ff1744")
-                animate(attributeName="opacity" values="0.2;1;0.2" dur="0.8s" repeatCount="indefinite")
+              rect(x="0" y="0" width="100" height="300" fill="url(#server-rack)" opacity="0.4")
+              circle(cx="80" cy="80" r="3" fill="#2979ff")
+                animate(attributeName="opacity" values="1;0.3;1" dur="0.3s" repeatCount="indefinite")
 
-            //- 2. 監控工作站 (桌子)
+            //- 監控桌
             g(transform="translate(200, 280)")
               //- 桌面板
               path(d="M-50,0 L650,0 L620,20 L-20,20 Z" fill="#607d8b")
@@ -82,7 +79,7 @@ div.h-100.d-flex.flex-column.bg-light.overflow-hidden
                 //- 螢幕內容
                 rect(x="10" y="10" width="280" height="150" fill="url(#screen-grad)")
                 //- 系統波形圖
-                path(d="M20,120 L60,100 L100,130 L140,50 L180,70 L220,40 L260,80" fill="none" stroke="#29b6f6" stroke-width="3" filter="url(#screen-glow)")
+                path(d="M20,120 L60,100 L100,130 L140,50 L180,70 L220,40 L260,80" fill="none" stroke="#29b6f6" stroke-width="3" filter="url(#glow)")
                   animate(attributeName="d" values="M20,120 L60,100 L100,130 L140,50 L180,70 L220,40 L260,80; M20,115 L60,105 L100,125 L140,55 L180,75 L220,45 L260,85; M20,120 L60,100 L100,130 L140,50 L180,70 L220,40 L260,80" dur="3s" repeatCount="indefinite")
                 //- 網格
                 line(x1="20" y1="130" x2="260" y2="130" stroke="#546e7a" stroke-width="0.5")
