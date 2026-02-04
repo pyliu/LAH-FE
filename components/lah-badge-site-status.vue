@@ -234,7 +234,7 @@ export default {
           type: 'check_site_http',
           site: this.watchSite
         }, {
-          timeout: 20000 // 20秒超時
+          timeout: 2500 // 2.5秒超時
         })
 
         // 放入佇列執行
