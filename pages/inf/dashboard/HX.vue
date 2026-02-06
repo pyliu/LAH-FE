@@ -173,22 +173,23 @@ export default {
       { comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', footer: true, pinned: true },
       { comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', footer: true, extraClass: 'fix-img' },
       { comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', footer: true },
-      { comp: 'lah-monitor-board-sms-notify', header: '簡訊通知服務', footer: true },
-      { comp: 'lah-monitor-board-sms', header: '簡訊數據機', footer: true },
+      { comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', footer: true },
+      { comp: 'lah-monitor-board-sms', header: '綜合簡訊監控', footer: true },
       { comp: 'lah-monitor-board-L05', header: 'L05 系統', footer: true },
       { comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', footer: true },
       { comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', footer: false },
-      { comp: 'lah-monitor-board-site-hx', header: '本所網站', footer: false },
+      { comp: 'lah-monitor-board-site-hx', header: '市內8所狀態', footer: false },
       { comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
-      { comp: 'lah-monitor-board-site-tw', header: '地政局網站', footer: false },
+      { comp: 'lah-monitor-board-site-tw', header: '跨域伺服器狀態', footer: false },
       { comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', footer: true },
       { comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', footer: false },
-      { comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
       { comp: 'lah-monitor-board-tape', header: '磁帶備份', footer: true },
-      { comp: 'lah-monitor-board-testdb', header: '測試資料庫', footer: false },
-      { comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', footer: true },
-      { comp: 'lah-monitor-board-apconn', header: 'AP 連線數', footer: false },
-      { comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
+      { comp: 'lah-monitor-board-apconn', header: 'AP 連線數', footer: false }
+      // 下面是桃園所專屬面板，非 HA 不顯示
+      // { comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', footer: true },
+      // { comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
+      // { comp: 'lah-monitor-board-testdb', header: '測試資料庫', footer: false },
+      // { comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
     ],
     // 儲存已釘選的 ID 列表
     pinnedIds: [],
