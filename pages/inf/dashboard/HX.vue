@@ -1,5 +1,5 @@
 <template lang="pug">
-client-only: .monitor-dashboard(v-cloak)
+client-only: .monitor-dashboard(v-cloak, :class="{ 'dark-mode': isDarkMode }")
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
@@ -41,13 +41,24 @@ client-only: .monitor-dashboard(v-cloak)
             style="cursor: help"
           ) ⚪ {{ gray }}
 
+          //- Mod: 新增暗色主題切換按鈕
+          lah-button.mr-1(
+            @click="toggleTheme",
+            :icon="isDarkMode ? 'sun' : 'moon'",
+            :variant="isDarkMode ? 'outline-warning' : 'outline-secondary'",
+            size="lg",
+            no-border,
+            no-icon-gutter,
+            :title="isDarkMode ? '切換為淺色模式' : '切換為深色模式'"
+          )
+
           //- Mod: 優化 UI，將 Checkbox 改為圖示按鈕切換，節省空間並符合操作直覺
           //- 3欄模式(預設)顯示 th-large (放大) 圖示；2欄模式顯示 th (標準) 圖示
           lah-button.mr-1(
             @click="col2 = !col2",
             :icon="col2 ? 'th' : 'th-large'",
             size="lg",
-            variant="outline-dark",
+            :variant="isDarkMode ? 'outline-light' : 'outline-dark'",
             no-border,
             no-icon-gutter,
             :title="col2 ? '切換為標準三欄檢視' : '切換為放大兩欄檢視'"
@@ -165,6 +176,8 @@ export default {
     attentionTimer: null,
     topWarning: true,
     col2: false,
+    // [Mod] 新增暗色模式狀態
+    isDarkMode: false,
     // [Mod] 為每個面板加入 header 屬性，定義中文顯示名稱
     boards: [
       { comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
@@ -248,6 +261,11 @@ export default {
     col2 (flag) {
       this.setCache('dashboard-col2', flag)
     },
+    // [Mod] 監聽暗色模式，透過 JS 修改 Body 背景色
+    isDarkMode (flag) {
+      this.setCache('dashboard-dark-mode', flag)
+      this.updateBodyBg(flag)
+    },
     // 當設定變更時，重新載入印表機面板
     monitorPrintersConfig: {
       handler () {
@@ -296,6 +314,14 @@ export default {
     this.getCache('dashboard-col2').then((flag) => {
       this.col2 = flag
     })
+
+    // [Mod] 讀取暗色模式設定並初始化背景
+    this.getCache('dashboard-dark-mode').then((flag) => {
+      if (flag !== null && flag !== undefined) {
+        this.isDarkMode = flag
+        this.updateBodyBg(flag)
+      }
+    })
   },
   mounted () {
     this.refreshHighlightGroup = this.$utils.debounce(() => {
@@ -333,8 +359,21 @@ export default {
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
+    // [Mod] 離開頁面時復原 Body 背景色
+    this.updateBodyBg(false)
   },
   methods: {
+    // [Mod] 切換主題
+    toggleTheme () {
+      this.isDarkMode = !this.isDarkMode
+    },
+    // [Mod] 僅修改 Body 背景顏色，不使用 Class 避免跑版
+    updateBodyBg (isDark) {
+      if (typeof document !== 'undefined') {
+        // 設定深色背景色以消除白邊
+        document.body.style.backgroundColor = isDark ? '#121212' : ''
+      }
+    },
     // [Mod] 優化取得清單邏輯，優先使用設定檔中的 Header，並加入響應式觸發
     getDetailList (type) {
       // 讀取響應式變數以建立依賴關係，確保 Computed 會重新計算
@@ -537,6 +576,80 @@ export default {
   text-size-adjust: 100%;
   /* Force a base font size to avoid system scaling issues that break fixed-height layouts */
   font-size: 16px;
+
+  // [Mod] 移植 HA.vue 的暗色主題樣式
+  &.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+    min-height: 100vh;
+
+    // 1. 卡片與容器
+    .card {
+      background-color: #1e1e1e;
+      border-color: #333;
+      color: #e0e0e0;
+
+      .card-header {
+        background-color: #252526;
+        border-bottom: 1px solid #333;
+      }
+      
+      .card-footer {
+        background-color: #252526;
+        border-top: 1px solid #333;
+      }
+      
+      // 文字顏色修正
+      .text-dark, .text-body { color: #f8f9fa !important; }
+      .text-muted { color: #adb5bd !important; }
+      .text-secondary { color: #ced4da !important; }
+      
+      h1, h2, h3, h4, h5, h6, strong { color: #f8f9fa; }
+      a:not(.btn) { color: #66b0ff; }
+    }
+
+    // 2. 表單元件
+    .form-control, .custom-select {
+      background-color: #2b2b2b;
+      border-color: #444;
+      color: #e0e0e0;
+      option { background-color: #2b2b2b; color: #e0e0e0; }
+    }
+
+    // 3. 列表與表格
+    .list-group-item {
+      background-color: #1e1e1e;
+      border-color: #333;
+      color: #e0e0e0;
+    }
+    
+    .table {
+      color: #e0e0e0;
+      th, td { border-color: #333; }
+      thead th { border-bottom: 2px solid #444; color: #fff; }
+      .text-dark { color: #f8f9fa !important; }
+    }
+
+    // 4. 按鈕
+    .btn-outline-secondary {
+      color: #aaa;
+      border-color: #555;
+      &:hover {
+        background-color: #444;
+        color: #fff;
+      }
+    }
+    
+    .pinned-highlight {
+      border: 1.5px solid #aaa !important;
+      box-shadow: 0 0 0.2rem rgba(255, 255, 255, 0.3);
+    }
+
+    // 5. 針對 .office-name 的特別修正
+    .office-name {
+      color: #f8f9fa !important;
+    }
+  }
 }
 .highlight-group {
   border-bottom: 2px dashed gray;
