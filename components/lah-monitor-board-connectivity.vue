@@ -186,7 +186,12 @@ export default {
       const criticalLevels = ['black', 'purple', 'red', 'yellow']
       for (const level of criticalLevels) {
         const threshold = this.lightCriteria[level]
-        const found = this.loadItems.find(item => item.y > threshold)
+        // 修正：增加檢查 status 是否異常，若斷線直接視為超過閾值 (最嚴重)
+        // 假設 status 為 0, false, null 或 'DOWN' 代表斷線
+        const found = this.loadItems.find((item) => {
+          const isDown = !item.status || item.status === 'DOWN' || item.status === '0'
+          return isDown || item.y > threshold
+        })
         if (found) { return { level, item: found } }
       }
       return { level: 'green', item: null }
@@ -245,6 +250,13 @@ export default {
     this.type = await this.getCache('lah-monitor-board-connectivity-type') || 'bar'
   },
   mounted () {
+    // 修正: 初始觸發時直接使用當前計算出的 light 狀態 (通常是 success)
+    // 解決初始發送 warning 但實際狀態為 success 時，因狀態無變化導致 watcher 不觸發的問題
+    this.$emit('light-update', {
+      name: 'LahMonitorBoardConnectivity',
+      new: this.light,
+      old: ''
+    })
     this.loadWatchTarget()
     if (!this.footer) {
       this.reloadTimer = setInterval(() => {
@@ -304,7 +316,7 @@ export default {
               this.loadItems.push({
                 ip: rawObj.ip,
                 port: rawObj.port,
-                status: 'DOWN',
+                status: 'UP', // 預設為 UP
                 timestamp: '',
                 note: rawObj.note,
                 x: ['ip', 'port'].includes(this.sortBy) ? `${rawObj.ip}:${rawObj.port}` : rawObj.name,
