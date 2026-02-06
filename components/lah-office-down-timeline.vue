@@ -8,7 +8,7 @@ b-card.h-100.flex-column.shadow-sm(
     v-if="!hideHeader",
     #header
   ): .d-flex.justify-content-between.align-items-center
-    lah-fa-icon(icon="link-slash") {{ header }} (#[strong {{ itemsCount }}]筆)
+    lah-fa-icon.text-nowrap(icon="link-slash") {{ header }} (#[strong {{ itemsCount }}])
     b-button-group.ml-auto(size="sm")
       b-select(v-model="filter", :options="filterOpts")
       lah-button(
