@@ -8,7 +8,8 @@ b-card.h-100.flex-column.shadow-sm(
     v-if="!hideHeader",
     #header
   ): .d-flex.justify-content-between.align-items-center
-    lah-fa-icon.text-nowrap(icon="link-slash") {{ header }} (#[strong {{ itemsCount }}])
+    //- 樣式調整: 加入 font-weight-bold 與 text-primary 增加標題辨識度，保留 text-nowrap 防止換行
+    lah-fa-icon.text-nowrap.font-weight-bold(icon="link-slash") {{ header }} (#[strong {{ itemsCount }}])
     b-button-group.ml-auto(size="sm")
       b-select(v-model="filter", :options="filterOpts")
       lah-button(
