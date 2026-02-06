@@ -15,12 +15,31 @@ client-only: .monitor-dashboard(v-cloak)
           )
 
         .d-flex.align-items-center
-          //- Mod: 加入 title 提示，增加 UX
-          .mr-1(title="異常項目數量") 🔴 {{ red }}
-          .mr-1(title="警告項目數量") 🟡 {{ yellow }}
-          .mr-1(title="正常項目數量") 🟢 {{ green }}
-          //- Mod: 新增灰/白燈，用於顯示載入中或未知的項目，補足數字差額
-          .mr-1(v-if="gray > 0", title="載入中或未知狀態數量") ⚪ {{ gray }}
+          //- Mod: 全面升級燈號提示，加入清單顯示功能
+          //- 紅燈
+          .mr-1(
+            :title="red > 0 ? `異常項目清單:\n` + redDetailList : '目前無異常項目'",
+            style="cursor: help"
+          ) 🔴 {{ red }}
+
+          //- 黃燈
+          .mr-1(
+            :title="yellow > 0 ? `警告項目清單:\n` + yellowDetailList : '目前無警告項目'",
+            style="cursor: help"
+          ) 🟡 {{ yellow }}
+
+          //- 綠燈
+          .mr-1(
+            :title="green > 0 ? `正常項目清單:\n` + greenDetailList : '目前無正常項目'",
+            style="cursor: help"
+          ) 🟢 {{ green }}
+
+          //- 白燈/灰燈
+          .mr-1(
+            v-if="gray > 0",
+            :title="`載入中或未知狀態清單:\n` + grayDetailList",
+            style="cursor: help"
+          ) ⚪ {{ gray }}
 
           //- Mod: 優化 UI，將 Checkbox 改為圖示按鈕切換，節省空間並符合操作直覺
           //- 3欄模式(預設)顯示 th-large (放大) 圖示；2欄模式顯示 th (標準) 圖示
@@ -64,12 +83,11 @@ client-only: .monitor-dashboard(v-cloak)
         lah-fa-icon(icon="traffic-light", variant="secondary")
         span.ml-2 燈號與狀態
       ul
-        li 頁面頂端會即時統計目前所有監控項目的燈號數量：
+        li 頁面頂端會即時統計目前所有監控項目的燈號數量，#[strong 滑鼠移至數字上可查看詳細清單]：
           ul
             li 🔴 #[strong 紅燈]：表示監控項目發生嚴重錯誤或中斷。
             li 🟡 #[strong 黃燈]：表示監控項目出現警告或潛在問題。
             li 🟢 #[strong 綠燈]：表示監控項目運作正常。
-            //- Mod: 更新文件說明
             li ⚪ #[strong 白燈/灰燈]：表示監控項目正在初始化、載入中或狀態未知。
         li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂，並透過動畫效果提醒管理人員注意。
         li 若燈號狀態相同，則依照 #[strong 更新時間] 排序，越近更新的會排在越前面。
@@ -135,6 +153,8 @@ export default {
     green: 0,
     // Mod: 新增 gray 用於統計未知狀態
     gray: 0,
+    // [Mod] 新增響應式標記，用於強制更新 Computed 清單
+    lastLightUpdate: 0,
     /** element in attentionList
      * e.g. {
      * compName: "lahMonitorBoardSrmas"
@@ -145,24 +165,30 @@ export default {
     attentionTimer: null,
     topWarning: true,
     col2: false,
-    // 定義所有面板的配置
+    // [Mod] 為每個面板加入 header 屬性，定義中文顯示名稱
     boards: [
-      { comp: 'lah-monitor-board-xap', footer: false, pinned: true },
-      { comp: 'lah-monitor-board-xap-trend', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
-      { comp: 'lah-monitor-board-powerha', footer: true, pinned: true },
-      { comp: 'lah-monitor-board-dataguard', footer: true, pinned: true },
-      { comp: 'lah-monitor-board-srmas', footer: true, extraClass: 'fix-img' },
-      { comp: 'lah-monitor-board-hacmp', footer: true },
-      { comp: 'lah-monitor-board-sms-notify', footer: true },
-      { comp: 'lah-monitor-board-sms', footer: true },
-      { comp: 'lah-monitor-board-L05', footer: true },
-      { comp: 'lah-monitor-board-apbackup', footer: true },
-      { comp: 'lah-monitor-board-xcase-sync', footer: false },
-      { comp: 'lah-monitor-board-site-hx', footer: false },
-      { comp: 'lah-monitor-board-lxhweb', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
-      { comp: 'lah-monitor-board-site-tw', footer: false },
-      { comp: 'lah-monitor-board-dbbackup', footer: true },
-      { comp: 'lah-monitor-board-connectivity', footer: false }
+      { comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
+      { comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
+      { comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', footer: true, pinned: true },
+      { comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', footer: true, pinned: true },
+      { comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', footer: true, extraClass: 'fix-img' },
+      { comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', footer: true },
+      { comp: 'lah-monitor-board-sms-notify', header: '簡訊通知服務', footer: true },
+      { comp: 'lah-monitor-board-sms', header: '簡訊數據機', footer: true },
+      { comp: 'lah-monitor-board-L05', header: 'L05 系統', footer: true },
+      { comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', footer: true },
+      { comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', footer: false },
+      { comp: 'lah-monitor-board-site-hx', header: '本所網站', footer: false },
+      { comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
+      { comp: 'lah-monitor-board-site-tw', header: '地政局網站', footer: false },
+      { comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', footer: true },
+      { comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', footer: false },
+      { comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
+      { comp: 'lah-monitor-board-tape', header: '磁帶備份', footer: true },
+      { comp: 'lah-monitor-board-testdb', header: '測試資料庫', footer: false },
+      { comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', footer: true },
+      { comp: 'lah-monitor-board-apconn', header: 'AP 連線數', footer: false },
+      { comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
     ],
     // 儲存已釘選的 ID 列表
     pinnedIds: [],
@@ -210,7 +236,12 @@ export default {
     // 用於監聽設定變更
     monitorPrintersConfig () {
       return this.systemConfigs?.monitor_printers
-    }
+    },
+    // [Mod] 各狀態清單 Computed Properties
+    redDetailList () { return this.getDetailList('danger') },
+    yellowDetailList () { return this.getDetailList('warning') },
+    greenDetailList () { return this.getDetailList('success') },
+    grayDetailList () { return this.getDetailList('gray') }
   },
   watch: {
     col2 (flag) {
@@ -303,7 +334,41 @@ export default {
     clearInterval(this.attentionTimer)
   },
   methods: {
-    // 執行排序並更新顯示列表 (核心邏輯)
+    // [Mod] 優化取得清單邏輯，優先使用設定檔中的 Header，並加入響應式觸發
+    getDetailList (type) {
+      // 讀取響應式變數以建立依賴關係，確保 Computed 會重新計算
+      this.lastLightUpdate
+
+      const list = this.boards.filter(board => {
+        // 取得組件對應的查詢名稱 (用於查狀態)
+        const name = board.realName || this.toCamelCase(board.comp)
+        const status = this.lightMap.get(name)
+        
+        // 灰燈邏輯：非成功、警告、危險
+        if (type === 'gray') {
+          return !['success', 'warning', 'danger'].includes(status)
+        }
+        // 其他顏色邏輯：直接比對狀態
+        return status === type
+      })
+
+      if (list.length === 0) return ''
+
+      return list.map(board => {
+        // 1. 優先使用設定檔中的中文 Header
+        if (board.header) return ` - ${board.header}`
+
+        // 2. 其次使用組件回報的真實名稱
+        if (board.realName) return ` - ${board.realName}`
+        
+        // 3. 最後使用組件名稱 fallback
+        let simpleName = board.comp.replace('lah-monitor-board-', '')
+        if (board.props && (board.props.targetIp || board.props.serverIp)) {
+          simpleName += ` (${board.props.targetIp || board.props.serverIp})`
+        }
+        return ` - ${simpleName.charAt(0).toUpperCase() + simpleName.slice(1)}`
+      }).join('\n')
+    },
     sortBoards () {
       const list = [...this.boards]
       this.currentSortedBoards = list.sort((a, b) => {
@@ -347,6 +412,8 @@ export default {
         const newPrinterBoards = printers.map((p, idx) => {
           const board = {
             comp: 'lah-monitor-board-printer',
+            // [Mod] 為印表機自動產生 Header (修正為 "列印伺服器")
+            header: `列印伺服器 ${p.ip}`,
             footer: true,
             props: {
               size: 'xs',
@@ -376,15 +443,12 @@ export default {
       }
     },
     lightUpdate (payload, board) {
-      // 動態綁定：將組件發出的真實名稱記錄到 board 物件中
       if (board) {
         if (payload && payload.name) {
-          // 更新 board.realName，觸發 computed 重算
           if (board.realName !== payload.name) {
             this.$set(board, 'realName', payload.name)
           }
         }
-        // 更新最後更新時間
         this.$set(board, 'lastUpdate', new Date().getTime())
       }
 
@@ -403,13 +467,13 @@ export default {
       this.red = r
       this.yellow = y
       this.green = g
-
-      // Mod: 計算「灰色/未知」狀態的數量
-      // 公式：目前畫面上的總卡片數 - (紅 + 黃 + 綠)
-      // 這樣可以確保加總 (紅+黃+綠+灰) 永遠等於儀表板上的卡片總數
+      
       const totalCards = this.currentSortedBoards.length
       const calculatedGray = totalCards - r - y - g
       this.gray = calculatedGray > 0 ? calculatedGray : 0
+
+      // [Mod] 更新標記，觸發 computed 重新計算 Tooltip 清單
+      this.lastLightUpdate = new Date().getTime()
 
       this.refreshHighlightGroup()
 
