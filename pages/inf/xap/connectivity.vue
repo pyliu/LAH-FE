@@ -20,7 +20,8 @@ div.h-100(v-cloak)
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
-        li 採用嚴格佇列機制 (Max: 3)，避免同時大量連線。
+        //- 更新說明文字：Max 修正為 2
+        li 採用嚴格佇列機制 (Max: 2)，避免同時大量連線。
         li 右側欄位顯示最近 5 分鐘內的伺服器離線紀錄。
       hr
       div 🟢 連線正常
@@ -101,8 +102,10 @@ export default {
 
     // Queue 機制相關變數
     updateQueue: [],
-    processingCount: 0,
-    MAX_CONCURRENT: 3
+    // 改用陣列明確記錄正在處理中的 ID，確保重試中的連線也佔用名額
+    processingIds: [],
+    // 需求修改: 最大並發數改為 2
+    MAX_CONCURRENT: 2
   }),
   head: {
     title: '全國地所跨域主機監控-桃園市地政局'
@@ -131,6 +134,7 @@ export default {
   beforeDestroy () {
     // 離開頁面時清空 Queue，避免記憶體洩漏或背景執行
     this.updateQueue = []
+    this.processingIds = []
   },
   methods: {
     isOn (data) {
@@ -182,8 +186,8 @@ export default {
 
     // 佇列處理核心
     processQueue () {
-      // 當還有額度 (processingCount < 3) 且 Queue 還有東西時
-      while (this.processingCount < this.MAX_CONCURRENT && this.updateQueue.length > 0) {
+      // 當還有額度 (processingIds.length < MAX_CONCURRENT) 且 Queue 還有東西時
+      while (this.processingIds.length < this.MAX_CONCURRENT && this.updateQueue.length > 0) {
         const siteId = this.updateQueue.shift()
         this.triggerSiteCheck(siteId)
       }
@@ -191,31 +195,34 @@ export default {
 
     // 觸發單一站點檢查
     triggerSiteCheck (siteId) {
+      // 嚴格檢查：如果該站點已經在處理中 (佔用名額)，則跳過，避免重複觸發
+      if (this.processingIds.includes(siteId)) {
+        return
+      }
+
       // 取得對應的元件 Ref
       const ref = this.$refs[siteId]
-      // 因為在 v-for 內，ref 會是陣列
       const component = Array.isArray(ref) ? ref[0] : ref
 
-      if (component && typeof component.check === 'function') {
-        this.processingCount++
-        // 假設 lah-badge-site-status 有 check() 或 reload() 方法
-        // 如果原本是用 timer，現在改為手動呼叫
-        component.check()
-      } else if (component && typeof component.reload === 'function') {
-        this.processingCount++
-        component.reload()
+      if (component && (typeof component.check === 'function' || typeof component.reload === 'function')) {
+        // 佔用一個並發名額
+        this.processingIds.push(siteId)
+
+        if (typeof component.check === 'function') {
+          component.check()
+        } else {
+          component.reload()
+        }
       } else {
-        // 如果找不到元件或是該元件還沒準備好，把它放回 Queue 尾端稍後再試
-        // 避免死鎖
-        // this.updateQueue.push(siteId)
-        console.warn(`Component for ${siteId} not ready or method not found.`)
+        // 元件尚未準備好，暫時忽略，不佔用名額
+        console.warn(`Component for ${siteId} not ready.`)
       }
     },
 
     handleUpdated (data) {
       const siteId = data.site || data.ID
       if (siteId) {
-        // 1. 更新狀態邏輯 (原有的)
+        // 1. 更新狀態邏輯 (UI 顯示)
         this.$set(this.officeStateMap, siteId, {
           status: data.status,
           timestamp: Date.now()
@@ -223,28 +230,41 @@ export default {
         this.filterByLight()
 
         // 2. Queue 邏輯處理
-        // 釋放一個並發名額
-        this.processingCount = Math.max(0, this.processingCount - 1)
+        // 關鍵修正：如果狀態是 0 (表示 Loading 或 重試中)，不應該釋放名額！
+        // 只有在明確的 成功(>0) 或 失敗(<0且非0) 時才視為結束
+        if (data.status === 0) {
+          return
+        }
+
+        // 釋放名額：從 processingIds 中移除
+        const idx = this.processingIds.indexOf(siteId)
+        if (idx > -1) {
+          this.processingIds.splice(idx, 1)
+        } else {
+          // 如果收到更新但該 ID 不在處理清單中 (可能是舊的 callback)，
+          // 則不觸發後續排程，避免 Queue 邏輯混亂
+          return
+        }
 
         // 決定下次檢查的延遲時間
-        let delay = 1000 // 預設 1秒 (異常時快速重試，或可設長一點)
+        let delay = 1000 // 預設 1秒
 
         // 如果狀態正常 (status > 0)，隨機延遲 1~10 秒
-        // 使用 lodash 的 _.random (假設專案有引入，若無則用 Math.random)
         if (data.status > 0) {
           delay = this.$utils.rand(1000, 10000)
         } else {
-          // 異常狀態，也許可以固定 5 秒或更久，避免一直打掛掉的站點
+          // 異常狀態，固定 5 秒後重試
           delay = 5000
         }
 
         // 設定計時器將此站點放回 Queue
         setTimeout(() => {
-          // 只有在頁面還活著時才加回去
           if (this.officesData.length > 0) {
-            this.updateQueue.push(siteId)
-            // 嘗試觸發佇列處理 (如果目前沒滿載)
-            this.processQueue()
+            // 防呆：確保不會重複加入 Queue 或 Processing
+            if (!this.updateQueue.includes(siteId) && !this.processingIds.includes(siteId)) {
+              this.updateQueue.push(siteId)
+              this.processQueue()
+            }
           }
         }, delay)
 
