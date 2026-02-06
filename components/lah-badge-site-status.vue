@@ -115,6 +115,9 @@ export default {
     headers: [],
     message: '',
     timer: null,
+    retryTimer: null,
+    retryCount: 0,
+    maxRetries: 3,
     clearTimer: null,
     officeCacheKey: 'office-cached-key',
     officesData: [],
@@ -245,6 +248,7 @@ export default {
       MOUNTED_COUNT = 0
     }
     clearTimeout(this.timer)
+    clearTimeout(this.retryTimer)
     clearInterval(this.clearTimer)
     clearInterval(this.nowTimer)
   },
@@ -253,12 +257,15 @@ export default {
       if (this.isStatic) { this.$emit('click'); return }
       if (this.loading) { return }
 
-      // [核心修正] 開始檢查前，清空舊的 headers 訊息
-      this.headers = []
-      this.message = '檢測中 ... '
-      this.status = -2
+      if (force) {
+        this.retryCount = 0
+        this.siteStatusCacheMap.delete(this.watchSite)
+        clearTimeout(this.retryTimer)
+      }
 
-      force && this.siteStatusCacheMap.delete(this.watchSite)
+      this.headers = []
+      this.message = this.retryCount > 0 ? `連線重試中 (${this.retryCount}/${this.maxRetries})...` : '檢測中 ... '
+      this.status = -2
 
       const cached = this.siteStatusCacheMap.get(this.watchSite)
       if (cached) {
@@ -266,6 +273,7 @@ export default {
         this.headers = [...cached.raw]
         this.status = cached.status
         cached.site = this.watchSite
+        this.retryCount = 0
         this.$emit('updated', cached)
         this.nextRun()
       } else {
@@ -276,7 +284,6 @@ export default {
 
         enqueueRequest(task, this).then(({ data }) => {
           if (this.isDestroyed) { return }
-          // 401 也視為成功
           if (this.$utils.statusCheck(data.status) || data.status === 401) {
             this.headers = [...data.raw]
             this.status = data.status
@@ -284,39 +291,78 @@ export default {
             data.site = this.watchSite
             this.$emit('updated', data)
             this.siteStatusCacheMap.set(this.watchSite, data)
+
+            this.retryCount = 0
+            this.updateTimestamp = +new Date()
+            this.nextRun()
           } else {
             this.status = -1
+            this.retryCount = 0
             this.$emit('updated', { site: this.watchSite, status: -1, message: data.message })
+            this.updateTimestamp = +new Date()
+            this.nextRun()
           }
         }).catch((err) => {
           if (this.isDestroyed) { return }
 
-          // [核心修正] 強化逾時判定邏輯
           const errStr = err.toString().toLowerCase()
           const isTimeout = err.code === 'ECONNABORTED' || errStr.includes('timeout') || errStr.includes('exceeded')
 
           if (isTimeout) {
-            this.status = 0
-            this.message = '連線逾時'
-            this.headers = ['連線逾時']
+            if (this.retryCount < this.maxRetries) {
+              this.retryCount++
+              const baseDelay = Math.pow(2, this.retryCount - 1) * 1000
+              const jitter = Math.floor(Math.random() * 500)
+              const delay = baseDelay + jitter
+
+              this.status = 0
+              this.message = `連線逾時，${(delay / 1000).toFixed(1)}秒後進行第 ${this.retryCount} 次重試...`
+              this.headers = [this.message]
+
+              this.retryTimer = setTimeout(() => {
+                this.check()
+              }, delay)
+
+              return
+            } else {
+              this.status = 0
+              this.message = '連線逾時 (已達最大重試次數)'
+              this.headers = ['連線逾時']
+              this.retryCount = 0
+            }
           } else {
             this.status = -1
             this.message = err.toString()
             this.headers = [this.message]
+            this.retryCount = 0
           }
+
           this.$emit('updated', { site: this.watchSite, status: this.status, message: this.message })
-        }).finally(() => {
-          if (!this.isDestroyed) {
-            this.updateTimestamp = +new Date()
-            this.nextRun()
-          }
+          this.updateTimestamp = +new Date()
+          this.nextRun()
         })
       }
     },
     nextRun () {
-      const bounceMs = Math.floor(Math.random() * 1000) + 100
       clearTimeout(this.timer)
-      this.timeout(this.check, (parseInt(this.period) || 60000) + bounceMs).then((handler) => { this.timer = handler })
+
+      // 基礎防碰撞延遲
+      const bounceMs = Math.floor(Math.random() * 1000) + 100
+      let delay = parseInt(this.period) || 60000
+
+      // [核心修正] 依據狀態決定下一次的更新間隔
+      if (this.status > 0) {
+        // 正常狀態：3 ~ 5 分鐘 (180s ~ 300s)
+        const min = 3 * 60 * 1000
+        const max = 5 * 60 * 1000
+        // 隨機區間
+        delay = Math.floor(Math.random() * (max - min + 1)) + min
+      } else {
+        // 異常狀態：1 分鐘
+        delay = 60000
+      }
+
+      this.timeout(this.check, delay + bounceMs).then((handler) => { this.timer = handler })
     }
   }
 }
