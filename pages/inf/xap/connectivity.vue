@@ -20,7 +20,7 @@ div.h-100(v-cloak)
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
-        li 採用分散式元件檢查機制 (智慧佇列)。
+        li 採用嚴格佇列機制 (Max: 3)，避免同時大量連線。
         li 右側欄位顯示最近 5 分鐘內的伺服器離線紀錄。
       hr
       div 🟢 連線正常
@@ -52,11 +52,12 @@ div.h-100(v-cloak)
           :key="data.ID",
           style="position: relative"
         )
+          //- 設定 period="0" 停用元件內部自動更新，改由父元件控制
           lah-badge-site-status.h-100(
             :ref="data.ID",
             :watch-site="data.ID",
             :short="displayShortName",
-            :period="reloadMs",
+            :period="0",
             :fill="false",
             :display-update-time="true",
             :display-update-time-to-now="true",
@@ -95,8 +96,13 @@ export default {
     red: [],
     green: [],
     yellow: [],
-    reloadMs: '60000',
-    officeCacheKey: 'connectivity_offices_list'
+    // 原本的 reloadMs 設為 0 或不使用，改由 Queue 控制
+    officeCacheKey: 'connectivity_offices_list',
+
+    // Queue 機制相關變數
+    updateQueue: [],
+    processingCount: 0,
+    MAX_CONCURRENT: 3
   }),
   head: {
     title: '全國地所跨域主機監控-桃園市地政局'
@@ -121,6 +127,10 @@ export default {
     this.filterByLight = this.$utils.debounce(this.processSorting, 500)
 
     this.prepareOfficesData()
+  },
+  beforeDestroy () {
+    // 離開頁面時清空 Queue，避免記憶體洩漏或背景執行
+    this.updateQueue = []
   },
   methods: {
     isOn (data) {
@@ -152,21 +162,94 @@ export default {
         // 初始化列表順序
         this.sortedOffices = [...this.officesData]
         this.setCache(this.officeCacheKey, data, 24 * 60 * 60 * 1000)
+
+        // 資料載入完成後，初始化 Queue 並開始執行
+        this.$nextTick(() => {
+          this.initQueue()
+        })
       } else {
         this.$utils.error('無法取得各地政事務所對應資料。')
+      }
+    },
+
+    // 初始化佇列：將所有站點 ID 加入
+    initQueue () {
+      this.officesData.forEach((office) => {
+        this.updateQueue.push(office.ID)
+      })
+      this.processQueue()
+    },
+
+    // 佇列處理核心
+    processQueue () {
+      // 當還有額度 (processingCount < 3) 且 Queue 還有東西時
+      while (this.processingCount < this.MAX_CONCURRENT && this.updateQueue.length > 0) {
+        const siteId = this.updateQueue.shift()
+        this.triggerSiteCheck(siteId)
+      }
+    },
+
+    // 觸發單一站點檢查
+    triggerSiteCheck (siteId) {
+      // 取得對應的元件 Ref
+      const ref = this.$refs[siteId]
+      // 因為在 v-for 內，ref 會是陣列
+      const component = Array.isArray(ref) ? ref[0] : ref
+
+      if (component && typeof component.check === 'function') {
+        this.processingCount++
+        // 假設 lah-badge-site-status 有 check() 或 reload() 方法
+        // 如果原本是用 timer，現在改為手動呼叫
+        component.check()
+      } else if (component && typeof component.reload === 'function') {
+        this.processingCount++
+        component.reload()
+      } else {
+        // 如果找不到元件或是該元件還沒準備好，把它放回 Queue 尾端稍後再試
+        // 避免死鎖
+        // this.updateQueue.push(siteId)
+        console.warn(`Component for ${siteId} not ready or method not found.`)
       }
     },
 
     handleUpdated (data) {
       const siteId = data.site || data.ID
       if (siteId) {
-        // 更新狀態與當前時間戳記
+        // 1. 更新狀態邏輯 (原有的)
         this.$set(this.officeStateMap, siteId, {
           status: data.status,
           timestamp: Date.now()
         })
-        // 觸發排序
         this.filterByLight()
+
+        // 2. Queue 邏輯處理
+        // 釋放一個並發名額
+        this.processingCount = Math.max(0, this.processingCount - 1)
+
+        // 決定下次檢查的延遲時間
+        let delay = 1000 // 預設 1秒 (異常時快速重試，或可設長一點)
+
+        // 如果狀態正常 (status > 0)，隨機延遲 1~10 秒
+        // 使用 lodash 的 _.random (假設專案有引入，若無則用 Math.random)
+        if (data.status > 0) {
+          delay = this.$utils.rand(1000, 10000)
+        } else {
+          // 異常狀態，也許可以固定 5 秒或更久，避免一直打掛掉的站點
+          delay = 5000
+        }
+
+        // 設定計時器將此站點放回 Queue
+        setTimeout(() => {
+          // 只有在頁面還活著時才加回去
+          if (this.officesData.length > 0) {
+            this.updateQueue.push(siteId)
+            // 嘗試觸發佇列處理 (如果目前沒滿載)
+            this.processQueue()
+          }
+        }, delay)
+
+        // 目前已經釋放了一個名額，立刻補上下一個
+        this.processQueue()
       }
     },
 
