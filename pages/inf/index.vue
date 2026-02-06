@@ -201,7 +201,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
 
           //- 2. 監控儀表板
           b-col(cols="auto").mb-4
-            nuxt-link(:to="isDevOffice ? '/inf/dashboard/HA' : '/inf/dashboard/HX'").text-decoration-none
+            nuxt-link(:to="isDevOffice ? '/inf/dashboard/HA' : '/inf/dashboard/?mode=HX'").text-decoration-none
               b-card.modern-card.border-0.shadow-sm
                 b-card-body.d-flex.flex-column.align-items-center.text-center.p-4
                   .icon-box.bg-success-light.mb-4
