@@ -12,127 +12,102 @@ div.h-100.d-flex.flex-column.bg-light.overflow-hidden
 
         //- 上方 Slogan 區域
         .text-center.mb-3.anim-appear-1s
-          //- SVG Banner: 地價與實價登錄主題 (放大版)
+          //- 重繪版 SVG
           svg.mb-2.slogan-img(
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1000 400"
+            viewBox="0 0 800 400"
             preserveAspectRatio="xMidYMid meet"
-            style="max-height: 40vh; width: 33vw; max-width: 1000px;"
+            style="max-height: 40vh; width: 33vw; max-width: 900px;"
           )
-            defs
-              //- 濾鏡
-              filter#val-glow
-                feGaussianBlur(stdDeviation="2" result="coloredBlur")
-                feMerge
-                  feMergeNode(in="coloredBlur")
-                  feMergeNode(in="SourceGraphic")
+            //- 1. 背景：地籍格網與趨勢線
+            g.background-layer
+              //- 淺色格網 (模擬地籍圖)
+              g(stroke="#e0e0e0" stroke-width="1")
+                //- 橫線
+                line(x1="50" y1="100" x2="750" y2="100")
+                line(x1="50" y1="200" x2="750" y2="200")
+                line(x1="50" y1="300" x2="750" y2="300")
+                //- 直線
+                line(x1="200" y1="50" x2="200" y2="350")
+                line(x1="400" y1="50" x2="400" y2="350")
+                line(x1="600" y1="50" x2="600" y2="350")
 
-              //- 漸層：天空
-              linearGradient#sky-grad(x1="0%" y1="0%" x2="0%" y2="100%")
-                stop(offset="0%" stop-color="#fff3e0")
-                stop(offset="100%" stop-color="#ffe0b2")
+              //- 地標定位點 (Land Markers)
+              g(fill="#b0bec5")
+                circle(cx="200" cy="200" r="4")
+                circle(cx="400" cy="300" r="4")
+                circle(cx="600" cy="100" r="4")
+                circle(cx="600" cy="200" r="4")
 
-              //- 漸層：金幣
-              linearGradient#coin-grad(x1="0%" y1="0%" x2="100%" y2="100%")
-                stop(offset="0%" stop-color="#ffd54f")
-                stop(offset="100%" stop-color="#ff6f00")
+              //- 藍色折線 (趨勢)
+              polyline(
+                points="100,280 200,250 400,260 600,150 700,120"
+                fill="none"
+                stroke="#bbdefb"
+                stroke-width="6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.6"
+              )
 
-              //- 漸層：建築物
-              linearGradient#building-grad(x1="0%" y1="0%" x2="0%" y2="100%")
-                stop(offset="0%" stop-color="#90caf9")
-                stop(offset="100%" stop-color="#1565c0")
+            //- 2. 主體：房屋 (左) - 外層定位，內層動畫
+            g(transform="translate(150, 130)")
+              g.float-item-1
+                //- 陰影
+                ellipse(cx="60" cy="110" rx="50" ry="10" fill="#000" opacity="0.1")
+                //- 房子主體
+                path(d="M10,40 L60,-10 L110,40 V100 H10 Z" fill="#4285f4")
+                //- 窗戶
+                rect(x="35" y="55" width="20" height="20" fill="#90caf9")
+                rect(x="65" y="55" width="20" height="20" fill="#90caf9")
+                //- 價格標籤
+                g(transform="translate(80, 0) rotate(15)")
+                  rect(x="0" y="0" width="50" height="30" rx="4" fill="#ff5722")
+                  circle(cx="8" cy="15" r="3" fill="white")
+                  text(x="18" y="22" font-family="Arial" font-weight="bold" font-size="20" fill="white") $
 
-            //- 1. 背景環境
-            //- 天空
-            rect(x="0" y="0" width="1000" height="320" fill="url(#sky-grad)" opacity="0.5")
-            //- 地面
-            rect(x="0" y="320" width="1000" height="80" fill="#cfd8dc")
+            //- 3. 主體：文件與審查 (中) - 外層定位，內層動畫
+            g(transform="translate(350, 120)")
+              g.float-item-2
+                //- 陰影
+                ellipse(cx="50" cy="120" rx="40" ry="8" fill="#000" opacity="0.1")
+                //- 文件紙張
+                rect(x="10" y="0" width="80" height="110" rx="5" fill="#fff" stroke="#cfd8dc" stroke-width="2")
+                //- 文件內容線條
+                g(fill="#cfd8dc")
+                  rect(x="25" y="20" width="50" height="6")
+                  rect(x="25" y="40" width="50" height="6")
+                  rect(x="25" y="60" width="30" height="6")
+                //- 放大鏡
+                g(transform="translate(50, 60)")
+                  circle(cx="0" cy="0" r="25" fill="rgba(255,255,255,0.8)" stroke="#546e7a" stroke-width="4")
+                  line(x1="18" y1="18" x2="40" y2="40" stroke="#546e7a" stroke-width="8" stroke-linecap="round")
 
-            //- 城市剪影 (背景)
-            g(opacity="0.3" transform="translate(0, 50)")
-              path(d="M100,270 L100,150 L180,150 L180,270 M250,270 L250,100 L350,100 L350,270 M500,270 L500,180 L600,180 L600,270" fill="#b0bec5")
-              rect(x="650" y="200" width="80" height="70" fill="#b0bec5")
-
-            //- 裝飾性雲朵
-            g(opacity="0.6")
-              path(d="M150,80 Q180,50 210,80 T270,80 T300,100 H150 Z" fill="white")
-                animateTransform(attributeName="transform" type="translate" from="-100,0" to="1100,0" dur="45s" repeatCount="indefinite")
-              path(d="M750,50 Q780,20 810,50 T870,50 T900,70 H750 Z" fill="white")
-                animateTransform(attributeName="transform" type="translate" from="-200,0" to="800,0" dur="60s" repeatCount="indefinite")
-
-            //- 2. 左側：房屋與價值 (House & Value)
-            g(transform="translate(150, 180)")
-              //- 房屋
-              path(d="M0,0 L60,-60 L120,0 V100 H0 Z" fill="url(#building-grad)" stroke="#0d47a1" stroke-width="2" filter="url(#val-glow)")
-              //- 窗戶
-              rect(x="20" y="20" width="30" height="30" fill="#e3f2fd")
-              rect(x="70" y="20" width="30" height="30" fill="#e3f2fd")
-              //- 門
-              rect(x="45" y="60" width="30" height="40" fill="#1565c0")
-
-              //- 價格標籤 (浮動)
-              g(transform="translate(100, -80)")
-                path(d="M0,0 L60,0 L80,30 L60,60 H0 Z" fill="#ff6f00" filter="url(#val-glow)")
-                circle(cx="10" cy="30" r="5" fill="white")
-                text(x="25" y="42" font-size="28" fill="white" font-weight="bold") $ Price
-                animateTransform(attributeName="transform" type="translate" values="100,-80; 100,-90; 100,-80" dur="3s" repeatCount="indefinite")
-
-            //- 3. 中央：數據分析與金幣 (Data & Coin)
-            g(transform="translate(450, 250)")
-              //- 堆疊金幣
-              g
-                ellipse(cx="0" cy="0" rx="30" ry="12" fill="url(#coin-grad)" stroke="#e65100" stroke-width="1")
-                path(d="M-30,0 v15 a30,12 0 0,0 60,0 v-15" fill="url(#coin-grad)" stroke="#e65100" stroke-width="1")
-              g(transform="translate(0, -15)")
-                ellipse(cx="0" cy="0" rx="30" ry="12" fill="url(#coin-grad)" stroke="#e65100" stroke-width="1")
-                path(d="M-30,0 v15 a30,12 0 0,0 60,0 v-15" fill="url(#coin-grad)" stroke="#e65100" stroke-width="1")
-              g(transform="translate(0, -30)")
-                ellipse(cx="0" cy="0" rx="30" ry="12" fill="url(#coin-grad)" stroke="#e65100" stroke-width="1")
-                path(d="M-30,0 v15 a30,12 0 0,0 60,0 v-15" fill="url(#coin-grad)" stroke="#e65100" stroke-width="1")
-                //- 頂層金幣跳動
+            //- 4. 主體：地價與數據 (右) - 外層定位，內層動畫
+            g(transform="translate(550, 140)")
+              g.float-item-3
+                //- 陰影
+                ellipse(cx="60" cy="100" rx="50" ry="10" fill="#000" opacity="0.1")
+                //- 金幣堆疊
                 g
-                  ellipse(cx="0" cy="-15" rx="30" ry="12" fill="url(#coin-grad)" stroke="#e65100" stroke-width="1")
-                  text(x="-8" y="-8" font-size="20" fill="#bf360c" font-weight="bold") $
-                  animateTransform(attributeName="transform" type="translate" values="0,0; 0,-10; 0,0" dur="1.5s" repeatCount="indefinite")
+                  //- 底層
+                  path(d="M30,50 L30,70 A30,10 0 0,0 90,70 L90,50 A30,10 0 0,1 30,50" fill="#ffb300")
+                  ellipse(cx="60" cy="50" rx="30" ry="10" fill="#ffca28")
+                  //- 中層
+                  path(d="M30,25 L30,45 A30,10 0 0,0 90,45 L90,25 A30,10 0 0,1 30,25" fill="#ffb300")
+                  ellipse(cx="60" cy="25" rx="30" ry="10" fill="#ffca28")
+                  //- 頂層
+                  path(d="M30,0 L30,20 A30,10 0 0,0 90,20 L90,0 A30,10 0 0,1 30,0" fill="#ffb300")
+                  ellipse(cx="60" cy="0" rx="30" ry="10" fill="#ffe082" stroke="#ffb300" stroke-width="1")
+                  text(x="52" y="8" font-family="Arial" font-weight="bold" font-size="24" fill="#bf360c") $
 
-              //- 上升趨勢線
-              g(transform="translate(60, -80)")
-                polyline(points="0,80 30,60 60,70 90,20 120,40 150,0" fill="none" stroke="#2e7d32" stroke-width="4" stroke-linecap="round")
-                circle(cx="150" cy="0" r="5" fill="#2e7d32")
-
-            //- 4. 右側：地價人員 (Appraiser)
-            g(transform="translate(800, 320)")
-              //- 下半身
-              path(d="M-30,0 L-25,-80 L25,-80 L30,0 Z" fill="#37474f")
-
-              //- 上半身 (襯衫)
-              path(d="M-35,-80 L-30,-170 Q0,-180 30,-170 L35,-80 Z" fill="#fff")
-              path(d="M-30,-170 L0,-140 L30,-170" fill="none" stroke="#cfd8dc" stroke-width="2") //- 領口
-
-              //- 領帶
-              path(d="M0,-165 L5,-140 L0,-110 L-5,-140 Z" fill="#d32f2f")
-
-              //- 頭部
-              circle(cx="0" cy="-190" r="28" fill="#ffccbc")
-              //- 眼鏡
-              g(transform="translate(0, -190)")
-                line(x1="-25" y1="-5" x2="25" y2="-5" stroke="#333" stroke-width="2")
-                circle(cx="-10" cy="-5" r="8" fill="none" stroke="#333" stroke-width="2")
-                circle(cx="10" cy="-5" r="8" fill="none" stroke="#333" stroke-width="2")
-              //- 頭髮
-              path(d="M-28,-190 Q-30,-225 0,-225 Q30,-225 28,-190 V-185 H-28 Z" fill="#3e2723")
-
-              //- 手持平板
-              g(transform="translate(-60, -130) rotate(-15)")
-                rect(x="0" y="0" width="80" height="60" rx="4" fill="#212121")
-                rect(x="5" y="5" width="70" height="50" fill="#e3f2fd")
-                //- 平板內容：勾選符號
-                path(d="M20,25 L35,40 L60,15" fill="none" stroke="#4caf50" stroke-width="4" stroke-linecap="round")
+                //- 綠色上升箭頭
+                path(d="M100,-20 L120,-40 L140,-20 M120,-40 L120,10" stroke="#4caf50" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none")
 
           h1.font-weight-bold.text-dark.lah-shadow.text-nowrap 地政地價小幫手
           p.text-muted.h4.mt-1 實價登錄與地價作業輔助系統
 
-        //- 下方連結區域
+        //- 下方連結區域 (卡片)
         b-row.justify-content-center.px-3
           //- 1. 實價登錄案件控管
           b-col(cols="auto").mb-3
@@ -181,6 +156,25 @@ export default {
   }
 }
 
+/* 動畫定義 */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* 應用動畫到 SVG 群組，分別設置不同的延遲以製造層次感 */
+.float-item-1 {
+  animation: float 4s ease-in-out infinite;
+}
+.float-item-2 {
+  animation: float 4.5s ease-in-out infinite;
+  animation-delay: 1s;
+}
+.float-item-3 {
+  animation: float 5s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
 .modern-card {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   border-radius: 20px !important;
@@ -216,16 +210,11 @@ export default {
 /* 淺色背景色系 */
 .bg-primary-light { background-color: rgba(0, 123, 255, 0.1); }
 .bg-success-light { background-color: rgba(40, 167, 69, 0.1); }
-.bg-info-light    { background-color: rgba(23, 162, 184, 0.1); }
-.bg-warning-light { background-color: rgba(255, 193, 7, 0.15); }
-.bg-danger-light  { background-color: rgba(220, 53, 69, 0.1); }
 
 a:hover {
   text-decoration: none;
 }
 
-// 響應式隱藏 Slogan 圖片
-// 當視窗高度小於 800px 或寬度小於 768px (手機版換行時) 隱藏圖片
 @media (max-width: 768px), (max-height: 800px) {
   .slogan-img {
     display: none !important;
