@@ -1,5 +1,9 @@
 <template lang="pug">
-b-card(:no-body="noBody")
+//- 修正: 增加 h-100, d-flex, flex-column 確保卡片佔滿父容器並正確佈局
+b-card.h-100.flex-column.shadow-sm(
+  :no-body="noBody",
+  :class="['d-flex', { 'border-0': noBody }]"
+)
   template(
     v-if="!hideHeader",
     #header
@@ -32,42 +36,46 @@ b-card(:no-body="noBody")
         li 顯示跨域伺服器離線統計
         li 預設讀取前10筆歷史資料
 
-  .center.h4.mt-3(v-if="itemsCount === 0")
-    lah-fa-icon(
-      icon="triangle-exclamation",
-      variant="warning"
-    ) 無伺服器離線資料
-  b-list-group(v-else)
-    transition-group(name="list"): b-list-group-item.flex-column.align-items-start(
-      v-for="(item, index) in officesData",
-      :key="`${item.timestamp}-${item.id}-${index}`"
-    )
-      .item-head(
-        :title="`${shorten(item.name)}`",
-        :class="[circleBGColor(item)]"
+  //- 修正: 新增捲動容器，設定 flex-grow-1 填滿剩餘空間，並設定 overflow-auto
+  .flex-grow-1.overflow-auto(style="min-height: 0")
+    .center.h4.mt-3(v-if="itemsCount === 0")
+      lah-fa-icon(
+        icon="triangle-exclamation",
+        variant="warning"
+      ) 無伺服器離線資料
+
+    //- 修正: 加入 flush 屬性，當 noBody 為 true 時去除列表邊框
+    b-list-group(v-else, :flush="noBody")
+      transition-group(name="list"): b-list-group-item.flex-column.align-items-start(
+        v-for="(item, index) in officesData",
+        :key="`${item.timestamp}-${item.id}-${index}`"
       )
-      .item-tail(v-if="index !== itemsCount - 1")
-      b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", small)
-      .item-content(v-if="!item.spinner")
-        .d-flex.w-100.justify-content-between.font-weight-bold
-          a.mb-1.truncate(
-            :title="item.id",
-            v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
-            href="javascript:void(0)"
-          ) {{ `${item.id} ${item.name}` }}
-          lah-badge-human-datetime(:seconds="item.timestamp")
+        .item-head(
+          :title="`${shorten(item.name)}`",
+          :class="[circleBGColor(item)]"
+        )
+        .item-tail(v-if="index !== itemsCount - 1")
+        b-spinner.ml-4(v-if="item.spinner" :variant="bootstrapVariant", small)
+        .item-content(v-if="!item.spinner")
+          .d-flex.w-100.justify-content-between.font-weight-bold
+            a.mb-1.truncate(
+              :title="item.id",
+              v-b-toggle="[`content-${index}`, `content-${index}-preview`]",
+              href="javascript:void(0)"
+            ) {{ `${item.id} ${item.name}` }}
+            lah-badge-human-datetime(:seconds="item.timestamp")
 
-        b-collapse(
-          :id="`content-${index}-preview`",
-          :visible="index !== 0"
-        ): .small.mb-1.text-muted.w-100.truncate
-          |{{ cleanTags(item.response) }}
+          b-collapse(
+            :id="`content-${index}-preview`",
+            :visible="index !== 0"
+          ): .small.mb-1.text-muted.w-100.truncate
+            |{{ cleanTags(item.response) }}
 
-        b-collapse(:id="`content-${index}`", :visible="index === 0")
-          .rounded.border.border-dark.mt-1.mb-1.p-2
-            .item-description.timeline-img(
-              v-html="formatText(item)"
-            )
+          b-collapse(:id="`content-${index}`", :visible="index === 0")
+            .rounded.border.border-dark.mt-1.mb-1.p-2
+              .item-description.timeline-img(
+                v-html="formatText(item)"
+              )
 
   template(#footer, v-if="!hideFooter"): client-only: lah-monitor-board-footer(
     ref="footer"

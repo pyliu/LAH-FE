@@ -16,56 +16,62 @@ div.h-100(v-cloak)
         .d-flex.align-items-center.justify-content-space-between
           b-checkbox.mr-1(v-model="displayShortName", size="lg") 顯示別名
           b-checkbox.mr-1(v-model="displayDanger", size="lg") 連線狀態錯誤
-          lah-button(
-            icon="link-slash",
-            no-border,
-            title="顯示離線紀錄",
-            variant="outline-danger",
-            size="lg",
-            @click="showOfflineRecords"
-          ) 顯示離線紀錄
 
   lah-help-modal(:modal-id="'help-modal'", size="md")
       ul
         li 提供顯示全國各所跨域主機服務狀態。
         li 採用分散式元件檢查機制 (智慧佇列)。
+        li 右側欄位顯示最近 5 分鐘內的伺服器離線紀錄。
       hr
       div 🟢 連線正常
       div 🟡 等待/逾時
       div 🔴 連線失敗
 
-  lah-transition: h3.center(v-if="displayDanger && red.length === 0 && yellow.length === 0")
-    lah-fa-icon.mr-1(icon="circle-check", variant="success")
-    span 目前各地所皆可正常連線
-
-  //- 讀取中提示 UI
+  //- 讀取中提示 UI (全域)
   div.center.h-50(v-if="officesData.length === 0")
     lah-fa-icon(icon="spinner", action="spin", size="3x", variant="primary")
     .mt-2.font-weight-bold.text-primary 讀取站點資料中...
 
-  //- UI Grid: 修正多重屬性括號問題，合併所有屬性到單一 () 中
-  transition-group.dashboard-grid.p-3(
-    v-else,
-    name="list",
-    tag="div"
-  )
-    div(
-      v-for="data in sortedOffices",
-      v-show="isOn(data)",
-      :key="data.ID",
-      style="position: relative"
-    )
-      lah-badge-site-status.h-100(
-        :ref="data.ID",
-        :watch-site="data.ID",
-        :short="displayShortName",
-        :period="reloadMs",
-        :fill="false",
-        :display-update-time="true",
-        :display-update-time-to-now="true",
-        :tile="true",
-        @updated="handleUpdated"
+  //- 主要內容區塊：使用 Grid 分割左右
+  b-row.h-100(v-else, no-gutters)
+    //- 左側：監控儀表板 (佔 3/4)
+    b-col.h-100.d-flex.flex-column(cols="12", lg="9")
+      //- 狀態提示列
+      lah-transition: h3.center.py-2.m-0(v-if="displayDanger && red.length === 0 && yellow.length === 0")
+        lah-fa-icon.mr-1(icon="circle-check", variant="success")
+        span 目前各地所皆可正常連線
+
+      //- UI Grid: 站點狀態列表
+      transition-group.dashboard-grid.p-3(
+        name="list",
+        tag="div"
       )
+        div(
+          v-for="data in sortedOffices",
+          v-show="isOn(data)",
+          :key="data.ID",
+          style="position: relative"
+        )
+          lah-badge-site-status.h-100(
+            :ref="data.ID",
+            :watch-site="data.ID",
+            :short="displayShortName",
+            :period="reloadMs",
+            :fill="false",
+            :display-update-time="true",
+            :display-update-time-to-now="true",
+            :tile="true",
+            @updated="handleUpdated"
+          )
+          //- 需求: 顯示別名時，右下角疊加顯示所代碼
+          .site-id-overlay.small.font-weight-bold.text-secondary(v-if="displayShortName") {{ data.ID }}
+
+    //- 右側：離線紀錄時間軸 (佔 1/4)
+    //- 需求 2: 固定在畫面中，高度固定 88vh，不受 scrollbar 影響 (容器不捲動)
+    b-col.p-0(cols="12", lg="3")
+      .timeline-container.p-2
+        //- 將捲動邏輯交給組件本身：h-100 填滿容器，overflow-auto 啟用內部捲軸
+        lah-office-down-timeline(hide-footer).h-100.overflow-auto
 
 </template>
 
@@ -209,17 +215,6 @@ export default {
         // 4. 最後依 ID 代碼字母排序
         return a.ID.localeCompare(b.ID)
       })
-    },
-
-    showOfflineRecords () {
-      this.modal(this.$createElement(lahOfficeDownTimeline, {
-        props: {
-          maxHeight: false,
-          hideFooter: true
-        }
-      }), {
-        title: '離線伺服器歷史資訊'
-      })
     }
   }
 }
@@ -228,11 +223,29 @@ export default {
 <style lang="scss" scoped>
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-  height: calc(100vh - 85px);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  height: 100%;
   overflow-y: auto;
   align-content: start;
+}
+
+// 需求: 所代碼浮水印
+.site-id-overlay {
+  position: absolute;
+  bottom: 0.25rem;
+  right: 0.4rem;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 1;
+}
+
+// 需求 2: 固定高度 (88vh) 且容器本身不顯示卷軸
+.timeline-container {
+  height: 91vh;
+  // 移除 overflow-y: auto，確保容器本身不出卷軸
+  position: sticky;
+  top: 0;
 }
 
 .list-enter-active, .list-leave-active {
@@ -243,7 +256,6 @@ export default {
   transform: scale(0.9);
 }
 
-// 排序變動時的平滑移動動畫
 .list-move {
   transition: transform 0.8s ease-in-out;
 }
