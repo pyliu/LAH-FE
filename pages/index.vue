@@ -1,5 +1,5 @@
 <template lang="pug">
-div.h-100.d-flex.flex-column.bg-light.overflow-hidden
+div.h-100.d-flex.flex-column.overflow-hidden
   lah-header
     lah-fa-icon.h1.my-auto(icon="people-roof")
       span.ml-1 {{ office }} 地政事務所入口網

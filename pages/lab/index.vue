@@ -1,6 +1,6 @@
 <template lang="pug">
 //- 外層維持 overflow-hidden，確保沒有全頁捲軸
-div.h-100.d-flex.flex-column.bg-light.overflow-hidden
+div.h-100.d-flex.flex-column.overflow-hidden
   //- 移除標題文字，保留 Header 元件
   lah-header
 
