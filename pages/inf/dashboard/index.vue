@@ -121,10 +121,11 @@ client-only: .monitor-dashboard(v-cloak, :class="{ 'dark-mode': isDarkMode }")
         li #[strong 智慧監控API]：呼叫安裝於遠端伺服器上的客製化API，獲取服務的即時狀態（例如：建物圖籍同步、地籍異動即時通等）。
         li #[strong 系統後端API]：直接存取本系統後端的API，查詢內部服務狀態（例如：L3同步、跨縣市AP服務等）。
 
-  //- 使用 transition-group 來實現排序動畫
+  //- Mod: 加入 appear 屬性，並在 JS 中延遲排序以觸發動畫
   transition-group.d-flex.flex-wrap.align-content-start(
     tag="div",
-    name="board-list"
+    name="board-list",
+    appear
   )
     div(
       v-for="board in currentSortedBoards"
@@ -307,7 +308,9 @@ export default {
       } else {
         this.pinnedIds = this.boards.filter(b => b.pinned).map(b => b.id)
       }
-      this.sortBoards()
+      
+      // Mod: 移除這裡的立即排序，改到 mounted 延遲執行，讓使用者能看到「排序動畫」
+      // this.sortBoards()
     })
 
     this.currentSortedBoards = [...this.boards]
@@ -325,6 +328,12 @@ export default {
     })
   },
   mounted () {
+    // Mod: 頁面載入完成後延遲一秒進行初次排序
+    // 這樣使用者會先看到預設排序，然後看到卡片移動到新位置的動畫
+    setTimeout(() => {
+      this.sortBoards()
+    }, 1000)
+
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       const tmp = []
       for (const [key, value] of this.lightMap) {
@@ -648,6 +657,15 @@ export default {
     .office-name, .area-name{
       color: #f8f9fa !important;
     }
+
+    // 7. 針對 Chart.js Canvas 的優化
+    // 解決 Chart.js 預設深色文字在深色模式下看不清的問題
+    // Mod: 改用濾鏡反轉 (Invert) 讓深色字變亮色字，配合色相旋轉 (Hue Rotate) 修正圖表顏色
+    canvas {
+      filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.1);
+      // 移除之前的半透明背景，避免畫面看起來灰灰的
+      background-color: transparent !important;
+    }
   }
 }
 
@@ -670,9 +688,32 @@ export default {
     height: calc(100vh / 3 - 200px);
   }
 }
+
+/* Mod: 修復排序動畫樣式 */
+/* 讓移動更滑順，並加入 cubic-bezier 讓動態更有質感 */
 .board-list-move {
-  transition: transform 1s;
+  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.5, 1);
+  /* 避免移動時被其他元素遮擋 */
+  z-index: 1;
 }
+
+/* 確保元素在進入/離開時也有過渡，這有助於 Flexbox 佈局的重新計算 */
+.board-list-enter-active,
+.board-list-leave-active {
+  transition: all 0.8s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+
+/* 簡單的淡入淡出位移效果 */
+.board-list-enter,
+.board-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* 絕對定位的離開狀態通常用於過濾列表，但在排序中加上這個可以防止佈局塌陷 */
+/* 注意：在 Grid 系統中使用 absolute 可能會導致寬度跑版，若無刪減需求可不加 */
+/* .board-list-leave-active { position: absolute; } */
+
 .pin-btn {
   position: absolute;
   top: 5px;
