@@ -1,5 +1,5 @@
 <template lang="pug">
-//- Mod: 保持使用 component 層級的 class 控制，避免影響全域版面
+//- Mod: 使用 .dark-container 繼承全域暗色樣式
 client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
   lah-header
     lah-transition(appear)
@@ -17,33 +17,25 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
           )
 
         .d-flex.align-items-center
-          //- Mod: 全面升級燈號提示，加入清單顯示功能
-          //- 紅燈
+          //- Mod: 全面升級燈號提示
           .mr-1(
             :title="red > 0 ? `異常項目清單:\n` + redDetailList : '目前無異常項目'",
             style="cursor: help"
           ) 🔴 {{ red }}
-          
-          //- 黃燈
           .mr-1(
             :title="yellow > 0 ? `警告項目清單:\n` + yellowDetailList : '目前無警告項目'",
             style="cursor: help"
           ) 🟡 {{ yellow }}
-          
-          //- 綠燈
           .mr-1(
             :title="green > 0 ? `正常項目清單:\n` + greenDetailList : '目前無正常項目'",
             style="cursor: help"
           ) 🟢 {{ green }}
-          
-          //- 白燈/灰燈
           .mr-1(
             v-if="gray > 0",
             :title="`載入中或未知狀態清單:\n` + grayDetailList",
             style="cursor: help"
           ) ⚪ {{ gray }}
 
-          //- Mod: 新增暗色主題切換按鈕
           lah-button.mr-1(
             @click="toggleTheme",
             :icon="isDarkMode ? 'sun' : 'moon'",
@@ -54,7 +46,6 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
             :title="isDarkMode ? '切換為淺色模式' : '切換為深色模式'"
           )
           
-          //- 檢視切換按鈕
           lah-button.mr-1(
             @click="col2 = !col2",
             :icon="col2 ? 'th' : 'th-large'",
@@ -85,6 +76,7 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
             )
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-monitor-board-printer-setup-modal(ref="printerSetupModal")
+    
     lah-help-modal(:modal-id="'help-modal'", size="lg", modal-title="智慧監控儀表板說明")
       h5.d-flex.align-items-center
         lah-fa-icon(icon="lightbulb" regular, variant="secondary")
@@ -121,19 +113,18 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
         li #[strong 智慧監控API]：呼叫安裝於遠端伺服器上的客製化API，獲取服務的即時狀態（例如：建物圖籍同步、地籍異動即時通等）。
         li #[strong 系統後端API]：直接存取本系統後端的API，查詢內部服務狀態（例如：L3同步、跨縣市AP服務等）。
 
-  //- Mod: 使用 transition-group，回復原本的 class 以確保 Grid 排版正常
+  //- Mod: 核心動畫區塊 (最原始實作)
   transition-group.d-flex.flex-wrap.align-content-start(
     tag="div",
-    name="board-list",
-    appear
+    name="board-list"
   )
-    div(
+    //- 保留 monitor-card-wrapper 用於解決 Grid 與 FLIP 衝突，這是必要的結構
+    div.monitor-card-wrapper(
       v-for="board in currentSortedBoards"
       :key="board.id"
       :class="colCss"
-      style="position: relative"
     )
-      //- 釘選按鈕 (絕對定位)
+      //- 釘選按鈕
       .pin-btn(
         @click="togglePin(board)"
         :class="{ active: board.pinned }"
@@ -157,23 +148,19 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
 import LahMonitorBoardPrinterSetupModal from '~/components/lah-monitor-board-printer-setup-modal.vue';
 
 export default {
-  // middleware: ['isInf'], // authority control
   components: { LahMonitorBoardPrinterSetupModal },
   data: () => ({
     red: 0,
     yellow: 0,
     green: 0,
     gray: 0,
-    // [Mod] 新增響應式標記，用於強制更新 Computed 清單
     lastLightUpdate: 0,
     attentionList: [],
     attentionTimer: null,
     topWarning: true,
     col2: false,
-    // [Mod] 新增暗色模式狀態
     isDarkMode: false,
-    // [Mod] 為每個面板加入 header 屬性，定義中文顯示名稱
-    // [Mod] 這裡直接加入 id 屬性，確保每個面板有固定的唯一標識，解決動畫排序問題
+    // 預設面板清單
     boards: [
       { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
       { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
@@ -201,18 +188,13 @@ export default {
     pinnedIds: [],
     currentSortedBoards: [],
     debouncedSort: null,
-    // [Mod] 控制是否可以開始排序，解決初始渲染無動畫問題
-    isReadyToSort: false
+    // [Mod] 移除 isSortingEnabled 標記
   }),
   head: {
     title: '智慧監控儀表板-桃園市地政局'
   },
   computed: {
-    // [Mod] 判斷是否為 HX 模式 (透過網址參數 ?mode=HX)
-    isHX () {
-      return this.$route.query.mode === 'HX'
-    },
-    // [Mod] 動態標題
+    isHX () { return this.$route.query.mode === 'HX' },
     pageTitle () {
       if (this.isHX) {
         const name = this.$store.getters['user/siteName'] || '本所'
@@ -220,91 +202,58 @@ export default {
       }
       return '桃園所監控儀表板'
     },
-    // [Mod] 根據模式使用不同的釘選快取 Key
-    pinnedCacheKey () {
-      return this.isHX ? 'dashboard-pinned-hx' : 'dashboard-pinned-ha'
-    },
-    colCss () {
-      return this.col2 ? ['col-md-6'] : ['col-md-4']
-    },
-    heightCss () {
-      return this.col2 ? ['card-body-fixed-height-2'] : ['card-body-fixed-height-3']
-    },
-    dangerList () {
-      return this.attentionList.filter(item => item.state === 'danger')
-    },
-    warningList () {
-      return this.attentionList.filter(item => item.state === 'warning')
-    },
-    highlightCount () {
-      return this.attentionList.length
-    },
-    lightMap () {
-      return this.$store.getters['inf/monitorLightMap']
-    },
+    pinnedCacheKey () { return this.isHX ? 'dashboard-pinned-hx' : 'dashboard-pinned-ha' },
+    colCss () { return this.col2 ? ['col-md-6'] : ['col-md-4'] },
+    heightCss () { return this.col2 ? ['card-body-fixed-height-2'] : ['card-body-fixed-height-3'] },
+    dangerList () { return this.attentionList.filter(item => item.state === 'danger') },
+    warningList () { return this.attentionList.filter(item => item.state === 'warning') },
+    highlightCount () { return this.attentionList.length },
+    lightMap () { return this.$store.getters['inf/monitorLightMap'] },
     connectionText () {
       if (this.systemConfigs?.monitor?.ssl) {
         return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}:993/imap/ssl/novalidate-cert}INBOX`
       }
       return `${this.systemConfigs?.monitor?.account}@{${this.systemConfigs?.monitor?.host}/novalidate-cert}INBOX`
     },
-    monitorPrintersConfig () {
-      return this.systemConfigs?.monitor_printers
-    },
+    monitorPrintersConfig () { return this.systemConfigs?.monitor_printers },
     redDetailList () { return this.getDetailList('danger') },
     yellowDetailList () { return this.getDetailList('warning') },
     greenDetailList () { return this.getDetailList('success') },
     grayDetailList () { return this.getDetailList('gray') }
   },
   watch: {
-    col2 (flag) {
-      this.setCache('dashboard-col2', flag)
-    },
-    // [Mod] 監聽暗色模式並更新 Body Class
+    col2 (flag) { this.setCache('dashboard-col2', flag) },
     isDarkMode (flag) {
       this.setCache('dashboard-dark-mode', flag)
       this.updateBodyBg(flag)
     },
     monitorPrintersConfig: {
-      handler () {
-        this.mergePrinterBoards()
-      },
+      handler () { this.mergePrinterBoards() },
       immediate: true
     },
-    // [Mod] 監聽路由變化，若切換模式則重整頁面 (通常不需要，但以防萬一)
-    '$route.query.mode' (val) {
-      location.reload()
-    }
+    '$route.query.mode' (val) { location.reload() }
   },
   created () {
     this.debouncedSort = this.$utils.debounce(this.sortBoards, 3000)
 
-    // [Mod] 如果是 HX 模式，過濾掉 HA 專屬的面板
     if (this.isHX) {
-      const haOnlyBoards = [
-        'lah-monitor-board-adsync',
-        'lah-monitor-board-vmclone',
-        'lah-monitor-board-testdb',
-        'lah-monitor-board-ups'
-      ]
+      const haOnlyBoards = ['lah-monitor-board-adsync', 'lah-monitor-board-vmclone', 'lah-monitor-board-testdb', 'lah-monitor-board-ups']
       this.boards = this.boards.filter(board => !haOnlyBoards.includes(board.comp))
     }
 
-    // [Mod] 不再使用 index 來產生 ID，確保 ID 穩定性
     this.boards.forEach((board) => {
-      // 初始化響應式屬性 (確保這些屬性存在)
       if (!Object.prototype.hasOwnProperty.call(board, 'realName')) this.$set(board, 'realName', null)
       if (!Object.prototype.hasOwnProperty.call(board, 'lastUpdate')) this.$set(board, 'lastUpdate', 0)
       if (!Object.prototype.hasOwnProperty.call(board, 'pinned')) this.$set(board, 'pinned', board.pinned === true)
-
-      // Fallback: 萬一真的沒 ID 才補 (理論上 data 裡都有了)
       if (!board.id) {
         const suffix = board.props?.serverIp ? `-${board.props.serverIp}` : ''
         board.id = `${board.comp}${suffix}-${this.$utils.rand(10000)}`
       }
     })
 
-    // [Mod] 使用動態的 cache key 讀取釘選設定
+    // 初始化先給定原始順序
+    this.currentSortedBoards = [...this.boards]
+
     this.getCache(this.pinnedCacheKey).then((ids) => {
       if (Array.isArray(ids)) {
         this.pinnedIds = ids
@@ -314,19 +263,11 @@ export default {
       } else {
         this.pinnedIds = this.boards.filter(b => b.pinned).map(b => b.id)
       }
-      
-      // Mod: 這裡不主動觸發排序，等待 mounted 後的 isReadyToSort
+      // [Mod] 讀取完設定後立即進行一次排序
       this.sortBoards()
     })
 
-    // 初始狀態強制為原始順序
-    this.currentSortedBoards = [...this.boards]
-
-    this.getCache('dashboard-col2').then((flag) => {
-      this.col2 = flag
-    })
-    
-    // [Mod] 讀取暗色模式設定
+    this.getCache('dashboard-col2').then((flag) => { this.col2 = flag })
     this.getCache('dashboard-dark-mode').then((flag) => {
       if (flag !== null && flag !== undefined) {
         this.isDarkMode = flag
@@ -335,18 +276,8 @@ export default {
     })
   },
   mounted () {
-    // Mod: 使用 1.5 秒延遲，確保 DOM 完全渲染且用戶看到原始順序後再觸發排序
-    setTimeout(() => {
-      this.isReadyToSort = true
-      // 使用 requestAnimationFrame 確保在下一幀繪製前觸發，讓動畫更平滑
-      if (window.requestAnimationFrame) {
-        window.requestAnimationFrame(() => {
-          this.sortBoards()
-        })
-      } else {
-        this.sortBoards()
-      }
-    }, 1500)
+    // [Mod] 移除 setTimeout 延遲動畫機制，回歸最原始的渲染
+    // 不再手動觸發 sortBoards，依靠 lightUpdate 或其他資料變動來觸發
 
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       const tmp = []
@@ -363,16 +294,10 @@ export default {
 
     this.attentionTimer = setInterval(() => {
       this.dangerList.forEach((card) => {
-        this.timeout(
-          () => this.attention(`#${card.compName}-attention`, { speed: '1s' }),
-          this.$utils.rand(15) * 1000
-        )
+        this.timeout(() => this.attention(`#${card.compName}-attention`, { speed: '1s' }), this.$utils.rand(15) * 1000)
       })
       this.warningList.forEach((card) => {
-        this.timeout(
-          () => this.attention(`#${card.compName}-attention`, { name: 'headShake' }),
-          this.$utils.rand(15) * 1000
-        )
+        this.timeout(() => this.attention(`#${card.compName}-attention`, { name: 'headShake' }), this.$utils.rand(15) * 1000)
       })
     }, 30 * 1000)
 
@@ -380,48 +305,27 @@ export default {
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
-    // [Mod] 離開頁面時恢復 Body 樣式
     this.updateBodyBg(false)
   },
   methods: {
-    // [Mod] 切換主題
-    toggleTheme () {
-      this.isDarkMode = !this.isDarkMode
-    },
-    // [Mod] 控制 Body 背景色
+    toggleTheme () { this.isDarkMode = !this.isDarkMode },
     updateBodyBg (isDark) {
       if (typeof document !== 'undefined') {
         document.body.style.backgroundColor = isDark ? '#121212' : ''
       }
     },
-    // [Mod] 優先使用設定檔中的 Header，並加入響應式觸發
     getDetailList (type) {
-      // 讀取響應式變數以建立依賴關係，確保 Computed 會重新計算
       this.lastLightUpdate
-
       const list = this.boards.filter(board => {
-        // 取得組件對應的查詢名稱 (用於查狀態)
         const name = board.realName || this.toCamelCase(board.comp)
         const status = this.lightMap.get(name)
-        
-        // 灰燈邏輯：非成功、警告、危險
-        if (type === 'gray') {
-          return !['success', 'warning', 'danger'].includes(status)
-        }
-        // 其他顏色邏輯：直接比對狀態
+        if (type === 'gray') return !['success', 'warning', 'danger'].includes(status)
         return status === type
       })
-
       if (list.length === 0) return ''
-
       return list.map(board => {
-        // 1. 優先使用設定檔中的中文 Header
         if (board.header) return ` - ${board.header}`
-
-        // 2. 其次使用組件回報的真實名稱
         if (board.realName) return ` - ${board.realName}`
-        
-        // 3. 最後使用組件名稱 fallback
         let simpleName = board.comp.replace('lah-monitor-board-', '')
         if (board.props && (board.props.targetIp || board.props.serverIp)) {
           simpleName += ` (${board.props.targetIp || board.props.serverIp})`
@@ -430,33 +334,22 @@ export default {
       }).join('\n')
     },
     sortBoards () {
-      // [Mod] 如果還沒準備好 (還在 mounted 延遲階段)，則強制不排序，保持原順序
-      if (!this.isReadyToSort) {
-        this.currentSortedBoards = [...this.boards]
-        return
-      }
-
-      const list = [...this.boards]
-      this.currentSortedBoards = list.sort((a, b) => {
+      // [Mod] 移除 isSortingEnabled 檢查，無條件直接排序
+      const sorted = [...this.boards].sort((a, b) => {
         const weightDiff = this.getWeight(a) - this.getWeight(b)
-        if (weightDiff !== 0) {
-          return weightDiff
-        }
-        const timeA = a.lastUpdate || 0
-        const timeB = b.lastUpdate || 0
-        return timeB - timeA
+        if (weightDiff !== 0) return weightDiff
+        return (b.lastUpdate || 0) - (a.lastUpdate || 0)
       })
+      // 確保陣列參考改變，觸發 Vue 更新
+      this.currentSortedBoards = sorted
     },
     togglePin (board) {
       this.$set(board, 'pinned', !board.pinned)
       if (board.pinned) {
-        if (!this.pinnedIds.includes(board.id)) {
-          this.pinnedIds.push(board.id)
-        }
+        if (!this.pinnedIds.includes(board.id)) this.pinnedIds.push(board.id)
       } else {
         this.pinnedIds = this.pinnedIds.filter(id => id !== board.id)
       }
-      // [Mod] 使用動態 key 儲存設定
       this.setCache(this.pinnedCacheKey, this.pinnedIds)
       this.sortBoards()
     },
@@ -467,17 +360,11 @@ export default {
         const baseBoards = this.boards.filter(b => b.comp !== 'lah-monitor-board-printer')
         const newPrinterBoards = printers.map((p, idx) => {
           const board = {
-            id: `printer-${p.ip}-${p.port}`, // ID 在這裡設定是正確且穩定的
+            id: `printer-${p.ip}-${p.port}`,
             comp: 'lah-monitor-board-printer',
-            // [Mod] 為印表機自動產生 Header (修正為 "列印伺服器")
             header: `列印伺服器 ${p.ip}`,
             footer: true,
-            props: {
-              size: 'xs',
-              serverIp: p.ip,
-              serverPort: String(p.port),
-              apiKey: p.key
-            }
+            props: { size: 'xs', serverIp: p.ip, serverPort: String(p.port), apiKey: p.key }
           }
           this.$set(board, 'realName', null)
           this.$set(board, 'lastUpdate', 0)
@@ -494,41 +381,29 @@ export default {
     lightUpdate (payload, board) {
       if (board) {
         if (payload && payload.name) {
-          if (board.realName !== payload.name) {
-            this.$set(board, 'realName', payload.name)
-          }
+          if (board.realName !== payload.name) this.$set(board, 'realName', payload.name)
         }
         this.$set(board, 'lastUpdate', new Date().getTime())
       }
-
       this.lightMap.set(payload.name, payload.new)
-
       let r = 0; let y = 0; let g = 0
       for (const value of this.lightMap.values()) {
         if (value === 'danger') r++
         else if (value === 'warning') y++
         else if (value === 'success') g++
       }
-
-      this.red = r
-      this.yellow = y
-      this.green = g
-      
+      this.red = r; this.yellow = y; this.green = g
       const totalCards = this.currentSortedBoards.length
       const calculatedGray = totalCards - r - y - g
       this.gray = calculatedGray > 0 ? calculatedGray : 0
-
-      // [Mod] 更新標記，觸發 computed 重新計算 Tooltip 清單
       this.lastLightUpdate = new Date().getTime()
-
       this.refreshHighlightGroup()
       this.debouncedSort()
     },
     refreshHighlightGroup () { /* placeholder for debouncing */ },
     isInAttention (name) {
       const clean = name[0]?.toUpperCase() + name?.slice(1)
-      return this.lightMap.has(clean) &&
-             this.lightMap.get(clean) !== 'success'
+      return this.lightMap.has(clean) && this.lightMap.get(clean) !== 'success'
     },
     isFooterEnable (name) {
       if (name) {
@@ -538,22 +413,18 @@ export default {
       }
       return false
     },
-    toCamelCase (str) {
-      return str.replace(/-([a-z])/g, g => g[1].toUpperCase())
-    },
+    toCamelCase (str) { return str.replace(/-([a-z])/g, g => g[1].toUpperCase()) },
     normalizeName (name) {
       if (!name) return ''
       return name.charAt(0).toLowerCase() + name.slice(1)
     },
     getWeight (board) {
       const searchName = board.realName || this.toCamelCase(board.comp)
-      if (!board.realName && board.comp.includes('printer') && board.props?.serverIp) {
-        // printer fallback logic
-      }
+      if (!board.realName && board.comp.includes('printer') && board.props?.serverIp) { /* printer fallback */ }
       const status = this.lightMap.get(searchName)
       if (status === 'danger') return -3
       if (status === 'warning') return -2
-      if (board.pinned) { return -1 }
+      if (board.pinned) return -1
       return 0
     }
   }
@@ -561,6 +432,14 @@ export default {
 </script>
 
 <style lang="scss">
+.monitor-dashboard {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-size: 16px;
+}
+
 .highlight-group {
   border-bottom: 2px dashed gray;
   margin-bottom: 15px;
@@ -581,26 +460,16 @@ export default {
   }
 }
 
-/* Mod: 修復排序動畫樣式 */
-/* * 移除會導致 Grid 系統崩壞的 position: absolute
- * 僅保留 transform transition 以實現基本的排序滑動效果
- */
+// [Mod] 原始 FLIP 動畫樣式
+// 移除所有可能干擾的設定，只保留 transform
 .board-list-move {
-  transition: transform 0.8s cubic-bezier(0.55, 0, 0.1, 1);
+  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.5, 1);
   z-index: 1;
 }
 
-/* * Enter/Leave 動畫只做透明度變化，不做位移或絕對定位
- * 以確保 Grid 佈局穩定
- */
-.board-list-enter-active,
-.board-list-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.board-list-enter,
-.board-list-leave-to {
-  opacity: 0;
+// 容器項目設定
+.monitor-card-wrapper {
+  will-change: transform;
 }
 
 .pin-btn {
