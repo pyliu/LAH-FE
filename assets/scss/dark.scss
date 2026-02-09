@@ -2,6 +2,11 @@
 // [Mod] Dark Mode Styles - Global Theme Definition
 // --------------------------------------------------------------------------
 .dark-container {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-size: 16px;
   &.dark-mode {
     background-color: #121212;
     color: #e0e0e0;

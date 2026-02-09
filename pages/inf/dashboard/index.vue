@@ -121,7 +121,7 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
         li #[strong 智慧監控API]：呼叫安裝於遠端伺服器上的客製化API，獲取服務的即時狀態（例如：建物圖籍同步、地籍異動即時通等）。
         li #[strong 系統後端API]：直接存取本系統後端的API，查詢內部服務狀態（例如：L3同步、跨縣市AP服務等）。
 
-  //- Mod: 加入 appear 屬性，並在 JS 中延遲排序以觸發動畫
+  //- Mod: 使用 transition-group，回復原本的 class 以確保 Grid 排版正常
   transition-group.d-flex.flex-wrap.align-content-start(
     tag="div",
     name="board-list",
@@ -173,7 +173,6 @@ export default {
     // [Mod] 新增暗色模式狀態
     isDarkMode: false,
     // [Mod] 為每個面板加入 header 屬性，定義中文顯示名稱
-    // 這是完整的列表 (HA 模式)
     // [Mod] 這裡直接加入 id 屬性，確保每個面板有固定的唯一標識，解決動畫排序問題
     boards: [
       { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
@@ -201,7 +200,9 @@ export default {
     ],
     pinnedIds: [],
     currentSortedBoards: [],
-    debouncedSort: null
+    debouncedSort: null,
+    // [Mod] 控制是否可以開始排序，解決初始渲染無動畫問題
+    isReadyToSort: false
   }),
   head: {
     title: '智慧監控儀表板-桃園市地政局'
@@ -314,10 +315,11 @@ export default {
         this.pinnedIds = this.boards.filter(b => b.pinned).map(b => b.id)
       }
       
-      // Mod: 移除這裡的立即排序，改到 mounted 延遲執行，讓使用者能看到「排序動畫」
-      // this.sortBoards()
+      // Mod: 這裡不主動觸發排序，等待 mounted 後的 isReadyToSort
+      this.sortBoards()
     })
 
+    // 初始狀態強制為原始順序
     this.currentSortedBoards = [...this.boards]
 
     this.getCache('dashboard-col2').then((flag) => {
@@ -333,11 +335,18 @@ export default {
     })
   },
   mounted () {
-    // Mod: 頁面載入完成後延遲一秒進行初次排序
-    // 這樣使用者會先看到預設排序，然後看到卡片移動到新位置的動畫
+    // Mod: 使用 1.5 秒延遲，確保 DOM 完全渲染且用戶看到原始順序後再觸發排序
     setTimeout(() => {
-      this.sortBoards()
-    }, 1000)
+      this.isReadyToSort = true
+      // 使用 requestAnimationFrame 確保在下一幀繪製前觸發，讓動畫更平滑
+      if (window.requestAnimationFrame) {
+        window.requestAnimationFrame(() => {
+          this.sortBoards()
+        })
+      } else {
+        this.sortBoards()
+      }
+    }, 1500)
 
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       const tmp = []
@@ -421,6 +430,12 @@ export default {
       }).join('\n')
     },
     sortBoards () {
+      // [Mod] 如果還沒準備好 (還在 mounted 延遲階段)，則強制不排序，保持原順序
+      if (!this.isReadyToSort) {
+        this.currentSortedBoards = [...this.boards]
+        return
+      }
+
       const list = [...this.boards]
       this.currentSortedBoards = list.sort((a, b) => {
         const weightDiff = this.getWeight(a) - this.getWeight(b)
@@ -546,15 +561,6 @@ export default {
 </script>
 
 <style lang="scss">
-.monitor-dashboard {
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  font-size: 16px;
-  // [Mod] Dark Mode styles moved to main.scss
-}
-
 .highlight-group {
   border-bottom: 2px dashed gray;
   margin-bottom: 15px;
@@ -576,29 +582,26 @@ export default {
 }
 
 /* Mod: 修復排序動畫樣式 */
-/* 讓移動更滑順，並加入 cubic-bezier 讓動態更有質感 */
+/* * 移除會導致 Grid 系統崩壞的 position: absolute
+ * 僅保留 transform transition 以實現基本的排序滑動效果
+ */
 .board-list-move {
-  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.5, 1);
-  /* 避免移動時被其他元素遮擋 */
+  transition: transform 0.8s cubic-bezier(0.55, 0, 0.1, 1);
   z-index: 1;
 }
 
-/* 確保元素在進入/離開時也有過渡，這有助於 Flexbox 佈局的重新計算 */
+/* * Enter/Leave 動畫只做透明度變化，不做位移或絕對定位
+ * 以確保 Grid 佈局穩定
+ */
 .board-list-enter-active,
 .board-list-leave-active {
-  transition: all 0.8s cubic-bezier(0.25, 0.8, 0.5, 1);
+  transition: opacity 0.5s ease;
 }
 
-/* 簡單的淡入淡出位移效果 */
 .board-list-enter,
 .board-list-leave-to {
   opacity: 0;
-  transform: translateY(20px);
 }
-
-/* 絕對定位的離開狀態通常用於過濾列表，但在排序中加上這個可以防止佈局塌陷 */
-/* 注意：在 Grid 系統中使用 absolute 可能會導致寬度跑版，若無刪減需求可不加 */
-/* .board-list-leave-active { position: absolute; } */
 
 .pin-btn {
   position: absolute;
