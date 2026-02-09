@@ -645,7 +645,7 @@ export default {
     }
 
     // 6. 特殊自定義 Class 修正 (針對 .office-name 等動態組件內容)
-    .office-name {
+    .office-name, .area-name{
       color: #f8f9fa !important;
     }
   }
