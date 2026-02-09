@@ -174,29 +174,30 @@ export default {
     isDarkMode: false,
     // [Mod] 為每個面板加入 header 屬性，定義中文顯示名稱
     // 這是完整的列表 (HA 模式)
+    // [Mod] 這裡直接加入 id 屬性，確保每個面板有固定的唯一標識，解決動畫排序問題
     boards: [
-      { comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
-      { comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
-      { comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', footer: true, pinned: true },
-      { comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', footer: true, pinned: true },
-      { comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', footer: true, extraClass: 'fix-img' },
-      { comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', footer: true },
-      { comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', footer: true },
-      { comp: 'lah-monitor-board-sms', header: '綜合簡訊監控', footer: true },
-      { comp: 'lah-monitor-board-L05', header: 'L05 系統', footer: true },
-      { comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', footer: true },
-      { comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', footer: false },
-      { comp: 'lah-monitor-board-site-hx', header: '市內8所狀態', footer: false },
-      { comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
-      { comp: 'lah-monitor-board-site-tw', header: '跨域伺服器狀態', footer: false },
-      { comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', footer: true },
-      { comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', footer: false },
-      { comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
-      { comp: 'lah-monitor-board-tape', header: '磁帶備份', footer: true },
-      { comp: 'lah-monitor-board-testdb', header: '測試資料庫', footer: false },
-      { comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', footer: true },
-      { comp: 'lah-monitor-board-apconn', header: 'AP 連線數', footer: false },
-      { comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
+      { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
+      { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
+      { id: 'powerha', comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', footer: true, pinned: true },
+      { id: 'dataguard', comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', footer: true, pinned: true },
+      { id: 'srmas', comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', footer: true, extraClass: 'fix-img' },
+      { id: 'hacmp', comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', footer: true },
+      { id: 'sms-notify', comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', footer: true },
+      { id: 'sms', comp: 'lah-monitor-board-sms', header: '綜合簡訊監控', footer: true },
+      { id: 'l05', comp: 'lah-monitor-board-L05', header: 'L05 系統', footer: true },
+      { id: 'apbackup', comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', footer: true },
+      { id: 'xcase-sync', comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', footer: false },
+      { id: 'site-hx', comp: 'lah-monitor-board-site-hx', header: '市內8所狀態', footer: false },
+      { id: 'lxhweb', comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
+      { id: 'site-tw', comp: 'lah-monitor-board-site-tw', header: '跨域伺服器狀態', footer: false },
+      { id: 'dbbackup', comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', footer: true },
+      { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', footer: false },
+      { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
+      { id: 'tape', comp: 'lah-monitor-board-tape', header: '磁帶備份', footer: true },
+      { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', footer: false },
+      { id: 'adsync', comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', footer: true },
+      { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', footer: false },
+      { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
     ],
     pinnedIds: [],
     currentSortedBoards: [],
@@ -288,13 +289,17 @@ export default {
       this.boards = this.boards.filter(board => !haOnlyBoards.includes(board.comp))
     }
 
-    this.boards.forEach((board, index) => {
+    // [Mod] 不再使用 index 來產生 ID，確保 ID 穩定性
+    this.boards.forEach((board) => {
+      // 初始化響應式屬性 (確保這些屬性存在)
+      if (!Object.prototype.hasOwnProperty.call(board, 'realName')) this.$set(board, 'realName', null)
+      if (!Object.prototype.hasOwnProperty.call(board, 'lastUpdate')) this.$set(board, 'lastUpdate', 0)
+      if (!Object.prototype.hasOwnProperty.call(board, 'pinned')) this.$set(board, 'pinned', board.pinned === true)
+
+      // Fallback: 萬一真的沒 ID 才補 (理論上 data 裡都有了)
       if (!board.id) {
         const suffix = board.props?.serverIp ? `-${board.props.serverIp}` : ''
-        board.id = `${board.comp}${suffix}-${index}`
-        this.$set(board, 'realName', null)
-        this.$set(board, 'lastUpdate', 0)
-        this.$set(board, 'pinned', board.pinned === true)
+        board.id = `${board.comp}${suffix}-${this.$utils.rand(10000)}`
       }
     })
 
@@ -447,6 +452,7 @@ export default {
         const baseBoards = this.boards.filter(b => b.comp !== 'lah-monitor-board-printer')
         const newPrinterBoards = printers.map((p, idx) => {
           const board = {
+            id: `printer-${p.ip}-${p.port}`, // ID 在這裡設定是正確且穩定的
             comp: 'lah-monitor-board-printer',
             // [Mod] 為印表機自動產生 Header (修正為 "列印伺服器")
             header: `列印伺服器 ${p.ip}`,
@@ -458,7 +464,6 @@ export default {
               apiKey: p.key
             }
           }
-          board.id = `printer-${p.ip}-${p.port}`
           this.$set(board, 'realName', null)
           this.$set(board, 'lastUpdate', 0)
           const isPinned = this.pinnedIds.includes(board.id)
@@ -541,7 +546,7 @@ export default {
 </script>
 
 <style lang="scss">
-.dark-container {
+.monitor-dashboard {
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
