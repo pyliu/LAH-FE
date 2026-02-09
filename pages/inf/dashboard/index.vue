@@ -77,6 +77,7 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-monitor-board-printer-setup-modal(ref="printerSetupModal")
 
+    //- Mod: 恢復完整說明內容
     lah-help-modal(:modal-id="'help-modal'", size="lg", modal-title="智慧監控儀表板說明")
       h5.d-flex.align-items-center
         lah-fa-icon(icon="lightbulb" regular, variant="secondary")
@@ -87,13 +88,31 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
         lah-fa-icon(icon="traffic-light", variant="secondary")
         span.ml-2 燈號與狀態
       ul
-        li 頁面頂端會即時統計目前所有監控項目的燈號數量。
-        li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂。
+        li 頁面頂端會即時統計目前所有監控項目的燈號數量，#[strong 滑鼠移至數字上可查看詳細清單]：
+          ul
+            li 🔴 #[strong 紅燈]：表示監控項目發生嚴重錯誤或中斷。
+            li 🟡 #[strong 黃燈]：表示監控項目出現警告或潛在問題。
+            li 🟢 #[strong 綠燈]：表示監控項目運作正常。
+            li ⚪ #[strong 白燈/灰燈]：表示監控項目正在初始化、載入中或狀態未知。
+        li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂，並透過動畫效果提醒管理人員注意。
+        li 若燈號狀態相同，則依照 #[strong 更新時間] 排序，越近更新的會排在越前面。
       hr
       h5.d-flex.align-items-center
         lah-fa-icon(icon="thumbtack", variant="secondary")
         span.ml-2 釘選功能
-      p 您可以點擊每個面板右上角的圖釘圖示來固定該面板。
+      p 您可以點擊每個面板右上角的 #[lah-fa-icon(icon="thumbtack", variant="danger")] 圖釘圖示來固定該面板。
+      ul
+        li 被釘選的面板在綠燈狀態下，會排在未釘選的面板前面。
+        li 排序優先級：#[strong 紅燈 > 黃燈 > 已釘選 > 一般]。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="database", variant="secondary")
+        span.ml-2 資料來源
+      p 本儀表板透過以下三種方式獲取監控數據：
+      ol
+        li #[strong 電子郵件分析]：讀取特定郵件伺服器的郵件，分析主旨與內容來判斷服務狀態（例如：SRMAS、資料庫備份等）。
+        li #[strong 智慧監控API]：呼叫安裝於遠端伺服器上的客製化API，獲取服務的即時狀態（例如：建物圖籍同步、地籍異動即時通等）。
+        li #[strong 系統後端API]：直接存取本系統後端的API，查詢內部服務狀態（例如：L3同步、跨縣市AP服務等）。
 
   //- Mod: 核心動畫區塊
   transition-group.d-flex.flex-wrap.align-content-start(
