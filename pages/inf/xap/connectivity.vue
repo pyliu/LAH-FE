@@ -1,6 +1,6 @@
 <template lang="pug">
-//- 使用 :class 綁定 dark-mode，配合 Scoped CSS 與 ::v-deep 達成布景切換
-div.h-100(v-cloak, :class="{ 'dark-mode': isDarkMode }")
+//- Mod: 加入 dark-container class 以繼承 main.scss 中的 Dark Mode 樣式
+.dark-container.h-100(v-cloak, :class="{ 'dark-mode': isDarkMode }")
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.w-100
@@ -356,86 +356,5 @@ export default {
 }
 .list-move {
   transition: transform 0.8s ease-in-out;
-}
-
-// 暗色模式覆寫 (Scoped)
-.dark-mode {
-  background-color: #121212;
-  color: #e0e0e0;
-
-  // 強制覆寫背景色
-  ::v-deep .bg-light,
-  ::v-deep .bg-white,
-  ::v-deep .btn-light {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0 !important;
-    border-color: #333 !important;
-  }
-
-  ::v-deep {
-    // 1. [修正] Dashboard Grid 內的按鈕 (地所方塊)
-    // 必須明確覆蓋 .btn 樣式，避免被 bootstrap 的 btn-outline-light 影響
-    .dashboard-grid .btn {
-      background-color: #1e1e1e !important;
-      border-color: #444 !important;
-      color: #f8f9fa !important;
-
-      &:hover {
-        background-color: #333 !important;
-      }
-
-      // 確保方塊內的文字也變白
-      div, span, small, strong {
-        color: #f8f9fa !important;
-      }
-      .text-muted { color: #aaa !important; }
-      .text-secondary { color: #ccc !important; }
-    }
-
-    // 2. 修正右側時間軸 (Timeline)
-    .timeline-container {
-      // 修正卡片與列表背景
-      .card, .list-group-item {
-        background-color: #1e1e1e !important;
-        border-color: #333 !important;
-        color: #e0e0e0 !important;
-      }
-
-      // 修正 "網站回應" 的邊框與文字 (原本是 border-dark，在暗色下看不到)
-      .border-dark {
-        border-color: #666 !important; // 淺灰邊框
-        background-color: #252526 !important; // 深灰背景
-        color: #f8f9fa !important; // 白色文字
-      }
-
-      // 修正描述文字
-      .item-description {
-        color: #f8f9fa !important;
-      }
-
-      // 修正連結顏色
-      a { color: #66b0ff !important; }
-
-      // 修正 .text-muted (預覽文字)
-      .text-muted { color: #aaa !important; }
-    }
-
-    // 其他通用元件 (Modal, Overlay)
-    .site-id-overlay { color: #ccc !important; }
-
-    .btn-outline-secondary {
-      color: #aaa;
-      border-color: #555;
-      &:hover { background-color: #444; color: #fff; }
-    }
-
-    .modal-content {
-      background-color: #1e1e1e;
-      border-color: #444;
-      color: #e0e0e0;
-      .modal-header, .modal-footer { border-color: #333; }
-      .close { color: #fff; }
-    }
-  }
 }
 </style>

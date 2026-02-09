@@ -1,5 +1,5 @@
 <template lang="pug">
-div.monitor-dashboard(v-cloak)
+.dark-container(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.w-100
@@ -65,7 +65,7 @@ export default {
 </script>
 
 <style lang="scss">
-.monitor-dashboard {
+.dark-container {
   /* Ignored desktop font size settings */
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;

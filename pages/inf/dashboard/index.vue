@@ -1,6 +1,6 @@
 <template lang="pug">
 //- Mod: 保持使用 component 層級的 class 控制，避免影響全域版面
-client-only: .monitor-dashboard(v-cloak, :class="{ 'dark-mode': isDarkMode }")
+client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
@@ -541,7 +541,7 @@ export default {
 </script>
 
 <style lang="scss">
-.monitor-dashboard {
+.dark-container {
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
