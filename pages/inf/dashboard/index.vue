@@ -350,10 +350,16 @@ export default {
     sortBoards () {
       // 權重排序: Danger(-3) > Warning(-2) > Pinned(-1) > Normal(0)
       // 次要排序: 更新時間 (新 -> 舊)
+      // 第三層排序: 原始 ID 順序 (確保穩定排序)
       this.currentSortedBoards = [...this.boards].sort((a, b) => {
         const weightDiff = this.getWeight(a) - this.getWeight(b)
         if (weightDiff !== 0) { return weightDiff }
-        return (b.lastUpdate || 0) - (a.lastUpdate || 0)
+
+        const timeDiff = (b.lastUpdate || 0) - (a.lastUpdate || 0)
+        if (timeDiff !== 0) { return timeDiff }
+
+        // 當權重和時間都相同時，使用 ID 保持穩定排序
+        return a.id.localeCompare(b.id)
       })
     },
     togglePin (board) {
