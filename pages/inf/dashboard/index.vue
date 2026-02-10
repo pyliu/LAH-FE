@@ -120,6 +120,7 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
     name="board-list"
   )
     //- 保留 monitor-card-wrapper 用於解決 Grid 與 FLIP 衝突
+    //- [Simp] 移除 style 綁定的隨機變數，回歸純淨 CSS
     div.monitor-card-wrapper(
       v-for="board in currentSortedBoards"
       :key="board.id"
@@ -151,9 +152,9 @@ import LahMonitorBoardPrinterSetupModal from '~/components/lah-monitor-board-pri
 // [Opt] 將靜態設定移出元件，減少 data() 負擔，提升可讀性
 const DEFAULT_BOARDS = [
   { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
-  { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
   { id: 'powerha', comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', footer: true, pinned: true },
   { id: 'dataguard', comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', footer: true, pinned: true },
+  { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
   { id: 'srmas', comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', footer: true, extraClass: 'fix-img' },
   { id: 'hacmp', comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', footer: true },
   { id: 'sms-notify', comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', footer: true },
@@ -254,6 +255,7 @@ export default {
       id: board.id || `${board.comp}-${this.$utils.rand(10000)}`,
       // 快取 CamelCase 名稱，提升 getWeight 效能
       searchName: this.toCamelCase(board.comp)
+      // [Simp] 移除 animDuration，保持單純
     }))
 
     // 初始化顯示清單
@@ -386,6 +388,7 @@ export default {
             lastUpdate: 0,
             pinned: isPinned,
             searchName: 'LahMonitorBoardPrinter' // 固定名稱
+            // [Simp] 移除 animDuration
           }
         })
 
@@ -485,16 +488,42 @@ export default {
   }
 }
 
-// [Mod] 原始 FLIP 動畫樣式
-// 移除所有可能干擾的設定，只保留 transform
-.board-list-move {
-  transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.5, 1);
-  z-index: 1;
-}
-
+// [Simp] 簡化版動畫樣式 - 穩定優先
 // 容器項目設定
 .monitor-card-wrapper {
+  // 效能優化: 預告變動
   will-change: transform;
+
+  // Edge/Chrome 優化: 減少渲染閃爍
+  backface-visibility: hidden;
+
+  // 移除複雜的 transition 定義，避免干擾 FLIP 計算
+}
+
+// 1. 移動中的項目 (FLIP 核心)
+.board-list-move {
+  // 使用固定的 0.6s 時間，確保穩定
+  // 使用略為活潑的 cubic-bezier 曲線
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 50;
+}
+
+// 2. 進場 (Enter) 與 離場 (Leave)
+.board-list-enter-active,
+.board-list-leave-active {
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+// 離場時必須絕對定位，這是 Vue transition-group 的標準做法
+.board-list-leave-active {
+  position: absolute;
+  z-index: 0;
+}
+
+// 3. 起始狀態
+.board-list-enter, .board-list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
 }
 
 .pin-btn {
