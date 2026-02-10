@@ -326,7 +326,7 @@ export default {
       }
     },
     getDetailList (type) {
-      this.lastLightUpdate // 建立依賴
+      // this.lastLightUpdate // 建立依賴
       const list = this.boards.filter((board) => {
         const name = board.realName || board.searchName
         const status = this.lightMap.get(name)
