@@ -120,7 +120,6 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
     name="board-list"
   )
     //- 保留 monitor-card-wrapper 用於解決 Grid 與 FLIP 衝突
-    //- [Simp] 移除 style 綁定的隨機變數，回歸純淨 CSS
     div.monitor-card-wrapper(
       v-for="board in currentSortedBoards"
       :key="board.id"
@@ -185,7 +184,7 @@ export default {
     yellow: 0,
     green: 0,
     gray: 0,
-    lastLightUpdate: 0,
+    // [Clean] 移除冗餘變數
     attentionList: [],
     attentionTimer: null,
     col2: false,
@@ -326,7 +325,7 @@ export default {
       }
     },
     getDetailList (type) {
-      // this.lastLightUpdate // 建立依賴
+      // [Clean] 移除不必要的依賴觸發
       const list = this.boards.filter((board) => {
         const name = board.realName || board.searchName
         const status = this.lightMap.get(name)
@@ -350,7 +349,7 @@ export default {
     sortBoards () {
       // 權重排序: Danger(-3) > Warning(-2) > Pinned(-1) > Normal(0)
       // 次要排序: 更新時間 (新 -> 舊)
-      // 第三層排序: 原始 ID 順序 (確保穩定排序)
+      // 第三層排序: 原始 ID 順序 (確保穩定排序，解決時間相同時的跳動)
       this.currentSortedBoards = [...this.boards].sort((a, b) => {
         const weightDiff = this.getWeight(a) - this.getWeight(b)
         if (weightDiff !== 0) { return weightDiff }
@@ -358,7 +357,7 @@ export default {
         const timeDiff = (b.lastUpdate || 0) - (a.lastUpdate || 0)
         if (timeDiff !== 0) { return timeDiff }
 
-        // 當權重和時間都相同時，使用 ID 保持穩定排序
+        // [Mod] CLAUDE AI 建議：當權重和時間都相同時，使用 ID 保持穩定排序
         return a.id.localeCompare(b.id)
       })
     },
@@ -428,7 +427,8 @@ export default {
       const knownStatus = r + y + g
       this.gray = Math.max(0, totalCards - knownStatus)
 
-      this.lastLightUpdate = new Date().getTime() // 觸發 computed 更新
+      // [Clean] 移除冗餘更新
+      // this.lastLightUpdate = new Date().getTime()
 
       this.refreshHighlightGroup()
       this.debouncedSort()
@@ -491,7 +491,9 @@ export default {
   // Edge/Chrome 優化: 減少渲染閃爍
   backface-visibility: hidden;
 
-  // 移除複雜的 transition 定義，避免干擾 FLIP 計算
+  // [重點] 恢復常駐的 transition，確保排序時瀏覽器能捕捉到 transform 的變化
+  // 同時處理 width (2/3欄切換) 和 transform (排序移動)
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 // 1. 移動中的項目 (FLIP 核心)
