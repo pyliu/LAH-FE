@@ -460,18 +460,6 @@ export default {
 </script>
 
 <style lang="scss">
-.monitor-dashboard {
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  font-size: 16px;
-}
-
-.highlight-group {
-  border-bottom: 2px dashed gray;
-  margin-bottom: 15px;
-}
 .col-md-4 > .card {
   height: calc((100vh - 150px) / 3);
   overflow: auto;
