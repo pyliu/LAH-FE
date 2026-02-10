@@ -184,7 +184,12 @@ export default {
     yellow: 0,
     green: 0,
     gray: 0,
-    // [Clean] 移除冗餘變數
+    // [Fix] 將 detail lists 改為 data，避免 computed 導致的動畫問題
+    redDetailList: '',
+    yellowDetailList: '',
+    greenDetailList: '',
+    grayDetailList: '',
+    // [Clean] 移除 lastLightUpdate，不再需要
     attentionList: [],
     attentionTimer: null,
     col2: false,
@@ -216,11 +221,7 @@ export default {
       }
       return `${monitor?.account}@{${monitor?.host}/novalidate-cert}INBOX`
     },
-    monitorPrintersConfig () { return this.systemConfigs?.monitor_printers },
-    redDetailList () { return this.getDetailList('danger') },
-    yellowDetailList () { return this.getDetailList('warning') },
-    greenDetailList () { return this.getDetailList('success') },
-    grayDetailList () { return this.getDetailList('gray') }
+    monitorPrintersConfig () { return this.systemConfigs?.monitor_printers }
   },
   watch: {
     col2 (flag) { this.setCache('dashboard-col2', flag) },
@@ -245,6 +246,7 @@ export default {
       ? DEFAULT_BOARDS.filter(board => !HA_ONLY_BOARDS.includes(board.comp))
       : DEFAULT_BOARDS
 
+    // [FIX] 這裡會將 boards 重置為預設值
     this.boards = filteredBoards.map(board => ({
       ...board,
       realName: null,
@@ -256,6 +258,11 @@ export default {
       searchName: this.toCamelCase(board.comp)
       // [Simp] 移除 animDuration，保持單純
     }))
+
+    // [Fix] 確保在初始化預設看板後，重新合併印表機設定
+    // 這是因為 watch 的 immediate: true 可能在 created 之前就執行過一次，
+    // 導致印表機資料被上面的 this.boards = ... 覆蓋掉
+    this.mergePrinterBoards()
 
     // 初始化顯示清單
     this.currentSortedBoards = [...this.boards]
@@ -312,6 +319,12 @@ export default {
     }, 30 * 1000)
 
     this.refreshHighlightGroup()
+
+    // [Fix] 初始化 detail lists
+    this.redDetailList = this.getDetailList('danger')
+    this.yellowDetailList = this.getDetailList('warning')
+    this.greenDetailList = this.getDetailList('success')
+    this.grayDetailList = this.getDetailList('gray')
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
@@ -325,7 +338,6 @@ export default {
       }
     },
     getDetailList (type) {
-      // [Clean] 移除不必要的依賴觸發
       const list = this.boards.filter((board) => {
         const name = board.realName || board.searchName
         const status = this.lightMap.get(name)
@@ -427,8 +439,11 @@ export default {
       const knownStatus = r + y + g
       this.gray = Math.max(0, totalCards - knownStatus)
 
-      // [Clean] 移除冗餘更新
-      // this.lastLightUpdate = new Date().getTime()
+      // [Fix] 直接更新 detail lists，避免 computed 導致的動畫問題
+      this.redDetailList = this.getDetailList('danger')
+      this.yellowDetailList = this.getDetailList('warning')
+      this.greenDetailList = this.getDetailList('success')
+      this.grayDetailList = this.getDetailList('gray')
 
       this.refreshHighlightGroup()
       this.debouncedSort()
@@ -466,6 +481,7 @@ export default {
 </script>
 
 <style lang="scss">
+// [Clean] 移除了 .monitor-dashboard 與 .highlight-group
 .col-md-4 > .card {
   height: calc((100vh - 150px) / 3);
   overflow: auto;
