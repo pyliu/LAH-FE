@@ -1,7 +1,9 @@
 # Land Administration Hub Frontend by Nuxt.js v2
 
 This frontend application relies on the LAH-API service, which functions as the PHP backend provider for all JSON data structures.
-​Configuration: > Please ensure all mandatory environment variables are defined prior to starting the Nuxt.js server. A template is provided in the .env.example file.
+
+​Configuration:
+> Please ensure all mandatory environment variables are defined prior to starting the Nuxt.js server. A template is provided in the .env.example file.
 
 ![系統區塊圖](system_block.jpg)
 
