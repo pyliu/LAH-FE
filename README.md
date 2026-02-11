@@ -1,7 +1,7 @@
 # Land Administration Hub Frontend by Nuxt.js v2
 
-This project needs to work with my another project, [LAH-API](https://github.com/pyliu/LAH-API), that serves as PHP API server to provide json data used by this frontend project.
-> Please refers to .env.example file to setup the require variables to start the nuxt.js server.
+This frontend application relies on the LAH-API service, which functions as the PHP backend provider for all JSON data structures.
+​Configuration: > Please ensure all mandatory environment variables are defined prior to starting the Nuxt.js server. A template is provided in the .env.example file.
 
 ![系統區塊圖](system_block.jpg)
 
