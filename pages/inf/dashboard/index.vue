@@ -95,7 +95,7 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
             li 🟢 #[strong 綠燈]：表示監控項目運作正常。
             li ⚪ #[strong 白燈/灰燈]：表示監控項目正在初始化、載入中或狀態未知。
         li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂，並透過動畫效果提醒管理人員注意。
-        li 若燈號狀態相同，則依照 #[strong 更新時間] 排序，越近更新的會排在越前面。
+        li 若燈號狀態相同，則依照 #[strong 面板預設順序] 進行排列，確保畫面穩定。
       hr
       h5.d-flex.align-items-center
         lah-fa-icon(icon="thumbtack", variant="secondary")
@@ -142,7 +142,6 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
         :footer="board.footer"
         @light-update="lightUpdate($event, board)"
       )
-
 </template>
 
 <script>
@@ -184,17 +183,15 @@ export default {
     yellow: 0,
     green: 0,
     gray: 0,
-    // [Fix] 將 detail lists 改為 data，避免 computed 導致的動畫問題
     redDetailList: '',
     yellowDetailList: '',
     greenDetailList: '',
     grayDetailList: '',
-    // [Clean] 移除 lastLightUpdate，不再需要
     attentionList: [],
     attentionTimer: null,
     col2: false,
     isDarkMode: false,
-    boards: [], // 將在 created 中初始化
+    boards: [],
     pinnedIds: [],
     currentSortedBoards: [],
     debouncedSort: null
@@ -238,60 +235,42 @@ export default {
   created () {
     this.debouncedSort = this.$utils.debounce(this.sortBoards, 3000)
 
-    // [Opt] 初始化並處理靜態看板
-    // 1. 根據模式過濾
-    // 2. 補全響應式屬性
-    // 3. 預先計算 searchName (CamelCase) 避免排序時重複運算
     const filteredBoards = this.isHX
       ? DEFAULT_BOARDS.filter(board => !HA_ONLY_BOARDS.includes(board.comp))
       : DEFAULT_BOARDS
 
-    // [FIX] 這裡會將 boards 重置為預設值
     this.boards = filteredBoards.map(board => ({
       ...board,
       realName: null,
       lastUpdate: 0,
       pinned: board.pinned === true,
-      // Fallback ID 機制
       id: board.id || `${board.comp}-${this.$utils.rand(10000)}`,
-      // 快取 CamelCase 名稱，提升 getWeight 效能
       searchName: this.toCamelCase(board.comp)
-      // [Simp] 移除 animDuration，保持單純
     }))
 
-    // [Fix] 確保在初始化預設看板後，重新合併印表機設定
-    // 這是因為 watch 的 immediate: true 可能在 created 之前就執行過一次，
-    // 導致印表機資料被上面的 this.boards = ... 覆蓋掉
     this.mergePrinterBoards()
-
-    // 初始化顯示清單
     this.currentSortedBoards = [...this.boards]
 
-    // 讀取設定
     Promise.all([
       this.getCache(this.pinnedCacheKey),
       this.getCache('dashboard-col2'),
       this.getCache('dashboard-dark-mode')
     ]).then(([pinnedIds, col2, darkMode]) => {
-      // 處理釘選
       if (Array.isArray(pinnedIds)) {
         this.pinnedIds = pinnedIds
         this.boards.forEach((b) => {
           b.pinned = this.pinnedIds.includes(b.id)
         })
       } else {
-        // 若無快取，則使用預設的釘選設定
         this.pinnedIds = this.boards.filter(b => b.pinned).map(b => b.id)
       }
 
-      // 處理欄位與主題
       if (col2 !== null) { this.col2 = col2 }
       if (darkMode !== null) {
         this.isDarkMode = darkMode
         this.updateBodyBg(darkMode)
       }
 
-      // 執行初次排序
       this.sortBoards()
     })
   },
@@ -320,7 +299,6 @@ export default {
 
     this.refreshHighlightGroup()
 
-    // [Fix] 初始化 detail lists
     this.redDetailList = this.getDetailList('danger')
     this.yellowDetailList = this.getDetailList('warning')
     this.greenDetailList = this.getDetailList('success')
@@ -358,30 +336,40 @@ export default {
         return ` - ${simpleName.charAt(0).toUpperCase() + simpleName.slice(1)}`
       }).join('\n')
     },
+
+    // ==========================================
+    // 重新設計的核心排序演算法
+    // ==========================================
     sortBoards () {
       this.currentSortedBoards = [...this.boards].sort((a, b) => {
+        // 1. 狀態權重優先: 紅燈(-3) > 黃燈(-2) > 釘選(-1) > 正常(0)
+        // 說明: 確保有異常的或是手動釘選的元件永遠在上方
         const weightDiff = this.getWeight(a) - this.getWeight(b)
         if (weightDiff !== 0) { return weightDiff }
 
-        const timeDiff = (b.lastUpdate || 0) - (a.lastUpdate || 0)
-        if (timeDiff !== 0) { return timeDiff }
+        // [移除 lastUpdate 的排序比較]
+        // 移除原因: 背景每隔幾秒就會發出 @light-update 更新元件狀態
+        // 若依賴 lastUpdate，同權重(例如都是綠燈且釘選)的面版會不斷互換位置造成閃爍。
 
-        // ✨ 新增：使用 DEFAULT_BOARDS 中的原始索引順序
+        // 2. 順序穩定性: 依據 DEFAULT_BOARDS 初始陣列定義的順序進行絕對排列
         const indexA = DEFAULT_BOARDS.findIndex(board => board.id === a.id)
         const indexB = DEFAULT_BOARDS.findIndex(board => board.id === b.id)
 
-        // 動態面板（如印表機）處理
+        // 針對動態面板（如列印伺服器，它們是從 DB 讀出，不在 DEFAULT_BOARDS 裡）
         if (indexA === -1 && indexB === -1) {
-          return a.id.localeCompare(b.id)
+          return a.id.localeCompare(b.id) // 動態面板彼此之間使用 ID 的字母順序排列，保持穩定
         }
+        // 確保動態面板永遠排在靜態面板之後
         if (indexA === -1) { return 1 }
         if (indexB === -1) { return -1 }
 
+        // 3. 靜態面板完全遵守 DEFAULT_BOARDS 的定義位置
         return indexA - indexB
       })
     },
+
     togglePin (board) {
-      board.pinned = !board.pinned // 直接操作物件
+      board.pinned = !board.pinned
       if (board.pinned) {
         if (!this.pinnedIds.includes(board.id)) { this.pinnedIds.push(board.id) }
       } else {
@@ -395,7 +383,6 @@ export default {
         const configStr = this.systemConfigs?.monitor_printers
         const printers = configStr ? JSON.parse(configStr) : []
 
-        // 保留非印表機的板子
         const baseBoards = this.boards.filter(b => b.comp !== 'lah-monitor-board-printer')
 
         const newPrinterBoards = printers.map((p) => {
@@ -411,8 +398,7 @@ export default {
             realName: null,
             lastUpdate: 0,
             pinned: isPinned,
-            searchName: 'LahMonitorBoardPrinter' // 固定名稱
-            // [Simp] 移除 animDuration
+            searchName: 'LahMonitorBoardPrinter'
           }
         })
 
@@ -423,15 +409,14 @@ export default {
       }
     },
     lightUpdate (payload, board) {
-      // 更新個別板子資訊
       if (board) {
         if (payload?.name && board.realName !== payload.name) {
           board.realName = payload.name
         }
+        // 保留 lastUpdate 欄位供後續可能有 debug 或提示最後更新時間的需求，但不介入排序
         board.lastUpdate = new Date().getTime()
       }
 
-      // 更新全域燈號統計
       this.lightMap.set(payload.name, payload.new)
 
       let r = 0; let y = 0; let g = 0
@@ -441,12 +426,10 @@ export default {
 
       this.red = r; this.yellow = y; this.green = g
 
-      // 計算灰燈 (總數 - 已知狀態)
       const totalCards = this.currentSortedBoards.length
       const knownStatus = r + y + g
       this.gray = Math.max(0, totalCards - knownStatus)
 
-      // [Fix] 直接更新 detail lists，避免 computed 導致的動畫問題
       this.redDetailList = this.getDetailList('danger')
       this.yellowDetailList = this.getDetailList('warning')
       this.greenDetailList = this.getDetailList('success')
@@ -455,15 +438,13 @@ export default {
       this.refreshHighlightGroup()
       this.debouncedSort()
     },
-    refreshHighlightGroup () { /* placeholder for debouncing */ },
+    refreshHighlightGroup () { },
     isInAttention (name) {
       const clean = name[0]?.toUpperCase() + name?.slice(1)
       return this.lightMap.has(clean) && this.lightMap.get(clean) !== 'success'
     },
     isFooterEnable (name) {
-      // [Opt] 簡化查詢邏輯
       const comp = this.$refs[name]
-      // 處理 v-for refs 陣列情況
       const instance = Array.isArray(comp) ? comp[0] : comp
       return instance?.$options?.propsData?.footer || false
     },
@@ -471,11 +452,7 @@ export default {
       return str.replace(/-([a-z])/g, g => g[1].toUpperCase())
     },
     getWeight (board) {
-      // [Opt] 優先使用快取的 searchName
       const searchName = board.realName || board.searchName
-
-      // 印表機 fallback 邏輯 (若有需要)
-      if (!board.realName && board.comp.includes('printer') && board.props?.serverIp) { /* printer fallback */ }
 
       const status = this.lightMap.get(searchName)
       if (status === 'danger') { return -3 }
@@ -488,7 +465,6 @@ export default {
 </script>
 
 <style lang="scss">
-// [Clean] 移除了 .monitor-dashboard 與 .highlight-group
 .col-md-4 > .card {
   height: calc((100vh - 150px) / 3);
   overflow: auto;
@@ -505,24 +481,17 @@ export default {
   }
 }
 
-// [Simp] 簡化版動畫樣式 - 穩定優先
 // 容器項目設定
 .monitor-card-wrapper {
   // 效能優化: 預告變動
   will-change: transform;
-
   // Edge/Chrome 優化: 減少渲染閃爍
   backface-visibility: hidden;
-
-  // [重點] 恢復常駐的 transition，確保排序時瀏覽器能捕捉到 transform 的變化
-  // 同時處理 width (2/3欄切換) 和 transform (排序移動)
   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 // 1. 移動中的項目 (FLIP 核心)
 .board-list-move {
-  // 使用固定的 0.6s 時間，確保穩定
-  // 使用略為活潑的 cubic-bezier 曲線
   transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
   z-index: 50;
 }
