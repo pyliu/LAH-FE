@@ -359,9 +359,6 @@ export default {
       }).join('\n')
     },
     sortBoards () {
-      // 權重排序: Danger(-3) > Warning(-2) > Pinned(-1) > Normal(0)
-      // 次要排序: 更新時間 (新 -> 舊)
-      // 第三層排序: 原始 ID 順序 (確保穩定排序，解決時間相同時的跳動)
       this.currentSortedBoards = [...this.boards].sort((a, b) => {
         const weightDiff = this.getWeight(a) - this.getWeight(b)
         if (weightDiff !== 0) { return weightDiff }
@@ -369,8 +366,18 @@ export default {
         const timeDiff = (b.lastUpdate || 0) - (a.lastUpdate || 0)
         if (timeDiff !== 0) { return timeDiff }
 
-        // [Mod] CLAUDE AI 建議：當權重和時間都相同時，使用 ID 保持穩定排序
-        return a.id.localeCompare(b.id)
+        // ✨ 新增：使用 DEFAULT_BOARDS 中的原始索引順序
+        const indexA = DEFAULT_BOARDS.findIndex(board => board.id === a.id)
+        const indexB = DEFAULT_BOARDS.findIndex(board => board.id === b.id)
+
+        // 動態面板（如印表機）處理
+        if (indexA === -1 && indexB === -1) {
+          return a.id.localeCompare(b.id)
+        }
+        if (indexA === -1) { return 1 }
+        if (indexB === -1) { return -1 }
+
+        return indexA - indexB
       })
     },
     togglePin (board) {
