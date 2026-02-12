@@ -268,7 +268,12 @@ export default {
     col2 (flag) { this.setCache('dashboard-col2', flag) },
     themeMode (mode) {
       this.setCache('dashboard-theme-mode', mode)
-      this.updateThemeProgress()
+      // ✨ 效能優化：根據模式動態啟動/關閉計時器
+      if (mode === 'auto') {
+        this.startAutoThemeTimer()
+      } else {
+        this.stopAutoThemeTimer()
+      }
       this.applyThemeState()
     },
     themeRatio () {
@@ -320,15 +325,19 @@ export default {
         this.themeMode = oldDarkMode ? 'dark' : 'light'
       }
 
-      this.updateThemeProgress()
+      // ✨ 效能優化：初始化時，若為 auto 模式才啟動計時器
+      if (this.themeMode === 'auto') {
+        this.startAutoThemeTimer()
+      } else {
+        this.updateThemeProgress()
+      }
+
       this.applyThemeState()
       this.sortBoards()
     })
   },
   mounted () {
-    this.updateThemeProgress()
-    // 定時器改為 60 * 1000 毫秒 (每分鐘)
-    this.autoThemeTimer = setInterval(this.updateThemeProgress, 60 * 1000)
+    // 移除原本全域常駐的 autoThemeTimer，交給 startAutoThemeTimer 管理
 
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       const tmp = []
@@ -361,12 +370,28 @@ export default {
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
-    clearInterval(this.autoThemeTimer)
+    this.stopAutoThemeTimer() // ✨ 確保元件銷毀時清除計時器
     if (typeof document !== 'undefined') { document.body.style.backgroundColor = '' }
   },
   methods: {
     toggleTheme () {
       if (this.themeMode === 'light') { this.themeMode = 'dark' } else if (this.themeMode === 'dark') { this.themeMode = 'auto' } else { this.themeMode = 'light' }
+    },
+
+    // ✨ 新增：啟動漸層計時器
+    startAutoThemeTimer () {
+      if (!this.autoThemeTimer) {
+        this.updateThemeProgress()
+        this.autoThemeTimer = setInterval(this.updateThemeProgress, 60 * 1000)
+      }
+    },
+
+    // ✨ 新增：停止漸層計時器
+    stopAutoThemeTimer () {
+      if (this.autoThemeTimer) {
+        clearInterval(this.autoThemeTimer)
+        this.autoThemeTimer = null
+      }
     },
 
     updateThemeProgress () {
