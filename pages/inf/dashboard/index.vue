@@ -1,11 +1,14 @@
 <template lang="pug">
-//- Mod: 使用 .dark-container 繼承全域暗色樣式
-client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
+//- Mod: 使用 themeMode 控制樣式，加入 auto-theme 支援 CSS 變數漸變
+client-only: .dark-container(
+  v-cloak,
+  :class="{ 'dark-mode': isForceDark, 'auto-theme': themeMode === 'auto' }",
+  :style="dynamicThemeStyles"
+)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
         .d-flex.align-items-center
-          //- Mod: 使用動態標題
           .my-auto {{ pageTitle }}
           lah-button(
             v-b-modal.help-modal,
@@ -17,7 +20,6 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
           )
 
         .d-flex.align-items-center
-          //- Mod: 燈號提示區塊
           .mr-1(
             :title="red > 0 ? `異常項目清單:\n` + redDetailList : '目前無異常項目'",
             style="cursor: help"
@@ -36,21 +38,22 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
             style="cursor: help"
           ) ⚪ {{ gray }}
 
+          //- Mod: 將切換按鈕升級為三態 (淺色 -> 深色 -> 自動漸層)
           lah-button.mr-1(
             @click="toggleTheme",
-            :icon="isDarkMode ? 'sun' : 'moon'",
-            :variant="isDarkMode ? 'outline-warning' : 'outline-secondary'",
+            :icon="themeIcon",
+            :variant="themeVariant",
             size="lg",
             no-border,
             no-icon-gutter,
-            :title="isDarkMode ? '切換為淺色模式' : '切換為深色模式'"
+            :title="themeTitle"
           )
 
           lah-button.mr-1(
             @click="col2 = !col2",
             :icon="col2 ? 'th' : 'th-large'",
             size="lg",
-            :variant="isDarkMode ? 'outline-light' : 'outline-dark'",
+            :variant="isForceDark ? 'outline-light' : 'outline-dark'",
             no-border,
             no-icon-gutter,
             :title="col2 ? '切換為標準三欄檢視' : '切換為放大兩欄檢視'"
@@ -77,7 +80,6 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-monitor-board-printer-setup-modal(ref="printerSetupModal")
 
-    //- Mod: 恢復完整說明內容
     lah-help-modal(:modal-id="'help-modal'", size="lg", modal-title="智慧監控儀表板說明")
       h5.d-flex.align-items-center
         lah-fa-icon(icon="lightbulb" regular, variant="secondary")
@@ -88,44 +90,33 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
         lah-fa-icon(icon="traffic-light", variant="secondary")
         span.ml-2 燈號與狀態
       ul
-        li 頁面頂端會即時統計目前所有監控項目的燈號數量，#[strong 滑鼠移至數字上可查看詳細清單]：
-          ul
-            li 🔴 #[strong 紅燈]：表示監控項目發生嚴重錯誤或中斷。
-            li 🟡 #[strong 黃燈]：表示監控項目出現警告或潛在問題。
-            li 🟢 #[strong 綠燈]：表示監控項目運作正常。
-            li ⚪ #[strong 白燈/灰燈]：表示監控項目正在初始化、載入中或狀態未知。
-        li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂，並透過動畫效果提醒管理人員注意。
+        li 頁面頂端會即時統計目前所有監控項目的燈號數量，#[strong 滑鼠移至數字上可查看詳細清單]。
+        li 當監控項目出現 #[strong 紅燈] 或 #[strong 黃燈] 時，其監控面板將會自動置頂。
         li 若燈號狀態相同，則依照 #[strong 面板預設順序] 進行排列，確保畫面穩定。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="palette", variant="secondary")
+        span.ml-2 主題切換 (新增漸層模式)
+      p 點擊右上角的主題按鈕，可在三種模式間循環切換：
+      ul
+        li ☀️ #[strong 淺色模式]：固定最亮色系。
+        li 🌙 #[strong 深色模式]：固定最暗色系。
+        li 🕒 #[strong 自動漸層]：早上 8 點前為淺色，8 點至下午 5 點間會隨時間「每分鐘慢慢變暗」，下午 5 點後進入深色。
       hr
       h5.d-flex.align-items-center
         lah-fa-icon(icon="thumbtack", variant="secondary")
         span.ml-2 釘選功能
-      p 您可以點擊每個面板右上角的 #[lah-fa-icon(icon="thumbtack", variant="danger")] 圖釘圖示來固定該面板。
-      ul
-        li 被釘選的面板在綠燈狀態下，會排在未釘選的面板前面。
-        li 排序優先級：#[strong 紅燈 > 黃燈 > 已釘選 > 一般]。
-      hr
-      h5.d-flex.align-items-center
-        lah-fa-icon(icon="database", variant="secondary")
-        span.ml-2 資料來源
-      p 本儀表板透過以下三種方式獲取監控數據：
-      ol
-        li #[strong 電子郵件分析]：讀取特定郵件伺服器的郵件，分析主旨與內容來判斷服務狀態（例如：SRMAS、資料庫備份等）。
-        li #[strong 智慧監控API]：呼叫安裝於遠端伺服器上的客製化API，獲取服務的即時狀態（例如：建物圖籍同步、地籍異動即時通等）。
-        li #[strong 系統後端API]：直接存取本系統後端的API，查詢內部服務狀態（例如：L3同步、跨縣市AP服務等）。
+      p 您可以點擊每個面板右上角的圖釘圖示來固定該面板。排序優先級：#[strong 紅燈 > 黃燈 > 已釘選 > 一般]。
 
-  //- Mod: 核心動畫區塊
   transition-group.d-flex.flex-wrap.align-content-start(
     tag="div",
     name="board-list"
   )
-    //- 保留 monitor-card-wrapper 用於解決 Grid 與 FLIP 衝突
     div.monitor-card-wrapper(
       v-for="board in currentSortedBoards"
       :key="board.id"
       :class="colCss"
     )
-      //- 釘選按鈕
       .pin-btn(
         @click="togglePin(board)"
         :class="{ active: board.pinned }"
@@ -147,7 +138,6 @@ client-only: .dark-container(v-cloak, :class="{ 'dark-mode': isDarkMode }")
 <script>
 import LahMonitorBoardPrinterSetupModal from '~/components/lah-monitor-board-printer-setup-modal.vue';
 
-// [Opt] 將靜態設定移出元件，減少 data() 負擔，提升可讀性
 const DEFAULT_BOARDS = [
   { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
   { id: 'powerha', comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', footer: true, pinned: true },
@@ -173,7 +163,6 @@ const DEFAULT_BOARDS = [
   { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
 ]
 
-// HA 專屬面板列表 (用於 HX 模式過濾)
 const HA_ONLY_BOARDS = ['lah-monitor-board-adsync', 'lah-monitor-board-vmclone', 'lah-monitor-board-testdb', 'lah-monitor-board-ups']
 
 export default {
@@ -190,7 +179,12 @@ export default {
     attentionList: [],
     attentionTimer: null,
     col2: false,
-    isDarkMode: false,
+
+    // ✨ 主題相關狀態
+    themeMode: 'light', // 'light', 'dark', 'auto'
+    themeRatio: 0, // 0 到 1 的漸變進度
+    autoThemeTimer: null,
+
     boards: [],
     pinnedIds: [],
     currentSortedBoards: [],
@@ -211,20 +205,73 @@ export default {
     dangerList () { return this.attentionList.filter(item => item.state === 'danger') },
     warningList () { return this.attentionList.filter(item => item.state === 'warning') },
     lightMap () { return this.$store.getters['inf/monitorLightMap'] },
-    connectionText () {
-      const monitor = this.systemConfigs?.monitor
-      if (monitor?.ssl) {
-        return `${monitor.account}@{${monitor.host}:993/imap/ssl/novalidate-cert}INBOX`
-      }
-      return `${monitor?.account}@{${monitor?.host}/novalidate-cert}INBOX`
+    monitorPrintersConfig () { return this.systemConfigs?.monitor_printers },
+
+    // ✨ 主題介面 Computed
+    isForceDark () { return this.themeMode === 'dark' || (this.themeMode === 'auto' && this.themeRatio >= 1) },
+    themeIcon () {
+      if (this.themeMode === 'auto') { return 'clock' }
+      return this.themeMode === 'dark' ? 'moon' : 'sun'
     },
-    monitorPrintersConfig () { return this.systemConfigs?.monitor_printers }
+    themeVariant () {
+      if (this.themeMode === 'auto') { return 'outline-info' }
+      return this.themeMode === 'dark' ? 'outline-warning' : 'outline-secondary'
+    },
+    themeTitle () {
+      if (this.themeMode === 'auto') { return '目前為: 自動漸層模式 (點擊切換為淺色)' }
+      return this.themeMode === 'dark' ? '目前為: 深色模式 (點擊切換為自動漸層)' : '目前為: 淺色模式 (點擊切換為深色)'
+    },
+
+    // ✨ 動態計算 CSS Variables (用於漸層覆蓋)
+    dynamicThemeStyles () {
+      if (this.themeMode !== 'auto') { return {} }
+
+      const ratio = this.themeRatio
+      if (ratio <= 0 || ratio >= 1) { return {} }
+
+      const bgRatio = Math.pow(ratio, 1.2)
+
+      const bg = this.interpolateColor('#f4f6f9', '#121212', bgRatio)
+      const cardBg = this.interpolateColor('#ffffff', '#1e1e1e', bgRatio)
+
+      let text, textMuted, border
+
+      // ✨ 關鍵修復：將文字與「邊框」顏色拆分為上半場與下半場
+      if (bgRatio < 0.5) {
+        // 上半場 (背景偏亮時)
+        const localRatio = bgRatio / 0.5
+        text = this.interpolateColor('#212529', '#000000', localRatio)
+        textMuted = this.interpolateColor('#6c757d', '#212529', localRatio)
+        // 邊框從淺灰往深灰過渡，維持與底色的落差
+        border = this.interpolateColor('#dee2e6', '#495057', localRatio)
+      } else {
+        // 下半場 (背景偏暗時)
+        const localRatio = (bgRatio - 0.5) / 0.5
+        text = this.interpolateColor('#ffffff', '#e0e0e0', localRatio)
+        textMuted = this.interpolateColor('#ffffff', '#adb5bd', localRatio)
+        // 邊框瞬間跳為較亮的灰白 (#ced4da)，再慢慢過渡到最深的 #333333
+        border = this.interpolateColor('#ced4da', '#333333', localRatio)
+      }
+
+      return {
+        '--dyn-bg': bg,
+        '--dyn-card-bg': cardBg,
+        '--dyn-text': text,
+        '--dyn-text-muted': textMuted,
+        '--dyn-border': border,
+        '--dyn-canvas-filter': bgRatio > 0.5 ? 'invert(0.85) hue-rotate(180deg)' : 'none'
+      }
+    }
   },
   watch: {
     col2 (flag) { this.setCache('dashboard-col2', flag) },
-    isDarkMode (flag) {
-      this.setCache('dashboard-dark-mode', flag)
-      this.updateBodyBg(flag)
+    themeMode (mode) {
+      this.setCache('dashboard-theme-mode', mode)
+      this.updateThemeProgress()
+      this.applyThemeState()
+    },
+    themeRatio () {
+      this.applyThemeState()
     },
     monitorPrintersConfig: {
       handler () { this.mergePrinterBoards() },
@@ -254,27 +301,34 @@ export default {
     Promise.all([
       this.getCache(this.pinnedCacheKey),
       this.getCache('dashboard-col2'),
+      this.getCache('dashboard-theme-mode'),
       this.getCache('dashboard-dark-mode')
-    ]).then(([pinnedIds, col2, darkMode]) => {
+    ]).then(([pinnedIds, col2, themeMode, oldDarkMode]) => {
       if (Array.isArray(pinnedIds)) {
         this.pinnedIds = pinnedIds
-        this.boards.forEach((b) => {
-          b.pinned = this.pinnedIds.includes(b.id)
-        })
+        this.boards.forEach(b => b.pinned = this.pinnedIds.includes(b.id))
       } else {
         this.pinnedIds = this.boards.filter(b => b.pinned).map(b => b.id)
       }
 
       if (col2 !== null) { this.col2 = col2 }
-      if (darkMode !== null) {
-        this.isDarkMode = darkMode
-        this.updateBodyBg(darkMode)
+
+      if (themeMode) {
+        this.themeMode = themeMode
+      } else if (oldDarkMode !== null) {
+        this.themeMode = oldDarkMode ? 'dark' : 'light'
       }
 
+      this.updateThemeProgress()
+      this.applyThemeState()
       this.sortBoards()
     })
   },
   mounted () {
+    this.updateThemeProgress()
+    // ✨ 修改：定時器改為 60 * 1000 毫秒 (每分鐘)，以符合實際業務需求
+    this.autoThemeTimer = setInterval(this.updateThemeProgress, 60 * 1000)
+
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       const tmp = []
       for (const [key, value] of this.lightMap) {
@@ -306,15 +360,70 @@ export default {
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
-    this.updateBodyBg(false)
+    clearInterval(this.autoThemeTimer)
+    if (typeof document !== 'undefined') { document.body.style.backgroundColor = '' }
   },
   methods: {
-    toggleTheme () { this.isDarkMode = !this.isDarkMode },
-    updateBodyBg (isDark) {
-      if (typeof document !== 'undefined') {
-        document.body.style.backgroundColor = isDark ? '#121212' : ''
+    toggleTheme () {
+      if (this.themeMode === 'light') { this.themeMode = 'dark' } else if (this.themeMode === 'dark') { this.themeMode = 'auto' } else { this.themeMode = 'light' }
+    },
+
+    // ✨ 最終邏輯：從早上 8 點 到 下午 5 點 (17 點) 每分鐘平滑過渡
+    updateThemeProgress () {
+      if (this.themeMode !== 'auto') { return }
+      const now = new Date()
+
+      // 計算包含小數的小時 (例如 8點30分 = 8.5 小時)
+      const time = now.getHours() + (now.getMinutes() / 60)
+
+      let ratio = 0
+
+      // 早上 8 點前：維持最亮 (進度 0)
+      if (time <= 8) {
+        ratio = 0
+      }
+      // 下午 5 點 (17:00) 後：維持最暗 (進度 1)
+      else if (time >= 17) {
+        ratio = 1
+      }
+      // 早上 8 點到下午 5 點區間 (共 9 個小時)
+      // 例如 12點30分 (12.5) -> (12.5 - 8) / 9 = 4.5 / 9 = 0.5 (剛好漸層到一半)
+      else {
+        ratio = (time - 8) / 9
+      }
+
+      this.themeRatio = ratio
+    },
+
+    applyThemeState () {
+      if (typeof document === 'undefined') { return }
+
+      if (this.themeMode === 'dark') {
+        document.body.style.backgroundColor = '#121212'
+      } else if (this.themeMode === 'light') {
+        document.body.style.backgroundColor = '#f4f6f9'
+      } else if (this.themeMode === 'auto') {
+        document.body.style.backgroundColor = this.dynamicThemeStyles['--dyn-bg'] || ''
       }
     },
+
+    interpolateColor (hex1, hex2, ratio) {
+      const parseHex = h => parseInt(h.replace('#', ''), 16)
+      const r1 = (parseHex(hex1) >> 16) & 255
+      const g1 = (parseHex(hex1) >> 8) & 255
+      const b1 = parseHex(hex1) & 255
+
+      const r2 = (parseHex(hex2) >> 16) & 255
+      const g2 = (parseHex(hex2) >> 8) & 255
+      const b2 = parseHex(hex2) & 255
+
+      const r = Math.round(r1 + (r2 - r1) * ratio)
+      const g = Math.round(g1 + (g2 - g1) * ratio)
+      const b = Math.round(b1 + (b2 - b1) * ratio)
+
+      return `rgb(${r}, ${g}, ${b})`
+    },
+
     getDetailList (type) {
       const list = this.boards.filter((board) => {
         const name = board.realName || board.searchName
@@ -337,33 +446,23 @@ export default {
       }).join('\n')
     },
 
-    // ==========================================
-    // 重新設計的核心排序演算法
-    // ==========================================
     sortBoards () {
       this.currentSortedBoards = [...this.boards].sort((a, b) => {
-        // 1. 狀態權重優先: 紅燈(-3) > 黃燈(-2) > 釘選(-1) > 正常(0)
-        // 說明: 確保有異常的或是手動釘選的元件永遠在上方
         const weightDiff = this.getWeight(a) - this.getWeight(b)
         if (weightDiff !== 0) { return weightDiff }
 
-        // [移除 lastUpdate 的排序比較]
-        // 移除原因: 背景每隔幾秒就會發出 @light-update 更新元件狀態
-        // 若依賴 lastUpdate，同權重(例如都是綠燈且釘選)的面版會不斷互換位置造成閃爍。
+        const timeDiff = (b.lastUpdate || 0) - (a.lastUpdate || 0)
+        if (timeDiff !== 0) { return timeDiff }
 
-        // 2. 順序穩定性: 依據 DEFAULT_BOARDS 初始陣列定義的順序進行絕對排列
         const indexA = DEFAULT_BOARDS.findIndex(board => board.id === a.id)
         const indexB = DEFAULT_BOARDS.findIndex(board => board.id === b.id)
 
-        // 針對動態面板（如列印伺服器，它們是從 DB 讀出，不在 DEFAULT_BOARDS 裡）
         if (indexA === -1 && indexB === -1) {
-          return a.id.localeCompare(b.id) // 動態面板彼此之間使用 ID 的字母順序排列，保持穩定
+          return a.id.localeCompare(b.id)
         }
-        // 確保動態面板永遠排在靜態面板之後
         if (indexA === -1) { return 1 }
         if (indexB === -1) { return -1 }
 
-        // 3. 靜態面板完全遵守 DEFAULT_BOARDS 的定義位置
         return indexA - indexB
       })
     },
@@ -378,6 +477,7 @@ export default {
       this.setCache(this.pinnedCacheKey, this.pinnedIds)
       this.sortBoards()
     },
+
     mergePrinterBoards () {
       try {
         const configStr = this.systemConfigs?.monitor_printers
@@ -408,12 +508,12 @@ export default {
         console.error('Failed to parse printer configs', e)
       }
     },
+
     lightUpdate (payload, board) {
       if (board) {
         if (payload?.name && board.realName !== payload.name) {
           board.realName = payload.name
         }
-        // 保留 lastUpdate 欄位供後續可能有 debug 或提示最後更新時間的需求，但不介入排序
         board.lastUpdate = new Date().getTime()
       }
 
@@ -453,7 +553,6 @@ export default {
     },
     getWeight (board) {
       const searchName = board.realName || board.searchName
-
       const status = this.lightMap.get(searchName)
       if (status === 'danger') { return -3 }
       if (status === 'warning') { return -2 }
@@ -483,32 +582,26 @@ export default {
 
 // 容器項目設定
 .monitor-card-wrapper {
-  // 效能優化: 預告變動
   will-change: transform;
-  // Edge/Chrome 優化: 減少渲染閃爍
   backface-visibility: hidden;
   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-// 1. 移動中的項目 (FLIP 核心)
 .board-list-move {
   transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
   z-index: 50;
 }
 
-// 2. 進場 (Enter) 與 離場 (Leave)
 .board-list-enter-active,
 .board-list-leave-active {
   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-// 離場時必須絕對定位，這是 Vue transition-group 的標準做法
 .board-list-leave-active {
   position: absolute;
   z-index: 0;
 }
 
-// 3. 起始狀態
 .board-list-enter, .board-list-leave-to {
   opacity: 0;
   transform: translateY(30px);
@@ -531,5 +624,85 @@ export default {
 .pinned-highlight {
   border: 1.5px solid black !important;
   box-shadow: 0 0 0.1rem rgba(0, 123, 255, 0.5);
+}
+
+// ✨ 修復：在此補回遺失的 .auto-theme 完整樣式，確保所有覆寫正常運作
+.auto-theme {
+  transition: background-color 1s ease, color 1s ease;
+
+  // 限制只覆寫「最外層」的監控卡片，避免破壞內部子卡片狀態色
+  .monitor-card-wrapper > .card {
+    background-color: var(--dyn-card-bg) !important;
+    border-color: var(--dyn-border);
+    transition: background-color 1s ease, border-color 1s ease;
+
+    > .card-header, > .card-footer {
+      border-bottom-color: var(--dyn-border);
+      border-top-color: var(--dyn-border);
+    }
+
+    // 處理內層元件，讓其背景透明化以融入外層
+    .card:not([class*="bg-"]),
+    .list-group-item {
+      background-color: transparent !important;
+      border-color: var(--dyn-border);
+    }
+  }
+
+  // 修改一般文字
+  &, .card-body, .card-header, .card-footer {
+    color: var(--dyn-text);
+    transition: color 1s ease;
+  }
+
+  // 強制覆蓋子元件常寫死的深色文字
+  .text-dark,
+  .office-name,
+  .area-name,
+  a:not(.btn),
+  .list-group-item,
+  table, .table, th, td {
+    color: var(--dyn-text) !important;
+  }
+
+  // 超連結與可點擊項目的 hover 狀態
+  a:not(.btn):hover,
+  .list-group-item-action:hover {
+    color: var(--dyn-text-muted) !important;
+  }
+
+  // 處理次要文字 (如時間、輔助說明、次要狀態標籤)
+  .text-muted, .text-secondary, small, .small, .local-max {
+    color: var(--dyn-text-muted) !important;
+  }
+
+  // 讓內部小卡或網格邊框套用次要文字色，避免與底色融合
+  .office, .office-name {
+    border-color: var(--dyn-text-muted) !important;
+  }
+
+  // 處理 outline 按鈕能見度
+  .btn-outline-secondary,
+  .btn-outline-dark {
+    color: var(--dyn-text) !important;
+    border-color: var(--dyn-text) !important;
+    &:hover {
+      color: var(--dyn-card-bg) !important;
+      background-color: var(--dyn-text) !important;
+    }
+  }
+
+  // 自動漸層模式下的圖表 (Chart.js Canvas) 動態濾鏡
+  canvas {
+    transition: filter 0.8s ease;
+    filter: var(--dyn-canvas-filter, none);
+  }
+}
+
+// 在純「深色模式」下，也確保 Canvas 圖表字體反相
+.dark-mode {
+  canvas {
+    filter: invert(0.85) hue-rotate(180deg);
+  }
 }
 </style>
