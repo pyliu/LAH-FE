@@ -226,8 +226,9 @@ export default {
     dynamicThemeStyles () {
       if (this.themeMode !== 'auto') { return {} }
 
-      const ratio = this.themeRatio
-      if (ratio <= 0 || ratio >= 1) { return {} }
+      let ratio = this.themeRatio
+      if (ratio < 0) { ratio = 0 }
+      if (ratio > 1) { ratio = 1 }
 
       const bgRatio = Math.pow(ratio, 1.2)
 
@@ -249,8 +250,8 @@ export default {
         const localRatio = (bgRatio - 0.5) / 0.5
         text = this.interpolateColor('#ffffff', '#e0e0e0', localRatio)
         textMuted = this.interpolateColor('#ffffff', '#adb5bd', localRatio)
-        // 邊框瞬間跳為較亮的灰白 (#ced4da)，再慢慢過渡到最深的 #333333
-        border = this.interpolateColor('#ced4da', '#333333', localRatio)
+        // 邊框瞬間跳為較亮的灰白 (#ced4da)，再慢慢過渡到最深的 #6c757d
+        border = this.interpolateColor('#ced4da', '#6c757d', localRatio)
       }
 
       return {
@@ -326,7 +327,7 @@ export default {
   },
   mounted () {
     this.updateThemeProgress()
-    // ✨ 修改：定時器改為 60 * 1000 毫秒 (每分鐘)，以符合實際業務需求
+    // 定時器改為 60 * 1000 毫秒 (每分鐘)
     this.autoThemeTimer = setInterval(this.updateThemeProgress, 60 * 1000)
 
     this.refreshHighlightGroup = this.$utils.debounce(() => {
@@ -368,27 +369,20 @@ export default {
       if (this.themeMode === 'light') { this.themeMode = 'dark' } else if (this.themeMode === 'dark') { this.themeMode = 'auto' } else { this.themeMode = 'light' }
     },
 
-    // ✨ 最終邏輯：從早上 8 點 到 下午 5 點 (17 點) 每分鐘平滑過渡
     updateThemeProgress () {
       if (this.themeMode !== 'auto') { return }
       const now = new Date()
 
-      // 計算包含小數的小時 (例如 8點30分 = 8.5 小時)
+      // 計算包含小數的小時
       const time = now.getHours() + (now.getMinutes() / 60)
 
       let ratio = 0
 
-      // 早上 8 點前：維持最亮 (進度 0)
       if (time <= 8) {
         ratio = 0
-      }
-      // 下午 5 點 (17:00) 後：維持最暗 (進度 1)
-      else if (time >= 17) {
+      } else if (time >= 17) {
         ratio = 1
-      }
-      // 早上 8 點到下午 5 點區間 (共 9 個小時)
-      // 例如 12點30分 (12.5) -> (12.5 - 8) / 9 = 4.5 / 9 = 0.5 (剛好漸層到一半)
-      else {
+      } else {
         ratio = (time - 8) / 9
       }
 
@@ -621,12 +615,14 @@ export default {
     opacity: 1;
   }
 }
+
+// 這是原本寫死黑框的基礎樣式
 .pinned-highlight {
   border: 1.5px solid black !important;
   box-shadow: 0 0 0.1rem rgba(0, 123, 255, 0.5);
 }
 
-// ✨ 修復：在此補回遺失的 .auto-theme 完整樣式，確保所有覆寫正常運作
+// ✨ 自動漸層樣式 (依賴行內綁定的 CSS 變數)
 .auto-theme {
   transition: background-color 1s ease, color 1s ease;
 
@@ -647,6 +643,11 @@ export default {
       background-color: transparent !important;
       border-color: var(--dyn-border);
     }
+  }
+
+  // ✨ 新增：覆寫原本的純黑框，讓置頂面板在下午變暗時能顯示為高對比的白色 / 淺灰邊框
+  .pinned-highlight {
+    border-color: var(--dyn-text) !important;
   }
 
   // 修改一般文字
