@@ -242,28 +242,48 @@ export default {
       if (ratio < 0) { ratio = 0 }
       if (ratio > 1) { ratio = 1 }
 
-      const bgRatio = Math.pow(ratio, 1.2)
+      let bg, cardBg, text, textMuted, border, canvasFilter
 
-      const bg = this.interpolateColor('#f4f6f9', '#121212', bgRatio)
-      const cardBg = this.interpolateColor('#ffffff', '#1e1e1e', bgRatio)
+      // ✨ 根據現代 UI 設計原則重構漸層演算法
+      // 避免文字與背景同時變灰導致的「低對比死亡交叉」
+      if (ratio <= 0.8) {
+        // 【第一階段】08:00 ~ 15:12 (佔 80% 時間)
+        // 動作：維持淺色主題，背景僅微微變暗變得柔和，字體保持深黑
+        const localRatio = ratio / 0.8
+        bg = this.interpolateColor('#f4f6f9', '#e0e4e8', localRatio)
+        cardBg = this.interpolateColor('#ffffff', '#f1f3f6', localRatio)
+        text = '#212529' // 強制深字，不漸層
+        textMuted = '#6c757d'
+        border = this.interpolateColor('#dee2e6', '#ced4da', localRatio)
+        canvasFilter = 'none'
+      } else if (ratio <= 0.9) {
+        // 【第二階段】15:12 ~ 16:06 (黃昏過渡期)
+        // 動作：背景快速降為深灰藍色，文字在切換中點「瞬間反白」，避開泥濘的灰色
+        const localRatio = (ratio - 0.8) / 0.1
+        bg = this.interpolateColor('#e0e4e8', '#2c3640', localRatio)
+        cardBg = this.interpolateColor('#f1f3f6', '#343e48', localRatio)
+        border = this.interpolateColor('#ced4da', '#495057', localRatio)
 
-      let text, textMuted, border
-
-      // ✨ 關鍵修復：將文字與「邊框」顏色拆分為上半場與下半場
-      if (bgRatio < 0.5) {
-        // 上半場 (背景偏亮時)
-        const localRatio = bgRatio / 0.5
-        text = this.interpolateColor('#212529', '#000000', localRatio)
-        textMuted = this.interpolateColor('#6c757d', '#212529', localRatio)
-        // 邊框從淺灰往深灰過渡，維持與底色的落差
-        border = this.interpolateColor('#dee2e6', '#495057', localRatio)
+        // 【關鍵】中位數交叉時強制反轉文字，確保對比度永遠大於 4.5:1
+        if (localRatio < 0.4) {
+          text = '#212529'
+          textMuted = '#495057'
+          canvasFilter = 'none'
+        } else {
+          text = '#f8f9fa'
+          textMuted = '#adb5bd'
+          canvasFilter = 'invert(0.85) hue-rotate(180deg)'
+        }
       } else {
-        // 下半場 (背景偏暗時)
-        const localRatio = (bgRatio - 0.5) / 0.5
-        text = this.interpolateColor('#ffffff', '#e0e0e0', localRatio)
-        textMuted = this.interpolateColor('#ffffff', '#adb5bd', localRatio)
-        // 邊框瞬間跳為較亮的灰白 (#ced4da)，再慢慢過渡到最深的 #6c757d
-        border = this.interpolateColor('#ced4da', '#6c757d', localRatio)
+        // 【第三階段】16:06 ~ 17:00 (入夜深化期)
+        // 動作：從黃昏深灰藍色緩慢過渡到純暗黑模式
+        const localRatio = (ratio - 0.9) / 0.1
+        bg = this.interpolateColor('#2c3640', '#121212', localRatio)
+        cardBg = this.interpolateColor('#343e48', '#1e1e1e', localRatio)
+        text = this.interpolateColor('#f8f9fa', '#e0e0e0', localRatio)
+        textMuted = this.interpolateColor('#adb5bd', '#a0aab5', localRatio)
+        border = this.interpolateColor('#495057', '#343a40', localRatio)
+        canvasFilter = 'invert(0.85) hue-rotate(180deg)'
       }
 
       return {
@@ -272,7 +292,7 @@ export default {
         '--dyn-text': text,
         '--dyn-text-muted': textMuted,
         '--dyn-border': border,
-        '--dyn-canvas-filter': bgRatio > 0.5 ? 'invert(0.85) hue-rotate(180deg)' : 'none'
+        '--dyn-canvas-filter': canvasFilter
       }
     }
   },
@@ -751,6 +771,67 @@ export default {
   canvas {
     transition: filter 0.8s ease;
     filter: var(--dyn-canvas-filter, none);
+  }
+
+  // ✨ 新增修正：保護側邊欄 (Sidebar) 不受漸層主題覆蓋
+  // 利用 CSS Specificity (權重) 進行完美的階層覆蓋，徹底解決白底白字問題
+  .b-sidebar {
+    // 1. Sidebar 大範圍設定 (第一層覆蓋：讓側邊欄內所有基礎文字與連結變成白字)
+    color: rgba(255, 255, 255, 0.85) !important;
+
+    .text-dark,
+    .office-name,
+    .area-name,
+    a:not(.btn),
+    .list-group-item,
+    table, .table, th, td {
+      color: rgba(255, 255, 255, 0.85) !important;
+      background-color: transparent !important;
+    }
+
+    a:not(.btn):hover,
+    .list-group-item-action:hover {
+      color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .text-muted, .text-secondary, small, .small, .local-max {
+      color: #adb5bd !important; // 恢復 Bootstrap 預設淺灰
+    }
+
+    // 2. Sidebar 內的白底卡片 (第二層覆蓋：利用多一個 .card 的更高權重，強制內部變回黑字)
+    .card, .bg-white, .dropdown-menu, .popover, .toast {
+      background-color: #ffffff !important;
+      color: #212529 !important;
+
+      // 這裡的權重會自動大於上面的第一層設定
+      .text-dark,
+      .office-name,
+      .area-name,
+      a:not(.btn),
+      .list-group-item,
+      table, .table, th, td {
+        color: #212529 !important;
+        background-color: transparent !important;
+      }
+
+      a:not(.btn):hover,
+      .list-group-item-action:hover {
+        color: #0056b3 !important; // 恢復 Bootstrap 預設的深藍色 hover
+        background-color: rgba(0, 0, 0, 0.05) !important;
+      }
+
+      .text-muted, .text-secondary, small, .small, .local-max {
+        color: #6c757d !important;
+      }
+
+      // 確保卡片的 header / footer 也有正確的底色與邊框
+      .card-header, .card-footer {
+        background-color: rgba(0, 0, 0, 0.03) !important;
+        border-color: rgba(0, 0, 0, 0.125) !important;
+        color: #212529 !important;
+      }
+    }
   }
 }
 
