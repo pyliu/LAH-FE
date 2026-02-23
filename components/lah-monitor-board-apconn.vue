@@ -4,7 +4,7 @@ b-card(ref="card", no-body, :border-variant="borderVariant")
     lah-fa-icon(icon="circle", :variant="light")
     strong.truncate(:title="header") {{ header }}
     b-button-group(size="sm")
-      b-checkbox.my-auto(v-model="allSwitch", size="sm") 全部
+      b-checkbox.my-auto.text-nowrap(v-model="allSwitch", size="sm") 全部
       lah-button(
         icon="arrow-alt-circle-left",
         action="move-fade-rtl",
