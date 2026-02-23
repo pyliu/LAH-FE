@@ -9,6 +9,7 @@ client-only: .dark-container(
     lah-transition(appear)
       .d-flex.justify-content-between.align-items-center.w-100
         .d-flex.align-items-center
+          //- Mod: 使用動態標題
           .my-auto {{ pageTitle }}
           lah-button(
             v-b-modal.help-modal,
@@ -18,8 +19,15 @@ client-only: .dark-container(
             no-icon-gutter,
             title="說明"
           )
+          //- ✨ 新增：即時時鐘顯示 (僅在寬螢幕顯示，避免手機版太擠)
+          .m-2.d-none.d-lg-flex.align-items-center.font-weight-bold.s-100(
+            style="opacity: 0.9; letter-spacing: 0.5px; transition: color 1s ease",
+            title="目前系統時間"
+          )
+            span {{ currentTime }}
 
         .d-flex.align-items-center
+          //- Mod: 燈號提示區塊
           .mr-1(
             :title="red > 0 ? `異常項目清單:\n` + redDetailList : '目前無異常項目'",
             style="cursor: help"
@@ -180,6 +188,10 @@ export default {
     attentionTimer: null,
     col2: false,
 
+    // ✨ 時鐘相關
+    currentTime: '',
+    clockTimer: null,
+
     // ✨ 主題相關狀態
     themeMode: 'light', // 'light', 'dark', 'auto'
     themeRatio: 0, // 0 到 1 的漸變進度
@@ -268,7 +280,7 @@ export default {
     col2 (flag) { this.setCache('dashboard-col2', flag) },
     themeMode (mode) {
       this.setCache('dashboard-theme-mode', mode)
-      // ✨ 效能優化：根據模式動態啟動/關閉計時器
+      // ✨ 效能優化：根據模式動態啟動/關閉漸層計時器
       if (mode === 'auto') {
         this.startAutoThemeTimer()
       } else {
@@ -337,7 +349,9 @@ export default {
     })
   },
   mounted () {
-    // 移除原本全域常駐的 autoThemeTimer，交給 startAutoThemeTimer 管理
+    // 啟動時鐘
+    this.updateClock()
+    this.clockTimer = setInterval(this.updateClock, 1000)
 
     this.refreshHighlightGroup = this.$utils.debounce(() => {
       const tmp = []
@@ -370,12 +384,27 @@ export default {
   },
   beforeDestroy () {
     clearInterval(this.attentionTimer)
-    this.stopAutoThemeTimer() // ✨ 確保元件銷毀時清除計時器
+    clearInterval(this.clockTimer) // ✨ 清除時鐘計時器
+    this.stopAutoThemeTimer() // ✨ 清除漸層計時器
     if (typeof document !== 'undefined') { document.body.style.backgroundColor = '' }
   },
   methods: {
     toggleTheme () {
       if (this.themeMode === 'light') { this.themeMode = 'dark' } else if (this.themeMode === 'dark') { this.themeMode = 'auto' } else { this.themeMode = 'light' }
+    },
+
+    // ✨ 新增：更新即時時間
+    updateClock () {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const date = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      const seconds = String(now.getSeconds()).padStart(2, '0')
+      const day = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
+
+      this.currentTime = `${year}-${month}-${date} (${day}) ${hours}:${minutes}:${seconds}`
     },
 
     // ✨ 新增：啟動漸層計時器
