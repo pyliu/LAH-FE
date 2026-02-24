@@ -193,7 +193,7 @@ export default {
   mounted () {
     this.$emit('light-update', {
       name: 'LahMonitorBoardSiteTw',
-      new: this.headerLight,
+      new: 'warning',
       old: ''
     })
   },
