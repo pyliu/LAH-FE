@@ -222,7 +222,7 @@ export default {
     // ✨ 主題介面 Computed
     isForceDark () { return this.themeMode === 'dark' || (this.themeMode === 'auto' && this.themeRatio >= 1) },
     themeIcon () {
-      if (this.themeMode === 'auto') { return 'clock' }
+      if (this.themeMode === 'auto') { return 'adjust' }
       return this.themeMode === 'dark' ? 'moon' : 'sun'
     },
     themeVariant () {
