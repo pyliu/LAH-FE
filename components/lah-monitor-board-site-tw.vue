@@ -190,7 +190,13 @@ export default {
     }
   },
   created () {},
-  mounted () {},
+  mounted () {
+    this.$emit('light-update', {
+      name: 'LahMonitorBoardSiteTw',
+      new: this.headerLight,
+      old: ''
+    })
+  },
   beforeDestroy () {
     clearTimeout(this.timer)
   },
