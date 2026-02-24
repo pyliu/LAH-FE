@@ -160,7 +160,7 @@ const DEFAULT_BOARDS = [
   { id: 'xcase-sync', comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', footer: false },
   { id: 'site-hx', comp: 'lah-monitor-board-site-hx', header: '桃園市各所狀態', footer: false },
   { id: 'lxhweb', comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
-  { id: 'site-tw', comp: 'lah-monitor-board-site-tw', header: '全國伺服器狀態', footer: false },
+  { id: 'site-tw', comp: 'lah-monitor-board-site-tw', header: '全國各所狀態', footer: false },
   { id: 'dbbackup', comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', footer: true },
   { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', footer: false },
   { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
@@ -738,6 +738,14 @@ export default {
   .list-group-item,
   table, .table, th, td {
     color: var(--dyn-text) !important;
+  }
+
+  // ✨ 新增防呆修正：如果表格使用了 Bootstrap 的深色表頭/深色表格，強制文字維持淺色白字
+  .thead-dark th,
+  .thead-dark td,
+  .table-dark th,
+  .table-dark td {
+    color: #f8f9fa !important;
   }
 
   // 超連結與可點擊項目的 hover 狀態
