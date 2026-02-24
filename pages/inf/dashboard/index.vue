@@ -761,9 +761,17 @@ export default {
   .btn-outline-dark {
     color: var(--dyn-text) !important;
     border-color: var(--dyn-text) !important;
-    &:hover {
+
+    // ✨ 擴充修正：加入 :focus 與 .active 狀態，並強制所有子元素變色
+    &:hover, &:focus, &.active {
       color: var(--dyn-card-bg) !important;
       background-color: var(--dyn-text) !important;
+
+      // ✨ 關鍵防呆：強制覆蓋按鈕內部可能存在的 span, .office-name, .text-dark
+      // 確保 Hover 時裡面的字體一定會跟著背景反白，解決黑底黑字問題
+      *, .office-name, .text-dark, .area-name {
+        color: var(--dyn-card-bg) !important;
+      }
     }
   }
 
