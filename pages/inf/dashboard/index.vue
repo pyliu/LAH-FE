@@ -146,33 +146,6 @@ client-only: .dark-container(
 <script>
 import LahMonitorBoardPrinterSetupModal from '~/components/lah-monitor-board-printer-setup-modal.vue';
 
-const DEFAULT_BOARDS = [
-  { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
-  { id: 'powerha', comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', footer: true, pinned: true },
-  { id: 'dataguard', comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', footer: true, pinned: true },
-  { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
-  { id: 'srmas', comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', footer: true, extraClass: 'fix-img' },
-  { id: 'hacmp', comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', footer: true },
-  { id: 'sms-notify', comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', footer: true },
-  { id: 'sms', comp: 'lah-monitor-board-sms', header: '綜合簡訊監控', footer: true },
-  { id: 'l05', comp: 'lah-monitor-board-L05', header: 'L05 系統', footer: true },
-  { id: 'apbackup', comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', footer: true },
-  { id: 'xcase-sync', comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', footer: false },
-  { id: 'site-hx', comp: 'lah-monitor-board-site-hx', header: '桃園市各所狀態', footer: false },
-  { id: 'lxhweb', comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
-  { id: 'site-tw', comp: 'lah-monitor-board-site-tw', header: '全國各所狀態', footer: false },
-  { id: 'dbbackup', comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', footer: true },
-  { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', footer: false },
-  { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
-  { id: 'tape', comp: 'lah-monitor-board-tape', header: '磁帶備份', footer: true },
-  { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', footer: false },
-  { id: 'adsync', comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', footer: true },
-  { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', footer: false },
-  { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
-]
-
-const HA_ONLY_BOARDS = ['lah-monitor-board-adsync', 'lah-monitor-board-vmclone', 'lah-monitor-board-testdb', 'lah-monitor-board-ups']
-
 export default {
   components: { LahMonitorBoardPrinterSetupModal },
   data: () => ({
@@ -321,8 +294,8 @@ export default {
     this.debouncedSort = this.$utils.debounce(this.sortBoards, 3000)
 
     const filteredBoards = this.isHX
-      ? DEFAULT_BOARDS.filter(board => !HA_ONLY_BOARDS.includes(board.comp))
-      : DEFAULT_BOARDS
+      ? this.$consts.DEFAULT_DASHBOARDS.filter(board => !board.devOnly)
+      : this.$consts.DEFAULT_DASHBOARDS
 
     this.boards = filteredBoards.map(board => ({
       ...board,
@@ -522,8 +495,8 @@ export default {
         const timeDiff = (b.lastUpdate || 0) - (a.lastUpdate || 0)
         if (timeDiff !== 0) { return timeDiff }
 
-        const indexA = DEFAULT_BOARDS.findIndex(board => board.id === a.id)
-        const indexB = DEFAULT_BOARDS.findIndex(board => board.id === b.id)
+        const indexA = this.$consts.DEFAULT_DASHBOARDS.findIndex(board => board.id === a.id)
+        const indexB = this.$consts.DEFAULT_DASHBOARDS.findIndex(board => board.id === b.id)
 
         if (indexA === -1 && indexB === -1) {
           return a.id.localeCompare(b.id)

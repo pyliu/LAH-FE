@@ -73,32 +73,6 @@
 <script>
 import { find } from 'lodash';
 
-// 在每個儀表板設定中加入 icon 屬性 (使用 FontAwesome 圖示名稱)
-const DEFAULT_BOARDS = [
-  { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', icon: 'server', footer: false, pinned: true },
-  { id: 'powerha', comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', icon: 'project-diagram', footer: true, pinned: true },
-  { id: 'dataguard', comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', icon: 'database', footer: true, pinned: true },
-  { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', icon: 'chart-line', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
-  { id: 'srmas', comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', icon: 'desktop', footer: true, extraClass: 'fix-img' },
-  { id: 'hacmp', comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', icon: 'shield-alt', footer: true },
-  { id: 'sms-notify', comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', icon: 'bell', footer: true },
-  { id: 'sms', comp: 'lah-monitor-board-sms', header: '綜合簡訊監控', icon: 'envelope', footer: true },
-  { id: 'l05', comp: 'lah-monitor-board-L05', header: 'L05 系統', icon: 'hdd', footer: true },
-  { id: 'apbackup', comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', icon: 'save', footer: true },
-  { id: 'xcase-sync', comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', icon: 'sync', footer: false },
-  { id: 'site-hx', comp: 'lah-monitor-board-site-hx', header: '桃園市各所狀態', icon: 'map-marker-alt', footer: false },
-  { id: 'lxhweb', comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', icon: 'network-wired', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
-  { id: 'site-tw', comp: 'lah-monitor-board-site-tw', header: '全國各所狀態', icon: 'globe', footer: false },
-  { id: 'dbbackup', comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', icon: 'database', footer: true },
-  { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', icon: 'wifi', footer: false },
-  { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', icon: 'clone', footer: true },
-  { id: 'tape', comp: 'lah-monitor-board-tape', header: '磁帶備份', icon: 'tape', footer: true },
-  { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', icon: 'vials', footer: false },
-  { id: 'adsync', comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', icon: 'users-cog', footer: true },
-  { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', icon: 'users', footer: false },
-  { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', icon: 'plug', footer: true }
-]
-
 export default {
   name: 'DynamicDashboardViewer',
   components: {},
@@ -113,11 +87,14 @@ export default {
     },
     board () {
       if (!this.routeId) { return null }
-      return find(DEFAULT_BOARDS, item => item.id === this.routeId || item.comp === this.routeId) || null
+      return find(this.$consts.DEFAULT_DASHBOARDS, item => item.id === this.routeId || item.comp === this.routeId) || null
     },
     // 將常數提供給 template 進行迴圈渲染
     availableBoards () {
-      return DEFAULT_BOARDS
+      if (this.isDevOffice) {
+        return this.$consts.DEFAULT_DASHBOARDS
+      }
+      return this.$consts.DEFAULT_DASHBOARDS.filter(board => !board.devOnly)
     }
   },
   mounted () {

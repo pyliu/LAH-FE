@@ -50,12 +50,26 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/mgt").
         #[font-awesome-icon(:icon="['fas', 'person-chalkboard']", fixed-width, size="lg")]
         地政系統管理面板
-      li: nuxt-link(:to="isDevOffice ? '/inf/dashboard/HA' : '/inf/dashboard/HX'").
-        #[font-awesome-icon(:icon="['fas', 'desktop']", fixed-width, size="lg")]
-        {{site}} 智慧監控儀表板
-      //- li: nuxt-link(to="/inf/dashboard/carousel").
-      //-   #[font-awesome-icon(:icon="['fas', 'arrows-spin']", fixed-width, size="lg")]
-      //-   {{site}} 輪播儀表板
+
+      //- 智慧監控儀表板 (含摺疊子選單)
+      li.dashboard-menu-item
+        .d-flex.align-items-center
+          nuxt-link(:to="isDevOffice ? '/inf/dashboard/' : '/inf/dashboard/mode=HX'")
+            font-awesome-icon(:icon="['fas', 'desktop']" fixed-width size="lg" class="mr-1")
+            | {{site}} 智慧監控儀表板
+          .toggle-btn.ml-2(
+            @click="isDashboardOpen = !isDashboardOpen",
+            :class="{ 'collapsed': !isDashboardOpen }"
+          )
+            font-awesome-icon(:icon="['fas', 'angle-down']", size="sm")
+
+        b-collapse#dashboard-collapse(v-model="isDashboardOpen")
+          ul.submenu
+            li(v-for="board in dashboardList" :key="board.id")
+              nuxt-link(:to="`/inf/dashboard/${board.id}`")
+                lah-fa-icon(:icon="board.icon || 'briefcase'" class="mr-1 text-secondary")
+                | {{ board.header }}
+
       li: nuxt-link(to="/inf/xap/broken_cached").
         #[font-awesome-icon(:icon="['fas', 'heart-pulse']", fixed-width, size="lg")]
         全國跨域主機監控
@@ -74,9 +88,7 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/admin/ip").
         #[font-awesome-icon(:icon="['fas', 'network-wired']", fixed-width, size="lg")]
         IP對應表管理
-      li: nuxt-link(
-        to="/admin/users"
-      ).
+      li: nuxt-link(to="/admin/users").
         #[font-awesome-icon(:icon="['fas', 'people-roof']", fixed-width, size="lg")]
         員工管理
       li: nuxt-link(to="/admin/configs").
@@ -119,13 +131,16 @@ b-sidebar#lah-sidebar(
 </template>
 
 <script>
+import some from 'lodash/some';
 import lahAvatar from '~/components/lah-avatar.vue';
 import LahUserCard from '~/components/lah-user-card.vue';
+
 export default {
   components: { lahAvatar, LahUserCard },
   fetchOnServer: false,
   data: () => ({
-    displayAnnouncement: true
+    displayAnnouncement: true,
+    isDashboardOpen: false
   }),
   computed: {
     isAuthorized () {
@@ -134,6 +149,32 @@ export default {
     greeting () {
       const hours = new Date().getHours()
       return hours > 11 ? (hours > 17 ? '晚安' : '午安') : '早安'
+    },
+    // [修改] 動態依據 isDevOffice 過濾選單項目
+    dashboardList () {
+      const allDashboards = this.$consts.DEFAULT_DASHBOARDS || []
+
+      if (this.isDevOffice) {
+        return allDashboards
+      }
+
+      // 如果不是開發單位，過濾掉需要隱藏的項目。
+      // 注意：請依據你在 $consts.DEFAULT_DASHBOARDS 的實際欄位做修改
+      // 假設你在常數裡有設 `devOnly: true` 或是你想直接隱藏特定 ID
+      return allDashboards.filter(board => !board.devOnly)
+    }
+  },
+  watch: {
+    '$route.path': {
+      handler (newPath) {
+        if (!newPath || !this.dashboardList) { return }
+
+        const hasMatch = some(this.dashboardList, board => newPath.includes(`/inf/dashboard/${board.id}`))
+        if (hasMatch) {
+          this.isDashboardOpen = true
+        }
+      },
+      immediate: true
     }
   },
   methods: {
@@ -202,6 +243,11 @@ export default {
       a {
         color: rgb(187, 184, 184);
       }
+
+      &.dashboard-menu-item {
+        margin-top: 2px;
+        margin-bottom: 2px;
+      }
     }
   }
   hr {
@@ -210,6 +256,32 @@ export default {
   }
   .greeting {
     cursor: pointer;
+  }
+  .toggle-btn {
+    color: rgb(187, 184, 184);
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+    &:hover {
+      color: white;
+    }
+    &.collapsed {
+      transform: rotate(-90deg);
+    }
+  }
+  .submenu {
+    border-left: 1px dashed rgba(255, 255, 255, 0.2);
+    margin-left: 1rem;
+    padding-left: 0.5rem;
+    li {
+      margin: 6px 0;
+      a {
+        font-size: 0.95rem;
+        &:hover {
+          font-size: 1.05rem;
+        }
+      }
+    }
   }
 }
 </style>
