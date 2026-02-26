@@ -21,6 +21,7 @@ b-sidebar#lah-sidebar(
         v-if="displayAnnouncement",
         load-button,
         :load-count="3",
+        :init-count="1",
         @announcement-count="handleAnnouncementEvent($event)"
       )
 
