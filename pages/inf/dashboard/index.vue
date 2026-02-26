@@ -369,9 +369,15 @@ export default {
         this.themeMode = oldDarkMode ? 'dark' : 'light'
       }
 
-      // ✨ 載入漸層的設定快取 (已移除 demoMode 快取載入)
-      if (cSplitHour !== null && !isNaN(cSplitHour)) { this.splitHour = Number(cSplitHour) }
-      if (cSplitRatio !== null && !isNaN(cSplitRatio)) { this.splitRatio = Number(cSplitRatio) }
+      // ✨ 載入漸層的設定快取，加入嚴格的數值範圍防呆，避免快取髒資料導致 UI 沒有預設值
+      if (cSplitHour !== null && cSplitHour !== '' && !isNaN(cSplitHour)) {
+        const h = Number(cSplitHour)
+        if (h >= 8 && h <= 17) { this.splitHour = h }
+      }
+      if (cSplitRatio !== null && cSplitRatio !== '' && !isNaN(cSplitRatio)) {
+        const r = Number(cSplitRatio)
+        if (r >= 0.1 && r <= 0.9) { this.splitRatio = r }
+      }
 
       // ✨ 允許 URL 參數覆寫 (展示模式改為預設關閉，僅透過 URL 參數或 UI 手動開啟)
       if (this.$route.query.gradientDemo) { this.demoMode = this.$route.query.gradientDemo === '1' }
