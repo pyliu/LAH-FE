@@ -6,7 +6,7 @@
       lah-header.flex-shrink-0
         lah-transition(appear slide)
           //- 將原本的靜態標題改為 b-dropdown 下拉選單
-          div.text-center.w-100.my-2
+          div.text-center.w-100
             b-dropdown(
               variant="link"
               toggle-class="text-dark text-decoration-none shadow-none p-0"
