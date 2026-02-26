@@ -12,7 +12,7 @@ client-only: .dark-container(
           //- Mod: 使用動態標題
           .my-auto
             span {{ pageTitle }}
-            b-badge.ml-2.shadow-sm(v-if="isGradientDemo", variant="danger", pill, title="每秒自動推進時間進度") 漸層展示中
+            b-badge.ml-2.shadow-sm(v-if="demoMode", variant="danger", pill, title="每秒自動推進時間進度") 漸層展示中
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -24,7 +24,7 @@ client-only: .dark-container(
           //- ✨ 新增：即時時鐘顯示 (僅在寬螢幕顯示，避免手機版太擠)
           .m-2.d-none.d-lg-flex.align-items-center.font-weight-bold.s-100(
             style="opacity: 0.9; letter-spacing: 0.5px; transition: color 1s ease",
-            :title="isGradientDemo ? '模擬時間' : '目前系統時間'"
+            :title="demoMode ? '模擬時間' : '目前系統時間'"
           )
             span {{ currentTime }}
 
@@ -117,6 +117,17 @@ client-only: .dark-container(
         lah-fa-icon(icon="thumbtack", variant="secondary")
         span.ml-2 釘選功能
       p 您可以點擊每個面板右上角的圖釘圖示來固定該面板。排序優先級：#[strong 紅燈 > 黃燈 > 已釘選 > 一般]。
+      hr
+      h5.d-flex.align-items-center
+        lah-fa-icon(icon="cogs", variant="secondary")
+        span.ml-2 漸層主題與展示設定
+      p 您可以自訂明暗切換的分界點，或開啟展示模式快速預覽漸層效果。系統將會自動記憶您的設定。
+      b-form-group.mb-2(label="開啟展示模式 (Demo):", label-cols="4", label-cols-md="3")
+        b-form-checkbox(v-model="demoMode", switch, size="lg") 啟用 (快速模擬光影變化)
+      b-form-group.mb-2(label="明暗切換時間:", label-cols="4", label-cols-md="3", :description="`目前設定: ${splitHour} 點 (超過此時間將直接跨越灰色盲區)`")
+        b-form-input(type="range", v-model.number="splitHour", min="8", max="17", step="1")
+      b-form-group.mb-2(label="切換時的暗度比例:", label-cols="4", label-cols-md="3", :description="`目前比例: ${splitRatio} (代表在切換時間點時，背景的起始暗度)`")
+        b-form-input(type="range", v-model.number="splitRatio", min="0.1", max="0.9", step="0.1")
 
   transition-group.d-flex.flex-wrap.align-content-start(
     tag="div",
@@ -173,6 +184,11 @@ export default {
     autoThemeTimer: null,
     demoTimer: null, // ✨ 漸層展示模式的計時器
 
+    // ✨ 新增：可由 UI 動態調整的漸層分界時間與比例設定
+    demoMode: false,
+    splitHour: 12,
+    splitRatio: 0.2,
+
     boards: [],
     pinnedIds: [],
     currentSortedBoards: [],
@@ -182,7 +198,6 @@ export default {
     title: '智慧監控儀表板-桃園市地政局'
   },
   computed: {
-    isGradientDemo () { return this.$route.query.gradientDemo === '1' || this.$route.query.demo === '1' }, // ✨ 判斷是否開啟漸層展示模式
     isHX () { return this.$route.query.mode === 'HX' },
     pageTitle () {
       const site = this.$store.getters['user/siteName']
@@ -221,14 +236,14 @@ export default {
 
       let bg, cardBg, text, textMuted, border, canvasFilter
 
-      // ✨ [重構] 依照需求將漸層分為兩大區塊 (12點為分界 0.5)
-      // 1. 12點前: 明亮色系為主 (100% -> 50% 明亮)
-      // 2. 12點後: 暗色系為主 (50% -> 100% 暗色)
+      // ✨ [重構] 依照需求將漸層分為兩大區塊 (依據 splitRatio 動態分界)
+      // 1. 分界前: 明亮色系為主 (100% -> splitRatio 明亮)
+      // 2. 分界後: 暗色系為主 (splitRatio -> 100% 暗色)
 
-      if (ratio <= 0.5) {
-        // 【第一階段：12點前】明亮色系
-        // 從極亮白漸變至稍微沉穩的淺藍灰 (代表 50% 明亮)
-        const localRatio = ratio / 0.5
+      if (ratio <= this.splitRatio) {
+        // 【第一階段：分界前】明亮色系
+        // 從極亮白漸變至稍微沉穩的淺藍灰
+        const localRatio = ratio / this.splitRatio
         bg = this.interpolateColor('#f4f6f9', '#cdd4db', localRatio)
         cardBg = this.interpolateColor('#ffffff', '#e0e5eb', localRatio)
         text = '#212529' // 強制深字
@@ -236,9 +251,9 @@ export default {
         border = this.interpolateColor('#dee2e6', '#b8c1ca', localRatio)
         canvasFilter = 'none'
       } else {
-        // 【第二階段：12點後】暗色系
-        // 瞬間切換至質感的深灰藍色 (50% 暗色)，然後逐漸加深至純黑 (100% 暗色)
-        const localRatio = (ratio - 0.5) / 0.5
+        // 【第二階段：分界後】暗色系
+        // 瞬間切換至質感的深灰藍色，然後逐漸加深至純黑
+        const localRatio = (ratio - this.splitRatio) / (1 - this.splitRatio)
         bg = this.interpolateColor('#2c3e50', '#121212', localRatio)
         cardBg = this.interpolateColor('#34495e', '#1e1e1e', localRatio)
         text = this.interpolateColor('#f8f9fa', '#e0e0e0', localRatio) // 強制白字
@@ -259,11 +274,36 @@ export default {
   },
   watch: {
     col2 (flag) { this.setCache('dashboard-col2', flag) },
+    demoMode (flag) {
+      // ✨ 移除 this.setCache，展示模式不再記憶狀態
+      if (flag) {
+        this.startGradientDemo()
+      } else {
+        if (this.demoTimer) {
+          clearInterval(this.demoTimer)
+          this.demoTimer = null
+        }
+        if (this.themeMode === 'auto') {
+          this.startAutoThemeTimer()
+        } else {
+          this.updateThemeProgress()
+        }
+        this.updateClock() // 恢復為真實時間
+      }
+    },
+    splitHour (val) {
+      this.setCache('dashboard-split-hour', val)
+      this.updateThemeProgress()
+    },
+    splitRatio (val) {
+      this.setCache('dashboard-split-ratio', val)
+      this.updateThemeProgress()
+    },
     themeMode (mode) {
       this.setCache('dashboard-theme-mode', mode)
       // ✨ 效能優化：根據模式動態啟動/關閉漸層計時器
       if (mode === 'auto') {
-        if (this.isGradientDemo) {
+        if (this.demoMode) {
           this.startGradientDemo()
         } else {
           this.startAutoThemeTimer()
@@ -309,8 +349,11 @@ export default {
       this.getCache(this.pinnedCacheKey),
       this.getCache('dashboard-col2'),
       this.getCache('dashboard-theme-mode'),
-      this.getCache('dashboard-dark-mode')
-    ]).then(([pinnedIds, col2, themeMode, oldDarkMode]) => {
+      this.getCache('dashboard-dark-mode'),
+      // ✨ 移除 demoMode 快取讀取
+      this.getCache('dashboard-split-hour'),
+      this.getCache('dashboard-split-ratio')
+    ]).then(([pinnedIds, col2, themeMode, oldDarkMode, cSplitHour, cSplitRatio]) => {
       if (Array.isArray(pinnedIds)) {
         this.pinnedIds = pinnedIds
         this.boards.forEach(b => b.pinned = this.pinnedIds.includes(b.id))
@@ -326,8 +369,17 @@ export default {
         this.themeMode = oldDarkMode ? 'dark' : 'light'
       }
 
+      // ✨ 載入漸層的設定快取 (已移除 demoMode 快取載入)
+      if (cSplitHour !== null && !isNaN(cSplitHour)) { this.splitHour = Number(cSplitHour) }
+      if (cSplitRatio !== null && !isNaN(cSplitRatio)) { this.splitRatio = Number(cSplitRatio) }
+
+      // ✨ 允許 URL 參數覆寫 (展示模式改為預設關閉，僅透過 URL 參數或 UI 手動開啟)
+      if (this.$route.query.gradientDemo) { this.demoMode = this.$route.query.gradientDemo === '1' }
+      if (this.$route.query.splitHour && !isNaN(this.$route.query.splitHour)) { this.splitHour = Number(this.$route.query.splitHour) }
+      if (this.$route.query.splitRatio && !isNaN(this.$route.query.splitRatio)) { this.splitRatio = Number(this.$route.query.splitRatio) }
+
       // ✨ 效能優化：初始化時，決定要走真實時鐘還是展示時鐘
-      if (this.isGradientDemo) {
+      if (this.demoMode) {
         this.startGradientDemo()
       } else if (this.themeMode === 'auto') {
         this.startAutoThemeTimer()
@@ -393,14 +445,13 @@ export default {
       const date = String(now.getDate()).padStart(2, '0')
       const day = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
 
-      if (this.isGradientDemo) {
-        // ✨ 根據 themeRatio 反推模擬時間
-        // 0~0.5 對應 (08:00~12:00) | 0.5~1.0 對應 (12:00~17:00)
+      if (this.demoMode) {
+        // ✨ 根據 themeRatio 反推模擬時間 (支援動態的分界時間)
         let simTime = 8
-        if (this.themeRatio <= 0.5) {
-          simTime = 8 + (this.themeRatio * 8) // 0.5 * 8 = 4 => 12點
+        if (this.themeRatio <= this.splitRatio) {
+          simTime = 8 + (this.themeRatio / this.splitRatio) * (this.splitHour - 8)
         } else {
-          simTime = 12 + ((this.themeRatio - 0.5) * 10) // 0.5 * 10 = 5 => 17點
+          simTime = this.splitHour + ((this.themeRatio - this.splitRatio) / (1 - this.splitRatio)) * (17 - this.splitHour)
         }
 
         const simHours = String(Math.floor(simTime)).padStart(2, '0')
@@ -420,7 +471,7 @@ export default {
 
     // ✨ 新增：啟動漸層計時器
     startAutoThemeTimer () {
-      if (this.isGradientDemo) { return } // ✨ 避免在展示模式啟動真實系統時間
+      if (this.demoMode) { return } // ✨ 避免在展示模式啟動真實系統時間
 
       if (!this.autoThemeTimer) {
         this.updateThemeProgress()
@@ -467,7 +518,7 @@ export default {
 
     updateThemeProgress () {
       if (this.themeMode !== 'auto') { return }
-      if (this.isGradientDemo) { return } // ✨ 展示模式下，忽略真實系統時間
+      if (this.demoMode) { return } // ✨ 展示模式下，忽略真實系統時間
 
       const now = new Date()
 
@@ -476,18 +527,18 @@ export default {
 
       let ratio = 0
 
-      // ✨ 以中午12點作為 0.5 (50%) 的分界點，重新計算映射比例
+      // ✨ 以設定的 splitHour 作為 splitRatio 的分界點，動態計算映射比例
       if (time <= 8) {
-        // 早上 8 點前：最亮 (100% 明亮)
+        // 早上 8 點前：最亮
         ratio = 0
-      } else if (time <= 12) {
-        // 08:00 ~ 12:00：轉換為 0.0 ~ 0.5 (明亮漸變區)
-        ratio = ((time - 8) / 4) * 0.5
+      } else if (time <= this.splitHour) {
+        // 08:00 ~ 分界時間：轉換為 0.0 ~ splitRatio
+        ratio = ((time - 8) / (this.splitHour - 8)) * this.splitRatio
       } else if (time < 17) {
-        // 12:00 ~ 17:00：轉換為 0.5 ~ 1.0 (暗色漸變區)
-        ratio = 0.5 + ((time - 12) / 5) * 0.5
+        // 分界時間 ~ 17:00：轉換為 splitRatio ~ 1.0
+        ratio = this.splitRatio + ((time - this.splitHour) / (17 - this.splitHour)) * (1 - this.splitRatio)
       } else {
-        // 下午 5 點後：最暗 (100% 暗)
+        // 下午 5 點後：最暗
         ratio = 1
       }
 
