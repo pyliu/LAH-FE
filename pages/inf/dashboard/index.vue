@@ -10,7 +10,9 @@ client-only: .dark-container(
       .d-flex.justify-content-between.align-items-center.w-100
         .d-flex.align-items-center
           //- Mod: 使用動態標題
-          .my-auto {{ pageTitle }}
+          .my-auto
+            span {{ pageTitle }}
+            b-badge.ml-2.shadow-sm(v-if="isGradientDemo", variant="danger", pill, title="每秒自動推進時間進度") 漸層展示中
           lah-button(
             v-b-modal.help-modal,
             icon="info",
@@ -22,7 +24,7 @@ client-only: .dark-container(
           //- ✨ 新增：即時時鐘顯示 (僅在寬螢幕顯示，避免手機版太擠)
           .m-2.d-none.d-lg-flex.align-items-center.font-weight-bold.s-100(
             style="opacity: 0.9; letter-spacing: 0.5px; transition: color 1s ease",
-            title="目前系統時間"
+            :title="isGradientDemo ? '模擬時間' : '目前系統時間'"
           )
             span {{ currentTime }}
 
@@ -109,7 +111,7 @@ client-only: .dark-container(
       ul
         li ☀️ #[strong 淺色模式]：固定最亮色系。
         li 🌙 #[strong 深色模式]：固定最暗色系。
-        li 🕒 #[strong 自動漸層]：早上 8 點前為淺色，8 點至下午 5 點間會隨時間「每分鐘慢慢變暗」，下午 5 點後進入深色。
+        li 🕒 #[strong 自動漸層]：早上 8 點前最亮，#[strong 12點前維持明亮色系漸變]，中午過後#[strong 切換為暗色系漸變]，至下午 5 點進入全黑。
       hr
       h5.d-flex.align-items-center
         lah-fa-icon(icon="thumbtack", variant="secondary")
@@ -169,6 +171,7 @@ export default {
     themeMode: 'light', // 'light', 'dark', 'auto'
     themeRatio: 0, // 0 到 1 的漸變進度
     autoThemeTimer: null,
+    demoTimer: null, // ✨ 漸層展示模式的計時器
 
     boards: [],
     pinnedIds: [],
@@ -179,6 +182,7 @@ export default {
     title: '智慧監控儀表板-桃園市地政局'
   },
   computed: {
+    isGradientDemo () { return this.$route.query.gradientDemo === '1' || this.$route.query.demo === '1' }, // ✨ 判斷是否開啟漸層展示模式
     isHX () { return this.$route.query.mode === 'HX' },
     pageTitle () {
       const site = this.$store.getters['user/siteName']
@@ -217,44 +221,27 @@ export default {
 
       let bg, cardBg, text, textMuted, border, canvasFilter
 
-      // ✨ [重構] 解決「低對比死亡交叉 (Muddy Gray)」問題
-      // 策略：非對稱時間軸。確保白天保持明亮，縮短泥濘灰的過渡時間，並及早切換至具備質感的深藍灰色。
+      // ✨ [重構] 依照需求將漸層分為兩大區塊 (12點為分界 0.5)
+      // 1. 12點前: 明亮色系為主 (100% -> 50% 明亮)
+      // 2. 12點後: 暗色系為主 (50% -> 100% 暗色)
 
-      if (ratio <= 0.77) {
-        // 【第一階段：白晝】08:00 ~ 15:00 (佔絕大部份時間)
-        // 動作：維持高對比的淺色主題。背景從純白微調至極淺的藍灰，字體保持純黑。
-        const localRatio = ratio / 0.77
-        bg = this.interpolateColor('#f4f6f9', '#d1d8e0', localRatio)
-        cardBg = this.interpolateColor('#ffffff', '#e2e6ea', localRatio)
+      if (ratio <= 0.5) {
+        // 【第一階段：12點前】明亮色系
+        // 從極亮白漸變至稍微沉穩的淺藍灰 (代表 50% 明亮)
+        const localRatio = ratio / 0.5
+        bg = this.interpolateColor('#f4f6f9', '#cdd4db', localRatio)
+        cardBg = this.interpolateColor('#ffffff', '#e0e5eb', localRatio)
         text = '#212529' // 強制深字
         textMuted = '#6c757d'
-        border = this.interpolateColor('#dee2e6', '#cdd3d8', localRatio)
+        border = this.interpolateColor('#dee2e6', '#b8c1ca', localRatio)
         canvasFilter = 'none'
-      } else if (ratio <= 0.82) {
-        // 【第二階段：快速過渡區】15:00 ~ 15:22
-        // 動作：在這短短 22 分鐘內，快速跨越容易導致「泥濘灰」的低對比區間，轉向高質感的「深灰藍 (Twilight)」。
-        const localRatio = (ratio - 0.77) / 0.05
-        bg = this.interpolateColor('#d1d8e0', '#2c3e50', localRatio)
-        cardBg = this.interpolateColor('#e2e6ea', '#34495e', localRatio)
-        border = this.interpolateColor('#cdd3d8', '#455667', localRatio)
-
-        // 關鍵：在過渡正中間 (約 15:11) 反轉字體。由於背景切換迅速，不會讓使用者長時間處於對比死角。
-        if (localRatio < 0.5) {
-          text = '#212529'
-          textMuted = '#495057'
-          canvasFilter = 'none'
-        } else {
-          text = '#f8f9fa' // 切換為高對比白字
-          textMuted = '#bdc3c7'
-          canvasFilter = 'invert(0.85) hue-rotate(180deg)'
-        }
       } else {
-        // 【第三階段：入夜深化】15:22 ~ 17:00
-        // 動作：此時畫面已經是清晰的深色模式。我們讓它從深灰藍緩慢、平滑地過渡到純粹的暗黑模式。
-        const localRatio = (ratio - 0.82) / 0.18
+        // 【第二階段：12點後】暗色系
+        // 瞬間切換至質感的深灰藍色 (50% 暗色)，然後逐漸加深至純黑 (100% 暗色)
+        const localRatio = (ratio - 0.5) / 0.5
         bg = this.interpolateColor('#2c3e50', '#121212', localRatio)
         cardBg = this.interpolateColor('#34495e', '#1e1e1e', localRatio)
-        text = this.interpolateColor('#f8f9fa', '#e0e0e0', localRatio)
+        text = this.interpolateColor('#f8f9fa', '#e0e0e0', localRatio) // 強制白字
         textMuted = this.interpolateColor('#bdc3c7', '#a0aab5', localRatio)
         border = this.interpolateColor('#455667', '#343a40', localRatio)
         canvasFilter = 'invert(0.85) hue-rotate(180deg)'
@@ -276,8 +263,16 @@ export default {
       this.setCache('dashboard-theme-mode', mode)
       // ✨ 效能優化：根據模式動態啟動/關閉漸層計時器
       if (mode === 'auto') {
-        this.startAutoThemeTimer()
+        if (this.isGradientDemo) {
+          this.startGradientDemo()
+        } else {
+          this.startAutoThemeTimer()
+        }
       } else {
+        if (this.demoTimer) {
+          clearInterval(this.demoTimer)
+          this.demoTimer = null
+        }
         this.stopAutoThemeTimer()
       }
       this.applyThemeState()
@@ -331,8 +326,10 @@ export default {
         this.themeMode = oldDarkMode ? 'dark' : 'light'
       }
 
-      // ✨ 效能優化：初始化時，若為 auto 模式才啟動計時器
-      if (this.themeMode === 'auto') {
+      // ✨ 效能優化：初始化時，決定要走真實時鐘還是展示時鐘
+      if (this.isGradientDemo) {
+        this.startGradientDemo()
+      } else if (this.themeMode === 'auto') {
         this.startAutoThemeTimer()
       } else {
         this.updateThemeProgress()
@@ -380,6 +377,7 @@ export default {
     clearInterval(this.attentionTimer)
     clearInterval(this.clockTimer) // ✨ 清除時鐘計時器
     this.stopAutoThemeTimer() // ✨ 清除漸層計時器
+    if (this.demoTimer) { clearInterval(this.demoTimer) } // ✨ 清除展示計時器
     if (typeof document !== 'undefined') { document.body.style.backgroundColor = '' }
   },
   methods: {
@@ -393,16 +391,37 @@ export default {
       const year = now.getFullYear()
       const month = String(now.getMonth() + 1).padStart(2, '0')
       const date = String(now.getDate()).padStart(2, '0')
-      const hours = String(now.getHours()).padStart(2, '0')
-      const minutes = String(now.getMinutes()).padStart(2, '0')
-      const seconds = String(now.getSeconds()).padStart(2, '0')
       const day = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
 
-      this.currentTime = `${year}-${month}-${date} (${day}) ${hours}:${minutes}:${seconds}`
+      if (this.isGradientDemo) {
+        // ✨ 根據 themeRatio 反推模擬時間
+        // 0~0.5 對應 (08:00~12:00) | 0.5~1.0 對應 (12:00~17:00)
+        let simTime = 8
+        if (this.themeRatio <= 0.5) {
+          simTime = 8 + (this.themeRatio * 8) // 0.5 * 8 = 4 => 12點
+        } else {
+          simTime = 12 + ((this.themeRatio - 0.5) * 10) // 0.5 * 10 = 5 => 17點
+        }
+
+        const simHours = String(Math.floor(simTime)).padStart(2, '0')
+        const simMinutes = String(Math.floor((simTime % 1) * 60)).padStart(2, '0')
+
+        // 為了營造流逝感，秒數使用真實秒數讓畫面維持跳動
+        const seconds = String(now.getSeconds()).padStart(2, '0')
+
+        this.currentTime = `${year}-${month}-${date} (${day}) ${simHours}:${simMinutes}:${seconds} 🕒(模擬中)`
+      } else {
+        const hours = String(now.getHours()).padStart(2, '0')
+        const minutes = String(now.getMinutes()).padStart(2, '0')
+        const seconds = String(now.getSeconds()).padStart(2, '0')
+        this.currentTime = `${year}-${month}-${date} (${day}) ${hours}:${minutes}:${seconds}`
+      }
     },
 
     // ✨ 新增：啟動漸層計時器
     startAutoThemeTimer () {
+      if (this.isGradientDemo) { return } // ✨ 避免在展示模式啟動真實系統時間
+
       if (!this.autoThemeTimer) {
         this.updateThemeProgress()
         this.autoThemeTimer = setInterval(this.updateThemeProgress, 60 * 1000)
@@ -417,8 +436,39 @@ export default {
       }
     },
 
+    // ✨ 新增：啟動漸層展示循環 (0 -> 1 -> 0，利用 CSS 1s ease 達成電影般平滑過渡)
+    startGradientDemo () {
+      if (this.demoTimer) { return } // 防止重複啟動
+
+      this.themeMode = 'auto'
+      this.themeRatio = 0
+      let isForward = true
+
+      this.stopAutoThemeTimer()
+
+      // 每 1 秒推進 2.5% 進度，大約 40 秒跑完「早晨 -> 入夜」，隨後反轉折返。
+      this.demoTimer = setInterval(() => {
+        if (isForward) {
+          this.themeRatio += 0.025
+          if (this.themeRatio >= 1) {
+            this.themeRatio = 1
+            isForward = false
+          }
+        } else {
+          this.themeRatio -= 0.025
+          if (this.themeRatio <= 0) {
+            this.themeRatio = 0
+            isForward = true
+          }
+        }
+        this.updateClock() // ✨ 進度變更時立即同步更新時鐘顯示
+      }, 1000)
+    },
+
     updateThemeProgress () {
       if (this.themeMode !== 'auto') { return }
+      if (this.isGradientDemo) { return } // ✨ 展示模式下，忽略真實系統時間
+
       const now = new Date()
 
       // 計算包含小數的小時
@@ -426,12 +476,19 @@ export default {
 
       let ratio = 0
 
+      // ✨ 以中午12點作為 0.5 (50%) 的分界點，重新計算映射比例
       if (time <= 8) {
+        // 早上 8 點前：最亮 (100% 明亮)
         ratio = 0
-      } else if (time >= 17) {
-        ratio = 1
+      } else if (time <= 12) {
+        // 08:00 ~ 12:00：轉換為 0.0 ~ 0.5 (明亮漸變區)
+        ratio = ((time - 8) / 4) * 0.5
+      } else if (time < 17) {
+        // 12:00 ~ 17:00：轉換為 0.5 ~ 1.0 (暗色漸變區)
+        ratio = 0.5 + ((time - 12) / 5) * 0.5
       } else {
-        ratio = (time - 8) / 9
+        // 下午 5 點後：最暗 (100% 暗)
+        ratio = 1
       }
 
       this.themeRatio = ratio
