@@ -277,6 +277,17 @@ export default {
   padding: 0.5rem 1.5rem;
 }
 
+/* 修正 active 狀態的底色，避免預設深藍底色導致綠色圖示與文字對比度不足看不清 */
+::v-deep .custom-dropdown-menu .dropdown-item.active,
+::v-deep .custom-dropdown-menu .dropdown-item:active {
+  background-color: #e8f5e9 !important; /* 改為柔和的淺綠底色 */
+  color: #212529 !important; /* 確保未覆蓋到的基礎文字保持深灰色 */
+}
+
+::v-deep .custom-dropdown-menu .dropdown-item.active:hover {
+  background-color: #c8e6c9 !important; /* Hover 時稍微加深背景色 */
+}
+
 /* 14. 放大特定組件內自訂類別的文字 (如跨所案件同步的 .local-max, .area-name) */
 .board-wrapper ::v-deep .local-max {
   font-size: 1.35rem !important; /* 覆蓋寫死的 0.85rem，保持次要文字的層級 */
