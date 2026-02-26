@@ -217,45 +217,46 @@ export default {
 
       let bg, cardBg, text, textMuted, border, canvasFilter
 
-      // ✨ 根據現代 UI 設計原則重構漸層演算法
-      // 避免文字與背景同時變灰導致的「低對比死亡交叉」
-      if (ratio <= 0.8) {
-        // 【第一階段】08:00 ~ 15:12 (佔 80% 時間)
-        // 動作：維持淺色主題，背景僅微微變暗變得柔和，字體保持深黑
-        const localRatio = ratio / 0.8
-        bg = this.interpolateColor('#f4f6f9', '#e0e4e8', localRatio)
-        cardBg = this.interpolateColor('#ffffff', '#f1f3f6', localRatio)
-        text = '#212529' // 強制深字，不漸層
-        textMuted = '#6c757d'
-        border = this.interpolateColor('#dee2e6', '#ced4da', localRatio)
-        canvasFilter = 'none'
-      } else if (ratio <= 0.9) {
-        // 【第二階段】15:12 ~ 16:06 (黃昏過渡期)
-        // 動作：背景快速降為深灰藍色，文字在切換中點「瞬間反白」，避開泥濘的灰色
-        const localRatio = (ratio - 0.8) / 0.1
-        bg = this.interpolateColor('#e0e4e8', '#2c3640', localRatio)
-        cardBg = this.interpolateColor('#f1f3f6', '#343e48', localRatio)
-        border = this.interpolateColor('#ced4da', '#495057', localRatio)
+      // ✨ [重構] 解決「低對比死亡交叉 (Muddy Gray)」問題
+      // 策略：非對稱時間軸。確保白天保持明亮，縮短泥濘灰的過渡時間，並及早切換至具備質感的深藍灰色。
 
-        // 【關鍵】中位數交叉時強制反轉文字，確保對比度永遠大於 4.5:1
-        if (localRatio < 0.4) {
+      if (ratio <= 0.77) {
+        // 【第一階段：白晝】08:00 ~ 15:00 (佔絕大部份時間)
+        // 動作：維持高對比的淺色主題。背景從純白微調至極淺的藍灰，字體保持純黑。
+        const localRatio = ratio / 0.77
+        bg = this.interpolateColor('#f4f6f9', '#d1d8e0', localRatio)
+        cardBg = this.interpolateColor('#ffffff', '#e2e6ea', localRatio)
+        text = '#212529' // 強制深字
+        textMuted = '#6c757d'
+        border = this.interpolateColor('#dee2e6', '#cdd3d8', localRatio)
+        canvasFilter = 'none'
+      } else if (ratio <= 0.82) {
+        // 【第二階段：快速過渡區】15:00 ~ 15:22
+        // 動作：在這短短 22 分鐘內，快速跨越容易導致「泥濘灰」的低對比區間，轉向高質感的「深灰藍 (Twilight)」。
+        const localRatio = (ratio - 0.77) / 0.05
+        bg = this.interpolateColor('#d1d8e0', '#2c3e50', localRatio)
+        cardBg = this.interpolateColor('#e2e6ea', '#34495e', localRatio)
+        border = this.interpolateColor('#cdd3d8', '#455667', localRatio)
+
+        // 關鍵：在過渡正中間 (約 15:11) 反轉字體。由於背景切換迅速，不會讓使用者長時間處於對比死角。
+        if (localRatio < 0.5) {
           text = '#212529'
           textMuted = '#495057'
           canvasFilter = 'none'
         } else {
-          text = '#f8f9fa'
-          textMuted = '#adb5bd'
+          text = '#f8f9fa' // 切換為高對比白字
+          textMuted = '#bdc3c7'
           canvasFilter = 'invert(0.85) hue-rotate(180deg)'
         }
       } else {
-        // 【第三階段】16:06 ~ 17:00 (入夜深化期)
-        // 動作：從黃昏深灰藍色緩慢過渡到純暗黑模式
-        const localRatio = (ratio - 0.9) / 0.1
-        bg = this.interpolateColor('#2c3640', '#121212', localRatio)
-        cardBg = this.interpolateColor('#343e48', '#1e1e1e', localRatio)
+        // 【第三階段：入夜深化】15:22 ~ 17:00
+        // 動作：此時畫面已經是清晰的深色模式。我們讓它從深灰藍緩慢、平滑地過渡到純粹的暗黑模式。
+        const localRatio = (ratio - 0.82) / 0.18
+        bg = this.interpolateColor('#2c3e50', '#121212', localRatio)
+        cardBg = this.interpolateColor('#34495e', '#1e1e1e', localRatio)
         text = this.interpolateColor('#f8f9fa', '#e0e0e0', localRatio)
-        textMuted = this.interpolateColor('#adb5bd', '#a0aab5', localRatio)
-        border = this.interpolateColor('#495057', '#343a40', localRatio)
+        textMuted = this.interpolateColor('#bdc3c7', '#a0aab5', localRatio)
+        border = this.interpolateColor('#455667', '#343a40', localRatio)
         canvasFilter = 'invert(0.85) hue-rotate(180deg)'
       }
 
