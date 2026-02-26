@@ -13,11 +13,10 @@
               menu-class="shadow custom-dropdown-menu"
               no-caret
             )
-              //- 自訂按鈕內容 (偽裝成原本的標題)
+              //- 自訂按鈕內容：圖示改為動態綁定 board.icon，若無則預設顯示 briefcase
               template(#button-content)
-                //- 使用 span.h3 避免 button 內包 h3 產生 HTML 結構警告 (Hydration error)
                 span.h3.mb-0.d-inline-block.font-weight-bold
-                  lah-fa-icon(icon="briefcase" variant="secondary").mr-2
+                  lah-fa-icon(:icon="board ? (board.icon || 'briefcase') : 'briefcase'" variant="secondary").mr-2
                   | {{ board ? board.header : '請選擇儀表板' }}
                   lah-fa-icon(icon="caret-down" variant="secondary").ml-2
 
@@ -29,13 +28,19 @@
                   @click="switchBoard(item.id)"
                   :active="routeId === item.id || routeId === item.comp"
                 )
-                  div.d-flex.align-items-center
+                  //- 展開清單也顯示各自的動態圖示，並在選中時變成綠色與顯示打勾
+                  div.d-flex.align-items-center.justify-content-between.w-100
+                    div.d-flex.align-items-center
+                      lah-fa-icon(
+                        :icon="item.icon || 'briefcase'"
+                        :variant="routeId === item.id || routeId === item.comp ? 'success' : 'secondary'"
+                      ).mr-2
+                      span(:class="routeId === item.id || routeId === item.comp ? 'text-success font-weight-bold' : ''") {{ item.header }}
                     lah-fa-icon(
-                      :icon="routeId === item.id || routeId === item.comp ? 'check' : 'circle'"
-                      :regular="!(routeId === item.id || routeId === item.comp)"
-                      :variant="routeId === item.id || routeId === item.comp ? 'success' : 'secondary'"
-                    ).mr-2
-                    span {{ item.header }}
+                      v-if="routeId === item.id || routeId === item.comp"
+                      icon="check"
+                      variant="success"
+                    ).ml-3
 
       //- 成功配對到組件時渲染：在外層包覆我們可完全控管的 div.board-wrapper
       div.board-wrapper(v-if="board")
@@ -68,29 +73,30 @@
 <script>
 import { find } from 'lodash';
 
+// 在每個儀表板設定中加入 icon 屬性 (使用 FontAwesome 圖示名稱)
 const DEFAULT_BOARDS = [
-  { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', footer: false, pinned: true },
-  { id: 'powerha', comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', footer: true, pinned: true },
-  { id: 'dataguard', comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', footer: true, pinned: true },
-  { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
-  { id: 'srmas', comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', footer: true, extraClass: 'fix-img' },
-  { id: 'hacmp', comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', footer: true },
-  { id: 'sms-notify', comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', footer: true },
-  { id: 'sms', comp: 'lah-monitor-board-sms', header: '綜合簡訊監控', footer: true },
-  { id: 'l05', comp: 'lah-monitor-board-L05', header: 'L05 系統', footer: true },
-  { id: 'apbackup', comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', footer: true },
-  { id: 'xcase-sync', comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', footer: false },
-  { id: 'site-hx', comp: 'lah-monitor-board-site-hx', header: '桃園市各所狀態', footer: false },
-  { id: 'lxhweb', comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
-  { id: 'site-tw', comp: 'lah-monitor-board-site-tw', header: '全國各所狀態', footer: false },
-  { id: 'dbbackup', comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', footer: true },
-  { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', footer: false },
-  { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', footer: true },
-  { id: 'tape', comp: 'lah-monitor-board-tape', header: '磁帶備份', footer: true },
-  { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', footer: false },
-  { id: 'adsync', comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', footer: true },
-  { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', footer: false },
-  { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', footer: true }
+  { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', icon: 'server', footer: false, pinned: true },
+  { id: 'powerha', comp: 'lah-monitor-board-powerha', header: 'PowerHA 狀態', icon: 'project-diagram', footer: true, pinned: true },
+  { id: 'dataguard', comp: 'lah-monitor-board-dataguard', header: 'DataGuard 同步', icon: 'database', footer: true, pinned: true },
+  { id: 'xap-trend', comp: 'lah-monitor-board-xap-trend', header: 'XAP 案件趨勢', icon: 'chart-line', footer: false, props: { watchTopXap: true, reloadTime: 15 } },
+  { id: 'srmas', comp: 'lah-monitor-board-srmas', header: 'SRMAS 系統', icon: 'desktop', footer: true, extraClass: 'fix-img' },
+  { id: 'hacmp', comp: 'lah-monitor-board-hacmp', header: 'HACMP 狀態', icon: 'shield-alt', footer: true },
+  { id: 'sms-notify', comp: 'lah-monitor-board-sms-notify', header: '地籍異動即時通', icon: 'bell', footer: true },
+  { id: 'sms', comp: 'lah-monitor-board-sms', header: '綜合簡訊監控', icon: 'envelope', footer: true },
+  { id: 'l05', comp: 'lah-monitor-board-L05', header: 'L05 系統', icon: 'hdd', footer: true },
+  { id: 'apbackup', comp: 'lah-monitor-board-apbackup', header: 'AP 主機備份', icon: 'save', footer: true },
+  { id: 'xcase-sync', comp: 'lah-monitor-board-xcase-sync', header: '跨縣市案件同步', icon: 'sync', footer: false },
+  { id: 'site-hx', comp: 'lah-monitor-board-site-hx', header: '桃園市各所狀態', icon: 'map-marker-alt', footer: false },
+  { id: 'lxhweb', comp: 'lah-monitor-board-lxhweb', header: 'L3HWEB 主機', icon: 'network-wired', footer: false, props: { targetIp: 'L3HWEB', link: true, displayUpdateTime: true } },
+  { id: 'site-tw', comp: 'lah-monitor-board-site-tw', header: '全國各所狀態', icon: 'globe', footer: false },
+  { id: 'dbbackup', comp: 'lah-monitor-board-dbbackup', header: '資料庫備份', icon: 'database', footer: true },
+  { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', icon: 'wifi', footer: false },
+  { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', icon: 'clone', footer: true },
+  { id: 'tape', comp: 'lah-monitor-board-tape', header: '磁帶備份', icon: 'tape', footer: true },
+  { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', icon: 'vials', footer: false },
+  { id: 'adsync', comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', icon: 'users-cog', footer: true },
+  { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', icon: 'users', footer: false },
+  { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', icon: 'plug', footer: true }
 ]
 
 export default {
