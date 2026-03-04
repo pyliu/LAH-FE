@@ -196,6 +196,10 @@ b-card(
         strong 展示模式：
         span 資料由外部提供，本組件不執行自動更新。
 
+    h6.font-weight-bold.mb-2 地政系統進階列印操作說明
+    ul
+      li 利用專屬監控頁面可進行櫃台已列印的謄本、規費收據預覽或是重印 👉 #[b-link(:href="`http://${this.apiSvrIp}:${this.apiSvrPort}/project/printer/`" target="_blank" rel="noopener") 點我開啟新視窗]
+
   //- [新增] 伺服器紀錄 Modal
   //- [修改] title 顯示 500 行，並新增 @shown 事件
   b-modal(
