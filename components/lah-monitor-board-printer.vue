@@ -237,7 +237,7 @@ b-card(
               b-badge(v-if="selectedPrinter.Location && !isEditing" variant="light") {{ selectedPrinter.Location }}
 
           div.text-right
-            //- [修改] 傳入完整的物件進行狀態判定
+            //- 傳入完整的物件進行狀態判定
             b-badge.p-2.mb-1(:variant="getPaperBadgeVariant(selectedPrinter)" pill)
               lah-fa-icon.mr-1(v-if="isDetailLoading" icon="spinner" action="spin")
               span.h6.mb-0 {{ formatStatus(selectedPrinter) }}
@@ -252,7 +252,7 @@ b-card(
               span.text-muted 佇列工作數 (Jobs)
               strong(:class="{'text-danger': getJobsCount(selectedPrinter.Jobs) > 0}") {{ getJobsCount(selectedPrinter.Jobs) }}
             b-list-group-item.d-flex.justify-content-between.align-items-center
-              span.text-muted 驅動程式 (Driver)
+              span.text-muted 驅程式 (Driver)
               span.text-truncate(style="max-width: 200px;" :title="selectedPrinter.Driver || selectedPrinter.DriverName") {{ selectedPrinter.Driver || selectedPrinter.DriverName || 'Unknown' }}
             b-list-group-item.d-flex.justify-content-between.align-items-center
               span.text-muted 位置 (Location)
@@ -504,7 +504,6 @@ b-card(
           )
 
       template(#cell(Status)="{ item }")
-        //- [修改] 傳入完整的 item 給 getPaperBadgeVariant 和 formatStatus
         b-badge.p-2(
           :variant="getPaperBadgeVariant(item)"
           pill
@@ -701,74 +700,64 @@ export default {
       if (totalJobs > 5) { return 'warning' }
       return 'success'
     },
-    // [新增] 異常比例燈號邏輯
     errorRatioLight () {
       if (this.printers.length === 0) { return 'success' }
 
       const totalCount = this.printers.length
-      // 計算狀態為 error (danger) 的數量
       const errorCount = this.printers.filter(p => this.getPaperBadgeVariant(p) === 'danger').length
       const errorRatio = errorCount / totalCount
 
-      // 比例大於 15% 顯示紅燈 (danger)
-      if (errorRatio > 0.15) { return 'danger' }
-      // 比例大於 10% 顯示黃燈 (warning)
-      if (errorRatio > 0.10) { return 'warning' }
+      if (errorRatio > 0.25) { return 'danger' }
+      if (errorRatio > 0.15) { return 'warning' }
 
       return 'success'
     },
-    // 狀態燈號邏輯 (單一錯誤判斷，保留供參考)
     notReadyLight () {
       if (this.printers.length === 0) { return 'success' }
-      // [修改] 傳入完整物件
       const statuses = this.printers.map(p => this.getPaperBadgeVariant(p))
       if (statuses.includes('danger')) { return 'danger' }
       if (statuses.includes('warning')) { return 'warning' }
       return 'success'
     },
-    // [修改] 綜合燈號：結合 佇列數(queueLight) 與 異常比例(errorRatioLight)
     light () {
       const qLight = this.queueLight
       const eLight = this.errorRatioLight
 
-      // 取最嚴重的狀態顯示
       if (qLight === 'danger' || eLight === 'danger') { return 'danger' }
       if (qLight === 'warning' || eLight === 'warning') { return 'warning' }
       return 'success'
     },
     statusOptions () {
-      // [修改] 基於 formatStatus 的結果來產生選項，確保下拉選單能選到 "碳粉不足" 等狀態
-      const formattedStatuses = this.printers.map(p => this.formatStatus(p))
-      const uniqueStatuses = [...new Set(formattedStatuses)].sort()
-
-      const options = [
+      return [
         { value: '全部', text: '全部顯示' },
-        { value: 'not_ready', text: '⚠ 非就緒狀態' }
+        { value: 'not_ready', text: '⚠ 非就緒狀態' },
+        { value: '就緒', text: '就緒' },
+        { value: '警示', text: '警示' },
+        { value: '錯誤', text: '錯誤' }
       ]
-      uniqueStatuses.forEach((formattedText) => {
-        options.push({
-          value: formattedText,
-          text: formattedText
-        })
-      })
-      return options
     },
     filteredPrinters () {
       if (this.filterStatus === '全部') {
         return this.printers
       }
       if (this.filterStatus === 'not_ready') {
-        // [修改] 判斷 format 出來的文字
-        return this.printers.filter(p => this.formatStatus(p) !== '就緒')
+        return this.printers.filter(p => this.getPaperBadgeVariant(p) !== 'success')
       }
-      // [修改] 用 formatStatus 進行過濾
-      return this.printers.filter(p => this.formatStatus(p) === this.filterStatus)
+      if (this.filterStatus === '就緒') {
+        return this.printers.filter(p => this.getPaperBadgeVariant(p) === 'success')
+      }
+      if (this.filterStatus === '警示') {
+        return this.printers.filter(p => this.getPaperBadgeVariant(p) === 'warning')
+      }
+      if (this.filterStatus === '錯誤') {
+        return this.printers.filter(p => this.getPaperBadgeVariant(p) === 'danger')
+      }
+      return this.printers
     },
     dashboardStats () {
       const list = this.printers
 
       const readyCount = list.filter((p) => {
-        // [修改] 統一使用 getPaperBadgeVariant 判斷綠燈
         const variant = this.getPaperBadgeVariant(p)
         return variant === 'success'
       }).length
@@ -873,55 +862,12 @@ export default {
       }
       return status
     },
-    // [大改] 讓 formatStatus 支援傳入完整 item，從 ErrorDetails 判斷關鍵字
     formatStatus (item) {
       if (!item) { return '未知' }
-
-      let statusStr = ''
-      let detailStr = ''
-
-      if (typeof item === 'string') {
-        statusStr = item
-      } else {
-        statusStr = item.Status || ''
-        detailStr = item.ErrorDetails || item.DetailedStatus || ''
-      }
-
-      const s = statusStr.toLowerCase()
-      const d = detailStr.toLowerCase()
-
-      // 1. 優先判斷詳細訊息中的特定狀況 (覆蓋原本的 Status)
-      if (d.includes('not responding') || d.includes('無回應')) { return '無回應' }
-      if (d.includes('toner') || d.includes('碳粉不足')) { return '碳粉不足' }
-
-      // 2. 原本的狀態映射表
-      const map = {
-        Ready: '就緒',
-        Offline: '離線',
-        Error: '錯誤',
-        Warning: '警告',
-        Printing: '列印中',
-        Paused: '暫停',
-        Deleting: '刪除中',
-        'Paper Jam': '卡紙',
-        'Door Open': '門蓋未關',
-        'Toner Low': '碳粉不足',
-        'Warming Up': '暖機中',
-        'Not Responding': '無回應'
-      }
-      if (map[statusStr]) { return map[statusStr] }
-
-      // 3. 常規模糊比對 (若 ErrorDetails 沒提供線索)
-      if (s.includes('ready')) { return '就緒' }
-      if (s.includes('offline')) { return '離線' }
-      if (s.includes('error')) { return '錯誤' }
-      if (s.includes('warning')) { return '警告' }
-      if (s.includes('jam')) { return '卡紙' }
-
-      if (statusStr.includes(' - ')) {
-        return statusStr.split(' - ')[0] + ' ... '
-      }
-      return statusStr || '未知'
+      const variant = this.getPaperBadgeVariant(item)
+      if (variant === 'danger') { return '錯誤' }
+      if (variant === 'warning') { return '警示' }
+      return '就緒'
     },
     formatIp (ip) {
       if (!ip) { return '' }
@@ -1284,14 +1230,13 @@ export default {
         this.isBusy = false
       }
     },
-    // [大改] 讓判定方法支援傳入完整 item，從 ErrorDetails 進行過濾
+    // [修改] 調整判斷邏輯優先級，確保「碳粉不足」明確落入警示 (warning) 中
     getPaperBadgeVariant (item) {
       if (!item) { return 'secondary' }
 
       let statusStr = ''
       let detailStr = ''
 
-      // 容錯機制：判斷傳入的是字串還是物件
       if (typeof item === 'string') {
         statusStr = item
       } else {
@@ -1302,21 +1247,37 @@ export default {
       const s = statusStr.toLowerCase()
       const d = detailStr.toLowerCase()
 
-      // 1. 最高優先級：無回應 -> error (danger)
-      if (d.includes('not responding') || d.includes('無回應') || s.includes('not responding') || s.includes('無回應')) {
+      // 1. 最高優先級：明確的嚴重錯誤 (斷線、離線、無回應、卡紙) -> error (danger)
+      if (
+        d.includes('not responding') || d.includes('無回應') ||
+        d.includes('offline') || d.includes('離線') || d.includes('斷線') ||
+        d.includes('jam') || d.includes('卡紙') ||
+        s.includes('not responding') || s.includes('無回應') ||
+        s.includes('offline') || s.includes('離線') || s.includes('斷線') ||
+        s.includes('jam') || s.includes('卡紙')
+      ) {
         return 'danger'
       }
 
-      // 2. 次高優先級：碳粉不足 -> warning
-      // 即使 API Status 給 Error，只要細節說碳粉不足，就顯示警告黃燈
-      if (d.includes('toner') || d.includes('碳粉不足') || s.includes('toner') || s.includes('碳粉不足')) {
+      // 2. 次高優先級：明確的警示狀況 (碳粉不足) -> warning
+      // 即便 API 回傳 Status 是 "錯誤"，只要細節標明是碳粉問題，就強制視為黃燈
+      if (
+        d.includes('toner') || d.includes('碳粉') ||
+        s.includes('toner') || s.includes('碳粉')
+      ) {
         return 'warning'
       }
 
-      // 3. 常規狀態判斷
-      if (s.includes('error') || s.includes('offline') || s.includes('jam')) { return 'danger' }
-      if (s.includes('warning')) { return 'warning' }
+      // 3. 兜底判斷 (如果不是上述明確情況，才用通用的 Error / Warning 來決定)
+      if (d.includes('error') || d.includes('錯誤') || s.includes('error') || s.includes('錯誤')) {
+        return 'danger'
+      }
 
+      if (d.includes('warning') || d.includes('警告') || s.includes('warning') || s.includes('警告')) {
+        return 'warning'
+      }
+
+      // 若無異常則視為就緒
       return 'success'
     },
     toggleDashboardStyle () {
