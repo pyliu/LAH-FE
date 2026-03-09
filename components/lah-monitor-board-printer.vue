@@ -22,11 +22,8 @@ b-card(
       )
 
     b-button-group.ml-auto(size="sm")
-      //- [修改] 移除 Header 上的顯示設定 UI (已移至 Help Modal)
-
       //- 完整列表按鈕 (避免在 Display Mode 下再次顯示此按鈕，造成無限 Modal)
       //- [修改] 當目前顯示模式已經是 xl 時，隱藏此按鈕
-      //- [修改] 位置互換：移至切換模式按鈕之前
       lah-button(
         v-if="!isDisplayMode && localSize !== 'xl'"
         icon="list",
@@ -49,7 +46,6 @@ b-card(
       )
 
       //- [新增] 循環切換顯示模式按鈕
-      //- [修改] 位置互換：移至完整列表按鈕之後
       lah-button(
         icon="tv",
         variant="outline-primary",
@@ -58,8 +54,6 @@ b-card(
         @click="cycleSize",
         :title="`切換顯示模式 (目前: ${localSize})`"
       )
-
-      //- [移除] 伺服器紀錄按鈕 (移至 Help Modal)
 
       //- [修改] 在展示模式(isDisplayMode)或不顯示footer時，顯示header的重新整理按鈕
       lah-button(
@@ -73,7 +67,6 @@ b-card(
         :title="`上次更新時間 ${updated}`",
         :disabled="isBusy"
       )
-      //- 深度自癒按鈕 (API F) (已移至 Help Modal)
 
       lah-button(
         icon="question",
@@ -85,7 +78,7 @@ b-card(
         title="說明與設定"
       )
 
-  //- [修改] 說明 Modal 增加設定區塊
+  //- 說明 Modal 增加設定區塊
   lah-help-modal(ref="help", :modal-title="`${header} 設定與說明 - ${serverIp}`", size="lg")
     //- 設定區塊
     div.mb-4.p-3.bg-light.rounded
@@ -117,7 +110,7 @@ b-card(
             size="sm"
           )
 
-    //- [新增] 維護區塊 (從 Header 移入)
+    //- 維護區塊
     div.mb-4.p-3.bg-light.rounded
       h6.font-weight-bold.mb-3
         lah-fa-icon(icon="tools").mr-2
@@ -131,7 +124,6 @@ b-card(
           title="重新啟動 Spooler 服務"
         ) 觸發深度自癒
 
-        //- [新增] 重啟腳本按鈕
         lah-button.mr-2(
           icon="redo-alt",
           variant="outline-warning",
@@ -139,7 +131,6 @@ b-card(
           title="重新啟動 PowerShell Agent 腳本"
         ) 重啟腳本
 
-        //- [移動] 伺服器紀錄按鈕
         lah-button(
           icon="file-alt",
           variant="outline-dark",
@@ -152,7 +143,6 @@ b-card(
     h6.font-weight-bold.mb-2 功能說明
     ul
       li 監控伺服器 (Server IP) 上的實體印表機狀態。
-      //- [新增] 部署說明
       li.text-danger
         strong 部署需求：
         span 需在列印伺服器上安裝並執行
@@ -160,8 +150,6 @@ b-card(
         span  腳本。
         .mt-2
           b-button-group(size="sm")
-            //- [修改] 改回使用 href 屬性，避開 window.open 被瀏覽器阻擋的問題
-            //- [修改] 使用 apiSvrIp 和 apiSvrPort
             b-button(variant="outline-primary" :href="agentDownloadUrl" target="_blank" pill)
               lah-fa-icon(icon="download").mr-1
               span 下載 Agent 腳本
@@ -200,8 +188,7 @@ b-card(
     ul
       li 利用專屬監控頁面可進行櫃台已列印的謄本、規費收據預覽或是重印 👉 #[b-link(:href="`http://${this.apiSvrIp}:${this.apiSvrPort}/project/printer/`" target="_blank" rel="noopener") 點我開啟新視窗]
 
-  //- [新增] 伺服器紀錄 Modal
-  //- [修改] title 顯示 500 行，並新增 @shown 事件
+  //- 伺服器紀錄 Modal
   b-modal(
     ref="logsModal",
     title="伺服器紀錄 (最後500行)"
@@ -210,12 +197,10 @@ b-card(
     hide-footer
     @shown="scrollLogsToBottom"
   )
-    //- [修改] 新增 ref="logsContent" 以便控制捲動
     pre.bg-dark.text-white.p-3.rounded(ref="logsContent" v-if="serverLogs" style="font-size: 0.85rem; min-height: 400px;") {{ serverLogs }}
     div.text-center.text-muted.py-5(v-else) 暫無紀錄或載入中...
 
-  //- [新增] 完整資料列表 Modal
-  //- [修改] 使用遞迴組件顯示完整列表
+  //- 完整資料列表 Modal
   b-modal(
     ref="fullTableModal"
     :title="`完整印表機清單 - ${serverIp}:${serverPort}`"
@@ -223,8 +208,6 @@ b-card(
     hide-footer
     body-class="p-0"
   )
-    //- [修改] 將預設 size 改為 xl
-    //- 傳入 printers 陣列，關閉 footer
     lah-monitor-board-printer(
       :in-printers="printers"
       size="xl"
@@ -236,7 +219,6 @@ b-card(
     )
 
   //- 詳細資料 Modal
-  //- [修改] 使用 detailModalTitle computed 屬性
   b-modal(
     ref="detailModal"
     :title="detailModalTitle"
@@ -252,19 +234,18 @@ b-card(
             h5.mb-1 {{ selectedPrinter.Name }}
             div.text-muted
               span.mr-2 IP: {{ selectedPrinter.IP || 'N/A' }}
-              //- [修改] 如果正在編輯，隱藏 badge
               b-badge(v-if="selectedPrinter.Location && !isEditing" variant="light") {{ selectedPrinter.Location }}
 
           div.text-right
-            //- [修改] 狀態標籤增加 loading spinner 提示 (isDetailLoading 為 false 時會移除)
-            b-badge.p-2.mb-1(:variant="getPaperBadgeVariant(selectedPrinter.Status)" pill)
+            //- [修改] 傳入完整的物件進行狀態判定
+            b-badge.p-2.mb-1(:variant="getPaperBadgeVariant(selectedPrinter)" pill)
               lah-fa-icon.mr-1(v-if="isDetailLoading" icon="spinner" action="spin")
-              span.h6.mb-0 {{ formatStatus(selectedPrinter.Status) }}
+              span.h6.mb-0 {{ formatStatus(selectedPrinter) }}
             div.small.text-danger(v-if="selectedPrinter.ErrorDetails || selectedPrinter.DetailedStatus") {{ selectedPrinter.ErrorDetails || selectedPrinter.DetailedStatus }}
 
       //- 中間：詳細屬性列表
       b-row
-        //- [左側] 1.佇列 2.驅動 3.位置
+        //- [左側]
         b-col(cols="12" md="6")
           b-list-group.mb-3
             b-list-group-item.d-flex.justify-content-between.align-items-center
@@ -273,15 +254,13 @@ b-card(
             b-list-group-item.d-flex.justify-content-between.align-items-center
               span.text-muted 驅動程式 (Driver)
               span.text-truncate(style="max-width: 200px;" :title="selectedPrinter.Driver || selectedPrinter.DriverName") {{ selectedPrinter.Driver || selectedPrinter.DriverName || 'Unknown' }}
-
-            //- [修改] 位置欄位：支援編輯模式
             b-list-group-item.d-flex.justify-content-between.align-items-center
               span.text-muted 位置 (Location)
               div(v-if="isEditing" style="flex: 1; margin-left: 10px;")
                 b-form-input(v-model="editForm.location" size="sm" placeholder="請輸入位置")
               span(v-else) {{ selectedPrinter.Location || '未設定' }}
 
-        //- [右側] 1.共用名稱 2.連接埠 3.錯誤訊息
+        //- [右側]
         b-col(cols="12" md="6")
           b-list-group.mb-3
             b-list-group-item.d-flex.justify-content-between.align-items-center
@@ -293,8 +272,6 @@ b-card(
             b-list-group-item.d-flex.justify-content-between.align-items-center(v-if="selectedPrinter.ErrorDetails")
               span.text-muted 錯誤訊息
               b-badge(variant="danger") {{ selectedPrinter.ErrorDetails }}
-
-            //- [修改] 備註欄位：支援編輯模式
             b-list-group-item.d-flex.justify-content-between.align-items-center
               span.text-muted 備註 (Comment)
               div(v-if="isEditing" style="flex: 1; margin-left: 10px;")
@@ -305,7 +282,6 @@ b-card(
       hr
 
       .d-flex.justify-content-end.flex-wrap
-        //- [新增] 編輯模式按鈕組
         template(v-if="isEditing")
           lah-button.mr-2.mb-2(
             icon="save"
@@ -321,10 +297,7 @@ b-card(
             :disabled="isBusy"
           ) 取消
 
-        //- 一般模式按鈕組
         template(v-else)
-          //- [新增] 編輯資訊按鈕
-          //- [修改] 增加 disabled 條件
           lah-button.mr-auto.mb-2(
             icon="edit"
             variant="outline-primary"
@@ -333,7 +306,6 @@ b-card(
             :disabled="isBusy || isDetailLoading"
           ) 編輯資訊
 
-          //- [新增] 更新狀態按鈕 (手動觸發更新)
           lah-button.mr-2.mb-2(
             icon="sync-alt",
             variant="outline-success",
@@ -343,7 +315,6 @@ b-card(
             title="從伺服器讀取最新狀態"
           ) 更新狀態
 
-          //- [修改] 增加 disabled 條件
           lah-button.mr-2.mb-2(
             v-if="selectedPrinter.Status === 'Ready'"
             icon="file-pdf",
@@ -353,7 +324,6 @@ b-card(
             :disabled="isBusy || isDetailLoading"
           ) PDF 測試列印
 
-          //- [修改] 增加 disabled 條件
           lah-button.mr-2.mb-2(
             icon="trash-alt",
             variant="outline-danger",
@@ -362,7 +332,6 @@ b-card(
             title="強制清除所有佇列工作"
           ) 清除佇列
 
-          //- [修改] 增加 disabled 條件
           lah-button.mb-2(
             icon="sync",
             variant="primary",
@@ -426,31 +395,24 @@ b-card(
   slot
 
   //- 內容區
-  //- [修改] 增加 flex 排版類別，確保內容佔滿剩餘高度並正確置中
   div.center.d-flex.flex-column.justify-content-center.align-items-center.flex-grow-1(v-if="printers.length === 0")
     div(v-if="isBusy")
       lah-fa-icon(icon="spinner", action="spin") 載入中...
     div(v-else) ⚠ 無法取得印表機列表，請檢查連線設定與 CORS 權限。
 
-  //- [修改] 增加外層 flex 與 overflow 類別，確保表格或儀表板能正確捲動
   div.d-flex.flex-column.flex-grow-1.overflow-hidden(v-else)
     //- XS 尺寸：儀表板顯示
-    //- [修改] 改用 h-100 撐滿高度，並移除 overflow-auto 以避免卷軸，實現自動縮放
     div.h-100(v-if="localSize === 'xs'")
-      //- [修改] b-row 增加 h-100
       b-row.text-center.h-100(no-gutters)
-        //- [修改] 針對每一個 col 設定高度，若為 grid 則高度減半 (50%)，橫向則全高 (100%)
         b-col.p-1(
           :cols="dashboardColCols"
           :style="{ height: dashboardStyle === 'grid' ? '50%' : '100%' }"
         )
-          //- [修改] 使用 SVG 同時顯示數字與標籤，確保整體依比例縮放
           b-card.h-100.shadow-sm(
             bg-variant="success"
             text-variant="white"
             body-class="p-1 d-flex align-items-center justify-content-center overflow-hidden"
           )
-            //- SVG 畫布：viewBox 0 0 100 70 用於容納數字與下方標籤
             svg(viewBox="0 0 100 70" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="font-family: inherit;")
               text(x="50" y="42" text-anchor="middle" fill="currentColor" font-weight="bold" font-size="38") {{ dashboardStats.ready }}
               text(x="50" y="62" text-anchor="middle" fill="currentColor" font-size="14") 正常
@@ -495,7 +457,6 @@ b-card(
               text(x="50" y="62" text-anchor="middle" fill="currentColor" font-size="14") 佇列
 
     //- 其他尺寸：列表顯示
-    //- [修改] 增加 mb-0 移除下方 margin
     b-table(
       v-else
       :items="filteredPrinters"
@@ -543,12 +504,13 @@ b-card(
           )
 
       template(#cell(Status)="{ item }")
+        //- [修改] 傳入完整的 item 給 getPaperBadgeVariant 和 formatStatus
         b-badge.p-2(
-          :variant="getPaperBadgeVariant(item.Status)"
+          :variant="getPaperBadgeVariant(item)"
           pill
           v-b-tooltip.hover
           :title="getStatusTooltip(item)"
-        ) {{ formatStatus(item.Status) }}
+        ) {{ formatStatus(item) }}
 
       template(#cell(IP)="{ item }")
         div.text-nowrap.text-truncate(
@@ -573,23 +535,18 @@ b-card(
             title="清除此印表機佇列"
           )
 
-      //- [新增] XL 模式的插槽：Location
       template(#cell(Location)="{ item }")
         b-badge(v-if="item.Location" variant="light") {{ item.Location }}
 
-      //- [新增] XL 模式的插槽：Driver
       template(#cell(Driver)="{ item }")
         div.text-truncate(style="max-width: 200px;" :title="item.Driver || item.DriverName") {{ item.Driver || item.DriverName }}
 
-      //- [新增] XL 模式的插槽：Comment
       template(#cell(Comment)="{ item }")
         div.text-truncate(style="max-width: 150px;" :title="item.Comment") {{ item.Comment }}
 
-      //- [新增] XL 模式的插槽：ErrorDetails
       template(#cell(ErrorDetails)="{ item }")
         div.text-danger.small {{ item.ErrorDetails || item.DetailedStatus }}
 
-      //- [新增] XL 模式的插槽：PortName
       template(#cell(PortName)="{ item }")
         div.text-truncate(style="max-width: 150px;" :title="item.PortName") {{ item.PortName }}
 
@@ -605,7 +562,6 @@ b-card(
 </template>
 
 <script>
-// [新增] 引入 mapState
 import axios from 'axios';
 import _ from 'lodash';
 import dynamicHeight from '~/mixins/dynamic-height-mixin.js';
@@ -616,33 +572,30 @@ export default {
   props: {
     footer: { type: Boolean, default: false },
     id: { type: String, default: 'default' },
-    size: { type: String, default: 'xs' }, // [修改] 預設值改為 xs
+    size: { type: String, default: 'xs' },
     serverIp: { type: String, default: '127.0.0.1' },
     serverPort: { type: String, default: '8888' },
     apiKey: { type: String, default: 'YourSecretApiKey123' },
     reloadMs: {
-      type: [Number, String], // 同時接受 Number 和 String
+      type: [Number, String],
       default: 300000,
       validator (value) {
-        // 驗證轉換後的值是否為有效數字
         return !isNaN(Number(value)) && Number(value) > 0
       }
     },
-    // [新增] 外部注入印表機資料 (展示模式用)
     inPrinters: { type: Array, default: () => [] }
   },
   data () {
     return {
       isBusy: false,
-      isDetailLoading: false, // [新增] 詳細資訊讀取中狀態
+      isDetailLoading: false,
       updated: '',
       fetchingState: null,
       header: '列印伺服器監控',
-      filterStatus: 'not_ready',
+      filterStatus: '全部',
       localSize: 'xs',
       dashboardStyle: 'horizontal',
       selectedPrinter: null,
-      // [新增] 編輯模式相關狀態
       isEditing: false,
       editForm: {
         location: '',
@@ -651,8 +604,6 @@ export default {
       cancelSource: null,
       serverLogs: '',
       printers: [],
-
-      // [移除] 舊的 fullTableFields 定義，現在由 printerFields(xl) 動態處理
 
       printTarget: '',
       pdfFile: null,
@@ -667,18 +618,16 @@ export default {
         { value: 'sm', text: '精簡列表 (SM)' },
         { value: 'md', text: '標準列表 (MD)' },
         { value: 'lg', text: '詳細列表 (LG)' },
-        { value: 'xl', text: '完整列表 (XL)' } // [新增] XL 選項
+        { value: 'xl', text: '完整列表 (XL)' }
       ]
     }
   },
   computed: {
-    // [新增] 詳細資訊 Modal 標題
     detailModalTitle () {
       if (!this.selectedPrinter) { return '載入中...' }
       const loadingText = this.isDetailLoading ? ' (更新中...)' : ''
       return `${this.selectedPrinter.Name} - 詳細資訊${loadingText}`
     },
-    // [修改] 下載連結 (使用 apiSvrIp 和 apiSvrPort)
     downloadUrlBase () {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     },
@@ -688,11 +637,9 @@ export default {
     guideDownloadUrl () {
       return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent_Windows_Server_部署指南.pdf`
     },
-    // [新增] 判斷是否為展示模式
     isDisplayMode () {
       return this.inPrinters && this.inPrinters.length > 0
     },
-    // [修改] 如果 light 為 success (綠燈)，不顯示邊框 (return 空字串)
     border () {
       if (this.light === 'success') {
         return ''
@@ -722,8 +669,6 @@ export default {
           { key: 'IP', label: 'IP', sortable: true }
         ]
       } else if (this.localSize === 'xl') {
-        // [新增] xl 模式：包含詳細欄位 (Location, Driver, etc.)
-        // [修改] Status 移到 Name 前面
         return [
           { key: 'action', label: '操作', class: 'text-center' },
           { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
@@ -731,14 +676,12 @@ export default {
           { key: 'Location', label: '位置', sortable: true },
           { key: 'IP', label: 'IP', sortable: true },
           { key: 'Jobs', label: '佇列', sortable: true, class: 'text-center' },
-          // { key: 'PortName', label: '連接埠', sortable: true }, // 可選
           { key: 'Comment', label: '備註', sortable: true },
           { key: 'ErrorDetails', label: '錯誤細節', sortable: true },
           { key: 'Driver', label: '驅動程式', sortable: true },
-          { key: 'PortName', label: '連接埠', sortable: true } // [新增] PortName
+          { key: 'PortName', label: '連接埠', sortable: true }
         ]
       } else {
-        // lg (default)
         return [
           { key: 'action', label: '操作', class: 'text-center' },
           { key: 'Status', label: '狀態', sortable: true, class: 'text-center' },
@@ -749,7 +692,6 @@ export default {
         ]
       }
     },
-    // [新增] 佇列燈號邏輯
     queueLight () {
       if (this.printers.length === 0) { return 'warning' }
       const totalJobs = this.printers.reduce((sum, printer) => {
@@ -759,32 +701,54 @@ export default {
       if (totalJobs > 5) { return 'warning' }
       return 'success'
     },
-    // [新增] 狀態燈號邏輯
+    // [新增] 異常比例燈號邏輯
+    errorRatioLight () {
+      if (this.printers.length === 0) { return 'success' }
+
+      const totalCount = this.printers.length
+      // 計算狀態為 error (danger) 的數量
+      const errorCount = this.printers.filter(p => this.getPaperBadgeVariant(p) === 'danger').length
+      const errorRatio = errorCount / totalCount
+
+      // 比例大於 15% 顯示紅燈 (danger)
+      if (errorRatio > 0.15) { return 'danger' }
+      // 比例大於 10% 顯示黃燈 (warning)
+      if (errorRatio > 0.10) { return 'warning' }
+
+      return 'success'
+    },
+    // 狀態燈號邏輯 (單一錯誤判斷，保留供參考)
     notReadyLight () {
       if (this.printers.length === 0) { return 'success' }
-      const statuses = this.printers.map(p => this.getPaperBadgeVariant(p.Status))
+      // [修改] 傳入完整物件
+      const statuses = this.printers.map(p => this.getPaperBadgeVariant(p))
       if (statuses.includes('danger')) { return 'danger' }
       if (statuses.includes('warning')) { return 'warning' }
       return 'success'
     },
-    // [修改] 綜合燈號：使用 queueLight
+    // [修改] 綜合燈號：結合 佇列數(queueLight) 與 異常比例(errorRatioLight)
     light () {
-      return this.queueLight
-      // 保留以下邏輯方便測試 (綜合判斷)
-      // if (this.queueLight === 'danger' || this.notReadyLight === 'danger') { return 'danger' }
-      // if (this.queueLight === 'warning' || this.notReadyLight === 'warning') { return 'warning' }
-      // return 'success'
+      const qLight = this.queueLight
+      const eLight = this.errorRatioLight
+
+      // 取最嚴重的狀態顯示
+      if (qLight === 'danger' || eLight === 'danger') { return 'danger' }
+      if (qLight === 'warning' || eLight === 'warning') { return 'warning' }
+      return 'success'
     },
     statusOptions () {
-      const uniqueStatuses = [...new Set(this.printers.map(p => p.Status || 'Unknown'))].sort()
+      // [修改] 基於 formatStatus 的結果來產生選項，確保下拉選單能選到 "碳粉不足" 等狀態
+      const formattedStatuses = this.printers.map(p => this.formatStatus(p))
+      const uniqueStatuses = [...new Set(formattedStatuses)].sort()
+
       const options = [
         { value: '全部', text: '全部顯示' },
         { value: 'not_ready', text: '⚠ 非就緒狀態' }
       ]
-      uniqueStatuses.forEach((status) => {
+      uniqueStatuses.forEach((formattedText) => {
         options.push({
-          value: status,
-          text: this.formatStatus(status)
+          value: formattedText,
+          text: formattedText
         })
       })
       return options
@@ -794,25 +758,28 @@ export default {
         return this.printers
       }
       if (this.filterStatus === 'not_ready') {
-        return this.printers.filter(p => (p.Status || 'Unknown') !== 'Ready')
+        // [修改] 判斷 format 出來的文字
+        return this.printers.filter(p => this.formatStatus(p) !== '就緒')
       }
-      return this.printers.filter(p => (p.Status || 'Unknown') === this.filterStatus)
+      // [修改] 用 formatStatus 進行過濾
+      return this.printers.filter(p => this.formatStatus(p) === this.filterStatus)
     },
     dashboardStats () {
       const list = this.printers
 
       const readyCount = list.filter((p) => {
-        const s = (p.Status || '').toLowerCase()
-        return s.includes('ready') && !s.includes('error') && !s.includes('offline') && !s.includes('warning')
+        // [修改] 統一使用 getPaperBadgeVariant 判斷綠燈
+        const variant = this.getPaperBadgeVariant(p)
+        return variant === 'success'
       }).length
 
       const warningCount = list.filter((p) => {
-        const variant = this.getPaperBadgeVariant(p.Status)
+        const variant = this.getPaperBadgeVariant(p)
         return variant === 'warning'
       }).length
 
       const errorCount = list.filter((p) => {
-        const variant = this.getPaperBadgeVariant(p.Status)
+        const variant = this.getPaperBadgeVariant(p)
         return variant === 'danger'
       }).length
 
@@ -842,7 +809,6 @@ export default {
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     },
-    // [新增] 監聽外部傳入的印表機資料
     inPrinters (newVal) {
       if (newVal && newVal.length > 0) {
         this.printers = [...newVal]
@@ -853,7 +819,6 @@ export default {
   created () {
     this.debouncedFetchStatus = _.debounce(this.fetchStatusFromApi, 300)
 
-    // [新增] created 時檢查是否為展示模式
     if (this.inPrinters && this.inPrinters.length > 0) {
       this.printers = [...this.inPrinters]
       this.updated = this.$utils.now()
@@ -870,12 +835,9 @@ export default {
       this.dashboardStyle = config.dashboardStyle || this.dashboardStyle
     }
 
-    // [修改] 如果是展示模式，強制使用 prop 的 size，忽略快取
     if (this.isDisplayMode) {
       this.localSize = this.size
-    }
-    // [修改] 只有非展示模式才自動載入
-    else {
+    } else {
       this.reload()
     }
   },
@@ -897,25 +859,42 @@ export default {
         okVariant: 'danger'
       })
     },
-    // [新增] 循環切換 Size
     cycleSize () {
       const options = this.sizeOptions.map(o => o.value)
       const idx = options.indexOf(this.localSize)
       const nextIdx = (idx + 1) % options.length
       this.localSize = options[nextIdx]
     },
-    // [修改] 移除 downloadAgent 方法
-    // [修改] 移除 downloadGuide 方法
     getStatusTooltip (item) {
-      const status = this.formatStatus(item.Status)
+      const status = this.formatStatus(item)
       const error = item.ErrorDetails || item.DetailedStatus
       if (error) {
         return `${status} : ${error}`
       }
       return status
     },
-    formatStatus (status) {
-      if (!status) { return '未知' }
+    // [大改] 讓 formatStatus 支援傳入完整 item，從 ErrorDetails 判斷關鍵字
+    formatStatus (item) {
+      if (!item) { return '未知' }
+
+      let statusStr = ''
+      let detailStr = ''
+
+      if (typeof item === 'string') {
+        statusStr = item
+      } else {
+        statusStr = item.Status || ''
+        detailStr = item.ErrorDetails || item.DetailedStatus || ''
+      }
+
+      const s = statusStr.toLowerCase()
+      const d = detailStr.toLowerCase()
+
+      // 1. 優先判斷詳細訊息中的特定狀況 (覆蓋原本的 Status)
+      if (d.includes('not responding') || d.includes('無回應')) { return '無回應' }
+      if (d.includes('toner') || d.includes('碳粉不足')) { return '碳粉不足' }
+
+      // 2. 原本的狀態映射表
       const map = {
         Ready: '就緒',
         Offline: '離線',
@@ -927,19 +906,22 @@ export default {
         'Paper Jam': '卡紙',
         'Door Open': '門蓋未關',
         'Toner Low': '碳粉不足',
-        'Warming Up': '暖機中'
+        'Warming Up': '暖機中',
+        'Not Responding': '無回應'
       }
-      if (map[status]) { return map[status] }
-      const s = status.toLowerCase()
+      if (map[statusStr]) { return map[statusStr] }
+
+      // 3. 常規模糊比對 (若 ErrorDetails 沒提供線索)
       if (s.includes('ready')) { return '就緒' }
       if (s.includes('offline')) { return '離線' }
       if (s.includes('error')) { return '錯誤' }
       if (s.includes('warning')) { return '警告' }
       if (s.includes('jam')) { return '卡紙' }
-      if (status.includes(' - ')) {
-        return status.split(' - ')[0] + ' ... '
+
+      if (statusStr.includes(' - ')) {
+        return statusStr.split(' - ')[0] + ' ... '
       }
-      return status
+      return statusStr || '未知'
     },
     formatIp (ip) {
       if (!ip) { return '' }
@@ -969,30 +951,26 @@ export default {
       return 0
     },
     async reload (force = false) {
-      // [新增] 展示模式下不執行 API 請求，僅更新時間
       if (this.isDisplayMode) {
         this.updated = this.$utils.now()
         return
       }
 
-      // [新增] 判斷是否為強制更新 (來自點擊事件或指定 true)
       const isForce = force === true || (typeof force === 'object' && force.type === 'click')
 
       const cacheKey = `lah-monitor-board-printer-cache-${this.serverIp}`
       const now = Date.now()
 
-      // [新增] 檢查快取
       if (!isForce) {
         const cached = localStorage.getItem(cacheKey)
         if (cached) {
           try {
             const parsed = JSON.parse(cached)
-            // 檢查快取是否過期
             if (now - parsed.timestamp < this.reloadMs) {
               this.printers = parsed.data
               this.updated = parsed.updated || this.$utils.now()
               console.warn(`${this.serverIp} 快取有效，使用快取資料，距離上次更新 ${(now - parsed.timestamp) / 1000}s 秒`)
-              return // 快取有效，不發送請求
+              return
             }
           } catch (e) {
             console.error('Cache parsing error', e)
@@ -1017,7 +995,6 @@ export default {
           this.$utils.warn('無法解析回傳資料結構，保留現有資料', data)
         }
 
-        // [新增] 更新成功後寫入快取
         localStorage.setItem(cacheKey, JSON.stringify({
           timestamp: now,
           updated: this.updated,
@@ -1033,9 +1010,6 @@ export default {
       this.$refs.detailModal.show()
       const localPrinter = this.printers.find(p => p.Name === name)
       this.selectedPrinter = localPrinter || null
-      // [修改] 移除自動 loading，等待手動按鈕觸發
-      // this.isDetailLoading = true
-      // this.debouncedFetchStatus(name)
     },
     cancelRequest () {
       if (this.cancelSource) {
@@ -1044,10 +1018,8 @@ export default {
       }
     },
     async fetchStatusFromApi (name) {
-      // [新增] 開始讀取狀態
       this.isDetailLoading = true
       this.cancelRequest()
-      // [新增] 儲存當前 cancel source 以便在 finally 中比對
       const source = axios.CancelToken.source()
       this.cancelSource = source
 
@@ -1078,20 +1050,18 @@ export default {
           this.$utils.warn('無法取得最新詳細狀態，顯示快取資料', err)
         }
       } finally {
-        // [新增] 只有當前的請求結束時才關閉 loading 狀態，避免被舊請求的 cancellation 關閉
         if (this.cancelSource === source) {
           this.isDetailLoading = false
           this.cancelSource = null
         }
       }
     },
-    // [修改] 取得伺服器日誌，移除反轉，改為正序，增加行數至500
     async fetchServerLogs () {
       this.isBusy = true
       this.serverLogs = ''
       try {
         const { data } = await axios.get(`${this.apiUrlBase}/server/logs`, {
-          params: { lines: 500 }, // 修改為 500 行
+          params: { lines: 500 },
           headers: { 'X-API-KEY': this.apiKey }
         })
 
@@ -1100,9 +1070,7 @@ export default {
           content = data.data
         }
 
-        // [修改] 移除反轉邏輯，保持正序
         if (typeof content === 'object') {
-          // 如果是物件或陣列，轉字串方便顯示
           this.serverLogs = JSON.stringify(content, null, 2)
         } else {
           this.serverLogs = content
@@ -1115,12 +1083,10 @@ export default {
         this.isBusy = false
       }
     },
-    // [新增] 捲動日誌到最下方
     scrollLogsToBottom () {
       this.$nextTick(() => {
         const pre = this.$refs.logsContent
         if (pre) {
-          // 找到捲軸容器 (通常是 modal-body，也就是 pre 的父元素)
           const modalBody = pre.parentElement
           if (modalBody) {
             modalBody.scrollTop = modalBody.scrollHeight
@@ -1150,20 +1116,16 @@ export default {
             duplex: this.duplex
           },
           headers: {
-            // [修改] 使用 apiKey prop
             'X-API-KEY': this.apiKey,
             'Content-Type': 'application/pdf'
-            // 原生 axios 不會自動加 CLIENT_IP，所以不需要設為 undefined
           }
         })
 
         this.notify('PDF 已傳送列印', { type: 'success' })
         this.$refs.printModal.hide()
         this.pdfFile = null
-        // [修改] 強制重新載入
         setTimeout(() => this.reload(true), 2000)
       } catch (err) {
-        // 捕捉 axios 錯誤
         const msg = err.response?.data?.message || err.message
         this.alert(`列印失敗: ${msg}`)
       } finally {
@@ -1180,13 +1142,11 @@ export default {
 
       this.isBusy = true
       try {
-        // [修正] 使用原生 axios
         await axios.get(`${this.apiUrlBase}/printer/refresh`, {
           params: { name },
           headers: { 'X-API-KEY': this.apiKey }
         })
         this.notify('指令已發送', { type: 'success' })
-        // [修改] 強制重新載入
         setTimeout(() => {
           this.reload(true)
           if (this.selectedPrinter && this.selectedPrinter.Name === name) {
@@ -1213,8 +1173,6 @@ export default {
           headers: { 'X-API-KEY': this.apiKey }
         })
         this.notify('重啟指令已發送，請稍候...', { type: 'warning' })
-        // Wait a bit and reload
-        // [修改] 強制重新載入
         setTimeout(() => this.reload(true), 5000)
       } catch (err) {
         this.alert(`啟動失敗: ${err.message}`)
@@ -1232,13 +1190,11 @@ export default {
 
       this.isBusy = true
       try {
-        // [修正] 使用原生 axios
         await axios.get(`${this.apiUrlBase}/printer/clear`, {
           params: { name },
           headers: { 'X-API-KEY': this.apiKey }
         })
         this.notify('清除指令已發送', { type: 'success' })
-        // [修改] 強制重新載入
         setTimeout(() => {
           this.reload(true)
           if (this.selectedPrinter && this.selectedPrinter.Name === name) {
@@ -1261,12 +1217,10 @@ export default {
 
       this.isBusy = true
       try {
-        // [修正] 使用原生 axios
         await axios.get(`${this.apiUrlBase}/service/self-heal`, {
           headers: { 'X-API-KEY': this.apiKey }
         })
         this.notify('自癒流程已啟動，請稍候...', { type: 'warning' })
-        // [修改] 強制重新載入
         setTimeout(() => this.reload(true), 5000)
       } catch (err) {
         this.alert(`啟動失敗: ${err.message}`)
@@ -1274,7 +1228,6 @@ export default {
         this.isBusy = false
       }
     },
-    // [新增] 初始化編輯模式
     initEdit () {
       if (this.selectedPrinter) {
         this.editForm.location = this.selectedPrinter.Location || ''
@@ -1282,19 +1235,16 @@ export default {
         this.isEditing = true
       }
     },
-    // [新增] 取消編輯
     cancelEdit () {
       this.isEditing = false
       this.editForm.location = ''
       this.editForm.comment = ''
     },
-    // [新增] 更新印表機資訊 API
     async updatePrinterInfo () {
       if (!this.selectedPrinter) { return }
 
       this.isBusy = true
       try {
-        // [修改] 改用 GET 並透過 params 傳遞參數 (axios 會自動編碼)
         await axios.get(`${this.apiUrlBase}/printer/update`, {
           params: {
             name: this.selectedPrinter.Name,
@@ -1307,47 +1257,66 @@ export default {
         this.notify('資訊已更新', { type: 'success' })
         this.isEditing = false
 
-        // 1. 更新 selectedPrinter (確保 Modal 顯示正確)
         this.$set(this.selectedPrinter, 'Location', this.editForm.location)
         this.$set(this.selectedPrinter, 'Comment', this.editForm.comment)
 
-        // 2. 更新 printers 列表 (確保列表/儀表板顯示正確)
         const idx = this.printers.findIndex(p => p.Name === this.selectedPrinter.Name)
         if (idx !== -1) {
           const updatedPrinter = { ...this.printers[idx] }
           updatedPrinter.Location = this.editForm.location
           updatedPrinter.Comment = this.editForm.comment
 
-          // [修正] 直接更新陣列參照，這會同時觸發 Vue 2 列表更新 以及 子組件的 prop watcher
           const newPrinters = [...this.printers]
           newPrinters[idx] = updatedPrinter
           this.printers = newPrinters
         }
 
-        // 3. [關鍵] 更新 localStorage 快取
-        // 這樣可以讓其他組件實例 (如 Parent/Child) 在下次 reload 時讀取到最新資料
         const cacheKey = `lah-monitor-board-printer-cache-${this.serverIp}`
         const now = Date.now()
-        // 讀取當前快取以保留其他欄位 (雖然後面是覆蓋 data)
         localStorage.setItem(cacheKey, JSON.stringify({
           timestamp: now,
           updated: this.updated,
           data: this.printers
         }))
-
-        // 4. [修改] 移除強制 reload，避免伺服器資料延遲導致畫面回朔
-        // setTimeout(() => this.reload(true), 1000)
       } catch (err) {
         this.alert(`更新失敗: ${err.message}`)
       } finally {
         this.isBusy = false
       }
     },
-    getPaperBadgeVariant (status) {
-      if (!status) { return 'secondary' }
-      const s = status.toLowerCase()
+    // [大改] 讓判定方法支援傳入完整 item，從 ErrorDetails 進行過濾
+    getPaperBadgeVariant (item) {
+      if (!item) { return 'secondary' }
+
+      let statusStr = ''
+      let detailStr = ''
+
+      // 容錯機制：判斷傳入的是字串還是物件
+      if (typeof item === 'string') {
+        statusStr = item
+      } else {
+        statusStr = item.Status || ''
+        detailStr = item.ErrorDetails || item.DetailedStatus || ''
+      }
+
+      const s = statusStr.toLowerCase()
+      const d = detailStr.toLowerCase()
+
+      // 1. 最高優先級：無回應 -> error (danger)
+      if (d.includes('not responding') || d.includes('無回應') || s.includes('not responding') || s.includes('無回應')) {
+        return 'danger'
+      }
+
+      // 2. 次高優先級：碳粉不足 -> warning
+      // 即使 API Status 給 Error，只要細節說碳粉不足，就顯示警告黃燈
+      if (d.includes('toner') || d.includes('碳粉不足') || s.includes('toner') || s.includes('碳粉不足')) {
+        return 'warning'
+      }
+
+      // 3. 常規狀態判斷
       if (s.includes('error') || s.includes('offline') || s.includes('jam')) { return 'danger' }
-      if (s.includes('warning') || s.includes('toner')) { return 'warning' }
+      if (s.includes('warning')) { return 'warning' }
+
       return 'success'
     },
     toggleDashboardStyle () {
