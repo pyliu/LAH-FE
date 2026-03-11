@@ -820,8 +820,12 @@ export default {
     if (cachedConfig) {
       const config = JSON.parse(cachedConfig)
       this.filterStatus = config.filterStatus || this.filterStatus
-      this.localSize = config.localSize || this.localSize
       this.dashboardStyle = config.dashboardStyle || this.dashboardStyle
+
+      // [修正] 當外部明確傳入 size 為 xs 時 (儀表板模式)，不套用快取的尺寸設定，強制維持 xs
+      if (this.size !== 'xs' && config.localSize) {
+        this.localSize = config.localSize
+      }
     }
 
     if (this.isDisplayMode) {
@@ -885,9 +889,21 @@ export default {
       this.checkStatus(item.Name)
     },
     storeConfig () {
+      let saveSize = this.localSize
+      const cachedConfig = localStorage.getItem(this.storageKey)
+
+      if (cachedConfig) {
+        const config = JSON.parse(cachedConfig)
+        // [修正] 如果目前在儀表板模式(size=xs)，不要把 xs 蓋掉原本快取中的大表格尺寸 (例如 md, lg)
+        // 這樣才不會因為在儀表板切換了 filterStatus，導致連帶把尺寸洗成 xs
+        if (this.size === 'xs' && this.localSize === 'xs' && config.localSize) {
+          saveSize = config.localSize
+        }
+      }
+
       localStorage.setItem(this.storageKey, JSON.stringify({
         filterStatus: this.filterStatus,
-        localSize: this.localSize,
+        localSize: saveSize,
         dashboardStyle: this.dashboardStyle
       }))
     },
