@@ -156,9 +156,23 @@ b-card(
             b-button.ml-1(variant="outline-info" :href="guideDownloadUrl" target="_blank" pill)
               lah-fa-icon(icon="file-pdf").mr-1
               span 下載部署指南
-      li
-        strong 狀態燈號：
-        span 綠燈表示所有印表機正常，紅燈表示有錯誤或無法連線。
+
+      //- [修改] 特別強調燈號說明，具體列出判斷條件
+      li.mt-2.mb-2
+        div.mb-1
+          strong 狀態燈號綜合判定說明：
+          span 儀表板燈號會綜合考量「單機狀態」、「佇列數量」與「異常比例」：
+        ul.mt-2.mb-2(style="list-style-type: none; padding-left: 0.5rem;")
+          li.mb-2
+            b-badge.mr-2(variant="success" class="p-2") 🟢 綠燈 (正常)
+            span 所有印表機運作正常，無錯誤訊息且伺服器佇列工作數在安全範圍。
+          li.mb-2
+            b-badge.mr-2(variant="warning" class="p-2") 🟡 黃燈 (警示)
+            span 單機出現警告狀況 (如：#[strong.text-warning 碳粉不足])，或伺服器整體佇列工作數 #[strong 大於 5 筆]，或異常印表機比例 #[strong 超過 15%]。
+          li
+            b-badge.mr-2(variant="danger" class="p-2") 🔴 紅燈 (異常)
+            span 單機發生嚴重錯誤 (如：#[strong.text-danger 斷線、離線、無回應、卡紙])，或伺服器整體佇列工作數 #[strong 大於 10 筆]，或異常印表機比例 #[strong 超過 25%]。
+
       li
         strong 狀態篩選：
         span 使用標題旁的下拉選單可過濾顯示特定狀態的印表機。
@@ -631,10 +645,10 @@ export default {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     },
     agentDownloadUrl () {
-      return `${this.downloadUrlBase}/project/printer/server/Printer_API_Agent.ps1`
+      return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent.ps1`
     },
     guideDownloadUrl () {
-      return `${this.downloadUrlBase}/project/printer/server/Printer_API_Agent_Windows_Server_部署指南.pdf`
+      return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent_Windows_Server_部署指南.pdf`
     },
     isDisplayMode () {
       return this.inPrinters && this.inPrinters.length > 0
