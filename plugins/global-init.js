@@ -815,6 +815,7 @@ export default ({ $axios, store, $config }, inject) => {
         console.warn(err.stack.split('\n')[2], ...arguments)
       }
     },
+    info: console.info.bind(console),
     assert: console.assert.bind(console),
     error: console.error.bind(console),
     table: console.table.bind(console)
