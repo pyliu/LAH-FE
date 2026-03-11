@@ -3,7 +3,9 @@ export default {
   name: 'lahMonitorBoardBase',
   fetchOnServer: false,
   props: {
-    enableAttention: { type: Boolean, default: false }
+    enableAttention: { type: Boolean, default: false },
+    // 新增：決定這個組件是否要負責發送全域的 mail check
+    isMailChecker: { type: Boolean, default: false }
   },
   data: () => ({
     header: '監控儀表板BASE',
@@ -12,19 +14,21 @@ export default {
     reloadMs: 10 * 60 * 1000,
     reloadTimer: null,
     resetTimer: null,
+    reloadIntervalTimer: null, // 新增：用於信件檢查的計時器
     lastFetchTimestamp: 0,
     fetchingState: '',
+    isBusy: false, // 確保 isBusy 具備 Vue 響應式 (原本 methods 內有使用)
     isDestroyed: false
   }),
   fetch () {
-    // 修正：統一使用毫秒，避免 $utils.nowTs() 可能回傳秒單位的問題
+    // 統一使用毫秒，避免 $utils.nowTs() 可能回傳秒單位的問題
     const nowMs = Date.now()
 
     if (this.needRefetch) {
       this.load(this.fetchType, this.fetchKeyword, this.fetchDay, this.fetchConvert)
         .then((data) => {
           // successful loaded
-          // 修正：只有在成功載入後才更新 timestamp
+          // 只有在成功載入後才更新 timestamp
           this.lastFetchTimestamp = Date.now()
           this.fetchingState = '✔ 已更新'
         })
@@ -52,7 +56,7 @@ export default {
   computed: {
     needRefetch () {
       // 1. Validation check
-      // 修正：如果參數無效，必須回傳 false 阻斷請求
+      // 如果參數無效，必須回傳 false 阻斷請求
       if (
         this.$utils.empty(this.fetchType) ||
         this.$utils.empty(this.fetchKeyword) ||
@@ -62,11 +66,11 @@ export default {
         this.$utils.warn('fetchType', this.fetchType)
         this.$utils.warn('fetchKeyword', this.fetchKeyword)
         this.$utils.warn('fetchDay', this.fetchDay)
-        return false // <--- 新增此行
+        return false
       }
 
       // 2. Time passed calculation
-      // 修正：統一使用 Date.now() 確保單位為毫秒
+      // 統一使用 Date.now() 確保單位為毫秒
       const passed = Date.now() - this.lastFetchTimestamp
 
       // 3. Condition
@@ -128,9 +132,26 @@ export default {
     // debounced Promise method
     this.load = this.$utils.debouncePromise(this.load, 250)
   },
+  mounted () {
+    // 新增：只有被指定為 Checker 的組件，才啟用靜態 Interval 發送信件檢查
+    if (this.isMailChecker) {
+      // 預設 5 分鐘檢查一次，加上亂數延遲，避免啟動時與組件初始的 $fetch 衝撞
+      const intervalMs = 5 * 60 * 1000 + this.$utils.rand(30) * 1000
+      this.reloadIntervalTimer = setInterval(() => {
+        if (!this.isDestroyed && !this.isBusy) {
+          this.$utils.info(`${this.header} [isMailChecker] 觸發定期信件檢查`)
+          this.reload()
+        }
+      }, intervalMs)
+    }
+  },
   beforeDestroy () {
     clearTimeout(this.reloadTimer)
     clearTimeout(this.resetTimer)
+    // 清除信件檢查計時器
+    if (this.reloadIntervalTimer) {
+      clearInterval(this.reloadIntervalTimer)
+    }
     this.$refs.footer?.stop()
     this.isDestroyed = true
   },
