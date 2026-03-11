@@ -210,10 +210,10 @@ export default {
           })
           .then(({ data }) => {
             if (this.$utils.statusCheck(data.status)) {
-              this.notify(data.message)
+              this.notify ? this.notify(data.message) : this.$utils.info(data.message)
               this.$store.commit('fetchedMonitorMailCount', data.data_count)
             } else {
-              this.warning(data.message)
+              this.warning ? this.warning(data.message) : this.$utils.warn(data.message)
             }
             // reload message array
             if (!this.$utils.empty(this.fetchType) && !this.$utils.empty(this.fetchKeyword)) {
