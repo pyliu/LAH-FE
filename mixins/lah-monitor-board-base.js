@@ -135,11 +135,12 @@ export default {
   mounted () {
     // 新增：只有被指定為 Checker 的組件，才啟用靜態 Interval 發送信件檢查
     if (this.isMailChecker) {
+      this.$utils.info(`${this.$utils.time()} 設定 ${this.header} [isMailChecker] 為定期信件檢查主要管理者`)
       // 預設 5 分鐘檢查一次，加上亂數延遲，避免啟動時與組件初始的 $fetch 衝撞
       const intervalMs = 5 * 60 * 1000 + this.$utils.rand(30) * 1000
       this.reloadIntervalTimer = setInterval(() => {
         if (!this.isDestroyed && !this.isBusy) {
-          this.$utils.info(`${this.header} [isMailChecker] 觸發定期信件檢查`)
+          this.$utils.info(`${this.$utils.time()} ${this.header} [isMailChecker] 觸發定期信件檢查`)
           this.reload()
         }
       }, intervalMs)
