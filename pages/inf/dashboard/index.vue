@@ -604,12 +604,18 @@ export default {
 
     sortBoards () {
       this.currentSortedBoards = [...this.boards].sort((a, b) => {
+        // 1. 優先判斷權重 (danger = -3, warning = -2, pinned = -1, 正常 = 0)
         const weightDiff = this.getWeight(a) - this.getWeight(b)
         if (weightDiff !== 0) { return weightDiff }
 
+        // [修正] 註解掉依賴 lastUpdate 的排序邏輯。
+        // 避免狀態相同的正常面板，因為各自背景更新的時間差而互相交換位置，確保畫面穩定。
+        /*
         const timeDiff = (b.lastUpdate || 0) - (a.lastUpdate || 0)
         if (timeDiff !== 0) { return timeDiff }
+        */
 
+        // 2. 穩定排序：直接退回使用設定檔中的預設順序
         const indexA = this.$consts.DEFAULT_DASHBOARDS.findIndex(board => board.id === a.id)
         const indexB = this.$consts.DEFAULT_DASHBOARDS.findIndex(board => board.id === b.id)
 
