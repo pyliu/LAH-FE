@@ -138,6 +138,7 @@ export default {
       this.$utils.info(`${this.$utils.time()} 設定 ${this.header} [isMailChecker] 為定期信件檢查主要管理者`)
       // 預設 5 分鐘檢查一次，加上亂數延遲，避免啟動時與組件初始的 $fetch 衝撞
       const intervalMs = 5 * 60 * 1000 + this.$utils.rand(30) * 1000
+      this.$utils.info(`${this.$utils.time()} 設定 ${this.header} [isMailChecker] 更新間隔為 ${Math.round(intervalMs / 1000)} 秒`)
       this.reloadIntervalTimer = setInterval(() => {
         if (!this.isDestroyed && !this.isBusy) {
           this.$utils.info(`${this.$utils.time()} ${this.header} [isMailChecker] 觸發定期信件檢查`)
