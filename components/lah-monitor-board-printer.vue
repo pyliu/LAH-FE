@@ -168,10 +168,10 @@ b-card(
             span 所有印表機運作正常，無錯誤訊息且伺服器佇列工作數在安全範圍。
           li.mb-2
             b-badge.mr-2(variant="warning" class="p-2") 🟡 黃燈 (警示)
-            span 單機出現警告狀況 (如：#[strong.text-warning 碳粉不足])，或伺服器整體佇列工作數 #[strong 大於 5 筆]，或異常印表機比例 #[strong 超過 15%]。
+            span 單機出現警告狀況 (如：#[strong.text-warning 碳粉不足])，或伺服器整體佇列工作數 #[strong 大於 5 筆]，或異常印表機比例 #[strong 超過 20%]。
           li
             b-badge.mr-2(variant="danger" class="p-2") 🔴 紅燈 (異常)
-            span 單機發生嚴重錯誤 (如：#[strong.text-danger 斷線、離線、無回應、卡紙])，或伺服器整體佇列工作數 #[strong 大於 10 筆]，或異常印表機比例 #[strong 超過 25%]。
+            span 單機發生嚴重錯誤 (如：#[strong.text-danger 斷線、離線、無回應、卡紙])，或伺服器整體佇列工作數 #[strong 大於 10 筆]，或異常印表機比例 #[strong 超過 30%]。
 
       li
         strong 狀態篩選：
@@ -721,8 +721,8 @@ export default {
       const errorCount = this.printers.filter(p => this.getPaperBadgeVariant(p) === 'danger').length
       const errorRatio = errorCount / totalCount
 
-      if (errorRatio > 0.25) { return 'danger' }
-      if (errorRatio > 0.15) { return 'warning' }
+      if (errorRatio > 0.30) { return 'danger' }
+      if (errorRatio > 0.20) { return 'warning' }
 
       return 'success'
     },
