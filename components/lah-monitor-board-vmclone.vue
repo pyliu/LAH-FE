@@ -75,8 +75,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base';
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base';
 
 export default {
   name: 'LahMonitorBoardVmclone',
@@ -90,18 +90,20 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'vm-clone',
     fetchDay: 7,
-    dummyMessage: '未發現監控郵件',
-    fetchConvert: true
+    fetchConvert: false, // converting encoding or not during receiving messages
+    dummyMessage: '未發現監控郵件，請確認備份腳本有正常執行完畢！'
   }),
   computed: {
     vc135Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: 'vm-clone-135 1,3,5-22:00' })
+      // return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: 'vm-clone-135 1,3,5-22:00' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日135備份排程 22:00' })
     },
     vc24Message () {
       return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: 'vm-clone-24 2,4-22:00' })
     },
     vc7Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: 'vm-clone-7 6-04:00' })
+      // return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: 'vm-clone-7 6-04:00' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '周末備份排程 04:00' })
     },
     headMessages () {
       // return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
@@ -123,6 +125,14 @@ export default {
       }
       this.lightChanged(light, '', 'LahMonitorBoardVmclone')
       return light
+    }
+  },
+  watch: {
+    headMessages (val) {
+      this.$utils.warn('前面的訊息', val)
+    },
+    messages (val) {
+      this.$utils.warn('RAW訊息', val)
     }
   },
   methods: {
