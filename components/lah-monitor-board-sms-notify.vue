@@ -330,7 +330,7 @@ export default {
       this.isBusy = true
       this.$axios
         .post(this.SmsAPIUrl, {
-          encoding: 'BIG5',
+          encoding: 'CP950',
           path: this.logPath
         })
         .then(({ data }) => {
