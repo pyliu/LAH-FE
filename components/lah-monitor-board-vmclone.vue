@@ -34,19 +34,33 @@ b-card(:border-variant="border", :class="[attentionCss]")
       )
     lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
       ul
-        li 顯示VM備份狀態
-        li 儀表板每15分鐘重新檢查一次
+        li 顯示 VM 備份狀態 (包含平日與週末排程)
+        li 儀表板每 15 分鐘自動重新檢查一次
       hr
-      div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
+      div 👉🏻 點擊紀錄內容可開啟詳細記錄視窗
       div 🟢 表示一切正常
-      div 🟡 表示{{ fetchDay }}日內找不到 VM CLONE 訊息
-      div 🔴 表示 VM CLONE 排程中超過規定時間未更新
-      .ml-4 周一：135 → 3天、24 → 4天、7 → 2天
-      .ml-4 周二：135 → 1天、24 → 5天、7 → 3天
-      .ml-4 周三：135 → 2天、24 → 1天、7 → 4天
-      .ml-4 周四：135 → 1天、24 → 2天、7 → 5天
-      .ml-4 周五：135 → 2天、24 → 1天、7 → 6天
-      .ml-4 周六：135 → 1天、24 → 2天、7 → 7天
+      div 🟡 表示 {{ fetchDay }} 日內找不到任何 VM CLONE 訊息
+      div 🔴 表示 VM 備份排程超過容許時間未更新，或收到失敗訊息
+      hr
+      div 🕒 <strong>紅燈判定容許時間 (超過即警告)：</strong>
+      .text-muted.small.mb-2 依據「今天」是星期幾，各排程允許的最長未更新時間：
+      table.table.table-sm.table-bordered.table-striped.text-center.small.mt-2
+        thead.thead-light
+          tr
+            th 星期
+            th 平日(一三五)排程
+            th 平日(二四)排程
+            th 週末排程
+        tbody
+          tr(v-for="rule in scheduleRules", :key="rule.day")
+            th {{ rule.label }}
+            td 允許 {{ rule.vc135 }} 天
+            td 允許 {{ rule.vc24 }} 天
+            td
+              span.text-success(v-if="rule.day === 6") 當日豁免檢查
+              span(v-else) 允許 {{ rule.vc7 }} 天半
+      .mt-2.text-muted.small * 註：週末排程容許時間皆額外寬限 12 小時 (半天)。週六當天不檢查週末排程超時狀態。
+
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
@@ -78,6 +92,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base';
 
+// 宣告時間常數，消滅魔術數字
+const DAY_MS = 24 * 60 * 60 * 1000
+const HALF_DAY_MS = 12 * 60 * 60 * 1000
+
 export default {
   name: 'LahMonitorBoardVmclone',
   components: { lahMonitorBoardRaw },
@@ -91,23 +109,31 @@ export default {
     fetchKeyword: 'vm-clone',
     fetchDay: 7,
     fetchConvert: false, // converting encoding or not during receiving messages
-    dummyMessage: '未發現監控郵件，請確認備份腳本有正常執行完畢！'
+    dummyMessage: '未發現監控郵件，請確認備份腳本有正常執行完畢！',
+
+    // 資料驅動：各個星期對應的各排程容許天數
+    scheduleRules: [
+      { day: 0, label: '週日', vc135: 1, vc24: 1, vc7: 1 },
+      { day: 1, label: '週一', vc135: 3, vc24: 4, vc7: 2 },
+      { day: 2, label: '週二', vc135: 1, vc24: 5, vc7: 3 },
+      { day: 3, label: '週三', vc135: 2, vc24: 1, vc7: 4 },
+      { day: 4, label: '週四', vc135: 1, vc24: 2, vc7: 5 },
+      { day: 5, label: '週五', vc135: 2, vc24: 1, vc7: 6 },
+      { day: 6, label: '週六', vc135: 1, vc24: 2, vc7: 7 } // UI顯示豁免，邏輯仍給予基礎計算天數
+    ]
   }),
   computed: {
     vc135Message () {
-      // return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: 'vm-clone-135 1,3,5-22:00' })
-      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日135備份排程 22:00' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日(一三五)備份排程' })
     },
     vc24Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: 'vm-clone-24 2,4-22:00' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: '平日(二四)備份排程' })
     },
     vc7Message () {
-      // return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: 'vm-clone-7 6-04:00' })
-      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '周末備份排程 04:00' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '週末備份排程' })
     },
     headMessages () {
-      // return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
-      return [this.vc135Message, this.vc7Message].filter(item => item)
+      return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
     },
     light () {
       let light = 'success'
@@ -117,22 +143,11 @@ export default {
       if (!this.vc135Message || this.subjectCss(this.vc135Message).includes('text-danger')) {
         light = 'danger'
       }
-      // if (!this.vc24Message || this.subjectCss(this.vc24Message).includes('text-danger')) {
-      //   light = 'danger'
-      // }
       if (!this.vc7Message || this.subjectCss(this.vc7Message).includes('text-danger')) {
         light = 'danger'
       }
       this.lightChanged(light, '', 'LahMonitorBoardVmclone')
       return light
-    }
-  },
-  watch: {
-    headMessages (val) {
-      this.$utils.warn('前面的訊息', val)
-    },
-    messages (val) {
-      this.$utils.warn('RAW訊息', val)
     }
   },
   methods: {
@@ -141,67 +156,43 @@ export default {
       return list.includes('text-danger') ? '🔴' : '🟢'
     },
     subjectCss (item) {
+      // 找不到郵件時的防呆預設處理
       if (item.message === this.dummyMessage) {
         return ['text-danger']
       }
+
       const now = new Date()
       const today = now.getDay()
-      const dayMs = 24 * 60 * 60 * 1000
-      let vc135Ms = dayMs
-      let vc24Ms = dayMs
-      let vc7Ms = dayMs
-      switch (today) {
-        case 1:
-          vc135Ms *= 3
-          vc24Ms *= 4
-          vc7Ms *= 2
-          break
-        case 2:
-          vc135Ms *= 1
-          vc24Ms *= 5
-          vc7Ms *= 3
-          break
-        case 3:
-          vc135Ms *= 2
-          vc24Ms *= 1
-          vc7Ms *= 4
-          break
-        case 4:
-          vc135Ms *= 1
-          vc24Ms *= 2
-          vc7Ms *= 5
-          break
-        case 5:
-          vc135Ms *= 2
-          vc24Ms *= 1
-          vc7Ms *= 6
-          break
-        case 6:
-          vc135Ms *= 1
-          vc24Ms *= 2
-          vc7Ms *= 7
-          break
-        default:
-          break
-      }
+      // 從 data 取得對應今天的容許天數規則
+      const rule = this.scheduleRules.find(r => r.day === today)
+
+      // 轉換成毫秒
+      const vc135Ms = rule.vc135 * DAY_MS
+      const vc24Ms = rule.vc24 * DAY_MS
+      const vc7Ms = rule.vc7 * DAY_MS
+
       const cssList = []
-      const ts = now.getTime()
+      // 計算距離上一封信經過了多少毫秒
+      const diffMs = now.getTime() - (item.timestamp * 1000)
+
       if (
         item.subject?.includes('vm-clone-135') &&
-        (ts - item.timestamp * 1000 > vc135Ms)
+        diffMs > vc135Ms
       ) {
         cssList.push('text-danger')
-      // } else if (
-      //   item.subject?.includes('vm-clone-24') &&
-      //   (ts - item.timestamp * 1000 > vc24Ms)
-      // ) {
-      //   cssList.push('text-danger')
+      } else if (
+        item.subject?.includes('vm-clone-24') &&
+        diffMs > vc24Ms
+      ) {
+        cssList.push('text-danger')
       } else if (
         item.subject?.includes('vm-clone-7') &&
-        (!this.isSaturday && (ts - item.timestamp * 1000) > (vc7Ms + 12 * 60 * 60 * 1000))
+        !this.isSaturday &&
+        diffMs > (vc7Ms + HALF_DAY_MS) // 週末排程額外容許半天
       ) {
         cssList.push('text-danger')
       }
+
       return cssList
     },
     findVMCloneMessage (payload) {
