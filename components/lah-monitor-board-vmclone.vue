@@ -106,7 +106,7 @@ export default {
   data: () => ({
     header: 'VM備份排程作業',
     fetchType: 'subject',
-    fetchKeyword: 'vm-clone',
+    fetchKeyword: 'VM 備份',
     fetchDay: 7,
     fetchConvert: false, // converting encoding or not during receiving messages
     dummyMessage: '未發現監控郵件，請確認備份腳本有正常執行完畢！',
