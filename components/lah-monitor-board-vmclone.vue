@@ -124,23 +124,27 @@ export default {
   }),
   computed: {
     vc135Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日(一三五)備份排程' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日(一三五)' })
     },
     vc24Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: '平日(二四)備份排程' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: '平日(二四)' })
     },
     vc7Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '週末備份排程' })
+      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '周末(六)' })
     },
     headMessages () {
-      return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
+      // return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
+      return [this.vc24Message, this.vc7Message].filter(item => item)
     },
     light () {
       let light = 'success'
       if (this.headMessages.length === 0) {
         light = 'warning'
       }
-      if (!this.vc135Message || this.subjectCss(this.vc135Message).includes('text-danger')) {
+      // if (!this.vc135Message || this.subjectCss(this.vc135Message).includes('text-danger')) {
+      //   light = 'danger'
+      // }
+      if (!this.vc24Message || this.subjectCss(this.vc24Message).includes('text-danger')) {
         light = 'danger'
       }
       if (!this.vc7Message || this.subjectCss(this.vc7Message).includes('text-danger')) {
