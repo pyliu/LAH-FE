@@ -38,11 +38,16 @@ b-card(:border-variant="border", :class="[attentionCss]")
         li 儀表板每 15 分鐘自動重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容可開啟詳細記錄視窗
-      div 🟢 表示一切正常
-      div 🟡 表示 {{ fetchDay }} 日內找不到任何 VM CLONE 訊息
-      div 🔴 表示 VM 備份排程超過容許時間未更新，或收到失敗訊息
+      div 🟢 表示一切正常 (依時限收到信件，且內容無異常)
+      div 🟡 表示 {{ fetchDay }} 日內完全沒有任何 VM 備份訊息
+      div 🔴 表示狀態異常，包含以下兩種情況：
+      ul.mb-2.text-danger
+        li ⏱️ <strong>逾時未更新</strong>：超過容許時間未收到備份確認信件。
+        li ❌ <strong>發現失敗訊息</strong>：信件主旨或內容包含異常關鍵字。
+          br
+          span.text-muted.small (目前監控關鍵字：{{ failKeywords.join(', ') }})
       hr
-      div 🕒 <strong>紅燈判定容許時間 (超過即警告)：</strong>
+      div <strong>⏱️ 逾時未更新判定標準：</strong>
       .text-muted.small.mb-2 依據「今天」是星期幾，各排程允許的最長未更新時間：
       table.table.table-sm.table-bordered.table-striped.text-center.small.mt-2
         thead.thead-light
@@ -63,7 +68,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
-  div(v-else, v-for="(item, idx) in headMessages")
+  div(v-else, v-for="(item, idx) in headMessages", :key="item.id || idx")
     .d-flex.justify-content-between.font-weight-bold
       .mr-1 {{ subjectLight(item) }}
       a.truncate(
@@ -77,6 +82,11 @@ b-card(:border-variant="border", :class="[attentionCss]")
         :seconds="item.timestamp"
       )
     .truncate.text-muted.small {{ item.message }}
+    //- 新增：給予明確的錯誤原因提示標籤
+    .mt-1(v-if="!analyzeMessageStatus(item).isOk")
+      b-badge.mr-1(v-if="analyzeMessageStatus(item).isTimeout" variant="danger") ⏱️ 逾時未更新
+      b-badge.mr-1(v-if="analyzeMessageStatus(item).isFailed" variant="danger") ❌ 發現失敗訊息
+
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
     :reload-ms="reloadMs",
@@ -92,7 +102,6 @@ b-card(:border-variant="border", :class="[attentionCss]")
 import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
 import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base';
 
-// 宣告時間常數，消滅魔術數字
 const DAY_MS = 24 * 60 * 60 * 1000
 const HALF_DAY_MS = 12 * 60 * 60 * 1000
 
@@ -108,10 +117,12 @@ export default {
     fetchType: 'subject',
     fetchKeyword: 'VM 備份',
     fetchDay: 7,
-    fetchConvert: false, // converting encoding or not during receiving messages
+    fetchConvert: false,
     dummyMessage: '未發現監控郵件，請確認備份腳本有正常執行完畢！',
 
-    // 資料驅動：各個星期對應的各排程容許天數
+    // 定義判定為「失敗」的關鍵字，可依據實際 Email 內容擴充
+    failKeywords: ['失敗', 'fail', 'error', '異常'],
+
     scheduleRules: [
       { day: 0, label: '週日', vc135: 1, vc24: 1, vc7: 1 },
       { day: 1, label: '週一', vc135: 3, vc24: 4, vc7: 2 },
@@ -119,96 +130,110 @@ export default {
       { day: 3, label: '週三', vc135: 2, vc24: 1, vc7: 4 },
       { day: 4, label: '週四', vc135: 1, vc24: 2, vc7: 5 },
       { day: 5, label: '週五', vc135: 2, vc24: 1, vc7: 6 },
-      { day: 6, label: '週六', vc135: 1, vc24: 2, vc7: 7 } // UI顯示豁免，邏輯仍給予基礎計算天數
+      { day: 6, label: '週六', vc135: 1, vc24: 2, vc7: 7 }
     ]
   }),
   computed: {
-    vc135Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日(一三五)' })
-    },
-    vc24Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: '平日(二四)' })
-    },
-    vc7Message () {
-      return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '周末(六)' })
-    },
+    vc135Message () { return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日(一三五)' }) },
+    vc24Message () { return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: '平日(二四)' }) },
+    vc7Message () { return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '周末(六)' }) },
+
     headMessages () {
-      // return [this.vc135Message, this.vc24Message, this.vc7Message].filter(item => item)
+      // 依據原始代碼，目前僅顯示 24 與 7。若後續要加入 135，可在此解開註解
       return [this.vc24Message, this.vc7Message].filter(item => item)
     },
+
+    // 燈號判定變得極為乾淨：依賴底層分析函數的結果
     light () {
-      let light = 'success'
       if (this.headMessages.length === 0) {
-        light = 'warning'
+        this.lightChanged('warning', '無資料', 'LahMonitorBoardVmclone')
+        return 'warning'
       }
-      // if (!this.vc135Message || this.subjectCss(this.vc135Message).includes('text-danger')) {
-      //   light = 'danger'
-      // }
-      if (!this.vc24Message || this.subjectCss(this.vc24Message).includes('text-danger')) {
-        light = 'danger'
-      }
-      if (!this.vc7Message || this.subjectCss(this.vc7Message).includes('text-danger')) {
-        light = 'danger'
-      }
-      this.lightChanged(light, '', 'LahMonitorBoardVmclone')
-      return light
+
+      // 只要有任何一個排程不是 Ok，就是紅燈
+      const hasError = this.headMessages.some(item => !this.analyzeMessageStatus(item).isOk)
+
+      const lightStatus = hasError ? 'danger' : 'success'
+      this.lightChanged(lightStatus, '', 'LahMonitorBoardVmclone')
+      return lightStatus
     }
   },
   methods: {
-    subjectLight (item) {
-      const list = this.subjectCss(item)
-      return list.includes('text-danger') ? '🔴' : '🟢'
-    },
-    subjectCss (item) {
-      // 找不到郵件時的防呆預設處理
-      if (item.message === this.dummyMessage) {
-        return ['text-danger']
+    /**
+     * 核心邏輯重構：分析單筆訊息的狀態 (兩階段驗證)
+     * @param {Object} item 訊息物件
+     * @returns {Object} { isTimeout: boolean, isFailed: boolean, isOk: boolean }
+     */
+    analyzeMessageStatus (item) {
+      const status = { isTimeout: false, isFailed: false, isOk: true }
+
+      if (!item) {
+        status.isTimeout = true
+        status.isOk = false
+        return status
       }
 
+      // --- Step 1: 確認是否逾時 (Time Check) ---
+      // 情況 A: 找不到信件產生的防呆物件
+      if (item.message === this.dummyMessage) {
+        status.isTimeout = true
+        status.isOk = false
+        return status
+      }
+
+      // 情況 B: 計算時間差是否超出排程允許值
       const now = new Date()
       const today = now.getDay()
-      // 從 data 取得對應今天的容許天數規則
       const rule = this.scheduleRules.find(r => r.day === today)
-
-      // 轉換成毫秒
-      const vc135Ms = rule.vc135 * DAY_MS
-      const vc24Ms = rule.vc24 * DAY_MS
-      const vc7Ms = rule.vc7 * DAY_MS
-
-      const cssList = []
-      // 計算距離上一封信經過了多少毫秒
       const diffMs = now.getTime() - (item.timestamp * 1000)
 
-      if (
-        item.subject?.includes('vm-clone-135') &&
-        diffMs > vc135Ms
-      ) {
-        cssList.push('text-danger')
-      } else if (
-        item.subject?.includes('vm-clone-24') &&
-        diffMs > vc24Ms
-      ) {
-        cssList.push('text-danger')
-      } else if (
-        item.subject?.includes('vm-clone-7') &&
-        !this.isSaturday &&
-        diffMs > (vc7Ms + HALF_DAY_MS) // 週末排程額外容許半天
-      ) {
-        cssList.push('text-danger')
+      if (item.subject?.includes('vm-clone-135') && diffMs > (rule.vc135 * DAY_MS)) {
+        status.isTimeout = true
+      } else if (item.subject?.includes('vm-clone-24') && diffMs > (rule.vc24 * DAY_MS)) {
+        status.isTimeout = true
+      } else if (item.subject?.includes('vm-clone-7') && !this.isSaturday && diffMs > (rule.vc7 * DAY_MS + HALF_DAY_MS)) {
+        status.isTimeout = true
       }
 
-      return cssList
+      // 若已確認逾期，直接返回 (優先級最高)
+      if (status.isTimeout) {
+        status.isOk = false
+        return status
+      }
+
+      // --- Step 2: 確認內容是否失敗 (Content Check) ---
+      // 將主旨與內容轉小寫，方便與關鍵字比對
+      const contentStr = `${item.subject} ${item.message}`.toLowerCase()
+
+      // 使用 lodash 的話也可以，但原生 some 已經很夠用
+      const hasFailedKeyword = this.failKeywords.some(keyword => contentStr.includes(keyword.toLowerCase()))
+
+      if (hasFailedKeyword) {
+        status.isFailed = true
+        status.isOk = false
+        return status
+      }
+
+      // 都沒問題，返回 isOk: true
+      return status
     },
+
+    // 依賴分析結果，決定 Emoji
+    subjectLight (item) {
+      return this.analyzeMessageStatus(item).isOk ? '🟢' : '🔴'
+    },
+
+    // 依賴分析結果，決定標題顏色
+    subjectCss (item) {
+      return this.analyzeMessageStatus(item).isOk ? [] : ['text-danger']
+    },
+
     findVMCloneMessage (payload) {
       const { keyword, subject } = payload
-      const found = this.messages.find(item =>
-        item.subject.includes(keyword)
-      )
-      if (found) {
-        return found
-      }
-      return this.vcDummyMessage({ subject, message: this.dummyMessage })
+      const found = this.messages.find(item => item.subject.includes(keyword))
+      return found || this.vcDummyMessage({ subject, message: this.dummyMessage })
     },
+
     vcDummyMessage (payload) {
       const { subject, message } = payload
       return {
