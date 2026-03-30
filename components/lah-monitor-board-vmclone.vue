@@ -63,8 +63,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
             td 允許 {{ rule.vc24 }} 天
             td
               span.text-success(v-if="rule.day === 6") 當日豁免檢查
-              span(v-else) 允許 {{ rule.vc7 }} 天半
-      .mt-2.text-muted.small * 註：週末排程容許時間皆額外寬限 12 小時 (半天)。週六當天不檢查週末排程超時狀態。
+              span(v-else) 允許 {{ rule.vc7 }} 天
+      .mt-2.text-muted.small * 註：判定基準採用「日曆天數」計算，忽略具體的時分秒。只要相差天數在允許範圍內即視為正常，避免因時段差異導致毫秒數超標而誤判。週六當天不檢查週末排程。
 
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
@@ -160,6 +160,19 @@ export default {
   },
   methods: {
     /**
+     * 新增：取得兩個時間戳之間的「日曆天數」差異 (忽略具體小時與分鐘)
+     */
+    getCalendarDaysDiff (timestamp) {
+      const now = new Date()
+      // 今天的 00:00:00
+      const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      // 信件的 00:00:00
+      const itemDate = new Date(timestamp * 1000)
+      const itemDateOnly = new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate())
+
+      return Math.floor((todayDate - itemDateOnly) / DAY_MS)
+    },
+    /**
      * 核心邏輯重構：分析單筆訊息的狀態 (兩階段驗證)
      * @param {Object} item 訊息物件
      * @returns {Object} { isTimeout: boolean, isFailed: boolean, isOk: boolean }
@@ -182,16 +195,17 @@ export default {
       }
 
       // 情況 B: 計算時間差是否超出排程允許值
-      const now = new Date()
-      const today = now.getDay()
+      const today = new Date().getDay()
       const rule = this.scheduleRules.find(r => r.day === today)
-      const diffMs = now.getTime() - (item.timestamp * 1000)
 
-      if (item.subject?.includes('vm-clone-135') && diffMs > (rule.vc135 * DAY_MS)) {
+      // 改用日曆天數計算，避免因為 96 小時又 50 分鐘大於 4 天的嚴格毫秒比較而誤判
+      const diffDays = this.getCalendarDaysDiff(item.timestamp)
+
+      if (item.subject?.includes('vm-clone-135') && diffDays > rule.vc135) {
         status.isTimeout = true
-      } else if (item.subject?.includes('vm-clone-24') && diffMs > (rule.vc24 * DAY_MS)) {
+      } else if (item.subject?.includes('vm-clone-24') && diffDays > rule.vc24) {
         status.isTimeout = true
-      } else if (item.subject?.includes('vm-clone-7') && !this.isSaturday && diffMs > (rule.vc7 * DAY_MS + HALF_DAY_MS)) {
+      } else if (item.subject?.includes('vm-clone-7') && !this.isSaturday && diffDays > rule.vc7) {
         status.isTimeout = true
       }
 
