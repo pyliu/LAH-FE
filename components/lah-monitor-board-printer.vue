@@ -645,10 +645,10 @@ export default {
       return `http://${this.apiSvrIp}:${this.apiSvrPort}`
     },
     agentDownloadUrl () {
-      return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent.ps1`
+      return `${this.downloadUrlBase}/project/printer/server/Printer_API_Agent.ps1`
     },
     guideDownloadUrl () {
-      return `${this.downloadUrlBase}/assets/sh/Printer_API_Agent_Windows_Server_部署指南.pdf`
+      return `${this.downloadUrlBase}/project/printer/server/Printer_API_Agent_Windows_Server_部署指南.pdf`
     },
     isDisplayMode () {
       return this.inPrinters && this.inPrinters.length > 0
