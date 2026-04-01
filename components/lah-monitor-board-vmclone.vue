@@ -32,7 +32,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         @click="$refs.help.show()",
         title="說明"
       )
-    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`")
+    lah-help-modal(ref="help", :modal-title="`${header} 監控說明`", size="lg")
       ul
         li 顯示 VM 備份狀態 (包含平日與週末排程)
         li 儀表板每 15 分鐘自動重新檢查一次
@@ -50,7 +50,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           span.text-muted.small (目前監控關鍵字：{{ failKeywords.join(', ') }})
       hr
       div 🕒 <strong>⏱️ 逾時未更新判定標準：</strong>
-      .text-muted.small.mb-2 依據「今天」是星期幾，各排程允許的最長未更新時間：
+      .text-muted.small.mb-2 已考量備份任務最高需 2 天執行，依據「今天」是星期幾，自動動態調整允許的最長未更新天數：
       table.table.table-sm.table-bordered.table-striped.text-center.small.mt-2
         thead.thead-light
           tr
@@ -63,10 +63,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
             th {{ rule.label }}
             td 允許 {{ rule.vc135 }} 天
             td 允許 {{ rule.vc24 }} 天
-            td
-              span.text-success(v-if="rule.day === 6") 當日豁免檢查
-              span(v-else) 允許 {{ rule.vc7 }} 天
-      .mt-2.text-muted.small * 註：判定基準採用「日曆天數」計算，忽略具體的時分秒。只要相差天數在允許範圍內即視為正常，避免因時段差異導致毫秒數超標而誤判。週六當天不檢查週末排程。
+            td 允許 {{ rule.vc7 }} 天
+      .mt-2.text-muted.small * 註：判定基準採用「日曆天數」計算，忽略具體的時分秒。容許天數已內建「備份執行期(最長2天) + 緩衝期(1天)」，在死線之前會自動放寬限制避免誤判。
 
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
@@ -128,14 +126,15 @@ export default {
     // 定義判定為「失敗」的關鍵字，可依據實際 Email 內容擴充
     failKeywords: ['失敗', 'fail', 'error', '異常'],
 
+    // 重構後的矩陣：基於 (死線日期 - 最早完成日期) + 1 天緩衝，完美包容 2 天的備份執行期
     scheduleRules: [
-      { day: 0, label: '週日', vc135: 1, vc24: 1, vc7: 1 },
-      { day: 1, label: '週一', vc135: 3, vc24: 4, vc7: 2 },
-      { day: 2, label: '週二', vc135: 1, vc24: 5, vc7: 3 },
-      { day: 3, label: '週三', vc135: 2, vc24: 1, vc7: 4 },
-      { day: 4, label: '週四', vc135: 1, vc24: 2, vc7: 5 },
-      { day: 5, label: '週五', vc135: 2, vc24: 1, vc7: 6 },
-      { day: 6, label: '週六', vc135: 1, vc24: 2, vc7: 7 }
+      { day: 0, label: '週日', vc135: 5, vc24: 4, vc7: 9 },
+      { day: 1, label: '週一', vc135: 4, vc24: 5, vc7: 10 },
+      { day: 2, label: '週二', vc135: 5, vc24: 6, vc7: 4 },
+      { day: 3, label: '週三', vc135: 6, vc24: 7, vc7: 5 },
+      { day: 4, label: '週四', vc135: 4, vc24: 8, vc7: 6 },
+      { day: 5, label: '週五', vc135: 5, vc24: 4, vc7: 7 },
+      { day: 6, label: '週六', vc135: 4, vc24: 5, vc7: 8 }
     ]
   }),
   computed: {
@@ -216,11 +215,12 @@ export default {
       // 改用日曆天數計算，避免因為 96 小時又 50 分鐘大於 4 天的嚴格毫秒比較而誤判
       const diffDays = this.getCalendarDaysDiff(item.timestamp)
 
+      // 移除原本需要排除 isSaturday 的判斷，因為新矩陣已經完美涵蓋時間軸
       if (item.subject?.includes('vm-clone-135') && diffDays > rule.vc135) {
         status.isTimeout = true
       } else if (item.subject?.includes('vm-clone-24') && diffDays > rule.vc24) {
         status.isTimeout = true
-      } else if (item.subject?.includes('vm-clone-7') && !this.isSaturday && diffDays > rule.vc7) {
+      } else if (item.subject?.includes('vm-clone-7') && diffDays > rule.vc7) {
         status.isTimeout = true
       }
 
