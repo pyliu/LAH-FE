@@ -71,23 +71,26 @@ b-card(:border-variant="border", :class="[attentionCss]")
   slot
   .center(v-if="headMessages.length === 0") ⚠ {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages", :key="item.id || idx")
-    .d-flex.justify-content-between.font-weight-bold
-      .mr-1 {{ subjectLight(item) }}
-      a.truncate(
-        href="#",
-        @click="popupLogContent(item)",
-        :class="subjectCss(item)"
-        title="顯示詳細記錄"
-      ) {{ item.subject }}
-      lah-badge-human-datetime(
+    .d-flex.justify-content-between.align-items-center.font-weight-bold
+      //- 將燈號、標題、警告標籤包成一個群組，置左靠齊
+      .d-flex.align-items-center(style="min-width: 0;")
+        .mr-1 {{ subjectLight(item) }}
+        a.truncate(
+          href="#",
+          @click="popupLogContent(item)",
+          :class="subjectCss(item)"
+          title="顯示詳細記錄"
+        ) {{ item.subject }}
+        //- 標籤移至標題右側，加入些微左邊距(ml-2)且不換行(text-nowrap)
+        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isTimeout" variant="warning") ⏱️ 逾時未更新
+        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isFailed" variant="danger") ❌ 發現失敗訊息
+
+      //- 時間保持靠右顯示
+      lah-badge-human-datetime.ml-2.text-nowrap(
         :variant="isToday(item.timestamp) ? 'success' : 'muted'",
         :seconds="item.timestamp"
       )
     .truncate.text-muted.small {{ item.message }}
-    //- 新增：給予明確的錯誤原因提示標籤
-    .mt-1(v-if="!analyzeMessageStatus(item).isOk")
-      b-badge.mr-1(v-if="analyzeMessageStatus(item).isTimeout" variant="warning") ⏱️ 逾時未更新
-      b-badge.mr-1(v-if="analyzeMessageStatus(item).isFailed" variant="danger") ❌ 發現失敗訊息
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
