@@ -145,11 +145,29 @@ div
       icon="triangle-exclamation",
       variant="warning"
     ) {{ `「${sanitizedKeyword}」搜尋不到資料` }}
+
+  //- 新增：互動式重送與修改對話框
+  b-modal#resend-modal(
+    title="重送簡訊確認與修改",
+    ok-title="確定重送",
+    cancel-title="取消",
+    ok-variant="danger",
+    :ok-disabled="!isValidResendCell || isBusy",
+    @ok="doResend",
+    centered
+  )
+    p.mb-3 確定要重新發送此簡訊嗎？您可以修改下方的手機號碼或內容再送出。
+    b-form-group(label="手機號碼 (必填)：", label-class="font-weight-bold text-primary")
+      b-form-input(v-model="resendData.cell", :state="isValidResendCell", placeholder="請輸入有效的手機號碼")
+      template(#invalid-feedback) 手機號碼格式不正確 (例如: 0912345678)
+    b-form-group(label="簡訊內容：", label-class="font-weight-bold text-primary")
+      b-form-textarea(v-model="resendData.content", rows="5", placeholder="請輸入簡訊內容")
+    p.text-danger.font-weight-bold.mb-0 ⚠ 提醒：重送作業為排程執行，需等待數分鐘。送出後請稍候再重新查詢，請勿重複點擊以免造成重複送出！
 </template>
 
 <script>
-import dynamicHeight from '~/mixins/dynamic-height-mixin'
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import dynamicHeight from '~/mixins/dynamic-height-mixin';
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue';
 
 export default {
   emit: ['reload'],
@@ -196,9 +214,19 @@ export default {
       { key: 'SMS_RESULT', label: '結果', sortable: true },
       { key: 'SMS_CONTENT', label: '內容', sortable: true }
       // 獨立的操作欄位已移除
-    ]
+    ],
+    // 新增：暫存編輯中的重送資料
+    resendData: {
+      item: null,
+      cell: '',
+      content: ''
+    }
   }),
   computed: {
+    // 新增：即時驗證目前輸入的手機號碼是否合法
+    isValidResendCell () {
+      return this.$utils.isMobileValid(this.resendData.cell)
+    },
     count () { return this.filteredLogs?.length || 0 },
     sanitizedKeyword () {
       return this.sanitizedDate(this.keyword)
@@ -395,7 +423,7 @@ export default {
     },
     // 新增：取得 localStorage 的快取紀錄
     getResendCache () {
-      if (typeof window === 'undefined') return {}
+      if (typeof window === 'undefined') { return {} }
       try {
         const cache = window.localStorage.getItem('sms_resend_records')
         return cache ? JSON.parse(cache) : {}
@@ -405,7 +433,7 @@ export default {
     },
     // 新增：將已重送的紀錄寫入 localStorage
     setResendCache (item) {
-      if (typeof window === 'undefined') return
+      if (typeof window === 'undefined') { return }
       try {
         const cache = this.getResendCache()
         // 使用 日期_時間_手機號碼 作為唯一鍵值，避免誤判
@@ -423,7 +451,7 @@ export default {
       const oneDay = 24 * 60 * 60 * 1000 // 一天的毫秒數
       let cacheChanged = false
 
-      const mappedLogs = logs.map(item => {
+      const mappedLogs = logs.map((item) => {
         const key = `${item.SMS_DATE}_${item.SMS_TIME}_${item.SMS_CELL}`
         if (cache[key]) {
           // 檢查是否超過一天
@@ -444,62 +472,50 @@ export default {
           window.localStorage.setItem('sms_resend_records', JSON.stringify(cache))
         } catch (e) {}
       }
-      
+
       return mappedLogs
     },
-    async confirmResend (item) {
-      // 組合包含警告訊息的 VNode 畫面
-      const h = this.$createElement
-      const messageVNode = h('div', { class: ['mb-0'] }, [
-        h('p', `確定要重新發送簡訊至手機號碼：${item.SMS_CELL} 嗎？`),
-        // 新增：顯示將要重送的簡訊內容
-        h('div', { class: ['p-2', 'my-2', 'bg-light', 'border', 'rounded', 'text-dark'] }, [
-          h('strong', '即將發送的內容：'),
-          h('br'),
-          h('span', item.SMS_CONTENT)
-        ]),
-        h('p', { class: ['text-danger', 'font-weight-bold', 'mb-0'] }, '⚠ 提醒：重送作業為排程執行，需等待數分鐘。送出後請稍候再重新查詢，請勿重複點擊以免造成重複送出！')
-      ])
+    confirmResend (item) {
+      // 點擊後不直接呼叫 API，而是將資料帶入 resendData 並喚起 modal
+      this.resendData.item = item
+      this.resendData.cell = item.SMS_CELL || ''
+      this.resendData.content = item.SMS_CONTENT || ''
+      this.$bvModal.show('resend-modal')
+    },
+    doResend (e) {
+      // 阻擋預設關閉行為，讓我們可以在非同步完成後再手動關閉
+      if (e) { e.preventDefault() }
 
-      const isConfirmed = await this.$bvModal.msgBoxConfirm(messageVNode, {
-        title: '重送簡訊確認',
-        size: 'md',
-        buttonSize: 'sm',
-        okVariant: 'danger', // 變更為危險色系提醒注意
-        okTitle: '確定重送',
-        cancelTitle: '取消',
-        footerClass: 'p-2',
-        hideHeaderClose: false,
-        centered: true
-      })
-      
-      if (!isConfirmed) return
+      if (!this.isValidResendCell) { return }
 
       this.isBusy = true
-      
+      const item = this.resendData.item
+
       this.$axios.post(this.$consts.API.JSON.MOISMS, {
         type: 'moicas_ma05_resend_sms',
         ma5_no: item.MA5_NO || '',
-        cell: item.SMS_CELL,
-        message: item.SMS_CONTENT
+        cell: this.resendData.cell, // 採用使用者修改後的號碼
+        message: this.resendData.content // 採用使用者修改後的內容
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           this.messageVariant = 'success'
-          this.message = `🟢 簡訊重送請求已成功排程：${item.SMS_CELL} (請稍候數分鐘再重新查詢)`
-          
+          this.message = `🟢 簡訊重送請求已成功排程：${this.resendData.cell} (請稍候數分鐘再重新查詢)`
+
           // 在原本物件加上一個特殊的屬性來防止 UI 上重複點擊
-          // 使用 this.$set 確保 Vue 能響應這個新增的屬性
           this.$set(item, '_resend_success', true)
 
-          // 寫入 localStorage 記住 1 天
+          // 寫入 localStorage 記住 1 天 (還是用舊的紀錄當唯一 key，這樣才能正確 disable 原本的按鈕)
           this.setResendCache(item)
+
+          // 成功後隱藏對話框
+          this.$bvModal.hide('resend-modal')
         } else {
           this.messageVariant = 'warning'
           this.message = `⚠ 簡訊重送失敗：${data.message}`
         }
       }).catch((err) => {
         this.messageVariant = 'danger'
-        this.message = `❌ 發生異常，無法重送簡訊`
+        this.message = '❌ 發生異常，無法重送簡訊'
         console.error(err)
       }).finally(() => {
         this.isBusy = false
