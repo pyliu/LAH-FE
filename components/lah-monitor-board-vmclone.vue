@@ -42,12 +42,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
       div 🟡 表示警告，包含以下情況：
       ul.mb-1.text-warning(style="text-shadow: 0 0 1px rgba(0,0,0,0.1);")
         li <strong>無資料</strong>：{{ fetchDay }} 日內完全沒有任何 VM 備份訊息。
-        li ⏱️ <strong>逾時未更新</strong>：超過容許時間未收到備份確認信件。
-      div 🔴 表示狀態異常：
-      ul.mb-2.text-danger
         li ❌ <strong>發現失敗訊息</strong>：信件主旨或內容包含異常關鍵字。
           br
           span.text-muted.small (目前監控關鍵字：{{ failKeywords.join(', ') }})
+      div 🔴 表示狀態異常：
+      ul.mb-2.text-danger
+        li ⏱️ <strong>逾時未更新</strong>：超過容許時間未收到備份確認信件。
       hr
       div 🕒 <strong>⏱️ 逾時未更新判定標準：</strong>
       .text-muted.small.mb-2 已考量備份任務最高需 2 天執行，依據「今天」是星期幾，自動動態調整允許的最長未更新天數：
@@ -80,8 +80,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
           title="顯示詳細記錄"
         ) {{ item.subject }}
         //- 標籤移至標題右側，加入些微左邊距(ml-2)且不換行(text-nowrap)
-        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isTimeout" variant="warning") ⏱️ 逾時未更新
-        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isFailed" variant="danger") ❌ 發現失敗訊息
+        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isTimeout" variant="danger") ⏱️ 逾時未更新
+        //- 將原本的 danger 改為 warning
+        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isFailed" variant="warning") ❌ 發現失敗訊息
 
       //- 時間保持靠右顯示
       lah-badge-human-datetime.ml-2.text-nowrap(
@@ -154,17 +155,17 @@ export default {
         return 'warning'
       }
 
-      // 優先檢查是否有「失敗訊息」，有失敗就是紅燈
-      const hasFailed = this.headMessages.some(item => this.analyzeMessageStatus(item).isFailed)
-      if (hasFailed) {
-        this.lightChanged('danger', '發現失敗訊息', 'LahMonitorBoardVmclone')
+      // 逾時未更新改為紅燈，嚴重層級較高，優先檢查
+      const hasTimeout = this.headMessages.some(item => this.analyzeMessageStatus(item).isTimeout)
+      if (hasTimeout) {
+        this.lightChanged('danger', '逾時未更新', 'LahMonitorBoardVmclone')
         return 'danger'
       }
 
-      // 接著檢查是否有「逾時未更新」，有的話降級為黃燈
-      const hasTimeout = this.headMessages.some(item => this.analyzeMessageStatus(item).isTimeout)
-      if (hasTimeout) {
-        this.lightChanged('warning', '逾時未更新', 'LahMonitorBoardVmclone')
+      // 發現失敗訊息改為黃燈
+      const hasFailed = this.headMessages.some(item => this.analyzeMessageStatus(item).isFailed)
+      if (hasFailed) {
+        this.lightChanged('warning', '發現失敗訊息', 'LahMonitorBoardVmclone')
         return 'warning'
       }
 
@@ -250,16 +251,16 @@ export default {
     // 依賴分析結果，決定 Emoji
     subjectLight (item) {
       const status = this.analyzeMessageStatus(item)
-      if (status.isFailed) { return '🔴' }
-      if (status.isTimeout) { return '🟡' }
+      if (status.isTimeout) { return '🔴' } // 改為紅燈
+      if (status.isFailed) { return '🟡' }
       return '🟢'
     },
 
     // 依賴分析結果，決定標題顏色
     subjectCss (item) {
       const status = this.analyzeMessageStatus(item)
-      if (status.isFailed) { return ['text-danger'] }
-      if (status.isTimeout) { return ['text-warning'] }
+      if (status.isTimeout) { return ['text-danger'] } // 改為 danger class
+      if (status.isFailed) { return ['text-warning'] }
       return []
     },
 
