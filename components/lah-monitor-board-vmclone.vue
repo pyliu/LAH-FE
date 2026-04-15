@@ -37,17 +37,21 @@ b-card(:border-variant="border", :class="[attentionCss]")
         li 顯示 VM 備份狀態 (包含平日與週末排程)
         li 儀表板每 15 分鐘自動重新檢查一次
       hr
+      .font-weight-bold.text-info.mb-2 💡 外層標題燈號
+      div 🟢 <strong>正常</strong>：只要信箱內有收到監控信件，外層即保持綠燈。
+      div 🟡 <strong>警告</strong>：{{ fetchDay }} 日內完全無任何相關資料。
+      div.mb-3 🔴 <strong>異常</strong>：未發現監控郵件（觸發防呆機制，代表腳本可能未執行）。
+
+      .font-weight-bold.text-info.mb-2 📋 單筆紀錄狀態標示
       div 👉🏻 點擊紀錄內容可開啟詳細記錄視窗
-      div 🟢 表示一切正常 (依時限收到信件，且內容無異常)
-      div 🟡 表示警告，包含以下情況：
-      ul.mb-1.text-warning(style="text-shadow: 0 0 1px rgba(0,0,0,0.1);")
-        li <strong>無資料</strong>：{{ fetchDay }} 日內完全沒有任何 VM 備份訊息。
-        li ❌ <strong>發現失敗訊息</strong>：信件主旨或內容包含異常關鍵字。
-          br
-          span.text-muted.small (目前監控關鍵字：{{ failKeywords.join(', ') }})
-      div 🔴 表示狀態異常：
-      ul.mb-2.text-danger
-        li ⏱️ <strong>逾時未更新</strong>：超過容許時間未收到備份確認信件。
+      div 🟢 表示該筆紀錄一切正常。
+      div.mt-1 🟡
+        b-badge.mx-1(variant="warning") ❌ 發現失敗訊息
+        | ：信件主旨或內容包含異常關鍵字。
+      .text-muted.small.ml-4.mb-1 (目前監控關鍵字：{{ failKeywords.join(', ') }})
+      div.mb-2 🔴
+        b-badge.mx-1(variant="danger") ⏱️ 逾時未更新
+        | ：超過容許時間未收到最新備份確認信件。
       hr
       div 🕒 <strong>⏱️ 逾時未更新判定標準：</strong>
       .text-muted.small.mb-2 已考量備份任務最高需 2 天執行，依據「今天」是星期幾，自動動態調整允許的最長未更新天數：
@@ -148,27 +152,26 @@ export default {
       return [this.vc24Message, this.vc7Message].filter(item => item)
     },
 
-    // 燈號判定變得極為乾淨：依賴底層分析函數的結果
+    // 【修改點】調整最外層燈號判定邏輯
     light () {
+      // 情況1：完全沒有解析到任何信件資料
       if (this.headMessages.length === 0) {
         this.lightChanged('warning', '無資料', 'LahMonitorBoardVmclone')
         return 'warning'
       }
 
-      // 逾時未更新改為紅燈，嚴重層級較高，優先檢查
-      const hasTimeout = this.headMessages.some(item => this.analyzeMessageStatus(item).isTimeout)
-      if (hasTimeout) {
-        this.lightChanged('danger', '逾時未更新', 'LahMonitorBoardVmclone')
+      // 情況2：需求「只要不是沒收到信就不要變色」
+      // 判定「沒收到信」的標準：存在 dummyMessage (找不到監控郵件而自動塞入的防呆內容)
+      const isMissingMail = this.headMessages.some(item => item.message === this.dummyMessage)
+
+      // 只有在「真的沒收到信」時，外層燈號才變為紅燈
+      if (isMissingMail) {
+        this.lightChanged('danger', '未發現監控郵件', 'LahMonitorBoardVmclone')
         return 'danger'
       }
 
-      // 發現失敗訊息改為黃燈
-      const hasFailed = this.headMessages.some(item => this.analyzeMessageStatus(item).isFailed)
-      if (hasFailed) {
-        this.lightChanged('warning', '發現失敗訊息', 'LahMonitorBoardVmclone')
-        return 'warning'
-      }
-
+      // 情況3：只要有收到信 (非 dummyMessage)，無論內部是否分析為「失敗」或「逾時」，外層一律維持綠燈不變色。
+      // (內部的 b-badge 依然會依照 analyzeMessageStatus 的結果顯示詳細警告)
       this.lightChanged('success', '', 'LahMonitorBoardVmclone')
       return 'success'
     }
