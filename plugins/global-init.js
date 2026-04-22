@@ -60,10 +60,10 @@ export default ({ $axios, store, $config }, inject) => {
       { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', icon: 'wifi', footer: false },
       { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', icon: 'clone', footer: true, devOnly: true },
       { id: 'tape', comp: 'lah-monitor-board-tape', header: '磁帶備份', icon: 'tape', footer: true },
-      { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', icon: 'vials', footer: false, devOnly: true },
+      // { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', icon: 'vials', footer: false, devOnly: true },
       { id: 'adsync', comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', icon: 'users-cog', footer: true, devOnly: true },
-      { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', icon: 'users', footer: false },
-      { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', icon: 'plug', footer: true, devOnly: true }
+      { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', icon: 'users', footer: false }
+      // { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', icon: 'plug', footer: true, devOnly: true }
     ],
     dayMilliseconds: 8640000,
     animateAttentionSeekers: ['bounce', 'flash', 'pulse', 'rubberBand', 'shakeX', 'shakeY', 'headShake', 'swing', 'tada', 'wobble', 'jello', 'heartBeat'],
