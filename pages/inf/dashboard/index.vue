@@ -90,7 +90,7 @@ client-only: .dark-container(
     lah-monitor-board-setup-modal(ref="setupModal")
     lah-monitor-board-printer-setup-modal(ref="printerSetupModal")
 
-    lah-help-modal(:modal-id="'help-modal'", size="lg", modal-title="智慧監控儀表板說明")
+    lah-help-modal(:modal-id="'help-modal'", size="lg", modal-title="智慧戰情面板說明")
       h5.d-flex.align-items-center
         lah-fa-icon(icon="lightbulb" regular, variant="secondary")
         span.ml-2 功能總覽
@@ -195,13 +195,13 @@ export default {
     debouncedSort: null
   }),
   head: {
-    title: '智慧監控儀表板-桃園市地政局'
+    title: '智慧戰情面板-桃園市地政局'
   },
   computed: {
     isHX () { return this.$route.query.mode === 'HX' },
     pageTitle () {
       const site = this.$store.getters['user/siteName']
-      return site ? `${site}監控儀表板` : (this.isHX ? '本所監控儀表板' : '桃園所監控儀表板')
+      return site ? `${site}戰情面板` : (this.isHX ? '本所戰情面板' : '桃園所戰情面板')
     },
     pinnedCacheKey () { return this.isHX ? 'dashboard-pinned-hx' : 'dashboard-pinned-ha' },
     colCss () { return this.col2 ? ['col-md-6'] : ['col-md-4'] },

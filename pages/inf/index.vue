@@ -199,14 +199,14 @@ div.h-100.d-flex.flex-column.overflow-hidden
                   h4.font-weight-bold.text-dark.mb-2 系統管理面板
                   .text-muted 參數設定、權限管理與系統維護設定
 
-          //- 2. 監控儀表板
+          //- 2. 戰情面板
           b-col(cols="auto").mb-4
             nuxt-link(:to="isDevOffice ? '/inf/dashboard/' : '/inf/dashboard/?mode=HX'").text-decoration-none
               b-card.modern-card.border-0.shadow-sm
                 b-card-body.d-flex.flex-column.align-items-center.text-center.p-4
                   .icon-box.bg-success-light.mb-4
                     lah-fa-icon(icon="desktop", variant="success", size="4x")
-                  h4.font-weight-bold.text-dark.mb-2 {{ siteName }}監控儀表板
+                  h4.font-weight-bold.text-dark.mb-2 {{ siteName }}戰情面板
                   .text-muted 本所即時監控燈號與狀態總覽
 
           //- 3. 跨域伺服器監控
