@@ -47,7 +47,7 @@
 
   //- 主要內容區塊：使用 Grid 分割左右
   b-row.h-100(v-else, no-gutters)
-    //- 左側：監控儀表板 (佔 3/4)
+    //- 左側：戰情面板 (佔 3/4)
     b-col.h-100.d-flex.flex-column(cols="12", lg="9")
       //- 狀態提示列
       lah-transition: h3.center.py-2.m-0(v-if="displayDanger && red.length === 0 && yellow.length === 0")

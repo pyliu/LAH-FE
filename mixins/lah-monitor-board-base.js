@@ -8,7 +8,7 @@ export default {
     isMailChecker: { type: Boolean, default: false }
   },
   data: () => ({
-    header: '監控儀表板BASE',
+    header: '戰情面板BASE',
     messages: [],
     updated: '',
     reloadMs: 10 * 60 * 1000,

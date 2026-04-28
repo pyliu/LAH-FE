@@ -378,7 +378,7 @@ export default {
         id: this.mySite,
         isLocal: true, // 標記為本所
         details: {
-          // 修改：將 foundIds 指向 delegatePublicationHistory，讓監控儀表板的數字只反映 _delegate 的數量
+          // 修改：將 foundIds 指向 delegatePublicationHistory，讓戰情面板的數字只反映 _delegate 的數量
           foundIds: this.delegatePublicationHistory,
           // 用於第二行顯示文字
           localMax: `待處理 ${this.delegatePublicationHistory.length} 筆`

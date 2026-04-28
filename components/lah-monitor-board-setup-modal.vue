@@ -46,7 +46,7 @@ b-modal(
 <script>
 export default {
   props: {
-    modalTitle: { type: String, default: '智慧監控儀表板設定' },
+    modalTitle: { type: String, default: '智慧戰情面板設定' },
     size: { type: String, default: 'md' },
     scrollable: { type: Boolean, default: false },
     centered: { type: Boolean, default: false },
