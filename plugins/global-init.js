@@ -39,7 +39,7 @@ marked.setOptions({
 export default ({ $axios, store, $config }, inject) => {
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
-    // ✨ 集中管理的監控儀表板清單
+    // ✨ 集中管理的戰情面板清單
     DEFAULT_DASHBOARDS: [
       { id: 'xap', comp: 'lah-monitor-board-xap', header: 'XAP 服務', icon: 'server', footer: false, pinned: true },
       // specify props to pass to component, e.g. {props: {isMailChecker: true}} will pass isMailChecker as a prop to the component, and it will trigger mail checking function in the component to fetch message count
@@ -60,7 +60,7 @@ export default ({ $axios, store, $config }, inject) => {
       { id: 'connectivity', comp: 'lah-monitor-board-connectivity', header: '外部連線狀態', icon: 'wifi', footer: false },
       { id: 'vmclone', comp: 'lah-monitor-board-vmclone', header: 'VM Clone 狀態', icon: 'clone', footer: true, devOnly: true },
       { id: 'tape', comp: 'lah-monitor-board-tape', header: '磁帶備份', icon: 'tape', footer: true },
-      // { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', icon: 'vials', footer: false, devOnly: true },
+      { id: 'testdb', comp: 'lah-monitor-board-testdb', header: '測試資料庫', icon: 'vials', footer: false, devOnly: true },
       { id: 'adsync', comp: 'lah-monitor-board-adsync', header: 'AD 帳號同步', icon: 'users-cog', footer: true, devOnly: true },
       { id: 'apconn', comp: 'lah-monitor-board-apconn', header: 'AP 連線數', icon: 'users', footer: false }
       // { id: 'ups', comp: 'lah-monitor-board-ups', header: 'UPS 不斷電系統', icon: 'plug', footer: true, devOnly: true }
