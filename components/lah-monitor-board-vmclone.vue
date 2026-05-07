@@ -44,7 +44,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 
       .font-weight-bold.text-info.mb-2 📋 單筆紀錄狀態標示
       div 👉🏻 點擊紀錄內容可開啟詳細記錄視窗
-      div 🟢 表示該筆紀錄一切正常。
+      //- 說明文字微調，加上無嚴重錯誤發生的條件
+      div 🟢 表示該筆紀錄一切正常（若信件回報「無嚴重錯誤發生」亦強制視為正常）。
       div.mt-1 🟡
         b-badge.mx-1(variant="warning") ❌ 發現失敗訊息
         | ：信件主旨或內容包含異常關鍵字。
@@ -152,7 +153,7 @@ export default {
       return [this.vc24Message, this.vc7Message].filter(item => item)
     },
 
-    // 【修改點】調整最外層燈號判定邏輯
+    // 調整最外層燈號判定邏輯
     light () {
       // 情況1：完全沒有解析到任何信件資料
       if (this.headMessages.length === 0) {
@@ -237,6 +238,11 @@ export default {
       // --- Step 2: 確認內容是否失敗 (Content Check) ---
       // 將主旨與內容轉小寫，方便與關鍵字比對
       const contentStr = `${item.subject} ${item.message}`.toLowerCase()
+
+      // 【修改點】只要備份的訊息中包含「無嚴重錯誤發生」，即強制判定為成功 (綠燈)，略過後續失敗關鍵字檢查
+      if (contentStr.includes('無嚴重錯誤發生')) {
+        return status // isOk 預設就是 true，直接回傳
+      }
 
       // 使用 lodash 的話也可以，但原生 some 已經很夠用
       const hasFailedKeyword = this.failKeywords.some(keyword => contentStr.includes(keyword.toLowerCase()))
