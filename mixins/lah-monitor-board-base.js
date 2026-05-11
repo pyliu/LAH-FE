@@ -282,6 +282,7 @@ export default {
         // new mail! doing $fetch next time forcely
         if (data.data_count > 0) {
           this.lastFetchTimestamp = 0
+          this.notify(`發現 ${data.data_count} 筆新郵件。`)
         }
       } catch (err) {
         this.alert(err.message)
