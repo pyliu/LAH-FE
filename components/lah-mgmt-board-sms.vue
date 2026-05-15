@@ -4,7 +4,7 @@ b-card.border-info
   template(#header)
     .d-flex.justify-content-between.align-items-center
       h6.mb-0.font-weight-bold
-        lah-fa-icon(icon="comment-sms") 手動發送簡訊
+        lah-fa-icon(icon="comment-sms" regular) 手動發送簡訊
       b-button-group
         //- 新增歷史紀錄按鈕
         lah-button(icon="clock-rotate-left" variant="outline-info" no-border no-icon-gutter v-b-modal.sms-history-modal title="歷史紀錄")
@@ -52,7 +52,7 @@ b-card.border-info
         )
         b-form-invalid-feedback 手機號碼格式錯誤
         b-form-text.text-muted 格式：09xxxxxxxx
-      //- 傳送按鈕使用 ml-2 製造 Gap
+      //- 傳送按鈕使用 ml-1 製造緊湊的 Gap
       lah-button.ml-1.text-nowrap(
         icon="paper-plane"
         variant="primary"
@@ -87,8 +87,19 @@ b-card.border-info
     b-card.bg-light(body-class="p-2")
       b-form-group.mb-0(label="預約日期與時間 (選填):" label-for="sms-reserve" label-size="sm")
         .d-flex
-          b-form-input.mr-2(v-model="rdate" type="date" size="sm")
-          b-form-input(v-model="rtime" type="time" size="sm")
+          //- 預約日期
+          b-form-input.mr-1(v-model="rdate" type="date" size="sm")
+          //- 預約時間 (加入 disabled 判斷與提示)
+          b-form-input(
+            v-model="rtime"
+            type="time"
+            size="sm"
+            step="1"
+            :disabled="!rdate"
+            :title="!rdate ? '請先設定預約日期' : ''"
+          )
+        //- 輔助提示文字
+        b-form-text.text-muted(v-if="!rdate") 💡 必須先選擇「預約日期」才能設定時間
 </template>
 
 <script>
@@ -118,7 +129,18 @@ export default {
     },
     // 表單是否完全合法
     isFormValid () {
-      return this.cellState === true && this.messageState === true
+      const isBasicValid = this.cellState === true && this.messageState === true
+      // 雙重防護：如果有時間卻沒有日期，則視為不合法無法傳送
+      if (this.rtime && !this.rdate) { return false }
+      return isBasicValid
+    }
+  },
+  watch: {
+    // 監聽預約日期，若日期被清空，則自動清空預約時間
+    rdate (val) {
+      if (!val) {
+        this.rtime = ''
+      }
     }
   },
   mounted () {
@@ -131,16 +153,35 @@ export default {
 
       this.isBusy = true
 
+      // 1. 處理日期格式 (YYYY-MM-DD -> 民國年 TYYMMDD)
+      let formattedDate = ''
+      if (this.rdate) {
+        const [year, month, day] = this.rdate.split('-')
+        const twYear = parseInt(year, 10) - 1911
+        formattedDate = `${twYear}${month}${day}`
+      }
+
+      // 2. 處理時間格式 (HH:mm:ss -> HHmmss)
+      let formattedTime = ''
+      if (this.rtime) {
+        formattedTime = this.rtime.replace(/:/g, '')
+        // 防呆：若瀏覽器時間元件沒送出秒數 (長度為 4)，則自動補齊 '00' 變成 6 碼
+        if (formattedTime.length === 4) {
+          formattedTime += '00'
+        }
+      }
+
+      // 3. 使用 Object 來建構 POST 參數
+      const payload = {
+        type: 'moicas_ma05_sms',
+        cell: this.cell,
+        message: this.message,
+        rdate: formattedDate,
+        rtime: formattedTime
+      }
+
       try {
-        const { data } = await this.$axios.post(
-          this.$consts.API.JSON.MOISMS, {
-            type: 'moicas_ma05_sms',
-            cell: this.cell,
-            message: this.message,
-            rdate: this.rdate,
-            rtime: this.rtime
-          }
-        )
+        const { data } = await this.$axios.post(this.$consts.API.JSON.MOISMS, payload)
 
         // 根據 PHP 的回應，狀態碼與訊息會包裝在 JSON 內
         const isSuccess = data.status === 1 || data.message?.includes('完成')
@@ -153,7 +194,7 @@ export default {
             autoHideDelay: 5000
           })
 
-          // 儲存至本地歷史紀錄
+          // 儲存至本地歷史紀錄 (此處保存尚未被轉換過的 this.rdate/rtime，供 UI 顯示使用)
           this.saveHistory()
 
           // 成功後清空表單
@@ -220,13 +261,19 @@ export default {
       this.cell = item.cell
       this.message = item.message
       this.rdate = item.rdate || ''
-      this.rtime = item.rtime || ''
+
+      // 若沒有日期，即使有時間紀錄我們也不帶入，確保邏輯正確
+      if (this.rdate) {
+        this.rtime = item.rtime || ''
+      } else {
+        this.rtime = ''
+      }
 
       // 關閉 Modal
       this.$bvModal.hide('sms-history-modal')
 
-      // 若有預約時間，則自動展開預約設定區塊
-      this.showReserve = Boolean(item.rdate || item.rtime)
+      // 若有預約日期或時間，則自動展開預約設定區塊
+      this.showReserve = Boolean(this.rdate || this.rtime)
     }
   }
 }
