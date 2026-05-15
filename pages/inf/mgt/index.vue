@@ -17,33 +17,19 @@ div(v-cloak)
       ol
         li 登記案件相關 (左邊欄)
         li 規費資料相關 (中間欄)
-        li 其他檢測
+        li 其他檢測與工具 (右邊欄) // 更新說明文字
 
-  //- b-card-group(columns)
-  //-   lah-mgmt-board-search-reg-case
-  //-   lah-mgmt-board-search-fee-form
-  //-   lah-mgmt-board-sync-reg-case
-  //- b-card-group(columns)
-  //-   lah-mgmt-board-reg-case-state
-  //-   lah-mgmt-board-fee-form-state
-  //-   lah-mgmt-board-fee-form-obsolete
-  //- b-card-group(columns)
-  //-   lah-mgmt-board-reg-case-tmp
-  //-   lah-mgmt-board-fee-form-payment-items
-  //-   lah-mgmt-board-watchdog
   .d-flex
     .third-vw
       lah-mgmt-board-search-reg-case
       lah-mgmt-board-sync-reg-case.my-3
-      //- lah-transition: lah-mgmt-board-reg-case-state.my-3(v-if="crsmsDataReady")
-      //- lah-transition: lah-mgmt-board-reg-case-tmp(v-if="crsmsDataReady")
     .third-vw.mx-3
       lah-mgmt-board-search-fee-form
       lah-mgmt-board-fee-form-obsolete.my-3
-      //- lah-transition: lah-mgmt-board-fee-form-state.my-3(v-if="paymentDataReady")
-      //- lah-transition: lah-mgmt-board-fee-form-payment-items(v-if="paymentDataReady")
     .third-vw
       lah-mgmt-board-watchdog
+      //- 加入新實作的發送簡訊組件
+      lah-mgmt-board-sms.my-3
 </template>
 
 <script>
