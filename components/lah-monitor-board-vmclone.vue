@@ -47,7 +47,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
       //- 說明文字微調，加上無嚴重錯誤發生的條件
       div 🟢 表示該筆紀錄一切正常（若信件回報「無嚴重錯誤發生」亦強制視為正常）。
       div.mt-1 🟡
-        b-badge.mx-1(variant="warning") ❌ 發現失敗訊息
+        b-badge.mx-1(variant="warning") ⚠ 發現失敗訊息
         | ：信件主旨或內容包含異常關鍵字。
       .text-muted.small.ml-4.mb-1 (目前監控關鍵字：{{ failKeywords.join(', ') }})
       div.mb-2 🔴
@@ -87,7 +87,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
         //- 標籤移至標題右側，加入些微左邊距(ml-2)且不換行(text-nowrap)
         b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isTimeout" variant="danger") ⏱️ 逾時未更新
         //- 將原本的 danger 改為 warning
-        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isFailed" variant="warning") ❌ 發現失敗訊息
+        b-badge.ml-2.text-nowrap(v-if="analyzeMessageStatus(item).isFailed" variant="warning") ⚠ 發現失敗訊息
 
       //- 時間保持靠右顯示
       lah-badge-human-datetime.ml-2.text-nowrap(
