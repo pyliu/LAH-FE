@@ -107,11 +107,8 @@ export default {
         default: return '未定義版面'
       }
     },
-    srmasIp () {
-      return this.$config.monitor.host.SRMAS.ip || this.srmas.get(this.site)
-    },
     weatherImgUrl () {
-      return `https://${this.srmasIp}/plugins/Weathermap/output/${this.site}.png?ts=${this.weatherPngTs}`
+      return `/srmas-weathermap/plugins/Weathermap/output/${this.site}.png?ts=${this.weatherPngTs}`
     }
   },
   watch: {

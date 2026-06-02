@@ -72,7 +72,7 @@ export default {
       return this.$config.monitor.host.SRMAS.ip || this.srmas.get(this.site)
     },
     weatherImgUrl () {
-      return `https://${this.srmasIp}/plugins/Weathermap/output/${this.site}.png?ts=${this.ts}`
+      return `/srmas-weathermap/plugins/Weathermap/output/${this.site}.png?ts=${this.ts}`
     }
   },
   watch: {},

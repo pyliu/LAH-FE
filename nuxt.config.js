@@ -134,6 +134,12 @@ export default {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
       changeOrigin: true,
       pathRewrite: { '^/legacy': '' }
+    },
+    // 建立一個假的本地端路由 /srmas-weathermap/
+    '/srmas-weathermap/': {
+      target: `https://${process.env.SRMAS_HOST}/`,
+      pathRewrite: { '^/srmas-weathermap/': '' },
+      secure: false // 🔥 關鍵：這行會讓伺服器忽略自簽憑證/不安全憑證的錯誤！
     }
   },
   // Build Configuration (https://go.nuxtjs.dev/config-build)

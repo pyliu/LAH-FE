@@ -245,11 +245,8 @@ export default {
       const tmp = this.messagesAfterThreadhold.filter((item, idx, arr) => item.subject?.includes('回復', '復原', '恢復'))
       return this.$utils.orderBy(tmp, 'timestamp', 'desc')
     },
-    srmasIp () {
-      return this.$config.monitor.host.SRMAS.ip || this.srmas.get(this.site)
-    },
     weatherImgUrl () {
-      return `https://${this.srmasIp}/plugins/Weathermap/output/${this.site}.png?ts=${this.weatherPngTs}`
+      return `/srmas-weathermap/plugins/Weathermap/output/${this.site}.png?ts=${this.weatherPngTs}`
     },
     currentPagePath () {
       return this.$route.fullPath
