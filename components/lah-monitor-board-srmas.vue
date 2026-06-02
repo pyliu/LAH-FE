@@ -126,34 +126,35 @@ b-card.flex-column.srmas-card.position-relative.overflow-hidden(
             v-b-tooltip="`顯示${weatherImgUrl}`",
             style="min-height: 0;"
           )
-            //- 觸發 Overlay 的圖片
+            //- [修改] 增加初次載入時的 Spinner，避免完全白畫面
+            b-spinner(v-if="!displayImgUrl && !failed", variant="secondary", label="圖片讀取中...")
+            //- [修改] 觸發 Overlay 的圖片改用 displayImgUrl，且移除 @load / @error (交給背景處理)
             b-img(
-              :src="weatherImgUrl",
+              v-show="displayImgUrl",
+              :src="displayImgUrl",
               thumbnail,
               style="max-height: 100%; max-width: 100%; object-fit: contain; cursor: zoom-in;",
-              @load="failed = false",
-              @error="failed = true",
               @mouseenter="isHoveringImg = true"
             )
 
-    //- 隱藏的圖片(用於預加載/錯誤偵測)
+    //- 隱藏的圖片(用於背景預加載/錯誤偵測)
+    //- [修改] 統一呼叫 method 處理圖片載入狀態
     b-img.d-none(
       :src="weatherImgUrl",
-      @load="failed = false",
-      @error="failed = true"
+      @load="handleImgLoad",
+      @error="handleImgError"
     )
 
   //- 放大顯示層 (Overlay)
-  //- [修改] 樣式調整以達到滿版效果
   transition(name="fade")
     .srmas-zoom-overlay(
       v-if="isHoveringImg",
       @mouseleave="isHoveringImg = false",
       @click="$utils.openNewWindow('/inf/weather/')"
     )
-      //- [修改] 使用 width: 100% 和 height: 100% 配合 object-fit: contain
+      //- [修改] 同步改用 displayImgUrl 確保放大時也是已下載完畢的圖片
       b-img(
-        :src="weatherImgUrl",
+        :src="displayImgUrl",
         style="width: 100%; height: 100%; object-fit: contain;"
       )
 
@@ -199,6 +200,7 @@ export default {
     failed: false,
     weatherPngTs: 0,
     weatherPngTimer: null,
+    displayImgUrl: '', // [新增] 用於畫面正式顯示的已預載網址
     carouselSecs: 30,
     isHoveringImg: false, // 控制放大覆蓋層的顯示
     srmas: new Map([
@@ -230,7 +232,6 @@ export default {
       if (!this.firstMessage || this.failed) {
         return 'warning'
       }
-      // return this.problems.length > 0 ? 'danger' : 'success'
       if (this.problems.length > 0) {
         const everyTrue = this.problems.every(item => item.message?.includes('🟢'))
         return everyTrue ? 'success' : 'danger'
@@ -288,6 +289,17 @@ export default {
         this.trigger('updated', detail)
       }
     },
+    // [新增] 圖片載入完成的處理邏輯
+    handleImgLoad () {
+      this.failed = false
+      // 當隱藏在背景的圖片完全下載後，才將網址交給畫面上的 img 顯示
+      // 這樣可以達到「零白屏、無閃爍」的圖片刷新體驗
+      this.displayImgUrl = this.weatherImgUrl
+    },
+    // [新增] 圖片發生錯誤的處理邏輯
+    handleImgError () {
+      this.failed = true
+    },
     showMails (payload) {
       // destructing obj entries to vars
       const { title, icon, variant, items } = payload
@@ -331,7 +343,6 @@ export default {
 // 放大預覽層樣式
 .srmas-zoom-overlay {
   position: absolute;
-  // [修改] 強制撐滿四邊
   top: 0;
   left: 0;
   right: 0;
@@ -346,7 +357,6 @@ export default {
   align-items: center;
   justify-content: center;
 
-  // [修改] 移除 padding 以便讓圖片可以真正撐滿
   padding: 0;
 
   border-radius: 0.25rem;
