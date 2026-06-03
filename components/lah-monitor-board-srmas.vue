@@ -1,6 +1,6 @@
 <template lang="pug">
-//- [修改] 加上 overflow-hidden 確保 Overlay 不會超出圓角
-b-card.flex-column.srmas-card.position-relative.overflow-hidden(
+//- [修改] 移除 .overflow-hidden，徹底解放卡片邊界，允許圖片向外無限延伸
+b-card.flex-column.srmas-card.position-relative(
   :border-variant="border",
   :class="[attentionCss]",
   no-body
@@ -120,43 +120,24 @@ b-card.flex-column.srmas-card.position-relative.overflow-hidden(
       b-carousel-slide.h-100: template(#img)
         .d-flex.flex-column.justify-content-center.align-items-center.h-100.w-100
           .h5(v-if="failed") 無法讀取 #[b-link(:href="weatherImgUrl", target="_blank", title="點擊查看") {{ weatherImgUrl }}] 影像
-          b-link.d-flex.align-items-center.justify-content-center.flex-grow-1.w-100(
+          b-link.weather-container.d-flex.align-items-center.justify-content-center.flex-grow-1.w-100(
             v-show="!failed",
             @click="$utils.openNewWindow('/inf/weather/')",
             v-b-tooltip="`顯示${weatherImgUrl}`",
             style="min-height: 0;"
           )
-            //- [修改] 增加初次載入時的 Spinner，避免完全白畫面
             b-spinner(v-if="!displayImgUrl && !failed", variant="secondary", label="圖片讀取中...")
-            //- [修改] 觸發 Overlay 的圖片改用 displayImgUrl，且移除 @load / @error (交給背景處理)
-            b-img(
+            b-img.weather-img(
               v-show="displayImgUrl",
-              :src="displayImgUrl",
-              thumbnail,
-              style="max-height: 100%; max-width: 100%; object-fit: contain; cursor: zoom-in;",
-              @mouseenter="isHoveringImg = true"
+              :src="displayImgUrl"
             )
 
     //- 隱藏的圖片(用於背景預加載/錯誤偵測)
-    //- [修改] 統一呼叫 method 處理圖片載入狀態
     b-img.d-none(
       :src="weatherImgUrl",
       @load="handleImgLoad",
       @error="handleImgError"
     )
-
-  //- 放大顯示層 (Overlay)
-  transition(name="fade")
-    .srmas-zoom-overlay(
-      v-if="isHoveringImg",
-      @mouseleave="isHoveringImg = false",
-      @click="$utils.openNewWindow('/inf/weather/')"
-    )
-      //- [修改] 同步改用 displayImgUrl 確保放大時也是已下載完畢的圖片
-      b-img(
-        :src="displayImgUrl",
-        style="width: 100%; height: 100%; object-fit: contain;"
-      )
 
   template(#footer, v-if="footer"): client-only: lah-monitor-board-footer(
     ref="footer"
@@ -200,9 +181,8 @@ export default {
     failed: false,
     weatherPngTs: 0,
     weatherPngTimer: null,
-    displayImgUrl: '', // [新增] 用於畫面正式顯示的已預載網址
+    displayImgUrl: '', // 用於畫面正式顯示的已預載網址
     carouselSecs: 30,
-    isHoveringImg: false, // 控制放大覆蓋層的顯示
     srmas: new Map([
       ['HA', '220.1.34.251'],
       ['HB', '220.1.35.95'],
@@ -289,19 +269,14 @@ export default {
         this.trigger('updated', detail)
       }
     },
-    // [新增] 圖片載入完成的處理邏輯
     handleImgLoad () {
       this.failed = false
-      // 當隱藏在背景的圖片完全下載後，才將網址交給畫面上的 img 顯示
-      // 這樣可以達到「零白屏、無閃爍」的圖片刷新體驗
       this.displayImgUrl = this.weatherImgUrl
     },
-    // [新增] 圖片發生錯誤的處理邏輯
     handleImgError () {
       this.failed = true
     },
     showMails (payload) {
-      // destructing obj entries to vars
       const { title, icon, variant, items } = payload
       this.modal(this.$createElement(lahMonitorBoardSrmasList, {
         props: {
@@ -320,16 +295,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// 強制輪播組件內部繼承高度
+// [修改] 解除 bootstrap 輪播組件每一層預設的 overflow: hidden 限制
+::v-deep .carousel,
 ::v-deep .carousel-inner,
 ::v-deep .carousel-item {
   height: 100%;
+  overflow: visible !important;
 }
 
 .srmas-card {
   max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
+
+  // [新增] 預設為放大狀態，必須給予極高的 z-index (9999) 避免被旁邊的其他卡片蓋住
+  z-index: 9999;
+  transition: z-index 0.4s ease;
+
+  // 滑鼠滑入卡片任一處時：
+  &:hover {
+    // 1. z-index 降回一般層級，避免影響其他元件互動
+    z-index: 1;
+
+    // 2. 圖片平滑縮小回 1 倍比例，看見完整全圖
+    .weather-img {
+      transform: scale(1);
+      cursor: zoom-out;
+    }
+  }
 }
 
 .card-body {
@@ -337,38 +330,28 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  // [修改] 解除內文區塊的裁切
+  overflow: visible !important;
 }
 
-// 放大預覽層樣式
-.srmas-zoom-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-
-  z-index: 9999; // 確保在最上層
-  background-color: white; // 遮擋底部內容
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-
+.weather-container {
   border-radius: 0.25rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-}
 
-// 簡單的淡入淡出動畫
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s;
-}
-.fade-enter, .fade-leave-to {
-  opacity: 0;
+  .weather-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+
+    // 預設放大 2.2 倍
+    transform: scale(2.2);
+    // [修正] 改為正中央對齊放大，確保整個圖的中心不會偏移截斷
+    transform-origin: center center;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform; // GPU 加速渲染，確保縮放順暢
+
+    // 確保圖片在放大的圖層堆疊中優先顯示
+    position: relative;
+    z-index: 10;
+  }
 }
 </style>
