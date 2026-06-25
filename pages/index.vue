@@ -24,7 +24,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
                       .img-container.mb-3
                         b-img(src="~/assets/img/MONITOR.jpg" fluid alt="智慧監控系統")
                       //- 字體放大
-                      h3.font-weight-bold.text-dark.mb-2 智慧監控系統
+                      h3.font-weight-bold.text-dark.mb-2 智慧監控工具
                       .text-muted.h5.mb-0 即時監控與狀態回報
 
               //- 智慧控管系統
@@ -34,7 +34,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
                     b-card-body.d-flex.flex-column.align-items-center.justify-content-center.p-4
                       .img-container.mb-3
                         b-img(src="~/assets/img/REG.jpg" fluid alt="智慧控管系統")
-                      h3.font-weight-bold.text-dark.mb-2 智慧控管系統
+                      h3.font-weight-bold.text-dark.mb-2 智慧控管工具
                       .text-muted.h5.mb-0 登記案件與流程管理
 
               //- 地價小幫手

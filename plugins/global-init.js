@@ -154,7 +154,8 @@ export default ({ $axios, store, $config }, inject) => {
         REG: '/api/reg_json_api.php',
         ADM: '/api/adm_json_api.php',
         SUR: '/api/sur_json_api.php',
-        XCASE: '/api/xcase_json_api.php'
+        XCASE: '/api/xcase_json_api.php',
+        DGX: '/api/dgx_json_api.php'
       },
       FILE: {
         LOAD: '/api/load_file_api.php',

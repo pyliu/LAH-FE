@@ -184,7 +184,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
                 path(d="M25,-50 Q45,-40 60,-10" fill="none" stroke="#1565c0" stroke-width="10" stroke-linecap="round")
                 circle(cx="60" cy="-10" r="7" fill="#ffccbc")
 
-          h1.font-weight-bold.text-dark.lah-shadow.text-nowrap 智慧監控系統
+          h1.font-weight-bold.text-dark.lah-shadow.text-nowrap 智慧監控工具
           p.text-muted.h4.mt-1 全方位系統運作狀態儀表板
 
         //- 下方連結區域

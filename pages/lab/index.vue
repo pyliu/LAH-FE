@@ -69,16 +69,16 @@ div.h-100.d-flex.flex-column.overflow-hidden
 
         //- 下方連結區域
         b-row.justify-content-center.px-3
-          //- 1. 謄本調閱紀錄檢索
+          //- 1. 案件查詢助理
           //- xl="2" 代表 12/2 = 6，即一排 6 個
           b-col(cols="12" sm="6" md="4" lg="3" xl="2").mb-3
-            nuxt-link(to="/reg/cusmm").text-decoration-none
+            nuxt-link(to="/dgx").text-decoration-none
               b-card.modern-card.border-0.shadow-sm
                 b-card-body.d-flex.flex-column.align-items-center.text-center.p-3
                   .icon-box.bg-primary-light.mb-3
-                    lah-fa-icon(icon="file-invoice", variant="primary", size="3x")
-                  h4.font-weight-bold.text-dark.mb-1 謄本調閱
-                  .text-muted.small 調閱紀錄檢索
+                    lah-fa-icon(icon="robot", variant="primary", size="3x")
+                  h4.font-weight-bold.text-dark.mb-1 案件查詢助理
+                  .text-muted.small AI對話式案件進度查詢
 
           //- 2. 跨縣市ONLINE即時通
           b-col(cols="12" sm="6" md="4" lg="3" xl="2").mb-3
@@ -189,6 +189,16 @@ div.h-100.d-flex.flex-column.overflow-hidden
                     lah-fa-icon(icon="cloud-sun-rain", variant="dark", size="3x")
                   h4.font-weight-bold.text-dark.mb-1 機房天氣圖
                   .text-muted.small {{ site }} 環境監控
+
+          //- 13. 謄本調閱紀錄檢索
+          b-col(cols="12" sm="6" md="4" lg="3" xl="2").mb-3
+            nuxt-link(to="/reg/cusmm").text-decoration-none
+              b-card.modern-card.border-0.shadow-sm
+                b-card-body.d-flex.flex-column.align-items-center.text-center.p-3
+                  .icon-box.bg-primary-light.mb-3
+                    lah-fa-icon(icon="file-invoice", variant="primary", size="3x")
+                  h4.font-weight-bold.text-dark.mb-1 謄本調閱
+                  .text-muted.small 調閱紀錄檢索
 
 </template>
 
