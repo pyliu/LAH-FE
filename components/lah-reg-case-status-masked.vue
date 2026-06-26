@@ -1,8 +1,8 @@
 <template lang="pug">
 b-card(no-body)
-  b-card-header(v-if="!noTitle" class="font-weight-bold d-flex justify-content-between align-items-center")
+  //- ✅ 修補：移除 "去識別化模式" b-badge，並簡化 header 的排版 class
+  b-card-header(v-if="!noTitle" class="font-weight-bold")
     span 辦理情形
-    b-badge(pill variant="secondary") 去識別化模式
 
   b-card-body(v-if="ready")
     //- ==========================================
