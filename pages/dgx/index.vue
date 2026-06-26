@@ -7,7 +7,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
     b-button(variant="link" v-b-toggle.history-sidebar).p-1.mr-2.d-flex.align-items-center
       lah-fa-icon(icon="bars", size="lg", :class="isDarkMode ? 'text-light' : 'text-dark'")
 
-    //- 中間：第一次完成送出後，顯示標題與圖示 (字體縮小至 0.85 倍，圖示配合調整為 lg)
+    //- 中間：第一次完成送出後，顯示標題與圖示
     lah-transition(appear)
       .title-container(v-if="messages.length > 0")
         lah-fa-icon.mr-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="lg")
@@ -23,7 +23,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
             size="lg"
           )
 
-  //- 歷史紀錄側邊欄 (動態切換背景與文字顏色)
+  //- 歷史紀錄側邊欄
   b-sidebar#history-sidebar(
     title="最近對話歷程"
     shadow
@@ -65,31 +65,28 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
           v-for="(msg, idx) in messages"
           :key="idx"
           :class="msg.role === 'user' ? 'align-self-end text-right' : 'align-self-start text-left'"
-          style="max-width: 90%;"
+          :style="hasCaseCards(msg) ? '' : 'max-width: 90%;'"
         )
           .small.text-muted.mb-1.mx-1 {{ msg.role === 'user' ? '您' : 'AI 助理' }}
-          //- 透過 msg-ai class 讓 CSS 處理亮/暗模式的 AI 訊息框配色
-          .d-inline-block.p-3.rounded.shadow-sm.text-left(
-            :class="msg.role === 'user' ? 'bg-primary text-white' : 'msg-ai'"
+          //- ✅ #2 修補：有案件卡片時改用 d-block 並取消寬度限制，避免 flex grid 被 inline-block 壓縮破版
+          .p-3.rounded.shadow-sm.text-left(
+            :class="[msg.role === 'user' ? 'bg-primary text-white' : 'msg-ai', hasCaseCards(msg) ? 'd-block' : 'd-inline-block']"
             style="word-break: break-word; min-width: 150px;"
           )
             span(v-if="msg.isLoading")
               b-spinner(small).mr-2
               | 查詢 DGX 案件資料中...
             div(v-else)
-              //- 文字說明區
-              div(v-html="msg.content")
+              //- ✅ #1 修補：使用者訊息改用純文字插值防止 XSS，只有 AI 回傳內容才走 v-html
+              span(v-if="msg.role === 'user'") {{ msg.content }}
+              div(v-else v-html="msg.content")
 
-              //- ★ 卡片排列區塊：一列最多 4 個，靠左對齊 ★
-              .cases-container.mt-3(v-if="msg.cases && msg.cases.length > 0")
+              //- 卡片排列區塊：一列最多 4 個，靠左對齊
+              .cases-container.mt-3(v-if="hasCaseCards(msg)")
                 .case-card(v-for="(item, cIdx) in msg.cases" :key="cIdx")
-
-                  //- 卡片標題：只顯示 Normalized 的完整案件號
                   .case-card-header.d-flex.align-items-center
                     lah-fa-icon(icon="file-signature" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
                     strong.mb-0(:class="isDarkMode ? 'text-warning' : 'text-primary'") {{ getNormalizedId(item) }}
-
-                  //- 卡片主體：嵌入 lah-reg-case-status 組件
                   .case-card-body
                     lah-reg-case-status-compact(:case-id="getNormalizedId(item)")
 
@@ -123,7 +120,7 @@ export default {
       inputText: '',
       isQuerying: false,
       messages: [],
-      isDarkMode: false // 新增主題狀態，預設為亮色
+      isDarkMode: false
     }
   },
   head: {
@@ -141,7 +138,6 @@ export default {
     }
   },
   watch: {
-    // 深度監聽 messages，只要有任何變動(新增訊息、解除 loading)，就自動捲動到底部
     messages: {
       deep: true,
       handler () {
@@ -150,10 +146,35 @@ export default {
     }
   },
   mounted () {
-    // 初始化時，從 localStorage 讀取使用者的主題偏好設定
+    // 從 localStorage 讀取主題偏好
     const savedTheme = localStorage.getItem('lah-chat-theme')
     if (savedTheme === 'dark') {
       this.isDarkMode = true
+    }
+
+    // ✅ #8 修補：改用 MutationObserver 監聽對話容器 DOM 變化
+    // 解決 compact 卡片非同步載入資料後高度撐高，setTimeout(50) 來不及捲動的競態問題
+    this.$nextTick(() => {
+      const container = this.$refs.chatContainer
+      if (container) {
+        this._scrollObserver = new MutationObserver(() => {
+          // 僅在使用者視野已接近底部時才自動跟隨捲動
+          // 避免使用者手動捲回查看歷史時被強制拉回底部
+          const threshold = 150
+          const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+          if (distanceFromBottom < threshold) {
+            container.scrollTop = container.scrollHeight
+          }
+        })
+        this._scrollObserver.observe(container, { childList: true, subtree: true })
+      }
+    })
+  },
+  beforeDestroy () {
+    // ✅ #8 修補：元件銷毀時清理 MutationObserver，避免記憶體洩漏
+    if (this._scrollObserver) {
+      this._scrollObserver.disconnect()
+      this._scrollObserver = null
     }
   },
   methods: {
@@ -163,10 +184,14 @@ export default {
       localStorage.setItem('lah-chat-theme', this.isDarkMode ? 'dark' : 'light')
     },
 
+    // ✅ #2 修補：判斷訊息是否含有案件卡片，供 template 控制佈局模式
+    hasCaseCards (msg) {
+      return msg.cases && msg.cases.length > 0
+    },
+
     // 取得/組裝 Normalized 的案件號 (13碼格式)
     getNormalizedId (item) {
       if (item.normalized) { return item.normalized }
-      // 容錯機制：若無 normalized 欄位，嘗試組裝 (115 + HA81 + 001200)
       const rm09 = item.RM09 || ''
       const rm10 = item.RM10 || ''
       const rm11 = (item.RM11 || '').padStart(6, '0')
@@ -181,16 +206,13 @@ export default {
 
       const queryText = this.inputText.trim()
 
-      // 將使用者的文字加入對話
       this.messages.push({ role: 'user', content: queryText })
       this.inputText = ''
 
-      // 建立 AI 的 Loading 佔位訊息
       this.isQuerying = true
       const aiMsgIndex = this.messages.push({ role: 'ai', content: '', cases: [], isLoading: true }) - 1
 
       try {
-        // 呼叫後端 PHP API
         const payload = {
           type: 'case_ids',
           input_string: queryText
@@ -198,25 +220,20 @@ export default {
 
         const { data } = await this.$axios.post(this.$consts.API.JSON.DGX, payload)
 
-        // 解析回傳結果
         let responseContent = ''
         let casesData = []
 
-        if (data && data.status === 'success') {
-          // 提供預設 fallback 方便無資料時也能測試 UI
-          casesData = data.raw || [
-            { normalized: '115HA81001200' },
-            { normalized: '115HA81001201' },
-            { normalized: '115HA81001202' },
-            { normalized: '115HA81001203' },
-            { normalized: '115HA81001204' } // 測試換行效果使用
-          ]
-          responseContent = '已為您找到以下案件，詳細資料如下：'
+        // ✅ #9 修補：改用 $utils.statusCheck() 與其他 API 呼叫保持一致
+        if (data && this.$utils.statusCheck(data.status)) {
+          // ✅ #3 修補：移除硬編碼測試資料 fallback，查無資料時回傳空陣列
+          casesData = data.raw || []
+          responseContent = casesData.length > 0
+            ? '已為您找到以下案件，詳細資料如下：'
+            : '查無相關案件資料，請確認案件號是否正確。'
         } else {
           responseContent = data.message || '查無相關案件資料，請確認案件號是否正確。'
         }
 
-        // 更新 AI 訊息內容與卡片陣列
         this.$set(this.messages, aiMsgIndex, {
           role: 'ai',
           content: responseContent,
@@ -242,15 +259,14 @@ export default {
       this.$root.$emit('bv::toggle::collapse', 'history-sidebar')
     },
 
-    // 讓對話視窗自動往下捲動到最新訊息
+    // ✅ #8 修補：scrollToBottom 由 MutationObserver 主動補足非同步高度變化
+    // 此方法保留用於 messages watcher 觸發的初次捲動（新訊息加入時立即捲動）
     scrollToBottom () {
       this.$nextTick(() => {
-        setTimeout(() => {
-          const container = this.$refs.chatContainer
-          if (container) {
-            container.scrollTop = container.scrollHeight
-          }
-        }, 50)
+        const container = this.$refs.chatContainer
+        if (container) {
+          container.scrollTop = container.scrollHeight
+        }
       })
     }
   }
@@ -277,7 +293,6 @@ export default {
   flex: 0 0 auto;
 }
 
-/* ★ Title 垂直置中與字體設定 ★ */
 .title-container {
   display: flex;
   align-items: center;
@@ -289,7 +304,6 @@ export default {
   margin-bottom: 0;
 }
 
-/* 中央主體區域：扣除 Header 後填滿剩餘空間 */
 .chat-main-area {
   flex: 1 1 auto;
   overflow: hidden;
@@ -352,32 +366,27 @@ export default {
   opacity: 0.5;
 }
 
-/* 預設(亮色)的 AI 訊息框 */
 .msg-ai {
   background-color: #ffffff;
   color: #343a40;
 }
 
-/* =========================================
-   💡 嚴格限制一排四個、靠左排列的 Flexbox 佈局
-   ========================================= */
 .cases-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px; /* 固定的卡片間距 */
-  justify-content: flex-start; /* 確保不滿 4 個時依然靠左對齊 */
+  gap: 16px;
+  justify-content: flex-start;
 }
 
 .case-card {
-  /* 一列最多 4 個，減去 3 個 gap(16px * 3 = 48px / 4 = 12px) 才能完美不破版 */
   width: calc(25% - 12px);
-  flex: 0 0 auto; /* 禁止自動放大或縮小，維持固定比例 */
-  min-width: 280px; /* 視窗縮小時自動換行，不會擠成一團 */
+  flex: 0 0 auto;
+  min-width: 280px;
 
   background-color: #f8f9fa;
   border-left: 4px solid #007bff;
   border-radius: 8px;
-  overflow: hidden; /* 防止 Header 溢出圓角 */
+  overflow: hidden;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -398,7 +407,6 @@ export default {
   padding: 16px;
 }
 
-/* 切換按鈕的微動畫 */
 .theme-btn {
   transition: transform 0.2s;
   &:active {
@@ -407,7 +415,7 @@ export default {
 }
 
 /* =========================================
-   🌙 支援暗黑模式 (Dark Mode) 的樣式覆寫
+   🌙 支援暗黑模式 (Dark Mode)
    ========================================= */
 .theme-dark {
   .bg-light { background-color: #212529 !important; }
@@ -435,7 +443,6 @@ export default {
     color: #f8f9fa !important;
   }
 
-  /* 暗色模式的 AI 資料卡片覆寫 */
   .case-card {
     background-color: #2b3035 !important;
     border-left-color: #ffc107 !important;
