@@ -97,7 +97,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
           b-form-input(
             v-model="inputText"
             placeholder="請輸入案件號碼 (例如: 115 HA81 1200)..."
-            @keyup.enter="sendQuery"
+            @keyup.enter="sendQuery($event)"
             :disabled="isQuerying"
             autocomplete="off"
           )
@@ -131,10 +131,12 @@ export default {
       return this.$utils ? !this.$utils.empty(this.inputText) : this.inputText.trim().length > 0
     },
     userQueries () {
+      const seen = new Set()
       return this.messages
         .filter(msg => msg.role === 'user')
         .map(msg => msg.content)
         .reverse()
+        .filter(q => seen.has(q) ? false : seen.add(q))
     }
   },
   watch: {
@@ -189,19 +191,15 @@ export default {
       return msg.cases && msg.cases.length > 0
     },
 
-    // 取得/組裝 Normalized 的案件號 (13碼格式)
+    // 取得 Normalized 案件號，優先使用 LLM 輸出的 normalized 欄位
     getNormalizedId (item) {
       if (item.normalized) { return item.normalized }
-      const rm09 = item.RM09 || ''
-      const rm10 = item.RM10 || ''
-      const rm11 = (item.RM11 || '').padStart(6, '0')
-      if (rm09 && rm10 && rm11) {
-        return `${rm09}${rm10}${rm11}`
-      }
       return item.id || '未知案件號'
     },
 
-    async sendQuery () {
+    async sendQuery (event) {
+      // 中文 IME 選字確認也會觸發 Enter，需過濾避免送出半成品字串
+      if (event && event.isComposing) { return }
       if (!this.isValidInput || this.isQuerying) { return }
 
       const queryText = this.inputText.trim()
@@ -311,6 +309,7 @@ export default {
 
 .chat-container {
   flex: 1 1 0;
+  min-height: 0; // 防止 flex child 被內容撐高，確保 overflow-y: auto 正確作用
   overflow-y: auto;
   scroll-behavior: smooth;
 
