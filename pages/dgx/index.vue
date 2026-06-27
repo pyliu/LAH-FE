@@ -59,7 +59,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
           
     //- 底部輸入區塊
     .input-area.p-3.border-top(:class="isDarkMode ? 'bg-dark' : 'bg-light'")
-      //- ✅ 修補：套用 size="lg" 強制 Bootstrap 同步內部 input 與 button 高度
+      //- 套用 size="lg" 強制 Bootstrap 同步內部 input 與 button 高度
       b-input-group(size="lg")
         b-form-input(
           v-model="inputText"
@@ -68,22 +68,23 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
           :class="isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white'"
         )
         b-input-group-append
-          //- ✅ 修補：加上 h-100 確保按鈕填滿附加區域
+          //- 加上 h-100 確保按鈕填滿附加區域
           b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100
             lah-fa-icon(icon="paper-plane" :action="isBusy ? 'spin' : ''")
             |  送出
 
   //- ==========================================
-  //- 案件查詢語法說明 Modal
+  //- ✅ 案件查詢語法說明 Modal (完整增強版)
   //- ==========================================
   b-modal(
     ref="instructionModal"
     size="xl"
-    title="🤖 案件智慧查詢助理 - 使用說明"
+    title="🤖 案件智慧查詢助理 - 完整使用說明"
     ok-only
     ok-title="我瞭解了"
     ok-variant="primary"
     centered
+    scrollable
     :header-bg-variant="isDarkMode ? 'dark' : 'white'"
     :header-text-variant="isDarkMode ? 'light' : 'dark'"
     :body-bg-variant="isDarkMode ? 'dark' : 'white'"
@@ -93,76 +94,128 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
     :footer-border-variant="isDarkMode ? 'secondary' : 'default'"
   )
     b-container(fluid)
-      p.mb-4(:class="isDarkMode ? 'text-light' : 'text-muted'") 您可以直接像跟同事講話一樣，輸入案件資訊。AI 引擎會自動幫您解析並找出對應的案件。
+      p.mb-4.font-weight-bold(:class="isDarkMode ? 'text-light' : 'text-primary'") 您可以直接像跟同事講話一樣輸入案件資訊！AI 引擎已搭載強大的地政業務容錯規則，會自動為您解析出精準的案件編號。
 
       b-row
         //- 格式說明
-        b-col(md="6").mb-4
-          h6.font-weight-bold.text-primary.mb-3 📌 支援的輸入格式
+        b-col(md="4").mb-4
+          h6.font-weight-bold.text-primary.mb-3 📌 基本格式解析
           b-card(no-body :bg-variant="isDarkMode ? 'dark' : 'light'" :class="isDarkMode ? 'border-secondary' : ''").instruction-card.h-100.shadow-sm.border-0
-            b-card-body
-              ul.mb-0(:class="isDarkMode ? 'text-light' : 'text-dark'")
-                li.mb-2
+            b-card-body.p-3
+              ul.mb-0.pl-3(:class="isDarkMode ? 'text-light' : 'text-dark'")
+                li.mb-3
                   strong 民國年：
-                  | 2~3碼數字。若未指定，
-                  b-badge(variant="info") 系統會自動帶入今年
-                  | 。
+                  | 2~3 碼數字。
                   br
-                  small.text-secondary 例如：輸入 `112年` 或是直接輸入 `112` 皆可。
-                li.mb-2
+                  small.text-secondary 💡 若未指定，系統會
+                    b-badge.mx-1(variant="info") 自動預設為今年
+                    | 。
+                li.mb-3
                   strong 案件字：
-                  | 4碼英數組合，或口語化的中文。
+                  | 4 碼英數組合 (如 #[code HA81])。
                   br
-                  small.text-secondary 例如：`HA81`、`HAA1`，或是輸入 `桃園朴子` 皆可識別。
+                  small.text-secondary 💡 也支援口語化輸入，如輸入「桃園朴子」，會自動轉譯為 #[code H1QB]。
                 li.mb-0
                   strong 案件號：
-                  | 輸入任意數字，
-                  b-badge(variant="secondary") 系統會自動為您補齊 6 碼
-                  | 。
+                  | 輸入任意數字。
                   br
-                  small.text-secondary 例如：輸入 `190` 會被自動轉換為 `000190`。
+                  small.text-secondary 💡 系統會
+                    b-badge.mx-1(variant="secondary") 自動幫您補齊 6 碼
+                    | (輸入 #[code 190] = #[code 000190])。
 
         //- 容錯說明
-        b-col(md="6").mb-4
-          h6.font-weight-bold.text-success.mb-3 🪄 聰明的 AI 容錯功能
+        b-col(md="8").mb-4
+          h6.font-weight-bold.text-success.mb-3 🪄 進階 AI 容錯與繼承規則
           b-card(no-body :bg-variant="isDarkMode ? 'dark' : 'light'" :class="isDarkMode ? 'border-secondary' : ''").instruction-card.border-success.h-100.shadow-sm.border-0
-            b-card-body
-              ul.mb-0(:class="isDarkMode ? 'text-light' : 'text-dark'")
-                li.mb-2
-                  strong 動態字號繼承：
-                  | 想一次查多筆同字號案件？直接用空格分開即可！
-                  br
-                  small.text-secondary 輸入：`HA85 1200 1300` ➔ AI 會自動幫您查：`HA85-001200` 與 `HA85-001300`
-                li.mb-2
-                  strong 動態年份繼承：
-                  | 跨字號查詢時，年份會自動延續。
-                  br
-                  small.text-secondary 輸入：`112年 HA81 1200 還有 HA82 700` ➔ AI 會自動補齊為 `112-HA81...` 與 `112-HA82...`
-                li.mb-0
-                  strong 全/半形及日期轉換：
-                  br
-                  small.text-secondary 全形 `ＨＡ８１` 或日期格式 `113/05/20` AI 都能看得懂並自動轉化。
+            b-card-body.p-3
+              b-row
+                b-col(sm="6")
+                  ul.mb-0.pl-3(:class="isDarkMode ? 'text-light' : 'text-dark'")
+                    li.mb-3
+                      strong 連續字號繼承：
+                      br
+                      small.text-secondary 想查多筆同字號案件？直接用空白分隔號碼即可。AI 會自動將它們獨立成多筆並沿用前一個案件字。
+                    li.mb-3
+                      strong 動態年份延續：
+                      br
+                      small.text-secondary 同一句話中跨字號查詢時，指定的年份會自動往後延續套用。
+                b-col(sm="6")
+                  ul.mb-0.pl-3(:class="isDarkMode ? 'text-light' : 'text-dark'")
+                    li.mb-3
+                      strong 自動過濾無效數字 (防呆)：
+                      br
+                      small.text-secondary 1~130 的數字常被誤認為鄉鎮代碼或日期，系統會自動忽略。若真的是案件號，請加上「號」字 (例如：#[code 120號])。
+                    li.mb-0
+                      strong 全形與日期符號轉換：
+                      br
+                      small.text-secondary 輸入全形 #[code ＨＡ８１] 或含有日期的 #[code 113/05/20]，AI 皆能自動排除斜線並提取正確年份。
+
+      hr(:class="isDarkMode ? 'border-secondary' : ''")
 
       //- 實際對話範例
-      h6.font-weight-bold.mt-2.mb-3(:class="isDarkMode ? 'text-light' : 'text-dark'") 💬 實際對話範例
+      h6.font-weight-bold.mt-3.mb-3(:class="isDarkMode ? 'text-light' : 'text-dark'") 💬 實戰情境範例
+      
       b-row
-        b-col(md="12")
-          .example-block.mb-3.border-left.border-primary(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-light text-dark'")
+        //- 範例 1
+        b-col(lg="6")
+          .example-block.bg-light(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'text-dark'")
+            .mb-1.text-secondary.small 情境 1：最基本的查詢 (含口語化)
             .font-weight-bold
               lah-fa-icon(icon="user-circle", variant="secondary").mr-2
-              | 您輸入：
-            div "幫我查113年 桃園朴子 第190號，還有 HA81 1200"
+              | "幫我查113年 桃園朴子 第190號"
             hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
-            .font-weight-bold
+            .text-success
               lah-fa-icon(icon="robot", variant="primary").mr-2
-              | AI 會為您解析出 2 筆案件：
-            .text-success ✔ 113-H1QB-000190
-              span.small.ml-1(:class="isDarkMode ? 'text-light' : 'text-muted'") (桃園朴子)
-            .text-success ✔ 113-HA81-001200
-              span.small.ml-1(:class="isDarkMode ? 'text-light' : 'text-muted'") (自動沿用 113 年)
+              | ➔ 解析為：#[code 113-H1QB-000190]
+        
+        //- 範例 2
+        b-col(lg="6")
+          .example-block.bg-light(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'text-dark'")
+            .mb-1.text-secondary.small 情境 2：連續輸入多個案件號 (字號繼承)
+            .font-weight-bold
+              lah-fa-icon(icon="user-circle", variant="secondary").mr-2
+              | "HA85 1200 1300"
+            hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 113-HA85-001200] (自動預設今年)
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 113-HA85-001300] (繼承 HA85)
+
+        //- 範例 3
+        b-col(lg="6")
+          .example-block.bg-light(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'text-dark'")
+            .mb-1.text-secondary.small 情境 3：破解數字 130 以下的過濾機制
+            .font-weight-bold
+              lah-fa-icon(icon="user-circle", variant="secondary").mr-2
+              | "幫我查HA81 120號"
+            hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ 解析為：#[code 113-HA81-000120]
+              br
+              span.small.text-muted.ml-4 (因為加了「號」，所以不會被誤認為日期而過濾掉)
+
+        //- 範例 4
+        b-col(lg="6")
+          .example-block.bg-light(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'text-dark'")
+            .mb-1.text-secondary.small 情境 4：跨字號查詢 + 年份延續
+            .font-weight-bold
+              lah-fa-icon(icon="user-circle", variant="secondary").mr-2
+              | "112年 HA81 1200 還有 HA82 700"
+            hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 112-HA81-001200]
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 112-HA82-000700] 
+              span.small.text-muted (自動沿用 112 年)
 </template>
 
 <script>
+// 依業界 SPA 聊天視窗標準，保留 200 筆為最佳平衡點
 const MAX_MESSAGES = 200 
 
 export default {
@@ -252,6 +305,7 @@ export default {
    佈局與動畫
    ========================================= */
 .chat-app-wrapper {
+  /* 兼顧傳統與現代瀏覽器的滿版高度，防止 iOS Safari 底部導覽列遮擋 */
   height: 100vh;
   height: 100dvh;
   display: flex;
@@ -286,7 +340,16 @@ export default {
 .example-block {
   border-radius: 6px;
   padding: 16px;
+  border-left: 4px solid #007bff;
+  margin-bottom: 1rem;
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  code {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 4px;
+    border-radius: 4px;
+    color: #d63384;
+  }
 }
 
 /* =========================================
@@ -301,6 +364,17 @@ export default {
   
   .instruction-card {
     background-color: #2b3035 !important;
+  }
+  
+  .example-block {
+    background-color: #2b3035 !important;
+    border-color: #495057;
+    border-left-color: #0d6efd;
+    
+    code {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ff87c3;
+    }
   }
 }
 </style>
