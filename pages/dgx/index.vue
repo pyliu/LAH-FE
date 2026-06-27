@@ -12,12 +12,18 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
       .title-container.d-flex.align-items-center(v-if="messages.length > 0")
         lah-fa-icon.mr-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="lg")
         strong.title-text(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件智慧查詢助理
-        //- ✅ 局部擴充：說明圖示按鈕
+        //- 說明圖示按鈕
         b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-2
           lah-fa-icon(icon="info-circle", size="lg", :variant="isDarkMode ? 'info' : 'info'")
 
-    //- 右側：明暗主題切換按鈕
+    //- 右側：操作按鈕區
     b-navbar-nav.ml-auto
+      //- ✅ 局部擴充：清除對話按鈕 (當有訊息時才顯示)
+      b-nav-item(@click="clearMessages" title="清除對話紀錄" v-if="messages.length > 0")
+        .d-flex.align-items-center
+          lah-fa-icon(icon="trash-alt", size="lg", variant="danger")
+
+      //- 明暗主題切換按鈕
       b-nav-item(@click="toggleTheme" title="切換明暗主題")
         .d-flex.align-items-center
           lah-fa-icon(:icon="isDarkMode ? 'sun' : 'moon'", size="lg", :variant="isDarkMode ? 'warning' : 'secondary'")
@@ -36,7 +42,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
         lah-fa-icon(icon="robot" size="4x" :variant="isDarkMode ? 'warning' : 'primary'").mb-3
         h3.font-weight-bold(:class="isDarkMode ? 'text-light' : 'text-dark'") 案件智慧查詢助理
         p.text-muted 您好！請輸入案件字號或相關資訊，我來幫您查詢。
-        //- ✅ 局部擴充：歡迎畫面的說明引導按鈕
+        //- 歡迎畫面的說明引導按鈕
         b-button(variant="outline-info" pill @click="$refs.instructionModal.show()").mt-3.shadow-sm
           lah-fa-icon(icon="info-circle").mr-1
           | 查看支援的輸入格式與範例
@@ -65,7 +71,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
             |  送出
 
   //- ==========================================
-  //- ✅ 局部擴充：案件查詢語法說明 Modal
+  //- 案件查詢語法說明 Modal
   //- ==========================================
   b-modal(
     ref="instructionModal"
@@ -152,31 +158,57 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
 </template>
 
 <script>
+// ✅ 調整：依業界 SPA 聊天視窗標準，未啟用虛擬滾動時，保留 100~200 筆為最佳平衡點
+const MAX_MESSAGES = 200 
+
 export default {
   name: 'AiQueryAssistantIndex',
   data: () => ({
     isDarkMode: false,
     isBusy: false,
     inputText: '',
-    messages: []
+    messages: [],
+    apiTimer: null
   }),
   mounted () {
-    // 嘗試從 localStorage 讀取深色模式偏好設定
     const savedTheme = localStorage.getItem('lah-theme-dark')
     if (savedTheme !== null) {
       this.isDarkMode = savedTheme === 'true'
     }
   },
+  beforeDestroy () {
+    if (this.apiTimer) {
+      clearTimeout(this.apiTimer)
+    }
+  },
   methods: {
     toggleTheme () {
       this.isDarkMode = !this.isDarkMode
-      // 持久化儲存主題設定
       localStorage.setItem('lah-theme-dark', this.isDarkMode)
+    },
+    // ✅ 局部擴充：清除對話紀錄 (附帶防呆確認)
+    clearMessages () {
+      this.$bvModal.msgBoxConfirm('確定要清除目前的對話紀錄嗎？', {
+        title: '🗑️ 清除確認',
+        size: 'sm',
+        buttonSize: 'sm',
+        okVariant: 'danger',
+        okTitle: '確定清除',
+        cancelTitle: '取消',
+        footerClass: 'p-2',
+        hideHeaderClose: false,
+        centered: true
+      }).then(value => {
+        if (value) {
+          this.messages = []
+        }
+      }).catch(err => {
+        this.$utils.error(err)
+      })
     },
     sendMessage () {
       if (!this.inputText.trim()) return
       
-      // 1. 將使用者輸入加入畫面
       this.messages.push({
         text: this.inputText.trim(),
         isUser: true
@@ -185,17 +217,24 @@ export default {
       const userInput = this.inputText.trim()
       this.inputText = ''
       this.isBusy = true
+
+      // 記憶體控制：剔除最舊的訊息
+      if (this.messages.length > MAX_MESSAGES) {
+        this.messages = this.messages.slice(-MAX_MESSAGES)
+      }
       
-      // 2. 模擬呼叫 API (請替換為實際 API 呼叫邏輯)
-      setTimeout(() => {
+      this.apiTimer = setTimeout(() => {
         this.messages.push({
           text: `我收到您的查詢：「${userInput}」，正在幫您解析案件並搜尋資料...`,
           isUser: false,
-          cases: [] // 未來這裡可以放回傳的案件 JSON 陣列
+          cases: []
         })
         this.isBusy = false
         
-        // 確保視窗滾動到底部
+        if (this.messages.length > MAX_MESSAGES) {
+          this.messages = this.messages.slice(-MAX_MESSAGES)
+        }
+        
         this.$nextTick(() => {
           const container = this.$el.querySelector('.messages-container')
           if (container) container.scrollTop = container.scrollHeight
