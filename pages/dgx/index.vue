@@ -18,7 +18,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
 
     //- 右側：操作按鈕區
     b-navbar-nav.ml-auto
-      //- ✅ 局部擴充：清除對話按鈕 (當有訊息時才顯示)
+      //- 清除對話按鈕 (當有訊息時才顯示)
       b-nav-item(@click="clearMessages" title="清除對話紀錄" v-if="messages.length > 0")
         .d-flex.align-items-center
           lah-fa-icon(icon="trash-alt", size="lg", variant="danger")
@@ -53,12 +53,14 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
         :key="idx" 
         :class="{'text-right': msg.isUser, 'text-left': !msg.isUser}"
       )
-        .d-inline-block.p-3.rounded(:class="msg.isUser ? 'bg-primary text-white shadow-sm' : (isDarkMode ? 'bg-dark text-light border' : 'bg-white border shadow-sm')")
-          | {{ msg.text }}
+        .d-inline-block.p-3.rounded(:class="msg.isUser ? 'bg-primary text-white shadow-sm text-left' : (isDarkMode ? 'bg-dark text-light border border-secondary text-left shadow-sm' : 'bg-white border shadow-sm text-left')")
+          //- AI 訊息與可能包含的卡片 (依賴子元件渲染，此處為簡化邏輯)
+          div {{ msg.text }}
           
     //- 底部輸入區塊
     .input-area.p-3.border-top(:class="isDarkMode ? 'bg-dark' : 'bg-light'")
-      b-input-group
+      //- ✅ 修補：套用 size="lg" 強制 Bootstrap 同步內部 input 與 button 高度
+      b-input-group(size="lg")
         b-form-input(
           v-model="inputText"
           placeholder="請輸入案件資訊... (例：113年桃園朴子 第190號)"
@@ -66,7 +68,8 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
           :class="isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white'"
         )
         b-input-group-append
-          b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn
+          //- ✅ 修補：加上 h-100 確保按鈕填滿附加區域
+          b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100
             lah-fa-icon(icon="paper-plane" :action="isBusy ? 'spin' : ''")
             |  送出
 
@@ -86,6 +89,8 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
     :body-bg-variant="isDarkMode ? 'dark' : 'white'"
     :body-text-variant="isDarkMode ? 'light' : 'dark'"
     :footer-bg-variant="isDarkMode ? 'dark' : 'light'"
+    :header-border-variant="isDarkMode ? 'secondary' : 'default'"
+    :footer-border-variant="isDarkMode ? 'secondary' : 'default'"
   )
     b-container(fluid)
       p.mb-4(:class="isDarkMode ? 'text-light' : 'text-muted'") 您可以直接像跟同事講話一樣，輸入案件資訊。AI 引擎會自動幫您解析並找出對應的案件。
@@ -94,7 +99,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
         //- 格式說明
         b-col(md="6").mb-4
           h6.font-weight-bold.text-primary.mb-3 📌 支援的輸入格式
-          b-card(no-body :bg-variant="isDarkMode ? 'secondary' : 'light'").instruction-card.h-100.shadow-sm.border-0
+          b-card(no-body :bg-variant="isDarkMode ? 'dark' : 'light'" :class="isDarkMode ? 'border-secondary' : ''").instruction-card.h-100.shadow-sm.border-0
             b-card-body
               ul.mb-0(:class="isDarkMode ? 'text-light' : 'text-dark'")
                 li.mb-2
@@ -120,7 +125,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
         //- 容錯說明
         b-col(md="6").mb-4
           h6.font-weight-bold.text-success.mb-3 🪄 聰明的 AI 容錯功能
-          b-card(no-body :bg-variant="isDarkMode ? 'secondary' : 'light'").instruction-card.border-success.h-100.shadow-sm.border-0
+          b-card(no-body :bg-variant="isDarkMode ? 'dark' : 'light'" :class="isDarkMode ? 'border-secondary' : ''").instruction-card.border-success.h-100.shadow-sm.border-0
             b-card-body
               ul.mb-0(:class="isDarkMode ? 'text-light' : 'text-dark'")
                 li.mb-2
@@ -142,7 +147,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
       h6.font-weight-bold.mt-2.mb-3(:class="isDarkMode ? 'text-light' : 'text-dark'") 💬 實際對話範例
       b-row
         b-col(md="12")
-          .example-block.mb-3.border-left.border-primary(:class="isDarkMode ? 'bg-dark text-light border' : 'bg-light text-dark'")
+          .example-block.mb-3.border-left.border-primary(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-light text-dark'")
             .font-weight-bold
               lah-fa-icon(icon="user-circle", variant="secondary").mr-2
               | 您輸入：
@@ -158,7 +163,6 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
 </template>
 
 <script>
-// ✅ 調整：依業界 SPA 聊天視窗標準，未啟用虛擬滾動時，保留 100~200 筆為最佳平衡點
 const MAX_MESSAGES = 200 
 
 export default {
@@ -186,7 +190,6 @@ export default {
       this.isDarkMode = !this.isDarkMode
       localStorage.setItem('lah-theme-dark', this.isDarkMode)
     },
-    // ✅ 局部擴充：清除對話紀錄 (附帶防呆確認)
     clearMessages () {
       this.$bvModal.msgBoxConfirm('確定要清除目前的對話紀錄嗎？', {
         title: '🗑️ 清除確認',
@@ -218,7 +221,6 @@ export default {
       this.inputText = ''
       this.isBusy = true
 
-      // 記憶體控制：剔除最舊的訊息
       if (this.messages.length > MAX_MESSAGES) {
         this.messages = this.messages.slice(-MAX_MESSAGES)
       }
@@ -250,12 +252,12 @@ export default {
    佈局與動畫
    ========================================= */
 .chat-app-wrapper {
-  /* 兼顧傳統與現代瀏覽器的滿版高度，防止 iOS Safari 底部導覽列遮擋 */
   height: 100vh;
   height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
 .chat-main-area {
