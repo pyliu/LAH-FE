@@ -4,8 +4,8 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
   //- 頂部導覽列 (動態切換 light/dark 模式)
   b-navbar(:variant="isDarkMode ? 'dark' : 'white'", :type="isDarkMode ? 'dark' : 'light'", sticky).shadow-sm.px-3.border-bottom.navbar-area
     //- 左側：漢堡選單 (觸發歷史紀錄側邊欄)
-    b-button(variant="link" v-b-toggle.history-sidebar).p-1.mr-2.d-flex.align-items-center
-      lah-fa-icon(icon="bars", size="lg", :class="isDarkMode ? 'text-light' : 'text-dark'")
+    b-button(variant="link" v-b-toggle.history-sidebar v-b-tooltip.hover title="查看歷史紀錄").p-1.mr-2.d-flex.align-items-center
+      lah-fa-icon(icon="history", size="lg", :class="isDarkMode ? 'text-light' : 'text-dark'")
 
     //- 中間：第一次完成送出後，顯示標題與圖示
     lah-transition(appear)
@@ -19,7 +19,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
     //- 右側：操作按鈕區
     b-navbar-nav.ml-auto
       //- 清除對話按鈕 (當有訊息時才顯示)
-      b-nav-item(@click="clearMessages" title="清除對話紀錄" v-if="messages.length > 0")
+      b-nav-item(@click="clearMessages" title="清除當前畫面紀錄" v-if="messages.length > 0")
         .d-flex.align-items-center
           lah-fa-icon(icon="trash-alt", size="lg", variant="danger")
 
@@ -28,10 +28,40 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
         .d-flex.align-items-center
           lah-fa-icon(:icon="isDarkMode ? 'sun' : 'moon'", size="lg", :variant="isDarkMode ? 'warning' : 'secondary'")
 
-  //- 歷史紀錄側邊欄 (示意)
-  b-sidebar(id="history-sidebar" title="歷史查詢紀錄" shadow)
+  //- ==========================================
+  //- ✅ 局部擴充：真實運作的歷史紀錄側邊欄
+  //- ==========================================
+  b-sidebar(
+    id="history-sidebar" 
+    title="歷史查詢紀錄" 
+    shadow 
+    :bg-variant="isDarkMode ? 'dark' : 'light'" 
+    :text-variant="isDarkMode ? 'light' : 'dark'"
+  )
     .p-3
-      p.text-muted 這裡將顯示過去的對話與查詢紀錄...
+      //- 有紀錄時顯示列表
+      template(v-if="historyRecords.length > 0")
+        .d-flex.justify-content-between.align-items-center.mb-3
+          span.text-muted.small 共 {{ historyRecords.length }} 筆紀錄
+          b-button(size="sm" variant="outline-danger" pill @click="clearHistory") 清除全部
+        
+        b-list-group(flush)
+          b-list-group-item.history-item.px-2.py-3(
+            v-for="(record, idx) in historyRecords" 
+            :key="idx"
+            href="#"
+            @click.prevent="useHistory(record.text)"
+            :class="isDarkMode ? 'bg-dark text-light border-secondary' : ''"
+            title="點擊代入查詢"
+          )
+            .d-flex.w-100.justify-content-between.align-items-center
+              span.text-truncate.mr-2 {{ record.text }}
+              small.text-muted {{ record.time }}
+      
+      //- 沒紀錄時的空狀態
+      .text-center.mt-5(v-else :class="isDarkMode ? 'text-secondary' : 'text-muted'")
+        lah-fa-icon(icon="history" size="3x").mb-3.opacity-50
+        p 尚無查詢紀錄
 
   //- 聊天主體區塊
   .chat-main-area.d-flex.flex-column
@@ -59,22 +89,21 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
           
     //- 底部輸入區塊
     .input-area.p-3.border-top(:class="isDarkMode ? 'bg-dark' : 'bg-light'")
-      //- 套用 size="lg" 強制 Bootstrap 同步內部 input 與 button 高度
       b-input-group(size="lg")
         b-form-input(
+          ref="chatInput"
           v-model="inputText"
           placeholder="請輸入案件資訊... (例：113年桃園朴子 第190號)"
           @keyup.enter="sendMessage"
           :class="isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white'"
         )
         b-input-group-append
-          //- 加上 h-100 確保按鈕填滿附加區域
           b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100
             lah-fa-icon(icon="paper-plane" :action="isBusy ? 'spin' : ''")
             |  送出
 
   //- ==========================================
-  //- ✅ 案件查詢語法說明 Modal (完整增強版)
+  //- 案件查詢語法說明 Modal (完整增強版)
   //- ==========================================
   b-modal(
     ref="instructionModal"
@@ -215,8 +244,8 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
 </template>
 
 <script>
-// 依業界 SPA 聊天視窗標準，保留 200 筆為最佳平衡點
 const MAX_MESSAGES = 200 
+const MAX_HISTORY = 50 // 歷史紀錄最多保留 50 筆
 
 export default {
   name: 'AiQueryAssistantIndex',
@@ -225,12 +254,24 @@ export default {
     isBusy: false,
     inputText: '',
     messages: [],
+    historyRecords: [], // ✅ 儲存使用者查詢歷史
     apiTimer: null
   }),
   mounted () {
+    // 讀取深色模式偏好設定
     const savedTheme = localStorage.getItem('lah-theme-dark')
     if (savedTheme !== null) {
       this.isDarkMode = savedTheme === 'true'
+    }
+    
+    // ✅ 讀取歷史紀錄
+    const savedHistory = localStorage.getItem('lah-dgx-history')
+    if (savedHistory) {
+      try {
+        this.historyRecords = JSON.parse(savedHistory)
+      } catch (e) {
+        console.error('解析歷史紀錄失敗', e)
+      }
     }
   },
   beforeDestroy () {
@@ -243,6 +284,7 @@ export default {
       this.isDarkMode = !this.isDarkMode
       localStorage.setItem('lah-theme-dark', this.isDarkMode)
     },
+    // 清除當下對話紀錄 (保留)
     clearMessages () {
       this.$bvModal.msgBoxConfirm('確定要清除目前的對話紀錄嗎？', {
         title: '🗑️ 清除確認',
@@ -262,15 +304,62 @@ export default {
         this.$utils.error(err)
       })
     },
+    // ✅ 清除所有歷史查詢紀錄
+    clearHistory () {
+      this.historyRecords = []
+      localStorage.removeItem('lah-dgx-history')
+      this.$bvToast.toast('歷史查詢紀錄已清空', {
+        title: '提示',
+        variant: 'success',
+        solid: true,
+        autoHideDelay: 2000
+      })
+    },
+    // ✅ 將歷史紀錄代入輸入框
+    useHistory (text) {
+      this.inputText = text
+      // 關閉側邊欄
+      this.$root.$emit('bv::toggle::collapse', 'history-sidebar')
+      // 確保畫面更新後，讓輸入框取得焦點
+      this.$nextTick(() => {
+        if (this.$refs.chatInput) {
+          this.$refs.chatInput.focus()
+        }
+      })
+    },
+    // ✅ 儲存單筆歷史紀錄
+    saveToHistory (text) {
+      // 取得當前時間 HH:mm
+      const now = new Date()
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+      
+      // 避免連續輸入相同的紀錄
+      if (this.historyRecords.length > 0 && this.historyRecords[0].text === text) {
+        return
+      }
+
+      this.historyRecords.unshift({ time: timeStr, text: text })
+      
+      // 超過上限則剔除最舊的
+      if (this.historyRecords.length > MAX_HISTORY) {
+        this.historyRecords.pop()
+      }
+      
+      localStorage.setItem('lah-dgx-history', JSON.stringify(this.historyRecords))
+    },
     sendMessage () {
       if (!this.inputText.trim()) return
       
+      const userInput = this.inputText.trim()
+      
       this.messages.push({
-        text: this.inputText.trim(),
+        text: userInput,
         isUser: true
       })
       
-      const userInput = this.inputText.trim()
+      // ✅ 觸發儲存至歷史紀錄
+      this.saveToHistory(userInput)
+      
       this.inputText = ''
       this.isBusy = true
 
@@ -324,6 +413,20 @@ export default {
   &:active {
     transform: scale(0.95);
   }
+}
+
+/* =========================================
+   歷史側邊欄樣式
+   ========================================= */
+.history-item {
+  transition: background-color 0.2s ease;
+  &:hover {
+    background-color: rgba(0, 123, 255, 0.05); /* Bootstrap primary 超淡色 */
+  }
+}
+
+.theme-dark .history-item:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 /* =========================================
