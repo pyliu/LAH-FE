@@ -213,13 +213,13 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
                 b-col(sm="6")
                   ul.mb-0.pl-3(:class="isDarkMode ? 'text-light' : 'text-dark'")
                     li.mb-3
-                      strong 自動過濾無效數字 (防呆)：
+                      strong 年份智慧辨識：
                       br
-                      small.text-secondary 1~130 的數字常被誤認為鄉鎮代碼或日期，系統會自動忽略。若真的是案件號，請加上「號」字 (例如：#[code 120號])。
+                      small.text-secondary 100~130 的數字若出現在其他號碼之前，系統自動辨識為民國年（不需加「年」字）。例如 #[code 113 12500] 解析為民國 113 年、案件號 012500；後方多個號碼則各自獨立輸出。
                     li.mb-0
-                      strong 全形與日期符號轉換：
+                      strong 案件字查無對應自動補正：
                       br
-                      small.text-secondary 輸入全形 #[code ＨＡ８１] 或含有日期的 #[code 113/05/20]，AI 皆能自動排除斜線並提取正確年份。
+                      small.text-secondary 完全未輸入案件字，或輸入的案件字查無對應時，系統一律預設使用 #[code HA81]（桃資登），並於結果中標記警示訊息。
 
       hr(:class="isDarkMode ? 'border-secondary' : ''")
 
@@ -249,24 +249,27 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
             hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
             .text-success
               lah-fa-icon(icon="robot", variant="primary").mr-2
-              | ➔ #[code 113-HA85-001200] (自動預設今年)
+              | ➔ #[code 115-HA85-001200] (自動預設今年)
             .text-success
               lah-fa-icon(icon="robot", variant="primary").mr-2
-              | ➔ #[code 113-HA85-001300] (繼承 HA85)
+              | ➔ #[code 115-HA85-001300] (繼承 HA85)
 
         //- 範例 3
         b-col(lg="6")
           .example-block.bg-light(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'text-dark'")
-            .mb-1.text-secondary.small 情境 3：破解數字 130 以下的過濾機制
+            .mb-1.text-secondary.small 情境 3：純數字輸入 (多筆，自動預設 HA81)
             .font-weight-bold
               lah-fa-icon(icon="user-circle", variant="secondary").mr-2
-              | "幫我查HA81 120號"
+              | "19500 13500"
             hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
             .text-success
               lah-fa-icon(icon="robot", variant="primary").mr-2
-              | ➔ 解析為：#[code 113-HA81-000120]
+              | ➔ #[code 115-HA81-019500]
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 115-HA81-013500]
               br
-              span.small.text-muted.ml-4 (加「號」不過濾)
+              span.small.text-muted.ml-4 (無案件字時預設 HA81、今年)
 
         //- 範例 4
         b-col(lg="6")
@@ -283,6 +286,37 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
               lah-fa-icon(icon="robot", variant="primary").mr-2
               | ➔ #[code 112-HA82-000700]
               span.small.text-muted (自動沿用 112 年)
+
+        //- 範例 5
+        b-col(lg="6")
+          .example-block.bg-light(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'text-dark'")
+            .mb-1.text-secondary.small 情境 5：年份 + 純數字 (無案件字)
+            .font-weight-bold
+              lah-fa-icon(icon="user-circle", variant="secondary").mr-2
+              | "113 12500"
+            hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 113-HA81-012500]
+              br
+              span.small.text-muted.ml-4 (113 辨識為民國年，案件字預設 HA81)
+
+        //- 範例 6
+        b-col(lg="6")
+          .example-block.bg-light(:class="isDarkMode ? 'bg-dark text-light border-secondary' : 'text-dark'")
+            .mb-1.text-secondary.small 情境 6：年份 + 多個純數字 (各自獨立輸出)
+            .font-weight-bold
+              lah-fa-icon(icon="user-circle", variant="secondary").mr-2
+              | "114 15000 1600"
+            hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 114-HA81-015000]
+            .text-success
+              lah-fa-icon(icon="robot", variant="primary").mr-2
+              | ➔ #[code 114-HA81-001600]
+              br
+              span.small.text-muted.ml-4 (兩筆共同繼承年份 114)
 </template>
 
 <script>
