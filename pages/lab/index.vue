@@ -68,7 +68,8 @@ div.h-100.d-flex.flex-column.overflow-hidden
           p.text-muted.h4.mt-1 創新功能與測試區域
 
         //- 下方連結區域
-        b-row.justify-content-center.px-3
+        //- 移除 justify-content-center，讓未滿一排的元素自然靠左(最前面)對齊
+        b-row.px-3
           //- 1. 案件查詢助理
           b-col(cols="12" sm="6" md="4" lg="3" xl="2").mb-4
             nuxt-link(to="/dgx").text-decoration-none
@@ -228,7 +229,7 @@ export default {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   border-radius: 20px !important;
   background-color: #fff;
-  min-height: 240px; 
+  min-height: 240px;
 
   &:hover {
     transform: translateY(-8px);
