@@ -8,7 +8,7 @@ export default {
   dev: process.env.NODE_ENV !== 'production',
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    title: '桃園市政府地政局',
+    title: '桃園市桃園地政事務所',
     meta: [{
       charset: 'utf-8'
     },
@@ -19,7 +19,7 @@ export default {
     {
       hid: 'description',
       name: 'description',
-      content: '桃園市地政智慧控管系統'
+      content: '桃園市地政智慧控管工具'
     }
     ],
     link: [{
