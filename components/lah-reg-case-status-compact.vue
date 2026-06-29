@@ -5,7 +5,7 @@ b-overlay.lah-compact-case-status(
   opacity="0.6"
   spinner-variant="primary"
 )
-  //- 有資料時顯示
+  //- 1. 有資料時顯示
   template(v-if="ready")
     //- 彈性垂直容器：將整個區塊設定為可點擊 (clickable-wrapper)
     .d-flex.flex-column.h-100.clickable-wrapper(
@@ -15,7 +15,7 @@ b-overlay.lah-compact-case-status(
       title="點擊查看詳細辦理情形"
     )
 
-      //- 1. 核心狀態區塊 (燈號 + 辦理情形)
+      //- 核心狀態區塊 (燈號 + 辦理情形)
       .status-header.d-flex.align-items-center.mb-3.pb-2.border-bottom
         lah-fa-icon.status-light(
           icon="circle"
@@ -28,7 +28,7 @@ b-overlay.lah-compact-case-status(
           lah-fa-icon(icon="calendar-alt" regular).mr-1
           span(v-html="bakedData.限辦期限")
 
-      //- 2. 資訊清單
+      //- 資訊清單
       .info-list.small
 
         //- 登記原因（左）+ 作業人員（右）兩欄並排
@@ -115,14 +115,14 @@ b-overlay.lah-compact-case-status(
           strong.text-muted.mr-2 補期滿日:
           span.text-danger.font-weight-bold {{ bakedData.補正期滿日 }}
 
-        //- 3. 補正通知詳細資訊
+        //- 補正通知詳細資訊
         .fix-data-box.mt-2.p-2.rounded(v-if="hasFixData")
           strong.text-danger.d-block.mb-1
             lah-fa-icon(icon="exclamation-triangle").mr-1
             | 補正通知內容
           div.fix-text(v-html="fixDataText")
 
-    //- 4. 彈出詳細視窗 (已改為遮蔽版詳細視窗)
+    //- 彈出詳細視窗 (遮蔽版詳細視窗)
     b-modal(
       ref="detailModal"
       :title="`詳細辦理情形 - ${caseId || id}`"
@@ -131,24 +131,27 @@ b-overlay.lah-compact-case-status(
       centered
       lazy
     )
-      lah-reg-case-status-masked(:case-id="caseId || id")
+      lah-reg-case-status-masked(:parent-data="bakedData")
 
-  //- 查無資料或 API 異常顯示
+  //- 2. 查無資料或 API 異常顯示
   template(v-else-if="!isBusy")
     .empty-state.text-center.text-muted.py-4
       lah-fa-icon(icon="folder-open" size="2x").mb-2.opacity-50
       div 查無詳細辦理情形資料
 
+  //- 3. 正在讀取時的佔位區塊 (防塌陷)
+  template(v-else)
+    .loading-placeholder.d-flex.flex-column.align-items-center.justify-content-center.text-muted(style="min-height: 150px;")
+      span.small.opacity-50 正在查詢詳細資料...
+
 </template>
 
 <script>
-// ★ 修改引入組件為 masked 版本 ★
 import lahRegCaseStatusMasked from '~/components/lah-reg-case-status-masked.vue';
 import regCaseBase from '~/mixins/lah-reg-case-base.js';
 
 export default {
   name: 'LahRegCaseStatusCompact',
-  // ★ 修改註冊組件名稱 ★
   components: { lahRegCaseStatusMasked },
   mixins: [regCaseBase],
   data: () => ({
@@ -160,45 +163,45 @@ export default {
       return this.ready && this.bakedData && this.bakedData.結案與否 === 'N'
     },
     caseStatusText () {
-      if (!this.ready || !this.bakedData) return '讀取中...';
-      return this.bakedData.辦理情形 || (this.ongoing ? '處理中' : '已結案');
+      if (!this.ready || !this.bakedData) { return '讀取中...' }
+      return this.bakedData.辦理情形 || (this.ongoing ? '處理中' : '已結案')
     },
     statusVariant () {
-      if (!this.ready || !this.bakedData) return 'secondary';
-      if (!this.ongoing) return 'success';
-      const status = this.caseStatusText;
+      if (!this.ready || !this.bakedData) { return 'secondary' }
+      if (!this.ongoing) { return 'success' }
+      const status = this.caseStatusText
       if (status.includes('補正') || status.includes('駁回')) {
-        return 'danger';
+        return 'danger'
       }
-      return 'warning';
+      return 'warning'
     },
     hasCellphone () {
-      if (!this.bakedData) return false;
-      return !this.$utils.empty(this.bakedData.手機) || !this.$utils.empty(this.bakedData.聯絡電話);
+      if (!this.bakedData) { return false }
+      return !this.$utils.empty(this.bakedData.手機) || !this.$utils.empty(this.bakedData.聯絡電話)
     },
     cellphoneStr () {
-      if (!this.bakedData) return '';
-      return this.bakedData.手機 || this.bakedData.聯絡電話 || '';
+      if (!this.bakedData) { return '' }
+      return this.bakedData.手機 || this.bakedData.聯絡電話 || ''
     },
     hasPersonnel () {
-      if (!this.bakedData) return false;
+      if (!this.bakedData) { return false }
       const roles = [
         '初審人員', '複審人員', '准登人員',
         '登錄人員', '校對人員', '歸檔人員', '結案人員'
-      ];
-      return roles.some(role => !this.$utils.empty(this.bakedData[role]));
+      ]
+      return roles.some(role => !this.$utils.empty(this.bakedData[role]))
     },
     hasFixData () {
       return !this.$utils.empty(this.id) && this.bakedData && !this.$utils.empty(this.bakedData.通知補正日期)
     },
     fixDataText () {
       if (this.localLoadFailed) {
-        return '❌ 補正資料載入失敗，請稍後再試或聯繫系統管理員';
+        return '❌ 補正資料載入失敗，請稍後再試或聯繫系統管理員'
       }
       if (this.localCRCRDData && this.localCRCRDData.RC05) {
-        return this.localCRCRDData.RC05;
+        return this.localCRCRDData.RC05
       }
-      return '⚠ 本地資料庫無資料，若為跨所案件請先確認該案件有同步過來❗';
+      return '⚠ 本地資料庫無資料，若為跨所案件請先確認該案件有同步過來❗'
     }
   },
   watch: {
@@ -213,50 +216,50 @@ export default {
   },
   methods: {
     isNaturalPerson (id) {
-      if (this.$utils.empty(id)) return false;
-      const str = String(id).trim();
-      return /^[a-zA-Z][a-zA-Z0-9]\d{8}$/.test(str);
+      if (this.$utils.empty(id)) { return false }
+      const str = String(id).trim()
+      return /^[a-zA-Z][a-zA-Z0-9]\d{8}$/.test(str)
     },
     displayName (name, id = null) {
       if (!this.$utils.empty(id) && !this.isNaturalPerson(id)) {
-        return name;
+        return name
       }
-      return this.maskName(name);
+      return this.maskName(name)
     },
     maskId (id) {
-      if (!this.isNaturalPerson(id)) return id;
-      const str = String(id).trim();
+      if (!this.isNaturalPerson(id)) { return id }
+      const str = String(id).trim()
       if (str.length === 10) {
-        return str.substring(0, 4) + 'ＯＯＯ' + str.substring(7);
+        return str.substring(0, 4) + 'ＯＯＯ' + str.substring(7)
       }
-      return id;
+      return id
     },
     maskName (name) {
-      if (this.$utils.empty(name)) return '';
-      const str = String(name).trim();
-      const len = str.length;
-      if (len <= 1) return str;
-      if (len === 2) return str[0] + 'Ｏ';
-      if (len === 3) return str[0] + 'Ｏ' + str[2];
-      return str[0] + 'Ｏ'.repeat(len - 2) + str[len - 1];
+      if (this.$utils.empty(name)) { return '' }
+      const str = String(name).trim()
+      const len = str.length
+      if (len <= 1) { return str }
+      if (len === 2) { return str[0] + 'Ｏ' }
+      if (len === 3) { return str[0] + 'Ｏ' + str[2] }
+      return str[0] + 'Ｏ'.repeat(len - 2) + str[len - 1]
     },
     getLocalFixData () {
-      if (this.isBusy) return;
-      this.isBusy = true;
-      this.localCRCRDData = false;
-      this.localLoadFailed = false;
+      if (this.isBusy) { return }
+      this.isBusy = true
+      this.localCRCRDData = false
+      this.localLoadFailed = false
       this.$axios.post(this.$consts.API.JSON.XCASE, {
         type: 'get_local_fix_data',
         id: this.id
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
-          this.localCRCRDData = data.raw;
+          this.localCRCRDData = data.raw
         }
       }).catch((err) => {
-        this.$utils.error(err);
-        this.localLoadFailed = true;
+        this.$utils.error(err)
+        this.localLoadFailed = true
       }).finally(() => {
-        this.isBusy = false;
+        this.isBusy = false
       })
     }
   }
@@ -272,12 +275,12 @@ export default {
     cursor: pointer;
     user-select: none;
     transition: opacity 0.15s ease, transform 0.15s ease;
-    
+
     &:active {
       opacity: 0.75;
-      transform: scale(0.99); 
+      transform: scale(0.99);
     }
-    
+
     &:focus, &:focus-visible {
       outline: none !important;
       box-shadow: none !important;
@@ -327,6 +330,10 @@ export default {
       color: #495057;
       font-size: 0.9rem;
     }
+  }
+
+  .loading-placeholder {
+    width: 100%;
   }
 
   .opacity-50 {
