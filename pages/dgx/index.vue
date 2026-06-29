@@ -1,38 +1,38 @@
 <template lang="pug">
-//- 1. 最外層嚴格限制高度，並根據 isDarkMode 動態套用暗黑主題
-div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
-  //- 頂部導覽列 (動態切換 light/dark 模式)
-  b-navbar(:variant="isDarkMode ? 'dark' : 'white'", :type="isDarkMode ? 'dark' : 'light'", sticky).shadow-sm.px-3.border-bottom.navbar-area
+//- 1. 最外層嚴格限制高度與寬度，阻絕任何水平捲軸溢出
+div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-width: 100vw; overflow-x: hidden;")
+  //- 頂部導覽列 (強制不換行 flex-nowrap)
+  b-navbar(:variant="isDarkMode ? 'dark' : 'white'", :type="isDarkMode ? 'dark' : 'light'", sticky).shadow-sm.px-2.px-md-3.border-bottom.navbar-area.d-flex.flex-nowrap
     //- 左側：漢堡選單 (觸發歷史紀錄側邊欄)
-    b-button(variant="link" v-b-toggle.history-sidebar v-b-tooltip.hover title="查看歷史紀錄").p-1.mr-3.d-flex.align-items-center
+    b-button(variant="link" v-b-toggle.history-sidebar v-b-tooltip.hover title="查看歷史紀錄").p-1.mr-2.d-flex.align-items-center.flex-shrink-0
       lah-fa-icon(icon="history", size="lg", :class="isDarkMode ? 'text-light' : 'text-dark'")
 
     //- 中間：第一次完成送出後，顯示標題與圖示
     lah-transition(appear)
-      .title-container.d-flex.align-items-center(v-if="messages.length > 0")
-        //- ✅ 修正：放大機器人圖示與標題字體，提升導覽列視覺氣勢
-        lah-fa-icon.mr-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="2x")
-        strong.title-text.h4.mb-0.font-weight-bold.mt-1(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件智慧查詢助理
+      //- 加入 flex-grow-1 與 min-width: 0 確保標題過長時可以順利截斷 (.text-truncate)
+      .title-container.d-flex.align-items-center.flex-grow-1(v-if="messages.length > 0" style="min-width: 0;")
+        lah-fa-icon.mr-1.mr-md-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="2x").flex-shrink-0
+        strong.title-text.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件智慧查詢助理
         //- 說明圖示按鈕
-        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-2.mt-1
+        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-1.mt-1.flex-shrink-0
           lah-fa-icon(icon="info-circle", size="lg", :variant="isDarkMode ? 'info' : 'info'")
 
-    //- 右側：操作按鈕區
-    b-navbar-nav.ml-auto
+    //- 右側：操作按鈕區 (強制水平排列 flex-row，避免手機版折疊推擠)
+    b-navbar-nav.ml-auto.flex-row.align-items-center.flex-shrink-0
       //- 字體大小切換按鈕
       b-nav-item(@click="cycleTextSize" title="切換對話文字大小")
-        .d-flex.align-items-center
+        .d-flex.align-items-center.px-1
           lah-fa-icon(icon="font", size="lg", :variant="isDarkMode ? 'info' : 'secondary'")
           span.ml-1.font-weight-bold.small(:class="isDarkMode ? 'text-info' : 'text-secondary'") {{ textSizeLabel }}
 
       //- 清除對話按鈕 (當有訊息時才顯示)
       b-nav-item(@click="clearMessages" title="清除畫面紀錄" v-if="messages.length > 0")
-        .d-flex.align-items-center
+        .d-flex.align-items-center.px-1
           lah-fa-icon(icon="trash-alt", size="lg", variant="danger")
 
       //- 明暗主題切換按鈕
       b-nav-item(@click="toggleTheme" title="切換明暗主題")
-        .d-flex.align-items-center
+        .d-flex.align-items-center.px-1
           lah-fa-icon(:icon="isDarkMode ? 'sun' : 'moon'", size="lg", :variant="isDarkMode ? 'warning' : 'secondary'")
 
   //- ==========================================
@@ -74,24 +74,23 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
   //- 聊天主體區塊
   //- ==========================================
   .chat-main-area.d-flex.flex-column
-    //- 對話紀錄顯示區
-    .messages-container.flex-grow-1.p-4.overflow-auto(ref="msgContainer")
+    //- 對話紀錄顯示區 (縮小手機版 padding，限制橫向捲動)
+    .messages-container.flex-grow-1.p-2.p-md-4.overflow-auto(ref="msgContainer" style="overflow-x: hidden;")
 
       //- 歡迎畫面
       .welcome-screen.d-flex.flex-column.align-items-center.justify-content-center.h-100(v-if="messages.length === 0")
-        .greeting-container.d-flex.flex-column.align-items-center
+        .greeting-container.d-flex.flex-column.align-items-center.px-3
           lah-fa-icon(icon="robot" size="7x" :variant="isDarkMode ? 'warning' : 'primary'").mb-2
 
           .text-center.mt-1(:class="isDarkMode ? 'text-light' : 'text-dark'")
-            h1.font-weight-bold.mb-3.welcome-title 案件智慧查詢助理
-            h5.mb-4(:class="isDarkMode ? 'text-secondary' : 'text-muted'") 您好！請輸入案件字號或相關資訊，我來幫您查詢。
+            h2.font-weight-bold.mb-3.welcome-title 案件智慧查詢助理
+            h6.mb-4(:class="isDarkMode ? 'text-secondary' : 'text-muted'") 您好！請輸入案件字號或相關資訊，我來幫您查詢。
 
             b-button(variant="primary" pill size="lg" @click="$refs.instructionModal.show()").shadow-sm.px-4.py-2.mt-2
               lah-fa-icon(icon="info-circle").mr-2
-              | 查看支援的輸入格式與範例
+              | 查看輸入格式與範例
 
       //- 訊息對話列表
-      //- 將字體大小 class 綁定到每個對話外框 (.message-item)，內部卡片會依此動態調整寬度與字級
       .message-item.mb-4(
         v-for="(msg, msgIdx) in messages"
         :key="'msg_' + msgIdx"
@@ -106,14 +105,14 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
         //- AI 回覆訊息泡泡
         .d-inline-block.p-3.rounded.text-left.shadow-sm(
           v-else
-          style="max-width: 95%;"
+          style="max-width: 98%;"
           :class="isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-white border'"
         )
           .mb-2.font-weight-bold
             lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
             | {{ msg.text }}
 
-          //- 直接渲染真實的地政案件微型卡片
+          //- 渲染真實的地政案件微型卡片
           .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
             .case-card(
               v-for="(cId, cIdx) in msg.caseIds"
@@ -126,22 +125,46 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
                 lah-reg-case-status-compact(:case-id="cId")
 
-    //- 底部輸入區塊：限制最大寬度並置中
-    .input-area.p-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
-      .input-wrapper.mx-auto(style="max-width: 800px; width: 100%;")
+    //- 底部輸入區塊
+    .input-area.p-2.p-md-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
+      .input-wrapper.mx-auto.w-100(style="max-width: 800px;" ref="inputWrapper")
+
+        //- 💡 修正：加上 ref="quickExamples" 供 JS 實測，並用 opacity 來避免重算過程中的視覺閃爍
+        .quick-examples.mb-2.d-flex.align-items-center.overflow-hidden.w-100(
+          ref="quickExamples"
+          :style="{ opacity: isCalculating ? 0 : 1, pointerEvents: isCalculating ? 'none' : 'auto', transition: 'opacity 0.15s ease' }"
+        )
+          lah-fa-icon(icon="lightbulb" :class="isDarkMode ? 'text-warning' : 'text-warning'").mr-2.flex-shrink-0
+
+          b-button(
+            v-for="(item, idx) in displayExamples"
+            :key="'ex_' + idx"
+            variant="outline-secondary"
+            size="sm"
+            pill
+            class="mr-2 flex-shrink-0 quick-btn d-inline-flex align-items-center"
+            :class="isDarkMode ? 'text-light border-secondary' : 'text-secondary'"
+            @click="useExample(item.text)"
+            :title="item.text"
+          )
+            //- 若為歷史紀錄，加上時鐘小圖示
+            lah-fa-icon.mr-1(v-if="item.type === 'history'" icon="history" size="sm" :variant="isDarkMode ? 'info' : 'primary'")
+            //- 限制文字長度，避免單一按鈕過度佔用
+            span.text-truncate.d-inline-block(style="max-width: 140px;") {{ item.text }}
+
         b-input-group(size="lg")
           b-form-input(
             ref="chatInput"
             v-model="inputText"
-            placeholder="請輸入案件資訊... (例：113年桃園朴子 第190號)"
+            placeholder="請輸入案件資訊..."
             @keyup.enter="sendMessage"
             :class="[isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white']"
             :disabled="isBusy"
           )
           b-input-group-append
-            b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100
+            b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100.px-2.px-md-3
               lah-fa-icon(icon="paper-plane" :action="isBusy ? 'spin' : ''")
-              |  送出
+              span.d-none.d-sm-inline.ml-1 送出
 
   //- ==========================================
   //- 案件查詢語法說明 Modal
@@ -320,6 +343,8 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
 </template>
 
 <script>
+// 💡 首選工具庫：引入 Lodash 協助處理資料抽樣與洗牌
+import _ from 'lodash';
 import lahRegCaseStatusCompact from '~/components/lah-reg-case-status-compact.vue';
 
 const MAX_MESSAGES = 100
@@ -334,13 +359,80 @@ export default {
     inputText: '',
     messages: [],
     historyRecords: [],
+    defaultExamples: [
+      '115年 桃園古亭 10號',
+      '115年 桃壢登跨 10號',
+      '113年 桃園朴子 190',
+      'HA85 1200 1300',
+      '19500 13500',
+      '113 12500'
+    ],
     resizeObserver: null,
-    textSize: 'md' // 字體大小狀態 (md/lg/xl)
+    inputResizeObserver: null,
+
+    // 💡 實測用變數
+    maxVisibleExamples: 6, // 顯示數量上限
+    isCalculating: false, // 計算中的狀態 (控制透明度)
+
+    textSize: 'md'
   }),
   computed: {
     textSizeLabel () {
       const map = { md: '中', lg: '大', xl: '特大' }
       return map[this.textSize] || '中'
+    },
+    // 💡 重構：抽離為「所有候選陣列」，固定產出 6 筆供後續裁切
+    allExamples () {
+      const list = []
+      const seen = new Set()
+      const MAX_ITEMS = 6
+
+      // 1. 最新歷史紀錄 (優先最多取 3 筆)
+      const recentHistory = this.historyRecords.slice(0, 3)
+      for (const record of recentHistory) {
+        if (!seen.has(record.text) && list.length < MAX_ITEMS) {
+          list.push({ text: record.text, type: 'history' })
+          seen.add(record.text)
+        }
+      }
+
+      // 2. 剩餘歷史紀錄隨機取樣
+      if (list.length < MAX_ITEMS && this.historyRecords.length > 3) {
+        const remainingHistory = this.historyRecords.slice(3)
+          .map(r => r.text)
+          .filter(text => !seen.has(text))
+
+        const randomHistory = _.sampleSize(remainingHistory, MAX_ITEMS - list.length)
+        for (const text of randomHistory) {
+          list.push({ text, type: 'history' })
+          seen.add(text)
+        }
+      }
+
+      // 3. 預設範例補底
+      if (list.length < MAX_ITEMS) {
+        const availableDefaults = this.defaultExamples.filter(text => !seen.has(text))
+        const randomDefaults = _.sampleSize(availableDefaults, MAX_ITEMS - list.length)
+        for (const text of randomDefaults) {
+          list.push({ text, type: 'default' })
+          seen.add(text)
+        }
+      }
+
+      return list
+    },
+    // 💡 根據動態算出的數量，最終顯示在畫面上的陣列
+    displayExamples () {
+      return this.allExamples.slice(0, this.maxVisibleExamples)
+    }
+  },
+  watch: {
+    // 💡 關鍵：只要歷史紀錄有變動，強制觸發一次重新計算
+    historyRecords: {
+      deep: true,
+      handler () {
+        this.calculateVisibleExamples()
+      }
     }
   },
   mounted () {
@@ -364,15 +456,28 @@ export default {
     }
 
     this.$nextTick(() => {
-      const container = this.$refs.msgContainer
-      if (container && window.ResizeObserver) {
+      // 1. 監聽訊息區塊 (自動滾動)
+      const msgContainer = this.$refs.msgContainer
+      if (msgContainer && window.ResizeObserver) {
         this.resizeObserver = new ResizeObserver(() => {
-          const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 200
+          const isNearBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight < 200
           if (isNearBottom) {
-            container.scrollTop = container.scrollHeight
+            msgContainer.scrollTop = msgContainer.scrollHeight
           }
         })
-        this.resizeObserver.observe(container)
+        this.resizeObserver.observe(msgContainer)
+      }
+
+      // 2. 監聽輸入區塊，當外層視窗寬度改變時重算
+      const inputWrapper = this.$refs.inputWrapper
+      if (inputWrapper && window.ResizeObserver) {
+        this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
+          this.calculateVisibleExamples()
+        }, 150)) // 使用 Lodash debounce 避免縮放時頻繁觸發
+        this.inputResizeObserver.observe(inputWrapper)
+      } else {
+        // 舊版瀏覽器防呆
+        this.calculateVisibleExamples()
       }
     })
   },
@@ -380,8 +485,37 @@ export default {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
     }
+    if (this.inputResizeObserver) {
+      this.inputResizeObserver.disconnect()
+    }
   },
   methods: {
+    // 💡 核心魔法：利用 DOM layout 實測寬度，動態扣減陣列長度！
+    async calculateVisibleExamples () {
+      // 避免重複計算
+      if (this.isCalculating) { return }
+      this.isCalculating = true
+
+      try {
+        // 1. 先強制設定為最大數量 (6個)，等待 Vue 渲染更新 DOM
+        this.maxVisibleExamples = 6
+        await this.$nextTick()
+
+        const container = this.$refs.quickExamples
+        if (!container) { return }
+
+        // 2. 檢查：內部總寬度 (scrollWidth) 是否大於 容器實際可視寬度 (clientWidth)？
+        // 加上 2px 寬容值避免瀏覽器小數點運算誤差
+        while (container.scrollWidth > Math.ceil(container.clientWidth) + 2 && this.maxVisibleExamples > 1) {
+          // 若超過了，就把顯示數量減 1，再次等待渲染並實測
+          this.maxVisibleExamples--
+          await this.$nextTick()
+        }
+      } finally {
+        // 計算完成，解除透明度讓元件優雅浮現
+        this.isCalculating = false
+      }
+    },
     toggleTheme () {
       this.isDarkMode = !this.isDarkMode
       localStorage.setItem('lah-theme-dark', this.isDarkMode)
@@ -425,6 +559,14 @@ export default {
     useHistory (text) {
       this.inputText = text
       this.$root.$emit('bv::toggle::collapse', 'history-sidebar')
+      this.$nextTick(() => {
+        if (this.$refs.chatInput) {
+          this.$refs.chatInput.focus()
+        }
+      })
+    },
+    useExample (text) {
+      this.inputText = text
       this.$nextTick(() => {
         if (this.$refs.chatInput) {
           this.$refs.chatInput.focus()
@@ -560,7 +702,6 @@ export default {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   transition: background-color 0.3s ease;
 }
 
@@ -577,7 +718,7 @@ export default {
 }
 
 /* =========================================
-   歡迎畫面與字體大小切換
+   歡迎畫面與動態字體
    ========================================= */
 .greeting-container {
   max-width: 500px;
@@ -585,22 +726,27 @@ export default {
 }
 
 .welcome-title {
-  font-size: 2.5rem;
+  font-size: 2rem;
   letter-spacing: 1px;
   @media (min-width: 768px) {
-    font-size: 3.5rem;
+    font-size: 3rem;
+  }
+}
+
+.title-text {
+  font-size: 1.1rem;
+  @media (min-width: 768px) {
+    font-size: 1.25rem;
   }
 }
 
 /* 動態字體層級 (套用於 .message-item) */
 .message-item.text-size-md {
   font-size: 1rem;
-  /* ✅ 補上 ::v-deep，確保與 lg/xl 結構對稱；md 為基準值 */
   ::v-deep {
     .small, small { font-size: 0.875rem; }
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
-  /* 預設 3 欄 */
   .case-card { width: calc(33.333% - 11px); min-width: 280px; }
 }
 
@@ -609,7 +755,6 @@ export default {
   ::v-deep {
     .small, small { font-size: 0.95rem; }
     .h6, h6 { font-size: 1.2rem; }
-    /* ✅ 移除 .case-card-header 顯式覆寫：header 現在繼承父層 1.2rem */
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
 }
@@ -619,10 +764,8 @@ export default {
   ::v-deep {
     .small, small { font-size: 1.1rem; }
     .h6, h6 { font-size: 1.4rem; }
-    /* ✅ 移除 .case-card-header 顯式覆寫：header 現在繼承父層 1.4rem */
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
-  /* 特大字體：放寬為 2 欄 */
   .case-card { width: calc(50% - 8px); min-width: 40vw; }
 }
 
@@ -650,25 +793,40 @@ export default {
 
 @media (max-width: 768px) {
   .message-item {
-    .case-card { width: 100% !important; }
+    .case-card {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
   }
 }
 
 .case-card-header {
-  /* ✅ 使用 em 讓 padding 跟著父層 .text-size-* 的 font-size 等比縮放 */
-  /* ✅ 不設 font-size，改由繼承父層 .message-item.text-size-* 來決定 */
   padding: 0.5em 0.75em;
   border-bottom: 1px solid #e9ecef;
 }
 
 .case-card-body {
-  /* ✅ em padding 跟著 .text-size-* 縮放，large/xl 時閱讀空間更充裕 */
   padding: 0.75em;
   height: 100%;
 }
 
 /* =========================================
-   歷史側邊欄樣式
+   快捷輸入區塊 (Quick Examples) 樣式
+   ========================================= */
+.quick-examples {
+  .quick-btn {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #007bff;
+      color: #fff !important;
+      border-color: #007bff !important;
+    }
+  }
+}
+
+/* =========================================
+   歷史側邊欄與說明區
    ========================================= */
 .history-item {
   transition: background-color 0.2s ease;
@@ -677,16 +835,8 @@ export default {
   }
 }
 
-/* =========================================
-   說明 Modal 樣式
-   ========================================= */
-.instruction-card {
-  border-left: 4px solid #17a2b8 !important;
-}
-
-.instruction-card.border-success {
-  border-left-color: #28a745 !important;
-}
+.instruction-card { border-left: 4px solid #17a2b8 !important; }
+.instruction-card.border-success { border-left-color: #28a745 !important; }
 
 .example-block {
   border-radius: 6px;
@@ -733,9 +883,7 @@ export default {
     background-color: rgba(255, 255, 255, 0.05) !important;
   }
 
-  .instruction-card {
-    background-color: #2b3035 !important;
-  }
+  .instruction-card { background-color: #2b3035 !important; }
 
   .example-block {
     background-color: #2b3035 !important;
