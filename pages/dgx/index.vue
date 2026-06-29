@@ -623,7 +623,7 @@ export default {
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
   /* 特大字體：放寬為 2 欄 */
-  .case-card { width: calc(50% - 8px); min-width: 320px; }
+  .case-card { width: calc(50% - 8px); min-width: 40vw; }
 }
 
 /* =========================================
