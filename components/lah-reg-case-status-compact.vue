@@ -177,11 +177,11 @@ export default {
     },
     hasCellphone () {
       if (!this.bakedData) { return false }
-      return !this.$utils.empty(this.bakedData.手機) || !this.$utils.empty(this.bakedData.聯絡電話)
+      return !this.$utils.empty(this.bakedData.手機號碼) || !this.$utils.empty(this.bakedData.RM102)
     },
     cellphoneStr () {
       if (!this.bakedData) { return '' }
-      return this.bakedData.手機 || this.bakedData.聯絡電話 || ''
+      return this.bakedData.手機號碼 || this.bakedData.RM102 || ''
     },
     hasPersonnel () {
       if (!this.bakedData) { return false }
