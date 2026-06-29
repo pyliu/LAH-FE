@@ -4,20 +4,27 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
   //- 頂部導覽列 (動態切換 light/dark 模式)
   b-navbar(:variant="isDarkMode ? 'dark' : 'white'", :type="isDarkMode ? 'dark' : 'light'", sticky).shadow-sm.px-3.border-bottom.navbar-area
     //- 左側：漢堡選單 (觸發歷史紀錄側邊欄)
-    b-button(variant="link" v-b-toggle.history-sidebar v-b-tooltip.hover title="查看歷史紀錄").p-1.mr-2.d-flex.align-items-center
+    b-button(variant="link" v-b-toggle.history-sidebar v-b-tooltip.hover title="查看歷史紀錄").p-1.mr-3.d-flex.align-items-center
       lah-fa-icon(icon="history", size="lg", :class="isDarkMode ? 'text-light' : 'text-dark'")
 
     //- 中間：第一次完成送出後，顯示標題與圖示
     lah-transition(appear)
       .title-container.d-flex.align-items-center(v-if="messages.length > 0")
-        lah-fa-icon.mr-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="lg")
-        strong.title-text(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件智慧查詢助理
+        //- ✅ 修正：放大機器人圖示與標題字體，提升導覽列視覺氣勢
+        lah-fa-icon.mr-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="2x")
+        strong.title-text.h4.mb-0.font-weight-bold.mt-1(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件智慧查詢助理
         //- 說明圖示按鈕
-        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-2
+        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-2.mt-1
           lah-fa-icon(icon="info-circle", size="lg", :variant="isDarkMode ? 'info' : 'info'")
 
     //- 右側：操作按鈕區
     b-navbar-nav.ml-auto
+      //- 字體大小切換按鈕
+      b-nav-item(@click="cycleTextSize" title="切換對話文字大小")
+        .d-flex.align-items-center
+          lah-fa-icon(icon="font", size="lg", :variant="isDarkMode ? 'info' : 'secondary'")
+          span.ml-1.font-weight-bold.small(:class="isDarkMode ? 'text-info' : 'text-secondary'") {{ textSizeLabel }}
+
       //- 清除對話按鈕 (當有訊息時才顯示)
       b-nav-item(@click="clearMessages" title="清除畫面紀錄" v-if="messages.length > 0")
         .d-flex.align-items-center
@@ -69,20 +76,26 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
   .chat-main-area.d-flex.flex-column
     //- 對話紀錄顯示區
     .messages-container.flex-grow-1.p-4.overflow-auto(ref="msgContainer")
-      //- 歡迎畫面 (如果沒有訊息)
+
+      //- 歡迎畫面
       .welcome-screen.d-flex.flex-column.align-items-center.justify-content-center.h-100(v-if="messages.length === 0")
-        lah-fa-icon(icon="robot" size="4x" :variant="isDarkMode ? 'warning' : 'primary'").mb-3
-        h3.font-weight-bold(:class="isDarkMode ? 'text-light' : 'text-dark'") 案件智慧查詢助理
-        p.text-muted 您好！請輸入案件字號或相關資訊，我來幫您查詢。
-        b-button(variant="outline-info" pill @click="$refs.instructionModal.show()").mt-3.shadow-sm
-          lah-fa-icon(icon="info-circle").mr-1
-          | 查看支援的輸入格式與範例
+        .greeting-container.d-flex.flex-column.align-items-center
+          lah-fa-icon(icon="robot" size="7x" :variant="isDarkMode ? 'warning' : 'primary'").mb-2
+
+          .text-center.mt-1(:class="isDarkMode ? 'text-light' : 'text-dark'")
+            h1.font-weight-bold.mb-3.welcome-title 案件智慧查詢助理
+            h5.mb-4(:class="isDarkMode ? 'text-secondary' : 'text-muted'") 您好！請輸入案件字號或相關資訊，我來幫您查詢。
+
+            b-button(variant="primary" pill size="lg" @click="$refs.instructionModal.show()").shadow-sm.px-4.py-2.mt-2
+              lah-fa-icon(icon="info-circle").mr-2
+              | 查看支援的輸入格式與範例
 
       //- 訊息對話列表
+      //- 將字體大小 class 綁定到每個對話外框 (.message-item)，內部卡片會依此動態調整寬度與字級
       .message-item.mb-4(
         v-for="(msg, msgIdx) in messages"
         :key="'msg_' + msgIdx"
-        :class="{'text-right': msg.isUser, 'text-left': !msg.isUser}"
+        :class="[{'text-right': msg.isUser, 'text-left': !msg.isUser}, 'text-size-' + textSize]"
       )
         //- 使用者訊息泡泡
         .d-inline-block.p-3.rounded(
@@ -111,24 +124,24 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
                 lah-fa-icon(icon="file-signature" :class="isDarkMode ? 'text-light' : 'text-secondary'").mr-2
                 strong.mb-0 {{ $utils.caseId(cId) }}
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
-                //- ✅ 確保 compact.vue 能正確呼叫內部 API (保留您的 case-id 綁定)
                 lah-reg-case-status-compact(:case-id="cId")
 
-    //- 底部輸入區塊
-    .input-area.p-3.border-top(:class="isDarkMode ? 'bg-dark' : 'bg-light'")
-      b-input-group(size="lg")
-        b-form-input(
-          ref="chatInput"
-          v-model="inputText"
-          placeholder="請輸入案件資訊... (例：113年桃園朴子 第190號)"
-          @keyup.enter="sendMessage"
-          :class="isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white'"
-          :disabled="isBusy"
-        )
-        b-input-group-append
-          b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100
-            lah-fa-icon(icon="paper-plane" :action="isBusy ? 'spin' : ''")
-            |  送出
+    //- 底部輸入區塊：限制最大寬度並置中
+    .input-area.p-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
+      .input-wrapper.mx-auto(style="max-width: 800px; width: 100%;")
+        b-input-group(size="lg")
+          b-form-input(
+            ref="chatInput"
+            v-model="inputText"
+            placeholder="請輸入案件資訊... (例：113年桃園朴子 第190號)"
+            @keyup.enter="sendMessage"
+            :class="[isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white']"
+            :disabled="isBusy"
+          )
+          b-input-group-append
+            b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100
+              lah-fa-icon(icon="paper-plane" :action="isBusy ? 'spin' : ''")
+              |  送出
 
   //- ==========================================
   //- 案件查詢語法說明 Modal
@@ -149,6 +162,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
     :footer-bg-variant="isDarkMode ? 'dark' : 'light'"
     :header-border-variant="isDarkMode ? 'secondary' : 'default'"
     :footer-border-variant="isDarkMode ? 'secondary' : 'default'"
+    :content-class="isDarkMode ? 'bg-dark text-light border-secondary' : ''"
   )
     b-container(fluid)
       p.mb-4.font-weight-bold(:class="isDarkMode ? 'text-light' : 'text-primary'") 您可以直接像跟同事講話一樣輸入案件資訊！AI 引擎已搭載強大的地政業務容錯規則，會自動為您解析出精準的案件編號。
@@ -286,12 +300,24 @@ export default {
     inputText: '',
     messages: [],
     historyRecords: [],
-    resizeObserver: null
+    resizeObserver: null,
+    textSize: 'md' // 字體大小狀態 (md/lg/xl)
   }),
+  computed: {
+    textSizeLabel () {
+      const map = { md: '中', lg: '大', xl: '特大' }
+      return map[this.textSize] || '中'
+    }
+  },
   mounted () {
     const savedTheme = localStorage.getItem('lah-theme-dark')
     if (savedTheme !== null) {
       this.isDarkMode = savedTheme === 'true'
+    }
+
+    const savedTextSize = localStorage.getItem('lah-dgx-text-size')
+    if (savedTextSize && ['md', 'lg', 'xl'].includes(savedTextSize)) {
+      this.textSize = savedTextSize
     }
 
     const savedHistory = localStorage.getItem('lah-dgx-history')
@@ -325,6 +351,13 @@ export default {
     toggleTheme () {
       this.isDarkMode = !this.isDarkMode
       localStorage.setItem('lah-theme-dark', this.isDarkMode)
+    },
+    cycleTextSize () {
+      const sizes = ['md', 'lg', 'xl']
+      const currentIndex = sizes.indexOf(this.textSize)
+      const nextIndex = (currentIndex + 1) % sizes.length
+      this.textSize = sizes[nextIndex]
+      localStorage.setItem('lah-dgx-text-size', this.textSize)
     },
     clearMessages () {
       this.$bvModal.msgBoxConfirm('確定要清除目前的對話紀錄嗎？', {
@@ -408,7 +441,6 @@ export default {
       try {
         const apiUrl = this.$consts?.API?.JSON?.DGX || '/api/dgx_json_api.php'
 
-        // 發送真實 API 請求
         const { data } = await this.$axios.post(apiUrl, {
           type: 'case_ids',
           text: userInput
@@ -424,7 +456,6 @@ export default {
               caseIds: []
             })
           } else {
-            // ✅ 防呆解析：強制過濾空值，並確保 case_no 正確補齊 6 碼
             const rawIds = []
             parsedCases.forEach((c) => {
               if (c.year_miguo && c.case_word && c.case_no) {
@@ -435,7 +466,6 @@ export default {
               }
             })
 
-            // ✅ 剔除重複字號 (防呆)
             const uniqueCaseIds = [...new Set(rawIds)].filter(id => id.length >= 10)
 
             if (uniqueCaseIds.length === 0) {
@@ -447,7 +477,6 @@ export default {
               return
             }
 
-            // 先產生包含空陣列的訊息外殼
             const aiMsg = {
               text: `已為您找到與「${userInput}」相關的 ${uniqueCaseIds.length} 筆案件資料：`,
               isUser: false,
@@ -455,13 +484,10 @@ export default {
             }
             this.messages.push(aiMsg)
 
-            // ✅ 終極修復：交錯延遲載入 (Staggered Loading)
-            // 將陣列內的 ID 每隔 400 毫秒才放入畫面渲染，避免 3 張以上的卡片瞬間發出 API 請求
-            // 導致瀏覽器連線數達到上限或是後端連線池逾時 (Connection Timeout)。
             uniqueCaseIds.forEach((cId, index) => {
               setTimeout(() => {
                 aiMsg.caseIds.push(cId)
-                this.scrollToBottom() // 搭配 ResizeObserver 自動跟隨向下捲動
+                this.scrollToBottom()
               }, index * 400)
             })
           }
@@ -517,6 +543,53 @@ export default {
 }
 
 /* =========================================
+   歡迎畫面與字體大小切換
+   ========================================= */
+.greeting-container {
+  max-width: 500px;
+  width: 100%;
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+  @media (min-width: 768px) {
+    font-size: 3.5rem;
+  }
+}
+
+/* 動態字體層級 (套用於 .message-item) */
+.message-item.text-size-md {
+  font-size: 1rem;
+  /* 預設 3 欄 */
+  .case-card { width: calc(33.333% - 11px); min-width: 280px; }
+}
+
+.message-item.text-size-lg {
+  font-size: 1.2rem;
+  ::v-deep {
+    .small, small { font-size: 0.95rem; }
+    .h6, h6 { font-size: 1.2rem; }
+    .case-card-header { font-size: 1.15rem; }
+    .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
+  }
+  /* 大字體：放寬為 2 欄 */
+  .case-card { width: calc(50% - 8px); min-width: 320px; }
+}
+
+.message-item.text-size-xl {
+  font-size: 1.4rem;
+  ::v-deep {
+    .small, small { font-size: 1.1rem; }
+    .h6, h6 { font-size: 1.4rem; }
+    .case-card-header { font-size: 1.35rem; }
+    .badge { font-size: 1rem; padding: 0.4em 0.6em; }
+  }
+  /* 特大字體：放寬為 1 欄 (滿版) */
+  .case-card { width: 100%; }
+}
+
+/* =========================================
    卡片與排版
    ========================================= */
 .cases-container {
@@ -527,10 +600,7 @@ export default {
 }
 
 .case-card {
-  /* 修正：改用 0 0 auto 防止卡片換行時被無限拉伸變形 */
   flex: 0 0 auto;
-  width: calc(33.333% - 12px);
-  min-width: 280px;
   max-width: 100%;
   border-left: 4px solid #007bff;
   border-radius: 8px;
@@ -542,8 +612,8 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .case-card {
-    width: 100%;
+  .message-item {
+    .case-card { width: 100% !important; }
   }
 }
 
@@ -566,10 +636,6 @@ export default {
   &:hover {
     background-color: rgba(0, 123, 255, 0.05);
   }
-}
-
-.theme-dark .history-item:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 /* =========================================
@@ -608,6 +674,26 @@ export default {
   .bg-white { background-color: #343a40 !important; }
   .text-dark { color: #f8f9fa !important; }
 
+  .form-control {
+    background-color: #2b3035 !important;
+    color: #f8f9fa !important;
+    border-color: #495057 !important;
+    &:disabled, &[readonly] {
+      background-color: #212529 !important;
+      opacity: 0.7;
+    }
+  }
+
+  .case-card {
+    border-color: #495057;
+    background-color: #343a40;
+  }
+  .case-card-header { border-bottom-color: #495057; }
+
+  .history-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
   .instruction-card {
     background-color: #2b3035 !important;
   }
@@ -622,8 +708,5 @@ export default {
       color: #ff87c3;
     }
   }
-
-  .case-card { border-color: #495057; }
-  .case-card-header { border-bottom-color: #495057; }
 }
 </style>
