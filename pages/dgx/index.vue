@@ -256,11 +256,11 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
             .mb-1.text-secondary.small 情境 1：最基本的查詢 (含口語化)
             .font-weight-bold
               lah-fa-icon(icon="user-circle", variant="secondary").mr-2
-              | "幫我查113年 桃園朴子 第190號"
+              | "幫我查113年 桃園朴子 第10號"
             hr.my-2(:class="isDarkMode ? 'border-secondary' : ''")
             .text-success
               lah-fa-icon(icon="robot", variant="primary").mr-2
-              | ➔ 解析為：#[code 113-H1QB-000190]
+              | ➔ 解析為：#[code 113-H1QB-000010]
 
         //- 範例 2
         b-col(lg="6")
@@ -362,7 +362,7 @@ export default {
     defaultExamples: [
       '115年 桃園古亭 10號',
       '115年 桃壢登跨 10號',
-      '113年 桃園朴子 190',
+      '113年 桃園朴子 10',
       'HA85 1200 1300',
       '19500 13500',
       '113 12500'
