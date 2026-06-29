@@ -595,6 +595,11 @@ export default {
 /* 動態字體層級 (套用於 .message-item) */
 .message-item.text-size-md {
   font-size: 1rem;
+  /* ✅ 補上 ::v-deep，確保與 lg/xl 結構對稱；md 為基準值 */
+  ::v-deep {
+    .small, small { font-size: 0.875rem; }
+    .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
+  }
   /* 預設 3 欄 */
   .case-card { width: calc(33.333% - 11px); min-width: 280px; }
 }
@@ -604,11 +609,9 @@ export default {
   ::v-deep {
     .small, small { font-size: 0.95rem; }
     .h6, h6 { font-size: 1.2rem; }
-    .case-card-header { font-size: 1.15rem; }
+    /* ✅ 移除 .case-card-header 顯式覆寫：header 現在繼承父層 1.2rem */
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
-  /* 大字體：放寬為 2 欄 */
-  .case-card { width: calc(50% - 8px); min-width: 320px; }
 }
 
 .message-item.text-size-xl {
@@ -616,11 +619,11 @@ export default {
   ::v-deep {
     .small, small { font-size: 1.1rem; }
     .h6, h6 { font-size: 1.4rem; }
-    .case-card-header { font-size: 1.35rem; }
+    /* ✅ 移除 .case-card-header 顯式覆寫：header 現在繼承父層 1.4rem */
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
-  /* 特大字體：放寬為 1 欄 (滿版) */
-  .case-card { width: 100%; }
+  /* 特大字體：放寬為 2 欄 */
+  .case-card { width: calc(50% - 8px); min-width: 320px; }
 }
 
 /* =========================================
@@ -652,13 +655,15 @@ export default {
 }
 
 .case-card-header {
-  padding: 8px 12px;
+  /* ✅ 使用 em 讓 padding 跟著父層 .text-size-* 的 font-size 等比縮放 */
+  /* ✅ 不設 font-size，改由繼承父層 .message-item.text-size-* 來決定 */
+  padding: 0.5em 0.75em;
   border-bottom: 1px solid #e9ecef;
-  font-size: 1rem;
 }
 
 .case-card-body {
-  padding: 12px;
+  /* ✅ em padding 跟著 .text-size-* 縮放，large/xl 時閱讀空間更充裕 */
+  padding: 0.75em;
   height: 100%;
 }
 
