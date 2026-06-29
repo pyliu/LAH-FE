@@ -322,7 +322,7 @@ div.chat-app-wrapper(:class="{ 'theme-dark': isDarkMode }")
 <script>
 import lahRegCaseStatusCompact from '~/components/lah-reg-case-status-compact.vue';
 
-const MAX_MESSAGES = 200
+const MAX_MESSAGES = 100
 const MAX_HISTORY = 50
 
 export default {
