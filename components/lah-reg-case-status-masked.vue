@@ -20,29 +20,29 @@ b-card(no-body)
           .timeline-node.d-flex.flex-column.align-items-center.text-center.mx-1(:key="'node-'+idx" class="my-2")
             //- 狀態大圓標 (整合動態背景色與字體顏色)
             b-avatar(
-              :variant="event.variant" 
+              :variant="event.variant"
               :style="event.bgStyle ? `background-color: ${event.bgStyle} !important;` : ''"
-              size="3.5rem" 
+              size="3.5rem"
               class="shadow-sm font-weight-bold border-white border"
               :class="event.textClass"
             )
               span(style="font-size: 0.9rem;") {{ event.title.substring(0, 2) }}
-            
+
             //- 文字與資訊容器：獨立出來使其向下延伸，不影響圓標對齊
             .node-content.mt-2.d-flex.flex-column.align-items-center
               .font-weight-bold.text-dark.small.mb-1 {{ maskName(event.user) || '系統' }}
               .text-muted(style="font-size: 0.75rem;") {{ event.date }}
               .text-muted(style="font-size: 0.7rem;" v-if="event.time") {{ event.time }}
-              
+
               //- 額外資訊提示
               .text-info.mt-1(style="font-size: 0.7rem;" v-if="event.extra") {{ event.extra }}
-              
+
               //- 補正通知專用按鈕
               b-button.mt-1(
-                v-if="event.title === '通知補正' && hasFixData" 
-                size="sm" 
-                variant="danger" 
-                pill 
+                v-if="event.title === '通知補正' && hasFixData"
+                size="sm"
+                variant="danger"
+                pill
                 @click="showFixDataText"
               ) 內容
 
@@ -58,7 +58,7 @@ b-card(no-body)
     hr.my-4
 
     //- ==========================================
-    //- 2. 案件摘要區塊 (Overview) 
+    //- 2. 案件摘要區塊 (Overview)
     //- ==========================================
     b-alert.d-flex.align-items-center.justify-content-between.mb-3(
       :variant="ongoing ? 'warning' : 'success'"
@@ -68,7 +68,7 @@ b-card(no-body)
         strong 狀態：
         span.ml-1 {{ ongoing ? '尚未結案' : '已結案' }}
         //- 新增：若有登記處理註記(如:異動完成)則額外標示
-        b-badge.ml-2(v-if="bakedData.登記處理註記" variant="info" pill class="shadow-sm") 
+        b-badge.ml-2(v-if="bakedData.登記處理註記" variant="info" pill class="shadow-sm")
           | {{ bakedData.登記處理註記 }}
       div
         b-badge(pill :variant="ongoing ? 'danger' : 'success'" class="shadow-sm")
@@ -84,19 +84,19 @@ b-card(no-body)
           .text-muted.small.font-weight-bold.mb-1 📝 登記原因
           .h5.mb-0.text-primary
             | {{ bakedData.登記原因 }}
-            b-badge.ml-2.align-text-top(v-if="bakedData.件數" variant="secondary" pill style="font-size: 0.75rem;") 
+            b-badge.ml-2.align-text-top(v-if="bakedData.件數" variant="secondary" pill style="font-size: 0.75rem;")
               | 共 {{ bakedData.件數 }} 件
         b-col(cols="12" md="4")
           .text-muted.small.font-weight-bold.mb-1 ⏰ 預定結案
           .h6.mb-0.text-dark
             span(v-html="bakedData.限辦期限")
-            b-badge.ml-2(v-if="bakedData.限辦時間" variant="danger") 
+            b-badge.ml-2(v-if="bakedData.限辦時間" variant="danger")
               | {{ bakedData.限辦時間 }}
 
     hr.mb-4
 
     //- ==========================================
-    //- 3. 關係人區塊 (Parties) 
+    //- 3. 關係人區塊 (Parties)
     //- ==========================================
     h6.font-weight-bold.text-secondary.mb-3 👥 關係人資訊
     //- 補上 align-items-start 讓卡片依照自身內容高度對齊，不要強制等高撐大
@@ -126,93 +126,90 @@ b-card(no-body)
     //- 4. 標的資訊與案件進階屬性 (Target info & Details)
     //- ==========================================
     b-row.align-items-start.mb-2
-      //- 左半部：標的資訊 (縮限為 1/4 版面 lg="3")
-      b-col(cols="12" lg="3").mb-4
+      //- 左半部：標的資訊 (放大為 1/3 版面 lg="4")
+      b-col(cols="12" lg="4").mb-4
         .d-flex.justify-content-between.align-items-center.mb-3
           h6.font-weight-bold.text-success.mb-0 📌 標的資訊
-          b-button(v-b-toggle.target-collapse size="sm" variant="outline-success" pill)
-            | 收合
-            b-badge.ml-1(variant="success") {{ totalTargets }} 筆
+          b-badge(variant="success" pill) 共 {{ totalTargets }} 筆
 
-        b-collapse#target-collapse(visible)
-          b-card.border-success.shadow-sm(body-class="p-0")
-            b-list-group(flush)
-              //- 土地標的清單
-              b-list-group-item.target-list-item(
-                v-for="(land, idx) in landTargets"
-                :key="'L'+idx"
-              )
-                .d-flex.w-100.justify-content-between.align-items-center
-                  div
-                    b-badge.mr-2(variant="success") 土地
-                    span.font-weight-bold {{ land.地段 }}
-                    span.text-secondary.ml-1 {{ land.地號 }}
-                  small.text-muted.d-block.mt-1 面積: {{ land.面積 || '無資料' }}
+        //- 移除 collapse 收合設計，改為常駐顯示
+        b-card.border-success.shadow-sm(body-class="p-0")
+          b-list-group(flush)
+            //- 土地標的清單
+            b-list-group-item.target-list-item(
+              v-for="(land, idx) in landTargets"
+              :key="'L'+idx"
+            )
+              .d-flex.w-100.justify-content-between.align-items-center
+                div
+                  b-badge.mr-2(variant="success") 土地
+                  span.font-weight-bold {{ land.地段 }}
+                  span.text-secondary.ml-1 {{ land.地號 }}
+                small.text-muted.d-block.mt-1 面積: {{ land.面積 || '無資料' }}
 
-              //- 建物標的清單
-              b-list-group-item.target-list-item.building(
-                v-for="(building, idx) in buildTargets"
-                :key="'B'+idx"
-              )
-                .d-flex.w-100.align-items-center
-                  b-badge.mr-2.text-white(variant="warning") 建物
-                  span.font-weight-bold {{ building.地段 }}
-                  span.text-secondary.ml-1 {{ building.建號 }}
+            //- 建物標的清單
+            b-list-group-item.target-list-item.building(
+              v-for="(building, idx) in buildTargets"
+              :key="'B'+idx"
+            )
+              .d-flex.w-100.align-items-center
+                b-badge.mr-2.text-white(variant="warning") 建物
+                span.font-weight-bold {{ building.地段 }}
+                span.text-secondary.ml-1 {{ building.建號 }}
 
-              //- 無標的防呆
-              b-list-group-item.text-center.text-muted(v-if="totalTargets === 0")
-                | 本案尚無標的資訊
+            //- 無標的防呆
+            b-list-group-item.text-center.text-muted(v-if="totalTargets === 0")
+              | 本案尚無標的資訊
 
-      //- 右半部：進階屬性與各課耗時區塊 (佔據剩餘 3/4 版面 lg="9")
-      b-col(cols="12" lg="9").mb-4
+      //- 右半部：進階屬性與各課耗時區塊 (佔據剩餘 2/3 版面 lg="8")
+      b-col(cols="12" lg="8").mb-4
         h6.font-weight-bold.text-primary.mb-3 📊 案件細節與耗時
-        //- 拿掉 align-items-stretch 改為 start，讓卡片只跟隨內容高度，不會被不自然拉長
         b-row.align-items-start
-          //- 屬性卡片
-          b-col(cols="12" md="6").mb-3
-            //- 拿掉 h-100 讓它維持精簡高度
+          //- 屬性卡片 (若無耗時資料則動態佔滿整寬 md="12"，否則與耗時平分 md="6")
+          b-col(cols="12" :md="hasElapsedTime ? 6 : 12").mb-3
             b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 🏷️ 屬性資訊
-              .mb-2
-                .small.text-muted 管轄區域
-                .font-weight-bold.text-dark {{ bakedData.區名稱 || '無資料' }}
-              .mb-2
-                .small.text-muted 負責作業人員
-                .font-weight-bold.text-dark {{ bakedData.作業人員 || '無資料' }}
-              .mb-2
-                .small.text-muted 結案狀態
-                .font-weight-bold.text-dark 
-                  | {{ bakedData.結案狀態 || '尚未結案' }}
-                  b-badge.ml-1(v-if="bakedData.結案代碼" variant="secondary" pill) {{ bakedData.結案代碼 }}
-              div
-                .small.text-muted 測量案件
-                .font-weight-bold.text-dark {{ bakedData.測量案件 || '--' }}
+              //- 使用 2x2 Grid 進行內部排列
+              b-row
+                b-col(cols="6").mb-2
+                  .small.text-muted 管轄區域
+                  .font-weight-bold.text-dark {{ bakedData.區名稱 || '無資料' }}
+                b-col(cols="6").mb-2
+                  .small.text-muted 負責作業人員
+                  .font-weight-bold.text-dark {{ bakedData.作業人員 || '無資料' }}
+                b-col(cols="6").mb-2
+                  .small.text-muted 結案狀態
+                  .font-weight-bold.text-dark
+                    | {{ bakedData.結案狀態 || '尚未結案' }}
+                    b-badge.ml-1(v-if="bakedData.結案代碼" variant="secondary" pill) {{ bakedData.結案代碼 }}
+                b-col(cols="6").mb-2
+                  .small.text-muted 測量案件
+                  .font-weight-bold.text-dark {{ bakedData.測量案件 || '--' }}
 
-          //- 耗時卡片
-          b-col(cols="12" md="6").mb-3
-            //- 拿掉 h-100 讓它維持精簡高度
+          //- 耗時卡片 (無資料則隱藏)
+          b-col(cols="12" md="6").mb-3(v-if="hasElapsedTime")
             b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 ⏱️ 階段辦理耗時
-              template(v-if="bakedData.ELAPSED_TIME && Object.keys(bakedData.ELAPSED_TIME).length > 0")
-                .d-flex.justify-content-between.align-items-center.mb-2(
-                  v-for="(val, key) in bakedData.ELAPSED_TIME" 
+              //- 內部同樣使用雙欄 Grid 進行排列
+              b-row
+                b-col(cols="6").mb-2(
+                  v-for="(val, key) in bakedData.ELAPSED_TIME"
                   :key="key"
                 )
-                  span.small.font-weight-bold.text-secondary {{ key }}
-                  b-badge(
-                    :variant="val > 0 ? 'info' : 'light'" 
-                    :class="val > 0 ? '' : 'text-muted'"
-                    pill
-                  ) {{ formatElapsed(val) }}
-              template(v-else)
-                .w-100.text-center.text-muted.small.py-3 尚無耗時資料
+                  .small.text-muted {{ key }}
+                  .font-weight-bold.mt-1
+                    b-badge(
+                      :variant="val > 0 ? 'info' : 'light'"
+                      :class="val > 0 ? '' : 'text-muted'"
+                      pill
+                    ) {{ formatElapsed(val) }}
 
 </template>
 
 <script>
-import lahAvatar from '~/components/lah-avatar.vue'
-import regCaseBase from '~/mixins/lah-reg-case-base.js'
-import lahUserCard from '~/components/lah-user-card.vue'
+import lahAvatar from '~/components/lah-avatar.vue';
+import lahUserCard from '~/components/lah-user-card.vue';
+import regCaseBase from '~/mixins/lah-reg-case-base.js';
 
 export default {
   name: 'LahRegCaseStatusMasked',
@@ -234,14 +231,18 @@ export default {
     fixDataText () {
       return this.localCRCRDData?.RC05 || '⚠ 本地資料庫無資料，若為跨所案件請先確認該案件有同步過來❗'
     },
+    // 動態判斷是否有辦理耗時資料
+    hasElapsedTime () {
+      return this.bakedData?.ELAPSED_TIME && Object.keys(this.bakedData.ELAPSED_TIME).length > 0
+    },
     // =====================================
     // 標的資訊解析 (相容單筆扁平化與多筆陣列)
     // =====================================
     landTargets () {
       const d = this.bakedData
-      if (!d) return []
+      if (!d) { return [] }
       // 若後端有正常給予陣列
-      if (Array.isArray(d.土地標的) && d.土地標的.length > 0) return d.土地標的
+      if (Array.isArray(d.土地標的) && d.土地標的.length > 0) { return d.土地標的 }
       // Fallback: 從扁平欄位中榨取單筆資料
       if (!this.$utils.empty(d.地號) && d.地號 !== '0000-0000') {
         return [{ 地段: d.段小段 || d.RM11_CHT, 地號: d.地號, 面積: d.土地面積 }]
@@ -250,9 +251,9 @@ export default {
     },
     buildTargets () {
       const d = this.bakedData
-      if (!d) return []
+      if (!d) { return [] }
       // 若後端有正常給予陣列
-      if (Array.isArray(d.建物標的) && d.建物標的.length > 0) return d.建物標的
+      if (Array.isArray(d.建物標的) && d.建物標的.length > 0) { return d.建物標的 }
       // Fallback: 從扁平欄位中榨取單筆資料
       if (!this.$utils.empty(d.建號) && d.建號 !== '00000-000') {
         return [{ 地段: d.段小段 || d.RM11_CHT, 建號: d.建號, 門牌: d.門牌 }]
@@ -275,13 +276,13 @@ export default {
 
         // 嚴格把關：必須要「有填寫正常的日期或時間」才加入歷程顯示
         if (dStr.length > 0 || tStr.length > 0) {
-          events.push({ 
-            title, 
-            user, 
-            userId, 
-            date: dStr, 
-            time: tStr, 
-            extra 
+          events.push({
+            title,
+            user,
+            userId,
+            date: dStr,
+            time: tStr,
+            extra
           })
         }
       }
@@ -299,7 +300,7 @@ export default {
       addEvent('公告', '', '', d.公告日期, '', d.公告期滿日期 ? `期滿：${d.公告期滿日期}` : '')
 
       addEvent('複審', d.複審人員, d.RM47, d.複審時間)
-      addEvent('駁回', '', '', d.駁回日期) 
+      addEvent('駁回', '', '', d.駁回日期)
       addEvent('准登', d.准登人員, d.RM63, d.准登日期)
       addEvent('登錄', d.登錄人員, d.RM55, d.登錄日期)
       addEvent('校對', d.校對人員, d.RM57, d.校對日期)
@@ -314,7 +315,7 @@ export default {
 
       // 先統計「中間過程」的總數量，作為漸層深度的分母
       let intermediateCount = 0
-      events.forEach(e => {
+      events.forEach((e) => {
         if (!errorStates.includes(e.title) && !startStates.includes(e.title) && !endStates.includes(e.title)) {
           intermediateCount++
         }
@@ -322,7 +323,7 @@ export default {
 
       // 第二次迴圈：分配具體顏色屬性
       let currentIntermediateIndex = 0
-      events.forEach(e => {
+      events.forEach((e) => {
         if (startStates.includes(e.title)) {
           // 起始：灰色
           e.variant = 'secondary'
@@ -339,10 +340,10 @@ export default {
           // 中間處理過程：動態黃色漸層 (越靠近結案顏色越深)
           // 透過 HSL 色彩模型調整亮度 (Lightness)
           // 最淺 90% (極淡黃) -> 最深 50% (飽和金黃)
-          const L = intermediateCount > 1 
-            ? 90 - (currentIntermediateIndex * (40 / (intermediateCount - 1))) 
+          const L = intermediateCount > 1
+            ? 90 - (currentIntermediateIndex * (40 / (intermediateCount - 1)))
             : 70
-          
+
           e.variant = 'light' // 設為 light 使字體不被 bootstrap 覆蓋
           e.bgStyle = `hsl(45, 100%, ${L}%)` // 覆寫背景色
           e.textClass = 'text-dark' // 強制黑字確保閱讀性
@@ -383,15 +384,15 @@ export default {
     },
     // 轉換秒數為易讀格式 (天、時、分)
     formatElapsed (seconds) {
-      if (!seconds || seconds <= 0) return '--'
+      if (!seconds || seconds <= 0) { return '--' }
       const d = Math.floor(seconds / 86400)
       const h = Math.floor((seconds % 86400) / 3600)
       const m = Math.floor((seconds % 3600) / 60)
       const res = []
-      if (d > 0) res.push(`${d}天`)
-      if (h > 0) res.push(`${h}時`)
+      if (d > 0) { res.push(`${d}天`) }
+      if (h > 0) { res.push(`${h}時`) }
       // 若超過一天或一小時但沒有分鐘，為了精確性仍保留。若全空則預設顯示分鐘
-      if (m > 0 || res.length === 0) res.push(`${m}分`)
+      if (m > 0 || res.length === 0) { res.push(`${m}分`) }
       return res.join(' ')
     },
     getLocalFixData () {
