@@ -20,16 +20,16 @@ b-card(no-body)
             //- 狀態大圓標 (整合動態背景色與字體顏色)
             b-avatar.shadow-sm.font-weight-bold.border-white.border(:variant="event.variant", :style="event.bgStyle ? `background-color: ${event.bgStyle} !important;` : ''", size="3.5rem", :class="event.textClass")
               span(style="font-size: 0.9rem;") {{ event.title.substring(0, 2) }}
-            
+
             //- 文字與資訊容器：獨立出來使其向下延伸，不影響圓標對齊
             .node-content.mt-2.d-flex.flex-column.align-items-center
               .font-weight-bold.text-dark.small.mb-1 {{ maskName(event.user) || '系統' }}
               .text-muted(style="font-size: 0.75rem;") {{ event.date }}
               .text-muted(style="font-size: 0.7rem;" v-if="event.time") {{ event.time }}
-              
+
               //- 額外資訊提示
               .text-info.mt-1(style="font-size: 0.7rem;" v-if="event.extra") {{ event.extra }}
-              
+
               //- 補正通知專用按鈕
               b-button.mt-1(v-if="event.title === '通知補正' && hasFixData", size="sm", variant="danger", pill, @click="showFixDataText") 內容
 
@@ -43,7 +43,7 @@ b-card(no-body)
     hr.my-4
 
     //- ==========================================
-    //- 2. 案件摘要區塊 (Overview) 
+    //- 2. 案件摘要區塊 (Overview)
     //- ==========================================
     b-alert.d-flex.align-items-center.justify-content-between.mb-3(:variant="ongoing ? 'warning' : 'success'", show)
       div
@@ -74,7 +74,7 @@ b-card(no-body)
     hr.mb-4
 
     //- ==========================================
-    //- 3. 關係人區塊 (Parties) 
+    //- 3. 關係人區塊 (Parties)
     //- ==========================================
     h6.font-weight-bold.text-secondary.mb-3 👥 關係人資訊
     //- 補上 align-items-start 讓卡片依照自身內容高度對齊，不要強制等高撐大
@@ -149,7 +149,7 @@ b-card(no-body)
                   .font-weight-bold.text-dark {{ bakedData.作業人員 ? maskName(bakedData.作業人員) : '無資料' }}
                 b-col(cols="6").mb-2
                   .small.text-muted 結案狀態
-                  .font-weight-bold.text-dark 
+                  .font-weight-bold.text-dark
                     | {{ bakedData.結案狀態 || '尚未結案' }}
                     b-badge.ml-1(v-if="bakedData.結案代碼", variant="secondary", pill) {{ bakedData.結案代碼 }}
                 b-col(cols="6").mb-2
@@ -332,18 +332,25 @@ export default {
     maskId (id) {
       if (!this.isNaturalPerson(id)) { return id }
       const str = String(id)
-      return `${str.substring(0, 4)}ＯＯＯ${str.substring(7)}`
+      return `${str.substring(0, 4)}Ｏ${str.substring(7)}`
     },
     // 姓名遮蔽 (若附帶統編且非自然人則不遮蔽)
     maskName (name, id = null) {
       if (this.$utils.empty(name)) { return '' }
       if (id && !this.isNaturalPerson(id)) { return name }
 
+      // 去除數字、英文及各種符號，只保留中文姓名
       const str = String(name)
+        .replace(/[A-Za-z0-9]/g, '')
+        .replace(/[^\u4E00-\u9FFF]/g, '')
+
+      if (!str) { return '' }
+
       if (str.length <= 2) {
         return `${str.substring(0, 1)}Ｏ`
       }
-      return `${str.substring(0, 1)}${'Ｏ'.repeat(str.length - 2)}${str.substring(str.length - 1)}`
+
+      return `${str.substring(0, 1)}${'Ｏ'}${str.substring(str.length - 1)}`
     },
     // 轉換秒數為易讀格式 (天、時、分) - 移除字串中空白以節省版面空間
     formatElapsed (seconds) {
