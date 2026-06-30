@@ -175,8 +175,8 @@ b-card(no-body)
                   .small.text-muted 管轄區域
                   .font-weight-bold.text-dark {{ bakedData.區名稱 || '無資料' }}
                 b-col(cols="6").mb-2
-                  .small.text-muted 負責作業人員
-                  .font-weight-bold.text-dark {{ bakedData.作業人員 || '無資料' }}
+                  .small.text-muted 目前作業人員
+                  .font-weight-bold.text-dark {{ bakedData.作業人員 ? maskName(bakedData.作業人員) : '無資料' }}
                 b-col(cols="6").mb-2
                   .small.text-muted 結案狀態
                   .font-weight-bold.text-dark
@@ -190,9 +190,9 @@ b-card(no-body)
           b-col(cols="12" md="6").mb-3(v-if="hasElapsedTime")
             b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 ⏱️ 階段辦理耗時
-              //- 內部同樣使用雙欄 Grid 進行排列
+              //- 內部改用 3 欄 Grid (2x3) 進行排列
               b-row
-                b-col(cols="6").mb-2(
+                b-col(cols="4").mb-2(
                   v-for="(val, key) in bakedData.ELAPSED_TIME"
                   :key="key"
                 )
