@@ -113,7 +113,11 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
             | {{ msg.text }}
 
           //- 渲染真實的地政案件微型卡片
-          .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
+          //- 💡 single-row：卡片總數 <= 該字體尺寸單排上限時才加上，CSS 才會套用撐滿剩餘空間的版面
+          .cases-container.mt-3(
+            v-if="msg.caseIds && msg.caseIds.length > 0"
+            :class="{ 'single-row': msg.caseIds.length <= cardRowCapacity }"
+          )
             .case-card(
               v-for="(cId, cIdx) in msg.caseIds"
               :key="'case_' + msgIdx + '_' + cIdx + '_' + cId"
@@ -402,6 +406,11 @@ export default {
     textSizeLabel () {
       const map = { md: '中', lg: '大', xl: '特大' }
       return map[this.textSize] || '大' // 預設對齊 '大'
+    },
+    // 💡 各字體尺寸下，案件卡片單排可容納的數量上限 (對應 style 中的 calc() 設定)
+    cardRowCapacity () {
+      const map = { md: 4, lg: 3, xl: 2 }
+      return map[this.textSize] || 3 // 預設對齊 'lg' 的 3
     },
     // 所有候選陣列
     allExamples () {
@@ -805,9 +814,10 @@ export default {
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
   // 💡 一排 4 個 (扣除 3 個 16px 的 gap)
-  // 💡 改用 flex-grow:1 取代固定 width，當該排卡片數量不足上限(如只有 1~2 張)時，
-  //    可平分吃掉剩餘空白撐滿版面；滿排時 flex-basis 總和已等於容器寬度，行為與原本一致。
-  .case-card { flex: 1 1 calc((100% - 48px) / 4); min-width: 220px; }
+  // 💡 預設維持固定寬度 (flex-grow:0)，確保多排情況下每排卡片大小一致，不會因最後一排數量較少而被拉伸
+  .case-card { flex: 0 0 calc((100% - 48px) / 4); min-width: 220px; }
+  // 💡 僅當卡片總數 <= 單排上限 (single-row) 時，才允許 flex-grow:1 撐滿剩餘空間
+  .cases-container.single-row .case-card { flex: 1 1 calc((100% - 48px) / 4); }
 }
 
 .message-item.text-size-lg {
@@ -818,8 +828,9 @@ export default {
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
   // 💡 一排 3 個 (扣除 2 個 16px 的 gap)
-  // 💡 改用 flex-grow:1，原因同 md 尺寸區塊說明
-  .case-card { flex: 1 1 calc((100% - 32px) / 3); min-width: 280px; }
+  // 💡 規則說明同 md 尺寸區塊
+  .case-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 280px; }
+  .cases-container.single-row .case-card { flex: 1 1 calc((100% - 32px) / 3); }
 }
 
 .message-item.text-size-xl {
@@ -830,8 +841,9 @@ export default {
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
   // 💡 一排 2 個 (扣除 1 個 16px 的 gap)
-  // 💡 改用 flex-grow:1，原因同 md 尺寸區塊說明
-  .case-card { flex: 1 1 calc((100% - 16px) / 2); min-width: 360px; }
+  // 💡 規則說明同 md 尺寸區塊
+  .case-card { flex: 0 0 calc((100% - 16px) / 2); min-width: 360px; }
+  .cases-container.single-row .case-card { flex: 1 1 calc((100% - 16px) / 2); }
 }
 
 /* =========================================
