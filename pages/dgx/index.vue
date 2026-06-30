@@ -129,10 +129,10 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
     .input-area.p-2.p-md-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
       .input-wrapper.mx-auto.w-100(style="max-width: 800px;" ref="inputWrapper")
 
-        //- 💡 修正：加上 ref="quickExamples" 供 JS 實測，並用 opacity 來避免重算過程中的視覺閃爍
+        //- 💡 修正：加上 ref="quickExamples" 供 JS 實測，並用動態綁定的 transition 避免計算時閃爍
         .quick-examples.mb-2.d-flex.align-items-center.overflow-hidden.w-100(
           ref="quickExamples"
-          :style="{ opacity: isCalculating ? 0 : 1, pointerEvents: isCalculating ? 'none' : 'auto', transition: 'opacity 0.15s ease' }"
+          :style="{ opacity: isCalculating ? 0 : 1, pointerEvents: isCalculating ? 'none' : 'auto' }"
         )
           lah-fa-icon(icon="lightbulb" :class="isDarkMode ? 'text-warning' : 'text-warning'").mr-2.flex-shrink-0
 
@@ -343,7 +343,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
 </template>
 
 <script>
-// 💡 首選工具庫：引入 Lodash 協助處理資料抽樣與洗牌
 import _ from 'lodash';
 import lahRegCaseStatusCompact from '~/components/lah-reg-case-status-compact.vue';
 
@@ -353,41 +352,47 @@ const MAX_HISTORY = 50
 export default {
   name: 'AiQueryAssistantIndex',
   components: { lahRegCaseStatusCompact },
-  data: () => ({
-    isDarkMode: false,
-    isBusy: false,
-    inputText: '',
-    messages: [],
-    historyRecords: [],
-    defaultExamples: [
-      '115年 桃園古亭 10號',
-      '115年 桃壢 10號',
-      '溪桃 10號',
-      'HA85 1200 1300',
-      '19500 13500',
-      '113 12500'
-    ],
-    resizeObserver: null,
-    inputResizeObserver: null,
+  // 💡 修正：為了能動態取得今年年份，將 data 寫成一般函數而非箭頭函數
+  data () {
+    // 動態計算當前民國年
+    const twYear = new Date().getFullYear() - 1911
 
-    // 💡 實測用變數
-    maxVisibleExamples: 6, // 顯示數量上限
-    isCalculating: false, // 計算中的狀態 (控制透明度)
+    return {
+      isDarkMode: false,
+      isBusy: false,
+      inputText: '',
+      messages: [],
+      historyRecords: [],
+      // 💡 修正：套用動態年份，確保範例文字與當下年份保持一致
+      defaultExamples: [
+        `${twYear}年 桃園古亭 10號`,
+        `${twYear}年 桃壢 10號`,
+        '溪桃 10號',
+        'HA85 1200 1300',
+        '19500 13500',
+        `${twYear} 12500`
+      ],
+      resizeObserver: null,
+      inputResizeObserver: null,
 
-    textSize: 'md'
-  }),
+      // 實測用變數
+      maxVisibleExamples: 6, // 顯示數量上限
+      isCalculating: false, // 計算中的狀態 (控制透明度)
+
+      textSize: 'md'
+    }
+  },
   computed: {
     textSizeLabel () {
       const map = { md: '中', lg: '大', xl: '特大' }
       return map[this.textSize] || '中'
     },
-    // 💡 重構：抽離為「所有候選陣列」，固定產出 6 筆供後續裁切
+    // 所有候選陣列
     allExamples () {
       const list = []
       const seen = new Set()
       const MAX_ITEMS = 6
 
-      // 1. 最新歷史紀錄 (優先最多取 3 筆)
       const recentHistory = this.historyRecords.slice(0, 3)
       for (const record of recentHistory) {
         if (!seen.has(record.text) && list.length < MAX_ITEMS) {
@@ -396,7 +401,6 @@ export default {
         }
       }
 
-      // 2. 剩餘歷史紀錄隨機取樣
       if (list.length < MAX_ITEMS && this.historyRecords.length > 3) {
         const remainingHistory = this.historyRecords.slice(3)
           .map(r => r.text)
@@ -409,7 +413,6 @@ export default {
         }
       }
 
-      // 3. 預設範例補底
       if (list.length < MAX_ITEMS) {
         const availableDefaults = this.defaultExamples.filter(text => !seen.has(text))
         const randomDefaults = _.sampleSize(availableDefaults, MAX_ITEMS - list.length)
@@ -421,13 +424,13 @@ export default {
 
       return list
     },
-    // 💡 根據動態算出的數量，最終顯示在畫面上的陣列
+    // 根據動態算出的數量切片顯示
     displayExamples () {
       return this.allExamples.slice(0, this.maxVisibleExamples)
     }
   },
   watch: {
-    // 💡 關鍵：只要歷史紀錄有變動，強制觸發一次重新計算
+    // 只要歷史紀錄有變動，強制觸發一次重新計算
     historyRecords: {
       deep: true,
       handler () {
@@ -473,10 +476,9 @@ export default {
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
           this.calculateVisibleExamples()
-        }, 150)) // 使用 Lodash debounce 避免縮放時頻繁觸發
+        }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
-        // 舊版瀏覽器防呆
         this.calculateVisibleExamples()
       }
     })
@@ -490,29 +492,36 @@ export default {
     }
   },
   methods: {
-    // 💡 核心魔法：利用 DOM layout 實測寬度，動態扣減陣列長度！
+    // 💡 強化版的精確計算機制
     async calculateVisibleExamples () {
-      // 避免重複計算
       if (this.isCalculating) { return }
       this.isCalculating = true
 
       try {
-        // 1. 先強制設定為最大數量 (6個)，等待 Vue 渲染更新 DOM
+        // 先移除 transition，確保計算過程在背後「瞬間」完成而不產生閃爍殘影
+        if (this.$refs.quickExamples) {
+          this.$refs.quickExamples.style.transition = 'none'
+        }
+
+        // 先拉滿數量，等待 Vue 渲染更新 DOM
         this.maxVisibleExamples = 6
         await this.$nextTick()
 
         const container = this.$refs.quickExamples
         if (!container) { return }
 
-        // 2. 檢查：內部總寬度 (scrollWidth) 是否大於 容器實際可視寬度 (clientWidth)？
-        // 加上 2px 寬容值避免瀏覽器小數點運算誤差
-        while (container.scrollWidth > Math.ceil(container.clientWidth) + 2 && this.maxVisibleExamples > 1) {
-          // 若超過了，就把顯示數量減 1，再次等待渲染並實測
+        let attempts = 0
+        // 💡 加上 4px 寬容值，並設定 attempts < 10 避免極端環境下的無窮迴圈
+        while (container.scrollWidth > Math.ceil(container.clientWidth) + 4 && this.maxVisibleExamples > 1 && attempts < 10) {
           this.maxVisibleExamples--
           await this.$nextTick()
+          attempts++
         }
       } finally {
-        // 計算完成，解除透明度讓元件優雅浮現
+        // 計算完畢，把動畫加回去再顯示
+        if (this.$refs.quickExamples) {
+          this.$refs.quickExamples.style.transition = 'opacity 0.15s ease'
+        }
         this.isCalculating = false
       }
     },
@@ -814,8 +823,15 @@ export default {
    快捷輸入區塊 (Quick Examples) 樣式
    ========================================= */
 .quick-examples {
+  /* 💡 核心修正：強制消除最後一個項目的右邊界，避免 scrollWidth 多出 8px 而無限切斷 */
+  .quick-btn:last-child {
+    margin-right: 0 !important;
+  }
+
   .quick-btn {
     transition: all 0.2s ease;
+    /* 💡 核心修正：避免在 iOS 等手機瀏覽器中文字微量折行導致高度或寬度變形 */
+    white-space: nowrap;
 
     &:hover {
       background-color: #007bff;
