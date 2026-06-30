@@ -805,7 +805,9 @@ export default {
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
   // 💡 一排 4 個 (扣除 3 個 16px 的 gap)
-  .case-card { width: calc((100% - 48px) / 4); min-width: 220px; }
+  // 💡 改用 flex-grow:1 取代固定 width，當該排卡片數量不足上限(如只有 1~2 張)時，
+  //    可平分吃掉剩餘空白撐滿版面；滿排時 flex-basis 總和已等於容器寬度，行為與原本一致。
+  .case-card { flex: 1 1 calc((100% - 48px) / 4); min-width: 220px; }
 }
 
 .message-item.text-size-lg {
@@ -816,7 +818,8 @@ export default {
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
   // 💡 一排 3 個 (扣除 2 個 16px 的 gap)
-  .case-card { width: calc((100% - 32px) / 3); min-width: 280px; }
+  // 💡 改用 flex-grow:1，原因同 md 尺寸區塊說明
+  .case-card { flex: 1 1 calc((100% - 32px) / 3); min-width: 280px; }
 }
 
 .message-item.text-size-xl {
@@ -827,7 +830,8 @@ export default {
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
   // 💡 一排 2 個 (扣除 1 個 16px 的 gap)
-  .case-card { width: calc((100% - 16px) / 2); min-width: 360px; }
+  // 💡 改用 flex-grow:1，原因同 md 尺寸區塊說明
+  .case-card { flex: 1 1 calc((100% - 16px) / 2); min-width: 360px; }
 }
 
 /* =========================================
@@ -855,6 +859,9 @@ export default {
 @media (max-width: 768px) {
   .message-item {
     .case-card {
+      // 💡 由於桌機版改用 flex-basis(透過 calc 設定)，依 CSS 規範 flex-basis 優先權高於 width，
+      //    手機版需一併覆寫 flex-basis，否則桌機版的固定比例會殘留，無法正確變成單排全寬。
+      flex: 1 1 100% !important;
       width: 100% !important;
       min-width: 0 !important;
     }
