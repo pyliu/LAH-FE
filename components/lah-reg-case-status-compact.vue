@@ -239,9 +239,25 @@ export default {
       const str = String(name).trim()
       const len = str.length
       if (len <= 1) { return str }
-      if (len === 2) { return str[0] + 'Ｏ' }
-      // ★ 修正：不管名字多長，統一保留頭尾，中間只塞「一個 Ｏ」
-      return str[0] + 'Ｏ' + str[len - 1]
+
+      // ★ 針對尾部：移除所有數字、空白與常見標點符號 (包含全半形括號)
+      // 藉此精準取得最後一個「非數字且非符號」的字元作為尾字
+      const cleanStr = str.replace(/[0-9\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?（）「」【】《》、，。]+$/, '')
+
+      // 如果過濾後完全為空（代表原本全是數字或符號），則 fallback 用原本的字串
+      const targetStr = cleanStr.length > 0 ? cleanStr : str
+      const targetLen = targetStr.length
+
+      if (targetLen === 1) {
+        // 如果過濾後只剩一個字（例如原本是 "王 1"）
+        return targetStr[0] + 'Ｏ'
+      }
+      if (targetLen === 2) {
+        // 兩個字的情況
+        return targetStr[0] + 'Ｏ'
+      }
+      // 3個字以上，取頭尾字元，中間統一塞單一個「Ｏ」
+      return targetStr[0] + 'Ｏ' + targetStr[targetLen - 1]
     },
     getLocalFixData () {
       if (this.isBusy) { return }
