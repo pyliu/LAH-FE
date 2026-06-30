@@ -240,8 +240,8 @@ export default {
       const len = str.length
       if (len <= 1) { return str }
       if (len === 2) { return str[0] + 'Ｏ' }
-      if (len === 3) { return str[0] + 'Ｏ' + str[2] }
-      return str[0] + 'Ｏ'.repeat(len - 2) + str[len - 1]
+      // ★ 修正：不管名字多長，統一保留頭尾，中間只塞「一個 Ｏ」
+      return str[0] + 'Ｏ' + str[len - 1]
     },
     getLocalFixData () {
       if (this.isBusy) { return }
