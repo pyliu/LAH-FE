@@ -32,9 +32,10 @@ b-overlay.lah-compact-case-status(
       .info-list.small
 
         //- 登記原因/作業人員/代理人/手機/權利人/義務人 統一以 v-for 渲染
-        //- 💡 visibleInfoItems 已過濾掉空值欄位（手機固定保留），grid 會依容器寬度自動折行，
-        //-    因此資料較少時會自動往前補位，不會像固定左右兩欄那樣留下空洞
-        .info-row-2col
+        //- 💡 visibleInfoItems 已過濾掉空值欄位（手機固定保留），
+        //-    固定 3 欄排列（每列最多 3 筆資訊），超過則自動換行；
+        //-    並為每個欄位加上淺色卡片邊界，避免文字換行時與相鄰欄位混淆不易分辨
+        .info-row-3col
           .info-item(v-for="item in visibleInfoItems" :key="item.key")
             //- 手機欄位需要顯示「無資料」警示，邏輯較特殊故獨立處理
             template(v-if="item.type === 'cellphone'")
@@ -175,8 +176,8 @@ export default {
       return '⚠ 本地資料庫無資料，若為跨所案件請先確認該案件有同步過來❗'
     },
     // 💡 將「登記原因/作業人員/代理人/手機/權利人/義務人」依序組裝成單一清單，
-    //    並濾除空值欄位（手機固定保留，缺資料要顯示警示），交給單一 grid 容器以 v-for 渲染。
-    //    如此一來，當某欄位無資料時，後續欄位會自動往前補位，不會在排版上留下空洞。
+    //    並濾除空值欄位（手機固定保留，缺資料要顯示警示），交給 .info-row-3col 固定3欄 grid 渲染。
+    //    當某欄位無資料時，後續欄位會自動往前補位遞補；超過3筆則自動換到下一列。
     visibleInfoItems () {
       if (!this.bakedData) { return [] }
       const d = this.bakedData
@@ -339,14 +340,33 @@ export default {
     word-break: break-all;
   }
 
-  .info-row-2col {
+  .info-row-3col {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 6px 10px;
-    align-items: start;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 10px;
+    // 改為 stretch（grid 預設值），讓同一列格子高度自動拉齊到該列最高的格子，
+    // 避免文字長度不同（換行與否）造成格子參差不齊
+    align-items: stretch;
 
     .info-item {
       min-width: 0;
+      // 加上淺色背景與細邊框，讓每個資訊欄位的邊界清楚可辨，避免換行文字與相鄰欄位混淆
+      padding: 5px 8px;
+      background-color: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 4px;
+    }
+  }
+
+  // 窄版面時降為 2 欄 / 1 欄，避免擠壓導致文字過度換行
+  @media (max-width: 480px) {
+    .info-row-3col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 320px) {
+    .info-row-3col {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -397,6 +417,11 @@ export default {
   .personnel-group {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .info-row-3col .info-item {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
   }
 
   .fix-data-box {
