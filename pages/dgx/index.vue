@@ -390,10 +390,10 @@ export default {
       maxVisibleExamples: 6, // 顯示數量上限
       isCalculating: false, // 計算中的狀態 (控制透明度)
 
-      // 💡 預設字體改為大字體 ('lg')
+      // 預設字體改為大字體 ('lg')
       textSize: 'lg',
 
-      // 💡 智能 Loading 狀態
+      // 智能 Loading 狀態
       loadingTimer: null,
       showLongLoadingText: false
     }
@@ -654,7 +654,7 @@ export default {
       this.inputText = ''
       this.isBusy = true
 
-      // 💡 啟動智能 Loading 計時器：超過 1000 毫秒才顯示提示框
+      // 啟動智能 Loading 計時器：超過 1000 毫秒才顯示提示框
       this.showLongLoadingText = false
       if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
       this.loadingTimer = setTimeout(() => {
@@ -735,7 +735,7 @@ export default {
           caseIds: []
         })
       } finally {
-        // 💡 清除 Loading 狀態與計時器
+        // 清除 Loading 狀態與計時器
         if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
         this.showLongLoadingText = false
         this.isBusy = false
@@ -804,7 +804,8 @@ export default {
     .small, small { font-size: 0.875rem; }
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
-  .case-card { width: calc(33.333% - 11px); min-width: 280px; }
+  // 💡 一排 4 個 (扣除 3 個 16px 的 gap)
+  .case-card { width: calc((100% - 48px) / 4); min-width: 220px; }
 }
 
 .message-item.text-size-lg {
@@ -814,6 +815,8 @@ export default {
     .h6, h6 { font-size: 1.2rem; }
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
+  // 💡 一排 3 個 (扣除 2 個 16px 的 gap)
+  .case-card { width: calc((100% - 32px) / 3); min-width: 280px; }
 }
 
 .message-item.text-size-xl {
@@ -823,7 +826,8 @@ export default {
     .h6, h6 { font-size: 1.4rem; }
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
-  .case-card { width: calc(50% - 8px); min-width: 40vw; }
+  // 💡 一排 2 個 (扣除 1 個 16px 的 gap)
+  .case-card { width: calc((100% - 16px) / 2); min-width: 360px; }
 }
 
 /* =========================================
