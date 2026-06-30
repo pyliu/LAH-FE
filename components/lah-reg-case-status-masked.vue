@@ -80,20 +80,21 @@ b-card(no-body)
     //- 補上 align-items-start 讓卡片依照自身內容高度對齊，不要強制等高撐大
     b-row.mb-2.align-items-start
       //- 代理人
+      //- 修正：加上 rel-card 鎖定卡片為內容高度，避免被外層等高拉伸樣式影響而異常拉長
       b-col(cols="12", md="4", v-if="!$utils.empty(bakedData.代理人統編)").mb-3
-        b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
+        b-card.rel-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
           .text-muted.small.mb-1 代理人
           .font-weight-bold.h6.mb-1 {{ maskName(bakedData.代理人姓名, bakedData.代理人統編) }}
           .small.text-secondary {{ maskId(bakedData.代理人統編) }}
       //- 權利人
       b-col(cols="12", md="4", v-if="!$utils.empty(bakedData.權利人統編)").mb-3
-        b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
+        b-card.rel-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
           .text-muted.small.mb-1 權利人
           .font-weight-bold.h6.mb-1 {{ maskName(bakedData.權利人姓名, bakedData.權利人統編) }}
           .small.text-secondary {{ maskId(bakedData.權利人統編) }}
       //- 義務人
       b-col(cols="12", md="4", v-if="!$utils.empty(bakedData.義務人統編)").mb-3
-        b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
+        b-card.rel-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
           .text-muted.small.mb-1 義務人
           .font-weight-bold.h6.mb-1 {{ maskName(bakedData.義務人姓名, bakedData.義務人統編) }}
           .small.text-secondary {{ maskId(bakedData.義務人統編) }}
@@ -137,7 +138,8 @@ b-card(no-body)
         b-row.align-items-start
           //- 屬性卡片 (若無耗時資料則動態佔滿整寬 md="12"，否則與耗時平分 md="6")
           b-col(cols="12", :md="hasElapsedTime ? 6 : 12").mb-3
-            b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
+            //- 修正：加上 detail-card 鎖定卡片為內容高度，避免被外層等高拉伸樣式影響而異常拉長
+            b-card.detail-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 🏷️ 屬性資訊
               //- 使用 2x2 Grid 進行內部排列
               b-row
@@ -158,7 +160,7 @@ b-card(no-body)
 
           //- 耗時卡片 (無資料則隱藏)
           b-col.mb-3(cols="12", md="6", v-if="hasElapsedTime")
-            b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
+            b-card.detail-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 ⏱️ 階段辦理耗時
               //- 修正為 cols="4" (佔1/3寬度)，產生完美的 2x3 (3欄2列) 排列，加上 px-1 與 text-center 微調對齊
               b-row
@@ -332,7 +334,7 @@ export default {
     maskId (id) {
       if (!this.isNaturalPerson(id)) { return id }
       const str = String(id)
-      return `${str.substring(0, 4)}Ｏ${str.substring(7)}`
+      return `${str.substring(0, 4)}ＯＯＯ${str.substring(7)}`
     },
     // 姓名遮蔽 (若附帶統編且非自然人則不遮蔽)
     maskName (name, id = null) {
@@ -409,4 +411,18 @@ export default {
 .target-list-item.building {
   border-left-color: #fd7e14;
 }
+
+/* 修正：關係人卡片 / 屬性資訊與耗時卡片上線後高度異常被拉長
+   原因：Bootstrap .card 預設為 display:flex; flex-direction:column，
+   一旦外層容器（如 index.vue 卡片網格的等高拉伸樣式）對 .card 全域設定 height:100%，
+   會連帶影響到這些巢狀的內層淺色卡片，導致空白被撐開。
+   此處強制鎖回依內容自然高度，不依賴外層 flex 設定。 */
+.rel-card,
+.detail-card {
+  height: auto !important;
+  flex-grow: 0 !important;
+  flex-basis: auto !important;
+  align-self: flex-start !important;
+}
+
 </style>
