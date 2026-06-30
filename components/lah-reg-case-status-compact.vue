@@ -97,7 +97,7 @@ b-overlay.lah-compact-case-status(
     //- 彈出詳細視窗 (遮蔽版詳細視窗)
     b-modal(
       ref="detailModal"
-      :title="`詳細辦理情形 - ${caseId || id}`"
+      :title="`詳細辦理情形 - ${$utils.caseId(caseId || id)}`"
       size="xl"
       hide-footer
       centered
