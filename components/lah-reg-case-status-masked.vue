@@ -9,113 +9,91 @@ b-card(no-body)
     //- ==========================================
     .d-flex.justify-content-between.align-items-center.mb-3
       h6.font-weight-bold.text-info.mb-0 ⏳ 辦理歷程
-      b-button(v-b-toggle.timeline-collapse size="sm" variant="outline-info" pill)
-        | 展開 / 收合
+      b-button(v-b-toggle.timeline-collapse, size="sm", variant="outline-info", pill) 展開 / 收合
 
     b-collapse#timeline-collapse(visible)
       //- 移除 justify-content-center 讓版面恢復預設靠左對齊，align-items-start 讓頭像頂部對齊
       .d-flex.flex-wrap.align-items-start.p-3.bg-light.rounded.shadow-sm.mt-3
         template(v-for="(event, idx) in timelineEvents")
           //- 單一流程節點
-          .timeline-node.d-flex.flex-column.align-items-center.text-center.mx-1(:key="'node-'+idx" class="my-2")
+          .timeline-node.d-flex.flex-column.align-items-center.text-center.mx-1(:key="'node-'+idx", class="my-2")
             //- 狀態大圓標 (整合動態背景色與字體顏色)
-            b-avatar(
-              :variant="event.variant"
-              :style="event.bgStyle ? `background-color: ${event.bgStyle} !important;` : ''"
-              size="3.5rem"
-              class="shadow-sm font-weight-bold border-white border"
-              :class="event.textClass"
-            )
+            b-avatar.shadow-sm.font-weight-bold.border-white.border(:variant="event.variant", :style="event.bgStyle ? `background-color: ${event.bgStyle} !important;` : ''", size="3.5rem", :class="event.textClass")
               span(style="font-size: 0.9rem;") {{ event.title.substring(0, 2) }}
-
+            
             //- 文字與資訊容器：獨立出來使其向下延伸，不影響圓標對齊
             .node-content.mt-2.d-flex.flex-column.align-items-center
               .font-weight-bold.text-dark.small.mb-1 {{ maskName(event.user) || '系統' }}
               .text-muted(style="font-size: 0.75rem;") {{ event.date }}
               .text-muted(style="font-size: 0.7rem;" v-if="event.time") {{ event.time }}
-
+              
               //- 額外資訊提示
               .text-info.mt-1(style="font-size: 0.7rem;" v-if="event.extra") {{ event.extra }}
-
+              
               //- 補正通知專用按鈕
-              b-button.mt-1(
-                v-if="event.title === '通知補正' && hasFixData"
-                size="sm"
-                variant="danger"
-                pill
-                @click="showFixDataText"
-              ) 內容
+              b-button.mt-1(v-if="event.title === '通知補正' && hasFixData", size="sm", variant="danger", pill, @click="showFixDataText") 內容
 
           //- 連接線/箭頭 (非最後一筆時顯示)
           //- 設定高度與頭像一致(3.5rem)並垂直置中，完美對齊圓標中心點
-          .timeline-arrow.d-flex.align-items-center.mx-1.text-muted(:key="'arrow-'+idx" v-if="idx < timelineEvents.length - 1" style="height: 3.5rem;")
-            | ➔
+          .timeline-arrow.d-flex.align-items-center.mx-1.text-muted(:key="'arrow-'+idx", v-if="idx < timelineEvents.length - 1", style="height: 3.5rem;") ➔
 
         //- 查無歷程的防呆
-        .w-100.text-center.text-muted.my-3(v-if="timelineEvents.length === 0")
-          | 尚無辦理歷程紀錄
+        .w-100.text-center.text-muted.my-3(v-if="timelineEvents.length === 0") 尚無辦理歷程紀錄
 
     hr.my-4
 
     //- ==========================================
-    //- 2. 案件摘要區塊 (Overview)
+    //- 2. 案件摘要區塊 (Overview) 
     //- ==========================================
-    b-alert.d-flex.align-items-center.justify-content-between.mb-3(
-      :variant="ongoing ? 'warning' : 'success'"
-      show
-    )
+    b-alert.d-flex.align-items-center.justify-content-between.mb-3(:variant="ongoing ? 'warning' : 'success'", show)
       div
         strong 狀態：
         span.ml-1 {{ ongoing ? '尚未結案' : '已結案' }}
         //- 新增：若有登記處理註記(如:異動完成)則額外標示
-        b-badge.ml-2(v-if="bakedData.登記處理註記" variant="info" pill class="shadow-sm")
-          | {{ bakedData.登記處理註記 }}
+        b-badge.ml-2(v-if="bakedData.登記處理註記", variant="info", pill, class="shadow-sm") {{ bakedData.登記處理註記 }}
       div
-        b-badge(pill :variant="ongoing ? 'danger' : 'success'" class="shadow-sm")
-          | {{ bakedData.辦理情形 }}
+        b-badge(pill, :variant="ongoing ? 'danger' : 'success'", class="shadow-sm") {{ bakedData.辦理情形 }}
 
     //- 升級案件基本資訊面板，整合收件字號、件數與限辦時間
     b-card.bg-light.border-0.mb-4(body-class="p-3 shadow-sm rounded")
       b-row.align-items-center
-        b-col(cols="12" md="4").mb-3.mb-md-0
+        b-col(cols="12", md="4").mb-3.mb-md-0
           .text-muted.small.font-weight-bold.mb-1 📄 收件字號
           .h6.mb-0.text-dark {{ bakedData.收件字號 || '無資料' }}
-        b-col(cols="12" md="4").mb-3.mb-md-0
+        b-col(cols="12", md="4").mb-3.mb-md-0
           .text-muted.small.font-weight-bold.mb-1 📝 登記原因
           .h5.mb-0.text-primary
             | {{ bakedData.登記原因 }}
-            b-badge.ml-2.align-text-top(v-if="bakedData.件數" variant="secondary" pill style="font-size: 0.75rem;")
-              | 共 {{ bakedData.件數 }} 件
-        b-col(cols="12" md="4")
+            b-badge.ml-2.align-text-top(v-if="bakedData.件數", variant="secondary", pill, style="font-size: 0.75rem;") 共 {{ bakedData.件數 }} 件
+        b-col(cols="12", md="4")
           .text-muted.small.font-weight-bold.mb-1 ⏰ 預定結案
           .h6.mb-0.text-dark
             span(v-html="bakedData.限辦期限")
-            b-badge.ml-2(v-if="bakedData.限辦時間" variant="danger")
-              | {{ bakedData.限辦時間 }}
+            b-badge.ml-2(v-if="bakedData.限辦時間", variant="danger") {{ bakedData.限辦時間 }}
 
     hr.mb-4
 
     //- ==========================================
-    //- 3. 關係人區塊 (Parties)
+    //- 3. 關係人區塊 (Parties) 
     //- ==========================================
     h6.font-weight-bold.text-secondary.mb-3 👥 關係人資訊
     //- 補上 align-items-start 讓卡片依照自身內容高度對齊，不要強制等高撐大
     b-row.mb-2.align-items-start
       //- 代理人
-      b-col(cols="12" md="4" v-if="!$utils.empty(bakedData.代理人統編)").mb-3
-        b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
+      b-col(cols="12", md="4", v-if="!$utils.empty(bakedData.代理人統編)").mb-3
+        b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
           .text-muted.small.mb-1 代理人
           .font-weight-bold.h6.mb-1 {{ maskName(bakedData.代理人姓名, bakedData.代理人統編) }}
           .small.text-secondary {{ maskId(bakedData.代理人統編) }}
       //- 權利人
-      b-col(cols="12" md="4" v-if="!$utils.empty(bakedData.權利人統編)").mb-3
-        b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
+      b-col(cols="12", md="4", v-if="!$utils.empty(bakedData.權利人統編)").mb-3
+        b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
           .text-muted.small.mb-1 權利人
           .font-weight-bold.h6.mb-1 {{ maskName(bakedData.權利人姓名, bakedData.權利人統編) }}
           .small.text-secondary {{ maskId(bakedData.權利人統編) }}
       //- 義務人
-      b-col(cols="12" md="4" v-if="!$utils.empty(bakedData.義務人統編)").mb-3
-        b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
+      b-col(cols="12", md="4", v-if="!$utils.empty(bakedData.義務人統編)").mb-3
+        b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
           .text-muted.small.mb-1 義務人
           .font-weight-bold.h6.mb-1 {{ maskName(bakedData.義務人姓名, bakedData.義務人統編) }}
           .small.text-secondary {{ maskId(bakedData.義務人統編) }}
@@ -127,18 +105,15 @@ b-card(no-body)
     //- ==========================================
     b-row.align-items-start.mb-2
       //- 左半部：標的資訊 (1/3 版面 lg="4")
-      b-col(cols="12" lg="4").mb-4
+      b-col(cols="12", lg="4").mb-4
         .d-flex.justify-content-between.align-items-center.mb-3
           h6.font-weight-bold.text-success.mb-0 📌 標的資訊
-          b-badge(variant="success" pill) 共 {{ totalTargets }} 筆
+          b-badge(variant="success", pill) 共 {{ totalTargets }} 筆
 
         b-card.border-success.shadow-sm(body-class="p-0")
           b-list-group(flush)
             //- 土地標的清單
-            b-list-group-item.target-list-item(
-              v-for="(land, idx) in landTargets"
-              :key="'L'+idx"
-            )
+            b-list-group-item.target-list-item(v-for="(land, idx) in landTargets", :key="'L'+idx")
               .d-flex.w-100.justify-content-between.align-items-center
                 div
                   b-badge.mr-2(variant="success") 土地
@@ -147,26 +122,22 @@ b-card(no-body)
                 small.text-muted.d-block.mt-1 面積: {{ land.面積 || '無資料' }}
 
             //- 建物標的清單
-            b-list-group-item.target-list-item.building(
-              v-for="(building, idx) in buildTargets"
-              :key="'B'+idx"
-            )
+            b-list-group-item.target-list-item.building(v-for="(building, idx) in buildTargets", :key="'B'+idx")
               .d-flex.w-100.align-items-center
                 b-badge.mr-2.text-white(variant="warning") 建物
                 span.font-weight-bold {{ building.地段 }}
                 span.text-secondary.ml-1 {{ building.建號 }}
 
             //- 無標的防呆
-            b-list-group-item.text-center.text-muted(v-if="totalTargets === 0")
-              | 本案尚無標的資訊
+            b-list-group-item.text-center.text-muted(v-if="totalTargets === 0") 本案尚無標的資訊
 
       //- 右半部：進階屬性與各課耗時區塊 (佔據剩餘 2/3 版面 lg="8")
-      b-col(cols="12" lg="8").mb-4
+      b-col(cols="12", lg="8").mb-4
         h6.font-weight-bold.text-primary.mb-3 📊 案件細節與耗時
         b-row.align-items-start
           //- 屬性卡片 (若無耗時資料則動態佔滿整寬 md="12"，否則與耗時平分 md="6")
-          b-col(cols="12" :md="hasElapsedTime ? 6 : 12").mb-3
-            b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
+          b-col(cols="12", :md="hasElapsedTime ? 6 : 12").mb-3
+            b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 🏷️ 屬性資訊
               //- 使用 2x2 Grid 進行內部排列
               b-row
@@ -178,31 +149,23 @@ b-card(no-body)
                   .font-weight-bold.text-dark {{ bakedData.作業人員 ? maskName(bakedData.作業人員) : '無資料' }}
                 b-col(cols="6").mb-2
                   .small.text-muted 結案狀態
-                  .font-weight-bold.text-dark
+                  .font-weight-bold.text-dark 
                     | {{ bakedData.結案狀態 || '尚未結案' }}
-                    b-badge.ml-1(v-if="bakedData.結案代碼" variant="secondary" pill) {{ bakedData.結案代碼 }}
+                    b-badge.ml-1(v-if="bakedData.結案代碼", variant="secondary", pill) {{ bakedData.結案代碼 }}
                 b-col(cols="6").mb-2
                   .small.text-muted 測量案件
                   .font-weight-bold.text-dark {{ bakedData.測量案件 || '--' }}
 
           //- 耗時卡片 (無資料則隱藏)
-          b-col.mb-3(cols="12" md="6" v-if="hasElapsedTime")
-            b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
+          b-col.mb-3(cols="12", md="6", v-if="hasElapsedTime")
+            b-card(bg-variant="light", border-variant="light", body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 ⏱️ 階段辦理耗時
-              //- 修正為 2 欄 (cols="6") 產生完美的 2x3 排列，防止文字擠壓破版
+              //- 修正為 cols="4" (佔1/3寬度)，產生完美的 2x3 (3欄2列) 排列，加上 px-1 與 text-center 微調對齊
               b-row
-                b-col.mb-2(
-                  cols="6"
-                  v-for="(val, key) in bakedData.ELAPSED_TIME"
-                  :key="key"
-                )
+                b-col.mb-2.px-1.text-center(cols="4", v-for="(val, key) in bakedData.ELAPSED_TIME", :key="key")
                   .small.text-muted {{ key }}
                   .font-weight-bold.mt-1
-                    b-badge.text-nowrap(
-                      :variant="val > 0 ? 'info' : 'light'"
-                      :class="val > 0 ? '' : 'text-muted'"
-                      pill
-                    ) {{ formatElapsed(val) }}
+                    b-badge.text-nowrap(:variant="val > 0 ? 'info' : 'light'", :class="val > 0 ? '' : 'text-muted'", pill) {{ formatElapsed(val) }}
 
 </template>
 
