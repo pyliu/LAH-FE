@@ -31,55 +31,26 @@ b-overlay.lah-compact-case-status(
       //- 資訊清單
       .info-list.small
 
-        //- 登記原因（左）+ 作業人員（右）兩欄並排
+        //- 登記原因/作業人員/代理人/手機/權利人/義務人 統一以 v-for 渲染
+        //- 💡 visibleInfoItems 已過濾掉空值欄位（手機固定保留），grid 會依容器寬度自動折行，
+        //-    因此資料較少時會自動往前補位，不會像固定左右兩欄那樣留下空洞
         .info-row-2col
-          //- 左欄：登記原因
-          .info-item
-            template(v-if="!$utils.empty(bakedData.登記原因)")
-              strong.text-muted.mr-1 登記原因:
-              span.text-dark {{ bakedData.登記原因 }}
-
-          //- 右欄：作業人員
-          .info-item
-            template(v-if="!$utils.empty(bakedData.作業人員)")
-              strong.text-muted.mr-1 作業人員:
-              span.text-dark {{ maskName(bakedData.作業人員) }}
-
-        //- 代理人（左）+ 聯絡手機（右）兩欄並排
-        .info-row-2col
-          //- 左欄：代理人
-          .info-item
-            template(v-if="!$utils.empty(bakedData.代理人統編)")
-              strong.text-muted.mr-1 代理人:
-              span.text-dark {{ displayName(bakedData.代理人姓名, bakedData.代理人統編) }}
-              span.text-muted.ml-1 ({{ maskId(bakedData.代理人統編) }})
-
-          //- 右欄：聯絡手機 (固定顯示)
-          .info-item
-            strong.text-muted.mr-1 手機:
-            span.text-dark(v-if="hasCellphone") {{ cellphoneStr }}
-            span.text-danger.font-weight-bold.d-inline-flex.align-items-start(
-              v-else
-              title="缺少手機資訊將無法發送案件狀態簡訊"
-            )
-              lah-fa-icon(icon="exclamation-circle").mr-1.mt-1.flex-shrink-0
-              | 無資料
-
-        //- 權利人（左）+ 義務人（右）兩欄並排
-        .info-row-2col
-          //- 左欄：權利人
-          .info-item
-            template(v-if="!$utils.empty(bakedData.權利人統編)")
-              strong.text-muted.mr-1 權利人:
-              span.text-dark {{ displayName(bakedData.權利人姓名, bakedData.權利人統編) }}
-              span.text-muted.ml-1 ({{ maskId(bakedData.權利人統編) }})
-
-          //- 右欄：義務人
-          .info-item
-            template(v-if="!$utils.empty(bakedData.義務人統編)")
-              strong.text-muted.mr-1 義務人:
-              span.text-dark {{ displayName(bakedData.義務人姓名, bakedData.義務人統編) }}
-              span.text-muted.ml-1 ({{ maskId(bakedData.義務人統編) }})
+          .info-item(v-for="item in visibleInfoItems" :key="item.key")
+            //- 手機欄位需要顯示「無資料」警示，邏輯較特殊故獨立處理
+            template(v-if="item.type === 'cellphone'")
+              strong.text-muted.mr-1 手機:
+              span.text-dark(v-if="hasCellphone") {{ cellphoneStr }}
+              span.text-danger.font-weight-bold.d-inline-flex.align-items-start(
+                v-else
+                title="缺少手機資訊將無法發送案件狀態簡訊"
+              )
+                lah-fa-icon(icon="exclamation-circle").mr-1.mt-1.flex-shrink-0
+                | 無資料
+            //- 一般欄位（含代理人/權利人/義務人這類附帶統編 suffix 的欄位）
+            template(v-else)
+              strong.text-muted.mr-1 {{ item.label }}:
+              span.text-dark {{ item.value }}
+              span.text-muted.ml-1(v-if="item.suffix") ({{ item.suffix }})
 
         //- 承辦人員 (緊湊標籤排列)
         .personnel-group.mt-2.p-2.rounded.bg-light(v-if="hasPersonnel")
@@ -202,6 +173,52 @@ export default {
         return this.localCRCRDData.RC05
       }
       return '⚠ 本地資料庫無資料，若為跨所案件請先確認該案件有同步過來❗'
+    },
+    // 💡 將「登記原因/作業人員/代理人/手機/權利人/義務人」依序組裝成單一清單，
+    //    並濾除空值欄位（手機固定保留，缺資料要顯示警示），交給單一 grid 容器以 v-for 渲染。
+    //    如此一來，當某欄位無資料時，後續欄位會自動往前補位，不會在排版上留下空洞。
+    visibleInfoItems () {
+      if (!this.bakedData) { return [] }
+      const d = this.bakedData
+      const items = []
+
+      if (!this.$utils.empty(d.登記原因)) {
+        items.push({ key: 'reg_reason', type: 'simple', label: '登記原因', value: d.登記原因 })
+      }
+      if (!this.$utils.empty(d.作業人員)) {
+        items.push({ key: 'staff', type: 'simple', label: '作業人員', value: this.maskName(d.作業人員) })
+      }
+      if (!this.$utils.empty(d.代理人統編)) {
+        items.push({
+          key: 'agent',
+          type: 'person',
+          label: '代理人',
+          value: this.displayName(d.代理人姓名, d.代理人統編),
+          suffix: this.maskId(d.代理人統編)
+        })
+      }
+      // 手機固定顯示，即使無資料也要顯示警示，因此不受 empty 過濾限制
+      items.push({ key: 'cellphone', type: 'cellphone', label: '手機' })
+
+      if (!this.$utils.empty(d.權利人統編)) {
+        items.push({
+          key: 'right_holder',
+          type: 'person',
+          label: '權利人',
+          value: this.displayName(d.權利人姓名, d.權利人統編),
+          suffix: this.maskId(d.權利人統編)
+        })
+      }
+      if (!this.$utils.empty(d.義務人統編)) {
+        items.push({
+          key: 'duty_holder',
+          type: 'person',
+          label: '義務人',
+          value: this.displayName(d.義務人姓名, d.義務人統編),
+          suffix: this.maskId(d.義務人統編)
+        })
+      }
+      return items
     }
   },
   watch: {
