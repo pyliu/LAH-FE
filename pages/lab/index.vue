@@ -77,7 +77,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
                 b-card-body.d-flex.flex-column.align-items-center.text-center.p-3
                   .icon-box.bg-primary-light.mb-3
                     lah-fa-icon(icon="robot", variant="primary", size="3x")
-                  h4.font-weight-bold.text-dark.mb-1 案件查詢助理
+                  h4.font-weight-bold.text-dark.mb-1 案件查詢AI助理
                   .text-muted.small AI對話式案件進度查詢
 
           //- 2. 跨縣市ONLINE即時通

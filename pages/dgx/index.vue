@@ -12,7 +12,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       //- 加入 flex-grow-1 與 min-width: 0 確保標題過長時可以順利截斷 (.text-truncate)
       .title-container.d-flex.align-items-center.flex-grow-1(v-if="messages.length > 0" style="min-width: 0;")
         lah-fa-icon.mr-1.mr-md-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="2x").flex-shrink-0
-        strong.title-text.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件智慧查詢助理
+        strong.title-text.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件查詢AI助理
         //- 說明圖示按鈕
         b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-1.mt-1.flex-shrink-0
           lah-fa-icon(icon="info-circle", size="lg", :variant="isDarkMode ? 'info' : 'info'")
@@ -83,7 +83,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           lah-fa-icon(icon="robot" size="7x" :variant="isDarkMode ? 'warning' : 'primary'").mb-2
 
           .text-center.mt-1(:class="isDarkMode ? 'text-light' : 'text-dark'")
-            h2.font-weight-bold.mb-3.welcome-title 案件智慧查詢助理
+            h2.font-weight-bold.mb-3.welcome-title 案件查詢AI助理
             h6.mb-4(:class="isDarkMode ? 'text-secondary' : 'text-muted'") 您好！請輸入案件字號或相關資訊，我來幫您查詢。
 
             b-button(variant="primary" pill size="lg" @click="$refs.instructionModal.show()").shadow-sm.px-4.py-2.mt-2
@@ -187,7 +187,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
   b-modal(
     ref="instructionModal"
     size="xl"
-    title="🤖 案件智慧查詢助理 - 完整使用說明"
+    title="🤖 案件查詢AI助理 - 完整使用說明"
     ok-only
     ok-title="我瞭解了"
     ok-variant="primary"
