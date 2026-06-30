@@ -352,7 +352,6 @@ const MAX_HISTORY = 50
 export default {
   name: 'AiQueryAssistantIndex',
   components: { lahRegCaseStatusCompact },
-  // 💡 修正：為了能動態取得今年年份，將 data 寫成一般函數而非箭頭函數
   data () {
     // 動態計算當前民國年
     const twYear = new Date().getFullYear() - 1911
@@ -363,7 +362,6 @@ export default {
       inputText: '',
       messages: [],
       historyRecords: [],
-      // 💡 修正：套用動態年份，確保範例文字與當下年份保持一致
       defaultExamples: [
         `${twYear}年 桃園古亭 10號`,
         `${twYear}年 桃壢 10號`,
@@ -492,7 +490,7 @@ export default {
     }
   },
   methods: {
-    // 💡 強化版的精確計算機制
+    // 💡 強化修正：精確測量每個子元素的物理像素寬度，淘汰不準確的 scrollWidth 迴圈
     async calculateVisibleExamples () {
       if (this.isCalculating) { return }
       this.isCalculating = true
@@ -503,22 +501,45 @@ export default {
           this.$refs.quickExamples.style.transition = 'none'
         }
 
-        // 先拉滿數量，等待 Vue 渲染更新 DOM
+        // 先拉滿數量，等待 Vue 更新 DOM
         this.maxVisibleExamples = 6
         await this.$nextTick()
+
+        // 💡 核心防護：設定 50ms 延遲，確保瀏覽器完全繪製出真實寬度 (解決某些手機的重繪延遲)
+        await new Promise(resolve => setTimeout(resolve, 50))
 
         const container = this.$refs.quickExamples
         if (!container) { return }
 
-        let attempts = 0
-        // 💡 加上 4px 寬容值，並設定 attempts < 10 避免極端環境下的無窮迴圈
-        while (container.scrollWidth > Math.ceil(container.clientWidth) + 4 && this.maxVisibleExamples > 1 && attempts < 10) {
-          this.maxVisibleExamples--
-          await this.$nextTick()
-          attempts++
+        // 取得容器的「安全可用寬度」
+        const availableWidth = container.clientWidth
+        const children = container.children
+
+        let currentTotalWidth = 0
+        let fitCount = 0
+
+        // 逐一累加子元素的實體寬度 (offsetWidth + margin)
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i]
+          const style = window.getComputedStyle(child)
+          const childWidth = child.offsetWidth + parseFloat(style.marginLeft || 0) + parseFloat(style.marginRight || 0)
+
+          currentTotalWidth += childWidth
+
+          if (i === 0) { continue } // 略過第一個燈泡 icon
+
+          // 容忍 5px 誤差，如果加入這個按鈕還在安全範圍內，就保留它
+          if (currentTotalWidth <= availableWidth + 5) {
+            fitCount++
+          } else {
+            break // 裝不下就立刻中斷
+          }
         }
+
+        // 確保至少顯示 1 個，避免畫面空掉
+        this.maxVisibleExamples = Math.max(1, fitCount)
       } finally {
-        // 計算完畢，把動畫加回去再顯示
+        // 算完後，重新把透明度漸變效果掛回去
         if (this.$refs.quickExamples) {
           this.$refs.quickExamples.style.transition = 'opacity 0.15s ease'
         }
