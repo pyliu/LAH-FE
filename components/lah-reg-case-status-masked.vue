@@ -5,26 +5,40 @@ b-card(no-body)
 
   b-card-body(v-if="ready")
     //- ==========================================
-    //- 1. 案件摘要區塊 (Overview)
+    //- 1. 案件摘要區塊 (Overview) - 擴充高價值資訊
     //- ==========================================
-    b-alert.d-flex.align-items-center.justify-content-between.mb-4(
+    b-alert.d-flex.align-items-center.justify-content-between.mb-3(
       :variant="ongoing ? 'warning' : 'success'"
       show
     )
       div
         strong 狀態：
         span.ml-1 {{ ongoing ? '尚未結案' : '已結案' }}
+        //- 新增：若有登記處理註記(如:異動完成)則額外標示
+        b-badge.ml-2(v-if="bakedData.登記處理註記" variant="info" pill class="shadow-sm")
+          | {{ bakedData.登記處理註記 }}
       div
         b-badge(pill :variant="ongoing ? 'danger' : 'success'" class="shadow-sm")
           | {{ bakedData.辦理情形 }}
 
-    b-row.mb-2
-      b-col(cols="12" md="6").mb-3
-        .text-muted.small.font-weight-bold 登記原因
-        .h5.mb-0.text-primary {{ bakedData.登記原因 }}
-      b-col(cols="12" md="6").mb-3
-        .text-muted.small.font-weight-bold 預定結案日期
-        .h5.mb-0(v-html="bakedData.限辦期限")
+    //- 升級案件基本資訊面板，整合收件字號、件數與限辦時間
+    b-card.bg-light.border-0.mb-4(body-class="p-3 shadow-sm rounded")
+      b-row.align-items-center
+        b-col(cols="12" md="4").mb-3.mb-md-0
+          .text-muted.small.font-weight-bold.mb-1 📄 收件字號
+          .h6.mb-0.text-dark {{ bakedData.收件字號 || '無資料' }}
+        b-col(cols="12" md="4").mb-3.mb-md-0
+          .text-muted.small.font-weight-bold.mb-1 📝 登記原因
+          .h5.mb-0.text-primary
+            | {{ bakedData.登記原因 }}
+            b-badge.ml-2.align-text-top(v-if="bakedData.件數" variant="secondary" pill style="font-size: 0.75rem;")
+              | 共 {{ bakedData.件數 }} 件
+        b-col(cols="12" md="4")
+          .text-muted.small.font-weight-bold.mb-1 ⏰ 預定結案
+          .h6.mb-0.text-dark
+            span(v-html="bakedData.限辦期限")
+            b-badge.ml-2(v-if="bakedData.限辦時間" variant="danger")
+              | {{ bakedData.限辦時間 }}
 
     hr.mb-4
 
@@ -32,7 +46,8 @@ b-card(no-body)
     //- 2. 關係人區塊 (Parties) - RWD 卡片設計
     //- ==========================================
     h6.font-weight-bold.text-secondary.mb-3 👥 關係人資訊
-    b-row.mb-2
+    //- 補上 align-items-start 讓卡片依照自身內容高度對齊，不要強制等高撐大
+    b-row.mb-2.align-items-start
       //- 代理人
       b-col(cols="12" md="4" v-if="!$utils.empty(bakedData.代理人統編)").mb-3
         b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
@@ -63,7 +78,8 @@ b-card(no-body)
         | 查看標的
         b-badge.ml-1(variant="success") {{ totalTargets }} 筆
 
-    b-collapse#target-collapse
+    //- 補上 visible 屬性，預設將標的資訊展開
+    b-collapse#target-collapse(visible)
       b-card.mb-4.border-success.shadow-sm(body-class="p-0")
         b-list-group(flush)
           //- 土地標的清單 (改用 computed 動態相容舊版資料)
@@ -83,12 +99,11 @@ b-card(no-body)
             v-for="(building, idx) in buildTargets"
             :key="'B'+idx"
           )
-            .d-flex.w-100.justify-content-between.align-items-center
-              div
-                b-badge.mr-2.text-white(variant="warning") 建物
-                span.font-weight-bold {{ building.地段 }}
-                span.text-secondary.ml-1 {{ building.建號 }}
-              small.text-muted 門牌: {{ building.門牌 || '無資料' }}
+            //- 移除缺乏資料來源的門牌欄位，簡化排版
+            .d-flex.w-100.align-items-center
+              b-badge.mr-2.text-white(variant="warning") 建物
+              span.font-weight-bold {{ building.地段 }}
+              span.text-secondary.ml-1 {{ building.建號 }}
 
           //- 無標的防呆
           b-list-group-item.text-center.text-muted(v-if="totalTargets === 0")
