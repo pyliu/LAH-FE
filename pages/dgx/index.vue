@@ -103,9 +103,11 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
         ) {{ msg.text }}
 
         //- AI 回覆訊息泡泡
+        //- 💡 核心修正：只要回傳帶有案件資料 (msg.caseIds.length > 0)，就將 bubble 寬度強制設為 100%
+        //- 這樣 calc() 取到的父層寬度就會一致，保證單卡片與多卡片的寬度完美對齊！
         .d-inline-block.p-3.rounded.text-left.shadow-sm(
           v-else
-          style="max-width: 98%;"
+          :style="{ maxWidth: '98%', width: (msg.caseIds && msg.caseIds.length > 0) ? '100%' : 'auto' }"
           :class="isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-white border'"
         )
           .mb-2.font-weight-bold
@@ -113,9 +115,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
             | {{ msg.text }}
 
           //- 渲染真實的地政案件微型卡片
-          //- 💡 卡片一律採固定寬度排列 (依字體大小於 style 計算)，確保卡片數量不滿排時
-          //-    不會被拉伸撐滿，避免內部 lah-reg-case-status-compact 的 info-row-2col
-          //-    因外層寬度暴增而重新計算成 3 欄、造成排版不一致
           .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
             .case-card(
               v-for="(cId, cIdx) in msg.caseIds"
@@ -128,7 +127,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
                 lah-reg-case-status-compact(:case-id="cId")
 
-      //- 💡 超過一秒才顯示的 AI 思考中指示器
+      //- 超過一秒才顯示的 AI 思考中指示器
       lah-transition
         .message-item.mb-4.text-left(
           v-if="showLongLoadingText"
@@ -807,10 +806,8 @@ export default {
     .small, small { font-size: 0.875rem; }
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
-  // 💡 一排 4 個 (扣除 3 個 16px 的 gap)
-  // 💡 一律固定寬度 (flex-grow:0)，確保不滿排時不會被拉伸撐滿，
-  //    避免內部 compact 卡片的 info-row-2col 因外層寬度暴增而重新計算欄數
-  .case-card { flex: 0 0 calc((100% - 48px) / 4); min-width: 220px; }
+  // 一排 4 個 (扣除 3 個 16px 的 gap)
+  .case-card { width: calc((100% - 48px) / 4); min-width: 220px; }
 }
 
 .message-item.text-size-lg {
@@ -820,9 +817,8 @@ export default {
     .h6, h6 { font-size: 1.2rem; }
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
-  // 💡 一排 3 個 (扣除 2 個 16px 的 gap)
-  // 💡 規則說明同 md 尺寸區塊
-  .case-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 280px; }
+  // 一排 3 個 (扣除 2 個 16px 的 gap)
+  .case-card { width: calc((100% - 32px) / 3); min-width: 280px; }
 }
 
 .message-item.text-size-xl {
@@ -832,9 +828,8 @@ export default {
     .h6, h6 { font-size: 1.4rem; }
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
-  // 💡 一排 2 個 (扣除 1 個 16px 的 gap)
-  // 💡 規則說明同 md 尺寸區塊
-  .case-card { flex: 0 0 calc((100% - 16px) / 2); min-width: 360px; }
+  // 一排 2 個 (扣除 1 個 16px 的 gap)
+  .case-card { width: calc((100% - 16px) / 2); min-width: 360px; }
 }
 
 /* =========================================
@@ -862,9 +857,6 @@ export default {
 @media (max-width: 768px) {
   .message-item {
     .case-card {
-      // 💡 由於桌機版改用 flex-basis(透過 calc 設定)，依 CSS 規範 flex-basis 優先權高於 width，
-      //    手機版需一併覆寫 flex-basis，否則桌機版的固定比例會殘留，無法正確變成單排全寬。
-      flex: 1 1 100% !important;
       width: 100% !important;
       min-width: 0 !important;
     }
