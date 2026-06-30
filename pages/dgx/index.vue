@@ -125,11 +125,24 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
                 lah-reg-case-status-compact(:case-id="cId")
 
+      //- 💡 超過一秒才顯示的 AI 思考中指示器
+      lah-transition
+        .message-item.mb-4.text-left(
+          v-if="showLongLoadingText"
+          :class="'text-size-' + textSize"
+        )
+          .d-inline-block.p-3.rounded.text-left.shadow-sm(
+            :class="isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-dark border'"
+          )
+            .mb-0.font-weight-bold.text-secondary
+              lah-fa-icon(icon="circle-notch" action="spin" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
+              | 詢問AI中 ... 請稍帶片刻
+
     //- 底部輸入區塊
     .input-area.p-2.p-md-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
       .input-wrapper.mx-auto.w-100(style="max-width: 800px;" ref="inputWrapper")
 
-        //- 💡 修正：加上 ref="quickExamples" 供 JS 實測，並用動態綁定的 transition 避免計算時閃爍
+        //- 快捷與歷史結合區塊，動態綁定的 transition 避免計算時閃爍
         .quick-examples.mb-2.d-flex.align-items-center.overflow-hidden.w-100(
           ref="quickExamples"
           :style="{ opacity: isCalculating ? 0 : 1, pointerEvents: isCalculating ? 'none' : 'auto' }"
@@ -377,13 +390,18 @@ export default {
       maxVisibleExamples: 6, // 顯示數量上限
       isCalculating: false, // 計算中的狀態 (控制透明度)
 
-      textSize: 'md'
+      // 💡 預設字體改為大字體 ('lg')
+      textSize: 'lg',
+
+      // 💡 智能 Loading 狀態
+      loadingTimer: null,
+      showLongLoadingText: false
     }
   },
   computed: {
     textSizeLabel () {
       const map = { md: '中', lg: '大', xl: '特大' }
-      return map[this.textSize] || '中'
+      return map[this.textSize] || '大' // 預設對齊 '大'
     },
     // 所有候選陣列
     allExamples () {
@@ -445,6 +463,9 @@ export default {
     const savedTextSize = localStorage.getItem('lah-dgx-text-size')
     if (savedTextSize && ['md', 'lg', 'xl'].includes(savedTextSize)) {
       this.textSize = savedTextSize
+    } else {
+      // 確保沒有暫存時，預設也是寫入 'lg'
+      localStorage.setItem('lah-dgx-text-size', 'lg')
     }
 
     const savedHistory = localStorage.getItem('lah-dgx-history')
@@ -488,37 +509,34 @@ export default {
     if (this.inputResizeObserver) {
       this.inputResizeObserver.disconnect()
     }
+    if (this.loadingTimer) {
+      clearTimeout(this.loadingTimer)
+    }
   },
   methods: {
-    // 💡 強化修正：精確測量每個子元素的物理像素寬度，淘汰不準確的 scrollWidth 迴圈
     async calculateVisibleExamples () {
       if (this.isCalculating) { return }
       this.isCalculating = true
 
       try {
-        // 先移除 transition，確保計算過程在背後「瞬間」完成而不產生閃爍殘影
         if (this.$refs.quickExamples) {
           this.$refs.quickExamples.style.transition = 'none'
         }
 
-        // 先拉滿數量，等待 Vue 更新 DOM
         this.maxVisibleExamples = 6
         await this.$nextTick()
 
-        // 💡 核心防護：設定 50ms 延遲，確保瀏覽器完全繪製出真實寬度 (解決某些手機的重繪延遲)
         await new Promise(resolve => setTimeout(resolve, 50))
 
         const container = this.$refs.quickExamples
         if (!container) { return }
 
-        // 取得容器的「安全可用寬度」
         const availableWidth = container.clientWidth
         const children = container.children
 
         let currentTotalWidth = 0
         let fitCount = 0
 
-        // 逐一累加子元素的實體寬度 (offsetWidth + margin)
         for (let i = 0; i < children.length; i++) {
           const child = children[i]
           const style = window.getComputedStyle(child)
@@ -526,20 +544,17 @@ export default {
 
           currentTotalWidth += childWidth
 
-          if (i === 0) { continue } // 略過第一個燈泡 icon
+          if (i === 0) { continue }
 
-          // 容忍 5px 誤差，如果加入這個按鈕還在安全範圍內，就保留它
           if (currentTotalWidth <= availableWidth + 5) {
             fitCount++
           } else {
-            break // 裝不下就立刻中斷
+            break
           }
         }
 
-        // 確保至少顯示 1 個，避免畫面空掉
         this.maxVisibleExamples = Math.max(1, fitCount)
       } finally {
-        // 算完後，重新把透明度漸變效果掛回去
         if (this.$refs.quickExamples) {
           this.$refs.quickExamples.style.transition = 'opacity 0.15s ease'
         }
@@ -639,6 +654,14 @@ export default {
       this.inputText = ''
       this.isBusy = true
 
+      // 💡 啟動智能 Loading 計時器：超過 1000 毫秒才顯示提示框
+      this.showLongLoadingText = false
+      if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
+      this.loadingTimer = setTimeout(() => {
+        this.showLongLoadingText = true
+        this.scrollToBottom() // 確保 Loading 提示出現時畫面會跟著捲動
+      }, 1000)
+
       if (this.messages.length > MAX_MESSAGES) {
         this.messages = this.messages.slice(-MAX_MESSAGES)
       }
@@ -712,7 +735,11 @@ export default {
           caseIds: []
         })
       } finally {
+        // 💡 清除 Loading 狀態與計時器
+        if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
+        this.showLongLoadingText = false
         this.isBusy = false
+
         if (this.messages.length > MAX_MESSAGES) {
           this.messages = this.messages.slice(-MAX_MESSAGES)
         }
@@ -844,14 +871,12 @@ export default {
    快捷輸入區塊 (Quick Examples) 樣式
    ========================================= */
 .quick-examples {
-  /* 💡 核心修正：強制消除最後一個項目的右邊界，避免 scrollWidth 多出 8px 而無限切斷 */
   .quick-btn:last-child {
     margin-right: 0 !important;
   }
 
   .quick-btn {
     transition: all 0.2s ease;
-    /* 💡 核心修正：避免在 iOS 等手機瀏覽器中文字微量折行導致高度或寬度變形 */
     white-space: nowrap;
 
     &:hover {
