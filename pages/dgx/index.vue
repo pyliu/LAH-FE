@@ -113,11 +113,10 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
             | {{ msg.text }}
 
           //- 渲染真實的地政案件微型卡片
-          //- 💡 single-row：卡片總數 <= 該字體尺寸單排上限時才加上，CSS 才會套用撐滿剩餘空間的版面
-          .cases-container.mt-3(
-            v-if="msg.caseIds && msg.caseIds.length > 0"
-            :class="{ 'single-row': msg.caseIds.length <= cardRowCapacity }"
-          )
+          //- 💡 卡片一律採固定寬度排列 (依字體大小於 style 計算)，確保卡片數量不滿排時
+          //-    不會被拉伸撐滿，避免內部 lah-reg-case-status-compact 的 info-row-2col
+          //-    因外層寬度暴增而重新計算成 3 欄、造成排版不一致
+          .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
             .case-card(
               v-for="(cId, cIdx) in msg.caseIds"
               :key="'case_' + msgIdx + '_' + cIdx + '_' + cId"
@@ -406,11 +405,6 @@ export default {
     textSizeLabel () {
       const map = { md: '中', lg: '大', xl: '特大' }
       return map[this.textSize] || '大' // 預設對齊 '大'
-    },
-    // 💡 各字體尺寸下，案件卡片單排可容納的數量上限 (對應 style 中的 calc() 設定)
-    cardRowCapacity () {
-      const map = { md: 4, lg: 3, xl: 2 }
-      return map[this.textSize] || 3 // 預設對齊 'lg' 的 3
     },
     // 所有候選陣列
     allExamples () {
@@ -814,10 +808,9 @@ export default {
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
   // 💡 一排 4 個 (扣除 3 個 16px 的 gap)
-  // 💡 預設維持固定寬度 (flex-grow:0)，確保多排情況下每排卡片大小一致，不會因最後一排數量較少而被拉伸
+  // 💡 一律固定寬度 (flex-grow:0)，確保不滿排時不會被拉伸撐滿，
+  //    避免內部 compact 卡片的 info-row-2col 因外層寬度暴增而重新計算欄數
   .case-card { flex: 0 0 calc((100% - 48px) / 4); min-width: 220px; }
-  // 💡 僅當卡片總數 <= 單排上限 (single-row) 時，才允許 flex-grow:1 撐滿剩餘空間
-  .cases-container.single-row .case-card { flex: 1 1 calc((100% - 48px) / 4); }
 }
 
 .message-item.text-size-lg {
@@ -830,7 +823,6 @@ export default {
   // 💡 一排 3 個 (扣除 2 個 16px 的 gap)
   // 💡 規則說明同 md 尺寸區塊
   .case-card { flex: 0 0 calc((100% - 32px) / 3); min-width: 280px; }
-  .cases-container.single-row .case-card { flex: 1 1 calc((100% - 32px) / 3); }
 }
 
 .message-item.text-size-xl {
@@ -843,7 +835,6 @@ export default {
   // 💡 一排 2 個 (扣除 1 個 16px 的 gap)
   // 💡 規則說明同 md 尺寸區塊
   .case-card { flex: 0 0 calc((100% - 16px) / 2); min-width: 360px; }
-  .cases-container.single-row .case-card { flex: 1 1 calc((100% - 16px) / 2); }
 }
 
 /* =========================================
