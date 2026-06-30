@@ -126,13 +126,12 @@ b-card(no-body)
     //- 4. 標的資訊與案件進階屬性 (Target info & Details)
     //- ==========================================
     b-row.align-items-start.mb-2
-      //- 左半部：標的資訊 (放大為 1/3 版面 lg="4")
+      //- 左半部：標的資訊 (1/3 版面 lg="4")
       b-col(cols="12" lg="4").mb-4
         .d-flex.justify-content-between.align-items-center.mb-3
           h6.font-weight-bold.text-success.mb-0 📌 標的資訊
           b-badge(variant="success" pill) 共 {{ totalTargets }} 筆
 
-        //- 移除 collapse 收合設計，改為常駐顯示
         b-card.border-success.shadow-sm(body-class="p-0")
           b-list-group(flush)
             //- 土地標的清單
@@ -187,18 +186,19 @@ b-card(no-body)
                   .font-weight-bold.text-dark {{ bakedData.測量案件 || '--' }}
 
           //- 耗時卡片 (無資料則隱藏)
-          b-col(cols="12" md="6").mb-3(v-if="hasElapsedTime")
+          b-col.mb-3(cols="12" md="6" v-if="hasElapsedTime")
             b-card(bg-variant="light" border-variant="light" body-class="p-3 shadow-sm rounded")
               h6.font-weight-bold.text-dark.mb-3.border-bottom.pb-2 ⏱️ 階段辦理耗時
-              //- 內部改用 3 欄 Grid (2x3) 進行排列
+              //- 修正為 2 欄 (cols="6") 產生完美的 2x3 排列，防止文字擠壓破版
               b-row
-                b-col(cols="4").mb-2(
+                b-col.mb-2(
+                  cols="6"
                   v-for="(val, key) in bakedData.ELAPSED_TIME"
                   :key="key"
                 )
                   .small.text-muted {{ key }}
                   .font-weight-bold.mt-1
-                    b-badge(
+                    b-badge.text-nowrap(
                       :variant="val > 0 ? 'info' : 'light'"
                       :class="val > 0 ? '' : 'text-muted'"
                       pill
@@ -382,7 +382,7 @@ export default {
       }
       return `${str.substring(0, 1)}${'Ｏ'.repeat(str.length - 2)}${str.substring(str.length - 1)}`
     },
-    // 轉換秒數為易讀格式 (天、時、分)
+    // 轉換秒數為易讀格式 (天、時、分) - 移除字串中空白以節省版面空間
     formatElapsed (seconds) {
       if (!seconds || seconds <= 0) { return '--' }
       const d = Math.floor(seconds / 86400)
@@ -391,9 +391,8 @@ export default {
       const res = []
       if (d > 0) { res.push(`${d}天`) }
       if (h > 0) { res.push(`${h}時`) }
-      // 若超過一天或一小時但沒有分鐘，為了精確性仍保留。若全空則預設顯示分鐘
       if (m > 0 || res.length === 0) { res.push(`${m}分`) }
-      return res.join(' ')
+      return res.join('') // 使用無空白連接，避免撐破 Badge
     },
     getLocalFixData () {
       this.isBusy = true
