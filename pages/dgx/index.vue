@@ -73,7 +73,13 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
   //- ==========================================
   //- 聊天主體區塊
   //- ==========================================
-  .chat-main-area.d-flex.flex-column
+  .chat-main-area.d-flex.flex-column.position-relative
+
+    //- 💡 閒置 5 分鐘顯示的跑馬燈 (螢幕保護程式效果)
+    transition(name="fade")
+      .idle-marquee-overlay(v-if="showMarquee" :class="{ 'theme-dark': isDarkMode }")
+        .marquee-text-container {{ fullMarqueeText }}
+
     //- 對話紀錄顯示區 (縮小手機版 padding，限制橫向捲動)
     .messages-container.flex-grow-1.p-2.p-md-4.overflow-auto(ref="msgContainer" style="overflow-x: hidden;")
 
@@ -103,8 +109,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
         ) {{ msg.text }}
 
         //- AI 回覆訊息泡泡
-        //- 💡 核心修正：只要回傳帶有案件資料 (msg.caseIds.length > 0)，就將 bubble 寬度強制設為 100%
-        //- 這樣 calc() 取到的父層寬度就會一致，保證單卡片與多卡片的寬度完美對齊！
         .d-inline-block.p-3.rounded.text-left.shadow-sm(
           v-else
           :style="{ maxWidth: '98%', width: (msg.caseIds && msg.caseIds.length > 0) ? '100%' : 'auto' }"
@@ -388,24 +392,33 @@ export default {
       resizeObserver: null,
       inputResizeObserver: null,
 
-      // 實測用變數
-      maxVisibleExamples: 6, // 顯示數量上限
-      isCalculating: false, // 計算中的狀態 (控制透明度)
-
-      // 預設字體改為大字體 ('lg')
+      maxVisibleExamples: 6,
+      isCalculating: false,
       textSize: 'lg',
-
-      // 智能 Loading 狀態
       loadingTimer: null,
-      showLongLoadingText: false
+      showLongLoadingText: false,
+
+      // 💡 閒置跑馬燈與密技相關狀態
+      showMarquee: false,
+      idleTimeoutId: null,
+      konamiCodeAlt: ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'b'],
+      currentKonamiInput: [],
+      marqueeTips: [
+        '💡 提示：若未指定民國年，系統會自動預設為今年。',
+        '💡 提示：支援口語化輸入，如輸入「桃園朴子」，會自動轉譯為「H1QB」。',
+        '💡 提示：案件號輸入任意數字，系統會自動幫您補齊 6 碼。',
+        '💡 提示：想查多筆同字號案件？直接用空白分隔號碼即可自動繼承。',
+        '💡 提示：100~130 的數字若出現在其他號碼之前，系統會自動辨識為民國年。',
+        `💡 範例：「${twYear}年 桃園朴子 第10號」 ➔ ${twYear}-H1QB-000010`,
+        '💡 範例：「HA85 1200 1300」 ➔ 自動幫您查兩筆 HA85 的案件'
+      ]
     }
   },
   computed: {
     textSizeLabel () {
       const map = { md: '中', lg: '大', xl: '特大' }
-      return map[this.textSize] || '大' // 預設對齊 '大'
+      return map[this.textSize] || '大'
     },
-    // 所有候選陣列
     allExamples () {
       const list = []
       const seen = new Set()
@@ -442,13 +455,15 @@ export default {
 
       return list
     },
-    // 根據動態算出的數量切片顯示
     displayExamples () {
       return this.allExamples.slice(0, this.maxVisibleExamples)
+    },
+    // 💡 將提示陣列串接成單一的長字串供跑馬燈輪播
+    fullMarqueeText () {
+      return this.marqueeTips.join('　　✦　　')
     }
   },
   watch: {
-    // 只要歷史紀錄有變動，強制觸發一次重新計算
     historyRecords: {
       deep: true,
       handler () {
@@ -466,7 +481,6 @@ export default {
     if (savedTextSize && ['md', 'lg', 'xl'].includes(savedTextSize)) {
       this.textSize = savedTextSize
     } else {
-      // 確保沒有暫存時，預設也是寫入 'lg'
       localStorage.setItem('lah-dgx-text-size', 'lg')
     }
 
@@ -480,7 +494,6 @@ export default {
     }
 
     this.$nextTick(() => {
-      // 1. 監聽訊息區塊 (自動滾動)
       const msgContainer = this.$refs.msgContainer
       if (msgContainer && window.ResizeObserver) {
         this.resizeObserver = new ResizeObserver(() => {
@@ -492,7 +505,6 @@ export default {
         this.resizeObserver.observe(msgContainer)
       }
 
-      // 2. 監聽輸入區塊，當外層視窗寬度改變時重算
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
@@ -503,19 +515,72 @@ export default {
         this.calculateVisibleExamples()
       }
     })
+
+    // 💡 掛載全域事件，用於偵測閒置與 KONAMI 密技
+    window.addEventListener('mousemove', this.handleGlobalInteraction)
+    window.addEventListener('keydown', this.handleGlobalInteraction)
+    window.addEventListener('click', this.handleGlobalInteraction)
+    window.addEventListener('touchstart', this.handleGlobalInteraction)
+    window.addEventListener('scroll', this.handleGlobalInteraction)
+
+    // 初始化閒置計時器
+    this.resetIdleTimer()
   },
   beforeDestroy () {
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect()
-    }
-    if (this.inputResizeObserver) {
-      this.inputResizeObserver.disconnect()
-    }
-    if (this.loadingTimer) {
-      clearTimeout(this.loadingTimer)
-    }
+    if (this.resizeObserver) { this.resizeObserver.disconnect() }
+    if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
+    if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
+
+    // 💡 移除全域事件與計時器
+    window.removeEventListener('mousemove', this.handleGlobalInteraction)
+    window.removeEventListener('keydown', this.handleGlobalInteraction)
+    window.removeEventListener('click', this.handleGlobalInteraction)
+    window.removeEventListener('touchstart', this.handleGlobalInteraction)
+    window.removeEventListener('scroll', this.handleGlobalInteraction)
+    if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
+    // 💡 全域互動與 KONAMI 密技偵測
+    handleGlobalInteraction (e) {
+      // 處理鍵盤輸入偵測 (KONAMI 密技)
+      if (e.type === 'keydown') {
+        const key = e.key.toLowerCase()
+        this.currentKonamiInput.push(key)
+
+        // 保持陣列長度與密技長度一致
+        if (this.currentKonamiInput.length > this.konamiCodeAlt.length) {
+          this.currentKonamiInput.shift()
+        }
+
+        // 檢查是否完全吻合
+        if (this.currentKonamiInput.join(',') === this.konamiCodeAlt.join(',')) {
+          this.currentKonamiInput = [] // 重置密技輸入
+          this.$bvToast.toast('解鎖隱藏密技：顯示跑馬燈提示！', {
+            title: '🎮 Konami Code',
+            variant: 'success',
+            solid: true,
+            autoHideDelay: 3000
+          })
+
+          // 觸發密技時，強制顯示跑馬燈，並取消一般互動的隱藏效果(直到下次再移動)
+          if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
+          this.showMarquee = true
+          return // 提早結束，避免被下方的 resetIdleTimer 給隱藏
+        }
+      }
+
+      // 只要有任何非密技的操作，就重置閒置計時器並隱藏跑馬燈
+      this.resetIdleTimer()
+    },
+    // 💡 閒置計時器重置邏輯
+    resetIdleTimer () {
+      if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
+      this.showMarquee = false
+      // 5分鐘 = 5 * 60 * 1000 = 300000 毫秒
+      this.idleTimeoutId = setTimeout(() => {
+        this.showMarquee = true
+      }, 300000)
+    },
     async calculateVisibleExamples () {
       if (this.isCalculating) { return }
       this.isCalculating = true
@@ -661,7 +726,7 @@ export default {
       if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
       this.loadingTimer = setTimeout(() => {
         this.showLongLoadingText = true
-        this.scrollToBottom() // 確保 Loading 提示出現時畫面會跟著捲動
+        this.scrollToBottom()
       }, 1000)
 
       if (this.messages.length > MAX_MESSAGES) {
@@ -737,7 +802,6 @@ export default {
           caseIds: []
         })
       } finally {
-        // 清除 Loading 狀態與計時器
         if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
         this.showLongLoadingText = false
         this.isBusy = false
@@ -777,6 +841,52 @@ export default {
 }
 
 /* =========================================
+   💡 閒置跑馬燈 (Idle Marquee) 樣式
+   ========================================= */
+.idle-marquee-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 123, 255, 0.85); /* Bootstrap Primary */
+  color: white;
+  padding: 12px 0;
+  z-index: 100;
+  pointer-events: none; /* 允許點擊穿透，不會妨礙使用者點擊背後的卡片 */
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+
+  &.theme-dark {
+    background: rgba(255, 193, 7, 0.85); /* Warning for dark mode */
+    color: #212529;
+  }
+
+  .marquee-text-container {
+    display: inline-block;
+    white-space: nowrap;
+    /* CSS 硬體加速輪播，設定 45s 平滑捲動 */
+    animation: marquee-scroll 45s linear infinite;
+    font-size: 1.15rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+}
+
+/* 跑馬燈捲動動畫 */
+@keyframes marquee-scroll {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+/* 簡單的 Vue 淡入淡出過渡 */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+/* =========================================
    歡迎畫面與動態字體
    ========================================= */
 .greeting-container {
@@ -806,7 +916,6 @@ export default {
     .small, small { font-size: 0.875rem; }
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
-  // 一排 4 個 (扣除 3 個 16px 的 gap)
   .case-card { width: calc((100% - 48px) / 4); min-width: 220px; }
 }
 
@@ -817,7 +926,6 @@ export default {
     .h6, h6 { font-size: 1.2rem; }
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
-  // 一排 3 個 (扣除 2 個 16px 的 gap)
   .case-card { width: calc((100% - 32px) / 3); min-width: 280px; }
 }
 
@@ -828,7 +936,6 @@ export default {
     .h6, h6 { font-size: 1.4rem; }
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
-  // 一排 2 個 (扣除 1 個 16px 的 gap)
   .case-card { width: calc((100% - 16px) / 2); min-width: 360px; }
 }
 
