@@ -167,7 +167,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           //- ── 輸入框 (固定 order-2，大小螢幕皆在中間) ──────
           .order-2.flex-grow-1(:class="isWideScreen ? 'px-3' : ''")
             b-input-group(size="lg")
-              //- 💡 修正：移除 :disabled，讓輸入框在等待 AI 回應時依然可以打字
               b-form-input(
                 ref="chatInput"
                 v-model="inputText"
@@ -176,7 +175,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
                 :class="[isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white']"
               )
               b-input-group-append
-                //- 💡 修正：發送按鈕綁定 isSending 控制禁用狀態與 icon 旋轉
                 b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isSending").theme-btn.h-100.px-2.px-md-3
                   lah-fa-icon(icon="paper-plane" :action="isSending ? 'spin' : ''")
                   span.d-none.d-sm-inline.ml-1 送出
@@ -491,7 +489,6 @@ export default {
 
     return {
       isDarkMode: false,
-      // 💡 修正：將 isBusy 更名為 isSending，避免觸發底層全域 Mixin 的覆蓋式 Loading
       isSending: false,
       inputText: '',
       messages: [],
@@ -706,7 +703,6 @@ export default {
       }, 300000)
     },
     async calculateVisibleExamples () {
-      // 替換原本依賴 isBusy 的邏輯
       if (this.isCalculating) { return }
       this.isCalculating = true
 
@@ -833,7 +829,6 @@ export default {
       })
     },
     async sendMessage () {
-      // 💡 修正：將防呆檢查改為 isSending
       if (!this.inputText.trim() || this.isSending) { return }
 
       const userInput = this.inputText.trim()
@@ -845,7 +840,7 @@ export default {
 
       this.saveToHistory(userInput)
       this.inputText = ''
-      this.isSending = true // 標記為發送中
+      this.isSending = true
 
       this.showLongLoadingText = false
       if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
@@ -929,7 +924,7 @@ export default {
       } finally {
         if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
         this.showLongLoadingText = false
-        this.isSending = false // 關閉發送中狀態
+        this.isSending = false
 
         if (this.messages.length > MAX_MESSAGES) {
           this.messages = this.messages.slice(-MAX_MESSAGES)
@@ -1074,8 +1069,10 @@ export default {
   justify-content: flex-start;
 }
 
+/* 💡 核心修正：將 .case-card 轉換為 flex column 佈局 */
 .case-card {
-  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
   border-left: 4px solid #007bff;
   border-radius: 8px;
@@ -1098,11 +1095,13 @@ export default {
 .case-card-header {
   padding: 0.5em 0.75em;
   border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0; /* 💡 防止標題被壓縮 */
 }
 
+/* 💡 核心修正：讓 body 彈性填滿剩餘空間，取代容易產生溢出的 height: 100% */
 .case-card-body {
   padding: 0.75em;
-  height: 100%;
+  flex: 1 1 auto;
 }
 
 /* =========================================
