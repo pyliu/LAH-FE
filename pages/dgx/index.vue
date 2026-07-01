@@ -146,12 +146,12 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
 
     //- 底部輸入區塊
     .input-area.p-2.p-md-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
-      //- 💡 移除 max-width 限制，讓三欄版面在大螢幕可充分利用空間
+      //- 移除 max-width 限制，讓三欄版面在大螢幕可充分利用空間
       .input-wrapper.mx-auto.w-100(ref="inputWrapper")
 
-        //- 💡 三欄響應式容器
-        //-    clientWidth >= 1280：flex-row [說明提示(左)] [輸入框(中)] [歷史快捷(右)]
-        //-    clientWidth <  1280：flex-column [歷史快捷(上,order-1)] [輸入框(中,order-2)] [說明提示(下,order-3)]
+        //- 三欄響應式容器
+        //- clientWidth >= 1280：flex-row [說明提示(左)] [輸入框(中)] [歷史快捷(右)]
+        //- clientWidth <  1280：flex-column [歷史快捷(上,order-1)] [輸入框(中,order-2)] [說明提示(下,order-3)]
         .input-layout.d-flex(
           :class="isWideScreen ? 'flex-row align-items-center' : 'flex-column align-items-stretch'"
         )
@@ -160,24 +160,25 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           //- 寬螢幕 (>=1280)：最左側 (order-1)，固定 200px
           //- 窄螢幕 (<1280) ：最下方 (order-3)，全寬
           .tip-panel(:class="tipPanelClass")
-            //- 💡 :key="tipIndex" 觸發 lah-transition 的淡入淡出，每 10 秒換一則
+            //- :key="tipIndex" 觸發 lah-transition 的淡入淡出，每 10 秒換一則
             lah-transition
               span.tip-text.small(:key="tipIndex" :class="isDarkMode ? 'text-light' : 'text-secondary'") {{ currentTip }}
 
           //- ── 輸入框 (固定 order-2，大小螢幕皆在中間) ──────
           .order-2.flex-grow-1(:class="isWideScreen ? 'px-3' : ''")
             b-input-group(size="lg")
+              //- 💡 修正：移除 :disabled，讓輸入框在等待 AI 回應時依然可以打字
               b-form-input(
                 ref="chatInput"
                 v-model="inputText"
                 placeholder="請輸入案件資訊..."
                 @keyup.enter="sendMessage"
                 :class="[isDarkMode ? 'bg-dark text-light border-secondary' : 'bg-white']"
-                :disabled="isBusy"
               )
               b-input-group-append
-                b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isBusy").theme-btn.h-100.px-2.px-md-3
-                  lah-fa-icon(icon="paper-plane" :action="isBusy ? 'spin' : ''")
+                //- 💡 修正：發送按鈕綁定 isSending 控制禁用狀態與 icon 旋轉
+                b-button(variant="primary" @click="sendMessage" :disabled="!inputText.trim() || isSending").theme-btn.h-100.px-2.px-md-3
+                  lah-fa-icon(icon="paper-plane" :action="isSending ? 'spin' : ''")
                   span.d-none.d-sm-inline.ml-1 送出
 
           //- ── 歷史快捷列表 ──────────────────────────────────
@@ -490,7 +491,8 @@ export default {
 
     return {
       isDarkMode: false,
-      isBusy: false,
+      // 💡 修正：將 isBusy 更名為 isSending，避免觸發底層全域 Mixin 的覆蓋式 Loading
+      isSending: false,
       inputText: '',
       messages: [],
       historyRecords: [],
@@ -511,14 +513,11 @@ export default {
       loadingTimer: null,
       showLongLoadingText: false,
 
-      // 💡 說明提示輪播狀態
       tipIndex: 0,
       tipTimer: null,
 
-      // 💡 寬螢幕判斷：clientWidth >= 1280px 時為三欄版面，否則堆疊版面
       isWideScreen: false,
 
-      // 💡 閒置跑馬燈與密技相關狀態
       showMarquee: false,
       idleTimeoutId: null,
       konamiCodeAlt: ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'b'],
@@ -539,12 +538,9 @@ export default {
       const map = { md: '中', lg: '大', xl: '特大' }
       return map[this.textSize] || '大'
     },
-    // 💡 依 tipIndex 取出當前輪播提示，每 10 秒在 mounted 的 interval 中切換
     currentTip () {
       return this.marqueeTips[this.tipIndex] || ''
     },
-    // 💡 tip-panel 的 class 陣列抽成 computed，避免在 Pug 屬性中使用多行字串
-    //    (Pug lexer 遇到換行會將屬性值視為未結束，導致 "Unterminated string constant" 錯誤)
     tipPanelClass () {
       return [
         this.isWideScreen ? 'order-1 tip-panel--wide' : 'order-3 mt-2',
@@ -590,7 +586,6 @@ export default {
     displayExamples () {
       return this.allExamples.slice(0, this.maxVisibleExamples)
     },
-    // 💡 將提示陣列串接成單一的長字串供跑馬燈輪播
     fullMarqueeText () {
       return this.marqueeTips.join('　　✦　　')
     }
@@ -637,36 +632,28 @@ export default {
         this.resizeObserver.observe(msgContainer)
       }
 
-      // 💡 整合寬螢幕判斷與數量計算的 ResizeObserver
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
-          // 1. 順手計算是否為寬螢幕 (大於等於 1280px)
-          const width = document.body.clientWidth
-          this.isWideScreen = width >= 1280
-
-          // 2. 執行原有的快捷按鈕數量計算
-          this.calculateVisibleExamples()
+          const width = document.body.clientWidth;
+          this.isWideScreen = width >= 1280;
+          this.calculateVisibleExamples();
         }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
-        // 如果不支援 ResizeObserver，給個預設兜底
-        this.isWideScreen = document.body.clientWidth >= 1280
+        this.isWideScreen = document.body.clientWidth >= 1280;
         this.calculateVisibleExamples()
       }
     })
 
-    // 💡 掛載全域事件，用於偵測閒置與 KONAMI 密技
     window.addEventListener('mousemove', this.handleGlobalInteraction)
     window.addEventListener('keydown', this.handleGlobalInteraction)
     window.addEventListener('click', this.handleGlobalInteraction)
     window.addEventListener('touchstart', this.handleGlobalInteraction)
     window.addEventListener('scroll', this.handleGlobalInteraction)
 
-    // 初始化閒置計時器
     this.resetIdleTimer()
 
-    // 💡 每 10 秒輪播一則說明提示 (輸入框旁的 tip-panel)
     this.tipTimer = setInterval(() => {
       this.tipIndex = (this.tipIndex + 1) % this.marqueeTips.length
     }, 10000)
@@ -675,10 +662,8 @@ export default {
     if (this.resizeObserver) { this.resizeObserver.disconnect() }
     if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
-    // 💡 清除說明提示輪播計時器
     if (this.tipTimer) { clearInterval(this.tipTimer) }
 
-    // 💡 移除全域事件與計時器
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
     window.removeEventListener('keydown', this.handleGlobalInteraction)
     window.removeEventListener('click', this.handleGlobalInteraction)
@@ -687,21 +672,17 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
-    // 💡 全域互動與 KONAMI 密技偵測
     handleGlobalInteraction (e) {
-      // 處理鍵盤輸入偵測 (KONAMI 密技)
       if (e.type === 'keydown') {
         const key = e.key.toLowerCase()
         this.currentKonamiInput.push(key)
 
-        // 保持陣列長度與密技長度一致
         if (this.currentKonamiInput.length > this.konamiCodeAlt.length) {
           this.currentKonamiInput.shift()
         }
 
-        // 檢查是否完全吻合
         if (this.currentKonamiInput.join(',') === this.konamiCodeAlt.join(',')) {
-          this.currentKonamiInput = [] // 重置密技輸入
+          this.currentKonamiInput = []
           this.$bvToast.toast('解鎖隱藏密技：顯示跑馬燈提示！', {
             title: '🎮 Konami Code',
             variant: 'success',
@@ -709,26 +690,23 @@ export default {
             autoHideDelay: 3000
           })
 
-          // 觸發密技時，強制顯示跑馬燈，並取消一般互動的隱藏效果(直到下次再移動)
           if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
           this.showMarquee = true
-          return // 提早結束，避免被下方的 resetIdleTimer 給隱藏
+          return
         }
       }
 
-      // 只要有任何非密技的操作，就重置閒置計時器並隱藏跑馬燈
       this.resetIdleTimer()
     },
-    // 💡 閒置計時器重置邏輯
     resetIdleTimer () {
       if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
       this.showMarquee = false
-      // 5分鐘 = 5 * 60 * 1000 = 300000 毫秒
       this.idleTimeoutId = setTimeout(() => {
         this.showMarquee = true
       }, 300000)
     },
     async calculateVisibleExamples () {
+      // 替換原本依賴 isBusy 的邏輯
       if (this.isCalculating) { return }
       this.isCalculating = true
 
@@ -855,7 +833,8 @@ export default {
       })
     },
     async sendMessage () {
-      if (!this.inputText.trim() || this.isBusy) { return }
+      // 💡 修正：將防呆檢查改為 isSending
+      if (!this.inputText.trim() || this.isSending) { return }
 
       const userInput = this.inputText.trim()
 
@@ -866,9 +845,8 @@ export default {
 
       this.saveToHistory(userInput)
       this.inputText = ''
-      this.isBusy = true
+      this.isSending = true // 標記為發送中
 
-      // 啟動智能 Loading 計時器：超過 1000 毫秒才顯示提示框
       this.showLongLoadingText = false
       if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
       this.loadingTimer = setTimeout(() => {
@@ -951,7 +929,7 @@ export default {
       } finally {
         if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
         this.showLongLoadingText = false
-        this.isBusy = false
+        this.isSending = false // 關閉發送中狀態
 
         if (this.messages.length > MAX_MESSAGES) {
           this.messages = this.messages.slice(-MAX_MESSAGES)
@@ -988,7 +966,7 @@ export default {
 }
 
 /* =========================================
-   💡 閒置跑馬燈 (Idle Marquee) 樣式
+   閒置跑馬燈 (Idle Marquee) 樣式
    ========================================= */
 .idle-marquee-overlay {
   position: absolute;
@@ -1131,13 +1109,13 @@ export default {
    快捷輸入區塊 (Quick Examples) 樣式
    ========================================= */
 
-/* 💡 三欄響應式輸入版面
+/* 三欄響應式輸入版面
    flex 方向與 order 由 isWideScreen (clientWidth >= 1280) 透過動態 class 控制 */
 .input-layout {
   gap: 8px;
 }
 
-/* 💡 說明提示面板
+/* 說明提示面板
    預設：全寬堆疊模式，上下細框
    加上 --wide class 時 (clientWidth >= 1280，由 JS 判斷)：固定 200px 左欄，右側分隔線 */
 .tip-panel {
@@ -1149,14 +1127,12 @@ export default {
   background-color: rgba(0, 123, 255, 0.04);
 
   .tip-text {
-    // 多行文字限制 2 行，保持面板高度穩定
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
   }
 
-  // 💡 寬螢幕模式 (clientWidth >= 1280，由 isWideScreen 動態加上此 class)
   &.tip-panel--wide {
     width: 300px;
     flex-shrink: 0;
