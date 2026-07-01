@@ -163,8 +163,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           .tip-panel(:class="tipPanelClass")
             //- 💡 :key="tipIndex" 觸發 lah-transition 的淡入淡出，每 10 秒換一則
             lah-transition
-              .d-flex.align-items-start(:key="tipIndex")
-                span.tip-text.small(:class="isDarkMode ? 'text-light' : 'text-secondary'") {{ currentTip }}
+              span.tip-text.small(:key="tipIndex" :class="isDarkMode ? 'text-light' : 'text-secondary'") {{ currentTip }}
 
           //- ── 輸入框 (固定 order-2，大小螢幕皆在中間) ──────
           .order-2.flex-grow-1(:class="isWideScreen ? 'px-3' : ''")
@@ -380,6 +379,100 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
               | ➔ #[code 114-HA81-001600]
               br
               span.small.text-muted.ml-4 (兩筆共同繼承年份 114)
+
+      hr(:class="isDarkMode ? 'border-secondary' : ''")
+
+      //- ==========================================
+      //- 介面操作說明（近期新增功能）
+      //- ==========================================
+      h6.font-weight-bold.mt-3.mb-3(:class="isDarkMode ? 'text-light' : 'text-dark'") 🖥️ 介面操作說明
+
+      b-row
+        //- 卡片排版與字體大小
+        b-col(md="4").mb-4
+          h6.font-weight-bold.text-primary.mb-3 📐 卡片排版與字體大小
+          b-card(no-body :bg-variant="isDarkMode ? 'dark' : 'light'" :class="isDarkMode ? 'border-secondary' : ''").instruction-card.h-100.shadow-sm.border-0
+            b-card-body.p-3
+              ul.mb-0.pl-3(:class="isDarkMode ? 'text-light' : 'text-dark'")
+                li.mb-3
+                  strong 右上角字體切換：
+                  br
+                  small.text-secondary 點擊「A 中／大／特大」圖示可切換文字大小，同時影響每排顯示的卡片數量。
+                  br
+                  small.text-secondary.mt-1
+                    b-badge.mr-1(variant="secondary") 中
+                    | 一排最多 4 張
+                    b-badge.mr-1(variant="secondary") 大
+                    | 一排最多 3 張
+                    b-badge.mr-1(variant="secondary") 特大
+                    | 一排最多 2 張
+                li.mb-0
+                  strong 卡片固定寬度：
+                  br
+                  small.text-secondary 各張案件卡片維持等寬排列，即使查詢結果未滿一排，也不會被拉伸撐滿，以確保每張卡片的內容版面一致。
+
+        //- 案件 ID 格式驗證
+        b-col(md="4").mb-4
+          h6.font-weight-bold.text-danger.mb-3 🔍 案件 ID 格式驗證
+          b-card(no-body :bg-variant="isDarkMode ? 'dark' : 'light'" :class="isDarkMode ? 'border-secondary' : ''").instruction-card.border-danger.h-100.shadow-sm.border-0
+            b-card-body.p-3
+              ul.mb-0.pl-3(:class="isDarkMode ? 'text-light' : 'text-dark'")
+                li.mb-3
+                  strong 正確格式：
+                  br
+                  small.text-secondary 民國年（2~3 碼）＋ 案件字（4 碼英數）＋ 案件號（6 碼數字），分隔符「-」可有可無。
+                  br
+                  small.text-secondary.mt-1
+                    | 範例：#[code 115-H1AA-000010] 或 #[code 115H1AA000010]
+                li.mb-3
+                  strong 紅色卡片 = 解析失敗：
+                  br
+                  small.text-secondary 若 AI 回傳的案件 ID 不符合上述格式，該卡片左側邊框會顯示為
+                    b-badge.mx-1(variant="danger") 紅色
+                    | ，並在卡片內顯示「案件 ID 解析失敗」說明，不會觸發後端查詢。
+                li.mb-0
+                  strong 藍色卡片 = 正常：
+                  br
+                  small.text-secondary 格式正確的案件 ID，卡片左側邊框顯示為
+                    b-badge.mx-1(variant="primary") 藍色
+                    | ，正常載入案件資訊。
+
+        //- 說明提示與歷史列表
+        b-col(md="4").mb-4
+          h6.font-weight-bold.text-info.mb-3 💡 說明提示與歷史列表
+          b-card(no-body :bg-variant="isDarkMode ? 'dark' : 'light'" :class="isDarkMode ? 'border-secondary' : ''").instruction-card.border-info.h-100.shadow-sm.border-0
+            b-card-body.p-3
+              ul.mb-0.pl-3(:class="isDarkMode ? 'text-light' : 'text-dark'")
+                li.mb-3
+                  strong 說明提示輪播：
+                  br
+                  small.text-secondary 輸入框旁每
+                    b-badge.mx-1(variant="info") 10 秒
+                    | 自動切換一則使用提示，提醒各種輸入技巧。
+                  br
+                  small.text-secondary.mt-1
+                    | 螢幕寬度 ≥ 1280px 時顯示在輸入框
+                    b-badge.mx-1(variant="secondary") 左側
+                    | ；螢幕較窄時移至輸入框
+                    b-badge.mx-1(variant="secondary") 下方
+                    | 。
+                li.mb-3
+                  strong 歷史記錄列表：
+                  br
+                  small.text-secondary 顯示最近使用過的查詢關鍵字，點擊可直接代入輸入框。
+                  br
+                  small.text-secondary.mt-1
+                    | 螢幕寬度 ≥ 1280px 時顯示在輸入框
+                    b-badge.mx-1(variant="secondary") 右側
+                    | ；螢幕較窄時顯示在輸入框
+                    b-badge.mx-1(variant="secondary") 上方
+                    | 。
+                li.mb-0
+                  strong 側邊欄歷史紀錄：
+                  br
+                  small.text-secondary 點擊左上角
+                    lah-fa-icon(icon="history" size="sm").mx-1
+                    | 圖示可開啟完整歷史查詢紀錄側邊欄，最多保存 50 筆，並可一鍵清除。
 </template>
 
 <script>
@@ -1084,7 +1177,7 @@ export default {
 
   // 💡 寬螢幕模式 (clientWidth >= 1280，由 isWideScreen 動態加上此 class)
   &.tip-panel--wide {
-    width: 200px;
+    width: 300px;
     flex-shrink: 0;
     border: none;
     border-right: 2px solid rgba(0, 123, 255, 0.18);
