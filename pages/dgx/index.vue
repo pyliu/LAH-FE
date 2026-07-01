@@ -150,24 +150,24 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       .input-wrapper.mx-auto.w-100(ref="inputWrapper")
 
         //- 💡 三欄響應式容器
-        //-    大螢幕 (md+) flex-row：[說明提示(left,order-1)] [輸入框(middle,order-2)] [歷史快捷(right,order-3)]
-        //-    小螢幕 flex-column：   [歷史快捷(order-1,上)] [輸入框(order-2,中)] [說明提示(order-3,下)]
-        .input-layout.d-flex.flex-column.flex-md-row.align-items-stretch.align-items-md-center
+        //-    clientWidth >= 1280：flex-row [說明提示(左)] [輸入框(中)] [歷史快捷(右)]
+        //-    clientWidth <  1280：flex-column [歷史快捷(上,order-1)] [輸入框(中,order-2)] [說明提示(下,order-3)]
+        .input-layout.d-flex(
+          :class="isWideScreen ? 'flex-row align-items-center' : 'flex-column align-items-stretch'"
+        )
 
           //- ── 說明提示面板 ──────────────────────────────────
-          //- 大螢幕：最左側(order-md-1)，高度撐滿輸入框
-          //- 小螢幕：最下方(order-3)，全寬
-          .tip-panel.order-3.order-md-1.mt-2.mt-md-0(
-            :class="isDarkMode ? 'tip-panel--dark' : 'tip-panel--light'"
-          )
+          //- 寬螢幕 (>=1280)：最左側 (order-1)，固定 200px
+          //- 窄螢幕 (<1280) ：最下方 (order-3)，全寬
+          //- 💡 class 邏輯抽成 tipPanelClass computed，避免 Pug 多行屬性值解析錯誤
+          .tip-panel(:class="tipPanelClass")
             //- 💡 :key="tipIndex" 觸發 lah-transition 的淡入淡出，每 10 秒換一則
             lah-transition
               .d-flex.align-items-start(:key="tipIndex")
-                lah-fa-icon(icon="lightbulb" :class="isDarkMode ? 'text-warning' : 'text-warning'").mr-2.flex-shrink-0.mt-1
                 span.tip-text.small(:class="isDarkMode ? 'text-light' : 'text-secondary'") {{ currentTip }}
 
           //- ── 輸入框 (固定 order-2，大小螢幕皆在中間) ──────
-          .order-2.flex-grow-1.px-md-3
+          .order-2.flex-grow-1(:class="isWideScreen ? 'px-3' : ''")
             b-input-group(size="lg")
               b-form-input(
                 ref="chatInput"
@@ -183,10 +183,11 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
                   span.d-none.d-sm-inline.ml-1 送出
 
           //- ── 歷史快捷列表 ──────────────────────────────────
-          //- 大螢幕：最右側(order-md-3)，垂直置中
-          //- 小螢幕：輸入框上方(order-1)，全寬橫向捲動
-          .quick-examples.order-1.order-md-3.mb-2.mb-md-0.d-flex.align-items-center.overflow-hidden(
+          //- 寬螢幕 (>=1280)：最右側 (order-3)
+          //- 窄螢幕 (<1280) ：輸入框上方 (order-1)，全寬
+          .quick-examples.d-flex.align-items-center.overflow-hidden(
             ref="quickExamples"
+            :class="isWideScreen ? 'order-3' : 'order-1 mb-2'"
             :style="{ opacity: isCalculating ? 0 : 1, pointerEvents: isCalculating ? 'none' : 'auto' }"
           )
             b-button(
@@ -422,6 +423,10 @@ export default {
       tipIndex: 0,
       tipTimer: null,
 
+      // 💡 寬螢幕判斷：clientWidth >= 1280px 時為三欄版面，否則堆疊版面
+      isWideScreen: false,
+      screenResizeTimer: null,
+
       // 💡 閒置跑馬燈與密技相關狀態
       showMarquee: false,
       idleTimeoutId: null,
@@ -446,6 +451,14 @@ export default {
     // 💡 依 tipIndex 取出當前輪播提示，每 10 秒在 mounted 的 interval 中切換
     currentTip () {
       return this.marqueeTips[this.tipIndex] || ''
+    },
+    // 💡 tip-panel 的 class 陣列抽成 computed，避免在 Pug 屬性中使用多行字串
+    //    (Pug lexer 遇到換行會將屬性值視為未結束，導致 "Unterminated string constant" 錯誤)
+    tipPanelClass () {
+      return [
+        this.isWideScreen ? 'order-1 tip-panel--wide' : 'order-3 mt-2',
+        this.isDarkMode ? 'tip-panel--dark' : 'tip-panel--light'
+      ]
     },
     allExamples () {
       const list = []
@@ -558,6 +571,10 @@ export default {
     this.tipTimer = setInterval(() => {
       this.tipIndex = (this.tipIndex + 1) % this.marqueeTips.length
     }, 10000)
+
+    // 💡 初始化寬螢幕判斷，並掛載 resize 監聽以響應視窗大小變化
+    this.$nextTick(() => { this.checkScreenWidth() })
+    window.addEventListener('resize', this.handleScreenResize)
   },
   beforeDestroy () {
     if (this.resizeObserver) { this.resizeObserver.disconnect() }
@@ -565,6 +582,9 @@ export default {
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     // 💡 清除說明提示輪播計時器
     if (this.tipTimer) { clearInterval(this.tipTimer) }
+    // 💡 清除寬螢幕 debounce timer 與 resize 監聽
+    if (this.screenResizeTimer) { clearTimeout(this.screenResizeTimer) }
+    window.removeEventListener('resize', this.handleScreenResize)
 
     // 💡 移除全域事件與計時器
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
@@ -575,6 +595,24 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
+    /**
+     * 💡 以元件根節點的 clientWidth 判斷目前是否為寬螢幕版面
+     * 閾值 1280px：>= 1280 → 三欄橫排；< 1280 → 堆疊直排
+     * 使用 this.$el.clientWidth 而非 window.innerWidth，以避免捲軸寬度誤差
+     */
+    checkScreenWidth () {
+      const width = this.$el ? this.$el.clientWidth : window.innerWidth
+      this.isWideScreen = width >= 1280
+    },
+    /**
+     * 💡 resize 事件 debounce 處理，避免視窗拖曳時過於頻繁觸發 checkScreenWidth
+     */
+    handleScreenResize () {
+      clearTimeout(this.screenResizeTimer)
+      this.screenResizeTimer = setTimeout(() => {
+        this.checkScreenWidth()
+      }, 150)
+    },
     // 💡 全域互動與 KONAMI 密技偵測
     handleGlobalInteraction (e) {
       // 處理鍵盤輸入偵測 (KONAMI 密技)
@@ -1020,32 +1058,32 @@ export default {
    ========================================= */
 
 /* 💡 三欄響應式輸入版面
-   小螢幕：flex-column；大螢幕：flex-row
-   各欄的 order 控制排列順序切換 */
+   flex 方向與 order 由 isWideScreen (clientWidth >= 1280) 透過動態 class 控制 */
 .input-layout {
   gap: 8px;
-
-  @media (min-width: 768px) {
-    gap: 12px;
-    align-items: stretch;
-  }
 }
 
 /* 💡 說明提示面板
-   大螢幕：固定寬度 200px，垂直置中，右側有分隔線
-   小螢幕：全寬，上下有淡色邊框 */
+   預設：全寬堆疊模式，上下細框
+   加上 --wide class 時 (clientWidth >= 1280，由 JS 判斷)：固定 200px 左欄，右側分隔線 */
 .tip-panel {
   font-size: 0.85rem;
   line-height: 1.4;
   padding: 6px 10px;
   border-radius: 6px;
-
-  // 小螢幕：全寬橫條，上下有細框
   border: 1px solid rgba(0, 123, 255, 0.15);
   background-color: rgba(0, 123, 255, 0.04);
 
-  @media (min-width: 768px) {
-    // 大螢幕：固定左欄寬度，改用右側分隔線
+  .tip-text {
+    // 多行文字限制 2 行，保持面板高度穩定
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  // 💡 寬螢幕模式 (clientWidth >= 1280，由 isWideScreen 動態加上此 class)
+  &.tip-panel--wide {
     width: 200px;
     flex-shrink: 0;
     border: none;
@@ -1057,20 +1095,12 @@ export default {
     align-items: center;
   }
 
-  .tip-text {
-    // 多行文字不換行截斷，保持面板高度穩定
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-  }
-
   &.tip-panel--dark {
     border-color: rgba(255, 193, 7, 0.2);
     background-color: rgba(255, 193, 7, 0.04);
 
-    @media (min-width: 768px) {
-      border-color: rgba(255, 193, 7, 0.2);
+    &.tip-panel--wide {
+      border-right-color: rgba(255, 193, 7, 0.2);
       background-color: transparent;
     }
   }
