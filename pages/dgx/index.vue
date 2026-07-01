@@ -75,10 +75,12 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
   //- ==========================================
   .chat-main-area.d-flex.flex-column.position-relative
 
-    //- 💡 閒置 5 分鐘顯示的跑馬燈 (螢幕保護程式效果)
+    //- 💡 閒置 5 分鐘顯示的「打字機與呼吸光影」螢幕保護程式
     transition(name="fade")
       .idle-marquee-overlay(v-if="showMarquee" :class="{ 'theme-dark': isDarkMode }")
-        .marquee-text-container {{ fullMarqueeText }}
+        .typewriter-container
+          span.typewriter-text {{ typewriterText }}
+          span.cursor _
 
     //- 對話紀錄顯示區 (縮小手機版 padding，限制橫向捲動)
     .messages-container.flex-grow-1.p-2.p-md-4.overflow-auto(ref="msgContainer" style="overflow-x: hidden;")
@@ -146,25 +148,19 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
 
     //- 底部輸入區塊
     .input-area.p-2.p-md-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
-      //- 移除 max-width 限制，讓三欄版面在大螢幕可充分利用空間
       .input-wrapper.mx-auto.w-100(ref="inputWrapper")
 
         //- 三欄響應式容器
-        //- clientWidth >= 1280：flex-row [說明提示(左)] [輸入框(中)] [歷史快捷(右)]
-        //- clientWidth <  1280：flex-column [歷史快捷(上,order-1)] [輸入框(中,order-2)] [說明提示(下,order-3)]
         .input-layout.d-flex(
           :class="isWideScreen ? 'flex-row align-items-center' : 'flex-column align-items-stretch'"
         )
 
           //- ── 說明提示面板 ──────────────────────────────────
-          //- 寬螢幕 (>=1280)：最左側 (order-1)，固定 200px
-          //- 窄螢幕 (<1280) ：最下方 (order-3)，全寬
           .tip-panel(:class="tipPanelClass")
-            //- :key="tipIndex" 觸發 lah-transition 的淡入淡出，每 10 秒換一則
             lah-transition
               span.tip-text.small(:key="tipIndex" :class="isDarkMode ? 'text-light' : 'text-secondary'") {{ currentTip }}
 
-          //- ── 輸入框 (固定 order-2，大小螢幕皆在中間) ──────
+          //- ── 輸入框 ─────────────────────────────────────────
           .order-2.flex-grow-1(:class="isWideScreen ? 'px-3' : ''")
             b-input-group(size="lg")
               b-form-input(
@@ -180,8 +176,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
                   span.d-none.d-sm-inline.ml-1 送出
 
           //- ── 歷史快捷列表 ──────────────────────────────────
-          //- 寬螢幕 (>=1280)：最右側 (order-3)
-          //- 窄螢幕 (<1280) ：輸入框上方 (order-1)，全寬
           .quick-examples.d-flex.align-items-center.overflow-hidden(
             ref="quickExamples"
             :class="isWideScreen ? 'order-3' : 'order-1 mb-2'"
@@ -198,9 +192,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
               @click="useExample(item.text)"
               :title="item.text"
             )
-              //- 若為歷史紀錄，加上時鐘小圖示
               lah-fa-icon.mr-1(v-if="item.type === 'history'" icon="history" size="sm" :variant="isDarkMode ? 'info' : 'primary'")
-              //- 限制文字長度，避免單一按鈕過度佔用
               span.text-truncate.d-inline-block(style="max-width: 140px;") {{ item.text }}
 
   //- ==========================================
@@ -380,9 +372,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
 
       hr(:class="isDarkMode ? 'border-secondary' : ''")
 
-      //- ==========================================
-      //- 介面操作說明（近期新增功能）
-      //- ==========================================
       h6.font-weight-bold.mt-3.mb-3(:class="isDarkMode ? 'text-light' : 'text-dark'") 🖥️ 介面操作說明
 
       b-row
@@ -484,7 +473,6 @@ export default {
   name: 'AiQueryAssistantIndex',
   components: { lahRegCaseStatusCompact },
   data () {
-    // 動態計算當前民國年
     const twYear = new Date().getFullYear() - 1911
 
     return {
@@ -512,9 +500,9 @@ export default {
 
       tipIndex: 0,
       tipTimer: null,
-
       isWideScreen: false,
 
+      // 💡 閒置跑馬燈與密技相關狀態
       showMarquee: false,
       idleTimeoutId: null,
       konamiCodeAlt: ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'b'],
@@ -527,7 +515,13 @@ export default {
         '💡 提示：100~130 的數字若出現在其他號碼之前，系統會自動辨識為民國年。',
         `💡 範例：「${twYear}年 桃園朴子 第10號」 ➔ ${twYear}-H1QB-000010`,
         '💡 範例：「HA85 1200 1300」 ➔ 自動幫您查兩筆 HA85 的案件'
-      ]
+      ],
+
+      // 💡 打字機專用狀態
+      typewriterText: '',
+      typewriterCharIndex: 0,
+      typewriterTimer: null,
+      currentTypewriterTipIndex: 0
     }
   },
   computed: {
@@ -582,9 +576,6 @@ export default {
     },
     displayExamples () {
       return this.allExamples.slice(0, this.maxVisibleExamples)
-    },
-    fullMarqueeText () {
-      return this.marqueeTips.join('　　✦　　')
     }
   },
   watch: {
@@ -592,6 +583,14 @@ export default {
       deep: true,
       handler () {
         this.calculateVisibleExamples()
+      }
+    },
+    // 💡 監聽跑馬燈狀態切換，啟動或停止打字機
+    showMarquee (newVal) {
+      if (newVal) {
+        this.startTypewriter()
+      } else {
+        this.stopTypewriter()
       }
     }
   },
@@ -632,13 +631,13 @@ export default {
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
-          const width = document.body.clientWidth;
-          this.isWideScreen = width >= 1280;
-          this.calculateVisibleExamples();
+          const width = document.body.clientWidth
+          this.isWideScreen = width >= 1280
+          this.calculateVisibleExamples()
         }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
-        this.isWideScreen = document.body.clientWidth >= 1280;
+        this.isWideScreen = document.body.clientWidth >= 1280
         this.calculateVisibleExamples()
       }
     })
@@ -660,6 +659,7 @@ export default {
     if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     if (this.tipTimer) { clearInterval(this.tipTimer) }
+    this.stopTypewriter() // 清除打字機計時器
 
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
     window.removeEventListener('keydown', this.handleGlobalInteraction)
@@ -669,6 +669,41 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
+    // ==========================================
+    // 💡 打字機特效相關邏輯
+    // ==========================================
+    startTypewriter () {
+      this.stopTypewriter()
+      this.currentTypewriterTipIndex = 0
+      this.typeNextTip()
+    },
+    stopTypewriter () {
+      if (this.typewriterTimer) { clearTimeout(this.typewriterTimer) }
+      this.typewriterText = ''
+    },
+    typeNextTip () {
+      const tip = this.marqueeTips[this.currentTypewriterTipIndex]
+      this.typewriterText = ''
+      this.typewriterCharIndex = 0
+      this.typeCharacter(tip)
+    },
+    typeCharacter (tip) {
+      if (!this.showMarquee) { return } // 如果中途被喚醒，立刻中斷打字
+
+      if (this.typewriterCharIndex < tip.length) {
+        this.typewriterText += tip.charAt(this.typewriterCharIndex)
+        this.typewriterCharIndex++
+        // 每個字間隔 80 毫秒
+        this.typewriterTimer = setTimeout(() => this.typeCharacter(tip), 80)
+      } else {
+        // 打完一句，停留 10 秒後擦除，換下一句
+        this.typewriterTimer = setTimeout(() => {
+          this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
+          this.typeNextTip()
+        }, 10000)
+      }
+    },
+    // ==========================================
     handleGlobalInteraction (e) {
       if (e.type === 'keydown') {
         const key = e.key.toLowerCase()
@@ -961,41 +996,63 @@ export default {
 }
 
 /* =========================================
-   閒置跑馬燈 (Idle Marquee) 樣式
+   💡 提案三：打字機與呼吸光影特效
    ========================================= */
 .idle-marquee-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  background: rgba(0, 123, 255, 0.85); /* Bootstrap Primary */
+
+  /* 呼吸光影背景漸層設定 */
+  background: linear-gradient(270deg, rgba(0,123,255,0.9), rgba(23,162,184,0.9), rgba(0,123,255,0.9));
+  background-size: 200% 200%;
+  animation: gradient-breathe 8s ease infinite;
+
   color: white;
-  padding: 12px 0;
+  padding: 12px 24px;
   z-index: 100;
-  pointer-events: none; /* 允許點擊穿透，不會妨礙使用者點擊背後的卡片 */
-  overflow: hidden;
+  pointer-events: none; /* 不會妨礙滑鼠點擊穿透 */
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  text-align: center;
+  min-height: 52px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   &.theme-dark {
-    background: rgba(255, 193, 7, 0.85); /* Warning for dark mode */
+    background: linear-gradient(270deg, rgba(255,193,7,0.9), rgba(253,126,20,0.9), rgba(255,193,7,0.9));
+    background-size: 200% 200%;
     color: #212529;
   }
 
-  .marquee-text-container {
-    display: inline-block;
-    white-space: nowrap;
-    /* CSS 硬體加速輪播，設定 45s 平滑捲動 */
-    animation: marquee-scroll 45s linear infinite;
+  .typewriter-container {
+    display: inline-flex;
+    align-items: center;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-size: 1.15rem;
     font-weight: bold;
     letter-spacing: 1px;
   }
+
+  .cursor {
+    animation: blink 1s step-end infinite;
+    font-weight: bold;
+    margin-left: 4px;
+  }
 }
 
-/* 跑馬燈捲動動畫 */
-@keyframes marquee-scroll {
-  0% { transform: translateX(100vw); }
-  100% { transform: translateX(-100%); }
+/* 呼吸燈背景動畫 */
+@keyframes gradient-breathe {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 游標閃爍動畫 */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 /* 簡單的 Vue 淡入淡出過渡 */
@@ -1069,7 +1126,6 @@ export default {
   justify-content: flex-start;
 }
 
-/* 💡 核心修正：將 .case-card 轉換為 flex column 佈局 */
 .case-card {
   display: flex;
   flex-direction: column;
@@ -1095,10 +1151,9 @@ export default {
 .case-card-header {
   padding: 0.5em 0.75em;
   border-bottom: 1px solid #e9ecef;
-  flex-shrink: 0; /* 💡 防止標題被壓縮 */
+  flex-shrink: 0;
 }
 
-/* 💡 核心修正：讓 body 彈性填滿剩餘空間，取代容易產生溢出的 height: 100% */
 .case-card-body {
   padding: 0.75em;
   flex: 1 1 auto;
@@ -1107,16 +1162,10 @@ export default {
 /* =========================================
    快捷輸入區塊 (Quick Examples) 樣式
    ========================================= */
-
-/* 三欄響應式輸入版面
-   flex 方向與 order 由 isWideScreen (clientWidth >= 1280) 透過動態 class 控制 */
 .input-layout {
   gap: 8px;
 }
 
-/* 說明提示面板
-   預設：全寬堆疊模式，上下細框
-   加上 --wide class 時 (clientWidth >= 1280，由 JS 判斷)：固定 200px 左欄，右側分隔線 */
 .tip-panel {
   font-size: 0.85rem;
   line-height: 1.4;
