@@ -123,13 +123,27 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
             .case-card(
               v-for="(cId, cIdx) in msg.caseIds"
               :key="'case_' + msgIdx + '_' + cIdx + '_' + cId"
-              :class="isDarkMode ? 'border-secondary' : ''"
+              :class="[isDarkMode ? 'border-secondary' : '', !isValidCaseId(cId) ? 'is-invalid' : '']"
             )
               .case-card-header.d-flex.align-items-center(:class="isDarkMode ? 'bg-secondary text-light border-secondary' : 'bg-light text-dark'")
-                lah-fa-icon(icon="file-signature" :class="isDarkMode ? 'text-light' : 'text-secondary'").mr-2
+                //- 💡 解析失敗時以驚嘆號圖示取代文件圖示，提示使用者該 ID 格式有誤
+                lah-fa-icon(
+                  :icon="isValidCaseId(cId) ? 'file-signature' : 'exclamation-triangle'"
+                  :class="isValidCaseId(cId) ? (isDarkMode ? 'text-light' : 'text-secondary') : 'text-danger'"
+                ).mr-2
                 strong.mb-0 {{ $utils.caseId(cId) }}
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
-                lah-reg-case-status-compact(:case-id="cId")
+                //- 💡 格式正確：渲染 compact 元件；格式錯誤：顯示解析失敗說明，不觸發後端查詢
+                template(v-if="isValidCaseId(cId)")
+                  lah-reg-case-status-compact(:case-id="cId")
+                template(v-else)
+                  .d-flex.align-items-start.text-danger.py-1
+                    lah-fa-icon(icon="exclamation-circle").mr-2.mt-1.flex-shrink-0
+                    div
+                      div.font-weight-bold 案件 ID 解析失敗
+                      div.small.text-muted.mt-1
+                        | 正確格式：民國年(2~3碼) + 案件字(4碼英數) + 案件號(6碼數字)
+                      div.small.text-muted 範例：115-H1AA-000010 或 115H1AA000010
 
       //- 超過一秒才顯示的 AI 思考中指示器
       lah-transition
@@ -540,6 +554,17 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
+    /**
+     * 驗證案件 ID 格式是否符合地政登記規範
+     * 規則：民國年(2~3碼數字) + 案件字(4碼英數) + 案件號(6碼數字)
+     * 分隔符號 "-" 可有可無，例如：115-H1AA-000010 或 115H1AA000010
+     * @param {string} cId - 待驗證的案件 ID
+     * @returns {boolean}
+     */
+    isValidCaseId (cId) {
+      if (!cId) { return false }
+      return /^\d{2,3}-?[A-Za-z0-9]{4}-?\d{6}$/.test(String(cId).trim())
+    },
     // 💡 全域互動與 KONAMI 密技偵測
     handleGlobalInteraction (e) {
       // 處理鍵盤輸入偵測 (KONAMI 密技)
@@ -959,6 +984,10 @@ export default {
   border-top: 1px solid rgba(0,0,0,0.05);
   border-right: 1px solid rgba(0,0,0,0.05);
   border-bottom: 1px solid rgba(0,0,0,0.05);
+  // 💡 案件 ID 格式錯誤時：左側藍線改為紅線，提供與正常卡片明顯的視覺區隔
+  &.is-invalid {
+    border-left-color: #dc3545;
+  }
 }
 
 @media (max-width: 768px) {
