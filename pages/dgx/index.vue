@@ -12,7 +12,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       //- 加入 flex-grow-1 與 min-width: 0 確保標題過長時可以順利截斷 (.text-truncate)
       .title-container.d-flex.align-items-center.flex-grow-1(v-if="messages.length > 0" style="min-width: 0;")
         lah-fa-icon.mr-1.mr-md-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="2x").flex-shrink-0
-        strong.title-text.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件查詢AI助理
+        strong.title-text.h4.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件查詢AI助理
         //- 說明圖示按鈕
         b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-1.mt-1.flex-shrink-0
           lah-fa-icon(icon="info-circle", size="lg", :variant="isDarkMode ? 'info' : 'info'")
@@ -159,7 +159,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           //- ── 說明提示面板 ──────────────────────────────────
           //- 寬螢幕 (>=1280)：最左側 (order-1)，固定 200px
           //- 窄螢幕 (<1280) ：最下方 (order-3)，全寬
-          //- 💡 class 邏輯抽成 tipPanelClass computed，避免 Pug 多行屬性值解析錯誤
           .tip-panel(:class="tipPanelClass")
             //- 💡 :key="tipIndex" 觸發 lah-transition 的淡入淡出，每 10 秒換一則
             lah-transition
@@ -518,7 +517,6 @@ export default {
 
       // 💡 寬螢幕判斷：clientWidth >= 1280px 時為三欄版面，否則堆疊版面
       isWideScreen: false,
-      screenResizeTimer: null,
 
       // 💡 閒置跑馬燈與密技相關狀態
       showMarquee: false,
@@ -639,13 +637,21 @@ export default {
         this.resizeObserver.observe(msgContainer)
       }
 
+      // 💡 整合寬螢幕判斷與數量計算的 ResizeObserver
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
+          // 1. 順手計算是否為寬螢幕 (大於等於 1280px)
+          const width = document.body.clientWidth
+          this.isWideScreen = width >= 1280
+
+          // 2. 執行原有的快捷按鈕數量計算
           this.calculateVisibleExamples()
         }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
+        // 如果不支援 ResizeObserver，給個預設兜底
+        this.isWideScreen = document.body.clientWidth >= 1280
         this.calculateVisibleExamples()
       }
     })
@@ -664,10 +670,6 @@ export default {
     this.tipTimer = setInterval(() => {
       this.tipIndex = (this.tipIndex + 1) % this.marqueeTips.length
     }, 10000)
-
-    // 💡 初始化寬螢幕判斷，並掛載 resize 監聽以響應視窗大小變化
-    this.$nextTick(() => { this.checkScreenWidth() })
-    window.addEventListener('resize', this.handleScreenResize)
   },
   beforeDestroy () {
     if (this.resizeObserver) { this.resizeObserver.disconnect() }
@@ -675,9 +677,6 @@ export default {
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     // 💡 清除說明提示輪播計時器
     if (this.tipTimer) { clearInterval(this.tipTimer) }
-    // 💡 清除寬螢幕 debounce timer 與 resize 監聽
-    if (this.screenResizeTimer) { clearTimeout(this.screenResizeTimer) }
-    window.removeEventListener('resize', this.handleScreenResize)
 
     // 💡 移除全域事件與計時器
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
@@ -688,24 +687,6 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
-    /**
-     * 💡 以元件根節點的 clientWidth 判斷目前是否為寬螢幕版面
-     * 閾值 1280px：>= 1280 → 三欄橫排；< 1280 → 堆疊直排
-     * 使用 this.$el.clientWidth 而非 window.innerWidth，以避免捲軸寬度誤差
-     */
-    checkScreenWidth () {
-      const width = this.$el ? this.$el.clientWidth : window.innerWidth
-      this.isWideScreen = width >= 1280
-    },
-    /**
-     * 💡 resize 事件 debounce 處理，避免視窗拖曳時過於頻繁觸發 checkScreenWidth
-     */
-    handleScreenResize () {
-      clearTimeout(this.screenResizeTimer)
-      this.screenResizeTimer = setTimeout(() => {
-        this.checkScreenWidth()
-      }, 150)
-    },
     // 💡 全域互動與 KONAMI 密技偵測
     handleGlobalInteraction (e) {
       // 處理鍵盤輸入偵測 (KONAMI 密技)
@@ -1082,7 +1063,7 @@ export default {
     .small, small { font-size: 0.875rem; }
     .badge { font-size: 0.75rem; padding: 0.25em 0.4em; }
   }
-  .case-card { width: calc((100% - 48px) / 4); min-width: 220px; }
+  .case-card { flex: 0 0 calc((100% - 48px) / 4); width: calc((100% - 48px) / 4); min-width: 220px; }
 }
 
 .message-item.text-size-lg {
@@ -1092,7 +1073,7 @@ export default {
     .h6, h6 { font-size: 1.2rem; }
     .badge { font-size: 0.9rem; padding: 0.35em 0.5em; }
   }
-  .case-card { width: calc((100% - 32px) / 3); min-width: 280px; }
+  .case-card { flex: 0 0 calc((100% - 32px) / 3); width: calc((100% - 32px) / 3); min-width: 280px; }
 }
 
 .message-item.text-size-xl {
@@ -1102,7 +1083,7 @@ export default {
     .h6, h6 { font-size: 1.4rem; }
     .badge { font-size: 1rem; padding: 0.4em 0.6em; }
   }
-  .case-card { width: calc((100% - 16px) / 2); min-width: 360px; }
+  .case-card { flex: 0 0 calc((100% - 16px) / 2); width: calc((100% - 16px) / 2); min-width: 360px; }
 }
 
 /* =========================================
