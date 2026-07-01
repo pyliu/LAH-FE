@@ -82,9 +82,9 @@ export default {
         const userSequenceEnd = this.userInputSequence.slice(-code.sequence.length)
         if (JSON.stringify(userSequenceEnd) === JSON.stringify(code.sequence)) {
           if (code.name === 'default') {
-            this.konamiSecret()
-          } else if (code.name === 'adminToggle') {
             this.toggleAdminSecret()
+          } else if (code.name === 'adminToggle') {
+            this.konamiSecret()
           }
           // Reset sequence to prevent multiple triggers
           this.userInputSequence = []
@@ -98,10 +98,9 @@ export default {
       }
     },
     konamiSecret () {
-      this.success('🎉 KONAMI 彩蛋 🎉')
       this.$axios.cancelAll('KONAMI：取消目前所有XHR請求')
       this.clearCache()
-      this.confirm('想要重新整理頁面嗎？', { title: 'KONAMI +30 Lifes' }).then((YN) => {
+      this.confirm('想要重新整理頁面嗎？', { title: '🎉 KONAMI 彩蛋 🎉' }).then((YN) => {
         if (YN) {
           window.location.reload()
         }
@@ -114,11 +113,11 @@ export default {
       // Notify user
       if (newAdminState) {
         this.success('🎉 管理者權限已開啟 🎉', {
-          title: '彩蛋觸發'
+          title: 'KONAMI +30 Lifes'
         })
       } else {
         this.warning('管理者權限已關閉', {
-          title: '彩蛋觸發'
+          title: 'KONAMI -30 Lifes'
         })
       }
     }
