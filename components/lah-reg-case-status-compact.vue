@@ -47,11 +47,17 @@ b-overlay.lah-compact-case-status(
               )
                 lah-fa-icon(icon="exclamation-circle").mr-1.mt-1.flex-shrink-0
                 | 無資料
-            //- 一般欄位（含代理人/權利人/義務人這類附帶統編 suffix 的欄位）
+            //- 一般欄位
             template(v-else)
               strong.text-muted.mr-1 {{ item.label }}:
-              span.text-dark {{ item.value }}
-              span.text-muted.ml-1(v-if="item.suffix") ({{ item.suffix }})
+              //- type 為 person（代理人/權利人/義務人）時，統編換行顯示於姓名下方，
+              //- 避免「姓名(統編)」連成長串觸發折行，造成格子高度不均衡
+              template(v-if="item.type === 'person'")
+                span.text-dark {{ item.value }}
+                span.text-muted.small.d-block(v-if="item.suffix") {{ item.suffix }}
+              template(v-else)
+                span.text-dark {{ item.value }}
+                span.text-muted.ml-1(v-if="item.suffix") ({{ item.suffix }})
 
         //- 承辦人員 (緊湊標籤排列)
         .personnel-group.mt-2.p-2.rounded.bg-light(v-if="hasPersonnel")
@@ -97,7 +103,7 @@ b-overlay.lah-compact-case-status(
     //- 彈出詳細視窗 (遮蔽版詳細視窗)
     b-modal(
       ref="detailModal"
-      :title="`詳細辦理情形 - ${$utils.caseId(caseId || id)}`"
+      :title="`詳細辦理情形 - ${caseId || id}`"
       size="xl"
       hide-footer
       centered
