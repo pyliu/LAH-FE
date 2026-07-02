@@ -20,17 +20,15 @@ export default {
     leave_time: 10000,
     classes: [
       'text-muted',
-      'fixed-bottom',
-      'my-2',
-      'mx-auto',
+      'position-fixed',
+      'footer-bottom-right',
       'bg-white',
       'border',
       'rounded',
       'text-center',
       'p-2',
       'small',
-      'lah-shadow',
-      'w-75'
+      'lah-shadow'
     ]
   }),
   mounted () {
@@ -44,6 +42,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.footer-bottom-right {
+  bottom: 20px;
+  right: 20px;
+  width: 25vw;
+  min-width: 350px; /* 避免在小螢幕上因 25vw 過小而擠壓破版 */
+  z-index: 1050; /* 確保浮層高於大部分畫面內容 */
+}
+
 .version {
   font-weight: 900;
   position: absolute;
