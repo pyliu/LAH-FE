@@ -61,11 +61,11 @@ export default {
 .version {
   font-weight: bold;
   font-size: 0.75rem;
-  color: #6c757d;
-  background-color: #f1f3f5;
-  padding: 0.15rem 0.4rem;
+  color: #ffffff; /* 改為高對比純白字體 */
+  background-color: #495057; /* 改用深灰色背景，確保在白色區塊內絕對清晰 */
+  padding: 0.15rem 0.5rem; /* 稍微加寬左右內距 */
   border-radius: 0.25rem;
-  border: 1px solid #e9ecef;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2); /* 加上微陰影增加立體與層次感 */
   white-space: nowrap; /* 確保版本號本身絕對不會被斷行 */
 }
 </style>
