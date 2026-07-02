@@ -615,6 +615,8 @@ export default {
     if (savedTheme !== null) {
       this.isDarkMode = savedTheme === 'true'
     }
+    // 💡 頁面載入時同步 body 的 theme-dark class，確保容器外的背景色也正確
+    this.syncBodyTheme()
 
     const savedTextSize = localStorage.getItem('lah-dgx-text-size')
     if (savedTextSize && ['md', 'lg', 'xl'].includes(savedTextSize)) {
@@ -683,6 +685,11 @@ export default {
     window.removeEventListener('touchstart', this.handleGlobalInteraction)
     window.removeEventListener('scroll', this.handleGlobalInteraction)
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
+    if (this.screenResizeTimer) { clearTimeout(this.screenResizeTimer) }
+    window.removeEventListener('resize', this.handleScreenResize)
+
+    // 💡 離開頁面時清除 body 上的 theme-dark class，避免影響其他頁面
+    document.body.classList.remove('theme-dark')
   },
   methods: {
     startTypewriter () {
@@ -794,9 +801,21 @@ export default {
         this.isCalculating = false
       }
     },
+    /**
+     * 💡 同步 document.body 的 theme-dark class 與 isDarkMode 狀態
+     * 必須由 JS 操作，因為 scoped style 無法影響 body 元素；
+     * 在 mounted、toggleTheme、beforeDestroy 三處呼叫以確保完整覆蓋
+     */
+    syncBodyTheme () {
+      if (typeof document !== 'undefined') {
+        document.body.classList.toggle('theme-dark', this.isDarkMode)
+      }
+    },
     toggleTheme () {
       this.isDarkMode = !this.isDarkMode
       localStorage.setItem('lah-theme-dark', this.isDarkMode)
+      // 💡 切換主題時同步更新 body class，確保容器外背景也跟著改變
+      this.syncBodyTheme()
     },
     cycleTextSize () {
       const sizes = ['md', 'lg', 'xl']
@@ -1054,6 +1073,13 @@ export default {
 }
 </script>
 
+<style>
+/* 非 scoped：讓 body 層級的背景色也能套用暗色主題 */
+body.theme-dark {
+  background-color: #212529 !important;
+  color: #f8f9fa;
+}
+</style>
 <style lang="scss" scoped>
 /* =========================================
    佈局與動畫
