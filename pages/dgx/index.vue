@@ -12,8 +12,8 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       //- 加入 flex-grow-1 與 min-width: 0 確保標題過長時可以順利截斷 (.text-truncate)
       .title-container.d-flex.align-items-center.flex-grow-1(v-if="messages.length > 0" style="min-width: 0;")
         lah-fa-icon.mr-1.mr-md-2.robot-wave(
-          icon="robot", 
-          :variant="isDarkMode ? 'warning' : 'primary'", 
+          icon="robot",
+          :variant="isDarkMode ? 'warning' : 'primary'",
           size="2x",
           :class="{'robot-thinking': isSending}"
         ).flex-shrink-0
@@ -510,7 +510,7 @@ export default {
       textSize: 'lg',
       loadingTimer: null,
       showLongLoadingText: false,
-      
+
       totalQueryCount: 0,
 
       tipIndex: 0,
@@ -531,7 +531,7 @@ export default {
         `💡 範例：「${twYear}年 桃園朴子 第10號」 ➔ ${twYear}-H1QB-000010`,
         '💡 範例：「HA85 1200 1300」 ➔ 自動幫您查兩筆 HA85 的案件'
       ],
-      
+
       typewriterText: '',
       typewriterCharIndex: 0,
       typewriterTimer: null,
@@ -602,7 +602,7 @@ export default {
         this.calculateVisibleExamples()
       }
     },
-    showMarquee(newVal) {
+    showMarquee (newVal) {
       if (newVal) {
         this.startTypewriter()
       } else {
@@ -647,13 +647,13 @@ export default {
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
-          const width = document.body.clientWidth;
-          this.isWideScreen = width >= 1280;
-          this.calculateVisibleExamples();
+          const width = document.body.clientWidth
+          this.isWideScreen = width >= 1280
+          this.calculateVisibleExamples()
         }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
-        this.isWideScreen = document.body.clientWidth >= 1280;
+        this.isWideScreen = document.body.clientWidth >= 1280
         this.calculateVisibleExamples()
       }
     })
@@ -675,7 +675,7 @@ export default {
     if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     if (this.tipTimer) { clearInterval(this.tipTimer) }
-    this.stopTypewriter() 
+    this.stopTypewriter()
 
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
     window.removeEventListener('keydown', this.handleGlobalInteraction)
@@ -685,32 +685,32 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
-    startTypewriter() {
+    startTypewriter () {
       this.stopTypewriter()
       this.currentTypewriterTipIndex = 0
       this.typeNextTip()
     },
-    stopTypewriter() {
-      if (this.typewriterTimer) clearTimeout(this.typewriterTimer)
+    stopTypewriter () {
+      if (this.typewriterTimer) { clearTimeout(this.typewriterTimer) }
       this.typewriterText = ''
     },
-    typeNextTip() {
+    typeNextTip () {
       const tip = this.marqueeTips[this.currentTypewriterTipIndex]
       this.typewriterText = ''
       this.typewriterCharIndex = 0
       this.typeCharacter(tip)
     },
-    typeCharacter(tip) {
-      if (!this.showMarquee) return 
-      
+    typeCharacter (tip) {
+      if (!this.showMarquee) { return }
+
       if (this.typewriterCharIndex < tip.length) {
         this.typewriterText += tip.charAt(this.typewriterCharIndex)
         this.typewriterCharIndex++
         this.typewriterTimer = setTimeout(() => this.typeCharacter(tip), 80)
       } else {
         this.typewriterTimer = setTimeout(() => {
-           this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
-           this.typeNextTip()
+          this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
+          this.typeNextTip()
         }, 10000)
       }
     },
@@ -908,44 +908,44 @@ export default {
         })
 
         // 💡 修正 1：處理 Axios Interceptor 提早解包 (unwrap) Payload 的情況
-        let resData = response;
+        let resData = response
         if (response && response.data !== undefined) {
           // 如果具有 headers 與 config，證明是原生的 Axios Response 物件
           if (response.headers && response.config) {
-            resData = response.data;
+            resData = response.data
           } else if (response.status === 200 && response.query_count === undefined) {
             // 另一種攔截器防呆保護
-            resData = response.data;
+            resData = response.data
           }
         }
 
         // 💡 修正 2：攔截字串 "undefined"，避免觸發 JSON.parse 的 SyntaxError
         if (typeof resData === 'string') {
-          const trimmed = resData.trim();
+          const trimmed = resData.trim()
           if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
-            resData = {};
+            resData = {}
           } else {
             try {
-              resData = JSON.parse(trimmed);
+              resData = JSON.parse(trimmed)
             } catch (e) {
-              console.error('JSON 解析失敗', e);
-              resData = {};
+              console.error('JSON 解析失敗', e)
+              resData = {}
             }
           }
         }
 
         const isStatusOk = this.$utils && this.$utils.statusCheck ? this.$utils.statusCheck(resData?.status) : (resData?.status === 1 || resData?.status === true)
-        
+
         let parsedCases = resData?.data || resData?.raw || []
         if (typeof parsedCases === 'object' && !Array.isArray(parsedCases) && parsedCases !== null) {
-          parsedCases = Object.values(parsedCases) 
+          parsedCases = Object.values(parsedCases)
         } else if (typeof parsedCases === 'string') {
           try {
             parsedCases = JSON.parse(parsedCases)
             if (typeof parsedCases === 'object' && !Array.isArray(parsedCases)) {
-               parsedCases = Object.values(parsedCases)
+              parsedCases = Object.values(parsedCases)
             }
-          } catch(e) {
+          } catch (e) {
             console.warn('無法將 data 轉換為 JSON 陣列', e)
             parsedCases = []
           }
@@ -965,40 +965,40 @@ export default {
               caseIds: []
             })
           } else {
-            const uniqueMap = new Map();
-            
+            const uniqueMap = new Map()
+
             parsedCases.forEach((c) => {
-              let id = '';
+              let id = ''
               if (c.normalized) {
-                id = c.normalized.replace(/-/g, '');
+                id = c.normalized.replace(/-/g, '')
               } else if (c.year_miguo && c.case_word && c.case_no) {
-                const y = String(c.year_miguo).trim();
-                const w = String(c.case_word).trim();
-                const n = String(c.case_no).trim().padStart(6, '0');
-                id = `${y}${w}${n}`;
+                const y = String(c.year_miguo).trim()
+                const w = String(c.case_word).trim()
+                const n = String(c.case_no).trim().padStart(6, '0')
+                id = `${y}${w}${n}`
               }
-              
+
               if (id && id.length >= 10 && !uniqueMap.has(id)) {
-                let desc = c.case_word_desc || '';
+                let desc = c.case_word_desc || ''
                 if (desc) {
-                  const match = desc.match(/\(([^)]+)\)/);
+                  const match = desc.match(/\(([^)]+)\)/)
                   if (match) {
-                    desc = match[1];
+                    desc = match[1]
                   } else {
-                    desc = desc.replace('跨縣市', '').trim();
+                    desc = desc.replace('跨縣市', '').trim()
                   }
                 }
 
-                const y = id.substring(0, 3);
-                const w = id.substring(3, 7);
-                const n = id.substring(7);
-                const displayTitle = desc ? `${y}-${w}(${desc})-${n}` : `${y}-${w}-${n}`;
+                const y = id.substring(0, 3)
+                const w = id.substring(3, 7)
+                const n = id.substring(7)
+                const displayTitle = desc ? `${y}-${w}(${desc})-${n}` : `${y}-${w}-${n}`
 
-                uniqueMap.set(id, { id, displayTitle });
+                uniqueMap.set(id, { id, displayTitle })
               }
             })
 
-            const uniqueCaseObjs = Array.from(uniqueMap.values());
+            const uniqueCaseObjs = Array.from(uniqueMap.values())
 
             if (uniqueCaseObjs.length === 0) {
               this.messages.push({
@@ -1032,9 +1032,8 @@ export default {
           })
         }
       } catch (err) {
-        if (this.$utils && this.$utils.error) this.$utils.error(err)
-        else console.error(err)
-        
+        if (this.$utils && this.$utils.error) { this.$utils.error(err) } else { console.error(err) }
+
         this.messages.push({
           text: '連線至 AI 伺服器失敗，請確認網路狀態或稍後再試。',
           isUser: false,
@@ -1112,17 +1111,17 @@ export default {
 
 /* 3. 運算中呼吸光影 (結合縮放與陰影，用於發送中狀態) */
 @keyframes pulse-glow {
-  0% { 
-    filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4)); 
-    transform: scale(1); 
+  0% {
+    filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4));
+    transform: scale(1);
   }
-  50% { 
-    filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.8)); 
-    transform: scale(1.1); 
+  50% {
+    filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.8));
+    transform: scale(1.1);
   }
-  100% { 
-    filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4)); 
-    transform: scale(1); 
+  100% {
+    filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4));
+    transform: scale(1);
   }
 }
 .robot-thinking {
@@ -1145,15 +1144,15 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  
+
   background: linear-gradient(270deg, rgba(0,123,255,0.9), rgba(23,162,184,0.9), rgba(0,123,255,0.9));
   background-size: 200% 200%;
   animation: gradient-breathe 8s ease infinite;
-  
+
   color: white;
   padding: 12px 24px;
   z-index: 100;
-  pointer-events: none; 
+  pointer-events: none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   text-align: center;
   min-height: 52px;
@@ -1396,6 +1395,15 @@ export default {
   .bg-white { background-color: #343a40 !important; }
   .text-dark { color: #f8f9fa !important; }
 
+  // 💡 Bootstrap 的 .border 預設用 #dee2e6 (近白色)，.border-secondary 用 #6c757d (中灰)
+  //    在深色背景下兩者都過於搶眼，統一覆寫成幾乎透明的白色，讓邊框退到背景中
+  .border {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  .border-secondary {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
   .form-control {
     background-color: #2b3035 !important;
     color: #f8f9fa !important;
@@ -1407,10 +1415,22 @@ export default {
   }
 
   .case-card {
-    border-color: #495057;
     background-color: #343a40;
+    // 💡 不用 border-color shorthand，避免一次蓋掉所有邊框（含左側藍色 accent）
+    //    三邊改為幾乎透明，讓卡片邊界不搶焦點；左側 accent 保持品牌藍色
+    border-top-color: rgba(255, 255, 255, 0.07);
+    border-right-color: rgba(255, 255, 255, 0.07);
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+    border-left-color: #0d6efd;
+
+    // 💡 解析失敗卡片：左側 accent 改為紅色
+    &.is-invalid {
+      border-left-color: #dc3545;
+    }
   }
-  .case-card-header { border-bottom-color: #495057; }
+
+  // 💡 卡片標頭下方分隔線原為 #e9ecef (明亮灰)，覆寫為幾乎透明的白
+  .case-card-header { border-bottom-color: rgba(255, 255, 255, 0.1); }
 
   .history-item:hover {
     background-color: rgba(255, 255, 255, 0.05) !important;
