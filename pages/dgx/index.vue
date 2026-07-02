@@ -116,9 +116,19 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           :style="{ maxWidth: '98%', width: (msg.caseIds && msg.caseIds.length > 0) ? '100%' : 'auto' }"
           :class="isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-white border'"
         )
-          .mb-2.font-weight-bold
-            lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
-            | {{ msg.text }}
+          //- 💡 將標題改為 flex 排版，並在右側掛載 query_count 績效標籤
+          .mb-2.font-weight-bold.d-flex.align-items-center.flex-wrap
+            span
+              lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
+              | {{ msg.text }}
+            b-badge.ml-auto.mt-1.mt-md-0(
+              v-if="msg.queryCount > 0" 
+              variant="info" 
+              pill 
+              style="font-size: 0.85em; opacity: 0.9;"
+            ).d-inline-flex.align-items-center
+              lah-fa-icon(icon="bolt").mr-1
+              | 深度分析 {{ msg.queryCount }} 次
 
           //- 渲染真實的地政案件微型卡片
           .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
@@ -517,7 +527,7 @@ export default {
         `💡 範例：「${twYear}年 桃園朴子 第10號」 ➔ ${twYear}-H1QB-000010`,
         '💡 範例：「HA85 1200 1300」 ➔ 自動幫您查兩筆 HA85 的案件'
       ],
-
+      
       typewriterText: '',
       typewriterCharIndex: 0,
       typewriterTimer: null,
@@ -588,7 +598,7 @@ export default {
         this.calculateVisibleExamples()
       }
     },
-    showMarquee (newVal) {
+    showMarquee(newVal) {
       if (newVal) {
         this.startTypewriter()
       } else {
@@ -633,13 +643,13 @@ export default {
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
-          const width = document.body.clientWidth
-          this.isWideScreen = width >= 1280
-          this.calculateVisibleExamples()
+          const width = document.body.clientWidth;
+          this.isWideScreen = width >= 1280;
+          this.calculateVisibleExamples();
         }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
-        this.isWideScreen = document.body.clientWidth >= 1280
+        this.isWideScreen = document.body.clientWidth >= 1280;
         this.calculateVisibleExamples()
       }
     })
@@ -661,7 +671,7 @@ export default {
     if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     if (this.tipTimer) { clearInterval(this.tipTimer) }
-    this.stopTypewriter()
+    this.stopTypewriter() 
 
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
     window.removeEventListener('keydown', this.handleGlobalInteraction)
@@ -671,32 +681,32 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
-    startTypewriter () {
+    startTypewriter() {
       this.stopTypewriter()
       this.currentTypewriterTipIndex = 0
       this.typeNextTip()
     },
-    stopTypewriter () {
-      if (this.typewriterTimer) { clearTimeout(this.typewriterTimer) }
+    stopTypewriter() {
+      if (this.typewriterTimer) clearTimeout(this.typewriterTimer)
       this.typewriterText = ''
     },
-    typeNextTip () {
+    typeNextTip() {
       const tip = this.marqueeTips[this.currentTypewriterTipIndex]
       this.typewriterText = ''
       this.typewriterCharIndex = 0
       this.typeCharacter(tip)
     },
-    typeCharacter (tip) {
-      if (!this.showMarquee) { return }
-
+    typeCharacter(tip) {
+      if (!this.showMarquee) return 
+      
       if (this.typewriterCharIndex < tip.length) {
         this.typewriterText += tip.charAt(this.typewriterCharIndex)
         this.typewriterCharIndex++
         this.typewriterTimer = setTimeout(() => this.typeCharacter(tip), 80)
       } else {
         this.typewriterTimer = setTimeout(() => {
-          this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
-          this.typeNextTip()
+           this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
+           this.typeNextTip()
         }, 10000)
       }
     },
@@ -903,12 +913,26 @@ export default {
         }
 
         const isStatusOk = this.$utils && this.$utils.statusCheck ? this.$utils.statusCheck(resData?.status) : (resData?.status === 1 || resData?.status === true)
+        
+        // 💡 修正 1：防止後端 JSON 編碼使得 Array 變成 Object
+        let parsedCases = resData?.data || resData?.raw || []
+        if (typeof parsedCases === 'object' && !Array.isArray(parsedCases) && parsedCases !== null) {
+          parsedCases = Object.values(parsedCases) // 強制將 { "0": {...}, "2": {...} } 轉為正常陣列
+        } else if (typeof parsedCases === 'string') {
+          // 💡 修正 2：如果後端把 data 包成了字串，在這裡幫它解開
+          try {
+            parsedCases = JSON.parse(parsedCases)
+            if (typeof parsedCases === 'object' && !Array.isArray(parsedCases)) {
+               parsedCases = Object.values(parsedCases)
+            }
+          } catch(e) {
+            console.warn('無法將 data 轉換為 JSON 陣列', e)
+            parsedCases = []
+          }
+        }
 
-        // 💡 修正：API 回傳的陣列可能是放在 data 或 raw 屬性中，增加相容性
-        const parsedCases = resData?.data || resData?.raw || []
         const hasParsedCases = Array.isArray(parsedCases) && parsedCases.length > 0
 
-        // 只要狀態正確「或」確實有回傳資料，就視為成功
         if (resData && (isStatusOk || hasParsedCases)) {
           if (parsedCases.length === 0) {
             this.messages.push({
@@ -918,12 +942,21 @@ export default {
             })
           } else {
             const rawIds = []
+            
+            // 💡 修正 3：優先取用 API 算好的 normalized，確保與後端 100% 同步
             parsedCases.forEach((c) => {
-              if (c.year_miguo && c.case_word && c.case_no) {
-                const y = String(c.year_miguo).trim()
-                const w = String(c.case_word).trim()
-                const n = String(c.case_no).trim().padStart(6, '0')
-                rawIds.push(`${y}${w}${n}`)
+              let id = '';
+              if (c.normalized) {
+                id = c.normalized.replace(/-/g, '');
+              } else if (c.year_miguo && c.case_word && c.case_no) {
+                const y = String(c.year_miguo).trim();
+                const w = String(c.case_word).trim();
+                const n = String(c.case_no).trim().padStart(6, '0');
+                id = `${y}${w}${n}`;
+              }
+              
+              if (id && id.length >= 10) {
+                rawIds.push(id);
               }
             })
 
@@ -941,7 +974,9 @@ export default {
             const aiMsg = {
               text: `已為您找到與「${userInput}」相關的 ${uniqueCaseIds.length} 筆案件資料：`,
               isUser: false,
-              caseIds: []
+              caseIds: [],
+              // 💡 新增：提取 query_count 準備顯示
+              queryCount: resData.query_count || 0 
             }
             this.messages.push(aiMsg)
 
@@ -961,8 +996,9 @@ export default {
           })
         }
       } catch (err) {
-        if (this.$utils && this.$utils.error) { this.$utils.error(err) } else { console.error(err) }
-
+        if (this.$utils && this.$utils.error) this.$utils.error(err)
+        else console.error(err)
+        
         this.messages.push({
           text: '連線至 AI 伺服器失敗，請確認網路狀態或稍後再試。',
           isUser: false,
@@ -1015,12 +1051,12 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-
+  
   /* 呼吸光影背景漸層設定 */
   background: linear-gradient(270deg, rgba(0,123,255,0.9), rgba(23,162,184,0.9), rgba(0,123,255,0.9));
   background-size: 200% 200%;
   animation: gradient-breathe 8s ease infinite;
-
+  
   color: white;
   padding: 12px 24px;
   z-index: 100;
