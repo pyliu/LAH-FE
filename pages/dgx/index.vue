@@ -148,6 +148,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
 
     //- 底部輸入區塊
     .input-area.p-2.p-md-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
+      //- 移除 max-width 限制，讓三欄版面在大螢幕可充分利用空間
       .input-wrapper.mx-auto.w-100(ref="inputWrapper")
 
         //- 三欄響應式容器
@@ -500,9 +501,9 @@ export default {
 
       tipIndex: 0,
       tipTimer: null,
+
       isWideScreen: false,
 
-      // 💡 閒置跑馬燈與密技相關狀態
       showMarquee: false,
       idleTimeoutId: null,
       konamiCodeAlt: ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'b'],
@@ -517,7 +518,6 @@ export default {
         '💡 範例：「HA85 1200 1300」 ➔ 自動幫您查兩筆 HA85 的案件'
       ],
 
-      // 💡 打字機專用狀態
       typewriterText: '',
       typewriterCharIndex: 0,
       typewriterTimer: null,
@@ -576,6 +576,9 @@ export default {
     },
     displayExamples () {
       return this.allExamples.slice(0, this.maxVisibleExamples)
+    },
+    fullMarqueeText () {
+      return this.marqueeTips.join('　　✦　　')
     }
   },
   watch: {
@@ -585,7 +588,6 @@ export default {
         this.calculateVisibleExamples()
       }
     },
-    // 💡 監聽跑馬燈狀態切換，啟動或停止打字機
     showMarquee (newVal) {
       if (newVal) {
         this.startTypewriter()
@@ -659,7 +661,7 @@ export default {
     if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     if (this.tipTimer) { clearInterval(this.tipTimer) }
-    this.stopTypewriter() // 清除打字機計時器
+    this.stopTypewriter()
 
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
     window.removeEventListener('keydown', this.handleGlobalInteraction)
@@ -669,9 +671,6 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
-    // ==========================================
-    // 💡 打字機特效相關邏輯
-    // ==========================================
     startTypewriter () {
       this.stopTypewriter()
       this.currentTypewriterTipIndex = 0
@@ -688,22 +687,19 @@ export default {
       this.typeCharacter(tip)
     },
     typeCharacter (tip) {
-      if (!this.showMarquee) { return } // 如果中途被喚醒，立刻中斷打字
+      if (!this.showMarquee) { return }
 
       if (this.typewriterCharIndex < tip.length) {
         this.typewriterText += tip.charAt(this.typewriterCharIndex)
         this.typewriterCharIndex++
-        // 每個字間隔 80 毫秒
         this.typewriterTimer = setTimeout(() => this.typeCharacter(tip), 80)
       } else {
-        // 打完一句，停留 10 秒後擦除，換下一句
         this.typewriterTimer = setTimeout(() => {
           this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
           this.typeNextTip()
         }, 10000)
       }
     },
-    // ==========================================
     handleGlobalInteraction (e) {
       if (e.type === 'keydown') {
         const key = e.key.toLowerCase()
@@ -892,14 +888,28 @@ export default {
       try {
         const apiUrl = this.$consts?.API?.JSON?.DGX || '/api/dgx_json_api.php'
 
-        const { data } = await this.$axios.post(apiUrl, {
+        const response = await this.$axios.post(apiUrl, {
           type: 'case_ids',
           text: userInput
         })
 
-        if (data && this.$utils.statusCheck(data.status)) {
-          const parsedCases = data.raw || []
+        let resData = response.data
+        if (typeof resData === 'string') {
+          try {
+            resData = JSON.parse(resData)
+          } catch (e) {
+            console.error('JSON 解析失敗', e)
+          }
+        }
 
+        const isStatusOk = this.$utils && this.$utils.statusCheck ? this.$utils.statusCheck(resData?.status) : (resData?.status === 1 || resData?.status === true)
+
+        // 💡 修正：API 回傳的陣列可能是放在 data 或 raw 屬性中，增加相容性
+        const parsedCases = resData?.data || resData?.raw || []
+        const hasParsedCases = Array.isArray(parsedCases) && parsedCases.length > 0
+
+        // 只要狀態正確「或」確實有回傳資料，就視為成功
+        if (resData && (isStatusOk || hasParsedCases)) {
           if (parsedCases.length === 0) {
             this.messages.push({
               text: `抱歉，我無法從您的輸入「${userInput}」中解析出任何有效的案件字號，請重新確認格式。`,
@@ -943,14 +953,16 @@ export default {
             })
           }
         } else {
+          const failReason = resData?.message ? ` (原因：${resData.message})` : ''
           this.messages.push({
-            text: `解析過程發生錯誤：${data.message || '未知錯誤'}`,
+            text: `解析過程發生錯誤：無法處理您的查詢要求${failReason}。`,
             isUser: false,
             caseIds: []
           })
         }
       } catch (err) {
-        this.$utils.error(err)
+        if (this.$utils && this.$utils.error) { this.$utils.error(err) } else { console.error(err) }
+
         this.messages.push({
           text: '連線至 AI 伺服器失敗，請確認網路狀態或稍後再試。',
           isUser: false,
