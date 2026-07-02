@@ -11,7 +11,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
     lah-transition(appear)
       //- 加入 flex-grow-1 與 min-width: 0 確保標題過長時可以順利截斷 (.text-truncate)
       .title-container.d-flex.align-items-center.flex-grow-1(v-if="messages.length > 0" style="min-width: 0;")
-        //- 💡 機器人動態特效 1：加入 .robot-wave (懸停打招呼) 與動態綁定 .robot-thinking (運算中發光)
         lah-fa-icon.mr-1.mr-md-2.robot-wave(
           icon="robot", 
           :variant="isDarkMode ? 'warning' : 'primary'", 
@@ -40,6 +39,12 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       b-nav-item(@click="toggleTheme" title="切換明暗主題")
         .d-flex.align-items-center.px-1
           lah-fa-icon(:icon="isDarkMode ? 'sun' : 'moon'", size="lg", :variant="isDarkMode ? 'warning' : 'secondary'")
+
+      //- 已協助查詢次數 (置於頁面 header 最右側)
+      .ml-2.ml-md-3.d-flex.align-items-center(v-if="totalQueryCount > 0" title="AI 累計協助查詢總數")
+        b-badge(variant="info" pill style="font-size: 0.9rem; opacity: 0.9;").d-inline-flex.align-items-center.px-2.py-1
+          lah-fa-icon(icon="bolt").mr-1
+          | 已協助查詢 {{ totalQueryCount }} 次
 
   //- ==========================================
   //- 歷史紀錄側邊欄
@@ -94,7 +99,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       //- 歡迎畫面
       .welcome-screen.d-flex.flex-column.align-items-center.justify-content-center.h-100(v-if="messages.length === 0")
         .greeting-container.d-flex.flex-column.align-items-center.px-3
-          //- 💡 機器人動態特效 2：加入 .robot-float (平滑漂浮) 與 .robot-wave (懸停打招呼)
           lah-fa-icon.mb-4.robot-float.robot-wave(icon="robot" size="7x" :variant="isDarkMode ? 'warning' : 'primary'")
 
           .text-center.mt-1(:class="isDarkMode ? 'text-light' : 'text-dark'")
@@ -123,22 +127,23 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           :style="{ maxWidth: '98%', width: (msg.caseIds && msg.caseIds.length > 0) ? '100%' : 'auto' }"
           :class="isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-white border'"
         )
-          .mb-2.font-weight-bold
-            lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
-            | {{ msg.text }}
+          .mb-2.font-weight-bold.d-flex.align-items-center.flex-wrap
+            span
+              lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
+              | {{ msg.text }}
 
           //- 渲染真實的地政案件微型卡片
           .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
             .case-card(
-              v-for="(cId, cIdx) in msg.caseIds"
-              :key="'case_' + msgIdx + '_' + cIdx + '_' + cId"
+              v-for="(cObj, cIdx) in msg.caseIds"
+              :key="'case_' + msgIdx + '_' + cIdx + '_' + cObj.id"
               :class="isDarkMode ? 'border-secondary' : ''"
             )
               .case-card-header.d-flex.align-items-center(:class="isDarkMode ? 'bg-secondary text-light border-secondary' : 'bg-light text-dark'")
                 lah-fa-icon(icon="file-signature" :class="isDarkMode ? 'text-light' : 'text-secondary'").mr-2
-                strong.mb-0 {{ $utils.caseId(cId) }}
+                strong.mb-0 {{ cObj.displayTitle }}
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
-                lah-reg-case-status-compact(:case-id="cId")
+                lah-reg-case-status-compact(:case-id="cObj.id")
 
       //- 超過一秒才顯示的 AI 思考中指示器
       lah-transition
@@ -505,6 +510,8 @@ export default {
       textSize: 'lg',
       loadingTimer: null,
       showLongLoadingText: false,
+      
+      totalQueryCount: 0,
 
       tipIndex: 0,
       tipTimer: null,
@@ -900,12 +907,30 @@ export default {
           text: userInput
         })
 
-        let resData = response.data
+        // 💡 修正 1：處理 Axios Interceptor 提早解包 (unwrap) Payload 的情況
+        let resData = response;
+        if (response && response.data !== undefined) {
+          // 如果具有 headers 與 config，證明是原生的 Axios Response 物件
+          if (response.headers && response.config) {
+            resData = response.data;
+          } else if (response.status === 200 && response.query_count === undefined) {
+            // 另一種攔截器防呆保護
+            resData = response.data;
+          }
+        }
+
+        // 💡 修正 2：攔截字串 "undefined"，避免觸發 JSON.parse 的 SyntaxError
         if (typeof resData === 'string') {
-          try {
-            resData = JSON.parse(resData)
-          } catch (e) {
-            console.error('JSON 解析失敗', e)
+          const trimmed = resData.trim();
+          if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+            resData = {};
+          } else {
+            try {
+              resData = JSON.parse(trimmed);
+            } catch (e) {
+              console.error('JSON 解析失敗', e);
+              resData = {};
+            }
           }
         }
 
