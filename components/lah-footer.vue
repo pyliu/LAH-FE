@@ -1,16 +1,24 @@
 <template lang="pug">
-lah-transition(slide-up appear): .d-flex.align-items-center.justify-content-center(v-if="show" :class="classes"): span
-  a(
-    href="https://github.com/pyliu/LAH-NUXTJS"
-    target="_blank"
-    title="View project on Github!"
-  ): lah-fa-icon.text-dark.mr-1(icon="github", brand, size="lg")
-  strong.d-inline-flex.align-items-center.
-    #[lah-fa-icon(icon="copyright", regular)]
-    #[a.mr-1(href="mailto:pangyu.liu@gmail.com") LIU, PANG-YU]
-    ALL RIGHTS RESERVED.
-  a(href="https://vuejs.org/" target="_blank" title="Learn Vue JS!"): i.text-success.fab.fa-vuejs.fa-lg
-  .version v{{ $config.pkgVersion }}
+lah-transition(slide-up appear)
+  .d-flex.align-items-center.justify-content-center.flex-wrap(
+    v-if="show"
+    :class="classes"
+  )
+    a.mx-1(
+      href="https://github.com/pyliu/LAH-NUXTJS"
+      target="_blank"
+      title="View project on Github!"
+    ): lah-fa-icon.text-dark(icon="github", brand, size="lg")
+
+    strong.d-inline-flex.align-items-center.mx-1.text-center
+      lah-fa-icon.mr-1(icon="copyright", regular)
+      a.mr-1(href="mailto:pangyu.liu@gmail.com") LIU, PANG-YU
+      | ALL RIGHTS RESERVED.
+
+    a.mx-1(href="https://vuejs.org/" target="_blank" title="Learn Vue JS!")
+      i.text-success.fab.fa-vuejs.fa-lg
+
+    .version.ml-2.my-1 v{{ $config.pkgVersion }}
 </template>
 
 <script>
@@ -25,7 +33,6 @@ export default {
       'bg-white',
       'border',
       'rounded',
-      'text-center',
       'p-2',
       'small',
       'lah-shadow'
@@ -46,14 +53,19 @@ export default {
   bottom: 20px;
   right: 20px;
   width: 25vw;
-  min-width: 350px; /* 避免在小螢幕上因 25vw 過小而擠壓破版 */
-  z-index: 1050; /* 確保浮層高於大部分畫面內容 */
+  min-width: 320px; /* 微調以適應一般小尺寸手機 */
+  max-width: 90vw;  /* 新增：避免在極端狹窄螢幕撐破畫面 */
+  z-index: 1050;
 }
 
 .version {
-  font-weight: 900;
-  position: absolute;
-  right: 10px;
-  bottom: 25%;
+  font-weight: bold;
+  font-size: 0.75rem;
+  color: #6c757d;
+  background-color: #f1f3f5;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  border: 1px solid #e9ecef;
+  white-space: nowrap; /* 確保版本號本身絕對不會被斷行 */
 }
 </style>
