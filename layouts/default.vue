@@ -127,23 +127,30 @@ export default {
 
 <style lang="scss" scoped>
 .version {
-  font-weight: 900;
   position: fixed;
-  right: 10px;
-  bottom: 10px;
-  background-color: white;
-  padding: 5px;
-  border: 1px solid black;
-  border-radius: 10px;
-  font-size: smaller;
-  /* 修改：設置初始很透明 */
-  opacity: 0.125;
-  /* 修改：添加過渡動畫效果 */
-  transition: opacity 0.3s ease;
+  right: 15px;
+  bottom: 15px;
+  font-weight: bold;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
 
-  /* 修改：滑鼠懸停時變不透明 */
+  /* 預設狀態：幽靈標籤風格 (Ghost Badge)，低調且適應亮/暗背景 */
+  color: rgba(150, 150, 150, 0.8);
+  background-color: rgba(150, 150, 150, 0.1);
+  border: 1px solid rgba(150, 150, 150, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.35rem;
+  z-index: 9999;
+  transition: all 0.3s ease-in-out;
+  cursor: default;
+
   &:hover {
-    opacity: 1;
+    /* 懸停狀態：高對比實體化 + 白色外發光，確保暗色系中絕對清晰可見 */
+    color: #ffffff !important;
+    background-color: #343a40 !important;
+    border-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px); /* 微微上浮增加互動感 */
   }
 }
 </style>
