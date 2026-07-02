@@ -156,7 +156,7 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           )
             .mb-0.font-weight-bold.text-secondary
               lah-fa-icon(icon="circle-notch" action="spin" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
-              | 詢問AI中 ... 請稍帶片刻
+              | 詢問AI中 ... 請稍待片刻
 
     //- 底部輸入區塊
     .input-area.p-2.p-md-3.border-top(:class="isDarkMode ? 'bg-dark border-secondary' : 'bg-light'")
