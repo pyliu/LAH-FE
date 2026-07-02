@@ -12,10 +12,11 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       //- 加入 flex-grow-1 與 min-width: 0 確保標題過長時可以順利截斷 (.text-truncate)
       .title-container.d-flex.align-items-center.flex-grow-1(v-if="messages.length > 0" style="min-width: 0;")
         lah-fa-icon.mr-1.mr-md-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="2x").flex-shrink-0
-        strong.title-text.h4.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件查詢AI助理
-        //- 說明圖示按鈕
-        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-1.mt-1.flex-shrink-0
-          lah-fa-icon(icon="info-circle", size="lg", :variant="isDarkMode ? 'info' : 'info'")
+        //- 💡 修正：移除 .h4，改用自訂的 .title-text 控制放大，對齊 2x 圖示
+        strong.title-text.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件查詢AI助理
+        //- 💡 修正：放大說明圖示至 2x，使其與機器人圖示大小對稱
+        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-2.flex-shrink-0.d-inline-flex.align-items-center
+          lah-fa-icon(icon="info-circle", size="2x", :variant="isDarkMode ? 'info' : 'info'")
 
     //- 右側：操作按鈕區 (強制水平排列 flex-row，避免手機版折疊推擠)
     b-navbar-nav.ml-auto.flex-row.align-items-center.flex-shrink-0
@@ -34,6 +35,12 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       b-nav-item(@click="toggleTheme" title="切換明暗主題")
         .d-flex.align-items-center.px-1
           lah-fa-icon(:icon="isDarkMode ? 'sun' : 'moon'", size="lg", :variant="isDarkMode ? 'warning' : 'secondary'")
+
+      //- 💡 新增：已協助查詢次數 (置於頁面 header 最右側)
+      .ml-2.ml-md-3.d-flex.align-items-center(v-if="totalQueryCount > 0" title="AI 累計協助查詢總數")
+        b-badge(variant="info" pill style="font-size: 0.9rem; opacity: 0.9;").d-inline-flex.align-items-center.px-2.py-1
+          lah-fa-icon(icon="bolt").mr-1
+          | 已協助查詢 {{ totalQueryCount }} 次
 
   //- ==========================================
   //- 歷史紀錄側邊欄
@@ -116,32 +123,24 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           :style="{ maxWidth: '98%', width: (msg.caseIds && msg.caseIds.length > 0) ? '100%' : 'auto' }"
           :class="isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-white border'"
         )
-          //- 💡 將標題改為 flex 排版，並在右側掛載 query_count 績效標籤
           .mb-2.font-weight-bold.d-flex.align-items-center.flex-wrap
             span
               lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
               | {{ msg.text }}
-            b-badge.ml-auto.mt-1.mt-md-0(
-              v-if="msg.queryCount > 0" 
-              variant="info" 
-              pill 
-              style="font-size: 0.85em; opacity: 0.9;"
-            ).d-inline-flex.align-items-center
-              lah-fa-icon(icon="bolt").mr-1
-              | 深度分析 {{ msg.queryCount }} 次
 
           //- 渲染真實的地政案件微型卡片
           .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
             .case-card(
-              v-for="(cId, cIdx) in msg.caseIds"
-              :key="'case_' + msgIdx + '_' + cIdx + '_' + cId"
+              v-for="(cObj, cIdx) in msg.caseIds"
+              :key="'case_' + msgIdx + '_' + cIdx + '_' + cObj.id"
               :class="isDarkMode ? 'border-secondary' : ''"
             )
               .case-card-header.d-flex.align-items-center(:class="isDarkMode ? 'bg-secondary text-light border-secondary' : 'bg-light text-dark'")
                 lah-fa-icon(icon="file-signature" :class="isDarkMode ? 'text-light' : 'text-secondary'").mr-2
-                strong.mb-0 {{ $utils.caseId(cId) }}
+                //- 💡 修正：顯示包含中文所別的動態標題
+                strong.mb-0 {{ cObj.displayTitle }}
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
-                lah-reg-case-status-compact(:case-id="cId")
+                lah-reg-case-status-compact(:case-id="cObj.id")
 
       //- 超過一秒才顯示的 AI 思考中指示器
       lah-transition
@@ -509,6 +508,9 @@ export default {
       loadingTimer: null,
       showLongLoadingText: false,
 
+      // 💡 新增：全域累積的查詢次數
+      totalQueryCount: 0,
+
       tipIndex: 0,
       tipTimer: null,
 
@@ -527,7 +529,7 @@ export default {
         `💡 範例：「${twYear}年 桃園朴子 第10號」 ➔ ${twYear}-H1QB-000010`,
         '💡 範例：「HA85 1200 1300」 ➔ 自動幫您查兩筆 HA85 的案件'
       ],
-      
+
       typewriterText: '',
       typewriterCharIndex: 0,
       typewriterTimer: null,
@@ -598,7 +600,7 @@ export default {
         this.calculateVisibleExamples()
       }
     },
-    showMarquee(newVal) {
+    showMarquee (newVal) {
       if (newVal) {
         this.startTypewriter()
       } else {
@@ -643,13 +645,13 @@ export default {
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
-          const width = document.body.clientWidth;
-          this.isWideScreen = width >= 1280;
-          this.calculateVisibleExamples();
+          const width = document.body.clientWidth
+          this.isWideScreen = width >= 1280
+          this.calculateVisibleExamples()
         }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
-        this.isWideScreen = document.body.clientWidth >= 1280;
+        this.isWideScreen = document.body.clientWidth >= 1280
         this.calculateVisibleExamples()
       }
     })
@@ -671,7 +673,7 @@ export default {
     if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     if (this.tipTimer) { clearInterval(this.tipTimer) }
-    this.stopTypewriter() 
+    this.stopTypewriter()
 
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
     window.removeEventListener('keydown', this.handleGlobalInteraction)
@@ -681,32 +683,32 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
-    startTypewriter() {
+    startTypewriter () {
       this.stopTypewriter()
       this.currentTypewriterTipIndex = 0
       this.typeNextTip()
     },
-    stopTypewriter() {
-      if (this.typewriterTimer) clearTimeout(this.typewriterTimer)
+    stopTypewriter () {
+      if (this.typewriterTimer) { clearTimeout(this.typewriterTimer) }
       this.typewriterText = ''
     },
-    typeNextTip() {
+    typeNextTip () {
       const tip = this.marqueeTips[this.currentTypewriterTipIndex]
       this.typewriterText = ''
       this.typewriterCharIndex = 0
       this.typeCharacter(tip)
     },
-    typeCharacter(tip) {
-      if (!this.showMarquee) return 
-      
+    typeCharacter (tip) {
+      if (!this.showMarquee) { return }
+
       if (this.typewriterCharIndex < tip.length) {
         this.typewriterText += tip.charAt(this.typewriterCharIndex)
         this.typewriterCharIndex++
         this.typewriterTimer = setTimeout(() => this.typeCharacter(tip), 80)
       } else {
         this.typewriterTimer = setTimeout(() => {
-           this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
-           this.typeNextTip()
+          this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
+          this.typeNextTip()
         }, 10000)
       }
     },
@@ -913,19 +915,17 @@ export default {
         }
 
         const isStatusOk = this.$utils && this.$utils.statusCheck ? this.$utils.statusCheck(resData?.status) : (resData?.status === 1 || resData?.status === true)
-        
-        // 💡 修正 1：防止後端 JSON 編碼使得 Array 變成 Object
+
         let parsedCases = resData?.data || resData?.raw || []
         if (typeof parsedCases === 'object' && !Array.isArray(parsedCases) && parsedCases !== null) {
-          parsedCases = Object.values(parsedCases) // 強制將 { "0": {...}, "2": {...} } 轉為正常陣列
+          parsedCases = Object.values(parsedCases)
         } else if (typeof parsedCases === 'string') {
-          // 💡 修正 2：如果後端把 data 包成了字串，在這裡幫它解開
           try {
             parsedCases = JSON.parse(parsedCases)
             if (typeof parsedCases === 'object' && !Array.isArray(parsedCases)) {
-               parsedCases = Object.values(parsedCases)
+              parsedCases = Object.values(parsedCases)
             }
-          } catch(e) {
+          } catch (e) {
             console.warn('無法將 data 轉換為 JSON 陣列', e)
             parsedCases = []
           }
@@ -934,6 +934,11 @@ export default {
         const hasParsedCases = Array.isArray(parsedCases) && parsedCases.length > 0
 
         if (resData && (isStatusOk || hasParsedCases)) {
+          // 💡 更新全域查詢次數 (若 API 有回傳 query_count)
+          if (resData.query_count) {
+            this.totalQueryCount = resData.query_count
+          }
+
           if (parsedCases.length === 0) {
             this.messages.push({
               text: `抱歉，我無法從您的輸入「${userInput}」中解析出任何有效的案件字號，請重新確認格式。`,
@@ -941,28 +946,46 @@ export default {
               caseIds: []
             })
           } else {
-            const rawIds = []
-            
-            // 💡 修正 3：優先取用 API 算好的 normalized，確保與後端 100% 同步
+            const uniqueMap = new Map()
+
             parsedCases.forEach((c) => {
-              let id = '';
+              let id = ''
               if (c.normalized) {
-                id = c.normalized.replace(/-/g, '');
+                id = c.normalized.replace(/-/g, '')
               } else if (c.year_miguo && c.case_word && c.case_no) {
-                const y = String(c.year_miguo).trim();
-                const w = String(c.case_word).trim();
-                const n = String(c.case_no).trim().padStart(6, '0');
-                id = `${y}${w}${n}`;
+                const y = String(c.year_miguo).trim()
+                const w = String(c.case_word).trim()
+                const n = String(c.case_no).trim().padStart(6, '0')
+                id = `${y}${w}${n}`
               }
-              
-              if (id && id.length >= 10) {
-                rawIds.push(id);
+
+              if (id && id.length >= 10 && !uniqueMap.has(id)) {
+                // 💡 解析中文所別
+                let desc = c.case_word_desc || ''
+                if (desc) {
+                  // 嘗試提取括號內的文字，例如 "跨縣市(桃園朴子)" -> "桃園朴子"
+                  const match = desc.match(/\(([^)]+)\)/)
+                  if (match) {
+                    desc = match[1]
+                  } else {
+                    // 若無括號則移除"跨縣市"等贅字作為 fallback
+                    desc = desc.replace('跨縣市', '').trim()
+                  }
+                }
+
+                // 💡 重組顯示格式：115-H1QB(桃園朴子)-000010
+                const y = id.substring(0, 3)
+                const w = id.substring(3, 7)
+                const n = id.substring(7)
+                const displayTitle = desc ? `${y}-${w}(${desc})-${n}` : `${y}-${w}-${n}`
+
+                uniqueMap.set(id, { id, displayTitle })
               }
             })
 
-            const uniqueCaseIds = [...new Set(rawIds)].filter(id => id.length >= 10)
+            const uniqueCaseObjs = Array.from(uniqueMap.values())
 
-            if (uniqueCaseIds.length === 0) {
+            if (uniqueCaseObjs.length === 0) {
               this.messages.push({
                 text: '解析結果格式異常，無法產生標準字號，請檢查您的輸入內容。',
                 isUser: false,
@@ -972,17 +995,15 @@ export default {
             }
 
             const aiMsg = {
-              text: `已為您找到與「${userInput}」相關的 ${uniqueCaseIds.length} 筆案件資料：`,
+              text: `已為您找到與「${userInput}」相關的 ${uniqueCaseObjs.length} 筆案件資料：`,
               isUser: false,
-              caseIds: [],
-              // 💡 新增：提取 query_count 準備顯示
-              queryCount: resData.query_count || 0 
+              caseIds: []
             }
             this.messages.push(aiMsg)
 
-            uniqueCaseIds.forEach((cId, index) => {
+            uniqueCaseObjs.forEach((cObj, index) => {
               setTimeout(() => {
-                aiMsg.caseIds.push(cId)
+                aiMsg.caseIds.push(cObj)
                 this.scrollToBottom()
               }, index * 400)
             })
@@ -996,9 +1017,8 @@ export default {
           })
         }
       } catch (err) {
-        if (this.$utils && this.$utils.error) this.$utils.error(err)
-        else console.error(err)
-        
+        if (this.$utils && this.$utils.error) { this.$utils.error(err) } else { console.error(err) }
+
         this.messages.push({
           text: '連線至 AI 伺服器失敗，請確認網路狀態或稍後再試。',
           isUser: false,
@@ -1051,12 +1071,12 @@ export default {
   top: 0;
   left: 0;
   width: 100%;
-  
+
   /* 呼吸光影背景漸層設定 */
   background: linear-gradient(270deg, rgba(0,123,255,0.9), rgba(23,162,184,0.9), rgba(0,123,255,0.9));
   background-size: 200% 200%;
   animation: gradient-breathe 8s ease infinite;
-  
+
   color: white;
   padding: 12px 24px;
   z-index: 100;
@@ -1127,10 +1147,11 @@ export default {
   }
 }
 
+/* 💡 修正 3：放大 Title 文字與圖示對稱 */
 .title-text {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   @media (min-width: 768px) {
-    font-size: 1.25rem;
+    font-size: 1.85rem;
   }
 }
 
