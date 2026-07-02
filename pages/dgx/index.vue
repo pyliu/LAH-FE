@@ -11,12 +11,17 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
     lah-transition(appear)
       //- 加入 flex-grow-1 與 min-width: 0 確保標題過長時可以順利截斷 (.text-truncate)
       .title-container.d-flex.align-items-center.flex-grow-1(v-if="messages.length > 0" style="min-width: 0;")
-        lah-fa-icon.mr-1.mr-md-2(icon="robot", :variant="isDarkMode ? 'warning' : 'primary'", size="2x").flex-shrink-0
-        //- 💡 修正：移除 .h4，改用自訂的 .title-text 控制放大，對齊 2x 圖示
-        strong.title-text.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件查詢AI助理
-        //- 💡 修正：放大說明圖示至 2x，使其與機器人圖示大小對稱
-        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-2.flex-shrink-0.d-inline-flex.align-items-center
-          lah-fa-icon(icon="info-circle", size="2x", :variant="isDarkMode ? 'info' : 'info'")
+        //- 💡 機器人動態特效 1：加入 .robot-wave (懸停打招呼) 與動態綁定 .robot-thinking (運算中發光)
+        lah-fa-icon.mr-1.mr-md-2.robot-wave(
+          icon="robot", 
+          :variant="isDarkMode ? 'warning' : 'primary'", 
+          size="2x",
+          :class="{'robot-thinking': isSending}"
+        ).flex-shrink-0
+        strong.title-text.h4.mb-0.font-weight-bold.mt-1.text-truncate(:class="isDarkMode ? 'text-warning' : 'text-primary'") 案件查詢AI助理
+        //- 說明圖示按鈕
+        b-button(variant="link" @click="$refs.instructionModal.show()" v-b-tooltip.hover title="查看輸入說明").p-0.ml-1.mt-1.flex-shrink-0
+          lah-fa-icon(icon="info-circle", size="lg", :variant="isDarkMode ? 'info' : 'info'")
 
     //- 右側：操作按鈕區 (強制水平排列 flex-row，避免手機版折疊推擠)
     b-navbar-nav.ml-auto.flex-row.align-items-center.flex-shrink-0
@@ -35,12 +40,6 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       b-nav-item(@click="toggleTheme" title="切換明暗主題")
         .d-flex.align-items-center.px-1
           lah-fa-icon(:icon="isDarkMode ? 'sun' : 'moon'", size="lg", :variant="isDarkMode ? 'warning' : 'secondary'")
-
-      //- 💡 新增：已協助查詢次數 (置於頁面 header 最右側)
-      .ml-2.ml-md-3.d-flex.align-items-center(v-if="totalQueryCount > 0" title="AI 累計協助查詢總數")
-        b-badge(variant="info" pill style="font-size: 0.9rem; opacity: 0.9;").d-inline-flex.align-items-center.px-2.py-1
-          lah-fa-icon(icon="bolt").mr-1
-          | 已協助查詢 {{ totalQueryCount }} 次
 
   //- ==========================================
   //- 歷史紀錄側邊欄
@@ -95,7 +94,8 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
       //- 歡迎畫面
       .welcome-screen.d-flex.flex-column.align-items-center.justify-content-center.h-100(v-if="messages.length === 0")
         .greeting-container.d-flex.flex-column.align-items-center.px-3
-          lah-fa-icon(icon="robot" size="7x" :variant="isDarkMode ? 'warning' : 'primary'").mb-2
+          //- 💡 機器人動態特效 2：加入 .robot-float (平滑漂浮) 與 .robot-wave (懸停打招呼)
+          lah-fa-icon.mb-4.robot-float.robot-wave(icon="robot" size="7x" :variant="isDarkMode ? 'warning' : 'primary'")
 
           .text-center.mt-1(:class="isDarkMode ? 'text-light' : 'text-dark'")
             h2.font-weight-bold.mb-3.welcome-title 案件查詢AI助理
@@ -123,24 +123,22 @@ div.chat-app-wrapper.w-100(:class="{ 'theme-dark': isDarkMode }" style="max-widt
           :style="{ maxWidth: '98%', width: (msg.caseIds && msg.caseIds.length > 0) ? '100%' : 'auto' }"
           :class="isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-white border'"
         )
-          .mb-2.font-weight-bold.d-flex.align-items-center.flex-wrap
-            span
-              lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
-              | {{ msg.text }}
+          .mb-2.font-weight-bold
+            lah-fa-icon(icon="robot" :variant="isDarkMode ? 'warning' : 'primary'").mr-2
+            | {{ msg.text }}
 
           //- 渲染真實的地政案件微型卡片
           .cases-container.mt-3(v-if="msg.caseIds && msg.caseIds.length > 0")
             .case-card(
-              v-for="(cObj, cIdx) in msg.caseIds"
-              :key="'case_' + msgIdx + '_' + cIdx + '_' + cObj.id"
+              v-for="(cId, cIdx) in msg.caseIds"
+              :key="'case_' + msgIdx + '_' + cIdx + '_' + cId"
               :class="isDarkMode ? 'border-secondary' : ''"
             )
               .case-card-header.d-flex.align-items-center(:class="isDarkMode ? 'bg-secondary text-light border-secondary' : 'bg-light text-dark'")
                 lah-fa-icon(icon="file-signature" :class="isDarkMode ? 'text-light' : 'text-secondary'").mr-2
-                //- 💡 修正：顯示包含中文所別的動態標題
-                strong.mb-0 {{ cObj.displayTitle }}
+                strong.mb-0 {{ $utils.caseId(cId) }}
               .case-card-body(:class="isDarkMode ? 'bg-dark text-light' : 'bg-white'")
-                lah-reg-case-status-compact(:case-id="cObj.id")
+                lah-reg-case-status-compact(:case-id="cId")
 
       //- 超過一秒才顯示的 AI 思考中指示器
       lah-transition
@@ -508,9 +506,6 @@ export default {
       loadingTimer: null,
       showLongLoadingText: false,
 
-      // 💡 新增：全域累積的查詢次數
-      totalQueryCount: 0,
-
       tipIndex: 0,
       tipTimer: null,
 
@@ -529,7 +524,7 @@ export default {
         `💡 範例：「${twYear}年 桃園朴子 第10號」 ➔ ${twYear}-H1QB-000010`,
         '💡 範例：「HA85 1200 1300」 ➔ 自動幫您查兩筆 HA85 的案件'
       ],
-
+      
       typewriterText: '',
       typewriterCharIndex: 0,
       typewriterTimer: null,
@@ -600,7 +595,7 @@ export default {
         this.calculateVisibleExamples()
       }
     },
-    showMarquee (newVal) {
+    showMarquee(newVal) {
       if (newVal) {
         this.startTypewriter()
       } else {
@@ -645,13 +640,13 @@ export default {
       const inputWrapper = this.$refs.inputWrapper
       if (inputWrapper && window.ResizeObserver) {
         this.inputResizeObserver = new ResizeObserver(_.debounce(() => {
-          const width = document.body.clientWidth
-          this.isWideScreen = width >= 1280
-          this.calculateVisibleExamples()
+          const width = document.body.clientWidth;
+          this.isWideScreen = width >= 1280;
+          this.calculateVisibleExamples();
         }, 150))
         this.inputResizeObserver.observe(inputWrapper)
       } else {
-        this.isWideScreen = document.body.clientWidth >= 1280
+        this.isWideScreen = document.body.clientWidth >= 1280;
         this.calculateVisibleExamples()
       }
     })
@@ -673,7 +668,7 @@ export default {
     if (this.inputResizeObserver) { this.inputResizeObserver.disconnect() }
     if (this.loadingTimer) { clearTimeout(this.loadingTimer) }
     if (this.tipTimer) { clearInterval(this.tipTimer) }
-    this.stopTypewriter()
+    this.stopTypewriter() 
 
     window.removeEventListener('mousemove', this.handleGlobalInteraction)
     window.removeEventListener('keydown', this.handleGlobalInteraction)
@@ -683,32 +678,32 @@ export default {
     if (this.idleTimeoutId) { clearTimeout(this.idleTimeoutId) }
   },
   methods: {
-    startTypewriter () {
+    startTypewriter() {
       this.stopTypewriter()
       this.currentTypewriterTipIndex = 0
       this.typeNextTip()
     },
-    stopTypewriter () {
-      if (this.typewriterTimer) { clearTimeout(this.typewriterTimer) }
+    stopTypewriter() {
+      if (this.typewriterTimer) clearTimeout(this.typewriterTimer)
       this.typewriterText = ''
     },
-    typeNextTip () {
+    typeNextTip() {
       const tip = this.marqueeTips[this.currentTypewriterTipIndex]
       this.typewriterText = ''
       this.typewriterCharIndex = 0
       this.typeCharacter(tip)
     },
-    typeCharacter (tip) {
-      if (!this.showMarquee) { return }
-
+    typeCharacter(tip) {
+      if (!this.showMarquee) return 
+      
       if (this.typewriterCharIndex < tip.length) {
         this.typewriterText += tip.charAt(this.typewriterCharIndex)
         this.typewriterCharIndex++
         this.typewriterTimer = setTimeout(() => this.typeCharacter(tip), 80)
       } else {
         this.typewriterTimer = setTimeout(() => {
-          this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
-          this.typeNextTip()
+           this.currentTypewriterTipIndex = (this.currentTypewriterTipIndex + 1) % this.marqueeTips.length
+           this.typeNextTip()
         }, 10000)
       }
     },
@@ -915,17 +910,17 @@ export default {
         }
 
         const isStatusOk = this.$utils && this.$utils.statusCheck ? this.$utils.statusCheck(resData?.status) : (resData?.status === 1 || resData?.status === true)
-
+        
         let parsedCases = resData?.data || resData?.raw || []
         if (typeof parsedCases === 'object' && !Array.isArray(parsedCases) && parsedCases !== null) {
-          parsedCases = Object.values(parsedCases)
+          parsedCases = Object.values(parsedCases) 
         } else if (typeof parsedCases === 'string') {
           try {
             parsedCases = JSON.parse(parsedCases)
             if (typeof parsedCases === 'object' && !Array.isArray(parsedCases)) {
-              parsedCases = Object.values(parsedCases)
+               parsedCases = Object.values(parsedCases)
             }
-          } catch (e) {
+          } catch(e) {
             console.warn('無法將 data 轉換為 JSON 陣列', e)
             parsedCases = []
           }
@@ -934,7 +929,6 @@ export default {
         const hasParsedCases = Array.isArray(parsedCases) && parsedCases.length > 0
 
         if (resData && (isStatusOk || hasParsedCases)) {
-          // 💡 更新全域查詢次數 (若 API 有回傳 query_count)
           if (resData.query_count) {
             this.totalQueryCount = resData.query_count
           }
@@ -946,44 +940,40 @@ export default {
               caseIds: []
             })
           } else {
-            const uniqueMap = new Map()
-
+            const uniqueMap = new Map();
+            
             parsedCases.forEach((c) => {
-              let id = ''
+              let id = '';
               if (c.normalized) {
-                id = c.normalized.replace(/-/g, '')
+                id = c.normalized.replace(/-/g, '');
               } else if (c.year_miguo && c.case_word && c.case_no) {
-                const y = String(c.year_miguo).trim()
-                const w = String(c.case_word).trim()
-                const n = String(c.case_no).trim().padStart(6, '0')
-                id = `${y}${w}${n}`
+                const y = String(c.year_miguo).trim();
+                const w = String(c.case_word).trim();
+                const n = String(c.case_no).trim().padStart(6, '0');
+                id = `${y}${w}${n}`;
               }
-
+              
               if (id && id.length >= 10 && !uniqueMap.has(id)) {
-                // 💡 解析中文所別
-                let desc = c.case_word_desc || ''
+                let desc = c.case_word_desc || '';
                 if (desc) {
-                  // 嘗試提取括號內的文字，例如 "跨縣市(桃園朴子)" -> "桃園朴子"
-                  const match = desc.match(/\(([^)]+)\)/)
+                  const match = desc.match(/\(([^)]+)\)/);
                   if (match) {
-                    desc = match[1]
+                    desc = match[1];
                   } else {
-                    // 若無括號則移除"跨縣市"等贅字作為 fallback
-                    desc = desc.replace('跨縣市', '').trim()
+                    desc = desc.replace('跨縣市', '').trim();
                   }
                 }
 
-                // 💡 重組顯示格式：115-H1QB(桃園朴子)-000010
-                const y = id.substring(0, 3)
-                const w = id.substring(3, 7)
-                const n = id.substring(7)
-                const displayTitle = desc ? `${y}-${w}(${desc})-${n}` : `${y}-${w}-${n}`
+                const y = id.substring(0, 3);
+                const w = id.substring(3, 7);
+                const n = id.substring(7);
+                const displayTitle = desc ? `${y}-${w}(${desc})-${n}` : `${y}-${w}-${n}`;
 
-                uniqueMap.set(id, { id, displayTitle })
+                uniqueMap.set(id, { id, displayTitle });
               }
             })
 
-            const uniqueCaseObjs = Array.from(uniqueMap.values())
+            const uniqueCaseObjs = Array.from(uniqueMap.values());
 
             if (uniqueCaseObjs.length === 0) {
               this.messages.push({
@@ -1017,8 +1007,9 @@ export default {
           })
         }
       } catch (err) {
-        if (this.$utils && this.$utils.error) { this.$utils.error(err) } else { console.error(err) }
-
+        if (this.$utils && this.$utils.error) this.$utils.error(err)
+        else console.error(err)
+        
         this.messages.push({
           text: '連線至 AI 伺服器失敗，請確認網路狀態或稍後再試。',
           isUser: false,
@@ -1064,23 +1055,80 @@ export default {
 }
 
 /* =========================================
-   💡 提案三：打字機與呼吸光影特效
+   💡 機器人微動效 (Micro-interactions)
+   ========================================= */
+
+/* 1. 平滑漂浮 (適用於首頁大機器人) */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+.robot-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* 2. 打招呼搖擺 (滑鼠懸停觸發) */
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-10deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+.robot-wave {
+  transition: transform 0.2s ease;
+  &:hover {
+    animation: wave 1s ease-in-out;
+    cursor: pointer;
+  }
+}
+
+/* 3. 運算中呼吸光影 (結合縮放與陰影，用於發送中狀態) */
+@keyframes pulse-glow {
+  0% { 
+    filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4)); 
+    transform: scale(1); 
+  }
+  50% { 
+    filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.8)); 
+    transform: scale(1.1); 
+  }
+  100% { 
+    filter: drop-shadow(0 0 2px rgba(0, 123, 255, 0.4)); 
+    transform: scale(1); 
+  }
+}
+.robot-thinking {
+  animation: pulse-glow 1.5s infinite;
+}
+.theme-dark .robot-thinking {
+  animation-name: pulse-glow-dark;
+}
+@keyframes pulse-glow-dark {
+  0% { filter: drop-shadow(0 0 2px rgba(255, 193, 7, 0.4)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.8)); transform: scale(1.1); }
+  100% { filter: drop-shadow(0 0 2px rgba(255, 193, 7, 0.4)); transform: scale(1); }
+}
+
+/* =========================================
+   閒置跑馬燈 (Idle Marquee) 樣式
    ========================================= */
 .idle-marquee-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-
-  /* 呼吸光影背景漸層設定 */
+  
   background: linear-gradient(270deg, rgba(0,123,255,0.9), rgba(23,162,184,0.9), rgba(0,123,255,0.9));
   background-size: 200% 200%;
   animation: gradient-breathe 8s ease infinite;
-
+  
   color: white;
   padding: 12px 24px;
   z-index: 100;
-  pointer-events: none; /* 不會妨礙滑鼠點擊穿透 */
+  pointer-events: none; 
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   text-align: center;
   min-height: 52px;
@@ -1110,20 +1158,17 @@ export default {
   }
 }
 
-/* 呼吸燈背景動畫 */
 @keyframes gradient-breathe {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* 游標閃爍動畫 */
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
 
-/* 簡單的 Vue 淡入淡出過渡 */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
@@ -1147,7 +1192,6 @@ export default {
   }
 }
 
-/* 💡 修正 3：放大 Title 文字與圖示對稱 */
 .title-text {
   font-size: 1.5rem;
   @media (min-width: 768px) {
@@ -1155,7 +1199,6 @@ export default {
   }
 }
 
-/* 動態字體層級 (套用於 .message-item) */
 .message-item.text-size-md {
   font-size: 1rem;
   ::v-deep {
