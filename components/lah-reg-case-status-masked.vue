@@ -1,7 +1,7 @@
 <template lang="pug">
 b-card(no-body)
   b-card-header(v-if="!noTitle" class="font-weight-bold")
-    span 辦理情形
+    span.text-dark 辦理情形
 
   b-card-body(v-if="ready")
     //- ==========================================

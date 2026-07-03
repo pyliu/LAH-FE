@@ -101,9 +101,12 @@ b-overlay.lah-compact-case-status(
           div.fix-text(v-html="fixDataText")
 
     //- 彈出詳細視窗 (遮蔽版詳細視窗)
+    //- 💡 使用 computed formattedCaseId 確保案號格式為 YYY-XXXX-ZZZZZZ
+    //- 💡 加入 title-class="text-dark font-weight-bold" 避免暗色模式下白底白字的問題
     b-modal(
       ref="detailModal"
-      :title="`詳細辦理情形 - ${caseId || id}`"
+      :title="`詳細辦理情形 - ${formattedCaseId}`"
+      title-class="text-dark font-weight-bold"
       size="xl"
       hide-footer
       centered
@@ -137,6 +140,23 @@ export default {
     localLoadFailed: false
   }),
   computed: {
+    // 💡 格式化案件號碼，將 115HCA1000010 轉換為 115-HCA1-000010
+    formattedCaseId () {
+      const rawId = this.caseId || this.id
+      if (!rawId) { return '' }
+
+      // 移除原有的連字號並去除前後空白，方便重新驗證
+      const str = String(rawId).replace(/-/g, '').trim()
+
+      // 檢查是否符合 13 碼標準案號格式 (例如: 115HCA1000010)
+      // 規則：前3碼數字，接著4碼英數字，最後6碼數字
+      if (/^\d{3}[a-zA-Z0-9]{4}\d{6}$/.test(str)) {
+        return `${str.substring(0, 3)}-${str.substring(3, 7)}-${str.substring(7)}`
+      }
+
+      // 若不符合預期長度或格式，回傳原值避免報錯
+      return rawId
+    },
     ongoing () {
       return this.ready && this.bakedData && this.bakedData.結案與否 === 'N'
     },
