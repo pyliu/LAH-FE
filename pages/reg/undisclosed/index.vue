@@ -111,7 +111,10 @@ div
     template(#cell(receiving_type)="{ item }")
       b-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
     template(#cell(receiving_caseno)="{ item }")
-      .text-left(v-html="highlightText(item.receiving_caseno)")
+      .text-left
+        b-link(v-if="item.receiving_caseno" href="#" @click.prevent="showDetail(item.receiving_caseno)")
+          span(v-html="highlightText(item.receiving_caseno)")
+        span.text-muted(v-else) (無)
     template(#cell(applicant)="{ item }")
       .text-center(v-html="highlightText(item.applicant)")
     template(#cell(note)="{ item }")
@@ -135,6 +138,23 @@ div
       .ctx-menu-item.text-danger(@click="ctxDelete")
         lah-fa-icon.mr-2(icon="trash-can" variant="danger")
         span 刪除
+  //- 案件詳情 Modal
+  b-modal(
+    ref="detail_modal",
+    hide-footer,
+    no-close-on-backdrop,
+    size="xl",
+    scrollable
+  )
+    template(#modal-title) 登記案件詳情 {{ clickedCaseno }}
+    h4.text-center.text-info.my-5(v-if="detailLoading")
+      b-spinner.mr-2(small type="grow")
+      strong.ld-txt 查詢中...
+    lah-reg-case-detail(
+      v-show="!detailLoading",
+      :case-id="clickedCaseno",
+      @ready="detailLoading = !$event.detail"
+    )
   b-modal(
     ref="add_modal",
     hide-footer,
@@ -215,13 +235,6 @@ div
     template(#modal-title) 修改住址隱匿案件
     .p-2(v-if="editRecord")
       b-form(@submit.prevent="submitEdit")
-        b-form-group(label="申請人 *" label-cols="3")
-          b-input(
-            v-model="editForm.applicant",
-            placeholder="請輸入申請人姓名",
-            :state="editForm.applicant.length > 0 ? true : null",
-            required
-          )
         b-form-group(label="收件類型" label-cols="3")
           b-select(
             v-model="editForm.receiving_type",
@@ -229,13 +242,41 @@ div
             @change="onEditTypeChange"
           )
         b-form-group(label="收件案號" label-cols="3" v-if="editForm.receiving_type === 1")
+          .d-flex
+            b-input.flex-grow-1(
+              v-model="editForm.receiving_caseno",
+              placeholder="如：115-HA81-012350",
+              :state="editCasenoState",
+              @blur="onEditCasenoBlur"
+            )
+            lah-button.ml-1(
+              icon="magnifying-glass",
+              variant="outline-info",
+              no-icon-gutter,
+              title="查詢案件人員",
+              :disabled="caseApplicantsBusy || editCasenoState !== true",
+              @click="fetchCaseApplicants('edit')"
+            )
+          b-form-invalid-feedback(:state="editCasenoState") {{ casenoErrorMsg(editForm.receiving_caseno) }}
+          //- 查詢結果選單
+          b-list-group.mt-1(v-if="caseApplicants.length > 0")
+            b-list-group-item.py-1.px-2(
+              v-for="(p, i) in caseApplicants"
+              :key="i"
+              button
+              @click="selectApplicant('edit', p)"
+            )
+              .d-flex.align-items-center
+                b-badge.mr-2(:variant="p.role === '代理人' ? 'warning' : 'info'" pill) {{ p.role }}
+                span {{ p.name }}
+                small.ml-1.text-muted(v-if="p.id_no") {{ p.id_no }}
+        b-form-group(label="申請人 *" label-cols="3")
           b-input(
-            v-model="editForm.receiving_caseno",
-            placeholder="如：115-HA81-012350",
-            :state="editCasenoState",
-            @blur="onEditCasenoBlur"
+            v-model="editForm.applicant",
+            placeholder="請輸入申請人姓名",
+            :state="editForm.applicant.length > 0 ? true : null",
+            required
           )
-          b-form-invalid-feedback {{ casenoErrorMsg(editForm.receiving_caseno) }}
         b-form-group(label="備註" label-cols="3")
           b-textarea(
             v-model="editForm.note",
@@ -258,12 +299,17 @@ div
 
 <script>
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
+import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
+
 export default {
+  components: { lahRegCaseDetail },
   fetchOnServer: false,
   mixins: [dynamicHeight],
   data: () => ({
     keyword: '',
     editRecord: null,
+    clickedCaseno: '',
+    detailLoading: false,
     rows: [],
     dateRange: {
       begin: '115/08/06',
@@ -445,6 +491,11 @@ export default {
     document.removeEventListener('keydown', this.onKeyDown)
   },
   methods: {
+    showDetail (caseno) {
+      this.clickedCaseno = caseno
+      this.detailLoading = true
+      this.$refs.detail_modal.show()
+    },
     showAdd () {
       this.form.applicant = ''
       this.form.receiving_type = 0
@@ -600,6 +651,7 @@ export default {
     },
     popupEdit (record) {
       this.editRecord = record
+      this.caseApplicants = []
       this.$refs.edit_modal?.show()
     },
     submitEdit () {
