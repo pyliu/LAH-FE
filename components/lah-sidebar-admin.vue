@@ -55,7 +55,7 @@ b-sidebar#lah-sidebar(
       //- 智慧戰情面板 (含摺疊子選單)
       li.dashboard-menu-item
         .d-flex.align-items-center
-          nuxt-link(:to="isDevOffice ? '/inf/dashboard/' : '/inf/dashboard/mode=HX'")
+          nuxt-link(:to="isDevOffice ? '/inf/dashboard/' : '/inf/dashboard/?mode=HX'")
             font-awesome-icon(:icon="['fas', 'desktop']" fixed-width size="lg" class="mr-1")
             | {{site}} 智慧戰情面板
           .toggle-btn.ml-2(
