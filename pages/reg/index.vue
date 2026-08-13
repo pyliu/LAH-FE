@@ -34,7 +34,7 @@
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'calculator']" to="/reg/stats/rega") 統計資料案件查詢
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'robot']" to="/dgx") 案件查詢AI助理
         lah-index-card-link.fix-card-dimension(:icon="['fas', 'house-lock']" to="/reg/undisclosed") 住址隱匿#[br]收件管理
-        lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
+        lah-index-card-link.fix-card-dimension(:icon="['fas', 'bell']" to="/reg/propertyalert") 地籍異動#[br]即時通
         lah-index-card-link.fix-card-dimension.invisible(:icon="['fas', 'times']" to="/reg/") ...
 </template>
 
