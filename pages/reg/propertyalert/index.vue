@@ -3,7 +3,7 @@ div
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 地籍異動即時通 ({{ queryCount }})
+        .my-auto 地籍異動即時通收件管理 ({{ queryCount }})
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="$refs.help_modal.show()" title="說明")
         lah-help-modal(ref="help_modal")
           h5 功能說明
@@ -61,14 +61,14 @@ div
           ref="plus"
           icon="plus"
           size="lg"
-          title="新增地籍異動即時通案件"
+          title="新增地籍異動即時通收件管理案件"
           :disabled="isBusy"
           @click="showAdd"
           no-icon-gutter
         )
         lah-button-xlsx(
           :jsons="xlsxData"
-          header="地籍異動即時通"
+          header="地籍異動即時通收件管理"
         )
 
   lah-pagination(
@@ -161,7 +161,7 @@ div
     no-close-on-backdrop,
     scrollable
   )
-    template(#modal-title) 新增地籍異動即時通案件
+    template(#modal-title) 新增地籍異動即時通收件管理案件
     .p-2
       b-form(@submit.prevent="submitAdd")
         b-form-group(label="收件類型" label-cols="3")
@@ -232,7 +232,7 @@ div
     no-close-on-backdrop,
     scrollable
   )
-    template(#modal-title) 修改地籍異動即時通案件
+    template(#modal-title) 修改地籍異動即時通收件管理案件
     .p-2(v-if="editRecord")
       b-form(@submit.prevent="submitEdit")
         b-form-group(label="收件類型" label-cols="3")
@@ -416,7 +416,7 @@ export default {
     }
   },
   head: {
-    title: '地籍異動即時通-桃園市地政局'
+    title: '地籍異動即時通收件管理-桃園市地政局'
   },
   computed: {
     firstDayOfPropertyAlert () {
@@ -425,7 +425,7 @@ export default {
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
     foundText () {
-      const message = `${this.dateRange.begin} ~ ${this.dateRange.end} 找到 ${this.queryCount} 筆「地籍異動即時通」資料`
+      const message = `${this.dateRange.begin} ~ ${this.dateRange.end} 找到 ${this.queryCount} 筆「地籍異動即時通收件管理」資料`
       return this.$utils.empty(this.keyword) ? message : `${message}【關鍵字：${this.keyword}】`
     },
     daysPeriod () { return this.dateRange.days || 0 },
