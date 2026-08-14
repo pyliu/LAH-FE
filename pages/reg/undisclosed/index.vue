@@ -38,8 +38,7 @@ div
 
       .d-flex.small
         lah-datepicker(
-          v-model="dateRange",
-          :begin="firstDayOfUndisclosed"
+          v-model="dateRange"
         )
         b-input.h-100.mx-1(
           v-model="keyword",
@@ -312,7 +311,7 @@ export default {
     detailLoading: false,
     rows: [],
     dateRange: {
-      begin: '115/08/06',
+      begin: '',
       end: '',
       days: 0
     },
@@ -419,9 +418,6 @@ export default {
     title: '住址隱匿收件管理-桃園市地政局'
   },
   computed: {
-    firstDayOfUndisclosed () {
-      return new Date(2026, 7, 6) // 115/08/06
-    },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
     foundText () {

@@ -38,8 +38,7 @@ div
 
       .d-flex.small
         lah-datepicker(
-          v-model="dateRange",
-          :begin="firstDayOfPropertyAlert"
+          v-model="dateRange"
         )
         b-input.h-100.mx-1(
           v-model="keyword",
@@ -419,9 +418,6 @@ export default {
     title: '地籍異動即時通收件管理-桃園市地政局'
   },
   computed: {
-    firstDayOfPropertyAlert () {
-      return new Date(new Date().getFullYear(), 0, 1) // 本年度 1/1
-    },
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
     foundText () {
