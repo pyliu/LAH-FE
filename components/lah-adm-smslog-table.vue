@@ -129,6 +129,7 @@ div
             span(v-else-if="item.SMS_RESULT.includes('HTTP Status 500')") (無法登入簡訊閘道 #[span.text-danger HTTP Status 500])
             span(v-else) ({{  item.SMS_RESULT }})
           lah-button.ml-2(
+            v-if="!isMailFailure(item)",
             icon="paper-plane",
             variant="outline-primary",
             size="sm",
@@ -474,6 +475,14 @@ export default {
       }
 
       return mappedLogs
+    },
+    // 判斷是否為郵件寄送失敗（無手機號碼，或錯誤訊息包含郵件相關關鍵字），郵件失敗不提供重送
+    isMailFailure (item) {
+      const cellEmpty = this.$utils.empty(item.SMS_CELL?.trim())
+      const result = item.SMS_RESULT || ''
+      const mailKeywords = ['mail', 'Mail', 'SMTP', 'smtp', 'email', 'Email', 'MailException', 'javax.mail']
+      const isMailError = mailKeywords.some(kw => result.includes(kw))
+      return cellEmpty || isMailError
     },
     confirmResend (item) {
       // 點擊後不直接呼叫 API，而是將資料帶入 resendData 並喚起 modal
