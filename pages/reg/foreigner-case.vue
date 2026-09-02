@@ -160,23 +160,29 @@ export default {
       //   sortable: true
       // },
       {
+        key: '收件日期',
+        label: '收件日期',
+        sortable: true
+      },
+      {
         key: '校對日期',
+        label: '校對日期',
         sortable: true
       },
       {
-        key: '權利人統一編號',
+        key: '代表權利人統一編號',
         sortable: true
       },
       {
-        key: '權利人姓名',
+        key: '代表權利人姓名',
         sortable: true
       },
       {
-        key: '義務人統一編號',
+        key: '代表義務人統一編號',
         sortable: true
       },
       {
-        key: '義務人姓名',
+        key: '代表義務人姓名',
         sortable: true
       },
       {
@@ -235,7 +241,7 @@ export default {
               end: this.dateRange.end,
               reload: this.forceReload
             }).then(({ data }) => {
-              this.bakedData = data.baked || []
+              this.bakedData = this.mapForeignerItems(data.rows || [])
               this.notify(data.message, {
                 type: this.$utils.statusCheck(data.status) ? 'info' : 'warning',
                 subtitle: `${this.dateRange.begin}-${this.dateRange.end}`
@@ -259,7 +265,7 @@ export default {
             })
           }
         } else {
-          this.bakedData = json.baked
+          this.bakedData = this.mapForeignerItems(json.rows || [])
           this.committed = true
           this.getCacheExpireRemainingTime(this.cacheKey).then((remaining) => {
             if (this.$refs.countdown) {
@@ -306,7 +312,7 @@ export default {
         }
         if (!this.$utils.empty(this.advOpts.reason)) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.RM09 === this.advOpts.reason
+            return item['登記原因代碼'] === this.advOpts.reason
           })
         }
         if (!this.$utils.empty(this.advOpts.op)) {
@@ -316,7 +322,7 @@ export default {
         }
         if (!this.$utils.empty(this.advOpts.date)) {
           pipelineItems = pipelineItems.filter((item) => {
-            return item.校對日期.split(' ')[0] === this.advOpts.date
+            return item['校對日期'] === this.advOpts.date
           })
         }
         return pipelineItems
@@ -346,6 +352,26 @@ export default {
     }
   },
   methods: {
+    mapForeignerItems (items) {
+      return items.map((item) => {
+        return {
+          ...item,
+          收件日期: this.formatROCDate(item['收件日期']),
+          校對日期: this.formatROCDate(item['校對日期']),
+          RM01: item['收件年'] || '',
+          RM02: item['收件字'] || '',
+          RM03: item['收件號'] || '',
+          RM09: item['登記原因代碼'] || '',
+          RM09_CHT: item['登記原因'] || item['登記原因代碼'] || ''
+        }
+      })
+    },
+    formatROCDate (val) {
+      if (!val) { return '' }
+      const s = String(val).trim()
+      if (s.includes('/') || s.length < 7) { return s }
+      return `${s.slice(0, 3)}/${s.slice(3, 5)}/${s.slice(5, 7)}`
+    },
     reload () {
       this.forceReload = true
       this.$fetch()
@@ -380,7 +406,7 @@ export default {
         this.advOpts.opOpts = [
           ...this.$utils.orderBy(
             this.$utils.uniqBy(val.map((item) => {
-              return { value: item.辦理情形, text: `${item.RM30}：${item.辦理情形}` }
+              return { value: item.辦理情形, text: item.辦理情形 }
             }), 'value'),
             'value'
           )
@@ -388,12 +414,12 @@ export default {
         this.advOpts.reasonOpts = [
           ...this.$utils.orderBy(
             this.$utils.uniqBy(val.map((item) => {
-              return { value: item.RM09, text: `${item.RM09}：${item.RM09_CHT}` }
+              return { value: item['登記原因代碼'], text: `${item['登記原因代碼']}：${item['登記原因'] || item['登記原因代碼']}` }
             }), 'value'),
             'value'
           )
         ]
-        this.advOpts.dateOpts = [...new Set(val.map(item => item.校對日期?.split(' ')[0]))].sort()
+        this.advOpts.dateOpts = [...new Set(val.map(item => item['校對日期']))].filter(Boolean).sort()
         this.advOpts.codeOpts.unshift('')
         this.advOpts.opOpts.unshift('')
         this.advOpts.reasonOpts.unshift('')
