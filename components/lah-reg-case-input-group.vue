@@ -152,8 +152,8 @@ export default {
         if (Array.isArray(years) && years.includes(this.year)) {
           this.years = [...years]
         } else {
-          // set year select options (from 087 to current year)
-          const startYear = 87
+          // set year select options (from 100 to current year)
+          const startYear = 100
           const len = this.year - startYear
           for (let i = 0; i <= len; i++) {
             this.years.push({ value: startYear + i, text: String(startYear + i).padStart(3, '0') })
