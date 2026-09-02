@@ -152,10 +152,11 @@ export default {
         if (Array.isArray(years) && years.includes(this.year)) {
           this.years = [...years]
         } else {
-          // set year select options
-          const len = this.year - 103
+          // set year select options (from 087 to current year)
+          const startYear = 87
+          const len = this.year - startYear
           for (let i = 0; i <= len; i++) {
-            this.years.push({ value: 103 + i, text: 103 + i })
+            this.years.push({ value: startYear + i, text: String(startYear + i).padStart(3, '0') })
           }
           this.setCache('lah-case-input-group-year', this.years, 24 * 60 * 60 * 1000) // cache for a day
         }
