@@ -61,7 +61,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           tr
             th 星期
             th 平日(一三五)排程
-            th 平日(二四)排程
+            th 平日(三)排程
             th 週末排程
         tbody
           tr(v-for="rule in scheduleRules", :key="rule.day")
@@ -133,14 +133,16 @@ export default {
     failKeywords: ['失敗', 'fail', 'error', '異常'],
 
     // 重構後的矩陣：基於 (死線日期 - 最早完成日期) + 1 天緩衝，完美包容 2 天的備份執行期
+    // vc24 依據改為每週三執行後，重新計算各天容許天數
+    // 公式：距上週三日曆天數 + 備份執行期(2天) + 緩衝(1天)
     scheduleRules: [
-      { day: 0, label: '週日', vc135: 5, vc24: 4, vc7: 9 },
-      { day: 1, label: '週一', vc135: 4, vc24: 5, vc7: 10 },
-      { day: 2, label: '週二', vc135: 5, vc24: 6, vc7: 4 },
-      { day: 3, label: '週三', vc135: 6, vc24: 7, vc7: 5 },
-      { day: 4, label: '週四', vc135: 4, vc24: 8, vc7: 6 },
-      { day: 5, label: '週五', vc135: 5, vc24: 4, vc7: 7 },
-      { day: 6, label: '週六', vc135: 4, vc24: 5, vc7: 8 }
+      { day: 0, label: '週日', vc135: 5, vc24: 6, vc7: 9 },
+      { day: 1, label: '週一', vc135: 4, vc24: 7, vc7: 10 },
+      { day: 2, label: '週二', vc135: 5, vc24: 8, vc7: 4 },
+      { day: 3, label: '週三', vc135: 6, vc24: 3, vc7: 5 },
+      { day: 4, label: '週四', vc135: 4, vc24: 4, vc7: 6 },
+      { day: 5, label: '週五', vc135: 5, vc24: 5, vc7: 7 },
+      { day: 6, label: '週六', vc135: 4, vc24: 6, vc7: 8 }
     ]
   }),
   computed: {
