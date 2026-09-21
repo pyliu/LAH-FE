@@ -60,15 +60,13 @@ b-card(:border-variant="border", :class="[attentionCss]")
         thead.thead-light
           tr
             th 星期
-            th 平日(一三五)排程
-            th 平日(三)排程
+            th 週三排程 (平日)
             th 週末排程
         tbody
           tr(v-for="rule in scheduleRules", :key="rule.day")
             th {{ rule.label }}
-            td 允許 {{ rule.vc135 }} 天
-            td 允許 {{ rule.vc24 }} 天
-            td 允許 {{ rule.vc7 }} 天
+            td 允許 {{ rule.vcWeekday || rule.vc24 }} 天
+            td 允許 {{ rule.vcWeekend || rule.vc7 }} 天
       .mt-2.text-muted.small * 註：判定基準採用「日曆天數」計算，忽略具體的時分秒。容許天數已內建「備份執行期(最長2天) + 緩衝期(1天)」，在死線之前會自動放寬限制避免誤判。
 
   slot
@@ -132,27 +130,40 @@ export default {
     // 定義判定為「失敗」的關鍵字，可依據實際 Email 內容擴充
     failKeywords: ['失敗', 'fail', 'error', '異常'],
 
-    // 重構後的矩陣：基於 (死線日期 - 最早完成日期) + 1 天緩衝，完美包容 2 天的備份執行期
-    // vc24 依據改為每週三執行後，重新計算各天容許天數
-    // 公式：距上週三日曆天數 + 備份執行期(2天) + 緩衝(1天)
+    // vcWeekday (週三) 公式：距上週三日曆天數 + 備份執行期(2天) + 緩衝(1天)
+    // vcWeekend (週末) 容許天數維持原樣，保留舊欄位名稱 vc24 / vc7 相容性
     scheduleRules: [
-      { day: 0, label: '週日', vc135: 5, vc24: 6, vc7: 9 },
-      { day: 1, label: '週一', vc135: 4, vc24: 7, vc7: 10 },
-      { day: 2, label: '週二', vc135: 5, vc24: 8, vc7: 4 },
-      { day: 3, label: '週三', vc135: 6, vc24: 3, vc7: 5 },
-      { day: 4, label: '週四', vc135: 4, vc24: 4, vc7: 6 },
-      { day: 5, label: '週五', vc135: 5, vc24: 5, vc7: 7 },
-      { day: 6, label: '週六', vc135: 4, vc24: 6, vc7: 8 }
+      { day: 0, label: '週日', vcWeekday: 6, vcWeekend: 9, vc24: 6, vc7: 9 },
+      { day: 1, label: '週一', vcWeekday: 7, vcWeekend: 10, vc24: 7, vc7: 10 },
+      { day: 2, label: '週二', vcWeekday: 8, vcWeekend: 4, vc24: 8, vc7: 4 },
+      { day: 3, label: '週三', vcWeekday: 3, vcWeekend: 5, vc24: 3, vc7: 5 },
+      { day: 4, label: '週四', vcWeekday: 4, vcWeekend: 6, vc24: 4, vc7: 6 },
+      { day: 5, label: '週五', vcWeekday: 5, vcWeekend: 7, vc24: 5, vc7: 7 },
+      { day: 6, label: '週六', vcWeekday: 6, vcWeekend: 8, vc24: 6, vc7: 8 }
     ]
   }),
   computed: {
+    // 優先匹配新版關鍵字 (vm-clone-weekday / vm-clone-weekend)，同時相容舊版 (vm-clone-24 / vm-clone-7)
+    vcWeekdayMessage () {
+      return this.findVMCloneMessage({
+        keywords: ['vm-clone-weekday', 'vm-clone-24'],
+        subject: '週三 VM 備份'
+      })
+    },
+    vcWeekendMessage () {
+      return this.findVMCloneMessage({
+        keywords: ['vm-clone-weekend', 'vm-clone-7'],
+        subject: '週末(六) VM 備份'
+      })
+    },
+
+    // 保留既有 computed 別名以確保舊相容性
+    vc24Message () { return this.vcWeekdayMessage },
+    vc7Message () { return this.vcWeekendMessage },
     vc135Message () { return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日(一三五)' }) },
-    vc24Message () { return this.findVMCloneMessage({ keyword: 'vm-clone-24', subject: '平日(二四)' }) },
-    vc7Message () { return this.findVMCloneMessage({ keyword: 'vm-clone-7', subject: '周末(六)' }) },
 
     headMessages () {
-      // 依據原始代碼，目前僅顯示 24 與 7。若後續要加入 135，可在此解開註解
-      return [this.vc24Message, this.vc7Message].filter(item => item)
+      return [this.vcWeekdayMessage, this.vcWeekendMessage].filter(item => item)
     },
 
     // 調整最外層燈號判定邏輯
@@ -222,12 +233,17 @@ export default {
       // 改用日曆天數計算，避免因為 96 小時又 50 分鐘大於 4 天的嚴格毫秒比較而誤判
       const diffDays = this.getCalendarDaysDiff(item.timestamp)
 
-      // 移除原本需要排除 isSaturday 的判斷，因為新矩陣已經完美涵蓋時間軸
-      if (item.subject?.includes('vm-clone-135') && diffDays > rule.vc135) {
+      // 支援新舊主旨關鍵字 (新: vm-clone-weekday / vm-clone-weekend, 舊: vm-clone-24 / vm-clone-7)
+      const isWeekday = item.subject?.includes('vm-clone-weekday') || item.subject?.includes('vm-clone-24')
+      const isWeekend = item.subject?.includes('vm-clone-weekend') || item.subject?.includes('vm-clone-7')
+      const maxDaysWeekday = rule.vcWeekday || rule.vc24
+      const maxDaysWeekend = rule.vcWeekend || rule.vc7
+
+      if (isWeekday && diffDays > maxDaysWeekday) {
         status.isTimeout = true
-      } else if (item.subject?.includes('vm-clone-24') && diffDays > rule.vc24) {
+      } else if (isWeekend && diffDays > maxDaysWeekend) {
         status.isTimeout = true
-      } else if (item.subject?.includes('vm-clone-7') && diffDays > rule.vc7) {
+      } else if (item.subject?.includes('vm-clone-135') && diffDays > (rule.vc135 || 5)) {
         status.isTimeout = true
       }
 
@@ -276,8 +292,13 @@ export default {
     },
 
     findVMCloneMessage (payload) {
-      const { keyword, subject } = payload
-      const found = this.messages.find(item => item.subject.includes(keyword))
+      const { keyword, keywords, subject } = payload
+      const kwList = keywords || (keyword ? [keyword] : [])
+      let found
+      for (const kw of kwList) {
+        found = this.messages.find(item => item.subject.includes(kw))
+        if (found) { break }
+      }
       return found || this.vcDummyMessage({ subject, message: this.dummyMessage })
     },
 
