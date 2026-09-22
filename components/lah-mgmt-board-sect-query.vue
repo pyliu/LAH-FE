@@ -70,10 +70,10 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
     b-form-input.no-cache(
       ref="input",
       v-model="input",
-      placeholder="🔍 '0200' 或 '忠福段'",
+      placeholder="🔍 '0200' 或 '忠福段' (留空查全部)",
       @keyup.enter="query",
       :state="validateState",
-      title="輸入段代碼或段名稱"
+      title="輸入段代碼或段名稱，留空可查詢全轄區段別"
     )
     template(#append)
       lah-button(
@@ -87,7 +87,7 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
         icon="magnifying-glass",
         variant="outline-primary",
         @click="query",
-        title="搜尋段小段",
+        title="搜尋段小段 (留空查詢全部)",
         :disabled="!validate",
         :busy="isBusy"
       ) 搜尋
@@ -113,7 +113,7 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
           small.text-muted ({{ sect.區名稱 }})
           b-badge.ml-1(variant="info", pill) {{ format(sect.土地標示部筆數) }} 筆
 
-  .mt-2.text-muted.small.text-center(v-else-if="validate && !isBusy")
+  .mt-2.text-muted.small.text-center(v-else-if="input && !isBusy")
     span 查無符合「{{ input }}」之段小段資料
 
   //- 詳細資料彈出視窗
@@ -124,20 +124,37 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
     hide-footer,
     scrollable
   )
-    .d-flex.justify-content-between.align-items-center.mb-2(v-if="modalSections.length > 1")
-      span.small.text-muted
-        lah-fa-icon(icon="chart-simple")
-        span.ml-1 統計：共 {{ modalSections.length }} 個段別，{{ totalCount }} 筆，總面積 {{ totalAreaM2 }} ({{ totalAreaPing }})
+    .d-flex.justify-content-between.align-items-center.mb-2(v-if="modalSections.length > 0")
+      b-input-group(size="sm", prepend="篩選", style="max-width: 320px;")
+        b-form-input(
+          v-model="modalFilter",
+          placeholder="段代碼 (如 0200) 或段名稱...",
+          title="篩選段代碼或段名稱"
+        )
+        template(#append, v-if="modalFilter")
+          lah-button(
+            icon="xmark",
+            variant="outline-secondary",
+            @click="modalFilter = ''",
+            title="清除篩選"
+          )
       lah-button(
         icon="file-csv",
         variant="outline-success",
         size="sm",
         @click="exportCsv",
-        title="匯出 CSV"
+        title="匯出 CSV",
+        :disabled="filteredModalSections.length === 0"
       ) 匯出 CSV
 
+    .d-flex.justify-content-between.align-items-center.mb-2.small.text-muted(v-if="modalSections.length > 1")
+      span
+        lah-fa-icon(icon="chart-simple")
+        span.ml-1 統計：共 {{ filteredModalSections.length }} 個段別，{{ totalCount }} 筆，總面積 {{ totalAreaM2 }} ({{ totalAreaPing }})
+      span(v-if="modalFilter") (篩選符合 {{ filteredModalSections.length }} / {{ modalSections.length }} 筆)
+
     b-table.text-center(
-      :items="modalSections",
+      :items="filteredModalSections",
       :fields="fields",
       responsive="sm",
       striped,
@@ -145,7 +162,9 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
       bordered,
       small,
       no-border-collapse,
-      head-variant="dark"
+      head-variant="dark",
+      show-empty,
+      empty-text="查無符合篩選條件之段小段資料"
     )
       template(v-slot:cell(面積)="{ item }")
         span(v-b-tooltip.hover="areaPing(item.面積)") {{ areaM2(item.面積) }}
@@ -158,6 +177,7 @@ export default {
   name: 'LahMgmtBoardSectQuery',
   data: () => ({
     input: '',
+    modalFilter: '',
     sections: [],
     modalSections: [],
     modalTitle: '段小段查詢結果',
@@ -173,11 +193,14 @@ export default {
   }),
   computed: {
     validate () {
-      return Boolean(this.input && this.input.trim().length > 0)
+      if (!this.input || !this.input.trim()) {
+        return true
+      }
+      return isNaN(parseInt(this.input, 10)) ? true : (parseInt(this.input, 10) <= 9999 && parseInt(this.input, 10) >= 1)
     },
     validateState () {
-      if (!this.input) { return null }
-      return this.input.trim().length > 0 ? true : null
+      if (!this.input || !this.input.trim()) { return null }
+      return Boolean(this.validate)
     },
     filteredSections () {
       const kw = (this.input || '').trim().toLowerCase()
@@ -193,16 +216,30 @@ export default {
         )
       })
     },
+    filteredModalSections () {
+      const kw = (this.modalFilter || '').trim().toLowerCase()
+      if (!kw) {
+        return this.modalSections
+      }
+      return this.modalSections.filter((s) => {
+        return (
+          (s.段代碼 && s.段代碼.toLowerCase().includes(kw)) ||
+          (s.段名稱 && s.段名稱.toLowerCase().includes(kw)) ||
+          (s.區名稱 && s.區名稱.toLowerCase().includes(kw)) ||
+          (s.區代碼 && s.區代碼.toLowerCase().includes(kw))
+        )
+      })
+    },
     totalCount () {
-      const sum = this.modalSections.reduce((acc, cur) => acc + (parseInt(cur.土地標示部筆數, 10) || 0), 0)
+      const sum = this.filteredModalSections.reduce((acc, cur) => acc + (parseInt(cur.土地標示部筆數, 10) || 0), 0)
       return this.format(sum)
     },
     totalAreaM2 () {
-      const sum = this.modalSections.reduce((acc, cur) => acc + (parseFloat(cur.面積) || 0), 0)
+      const sum = this.filteredModalSections.reduce((acc, cur) => acc + (parseFloat(cur.面積) || 0), 0)
       return this.areaM2(sum)
     },
     totalAreaPing () {
-      const sum = this.modalSections.reduce((acc, cur) => acc + (parseFloat(cur.面積) || 0), 0)
+      const sum = this.filteredModalSections.reduce((acc, cur) => acc + (parseFloat(cur.面積) || 0), 0)
       return this.areaPing(sum)
     }
   },
@@ -260,16 +297,42 @@ export default {
       }
     },
     openModal (sect) {
+      this.modalFilter = ''
       this.modalSections = [sect]
       this.modalTitle = `段小段資料：【${sect.段代碼}】${sect.段名稱} (${sect.區名稱})`
       this.$refs.detailModal.show()
     },
     query () {
-      const kw = this.input.trim()
+      this.modalFilter = ''
+      const kw = (this.input || '').trim()
+      // 空資料查詢：彈出顯示全轄區段小段統計資料
       if (this.$utils.empty(kw)) {
-        this.warning('請輸入查詢段代碼或段名稱')
+        if (this.sections.length > 0) {
+          this.modalSections = this.sections
+          this.modalTitle = `全轄區段小段資料 (共 ${this.sections.length} 筆)`
+          this.$refs.detailModal.show()
+          return
+        }
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'ralid'
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status) && Array.isArray(data.raw)) {
+            this.sections = data.raw
+            this.modalSections = data.raw
+            this.modalTitle = `全轄區段小段資料 (共 ${data.raw.length} 筆)`
+            this.$refs.detailModal.show()
+          } else {
+            this.warning(data.message || '查無轄區段別資料。')
+          }
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
         return
       }
+
       if (this.filteredSections.length > 0) {
         this.modalSections = this.filteredSections
         this.modalTitle = `段小段查詢結果【${kw}】(共 ${this.filteredSections.length} 筆)`
@@ -299,9 +362,9 @@ export default {
       })
     },
     exportCsv () {
-      if (this.modalSections.length === 0) { return }
+      if (this.filteredModalSections.length === 0) { return }
       const headers = ['區代碼', '區名稱', '段代碼', '段名稱', '面積(㎡)', '土地標示部筆數']
-      const rows = this.modalSections.map(s => [
+      const rows = this.filteredModalSections.map(s => [
         s.區代碼,
         s.區名稱,
         s.段代碼,
@@ -313,7 +376,8 @@ export default {
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.setAttribute('download', `轄區段別資料_${this.input || '清單'}.csv`)
+      const keyword = this.modalFilter || this.input || '清單'
+      link.setAttribute('download', `轄區段別資料_${keyword}.csv`)
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
