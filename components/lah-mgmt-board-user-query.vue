@@ -29,13 +29,13 @@ b-card(:class="{ 'board-expanded': filteredUsers.length > 0 }")
       li 姓名 (如：庭維、珮慈)
       li 電腦 IP 位址 (如：192.168.13.x)
     hr
-    p.text-muted.small 提示：輸入 2 個字元以上即會即時過濾名冊並列出符合人員標籤，點選標籤即可檢視該使用者詳細資訊。按下 Enter 或搜尋鈕亦可向伺服器直接查詢。
+    p.text-muted.small 提示：輸入 1 個中文字或 2 個字元以上即會即時過濾名冊並列出符合人員標籤，點選標籤即可檢視該使用者詳細資訊。按下 Enter 亦可向伺服器直接查詢。
 
   b-input-group(size="sm", prepend="關鍵字")
     b-form-input.no-cache(
       ref="input",
       v-model="input",
-      placeholder="🔍 'HA02' 或 '珮慈' 或 '192.168.13.xxx'",
+      placeholder="🔍 'HA02' 或 '黃' 或 '珮慈' 或 '192.168.13.xxx'",
       @keyup.enter="query",
       :state="validateState",
       title="HAXXXX 或 姓名 或 IP"
@@ -103,19 +103,23 @@ export default {
     isBusy: false
   }),
   computed: {
+    effectiveLength () {
+      // 非 ASCII 字元（如中文）算為 2 個字元，讓單一中文字（如「黃」）即可觸發過濾
+      return (this.input || '').trim().replace(/[^\x20-\x7E]/g, 'xx').length
+    },
     validate () {
-      return Boolean(this.input && this.input.trim().length > 1)
+      return Boolean(this.input && this.effectiveLength >= 2)
     },
     validateState () {
       if (!this.input) { return null }
-      return this.input.trim().length > 1 ? true : null
+      return this.validate ? true : null
     },
     isAuthorized () {
       return Boolean(this.authority?.isAdmin || this.authority?.isUserMgtStaff)
     },
     filteredUsers () {
       const kw = (this.input || '').trim().toLowerCase()
-      if (!kw || kw.length < 2) {
+      if (!kw || this.effectiveLength < 2) {
         return []
       }
       const matched = this.usernames.filter((u) => {
@@ -242,6 +246,10 @@ export default {
         this.warning('請輸入查詢關鍵字')
         return
       }
+      if (this.filteredUsers.length === 1) {
+        this.popUserCard(this.filteredUsers[0])
+        return
+      }
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.USER, {
         type: 'search_user',
@@ -250,10 +258,10 @@ export default {
         if (this.$utils.statusCheck(data.status)) {
           if (Array.isArray(data.raw) && data.raw.length > 0) {
             this.popUserCard(data.raw)
-          } else {
+          } else if (this.filteredUsers.length === 0) {
             this.warning(`查無 ${kw} 資料。`)
           }
-        } else {
+        } else if (this.filteredUsers.length === 0) {
           this.warning(data.message || `查無 ${kw} 資料。`)
         }
       }).catch((err) => {
