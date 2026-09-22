@@ -64,7 +64,8 @@ export default {
   max-height: 140px;
   overflow: hidden;
   cursor: pointer;
-  transition: max-height 0.4s ease-in-out, box-shadow 0.3s ease;
+  // 移出收合時延遲 0.5s 觸發
+  transition: max-height 0.4s ease-in-out 0.5s, box-shadow 0.3s ease 0.5s;
 
   // 向下展開提示列
   &::after {
@@ -84,7 +85,7 @@ export default {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(245, 247, 250, 0.85) 35%, rgba(233, 236, 239, 0.98) 100%);
     border-top: 1px dashed rgba(108, 117, 125, 0.25);
     pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: opacity 0.25s ease 0.5s, transform 0.25s ease 0.5s;
     z-index: 2;
   }
 
@@ -95,11 +96,14 @@ export default {
     overflow-y: auto;
     cursor: default;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    // 移入展開時立即響應無延遲
+    transition: max-height 0.4s ease-in-out 0s, box-shadow 0.3s ease 0s;
 
     &::after {
       opacity: 0;
       transform: translateY(100%);
       pointer-events: none;
+      transition: opacity 0.25s ease 0s, transform 0.25s ease 0s;
     }
   }
 }
