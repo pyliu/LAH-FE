@@ -66,14 +66,15 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
         lah-fa-icon(icon="file-word", regular) 申請書
 
   //- 關鍵字輸入區
-  b-input-group(size="sm", prepend="關鍵字/段代碼")
+  b-input-group.input-group-height-hack(size="sm", prepend="關鍵字/段代碼")
     b-form-input.no-cache(
       ref="input",
       v-model="input",
       placeholder="🔍 '0200' 或 '忠福段' (留空查全部)",
       @keyup.enter="query",
       :state="validateState",
-      title="輸入段代碼或段名稱，留空可查詢全轄區段別"
+      title="輸入段代碼或段名稱，留空可查詢全轄區段別",
+      style="height: 33px;"
     )
     template(#append)
       lah-button(
@@ -125,11 +126,12 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
     scrollable
   )
     .d-flex.justify-content-between.align-items-center.mb-2(v-if="modalSections.length > 0")
-      b-input-group(size="sm", prepend="篩選", style="max-width: 320px;")
+      b-input-group.input-group-height-hack(size="sm", prepend="篩選", style="max-width: 320px;")
         b-form-input(
           v-model="modalFilter",
           placeholder="段代碼 (如 0200) 或段名稱...",
-          title="篩選段代碼或段名稱"
+          title="篩選段代碼或段名稱",
+          style="height: 33px;"
         )
         template(#append, v-if="modalFilter")
           lah-button(
@@ -387,6 +389,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.input-group-height-hack,
+.input-group {
+  align-items: stretch;
+
+  &::v-deep .input-group-text,
+  &::v-deep .form-control,
+  &::v-deep .btn {
+    height: 33px !important;
+  }
+}
+
 .secttag-container {
   max-height: 260px;
 }

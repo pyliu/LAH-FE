@@ -23,16 +23,18 @@ div(v-cloak)
     .third-vw
       lah-mgmt-board-search-reg-case
       lah-mgmt-board-sync-reg-case.my-3
+      //- 查詢人民申請案件組件
+      lah-mgmt-board-pid-query
     .third-vw.mx-3
       lah-mgmt-board-search-fee-form
       lah-mgmt-board-fee-form-obsolete.my-3
+      //- 轄區段別資料查詢組件
+      lah-mgmt-board-sect-query
     .third-vw
       //- 加入新實作的發送簡訊組件
       lah-mgmt-board-sms.compact-board
       //- 使用者查詢組件
       lah-mgmt-board-user-query.my-3
-      //- 轄區段別資料查詢組件
-      lah-mgmt-board-sect-query.my-3
       lah-mgmt-board-export-data.my-3
       lah-mgmt-board-watchdog.compact-board
 </template>
