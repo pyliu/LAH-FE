@@ -5,20 +5,29 @@ b-card.border-secondary
       h6.my-auto.font-weight-bolder
         lah-fa-icon(icon="road" size="lg") 輸出地籍資料
       b-button-group.align-middle(size="sm" v-if="!working")
-        lah-button(
+        lah-button.mr-1(
           icon="layer-group",
           variant="outline-primary",
           @click="setPreset(['0182', '0184', '0142'])",
           v-b-popover.top.hover.focus="'中平市地重劃'",
           title="中平市地重劃"
         )
-        lah-button(
+        lah-button.mr-1(
           icon="arrow-rotate-left",
           action="cycle-alt",
           variant="outline-secondary",
           @click="clean",
           title="重設",
           :disabled="tags.length === 0 && links.length === 0"
+        )
+        lah-button.mr-1(
+          v-if="hasServerFiles",
+          icon="trash-can",
+          variant="outline-danger",
+          @click="openCleanModal",
+          v-b-popover.top.hover.focus="'清理後端已產出檔案'",
+          title="清理後端已產出檔案",
+          :disabled="working || clearing"
         )
         lah-button(
           icon="question",
@@ -82,6 +91,117 @@ b-card.border-secondary
           li 土地、建物各產一次存PDF
           li 請至地政系統WEB版產出
 
+  //- 清理後端檔案彈出視窗
+  b-modal#export-data-clean-modal(
+    ref="cleanModal",
+    size="lg",
+    scrollable,
+    no-close-on-backdrop
+  )
+    template(#modal-title)
+      .d-flex.align-items-center
+        lah-fa-icon(icon="broom" size="lg" variant="danger")
+        span.ml-2 清理後端已產出檔案
+
+    //- 載入狀態
+    .text-center.my-4(v-if="loadingServerFiles")
+      lah-fa-icon(icon="spinner" spin size="2x" variant="primary")
+      .mt-2.text-muted 正在讀取後端 export 目錄檔案清單...
+
+    //- 無檔案狀態
+    .text-center.my-4(v-else-if="serverFiles.length === 0")
+      lah-fa-icon(icon="folder-open" size="2x" variant="secondary")
+      .mt-2.text-secondary 後端目前無任何地籍產出檔案（.txt 或 .zip）可供清理。
+
+    //- 檔案清單
+    div(v-else)
+      .d-flex.justify-content-between.align-items-center.mb-2.pb-2.border-bottom
+        .d-flex.align-items-center
+          b-form-checkbox(
+            :checked="allSelected",
+            :indeterminate="isIndeterminate",
+            @change="toggleSelectAll",
+            class="my-auto"
+          )
+          span.ml-2.font-weight-bold.text-secondary
+            | 共 {{ serverFiles.length }} 個檔案 (已選 {{ selectedFilenames.length }} 個，總計 {{ totalSelectedSize }})
+        .d-flex.align-items-center
+          lah-button(
+            icon="rotate",
+            size="sm",
+            variant="outline-secondary",
+            @click="fetchServerFiles",
+            :disabled="loadingServerFiles || clearing",
+            title="重新整理清單"
+          ) 重新整理
+          lah-button.ml-1(
+            icon="file-zipper",
+            size="sm",
+            variant="outline-success",
+            @click="downloadModalZip",
+            :disabled="loadingServerFiles || clearing || selectedFilenames.length === 0",
+            title="將所選檔案打包成 ZIP 下載"
+          )
+            span(v-if="!modalZipping") 打包下載 (ZIP)
+            span(v-else)
+              lah-fa-icon(icon="spinner" spin)
+              span.ml-1 打包中...
+
+      .clean-modal-files-list
+        .d-flex.align-items-center.justify-content-between.p-2.border-bottom.border-light(
+          v-for="file in serverFiles"
+          :key="file.filename"
+          :class="{'bg-light': isSelected(file)}"
+        )
+          .d-flex.align-items-center.text-truncate.mr-2
+            b-form-checkbox(
+              :checked="isSelected(file)",
+              @change="toggleFileSelection(file)",
+              class="my-auto"
+            )
+            lah-fa-icon(
+              :icon="file.type === 'zip' ? 'file-zipper' : 'file-lines'",
+              :variant="file.type === 'zip' ? 'warning' : 'primary'",
+              class="mx-2"
+            )
+            .text-truncate
+              div.text-truncate.font-weight-bold.s-90 {{ file.filename }}
+              small.text-muted.s-75 {{ file.size_formatted }} ｜ {{ file.mtime }}
+          .d-flex.align-items-center.flex-shrink-0
+            lah-button(
+              icon="download",
+              size="sm",
+              variant="outline-primary",
+              @click="downloadSingleServerFile(file)",
+              title="下載此檔案",
+              :disabled="clearing"
+            ) 下載
+
+    template(#modal-footer="{ cancel }")
+      .d-flex.w-100.justify-content-between.align-items-center
+        small.text-muted(v-if="serverFiles.length > 0")
+          lah-fa-icon(icon="triangle-exclamation" variant="warning")
+          span.ml-1 清理後檔案將從伺服器永久刪除，建議清掃前先點擊「下載」或「打包下載」。
+        small(v-else)
+        .d-flex
+          b-button(
+            variant="secondary",
+            size="sm",
+            @click="cancel",
+            :disabled="clearing"
+          ) 取消
+          b-button.ml-2(
+            variant="danger",
+            size="sm",
+            @click="doCleanServerFiles",
+            :disabled="clearing || loadingServerFiles || selectedFilenames.length === 0"
+          )
+            lah-fa-icon(icon="spinner" spin v-if="clearing")
+            span.ml-1(v-if="clearing") 清掃中...
+            span(v-else)
+              lah-fa-icon(icon="broom")
+              span.ml-1 確認清掃 ({{ selectedFilenames.length }})
+
   //- 產製進度條
   .my-2(v-if="working")
     .d-flex.justify-content-between.align-items-center.mb-1
@@ -119,33 +239,45 @@ b-card.border-secondary
       small.font-weight-bold.text-secondary
         lah-fa-icon(icon="file-lines")
         span.ml-1 產製檔案清單 (共 {{ links.length }} 個)
-      lah-button(
-        icon="cloud-arrow-down",
-        variant="outline-success",
-        size="sm",
-        no-border,
-        @click="downloadAll",
-        :disabled="downloading",
-        title="全部下載"
-      )
-        span(v-if="!downloading") 全部下載
-        span(v-else)
-          lah-fa-icon(icon="spinner" spin)
-          span.ml-1 下載中...
+      .d-flex.align-items-center
+        lah-button(
+          icon="file-zipper",
+          variant="outline-success",
+          size="sm",
+          no-border,
+          @click="downloadZip",
+          :disabled="downloading || clearing",
+          title="打包成 ZIP 下載"
+        )
+          span(v-if="!downloading") 全部下載 (ZIP)
+          span(v-else)
+            lah-fa-icon(icon="spinner" spin)
+            span.ml-1 打包下載中...
+        lah-button.ml-1(
+          v-if="hasServerFiles",
+          icon="trash-can",
+          variant="outline-danger",
+          size="sm",
+          no-border,
+          @click="openCleanModal",
+          :disabled="downloading || clearing",
+          title="清理後端已產出檔案"
+        )
+          lah-fa-icon(icon="spinner" spin v-if="clearing")
+          span.ml-1(v-if="clearing") 清理中...
+          span(v-else) 清理檔案
 
-    .text-left.download-links-container
-      .d-flex.align-items-center.py-1.border-bottom.border-light(
+    .d-flex.flex-wrap.align-items-center.mt-1
+      lah-button.m-1(
         v-for="(link, idx) in links"
         :key="idx"
-      )
-        lah-button(
-          icon="download",
-          action="move-fade-ttb",
-          class="s-75 text-truncate text-secondary p-0 text-left",
-          variant="link",
-          @click="download(link)",
-          :title="'下載 ' + link.filename"
-        ) {{ link.filename }}
+        icon="download",
+        action="move-fade-ttb",
+        variant="outline-primary",
+        size="sm",
+        @click="download(link)",
+        :title="'下載 ' + link.filename"
+      ) {{ getDisplayName(link) }}
 </template>
 
 <script>
@@ -174,7 +306,13 @@ export default {
     iteration: 0,
     working: false,
     currentTask: '',
-    downloading: false
+    downloading: false,
+    clearing: false,
+    hasServerFiles: false,
+    serverFiles: [],
+    selectedFilenames: [],
+    loadingServerFiles: false,
+    modalZipping: false
   }),
   computed: {
     disabled () {
@@ -183,7 +321,24 @@ export default {
     progressPercent () {
       if (this.max === 0) { return '0%' }
       return ((this.iteration / this.max) * 100).toFixed(1) + '%'
+    },
+    allSelected () {
+      return this.serverFiles.length > 0 && this.selectedFilenames.length === this.serverFiles.length
+    },
+    isIndeterminate () {
+      return this.selectedFilenames.length > 0 && this.selectedFilenames.length < this.serverFiles.length
+    },
+    totalSelectedSize () {
+      if (this.selectedFilenames.length === 0) { return '0 B' }
+      const selectedSet = new Set(this.selectedFilenames)
+      const totalBytes = this.serverFiles
+        .filter(f => selectedSet.has(f.filename))
+        .reduce((sum, f) => sum + (f.size || 0), 0)
+      return this.formatBytes(totalBytes)
     }
+  },
+  mounted () {
+    this.checkServerFiles()
   },
   methods: {
     validator (tag) {
@@ -221,6 +376,9 @@ export default {
           this.currentTask = `正在產製 ${item.name} (${item.code})...`
           await this.query(item.code)
           this.iteration = i + 1
+        }
+        if (this.links.length > 0) {
+          this.hasServerFiles = true
         }
         this.notify('地籍資料產製完成！', { type: 'success', title: '產製完成' })
       } catch (err) {
@@ -278,16 +436,281 @@ export default {
         document.body.removeChild(a)
       }
     },
-    async downloadAll () {
+    async downloadZip () {
       if (this.downloading || this.links.length === 0) { return }
       this.downloading = true
+      const site = this.site || 'HA'
+      const secStr = this.tags.join('_')
+      const todayStr = this.$utils.today('tw') || this.$utils.today()
+      const zipFilename = `${todayStr}_地籍資料_${site}${secStr ? '_' + secStr : ''}.zip`
+      const filenames = this.links.map(item => item.filename)
+
       try {
-        for (const link of this.links) {
-          await this.download(link)
-          await this.timeout(() => {}, 600)
-        }
+        const res = await this.$axios.post(this.$consts.API.FILE.DATA, {
+          type: 'zip',
+          zip_filename: zipFilename,
+          filenames
+        }, {
+          responseType: 'blob'
+        })
+        FileSaver.saveAs(res.data, zipFilename)
+        this.notify(`${zipFilename} 下載完成`, { type: 'success', title: '全部下載 (ZIP)' })
+      } catch (err) {
+        this.$utils.error(err)
+        // 備援下載方案：若 blob POST 請求異常則透過原生 a 標籤 GET 下載
+        const params = new URLSearchParams()
+        params.append('type', 'zip')
+        params.append('zip_filename', zipFilename)
+        params.append('filenames', filenames.join(','))
+        const url = `${this.$consts.API.FILE.DATA}?${params.toString()}`
+        const a = document.createElement('a')
+        a.href = url
+        a.download = zipFilename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
       } finally {
         this.downloading = false
+      }
+    },
+    downloadAll () {
+      return this.downloadZip()
+    },
+    formatBytes (bytes, precision = 1) {
+      if (!bytes || bytes <= 0) { return '0 B' }
+      const units = ['B', 'KB', 'MB', 'GB']
+      const pow = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+      const value = bytes / Math.pow(1024, pow)
+      return `${value.toFixed(precision)} ${units[pow]}`
+    },
+    openCleanModal () {
+      if (this.working || this.clearing) { return }
+      this.$bvModal.show('export-data-clean-modal')
+      this.fetchServerFiles()
+    },
+    cleanServerFiles () {
+      return this.openCleanModal()
+    },
+    cleanBackendFiles () {
+      return this.openCleanModal()
+    },
+    async fetchServerFiles () {
+      this.loadingServerFiles = true
+      try {
+        const res = await this.$axios.post(this.$consts.API.FILE.EXPORT, {
+          type: 'file_data_list'
+        })
+        let data = res.data
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data.trim())
+          } catch (e) {
+            this.$utils.error('無法解析回應的 JSON 字串:', data)
+          }
+        }
+        if (this.$utils.statusCheck(data.status)) {
+          this.serverFiles = data.data || []
+          this.hasServerFiles = this.serverFiles.length > 0
+          // 預設全選
+          this.selectedFilenames = this.serverFiles.map(f => f.filename)
+        } else {
+          this.serverFiles = []
+          this.hasServerFiles = false
+          this.selectedFilenames = []
+          this.warning(data.message || '無法取得後端檔案清單', { title: '查詢後端檔案' })
+        }
+      } catch (err) {
+        this.$utils.error(err)
+        this.serverFiles = []
+        this.hasServerFiles = false
+        this.selectedFilenames = []
+        this.warning(`讀取後端檔案失敗: ${err.message || err}`, { title: '查詢後端檔案' })
+      } finally {
+        this.loadingServerFiles = false
+      }
+    },
+    async checkServerFiles () {
+      try {
+        const res = await this.$axios.post(this.$consts.API.FILE.EXPORT, {
+          type: 'file_data_list'
+        })
+        let data = res.data
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data.trim())
+          } catch (e) {
+            this.$utils.error('無法解析回應的 JSON 字串:', data)
+          }
+        }
+        if (this.$utils.statusCheck(data.status)) {
+          const files = data.data || []
+          this.hasServerFiles = files.length > 0
+          this.serverFiles = files
+        } else {
+          this.hasServerFiles = false
+        }
+      } catch (err) {
+        this.$utils.error(err)
+        this.hasServerFiles = false
+      }
+    },
+    getDisplayName (link) {
+      if (link.code) {
+        const found = EXPORT_CODES.find(item => item.code === link.code)
+        if (found) { return found.name }
+      }
+      if (link.filename) {
+        const pureName = link.filename.replace(/\.[^/.]+$/, '')
+        const parts = pureName.split('_')
+        const lastPart = parts[parts.length - 1]
+        if (lastPart) { return lastPart }
+      }
+      return link.filename || link.code
+    },
+    isSelected (file) {
+      return this.selectedFilenames.includes(file.filename)
+    },
+    toggleFileSelection (file) {
+      const idx = this.selectedFilenames.indexOf(file.filename)
+      if (idx > -1) {
+        this.selectedFilenames.splice(idx, 1)
+      } else {
+        this.selectedFilenames.push(file.filename)
+      }
+    },
+    toggleSelectAll (checked) {
+      if (checked) {
+        this.selectedFilenames = this.serverFiles.map(f => f.filename)
+      } else {
+        this.selectedFilenames = []
+      }
+    },
+    async downloadSingleServerFile (file) {
+      const url = `${this.$consts.API.FILE.DATA}?filename=${encodeURIComponent(file.filename)}`
+      try {
+        const res = await this.$axios.get(url, {
+          responseType: 'blob'
+        })
+        FileSaver.saveAs(res.data, file.filename)
+        this.notify(`${file.filename} 下載完成`, { type: 'success', title: '下載檔案' })
+      } catch (err) {
+        this.$utils.error(err)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = file.filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+      }
+    },
+    async downloadModalZip () {
+      if (this.modalZipping || this.selectedFilenames.length === 0) { return }
+      this.modalZipping = true
+      const site = this.site || 'HA'
+      const todayStr = this.$utils.today('tw') || this.$utils.today()
+      const zipFilename = `${todayStr}_地籍資料匯出_${site}.zip`
+      const filenames = [...this.selectedFilenames]
+
+      try {
+        const res = await this.$axios.post(this.$consts.API.FILE.DATA, {
+          type: 'zip',
+          zip_filename: zipFilename,
+          filenames
+        }, {
+          responseType: 'blob'
+        })
+        FileSaver.saveAs(res.data, zipFilename)
+        this.notify(`${zipFilename} 下載完成`, { type: 'success', title: '全部下載 (ZIP)' })
+      } catch (err) {
+        this.$utils.error(err)
+        const params = new URLSearchParams()
+        params.append('type', 'zip')
+        params.append('zip_filename', zipFilename)
+        params.append('filenames', filenames.join(','))
+        const url = `${this.$consts.API.FILE.DATA}?${params.toString()}`
+        const a = document.createElement('a')
+        a.href = url
+        a.download = zipFilename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+      } finally {
+        this.modalZipping = false
+      }
+    },
+    async doCleanServerFiles () {
+      if (this.clearing || this.selectedFilenames.length === 0) { return }
+      const count = this.selectedFilenames.length
+
+      const confirmed = await this.confirm(`確定要永久刪除後端 ${count} 個產出檔案嗎？此動作無法還原！`)
+      if (!confirmed) { return }
+
+      this.clearing = true
+      try {
+        const isAll = this.selectedFilenames.length === this.serverFiles.length
+        const res = await this.$axios.post(this.$consts.API.FILE.EXPORT, {
+          type: 'file_data_clean',
+          filenames: isAll ? [] : this.selectedFilenames,
+          all: isAll
+        })
+        let data = res.data
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data.trim())
+          } catch (e) {
+            this.$utils.error('無法解析回應的 JSON 字串:', data)
+          }
+        }
+        if (this.$utils.statusCheck(data.status)) {
+          this.notify(data.message || `成功清理 ${count} 個後端檔案！`, { type: 'success', title: '清理檔案' })
+          const deletedSet = new Set(data.deleted_files || this.selectedFilenames)
+          this.links = this.links.filter(link => !deletedSet.has(link.filename))
+
+          await this.fetchServerFiles()
+          this.hasServerFiles = this.serverFiles.length > 0
+          if (this.serverFiles.length === 0) {
+            this.$bvModal.hide('export-data-clean-modal')
+          }
+        } else {
+          this.warning(data.message || '清理失敗', { title: '清理檔案' })
+        }
+      } catch (err) {
+        this.$utils.error(err)
+        this.warning(`清理後端檔案發生錯誤: ${err.message || err}`, { title: '清理檔案' })
+      } finally {
+        this.clearing = false
+      }
+    },
+    async deleteFile (link, idx) {
+      if (this.clearing || this.working) { return }
+      const confirmed = await this.confirm(`確定刪除後端檔案【${link.filename}】？`)
+      if (!confirmed) { return }
+
+      this.clearing = true
+      try {
+        const res = await this.$axios.post(this.$consts.API.FILE.EXPORT, {
+          type: 'file_data_clean',
+          filenames: [link.filename]
+        })
+        let data = res.data
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data.trim())
+          } catch (e) {
+            this.$utils.error('無法解析回應的 JSON 字串:', data)
+          }
+        }
+        if (this.$utils.statusCheck(data.status)) {
+          this.notify(`已刪除 ${link.filename}`, { type: 'success', title: '刪除檔案' })
+          this.links.splice(idx, 1)
+        } else {
+          this.warning(data.message || '刪除失敗', { title: '刪除檔案' })
+        }
+      } catch (err) {
+        this.$utils.error(err)
+        this.warning(`刪除檔案失敗: ${err.message || err}`)
+      } finally {
+        this.clearing = false
       }
     }
   }
@@ -295,8 +718,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.download-links-container {
-  max-height: 240px;
+.clean-modal-files-list {
+  max-height: 380px;
   overflow-y: auto;
 }
 </style>
