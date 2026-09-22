@@ -1,18 +1,18 @@
 <template lang="pug">
-b-card.border-secondary
+b-card(:class="{ 'board-expanded': working || links.length > 0 }")
   template(#header)
     .d-flex.w-100.justify-content-between.align-items-center.mb-0
       h6.my-auto.font-weight-bolder
         lah-fa-icon(icon="road" size="lg") 輸出地籍資料
       b-button-group.align-middle(size="sm" v-if="!working")
-        lah-button.mr-1(
+        lah-button.border-0.mr-1(
           icon="layer-group",
           variant="outline-primary",
           @click="setPreset(['0182', '0184', '0142'])",
           v-b-popover.top.hover.focus="'中平市地重劃'",
           title="中平市地重劃"
         )
-        lah-button.mr-1(
+        lah-button.border-0.mr-1(
           icon="arrow-rotate-left",
           action="cycle-alt",
           variant="outline-secondary",
@@ -20,7 +20,7 @@ b-card.border-secondary
           title="重設",
           :disabled="tags.length === 0 && links.length === 0"
         )
-        lah-button.mr-1(
+        lah-button.border-0.mr-1(
           v-if="hasServerFiles",
           icon="trash-can",
           variant="outline-danger",
@@ -29,7 +29,7 @@ b-card.border-secondary
           title="清理後端已產出檔案",
           :disabled="working || clearing"
         )
-        lah-button(
+        lah-button.border-0(
           icon="question",
           variant="outline-success",
           v-b-modal.export-data-help-modal,

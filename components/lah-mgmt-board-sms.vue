@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card.border-info
+b-card(:class="{ 'board-expanded': isBusy }")
   //- 頂部標題與按鈕區
   template(#header)
     .d-flex.justify-content-between.align-items-center
@@ -103,7 +103,7 @@ b-card.border-info
 </template>
 
 <script>
-import _ from 'lodash';
+import _ from 'lodash'
 
 export default {
   name: 'LahMgmtBoardSms',

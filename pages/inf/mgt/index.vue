@@ -21,16 +21,16 @@ div(v-cloak)
 
   .d-flex
     .third-vw
-      lah-mgmt-board-export-data
-      lah-mgmt-board-search-reg-case.my-3
+      lah-mgmt-board-search-reg-case
       lah-mgmt-board-sync-reg-case.my-3
     .third-vw.mx-3
       lah-mgmt-board-search-fee-form
       lah-mgmt-board-fee-form-obsolete.my-3
     .third-vw
-      lah-mgmt-board-watchdog
+      lah-mgmt-board-watchdog.compact-board
+      lah-mgmt-board-export-data.my-3.compact-board
       //- 加入新實作的發送簡訊組件
-      lah-mgmt-board-sms.my-3
+      lah-mgmt-board-sms.my-3.compact-board
 </template>
 
 <script>
@@ -56,5 +56,51 @@ export default {
 <style lang="scss" scoped>
 .third-vw {
   width: calc(100vw / 3.1);
+}
+
+.compact-board {
+  position: relative;
+  min-height: 140px;
+  max-height: 140px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: max-height 0.4s ease-in-out, box-shadow 0.3s ease;
+
+  // 向下展開提示列
+  &::after {
+    content: '▾ 向下展開';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #6c757d;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(245, 247, 250, 0.85) 35%, rgba(233, 236, 239, 0.98) 100%);
+    border-top: 1px dashed rgba(108, 117, 125, 0.25);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 2;
+  }
+
+  &:hover,
+  &:focus-within,
+  &.board-expanded {
+    max-height: 800px;
+    overflow-y: auto;
+    cursor: default;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    &::after {
+      opacity: 0;
+      transform: translateY(100%);
+      pointer-events: none;
+    }
+  }
 }
 </style>

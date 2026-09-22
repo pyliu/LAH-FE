@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card
+b-card(:class="{ 'board-expanded': hasFoundCases }")
   template(#header)
     .d-flex.align-items-center
       lah-fa-icon(icon="screwdriver-wrench", size="lg", variant="info") 快速檢測＆修正
@@ -166,9 +166,9 @@ b-card
 </template>
 
 <script>
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 import lahMgmtBoardCmcrdCheckVue from '~/components/lah-mgmt-board-cmcrd-check.vue'
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
 export default {
   components: { lahRegCaseDetailVue, lahAdmSmslogTableVue, lahMgmtBoardCmcrdCheckVue },
   data: () => ({
@@ -200,6 +200,9 @@ export default {
     },
     validSMSKeyword () {
       return this.smsKeyword?.length > 1
+    },
+    hasFoundCases () {
+      return this.foundRegCases || this.foundValCases || this.foundPaymentData || this.foundSurCases
     }
   },
   watch: {},
