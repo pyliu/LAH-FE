@@ -21,7 +21,8 @@ div(v-cloak)
 
   .d-flex
     .third-vw
-      lah-mgmt-board-search-reg-case
+      lah-mgmt-board-export-data
+      lah-mgmt-board-search-reg-case.my-3
       lah-mgmt-board-sync-reg-case.my-3
     .third-vw.mx-3
       lah-mgmt-board-search-fee-form
