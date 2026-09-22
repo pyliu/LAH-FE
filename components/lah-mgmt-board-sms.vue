@@ -47,11 +47,10 @@ b-card(:class="{ 'board-expanded': isBusy }")
           v-model="cell"
           type="tel"
           :state="cellState"
-          placeholder="請輸入10碼手機號碼"
+          placeholder="請輸入10碼手機號碼，例如：0912345678"
           maxlength="10"
         )
         b-form-invalid-feedback 手機號碼格式錯誤
-        b-form-text.text-muted 格式：09xxxxxxxx
       //- 傳送按鈕使用 ml-1 製造緊湊的 Gap
       lah-button.ml-1.text-nowrap(
         icon="paper-plane"

@@ -27,10 +27,14 @@ div(v-cloak)
       lah-mgmt-board-search-fee-form
       lah-mgmt-board-fee-form-obsolete.my-3
     .third-vw
-      lah-mgmt-board-watchdog.compact-board
-      lah-mgmt-board-export-data.my-3.compact-board
       //- 加入新實作的發送簡訊組件
-      lah-mgmt-board-sms.my-3.compact-board
+      lah-mgmt-board-sms.compact-board
+      //- 使用者查詢組件
+      lah-mgmt-board-user-query.my-3
+      //- 轄區段別資料查詢組件
+      lah-mgmt-board-sect-query.my-3
+      lah-mgmt-board-export-data.my-3
+      lah-mgmt-board-watchdog.compact-board
 </template>
 
 <script>
@@ -58,10 +62,11 @@ export default {
   width: calc(100vw / 3.1);
 }
 
-.compact-board {
+.compact-board,
+.compact-card {
   position: relative;
-  min-height: 140px;
-  max-height: 140px;
+  min-height: 180px;
+  max-height: 180px;
   overflow: hidden;
   cursor: pointer;
   // 移出收合時延遲 0.5s 觸發
