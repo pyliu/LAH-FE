@@ -40,17 +40,17 @@ div(v-cloak)
       lah-mgmt-board-pid-query
     .third-vw.mx-3
       .section-title
-        lah-fa-icon(icon="file-invoice-dollar", variant="secondary") 規費與資料工具
-      lah-mgmt-board-fee-form-obsolete
-      //- 轄區段別資料查詢組件
-      lah-mgmt-board-sect-query.mt-3
+        lah-fa-icon(icon="file-invoice-dollar", variant="secondary") 規費作廢與簡訊
+      //- 發送簡訊組件
+      lah-mgmt-board-sms.compact-board
+      lah-mgmt-board-fee-form-obsolete.mt-3
     .third-vw
       .section-title
         lah-fa-icon(icon="screwdriver-wrench", variant="secondary") 系統工具
-      //- 發送簡訊組件
-      lah-mgmt-board-sms.compact-board
-      lah-mgmt-board-export-data.my-3
       lah-mgmt-board-watchdog.compact-board
+      //- 轄區段別資料查詢組件
+      lah-mgmt-board-sect-query.my-3
+      lah-mgmt-board-export-data
 </template>
 
 <script>

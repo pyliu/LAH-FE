@@ -9,7 +9,12 @@ b-card(border-variant="secondary")
           :action="dataReady ? 'breath' : 'swim'",
           size="lg"
         ) 搜尋登記案件
-      a.text-primary.font-weight-bold(v-if="dataReady", href="#", @click="detail", title="顯示案件詳情") {{ $utils.caseId(caseId) }}
+      a.text-primary.font-weight-bold.ml-2(
+        v-if="dataReady",
+        href="#",
+        @click.prevent="popupCase",
+        title="點擊開啟案件管理視窗"
+      ) {{ $utils.caseId(caseId) }}
       b-button-group.ml-auto(size="sm")
         b-checkbox(v-model="vertical", v-b-tooltip="'切換案件選擇介面橫豎顯示'", switch)
         lah-button(
@@ -41,58 +46,61 @@ b-card(border-variant="secondary")
     :vertical="vertical",
     @enter="search"
   )
-  lah-transition: .my-1(v-if="dataReady")
-    b-row
-      b-col 登記原因：{{ crsmsData['登記原因'] }}
-      b-col 作業人員：{{ crsmsData['作業人員'] }}
-    b-row
-      b-col 辦理情形：{{ crsmsData['辦理情形'] }}
-      b-col
-        span 結案與否：
-        b(:class="crsmsData['結案與否'] === 'Y' ? ['text-success'] : ['text-danger']") {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
-    b-row
-      b-col 收件日期：{{ crsmsData['收件日期'] }}
-      b-col 結案日期：{{ crsmsData['結案日期'].split(' ')[0] }} {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
-    b-row
-      b-col(title="案件辦理情形簡訊接收號碼"): .d-flex.align-items-center.text-nowrap
-        //- lah-fa-icon.mr-1(
-        //-   v-if="!$utils.isMobileValid(crsmsData['手機號碼'])",
-        //-   icon="ban",
-        //-   variant="danger",
-        //-   title="非有效之電話號碼"
-        //- )
-        lah-fa-icon(
-          icon="mobile-screen",
-          append,
-          :variant="cellPhoneEmpty ? 'danger' : 'success'"
-        )
-          span(v-if="cellPhoneEmpty") 手機號碼：[未輸入]
-          b-link(
-            v-else="cellPhoneEmpty",
-            @click="popupSMSLog(crsmsData['手機號碼'])",
-            :title="`根據${crsmsData['手機號碼']}搜尋簡訊紀錄`"
-          ) 手機號碼：{{ crsmsData['手機號碼'] }}
-      b-col
-        lah-fa-icon(
-          v-if="cellPhoneEmpty",
-          icon="triangle-exclamation",
-          variant="warning"
-        ) 本案可能無法傳送辦理情形簡訊
-    b-row.danger-border.my-2(v-if="isChangeWrong")
-      b-col
-        lah-mgmt-board-reg-case-fix-RM39G(embed, :case-id="caseId", @update="search")
 
-  lah-transition: div(v-if="dataReady")
-    hr
-    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 案件狀態更新
-    lah-mgmt-board-reg-case-state(embed)
-    hr
-    .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 暫存檔
-    lah-mgmt-board-reg-case-tmp(embed)
+  //- 查詢後案件資訊與更新彈出視窗
+  b-modal(
+    ref="caseModal",
+    :title="modalTitle",
+    size="lg",
+    hide-footer,
+    scrollable
+  )
+    div(v-if="dataReady")
+      .border.rounded.p-3.mb-3.bg-light
+        b-row
+          b-col 登記原因：{{ crsmsData['登記原因'] }}
+          b-col 作業人員：{{ crsmsData['作業人員'] }}
+        b-row.my-1
+          b-col 辦理情形：{{ crsmsData['辦理情形'] }}
+          b-col
+            span 結案與否：
+            b(:class="crsmsData['結案與否'] === 'Y' ? ['text-success'] : ['text-danger']") {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
+        b-row
+          b-col 收件日期：{{ crsmsData['收件日期'] }}
+          b-col 結案日期：{{ (crsmsData['結案日期'] || '').split(' ')[0] }} {{ crsmsData['結案狀態'] }} ({{ crsmsData['結案與否'] }})
+        b-row.mt-1
+          b-col(title="案件辦理情形簡訊接收號碼"): .d-flex.align-items-center.text-nowrap
+            lah-fa-icon(
+              icon="mobile-screen",
+              append,
+              :variant="cellPhoneEmpty ? 'danger' : 'success'"
+            )
+              span(v-if="cellPhoneEmpty") 手機號碼：[未輸入]
+              b-link(
+                v-else,
+                @click="popupSMSLog(crsmsData['手機號碼'])",
+                :title="`根據${crsmsData['手機號碼']}搜尋簡訊紀錄`"
+              ) 手機號碼：{{ crsmsData['手機號碼'] }}
+          b-col
+            lah-fa-icon(
+              v-if="cellPhoneEmpty",
+              icon="triangle-exclamation",
+              variant="warning"
+            ) 本案可能無法傳送辦理情形簡訊
+        b-row.danger-border.my-2(v-if="isChangeWrong")
+          b-col
+            lah-mgmt-board-reg-case-fix-RM39G(embed, :case-id="caseId", @update="search")
+
+      .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 案件狀態更新
+      lah-mgmt-board-reg-case-state(embed)
+      hr
+      .my-1: lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 暫存檔
+      lah-mgmt-board-reg-case-tmp(embed)
 
   template(#footer)
     .d-flex.justify-content-center
       lah-button(v-if="dataReady", icon="window-restore", variant="outline-success", @click="detail", pill) 詳情
+      lah-button.ml-1(v-if="dataReady", icon="edit", variant="outline-primary", @click="popupCase", pill) 案件管理
       lah-button(v-else, icon="search", @click="search", :disabled="!validCaseId", pill) 查詢
       lah-button.ml-1(v-if="dataReady", icon="arrows-rotate", :disabled="!validCaseId", action="spin", @click="search", pill) 重新讀取
       lah-button.ml-1(v-if="dataReady && stateButton", icon="floppy-disk", variant="outline-primary", @click="popupState", pill) 調整狀態
@@ -152,6 +160,12 @@ export default {
     },
     changeWrongMessage () {
       return this.crsmsData['異動訊息'] || this.crsmsData?.RM38 || ''
+    },
+    modalTitle () {
+      if (!this.dataReady) {
+        return '登記案件資料管理'
+      }
+      return `登記案件資料管理 【${this.$utils.caseId(this.caseId)}】`
     }
   },
   watch: {
@@ -179,6 +193,7 @@ export default {
       }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) {
           this.$store.commit('inf/crsmsData', data.baked)
+          this.popupCase()
         } else {
           this.alert(data.message, {
             title: '搜尋登記案件',
@@ -193,6 +208,12 @@ export default {
     },
     clearSearchData () {
       this.$store.commit('inf/crsmsData', undefined)
+      this.$refs.caseModal?.hide()
+    },
+    popupCase () {
+      this.$nextTick(() => {
+        this.$refs.caseModal?.show()
+      })
     },
     detail () {
       this.modal(this.$createElement(lahRegCaseDetailVue, {

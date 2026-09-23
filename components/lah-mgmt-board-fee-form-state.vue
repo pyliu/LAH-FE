@@ -60,7 +60,8 @@ b-card(
     div(v-if="dataReady"): lah-fee-state-mgmt(
       ref="stateMgmt",
       :expaa-data="expaaData",
-      :brief="embed"
+      :brief="embed",
+      :no-brief="noBrief"
     )
     h6.center(v-else-if="!embed"): lah-fa-icon(icon="triangle-exclamation", variant="warning") 請先搜尋規費！
 
@@ -75,7 +76,8 @@ import lahFeeDataDetailVue from './lah-fee-data-detail.vue';
 export default {
   components: { lahFeeDataDetailVue },
   props: {
-    embed: { type: Boolean, default: false }
+    embed: { type: Boolean, default: false },
+    noBrief: { type: Boolean, default: false }
   },
   data: () => ({
   }),

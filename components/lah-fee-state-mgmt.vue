@@ -1,6 +1,6 @@
 <template lang="pug">
 b-card.border-0(no-body)
-  .d-flex.justify-content-end.align-items-top.mb-2
+  .d-flex.justify-content-end.align-items-top.mb-2(v-if="!noBrief")
     b-collapse.w-100.mr-auto(v-model="briefOpen")
       b-row
         b-col 電腦給號：{{ expaaData.AA04 }}
@@ -103,7 +103,8 @@ export default {
     expaaData: { type: Object, default: () => ({}) },
     noConfirm: { type: Boolean, default: false },
     vertical: { type: Boolean, default: true },
-    brief: { type: Boolean, default: false }
+    brief: { type: Boolean, default: false },
+    noBrief: { type: Boolean, default: false }
   },
   data: () => ({
     briefOpen: false,

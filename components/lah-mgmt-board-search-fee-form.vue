@@ -77,49 +77,68 @@ b-card(border-variant="info")
         @change="clearSearchData",
         @keyup.enter="search"
       )
-  //- lah-transition: div(v-if="dataReady")
-  //-   b-row.my-1
-  //-     b-col 結帳日期：{{ expaaData.AA01 }}
-  //-     b-col 作業人員：{{ userNames[expaaData.AA39] }}
-  //-   b-row
-  //-     b-col 收費方式：{{ expaaData.AA100_CHT }}
-  //-     b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }}元
-  lah-transition: div(v-if="dataReady")
-    hr
-    .d-flex.align-items-center.my-1
-      lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
-      lah-button.ml-1.border-0(
-       icon="download",
-        variant="outline-success",
-        @click="$refs.formState?.reloadPaymentList()"
-        no-icon-gutter,
-        title="重新讀取「付款方式」清單",
-        size="sm",
-        v-b-tooltip
+
+  //- 查詢後更新顯示內容彈出視窗
+  b-modal(
+    ref="updateModal",
+    :title="modalTitle",
+    size="lg",
+    hide-footer,
+    scrollable
+  )
+    div(v-if="dataReady")
+      .border.rounded.p-3.mb-3.bg-light
+        b-row
+          b-col 電腦給號：{{ expaaData.AA04 }}
+          b-col 收據編號：{{ expaaData.AA05 }}
+        b-row.my-1
+          b-col 結帳日期：{{ expaaData.AA01 }}
+          b-col 作業人員：{{ operator }}
+        b-row
+          b-col 收費方式：{{ expaaData.AA100_CHT }}
+          b-col 實收金額：{{ $utils.addMoneyComma(expaaData.AA28) }} 元
+        b-row.mt-1
+          b-col
+            span 收據狀態：
+            b(:class="expaaData.AA08 === '1' ? 'text-success' : 'text-danger'") {{ expaaData.AA08 === '1' ? '正常 (1)' : '作廢 (0)' }}
+          b-col
+            span 列印註記：
+            span {{ expaaData.AA09 === '1' ? '已印 (1)' : '未印 (0)' }}
+      .d-flex.align-items-center.my-1
+        lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
+        lah-button.ml-1.border-0(
+          icon="download",
+          variant="outline-success",
+          @click="$refs.formState?.reloadPaymentList()",
+          no-icon-gutter,
+          title="重新讀取「付款方式」清單",
+          size="sm",
+          v-b-tooltip
+        )
+      lah-mgmt-board-fee-form-state.mt-n1(
+        ref="formState",
+        embed,
+        no-brief
       )
-    lah-mgmt-board-fee-form-state.mt-n1(
-      ref="formState",
-      embed
-    )
-    hr
-    .d-flex.align-items-center.my-1
-      lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
-      lah-button.ml-1.border-0(
-       icon="download",
-        variant="outline-success",
-        @click="$refs.paymentItems?.prepareExpeList(true)"
-        no-icon-gutter,
-        title="重新讀取「收費項目」清單",
-        size="sm",
-        v-b-tooltip
+      hr
+      .d-flex.align-items-center.my-1
+        lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
+        lah-button.ml-1.border-0(
+          icon="download",
+          variant="outline-success",
+          @click="$refs.paymentItems?.prepareExpeList(true)",
+          no-icon-gutter,
+          title="重新讀取「收費項目」清單",
+          size="sm",
+          v-b-tooltip
+        )
+      lah-mgmt-board-fee-form-payment-items(
+        ref="paymentItems",
+        embed
       )
-    lah-mgmt-board-fee-form-payment-items(
-      ref="paymentItems",
-      embed
-    )
 
   template(#footer)
-    .d-flex.justify-content-center.align-items.center
+    .d-flex.justify-content-center.align-items-center
       lah-button(
         v-if="dataReady",
         icon="window-restore",
@@ -127,6 +146,13 @@ b-card(border-variant="info")
         @click="detail",
         pill
       ) 詳情
+      lah-button.ml-1(
+        v-if="dataReady",
+        icon="edit",
+        variant="outline-primary",
+        @click="popupUpdate",
+        pill
+      ) 更新資料 ({{ expaaData.AA04 }} - {{ expaaData.AA05 }})
       lah-button.text-nowrap(
         v-else
         icon="search",
@@ -201,6 +227,18 @@ export default {
         return this.searchVal.length < 8
       }
       return this.searchVal.length < 11
+    },
+    modalTitle () {
+      if (!this.dataReady) {
+        return '規費資料更新'
+      }
+      return `規費資料更新 【${this.expaaData.AA04} - ${this.expaaData.AA05}】`
+    },
+    operator () {
+      const code = this.expaaData?.AA39
+      if (!code) { return '' }
+      const name = this.userNames?.[code]
+      return name ? `${name} (${code})` : code
     }
   },
   watch: {
@@ -299,6 +337,7 @@ export default {
           if (Array.isArray(data.raw) && data.raw.length > 0) {
             this.$store.commit('inf/expaaData', data.raw[0])
             this.$store.commit('inf/bakedExpaaData', data.baked)
+            this.popupUpdate()
           } else {
             this.warning(`${this.searchYear} - ${this.searchVal}`, { title: '找不到規費資料' })
             this.$utils.warn('API returned', data.raw)
@@ -317,6 +356,12 @@ export default {
     clearSearchData () {
       this.$store.commit('inf/expaaData', undefined)
       this.$store.commit('inf/bakedExpaaData', undefined)
+      this.$refs.updateModal?.hide()
+    },
+    popupUpdate () {
+      this.$nextTick(() => {
+        this.$refs.updateModal?.show()
+      })
     },
     detail () {
       this.modal(this.$createElement(lahFeeDataDetailVue, {
@@ -330,13 +375,13 @@ export default {
     },
     popupState () {
       this.modal(this.$createElement(lahMgmtBoardFeeFormStateVue), {
-        title: `登記案件狀態管理 ${this.$utils.caseId(this.caseId)}`,
+        title: `規費狀態管理 ${this.expaaData?.AA04 || ''} - ${this.expaaData?.AA05 || ''}`,
         size: 'md'
       })
     },
     popupPayment () {
       this.modal(this.$createElement(lahMgmtBoardFeeFormPaymentItemsVue), {
-        title: `登記案件暫存檔管理 ${this.$utils.caseId(this.caseId)}`,
+        title: `規費收費項目管理 ${this.expaaData?.AA04 || ''} - ${this.expaaData?.AA05 || ''}`,
         size: 'md'
       })
     }
