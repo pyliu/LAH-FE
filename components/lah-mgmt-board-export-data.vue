@@ -592,10 +592,29 @@ export default {
   },
   methods: {
     validator (tag) {
-      return (/^\d{3,4}$/i).test(tag?.trim())
+      const trimmed = (tag || '').trim()
+      if (!/^\d{1,4}$/.test(trimmed)) {
+        return false
+      }
+      if (this.sections.length > 0) {
+        return this.isSectionInOffice(trimmed)
+      }
+      return true
+    },
+    isSectionInOffice (code) {
+      if (!code || this.sections.length === 0) {
+        return false
+      }
+      const trimmed = String(code).trim()
+      const padded = trimmed.padStart(4, '0')
+      return this.sections.some(s => s.段代碼 === padded || s.段代碼 === trimmed)
     },
     setPreset (presetTags) {
-      this.tags = [...presetTags]
+      if (this.sections.length > 0) {
+        this.tags = presetTags.filter(code => this.isSectionInOffice(code))
+      } else {
+        this.tags = [...presetTags]
+      }
     },
     clean () {
       this.tags = []
@@ -616,21 +635,46 @@ export default {
         this.tags.splice(idx, 1)
       }
     },
-    addTagFromInput () {
+    async addTagFromInput () {
       const val = (this.inputTag || '').trim()
       if (!val) { return }
+      if (this.sections.length === 0) {
+        await this.loadSections()
+      }
       const parts = val.split(/[\s,;]+/).filter(Boolean)
       let addedCount = 0
+      const notInOffice = []
+      const invalidFormat = []
+      const alreadyExist = []
+
       parts.forEach((p) => {
-        if (this.validator(p) && !this.tags.includes(p)) {
-          this.tags.push(p)
-          addedCount++
+        const trimmed = p.trim()
+        if (!/^\d{1,4}$/.test(trimmed)) {
+          invalidFormat.push(trimmed)
+          return
         }
+        const code = trimmed.padStart(4, '0')
+        if (this.sections.length > 0 && !this.isSectionInOffice(code)) {
+          notInOffice.push(trimmed)
+          return
+        }
+        if (this.tags.includes(code)) {
+          alreadyExist.push(code)
+          return
+        }
+        this.tags.push(code)
+        addedCount++
       })
+
       if (addedCount > 0) {
         this.inputTag = ''
-      } else if (parts.some(p => !this.validator(p))) {
-        this.warning('段代碼格式須為 3~4 碼數字 (例: 0001)')
+      }
+      if (invalidFormat.length > 0) {
+        this.warning(`【${invalidFormat.join(', ')}】段代碼格式錯誤（須為 4 碼以內數字）`, { title: '段代碼檢核' })
+      } else if (notInOffice.length > 0) {
+        this.warning(`【${notInOffice.join(', ')}】非本所轄區段代碼，未予加入！`, { title: '段代碼檢核' })
+      } else if (alreadyExist.length > 0 && addedCount === 0) {
+        this.warning(`【${alreadyExist.join(', ')}】已在選取清單中`, { title: '段代碼檢核' })
       }
     },
     async go () {
