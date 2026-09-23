@@ -197,7 +197,7 @@ div.message-admin-page
                         :title="`${user.id} - ${user.name} (${user.ip})`"
                       )
                         lah-avatar(:id="user.id" size="1.1rem" ignore-system-config).mr-1
-                        span.s-90 {{ userNames[user.id] || user.name || user.id }}
+                        span.s-90 {{ (userNames && userNames[user.id]) || user.name || user.id }}
 
             //- 已選目標標籤匯總
             .d-flex.flex-wrap.align-items-center.mt-2.pt-2.border-top(v-if="totalSelectedCount > 0")
@@ -226,9 +226,9 @@ div.message-admin-page
                 variant="success"
                 pill
                 @click="toggleUser(uid)"
-                :title="`點擊移除 ${userNames[uid] || uid} 私訊`"
+                :title="`點擊移除 ${(userNames && userNames[uid]) || uid} 私訊`"
               )
-                | 👤 {{ userNames[uid] || uid }} ✕
+                | 👤 {{ (userNames && userNames[uid]) || uid }} ✕
 
           //- 2. 標題/主旨輸入 (選填)
           .mb-3
@@ -405,7 +405,7 @@ div.message-admin-page
               :key="`top-avatar-${member.id}-${idx}`"
               :src="getAvatarSrc(member.id)"
               size="1.6rem"
-              :title="`${userNames[member.id] || member.name} (${member.id})`"
+              :title="`${(userNames && userNames[member.id]) || member.name} (${member.id})`"
             )
             span.small.text-muted.ml-1(v-if="targetActiveAvatars.length > 7") +{{ targetActiveAvatars.length - 7 }}
 
@@ -769,7 +769,7 @@ export default {
       }
       if (this.selectedChannels.length === 0 && this.selectedUsers.length === 1) {
         const uid = this.selectedUsers[0]
-        return `${this.userNames[uid] || uid} (個人私訊)`
+        return `${(this.userNames && this.userNames[uid]) || uid} (個人私訊)`
       }
       return `多重目標 (${this.totalSelectedCount} 個頻道/同仁)`
     },
@@ -810,7 +810,7 @@ export default {
         map[dept.code] = this.candidatesEntries.filter((e) => {
           if (e.dept !== dept.code) { return false }
           if (!kw) { return true }
-          const userName = this.userNames[e.id] || e.name || ''
+          const userName = (this.userNames && this.userNames[e.id]) || e.name || ''
           return e.id.toLowerCase().includes(kw) || userName.toLowerCase().includes(kw) || (e.ip || '').includes(kw)
         })
       })
@@ -915,7 +915,7 @@ export default {
         case 'lds':
         case 'all': return '全所同仁'
         case 'myself': return '我自己'
-        default: return this.userNames[code] || code
+        default: return (this.userNames && this.userNames[code]) || code
       }
     },
     getDeptVariant (code) {
@@ -924,6 +924,16 @@ export default {
       if (code === 'lds' || code === 'all') { return 'danger' }
       if (code === 'myself') { return 'primary' }
       return 'secondary'
+    },
+    getPriorityBadgeVariant (priority) {
+      const p = parseInt(priority)
+      switch (p) {
+        case 0: return 'danger'
+        case 1: return 'warning'
+        case 2: return 'info'
+        case 3:
+        default: return 'secondary'
+      }
     },
     getChannelDisplayName (ch) {
       return this.getDeptName(ch)

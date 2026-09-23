@@ -51,7 +51,7 @@
         @click="remove"
       )
       b-icon.clickableIcon(
-        v-if="!isAnnouncement && !myMessage && userMap[senderId]"
+        v-if="!isAnnouncement && !myMessage && userNames && userNames[senderId]"
         icon="reply-fill"
         title="回覆此訊息"
         font-scale="1.5"
@@ -110,7 +110,7 @@ export default {
     type () { return this.json?.type },
     message () { return this.$utils.emojify(this.json?.message) },
     senderId () { return this.json?.sender },
-    sender () { return this.userMap[this.senderId] || this.senderId },
+    sender () { return (this.userNames && this.userNames[this.senderId]) || this.senderId },
     from () { return this.json?.ip },
     mtime () { return this.json?.time },
     timeDistance () { return this.$utils.formatDistanceToNow(+new Date(`${this.json.date} ${this.json.time}`)) },

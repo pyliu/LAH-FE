@@ -110,7 +110,7 @@ export default {
       }
       return this.empty(this.message) && this.empty(this.images)
     },
-    toName () { return this.userMap[this.to] || this.to },
+    toName () { return (this.userNames && this.userNames[this.to]) || this.to },
     isAnnouncementChannel () { return this.currentChannel.startsWith('announcement') },
     modalTitle () { return `傳送圖片${this.isAnnouncementChannel ? `到 ${this.currentChannelName}` : `給 ${this.toName}`}` },
     mergedMessage () {
