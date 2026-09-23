@@ -203,17 +203,26 @@ b-card(border-variant="info")
           span.font-weight-bold.ml-1 【{{ currentCategoryLabel }}】
           span.text-muted.small.ml-1 共 {{ currentList.length }} 筆 (實收 ${{ $utils.addMoneyComma(currentCategoryMoney) }} 元)
 
-        //- 表格分頁切換按鈕（置於表格上方控制列）
-        b-pagination.mb-0.my-1.mx-2(
-          v-if="viewMode === 'table' && currentList.length > perPage",
-          v-model="currentPage",
-          :total-rows="currentList.length",
-          :per-page="perPage",
-          size="sm",
-          first-number,
-          last-number,
-          align="center"
-        )
+        //- 表格分頁切換按鈕與每頁筆數設定（置於表格上方控制列）
+        .d-flex.align-items-center.my-1.mx-2(v-if="viewMode === 'table' && currentList.length > 0")
+          b-pagination.mb-0(
+            v-if="currentList.length > perPage",
+            v-model="currentPage",
+            :total-rows="currentList.length",
+            :per-page="perPage",
+            size="sm",
+            first-number,
+            last-number,
+            align="center"
+          )
+          b-form-select(
+            v-model="perPage",
+            :options="perPageOptions",
+            :class="{ 'ml-2': currentList.length > perPage }",
+            size="sm",
+            style="width: 105px;",
+            title="調整每頁顯示筆數"
+          )
 
         .d-flex.align-items-center.my-1
           b-input-group(size="sm", style="width: 200px;")
@@ -290,6 +299,24 @@ b-card(border-variant="info")
             ) {{ item.AA04 }}
           template(#cell(AA28)="{ value }")
             span.font-weight-bold.text-info ${{ $utils.addMoneyComma(value) }}
+          template(#cell(AA100_CHT)="{ item }")
+            .payment-select-container
+              b-form-select.payment-select(
+                :key="`pay_${item.AA04}_${item._payTrigger || ''}`",
+                :value="getPaymentValue(item)",
+                :options="paymentOptions",
+                size="sm",
+                :disabled="isUpdatingAA100(item)",
+                :class="paymentSelectClass(item)",
+                @change="onPaymentChange(item, $event)",
+                :title="`點擊快速切換收據【${item.AA05}】之付款方式`"
+              )
+              lah-fa-icon.payment-spinner(
+                v-if="isUpdatingAA100(item)",
+                icon="spinner",
+                action="spin",
+                size="sm"
+              )
           template(#cell(AA09)="{ item }")
             b-button.print-status-btn(
               :variant="String(item.AA09) === '1' ? 'success' : 'danger'",
@@ -306,8 +333,22 @@ b-card(border-variant="info")
                 size="sm"
               )
               span(v-else) {{ String(item.AA09) === '1' ? '已印' : '未印' }}
-          template(#cell(AA08)="{ value, item }")
-            b-badge(:variant="value === '1' && $utils.empty(item.AA02) ? 'success' : 'secondary'", pill) {{ value === '1' && $utils.empty(item.AA02) ? '正常' : '作廢' }}
+          template(#cell(AA08)="{ item }")
+            b-button.status-btn(
+              :variant="isItemNormal(item) ? 'success' : 'secondary'",
+              size="sm",
+              pill,
+              :disabled="isUpdatingAA08(item)",
+              @click="toggleAA08(item)",
+              :title="`點擊將收據【${item.AA05}】狀況切換為【${isItemNormal(item) ? '作廢' : '正常'}】`"
+            )
+              lah-fa-icon(
+                v-if="isUpdatingAA08(item)",
+                icon="spinner",
+                action="spin",
+                size="sm"
+              )
+              span(v-else) {{ isItemNormal(item) ? '正常' : '作廢' }}
           template(#cell(AA39)="{ value }")
             b-link.font-weight-bold(
               v-if="!$utils.empty(value)",
@@ -344,7 +385,7 @@ b-card(border-variant="info")
       .d-flex.justify-content-between.align-items-center.pt-2.border-top
         small.text-muted
           lah-fa-icon.mr-1(icon="circle-info", variant="info")
-          | 點選單據按鈕可開啟詳情彈跳視窗；點選「列印」狀態標籤可快速變更已印／未印。
+          | 點選單據按鈕可開啟詳情彈跳視窗；點選「付款方式」、「列印」或「狀況」標籤可快速切換狀態（作廢需嚴格輸入原因）。
         b-button(
           variant="secondary",
           size="sm",
@@ -451,6 +492,72 @@ b-card(border-variant="info")
           @click="$refs.editModal.hide()"
         ) 關閉
 
+  //- 4. 單據作廢原因輸入彈出視窗
+  b-modal(
+    ref="obsoleteModal",
+    title="規費單據作廢確認",
+    hide-footer,
+    centered
+  )
+    template(#default="{ hide }")
+      .mb-2(v-if="obsoleteTargetItem")
+        b-alert(show, variant="warning")
+          lah-fa-icon.mr-1(icon="triangle-exclamation", variant="danger")
+          strong 警告：即將將此單據狀況變更為【作廢】，請務必輸入作廢原因！
+        .border.rounded.p-2.bg-light.mb-3.small
+          .row.mb-1
+            .col-6
+              span 電腦給號：
+              strong {{ obsoleteTargetItem.AA04 }}
+            .col-6
+              span 序號：
+              strong {{ obsoleteTargetItem.AA05 }}
+          .row.mb-1
+            .col-6
+              span 實收金額：
+              strong.text-info ${{ $utils.addMoneyComma(obsoleteTargetItem.AA28) }} 元
+            .col-6
+              span 付款方式：
+              strong {{ obsoleteTargetItem.AA100_CHT || '未知' }}
+          .row
+            .col-12
+              span 作業人員：
+              b-link.font-weight-bold(
+                v-if="obsoleteTargetItem.AA39 && obsoleteTargetItem.AA39 !== 'XXXXXXXX'",
+                @click="popupUserCard(obsoleteTargetItem.AA39)",
+                title="點擊開啟使用者卡片",
+                v-b-tooltip.hover="`點擊檢視 ${obsoleteTargetItemOperator} 卡片`"
+              )
+                lah-fa-icon(icon="user", size="sm")
+                span.ml-1 {{ obsoleteTargetItemOperator }}
+              strong(v-else) {{ obsoleteTargetItemOperator }}
+        b-form-group(
+          label="作廢原因（必填）：",
+          label-for="obsolete-reason-input",
+          description="請輸入具體作廢原因，此紀錄將寫入資料庫備查。",
+          :invalid-feedback="'必須輸入作廢原因（不可空白或僅有空白字元）'",
+          :state="obsoleteReasonState"
+        )
+          b-form-input#obsolete-reason-input(
+            ref="obsoleteInput",
+            v-model="obsoleteReasonInput",
+            placeholder="請輸入詳細作廢原因（例如：開單錯誤、民眾退費、重複開單...）",
+            :state="obsoleteReasonState",
+            trim,
+            autofocus,
+            @keydown.enter.prevent="handleObsoleteSubmit"
+          )
+        .d-flex.justify-content-end.mt-3.pt-2.border-top
+          b-button.mr-2(variant="outline-secondary", size="sm", @click="hide()") 取消
+          b-button(
+            variant="danger",
+            size="sm",
+            :disabled="!isObsoleteReasonValid",
+            @click="handleObsoleteSubmit"
+          )
+            lah-fa-icon.mr-1(icon="ban")
+            | 確定作廢
+
   template(#footer)
     .d-flex.justify-content-between.align-items-center.flex-wrap
       small.text-muted(v-if="dataReady")
@@ -493,10 +600,25 @@ export default {
     filterKeyword: '',
     viewMode: 'table', // 'table' | 'badges'
     currentPage: 1,
-    perPage: 12,
+    perPage: 10,
+    perPageOptions: [
+      { value: 10, text: '10 筆/頁' },
+      { value: 12, text: '12 筆/頁' },
+      { value: 15, text: '15 筆/頁' },
+      { value: 20, text: '20 筆/頁' },
+      { value: 30, text: '30 筆/頁' },
+      { value: 50, text: '50 筆/頁' },
+      { value: 100, text: '100 筆/頁' }
+    ],
     today: new Date(),
     currentEditItem: null,
     updatingAA09Map: {},
+    updatingAA08Map: {},
+    updatingAA100Map: {},
+    paymentOptExpk: [],
+    obsoleteTargetItem: null,
+    obsoleteReasonInput: '',
+    obsoleteReasonTouched: false,
     colsMapping: {
       AA01: '開單日期',
       AA04: '電腦給號',
@@ -565,6 +687,12 @@ export default {
     editItemOperator () {
       const code = this.currentEditItem?.AA39
       if (!code) { return '' }
+      const name = this.userNames?.[code]
+      return name ? `${name} (${code})` : code
+    },
+    obsoleteTargetItemOperator () {
+      const code = this.obsoleteTargetItem?.AA39
+      if (!code) { return '-' }
       const name = this.userNames?.[code]
       return name ? `${name} (${code})` : code
     },
@@ -637,6 +765,32 @@ export default {
       const found = this.categories.find(c => c.key === this.selectedCategory)
       return found ? found.money : 0
     },
+    paymentOptions () {
+      if (Array.isArray(this.paymentOptExpk) && this.paymentOptExpk.length > 0) {
+        return this.paymentOptExpk.map(item => ({
+          value: item.K01,
+          name: item.K02,
+          text: item.K02
+        }))
+      }
+      return [
+        { value: '1', name: '現金', text: '現金' },
+        { value: '2', name: '支票', text: '支票' },
+        { value: '3', name: '匯票', text: '匯票' },
+        { value: 'A', name: '悠遊卡', text: '悠遊卡' },
+        { value: 'B', name: '信用卡', text: '信用卡' },
+        { value: 'C', name: '行動支付', text: '行動支付' },
+        { value: 'D', name: '匯款', text: '匯款' },
+        { value: 'E', name: '定額匯票', text: '定額匯票' }
+      ]
+    },
+    isObsoleteReasonValid () {
+      return Boolean((this.obsoleteReasonInput || '').trim().length > 0)
+    },
+    obsoleteReasonState () {
+      if (this.isObsoleteReasonValid) { return true }
+      return this.obsoleteReasonTouched ? false : null
+    },
     currentList () {
       let list = this.rawList
       if (this.selectedCategory === 'cash') {
@@ -684,12 +838,16 @@ export default {
     },
     filterKeyword () {
       this.currentPage = 1
+    },
+    perPage () {
+      this.currentPage = 1
     }
   },
   created () {
     const now = new Date()
     this.dateObj = now
     this.queryDate = this.$utils.twDateStr(now)
+    this.loadPaymentOptions()
   },
   methods: {
     dateDisabled (ymd, date) {
@@ -935,6 +1093,214 @@ export default {
     },
     isUpdatingAA09 (item) {
       return Boolean(this.updatingAA09Map?.[item?.AA04])
+    },
+    isItemNormal (item) {
+      return String(item?.AA08) === '1' && this.$utils.empty(item?.AA02)
+    },
+    isUpdatingAA08 (item) {
+      return Boolean(this.updatingAA08Map?.[item?.AA04])
+    },
+    toggleAA08 (item) {
+      if (!item || this.isUpdatingAA08(item)) { return }
+      if (this.isItemNormal(item)) {
+        // 目前正常，欲切換為作廢：嚴格要求輸入作廢原因
+        this.obsoleteTargetItem = item
+        this.obsoleteReasonInput = ''
+        this.obsoleteReasonTouched = false
+        this.$nextTick(() => {
+          this.$refs.obsoleteModal?.show()
+        })
+      } else {
+        // 目前作廢，欲恢復為正常：彈出確認框
+        const aaNumber = item.AA05 || ''
+        const pcNumber = item.AA04 || ''
+        this.confirm(`確定要將收據【${aaNumber}】（電腦給號：${pcNumber}）之狀況由【作廢】恢復為【正常】？`).then((YN) => {
+          if (YN) {
+            this.executeRestoreAA08(item)
+          }
+        })
+      }
+    },
+    handleObsoleteSubmit () {
+      this.obsoleteReasonTouched = true
+      const reason = (this.obsoleteReasonInput || '').trim()
+      if (!reason) {
+        this.warning('必須輸入作廢原因才可作廢單據！', { title: '缺少作廢原因' })
+        return
+      }
+      const targetItem = this.obsoleteTargetItem
+      this.$refs.obsoleteModal?.hide()
+      if (targetItem) {
+        this.executeObsoleteAA08(targetItem, reason)
+      }
+    },
+    executeObsoleteAA08 (item, reason) {
+      this.$set(this.updatingAA08Map, item.AA04, true)
+      const day = item.AA01 || this.queryDate
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+        type: 'expaa_AA08_update',
+        date: day,
+        number: item.AA04,
+        update_value: '0'
+      }).then((res) => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          // 同步更新 AA104 (作廢原因)
+          this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+            type: 'expaa_AA104_update',
+            date: day,
+            number: item.AA04,
+            update_value: reason
+          }).catch((err) => {
+            this.$utils.error('更新作廢原因失敗', err)
+          })
+
+          this.success(`收據【${item.AA05}】已設定為【作廢】`, {
+            title: '作廢成功',
+            subtitle: item.AA05
+          })
+          this.$set(item, 'AA08', '0')
+          this.$set(item, 'AA104', reason)
+          if (this.currentEditItem && this.currentEditItem.AA04 === item.AA04) {
+            this.$set(this.currentEditItem, 'AA08', '0')
+            this.$set(this.currentEditItem, 'AA104', reason)
+          }
+        } else {
+          this.alert(res.data.message || '作廢失敗', {
+            title: '單據作廢失敗',
+            subtitle: item.AA05
+          })
+        }
+      }).catch((err) => {
+        this.alert(err.message || '更新單據狀況發生錯誤')
+        this.$utils.error(err)
+      }).finally(() => {
+        this.$delete(this.updatingAA08Map, item.AA04)
+      })
+    },
+    executeRestoreAA08 (item) {
+      this.$set(this.updatingAA08Map, item.AA04, true)
+      const day = item.AA01 || this.queryDate
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+        type: 'expaa_AA08_update',
+        date: day,
+        number: item.AA04,
+        update_value: '1'
+      }).then((res) => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          this.success(`收據【${item.AA05}】狀況已恢復為【正常】`, {
+            title: '恢復正常成功',
+            subtitle: item.AA05
+          })
+          this.$set(item, 'AA08', '1')
+          this.$set(item, 'AA02', '')
+          if (this.currentEditItem && this.currentEditItem.AA04 === item.AA04) {
+            this.$set(this.currentEditItem, 'AA08', '1')
+            this.$set(this.currentEditItem, 'AA02', '')
+          }
+        } else {
+          this.alert(res.data.message || '恢復失敗', {
+            title: '恢復單據狀況失敗',
+            subtitle: item.AA05
+          })
+        }
+      }).catch((err) => {
+        this.alert(err.message || '恢復單據狀況發生錯誤')
+        this.$utils.error(err)
+      }).finally(() => {
+        this.$delete(this.updatingAA08Map, item.AA04)
+      })
+    },
+    async loadPaymentOptions (forceRefresh = false) {
+      const cached = forceRefresh ? false : await this.getCache('moiexp.expk')
+      if (Array.isArray(cached) && cached.length > 0) {
+        this.paymentOptExpk = [...cached]
+      } else {
+        this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'expk'
+        }).then(({ data }) => {
+          if (Array.isArray(data?.raw) && data.raw.length > 0) {
+            this.paymentOptExpk = [...data.raw]
+            this.setCache('moiexp.expk', this.paymentOptExpk, 7 * 24 * 60 * 60 * 1000)
+          }
+        }).catch((err) => {
+          this.$utils.error('讀取付款方式清單失敗', err)
+        })
+      }
+    },
+    paymentVariant (cht) {
+      if (cht === '現金') { return 'success' }
+      if (cht === '悠遊卡') { return 'primary' }
+      if (['APPLE PAY', '安卓 PAY', '三星 PAY', '行動支付'].includes(cht)) { return 'danger' }
+      if (cht === '信用卡') { return 'warning' }
+      return 'secondary'
+    },
+    paymentSelectClass (item) {
+      const v = this.paymentVariant(item.AA100_CHT)
+      return `payment-select-${v}`
+    },
+    getPaymentValue (item) {
+      if (item?.AA100) {
+        return String(item.AA100)
+      }
+      const found = this.paymentOptions.find(opt => opt.name === item?.AA100_CHT)
+      return found ? String(found.value) : ''
+    },
+    isUpdatingAA100 (item) {
+      return Boolean(this.updatingAA100Map?.[item?.AA04])
+    },
+    onPaymentChange (item, newVal) {
+      if (!item || !newVal || this.isUpdatingAA100(item)) { return }
+      const currentVal = this.getPaymentValue(item)
+      if (String(currentVal) === String(newVal)) { return }
+
+      const opt = this.paymentOptions.find(o => String(o.value) === String(newVal))
+      const targetName = opt ? opt.name : newVal
+      const currentName = item.AA100_CHT || '未知'
+      const aaNumber = item.AA05 || ''
+      const pcNumber = item.AA04 || ''
+
+      this.confirm(`確定要將收據【${aaNumber}】（電腦給號：${pcNumber}）之付款方式由【${currentName}】修改為【${targetName}】？`).then((YN) => {
+        if (YN) {
+          this.executeAA100Update(item, newVal, targetName)
+        } else {
+          this.$set(item, '_payTrigger', Date.now())
+        }
+      })
+    },
+    executeAA100Update (item, newVal, targetName) {
+      this.$set(this.updatingAA100Map, item.AA04, true)
+      const day = item.AA01 || this.queryDate
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+        type: 'expaa_AA100_update',
+        date: day,
+        number: item.AA04,
+        update_value: newVal
+      }).then((res) => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          this.success(`收據【${item.AA05}】付款方式已更新為【${targetName}】`, {
+            title: '更新付款方式成功',
+            subtitle: item.AA05
+          })
+          this.$set(item, 'AA100', newVal)
+          this.$set(item, 'AA100_CHT', targetName)
+          if (this.currentEditItem && this.currentEditItem.AA04 === item.AA04) {
+            this.$set(this.currentEditItem, 'AA100', newVal)
+            this.$set(this.currentEditItem, 'AA100_CHT', targetName)
+          }
+        } else {
+          this.alert(res.data.message || '更新失敗', {
+            title: '修改付款方式失敗',
+            subtitle: item.AA05
+          })
+          this.$set(item, '_payTrigger', Date.now())
+        }
+      }).catch((err) => {
+        this.alert(err.message || '更新付款方式發生錯誤')
+        this.$utils.error(err)
+        this.$set(item, '_payTrigger', Date.now())
+      }).finally(() => {
+        this.$delete(this.updatingAA100Map, item.AA04)
+      })
     }
   }
 }
@@ -1005,7 +1371,8 @@ export default {
   letter-spacing: 0.5px;
 }
 
-.print-status-btn {
+.print-status-btn,
+.status-btn {
   padding: 0.15rem 0.55rem !important;
   font-size: 0.78rem !important;
   font-weight: 600 !important;
@@ -1024,5 +1391,68 @@ export default {
   &:active:not(:disabled) {
     transform: scale(0.95);
   }
+}
+
+.payment-select-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-select {
+  height: calc(1.5em + 0.35rem + 2px) !important;
+  padding: 0.1rem 1.3rem 0.1rem 0.45rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  border-radius: 50rem !important;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+  border-width: 1px;
+  width: auto !important;
+  min-width: 82px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    transform: scale(1.06);
+  }
+
+  &.payment-select-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-color: #a5d6a7;
+  }
+
+  &.payment-select-primary {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border-color: #90caf9;
+  }
+
+  &.payment-select-danger {
+    background-color: #ffebee;
+    color: #c62828;
+    border-color: #ef9a9a;
+  }
+
+  &.payment-select-warning {
+    background-color: #fff8e1;
+    color: #f57f17;
+    border-color: #ffe082;
+  }
+
+  &.payment-select-secondary {
+    background-color: #f5f5f5;
+    color: #616161;
+    border-color: #e0e0e0;
+  }
+}
+
+.payment-spinner {
+  position: absolute;
+  right: 6px;
+  pointer-events: none;
 }
 </style>
