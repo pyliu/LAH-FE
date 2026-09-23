@@ -138,7 +138,10 @@ export default {
         this.myMessage ? 'mine' : this.system ? 'system' : ''
       ]
     },
-    avatarSrc () { return `${this.apiQueryUrl}/get_user_img.php?id=${this.json?.sender}_avatar&name=${this.sender}_avatar` },
+    avatarSrc () {
+      const base = this.apiUrl || this.apiQueryUrl || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
+      return `${base}/get_user_img.php?id=${this.json?.sender}_avatar&name=${this.sender}_avatar`
+    },
     replyTitle () {
       const clean = this.message.replace(/(<([^>]+)>)/gi, '')
       return clean.replace(/%[A-F\d]{2}/g, 'U').length > 20 ? `${clean.substring(0, 20)} ... ` : clean

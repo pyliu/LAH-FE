@@ -939,7 +939,8 @@ export default {
       return this.getDeptName(ch)
     },
     getAvatarSrc (id) {
-      return `${this.apiQueryUrl}/get_user_img.php?id=${id}_avatar&name=${id}_avatar`
+      const base = this.apiUrl || this.apiQueryUrl || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
+      return `${base}/get_user_img.php?id=${id}_avatar&name=${id}_avatar`
     },
     isChannelSelected (code) {
       return this.selectedChannels.includes(code)
