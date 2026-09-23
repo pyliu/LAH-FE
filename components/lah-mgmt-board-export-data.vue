@@ -362,25 +362,30 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
       b-progress-bar(:value="iteration" :label="progressPercent")
 
   //- 段代碼輸入區
-  b-input-group(size="sm" prepend="段代碼" v-if="!working")
-    b-form-tags(
-      input-id="tags-section"
-      v-model="tags"
-      separator=" ,;"
-      class="no-cache"
-      remove-on-delete
-      tag-variant="primary"
-      tag-pills
-      :tag-validator="validator"
-      placeholder="輸入段代碼後 Enter 新增 (例: 0001)"
+  b-input-group.input-group-height-hack(size="sm", prepend="段代碼", v-if="!working")
+    b-form-input.no-cache(
+      v-model="inputTag",
+      :placeholder="inputPlaceholder",
+      @keyup.enter="addTagFromInput",
+      title="輸入段代碼後按 Enter 新增，或點右側「選取」按鈕開啟清單",
+      style="height: 33px;"
     )
     template(#append)
+      lah-button(
+        v-if="inputTag",
+        icon="xmark",
+        variant="outline-secondary",
+        @click="inputTag = ''",
+        title="清除輸入文字"
+      )
       lah-button(
         icon="list-check",
         variant="outline-success",
         @click="openSectSelectModal",
         title="開啟轄區段別選取視窗"
-      ) 選取
+      )
+        span(v-if="tags.length > 0") 選取 ({{ tags.length }})
+        span(v-else) 選取
       lah-button(
         icon="file-export",
         action="move-fade-ltr",
@@ -389,6 +394,34 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
         title="執行產製",
         :disabled="disabled"
       ) 執行
+
+  //- 已選段代碼標籤管理區
+  .mt-2(v-if="tags.length > 0 && !working")
+    .d-flex.justify-content-between.align-items-center.mb-1
+      small.text-muted
+        lah-fa-icon(icon="tags")
+        span.ml-1.font-weight-bold 已選段代碼 (共 {{ tags.length }} 個)：
+      .d-flex.align-items-center
+        b-link.small.mr-2(v-if="tags.length > 6", @click="tagsExpanded = !tagsExpanded")
+          span(v-if="tagsExpanded") 收合 ▲
+          span(v-else) 展開全部 ({{ tags.length }}) ▼
+        b-link.small.text-danger(@click="cleanTags", title="清空所有已選段代碼") 清空
+    .tags-display-container.p-2.rounded.border.bg-light(:class="{ 'tags-scrollable': tagsExpanded, 'tags-collapsed': !tagsExpanded && tags.length > 6 }")
+      b-badge.mr-1.mb-1.p-1.px-2.d-inline-flex.align-items-center(
+        v-for="tag in displayedTags",
+        :key="'tag_' + tag",
+        variant="primary",
+        pill
+      )
+        span {{ getSectBadgeText(tag) }}
+        b-link.text-white.ml-1(@click.stop="removeTag(tag)", title="移除"): lah-fa-icon(icon="xmark")
+      b-badge.mr-1.mb-1.p-1.px-2.d-inline-flex.align-items-center.cursor-pointer(
+        v-if="!tagsExpanded && tags.length > 6",
+        variant="secondary",
+        pill,
+        @click="tagsExpanded = true",
+        title="點擊展開所有已選段代碼"
+      ) +{{ tags.length - 6 }} 個段別...
 
   //- 產製結果下載清單
   .mt-3(v-if="links.length > 0")
@@ -470,6 +503,8 @@ export default {
     selectedFilenames: [],
     loadingServerFiles: false,
     modalZipping: false,
+    inputTag: '',
+    tagsExpanded: false,
     sections: [],
     loadingSections: false,
     selectedSectCodes: [],
@@ -537,10 +572,23 @@ export default {
         .filter(s => codeSet.has(s.段代碼))
         .reduce((acc, cur) => acc + (parseInt(cur.土地標示部筆數, 10) || 0), 0)
       return this.format(sum)
+    },
+    inputPlaceholder () {
+      if (this.tags.length === 0) {
+        return '輸入段代碼後 Enter 新增 (例: 0001)'
+      }
+      return `已選 ${this.tags.length} 個段別 (輸入後 Enter 可再新增)`
+    },
+    displayedTags () {
+      if (this.tagsExpanded || this.tags.length <= 6) {
+        return this.tags
+      }
+      return this.tags.slice(0, 6)
     }
   },
   mounted () {
     this.checkServerFiles()
+    this.loadSections()
   },
   methods: {
     validator (tag) {
@@ -554,6 +602,36 @@ export default {
       this.links = []
       this.iteration = 0
       this.currentTask = ''
+      this.inputTag = ''
+      this.tagsExpanded = false
+    },
+    cleanTags () {
+      this.tags = []
+      this.inputTag = ''
+      this.tagsExpanded = false
+    },
+    removeTag (tag) {
+      const idx = this.tags.indexOf(tag)
+      if (idx > -1) {
+        this.tags.splice(idx, 1)
+      }
+    },
+    addTagFromInput () {
+      const val = (this.inputTag || '').trim()
+      if (!val) { return }
+      const parts = val.split(/[\s,;]+/).filter(Boolean)
+      let addedCount = 0
+      parts.forEach((p) => {
+        if (this.validator(p) && !this.tags.includes(p)) {
+          this.tags.push(p)
+          addedCount++
+        }
+      })
+      if (addedCount > 0) {
+        this.inputTag = ''
+      } else if (parts.some(p => !this.validator(p))) {
+        this.warning('段代碼格式須為 3~4 碼數字 (例: 0001)')
+      }
     },
     async go () {
       if (this.working) {
@@ -1023,6 +1101,14 @@ export default {
 .selected-tags-box {
   max-height: 110px;
   overflow-y: auto;
+}
+.tags-scrollable {
+  max-height: 120px;
+  overflow-y: auto;
+}
+.tags-collapsed {
+  max-height: 72px;
+  overflow: hidden;
 }
 .cursor-pointer {
   cursor: pointer;
