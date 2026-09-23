@@ -295,11 +295,7 @@ export default {
     findVMCloneMessage (payload) {
       const { keyword, keywords, subject } = payload
       const kwList = keywords || (keyword ? [keyword] : [])
-      let found
-      for (const kw of kwList) {
-        found = this.messages.find(item => item.subject.includes(kw))
-        if (found) { break }
-      }
+      const found = this.messages.find(item => kwList.some(kw => item.subject?.includes(kw)))
       return found || this.vcDummyMessage({ subject, message: this.dummyMessage })
     },
 
