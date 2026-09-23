@@ -60,12 +60,12 @@ b-card(:border-variant="border", :class="[attentionCss]")
         thead.thead-light
           tr
             th 星期
-            th 週三排程 (平日)
+            th 週三排程 (vm-clone-3)
             th 週末排程
         tbody
           tr(v-for="rule in scheduleRules", :key="rule.day")
             th {{ rule.label }}
-            td 允許 {{ rule.vcWeekday || rule.vc24 }} 天
+            td 允許 {{ rule.vc3 || rule.vcWeekday || rule.vc24 }} 天
             td 允許 {{ rule.vcWeekend || rule.vc7 }} 天
       .mt-2.text-muted.small * 註：判定基準採用「日曆天數」計算，忽略具體的時分秒。容許天數已內建「備份執行期(最長2天) + 緩衝期(1天)」，在死線之前會自動放寬限制避免誤判。
 
@@ -106,11 +106,10 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
-import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base';
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
 
 const DAY_MS = 24 * 60 * 60 * 1000
-const HALF_DAY_MS = 12 * 60 * 60 * 1000
 
 export default {
   name: 'LahMonitorBoardVmclone',
@@ -123,33 +122,35 @@ export default {
     header: 'VM備份排程作業',
     fetchType: 'subject',
     fetchKeyword: 'VM 備份',
-    fetchDay: 7,
+    fetchDay: 14,
     fetchConvert: false,
     dummyMessage: '未發現監控郵件，請確認備份腳本有正常執行完畢！',
 
     // 定義判定為「失敗」的關鍵字，可依據實際 Email 內容擴充
     failKeywords: ['失敗', 'fail', 'error', '異常'],
 
-    // vcWeekday (週三) 公式：距上週三日曆天數 + 備份執行期(2天) + 緩衝(1天)
-    // vcWeekend (週末) 容許天數維持原樣，保留舊欄位名稱 vc24 / vc7 相容性
+    // vc3 / vcWeekday (週三) 公式：距上週三日曆天數 + 備份執行期(2天) + 緩衝(1天)
+    // 週六為死線重設日 (允許4天)；週三至週五為執行期間，放寬至 8~10 天
+    // 保留 vcWeekday 與舊欄位名稱 vc24 / vc7 相容性
     scheduleRules: [
-      { day: 0, label: '週日', vcWeekday: 6, vcWeekend: 9, vc24: 6, vc7: 9 },
-      { day: 1, label: '週一', vcWeekday: 7, vcWeekend: 10, vc24: 7, vc7: 10 },
-      { day: 2, label: '週二', vcWeekday: 8, vcWeekend: 4, vc24: 8, vc7: 4 },
-      { day: 3, label: '週三', vcWeekday: 3, vcWeekend: 5, vc24: 3, vc7: 5 },
-      { day: 4, label: '週四', vcWeekday: 4, vcWeekend: 6, vc24: 4, vc7: 6 },
-      { day: 5, label: '週五', vcWeekday: 5, vcWeekend: 7, vc24: 5, vc7: 7 },
-      { day: 6, label: '週六', vcWeekday: 6, vcWeekend: 8, vc24: 6, vc7: 8 }
+      { day: 0, label: '週日', vc3: 5, vcWeekday: 5, vcWeekend: 9, vc24: 5, vc7: 9 },
+      { day: 1, label: '週一', vc3: 6, vcWeekday: 6, vcWeekend: 10, vc24: 6, vc7: 10 },
+      { day: 2, label: '週二', vc3: 7, vcWeekday: 7, vcWeekend: 4, vc24: 7, vc7: 4 },
+      { day: 3, label: '週三', vc3: 8, vcWeekday: 8, vcWeekend: 5, vc24: 8, vc7: 5 },
+      { day: 4, label: '週四', vc3: 9, vcWeekday: 9, vcWeekend: 6, vc24: 9, vc7: 6 },
+      { day: 5, label: '週五', vc3: 10, vcWeekday: 10, vcWeekend: 7, vc24: 10, vc7: 7 },
+      { day: 6, label: '週六', vc3: 4, vcWeekday: 4, vcWeekend: 8, vc24: 4, vc7: 8 }
     ]
   }),
   computed: {
-    // 優先匹配新版關鍵字 (vm-clone-weekday / vm-clone-weekend)，同時相容舊版 (vm-clone-24 / vm-clone-7)
-    vcWeekdayMessage () {
+    // 優先匹配新版關鍵字 (vm-clone-3)，同時相容 vm-clone-weekday 與舊版 (vm-clone-24)
+    vc3Message () {
       return this.findVMCloneMessage({
-        keywords: ['vm-clone-weekday', 'vm-clone-24'],
+        keywords: ['vm-clone-3', 'vm-clone-weekday', 'vm-clone-24'],
         subject: '週三 VM 備份'
       })
     },
+    vcWeekdayMessage () { return this.vc3Message },
     vcWeekendMessage () {
       return this.findVMCloneMessage({
         keywords: ['vm-clone-weekend', 'vm-clone-7'],
@@ -158,12 +159,12 @@ export default {
     },
 
     // 保留既有 computed 別名以確保舊相容性
-    vc24Message () { return this.vcWeekdayMessage },
+    vc24Message () { return this.vc3Message },
     vc7Message () { return this.vcWeekendMessage },
     vc135Message () { return this.findVMCloneMessage({ keyword: 'vm-clone-135', subject: '平日(一三五)' }) },
 
     headMessages () {
-      return [this.vcWeekdayMessage, this.vcWeekendMessage].filter(item => item)
+      return [this.vc3Message, this.vcWeekendMessage].filter(item => item)
     },
 
     // 調整最外層燈號判定邏輯
@@ -233,10 +234,10 @@ export default {
       // 改用日曆天數計算，避免因為 96 小時又 50 分鐘大於 4 天的嚴格毫秒比較而誤判
       const diffDays = this.getCalendarDaysDiff(item.timestamp)
 
-      // 支援新舊主旨關鍵字 (新: vm-clone-weekday / vm-clone-weekend, 舊: vm-clone-24 / vm-clone-7)
-      const isWeekday = item.subject?.includes('vm-clone-weekday') || item.subject?.includes('vm-clone-24')
+      // 支援新舊主旨關鍵字 (新: vm-clone-3 / vm-clone-weekday / vm-clone-weekend, 舊: vm-clone-24 / vm-clone-7)
+      const isWeekday = item.subject?.includes('vm-clone-3') || item.subject?.includes('vm-clone-weekday') || item.subject?.includes('vm-clone-24')
       const isWeekend = item.subject?.includes('vm-clone-weekend') || item.subject?.includes('vm-clone-7')
-      const maxDaysWeekday = rule.vcWeekday || rule.vc24
+      const maxDaysWeekday = rule.vc3 || rule.vcWeekday || rule.vc24
       const maxDaysWeekend = rule.vcWeekend || rule.vc7
 
       if (isWeekday && diffDays > maxDaysWeekday) {
