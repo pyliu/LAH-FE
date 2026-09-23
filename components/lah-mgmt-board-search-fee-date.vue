@@ -87,7 +87,7 @@ b-card(border-variant="info")
   .d-flex.align-items-center.flex-nowrap
     b-input-group.mr-1.date-input-group(size="sm")
       b-input-group-prepend(is-text) 結帳日期
-      b-form-input(
+      b-form-input.date-text-input(
         ref="dateInput",
         v-model="queryDate",
         placeholder="民國年月日",
@@ -106,7 +106,6 @@ b-card(border-variant="info")
             button-variant="outline-secondary",
             size="sm",
             :max="today",
-            :date-disabled-fn="dateDisabled",
             title="點擊月曆選取日期",
             boundary="viewport"
           )
@@ -283,7 +282,15 @@ b-card(border-variant="info")
           template(#cell(AA08)="{ value, item }")
             b-badge(:variant="value === '1' && $utils.empty(item.AA02) ? 'success' : 'secondary'", pill) {{ value === '1' && $utils.empty(item.AA02) ? '正常' : '作廢' }}
           template(#cell(AA39)="{ value }")
-            span(v-b-tooltip.hover="value") {{ userNames[value] || value }}
+            b-link.font-weight-bold(
+              v-if="!$utils.empty(value)",
+              @click="popupUserCard(value)",
+              title="點擊開啟使用者卡片",
+              v-b-tooltip.hover="`點擊檢視 ${userNames[value] || value} 卡片`"
+            )
+              lah-fa-icon(icon="user", size="sm")
+              span.ml-1 {{ userNames[value] || value }}
+            span.text-muted(v-else) -
           template(#cell(actions)="{ item }")
             lah-button(
               icon="window-restore",
@@ -356,12 +363,14 @@ b-card(border-variant="info")
 <script>
 import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
 import lahChart from './lah-chart.vue'
+import lahUserCard from './lah-user-card.vue'
 
 export default {
   name: 'LahMgmtBoardSearchFeeDate',
   components: {
     lahFeeDataDetailVue,
-    lahChart
+    lahChart,
+    lahUserCard
   },
   data: () => ({
     dateObj: null,
@@ -680,6 +689,21 @@ export default {
         size: 'lg'
       })
     },
+    popupUserCard (operatorCode) {
+      if (this.$utils.empty(operatorCode) || operatorCode === 'XXXXXXXX') {
+        return
+      }
+      const uName = this.userNames?.[operatorCode] || ''
+      this.modal(this.$createElement(lahUserCard, {
+        props: {
+          id: operatorCode,
+          name: uName
+        }
+      }), {
+        title: `${uName || operatorCode} 使用者資訊${uName ? ` (${operatorCode})` : ''}`,
+        size: 'md'
+      })
+    },
     openChartModal () {
       this.$refs.chartModal?.show()
       this.$nextTick(() => {
@@ -707,24 +731,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.date-input-group,
-.quick-btn-group,
-.action-btn {
-  &::v-deep .input-group-text,
-  &::v-deep .form-control,
-  &::v-deep .btn {
-    height: 33px !important;
-    line-height: 1.5;
-  }
-}
-
 .date-input-group {
   width: auto !important;
-  max-width: 250px !important;
   flex: 0 0 auto !important;
   align-items: stretch;
 
-  &::v-deep .input-group-prepend .input-group-text {
+  &::v-deep > .input-group-prepend > .input-group-text {
     height: 33px !important;
     display: flex;
     align-items: center;
@@ -733,7 +745,7 @@ export default {
     padding-bottom: 0;
   }
 
-  &::v-deep .form-control {
+  .date-text-input {
     height: 33px !important;
     width: 125px !important;
     max-width: 130px !important;
@@ -743,7 +755,7 @@ export default {
     letter-spacing: 0.5px;
   }
 
-  &::v-deep .input-group-append .btn {
+  &::v-deep > .input-group-append > .b-form-datepicker > button.btn {
     height: 33px !important;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -752,10 +764,17 @@ export default {
 
 .quick-btn-group {
   flex: 0 0 auto !important;
+
+  .btn {
+    height: 33px !important;
+    line-height: 1.5;
+  }
 }
 
 .action-btn {
   flex: 0 0 auto !important;
+  height: 33px !important;
+  line-height: 1.5;
   white-space: nowrap !important;
 }
 
