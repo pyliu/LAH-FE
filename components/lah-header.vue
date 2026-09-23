@@ -1,5 +1,7 @@
 <template lang="pug">
-h3.d-flex.justify-content-between.py-3
+h3.lah-header.d-flex.justify-content-between.align-items-center.py-3(
+  :class="{ 'is-scrolled': isScrolled }"
+)
   lah-button.bars-button.mr-1(
     icon="bars"
     size="lg"
@@ -27,16 +29,72 @@ h3.d-flex.justify-content-between.py-3
 
 <script>
 export default {
+  data: () => ({
+    isScrolled: false
+  }),
   computed: {
     showHome () { return this.$route.path !== '/' },
     icon () { return this.systemConfigs.mock ? 'laptop-code' : 'house-chimney' },
     variant () { return this.systemConfigs.mock ? 'success' : 'outline-dark' },
     title () { return this.systemConfigs.mock ? '注意：系統處於模擬模式' : '回到地政事務所入口網' }
+  },
+  watch: {
+    $route () {
+      this.$nextTick(this.checkScroll)
+    }
+  },
+  mounted () {
+    this.checkScroll = () => {
+      const scrolled = (window.pageYOffset || document.documentElement.scrollTop || 0) > 10
+      if (this.isScrolled !== scrolled) {
+        this.isScrolled = scrolled
+      }
+    }
+    window.addEventListener('scroll', this.checkScroll, { passive: true })
+    this.checkScroll()
+  },
+  beforeDestroy () {
+    if (this.checkScroll) {
+      window.removeEventListener('scroll', this.checkScroll)
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.lah-header {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  margin-top: 0 !important;
+  margin-left: -15px;
+  margin-right: -15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  pointer-events: none;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  &.is-scrolled {
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    pointer-events: auto;
+
+    .dark-mode & {
+      background-color: #121212;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
 @mixin common() {
   width: 3.4rem;
   border-radius: 10px;
