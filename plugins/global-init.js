@@ -436,8 +436,12 @@ export default ({ $axios, store, $config }, inject) => {
       return false
     },
     addMoneyComma (dollar) {
-      const str = (dollar)?.toLocaleString('en')
-      return parseInt(str)?.toLocaleString('en') || 0
+      if (dollar === null || dollar === undefined || dollar === '') {
+        return '0'
+      }
+      const clean = String(dollar).replace(/,/g, '').trim()
+      const num = Number(clean)
+      return isNaN(num) ? '0' : num.toLocaleString('en')
     },
     msToHuman (remainMs) {
       const seconds = (remainMs / 1000).toFixed(1)

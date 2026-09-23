@@ -587,7 +587,10 @@ export default {
       if (!Array.isArray(collection)) { return 0 }
       return collection.reduce((acc, curr) => {
         const isObsolete = !this.$utils.empty(curr.AA02) || curr.AA08 === '0'
-        return acc + (isObsolete ? 0 : (parseInt(curr.AA28, 10) || 0))
+        const val = typeof curr.AA28 === 'number'
+          ? curr.AA28
+          : parseInt(String(curr.AA28 || 0).replace(/,/g, '').trim(), 10)
+        return acc + (isObsolete ? 0 : (isNaN(val) ? 0 : val))
       }, 0)
     },
     query () {

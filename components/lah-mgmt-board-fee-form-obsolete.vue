@@ -1,5 +1,5 @@
 <template lang="pug">
-b-card
+b-card(border-variant="info")
   template(#header)
     .d-flex.align-items-center
       h6.mb-0.mt-1.mr-1 #[lah-fa-icon(icon="ban", size="lg", variant="danger") 無電腦給號規費收據作廢]
