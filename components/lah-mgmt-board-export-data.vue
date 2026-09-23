@@ -6,6 +6,13 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
         lah-fa-icon(icon="road" size="lg") 輸出地籍資料
       b-button-group.align-middle(size="sm" v-if="!working")
         lah-button.border-0.mr-1(
+          icon="list-check",
+          variant="outline-success",
+          @click="openSectSelectModal",
+          v-b-popover.top.hover.focus="'選取轄區段代碼'",
+          title="選取轄區段代碼"
+        )
+        lah-button.border-0.mr-1(
           icon="layer-group",
           variant="outline-primary",
           @click="setPreset(['0182', '0184', '0142'])",
@@ -202,6 +209,150 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
               lah-fa-icon(icon="broom")
               span.ml-1 確認清掃 ({{ selectedFilenames.length }})
 
+  //- 段代碼選取彈出視窗
+  b-modal#export-data-sect-modal(
+    ref="sectModal",
+    size="lg",
+    scrollable,
+    no-close-on-backdrop
+  )
+    template(#modal-title)
+      .d-flex.align-items-center
+        lah-fa-icon(icon="map-location-dot", size="lg", variant="primary")
+        span.ml-2 選取轄區段代碼
+        b-badge.ml-2(v-if="sections.length > 0", variant="secondary", pill) 共 {{ sections.length }} 段
+
+    //- 載入狀態
+    .text-center.my-4(v-if="loadingSections")
+      lah-fa-icon(icon="spinner", spin, size="2x", variant="primary")
+      .mt-2.text-muted 正在讀取轄區段別資料...
+
+    div(v-else)
+      //- 搜尋與批次操作工具列
+      .d-flex.justify-content-between.align-items-center.mb-2
+        b-input-group.input-group-height-hack(size="sm", prepend="篩選", style="max-width: 300px;")
+          b-form-input(
+            v-model="sectFilter",
+            placeholder="段代碼 (如 0001) 或段名稱...",
+            title="篩選段代碼或段名稱",
+            style="height: 33px;"
+          )
+          template(#append, v-if="sectFilter")
+            lah-button(
+              icon="xmark",
+              variant="outline-secondary",
+              @click="sectFilter = ''",
+              title="清除篩選"
+            )
+        .d-flex.align-items-center
+          lah-button.mr-1(
+            icon="check-double",
+            size="sm",
+            variant="outline-primary",
+            @click="toggleAllFilteredSects(true)",
+            :disabled="filteredSections.length === 0",
+            title="勾選目前符合篩選條件的段別"
+          ) 全選篩選 ({{ filteredSections.length }})
+          lah-button.mr-1(
+            icon="xmark",
+            size="sm",
+            variant="outline-secondary",
+            @click="toggleAllFilteredSects(false)",
+            :disabled="filteredSections.length === 0",
+            title="取消目前符合篩選條件的段別勾選"
+          ) 取消篩選
+          lah-button(
+            icon="trash-can",
+            size="sm",
+            variant="outline-danger",
+            @click="clearAllSelectedSects",
+            :disabled="selectedSectCodes.length === 0",
+            title="清除所有已選取的段代碼"
+          ) 清空已選 ({{ selectedSectCodes.length }})
+
+      //- 已選取的段標籤預覽區 (有選取時顯示)
+      .selected-tags-box.p-2.mb-2.rounded.border.bg-light(v-if="selectedSectCodes.length > 0")
+        .d-flex.justify-content-between.align-items-center.mb-1
+          small.font-weight-bold.text-primary
+            lah-fa-icon(icon="check")
+            span.ml-1 已選取 {{ selectedSectCodes.length }} 個段別：
+          small.text-muted 點擊標籤可快速移除
+        .d-flex.flex-wrap.align-items-center
+          b-badge.mr-1.mb-1.p-1.px-2.d-inline-flex.align-items-center(
+            v-for="code in selectedSectCodes",
+            :key="'sel_' + code",
+            variant="primary",
+            pill
+          )
+            span {{ getSectBadgeText(code) }}
+            b-link.text-white.ml-1(@click.stop="removeSelectedSect(code)", title="移除"): lah-fa-icon(icon="xmark")
+
+      //- 統計摘要提示
+      .d-flex.justify-content-between.align-items-center.mb-2.small.text-muted
+        span
+          lah-fa-icon(icon="list-check")
+          span.ml-1 點擊列表任一列即可切換勾選狀態
+        span(v-if="sectFilter") 篩選顯示 {{ filteredSections.length }} / {{ sections.length }} 段
+
+      //- 段小段清單表格
+      .sect-modal-table-container.border.rounded
+        b-table.text-center.mb-0(
+          :items="filteredSections",
+          :fields="sectFields",
+          responsive="sm",
+          striped,
+          hover,
+          small,
+          bordered,
+          head-variant="dark",
+          show-empty,
+          empty-text="查無符合篩選條件之段小段資料",
+          :tbody-tr-class="sectRowClass",
+          @row-clicked="toggleSectRow"
+        )
+          template(v-slot:head(選取))
+            b-form-checkbox(
+              :checked="allFilteredSelected",
+              :indeterminate="isFilteredIndeterminate",
+              @change="toggleAllFilteredSects",
+              class="m-0",
+              title="全選/取消全選目前篩選項目"
+            )
+          template(v-slot:cell(選取)="{ item }")
+            b-form-checkbox(
+              :checked="selectedSectCodes.includes(item.段代碼)",
+              @change="toggleSectRow(item)",
+              class="m-0",
+              @click.native.stop
+            )
+          template(v-slot:cell(段代碼)="{ item }")
+            span.font-weight-bold {{ item.段代碼 }}
+          template(v-slot:cell(土地標示部筆數)="{ item }")
+            span {{ format(item.土地標示部筆數) }} 筆
+          template(v-slot:cell(面積)="{ item }")
+            span(v-b-tooltip.hover="areaPing(item.面積)") {{ areaM2(item.面積) }}
+
+    template(#modal-footer="{ cancel }")
+      .d-flex.w-100.justify-content-between.align-items-center
+        .small
+          span.font-weight-bold 已勾選
+          span.text-primary.font-weight-bolder {{ selectedSectCodes.length }}
+          span  個段代碼
+          span.text-muted(v-if="selectedSectCodes.length > 0")  (合計 {{ selectedTotalPlots }} 筆土地標示部資料)
+        .d-flex
+          b-button(
+            variant="secondary",
+            size="sm",
+            @click="cancel"
+          ) 取消
+          b-button.ml-2(
+            variant="primary",
+            size="sm",
+            @click="applySectSelection"
+          )
+            lah-fa-icon(icon="check")
+            span.ml-1 確認帶入 ({{ selectedSectCodes.length }})
+
   //- 產製進度條
   .my-2(v-if="working")
     .d-flex.justify-content-between.align-items-center.mb-1
@@ -221,9 +372,15 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
       tag-variant="primary"
       tag-pills
       :tag-validator="validator"
-      placeholder="輸入段代碼後 Enter 新增 (例: 0200)"
+      placeholder="輸入段代碼後 Enter 新增 (例: 0001)"
     )
     template(#append)
+      lah-button(
+        icon="list-check",
+        variant="outline-success",
+        @click="openSectSelectModal",
+        title="開啟轄區段別選取視窗"
+      ) 選取
       lah-button(
         icon="file-export",
         action="move-fade-ltr",
@@ -312,7 +469,20 @@ export default {
     serverFiles: [],
     selectedFilenames: [],
     loadingServerFiles: false,
-    modalZipping: false
+    modalZipping: false,
+    sections: [],
+    loadingSections: false,
+    selectedSectCodes: [],
+    sectFilter: '',
+    sectFields: [
+      { key: '選取', label: '選取', sortable: false, thClass: 'text-center align-middle', tdClass: 'text-center align-middle' },
+      { key: '區代碼', sortable: true, thClass: 'text-center align-middle', tdClass: 'text-center align-middle' },
+      { key: '區名稱', sortable: true, thClass: 'text-center align-middle', tdClass: 'text-center align-middle' },
+      { key: '段代碼', sortable: true, thClass: 'text-center align-middle', tdClass: 'text-center align-middle' },
+      { key: '段名稱', sortable: true, thClass: 'align-middle', tdClass: 'align-middle' },
+      { key: '土地標示部筆數', sortable: true, thClass: 'text-right align-middle', tdClass: 'text-right align-middle' },
+      { key: '面積', sortable: true, thClass: 'text-right align-middle', tdClass: 'text-right align-middle' }
+    ]
   }),
   computed: {
     disabled () {
@@ -335,6 +505,38 @@ export default {
         .filter(f => selectedSet.has(f.filename))
         .reduce((sum, f) => sum + (f.size || 0), 0)
       return this.formatBytes(totalBytes)
+    },
+    filteredSections () {
+      const kw = (this.sectFilter || '').trim().toLowerCase()
+      if (!kw) {
+        return this.sections
+      }
+      return this.sections.filter((s) => {
+        return (
+          (s.段代碼 && s.段代碼.toLowerCase().includes(kw)) ||
+          (s.段名稱 && s.段名稱.toLowerCase().includes(kw)) ||
+          (s.區名稱 && s.區名稱.toLowerCase().includes(kw)) ||
+          (s.區代碼 && s.區代碼.toLowerCase().includes(kw))
+        )
+      })
+    },
+    allFilteredSelected () {
+      if (this.filteredSections.length === 0) { return false }
+      const selectedSet = new Set(this.selectedSectCodes)
+      return this.filteredSections.every(s => selectedSet.has(s.段代碼))
+    },
+    isFilteredIndeterminate () {
+      if (this.filteredSections.length === 0) { return false }
+      const selectedSet = new Set(this.selectedSectCodes)
+      const count = this.filteredSections.filter(s => selectedSet.has(s.段代碼)).length
+      return count > 0 && count < this.filteredSections.length
+    },
+    selectedTotalPlots () {
+      const codeSet = new Set(this.selectedSectCodes)
+      const sum = this.sections
+        .filter(s => codeSet.has(s.段代碼))
+        .reduce((acc, cur) => acc + (parseInt(cur.土地標示部筆數, 10) || 0), 0)
+      return this.format(sum)
     }
   },
   mounted () {
@@ -712,6 +914,98 @@ export default {
       } finally {
         this.clearing = false
       }
+    },
+    format (val) {
+      return val ? String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0'
+    },
+    areaPing (val) {
+      return val ? this.format((Number(val) * 3025 / 10000).toFixed(2)) + ' 坪' : '0 坪'
+    },
+    areaM2 (val) {
+      return val ? this.format(Number(val).toFixed(2)) + ' ㎡' : '0 ㎡'
+    },
+    getSectBadgeText (code) {
+      const found = this.sections.find(s => s.段代碼 === code)
+      return found ? `${code} ${found.段名稱}` : code
+    },
+    async loadSections (force = false) {
+      this.loadingSections = true
+      try {
+        if (!force) {
+          const cached = await this.getCache('ralid_sections')
+          if (cached && Array.isArray(cached) && cached.length > 0) {
+            this.sections = cached
+            return
+          }
+        }
+        const { data } = await this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'ralid'
+        })
+        if (this.$utils.statusCheck(data.status)) {
+          this.sections = data.raw || []
+          await this.setCache('ralid_sections', this.sections, 24 * 60 * 60 * 1000)
+        } else {
+          this.warning(data.message || '無法取得轄區段別資料')
+        }
+      } catch (err) {
+        this.$utils.error(err)
+        this.warning(`無法讀取轄區段別: ${err.message || err}`)
+      } finally {
+        this.loadingSections = false
+      }
+    },
+    openSectSelectModal () {
+      if (this.working) { return }
+      this.selectedSectCodes = [...this.tags]
+      this.sectFilter = ''
+      this.$bvModal.show('export-data-sect-modal')
+      if (this.sections.length === 0) {
+        this.loadSections()
+      }
+    },
+    applySectSelection () {
+      this.tags = [...this.selectedSectCodes]
+      this.$bvModal.hide('export-data-sect-modal')
+    },
+    toggleSectRow (item) {
+      if (!item || !item.段代碼) { return }
+      const code = item.段代碼
+      const idx = this.selectedSectCodes.indexOf(code)
+      if (idx > -1) {
+        this.selectedSectCodes.splice(idx, 1)
+      } else {
+        this.selectedSectCodes.push(code)
+      }
+    },
+    toggleAllFilteredSects (checked) {
+      const currentSet = new Set(this.selectedSectCodes)
+      if (checked) {
+        this.filteredSections.forEach((s) => {
+          if (s.段代碼) {
+            currentSet.add(s.段代碼)
+          }
+        })
+      } else {
+        this.filteredSections.forEach((s) => {
+          if (s.段代碼) {
+            currentSet.delete(s.段代碼)
+          }
+        })
+      }
+      this.selectedSectCodes = Array.from(currentSet)
+    },
+    clearAllSelectedSects () {
+      this.selectedSectCodes = []
+    },
+    removeSelectedSect (code) {
+      const idx = this.selectedSectCodes.indexOf(code)
+      if (idx > -1) {
+        this.selectedSectCodes.splice(idx, 1)
+      }
+    },
+    sectRowClass (item) {
+      if (!item || !item.段代碼) { return 'cursor-pointer' }
+      return this.selectedSectCodes.includes(item.段代碼) ? 'table-primary font-weight-bold cursor-pointer' : 'cursor-pointer'
     }
   }
 }
@@ -721,5 +1015,26 @@ export default {
 .clean-modal-files-list {
   max-height: 380px;
   overflow-y: auto;
+}
+.sect-modal-table-container {
+  max-height: 420px;
+  overflow-y: auto;
+}
+.selected-tags-box {
+  max-height: 110px;
+  overflow-y: auto;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+.input-group-height-hack,
+.input-group {
+  align-items: stretch;
+
+  &::v-deep .input-group-text,
+  &::v-deep .form-control,
+  &::v-deep .btn {
+    height: 33px !important;
+  }
 }
 </style>

@@ -129,7 +129,7 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
       b-input-group.input-group-height-hack(size="sm", prepend="篩選", style="max-width: 320px;")
         b-form-input(
           v-model="modalFilter",
-          placeholder="段代碼 (如 0200) 或段名稱...",
+          placeholder="段代碼 (如 0001) 或段名稱...",
           title="篩選段代碼或段名稱",
           style="height: 33px;"
         )
