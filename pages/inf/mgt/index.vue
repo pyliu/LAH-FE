@@ -32,8 +32,11 @@ div(v-cloak)
           | 針對跨所收辦或資料不一致之登記案件，執行資料庫雙向即時比對、檢測與資料同步。
 
       .font-weight-bold.text-dark.mb-1
-        lah-fa-icon(icon="users", variant="secondary") 使用者與案件查詢
+        lah-fa-icon(icon="users", variant="secondary") 使用者相關查詢
       ul.mb-2
+        li
+          strong 發送簡訊：
+          | 支援案件手機號碼之簡訊即時發送、重發作業與傳送歷程檢索，維護為民服務通知暢通。
         li
           strong 使用者查詢：
           | 以使用者代碼、姓名或關鍵字快速檢索同仁帳號、姓名、課室職稱、分機與個人卡片照片。
@@ -42,11 +45,11 @@ div(v-cloak)
           | 依統一編號進行地籍總歸戶查詢，檢索申請人於轄區所有登記及測量案件之辦理歷程。
 
       .font-weight-bold.text-dark.mb-1
-        lah-fa-icon(icon="file-invoice-dollar", variant="secondary") 規費作廢與簡訊
+        lah-fa-icon(icon="file-invoice-dollar", variant="secondary") 進階規費作業
       ul.mb-2
         li
-          strong 發送簡訊：
-          | 支援案件手機號碼之簡訊即時發送、重發作業與傳送歷程檢索，維護為民服務通知暢通。
+          strong 規費日期查詢：
+          | 依指定結帳日期統計全日單據總數與實收總額，支援現金、悠遊卡、行動支付、信用卡等付款類別統計、單據檢索過濾、點選承辦人員檢視個人卡片及視覺化統計圖表。
         li
           strong 無電腦給號規費收據作廢：
           | 針對卡紙或跳號等異常單據，依自動編號規則（#[b.text-danger 9] + #[b.text-primary 年度] + #[b.text-success 流水號]）快速新增假資料以利執行系統作廢。
@@ -62,14 +65,14 @@ div(v-cloak)
           | 即時統計土地標示部（RALID）各段小段之土地筆數、總面積與所屬行政區，並提供收費標準及申請書表下載。
         li
           strong 資料匯出：
-          | 支援自訂轄區段代碼（具轄區代碼防呆保護），批次產製土地標示部、所有權部等標準純文字匯出檔案。
+          | 支援自訂轄區段代碼（具轄區代碼防呆保護與快速選取彈窗），批次產製土地標示部、所有權部等標準純文字匯出檔案。
 
       hr.my-2
       .d-flex.align-items-center.text-muted.small
         lah-fa-icon.mr-1(icon="lightbulb", variant="warning")
         span 如需使用舊版功能或歷史工具，可點擊右上角「舊版」連結開啟舊版儀表板。
 
-  //- 重點區：最常用的兩個搜尋入口
+  //- 重點核心區：最常用的三個功能入口
   .dashboard-primary.mb-3
     .primary-card
       lah-mgmt-board-search-reg-case
