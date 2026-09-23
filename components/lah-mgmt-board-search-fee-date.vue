@@ -197,12 +197,25 @@ b-card(border-variant="info")
             small.d-block.mt-1.text-truncate ${{ $utils.addMoneyComma(cat.money) }}
 
       //- 清單控制工具列
-      .d-flex.justify-content-between.align-items-center.mb-2.p-2.bg-light.rounded.border
-        .d-flex.align-items-center
+      .d-flex.justify-content-between.align-items-center.flex-wrap.mb-2.p-2.bg-light.rounded.border
+        .d-flex.align-items-center.my-1
           lah-fa-icon(icon="list-ul", variant="primary")
           span.font-weight-bold.ml-1 【{{ currentCategoryLabel }}】
-          span.text-muted.small 共 {{ currentList.length }} 筆 (實收 ${{ $utils.addMoneyComma(currentCategoryMoney) }} 元)
-        .d-flex.align-items-center
+          span.text-muted.small.ml-1 共 {{ currentList.length }} 筆 (實收 ${{ $utils.addMoneyComma(currentCategoryMoney) }} 元)
+
+        //- 表格分頁切換按鈕（置於表格上方控制列）
+        b-pagination.mb-0.my-1.mx-2(
+          v-if="viewMode === 'table' && currentList.length > perPage",
+          v-model="currentPage",
+          :total-rows="currentList.length",
+          :per-page="perPage",
+          size="sm",
+          first-number,
+          last-number,
+          align="center"
+        )
+
+        .d-flex.align-items-center.my-1
           b-input-group(size="sm", style="width: 200px;")
             b-form-input(
               v-model="filterKeyword",
@@ -277,8 +290,22 @@ b-card(border-variant="info")
             ) {{ item.AA04 }}
           template(#cell(AA28)="{ value }")
             span.font-weight-bold.text-info ${{ $utils.addMoneyComma(value) }}
-          template(#cell(AA09)="{ value }")
-            b-badge(:variant="value === '1' ? 'success' : 'danger'", pill) {{ value === '1' ? '已印' : '未印' }}
+          template(#cell(AA09)="{ item }")
+            b-button.print-status-btn(
+              :variant="String(item.AA09) === '1' ? 'success' : 'danger'",
+              size="sm",
+              pill,
+              :disabled="isUpdatingAA09(item)",
+              @click="toggleAA09(item, $event)",
+              :title="`點擊將收據【${item.AA05}】列印狀態切換為【${String(item.AA09) === '1' ? '未印' : '已印'}】（按住 Shift 點擊可略過確認）`"
+            )
+              lah-fa-icon(
+                v-if="isUpdatingAA09(item)",
+                icon="spinner",
+                action="spin",
+                size="sm"
+              )
+              span(v-else) {{ String(item.AA09) === '1' ? '已印' : '未印' }}
           template(#cell(AA08)="{ value, item }")
             b-badge(:variant="value === '1' && $utils.empty(item.AA02) ? 'success' : 'secondary'", pill) {{ value === '1' && $utils.empty(item.AA02) ? '正常' : '作廢' }}
           template(#cell(AA39)="{ value }")
@@ -310,22 +337,14 @@ b-card(border-variant="info")
                 no-icon-gutter
               )
 
-        .d-flex.justify-content-between.align-items-center.mt-2(v-if="currentList.length > perPage")
-          b-pagination.my-auto(
-            v-model="currentPage",
-            :total-rows="currentList.length",
-            :per-page="perPage",
-            size="sm",
-            first-number,
-            last-number
-          )
+        .d-flex.justify-content-end.align-items-center.mt-2(v-if="currentList.length > perPage")
           small.text-muted 顯示第 {{ (currentPage - 1) * perPage + 1 }} - {{ Math.min(currentPage * perPage, currentList.length) }} 筆，共 {{ currentList.length }} 筆
 
       //- 視窗底部
       .d-flex.justify-content-between.align-items-center.pt-2.border-top
         small.text-muted
           lah-fa-icon.mr-1(icon="circle-info", variant="info")
-          | 點選單據按鈕可開啟詳情彈跳視窗檢視完整規費資料。
+          | 點選單據按鈕可開啟詳情彈跳視窗；點選「列印」狀態標籤可快速變更已印／未印。
         b-button(
           variant="secondary",
           size="sm",
@@ -472,11 +491,12 @@ export default {
     rawList: [],
     selectedCategory: 'all',
     filterKeyword: '',
-    viewMode: 'badges', // 'badges' | 'table'
+    viewMode: 'table', // 'table' | 'badges'
     currentPage: 1,
-    perPage: 15,
+    perPage: 12,
     today: new Date(),
     currentEditItem: null,
+    updatingAA09Map: {},
     colsMapping: {
       AA01: '開單日期',
       AA04: '電腦給號',
@@ -711,6 +731,7 @@ export default {
       this.rawList = []
       this.selectedCategory = 'all'
       this.filterKeyword = ''
+      this.viewMode = 'table'
       this.currentPage = 1
 
       this.$axios.post(this.$consts.API.JSON.QUERY, {
@@ -747,6 +768,7 @@ export default {
       this.rawList = []
       this.selectedCategory = 'all'
       this.filterKeyword = ''
+      this.viewMode = 'table'
       this.currentPage = 1
       this.$refs.resultModal?.hide()
     },
@@ -856,6 +878,63 @@ export default {
       this.timeout(() => {
         this.$refs.feeChart?.build()
       }, 200)
+    },
+    toggleAA09 (item, event) {
+      if (!item || this.isUpdatingAA09(item)) { return }
+      const currentVal = String(item.AA09 || '0')
+      const targetVal = currentVal === '1' ? '0' : '1'
+      const currentText = currentVal === '1' ? '已印' : '未印'
+      const targetText = targetVal === '1' ? '已印' : '未印'
+      const aaNumber = item.AA05 || ''
+      const pcNumber = item.AA04 || ''
+
+      const execute = () => {
+        this.executeAA09Update(item, targetVal, targetText)
+      }
+
+      if (event && event.shiftKey) {
+        execute()
+      } else {
+        this.confirm(`確定要將收據【${aaNumber}】（電腦給號：${pcNumber}）之列印狀態由【${currentText}】修改為【${targetText}】？`).then((YN) => {
+          if (YN) {
+            execute()
+          }
+        })
+      }
+    },
+    executeAA09Update (item, targetVal, targetText) {
+      this.$set(this.updatingAA09Map, item.AA04, true)
+      const day = item.AA01 || this.queryDate
+      this.$axios.post(this.$consts.API.JSON.MOIEXP, {
+        type: 'expaa_AA09_update',
+        date: day,
+        number: item.AA04,
+        update_value: targetVal
+      }).then((res) => {
+        if (this.$utils.statusCheck(res.data.status)) {
+          this.success(`收據【${item.AA05}】列印狀態已更新為【${targetText}】`, {
+            title: '更新列印狀態成功',
+            subtitle: item.AA05
+          })
+          this.$set(item, 'AA09', targetVal)
+          if (this.currentEditItem && this.currentEditItem.AA04 === item.AA04) {
+            this.$set(this.currentEditItem, 'AA09', targetVal)
+          }
+        } else {
+          this.alert(res.data.message || '更新失敗', {
+            title: '修改列印狀態失敗',
+            subtitle: item.AA05
+          })
+        }
+      }).catch((err) => {
+        this.alert(err.message || '更新列印狀態發生錯誤')
+        this.$utils.error(err)
+      }).finally(() => {
+        this.$delete(this.updatingAA09Map, item.AA04)
+      })
+    },
+    isUpdatingAA09 (item) {
+      return Boolean(this.updatingAA09Map?.[item?.AA04])
     }
   }
 }
@@ -924,5 +1003,26 @@ export default {
   font-family: monospace;
   font-size: 0.85rem;
   letter-spacing: 0.5px;
+}
+
+.print-status-btn {
+  padding: 0.15rem 0.55rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: none !important;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.12);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
 }
 </style>
