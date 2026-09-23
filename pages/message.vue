@@ -18,6 +18,16 @@ div.message-admin-page
         li 亦可點選個別同仁頭像發送 #[b.text-success 個人私訊] (僅可送訊息給一周內有使用桃園即時通程式之同仁)。
         li 內容支援即時通自訂醒目色彩語法 (如 #[code(v-pre) {{b藍色粗體b}}]、#[code(v-pre) {{r紅色粗體r}}]、#[code(v-pre) {{g綠色粗體g}}]、#[code(v-pre) {{o橘色粗體o}}]) 及標準 Markdown 語法。
         li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆 ({{ memento.length }} / {{ mementoCapacity }})。
+      lah-button.ml-2(
+        icon="history"
+        variant="outline-primary"
+        size="sm"
+        pill
+        @click="showModalById('message-history-modal')"
+        title="開啟歷史發送紀錄視窗"
+      )
+        span.font-weight-bold 歷史紀錄
+        b-badge.ml-1(variant="primary" pill) {{ memento.length }}
     .d-flex.align-items-center
       b-badge.mr-2(variant="success" pill)
         lah-fa-icon(icon="users").mr-1
@@ -460,60 +470,74 @@ div.message-admin-page
             client-only
               lah-chat.m-1(:channel="myid" :limit="10")
 
-  //- 下方區塊：歷史發送紀錄 (Memento)
-  .d-flex.justify-content-between.align-items-center.my-3
-    .d-flex.align-items-center
-      lah-fa-icon.mr-2(icon="history" variant="secondary")
-      h5.mb-0 歷史發送紀錄 (共 {{ memento.length }} 筆)
-    b-input-group.memento-count-input(prepend="顯示" append="筆" size="sm")
-      b-input(type="number" min="3" max="30" v-model.number="mementoCount")
-
-  hr.my-2
-
-  .row(v-if="memento.length === 0")
-    .col-12.text-center.py-4.text-muted
-      lah-fa-icon(icon="inbox" size="2x").mb-2
-      div 目前尚無歷史發送紀錄
-
-  .row(v-else)
-    .col-xl-4.col-md-6.col-12.mb-3(v-for="(snapshot, idx) in memento" :key="`hist_${idx}`")
-      b-card.h-100.shadow-sm.hist-card(no-body)
-        b-card-header.bg-light.py-2.d-flex.justify-content-between.align-items-center
-          .d-flex.align-items-center.overflow-hidden.text-truncate
-            lah-fa-icon(icon="clock").mr-1.text-muted
-            span.small.text-muted {{ snapshot.create_datetime || '歷史訊息' }}
-          b-button-group(size="sm")
-            b-button(
-              variant="outline-primary"
-              size="sm"
-              @click="copy(snapshot)"
-              title="複製本篇內容回編輯工作台"
-            )
-              lah-fa-icon(icon="copy").mr-1
-              | 複製
-            b-button(
-              variant="outline-danger"
-              size="sm"
-              @click="remove(snapshot)"
-              title="自頻道撤回/刪除此篇內容"
-            )
-              lah-fa-icon(icon="trash-alt").mr-1
-              | 移除
-        b-card-body.p-3
-          //- 目標標籤
-          .mb-2.d-flex.flex-wrap
-            b-badge.mr-1.mb-1(
-              v-for="ch in (snapshot.channels || [])"
-              :key="`hist-ch-${ch}`"
-              :variant="getDeptVariant(ch)"
-              pill
-            ) {{ getChannelDisplayName(ch) }}
-          //- 主旨
-          .font-weight-bold.mb-1(v-if="snapshot.title")
-            | {{ snapshot.title }}
-          //- 內文預覽
-          client-only
-            .hist-content-preview(v-html="renderHistoryHtml(snapshot.content)")
+  //- 歷史發送紀錄彈出視窗
+  b-modal#message-history-modal(
+    size="xl"
+    scrollable
+    hide-footer
+    header-class="py-2 px-3 border-bottom"
+    body-class="p-3 bg-light"
+  )
+    template(#modal-header="{ close }")
+      .d-flex.justify-content-between.align-items-center.w-100
+        .d-flex.align-items-center
+          lah-fa-icon(icon="history" variant="primary").mr-2
+          span.h5.font-weight-bold.mb-0 歷史發送紀錄
+          b-badge.ml-2(variant="primary" pill) {{ memento.length }} 筆
+        .d-flex.align-items-center
+          b-input-group.mr-3(size="sm" prepend="顯示筆數"): b-input(
+            type="number"
+            min="3"
+            max="30"
+            v-model.number="mementoCount"
+            style="width: 70px;"
+          )
+          b-btn-close(@click="close()")
+    .p-1
+      .text-center.py-5.text-muted.bg-white.rounded.border(v-if="memento.length === 0")
+        lah-fa-icon(icon="inbox" size="2x").mb-2.d-block
+        div 目前尚無歷史發送紀錄
+      .row(v-else)
+        .col-xl-4.col-md-6.col-12.mb-3(v-for="(snapshot, idx) in mementoList" :key="`hist_${idx}`")
+          b-card.h-100.shadow-sm.hist-card(no-body)
+            b-card-header.bg-white.py-2.d-flex.justify-content-between.align-items-center
+              .d-flex.align-items-center.overflow-hidden.text-truncate
+                b-badge.mr-2(:variant="getPriorityBadgeVariant(snapshot.priority)" pill)
+                  | P{{ snapshot.priority || 3 }}
+                lah-fa-icon(icon="clock").mr-1.text-muted
+                span.small.text-muted {{ snapshot.create_datetime || '歷史訊息' }}
+              b-button-group(size="sm")
+                b-button(
+                  variant="primary"
+                  size="sm"
+                  @click="copy(snapshot)"
+                  title="載入此歷史內容至工作台"
+                )
+                  lah-fa-icon(icon="copy").mr-1
+                  | 載入
+                b-button(
+                  variant="outline-danger"
+                  size="sm"
+                  @click="remove(snapshot)"
+                  title="自頻道撤回/刪除此篇內容"
+                )
+                  lah-fa-icon(icon="trash-alt").mr-1
+                  | 撤回
+            b-card-body.p-3
+              //- 目標標籤
+              .mb-2.d-flex.flex-wrap
+                b-badge.mr-1.mb-1(
+                  v-for="ch in (snapshot.channels || [])"
+                  :key="`hist-ch-${ch}`"
+                  :variant="getDeptVariant(ch)"
+                  pill
+                ) {{ getChannelDisplayName(ch) }}
+              //- 主旨
+              .font-weight-bold.mb-1(v-if="snapshot.title")
+                | {{ snapshot.title }}
+              //- 內文預覽
+              client-only
+                .hist-content-preview(v-html="renderHistoryHtml(snapshot.content)")
 
   //- 側欄：Markdown 簡易說明
   b-sidebar#md-desc(
@@ -707,6 +731,9 @@ export default {
     },
     mementoCountCacheKey () {
       return `${this.cacheKey}_count`
+    },
+    mementoList () {
+      return this.memento.slice(0, this.mementoCount)
     },
     isChannelMode () {
       return this.isAllSelected || this.selectedChannels.some(c => c !== 'myself')
@@ -1113,8 +1140,12 @@ export default {
       this.dataJson.title = snapshot.title || ''
       this.dataJson.content = snapshot.content || ''
       this.dataJson.priority = snapshot.priority || 3
-      this.$refs.addCard?.scrollIntoView()
-      setTimeout(() => this.attention(this.$refs.addCard), 400)
+      this.hideModalById('message-history-modal')
+      const el = this.$refs.addCard?.$el || this.$refs.addCard
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' })
+        setTimeout(() => this.attention(el), 400)
+      }
     },
     remove (snapshot) {
       if (Array.isArray(snapshot.added_to)) {

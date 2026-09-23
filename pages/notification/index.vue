@@ -10,6 +10,16 @@ div.notification-admin-page
         li 歷史資料儲存於瀏覽器端，最少顯示 #[b.text-info 3] 筆，最多顯示 #[b.text-info 30] 筆 ({{ memento.length }} / {{ mementoCapacity }})
         li 標題限制最大長度為 #[b.text-info 84] 個英文字元 (中文 #[b.text-info 42] 個字)
         li 內容支援 Markdown 語法，請參考 #[a(href="https://markdown.tw/" target="_blank" rel="noopener noreferrer") #[b https://markdown.tw/]] 教學
+      lah-button.ml-2(
+        icon="history"
+        variant="outline-primary"
+        size="sm"
+        pill
+        @click="showModalById('notification-history-modal')"
+        title="開啟歷史公告紀錄視窗"
+      )
+        span.font-weight-bold 歷史紀錄
+        b-badge.ml-1(variant="primary" pill) {{ memento.length }}
     .d-flex.align-items-center
       b-badge(variant="info" pill).mr-2: lah-fa-icon(icon="desktop") 即時通擬真預覽模式
 
@@ -277,38 +287,44 @@ div.notification-admin-page
             pill
           ) {{ to }}
 
-  //- 下方：歷史資料管理
-  hr.my-4
-  .d-flex.justify-content-between.align-items-center.mb-3
-    .h5.font-weight-bold.mb-0
-      lah-fa-icon(icon="history" variant="info").mr-2
-      | 歷史公告發布紀錄
-      b-badge(variant="light" pill).ml-2.border {{ memento.length }} 筆
-    .d-flex.align-items-center
-      b-input-group(size="sm" prepend="顯示筆數"): b-input(
-        type="number"
-        min="3"
-        max="30"
-        v-model="mementoCount"
-        style="width: 70px;"
-      )
-
-  .row(v-if="memento.length === 0")
-    .col-12.text-center.py-5.text-muted
-      lah-fa-icon(icon="inbox" size="2x").mb-2
-      div 暫無本機發布歷史紀錄
-
-  .row(v-else)
-    .col-xl-4.col-md-6.col-12.mb-3(
-      v-for="(snapshot, idx) in reverseMemento"
-      :key="`hist_${idx}`"
-    )
-      lah-notification-announcement-memento(
-        :memento="snapshot"
-        @copy="copy(snapshot)"
-        @remove="remove(snapshot)"
-        @badge="removeMementoAddedChannel($event.detail, snapshot)"
-      )
+  //- 歷史公告發布紀錄彈出視窗
+  b-modal#notification-history-modal(
+    size="xl"
+    scrollable
+    hide-footer
+    header-class="py-2 px-3 border-bottom"
+    body-class="p-3 bg-light"
+  )
+    template(#modal-header="{ close }")
+      .d-flex.justify-content-between.align-items-center.w-100
+        .d-flex.align-items-center
+          lah-fa-icon(icon="history" variant="primary").mr-2
+          span.h5.font-weight-bold.mb-0 歷史公告發布紀錄
+          b-badge.ml-2(variant="primary" pill) {{ memento.length }} 筆
+        .d-flex.align-items-center
+          b-input-group.mr-3(size="sm" prepend="顯示筆數"): b-input(
+            type="number"
+            min="3"
+            max="30"
+            v-model.number="mementoCount"
+            style="width: 70px;"
+          )
+          b-btn-close(@click="close()")
+    .p-1
+      .text-center.py-5.text-muted.bg-white.rounded.border(v-if="memento.length === 0")
+        lah-fa-icon(icon="inbox" size="2x").mb-2.d-block
+        div 暫無本機發布歷史紀錄
+      .row(v-else)
+        .col-xl-4.col-md-6.col-12.mb-3(
+          v-for="(snapshot, idx) in reverseMemento"
+          :key="`hist_${idx}`"
+        )
+          lah-notification-announcement-memento(
+            :memento="snapshot"
+            @copy="copy(snapshot)"
+            @remove="remove(snapshot)"
+            @badge="removeMementoAddedChannel($event.detail, snapshot)"
+          )
 
   //- 側邊欄 Markdown 說明
   b-sidebar#md-desc(
@@ -580,6 +596,7 @@ export default {
       this.announcementSendto = [...snapshot.channels]
       this.announcementDataJson = { ...this.announcementDataJson, ...snapshot }
       delete this.announcementDataJson.channels
+      this.hideModalById('notification-history-modal')
       const el = this.$refs.addCard?.$el || this.$refs.addCard
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' })
