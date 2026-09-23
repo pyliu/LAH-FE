@@ -18,18 +18,18 @@ client-only.lah-chat
 <script>
 export default {
   props: {
-    channel: { type: String, default: () => this.myid },
+    channel: { type: String, default: '' },
     limit: { type: Number, default: 10 }
   },
   data: () => ({
     list: []
   }),
   fetch () {
-    if (!this.$utils.empty(this.channel)) {
+    if (!this.$utils.empty(this.targetChannel)) {
       this.isBusy = true
       this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
         type: 'get_notification',
-        channel: this.channel,
+        channel: this.targetChannel,
         limit: this.limit
       }).then(({ data }) => {
         // console.warn(data)
@@ -47,10 +47,11 @@ export default {
     }
   },
   computed: {
+    targetChannel () { return this.channel || this.myid },
     noMessage () { return this.$utils.empty(this.list) }
   },
   watch: {
-    channel (dontcare) {
+    targetChannel (dontcare) {
       this.$fetch()
     }
   }
