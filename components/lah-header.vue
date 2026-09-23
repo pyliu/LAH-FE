@@ -74,23 +74,23 @@ export default {
   margin-right: -15px;
   padding-left: 15px;
   padding-right: 15px;
-  pointer-events: none;
   transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-
-  > * {
-    pointer-events: auto;
-  }
 
   &.is-scrolled {
     background-color: #ffffff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    pointer-events: auto;
 
     .dark-mode & {
       background-color: #121212;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .auto-theme & {
+      background-color: var(--dyn-card-bg, #ffffff);
+      border-bottom: 1px solid var(--dyn-border, rgba(0, 0, 0, 0.08));
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
     }
   }
 }

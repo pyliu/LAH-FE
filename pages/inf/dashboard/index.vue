@@ -157,7 +157,7 @@ client-only: .dark-container(
 </template>
 
 <script>
-import LahMonitorBoardPrinterSetupModal from '~/components/lah-monitor-board-printer-setup-modal.vue';
+import LahMonitorBoardPrinterSetupModal from '~/components/lah-monitor-board-printer-setup-modal.vue'
 
 export default {
   components: { LahMonitorBoardPrinterSetupModal },
@@ -356,7 +356,7 @@ export default {
     ]).then(([pinnedIds, col2, themeMode, oldDarkMode, cSplitHour, cSplitRatio]) => {
       if (Array.isArray(pinnedIds)) {
         this.pinnedIds = pinnedIds
-        this.boards.forEach(b => b.pinned = this.pinnedIds.includes(b.id))
+        this.boards.forEach((b) => { b.pinned = this.pinnedIds.includes(b.id) })
       } else {
         this.pinnedIds = this.boards.filter(b => b.pinned).map(b => b.id)
       }
@@ -875,6 +875,13 @@ export default {
         color: var(--dyn-card-bg) !important;
       }
     }
+  }
+
+  // ✨ 漸層主題下 Header 滾動時配合主題卡片背景色，避免白底白字
+  .lah-header.is-scrolled {
+    background-color: var(--dyn-card-bg) !important;
+    border-bottom: 1px solid var(--dyn-border) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
   }
 
   // 自動漸層模式下的圖表 (Chart.js Canvas) 動態濾鏡

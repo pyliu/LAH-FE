@@ -7,7 +7,7 @@ b-card(:class="cardCss", no-body, title="最新公告").announcement-timeline
   .d-flex.justify-content-end(v-if="!noMore && loadButton")
     b-button-group(size="sm")
       lah-button.border-0(
-        v-if="itemCount !== 1"
+        v-if="itemCount !== effectiveInitCount"
         icon="undo-alt",
         title="回復預設顯示",
         variant="outline-success",
@@ -44,7 +44,8 @@ export default {
     timelineItems: [],
     selectedCount: 1,
     noMore: false,
-    cacheMs: 15 * 60 * 1000
+    cacheMs: 15 * 60 * 1000,
+    inSidebar: false
   }),
   computed: {
     cardCss () {
@@ -53,25 +54,53 @@ export default {
     itemCount () { return this.timelineItems.length },
     lastId () {
       return this.itemCount > 0 ? this.timelineItems[this.itemCount - 1].id : 0
+    },
+    effectiveInitCount () {
+      return this.inSidebar ? 1 : this.initCount
     }
   },
   created () {
     this.selectedCount = this.loadCount
+    this.inSidebar = this.checkInSidebar()
   },
   mounted () {
+    this.inSidebar = this.checkInSidebar()
     this.loadInitBatch()
   },
   methods: {
+    checkInSidebar () {
+      if (this.$el && this.$el.closest?.('.b-sidebar, #lah-sidebar')) {
+        return true
+      }
+      let p = this.$parent
+      while (p) {
+        const tag = p.$vnode?.componentOptions?.tag || p.$vnode?.tag || ''
+        const id = p.$vnode?.data?.attrs?.id || ''
+        const name = p.$options?.name || ''
+        if (
+          name === 'BSidebar' ||
+          id === 'lah-sidebar' ||
+          tag.includes('sidebar') ||
+          name.toLowerCase().includes('sidebar')
+        ) {
+          return true
+        }
+        p = p.$parent
+      }
+      return false
+    },
     async loadInitBatch () {
+      const targetCount = this.effectiveInitCount
       const cached = await this.getCache('lah-timeline-announcement')
-      if (cached) {
-        this.timelineItems = [...this.timelineItems, ...cached.raw]
+      if (cached && Array.isArray(cached.raw) && cached.raw.length >= targetCount) {
+        this.timelineItems = cached.raw.slice(0, targetCount)
+        this.$emit('announcement-count', { count: this.timelineItems?.length || 0 })
       } else {
         this.isBusy = true
         this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
           type: 'get_notification',
           channel: 'announcement',
-          limit: this.initCount
+          limit: targetCount
         }).then(({ data }) => {
           /**
            * message example: {
@@ -87,8 +116,10 @@ export default {
             }
           */
           if (this.$utils.statusCheck(data.status)) {
-            this.timelineItems = [...this.timelineItems, ...data.raw]
-            this.setCache('lah-timeline-announcement', data, this.cacheMs)
+            this.timelineItems = [...data.raw]
+            if (!cached || !Array.isArray(cached.raw) || cached.raw.length <= data.raw.length) {
+              this.setCache('lah-timeline-announcement', data, this.cacheMs)
+            }
           } else {
             this.$utils.warn(data.message)
           }
@@ -132,7 +163,7 @@ export default {
       })
     },
     reset () {
-      this.timelineItems.splice(this.initCount, this.itemCount - 1)
+      this.timelineItems.splice(this.effectiveInitCount, this.itemCount - this.effectiveInitCount)
       this.selectedCount = this.loadCount
     }
   }

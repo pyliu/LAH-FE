@@ -21,6 +21,7 @@ b-sidebar#lah-sidebar(
         v-if="displayAnnouncement",
         load-button,
         :load-count="3",
+        :init-count="1",
         @announcement-count="handleAnnouncementEvent($event)"
       )
 
@@ -195,8 +196,8 @@ b-sidebar#lah-sidebar(
 </template>
 
 <script>
-import lahAvatar from '~/components/lah-avatar.vue';
-import LahUserCard from '~/components/lah-user-card.vue';
+import lahAvatar from '~/components/lah-avatar.vue'
+import LahUserCard from '~/components/lah-user-card.vue'
 export default {
   components: { lahAvatar, LahUserCard },
   fetchOnServer: false,

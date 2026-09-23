@@ -6,12 +6,6 @@ div(v-cloak)
         .d-flex
           div 地政系統管理儀表板
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-        div: a(
-          :href="`${this.legacyUrl}/dashboard.html`",
-          target="_blank",
-          rel="noreferrer noopener"
-        )
-          lah-fa-icon(icon="clock-rotate-left") 舊版
     lah-help-modal(:modal-id="'help-modal'" size="lg")
       .font-weight-bold.text-primary.h5.mb-2
         lah-fa-icon(icon="circle-info", size="lg") 地政系統管理儀表板功能導覽
@@ -68,9 +62,19 @@ div(v-cloak)
           | 支援自訂轄區段代碼（具轄區代碼防呆保護與快速選取彈窗），批次產製土地標示部、所有權部等標準純文字匯出檔案。
 
       hr.my-2
-      .d-flex.align-items-center.text-muted.small
-        lah-fa-icon.mr-1(icon="lightbulb", variant="warning")
-        span 如需使用舊版功能或歷史工具，可點擊右上角「舊版」連結開啟舊版儀表板。
+      .d-flex.justify-content-between.align-items-center
+        .d-flex.align-items-center.text-muted.small
+          lah-fa-icon.mr-1(icon="lightbulb", variant="warning")
+          span 如需使用舊版功能或歷史工具，可開啟舊版系統：
+        b-button(
+          :href="`${legacyUrl}/dashboard.html`",
+          target="_blank",
+          rel="noreferrer noopener",
+          variant="outline-primary",
+          size="sm"
+        )
+          lah-fa-icon.mr-1(icon="clock-rotate-left")
+          | 開啟舊版儀表板
 
   //- 重點核心區：最常用的三個功能入口
   .dashboard-primary.mb-3
