@@ -292,14 +292,23 @@ b-card(border-variant="info")
               span.ml-1 {{ userNames[value] || value }}
             span.text-muted(v-else) -
           template(#cell(actions)="{ item }")
-            lah-button(
-              icon="window-restore",
-              variant="outline-primary",
-              size="sm",
-              @click="popupDetail(item)",
-              title="檢視詳情",
-              no-icon-gutter
-            )
+            b-button-group(size="sm")
+              lah-button(
+                icon="edit",
+                variant="outline-success",
+                size="sm",
+                @click="popupEdit(item)",
+                title="編輯規費資料",
+                no-icon-gutter
+              )
+              lah-button(
+                icon="window-restore",
+                variant="outline-primary",
+                size="sm",
+                @click="popupDetail(item)",
+                title="檢視單據詳情",
+                no-icon-gutter
+              )
 
         .d-flex.justify-content-between.align-items-center.mt-2(v-if="currentList.length > perPage")
           b-pagination.my-auto(
@@ -342,6 +351,87 @@ b-card(border-variant="info")
           type="bar"
         )
 
+  //- 3. 規費資料編輯彈出視窗
+  b-modal(
+    ref="editModal",
+    :title="editModalTitle",
+    size="lg",
+    hide-footer,
+    scrollable,
+    @hidden="onEditModalHidden"
+  )
+    div(v-if="currentEditItem")
+      .border.rounded.p-3.mb-3.bg-light
+        b-row
+          b-col(cols="12", md="6") 電腦給號：{{ currentEditItem.AA04 }}
+          b-col(cols="12", md="6") 收據編號：{{ currentEditItem.AA05 }}
+        b-row.my-1
+          b-col(cols="12", md="6") 結帳日期：{{ currentEditItem.AA01 }}
+          b-col(cols="12", md="6") 作業人員：{{ editItemOperator }}
+        b-row
+          b-col(cols="12", md="6") 收費方式：{{ currentEditItem.AA100_CHT }}
+          b-col(cols="12", md="6") 實收金額：{{ $utils.addMoneyComma(currentEditItem.AA28) }} 元
+        b-row.mt-1
+          b-col(cols="12", md="6")
+            span 收據狀態：
+            b(:class="currentEditItem.AA08 === '1' ? 'text-success' : 'text-danger'") {{ currentEditItem.AA08 === '1' ? '正常 (1)' : '作廢 (0)' }}
+          b-col(cols="12", md="6")
+            span 列印註記：
+            span {{ currentEditItem.AA09 === '1' ? '已印 (1)' : '未印 (0)' }}
+        b-row.mt-1(v-if="currentEditItem.AA11 || currentEditItem.AA14")
+          b-col(cols="12", md="6", v-if="currentEditItem.AA11") 申請人：{{ currentEditItem.AA11 }}
+          b-col(cols="12", md="6", v-if="currentEditItem.AA14") 繳款人：{{ currentEditItem.AA14 }}
+        b-row.mt-1(v-if="currentEditItem.AA12")
+          b-col(cols="12") 申請事由：{{ currentEditItem.AA12 }}
+
+      .d-flex.align-items-center.my-1
+        lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="primary") 規費狀態
+        lah-button.ml-1.border-0(
+          icon="download",
+          variant="outline-success",
+          @click="$refs.editFormState?.reloadPaymentList()",
+          no-icon-gutter,
+          title="重新讀取「付款方式」清單",
+          size="sm",
+          v-b-tooltip
+        )
+      lah-mgmt-board-fee-form-state.mt-n1(
+        ref="editFormState",
+        embed,
+        no-brief
+      )
+      hr
+      .d-flex.align-items-center.my-1
+        lah-fa-icon(icon="angles-right", action="move-fade-ltr", variant="danger") 收費項目
+        lah-button.ml-1.border-0(
+          icon="download",
+          variant="outline-success",
+          @click="$refs.editPaymentItems?.prepareExpeList(true)",
+          no-icon-gutter,
+          title="重新讀取「收費項目」清單",
+          size="sm",
+          v-b-tooltip
+        )
+      lah-mgmt-board-fee-form-payment-items(
+        ref="editPaymentItems",
+        embed
+      )
+
+      .d-flex.justify-content-between.align-items-center.mt-3.pt-2.border-top
+        lah-button(
+          icon="arrow-rotate-left",
+          variant="outline-secondary",
+          size="sm",
+          action="cycle-alt",
+          @click="onEditRefresh",
+          title="更新並重新整理當日規費資料"
+        ) 重新整理當日資料
+        b-button(
+          variant="secondary",
+          size="sm",
+          @click="$refs.editModal.hide()"
+        ) 關閉
+
   template(#footer)
     .d-flex.justify-content-between.align-items-center.flex-wrap
       small.text-muted(v-if="dataReady")
@@ -364,13 +454,17 @@ b-card(border-variant="info")
 import lahFeeDataDetailVue from './lah-fee-data-detail.vue'
 import lahChart from './lah-chart.vue'
 import lahUserCard from './lah-user-card.vue'
+import lahMgmtBoardFeeFormPaymentItems from './lah-mgmt-board-fee-form-payment-items.vue'
+import lahMgmtBoardFeeFormState from './lah-mgmt-board-fee-form-state.vue'
 
 export default {
   name: 'LahMgmtBoardSearchFeeDate',
   components: {
     lahFeeDataDetailVue,
     lahChart,
-    lahUserCard
+    lahUserCard,
+    lahMgmtBoardFeeFormPaymentItems,
+    lahMgmtBoardFeeFormState
   },
   data: () => ({
     dateObj: null,
@@ -382,6 +476,7 @@ export default {
     currentPage: 1,
     perPage: 15,
     today: new Date(),
+    currentEditItem: null,
     colsMapping: {
       AA01: '開單日期',
       AA04: '電腦給號',
@@ -425,7 +520,7 @@ export default {
       { key: 'AA09', label: '列印', sortable: true, thClass: 'text-center', tdClass: 'text-center' },
       { key: 'AA08', label: '狀況', sortable: true, thClass: 'text-center', tdClass: 'text-center' },
       { key: 'AA39', label: '作業人員', sortable: true, thClass: 'text-center', tdClass: 'text-center' },
-      { key: 'actions', label: '操作', sortable: false, thClass: 'text-center', tdClass: 'text-center' }
+      { key: 'actions', label: '操作', sortable: false, thClass: 'text-center', tdClass: 'text-center text-nowrap' }
     ]
   }),
   computed: {
@@ -440,6 +535,18 @@ export default {
         return '規費統計結果'
       }
       return `規費統計結果 【結帳日期：${this.queryDate}，共 ${this.countAll} 筆，實收總額 $${this.$utils.addMoneyComma(this.moneyAll)} 元】`
+    },
+    editModalTitle () {
+      if (!this.currentEditItem) {
+        return '規費資料更新'
+      }
+      return `規費資料更新 【${this.currentEditItem.AA04} - ${this.currentEditItem.AA05}】`
+    },
+    editItemOperator () {
+      const code = this.currentEditItem?.AA39
+      if (!code) { return '' }
+      const name = this.userNames?.[code]
+      return name ? `${name} (${code})` : code
     },
     cashList () {
       return this.rawList.filter(item => item.AA100_CHT === '現金')
@@ -691,6 +798,27 @@ export default {
         title: `規費資料詳情 【${item.AA04} - ${item.AA05}】`,
         size: 'lg'
       })
+    },
+    popupEdit (item) {
+      this.currentEditItem = item
+      const baked = this.bakeExpaaData(item)
+      this.$store.commit('inf/expaaData', item)
+      this.$store.commit('inf/bakedExpaaData', baked)
+      this.$nextTick(() => {
+        this.$refs.editModal?.show()
+        this.$refs.editPaymentItems?.prepareExpeList()
+        this.$refs.editPaymentItems?.queryExpacData()
+      })
+    },
+    onEditModalHidden () {
+      const storeData = this.$store.getters['inf/expaaData']
+      if (this.currentEditItem && storeData) {
+        Object.assign(this.currentEditItem, storeData)
+      }
+    },
+    onEditRefresh () {
+      this.$refs.editModal?.hide()
+      this.query()
     },
     popupUserCard (operatorCode) {
       if (this.$utils.empty(operatorCode) || operatorCode === 'XXXXXXXX') {
