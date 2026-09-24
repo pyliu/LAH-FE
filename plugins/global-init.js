@@ -30,6 +30,7 @@ import { zhTW } from 'date-fns/locale'
 
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
+import emoji from 'node-emoji'
 
 import highlightWords from 'highlight-words'
 marked.setOptions({
@@ -257,6 +258,24 @@ export default ({ $axios, store, $config }, inject) => {
     },
     convertInlineMarkd (text) {
       return DOMPurify?.sanitize(marked.parseInline(text?.trimEnd()))
+    },
+    /**
+     * node-emoji
+     */
+    emoji,
+    emojify (str, onMissing, format) {
+      if (typeof str !== 'string' || !str) {
+        return ''
+      }
+      const fn = emoji?.emojify || emoji?.default?.emojify
+      return typeof fn === 'function' ? fn(str, onMissing, format) : str
+    },
+    unemojify (str) {
+      if (typeof str !== 'string' || !str) {
+        return ''
+      }
+      const fn = emoji?.unemojify || emoji?.default?.unemojify
+      return typeof fn === 'function' ? fn(str) : str
     },
     /**
      * usage in Vue

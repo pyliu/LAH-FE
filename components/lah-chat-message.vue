@@ -108,7 +108,11 @@ export default {
     system () { return this.sender === 'system' },
     id () { return this.json?.id },
     type () { return this.json?.type },
-    message () { return this.$utils.emojify(this.json?.message) },
+    message () {
+      return this.$utils?.emojify
+        ? this.$utils.emojify(this.json?.message)
+        : (typeof this.json?.message === 'string' ? this.json.message : '')
+    },
     senderId () { return this.json?.sender },
     sender () { return (this.userNames && this.userNames[this.senderId]) || this.senderId },
     from () { return this.json?.ip },
