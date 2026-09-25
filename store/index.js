@@ -90,7 +90,45 @@ export const state = () => ({
   // Flag indicating if monitor mail is being fetched.
   fetchingMonitorMail: false,
   // Count of fetched monitor mails.
-  fetchedMonitorMailCount: 0
+  fetchedMonitorMailCount: 0,
+  // 即時通 (LAH-Messenger) 相關狀態
+  currentChannel: 'chat',
+  messages: {
+    lds: [],
+    announcement: [],
+    adm: [],
+    inf: [],
+    val: [],
+    reg: [],
+    sur: [],
+    acc: [],
+    hr: [],
+    supervisor: []
+  },
+  unread: {
+    lds: 0,
+    announcement: 0,
+    adm: 0,
+    inf: 0,
+    val: 0,
+    reg: 0,
+    sur: 0,
+    acc: 0,
+    hr: 0,
+    supervisor: 0
+  },
+  websocket: undefined,
+  connectedUsers: [],
+  participatedChannels: [],
+  fetchingHistory: false,
+  statusText: '',
+  messengerTimer: null,
+  notifySettings: {
+    announcement: true,
+    personal: true,
+    chat: true
+  },
+  windowVisible: true
 })
 
 /**
@@ -134,7 +172,57 @@ export const getters = {
   messageMemento: state => state.messageMemento,
   latestMessageMemento: state => state.messageMemento.length > 0 ? state.messageMemento[state.messageMemento.length - 1] : undefined,
   fetchingMonitorMail: state => state.fetchingMonitorMail,
-  fetchedMonitorMailCount: state => state.fetchedMonitorMailCount
+  fetchedMonitorMailCount: state => state.fetchedMonitorMailCount,
+  // 即時通 (LAH-Messenger) Getters
+  windowVisible: state => state.windowVisible,
+  websocket: state => state.websocket,
+  connected: state => state.websocket && state.websocket.readyState === 1,
+  disconnected: state => isEmpty(state.websocket) || state.websocket.readyState === 3,
+  messages: state => state.messages,
+  unread: state => state.unread,
+  totalUnread: (state) => {
+    try {
+      const uid = (state.user?.id || '').toUpperCase()
+      return (state.unread.lds || 0) +
+             (state.unread.announcement || 0) +
+             (state.unread[uid] || 0)
+    } catch {
+      return 0
+    }
+  },
+  currentChannel: state => String(state.currentChannel),
+  currentChannelMessageCount: state => state.messages[state.currentChannel]?.length || 0,
+  currentChannelName: (state) => {
+    const channelId = String(state.currentChannel)
+    switch (channelId) {
+      case 'announcement': return '公告'
+      case 'lds': return '全所聊天室'
+      case 'inf': return '資訊課聊天室'
+      case 'reg': return '登記課聊天室'
+      case 'sur': return '測量課聊天室'
+      case 'adm': return '行政課聊天室'
+      case 'val': return '地價課聊天室'
+      case 'hr': return '人事室聊天室'
+      case 'acc': return '會計室聊天室'
+      case 'supervisor': return '主任祕書室聊天室'
+      default:
+        if (channelId === (state.user?.id || '').toUpperCase()) {
+          return '我的私訊'
+        }
+        return `頻道 ${channelId}`
+    }
+  },
+  chatRooms: () => ['lds', 'adm', 'inf', 'val', 'reg', 'sur', 'acc', 'hr', 'supervisor'],
+  notifySettings: state => state.notifySettings,
+  participatedChannels: state => state.participatedChannels,
+  fetchingHistory: state => state.fetchingHistory,
+  connectedUsers: state => state.connectedUsers,
+  connectedUsersReverse: state => [...state.connectedUsers].reverse(),
+  connectedUsersCount: state => state.connectedUsers.length,
+  statusText: state => state.statusText,
+  timer: state => state.messengerTimer,
+  regexpMarkdImage: () => /!\[.+\]\(.+\)/igm,
+  regexpReplyHeader: () => /^(<p>)?給.+?(<\/p>)?\n?(<hr.*\/?>|\*{3})/igm
 }
 
 /**
@@ -249,6 +337,67 @@ export const mutations = {
   },
   fetchedMonitorMailCount (state, count) {
     state.fetchedMonitorMailCount = count || 0
+  },
+  // 即時通 (LAH-Messenger) Mutations
+  currentChannel (state, channel) {
+    state.currentChannel = channel
+  },
+  addChannel (state, channel) {
+    if (!(channel in state.messages)) {
+      state.messages = { ...state.messages, [channel]: [] }
+    }
+    if (!(channel in state.unread)) {
+      state.unread = { ...state.unread, [channel]: 0 }
+    }
+  },
+  resetUnread (state, channel) {
+    if (channel in state.unread) {
+      state.unread[channel] = 0
+    }
+  },
+  plusUnread (state, channel) {
+    if (channel in state.unread) {
+      state.unread[channel] += 1
+    } else {
+      state.unread = { ...state.unread, [channel]: 1 }
+    }
+  },
+  setUnread (state, { channel, count }) {
+    if (channel in state.unread) {
+      state.unread[channel] = count
+    } else {
+      state.unread = { ...state.unread, [channel]: count }
+    }
+  },
+  websocket (state, ws) {
+    state.websocket && state.websocket.close()
+    state.websocket = ws
+  },
+  timer (state, timer) {
+    state.messengerTimer = timer
+  },
+  connectedUsers (state, users) {
+    state.connectedUsers = [...users]
+  },
+  addParticipatedChannel (state, payload) {
+    if (!state.participatedChannels.find(item => item.id === payload.id)) {
+      state.participatedChannels.push(payload)
+    }
+  },
+  removeParticipatedChannel (state, payload) {
+    state.participatedChannels = state.participatedChannels.filter(item => item.id !== payload.id)
+  },
+  fetchingHistory (state, flag) {
+    state.fetchingHistory = flag
+  },
+  statusText (state, text) {
+    state.statusText = text
+  },
+  windowVisible (state, flag) {
+    state.windowVisible = flag
+  },
+  notifySettings (state, payload) {
+    state.notifySettings = { ...state.notifySettings, ...payload }
   }
 }
 
@@ -256,6 +405,12 @@ export const mutations = {
  * Actions for asynchronous operations.
  */
 export const actions = {
+  resetUnread ({ commit }, channel) {
+    commit('resetUnread', channel)
+  },
+  plusUnread ({ commit }, channel) {
+    commit('plusUnread', channel)
+  },
   /**
    * Nuxt-specific action for server-side initialization.
    */

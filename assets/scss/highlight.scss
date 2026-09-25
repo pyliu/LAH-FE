@@ -24,3 +24,60 @@
   background-color: red;
   color:white;
 }
+
+// LAH-Messenger highlight styles
+.open-os-explorer {
+  cursor: pointer;
+  color: #007bff;
+  font-weight: 400;
+  &:hover {
+    font-weight: 700;
+    text-decoration: underline;
+  }
+}
+
+.text-bold-red {
+  color: red;
+  font-weight: bold;
+}
+
+.text-bold-blue {
+  color: blue;
+  font-weight: bold;
+}
+
+.text-bold-orange {
+  color: orange;
+  font-weight: bold;
+}
+
+.text-bold-green {
+  color: limegreen;
+  font-weight: bold;
+}
+
+.dropable {
+  background-color: rgb(227, 255, 236) !important;
+  font-weight: bolder;
+  border: 5px dashed gray !important;
+}
+
+.list-enter-active, .list-leave-active,
+.listY-enter-active, .listY-leave-active,
+.bg-enter-active, .bg-leave-active {
+  transition: all .4s;
+}
+
+.list-enter, .list-leave-to {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+.listY-enter, .listY-leave-to {
+  opacity: 0;
+  transform: translateY(-50px);
+}
+
+.bg-enter, .bg-leave-to {
+  color: #007bff !important;
+}
