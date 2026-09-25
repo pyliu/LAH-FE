@@ -217,14 +217,24 @@ export default {
     rootClasses () {
       return {
         'is-embedded': this.embedded,
-        'is-standalone': !this.embedded
+        'is-standalone': !this.embedded,
+        [`font-size-${this.currentFontSize}`]: true
       }
     },
     rootStyle () {
+      const style = {}
       if (this.height) {
-        return { height: this.height }
+        style.height = this.height
       }
-      return {}
+      const sizeMap = {
+        normal: '16px',
+        medium: '18px',
+        large: '20px'
+      }
+      if (sizeMap[this.currentFontSize]) {
+        style.fontSize = sizeMap[this.currentFontSize]
+      }
+      return style
     },
     activeWsHost () {
       if (this.wsHost) return this.wsHost
@@ -276,10 +286,15 @@ export default {
     valid () {
       return !this.empty(trim(this.inputText)) || !this.empty(this.inputImages)
     },
+    maxUnwrappedAvatars () {
+      if (this.currentFontSize === 'large') return 5
+      if (this.currentFontSize === 'medium') return 6
+      return 7 // normal
+    },
     connectedUsersOverlapRatio () {
       const count = this.connectedUsers.length
-      if (count <= 7) return 0.0
-      return Math.min(0.4, (count - 7) * 0.08 + 0.15)
+      if (count <= this.maxUnwrappedAvatars) return 0.0
+      return Math.min(0.4, (count - this.maxUnwrappedAvatars) * 0.08 + 0.15)
     },
     markdImages () {
       let imgMdText = this.inputImages
@@ -384,6 +399,10 @@ export default {
     },
     pasted (base64) {
       !this.inputImages.includes(base64) && this.inputImages.push(base64)
+    },
+    removeInoutImage (base64data) {
+      const index = this.inputImages.indexOf(base64data)
+      if (index > -1) this.inputImages.splice(index, 1)
     },
     emojiPickup () {
       this.emoji = !this.emoji
@@ -682,6 +701,22 @@ export default {
           if (json.success) {
             const idx = this.messages[json.payload.channel]?.findIndex(msg => msg.id === json.payload.id)
             if (idx > -1) this.messages[json.payload.channel].splice(idx, 1)
+            const cascade = json.payload.cascade
+            if (cascade?.to && cascade?.id) {
+              this.websocket?.send(JSON.stringify({
+                type: 'command',
+                sender: this.userid,
+                date: this.date(),
+                time: this.time(),
+                channel: 'system',
+                message: JSON.stringify({
+                  command: 'remove_message',
+                  channel: cascade.to,
+                  id: cascade.id,
+                  cascade: ''
+                })
+              }))
+            }
           }
           this.setConnectText(`${json.message}`)
           break
@@ -700,6 +735,32 @@ export default {
                 }
               } else {
                 found.message = payload.message
+              }
+              const cascade = json.payload.cascade
+              if (cascade?.id && cascade?.to) {
+                const regex = typeof this.regexpReplyHeader === 'function' ? this.regexpReplyHeader() : this.regexpReplyHeader
+                const cleanMessage = payload.message ? payload.message.replace(regex, '') : ''
+                this.websocket?.send(JSON.stringify({
+                  type: 'command',
+                  sender: this.userid,
+                  date: this.date(),
+                  time: this.time(),
+                  channel: 'system',
+                  message: {
+                    command: 'edit_message',
+                    channel: cascade.to,
+                    id: cascade.id,
+                    sender: this.userid,
+                    payload: {
+                      ...payload,
+                      id: cascade.id,
+                      channel: cascade.to,
+                      sender: this.userid,
+                      title: 'dontcare',
+                      message: cleanMessage
+                    }
+                  }
+                }))
               }
             }
           }
@@ -720,6 +781,26 @@ export default {
             (json.payload.users || []).filter((n) => n)
           )
           break
+        case 'private_message': {
+          const insertedId = json.payload?.insertedId
+          const insertedChannel = json.payload?.channel
+          const chatRooms = typeof this.chatRooms === 'function' ? this.chatRooms() : (this.chatRooms || [])
+          if (
+            insertedChannel !== this.userid &&
+            !insertedChannel?.startsWith('announcement') &&
+            !chatRooms.includes(insertedChannel)
+          ) {
+            const remove = JSON.stringify({ to: insertedChannel, id: insertedId })
+            this.websocket?.send(this.packMessage(json.payload.message, {
+              channel: this.userid,
+              title: remove,
+              priority: 4,
+              flag: 1
+            }))
+          }
+          this.setConnectText(`${json.message}`)
+          break
+        }
         case 'set_read':
         case 'check_read': {
           const targetList = cmd === 'set_read' ? this.messages[json.payload.channel] : this.messages[json.payload.sender]

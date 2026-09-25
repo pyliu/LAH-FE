@@ -124,10 +124,11 @@ export default {
   },
   created () {
     const rawMsg = this.raw?.message || ''
-    const matched = rawMsg.match(this.regexpReplyHeader)
+    const regex = typeof this.regexpReplyHeader === 'function' ? this.regexpReplyHeader() : this.regexpReplyHeader
+    const matched = regex ? rawMsg.match(regex) : null
     if (matched) {
       this.replyHeader = matched[0]
-      this.message = rawMsg.replace(this.regexpReplyHeader, '').trim()
+      this.message = rawMsg.replace(regex, '').trim()
     } else {
       this.message = rawMsg.trim()
     }

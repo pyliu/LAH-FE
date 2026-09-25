@@ -183,9 +183,11 @@ export const getters = {
   totalUnread: (state) => {
     try {
       const uid = (state.user?.id || '').toUpperCase()
+      const dept = state.user?.dept || ''
       return (state.unread.lds || 0) +
              (state.unread.announcement || 0) +
-             (state.unread[uid] || 0)
+             (state.unread[uid] || 0) +
+             (state.unread[dept] || 0)
     } catch {
       return 0
     }
@@ -221,6 +223,8 @@ export const getters = {
   connectedUsersCount: state => state.connectedUsers.length,
   statusText: state => state.statusText,
   timer: state => state.messengerTimer,
+  imageMementoCacheKey: () => 'imageMementoCached',
+  messageMementoCacheKey: () => 'messageMementoCached',
   regexpMarkdImage: () => /!\[.+\]\(.+\)/igm,
   regexpReplyHeader: () => /^(<p>)?給.+?(<\/p>)?\n?(<hr.*\/?>|\*{3})/igm
 }
@@ -309,6 +313,11 @@ export const mutations = {
    * @param {object} state - The Vuex state.
    * @param {string} base64data - The base64 encoded image data.
    */
+  imageMemento (state, arr) {
+    if (Array.isArray(arr)) {
+      state.imageMemento = [...arr]
+    }
+  },
   addImageMemento (state, base64data) {
     if (state.imageMemento.length >= state.imageMementoCapacity) {
       state.imageMemento.shift()
@@ -316,11 +325,11 @@ export const mutations = {
     state.imageMemento.push(base64data)
     state.imageMemento = uniqWith(state.imageMemento, isEqual)
   },
-  /**
-   * Adds a message to the memento, managing capacity.
-   * @param {object} state - The Vuex state.
-   * @param {*} data - The message data to add.
-   */
+  messageMemento (state, arr) {
+    if (Array.isArray(arr)) {
+      state.messageMemento = [...arr]
+    }
+  },
   addMessageMemento (state, data) {
     if (state.messageMemento.length >= state.messageMementoCapacity) {
       state.messageMemento.shift()
@@ -349,6 +358,11 @@ export const mutations = {
     if (!(channel in state.unread)) {
       state.unread = { ...state.unread, [channel]: 0 }
     }
+  },
+  resetUnreadAll (state) {
+    Object.keys(state.unread).forEach((key) => {
+      state.unread[key] = 0
+    })
   },
   resetUnread (state, channel) {
     if (channel in state.unread) {
@@ -379,13 +393,24 @@ export const mutations = {
   connectedUsers (state, users) {
     state.connectedUsers = [...users]
   },
+  resetParticipatedChannel (state) {
+    state.participatedChannels.length = 0
+  },
   addParticipatedChannel (state, payload) {
-    if (!state.participatedChannels.find(item => item.id === payload.id)) {
-      state.participatedChannels.push(payload)
+    if (payload.id && payload.name) {
+      if (!state.participatedChannels.find(item => item.id === payload.id)) {
+        state.participatedChannels = [...state.participatedChannels, payload]
+      }
+      // add/reset to messages list as well
+      state.messages = { ...state.messages, [payload.id]: [] }
     }
   },
   removeParticipatedChannel (state, payload) {
-    state.participatedChannels = state.participatedChannels.filter(item => item.id !== payload.id)
+    if (payload.id) {
+      state.participatedChannels = [...state.participatedChannels.filter(item => item.id !== payload.id)]
+      // remove the channel messages
+      delete state.messages[payload.id]
+    }
   },
   fetchingHistory (state, flag) {
     state.fetchingHistory = flag

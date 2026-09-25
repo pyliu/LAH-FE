@@ -74,14 +74,19 @@ export default {
   }),
   computed: {
     name () { return this.userMap[this.to] || this.to },
-    imageMementoReverse () { return [...this.imageMemento].reverse() }
+    imageMementoReverse () { return [...this.imageMemento].reverse() },
+    imageMementoCacheKey () {
+      return (typeof this.$store.getters.imageMementoCacheKey === 'function'
+        ? this.$store.getters.imageMementoCacheKey()
+        : this.$store.getters.imageMementoCacheKey) || 'imageMementoCached'
+    }
   },
   watch: {
     uploadFile (file) {
       file && this.upload()
     },
     imageMemento (arr) {
-      this.$localForage.setItem('imageMementoCached', arr).catch((err) => {
+      this.$localForage.setItem(this.imageMementoCacheKey, arr).catch((err) => {
         this.alert(`快取圖檔失敗 (${err.toString()})`)
       })
     }

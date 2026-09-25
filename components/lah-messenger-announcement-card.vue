@@ -142,9 +142,35 @@ export default {
     line-height: 1.6;
   }
   ::v-deep .card-footer {
-    padding: 0.4rem 0.75rem;
+    padding: 6px 12px !important;
     font-size: 0.8rem;
     background-color: #f8f9fa;
+  }
+}
+
+.protected-footer {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  zoom: 1 !important;
+
+  &, *, span {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    letter-spacing: normal !important;
+  }
+
+  ::v-deep .btn {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+    height: auto !important;
+    display: inline-flex;
+    align-items: center;
+
+    .b-icon {
+      font-size: 11px !important;
+      width: 1em !important;
+      height: 1em !important;
+    }
   }
 }
 </style>

@@ -88,6 +88,12 @@ export default {
         .replace(/(?<!`)(["'])(\\\\[a-zA-Z0-9_.-]+\\[^\r\n]+?|[a-zA-Z]:\\[^\r\n]+?)\1(?!`)/g, '`$2`')
         .replace(/(?<!`)(\\\\[a-zA-Z0-9_.-]+\\[^\s`<>]+|[a-zA-Z]:\\[^\s`<>]+)(?!`)/g, '`$1`')
     },
+    replaceFilepath (str) {
+      if (!str) return ''
+      const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
+      const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
+      return str.replace(regex, subst)
+    },
     showUnread (channel) {
       const val = this.getUnread(channel)
       return parseInt(val) > 0 || val === '99+' || val === '9+'

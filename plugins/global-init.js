@@ -259,6 +259,12 @@ export default ({ $axios, store, $config }, inject) => {
     convertInlineMarkd (text) {
       return DOMPurify?.sanitize(marked.parseInline(text?.trimEnd()))
     },
+    replaceFilepath (str) {
+      if (!str) return ''
+      const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
+      const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
+      return str.replace(regex, subst)
+    },
     /**
      * node-emoji
      */
