@@ -2,6 +2,7 @@
 b-container(v-cloak fluid)
   Nuxt
   lah-footer
+  lah-messenger-sidebar
   .version.shadow v{{ $config.pkgVersion }}
 </template>
 

@@ -844,11 +844,18 @@ export default {
 
       if (i.sender !== this.userid) {
         const senderName = this.userMap[i.sender] || i.sender
+        const channelName = this.getChannelName(i.channel)
         this.setConnectText(`💬 來自 ${senderName}: ${fullText}`)
         // 瀏覽器端 Toast 提醒
         this.notify(`💬 來自 ${senderName}: ${fullText}`, {
-          title: `即時通訊息 - ${this.getChannelName(i.channel)}`,
+          title: `即時通訊息 - ${channelName}`,
           variant: 'info'
+        })
+        this.$emit('new-message', {
+          ...i,
+          senderName,
+          channelName,
+          fullText
         })
       }
     }
