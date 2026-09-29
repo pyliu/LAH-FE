@@ -70,7 +70,7 @@ client-only
     //- 3. 右下角新訊息提示浮標 (半透明卡片，點選後帶出主視窗)
     transition(name="slide-up")
       .floating-message-chip(
-        v-if="connected && showFloatingToast && latestNotification"
+        v-if="showFloatingToast && latestNotification"
         @click="onFloatingToastClick"
         @mouseenter="pauseToastTimer"
         @mouseleave="resumeToastTimer"
@@ -123,7 +123,7 @@ export default {
       )
     },
     showHandle () {
-      return Boolean(this.connected) && !this.visible
+      return !this.visible
     },
     displayTotalUnread () {
       return this.totalUnread > 99 ? '99+' : this.totalUnread
@@ -152,14 +152,16 @@ export default {
       this.visible = false
     },
     onNewMessage (payload) {
-      // 若未連線或 sidebar 已經打開中，不需要額外彈出右下角浮標
-      if (!this.connected || this.visible) {
+      // 若 sidebar 已經打開中，不需要額外彈出右下角浮標
+      if (this.visible) {
         return
       }
 
-      // 截斷摘要文字避免過長
+      // 截斷摘要文字避免過長，若無純文字（例如純圖片）則提供預設摘要
       let summary = payload.fullText || ''
-      if (summary.length > 50) {
+      if (!summary) {
+        summary = '[圖片或多媒體訊息]'
+      } else if (summary.length > 50) {
         summary = summary.substring(0, 50) + '...'
       }
 

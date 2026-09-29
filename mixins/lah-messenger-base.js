@@ -133,9 +133,15 @@ export default {
       const val = this.getUnread(channel)
       return parseInt(val) > 0 || val === '99+' || val === '9+'
     },
-    getUnread(channel) {
+    getUnread (channel) {
       if (this.unread) {
-        const val = this.unread[channel] || 0
+        let val = this.unread[channel] || 0
+        if (!val && channel && (channel === this.userid || channel.toUpperCase() === this.userid)) {
+          val = this.unread[this.userid] || this.unread[this.userid.toLowerCase()] || 0
+        }
+        if (channel === 'announcement' && this.userdept) {
+          val += (this.unread[`announcement_${this.userdept}`] || 0)
+        }
         return val > 99 ? '99+' : val
       }
       return 0
@@ -149,7 +155,7 @@ export default {
         return true
       }
       // 基本公共與個人頻道：公告、通知列表、全所 (lds)、個人私訊
-      if (['announcement', 'chat', 'lds', this.userid].includes(channel)) {
+      if (['announcement', 'chat', 'lds'].includes(channel) || (channel || '').toUpperCase() === this.userid) {
         return true
       }
       // 自己的課室/部門頻道及其公告頻道
@@ -170,6 +176,9 @@ export default {
       }
       this.$store.commit('currentChannel', channel)
       this.$store.commit('resetUnread', channel)
+      if (channel === 'announcement' && this.userdept) {
+        this.$store.commit('resetUnread', `announcement_${this.userdept}`)
+      }
       return true
     },
     queryOnlineClients() {

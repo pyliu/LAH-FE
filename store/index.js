@@ -118,6 +118,7 @@ export const state = () => ({
     supervisor: 0
   },
   websocket: undefined,
+  wsConnected: false,
   connectedUsers: [],
   participatedChannels: [],
   fetchingHistory: false,
@@ -176,18 +177,19 @@ export const getters = {
   // 即時通 (LAH-Messenger) Getters
   windowVisible: state => state.windowVisible,
   websocket: state => state.websocket,
-  connected: state => state.websocket && state.websocket.readyState === 1,
-  disconnected: state => isEmpty(state.websocket) || state.websocket.readyState === 3,
+  connected: state => Boolean(state.wsConnected || (state.websocket && state.websocket.readyState === 1)),
+  disconnected: state => !state.wsConnected && (isEmpty(state.websocket) || state.websocket.readyState === 3),
   messages: state => state.messages,
   unread: state => state.unread,
   totalUnread: (state) => {
     try {
-      const uid = (state.user?.id || '').toUpperCase()
-      const dept = state.user?.dept || ''
-      return (state.unread.lds || 0) +
-             (state.unread.announcement || 0) +
-             (state.unread[uid] || 0) +
-             (state.unread[dept] || 0)
+      let total = 0
+      Object.entries(state.unread || {}).forEach(([ch, count]) => {
+        if (typeof count === 'number' && count > 0) {
+          total += count
+        }
+      })
+      return total
     } catch {
       return 0
     }
@@ -365,27 +367,42 @@ export const mutations = {
     })
   },
   resetUnread (state, channel) {
-    if (channel in state.unread) {
+    const uid = (state.user?.id || '').toUpperCase()
+    const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
+    if (targetKey in state.unread) {
+      state.unread[targetKey] = 0
+    }
+    if (channel && channel !== targetKey && channel in state.unread) {
       state.unread[channel] = 0
     }
   },
   plusUnread (state, channel) {
-    if (channel in state.unread) {
-      state.unread[channel] += 1
+    const uid = (state.user?.id || '').toUpperCase()
+    const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
+    if (targetKey in state.unread) {
+      state.unread[targetKey] += 1
     } else {
-      state.unread = { ...state.unread, [channel]: 1 }
+      state.unread = { ...state.unread, [targetKey]: 1 }
     }
   },
   setUnread (state, { channel, count }) {
-    if (channel in state.unread) {
-      state.unread[channel] = count
+    const uid = (state.user?.id || '').toUpperCase()
+    const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
+    if (targetKey in state.unread) {
+      state.unread[targetKey] = count
     } else {
-      state.unread = { ...state.unread, [channel]: count }
+      state.unread = { ...state.unread, [targetKey]: count }
     }
+  },
+  wsConnected (state, flag) {
+    state.wsConnected = Boolean(flag)
   },
   websocket (state, ws) {
     state.websocket && state.websocket.close()
     state.websocket = ws
+    if (!ws) {
+      state.wsConnected = false
+    }
   },
   timer (state, timer) {
     state.messengerTimer = timer

@@ -12,34 +12,43 @@ div(style="position:relative" @paste="pasteImage($event, pasted)")
     no-auto-shrink
     autofocus
   )
-  
-  .d-flex.align-items-center
-    b-checkbox(v-model="realtime" switch v-if="!emoji") 預覽
-    div.mr-auto
-    b-button-group.mr-1(size="sm")
-      b-button.mr-1(
-        v-if="!realtime"
-        variant="outline-secondary"
-        title="👀 預覽"
-        @click="openPreview"
-      ): b-icon(icon="eye")
-      b-button.mr-1(@click="emoji = !emoji" variant="outline-secondary" :title="`挑選表情 ${randFace}`") #[span.h5 {{ randFace }}]
-      b-button.mr-1(
-        @click="pick"
-        variant="outline-success"
-        title="附加圖片"
-      ): b-icon(icon="images")
-      b-button.mr-1(
-        @click="send"
-        :disabled="notValid"
-        :variant="notValid ? 'outline-primary' : 'primary'"
-        title="送出"
-      ): b-icon(icon="cursor" rotate="45")
-      b-button(
-        @click="help"
-        variant="success"
-        title="顯示語法說明"
-      ): b-icon(icon="question-circle-fill")
+
+  .position-relative.my-2
+    .d-flex.align-items-center
+      b-checkbox(v-model="realtime" switch v-if="!emoji") 預覽
+      div.mr-auto
+      b-button-group.mr-1(size="sm")
+        b-button.mr-1(
+          v-if="!realtime"
+          variant="outline-secondary"
+          title="👀 預覽"
+          @click="openPreview"
+        ): b-icon(icon="eye")
+        b-button.mr-1(@click="emoji = !emoji" variant="outline-secondary" :title="`挑選表情 ${randFace}`") #[span.h5 {{ randFace }}]
+        b-button.mr-1(
+          @click="pick"
+          variant="outline-success"
+          title="附加圖片"
+        ): b-icon(icon="images")
+        b-button.mr-1(
+          @click="send"
+          :disabled="notValid"
+          :variant="notValid ? 'outline-primary' : 'primary'"
+          title="送出"
+        ): b-icon(icon="cursor" rotate="45")
+        b-button(
+          @click="help"
+          variant="success"
+          title="顯示語法說明"
+        ): b-icon(icon="question-circle-fill")
+
+    lah-transition(fade): .float-emoji(v-if="emoji" ref="floatEmoji")
+      .d-flex.justify-content-between.align-items-center.px-1.mb-1.border-bottom.pb-1
+        span.small.text-muted 點選表情插入訊息
+        b-button(variant="link" size="sm" class="p-0 text-muted" @click="emoji = false" title="關閉")
+          b-icon(icon="x" font-scale="1.2")
+      lah-messenger-emoji-pickup(@click="addEmoji")
+
   .d-flex.flex-wrap.align-items-center
     transition-group(name="listY" tag="div")
       b-img.memento.m-1(
@@ -52,9 +61,6 @@ div(style="position:relative" @paste="pasteImage($event, pasted)")
         v-b-tooltip="'刪除這張圖片'"
         style="width: 138.5px"
       )
-
-  lah-transition(fade): .float-emoji(v-if="emoji" ref="floatEmoji")
-    lah-messenger-emoji-pickup(@click="addEmoji")
 
   lah-transition: .d-flex.justify-content-between.p-1.preview.mt-2(v-if="realtime && !empty(mergedMessage)" ref="preview")
     span.text-white.font-weight-bold 編輯預覽
@@ -232,17 +238,17 @@ export default {
 <style lang="scss" scoped>
 .float-emoji {
   position: absolute;
-  top: -160px;
+  bottom: calc(100% + 4px);
   left: 0;
   width: 100%;
-  max-height: 150px;
+  max-height: 160px;
   overflow-y: auto;
   background: #f8f9fa;
   border: 1px solid #ced4da;
   border-radius: 8px;
   padding: 8px;
   z-index: 1050;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.18);
 }
 .preview {
   border-radius: 8px;

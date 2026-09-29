@@ -270,10 +270,12 @@ export default {
     },
     chatUnread () {
       const result = Object.entries(this.unread || {}).reduce((acc, curr) => {
+        const ch = curr[0]
         const isTarget =
-          this.isChannelAllowed(curr[0]) &&
-          (parseInt(curr[0]) > 0 ||
-          ['lds', 'adm', 'sur', 'inf', 'reg', 'val', 'acc', 'hr', 'supervisor'].includes(curr[0]))
+          this.isChannelAllowed(ch) &&
+          ch !== 'announcement' &&
+          !ch.startsWith('announcement_') &&
+          ch.toUpperCase() !== this.userid.toUpperCase()
         return isTarget ? acc + curr[1] : acc
       }, 0)
       return result > 99 ? '99+' : result
@@ -492,6 +494,7 @@ export default {
         const ws = new WebSocket(this.currentWsConnStr)
 
         ws.onopen = () => {
+          this.$store.commit('wsConnected', true)
           this.$store.commit('websocket', ws)
           this.setConnectText('即時通已連線')
           this.register()
@@ -501,18 +504,20 @@ export default {
         }
 
         ws.onclose = () => {
+          this.$store.commit('wsConnected', false)
           this.$store.commit('websocket', undefined)
           this.setConnectText('即時通已斷開')
           this.connecting = false
         }
 
         ws.onerror = () => {
+          this.$store.commit('wsConnected', false)
           this.$store.commit('websocket', undefined)
           this.setConnectText('即時通伺服器連線失敗')
           this.connecting = false
         }
 
-        ws.onmessage = async (e) => {
+        ws.onmessage = (e) => {
           this.handleWebSocketMessage(e)
         }
       } catch (e) {
@@ -524,6 +529,7 @@ export default {
     closeWebsocket () {
       if (this.websocket) {
         this.websocket.close()
+        this.$store.commit('wsConnected', false)
         this.$store.commit('websocket', undefined)
       }
     },
@@ -664,31 +670,60 @@ export default {
           this.$store.commit('addChannel', channel)
         }
         this.$nextTick(() => {
-          if (
-            !this.$utils.empty(incoming.message) &&
-            !this.messages[channel].find((m) => m.id === incoming.id)
-          ) {
-            if (isHistory) {
-              this.messages[channel].unshift(incoming)
-            } else {
-              this.messages[channel].push(incoming)
-              this.scrollToBottom()
-            }
+          if (!this.$utils.empty(incoming.message)) {
+            const isDuplicate = this.messages[channel].some((m) => {
+              if (incoming.id && m.id) {
+                return m.id === incoming.id
+              }
+              return (
+                m.sender === incoming.sender &&
+                m.date === incoming.date &&
+                m.time === incoming.time &&
+                m.message === incoming.message
+              )
+            })
 
-            if (receivedId > lastReadId) {
-              this.setCache(`${channel}_last_id`, receivedId)
-            }
-            if (!isHistory) {
-              this.triggerNotification(incoming)
-              this.delayLatestMessage()
+            if (!isDuplicate) {
+              if (isHistory) {
+                this.messages[channel].unshift(incoming)
+              } else {
+                this.messages[channel].push(incoming)
+                this.scrollToBottom()
+              }
+
+              if (!isHistory) {
+                this.triggerNotification(incoming)
+                this.delayLatestMessage()
+              }
             }
           }
         })
       } else if (incoming.message && incoming.sender !== 'system' && !isHistory) {
-        if (
-          receivedId > lastReadId &&
-          ['lds', 'announcement', `announcement_${this.userdept}`, this.userid, this.userdept].includes(channel)
-        ) {
+        if (!Array.isArray(this.messages[channel])) {
+          this.$store.commit('addChannel', channel)
+        }
+        const isDuplicate = this.messages[channel].some((m) => {
+          if (incoming.id && m.id) {
+            return m.id === incoming.id
+          }
+          return (
+            m.sender === incoming.sender &&
+            m.date === incoming.date &&
+            m.time === incoming.time &&
+            m.message === incoming.message
+          )
+        })
+        if (!isDuplicate) {
+          this.messages[channel].push(incoming)
+        }
+
+        const isTargetChannel =
+          ['lds', 'announcement', `announcement_${this.userdept}`, this.userid, this.userdept].some(c => (c || '').toUpperCase() === (channel || '').toUpperCase()) ||
+          this.isChannelAllowed(channel)
+
+        const numReceivedId = parseInt(receivedId) || 0
+        const numLastReadId = parseInt(lastReadId) || 0
+        if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
           this.plusUnread(channel)
         }
         this.triggerNotification(incoming)
@@ -849,18 +884,29 @@ export default {
       const channel = incoming.channel
       const lastReadId = (await this.getCache(`${channel}_last_id`)) || 0
       const receivedId = incoming.message?.id || incoming.id
-      if (receivedId > lastReadId) {
+      const numReceivedId = parseInt(receivedId) || 0
+      const numLastReadId = parseInt(lastReadId) || 0
+      if (!numReceivedId || numReceivedId > numLastReadId) {
         this.invokeNotification(incoming)
       }
     },
     invokeNotification (i) {
       const temp = document.createElement('div')
       temp.innerHTML = i.message?.title || i.message || ''
-      const fullText = temp.textContent || temp.innerText || ''
-      this.setCache(`${i.channel}_last_id`, i.message?.id || i.id)
+      const fullText = temp.textContent || ''
+      if (i.message?.id || i.id) {
+        this.setCache(`${i.channel}_last_id`, i.message?.id || i.id)
+      }
 
-      if (i.sender !== this.userid) {
-        const senderName = this.userMap[i.sender] || i.sender
+      const isSelf = (i.sender || '').toUpperCase() === this.userid.toUpperCase()
+      const isPersonalToSelf = (i.channel || '').toUpperCase() === this.userid.toUpperCase()
+      const isCurrentChannel = this.currentChannel === i.channel
+
+      // 若非自己發送、或是發給自己的私訊、或者目前不在該發送頻道（例如從其他設備/分頁發送），均進行提醒
+      const shouldNotify = !isSelf || isPersonalToSelf || !isCurrentChannel
+
+      if (shouldNotify) {
+        const senderName = isPersonalToSelf && isSelf ? '自己' : (this.userMap[i.sender] || i.sender)
         const channelName = this.getChannelName(i.channel)
         this.setConnectText(`💬 來自 ${senderName}: ${fullText}`)
         // 將訊息排入佇列，避免瞬間大量訊息湧入霸佔畫面
