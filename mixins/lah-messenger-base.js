@@ -74,11 +74,43 @@ export default {
     defaultWsPort() {
       return DEFAULT_WS_PORT
     },
-    messengerDeptList() {
+    messengerDeptList () {
       return Object.entries(DEPT_NAME_MAP).map(([code, name]) => ({
         code,
         name
       }))
+    },
+    uniqueConnectedUsers () {
+      const userMap = new Map()
+      const parseTime = (u) => {
+        if (!u || !u.timestamp) {
+          return 0
+        }
+        const ts = Number(u.timestamp)
+        if (!isNaN(ts) && ts > 0) {
+          return ts < 10000000000 ? ts * 1000 : ts
+        }
+        const parsed = Date.parse(u.timestamp)
+        return isNaN(parsed) ? 0 : parsed
+      }
+      const list = Array.isArray(this.connectedUsers) ? this.connectedUsers : []
+      for (let i = 0; i < list.length; i++) {
+        const u = list[i]
+        if (!u) {
+          continue
+        }
+        const uid = u.userid || u.username || `user_${i}`
+        const existing = userMap.get(uid)
+        if (!existing) {
+          userMap.set(uid, u)
+        } else if (parseTime(u) >= parseTime(existing)) {
+          userMap.set(uid, u)
+        }
+      }
+      return Array.from(userMap.values())
+    },
+    uniqueConnectedUsersCount () {
+      return this.uniqueConnectedUsers.length
     }
   },
   methods: {

@@ -123,7 +123,7 @@ export default {
       )
     },
     showHandle () {
-      return Boolean(this.connected) && !this.visible && !this.isMessagePage
+      return Boolean(this.connected) && !this.visible
     },
     displayTotalUnread () {
       return this.totalUnread > 99 ? '99+' : this.totalUnread

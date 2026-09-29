@@ -35,7 +35,7 @@
     .mr-auto
       b-icon(icon="people-fill")
       span.mx-1 線上使用者
-      b-badge(pill :variant="connectedUsersBadgeVariant") {{ connectedUsersCount }}
+      b-badge(pill :variant="connectedUsersBadgeVariant") {{ uniqueConnectedUsersCount }}
     b-input.mx-2(
       v-model="keyword"
       title="輸入關鍵字篩選線上使用者"
@@ -60,7 +60,7 @@
       .text-nowrap.mr-auto.lah-shadow
         b-link(v-if="isNotifyMgtStaff", @click="setCurrentChannel(deptList.id)") {{ deptList.text }} #[b-badge(variant="success" pill) {{ deptList.users.length }}]
         span(v-else) {{ deptList.text }} #[b-badge(variant="success" pill) {{ deptList.users.length }}]
-      b-avatar-group(size="2.5rem" :overlap="overlapRatio(deptList.users.length)"): transition-group.d-flex.justify-content-end.flex-wrap(name="listY" mode="out-in"): lah-messenger-user-avatar.shadow(
+      b-avatar-group(size="2.5rem" :overlap="overlapRatio(deptList.users.length)"): transition-group.d-flex.justify-content-end.flex-wrap(name="listY" tag="div"): lah-messenger-user-avatar.shadow(
         v-for="(user, uidx) in deptList.users"
         :key="`avatar_${user ? user.userid : 'unknown'}_${uidx}`"
         :user-data="user"
@@ -116,9 +116,12 @@ export default {
         { text: '主任祕書室', users: [], id: 'supervisor' },
         { text: '無歸屬', users: [], id: 'none' }
       ]
-      for (let i = 0; i < this.connectedUsersCount; i++) {
-        const user = this.connectedUsers[i]
-        if (!user) continue
+      const users = this.uniqueConnectedUsers
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i]
+        if (!user) {
+          continue
+        }
         if (
           this.$utils.empty(keyword) ||
           user.userid?.includes(keyword) ||
@@ -144,8 +147,12 @@ export default {
       })
     },
     connectedUsersBadgeVariant () {
-      if (this.connectedUsersCount > 100) return 'danger'
-      if (this.connectedUsersCount > 75) return 'warning'
+      if (this.uniqueConnectedUsersCount > 100) {
+        return 'danger'
+      }
+      if (this.uniqueConnectedUsersCount > 75) {
+        return 'warning'
+      }
       return 'success'
     }
   },

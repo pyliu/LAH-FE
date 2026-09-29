@@ -181,8 +181,8 @@ export default {
     },
     toUsersOpts () {
       const opts = [{ value: '', text: '選擇同仁' }]
-      if (this.connectedUsers && this.connectedUsers.length > 0) {
-        this.connectedUsers.forEach(u => {
+      if (this.uniqueConnectedUsers && this.uniqueConnectedUsers.length > 0) {
+        this.uniqueConnectedUsers.forEach(u => {
           if (u.userid !== this.userid) {
             opts.push({
               value: u.userid,

@@ -76,20 +76,20 @@
 
           //- 線上成員頭像列表
           b-avatar-group.mr-4(
-            v-if="connectedUsersCount > 1"
+            v-if="uniqueConnectedUsersCount > 1"
             size="2rem"
             :overlap="connectedUsersOverlapRatio"
           )
             lah-messenger-user-avatar.shadow(
-              v-for="(u, idx) in connectedUsers"
+              v-for="(u, idx) in uniqueConnectedUsers"
               v-if="idx < 9"
               :key="`connected_user_${u.userid}_${idx}`"
               :user-data="u"
             )
-          span.mr-4(v-if="connectedUsersCount >= 9") +{{ connectedUsersCount - 9 }}
+          span.mr-4(v-if="uniqueConnectedUsersCount >= 9") +{{ uniqueConnectedUsersCount - 9 }}
           lah-messenger-user-avatar.mr-4.shadow(
-            v-if="connectedUsersCount === 1"
-            :user-data="connectedUsers[0]"
+            v-if="uniqueConnectedUsersCount === 1"
+            :user-data="uniqueConnectedUsers[0]"
           )
 
         //- 3. 內容顯示區
@@ -290,7 +290,7 @@ export default {
       return 7 // normal
     },
     connectedUsersOverlapRatio () {
-      const count = this.connectedUsers.length
+      const count = this.uniqueConnectedUsersCount
       if (count <= this.maxUnwrappedAvatars) return 0.0
       return Math.min(0.4, (count - this.maxUnwrappedAvatars) * 0.08 + 0.15)
     },
