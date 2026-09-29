@@ -33,8 +33,8 @@ div.message-admin-page
         variant="outline-primary"
         size="sm"
         pill
-        @click="showModalById('message-inbox-modal')"
-        title="開啟我的個人收件箱視窗"
+        @click="openSidebarInbox()"
+        title="直接開啟即時通側邊欄私訊"
       )
         span.font-weight-bold 個人收件箱
     .d-flex.align-items-center
@@ -965,6 +965,7 @@ export default {
       }
       this.$store.commit('currentChannel', this.userid)
       this.$store.commit('resetUnread', this.userid)
+      this.$root.$emit('open-messenger-sidebar', this.userid)
       this.$root.$emit('bv::show::sidebar', 'lah-messenger-sidebar')
     },
     normalizeDeptCode (deptStr) {
