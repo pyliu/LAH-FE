@@ -142,7 +142,11 @@ export default {
       }
     }
   },
+  mounted () {
+    this.$root.$on('open-messenger-sidebar', this.openSidebar)
+  },
   beforeDestroy () {
+    this.$root.$off('open-messenger-sidebar', this.openSidebar)
     this.clearToastTimer()
   },
   methods: {
