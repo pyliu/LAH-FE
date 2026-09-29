@@ -185,7 +185,7 @@ export const getters = {
     try {
       let total = 0
       Object.entries(state.unread || {}).forEach(([ch, count]) => {
-        if (typeof count === 'number' && count > 0) {
+        if (typeof count === 'number' && count > 0 && !ch.startsWith('announcement_')) {
           total += count
         }
       })

@@ -620,16 +620,18 @@ export default {
     queryUnreadCount () {
       [
         'announcement',
-        `announcement_${this.userdept}`,
         this.userid,
         'lds',
         this.userdept
       ].forEach(c => this.queryChannelUnreadCount(c))
     },
     async queryChannelUnreadCount (c) {
+      if (c && c.startsWith('announcement_')) {
+        return
+      }
       if (this.websocket?.readyState === 1) {
         const lastId = (await this.getChannelLastReadId(c)) || 0
-        console.log(`[即時通] 查詢未讀數: 頻道 [${c}]，本地最後已讀 ID: ${lastId}`)
+        this.$utils.log(`[即時通] 查詢未讀數: 頻道 [${c}]，本地最後已讀 ID: ${lastId}`)
         this.websocket.send(
           JSON.stringify({
             type: 'command',
@@ -748,13 +750,14 @@ export default {
         }
 
         const isTargetChannel =
-          ['lds', 'announcement', `announcement_${this.userdept}`, this.userid, this.userdept].some(c => (c || '').toUpperCase() === (channel || '').toUpperCase()) ||
-          this.isChannelAllowed(channel)
+          !channel?.startsWith('announcement_') &&
+          (['lds', 'announcement', this.userid, this.userdept].some(c => (c || '').toUpperCase() === (channel || '').toUpperCase()) ||
+          this.isChannelAllowed(channel))
 
         const numReceivedId = parseInt(receivedId) || 0
         const numLastReadId = parseInt(lastReadId) || 0
         if (numReceivedId > 0 && numReceivedId <= numLastReadId) {
-          console.log(`[即時通] 頻道 [${channel}] 收到訊息 ID: ${numReceivedId} <= 已讀 ID: ${numLastReadId}，略過未讀計數`)
+          this.$utils.log(`[即時通] 頻道 [${channel}] 收到訊息 ID: ${numReceivedId} <= 已讀 ID: ${numLastReadId}，略過未讀計數`)
         } else if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
           this.plusUnread(channel)
         }
@@ -874,11 +877,12 @@ export default {
           break
         case 'unread': {
           const ch = json.payload.channel
-          const isViewingThisChannel =
-            this.currentChannel === ch ||
-            (this.currentChannel === 'announcement' && ch === `announcement_${this.userdept}`)
+          if (ch && ch.startsWith('announcement_')) {
+            break
+          }
+          const isViewingThisChannel = this.currentChannel === ch
           const serverUnread = parseInt(json.payload.unread) || 0
-          console.log(`[即時通] 收到未讀數回傳: 頻道 [${ch}] = ${serverUnread} (當前檢視: ${this.currentChannel})`)
+          this.$utils.log(`[即時通] 收到未讀數回傳: 頻道 [${ch}] = ${serverUnread} (當前檢視: ${this.currentChannel})`)
           if (isViewingThisChannel) {
             this.$store.commit('setUnread', {
               channel: ch,
@@ -1079,12 +1083,9 @@ export default {
       return 0
     },
     switchChannelToAnnouncement () {
-      console.log('[即時通] 使用者點擊進入「📣 公告」分頁')
+      this.$utils.log('[即時通] 使用者點擊進入「📣 公告」分頁')
       this.setCurrentChannel('announcement')
       this.$store.commit('resetUnread', 'announcement')
-      if (this.userdept) {
-        this.$store.commit('resetUnread', `announcement_${this.userdept}`)
-      }
       this.latestMessage()
       this.$nextTick(async () => {
         await this.updateChannelLastReadId('announcement')
@@ -1106,19 +1107,7 @@ export default {
         await this.setChannelLastReadId('announcement', maxId)
       }
       this.$store.commit('resetUnread', 'announcement')
-      if (this.userdept) {
-        const deptCh = `announcement_${this.userdept}`
-        const deptList = this.messages[deptCh] || []
-        const deptMaxId = deptList.reduce((max, item) => {
-          const id = this.extractMessageId(item)
-          return id > max ? id : max
-        }, 0)
-        if (deptMaxId > 0) {
-          await this.setChannelLastReadId(deptCh, deptMaxId)
-        }
-        this.$store.commit('resetUnread', deptCh)
-      }
-      console.log(`[即時通] 使用者手動將公告標記為已讀，最新 ID: ${maxId}`)
+      this.$utils.log(`[即時通] 使用者手動將公告標記為已讀，最新 ID: ${maxId}`)
       this.notify('已將公告標記為已讀', { type: 'success', title: '即時通訊' })
     },
     async getChannelLastReadId (channel) {
@@ -1131,7 +1120,7 @@ export default {
             id = parseInt(lsVal) || 0
           }
         } catch (e) {
-          console.warn(`[即時通] 讀取 localStorage [${key}] 失敗:`, e)
+          this.$utils.warn(`[即時通] 讀取 localStorage [${key}] 失敗:`, e)
         }
       }
       if (!id) {
@@ -1155,10 +1144,10 @@ export default {
           current = parseInt(lsVal) || 0
           if (numId > current) {
             window.localStorage.setItem(key, String(numId))
-            console.log(`[即時通] 記錄 ${channel} 本地已讀 ID: ${current} -> ${numId}`)
+            this.$utils.log(`[即時通] 記錄 ${channel} 本地已讀 ID: ${current} -> ${numId}`)
           }
         } catch (e) {
-          console.warn(`[即時通] 寫入 localStorage [${key}] 失敗:`, e)
+          this.$utils.warn(`[即時通] 寫入 localStorage [${key}] 失敗:`, e)
         }
       }
       try {
@@ -1190,17 +1179,7 @@ export default {
         await this.setChannelLastReadId(ch, maxId)
       }
       this.$store.commit('resetUnread', ch)
-      console.log(`[即時通] updateChannelLastReadId: 頻道 [${ch}]，列表長度: ${list.length}，最大 ID: ${maxId}`)
-
-      if (ch === 'announcement' && this.userdept) {
-        const deptCh = `announcement_${this.userdept}`
-        const deptList = this.messages[deptCh] || []
-        const deptMaxId = findMaxId(deptList)
-        if (deptMaxId > 0) {
-          await this.setChannelLastReadId(deptCh, deptMaxId)
-        }
-        this.$store.commit('resetUnread', deptCh)
-      }
+      this.$utils.log(`[即時通] updateChannelLastReadId: 頻道 [${ch}]，列表長度: ${list.length}，最大 ID: ${maxId}`)
     }
   }
 }

@@ -134,13 +134,10 @@ export default {
       return parseInt(val) > 0 || val === '99+' || val === '9+'
     },
     getUnread (channel) {
-      if (this.unread) {
+      if (this.unread && channel && !channel.startsWith('announcement_')) {
         let val = this.unread[channel] || 0
-        if (!val && channel && (channel === this.userid || channel.toUpperCase() === this.userid)) {
+        if (!val && (channel === this.userid || channel.toUpperCase() === this.userid)) {
           val = this.unread[this.userid] || this.unread[this.userid.toLowerCase()] || 0
-        }
-        if (channel === 'announcement' && this.userdept) {
-          val += (this.unread[`announcement_${this.userdept}`] || 0)
         }
         return val > 99 ? '99+' : val
       }
