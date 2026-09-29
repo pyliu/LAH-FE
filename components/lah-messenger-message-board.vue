@@ -218,7 +218,7 @@ export default {
         }
       }), {
         id: 'message-input-modal',
-        size: 'xl',
+        size: 'md',
         title: this.currentChannelName
       })
     },

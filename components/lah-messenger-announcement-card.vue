@@ -107,7 +107,7 @@ export default {
         }
       }), {
         id: 'message-edit-modal',
-        size: 'xl',
+        size: 'md',
         title: '編輯公告'
       })
     },

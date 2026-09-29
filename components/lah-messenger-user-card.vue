@@ -79,7 +79,7 @@ export default {
     photoSrc () {
       return this.avatarSrc.replaceAll('_avatar', '')
     },
-    queryUrl () { return `${this.apiQueryUrl}${this.$consts.API.JSON.USER}` },
+    queryUrl () { return this.$consts.API.JSON.USER },
     avatarSrc () { return `${this.apiQueryUrl}/get_user_img.php?id=${this.id}_avatar&name=${this.name}_avatar` }
   },
   fetch () {
@@ -122,6 +122,7 @@ export default {
         }
       }), {
         id: `${this.userData.id}-update-modal`,
+        size: 'md',
         title: `編輯 ${this.userData.id} / ${this.userData.name} 資訊`
       })
     },
@@ -135,7 +136,7 @@ export default {
         }
       }), {
         id: 'leave-message-modal',
-        size: 'xl',
+        size: 'md',
         title: `給 ${this.userData.id} ${this.userData.name}`
       })
     },
@@ -148,7 +149,7 @@ export default {
         class: ['shadow', 'd-block', 'mx-auto', 'my-2']
       }), {
         title: `${this.userData.name} 照片`,
-        size: 'lg'
+        size: 'md'
       })
     }
   }

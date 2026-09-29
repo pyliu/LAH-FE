@@ -451,7 +451,7 @@ export default {
               this.sendImage(b64, '上傳圖片', this.currentChannel)
           }
         }),
-        { id: 'lah-messenger-image-upload-modal', size: 'xl', title: '直接傳送圖片' }
+        { id: 'lah-messenger-image-upload-modal', size: 'md', title: '直接傳送圖片' }
       )
     },
     reply (raw) {

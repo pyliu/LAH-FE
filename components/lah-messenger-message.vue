@@ -307,13 +307,13 @@ export default {
       event.stopPropagation()
       this.modal(this.$createElement(LahMessengerUserCard, {
         props: { id: this.raw.sender, name: this.sender }
-      }), { title: `${this.sender}`, size: 'xl' })
+      }), { title: `${this.sender}`, size: 'md' })
     },
     mineAvatarClick (event) {
       event.stopPropagation()
       this.modal(this.$createElement(LahMessengerUserCard, {
         props: { id: this.messageTo?.id, name: this.messageTo?.name }
-      }), { title: `${this.messageTo?.name}`, size: 'xl' })
+      }), { title: `${this.messageTo?.name}`, size: 'md' })
     },
     reply () {
       this.modal(this.$createElement(LahMessengerMessageInput, {
@@ -321,7 +321,7 @@ export default {
         on: { sent: () => { this.hideModalById('message-reply-modal') } }
       }), {
         id: 'message-reply-modal',
-        size: 'xl',
+        size: 'md',
         title: `回覆：${this.sender} - ${this.replyTitle || ' ... '}`
       })
     },
@@ -334,7 +334,7 @@ export default {
             this.$emit('edit', payload)
           }
         }
-      }), { id: 'message-edit-modal', size: 'xl', title: '編輯訊息' })
+      }), { id: 'message-edit-modal', size: 'md', title: '編輯訊息' })
     },
     emitReply () { this.$emit('reply', this.raw) },
     remove () {

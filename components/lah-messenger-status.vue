@@ -26,7 +26,7 @@
     v-model="showHistory"
     scrollable
     hide-footer
-    size="lg"
+    size="md"
     body-class="p-0"
     dialog-class="history-modal"
   )
@@ -120,7 +120,7 @@ export default {
   methods: {
     showHelp () {
       this.modal(this.$createElement(LahMessengerHelp), {
-        size: 'xl',
+        size: 'md',
         title: `即時通說明 - ${this.appVer}`
       })
     },

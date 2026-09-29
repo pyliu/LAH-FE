@@ -42,7 +42,7 @@ export default {
         }
       }), {
         title: this.uname,
-        size: 'xl'
+        size: 'md'
       })
     }
   }

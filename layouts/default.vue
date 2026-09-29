@@ -129,7 +129,7 @@ export default {
 <style lang="scss" scoped>
 .version {
   position: fixed;
-  right: 15px;
+  left: 15px;
   bottom: 15px;
   font-weight: bold;
   font-size: 0.75rem;

@@ -186,7 +186,7 @@ export default {
         }
       }), {
         id: 'image-upload-modal-announcement',
-        size: 'xl',
+        size: 'md',
         title: '挑選圖片'
       })
     },
@@ -197,13 +197,13 @@ export default {
         }
       }), {
         title: '預覽',
-        size: 'lg'
+        size: 'md'
       })
     },
     help () {
       this.modal(this.$createElement(LahMessengerHelp), {
         title: '訊息語法說明',
-        size: 'xl'
+        size: 'md'
       })
     },
     send () {
