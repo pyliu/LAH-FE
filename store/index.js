@@ -362,36 +362,39 @@ export const mutations = {
     }
   },
   resetUnreadAll (state) {
-    Object.keys(state.unread).forEach((key) => {
-      state.unread[key] = 0
+    const newUnread = { ...state.unread }
+    Object.keys(newUnread).forEach((key) => {
+      newUnread[key] = 0
     })
+    state.unread = newUnread
   },
   resetUnread (state, channel) {
     const uid = (state.user?.id || '').toUpperCase()
     const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
-    if (targetKey in state.unread) {
-      state.unread[targetKey] = 0
+    const newUnread = { ...state.unread }
+    if (targetKey in newUnread) {
+      newUnread[targetKey] = 0
     }
-    if (channel && channel !== targetKey && channel in state.unread) {
-      state.unread[channel] = 0
+    if (channel && channel !== targetKey && channel in newUnread) {
+      newUnread[channel] = 0
     }
+    state.unread = newUnread
   },
   plusUnread (state, channel) {
     const uid = (state.user?.id || '').toUpperCase()
     const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
-    if (targetKey in state.unread) {
-      state.unread[targetKey] += 1
-    } else {
-      state.unread = { ...state.unread, [targetKey]: 1 }
+    const current = (state.unread && typeof state.unread[targetKey] === 'number') ? state.unread[targetKey] : 0
+    state.unread = {
+      ...state.unread,
+      [targetKey]: current + 1
     }
   },
   setUnread (state, { channel, count }) {
     const uid = (state.user?.id || '').toUpperCase()
     const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
-    if (targetKey in state.unread) {
-      state.unread[targetKey] = count
-    } else {
-      state.unread = { ...state.unread, [targetKey]: count }
+    state.unread = {
+      ...state.unread,
+      [targetKey]: Math.max(0, parseInt(count) || 0)
     }
   },
   wsConnected (state, flag) {

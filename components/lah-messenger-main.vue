@@ -324,6 +324,11 @@ export default {
     }
   },
   watch: {
+    userid (val) {
+      if (val && this.connected) {
+        this.register()
+      }
+    },
     connectText (val) {
       this.$store.commit('statusText', val)
     },
@@ -604,12 +609,18 @@ export default {
       }
     },
     queryUnreadCount () {
-      [
+      const channels = [
         'announcement',
         this.userid,
         'lds',
         this.userdept
-      ].forEach(c => this.queryChannelUnreadCount(c))
+      ]
+      if (this.isNotifyMgtStaff) {
+        const rooms = typeof this.chatRooms === 'function' ? this.chatRooms() : (this.chatRooms || [])
+        channels.push(...rooms)
+      }
+      const uniqueChannels = [...new Set(channels.filter(c => !this.$utils.empty(c)))]
+      uniqueChannels.forEach(c => this.queryChannelUnreadCount(c))
     },
     async queryChannelUnreadCount (c) {
       if (c && c.startsWith('announcement_')) {
@@ -669,85 +680,89 @@ export default {
         return
       }
 
-      const channel = incoming.channel
-      const receivedId = this.extractMessageId(incoming)
-      const lastReadId = (await this.getChannelLastReadId(channel)) || 0
-      const isHistory = !!(incoming.prepend || incoming.message?.prepend)
+      try {
+        const channel = incoming.channel
+        const receivedId = this.extractMessageId(incoming)
+        const lastReadId = (await this.getChannelLastReadId(channel)) || 0
+        const isHistory = !!(incoming.prepend || incoming.message?.prepend)
 
-      if (incoming.type === 'ack') {
-        this.handleAckMessage(incoming.message)
-      } else if (channel === 'system') {
-        this.handleSystemMessage(incoming.message)
-      } else if (this.currentChannel === channel || (this.currentChannel === 'announcement' && channel === `announcement_${this.userdept}`)) {
-        if (!Array.isArray(this.messages[channel])) {
-          this.$store.commit('addChannel', channel)
-        }
-        if (receivedId > 0 && (channel === 'announcement' || channel.startsWith('announcement_'))) {
-          this.setChannelLastReadId(channel, receivedId)
-        }
-        this.$nextTick(() => {
-          if (!this.$utils.empty(incoming.message)) {
-            const isDuplicate = this.messages[channel].some((m) => {
-              if (incoming.id && m.id) {
-                return m.id === incoming.id
-              }
-              return (
-                m.sender === incoming.sender &&
-                m.date === incoming.date &&
-                m.time === incoming.time &&
-                m.message === incoming.message
-              )
-            })
+        if (incoming.type === 'ack') {
+          this.handleAckMessage(incoming.message)
+        } else if (channel === 'system') {
+          this.handleSystemMessage(incoming.message)
+        } else if (this.currentChannel === channel || (this.currentChannel === 'announcement' && channel === `announcement_${this.userdept}`)) {
+          if (!Array.isArray(this.messages[channel])) {
+            this.$store.commit('addChannel', channel)
+          }
+          if (receivedId > 0 && (channel === 'announcement' || channel.startsWith('announcement_'))) {
+            this.setChannelLastReadId(channel, receivedId)
+          }
+          this.$nextTick(() => {
+            if (!this.$utils.empty(incoming.message)) {
+              const isDuplicate = this.messages[channel].some((m) => {
+                if (incoming.id && m.id) {
+                  return m.id === incoming.id
+                }
+                return (
+                  m.sender === incoming.sender &&
+                  m.date === incoming.date &&
+                  m.time === incoming.time &&
+                  m.message === incoming.message
+                )
+              })
 
-            if (!isDuplicate) {
-              if (isHistory) {
-                this.messages[channel].unshift(incoming)
-              } else {
-                this.messages[channel].push(incoming)
-                this.scrollToBottom()
+              if (!isDuplicate) {
+                if (isHistory) {
+                  this.messages[channel].unshift(incoming)
+                } else {
+                  this.messages[channel].push(incoming)
+                  this.scrollToBottom()
+                }
+
+                if (!isHistory) {
+                  this.triggerNotification(incoming)
+                  this.delayLatestMessage()
+                }
               }
 
-              if (!isHistory) {
-                this.triggerNotification(incoming)
-                this.delayLatestMessage()
-              }
+              this.delayUpdateChannelLastReadId && this.delayUpdateChannelLastReadId(this.currentChannel)
             }
-
-            this.delayUpdateChannelLastReadId && this.delayUpdateChannelLastReadId(this.currentChannel)
+          })
+        } else if (incoming.message && incoming.sender !== 'system' && !isHistory) {
+          if (!Array.isArray(this.messages[channel])) {
+            this.$store.commit('addChannel', channel)
           }
-        })
-      } else if (incoming.message && incoming.sender !== 'system' && !isHistory) {
-        if (!Array.isArray(this.messages[channel])) {
-          this.$store.commit('addChannel', channel)
-        }
-        const isDuplicate = this.messages[channel].some((m) => {
-          if (incoming.id && m.id) {
-            return m.id === incoming.id
+          const isDuplicate = this.messages[channel].some((m) => {
+            if (incoming.id && m.id) {
+              return m.id === incoming.id
+            }
+            return (
+              m.sender === incoming.sender &&
+              m.date === incoming.date &&
+              m.time === incoming.time &&
+              m.message === incoming.message
+            )
+          })
+          if (!isDuplicate) {
+            this.messages[channel].push(incoming)
           }
-          return (
-            m.sender === incoming.sender &&
-            m.date === incoming.date &&
-            m.time === incoming.time &&
-            m.message === incoming.message
-          )
-        })
-        if (!isDuplicate) {
-          this.messages[channel].push(incoming)
-        }
 
-        const isTargetChannel =
-          !channel?.startsWith('announcement_') &&
-          (['lds', 'announcement', this.userid, this.userdept].some(c => (c || '').toUpperCase() === (channel || '').toUpperCase()) ||
-          this.isChannelAllowed(channel))
+          const isTargetChannel =
+            !channel?.startsWith('announcement_') &&
+            (['lds', 'announcement', this.userid, this.userdept].some(c => (c || '').toUpperCase() === (channel || '').toUpperCase()) ||
+            this.isChannelAllowed(channel))
 
-        const numReceivedId = parseInt(receivedId) || 0
-        const numLastReadId = parseInt(lastReadId) || 0
-        if (numReceivedId > 0 && numReceivedId <= numLastReadId) {
-          this.$utils.log(`[即時通] 頻道 [${channel}] 收到訊息 ID: ${numReceivedId} <= 已讀 ID: ${numLastReadId}，略過未讀計數`)
-        } else if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
-          this.plusUnread(channel)
+          const numReceivedId = parseInt(receivedId) || 0
+          const numLastReadId = parseInt(lastReadId) || 0
+          if (numReceivedId > 0 && numReceivedId <= numLastReadId) {
+            this.$utils.log(`[即時通] 頻道 [${channel}] 收到訊息 ID: ${numReceivedId} <= 已讀 ID: ${numLastReadId}，略過未讀計數`)
+          } else if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
+            this.plusUnread(channel)
+          }
+          this.triggerNotification(incoming)
         }
-        this.triggerNotification(incoming)
+      } catch (err) {
+        this.$utils.error('[即時通] 處理訊息異常:', err)
       }
       this.connecting = false
     },
@@ -938,11 +953,22 @@ export default {
     },
     async triggerNotification (incoming) {
       const channel = incoming.channel
-      const lastReadId = (await this.getCache(`${channel}_last_id`)) || 0
-      const receivedId = incoming.message?.id || incoming.id
+      const receivedId = this.extractMessageId(incoming)
       const numReceivedId = parseInt(receivedId) || 0
+      const lastReadId = (await this.getChannelLastReadId(channel)) || 0
       const numLastReadId = parseInt(lastReadId) || 0
+
+      // 檢查是否已提醒過此訊息，避免重複通知
+      const lastNotifiedKey = `${channel}_last_notified_id`
+      const lastNotifiedId = parseInt(await this.getCache(lastNotifiedKey)) || 0
+      if (numReceivedId > 0 && numReceivedId <= lastNotifiedId) {
+        return
+      }
+
       if (!numReceivedId || numReceivedId > numLastReadId) {
+        if (numReceivedId > 0) {
+          this.setCache(lastNotifiedKey, numReceivedId)
+        }
         this.invokeNotification(incoming)
       }
     },
@@ -950,9 +976,6 @@ export default {
       const temp = document.createElement('div')
       temp.innerHTML = i.message?.title || i.message || ''
       const fullText = temp.textContent || ''
-      if (i.message?.id || i.id) {
-        this.setCache(`${i.channel}_last_id`, i.message?.id || i.id)
-      }
 
       const isSelf = (i.sender || '').toUpperCase() === this.userid.toUpperCase()
       const isPersonalToSelf = (i.channel || '').toUpperCase() === this.userid.toUpperCase()

@@ -122,7 +122,9 @@ Vue.mixin({
   },
   methods: {
     ...mapActions([
-      'login'
+      'login',
+      'resetUnread',
+      'plusUnread'
     ]),
     $, // jQuery '$'
     parseHTML (string) {

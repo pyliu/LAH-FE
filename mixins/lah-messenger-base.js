@@ -143,6 +143,15 @@ export default {
       }
       return 0
     },
+    plusUnread (channel) {
+      this.$store.commit('plusUnread', channel)
+    },
+    resetUnread (channel) {
+      this.$store.commit('resetUnread', channel)
+    },
+    setUnread (channel, count) {
+      this.$store.commit('setUnread', { channel, count })
+    },
     isChannelAllowed (channel) {
       if (!channel) {
         return false
