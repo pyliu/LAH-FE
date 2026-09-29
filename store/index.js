@@ -1,6 +1,7 @@
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import uniqWith from 'lodash/uniqWith'
+import { DEPT_CODE_MAP } from '~/constants/lah-messenger-constants'
 
 /**
  * Custom error logger for Axios interceptor.
@@ -184,8 +185,23 @@ export const getters = {
   totalUnread: (state) => {
     try {
       let total = 0
-      Object.entries(state.unread || {}).forEach(([ch, count]) => {
-        if (typeof count === 'number' && count > 0 && !ch.startsWith('announcement_')) {
+      const uid = (state.user?.id || '').toUpperCase()
+      const unit = state.user?.unit || state.user?.dept || ''
+      const dept = DEPT_CODE_MAP[unit] || (Object.values(DEPT_CODE_MAP).includes(String(unit).toLowerCase()) ? String(unit).toLowerCase() : '')
+      const targetChannels = ['announcement', 'lds']
+      if (dept) {
+        targetChannels.push(dept)
+      }
+      if (uid) {
+        targetChannels.push(uid)
+      }
+      const uniqueChannels = [...new Set(targetChannels.filter(Boolean))]
+      uniqueChannels.forEach((ch) => {
+        let count = state.unread?.[ch] || 0
+        if (!count && ch === uid) {
+          count = state.unread?.[uid.toLowerCase()] || 0
+        }
+        if (typeof count === 'number' && count > 0) {
           total += count
         }
       })

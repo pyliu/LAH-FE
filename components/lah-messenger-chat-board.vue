@@ -7,10 +7,10 @@
     b-list-group-item.d-flex.justify-content-between.align-items-center(key="dept-key-b-select")
       .d-flex.align-items-center
         b-icon(font-scale="1.75" icon="chat-dots" variant="primary")
-        b-button.mx-2.text-nowrap(@click="setCurrentChannel(selectedDeptChannel)", size="sm", variant="primary") 進入
+        b-button.mx-2.text-nowrap(@click="setCurrentChannel(effectiveDeptChannel)", size="sm", variant="primary") 進入
         b-select(v-model="selectedDeptChannel", :options="deptChannelsOpts", size="sm")
         .text-nowrap.ml-2 頻道
-      b-badge(variant="primary" pill v-if="showUnread(selectedDeptChannel)") {{ getUnread(selectedDeptChannel) }}
+      b-badge(variant="primary" pill v-if="showUnread(effectiveDeptChannel)") {{ getUnread(effectiveDeptChannel) }}
     b-list-group-item(key="dept-key-lds"): b-link.d-flex.justify-content-between.align-items-center(@click="setCurrentChannel('lds')")
       .d-flex.align-items-center
         b-icon.mr-2(font-scale="1.75" icon="chat-dots" variant="primary")
@@ -97,12 +97,21 @@ export default {
       { text: '會計室', value: 'acc' },
       { text: '主任祕書室', value: 'supervisor' }
     ],
-    selectedDeptChannel: 'lds',
+    selectedDeptChannel: '',
     onlineTimer: undefined,
     ascending: false,
     keyword: ''
   }),
   computed: {
+    defaultDeptChannel () {
+      const dept = (this.userdept && this.userdept !== 'lds') ? this.userdept : ''
+      return dept || 'inf'
+    },
+    effectiveDeptChannel () {
+      return (this.selectedDeptChannel && this.selectedDeptChannel !== 'lds')
+        ? this.selectedDeptChannel
+        : this.defaultDeptChannel
+    },
     onlineUsersByDept () {
       const keyword = this.keyword
       const filter = [
@@ -157,6 +166,14 @@ export default {
     }
   },
   watch: {
+    userdept: {
+      immediate: true,
+      handler (val) {
+        if (val && val !== 'lds' && (!this.selectedDeptChannel || this.selectedDeptChannel === 'lds')) {
+          this.selectedDeptChannel = val
+        }
+      }
+    },
     ascending (flag) { this.$localForage.setItem('online-ascending', flag) }
   },
   async created () {
@@ -164,7 +181,12 @@ export default {
     clearInterval(this.onlineTimer)
     this.onlineTimer = setInterval(() => this.queryOnlineClients(), 5 * 60 * 1000)
     this.ascending = (await this.$localForage.getItem('online-ascending')) || false
-    this.selectedDeptChannel = this.userdept || 'lds'
+    this.selectedDeptChannel = this.defaultDeptChannel
+  },
+  mounted () {
+    if (!this.selectedDeptChannel || this.selectedDeptChannel === 'lds') {
+      this.selectedDeptChannel = this.defaultDeptChannel
+    }
   },
   beforeDestroy () {
     clearInterval(this.onlineTimer)

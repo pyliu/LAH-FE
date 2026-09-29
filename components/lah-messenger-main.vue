@@ -269,14 +269,10 @@ export default {
       return this.messages[this.currentChannel] || []
     },
     chatUnread () {
-      const result = Object.entries(this.unread || {}).reduce((acc, curr) => {
-        const ch = curr[0]
-        const isTarget =
-          this.isChannelAllowed(ch) &&
-          ch !== 'announcement' &&
-          !ch.startsWith('announcement_') &&
-          ch.toUpperCase() !== this.userid.toUpperCase()
-        return isTarget ? acc + curr[1] : acc
+      const targetChannels = [...new Set(['lds', this.userdept].filter(Boolean))]
+      const result = targetChannels.reduce((acc, ch) => {
+        const count = parseInt(this.unread?.[ch]) || 0
+        return acc + count
       }, 0)
       return result > 99 ? '99+' : result
     },
@@ -615,10 +611,6 @@ export default {
         'lds',
         this.userdept
       ]
-      if (this.isNotifyMgtStaff) {
-        const rooms = typeof this.chatRooms === 'function' ? this.chatRooms() : (this.chatRooms || [])
-        channels.push(...rooms)
-      }
       const uniqueChannels = [...new Set(channels.filter(c => !this.$utils.empty(c)))]
       uniqueChannels.forEach(c => this.queryChannelUnreadCount(c))
     },
@@ -749,8 +741,7 @@ export default {
 
           const isTargetChannel =
             !channel?.startsWith('announcement_') &&
-            (['lds', 'announcement', this.userid, this.userdept].some(c => (c || '').toUpperCase() === (channel || '').toUpperCase()) ||
-            this.isChannelAllowed(channel))
+            ['lds', 'announcement', this.userid, this.userdept].some(c => (c || '').toUpperCase() === (channel || '').toUpperCase())
 
           const numReceivedId = parseInt(receivedId) || 0
           const numLastReadId = parseInt(lastReadId) || 0
@@ -759,7 +750,9 @@ export default {
           } else if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
             this.plusUnread(channel)
           }
-          this.triggerNotification(incoming)
+          if (isTargetChannel) {
+            this.triggerNotification(incoming)
+          }
         }
       } catch (err) {
         this.$utils.error('[即時通] 處理訊息異常:', err)
