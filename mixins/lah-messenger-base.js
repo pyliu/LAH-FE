@@ -1,4 +1,5 @@
 import { mapGetters } from 'vuex'
+import isEmpty from 'lodash/isEmpty'
 import {
   DEPARTMENTS,
   DEPT_NAME_MAP,
@@ -31,50 +32,50 @@ export default {
       'regexpMarkdImage',
       'regexpReplyHeader'
     ]),
-    userdept () {
+    userdept() {
       const unit = this.myinfo?.unit || this.user?.unit
       return DEPT_CODE_MAP[unit] || 'hr'
     },
-    userid () {
+    userid() {
       return (this.myid || this.user?.id || '').toUpperCase()
     },
-    username () {
+    username() {
       return this.myname || this.user?.name || this.userid
     },
-    userip () {
+    userip() {
       return this.user?.ip || this.ip || '127.0.0.1'
     },
-    userMap () {
+    userMap() {
       return this.userNames || {}
     },
-    isNotifyMgtStaff () {
+    isNotifyMgtStaff() {
       return !!(this.authority?.isNotifyMgtStaff || this.authority?.isAdmin)
     },
-    isChat () {
+    isChat() {
       return !this.currentChannel.startsWith('announcement') && !this.isPersonal
     },
-    isPersonal () {
+    isPersonal() {
       return this.userid === this.currentChannel
     },
-    isAnnouncement () {
+    isAnnouncement() {
       return this.currentChannel === 'announcement'
     },
-    isMine () {
+    isMine() {
       return this.currentChannel === this.userid
     },
-    inChatting () {
+    inChatting() {
       return !['announcement', this.userid, 'chat'].includes(this.currentChannel)
     },
-    stickyChannels () {
+    stickyChannels() {
       return ['announcement', this.userid, 'chat']
     },
-    showUnreadChannels () {
+    showUnreadChannels() {
       return ['announcement', this.userid, `announcement_${this.userdept}`]
     },
-    defaultWsPort () {
+    defaultWsPort() {
       return DEFAULT_WS_PORT
     },
-    messengerDeptList () {
+    messengerDeptList() {
       return Object.entries(DEPT_NAME_MAP).map(([code, name]) => ({
         code,
         name
@@ -82,34 +83,37 @@ export default {
     }
   },
   methods: {
-    protectLocalPath (text) {
+    empty(val) {
+      return isEmpty(val)
+    },
+    protectLocalPath(text) {
       if (!text) return ''
       return String(text)
         .replace(/(?<!`)(["'])(\\\\[a-zA-Z0-9_.-]+\\[^\r\n]+?|[a-zA-Z]:\\[^\r\n]+?)\1(?!`)/g, '`$2`')
         .replace(/(?<!`)(\\\\[a-zA-Z0-9_.-]+\\[^\s`<>]+|[a-zA-Z]:\\[^\s`<>]+)(?!`)/g, '`$1`')
     },
-    replaceFilepath (str) {
+    replaceFilepath(str) {
       if (!str) return ''
       const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
       const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
       return str.replace(regex, subst)
     },
-    showUnread (channel) {
+    showUnread(channel) {
       const val = this.getUnread(channel)
       return parseInt(val) > 0 || val === '99+' || val === '9+'
     },
-    getUnread (channel) {
+    getUnread(channel) {
       if (this.unread) {
         const val = this.unread[channel] || 0
         return val > 99 ? '99+' : val
       }
       return 0
     },
-    setCurrentChannel (channel) {
+    setCurrentChannel(channel) {
       this.$store.commit('currentChannel', channel)
       this.$store.commit('resetUnread', channel)
     },
-    queryOnlineClients () {
+    queryOnlineClients() {
       if (this.websocket && this.websocket.readyState === 1) {
         this.websocket.send(this.packCommand({
           command: 'online',
@@ -117,15 +121,15 @@ export default {
         }))
       }
     },
-    date () {
+    date() {
       const now = new Date()
       return `${now.getFullYear()}-${('0' + (now.getMonth() + 1)).slice(-2)}-${('0' + now.getDate()).slice(-2)}`
     },
-    time () {
+    time() {
       const now = new Date()
       return `${('0' + now.getHours()).slice(-2)}:${('0' + now.getMinutes()).slice(-2)}:${('0' + now.getSeconds()).slice(-2)}`
     },
-    packMessage (text, opts = {}) {
+    packMessage(text, opts = {}) {
       return JSON.stringify({
         type: 'mine',
         sender: this.userid,
@@ -139,7 +143,7 @@ export default {
         ...opts
       })
     },
-    packCommand (commandPayload) {
+    packCommand(commandPayload) {
       return JSON.stringify({
         type: 'command',
         sender: this.userid,
@@ -149,15 +153,15 @@ export default {
         channel: 'system'
       })
     },
-    packImage (base64, alt, channel) {
+    packImage(base64, alt, channel) {
       return this.packMessage(`![${alt}](${base64})`, { channel: channel || this.currentChannel })
     },
-    sendImage (base64, alt, channel) {
+    sendImage(base64, alt, channel) {
       if (this.websocket && this.websocket.readyState === 1) {
         this.websocket.send(this.packImage(base64, alt, channel))
       }
     },
-    getChannelName (channelId) {
+    getChannelName(channelId) {
       switch (channelId) {
         case 'announcement': return '公告'
         case 'lds': return '全所'
@@ -179,13 +183,13 @@ export default {
         }
       }
     },
-    getDepartmentName (deptCode) {
+    getDepartmentName(deptCode) {
       return DEPT_NAME_MAP[deptCode] || '未知課室'
     },
-    getDepartmentCode (deptName) {
+    getDepartmentCode(deptName) {
       return DEPT_CODE_MAP[deptName] || 'hr'
     },
-    handleSpecialClick (event) {
+    handleSpecialClick(event) {
       const element = event.target
       if (element.tagName === 'IMG' && element.src && (element.src.startsWith('data:') || element.src.startsWith('http'))) {
         event.stopPropagation()
