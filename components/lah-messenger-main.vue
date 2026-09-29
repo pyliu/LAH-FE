@@ -28,7 +28,7 @@
           b-nav-item(
             :active="isAnnouncement"
             title="全所公告訊息"
-            @click="setCurrentChannel('announcement')"
+            @click="switchChannelToAnnouncement"
           ): a.mr-1
             span.s-105 📣 公告
             b-badge.notify-announcement(
@@ -93,6 +93,20 @@
           )
 
         //- 3. 內容顯示區
+        //- 公告頻道快捷操作列 (當前為公告時顯示)
+        .announcement-bar.d-flex.justify-content-between.align-items-center.px-2.py-1.bg-light.border-bottom(
+          v-if="isAnnouncement"
+        )
+          small.text-muted 📢 全所公告 (共 {{ (messages['announcement'] || []).length }} 則)
+          b-button(
+            size="sm"
+            variant="outline-success"
+            class="py-0 px-2 s-80"
+            @click="markAllAnnouncementAsRead"
+            title="將目前所有公告標記為已讀"
+          )
+            b-icon.mr-1(icon="check2-all")
+            | 全部已讀
         //- 聊天頻道列表 (Chat Board)
         transition(name="list", mode="out-in"): lah-messenger-chat-board.scrollable-board(v-if="showChatBoard")
         //- 訊息內容列表 (Message Board)
@@ -233,7 +247,7 @@ export default {
       return style
     },
     activeWsHost () {
-      if (this.wsHost) return this.wsHost
+      if (this.wsHost) { return this.wsHost }
       if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
         return this.systemConfigs.WS_SERVER_IP
       }
@@ -287,13 +301,13 @@ export default {
       return !this.empty(trim(this.inputText)) || !this.empty(this.inputImages)
     },
     maxUnwrappedAvatars () {
-      if (this.currentFontSize === 'large') return 5
-      if (this.currentFontSize === 'medium') return 6
+      if (this.currentFontSize === 'large') { return 5 }
+      if (this.currentFontSize === 'medium') { return 6 }
       return 7 // normal
     },
     connectedUsersOverlapRatio () {
       const count = this.uniqueConnectedUsersCount
-      if (count <= this.maxUnwrappedAvatars) return 0.0
+      if (count <= this.maxUnwrappedAvatars) { return 0.0 }
       return Math.min(0.4, (count - this.maxUnwrappedAvatars) * 0.08 + 0.15)
     },
     markdImages () {
@@ -306,7 +320,7 @@ export default {
       return imgMdText
     },
     markdMessage () {
-      if (this.empty(this.inputText) && this.empty(this.inputImages)) return ''
+      if (this.empty(this.inputText) && this.empty(this.inputImages)) { return '' }
       const protectedText = this.protectLocalPath(this.inputText)
       return this.$utils.convertMarkd(`${protectedText} ${this.markdImages}`)
     },
@@ -398,11 +412,11 @@ export default {
     },
     setConnectText (text) {
       this.msgQueue.push(text)
-      if (this.msgQueue.length > 10) this.msgQueue.shift()
+      if (this.msgQueue.length > 10) { this.msgQueue.shift() }
       this.processQueue()
     },
     processQueue () {
-      if (this.processingQueue || this.msgQueue.length === 0) return
+      if (this.processingQueue || this.msgQueue.length === 0) { return }
       this.processingQueue = true
       const text = this.msgQueue.shift()
       this.connectText = text
@@ -414,7 +428,7 @@ export default {
     scrollToBottom () {
       this.$nextTick(() => {
         const el = this.$refs.msgBoard?.$el?.querySelector('.msg')
-        if (!el) return
+        if (!el) { return }
         el.scrollTop = el.scrollHeight
       })
     },
@@ -427,7 +441,7 @@ export default {
     },
     removeInoutImage (base64data) {
       const index = this.inputImages.indexOf(base64data)
-      if (index > -1) this.inputImages.splice(index, 1)
+      if (index > -1) { this.inputImages.splice(index, 1) }
     },
     emojiPickup () {
       this.emoji = !this.emoji
@@ -459,7 +473,7 @@ export default {
         this.$createElement(LahMessengerImageUpload, {
           props: { to: this.currentChannel, modalId: 'lah-messenger-image-upload-modal' },
           on: {
-            publish: (b64) =>
+            publish: b64 =>
               this.sendImage(b64, '上傳圖片', this.currentChannel)
           }
         }),
@@ -473,7 +487,7 @@ export default {
         hrIdx === -1 ? raw.message : raw.message.substring(hrIdx + 4)
       const tmp = document.createElement('div')
       tmp.innerHTML = `@${sender} ${text}`
-      let innerText = tmp.textContent || tmp.innerText || ''
+      let innerText = tmp.textContent || ''
       if (this.$utils.length(innerText) > 20) {
         innerText = innerText.substring(0, 20) + ' ... '
       }
@@ -610,11 +624,12 @@ export default {
         this.userid,
         'lds',
         this.userdept
-      ].forEach((c) => this.queryChannelUnreadCount(c))
+      ].forEach(c => this.queryChannelUnreadCount(c))
     },
     async queryChannelUnreadCount (c) {
       if (this.websocket?.readyState === 1) {
         const lastId = (await this.getChannelLastReadId(c)) || 0
+        console.log(`[即時通] 查詢未讀數: 頻道 [${c}]，本地最後已讀 ID: ${lastId}`)
         this.websocket.send(
           JSON.stringify({
             type: 'command',
@@ -642,7 +657,7 @@ export default {
       this.$refs.textarea?.$el?.focus()
     },
     sendTo (msg, opts = {}) {
-      if (this.$utils.empty(msg)) return false
+      if (this.$utils.empty(msg)) { return false }
       if (!this.websocket || this.websocket.readyState !== 1) {
         this.setConnectText('連線不穩定，正在重新連線...')
         this.connect()
@@ -667,8 +682,8 @@ export default {
       }
 
       const channel = incoming.channel
-      const receivedId = incoming.message?.id || incoming.id
-      const lastReadId = (await this.getCache(`${channel}_last_id`)) || 0
+      const receivedId = this.extractMessageId(incoming)
+      const lastReadId = (await this.getChannelLastReadId(channel)) || 0
       const isHistory = !!(incoming.prepend || incoming.message?.prepend)
 
       if (incoming.type === 'ack') {
@@ -678,6 +693,9 @@ export default {
       } else if (this.currentChannel === channel || (this.currentChannel === 'announcement' && channel === `announcement_${this.userdept}`)) {
         if (!Array.isArray(this.messages[channel])) {
           this.$store.commit('addChannel', channel)
+        }
+        if (receivedId > 0 && (channel === 'announcement' || channel.startsWith('announcement_'))) {
+          this.setChannelLastReadId(channel, receivedId)
         }
         this.$nextTick(() => {
           if (!this.$utils.empty(incoming.message)) {
@@ -735,18 +753,38 @@ export default {
 
         const numReceivedId = parseInt(receivedId) || 0
         const numLastReadId = parseInt(lastReadId) || 0
-        if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
+        if (numReceivedId > 0 && numReceivedId <= numLastReadId) {
+          console.log(`[即時通] 頻道 [${channel}] 收到訊息 ID: ${numReceivedId} <= 已讀 ID: ${numLastReadId}，略過未讀計數`)
+        } else if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
           this.plusUnread(channel)
         }
         this.triggerNotification(incoming)
       }
       this.connecting = false
     },
-    async handleAckMessage (json) {
+    handleAckMessage (json) {
       const cmd = json?.command
       switch (cmd) {
         case 'register':
-          json.success && this.queryUnreadCount()
+          if (json.success) {
+            this.queryUnreadCount()
+            if (!this.messages.announcement || this.messages.announcement.length === 0) {
+              this.websocket?.send(
+                JSON.stringify({
+                  type: 'command',
+                  sender: this.userid,
+                  date: this.date(),
+                  time: this.time(),
+                  channel: 'system',
+                  message: JSON.stringify({
+                    command: 'latest',
+                    channel: 'announcement',
+                    count: 15
+                  })
+                })
+              )
+            }
+          }
           break
         case 'mychannel':
           if (json.success) {
@@ -764,7 +802,7 @@ export default {
         case 'remove_message':
           if (json.success) {
             const idx = this.messages[json.payload.channel]?.findIndex(msg => msg.id === json.payload.id)
-            if (idx > -1) this.messages[json.payload.channel].splice(idx, 1)
+            if (idx > -1) { this.messages[json.payload.channel].splice(idx, 1) }
             const cascade = json.payload.cascade
             if (cascade?.to && cascade?.id) {
               this.websocket?.send(JSON.stringify({
@@ -839,6 +877,8 @@ export default {
           const isViewingThisChannel =
             this.currentChannel === ch ||
             (this.currentChannel === 'announcement' && ch === `announcement_${this.userdept}`)
+          const serverUnread = parseInt(json.payload.unread) || 0
+          console.log(`[即時通] 收到未讀數回傳: 頻道 [${ch}] = ${serverUnread} (當前檢視: ${this.currentChannel})`)
           if (isViewingThisChannel) {
             this.$store.commit('setUnread', {
               channel: ch,
@@ -848,7 +888,7 @@ export default {
           } else {
             this.$store.commit('setUnread', {
               channel: ch,
-              count: json.payload.unread
+              count: serverUnread
             })
           }
           break
@@ -856,7 +896,7 @@ export default {
         case 'online':
           this.$store.commit(
             'connectedUsers',
-            (json.payload.users || []).filter((n) => n)
+            (json.payload.users || []).filter(n => n)
           )
           break
         case 'private_message': {
@@ -885,7 +925,7 @@ export default {
           if (Array.isArray(targetList)) {
             const msgId = cmd === 'set_read' ? json.payload.id : json.payload.senderChannelMessageId
             const found = targetList.find(m => m?.id === msgId)
-            if (found && (found.flag & 2) !== 2) found.flag += 2
+            if (found && (found.flag & 2) !== 2) { found.flag += 2 }
           }
           break
         }
@@ -1038,16 +1078,61 @@ export default {
       }
       return 0
     },
+    switchChannelToAnnouncement () {
+      console.log('[即時通] 使用者點擊進入「📣 公告」分頁')
+      this.setCurrentChannel('announcement')
+      this.$store.commit('resetUnread', 'announcement')
+      if (this.userdept) {
+        this.$store.commit('resetUnread', `announcement_${this.userdept}`)
+      }
+      this.latestMessage()
+      this.$nextTick(async () => {
+        await this.updateChannelLastReadId('announcement')
+      })
+      setTimeout(async () => {
+        await this.updateChannelLastReadId('announcement')
+      }, 500)
+      setTimeout(async () => {
+        await this.updateChannelLastReadId('announcement')
+      }, 1500)
+    },
+    async markAllAnnouncementAsRead () {
+      const list = this.messages.announcement || []
+      const maxId = list.reduce((max, item) => {
+        const id = this.extractMessageId(item)
+        return id > max ? id : max
+      }, 0)
+      if (maxId > 0) {
+        await this.setChannelLastReadId('announcement', maxId)
+      }
+      this.$store.commit('resetUnread', 'announcement')
+      if (this.userdept) {
+        const deptCh = `announcement_${this.userdept}`
+        const deptList = this.messages[deptCh] || []
+        const deptMaxId = deptList.reduce((max, item) => {
+          const id = this.extractMessageId(item)
+          return id > max ? id : max
+        }, 0)
+        if (deptMaxId > 0) {
+          await this.setChannelLastReadId(deptCh, deptMaxId)
+        }
+        this.$store.commit('resetUnread', deptCh)
+      }
+      console.log(`[即時通] 使用者手動將公告標記為已讀，最新 ID: ${maxId}`)
+      this.notify('已將公告標記為已讀', { type: 'success', title: '即時通訊' })
+    },
     async getChannelLastReadId (channel) {
       const key = `${channel}_last_id`
       let id = 0
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
         try {
           const lsVal = window.localStorage.getItem(key)
-          if (lsVal !== null && lsVal !== undefined) {
+          if (lsVal !== null && lsVal !== undefined && lsVal !== '') {
             id = parseInt(lsVal) || 0
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn(`[即時通] 讀取 localStorage [${key}] 失敗:`, e)
+        }
       }
       if (!id) {
         try {
@@ -1063,14 +1148,18 @@ export default {
         return
       }
       const key = `${channel}_last_id`
+      let current = 0
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
         try {
-          const current = parseInt(window.localStorage.getItem(key)) || 0
+          const lsVal = window.localStorage.getItem(key)
+          current = parseInt(lsVal) || 0
           if (numId > current) {
             window.localStorage.setItem(key, String(numId))
-            console.log(`[即時通] 記錄 ${channel} 最後已讀 ID 為: ${numId}`)
+            console.log(`[即時通] 記錄 ${channel} 本地已讀 ID: ${current} -> ${numId}`)
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn(`[即時通] 寫入 localStorage [${key}] 失敗:`, e)
+        }
       }
       try {
         const currentCache = (await this.getCache(key)) || 0
@@ -1101,6 +1190,7 @@ export default {
         await this.setChannelLastReadId(ch, maxId)
       }
       this.$store.commit('resetUnread', ch)
+      console.log(`[即時通] updateChannelLastReadId: 頻道 [${ch}]，列表長度: ${list.length}，最大 ID: ${maxId}`)
 
       if (ch === 'announcement' && this.userdept) {
         const deptCh = `announcement_${this.userdept}`
@@ -1183,7 +1273,7 @@ export default {
   min-height: 0;
   height: auto !important;
   max-height: none !important;
-  overflow-y: auto !important; 
+  overflow-y: auto !important;
   overflow-x: hidden !important;
 }
 
@@ -1196,7 +1286,7 @@ export default {
 .float-preview {
   z-index: 1002;
   position: absolute;
-  bottom: calc(100% + 8px); 
+  bottom: calc(100% + 8px);
   left: 2.5%;
   opacity: 0.95;
   border-radius: 12px;
