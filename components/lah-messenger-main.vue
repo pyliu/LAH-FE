@@ -614,7 +614,7 @@ export default {
     },
     async queryChannelUnreadCount (c) {
       if (this.websocket?.readyState === 1) {
-        const lastId = (await this.getCache(`${c}_last_id`)) || 0
+        const lastId = (await this.getChannelLastReadId(c)) || 0
         this.websocket.send(
           JSON.stringify({
             type: 'command',
@@ -832,6 +832,7 @@ export default {
         case 'previous':
           this.$store.commit('fetchingHistory', false)
           this.setConnectText(`${json.message}(${json.payload?.count || 0}筆)`)
+          this.delayUpdateChannelLastReadId && this.delayUpdateChannelLastReadId(this.currentChannel)
           break
         case 'unread': {
           const ch = json.payload.channel
@@ -1003,6 +1004,81 @@ export default {
         }
       }, autoHideDelay + 500)
     },
+    extractMessageId (item) {
+      if (!item) {
+        return 0
+      }
+      let id = parseInt(item.id) || 0
+      if (id > 0) {
+        return id
+      }
+      let msg = item.message
+      if (typeof msg === 'string' && msg.trim().startsWith('{')) {
+        try {
+          msg = JSON.parse(msg)
+        } catch (e) {}
+      }
+      if (msg && typeof msg === 'object') {
+        id = parseInt(msg.id) || 0
+        if (id > 0) {
+          return id
+        }
+      }
+      if (item.dataJson && typeof item.dataJson === 'object') {
+        id = parseInt(item.dataJson.id) || 0
+        if (id > 0) {
+          return id
+        }
+      }
+      if (item.payload && typeof item.payload === 'object') {
+        id = parseInt(item.payload.id) || 0
+        if (id > 0) {
+          return id
+        }
+      }
+      return 0
+    },
+    async getChannelLastReadId (channel) {
+      const key = `${channel}_last_id`
+      let id = 0
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          const lsVal = window.localStorage.getItem(key)
+          if (lsVal !== null && lsVal !== undefined) {
+            id = parseInt(lsVal) || 0
+          }
+        } catch (e) {}
+      }
+      if (!id) {
+        try {
+          const cacheVal = await this.getCache(key)
+          id = parseInt(cacheVal) || 0
+        } catch (e) {}
+      }
+      return id
+    },
+    async setChannelLastReadId (channel, id) {
+      const numId = parseInt(id) || 0
+      if (!channel || numId <= 0) {
+        return
+      }
+      const key = `${channel}_last_id`
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          const current = parseInt(window.localStorage.getItem(key)) || 0
+          if (numId > current) {
+            window.localStorage.setItem(key, String(numId))
+            console.log(`[即時通] 記錄 ${channel} 最後已讀 ID 為: ${numId}`)
+          }
+        } catch (e) {}
+      }
+      try {
+        const currentCache = (await this.getCache(key)) || 0
+        if (numId > currentCache) {
+          this.setCache(key, numId)
+        }
+      } catch (e) {}
+    },
     async updateChannelLastReadId (channel) {
       const ch = channel || this.currentChannel
       if (!ch) {
@@ -1014,8 +1090,7 @@ export default {
           return 0
         }
         return list.reduce((max, item) => {
-          const rawId = item?.id || item?.message?.id || item?.dataJson?.id || 0
-          const numId = parseInt(rawId) || 0
+          const numId = this.extractMessageId(item)
           return numId > max ? numId : max
         }, 0)
       }
@@ -1023,10 +1098,7 @@ export default {
       const list = this.messages[ch] || []
       const maxId = findMaxId(list)
       if (maxId > 0) {
-        const currentLast = (await this.getCache(`${ch}_last_id`)) || 0
-        if (maxId > currentLast) {
-          this.setCache(`${ch}_last_id`, maxId)
-        }
+        await this.setChannelLastReadId(ch, maxId)
       }
       this.$store.commit('resetUnread', ch)
 
@@ -1035,10 +1107,7 @@ export default {
         const deptList = this.messages[deptCh] || []
         const deptMaxId = findMaxId(deptList)
         if (deptMaxId > 0) {
-          const currentDeptLast = (await this.getCache(`${deptCh}_last_id`)) || 0
-          if (deptMaxId > currentDeptLast) {
-            this.setCache(`${deptCh}_last_id`, deptMaxId)
-          }
+          await this.setChannelLastReadId(deptCh, deptMaxId)
         }
         this.$store.commit('resetUnread', deptCh)
       }
