@@ -338,9 +338,13 @@ export default {
       this.sendChannelUpdate(nVal)
       if (!(nVal in this.messages)) {
         this.$store.commit('addChannel', nVal || this.userid)
-        this.$store.commit('resetUnread', nVal || this.userid)
+      }
+      this.$store.commit('resetUnread', nVal || this.userid)
+      if (nVal === 'announcement' && this.userdept) {
+        this.$store.commit('resetUnread', `announcement_${this.userdept}`)
       }
       this.latestMessage()
+      this.delayUpdateChannelLastReadId && this.delayUpdateChannelLastReadId(nVal)
       if (!this.showUnreadChannels.includes(nVal)) {
         this.delayQueryOnlineClients()
       }
@@ -359,6 +363,7 @@ export default {
         this.queryOnlineClients()
       }
     }, 300)
+    this.delayUpdateChannelLastReadId = this.$utils.debounce(this.updateChannelLastReadId, 300)
 
     this.connect()
     this.startReconnectTimer()
@@ -383,7 +388,12 @@ export default {
       }
       if (!(this.currentChannel in this.messages) && !this.$isServer) {
         this.$store.commit('addChannel', this.currentChannel)
+      }
+      if (!this.$isServer) {
         this.$store.commit('resetUnread', this.currentChannel)
+        if (this.currentChannel === 'announcement' && this.userdept) {
+          this.$store.commit('resetUnread', `announcement_${this.userdept}`)
+        }
       }
     },
     setConnectText (text) {
@@ -665,7 +675,7 @@ export default {
         this.handleAckMessage(incoming.message)
       } else if (channel === 'system') {
         this.handleSystemMessage(incoming.message)
-      } else if (this.currentChannel === channel) {
+      } else if (this.currentChannel === channel || (this.currentChannel === 'announcement' && channel === `announcement_${this.userdept}`)) {
         if (!Array.isArray(this.messages[channel])) {
           this.$store.commit('addChannel', channel)
         }
@@ -696,6 +706,8 @@ export default {
                 this.delayLatestMessage()
               }
             }
+
+            this.delayUpdateChannelLastReadId && this.delayUpdateChannelLastReadId(this.currentChannel)
           }
         })
       } else if (incoming.message && incoming.sender !== 'system' && !isHistory) {
@@ -821,12 +833,25 @@ export default {
           this.$store.commit('fetchingHistory', false)
           this.setConnectText(`${json.message}(${json.payload?.count || 0}筆)`)
           break
-        case 'unread':
-          this.$store.commit('setUnread', {
-            channel: json.payload.channel,
-            count: json.payload.unread
-          })
+        case 'unread': {
+          const ch = json.payload.channel
+          const isViewingThisChannel =
+            this.currentChannel === ch ||
+            (this.currentChannel === 'announcement' && ch === `announcement_${this.userdept}`)
+          if (isViewingThisChannel) {
+            this.$store.commit('setUnread', {
+              channel: ch,
+              count: 0
+            })
+            this.delayUpdateChannelLastReadId && this.delayUpdateChannelLastReadId(ch)
+          } else {
+            this.$store.commit('setUnread', {
+              channel: ch,
+              count: json.payload.unread
+            })
+          }
           break
+        }
         case 'online':
           this.$store.commit(
             'connectedUsers',
@@ -977,6 +1002,46 @@ export default {
           this.activeToastIds.splice(idx, 1)
         }
       }, autoHideDelay + 500)
+    },
+    async updateChannelLastReadId (channel) {
+      const ch = channel || this.currentChannel
+      if (!ch) {
+        return
+      }
+
+      const findMaxId = (list) => {
+        if (!Array.isArray(list) || list.length === 0) {
+          return 0
+        }
+        return list.reduce((max, item) => {
+          const rawId = item?.id || item?.message?.id || item?.dataJson?.id || 0
+          const numId = parseInt(rawId) || 0
+          return numId > max ? numId : max
+        }, 0)
+      }
+
+      const list = this.messages[ch] || []
+      const maxId = findMaxId(list)
+      if (maxId > 0) {
+        const currentLast = (await this.getCache(`${ch}_last_id`)) || 0
+        if (maxId > currentLast) {
+          this.setCache(`${ch}_last_id`, maxId)
+        }
+      }
+      this.$store.commit('resetUnread', ch)
+
+      if (ch === 'announcement' && this.userdept) {
+        const deptCh = `announcement_${this.userdept}`
+        const deptList = this.messages[deptCh] || []
+        const deptMaxId = findMaxId(deptList)
+        if (deptMaxId > 0) {
+          const currentDeptLast = (await this.getCache(`${deptCh}_last_id`)) || 0
+          if (deptMaxId > currentDeptLast) {
+            this.setCache(`${deptCh}_last_id`, deptMaxId)
+          }
+        }
+        this.$store.commit('resetUnread', deptCh)
+      }
     }
   }
 }

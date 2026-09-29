@@ -179,6 +179,11 @@ export default {
       if (channel === 'announcement' && this.userdept) {
         this.$store.commit('resetUnread', `announcement_${this.userdept}`)
       }
+      if (typeof this.delayUpdateChannelLastReadId === 'function') {
+        this.delayUpdateChannelLastReadId(channel)
+      } else if (typeof this.updateChannelLastReadId === 'function') {
+        this.updateChannelLastReadId(channel)
+      }
       return true
     },
     queryOnlineClients() {

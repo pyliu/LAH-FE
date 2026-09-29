@@ -134,6 +134,11 @@ export default {
       if (newVal) {
         // 開啟 sidebar 時關閉右下角提示浮標
         this.dismissFloatingToast()
+        this.$nextTick(() => {
+          if (this.$refs.messengerMain?.updateChannelLastReadId) {
+            this.$refs.messengerMain.updateChannelLastReadId(this.currentChannel)
+          }
+        })
       }
     }
   },
@@ -142,11 +147,20 @@ export default {
   },
   methods: {
     openSidebar (channel) {
-      if (channel) {
-        this.$store.commit('currentChannel', channel)
-        this.$store.commit('resetUnread', channel)
+      const targetChannel = channel || this.currentChannel
+      if (targetChannel) {
+        this.$store.commit('currentChannel', targetChannel)
+        this.$store.commit('resetUnread', targetChannel)
+        if (targetChannel === 'announcement' && this.userdept) {
+          this.$store.commit('resetUnread', `announcement_${this.userdept}`)
+        }
       }
       this.visible = true
+      this.$nextTick(() => {
+        if (this.$refs.messengerMain?.updateChannelLastReadId) {
+          this.$refs.messengerMain.updateChannelLastReadId(targetChannel)
+        }
+      })
     },
     closeSidebar () {
       this.visible = false
