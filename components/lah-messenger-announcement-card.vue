@@ -9,7 +9,7 @@ b-card.announcement-card(
     span(style="width: 380px").mr-auto {{ dataJson.title }}
     span.ml-1 \#{{ dataJson.id }}
   b-card-text(ref="content" v-html="content" @click="handleSpecialClick($event)")
-  
+
   template(#footer): .protected-footer.d-flex.justify-content-between.align-items-center.text-muted
     span {{ dataJson.sender }}#[span.ml-1(v-if="sender !== dataJson.sender") {{ sender }}]
     b-button-group(v-if="!preview && (mine || isAdmin)", size="sm")
@@ -74,8 +74,12 @@ export default {
       }
       const highlighted = this.$utils.highlightPipeline(this.dataJson.content)
       let markd = this.$utils.convertMarkd(highlighted)
-      if (this.regexpMarkdImage && this.regexpMarkdImage().test(markd)) {
-        markd = this.$utils.convertInlineMarkd(markd)
+      const regex = typeof this.regexpMarkdImage === 'function' ? this.regexpMarkdImage() : this.regexpMarkdImage
+      if (regex && typeof regex.test === 'function') {
+        regex.lastIndex = 0
+        if (regex.test(markd)) {
+          markd = this.$utils.convertInlineMarkd(markd)
+        }
       }
       return this.$utils.replaceFilepath(markd)
     }
@@ -132,6 +136,7 @@ export default {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 8px;
   overflow: hidden;
+  max-width: 100%;
   ::v-deep .card-header {
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
@@ -140,6 +145,34 @@ export default {
     padding: 0.75rem;
     font-size: 0.95rem;
     line-height: 1.6;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    .card-text,
+    p {
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      margin-bottom: 0.5rem;
+      max-width: 100% !important;
+      width: 100%;
+      color: inherit;
+      box-shadow: none !important;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+      display: block;
+      border-radius: 4px;
+      margin: 6px auto;
+      object-fit: contain;
+    }
   }
   ::v-deep .card-footer {
     padding: 6px 12px !important;

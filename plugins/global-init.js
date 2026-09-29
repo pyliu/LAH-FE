@@ -213,6 +213,17 @@ export default ({ $axios, store, $config }, inject) => {
     /**
      * lodash ...
      */
+    _: {
+      random (min, max) {
+        if (max === undefined) {
+          max = min
+          min = 0
+        }
+        return Math.floor(Math.random() * (max - min + 1)) + min
+      },
+      compact,
+      remove
+    },
     empty: isEmpty, // '0' is not empty
     equal: isEqual,
     equalWith: isEqualWith,

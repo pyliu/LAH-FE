@@ -156,9 +156,13 @@ export default {
 
     messageToRawTxt () {
       if (!this.isAnnouncement && this.regexpReplyHeader) {
-        const foundArr = this.regexpReplyHeader().exec(this.raw?.message)
-        if (foundArr) {
-          return foundArr[0]
+        const regex = typeof this.regexpReplyHeader === 'function' ? this.regexpReplyHeader() : this.regexpReplyHeader
+        if (regex && typeof regex.exec === 'function') {
+          regex.lastIndex = 0
+          const foundArr = regex.exec(this.raw?.message)
+          if (foundArr) {
+            return foundArr[0]
+          }
         }
       }
       return undefined
@@ -191,8 +195,12 @@ export default {
     message () {
       const highlighted = this.$utils.highlightPipeline(this.cleanRawMessage)
       const markd = this.$utils.emojify ? this.$utils.emojify(this.$utils.convertMarkd(highlighted)) : this.$utils.convertMarkd(highlighted)
-      if (this.regexpMarkdImage && this.regexpMarkdImage().test(markd)) {
-        return this.$utils.convertInlineMarkd(markd)
+      const regex = typeof this.regexpMarkdImage === 'function' ? this.regexpMarkdImage() : this.regexpMarkdImage
+      if (regex && typeof regex.test === 'function') {
+        regex.lastIndex = 0
+        if (regex.test(markd)) {
+          return this.$utils.convertInlineMarkd(markd)
+        }
       }
       return this.$utils.replaceFilepath ? this.$utils.replaceFilepath(markd) : markd
     },
@@ -361,8 +369,9 @@ export default {
 .msg-item {
   position: relative;
   overflow: visible;
+  max-width: 100%;
 
-  p {
+  > p {
     display: inline-block;
     border-radius: 8px;
     background: #e9ecef;
@@ -375,15 +384,25 @@ export default {
     transition: all 0.3s ease;
     border-left: 3px solid transparent;
     word-break: break-word;
+
+    ::v-deep img,
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+      display: block;
+      border-radius: 4px;
+      margin: 4px auto;
+      object-fit: contain;
+    }
   }
 
   &.is-today {
-    p {
+    > p {
       background: #fdfdfd;
       border-left: 4px solid #17a2b8;
     }
 
-    &.mine p {
+    &.mine > p {
       background: #e6f9eb;
       border-left: 0;
       border-right: 4px solid #28a745;
@@ -396,7 +415,7 @@ export default {
   }
 
   &.mine {
-    p {
+    > p {
       background: #dcf8c6;
       color: #000;
       margin-bottom: 0rem !important;
@@ -404,7 +423,7 @@ export default {
   }
 
   &.system {
-    p {
+    > p {
       text-align: center;
       font-weight: bold;
       padding: 5px 12px;
@@ -420,7 +439,7 @@ export default {
   }
 
   &.date {
-    p {
+    > p {
       width: 100%;
       font-size: 0.9rem;
       background-color: #f1f3f5;
@@ -434,7 +453,7 @@ export default {
     display: inline-block;
     align-self: flex-end;
     white-space: nowrap;
-    
+
     .clickableIcon {
       cursor: pointer;
       transition: all .2s;

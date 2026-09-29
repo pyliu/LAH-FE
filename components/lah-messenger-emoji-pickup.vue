@@ -24,7 +24,8 @@ export default {
   }),
   computed: {
     emojis () {
-      return [...new Set(this.$utils._.compact([
+      const compactFn = this.$utils?.compact || this.$utils?._?.compact || (arr => arr.filter(Boolean))
+      return [...new Set(compactFn([
         '😀', '😃', '😭', '😍', '😂', '🙄', '🤣', '❤',
         '👌🏻', '👍🏻', '👉🏻', '🙏', '⭐', '💯', '💤',
         '☀️', '☁️', '🌧️', '✔️', '❌', '⭕️', '🔥',

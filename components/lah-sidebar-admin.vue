@@ -104,7 +104,7 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/notification").
         #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
         發布即時通公告
-      li: nuxt-link(to="/message").
+      li: nuxt-link(to="/notification/message").
         #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
         傳送即時通訊息
       li: hr
@@ -132,9 +132,9 @@ b-sidebar#lah-sidebar(
 </template>
 
 <script>
-import some from 'lodash/some';
-import lahAvatar from '~/components/lah-avatar.vue';
-import LahUserCard from '~/components/lah-user-card.vue';
+import some from 'lodash/some'
+import lahAvatar from '~/components/lah-avatar.vue'
+import LahUserCard from '~/components/lah-user-card.vue'
 
 export default {
   components: { lahAvatar, LahUserCard },

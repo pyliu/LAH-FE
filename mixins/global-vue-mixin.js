@@ -86,7 +86,7 @@ Vue.mixin({
     myname () { return this.user.name },
     webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip },
     legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` },
-    apiUrl () {
+    apiQueryUrl () {
       let host = this.apiHost || this.apiSvrIp
       if ((!host || host === 'localhost' || host === '127.0.0.1') && process.client && location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
         host = location.hostname
@@ -96,7 +96,6 @@ Vue.mixin({
       const portStr = port && port !== 80 && port !== '80' ? `:${port}` : ''
       return `http://${host}${portStr}`
     },
-    apiQueryUrl () { return this.apiUrl },
     componentName () { return this.$options.name || this.$ooptions._componentTag },
     isSur () { return this.myinfo?.unit === '測量課' },
     isVal () { return this.myinfo?.unit === '地價課' },

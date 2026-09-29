@@ -1,5 +1,5 @@
 <template lang="pug">
-.chat-channel-list(v-if="isChat")
+.chat-channel-list(v-if="currentChannel === 'chat'")
   b-list-group.gray-bottom-border(
     v-if="isNotifyMgtStaff"
     flush
@@ -23,7 +23,7 @@
   )
     b-list-group-item(
       v-for="(item, idx) in deptChannels"
-      v-if="userdept === item.id || item.id === 'lds'"
+      v-if="isChannelAllowed(item.id)"
       :key="`dept-key-${idx}`"
     ): b-link.d-flex.justify-content-between.align-items-center(@click="setCurrentChannel(item.id)")
       .d-flex.align-items-center

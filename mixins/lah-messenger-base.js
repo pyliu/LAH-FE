@@ -27,7 +27,6 @@ export default {
       'notifySettings',
       'chatRooms',
       'fetchingHistory',
-      'statusText',
       'windowVisible',
       'regexpMarkdImage',
       'regexpReplyHeader'
@@ -109,9 +108,37 @@ export default {
       }
       return 0
     },
-    setCurrentChannel(channel) {
+    isChannelAllowed (channel) {
+      if (!channel) {
+        return false
+      }
+      // 管理者可進到所有頻道
+      if (this.isNotifyMgtStaff || this.authority?.isAdmin) {
+        return true
+      }
+      // 基本公共與個人頻道：公告、通知列表、全所 (lds)、個人私訊
+      if (['announcement', 'chat', 'lds', this.userid].includes(channel)) {
+        return true
+      }
+      // 自己的課室/部門頻道及其公告頻道
+      if (channel === this.userdept || channel === `announcement_${this.userdept}`) {
+        return true
+      }
+      // 私人聊天室群組 (若有參與)
+      if (Array.isArray(this.participatedChannels) && this.participatedChannels.some(p => p.id === channel)) {
+        return true
+      }
+      // 其他部門或他人頻道皆不可進入
+      return false
+    },
+    setCurrentChannel (channel) {
+      if (!this.isChannelAllowed(channel)) {
+        this.warning && this.warning(`您沒有權限進入「${this.getChannelName(channel)}」頻道`)
+        return false
+      }
       this.$store.commit('currentChannel', channel)
       this.$store.commit('resetUnread', channel)
+      return true
     },
     queryOnlineClients() {
       if (this.websocket && this.websocket.readyState === 1) {

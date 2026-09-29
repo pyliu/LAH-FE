@@ -47,7 +47,7 @@ client-only
               variant="link"
               class="text-white p-1 mr-2 text-decoration-none"
               title="前往即時通完整管理頁面"
-              to="/message"
+              to="/notification/message"
             )
               b-icon(icon="box-arrow-up-right")
             b-button(
@@ -70,7 +70,7 @@ client-only
     //- 3. 右下角新訊息提示浮標 (半透明卡片，點選後帶出主視窗)
     transition(name="slide-up")
       .floating-message-chip(
-        v-if="showFloatingToast && latestNotification"
+        v-if="connected && showFloatingToast && latestNotification"
         @click="onFloatingToastClick"
         @mouseenter="pauseToastTimer"
         @mouseleave="resumeToastTimer"
@@ -115,10 +115,15 @@ export default {
   },
   computed: {
     isMessagePage () {
-      return this.$route.path === '/message' || this.$route.path.startsWith('/message/')
+      return (
+        this.$route.path === '/notification/message' ||
+        this.$route.path.startsWith('/notification/message/') ||
+        this.$route.path === '/message' ||
+        this.$route.path.startsWith('/message/')
+      )
     },
     showHandle () {
-      return !this.visible && !this.isMessagePage
+      return Boolean(this.connected) && !this.visible && !this.isMessagePage
     },
     displayTotalUnread () {
       return this.totalUnread > 99 ? '99+' : this.totalUnread
@@ -147,8 +152,8 @@ export default {
       this.visible = false
     },
     onNewMessage (payload) {
-      // 若 sidebar 已經打開中，不需要額外彈出右下角浮標
-      if (this.visible) {
+      // 若未連線或 sidebar 已經打開中，不需要額外彈出右下角浮標
+      if (!this.connected || this.visible) {
         return
       }
 
@@ -309,6 +314,11 @@ export default {
 .sidebar-body {
   position: relative;
   background-color: #f8f9fa;
+
+  ::v-deep img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
 }
 
 /* ========================================================================= */

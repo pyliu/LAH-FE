@@ -148,9 +148,12 @@ export default {
       }
     },
     remove (memento) {
-      const removed = this.$utils._.remove(this.imageMemento, (imageData) => {
-        return this.$utils.equal(imageData, memento)
-      })
+      const removeFn = this.$utils.remove || this.$utils._?.remove
+      if (typeof removeFn === 'function') {
+        removeFn(this.imageMemento, (imageData) => {
+          return this.$utils.equal(imageData, memento)
+        })
+      }
       this.$store.commit('imageMemento', this.imageMemento)
     },
     dragover (event) {

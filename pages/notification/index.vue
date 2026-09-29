@@ -2,7 +2,7 @@
 div.notification-admin-page
   lah-header: lah-transition(appear): .d-flex.justify-content-between.w-100
     .d-flex.align-items-center
-      .my-auto.font-weight-bold.h5.mb-0 📢 公告訊息發布管理
+      .my-auto.font-weight-bold.h3.mb-0 📢 公告訊息發布管理
       lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
       lah-help-modal(:modal-id="'help-modal'"): ol
         li 可先利用送給 #[b-badge.s-105(variant="primary" pill) 我自己] 來做傳送測試
@@ -39,7 +39,7 @@ div.notification-admin-page
               @click="add"
               pill
             ) 送出公告
-            b-dropdown(
+            b-dropdown.mx-1(
               variant="outline-info"
               size="sm"
               right
@@ -62,7 +62,7 @@ div.notification-admin-page
               action="cycle-alt"
               pill
             ) 清除
-            lah-button(
+            lah-button.ml-1(
               icon="question"
               variant="outline-success"
               title="內容 Markdown 語法說明"
@@ -90,27 +90,17 @@ div.notification-admin-page
                     size="sm"
                     pill
                     @click="selectTarget('myself')"
-                  ) 🙋 我自己 (測試)
-                  b-button.mx-1(
+                  )
+                    lah-fa-icon(icon="user" v-if="isMyselfOnly").mr-1
+                    | 🙋 我自己 (測試)
+                  b-button.ml-2(
                     :variant="isAllSelected ? 'danger' : 'outline-danger'"
                     size="sm"
                     pill
-                    @click="selectTarget('all')"
-                  ) 🏢 全所同仁
-                  b-button(
-                    variant="outline-secondary"
-                    size="sm"
-                    pill
-                    v-b-toggle.collapse-targets
+                    @click="selectTarget('lds')"
                   )
-                    lah-fa-icon(icon="caret-down").mr-1
-                    | 細部課室...
-                b-collapse#collapse-targets.mt-2
-                  .bg-white.p-2.rounded.border
-                    b-form-checkbox-group(
-                      v-model="announcementSendto"
-                      :options="announcementSendtoOpts"
-                    )
+                    lah-fa-icon(icon="bullhorn" v-if="isAllSelected").mr-1
+                    | 🏢 全所同仁
 
               .col-md-5.col-12
                 .d-flex.align-items-center.mb-1
@@ -392,11 +382,7 @@ export default {
     titlePrefixes: [
       '【重要公告】', '【活動通知】', '【教育訓練】', '【系統維護】', '【會議通知】'
     ],
-    announcementSendto: ['myself'],
-    announcementSendtoOpts: [
-      { value: 'all', text: '全所' },
-      { value: 'myself', text: '我自己' }
-    ],
+    announcementSendto: [],
     lastFocusedField: 'content',
     helpSidebarFlag: false,
     cacheKey: 'postMementoCache',
@@ -426,16 +412,31 @@ export default {
       return !this.$utils.empty(this.announcementDataJson.content)
     },
     validSendto () {
-      return this.announcementSendto.length > 0
+      return this.announcementSendto.length > 0 && !this.$utils.empty(this.announcementSendto[0])
     },
     sendButtonDisabled () {
       return !this.validContent || !this.validTitle || !this.validSendto
     },
     isMyselfOnly () {
-      return this.announcementSendto.length === 1 && this.announcementSendto[0] === 'myself'
+      return (
+        this.announcementSendto.length === 1 &&
+        (this.announcementSendto[0] === this.userid || this.announcementSendto[0] === 'myself')
+      )
     },
     isAllSelected () {
-      return this.announcementSendto.includes('all')
+      return (
+        this.announcementSendto.length === 1 &&
+        (this.announcementSendto[0] === 'lds' || this.announcementSendto[0] === 'all')
+      )
+    },
+    announcementSendtoOpts () {
+      const myText = this.$utils.empty(this.myname) ? '我自己' : this.myLabelText
+      return [
+        { value: this.userid, text: myText },
+        { value: 'myself', text: myText },
+        { value: 'lds', text: '全所同仁' },
+        { value: 'all', text: '全所同仁' }
+      ]
     },
     sendto () {
       const sendto = []
@@ -443,7 +444,11 @@ export default {
         const found = this.announcementSendtoOpts.find((item) => {
           return item.value === selected
         })
-        found && sendto.push(found.text)
+        if (found) {
+          sendto.push(found.text)
+        } else if (selected) {
+          sendto.push(selected)
+        }
       })
       return sendto
     },
@@ -468,7 +473,10 @@ export default {
     reverseMemento () {
       return this.memento.slice().reverse().slice(0, this.mementoCount)
     },
-    myLabelText () { return `${this.myname} (${this.myid})` }
+    myLabelText () { return `${this.myname} (${this.myid})` },
+    userid () {
+      return (this.myid || this.user?.id || '').toUpperCase()
+    }
   },
   watch: {
     mementoCount (val) {
@@ -477,13 +485,8 @@ export default {
     },
     myid (id) {
       this.announcementDataJson.sender = id
-    },
-    myname (dontcare) {
-      const myself = this.announcementSendtoOpts.find((item) => {
-        return item.value === 'myself'
-      })
-      if (myself) {
-        myself.text = this.myLabelText
+      if (this.isMyselfOnly) {
+        this.announcementSendto = [this.userid]
       }
     }
   },
@@ -493,19 +496,14 @@ export default {
     this.announcementDataJson.create_datetime = this.currentDatetime()
     // init my info to relative fields
     this.announcementDataJson.sender = this.myid
-    const myself = this.announcementSendtoOpts.find((item) => {
-      return item.value === 'myself'
-    })
-    if (myself) {
-      myself.text = this.$utils.empty(this.myname) ? '我自己' : this.myLabelText
-    }
+    this.announcementSendto = [this.userid || 'myself']
   },
   methods: {
     selectTarget (target) {
-      if (target === 'myself') {
-        this.announcementSendto = ['myself']
-      } else if (target === 'all') {
-        this.announcementSendto = ['all']
+      if (target === 'myself' || target === this.userid) {
+        this.announcementSendto = [this.userid || 'myself']
+      } else if (target === 'lds' || target === 'all') {
+        this.announcementSendto = ['lds']
       }
     },
     insertTitlePrefix (prefix) {
@@ -593,7 +591,13 @@ export default {
       return m.getFullYear() + '-' + (m.getMonth() + 1).toString().padStart(2, '0') + '-' + m.getDate().toString().padStart(2, '0') + ' ' + m.getHours().toString().padStart(2, '0') + ':' + m.getMinutes().toString().padStart(2, '0') + ':' + m.getSeconds().toString().padStart(2, '0')
     },
     copy (snapshot) {
-      this.announcementSendto = [...snapshot.channels]
+      const rawChannels = Array.isArray(snapshot.channels) ? snapshot.channels : [snapshot.channels].filter(Boolean)
+      const mapped = rawChannels.map((ch) => {
+        if (ch === 'myself') { return this.userid || 'myself' }
+        if (ch === 'all') { return 'lds' }
+        return ch
+      })
+      this.announcementSendto = mapped.length > 0 ? mapped : [this.userid || 'myself']
       this.announcementDataJson = { ...this.announcementDataJson, ...snapshot }
       delete this.announcementDataJson.channels
       this.hideModalById('notification-history-modal')
@@ -668,8 +672,9 @@ export default {
       this.confirm('確定要新增公告?').then((flag) => {
         if (flag) {
           this.isBusy = true
+          const channels = this.announcementSendto.map(ch => (ch === 'myself' ? (this.userid || 'myself') : ch))
           const snapshot = {
-            channels: this.announcementSendto,
+            channels,
             from_ip: this.ip,
             title: this.announcementDataJson.title,
             content: this.announcementDataJson.content,
@@ -705,21 +710,26 @@ export default {
         id: '?',
         create_datetime: this.currentDatetime()
       }
-      this.announcementSendto = []
+      this.announcementSendto = [this.userid || 'myself']
     },
     flipSendto () {
-      if (this.$utils.empty(this.announcementSendto)) {
-        this.announcementSendto = ['myself']
+      if (this.isMyselfOnly) {
+        this.announcementSendto = ['lds']
       } else {
-        this.announcementSendto = []
+        this.announcementSendto = [this.userid || 'myself']
       }
     },
     sendtoVariant (to) {
       switch (to) {
         case '全所':
+        case '全所同仁':
+        case 'lds':
+        case 'all':
           return 'danger'
         case '我自己':
         case this.myLabelText:
+        case this.userid:
+        case 'myself':
           return 'primary'
         default:
           return 'success'

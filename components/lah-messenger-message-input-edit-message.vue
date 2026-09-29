@@ -41,7 +41,7 @@ div(style="position:relative" @paste="pasteImage($event, pasted)")
         title="顯示語法說明"
       ): b-icon(icon="question-circle-fill")
   .d-flex.flex-wrap.align-items-center
-    transition-group(name="listY" mode="out-in")
+    transition-group(name="listY" tag="div")
       b-img.memento.m-1(
         v-for="(base64data, idx) in images"
         :key="`imgAttached_${idx}`"
@@ -97,7 +97,13 @@ export default {
         return undefined
       }
     },
-    randFace () { return this.faces[this.$utils._.random(this.faces.length - 1)] },
+    randFace () {
+      const count = this.faces.length
+      const idx = typeof this.$utils?.rand === 'function'
+        ? this.$utils.rand(count)
+        : Math.floor(Math.random() * count)
+      return this.faces[idx] || '😀'
+    },
     notValid () { return this.empty(this.message) && this.empty(this.images) },
     mergedMessage () {
       const protectedText = this.protectLocalPath(this.message)

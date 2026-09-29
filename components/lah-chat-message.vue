@@ -143,7 +143,7 @@ export default {
       ]
     },
     avatarSrc () {
-      const base = this.apiUrl || this.apiQueryUrl || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
+      const base = this.apiQueryUrl || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
       return `${base}/get_user_img.php?id=${this.json?.sender}_avatar&name=${this.sender}_avatar`
     },
     replyTitle () {

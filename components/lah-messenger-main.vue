@@ -183,14 +183,6 @@ export default {
   },
   mixins: [lahMessengerBase],
   props: {
-    wsPort: {
-      type: [Number, String],
-      default: 8082
-    },
-    wsHost: {
-      type: String,
-      default: ''
-    },
     embedded: {
       type: Boolean,
       default: false
@@ -211,7 +203,11 @@ export default {
     processingQueue: false,
     connecting: false,
     reconnectMs: 20 * 1000,
-    reconnectTimer: null
+    reconnectTimer: null,
+    toastMessageQueue: [],
+    toastProcessTimer: null,
+    activeToastIds: [],
+    toastSeq: 0
   }),
   computed: {
     rootClasses () {
@@ -259,14 +255,15 @@ export default {
       return (
         !this.currentChannel.startsWith('announcement') &&
         this.currentChannel !== this.userid &&
-        this.currentChannel !== 'chat'
+        this.currentChannel !== 'chat' &&
+        this.isChannelAllowed(this.currentChannel)
       )
     },
     showMessageBoard () {
       return this.currentChannel !== 'chat'
     },
     showChatBoard () {
-      return this.isChat
+      return this.currentChannel === 'chat'
     },
     list () {
       return this.messages[this.currentChannel] || []
@@ -274,8 +271,9 @@ export default {
     chatUnread () {
       const result = Object.entries(this.unread || {}).reduce((acc, curr) => {
         const isTarget =
-          parseInt(curr[0]) > 0 ||
-          ['lds', 'adm', 'sur', 'inf', 'reg', 'val', 'acc', 'hr', 'supervisor'].includes(curr[0])
+          this.isChannelAllowed(curr[0]) &&
+          (parseInt(curr[0]) > 0 ||
+          ['lds', 'adm', 'sur', 'inf', 'reg', 'val', 'acc', 'hr', 'supervisor'].includes(curr[0]))
         return isTarget ? acc + curr[1] : acc
       }, 0)
       return result > 99 ? '99+' : result
@@ -328,6 +326,13 @@ export default {
       this.$store.commit('statusText', val)
     },
     currentChannel (nVal, oVal) {
+      if (!this.isChannelAllowed(nVal)) {
+        this.warning && this.warning(`您沒有權限進入「${this.getChannelName(nVal)}」頻道`)
+        this.$nextTick(() => {
+          this.setCurrentChannel(this.isChannelAllowed(oVal) ? oVal : 'chat')
+        })
+        return
+      }
       this.sendChannelUpdate(nVal)
       if (!(nVal in this.messages)) {
         this.$store.commit('addChannel', nVal || this.userid)
@@ -356,16 +361,24 @@ export default {
     this.connect()
     this.startReconnectTimer()
 
+    if (!this.isChannelAllowed(this.currentChannel)) {
+      this.setCurrentChannel('chat')
+    }
+
     this.$nextTick(async () => {
       this.currentFontSize = (await this.$localForage.getItem('fontSize')) || 'normal'
     })
   },
   beforeDestroy () {
+    clearTimeout(this.toastProcessTimer)
     this.stopReconnectTimer()
     this.closeWebsocket()
   },
   methods: {
     addCurrentChannel () {
+      if (!this.isChannelAllowed(this.currentChannel) && !this.$isServer) {
+        this.$store.commit('currentChannel', 'chat')
+      }
       if (!(this.currentChannel in this.messages) && !this.$isServer) {
         this.$store.commit('addChannel', this.currentChannel)
         this.$store.commit('resetUnread', this.currentChannel)
@@ -603,6 +616,10 @@ export default {
       }
     },
     send () {
+      if (!this.isChannelAllowed(this.currentChannel)) {
+        this.warning && this.warning(`您沒有權限在「${this.getChannelName(this.currentChannel)}」發送訊息`)
+        return
+      }
       if (this.sendTo(this.markdMessage, { channel: this.currentChannel })) {
         this.clear()
       }
@@ -846,10 +863,14 @@ export default {
         const senderName = this.userMap[i.sender] || i.sender
         const channelName = this.getChannelName(i.channel)
         this.setConnectText(`💬 來自 ${senderName}: ${fullText}`)
-        // 瀏覽器端 Toast 提醒
-        this.notify(`💬 來自 ${senderName}: ${fullText}`, {
+        // 將訊息排入佇列，避免瞬間大量訊息湧入霸佔畫面
+        this.enqueueToastNotification({
+          message: `💬 來自 ${senderName}: ${fullText}`,
           title: `即時通訊息 - ${channelName}`,
-          variant: 'info'
+          senderName,
+          channelName,
+          fullText,
+          rawItem: i
         })
         this.$emit('new-message', {
           ...i,
@@ -858,6 +879,58 @@ export default {
           fullText
         })
       }
+    },
+    enqueueToastNotification (item) {
+      this.toastMessageQueue.push(item)
+      // 使用小幅防抖 (150ms)，以便在批次接收大量訊息時進行合併與擷取最新 3 筆
+      clearTimeout(this.toastProcessTimer)
+      this.toastProcessTimer = setTimeout(() => {
+        this.flushToastNotifications()
+      }, 150)
+    },
+    flushToastNotifications () {
+      if (this.toastMessageQueue.length === 0) {
+        return
+      }
+      // 若累積超過 3 筆，僅保留最後 (最新) 的 3 筆，其餘可至歷史紀錄查閱
+      const itemsToShow = this.toastMessageQueue.length > 3
+        ? this.toastMessageQueue.slice(-3)
+        : [...this.toastMessageQueue]
+
+      this.toastMessageQueue = []
+
+      itemsToShow.forEach((item) => {
+        this.showBoundedToast(item)
+      })
+    },
+    showBoundedToast (item) {
+      const toastId = `lah-msg-toast-${Date.now()}-${++this.toastSeq}`
+
+      // 若畫面上已有 3 個 (或更多) 顯示中的 toast，隱藏最舊的以維持最多 3 個
+      while (this.activeToastIds.length >= 3) {
+        const oldestId = this.activeToastIds.shift()
+        if (oldestId && this.$bvToast?.hide) {
+          this.$bvToast.hide(oldestId)
+        }
+      }
+
+      this.activeToastIds.push(toastId)
+
+      const autoHideDelay = 5000
+      this.notify(item.message, {
+        id: toastId,
+        title: item.title,
+        variant: 'info',
+        autoHideDelay
+      })
+
+      // 於 autoHideDelay 結束後自 activeToastIds 清理此 id
+      setTimeout(() => {
+        const idx = this.activeToastIds.indexOf(toastId)
+        if (idx > -1) {
+          this.activeToastIds.splice(idx, 1)
+        }
+      }, autoHideDelay + 500)
     }
   }
 }
@@ -916,8 +989,13 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden !important; 
+  overflow: hidden !important;
   position: relative;
+
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
 }
 
 ::v-deep .scrollable-board > *:last-child {
