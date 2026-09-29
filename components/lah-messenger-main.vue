@@ -93,20 +93,6 @@
           )
 
         //- 3. 內容顯示區
-        //- 公告頻道快捷操作列 (當前為公告時顯示)
-        .announcement-bar.d-flex.justify-content-between.align-items-center.px-2.py-1.bg-light.border-bottom(
-          v-if="isAnnouncement"
-        )
-          small.text-muted 📢 全所公告 (共 {{ (messages['announcement'] || []).length }} 則)
-          b-button(
-            size="sm"
-            variant="outline-success"
-            class="py-0 px-2 s-80"
-            @click="markAllAnnouncementAsRead"
-            title="將目前所有公告標記為已讀"
-          )
-            b-icon.mr-1(icon="check2-all")
-            | 全部已讀
         //- 聊天頻道列表 (Chat Board)
         transition(name="list", mode="out-in"): lah-messenger-chat-board.scrollable-board(v-if="showChatBoard")
         //- 訊息內容列表 (Message Board)
@@ -1096,19 +1082,6 @@ export default {
       setTimeout(async () => {
         await this.updateChannelLastReadId('announcement')
       }, 1500)
-    },
-    async markAllAnnouncementAsRead () {
-      const list = this.messages.announcement || []
-      const maxId = list.reduce((max, item) => {
-        const id = this.extractMessageId(item)
-        return id > max ? id : max
-      }, 0)
-      if (maxId > 0) {
-        await this.setChannelLastReadId('announcement', maxId)
-      }
-      this.$store.commit('resetUnread', 'announcement')
-      this.$utils.log(`[即時通] 使用者手動將公告標記為已讀，最新 ID: ${maxId}`)
-      this.notify('已將公告標記為已讀', { type: 'success', title: '即時通訊' })
     },
     async getChannelLastReadId (channel) {
       const key = `${channel}_last_id`

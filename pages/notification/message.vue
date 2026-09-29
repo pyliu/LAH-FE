@@ -551,42 +551,6 @@ div.message-admin-page
               client-only
                 .hist-content-preview(v-html="renderHistoryHtml(snapshot.content)")
 
-  //- 我的個人收件箱視窗
-  b-modal#message-inbox-modal(
-    size="md"
-    scrollable
-    hide-footer
-    header-class="py-2 px-3 border-bottom"
-    body-class="p-2 bg-light"
-  )
-    template(#modal-header="{ close }")
-      .d-flex.justify-content-between.align-items-center.w-100
-        .d-flex.align-items-center
-          lah-fa-icon(icon="inbox" variant="primary" size="lg").mr-2
-          span.h5.font-weight-bold.mb-0 {{ myid || '我的' }} 收件箱訊息
-        .d-flex.align-items-center
-          lah-button(
-            icon="external-link-alt"
-            variant="outline-primary"
-            size="sm"
-            pill
-            @click="openSidebarInbox(close)"
-            title="在即時通側邊欄開啟完整私訊"
-          )
-          lah-button(
-            icon="sync-alt"
-            variant="outline-secondary"
-            size="sm"
-            pill
-            action="cycle-alt"
-            @click="refreshInbox"
-            title="重新整理收件箱"
-          ).ml-2
-          b-btn-close(@click="close()")
-    .p-1
-      client-only
-        lah-chat.m-1(ref="inboxChat" :channel="myid" :limit="30")
-
   //- 側欄：Markdown 簡易說明
   b-sidebar#md-desc(
     v-model="helpSidebarFlag"
