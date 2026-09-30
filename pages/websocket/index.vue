@@ -624,6 +624,8 @@ export default {
       this.$nextTick(() => {
         if (this.isFetchingHistory.announcement) {
           this.scrollToTopByChannel('announcement')
+        } else {
+          this.scrollToBottom('announcementMsgBox')
         }
       })
     },
@@ -652,6 +654,7 @@ export default {
     }
 
     this.$nextTick(() => {
+      this.scrollToBottom('announcementMsgBox')
       this.scrollToBottom('deptMsgBox')
       this.scrollToBottom('ldsMsgBox')
       this.resetUnread('announcement')
@@ -795,6 +798,11 @@ export default {
       this.resetUnread('announcement')
       this.resetUnread(this.effectiveDeptChannel)
       this.resetUnread('lds')
+      this.$nextTick(() => {
+        this.scrollToBottom('announcementMsgBox')
+        this.scrollToBottom('deptMsgBox')
+        this.scrollToBottom('ldsMsgBox')
+      })
     },
     fetchChannelMessages (channel, count = 30) {
       if (this.websocket && this.websocket.readyState === 1 && channel) {
@@ -848,7 +856,7 @@ export default {
         }
         this.$nextTick(() => {
           if (cat === 'announcement') {
-            this.scrollToTopByChannel('announcement')
+            this.scrollToBottom('announcementMsgBox')
           } else if (cat === 'dept') {
             this.scrollToBottom('deptMsgBox')
           } else if (cat === 'lds') {
@@ -1165,10 +1173,14 @@ export default {
       }
     },
     scrollToBottom (refName) {
-      const el = this.$refs[refName]
-      if (el) {
-        el.scrollTop = el.scrollHeight
+      const scroll = () => {
+        const el = this.$refs[refName]
+        if (el) {
+          el.scrollTop = el.scrollHeight
+        }
       }
+      scroll()
+      this.$nextTick(scroll)
     },
     extractMessageTimestamp (item) {
       if (!item) {
