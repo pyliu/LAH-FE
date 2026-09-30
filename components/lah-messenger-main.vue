@@ -484,6 +484,7 @@ export default {
 
     this.connect()
     this.startReconnectTimer()
+    this.$root.$on('lah-messenger:connect', this.connect)
 
     if (!this.isChannelAllowed(this.currentChannel)) {
       this.setCurrentChannel('chat')
@@ -494,6 +495,7 @@ export default {
     })
   },
   beforeDestroy () {
+    this.$root.$off('lah-messenger:connect', this.connect)
     clearTimeout(this.toastProcessTimer)
     this.stopReconnectTimer()
     this.closeWebsocket()
@@ -1029,7 +1031,9 @@ export default {
           if (numReceivedId > 0 && numReceivedId <= numLastReadId) {
             this.$utils.log(`[即時通] 頻道 [${channel}] 收到訊息 ID: ${numReceivedId} <= 已讀 ID: ${numLastReadId}，略過未讀計數`)
           } else if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
-            this.plusUnread(channel)
+            if (!this.isDashboardActive || !this.isDashboardChannel(channel)) {
+              this.plusUnread(channel)
+            }
           }
           if (isTargetChannel) {
             this.triggerNotification(incoming)
@@ -1227,6 +1231,9 @@ export default {
     },
     async triggerNotification (incoming) {
       const channel = incoming.channel
+      if (this.isDashboardActive && this.isDashboardChannel(channel)) {
+        return
+      }
       const receivedId = this.extractMessageId(incoming)
       const numReceivedId = parseInt(receivedId) || 0
       const lastReadId = (await this.getChannelLastReadId(channel)) || 0

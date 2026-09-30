@@ -130,7 +130,8 @@ export const state = () => ({
     personal: true,
     chat: true
   },
-  windowVisible: true
+  windowVisible: true,
+  isDashboardActive: false
 })
 
 /**
@@ -177,6 +178,7 @@ export const getters = {
   fetchedMonitorMailCount: state => state.fetchedMonitorMailCount,
   // 即時通 (LAH-Messenger) Getters
   windowVisible: state => state.windowVisible,
+  isDashboardActive: state => Boolean(state.isDashboardActive),
   websocket: state => state.websocket,
   connected: state => Boolean(state.wsConnected || (state.websocket && state.websocket.readyState === 1)),
   disconnected: state => !state.wsConnected && (isEmpty(state.websocket) || state.websocket.readyState === 3),
@@ -422,6 +424,9 @@ export const mutations = {
     if (!ws) {
       state.wsConnected = false
     }
+  },
+  isDashboardActive (state, flag) {
+    state.isDashboardActive = Boolean(flag)
   },
   timer (state, timer) {
     state.messengerTimer = timer

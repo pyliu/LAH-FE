@@ -634,6 +634,7 @@ export default {
     }
   },
   mounted () {
+    this.$store.commit('isDashboardActive', true)
     this.selectedDeptChannel = this.userdept || 'inf'
     this.attachWsListener()
     if (this.connected) {
@@ -663,6 +664,7 @@ export default {
     })
   },
   beforeDestroy () {
+    this.$store.commit('isDashboardActive', false)
     clearInterval(this.onlineTimer)
     this.detachWsListener()
     window.removeEventListener('resize', this.updateOnlineAvatarsMaxPerLine)
@@ -1164,13 +1166,8 @@ export default {
       )
     },
     triggerReconnect () {
-      const sidebar = this.$root.$children?.[0]?.$children?.find(c => c.$options?.name === 'LahMessengerSidebar')
-      if (sidebar?.$refs?.messengerMain?.connect) {
-        sidebar.$refs.messengerMain.connect()
-        this.notify('正在要求即時通伺服器重新連線...', { variant: 'info' })
-      } else {
-        this.notify('正在嘗試連線中，請稍候...', { variant: 'info' })
-      }
+      this.$root.$emit('lah-messenger:connect')
+      this.notify('正在要求即時通伺服器重新連線...', { variant: 'info' })
     },
     scrollToBottom (refName) {
       const scroll = () => {

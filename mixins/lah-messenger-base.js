@@ -28,6 +28,7 @@ export default {
       'chatRooms',
       'fetchingHistory',
       'windowVisible',
+      'isDashboardActive',
       'regexpMarkdImage',
       'regexpReplyHeader'
     ]),
@@ -151,6 +152,19 @@ export default {
     },
     setUnread (channel, count) {
       this.$store.commit('setUnread', { channel, count })
+    },
+    isDashboardChannel (channel) {
+      if (!channel) {
+        return false
+      }
+      const ch = String(channel).toLowerCase()
+      const myDept = (this.userdept || '').toLowerCase()
+      return (
+        ch === 'announcement' ||
+        ch.startsWith('announcement_') ||
+        ch === 'lds' ||
+        (Boolean(myDept) && ch === myDept)
+      )
     },
     isChannelAllowed (channel) {
       if (!channel) {
