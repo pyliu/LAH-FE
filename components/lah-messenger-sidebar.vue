@@ -58,10 +58,10 @@ client-only
             )
               b-icon(icon="chevron-right" font-scale="1.2")
 
-        //- 側邊欄主體：嵌入 lah-messenger-main
+        //- 側邊欄主體：嵌入 lah-messenger-home
         .sidebar-body.flex-grow-1.overflow-hidden
-          lah-messenger-main(
-            ref="messengerMain"
+          lah-messenger-home(
+            ref="messengerHome"
             embedded
             height="100%"
             @new-message="onNewMessage"
@@ -96,12 +96,12 @@ client-only
 
 <script>
 import lahMessengerBase from '~/mixins/lah-messenger-base'
-import LahMessengerMain from '~/components/lah-messenger-main.vue'
+import LahMessengerHome from '~/components/lah-messenger-home.vue'
 
 export default {
   name: 'LahMessengerSidebar',
   components: {
-    LahMessengerMain
+    LahMessengerHome
   },
   mixins: [lahMessengerBase],
   data () {
@@ -135,8 +135,8 @@ export default {
         // 開啟 sidebar 時關閉右下角提示浮標
         this.dismissFloatingToast()
         this.$nextTick(() => {
-          if (this.$refs.messengerMain?.updateChannelLastReadId) {
-            this.$refs.messengerMain.updateChannelLastReadId(this.currentChannel)
+          if (this.$refs.messengerHome?.updateChannelLastReadId) {
+            this.$refs.messengerHome.updateChannelLastReadId(this.currentChannel)
           }
         })
       }
@@ -161,8 +161,11 @@ export default {
       }
       this.visible = true
       this.$nextTick(() => {
-        if (this.$refs.messengerMain?.updateChannelLastReadId) {
-          this.$refs.messengerMain.updateChannelLastReadId(targetChannel)
+        if (this.$refs.messengerHome?.switchChannel) {
+          this.$refs.messengerHome.switchChannel(targetChannel)
+        }
+        if (this.$refs.messengerHome?.updateChannelLastReadId) {
+          this.$refs.messengerHome.updateChannelLastReadId(targetChannel)
         }
       })
     },
