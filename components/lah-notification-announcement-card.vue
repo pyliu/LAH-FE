@@ -61,7 +61,10 @@ export default {
       if (process.server) {
         return this.dataJson.content || ''
       }
-      return this.$utils.convertMarkd(this.dataJson.content || '')
+      const highlighted = this.$utils?.highlightPipeline
+        ? this.$utils.highlightPipeline(this.dataJson.content || '')
+        : (this.dataJson.content || '')
+      return this.$utils.convertMarkd(highlighted)
     }
   }
 }
@@ -150,6 +153,16 @@ export default {
 
     ::v-deep font {
       font-weight: inherit;
+    }
+
+    ::v-deep img {
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 4px;
+      display: block;
+      margin: 8px auto;
+      object-fit: contain;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
   }
 

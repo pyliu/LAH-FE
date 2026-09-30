@@ -281,13 +281,13 @@ div.message-admin-page
                 @click="insertTitlePrefix(tag)"
               ) {{ tag }}
 
-          //- 3. 訊息內文編輯與即時通工具列
+          //- 3. 內容編輯與 Markdown 工具列
           .mb-2
             .d-flex.justify-content-between.align-items-center.mb-1
               .d-flex.align-items-center
-                lah-fa-icon.mr-1(icon="comment-dots" variant="primary")
+                lah-fa-icon.mr-1(icon="edit" variant="primary")
                 strong 訊息內容 #[span.text-danger *]
-                span.text-muted.small.ml-2 (支援即時通色彩標籤及 Markdown 語法)
+                span.text-muted.small.ml-2 (支援 Markdown 與 HTML 顏色標籤)
               lah-button(
                 v-if="dataJson.content"
                 icon="times"
@@ -300,55 +300,54 @@ div.message-admin-page
 
             //- 編輯工具列 (Toolbar)
             .editor-toolbar.d-flex.flex-wrap.align-items-center.p-1.bg-light.rounded-top.border
-              //- 即時通專用醒目色標籤
-              b-button-group(size="sm").mr-2.mb-1
-                b-button(variant="white" size="sm" @click="insertColorTag('b')" title="即時通醒目語法：藍色粗體")
-                  span(v-pre style="color: #0056b3; font-weight: bold;") {{b 藍字 b}}
-                b-button(variant="white" size="sm" @click="insertColorTag('r')" title="即時通醒目語法：紅色粗體")
-                  span(v-pre style="color: #dc3545; font-weight: bold;") {{r 紅字 r}}
-                b-button(variant="white" size="sm" @click="insertColorTag('g')" title="即時通醒目語法：綠色粗體")
-                  span(v-pre style="color: #28a745; font-weight: bold;") {{g 綠字 g}}
-                b-button(variant="white" size="sm" @click="insertColorTag('o')" title="即時通醒目語法：橘色粗體")
-                  span(v-pre style="color: #e67e22; font-weight: bold;") {{o 橘字 o}}
-
-              //- Markdown 標題與樣式
               b-button-group(size="sm").mr-2.mb-1
                 b-button(variant="white" size="sm" @click="insertFormat('**', '**', '粗體文字')" title="粗體")
                   strong B
                 b-button(variant="white" size="sm" @click="insertFormat('*', '*', '斜體文字')" title="斜體")
                   em I
-                b-button(variant="white" size="sm" @click="insertFormat('# ', '', '最大文字')" title="第一標題") H1
-                b-button(variant="white" size="sm" @click="insertFormat('## ', '', '次大文字')" title="第二標題") H2
-                b-button(variant="white" size="sm" @click="insertFormat('- ', '', '清單項目')" title="項目符號")
-                  lah-fa-icon(icon="list-ul")
-                b-button(variant="white" size="sm" @click="insertFormat('• ', '', '圓點項目')" title="圓點符號") •
-                b-button(variant="white" size="sm" @click="insertDivider" title="分隔線") ―
+                b-button(variant="white" size="sm" @click="insertBlueText" title="深藍重點 (同即時通截圖樣式)")
+                  span(style="color: #0056b3; font-weight: bold;") 藍字
+                b-button(variant="white" size="sm" @click="insertRedText" title="紅色警示")
+                  span(style="color: #dc3545; font-weight: bold;") 紅字
+                b-button(variant="white" size="sm" @click="insertGreenText" :title="'綠色重點 (支援 HTML 或 {{g語法g}})'")
+                  span(style="color: #28a745; font-weight: bold;") 綠字
+                b-button(variant="white" size="sm" @click="insertOrangeText" :title="'橘色提醒 (支援 HTML 或 {{o語法o}})'")
+                  span(style="color: #e67e22; font-weight: bold;") 橘字
 
-              //- 狀態與 Emoji 快捷盤
-              b-button-group(size="sm").mb-1
-                b-button(variant="white" size="sm" @click="insertText('✅ ')" title="成功打勾") ✅
-                b-button(variant="white" size="sm" @click="insertText('❌ ')" title="失敗打叉") ❌
-                b-button(variant="white" size="sm" @click="insertText('🧹 ')" title="清理暫存") 🧹
-                b-button(variant="white" size="sm" @click="insertText('🖥️ ')" title="伺服器") 🖥️
-                b-button(variant="white" size="sm" @click="insertText('🔄 ')" title="同步") 🔄
-                b-button(variant="white" size="sm" @click="insertText('👤 ')" title="人員") 👤
-                b-button(variant="white" size="sm" @click="insertText('📅 ')" title="日期") 📅
-                b-button(variant="white" size="sm" @click="insertText('⚡ ')" title="閃電") ⚡
-                b-button(variant="white" size="sm" @click="insertText('⚠️ ')" title="警示") ⚠️
-                b-button(variant="white" size="sm" @click="insertText('📢 ')" title="廣播通知") 📢
-                b-button(variant="white" size="sm" @click="insertTimeRange" title="時間區間範例 (自動醒目)") 08:00~09:00
+              b-button-group(size="sm").mr-2.mb-1
+                b-button(variant="white" size="sm" @click="insertFormat('### ', '', '標題')" title="標題 H3") H3
+                b-button(variant="white" size="sm" @click="insertFormat('- ', '', '清單項目')" title="項目清單")
+                  lah-fa-icon(icon="list-ul")
+                b-button(variant="white" size="sm" @click="insertFormat('1. ', '', '編號項目')" title="編號清單")
+                  lah-fa-icon(icon="list-ol")
+                b-button(variant="white" size="sm" @click="insertFormat('- [ ] ', '', '待辦事項')" title="待辦清單")
+                  lah-fa-icon(icon="check-square")
+                b-button(variant="white" size="sm" @click="insertFormat('> ', '', '引用說明')" title="引用區塊")
+                  lah-fa-icon(icon="quote-left")
+                b-button(variant="white" size="sm" @click="insertDivider" title="分隔線") ―
+                b-button(variant="white" size="sm" @click="insertLink" title="超連結")
+                  lah-fa-icon(icon="link")
+
+            //- 常用 Emoji 快捷盤
+            .emoji-palette.d-flex.align-items-center.flex-wrap.p-1.bg-white.border-left.border-right
+              span.small.text-muted.mr-1.ml-1 常用表情：
+              span.emoji-item(
+                v-for="emoji in commonEmojis"
+                :key="emoji"
+                @click="insertEmoji(emoji)"
+                :title="`插入 ${emoji}`"
+              ) {{ emoji }}
 
             //- 編輯 Textarea
-            b-textarea(
+            b-textarea.overflow-auto.content-textarea(
               ref="contentTextarea"
               v-model="dataJson.content"
-              rows="6"
+              rows="8"
               max-rows="20"
               :state="validContent"
-              placeholder="... 支援即時通醒目色彩、Markdown 語法與剪貼簿截圖 (Ctrl + V) ..."
+              placeholder="支援 Markdown 與顏色標籤，可直接按 Ctrl + V 貼上截圖，例如：\n各位同仁好 😎\n明日為【第四梯次】環境教育訓練...\n請參加同仁於 <font color=\"#0056b3\"><b>7時45分</b></font> 準時集合！"
               @paste="pasteImage($event, addImage)"
               @focus="lastFocusedField = 'content'"
-              style="border-top-left-radius: 0; border-top-right-radius: 0;"
             )
 
             .d-flex.justify-content-between.align-items-center.mt-1.small
@@ -448,17 +447,9 @@ div.message-admin-page
               //- 標題 (若有輸入)
               .bubble-title.font-weight-bold.mb-1(v-if="dataJson.title")
                 | {{ dataJson.title }}
-              //- 內文預覽 (解析 {{b}}、{{r}}、時間醒目與 Markdown)
+              //- 內文預覽 (解析 {{b}}、{{r}}、時間醒目、Markdown 與附加截圖)
               client-only
                 .bubble-content(v-html="renderedPreview")
-              //- 附加截圖縮圖
-              .bubble-images.d-flex.flex-wrap.mt-2(v-if="images.length > 0")
-                b-img.m-1.rounded(
-                  v-for="(img, idx) in images"
-                  :key="`preview-img-${idx}`"
-                  :src="img"
-                  style="max-width: 140px; max-height: 100px; object-fit: cover;"
-                )
               //- 右下角操作圖示與時間
               .bubble-meta.d-flex.align-items-center.justify-content-end.mt-1
                 span.bubble-action.text-danger.mr-1(title="移除") ❌
@@ -560,7 +551,7 @@ div.message-admin-page
   )
     .p-3
       b-card.mb-3(no-body)
-        b-card-header.font-weight-bold.bg-light 1. 桃園即時通專用醒目色彩 (使用雙大括號標籤)
+        b-card-header.font-weight-bold.bg-light 1. 桃園即時通專用醒目色彩 (使用雙大括號或 HTML 標籤)
         b-card-body.p-2.small
           div.mb-1
             code(v-pre) {{b藍色粗體顯示b}}
@@ -574,6 +565,19 @@ div.message-admin-page
           div.mb-1
             code(v-pre) {{o橘色粗體顯示o}}
             span.ml-2 ☞ #[span(style="color: #e67e22; font-weight: bold;") 橘色粗體顯示]
+          hr.my-2
+          div.mb-1
+            code &lt;font color="#0056b3"&gt;&lt;b&gt;藍色重點&lt;/b&gt;&lt;/font&gt;
+            span.ml-2 ☞ #[span(style="color: #0056b3; font-weight: bold;") 藍色重點]
+          div.mb-1
+            code &lt;font color="#dc3545"&gt;&lt;b&gt;紅色警示&lt;/b&gt;&lt;/font&gt;
+            span.ml-2 ☞ #[span(style="color: #dc3545; font-weight: bold;") 紅色警示]
+          div.mb-1
+            code &lt;font color="#28a745"&gt;&lt;b&gt;綠色重點&lt;/b&gt;&lt;/font&gt;
+            span.ml-2 ☞ #[span(style="color: #28a745; font-weight: bold;") 綠色重點]
+          div.mb-1
+            code &lt;font color="#e67e22"&gt;&lt;b&gt;橘色提醒&lt;/b&gt;&lt;/font&gt;
+            span.ml-2 ☞ #[span(style="color: #e67e22; font-weight: bold;") 橘色提醒]
 
       b-card.mb-3(no-body)
         b-card-header.font-weight-bold.bg-light 2. 日期/時間區間自動醒目
@@ -612,6 +616,15 @@ div.message-admin-page
           div.mb-1
             code 1. 第一項
             span.ml-2 ☞ 編號清單
+          div.mb-1
+            code - [ ] 待辦事項
+            span.ml-2 ☞ 待辦清單
+          div.mb-1
+            code &gt; 引用說明
+            span.ml-2 ☞ 引用區塊
+          div.mb-1
+            code [文字描述](網址)
+            span.ml-2 ☞ 超連結
 
       b-card(no-body)
         b-card-header.font-weight-bold.bg-light 4. 課室頻道代碼對應表
@@ -669,6 +682,11 @@ export default {
     mementoCount: 3,
     cacheKey: 'message_postMementoCache',
     lastFocusedField: 'content',
+    commonEmojis: [
+      '🐻', '❄️', '⚡', '😎', '🌂', '💙', '📢', '📌', '⚠️', '🚨',
+      '💡', '⏰', '📅', '🍱', '☕', '🚌', '👍', '👏', '🎉', '✅',
+      '❌', '👉', '🔹', '⭐'
+    ],
     titlePrefixes: [
       '【排程維護】',
       '【系統通知】',
@@ -881,12 +899,23 @@ export default {
     currentTimeStr () {
       return this.currentTimeTick || (this.$utils?.time ? this.$utils.time() : '16:58:00')
     },
+    mergedContent () {
+      let content = this.dataJson.content || ''
+      if (this.images.length > 0) {
+        const notIncluded = this.images.filter(img => !content.includes(img))
+        if (notIncluded.length > 0) {
+          const imgMd = notIncluded.map((img, idx) => `![附加截圖-${idx + 1}](${img})`).join('\n\n')
+          content = content ? `${content}\n\n${imgMd}` : imgMd
+        }
+      }
+      return content
+    },
     renderedPreview () {
-      if (!this.dataJson.content) {
+      if (!this.dataJson.content && this.images.length === 0) {
         return '<span class="text-muted font-italic">（尚未輸入訊息內文，請於左側輸入內容或套用範本...）</span>'
       }
       if (process.server) { return '' }
-      const formatted = this.formatCustomTags(this.dataJson.content)
+      const formatted = this.formatCustomTags(this.mergedContent)
       return this.$utils?.convertMarkd ? this.$utils.convertMarkd(formatted) : formatted
     }
   },
@@ -1132,6 +1161,49 @@ export default {
       const formatted = this.formatCustomTags(content)
       return this.$utils?.convertMarkd ? this.$utils.convertMarkd(formatted) : formatted
     },
+    insertFormat (prefix, suffix = '', defaultText = '') {
+      const textarea = this.$refs.contentTextarea?.$el || this.$refs.contentTextarea
+      if (!textarea) {
+        this.dataJson.content = `${this.dataJson.content || ''}${prefix}${defaultText}${suffix}`
+        return
+      }
+      const start = textarea.selectionStart || 0
+      const end = textarea.selectionEnd || 0
+      const oldText = this.dataJson.content || ''
+      const selected = oldText.substring(start, end)
+      const replaceText = selected ? `${prefix}${selected}${suffix}` : `${prefix}${defaultText}${suffix}`
+      this.dataJson.content = oldText.substring(0, start) + replaceText + oldText.substring(end)
+      this.$nextTick(() => {
+        textarea.focus()
+        const newCursor = selected ? start + replaceText.length : start + prefix.length
+        textarea.setSelectionRange(newCursor, newCursor + (selected ? 0 : defaultText.length))
+      })
+    },
+    insertBlueText () {
+      this.insertFormat('<font color="#0056b3"><b>', '</b></font>', '深藍色重點')
+    },
+    insertRedText () {
+      this.insertFormat('<font color="#dc3545"><b>', '</b></font>', '紅色警示')
+    },
+    insertGreenText () {
+      this.insertFormat('<font color="#28a745"><b>', '</b></font>', '綠色重點')
+    },
+    insertOrangeText () {
+      this.insertFormat('<font color="#e67e22"><b>', '</b></font>', '橘色提醒')
+    },
+    insertDivider () {
+      this.insertFormat('\n---\n', '', '')
+    },
+    insertLink () {
+      this.insertFormat('[連結名稱](', ')', 'https://')
+    },
+    insertEmoji (emoji) {
+      if (this.lastFocusedField === 'title') {
+        this.dataJson.title = (this.dataJson.title || '') + emoji
+      } else {
+        this.insertFormat(emoji, '', '')
+      }
+    },
     insertColorTag (type) {
       const map = {
         b: { before: '{{b', after: 'b}}', text: '藍色粗體' },
@@ -1142,43 +1214,11 @@ export default {
       const item = map[type] || map.b
       this.insertFormat(item.before, item.after, item.text)
     },
-    insertFormat (before, after, placeholder = '') {
-      const textarea = this.$refs.contentTextarea?.$el || this.$refs.contentTextarea
-      const content = this.dataJson.content || ''
-      if (!textarea) {
-        this.dataJson.content = content + before + placeholder + after
-        return
-      }
-      const start = textarea.selectionStart || 0
-      const end = textarea.selectionEnd || 0
-      const selected = content.substring(start, end) || placeholder
-      const replacement = before + selected + after
-      this.dataJson.content = content.substring(0, start) + replacement + content.substring(end)
-      this.$nextTick(() => {
-        textarea.focus()
-        textarea.setSelectionRange(start + before.length, start + before.length + selected.length)
-      })
-    },
     insertText (text) {
-      const textarea = this.$refs.contentTextarea?.$el || this.$refs.contentTextarea
-      const content = this.dataJson.content || ''
-      if (!textarea) {
-        this.dataJson.content = content + text
-        return
-      }
-      const start = textarea.selectionStart || 0
-      const end = textarea.selectionEnd || 0
-      this.dataJson.content = content.substring(0, start) + text + content.substring(end)
-      this.$nextTick(() => {
-        textarea.focus()
-        textarea.setSelectionRange(start + text.length, start + text.length)
-      })
-    },
-    insertDivider () {
-      this.insertText('\n---\n')
+      this.insertFormat(text, '', '')
     },
     insertTimeRange () {
-      this.insertText('08:00~09:00')
+      this.insertFormat('08:00~09:00', '', '')
     },
     insertTitlePrefix (prefix) {
       if (!this.dataJson.title) {
@@ -1335,12 +1375,7 @@ export default {
       this.confirm(`確定要發送訊息至「${this.effectiveTargetSummary}」?`).then((flag) => {
         if (flag) {
           this.isBusy = true
-          let finalContent = this.dataJson.content || ''
-          this.images.forEach((img) => {
-            if (!finalContent.includes(img)) {
-              finalContent += `\n\n![圖片](${img})`
-            }
-          })
+          const finalContent = this.mergedContent
           const snapshot = {
             channels: this.effectiveChannels,
             from_ip: this.ip,
@@ -1380,9 +1415,43 @@ export default {
   }
 }
 
+.content-textarea {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  font-family: inherit;
+}
+
 .editor-toolbar {
-  gap: 4px;
-  border-bottom: none;
+  border-bottom: 0;
+  button {
+    padding: 2px 8px;
+  }
+}
+
+.emoji-palette {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 4px 8px;
+  max-height: 72px;
+  overflow-y: auto;
+
+  .emoji-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    padding: 2px 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    user-select: none;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+
+    &:hover {
+      transform: scale(1.25);
+      background-color: #e9ecef;
+    }
+  }
 }
 
 .user-pill-btn {
@@ -1476,7 +1545,14 @@ export default {
   min-height: 0;
   max-height: none;
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #f1f3f6;
+
+  ::v-deep img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+  }
 
   .date-pill {
     display: inline-block;
@@ -1496,6 +1572,7 @@ export default {
     max-width: 90%;
     word-break: break-word;
     border: 1px solid #d0ecc0;
+    overflow: hidden;
 
     .bubble-title {
       font-size: 0.95rem;
@@ -1516,6 +1593,15 @@ export default {
       ::v-deep ul, ::v-deep ol {
         padding-left: 1.2rem;
         margin-bottom: 0.35rem;
+      }
+      ::v-deep img {
+        max-width: 100% !important;
+        height: auto !important;
+        border-radius: 6px;
+        display: block;
+        margin: 6px auto;
+        object-fit: contain;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       }
     }
 

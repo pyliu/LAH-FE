@@ -146,12 +146,12 @@ div.notification-admin-page
                 strong 公告內容 #[span.text-danger *]
                 span.text-muted.small.ml-2 (支援 Markdown 與 HTML 顏色標籤)
               lah-button(
-                v-if="announcementDataJson.content"
+                v-if="announcementDataJson.content || images.length > 0"
                 icon="times"
                 variant="outline-secondary"
                 size="sm"
                 no-border
-                @click="announcementDataJson.content = ''"
+                @click="announcementDataJson.content = ''; images = []"
                 title="清空內容"
               ) 清空
 
@@ -166,6 +166,10 @@ div.notification-admin-page
                   span(style="color: #0056b3; font-weight: bold;") 藍字
                 b-button(variant="white" size="sm" @click="insertRedText" title="紅色警示")
                   span(style="color: #dc3545; font-weight: bold;") 紅字
+                b-button(variant="white" size="sm" @click="insertGreenText" :title="'綠色重點 (支援 HTML 或 {{g語法g}})'")
+                  span(style="color: #28a745; font-weight: bold;") 綠字
+                b-button(variant="white" size="sm" @click="insertOrangeText" :title="'橘色提醒 (支援 HTML 或 {{o語法o}})'")
+                  span(style="color: #e67e22; font-weight: bold;") 橘字
 
               b-button-group(size="sm").mr-2.mb-1
                 b-button(variant="white" size="sm" @click="insertFormat('### ', '', '標題')" title="標題 H3") H3
@@ -197,10 +201,34 @@ div.notification-admin-page
               v-model="announcementDataJson.content"
               rows="9"
               max-rows="18"
-              placeholder="支援 Markdown 與顏色標籤，例如：\n各位同仁好 😎\n明日為【第四梯次】環境教育訓練...\n請參加同仁於 <font color=\"#0056b3\"><b>7時45分</b></font> 準時集合！"
+              placeholder="支援 Markdown 與顏色標籤，可直接按 Ctrl + V 貼上截圖，例如：\n各位同仁好 😎\n明日為【第四梯次】環境教育訓練...\n請參加同仁於 <font color=\"#0056b3\"><b>7時45分</b></font> 準時集合！"
               :state="validContent"
+              @paste="pasteImage($event, addImage)"
               @focus="lastFocusedField = 'content'"
             )
+
+            .d-flex.justify-content-between.align-items-center.mt-1.small
+              span.text-muted 提示：可直接於文字框按下 #[kbd Ctrl + V] 貼上剪貼簿圖片
+              span.text-muted 內文字數：{{ (announcementDataJson.content || '').length }} 字
+
+          //- 4. 附加圖片展示區
+          .mb-3(v-if="images.length > 0")
+            .d-flex.align-items-center.mb-1
+              lah-fa-icon(icon="paperclip" variant="primary").mr-1
+              strong 附加截圖 ({{ images.length }} 張)
+              span.text-muted.small.ml-2 (點擊圖片可刪除)
+            .d-flex.flex-wrap.align-items-center
+              transition-group(name="listY" mode="out-in")
+                b-img.memento.m-1(
+                  v-for="(base64data, idx) in images"
+                  :key="`imgAttached_${idx}`"
+                  :src="base64data"
+                  @click="removeImage(base64data)"
+                  thumbnail
+                  fluid
+                  v-b-tooltip="'點擊刪除這張圖片'"
+                  style="width: 120px; height: 80px; object-fit: cover;"
+                )
 
     //- 右欄：桃園即時通 Client 端擬真即時預覽
     .col-xl-5.col-lg-6.col-12.mb-4
@@ -255,7 +283,7 @@ div.notification-admin-page
 
             //- 公告卡片 (升級版卡片樣式)
             lah-notification-announcement-card(
-              :data-json="announcementDataJson"
+              :data-json="previewAnnouncementDataJson"
               :show-actions="true"
             )
 
@@ -334,8 +362,11 @@ div.notification-admin-page
       div 斜體：#[i.text-dark *我是斜體*]
       hr
       h6.font-weight-bold.text-primary 文字顏色 (即時通特色)
-      div 深藍字：#[code &lt;font color="#0056b3"&gt;&lt;b&gt;藍色重點&lt;/b&gt;&lt;/font&gt;]
+      div 藍色字：#[code &lt;font color="#0056b3"&gt;&lt;b&gt;藍色重點&lt;/b&gt;&lt;/font&gt;]
       div 紅色字：#[code &lt;font color="#dc3545"&gt;&lt;b&gt;紅色警示&lt;/b&gt;&lt;/font&gt;]
+      div 綠色字：#[code &lt;font color="#28a745"&gt;&lt;b&gt;綠色重點&lt;/b&gt;&lt;/font&gt;]
+      div 橘色字：#[code &lt;font color="#e67e22"&gt;&lt;b&gt;橘色提醒&lt;/b&gt;&lt;/font&gt;]
+      div.mt-1(v-pre) 亦支援雙括號：#[code {{b藍色b}}]、#[code {{r紅色r}}]、#[code {{g綠色g}}]、#[code {{o橘色o}}]
       hr
       h6.font-weight-bold.text-primary 清單與待辦
       div - 項目符號
@@ -383,6 +414,7 @@ export default {
       '【重要公告】', '【活動通知】', '【教育訓練】', '【系統維護】', '【會議通知】'
     ],
     announcementSendto: [],
+    images: [],
     lastFocusedField: 'content',
     helpSidebarFlag: false,
     cacheKey: 'postMementoCache',
@@ -409,7 +441,24 @@ export default {
       return !this.$utils.empty(this.announcementDataJson.title) && this.titleCharCount <= 84
     },
     validContent () {
-      return !this.$utils.empty(this.announcementDataJson.content)
+      return !this.$utils.empty(this.announcementDataJson.content) || this.images.length > 0
+    },
+    mergedContent () {
+      let content = this.announcementDataJson.content || ''
+      if (this.images.length > 0) {
+        const notIncluded = this.images.filter(img => !content.includes(img))
+        if (notIncluded.length > 0) {
+          const imgMd = notIncluded.map((img, idx) => `![附加截圖-${idx + 1}](${img})`).join('\n\n')
+          content = content ? `${content}\n\n${imgMd}` : imgMd
+        }
+      }
+      return content
+    },
+    previewAnnouncementDataJson () {
+      return {
+        ...this.announcementDataJson,
+        content: this.mergedContent
+      }
     },
     validSendto () {
       return this.announcementSendto.length > 0 && !this.$utils.empty(this.announcementSendto[0])
@@ -537,6 +586,22 @@ export default {
     insertRedText () {
       this.insertFormat('<font color="#dc3545"><b>', '</b></font>', '紅色警示')
     },
+    insertGreenText () {
+      this.insertFormat('<font color="#28a745"><b>', '</b></font>', '綠色重點')
+    },
+    insertOrangeText () {
+      this.insertFormat('<font color="#e67e22"><b>', '</b></font>', '橘色提醒')
+    },
+    insertColorTag (type) {
+      const map = {
+        b: { before: '{{b', after: 'b}}', text: '藍色粗體' },
+        r: { before: '{{r', after: 'r}}', text: '紅色粗體' },
+        g: { before: '{{g', after: 'g}}', text: '綠色粗體' },
+        o: { before: '{{o', after: 'o}}', text: '橘色粗體' }
+      }
+      const item = map[type] || map.b
+      this.insertFormat(item.before, item.after, item.text)
+    },
     insertDivider () {
       this.insertFormat('\n---\n', '', '')
     },
@@ -548,6 +613,17 @@ export default {
         this.announcementDataJson.title = (this.announcementDataJson.title || '') + emoji
       } else {
         this.insertFormat(emoji, '', '')
+      }
+    },
+    addImage (base64) {
+      if (!this.images.includes(base64)) {
+        this.images.push(base64)
+      }
+    },
+    removeImage (base64data) {
+      const index = this.images.indexOf(base64data)
+      if (index > -1) {
+        this.images.splice(index, 1)
       }
     },
     applyTemplate (type) {
@@ -569,6 +645,7 @@ export default {
           break
         case 'empty':
           this.announcementDataJson.content = ''
+          this.images = []
           break
       }
     },
@@ -673,11 +750,17 @@ export default {
         if (flag) {
           this.isBusy = true
           const channels = this.announcementSendto.map(ch => (ch === 'myself' ? (this.userid || 'myself') : ch))
+          let finalContent = this.announcementDataJson.content || ''
+          this.images.forEach((img, idx) => {
+            if (!finalContent.includes(img)) {
+              finalContent += `\n\n![附加截圖-${idx + 1}](${img})`
+            }
+          })
           const snapshot = {
             channels,
             from_ip: this.ip,
             title: this.announcementDataJson.title,
-            content: this.announcementDataJson.content,
+            content: finalContent,
             priority: this.announcementDataJson.priority,
             sender: this.user.id || this.ip,
             create_datetime: this.currentDatetime()
@@ -711,6 +794,7 @@ export default {
         create_datetime: this.currentDatetime()
       }
       this.announcementSendto = [this.userid || 'myself']
+      this.images = []
     },
     flipSendto () {
       if (this.isMyselfOnly) {
@@ -894,9 +978,16 @@ export default {
       min-height: 0;
       max-height: none;
       overflow-y: auto;
+      overflow-x: hidden;
       background-color: #f0f2f5;
       padding: 16px 12px 20px;
       position: relative;
+
+      ::v-deep img {
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain;
+      }
 
       .client-floating-chat {
         position: absolute;
@@ -967,6 +1058,11 @@ export default {
         font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       }
     }
+  }
+
+  .memento:hover {
+    border: 2px dashed #dc3545;
+    cursor: pointer;
   }
 }
 </style>
