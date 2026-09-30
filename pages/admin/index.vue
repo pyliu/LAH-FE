@@ -131,7 +131,7 @@ div.h-100.d-flex.flex-column.overflow-hidden(v-cloak)
                   path(d="M-3,-18 H3 V-14 H-3 Z M-3,14 H3 V18 H-3 Z M-18,-3 H-14 V3 H-18 Z M14,-3 H18 V3 H14 Z" fill="url(#admin-grad-gear)")
                   animateTransform(attributeName="transform" type="rotate" values="0; 360" dur="8s" repeatCount="indefinite")
 
-          h3.font-weight-bold.text-dark.mb-1 地政系統管理主面板
+          h3.font-weight-bold.text-dark.mb-1 控管系統管理主面板
           .text-muted 集中維護人員資訊、角色權限、網路 IP 及全域系統參數
 
         //- 下方功能選單卡片區域 (符合 admin 目錄下 4 個子模組)
