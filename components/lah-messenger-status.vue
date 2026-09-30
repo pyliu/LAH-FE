@@ -12,12 +12,12 @@
       font-scale="1.1"
     )
     transition(name="list" mode="out-in")
-      .my-auto.mr-2.text-truncate(v-if="!empty(displayText)") 
-        span {{ displayText }} 
+      .my-auto.mr-2.text-truncate(v-if="!empty(displayText)")
+        span {{ displayText }}
         b-icon.ml-1(icon="three-dots" animation="cylon")
       .my-auto.mr-2.text-truncate(v-else)
         span.text-muted 即時通就緒
-  
+
   .text-right.text-nowrap.flex-shrink-0.ml-2
     span {{ appVer }}
     b-icon.ml-1.help(icon="question-circle-fill", variant="success", @click="showHelp", title="簡易說明")
@@ -37,12 +37,12 @@
         b-badge.ml-2(variant="secondary" pill) {{ history.length }}
         b-button.ml-3(
           v-if="history.length > 0"
-          size="sm" 
-          variant="outline-danger" 
-          pill 
+          size="sm"
+          variant="outline-danger"
+          pill
           @click="history = []"
         ) 清空
-    
+
     .text-center.text-muted.my-4(v-if="history.length === 0") 尚無紀錄
     transition-group.list-group.list-group-flush(v-else name="history-list" tag="div")
       b-list-group-item.py-2.px-3(v-for="item in history" :key="item.id")
@@ -77,12 +77,12 @@ export default {
   mixins: [lahMessengerBase],
   props: {
     statusText: { type: String, default: '' },
-    version: { type: String, default: 'v2.0' }
+    version: { type: String, default: 'v1.4.7' }
   },
   data: () => ({
     clearTimer: null,
     displayText: '',
-    appVer: 'v2.0',
+    appVer: 'v1.4.7',
     history: [],
     showHistory: false
   }),
@@ -91,7 +91,7 @@ export default {
       clearTimeout(this.clearTimer)
       const text = this.empty(this.userid) ? '等待使用者資訊' : val
       this.displayText = text
-      
+
       if (!this.empty(text)) {
         this.history.unshift({
           id: this.$utils.uuid ? this.$utils.uuid() : `${+new Date()}_${Math.random()}`,
@@ -121,11 +121,11 @@ export default {
     showHelp () {
       this.modal(this.$createElement(LahMessengerHelp), {
         size: 'md',
-        title: `即時通說明 - ${this.appVer}`
+        title: `嵌入式即時通說明 - ${this.appVer}`
       })
     },
     detectTruncation () {
-      this.history.forEach(item => {
+      this.history.forEach((item) => {
         const ref = this.$refs[`text_${item.id}`]
         const el = Array.isArray(ref) ? ref[0] : ref
         if (el) {

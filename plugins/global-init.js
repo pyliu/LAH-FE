@@ -271,7 +271,7 @@ export default ({ $axios, store, $config }, inject) => {
       return DOMPurify?.sanitize(marked.parseInline(text?.trimEnd()))
     },
     replaceFilepath (str) {
-      if (!str) return ''
+      if (!str) { return '' }
       const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
       const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
       return str.replace(regex, subst)
@@ -793,53 +793,91 @@ export default ({ $axios, store, $config }, inject) => {
     highlightBlue (str) {
       return this.highlight(
         str,
-        /(\{{2}b.+?b\}{2})/igm,
+        /([{｛]{2}b.+?b[}｝]{2})/igm,
         'text-bold-blue'
-      ).replace(/(\{{2}b|b\}{2})/igm, '')
+      ).replace(/([{｛]{2}b|b[}｝]{2})/igm, '')
     },
     highlightRed (str) {
       return this.highlight(
         str,
-        /(\{{2}r.+?r\}{2})/,
+        /([{｛]{2}r.+?r[}｝]{2})/igm,
         'text-bold-red'
-      ).replace(/(\{{2}r|r\}{2})/igm, '')
+      ).replace(/([{｛]{2}r|r[}｝]{2})/igm, '')
     },
     highlightGreen (str) {
       return this.highlight(
         str,
-        /(\{{2}g.+?g\}{2})/,
+        /([{｛]{2}g.+?g[}｝]{2})/igm,
         'text-bold-green'
-      ).replace(/(\{{2}g|g\}{2})/igm, '')
+      ).replace(/([{｛]{2}g|g[}｝]{2})/igm, '')
     },
     highlightOrange (str) {
       return this.highlight(
         str,
-        /(\{{2}o.+?o\}{2})/,
+        /([{｛]{2}o.+?o[}｝]{2})/igm,
         'text-bold-orange'
-      ).replace(/(\{{2}o|o\}{2})/igm, '')
+      ).replace(/([{｛]{2}o|o[}｝]{2})/igm, '')
     },
     highlightTimestamp (str, css = 'text-bold-blue') {
+      const sep = '[~～〜至到—–\\-－]'
+      const timestampPattern = [
+        // 1. 日期區間: 2026/09/30~2026/10/01 或 6/30~7/1 或 6/30～7/1 或 6月30日至7月1日 或 113/9/30~113/10/1
+        `(?:\\d{2,4}[\\/／\\-.年])?[0-1]?[0-9][\\/／\\-.月][0-3]?[0-9]日?\\s*${sep}\\s*(?:\\d{2,4}[\\/／\\-.年])?[0-1]?[0-9][\\/／\\-.月][0-3]?[0-9]日?`,
+        // 2. 時間區間 (數字冒號): 08:00~09:00, 18:00至18:30, 2:10～3:20, 08:00:00~09:00:00
+        `[0-2]?[0-9][:：][0-5][0-9](?:[:：][0-5][0-9])?\\s*${sep}\\s*[0-2]?[0-9][:：][0-5][0-9](?:[:：][0-5][0-9])?`,
+        // 3. 時間區間 (含中文點/時): 10點~12點, 10點到12點, 8點半至9點, 六點到八點, 一點到兩點
+        `(?:[0-2]?[0-9]|[一二三四五六七八九十兩]+)[點時](?:半|[0-5]?[0-9]分?)?\\s*${sep}\\s*(?:[0-2]?[0-9]|[一二三四五六七八九十兩]+)[點時](?:半|[0-5]?[0-9]分?)?`,
+        // 4. 括號包圍的時間或日期: (08:00), (6/30), (08:00~09:00), （08:00）, （6/30）
+        `[\\(（]\\s*(?:(?:(?:\\d{2,4}[\\/／\\-.年])?[0-1]?[0-9][\\/／\\-.月][0-3]?[0-9]日?|(?:[0-1]?[0-9]|2[0-3])[:：][0-5][0-9](?:[:：][0-5][0-9])?)(?:\\s*${sep}\\s*(?:(?:\\d{2,4}[\\/／\\-.年])?[0-1]?[0-9][\\/／\\-.月][0-3]?[0-9]日?|(?:[0-1]?[0-9]|2[0-3])[:：][0-5][0-9](?:[:：][0-5][0-9])?))?)\\s*[\\)）]`,
+        // 5. 單一完整日期: 2026-09-30, 2026/09/30, 113/09/30, 2026年9月30日, 9月30日
+        '(?<![a-zA-Z0-9\\/])\\d{2,4}[\\/／\\-][0-1]?[0-9][\\/／\\-][0-3]?[0-9](?![a-zA-Z0-9\\/])',
+        '\\d{2,4}年[0-1]?[0-9]月[0-3]?[0-9]日?',
+        '[0-1]?[0-9]月[0-3]?[0-9]日',
+        // 6. 單一月/日: 6/30, 09/30 (前後不能緊鄰英文字母、數字或斜線，避免base64或英文單字)
+        '(?<![a-zA-Z0-9\\/])[0-1]?[0-9][\\/／][0-3]?[0-9](?![a-zA-Z0-9\\/])',
+        // 7. 單一時間 (數字冒號): 2:10, 14:30, 18:00:00 (前後不能有英文字母、數字、小數點或冒號，避免IP、PORT與變數)
+        '(?<![a-zA-Z0-9.:])(?:[0-1]?[0-9]|2[0-3])[:：][0-5][0-9](?:[:：][0-5][0-9])?(?![a-zA-Z0-9.:])',
+        // 8. 單一時間 (數字+點/時): 10點, 10點半, 9點15分, 1點
+        '(?<![a-zA-Z0-9])(?:[0-1]?[0-9]|2[0-3])[點時](?:半|[0-5]?[0-9]分)?',
+        // 9. 單一時間 (中文數字+點/時): 六點, 兩點半, 下午一點, 一點半 (排除 快一點、差一點 等副詞)
+        '(?:(?:[上下]午|[早中晚]上|凌晨)\\s*)?(?:[二三四五六七八九十兩]|十一|十二)[點時](?:半|[0-5]?[0-9]分)?',
+        '(?:(?:[上下]午|[早中晚]上|凌晨)\\s*)?一點(?:半|[0-5]?[0-9]分|整)',
+        '(?:[上下]午|[早中晚]上|凌晨)\\s*一點'
+      ].join('|')
       return this.highlight(
         str,
-        /([0-2]?[0-9]：[0-5]?[0-9]|\s[0-2]?[0-9]:[0-5]?[0-9]\s|\([0-1]?[0-9]\/[0-3]?[0-9].*?\)|[0-1]?[0-9][／月][0-3]?[0-9]日?|\s[0-1]?[0-9][\/／][0-3]?[0-9]\s|[0-2]?[0-9][:：][0-5]?[0-9]\s?[\-~]\s?[0-2]?[0-9][:：][0-5]?[0-9]|[0-2]?[0-9][點時分秒HhSsMm]?[:：]?[0-5]?[0-9]?\s?[\-~]\s?[0-2]?[0-9][點時Hh][:：]?[0-5]?[0-9]?|[0-1]?[0-9][\/／][0-3]?[0-9]\s?[\-~]\s?[0-1]?[0-9][\/／][0-3]?[0-9])/i,
+        new RegExp(`(${timestampPattern})`, 'i'),
         css
       )
     },
     highlightTitle (str, css = 'font-weight-bold') {
       return this.highlight(
         str,
-        /(['「（【《『〈〔].+?[〕〉』》】）」'])/i,
+        /(['「（【《『〈〔][^'」）】》』〉〕\n\r]+?[〕〉』》】）」'])/i,
         css
       )
     },
     highlightPipeline (str) {
       if (str) {
-        let tmp = this.highlightBlue(str)
+        // 保護 Markdown 圖片與 data:image 內嵌 base64 內容，避免被文字醒目規則破壞
+        const placeholders = []
+        let tmp = str.replace(/!\[[\s\S]*?\]\([\s\S]*?\)|data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/g, (match) => {
+          const token = `___LAH_PROTECTED_MEDIA_${placeholders.length}___`
+          placeholders.push(match)
+          return token
+        })
+
+        tmp = this.highlightBlue(tmp)
         tmp = this.highlightRed(tmp)
         tmp = this.highlightOrange(tmp)
         tmp = this.highlightGreen(tmp)
         tmp = this.highlightTimestamp(tmp)
         tmp = this.highlightTitle(tmp)
+
+        for (let i = 0; i < placeholders.length; i++) {
+          tmp = tmp.replace(`___LAH_PROTECTED_MEDIA_${i}___`, placeholders[i])
+        }
+
         return tmp
       }
       return str
