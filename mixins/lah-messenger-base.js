@@ -317,6 +317,106 @@ export default {
           }
         }
       }
+    },
+    extractMessageTimestamp (item) {
+      if (!item) {
+        return 0
+      }
+      if (item.timestamp) {
+        const ts = Number(item.timestamp)
+        if (!isNaN(ts) && ts > 0) {
+          return ts > 1e11 ? ts : ts * 1000
+        }
+      }
+      if (item.date && item.time) {
+        const timeStr = `${item.date} ${item.time}`.replace(/-/g, '/')
+        const ts = new Date(timeStr).getTime()
+        if (!isNaN(ts) && ts > 0) {
+          return ts
+        }
+      }
+      const dt = item.create_datetime || (item.message && typeof item.message === 'object' && item.message.create_datetime)
+      if (dt && typeof dt === 'string') {
+        const ts = new Date(dt.replace(/-/g, '/')).getTime()
+        if (!isNaN(ts) && ts > 0) {
+          return ts
+        }
+      }
+      if (typeof item.message === 'string' && item.message.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(item.message)
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.timestamp) {
+              const ts = Number(parsed.timestamp)
+              if (!isNaN(ts) && ts > 0) {
+                return ts > 1e11 ? ts : ts * 1000
+              }
+            }
+            if (parsed.create_datetime) {
+              const ts = new Date(parsed.create_datetime.replace(/-/g, '/')).getTime()
+              if (!isNaN(ts) && ts > 0) {
+                return ts
+              }
+            }
+            if (parsed.date && parsed.time) {
+              const ts = new Date(`${parsed.date} ${parsed.time}`.replace(/-/g, '/')).getTime()
+              if (!isNaN(ts) && ts > 0) {
+                return ts
+              }
+            }
+          }
+        } catch (e) {}
+      }
+      if (item.date) {
+        const ts = new Date(item.date.replace(/-/g, '/')).getTime()
+        if (!isNaN(ts) && ts > 0) {
+          return ts
+        }
+      }
+      return 0
+    },
+    extractMessageId (item) {
+      if (!item) {
+        return 0
+      }
+      if (item.id) {
+        const id = parseInt(item.id)
+        if (!isNaN(id) && id > 0) {
+          return id
+        }
+      }
+      if (item.message && typeof item.message === 'object' && item.message.id) {
+        const id = parseInt(item.message.id)
+        if (!isNaN(id) && id > 0) {
+          return id
+        }
+      }
+      return 0
+    },
+    compareMessages (a, b) {
+      const idA = this.extractMessageId(a)
+      const idB = this.extractMessageId(b)
+      if (idA > 0 && idB > 0 && idA !== idB) {
+        return idA - idB
+      }
+      const tsA = this.extractMessageTimestamp(a)
+      const tsB = this.extractMessageTimestamp(b)
+      if (tsA > 0 && tsB > 0 && tsA !== tsB) {
+        return tsA - tsB
+      }
+      if (idA > 0 && (!idB || idB <= 0)) {
+        return -1
+      }
+      if (idB > 0 && (!idA || idA <= 0)) {
+        return 1
+      }
+      return 0
+    },
+    sortMessages (list) {
+      if (!Array.isArray(list)) {
+        return []
+      }
+      return [...list].sort(this.compareMessages)
     }
   }
 }
