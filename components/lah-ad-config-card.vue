@@ -152,12 +152,10 @@
         lah-fa-icon(icon="cogs").mr-1
         | AD Agent 設定 (變動密碼功能須設定此處)
       b-button(
-        :href="adAgentScriptUrl"
-        target="_blank"
-        download="AD_Password_Agent.ps1"
         variant="outline-primary"
         size="sm"
         title="下載 AD_Password_Agent.ps1 PowerShell 腳本"
+        @click="downloadPs1"
       )
         lah-fa-icon(icon="download").mr-1
         | 下載 AD_Password_Agent.ps1
@@ -178,9 +176,8 @@
         template(#description)
           span ⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址 [需於 AD 伺服器執行
           b-link.mx-1.font-weight-bold(
-            :href="adAgentScriptUrl"
-            target="_blank"
-            download="AD_Password_Agent.ps1"
+            href="javascript:void(0)"
+            @click="downloadPs1"
           )
             lah-fa-icon(icon="download").mr-1
             | AD_Password_Agent.ps1
@@ -201,9 +198,8 @@
         template(#description)
           span 👉 Agent API 的金鑰 [必須與
           b-link.mx-1(
-            :href="adAgentScriptUrl"
-            target="_blank"
-            download="AD_Password_Agent.ps1"
+            href="javascript:void(0)"
+            @click="downloadPs1"
           ) AD_Password_Agent.ps1
           span 裡設定相符]
 
@@ -245,6 +241,8 @@
 </template>
 
 <script>
+import FileSaver from 'file-saver'
+
 export default {
   name: 'LahAdConfigCard',
   props: {
@@ -420,6 +418,25 @@ export default {
       } catch (err) {
         this.$utils.error(err)
         this.notify('儲存失敗', { type: 'danger' })
+      } finally {
+        this.isBusy = false
+      }
+    },
+
+    // 下載 AD_Password_Agent.ps1 腳本
+    async downloadPs1 () {
+      this.isBusy = true
+      try {
+        const response = await fetch(this.adAgentScriptUrl)
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        const blob = await response.blob()
+        FileSaver.saveAs(blob, 'AD_Password_Agent.ps1')
+        this.notify('下載 AD_Password_Agent.ps1 成功', { type: 'success' })
+      } catch (err) {
+        this.$utils.error(err)
+        this.notify('下載 AD_Password_Agent.ps1 失敗', { type: 'danger' })
       } finally {
         this.isBusy = false
       }

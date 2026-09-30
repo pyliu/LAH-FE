@@ -281,16 +281,7 @@ div(v-cloak)
   )
     lah-ad-config-card(:init-data="adConfig" @saved="adConfigSaved" @reload="loadAdConfig" @synced="$fetch")
     template(#modal-footer="{ close }")
-      .d-flex.justify-content-between.align-items-center.w-100
-        b-link(
-          :href="adAgentScriptUrl"
-          target="_blank"
-          download="AD_Password_Agent.ps1"
-          class="btn btn-sm btn-outline-primary"
-        )
-          lah-fa-icon(icon="download").mr-1
-          | 下載 AD_Password_Agent.ps1
-        b-button(variant="outline-secondary" size="sm" @click="close()") 關閉
+      b-button(variant="outline-secondary" size="sm" @click="close()") 關閉
 
   b-modal(id="ip-conflict-modal" title="IP 更新選擇" size="xl" hide-footer scrollable)
     p.text-muted 偵測到以下人員有多筆符合規則的 IP 紀錄。系統已過濾目前 IP，請點選欲套用的正確地址：
@@ -432,10 +423,6 @@ export default {
     },
     adConfigVariant () { return this.isAdConfigValid ? 'outline-secondary' : 'outline-danger' },
     adConfigTooltip () { return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新' },
-    adAgentScriptUrl () {
-      const base = this.apiQueryUrl || (this.apiSvrIp ? `http://${this.apiSvrIp}:${this.apiSvrPort}` : '') || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
-      return `${base}/assets/sh/AD_Password_Agent.ps1`
-    },
 
     // 提取所有不重複的課室
     unitOptions () {
