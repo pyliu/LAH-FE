@@ -67,6 +67,16 @@ div.h-100.d-flex.flex-column.overflow-hidden
                       h3.font-weight-bold.text-dark.mb-2 資訊實驗室
                       .text-muted.h5.mb-0 創新功能與測試區域
 
+              //- 系統管理選單 (管理者權限控制)
+              b-col(cols="12" sm="6" xl="4" v-if="authority.isAdmin").mb-4
+                nuxt-link(to="/admin").text-decoration-none
+                  b-card.system-card.h-100.text-center.border-0.shadow-sm(no-body)
+                    b-card-body.d-flex.flex-column.align-items-center.justify-content-center.p-4
+                      .img-container.mb-3
+                        b-img(src="~/assets/img/ADMIN.jpg" fluid alt="系統管理選單")
+                      h3.font-weight-bold.text-dark.mb-2 系統管理選單
+                      .text-muted.h5.mb-0 後台管理與系統設定
+
           //- 右側：即時通公告 (填滿高度但受 max-height 限制)
           b-col.h-100(
             cols="12",
