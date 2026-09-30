@@ -19,7 +19,6 @@ Vue.mixin({
       'apiSvrPort',
       'lastMessage',
       'systemConfigs',
-      'apiHost',
       'apiPort',
       'wsHost',
       'wsPort',
@@ -85,13 +84,15 @@ Vue.mixin({
     myid () { return this.user.id },
     myname () { return this.user.name },
     webapIp () { return isEmpty(this.systemConfigs.webap_ip) ? '127.0.0.1' : this.systemConfigs.webap_ip },
+    apiHost () {
+      if (process.client && location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        return location.hostname
+      }
+      return this.apiSvrIp || (process.client ? location.hostname : '') || this.systemConfigs?.API_SERVER_IP || '220.1.34.75'
+    },
     legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` },
     apiQueryUrl () {
-      let host = this.apiHost || this.apiSvrIp
-      if ((!host || host === 'localhost' || host === '127.0.0.1') && process.client && location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-        host = location.hostname
-      }
-      host = host || '220.1.34.75'
+      const host = this.apiHost
       const port = this.apiPort || this.apiSvrPort
       const portStr = port && port !== 80 && port !== '80' ? `:${port}` : ''
       return `http://${host}${portStr}`

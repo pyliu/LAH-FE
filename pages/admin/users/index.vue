@@ -73,7 +73,7 @@ div(v-cloak)
           span.font-weight-bold AD 連線設定：
           span 點擊右上角的
           lah-button(icon="cogs" variant="outline-secondary" size="sm" no-icon-gutter class="mx-1") AD 設定
-          span 按鈕。若設定不完整會顯示為紅色警示顏色。
+          span 按鈕。若設定不完整會顯示為紅色警示顏色。視窗內亦提供下載 AD_Password_Agent.ps1 代理服務腳本之連結。
 
       li.mb-2
         .d-flex.align-items-center.flex-wrap
@@ -273,8 +273,24 @@ div(v-cloak)
   b-modal(id="add-user-modal" title="手動新增使用者" size="lg" hide-footer scrollable no-close-on-backdrop)
     lah-user-add-card(@added="added($event)")
 
-  b-modal(id="ad-config-modal" title="AD 連線設定" size="lg" hide-footer no-close-on-backdrop)
+  b-modal(
+    id="ad-config-modal"
+    title="AD 連線設定"
+    size="lg"
+    no-close-on-backdrop
+  )
     lah-ad-config-card(:init-data="adConfig" @saved="adConfigSaved" @reload="loadAdConfig" @synced="$fetch")
+    template(#modal-footer="{ close }")
+      .d-flex.justify-content-between.align-items-center.w-100
+        b-link(
+          :href="adAgentScriptUrl"
+          target="_blank"
+          download="AD_Password_Agent.ps1"
+          class="btn btn-sm btn-outline-primary"
+        )
+          lah-fa-icon(icon="download").mr-1
+          | 下載 AD_Password_Agent.ps1
+        b-button(variant="outline-secondary" size="sm" @click="close()") 關閉
 
   b-modal(id="ip-conflict-modal" title="IP 更新選擇" size="xl" hide-footer scrollable)
     p.text-muted 偵測到以下人員有多筆符合規則的 IP 紀錄。系統已過濾目前 IP，請點選欲套用的正確地址：
@@ -296,9 +312,9 @@ div(v-cloak)
 </template>
 
 <script>
-import lahAdConfigCard from '~/components/lah-ad-config-card.vue';
-import lahUserAddCard from '~/components/lah-user-add-card.vue';
-import lahUserEditCard from '~/components/lah-user-edit-card.vue';
+import lahAdConfigCard from '~/components/lah-ad-config-card.vue'
+import lahUserAddCard from '~/components/lah-user-add-card.vue'
+import lahUserEditCard from '~/components/lah-user-edit-card.vue'
 
 export default {
   components: { lahUserEditCard, lahUserAddCard, lahAdConfigCard },
@@ -416,6 +432,10 @@ export default {
     },
     adConfigVariant () { return this.isAdConfigValid ? 'outline-secondary' : 'outline-danger' },
     adConfigTooltip () { return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新' },
+    adAgentScriptUrl () {
+      const base = this.apiQueryUrl || (this.apiSvrIp ? `http://${this.apiSvrIp}:${this.apiSvrPort}` : '') || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
+      return `${base}/assets/sh/AD_Password_Agent.ps1`
+    },
 
     // 提取所有不重複的課室
     unitOptions () {

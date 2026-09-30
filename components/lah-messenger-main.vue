@@ -233,15 +233,15 @@ export default {
       return style
     },
     activeWsHost () {
+      if (process.client && location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        return location.hostname
+      }
       if (this.wsHost) { return this.wsHost }
       if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
         return this.systemConfigs.WS_SERVER_IP
       }
       if (this.apiHost && this.apiHost !== 'localhost' && this.apiHost !== '127.0.0.1') {
         return this.apiHost
-      }
-      if (process.client && location.hostname && location.hostname !== 'localhost') {
-        return location.hostname
       }
       return '220.1.34.75'
     },

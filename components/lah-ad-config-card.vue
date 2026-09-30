@@ -147,9 +147,20 @@
     //- 4. AD Agent 設定 (進階設定)
     //- ==========================================
 
-    h6.mb-3.font-weight-bold.text-muted
-      lah-fa-icon(icon="cogs").mr-1
-      | AD Agent 設定 (變動密碼功能須設定此處)
+    .d-flex.justify-content-between.align-items-center.mb-2
+      h6.mb-0.font-weight-bold.text-muted
+        lah-fa-icon(icon="cogs").mr-1
+        | AD Agent 設定 (變動密碼功能須設定此處)
+      b-button(
+        :href="adAgentScriptUrl"
+        target="_blank"
+        download="AD_Password_Agent.ps1"
+        variant="outline-primary"
+        size="sm"
+        title="下載 AD_Password_Agent.ps1 PowerShell 腳本"
+      )
+        lah-fa-icon(icon="download").mr-1
+        | 下載 AD_Password_Agent.ps1
 
     .p-4.optional-border.mb-3
       b-form-group(
@@ -157,26 +168,44 @@
         label-for="agent-url"
         label-cols-sm="2"
         label-size="md"
-        description="⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址 [需於 AD 伺服器執行 AD_Password_Agent.ps1 以提供 API 服務]"
-      ): b-input(
-        id="agent-url"
-        v-model="config.AD_AGENT_URL"
-        trim
-        placeholder="http://220.1.XX.XX:8888/reset-password"
       )
+        b-input(
+          id="agent-url"
+          v-model="config.AD_AGENT_URL"
+          trim
+          placeholder="http://220.1.XX.XX:8888/reset-password"
+        )
+        template(#description)
+          span ⭐ 用於執行重設密碼等進階操作的代理程式 API 服務網址 [需於 AD 伺服器執行
+          b-link.mx-1.font-weight-bold(
+            :href="adAgentScriptUrl"
+            target="_blank"
+            download="AD_Password_Agent.ps1"
+          )
+            lah-fa-icon(icon="download").mr-1
+            | AD_Password_Agent.ps1
+          span 以提供 API 服務]
 
       b-form-group(
         label="Agent Key"
         label-for="agent-key"
         label-cols-sm="2"
         label-size="md"
-        description="👉 Agent API 的金鑰 [必須與 AD_Password_Agent.ps1 裡設定相符]"
-      ): b-input(
-        id="agent-key"
-        v-model="config.AD_AGENT_KEY"
-        trim
-        placeholder="API Key"
       )
+        b-input(
+          id="agent-key"
+          v-model="config.AD_AGENT_KEY"
+          trim
+          placeholder="API Key"
+        )
+        template(#description)
+          span 👉 Agent API 的金鑰 [必須與
+          b-link.mx-1(
+            :href="adAgentScriptUrl"
+            target="_blank"
+            download="AD_Password_Agent.ps1"
+          ) AD_Password_Agent.ps1
+          span 裡設定相符]
 
     //- ==========================================
     //- 5. 詳細資訊 Modal (用於顯示同步結果)
@@ -255,6 +284,10 @@ export default {
              !this.$utils.empty(this.config.BASE_DN) &&
              !this.$utils.empty(this.config.QUERY_USER) &&
              !this.$utils.empty(this.config.QUERY_PASSWORD)
+    },
+    adAgentScriptUrl () {
+      const base = this.apiQueryUrl || (this.apiSvrIp ? `http://${this.apiSvrIp}:${this.apiSvrPort}` : '') || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
+      return `${base}/assets/sh/AD_Password_Agent.ps1`
     }
   },
   watch: {
