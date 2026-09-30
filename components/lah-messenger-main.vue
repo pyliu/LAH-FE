@@ -2,22 +2,88 @@
 .lah-messenger-root(:class="rootClasses" :style="rootStyle")
   client-only
     //- 連線狀態提示橫條 (若斷線或連線中時顯示)
-    .connection-banner.d-flex.justify-content-between.align-items-center.px-3.py-1(
+    .connection-banner.px-3.py-1(
       v-if="!connected"
       :class="connecting ? 'bg-info text-white' : 'bg-warning text-dark'"
     )
-      .d-flex.align-items-center
-        b-spinner.mr-2(small v-if="connecting")
-        b-icon.mr-2(icon="exclamation-triangle-fill" v-else)
-        span.s-90 {{ connecting ? '即時通伺服器連線中...' : '即時通已斷線，正在自動重試連線...' }}
-        span.s-80.ml-2 ({{ currentWsConnStr }})
-      b-button(
-        size="sm"
-        :variant="connecting ? 'light' : 'outline-dark'"
-        class="py-0 px-2 s-85"
-        @click="connect"
-        :disabled="connecting"
-      ) 立即重新連線
+      .d-flex.justify-content-between.align-items-center
+        .d-flex.align-items-center.text-truncate.mr-2
+          b-spinner.mr-2(small v-if="connecting")
+          b-icon.mr-2(icon="exclamation-triangle-fill" v-else)
+          span.s-90 {{ connecting ? '即時通伺服器連線中...' : '即時通已斷線，正在自動重試連線...' }}
+          b-link.s-80.ml-2.font-weight-bold(
+            :class="connecting ? 'text-white' : 'text-dark'"
+            href="javascript:void(0)"
+            @click="toggleCustomWsInput"
+            title="點擊自訂伺服器 IP 與 Port"
+          ) ({{ currentWsConnStr }})
+            b-icon.ml-1(icon="pencil-square" font-scale="0.9")
+        .d-flex.align-items-center.flex-shrink-0
+          b-button.mr-1(
+            size="sm"
+            :variant="showCustomWsInput ? 'dark' : (connecting ? 'light' : 'outline-dark')"
+            class="py-0 px-2 s-85"
+            @click="toggleCustomWsInput"
+            title="自訂 WS 伺服器"
+          )
+            b-icon(icon="gear-fill" font-scale="0.9")
+            span.ml-1.d-none.d-sm-inline 自訂
+          b-button(
+            size="sm"
+            :variant="connecting ? 'light' : 'outline-dark'"
+            class="py-0 px-2 s-85"
+            @click="connect"
+            :disabled="connecting"
+          ) 立即重新連線
+
+      //- 自訂 WS IP / Port 輸入區
+      b-collapse.mt-1(v-model="showCustomWsInput")
+        .p-2.bg-white.text-dark.rounded.border.shadow-sm
+          .d-flex.flex-wrap.align-items-center
+            b-input-group(size="sm" prepend="ws://" class="mr-2 mb-1" style="width: 220px;")
+              b-input(
+                v-model.trim="inputWsHost"
+                placeholder="例如: 220.1.34.75"
+                @keyup.enter="applyCustomWsAndConnect"
+              )
+            b-input-group(size="sm" prepend=":" class="mr-2 mb-1" style="width: 110px;")
+              b-input(
+                v-model.trim="inputWsPort"
+                type="number"
+                placeholder="8081"
+                @keyup.enter="applyCustomWsAndConnect"
+              )
+            b-button.mr-1.mb-1(
+              size="sm"
+              variant="primary"
+              class="py-0 px-2 s-85"
+              @click="applyCustomWsAndConnect"
+              :disabled="connecting"
+            )
+              b-icon.mr-1(icon="check-circle-fill")
+              span 套用並連線
+            b-button.mr-1.mb-1(
+              size="sm"
+              variant="outline-primary"
+              class="py-0 px-2 s-85"
+              @click="setOnlinePreset"
+              title="快速切換至線上正式 WS (220.1.34.75:8081)"
+            ) 線上正式 (8081)
+            b-button.mr-1.mb-1(
+              size="sm"
+              variant="outline-secondary"
+              class="py-0 px-2 s-85"
+              @click="resetCustomWs"
+              title="清除自訂設定，還原預設伺服器"
+              v-if="customWsHost || customWsPort"
+            ) 還原預設
+            b-button.mb-1(
+              size="sm"
+              variant="outline-danger"
+              class="py-0 px-2 s-85"
+              @click="showCustomWsInput = false"
+              title="關閉"
+            ) ✕
 
     //- 主要即時通佈局
     .main-layout
@@ -207,7 +273,12 @@ export default {
     toastMessageQueue: [],
     toastProcessTimer: null,
     activeToastIds: [],
-    toastSeq: 0
+    toastSeq: 0,
+    customWsHost: '',
+    customWsPort: '',
+    inputWsHost: '',
+    inputWsPort: '',
+    showCustomWsInput: false
   }),
   computed: {
     rootClasses () {
@@ -233,6 +304,9 @@ export default {
       return style
     },
     activeWsHost () {
+      if (this.customWsHost) {
+        return this.customWsHost
+      }
       if (process.client && location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
         return location.hostname
       }
@@ -246,6 +320,9 @@ export default {
       return '220.1.34.75'
     },
     activeWsPort () {
+      if (this.customWsPort) {
+        return parseInt(this.customWsPort) || 8081
+      }
       return parseInt(this.wsPort) || this.defaultWsPort || 8082
     },
     currentWsConnStr () {
@@ -266,7 +343,29 @@ export default {
       return this.currentChannel === 'chat'
     },
     list () {
-      return this.messages[this.currentChannel] || []
+      const msgs = this.messages[this.currentChannel]
+      if (!Array.isArray(msgs)) {
+        return []
+      }
+      return [...msgs].sort((a, b) => {
+        const tsA = this.extractMessageTimestamp(a)
+        const tsB = this.extractMessageTimestamp(b)
+        if (tsA > 0 && tsB > 0 && tsA !== tsB) {
+          return tsA - tsB
+        }
+        const idA = this.extractMessageId(a)
+        const idB = this.extractMessageId(b)
+        if (idA > 0 && idB > 0 && idA !== idB) {
+          return idA - idB
+        }
+        if (tsA > 0 && tsB === 0) {
+          return 1
+        }
+        if (tsB > 0 && tsA === 0) {
+          return -1
+        }
+        return 0
+      })
     },
     chatUnread () {
       const targetChannels = [...new Set(['lds', this.userdept].filter(Boolean))]
@@ -365,6 +464,23 @@ export default {
       }
     }, 300)
     this.delayUpdateChannelLastReadId = this.$utils.debounce(this.updateChannelLastReadId, 300)
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const savedHost = window.localStorage.getItem('lah-messenger-custom-ws-host')
+        const savedPort = window.localStorage.getItem('lah-messenger-custom-ws-port')
+        if (savedHost) {
+          this.customWsHost = savedHost
+        }
+        if (savedPort) {
+          this.customWsPort = savedPort
+        }
+      } catch (e) {
+        this.$utils.warn('[即時通] 讀取自訂 WS 設定失敗:', e)
+      }
+      this.inputWsHost = this.customWsHost || this.activeWsHost
+      this.inputWsPort = this.customWsPort || this.activeWsPort
+    }
 
     this.connect()
     this.startReconnectTimer()
@@ -509,7 +625,9 @@ export default {
           this.$store.commit('websocket', ws)
           this.setConnectText('即時通已連線')
           this.register()
-          this.list.length = 0
+          if (Array.isArray(this.messages[this.currentChannel])) {
+            this.messages[this.currentChannel].length = 0
+          }
           this.delayLatestMessage()
           this.connecting = false
         }
@@ -539,10 +657,146 @@ export default {
     },
     closeWebsocket () {
       if (this.websocket) {
+        this.websocket.onopen = null
+        this.websocket.onmessage = null
+        this.websocket.onerror = null
+        this.websocket.onclose = null
         this.websocket.close()
         this.$store.commit('wsConnected', false)
         this.$store.commit('websocket', undefined)
       }
+    },
+    toggleCustomWsInput () {
+      this.showCustomWsInput = !this.showCustomWsInput
+      if (this.showCustomWsInput) {
+        this.inputWsHost = this.customWsHost || this.activeWsHost
+        this.inputWsPort = this.customWsPort || this.activeWsPort
+      }
+    },
+    applyCustomWsAndConnect () {
+      const host = (this.inputWsHost || '').trim()
+      const port = (this.inputWsPort ? String(this.inputWsPort) : '').trim()
+      if (!host) {
+        this.warning('請輸入 WebSocket 伺服器 IP 或主機名稱')
+        return
+      }
+      this.customWsHost = host
+      this.customWsPort = port || '8081'
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.setItem('lah-messenger-custom-ws-host', this.customWsHost)
+          window.localStorage.setItem('lah-messenger-custom-ws-port', this.customWsPort)
+        } catch (e) {
+          this.$utils.warn('[即時通] 儲存自訂 WS 設定失敗:', e)
+        }
+      }
+      this.notify(`已設定 WS 伺服器為 ${this.customWsHost}:${this.customWsPort}，重新連線中...`, { variant: 'info' })
+      this.closeWebsocket()
+      this.connect()
+    },
+    setOnlinePreset () {
+      this.inputWsHost = '220.1.34.75'
+      this.inputWsPort = '8081'
+      this.applyCustomWsAndConnect()
+    },
+    resetCustomWs () {
+      this.customWsHost = ''
+      this.customWsPort = ''
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.removeItem('lah-messenger-custom-ws-host')
+          window.localStorage.removeItem('lah-messenger-custom-ws-port')
+        } catch (e) {
+          this.$utils.warn('[即時通] 清除自訂 WS 設定失敗:', e)
+        }
+      }
+      this.inputWsHost = this.activeWsHost
+      this.inputWsPort = this.activeWsPort
+      this.notify('已還原為系統預設 WS 伺服器設定，重新連線中...', { variant: 'info' })
+      this.closeWebsocket()
+      this.connect()
+    },
+    extractMessageTimestamp (item) {
+      if (!item) {
+        return 0
+      }
+      if (item.timestamp) {
+        const ts = Number(item.timestamp)
+        if (!isNaN(ts) && ts > 0) {
+          return ts > 1e11 ? ts : ts * 1000
+        }
+      }
+      if (item.date && item.time) {
+        const timeStr = `${item.date} ${item.time}`.replace(/-/g, '/')
+        const ts = new Date(timeStr).getTime()
+        if (!isNaN(ts) && ts > 0) {
+          return ts
+        }
+      }
+      const dt = item.create_datetime || (item.message && typeof item.message === 'object' && item.message.create_datetime)
+      if (dt && typeof dt === 'string') {
+        const ts = new Date(dt.replace(/-/g, '/')).getTime()
+        if (!isNaN(ts) && ts > 0) {
+          return ts
+        }
+      }
+      if (typeof item.message === 'string' && item.message.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(item.message)
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.timestamp) {
+              const ts = Number(parsed.timestamp)
+              if (!isNaN(ts) && ts > 0) {
+                return ts > 1e11 ? ts : ts * 1000
+              }
+            }
+            if (parsed.create_datetime) {
+              const ts = new Date(parsed.create_datetime.replace(/-/g, '/')).getTime()
+              if (!isNaN(ts) && ts > 0) {
+                return ts
+              }
+            }
+            if (parsed.date && parsed.time) {
+              const ts = new Date(`${parsed.date} ${parsed.time}`.replace(/-/g, '/')).getTime()
+              if (!isNaN(ts) && ts > 0) {
+                return ts
+              }
+            }
+          }
+        } catch (e) {}
+      }
+      if (item.date) {
+        const ts = new Date(item.date.replace(/-/g, '/')).getTime()
+        if (!isNaN(ts) && ts > 0) {
+          return ts
+        }
+      }
+      return 0
+    },
+    compareMessages (a, b) {
+      const idA = this.extractMessageId(a)
+      const idB = this.extractMessageId(b)
+      if (idA > 0 && idB > 0 && idA !== idB) {
+        return idA - idB
+      }
+      const tsA = this.extractMessageTimestamp(a)
+      const tsB = this.extractMessageTimestamp(b)
+      if (tsA > 0 && tsB > 0 && tsA !== tsB) {
+        return tsA - tsB
+      }
+      if (idA > 0 && (!idB || idB <= 0)) {
+        return -1
+      }
+      if (idB > 0 && (!idA || idA <= 0)) {
+        return 1
+      }
+      return 0
+    },
+    sortChannelMessages (channel) {
+      if (!channel || !Array.isArray(this.messages[channel])) {
+        return
+      }
+      this.messages[channel].sort(this.compareMessages)
     },
     startReconnectTimer () {
       this.stopReconnectTimer()
@@ -676,7 +930,29 @@ export default {
         const channel = incoming.channel
         const receivedId = this.extractMessageId(incoming)
         const lastReadId = (await this.getChannelLastReadId(channel)) || 0
-        const isHistory = !!(incoming.prepend || incoming.message?.prepend)
+
+        const existingMessages = this.messages[channel] || []
+        const currentMaxId = existingMessages.reduce((max, m) => {
+          const mid = this.extractMessageId(m)
+          return mid > max ? mid : max
+        }, 0)
+        const currentMaxTs = existingMessages.reduce((max, m) => {
+          const mts = this.extractMessageTimestamp(m)
+          return mts > max ? mts : max
+        }, 0)
+        const incomingTs = this.extractMessageTimestamp(incoming)
+
+        let isHistory = Boolean(
+          incoming.prepend === true ||
+          (incoming.message && typeof incoming.message === 'object' && incoming.message.prepend === true)
+        )
+        // 若收到的訊息 ID 大於目前頻道已有的最大 ID 或 TIMESTAMP 大於等於現有最大時間戳，則必定為最新即時訊息，絕非歷史訊息
+        if (
+          (receivedId > 0 && currentMaxId > 0 && receivedId >= currentMaxId) ||
+          (incomingTs > 0 && currentMaxTs > 0 && incomingTs >= currentMaxTs)
+        ) {
+          isHistory = false
+        }
 
         if (incoming.type === 'ack') {
           this.handleAckMessage(incoming.message)
@@ -692,8 +968,10 @@ export default {
           this.$nextTick(() => {
             if (!this.$utils.empty(incoming.message)) {
               const isDuplicate = this.messages[channel].some((m) => {
-                if (incoming.id && m.id) {
-                  return m.id === incoming.id
+                const incId = this.extractMessageId(incoming)
+                const mId = this.extractMessageId(m)
+                if (incId > 0 && mId > 0) {
+                  return incId === mId
                 }
                 return (
                   m.sender === incoming.sender &&
@@ -708,12 +986,12 @@ export default {
                   this.messages[channel].unshift(incoming)
                 } else {
                   this.messages[channel].push(incoming)
-                  this.scrollToBottom()
                 }
+                this.sortChannelMessages(channel)
 
                 if (!isHistory) {
+                  this.scrollToBottom()
                   this.triggerNotification(incoming)
-                  this.delayLatestMessage()
                 }
               }
 
@@ -725,8 +1003,10 @@ export default {
             this.$store.commit('addChannel', channel)
           }
           const isDuplicate = this.messages[channel].some((m) => {
-            if (incoming.id && m.id) {
-              return m.id === incoming.id
+            const incId = this.extractMessageId(incoming)
+            const mId = this.extractMessageId(m)
+            if (incId > 0 && mId > 0) {
+              return incId === mId
             }
             return (
               m.sender === incoming.sender &&
@@ -737,6 +1017,7 @@ export default {
           })
           if (!isDuplicate) {
             this.messages[channel].push(incoming)
+            this.sortChannelMessages(channel)
           }
 
           const isTargetChannel =
