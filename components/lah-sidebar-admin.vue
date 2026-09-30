@@ -27,6 +27,9 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
+      li: nuxt-link(to="/websocket").
+        #[font-awesome-icon(:icon="['fas', 'wifi']", fixed-width, size="lg")]
+        即時通訊儀表板
       li: nuxt-link(to="/notification").
         #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
         發布即時通公告
