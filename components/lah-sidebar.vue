@@ -26,7 +26,18 @@ b-sidebar#lah-sidebar(
       )
 
       li: hr
+      
+      li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(
+        to="/notification"
+      ).
+        #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
+        發布即時通公告
+      li: nuxt-link(to="/message").
+        #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
+        傳送即時通訊息
 
+      li: hr
+      
       li: nuxt-link(v-if="isH0 || isInf", to="/bureau").
         #[font-awesome-icon(:icon="['fas', 'tv']", fixed-width, pull="left", size="lg")]
         {{ site }}監控輪播
@@ -44,7 +55,7 @@ b-sidebar#lah-sidebar(
         智慧監控首頁
       li: nuxt-link(to="/lab").
         #[font-awesome-icon(:icon="['fas', 'flask-vial']", fixed-width, pull="left", size="lg")]
-        地政資訊實驗室首頁
+        資訊實驗室首頁
 
       li: hr
 
@@ -118,14 +129,6 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/xap/broken_cached").
         #[font-awesome-icon(:icon="['fas', 'heart-pulse']", fixed-width, size="lg")]
         全國跨域主機監控
-      //- li(v-if="authority.isNotifyMgtStaff || authority.isAdmin"): nuxt-link(
-      //-   to="/notification"
-      //- ).
-      //-   #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
-      //-   發布即時通公告
-      //- li: nuxt-link(to="/message").
-      //-   #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
-      //-   傳送即時通訊息
       li: a(
         :href="`${this.legacyUrl}/project/bookmark/`",
         target="_blank",

@@ -27,6 +27,15 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
+      li: nuxt-link(to="/notification").
+        #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
+        發布即時通公告
+      li: nuxt-link(to="/notification/message").
+        #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
+        傳送即時通訊息
+
+      li: hr
+
       li: nuxt-link(to="/inf").
         #[font-awesome-icon(:icon="['fas', 'house-laptop']", fixed-width, pull="left", size="lg")]
         智慧監控首頁
@@ -41,7 +50,10 @@ b-sidebar#lah-sidebar(
         測量小幫手首頁
       li: nuxt-link(to="/lab").
         #[font-awesome-icon(:icon="['fas', 'flask-vial']", fixed-width, pull="left", size="lg")]
-        地政資訊實驗室首頁
+        資訊實驗室首頁
+      li: nuxt-link(to="/admin").
+        #[font-awesome-icon(:icon="['fas', 'cogs']", fixed-width, pull="left", size="lg")]
+        系統管理首頁
 
       li: hr
 
@@ -95,18 +107,7 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/admin/configs").
         #[font-awesome-icon(:icon="['fas', 'tasks']", fixed-width, size="lg")]
         系統參數設定
-      li: nuxt-link(to="/admin").
-        #[font-awesome-icon(:icon="['fas', 'cogs']", fixed-width, size="lg")]
-        系統管理選單
 
-      li: hr
-
-      li: nuxt-link(to="/notification").
-        #[font-awesome-icon(:icon="['far', 'comment-dots']", fixed-width, size="lg")]
-        發布即時通公告
-      li: nuxt-link(to="/notification/message").
-        #[font-awesome-icon(:icon="['far', 'comments']", fixed-width, size="lg")]
-        傳送即時通訊息
       li: hr
 
       li: a(
