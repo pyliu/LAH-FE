@@ -1213,7 +1213,7 @@ export default {
     },
     reloadConfigs () {
       this.isBusy = true
-      this.fetch().then(() => {
+      this.$fetch().then(() => {
         this.notify('系統設定值重新整理完成', { type: 'success' })
       }).catch((e) => {
         this.$utils.error(e)
@@ -1264,13 +1264,11 @@ export default {
         this.notify('API 金鑰為空，無法複製', { type: 'warning' })
         return
       }
-      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(key).then(() => {
-          this.notify('已複製 API 金鑰至剪貼簿', { type: 'info' })
-        })
-      } else {
-        this.notify('瀏覽器不支援自動複製，請手動複製', { type: 'warning' })
-      }
+      this.copyToClipboard(key, '已複製 API 金鑰至剪貼簿').then((ok) => {
+        if (!ok) {
+          this.notify('瀏覽器不支援自動複製，請手動複製', { type: 'warning' })
+        }
+      })
     },
     regenerateApiKey () {
       this.confirm('確定要重新生成隨機 API 金鑰？生成後需點擊儲存寫入設定。')

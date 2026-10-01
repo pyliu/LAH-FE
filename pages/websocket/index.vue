@@ -103,7 +103,6 @@
     right
     shadow="lg"
     backdrop
-    z-index="1060"
     no-header
     no-close-on-route-change
     width="480px"
@@ -284,7 +283,6 @@ export default {
   }
 }
 ::v-deep .dashboard-personal-sidebar-custom {
-  z-index: 1060;
   .b-sidebar-header {
     display: none;
   }

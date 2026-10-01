@@ -348,24 +348,87 @@ export default {
           title: element.alt || '圖片檢視',
           size: 'xl'
         })
-      } else if (element.classList.contains('open-os-explorer')) {
-        event.stopPropagation()
-        event.preventDefault()
-        const path = element.textContent?.trim()
-        if (path) {
-          if (navigator && navigator.clipboard) {
-            navigator.clipboard.writeText(path).then(() => {
-              this.notify(`已複製檔案路徑至剪貼簿：${path}`, {
-                title: '📋 剪貼簿',
-                variant: 'info'
-              })
-            }).catch(() => {
-              this.notify(path, { title: '路徑內容' })
+      } else {
+        const target = element.classList?.contains('open-os-explorer')
+          ? element
+          : (typeof element.closest === 'function' ? element.closest('.open-os-explorer') : null)
+        if (target) {
+          event.stopPropagation()
+          event.preventDefault()
+          const path = target.textContent?.trim()
+          if (path) {
+            this.copyToClipboard(path).then((success) => {
+              if (success) {
+                this.notify(`已複製檔案路徑至剪貼簿：${path}`, {
+                  title: '📋 剪貼簿',
+                  variant: 'info'
+                })
+              } else {
+                this.notify(path, {
+                  title: '⚠️ 無法自動複製路徑，請手動複製',
+                  variant: 'warning'
+                })
+              }
             })
-          } else {
-            this.notify(path, { title: '路徑內容' })
           }
         }
+      }
+    },
+    copyToClipboard (text, successMsg = '') {
+      return new Promise((resolve) => {
+        if (!text) {
+          resolve(false)
+          return
+        }
+        const onDone = (success) => {
+          if (success && successMsg) {
+            this.notify(successMsg, { title: '📋 剪貼簿', variant: 'info' })
+          }
+          resolve(success)
+        }
+        if (process.client && window.isSecureContext && navigator?.clipboard?.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            onDone(true)
+          }).catch(() => {
+            onDone(this.fallbackCopyText(text))
+          })
+          return
+        }
+        onDone(this.fallbackCopyText(text))
+      })
+    },
+    fallbackCopyText (text) {
+      if (!process.client || typeof document === 'undefined') {
+        return false
+      }
+      try {
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.style.position = 'fixed'
+        textarea.style.top = '0'
+        textarea.style.left = '0'
+        textarea.style.width = '2em'
+        textarea.style.height = '2em'
+        textarea.style.padding = '0'
+        textarea.style.border = 'none'
+        textarea.style.outline = 'none'
+        textarea.style.boxShadow = 'none'
+        textarea.style.background = 'transparent'
+        textarea.style.opacity = '0'
+        textarea.style.pointerEvents = 'none'
+        const currentActive = document.activeElement
+        document.body.appendChild(textarea)
+        textarea.focus()
+        textarea.select()
+        const successful = document.execCommand('copy')
+        document.body.removeChild(textarea)
+        if (currentActive && typeof currentActive.focus === 'function') {
+          currentActive.focus()
+        }
+        return !!successful
+      } catch (err) {
+        this.$utils && this.$utils.error && this.$utils.error('fallbackCopyText error:', err)
+        return false
       }
     },
     extractMessageTimestamp (item) {

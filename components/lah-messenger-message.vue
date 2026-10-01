@@ -199,7 +199,8 @@ export default {
       if (regex && typeof regex.test === 'function') {
         regex.lastIndex = 0
         if (regex.test(markd)) {
-          return this.$utils.convertInlineMarkd(markd)
+          const inlined = this.$utils.convertInlineMarkd(markd)
+          return this.$utils.replaceFilepath ? this.$utils.replaceFilepath(inlined) : inlined
         }
       }
       return this.$utils.replaceFilepath ? this.$utils.replaceFilepath(markd) : markd

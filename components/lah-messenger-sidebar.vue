@@ -27,7 +27,6 @@ client-only
       right
       shadow="lg"
       backdrop
-      z-index="1050"
       no-header
       no-close-on-route-change
       width="480px"

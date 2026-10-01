@@ -587,7 +587,7 @@ export default {
   methods: {
     reload () {
       this.isBusy = true
-      this.fetch().then(() => {
+      this.$fetch().then(() => {
         this.notify('角色資料已重新整理', { type: 'success' })
       }).catch((e) => {
         this.$utils.error(e)
@@ -626,13 +626,7 @@ export default {
     },
     copyIp (ip) {
       if (!ip) { return }
-      if (navigator?.clipboard?.writeText) {
-        navigator.clipboard.writeText(ip).then(() => {
-          this.notify(`已複製 IP: ${ip}`, { type: 'info' })
-        })
-      } else {
-        this.notify(`IP: ${ip}`, { type: 'info' })
-      }
+      this.copyToClipboard(ip, `已複製 IP: ${ip}`)
     },
     ping (ip) {
       if (!this.$utils.isIPv4(ip)) { return }
