@@ -208,8 +208,8 @@ export default {
     },
     help () {
       this.modal(this.$createElement(LahMessengerHelp), {
-        title: '訊息語法說明',
-        size: 'md'
+        title: '即時通功能與語法說明',
+        size: 'lg'
       })
     },
     send () {

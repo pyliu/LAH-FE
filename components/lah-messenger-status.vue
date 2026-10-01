@@ -120,8 +120,8 @@ export default {
   methods: {
     showHelp () {
       this.modal(this.$createElement(LahMessengerHelp), {
-        size: 'md',
-        title: `嵌入式即時通說明 - ${this.appVer}`
+        size: 'lg',
+        title: `即時通功能與語法說明 - ${this.appVer}`
       })
     },
     detectTruncation () {
