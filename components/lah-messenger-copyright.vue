@@ -17,7 +17,7 @@ export default {
   name: 'LahMessengerCopyright',
   data: () => ({
     show: false,
-    leaveTime: 10000,
+    leaveTime: 3000,
     classes: [
       'text-muted',
       'fixed-bottom',
