@@ -25,7 +25,7 @@ lah-transition(slide-up appear)
 export default {
   data: () => ({
     show: false,
-    leave_time: 10000,
+    leave_time: 3000,
     timerHandle: null,
     classes: [
       'text-muted',
