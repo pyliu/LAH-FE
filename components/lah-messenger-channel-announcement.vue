@@ -7,18 +7,18 @@ b-card.channel-card(no-body header-class="channel-card-header")
       b-badge.ml-1(variant="danger" pill v-if="showUnread('announcement')") {{ getUnread('announcement') }}
       b-badge.ml-1(variant="secondary" pill) {{ announcementList.length }}
     .d-flex.align-items-center
-      b-button.mr-1(
+      b-button.border-0.mr-1(
         v-if="isAuthorized"
         size="sm"
-        variant="outline-danger"
+        variant="outline-primary"
         class="py-0 px-2 s-80"
         @click="openPostAnnouncement"
         title="發布新公告"
       )
         b-icon(icon="plus")
-      b-button.mr-1(
+      b-button.border-0.mr-1(
         size="sm"
-        variant="outline-secondary"
+        variant="outline-info"
         class="py-0 px-2 s-80"
         :disabled="isFetchingHistory || announcementList.length === 0"
         @click="loadHistory"
@@ -26,7 +26,7 @@ b-card.channel-card(no-body header-class="channel-card-header")
       )
         b-spinner(small v-if="isFetchingHistory")
         b-icon(icon="arrow-up-circle" v-else)
-      b-button(
+      b-button.border-0(
         size="sm"
         variant="outline-secondary"
         class="py-0 px-2 s-80"

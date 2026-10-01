@@ -18,9 +18,9 @@ b-card.channel-card(no-body)
         @change="onDeptChannelChange"
         title="切換課室頻道"
       )
-      b-button.mr-1(
+      b-button.border-0.mr-1(
         size="sm"
-        variant="outline-secondary"
+        variant="outline-info"
         class="py-0 px-2 s-80"
         :disabled="isFetchingHistory || deptList.length === 0"
         @click="loadHistory"
@@ -28,7 +28,7 @@ b-card.channel-card(no-body)
       )
         b-spinner(small v-if="isFetchingHistory")
         b-icon(icon="arrow-up-circle" v-else)
-      b-button(
+      b-button.border-0(
         size="sm"
         variant="outline-secondary"
         class="py-0 px-2 s-80"

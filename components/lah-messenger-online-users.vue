@@ -7,15 +7,15 @@ b-card.channel-card(no-body)
       b-badge.ml-1(pill :variant="connectedUsersBadgeVariant" title="線上人數") {{ uniqueConnectedUsersCount }}
     .d-flex.align-items-center
       b-button-group.mr-1(size="sm")
-        b-button(
+        b-button.border-0.mr-1(
           v-for="opt in avatarSizeOpts"
           :key="opt.value"
-          :variant="avatarSize === opt.value ? 'secondary' : 'outline-secondary'"
+          :variant="avatarSize === opt.value ? 'info' : 'outline-info'"
           class="py-0 px-1 s-80"
           :title="opt.title"
           @click="avatarSize = opt.value"
         ) {{ opt.text }}
-      b-button(
+      b-button.border-0(
         size="sm"
         variant="outline-secondary"
         class="py-0 px-2 s-80"

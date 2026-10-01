@@ -7,9 +7,9 @@ b-card.channel-card(no-body)
       b-badge.ml-1(variant="success" pill v-if="showUnread('lds')") {{ getUnread('lds') }}
       b-badge.ml-1(variant="secondary" pill) {{ ldsList.length }}
     .d-flex.align-items-center
-      b-button.mr-1(
+      b-button.border-0.mr-1(
         size="sm"
-        variant="outline-secondary"
+        variant="outline-info"
         class="py-0 px-2 s-80"
         :disabled="isFetchingHistory || ldsList.length === 0"
         @click="loadHistory"
@@ -17,7 +17,7 @@ b-card.channel-card(no-body)
       )
         b-spinner(small v-if="isFetchingHistory")
         b-icon(icon="arrow-up-circle" v-else)
-      b-button(
+      b-button.border-0(
         size="sm"
         variant="outline-secondary"
         class="py-0 px-2 s-80"
