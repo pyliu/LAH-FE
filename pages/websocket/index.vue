@@ -25,14 +25,15 @@
       )
         span {{ currentWsConnStr }} {{ connected ? '伺服器已連線' : '伺服器連線中 / 斷線' }}
         b-icon.ml-1(:icon="connected ? 'wifi' : 'wifi-off'")
-    .d-flex.align-items-center
+    .d-flex.align-items-center(v-if="connected")
       //- 側邊抽屜展開個人訊息按鈕
-      b-button.mr-2(
-        size="sm"
+      lah-button.mr-2(
+        size="lg"
         pill
-        :variant="personalSidebarVisible ? 'info' : 'outline-secondary'"
+        :variant="personalSidebarVisible ? 'info' : 'outline-primary'"
+        :action="personalSidebarVisible ? '' : 'bounce'"
         @click="togglePersonalSidebar(activePersonalUser || userid)"
-        :title="personalSidebarVisible ? '收起個人私訊抽屜' : '以右側抽屜彈出個人訊息 (不影響全所頻道)'"
+        :title="personalSidebarVisible ? '收起個人私訊抽屜' : '以右側抽屜彈出個人訊息'"
       )
         b-icon.mr-1(icon="layout-sidebar-reverse")
         span.font-weight-bold 個人訊息
@@ -44,14 +45,14 @@
 
       lah-button(
         icon="sync-alt"
-        variant="outline-primary"
-        size="sm"
+        variant="outline-secondary"
+        size="lg"
         pill
-        action="cycle-alt"
+        action="cycle"
         @click="initAllChannels"
         title="重新整理所有頻道內容與名單"
       )
-        span.font-weight-bold 重新整理所有頻道
+        span.font-weight-bold
 
   //- 斷線警告提示列
   b-alert(
