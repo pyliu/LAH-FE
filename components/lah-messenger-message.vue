@@ -392,6 +392,53 @@ export default {
     border-left: 3px solid transparent;
     word-break: break-word;
 
+    ::v-deep p {
+      margin-top: 0;
+      margin-bottom: 0;
+      + p {
+        margin-top: 0.25rem;
+      }
+    }
+
+    ::v-deep hr {
+      margin-top: 5px;
+      margin-bottom: 5px;
+      border: 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    ::v-deep ul,
+    ::v-deep ol {
+      margin-top: 2px;
+      margin-bottom: 4px;
+      padding-left: 1.25rem;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    ::v-deep li {
+      margin-bottom: 2px;
+      line-height: 1.45;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    ::v-deep pre,
+    ::v-deep code {
+      font-size: 0.875rem;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+
+    ::v-deep blockquote {
+      margin: 4px 0;
+      padding-left: 8px;
+      border-left: 3px solid #ccc;
+      color: #666;
+    }
+
     ::v-deep img,
     img {
       max-width: 100% !important;
