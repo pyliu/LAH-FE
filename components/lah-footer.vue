@@ -26,10 +26,11 @@ export default {
   data: () => ({
     show: false,
     leave_time: 10000,
+    timerHandle: null,
     classes: [
       'text-muted',
       'position-fixed',
-      'footer-bottom-right',
+      'footer-bottom',
       'bg-white',
       'border',
       'rounded',
@@ -38,24 +39,53 @@ export default {
       'lah-shadow'
     ]
   }),
+  created () {
+    this.$root.$on('toggle-lah-footer', this.toggle)
+    this.$root.$on('show-lah-footer', this.display)
+  },
+  beforeDestroy () {
+    this.$root.$off('toggle-lah-footer', this.toggle)
+    this.$root.$off('show-lah-footer', this.display)
+    this.cancelTimer()
+  },
   mounted () {
-    this.show = true
-    this.timeout(() => (this.show = false), this.leave_time).then((handle) => {
-      // save the handle here if you want to control timeout func
-    }).catch(err => this.$utils.error(err))
+    this.display()
     this.systemConfigs.mock && this.notify('目前系統處於模擬模式，僅會回應快取的資料', { type: 'dark', pos: 'br', delay: 7500 })
+  },
+  methods: {
+    cancelTimer () {
+      if (this.timerHandle) {
+        clearTimeout(this.timerHandle)
+        this.timerHandle = null
+      }
+    },
+    display () {
+      this.cancelTimer()
+      this.show = true
+      this.timeout(() => (this.show = false), this.leave_time).then((handle) => {
+        this.timerHandle = handle
+      }).catch(err => this.$utils.error(err))
+    },
+    toggle () {
+      if (this.show) {
+        this.cancelTimer()
+        this.show = false
+      } else {
+        this.display()
+      }
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.footer-bottom-right {
+.footer-bottom {
   bottom: 20px;
-  right: 20px;
+  left: 20px;
   width: 25vw;
   min-width: 320px; /* 微調以適應一般小尺寸手機 */
   max-width: 90vw;  /* 新增：避免在極端狹窄螢幕撐破畫面 */
-  z-index: 1050;
+  z-index: 9998;
 }
 
 .version {

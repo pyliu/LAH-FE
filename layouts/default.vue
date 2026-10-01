@@ -1,9 +1,13 @@
 <template lang="pug">
 b-container(v-cloak fluid)
   Nuxt
-  lah-footer
+  lah-footer(ref="footer")
   lah-messenger-sidebar
-  .version.shadow v{{ $config.pkgVersion }}
+  .version.shadow(
+    @click="toggleFooter"
+    title="點擊切換顯示頁尾資訊"
+    role="button"
+  ) v{{ $config.pkgVersion }}
 </template>
 
 <script>
@@ -68,6 +72,13 @@ export default {
     window.removeEventListener('keydown', this.handleKeydown)
   },
   methods: {
+    toggleFooter () {
+      if (this.$refs.footer && typeof this.$refs.footer.toggle === 'function') {
+        this.$refs.footer.toggle()
+      } else {
+        this.$root.$emit('toggle-lah-footer')
+      }
+    },
     handleKeydown (e) {
       // Ignore modifier keys like Shift if they are pressed alone
       if (e.key === 'Shift') {
@@ -143,7 +154,7 @@ export default {
   border-radius: 0.35rem;
   z-index: 9999;
   transition: all 0.3s ease-in-out;
-  cursor: default;
+  cursor: pointer;
 
   &:hover {
     /* 懸停狀態：高對比實體化 + 白色外發光，確保暗色系中絕對清晰可見 */

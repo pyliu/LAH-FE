@@ -1,13 +1,13 @@
 <template lang="pug">
-b-card.announcement-card(
+b-card.announcement-card.w-100(
   :header-border-variant="borderVariant"
   :header-bg-variant="borderVariant"
   :header-text-variant="textVariant"
   :header="header"
 )
-  template(#header style="position:relative"): .d-flex.font-weight-bold.align-items-center
-    span(style="width: 380px").mr-auto {{ dataJson.title }}
-    span.ml-1 \#{{ dataJson.id }}
+  template(#header style="position:relative"): .d-flex.font-weight-bold.align-items-center.w-100
+    span.mr-auto.text-truncate(:title="dataJson.title") {{ dataJson.title }}
+    span.ml-1.text-nowrap \#{{ dataJson.id }}
   b-card-text(ref="content" v-html="content" @click="handleSpecialClick($event)")
 
   template(#footer): .protected-footer.d-flex.justify-content-between.align-items-center.text-muted
@@ -132,14 +132,16 @@ export default {
 
 <style lang="scss" scoped>
 .announcement-card {
+  width: 100%;
   margin-bottom: 0.5rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 8px;
   overflow: hidden;
   max-width: 100%;
   ::v-deep .card-header {
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.75rem !important;
     font-size: 1rem;
+    line-height: 1.5;
   }
   ::v-deep .card-body {
     padding: 0.75rem;

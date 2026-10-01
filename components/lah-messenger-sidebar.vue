@@ -10,8 +10,9 @@ client-only
         :class="{ 'has-unread': totalUnread > 0 }"
       )
         .handle-content
-          b-icon.handle-icon-arrow(icon="chevron-left")
-          b-icon.handle-icon-chat(icon="chat-dots-fill")
+          .handle-icon-slot
+            b-icon.handle-icon-arrow(icon="chevron-left")
+            b-icon.handle-icon-chat(icon="chat-dots-fill")
           span.handle-text 即時通
           b-badge.handle-badge(
             v-if="totalUnread > 0"
@@ -25,6 +26,8 @@ client-only
       v-model="visible"
       right
       shadow="lg"
+      backdrop
+      z-index="1050"
       no-header
       no-close-on-route-change
       width="480px"
@@ -45,14 +48,15 @@ client-only
           .d-flex.align-items-center
             b-button(
               variant="link"
-              class="text-white p-1 mr-2 text-decoration-none"
-              title="前往即時通完整管理頁面"
-              to="/notification/message"
+              class="text-white p-1 mr-2 text-decoration-none header-action-btn"
+              title="前往即時通儀表板"
+              to="/websocket"
+              @click="closeSidebar()"
             )
-              b-icon(icon="box-arrow-up-right")
+              font-awesome-icon(:icon="['fas', 'tachometer-alt']" size="lg")
             b-button(
               variant="link"
-              class="text-white p-1 text-decoration-none"
+              class="text-white p-1 text-decoration-none header-action-btn"
               title="收合側邊欄"
               @click="closeSidebar()"
             )
@@ -70,7 +74,7 @@ client-only
     //- 3. 右下角新訊息提示浮標 (半透明卡片，點選後帶出主視窗)
     transition(name="slide-up")
       .floating-message-chip(
-        v-if="showFloatingToast && latestNotification"
+        v-if="!hideSidebarVisuals && showFloatingToast && latestNotification"
         @click="onFloatingToastClick"
         @mouseenter="pauseToastTimer"
         @mouseleave="resumeToastTimer"
@@ -115,22 +119,54 @@ export default {
   },
   computed: {
     isMessagePage () {
+      const path = this.$route?.path || ''
       return (
-        this.$route.path === '/notification/message' ||
-        this.$route.path.startsWith('/notification/message/') ||
-        this.$route.path === '/message' ||
-        this.$route.path.startsWith('/message/')
+        path === '/notification/message' ||
+        path.startsWith('/notification/message/') ||
+        path === '/message' ||
+        path.startsWith('/message/')
       )
     },
+    isWebsocketPage () {
+      const path = this.$route?.path || ''
+      return (
+        path === '/websocket' ||
+        path.startsWith('/websocket/')
+      )
+    },
+    hideSidebarVisuals () {
+      return Boolean(this.isWebsocketPage || this.isDashboardActive)
+    },
     showHandle () {
-      return !this.visible
+      return !this.visible && !this.hideSidebarVisuals
     },
     displayTotalUnread () {
       return this.totalUnread > 99 ? '99+' : this.totalUnread
     }
   },
   watch: {
+    $route: {
+      immediate: true,
+      handler () {
+        if (this.hideSidebarVisuals) {
+          this.visible = false
+          this.dismissFloatingToast()
+        }
+      }
+    },
+    hideSidebarVisuals (val) {
+      if (val) {
+        this.visible = false
+        this.dismissFloatingToast()
+      }
+    },
     visible (newVal) {
+      if (newVal && this.hideSidebarVisuals) {
+        this.$nextTick(() => {
+          this.visible = false
+        })
+        return
+      }
       if (newVal) {
         // 開啟 sidebar 時關閉右下角提示浮標
         this.dismissFloatingToast()
@@ -151,6 +187,9 @@ export default {
   },
   methods: {
     openSidebar (channel) {
+      if (this.hideSidebarVisuals) {
+        return
+      }
       const targetChannel = channel || this.currentChannel
       if (targetChannel) {
         this.$store.commit('currentChannel', targetChannel)
@@ -173,6 +212,10 @@ export default {
       this.visible = false
     },
     onNewMessage (payload) {
+      // 若處於隱藏側邊欄視覺效果之頁面 (如 websocket 儀表板)，不彈出右下角提示
+      if (this.hideSidebarVisuals) {
+        return
+      }
       // 若 sidebar 已經打開中，不需要額外彈出右下角浮標
       if (this.visible) {
         return
@@ -243,34 +286,89 @@ export default {
   cursor: pointer;
   user-select: none;
 
-  /* 平常狀態：半透明、緊貼右側邊界 */
-  opacity: 0.45;
-  background: rgba(33, 37, 41, 0.85);
-  backdrop-filter: blur(8px);
-  color: #ffffff;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-right: none;
-  box-shadow: -2px 4px 16px rgba(0, 0, 0, 0.25);
-  padding: 10px 6px 10px 10px;
-  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 防抖關鍵 1: 外層定位與熱區穩定，預留向左與上下的隱形感應緩衝區 */
+  padding: 14px 0 14px 16px;
+  margin: 0;
+  border: none;
+  background: transparent;
 
   .handle-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    position: relative;
+
+    /* 平常狀態：半透明、緊貼右側邊界 */
+    opacity: 0.5;
+    background: rgba(33, 37, 41, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-right: none;
+    box-shadow: -2px 4px 14px rgba(0, 0, 0, 0.25);
+    padding: 10px 6px 10px 10px;
+    box-sizing: border-box;
+
+    /* 防抖關鍵 2: 尺寸完全固定，僅對 transform 與外觀樣式做平滑過渡，不引發 Layout 重排 */
+    transition: transform 0.24s cubic-bezier(0.2, 0, 0.2, 1),
+                opacity 0.24s ease,
+                background 0.24s ease,
+                box-shadow 0.24s ease;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+
+    /* 防抖關鍵 3: 確保內層微幅左移時，右邊緣完全覆蓋至視窗邊界，無滑鼠死角縫隙 */
+    &::after {
+      content: '';
+      position: absolute;
+      right: -8px;
+      top: -1px;
+      bottom: -1px;
+      width: 10px;
+      background: inherit;
+      pointer-events: none;
+    }
+  }
+
+  /* 防抖關鍵 4: 圖示容器固定尺寸，兩圖示原地平滑交替，零高度跳動、零文字位移 */
+  .handle-icon-slot {
+    position: relative;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .handle-icon-arrow,
+  .handle-icon-chat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
 
   .handle-icon-arrow {
-    display: none;
-    font-size: 1.1rem;
+    opacity: 0;
+    transform: scale(0.6) translateX(4px);
+    font-size: 1.15rem;
     color: #5bc0de;
-    animation: bounceLeft 1.2s infinite ease-in-out;
+    pointer-events: none;
   }
 
   .handle-icon-chat {
+    opacity: 1;
+    transform: scale(1);
     font-size: 1.2rem;
     color: #f8f9fa;
   }
@@ -288,41 +386,48 @@ export default {
     box-shadow: 0 0 6px rgba(220, 53, 69, 0.8);
   }
 
-  /* 滑鼠 Hover 狀態：高亮、向左微幅展開、顯示向左拉開箭頭 */
+  /* 滑鼠 Hover 狀態：高亮、微幅向左展開、圖示平滑過渡為指向箭頭 */
   &:hover {
-    opacity: 1;
-    transform: translateY(-50%) translateX(-4px);
-    background: rgba(20, 25, 34, 0.95);
-    box-shadow: -4px 6px 20px rgba(0, 0, 0, 0.4);
-    padding-left: 12px;
+    .handle-content {
+      opacity: 1;
+      transform: translateX(-4px);
+      background: rgba(20, 25, 34, 0.96);
+      box-shadow: -4px 6px 20px rgba(0, 0, 0, 0.45);
+    }
 
     .handle-icon-arrow {
-      display: inline-block;
+      opacity: 1;
+      transform: scale(1) translateX(0);
+      animation: bounceLeft 1.2s infinite ease-in-out;
     }
 
     .handle-icon-chat {
-      color: #5bc0de;
+      opacity: 0;
+      transform: scale(0.6) translateX(-4px);
     }
   }
 
   /* 當有新未讀訊息時的呼吸燈效果 */
   &.has-unread {
-    opacity: 0.85;
-    background: rgba(40, 20, 25, 0.9);
-    border-color: rgba(220, 53, 69, 0.5);
+    .handle-content {
+      opacity: 0.88;
+      background: rgba(45, 20, 26, 0.92);
+      border-color: rgba(220, 53, 69, 0.5);
+    }
 
-    &:hover {
+    &:hover .handle-content {
       opacity: 1;
+      background: rgba(55, 18, 25, 0.98);
     }
   }
 }
 
 @keyframes bounceLeft {
   0%, 100% {
-    transform: translateX(0);
+    transform: scale(1) translateX(0);
   }
   50% {
-    transform: translateX(-3px);
+    transform: scale(1) translateX(-3px);
   }
 }
 
@@ -332,6 +437,20 @@ export default {
 .sidebar-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
+
+  .header-action-btn {
+    opacity: 0.88;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      opacity: 1;
+      transform: scale(1.15);
+      color: #ffffff !important;
+    }
+  }
 }
 
 .sidebar-body {
@@ -342,6 +461,11 @@ export default {
     max-width: 100% !important;
     height: auto !important;
   }
+}
+
+::v-deep .b-sidebar-backdrop {
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 /* ========================================================================= */

@@ -26,6 +26,22 @@
         span {{ currentWsConnStr }} {{ connected ? '伺服器已連線' : '伺服器連線中 / 斷線' }}
         b-icon.ml-1(:icon="connected ? 'wifi' : 'wifi-off'")
     .d-flex.align-items-center
+      //- 側邊抽屜展開個人訊息按鈕
+      b-button.mr-2(
+        size="sm"
+        pill
+        :variant="personalSidebarVisible ? 'info' : 'outline-secondary'"
+        @click="togglePersonalSidebar(activePersonalUser || userid)"
+        :title="personalSidebarVisible ? '收起個人私訊抽屜' : '以右側抽屜彈出個人訊息 (不影響全所頻道)'"
+      )
+        b-icon.mr-1(icon="layout-sidebar-reverse")
+        span.font-weight-bold 個人訊息
+        b-badge.ml-1(
+          v-if="myPersonalUnread > 0"
+          variant="danger"
+          pill
+        ) {{ myPersonalUnread }}
+
       lah-button(
         icon="sync-alt"
         variant="outline-primary"
@@ -65,23 +81,12 @@
         lah-messenger-channel-department(
           ref="departmentChannel"
           :channel="selectedDeptChannel"
-          @channel-change="selectedDeptChannel = $event"
+          @channel-change="onDeptChannelChange"
         )
 
-      //- ================= 第 3 欄：全所頻道 / 私訊切換 =================
+      //- ================= 第 3 欄：全所頻道 =================
       .col-xl-3.col-lg-6.col-12.px-1.mb-2.h-100
-        transition(name="fade" mode="out-in")
-          lah-messenger-channel-personal(
-            v-if="showPersonalMode"
-            ref="personalChannel"
-            :target-user="activePersonalUser"
-            :show-back-button="true"
-            @close="showPersonalMode = false"
-          )
-          lah-messenger-channel-lds(
-            v-else
-            ref="ldsChannel"
-          )
+        lah-messenger-channel-lds(ref="ldsChannel")
 
       //- ================= 第 4 欄：線上使用者列表 =================
       .col-xl-3.col-lg-6.col-12.px-1.mb-2.h-100
@@ -89,6 +94,45 @@
           ref="onlineUsers"
           @dept-click="onDeptClick"
           @user-chat="onUserChat"
+        )
+
+  //- 右側專屬個人私訊抽屜 (提供給想要邊看全所、邊看私訊的同仁)
+  b-sidebar(
+    id="dashboard-personal-sidebar"
+    v-model="personalSidebarVisible"
+    right
+    shadow="lg"
+    backdrop
+    z-index="1060"
+    no-header
+    no-close-on-route-change
+    width="480px"
+    sidebar-class="dashboard-personal-sidebar-custom"
+    body-class="p-0 d-flex flex-column h-100 overflow-hidden"
+  )
+    template(#default)
+      .sidebar-header.d-flex.justify-content-between.align-items-center.px-3.py-2.bg-info.text-white.shadow-sm
+        .d-flex.align-items-center
+          b-icon.mr-2(icon="chat-dots-fill")
+          span.font-weight-bold.h6.mb-0 {{ sidebarPersonalTitle }}
+          b-badge.ml-2(
+            v-if="myPersonalUnread > 0"
+            variant="danger"
+            pill
+          ) {{ myPersonalUnread }} 未讀
+        .d-flex.align-items-center
+          b-button(
+            variant="link"
+            class="text-white p-1 text-decoration-none"
+            title="關閉私訊抽屜"
+            @click="personalSidebarVisible = false"
+          )
+            b-icon(icon="x-lg" font-scale="1.1")
+      .sidebar-body.flex-grow-1.overflow-hidden
+        lah-messenger-channel-personal(
+          ref="sidebarPersonalChannel"
+          :target-user="sidebarTargetUser || userid"
+          :show-back-button="false"
         )
 </template>
 
@@ -112,13 +156,25 @@ export default {
   mixins: [lahMessengerBase],
   data: () => ({
     selectedDeptChannel: '',
-    showPersonalMode: false,
-    activePersonalUser: ''
+    userSelectedDept: false,
+    activePersonalUser: '',
+    personalSidebarVisible: false,
+    sidebarTargetUser: ''
   }),
   head: {
     title: '即時通訊儀表板'
   },
   computed: {
+    myPersonalUnread () {
+      return this.getUnread(this.userid) || 0
+    },
+    sidebarPersonalTitle () {
+      if (this.sidebarTargetUser && this.sidebarTargetUser !== this.userid) {
+        const name = this.userMap[this.sidebarTargetUser] || this.sidebarTargetUser
+        return `個人訊息 (${name})`
+      }
+      return '我的個人訊息'
+    },
     currentWsConnStr () {
       // 1. 若 WebSocket 物件已建立，優先回傳底層實際連線的 url
       const ws = this.websocket || this.$store?.getters?.websocket
@@ -152,7 +208,7 @@ export default {
     userdept: {
       immediate: true,
       handler (val) {
-        if (val && (!this.isAdmin || !this.selectedDeptChannel)) {
+        if (val && !this.userSelectedDept) {
           this.selectedDeptChannel = val
         }
       }
@@ -160,17 +216,37 @@ export default {
   },
   mounted () {
     this.$store.commit('isDashboardActive', true)
-    this.selectedDeptChannel = this.userdept || 'inf'
+    if (!this.userSelectedDept) {
+      this.selectedDeptChannel = this.userdept || 'inf'
+    }
   },
   beforeDestroy () {
     this.$store.commit('isDashboardActive', false)
   },
   methods: {
+    togglePersonalSidebar (targetUid) {
+      if (this.personalSidebarVisible) {
+        this.personalSidebarVisible = false
+      } else {
+        this.openPersonalSidebar(targetUid)
+      }
+    },
+    openPersonalSidebar (targetUid) {
+      const uid = targetUid || this.activePersonalUser || this.userid
+      this.sidebarTargetUser = uid
+      this.personalSidebarVisible = true
+      this.$nextTick(() => {
+        this.$refs.sidebarPersonalChannel?.setTargetUser(uid)
+      })
+    },
     initAllChannels () {
+      if (!this.userSelectedDept && this.userdept) {
+        this.selectedDeptChannel = this.userdept
+      }
       this.$refs.announcementChannel?.refresh()
       this.$refs.departmentChannel?.refresh()
       this.$refs.ldsChannel?.refresh()
-      this.$refs.personalChannel?.refresh()
+      this.$refs.sidebarPersonalChannel?.refresh()
       this.$refs.onlineUsers?.refresh()
       this.notify('已重新整理所有頻道與線上名單', { variant: 'success' })
     },
@@ -178,18 +254,22 @@ export default {
       this.$root.$emit('lah-messenger:connect')
       this.notify('正在要求即時通伺服器重新連線...', { variant: 'info' })
     },
+    onDeptChannelChange (newDept) {
+      if (newDept) {
+        this.selectedDeptChannel = newDept
+        this.userSelectedDept = true
+      }
+    },
     onDeptClick (deptId) {
-      if (this.isAdmin && deptId) {
+      if (this.isAdmin && deptId && deptId !== 'none') {
         this.selectedDeptChannel = deptId
+        this.userSelectedDept = true
       }
     },
     onUserChat (user) {
       if (user?.userid) {
         this.activePersonalUser = user.userid
-        this.showPersonalMode = true
-        this.$nextTick(() => {
-          this.$refs.personalChannel?.setTargetUser(user.userid)
-        })
+        this.openPersonalSidebar(user.userid)
       }
     }
   }
@@ -201,6 +281,12 @@ export default {
   .quad-container {
     height: calc(100vh - 145px);
     min-height: 620px;
+  }
+}
+::v-deep .dashboard-personal-sidebar-custom {
+  z-index: 1060;
+  .b-sidebar-header {
+    display: none;
   }
 }
 </style>

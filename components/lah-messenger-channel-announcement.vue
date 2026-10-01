@@ -1,8 +1,8 @@
 <template lang="pug">
-b-card.channel-card(no-body)
+b-card.channel-card(no-body header-class="channel-card-header")
   template(#header): .d-flex.justify-content-between.align-items-center
     .d-flex.align-items-center.text-truncate
-      b-icon.mr-1(icon="megaphone-fill" variant="danger")
+      lah-fa-icon(icon="bullhorn" variant="danger")
       span.font-weight-bold 全所公告
       b-badge.ml-1(variant="danger" pill v-if="showUnread('announcement')") {{ getUnread('announcement') }}
       b-badge.ml-1(variant="secondary" pill) {{ announcementList.length }}
@@ -16,7 +16,6 @@ b-card.channel-card(no-body)
         title="發布新公告"
       )
         b-icon(icon="plus")
-        span.ml-1 發布
       b-button.mr-1(
         size="sm"
         variant="outline-secondary"
@@ -25,9 +24,8 @@ b-card.channel-card(no-body)
         @click="loadHistory"
         title="載入較早公告"
       )
-        b-spinner(small v-if="isFetchingHistory" class="mr-1")
+        b-spinner(small v-if="isFetchingHistory")
         b-icon(icon="arrow-up-circle" v-else)
-        span.ml-1 較早
       b-button(
         size="sm"
         variant="outline-secondary"
@@ -68,7 +66,8 @@ export default {
   mixins: [lahMessengerBase],
   data: () => ({
     isFetchingHistory: false,
-    isRefreshing: false
+    isRefreshing: false,
+    fetchTimer: null
   }),
   computed: {
     isAuthorized () {
@@ -92,6 +91,20 @@ export default {
         }
       })
     },
+    connected: {
+      immediate: true,
+      handler (val) {
+        if (val) {
+          this.attachWsListener()
+          this.fetchAnnouncementMessages(30)
+        }
+      }
+    },
+    userdept (val, oldVal) {
+      if (val && val !== oldVal && this.connected) {
+        this.fetchAnnouncementMessages(30)
+      }
+    },
     websocket: {
       immediate: true,
       handler (newWs, oldWs) {
@@ -107,11 +120,21 @@ export default {
   },
   mounted () {
     this.attachWsListener()
-    this.fetchAnnouncementMessages(30)
+    if (this.connected && (!this.announcementList || this.announcementList.length === 0)) {
+      this.fetchAnnouncementMessages(30)
+    }
+    this.resetUnread('announcement')
+    this.$nextTick(this.scrollToBottom)
+  },
+  activated () {
+    if (this.connected && (!this.announcementList || this.announcementList.length === 0)) {
+      this.fetchAnnouncementMessages(30)
+    }
     this.resetUnread('announcement')
     this.$nextTick(this.scrollToBottom)
   },
   beforeDestroy () {
+    clearTimeout(this.fetchTimer)
     this.detachWsListener()
   },
   methods: {
@@ -164,30 +187,35 @@ export default {
       }
     },
     fetchAnnouncementMessages (count = 30) {
-      if (this.websocket && this.websocket.readyState === 1) {
-        this.$store.commit('addChannel', 'announcement')
-        this.websocket.send(
-          this.packCommand({
-            command: 'latest',
-            channel: 'announcement',
-            count
-          })
-        )
-        if (this.userdept) {
-          const deptAnnChan = 'announcement_' + this.userdept
-          this.$store.commit('addChannel', deptAnnChan)
-          this.websocket.send(
+      clearTimeout(this.fetchTimer)
+      this.fetchTimer = setTimeout(() => {
+        const ws = this.websocket || this.$store?.getters?.websocket
+        if (ws && ws.readyState === 1) {
+          this.$store.commit('addChannel', 'announcement')
+          ws.send(
             this.packCommand({
               command: 'latest',
-              channel: deptAnnChan,
+              channel: 'announcement',
               count
             })
           )
+          if (this.userdept) {
+            const deptAnnChan = 'announcement_' + this.userdept
+            this.$store.commit('addChannel', deptAnnChan)
+            ws.send(
+              this.packCommand({
+                command: 'latest',
+                channel: deptAnnChan,
+                count
+              })
+            )
+          }
         }
-      }
+      }, 50)
     },
     refresh () {
-      if (!this.websocket || this.websocket.readyState !== 1) {
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (!ws || ws.readyState !== 1) {
         this.warning('即時通未連線，無法重新整理公告')
         return
       }
@@ -217,7 +245,8 @@ export default {
       return minId === Infinity ? 0 : minId
     },
     loadHistory () {
-      if (!this.websocket || this.websocket.readyState !== 1) {
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (!ws || ws.readyState !== 1) {
         this.warning('即時通未連線，無法載入歷史公告')
         return
       }
@@ -232,7 +261,7 @@ export default {
       }, 10000)
       this.scrollToTop()
 
-      this.websocket.send(
+      ws.send(
         this.packCommand({
           command: 'previous',
           channel: 'announcement',
@@ -245,7 +274,7 @@ export default {
         const deptAnnChan = 'announcement_' + this.userdept
         const deptHeadId = this.getHeadId(deptAnnChan)
         if (deptHeadId > 0) {
-          this.websocket.send(
+          ws.send(
             this.packCommand({
               command: 'previous',
               channel: deptAnnChan,
@@ -315,11 +344,15 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 
-  ::v-deep .card-header {
+  > ::v-deep .card-header,
+  ::v-deep .channel-card-header {
     padding: 0.5rem 0.75rem;
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
     flex-shrink: 0;
+    .btn {
+      white-space: nowrap;
+    }
   }
 
   ::v-deep .card-body {

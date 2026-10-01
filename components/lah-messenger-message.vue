@@ -35,14 +35,14 @@
         size="1.25rem"
         button
       )
-  
+
   //- 訊息主體
   .d-flex.msg-item.my-1(
     :class="classes"
     style="min-height: 36px"
   )
     //- 公告卡片
-    lah-messenger-announcement-card(
+    lah-messenger-announcement-card.w-100(
       v-if="isAnnouncement"
       :data-json="announcementPayload"
       :channel="channel"
@@ -145,7 +145,7 @@ export default {
     system () { return this.sender === 'system' },
     id () { return this.raw?.id },
     type () { return this.raw?.type },
-    
+
     isToday () {
       const d = new Date()
       const todayStr = d.getFullYear() + '-' +
@@ -231,11 +231,12 @@ export default {
       return [
         this.myMessage ? 'justify-content-end' : this.system ? 'justify-content-center' : 'justify-content-start',
         this.myMessage ? 'mine' : this.system ? 'system' : '',
-        this.isToday ? 'is-today' : ''
+        this.isToday ? 'is-today' : '',
+        this.isAnnouncement ? 'w-100 is-announcement' : ''
       ]
     },
     avatarSrc () {
-      return `${this.apiQueryUrl}/get_user_img.php?id=${this.raw['sender']}_avatar&name=${this.sender}_avatar`
+      return `${this.apiQueryUrl}/get_user_img.php?id=${this.raw.sender}_avatar&name=${this.sender}_avatar`
     },
     replyTitle () {
       const clean = this.message?.replace(/(<([^>]+)>)/gi, '') || ''
@@ -243,8 +244,8 @@ export default {
     },
     announcementRemovable () { return this.myAnnouncement },
     messageRemovable () {
-      if (this.id < 1) return false
-      if (this.isMyChannel && this.myMessage) return true
+      if (this.id < 1) { return false }
+      if (this.isMyChannel && this.myMessage) { return true }
       const nowTs = +new Date()
       const msgTs = +new Date(`${this.raw.date} ${this.raw.time}`)
       const offset = nowTs - msgTs
@@ -370,6 +371,11 @@ export default {
   position: relative;
   overflow: visible;
   max-width: 100%;
+
+  &.w-100,
+  &.is-announcement {
+    width: 100%;
+  }
 
   > p {
     display: inline-block;

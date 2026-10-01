@@ -31,9 +31,8 @@ b-card.channel-card(no-body)
         @click="loadHistory"
         title="載入較早訊息"
       )
-        b-spinner(small v-if="isFetchingHistory" class="mr-1")
+        b-spinner(small v-if="isFetchingHistory")
         b-icon(icon="arrow-up-circle" v-else)
-        span.ml-1 較早
 
       b-button(
         size="sm"
@@ -139,7 +138,8 @@ export default {
     inputImages: [],
     showEmoji: false,
     isFetchingHistory: false,
-    isRefreshing: false
+    isRefreshing: false,
+    fetchTimer: null
   }),
   computed: {
     targetUserId () {
@@ -182,7 +182,27 @@ export default {
       handler (val) {
         if (val) {
           this.currentTargetUser = val
-          this.refresh()
+          if (this.connected) {
+            this.fetchPersonalMessages(30)
+            this.resetUnread(this.targetUserId)
+          }
+        }
+      }
+    },
+    targetUserId (newVal, oldVal) {
+      if (newVal && newVal !== oldVal) {
+        this.resetUnread(newVal)
+        if (this.connected) {
+          this.fetchPersonalMessages(30)
+        }
+      }
+    },
+    connected: {
+      immediate: true,
+      handler (val) {
+        if (val) {
+          this.attachWsListener()
+          this.fetchPersonalMessages(30)
         }
       }
     },
@@ -213,11 +233,21 @@ export default {
       this.currentTargetUser = this.targetUser
     }
     this.attachWsListener()
-    this.fetchPersonalMessages(30)
+    if (this.connected && (!this.personalList || this.personalList.length === 0)) {
+      this.fetchPersonalMessages(30)
+    }
+    this.resetUnread(this.targetUserId)
+    this.$nextTick(this.scrollToBottom)
+  },
+  activated () {
+    if (this.connected && (!this.personalList || this.personalList.length === 0)) {
+      this.fetchPersonalMessages(30)
+    }
     this.resetUnread(this.targetUserId)
     this.$nextTick(this.scrollToBottom)
   },
   beforeDestroy () {
+    clearTimeout(this.fetchTimer)
     this.detachWsListener()
   },
   methods: {
@@ -270,21 +300,26 @@ export default {
       }
     },
     fetchPersonalMessages (count = 30) {
-      const channel = this.targetUserId
-      if (this.websocket && this.websocket.readyState === 1 && channel) {
-        this.$store.commit('addChannel', channel)
-        this.websocket.send(
-          this.packCommand({
-            command: 'latest',
-            channel,
-            count
-          })
-        )
-      }
+      clearTimeout(this.fetchTimer)
+      this.fetchTimer = setTimeout(() => {
+        const channel = this.targetUserId
+        const ws = this.websocket || this.$store?.getters?.websocket
+        if (ws && ws.readyState === 1 && channel) {
+          this.$store.commit('addChannel', channel)
+          ws.send(
+            this.packCommand({
+              command: 'latest',
+              channel,
+              count
+            })
+          )
+        }
+      }, 50)
     },
     refresh () {
       const channel = this.targetUserId
-      if (!this.websocket || this.websocket.readyState !== 1) {
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (!ws || ws.readyState !== 1) {
         this.warning('即時通未連線，無法重新整理')
         return
       }
@@ -311,7 +346,8 @@ export default {
       return minId === Infinity ? 0 : minId
     },
     loadHistory () {
-      if (!this.websocket || this.websocket.readyState !== 1) {
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (!ws || ws.readyState !== 1) {
         this.warning('即時通未連線，無法載入歷史訊息')
         return
       }
@@ -325,7 +361,7 @@ export default {
         this.isFetchingHistory = false
       }, 10000)
       this.scrollToTop()
-      this.websocket.send(
+      ws.send(
         this.packCommand({
           command: 'previous',
           channel: this.targetUserId,
@@ -452,6 +488,9 @@ export default {
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
     flex-shrink: 0;
+    .btn {
+      white-space: nowrap;
+    }
   }
 
   ::v-deep .card-body {

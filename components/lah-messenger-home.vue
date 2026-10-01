@@ -87,7 +87,7 @@
 
     //- 2. 主卡片佈局與導航 Tabs
     .home-card-wrapper.flex-grow-1.d-flex.flex-column.overflow-hidden
-      b-card.home-main-card(no-body)
+      b-card.home-main-card(no-body header-class="home-main-card-header")
         template(#header): b-nav(card-header tabs fill class="home-nav-tabs")
           //- 公告分頁
           b-nav-item(
@@ -147,43 +147,49 @@
             @click="switchTab('online')"
             title="線上同仁名單"
           ): .d-flex.align-items-center.justify-content-center
-            span.s-95 👥 線上
-            b-badge.ml-1(
-              variant="secondary"
+            span.s-95 👨‍👧‍👧 線上
+            b-badge.ml-1.text-white(
+              variant="success"
               pill
               v-if="uniqueConnectedUsersCount > 0"
             ) {{ uniqueConnectedUsersCount }}
 
         //- 3. 分頁主要內容區域 (組合 5 大獨立子元件)
         b-card-body.p-0.home-card-body
-          keep-alive
-            lah-messenger-channel-announcement(
-              v-if="activeTab === 'announcement'"
-              ref="announcementChannel"
-            )
-            lah-messenger-channel-department(
-              v-else-if="activeTab === 'dept'"
-              ref="departmentChannel"
-              :channel="currentDeptChannel"
-              @channel-change="currentDeptChannel = $event"
-            )
-            lah-messenger-channel-lds(
-              v-else-if="activeTab === 'lds'"
-              ref="ldsChannel"
-            )
-            lah-messenger-channel-personal(
-              v-else-if="activeTab === 'personal'"
-              ref="personalChannel"
-              :target-user="activePersonalUser"
-              :show-back-button="activePersonalUser !== userid"
-              @close="activePersonalUser = userid"
-            )
-            lah-messenger-online-users(
-              v-else-if="activeTab === 'online'"
-              ref="onlineUsers"
-              @dept-click="onDeptClick"
-              @user-chat="onUserChat"
-            )
+          transition(name="tab-fade" mode="out-in" @after-enter="onTabTransitionEnter")
+            keep-alive
+              lah-messenger-channel-announcement(
+                v-if="activeTab === 'announcement'"
+                key="announcement"
+                ref="announcementChannel"
+              )
+              lah-messenger-channel-department(
+                v-else-if="activeTab === 'dept'"
+                key="dept"
+                ref="departmentChannel"
+                :channel="currentDeptChannel"
+                @channel-change="currentDeptChannel = $event"
+              )
+              lah-messenger-channel-lds(
+                v-else-if="activeTab === 'lds'"
+                key="lds"
+                ref="ldsChannel"
+              )
+              lah-messenger-channel-personal(
+                v-else-if="activeTab === 'personal'"
+                key="personal"
+                ref="personalChannel"
+                :target-user="activePersonalUser"
+                :show-back-button="activePersonalUser !== userid"
+                @close="activePersonalUser = userid"
+              )
+              lah-messenger-online-users(
+                v-else-if="activeTab === 'online'"
+                key="online"
+                ref="onlineUsers"
+                @dept-click="onDeptClick"
+                @user-chat="onUserChat"
+              )
 
     //- 4. 底部狀態列
     lah-messenger-status(:status-text="connectText")
@@ -223,6 +229,7 @@ export default {
   data: () => ({
     activeTab: 'dept',
     currentDeptChannel: '',
+    userSelectedDept: false,
     activePersonalUser: '',
     connectText: '',
     connecting: false,
@@ -275,6 +282,9 @@ export default {
     }
   },
   watch: {
+    activeTab () {
+      this.scrollActiveChannelToBottom()
+    },
     userid (val) {
       if (val && this.connected) {
         this.register()
@@ -286,14 +296,16 @@ export default {
     userdept: {
       immediate: true,
       handler (val) {
-        if (val && !this.currentDeptChannel) {
+        if (val && !this.userSelectedDept) {
           this.currentDeptChannel = val
         }
       }
     }
   },
   mounted () {
-    this.currentDeptChannel = this.userdept || 'inf'
+    if (!this.userSelectedDept) {
+      this.currentDeptChannel = this.userdept || 'inf'
+    }
     this.activePersonalUser = this.userid
 
     this.delayConnect = this.$utils.debounce(this.connect, 1500)
@@ -347,6 +359,28 @@ export default {
       }
       return ''
     },
+    scrollActiveChannelToBottom () {
+      this.$nextTick(() => {
+        const refMap = {
+          announcement: this.$refs.announcementChannel,
+          dept: this.$refs.departmentChannel,
+          lds: this.$refs.ldsChannel,
+          personal: this.$refs.personalChannel
+        }
+        const target = refMap[this.activeTab]
+        if (target && typeof target.scrollToBottom === 'function') {
+          target.scrollToBottom()
+        }
+        setTimeout(() => {
+          if (target && typeof target.scrollToBottom === 'function') {
+            target.scrollToBottom()
+          }
+        }, 60)
+      })
+    },
+    onTabTransitionEnter () {
+      this.scrollActiveChannelToBottom()
+    },
     switchTab (tabName) {
       this.activeTab = tabName
       const targetChannel = this.getCurrentActiveChannel()
@@ -359,6 +393,7 @@ export default {
         this.sendChannelUpdate(targetChannel)
         this.updateChannelLastReadId(targetChannel)
       }
+      this.scrollActiveChannelToBottom()
     },
     switchChannel (channel) {
       if (!channel) {
@@ -375,6 +410,7 @@ export default {
       } else if (ch === 'chat' || this.chatRooms?.includes(ch)) {
         if (this.chatRooms?.includes(ch) && ch !== 'lds') {
           this.currentDeptChannel = ch
+          this.userSelectedDept = true
         }
         this.switchTab('dept')
       } else if (upperCh === upperUid) {
@@ -385,6 +421,7 @@ export default {
         this.switchTab('personal')
       } else if (DEPT_NAME_MAP && DEPT_NAME_MAP[ch]) {
         this.currentDeptChannel = ch
+        this.userSelectedDept = true
         this.switchTab('dept')
       } else if (ch === 'online') {
         this.switchTab('online')
@@ -393,17 +430,15 @@ export default {
         this.switchTab('personal')
       }
 
-      this.$nextTick(() => {
-        if (this.activeTab === 'personal' && this.$refs.personalChannel?.scrollToBottom) {
-          this.$refs.personalChannel.scrollToBottom()
-        }
-      })
+      this.scrollActiveChannelToBottom()
     },
     onDeptClick (deptId) {
-      if (deptId && deptId !== 'none') {
-        this.currentDeptChannel = deptId
-        this.switchTab('dept')
+      if (!this.isAdmin || !deptId || deptId === 'none') {
+        return
       }
+      this.currentDeptChannel = deptId
+      this.userSelectedDept = true
+      this.switchTab('dept')
     },
     onUserChat (user) {
       if (user?.userid) {
@@ -1013,33 +1048,49 @@ export default {
     border-radius: 0;
     background-color: transparent;
 
-    ::v-deep .card-header {
-      padding: 0;
-      background-color: #ffffff;
-      border-bottom: 2px solid #e9ecef;
+    > ::v-deep .card-header,
+    ::v-deep .home-main-card-header {
+      padding: 6px 6px 0 6px;
+      background-color: #e2e8f0;
+      border-bottom: 1px solid #cbd5e1;
       flex-shrink: 0;
     }
   }
 
   .home-nav-tabs {
+    border-bottom: none;
+    gap: 2px;
+
     ::v-deep .nav-link {
-      padding: 0.6rem 0.4rem;
-      border: none;
-      border-bottom: 3px solid transparent;
-      border-radius: 0;
-      color: #6c757d;
+      padding: 0.55rem 0.35rem 0.5rem 0.35rem;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      color: #475569;
       font-weight: 600;
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
+      position: relative;
+      background-color: transparent;
+      margin-bottom: -1px;
 
       &:hover {
-        color: #007bff;
-        background-color: #f8f9fa;
+        color: #0f172a;
+        background-color: rgba(255, 255, 255, 0.55);
       }
 
       &.active {
-        color: #007bff;
-        background-color: #ffffff;
-        border-bottom-color: #007bff;
+        color: #0056b3 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-top: 3.5px solid #007bff !important;
+        border-bottom: 2px solid #ffffff !important;
+        font-weight: 700 !important;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.06);
+
+        span {
+          font-weight: 700 !important;
+          color: #0056b3 !important;
+        }
       }
     }
   }
@@ -1050,12 +1101,31 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
 
     ::v-deep .channel-card {
       border-radius: 0;
       border: none;
       box-shadow: none;
     }
+  }
+
+  /* Tab 切換過場動畫 (平滑淡入淡出與微位移) */
+  .tab-fade-enter-active,
+  .tab-fade-leave-active {
+    transition: opacity 0.18s cubic-bezier(0.2, 0, 0.2, 1),
+                transform 0.18s cubic-bezier(0.2, 0, 0.2, 1);
+    will-change: opacity, transform;
+  }
+
+  .tab-fade-enter {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .tab-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 </style>

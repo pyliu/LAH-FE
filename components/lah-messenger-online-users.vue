@@ -4,8 +4,17 @@ b-card.channel-card(no-body)
     .d-flex.align-items-center.text-truncate
       b-icon.mr-1(icon="people-fill" variant="info")
       span.font-weight-bold 線上使用者
-      b-badge.ml-1(pill :variant="connectedUsersBadgeVariant") {{ uniqueConnectedUsersCount }} 人
+      b-badge.ml-1(pill :variant="connectedUsersBadgeVariant" title="線上人數") {{ uniqueConnectedUsersCount }}
     .d-flex.align-items-center
+      b-button-group.mr-1(size="sm")
+        b-button(
+          v-for="opt in avatarSizeOpts"
+          :key="opt.value"
+          :variant="avatarSize === opt.value ? 'secondary' : 'outline-secondary'"
+          class="py-0 px-1 s-80"
+          :title="opt.title"
+          @click="avatarSize = opt.value"
+        ) {{ opt.text }}
       b-button(
         size="sm"
         variant="outline-secondary"
@@ -41,9 +50,9 @@ b-card.channel-card(no-body)
         ): .d-flex.align-items-start
           .text-nowrap.mr-auto.lah-shadow.my-1
             b-link(
-              v-if="isAdmin"
+              v-if="isAdmin && deptItem.id !== 'none'"
               @click="onDeptClick(deptItem.id)"
-              :title="deptItem.id !== 'none' ? `點擊將課室頻道切換至 ${deptItem.text}` : ''"
+              :title="`點擊將課室頻道切換至 ${deptItem.text}`"
               class="text-decoration-none"
             )
               span.font-weight-bold.text-dark {{ deptItem.text }}
@@ -53,13 +62,13 @@ b-card.channel-card(no-body)
               b-badge.ml-1(variant="success" pill) {{ deptItem.users.length }}
 
           b-avatar-group(
-            size="2.5rem"
+            :size="avatarSize"
             :overlap="overlapRatio(deptItem.users.length)"
           ): transition-group.d-flex.justify-content-end.flex-wrap(name="listY" tag="div"): lah-messenger-user-avatar.shadow.my-1(
             v-for="(user, uidx) in deptItem.users"
             :key="`avatar-${user ? (user.userid || user.id) : 'unknown'}-${uidx}`"
             :user-data="user"
-            size="2.5rem"
+            :size="avatarSize"
           )
       .text-center.my-5.text-muted(v-if="uniqueConnectedUsersCount === 0")
         b-icon(icon="person-x" font-scale="2.5" variant="secondary")
@@ -83,7 +92,13 @@ export default {
     onlineTimer: null,
     isRefreshing: false,
     onlineAvatarsMaxPerLine: 8,
-    onlineResizeObserver: null
+    onlineResizeObserver: null,
+    avatarSize: '3rem',
+    avatarSizeOpts: [
+      { text: '大', value: '3.5rem', title: '大 (3.5rem)' },
+      { text: '中', value: '3rem', title: '中 (3rem)' },
+      { text: '小', value: '2.5rem', title: '小 (2.5rem)' }
+    ]
   }),
   computed: {
     isAdmin () {
@@ -188,10 +203,47 @@ export default {
   watch: {
     uniqueConnectedUsersCount () {
       this.updateOnlineAvatarsMaxPerLine()
+    },
+    avatarSize (val) {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('lah-messenger-online-avatar-size', val)
+      }
+      this.updateOnlineAvatarsMaxPerLine()
+    },
+    connected: {
+      immediate: true,
+      handler (val) {
+        if (val) {
+          this.attachWsListener()
+          this.queryOnlineUsers()
+        }
+      }
+    },
+    websocket: {
+      immediate: true,
+      handler (newWs, oldWs) {
+        if (oldWs && typeof oldWs.removeEventListener === 'function') {
+          oldWs.removeEventListener('message', this.handleWsMessage)
+        }
+        if (newWs && typeof newWs.addEventListener === 'function') {
+          newWs.removeEventListener('message', this.handleWsMessage)
+          newWs.addEventListener('message', this.handleWsMessage)
+        }
+      }
     }
   },
   mounted () {
-    this.queryOnlineUsers()
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const savedSize = window.localStorage.getItem('lah-messenger-online-avatar-size')
+      if (['3.5rem', '3rem', '2.5rem'].includes(savedSize)) {
+        this.avatarSize = savedSize
+      }
+    }
+
+    this.attachWsListener()
+    if (this.connected) {
+      this.queryOnlineUsers()
+    }
     clearInterval(this.onlineTimer)
     this.onlineTimer = setInterval(() => {
       this.queryOnlineUsers()
@@ -207,6 +259,7 @@ export default {
     }
   },
   beforeDestroy () {
+    this.detachWsListener()
     clearInterval(this.onlineTimer)
     window.removeEventListener('resize', this.updateOnlineAvatarsMaxPerLine)
     if (this.onlineResizeObserver) {
@@ -215,9 +268,40 @@ export default {
     }
   },
   methods: {
+    attachWsListener () {
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (ws && typeof ws.addEventListener === 'function') {
+        ws.removeEventListener('message', this.handleWsMessage)
+        ws.addEventListener('message', this.handleWsMessage)
+      }
+    },
+    detachWsListener () {
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (ws && typeof ws.removeEventListener === 'function') {
+        ws.removeEventListener('message', this.handleWsMessage)
+      }
+    },
+    handleWsMessage (e) {
+      let incoming
+      try {
+        incoming = JSON.parse(e.data)
+      } catch (err) {
+        return
+      }
+      if (!incoming) {
+        return
+      }
+      if (incoming.command === 'online') {
+        const users = (incoming.payload?.users || []).filter(n => n)
+        this.$store.commit('connectedUsers', users)
+      } else if (['user_connected', 'user_disconnected', 'user_channel_changed'].includes(incoming.command)) {
+        this.queryOnlineUsers()
+      }
+    },
     queryOnlineUsers () {
-      if (this.websocket && this.websocket.readyState === 1) {
-        this.websocket.send(
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (ws && ws.readyState === 1) {
+        ws.send(
           this.packCommand({
             command: 'online',
             channel: 'chat'
@@ -226,7 +310,8 @@ export default {
       }
     },
     refresh () {
-      if (!this.websocket || this.websocket.readyState !== 1) {
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (!ws || ws.readyState !== 1) {
         this.warning('即時通未連線，無法重新整理')
         return
       }
@@ -254,15 +339,22 @@ export default {
           const width = el.clientWidth
           const available = width - 100
           if (available > 0) {
-            this.onlineAvatarsMaxPerLine = Math.max(Math.floor(available / 40), 5)
+            let px = 48
+            if (this.avatarSize === '3.5rem') {
+              px = 56
+            } else if (this.avatarSize === '2.5rem') {
+              px = 40
+            }
+            this.onlineAvatarsMaxPerLine = Math.max(Math.floor(available / px), 3)
           }
         }
       })
     },
     onDeptClick (deptId) {
-      if (deptId !== 'none') {
-        this.$emit('dept-click', deptId)
+      if (!this.isAdmin || !deptId || deptId === 'none') {
+        return
       }
+      this.$emit('dept-click', deptId)
     }
   }
 }
@@ -282,6 +374,9 @@ export default {
     background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
     flex-shrink: 0;
+    .btn {
+      white-space: nowrap;
+    }
   }
 
   ::v-deep .card-body {

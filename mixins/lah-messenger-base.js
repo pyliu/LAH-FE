@@ -1,16 +1,15 @@
 import { mapGetters } from 'vuex'
 import isEmpty from 'lodash/isEmpty'
 import {
-  DEPARTMENTS,
   DEPT_NAME_MAP,
   DEPT_CODE_MAP,
-  CHAT_ROOMS,
   DEFAULT_WS_PORT
 } from '~/constants/lah-messenger-constants'
 
 export default {
   computed: {
     ...mapGetters([
+      'authority',
       'currentChannel',
       'currentChannelName',
       'currentChannelMessageCount',
@@ -32,47 +31,61 @@ export default {
       'regexpMarkdImage',
       'regexpReplyHeader'
     ]),
-    userdept() {
-      const unit = this.myinfo?.unit || this.user?.unit
-      return DEPT_CODE_MAP[unit] || 'hr'
+    userdept () {
+      const unit = this.myinfo?.unit || this.user?.unit || this.user?.dept || this.user?.work || ''
+      if (unit) {
+        const code = this.getDepartmentCode(unit)
+        if (code) {
+          return code
+        }
+      }
+      if (this.isInf) { return 'inf' }
+      if (this.isReg) { return 'reg' }
+      if (this.isVal) { return 'val' }
+      if (this.isSur) { return 'sur' }
+      if (this.isAdm) { return 'adm' }
+      return 'inf'
     },
-    userid() {
+    userid () {
       return (this.myid || this.user?.id || '').toUpperCase()
     },
-    username() {
+    username () {
       return this.myname || this.user?.name || this.userid
     },
-    userip() {
+    userip () {
       return this.user?.ip || this.ip || '127.0.0.1'
     },
-    userMap() {
+    userMap () {
       return this.userNames || {}
     },
-    isNotifyMgtStaff() {
+    isAdmin () {
+      return !!(this.authority?.isAdmin)
+    },
+    isNotifyMgtStaff () {
       return !!(this.authority?.isNotifyMgtStaff || this.authority?.isAdmin)
     },
-    isChat() {
+    isChat () {
       return !this.currentChannel.startsWith('announcement') && !this.isPersonal
     },
-    isPersonal() {
+    isPersonal () {
       return this.userid === this.currentChannel
     },
-    isAnnouncement() {
+    isAnnouncement () {
       return this.currentChannel === 'announcement'
     },
-    isMine() {
+    isMine () {
       return this.currentChannel === this.userid
     },
-    inChatting() {
+    inChatting () {
       return !['announcement', this.userid, 'chat'].includes(this.currentChannel)
     },
-    stickyChannels() {
+    stickyChannels () {
       return ['announcement', this.userid, 'chat']
     },
-    showUnreadChannels() {
+    showUnreadChannels () {
       return ['announcement', this.userid, `announcement_${this.userdept}`]
     },
-    defaultWsPort() {
+    defaultWsPort () {
       return DEFAULT_WS_PORT
     },
     messengerDeptList () {
@@ -115,22 +128,22 @@ export default {
     }
   },
   methods: {
-    empty(val) {
+    empty (val) {
       return isEmpty(val)
     },
-    protectLocalPath(text) {
-      if (!text) return ''
+    protectLocalPath (text) {
+      if (!text) { return '' }
       return String(text)
         .replace(/(?<!`)(["'])(\\\\[a-zA-Z0-9_.-]+\\[^\r\n]+?|[a-zA-Z]:\\[^\r\n]+?)\1(?!`)/g, '`$2`')
         .replace(/(?<!`)(\\\\[a-zA-Z0-9_.-]+\\[^\s`<>]+|[a-zA-Z]:\\[^\s`<>]+)(?!`)/g, '`$1`')
     },
-    replaceFilepath(str) {
-      if (!str) return ''
+    replaceFilepath (str) {
+      if (!str) { return '' }
       const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
       const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
       return str.replace(regex, subst)
     },
-    showUnread(channel) {
+    showUnread (channel) {
       const val = this.getUnread(channel)
       return parseInt(val) > 0 || val === '99+' || val === '9+'
     },
@@ -206,23 +219,23 @@ export default {
       }
       return true
     },
-    queryOnlineClients() {
+    queryOnlineClients (channel = 'chat') {
       if (this.websocket && this.websocket.readyState === 1) {
         this.websocket.send(this.packCommand({
           command: 'online',
-          channel: this.currentChannel
+          channel: channel || 'chat'
         }))
       }
     },
-    date() {
+    date () {
       const now = new Date()
       return `${now.getFullYear()}-${('0' + (now.getMonth() + 1)).slice(-2)}-${('0' + now.getDate()).slice(-2)}`
     },
-    time() {
+    time () {
       const now = new Date()
       return `${('0' + now.getHours()).slice(-2)}:${('0' + now.getMinutes()).slice(-2)}:${('0' + now.getSeconds()).slice(-2)}`
     },
-    packMessage(text, opts = {}) {
+    packMessage (text, opts = {}) {
       return JSON.stringify({
         type: 'mine',
         sender: this.userid,
@@ -236,7 +249,7 @@ export default {
         ...opts
       })
     },
-    packCommand(commandPayload) {
+    packCommand (commandPayload) {
       return JSON.stringify({
         type: 'command',
         sender: this.userid,
@@ -246,15 +259,15 @@ export default {
         channel: 'system'
       })
     },
-    packImage(base64, alt, channel) {
+    packImage (base64, alt, channel) {
       return this.packMessage(`![${alt}](${base64})`, { channel: channel || this.currentChannel })
     },
-    sendImage(base64, alt, channel) {
+    sendImage (base64, alt, channel) {
       if (this.websocket && this.websocket.readyState === 1) {
         this.websocket.send(this.packImage(base64, alt, channel))
       }
     },
-    getChannelName(channelId) {
+    getChannelName (channelId) {
       switch (channelId) {
         case 'announcement': return '公告'
         case 'lds': return '全所'
@@ -276,13 +289,50 @@ export default {
         }
       }
     },
-    getDepartmentName(deptCode) {
+    getDepartmentName (deptCode) {
       return DEPT_NAME_MAP[deptCode] || '未知課室'
     },
-    getDepartmentCode(deptName) {
-      return DEPT_CODE_MAP[deptName] || 'hr'
+    getDepartmentCode (deptName) {
+      if (!deptName) {
+        return 'inf'
+      }
+      const s = String(deptName).toLowerCase().trim()
+      if (DEPT_CODE_MAP[deptName]) {
+        return DEPT_CODE_MAP[deptName]
+      }
+      if (DEPT_CODE_MAP[s]) {
+        return DEPT_CODE_MAP[s]
+      }
+      if (s.includes('資訊') || s === 'inf') {
+        return 'inf'
+      }
+      if (s.includes('登記') || s === 'reg') {
+        return 'reg'
+      }
+      if (s.includes('地價') || s === 'val') {
+        return 'val'
+      }
+      if (s.includes('測量') || s === 'sur') {
+        return 'sur'
+      }
+      if (s.includes('行政') || s === 'adm') {
+        return 'adm'
+      }
+      if (s.includes('人事') || s === 'hr') {
+        return 'hr'
+      }
+      if (s.includes('會計') || s === 'acc') {
+        return 'acc'
+      }
+      if (s.includes('主秘') || s.includes('主任祕書') || s.includes('主任秘書') || s.includes('秘書') || s === 'supervisor') {
+        return 'supervisor'
+      }
+      if (s.includes('全所') || s === 'lds') {
+        return 'lds'
+      }
+      return 'inf'
     },
-    handleSpecialClick(event) {
+    handleSpecialClick (event) {
       const element = event.target
       if (element.tagName === 'IMG' && element.src && (element.src.startsWith('data:') || element.src.startsWith('http'))) {
         event.stopPropagation()
@@ -301,7 +351,7 @@ export default {
       } else if (element.classList.contains('open-os-explorer')) {
         event.stopPropagation()
         event.preventDefault()
-        const path = element.innerText?.trim()
+        const path = element.textContent?.trim()
         if (path) {
           if (navigator && navigator.clipboard) {
             navigator.clipboard.writeText(path).then(() => {
