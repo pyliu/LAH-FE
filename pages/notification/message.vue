@@ -40,10 +40,7 @@ div.message-admin-page
     .d-flex.align-items-center
       b-badge.mr-2(variant="success" pill)
         lah-fa-icon(icon="users").mr-1
-        span 線上活躍同仁 {{ allCandidates.length }} 人
-      b-badge(variant="info" pill)
-        lah-fa-icon(icon="desktop").mr-1
-        span 即時通擬真預覽模式
+        span 近一周活躍 {{ allCandidates.length }} 人
 
   .row.mt-2
     //- 左欄：發送訊息工作台
