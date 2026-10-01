@@ -29,7 +29,7 @@ export const DEPT_CODE_MAP = Object.entries(DEPT_NAME_MAP).reduce((acc, [key, va
 
 export const CHAT_ROOMS = ['lds', 'adm', 'inf', 'val', 'reg', 'sur', 'acc', 'hr', 'supervisor']
 
-export const DEFAULT_WS_PORT = 8082
+export const DEFAULT_WS_PORT = 8081
 
 export default {
   DEPARTMENTS,
