@@ -58,11 +58,11 @@
     .row.h-100.mx-n1
       //- ================= 第 1 欄：全所公告 =================
       .col-xl-3.col-lg-6.col-12.px-1.mb-2.h-100
-        lah-messenger-announcement-channel(ref="announcementChannel")
+        lah-messenger-channel-announcement(ref="announcementChannel")
 
       //- ================= 第 2 欄：使用者部門頻道 =================
       .col-xl-3.col-lg-6.col-12.px-1.mb-2.h-100
-        lah-messenger-department-channel(
+        lah-messenger-channel-department(
           ref="departmentChannel"
           :channel="selectedDeptChannel"
           @channel-change="selectedDeptChannel = $event"
@@ -71,14 +71,14 @@
       //- ================= 第 3 欄：全所頻道 / 私訊切換 =================
       .col-xl-3.col-lg-6.col-12.px-1.mb-2.h-100
         transition(name="fade" mode="out-in")
-          lah-messenger-personal-channel(
+          lah-messenger-channel-personal(
             v-if="showPersonalMode"
             ref="personalChannel"
             :target-user="activePersonalUser"
             :show-back-button="true"
             @close="showPersonalMode = false"
           )
-          lah-messenger-lds-channel(
+          lah-messenger-channel-lds(
             v-else
             ref="ldsChannel"
           )
@@ -94,19 +94,19 @@
 
 <script>
 import lahMessengerBase from '~/mixins/lah-messenger-base'
-import LahMessengerAnnouncementChannel from '~/components/lah-messenger-announcement-channel.vue'
-import LahMessengerDepartmentChannel from '~/components/lah-messenger-department-channel.vue'
-import LahMessengerLdsChannel from '~/components/lah-messenger-lds-channel.vue'
-import LahMessengerPersonalChannel from '~/components/lah-messenger-personal-channel.vue'
+import LahMessengerChannelAnnouncement from '~/components/lah-messenger-channel-announcement.vue'
+import LahMessengerChannelDepartment from '~/components/lah-messenger-channel-department.vue'
+import LahMessengerChannelLds from '~/components/lah-messenger-channel-lds.vue'
+import LahMessengerChannelPersonal from '~/components/lah-messenger-channel-personal.vue'
 import LahMessengerOnlineUsers from '~/components/lah-messenger-online-users.vue'
 
 export default {
   name: 'WebsocketMessengerQuadDashboard',
   components: {
-    LahMessengerAnnouncementChannel,
-    LahMessengerDepartmentChannel,
-    LahMessengerLdsChannel,
-    LahMessengerPersonalChannel,
+    LahMessengerChannelAnnouncement,
+    LahMessengerChannelDepartment,
+    LahMessengerChannelLds,
+    LahMessengerChannelPersonal,
     LahMessengerOnlineUsers
   },
   mixins: [lahMessengerBase],

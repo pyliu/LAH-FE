@@ -2,65 +2,44 @@
 b-card.channel-card(no-body)
   template(#header): .d-flex.justify-content-between.align-items-center
     .d-flex.align-items-center.text-truncate
-      b-button.p-0.mr-1(
-        v-if="showBackButton"
-        variant="link"
-        size="sm"
-        @click="$emit('close')"
-        title="返回全所頻道"
-      )
-        b-icon(icon="arrow-left-circle-fill" font-scale="1.2" variant="secondary")
-      b-icon.mr-1(
-        icon="envelope-fill"
-        variant="info"
-      )
-      span.font-weight-bold {{ displayTitle }}
-      b-badge.ml-1(
-        variant="info"
-        pill
-        v-if="showUnread(targetUserId)"
-      ) {{ getUnread(targetUserId) }}
-      b-badge.ml-1(variant="secondary" pill) {{ personalList.length }}
-
+      b-icon.mr-1(icon="chat-quote-fill" variant="success")
+      span.font-weight-bold 全所頻道
+      b-badge.ml-1(variant="success" pill v-if="showUnread('lds')") {{ getUnread('lds') }}
+      b-badge.ml-1(variant="secondary" pill) {{ ldsList.length }}
     .d-flex.align-items-center
       b-button.mr-1(
         size="sm"
         variant="outline-secondary"
         class="py-0 px-2 s-80"
-        :disabled="isFetchingHistory || personalList.length === 0"
+        :disabled="isFetchingHistory || ldsList.length === 0"
         @click="loadHistory"
         title="載入較早訊息"
       )
         b-spinner(small v-if="isFetchingHistory" class="mr-1")
         b-icon(icon="arrow-up-circle" v-else)
         span.ml-1 較早
-
       b-button(
         size="sm"
         variant="outline-secondary"
         class="py-0 px-2 s-80"
         :disabled="isRefreshing"
         @click="refresh"
-        :title="`重新整理【${displayTitle}】訊息`"
+        title="重新整理全所訊息"
       )
         b-icon(icon="arrow-clockwise" :animation="isRefreshing ? 'spin' : undefined")
 
   b-card-body.p-2.d-flex.flex-column.position-relative
-    b-overlay(:show="isRefreshing" no-wrap opacity="0.6" spinner-variant="info" rounded="sm")
+    b-overlay(:show="isRefreshing" no-wrap opacity="0.6" spinner-variant="success" rounded="sm")
     .message-scroll-area(ref="msgBox")
-      .text-center.my-5.text-muted(v-if="personalList.length === 0")
-        b-icon(
-          icon="envelope-open"
-          font-scale="2.5"
-          variant="secondary"
-        )
-        .mt-2 目前【{{ displayTitle }}】無訊息
+      .text-center.my-5.text-muted(v-if="ldsList.length === 0")
+        b-icon(icon="chat-square-dots" font-scale="2.5" variant="secondary")
+        .mt-2 目前全所聊天室無訊息
       transition-group(v-else name="list" tag="div")
         lah-messenger-message(
-          v-for="(item, idx) in personalList"
-          :key="`personal-msg-${item.id || idx}`"
+          v-for="(item, idx) in ldsList"
+          :key="`lds-msg-${item.id || idx}`"
           :raw="item"
-          :prev="personalList[idx - 1]"
+          :prev="ldsList[idx - 1]"
           @reply="reply"
           @remove="refresh"
         )
@@ -68,7 +47,7 @@ b-card.channel-card(no-body)
   template(#footer): .position-relative
     //- 剪貼簿截圖 / 上傳圖片預覽縮圖
     .d-flex.flex-wrap.p-1.mb-1.bg-light.rounded.border(v-if="inputImages.length > 0")
-      .position-relative.m-1(v-for="(img, idx) in inputImages" :key="`personal-img-${idx}`")
+      .position-relative.m-1(v-for="(img, idx) in inputImages" :key="`lds-img-${idx}`")
         b-img(:src="img" thumbnail style="max-height: 50px; max-width: 70px;")
         b-button.close-btn(size="sm" variant="danger" @click="inputImages.splice(idx, 1)") ✕
     //- 表情符號彈出視窗
@@ -81,7 +60,7 @@ b-card.channel-card(no-body)
       b-textarea(
         ref="textarea"
         v-model="inputText"
-        :placeholder="`傳送私訊給【${targetUserName}】... (Ctrl+Enter)`"
+        placeholder="傳送到【全所聊天室】... (Ctrl+Enter)"
         @keyup.enter.ctrl="send"
         @keyup.enter.shift="send"
         @paste="pasteImage($event, pastedImage)"
@@ -90,9 +69,9 @@ b-card.channel-card(no-body)
       )
       b-button.ml-1(
         @click="send"
-        :variant="isValid ? 'primary' : 'outline-primary'"
+        :variant="isValid ? 'success' : 'outline-primary'"
         :disabled="!isValid"
-        title="傳送私訊"
+        title="傳送訊息"
       )
         b-icon(icon="cursor" rotate="45")
       b-button.mx-1(
@@ -116,25 +95,14 @@ import LahMessengerEmojiPickup from '~/components/lah-messenger-emoji-pickup.vue
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
 
 export default {
-  name: 'LahMessengerPersonalChannel',
+  name: 'LahMessengerChannelLds',
   components: {
     LahMessengerMessage,
     LahMessengerEmojiPickup,
     LahMessengerImageUpload
   },
   mixins: [lahMessengerBase],
-  props: {
-    targetUser: {
-      type: [String, Object],
-      default: ''
-    },
-    showBackButton: {
-      type: Boolean,
-      default: false
-    }
-  },
   data: () => ({
-    currentTargetUser: '',
     inputText: '',
     inputImages: [],
     showEmoji: false,
@@ -142,34 +110,8 @@ export default {
     isRefreshing: false
   }),
   computed: {
-    targetUserId () {
-      const u = this.currentTargetUser || this.targetUser
-      if (typeof u === 'object' && u !== null) {
-        return (u.userid || u.id || '').toUpperCase() || this.userid
-      }
-      return (u || '').toUpperCase() || this.userid
-    },
-    targetUserName () {
-      const u = this.currentTargetUser || this.targetUser
-      if (typeof u === 'object' && u !== null && (u.username || u.name)) {
-        return u.username || u.name
-      }
-      if (this.targetUserId === this.userid) {
-        return '自己'
-      }
-      return this.userMap[this.targetUserId] || this.targetUserId
-    },
-    isSelf () {
-      return this.targetUserId === this.userid
-    },
-    displayTitle () {
-      if (this.isSelf) {
-        return '個人私訊 (自己)'
-      }
-      return `私訊【${this.targetUserName}】`
-    },
-    personalList () {
-      const msgs = this.messages?.[this.targetUserId] || []
+    ldsList () {
+      const msgs = this.messages?.lds || []
       return this.sortMessages(msgs)
     },
     isValid () {
@@ -177,16 +119,7 @@ export default {
     }
   },
   watch: {
-    targetUser: {
-      immediate: true,
-      handler (val) {
-        if (val) {
-          this.currentTargetUser = val
-          this.refresh()
-        }
-      }
-    },
-    'personalList.length' () {
+    'ldsList.length' () {
       this.$nextTick(() => {
         if (this.isFetchingHistory) {
           this.scrollToTop()
@@ -209,22 +142,15 @@ export default {
     }
   },
   mounted () {
-    if (!this.currentTargetUser && this.targetUser) {
-      this.currentTargetUser = this.targetUser
-    }
     this.attachWsListener()
-    this.fetchPersonalMessages(30)
-    this.resetUnread(this.targetUserId)
+    this.fetchLdsMessages(30)
+    this.resetUnread('lds')
     this.$nextTick(this.scrollToBottom)
   },
   beforeDestroy () {
     this.detachWsListener()
   },
   methods: {
-    setTargetUser (user) {
-      this.currentTargetUser = user
-      this.refresh()
-    },
     attachWsListener () {
       const ws = this.websocket || this.$store?.getters?.websocket
       if (ws && typeof ws.addEventListener === 'function') {
@@ -256,51 +182,49 @@ export default {
             msg = JSON.parse(msg)
           } catch (e) {}
         }
-        if (msg?.command === 'previous' && msg.payload?.channel === this.targetUserId) {
+        if (msg?.command === 'previous' && msg.payload?.channel === 'lds') {
           setTimeout(() => {
             this.isFetchingHistory = false
           }, 800)
           if (msg.success) {
-            this.notify(`已載入【${this.displayTitle}】較早歷史訊息`, { variant: 'success' })
+            this.notify('已載入【全所頻道】較早歷史訊息', { variant: 'success' })
             this.$nextTick(this.scrollToTop)
           } else {
-            this.notify(`【${this.displayTitle}】已無更早的歷史訊息`, { variant: 'warning' })
+            this.notify('【全所頻道】已無更早的歷史訊息', { variant: 'warning' })
           }
         }
       }
     },
-    fetchPersonalMessages (count = 30) {
-      const channel = this.targetUserId
-      if (this.websocket && this.websocket.readyState === 1 && channel) {
-        this.$store.commit('addChannel', channel)
+    fetchLdsMessages (count = 30) {
+      if (this.websocket && this.websocket.readyState === 1) {
+        this.$store.commit('addChannel', 'lds')
         this.websocket.send(
           this.packCommand({
             command: 'latest',
-            channel,
+            channel: 'lds',
             count
           })
         )
       }
     },
     refresh () {
-      const channel = this.targetUserId
       if (!this.websocket || this.websocket.readyState !== 1) {
         this.warning('即時通未連線，無法重新整理')
         return
       }
       this.isRefreshing = true
-      this.$set(this.messages, channel, [])
-      this.fetchPersonalMessages(30)
-      this.resetUnread(channel)
+      this.$set(this.messages, 'lds', [])
+      this.fetchLdsMessages(30)
+      this.resetUnread('lds')
 
       setTimeout(() => {
         this.isRefreshing = false
         this.$nextTick(this.scrollToBottom)
-        this.notify(`已重新讀取【${this.displayTitle}】最新資料`, { variant: 'success' })
+        this.notify('已重新讀取【全所頻道】最新資料', { variant: 'success' })
       }, 600)
     },
     getHeadId () {
-      const list = this.messages?.[this.targetUserId] || []
+      const list = this.messages?.lds || []
       let minId = Infinity
       for (let i = 0; i < list.length; i++) {
         const id = this.extractMessageId(list[i])
@@ -317,7 +241,7 @@ export default {
       }
       const headId = this.getHeadId()
       if (headId <= 0) {
-        this.warning(`【${this.displayTitle}】目前無訊息基準點可向上讀取`)
+        this.warning('【全所頻道】目前無訊息基準點可向上讀取')
         return
       }
       this.isFetchingHistory = true
@@ -328,12 +252,12 @@ export default {
       this.websocket.send(
         this.packCommand({
           command: 'previous',
-          channel: this.targetUserId,
+          channel: 'lds',
           headId,
           count: 15
         })
       )
-      this.notify(`正在載入【${this.displayTitle}】較早歷史訊息...`, { variant: 'info' })
+      this.notify('正在載入【全所頻道】較早歷史訊息...', { variant: 'info' })
     },
     send () {
       if (!this.isValid) {
@@ -355,7 +279,7 @@ export default {
 
       try {
         this.websocket.send(
-          this.packMessage(markdText, { channel: this.targetUserId })
+          this.packMessage(markdText, { channel: 'lds' })
         )
         this.inputText = ''
         this.inputImages = []
@@ -397,15 +321,15 @@ export default {
     pickImage () {
       this.modal(
         this.$createElement(LahMessengerImageUpload, {
-          props: { to: this.targetUserId, modalId: 'messenger-personal-img-modal' },
+          props: { to: 'lds', modalId: 'messenger-lds-img-modal' },
           on: {
             publish: (b64) => {
-              this.sendImage(b64, '上傳圖片', this.targetUserId)
-              this.hideModalById('messenger-personal-img-modal')
+              this.sendImage(b64, '上傳圖片', 'lds')
+              this.hideModalById('messenger-lds-img-modal')
             }
           }
         }),
-        { id: 'messenger-personal-img-modal', size: 'md', title: `附加圖片至【${this.displayTitle}】` }
+        { id: 'messenger-lds-img-modal', size: 'md', title: '附加圖片至【全所頻道】' }
       )
     },
     scrollToTop () {

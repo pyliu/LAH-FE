@@ -106,7 +106,7 @@ import LahMessengerEmojiPickup from '~/components/lah-messenger-emoji-pickup.vue
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
 
 export default {
-  name: 'LahMessengerDepartmentChannel',
+  name: 'LahMessengerChannelDepartment',
   components: {
     LahMessengerMessage,
     LahMessengerEmojiPickup,

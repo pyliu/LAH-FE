@@ -157,21 +157,21 @@
         //- 3. 分頁主要內容區域 (組合 5 大獨立子元件)
         b-card-body.p-0.home-card-body
           keep-alive
-            lah-messenger-announcement-channel(
+            lah-messenger-channel-announcement(
               v-if="activeTab === 'announcement'"
               ref="announcementChannel"
             )
-            lah-messenger-department-channel(
+            lah-messenger-channel-department(
               v-else-if="activeTab === 'dept'"
               ref="departmentChannel"
               :channel="currentDeptChannel"
               @channel-change="currentDeptChannel = $event"
             )
-            lah-messenger-lds-channel(
+            lah-messenger-channel-lds(
               v-else-if="activeTab === 'lds'"
               ref="ldsChannel"
             )
-            lah-messenger-personal-channel(
+            lah-messenger-channel-personal(
               v-else-if="activeTab === 'personal'"
               ref="personalChannel"
               :target-user="activePersonalUser"
@@ -191,10 +191,10 @@
 
 <script>
 import lahMessengerBase from '~/mixins/lah-messenger-base'
-import LahMessengerAnnouncementChannel from '~/components/lah-messenger-announcement-channel.vue'
-import LahMessengerDepartmentChannel from '~/components/lah-messenger-department-channel.vue'
-import LahMessengerLdsChannel from '~/components/lah-messenger-lds-channel.vue'
-import LahMessengerPersonalChannel from '~/components/lah-messenger-personal-channel.vue'
+import LahMessengerChannelAnnouncement from '~/components/lah-messenger-channel-announcement.vue'
+import LahMessengerChannelDepartment from '~/components/lah-messenger-channel-department.vue'
+import LahMessengerChannelLds from '~/components/lah-messenger-channel-lds.vue'
+import LahMessengerChannelPersonal from '~/components/lah-messenger-channel-personal.vue'
 import LahMessengerOnlineUsers from '~/components/lah-messenger-online-users.vue'
 import LahMessengerStatus from '~/components/lah-messenger-status.vue'
 import { DEPT_NAME_MAP } from '~/constants/lah-messenger-constants'
@@ -202,10 +202,10 @@ import { DEPT_NAME_MAP } from '~/constants/lah-messenger-constants'
 export default {
   name: 'LahMessengerHome',
   components: {
-    LahMessengerAnnouncementChannel,
-    LahMessengerDepartmentChannel,
-    LahMessengerLdsChannel,
-    LahMessengerPersonalChannel,
+    LahMessengerChannelAnnouncement,
+    LahMessengerChannelDepartment,
+    LahMessengerChannelLds,
+    LahMessengerChannelPersonal,
     LahMessengerOnlineUsers,
     LahMessengerStatus
   },
@@ -302,7 +302,7 @@ export default {
     }, 300)
     this.delayUpdateChannelLastReadId = this.$utils.debounce(this.updateChannelLastReadId, 300)
 
-    if (process.client && typeof window !== 'undefined' && window.localStorage) {
+    if (typeof window !== 'undefined' && window.localStorage) {
       try {
         const savedHost = window.localStorage.getItem('lah-messenger-custom-ws-host')
         const savedPort = window.localStorage.getItem('lah-messenger-custom-ws-port')

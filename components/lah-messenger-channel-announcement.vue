@@ -60,7 +60,7 @@ import LahMessengerMessage from '~/components/lah-messenger-message.vue'
 import LahMessengerMessageInput from '~/components/lah-messenger-message-input.vue'
 
 export default {
-  name: 'LahMessengerAnnouncementChannel',
+  name: 'LahMessengerChannelAnnouncement',
   components: {
     LahMessengerMessage,
     LahMessengerMessageInput
