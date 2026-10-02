@@ -1110,22 +1110,15 @@ export default {
     }
   }
 
-  /* Tab 切換過場動畫 (平滑淡入淡出與微位移) */
+  /* Tab 切換過場動畫 (簡化為極輕量純透明度過渡，移除 translateY 與 will-change 避免巢狀 3D 合成層競爭與文字抖動) */
   .tab-fade-enter-active,
   .tab-fade-leave-active {
-    transition: opacity 0.18s cubic-bezier(0.2, 0, 0.2, 1),
-                transform 0.18s cubic-bezier(0.2, 0, 0.2, 1);
-    will-change: opacity, transform;
+    transition: opacity 0.12s ease-out;
   }
 
-  .tab-fade-enter {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
+  .tab-fade-enter,
   .tab-fade-leave-to {
     opacity: 0;
-    transform: translateY(-8px);
   }
 }
 </style>
