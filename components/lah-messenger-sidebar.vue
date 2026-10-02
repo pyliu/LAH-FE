@@ -127,10 +127,13 @@ export default {
       )
     },
     isWebsocketPage () {
-      const path = this.$route?.path || ''
+      const path = (this.$route?.path || '').toLowerCase()
       return (
         path === '/websocket' ||
-        path.startsWith('/websocket/')
+        path.startsWith('/websocket/') ||
+        path === '/pages/websocket' ||
+        path.startsWith('/pages/websocket/') ||
+        path.includes('websocket')
       )
     },
     hideSidebarVisuals () {
@@ -463,8 +466,8 @@ export default {
 }
 
 ::v-deep .b-sidebar-backdrop {
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  /* 移除昂貴的全螢幕高斯模糊濾鏡 (backdrop-filter)，改採輕量高效純色半透明遮罩避免 GPU 掉幀 */
+  background-color: rgba(15, 23, 42, 0.45) !important;
 }
 
 /* ========================================================================= */

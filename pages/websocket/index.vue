@@ -288,4 +288,7 @@ export default {
     display: none;
   }
 }
+::v-deep .b-sidebar-backdrop {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
 </style>
