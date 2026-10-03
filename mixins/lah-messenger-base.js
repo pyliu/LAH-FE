@@ -6,6 +6,8 @@ import {
   DEFAULT_WS_PORT
 } from '~/constants/lah-messenger-constants'
 
+const isDevMode = process.env.NODE_ENV !== 'production'
+
 export default {
   computed: {
     ...mapGetters([
@@ -47,7 +49,8 @@ export default {
       return 'inf'
     },
     userid () {
-      return (this.myid || this.user?.id || '').toUpperCase()
+      // 開發模式 (非 production) 且尚未取得登入身分時，以 DEV 作為備用 ID，方便本機測試
+      return (this.myid || this.user?.id || (isDevMode ? 'DEV' : '')).toUpperCase()
     },
     username () {
       return this.myname || this.user?.name || this.userid

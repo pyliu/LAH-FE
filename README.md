@@ -44,18 +44,35 @@ This frontend application relies on the LAH-API service, which functions as the 
 
 ## 如何啟動 (Getting Started)
 
-1.  **安裝依賴**
+1.  **環境變數設定 (.env)**
+    > 本專案仰賴環境變數配置前端伺服器、LAH-API 後端位置以及各項監控主機資訊。啟動前請務必建立 `.env` 檔案：
+
     ```bash
+    # 複製範本建立設定檔
+    cp .env.example .env
+    ```
+    > 請依實際開發環境調整 `.env` 內容，特別是 `HOST`、`PORT`、`API_HOST`、`API_PORT` 等連線設定。
+
+2.  **安裝依賴**
+    > **注意**：本專案需使用 **Node.js v16** 環境（因相依 `node-sass` 等原生套件）。
+    > 在全新環境安裝或無 lockfile 時，若遇 `node-releases` 等間接相依套件回報 `The engine "node" is incompatible with this module`，請加上 `--ignore-engines` 參數或設定 Yarn 忽略引擎版本檢查：
+
+    ```bash
+    # 方式一：直接帶參數安裝（建議）
+    yarn install --ignore-engines
+
+    # 方式二：設定 Yarn 永久忽略版本檢查後再安裝
+    yarn config set ignore-engines true
     yarn install
     ```
 
-2.  **啟動開發環境**
+3.  **啟動開發環境**
     ```bash
     yarn dev
     ```
     應用程式將會在 `http://localhost:8080` 上運行。
 
-3.  **打包部署**
+4.  **打包部署**
     ```bash
     yarn build
     ```
