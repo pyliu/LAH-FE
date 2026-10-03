@@ -716,9 +716,24 @@ export default {
           }
 
           const activeChannel = this.getCurrentActiveChannel()
-          const isViewingThisChannel =
+          const isPersonalChannel =
+            (channel && (channel || '').toUpperCase() === (this.userid || '').toUpperCase()) ||
+            (this.activePersonalUser && channel === this.activePersonalUser)
+
+          let isViewingThisChannel =
             activeChannel === channel ||
             (activeChannel === 'announcement' && channel.startsWith('announcement_'))
+
+          // 若當前在即時通儀表板主頁 (/websocket):
+          // 1. 公務頻道 (公告、全所、所屬課室) 為常駐可見 -> 視為正在檢視 -> 秒讀取！
+          // 2. 個人私訊頻道 -> 只有在私訊抽屜開啟時 (isPersonalDrawerOpen === true) 才視為正在檢視 -> 秒讀取！
+          if (this.isDashboardActive) {
+            if (this.isDashboardChannel(channel)) {
+              isViewingThisChannel = true
+            } else if (isPersonalChannel) {
+              isViewingThisChannel = Boolean(this.isPersonalDrawerOpen)
+            }
+          }
 
           if (isViewingThisChannel) {
             this.resetUnread(channel)
@@ -734,13 +749,19 @@ export default {
             if (numReceivedId > 0 && numReceivedId <= numLastReadId) {
               this.$utils.log(`[即時通] 頻道 [${channel}] 收到訊息 ID: ${numReceivedId} <= 已讀 ID: ${numLastReadId}，略過未讀計數`)
             } else if ((!numReceivedId || numReceivedId > numLastReadId) && isTargetChannel) {
-              if (!this.isDashboardActive || !this.isDashboardChannel(channel)) {
-                this.plusUnread(channel)
-              }
+              this.plusUnread(channel)
             }
           }
 
           if (!isHistory && incoming.message && incoming.sender !== 'system') {
+            // 全域即時廣播訊息接收事件，讓儀表板主頁能即時觸發外框脈衝光暈、頂部膠囊通知與提示音
+            this.$root.$emit('lah-messenger:message-received', {
+              ...incoming,
+              channelName: this.getChannelName(incoming.channel),
+              senderName: ((incoming.channel || '').toUpperCase() === this.userid.toUpperCase() && (incoming.sender || '').toUpperCase() === this.userid.toUpperCase())
+                ? '自己'
+                : (this.userMap[incoming.sender] || incoming.sender)
+            })
             this.triggerNotification(incoming)
           }
         }
@@ -768,9 +789,21 @@ export default {
             break
           }
           const activeChannel = this.getCurrentActiveChannel()
-          const isViewingThisChannel = activeChannel === ch
+          const isPersonalChannel =
+            (ch && (ch || '').toUpperCase() === (this.userid || '').toUpperCase()) ||
+            (this.activePersonalUser && ch === this.activePersonalUser)
+
+          let isViewingThisChannel = activeChannel === ch
+          if (this.isDashboardActive) {
+            if (this.isDashboardChannel(ch)) {
+              isViewingThisChannel = true
+            } else if (isPersonalChannel) {
+              isViewingThisChannel = Boolean(this.isPersonalDrawerOpen)
+            }
+          }
+
           const serverUnread = parseInt(json.payload?.unread) || 0
-          this.$utils.log(`[即時通] 收到未讀數回傳: 頻道 [${ch}] = ${serverUnread} (當前檢視: ${activeChannel})`)
+          this.$utils.log(`[即時通] 收到未讀數回傳: 頻道 [${ch}] = ${serverUnread} (當前檢視: ${activeChannel}, 視為正在檢視: ${isViewingThisChannel})`)
           if (isViewingThisChannel) {
             this.$store.commit('setUnread', {
               channel: ch,

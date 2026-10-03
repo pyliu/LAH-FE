@@ -29,6 +29,7 @@ export default {
       'fetchingHistory',
       'windowVisible',
       'isDashboardActive',
+      'isPersonalDrawerOpen',
       'regexpMarkdImage',
       'regexpReplyHeader'
     ]),
@@ -516,6 +517,69 @@ export default {
         return []
       }
       return [...list].sort(this.compareMessages)
+    },
+    async getChannelLastReadId (channel) {
+      const key = `${channel}_last_id`
+      let id = 0
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          const lsVal = window.localStorage.getItem(key)
+          if (lsVal !== null && lsVal !== undefined && lsVal !== '') {
+            id = parseInt(lsVal) || 0
+          }
+        } catch (e) {
+          this.$utils && this.$utils.warn && this.$utils.warn(`[即時通] 讀取 localStorage [${key}] 失敗:`, e)
+        }
+      }
+      if (!id) {
+        try {
+          const cacheVal = await this.getCache(key)
+          id = parseInt(cacheVal) || 0
+        } catch (e) {}
+      }
+      return id
+    },
+    async setChannelLastReadId (channel, id) {
+      const numId = parseInt(id) || 0
+      if (!channel || numId <= 0) {
+        return
+      }
+      const key = `${channel}_last_id`
+      let current = 0
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          const lsVal = window.localStorage.getItem(key)
+          current = parseInt(lsVal) || 0
+          if (numId > current) {
+            window.localStorage.setItem(key, String(numId))
+            this.$utils && this.$utils.log && this.$utils.log(`[即時通] 記錄 ${channel} 本地已讀 ID: ${current} -> ${numId}`)
+          }
+        } catch (e) {
+          this.$utils && this.$utils.warn && this.$utils.warn(`[即時通] 寫入 localStorage [${key}] 失敗:`, e)
+        }
+      }
+      try {
+        const currentCache = (await this.getCache(key)) || 0
+        if (numId > currentCache) {
+          this.setCache(key, numId)
+        }
+      } catch (e) {}
+    },
+    async updateChannelLastReadId (channel) {
+      const ch = channel || (typeof this.getCurrentActiveChannel === 'function' ? this.getCurrentActiveChannel() : this.currentChannel)
+      if (!ch) {
+        return
+      }
+      const list = this.messages?.[ch] || []
+      const maxId = list.reduce((max, item) => {
+        const numId = this.extractMessageId(item)
+        return numId > max ? numId : max
+      }, 0)
+      if (maxId > 0) {
+        await this.setChannelLastReadId(ch, maxId)
+      }
+      this.resetUnread(ch)
+      this.$utils && this.$utils.log && this.$utils.log(`[即時通] updateChannelLastReadId: 頻道 [${ch}]，列表長度: ${list.length}，最大 ID: ${maxId}`)
     }
   }
 }

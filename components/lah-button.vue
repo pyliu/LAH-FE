@@ -22,7 +22,7 @@ b-button.text-nowrap(
     :icon="iconByBusy"
     :size="iconSize"
     :append="iconAppend"
-    :no-gutter="noIconGutter || $utils.empty($refs.slot?.textContent) "
+    :no-gutter="noIconGutter || empty($refs.slot?.textContent) "
     :variant="iconVariant"
     :flip="flip"
     :rotate="rotate"
@@ -47,7 +47,7 @@ b-button.text-nowrap(
     :prefix="faIconPrefix"
     :icon="iconByBusy"
     :size="iconSize"
-    :no-gutter="noIconGutter || $utils.empty($refs.slot?.textContent) "
+    :no-gutter="noIconGutter || empty($refs.slot?.textContent) "
     :variant="iconVariant"
     :flip="flip"
     :rotate="rotate"
@@ -58,6 +58,8 @@ b-button.text-nowrap(
 </template>
 
 <script>
+import isEmpty from 'lodash/isEmpty'
+
 export default {
   props: {
     to: { type: String, default: undefined },
@@ -95,8 +97,8 @@ export default {
     faIconPrefix () {
       return this.brand ? 'fab' : this.regular ? 'far' : 'fas'
     },
-    showBadge () { return !this.$utils.empty(this.badgeText) },
-    showIcon () { return !this.$utils.empty(this.icon) },
+    showBadge () { return !this.empty(this.badgeText) },
+    showIcon () { return !this.empty(this.icon) },
     iconByBusy () { return this.busy ? 'arrows-rotate' : this.icon },
     actionByBusy () { return this.busy ? 'cycle' : this.action }
   },
@@ -110,24 +112,33 @@ export default {
   },
   created () {
     // multiple events will holds for 50ms
-    this.mouseenter = this.$utils.debounce(() => {
-      if (!this.noIcon) {
-        const movement = this.actionByBusy ? `ld-${this.actionByBusy.replace('ld-', '')}` : 'ld-breath'
-        // movement is 'undefined' will be random effect
-        this.$utils.addAnimation(`#${this.iconId}`, movement)
-      }
-    }, 50)
-    this.mouseleave = this.$utils.debounce(() => {
-      if (!this.noIcon && !this.busy) {
-        this.$utils.clearAnimation(`#${this.iconId}`)
-      }
-    }, 50)
+    if (this.$utils?.debounce) {
+      this.mouseenter = this.$utils.debounce(() => {
+        if (!this.noIcon) {
+          const movement = this.actionByBusy ? `ld-${this.actionByBusy.replace('ld-', '')}` : 'ld-breath'
+          // movement is 'undefined' will be random effect
+          if (this.$utils?.addAnimation) {
+            this.$utils.addAnimation(`#${this.iconId}`, movement)
+          }
+        }
+      }, 50)
+      this.mouseleave = this.$utils.debounce(() => {
+        if (!this.noIcon && !this.busy) {
+          if (this.$utils?.clearAnimation) {
+            this.$utils.clearAnimation(`#${this.iconId}`)
+          }
+        }
+      }, 50)
+    }
   },
   methods: {
+    empty (val) {
+      return this.$utils?.empty ? this.$utils.empty(val) : isEmpty(val)
+    },
     mouseenter () { /** placeholder */ },
     mouseleave () { /** placeholder */ },
     emitClick (evt) {
-      if (this.$utils.empty(this.to)) {
+      if (this.empty(this.to)) {
         this.$emit('click', evt)
       } else {
         this.$router.push(this.to)

@@ -122,6 +122,9 @@ Vue.mixin({
     }
   },
   methods: {
+    empty (val) {
+      return this.$utils?.empty ? this.$utils.empty(val) : isEmpty(val)
+    },
     ...mapActions([
       'login',
       'resetUnread',

@@ -131,7 +131,8 @@ export const state = () => ({
     chat: true
   },
   windowVisible: true,
-  isDashboardActive: false
+  isDashboardActive: false,
+  isPersonalDrawerOpen: false
 })
 
 /**
@@ -179,6 +180,7 @@ export const getters = {
   // 即時通 (LAH-Messenger) Getters
   windowVisible: state => state.windowVisible,
   isDashboardActive: state => Boolean(state.isDashboardActive),
+  isPersonalDrawerOpen: state => Boolean(state.isPersonalDrawerOpen),
   websocket: state => state.websocket,
   connected: state => Boolean(state.wsConnected || (state.websocket && state.websocket.readyState === 1)),
   disconnected: state => !state.wsConnected && (isEmpty(state.websocket) || state.websocket.readyState === 3),
@@ -472,6 +474,9 @@ export const mutations = {
   },
   isDashboardActive (state, flag) {
     state.isDashboardActive = Boolean(flag)
+  },
+  isPersonalDrawerOpen (state, flag) {
+    state.isPersonalDrawerOpen = Boolean(flag)
   },
   timer (state, timer) {
     state.messengerTimer = timer

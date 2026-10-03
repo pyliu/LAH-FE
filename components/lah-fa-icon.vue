@@ -5,7 +5,7 @@ span.d-inline-flex.align-items-center.my-auto(
   @click="emitEvent('click', $event)"
 )
   font-awesome-icon(
-    v-if="!append && !$utils.empty(icon)",
+    v-if="!append && !empty(icon)",
     :id="iconId",
     :icon="iconArray",
     :size="size",
@@ -19,7 +19,7 @@ span.d-inline-flex.align-items-center.my-auto(
   )
   slot
   font-awesome-icon(
-    v-if="append && !$utils.empty(icon)",
+    v-if="append && !empty(icon)",
     :id="iconId",
     :icon="iconArray",
     :size="size",
@@ -34,6 +34,9 @@ span.d-inline-flex.align-items-center.my-auto(
 </template>
 
 <script>
+import isEmpty from 'lodash/isEmpty'
+import without from 'lodash/without'
+
 export default {
   emit: ['click', 'mouseover', 'mouseleave', 'icon'],
   props: {
@@ -63,14 +66,15 @@ export default {
     className () {
       const gutter = this.noGutter ? '' : (this.append ? ' ml-1' : ' mr-1')
       // remove empty val from array
-      return this.$utils.without(
+      const withoutFn = this.$utils?.without || without
+      return withoutFn(
         [this.textVariant, this.ldMovement, 'my-auto', gutter],
         '', undefined, null
       )
     },
-    textVariant () { return this.$utils.empty(this.variant) ? '' : `text-${this.variant}` },
-    ldMovement () { return this.$utils.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
-    hasSlot () { return !this.$utils.empty(this.$slots.default) },
+    textVariant () { return this.empty(this.variant) ? '' : `text-${this.variant}` },
+    ldMovement () { return this.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
+    hasSlot () { return !this.empty(this.$slots.default) },
     iconArray () {
       const pre = this.regular ? 'far' : (this.brand ? 'fab' : 'fas')
       return [pre, this.icon]
@@ -92,9 +96,23 @@ export default {
     }
   },
   mounted () {
-    this.iconId = this.$utils?.uuid()
+    this.iconId = this.$utils?.uuid?.() || this.generateUuid()
   },
   methods: {
+    empty (val) {
+      return this.$utils?.empty ? this.$utils.empty(val) : isEmpty(val)
+    },
+    generateUuid () {
+      let d = Date.now()
+      if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+        d += performance.now()
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = (d + Math.random() * 16) % 16 | 0
+        d = Math.floor(d / 16)
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+      })
+    },
     emitEvent (evtType, evt, stopPropagation = false) {
       this.$emit(evtType)
       stopPropagation && evt?.stopPropagation()
