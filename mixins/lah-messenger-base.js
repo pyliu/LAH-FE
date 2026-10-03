@@ -2,8 +2,8 @@ import { mapGetters } from 'vuex'
 import isEmpty from 'lodash/isEmpty'
 import {
   DEPT_NAME_MAP,
-  DEPT_CODE_MAP,
-  DEFAULT_WS_PORT
+  DEFAULT_WS_PORT,
+  getDepartmentCode
 } from '~/constants/lah-messenger-constants'
 
 const isDevMode = process.env.NODE_ENV !== 'production'
@@ -17,7 +17,6 @@ export default {
       'currentChannelMessageCount',
       'messages',
       'unread',
-      'totalUnread',
       'websocket',
       'connected',
       'disconnected',
@@ -33,6 +32,27 @@ export default {
       'regexpMarkdImage',
       'regexpReplyHeader'
     ]),
+    totalUnread () {
+      const storeTotal = this.$store?.getters?.totalUnread
+      if (typeof storeTotal === 'number' && storeTotal > 0) {
+        return storeTotal
+      }
+      // 雙重保險計算：若 store 回傳 0，但 mixin 本地有未讀紀錄時進行回退計算
+      let fallbackTotal = 0
+      const targetChannels = ['announcement', 'lds']
+      if (this.userdept) {
+        targetChannels.push(this.userdept)
+      }
+      if (this.userid) {
+        targetChannels.push(this.userid)
+      }
+      const uniqueChannels = [...new Set(targetChannels.filter(Boolean))]
+      uniqueChannels.forEach((ch) => {
+        const val = parseInt(this.getUnread(ch)) || 0
+        fallbackTotal += val
+      })
+      return fallbackTotal
+    },
     userdept () {
       const unit = this.myinfo?.unit || this.user?.unit || this.user?.dept || this.user?.work || ''
       if (unit) {
@@ -296,44 +316,7 @@ export default {
       return DEPT_NAME_MAP[deptCode] || '未知課室'
     },
     getDepartmentCode (deptName) {
-      if (!deptName) {
-        return 'inf'
-      }
-      const s = String(deptName).toLowerCase().trim()
-      if (DEPT_CODE_MAP[deptName]) {
-        return DEPT_CODE_MAP[deptName]
-      }
-      if (DEPT_CODE_MAP[s]) {
-        return DEPT_CODE_MAP[s]
-      }
-      if (s.includes('資訊') || s === 'inf') {
-        return 'inf'
-      }
-      if (s.includes('登記') || s === 'reg') {
-        return 'reg'
-      }
-      if (s.includes('地價') || s === 'val') {
-        return 'val'
-      }
-      if (s.includes('測量') || s === 'sur') {
-        return 'sur'
-      }
-      if (s.includes('行政') || s === 'adm') {
-        return 'adm'
-      }
-      if (s.includes('人事') || s === 'hr') {
-        return 'hr'
-      }
-      if (s.includes('會計') || s === 'acc') {
-        return 'acc'
-      }
-      if (s.includes('主秘') || s.includes('主任祕書') || s.includes('主任秘書') || s.includes('秘書') || s === 'supervisor') {
-        return 'supervisor'
-      }
-      if (s.includes('全所') || s === 'lds') {
-        return 'lds'
-      }
-      return 'inf'
+      return getDepartmentCode(deptName, 'inf')
     },
     handleSpecialClick (event) {
       const element = event.target

@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import uniqWith from 'lodash/uniqWith'
-import { DEPT_CODE_MAP } from '~/constants/lah-messenger-constants'
+import { getDepartmentCode } from '~/constants/lah-messenger-constants'
 
 /**
  * Custom error logger for Axios interceptor.
@@ -187,26 +187,56 @@ export const getters = {
   totalUnread: (state) => {
     try {
       let total = 0
-      const uid = (state.user?.id || '').toUpperCase()
-      const unit = state.user?.unit || state.user?.dept || ''
-      const dept = DEPT_CODE_MAP[unit] || (Object.values(DEPT_CODE_MAP).includes(String(unit).toLowerCase()) ? String(unit).toLowerCase() : '')
-      const targetChannels = ['announcement', 'lds']
-      if (dept) {
-        targetChannels.push(dept)
+      const isDev = process.env.NODE_ENV !== 'production'
+      const devUid = isDev ? 'DEV' : ''
+      const uid = (state.user?.id || devUid).toUpperCase()
+      const unit = state.user?.unit || state.user?.dept || state.user?.work || ''
+      let dept = getDepartmentCode(unit, isDev ? 'inf' : '')
+      if (!dept && isDev) {
+        dept = 'inf'
       }
-      if (uid) {
-        targetChannels.push(uid)
-      }
-      const uniqueChannels = [...new Set(targetChannels.filter(Boolean))]
-      uniqueChannels.forEach((ch) => {
-        let count = state.unread?.[ch] || 0
-        if (!count && ch === uid) {
-          count = state.unread?.[uid.toLowerCase()] || 0
+
+      const allChatRooms = ['adm', 'inf', 'val', 'reg', 'sur', 'acc', 'hr', 'supervisor']
+      const otherDeptRooms = allChatRooms.filter(r => r !== dept)
+
+      const unreadMap = state.unread || {}
+      const countedChannels = new Set()
+
+      Object.entries(unreadMap).forEach(([channel, count]) => {
+        if (!channel || typeof count !== 'number' || count <= 0) {
+          return
         }
-        if (typeof count === 'number' && count > 0) {
+        // 排除 announcement_ 附屬頻道
+        if (channel.startsWith('announcement_')) {
+          return
+        }
+        // 排除系統頻道
+        if (channel.toLowerCase() === 'system') {
+          return
+        }
+        // 排除不屬於使用者的其他課室頻道
+        if (otherDeptRooms.includes(channel.toLowerCase())) {
+          return
+        }
+        // 使用者本身私訊頻道 (不區分大小寫去重)
+        const upperChannel = channel.toUpperCase()
+        if (uid && upperChannel === uid) {
+          if (!countedChannels.has(uid)) {
+            countedChannels.add(uid)
+            const cUpper = typeof unreadMap[uid] === 'number' ? unreadMap[uid] : 0
+            const cLower = uid !== uid.toLowerCase() && typeof unreadMap[uid.toLowerCase()] === 'number' ? unreadMap[uid.toLowerCase()] : 0
+            const personalCount = Math.max(cUpper, cLower, count)
+            total += personalCount
+          }
+          return
+        }
+
+        if (!countedChannels.has(channel)) {
+          countedChannels.add(channel)
           total += count
         }
       })
+
       return total
     } catch {
       return 0
@@ -387,8 +417,10 @@ export const mutations = {
     state.unread = newUnread
   },
   resetUnread (state, channel) {
-    const uid = (state.user?.id || '').toUpperCase()
-    const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
+    const isDev = process.env.NODE_ENV !== 'production'
+    const devUid = isDev ? 'DEV' : ''
+    const uid = (state.user?.id || devUid).toUpperCase()
+    const targetKey = (channel && uid && channel.toUpperCase() === uid) ? uid : channel
     const newUnread = { ...state.unread }
     if (targetKey in newUnread) {
       newUnread[targetKey] = 0
@@ -396,11 +428,22 @@ export const mutations = {
     if (channel && channel !== targetKey && channel in newUnread) {
       newUnread[channel] = 0
     }
+    if (uid && channel && channel.toUpperCase() === uid) {
+      if (uid in newUnread) {
+        newUnread[uid] = 0
+      }
+      const lower = uid.toLowerCase()
+      if (lower in newUnread) {
+        newUnread[lower] = 0
+      }
+    }
     state.unread = newUnread
   },
   plusUnread (state, channel) {
-    const uid = (state.user?.id || '').toUpperCase()
-    const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
+    const isDev = process.env.NODE_ENV !== 'production'
+    const devUid = isDev ? 'DEV' : ''
+    const uid = (state.user?.id || devUid).toUpperCase()
+    const targetKey = (channel && uid && channel.toUpperCase() === uid) ? uid : channel
     const current = (state.unread && typeof state.unread[targetKey] === 'number') ? state.unread[targetKey] : 0
     state.unread = {
       ...state.unread,
@@ -408,8 +451,10 @@ export const mutations = {
     }
   },
   setUnread (state, { channel, count }) {
-    const uid = (state.user?.id || '').toUpperCase()
-    const targetKey = (channel && channel.toUpperCase() === uid) ? uid : channel
+    const isDev = process.env.NODE_ENV !== 'production'
+    const devUid = isDev ? 'DEV' : ''
+    const uid = (state.user?.id || devUid).toUpperCase()
+    const targetKey = (channel && uid && channel.toUpperCase() === uid) ? uid : channel
     state.unread = {
       ...state.unread,
       [targetKey]: Math.max(0, parseInt(count) || 0)
