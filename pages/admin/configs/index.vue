@@ -162,7 +162,7 @@
           >
             填入預設 (034917647)
           </lah-button>
-          <div>
+          <div class="d-flex align-items-center">
             <lah-button
               variant="secondary"
               size="sm"
