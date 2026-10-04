@@ -1,10 +1,10 @@
 <template lang="pug">
-.lah-messenger-message-input-edit-announcement(style="position: relative" @paste="pasteImage($event, pasted)")
+.lah-messenger-message-input-modal(style="position: relative" @paste="pasteImage($event, pasted)")
   .d-flex.justify-content-between.align-items-center.pb-2.mb-2.border-bottom
     .d-flex.align-items-center
-      lah-fa-icon(:icon="isEdit ? 'edit' : 'bullhorn'" :variant="isEdit ? 'warning' : 'primary'").mr-2
-      strong.h6.mb-0 {{ isEdit ? `編輯公告 #${dataJson.id}` : '發布全所公告' }}
-      b-badge.ml-2(:variant="isEdit ? 'warning' : 'primary'" pill) {{ isEdit ? '編輯模式' : '新增模式' }}
+      lah-fa-icon(icon="paper-plane" variant="primary").mr-2
+      strong.h6.mb-0 傳送訊息至【{{ targetDisplayName }}】
+      b-badge.ml-2(variant="primary" pill) 完整編輯
     .d-flex.align-items-center
       b-button-group(size="sm")
         b-dropdown(
@@ -12,14 +12,15 @@
           size="sm"
           right
           no-caret
-          title="快速套用常用公告範本"
+          title="快速套用常用訊息範本"
         )
           template(#button-content)
             lah-fa-icon(icon="magic").mr-1
             span 範本
-          b-dropdown-item(@click="applyTemplate('training')") 🎓 活動/教育訓練
-          b-dropdown-item(@click="applyTemplate('maintenance')") 💻 系統維護/停機公告
-          b-dropdown-item(@click="applyTemplate('meeting')") 📌 行政/會議通知
+          b-dropdown-item(@click="applyTemplate('work')") 💼 工作聯絡 / 業務回報
+          b-dropdown-item(@click="applyTemplate('meeting')") 📌 行政 / 會議提醒
+          b-dropdown-item(@click="applyTemplate('issue')") ⚠️ 系統問題 / 異常回報
+          b-dropdown-item(@click="applyTemplate('leave')") 🏖️ 請假 / 差勤報備
           b-dropdown-divider
           b-dropdown-item(@click="applyTemplate('empty')") 🧹 清空內文
         lah-button(
@@ -40,33 +41,19 @@
 
   .row
     div(:class="realtime ? 'col-lg-7 col-12' : 'col-12'")
-      //- 1. 緊急程度按鈕組
-      .bg-light.p-2.rounded.mb-2.border
-        .d-flex.align-items-center.justify-content-between.flex-wrap
-          .d-flex.align-items-center.mb-1.mb-md-0
-            lah-fa-icon.mr-1(icon="tachometer-alt" variant="info")
-            strong.small 緊急程度：
-          b-button-group(size="sm")
-            b-button(
-              v-for="p in priorityButtons"
-              :key="p.value"
-              :variant="priority === p.value ? p.activeVariant : 'outline-secondary'"
-              @click="priority = p.value"
-              size="sm"
-            ) {{ p.text }}
-
-      //- 2. 標題輸入區
+      //- 1. 標題輸入區 (選填)
       .mb-2
         .d-flex.justify-content-between.align-items-center.mb-1
           .d-flex.align-items-center
             lah-fa-icon.mr-1(icon="tag" variant="primary")
-            strong 標題 #[span.text-danger *]
+            strong 標題
+            span.small.text-muted.ml-1 (選填)
           b-badge(:variant="titleCharVariant" pill) {{ titleCharCount }} / 84 字元 (約 {{ titleChineseCount }} / 42 中文字)
         b-input-group(size="sm")
           b-input(
             v-model="title"
             :state="titleValid"
-            placeholder="例如：🐻❄️⚡【第四梯次】環境教育訓練 ⚡"
+            placeholder="可輸入訊息標題或主旨 (選填)"
             @focus="lastFocusedField = 'title'"
           )
         .d-flex.align-items-center.flex-wrap.mt-1.small
@@ -167,26 +154,19 @@
               style="width: 100px; height: 70px; object-fit: cover;"
             )
 
-      //- 7. 附加檔案展示區 (現有與新增)
-      .my-2(v-if="existingAttachments.length > 0 || uploadFiles.length > 0")
+      //- 7. 附加檔案展示區
+      .my-2(v-if="uploadFiles.length > 0")
         .d-flex.align-items-center.mb-1
           lah-fa-icon(icon="paperclip" variant="info").mr-1
-          strong.small 附加檔案
+          strong.small 待上傳附件 ({{ uploadFiles.length }} 個)
         .d-flex.flex-wrap.align-items-center
-          b-badge.mr-1.mb-1.p-2(
-            v-for="(att, aIdx) in existingAttachments"
-            :key="`exist_att_${aIdx}`"
-            variant="secondary"
-          )
-            lah-fa-icon(icon="file").mr-1
-            span [已上傳] {{ getAttachmentDisplayName(att.name) }} ({{ formatFileSize(att.size) }})
           b-badge.mr-1.mb-1.p-2(
             v-for="(f, fIdx) in uploadFiles"
             :key="`new_att_${fIdx}`"
             variant="info"
           )
             lah-fa-icon(icon="paperclip").mr-1
-            span [即將上傳] {{ f.name }} ({{ formatFileSize(f.size) }})
+            span {{ f.name }} ({{ formatFileSize(f.size) }})
             b-icon.ml-2(icon="x-circle" style="cursor: pointer;" @click="removeUploadFile(fIdx)")
 
       //- 8. 動作按鈕列
@@ -198,12 +178,12 @@
           @click="cancel"
         ) 取消
         lah-button(
-          :icon="isEdit ? 'save' : 'paper-plane'"
+          icon="paper-plane"
           :variant="notValid ? 'outline-primary' : 'primary'"
           :disabled="notValid || isSending"
           :is-busy="isSending"
           @click="send"
-        ) {{ isEdit ? '儲存公告' : '發布公告' }} (Ctrl+Enter)
+        ) 傳送訊息 (Ctrl+Enter)
 
     //- 右側：即時擬真預覽
     div(v-if="realtime" class="col-lg-5 col-12 mt-3 mt-lg-0")
@@ -212,11 +192,11 @@
           .font-weight-bold.small
             lah-fa-icon(icon="desktop" variant="success").mr-1
             span 即時擬真預覽
-          b-badge(variant="secondary" pill) 擬真卡片
+          b-badge(variant="secondary" pill) 訊息泡泡
         .preview-card-wrap.p-2.bg-light.rounded.border
-          lah-notification-announcement-card(
-            :data-json="previewDataJson"
-            :show-actions="false"
+          lah-messenger-message(
+            :raw="previewMessageJson"
+            :preview="true"
           )
 </template>
 
@@ -224,56 +204,46 @@
 import lahMessengerBase from '~/mixins/lah-messenger-base'
 import LahMessengerHelp from '~/components/lah-messenger-help.vue'
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
-import LahNotificationAnnouncementCard from '~/components/lah-notification-announcement-card.vue'
 
 export default {
-  name: 'LahMessengerMessageInputEditAnnouncement',
+  name: 'LahMessengerMessageInputModal',
   components: {
     LahMessengerHelp,
     LahMessengerImageUpload,
-    LahNotificationAnnouncementCard
+    LahMessengerMessage: () => import('~/components/lah-messenger-message.vue')
   },
   mixins: [lahMessengerBase],
   props: {
     dataJson: { type: Object, default: () => ({}) },
-    channel: { type: String, default: 'announcement' }
+    channel: { type: String, required: true },
+    channelName: { type: String, default: '' },
+    targetName: { type: String, default: '' }
   },
   data: () => ({
     realtime: true,
     lastFocusedField: 'content',
     title: '',
     content: '',
-    priority: 3,
+    priority: 2,
     images: [],
     uploadFiles: [],
     isSending: false,
-    priorityButtons: [
-      { text: '🟢 正常', value: 3, activeVariant: 'success' },
-      { text: '🔵 中等', value: 2, activeVariant: 'info' },
-      { text: '🟠 高度', value: 1, activeVariant: 'warning' },
-      { text: '🔴 最高', value: 0, activeVariant: 'danger' }
-    ],
     commonEmojis: [
+      '😀', '😁', '😂', '😃', '😄', '😅', '😆', '👍', '👌', '🙏',
       '🐻', '❄️', '⚡', '😎', '🌂', '💙', '📢', '📌', '⚠️', '🚨',
-      '💡', '⏰', '📅', '🍱', '☕', '🚌', '👍', '👏', '🎉', '✅',
-      '❌', '👉', '🔹', '⭐'
+      '💡', '⏰', '📅', '🍱', '☕', '🚌', '👏', '🎉', '✅', '❌'
     ],
     titlePrefixes: [
-      '【重要公告】', '【活動通知】', '【教育訓練】', '【系統維護】', '【會議通知】'
+      '【公事聯絡】', '【業務回報】', '【問題請教】', '【系統問題】', '【請假報備】', '【緊急通知】'
     ]
   }),
   computed: {
-    isEdit () {
-      return !this.$utils.empty(this.dataJson?.id) && this.dataJson.id !== 0 && this.dataJson.id !== '?'
-    },
-    existingAttachments () {
-      return Array.isArray(this.dataJson?.attachments) ? this.dataJson.attachments : []
-    },
-    allPreviewAttachments () {
-      return [
-        ...this.existingAttachments,
-        ...this.uploadFiles.map(f => ({ name: f.name, size: f.size }))
-      ]
+    targetDisplayName () {
+      if (this.channelName) { return this.channelName }
+      if (this.targetName) { return this.targetName }
+      if (this.channel === 'lds') { return '全事務所' }
+      if (this.userMap && this.userMap[this.channel]) { return this.userMap[this.channel] }
+      return this.channel
     },
     titleCharCount () {
       return this.$utils.length(this.title || '')
@@ -287,7 +257,7 @@ export default {
       return 'secondary'
     },
     titleValid () {
-      return !this.$utils.empty(this.title) && this.titleCharCount <= 84
+      return this.$utils.empty(this.title) || this.titleCharCount <= 84
     },
     validContent () {
       return !this.$utils.empty(this.content) || this.images.length > 0 || this.uploadFiles.length > 0
@@ -306,14 +276,25 @@ export default {
       }
       return c
     },
-    previewDataJson () {
+    fullMessageText () {
+      if (this.title && !this.mergedContent.includes(this.title)) {
+        return `### ${this.title}\n\n${this.mergedContent}`
+      }
+      return this.mergedContent
+    },
+    allPreviewAttachments () {
+      return this.uploadFiles.map(f => ({ name: f.name, size: f.size }))
+    },
+    previewMessageJson () {
       return {
-        id: this.dataJson?.id || '#',
-        title: this.title,
-        content: this.mergedContent,
-        priority: this.priority,
-        sender: this.dataJson?.sender || this.userid,
-        create_datetime: this.dataJson?.create_datetime || `${this.date()} ${this.time()}`,
+        id: 0,
+        channel: this.channel,
+        date: this.date(),
+        time: this.time(),
+        message: this.fullMessageText,
+        prepend: false,
+        sender: this.userid,
+        type: 'mine',
         attachments: this.allPreviewAttachments
       }
     }
@@ -326,7 +307,12 @@ export default {
   created () {
     this.title = this.dataJson?.title || ''
     this.content = this.dataJson?.content || ''
-    this.priority = typeof this.dataJson?.priority !== 'undefined' ? parseInt(this.dataJson.priority) : 3
+    if (Array.isArray(this.dataJson?.images)) {
+      this.images = [...this.dataJson.images]
+    }
+    if (Array.isArray(this.dataJson?.uploadFiles)) {
+      this.uploadFiles = [...this.dataJson.uploadFiles]
+    }
   },
   mounted () {
     this.updateModalSize(this.realtime)
@@ -346,7 +332,7 @@ export default {
           }
         }
         if (!dialog) {
-          dialog = document.querySelector('#announcement-modal .modal-dialog') ||
+          dialog = document.querySelector('#message-input-modal .modal-dialog') ||
                    document.querySelector('.modal.show .modal-dialog')
         }
         if (dialog) {
@@ -425,16 +411,16 @@ export default {
       this.modal(this.$createElement(LahMessengerImageUpload, {
         props: {
           to: this.channel,
-          modalId: 'image-upload-modal-announcement'
+          modalId: 'image-upload-modal-full'
         },
         on: {
           publish: (b64) => {
             !this.images.includes(b64) && this.images.push(b64)
-            this.hideModalById('image-upload-modal-announcement')
+            this.hideModalById('image-upload-modal-full')
           }
         }
       }), {
-        id: 'image-upload-modal-announcement',
+        id: 'image-upload-modal-full',
         size: 'md',
         title: '挑選圖片'
       })
@@ -457,20 +443,21 @@ export default {
     },
     applyTemplate (type) {
       switch (type) {
-        case 'training':
-          this.title = '🐻❄️⚡【第四梯次】環境教育訓練 ⚡'
-          this.content = '各位同仁好 😎\n明日為【第四梯次】環境教育訓練，地點為基隆海科館，且本次活動有提供早餐(包子饅頭)。\n\n請參加同仁於<font color="#0056b3"><b>7時45分</b></font>準時於國強一街車道口集合(<font color="#0056b3"><b>8:00準時出發</b></font>)，並請自行攜帶個人用品及雨具🌂\n\n💙另提醒尚未請公假的同仁，記得請公假喔~'
-          this.priority = 3
-          break
-        case 'maintenance':
-          this.title = '⚠️【系統維護】伺服器例行維護停機公告'
-          this.content = '各位同仁好 📢\n為進行伺服器系統維護作業，預計於下列時段暫停服務：\n- **停機時段**：<font color="#dc3545"><b>本週五 18:00 ～ 21:00</b></font>\n- **影響範圍**：地政便民服務系統、相關查詢作業\n- **注意事項**：請各同仁提早存檔並關閉系統。\n造成不便，敬請見諒！如有問題請洽資訊課。'
-          this.priority = 1
+        case 'work':
+          this.title = '【工作回報】業務處理進度'
+          this.content = '各位同仁好 💼\n今日相關業務進度回報如下：\n- **辦理項目**：\n- **目前進度**：<font color="#0056b3"><b>已完成</b></font>\n- **後續配合事項**：請承辦同仁撥空檢視，謝謝！'
           break
         case 'meeting':
-          this.title = '📌【會議通知】行政業務研討會議'
-          this.content = `各位同仁好 📌\n訂於下列時間召開行政業務研討會議，請準時出席：\n- **時間**：<font color="#0056b3"><b>${this.date()} 09:30</b></font>\n- **地點**：4樓第一會議室\n- **主席**：主任\n- **出列席**：各課室主管及業務承辦同仁\n- **備註**：請攜帶業務報告資料，謝謝配合！`
-          this.priority = 2
+          this.title = '【會議提醒】業務研討會議'
+          this.content = `各位同仁好 📌\n提醒今日會議時間與地點：\n- **時間**：<font color="#0056b3"><b>${this.date()} 09:30</b></font>\n- **地點**：會議室\n- **備註**：請準時與會，謝謝！`
+          break
+        case 'issue':
+          this.title = '【系統問題】操作異常回報'
+          this.content = `資訊課同仁您好 ⚠️\n目前系統操作發生異常，情況如下：\n- **系統名稱**：\n- **問題描述**：\n- **發生時間**：${this.time()}\n請協助確認，謝謝！`
+          break
+        case 'leave':
+          this.title = '【差勤報備】公出 / 請假通知'
+          this.content = '各位同仁好 🏖️\n今日因公外出/請假事由如下：\n- **差勤類別**：\n- **起訖時間**：\n- **職務代理人**：\n如有緊急事務請聯繫代理人，謝謝！'
           break
         case 'empty':
           this.content = ''
@@ -481,7 +468,6 @@ export default {
     resetFields () {
       this.title = this.dataJson?.title || ''
       this.content = this.dataJson?.content || ''
-      this.priority = typeof this.dataJson?.priority !== 'undefined' ? parseInt(this.dataJson.priority) : 3
       this.images = []
       this.uploadFiles = []
     },
@@ -493,80 +479,40 @@ export default {
     },
     cancel () {
       this.$emit('cancel')
-      this.$bvModal && this.$bvModal.hide('announcement-modal')
-      this.$bvModal && this.$bvModal.hide('message-edit-modal')
+      this.$bvModal && this.$bvModal.hide('message-input-modal')
     },
-    async send () {
+    send () {
       if (this.notValid) {
         return
       }
       if (!this.websocket || this.websocket.readyState !== 1) {
-        this.warning('即時通 WebSocket 尚未連線，無法送出公告')
+        this.warning('即時通 WebSocket 尚未連線，無法送出訊息')
         return
       }
       this.isSending = true
       try {
-        if (this.isEdit) {
-          const payload = {
-            id: this.dataJson.id,
+        if (this.uploadFiles.length > 0) {
+          const filesToUpload = [...this.uploadFiles]
+          this.uploadFiles = []
+          this.$store.commit('addPendingAttachmentUpload', {
             channel: this.channel,
-            title: this.title,
-            content: this.mergedContent,
-            priority: this.priority
-          }
-          const json = {
-            type: 'command',
-            sender: this.userid,
-            date: this.date(),
-            time: this.time(),
-            channel: 'system',
-            message: JSON.stringify({
-              command: 'edit_message',
-              channel: this.channel,
-              id: this.dataJson.id,
-              payload
-            })
-          }
-          this.websocket.send(JSON.stringify(json))
-          if (this.uploadFiles.length > 0) {
-            const filesToUpload = [...this.uploadFiles]
-            this.uploadFiles = []
-            for (const file of filesToUpload) {
-              try {
-                await this.uploadAttachment(this.channel, this.dataJson.id, file)
-                this.notify(`公告 #${this.dataJson.id} 附件 ${file.name} 上傳成功`, { type: 'success' })
-              } catch (err) {
-                this.$utils.error(`上傳 ${file.name} 失敗`, err)
-                this.notify(`公告 #${this.dataJson.id} 附件 ${file.name} 上傳失敗: ${err.message}`, { type: 'danger' })
-              }
-            }
-          }
-          this.notify('公告已成功更新', { type: 'success' })
-          this.$emit('sent', payload)
-        } else {
-          // 新增公告模式
-          if (this.uploadFiles.length > 0) {
-            const filesToUpload = [...this.uploadFiles]
-            this.uploadFiles = []
-            this.$store.commit('addPendingAttachmentUpload', {
-              channel: this.channel,
-              files: filesToUpload
-            })
-          }
-          const packet = this.packMessage(this.mergedContent, {
-            channel: this.channel || 'announcement',
-            title: this.title,
-            priority: this.priority
-          })
-          this.websocket.send(packet)
-          this.notify('公告發布成功', { type: 'success' })
-          this.$emit('sent', {
-            channel: this.channel,
-            title: this.title,
-            content: this.mergedContent,
-            priority: this.priority
+            files: filesToUpload
           })
         }
+        const packet = this.packMessage(this.fullMessageText, {
+          channel: this.channel,
+          title: this.title || 'dontcare',
+          priority: this.priority
+        })
+        this.websocket.send(packet)
+        this.notify('訊息傳送成功', { type: 'success' })
+        this.$emit('sent', {
+          channel: this.channel,
+          title: this.title,
+          content: this.fullMessageText,
+          priority: this.priority
+        })
+        this.$bvModal && this.$bvModal.hide('message-input-modal')
       } catch (e) {
         this.alert(e.message)
       } finally {
@@ -578,7 +524,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.lah-messenger-message-input-edit-announcement {
+.lah-messenger-message-input-modal {
   .content-textarea {
     border-top-left-radius: 0;
     border-top-right-radius: 0;

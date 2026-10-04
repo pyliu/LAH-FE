@@ -111,6 +111,13 @@ b-card.channel-card(no-body)
           style="display: none"
           @change="handleFileChange"
         )
+        b-button.mr-1(
+          size="sm"
+          @click="openFullEditor"
+          variant="outline-primary"
+          title="開啟完整編輯視窗"
+        )
+          b-icon(icon="pencil-square")
       span.small.text-muted.mr-1(style="font-size: 0.75rem;") Ctrl+Enter 快速傳送
 </template>
 
@@ -119,13 +126,15 @@ import lahMessengerBase from '~/mixins/lah-messenger-base'
 import LahMessengerMessage from '~/components/lah-messenger-message.vue'
 import LahMessengerEmojiPickup from '~/components/lah-messenger-emoji-pickup.vue'
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
+import LahMessengerMessageInputModal from '~/components/lah-messenger-message-input-modal.vue'
 
 export default {
   name: 'LahMessengerChannelLds',
   components: {
     LahMessengerMessage,
     LahMessengerEmojiPickup,
-    LahMessengerImageUpload
+    LahMessengerImageUpload,
+    LahMessengerMessageInputModal
   },
   mixins: [lahMessengerBase],
   data: () => ({
@@ -435,6 +444,37 @@ export default {
         scroll()
         this.$nextTick(scroll)
       }
+    },
+    openFullEditor () {
+      this.modal(this.$createElement(LahMessengerMessageInputModal, {
+        props: {
+          channel: 'lds',
+          channelName: '全事務所',
+          dataJson: {
+            title: '',
+            content: this.inputText,
+            images: [...this.inputImages],
+            uploadFiles: [...this.uploadFiles],
+            priority: 2
+          }
+        },
+        on: {
+          sent: () => {
+            this.inputText = ''
+            this.inputImages = []
+            this.uploadFiles = []
+            this.hideModalById('message-input-modal')
+            this.$nextTick(this.scrollToBottom)
+          },
+          cancel: () => {
+            this.hideModalById('message-input-modal')
+          }
+        }
+      }), {
+        id: 'message-input-modal',
+        size: 'xl',
+        title: '完整編輯視窗 - 【全事務所】'
+      })
     }
   }
 }

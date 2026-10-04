@@ -66,6 +66,11 @@ div(style="position:relative" @paste="pasteImage($event, pasted)")
           style="display: none"
           @change="handleFileChange"
         )
+        b-button.mr-1(
+          @click="openFullEditor"
+          variant="outline-primary"
+          title="開啟完整編輯視窗"
+        ): b-icon(icon="pencil-square")
         b-button(
           @click="help"
           variant="success"
@@ -127,6 +132,7 @@ import LahMessengerHelp from '~/components/lah-messenger-help.vue'
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
 import LahMessengerEmojiPickup from '~/components/lah-messenger-emoji-pickup.vue'
 import LahMessengerAnnouncementCard from '~/components/lah-messenger-announcement-card.vue'
+import LahMessengerMessageInputModal from '~/components/lah-messenger-message-input-modal.vue'
 
 export default {
   name: 'LahMessengerMessageInput',
@@ -135,7 +141,8 @@ export default {
     LahMessengerAnnouncementCard,
     LahMessengerMessage: () => import('~/components/lah-messenger-message.vue'),
     LahMessengerEmojiPickup,
-    LahMessengerHelp
+    LahMessengerHelp,
+    LahMessengerMessageInputModal
   },
   mixins: [lahMessengerBase],
   props: {
@@ -383,6 +390,45 @@ export default {
         this.images = []
         this.$emit('sent')
       }
+    },
+    openFullEditor () {
+      const targetChannel = this.isAnnouncementChannel
+        ? (this.to || this.currentChannel || 'announcement')
+        : (this.toUser || this.to)
+      const targetTitle = this.isAnnouncementChannel
+        ? '全所公告'
+        : (this.userMap[this.toUser] || this.toUser || this.to)
+
+      this.modal(this.$createElement(LahMessengerMessageInputModal, {
+        props: {
+          channel: targetChannel,
+          channelName: targetTitle,
+          dataJson: {
+            title: this.messageTitle,
+            content: this.message,
+            images: [...this.images],
+            uploadFiles: [...this.uploadFiles],
+            priority: this.priority
+          }
+        },
+        on: {
+          sent: () => {
+            this.message = ''
+            this.messageTitle = ''
+            this.images = []
+            this.uploadFiles = []
+            this.hideModalById('message-input-modal')
+            this.$emit('sent')
+          },
+          cancel: () => {
+            this.hideModalById('message-input-modal')
+          }
+        }
+      }), {
+        id: 'message-input-modal',
+        size: 'xl',
+        title: `完整編輯視窗 - 【${targetTitle}】`
+      })
     }
   }
 }
