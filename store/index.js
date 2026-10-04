@@ -132,7 +132,9 @@ export const state = () => ({
   },
   windowVisible: true,
   isDashboardActive: false,
-  isPersonalDrawerOpen: false
+  isPersonalDrawerOpen: false,
+  pendingAttachmentUploads: [],
+  wsHttpPort: 8082
 })
 
 /**
@@ -278,7 +280,9 @@ export const getters = {
   imageMementoCacheKey: () => 'imageMementoCached',
   messageMementoCacheKey: () => 'messageMementoCached',
   regexpMarkdImage: () => /!\[.+\]\(.+\)/igm,
-  regexpReplyHeader: () => /^(<p>)?給.+?(<\/p>)?\n?(<hr.*\/?>|\*{3})/igm
+  regexpReplyHeader: () => /^(<p>)?給.+?(<\/p>)?\n?(<hr.*\/?>|\*{3})/igm,
+  pendingAttachmentUploads: state => state.pendingAttachmentUploads,
+  wsHttpPort: state => state.wsHttpPort || 8082
 }
 
 /**
@@ -514,6 +518,26 @@ export const mutations = {
   },
   notifySettings (state, payload) {
     state.notifySettings = { ...state.notifySettings, ...payload }
+  },
+  wsHttpPort (state, port) {
+    state.wsHttpPort = port
+  },
+  addPendingAttachmentUpload (state, item) {
+    state.pendingAttachmentUploads.push({
+      id: +new Date() + '_' + Math.random(),
+      channel: String(item.channel),
+      files: item.files,
+      timestamp: +new Date()
+    })
+  },
+  removePendingAttachmentUpload (state, id) {
+    const idx = state.pendingAttachmentUploads.findIndex(i => i.id === id)
+    if (idx > -1) {
+      state.pendingAttachmentUploads.splice(idx, 1)
+    }
+  },
+  clearPendingAttachmentUploads (state) {
+    state.pendingAttachmentUploads = []
   }
 }
 

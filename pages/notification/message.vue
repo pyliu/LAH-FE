@@ -324,6 +324,15 @@ div.message-admin-page
                 b-button(variant="white" size="sm" @click="insertDivider" title="分隔線") ―
                 b-button(variant="white" size="sm" @click="insertLink" title="超連結")
                   lah-fa-icon(icon="link")
+                b-button(variant="white" size="sm" @click="pickAttachment" title="附加檔案")
+                  lah-fa-icon(icon="paperclip")
+                input(
+                  ref="fileInput"
+                  type="file"
+                  multiple
+                  style="display: none"
+                  @change="handleFileChange"
+                )
 
             //- 常用 Emoji 快捷盤
             .emoji-palette.d-flex.align-items-center.flex-wrap.p-1.bg-white.border-left.border-right
@@ -370,7 +379,23 @@ div.message-admin-page
                   style="width: 120px; height: 80px; object-fit: cover;"
                 )
 
-          //- 5. 大號送出按鈕
+          //- 5. 附加檔案展示區
+          .mb-3(v-if="uploadFiles.length > 0")
+            .d-flex.align-items-center.mb-1
+              lah-fa-icon(icon="paperclip" variant="info").mr-1
+              strong 附加檔案 ({{ uploadFiles.length }} 個)
+              span.text-muted.small.ml-2 (點擊 X 可移除)
+            .d-flex.flex-wrap.align-items-center
+              b-badge.mr-1.mb-1.p-2(
+                v-for="(f, fIdx) in uploadFiles"
+                :key="`msg_file_${fIdx}`"
+                variant="info"
+              )
+                lah-fa-icon(icon="paperclip").mr-1
+                span {{ f.name }} ({{ formatFileSize(f.size) }})
+                b-icon.ml-2(icon="x-circle" style="cursor: pointer;" @click="removeUploadFile(fIdx)")
+
+          //- 6. 大號送出按鈕
           .text-center.mt-3
             lah-button(
               icon="paper-plane"
@@ -447,6 +472,20 @@ div.message-admin-page
               //- 內文預覽 (解析 {{b}}、{{r}}、時間醒目、Markdown 與附加截圖)
               client-only
                 .bubble-content(v-html="renderedPreview")
+              //- 附加檔案預覽
+              .bubble-attachments.mt-2.pt-1.border-top(v-if="uploadFiles.length > 0")
+                .small.font-weight-bold.text-muted.mb-1
+                  lah-fa-icon(icon="paperclip").mr-1
+                  span 附加檔案 ({{ uploadFiles.length }})
+                .d-flex.flex-wrap
+                  b-badge.mr-1.mb-1.p-1(
+                    v-for="(att, aIdx) in uploadFiles"
+                    :key="`bubble_att_${aIdx}`"
+                    variant="light"
+                    class="border text-dark"
+                  )
+                    lah-fa-icon(icon="file").mr-1
+                    span {{ att.name }} ({{ formatFileSize(att.size) }})
               //- 右下角操作圖示與時間
               .bubble-meta.d-flex.align-items-center.justify-content-end.mt-1
                 span.bubble-action.text-danger.mr-1(title="移除") ❌
@@ -538,6 +577,17 @@ div.message-admin-page
               //- 內文預覽
               client-only
                 .hist-content-preview(v-html="renderHistoryHtml(snapshot.content)")
+              //- 附加檔案預覽
+              .small.text-muted.mt-2.pt-1.border-top(v-if="snapshot.attachments && snapshot.attachments.length > 0")
+                lah-fa-icon(icon="paperclip").mr-1
+                span 附加檔案 ({{ snapshot.attachments.length }})
+                .d-flex.flex-wrap.mt-1
+                  b-badge.mr-1.mb-1.p-1(
+                    v-for="(att, aIdx) in snapshot.attachments"
+                    :key="`hist_att_${aIdx}`"
+                    variant="light"
+                    class="border text-dark"
+                  ) {{ att.name }} ({{ formatFileSize(att.size) }})
 
   //- 側欄：Markdown 簡易說明
   b-sidebar#md-desc(
@@ -644,6 +694,8 @@ div.message-admin-page
 </template>
 
 <script>
+import lahMessengerBase from '~/mixins/lah-messenger-base'
+
 const DEPT_CHANNELS = [
   { code: 'inf', name: '資訊課', icon: 'laptop-code', variant: 'primary', desc: '資訊課專屬推播頻道' },
   { code: 'adm', name: '行政課', icon: 'file-signature', variant: 'info', desc: '行政課專屬推播頻道' },
@@ -657,6 +709,7 @@ const DEPT_CHANNELS = [
 ]
 
 export default {
+  mixins: [lahMessengerBase],
   data: () => ({
     dataJson: {
       title: '',
@@ -674,6 +727,7 @@ export default {
     userFilterDept: 'all',
     candidatesEntries: [],
     images: [],
+    uploadFiles: [],
     memento: [],
     mementoCapacity: 30,
     mementoCount: 3,
@@ -787,7 +841,7 @@ export default {
       return this.totalSelectedCount > 0
     },
     validContent () {
-      return !this.$utils.empty(this.dataJson.content) || this.images.length > 0
+      return !this.$utils.empty(this.dataJson.content) || this.images.length > 0 || this.uploadFiles.length > 0
     },
     sendButtonDisabled () {
       return !this.validContent || !this.validSendto || this.isBusy
@@ -1139,6 +1193,7 @@ export default {
       this.dataJson.title = ''
       this.dataJson.content = ''
       this.images = []
+      this.uploadFiles = []
     },
     formatCustomTags (content) {
       if (!content) { return '' }
@@ -1276,6 +1331,26 @@ export default {
         this.images.splice(index, 1)
       }
     },
+    pickAttachment () {
+      this.$refs.fileInput && this.$refs.fileInput.click()
+    },
+    handleFileChange (e) {
+      const files = Array.from(e.target?.files || [])
+      if (!files.length) { return }
+      files.forEach((file) => {
+        if (!this.uploadFiles.some(f => f.name === file.name && f.size === file.size)) {
+          this.uploadFiles.push(file)
+        }
+      })
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ''
+      }
+    },
+    removeUploadFile (index) {
+      if (index >= 0 && index < this.uploadFiles.length) {
+        this.uploadFiles.splice(index, 1)
+      }
+    },
     async restoreCachedMemento () {
       const cached = await this.getCache(this.cacheKey)
       if (cached) {
@@ -1314,6 +1389,7 @@ export default {
       this.dataJson.title = snapshot.title || ''
       this.dataJson.content = snapshot.content || ''
       this.dataJson.priority = snapshot.priority || 3
+      this.uploadFiles = []
       this.hideModalById('message-history-modal')
       const el = this.$refs.addCard?.$el || this.$refs.addCard
       if (el) {
@@ -1369,7 +1445,7 @@ export default {
           return
         }
       }
-      this.confirm(`確定要發送訊息至「${this.effectiveTargetSummary}」?`).then((flag) => {
+      this.confirm(`確定要發送訊息至「${this.effectiveTargetSummary}」?`).then(async (flag) => {
         if (flag) {
           this.isBusy = true
           const finalContent = this.mergedContent
@@ -1380,24 +1456,47 @@ export default {
             content: finalContent,
             priority: this.dataJson.priority,
             sender: this.myid || this.ip,
+            attachments: this.uploadFiles.map(f => ({ name: f.name, size: f.size })),
             create_datetime: this.$utils.now()
           }
-          this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
-            type: 'add_notification',
-            ...snapshot
-          }).then(({ data }) => {
+          try {
+            const { data } = await this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
+              type: 'add_notification',
+              ...snapshot
+            })
             this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning' })
             if (data.status > 0) {
               snapshot.added_to = data.added
+              if (this.uploadFiles && this.uploadFiles.length > 0 && Array.isArray(data.added)) {
+                let uploadCount = 0
+                for (const added of data.added) {
+                  if (!added.channel || !added.addedId) {
+                    this.$utils.warn && this.$utils.warn('新增頻道回傳之 ID 無效，略過上傳附件:', added)
+                    continue
+                  }
+                  for (const file of this.uploadFiles) {
+                    try {
+                      await this.uploadAttachment(added.channel, added.addedId, file)
+                      uploadCount++
+                    } catch (e) {
+                      this.$utils.error('上傳附件失敗:', e)
+                      this.notify(`上傳附件 ${file.name} 至頻道 ${added.channel} 失敗: ${e.message}`, { type: 'danger' })
+                    }
+                  }
+                }
+                if (uploadCount > 0) {
+                  this.notify(`已完成 ${uploadCount} 個附件上傳`, { type: 'success' })
+                }
+              }
             }
-          }).catch((err) => {
+          } catch (err) {
             this.alert(err.message)
             this.$utils.error(err)
-          }).finally(() => {
+          } finally {
             this.isBusy = false
             this.addMemento(snapshot)
             this.resetAll()
-          })
+          }
         }
       })
     }

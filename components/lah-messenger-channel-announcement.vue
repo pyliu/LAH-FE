@@ -55,13 +55,13 @@ b-card.channel-card(no-body header-class="channel-card-header")
 <script>
 import lahMessengerBase from '~/mixins/lah-messenger-base'
 import LahMessengerMessage from '~/components/lah-messenger-message.vue'
-import LahMessengerMessageInput from '~/components/lah-messenger-message-input.vue'
+import LahMessengerMessageInputEditAnnouncement from '~/components/lah-messenger-message-input-edit-announcement.vue'
 
 export default {
   name: 'LahMessengerChannelAnnouncement',
   components: {
     LahMessengerMessage,
-    LahMessengerMessageInput
+    LahMessengerMessageInputEditAnnouncement
   },
   mixins: [lahMessengerBase],
   data: () => ({
@@ -288,10 +288,14 @@ export default {
     },
     openPostAnnouncement () {
       this.$store.commit('currentChannel', 'announcement')
-      this.modal(this.$createElement(LahMessengerMessageInput, {
+      this.modal(this.$createElement(LahMessengerMessageInputEditAnnouncement, {
         props: {
-          to: 'announcement',
-          pickUser: false
+          channel: 'announcement',
+          dataJson: {
+            title: '',
+            content: '',
+            priority: 3
+          }
         },
         on: {
           sent: () => {
@@ -301,7 +305,7 @@ export default {
         }
       }), {
         id: 'announcement-modal',
-        size: 'lg',
+        size: 'xl',
         title: '發布全所公告'
       })
     },

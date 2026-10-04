@@ -121,6 +121,32 @@ Vue.mixin({
       }
     }
   },
+  beforeCreate () {
+    if (this.$options.bvParent) {
+      if (!this.$parent) {
+        this.$parent = this.$options.bvParent
+      }
+      if (this.$options.bvParent.$root) {
+        this.$root = this.$options.bvParent.$root
+      }
+    } else if (this.$parent && this.$parent.$root && this.$root !== this.$parent.$root) {
+      this.$root = this.$parent.$root
+    }
+
+    if (!this.$store) {
+      if (this.$options.bvParent && this.$options.bvParent.$store) {
+        this.$store = this.$options.bvParent.$store
+      } else if (this.$parent && this.$parent.$store) {
+        this.$store = this.$parent.$store
+      } else if (this.$root && this.$root.$store) {
+        this.$store = this.$root.$store
+      } else if (Vue.prototype.$store) {
+        this.$store = Vue.prototype.$store
+      }
+    } else if (!Vue.prototype.$store) {
+      Vue.prototype.$store = this.$store
+    }
+  },
   methods: {
     empty (val) {
       return this.$utils?.empty ? this.$utils.empty(val) : isEmpty(val)

@@ -9,6 +9,22 @@ b-card.announcement-card.w-100(
     span.mr-auto.text-truncate(:title="dataJson.title") {{ dataJson.title }}
     span.ml-1.text-nowrap \#{{ dataJson.id }}
   b-card-text(ref="content" v-html="content" @click="handleSpecialClick($event)")
+  .attachments.mt-2.pt-2.border-top(v-if="attachments && attachments.length > 0")
+    .small.text-muted.mb-1
+      b-icon.mr-1(icon="paperclip")
+      span 附加檔案 ({{ attachments.length }})
+    .d-flex.flex-wrap.align-items-center
+      b-button.mr-2.mb-1.text-left(
+        v-for="(att, aIdx) in attachments"
+        :key="`card_att_${dataJson.id}_${aIdx}`"
+        size="sm"
+        variant="outline-secondary"
+        @click="downloadAttachment(channel, dataJson.id, att.name)"
+        :title="`點擊下載：${getAttachmentDisplayName(att.name)} (${formatFileSize(att.size)})`"
+      )
+        b-icon.mr-1(icon="paperclip")
+        span.small.text-truncate(style="max-width: 200px; display: inline-block; vertical-align: middle;") {{ getAttachmentDisplayName(att.name) }}
+        b-badge.ml-1(variant="light") {{ formatFileSize(att.size) }}
 
   template(#footer): .protected-footer.d-flex.justify-content-between.align-items-center.text-muted
     span {{ dataJson.sender }}#[span.ml-1(v-if="sender !== dataJson.sender") {{ sender }}]
@@ -82,6 +98,12 @@ export default {
         }
       }
       return this.$utils.replaceFilepath(markd)
+    },
+    attachments () {
+      if (Array.isArray(this.dataJson?.attachments)) {
+        return this.dataJson.attachments
+      }
+      return []
     }
   },
   methods: {
@@ -107,7 +129,7 @@ export default {
         }
       }), {
         id: 'message-edit-modal',
-        size: 'md',
+        size: 'xl',
         title: '編輯公告'
       })
     },

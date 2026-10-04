@@ -51,7 +51,20 @@
     )
 
     //- 遠端或系統文字訊息
-    p(ref="remoteMessage" v-else-if="!myMessage" v-html="message" @click="handleSpecialClick($event)")
+    .d-flex.flex-column.align-items-start(v-else-if="!myMessage" style="max-width: 85%;")
+      p.message-bubble(ref="remoteMessage" v-html="message" @click="handleSpecialClick($event)" style="max-width: 100%;")
+      .attachments.d-flex.flex-wrap.align-items-center.mt-1(v-if="attachments.length > 0")
+        b-button.mr-1.mb-1.p-1.text-left(
+          v-for="(att, aIdx) in attachments"
+          :key="`att_${id}_${aIdx}`"
+          size="sm"
+          variant="outline-secondary"
+          @click="downloadAttachment(channel, id, att.name)"
+          :title="`點擊下載：${getAttachmentDisplayName(att.name)} (${formatFileSize(att.size)})`"
+        )
+          b-icon.mr-1(icon="paperclip")
+          span.small.text-truncate(style="max-width: 160px; display: inline-block; vertical-align: middle;") {{ getAttachmentDisplayName(att.name) }}
+          b-badge.ml-1(variant="light") {{ formatFileSize(att.size) }}
 
     //- 狀態、時間與操作按鈕
     .time.s-60.mx-1.text-muted.text-right(
@@ -95,12 +108,25 @@
           div(v-if="!isAnnouncement", v-b-tooltip.v-secondary.bottom="timeDistance") {{ mtime }}
 
     //- 自己的文字訊息
-    p(
-      v-if="myMessage"
-      ref="myMessage"
-      v-html="message"
-      @click="handleSpecialClick($event)"
-    )
+    .d-flex.flex-column.align-items-end(v-if="myMessage" style="max-width: 85%;")
+      p.message-bubble(
+        ref="myMessage"
+        v-html="message"
+        @click="handleSpecialClick($event)"
+        style="max-width: 100%;"
+      )
+      .attachments.d-flex.flex-wrap.align-items-center.mt-1(v-if="attachments.length > 0")
+        b-button.ml-1.mb-1.p-1.text-left(
+          v-for="(att, aIdx) in attachments"
+          :key="`att_my_${id}_${aIdx}`"
+          size="sm"
+          variant="outline-success"
+          @click="downloadAttachment(channel, id, att.name)"
+          :title="`點擊下載：${getAttachmentDisplayName(att.name)} (${formatFileSize(att.size)})`"
+        )
+          b-icon.mr-1(icon="paperclip")
+          span.small.text-truncate(style="max-width: 160px; display: inline-block; vertical-align: middle;") {{ getAttachmentDisplayName(att.name) }}
+          b-badge.ml-1(variant="light") {{ formatFileSize(att.size) }}
 
 </template>
 
@@ -145,6 +171,15 @@ export default {
     system () { return this.sender === 'system' },
     id () { return this.raw?.id },
     type () { return this.raw?.type },
+    attachments () {
+      if (Array.isArray(this.raw?.attachments)) {
+        return this.raw.attachments
+      }
+      if (typeof this.raw?.message === 'object' && Array.isArray(this.raw.message.attachments)) {
+        return this.raw.message.attachments
+      }
+      return []
+    },
 
     isToday () {
       const d = new Date()
@@ -378,6 +413,7 @@ export default {
     width: 100%;
   }
 
+  p.message-bubble,
   > p {
     display: inline-block;
     border-radius: 8px;
@@ -451,15 +487,19 @@ export default {
   }
 
   &.is-today {
+    p.message-bubble,
     > p {
       background: #fdfdfd;
       border-left: 4px solid #17a2b8;
     }
 
-    &.mine > p {
-      background: #e6f9eb;
-      border-left: 0;
-      border-right: 4px solid #28a745;
+    &.mine {
+      p.message-bubble,
+      > p {
+        background: #e6f9eb;
+        border-left: 0;
+        border-right: 4px solid #28a745;
+      }
     }
 
     .today-card {
@@ -469,6 +509,7 @@ export default {
   }
 
   &.mine {
+    p.message-bubble,
     > p {
       background: #dcf8c6;
       color: #000;

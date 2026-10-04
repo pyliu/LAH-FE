@@ -70,6 +70,13 @@ b-card.channel-card(no-body)
       .position-relative.m-1(v-for="(img, idx) in inputImages" :key="`personal-img-${idx}`")
         b-img(:src="img" thumbnail style="max-height: 50px; max-width: 70px;")
         b-button.close-btn(size="sm" variant="danger" @click="inputImages.splice(idx, 1)") ✕
+    //- 待上傳附件預覽
+    .d-flex.flex-wrap.align-items-center.p-1.mb-1.bg-light.rounded.border(v-if="uploadFiles.length > 0")
+      span.small.text-muted.mr-1 待上傳附件:
+      b-badge.mr-1.mb-1.p-1(v-for="(f, fIdx) in uploadFiles" :key="`personal-att-${fIdx}`" variant="info")
+        b-icon.mr-1(icon="paperclip")
+        span {{ f.name }} ({{ formatFileSize(f.size) }})
+        b-icon.ml-1(icon="x-circle" style="cursor: pointer;" @click="removeUploadFile(fIdx)")
     //- 表情符號彈出視窗
     lah-transition(fade): .float-emoji(v-if="showEmoji")
       .d-flex.justify-content-between.align-items-center.px-1.mb-1.border-bottom.pb-1
@@ -87,25 +94,45 @@ b-card.channel-card(no-body)
         no-resize
         rows="2"
       )
-      b-button.ml-1(
+      b-button.ml-1.d-flex.flex-column.align-items-center.justify-content-center(
         @click="send"
         :variant="isValid ? 'primary' : 'outline-primary'"
         :disabled="!isValid"
-        title="傳送私訊"
+        title="傳送私訊 (Ctrl+Enter)"
+        style="min-width: 48px;"
       )
         b-icon(icon="cursor" rotate="45")
-      b-button.mx-1(
-        @click="showEmoji = !showEmoji"
-        variant="outline-secondary"
-        title="表情符號"
-      )
-        span.h6 😀
-      b-button(
-        @click="pickImage"
-        variant="outline-success"
-        title="附加圖片"
-      )
-        b-icon(icon="image")
+    .d-flex.align-items-center.justify-content-between.mt-1
+      .d-flex.align-items-center
+        b-button.mr-1(
+          size="sm"
+          @click="showEmoji = !showEmoji"
+          variant="outline-secondary"
+          title="表情符號"
+        )
+          span.h6.mb-0 😀
+        b-button.mr-1(
+          size="sm"
+          @click="pickImage"
+          variant="outline-success"
+          title="附加圖片"
+        )
+          b-icon(icon="image")
+        b-button.mr-1(
+          size="sm"
+          @click="pickAttachment"
+          variant="outline-info"
+          title="附加檔案"
+        )
+          b-icon(icon="paperclip")
+        input(
+          ref="fileInput"
+          type="file"
+          multiple
+          style="display: none"
+          @change="handleFileChange"
+        )
+      span.small.text-muted.mr-1(style="font-size: 0.75rem;") Ctrl+Enter 快速傳送
 </template>
 
 <script>
@@ -136,6 +163,7 @@ export default {
     currentTargetUser: '',
     inputText: '',
     inputImages: [],
+    uploadFiles: [],
     showEmoji: false,
     isFetchingHistory: false,
     isRefreshing: false,
@@ -173,7 +201,7 @@ export default {
       return this.sortMessages(msgs)
     },
     isValid () {
-      return !this.$utils.empty(this.inputText?.trim()) || this.inputImages.length > 0
+      return (this.uploadFiles && this.uploadFiles.length > 0) || !this.$utils.empty(this.inputText?.trim()) || this.inputImages.length > 0
     }
   },
   watch: {
@@ -371,6 +399,17 @@ export default {
       )
       this.notify(`正在載入【${this.displayTitle}】較早歷史訊息...`, { variant: 'info' })
     },
+    pickAttachment () {
+      this.$refs.fileInput?.click()
+    },
+    handleFileChange (e) {
+      const files = Array.from(e.target.files || [])
+      files.forEach(f => this.uploadFiles.push(f))
+      e.target.value = ''
+    },
+    removeUploadFile (idx) {
+      this.uploadFiles.splice(idx, 1)
+    },
     send () {
       if (!this.isValid) {
         return
@@ -379,6 +418,20 @@ export default {
         this.warning('即時通連線未就緒，無法發送訊息')
         return
       }
+
+      const hasFiles = this.uploadFiles.length > 0
+      const filesToUpload = hasFiles ? [...this.uploadFiles] : []
+      if (hasFiles) {
+        this.$store.commit('addPendingAttachmentUpload', {
+          channel: this.targetUserId,
+          files: filesToUpload
+        })
+        this.uploadFiles = []
+        if (this.empty(this.inputText) && (!this.inputImages || this.inputImages.length === 0)) {
+          this.inputText = filesToUpload.map(f => f.name).join(', ')
+        }
+      }
+
       let imgMdText = (this.inputImages || [])
         .map((base64, idx) => `![preview-${idx}](${base64})`)
         .join('\n')

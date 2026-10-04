@@ -715,6 +715,10 @@ export default {
             this.sortChannelMessages(channel)
           }
 
+          if (receivedId > 0 && channel && (incoming.sender === this.userid || (incoming.message && typeof incoming.message === 'object' && incoming.message.sender === this.userid))) {
+            this.handleCreatedMessageForUpload(channel, receivedId)
+          }
+
           const activeChannel = this.getCurrentActiveChannel()
           const isPersonalChannel =
             (channel && (channel || '').toUpperCase() === (this.userid || '').toUpperCase()) ||
@@ -872,6 +876,47 @@ export default {
         case 'update_current_channel':
           this.setConnectText(json.message)
           break
+        case 'private_message':
+          if (json.success && json.payload) {
+            const insertedId = json.payload.insertedId
+            const insertedChannel = json.payload.channel
+            if (insertedId && insertedChannel) {
+              this.handleCreatedMessageForUpload(insertedChannel, insertedId)
+            }
+          }
+          break
+        case 'attachment_uploaded': {
+          const attPayload = json.payload || {}
+          const attChannel = attPayload.channel
+          const attMsgId = parseInt(attPayload.message_id) || 0
+          const newAttachments = attPayload.attachments || []
+          if (!attChannel || !attMsgId) {
+            break
+          }
+          const updateMsgAttachments = (msgList) => {
+            if (!Array.isArray(msgList)) {
+              return false
+            }
+            const targetMsg = msgList.find((m) => {
+              const mid = this.extractMessageId(m)
+              return mid === attMsgId
+            })
+            if (targetMsg) {
+              this.$set(targetMsg, 'attachments', newAttachments)
+              if (targetMsg.message && typeof targetMsg.message === 'object') {
+                this.$set(targetMsg.message, 'attachments', newAttachments)
+              }
+              return true
+            }
+            return false
+          }
+          updateMsgAttachments(this.messages[attChannel])
+          if (attChannel !== this.userid) {
+            updateMsgAttachments(this.messages[this.userid])
+          }
+          this.setConnectText(`${attPayload.file?.name || '附件'} 上傳成功`)
+          break
+        }
         default:
           break
       }
@@ -1042,6 +1087,30 @@ export default {
         this.processingQueue = false
         this.processQueue()
       }, 1000)
+    },
+    async handleCreatedMessageForUpload (channel, messageId) {
+      if (!channel || !messageId) { return }
+      const pending = (this.pendingAttachmentUploads || []).filter(
+        item => item.channel === String(channel)
+      )
+      if (pending.length === 0) { return }
+
+      for (const item of pending) {
+        this.$store.commit('removePendingAttachmentUpload', item.id)
+        for (const file of item.files) {
+          try {
+            await this.uploadAttachment(channel, messageId, file)
+            this.notify(`訊息 #${messageId} 附件 ${file.name} 上傳成功`, {
+              type: 'success'
+            })
+          } catch (err) {
+            this.$utils.error(`附件 ${file.name} 上傳失敗:`, err)
+            this.notify(`訊息 #${messageId} 附件 ${file.name} 上傳失敗`, {
+              type: 'danger'
+            })
+          }
+        }
+      }
     }
   }
 }

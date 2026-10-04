@@ -68,6 +68,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import lahMessengerBase from '~/mixins/lah-messenger-base'
 import LahMessengerUserAvatar from '~/components/lah-messenger-user-avatar.vue'
 
@@ -174,13 +175,25 @@ export default {
         }
       }
     },
-    ascending (flag) { this.$localForage.setItem('online-ascending', flag) }
+    ascending (flag) {
+      const storage = this.$localForage || this.$localforage || Vue?.$localforage
+      if (storage && typeof storage.setItem === 'function') {
+        storage.setItem('online-ascending', flag).catch(err => console.warn(err))
+      }
+    }
   },
   async created () {
     this.queryOnlineClients()
     clearInterval(this.onlineTimer)
     this.onlineTimer = setInterval(() => this.queryOnlineClients(), 5 * 60 * 1000)
-    this.ascending = (await this.$localForage.getItem('online-ascending')) || false
+    const storage = this.$localForage || this.$localforage || Vue?.$localforage
+    if (storage && typeof storage.getItem === 'function') {
+      try {
+        this.ascending = (await storage.getItem('online-ascending')) || false
+      } catch (err) {
+        this.ascending = false
+      }
+    }
     this.selectedDeptChannel = this.defaultDeptChannel
   },
   mounted () {

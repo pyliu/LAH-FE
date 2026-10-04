@@ -31,7 +31,10 @@ export default {
       'isDashboardActive',
       'isPersonalDrawerOpen',
       'regexpMarkdImage',
-      'regexpReplyHeader'
+      'regexpReplyHeader',
+      'pendingAttachmentUploads',
+      'wsHost',
+      'wsPort'
     ]),
     totalUnread () {
       const storeTotal = this.$store?.getters?.totalUnread
@@ -149,6 +152,45 @@ export default {
     },
     uniqueConnectedUsersCount () {
       return this.uniqueConnectedUsers.length
+    },
+    wsHttpHost () {
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        const customHost = window.localStorage.getItem('lah-messenger-custom-ws-host')
+        if (customHost) {
+          return customHost
+        }
+      }
+      const ws = this.websocket || this.$store?.getters?.websocket
+      if (ws && ws.url) {
+        try {
+          const parsed = new URL(ws.url)
+          if (parsed.hostname) {
+            return parsed.hostname
+          }
+        } catch (e) {}
+      }
+      if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
+        return this.systemConfigs.WS_SERVER_IP
+      }
+      if (this.wsHost) {
+        return this.wsHost
+      }
+      if (process.client && typeof window !== 'undefined' && window.location?.hostname) {
+        return window.location.hostname
+      }
+      return '220.1.34.75'
+    },
+    wsHttpPort () {
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        const customPort = window.localStorage.getItem('lah-messenger-custom-ws-http-port')
+        if (customPort) {
+          return customPort
+        }
+      }
+      return this.$store?.getters?.wsHttpPort || 8082
+    },
+    wsHttpUrl () {
+      return `http://${this.wsHttpHost}:${this.wsHttpPort}`
     }
   },
   methods: {
@@ -580,6 +622,65 @@ export default {
       }
       this.resetUnread(ch)
       this.$utils && this.$utils.log && this.$utils.log(`[即時通] updateChannelLastReadId: 頻道 [${ch}]，列表長度: ${list.length}，最大 ID: ${maxId}`)
+    },
+    async uploadAttachment (channel, messageId, file) {
+      if (!channel || !messageId || !file) {
+        throw new Error('缺少上傳參數 (channel, messageId, file)')
+      }
+      const formData = new FormData()
+      // 欄位順序必須為 channel, message_id, file
+      formData.append('channel', String(channel))
+      formData.append('message_id', String(messageId))
+      formData.append('file', file)
+
+      const uploadUrl = `${this.wsHttpUrl}/api/upload`
+      const headers = {}
+      const token = this.$config?.uploadAuthToken || ''
+      if (token) {
+        headers['x-auth-token'] = token
+      }
+
+      // 使用原生 fetch 發送 multipart/form-data，避免被全域 axios 攔截器 (qs.stringify) 破壞 FormData
+      const res = await fetch(uploadUrl, {
+        method: 'POST',
+        headers,
+        body: formData
+      })
+      const resData = await res.json()
+
+      if (res.ok && resData?.status === 1) {
+        return resData.data
+      } else {
+        throw new Error(resData?.message || `上傳失敗 (${res.status})`)
+      }
+    },
+    formatFileSize (bytes) {
+      if (!bytes || isNaN(bytes)) {
+        return '0 B'
+      }
+      const units = ['B', 'KB', 'MB', 'GB']
+      let size = Number(bytes)
+      let unitIdx = 0
+      while (size >= 1024 && unitIdx < units.length - 1) {
+        size /= 1024
+        unitIdx++
+      }
+      return `${size.toFixed(unitIdx === 0 ? 0 : 1)} ${units[unitIdx]}`
+    },
+    getAttachmentDisplayName (storedName) {
+      if (!storedName) {
+        return ''
+      }
+      return String(storedName).replace(/^\d+_/, '')
+    },
+    downloadAttachment (channel, messageId, filename) {
+      if (!channel || !messageId || !filename) {
+        return
+      }
+      const url = `${this.wsHttpUrl}/api/download/${channel}/${messageId}/${encodeURIComponent(filename)}`
+      if (process.client && typeof window !== 'undefined') {
+        window.open(url, '_blank')
+      }
     }
   }
 }

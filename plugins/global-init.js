@@ -28,6 +28,7 @@ import _md5 from 'md5'
 // Require tw locale
 import { zhTW } from 'date-fns/locale'
 
+import Vue from 'vue'
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
 import emoji from 'node-emoji'
@@ -38,6 +39,9 @@ marked.setOptions({
 })
 
 export default ({ $axios, store, $config }, inject) => {
+  if (store && !Vue.prototype.$store) {
+    Vue.prototype.$store = store
+  }
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
     // ✨ 集中管理的戰情面板清單

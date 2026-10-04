@@ -34,7 +34,7 @@ div(
   h6.d-flex.align-items-center
     b-icon.mr-1(icon="clock-history")
     span.mr-1 歷史圖片
-    b-badge(pill variant="secondary") {{ imageMemento.length }}
+    b-badge(pill variant="secondary") {{ imageMemento ? imageMemento.length : 0 }}
   .d-flex.flex-wrap.align-items-center.justify-content-start: .memento-item(
     v-for="(memento, idx) in imageMementoReverse"
     v-if="!empty(memento)"
@@ -74,11 +74,14 @@ export default {
   }),
   computed: {
     name () { return this.userMap[this.to] || this.to },
-    imageMementoReverse () { return [...this.imageMemento].reverse() },
+    imageMementoReverse () {
+      return Array.isArray(this.imageMemento) ? [...this.imageMemento].reverse() : []
+    },
     imageMementoCacheKey () {
-      return (typeof this.$store.getters.imageMementoCacheKey === 'function'
-        ? this.$store.getters.imageMementoCacheKey()
-        : this.$store.getters.imageMementoCacheKey) || 'imageMementoCached'
+      const getterKey = this.$store?.getters?.imageMementoCacheKey
+      return (typeof getterKey === 'function'
+        ? getterKey()
+        : getterKey) || 'imageMementoCached'
     }
   },
   watch: {
@@ -86,9 +89,11 @@ export default {
       file && this.upload()
     },
     imageMemento (arr) {
-      this.$localForage.setItem(this.imageMementoCacheKey, arr).catch((err) => {
-        this.alert(`快取圖檔失敗 (${err.toString()})`)
-      })
+      if (Array.isArray(arr) && this.$localForage) {
+        this.$localForage.setItem(this.imageMementoCacheKey, arr).catch((err) => {
+          this.alert(`快取圖檔失敗 (${err.toString()})`)
+        })
+      }
     }
   },
   methods: {
@@ -107,7 +112,7 @@ export default {
         this.$upload.post(uploadUrl, formData).then(({ data }) => {
           if (!this.empty(data.encoded) && !this.empty(data.uri)) {
             this.encoded = `${data.uri}${data.encoded}`
-            this.$store.commit('addImageMemento', this.encoded)
+            this.$store?.commit('addImageMemento', this.encoded)
             if (this.$utils.statusCheck(data.status)) {
               this.rightaway && this.sendImage(this.encoded, `給${this.name}`, this.to)
             } else {
@@ -154,7 +159,7 @@ export default {
           return this.$utils.equal(imageData, memento)
         })
       }
-      this.$store.commit('imageMemento', this.imageMemento)
+      this.$store?.commit('imageMemento', this.imageMemento)
     },
     dragover (event) {
       event.stopPropagation()

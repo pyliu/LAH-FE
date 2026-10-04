@@ -4,8 +4,20 @@
     .card-header-banner(:style="{ backgroundColor: headerBgColor }")
       .header-title-box.text-truncate(:title="dataJson.title")
         span {{ dataJson.title || '（尚未輸入標題）' }}
-      .header-id \#{{ dataJson.id || '預覽' }}
     .card-body-content(v-html="content")
+    .card-attachments.px-3.py-2.border-top.bg-light(v-if="attachments.length > 0")
+      .small.text-muted.font-weight-bold.mb-1
+        lah-fa-icon(icon="paperclip").mr-1
+        span 附加檔案 ({{ attachments.length }})
+      .d-flex.flex-wrap
+        b-badge.mr-1.mb-1.p-1(
+          v-for="(att, aIdx) in attachments"
+          :key="`card_att_${aIdx}`"
+          variant="light"
+          class="border text-dark"
+        )
+          lah-fa-icon(icon="file").mr-1
+          span {{ getAttachmentDisplayName(att.name) }} ({{ formatFileSize(att.size) }})
     .card-footer-info
       .footer-sender {{ sender }}
       .footer-action-pills(v-if="showActions")
@@ -15,12 +27,18 @@
 </template>
 
 <script>
+import lahMessengerBase from '~/mixins/lah-messenger-base'
+
 export default {
+  mixins: [lahMessengerBase],
   props: {
     dataJson: { type: Object, required: true },
     showActions: { type: Boolean, default: true }
   },
   computed: {
+    attachments () {
+      return Array.isArray(this.dataJson?.attachments) ? this.dataJson.attachments : []
+    },
     header () {
       return this.dataJson.title
     },

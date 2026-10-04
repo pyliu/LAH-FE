@@ -184,6 +184,15 @@ div.notification-admin-page
                 b-button(variant="white" size="sm" @click="insertDivider" title="分隔線") ―
                 b-button(variant="white" size="sm" @click="insertLink" title="超連結")
                   lah-fa-icon(icon="link")
+                b-button(variant="white" size="sm" @click="pickAttachment" title="附加檔案")
+                  lah-fa-icon(icon="paperclip")
+                input(
+                  ref="fileInput"
+                  type="file"
+                  multiple
+                  style="display: none"
+                  @change="handleFileChange"
+                )
 
             //- 常用 Emoji 快捷盤
             .emoji-palette.d-flex.align-items-center.flex-wrap.p-1.bg-white.border-left.border-right
@@ -229,6 +238,22 @@ div.notification-admin-page
                   v-b-tooltip="'點擊刪除這張圖片'"
                   style="width: 120px; height: 80px; object-fit: cover;"
                 )
+
+          //- 5. 附加檔案展示區
+          .mb-3(v-if="uploadFiles.length > 0")
+            .d-flex.align-items-center.mb-1
+              lah-fa-icon(icon="paperclip" variant="info").mr-1
+              strong 附加檔案 ({{ uploadFiles.length }} 個)
+              span.text-muted.small.ml-2 (點擊 X 可移除)
+            .d-flex.flex-wrap.align-items-center
+              b-badge.mr-1.mb-1.p-2(
+                v-for="(f, fIdx) in uploadFiles"
+                :key="`notif_file_${fIdx}`"
+                variant="info"
+              )
+                lah-fa-icon(icon="paperclip").mr-1
+                span {{ f.name }} ({{ formatFileSize(f.size) }})
+                b-icon.ml-2(icon="x-circle" style="cursor: pointer;" @click="removeUploadFile(fIdx)")
 
     //- 右欄：桃園即時通 Client 端擬真即時預覽
     .col-xl-5.col-lg-6.col-12.mb-4
@@ -381,7 +406,10 @@ div.notification-admin-page
 </template>
 
 <script>
+import lahMessengerBase from '~/mixins/lah-messenger-base'
+
 export default {
+  mixins: [lahMessengerBase],
   middleware: ['isNotifyMgtStaff'],
   asyncData ({ store, redirect, error }) { return {} },
   data: () => ({
@@ -415,6 +443,7 @@ export default {
     ],
     announcementSendto: [],
     images: [],
+    uploadFiles: [],
     lastFocusedField: 'content',
     helpSidebarFlag: false,
     cacheKey: 'postMementoCache',
@@ -457,7 +486,8 @@ export default {
     previewAnnouncementDataJson () {
       return {
         ...this.announcementDataJson,
-        content: this.mergedContent
+        content: this.mergedContent,
+        attachments: this.uploadFiles.map(f => ({ name: f.name, size: f.size }))
       }
     },
     validSendto () {
@@ -626,6 +656,26 @@ export default {
         this.images.splice(index, 1)
       }
     },
+    pickAttachment () {
+      this.$refs.fileInput && this.$refs.fileInput.click()
+    },
+    handleFileChange (e) {
+      const files = Array.from(e.target?.files || [])
+      if (!files.length) { return }
+      files.forEach((file) => {
+        if (!this.uploadFiles.some(f => f.name === file.name && f.size === file.size)) {
+          this.uploadFiles.push(file)
+        }
+      })
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = ''
+      }
+    },
+    removeUploadFile (index) {
+      if (index >= 0 && index < this.uploadFiles.length) {
+        this.uploadFiles.splice(index, 1)
+      }
+    },
     applyTemplate (type) {
       switch (type) {
         case 'training':
@@ -746,7 +796,7 @@ export default {
       }
     },
     add () {
-      this.confirm('確定要新增公告?').then((flag) => {
+      this.confirm('確定要新增公告?').then(async (flag) => {
         if (flag) {
           this.isBusy = true
           const channels = this.announcementSendto.map(ch => (ch === 'myself' ? (this.userid || 'myself') : ch))
@@ -765,22 +815,44 @@ export default {
             sender: this.user.id || this.ip,
             create_datetime: this.currentDatetime()
           }
-          this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
-            type: 'add_notification',
-            ...snapshot
-          }).then(({ data }) => {
+          try {
+            const { data } = await this.$axios.post(this.$consts.API.JSON.NOTIFICATION, {
+              type: 'add_notification',
+              ...snapshot
+            })
             this.notify(data.message, { type: data.status > 0 ? 'success' : 'warning', title: data.title })
             if (data.status > 0) {
               snapshot.added_to = data.added
+              if (this.uploadFiles && this.uploadFiles.length > 0 && Array.isArray(data.added)) {
+                let uploadCount = 0
+                for (const added of data.added) {
+                  if (!added.channel || !added.addedId) {
+                    this.$utils.warn && this.$utils.warn('新增頻道回傳之 ID 無效，略過上傳附件:', added)
+                    continue
+                  }
+                  for (const file of this.uploadFiles) {
+                    try {
+                      await this.uploadAttachment(added.channel, added.addedId, file)
+                      uploadCount++
+                    } catch (e) {
+                      this.$utils.error('上傳附件失敗:', e)
+                      this.notify(`上傳附件 ${file.name} 至頻道 ${added.channel} 失敗: ${e.message}`, { type: 'danger' })
+                    }
+                  }
+                }
+                if (uploadCount > 0) {
+                  this.notify(`已完成 ${uploadCount} 個附件上傳`, { type: 'success' })
+                }
+              }
             }
-          }).catch((err) => {
+          } catch (err) {
             this.alert(err.message)
             this.$utils.error(err)
-          }).finally(() => {
+          } finally {
             this.isBusy = false
             this.addMemento(snapshot)
             this.reset()
-          })
+          }
         }
       })
     },
@@ -795,6 +867,7 @@ export default {
       }
       this.announcementSendto = [this.userid || 'myself']
       this.images = []
+      this.uploadFiles = []
     },
     flipSendto () {
       if (this.isMyselfOnly) {
