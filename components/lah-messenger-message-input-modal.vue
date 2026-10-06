@@ -1,10 +1,18 @@
 <template lang="pug">
 .lah-messenger-message-input-modal(style="position: relative" @paste="pasteImage($event, pasted)")
   .d-flex.justify-content-between.align-items-center.pb-2.mb-2.border-bottom
-    .d-flex.align-items-center
+    .d-flex.align-items-center.flex-wrap
       lah-fa-icon(icon="paper-plane" variant="primary").mr-2
-      strong.h6.mb-0 傳送訊息至【{{ targetDisplayName }}】
-      b-badge.ml-2(variant="primary" pill) 完整編輯
+      strong.h6.mb-0.mr-1 傳送訊息至:
+      lah-messenger-user-select-dropdown.mr-2.my-1(
+        v-if="isPersonalOrSelectable"
+        v-model="currentSendingChannel"
+        @change="onTargetChannelChange"
+        size="sm"
+        style="max-width: 260px;"
+      )
+      strong.h6.mb-0.mr-2(v-else) 【{{ targetDisplayName }}】
+      b-badge(variant="primary" pill) 完整編輯
     .d-flex.align-items-center
       b-button-group(size="sm")
         b-dropdown(
@@ -204,12 +212,14 @@
 import lahMessengerBase from '~/mixins/lah-messenger-base'
 import LahMessengerHelp from '~/components/lah-messenger-help.vue'
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
+import LahMessengerUserSelectDropdown from '~/components/lah-messenger-user-select-dropdown.vue'
 
 export default {
   name: 'LahMessengerMessageInputModal',
   components: {
     LahMessengerHelp,
     LahMessengerImageUpload,
+    LahMessengerUserSelectDropdown,
     LahMessengerMessage: () => import('~/components/lah-messenger-message.vue')
   },
   mixins: [lahMessengerBase],
@@ -217,9 +227,11 @@ export default {
     dataJson: { type: Object, default: () => ({}) },
     channel: { type: String, required: true },
     channelName: { type: String, default: '' },
-    targetName: { type: String, default: '' }
+    targetName: { type: String, default: '' },
+    selectable: { type: Boolean, default: false }
   },
   data: () => ({
+    currentSendingChannel: '',
     realtime: true,
     lastFocusedField: 'content',
     title: '',
@@ -238,12 +250,19 @@ export default {
     ]
   }),
   computed: {
+    isPersonalOrSelectable () {
+      if (this.selectable) { return true }
+      return !['lds', 'announcement'].includes(this.channel) && !this.channel.startsWith('announcement_')
+    },
     targetDisplayName () {
-      if (this.channelName) { return this.channelName }
-      if (this.targetName) { return this.targetName }
-      if (this.channel === 'lds') { return '全事務所' }
-      if (this.userMap && this.userMap[this.channel]) { return this.userMap[this.channel] }
-      return this.channel
+      const ch = (this.currentSendingChannel || this.channel || '').toUpperCase()
+      if (ch === 'LDS') { return '全事務所' }
+      if (ch === 'ANNOUNCEMENT') { return '全所公告' }
+      if (ch === (this.userid || '').toUpperCase()) { return '自己' }
+      if (this.userMap && this.userMap[ch]) { return this.userMap[ch] }
+      if (this.channelName && !this.currentSendingChannel) { return this.channelName }
+      if (this.targetName && !this.currentSendingChannel) { return this.targetName }
+      return ch
     },
     titleCharCount () {
       return this.$utils.length(this.title || '')
@@ -288,7 +307,7 @@ export default {
     previewMessageJson () {
       return {
         id: 0,
-        channel: this.channel,
+        channel: this.currentSendingChannel || this.channel,
         date: this.date(),
         time: this.time(),
         message: this.fullMessageText,
@@ -305,6 +324,7 @@ export default {
     }
   },
   created () {
+    this.currentSendingChannel = this.channel || this.userid
     this.title = this.dataJson?.title || ''
     this.content = this.dataJson?.content || ''
     if (Array.isArray(this.dataJson?.images)) {
@@ -408,9 +428,10 @@ export default {
       }
     },
     pickImage () {
+      const targetChannel = this.currentSendingChannel || this.channel
       this.modal(this.$createElement(LahMessengerImageUpload, {
         props: {
-          to: this.channel,
+          to: targetChannel,
           modalId: 'image-upload-modal-full'
         },
         on: {
@@ -481,6 +502,12 @@ export default {
       this.$emit('cancel')
       this.$bvModal && this.$bvModal.hide('message-input-modal')
     },
+    onTargetChannelChange (user) {
+      const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
+      if (uid) {
+        this.currentSendingChannel = uid
+      }
+    },
     send () {
       if (this.notValid) {
         return
@@ -490,24 +517,25 @@ export default {
         return
       }
       this.isSending = true
+      const targetChannel = this.currentSendingChannel || this.channel
       try {
         if (this.uploadFiles.length > 0) {
           const filesToUpload = [...this.uploadFiles]
           this.uploadFiles = []
           this.$store.commit('addPendingAttachmentUpload', {
-            channel: this.channel,
+            channel: targetChannel,
             files: filesToUpload
           })
         }
         const packet = this.packMessage(this.fullMessageText, {
-          channel: this.channel,
+          channel: targetChannel,
           title: this.title || 'dontcare',
           priority: this.priority
         })
         this.websocket.send(packet)
         this.notify('訊息傳送成功', { type: 'success' })
         this.$emit('sent', {
-          channel: this.channel,
+          channel: targetChannel,
           title: this.title,
           content: this.fullMessageText,
           priority: this.priority

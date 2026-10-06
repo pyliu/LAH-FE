@@ -83,6 +83,26 @@ b-card.channel-card(no-body)
         span.small.text-muted 點選表情符號
         b-button(variant="link" size="sm" class="p-0 text-muted" @click="showEmoji = false") ✕
       lah-messenger-emoji-pickup(@click="addEmoji")
+    //- 私訊接收對象切換列
+    .d-flex.align-items-center.justify-content-between.mb-1.px-1
+      .d-flex.align-items-center
+        span.small.text-muted.mr-1.font-weight-bold.text-nowrap 傳送對象:
+        lah-messenger-user-select-dropdown(
+          v-model="currentTargetUser"
+          @change="onTargetUserChange"
+          size="sm"
+          dropup
+          style="max-width: 260px;"
+        )
+      b-button.py-0.px-2.s-75.text-nowrap(
+        v-if="!isSelf"
+        variant="outline-secondary"
+        size="sm"
+        @click="selectSelf"
+        title="切換回發送給自己"
+      )
+        b-icon.mr-1(icon="person")
+        span 切回自己
     b-input-group(size="sm")
       b-textarea(
         ref="textarea"
@@ -148,6 +168,7 @@ import LahMessengerMessage from '~/components/lah-messenger-message.vue'
 import LahMessengerEmojiPickup from '~/components/lah-messenger-emoji-pickup.vue'
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
 import LahMessengerMessageInputModal from '~/components/lah-messenger-message-input-modal.vue'
+import LahMessengerUserSelectDropdown from '~/components/lah-messenger-user-select-dropdown.vue'
 
 export default {
   name: 'LahMessengerChannelPersonal',
@@ -155,7 +176,8 @@ export default {
     LahMessengerMessage,
     LahMessengerEmojiPickup,
     LahMessengerImageUpload,
-    LahMessengerMessageInputModal
+    LahMessengerMessageInputModal,
+    LahMessengerUserSelectDropdown
   },
   mixins: [lahMessengerBase],
   props: {
@@ -289,8 +311,31 @@ export default {
   },
   methods: {
     setTargetUser (user) {
-      this.currentTargetUser = user
+      const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
+      if (uid) {
+        this.currentTargetUser = uid
+        this.$emit('user-change', uid)
+        this.refresh()
+      }
+    },
+    onTargetUserChange (user) {
+      const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
+      if (uid) {
+        this.currentTargetUser = uid
+        this.$emit('user-change', uid)
+        this.refresh()
+        this.$nextTick(() => {
+          this.$refs.textarea?.$el?.focus()
+        })
+      }
+    },
+    selectSelf () {
+      this.currentTargetUser = this.userid
+      this.$emit('user-change', this.userid)
       this.refresh()
+      this.$nextTick(() => {
+        this.$refs.textarea?.$el?.focus()
+      })
     },
     attachWsListener () {
       const ws = this.websocket || this.$store?.getters?.websocket
@@ -535,8 +580,9 @@ export default {
     openFullEditor () {
       this.modal(this.$createElement(LahMessengerMessageInputModal, {
         props: {
-          channel: this.channel,
+          channel: this.targetUserId,
           targetName: this.targetUserName,
+          selectable: true,
           dataJson: {
             title: '',
             content: this.inputText,
@@ -546,10 +592,15 @@ export default {
           }
         },
         on: {
-          sent: () => {
+          sent: (payload) => {
             this.inputText = ''
             this.inputImages = []
             this.uploadFiles = []
+            if (payload && payload.channel && payload.channel !== this.targetUserId) {
+              this.currentTargetUser = payload.channel
+              this.$emit('user-change', payload.channel)
+              this.refresh()
+            }
             this.hideModalById('message-input-modal')
             this.$nextTick(this.scrollToBottom)
           },

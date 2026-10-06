@@ -77,7 +77,7 @@ export default {
   mixins: [lahMessengerBase],
   props: {
     statusText: { type: String, default: '' },
-    version: { type: String, default: 'v1.4.7' }
+    version: { type: String, default: 'v1.5.0' }
   },
   data: () => ({
     clearTimer: null,

@@ -182,6 +182,7 @@
                 :target-user="activePersonalUser"
                 :show-back-button="activePersonalUser !== userid"
                 @close="activePersonalUser = userid"
+                @user-change="activePersonalUser = $event"
               )
               lah-messenger-online-users(
                 v-else-if="activeTab === 'online'"
