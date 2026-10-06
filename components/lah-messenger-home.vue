@@ -334,9 +334,11 @@ export default {
     this.connect()
     this.startReconnectTimer()
     this.$root.$on('lah-messenger:connect', this.connect)
+    this.$root.$on('lah-messenger:reconnect', this.triggerReconnect)
   },
   beforeDestroy () {
     this.$root.$off('lah-messenger:connect', this.connect)
+    this.$root.$off('lah-messenger:reconnect', this.triggerReconnect)
     clearTimeout(this.toastProcessTimer)
     this.stopReconnectTimer()
     this.closeWebsocket()

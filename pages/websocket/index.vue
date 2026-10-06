@@ -20,12 +20,15 @@
         li 第四欄為 #[b.text-info 線上使用者列表 / 個人私訊]，支援直接切換顯示，免彈出側邊抽屜遮擋畫面。
         li 停留在儀表板時，所有公務訊息自動秒讀取；收到新訊息時區塊將產生呼吸燈光暈與頂部提示。
         li 收到個人私訊時，頂部按鈕與第 4 欄將產生光暈提示與未讀計數，可隨時點擊切換查看。
-      b-badge.ml-2(
+      b-badge.ml-2.ws-conn-badge(
         :variant="connected ? 'success' : 'warning'"
         pill
+        @click="openWsConfigModal"
+        title="點擊設定 WebSocket 伺服器連線資訊 (IP / Port)"
       )
         span {{ currentWsConnStr }} {{ connected ? '伺服器已連線' : '伺服器連線中 / 斷線' }}
         b-icon.ml-1(:icon="connected ? 'wifi' : 'wifi-off'")
+        b-icon.ml-1(icon="gear-fill" font-scale="0.85")
     .d-flex.align-items-center(v-if="connected")
       //- 第 4 欄切換「線上同仁 / 個人私訊」按鈕組
       b-button-group.mr-2(size="lg")
@@ -35,7 +38,7 @@
           title="切換第 4 欄顯示：線上同仁列表"
         )
           b-icon.mr-1(icon="people-fill")
-          span.font-weight-bold 線上同仁
+          span.font-weight-bold
           b-badge.ml-1(
             v-if="uniqueConnectedUsersCount > 0"
             :variant="col4View === 'online' ? 'light' : 'success'"
@@ -48,7 +51,7 @@
           title="切換第 4 欄顯示：個人私訊"
         )
           b-icon.mr-1(icon="chat-dots-fill")
-          span.font-weight-bold 個人訊息
+          span.font-weight-bold
           b-badge.ml-1(
             v-if="col4View !== 'personal' && myPersonalUnread > 0"
             variant="danger"
@@ -86,11 +89,19 @@
     .d-flex.align-items-center
       b-spinner(small variant="warning" class="mr-2")
       span 即時通伺服器連線中或尚未連線 ({{ currentWsConnStr }})，正在自動嘗試連線...
-    b-button(
-      size="sm"
-      variant="outline-dark"
-      @click="triggerReconnect"
-    ) 立即連線
+    .d-flex.align-items-center
+      b-button.mr-2(
+        size="sm"
+        variant="outline-dark"
+        @click="openWsConfigModal"
+      )
+        b-icon.mr-1(icon="gear-fill")
+        span 設定伺服器
+      b-button(
+        size="sm"
+        variant="dark"
+        @click="triggerReconnect"
+      ) 立即連線
 
   //- 四欄主排版佈局 (由左至右：公告、使用者部門、全所/私訊、線上使用者)
   .quad-container.mt-2
@@ -165,6 +176,100 @@
                 @dept-click="onDeptClick"
                 @user-chat="onUserChat"
               )
+
+  //- WebSocket 伺服器連線設定 Modal
+  b-modal#ws-config-modal(
+    title="即時通 WebSocket 伺服器設定"
+    hide-footer
+    centered
+    size="md"
+  )
+    .ws-config-modal-body
+      .d-flex.align-items-center.justify-content-between.mb-3.p-2.rounded.border(
+        :class="connected ? 'bg-light text-success' : 'bg-warning-light text-dark'"
+      )
+        .d-flex.align-items-center
+          b-icon.mr-2(
+            :icon="connected ? 'check-circle-fill' : 'exclamation-circle-fill'"
+            :variant="connected ? 'success' : 'warning'"
+            font-scale="1.2"
+          )
+          div
+            .font-weight-bold.small 目前連線目標
+            .font-weight-bold.text-monospace {{ currentWsConnStr }}
+        b-badge(:variant="connected ? 'success' : 'warning'" pill)
+          span {{ connected ? '已連線' : '未連線' }}
+
+      b-form-group(
+        label="伺服器 IP 或主機名稱 (Host):"
+        label-for="ws-host-input"
+        description="例如: 220.1.34.75 或 192.168.13.96"
+      )
+        b-input-group(prepend="ws://")
+          b-form-input#ws-host-input(
+            v-model.trim="inputWsHost"
+            placeholder="220.1.34.75"
+            @keyup.enter="applyCustomWsAndConnect"
+          )
+
+      b-form-group(
+        label="通訊埠 (Port):"
+        label-for="ws-port-input"
+        description="預設埠號為 8081"
+      )
+        b-input-group(prepend=":")
+          b-form-input#ws-port-input(
+            v-model.trim="inputWsPort"
+            type="number"
+            placeholder="8081"
+            @keyup.enter="applyCustomWsAndConnect"
+          )
+
+      .d-flex.align-items-center.justify-content-between.flex-wrap.mb-3
+        span.small.text-muted 快速切換:
+        .d-flex.flex-wrap
+          b-button.mr-1.mb-1(
+            size="sm"
+            variant="outline-primary"
+            @click="setOnlinePreset"
+          ) 線上正式 (220.1.34.75)
+          b-button.mr-1.mb-1(
+            size="sm"
+            variant="outline-info"
+            @click="setDevPreset"
+          ) 開發測試 (192.168.13.96)
+          b-button.mb-1(
+            size="sm"
+            variant="outline-secondary"
+            @click="resetCustomWs"
+            v-if="hasCustomWsSetting"
+            title="清除自訂設定，還原系統預設伺服器"
+          ) 還原預設
+
+      hr.my-2
+
+      .d-flex.justify-content-between.align-items-center
+        b-button(
+          variant="outline-secondary"
+          size="sm"
+          @click="triggerReconnectAndNotify"
+          title="以目前設定重新建立連線"
+        )
+          b-icon.mr-1(icon="arrow-clockwise")
+          span 重新連線
+        .d-flex
+          b-button.mr-2(
+            variant="secondary"
+            size="sm"
+            @click="hideWsConfigModal"
+          ) 取消
+          b-button(
+            variant="primary"
+            size="sm"
+            @click="applyCustomWsAndConnect"
+          )
+            b-icon.mr-1(icon="check-circle-fill")
+            span 套用並連線
 </template>
 
 <script>
@@ -205,7 +310,9 @@ export default {
     },
     titleTimer: null,
     originalTitle: '即時通訊儀表板',
-    audioCtx: null
+    audioCtx: null,
+    inputWsHost: '',
+    inputWsPort: ''
   }),
   head: {
     title: '即時通訊儀表板'
@@ -213,6 +320,15 @@ export default {
   computed: {
     myPersonalUnread () {
       return this.getUnread(this.userid) || 0
+    },
+    hasCustomWsSetting () {
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        return Boolean(
+          window.localStorage.getItem('lah-messenger-custom-ws-host') ||
+          window.localStorage.getItem('lah-messenger-custom-ws-port')
+        )
+      }
+      return false
     },
     currentWsConnStr () {
       // 1. 若 WebSocket 物件已建立，優先回傳底層實際連線的 url
@@ -528,6 +644,91 @@ export default {
         this.resetUnread(newUid)
         this.updateChannelLastReadId(newUid)
       }
+    },
+    openWsConfigModal () {
+      let savedHost = ''
+      let savedPort = ''
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        savedHost = window.localStorage.getItem('lah-messenger-custom-ws-host') || ''
+        savedPort = window.localStorage.getItem('lah-messenger-custom-ws-port') || ''
+      }
+      if (!savedHost) {
+        if (this.systemConfigs?.WS_SERVER_IP) {
+          savedHost = this.systemConfigs.WS_SERVER_IP
+        } else if (this.wsHost) {
+          savedHost = this.wsHost
+        } else {
+          try {
+            const u = new URL(this.currentWsConnStr)
+            savedHost = u.hostname || '220.1.34.75'
+            savedPort = u.port || '8081'
+          } catch (e) {
+            savedHost = '220.1.34.75'
+            savedPort = '8081'
+          }
+        }
+      }
+      if (!savedPort) {
+        savedPort = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || '8081'
+      }
+      this.inputWsHost = savedHost
+      this.inputWsPort = savedPort
+      this.showModalById('ws-config-modal')
+    },
+    hideWsConfigModal () {
+      this.hideModalById('ws-config-modal')
+    },
+    applyCustomWsAndConnect () {
+      const host = (this.inputWsHost || '').trim()
+      const port = (this.inputWsPort ? String(this.inputWsPort) : '').trim() || '8081'
+      if (!host) {
+        this.warning('請輸入 WebSocket 伺服器 IP 或主機名稱')
+        return
+      }
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.setItem('lah-messenger-custom-ws-host', host)
+          window.localStorage.setItem('lah-messenger-custom-ws-port', port)
+        } catch (e) {
+          this.$utils.warn('[即時通] 儲存自訂 WS 設定失敗:', e)
+        }
+      }
+      this.hideWsConfigModal()
+      this.$root.$emit('lah-messenger:reconnect')
+      this.$root.$emit('lah-messenger:connect')
+      this.notify(`已設定 WS 伺服器為 ${host}:${port}，重新連線中...`, { variant: 'info' })
+    },
+    setOnlinePreset () {
+      this.inputWsHost = '220.1.34.75'
+      this.inputWsPort = '8081'
+      this.applyCustomWsAndConnect()
+    },
+    setDevPreset () {
+      this.inputWsHost = '192.168.13.96'
+      this.inputWsPort = '8081'
+      this.applyCustomWsAndConnect()
+    },
+    resetCustomWs () {
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        try {
+          window.localStorage.removeItem('lah-messenger-custom-ws-host')
+          window.localStorage.removeItem('lah-messenger-custom-ws-port')
+        } catch (e) {
+          this.$utils.warn('[即時通] 清除自訂 WS 設定失敗:', e)
+        }
+      }
+      this.inputWsHost = this.systemConfigs?.WS_SERVER_IP || this.wsHost || '220.1.34.75'
+      this.inputWsPort = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || '8081'
+      this.hideWsConfigModal()
+      this.$root.$emit('lah-messenger:reconnect')
+      this.$root.$emit('lah-messenger:connect')
+      this.notify('已還原為系統預設 WS 伺服器設定，重新連線中...', { variant: 'info' })
+    },
+    triggerReconnectAndNotify () {
+      this.$root.$emit('lah-messenger:reconnect')
+      this.$root.$emit('lah-messenger:connect')
+      this.notify('正在重新連線即時通伺服器...', { variant: 'info' })
+      this.hideWsConfigModal()
     }
   }
 }
@@ -674,5 +875,17 @@ export default {
 .tab-fade-enter,
 .tab-fade-leave-to {
   opacity: 0;
+}
+
+.ws-conn-badge {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+
+  &:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
 }
 </style>
