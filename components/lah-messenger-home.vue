@@ -43,7 +43,7 @@
             b-input-group(size="sm" prepend="ws://" class="mr-2 mb-1" style="width: 220px;")
               b-input(
                 v-model.trim="inputWsHost"
-                placeholder="例如: 220.1.34.75"
+                :placeholder="'例如: ' + defaultServerIp"
                 @keyup.enter="applyCustomWsAndConnect"
               )
             b-input-group(size="sm" prepend=":" class="mr-2 mb-1" style="width: 110px;")
@@ -67,7 +67,7 @@
               variant="outline-primary"
               class="py-0 px-2 s-85"
               @click="setOnlinePreset"
-              title="快速切換至線上正式 WS (220.1.34.75:8081)"
+              :title="'快速切換至線上正式 WS (' + defaultServerIp + ':8081)'"
             ) 線上正式 (8081)
             b-button.mr-1.mb-1(
               size="sm"
@@ -279,7 +279,9 @@ export default {
       if (this.wsHost) {
         return `ws://${this.wsHost}:${this.wsPort || this.defaultWsPort || 8081}`
       }
-      return 'ws://220.1.34.75:8081'
+      const host = this.defaultServerIp
+      const port = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || 8081
+      return `ws://${host}:${port}`
     }
   },
   watch: {
@@ -534,7 +536,7 @@ export default {
     toggleCustomWsInput () {
       this.showCustomWsInput = !this.showCustomWsInput
       if (this.showCustomWsInput) {
-        this.inputWsHost = this.customWsHost || '220.1.34.75'
+        this.inputWsHost = this.customWsHost || this.defaultServerIp
         this.inputWsPort = this.customWsPort || '8081'
       }
     },
@@ -559,8 +561,8 @@ export default {
       this.showCustomWsInput = false
     },
     setOnlinePreset () {
-      this.inputWsHost = '220.1.34.75'
-      this.inputWsPort = '8081'
+      this.inputWsHost = this.defaultServerIp
+      this.inputWsPort = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || '8081'
       this.applyCustomWsAndConnect()
     },
     resetCustomWs () {

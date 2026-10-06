@@ -203,12 +203,12 @@
       b-form-group(
         label="伺服器 IP 或主機名稱 (Host):"
         label-for="ws-host-input"
-        description="例如: 220.1.34.75 或 192.168.13.96"
+        :description="`例如: ${defaultServerIp} 或 192.168.13.96`"
       )
         b-input-group(prepend="ws://")
           b-form-input#ws-host-input(
             v-model.trim="inputWsHost"
-            placeholder="220.1.34.75"
+            :placeholder="defaultServerIp"
             @keyup.enter="applyCustomWsAndConnect"
           )
 
@@ -232,7 +232,7 @@
             size="sm"
             variant="outline-primary"
             @click="setOnlinePreset"
-          ) 線上正式 (220.1.34.75)
+          ) 線上正式 ({{ defaultServerIp }})
           b-button.mr-1.mb-1(
             size="sm"
             variant="outline-info"
@@ -344,15 +344,10 @@ export default {
           return `ws://${customHost}:${customPort || 8081}`
         }
       }
-      // 3. 系統環境設定 (WS_SERVER_IP / WS_SERVER_PORT)
-      if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
-        return `ws://${this.systemConfigs.WS_SERVER_IP}:${this.systemConfigs.WS_SERVER_PORT || this.defaultWsPort || 8081}`
-      }
-      if (this.wsHost) {
-        return `ws://${this.wsHost}:${this.wsPort || this.defaultWsPort || 8081}`
-      }
-      // 4. 正式機預設
-      return 'ws://220.1.34.75:8081'
+      // 3. 以抓到的 API 伺服器 IP 為準，最後不行才設定為桃園所預設 IP
+      const host = this.defaultServerIp
+      const port = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || 8081
+      return `ws://${host}:${port}`
     },
     isAdmin () {
       const auth = this.authority || this.$store?.getters?.authority
@@ -653,20 +648,7 @@ export default {
         savedPort = window.localStorage.getItem('lah-messenger-custom-ws-port') || ''
       }
       if (!savedHost) {
-        if (this.systemConfigs?.WS_SERVER_IP) {
-          savedHost = this.systemConfigs.WS_SERVER_IP
-        } else if (this.wsHost) {
-          savedHost = this.wsHost
-        } else {
-          try {
-            const u = new URL(this.currentWsConnStr)
-            savedHost = u.hostname || '220.1.34.75'
-            savedPort = u.port || '8081'
-          } catch (e) {
-            savedHost = '220.1.34.75'
-            savedPort = '8081'
-          }
-        }
+        savedHost = this.defaultServerIp
       }
       if (!savedPort) {
         savedPort = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || '8081'
@@ -699,8 +681,8 @@ export default {
       this.notify(`已設定 WS 伺服器為 ${host}:${port}，重新連線中...`, { variant: 'info' })
     },
     setOnlinePreset () {
-      this.inputWsHost = '220.1.34.75'
-      this.inputWsPort = '8081'
+      this.inputWsHost = this.defaultServerIp
+      this.inputWsPort = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || '8081'
       this.applyCustomWsAndConnect()
     },
     setDevPreset () {
@@ -717,7 +699,7 @@ export default {
           this.$utils.warn('[即時通] 清除自訂 WS 設定失敗:', e)
         }
       }
-      this.inputWsHost = this.systemConfigs?.WS_SERVER_IP || this.wsHost || '220.1.34.75'
+      this.inputWsHost = this.defaultServerIp
       this.inputWsPort = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || '8081'
       this.hideWsConfigModal()
       this.$root.$emit('lah-messenger:reconnect')

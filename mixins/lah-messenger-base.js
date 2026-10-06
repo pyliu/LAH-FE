@@ -153,6 +153,36 @@ export default {
     uniqueConnectedUsersCount () {
       return this.uniqueConnectedUsers.length
     },
+    defaultServerIp () {
+      // 1. 若有系統明確設定的 WS_SERVER_IP
+      if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
+        return this.systemConfigs.WS_SERVER_IP
+      }
+      if (this.wsHost) {
+        return this.wsHost
+      }
+      // 2. 以抓到的 API 伺服器 IP 為準 (優先排除 localhost/127.0.0.1 以取得實體機 IP)
+      if (this.apiHost && this.apiHost !== 'localhost' && this.apiHost !== '127.0.0.1') {
+        return this.apiHost
+      }
+      if (this.apiSvrIp && this.apiSvrIp !== 'localhost' && this.apiSvrIp !== '127.0.0.1') {
+        return this.apiSvrIp
+      }
+      if (process.client && typeof window !== 'undefined' && window.location?.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        return window.location.hostname
+      }
+      if (this.apiHost) {
+        return this.apiHost
+      }
+      if (this.apiSvrIp) {
+        return this.apiSvrIp
+      }
+      if (this.systemConfigs && this.systemConfigs.API_SERVER_IP) {
+        return this.systemConfigs.API_SERVER_IP
+      }
+      // 3. 最後不行預設才設定為桃園所預設 IP
+      return '220.1.34.75'
+    },
     wsHttpHost () {
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
         const customHost = window.localStorage.getItem('lah-messenger-custom-ws-host')
@@ -169,16 +199,7 @@ export default {
           }
         } catch (e) {}
       }
-      if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
-        return this.systemConfigs.WS_SERVER_IP
-      }
-      if (this.wsHost) {
-        return this.wsHost
-      }
-      if (process.client && typeof window !== 'undefined' && window.location?.hostname) {
-        return window.location.hostname
-      }
-      return '220.1.34.75'
+      return this.defaultServerIp
     },
     wsHttpPort () {
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
