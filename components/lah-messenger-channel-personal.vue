@@ -7,14 +7,28 @@ b-card.channel-card(no-body)
         variant="link"
         size="sm"
         @click="$emit('close')"
-        title="返回全所頻道"
+        :title="backButtonTitle"
       )
         b-icon(icon="arrow-left-circle-fill" font-scale="1.2" variant="secondary")
+      b-button.p-0.mr-1(
+        v-if="isSuperAdmin && !isSelf"
+        variant="link"
+        size="sm"
+        @click="resetViewingChannel"
+        title="切換回自己的頻道"
+      )
+        b-icon(icon="arrow-return-left" font-scale="1.2" variant="danger")
       b-icon.mr-1(
         icon="envelope-fill"
         variant="info"
       )
       span.font-weight-bold {{ displayTitle }}
+      b-badge.ml-1(
+        v-if="!isSelf && isSuperAdmin"
+        variant="danger"
+        pill
+        title="目前處於管理者檢視他人頻道模式"
+      ) 檢視中
       b-badge.ml-1(
         variant="info"
         pill
@@ -83,31 +97,40 @@ b-card.channel-card(no-body)
         span.small.text-muted 點選表情符號
         b-button(variant="link" size="sm" class="p-0 text-muted" @click="showEmoji = false") ✕
       lah-messenger-emoji-pickup(@click="addEmoji")
-    //- 私訊接收對象切換列
+    //- 私訊傳送對象選擇列
     .d-flex.align-items-center.justify-content-between.mb-1.px-1
       .d-flex.align-items-center
         span.small.text-muted.mr-1.font-weight-bold.text-nowrap 傳送對象:
         lah-messenger-user-select-dropdown(
-          v-model="currentTargetUser"
-          @change="onTargetUserChange"
+          v-model="sendTargetUser"
+          @change="onSendTargetChange"
           size="sm"
           dropup
           style="max-width: 260px;"
         )
-      b-button.py-0.px-2.s-75.text-nowrap(
-        v-if="!isSelf"
-        variant="outline-secondary"
-        size="sm"
-        @click="selectSelf"
-        title="切換回發送給自己"
-      )
-        b-icon.mr-1(icon="person")
-        span 切回自己
+      .d-flex.align-items-center
+        lah-button.py-0.px-2.mr-1(
+          v-if="!isSelfSend"
+          variant="outline-secondary"
+          @click="selectSelfSend"
+          title="切換回發送給自己"
+        )
+          b-icon.mr-1(icon="person")
+          span
+        //- 僅 USER ID 是 HA10013859 才能使用的「切換頻道」特權功能
+        lah-button.py-0.px-2(
+          v-if="isSuperAdmin && sendTargetUserId !== targetUserId"
+          variant="outline-danger"
+          @click="switchViewingChannel(sendTargetUserId)"
+          :title="`[管理員] 切換檢視【${sendTargetUserName}】之私訊頻道`"
+        )
+          b-icon.mr-1(icon="box-arrow-in-right")
+          span
     b-input-group(size="sm")
       b-textarea(
         ref="textarea"
         v-model="inputText"
-        :placeholder="`傳送私訊給【${targetUserName}】... (Ctrl+Enter)`"
+        :placeholder="`傳送私訊給【${sendTargetUserName}】... (Ctrl+Enter)`"
         @keyup.enter.ctrl="send"
         @keyup.enter.shift="send"
         @paste="pasteImage($event, pastedImage)"
@@ -188,10 +211,15 @@ export default {
     showBackButton: {
       type: Boolean,
       default: false
+    },
+    backButtonTitle: {
+      type: String,
+      default: '返回'
     }
   },
   data: () => ({
-    currentTargetUser: '',
+    viewingChannelUser: '',
+    sendTargetUser: '',
     inputText: '',
     inputImages: [],
     uploadFiles: [],
@@ -201,25 +229,27 @@ export default {
     fetchTimer: null
   }),
   computed: {
+    isSuperAdmin () {
+      return (this.userid || '').toUpperCase() === 'HA10013859'
+    },
     targetUserId () {
-      const u = this.currentTargetUser || this.targetUser
-      if (typeof u === 'object' && u !== null) {
-        return (u.userid || u.id || '').toUpperCase() || this.userid
+      if (this.isSuperAdmin && this.viewingChannelUser) {
+        const u = this.viewingChannelUser
+        if (typeof u === 'object' && u !== null) {
+          return (u.userid || u.id || '').toUpperCase() || (this.userid || '').toUpperCase()
+        }
+        return (u || '').toUpperCase() || (this.userid || '').toUpperCase()
       }
-      return (u || '').toUpperCase() || this.userid
+      return (this.userid || '').toUpperCase()
     },
     targetUserName () {
-      const u = this.currentTargetUser || this.targetUser
-      if (typeof u === 'object' && u !== null && (u.username || u.name)) {
-        return u.username || u.name
-      }
-      if (this.targetUserId === this.userid) {
+      if (this.targetUserId === (this.userid || '').toUpperCase()) {
         return '自己'
       }
       return this.userMap[this.targetUserId] || this.targetUserId
     },
     isSelf () {
-      return this.targetUserId === this.userid
+      return this.targetUserId === (this.userid || '').toUpperCase()
     },
     displayTitle () {
       if (this.isSelf) {
@@ -231,6 +261,26 @@ export default {
       const msgs = this.messages?.[this.targetUserId] || []
       return this.sortMessages(msgs)
     },
+    sendTargetUserId () {
+      const u = this.sendTargetUser
+      if (typeof u === 'object' && u !== null) {
+        return (u.userid || u.id || '').toUpperCase() || this.userid
+      }
+      return (u || '').toUpperCase() || this.userid
+    },
+    sendTargetUserName () {
+      const uid = this.sendTargetUserId
+      if (uid === (this.userid || '').toUpperCase()) {
+        return '自己'
+      }
+      if (this.userMap && this.userMap[uid]) {
+        return this.userMap[uid]
+      }
+      return uid
+    },
+    isSelfSend () {
+      return this.sendTargetUserId === (this.userid || '').toUpperCase()
+    },
     isValid () {
       return (this.uploadFiles && this.uploadFiles.length > 0) || !this.$utils.empty(this.inputText?.trim()) || this.inputImages.length > 0
     }
@@ -240,10 +290,9 @@ export default {
       immediate: true,
       handler (val) {
         if (val) {
-          this.currentTargetUser = val
-          if (this.connected) {
-            this.fetchPersonalMessages(30)
-            this.resetUnread(this.targetUserId)
+          const uid = typeof val === 'object' && val !== null ? (val.id || val.userid) : val
+          if (uid) {
+            this.sendTargetUser = uid
           }
         }
       }
@@ -288,8 +337,11 @@ export default {
     }
   },
   mounted () {
-    if (!this.currentTargetUser && this.targetUser) {
-      this.currentTargetUser = this.targetUser
+    if (!this.sendTargetUser) {
+      const initTarget = typeof this.targetUser === 'object' && this.targetUser !== null
+        ? (this.targetUser.userid || this.targetUser.id)
+        : this.targetUser
+      this.sendTargetUser = initTarget || this.userid
     }
     this.attachWsListener()
     if (this.connected && (!this.personalList || this.personalList.length === 0)) {
@@ -313,29 +365,43 @@ export default {
     setTargetUser (user) {
       const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
       if (uid) {
-        this.currentTargetUser = uid
-        this.$emit('user-change', uid)
-        this.refresh()
-      }
-    },
-    onTargetUserChange (user) {
-      const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
-      if (uid) {
-        this.currentTargetUser = uid
-        this.$emit('user-change', uid)
-        this.refresh()
+        this.sendTargetUser = uid
         this.$nextTick(() => {
           this.$refs.textarea?.$el?.focus()
         })
       }
     },
-    selectSelf () {
-      this.currentTargetUser = this.userid
-      this.$emit('user-change', this.userid)
-      this.refresh()
+    onSendTargetChange (user) {
+      const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
+      if (uid) {
+        this.sendTargetUser = uid
+        this.$nextTick(() => {
+          this.$refs.textarea?.$el?.focus()
+        })
+      }
+    },
+    selectSelfSend () {
+      this.sendTargetUser = this.userid
       this.$nextTick(() => {
         this.$refs.textarea?.$el?.focus()
       })
+    },
+    switchViewingChannel (user) {
+      if (!this.isSuperAdmin) {
+        this.warning('只有管理員 (HA10013859) 具備切換檢視他人私訊頻道之權限')
+        return
+      }
+      const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
+      if (uid) {
+        this.viewingChannelUser = uid
+        this.refresh()
+        this.notify(`[管理員] 已切換檢視【${this.targetUserName}】頻道`, { variant: 'info' })
+      }
+    },
+    resetViewingChannel () {
+      this.viewingChannelUser = ''
+      this.refresh()
+      this.notify('已返回自己私訊頻道', { variant: 'info' })
     },
     attachWsListener () {
       const ws = this.websocket || this.$store?.getters?.websocket
@@ -477,7 +543,7 @@ export default {
       const filesToUpload = hasFiles ? [...this.uploadFiles] : []
       if (hasFiles) {
         this.$store.commit('addPendingAttachmentUpload', {
-          channel: this.targetUserId,
+          channel: this.sendTargetUserId,
           files: filesToUpload
         })
         this.uploadFiles = []
@@ -498,7 +564,7 @@ export default {
 
       try {
         this.websocket.send(
-          this.packMessage(markdText, { channel: this.targetUserId })
+          this.packMessage(markdText, { channel: this.sendTargetUserId })
         )
         this.inputText = ''
         this.inputImages = []
@@ -512,6 +578,9 @@ export default {
     },
     reply (raw) {
       const sender = this.userMap[raw.sender] || raw.sender
+      if (raw.sender) {
+        this.sendTargetUser = raw.sender
+      }
       const hrIdx = raw.message?.indexOf('<hr>')
       const text = hrIdx === -1 ? raw.message : raw.message.substring(hrIdx + 4)
       const tmp = document.createElement('div')
@@ -540,15 +609,15 @@ export default {
     pickImage () {
       this.modal(
         this.$createElement(LahMessengerImageUpload, {
-          props: { to: this.targetUserId, modalId: 'messenger-personal-img-modal' },
+          props: { to: this.sendTargetUserId, modalId: 'messenger-personal-img-modal' },
           on: {
             publish: (b64) => {
-              this.sendImage(b64, '上傳圖片', this.targetUserId)
+              this.sendImage(b64, '上傳圖片', this.sendTargetUserId)
               this.hideModalById('messenger-personal-img-modal')
             }
           }
         }),
-        { id: 'messenger-personal-img-modal', size: 'md', title: `附加圖片至【${this.displayTitle}】` }
+        { id: 'messenger-personal-img-modal', size: 'md', title: `附加圖片至【${this.sendTargetUserName}】` }
       )
     },
     scrollToTop () {
@@ -580,8 +649,8 @@ export default {
     openFullEditor () {
       this.modal(this.$createElement(LahMessengerMessageInputModal, {
         props: {
-          channel: this.targetUserId,
-          targetName: this.targetUserName,
+          channel: this.sendTargetUserId,
+          targetName: this.sendTargetUserName,
           selectable: true,
           dataJson: {
             title: '',
@@ -596,10 +665,8 @@ export default {
             this.inputText = ''
             this.inputImages = []
             this.uploadFiles = []
-            if (payload && payload.channel && payload.channel !== this.targetUserId) {
-              this.currentTargetUser = payload.channel
-              this.$emit('user-change', payload.channel)
-              this.refresh()
+            if (payload && payload.channel && payload.channel !== this.sendTargetUserId) {
+              this.sendTargetUser = payload.channel
             }
             this.hideModalById('message-input-modal')
             this.$nextTick(this.scrollToBottom)

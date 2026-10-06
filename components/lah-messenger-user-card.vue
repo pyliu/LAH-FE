@@ -73,15 +73,6 @@ export default {
     loading: true,
     message: ''
   }),
-  computed: {
-    isMessageEmpty () { return this.empty(this.message) },
-    found () { return !this.empty(this.userData.id) },
-    photoSrc () {
-      return this.avatarSrc.replaceAll('_avatar', '')
-    },
-    queryUrl () { return this.$consts.API.JSON.USER },
-    avatarSrc () { return `${this.apiQueryUrl}/get_user_img.php?id=${this.id}_avatar&name=${this.name}_avatar` }
-  },
   fetch () {
     this.isBusy = false
     this.loading = true
@@ -108,6 +99,15 @@ export default {
       this.loading = false
     })
   },
+  computed: {
+    isMessageEmpty () { return this.empty(this.message) },
+    found () { return !this.empty(this.userData.id) },
+    photoSrc () {
+      return this.avatarSrc.replaceAll('_avatar', '')
+    },
+    queryUrl () { return this.$consts.API.JSON.USER },
+    avatarSrc () { return `${this.apiQueryUrl}/get_user_img.php?id=${this.id}_avatar&name=${this.name}_avatar` }
+  },
   methods: {
     correct () {
       this.modal(this.$createElement(LahMessengerUserUpdate, {
@@ -127,6 +127,11 @@ export default {
       })
     },
     open () {
+      if (this.$store?.getters?.isDashboardActive) {
+        this.$root.$emit('lah-messenger:user-chat', { userid: this.userData.id, username: this.userData.name })
+        this.hideModal()
+        return
+      }
       this.modal(this.$createElement(LahMessengerMessageInput, {
         props: {
           to: this.userData.id

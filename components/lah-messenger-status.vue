@@ -82,7 +82,7 @@ export default {
   data: () => ({
     clearTimer: null,
     displayText: '',
-    appVer: 'v1.4.7',
+    appVer: 'v1.5.0',
     history: [],
     showHistory: false
   }),

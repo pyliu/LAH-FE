@@ -13,13 +13,13 @@
         title="系統說明"
       )
       lah-help-modal(:modal-id="'help-modal'"): ul
-        li 本頁面將即時通各功能分頁一次展開並列顯示（公告、課室頻道、全所頻道/私訊、線上使用者）。
+        li 本頁面將即時通各功能分頁一次展開並列顯示（公告、課室頻道、全所頻道、線上使用者/個人私訊）。
         li 左側第一欄為 #[b.text-danger 全所公告]，具備管理者權限可直接發布新公告。
         li 第二欄為 #[b.text-primary 使用者所屬課室頻道]，支援對話、表情符號、截圖貼上與附加圖片。
-        li 第三欄為 #[b.text-success 全事務所頻道]，可與全所同仁即時交流；點擊第四欄同仁可切換為 #[b.text-info 個人私訊]。
-        li 第四欄為 #[b.text-info 線上使用者列表]，即時呈現各部門上線同仁名單與狀態。
+        li 第三欄為 #[b.text-success 全事務所頻道]，可與全所同仁即時交流。
+        li 第四欄為 #[b.text-info 線上使用者列表 / 個人私訊]，支援直接切換顯示，免彈出側邊抽屜遮擋畫面。
         li 停留在儀表板時，所有公務訊息自動秒讀取；收到新訊息時區塊將產生呼吸燈光暈與頂部提示。
-        li 右側抽屜可隨時展開個人私訊，未展開前若有私訊將於頂部按鈕累計未讀徽章。
+        li 收到個人私訊時，頂部按鈕與第 4 欄將產生光暈提示與未讀計數，可隨時點擊切換查看。
       b-badge.ml-2(
         :variant="connected ? 'success' : 'warning'"
         pill
@@ -27,23 +27,33 @@
         span {{ currentWsConnStr }} {{ connected ? '伺服器已連線' : '伺服器連線中 / 斷線' }}
         b-icon.ml-1(:icon="connected ? 'wifi' : 'wifi-off'")
     .d-flex.align-items-center(v-if="connected")
-      //- 側邊抽屜展開個人訊息按鈕 (含未讀徽章與新訊息脈衝效果)
-      lah-button.mr-2(
-        size="lg"
-        pill
-        :variant="personalSidebarVisible ? 'info' : 'outline-primary'"
-        :class="{ 'btn-pulse-personal': pulseState.personal }"
-        :action="personalSidebarVisible ? '' : (pulseState.personal ? 'pulse' : 'bounce')"
-        @click="togglePersonalSidebar(activePersonalUser || userid)"
-        :title="personalSidebarVisible ? '收起個人私訊抽屜' : '以右側抽屜彈出個人訊息'"
-      )
-        b-icon.mr-1(icon="layout-sidebar-reverse")
-        span.font-weight-bold 個人訊息
-        b-badge.ml-1(
-          v-if="myPersonalUnread > 0"
-          variant="danger"
-          pill
-        ) {{ myPersonalUnread }}
+      //- 第 4 欄切換「線上同仁 / 個人私訊」按鈕組
+      b-button-group.mr-2(size="lg")
+        b-button(
+          :variant="col4View === 'online' ? 'primary' : 'outline-primary'"
+          @click="switchCol4View('online')"
+          title="切換第 4 欄顯示：線上同仁列表"
+        )
+          b-icon.mr-1(icon="people-fill")
+          span.font-weight-bold 線上同仁
+          b-badge.ml-1(
+            v-if="uniqueConnectedUsersCount > 0"
+            :variant="col4View === 'online' ? 'light' : 'success'"
+            pill
+          ) {{ uniqueConnectedUsersCount }}
+        b-button(
+          :variant="col4View === 'personal' ? 'info' : 'outline-info'"
+          :class="{ 'btn-pulse-personal': pulseState.personal }"
+          @click="switchCol4View('personal')"
+          title="切換第 4 欄顯示：個人私訊"
+        )
+          b-icon.mr-1(icon="chat-dots-fill")
+          span.font-weight-bold 個人訊息
+          b-badge.ml-1(
+            v-if="col4View !== 'personal' && myPersonalUnread > 0"
+            variant="danger"
+            pill
+          ) {{ myPersonalUnread }}
 
       //- 新訊息音效提示開關按鈕
       lah-button.mr-2(
@@ -122,52 +132,39 @@
               span ✨ 新訊息
           lah-messenger-channel-lds(ref="ldsChannel")
 
-      //- ================= 第 4 欄：線上使用者列表 =================
+      //- ================= 第 4 欄：線上使用者 / 個人私訊 切換 =================
       .col-xl-3.col-lg-6.col-12.px-1.mb-2.h-100
-        .column-card-wrapper
-          lah-messenger-online-users(
-            ref="onlineUsers"
-            @dept-click="onDeptClick"
-            @user-chat="onUserChat"
-          )
-
-  //- 右側專屬個人私訊抽屜 (提供給想要邊看全所、邊看私訊的同仁)
-  b-sidebar(
-    id="dashboard-personal-sidebar"
-    v-model="personalSidebarVisible"
-    right
-    shadow="lg"
-    backdrop
-    no-header
-    no-close-on-route-change
-    width="480px"
-    sidebar-class="dashboard-personal-sidebar-custom"
-    body-class="p-0 d-flex flex-column h-100 overflow-hidden"
-  )
-    template(#default)
-      .sidebar-header.d-flex.justify-content-between.align-items-center.px-3.py-2.bg-info.text-white.shadow-sm
-        .d-flex.align-items-center
-          b-icon.mr-2(icon="chat-dots-fill")
-          span.font-weight-bold.h6.mb-0 {{ sidebarPersonalTitle }}
-          b-badge.ml-2(
-            v-if="myPersonalUnread > 0"
-            variant="danger"
-            pill
-          ) {{ myPersonalUnread }} 未讀
-        .d-flex.align-items-center
-          b-button(
-            variant="link"
-            class="text-white p-1 text-decoration-none"
-            title="關閉私訊抽屜"
-            @click="personalSidebarVisible = false"
-          )
-            b-icon(icon="x-lg" font-scale="1.1")
-      .sidebar-body.flex-grow-1.overflow-hidden
-        lah-messenger-channel-personal(
-          ref="sidebarPersonalChannel"
-          :target-user="sidebarTargetUser || userid"
-          :show-back-button="false"
+        .column-card-wrapper(
+          :class="{ 'card-pulse-personal': pulseState.personal }"
         )
+          transition(name="fade")
+            .pulse-badge.pulse-badge-personal(
+              v-if="pulseState.personal && col4View !== 'personal'"
+              @click="switchCol4View('personal')"
+              style="cursor: pointer;"
+              title="點擊切換查看新私訊"
+            )
+              b-icon.mr-1(icon="chat-dots-fill" animation="cylon")
+              span ✨ 新私訊
+          transition(name="tab-fade" mode="out-in")
+            keep-alive
+              lah-messenger-channel-personal(
+                v-if="col4View === 'personal'"
+                key="personal"
+                ref="personalChannel"
+                :target-user="activePersonalUser || userid"
+                :show-back-button="true"
+                back-button-title="切換回線上使用者列表"
+                @close="switchCol4View('online')"
+                @user-change="onPersonalUserChange"
+              )
+              lah-messenger-online-users(
+                v-else
+                key="online"
+                ref="onlineUsers"
+                @dept-click="onDeptClick"
+                @user-chat="onUserChat"
+              )
 </template>
 
 <script>
@@ -192,8 +189,7 @@ export default {
     selectedDeptChannel: '',
     userSelectedDept: false,
     activePersonalUser: '',
-    personalSidebarVisible: false,
-    sidebarTargetUser: '',
+    col4View: 'online',
     soundEnabled: true,
     pulseState: {
       announcement: false,
@@ -217,13 +213,6 @@ export default {
   computed: {
     myPersonalUnread () {
       return this.getUnread(this.userid) || 0
-    },
-    sidebarPersonalTitle () {
-      if (this.sidebarTargetUser && this.sidebarTargetUser !== this.userid) {
-        const name = this.userMap[this.sidebarTargetUser] || this.sidebarTargetUser
-        return `個人訊息 (${name})`
-      }
-      return '我的個人訊息'
     },
     currentWsConnStr () {
       // 1. 若 WebSocket 物件已建立，優先回傳底層實際連線的 url
@@ -263,15 +252,17 @@ export default {
         }
       }
     },
-    personalSidebarVisible (val) {
-      this.$store.commit('isPersonalDrawerOpen', Boolean(val))
-      if (val) {
-        // 私訊抽屜開啟 -> 立即秒讀取並清除未讀徽章
+    col4View (val) {
+      const isPersonal = val === 'personal'
+      this.$store.commit('isPersonalDrawerOpen', isPersonal)
+      if (isPersonal) {
+        // 切換至個人私訊 -> 立即秒讀取並清除未讀徽章
+        const target = this.activePersonalUser || this.userid
         this.resetUnread(this.userid)
-        if (this.sidebarTargetUser && this.sidebarTargetUser !== this.userid) {
-          this.resetUnread(this.sidebarTargetUser)
+        if (target && target !== this.userid) {
+          this.resetUnread(target)
         }
-        this.updateChannelLastReadId(this.sidebarTargetUser || this.userid)
+        this.updateChannelLastReadId(target)
       }
     }
   },
@@ -280,7 +271,7 @@ export default {
       this.originalTitle = document.title || '即時通訊儀表板'
     }
     this.$store.commit('isDashboardActive', true)
-    this.$store.commit('isPersonalDrawerOpen', Boolean(this.personalSidebarVisible))
+    this.$store.commit('isPersonalDrawerOpen', this.col4View === 'personal')
 
     if (!this.userSelectedDept) {
       this.selectedDeptChannel = this.userdept || 'inf'
@@ -300,6 +291,8 @@ export default {
 
     // 註冊全域即時訊息監聽器
     this.$root.$on('lah-messenger:message-received', this.onDashboardMessageReceived)
+    this.$root.$on('lah-messenger:user-chat', this.onUserChat)
+    this.$root.$on('lah-messenger:open-chat', this.onUserChat)
     if (typeof window !== 'undefined') {
       window.addEventListener('focus', this.onWindowFocus)
     }
@@ -308,6 +301,8 @@ export default {
     this.$store.commit('isDashboardActive', false)
     this.$store.commit('isPersonalDrawerOpen', false)
     this.$root.$off('lah-messenger:message-received', this.onDashboardMessageReceived)
+    this.$root.$off('lah-messenger:user-chat', this.onUserChat)
+    this.$root.$off('lah-messenger:open-chat', this.onUserChat)
     if (typeof window !== 'undefined') {
       window.removeEventListener('focus', this.onWindowFocus)
     }
@@ -330,9 +325,13 @@ export default {
         this.resetUnread(ch)
         this.updateChannelLastReadId(ch)
       })
-      if (this.personalSidebarVisible) {
+      if (this.col4View === 'personal') {
+        const target = this.activePersonalUser || this.userid
         this.resetUnread(this.userid)
-        this.updateChannelLastReadId(this.userid)
+        if (target && target !== this.userid) {
+          this.resetUnread(target)
+        }
+        this.updateChannelLastReadId(target)
       }
     },
     onDashboardMessageReceived (payload) {
@@ -370,8 +369,8 @@ export default {
       } else if (isPersonal) {
         pulseKey = 'personal'
         tag = '個人私訊'
-        if (this.personalSidebarVisible) {
-          // 抽屜開啟中 -> 秒讀取
+        if (this.col4View === 'personal') {
+          // 第 4 欄切換為個人私訊中 -> 秒讀取
           this.resetUnread(payload.channel)
           this.updateChannelLastReadId(payload.channel)
         }
@@ -460,33 +459,41 @@ export default {
     onWindowFocus () {
       this.stopTitleFlash()
     },
-    togglePersonalSidebar (targetUid) {
-      if (this.personalSidebarVisible) {
-        this.personalSidebarVisible = false
-      } else {
-        this.openPersonalSidebar(targetUid)
-      }
+    toggleCol4View () {
+      this.switchCol4View(this.col4View === 'personal' ? 'online' : 'personal')
     },
-    openPersonalSidebar (targetUid) {
-      const uid = targetUid || this.activePersonalUser || this.userid
-      this.sidebarTargetUser = uid
-      this.personalSidebarVisible = true
-      this.$nextTick(() => {
-        if (this.$refs.sidebarPersonalChannel?.setTargetUser) {
-          this.$refs.sidebarPersonalChannel.setTargetUser(uid)
+    switchCol4View (mode, targetUid) {
+      this.col4View = mode
+      if (mode === 'personal') {
+        if (targetUid) {
+          this.activePersonalUser = targetUid
+        } else if (!this.activePersonalUser) {
+          this.activePersonalUser = this.userid
         }
-      })
+        this.resetUnread(this.userid)
+        if (this.activePersonalUser && this.activePersonalUser !== this.userid) {
+          this.resetUnread(this.activePersonalUser)
+        }
+        this.updateChannelLastReadId(this.activePersonalUser)
+        this.$nextTick(() => {
+          this.$refs.personalChannel?.setTargetUser?.(this.activePersonalUser)
+        })
+      } else if (mode === 'online') {
+        this.$nextTick(() => {
+          this.$refs.onlineUsers?.updateOnlineAvatarsMaxPerLine?.()
+        })
+      }
     },
     initAllChannels () {
       if (!this.userSelectedDept && this.userdept) {
         this.selectedDeptChannel = this.userdept
       }
       this.markDashboardChannelsAsRead()
-      this.$refs.announcementChannel?.refresh()
-      this.$refs.departmentChannel?.refresh()
-      this.$refs.ldsChannel?.refresh()
-      this.$refs.sidebarPersonalChannel?.refresh()
-      this.$refs.onlineUsers?.refresh()
+      this.$refs.announcementChannel?.refresh?.()
+      this.$refs.departmentChannel?.refresh?.()
+      this.$refs.ldsChannel?.refresh?.()
+      this.$refs.personalChannel?.refresh?.()
+      this.$refs.onlineUsers?.refresh?.()
       this.notify('已重新整理所有頻道與線上名單', { variant: 'success' })
     },
     triggerReconnect () {
@@ -510,9 +517,16 @@ export default {
       }
     },
     onUserChat (user) {
-      if (user?.userid) {
-        this.activePersonalUser = user.userid
-        this.openPersonalSidebar(user.userid)
+      const uid = typeof user === 'object' && user !== null ? (user.userid || user.id) : user
+      if (uid) {
+        this.switchCol4View('personal', uid)
+      }
+    },
+    onPersonalUserChange (newUid) {
+      if (newUid) {
+        this.activePersonalUser = newUid
+        this.resetUnread(newUid)
+        this.updateChannelLastReadId(newUid)
       }
     }
   }
@@ -559,6 +573,9 @@ export default {
     &.pulse-badge-lds {
       background: #28a745;
     }
+    &.pulse-badge-personal {
+      background: #17a2b8;
+    }
   }
 
   &.card-pulse-announcement {
@@ -574,6 +591,11 @@ export default {
   &.card-pulse-lds {
     box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.85), 0 0 20px rgba(40, 167, 69, 0.5) !important;
     animation: pulseGlowGreen 1.2s infinite ease-in-out;
+  }
+
+  &.card-pulse-personal {
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.85), 0 0 20px rgba(23, 162, 184, 0.5) !important;
+    animation: pulseGlowCyan 1.2s infinite ease-in-out;
   }
 }
 
@@ -610,6 +632,15 @@ export default {
   }
 }
 
+@keyframes pulseGlowCyan {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.85), 0 0 16px rgba(23, 162, 184, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(23, 162, 184, 1), 0 0 28px rgba(23, 162, 184, 0.7);
+  }
+}
+
 @keyframes pulseButton {
   from {
     transform: scale(1);
@@ -635,12 +666,13 @@ export default {
   }
 }
 
-::v-deep .dashboard-personal-sidebar-custom {
-  .b-sidebar-header {
-    display: none;
-  }
+.tab-fade-enter-active,
+.tab-fade-leave-active {
+  transition: opacity 0.12s ease-out;
 }
-::v-deep .b-sidebar-backdrop {
-  background-color: rgba(15, 23, 42, 0.45) !important;
+
+.tab-fade-enter,
+.tab-fade-leave-to {
+  opacity: 0;
 }
 </style>
