@@ -97,7 +97,7 @@ div.notification-admin-page
                     :variant="isAllSelected ? 'danger' : 'outline-danger'"
                     size="sm"
                     pill
-                    @click="selectTarget('lds')"
+                    @click="selectTarget('announcement')"
                   )
                     lah-fa-icon(icon="bullhorn" v-if="isAllSelected").mr-1
                     | 🏢 全所同仁
@@ -505,7 +505,7 @@ export default {
     isAllSelected () {
       return (
         this.announcementSendto.length === 1 &&
-        (this.announcementSendto[0] === 'lds' || this.announcementSendto[0] === 'all')
+        (this.announcementSendto[0] === 'announcement' || this.announcementSendto[0] === 'lds' || this.announcementSendto[0] === 'all')
       )
     },
     announcementSendtoOpts () {
@@ -513,6 +513,7 @@ export default {
       return [
         { value: this.userid, text: myText },
         { value: 'myself', text: myText },
+        { value: 'announcement', text: '全所同仁' },
         { value: 'lds', text: '全所同仁' },
         { value: 'all', text: '全所同仁' }
       ]
@@ -581,8 +582,8 @@ export default {
     selectTarget (target) {
       if (target === 'myself' || target === this.userid) {
         this.announcementSendto = [this.userid || 'myself']
-      } else if (target === 'lds' || target === 'all') {
-        this.announcementSendto = ['lds']
+      } else if (target === 'announcement' || target === 'lds' || target === 'all') {
+        this.announcementSendto = ['announcement']
       }
     },
     insertTitlePrefix (prefix) {
@@ -721,7 +722,7 @@ export default {
       const rawChannels = Array.isArray(snapshot.channels) ? snapshot.channels : [snapshot.channels].filter(Boolean)
       const mapped = rawChannels.map((ch) => {
         if (ch === 'myself') { return this.userid || 'myself' }
-        if (ch === 'all') { return 'lds' }
+        if (ch === 'all' || ch === 'lds') { return 'announcement' }
         return ch
       })
       this.announcementSendto = mapped.length > 0 ? mapped : [this.userid || 'myself']
@@ -871,7 +872,7 @@ export default {
     },
     flipSendto () {
       if (this.isMyselfOnly) {
-        this.announcementSendto = ['lds']
+        this.announcementSendto = ['announcement']
       } else {
         this.announcementSendto = [this.userid || 'myself']
       }
@@ -880,6 +881,7 @@ export default {
       switch (to) {
         case '全所':
         case '全所同仁':
+        case 'announcement':
         case 'lds':
         case 'all':
           return 'danger'

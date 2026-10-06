@@ -32,6 +32,7 @@ export default {
         case 'adm': return '行政課'
         case 'val': return '地價課'
         case 'inf': return '資訊課'
+        case 'announcement':
         case 'all':
         case 'lds': return '全所'
         case 'supervisor': return '主任祕書室'
