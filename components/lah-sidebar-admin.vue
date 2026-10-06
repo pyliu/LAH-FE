@@ -27,6 +27,13 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
+      li: a(
+        :href="`${this.apiQueryUrl}/project/bookmark/`",
+        target="_blank",
+        rel="noreferrer noopener"
+      ).
+        #[font-awesome-icon(:icon="['far', 'bookmark']", fixed-width, size="lg")]
+        所內書籤索引
       li: nuxt-link(to="/websocket").
         #[font-awesome-icon(:icon="['fas', 'wifi']", fixed-width, size="lg")]
         即時通訊儀表板
@@ -98,18 +105,6 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/lxhweb").
         #[font-awesome-icon(:icon="['fas', 'database']", fixed-width, size="lg")]
         {{site}} 同步異動監控
-
-      li: hr
-
-      li: nuxt-link(to="/admin/ip").
-        #[font-awesome-icon(:icon="['fas', 'network-wired']", fixed-width, size="lg")]
-        IP對應表管理
-      li: nuxt-link(to="/admin/users").
-        #[font-awesome-icon(:icon="['fas', 'people-roof']", fixed-width, size="lg")]
-        員工管理
-      li: nuxt-link(to="/admin/configs").
-        #[font-awesome-icon(:icon="['fas', 'tasks']", fixed-width, size="lg")]
-        系統參數設定
 
       li: hr
 

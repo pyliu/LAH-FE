@@ -26,7 +26,14 @@ b-sidebar#lah-sidebar(
       )
 
       li: hr
-      
+
+      li: a(
+        :href="`${this.apiQueryUrl}/project/bookmark/`",
+        target="_blank",
+        rel="noreferrer noopener"
+      ).
+        #[font-awesome-icon(:icon="['far', 'bookmark']", fixed-width, size="lg")]
+        所內書籤索引
       li: nuxt-link(to="/websocket").
         #[font-awesome-icon(:icon="['fas', 'wifi']", fixed-width, size="lg")]
         即時通訊儀表板
@@ -40,7 +47,7 @@ b-sidebar#lah-sidebar(
         傳送即時通訊息
 
       li: hr
-      
+
       li: nuxt-link(v-if="isH0 || isInf", to="/bureau").
         #[font-awesome-icon(:icon="['fas', 'tv']", fixed-width, pull="left", size="lg")]
         {{ site }}監控輪播
@@ -132,13 +139,6 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/xap/broken_cached").
         #[font-awesome-icon(:icon="['fas', 'heart-pulse']", fixed-width, size="lg")]
         全國跨域主機監控
-      li: a(
-        :href="`${this.legacyUrl}/project/bookmark/`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ).
-        #[font-awesome-icon(:icon="['far', 'bookmark']", fixed-width, size="lg")]
-        所內書籤索引
       li: nuxt-link(to="/users").
         #[font-awesome-icon(:icon="['far', 'user-circle']", fixed-width, size="lg")]
         員工名錄

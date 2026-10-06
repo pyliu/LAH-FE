@@ -97,6 +97,7 @@ Vue.mixin({
       const portStr = port && port !== 80 && port !== '80' ? `:${port}` : ''
       return `http://${host}${portStr}`
     },
+    apiUrl () { return this.apiQueryUrl },
     componentName () { return this.$options.name || this.$ooptions._componentTag },
     isSur () { return this.myinfo?.unit === '測量課' },
     isVal () { return this.myinfo?.unit === '地價課' },
