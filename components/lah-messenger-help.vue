@@ -13,9 +13,9 @@
           b-icon.mr-1(icon="palette-fill" variant="primary")
           h6.font-weight-bold.mb-0 自訂醒目色彩文字
         p.s-90.text-muted.mb-2
-          span 使用大括號標籤包圍文字，即可自訂粗體醒目色彩（半形 
+          span 使用大括號標籤包圍文字，即可自訂粗體醒目色彩（半形
           code(v-pre) {{ }}
-          span  或全形 
+          span  或全形
           code ｛｛ ｝｝
           span  皆支援）：
         .table-responsive
@@ -89,9 +89,9 @@
               tr
                 td.font-weight-bold.text-center 本機與網路路徑
                 td
-                  code \\220.1.34.57\分享區
+                  code.open-os-explorer(title="點擊測試複製路徑") \\220.1.34.57\分享區
                   br
-                  code C:\Users\Document
+                  code.open-os-explorer(title="點擊測試複製路徑") C:\Users\Document
                 td
                   span.open-os-explorer(title="點擊測試複製路徑") \\220.1.34.57\分享區
                   br
@@ -101,7 +101,7 @@
                     strong 點擊上方文字即可自動複製至剪貼簿！
               tr
                 td.font-weight-bold.text-center 含空白之路徑
-                td: code "\\192.168.1.1\Public Folder"
+                td: code.open-os-explorer(title="點擊測試複製路徑") "\\192.168.1.1\Public Folder"
                 td
                   span.open-os-explorer(title="點擊測試複製路徑") "\\192.168.1.1\Public Folder"
                   .s-80.text-muted.mt-1 包含空格的路徑請以雙引號包覆
@@ -130,7 +130,7 @@
                 td: code **粗體文字** 與 *斜體文字*
                 td
                   strong 粗體文字
-                  span  與 
+                  span  與
                   em 斜體文字
               tr
                 td.font-weight-bold.text-center 刪除線
@@ -185,19 +185,19 @@
         ul.s-90.pl-3.mb-0
           li.mb-2
             strong.text-dark 剪貼簿快速貼圖：
-            span 使用截圖工具（如 
+            span 使用截圖工具（如
             kbd Win + Shift + S
-            span ）複製畫面後，直接在輸入框按下 
+            span ）複製畫面後，直接在輸入框按下
             kbd Ctrl + V
             span  即可自動載入圖片預覽，確認後送出。
           li.mb-2
             strong.text-dark 檔案挑選上傳：
-            span 點選輸入框下方的 
+            span 點選輸入框下方的
             b-icon(icon="image" variant="secondary")
             span  圖片按鈕，可自本機挑選 PNG / JPG 圖檔上傳。
           li.mb-1
             strong.text-dark 表情符號：
-            span 點選輸入框下方的 
+            span 點選輸入框下方的
             b-icon(icon="emoji-smile" variant="warning")
             span  笑臉按鈕，可直接選取常用的 Emoji 表情貼圖。
 
@@ -230,7 +230,7 @@
               .d-flex.align-items-center.mb-1
                 b-icon.mr-1(icon="check-all" variant="primary")
                 strong.text-dark 雙勾勾已讀確認
-              .text-muted 發送之私訊於對方開啟閱讀後，時間旁將自動顯示 
+              .text-muted 發送之私訊於對方開啟閱讀後，時間旁將自動顯示
                 b-icon(icon="check-all" variant="secondary")
                 span  已讀標記。
 
@@ -348,6 +348,19 @@ kbd {
   &:hover {
     background-color: #cce5ff;
     color: #0056b3;
+    text-decoration: underline;
+  }
+}
+
+code.open-os-explorer {
+  border: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+  color: #d63384;
+
+  &:hover {
+    background-color: #e8f4fd;
+    color: #007bff;
+    border-color: #b8daff;
     text-decoration: underline;
   }
 }

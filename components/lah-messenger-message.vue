@@ -235,10 +235,12 @@ export default {
         regex.lastIndex = 0
         if (regex.test(markd)) {
           const inlined = this.$utils.convertInlineMarkd(markd)
-          return this.$utils.replaceFilepath ? this.$utils.replaceFilepath(inlined) : inlined
+          const withFiles = this.$utils.replaceFilepath ? this.$utils.replaceFilepath(inlined) : inlined
+          return this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles
         }
       }
-      return this.$utils.replaceFilepath ? this.$utils.replaceFilepath(markd) : markd
+      const withFiles = this.$utils.replaceFilepath ? this.$utils.replaceFilepath(markd) : markd
+      return this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles
     },
     senderId () { return this.raw?.sender },
     sender () { return this.userMap[this.senderId] || this.senderId },
@@ -483,6 +485,20 @@ export default {
       border-radius: 4px;
       margin: 4px auto;
       object-fit: contain;
+    }
+
+    ::v-deep a[target="_blank"],
+    ::v-deep a.messenger-external-link {
+      &::after {
+        content: ' ↗';
+        font-size: 0.82em;
+        font-weight: bold;
+        display: inline-block;
+        vertical-align: super;
+        line-height: 1;
+        opacity: 0.8;
+        text-decoration: none !important;
+      }
     }
   }
 

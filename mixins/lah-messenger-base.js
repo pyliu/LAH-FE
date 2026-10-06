@@ -363,6 +363,9 @@ export default {
     },
     handleSpecialClick (event) {
       const element = event.target
+      if (!element) {
+        return
+      }
       if (element.tagName === 'IMG' && element.src && (element.src.startsWith('data:') || element.src.startsWith('http'))) {
         event.stopPropagation()
         event.preventDefault()
@@ -377,33 +380,108 @@ export default {
           title: element.alt || '圖片檢視',
           size: 'xl'
         })
-      } else {
-        const target = element.classList?.contains('open-os-explorer')
-          ? element
-          : (typeof element.closest === 'function' ? element.closest('.open-os-explorer') : null)
-        if (target) {
-          event.stopPropagation()
-          event.preventDefault()
-          const path = target.textContent?.trim()
-          if (path) {
-            this.copyToClipboard(path).then((success) => {
-              if (success) {
-                this.notify(`已複製檔案路徑至剪貼簿：${path}`, {
-                  title: '📋 剪貼簿',
-                  variant: 'info'
-                })
-              } else {
-                this.notify(path, {
-                  title: '⚠️ 無法自動複製路徑，請手動複製',
-                  variant: 'warning'
-                })
-              }
-            })
+        return
+      }
+
+      const target = element.classList?.contains('open-os-explorer')
+        ? element
+        : (typeof element.closest === 'function' ? element.closest('.open-os-explorer') : null)
+      if (target) {
+        event.stopPropagation()
+        event.preventDefault()
+        let path = target.textContent?.trim() || ''
+        // 若前後包覆引號，去除外層引號以便於檔案總管等環境貼上
+        path = path.replace(/^["']|["']$/g, '').trim()
+        if (path) {
+          this.copyToClipboard(path, '', target).then((success) => {
+            if (success) {
+              this.notify(`已複製檔案路徑至剪貼簿：${path}`, {
+                title: '📋 剪貼簿',
+                variant: 'info'
+              })
+            } else {
+              this.notify(path, {
+                title: '⚠️ 無法自動複製路徑，請手動複製',
+                variant: 'warning'
+              })
+            }
+          })
+        }
+        return
+      }
+
+      const anchor = element.tagName === 'A'
+        ? element
+        : (typeof element.closest === 'function' ? element.closest('a') : null)
+      if (anchor && anchor.href) {
+        const rawHref = (anchor.getAttribute('href') || '').trim()
+        if (rawHref && !rawHref.startsWith('javascript:') && !rawHref.startsWith('#')) {
+          if (this.isExternalUrl(rawHref)) {
+            event.stopPropagation()
+            event.preventDefault()
+            if (process.client && typeof window !== 'undefined') {
+              window.open(anchor.href, '_blank', 'noopener,noreferrer')
+            }
           }
         }
       }
     },
-    copyToClipboard (text, successMsg = '') {
+    isExternalUrl (url) {
+      if (!url || typeof url !== 'string') {
+        return false
+      }
+      const trimmed = url.trim()
+      if (trimmed.startsWith('#') || trimmed.startsWith('javascript:')) {
+        return false
+      }
+      // 站內相對路徑 (例如 /websocket 或 notification)
+      if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+        return false
+      }
+      if (process.client && typeof window !== 'undefined' && window.location) {
+        try {
+          const parsed = new URL(trimmed, window.location.origin)
+          // 相同 origin 代表本所系統站內連結，保留同分頁跳轉
+          if (parsed.origin === window.location.origin) {
+            return false
+          }
+        } catch (e) {}
+      }
+      // 絕對網址 (http://, https://, //) 且非同站者視為外部連結
+      return /^(https?:)?\/\//i.test(trimmed)
+    },
+    formatMessengerLinks (html) {
+      if (!html || typeof html !== 'string') {
+        return html || ''
+      }
+      return html.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
+        const hrefMatch = attrs.match(/\bhref=(["'])(.*?)\1/i)
+        if (hrefMatch && hrefMatch[2]) {
+          const href = hrefMatch[2].trim()
+          if (this.isExternalUrl(href)) {
+            let newAttrs = attrs
+            if (!/\btarget=/i.test(newAttrs)) {
+              newAttrs += ' target="_blank"'
+            } else {
+              newAttrs = newAttrs.replace(/\btarget=(["']).*?\1/i, 'target="_blank"')
+            }
+            if (!/\brel=/i.test(newAttrs)) {
+              newAttrs += ' rel="noopener noreferrer"'
+            } else {
+              newAttrs = newAttrs.replace(/\brel=(["']).*?\1/i, 'rel="noopener noreferrer"')
+            }
+            if (!/\bclass=/i.test(newAttrs)) {
+              newAttrs += ' class="messenger-external-link"'
+            } else if (!/messenger-external-link/i.test(newAttrs)) {
+              newAttrs = newAttrs.replace(/\bclass=(["'])(.*?)\1/i, 'class="$2 messenger-external-link"')
+            }
+            return `<a${newAttrs}>`
+          }
+        }
+        return match
+      })
+    },
+    copyToClipboard (text, successMsg = '', containerEl = null) {
       return new Promise((resolve) => {
         if (!text) {
           resolve(false)
@@ -419,23 +497,24 @@ export default {
           navigator.clipboard.writeText(text).then(() => {
             onDone(true)
           }).catch(() => {
-            onDone(this.fallbackCopyText(text))
+            onDone(this.fallbackCopyText(text, containerEl))
           })
           return
         }
-        onDone(this.fallbackCopyText(text))
+        onDone(this.fallbackCopyText(text, containerEl))
       })
     },
-    fallbackCopyText (text) {
+    fallbackCopyText (text, containerEl = null) {
       if (!process.client || typeof document === 'undefined') {
         return false
       }
       try {
         const textarea = document.createElement('textarea')
         textarea.value = text
+        textarea.setAttribute('readonly', '')
         textarea.style.position = 'fixed'
         textarea.style.top = '0'
-        textarea.style.left = '0'
+        textarea.style.left = '-9999px'
         textarea.style.width = '2em'
         textarea.style.height = '2em'
         textarea.style.padding = '0'
@@ -443,14 +522,22 @@ export default {
         textarea.style.outline = 'none'
         textarea.style.boxShadow = 'none'
         textarea.style.background = 'transparent'
-        textarea.style.opacity = '0'
-        textarea.style.pointerEvents = 'none'
+        textarea.style.fontSize = '16px'
+
+        // 若目前處於 Modal 內部，必須掛載在該 Modal 容器內，否則會被 Bootstrap 的 enforceFocus 奪走焦點導致複製失敗
+        const activeModal = (containerEl && typeof containerEl.closest === 'function' && containerEl.closest('.modal-content')) ||
+          document.querySelector('.modal.show .modal-content') ||
+          document.querySelector('.modal.show') ||
+          (containerEl && containerEl.parentElement) ||
+          document.body
+
         const currentActive = document.activeElement
-        document.body.appendChild(textarea)
+        activeModal.appendChild(textarea)
         textarea.focus()
         textarea.select()
+        textarea.setSelectionRange(0, textarea.value.length)
         const successful = document.execCommand('copy')
-        document.body.removeChild(textarea)
+        activeModal.removeChild(textarea)
         if (currentActive && typeof currentActive.focus === 'function') {
           currentActive.focus()
         }

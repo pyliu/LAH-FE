@@ -456,7 +456,7 @@ Vue.mixin({
     attention (selector, opts = { name: 'flash', speed: 'faster' }) {
       return process.client && this.$utils.animated(selector, opts)
     },
-    copyToClipboard (text, successMsg = '') {
+    copyToClipboard (text, successMsg = '', containerEl = null) {
       return new Promise((resolve) => {
         if (!text) {
           resolve(false)
@@ -472,23 +472,24 @@ Vue.mixin({
           navigator.clipboard.writeText(text).then(() => {
             onDone(true)
           }).catch(() => {
-            onDone(this.fallbackCopyText(text))
+            onDone(this.fallbackCopyText(text, containerEl))
           })
           return
         }
-        onDone(this.fallbackCopyText(text))
+        onDone(this.fallbackCopyText(text, containerEl))
       })
     },
-    fallbackCopyText (text) {
+    fallbackCopyText (text, containerEl = null) {
       if (!process.client || typeof document === 'undefined') {
         return false
       }
       try {
         const textarea = document.createElement('textarea')
         textarea.value = text
+        textarea.setAttribute('readonly', '')
         textarea.style.position = 'fixed'
         textarea.style.top = '0'
-        textarea.style.left = '0'
+        textarea.style.left = '-9999px'
         textarea.style.width = '2em'
         textarea.style.height = '2em'
         textarea.style.padding = '0'
@@ -496,14 +497,22 @@ Vue.mixin({
         textarea.style.outline = 'none'
         textarea.style.boxShadow = 'none'
         textarea.style.background = 'transparent'
-        textarea.style.opacity = '0'
-        textarea.style.pointerEvents = 'none'
+        textarea.style.fontSize = '16px'
+
+        // 若目前處於 Modal 內部，必須掛載在該 Modal 容器內，否則會被 Bootstrap 的 enforceFocus 奪走焦點導致複製失敗
+        const activeModal = (containerEl && typeof containerEl.closest === 'function' && containerEl.closest('.modal-content')) ||
+          document.querySelector('.modal.show .modal-content') ||
+          document.querySelector('.modal.show') ||
+          (containerEl && containerEl.parentElement) ||
+          document.body
+
         const currentActive = document.activeElement
-        document.body.appendChild(textarea)
+        activeModal.appendChild(textarea)
         textarea.focus()
         textarea.select()
+        textarea.setSelectionRange(0, textarea.value.length)
         const successful = document.execCommand('copy')
-        document.body.removeChild(textarea)
+        activeModal.removeChild(textarea)
         if (currentActive && typeof currentActive.focus === 'function') {
           currentActive.focus()
         }

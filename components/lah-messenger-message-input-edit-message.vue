@@ -230,9 +230,11 @@ export default {
       })
     },
     openPreview () {
+      const rendered = this.$utils.convertMarkd(this.mergedMessage)
+      const formatted = this.formatMessengerLinks ? this.formatMessengerLinks(rendered) : rendered
       this.modal(this.$createElement('div', {
         domProps: {
-          innerHTML: this.$utils.convertMarkd(this.mergedMessage)
+          innerHTML: formatted
         }
       }), {
         title: '預覽',

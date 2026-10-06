@@ -97,7 +97,8 @@ export default {
           markd = this.$utils.convertInlineMarkd(markd)
         }
       }
-      return this.$utils.replaceFilepath(markd)
+      const withFiles = this.$utils.replaceFilepath(markd)
+      return this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles
     },
     attachments () {
       if (Array.isArray(this.dataJson?.attachments)) {
@@ -196,6 +197,20 @@ export default {
       border-radius: 4px;
       margin: 6px auto;
       object-fit: contain;
+    }
+
+    ::v-deep a[target="_blank"],
+    ::v-deep a.messenger-external-link {
+      &::after {
+        content: ' ↗';
+        font-size: 0.82em;
+        font-weight: bold;
+        display: inline-block;
+        vertical-align: super;
+        line-height: 1;
+        opacity: 0.8;
+        text-decoration: none !important;
+      }
     }
   }
   ::v-deep .card-footer {
