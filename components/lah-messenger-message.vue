@@ -45,6 +45,7 @@
     lah-messenger-announcement-card.w-100(
       v-if="isAnnouncement"
       :data-json="announcementPayload"
+      :raw-attachments="attachments"
       :channel="channel"
       :message-id="id"
       :class="isToday ? 'today-card' : ''"
@@ -162,7 +163,16 @@ export default {
     },
     isCascadeMessage () { return (this.raw.flag & 1) === 1 && typeof this.cascadeInfo === 'object' },
     isRead () { return (this.raw.flag & 2) === 2 },
-    announcementPayload () { return this.raw?.message },
+    announcementPayload () {
+      if (typeof this.raw?.message === 'object' && this.raw.message !== null) {
+        return {
+          ...this.raw.message,
+          id: this.raw.id || this.raw.message.id,
+          attachments: this.attachments
+        }
+      }
+      return this.raw?.message
+    },
     isAnnouncement () { return typeof this.announcementPayload === 'object' },
     myAnnouncement () { return this.isAnnouncement && this.announcementPayload.sender === this.userid },
     showMdate () { return this.prevMdate !== this.mdate },

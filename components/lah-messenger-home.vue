@@ -890,7 +890,9 @@ export default {
             }
           }
           break
-        case 'attachment_uploaded': {
+        case 'attachment_uploaded':
+        case 'attachment_deleted': {
+          const isUploaded = cmd === 'attachment_uploaded'
           const attPayload = json.payload || {}
           const attChannel = attPayload.channel
           const attMsgId = parseInt(attPayload.message_id) || 0
@@ -902,15 +904,24 @@ export default {
             if (!Array.isArray(msgList)) {
               return false
             }
-            const targetMsg = msgList.find((m) => {
+            const targetIndex = msgList.findIndex((m) => {
               const mid = this.extractMessageId(m)
-              return mid === attMsgId
+              return mid == attMsgId || m?.id == attMsgId || m?.message?.id == attMsgId
             })
-            if (targetMsg) {
+            if (targetIndex > -1) {
+              const targetMsg = msgList[targetIndex]
               this.$set(targetMsg, 'attachments', newAttachments)
               if (targetMsg.message && typeof targetMsg.message === 'object') {
                 this.$set(targetMsg.message, 'attachments', newAttachments)
               }
+              const updatedMsg = {
+                ...targetMsg,
+                attachments: newAttachments,
+                message: typeof targetMsg.message === 'object' && targetMsg.message !== null
+                  ? { ...targetMsg.message, attachments: newAttachments }
+                  : targetMsg.message
+              }
+              this.$set(msgList, targetIndex, updatedMsg)
               return true
             }
             return false
@@ -919,7 +930,11 @@ export default {
           if (attChannel !== this.userid) {
             updateMsgAttachments(this.messages[this.userid])
           }
-          this.setConnectText(`${attPayload.file?.name || '附件'} 上傳成功`)
+          const actionText = isUploaded ? '上傳成功' : '已刪除'
+          const targetFilename = isUploaded
+            ? (attPayload.file?.name || '附件')
+            : (this.getAttachmentDisplayName(attPayload.filename) || '附件')
+          this.setConnectText(`${targetFilename} ${actionText}`)
           break
         }
         default:

@@ -58,6 +58,7 @@ export default {
   mixins: [lahMessengerBase],
   props: {
     dataJson: { type: Object, required: true },
+    rawAttachments: { type: Array, default: () => [] },
     channel: { type: String, required: true },
     preview: { type: Boolean, default: false }
   },
@@ -101,6 +102,9 @@ export default {
       return this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles
     },
     attachments () {
+      if (Array.isArray(this.rawAttachments) && this.rawAttachments.length > 0) {
+        return this.rawAttachments
+      }
       if (Array.isArray(this.dataJson?.attachments)) {
         return this.dataJson.attachments
       }
