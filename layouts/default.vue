@@ -71,6 +71,7 @@ export default {
 
     // 初始化系統訊息歷史紀錄與監聽開啟 Modal 事件
     this.$store.commit('initMessageMemento')
+    this.$store.commit('initDisplayFontScale')
     this.openMessageHistoryModalHandler = () => {
       this.$refs.messageHistoryModal?.show()
     }

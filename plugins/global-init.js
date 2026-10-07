@@ -42,6 +42,9 @@ export default ({ $axios, store, $config }, inject) => {
   if (store && !Vue.prototype.$store) {
     Vue.prototype.$store = store
   }
+  if (process.client && store) {
+    store.commit('initDisplayFontScale')
+  }
   // global const variables, use this.$consts.xxxx to access them in Vue
   const consts = {
     // ✨ 集中管理的戰情面板清單

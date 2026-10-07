@@ -38,6 +38,10 @@
 	    url('../webfonts/EUDC.TTF') format('truetype');
 }
 
+html {
+  font-size: calc(16px * var(--lah-font-scale, 1));
+}
+
 html, body { 
   height: 100vh;
   width: 100%;
@@ -46,6 +50,12 @@ html, body {
   min-width: 1012px;
   scroll-behavior: smooth;
   font-family: 'Microsoft JhengHei', 'EUDC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+// 頂部標題列與即時通訊側邊欄鎖定 100% 標準尺寸，不隨顯示區域縮放影響
+.lah-header,
+.lah-messenger-sidebar-wrapper {
+  zoom: var(--lah-font-scale-inv, 1);
 }
 
 body::-webkit-scrollbar {

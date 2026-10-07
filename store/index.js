@@ -135,13 +135,15 @@ export const state = () => ({
   isDashboardActive: false,
   isPersonalDrawerOpen: false,
   pendingAttachmentUploads: [],
-  wsHttpPort: 8082
+  wsHttpPort: 8082,
+  displayFontScale: 100
 })
 
 /**
  * Getters for derived state.
  */
 export const getters = {
+  displayFontScale: state => state.displayFontScale || 100,
   loggedIn: state => state.loggedIn,
   ip: state => state.ip,
   adminIps: state => state.adminIps,
@@ -443,6 +445,50 @@ export const mutations = {
         window.localStorage.removeItem('lah_message_history')
       } catch (e) {}
     }
+  },
+  setDisplayFontScale (state, val) {
+    let scale = parseInt(val, 10)
+    if (isNaN(scale)) {
+      scale = 100
+    }
+    // 限制在 85% ~ 140%
+    scale = Math.min(Math.max(scale, 85), 140)
+    state.displayFontScale = scale
+
+    if (process.client && typeof window !== 'undefined') {
+      try {
+        window.localStorage?.setItem('lah-display-font-scale', String(scale))
+      } catch (e) {
+        console.warn('儲存字體縮放設定失敗', e)
+      }
+      const root = document.documentElement
+      if (root) {
+        root.style.setProperty('--lah-font-scale', (scale / 100).toString())
+        root.style.setProperty('--lah-font-scale-inv', (100 / scale).toFixed(5))
+      }
+    }
+  },
+  initDisplayFontScale (state) {
+    let scale = 100
+    if (process.client && typeof window !== 'undefined') {
+      try {
+        const saved = window.localStorage?.getItem('lah-display-font-scale')
+        if (saved) {
+          const parsed = parseInt(saved, 10)
+          if (!isNaN(parsed)) {
+            scale = Math.min(Math.max(parsed, 85), 140)
+          }
+        }
+      } catch (e) {
+        console.warn('讀取字體縮放設定失敗', e)
+      }
+      const root = document.documentElement
+      if (root) {
+        root.style.setProperty('--lah-font-scale', (scale / 100).toString())
+        root.style.setProperty('--lah-font-scale-inv', (100 / scale).toFixed(5))
+      }
+    }
+    state.displayFontScale = scale
   },
   topXap (state, office) {
     state.topXap = { ...office }

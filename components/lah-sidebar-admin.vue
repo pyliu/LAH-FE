@@ -115,6 +115,7 @@ b-sidebar#lah-sidebar(
       ).
         #[font-awesome-icon(:icon="['fab', 'github']", fixed-width, pull="left", size="lg")]
         原始碼
+      li: lah-font-size-adjuster
       li: b-link(@click="triggerClear").
         #[font-awesome-icon(:icon="['fas', 'hand-sparkles']", fixed-width, size="lg")]
         清除本系統快取資料
@@ -144,9 +145,10 @@ b-sidebar#lah-sidebar(
 import some from 'lodash/some'
 import lahAvatar from '~/components/lah-avatar.vue'
 import LahUserCard from '~/components/lah-user-card.vue'
+import lahFontSizeAdjuster from '~/components/lah-font-size-adjuster.vue'
 
 export default {
-  components: { lahAvatar, LahUserCard },
+  components: { lahAvatar, LahUserCard, lahFontSizeAdjuster },
   fetchOnServer: false,
   data: () => ({
     displayAnnouncement: true,

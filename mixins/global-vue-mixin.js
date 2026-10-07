@@ -42,7 +42,8 @@ Vue.mixin({
       'latestMessageMemento',
       'unreadSystemMessageCount',
       'fetchingMonitorMail',
-      'fetchedMonitorMailCount'
+      'fetchedMonitorMailCount',
+      'displayFontScale'
     ]),
     site () {
       if (this.systemConfigs && this.systemConfigs.site) {
