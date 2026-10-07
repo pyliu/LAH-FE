@@ -718,6 +718,14 @@ export default {
               this.messages[channel].push(incoming)
             }
             this.sortChannelMessages(channel)
+            // 若附件上傳 ACK 比訊息先到，這裡補上暫存的附件清單
+            const stashedAtts = receivedId > 0 && this.takeStashedAttachments(channel, receivedId)
+            if (stashedAtts) {
+              this.applyMessageAttachments(channel, receivedId, stashedAtts, false)
+            }
+          } else if (receivedId > 0 && Array.isArray(incoming.attachments) && incoming.attachments.length > 0) {
+            // 重複訊息 (如重新載入 latest) 若帶有伺服器端附件清單，仍同步到畫面上既有訊息
+            this.applyMessageAttachments(channel, receivedId, incoming.attachments, false)
           }
 
           if (receivedId > 0 && channel && (incoming.sender === this.userid || (incoming.message && typeof incoming.message === 'object' && incoming.message.sender === this.userid))) {
@@ -900,35 +908,10 @@ export default {
           if (!attChannel || !attMsgId) {
             break
           }
-          const updateMsgAttachments = (msgList) => {
-            if (!Array.isArray(msgList)) {
-              return false
-            }
-            const targetIndex = msgList.findIndex((m) => {
-              const mid = this.extractMessageId(m)
-              return mid == attMsgId || m?.id == attMsgId || m?.message?.id == attMsgId
-            })
-            if (targetIndex > -1) {
-              const targetMsg = msgList[targetIndex]
-              this.$set(targetMsg, 'attachments', newAttachments)
-              if (targetMsg.message && typeof targetMsg.message === 'object') {
-                this.$set(targetMsg.message, 'attachments', newAttachments)
-              }
-              const updatedMsg = {
-                ...targetMsg,
-                attachments: newAttachments,
-                message: typeof targetMsg.message === 'object' && targetMsg.message !== null
-                  ? { ...targetMsg.message, attachments: newAttachments }
-                  : targetMsg.message
-              }
-              this.$set(msgList, targetIndex, updatedMsg)
-              return true
-            }
-            return false
-          }
-          updateMsgAttachments(this.messages[attChannel])
+          // 若訊息尚未抵達 (例如 ACK 比訊息廣播先到)，applyMessageAttachments 會先暫存，待訊息到達時補上
+          this.applyMessageAttachments(attChannel, attMsgId, newAttachments)
           if (attChannel !== this.userid) {
-            updateMsgAttachments(this.messages[this.userid])
+            this.applyMessageAttachments(this.userid, attMsgId, newAttachments, false)
           }
           const actionText = isUploaded ? '上傳成功' : '已刪除'
           const targetFilename = isUploaded
@@ -1108,6 +1091,49 @@ export default {
         this.processQueue()
       }, 1000)
     },
+    // 將附件清單套用到畫面上的訊息；訊息尚未到達時暫存於 stash，待訊息 push 進列表後再補上
+    applyMessageAttachments (channel, messageId, attachments, stash = true) {
+      const attList = Array.isArray(attachments) ? attachments : []
+      const msgList = this.messages[channel]
+      const numId = parseInt(messageId) || 0
+      const targetIndex = Array.isArray(msgList)
+        ? msgList.findIndex((m) => {
+          const mid = this.extractMessageId(m)
+          return mid === numId || parseInt(m?.id) === numId || parseInt(m?.message?.id) === numId
+        })
+        : -1
+      if (targetIndex > -1) {
+        const targetMsg = msgList[targetIndex]
+        this.$set(targetMsg, 'attachments', attList)
+        if (targetMsg.message && typeof targetMsg.message === 'object') {
+          this.$set(targetMsg.message, 'attachments', attList)
+        }
+        const updatedMsg = {
+          ...targetMsg,
+          attachments: attList,
+          message: typeof targetMsg.message === 'object' && targetMsg.message !== null
+            ? { ...targetMsg.message, attachments: attList }
+            : targetMsg.message
+        }
+        this.$set(msgList, targetIndex, updatedMsg)
+        return true
+      }
+      if (stash && attList.length > 0) {
+        if (!this.stashedAttachments) {
+          this.stashedAttachments = {}
+        }
+        this.stashedAttachments[`${channel}#${messageId}`] = attList
+      }
+      return false
+    },
+    takeStashedAttachments (channel, messageId) {
+      const key = `${channel}#${messageId}`
+      const found = this.stashedAttachments && this.stashedAttachments[key]
+      if (found) {
+        delete this.stashedAttachments[key]
+      }
+      return found
+    },
     async handleCreatedMessageForUpload (channel, messageId) {
       if (!channel || !messageId) { return }
       const pending = (this.pendingAttachmentUploads || []).filter(
@@ -1119,7 +1145,9 @@ export default {
         this.$store.commit('removePendingAttachmentUpload', item.id)
         for (const file of item.files) {
           try {
-            await this.uploadAttachment(channel, messageId, file)
+            const result = await this.uploadAttachment(channel, messageId, file)
+            // 以上傳回應直接補上附件，避免畫面僅依賴 ACK (-12) 推播而顯示不出來
+            this.mergeUploadedAttachment(channel, messageId, result)
             this.notify(`訊息 #${messageId} 附件 ${file.name} 上傳成功`, {
               type: 'success'
             })
@@ -1131,6 +1159,16 @@ export default {
           }
         }
       }
+    },
+    mergeUploadedAttachment (channel, messageId, result) {
+      const name = result?.storedName || result?.originalName
+      if (!name) { return }
+      const list = this.messages[channel] || []
+      const numId = parseInt(messageId) || 0
+      const found = list.find(m => this.extractMessageId(m) === numId)
+      const current = Array.isArray(found?.attachments) ? found.attachments : []
+      if (current.some(att => att.name === name)) { return }
+      this.applyMessageAttachments(channel, messageId, [...current, { name, size: result.size || 0 }])
     }
   }
 }
