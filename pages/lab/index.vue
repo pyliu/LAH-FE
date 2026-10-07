@@ -90,16 +90,6 @@ div.h-100.d-flex.flex-column.overflow-hidden
                   h4.font-weight-bold.text-dark.mb-1 跨縣市監控
                   .text-muted.small ONLINE 即時通
 
-          //- 3. 簡訊紀錄查詢
-          b-col(cols="12" sm="6" md="4" lg="3" xl="2").mb-4
-            nuxt-link(to="/reg/sms").text-decoration-none
-              b-card.modern-card.border-0.shadow-sm.h-100
-                b-card-body.d-flex.flex-column.align-items-center.text-center.p-3
-                  .icon-box.bg-info-light.mb-3
-                    lah-fa-icon(icon="comment-sms", variant="info", size="3x")
-                  h4.font-weight-bold.text-dark.mb-1 簡訊紀錄
-                  .text-muted.small 發送紀錄查詢
-
           //- 4. 分時案件統計
           b-col(cols="12" sm="6" md="4" lg="3" xl="2").mb-4
             nuxt-link(to="/reg/stats").text-decoration-none
