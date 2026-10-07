@@ -149,11 +149,7 @@ b-sidebar#lah-sidebar(
       ).
         #[font-awesome-icon(:icon="['far', 'newspaper']", fixed-width, size="lg")]
         海報輪撥
-      li: a(
-        :href="`${this.legacyUrl}/stats.html`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ).
+      li: nuxt-link(to="/reg/stats/reg").
         #[font-awesome-icon(:icon="['fas', 'calculator']", fixed-width, size="lg")]
         統計看板
       li: a(
