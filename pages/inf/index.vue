@@ -4,33 +4,18 @@
   lah-header
     lah-transition(appear): .d-flex.align-items-center.justify-content-between.w-100.my-auto
       .d-flex.align-items-center
-        span.h3.font-weight-bold.text-dark.mr-2.my-auto
-          span.text-primary 桃園市地政
-          span.ml-1 智慧監控系統
-        b-badge.py-1.px-2.d-none.d-sm-inline-flex.align-items-center(
-          pill
-          variant="light"
-          class="border text-info font-weight-bold mr-2"
-        )
-          lah-fa-icon(icon="house-laptop" size="xs").mr-1
-          span {{ siteName }} 資訊課
-        b-badge.py-1.px-2.d-none.d-md-inline-flex.align-items-center(
-          pill
-          variant="success"
-          class="font-weight-bold text-white shadow-sm"
-        )
-          span.status-dot.mr-1
-          span 全系統運作中
-      .d-flex.align-items-center
-        lah-button(
-          icon="info"
-          variant="outline-primary"
-          no-border
-          no-icon-gutter
-          size="lg"
-          v-b-modal.inf-help-modal
-          title="監控系統功能說明"
-        )
+        span.h3.font-weight-bold.text-dark.my-auto
+          span 智慧監控系統
+        .d-flex.align-items-center
+          lah-button(
+            icon="info"
+            variant="outline-success"
+            no-border
+            no-icon-gutter
+            size="lg"
+            v-b-modal.inf-help-modal
+            title="監控系統功能說明"
+          )
 
   //- 功能說明 Help Modal
   lah-help-modal(:modal-id="'inf-help-modal'" size="lg")
@@ -237,15 +222,7 @@
 
             //- 英雄區文字與標籤
             .hero-content
-              .d-flex.align-items-center.justify-content-center.justify-content-lg-start.flex-wrap.mb-2
-                b-badge(variant="info" pill class="py-1 px-3 mr-2 mb-1 shadow-sm font-weight-bold")
-                  lah-fa-icon(icon="server" size="xs").mr-1
-                  span 即時監控中樞
-                b-badge(variant="success" pill class="py-1 px-3 mb-1 shadow-sm font-weight-bold")
-                  span.status-dot.mr-1
-                  span 服務正常
-
-              h1.hero-title.font-weight-bold.text-dark.mb-2 智慧監控工具
+              h1.hero-title.font-weight-bold.text-dark.mb-2 智慧監控系統
               p.hero-subtitle.text-muted.mb-3 全方位掌握主機、資料庫與跨域連線狀態，保障地政核心系統 7x24 高穩定運作。
 
               .hero-chips.d-flex.align-items-center.justify-content-center.justify-content-lg-start.flex-wrap
@@ -273,7 +250,7 @@
                       .arrow-icon
                         lah-fa-icon(icon="chevron-right", variant="muted", size="sm")
                     h4.card-title.font-weight-bold.text-dark.mb-2 系統管理面板
-                    p.card-desc.text-muted.mb-0.mt-auto 參數設定、權限管理與系統維護設定
+                    p.card-desc.text-muted.mb-0.mt-auto 案件、規費及資料庫管理功能
 
             //- 2. 戰情面板
             b-col(cols="12" sm="6").mb-3.mb-xl-4.d-flex
