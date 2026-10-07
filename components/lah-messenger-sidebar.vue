@@ -214,6 +214,33 @@ export default {
       this.visible = false
     },
     onNewMessage (payload) {
+      if (payload && this.$store) {
+        try {
+          const now = this.$utils ? this.$utils.now() : ''
+          const timeText = now ? now.split(' ')[1] : new Date().toTimeString().split(' ')[0]
+          const dateText = now ? now.split(' ')[0] : new Date().toISOString().split('T')[0]
+          const channelName = payload.channelName || payload.channel || '即時通'
+          const senderName = payload.senderName || payload.sender || '系統'
+          this.$store.commit('addMessageMemento', {
+            id: `msg_${payload.id || (+new Date() + '_' + Math.random().toString(36).substring(2, 7))}`,
+            timestamp: +new Date(),
+            timeText,
+            dateText,
+            category: 'messenger',
+            variant: payload.channel === 'announcement' ? 'warning' : 'primary',
+            title: `💬 [${channelName}] ${senderName}`,
+            sender: payload.sender,
+            senderName,
+            channel: payload.channel,
+            channelName,
+            message: payload.fullText || '[圖片或多媒體訊息]',
+            read: false
+          })
+        } catch (e) {
+          console.warn('紀錄即時通訊息失敗', e)
+        }
+      }
+
       // 若處於隱藏側邊欄視覺效果之頁面 (如 websocket 儀表板)，不彈出右下角提示
       if (this.hideSidebarVisuals) {
         return

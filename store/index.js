@@ -85,9 +85,10 @@ export const state = () => ({
   // An array acting as a memento for images.
   imageMemento: [],
   // Capacity for the message memento.
-  messageMementoCapacity: 30,
+  messageMementoCapacity: 100,
   // An array acting as a memento for messages.
   messageMemento: [],
+  unreadSystemMessageCount: 0,
   // Flag indicating if monitor mail is being fetched.
   fetchingMonitorMail: false,
   // Count of fetched monitor mails.
@@ -177,6 +178,7 @@ export const getters = {
   messageMementoCapacity: state => state.messageMementoCapacity,
   messageMemento: state => state.messageMemento,
   latestMessageMemento: state => state.messageMemento.length > 0 ? state.messageMemento[state.messageMemento.length - 1] : undefined,
+  unreadSystemMessageCount: state => state.unreadSystemMessageCount,
   fetchingMonitorMail: state => state.fetchingMonitorMail,
   fetchedMonitorMailCount: state => state.fetchedMonitorMailCount,
   // 即時通 (LAH-Messenger) Getters
@@ -381,18 +383,66 @@ export const mutations = {
     state.imageMemento.push(base64data)
     state.imageMemento = uniqWith(state.imageMemento, isEqual)
   },
+  initMessageMemento (state) {
+    if (process.client && typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const json = window.localStorage.getItem('lah_message_history')
+        if (json) {
+          const list = JSON.parse(json)
+          if (Array.isArray(list)) {
+            state.messageMemento = list.slice(-state.messageMementoCapacity)
+            state.unreadSystemMessageCount = state.messageMemento.filter(m => m && !m.read).length
+          }
+        }
+      } catch (e) {
+        console.warn('載入訊息紀錄失敗', e)
+      }
+    }
+  },
   messageMemento (state, arr) {
     if (Array.isArray(arr)) {
       state.messageMemento = [...arr]
+      state.unreadSystemMessageCount = state.messageMemento.filter(m => m && !m.read).length
     }
   },
   addMessageMemento (state, data) {
+    if (!data) { return }
+    const item = typeof data === 'object' ? { ...data } : { message: data, timestamp: +new Date() }
+    if (item.read === undefined) {
+      item.read = false
+    }
     if (state.messageMemento.length >= state.messageMementoCapacity) {
       state.messageMemento.shift()
     }
-    state.messageMemento.push(data)
-    // A simpler way to get unique values for primitive arrays
-    state.messageMemento = [...new Set(state.messageMemento)]
+    state.messageMemento.push(item)
+    if (!item.read) {
+      state.unreadSystemMessageCount++
+    }
+    if (process.client && typeof window !== 'undefined' && window.localStorage) {
+      try {
+        window.localStorage.setItem('lah_message_history', JSON.stringify(state.messageMemento))
+      } catch (e) {
+        console.warn('儲存訊息紀錄失敗', e)
+      }
+    }
+  },
+  markAllMessagesRead (state) {
+    state.messageMemento = state.messageMemento.map(m => (m && typeof m === 'object' ? { ...m, read: true } : m))
+    state.unreadSystemMessageCount = 0
+    if (process.client && typeof window !== 'undefined' && window.localStorage) {
+      try {
+        window.localStorage.setItem('lah_message_history', JSON.stringify(state.messageMemento))
+      } catch (e) {}
+    }
+  },
+  clearMessageMemento (state) {
+    state.messageMemento = []
+    state.unreadSystemMessageCount = 0
+    if (process.client && typeof window !== 'undefined' && window.localStorage) {
+      try {
+        window.localStorage.removeItem('lah_message_history')
+      } catch (e) {}
+    }
   },
   topXap (state, office) {
     state.topXap = { ...office }

@@ -3,6 +3,7 @@ b-container(v-cloak fluid)
   Nuxt
   lah-footer(ref="footer")
   lah-messenger-sidebar
+  lah-message-history-modal(ref="messageHistoryModal")
   .version.shadow(
     @click="toggleFooter"
     title="點擊切換顯示頁尾資訊"
@@ -67,9 +68,19 @@ export default {
     // debug for runtime config
     this.$utils.warn(this.$config)
     window.addEventListener('keydown', this.handleKeydown)
+
+    // 初始化系統訊息歷史紀錄與監聽開啟 Modal 事件
+    this.$store.commit('initMessageMemento')
+    this.openMessageHistoryModalHandler = () => {
+      this.$refs.messageHistoryModal?.show()
+    }
+    this.$root.$on('open-message-history-modal', this.openMessageHistoryModalHandler)
   },
   beforeDestroy () {
     window.removeEventListener('keydown', this.handleKeydown)
+    if (this.openMessageHistoryModalHandler) {
+      this.$root.$off('open-message-history-modal', this.openMessageHistoryModalHandler)
+    }
   },
   methods: {
     toggleFooter () {

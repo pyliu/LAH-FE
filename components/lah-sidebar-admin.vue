@@ -118,11 +118,21 @@ b-sidebar#lah-sidebar(
       li: b-link(@click="triggerClear").
         #[font-awesome-icon(:icon="['fas', 'hand-sparkles']", fixed-width, size="lg")]
         清除本系統快取資料
+      li: b-link(@click="openMessageHistoryModal").d-flex.align-items-center
+        font-awesome-icon(:icon="['fas', 'clock-rotate-left']", fixed-width, size="lg")
+        span 系統訊息紀錄
+        b-badge.ml-auto(v-if="unreadCount > 0" variant="danger" pill) {{ displayUnreadCount }}
 
       li: hr
   template(#footer)
     .d-flex.bg-dark.text-light.justify-content-between.px-3.py-2.align-middle
       span.s-75.text-muted.my-auto {{ ip }}
+      b-link.footer-history-btn.position-relative(
+        @click="openMessageHistoryModal"
+        title="檢視系統訊息紀錄"
+      )
+        lah-fa-icon.s-75.text-muted.my-auto(icon="clock-rotate-left")
+        b-badge.badge-dot(v-if="unreadCount > 0" variant="danger" pill) {{ displayUnreadCount }}
       b-link(href="mailto:pangyu.liu@gmail.com")
         lah-fa-icon.s-75.text-muted.my-auto(
           icon="copyright",
@@ -149,6 +159,12 @@ export default {
     greeting () {
       const hours = new Date().getHours()
       return hours > 11 ? (hours > 17 ? '晚安' : '午安') : '早安'
+    },
+    unreadCount () {
+      return this.$store.getters.unreadSystemMessageCount || 0
+    },
+    displayUnreadCount () {
+      return this.unreadCount > 99 ? '99+' : this.unreadCount
     },
     // [修改] 動態依據 isDevOffice 過濾選單項目
     dashboardList () {
@@ -178,6 +194,10 @@ export default {
     }
   },
   methods: {
+    openMessageHistoryModal () {
+      this.$root.$emit('open-message-history-modal')
+      this.$root.$emit('bv::toggle::collapse', 'lah-sidebar')
+    },
     handleAnnouncementEvent (payload) {
       if (payload.count && payload.count > 0) {
         this.displayAnnouncement = true
@@ -282,6 +302,21 @@ export default {
         }
       }
     }
+  }
+  .footer-history-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    &:hover {
+      color: #fff !important;
+    }
+  }
+  .badge-dot {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
   }
 }
 </style>

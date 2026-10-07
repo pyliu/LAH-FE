@@ -5,6 +5,8 @@ import Vue from 'vue'
 import { mapActions, mapGetters } from 'vuex'
 
 // inject to all Vue instances
+let activeToast = null
+
 Vue.mixin({
   data: () => ({
     isBusy: false,
@@ -38,6 +40,7 @@ Vue.mixin({
       'messageMementoCapacity',
       'messageMementoCacheKey',
       'latestMessageMemento',
+      'unreadSystemMessageCount',
       'fetchingMonitorMail',
       'fetchedMonitorMailCount'
     ]),
@@ -284,11 +287,49 @@ Vue.mixin({
     },
     makeToast (message, opts = {}) {
       if (document) {
+        // 紀錄系統歷史訊息 (含在背景執行時)
+        try {
+          if (this.$store && typeof this.$store.commit === 'function') {
+            const now = this.$utils ? this.$utils.now() : ''
+            const timeText = now ? now.split(' ')[1] : new Date().toTimeString().split(' ')[0]
+            const dateText = now ? now.split(' ')[0] : new Date().toISOString().split('T')[0]
+            const rawTitle = typeof opts.title === 'string' ? opts.title : (opts.variant === 'danger' ? '錯誤' : (opts.variant === 'warning' ? '警示' : (opts.variant === 'success' ? '成功' : '通知')))
+            this.$store.commit('addMessageMemento', {
+              id: `toast_${+new Date()}_${Math.random().toString(36).substring(2, 7)}`,
+              timestamp: +new Date(),
+              timeText,
+              dateText,
+              category: 'toast',
+              variant: opts.variant || 'info',
+              title: rawTitle,
+              message: typeof message === 'string' ? message : JSON.stringify(message),
+              read: false
+            })
+          }
+        } catch (e) {
+          console.warn('紀錄 Toast 訊息失敗', e)
+        }
+
         // skip making toast when document is not visible
         if (document.hidden) {
           this.$utils.warn('document is hidden ... skip makeToast message', message)
           return
         }
+
+        const isCritical = opts.variant === 'danger' || opts.variant === 'warning'
+        const nowMs = Date.now()
+        if (activeToast && activeToast.expiresAt > nowMs) {
+          if (activeToast.isCritical && !isCritical) {
+            // 目前畫面上已有未結束之錯誤/警示通知，保護其不被一般操作通知覆蓋
+            // 該一般通知仍已妥善存入歷史紀錄中
+            return Promise.resolve(opts)
+          }
+        }
+        // 關閉畫面上既有的 Toast，避免堆疊 (單一覆蓋模式)
+        if (this.$bvToast && typeof this.$bvToast.hide === 'function') {
+          this.$bvToast.hide()
+        }
+
         return new Promise((resolve, reject) => {
           if (this.$isServer) {
             reject('Server side doesn\'t use toast')
@@ -335,12 +376,13 @@ Vue.mixin({
                 }
             }
             // merge default setting
+            const defDelay = isCritical ? (opts.variant === 'danger' ? 8000 : 6500) : 3800
             const merged = Object.assign({
               title: '通知',
               subtitle: this.$utils.now().split(' ')[1],
               href: '',
               noAutoHide: false,
-              autoHideDelay: 5000,
+              autoHideDelay: defDelay,
               solid: true,
               toaster: 'b-toaster-bottom-right',
               appendToast: true,
@@ -373,6 +415,12 @@ Vue.mixin({
 
             this.$bvToast.toast([msgVNode], merged)
 
+            const activeDelay = merged.autoHideDelay || defDelay
+            activeToast = {
+              isCritical,
+              expiresAt: Date.now() + activeDelay
+            }
+
             // resolve the final opts back
             merged.message = message
             resolve(merged)
@@ -387,7 +435,7 @@ Vue.mixin({
         if (typeof msg !== 'string' && typeof opts !== 'object') {
           reject(`notify 傳入參數有誤: msg:${msg}, opts: ${opts}`)
         } else {
-          const defDelay = (opts.variant === 'danger' ? 7500 : (opts.variant === 'warning' ? 6250 : 5000))
+          const defDelay = (opts.variant === 'danger' ? 8000 : (opts.variant === 'warning' ? 6500 : 3800))
           if (typeof msg === 'string') {
             opts.variant = opts.type || opts.variant || 'default'
             opts.autoHideDelay = opts.duration || opts.delay || defDelay
@@ -411,7 +459,7 @@ Vue.mixin({
       if (!isEmpty(message)) {
         const merged = Object.assign({
           title: '訊息',
-          autoHideDelay: 5000,
+          autoHideDelay: 3800,
           variant: 'info'
         }, opts)
         this.notify(message, merged)
@@ -421,7 +469,7 @@ Vue.mixin({
       if (!isEmpty(message)) {
         const merged = Object.assign({
           title: '成功',
-          autoHideDelay: 5000,
+          autoHideDelay: 3800,
           variant: 'success'
         }, opts)
         this.notify(message, merged)
@@ -431,7 +479,7 @@ Vue.mixin({
       if (!isEmpty(message)) {
         const merged = Object.assign({
           title: '警示',
-          autoHideDelay: 7500,
+          autoHideDelay: 6500,
           variant: 'warning'
         }, opts)
         this.notify(message, merged)
@@ -447,7 +495,7 @@ Vue.mixin({
         }
         const merged = Object.assign({
           title: '錯誤',
-          autoHideDelay: 10000,
+          autoHideDelay: 8000,
           variant: 'danger'
         }, opts)
         this.notify(message, merged)
