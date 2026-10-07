@@ -3,8 +3,8 @@ div.h-100.d-flex.flex-column.overflow-hidden
   lah-header
     lah-transition(appear): .d-flex.align-items-center.justify-content-between.w-100.my-auto
       .d-flex.align-items-center
+        span.h3.font-weight-bold.mr-2.my-auto {{ office }} 地政事務所入口網
         lah-fa-icon.h2.my-auto(icon="people-roof" variant="primary")
-        span.h3.font-weight-bold.ml-2.my-auto {{ office }} 地政事務所入口網
       .d-flex.align-items-center
         b-badge.d-none.d-lg-inline-flex.align-items-center.py-1.px-2(variant="light" class="border text-muted mr-2")
           lah-fa-icon(icon="building" class="text-success mr-1")
@@ -148,11 +148,8 @@ div.h-100.d-flex.flex-column.overflow-hidden
               b-card-header.bg-white.border-bottom.py-3.px-3.flex-shrink-0
                 .d-flex.align-items-center.justify-content-between
                   .d-flex.align-items-center.text-primary
-                    lah-fa-icon(icon="bullhorn" size="lg").mr-2
-                    h5.m-0.font-weight-bold.text-dark 最新即時通公告
-                  b-badge(variant="primary" pill class="px-2 py-1")
-                    lah-fa-icon(icon="bolt" size="xs").mr-1
-                    span 即時更新
+                    h4.mr-2 📢
+                    h5.font-weight-bold.text-dark 即時通公告
 
               b-card-body.p-0.d-flex.flex-column.overflow-auto.flex-grow-1.custom-scrollbar(style="min-height: 0")
                 lah-timeline-announcement.px-3.py-2(
