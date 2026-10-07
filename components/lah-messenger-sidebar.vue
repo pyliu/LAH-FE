@@ -220,6 +220,9 @@ export default {
       this.visible = false
     },
     onNewMessage (payload) {
+      if (!payload || !this.isChannelAllowed(payload.channel)) {
+        return
+      }
       const now = this.$utils ? this.$utils.now() : ''
       const timeText = now ? now.split(' ')[1] : new Date().toTimeString().split(' ')[0]
       const dateText = now ? now.split(' ')[0] : new Date().toISOString().split('T')[0]

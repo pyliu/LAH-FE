@@ -274,16 +274,24 @@ export default {
       if (this.isNotifyMgtStaff || this.authority?.isAdmin) {
         return true
       }
+      const ch = String(channel).toLowerCase()
+      const myId = (this.userid || '').toLowerCase()
+      const myDept = (this.userdept || '').toLowerCase()
+
       // 基本公共與個人頻道：公告、通知列表、全所 (lds)、個人私訊
-      if (['announcement', 'chat', 'lds'].includes(channel) || (channel || '').toUpperCase() === this.userid) {
+      if (['announcement', 'chat', 'lds'].includes(ch) || (myId && ch === myId)) {
         return true
       }
       // 自己的課室/部門頻道及其公告頻道
-      if (channel === this.userdept || channel === `announcement_${this.userdept}`) {
+      if ((myDept && ch === myDept) || (myDept && ch === `announcement_${myDept}`)) {
+        return true
+      }
+      // 當前正在私訊的對象頻道
+      if (this.activePersonalUser && String(this.activePersonalUser).toLowerCase() === ch) {
         return true
       }
       // 私人聊天室群組 (若有參與)
-      if (Array.isArray(this.participatedChannels) && this.participatedChannels.some(p => p.id === channel)) {
+      if (Array.isArray(this.participatedChannels) && this.participatedChannels.some(p => p.id === channel || (p.id && String(p.id).toLowerCase() === ch))) {
         return true
       }
       // 其他部門或他人頻道皆不可進入

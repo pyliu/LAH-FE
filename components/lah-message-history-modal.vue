@@ -14,7 +14,7 @@ b-modal#lah-message-history-modal(
     .d-flex.align-items-center
       font-awesome-icon(:icon="['fas', 'clock-rotate-left']" class="mr-2 text-primary")
       span.font-weight-bold 系統訊息紀錄
-      b-badge.ml-2(variant="secondary" pill) 共 {{ messageMemento.length }} 筆
+      b-badge.ml-2(variant="secondary" pill) 共 {{ visibleMessageMemento.length }} 筆
       b-badge.ml-1(v-if="unreadCount > 0" variant="danger" pill) {{ unreadCount }} 未讀
 
   //- 頂部工具列 (分類篩選、關鍵字搜尋與一鍵清空)
@@ -25,7 +25,7 @@ b-modal#lah-message-history-modal(
         b-button(
           :variant="activeTab === 'all' ? 'primary' : 'outline-primary'"
           @click="activeTab = 'all'"
-        ) 全部 ({{ messageMemento.length }})
+        ) 全部 ({{ visibleMessageMemento.length }})
         b-button(
           :variant="activeTab === 'messenger' ? 'info' : 'outline-info'"
           @click="activeTab = 'messenger'"
@@ -43,7 +43,7 @@ b-modal#lah-message-history-modal(
       b-button(
         variant="outline-danger"
         size="sm"
-        :disabled="messageMemento.length === 0"
+        :disabled="visibleMessageMemento.length === 0"
         @click="triggerClearAll"
         title="清空所有歷史紀錄"
       )
@@ -118,7 +118,10 @@ b-modal#lah-message-history-modal(
 </template>
 
 <script>
+import lahMessengerBase from '~/mixins/lah-messenger-base'
+
 export default {
+  mixins: [lahMessengerBase],
   data: () => ({
     visible: false,
     activeTab: 'all',
@@ -128,21 +131,29 @@ export default {
     messageMemento () {
       return this.$store.getters.messageMemento || []
     },
+    visibleMessageMemento () {
+      const list = this.messageMemento || []
+      // 僅管理者 (或推播管理員) 可查看所有課室之即時通訊息；一般同仁僅保留允許頻道之即時通與一般 Toast
+      if (this.isNotifyMgtStaff || this.authority?.isAdmin) {
+        return list
+      }
+      return list.filter(m => m.category !== 'messenger' || this.isChannelAllowed(m.channel))
+    },
     unreadCount () {
-      return this.$store.getters.unreadSystemMessageCount || 0
+      return this.visibleMessageMemento.filter(m => m && !m.read).length
     },
     countMessenger () {
-      return this.messageMemento.filter(m => m.category === 'messenger').length
+      return this.visibleMessageMemento.filter(m => m.category === 'messenger').length
     },
     countWarningDanger () {
-      return this.messageMemento.filter(m => m.variant === 'warning' || m.variant === 'danger').length
+      return this.visibleMessageMemento.filter(m => m.variant === 'warning' || m.variant === 'danger').length
     },
     countNormalToast () {
-      return this.messageMemento.filter(m => m.category === 'toast' && m.variant !== 'warning' && m.variant !== 'danger').length
+      return this.visibleMessageMemento.filter(m => m.category === 'toast' && m.variant !== 'warning' && m.variant !== 'danger').length
     },
     filteredMessages () {
       // 複製一份由新至舊 (倒序) 排列
-      let list = [...this.messageMemento].reverse()
+      let list = [...this.visibleMessageMemento].reverse()
 
       // 依分類標籤篩選
       if (this.activeTab === 'messenger') {
@@ -181,17 +192,17 @@ export default {
         this.$store.commit('markAllMessagesRead')
       }
     },
-    isAnnouncement (channel) {
+    isAnnouncementChannel (channel) {
       return channel === 'announcement' || (typeof channel === 'string' && channel.startsWith('announcement_'))
     },
     getMessengerToastClass (item) {
-      return this.isAnnouncement(item.channel) ? 'toast-variant-warning' : 'toast-variant-primary'
+      return this.isAnnouncementChannel(item.channel) ? 'toast-variant-warning' : 'toast-variant-primary'
     },
     getMessengerBadgeVariant (item) {
-      return this.isAnnouncement(item.channel) ? 'warning' : 'primary'
+      return this.isAnnouncementChannel(item.channel) ? 'warning' : 'primary'
     },
     getMessengerBadgeText (item) {
-      return this.isAnnouncement(item.channel) ? '📢 公告' : '💬 即時通'
+      return this.isAnnouncementChannel(item.channel) ? '📢 公告' : '💬 即時通'
     },
     getToastClass (item) {
       if (item.variant === 'danger') { return 'toast-variant-danger' }

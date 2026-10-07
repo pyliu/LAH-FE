@@ -693,6 +693,12 @@ export default {
         } else if (channel === 'system') {
           this.handleSystemMessage(incoming.message)
         } else if (channel) {
+          // 非管理者不可存取其他課室頻道之訊息 (僅管理者可查看/接收其他課室訊息)
+          if (!this.isChannelAllowed(channel)) {
+            this.connecting = false
+            return
+          }
+
           if (!Array.isArray(this.messages[channel])) {
             this.$store.commit('addChannel', channel)
           }
@@ -940,7 +946,10 @@ export default {
       }
     },
     async triggerNotification (incoming) {
-      const channel = incoming.channel
+      const channel = incoming?.channel
+      if (!this.isChannelAllowed(channel)) {
+        return
+      }
       if (this.isDashboardActive && this.isDashboardChannel(channel)) {
         return
       }
