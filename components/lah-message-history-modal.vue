@@ -93,28 +93,27 @@ b-modal#lah-message-history-modal(
           .toast-body.py-2.px-2.text-break
             | {{ item.message }}
 
-        //- 2. 即時通推播 (還原深色浮動卡片樣式)
-        .lah-history-messenger-chip.card(
+        //- 2. 即時通推播 (還原系統 Toast 樣式)
+        .toast.fade.show.lah-history-toast.lah-history-messenger-toast(
           v-else
           :key="item.id || item.timestamp"
+          :class="getMessengerToastClass(item)"
           @click="openMessenger(item.channel)"
           title="點擊前往此即時通頻道"
         )
-          .chip-header.d-flex.justify-content-between.align-items-center.px-2.pt-2.pb-1
-            .d-flex.align-items-center.text-truncate.mr-1
-              b-badge.mr-1(variant="warning") 💬 新訊息
-              span.chip-channel.text-info.font-weight-bold \#{{ item.channelName || item.channel }}
-            .d-flex.align-items-center.text-nowrap
-              small.text-white-50.mr-2 {{ item.timeText }}
-              b-button.copy-icon-btn.p-0.text-white-50.border-0.bg-transparent(
-                @click.stop="copyMessage(item.message)"
-                title="複製內容"
-              )
-                font-awesome-icon(:icon="['far', 'copy']" size="sm")
-          .chip-body.px-2.py-1
-            .chip-sender.font-weight-bold.text-light {{ item.senderName || item.sender }}：
-            .chip-text.text-white-50.text-break {{ item.message }}
-          .chip-footer.px-2.pb-2.pt-1.text-right
+          .toast-header.py-1.px-2.d-flex.align-items-center
+            b-badge.mr-1.px-1.py-1(:variant="getMessengerBadgeVariant(item)") {{ getMessengerBadgeText(item) }}
+            strong.mr-auto.text-truncate.text-dark(style="max-width: 135px;" :title="item.channelName || item.channel") \#{{ item.channelName || item.channel }}
+            small.text-muted.text-nowrap.mr-2 {{ item.timeText }}
+            b-button.copy-icon-btn.p-0.text-secondary.border-0.bg-transparent(
+              @click.stop="copyMessage(item.message)"
+              title="複製內容"
+            )
+              font-awesome-icon(:icon="['far', 'copy']" size="sm")
+          .toast-body.py-2.px-2.text-break
+            .font-weight-bold.text-dark.mb-1 {{ item.senderName || item.sender }}：
+            .text-secondary {{ item.message }}
+          .toast-footer.px-2.pb-2.pt-1.text-right
             span.s-75.text-primary 點選立即查看 →
 </template>
 
@@ -181,6 +180,18 @@ export default {
       if (this.$store && typeof this.$store.commit === 'function') {
         this.$store.commit('markAllMessagesRead')
       }
+    },
+    isAnnouncement (channel) {
+      return channel === 'announcement' || (typeof channel === 'string' && channel.startsWith('announcement_'))
+    },
+    getMessengerToastClass (item) {
+      return this.isAnnouncement(item.channel) ? 'toast-variant-warning' : 'toast-variant-primary'
+    },
+    getMessengerBadgeVariant (item) {
+      return this.isAnnouncement(item.channel) ? 'warning' : 'primary'
+    },
+    getMessengerBadgeText (item) {
+      return this.isAnnouncement(item.channel) ? '📢 公告' : '💬 即時通'
     },
     getToastClass (item) {
       if (item.variant === 'danger') { return 'toast-variant-danger' }
@@ -291,46 +302,24 @@ export default {
   &.toast-variant-info {
     border-left-color: #17a2b8 !important;
   }
+  &.toast-variant-primary {
+    border-left-color: #007bff !important;
+  }
 }
 
-/* 2. 即時通浮動卡片樣式 (深色質感小卡片) */
-.lah-history-messenger-chip {
-  width: 100%;
-  max-width: 100%;
-  background: linear-gradient(145deg, #2c3036 0%, #1c1f24 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 0.45rem;
-  box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.2);
+/* 2. 即時通推播 Toast 樣式 (還原系統 Toast 質感，含點擊互動) */
+.lah-history-messenger-toast {
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.4rem 1.1rem rgba(0, 0, 0, 0.35);
-    border-color: rgba(0, 123, 255, 0.6);
-
-    .chip-footer span {
-      color: #66b0ff !important;
+    .toast-footer span {
       text-decoration: underline;
     }
   }
 
-  .chip-header {
-    font-size: 0.85rem;
-  }
-
-  .chip-channel {
-    font-size: 0.8rem;
-  }
-
-  .chip-sender {
-    font-size: 0.85rem;
-  }
-
-  .chip-text {
-    font-size: 0.88rem;
-    line-height: 1.4;
-    white-space: pre-wrap;
+  .toast-footer {
+    border-top: 1px dashed rgba(0, 0, 0, 0.05);
+    background-color: #fafbfc;
   }
 }
 

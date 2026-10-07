@@ -70,19 +70,25 @@ client-only
             @new-message="onNewMessage"
           )
 
-    //- 3. 右下角新訊息提示浮標 (半透明卡片，點選後帶出主視窗)
+    //- 3. 右下角新訊息提示 (還原系統 Toast 樣式，點選後帶出主視窗)
     transition(name="slide-up")
-      .floating-message-chip(
+      .toast.fade.show.floating-message-toast(
         v-if="!hideSidebarVisuals && showFloatingToast && latestNotification"
+        :class="latestNotification.isAnnouncement ? 'toast-variant-warning' : 'toast-variant-primary'"
         @click="onFloatingToastClick"
         @mouseenter="pauseToastTimer"
         @mouseleave="resumeToastTimer"
         title="點選查看訊息"
       )
-        .chip-header.d-flex.justify-content-between.align-items-center.mb-1
-          .d-flex.align-items-center
-            b-badge.mr-1(variant="warning") 💬 新訊息
-            span.chip-channel.text-info \#{{ latestNotification.channelName }}
+        .toast-header.py-1.px-2.d-flex.align-items-center
+          b-badge.mr-1.px-1.py-1(
+            :variant="latestNotification.isAnnouncement ? 'warning' : 'primary'"
+          ) {{ latestNotification.isAnnouncement ? '📢 公告' : '💬 即時通' }}
+          strong.mr-auto.text-truncate.text-dark(
+            style="max-width: 140px;"
+            :title="latestNotification.channelName"
+          ) \#{{ latestNotification.channelName }}
+          small.text-muted.text-nowrap.mr-2 {{ latestNotification.timeText }}
           b-button.close-btn(
             variant="link"
             size="sm"
@@ -90,10 +96,10 @@ client-only
             title="關閉提示"
           )
             b-icon(icon="x")
-        .chip-body
-          .chip-sender.font-weight-bold.text-light {{ latestNotification.senderName }}：
-          .chip-text.text-white-50 {{ latestNotification.summary }}
-        .chip-footer.mt-1.text-right
+        .toast-body.py-2.px-2
+          .toast-sender.font-weight-bold.text-dark.mb-1 {{ latestNotification.senderName }}：
+          .toast-text.text-secondary.text-break {{ latestNotification.summary }}
+        .toast-footer.px-2.pb-2.pt-1.text-right
           span.s-75.text-primary 點選立即查看 →
 </template>
 
@@ -214,11 +220,12 @@ export default {
       this.visible = false
     },
     onNewMessage (payload) {
+      const now = this.$utils ? this.$utils.now() : ''
+      const timeText = now ? now.split(' ')[1] : new Date().toTimeString().split(' ')[0]
+      const dateText = now ? now.split(' ')[0] : new Date().toISOString().split('T')[0]
+
       if (payload && this.$store) {
         try {
-          const now = this.$utils ? this.$utils.now() : ''
-          const timeText = now ? now.split(' ')[1] : new Date().toTimeString().split(' ')[0]
-          const dateText = now ? now.split(' ')[0] : new Date().toISOString().split('T')[0]
           const channelName = payload.channelName || payload.channel || '即時通'
           const senderName = payload.senderName || payload.sender || '系統'
           this.$store.commit('addMessageMemento', {
@@ -258,12 +265,16 @@ export default {
         summary = summary.substring(0, 50) + '...'
       }
 
+      const isAnnouncement = payload.channel === 'announcement' || (typeof payload.channel === 'string' && payload.channel.startsWith('announcement_'))
+
       this.latestNotification = {
         sender: payload.sender,
         senderName: payload.senderName || payload.sender,
         channel: payload.channel,
         channelName: payload.channelName || payload.channel,
-        summary
+        summary,
+        timeText,
+        isAnnouncement
       }
       this.showFloatingToast = true
       this.startToastTimer()
@@ -498,9 +509,9 @@ export default {
 }
 
 /* ========================================================================= */
-/* 3. 右下角新訊息提示浮標 (Floating Message Chip)                           */
+/* 3. 右下角新訊息提示 (標準 Toast 風格浮動卡片)                             */
 /* ========================================================================= */
-.floating-message-chip {
+.floating-message-toast {
   position: fixed;
   right: 24px;
   bottom: 24px;
@@ -509,57 +520,69 @@ export default {
   max-width: calc(100vw - 48px);
   cursor: pointer;
 
-  /* 半透明玻璃擬態風格 */
-  background: rgba(24, 30, 42, 0.9);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
-  padding: 12px 14px;
-  transition: all 0.25s ease;
+  /* 系統原生 Toast 質感：白底、邊框、4px 左側強調色條、細緻陰影 */
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-left-width: 4px;
+  border-radius: 0.35rem;
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
-    background: rgba(18, 24, 36, 0.96);
-    border-color: rgba(91, 192, 222, 0.5);
+    box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.2);
+
+    .toast-footer span {
+      text-decoration: underline;
+    }
   }
 
-  .chip-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 4px;
+  &.toast-variant-warning {
+    border-left-color: #ffc107 !important;
   }
 
-  .chip-channel {
-    font-size: 0.8rem;
-    font-weight: 600;
+  &.toast-variant-primary {
+    border-left-color: #007bff !important;
+  }
+
+  .toast-header {
+    background-color: rgba(248, 249, 250, 0.95);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 0.85rem;
   }
 
   .close-btn {
-    color: rgba(255, 255, 255, 0.6);
+    color: #6c757d;
     padding: 0;
     line-height: 1;
 
     &:hover {
-      color: #fff;
+      color: #343a40;
     }
   }
 
-  .chip-body {
-    font-size: 0.85rem;
-    line-height: 1.4;
+  .toast-body {
+    font-size: 0.88rem;
+    line-height: 1.45;
   }
 
-  .chip-sender {
-    color: #e2e8f0;
+  .toast-sender {
+    color: #212529;
   }
 
-  .chip-text {
+  .toast-text {
     word-break: break-all;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    color: #495057;
+  }
+
+  .toast-footer {
+    border-top: 1px dashed rgba(0, 0, 0, 0.05);
+    background-color: #fafbfc;
   }
 }
 
@@ -589,7 +612,7 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .floating-message-chip {
+  .floating-message-toast {
     right: 12px;
     bottom: 12px;
     width: calc(100vw - 24px);
