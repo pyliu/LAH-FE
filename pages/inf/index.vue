@@ -4,20 +4,20 @@ div.h-100.d-flex.flex-column.overflow-hidden
   //- 移除標題文字，保留 Header 元件
   lah-header
 
-  //- 內容區域佔滿剩餘空間
-  .flex-grow-1.position-relative.overflow-hidden
+  //- 內容區域佔滿剩餘空間，支援捲動防止放大時內容溢位被切
+  .flex-grow-1.position-relative.overflow-auto
     lah-transition(appear, speed="fast").h-100
-      //- 維持 main-container 限制高度與置中
-      b-container.main-container.h-100.d-flex.flex-column.justify-content-center(fluid)
+      //- 移除 justify-content-center，改由內部 mt-auto/mb-auto 自適應置中
+      b-container.main-container.h-100.d-flex.flex-column.py-3(fluid)
 
         //- 上方 Slogan 區域
-        .text-center.mb-3.anim-appear-1s
+        .text-center.mb-3.mt-auto.anim-appear-1s
           //- SVG Banner: 資訊監控中心
           svg.mb-2.slogan-img(
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 1000 400"
             preserveAspectRatio="xMidYMid meet"
-            style="max-height: 40vh; width: 33vw; max-width: 1000px;"
+            style="max-height: 160px; width: 100%; max-width: 440px;"
           )
             defs
               //- 螢幕光暈
@@ -188,56 +188,56 @@ div.h-100.d-flex.flex-column.overflow-hidden
           p.text-muted.h4.mt-1 全方位系統運作狀態儀表板
 
         //- 下方連結區域
-        b-row.justify-content-center.px-3
+        b-row.justify-content-center.px-3.mb-auto
           //- 1. 系統管理面板
-          b-col(cols="auto").mb-4
-            nuxt-link(to="/inf/mgt").text-decoration-none
-              b-card.modern-card.border-0.shadow-sm
-                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4
+          b-col(cols="auto").mb-4.d-flex
+            nuxt-link(to="/inf/mgt").text-decoration-none.d-flex.flex-column.h-100
+              b-card.modern-card.border-0.shadow-sm.h-100.w-100
+                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4.h-100
                   .icon-box.bg-primary-light.mb-4
                     lah-fa-icon(icon="person-chalkboard", variant="primary", size="4x")
                   h4.font-weight-bold.text-dark.mb-2 系統管理面板
-                  .text-muted 參數設定、權限管理與系統維護設定
+                  .text-muted.mt-auto 參數設定、權限管理與系統維護設定
 
           //- 2. 戰情面板
-          b-col(cols="auto").mb-4
-            nuxt-link(:to="isDevOffice ? '/inf/dashboard/' : '/inf/dashboard/?mode=HX'").text-decoration-none
-              b-card.modern-card.border-0.shadow-sm
-                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4
+          b-col(cols="auto").mb-4.d-flex
+            nuxt-link(:to="isDevOffice ? '/inf/dashboard/' : '/inf/dashboard/?mode=HX'").text-decoration-none.d-flex.flex-column.h-100
+              b-card.modern-card.border-0.shadow-sm.h-100.w-100
+                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4.h-100
                   .icon-box.bg-success-light.mb-4
                     lah-fa-icon(icon="desktop", variant="success", size="4x")
                   h4.font-weight-bold.text-dark.mb-2 {{ siteName }}戰情面板
-                  .text-muted 本所即時監控燈號與狀態總覽
+                  .text-muted.mt-auto 本所即時監控燈號與狀態總覽
 
           //- 3. 跨域伺服器監控
-          b-col(cols="auto").mb-4
-            nuxt-link(to="/inf/xap").text-decoration-none
-              b-card.modern-card.border-0.shadow-sm
-                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4
+          b-col(cols="auto").mb-4.d-flex
+            nuxt-link(to="/inf/xap").text-decoration-none.d-flex.flex-column.h-100
+              b-card.modern-card.border-0.shadow-sm.h-100.w-100
+                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4.h-100
                   .icon-box.bg-info-light.mb-4
                     lah-fa-icon(icon="server", variant="info", size="4x")
                   h4.font-weight-bold.text-dark.mb-2 跨域伺服器監控
-                  .text-muted 跨域主機服務狀態與連線檢測
+                  .text-muted.mt-auto 跨域主機服務狀態與連線檢測
 
           //- 4. 同步異動監控
-          b-col(cols="auto").mb-4
-            nuxt-link(to="/inf/lxhweb").text-decoration-none
-              b-card.modern-card.border-0.shadow-sm
-                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4
+          b-col(cols="auto").mb-4.d-flex
+            nuxt-link(to="/inf/lxhweb").text-decoration-none.d-flex.flex-column.h-100
+              b-card.modern-card.border-0.shadow-sm.h-100.w-100
+                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4.h-100
                   .icon-box.bg-warning-light.mb-4
                     lah-fa-icon(icon="database", variant="dark", size="4x")
                   h4.font-weight-bold.text-dark.mb-2 同步異動監控
-                  .text-muted 資料庫同步作業與異動歷程查詢
+                  .text-muted.mt-auto 資料庫同步作業與異動歷程查詢
 
           //- 5. 即時全國跨域主機監控
-          b-col(cols="auto").mb-4
-            nuxt-link(to="/inf/xap/connectivity").text-decoration-none
-              b-card.modern-card.border-0.shadow-sm
-                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4
+          b-col(cols="auto").mb-4.d-flex
+            nuxt-link(to="/inf/xap/connectivity").text-decoration-none.d-flex.flex-column.h-100
+              b-card.modern-card.border-0.shadow-sm.h-100.w-100
+                b-card-body.d-flex.flex-column.align-items-center.text-center.p-4.h-100
                   .icon-box.bg-danger-light.mb-4
                     lah-fa-icon(icon="wave-square", variant="danger", size="4x")
                   h4.font-weight-bold.text-dark.mb-2 全國連線監控
-                  .text-muted 全國各所跨域主機即時連線狀態
+                  .text-muted.mt-auto 全國各所跨域主機即時連線狀態
 
 </template>
 
@@ -252,19 +252,7 @@ export default {
 
 <style lang="scss" scoped>
 .main-container {
-  max-height: 85vh;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-  }
+  min-height: 100%;
 }
 
 .modern-card {
@@ -275,8 +263,10 @@ export default {
   width: 19rem;
   max-width: 90vw;
 
-  height: auto;
-  min-height: 320px;
+  height: 100%;
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     transform: translateY(-10px);
@@ -285,6 +275,12 @@ export default {
     .icon-box {
       transform: scale(1.1) rotate(3deg);
     }
+  }
+
+  ::v-deep .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
   }
 }
 
