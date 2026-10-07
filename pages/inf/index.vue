@@ -57,9 +57,9 @@
         .text-secondary.small 全國各所主機即時網路連線延遲 (Ping) 與服務可用性偵測儀表板。
 
   //- 內容主體：左右分割中控台 (Split Hero Layout)
-  .flex-grow-1.py-3.py-xl-4.px-3.px-md-4.overflow-auto
-    b-container(fluid="xl").h-100
-      b-row.align-items-center.h-100
+  .flex-grow-1.d-flex.align-items-center.py-4.px-3.px-md-4.px-xl-5.overflow-auto
+    b-container.dashboard-container(fluid).my-auto
+      b-row.align-items-center.justify-content-center
         //- ======================= 左側：視覺英雄區 (Hero Section) =======================
         b-col(cols="12" lg="5" xl="5").mb-4.mb-lg-0.text-center.text-lg-left
           .hero-wrapper.px-2.px-xl-3.anim-appear-1s
@@ -365,16 +365,21 @@ export default {
   }
 }
 
+.dashboard-container {
+  max-width: 1680px;
+  width: 100%;
+}
+
 .hero-wrapper {
   .svg-container {
-    max-width: 520px;
+    max-width: 650px;
     margin: 0 auto;
 
     .slogan-img {
       width: 100%;
       height: auto;
-      max-height: 280px;
-      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.08));
+      max-height: 360px;
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.08));
       transition: transform 0.3s ease;
 
       &:hover {
@@ -384,21 +389,22 @@ export default {
   }
 
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2.85rem;
     letter-spacing: -0.5px;
   }
 
   .hero-subtitle {
-    font-size: 1.05rem;
+    font-size: 1.25rem;
     line-height: 1.6;
   }
 
   .chip-item {
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
-    padding: 0.25rem 0.75rem;
+    padding: 0.35rem 1rem;
+    font-size: 1.05rem;
     border-radius: 999px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
 }
 
@@ -411,15 +417,16 @@ export default {
 
 .modern-card {
   background-color: #ffffff;
-  border-radius: 16px !important;
-  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
   transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow: hidden;
+  min-height: 220px;
 
   &:hover {
     transform: translateY(-6px);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.09) !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
 
     .icon-box {
       transform: scale(1.08) rotate(3deg);
@@ -432,29 +439,37 @@ export default {
   }
 
   .card-title {
-    font-size: 1.25rem;
+    font-size: 1.55rem;
+    line-height: 1.3;
   }
 
   .card-desc {
-    font-size: 0.92rem;
-    line-height: 1.5;
+    font-size: 1.05rem;
+    line-height: 1.55;
   }
 
   .arrow-icon {
     transition: all 0.2s ease-in-out;
     color: #cbd5e1;
+    font-size: 1.1rem;
   }
 }
 
 .icon-box {
-  width: 58px;
-  height: 58px;
-  border-radius: 14px;
+  width: 76px;
+  height: 76px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.3s ease;
   flex-shrink: 0;
+
+  ::v-deep svg, ::v-deep i {
+    font-size: 2.2rem !important;
+    width: 2.2rem;
+    height: 2.2rem;
+  }
 }
 
 /* 淺色背景色系，用於襯托圖示 */
@@ -465,9 +480,26 @@ export default {
 .bg-danger-light  { background-color: rgba(220, 53, 69, 0.12); }
 
 .featured-card {
+  min-height: 150px;
+
   .icon-box {
-    width: 64px;
-    height: 64px;
+    width: 86px;
+    height: 86px;
+    border-radius: 22px;
+
+    ::v-deep svg, ::v-deep i {
+      font-size: 2.5rem !important;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  .card-title {
+    font-size: 1.65rem;
+  }
+
+  .card-desc {
+    font-size: 1.15rem;
   }
 }
 </style>
