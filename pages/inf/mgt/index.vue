@@ -67,14 +67,14 @@ div(v-cloak)
           lah-fa-icon.mr-1(icon="lightbulb", variant="warning")
           span 如需使用舊版功能或歷史工具，可開啟舊版系統：
         b-button(
-          :href="`${legacyUrl}/dashboard.html`",
+          :href="`${legacyUrl}/index.html`",
           target="_blank",
           rel="noreferrer noopener",
           variant="outline-primary",
           size="sm"
         )
           lah-fa-icon.mr-1(icon="clock-rotate-left")
-          | 開啟舊版儀表板
+          | 開啟舊版網站
 
   //- 重點核心區：最常用的三個功能入口
   .dashboard-primary.mb-3
