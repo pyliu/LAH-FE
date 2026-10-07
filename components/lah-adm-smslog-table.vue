@@ -1,6 +1,6 @@
 <template lang="pug">
 div
-  .d-flex.align-items-center.justify-content-between.mb-2(v-if="!displayMode")
+  .d-flex.align-items-center.justify-content-between.mb-2(v-if="!displayMode && !hideSearchToolbar")
     .d-flex.align-items-center
       lah-fa-icon(icon="filter", title="依據簡訊類別篩選")
         b-select.filter-mw(v-model="filterType", :options="filterTypeOpts")
@@ -75,73 +75,124 @@ div
         )
           lah-fa-icon(icon="window-restore", variant="primary", append) {{ caseId(item) }}
         span(v-else) {{ caseId(item) }}
-      template(#cell(SMS_DATE)="{ item }")
-        b-link.text-nowrap(
-          v-if="(notDateKeyword(item) || !validSMSKeyword) && !displayMode",
-          href="#",
-          :title="`依日期 ${item.SMS_DATE} 搜尋`",
-          @click="setKeyword(item.SMS_DATE)"
-        )
-          lah-fa-icon(icon="magnifying-glass", append) {{ $utils.addDateDivider(item.SMS_DATE) }}
-        .highlight-gold(v-else) {{ $utils.addDateDivider(item.SMS_DATE) }}
-      template(#cell(SMS_TIME)="{ item }")
-        .text-nowrap {{ $utils.addTimeDivider(item.SMS_TIME) }}
-      template(#cell(SMS_CELL)="{ item }")
-        b-link(
-          v-if="(notCellKeyword(item) || !validSMSKeyword) && !displayMode",
-          href="#",
-          @click="setKeyword(item.SMS_CELL)",
-          :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
-        )
-          .d-flex
-            lah-fa-icon.mr-1(v-if="!$utils.isMobileValid(item.SMS_CELL)", icon="ban", variant="danger", title="非有效之手機號碼")
-            lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_CELL }}
-        span(v-else, :class="$utils.empty(item.SMS_CELL?.trim()) || displayMode ? [] : ['highlight-gold']") {{ item.SMS_CELL }}
-      template(#cell(SMS_MAIL)="{ item }")
-        b-link(
-          v-if="(!$utils.empty(item.SMS_MAIL?.trim()) && item.SMS_MAIL?.trim() !== keyword) && !displayMode",
-          href="#",
-          @click="setKeyword(item.SMS_MAIL)",
-          title="依 EMAIL/統編/操作人員ID ... 等搜尋"
-        )
-          lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_MAIL }}
-        span(v-else, :class="$utils.empty(item.SMS_MAIL?.trim()) || displayMode ? [] : ['highlight-gold']") {{ item.SMS_MAIL }}
-      template(#cell(SMS_CONTENT)="{ item }")
-        .text-left(v-html="parseContent(item)")
-      template(#cell(SMS_RESULT)="{ item }")
-        lah-fa-icon(
-          v-if="item.SMS_RESULT === 'S' || item.SMS_RESULT?.startsWith('OK')",
-          icon="check",
-          variant="success",
-          append
-        ) 成功
-        .d-flex.align-items-center.text-left.justify-content-center(v-else)
-          lah-fa-icon.mr-1(
-            icon="triangle-exclamation",
-            variant="danger",
-            size="lg"
-          )
-          div
-            span.mr-1 失敗
-            span(v-if="item.SMS_RESULT.includes('adblock')") (已設定阻擋廣告簡訊)
-            span(v-else-if="item.SMS_RESULT.includes('Msisdn')") (手機號碼錯誤)
-            span(v-else-if="item.SMS_RESULT.includes('ConnectException') || item.SMS_RESULT.includes('Read timed out')") (連線簡訊閘道失敗)
-            span(v-else-if="item.SMS_RESULT.includes('HTTP Status 500')") (無法登入簡訊閘道 #[span.text-danger HTTP Status 500])
-            span(v-else) ({{  item.SMS_RESULT }})
-          lah-button.ml-2(
-            v-if="!isMailFailure(item)",
-            icon="paper-plane",
-            variant="outline-primary",
-            size="sm",
-            title="重新發送此簡訊",
-            no-icon-gutter,
-            :disabled="item._resend_success",
-            @click="confirmResend(item)"
-          ) {{ item._resend_success ? '已排程' : '重送' }}
       template(#cell(SMS_TYPE)="{ item }")
-        .text-primary(v-if="item.SMS_TYPE.includes('異動即時通')") {{ item.SMS_TYPE }}
-        .text-success(v-else-if="item.SMS_TYPE.includes('案件辦理情形')") {{ item.SMS_TYPE }}
-        .font-weight-bold(v-else) {{ item.SMS_TYPE }}
+        b-badge(
+          :variant="getTypeVariant(item.SMS_TYPE)",
+          pill,
+          class="px-2 py-1"
+        ) {{ item.SMS_TYPE }}
+      template(#cell(SMS_DATETIME)="{ item }")
+        .d-flex.flex-column.align-items-center.text-nowrap
+          b-link(
+            v-if="(notDateKeyword(item) || !validSMSKeyword) && !displayMode",
+            href="#",
+            :title="`依日期 ${item.SMS_DATE} 搜尋`",
+            @click="setKeyword(item.SMS_DATE)"
+          )
+            lah-fa-icon(icon="calendar-days", append) {{ $utils.addDateDivider(item.SMS_DATE) }}
+          .highlight-gold(v-else) {{ $utils.addDateDivider(item.SMS_DATE) }}
+          .small.text-muted.mt-1
+            lah-fa-icon(icon="clock", append) {{ $utils.addTimeDivider(item.SMS_TIME) }}
+      template(#cell(SMS_CELL)="{ item }")
+        .d-flex.align-items-center.justify-content-center
+          lah-fa-icon.mr-1(v-if="!$utils.isMobileValid(item.SMS_CELL)", icon="ban", variant="danger", title="非有效之手機號碼")
+          b-link.mr-1(
+            v-if="(notCellKeyword(item) || !validSMSKeyword) && !displayMode",
+            href="#",
+            @click="setKeyword(item.SMS_CELL)",
+            :title="`依手機號碼 ${item.SMS_CELL} 搜尋`"
+          )
+            lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_CELL }}
+          span.mr-1(v-else, :class="$utils.empty(item.SMS_CELL?.trim()) || displayMode ? [] : ['highlight-gold']") {{ item.SMS_CELL }}
+          lah-button(
+            v-if="!$utils.empty(item.SMS_CELL?.trim())",
+            icon="copy",
+            regular,
+            no-border,
+            variant="outline-secondary",
+            size="sm",
+            title="複製手機號碼",
+            no-icon-gutter,
+            @click.stop="copyToClipboard(item.SMS_CELL?.trim(), '已複製手機號碼')"
+          )
+      template(#cell(SMS_MAIL)="{ item }")
+        .d-flex.align-items-center.justify-content-center
+          b-link.mr-1(
+            v-if="(!$utils.empty(item.SMS_MAIL?.trim()) && item.SMS_MAIL?.trim() !== keyword) && !displayMode",
+            href="#",
+            @click="setKeyword(item.SMS_MAIL)",
+            title="依 EMAIL/統編/操作人員ID ... 等搜尋"
+          )
+            lah-fa-icon(icon="magnifying-glass", append) {{ item.SMS_MAIL }}
+          span.mr-1(v-else, :class="$utils.empty(item.SMS_MAIL?.trim()) || displayMode ? [] : ['highlight-gold']") {{ item.SMS_MAIL }}
+          lah-button(
+            v-if="!$utils.empty(item.SMS_MAIL?.trim())",
+            icon="copy",
+            regular,
+            no-border,
+            variant="outline-secondary",
+            size="sm",
+            title="複製其他/EMAIL",
+            no-icon-gutter,
+            @click.stop="copyToClipboard(item.SMS_MAIL?.trim(), '已複製內容')"
+          )
+      template(#cell(SMS_RESULT)="{ item }")
+        .d-flex.flex-column.align-items-center.justify-content-center
+          b-badge(
+            v-if="isSuccess(item)",
+            variant="success",
+            pill,
+            class="px-2 py-1"
+          )
+            lah-fa-icon(icon="check", append) 成功
+          .d-flex.flex-column.align-items-center(v-else)
+            b-badge(
+              variant="danger",
+              pill,
+              class="px-2 py-1 mb-1"
+            )
+              lah-fa-icon(icon="triangle-exclamation", append) 失敗
+            .small.text-danger.text-center.mb-1.font-weight-bold
+              span(v-if="item.SMS_RESULT.includes('adblock')") 已設定阻擋廣告簡訊
+              span(v-else-if="item.SMS_RESULT.includes('Msisdn')") 手機號碼錯誤
+              span(v-else-if="item.SMS_RESULT.includes('ConnectException') || item.SMS_RESULT.includes('Read timed out')") 連線閘道失敗
+              span(v-else-if="item.SMS_RESULT.includes('HTTP Status 500')") 無法登入閘道(500)
+              span(v-else) {{ item.SMS_RESULT }}
+            lah-button(
+              v-if="!isMailFailure(item)",
+              icon="paper-plane",
+              variant="outline-danger",
+              size="sm",
+              pill,
+              title="重新發送此簡訊",
+              no-icon-gutter,
+              :disabled="item._resend_success",
+              @click="confirmResend(item)"
+            ) {{ item._resend_success ? '已排程' : '重送' }}
+      template(#cell(SMS_CONTENT)="{ item }")
+        .d-flex.align-items-start.text-left
+          .flex-grow-1
+            .sms-content-box(
+              :class="{ 'sms-content-collapsed': !isContentExpanded(item) }"
+              v-html="parseContent(item)"
+            )
+            b-link.small.text-primary.mt-1.d-inline-block(
+              v-if="isLongContent(item)",
+              href="#",
+              @click.prevent="toggleContentExpand(item)"
+            )
+              lah-fa-icon(:icon="isContentExpanded(item) ? 'chevron-up' : 'chevron-down'", append) {{ isContentExpanded(item) ? '收合內容' : '展開完整內容' }}
+          lah-button.ml-2.flex-shrink-0(
+            v-if="!$utils.empty(item.SMS_CONTENT?.trim())",
+            icon="copy",
+            regular,
+            no-border,
+            variant="outline-secondary",
+            size="sm",
+            title="複製簡訊內容",
+            no-icon-gutter,
+            @click.stop="copyToClipboard(item.SMS_CONTENT, '已複製簡訊內容')"
+          )
     .h5.center(v-else): lah-fa-icon(
       icon="triangle-exclamation",
       variant="warning"
@@ -167,8 +218,8 @@ div
 </template>
 
 <script>
-import dynamicHeight from '~/mixins/dynamic-height-mixin';
-import lahRegCaseDetailVue from './lah-reg-case-detail.vue';
+import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import dynamicHeight from '~/mixins/dynamic-height-mixin'
 
 export default {
   emit: ['reload'],
@@ -179,7 +230,8 @@ export default {
     inKeyword: { type: String, default: '' },
     inLogs: { type: Array, default: () => ([]) },
     busy: { type: Boolean, default: false },
-    displayMode: { type: Boolean, default: false }
+    displayMode: { type: Boolean, default: false },
+    hideSearchToolbar: { type: Boolean, default: false }
   },
   data: () => ({
     pagination: {
@@ -187,6 +239,8 @@ export default {
       currentPage: 1
     },
     watchFails: false,
+    watchSuccess: false,
+    expandedContents: {},
     message: '',
     messageVariant: 'info',
     keyword: '',
@@ -204,17 +258,13 @@ export default {
     filterTimeOpts: ['全部', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
     logs: [],
     fields: [
-      // { key: 'SMS_YEAR', label: '收件年', sortable: true },
-      { key: 'SMS_CODE', label: '收件字', sortable: true },
-      // { key: 'SMS_NUMBER', label: '收件號', sortable: true },
-      { key: 'SMS_TYPE', label: '種類', sortable: true },
-      { key: 'SMS_DATE', label: '日期', sortable: true },
-      { key: 'SMS_TIME', label: '時間', sortable: true },
+      { key: 'SMS_CODE', label: '收件案號', sortable: true },
+      { key: 'SMS_TYPE', label: '簡訊種類', sortable: true },
+      { key: 'SMS_DATETIME', label: '發送時間', sortable: true },
       { key: 'SMS_CELL', label: '手機號碼', sortable: true },
-      { key: 'SMS_MAIL', label: '其他', sortable: true },
-      { key: 'SMS_RESULT', label: '結果', sortable: true },
-      { key: 'SMS_CONTENT', label: '內容', sortable: true }
-      // 獨立的操作欄位已移除
+      { key: 'SMS_MAIL', label: '其他/EMAIL', sortable: true },
+      { key: 'SMS_RESULT', label: '發送結果', sortable: true },
+      { key: 'SMS_CONTENT', label: '簡訊內容', sortable: false }
     ],
     // 新增：暫存編輯中的重送資料
     resendData: {
@@ -229,6 +279,15 @@ export default {
       return this.$utils.isMobileValid(this.resendData.cell)
     },
     count () { return this.filteredLogs?.length || 0 },
+    stats () {
+      const total = this.logs?.length || 0
+      const success = this.logs?.filter(item => item.SMS_RESULT === 'S' || item.SMS_RESULT?.startsWith('OK')).length || 0
+      const fail = total - success
+      const alert = this.logs?.filter(item => item.SMS_TYPE?.includes('異動即時通')).length || 0
+      const caseProgress = this.logs?.filter(item => item.SMS_TYPE?.includes('案件辦理情形')).length || 0
+      const successRate = total > 0 ? ((success / total) * 100).toFixed(1) : '0'
+      return { total, success, fail, alert, caseProgress, successRate }
+    },
     sanitizedKeyword () {
       return this.sanitizedDate(this.keyword)
     },
@@ -240,6 +299,10 @@ export default {
       if (this.watchFails) {
         pipelineItems = pipelineItems.filter((item) => {
           return item.SMS_RESULT !== 'S' && !item.SMS_RESULT?.startsWith('OK')
+        })
+      } else if (this.watchSuccess) {
+        pipelineItems = pipelineItems.filter((item) => {
+          return item.SMS_RESULT === 'S' || item.SMS_RESULT?.startsWith('OK')
         })
       }
       if (this.filterType !== '全部') {
@@ -262,7 +325,10 @@ export default {
     filterType (dontcare) {
       this.resetPagination()
     },
-    watchFails (falg) {
+    watchFails (flag) {
+      this.resetPagination()
+    },
+    watchSuccess (flag) {
       this.resetPagination()
     }
   },
@@ -373,6 +439,7 @@ export default {
       }
     },
     queryByKeyword () {
+      this.isBusy = true
       this.$axios
         .post(this.$consts.API.JSON.MOISMS, {
           type: 'moisms_log_query',
@@ -385,8 +452,10 @@ export default {
           this.logs = this.restoreResendStatus([...data.raw])
           this.$emit('reload', {
             keyword: this.keyword,
-            logs: this.logs
+            logs: this.logs,
+            stats: this.stats
           })
+          this.$emit('stats', this.stats)
         }).catch((err) => {
           this.error = err
         }).finally(() => {
@@ -394,6 +463,7 @@ export default {
         })
     },
     queryByDate () {
+      this.isBusy = true
       const [begin, end] = this.sanitizedKeyword.split(/\s*~\s*/)
       this.$axios
         .post(this.$consts.API.JSON.MOISMS, {
@@ -408,8 +478,10 @@ export default {
           this.logs = this.restoreResendStatus([...data.raw])
           this.$emit('reload', {
             keyword: `${begin} ~ ${end}`,
-            logs: this.logs
+            logs: this.logs,
+            stats: this.stats
           })
+          this.$emit('stats', this.stats)
         }).catch((err) => {
           this.error = err
         }).finally(() => {
@@ -453,6 +525,18 @@ export default {
       let cacheChanged = false
 
       const mappedLogs = logs.map((item) => {
+        // 正規化 SMS_TYPE，修正後端未轉換之代號 (如 'O' 為代收代寄)
+        if (item.SMS_TYPE === 'O' || item.SMS_TYPE === '跨所代收' || item.SMS_TYPE === '跨所代收代寄') {
+          item.SMS_TYPE = '跨域代收代寄'
+        } else if (item.SMS_TYPE === 'M') {
+          item.SMS_TYPE = '地籍異動即時通'
+        } else if (item.SMS_TYPE === 'W') {
+          item.SMS_TYPE = '指定送達處所'
+        } else if (item.SMS_TYPE === 'Z') {
+          item.SMS_TYPE = '智慧控管系統'
+        }
+        // 設定合成日期時間供表格排版與排序
+        item.SMS_DATETIME = `${item.SMS_DATE || ''}${item.SMS_TIME || ''}`
         const key = `${item.SMS_DATE}_${item.SMS_TIME}_${item.SMS_CELL}`
         if (cache[key]) {
           // 檢查是否超過一天
@@ -475,6 +559,49 @@ export default {
       }
 
       return mappedLogs
+    },
+    toggleContentExpand (item) {
+      const key = `${item.SMS_DATE}_${item.SMS_TIME}_${item.SMS_CELL}_${item.MA5_NO || ''}`
+      this.$set(this.expandedContents, key, !this.expandedContents[key])
+    },
+    isContentExpanded (item) {
+      const key = `${item.SMS_DATE}_${item.SMS_TIME}_${item.SMS_CELL}_${item.MA5_NO || ''}`
+      return !!this.expandedContents[key]
+    },
+    isLongContent (item) {
+      return (item.SMS_CONTENT?.length || 0) > 40
+    },
+    getTypeVariant (type) {
+      if (!type) { return 'secondary' }
+      if (type.includes('異動即時通')) { return 'primary' }
+      if (type.includes('案件辦理情形')) { return 'success' }
+      if (type.includes('跨域代收代寄') || type.includes('代收代寄') || type === 'O') { return 'info' }
+      if (type.includes('住址隱匿')) { return 'warning' }
+      if (type.includes('指定送達處所')) { return 'secondary' }
+      if (type.includes('手動')) { return 'dark' }
+      if (type.includes('智慧控管')) { return 'dark' }
+      return 'secondary'
+    },
+    isSuccess (item) {
+      return item.SMS_RESULT === 'S' || item.SMS_RESULT?.startsWith('OK')
+    },
+    setFilterType (type) {
+      this.filterType = type
+      this.resetPagination()
+    },
+    setWatchFails (val) {
+      this.watchFails = val
+      if (val) { this.watchSuccess = false }
+      this.resetPagination()
+    },
+    setWatchSuccess (val) {
+      this.watchSuccess = val
+      if (val) { this.watchFails = false }
+      this.resetPagination()
+    },
+    setFilterTime (time) {
+      this.filterTime = time
+      this.resetPagination()
     },
     // 判斷是否為郵件寄送失敗（無手機號碼，或錯誤訊息包含郵件相關關鍵字），郵件失敗不提供重送
     isMailFailure (item) {
@@ -540,5 +667,19 @@ export default {
 }
 .filter-mw {
   max-width: 160px;
+}
+.sms-content-box {
+  word-break: break-all;
+  white-space: pre-wrap;
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
+.sms-content-collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 450px;
 }
 </style>
