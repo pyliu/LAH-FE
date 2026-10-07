@@ -4,7 +4,7 @@ b-card(:class="cardCss", no-body, title="最新公告").announcement-timeline
     :items="timelineItems",
     :open-first="openFirst"
   )
-  .d-flex.justify-content-end(v-if="!noMore && loadButton")
+  .d-flex.justify-content-end.px-2.py-1.border-top(v-if="!noMore && loadButton")
     b-button-group(size="sm")
       lah-button.border-0(
         v-if="itemCount !== effectiveInitCount"
@@ -173,7 +173,10 @@ export default {
 <style lang="scss" scoped>
 .announcement-timeline {
   font-size: 1rem;
-  color: black;
+  color: #212529;
   // padding: 5px;
+}
+:global(.dark-mode) .announcement-timeline {
+  color: #e0e0e0;
 }
 </style>
