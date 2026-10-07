@@ -52,9 +52,8 @@ html, body {
   font-family: 'Microsoft JhengHei', 'EUDC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-// 頂部標題列與即時通訊側邊欄鎖定 100% 標準尺寸，不隨顯示區域縮放影響
-.lah-header,
-.lah-messenger-sidebar-wrapper {
+// 頂部標題列鎖定 100% 標準尺寸，不隨顯示區域縮放影響
+.lah-header {
   zoom: var(--lah-font-scale-inv, 1);
 }
 

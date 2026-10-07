@@ -4,6 +4,8 @@ b-container(v-cloak fluid)
   lah-footer(ref="footer")
   lah-messenger-sidebar
   lah-message-history-modal(ref="messageHistoryModal")
+  lah-sidebar-admin(v-if="isAdmin")
+  lah-sidebar(v-else)
   .version.shadow(
     @click="toggleFooter"
     title="點擊切換顯示頁尾資訊"

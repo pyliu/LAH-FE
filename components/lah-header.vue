@@ -23,8 +23,6 @@ h3.lah-header.d-flex.justify-content-between.align-items-center.py-3(
       to="/"
       no-icon-gutter
     )
-  lah-sidebar-admin(v-if="authority.isAdmin")
-  lah-sidebar(v-else)
 </template>
 
 <script>
