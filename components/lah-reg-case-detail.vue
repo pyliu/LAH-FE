@@ -14,12 +14,19 @@
             title="複製收件字號"
           )
             lah-fa-icon(icon="copy" no-gutter)
+          b-button.ml-1.py-0.px-1(
+            variant="outline-info"
+            size="sm"
+            @click="quickCopyCaseText"
+            title="一鍵複製全案 TXT 文字檔"
+          )
+            lah-fa-icon(icon="file-lines" no-gutter)
         //- 狀態徽章列
         .badges-wrap.d-flex.flex-wrap.align-items-center
-          b-badge.mr-1.mb-1(variant="primary" pill) {{ bakedData.登記原因 }}
-          b-badge.mr-1.mb-1(:variant="statusBadgeVariant" pill) {{ bakedData.辦理情形 }}
-          b-badge.mr-1.mb-1(:variant="isClosed ? 'success' : 'danger'" pill) {{ isClosed ? '已結案' : '尚未結案' }}
-          b-badge.mr-1.mb-1(:variant="dueStatusVariant" pill :title="`限辦期限：${bakedData.限辦期限}`")
+          b-badge.mr-1.mb-1(v-if="hasValue(bakedData.登記原因)" variant="primary" pill) {{ bakedData.登記原因 }}
+          b-badge.mr-1.mb-1(v-if="!isClosed && hasValue(bakedData.辦理情形)" :variant="statusBadgeVariant" pill) {{ bakedData.辦理情形 }}
+          b-badge.mr-1.mb-1(:variant="isClosed ? 'success' : 'secondary'" pill) {{ isClosed ? '已結案' : '辦理中' }}
+          b-badge.mr-1.mb-1(v-if="!isClosed" :variant="dueStatusVariant" pill :title="`限辦期限：${bakedData.限辦期限}`")
             lah-fa-icon(:icon="dueStatusIcon" class="mr-1")
             | {{ dueStatusText }}
           b-badge.mr-1.mb-1(v-if="bakedData.跨所 === 'Y'" variant="dark" pill)
@@ -63,6 +70,14 @@
         )
           lah-fa-icon(icon="comments" class="mr-1")
           | 簡訊紀錄
+        b-button.mr-1.mb-1(
+          variant="outline-dark"
+          size="sm"
+          @click="openCaseTextModal"
+          title="案件資料文字檔預覽與匯出"
+        )
+          lah-fa-icon(icon="file-lines" class="mr-1")
+          | 文字匯出
         lah-button.mb-1(
           icon="sync-alt"
           size="sm"
@@ -112,7 +127,7 @@
             span
               strong 補正通知：
               | 通知日期 {{ bakedData.通知補正日期 }} (補正期限 {{ bakedData.補正期限 || '0' }} 天，期滿 {{ bakedData.補正期滿日期 || '無' }})
-              span.ml-2(v-if="bakedData.補正日期") | 補正完成：{{ bakedData.補正日期 }}
+              span.ml-2(v-if="hasValue(bakedData.補正日期)") | 補正完成：{{ bakedData.補正日期 }}
           lah-button(
             v-if="hasFixData"
             size="sm"
@@ -120,38 +135,37 @@
             @click="showFixDataText"
           ) 查看補正內容
 
-        b-alert.mb-2.py-2.px-3(v-if="!$utils.empty(bakedData.駁回日期)" variant="danger" show)
+        b-alert.mb-2.py-2.px-3(v-if="hasValue(bakedData.駁回日期)" variant="danger" show)
           lah-fa-icon(icon="ban" class="mr-2 text-danger")
           strong 案件駁回：
           | 駁回日期 {{ bakedData.駁回日期 }}
 
-        b-alert.mb-2.py-2.px-3(v-if="!$utils.empty(bakedData.請示人員)" variant="info" show)
+        b-alert.mb-2.py-2.px-3(v-if="hasValue(bakedData.請示人員)" variant="info" show)
           lah-fa-icon(icon="circle-question" class="mr-2 text-info")
           strong 請示紀錄：
           | 請示人員 #[b-link(@click="userinfo(bakedData.請示人員, bakedData.RM82)") {{ bakedData.請示人員 }}] (日期 {{ bakedData.請示日期 }} {{ bakedData.請示時間 }})
-          span.ml-2(v-if="!$utils.empty(bakedData.取消請示人員)") | 取消請示：{{ bakedData.取消請示人員 }} ({{ bakedData.取消請示日期 }})
+          span.ml-2(v-if="hasValue(bakedData.取消請示人員)") | 取消請示：{{ bakedData.取消請示人員 }} ({{ bakedData.取消請示日期 }})
 
-        b-alert.mb-2.py-2.px-3(v-if="!$utils.empty(bakedData.展期人員)" variant="secondary" show)
+        b-alert.mb-2.py-2.px-3(v-if="hasValue(bakedData.展期人員)" variant="secondary" show)
           lah-fa-icon(icon="calendar-plus" class="mr-2")
           strong 案件展期：
           | 展期人員 #[b-link(@click="userinfo(bakedData.展期人員, bakedData.RM88)") {{ bakedData.展期人員 }}] (展期日期 {{ bakedData.展期日期 }}，天數 {{ bakedData.展期天數 }} 天)
 
-        b-alert.mb-0.py-2.px-3(v-if="!$utils.empty(bakedData.公告日期)" variant="primary" show)
+        b-alert.mb-0.py-2.px-3(v-if="hasValue(bakedData.公告日期)" variant="primary" show)
           lah-fa-icon(icon="bullhorn" class="mr-2")
           strong 公告紀錄：
           | 公告日期 {{ bakedData.公告日期 }} (公告天數 {{ bakedData.公告天數 }} 天，期滿 {{ bakedData.公告期滿日期 }})
 
-  //- 3. 下方雙欄資訊卡
-  b-row
-    //- 左欄：標的物與當事人
-    b-col(cols="12" lg="6")
-      //- 卡片 A：標的物與地籍明細
-      b-card.border-0.shadow-sm.mb-3(no-body)
+  //- 3. 標的物與當事人並排等高雙卡片 (Equal Height Row)
+  b-row.mb-3
+    //- 卡片 A：標的物與地籍明細
+    b-col(cols="12" md="6")
+      b-card.border-0.shadow-sm.h-100(no-body)
         b-card-header.bg-white.border-bottom.d-flex.align-items-center.py-2
           lah-fa-icon(icon="map-location-dot" variant="primary" class="mr-2")
           h6.mb-0.font-weight-bold 標的物與地籍明細
-        b-card-body.p-0
-          b-list-group(flush)
+        b-card-body.p-0.d-flex.flex-column
+          b-list-group(flush class="flex-grow-1")
             b-list-group-item.py-2
               b-row.align-items-center
                 b-col(cols="4" class="text-muted small") 轄區 / 段小段
@@ -167,7 +181,7 @@
                     span.font-weight-bold
                       | {{ bakedData.地號 || '無' }}
                       b-button.ml-1.p-0(
-                        v-if="bakedData.地號"
+                        v-if="hasValue(bakedData.地號)"
                         variant="link"
                         size="sm"
                         @click="copyToClipboard(bakedData.地號, '已複製地號')"
@@ -183,7 +197,7 @@
                     span.font-weight-bold
                       | {{ bakedData.建號 || '無' }}
                       b-button.ml-1.p-0(
-                        v-if="bakedData.建號"
+                        v-if="hasValue(bakedData.建號)"
                         variant="link"
                         size="sm"
                         @click="copyToClipboard(bakedData.建號, '已複製建號')"
@@ -206,20 +220,21 @@
                   span.mx-2 ·
                   span 地價註記：{{ bakedData.地價處理註記 || '無' }}
 
-      //- 卡片 B：當事人與聯絡通訊
-      b-card.border-0.shadow-sm.mb-3(no-body)
+    //- 卡片 B：當事人與聯絡通訊
+    b-col(cols="12" md="6" class="mt-3 mt-md-0")
+      b-card.border-0.shadow-sm.h-100(no-body)
         b-card-header.bg-white.border-bottom.d-flex.align-items-center.py-2
           lah-fa-icon(icon="users" variant="success" class="mr-2")
           h6.mb-0.font-weight-bold 當事人與通訊資料
-        b-card-body.p-0
-          b-list-group(flush)
+        b-card-body.p-0.d-flex.flex-column
+          b-list-group(flush class="flex-grow-1")
             b-list-group-item.py-2
               b-row.align-items-center
                 b-col(cols="4" class="text-muted small") 權利人
                 b-col(cols="8")
                   .d-flex.align-items-center.justify-content-between
                     span.font-weight-bold {{ bakedData.權利人姓名 || '未建檔' }}
-                    span(v-if="bakedData.權利人統編")
+                    span(v-if="hasValue(bakedData.權利人統編)")
                       code.text-dark {{ bakedData.權利人統編 }}
                       b-button.ml-1.p-0(
                         variant="link"
@@ -228,7 +243,7 @@
                         title="複製統編"
                       )
                         lah-fa-icon(icon="copy" no-gutter)
-                  .text-muted.small.mt-1(v-if="bakedData.權利人住址") 住址：{{ bakedData.權利人住址 }}
+                  .text-muted.small.mt-1(v-if="hasValue(bakedData.權利人住址)") 住址：{{ bakedData.權利人住址 }}
 
             b-list-group-item.py-2
               b-row.align-items-center
@@ -237,8 +252,8 @@
                   .d-flex.align-items-center.justify-content-between
                     span.font-weight-bold
                       | {{ bakedData.義務人姓名 || '未建檔' }}
-                      span.badge.badge-light.ml-1(v-if="bakedData.義務人人數") {{ bakedData.義務人人數 }}人
-                    span(v-if="bakedData.義務人統編")
+                      span.badge.badge-light.ml-1(v-if="hasValue(bakedData.義務人人數)") {{ bakedData.義務人人數 }}人
+                    span(v-if="hasValue(bakedData.義務人統編)")
                       code.text-dark {{ bakedData.義務人統編 }}
                       b-button.ml-1.p-0(
                         variant="link"
@@ -247,15 +262,15 @@
                         title="複製統編"
                       )
                         lah-fa-icon(icon="copy" no-gutter)
-                  .text-muted.small.mt-1(v-if="bakedData.義務人住址") 住址：{{ bakedData.義務人住址 }}
+                  .text-muted.small.mt-1(v-if="hasValue(bakedData.義務人住址)") 住址：{{ bakedData.義務人住址 }}
 
-            b-list-group-item.py-2(v-if="bakedData.代理人姓名 || bakedData.代理人統編")
+            b-list-group-item.py-2(v-if="hasValue(bakedData.代理人姓名) || hasValue(bakedData.代理人統編)")
               b-row.align-items-center
                 b-col(cols="4" class="text-muted small") 代理人
                 b-col(cols="8")
                   .d-flex.align-items-center.justify-content-between
                     span.font-weight-bold {{ bakedData.代理人姓名 || '未具名' }}
-                    span(v-if="bakedData.代理人統編")
+                    span(v-if="hasValue(bakedData.代理人統編)")
                       code.text-dark {{ bakedData.代理人統編 }}
                       b-button.ml-1.p-0(
                         variant="link"
@@ -264,7 +279,7 @@
                         title="複製統編"
                       )
                         lah-fa-icon(icon="copy" no-gutter)
-                  .text-muted.small.mt-1(v-if="bakedData.代理人電話") 電話：{{ bakedData.代理人電話 }}
+                  .text-muted.small.mt-1(v-if="hasValue(bakedData.代理人電話)") 電話：{{ bakedData.代理人電話 }}
 
             b-list-group-item.py-2
               b-row.align-items-center
@@ -297,63 +312,70 @@
                         lah-fa-icon(icon="ban" class="mr-1")
                         | [未建檔，無法傳送簡訊]
 
-            b-list-group-item.py-2(v-if="bakedData.異動人員 || bakedData.異動日期")
+            b-list-group-item.py-2(v-if="hasValue(bakedData.異動人員) || hasValue(bakedData.異動日期)")
               b-row.align-items-center
                 b-col(cols="4" class="text-muted small") 最後異動
                 b-col(cols="8" class="small")
                   span.text-dark {{ bakedData.異動日期 }} {{ bakedData.異動時間 }}
-                  span.mx-2(v-if="bakedData.異動人員") ·
+                  span.mx-2(v-if="hasValue(bakedData.異動人員)") ·
                   b-button.p-0.align-baseline(
-                    v-if="bakedData.異動人員"
+                    v-if="hasValue(bakedData.異動人員)"
                     variant="link"
                     size="sm"
                     @click="userinfo(bakedData.異動人員, bakedData.RM103)"
                   )
                     | {{ bakedData.異動人員 }}
-                    span.text-muted(v-if="bakedData.RM103") ({{ bakedData.RM103 }})
+                    span.text-muted(v-if="hasValue(bakedData.RM103)") ({{ bakedData.RM103 }})
 
-    //- 右欄：審查處理歷程垂直時間軸
-    b-col(cols="12" lg="6")
-      b-card.border-0.shadow-sm.mb-3(no-body)
-        b-card-header.bg-white.border-bottom.d-flex.align-items-center.justify-content-between.py-2
-          .d-flex.align-items-center
-            lah-fa-icon(icon="timeline" variant="info" class="mr-2")
-            h6.mb-0.font-weight-bold 審查與處理歷程
-          span.badge.badge-light.text-muted 共 {{ timelineEvents.length }} 個處理記錄
-        b-card-body.p-3
-          .vertical-timeline
-            .timeline-item(
-              v-for="(ev, idx) in timelineEvents"
-              :key="idx"
-              :class="`timeline-${ev.variant}`"
-            )
-              .timeline-marker
-                lah-fa-icon(:icon="ev.icon")
-              .timeline-box
-                .d-flex.justify-content-between.align-items-center.mb-1
-                  .timeline-title.font-weight-bold
-                    span.mr-2 {{ ev.title }}
-                    b-badge(:variant="ev.badgeVariant" pill) {{ ev.badgeText }}
-                  .timeline-time.small.text-muted {{ ev.time }}
-                .timeline-body.small
-                  .d-flex.align-items-center.flex-wrap(v-if="ev.operator")
-                    span.text-muted.mr-1 經辦人員：
-                    b-button.p-0.mr-2.align-baseline(
-                      variant="link"
-                      size="sm"
-                      @click="userinfo(ev.operator, ev.operatorId)"
-                    )
-                      lah-avatar(:id="ev.operatorId" :name="ev.operator" size="1.1")
-                      span.ml-1 {{ ev.operator }}
-                    span.text-muted.mr-2(v-if="ev.operatorId") [{{ ev.operatorId }}]
-                    span.badge.badge-light.text-info(v-if="ev.elapsed") 耗時：{{ ev.elapsed }}
-                  .timeline-desc.text-secondary.mt-1(v-if="ev.description") {{ ev.description }}
-                  .timeline-actions.mt-1(v-if="ev.actionBtn")
-                    lah-button(
-                      size="sm"
-                      :variant="ev.actionBtn.variant"
-                      @click="ev.actionBtn.handler"
-                    ) {{ ev.actionBtn.text }}
+  //- 4. 下方全寬展開：審查與處理歷程 (Full-Width Timeline Grid Cards)
+  b-card.border-0.shadow-sm.mb-3(no-body)
+    b-card-header.bg-white.border-bottom.d-flex.align-items-center.justify-content-between.py-2
+      .d-flex.align-items-center
+        lah-fa-icon(icon="timeline" variant="info" class="mr-2")
+        h6.mb-0.font-weight-bold 審查與處理歷程
+      span.badge.badge-light.text-muted 共 {{ timelineEvents.length }} 個處理記錄
+    b-card-body.p-3
+      b-row
+        b-col(
+          v-for="(ev, idx) in timelineEvents"
+          :key="idx"
+          cols="12"
+          sm="6"
+          lg="4"
+          class="mb-3"
+        )
+          .timeline-grid-card.h-100(:class="`timeline-card-${ev.variant}`")
+            .card-header-bar.d-flex.justify-content-between.align-items-center.mb-2
+              .d-flex.align-items-center
+                .event-icon-circle(:class="`bg-${ev.variant} text-white`")
+                  lah-fa-icon(:icon="ev.icon")
+                span.event-title.font-weight-bold.ml-2 {{ ev.title }}
+              b-badge(:variant="ev.badgeVariant" pill) {{ ev.badgeText }}
+            .card-content-body.small
+              .event-time.text-muted.mb-1
+                lah-fa-icon(icon="clock" class="mr-1")
+                span {{ ev.time }}
+              .event-operator.d-flex.align-items-center.flex-wrap.mb-1(v-if="ev.operator")
+                span.text-muted.mr-1 經辦：
+                b-button.p-0.align-baseline(
+                  variant="link"
+                  size="sm"
+                  @click="userinfo(ev.operator, ev.operatorId)"
+                )
+                  lah-avatar(:id="ev.operatorId" :name="ev.operator" size="1.1")
+                  span.ml-1.font-weight-bold {{ ev.operator }}
+                span.text-muted.small.ml-1(v-if="hasValue(ev.operatorId)") [{{ ev.operatorId }}]
+              .event-elapsed.mb-1(v-if="hasValue(ev.elapsed)")
+                span.badge.badge-light.text-info
+                  lah-fa-icon(icon="stopwatch" class="mr-1")
+                  | 耗時：{{ ev.elapsed }}
+              .event-desc.text-secondary.mt-1(v-if="hasValue(ev.description)") {{ ev.description }}
+              .event-actions.mt-2(v-if="ev.actionBtn")
+                lah-button(
+                  size="sm"
+                  :variant="ev.actionBtn.variant"
+                  @click="ev.actionBtn.handler"
+                ) {{ ev.actionBtn.text }}
 
   //- 快速發送簡訊 Modal
   b-modal(
@@ -401,6 +423,35 @@
           :disabled="!isSmsCellValid || !smsForm.message"
         ) 確認發送
 
+  //- 案件資料文字檔 (TXT) 預覽 Modal
+  b-modal(
+    ref="caseTextModal"
+    :title="`📄 案件資料文字檔 (TXT) - ${displayCaseId}`"
+    size="lg"
+    hide-footer
+    centered
+  )
+    .d-flex.justify-content-between.align-items-center.mb-2
+      small.text-muted 💡 格式化純文字資料，適用於公文簽呈、查核紀錄、便條與系統記事：
+      .text-actions
+        b-button.mr-2(
+          variant="outline-primary"
+          size="sm"
+          @click="copyCaseTextFromModal"
+        )
+          lah-fa-icon(icon="copy" class="mr-1")
+          | 複製文字
+        b-button(
+          variant="outline-success"
+          size="sm"
+          @click="downloadCaseTextFile"
+        )
+          lah-fa-icon(icon="download" class="mr-1")
+          | 下載 TXT 檔
+    pre.case-text-pre.p-3.rounded.bg-dark.text-light.small(ref="caseTextPre") {{ caseTextContent }}
+    .d-flex.justify-content-end.mt-3
+      b-button(variant="secondary" size="sm" @click="$refs.caseTextModal.hide()") 關閉
+
 //- 讀取中
 h4.text-center.text-info.my-5(v-else)
   b-spinner(small type="grow")
@@ -437,13 +488,13 @@ export default {
   }),
   computed: {
     displayCaseId () {
-      return this.bakedData?.收件字號 || this.ID || this.caseId
+      return this.hasValue(this.bakedData?.收件字號) ? this.bakedData.收件字號 : (this.ID || this.caseId)
     },
     isClosed () {
       return this.bakedData?.結案與否 === 'Y' || ['A', 'B', 'C', 'D'].includes(this.bakedData?.結案代碼)
     },
     haveCellNumber () {
-      return !this.$utils.empty(this.bakedData?.手機號碼)
+      return this.hasValue(this.bakedData?.手機號碼)
     },
     statusBadgeVariant () {
       const st = this.bakedData?.辦理情形 || ''
@@ -472,36 +523,39 @@ export default {
     },
     hasBranchStatus () {
       return this.hasFixAlert ||
-        !this.$utils.empty(this.bakedData?.駁回日期) ||
-        !this.$utils.empty(this.bakedData?.請示人員) ||
-        !this.$utils.empty(this.bakedData?.展期人員) ||
-        !this.$utils.empty(this.bakedData?.公告日期)
+        this.hasValue(this.bakedData?.駁回日期) ||
+        this.hasValue(this.bakedData?.請示人員) ||
+        this.hasValue(this.bakedData?.展期人員) ||
+        this.hasValue(this.bakedData?.公告日期)
     },
     hasFixAlert () {
-      return !this.$utils.empty(this.bakedData?.通知補正日期) || (this.bakedData?.辦理情形 || '').includes('補正')
+      return this.hasValue(this.bakedData?.通知補正日期) || (this.bakedData?.辦理情形 || '').includes('補正')
     },
     hasFixData () {
-      return !this.$utils.empty(this.id) && !this.$utils.empty(this.bakedData?.通知補正日期)
+      return this.hasValue(this.id) && this.hasValue(this.bakedData?.通知補正日期)
     },
     fixDataText () {
       return this.localCRCRDData?.RC05 || '⚠ 本地資料庫無資料，若為跨所案件請先確認該案件有同步過來❗'
     },
     isSmsCellValid () {
-      if (this.$utils.empty(this.smsForm.cell)) { return null }
+      if (!this.hasValue(this.smsForm.cell)) { return null }
       return /^09\d{8}$/.test(this.smsForm.cell)
+    },
+    caseTextContent () {
+      return this.formatCaseTextReport()
     },
     workflowSteps () {
       if (!this.bakedData) { return [] }
       const b = this.bakedData
       const stNow = b.辦理情形 || ''
 
-      const isReceptionDone = !this.$utils.empty(b.收件時間)
-      const isReviewDone = !this.$utils.empty(b.初審時間)
-      const isSecReviewDone = !this.$utils.empty(b.複審時間)
-      const isApprovalDone = !this.$utils.empty(b.准登日期)
-      const isRegisterDone = !this.$utils.empty(b.登錄日期)
-      const isCheckDone = !this.$utils.empty(b.校對日期)
-      const isCloseDone = this.isClosed || !this.$utils.empty(b.結案日期)
+      const isReceptionDone = this.hasValue(b.收件時間)
+      const isReviewDone = this.hasValue(b.初審時間)
+      const isSecReviewDone = this.hasValue(b.複審時間)
+      const isApprovalDone = this.hasValue(b.准登日期)
+      const isRegisterDone = this.hasValue(b.登錄日期)
+      const isCheckDone = this.hasValue(b.校對日期)
+      const isCloseDone = this.isClosed || this.hasValue(b.結案日期)
 
       const steps = [
         {
@@ -525,7 +579,7 @@ export default {
       ]
 
       // 若有複審資料或現況在複審，插入複審關卡
-      if (!this.$utils.empty(b.複審人員) || !this.$utils.empty(b.複審時間) || stNow === '複審') {
+      if (this.hasValue(b.複審人員) || this.hasValue(b.複審時間) || stNow === '複審') {
         steps.push({
           key: '複審',
           title: '複審',
@@ -585,7 +639,7 @@ export default {
       const elapsed = b.ELAPSED_TIME || {}
 
       // 1. 收件
-      if (!this.$utils.empty(b.收件時間) || !this.$utils.empty(b.收件人員)) {
+      if (this.hasValue(b.收件時間) || this.hasValue(b.收件人員)) {
         events.push({
           title: '收件作業',
           badgeText: '已收件',
@@ -599,7 +653,7 @@ export default {
       }
 
       // 2. 移轉課長 / 秘書
-      if (!this.$utils.empty(b.移轉課長)) {
+      if (this.hasValue(b.移轉課長)) {
         events.push({
           title: '移轉課長',
           badgeText: '移轉',
@@ -611,7 +665,7 @@ export default {
           operatorId: b.RM106
         })
       }
-      if (!this.$utils.empty(b.移轉秘書)) {
+      if (this.hasValue(b.移轉秘書)) {
         events.push({
           title: '移轉秘書',
           badgeText: '移轉',
@@ -625,12 +679,12 @@ export default {
       }
 
       // 3. 初審
-      if (!this.$utils.empty(b.初審時間) || !this.$utils.empty(b.初審人員)) {
+      if (this.hasValue(b.初審時間) || this.hasValue(b.初審人員)) {
         events.push({
           title: '初審作業',
-          badgeText: this.$utils.empty(b.初審時間) ? '進行中' : '初審通過',
-          badgeVariant: this.$utils.empty(b.初審時間) ? 'primary' : 'success',
-          variant: this.$utils.empty(b.初審時間) ? 'primary' : 'success',
+          badgeText: this.hasValue(b.初審時間) ? '初審通過' : '進行中',
+          badgeVariant: this.hasValue(b.初審時間) ? 'success' : 'primary',
+          variant: this.hasValue(b.初審時間) ? 'success' : 'primary',
           icon: 'clipboard-check',
           time: b.初審時間,
           operator: b.初審人員,
@@ -639,13 +693,13 @@ export default {
         })
       }
 
-      // 4. 複審
-      if (!this.$utils.empty(b.複審時間) || !this.$utils.empty(b.複審人員)) {
+      // 4. 複審 (嚴格確認有時間或人員)
+      if (this.hasValue(b.複審時間) || this.hasValue(b.複審人員)) {
         events.push({
           title: '複審作業',
-          badgeText: this.$utils.empty(b.複審時間) ? '進行中' : '複審通過',
-          badgeVariant: this.$utils.empty(b.複審時間) ? 'primary' : 'success',
-          variant: this.$utils.empty(b.複審時間) ? 'primary' : 'success',
+          badgeText: this.hasValue(b.複審時間) ? '複審通過' : '進行中',
+          badgeVariant: this.hasValue(b.複審時間) ? 'success' : 'primary',
+          variant: this.hasValue(b.複審時間) ? 'success' : 'primary',
           icon: 'user-check',
           time: b.複審時間,
           operator: b.複審人員,
@@ -654,8 +708,8 @@ export default {
         })
       }
 
-      // 5. 補正相關
-      if (!this.$utils.empty(b.通知補正日期)) {
+      // 5. 補正相關 (嚴格確認通知補正日期)
+      if (this.hasValue(b.通知補正日期)) {
         events.push({
           title: '通知補正',
           badgeText: '補正中',
@@ -673,7 +727,7 @@ export default {
             : null
         })
       }
-      if (!this.$utils.empty(b.補正日期)) {
+      if (this.hasValue(b.補正日期)) {
         events.push({
           title: '補正完成',
           badgeText: '補正齊備',
@@ -686,22 +740,22 @@ export default {
       }
 
       // 6. 請示相關
-      if (!this.$utils.empty(b.請示人員)) {
+      if (this.hasValue(b.請示人員)) {
         events.push({
           title: '案件請示',
-          badgeText: this.$utils.empty(b.取消請示日期) ? '請示中' : '已結案請示',
+          badgeText: this.hasValue(b.取消請示日期) ? '已結案請示' : '請示中',
           badgeVariant: 'info',
           variant: 'info',
           icon: 'circle-question',
           time: `${b.請示日期 || ''} ${b.請示時間 || ''}`.trim(),
           operator: b.請示人員,
           operatorId: b.RM82,
-          description: !this.$utils.empty(b.取消請示日期) ? `於 ${b.取消請示日期} 由 ${b.取消請示人員 || ''} 取消請示` : ''
+          description: this.hasValue(b.取消請示日期) ? `於 ${b.取消請示日期} 由 ${b.取消請示人員 || ''} 取消請示` : ''
         })
       }
 
       // 7. 展期
-      if (!this.$utils.empty(b.展期人員)) {
+      if (this.hasValue(b.展期人員)) {
         events.push({
           title: '案件展期',
           badgeText: '已展期',
@@ -716,7 +770,7 @@ export default {
       }
 
       // 8. 公告
-      if (!this.$utils.empty(b.公告日期)) {
+      if (this.hasValue(b.公告日期)) {
         events.push({
           title: '案件公告',
           badgeText: '公告中',
@@ -728,8 +782,8 @@ export default {
         })
       }
 
-      // 9. 駁回
-      if (!this.$utils.empty(b.駁回日期)) {
+      // 9. 駁回 (嚴格確認有駁回日期)
+      if (this.hasValue(b.駁回日期)) {
         events.push({
           title: '案件駁回',
           badgeText: '已駁回',
@@ -742,10 +796,10 @@ export default {
       }
 
       // 10. 准登
-      if (!this.$utils.empty(b.准登日期) || !this.$utils.empty(b.准登人員)) {
+      if (this.hasValue(b.准登日期) || this.hasValue(b.准登人員)) {
         events.push({
           title: '准登核定',
-          badgeText: this.$utils.empty(b.准登日期) ? '准登中' : '已准登',
+          badgeText: this.hasValue(b.准登日期) ? '已准登' : '准登中',
           badgeVariant: 'success',
           variant: 'success',
           icon: 'stamp',
@@ -757,10 +811,10 @@ export default {
       }
 
       // 11. 登簿
-      if (!this.$utils.empty(b.登錄日期) || !this.$utils.empty(b.登錄人員)) {
+      if (this.hasValue(b.登錄日期) || this.hasValue(b.登錄人員)) {
         events.push({
           title: '登記簿登錄',
-          badgeText: this.$utils.empty(b.登錄日期) ? '登簿中' : '登錄完成',
+          badgeText: this.hasValue(b.登錄日期) ? '登錄完成' : '登簿中',
           badgeVariant: 'success',
           variant: 'success',
           icon: 'book',
@@ -772,8 +826,8 @@ export default {
       }
 
       // 12. 校對
-      if (!this.$utils.empty(b.校對日期) || !this.$utils.empty(b.校對人員) || b.辦理情形 === '校對') {
-        const isChecking = this.$utils.empty(b.校對日期)
+      if (this.hasValue(b.校對日期) || this.hasValue(b.校對人員) || b.辦理情形 === '校對') {
+        const isChecking = !this.hasValue(b.校對日期)
         events.push({
           title: '校對作業',
           badgeText: isChecking ? '校對進行中' : '校對完成',
@@ -787,8 +841,8 @@ export default {
         })
       }
 
-      // 13. 結案
-      if (this.isClosed || !this.$utils.empty(b.結案日期) || !this.$utils.empty(b.結案人員)) {
+      // 13. 結案 (只有在確定結案或有結案日期時才加入)
+      if (this.isClosed || this.hasValue(b.結案日期)) {
         events.push({
           title: '結案歸檔',
           badgeText: '結案完成',
@@ -823,16 +877,248 @@ export default {
     this.$fetch()
   },
   methods: {
+    hasValue (val) {
+      if (val === null || val === undefined) { return false }
+      if (typeof val === 'string') { return val.trim().length > 0 }
+      return !this.$utils.empty(val)
+    },
+    getVisualWidth (str) {
+      if (!str) { return 0 }
+      let width = 0
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i)
+        // 判定全形 / 中文字元（佔 2 個半形欄寬）
+        if (
+          (code >= 0x4E00 && code <= 0x9FFF) ||
+          (code >= 0x3400 && code <= 0x4DBF) ||
+          (code >= 0xF900 && code <= 0xFAFF) ||
+          (code >= 0xFF01 && code <= 0xFF60) ||
+          (code >= 0xFFE0 && code <= 0xFFE6) ||
+          (code >= 0x3000 && code <= 0x303F)
+        ) {
+          width += 2
+        } else {
+          width += 1
+        }
+      }
+      return width
+    },
+    padEndVisual (str, targetWidth) {
+      const s = String(str || '')
+      const currentWidth = this.getVisualWidth(s)
+      if (currentWidth >= targetWidth) {
+        return s
+      }
+      return s + ' '.repeat(targetWidth - currentWidth)
+    },
+    padToTab (str, targetTabCol, tabSize = 8) {
+      const currentWidth = this.getVisualWidth(str)
+      let col = currentWidth
+      let tabs = ''
+      while (col < targetTabCol) {
+        col = Math.floor(col / tabSize) * tabSize + tabSize
+        tabs += '\t'
+      }
+      if (tabs === '') {
+        tabs = '\t'
+      }
+      return str + tabs
+    },
     formatStepTime (val) {
-      if (!val) { return '' }
+      if (!this.hasValue(val)) { return '' }
       // 若為完整民國時間字串 "115-10-08 08:27:02" 取簡短形式 "10-08 08:27"
-      const parts = val.split(' ')
+      const parts = val.trim().split(' ')
       if (parts.length === 2) {
         const datePart = parts[0].split('-').slice(1).join('/')
         const timePart = parts[1].substring(0, 5)
         return `${datePart} ${timePart}`
       }
       return val
+    },
+    formatCaseTextReport () {
+      if (!this.bakedData) { return '' }
+      const b = this.bakedData
+      const divider = '-----------------------------------------------------------------------------------------------'
+      const doubleDivider = '==========================================================='
+      const lines = []
+
+      lines.push(doubleDivider)
+      lines.push(`【登記案件詳情】 ${this.displayCaseId}`)
+      lines.push(doubleDivider)
+
+      // 1. 基本資訊 (純 Tab 對齊，無欄位前置空格)
+      const rDate = b.收件日期 ? `民國${b.收件日期.replace('-', '年').replace('-', '月')}日` : (b.收件時間 || '未載明')
+      const rTime = b.收件時間 ? ` ${b.收件時間.split(' ')[1] || ''}` : ''
+
+      lines.push(`收件字號: ${b.收件字號 || this.displayCaseId}\t收件日期: ${rDate}${rTime}`)
+      lines.push(`登記原因: ${b.登記原因 || '未載明'}\t\t\t\t辦理情形: ${b.辦理情形 || '未載明'}`)
+      lines.push(`限辦期限: ${b.限辦期限 || '依規定'}\t\t\t結案狀態: ${this.isClosed ? '已結案' : '尚未結案'}`)
+
+      if (b.跨所 === 'Y') {
+        lines.push(`跨所案件: 資料收件所【${b.資料收件所}】 ➔ 資料管轄所【${b.資料管轄所}】`)
+      }
+      lines.push(divider)
+
+      // 2. 標的物與地籍資料 (純 Tab 對齊，無欄位前置空格)
+      lines.push('標的物與地籍資料:')
+      lines.push(`  轄區段小段: ${b.區名稱 || ''}【${b.RM10 || ''}】 · ${b.段小段 || ''}【${b.段代碼 || ''}】`)
+
+      lines.push(`  地  號: ${b.地號 || '無'}\t\t\t\t土地面積: ${b.土地面積 || '未輸入'}`)
+      lines.push(`  建  號: ${b.建號 || '無'}\t\t\t\t建物面積: ${b.建物面積 || '未輸入'}`)
+      lines.push(`  件  數: 1 件\t\t\t\t測量案號: ${b.測量案件 || '--'}`)
+      lines.push(`  登記註記: ${b.登記處理註記 || '無'}\t\t\t\t地價註記: ${b.地價處理註記 || '無'}`)
+
+      lines.push(divider)
+
+      // 3. 當事人與通訊資料 (純 Tab 對齊，無欄位前置空格)
+      lines.push('當事人與通訊資料:')
+
+      lines.push(`  權 利 人: ${b.權利人姓名 || '未建檔'}\t\t\t\t統一編號: ${b.權利人統編 || '無'}`)
+      if (this.hasValue(b.權利人住址)) {
+        lines.push(`  權利人住址: ${b.權利人住址}`)
+      }
+
+      const obligorName = b.義務人姓名 ? `${b.義務人姓名}${b.義務人人數 ? ` (${b.義務人人數}人)` : ''}` : '未建檔'
+      const obligorTabs = obligorName.length >= 7 ? '\t\t' : '\t\t\t\t'
+      lines.push(`  義 務 人: ${obligorName}${obligorTabs}統一編號: ${b.義務人統編 || '無'}`)
+      if (this.hasValue(b.義務人住址)) {
+        lines.push(`  義務人住址: ${b.義務人住址}`)
+      }
+
+      if (this.hasValue(b.代理人姓名) || this.hasValue(b.代理人統編)) {
+        lines.push(`  代 理 人: ${b.代理人姓名 || '未具名'}\t\t\t\t統一編號: ${b.代理人統編 || '無'}`)
+        if (this.hasValue(b.代理人電話)) {
+          lines.push(`  代理人電話: ${b.代理人電話}`)
+        }
+      }
+      lines.push(`  聯絡手機: ${b.手機號碼 || '[未建檔，無法傳送簡訊]'}`)
+      if (this.hasValue(b.異動日期) || this.hasValue(b.異動人員)) {
+        lines.push(`  最後異動: ${b.異動日期 || ''} ${b.異動時間 || ''} · ${b.異動人員 || ''} [${b.RM103 || ''}]`)
+      }
+      lines.push(divider)
+
+      // 4. 審查與處理歷程 (純 Tab 對齊，無欄位前置空格)
+      lines.push('審查與處理歷程:')
+      this.timelineEvents.forEach((ev) => {
+        const op = ev.operator ? `${ev.operator}${ev.operatorId ? ` [${ev.operatorId}]` : ''}` : '未載明'
+        const el = ev.elapsed ? ` (耗時: ${ev.elapsed})` : ''
+        const desc = ev.description ? ` (${ev.description})` : ''
+        const isLongTitle = (ev.title || '').length >= 5
+        const timeTabs = isLongTitle ? '\t\t' : '\t\t\t'
+        if (this.hasValue(ev.time)) {
+          lines.push(`  ${ev.title}  : ${ev.time}${timeTabs}經辦: ${op}${el}${desc}`)
+        } else {
+          lines.push(`  ${ev.title}  :\t\t\t\t\t經辦: ${op}${el}${desc}`)
+        }
+      })
+      lines.push(divider)
+
+      lines.push('=============================================================')
+
+      // 5. 頁尾產製時間簽註
+      const now = new Date()
+      const rocYear = now.getFullYear() - 1911
+      const padZero = n => String(n).padStart(2, '0')
+      const exportTimeStr = `民國${rocYear}年${padZero(now.getMonth() + 1)}月${padZero(now.getDate())}日 ${padZero(now.getHours())}:${padZero(now.getMinutes())}:${padZero(now.getSeconds())}`
+      lines.push(`產製時間: ${exportTimeStr}`)
+
+      return lines.join('\n')
+    },
+    copyCaseTextFromModal () {
+      const text = this.caseTextContent
+
+      // 1. 若處於 Modal 內，直接選取 <pre ref="caseTextPre"> 節點執行 copy (在非安全 HTTP 來源與雙層 Modal 焦點下 100% 成功)
+      const pre = this.$refs.caseTextPre
+      if (pre && typeof window.getSelection === 'function' && document.createRange) {
+        try {
+          const range = document.createRange()
+          range.selectNodeContents(pre)
+          const selection = window.getSelection()
+          selection.removeAllRanges()
+          selection.addRange(range)
+          const ok = document.execCommand('copy')
+          selection.removeAllRanges()
+          if (ok) {
+            this.notify('已成功複製全案文字資料！', { title: '📋 剪貼簿', variant: 'success' })
+            return
+          }
+        } catch (err) {
+          this.$utils.warn('Pre selection copy failed, fallbacking...', err)
+        }
+      }
+
+      // 2. 若為 SecureContext 則使用 navigator.clipboard
+      if (process.client && window.isSecureContext && navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.notify('已成功複製全案文字資料！', { title: '📋 剪貼簿', variant: 'success' })
+        }).catch(() => {
+          this.robustFallbackCopy(text)
+        })
+        return
+      }
+
+      // 3. Fallback: 動態掛載 textarea 於最上層 Modal 內部以突破 Bootstrap focus trap
+      this.robustFallbackCopy(text)
+    },
+    quickCopyCaseText () {
+      const text = this.caseTextContent
+      if (process.client && window.isSecureContext && navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.notify('已成功複製全案文字資料！', { title: '📋 剪貼簿', variant: 'success' })
+        }).catch(() => {
+          this.robustFallbackCopy(text)
+        })
+        return
+      }
+      this.robustFallbackCopy(text)
+    },
+    robustFallbackCopy (text) {
+      try {
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.setAttribute('readonly', '')
+        textarea.style.position = 'fixed'
+        textarea.style.top = '0'
+        textarea.style.left = '0'
+        textarea.style.opacity = '0.01'
+        textarea.style.zIndex = '99999'
+
+        // 取得最上層可視的 modal-content 容器
+        const activeModals = document.querySelectorAll('.modal.show .modal-content')
+        const container = (activeModals.length > 0 ? activeModals[activeModals.length - 1] : null) || document.body
+
+        container.appendChild(textarea)
+        textarea.focus()
+        textarea.select()
+        textarea.setSelectionRange(0, textarea.value.length)
+        const success = document.execCommand('copy')
+        container.removeChild(textarea)
+
+        if (success) {
+          this.notify('已成功複製全案文字資料！', { title: '📋 剪貼簿', variant: 'success' })
+        } else {
+          this.notify('瀏覽器限制剪貼簿存取，請直接選取畫面文字複製', { type: 'warning' })
+        }
+      } catch (err) {
+        this.$utils.error('robustFallbackCopy error:', err)
+        this.notify('複製失敗，請手動選取文字', { type: 'danger' })
+      }
+    },
+    openCaseTextModal () {
+      this.$refs.caseTextModal.show()
+    },
+    downloadCaseTextFile () {
+      const text = this.formatCaseTextReport()
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+      const filename = `${this.displayCaseId.replace(/[^a-zA-Z0-9_\-\u4E00-\u9FFF]/g, '_')}_案件資料.txt`
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(link.href)
+      this.notify(`已下載 ${filename}`, { type: 'success' })
     },
     refreshData () {
       this.reloadCase()
@@ -1077,118 +1363,69 @@ export default {
     }
   }
 
-  // 垂直審查時間軸 (Vertical Timeline)
-  .vertical-timeline {
-    position: relative;
-    padding-left: 28px;
+  // 審查歷程網格時序卡 (Timeline Grid Cards)
+  .timeline-grid-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: 10px;
-      bottom: 10px;
-      left: 12px;
-      width: 2px;
-      background-color: #e2e8f0;
+    &:hover {
+      background-color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      transform: translateY(-2px);
     }
 
-    .timeline-item {
-      position: relative;
-      margin-bottom: 18px;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      .timeline-marker {
-        position: absolute;
-        left: -28px;
-        top: 2px;
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        background-color: #ffffff;
-        border: 2px solid #94a3b8;
-        color: #64748b;
-        z-index: 2;
-        transition: all 0.2s ease;
-      }
-
-      .timeline-box {
-        background-color: #f8fafc;
-        border: 1px solid #eef2f6;
-        border-radius: 6px;
-        padding: 8px 12px;
-        transition: background-color 0.15s ease;
-
-        &:hover {
-          background-color: #f1f5f9;
-        }
-
-        .timeline-title {
-          font-size: 0.9rem;
-          color: #1e293b;
-        }
-
-        .timeline-time {
-          font-size: 0.8rem;
-        }
-      }
-
-      // 依狀態着色
-      &.timeline-success {
-        .timeline-marker {
-          background-color: #28a745;
-          border-color: #28a745;
-          color: #ffffff;
-        }
-      }
-
-      &.timeline-primary {
-        .timeline-marker {
-          background-color: #007bff;
-          border-color: #007bff;
-          color: #ffffff;
-          box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-        }
-      }
-
-      &.timeline-warning {
-        .timeline-marker {
-          background-color: #ffc107;
-          border-color: #ffc107;
-          color: #212529;
-        }
-      }
-
-      &.timeline-danger {
-        .timeline-marker {
-          background-color: #dc3545;
-          border-color: #dc3545;
-          color: #ffffff;
-        }
-      }
-
-      &.timeline-info {
-        .timeline-marker {
-          background-color: #17a2b8;
-          border-color: #17a2b8;
-          color: #ffffff;
-        }
-      }
-
-      &.timeline-secondary {
-        .timeline-marker {
-          background-color: #6c757d;
-          border-color: #6c757d;
-          color: #ffffff;
-        }
-      }
+    .event-icon-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
     }
+
+    .event-title {
+      font-size: 0.95rem;
+      color: #1e293b;
+    }
+
+    &.timeline-card-success {
+      border-left: 4px solid #28a745;
+    }
+    &.timeline-card-primary {
+      border-left: 4px solid #007bff;
+    }
+    &.timeline-card-warning {
+      border-left: 4px solid #ffc107;
+    }
+    &.timeline-card-danger {
+      border-left: 4px solid #dc3545;
+    }
+    &.timeline-card-info {
+      border-left: 4px solid #17a2b8;
+    }
+    &.timeline-card-secondary {
+      border-left: 4px solid #6c757d;
+    }
+  }
+
+  // 文字檔預覽框樣式 (與 Windows 記事本預設字型一致，消除顯示與匯出差距)
+  .case-text-pre {
+    font-family: 'Microsoft JhengHei', '微軟正黑體', 'Cascadia Code', 'Courier New', monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    tab-size: 8;
+    -moz-tab-size: 8;
+    max-height: 480px;
+    overflow-y: auto;
+    line-height: 1.5;
+    user-select: text;
   }
 }
 
