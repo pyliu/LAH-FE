@@ -222,32 +222,38 @@ export default {
       type: Boolean,
       default: false
     },
+    defaultTab: {
+      type: String,
+      default: 'online'
+    },
     height: {
       type: String,
       default: ''
     }
   },
-  data: () => ({
-    activeTab: 'dept',
-    currentDeptChannel: '',
-    userSelectedDept: false,
-    activePersonalUser: '',
-    connectText: '',
-    connecting: false,
-    showCustomWsInput: false,
-    inputWsHost: '',
-    inputWsPort: '',
-    customWsHost: '',
-    customWsPort: '',
-    reconnectMs: 20 * 1000,
-    reconnectTimer: null,
-    msgQueue: [],
-    processingQueue: false,
-    toastMessageQueue: [],
-    toastProcessTimer: null,
-    activeToastIds: [],
-    toastSeq: 0
-  }),
+  data () {
+    return {
+      activeTab: this.defaultTab || 'online',
+      currentDeptChannel: '',
+      userSelectedDept: false,
+      activePersonalUser: '',
+      connectText: '',
+      connecting: false,
+      showCustomWsInput: false,
+      inputWsHost: '',
+      inputWsPort: '',
+      customWsHost: '',
+      customWsPort: '',
+      reconnectMs: 20 * 1000,
+      reconnectTimer: null,
+      msgQueue: [],
+      processingQueue: false,
+      toastMessageQueue: [],
+      toastProcessTimer: null,
+      activeToastIds: [],
+      toastSeq: 0
+    }
+  },
   computed: {
     rootClasses () {
       return {

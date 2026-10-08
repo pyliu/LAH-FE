@@ -66,6 +66,7 @@ client-only
           lah-messenger-home(
             ref="messengerHome"
             embedded
+            default-tab="online"
             height="100%"
             @new-message="onNewMessage"
           )
@@ -198,8 +199,8 @@ export default {
       if (this.hideSidebarVisuals) {
         return
       }
-      const targetChannel = channel || this.currentChannel
-      if (targetChannel) {
+      const targetChannel = channel || 'online'
+      if (targetChannel && targetChannel !== 'online') {
         this.$store.commit('currentChannel', targetChannel)
         this.$store.commit('resetUnread', targetChannel)
         if (targetChannel === 'announcement' && this.userdept) {
@@ -211,7 +212,7 @@ export default {
         if (this.$refs.messengerHome?.switchChannel) {
           this.$refs.messengerHome.switchChannel(targetChannel)
         }
-        if (this.$refs.messengerHome?.updateChannelLastReadId) {
+        if (this.$refs.messengerHome?.updateChannelLastReadId && targetChannel !== 'online') {
           this.$refs.messengerHome.updateChannelLastReadId(targetChannel)
         }
       })
