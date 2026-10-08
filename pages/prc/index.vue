@@ -137,7 +137,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
                   .icon-box.bg-warning-light.mb-3
                     lah-fa-icon(icon="calculator", variant="warning", size="4x")
                   h3.font-weight-bold.text-dark.mb-1 買賣實例作業工具
-                  .text-muted.small 區段表對應、智慧檢核與案件挑檔
+                  .text-muted.small 區段表對應、實例檢核、案件挑檔與10日檢核
 
 </template>
 
