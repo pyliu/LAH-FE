@@ -33,51 +33,46 @@
             | 跨所 ({{ bakedData.資料收件所 }} ➔ {{ bakedData.資料管轄所 }})
 
       //- 快捷動作按鈕列
-      .header-actions.d-flex.align-items-center.flex-wrap
-        b-button.mr-1.mb-1(
+      b-button-group
+        lah-button.mr-1.mb-1(
+          icon="external-link-alt"
           variant="outline-primary"
           size="sm"
           :href="queryDataUrl"
           target="_blank"
           title="開啟 WebAP 收件資料 (CCD0103)"
-        )
-          lah-fa-icon(icon="external-link-alt" class="mr-1")
-          | 收件資料
-        b-button.mr-1.mb-1(
+        ) 收件資料
+        lah-button.mr-1.mb-1(
+          icon="external-link-alt"
           variant="outline-info"
           size="sm"
           :href="queryStatusUrl"
           target="_blank"
           title="開啟 WebAP 辦理情形 (CCD0202)"
-        )
-          lah-fa-icon(icon="external-link-alt" class="mr-1")
-          | 辦理情形
-        b-button.mr-1.mb-1(
+        ) 辦理情形
+        lah-button.mr-1.mb-1(
+          icon="paper-plane"
           v-if="haveCellNumber"
           variant="outline-success"
           size="sm"
           @click="openQuickSmsModal"
           title="發送案件簡訊通知"
-        )
-          lah-fa-icon(icon="paper-plane" class="mr-1")
-          | 發送簡訊
-        b-button.mr-1.mb-1(
+        ) 發送簡訊
+        lah-button.mr-1.mb-1(
+          icon="comments"
           v-if="haveCellNumber"
           variant="outline-secondary"
           size="sm"
           @click="popupSMSLog(bakedData.手機號碼)"
           title="查詢此號碼歷史簡訊紀錄"
-        )
-          lah-fa-icon(icon="comments" class="mr-1")
-          | 簡訊紀錄
-        b-button.mr-1.mb-1(
+        ) 簡訊紀錄
+        lah-button.mr-1.mb-1(
+          icon="file-lines"
           variant="outline-dark"
           size="sm"
           @click="openCaseTextModal"
           title="案件資料文字檔預覽與匯出"
-        )
-          lah-fa-icon(icon="file-lines" class="mr-1")
-          | 文字匯出
+        ) 文字匯出
         lah-button.mb-1(
           icon="sync-alt"
           size="sm"
