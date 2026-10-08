@@ -52,6 +52,16 @@ b-card.p-2.border-0.bg-transparent(no-body)
 
             //- 標籤與展開指示箭頭
             .timeline-meta.d-flex.align-items-center.ml-auto.flex-shrink-0
+              b-badge.attachment-count-badge.mr-1(
+                v-if="hasAttachments(item)",
+                variant="light",
+                class="border text-secondary",
+                pill,
+                :title="`附加檔案 (${item.attachments.length})`"
+              )
+                lah-fa-icon(icon="paperclip", size="xs").mr-1
+                span {{ item.attachments.length }}
+
               b-badge.urgency-badge.mr-1(
                 v-if="isUrgent(item)",
                 :variant="itemVariant(item)",
@@ -81,6 +91,24 @@ b-card.p-2.border-0.bg-transparent(no-body)
                 v-html="cleanText(item.content)"
               )
 
+              //- 附加檔案清單 (Attachments List)
+              .timeline-attachments.mt-2.pt-2.border-top(v-if="hasAttachments(item)")
+                .small.text-muted.font-weight-bold.mb-1.d-flex.align-items-center
+                  lah-fa-icon(icon="paperclip", size="xs").mr-1
+                  span 附加檔案 ({{ item.attachments.length }})
+                .d-flex.flex-wrap
+                  b-button.mr-2.mb-1.text-left.attachment-btn(
+                    v-for="(att, aIdx) in item.attachments"
+                    :key="`att_${item.id}_${aIdx}`"
+                    size="sm"
+                    variant="outline-secondary"
+                    @click.stop="downloadAttachment('announcement', item.id, att.name)"
+                    :title="`點擊開啟/下載：${getAttachmentDisplayName(att.name)} (${formatFileSize(att.size)})`"
+                  )
+                    lah-fa-icon(:icon="getFileIcon(att.name)", size="xs", :variant="getFileVariant(att.name)").mr-1
+                    span.attachment-name.small.text-truncate {{ getAttachmentDisplayName(att.name) }}
+                    b-badge.ml-1(variant="light") {{ formatFileSize(att.size) }}
+
               .content-footer.d-flex.flex-wrap.justify-content-between.align-items-center.pt-2.mt-2.border-top
                 .text-muted.small.my-1(v-if="item.id")
                   lah-fa-icon(icon="bullhorn", size="xs").mr-1
@@ -101,10 +129,12 @@ b-card.p-2.border-0.bg-transparent(no-body)
 import { formatDistanceToNow, format, isToday, isYesterday, differenceInCalendarDays } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import lahUserCard from '~/components/lah-user-card.vue'
+import lahMessengerBase from '~/mixins/lah-messenger-base'
 
 export default {
   name: 'LahNotificationTimeline',
   components: { lahUserCard },
+  mixins: [lahMessengerBase],
   props: {
     /**
      * [{ create_datetime: '2022-04-20 15:16:00', title: '...', content: '...', priority: 1, sender: '...' }, ...]
@@ -289,6 +319,80 @@ export default {
       }), {
         title: `使用者資訊 - ${name}`
       })
+    },
+    hasAttachments (item) {
+      return Array.isArray(item?.attachments) && item.attachments.length > 0
+    },
+    getFileIcon (filename) {
+      if (!filename) {
+        return 'file'
+      }
+      const ext = String(filename).split('.').pop().toLowerCase()
+      switch (ext) {
+        case 'pdf':
+          return 'file-pdf'
+        case 'doc':
+        case 'docx':
+        case 'odt':
+          return 'file-word'
+        case 'xls':
+        case 'xlsx':
+        case 'ods':
+        case 'csv':
+          return 'file-excel'
+        case 'ppt':
+        case 'pptx':
+        case 'odp':
+          return 'file-powerpoint'
+        case 'png':
+        case 'jpg':
+        case 'jpeg':
+        case 'gif':
+        case 'bmp':
+        case 'webp':
+        case 'svg':
+          return 'file-image'
+        case 'zip':
+        case 'rar':
+        case '7z':
+        case 'tar':
+        case 'gz':
+          return 'file-zipper'
+        default:
+          return 'file'
+      }
+    },
+    getFileVariant (filename) {
+      if (!filename) {
+        return 'secondary'
+      }
+      const ext = String(filename).split('.').pop().toLowerCase()
+      switch (ext) {
+        case 'pdf':
+          return 'danger'
+        case 'doc':
+        case 'docx':
+        case 'odt':
+          return 'primary'
+        case 'xls':
+        case 'xlsx':
+        case 'ods':
+        case 'csv':
+          return 'success'
+        case 'png':
+        case 'jpg':
+        case 'jpeg':
+        case 'gif':
+        case 'bmp':
+        case 'webp':
+          return 'info'
+        case 'zip':
+        case 'rar':
+        case '7z':
+          return 'warning'
+        default:
+          return 'secondary'
+      }
     }
   }
 }
@@ -562,6 +666,33 @@ export default {
   }
 }
 
+.attachment-count-badge {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+}
+
+.timeline-attachments {
+  .attachment-btn {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    border-color: #ced4da;
+    background-color: #fdfdfd;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f1f3f5;
+      border-color: #adb5bd;
+    }
+
+    .attachment-name {
+      max-width: 180px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
+
 // Dark Mode Support
 :global(.dark-mode) {
   .timeline-container {
@@ -642,6 +773,27 @@ export default {
     color: #adb5bd;
     .text-muted {
       color: #adb5bd !important;
+    }
+  }
+
+  .attachment-count-badge {
+    background-color: #2b2b2b !important;
+    border-color: #444 !important;
+    color: #ced4da !important;
+  }
+
+  .timeline-attachments {
+    border-color: #3a3a3a !important;
+
+    .attachment-btn {
+      background-color: #2b2b2b;
+      border-color: #444;
+      color: #e0e0e0;
+
+      &:hover {
+        background-color: #383838;
+        border-color: #666;
+      }
     }
   }
 }
