@@ -294,62 +294,74 @@ div
             @change="toggleSelectItem(item)"
           )
 
-        //- 1. 收件資訊與人員
+        //- 1. 收件資訊與人員 (最多兩行)
         template(#cell(case_info)="{ item }")
-          .d-flex.flex-column
-            b-link.font-weight-bold(@click="popup(item)" :title="`查看詳情 - ${item.RM123}`")
-              lah-fa-icon(icon="window-restore" regular variant="primary") {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }}
-            .small.text-muted 收件：{{ $utils.addDateDivider(item.收件日期) || item.收件日期 }}
-            .mt-1
-              b-button(
+          .d-flex.flex-column.justify-content-center
+            .d-flex.align-items-center.justify-content-between.flex-nowrap
+              b-link.font-weight-bold.text-nowrap(@click="popup(item)" :title="`查看詳情 - ${item.RM123}`")
+                lah-fa-icon(icon="window-restore" regular variant="primary") {{ item.RM01 }}-{{ item.RM02 }}-{{ item.RM03 }}
+              b-button.py-0.px-2.ml-1.text-nowrap(
                 pill
                 variant="outline-primary"
                 size="sm"
-                class="py-0 px-2"
                 @click="popupUser(item)"
                 v-b-tooltip.right="item.RM30_1"
               )
                 lah-fa-icon(icon="user" size="sm") {{ item.作業人員 }}
+            .small.text-muted.text-nowrap.mt-1
+              | 收件：{{ $utils.addDateDivider(item.收件日期) || item.收件日期 || '-' }}
 
-        //- 2. 不動產標的
+        //- 2. 不動產標的 (最多兩行)
         template(#cell(land_build)="{ item }")
-          .d-flex.flex-column
-            span.font-weight-bold {{ item.RM11_CHT || item.段小段 }} #[small.text-muted ({{ item.RM11 }})]
-            .small 地號：#[span.font-weight-bold {{ $utils.formatLandNumber(item.RM12) || '無' }}]
-            .small 建號：#[span.font-weight-bold {{ $utils.formatBuildNumber(item.RM15) || '無' }}]
+          .d-flex.flex-column.justify-content-center
+            .text-nowrap
+              span.font-weight-bold {{ item.RM11_CHT || item.段小段 }}
+              small.text-muted.ml-1 ({{ item.RM11 }})
+            .small.text-nowrap.mt-1
+              span 地號：#[span.font-weight-bold {{ $utils.formatLandNumber(item.RM12) || '無' }}]
+              span.text-muted.mx-1 ｜
+              span 建號：#[span.font-weight-bold {{ $utils.formatBuildNumber(item.RM15) || '無' }}]
 
-        //- 3. 登記進度
+        //- 3. 登記進度 (最多兩行)
         template(#cell(reg_progress)="{ item }")
-          .d-flex.flex-column
+          .d-flex.flex-column.justify-content-center
             div
               b-badge(:variant="item.登記處理註記 ? 'info' : 'secondary'") {{ item.登記處理註記 || '未更新' }}
-            .small.text-muted.mt-1 登錄：{{ $utils.addDateDivider(item.RM54_1) || '-' }}
-            .small(:class="item.RM58_1 ? 'text-success font-weight-bold' : 'text-muted'")
-              | 結案：{{ $utils.addDateDivider(item.RM58_1) || '辦理中' }}
+            .small.text-nowrap.mt-1
+              span.text-muted 登錄：{{ $utils.addDateDivider(item.RM54_1) || '-' }}
+              span.text-muted.mx-1 ｜
+              span(:class="item.RM58_1 ? 'text-success font-weight-bold' : 'text-muted'")
+                | 結案：{{ $utils.addDateDivider(item.RM58_1) || '辦理中' }}
 
-        //- 4. 地價進度
+        //- 4. 地價進度 (最多兩行)
         template(#cell(val_progress)="{ item }")
-          .d-flex.flex-column
+          .d-flex.flex-column.justify-content-center
             div
               b-badge(:variant="item.地價處理註記 ? 'secondary' : 'light'") {{ item.地價處理註記 || '未更新' }}
-            .small.text-muted.mt-1 登錄：{{ $utils.addDateDivider(item.SR_DATE) || '-' }}
-            .small.text-muted 時間：{{ $utils.addTimeDivider(item.SR_TIME) || '-' }}
+            .small.text-nowrap.mt-1
+              span.text-muted 登錄：{{ $utils.addDateDivider(item.SR_DATE) || '-' }}
+              span.text-muted.mx-1 ｜
+              span.text-muted 時間：{{ $utils.addTimeDivider(item.SR_TIME) || '-' }}
 
-        //- 5. 申報控管與備註
+        //- 5. 申報控管與備註 (最多兩行)
         template(#cell(declare_status)="{ item }")
-          .d-flex.flex-column
-            .d-flex.align-items-center.justify-content-between
-              b-badge(:variant="item._statusObj.variant" class="px-2 py-1")
+          .d-flex.flex-column.justify-content-center
+            .d-flex.align-items-center.flex-nowrap
+              b-badge(:variant="item._statusObj.variant" class="px-2 py-1 mr-1 text-nowrap")
                 | {{ item._statusObj.text }}
-              small.text-muted(v-if="item._deadlineRoc") 期限: {{ item._deadlineRoc }}
-            .small.text-secondary.mt-1 序號：{{ item.P1MP_CASENO || '未輸入' }}
-            .small.text-dark(v-if="item.P1MP_DECLARE_DATE") 申報日：{{ item.P1MP_DECLARE_DATE }}
-            .small.text-info.text-truncate.mt-1(
-              v-if="item.P1MP_DECLARE_NOTE"
-              style="max-width: 260px;"
-              v-b-tooltip.hover.top="item.P1MP_DECLARE_NOTE"
-            )
-              lah-fa-icon(icon="comment-dots" size="sm") 備註: {{ item.P1MP_DECLARE_NOTE }}
+              small.text-muted.mr-1.text-nowrap(v-if="item._deadlineRoc") 限: {{ item._deadlineRoc }}
+              small.text-secondary.text-nowrap(v-if="item.P1MP_CASENO") 序: {{ item.P1MP_CASENO }}
+              small.text-muted.text-nowrap(v-else) 序: 未輸入
+            .small.d-flex.align-items-center.text-nowrap.mt-1
+              span.text-dark(v-if="item.P1MP_DECLARE_DATE") 申報: {{ item.P1MP_DECLARE_DATE }}
+              span.text-muted(v-else) 申報: 未申報
+              span.text-muted.mx-1(v-if="item.P1MP_DECLARE_NOTE") ｜
+              span.text-info.text-truncate(
+                v-if="item.P1MP_DECLARE_NOTE"
+                style="max-width: 220px;"
+                v-b-tooltip.hover.top="item.P1MP_DECLARE_NOTE"
+              )
+                lah-fa-icon(icon="comment-dots" size="sm") {{ item.P1MP_DECLARE_NOTE }}
 
         //- 6. 操作
         template(#cell(actions)="{ item }")
@@ -399,7 +411,7 @@ div
         .font-weight-bold {{ currentEditingItem.RM123 }} ({{ currentEditingItem.RM11_CHT || currentEditingItem.段小段 }})
         small.text-muted 申報序號: {{ currentEditingItem.P1MP_CASENO || '未輸入' }} ｜ 結案日: {{ $utils.addDateDivider(currentEditingItem.RM58_1) || '辦理中' }}
       b-form-group(label="申報日期")
-        .d-flex
+        .d-flex.text-nowrap
           b-datepicker(
             v-model="singleEditForm.declare_date"
             placeholder="選擇申報日期"
@@ -1540,6 +1552,12 @@ export default {
     width: 70px !important;
     min-width: 70px !important;
     flex: 0 0 70px !important;
+  }
+}
+
+::v-deep #val-realprice-table {
+  td, th {
+    vertical-align: middle !important;
   }
 }
 </style>
