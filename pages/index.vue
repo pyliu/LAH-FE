@@ -6,7 +6,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
         span.h3.font-weight-bold.mr-2.my-auto {{ office }} 地政事務所入口網
         lah-fa-icon.h2.my-auto(icon="people-roof" variant="dark")
       .d-flex.align-items-center
-        b-badge.d-none.d-lg-inline-flex.align-items-center.py-1.px-2(variant="light" class="border text-muted mr-2")
+        b-badge.d-none.d-lg-inline-flex.align-items-center.p-2(variant="light" class="border text-muted mr-2")
           lah-fa-icon.text-success.mr-1(icon="building") {{ siteName }}
           lah-fa-icon.text-primary.mr-1(icon="user") {{ userDisplayName }}
 

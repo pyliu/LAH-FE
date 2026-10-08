@@ -676,19 +676,40 @@ export default {
     display: inline-flex;
     align-items: center;
     max-width: 100%;
-    border-color: #ced4da;
-    background-color: #fdfdfd;
+    border-color: #dee2e6;
+    background-color: #ffffff;
+    color: #334155;
     transition: all 0.2s ease;
-
-    &:hover {
-      background-color: #f1f3f5;
-      border-color: #adb5bd;
-    }
 
     .attachment-name {
       max-width: 180px;
       display: inline-block;
       vertical-align: middle;
+      color: #1e293b;
+    }
+
+    .badge {
+      background-color: #f1f5f9;
+      color: #64748b;
+      transition: all 0.2s ease;
+    }
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #eff6ff !important;
+      border-color: #93c5fd !important;
+      color: #1d4ed8 !important;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
+
+      .attachment-name {
+        color: #1d4ed8 !important;
+      }
+
+      .badge {
+        background-color: #dbeafe !important;
+        color: #1e40af !important;
+      }
     }
   }
 }
@@ -790,9 +811,30 @@ export default {
       border-color: #444;
       color: #e0e0e0;
 
-      &:hover {
-        background-color: #383838;
-        border-color: #666;
+      .attachment-name {
+        color: #e0e0e0;
+      }
+
+      .badge {
+        background-color: #333333;
+        color: #adb5bd;
+      }
+
+      &:hover,
+      &:focus,
+      &:active {
+        background-color: #1e293b !important;
+        border-color: #3b82f6 !important;
+        color: #93c5fd !important;
+
+        .attachment-name {
+          color: #bfdbfe !important;
+        }
+
+        .badge {
+          background-color: #1e3a8a !important;
+          color: #dbeafe !important;
+        }
       }
     }
   }
