@@ -4,23 +4,25 @@
   .case-header-banner.p-3.mb-3.rounded.border.bg-white.shadow-sm
     .d-flex.flex-wrap.justify-content-between.align-items-center
       .d-flex.flex-wrap.align-items-center.mb-2.mb-md-0
-        .case-title.font-weight-bold.text-primary.mr-3
-          lah-fa-icon(icon="file-lines" class="mr-1")
-          span.h5.mb-0.font-weight-bold {{ displayCaseId }}
-          b-button.ml-2.py-0.px-1(
-            variant="outline-secondary"
-            size="sm"
-            @click="copyToClipboard(displayCaseId, '已複製收件字號')"
-            title="複製收件字號"
-          )
-            lah-fa-icon(icon="copy" no-gutter)
-          b-button.ml-1.py-0.px-1(
-            variant="outline-info"
-            size="sm"
-            @click="quickCopyCaseText"
-            title="一鍵複製全案 TXT 文字檔"
-          )
-            lah-fa-icon(icon="file-lines" no-gutter)
+        .h5.mb-0.font-weight-bold {{ displayCaseId }}
+        lah-button.ml-2.p-1.border-0(
+          icon="copy"
+          variant="outline-secondary"
+          size="sm"
+          @click="copyToClipboard(displayCaseId, '已複製收件字號')"
+          title="複製收件字號"
+          no-gutter
+          pill
+        )
+        lah-button.mx-1.p-1.border-0(
+          icon="file-lines"
+          variant="outline-info"
+          size="sm"
+          @click="quickCopyCaseText"
+          title="一鍵複製全案 TXT 文字檔"
+          no-gutter
+          pill
+        )
         //- 狀態徽章列
         .badges-wrap.d-flex.flex-wrap.align-items-center
           b-badge.mr-1.mb-1(v-if="hasValue(bakedData.登記原因)" variant="primary" pill) {{ bakedData.登記原因 }}
