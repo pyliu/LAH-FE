@@ -246,11 +246,11 @@ export default {
         if (regex.test(markd)) {
           const inlined = this.$utils.convertInlineMarkd(markd)
           const withFiles = this.$utils.replaceFilepath ? this.$utils.replaceFilepath(inlined) : inlined
-          return this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles
+          return this.trimBlockBreaks(this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles)
         }
       }
       const withFiles = this.$utils.replaceFilepath ? this.$utils.replaceFilepath(markd) : markd
-      return this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles
+      return this.trimBlockBreaks(this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles)
     },
     senderId () { return this.raw?.sender },
     sender () { return this.userMap[this.senderId] || this.senderId },
@@ -331,6 +331,17 @@ export default {
     this.$refs.myMessage && this.checkReadCommand()
   },
   methods: {
+    // 伺服器即時廣播 (parseInline + breaks) 會在區塊標籤 (p/hr/ul/h1~h6...) 之間塞入 <br>，
+    // 造成橫線 (hr) 與段落間距過大；區塊標籤前後的 <br> 沒有意義，統一移除以符合歷史載入與 Electron 版的顯示
+    trimBlockBreaks (html) {
+      if (!html || typeof html !== 'string') {
+        return html || ''
+      }
+      const blockTags = 'p|h[1-6]|ul|ol|li|pre|blockquote|table|div|hr'
+      return html
+        .replace(new RegExp(`(</(?:${blockTags})>|<hr\\s*/?>)\\s*(?:<br\\s*/?>\\s*)+`, 'gi'), '$1')
+        .replace(new RegExp(`(?:<br\\s*/?>\\s*)+(?=<(?:${blockTags})\\b)`, 'gi'), '')
+    },
     checkReadCommand () {
       if (this.isCascadeMessage && !this.isRead) {
         const json = {
