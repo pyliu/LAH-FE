@@ -74,7 +74,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
                         b-img(src="~/assets/img/VAL.jpg" fluid alt="地價小幫手")
                       .card-content.w-100
                         h4.font-weight-bold.text-dark.mb-1 地價小幫手
-                        p.text-muted.small.mb-2 地價計算與查詢工具
+                        p.text-muted.small.mb-2 實價登錄與地價作業輔助系統
                       .action-indicator.text-warning.small.font-weight-bold
                         span 進入工具
                         lah-fa-icon(icon="arrow-right" size="xs").ml-1.action-arrow

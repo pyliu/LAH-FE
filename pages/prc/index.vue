@@ -126,7 +126,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
                 b-card-body.d-flex.flex-column.align-items-center.text-center.p-3
                   .icon-box.bg-primary-light.mb-3
                     lah-fa-icon(icon="file-import", variant="primary", size="4x")
-                  h3.font-weight-bold.text-dark.mb-1 實價登錄 JSON 解析
+                  h3.font-weight-bold.text-dark.mb-1.text-nowrap 實價登錄 JSON 解析
                   .text-muted.small 申報檔 JSON 格式轉換與檢核
 
           //- 3. 買賣實例作業工具
