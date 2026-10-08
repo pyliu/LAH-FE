@@ -36,6 +36,24 @@
   }
 }
 
+.lah-reg-case-link {
+  cursor: pointer;
+  color: #0056b3;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 3px;
+  user-select: text;
+
+  &:hover {
+    color: #00356b;
+    background-color: rgba(0, 123, 255, 0.12);
+    text-decoration: underline;
+  }
+}
+
 .text-bold-red {
   color: red;
   font-weight: bold;

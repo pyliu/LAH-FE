@@ -1,5 +1,6 @@
 import { mapGetters } from 'vuex'
 import isEmpty from 'lodash/isEmpty'
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 import {
   DEPT_NAME_MAP,
   DEFAULT_WS_PORT,
@@ -230,6 +231,55 @@ export default {
       const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
       return str.replace(regex, subst)
     },
+    replaceRegCase (html) {
+      if (!html || typeof html !== 'string') {
+        return html || ''
+      }
+      // 避免替換 <a>、<code/pre>、檔案路徑 .open-os-explorer 以及一般 HTML 標籤內的屬性
+      const tagOrCodeRegex = /(<a\b[\s\S]*?<\/a>|<span\b[^>]*class="[^"]*open-os-explorer[^"]*"[\s\S]*?<\/span>|<code\b[\s\S]*?<\/code>|<pre\b[\s\S]*?<\/pre>|<[^>]+>)|([^<]+)/gi
+      const caseRegex = /\b(\d{3})([-\s])([a-zA-Z0-9]{4})\2(\d{5,6})\b|\b(\d{3})([a-zA-Z0-9]{4})(\d{6})\b/g
+
+      return html.replace(tagOrCodeRegex, (fullMatch, tagOrCode, textContent) => {
+        if (tagOrCode) {
+          return tagOrCode
+        }
+        if (!textContent) {
+          return ''
+        }
+        return textContent.replace(caseRegex, (match, dYear, delim, dCode, dNum, rYear, rCode, rNum) => {
+          const year = dYear || rYear
+          const code = (dCode || rCode).toUpperCase()
+          const num = (dNum || rNum).padStart(6, '0')
+          const numInt = parseInt(num, 10)
+          const yearInt = parseInt(year, 10)
+
+          // 驗證民國年度與序號合理性，避免誤判
+          if (yearInt < 50 || yearInt > 200 || numInt <= 0 || numInt >= 1000000) {
+            return match
+          }
+
+          const formattedCaseId = `${year}-${code}-${num}`
+          return `<span class="lah-reg-case-link" role="button" data-case-id="${formattedCaseId}" title="點擊檢視案件詳情">📋 ${match}</span>`
+        })
+      })
+    },
+    openRegCaseDetail (caseId) {
+      if (!caseId) { return }
+      let formattedId = caseId.trim()
+      const clean = formattedId.replace(/[^a-zA-Z0-9]/g, '')
+      if (clean.length === 13) {
+        formattedId = `${clean.substring(0, 3)}-${clean.substring(3, 7).toUpperCase()}-${clean.substring(7)}`
+      }
+      const h = this.$createElement
+      this.modal(h(lahRegCaseDetailVue, {
+        props: {
+          caseId: formattedId
+        }
+      }), {
+        title: `案件詳情 ${formattedId}`,
+        size: 'xl'
+      })
+    },
     showUnread (channel) {
       const val = this.getUnread(channel)
       return parseInt(val) > 0 || val === '99+' || val === '9+'
@@ -435,6 +485,19 @@ export default {
               })
             }
           })
+        }
+        return
+      }
+
+      const caseTarget = element.classList?.contains('lah-reg-case-link')
+        ? element
+        : (typeof element.closest === 'function' ? element.closest('.lah-reg-case-link') : null)
+      if (caseTarget) {
+        event.stopPropagation()
+        event.preventDefault()
+        const caseId = caseTarget.getAttribute('data-case-id') || caseTarget.textContent?.replace(/[^\w-]/g, '')
+        if (caseId) {
+          this.openRegCaseDetail(caseId)
         }
         return
       }

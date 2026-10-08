@@ -246,11 +246,13 @@ export default {
         if (regex.test(markd)) {
           const inlined = this.$utils.convertInlineMarkd(markd)
           const withFiles = this.$utils.replaceFilepath ? this.$utils.replaceFilepath(inlined) : inlined
-          return this.trimBlockBreaks(this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles)
+          const withCases = this.replaceRegCase ? this.replaceRegCase(withFiles) : withFiles
+          return this.trimBlockBreaks(this.formatMessengerLinks ? this.formatMessengerLinks(withCases) : withCases)
         }
       }
       const withFiles = this.$utils.replaceFilepath ? this.$utils.replaceFilepath(markd) : markd
-      return this.trimBlockBreaks(this.formatMessengerLinks ? this.formatMessengerLinks(withFiles) : withFiles)
+      const withCases = this.replaceRegCase ? this.replaceRegCase(withFiles) : withFiles
+      return this.trimBlockBreaks(this.formatMessengerLinks ? this.formatMessengerLinks(withCases) : withCases)
     },
     senderId () { return this.raw?.sender },
     sender () { return this.userMap[this.senderId] || this.senderId },
@@ -519,6 +521,29 @@ export default {
         line-height: 1;
         opacity: 0.8;
         text-decoration: none !important;
+      }
+    }
+
+    ::v-deep .lah-reg-case-link {
+      color: #0056b3;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: inline-block;
+      padding: 0 3px;
+      border-radius: 3px;
+      user-select: text;
+
+      &:hover {
+        color: #00356b;
+        background-color: rgba(0, 123, 255, 0.12);
+        text-decoration: underline;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
   }
