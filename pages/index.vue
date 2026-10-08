@@ -4,13 +4,11 @@ div.h-100.d-flex.flex-column.overflow-hidden
     lah-transition(appear): .d-flex.align-items-center.justify-content-between.w-100.my-auto
       .d-flex.align-items-center
         span.h3.font-weight-bold.mr-2.my-auto {{ office }} 地政事務所入口網
-        lah-fa-icon.h2.my-auto(icon="people-roof" variant="primary")
+        lah-fa-icon.h2.my-auto(icon="people-roof" variant="dark")
       .d-flex.align-items-center
         b-badge.d-none.d-lg-inline-flex.align-items-center.py-1.px-2(variant="light" class="border text-muted mr-2")
-          lah-fa-icon(icon="building" class="text-success mr-1")
-          span.mr-2 {{ siteName }}
-          lah-fa-icon(icon="user" class="text-primary mr-1")
-          span {{ userDisplayName }}
+          lah-fa-icon.text-success.mr-1(icon="building") {{ siteName }}
+          lah-fa-icon.text-primary.mr-1(icon="user") {{ userDisplayName }}
 
   //- 主體區域佔滿剩餘高度，內部處理捲動
   .flex-grow-1.position-relative.overflow-hidden
