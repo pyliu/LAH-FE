@@ -129,6 +129,16 @@ div.h-100.d-flex.flex-column.overflow-hidden
                   h3.font-weight-bold.text-dark.mb-1 實價登錄 JSON 解析
                   .text-muted.small 申報檔 JSON 格式轉換與檢核
 
+          //- 3. 買賣實例作業工具
+          b-col(cols="auto").mb-3
+            nuxt-link(to="/prc/buysell").text-decoration-none
+              b-card.modern-card.border-0.shadow-sm
+                b-card-body.d-flex.flex-column.align-items-center.text-center.p-3
+                  .icon-box.bg-warning-light.mb-3
+                    lah-fa-icon(icon="calculator", variant="warning", size="4x")
+                  h3.font-weight-bold.text-dark.mb-1 買賣實例作業工具
+                  .text-muted.small 區段表對應、智慧檢核與案件挑檔
+
 </template>
 
 <script>
@@ -210,6 +220,7 @@ export default {
 /* 淺色背景色系 */
 .bg-primary-light { background-color: rgba(0, 123, 255, 0.1); }
 .bg-success-light { background-color: rgba(40, 167, 69, 0.1); }
+.bg-warning-light { background-color: rgba(255, 193, 7, 0.15); }
 
 a:hover {
   text-decoration: none;
