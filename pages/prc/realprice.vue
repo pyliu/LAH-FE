@@ -9,6 +9,7 @@ div
           icon="info"
           action="bounce"
           variant="outline-success"
+          size="lg"
           no-border
           no-icon-gutter
           @click="showModalById('help-modal')"
@@ -23,6 +24,19 @@ div
             li 可點選個別案件的 #[lah-fa-icon(icon="edit" variant="primary" no-gutter)] 修改申報日期與備註
             li 可勾選多筆案件，使用上方浮現的「批次設定」功能快速套用申報日與常用備註
             li 可利用 #[lah-fa-icon(icon="file-excel" regular variant="success" no-gutter)] 將顯示資料匯出為 EXCEL 報表
+          hr
+          .alert.alert-info.d-flex.align-items-center.mb-0.py-2
+            span
+              lah-fa-icon(icon="info-circle" class="mr-1")
+              | 若需查閱改版前舊版功能，可由此前往：
+            b-button(
+              variant="outline-primary"
+              size="sm"
+              to="/prc/realprice-old"
+              target="_blank"
+            )
+              lah-fa-icon(icon="external-link-alt" class="mr-1")
+              | 舊版
 
       .header-tools.d-flex.align-items-center.flex-nowrap
         b-button-group.date-presets.mr-2(size="lg")
