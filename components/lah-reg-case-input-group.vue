@@ -22,7 +22,7 @@
       v-model="code",
       @change="emitInput"
     )
-      template(v-slot:first): b-form-select-option(:value="null" disabled) -- 案件字 --
+      template(v-slot:first): b-form-select-option(:value="null" disabled) {{ defaultCodeOptionText }}
       optgroup(
         v-if="obj.options.length > 0",
         v-for="obj in codeData",
@@ -52,6 +52,8 @@
 </template>
 
 <script>
+let lastNotifyTimestamp = 0
+
 export default {
   props: {
     type: { type: String, default: 'reg' },
@@ -70,10 +72,15 @@ export default {
     min: 10,
     max: 999999,
     retry: 3,
+    maxRetry: 3,
+    failed: false,
     codeCacheKey: 'lah-reg-case-input-group-code',
     codeCacheKeyPermanent: 'lah-reg-case-input-group-code-permanent'
   }),
   computed: {
+    defaultCodeOptionText () {
+      return this.failed ? '-- 無法取得案件字 --' : '-- 案件字 --'
+    },
     caseId () {
       return `${this.year}${this.code}${String(this.number).padStart(6, '0')}`
     },
@@ -166,37 +173,71 @@ export default {
         }
       })
     },
-    reloadCode () {
-      this.getCache(this.codeCacheKey).then((items) => {
-        if (!Array.isArray(items) || this.$utils.empty(items)) {
-          this.getDBCodeData()
-        } else {
+    async reloadCode () {
+      try {
+        const items = await this.getCache(this.codeCacheKey)
+        if (Array.isArray(items) && items.length > 0) {
           this.restoreCodeData(items)
+        } else {
+          await this.getDBCodeData()
         }
-      }).finally(() => {
-        if (this.$utils.empty(this.codes)) {
-          this.timeout(() => this.reloadCode(), 1000)
-        }
-      })
+      } catch (err) {
+        this.$utils.error(err)
+      }
     },
-    getDBCodeData () {
+    async getDBCodeData () {
       if (this.isBusy) { return }
       this.isBusy = true
-      this.$axios.post(this.$consts.API.JSON.QUERY, {
-        type: 'code_data',
-        year: this.year
-      }).then((res) => {
-        this.setCache(this.codeCacheKey, res.data.raw, 12 * 60 * 60 * 1000) // cache for half day
-        if (!this.$utils.empty(res.data.raw)) {
-          // no expire time
-          this.setCache(this.codeCacheKeyPermanent, res.data.raw, 0)
+      try {
+        const res = await this.$axios.post(this.$consts.API.JSON.QUERY, {
+          type: 'code_data',
+          year: this.year
+        })
+        const items = res?.data?.raw
+        if (Array.isArray(items) && items.length > 0) {
+          this.setCache(this.codeCacheKey, items, 12 * 60 * 60 * 1000) // cache for half day
+          this.setCache(this.codeCacheKeyPermanent, items, 0) // permanent
+          this.restoreCodeData(items)
+        } else {
+          await this.handleCodeLoadFailure()
         }
-        this.restoreCodeData(res.data.raw)
-      }).catch((err) => {
+      } catch (err) {
         this.$utils.error(err)
-      }).finally(() => {
+        await this.handleCodeLoadFailure()
+      } finally {
         this.isBusy = false
-      })
+      }
+    },
+    async handleCodeLoadFailure () {
+      // 嘗試從 Permanent 快取還原
+      const permanentItems = await this.getCache(this.codeCacheKeyPermanent)
+      if (Array.isArray(permanentItems) && permanentItems.length > 0) {
+        this.restoreCodeData(permanentItems)
+        return
+      }
+
+      if (this.retry > 0) {
+        this.retry--
+        const delay = (this.maxRetry - this.retry) * 1000
+        this.timeout(() => {
+          this.getDBCodeData()
+        }, delay)
+      } else {
+        this.failed = true
+        this.notifyCodeLoadFailed()
+      }
+    },
+    notifyCodeLoadFailed () {
+      const now = Date.now()
+      if (now - lastNotifyTimestamp > 5000) {
+        lastNotifyTimestamp = now
+        this.notify({
+          title: '案件字還原',
+          subtitle: this.codeCacheKey,
+          message: '無法讀取案件「字」資料',
+          type: 'warning'
+        })
+      }
     },
     resetCodes () {
       this.codes = Object.assign({}, {
@@ -236,51 +277,33 @@ export default {
         }
       })
     },
-    async restoreCodeData (items) {
+    restoreCodeData (items) {
       // ITEM欄位：YEAR, CODE, CODE_NAME, COUNT, CODE_TYPE
       // [109, HCB1, 壢溪登跨, 1213, reg.HXB1]
-
-      if (!Array.isArray(items)) {
-        items = await this.getCache(this.codeCacheKeyPermanent)
-      }
-
-      if (Array.isArray(items)) {
+      if (Array.isArray(items) && items.length > 0) {
         this.resetCodes()
         items.forEach((item) => {
           // type => ['reg', 'HXB1']
-          const type = item.CODE_TYPE.split('.')
+          const type = (item.CODE_TYPE || '').split('.')
 
           // temp fix for reg.H2XX issue
           if (type.length < 2) {
             type[0] = 'reg'
             type[1] = 'H2XX'
           }
-          // console.warn(item, type)
 
           if (this.$utils.empty(item.CODE_NAME)) { return false }
           if (this.$utils.empty(this.codes[type[0]])) { return false }
           if (this.$utils.empty(this.codes[type[0]][type[1]])) { return false }
 
           const combined = item.CODE + ` ${item.CODE_NAME}` // 'HCB1 壢溪登跨'
-          const found = this.codes[type[0]][type[1]].options.find((i, idx, array) => { return i === combined })
+          const found = this.codes[type[0]][type[1]].options.find((i) => { return i === combined })
           if (!found) {
             this.codes[type[0]][type[1]].options.push(combined)
           }
         })
-        // this.codes = Object.assign({}, this.codes);
         this.arrangeCodeList()
-
-        // console.warn(this.codes)
-      } else if (--this.retry > 0) {
-        this.timeout(() => this.reloadCode(), 200)
-      } else {
-        this.notify({
-          title: '案件字還原',
-          subtitle: this.codeCacheKey,
-          message: '無法讀取案件「字」資料',
-          type: 'warning'
-        })
-        this.timeout(window.location.reload, 1000)
+        this.failed = false
       }
     },
     arrangeCodeList () {
