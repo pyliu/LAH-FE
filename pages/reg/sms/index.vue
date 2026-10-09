@@ -6,7 +6,7 @@ div(v-cloak)
         .d-flex.align-items-center
           .h3.mb-0.font-weight-bold.text-nowrap 地政系統簡訊記錄綜合查詢
           b-badge.ml-2.h4.mb-0(v-if="stats.total > 0" variant="secondary" pill) {{ stats.total }} 筆
-          lah-button.h3.mb-0.ml-1(
+          lah-button.ml-1(
             icon="question"
             variant="outline-success"
             no-border
@@ -15,9 +15,9 @@ div(v-cloak)
             title="說明"
             size="lg"
           )
-        .d-flex.align-items-center
+        .d-flex.align-items-center.header-right-group
           //- 快捷日期浮動選單
-          b-dropdown.h3.mb-0.mr-2(
+          b-dropdown.mb-0.mr-2(
             variant="outline-secondary"
             size="lg"
             right
@@ -41,7 +41,7 @@ div(v-cloak)
               lah-fa-icon.text-secondary.mr-1(icon="calendar-plus") 自訂日期區間...
 
           //- 強化型智慧單一關鍵字搜尋框
-          b-input-group.header-search-group.h3.mb-0(size="lg")
+          b-input-group.header-search-group.mb-0(size="lg")
             b-form-input(
               v-model="keyword",
               placeholder="輸入日期(如1130312/區間)/手機/EMAIL...",
@@ -68,14 +68,14 @@ div(v-cloak)
               )
 
           //- 匯出 XLSX 按鈕
-          lah-button-xlsx.h3.mb-0.ml-2(
+          lah-button-xlsx.mb-0.ml-2(
             :jsons="xlsxData"
             :header="`地政簡訊記錄_${keyword || todayTW}`"
             size="lg"
           )
 
           //- 重新整理按鈕
-          lah-button.h3.mb-0.ml-1(
+          lah-button.mb-0.ml-1(
             icon="rotate",
             variant="outline-secondary",
             size="lg",
@@ -390,8 +390,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.header-right-group {
+  display: flex;
+  align-items: center;
+
+  // 統一右側 UI 群按鈕與輸入框高度為 48px
+  ::v-deep .btn:not(.dropdown-item),
+  ::v-deep .form-control {
+    height: 48px;
+    box-sizing: border-box;
+  }
+
+  ::v-deep .btn:not(.dropdown-item) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
+  }
+
+  ::v-deep .form-control {
+    display: block;
+    line-height: 1.5;
+  }
+}
 .header-search-group {
   max-width: 440px;
+  height: 48px;
 }
 .filter-time-select {
   width: 90px;
