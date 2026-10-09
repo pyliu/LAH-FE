@@ -385,9 +385,9 @@ export default {
         isExternal: true,
         icon: ['fas', 'house-circle-check'],
         category: 'foreigner',
-        badge: '內政部',
+        badge: '地政局',
         badgeVariant: 'dark',
-        desc: '內政部私法人買受住宅許可與免經許可查詢',
+        desc: '地政局私法人買受住宅許可與免經許可查詢',
         keywords: '私法人 購置住宅 平均地權 許可 外部'
       },
       // 12. 信託相關案件
