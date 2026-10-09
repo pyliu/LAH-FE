@@ -3,87 +3,197 @@ div
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.w-100
       .d-flex
-        .my-auto 住址隱匿收件管理 ({{ queryCount }})
-        lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="$refs.help_modal.show()" title="說明")
+        .my-auto 住址隱匿收件管理
+        b-badge.my-auto.ml-2(variant="secondary" pill) {{ queryCount }} 筆
+        lah-button(
+          icon="info"
+          action="bounce"
+          variant="outline-success"
+          no-border
+          no-icon-gutter
+          @click="$refs.help_modal.show()"
+          title="使用說明"
+        )
         lah-help-modal(ref="help_modal")
           h5 功能說明
           ol
             li: .d-flex.align-items-center
-              span 點選新增按鈕
-              lah-button.mx-1(
-                icon="plus",
-                variant="outline-primary",
-                no-icon-gutter,
-                @click="showAdd"
-              )
-              span 開啟新增介面
-            li 輸入必要資訊【申請人、收件類型、收件案號】
-            li 可輸入備註說明以供後續搜尋使用【搜尋欄位：申請人、收件案號、備註】
-            li 點擊儲存按鈕完成新增
+              span 點選上方
+              b-badge.mx-1(variant="primary") 快速收件
+              span 按鈕，展開頂部登記面板
+            li 支援「連續收件」模式：儲存後自動清空欄位並重設焦點，方便櫃檯快速連續收件
+            li 輸入必要資訊【申請人、收件類型、收件案號（隨案）、手機號碼（供簡訊比對）】
+            li 隨案收件輸入案號後，點選「查人員」可一鍵自動帶入申請人與手機號碼
+            li 可在備註輸入說明以供後續搜尋使用
           hr
-          h5 搜尋說明
+          h5 搜尋與快篩說明
           ol
-            li 選擇查詢區間(預設為本年度)
-            li 鍵入關鍵字(非必要，搜尋申請人/收件案號/備註)
-            li 點擊 #[lah-fa-icon(icon="search" variant="dark") 搜尋]
+            li
+              strong 快捷日期：
+              | 可一鍵選擇「今天、昨天、近 3 天、近 7 天、本月迄今、本年度」
+            li
+              strong 狀態快篩：
+              | 可快速點選「收件類型（臨櫃/隨案）」或「簡訊狀態（未發送/成功/失敗/無手機）」即時過濾列表
+            li
+              strong 智慧搜尋：
+              | 鍵入關鍵字可即時搜尋申請人、案號、手機號碼、編號與備註
           hr
-          h5 收件類型說明
+          h5 簡訊狀態管理
           ul
-            li
-              b-badge.mr-1(variant="secondary") 0
-              span 臨櫃：直接到櫃申請，不需要案號
-            li
-              b-badge.mr-1(variant="danger") 1
-              span 隨案：隨案申請，需要輸入案件號（如 115-HA81-012350）
+            li 列表中每筆具手機號碼之案件，皆提供狀態徽章選單，可直接在表格內點擊切換「未發送 / 成功 / 失敗」
+            li 手機號碼欄位附有一鍵複製功能，方便操作比對
 
-      .d-flex.small
+      .d-flex
+        //- 快捷日期選單
+        b-dropdown.my-auto.mr-1(
+          variant="outline-secondary"
+          size="lg"
+          right
+          no-caret
+          title="快速選擇查詢日期"
+        )
+          template(#button-content)
+            lah-fa-icon(icon="calendar-days", append) 快捷日期
+          b-dropdown-item(@click="applyQuickDate('today')")
+            lah-fa-icon.text-primary.mr-1(icon="calendar-day") 今天 ({{ todayTW }})
+          b-dropdown-item(@click="applyQuickDate('yesterday')")
+            lah-fa-icon.text-info.mr-1(icon="calendar-minus") 昨天
+          b-dropdown-item(@click="applyQuickDate('3days')")
+            lah-fa-icon.text-warning.mr-1(icon="calendar-week") 近 3 天
+          b-dropdown-item(@click="applyQuickDate('7days')")
+            lah-fa-icon.text-success.mr-1(icon="calendar-days") 近 7 天
+          b-dropdown-item(@click="applyQuickDate('thisMonth')")
+            lah-fa-icon.text-dark.mr-1(icon="calendar") 本月迄今
+          b-dropdown-item(@click="applyQuickDate('thisYear')")
+            lah-fa-icon.text-secondary.mr-1(icon="calendar-check") 本年度
+
+        //- 日期區間選擇器
         lah-datepicker(
+          ref="datepicker"
           v-model="dateRange"
+          :begin="firstDayOfYear"
         )
-        b-input.h-100.mx-1(
-          v-model="keyword",
-          placeholder="關鍵字...(申請人/案號/備註)",
-          @keyup.enter="$fetch"
-        )
-        lah-button(
-          ref="search"
+
+        lah-button.mx-1(
           icon="search"
           size="lg"
-          title="搜尋"
+          title="依自訂區間重新查詢"
           action="swim"
-          variant="outline-dark"
+          variant="outline-primary"
           :disabled="isBusy || isWrongDaysPeriod"
+          :busy="isBusy"
           @click="$fetch"
           no-icon-gutter
         )
-        lah-button.mx-1(
-          ref="plus"
+
+        //- 新增住址隱匿案件按鈕
+        lah-button(
           icon="plus"
           size="lg"
+          variant="primary"
           title="新增住址隱匿案件"
           :disabled="isBusy"
           @click="showAdd"
           no-icon-gutter
-        )
-        lah-button-xlsx(
+        ) 新增收件
+
+        //- 匯出 XLSX 按鈕
+        lah-button-xlsx.mx-1(
           :jsons="xlsxData"
           header="住址隱匿收件管理"
         )
 
+        //- 重新整理按鈕
+        lah-button(
+          icon="rotate"
+          size="lg"
+          variant="outline-secondary"
+          title="重新整理"
+          :disabled="isBusy"
+          @click="$fetch"
+          no-icon-gutter
+        )
+
+  //- 複合式快篩工具列
+  .d-flex.flex-wrap.align-items-center.justify-content-between.mb-2.p-2.bg-white.rounded.border.shadow-sm
+    .d-flex.flex-wrap.align-items-center
+      //- 收件類型標籤
+      span.text-muted.small.mr-2.font-weight-bold 類型：
+      b-button-group.mr-3(size="sm")
+        b-button(
+          :variant="typeFilter === 'all' ? 'primary' : 'outline-secondary'"
+          @click="typeFilter = 'all'"
+        ) 全部 ({{ typeCountAll }})
+        b-button(
+          :variant="typeFilter === '0' ? 'primary' : 'outline-secondary'"
+          @click="typeFilter = '0'"
+        ) 臨櫃 ({{ typeCountCounter }})
+        b-button(
+          :variant="typeFilter === '1' ? 'danger' : 'outline-secondary'"
+          @click="typeFilter = '1'"
+        ) 隨案 ({{ typeCountWithCase }})
+
+      //- 簡訊狀態標籤
+      span.text-muted.small.mr-2.font-weight-bold 簡訊：
+      b-button-group.mr-2(size="sm")
+        b-button(
+          :variant="smsFilter === 'all' ? 'dark' : 'outline-secondary'"
+          @click="smsFilter = 'all'"
+        ) 全部
+        b-button(
+          :variant="smsFilter === '0' ? 'warning' : 'outline-secondary'"
+          @click="smsFilter = '0'"
+        ) 未發送 ({{ smsCountPending }})
+        b-button(
+          :variant="smsFilter === '1' ? 'success' : 'outline-secondary'"
+          @click="smsFilter = '1'"
+        ) 成功 ({{ smsCountSuccess }})
+        b-button(
+          :variant="smsFilter === '2' ? 'danger' : 'outline-secondary'"
+          @click="smsFilter = '2'"
+        ) 失敗 ({{ smsCountFail }})
+        b-button(
+          :variant="smsFilter === 'no_phone' ? 'secondary' : 'outline-secondary'"
+          @click="smsFilter = 'no_phone'"
+        ) 無手機 ({{ smsCountNoPhone }})
+
+    .d-flex.align-items-center.mt-2.mt-lg-0
+      b-input-group(size="sm")
+        template(#prepend)
+          b-input-group-text
+            lah-fa-icon(icon="filter")
+        b-input(
+          v-model="keyword"
+          placeholder="快速快篩/搜尋 (姓名/案號/手機/備註)..."
+          style="min-width: 250px;"
+          @keyup.enter="$fetch"
+        )
+        template(#append)
+          b-button(
+            v-if="keyword"
+            variant="outline-secondary"
+            size="sm"
+            title="清空關鍵字"
+            @click="keyword = ''"
+          )
+            lah-fa-icon(icon="xmark")
+
+  //- 分頁控制項
   lah-pagination(
-    v-if="queryCount > pagination.perPage"
+    v-if="filteredCount > pagination.perPage"
     v-model="pagination"
-    :total-rows="queryCount"
+    :total-rows="filteredCount"
     :caption="foundText"
   )
 
-  b-table.text-center(
+  //- 案件資料表格
+  b-table.text-center.shadow-sm(
     ref="table"
     select-mode="single"
     selected-variant="success"
     :sticky-header="`${maxHeight}px`"
     :busy="isBusy"
-    :items="rows"
+    :items="filteredRows"
     :responsive="'lg'"
     :head-variant="'dark'"
     :fields="fields"
@@ -106,7 +216,51 @@ div
   )
     template(#table-busy): span.ld-txt 讀取中...
     template(#cell(serial_no)="{ item }")
-      .text-center {{ item.serial_no }}
+      .text-center.font-weight-bold {{ item.serial_no }}
+    template(#cell(applicant)="{ item }")
+      .text-center.font-weight-bold(v-html="highlightText(item.applicant)")
+    template(#cell(cellphone)="{ item }")
+      .d-flex.align-items-center.justify-content-center(v-if="item.cellphone")
+        span.text-monospace.font-weight-bold(v-html="highlightText(item.cellphone)")
+        b-button.ml-1.p-0.px-1(
+          variant="outline-secondary"
+          size="sm"
+          title="複製手機號碼"
+          @click.stop="copyCellphone(item.cellphone)"
+        )
+          lah-fa-icon(icon="copy" size="xs")
+      span.text-muted(v-else) (無)
+    template(#cell(sms_status)="{ item }")
+      b-badge(v-if="!item.cellphone" variant="secondary") 無手機
+      b-dropdown(
+        v-else
+        size="sm"
+        :variant="smsStatusVariant(item.sms_status)"
+        no-caret
+        @click.stop
+      )
+        template(#button-content)
+          lah-fa-icon.mr-1(:icon="smsStatusIcon(item.sms_status)")
+          span {{ smsStatusText(item.sms_status) }}
+          lah-fa-icon.ml-1(icon="caret-down" size="xs")
+        b-dropdown-item-button(
+          :active="parseInt(item.sms_status || 0) === 0"
+          @click.stop="quickUpdateSmsStatus(item, 0)"
+        )
+          lah-fa-icon.text-warning.mr-1(icon="clock")
+          | 未發送 / 待比對
+        b-dropdown-item-button(
+          :active="parseInt(item.sms_status) === 1"
+          @click.stop="quickUpdateSmsStatus(item, 1)"
+        )
+          lah-fa-icon.text-success.mr-1(icon="circle-check")
+          | 發送成功
+        b-dropdown-item-button(
+          :active="parseInt(item.sms_status) === 2"
+          @click.stop="quickUpdateSmsStatus(item, 2)"
+        )
+          lah-fa-icon.text-danger.mr-1(icon="circle-xmark")
+          | 發送失敗
     template(#cell(receiving_type)="{ item }")
       b-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
     template(#cell(receiving_caseno)="{ item }")
@@ -114,14 +268,12 @@ div
         b-link(v-if="item.receiving_caseno" href="#" @click.prevent="showDetail(item.receiving_caseno)")
           span(v-html="highlightText(item.receiving_caseno)")
         span.text-muted(v-else) (無)
-    template(#cell(applicant)="{ item }")
-      .text-center(v-html="highlightText(item.applicant)")
-    template(#cell(note)="{ item }")
-      .text-left(v-html="handleNoteText(item.note)")
     template(#cell(createtime)="{ item }")
       .mx-auto {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
     template(#cell(modifytime)="{ item }")
-      .mx-auto {{ $utils.toADDate(item.modifytime * 1000) }}
+      .mx-auto.small.text-muted {{ $utils.toADDate(item.modifytime * 1000) }}
+    template(#cell(note)="{ item }")
+      .text-left(v-html="handleNoteText(item.note)")
 
   //- 右鍵選單
   transition(name="ctx-fade")
@@ -137,6 +289,7 @@ div
       .ctx-menu-item.text-danger(@click="ctxDelete")
         lah-fa-icon.mr-2(icon="trash-can" variant="danger")
         span 刪除
+
   //- 案件詳情 Modal
   b-modal(
     ref="detail_modal",
@@ -154,28 +307,40 @@ div
       :case-id="clickedCaseno",
       @ready="detailLoading = !$event.detail"
     )
+
+  //- 新增 Modal
   b-modal(
     ref="add_modal",
     hide-footer,
     no-close-on-backdrop,
-    scrollable
+    scrollable,
+    size="lg"
   )
-    template(#modal-title) 新增住址隱匿案件
+    template(#modal-title)
+      .d-flex.align-items-center
+        lah-fa-icon.mr-2(icon="file-circle-plus")
+        span 新增住址隱匿案件
     .p-2
       b-form(@submit.prevent="submitAdd")
         b-form-group(label="收件類型" label-cols="3")
-          b-select(
-            v-model="form.receiving_type",
-            :options="receivingTypeOptions",
+          b-form-radio-group(
+            v-model="form.receiving_type"
+            :options="receivingTypeOptions"
+            buttons
+            button-variant="outline-primary"
+            size="sm"
             @change="onAddTypeChange"
+            class="w-100"
           )
         b-form-group(label="收件案號" label-cols="3" v-if="form.receiving_type === 1")
           .d-flex
             b-input.flex-grow-1(
-              v-model="form.receiving_caseno",
-              placeholder="如：115-HA81-012350",
-              :state="addCasenoState",
+              ref="addCasenoInput"
+              v-model="form.receiving_caseno"
+              placeholder="如：115-HA81-012350"
+              :state="addCasenoState"
               @blur="onAddCasenoBlur"
+              @keyup.enter="onAddCasenoEnter"
             )
             lah-button.ml-1(
               icon="magnifying-glass",
@@ -184,54 +349,92 @@ div
               title="查詢案件人員",
               :disabled="caseApplicantsBusy || addCasenoState !== true",
               @click="fetchCaseApplicants('add')"
-            )
+            ) 查人員
           b-form-invalid-feedback(:state="addCasenoState") {{ casenoErrorMsg(form.receiving_caseno) }}
           //- 查詢結果選單
-          b-list-group.mt-1(v-if="caseApplicants.length > 0")
-            b-list-group-item.py-1.px-2(
+          b-list-group.mt-1.shadow-sm.applicant-dropdown-list(v-if="caseApplicants.length > 0")
+            b-list-group-item.py-1.px-2.list-group-item-action(
               v-for="(p, i) in caseApplicants"
               :key="i"
               button
               @click="selectApplicant('add', p)"
             )
-              .d-flex.align-items-center
-                b-badge.mr-2(:variant="p.role === '代理人' ? 'warning' : 'info'" pill) {{ p.role }}
-                span {{ p.name }}
-                small.ml-1.text-muted(v-if="p.id_no") {{ p.id_no }}
+              .d-flex.align-items-center.justify-content-between
+                .d-flex.align-items-center
+                  b-badge.mr-2(:variant="p.role === '代理人' ? 'warning' : 'info'" pill) {{ p.role }}
+                  strong {{ p.name }}
+                  small.ml-1.text-muted(v-if="p.id_no") ({{ p.id_no }})
+                small.text-primary.font-weight-bold(v-if="p.cellphone")
+                  lah-fa-icon.mr-1(icon="mobile-screen")
+                  | {{ p.cellphone }}
         b-form-group(label="申請人 *" label-cols="3")
           b-input(
-            v-model="form.applicant",
-            placeholder="請輸入申請人姓名",
-            :state="form.applicant.length > 0 ? true : null",
+            ref="addApplicantInput"
+            v-model="form.applicant"
+            placeholder="請輸入申請人姓名"
+            :state="form.applicant.length > 0 ? true : null"
             required
           )
-        b-form-group(label="備註" label-cols="3")
+        b-form-group(label="手機號碼" label-cols="3")
+          b-input-group
+            template(#prepend)
+              b-input-group-text
+                lah-fa-icon(icon="mobile-screen")
+            b-input(
+              ref="addCellphoneInput"
+              v-model="form.cellphone"
+              placeholder="09xx-xxx-xxx (選填，供簡訊比對)"
+              :state="addCellphoneState"
+              @input="formatAddCellphone"
+            )
+          b-form-invalid-feedback(:state="addCellphoneState") 手機格式應為 09 開頭 10 碼數字
+        b-form-group(label="備註說明" label-cols="3")
           b-textarea(
-            v-model="form.note",
-            placeholder="備註說明...",
+            v-model="form.note"
+            placeholder="備註說明..."
             rows="3"
+            max-rows="8"
           )
-        .d-flex.justify-content-end.mt-3
-          lah-button.mr-2(
-            variant="outline-secondary",
-            icon="xmark",
-            @click="$refs.add_modal.hide()"
-          ) 取消
-          lah-button(
-            type="submit",
-            icon="floppy-disk",
-            variant="primary",
-            :disabled="isBusy || !form.applicant || addCasenoState === false"
-          ) 儲存
+        .d-flex.justify-content-between.align-items-center.mt-3.pt-2.border-top
+          b-form-checkbox(
+            v-model="continuousIntake"
+            switch
+            size="sm"
+            title="儲存後清空欄位並保留視窗，方便連續登打下一筆"
+          )
+            span.small.font-weight-bold 連續收件模式
+          .d-flex.align-items-center
+            b-button.mr-2(
+              variant="outline-secondary"
+              @click="$refs.add_modal.hide()"
+            )
+              lah-fa-icon.mr-1(icon="xmark")
+              span 取消
+            b-button.mr-2(
+              variant="outline-secondary"
+              @click="resetAddForm"
+            )
+              lah-fa-icon.mr-1(icon="rotate-left")
+              span 清空
+            lah-button(
+              type="submit"
+              icon="floppy-disk"
+              variant="primary"
+              :disabled="isBusy || !form.applicant || addCasenoState === false || addCellphoneState === false"
+            ) {{ continuousIntake ? '儲存並新增下一筆' : '完成登記收件' }}
 
   //- 編輯 Modal
   b-modal(
     ref="edit_modal",
     hide-footer,
     no-close-on-backdrop,
-    scrollable
+    scrollable,
+    size="lg"
   )
-    template(#modal-title) 修改住址隱匿案件
+    template(#modal-title)
+      .d-flex.align-items-center
+        lah-fa-icon.mr-2(icon="pen-to-square")
+        span 修改住址隱匿案件
     .p-2(v-if="editRecord")
       b-form(@submit.prevent="submitEdit")
         b-form-group(label="收件類型" label-cols="3")
@@ -255,7 +458,7 @@ div
               title="查詢案件人員",
               :disabled="caseApplicantsBusy || editCasenoState !== true",
               @click="fetchCaseApplicants('edit')"
-            )
+            ) 查人員
           b-form-invalid-feedback(:state="editCasenoState") {{ casenoErrorMsg(editForm.receiving_caseno) }}
           //- 查詢結果選單
           b-list-group.mt-1(v-if="caseApplicants.length > 0")
@@ -265,10 +468,12 @@ div
               button
               @click="selectApplicant('edit', p)"
             )
-              .d-flex.align-items-center
-                b-badge.mr-2(:variant="p.role === '代理人' ? 'warning' : 'info'" pill) {{ p.role }}
-                span {{ p.name }}
-                small.ml-1.text-muted(v-if="p.id_no") {{ p.id_no }}
+              .d-flex.align-items-center.justify-content-between
+                .d-flex.align-items-center
+                  b-badge.mr-2(:variant="p.role === '代理人' ? 'warning' : 'info'" pill) {{ p.role }}
+                  span {{ p.name }}
+                  small.ml-1.text-muted(v-if="p.id_no") {{ p.id_no }}
+                small.text-primary.font-weight-bold(v-if="p.cellphone") {{ p.cellphone }}
         b-form-group(label="申請人 *" label-cols="3")
           b-input(
             v-model="editForm.applicant",
@@ -276,13 +481,31 @@ div
             :state="editForm.applicant.length > 0 ? true : null",
             required
           )
-        b-form-group(label="備註" label-cols="3")
+        b-form-group(label="手機號碼" label-cols="3")
+          b-input-group
+            template(#prepend)
+              b-input-group-text
+                lah-fa-icon(icon="mobile-screen")
+            b-input(
+              v-model="editForm.cellphone"
+              placeholder="09xx-xxx-xxx (選填，供簡訊比對)"
+              :state="editCellphoneState"
+              @input="formatEditCellphone"
+            )
+          b-form-invalid-feedback(:state="editCellphoneState") 手機格式應為 09 開頭 10 碼數字
+        b-form-group(label="簡訊狀態" label-cols="3")
+          b-select(
+            v-model="editForm.sms_status"
+            :options="smsStatusOptions"
+          )
+        b-form-group(label="備註說明" label-cols="3")
           b-textarea(
             v-model="editForm.note",
             placeholder="備註說明...",
-            rows="3"
+            rows="3",
+            max-rows="8"
           )
-        .d-flex.justify-content-end.mt-3
+        .d-flex.justify-content-end.mt-3.pt-2.border-top
           lah-button.mr-2(
             variant="outline-secondary",
             icon="xmark",
@@ -292,7 +515,7 @@ div
             type="submit",
             icon="floppy-disk",
             variant="warning",
-            :disabled="isBusy || !editForm.applicant || editCasenoState === false"
+            :disabled="isBusy || !editForm.applicant || editCasenoState === false || editCellphoneState === false"
           ) 更新
 </template>
 
@@ -306,6 +529,9 @@ export default {
   mixins: [dynamicHeight],
   data: () => ({
     keyword: '',
+    typeFilter: 'all',
+    smsFilter: 'all',
+    continuousIntake: true,
     editRecord: null,
     clickedCaseno: '',
     detailLoading: false,
@@ -329,12 +555,15 @@ export default {
       applicant: '',
       receiving_type: 0,
       receiving_caseno: '',
+      cellphone: '',
       note: ''
     },
     editForm: {
       applicant: '',
       receiving_type: 0,
       receiving_caseno: '',
+      cellphone: '',
+      sms_status: 0,
       note: ''
     },
     caseApplicants: [],
@@ -343,18 +572,40 @@ export default {
       0: '臨櫃',
       1: '隨案'
     },
+    smsStatusMap: {
+      0: '未發送',
+      1: '發送成功',
+      2: '發送失敗'
+    },
+    smsStatusOptions: [
+      { value: 0, text: '未發送 / 待比對' },
+      { value: 1, text: '發送成功' },
+      { value: 2, text: '發送失敗' }
+    ],
     fields: [
       {
         key: 'serial_no',
         label: '編號',
         sortable: true,
-        thStyle: { width: '120px' }
+        thStyle: { width: '110px' }
       },
       {
         key: 'applicant',
         label: '申請人',
         sortable: true,
-        thStyle: { width: '130px' }
+        thStyle: { width: '120px' }
+      },
+      {
+        key: 'cellphone',
+        label: '手機號碼',
+        sortable: true,
+        thStyle: { width: '150px' }
+      },
+      {
+        key: 'sms_status',
+        label: '簡訊狀態',
+        sortable: true,
+        thStyle: { width: '120px' }
       },
       {
         key: 'receiving_type',
@@ -372,19 +623,19 @@ export default {
         key: 'createtime',
         label: '收件日期',
         sortable: true,
-        thStyle: { width: '120px' }
+        thStyle: { width: '110px' }
       },
       {
         key: 'modifytime',
         label: '修改時間',
         sortable: true,
-        thStyle: { width: '185px' }
+        thStyle: { width: '160px' }
       },
       {
         key: 'note',
         label: '備註',
         sortable: false,
-        thStyle: { width: '270px' }
+        thStyle: { width: '220px' }
       }
     ]
   }),
@@ -420,12 +671,66 @@ export default {
   computed: {
     dataReady () { return this.rows.length > 0 },
     queryCount () { return this.rows.length },
+    filteredCount () { return this.filteredRows.length },
     foundText () {
       const message = `${this.dateRange.begin} ~ ${this.dateRange.end} 找到 ${this.queryCount} 筆「住址隱匿」資料`
+      if (this.filteredCount !== this.queryCount) {
+        return `${message}（快篩符合 ${this.filteredCount} 筆）`
+      }
       return this.$utils.empty(this.keyword) ? message : `${message}【關鍵字：${this.keyword}】`
     },
     daysPeriod () { return this.dateRange.days || 0 },
     isWrongDaysPeriod () { return this.daysPeriod < 1 },
+    todayTW () {
+      return this.$utils.twDateStr(new Date())
+    },
+    firstDayOfYear () {
+      return new Date(new Date().getFullYear(), 0, 1)
+    },
+    typeCountAll () { return this.rows.length },
+    typeCountCounter () { return this.rows.filter(r => parseInt(r.receiving_type) === 0).length },
+    typeCountWithCase () { return this.rows.filter(r => parseInt(r.receiving_type) === 1).length },
+    smsCountPending () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status || 0) === 0).length },
+    smsCountSuccess () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 1).length },
+    smsCountFail () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 2).length },
+    smsCountNoPhone () { return this.rows.filter(r => !r.cellphone).length },
+    filteredRows () {
+      return this.rows.filter((item) => {
+        // 類型篩選
+        if (this.typeFilter !== 'all') {
+          if (parseInt(item.receiving_type) !== parseInt(this.typeFilter)) {
+            return false
+          }
+        }
+        // 簡訊狀態篩選
+        if (this.smsFilter === 'no_phone') {
+          if (item.cellphone && item.cellphone.trim() !== '') {
+            return false
+          }
+        } else if (this.smsFilter !== 'all') {
+          if (!item.cellphone || item.cellphone.trim() === '') {
+            return false
+          }
+          if (parseInt(item.sms_status || 0) !== parseInt(this.smsFilter)) {
+            return false
+          }
+        }
+        // 關鍵字即時本地快篩 (比對姓名、案號、手機、備註、編號)
+        if (!this.$utils.empty(this.keyword)) {
+          const kw = this.keyword.trim().toLowerCase()
+          const match =
+            (item.applicant && item.applicant.toLowerCase().includes(kw)) ||
+            (item.receiving_caseno && item.receiving_caseno.toLowerCase().includes(kw)) ||
+            (item.cellphone && item.cellphone.toLowerCase().includes(kw)) ||
+            (item.serial_no && item.serial_no.toLowerCase().includes(kw)) ||
+            (item.note && item.note.toLowerCase().includes(kw))
+          if (!match) {
+            return false
+          }
+        }
+        return true
+      })
+    },
     receivingTypeOptions () {
       return Object.entries(this.receivingTypeMap).map(([val, text]) => ({
         value: parseInt(val),
@@ -434,7 +739,7 @@ export default {
     },
     xlsxData () {
       const fieldKeys = this.fields.map(field => field.key)
-      return this.rows.map((data) => {
+      return this.filteredRows.map((data) => {
         const obj = {}
         for (const [key, value] of Object.entries(data)) {
           if (fieldKeys.includes(key)) {
@@ -445,8 +750,10 @@ export default {
               obj[label] = this.$utils.toADDate(value * 1000)
             } else if (key === 'receiving_type') {
               obj[label] = this.receivingTypeLabel(value)
+            } else if (key === 'sms_status') {
+              obj[label] = !data.cellphone ? '無手機' : this.smsStatusText(value)
             } else {
-              obj[label] = value
+              obj[label] = value || ''
             }
           }
         }
@@ -460,6 +767,16 @@ export default {
     editCasenoState () {
       if (!this.editForm.receiving_caseno || this.editForm.receiving_type !== 1) { return null }
       return this.isCasenoValid(this.editForm.receiving_caseno)
+    },
+    addCellphoneState () {
+      if (!this.form.cellphone) { return null }
+      const clean = this.form.cellphone.replace(/\D/g, '')
+      return clean.length === 10 && clean.startsWith('09')
+    },
+    editCellphoneState () {
+      if (!this.editForm.cellphone) { return null }
+      const clean = this.editForm.cellphone.replace(/\D/g, '')
+      return clean.length === 10 && clean.startsWith('09')
     }
   },
   watch: {
@@ -472,8 +789,9 @@ export default {
       if (record) {
         this.editForm.applicant = record.applicant || ''
         this.editForm.receiving_type = parseInt(record.receiving_type) || 0
-        // 臨櫃類型時自動清空案件號
         this.editForm.receiving_caseno = this.editForm.receiving_type === 1 ? (record.receiving_caseno || '') : ''
+        this.editForm.cellphone = record.cellphone || ''
+        this.editForm.sms_status = parseInt(record.sms_status || 0)
         this.editForm.note = record.note || ''
       }
     }
@@ -493,18 +811,33 @@ export default {
       this.$refs.detail_modal.show()
     },
     showAdd () {
+      this.resetAddForm()
+      this.$refs.add_modal.show()
+      this.focusAddInput()
+    },
+    focusAddInput () {
+      this.$nextTick(() => {
+        if (this.form.receiving_type === 1) {
+          this.$refs.addCasenoInput?.focus?.()
+        } else {
+          this.$refs.addApplicantInput?.focus?.()
+        }
+      })
+    },
+    resetAddForm () {
       this.form.applicant = ''
-      this.form.receiving_type = 0
       this.form.receiving_caseno = ''
+      this.form.cellphone = ''
       this.form.note = ''
       this.caseApplicants = []
-      this.$refs.add_modal.show()
+      this.focusAddInput()
     },
     onAddTypeChange (val) {
       if (val !== 1) {
         this.form.receiving_caseno = ''
         this.caseApplicants = []
       }
+      this.focusAddInput()
     },
     onEditTypeChange (val) {
       if (val !== 1) { this.editForm.receiving_caseno = '' }
@@ -532,7 +865,17 @@ export default {
     selectApplicant (formKey, person) {
       const target = formKey === 'add' ? this.form : this.editForm
       target.applicant = person.name
+      if (person.cellphone) {
+        target.cellphone = person.cellphone
+      }
       this.caseApplicants = []
+      if (formKey === 'add') {
+        this.$nextTick(() => {
+          if (!target.cellphone) {
+            this.$refs.addCellphoneInput?.focus?.()
+          }
+        })
+      }
     },
     isCasenoValid (caseno) {
       if (!caseno) { return null }
@@ -566,18 +909,14 @@ export default {
     },
     formatCaseno (caseno) {
       if (!caseno) { return '' }
-      // 移除所有 - 並轉大寫
       const raw = caseno.replace(/-/g, '').toUpperCase()
-      // 取前3碼作為年度
       const yearRaw = raw.substring(0, 3).replace(/\D/g, '')
       if (!yearRaw) { return caseno }
       const currentRocYear = new Date().getFullYear() - 1911
       const yearNum = Math.min(parseInt(yearRaw) || 0, currentRocYear)
       const yearStr = String(yearNum).padStart(3, '0')
-      // 中間4碼英數
       const midStr = raw.substring(3, 7)
       if (midStr.length < 4) { return `${yearStr}-${midStr}` }
-      // 後面取數字部分，補0至6碼
       const seqRaw = raw.substring(7).replace(/\D/g, '')
       const seqStr = seqRaw.padStart(6, '0').slice(-6)
       return `${yearStr}-${midStr}-${seqStr}`
@@ -585,36 +924,66 @@ export default {
     onAddCasenoBlur () {
       if (this.form.receiving_caseno) {
         this.form.receiving_caseno = this.formatCaseno(this.form.receiving_caseno)
+        if (this.isCasenoValid(this.form.receiving_caseno) && this.caseApplicants.length === 0) {
+          this.fetchCaseApplicants('add')
+        }
       }
+    },
+    onAddCasenoEnter () {
+      this.onAddCasenoBlur()
     },
     onEditCasenoBlur () {
       if (this.editForm.receiving_caseno) {
         this.editForm.receiving_caseno = this.formatCaseno(this.editForm.receiving_caseno)
       }
     },
-    onRowContextMenu (item, index, event) {
-      event.preventDefault()
-      this.contextMenu.item = item
-      // 避免選單超出視窗右側
-      const menuW = 160
-      const x = event.clientX + menuW > window.innerWidth ? event.clientX - menuW : event.clientX
-      this.contextMenu.x = x
-      this.contextMenu.y = event.clientY
-      this.contextMenu.show = true
+    formatAddCellphone () {
+      if (this.form.cellphone) {
+        this.form.cellphone = this.form.cellphone.replace(/[^\d-]/g, '')
+      }
     },
-    hideContextMenu () {
-      this.contextMenu.show = false
+    formatEditCellphone () {
+      if (this.editForm.cellphone) {
+        this.editForm.cellphone = this.editForm.cellphone.replace(/[^\d-]/g, '')
+      }
     },
-    onKeyDown (e) {
-      if (e.key === 'Escape') { this.hideContextMenu() }
+    copyCellphone (phone) {
+      if (!phone) { return }
+      this.copyToClipboard(phone, `已複製手機號碼：${phone}`)
     },
-    ctxEdit () {
-      this.hideContextMenu()
-      if (this.contextMenu.item) { this.popupEdit(this.contextMenu.item) }
-    },
-    ctxDelete () {
-      this.hideContextMenu()
-      if (this.contextMenu.item) { this.remove(this.contextMenu.item) }
+    applyQuickDate (type) {
+      const today = new Date()
+      let start = new Date()
+      let end = new Date()
+      if (type === 'today') {
+        start = today
+        end = today
+      } else if (type === 'yesterday') {
+        start = new Date()
+        start.setDate(today.getDate() - 1)
+        end = new Date(start)
+      } else if (type === '3days') {
+        start = new Date()
+        start.setDate(today.getDate() - 2)
+        end = today
+      } else if (type === '7days') {
+        start = new Date()
+        start.setDate(today.getDate() - 6)
+        end = today
+      } else if (type === 'thisMonth') {
+        start = new Date(today.getFullYear(), today.getMonth(), 1)
+        end = today
+      } else if (type === 'thisYear') {
+        start = new Date(today.getFullYear(), 0, 1)
+        end = today
+      }
+      if (this.$refs.datepicker) {
+        this.$refs.datepicker.startDateObj = start
+        this.$refs.datepicker.endDateObj = end
+        this.$nextTick(() => {
+          this.$fetch()
+        })
+      }
     },
     submitAdd () {
       this.isBusy = true
@@ -625,19 +994,48 @@ export default {
           applicant: this.form.applicant,
           receiving_type: this.form.receiving_type,
           receiving_caseno: this.form.receiving_caseno,
+          cellphone: this.form.cellphone,
+          sms_status: 0,
           note: this.form.note
         }
       }).then(({ data }) => {
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' })
         if (this.$utils.statusCheck(data.status)) {
-          this.$refs.add_modal.hide()
           success = true
+          if (this.continuousIntake) {
+            this.resetAddForm()
+          } else {
+            this.$refs.add_modal.hide()
+            this.resetAddForm()
+          }
         }
       }).catch((err) => {
         this.alert(err.message)
       }).finally(() => {
         this.isBusy = false
         if (success) { this.$fetch() }
+      })
+    },
+    quickUpdateSmsStatus (item, newStatus) {
+      if (parseInt(item.sms_status) === newStatus) { return }
+      const oldStatus = item.sms_status
+      this.$set(item, 'sms_status', newStatus)
+      this.$axios.post(this.$consts.API.JSON.REG, {
+        type: 'edit_address_undisclosed',
+        id: item.id,
+        data: {
+          sms_status: newStatus
+        }
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.notify(`已更新 ${item.applicant} 簡訊狀態為「${this.smsStatusText(newStatus)}」`, { type: 'success' })
+        } else {
+          this.$set(item, 'sms_status', oldStatus)
+          this.notify(data.message, { type: 'warning' })
+        }
+      }).catch((err) => {
+        this.$set(item, 'sms_status', oldStatus)
+        this.alert(err.message)
       })
     },
     rowSelected (items) {
@@ -661,6 +1059,8 @@ export default {
           applicant: this.editForm.applicant,
           receiving_type: this.editForm.receiving_type,
           receiving_caseno: this.editForm.receiving_caseno,
+          cellphone: this.editForm.cellphone,
+          sms_status: this.editForm.sms_status,
           note: this.editForm.note
         }
       }).then(({ data }) => {
@@ -679,7 +1079,9 @@ export default {
     remove (item) {
       this.confirm(`
         請確認是否要刪除本筆資料？<br/>
+        編號：${item.serial_no || '(無)'}<br/>
         申請人：${item.applicant}<br/>
+        手機號碼：${item.cellphone || '(無)'}<br/>
         收件類型：${this.receivingTypeLabel(item.receiving_type)}<br/>
         收件案號：${item.receiving_caseno || '(無)'}
       `).then((YN) => {
@@ -701,7 +1103,7 @@ export default {
     },
     reset () {
       this.rows = []
-      this.currentPage = 1
+      this.pagination.currentPage = 1
     },
     getLabel (key) {
       const found = this.fields.find(item => this.$utils.equal(item.key, key))
@@ -720,6 +1122,25 @@ export default {
       }
       return map[val] || 'light'
     },
+    smsStatusText (val) {
+      return this.smsStatusMap[val] || '未發送'
+    },
+    smsStatusVariant (val) {
+      const map = {
+        0: 'warning',
+        1: 'success',
+        2: 'danger'
+      }
+      return map[val] || 'warning'
+    },
+    smsStatusIcon (val) {
+      const map = {
+        0: 'clock',
+        1: 'circle-check',
+        2: 'circle-xmark'
+      }
+      return map[val] || 'clock'
+    },
     highlightText (text) {
       if (this.$utils.empty(text)) { return '' }
       if (!this.$utils.empty(this.keyword)) {
@@ -733,12 +1154,40 @@ export default {
         note = this.$utils.highlight(note, this.keyword, 'highlight-yellow')
       }
       return note.replace(/(\n|\r\n)/g, '<br/>')
+    },
+    onRowContextMenu (item, index, event) {
+      event.preventDefault()
+      this.contextMenu.item = item
+      const menuW = 160
+      const x = event.clientX + menuW > window.innerWidth ? event.clientX - menuW : event.clientX
+      this.contextMenu.x = x
+      this.contextMenu.y = event.clientY
+      this.contextMenu.show = true
+    },
+    hideContextMenu () {
+      this.contextMenu.show = false
+    },
+    onKeyDown (e) {
+      if (e.key === 'Escape') { this.hideContextMenu() }
+    },
+    ctxEdit () {
+      this.hideContextMenu()
+      if (this.contextMenu.item) { this.popupEdit(this.contextMenu.item) }
+    },
+    ctxDelete () {
+      this.hideContextMenu()
+      if (this.contextMenu.item) { this.remove(this.contextMenu.item) }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.applicant-dropdown-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 .ctx-menu {
   position: fixed;
   z-index: 9999;
