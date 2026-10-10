@@ -208,9 +208,8 @@ a:hover {
   text-decoration: none;
 }
 
-// 響應式隱藏 Slogan 圖片
-// 當視窗高度小於 800px 或寬度小於 992px (因有3個卡片，992px以下可能會擠壓) 時隱藏圖片
-@media (max-width: 991.98px), (max-height: 800px) {
+/* 在極小視窗高度下才考慮隱藏 Logo，確保主要功能可見 */
+@media (max-height: 600px) {
   .slogan-img {
     display: none !important;
   }

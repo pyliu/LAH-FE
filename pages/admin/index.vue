@@ -262,8 +262,8 @@ a:hover {
   text-decoration: none;
 }
 
-// 響應式隱藏 Slogan 圖片
-@media (max-width: 1200px), (max-height: 800px) {
+/* 在極小視窗高度下才考慮隱藏 Logo，確保主要功能可見 */
+@media (max-height: 600px) {
   .slogan-img {
     display: none !important;
   }
