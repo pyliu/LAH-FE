@@ -33,14 +33,14 @@ div
               | 可一鍵選擇「今天、昨天、近 3 天、近 7 天、本月迄今、本年度」
             li
               strong 狀態快篩：
-              | 可快速點選「收件類型（臨櫃/隨案）」或「簡訊狀態（未發送/成功/失敗/無手機）」即時過濾列表
+              | 可快速點選「收件類型（臨櫃/隨案）」或「簡訊狀態（未發送/成功/失敗/忽略/無手機）」即時過濾列表
             li
               strong 智慧搜尋：
               | 鍵入關鍵字可即時搜尋申請人、案號、手機號碼、編號與備註
           hr
           h5 簡訊狀態管理
           ul
-            li 列表中每筆具手機號碼之案件，皆提供狀態徽章選單，可直接在表格內點擊切換「未發送 / 成功 / 失敗」
+            li 列表中每筆案件皆提供狀態選單，可直接在表格內點擊切換「未發送 / 成功 / 失敗 / 忽略」
             li 手機號碼欄位附有一鍵複製功能，方便操作比對
 
       .d-flex
@@ -246,17 +246,15 @@ div
           lah-fa-icon(icon="copy" size="xs")
       span.text-muted(v-else) (無)
     template(#cell(sms_status)="{ item }")
-      b-badge(v-if="!item.cellphone" variant="secondary") 無手機
       b-dropdown(
-        v-else
         size="sm"
-        :variant="smsStatusVariant(item.sms_status)"
+        :variant="itemSmsVariant(item)"
         no-caret
         @click.stop
       )
         template(#button-content)
-          lah-fa-icon.mr-1(:icon="smsStatusIcon(item.sms_status)")
-          span {{ smsStatusText(item.sms_status) }}
+          lah-fa-icon.mr-1(:icon="itemSmsIcon(item)")
+          span {{ itemSmsText(item) }}
           lah-fa-icon.ml-1(icon="caret-down" size="xs")
         b-dropdown-item-button(
           :active="parseInt(item.sms_status || 0) === 0"
@@ -424,6 +422,11 @@ div
               @input="formatAddCellphone"
             )
           b-form-invalid-feedback(:state="addCellphoneState") 手機格式應為 09 開頭 10 碼數字
+        b-form-group(label="簡訊狀態" label-cols="3")
+          b-select(
+            v-model="form.sms_status"
+            :options="smsStatusOptions"
+          )
         b-form-group(label="備註說明" label-cols="3")
           b-textarea(
             v-model="form.note"
@@ -599,6 +602,7 @@ export default {
       receiving_type: 0,
       receiving_caseno: '',
       cellphone: '',
+      sms_status: 0,
       note: '',
       receiver: ''
     },
@@ -746,8 +750,8 @@ export default {
     smsCountPending () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status || 0) === 0).length },
     smsCountSuccess () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 1).length },
     smsCountFail () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 2).length },
-    smsCountIgnored () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 3).length },
-    smsCountNoPhone () { return this.rows.filter(r => !r.cellphone).length },
+    smsCountIgnored () { return this.rows.filter(r => parseInt(r.sms_status) === 3).length },
+    smsCountNoPhone () { return this.rows.filter(r => !r.cellphone && parseInt(r.sms_status) !== 3).length },
     myCasesCount () {
       return this.rows.filter(r => r.receiver && r.receiver.toUpperCase() === (this.myid || '').toUpperCase()).length
     },
@@ -768,6 +772,13 @@ export default {
         // 簡訊狀態篩選
         if (this.smsFilter === 'no_phone') {
           if (item.cellphone && item.cellphone.trim() !== '') {
+            return false
+          }
+          if (parseInt(item.sms_status) === 3) {
+            return false
+          }
+        } else if (this.smsFilter === '3') {
+          if (parseInt(item.sms_status) !== 3) {
             return false
           }
         } else if (this.smsFilter !== 'all') {
@@ -817,7 +828,13 @@ export default {
             } else if (key === 'receiving_type') {
               obj[label] = this.receivingTypeLabel(value)
             } else if (key === 'sms_status') {
-              obj[label] = !data.cellphone ? '無手機' : this.smsStatusText(value)
+              if (parseInt(value) === 3) {
+                obj[label] = '忽略'
+              } else if (!data.cellphone) {
+                obj[label] = '無手機'
+              } else {
+                obj[label] = this.smsStatusText(value)
+              }
             } else if (key === 'receiver') {
               obj[label] = value ? `${(this.userNames && this.userNames[value]) || value} (${value})` : ''
             } else {
@@ -898,6 +915,7 @@ export default {
       this.form.applicant = ''
       this.form.receiving_caseno = ''
       this.form.cellphone = ''
+      this.form.sms_status = 0
       this.form.note = ''
       this.form.receiver = this.myid || ''
       this.caseApplicants = []
@@ -1066,7 +1084,7 @@ export default {
           receiving_type: this.form.receiving_type,
           receiving_caseno: this.form.receiving_caseno,
           cellphone: this.form.cellphone,
-          sms_status: 0,
+          sms_status: this.form.sms_status,
           note: this.form.note,
           receiver: this.form.receiver || this.myid || ''
         }
@@ -1215,6 +1233,21 @@ export default {
         3: 'bell-slash'
       }
       return map[val] || 'clock'
+    },
+    itemSmsText (item) {
+      if (parseInt(item.sms_status) === 3) { return '忽略 / 免排查' }
+      if (!item.cellphone) { return '無手機' }
+      return this.smsStatusText(item.sms_status)
+    },
+    itemSmsVariant (item) {
+      if (parseInt(item.sms_status) === 3) { return 'secondary' }
+      if (!item.cellphone) { return 'secondary' }
+      return this.smsStatusVariant(item.sms_status)
+    },
+    itemSmsIcon (item) {
+      if (parseInt(item.sms_status) === 3) { return 'bell-slash' }
+      if (!item.cellphone) { return 'phone-slash' }
+      return this.smsStatusIcon(item.sms_status)
     },
     highlightText (text) {
       if (this.$utils.empty(text)) { return '' }
