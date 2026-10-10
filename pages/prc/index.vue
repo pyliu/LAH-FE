@@ -17,7 +17,7 @@ div.h-100.d-flex.flex-column.overflow-hidden
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 800 400"
             preserveAspectRatio="xMidYMid meet"
-            style="max-height: 40vh; width: 33vw; max-width: 900px;"
+            style="max-height: 24vh; width: 28vw; max-width: 520px;"
           )
             //- 1. 背景：地籍格網與趨勢線
             g.background-layer
@@ -151,8 +151,9 @@ export default {
 
 <style lang="scss" scoped>
 .main-container {
-  max-height: 85vh;
+  max-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -194,7 +195,7 @@ export default {
   max-width: 90vw;
 
   height: auto;
-  min-height: 320px;
+  min-height: 280px;
 
   &:hover {
     transform: translateY(-10px);
@@ -207,14 +208,14 @@ export default {
 }
 
 .icon-box {
-  width: 140px;
-  height: 140px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.4s ease;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 /* 淺色背景色系 */
