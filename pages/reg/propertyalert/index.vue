@@ -41,6 +41,7 @@ div
           h5 簡訊狀態管理
           ul
             li 列表中每筆案件皆提供狀態選單，可直接在表格內點擊切換「未發送 / 成功 / 失敗 / 忽略」
+            li 有填寫手機號碼之案件，狀態選單右側提供放大鏡按鈕，可手動向後端檢測該筆收件日之後的簡訊發送紀錄
             li 手機號碼欄位附有一鍵複製功能，方便操作比對
 
       .d-flex
@@ -50,6 +51,7 @@ div
           size="lg"
           right
           no-caret
+          :disabled="isBusy"
           title="快速選擇查詢日期"
         )
           template(#button-content)
@@ -122,14 +124,17 @@ div
       b-button-group.mr-3(size="sm")
         b-button(
           :variant="typeFilter === 'all' ? 'primary' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="typeFilter = 'all'"
         ) 全部 ({{ typeCountAll }})
         b-button(
           :variant="typeFilter === '0' ? 'primary' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="typeFilter = '0'"
         ) 臨櫃 ({{ typeCountCounter }})
         b-button(
           :variant="typeFilter === '1' ? 'danger' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="typeFilter = '1'"
         ) 隨案 ({{ typeCountWithCase }})
 
@@ -138,26 +143,32 @@ div
       b-button-group.mr-2(size="sm")
         b-button(
           :variant="smsFilter === 'all' ? 'dark' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="smsFilter = 'all'"
         ) 全部
         b-button(
           :variant="smsFilter === '0' ? 'warning' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="smsFilter = '0'"
         ) 未發送 ({{ smsCountPending }})
         b-button(
           :variant="smsFilter === '1' ? 'success' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="smsFilter = '1'"
         ) 成功 ({{ smsCountSuccess }})
         b-button(
           :variant="smsFilter === '2' ? 'danger' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="smsFilter = '2'"
         ) 失敗 ({{ smsCountFail }})
         b-button(
           :variant="smsFilter === '3' ? 'secondary' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="smsFilter = '3'"
         ) 忽略 ({{ smsCountIgnored }})
         b-button(
           :variant="smsFilter === 'no_phone' ? 'secondary' : 'outline-secondary'"
+          :disabled="isBusy"
           @click="smsFilter = 'no_phone'"
         ) 無手機 ({{ smsCountNoPhone }})
 
@@ -166,6 +177,7 @@ div
         :variant="filterOnlyMine ? 'primary' : 'outline-primary'"
         size="sm"
         pill
+        :disabled="isBusy"
         @click="filterOnlyMine = !filterOnlyMine"
         :title="`只顯示收件人員為 ${myname || myid} 的案件`"
       )
@@ -181,6 +193,7 @@ div
           v-model="keyword"
           placeholder="快速快篩/搜尋 (姓名/案號/手機/備註)..."
           style="min-width: 250px;"
+          :disabled="isBusy"
           @keyup.enter="$fetch"
         )
         template(#append)
@@ -189,6 +202,7 @@ div
             variant="outline-secondary"
             size="sm"
             title="清空關鍵字"
+            :disabled="isBusy"
             @click="keyword = ''"
           )
             lah-fa-icon(icon="xmark")
@@ -241,50 +255,67 @@ div
           variant="outline-secondary"
           size="sm"
           title="複製手機號碼"
+          :disabled="isBusy"
           @click.stop="copyCellphone(item.cellphone)"
         )
           lah-fa-icon(icon="copy" size="xs")
       span.text-muted(v-else) (無)
     template(#cell(sms_status)="{ item }")
-      b-dropdown(
-        size="sm"
-        :variant="itemSmsVariant(item)"
-        no-caret
-        @click.stop
-      )
-        template(#button-content)
-          lah-fa-icon.mr-1(:icon="itemSmsIcon(item)")
-          span {{ itemSmsText(item) }}
-          lah-fa-icon.ml-1(icon="caret-down" size="xs")
-        b-dropdown-item-button(
-          :active="parseInt(item.sms_status || 0) === 0"
-          @click.stop="quickUpdateSmsStatus(item, 0)"
+      .d-inline-flex.align-items-stretch.justify-content-center(@click.stop)
+        b-dropdown(
+          size="sm"
+          :variant="itemSmsVariant(item)"
+          :disabled="isBusy"
+          no-caret
+          @click.stop
         )
-          lah-fa-icon.text-warning.mr-1(icon="clock")
-          | 未發送 / 待比對
-        b-dropdown-item-button(
-          :active="parseInt(item.sms_status) === 1"
-          @click.stop="quickUpdateSmsStatus(item, 1)"
+          template(#button-content)
+            lah-fa-icon.mr-1(:icon="itemSmsIcon(item)")
+            span {{ itemSmsText(item) }}
+            lah-fa-icon.ml-1(icon="caret-down" size="xs")
+          b-dropdown-item-button(
+            :active="parseInt(item.sms_status || 0) === 0"
+            :disabled="isBusy"
+            @click.stop="quickUpdateSmsStatus(item, 0)"
+          )
+            lah-fa-icon.text-warning.mr-1(icon="clock")
+            | 未發送 / 待比對
+          b-dropdown-item-button(
+            :active="parseInt(item.sms_status) === 1"
+            :disabled="isBusy"
+            @click.stop="quickUpdateSmsStatus(item, 1)"
+          )
+            lah-fa-icon.text-success.mr-1(icon="circle-check")
+            | 發送成功
+          b-dropdown-item-button(
+            :active="parseInt(item.sms_status) === 2"
+            :disabled="isBusy"
+            @click.stop="quickUpdateSmsStatus(item, 2)"
+          )
+            lah-fa-icon.text-danger.mr-1(icon="circle-xmark")
+            | 發送失敗
+          b-dropdown-item-button(
+            :active="parseInt(item.sms_status) === 3"
+            :disabled="isBusy"
+            @click.stop="quickUpdateSmsStatus(item, 3)"
+          )
+            lah-fa-icon.text-secondary.mr-1(icon="bell-slash")
+            | 忽略 / 免排查
+        b-button.ml-1.px-2.d-inline-flex.align-items-center(
+          v-if="item.cellphone && parseInt(item.sms_status || 0) === 0"
+          variant="outline-info"
+          size="sm"
+          title="手動檢測此筆案件於收件日之後的簡訊發送狀態"
+          :disabled="isBusy"
+          @click.stop="checkSmsStatus(item)"
         )
-          lah-fa-icon.text-success.mr-1(icon="circle-check")
-          | 發送成功
-        b-dropdown-item-button(
-          :active="parseInt(item.sms_status) === 2"
-          @click.stop="quickUpdateSmsStatus(item, 2)"
-        )
-          lah-fa-icon.text-danger.mr-1(icon="circle-xmark")
-          | 發送失敗
-        b-dropdown-item-button(
-          :active="parseInt(item.sms_status) === 3"
-          @click.stop="quickUpdateSmsStatus(item, 3)"
-        )
-          lah-fa-icon.text-secondary.mr-1(icon="bell-slash")
-          | 忽略 / 免排查
+          b-spinner(v-if="checkingSmsId === item.id" small)
+          lah-fa-icon(v-else icon="magnifying-glass")
     template(#cell(receiving_type)="{ item }")
       b-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
     template(#cell(receiving_caseno)="{ item }")
       .text-left
-        b-link(v-if="item.receiving_caseno" href="#" @click.prevent="showDetail(item.receiving_caseno)")
+        b-link(v-if="item.receiving_caseno" href="#" :disabled="isBusy" @click.prevent="showDetail(item.receiving_caseno)")
           span(v-html="highlightText(item.receiving_caseno)")
         span.text-muted(v-else) (無)
     template(#cell(receiver)="{ item }")
@@ -539,10 +570,21 @@ div
             )
           b-form-invalid-feedback(:state="editCellphoneState") 手機格式應為 09 開頭 10 碼數字
         b-form-group(label="簡訊狀態" label-cols="3")
-          b-select(
-            v-model="editForm.sms_status"
-            :options="smsStatusOptions"
-          )
+          .d-flex.align-items-stretch
+            b-select.flex-grow-1(
+              v-model="editForm.sms_status"
+              :options="smsStatusOptions"
+              :disabled="isBusy"
+            )
+            b-button.ml-1.px-3.d-inline-flex.align-items-center.flex-shrink-0(
+              v-if="editForm.cellphone && parseInt(editForm.sms_status || 0) === 0"
+              variant="outline-info"
+              title="手動檢測此筆案件於收件日之後的簡訊發送狀態"
+              :disabled="isBusy"
+              @click="checkSmsStatus(editRecord)"
+            )
+              b-spinner.mr-1(v-if="checkingSmsId === (editRecord && editRecord.id)" small)
+              lah-fa-icon(v-else icon="magnifying-glass")
         b-form-group(label="備註說明" label-cols="3")
           b-textarea(
             v-model="editForm.note",
@@ -617,6 +659,7 @@ export default {
     },
     caseApplicants: [],
     caseApplicantsBusy: false,
+    checkingSmsId: null,
     receivingTypeMap: {
       0: '臨櫃',
       1: '隨案'
@@ -656,7 +699,7 @@ export default {
         key: 'sms_status',
         label: '簡訊狀態',
         sortable: true,
-        thStyle: { width: '120px' }
+        thStyle: { width: '150px' }
       },
       {
         key: 'receiving_type',
@@ -892,11 +935,13 @@ export default {
   },
   methods: {
     showDetail (caseno) {
+      if (this.isBusy) { return }
       this.clickedCaseno = caseno
       this.detailLoading = true
       this.$refs.detail_modal.show()
     },
     showAdd () {
+      if (this.isBusy) { return }
       this.resetAddForm()
       this.form.receiver = this.myid || ''
       this.$refs.add_modal.show()
@@ -1037,10 +1082,11 @@ export default {
       }
     },
     copyCellphone (phone) {
-      if (!phone) { return }
+      if (this.isBusy || !phone) { return }
       this.copyToClipboard(phone, `已複製手機號碼：${phone}`)
     },
     applyQuickDate (type) {
+      if (this.isBusy) { return }
       const today = new Date()
       let start = new Date()
       let end = new Date()
@@ -1107,8 +1153,10 @@ export default {
       })
     },
     quickUpdateSmsStatus (item, newStatus) {
+      if (this.isBusy) { return }
       if (parseInt(item.sms_status) === newStatus) { return }
       const oldStatus = item.sms_status
+      this.isBusy = true
       this.$set(item, 'sms_status', newStatus)
       this.$axios.post(this.$consts.API.JSON.REG, {
         type: 'edit_property_alert',
@@ -1126,14 +1174,48 @@ export default {
       }).catch((err) => {
         this.$set(item, 'sms_status', oldStatus)
         this.alert(err.message)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+    checkSmsStatus (item) {
+      if (this.isBusy || !item || !item.cellphone) { return }
+      this.hideContextMenu()
+      this.isBusy = true
+      this.checkingSmsId = item.id
+      this.$axios.post(this.$consts.API.JSON.REG, {
+        type: 'check_reg_sms_status',
+        biz_type: 'property_alert',
+        id: item.id
+      }).then(({ data }) => {
+        if (data.payload && data.payload.updated) {
+          this.$set(item, 'sms_status', data.payload.sms_status)
+          if (data.payload.modifytime) {
+            this.$set(item, 'modifytime', data.payload.modifytime)
+          }
+          if (this.editRecord && this.editRecord.id === item.id) {
+            this.editForm.sms_status = parseInt(data.payload.sms_status)
+          }
+          const notifyType = parseInt(data.payload.sms_status) === 1 ? 'success' : 'warning'
+          this.notify(data.message, { type: notifyType })
+        } else {
+          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+        }
+      }).catch((err) => {
+        this.alert(err.message)
+      }).finally(() => {
+        this.checkingSmsId = null
+        this.isBusy = false
       })
     },
     rowSelected (items) {
+      if (this.isBusy) { return }
       if (Array.isArray(items) && items.length > 0) {
         this.popupEdit(items[0])
       }
     },
     popupEdit (record) {
+      if (this.isBusy) { return }
       this.editRecord = record
       this.caseApplicants = []
       this.$refs.edit_modal?.show()
@@ -1168,6 +1250,7 @@ export default {
       })
     },
     remove (item) {
+      if (this.isBusy) { return }
       this.confirm(`
         請確認是否要刪除本筆資料？<br/>
         編號：${item.serial_no || '(無)'}<br/>
@@ -1265,6 +1348,7 @@ export default {
     },
     onRowContextMenu (item, index, event) {
       event.preventDefault()
+      if (this.isBusy) { return }
       this.contextMenu.item = item
       const menuW = 160
       const x = event.clientX + menuW > window.innerWidth ? event.clientX - menuW : event.clientX
