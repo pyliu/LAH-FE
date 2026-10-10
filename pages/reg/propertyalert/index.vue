@@ -157,6 +157,17 @@ div
           @click="smsFilter = 'no_phone'"
         ) 無手機 ({{ smsCountNoPhone }})
 
+      //- 只看我的案件開關
+      b-button(
+        :variant="filterOnlyMine ? 'primary' : 'outline-primary'"
+        size="sm"
+        pill
+        @click="filterOnlyMine = !filterOnlyMine"
+        :title="`只顯示收件人員為 ${myname || myid} 的案件`"
+      )
+        lah-fa-icon.mr-1(:icon="filterOnlyMine ? 'user-check' : 'user'")
+        | 只看我的 ({{ myCasesCount }})
+
     .d-flex.align-items-center.mt-2.mt-lg-0
       b-input-group(size="sm")
         template(#prepend)
@@ -268,6 +279,15 @@ div
         b-link(v-if="item.receiving_caseno" href="#" @click.prevent="showDetail(item.receiving_caseno)")
           span(v-html="highlightText(item.receiving_caseno)")
         span.text-muted(v-else) (無)
+    template(#cell(receiver)="{ item }")
+      .text-center(v-if="item.receiver")
+        b-link.font-weight-bold.text-dark(
+          href="#"
+          @click.prevent="userinfo(userNames[item.receiver] || item.receiver, item.receiver)"
+          :title="`點擊查看 ${userNames[item.receiver] || item.receiver} (${item.receiver}) 人員資訊`"
+        )
+          span(v-html="highlightText(userNames[item.receiver] || item.receiver)")
+      span.text-muted(v-else) (未記錄)
     template(#cell(createtime)="{ item }")
       .mx-auto {{ $utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') }}
     template(#cell(modifytime)="{ item }")
@@ -322,6 +342,12 @@ div
         span 新增地籍異動即時通案件
     .p-2
       b-form(@submit.prevent="submitAdd")
+        b-form-group(label="收件人員" label-cols="3")
+          .d-flex.align-items-center.py-1
+            lah-fa-icon.text-primary.mr-2(icon="user-check")
+            span.font-weight-bold.text-dark {{ myname || myid }}
+            b-badge.ml-2(variant="secondary" pill) {{ myid }}
+            small.ml-2.text-muted (登入者自動帶入)
         b-form-group(label="收件類型" label-cols="3")
           b-form-radio-group(
             v-model="form.receiving_type"
@@ -437,6 +463,12 @@ div
         span 修改地籍異動即時通案件
     .p-2(v-if="editRecord")
       b-form(@submit.prevent="submitEdit")
+        b-form-group(label="收件人員" label-cols="3")
+          .d-flex.align-items-center.py-1
+            lah-fa-icon.text-secondary.mr-2(icon="user")
+            span.font-weight-bold.text-dark {{ (userNames && userNames[editForm.receiver]) || editForm.receiver || '(未記錄)' }}
+            b-badge.ml-2(v-if="editForm.receiver" variant="secondary" pill) {{ editForm.receiver }}
+            small.ml-2.text-muted (建立時綁定，無法變更)
         b-form-group(label="收件類型" label-cols="3")
           b-select(
             v-model="editForm.receiving_type",
@@ -531,6 +563,7 @@ export default {
     keyword: '',
     typeFilter: 'all',
     smsFilter: 'all',
+    filterOnlyMine: false,
     continuousIntake: true,
     editRecord: null,
     clickedCaseno: '',
@@ -556,7 +589,8 @@ export default {
       receiving_type: 0,
       receiving_caseno: '',
       cellphone: '',
-      note: ''
+      note: '',
+      receiver: ''
     },
     editForm: {
       applicant: '',
@@ -564,7 +598,8 @@ export default {
       receiving_caseno: '',
       cellphone: '',
       sms_status: 0,
-      note: ''
+      note: '',
+      receiver: ''
     },
     caseApplicants: [],
     caseApplicantsBusy: false,
@@ -618,6 +653,12 @@ export default {
         label: '案件號',
         sortable: true,
         thStyle: { width: '150px' }
+      },
+      {
+        key: 'receiver',
+        label: '收件人員',
+        sortable: true,
+        thStyle: { width: '120px' }
       },
       {
         key: 'createtime',
@@ -694,8 +735,17 @@ export default {
     smsCountSuccess () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 1).length },
     smsCountFail () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 2).length },
     smsCountNoPhone () { return this.rows.filter(r => !r.cellphone).length },
+    myCasesCount () {
+      return this.rows.filter(r => r.receiver && r.receiver.toUpperCase() === (this.myid || '').toUpperCase()).length
+    },
     filteredRows () {
       return this.rows.filter((item) => {
+        // 只看我的案件篩選
+        if (this.filterOnlyMine) {
+          if (!item.receiver || item.receiver.toUpperCase() !== (this.myid || '').toUpperCase()) {
+            return false
+          }
+        }
         // 類型篩選
         if (this.typeFilter !== 'all') {
           if (parseInt(item.receiving_type) !== parseInt(this.typeFilter)) {
@@ -715,14 +765,17 @@ export default {
             return false
           }
         }
-        // 關鍵字即時本地快篩 (比對姓名、案號、手機、備註、編號)
+        // 關鍵字即時本地快篩 (比對姓名、案號、手機、備註、編號、收件人員編與姓名)
         if (!this.$utils.empty(this.keyword)) {
           const kw = this.keyword.trim().toLowerCase()
+          const receiverName = (this.userNames && item.receiver ? this.userNames[item.receiver] : '') || ''
           const match =
             (item.applicant && item.applicant.toLowerCase().includes(kw)) ||
             (item.receiving_caseno && item.receiving_caseno.toLowerCase().includes(kw)) ||
             (item.cellphone && item.cellphone.toLowerCase().includes(kw)) ||
             (item.serial_no && item.serial_no.toLowerCase().includes(kw)) ||
+            (item.receiver && item.receiver.toLowerCase().includes(kw)) ||
+            (receiverName && receiverName.toLowerCase().includes(kw)) ||
             (item.note && item.note.toLowerCase().includes(kw))
           if (!match) {
             return false
@@ -752,6 +805,8 @@ export default {
               obj[label] = this.receivingTypeLabel(value)
             } else if (key === 'sms_status') {
               obj[label] = !data.cellphone ? '無手機' : this.smsStatusText(value)
+            } else if (key === 'receiver') {
+              obj[label] = value ? `${(this.userNames && this.userNames[value]) || value} (${value})` : ''
             } else {
               obj[label] = value || ''
             }
@@ -793,6 +848,7 @@ export default {
         this.editForm.cellphone = record.cellphone || ''
         this.editForm.sms_status = parseInt(record.sms_status || 0)
         this.editForm.note = record.note || ''
+        this.editForm.receiver = record.receiver || ''
       }
     }
   },
@@ -812,6 +868,7 @@ export default {
     },
     showAdd () {
       this.resetAddForm()
+      this.form.receiver = this.myid || ''
       this.$refs.add_modal.show()
       this.focusAddInput()
     },
@@ -829,6 +886,7 @@ export default {
       this.form.receiving_caseno = ''
       this.form.cellphone = ''
       this.form.note = ''
+      this.form.receiver = this.myid || ''
       this.caseApplicants = []
       this.focusAddInput()
     },
@@ -996,7 +1054,8 @@ export default {
           receiving_caseno: this.form.receiving_caseno,
           cellphone: this.form.cellphone,
           sms_status: 0,
-          note: this.form.note
+          note: this.form.note,
+          receiver: this.form.receiver || this.myid || ''
         }
       }).then(({ data }) => {
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' })
@@ -1061,7 +1120,8 @@ export default {
           receiving_caseno: this.editForm.receiving_caseno,
           cellphone: this.editForm.cellphone,
           sms_status: this.editForm.sms_status,
-          note: this.editForm.note
+          note: this.editForm.note,
+          receiver: this.editForm.receiver || ''
         }
       }).then(({ data }) => {
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' })
