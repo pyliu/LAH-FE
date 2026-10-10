@@ -153,6 +153,10 @@ div
           @click="smsFilter = '2'"
         ) 失敗 ({{ smsCountFail }})
         b-button(
+          :variant="smsFilter === '3' ? 'secondary' : 'outline-secondary'"
+          @click="smsFilter = '3'"
+        ) 忽略 ({{ smsCountIgnored }})
+        b-button(
           :variant="smsFilter === 'no_phone' ? 'secondary' : 'outline-secondary'"
           @click="smsFilter = 'no_phone'"
         ) 無手機 ({{ smsCountNoPhone }})
@@ -272,6 +276,12 @@ div
         )
           lah-fa-icon.text-danger.mr-1(icon="circle-xmark")
           | 發送失敗
+        b-dropdown-item-button(
+          :active="parseInt(item.sms_status) === 3"
+          @click.stop="quickUpdateSmsStatus(item, 3)"
+        )
+          lah-fa-icon.text-secondary.mr-1(icon="bell-slash")
+          | 忽略 / 免排查
     template(#cell(receiving_type)="{ item }")
       b-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
     template(#cell(receiving_caseno)="{ item }")
@@ -610,12 +620,14 @@ export default {
     smsStatusMap: {
       0: '未發送',
       1: '發送成功',
-      2: '發送失敗'
+      2: '發送失敗',
+      3: '忽略'
     },
     smsStatusOptions: [
       { value: 0, text: '未發送 / 待比對' },
       { value: 1, text: '發送成功' },
-      { value: 2, text: '發送失敗' }
+      { value: 2, text: '發送失敗' },
+      { value: 3, text: '忽略 / 免排查' }
     ],
     fields: [
       {
@@ -734,6 +746,7 @@ export default {
     smsCountPending () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status || 0) === 0).length },
     smsCountSuccess () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 1).length },
     smsCountFail () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 2).length },
+    smsCountIgnored () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 3).length },
     smsCountNoPhone () { return this.rows.filter(r => !r.cellphone).length },
     myCasesCount () {
       return this.rows.filter(r => r.receiver && r.receiver.toUpperCase() === (this.myid || '').toUpperCase()).length
@@ -1189,7 +1202,8 @@ export default {
       const map = {
         0: 'warning',
         1: 'success',
-        2: 'danger'
+        2: 'danger',
+        3: 'secondary'
       }
       return map[val] || 'warning'
     },
@@ -1197,7 +1211,8 @@ export default {
       const map = {
         0: 'clock',
         1: 'circle-check',
-        2: 'circle-xmark'
+        2: 'circle-xmark',
+        3: 'bell-slash'
       }
       return map[val] || 'clock'
     },
