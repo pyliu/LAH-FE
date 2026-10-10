@@ -641,6 +641,80 @@ div
             variant="warning",
             :disabled="isBusy || !editForm.applicant || editCasenoState === false || editCellphoneState === false"
           ) 更新
+
+  //- 簡訊發送狀態手動檢測進度 Modal
+  b-modal(
+    ref="sms_check_modal"
+    hide-footer
+    no-close-on-backdrop
+    :no-close-on-esc="smsCheckModal.busy"
+    :hide-header-close="smsCheckModal.busy"
+    centered
+    scrollable
+    size="lg"
+  )
+    template(#modal-title)
+      .d-flex.align-items-center
+        lah-fa-icon.mr-2.text-info(icon="magnifying-glass")
+        span 簡訊發送狀態檢測紀錄
+    .p-2(v-if="smsCheckModal.item")
+      //- 案件摘要資訊
+      .d-flex.flex-wrap.align-items-center.justify-content-between.bg-light.rounded.p-2.mb-3.border
+        div
+          span.text-muted.small.mr-1 編號：
+          strong.mr-3 {{ smsCheckModal.item.serial_no || '(無)' }}
+          span.text-muted.small.mr-1 申請人：
+          strong.mr-3 {{ smsCheckModal.item.applicant }}
+        div
+          span.text-muted.small.mr-1 手機號碼：
+          strong.text-monospace.text-primary.mr-3 {{ smsCheckModal.item.cellphone }}
+          span.text-muted.small.mr-1 收件日期：
+          strong {{ $utils.toADDate(smsCheckModal.item.createtime * 1000, 'yyyy-LL-dd') }}
+
+      //- 檢測步驟清單
+      b-list-group.mb-3.shadow-sm
+        b-list-group-item.d-flex.align-items-center.py-2.px-3(
+          v-for="(step, idx) in smsCheckModal.steps"
+          :key="idx"
+        )
+          b-spinner.mr-2.flex-shrink-0(v-if="step.state === 'running'" small variant="primary")
+          lah-fa-icon.mr-2.text-success.flex-shrink-0(v-else-if="step.state === 'success'" icon="circle-check")
+          lah-fa-icon.mr-2.text-warning.flex-shrink-0(v-else-if="step.state === 'warning'" icon="triangle-exclamation")
+          lah-fa-icon.mr-2.text-danger.flex-shrink-0(v-else-if="step.state === 'error'" icon="circle-xmark")
+          lah-fa-icon.mr-2.text-info.flex-shrink-0(v-else icon="circle-info")
+          span(:class="{ 'font-weight-bold': idx === smsCheckModal.steps.length - 1 }") {{ step.text }}
+
+      //- 查得之簡訊明細
+      div(v-if="!smsCheckModal.busy && smsCheckModal.records.length > 0")
+        .d-flex.align-items-center.mb-2
+          lah-fa-icon.mr-1.text-secondary(icon="list-check")
+          strong.small.text-secondary 收件日後查得之該手機簡訊明細（共 {{ smsCheckModal.records.length }} 筆）：
+        .table-responsive(style="max-height: 240px; overflow-y: auto;")
+          table.table.table-sm.table-bordered.table-striped.mb-0.small
+            thead.thead-light.text-center
+              tr
+                th(style="width: 135px;") 發送時間
+                th(style="width: 110px;") 業務類型
+                th(style="width: 90px;") 傳送結果
+                th 簡訊內容
+            tbody
+              tr(v-for="(rec, rIdx) in smsCheckModal.records" :key="rIdx")
+                td.text-center.text-monospace.align-middle {{ rec.time_str }}
+                td.text-center.align-middle
+                  b-badge(:variant="rec.is_biz_match ? 'info' : 'secondary'") {{ rec.type }}
+                td.text-center.align-middle
+                  b-badge(:variant="rec.is_success ? 'success' : 'danger'") {{ rec.is_success ? `成功 (${rec.result})` : `失敗 (${rec.result})` }}
+                td.text-left.align-middle {{ rec.content }}
+
+      .d-flex.justify-content-end.mt-3.pt-2.border-top
+        b-button(
+          :variant="smsCheckModal.busy ? 'secondary' : 'primary'"
+          :disabled="smsCheckModal.busy"
+          @click="$refs.sms_check_modal.hide()"
+        )
+          b-spinner.mr-1(v-if="smsCheckModal.busy" small)
+          lah-fa-icon.mr-1(v-else icon="check")
+          span {{ smsCheckModal.busy ? '檢測進行中...' : '確認關閉' }}
 </template>
 
 <script>
@@ -697,6 +771,12 @@ export default {
     caseApplicants: [],
     caseApplicantsBusy: false,
     checkingSmsId: null,
+    smsCheckModal: {
+      busy: false,
+      item: null,
+      steps: [],
+      records: []
+    },
     receivingTypeMap: {
       0: '臨櫃',
       1: '隨案'
@@ -1218,30 +1298,109 @@ export default {
     checkSmsStatus (item) {
       if (this.isBusy || !item || !item.cellphone) { return }
       this.hideContextMenu()
+      const cleanPhone = (item.cellphone || '').replace(/\D/g, '')
+      const intakeDateStr = item.createtime ? this.$utils.toADDate(item.createtime * 1000, 'yyyy-LL-dd') : '收件當日'
+      const caseTitle = item.serial_no ? `${item.serial_no}（${item.applicant}）` : item.applicant
+
       this.isBusy = true
       this.checkingSmsId = item.id
+      this.smsCheckModal.busy = true
+      this.smsCheckModal.item = item
+      this.smsCheckModal.records = []
+      this.smsCheckModal.steps = [
+        {
+          state: 'success',
+          text: `1. 連線 API 伺服器，準備檢測案件「${caseTitle}」`
+        },
+        {
+          state: 'running',
+          text: `2. 詢問是否有 ${intakeDateStr}（含當日）後 ${cleanPhone} 之簡訊紀錄...`
+        }
+      ]
+      this.$refs.sms_check_modal?.show()
+
       this.$axios.post(this.$consts.API.JSON.REG, {
         type: 'check_reg_sms_status',
         biz_type: 'undisclosed',
         id: item.id
       }).then(({ data }) => {
-        if (data.payload && data.payload.updated) {
-          this.$set(item, 'sms_status', data.payload.sms_status)
-          if (data.payload.modifytime) {
-            this.$set(item, 'modifytime', data.payload.modifytime)
+        this.$set(this.smsCheckModal.steps, 1, {
+          state: 'success',
+          text: `2. 詢問是否有 ${intakeDateStr}（含當日）後 ${cleanPhone} 之簡訊紀錄`
+        })
+
+        if (data.status < 0) {
+          this.smsCheckModal.steps.push({
+            state: 'error',
+            text: `3. 查詢發生異常：${data.message}`
+          })
+          this.smsCheckModal.steps.push({
+            state: 'warning',
+            text: '4. 結束比對，未更新案件狀態'
+          })
+          return
+        }
+
+        const p = data.payload || {}
+        const totalCount = p.total_count || 0
+        const matchedCount = p.matched_count || 0
+        const successCount = p.success_count || 0
+        const failCount = p.fail_count || 0
+        this.smsCheckModal.records = Array.isArray(p.sms_records) ? p.sms_records : []
+
+        this.smsCheckModal.steps.push({
+          state: matchedCount > 0 ? 'success' : 'warning',
+          text: `3. 資料庫檢索完成：收件日後共找到 ${totalCount} 筆該手機簡訊，符合「住址隱匿」業務共 ${matchedCount} 筆`
+        })
+
+        if (successCount > 0) {
+          this.smsCheckModal.steps.push({
+            state: 'success',
+            text: `4. 比對完成：有傳送成功紀錄（共 ${successCount} 筆成功，最新發送時間：${p.sms_time}）`
+          })
+        } else if (failCount > 0) {
+          this.smsCheckModal.steps.push({
+            state: 'warning',
+            text: `4. 比對完成：無傳送成功紀錄（僅查得 ${failCount} 筆發送失敗紀錄，時間：${p.sms_time}）`
+          })
+        } else {
+          this.smsCheckModal.steps.push({
+            state: 'warning',
+            text: '4. 比對完成：無傳送成功紀錄'
+          })
+        }
+
+        if (p.updated) {
+          this.$set(item, 'sms_status', p.sms_status)
+          if (p.modifytime) {
+            this.$set(item, 'modifytime', p.modifytime)
           }
           if (this.editRecord && this.editRecord.id === item.id) {
-            this.editForm.sms_status = parseInt(data.payload.sms_status)
+            this.editForm.sms_status = parseInt(p.sms_status)
           }
-          const notifyType = parseInt(data.payload.sms_status) === 1 ? 'success' : 'warning'
-          this.notify(data.message, { type: notifyType })
+          const statusLabel = this.smsStatusText(p.sms_status)
+          this.smsCheckModal.steps.push({
+            state: parseInt(p.sms_status) === 1 ? 'success' : 'warning',
+            text: `5. 結束比對，已自動更新狀態為「${statusLabel}」`
+          })
         } else {
-          this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'info' : 'warning' })
+          this.smsCheckModal.steps.push({
+            state: 'info',
+            text: '5. 結束比對，查無符合紀錄，維持原狀態「未發送 / 待比對」'
+          })
         }
       }).catch((err) => {
-        this.alert(err.message)
+        this.$set(this.smsCheckModal.steps, 1, {
+          state: 'error',
+          text: `2. 詢問是否有 ${intakeDateStr}（含當日）後 ${cleanPhone} 之簡訊紀錄失敗`
+        })
+        this.smsCheckModal.steps.push({
+          state: 'error',
+          text: `3. 結束比對，連線發生錯誤：${err.message}`
+        })
       }).finally(() => {
         this.checkingSmsId = null
+        this.smsCheckModal.busy = false
         this.isBusy = false
       })
     },
