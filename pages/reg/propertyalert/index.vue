@@ -14,7 +14,7 @@ div
           @click="$refs.help_modal.show()"
           title="使用說明"
         )
-        lah-help-modal(ref="help_modal")
+        lah-help-modal(ref="help_modal" size="lg")
           h5 功能說明
           ol
             li: .d-flex.align-items-center
