@@ -338,16 +338,17 @@ div
           )
             lah-fa-icon.text-secondary.mr-1(icon="bell-slash")
             | 忽略 / 免排查
-        b-button.ml-1.px-2.d-inline-flex.align-items-center(
+        lah-button.ml-1.px-2.d-inline-flex.align-items-center(
           v-if="item.cellphone && parseInt(item.sms_status || 0) === 0"
+          icon="magnifying-glass"
           variant="outline-info"
           size="sm"
           title="手動檢測此筆案件於收件日之後的簡訊發送狀態"
           :disabled="isBusy"
           @click.stop="checkSmsStatus(item)"
+          no-no-icon-gutter
         )
           b-spinner(v-if="checkingSmsId === item.id" small)
-          lah-fa-icon(v-else icon="magnifying-glass")
     template(#cell(receiving_type)="{ item }")
       b-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
     template(#cell(receiving_caseno)="{ item }")
