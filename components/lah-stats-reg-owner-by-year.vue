@@ -6,7 +6,8 @@ b-card(:class="classNames")
       lah-fa-icon(v-else-if="isBusy", icon="spinner", variant="muted", size="lg", action="spin")
       lah-fa-icon(v-else, icon="question", variant="muted", size="lg")
     .ml-1 {{ ownerType === 'land' ? '土地所有權人' : '建物所有權人' }}統計
-    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="小計") {{ count }}
+    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="地籍資料筆數") {{ count }} 筆
+    lah-transition: b-badge.ml-1(pill, v-if="ready && ownerGroupCount > 0", variant="primary", title="歸戶所有權人數") {{ ownerGroupCount }} 人
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
       regular,
@@ -29,6 +30,7 @@ b-card(:class="classNames")
       icon="magnifying-glass",
       title="重新查詢",
       :disabled="isBusy",
+      :spin="isBusy",
       @click="query",
       pill,
       no-icon-gutter
@@ -75,7 +77,7 @@ b-card(:class="classNames")
         .font-weight-bold {{ idx + 1 }}. {{ payload.key }}
         b-badge(pill, :variant="idx === 0 ? 'primary' : idx === 1 ? 'info' : 'secondary'") {{ payload.items.length }} 筆
       b-link.small.font-weight-bold.d-flex.justify-content-end.align-items-center(
-        v-if="count > 3",
+        v-if="ownerGroupCount > 3",
         @click="$refs.table.show()",
         title="查看所有資料"
       )
@@ -96,11 +98,11 @@ b-card(:class="classNames")
 </template>
 
 <script>
-import LahRegOwnerTable from './lah-reg-owner-table.vue';
+import LahRegOwnerTable from './lah-reg-owner-table.vue'
 
 export default {
   emit: ['ready'],
-  component: { LahRegOwnerTable },
+  components: { LahRegOwnerTable },
   props: {
     noBorder: { type: Boolean, default: false },
     begin: { type: String, default: '' },
@@ -134,10 +136,15 @@ export default {
     ]
   }),
   computed: {
+    allGroups () {
+      return this.groupDataByTaxId(Array.isArray(this.raw) ? this.raw : [])
+    },
+    ownerGroupCount () {
+      return this.allGroups.length
+    },
     top3 () {
-      const allGroups = this.groupDataByTaxId(this.raw)
       // 直接利用 slice 取出索引 0, 1, 2 的資料
-      return allGroups.slice(0, 3)
+      return this.allGroups.slice(0, 3)
     },
     classNames () {
       const list = []
@@ -147,19 +154,21 @@ export default {
       return list
     },
     count () {
-      return this.raw?.length || 0
+      return Array.isArray(this.raw) ? this.raw.length : 0
     },
     xlsxJsons () {
       const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.raw?.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
+      const jsons = Array.isArray(this.raw)
+        ? this.raw.map((data, idx, array) => {
+          const obj = {}
+          for (const [key, value] of Object.entries(data)) {
+            if (fieldKeys.includes(key)) {
+              obj[this.getLabel(key)] = value
+            }
           }
-        }
-        return obj
-      }) || []
+          return obj
+        })
+        : []
       return jsons
     },
     ageRangeOptions () {
@@ -215,11 +224,12 @@ export default {
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${status} ${data.message}`
-          this.raw = [...data.raw]
+          this.raw = Array.isArray(data.raw) ? [...data.raw] : []
           this.$emit('ready', data)
           this.ready = true
         }).catch((err) => {
           this.error = err
+          this.$emit('ready', null)
         }).finally(() => {
           this.isBusy = false
         })

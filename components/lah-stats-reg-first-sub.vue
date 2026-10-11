@@ -194,13 +194,14 @@ export default {
         ed: this.end
       }).then(({ data }) => {
         this.queryOK = this.$utils.statusCheck(data.status)
-        this.raw = data.raw
+        this.raw = Array.isArray(data.raw) ? data.raw : []
         this.message = data.message
         this.$emit('ready', data)
         this.ready = true
       }).catch((err) => {
         this.$utils.error(err)
         this.message = err.toString()
+        this.$emit('ready', null)
       }).finally(() => {
         this.isBusy = false
       })

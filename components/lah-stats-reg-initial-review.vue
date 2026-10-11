@@ -6,7 +6,8 @@ b-card(:class="classNames")
       lah-fa-icon(v-else-if="isBusy", icon="spinner", variant="muted", size="lg", action="spin")
       lah-fa-icon(v-else, icon="question", variant="muted", size="lg")
     .ml-1 初審案件統計
-    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="小計") {{ count }}
+    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="初審人數") {{ count }} 人
+    lah-transition: b-badge.ml-1(pill, v-if="ready && totalCaseSum > 0", variant="primary", title="初審案件量總計") {{ totalCaseSum.toLocaleString() }} 件
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
       regular,
@@ -29,6 +30,7 @@ b-card(:class="classNames")
       icon="magnifying-glass",
       title="重新查詢",
       :disabled="isBusy",
+      :spin="isBusy",
       @click="query",
       pill,
       no-icon-gutter
@@ -98,7 +100,7 @@ b-card(:class="classNames")
 </template>
 
 <script>
-import LahRegInitialReviewTable from './lah-reg-initial-review-table.vue';
+import LahRegInitialReviewTable from './lah-reg-initial-review-table.vue'
 
 export default {
   emit: ['ready'],
@@ -151,19 +153,27 @@ export default {
       return list
     },
     count () {
-      return this.raw?.length || 0
+      return Array.isArray(this.raw) ? this.raw.length : 0
+    },
+    totalCaseSum () {
+      if (!Array.isArray(this.raw)) {
+        return 0
+      }
+      return this.raw.reduce((sum, item) => sum + (Number(item.total_case_count) || 0), 0)
     },
     xlsxJsons () {
       const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.raw?.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
+      const jsons = Array.isArray(this.raw)
+        ? this.raw.map((data, idx, array) => {
+          const obj = {}
+          for (const [key, value] of Object.entries(data)) {
+            if (fieldKeys.includes(key)) {
+              obj[this.getLabel(key)] = value
+            }
           }
-        }
-        return obj
-      }) || []
+          return obj
+        })
+        : []
       return jsons
     }
   },
@@ -211,15 +221,18 @@ export default {
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${status} ${data.message}`
-          this.raw = [...data.raw]
-          // this.$emit('reload', {
-          //   keyword: `${this.begin} ~ ${this.end}`,
-          //   logs: this.raw
-          // })
+          const rows = Array.isArray(data.raw) ? data.raw : []
+          this.raw = rows.map(item => ({
+            ...item,
+            easy_case_count: Number(item.easy_case_count) || 0,
+            normal_case_count: Number(item.normal_case_count) || 0,
+            total_case_count: Number(item.total_case_count) || 0
+          }))
           this.$emit('ready', data)
           this.ready = true
         }).catch((err) => {
           this.error = err
+          this.$emit('ready', null)
         }).finally(() => {
           this.isBusy = false
         })
@@ -248,7 +261,7 @@ export default {
       this.setCache('reg-initial-review-table-perPage', payload.perPage)
     },
     handleRowSelected (payload) {
-      if (payload?.length > 0) {
+      if (Array.isArray(payload) && payload.length > 0) {
         // this.$utils.warn('row selected', payload)
         this.popup(payload[0])
       }

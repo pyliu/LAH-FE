@@ -59,7 +59,7 @@ b-card(
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
 export default {
   emit: ['ready'],
   component: { lahAdmSmslogTableVue },
@@ -179,15 +179,12 @@ export default {
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${status} ${data.message}`
-          this.raw = [...data.raw]
-          // this.$emit('reload', {
-          //   keyword: `${this.begin} ~ ${this.end}`,
-          //   logs: this.raw
-          // })
+          this.raw = Array.isArray(data.raw) ? [...data.raw] : []
           this.$emit('ready', data)
           this.ready = true
         }).catch((err) => {
           this.error = err
+          this.$emit('ready', null)
         }).finally(() => {
           this.isBusy = false
         })

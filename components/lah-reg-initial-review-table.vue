@@ -70,7 +70,7 @@ export default {
   methods: {
     query (force = false) {
       this.getCache(this.cacheKey).then((rows) => {
-        if (rows && !force) {
+        if (Array.isArray(rows) && !force) {
           this.reset()
           this.rows = [...rows]
         } else {
@@ -87,7 +87,7 @@ export default {
         st: this.begin,
         ed: this.end
       }).then(({ data }) => {
-        this.rows = data.baked || []
+        this.rows = Array.isArray(data && data.baked) ? data.baked : []
         this.setCache(this.cacheKey, this.rows, 24 * 60 * 60 * 1000)
       }).catch((err) => {
         this.$utils.error(err)

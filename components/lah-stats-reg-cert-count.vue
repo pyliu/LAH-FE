@@ -40,16 +40,17 @@ b-card(
     .d-flex.justify-content-around
       b-link.h4(@click="displayCaseModal('in')", title="開啟本所核發案件列表") 本所 #[b-badge(pill, variant="success") {{ inCount }}]
       b-link.h4(@click="displayCaseModal('out')", title="開啟工作站核發案件列表") 工作站 #[b-badge(pill, variant="warning") {{ outCount }}]
-    .d-flex.my-1.align-items-center
-      lah-fa-icon.h6(icon="angles-right", action="move-fade-ltr") 選擇工作站人員(按住 Ctrl/Shift 多選)，目前已選擇 {{ operatorsCount }} 人
-      //- lah-button(
-      //-   :icon="openOperatorSelect ? 'angles-up' : 'angles-down'",
-      //-   :icon-append="true",
-      //-   @click="openOperatorSelect = !openOperatorSelect",
-      //-   :title="`按住 Ctrl/Shift 多選(已選擇${operatorsCount})`"
-      //- ) 選擇工作站人員({{ operatorsCount }})
+    .d-flex.my-2.justify-content-between.align-items-center
+      span.small.text-muted 工作站人員已選 {{ operatorsCount }} 人
+      b-button(
+        size="sm",
+        variant="outline-secondary",
+        @click="openOperatorSelect = !openOperatorSelect"
+      )
+        lah-fa-icon.mr-1(:icon="openOperatorSelect ? 'angles-up' : 'user-gear'")
+        | {{ openOperatorSelect ? '收合人員設定' : '設定工作站人員' }}
 
-    b-collapse(v-model="openOperatorSelect"): .d-flex
+    b-collapse(v-model="openOperatorSelect"): .d-flex.mt-1
       b-select(
         v-model="operators",
         :options="operatorOpts",
@@ -106,7 +107,7 @@ export default {
   },
   data: () => ({
     caseType: 'all',
-    openOperatorSelect: true,
+    openOperatorSelect: false,
     operators: [],
     ready: false,
     queryOK: false,
@@ -289,13 +290,14 @@ export default {
         ed: this.end
       }).then(({ data }) => {
         this.queryOK = this.$utils.statusCheck(data.status)
-        this.raw = [...data.raw]
+        this.raw = Array.isArray(data.raw) ? [...data.raw] : []
         this.message = `${data.message} (更新時間 ${this.$utils.formatTime()})`
         this.$emit('ready', data)
         this.ready = true
       }).catch((err) => {
         this.$utils.error(err)
         this.message = err.toString()
+        this.$emit('ready', null)
       }).finally(() => {
         this.isBusy = false
       })

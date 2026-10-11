@@ -42,15 +42,34 @@ b-card(
     lah-message.text-info(:message="message")
   h6.mt-2(v-if="firstCase") 起始號：{{ firstCase.RM03 }}
   h6.mt-2(v-if="lastCase") 終止號：{{ lastCase.RM03 }}
-  h6.mt-2.text-danger(v-if="missCaseNumber.length > 0") 缺號： {{ missCaseNumber.join('、') }}
+  .mt-2(v-if="missCaseNumber.length > 0")
+    .d-flex.align-items-center
+      h6.mb-0.text-danger 缺號 ({{ missCaseNumber.length }} 筆)
+      b-button.ml-2(
+        v-if="missCaseNumber.length > 10",
+        size="sm",
+        variant="outline-danger",
+        @click="showMissing = !showMissing"
+      ) {{ showMissing ? '收合' : '展開明細' }}
+    .small.text-danger.mt-1(v-if="missCaseNumber.length <= 10") {{ missCaseNumber.join('、') }}
+    b-collapse(v-else, v-model="showMissing")
+      .small.text-danger.mt-1.p-2.border.rounded.bg-light(style="max-height: 110px; overflow-y: auto") {{ missCaseNumber.join('、') }}
   b-modal(
     ref="table",
     size="lg",
     :title="`第一次登記案件列表 ${period}`",
     hide-footer
   )
+    lah-pagination(
+      v-model="pagination",
+      :total-rows="count",
+      :caption="`找到 ${count} 筆資料`"
+    )
     lah-reg-b-table(
       :baked-data="raw",
+      :alt-max-height-offset="135",
+      :per-page="pagination.perPage",
+      :current-page="pagination.currentPage",
       no-caption
     )
 </template>
@@ -67,6 +86,7 @@ export default {
   data: () => ({
     ready: false,
     queryOK: false,
+    showMissing: false,
     raw: [],
     message: '',
     pagination: {
@@ -218,13 +238,14 @@ export default {
         ed: this.end
       }).then(({ data }) => {
         this.queryOK = this.$utils.statusCheck(data.status)
-        this.raw = data.raw
+        this.raw = Array.isArray(data.raw) ? data.raw : []
         this.message = data.message
         this.$emit('ready', data)
         this.ready = true
       }).catch((err) => {
         this.$utils.error(err)
         this.message = err.toString()
+        this.$emit('ready', null)
       }).finally(() => {
         this.isBusy = false
       })

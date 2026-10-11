@@ -5,8 +5,8 @@ div(v-cloak)
       .d-flex.justify-content-between.w-100.my-auto.align-items-center
         .d-flex.align-items-center
           div 地政系統土地標示部綜合查詢
-          lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
-        .d-flex.align-items-center
+          lah-button(icon="question" variant="outline-success" size="lg" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+        .d-flex.align-items-center.header-right-group
           .mr-3.small.d-none.d-md-flex.align-items-center
             a.mr-2(
               :href="`${legacyUrl}/assets/files/桃園市土地基本資料庫電子資料收費標準.pdf`",
@@ -22,7 +22,7 @@ div(v-cloak)
               title="下載申請書表 DOC"
             )
               lah-fa-icon(icon="file-word", regular) 申請書
-          b-input-group(size="sm", style="width: 16rem")
+          b-input-group(size="lg", style="width: 18rem")
             b-form-input(
               v-model="keyword",
               placeholder="搜尋段代碼、段名稱或行政區...",
@@ -31,6 +31,7 @@ div(v-cloak)
             template(#append, v-if="keyword")
               lah-button(
                 icon="xmark",
+                size="lg",
                 variant="outline-secondary",
                 title="清除關鍵字",
                 @click="keyword = ''"
@@ -89,4 +90,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.header-right-group {
+  display: flex;
+  align-items: center;
+
+  ::v-deep .btn:not(.dropdown-item),
+  ::v-deep .form-control {
+    height: 48px;
+    box-sizing: border-box;
+  }
+
+  ::v-deep .btn:not(.dropdown-item) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
+  }
+}
 </style>

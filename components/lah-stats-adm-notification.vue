@@ -6,7 +6,7 @@ b-card(:class="classNames")
       lah-fa-icon(v-else-if="isBusy", icon="spinner", variant="muted", size="lg", action="spin")
       lah-fa-icon(v-else, icon="question", variant="muted", size="lg")
     .ml-1 即時通紀錄統計
-    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="小計") {{ count }}
+    lah-transition: b-badge.ml-1(pill, v-if="ready", variant="info", title="推播訊息總數") {{ count }} 則
     lah-transition: lah-button-xlsx.ml-1(
       v-if="count > 0",
       regular,
@@ -29,6 +29,7 @@ b-card(:class="classNames")
       icon="magnifying-glass",
       title="重新查詢",
       :disabled="isBusy",
+      :spin="isBusy",
       @click="query",
       pill,
       no-icon-gutter
@@ -53,7 +54,7 @@ b-card(:class="classNames")
 </template>
 
 <script>
-import lahStatsAdmNotificationTable from './lah-stats-adm-notification-table.vue';
+import lahStatsAdmNotificationTable from './lah-stats-adm-notification-table.vue'
 
 export default {
   emit: ['ready'],
@@ -111,19 +112,21 @@ export default {
       return list
     },
     count () {
-      return this.raw?.length || 0
+      return Array.isArray(this.raw) ? this.raw.length : 0
     },
     xlsxJsons () {
       const fieldKeys = this.fields.map((field, idx, array) => field.key)
-      const jsons = this.raw?.map((data, idx, array) => {
-        const obj = {}
-        for (const [key, value] of Object.entries(data)) {
-          if (fieldKeys.includes(key)) {
-            obj[this.getLabel(key)] = value
+      const jsons = Array.isArray(this.raw)
+        ? this.raw.map((data, idx, array) => {
+          const obj = {}
+          for (const [key, value] of Object.entries(data)) {
+            if (fieldKeys.includes(key)) {
+              obj[this.getLabel(key)] = value
+            }
           }
-        }
-        return obj
-      }) || []
+          return obj
+        })
+        : []
       return jsons
     },
     top3Channels () {
@@ -197,15 +200,12 @@ export default {
         }).then(({ data }) => {
           const status = this.$utils.statusCheck(data.status) ? '🟢' : '⚠'
           this.message = `${status} ${data.message}`
-          this.raw = [...data.raw]
-          // this.$emit('reload', {
-          //   keyword: `${this.begin} ~ ${this.end}`,
-          //   logs: this.raw
-          // })
+          this.raw = Array.isArray(data.raw) ? [...data.raw] : []
           this.$emit('ready', data)
           this.ready = true
         }).catch((err) => {
           this.error = err
+          this.$emit('ready', null)
         }).finally(() => {
           this.isBusy = false
         })
@@ -225,7 +225,7 @@ export default {
       this.modal(this.$createElement(lahStatsAdmNotificationTable, {
         props: {
           items: this.raw,
-          fields: this.fiedls,
+          fields: this.fields,
           inChannel: typeof channel === 'string' ? channel : ''
         }
       }), {

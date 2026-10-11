@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   emit: [],
   component: { lahRegCaseDetailVue },
@@ -69,13 +69,13 @@ export default {
       return light === 'info' ? '' : light
     },
     hideName (name) {
-      if (name === 'XXXXXXXX') {
+      if (!name || name === 'XXXXXXXX') {
         return 'XXXX'
       }
       return name[0] + 'Ｏ' + name.slice(2)
     },
     latestTime (row) {
-      const qday = this.$utils.empty(qday) ? this.$utils.today('TW').replaceAll('-', '') : qday
+      const qday = this.$utils.empty(this.queryDay) ? this.$utils.today('TW').replaceAll('-', '') : this.queryDay
       let ok = false
       // 異動時間
       !ok && qday === row.RM105_1 && (ok = row.RM105_2)
