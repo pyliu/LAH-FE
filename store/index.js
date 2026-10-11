@@ -70,7 +70,8 @@ export const state = () => ({
     isDisabled: false,
     isRAE: false,
     isUserMgtStaff: false,
-    isNotifyMgtStaff: false
+    isNotifyMgtStaff: false,
+    isSuper: false
   },
   // System-wide configurations.
   systemConfigs: {},

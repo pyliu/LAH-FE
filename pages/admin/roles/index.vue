@@ -55,6 +55,9 @@
         <p class="text-muted small">
           本系統採用「<strong>電腦 IPv4 位址</strong>」作為角色權限的判定依據。當同仁於該電腦 IP 登入系統時，系統將自動依據此表賦予對應的管理或業務角色權限。
         </p>
+        <p class="text-muted small">
+          此處的角色會與「員工資訊管理」中的個人權限<strong>合併（聯集）</strong>，只會增加權限、不會取消個人權限。<strong>超級管理者</strong>與 127.0.0.1 擁有全部權限；IP 無法對應到使用者時，僅以此表為準。
+        </p>
         <hr class="my-3">
 
         <h6 class="font-weight-bold mb-2">

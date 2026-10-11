@@ -26,6 +26,7 @@
           label-for="ext-input"
           label-cols-sm="2"
           label-size="md"
+          description="另外，電腦 IP 於「使用者角色管理」設定的角色會一併生效（只增加、不取消此處權限）"
         ): b-checkbox-group(
           v-model="authorities"
           :options="authOpts"
