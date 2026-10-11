@@ -114,6 +114,51 @@ div(v-cloak)
         b-button.mr-2(variant="outline-info" size="sm" style="width: 85px; white-space: nowrap") 公告管理
         span.small 訊息公告發布人員
 
+    hr
+
+    h5.font-weight-bold.text-primary 🔐 權限生效規則
+    p.small.text-muted.mb-2 使用者連線後，系統依其 IP 對應到使用者，最終權限為下列來源的#[b 聯集（只增加、不取消）]：
+    ol.pl-4.small
+      li.mb-1 #[b 個人權限]：本頁編輯視窗「權限」欄位勾選的項目。
+      li.mb-1 #[b IP 角色]：「使用者角色管理」頁以電腦 IP 設定的角色，IP 無法對應到使用者時僅依此生效。
+      li.mb-1 #[b 角色與部門預設權限]：見下表，不需另外勾選。
+    .table-responsive
+      table.table.table-sm.table-bordered.small.mb-2
+        thead.thead-light
+          tr
+            th 對象
+            th 判定依據
+            th 預設權限
+        tbody
+          tr
+            td 研考
+            td 個人勾選「研考」或 IP 角色為研考
+            td 發布公告
+          tr
+            td 主管
+            td 個人勾選「主管」或 IP 角色為主管
+            td 發布公告
+          tr
+            td 總務
+            td IP 角色為總務
+            td 發布公告
+          tr
+            td 人事人員
+            td IP 角色為人事，或使用者部門為「人事室」
+            td 發布公告、管理人員
+          tr
+            td 資訊課人員
+            td 使用者部門為「資訊課」
+            td 管理者（全部管理權限）、發布公告、管理人員
+          tr
+            td 超級管理者
+            td IP 角色為超級管理者，或 127.0.0.1 / ::1
+            td 全部權限
+    ul.pl-4.small
+      li.mb-1 #[b 離職] 狀態僅看個人設定，離職者不套用主管、研考與部門預設權限。
+      li.mb-1 取消勾選個人權限後，若仍符合上述預設或 IP 角色，權限仍會保留；要收回需同時調整部門、IP 角色。
+      li.mb-1 本頁徽章僅顯示個人勾選的權限，不含預設權限，實際權限以登入後為準。
+
   hr
 
   //- 主要控制區塊
