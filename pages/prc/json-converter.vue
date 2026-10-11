@@ -5,37 +5,77 @@ div
       .d-flex
         .my-auto 實價登錄JSON資料解析
         lah-button(icon="info" action="bounce" variant="outline-success" no-border no-icon-gutter @click="showModalById('help-modal')" title="說明")
-        lah-help-modal(:modal-id="'help-modal'")
+        lah-help-modal(:modal-id="'help-modal'" size="lg")
           h5 請參照下列步驟操作
           ol
-            li 上傳地政司端下載的JSON檔案後自動顯示處理後的表格資料
-            li 利用 #[lah-fa-icon(icon="file-excel" regular variant="success" no-gutter)] 將顯示資料匯出為EXCEL檔案
+            li 至地政司實價登錄系統下載案件 JSON 檔案。
+            li 點選「瀏覽」選擇檔案，或直接將檔案拖曳到上傳欄位，系統會自動解析並顯示處理後的表格資料。
+            li 確認筆數與內容無誤後，利用 #[lah-fa-icon(icon="file-excel" regular variant="success" no-gutter)] 將顯示資料匯出為EXCEL檔案。
+            li 欲更換檔案時，點選 #[lah-fa-icon(icon="trash" variant="secondary" no-gutter)] 清除後重新上傳。
+          h5 支援的檔案格式
+          ul
+            li 副檔名為 .json，內容可為「單筆案件（物件）」或「多筆案件（陣列）」。
+            li 每筆資料必須包含主要欄位 #[code ZWw1MDEw]，否則會顯示「不是支援的JSON格式檔案」。
+            li 土地（#[code ZWw1MDEwMQ==]）、建物（#[code ZWw1MDEwMg==]）、車位（#[code ZWw1MDEwMw==]）為選填的附屬資料。
+          h5 轉換規則
+          ul
+            li 同一案件有多筆土地、建物或車位時，會合併為一列：數量欄位為筆數，文字欄位以換行分隔，面積與車位價格另提供「總面積／總價格」加總欄位。
+            li 土地持分會組合為「分子/分母」格式。
+            li 「車位備註」代碼 0 轉為「車位單獨計價」，1 轉為「車位已含總額」。
+            li 未列入對照表的原始欄位不會輸出。
+          h5 常見問題
+          ul
+            li #[b 選擇檔案後沒有資料？] 請確認檔案為地政司下載的原始 JSON，且未經人工修改或另存為其他格式。
+            li #[b 匯出的 EXCEL 是空的？] 格式錯誤或尚未上傳檔案時不會產生匯出資料。
+            li #[b 檔案很大時畫面較慢？] 解析在瀏覽器端進行，建議分批上傳，資料不會傳送至伺服器。
 
       .d-flex
         lah-button-xlsx.ml-1(
           :jsons="xlsxData",
           header="實價登錄JSON檔案轉換"
         )
-  .d-flex.flex-nowrap.mr-auto.mb-2
-    b-file.fixed-width.mr-1(
-      v-model="file",
-      accept="application/json",
-      placeholder="請選擇JSON檔案",
-      browse-text="瀏覽"
-    )
-      template(slot="file-name" slot-scope="{ names }")
-        b-badge(variant="dark") {{ names[0] }}
-        b-badge(v-if="names.length > 1" variant="dark" class="ml-1").
-          + {{ names.length - 1 }} 更多檔案
-    lah-button.mr-1(
-        v-if="file !== null"
-        icon="trash",
-        title="清除選擇",
-        variant="outline-success",
-        @click="file = null",
-        no-icon-gutter
-      )
-    lah-transition: .text-danger.my-auto.h5(v-if="showError") ⚠️ 不是支援的JSON格式檔案(資料需有 "ZWw1MDEw" 欄位)。
+  b-card.json-upload-card.mb-3(no-body)
+    b-card-body.py-3
+      .d-flex.flex-wrap.align-items-center
+        .upload-step.mr-3.mb-2
+          b-badge.step-badge(:variant="file ? 'success' : 'primary'" pill) 1
+          span.ml-2.font-weight-bold 上傳 JSON
+        .upload-step.mr-3.mb-2
+          b-badge.step-badge(:variant="hasData ? 'success' : 'secondary'" pill) 2
+          span.ml-2.font-weight-bold 檢視資料
+        .upload-step.mb-2
+          b-badge.step-badge(:variant="hasData ? 'primary' : 'secondary'" pill) 3
+          span.ml-2.font-weight-bold 匯出 EXCEL
+      .d-flex.flex-nowrap.align-items-center
+        b-file.flex-grow-1.mr-2(
+          v-model="file",
+          accept="application/json",
+          placeholder="請選擇或拖曳地政司下載的 JSON 檔案至此",
+          drop-placeholder="放開以上傳檔案",
+          browse-text="瀏覽",
+          :state="showError ? false : (hasData ? true : null)"
+        )
+          template(slot="file-name" slot-scope="{ names }")
+            b-badge(variant="dark") {{ names[0] }}
+            b-badge(v-if="names.length > 1" variant="dark" class="ml-1").
+              + {{ names.length - 1 }} 更多檔案
+        lah-button(
+          v-if="file !== null"
+          icon="trash",
+          title="清除選擇",
+          variant="outline-secondary",
+          @click="clear",
+          no-icon-gutter
+        )
+      lah-transition: .d-flex.flex-wrap.mt-2.text-muted.small(v-if="hasData")
+        span.mr-3 檔案：{{ file ? file.name : '' }}（{{ fileSizeText }}）
+        span 案件筆數：#[b.text-success {{ recordCount }}]
+      lah-transition: b-alert.mt-2.mb-0(v-if="showError" show variant="danger")
+        | ⚠️ 不是支援的JSON格式檔案(資料需有 "ZWw1MDEw" 欄位)。
+  lah-transition: .empty-state.text-center.text-muted.py-5(v-if="!file && !hasData")
+    lah-fa-icon.mb-2(icon="file-upload" size="3x" variant="secondary")
+    .h5 尚未選擇檔案
+    .small 上傳後將自動解析並顯示案件資料，可匯出為 EXCEL
   lah-transition: lah-val-realprice-json-list(
     v-if="validJsons",
     :jsons="jsons"
@@ -479,6 +519,17 @@ export default {
     title: '實價登錄案件資料轉換-桃園市地政局'
   },
   computed: {
+    hasData () {
+      return !this.showError && !!(this.validJsons || this.validJson)
+    },
+    recordCount () {
+      if (this.validJson) { return 1 }
+      return this.validJsons ? this.jsons.length : 0
+    },
+    fileSizeText () {
+      const size = this.file?.size || 0
+      return size >= 1048576 ? `${(size / 1048576).toFixed(2)} MB` : `${(size / 1024).toFixed(1)} KB`
+    },
     validJsons () {
       return Array.isArray(this.jsons) && this.jsons.length > 0 && this.jsons[0][this.mainKey]
     },
@@ -677,7 +728,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.fixed-width {
-  max-width: 35vw;
+.json-upload-card {
+  border-left: 4px solid #28a745;
+}
+.step-badge {
+  min-width: 1.6rem;
+}
+.empty-state {
+  border: 2px dashed #ced4da;
+  border-radius: 0.5rem;
 }
 </style>
