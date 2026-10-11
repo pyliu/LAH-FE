@@ -17,6 +17,14 @@ div: client-only
           )
 
         .d-flex.align-items-center.flex-nowrap.header-right-group
+          lah-button.mr-1(
+            :icon="hidePersonals ? 'user-shield' : 'eye'",
+            :variant="hidePersonals ? 'outline-info' : 'warning'",
+            size="lg",
+            no-icon-gutter,
+            :title="hidePersonals ? '目前：已遮蔽個資（畫面與匯出皆遮蔽，點此切換顯示完整個資）' : '目前：顯示完整個資（點此開啟個資遮蔽）'",
+            @click="hidePersonals = !hidePersonals"
+          )
           b-form-radio-group.text-nowrap.mr-1(
             v-model="searchType",
             :options="searchTypeOpts",
@@ -71,14 +79,6 @@ div: client-only
             style="width: 280px;",
             @keyup.enter="reload",
             autofocus
-          )
-          lah-button.mr-1(
-            :icon="hidePersonals ? 'user-shield' : 'eye'",
-            :variant="hidePersonals ? 'outline-info' : 'warning'",
-            size="lg",
-            no-icon-gutter,
-            :title="hidePersonals ? '目前：已遮蔽個資（畫面與匯出皆遮蔽，點此切換顯示完整個資）' : '目前：顯示完整個資（點此開啟個資遮蔽）'",
-            @click="hidePersonals = !hidePersonals"
           )
           lah-button.mr-1(
             icon="magnifying-glass",
