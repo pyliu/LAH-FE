@@ -86,9 +86,15 @@ export default {
           ed: this.aEd
         }).then(({ data }) => {
           this.$emit('fetched', data)
-          this.statsData = data.raw
-          this.buildChart()
+          if (this.$utils.statusCheck(data?.status) && data?.raw) {
+            this.statsData = data.raw
+            this.buildChart()
+          } else {
+            this.statsData = null
+            this.$utils.warn(data?.message || '無法取得統計資料')
+          }
         }).catch((err) => {
+          this.statsData = null
           this.$utils.error(err)
         }).finally(() => {
           this.isBusy = false
@@ -121,20 +127,23 @@ export default {
       }
     },
     buildChart () {
+      if (!this.statsData) {
+        return
+      }
       if (this.$refs.chart) {
         this.$refs.chart?.reset()
         const chartItems = []
         this.prepareColorMap()
-        chartItems.push({ x: '08點', y: parseInt(this.statsData['08']), color: this.colorMap.get('08') })
-        chartItems.push({ x: '09點', y: parseInt(this.statsData['09']), color: this.colorMap.get('09') })
-        chartItems.push({ x: '10點', y: parseInt(this.statsData['10']), color: this.colorMap.get('10') })
-        chartItems.push({ x: '11點', y: parseInt(this.statsData['11']), color: this.colorMap.get('11') })
-        chartItems.push({ x: '12點', y: parseInt(this.statsData['12']), color: this.grayColor })
-        chartItems.push({ x: '13點', y: parseInt(this.statsData['13']), color: this.colorMap.get('13') })
-        chartItems.push({ x: '14點', y: parseInt(this.statsData['14']), color: this.colorMap.get('14') })
-        chartItems.push({ x: '15點', y: parseInt(this.statsData['15']), color: this.colorMap.get('15') })
-        chartItems.push({ x: '16點', y: parseInt(this.statsData['16']), color: this.colorMap.get('16') })
-        chartItems.push({ x: '17點', y: parseInt(this.statsData['17']), color: this.grayColor })
+        chartItems.push({ x: '08點', y: parseInt(this.statsData['08'] || 0), color: this.colorMap.get('08') })
+        chartItems.push({ x: '09點', y: parseInt(this.statsData['09'] || 0), color: this.colorMap.get('09') })
+        chartItems.push({ x: '10點', y: parseInt(this.statsData['10'] || 0), color: this.colorMap.get('10') })
+        chartItems.push({ x: '11點', y: parseInt(this.statsData['11'] || 0), color: this.colorMap.get('11') })
+        chartItems.push({ x: '12點', y: parseInt(this.statsData['12'] || 0), color: this.grayColor })
+        chartItems.push({ x: '13點', y: parseInt(this.statsData['13'] || 0), color: this.colorMap.get('13') })
+        chartItems.push({ x: '14點', y: parseInt(this.statsData['14'] || 0), color: this.colorMap.get('14') })
+        chartItems.push({ x: '15點', y: parseInt(this.statsData['15'] || 0), color: this.colorMap.get('15') })
+        chartItems.push({ x: '16點', y: parseInt(this.statsData['16'] || 0), color: this.colorMap.get('16') })
+        chartItems.push({ x: '17點', y: parseInt(this.statsData['17'] || 0), color: this.grayColor })
         this.$refs.chart?.addDataset(chartItems, this.periodText, 'line')
         this.$refs.chart?.addDataset(chartItems, '分時案件數統計', 'bar')
         this.$refs.chart?.build()

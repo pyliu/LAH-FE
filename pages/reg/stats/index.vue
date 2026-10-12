@@ -39,7 +39,8 @@ div(v-cloak)
       size="xl",
       :title="lastMonthText",
       hide-footer,
-      centered
+      centered,
+      lazy
     )
       lah-period-stats-chart(:st="firstDayofLastMonth", :ed="lastDayofLastMonth")
     b-modal(
@@ -47,7 +48,8 @@ div(v-cloak)
       size="xl",
       :title="thisMonthText",
       hide-footer,
-      centered
+      centered,
+      lazy
     )
       lah-period-stats-chart(:st="firstDayofMonth", :ed="today")
     b-modal(
@@ -55,7 +57,8 @@ div(v-cloak)
       size="xl",
       :title="dayText",
       hide-footer,
-      centered
+      centered,
+      lazy
     )
       b-datepicker(
         v-model="day",
