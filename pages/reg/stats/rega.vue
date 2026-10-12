@@ -2,31 +2,70 @@
 div(v-cloak)
   lah-header
     lah-transition(appear)
-      .d-flex.justify-content-between.w-100.my-auto
+      .d-flex.justify-content-between.w-100.my-auto.align-items-center
         .d-flex.mr-auto.align-items-center
           div 登記統計資料案件查詢
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
 
-        lah-datepicker(
-          v-model="dateRange",
-          :begin="initBegin",
-          :end="initEnd",
-          size="lg",
-          @input="handleDate"
-        )
-        lah-button.ml-1(
-          icon="magnifying-glass",
-          size="lg",
-          title="重新搜尋",
-          :disabled="isBusy",
-          @click="getRegaData(true)",
-          no-icon-gutter
-        )
+        .d-flex.align-items-center
+          b-input-group.mr-1(size="sm" style="width: 14rem")
+            b-form-input(
+              v-model="headerSearchKeyword",
+              placeholder="搜尋項目或案號(Enter)...",
+              trim,
+              @keyup.enter="handleHeaderSearchEnter"
+            )
+            template(#append v-if="headerSearchKeyword")
+              b-button(variant="outline-secondary" size="sm" @click="headerSearchKeyword = ''" title="清除搜尋")
+                lah-fa-icon(icon="times")
+
+          b-button.mr-1.text-nowrap(
+            size="sm",
+            :variant="showOnlyAbnormalItems ? 'danger' : 'outline-danger'",
+            :disabled="isBusy || totalAbnormalCount === 0",
+            @click="showOnlyAbnormalItems = !showOnlyAbnormalItems",
+            :title="showOnlyAbnormalItems ? '點擊顯示所有項目' : '點擊僅顯示含異常之工作項目'"
+          )
+            lah-fa-icon.mr-1(icon="triangle-exclamation")
+            | 異常項目
+            b-badge.ml-1(v-if="totalAbnormalCount > 0" :variant="showOnlyAbnormalItems ? 'light' : 'danger'")
+              | {{ totalAbnormalItemCount }}項/{{ totalAbnormalCount }}件
+
+          lah-button.mr-1.text-nowrap(
+            icon="list-check",
+            size="sm",
+            variant="outline-primary",
+            :disabled="isBusy || totalAbnormalCount === 0",
+            @click="openGlobalAbnormalModal",
+            title="開啟全所跨項目異常案件總表"
+          ) 異常清冊
+
+          lah-datepicker(
+            v-model="dateRange",
+            :begin="initBegin",
+            :end="initEnd",
+            size="lg",
+            @input="handleDate"
+          )
+          lah-button.ml-1(
+            icon="magnifying-glass",
+            size="lg",
+            title="重新搜尋",
+            :disabled="isBusy",
+            @click="getRegaData(true)",
+            no-icon-gutter
+          )
     lah-help-modal(:modal-id="'help-modal'" size="lg")
       h5 查詢 {{ site }} 統計資料案件，預設撈上個月的資料
       ul
         li 選擇日期區間後按「重新搜尋」，依註記日期（RA40）撈取資料。
         li 點擊該列即可顯示案件列表。
+      h6.mt-3 頂部搜尋與異常過濾說明
+      ul
+        li #[b 搜尋項目或案號]：輸入關鍵字即時過濾主表工作項目（支援項目名稱與代碼）；若鍵入案號並按 #[kbd Enter]，可跨項目查找全所案件（單筆直接開啟案件詳情、多筆開啟案件清冊）。
+        li #[b-badge(variant="danger") 異常項目]：點擊可切換主表格，僅顯示含有異常案件的工作項目。
+        li #[b-badge(variant="primary") 異常清冊]：點擊開啟全所跨項目異常案件總覽，支援分類切換標籤與 Excel 報表匯出。
+        li #[b-badge(variant="danger") ⚠ 異常件數]：主表格「件數」旁顯示該項目之異常件數，點擊可直接開啟該項目並自動帶入異常篩選。
       h6.mt-3 數字不對時怎麼查？
       ol
         li 先在彙總表找到數字異常的工作項目，點擊該列開啟案件列表。
@@ -48,7 +87,7 @@ div(v-cloak)
         li 「面積 ≥ / ≤」只要土地或建物面積任一符合即顯示。
   b-table(
     ref="display",
-    :items="items",
+    :items="displayItems",
     :fields="fields",
     :busy="isBusy",
     :responsive="'lg'",
@@ -63,6 +102,8 @@ div(v-cloak)
     hover,
     bordered,
     small,
+    show-empty,
+    empty-text="沒有符合條件的工作項目",
     @row-selected="rowSelected"
   )
     template(#cell(ITEM_NAME)="{ item }")
@@ -71,10 +112,20 @@ div(v-cloak)
         @click="caseList(item)"
       ).d-flex.justify-content-between.align-items-center
         .col-4(
-          v-for="(token, idx) in item.ITEM_NAME.split('/')",
+          v-for="(token, idx) in (item.ITEM_NAME || '').split('/')",
           :key="`${item.ITEM}_${idx}`",
           :class="itemNameCss(item, idx)"
         ) {{ token }}
+    template(#cell(COUNT)="{ item }")
+      .d-flex.align-items-center.justify-content-center
+        span {{ item.COUNT }}
+        b-badge.ml-1.cursor-pointer(
+          v-if="item.ABNORMAL_COUNT > 0",
+          variant="danger",
+          pill,
+          @click.stop="openItemAbnormalCases(item)",
+          title="點擊開啟此項目異常案件"
+        ) ⚠ {{ item.ABNORMAL_COUNT }}
 
   b-modal(
     ref="cases",
@@ -136,6 +187,101 @@ div(v-cloak)
           :key="flag",
           :variant="flagLabels[flag].variant"
         ) {{ flagLabels[flag].text }}
+
+  b-modal(
+    ref="globalCases",
+    size="xl",
+    hide-footer,
+    no-close-on-backdrop,
+    scrollable
+  )
+    template(#modal-title)
+      span(v-if="globalModalType === 'abnormal'") 全所登記統計異常案件清冊 ({{ globalFilteredCases.length }}件)
+      span(v-else) 登記統計案件搜尋結果「{{ globalSearchTerm }}」({{ globalFilteredCases.length }}件)
+
+    .d-flex.flex-wrap.align-items-center.mb-2(v-if="globalModalType === 'abnormal'")
+      b-button-group(size="sm").mr-2.mb-1
+        b-button(
+          :variant="globalFilterFlag === '' ? 'primary' : 'outline-primary'",
+          @click="setGlobalFilterFlag('')"
+        ) 全部 ({{ allAbnormalCases.length }})
+        b-button(
+          :variant="globalFilterFlag === 'ZERO' ? 'danger' : 'outline-danger'",
+          @click="setGlobalFilterFlag('ZERO')"
+        ) 面積為0 ({{ flagCounts.ZERO }})
+        b-button(
+          :variant="globalFilterFlag === 'MISMATCH' ? 'danger' : 'outline-danger'",
+          @click="setGlobalFilterFlag('MISMATCH')"
+        ) 筆數/面積不符 ({{ flagCounts.MISMATCH }})
+        b-button(
+          :variant="globalFilterFlag === 'OUTLIER' ? 'danger' : 'outline-danger'",
+          @click="setGlobalFilterFlag('OUTLIER')"
+        ) 面積偏大 ({{ flagCounts.OUTLIER }})
+        b-button(
+          :variant="globalFilterFlag === 'MISSING' ? 'warning' : 'outline-warning'",
+          @click="setGlobalFilterFlag('MISSING')"
+        ) 資料缺漏 ({{ flagCounts.MISSING }})
+        b-button(
+          :variant="globalFilterFlag === 'DUP' ? 'info' : 'outline-info'",
+          @click="setGlobalFilterFlag('DUP')"
+        ) 重複案號 ({{ flagCounts.DUP }})
+
+    .d-flex.flex-wrap.align-items-center.mb-2
+      b-form-input.mr-1.mb-1(v-model="globalFilter.keyword" size="sm" placeholder="搜尋案號或工作項目" trim style="width: 12rem")
+      b-form-input.mr-1.mb-1(v-model="globalFilter.min" type="number" min="0" step="any" size="sm" placeholder="面積 ≥" style="width: 7rem")
+      b-form-input.mr-1.mb-1(v-model="globalFilter.max" type="number" min="0" step="any" size="sm" placeholder="面積 ≤" style="width: 7rem")
+      b-button.mr-1.mb-1(size="sm" variant="outline-secondary" @click="resetGlobalFilter") 清除
+      b-button.mb-1(size="sm" variant="outline-success" :disabled="globalFilteredCases.length === 0" @click="exportGlobalXlsx")
+        lah-fa-icon.mr-1(icon="file-excel" regular)
+        | 匯出 EXCEL
+
+    .small.mb-2.p-1.border.rounded.bg-light
+      span.mr-3 顯示 {{ globalCaseSummary.count }} / {{ globalBaseCases.length }} 件
+      span.mr-3 土地 {{ globalCaseSummary.landCount }} 筆 / {{ globalCaseSummary.landArea }}
+      span.mr-3 建物 {{ globalCaseSummary.buildCount }} 筆 / {{ globalCaseSummary.buildArea }}
+      b-badge.mr-1(v-if="globalCaseSummary.abnormal > 0" variant="danger") 異常 {{ globalCaseSummary.abnormal }} 件
+
+    lah-pagination(
+      v-if="globalFilteredCases.length > globalPagination.perPage"
+      v-model="globalPagination",
+      :total-rows="globalFilteredCases.length",
+      @input="handleGlobalPaginationInput"
+    )
+
+    b-table(
+      :items="globalFilteredCases",
+      :fields="globalSelectedFields",
+      :busy="isBusy",
+      :head-variant="'dark'",
+      :per-page="globalPagination.perPage",
+      :current-page="globalPagination.currentPage",
+      :sort-by.sync="globalSortBy",
+      :sort-desc.sync="globalSortDesc",
+      class="text-center",
+      caption-top,
+      show-empty,
+      empty-text="沒有符合條件的案件",
+      striped,
+      hover,
+      bordered,
+      small
+    )
+      template(#cell(ITEM_NAME)="{ item }")
+        .text-left
+          span.badge.badge-secondary.mr-1 {{ item.ITEM }}
+          span {{ item.ITEM_NAME }}
+      template(#cell(ID)="{ item }")
+        b-link(@click="popup(item.ID)") {{ $utils.caseId(item.ID) }}
+      template(#cell(RA40)="{ item }")
+        div {{ $utils.addDateDivider(item.RA40) }}
+      template(#cell(PCT)="{ item }")
+        div.small 土 {{ item._landPct }}% / 建 {{ item._buildPct }}%
+      template(#cell(FLAGS)="{ item }")
+        b-badge.mr-1(
+          v-for="flag in item._flags",
+          :key="flag",
+          :variant="flagLabels[flag] ? flagLabels[flag].variant : 'secondary'"
+        ) {{ flagLabels[flag] ? flagLabels[flag].text : flag }}
 </template>
 
 <script>
@@ -201,6 +347,35 @@ export default {
     pagination: {
       perPage: 20,
       currentPage: 1
+    },
+    // Header 搜尋與全所異常過濾狀態
+    headerSearchKeyword: '',
+    showOnlyAbnormalItems: false,
+    globalModalType: 'abnormal', // 'abnormal' | 'search'
+    globalSearchTerm: '',
+    globalTargetCases: [],
+    globalFilterFlag: '', // '' (全部) 或 'ZERO' | 'MISMATCH' | 'OUTLIER' | 'MISSING' | 'DUP'
+    globalFilter: {
+      keyword: '',
+      min: '',
+      max: ''
+    },
+    globalSelectedFields: [
+      { key: 'ITEM_NAME', label: '工作項目', sortable: true, thStyle: { width: '20%' } },
+      { key: 'ID', label: '案號', sortable: true },
+      { key: 'RA40', label: '註記日期', sortable: true },
+      { key: 'RA10', label: '土地面積', sortable: true },
+      { key: 'RECA', label: '土地筆數', sortable: true },
+      { key: 'RA08', label: '建物面積', sortable: true },
+      { key: 'RECD', label: '建物筆數', sortable: true },
+      { key: 'PCT', label: '占項目面積', sortable: false },
+      { key: 'FLAGS', label: '標示', sortable: false }
+    ],
+    globalSortBy: 'RA10',
+    globalSortDesc: true,
+    globalPagination: {
+      perPage: 20,
+      currentPage: 1
     }
   }),
   head: {
@@ -214,10 +389,11 @@ export default {
       if (!this.$utils.empty(this.groupByItem)) {
         const tmp = []
         Object.keys(this.groupByItem).forEach((key) => {
-          const cases = this.normalizeCases(this.groupByItem[key])
+          const cases = this.normalizeCases(this.groupByItem[key], key)
           const sum = field => cases.reduce((acc, c) => acc + c[field], 0)
+          const abnormalCount = cases.filter(c => c._flags && c._flags.length > 0).length
           tmp.push({
-            ITEM_NAME: this.itemMap[key],
+            ITEM_NAME: this.itemMap[key] || key,
             ITEM: key,
             COUNT: cases.length,
             LAND_COUNT: sum('RECA'),
@@ -225,12 +401,99 @@ export default {
             BUILD_COUNT: sum('RECD'),
             BUILD_AREA: this.round2(sum('RA08')),
             MISSING: cases.filter(c => c._flags.includes('MISSING')).length,
+            ABNORMAL_COUNT: abnormalCount,
             CASES: cases
           })
         })
         return tmp
       }
       return []
+    },
+    displayItems () {
+      let list = this.items
+      if (this.showOnlyAbnormalItems) {
+        list = list.filter(item => item.ABNORMAL_COUNT > 0)
+      }
+      const kw = String(this.headerSearchKeyword || '').trim().toUpperCase()
+      if (kw) {
+        list = list.filter(item =>
+          (item.ITEM && item.ITEM.toUpperCase().includes(kw)) ||
+          (item.ITEM_NAME && item.ITEM_NAME.toUpperCase().includes(kw)) ||
+          (Array.isArray(item.CASES) && item.CASES.some(c => c.ID && c.ID.toUpperCase().includes(kw)))
+        )
+      }
+      return list
+    },
+    allCases () {
+      const list = []
+      this.items.forEach((item) => {
+        if (Array.isArray(item.CASES)) {
+          item.CASES.forEach(c => list.push(c))
+        }
+      })
+      return list
+    },
+    allAbnormalCases () {
+      return this.allCases.filter(c => c._flags && c._flags.length > 0)
+    },
+    totalAbnormalCount () {
+      return this.allAbnormalCases.length
+    },
+    totalAbnormalItemCount () {
+      return this.items.filter(item => item.ABNORMAL_COUNT > 0).length
+    },
+    flagCounts () {
+      const counts = { ZERO: 0, MISMATCH: 0, OUTLIER: 0, MISSING: 0, DUP: 0 }
+      this.allAbnormalCases.forEach((c) => {
+        (c._flags || []).forEach((f) => {
+          if (counts[f] !== undefined) {
+            counts[f]++
+          }
+        })
+      })
+      return counts
+    },
+    globalBaseCases () {
+      if (this.globalModalType === 'search') {
+        return this.globalTargetCases || []
+      }
+      return this.allAbnormalCases || []
+    },
+    globalFilteredCases () {
+      const { keyword, min, max } = this.globalFilter
+      const kw = String(keyword || '').trim().toUpperCase()
+      const hasMin = min !== '' && min !== null && !isNaN(parseFloat(min))
+      const hasMax = max !== '' && max !== null && !isNaN(parseFloat(max))
+      const flag = this.globalFilterFlag
+
+      return this.globalBaseCases.filter((c) => {
+        if (this.globalModalType === 'abnormal' && flag) {
+          if (!c._flags || !c._flags.includes(flag)) { return false }
+        }
+        if (kw) {
+          const matchId = c.ID && c.ID.toUpperCase().includes(kw)
+          const matchItem = c.ITEM && c.ITEM.toUpperCase().includes(kw)
+          const matchName = c.ITEM_NAME && c.ITEM_NAME.toUpperCase().includes(kw)
+          if (!matchId && !matchItem && !matchName) { return false }
+        }
+        if (hasMin || hasMax) {
+          const ok = [c.RA10, c.RA08].some(a => (!hasMin || a >= parseFloat(min)) && (!hasMax || a <= parseFloat(max)))
+          if (!ok) { return false }
+        }
+        return true
+      })
+    },
+    globalCaseSummary () {
+      const cases = this.globalFilteredCases
+      const sum = field => cases.reduce((acc, c) => acc + c[field], 0)
+      return {
+        count: cases.length,
+        landCount: sum('RECA'),
+        landArea: this.round2(sum('RA10')),
+        buildCount: sum('RECD'),
+        buildArea: this.round2(sum('RA08')),
+        abnormal: cases.filter(c => c._flags && c._flags.length > 0).length
+      }
     },
     selectedCases () { return this.selectedRow?.CASES || [] },
     selectedCaseCount () { return this.selectedCases.length },
@@ -267,12 +530,23 @@ export default {
     filter: {
       deep: true,
       handler () { this.pagination.currentPage = 1 }
+    },
+    globalFilter: {
+      deep: true,
+      handler () { this.globalPagination.currentPage = 1 }
+    },
+    globalFilterFlag () {
+      this.globalPagination.currentPage = 1
     }
     // items (val) { this.$utils.warn(val) },
     // selectedRow (val) { this.$utils.warn(val) }
   },
   created () {},
-  mounted () {
+  async mounted () {
+    const cachedPerPage = await this.getCache('rega-perPage')
+    if (cachedPerPage) { this.pagination.perPage = cachedPerPage }
+    const cachedGlobalPerPage = await this.getCache('rega-global-perPage')
+    if (cachedGlobalPerPage) { this.globalPagination.perPage = cachedGlobalPerPage }
     setTimeout(() => this.getRegaData(false), 400)
   },
   methods: {
@@ -281,8 +555,10 @@ export default {
       return Math.round((n + Number.EPSILON) * 100) / 100
     },
     // 空值/非數字視為 0 並標示「資料缺漏」；加總於彙總時一次完成再四捨五入
-    normalizeCases (rows) {
+    normalizeCases (rows, itemKey = '') {
       const idCount = {}
+      const key = itemKey || (rows[0] ? rows[0].ITEM : '')
+      const itemName = this.itemMap[key] || key
       const cases = rows.map((row) => {
         let missing = false
         const toNum = (v) => {
@@ -292,6 +568,8 @@ export default {
         }
         const c = {
           ...row,
+          ITEM: key,
+          ITEM_NAME: itemName,
           ID: `${row.RA03}${row.RA04_1}${row.RA04_2}`,
           RA10: toNum(row.RA10),
           RA08: toNum(row.RA08),
@@ -329,6 +607,90 @@ export default {
       this.filter = { keyword: '', min: '', max: '', zero: false, abnormal: false }
       this.sortBy = 'RA10'
       this.sortDesc = true
+    },
+    resetGlobalFilter () {
+      this.globalFilter = { keyword: '', min: '', max: '' }
+      this.globalFilterFlag = ''
+      this.globalSortBy = 'RA10'
+      this.globalSortDesc = true
+    },
+    setGlobalFilterFlag (flag) {
+      this.globalFilterFlag = flag
+      this.globalPagination.currentPage = 1
+    },
+    openItemAbnormalCases (item) {
+      this.selectedRow = item
+      this.pagination.currentPage = 1
+      this.resetFilter()
+      this.filter.abnormal = true
+      this.$refs.cases?.show()
+    },
+    handleHeaderSearchEnter () {
+      const kw = String(this.headerSearchKeyword || '').trim().toUpperCase()
+      if (!kw) { return }
+
+      const matched = this.allCases.filter(c => c.ID && c.ID.toUpperCase().includes(kw))
+      if (matched.length === 1) {
+        this.popup(matched[0].ID)
+        return
+      }
+      if (matched.length > 1) {
+        this.openGlobalSearchModal(matched, kw)
+        return
+      }
+      if (this.displayItems.length > 0) {
+        this.info(`已為您篩選出 ${this.displayItems.length} 個符合「${kw}」之工作項目。`)
+      } else {
+        this.warning(`查無符合「${kw}」之案號或工作項目。`)
+      }
+    },
+    openGlobalSearchModal (matchedCases, kw) {
+      this.globalModalType = 'search'
+      this.globalSearchTerm = kw
+      this.globalTargetCases = matchedCases
+      this.resetGlobalFilter()
+      this.globalPagination.currentPage = 1
+      this.$refs.globalCases?.show()
+    },
+    openGlobalAbnormalModal () {
+      this.globalModalType = 'abnormal'
+      this.globalSearchTerm = ''
+      this.globalTargetCases = this.allAbnormalCases
+      this.resetGlobalFilter()
+      this.globalPagination.currentPage = 1
+      this.$refs.globalCases?.show()
+    },
+    handleGlobalPaginationInput (payload) {
+      this.setCache('rega-global-perPage', payload.perPage)
+    },
+    exportGlobalXlsx () {
+      if (typeof window === 'undefined' || this.globalFilteredCases.length === 0) { return }
+      const exportRows = this.globalFilteredCases.map(c => ({
+        項目代碼: c.ITEM,
+        工作項目: c.ITEM_NAME,
+        案號: this.$utils.caseId(c.ID),
+        註記日期: this.$utils.addDateDivider(c.RA40),
+        土地面積: c.RA10,
+        土地筆數: c.RECA,
+        建物面積: c.RA08,
+        建物筆數: c.RECD,
+        '土地面積占比%': c._landPct,
+        '建物面積占比%': c._buildPct,
+        標示: (c._flags || []).map(f => this.flagLabels[f] ? this.flagLabels[f].text : f).join('/')
+      }))
+      const title = this.globalModalType === 'abnormal' ? '全所登記統計異常案件清冊' : `登記統計案件搜尋_${this.globalSearchTerm}`
+      const filename = `${title}_${this.dateRange.begin}_${this.dateRange.end}`
+      const header = `${title} (${this.dateRange.begin} ~ ${this.dateRange.end})`
+
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header,
+          filename,
+          jsonArray: exportRows
+        }
+      }), {
+        title: `匯出 XLSX 檔案 - ${title}`
+      })
     },
     exportXlsx () {
       if (typeof window === 'undefined' || this.filteredCases.length === 0) { return }
@@ -377,6 +739,9 @@ export default {
           reload
         }).then(({ data }) => {
           this.groupByItem = { ...this.$utils.groupBy(data.raw, 'ITEM') }
+          if (this.totalAbnormalCount === 0) {
+            this.showOnlyAbnormalItems = false
+          }
         }).finally(() => {
           this.isBusy = false
         })
@@ -421,7 +786,7 @@ export default {
       if (idx === 0) {
         return ['text-info']
       }
-      const tokens = item.ITEM_NAME.split('/')
+      const tokens = (item.ITEM_NAME || '').split('/')
       if (idx === 1 && tokens.length !== 2) {
         return ['text-success']
       }
@@ -438,5 +803,8 @@ export default {
   display: block;
   background-color: rgb(250, 220, 225);
   text-decoration: none;
+}
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>
