@@ -305,7 +305,7 @@ div
           lah-fa-icon(icon="copy" size="xs")
       span.text-muted(v-else) (無)
     template(#cell(sms_status)="{ item }")
-      .d-inline-flex.align-items-stretch.justify-content-center(@click.stop)
+      .d-inline-flex.align-items-stretch.justify-content-center(@click.stop v-if="item.cellphone")
         b-dropdown(
           size="sm"
           :variant="itemSmsVariant(item)"
@@ -346,7 +346,7 @@ div
             lah-fa-icon.text-secondary.mr-1(icon="bell-slash")
             | 忽略 / 免排查
         lah-button.ml-1.px-2.d-inline-flex.align-items-center(
-          v-if="item.cellphone && parseInt(item.sms_status || 0) === 0"
+          v-if="parseInt(item.sms_status || 0) === 0"
           icon="magnifying-glass"
           variant="outline-info"
           size="sm"
@@ -356,6 +356,7 @@ div
           no-icon-gutter
         )
           b-spinner(v-if="checkingSmsId === item.id" small)
+      span.text-muted(v-else) (無手機)
     template(#cell(receiving_type)="{ item }")
       b-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
     template(#cell(receiving_caseno)="{ item }")
@@ -502,7 +503,7 @@ div
               @input="formatAddCellphone"
             )
           b-form-invalid-feedback(:state="addCellphoneState") 手機格式應為 09 開頭 10 碼數字
-        b-form-group(label="簡訊狀態" label-cols="3")
+        b-form-group(label="簡訊狀態" label-cols="3" v-if="form.cellphone")
           b-select(
             v-model="form.sms_status"
             :options="smsStatusOptions"
@@ -618,7 +619,7 @@ div
               @input="formatEditCellphone"
             )
           b-form-invalid-feedback(:state="editCellphoneState") 手機格式應為 09 開頭 10 碼數字
-        b-form-group(label="簡訊狀態" label-cols="3")
+        b-form-group(label="簡訊狀態" label-cols="3" v-if="editForm.cellphone")
           .d-flex.align-items-stretch
             b-select.flex-grow-1(
               v-model="editForm.sms_status"
@@ -626,7 +627,7 @@ div
               :disabled="isBusy"
             )
             b-button.ml-1.px-3.d-inline-flex.align-items-center.flex-shrink-0(
-              v-if="editForm.cellphone && parseInt(editForm.sms_status || 0) === 0"
+              v-if="parseInt(editForm.sms_status || 0) === 0"
               variant="outline-info"
               title="手動檢測此筆案件於收件日之後的簡訊發送狀態"
               :disabled="isBusy"
@@ -1374,7 +1375,7 @@ export default {
       })
     },
     quickUpdateSmsStatus (item, newStatus) {
-      if (this.isBusy) { return }
+      if (this.isBusy || !item.cellphone) { return }
       if (parseInt(item.sms_status) === newStatus) { return }
       const oldStatus = item.sms_status
       this.isBusy = true
