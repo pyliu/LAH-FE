@@ -3,20 +3,21 @@ b-card(
   :class="noBorder ? ['border-0'] : []"
   no-body
 )
-  .p-3.border-bottom.bg-light
+  .p-3.border-bottom.bg-light.d-flex
     .font-weight-bold.text-secondary.mb-2 匯出設定：
-    b-form-checkbox.mb-1(
+    b-form-checkbox.mr-1(
       v-model="optHeaderRow"
       name="opt-header-row"
-    ) 第一列輸出該頁功能名稱及產製時間(分別置於最前面及最後面位置)
-    b-form-checkbox.mb-1(
+    ) 輸出功能名稱及產製時間
+    b-form-checkbox.mr-1(
       v-model="optFreezeHeader"
       name="opt-freeze-header"
-    ) 凍結第一列(標題列)
+    ) 凍結標題列
     b-form-checkbox.mb-0(
+      v-show="false"
       v-model="optAutoWidth"
       name="opt-auto-width"
-    ) 標題列欄位寬度依據該欄字數分配(要能完整看到所有文字)
+    ) 標題列完整字數分配寬度
 
   .d-flex.justify-content-center: lah-button.my-1(
     icon="download",
