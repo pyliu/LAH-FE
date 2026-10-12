@@ -963,4 +963,14 @@ export default {
 .s-80 {
   font-size: 80%;
 }
+
+// 增強分頁選取時的圖示對比度（避免藍底藍圖示）
+::v-deep .nav-pills .nav-link.active {
+  .lah-icon,
+  i,
+  svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+  }
+}
 </style>

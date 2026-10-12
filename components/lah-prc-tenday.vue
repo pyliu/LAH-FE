@@ -1293,5 +1293,56 @@ export default {
         .fb-row .ui-file{flex:1 1 220px;min-width:220px}
         .fb-th{display:flex;align-items:center;gap:6px;flex-shrink:0;font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap}
         .fb-th .ui-input{width:64px;height:38px;text-align:center;font-weight:700;padding:4px 6px}
-    </style>
+    
+/* ════════ 高對比覆蓋修復（確保人眼清晰易讀） ════════ */
+.lah-prc-tenday-wrapper,
+#tool-tenday-view {
+  --ui-ink: #17324D;
+  --ui-ink2: #2A4A69;
+  --ink: #17324D;
+  --ink-2: #2A4A69;
+  --text: #1B2429;
+  --muted: #5A6A72;
+}
+
+#tool-tenday-view .ui-head {
+  background: #17324D !important;
+  color: #ffffff !important;
+  border-radius: 6px 6px 0 0;
+}
+#tool-tenday-view .ui-head h2 {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+#tool-tenday-view .ui-head .sub {
+  color: #E2ECF5 !important;
+  font-size: 13px !important;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+#tool-tenday-view nav.main {
+  background: #E6ECEB;
+  border-bottom: 3px solid #17324D !important;
+}
+#tool-tenday-view nav.main button {
+  color: #334155 !important;
+  background: #D8E2EC !important;
+  border: 1px solid #B0C4DE !important;
+  border-bottom: none !important;
+  font-weight: 700 !important;
+  transition: all 0.15s ease;
+}
+#tool-tenday-view nav.main button:hover {
+  color: #0F172A !important;
+  background: #C8D8E8 !important;
+}
+#tool-tenday-view nav.main button[aria-current=page] {
+  background: #17324D !important;
+  color: #ffffff !important;
+  border-color: #17324D !important;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.12);
+}
+
+</style>
 </style>

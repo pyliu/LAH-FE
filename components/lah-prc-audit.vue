@@ -1362,7 +1362,7 @@ export default {
 
 <style scoped>
 /* ════════ 共用元件（四個工具一致；色票與 10日檢核相同） ════════ */
-        body.app{--ui-ink:#17324D;--ui-ink2:#2A4A69;--ink:#17324D;--ink-2:#2A4A69;--paper:#EEF2F1;--line:#CFD8D6;--line-2:#E3E9E7;--soft:#F7FAF9;--text:#1B2429;--muted:#5A6A72;
+        .lah-prc-audit-wrapper, .au-root{--ui-ink:#17324D;--ui-ink2:#2A4A69;--ink:#17324D;--ink-2:#2A4A69;--paper:#EEF2F1;--line:#CFD8D6;--line-2:#E3E9E7;--soft:#F7FAF9;--text:#1B2429;--muted:#5A6A72;
             --err:#B42318;--err-bg:#FDECEA;--err-bd:#F3B8B2;--warn:#8A5A00;--warn-bg:#FFF1CC;--warn-bd:#EBCB7A;--info:#1D5FA8;--info-bg:#E6F0FB;--info-bd:#B5CFEE;--ok:#2E7D4F;--ok-bg:#E5F4EA;
             font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC","微軟正黑體",sans-serif;font-variant-numeric:tabular-nums}
         /* 工具外框 */
@@ -1656,7 +1656,7 @@ export default {
         @media (max-width: 1100px){ .au-upload{grid-template-columns:1fr} .au-stats{grid-template-columns:repeat(2,1fr)} }
 
         /* ===== 外框：配色與 10日檢核一致（深藍 #17324D、底色 #EEF2F1） ===== */
-        body.app{background:#EEF2F1;color:#1B2429}
+        .lah-prc-audit-wrapper, .au-root{background:#EEF2F1;color:#1B2429}
         /* ===== 左側導覽列（可收合） ===== */
         .sb{width:248px;background:#17324D;color:#C9D6E2;display:flex;flex-direction:column;flex-shrink:0;z-index:30;transition:width .2s ease;box-shadow:2px 0 10px rgba(0,0,0,.12)}
         .sb-head{height:64px;display:flex;align-items:center;gap:10px;padding:0 12px 0 16px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
@@ -1711,7 +1711,7 @@ export default {
 
 
         /* ════════ 共用元件（四個工具一致；色票與 10日檢核相同） ════════ */
-        body.app{--ui-ink:#17324D;--ui-ink2:#2A4A69;--ink:#17324D;--ink-2:#2A4A69;--paper:#EEF2F1;--line:#CFD8D6;--line-2:#E3E9E7;--soft:#F7FAF9;--text:#1B2429;--muted:#5A6A72;
+        .lah-prc-audit-wrapper, .au-root{--ui-ink:#17324D;--ui-ink2:#2A4A69;--ink:#17324D;--ink-2:#2A4A69;--paper:#EEF2F1;--line:#CFD8D6;--line-2:#E3E9E7;--soft:#F7FAF9;--text:#1B2429;--muted:#5A6A72;
             --err:#B42318;--err-bg:#FDECEA;--err-bd:#F3B8B2;--warn:#8A5A00;--warn-bg:#FFF1CC;--warn-bd:#EBCB7A;--info:#1D5FA8;--info-bg:#E6F0FB;--info-bd:#B5CFEE;--ok:#2E7D4F;--ok-bg:#E5F4EA;
             font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC","微軟正黑體",sans-serif;font-variant-numeric:tabular-nums}
         /* 工具外框 */
@@ -1877,4 +1877,60 @@ export default {
         .au-rule .bd dd{margin:0}
         .au-rule .bd .au-fchip{background:#EEF3F7;border:0;border-radius:3px;padding:1px 7px;font-size:12.5px}
         .au-empty{color:#5A6A72}
+
+/* ════════ 高對比覆蓋修復（確保人眼清晰易讀） ════════ */
+.lah-prc-audit-wrapper,
+.au-root {
+  --ui-ink: #17324D;
+  --ui-ink2: #2A4A69;
+  --ink: #17324D;
+  --ink-2: #2A4A69;
+  --navy: #17324D;
+  --navy2: #2A4A69;
+  --navyl: #E7EDF3;
+  --text: #1B2429;
+  --muted: #5A6A72;
+}
+
+/* 頂部標題列：深藍高對比背景，純白主標題，高亮藍白副標題 */
+.ui-head {
+  background: #17324D !important;
+  color: #ffffff !important;
+  border-radius: 6px 6px 0 0;
+}
+.ui-head h2 {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.ui-head .sub {
+  color: #E2ECF5 !important;
+  font-size: 13px !important;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+/* 頁籤列與頁籤按鈕高對比設定 */
+.au-tabs {
+  background: #E6ECEB;
+  border-bottom: 3px solid #17324D !important;
+}
+.au-tab {
+  color: #334155 !important;
+  background: #D8E2EC !important;
+  border: 1px solid #B0C4DE !important;
+  border-bottom: none !important;
+  font-weight: 700 !important;
+  transition: all 0.15s ease;
+}
+.au-tab:hover {
+  color: #0F172A !important;
+  background: #C8D8E8 !important;
+}
+.au-tab.on {
+  background: #17324D !important;
+  color: #ffffff !important;
+  border-color: #17324D !important;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.12);
+}
+
 </style>
