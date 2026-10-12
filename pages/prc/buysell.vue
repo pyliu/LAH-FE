@@ -178,7 +178,7 @@ div
 
         //- 工具 C: 買賣實例檢核
         .buysell-pane(v-show="activeTabIdx === 1")
-        lah-prc-audit
+          lah-prc-audit
 
         //- 工具 D: 查核案件挑檔
         .buysell-pane(v-show="activeTabIdx === 2")
@@ -300,7 +300,8 @@ div
 
         //- 工具 E: 10日檢核
         .buysell-pane(v-show="activeTabIdx === 3")
-        lah-prc-tenday
+          lah-prc-tenday
+</template>
 
 <script>
 import * as XLSX from 'xlsx'
