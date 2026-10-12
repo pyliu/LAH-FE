@@ -332,7 +332,7 @@ export default {
       pid: '',
       rows: [],
       hasQueried: false,
-      lastMessage: '',
+      queryMessage: '',
       selectedRow: null,
       filterKeyword: '',
       filterMethod: '',
@@ -399,7 +399,7 @@ export default {
     this.rows = []
     this.$axios.post(this.$consts.API.JSON.MOICAS, axiosOpts).then(({ data }) => {
       this.hasQueried = true
-      this.lastMessage = (data && data.message) ? String(data.message) : ''
+      this.queryMessage = (data && data.message) ? String(data.message) : ''
       // 防護開發環境或查無快取時 data.raw 為 false / null / undefined 導致展開運算子拋出 TypeError
       const rawList = Array.isArray(data && data.raw)
         ? data.raw
