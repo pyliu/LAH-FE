@@ -1063,9 +1063,19 @@ export default {
         this.editForm.note = record.note || ''
         this.editForm.receiver = record.receiver || ''
       }
+    },
+    'pagination.perPage' (val) {
+      const count = parseInt(val)
+      if (count && count >= 3) {
+        this.setCache('propertyalert-perpage', count)
+      }
     }
   },
-  mounted () {
+  async mounted () {
+    const cachedPerPage = await this.getCache('propertyalert-perpage')
+    if (cachedPerPage && parseInt(cachedPerPage) >= 3) {
+      this.pagination.perPage = parseInt(cachedPerPage)
+    }
     document.addEventListener('click', this.hideContextMenu)
     document.addEventListener('keydown', this.onKeyDown)
   },
