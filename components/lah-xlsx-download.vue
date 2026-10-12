@@ -3,8 +3,8 @@ b-card(
   :class="noBorder ? ['border-0'] : []"
   no-body
 )
-  .p-3.border-bottom.bg-light.d-flex
-    .font-weight-bold.text-secondary.mb-2 匯出設定：
+  .p-3.border-bottom.bg-light.d-flex.mb-2
+    .font-weight-bold.text-secondary 匯出設定：
     b-form-checkbox.mr-1(
       v-model="optHeaderRow"
       name="opt-header-row"
