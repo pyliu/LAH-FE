@@ -12,6 +12,23 @@ div
             li 點選「瀏覽」選擇檔案，或直接將檔案拖曳到上傳欄位，系統會自動解析並顯示處理後的表格資料。
             li 確認筆數與內容無誤後，利用 #[lah-fa-icon(icon="file-excel" regular variant="success" no-gutter)] 將顯示資料匯出為EXCEL檔案。
             li 欲更換檔案時，點選 #[lah-fa-icon(icon="trash" variant="secondary" no-gutter)] 清除後重新上傳。
+          h5 範例檔案
+          p.text-muted 您可下載官方範例檔案進行離線測試，或直接將範例資料載入至頁面預覽轉換結果：
+          .d-flex.flex-wrap.align-items-center.mb-3
+            b-button.mr-2(
+              variant="outline-primary"
+              size="sm"
+              href="/json/實價登錄JSON_EXAMPLE.json"
+              download="實價登錄JSON_EXAMPLE.json"
+            )
+              lah-fa-icon(icon="download")
+              span.ml-1 下載範例檔案 (.json)
+            lah-button(
+              icon="play"
+              variant="outline-success"
+              size="sm"
+              @click="loadExample"
+            ) 直接載入範例
           h5 支援的檔案格式
           ul
             li 副檔名為 .json，內容可為「單筆案件（物件）」或「多筆案件（陣列）」。
@@ -76,6 +93,13 @@ div
     lah-fa-icon.mb-2(icon="file-upload" size="3x" variant="secondary")
     .h5 尚未選擇檔案
     .small 上傳後將自動解析並顯示案件資料，可匯出為 EXCEL
+    .mt-3
+      lah-button(
+        icon="play"
+        variant="outline-primary"
+        size="sm"
+        @click="loadExample"
+      ) 載入範例資料試用
   lah-transition: lah-val-realprice-json-list(
     v-if="validJsons",
     :jsons="jsons"
@@ -563,7 +587,8 @@ export default {
       try {
         if (val) {
           const text = await val.text()
-          const parsed = JSON.parse(text)
+          const cleanText = text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text
+          const parsed = JSON.parse(cleanText)
           if (Array.isArray(parsed)) {
             this.jsonData = null
             this.jsons = [...parsed]
@@ -582,6 +607,25 @@ export default {
   },
   methods: {
     show () {},
+    async loadExample () {
+      try {
+        this.isBusy = true
+        const res = await fetch('/json/實價登錄JSON_EXAMPLE.json')
+        if (!res.ok) {
+          throw new Error(`無法取得範例檔案 (${res.status})`)
+        }
+        const blob = await res.blob()
+        const sampleFile = new File([blob], '實價登錄JSON_EXAMPLE.json', { type: 'application/json' })
+        this.file = sampleFile
+        this.hideModalById('help-modal')
+        this.success('已成功載入範例檔案 (24 筆案件資料)')
+      } catch (e) {
+        this.alert(`載入範例失敗：${e.message}`)
+        this.$utils.error(e)
+      } finally {
+        this.isBusy = false
+      }
+    },
     clear () {
       this.file = null
       this.jsonData = null
