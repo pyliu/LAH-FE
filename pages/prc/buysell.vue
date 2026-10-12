@@ -51,232 +51,256 @@ div
                 li 支援基準日、面積容許誤差、公設比上下限、格局上限、人名模糊比對等參數微調，並可一鍵匯出全案件檢核清冊 Excel。
 
   lah-transition(appear)
-    b-tabs(
-      v-model="activeTabIdx",
-      pills,
-      card,
-      active-nav-item-class="font-weight-bold",
-      content-class="mt-3"
-    )
-      //- =========================================================================
-      //- 分頁 1: 買賣實例對應區段表
-      //- =========================================================================
-      b-tab(active)
-        template(#title)
-          lah-fa-icon(icon="table", variant="primary")
-          span.ml-1 買賣實例對應區段表
+    .buysell-layout
+      //- 左側導覽列 (維持如圖中分類)
+      aside.buysell-sidebar
+        .sb-nav
+          //- 分類 1: 公告土地現值作業
+          .sb-sec(:class="{ closed: secClosed[0] }")
+            button.sb-cat(type="button", @click="toggleSec(0)")
+              span.sb-ico: lah-fa-icon(icon="book-open", size="sm")
+              span.sb-catname 公告土地現值作業
+              lah-fa-icon.sb-chev(icon="chevron-down", size="xs")
+            ul.sb-items
+              li
+                button.sb-item(
+                  type="button",
+                  :class="{ active: activeTabIdx === 0 }",
+                  @click="activeTabIdx = 0"
+                )
+                  span.sb-dot •
+                  span 買賣實例對應區段表
+              li
+                button.sb-item(
+                  type="button",
+                  :class="{ active: activeTabIdx === 1 }",
+                  @click="activeTabIdx = 1"
+                )
+                  span.sb-dot •
+                  span 買賣實例檢核
 
-        b-alert.d-flex.align-items-center(show, variant="info")
-          lah-fa-icon(icon="lightbulb", size="lg", variant="primary")
-          .ml-2
-            div.font-weight-bold 請依序上傳檔案進行配對與指數化計算：
-            div.s-85.text-muted 系統將依「買例清冊」中的區段號（E 欄）及年月（G 欄），對照「評議總表」的擬評價格（L 欄）及「物價指數」計算最終單價與各項統計指標。
+          //- 分類 2: 實價登錄
+          .sb-sec(:class="{ closed: secClosed[1] }")
+            button.sb-cat(type="button", @click="toggleSec(1)")
+              span.sb-ico: lah-fa-icon(icon="id-card", size="sm")
+              span.sb-catname 實價登錄
+              lah-fa-icon.sb-chev(icon="chevron-down", size="xs")
+            ul.sb-items
+              li
+                button.sb-item(
+                  type="button",
+                  :class="{ active: activeTabIdx === 2 }",
+                  @click="activeTabIdx = 2"
+                )
+                  span.sb-dot •
+                  span 查核案件挑檔
+              li
+                button.sb-item(
+                  type="button",
+                  :class="{ active: activeTabIdx === 3 }",
+                  @click="activeTabIdx = 3"
+                )
+                  span.sb-dot •
+                  span 10日檢核
 
-        b-card-group(deck)
-          b-card.border-primary.shadow-sm(header-bg-variant="primary", header-text-variant="white")
-            template(#header)
-              .d-flex.justify-content-between.align-items-center
-                span.font-weight-bold 步驟 1: 上傳買賣實例清冊 (必填)
-                b-badge(variant="light") A、E、G、K 欄
-            b-form-group.mb-2
-              b-form-file(
-                v-model="fileRaw",
-                placeholder="請選擇買例清冊 (支援 .xlsx / .xls)",
-                drop-placeholder="拖曳檔案至此...",
-                browse-text="瀏覽",
-                accept=".xlsx, .xls"
-              )
-            .d-flex.justify-content-between.align-items-center
-              span.s-85(:class="msgRawClass") {{ msgRawText }}
-              span.s-80.text-muted 需包含區段、日期、單價
+      //- 右側內容工作台
+      main.buysell-main
+        //- 工具 A: 買賣實例對應區段表
+        .buysell-pane(v-show="activeTabIdx === 0")
+          b-alert.d-flex.align-items-center(show, variant="info")
+            lah-fa-icon(icon="lightbulb", size="lg", variant="primary")
+            .ml-2
+              div.font-weight-bold 請依序上傳檔案進行配對與指數化計算：
+              div.s-85.text-muted 系統將依「買例清冊」中的區段號（E 欄）及年月（G 欄），對照「評議總表」的擬評價格（L 欄）及「物價指數」計算最終單價與各項統計指標。
 
-          b-card.border-info.shadow-sm(header-bg-variant="info", header-text-variant="white")
-            template(#header)
-              .d-flex.justify-content-between.align-items-center
-                span.font-weight-bold 步驟 2: 上傳評議總表 (必填)
-                b-badge(variant="light") A、L 欄
-            b-form-group.mb-2
-              b-form-file(
-                v-model="fileValuation",
-                placeholder="請選擇評議總表 (支援 .xlsx / .xls)",
-                drop-placeholder="拖曳檔案至此...",
-                browse-text="瀏覽",
-                accept=".xlsx, .xls"
-              )
-            .d-flex.justify-content-between.align-items-center
-              span.s-85(:class="msgValClass") {{ msgValText }}
-              span.s-80.text-muted 需包含區段、擬評現值
-
-          b-card.border-secondary.shadow-sm(header-bg-variant="secondary", header-text-variant="white")
-            template(#header)
-              .d-flex.justify-content-between.align-items-center
-                span.font-weight-bold 步驟 3: 上傳物價指數 (選填)
-                b-badge(variant="light") A、B 欄
-            b-form-group.mb-2
-              b-form-file(
-                v-model="fileIndex",
-                placeholder="請選擇物價指數表 (可略過)",
-                drop-placeholder="拖曳檔案至此...",
-                browse-text="瀏覽",
-                accept=".xlsx, .xls"
-              )
-            .d-flex.justify-content-between.align-items-center
-              span.s-85(:class="msgIdxClass") {{ msgIdxText }}
-              span.s-80.text-muted 預設所有指數為 1.0
-
-        .text-center.my-4
-          lah-button(
-            icon="file-excel",
-            size="lg",
-            variant="success",
-            :disabled="!canProcessSalesList || processingSalesList",
-            :busy="processingSalesList",
-            @click="handleSalesListProcess"
-          ) 開始處理並下載 Excel
-          .s-85.text-muted.mt-2(v-if="statusSalesListText") {{ statusSalesListText }}
-
-      //- =========================================================================
-      //- 分頁 2: 買賣實例檢核 (v2.4)
-      //- =========================================================================
-      b-tab
-        template(#title)
-          lah-fa-icon(icon="tasks", variant="primary")
-          span.ml-1 買賣實例檢核
-        lah-prc-audit
-
-      //- =========================================================================
-      //- 分頁 3: 查核案件挑檔
-      //- =========================================================================
-      b-tab
-        template(#title)
-          lah-fa-icon(icon="filter", variant="primary")
-          span.ml-1 查核案件挑檔
-
-        b-alert.d-flex.align-items-center(show, variant="info")
-          lah-fa-icon(icon="lightbulb", size="lg", variant="primary")
-          .ml-2
-            div.font-weight-bold 實價登錄查核案件批次挑檔比對工具：
-            div.s-85.text-muted 比對本月買賣案件清冊與房地合一稅、大量估價異常清冊，自動標記各項異常原因、統計申報代理人案件量，並匯出完整標註之 Excel 報表。
-
-        b-card.border-primary.shadow-sm.mb-3(header-bg-variant="primary", header-text-variant="white")
-          template(#header)
-            .d-flex.justify-content-between.align-items-center
-              span.font-weight-bold 步驟 1: 上傳「本月買賣案件清冊」(必填基準檔)
-              b-badge(variant="light") 支援兩種檔案來源
-          b-row
-            b-col(md="6")
-              b-form-group(label="清冊來源格式：", label-class="font-weight-bold s-90")
-                b-form-radio-group(v-model="pickFileType", :options="pickFileTypeOptions", buttons, button-variant="outline-primary")
-            b-col(md="6")
-              b-form-group(label="選擇檔案：", label-class="font-weight-bold s-90")
+          b-card-group(deck)
+            b-card.border-primary.shadow-sm(header-bg-variant="primary", header-text-variant="white")
+              template(#header)
+                .d-flex.justify-content-between.align-items-center
+                  span.font-weight-bold 步驟 1: 上傳買賣實例清冊 (必填)
+                  b-badge(variant="light") A、E、G、K 欄
+              b-form-group.mb-2
                 b-form-file(
-                  v-model="pickFile1",
-                  placeholder="請上傳買賣案件清冊 (支援 .xlsx / .xls)",
+                  v-model="fileRaw",
+                  placeholder="請選擇買例清冊 (支援 .xlsx / .xls)",
+                  drop-placeholder="拖曳檔案至此...",
                   browse-text="瀏覽",
                   accept=".xlsx, .xls"
                 )
+              .d-flex.justify-content-between.align-items-center
+                span.s-85(:class="msgRawClass") {{ msgRawText }}
+                span.s-80.text-muted 需包含區段、日期、單價
 
-        b-row
-          b-col(md="4")
-            b-card.border-secondary.shadow-sm.mb-3
+            b-card.border-info.shadow-sm(header-bg-variant="info", header-text-variant="white")
               template(#header)
-                .font-weight-bold 步驟 2: 房地合一稅異常清冊 (選填)
-              b-form-file.mb-2(
-                v-model="pickFile2",
-                placeholder="請上傳房地合一異常清冊",
-                browse-text="瀏覽",
-                accept=".xlsx, .xls"
-              )
-              .s-80.text-muted 系統讀取 C 欄申報書序號
+                .d-flex.justify-content-between.align-items-center
+                  span.font-weight-bold 步驟 2: 上傳評議總表 (必填)
+                  b-badge(variant="light") A、L 欄
+              b-form-group.mb-2
+                b-form-file(
+                  v-model="fileValuation",
+                  placeholder="請選擇評議總表 (支援 .xlsx / .xls)",
+                  drop-placeholder="拖曳檔案至此...",
+                  browse-text="瀏覽",
+                  accept=".xlsx, .xls"
+                )
+              .d-flex.justify-content-between.align-items-center
+                span.s-85(:class="msgValClass") {{ msgValText }}
+                span.s-80.text-muted 需包含區段、擬評現值
 
-          b-col(md="4")
-            b-card.border-secondary.shadow-sm.mb-3
+            b-card.border-secondary.shadow-sm(header-bg-variant="secondary", header-text-variant="white")
               template(#header)
-                .font-weight-bold 步驟 3: 大量估價異常-房地 (選填)
-              b-form-file.mb-2(
-                v-model="pickFile3",
-                placeholder="請上傳大量估價房地清冊",
-                browse-text="瀏覽",
-                accept=".xlsx, .xls"
-              )
-              b-input-group(size="sm", prepend="異常門檻 (±%)")
-                b-form-input(type="number", v-model.number="pickThreshold3", min="0", max="100", step="1")
+                .d-flex.justify-content-between.align-items-center
+                  span.font-weight-bold 步驟 3: 上傳物價指數 (選填)
+                  b-badge(variant="light") A、B 欄
+              b-form-group.mb-2
+                b-form-file(
+                  v-model="fileIndex",
+                  placeholder="請選擇物價指數表 (可略過)",
+                  drop-placeholder="拖曳檔案至此...",
+                  browse-text="瀏覽",
+                  accept=".xlsx, .xls"
+                )
+              .d-flex.justify-content-between.align-items-center
+                span.s-85(:class="msgIdxClass") {{ msgIdxText }}
+                span.s-80.text-muted 預設所有指數為 1.0
 
-          b-col(md="4")
-            b-card.border-secondary.shadow-sm.mb-3
-              template(#header)
-                .font-weight-bold 步驟 4: 大量估價異常-土地 (選填)
-              b-form-file.mb-2(
-                v-model="pickFile4",
-                placeholder="請上傳大量估價土地清冊",
-                browse-text="瀏覽",
-                accept=".xlsx, .xls"
-              )
-              b-input-group(size="sm", prepend="異常門檻 (±%)")
-                b-form-input(type="number", v-model.number="pickThreshold4", min="0", max="100", step="1")
+          .text-center.my-4
+            lah-button(
+              icon="file-excel",
+              size="lg",
+              variant="success",
+              :disabled="!canProcessSalesList || processingSalesList",
+              :busy="processingSalesList",
+              @click="handleSalesListProcess"
+            ) 開始處理並下載 Excel
+            .s-85.text-muted.mt-2(v-if="statusSalesListText") {{ statusSalesListText }}
 
-        .text-center.my-3
-          lah-button(
-            icon="cogs",
-            size="lg",
-            variant="primary",
-            :disabled="!pickFile1 || pickProcessing",
-            :busy="pickProcessing",
-            @click="handleCasePickProcess"
-          ) 開始比對挑檔並匯出清冊
-          lah-button.ml-2(
-            icon="undo",
-            size="lg",
-            variant="outline-secondary",
-            @click="resetCasePickForm"
-          ) 重設清除
+        //- 工具 C: 買賣實例檢核
+        .buysell-pane(v-show="activeTabIdx === 1")
+        lah-prc-audit
 
-        b-alert(v-if="pickStatusText", :show="true", :variant="pickStatusVariant", class="mt-3")
-          span.font-weight-bold {{ pickStatusText }}
-          span.ml-2.s-85 {{ pickProgressText }}
+        //- 工具 D: 查核案件挑檔
+        .buysell-pane(v-show="activeTabIdx === 2")
+          b-alert.d-flex.align-items-center(show, variant="info")
+            lah-fa-icon(icon="lightbulb", size="lg", variant="primary")
+            .ml-2
+              div.font-weight-bold 實價登錄查核案件批次挑檔比對工具：
+              div.s-85.text-muted 比對本月買賣案件清冊與房地合一稅、大量估價異常清冊，自動標記各項異常原因、統計申報代理人案件量，並匯出完整標註之 Excel 報表。
 
-        div(v-if="pickResultSummary" class="mt-4")
-          h5.font-weight-bold.text-dark 比對統計結果摘要：
+          b-card.border-primary.shadow-sm.mb-3(header-bg-variant="primary", header-text-variant="white")
+            template(#header)
+              .d-flex.justify-content-between.align-items-center
+                span.font-weight-bold 步驟 1: 上傳「本月買賣案件清冊」(必填基準檔)
+                b-badge(variant="light") 支援兩種檔案來源
+            b-row
+              b-col(md="6")
+                b-form-group(label="清冊來源格式：", label-class="font-weight-bold s-90")
+                  b-form-radio-group(v-model="pickFileType", :options="pickFileTypeOptions", buttons, button-variant="outline-primary")
+              b-col(md="6")
+                b-form-group(label="選擇檔案：", label-class="font-weight-bold s-90")
+                  b-form-file(
+                    v-model="pickFile1",
+                    placeholder="請上傳買賣案件清冊 (支援 .xlsx / .xls)",
+                    browse-text="瀏覽",
+                    accept=".xlsx, .xls"
+                  )
+
           b-row
-            b-col(md="3")
-              b-card.text-center.bg-light
-                .text-muted.s-85 基準案件總數
-                .h4.font-weight-bold.text-primary.mb-0 {{ pickResultSummary.totalCases }} 件
-            b-col(md="3")
-              b-card.text-center.bg-light
-                .text-muted.s-85 房地合一異常
-                .h4.font-weight-bold.text-danger.mb-0 {{ pickResultSummary.taxHits }} 件
-            b-col(md="3")
-              b-card.text-center.bg-light
-                .text-muted.s-85 大量估價異常(房地)
-                .h4.font-weight-bold.text-warning.mb-0 {{ pickResultSummary.houseHits }} 件
-            b-col(md="3")
-              b-card.text-center.bg-light
-                .text-muted.s-85 大量估價異常(土地)
-                .h4.font-weight-bold.text-info.mb-0 {{ pickResultSummary.landHits }} 件
+            b-col(md="4")
+              b-card.border-secondary.shadow-sm.mb-3
+                template(#header)
+                  .font-weight-bold 步驟 2: 房地合一稅異常清冊 (選填)
+                b-form-file.mb-2(
+                  v-model="pickFile2",
+                  placeholder="請上傳房地合一異常清冊",
+                  browse-text="瀏覽",
+                  accept=".xlsx, .xls"
+                )
+                .s-80.text-muted 系統讀取 C 欄申報書序號
 
-          div(v-if="pickAgentList && pickAgentList.length" class="mt-4")
-            h5.font-weight-bold.text-dark 異常案件申報代理人件數統計：
-            b-table.shadow-sm(
-              :items="pickAgentList",
-              :fields="agentTableFields",
-              striped,
-              hover,
-              responsive,
-              bordered,
-              small,
-              head-variant="dark"
-            )
+            b-col(md="4")
+              b-card.border-secondary.shadow-sm.mb-3
+                template(#header)
+                  .font-weight-bold 步驟 3: 大量估價異常-房地 (選填)
+                b-form-file.mb-2(
+                  v-model="pickFile3",
+                  placeholder="請上傳大量估價房地清冊",
+                  browse-text="瀏覽",
+                  accept=".xlsx, .xls"
+                )
+                b-input-group(size="sm", prepend="異常門檻 (±%)")
+                  b-form-input(type="number", v-model.number="pickThreshold3", min="0", max="100", step="1")
 
-      //- =========================================================================
-      //- 分頁 4: 實價登錄10日檢核
-      //- =========================================================================
-      b-tab
-        template(#title)
-          lah-fa-icon(icon="calendar-check", variant="primary")
-          span.ml-1 實價登錄10日檢核
+            b-col(md="4")
+              b-card.border-secondary.shadow-sm.mb-3
+                template(#header)
+                  .font-weight-bold 步驟 4: 大量估價異常-土地 (選填)
+                b-form-file.mb-2(
+                  v-model="pickFile4",
+                  placeholder="請上傳大量估價土地清冊",
+                  browse-text="瀏覽",
+                  accept=".xlsx, .xls"
+                )
+                b-input-group(size="sm", prepend="異常門檻 (±%)")
+                  b-form-input(type="number", v-model.number="pickThreshold4", min="0", max="100", step="1")
+
+          .text-center.my-3
+            lah-button(
+              icon="cogs",
+              size="lg",
+              variant="primary",
+              :disabled="!pickFile1 || pickProcessing",
+              :busy="pickProcessing",
+              @click="handleCasePickProcess"
+            ) 開始比對挑檔並匯出清冊
+            lah-button.ml-2(
+              icon="undo",
+              size="lg",
+              variant="outline-secondary",
+              @click="resetCasePickForm"
+            ) 重設清除
+
+          b-alert(v-if="pickStatusText", :show="true", :variant="pickStatusVariant", class="mt-3")
+            span.font-weight-bold {{ pickStatusText }}
+            span.ml-2.s-85 {{ pickProgressText }}
+
+          div(v-if="pickResultSummary" class="mt-4")
+            h5.font-weight-bold.text-dark 比對統計結果摘要：
+            b-row
+              b-col(md="3")
+                b-card.text-center.bg-light
+                  .text-muted.s-85 基準案件總數
+                  .h4.font-weight-bold.text-primary.mb-0 {{ pickResultSummary.totalCases }} 件
+              b-col(md="3")
+                b-card.text-center.bg-light
+                  .text-muted.s-85 房地合一異常
+                  .h4.font-weight-bold.text-danger.mb-0 {{ pickResultSummary.taxHits }} 件
+              b-col(md="3")
+                b-card.text-center.bg-light
+                  .text-muted.s-85 大量估價異常(房地)
+                  .h4.font-weight-bold.text-warning.mb-0 {{ pickResultSummary.houseHits }} 件
+              b-col(md="3")
+                b-card.text-center.bg-light
+                  .text-muted.s-85 大量估價異常(土地)
+                  .h4.font-weight-bold.text-info.mb-0 {{ pickResultSummary.landHits }} 件
+
+            div(v-if="pickAgentList && pickAgentList.length" class="mt-4")
+              h5.font-weight-bold.text-dark 異常案件申報代理人件數統計：
+              b-table.shadow-sm(
+                :items="pickAgentList",
+                :fields="agentTableFields",
+                striped,
+                hover,
+                responsive,
+                bordered,
+                small,
+                head-variant="dark"
+              )
+
+        //- 工具 E: 10日檢核
+        .buysell-pane(v-show="activeTabIdx === 3")
         lah-prc-tenday
-</template>
 
 <script>
 import * as XLSX from 'xlsx'
@@ -292,6 +316,7 @@ export default {
   },
   data: () => ({
     activeTabIdx: 0,
+    secClosed: [false, false],
 
     // =========================================================================
     // 工具 A: 買賣實例對應區段表 相關資料
@@ -375,6 +400,9 @@ export default {
     }
   },
   methods: {
+    toggleSec (idx) {
+      this.$set(this.secClosed, idx, !this.secClosed[idx])
+    },
     // 取得 ExcelJS (確保已由 static/js/exceljs.min.js 載入)
     getExcelJS () {
       if (typeof window !== 'undefined' && window.ExcelJS) {
@@ -964,13 +992,149 @@ export default {
   font-size: 80%;
 }
 
-// 增強分頁選取時的圖示對比度（避免藍底藍圖示）
-::v-deep .nav-pills .nav-link.active {
-  .lah-icon,
-  i,
-  svg {
-    color: #ffffff !important;
-    fill: #ffffff !important;
+.buysell-layout {
+  display: flex;
+  min-height: calc(100vh - 85px);
+  width: 100%;
+  background-color: #f1f5f9;
+
+  .buysell-sidebar {
+    width: 248px;
+    min-width: 248px;
+    background: #17324D;
+    color: #C9D6E2;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.12);
+    user-select: none;
+
+    .sb-nav {
+      flex: 1;
+      padding: 12px 0;
+
+      .sb-sec {
+        margin-bottom: 4px;
+
+        .sb-cat {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 18px;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #93A9BE;
+          letter-spacing: 0.5px;
+          text-align: left;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+          }
+
+          .sb-ico {
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            color: #C9D6E2;
+          }
+
+          .sb-catname {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+          }
+
+          .sb-chev {
+            transition: transform 0.2s ease;
+            color: #93A9BE;
+          }
+        }
+
+        &.closed {
+          .sb-chev {
+            transform: rotate(-90deg);
+          }
+          .sb-items {
+            display: none;
+          }
+        }
+
+        .sb-items {
+          list-style: none;
+          margin: 0;
+          padding: 0 0 6px;
+
+          li {
+            margin: 0;
+          }
+
+          .sb-item {
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px 10px 42px;
+            font-size: 14px;
+            color: #D5E0EA;
+            white-space: nowrap;
+            position: relative;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.15s ease;
+
+            .sb-dot {
+              font-size: 16px;
+              color: #5C7792;
+              line-height: 1;
+              flex-shrink: 0;
+            }
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.08);
+              color: #ffffff;
+            }
+
+            &.active {
+              background: rgba(255, 255, 255, 0.14);
+              color: #ffffff;
+              font-weight: 700;
+
+              .sb-dot {
+                color: #F2B705;
+              }
+
+              &::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                background: #F2B705;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .buysell-main {
+    flex: 1 1 0%;
+    min-width: 0;
+    padding: 20px 24px 32px;
+    overflow-x: auto;
+    background-color: #f8fafc;
   }
 }
 </style>
