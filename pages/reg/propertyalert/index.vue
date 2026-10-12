@@ -307,7 +307,8 @@ div
         b-dropdown(
           size="sm"
           :variant="itemSmsVariant(item)"
-          :disabled="isBusy"
+          :disabled="isBusy || isNonLocalItem(item)"
+          :title="isNonLocalItem(item) ? '非本所案件，本所無法確認簡訊發送狀態' : ''"
           no-caret
           @click.stop
         )
@@ -344,7 +345,7 @@ div
             lah-fa-icon.text-secondary.mr-1(icon="bell-slash")
             | 忽略 / 免排查
         lah-button.ml-1.px-2.d-inline-flex.align-items-center(
-          v-if="parseInt(item.sms_status || 0) === 0"
+          v-if="parseInt(item.sms_status || 0) === 0 && !isNonLocalItem(item)"
           icon="magnifying-glass"
           variant="outline-info"
           size="sm"
@@ -505,7 +506,9 @@ div
           b-select(
             v-model="form.sms_status"
             :options="smsStatusOptions"
+            :disabled="addIsNonLocal"
           )
+          small.text-muted(v-if="addIsNonLocal") 非本所案件，本所無法確認簡訊發送狀態，已自動設為忽略
         b-form-group(label="備註說明" label-cols="3")
           b-textarea(
             v-model="form.note"
@@ -622,10 +625,10 @@ div
             b-select.flex-grow-1(
               v-model="editForm.sms_status"
               :options="smsStatusOptions"
-              :disabled="isBusy"
+              :disabled="isBusy || editIsNonLocal"
             )
             b-button.ml-1.px-3.d-inline-flex.align-items-center.flex-shrink-0(
-              v-if="parseInt(editForm.sms_status || 0) === 0"
+              v-if="parseInt(editForm.sms_status || 0) === 0 && !editIsNonLocal"
               variant="outline-info"
               title="手動檢測此筆案件於收件日之後的簡訊發送狀態"
               :disabled="isBusy"
@@ -1043,9 +1046,22 @@ export default {
       if (!this.editForm.cellphone) { return null }
       const clean = this.editForm.cellphone.replace(/\D/g, '')
       return clean.length === 10 && clean.startsWith('09')
+    },
+    addIsNonLocal () {
+      return this.isNonLocalCase(this.form.receiving_type, this.form.receiving_caseno, this.form.cellphone)
+    },
+    editIsNonLocal () {
+      return this.isNonLocalCase(this.editForm.receiving_type, this.editForm.receiving_caseno, this.editForm.cellphone)
     }
   },
   watch: {
+    // 隨案且非本所案件：本所無法確認簡訊是否發送，簡訊狀態自動設為忽略
+    addIsNonLocal (flag) {
+      this.form.sms_status = flag ? 3 : 0
+    },
+    editIsNonLocal (flag) {
+      if (flag) { this.editForm.sms_status = 3 }
+    },
     daysPeriod (val) {
       if (val < 1) {
         this.alert('開始日期應小於或等於結束日期')
@@ -1088,6 +1104,22 @@ export default {
         document.body.classList.contains('modal-open') ||
         Boolean(document.querySelector('.modal.show'))
       )
+    },
+    // 隨案、有手機、收件字(案號中間4碼)完整且非「本所所別開頭 / 跨縣市代號結尾」者為非本所案件
+    // 例：桃園所 HA / H1、中壢所 HB / H2 ... 龜山所 HH / H8。收件字無法判定時回傳 false (維持原行為)
+    isNonLocalCase (type, caseno, cellphone) {
+      if (parseInt(type) !== 1 || this.$utils.empty(String(cellphone || '').trim())) { return false }
+      const raw = String(caseno || '').replace(/-/g, '').toUpperCase()
+      if (raw.length !== 13) { return false }
+      const word = raw.substring(3, 7)
+      if (!/^[0-9A-Z]{4}$/.test(word)) { return false }
+      const siteCode = String(this.site || '').toUpperCase()
+      if (!/^H[A-H]$/.test(siteCode)) { return false }
+      const crossCode = `H${siteCode.charCodeAt(1) - 64}`
+      return !(word.startsWith(siteCode) || word.endsWith(crossCode))
+    },
+    isNonLocalItem (item) {
+      return !!item && this.isNonLocalCase(item.receiving_type, item.receiving_caseno, item.cellphone)
     },
     reload (force = false) {
       if (this.isBusy) { return }
