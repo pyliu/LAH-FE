@@ -41,10 +41,10 @@ client-only
           size="sm",
           variant="outline-success",
           :disabled="exportTargetRows.length === 0",
-          @click="exportCsv"
+          @click="exportXlsx"
         )
-          lah-fa-icon.mr-1(icon="file-csv")
-          | {{ selectedCodes.length > 0 ? `匯出已選 CSV (${selectedCodes.length})` : '匯出 CSV' }}
+          lah-fa-icon.mr-1(icon="file-excel" regular)
+          | {{ selectedCodes.length > 0 ? `匯出已選 EXCEL (${selectedCodes.length})` : '匯出 EXCEL' }}
 
     //- 統計摘要列
     .small.mb-2.p-2.border.rounded.bg-light
@@ -123,9 +123,11 @@ client-only
 </template>
 
 <script>
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+
 export default {
   emit: ['update:keyword'],
-  component: {},
+  components: { lahXlsxDownload },
   props: {
     keyword: { type: String, default: '' }
   },
@@ -362,35 +364,36 @@ export default {
         'highlight-yellow'
       )
     },
-    exportCsv () {
+    exportXlsx () {
       if (typeof window === 'undefined' || this.exportTargetRows.length === 0) { return }
-      const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`
-      const headers = ['區代碼', '區名稱', '段代碼', '段名稱', '面積(平方公尺)', '面積(坪)', '面積(公頃)', '土地標示部筆數', '占全轄區面積%', '占全轄區筆數%']
-      const lines = [headers.map(esc).join(',')]
-      this.exportTargetRows.forEach((r) => {
-        lines.push([
-          r.區代碼,
-          r.區名稱,
-          r.段代碼,
-          r.段名稱,
-          this.round2(r.面積),
-          (r.面積 * 0.3025).toFixed(2),
-          (r.面積 / 10000).toFixed(4),
-          r.土地標示部筆數,
-          r._areaPct,
-          r._countPct
-        ].map(esc).join(','))
-      })
-      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
+      const exportRows = this.exportTargetRows.map(r => ({
+        區代碼: r.區代碼,
+        區名稱: r.區名稱,
+        段代碼: r.段代碼,
+        段名稱: r.段名稱,
+        '面積(平方公尺)': this.round2(r.面積),
+        '面積(坪)': (r.面積 * 0.3025).toFixed(2),
+        '面積(公頃)': (r.面積 / 10000).toFixed(4),
+        土地標示部筆數: r.土地標示部筆數,
+        '占全轄區面積%': r._areaPct,
+        '占全轄區筆數%': r._countPct
+      }))
       const suffix = this.selectedCodes.length > 0 ? `已選${this.selectedCodes.length}段別` : (this.keyword || this.district || '全部')
-      a.download = `土地標示部段別統計_${suffix}.csv`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+      const filename = `土地標示部段別統計_${suffix}`
+      const header = `土地標示部段別統計 (${suffix})`
+
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header,
+          filename,
+          jsonArray: exportRows
+        }
+      }), {
+        title: '匯出 XLSX 檔案 - 土地標示部段別統計'
+      })
+    },
+    exportCsv () {
+      this.exportXlsx()
     }
   }
 }

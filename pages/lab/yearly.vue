@@ -127,9 +127,9 @@ div(v-cloak)
 
         hr.my-2
         h6.font-weight-bold.text-dark.mb-1
-          lah-fa-icon.mr-1(icon="table") 年度統計總覽核對表與 CSV 匯出
+          lah-fa-icon.mr-1(icon="table") 年度統計總覽核對表與 EXCEL 匯出
         p.mb-0
-          | 當任一卡片完成查詢後，頁面上方會自動顯示「#[b 年度統計總覽核對表]」，將五大統計之總人數、總件數/筆數及前三名摘要集中呈現，並支援一鍵下載 #[b UTF-8 BOM 格式之 CSV 總表]（可直接以 Excel 開啟不亂碼），方便製作年度業務簡報與統計彙報。
+          | 當任一卡片完成查詢後，頁面上方會自動顯示「#[b 年度統計總覽核對表]」，將五大統計之總人數、總件數/筆數及前三名摘要集中呈現，並支援一鍵匯出 #[b EXCEL (.xlsx) 總表]（支援自訂標題列、凍結視窗與欄寬最佳化），方便製作年度業務簡報與統計彙報。
 
   //- 查詢進度條
   b-progress.mb-2(
@@ -155,12 +155,14 @@ div(v-cloak)
         b-badge.ml-1(variant="info", pill) 已完成 {{ readyCount }} / {{ boardCount }} 項
       .d-flex.align-items-center
         lah-button.mr-2(
-          icon="file-csv",
+          icon="file-excel",
+          regular,
           size="sm",
           variant="outline-success",
-          title="匯出年度統計總覽 CSV 報表",
-          @click="exportSummaryCsv"
-        ) 匯出總表 CSV
+          title="匯出年度統計總覽 EXCEL 報表",
+          :disabled="readyCount === 0 || summaryRows.length === 0",
+          @click="exportSummaryXlsx"
+        ) 匯出總表
         lah-button(
           :icon="showSummary ? 'chevron-up' : 'chevron-down'",
           size="sm",
@@ -223,6 +225,8 @@ div(v-cloak)
 </template>
 
 <script>
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+
 const BOARD_KEYS = [
   'regInitial',
   'regFinal',
@@ -232,6 +236,7 @@ const BOARD_KEYS = [
 ]
 
 export default {
+  components: { lahXlsxDownload },
   fetchOnServer: false,
   async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
     const siteCodeMap = await $content('statsSiteCode').fetch()
@@ -505,38 +510,37 @@ export default {
       }
       this.summaryTick++
     },
-    exportSummaryCsv () {
+    exportSummaryXlsx () {
       const rows = this.summaryRows
       if (!rows || rows.length === 0) {
         return
       }
-      const escapeCsv = (val) => {
-        const str = val === null || val === undefined ? '' : String(val)
-        return `"${str.replace(/"/g, '""')}"`
-      }
-      const headers = ['序號', '查詢區間', '統計項目', '人數/歸戶數', '總件數/總筆數', '前三名排行摘要', '狀態']
-      const lines = [headers.map(escapeCsv).join(',')]
-      rows.forEach((r, idx) => {
-        lines.push([
-          idx + 1,
-          this.period,
-          r.label,
-          r.personText,
-          r.totalText,
-          r.top3Text,
-          r.ready ? '已查詢' : '未查詢'
-        ].map(escapeCsv).join(','))
+      const exportRows = rows.map((r, idx) => ({
+        序號: idx + 1,
+        查詢區間: this.period,
+        統計項目: r.label,
+        '人數/歸戶數': r.personText,
+        '總件數/總筆數': r.totalText,
+        前三名排行摘要: r.top3Text,
+        狀態: r.ready ? '已查詢' : '未查詢'
+      }))
+      const begin = this.dateRange?.begin || ''
+      const end = this.dateRange?.end || ''
+      const filename = `年度統計總覽_${begin}_${end}`
+      const header = `年度統計總覽 (${this.period})`
+
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header,
+          filename,
+          jsonArray: exportRows
+        }
+      }), {
+        title: '匯出 XLSX 檔案 - 年度統計總覽'
       })
-      const csvContent = '\uFEFF' + lines.join('\r\n')
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `年度統計總覽_${this.dateRange.begin || ''}_${this.dateRange.end || ''}.csv`)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+    },
+    exportSummaryCsv () {
+      this.exportSummaryXlsx()
     }
   }
 }

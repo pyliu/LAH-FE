@@ -68,7 +68,7 @@ div(v-cloak)
       h6.mt-3 月統計總覽核對表與匯出
       ol
         li 頂部「#[strong 月統計總覽]」會隨各卡片查詢完成即時彙整「正號件數、子號件數、合計件數、起始號～終止號、缺號數」。
-        li 點擊「#[strong 匯出總表 CSV]」可將全所當月統計彙總表下載為 CSV（UTF-8 BOM 格式，Excel 可直接開啟），免除人工逐卡抄寫加總。
+        li 點擊「#[strong 匯出總表]」可將全所當月統計彙總表匯出為 EXCEL (.xlsx 格式)，免除人工逐卡抄寫加總。
         li 若需檢視或匯出單一項目的#[strong 個案明細]，可點擊各卡片右上角之視窗按鈕檢視列表，或點綠色 Excel 圖示匯出 #[code .xlsx] 明細檔。
       h6.mt-3 各統計項目計算邏輯
       ul
@@ -105,14 +105,15 @@ div(v-cloak)
           )
             lah-fa-icon.mr-1(:icon="showSummaryTable ? 'angles-up' : 'table'")
             | {{ showSummaryTable ? '收合總覽表' : '展開總覽表' }}
-          b-button(
+          lah-button(
             size="sm",
             variant="outline-success",
+            icon="file-excel",
+            regular,
             :disabled="summaryRows.length === 0",
-            @click="exportSummaryCsv"
-          )
-            lah-fa-icon.mr-1(icon="file-csv")
-            | 匯出總表 CSV
+            title="匯出月統計總覽 EXCEL 報表",
+            @click="exportSummaryXlsx"
+          ) 匯出總表
 
       b-progress.mt-2(
         v-if="globalQuery",
@@ -193,7 +194,10 @@ div(v-cloak)
 </template>
 
 <script>
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+
 export default {
+  components: { lahXlsxDownload },
   fetchOnServer: false,
   async asyncData ({ $content }) {
     const siteCodeMap = await $content('statsSiteCode').fetch()
@@ -438,32 +442,33 @@ export default {
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
       this.applyMonthRange(firstDay, today)
     },
-    exportSummaryCsv () {
+    exportSummaryXlsx () {
       if (typeof window === 'undefined' || this.summaryRows.length === 0) { return }
-      const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`
-      const headers = ['統計區間', '統計項目', '代碼/字別', '正號/主項件數', '子號/次項件數', '合計件數', '起始號~終止號', '分項明細/缺號']
-      const lines = [headers.map(esc).join(',')]
-      this.summaryRows.forEach((r) => {
-        lines.push([
-          this.period,
-          r.NAME,
-          r.CODE,
-          r.MAIN_COUNT,
-          r.SUB_COUNT,
-          r.TOTAL,
-          r.RANGE,
-          r.NOTE
-        ].map(esc).join(','))
+      const exportRows = this.summaryRows.map(r => ({
+        統計區間: this.period,
+        統計項目: r.NAME,
+        '代碼/字別': r.CODE,
+        '正號/主項件數': r.MAIN_COUNT,
+        '子號/次項件數': r.SUB_COUNT,
+        合計件數: r.TOTAL,
+        '起始號~終止號': r.RANGE,
+        '分項明細/缺號': r.NOTE
+      }))
+      const filename = `登記案件月統計總表_${this.site}_${this.dateRange.begin}_${this.dateRange.end}`
+      const header = `登記案件月統計總表 (${this.period})`
+
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header,
+          filename,
+          jsonArray: exportRows
+        }
+      }), {
+        title: '匯出 XLSX 檔案 - 登記案件月統計總表'
       })
-      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `登記案件月統計總表_${this.site}_${this.dateRange.begin}_${this.dateRange.end}.csv`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+    },
+    exportSummaryCsv () {
+      this.exportSummaryXlsx()
     }
   }
 }

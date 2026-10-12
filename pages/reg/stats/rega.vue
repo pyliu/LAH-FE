@@ -34,7 +34,7 @@ div(v-cloak)
         li 頂部摘要列顯示目前篩選結果的合計，可直接與彙總表或手上報表核對。
         li 用「面積 ≥ / ≤」、「面積為 0」、「僅看異常」或案號關鍵字縮小範圍。
         li 「占項目面積」欄位顯示該案占此項目總面積的百分比，可快速看出影響最大的案件。
-        li 點案號可開啟案件詳情；按「匯出 CSV」可將目前篩選結果下載後在 Excel 比對。
+        li 點案號可開啟案件詳情；按「匯出 EXCEL」可將目前篩選結果下載為 Excel 報表比對。
       h6.mt-3 標示說明
       ul
         li #[b-badge(variant="warning") 資料缺漏] 面積或筆數為空值或非數字，計算時視為 0。
@@ -91,7 +91,9 @@ div(v-cloak)
       b-form-checkbox.mr-2.mb-1(v-model="filter.zero" switch) 面積為 0
       b-form-checkbox.mr-2.mb-1(v-model="filter.abnormal" switch) 僅看異常
       b-button.mr-1.mb-1(size="sm" variant="outline-secondary" @click="resetFilter") 清除
-      b-button.mb-1(size="sm" variant="outline-success" :disabled="filteredCases.length === 0" @click="exportCsv") 匯出 CSV
+      b-button.mb-1(size="sm" variant="outline-success" :disabled="filteredCases.length === 0" @click="exportXlsx")
+        lah-fa-icon.mr-1(icon="file-excel" regular)
+        | 匯出 EXCEL
     .small.mb-2.p-1.border.rounded.bg-light
       span.mr-3 顯示 {{ caseSummary.count }} / {{ selectedCases.length }} 件
       span.mr-3 土地 {{ caseSummary.landCount }} 筆 / {{ caseSummary.landArea }}
@@ -138,7 +140,10 @@ div(v-cloak)
 
 <script>
 import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+
 export default {
+  components: { lahRegCaseDetail, lahXlsxDownload },
   fetchOnServer: false,
   async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
     const itemMap = await $content('rega').fetch()
@@ -325,26 +330,35 @@ export default {
       this.sortBy = 'RA10'
       this.sortDesc = true
     },
-    exportCsv () {
-      if (typeof window === 'undefined') { return }
-      const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`
-      const head = ['案號', '註記日期', '土地面積', '土地筆數', '建物面積', '建物筆數', '土地面積占比%', '建物面積占比%', '標示']
-      const lines = [head.map(esc).join(',')]
-      this.filteredCases.forEach((c) => {
-        lines.push([
-          this.$utils.caseId(c.ID), this.$utils.addDateDivider(c.RA40), c.RA10, c.RECA, c.RA08, c.RECD,
-          c._landPct, c._buildPct, c._flags.map(f => this.flagLabels[f].text).join('/')
-        ].map(esc).join(','))
+    exportXlsx () {
+      if (typeof window === 'undefined' || this.filteredCases.length === 0) { return }
+      const exportRows = this.filteredCases.map(c => ({
+        案號: this.$utils.caseId(c.ID),
+        註記日期: this.$utils.addDateDivider(c.RA40),
+        土地面積: c.RA10,
+        土地筆數: c.RECA,
+        建物面積: c.RA08,
+        建物筆數: c.RECD,
+        '土地面積占比%': c._landPct,
+        '建物面積占比%': c._buildPct,
+        標示: c._flags.map(f => this.flagLabels[f].text).join('/')
+      }))
+      const itemName = this.selectedRow?.ITEM || '登記案件清冊'
+      const filename = `${itemName}_${this.dateRange.begin}_${this.dateRange.end}`
+      const header = `${itemName} (${this.dateRange.begin} ~ ${this.dateRange.end})`
+
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header,
+          filename,
+          jsonArray: exportRows
+        }
+      }), {
+        title: `匯出 XLSX 檔案 - ${itemName}`
       })
-      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${this.selectedRow?.ITEM || 'rega'}_${this.dateRange.begin}_${this.dateRange.end}.csv`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+    },
+    exportCsv () {
+      this.exportXlsx()
     },
     prepareRCODAData () {
       this.$axios.post(this.$consts.API.JSON.MOICAD, {
