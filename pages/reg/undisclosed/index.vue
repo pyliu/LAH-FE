@@ -229,13 +229,11 @@ div
         | 只看我的 ({{ myCasesCount }})
 
     .d-flex.align-items-center.mt-2.mt-lg-0
-      b-input-group(size="sm")
-        template(#prepend)
-          b-input-group-text
-            lah-fa-icon(icon="filter")
+      b-input-group(size="md")
         b-input(
           v-model="keyword"
-          placeholder="快速快篩/搜尋 (姓名/案號/手機/備註)..."
+          placeholder="(姓名/案號/手機/備註)..."
+          title="快速快篩/搜尋"
           style="min-width: 250px;"
           :disabled="isBusy"
           @keyup.enter="$fetch"
