@@ -70,43 +70,43 @@ div: client-only
           b-badge(variant="primary" pill) {{ main.p1ma_build7c || '住家用' }}
       b-card-body.p-3
         b-row
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 建案名稱：
               span.value.text-primary.font-weight-bold {{ main.p1ma_typeB_1 || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 交易標的地址：
               span.value {{ main.p1ma_dd09 || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 棟別 / 號：
               span.value {{ [main.p1ma_typeB_5 ? main.p1ma_typeB_5 + '棟' : '', main.p1ma_typeB_6].filter(Boolean).join(' ') || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 交易樓層 / 總樓層：
               span.value {{ summary.floorDisplay }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 室內格局：
               span.value {{ summary.layoutDisplay }} (隔間：{{ formatPartition(main.p1ma_build4) }})
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 建物別 / 建築構造：
               span.value {{ (main.p1ma_build5c || '-') + ' / ' + (main.p1ma_build8c || '-') }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 使用分區 / 使用別：
               span.value {{ (main.land_usec ? main.land_usec + ' / ' : '') + (main.p1ma_build7c || '-') }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 起造人：
               span.value {{ main.p1ma_typeB_2 || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 建照字號：
               span.value {{ main.p1ma_typeB_3 || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 建照核發日：
               span.value {{ formatTaiwanDate(main.p1ma_typeB_4) }}
@@ -121,23 +121,23 @@ div: client-only
           span.text-danger.font-weight-bold.small 總額：{{ main.p1ma_totprice }} 元
       b-card-body.p-3
         b-row
-          b-col(cols="12" md="6" lg="3").mb-2
+          b-col.mb-2(cols="12" md="6" lg="3")
             .detail-item
               span.label 土地總價：
               span.value.text-success.font-weight-bold {{ main.p1ma_alidprice ? main.p1ma_alidprice + ' 元' : '-' }}
-            b-col(cols="12" md="6" lg="3").mb-2
+          b-col.mb-2(cols="12" md="6" lg="3")
             .detail-item
               span.label 建物總價：
               span.value.text-success.font-weight-bold {{ main.p1ma_dbidprice ? main.p1ma_dbidprice + ' 元' : '-' }}
-          b-col(cols="12" md="6" lg="3").mb-2
+          b-col.mb-2(cols="12" md="6" lg="3")
             .detail-item
               span.label 車位總價：
               span.value.text-success.font-weight-bold {{ main.p1ma_parkprice ? main.p1ma_parkprice + ' 元' : '-' }}
-          b-col(cols="12" md="6" lg="3").mb-2
+          b-col.mb-2(cols="12" md="6" lg="3")
             .detail-item
               span.label 車位備註：
               span.value {{ summary.carFlagText }}
-          b-col(cols="12").mt-1
+          b-col.mt-1(cols="12")
             .detail-item
               span.label 其他備註：
               span.value {{ main.p1ma_note || '無其他備註' }}
@@ -166,51 +166,51 @@ div: client-only
           b-badge(variant="secondary") {{ formatCaseKind(main.case_kind) }}
       b-card-body.p-3
         b-row
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 備查序號：
               span.value.font-weight-bold {{ main.apply_no || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 申報序號：
               span.value {{ main.case_no || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 交易日期：
               span.value {{ summary.formattedDate }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 經紀業名稱：
               span.value {{ main.apply_name || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 經紀業統編/ID：
               span.value {{ main.apply_idNo || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 經紀業電話：
               span.value {{ main.apply_tel || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 經紀代理人：
               span.value {{ main.agents_name || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 代理人ID：
               span.value {{ main.agents_idNo || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 代理人電話：
               span.value {{ main.agents_tel || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 買受人：
               span.value.font-weight-bold {{ main.right_name || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2
+          b-col.mb-2(cols="12" md="6" lg="4")
             .detail-item
               span.label 買受人統編/ID：
               span.value {{ main.right_idNo || '-' }}
-          b-col(cols="12" md="6" lg="4").mb-2(v-if="main.p1sp_desc1401")
+          b-col.mb-2(v-if="main.p1sp_desc1401" cols="12" md="6" lg="4")
             .detail-item
               span.label 其他買受人：
               span.value.text-primary {{ main.p1sp_desc1401 }}
