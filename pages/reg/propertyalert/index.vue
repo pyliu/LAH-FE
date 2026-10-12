@@ -142,15 +142,22 @@ div
           header="地籍異動即時通收件管理"
         )
 
-        //- 重新整理按鈕
-        lah-button(
-          icon="rotate"
+        //- 倒數自動重新整理按鈕 (每 10 分鐘)
+        lah-countdown-button(
+          ref="countdown"
+          icon="sync-alt"
+          action="ld-cycle"
           size="lg"
+          title="立即重新讀取 (每 10 分鐘自動更新)"
           variant="outline-secondary"
-          title="重新整理"
+          badge-variant="secondary"
+          :milliseconds="countdownMs"
           :disabled="isBusy"
-          @click="$fetch"
-          no-icon-gutter
+          :busy="isBusy"
+          @end="reload"
+          @click="reload(true)"
+          auto-start
+          end-attention
         )
 
   //- 複合式快篩工具列
@@ -739,6 +746,7 @@ export default {
   fetchOnServer: false,
   mixins: [dynamicHeight],
   data: () => ({
+    countdownMs: 10 * 60 * 1000,
     keyword: '',
     typeFilter: 'all',
     smsFilter: 'all',
@@ -892,6 +900,7 @@ export default {
         this.alert(err.message)
       }).finally(() => {
         this.isBusy = false
+        this.resetCountdown()
       })
     }
   },
@@ -1064,6 +1073,28 @@ export default {
     document.removeEventListener('keydown', this.onKeyDown)
   },
   methods: {
+    isAnyModalOpen () {
+      if (this.$isServer) { return false }
+      return typeof document !== 'undefined' && (
+        document.body.classList.contains('modal-open') ||
+        Boolean(document.querySelector('.modal.show'))
+      )
+    },
+    reload (force = false) {
+      if (this.isBusy) { return }
+      if (!force && this.isAnyModalOpen()) {
+        // 同仁正在編輯或新增視窗中，暫緩自動更新，重置倒數繼續計時
+        this.resetCountdown()
+        return
+      }
+      this.$fetch()
+    },
+    resetCountdown () {
+      if (this.$refs.countdown) {
+        this.$refs.countdown.setCountdown(this.countdownMs)
+        this.$refs.countdown.startCountdown()
+      }
+    },
     showDetail (caseno) {
       if (this.isBusy) { return }
       this.clickedCaseno = caseno
