@@ -42,7 +42,7 @@ export default {
   props: {
     size: { type: String, default: '1x' },
     prefix: { type: String, default: 'fas' },
-    icon: { type: String, default: 'exclamation-circle' },
+    icon: { type: [String, Array], default: 'exclamation-circle' },
     variant: { type: String, default: '' },
     action: { type: String, default: '' },
     append: { type: Boolean, default: false },
@@ -76,6 +76,9 @@ export default {
     ldMovement () { return this.empty(this.action) ? '' : `ld ld-${this.action.replace('ld-', '')}` },
     hasSlot () { return !this.empty(this.$slots.default) },
     iconArray () {
+      if (Array.isArray(this.icon)) {
+        return this.icon
+      }
       const pre = this.regular ? 'far' : (this.brand ? 'fab' : 'fas')
       return [pre, this.icon]
     },

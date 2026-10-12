@@ -72,7 +72,11 @@
               class="mr-2 my-1 filter-pill"
               @click="selectCategory(cat.id)"
             )
-              lah-fa-icon(:icon="cat.icon" size="sm").mr-1
+              lah-fa-icon(
+                :icon="Array.isArray(cat.icon) ? cat.icon[1] : cat.icon"
+                :regular="Array.isArray(cat.icon) && cat.icon[0] === 'far'"
+                size="sm"
+              ).mr-1
               span {{ cat.name }}
               b-badge.ml-1.pill-count(
                 pill
