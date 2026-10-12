@@ -383,8 +383,12 @@ div
         lah-fa-icon.mr-2(icon="pen-to-square")
         span 編輯
       .ctx-menu-divider
-      .ctx-menu-item.text-danger(@click="ctxDelete")
-        lah-fa-icon.mr-2(icon="trash-can" variant="danger")
+      .ctx-menu-item.text-danger(
+        :class="{ 'text-muted disabled': !canDelete(contextMenu.item) }"
+        :title="deleteDisabledReason(contextMenu.item) || '刪除此筆案件'"
+        @click="ctxDelete"
+      )
+        lah-fa-icon.mr-2(icon="trash-can" :variant="canDelete(contextMenu.item) ? 'danger' : 'secondary'")
         span 刪除
 
   //- 案件詳情 Modal
@@ -630,18 +634,26 @@ div
             rows="3",
             max-rows="8"
           )
-        .d-flex.justify-content-end.mt-3.pt-2.border-top
-          lah-button.mr-2(
-            variant="outline-secondary",
-            icon="xmark",
-            @click="$refs.edit_modal.hide()"
-          ) 取消
+        .d-flex.justify-content-between.align-items-center.mt-3.pt-2.border-top
           lah-button(
-            type="submit",
-            icon="floppy-disk",
-            variant="warning",
-            :disabled="isBusy || !editForm.applicant || editCasenoState === false || editCellphoneState === false"
-          ) 更新
+            variant="outline-danger",
+            icon="trash-can",
+            :disabled="isBusy || !canDelete(editRecord)",
+            :title="deleteDisabledReason(editRecord) || '刪除此筆案件'",
+            @click="deleteFromModal"
+          ) 刪除案件
+          .d-flex
+            lah-button.mr-2(
+              variant="outline-secondary",
+              icon="xmark",
+              @click="$refs.edit_modal.hide()"
+            ) 取消
+            lah-button(
+              type="submit",
+              icon="floppy-disk",
+              variant="warning",
+              :disabled="isBusy || !editForm.applicant || editCasenoState === false || editCellphoneState === false"
+            ) 更新
 
   //- 簡訊發送狀態手動檢測進度 Modal
   b-modal(
@@ -1238,20 +1250,80 @@ export default {
         })
       }
     },
+    checkDuplicate (data) {
+      const caseno = (data.receiving_caseno || '').trim()
+      const applicant = (data.applicant || '').trim()
+      if (!applicant) { return null }
+
+      if (caseno) {
+        // 嚴格比對：收件案號 ＋ 申請人 完全相同
+        const found = this.rows.find(r =>
+          (r.receiving_caseno || '').trim() === caseno &&
+          (r.applicant || '').trim() === applicant
+        )
+        if (found) {
+          const receiverName = (this.userNames && this.userNames[found.receiver]) || found.receiver || '未知'
+          return {
+            type: 'caseno_applicant',
+            record: found,
+            message: `已有相同收件案號「<strong>${caseno}</strong>」且申請人為「<strong>${applicant}</strong>」的紀錄（編號：${found.serial_no || '(無)'}，收件人員：${receiverName}）！`
+          }
+        }
+      } else {
+        // 無案號案件（跨所案件）：比對「當天日期 ＋ 申請人」
+        const todayStr = this.$utils.toADDate(new Date(), 'yyyy-LL-dd')
+        const found = this.rows.find((r) => {
+          const rDate = this.$utils.toADDate(r.createtime * 1000, 'yyyy-LL-dd')
+          return !(r.receiving_caseno || '').trim() &&
+            (r.applicant || '').trim() === applicant &&
+            rDate === todayStr
+        })
+        if (found) {
+          const receiverName = (this.userNames && this.userNames[found.receiver]) || found.receiver || '未知'
+          return {
+            type: 'today_applicant',
+            record: found,
+            message: `今日已有相同申請人「<strong>${applicant}</strong>」之無案號收件紀錄（編號：${found.serial_no || '(無)'}，收件人員：${receiverName}）！`
+          }
+        }
+      }
+      return null
+    },
     submitAdd () {
+      const addData = {
+        applicant: this.form.applicant,
+        receiving_type: this.form.receiving_type,
+        receiving_caseno: this.form.receiving_caseno,
+        cellphone: this.form.cellphone,
+        sms_status: this.form.sms_status,
+        note: this.form.note,
+        receiver: this.form.receiver || this.myid || ''
+      }
+      const dup = this.checkDuplicate(addData)
+      if (dup) {
+        this.confirm(`
+          <div class="text-warning font-weight-bold mb-2">⚠️ 可能重複收件提醒</div>
+          <div class="mb-2">${dup.message}</div>
+          <div class="text-muted small">是否確認仍要繼續新增此筆收件？</div>
+        `, {
+          okTitle: '仍要新增',
+          okVariant: 'outline-warning',
+          cancelTitle: '取消新增'
+        }).then((YN) => {
+          if (YN) {
+            this.doSubmitAdd(addData)
+          }
+        })
+        return
+      }
+      this.doSubmitAdd(addData)
+    },
+    doSubmitAdd (data) {
       this.isBusy = true
       let success = false
       this.$axios.post(this.$consts.API.JSON.REG, {
         type: 'add_address_undisclosed',
-        data: {
-          applicant: this.form.applicant,
-          receiving_type: this.form.receiving_type,
-          receiving_caseno: this.form.receiving_caseno,
-          cellphone: this.form.cellphone,
-          sms_status: this.form.sms_status,
-          note: this.form.note,
-          receiver: this.form.receiver || this.myid || ''
-        }
+        data
       }).then(({ data }) => {
         this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' })
         if (this.$utils.statusCheck(data.status)) {
@@ -1446,30 +1518,76 @@ export default {
         if (success) { this.$fetch() }
       })
     },
-    remove (item) {
-      if (this.isBusy) { return }
-      this.confirm(`
-        請確認是否要刪除本筆資料？<br/>
-        編號：${item.serial_no || '(無)'}<br/>
-        申請人：${item.applicant}<br/>
-        手機號碼：${item.cellphone || '(無)'}<br/>
-        收件類型：${this.receivingTypeLabel(item.receiving_type)}<br/>
-        收件案號：${item.receiving_caseno || '(無)'}
-      `).then((YN) => {
-        if (YN) {
-          this.isBusy = true
-          this.$axios.post(this.$consts.API.JSON.REG, {
-            type: 'remove_address_undisclosed',
-            id: item.id
-          }).then(({ data }) => {
-            this.rows = this.rows.filter(row => row.id !== item.id)
-            this.notify(data.message, { type: this.$utils.statusCheck(data.status) ? 'success' : 'warning' })
-          }).catch((err) => {
-            this.alert(err.message)
-          }).finally(() => {
-            this.isBusy = false
-          })
+    canDelete (item) {
+      if (!item) { return false }
+      if (parseInt(item.sms_status) === 1) { return false }
+      if (this.authority && this.authority.isAdmin) { return true }
+      if (item.receiver && item.receiver.toUpperCase() === (this.myid || '').toUpperCase()) { return true }
+      return false
+    },
+    deleteDisabledReason (item) {
+      if (!item) { return '' }
+      if (parseInt(item.sms_status) === 1) {
+        return '簡訊已發送成功，不可刪除案件'
+      }
+      const isMine = item.receiver && item.receiver.toUpperCase() === (this.myid || '').toUpperCase()
+      if (!isMine && !(this.authority && this.authority.isAdmin)) {
+        return '僅收件人員本人或系統管理員可刪除案件'
+      }
+      return ''
+    },
+    deleteFromModal () {
+      if (this.isBusy || !this.editRecord) { return }
+      if (!this.canDelete(this.editRecord)) {
+        this.warning(this.deleteDisabledReason(this.editRecord) || '無刪除權限')
+        return
+      }
+      this.remove(this.editRecord).then((deleted) => {
+        if (deleted) {
+          this.$refs.edit_modal?.hide()
         }
+      })
+    },
+    remove (item) {
+      if (this.isBusy || !item) { return Promise.resolve(false) }
+      if (!this.canDelete(item)) {
+        this.warning(this.deleteDisabledReason(item) || '無刪除權限')
+        return Promise.resolve(false)
+      }
+      return new Promise((resolve) => {
+        this.confirm(`
+          請確認是否要刪除本筆資料？<br/>
+          編號：${item.serial_no || '(無)'}<br/>
+          申請人：${item.applicant}<br/>
+          手機號碼：${item.cellphone || '(無)'}<br/>
+          收件類型：${this.receivingTypeLabel(item.receiving_type)}<br/>
+          收件案號：${item.receiving_caseno || '(無)'}
+        `).then((YN) => {
+          if (YN) {
+            this.isBusy = true
+            this.$axios.post(this.$consts.API.JSON.REG, {
+              type: 'remove_address_undisclosed',
+              id: item.id
+            }).then(({ data }) => {
+              const success = this.$utils.statusCheck(data.status)
+              if (success) {
+                this.rows = this.rows.filter(row => row.id !== item.id)
+                if (this.editRecord && this.editRecord.id === item.id) {
+                  this.$refs.edit_modal?.hide()
+                }
+              }
+              this.notify(data.message, { type: success ? 'success' : 'warning' })
+              resolve(success)
+            }).catch((err) => {
+              this.alert(err.message)
+              resolve(false)
+            }).finally(() => {
+              this.isBusy = false
+            })
+          } else {
+            resolve(false)
+          }
+        })
       })
     },
     reset () {
@@ -1564,8 +1682,14 @@ export default {
       if (this.contextMenu.item) { this.popupEdit(this.contextMenu.item) }
     },
     ctxDelete () {
+      const item = this.contextMenu.item
       this.hideContextMenu()
-      if (this.contextMenu.item) { this.remove(this.contextMenu.item) }
+      if (!item) { return }
+      if (!this.canDelete(item)) {
+        this.warning(this.deleteDisabledReason(item) || '無刪除權限')
+        return
+      }
+      this.remove(item)
     }
   }
 }
@@ -1598,6 +1722,15 @@ export default {
 
     &:hover {
       background: #f0f0f0;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background: transparent;
+      }
     }
   }
 
