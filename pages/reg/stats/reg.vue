@@ -187,9 +187,10 @@ div(v-cloak)
 </template>
 
 <script>
-import * as XLSX from 'xlsx'
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
 
 export default {
+  components: { lahXlsxDownload },
   fetchOnServer: false,
   data: () => ({
     year: 110,
@@ -521,7 +522,7 @@ export default {
         return
       }
       this.isBusy = true
-      this.info(`正在擷取「${item.text || item.id}」資料並產生 XLSX ...`, { title: '匯出 EXCEL 檔案' })
+      this.info(`正在擷取「${item.text || item.id}」資料 ...`, { title: '匯出 EXCEL 檔案' })
       this.$axios.post(this.$consts.API.JSON.QUERY, {
         type: cfg.qType,
         query_month: this.date,
@@ -557,38 +558,21 @@ export default {
             })
           }
 
-          const ws = XLSX.utils.json_to_sheet(exportRows)
-          const range = XLSX.utils.decode_range(ws['!ref'] || 'A1')
-          const colWidths = []
-          for (let C = range.s.c; C <= range.e.c; ++C) {
-            let maxLen = 10
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-              const addr = XLSX.utils.encode_cell({ r: R, c: C })
-              const cell = ws[addr]
-              if (cell && cell.v !== undefined) {
-                cell.t = 's'
-                cell.v = String(cell.v)
-                const len = this.$utils.length(cell.v) || cell.v.length
-                if (len > maxLen) {
-                  maxLen = len
-                }
-              }
-            }
-            colWidths.push({ wch: Math.min(maxLen + 3, 42) })
-          }
-          ws['!cols'] = colWidths
-
-          const wb = XLSX.utils.book_new()
-          const sheetName = (item.text || item.id || '統計明細').replace(/[\\/?*[\]:]/g, '').slice(0, 31) || 'Sheet1'
-          XLSX.utils.book_append_sheet(wb, ws, sheetName)
-
           const d = new Date()
           const today = `${d.getFullYear() - 1911}${('0' + (d.getMonth() + 1)).slice(-2)}${('0' + d.getDate()).slice(-2)}`
           const codePrefix = this.$utils.empty(item.id) ? '' : `${item.id}_`
-          const filename = `${today}_${this.date}_${codePrefix}${item.text || item.id}.xlsx`
-          XLSX.writeFile(wb, filename)
+          const filename = `${today}_${this.date}_${codePrefix}${item.text || item.id}`
+          const header = `${item.text || item.id} (${this.date})`
 
-          this.success(`已下載 ${filename}（共 ${exportRows.length} 筆）`, { title: '匯出 EXCEL 檔案' })
+          this.modal(this.$createElement(lahXlsxDownload, {
+            props: {
+              header,
+              filename,
+              jsonArray: exportRows
+            }
+          }), {
+            title: `匯出 XLSX 檔案 - ${item.text || item.id}`
+          })
         } else {
           this.warning(data.message || '查無明細資料可匯出', { title: '匯出 EXCEL 檔案' })
         }
