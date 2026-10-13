@@ -464,6 +464,42 @@ export default {
   },
   watch: {
     /**
+     * 當外部傳入的 raw 使用者資料變更時（例如切換上一位/下一位），同步重設表單與權限狀態
+     */
+    raw: {
+      handler (val) {
+        if (Array.isArray(val) && val.length > 0 && val[0]) {
+          this.userData = {
+            id: '',
+            name: '',
+            sex: '',
+            title: '',
+            work: '',
+            ext: '411',
+            birthday: '',
+            unit: '',
+            ip: '',
+            education: '',
+            exam: '',
+            cell: '',
+            onboard_date: '',
+            authority: 0,
+            ...val[0]
+          }
+          this.origUserData = { ...this.userData }
+          this.authorities = []
+          this.restoreAuthorities()
+        }
+      },
+      deep: true
+    },
+    /**
+     * 記憶「顯示其他資訊欄位」展開狀態，方便連續編輯多位員工
+     */
+    showOthers (val) {
+      localStorage.setItem('user_edit_show_others', val)
+    },
+    /**
      * 當權限複選框變更時，自動計算並更新 userData.authority 的位元遮罩值 (Bitmask)
      */
     authorities (array) {
@@ -482,6 +518,12 @@ export default {
     this.origUserData = { ...this.userData }
     // 將 userData 中的位元遮罩轉換回 checkbox 陣列
     this.restoreAuthorities()
+  },
+  mounted () {
+    const savedShowOthers = localStorage.getItem('user_edit_show_others')
+    if (savedShowOthers !== null) {
+      this.showOthers = savedShowOthers === 'true'
+    }
   },
   methods: {
     formatter (val) {

@@ -1,117 +1,138 @@
 <template lang="pug">
 div(v-cloak)
-  //- 頁面標題列
+  //- 頁面標題列 (符合 48px 高度規範)
   lah-header: lah-transition(appear)
-    .d-flex.w-100
-      .d-flex.mr-auto
-        .my-auto 員工資訊管理
-        lah-button(
+    .d-flex.justify-content-between.align-items-center.w-100
+      .d-flex.align-items-center.header-left-group
+        h3.my-auto.font-weight-bold.mb-0 員工資訊管理
+        lah-button.ml-1(
           v-b-modal.help-modal
           icon="info"
           variant="outline-success"
+          size="lg"
           no-border
           no-icon-gutter
-          title="說明"
+          title="操作說明與權限規則"
         )
 
-      b-button-group.my-auto(size="lg")
-        //- AD 設定按鈕 (動態顏色與提示)
-        lah-button.mr-1.text-nowrap(
-          icon="cogs"
-          :variant="adConfigVariant"
-          title="AD 連線設定"
-          @click="showAdConfigModal"
-          v-b-tooltip.hover
-          :title="adConfigTooltip"
-        ) AD 設定
+      .d-flex.align-items-center.flex-nowrap.text-nowrap.header-right-group
+        //- 視圖切換按鈕群組
+        b-button-group.mr-2(size="lg")
+          lah-button(
+            icon="id-card"
+            :variant="viewMode === 'badge' ? 'primary' : 'outline-primary'"
+            title="名牌分組視圖：視覺化檢視各部門與角色名牌"
+            @click="viewMode = 'badge'"
+          ) 名牌視圖
+          lah-button(
+            icon="table"
+            :variant="viewMode === 'table' ? 'primary' : 'outline-primary'"
+            title="表格快改視圖：高密度清單，支援行內直接修改 IP、分機與課室"
+            @click="viewMode = 'table'"
+          ) 表格快改
+          lah-button(
+            icon="satellite-dish"
+            :variant="viewMode === 'radar' ? 'primary' : 'outline-primary'"
+            title="網段 IP 雷達：視覺化盤點本所網段空閒 IP 與衝突狀態"
+            @click="switchToRadarView"
+          ) 網段雷達
 
-        //- IP 列表按鈕
-        lah-button.mr-1.text-nowrap(
-          icon="list-ul"
-          variant="outline-secondary"
-          title="檢視目前使用者 IP 清單"
-          @click="showIpListModal"
-        ) IP 清單
+        //- 管理工具按鈕群組
+        b-button-group(size="lg")
+          lah-button.mr-1.text-nowrap(
+            icon="user-lock"
+            :variant="lockedUserIds.length > 0 ? 'danger' : 'outline-secondary'"
+            :badge-text="lockedUserIds.length > 0 ? String(lockedUserIds.length) : ''"
+            badge-variant="light"
+            title="即時檢測 AD 鎖定帳號"
+            :disabled="isCheckingLocked"
+            :busy="isCheckingLocked"
+            @click="checkAdLockedUsers(true)"
+          ) AD 鎖定檢測
 
-        //- 更新 IP 按鈕
-        lah-button.mr-1.text-nowrap(
-          icon="network-wired"
-          variant="outline-info"
-          title="獲取登入紀錄並依權重更新 IP"
-          @click="getDynamicIPEntries"
-          :disabled="isBusy"
-        ) 更新 IP
+          lah-button.mr-1.text-nowrap(
+            icon="cogs"
+            :variant="adConfigVariant"
+            v-b-tooltip.hover
+            :title="adConfigTooltip"
+            @click="showAdConfigModal"
+          ) AD 設定
 
-        lah-button(
-          icon="user-plus"
-          variant="outline-primary"
-          title="新增使用者"
-          no-icon-gutter
-          @click="add"
-        )
+          lah-button.mr-1.text-nowrap(
+            icon="network-wired"
+            variant="outline-info"
+            title="獲取最近 7 天登入紀錄並依權重更新 IP"
+            :disabled="isBusy"
+            @click="getDynamicIPEntries"
+          ) 更新 IP
 
-  //- 幫助說明 Modal (XL 大小解決排版問題)
-  lah-help-modal(:modal-id="'help-modal'" size="xl")
-    h5.font-weight-bold.text-primary 💡 操作指南
+          lah-button.mr-1.text-nowrap(
+            icon="file-excel"
+            variant="outline-success"
+            title="將目前篩選結果匯出為 CSV 報表"
+            @click="exportIpList"
+          ) 匯出
+
+          lah-button(
+            icon="user-plus"
+            variant="outline-primary"
+            title="手動新增使用者"
+            no-icon-gutter
+            @click="add"
+          )
+
+  //- 幫助說明 Modal
+  lah-help-modal(:modal-id="'help-modal'" size="xl" modal-title="員工資訊管理 — 操作指南與權限說明")
+    h5.font-weight-bold.text-primary 🚀 三大檢視與管理模式
     ul.pl-4
       li.mb-2
-        .d-flex.align-items-center.flex-wrap
-          span.font-weight-bold 更新 IP：
-          span 點擊
-          lah-button(icon="network-wired" variant="outline-info" size="sm" class="mx-1") 更新 IP
-          span 系統會抓取最近 7 天的登入紀錄。優先權：符合 #[b 本所內部網段 (依據站點代碼動態計算，排除設備網段)] 者優先。若判定唯一則自動更新；多筆衝突則會提示。
-
+        span.font-weight-bold 🪪 名牌視圖：
+        span 升級版個人資訊微卡片，同時呈現「大頭照、姓名、ID、職稱/分機、IP 狀態」與「多重權限徽章」（一人身兼多職時完整顯示所有權限標籤），點擊卡片右側圖示可一鍵複製帳號或 IP。
       li.mb-2
-        .d-flex.align-items-center.flex-wrap
-          span.font-weight-bold IP 清單：
-          span 點擊
-          lah-button(icon="list-ul" variant="outline-secondary" size="sm" class="mx-1") IP 清單
-          span 可查看目前系統內所有使用者的 IP 設定狀況，點擊表格中的任一列即可編輯該使用者資訊。
-
+        span.font-weight-bold 📋 表格快改：
+        span 整合原 IP 清單並支援#[b 行內極速編輯]！可直接在表格中修改「課室」、「電腦 IP」與「分機」，按 #[code Enter] 或點擊 #[b.text-success ✓] 即可秒存，免去反覆開關彈窗與雙重確認。
       li.mb-2
-        .d-flex.align-items-center.flex-wrap
-          span.font-weight-bold AD 連線設定：
-          span 點擊右上角的
-          lah-button(icon="cogs" variant="outline-secondary" size="sm" no-icon-gutter class="mx-1") AD 設定
-          span 按鈕。若設定不完整會顯示為紅色警示顏色。視窗內亦提供下載 AD_Password_Agent.ps1 代理服務腳本之連結。
-
-      li.mb-2
-        .d-flex.align-items-center.flex-wrap
-          span.font-weight-bold 警示顯示：
-          span 若使用者資料中 #[span.ip-alert-style 無 IP] 或 IP #[b 尾數為 .0]，系統會以亮紅色醒目字體顯示，提醒管理者該人員可能尚未配置或回報電腦位址。
+        span.font-weight-bold 📡 網段雷達（驚喜功能）：
+        span 自動掃描本所優先網段（#[code 1 ~ 254]），以燈號標示「🟢 空閒可用」、「🔵 已配發」、「🔴 多人衝突」與「🟡 近期動態登入」。點擊「🟢 空閒可用」格即可一鍵將該空閒 IP 指派給待設定同仁！
 
     hr
 
-    h5.font-weight-bold.text-primary 🎨 顯示設定
+    h5.font-weight-bold.text-primary 💡 智慧診斷與效率工具
     ul.pl-4
       li.mb-2
-        span.font-weight-bold IP 顯示：
-        span 開啟後顯示 IP 位址，系統會依據名牌底色自動切換對比文字顏色（深色底用亮黃，淺色底用深藍）。
+        span.font-weight-bold 頂部診斷指標卡：
+        span 點擊頂部任一指標卡（如「無效/缺失 IP」、「重複 IP 衝突」、「資料待補齊」、「AD 鎖定帳號」），即可一鍵過濾出問題名單。
+      li.mb-2
+        span.font-weight-bold 連續編輯切換：
+        span 點擊同仁開啟完整編輯視窗後，可使用視窗頂部的 #[b 「◀ 上一位 / 下一位 ▶」] 按鈕（或鍵盤 #[code Alt + ← / →]）直接切換下一位同仁，且自動記憶擴充欄位展開狀態。
+      li.mb-2
+        span.font-weight-bold 全欄位搜尋快捷鍵：
+        span 在頁面任意處按下 #[code /] 鍵即可快速聚焦搜尋框，支援同時搜尋姓名、ID、IP 尾碼（如 #[code .15]）、分機、課室、職稱、工作內容與手機，按 #[code Esc] 鍵一鍵清空。
 
     hr
 
     h5.font-weight-bold.text-primary 🏷️ 角色權限圖例
     .row.no-gutters
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="outline-secondary" size="sm" style="width: 85px; white-space: nowrap") 一般人員
+        b-badge.mr-2.px-2.py-1(variant="secondary") 一般人員
         span.small 預設權限人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="secondary" size="sm" style="width: 85px; white-space: nowrap") 離職
-        span.small 已離職人員
+        b-badge.mr-2.px-2.py-1(variant="dark") 已離職
+        span.small 已離職或停用人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="outline-success" size="sm" style="width: 85px; white-space: nowrap") 系統管理
+        b-badge.mr-2.px-2.py-1(variant="success") 系統管理
         span.small 最高權限管理者
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="primary" size="sm" style="width: 85px; white-space: nowrap") 主管
+        b-badge.mr-2.px-2.py-1(variant="primary") 主管
         span.small 課室主管人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="warning" size="sm" style="width: 85px; white-space: nowrap") 研考
+        b-badge.mr-2.px-2.py-1(variant="warning") 研考
         span.small 研考相關人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="success" size="sm" style="width: 85px; white-space: nowrap") 人員管理
+        b-badge.mr-2.px-2.py-1(variant="info") 人員管理
         span.small 人事管理人員
       .col-6.col-md-4.p-1.d-flex.align-items-center
-        b-button.mr-2(variant="outline-info" size="sm" style="width: 85px; white-space: nowrap") 公告管理
+        b-badge.mr-2.px-2.py-1(variant="danger") 公告管理
         span.small 訊息公告發布人員
 
     hr
@@ -154,170 +175,668 @@ div(v-cloak)
             td 超級管理者
             td IP 角色為超級管理者，或 127.0.0.1 / ::1
             td 全部權限
-    ul.pl-4.small
-      li.mb-1 #[b 離職] 狀態僅看個人設定，離職者不套用主管、研考與部門預設權限。
-      li.mb-1 取消勾選個人權限後，若仍符合上述預設或 IP 角色，權限仍會保留；要收回需同時調整部門、IP 角色。
-      li.mb-1 本頁徽章僅顯示個人勾選的權限，不含預設權限，實際權限以登入後為準。
 
-  hr
+  //- =========================================================
+  //- 1. 頂部互動式智慧診斷指標卡 (Diagnostic KPI Cards)
+  //- =========================================================
+  section.kpi-dashboard.mb-3
+    .row.no-gutters.mx-n1
+      //- 總覽指標
+      .col-6.col-md-4.col-xl-2.px-1.mb-2
+        .kpi-card.p-2.rounded.shadow-sm(
+          :class="{ 'kpi-active kpi-primary': quickFilter === '' }"
+          @click="setQuickFilter('')"
+          title="點擊顯示全部載入人員"
+        )
+          .d-flex.justify-content-between.align-items-center
+            .kpi-label.text-muted.small.font-weight-bold 目前載入名單
+            lah-fa-icon.text-primary(icon="users" size="lg")
+          .d-flex.align-items-baseline.mt-1
+            span.h4.font-weight-bold.mb-0.text-primary {{ users.length }}
+            span.small.text-muted.ml-1 人
+            span.small.ml-auto.badge.badge-light 篩選出 {{ filteredUsers.length }} 人
 
-  //- 主要控制區塊
-  section
-    .d-flex.justify-content-between.mb-2
-      .d-flex.align-items-center
+      //- 無效 / 缺失 IP 指標
+      .col-6.col-md-4.col-xl-2.px-1.mb-2
+        .kpi-card.p-2.rounded.shadow-sm(
+          :class="{ 'kpi-active kpi-danger': quickFilter === 'invalid_ip', 'border-danger': invalidIpUsers.length > 0 }"
+          @click="setQuickFilter('invalid_ip')"
+          title="點擊篩選「無 IP」或「尾數 .0」之異常名單"
+        )
+          .d-flex.justify-content-between.align-items-center
+            .kpi-label.small.font-weight-bold(:class="invalidIpUsers.length > 0 ? 'text-danger' : 'text-muted'") 無效 / 缺失 IP
+            lah-fa-icon(:icon="invalidIpUsers.length > 0 ? 'exclamation-circle' : 'check-circle'" :variant="invalidIpUsers.length > 0 ? 'danger' : 'success'" size="lg")
+          .d-flex.align-items-baseline.mt-1
+            span.h4.font-weight-bold.mb-0(:class="invalidIpUsers.length > 0 ? 'text-danger' : 'text-success'") {{ invalidIpUsers.length }}
+            span.small.text-muted.ml-1 人
+            span.small.ml-auto(:class="invalidIpUsers.length > 0 ? 'text-danger font-weight-bold' : 'text-muted'") {{ invalidIpUsers.length > 0 ? '點擊檢視' : '全數正常' }}
+
+      //- 重複 IP 衝突指標
+      .col-6.col-md-4.col-xl-2.px-1.mb-2
+        .kpi-card.p-2.rounded.shadow-sm(
+          :class="{ 'kpi-active kpi-warning': quickFilter === 'duplicate_ip', 'border-warning': duplicateIpUsers.length > 0 }"
+          @click="setQuickFilter('duplicate_ip')"
+          title="點擊篩選「多人共用同一個有效 IP」之衝突名單"
+        )
+          .d-flex.justify-content-between.align-items-center
+            .kpi-label.small.font-weight-bold(:class="duplicateIpUsers.length > 0 ? 'text-warning-dark' : 'text-muted'") 重複 IP 衝突
+            lah-fa-icon(icon="clone" :variant="duplicateIpUsers.length > 0 ? 'warning' : 'secondary'" size="lg")
+          .d-flex.align-items-baseline.mt-1
+            span.h4.font-weight-bold.mb-0(:class="duplicateIpUsers.length > 0 ? 'text-warning-dark' : 'text-secondary'") {{ duplicateIpUsers.length }}
+            span.small.text-muted.ml-1 人 ({{ duplicateIpGroupCount }} 組)
+            span.small.ml-auto.text-muted {{ duplicateIpUsers.length > 0 ? '點擊排解' : '無衝突' }}
+
+      //- 資料待補齊指標 (未分配課室 / 無分機 / 無職稱)
+      .col-6.col-md-4.col-xl-2.px-1.mb-2
+        .kpi-card.p-2.rounded.shadow-sm(
+          :class="{ 'kpi-active kpi-info': quickFilter === 'incomplete' }"
+          @click="setQuickFilter('incomplete')"
+          title="點擊篩選「未分配課室」、「無職稱」或「未填分機」的新進/待補資料人員"
+        )
+          .d-flex.justify-content-between.align-items-center
+            .kpi-label.text-muted.small.font-weight-bold 資料待補齊
+            lah-fa-icon(icon="user-edit" variant="info" size="lg")
+          .d-flex.align-items-baseline.mt-1
+            span.h4.font-weight-bold.mb-0.text-info {{ incompleteUsers.length }}
+            span.small.text-muted.ml-1 人
+            span.small.ml-auto.text-muted 缺單位/職稱/分機
+
+      //- 特殊權限人員指標
+      .col-6.col-md-4.col-xl-2.px-1.mb-2
+        .kpi-card.p-2.rounded.shadow-sm(
+          :class="{ 'kpi-active kpi-success': quickFilter === 'special_role' }"
+          @click="setQuickFilter('special_role')"
+          title="點擊篩選具備「系統管理 / 主管 / 研考 / 人事 / 公告」任一特殊權限的人員"
+        )
+          .d-flex.justify-content-between.align-items-center
+            .kpi-label.text-muted.small.font-weight-bold 特殊角色權限
+            lah-fa-icon(icon="user-shield" variant="success" size="lg")
+          .d-flex.align-items-baseline.mt-1
+            span.h4.font-weight-bold.mb-0.text-success {{ specialRoleUsers.length }}
+            span.small.text-muted.ml-1 人
+            span.small.ml-auto.text-muted 具管理/主管權限
+
+      //- AD 帳號鎖定指標
+      .col-6.col-md-4.col-xl-2.px-1.mb-2
+        .kpi-card.p-2.rounded.shadow-sm(
+          :class="{ 'kpi-active kpi-danger': quickFilter === 'ad_locked', 'border-danger': lockedUsersInList.length > 0 }"
+          @click="handleAdLockedCardClick"
+          title="點擊檢測或過濾目前 AD 被鎖定的員工帳號"
+        )
+          .d-flex.justify-content-between.align-items-center
+            .kpi-label.small.font-weight-bold(:class="lockedUsersInList.length > 0 ? 'text-danger' : 'text-muted'") AD 帳號鎖定
+            lah-fa-icon(:icon="isCheckingLocked ? 'spinner' : 'lock'" :spin="isCheckingLocked" :variant="lockedUsersInList.length > 0 ? 'danger' : 'secondary'" size="lg")
+          .d-flex.align-items-baseline.mt-1
+            template(v-if="adLockedChecked")
+              span.h4.font-weight-bold.mb-0(:class="lockedUsersInList.length > 0 ? 'text-danger' : 'text-success'") {{ lockedUsersInList.length }}
+              span.small.text-muted.ml-1 人
+              span.small.ml-auto.text-primary(style="text-decoration: underline" @click.stop="checkAdLockedUsers(true)") 重新檢測
+            template(v-else)
+              span.small.font-weight-bold.text-primary.py-1 點擊立即檢測 AD 鎖定狀態
+
+  //- =========================================================
+  //- 2. 全方位複合智慧搜尋與篩選控制列 (Unified Filter Bar)
+  //- =========================================================
+  section.control-panel.bg-white.p-3.rounded.shadow-sm.mb-3.border
+    //- 第一排：全欄位關鍵字搜尋 + 課室/職稱/角色/在職狀態複合篩選
+    .d-flex.flex-wrap.align-items-center.justify-content-between
+      //- 智慧搜尋框
+      .search-box-wrapper.mr-2.mb-2.flex-grow-1(style="min-width: 260px; max-width: 420px")
+        b-input-group(size="sm")
+          b-input-group-prepend(is-text)
+            lah-fa-icon.text-primary(icon="search")
+          b-form-input(
+            ref="searchInput"
+            v-model="keyword"
+            placeholder="搜尋姓名、ID、IP(如 .15)、分機、職稱、工作、手機... (按 / 聚焦)"
+            trim
+            @keydown.esc="keyword = ''"
+          )
+          b-input-group-append(v-if="keyword")
+            b-button(variant="outline-secondary" title="清空關鍵字 (Esc)" @click="keyword = ''")
+              lah-fa-icon(icon="times")
+
+      //- 課室下拉篩選
+      b-input-group.mr-2.mb-2(size="sm" style="width: 175px")
+        b-input-group-prepend(is-text) 課室
+        b-form-select(v-model="selectedUnit" :options="unitFilterOptions")
+          template(#first)
+            b-form-select-option(value="") 全部課室
+
+      //- 職稱下拉篩選
+      b-input-group.mr-2.mb-2(size="sm" style="width: 175px")
+        b-input-group-prepend(is-text) 職稱
+        b-form-select(v-model="selectedTitle" :options="titleFilterOptions")
+          template(#first)
+            b-form-select-option(value="") 全部職稱
+
+      //- 角色權限下拉篩選
+      b-input-group.mr-2.mb-2(size="sm" style="width: 180px")
+        b-input-group-prepend(is-text) 權限
+        b-form-select(v-model="selectedRole" :options="roleFilterOptions")
+
+      //- 在職 / 離職狀態切換
+      .d-flex.align-items-center.mb-2.mr-2
+        b-form-checkbox-group(
+          v-model="filter"
+          :options="filterOptions"
+          buttons
+          button-variant="outline-secondary"
+          size="sm"
+        )
+
+      //- 清除篩選按鈕
+      .mb-2(v-if="hasActiveFilter")
+        lah-button(
+          icon="filter-circle-xmark"
+          variant="danger"
+          size="sm"
+          title="重設所有搜尋與快篩條件"
+          @click="resetAllFilters"
+        ) 清除篩選 ({{ filteredUsers.length }})
+
+    //- 第二排：依當前視圖模式切換專屬工具列
+    hr.my-2(v-if="viewMode !== 'radar'")
+
+    //- 2A. 名牌視圖專屬控制列
+    .d-flex.flex-wrap.align-items-center.justify-content-between(v-if="viewMode === 'badge'")
+      .d-flex.align-items-center.flex-wrap.my-1
+        span.small.text-muted.font-weight-bold.mr-2 分組方式：
         b-form-radio-group(
           v-model="selectedGroup"
           :options="groupOptions"
           buttons
           button-variant="outline-dark"
-          class="my-auto"
           size="sm"
         )
-        b-form-radio-group(
+        b-form-radio-group.ml-2(
           v-model="sortOrder"
           :options="sortOpts"
-          class="ml-3 my-auto"
+          buttons
+          button-variant="outline-secondary"
           size="sm"
+          title="切換分組排序方向"
+        )
+        b-button-group.ml-2(size="sm" v-if="categories.length > 1")
+          b-button(variant="outline-secondary" title="展開所有分組" @click="toggleAllCategories(true)")
+            lah-fa-icon.mr-1(icon="angles-down")
+            span 全展開
+          b-button(variant="outline-secondary" title="收合所有分組" @click="toggleAllCategories(false)")
+            lah-fa-icon.mr-1(icon="angles-up")
+            span 全收合
+
+      .d-flex.align-items-center.flex-wrap.my-1
+        b-form-checkbox.mr-3(v-model="showAvatar" switch) 大頭照
+        b-form-checkbox.mr-3(v-model="showIp" switch) 電腦 IP
+        b-form-checkbox.mr-2(v-model="showMeta" switch) 職稱與分機
+
+    //- 2B. 表格快改視圖專屬控制列
+    .d-flex.flex-wrap.align-items-center.justify-content-between(v-else-if="viewMode === 'table'")
+      .small.text-muted.my-1
+        lah-fa-icon.text-info.mr-1(icon="bolt")
+        span #[b 極速模式]：直接在列內修改「課室」、「電腦 IP」或「分機」後按 #[code Enter] 或點 #[b.text-success ✓] 即可免彈窗秒存；點擊「姓名」或「完整編輯」可開啟詳細設定。
+      .d-flex.align-items-center.my-1
+        span.small.text-muted.mr-2 每頁顯示：
+        b-form-select(
+          v-model="tablePerPage"
+          :options="[15, 30, 50, 100]"
+          size="sm"
+          style="width: 80px"
         )
 
-      span.text-muted.my-auto.lah-shadow 找到 #[b-badge( pill class="my-auto" variant="info") {{ filteredUsers.length }}] 個使用者
+  //- =========================================================
+  //- 3A. 視圖一：現代化精緻名牌分組視圖 (Badge Grid View)
+  //- =========================================================
+  template(v-if="viewMode === 'badge'")
+    //- 空資料提示
+    .text-center.py-5.bg-white.rounded.shadow-sm.border(v-if="filteredUsers.length === 0")
+      lah-fa-icon.text-muted.mb-2(icon="user-slash" size="3x")
+      h5.text-muted 找不到符合目前篩選條件的員工
+      p.small.text-muted 請嘗試調整關鍵字或清除頂部診斷快篩條件
+      lah-button(v-if="hasActiveFilter" icon="rotate-left" variant="outline-primary" size="sm" @click="resetAllFilters") 重設所有篩選條件
 
-      .d-flex.my-auto.align-items-center
-        b-form-checkbox(v-model="showAvatar" switch class="mr-3") 大頭照
-        b-form-checkbox(v-model="showIp" switch class="mr-3") IP
-        b-form-checkbox-group(v-model="filter" :options="filterOptions")
-
-        b-input.ml-3(
-          v-model="keyword"
-          placeholder="搜尋姓名、ID 或 IP..."
-          size="sm"
-          style="width: 220px"
-          trim
+    //- 分組列表
+    section.category-section.mb-3(v-for="category in categories" :key="category.NAME || 'uncategorized'")
+      .category-header.d-flex.align-items-center.px-3.py-2.rounded-top.border(
+        @click="toggleCategory(category.NAME)"
+        style="cursor: pointer"
+      )
+        lah-fa-icon.mr-2.text-primary(
+          :icon="isCategoryOpen(category.NAME) ? 'folder-open' : 'folder'"
+          regular
         )
+        h6.mb-0.font-weight-bold {{ translateGroupName(category.NAME) }}
+        b-badge.ml-2(pill variant="info") {{ category.LIST.length }} 人
+        span.ml-auto.small.text-muted
+          lah-fa-icon(:icon="isCategoryOpen(category.NAME) ? 'chevron-up' : 'chevron-down'")
 
-  hr
+      b-collapse(:visible="isCategoryOpen(category.NAME)")
+        .category-body.p-2.bg-white.border.border-top-0.rounded-bottom.shadow-sm
+          .user-card-grid
+            .user-mini-card(
+              v-for="user in category.LIST"
+              :key="user.id"
+              :class="cardClass(user)"
+              @click="edit(user)"
+            )
+              //- 左側角色色條
+              .card-accent-bar(:class="accentBarClass(user)")
 
-  //- 使用者列表區塊
-  section.mb-3(v-for="category in categories" :key="category.NAME")
-    h5.lah-shadow: lah-fa-icon(v-b-toggle="$utils.md5(category.NAME)" icon="address-book" regular style="cursor: pointer")
-      span {{ translateGroupName(category.NAME) }}
-      b-badge.ml-1.my-auto(pill variant="info") {{ category.LIST.length }}
+              //- 頭像區
+              .card-avatar-wrap.mr-2(v-if="showAvatar")
+                b-avatar(
+                  variant="light"
+                  size="3.1rem"
+                  :src="avatarSrc(user)"
+                )
+                span.locked-badge(
+                  v-if="isUserAdLocked(user.id)"
+                  title="AD 帳號目前已鎖定！點擊右側鑰匙可立即解鎖"
+                )
+                  lah-fa-icon(icon="lock" variant="light")
 
-    b-collapse(:id="$utils.md5(category.NAME)" visible)
-      .d-flex.flex-wrap.align-items-center
-        b-button(
-          v-for="user in category.LIST"
-          :key="user['id']"
-          :variant="variant(user)"
-          :pill="showAvatar"
-          :title="role(user)"
-          size="sm"
-          class="mx-1 my-1 shadow d-inline-flex align-items-center user-badge"
-          @click="edit(user)"
-        )
-          .mr-2(v-if="showAvatar")
-            b-avatar(variant="light" size="3rem" :src="avatarSrc(user)")
+              //- 卡片主要內容區
+              .card-info-wrap.flex-grow-1.min-w-0
+                //- 第一列：帳號 + 姓名 + 分機
+                .d-flex.align-items-center.justify-content-between
+                  .text-truncate
+                    span.user-id-text.font-weight-bold.mr-1(v-html="highlight(user.id)")
+                    span.user-name-text.font-weight-bold(v-html="highlight(user.name)")
+                  b-badge.ext-pill.ml-1(
+                    v-if="showMeta && user.ext"
+                    variant="light"
+                    title="分機號碼"
+                  )
+                    lah-fa-icon.mr-1(icon="phone" size="xs")
+                    span(v-html="highlight(user.ext)")
 
-          .d-flex.flex-column.align-items-start.justify-content-center
-            div
-              span.font-weight-bold.mr-1(v-html="highlight(user.id)")
-              span(v-html="highlight(user.name)")
-            .small.font-weight-bolder(v-if="showIp")
-              template(v-if="isValidIp(user)")
-                //- 正常 IP 顯示
-                span(v-html="highlight(ipParts(user)[0] + '.' + ipParts(user)[1])")
-                span(:class="ipClass(user)" v-html="highlight('.' + ipParts(user)[2] + '.' + ipParts(user)[3])")
-              template(v-else)
-                //- 無 IP 或 IP 尾數為 .0 顯示：套用醒目警示樣式
-                span.ip-alert-style {{ user.ip && user.ip.endsWith('.0') ? user.ip : '無 IP' }}
+                //- 第二列：單位職稱 + 多重角色權限徽章
+                .d-flex.align-items-center.flex-wrap.mt-1(v-if="showMeta || roleBadges(user).length > 0")
+                  span.small.text-muted.mr-1.text-truncate(
+                    v-if="showMeta && (user.unit || user.title)"
+                    style="max-width: 120px"
+                    :title="`${user.unit || ''} ${user.title || ''} ${user.work ? '(' + user.work + ')' : ''}`"
+                  )
+                    span(v-if="selectedGroup !== 'unit' && user.unit" v-html="highlight(user.unit)")
+                    span(v-if="selectedGroup !== 'unit' && user.unit && user.title") ·
+                    span(v-if="user.title" v-html="highlight(user.title)")
 
-  hr
+                  //- 多重角色權限徽章 (完整呈現所有勾選之權限)
+                  b-badge.role-mini-badge.mr-1(
+                    v-for="rb in roleBadges(user)"
+                    :key="rb.text"
+                    :variant="rb.variant"
+                  ) {{ rb.text }}
 
-  //- IP 列表檢視 Modal (加入篩選連動)
-  b-modal(
-    id="ip-list-modal"
-    title="使用者 IP 對應清單"
-    size="xl"
-    hide-footer
-    scrollable
-  )
-    .d-flex.justify-content-between.mb-3.flex-wrap
-      //- 關鍵字搜尋
-      b-input-group(size="sm" class="mr-2 mb-2" style="width: 250px")
-        b-input-group-prepend(is-text)
-          lah-fa-icon(icon="search")
-        b-form-input.h-100(v-model="ipListFilter" placeholder="搜尋 ID、姓名、IP...")
+                //- 第三列：IP 顯示與衝突/異常警示
+                .d-flex.align-items-center.justify-content-between.mt-1.small(v-if="showIp")
+                  template(v-if="isValidIp(user)")
+                    .d-flex.align-items-center.text-truncate
+                      lah-fa-icon.mr-1.text-muted(icon="desktop" size="xs")
+                      span.text-muted(v-html="highlight(ipParts(user)[0] + '.' + ipParts(user)[1])")
+                      span.font-weight-bold.text-primary(v-html="highlight('.' + ipParts(user)[2] + '.' + ipParts(user)[3])")
+                      b-badge.ml-1(
+                        v-if="isDuplicateIp(user)"
+                        variant="warning"
+                        :title="`IP 衝突：與 ${getDuplicateIpPeers(user)} 共用同一 IP`"
+                      ) 衝突({{ getDuplicateIpCount(user) }})
+                  template(v-else)
+                    span.ip-alert-style
+                      lah-fa-icon.mr-1(icon="triangle-exclamation")
+                      | {{ user.ip && user.ip.endsWith('.0') ? user.ip : '無效/未設 IP' }}
 
-      //- 課室篩選
-      b-input-group(size="sm" class="mr-2 mb-2" style="width: 200px")
-        b-input-group-prepend(is-text) 課室
-        b-form-select.h-100(v-model="ipListUnit" :options="unitOptions")
-          template(#first)
-            b-form-select-option(value="") 全部
+                  //- 懸浮快捷工具組 (複製 IP / 解鎖 AD)
+                  .card-quick-actions.ml-auto(@click.stop)
+                    b-button.p-0.px-1.mr-1(
+                      v-if="isUserAdLocked(user.id)"
+                      variant="danger"
+                      size="sm"
+                      title="立即解除 AD 鎖定"
+                      @click.stop="quickUnlockAd(user)"
+                    )
+                      lah-fa-icon(icon="unlock" size="xs")
+                    b-button.p-0.px-1.mr-1(
+                      v-if="isValidIp(user)"
+                      variant="outline-secondary"
+                      size="sm"
+                      title="複製 IP 位址"
+                      @click.stop="copyToClipboard(user.ip, 'IP')"
+                    )
+                      lah-fa-icon(icon="copy" size="xs")
+                    b-button.p-0.px-1(
+                      variant="outline-secondary"
+                      size="sm"
+                      title="複製員工帳號 ID"
+                      @click.stop="copyToClipboard(user.id, '帳號')"
+                    )
+                      lah-fa-icon(icon="id-badge" size="xs")
 
-      //- 職稱篩選
-      b-input-group(size="sm" class="mr-2 mb-2" style="width: 200px")
-        b-input-group-prepend(is-text) 職稱
-        b-form-select.h-100(v-model="ipListTitle" :options="titleOptions")
-          template(#first)
-            b-form-select-option(value="") 全部
-
-      //- 匯出按鈕
-      div.mb-2
-        lah-button(
-          icon="file-excel"
-          variant="outline-success"
-          size="md"
-          @click="exportIpList"
-          title="匯出篩選結果為 Excel (CSV)"
-        ) 匯出
-
-    //- 表格資料改用 filteredIpList
+  //- =========================================================
+  //- 3B. 視圖二：高密度表格 + 行內極速快改視圖 (Table Quick-Edit View)
+  //- =========================================================
+  section.bg-white.rounded.shadow-sm.border.p-2(v-else-if="viewMode === 'table'")
     b-table(
-      :items="filteredIpList"
-      :fields="ipListFields"
+      :items="filteredUsers"
+      :fields="tableFields"
+      :per-page="tablePerPage"
+      :current-page="tableCurrentPage"
+      :sort-compare="tableSortCompare"
+      :tbody-tr-class="tableRowClass"
       striped
       hover
       bordered
       responsive
       small
       head-variant="dark"
-      :per-page="15"
-      :current-page="ipListPage"
-      @row-clicked="edit"
-      tbody-tr-class="pointer"
+      show-empty
+      empty-text="找不到符合目前篩選條件的員工"
     )
-      //- 在名字前顯示 Avatar
+      //- 帳號欄
+      template(#cell(id)="{ item }")
+        .d-flex.align-items-center.justify-content-between
+          div
+            span.font-weight-bold.text-monospace(v-html="highlight(item.id)")
+            b-badge.ml-1(v-if="isUserAdLocked(item.id)" variant="danger" title="AD 帳號已鎖定") 鎖定
+          b-button.p-0.px-1.text-muted(
+            variant="link"
+            size="sm"
+            title="複製帳號"
+            @click.stop="copyToClipboard(item.id, '帳號')"
+          )
+            lah-fa-icon(icon="copy" size="xs")
+
+      //- 姓名欄 (點擊開啟完整編輯)
       template(#cell(name)="{ item }")
-        .d-flex.align-items-center
+        .d-flex.align-items-center.pointer(@click="edit(item)" title="點擊開啟完整編輯視窗")
           b-avatar.mr-2(size="sm" :src="avatarSrc(item)" variant="light")
-          span {{ item.name }}
+          div
+            .font-weight-bold.text-primary(v-html="highlight(item.name)")
+            .small.text-muted(v-if="item.work" v-html="highlight(item.work)")
 
-      template(#cell(ip)="{ item }")
-        div(v-if="isValidIp(item)")
-          span.text-primary.font-weight-bold {{ item.ip }}
-        div(v-else)
-          span.ip-alert-style {{ item.ip || '無' }}
-
+      //- 課室欄 (行內下拉秒存)
       template(#cell(unit)="{ item }")
-        b-badge(variant="light") {{ item.unit }} - {{ item.title }}
+        b-form-select(
+          :value="item.unit"
+          :options="inlineUnitOptions"
+          size="sm"
+          :disabled="isUserDisabled(item) || savingRowId === item.id"
+          :class="{ 'border-danger bg-light-danger': !item.unit || item.unit === '未分配' }"
+          @change="quickSaveDept(item, $event)"
+        )
 
-    //- 分頁總數連動篩選結果
-    b-pagination(
-      v-model="ipListPage"
-      :total-rows="filteredIpList.length"
-      :per-page="15"
-      align="center"
-      class="mt-3"
+      //- 職稱欄
+      template(#cell(title)="{ item }")
+        span(:class="{ 'text-danger font-weight-bold': !item.title || item.title === '無資料' }" v-html="highlight(item.title || '未設定')")
+
+      //- 電腦 IP 欄 (行內極速輸入 + 格式與衝突提示)
+      template(#cell(ip)="{ item }")
+        .d-flex.align-items-center
+          b-input-group(size="sm" style="min-width: 195px; max-width: 230px")
+            b-form-input.text-monospace(
+              :value="getInlineEditValue(item, 'ip')"
+              :disabled="isUserDisabled(item) || savingRowId === item.id"
+              :state="getInlineIpState(item)"
+              placeholder="192.168.X.X"
+              @input="setInlineEditValue(item, 'ip', $event)"
+              @keydown.enter.prevent="quickSaveIp(item)"
+              @keydown.esc.prevent="resetInlineEdit(item, 'ip')"
+            )
+            b-input-group-append
+              b-button(
+                v-if="isInlineDirty(item, 'ip')"
+                variant="success"
+                title="儲存 IP (Enter)"
+                :disabled="!isInlineIpValid(item) || savingRowId === item.id"
+                @click="quickSaveIp(item)"
+              )
+                lah-fa-icon(icon="check")
+              b-button(
+                v-if="isInlineDirty(item, 'ip')"
+                variant="outline-secondary"
+                title="取消修改 (Esc)"
+                @click="resetInlineEdit(item, 'ip')"
+              )
+                lah-fa-icon(icon="rotate-left")
+              b-button(
+                v-if="!isInlineDirty(item, 'ip') && isValidIp(item)"
+                variant="outline-secondary"
+                title="複製 IP"
+                @click="copyToClipboard(item.ip, 'IP')"
+              )
+                lah-fa-icon(icon="copy")
+
+          b-badge.ml-1(
+            v-if="isDuplicateIp(item)"
+            variant="warning"
+            :title="`與 ${getDuplicateIpPeers(item)} 共用同一 IP`"
+          ) 衝突({{ getDuplicateIpCount(item) }})
+          b-badge.ml-1(
+            v-else-if="!isValidIp(item)"
+            variant="danger"
+          ) 無效
+
+      //- 分機欄 (行內極速輸入)
+      template(#cell(ext)="{ item }")
+        b-input-group(size="sm" style="width: 115px")
+          b-form-input(
+            :value="getInlineEditValue(item, 'ext')"
+            :disabled="isUserDisabled(item) || savingRowId === item.id"
+            placeholder="分機"
+            @input="setInlineEditValue(item, 'ext', $event)"
+            @keydown.enter.prevent="quickSaveExt(item)"
+            @keydown.esc.prevent="resetInlineEdit(item, 'ext')"
+          )
+          b-input-group-append(v-if="isInlineDirty(item, 'ext')")
+            b-button(
+              variant="success"
+              title="儲存分機 (Enter)"
+              :disabled="savingRowId === item.id"
+              @click="quickSaveExt(item)"
+            )
+              lah-fa-icon(icon="check")
+
+      //- 權限角色欄
+      template(#cell(authority)="{ item }")
+        .d-flex.flex-wrap.align-items-center.pointer(@click="edit(item)" title="點擊調整權限設定")
+          template(v-if="roleBadges(item).length > 0")
+            b-badge.mr-1.mb-1(
+              v-for="rb in roleBadges(item)"
+              :key="rb.text"
+              :variant="rb.variant"
+            ) {{ rb.text }}
+          b-badge.mb-1(v-else variant="light") 一般人員
+
+      //- 操作欄
+      template(#cell(actions)="{ item }")
+        b-button-group(size="sm")
+          lah-button(
+            icon="pen-to-square"
+            variant="outline-primary"
+            title="開啟完整編輯視窗"
+            @click="edit(item)"
+          ) 編輯
+          lah-button(
+            v-if="!isUserDisabled(item)"
+            icon="unlock"
+            :variant="isUserAdLocked(item.id) ? 'danger' : 'outline-warning'"
+            title="解除 AD 帳號鎖定"
+            @click="quickUnlockAd(item)"
+          ) 解鎖
+          lah-button(
+            v-if="!isUserDisabled(item)"
+            icon="key"
+            variant="outline-danger"
+            title="重設 AD 密碼"
+            no-icon-gutter
+            @click="quickResetAdPw(item)"
+          )
+
+    //- 分頁控制
+    .d-flex.justify-content-between.align-items-center.mt-2.px-2.flex-wrap
+      .small.text-muted 共 {{ filteredUsers.length }} 筆符合條件（第 {{ tableCurrentPage }} 頁）
+      b-pagination.mb-0(
+        v-model="tableCurrentPage"
+        :total-rows="filteredUsers.length"
+        :per-page="tablePerPage"
+        size="sm"
+        align="right"
+      )
+
+  //- =========================================================
+  //- 3C. 視圖三：【驚喜功能】本所網段 IP 佔用雷達 (Subnet IP Radar)
+  //- =========================================================
+  section.bg-white.rounded.shadow-sm.border.p-3(v-else-if="viewMode === 'radar'")
+    .d-flex.flex-wrap.justify-content-between.align-items-center.mb-3
+      div
+        h5.font-weight-bold.mb-1
+          lah-fa-icon.text-primary.mr-2(icon="satellite-dish")
+          span 本所網段 IP 佔用雷達與空閒尋址器
+        p.small.text-muted.mb-0
+          | 視覺化盤點網段 #[code 1 ~ 254] 配發狀況。點擊 #[b.text-success 🟢 空閒可用] 格可一鍵將該 IP 指派給員工；點擊 #[b.text-primary 🔵 已配發] 或 #[b.text-danger 🔴 衝突] 格可檢視並編輯該員工。
+
+      //- 雷達狀態篩選器
+      b-form-radio-group(
+        v-model="radarFilter"
+        buttons
+        button-variant="outline-secondary"
+        size="sm"
+      )
+        b-form-radio(value="all") 全部 (254)
+        b-form-radio(value="free") 🟢 空閒可用 ({{ currentSubnetStats.free }})
+        b-form-radio(value="assigned") 🔵 已配發 ({{ currentSubnetStats.assigned }})
+        b-form-radio(value="conflict") 🔴 衝突 ({{ currentSubnetStats.conflict }})
+        b-form-radio(v-if="currentSubnetStats.dynamic > 0" value="dynamic") 🟡 動態未綁定 ({{ currentSubnetStats.dynamic }})
+
+    //- 子網段切換 Tabs
+    .d-flex.flex-wrap.align-items-center.mb-3.pb-2.border-bottom
+      span.small.font-weight-bold.text-muted.mr-2 選擇網段：
+      b-button.mr-2.mb-1(
+        v-for="sub in availableSubnets"
+        :key="sub.prefix"
+        :variant="selectedSubnet === sub.prefix ? 'dark' : 'outline-dark'"
+        size="sm"
+        @click="selectedSubnet = sub.prefix"
+      )
+        span.font-weight-bold {{ sub.prefix }}.*
+        b-badge.ml-1(:variant="selectedSubnet === sub.prefix ? 'info' : 'secondary'" pill) {{ sub.usedCount }} 人
+        b-badge.ml-1(v-if="sub.conflictCount > 0" variant="danger" pill) 衝突 {{ sub.conflictCount }}
+
+    //- 1 ~ 254 雷達矩陣
+    .ip-radar-grid
+      .ip-radar-cell(
+        v-for="cell in filteredRadarCells"
+        :key="cell.ip"
+        :class="`radar-cell-${cell.status}`"
+        :title="cell.tooltip"
+        @click="handleRadarCellClick(cell)"
+      )
+        .d-flex.justify-content-between.align-items-center
+          span.radar-octet.font-weight-bold .{{ cell.octet }}
+          span.radar-status-dot(:class="`dot-${cell.status}`")
+        .radar-cell-body.text-truncate.mt-1
+          template(v-if="cell.status === 'conflict'")
+            .font-weight-bold.text-danger ⚠️ {{ cell.users.length }}人衝突
+            .radar-subtext.text-truncate {{ cell.users.map(u => u.name).join('、') }}
+          template(v-else-if="cell.status === 'assigned'")
+            .font-weight-bold {{ cell.users[0].name }}
+            .radar-subtext.text-muted.text-truncate {{ cell.users[0].unit || cell.users[0].id }}
+          template(v-else-if="cell.status === 'dynamic'")
+            .font-weight-bold.text-warning-dark ⚡ 動態紀錄
+            .radar-subtext.text-truncate {{ cell.dynamicEntry.entry_id }}
+          template(v-else)
+            .text-success.small 空閒可用
+            .radar-subtext.text-muted 點擊指派/複製
+
+  //- =========================================================
+  //- 4. 空閒 IP 快速指派 Modal (由網段雷達觸發)
+  //- =========================================================
+  b-modal(
+    id="assign-ip-modal"
+    title="快速指派或複製空閒 IP"
+    size="md"
+    centered
+    hide-footer
+  )
+    .text-center.p-3.bg-light.rounded.border.mb-3
+      .small.text-muted 已選擇空閒可用 IP 位址
+      .h3.font-weight-bold.text-success.my-1.text-monospace {{ selectedFreeIp }}
+      lah-button.mt-1(
+        icon="copy"
+        variant="outline-secondary"
+        size="sm"
+        @click="copyToClipboard(selectedFreeIp, '空閒 IP')"
+      ) 僅複製此 IP 位址
+
+    b-form-group(
+      label="直接將此 IP 配發給員工："
+      label-for="assign-target-user"
+      description="清單優先置頂「無效/未設 IP」與「IP 衝突」之在職同仁"
     )
+      b-form-select(
+        id="assign-target-user"
+        v-model="assignTargetUserId"
+        :options="assignableUserOptions"
+      )
+        template(#first)
+          b-form-select-option(value="") -- 請選擇要配發此 IP 的員工 --
 
-  //- 編輯使用者 Modal
-  b-modal(id="edit-user-modal" :title="editUserTitle" size="lg" hide-footer scrollable no-close-on-backdrop)
+    .d-flex.justify-content-end.mt-3
+      b-button.mr-2(variant="outline-secondary" size="sm" @click="hideModalById('assign-ip-modal')") 取消
+      lah-button(
+        icon="check"
+        variant="success"
+        size="sm"
+        :disabled="!assignTargetUserId || isBusy"
+        @click="confirmAssignFreeIp"
+      ) 立即配發此 IP
+
+  //- =========================================================
+  //- 5. 強化版編輯使用者 Modal (支援上一位 / 下一位無縫切換)
+  //- =========================================================
+  b-modal(
+    id="edit-user-modal"
+    size="lg"
+    hide-footer
+    scrollable
+    no-close-on-backdrop
+  )
+    template(#modal-title)
+      .d-flex.align-items-center.flex-wrap
+        span.font-weight-bold.mr-2 {{ editUserTitle }}
+        b-badge(v-if="currentEditIndex !== -1" variant="info" pill) 第 {{ currentEditIndex + 1 }} / {{ filteredUsers.length }} 位
+
+    //- 頂部快速導航列 (上一位 / 下一位 + 快速複製)
+    .d-flex.justify-content-between.align-items-center.bg-light.p-2.rounded.border.mb-2(v-if="filteredUsers.length > 1")
+      lah-button(
+        icon="arrow-left"
+        variant="outline-secondary"
+        size="sm"
+        :disabled="!hasPrevUser"
+        title="切換至上一位員工 (Alt + ←)"
+        @click="navigateEditUser(-1)"
+      ) 上一位 {{ prevUserName }}
+
+      .small.text-muted.d-none.d-md-block
+        lah-fa-icon.mr-1(icon="keyboard" regular)
+        span 可按 #[code Alt + ← / →] 快速切換上下一位同仁
+
+      lah-button(
+        icon="arrow-right"
+        icon-append
+        variant="outline-secondary"
+        size="sm"
+        :disabled="!hasNextUser"
+        title="切換至下一位員工 (Alt + →)"
+        @click="navigateEditUser(1)"
+      ) 下一位 {{ nextUserName }}
+
     lah-user-edit-card(:raw="[clickedUser]" @saved="saved($event)")
 
+  //- 新增使用者 Modal
   b-modal(id="add-user-modal" title="手動新增使用者" size="lg" hide-footer scrollable no-close-on-backdrop)
     lah-user-add-card(@added="added($event)")
 
+  //- AD 連線設定 Modal
   b-modal(
     id="ad-config-modal"
     title="AD 連線設定"
@@ -328,6 +847,7 @@ div(v-cloak)
     template(#modal-footer="{ close }")
       b-button(variant="outline-secondary" size="sm" @click="close()") 關閉
 
+  //- IP 更新衝突選擇 Modal
   b-modal(id="ip-conflict-modal" title="IP 更新選擇" size="xl" hide-footer scrollable)
     p.text-muted 偵測到以下人員有多筆符合規則的 IP 紀錄。系統已過濾目前 IP，請點選欲套用的正確地址：
     b-table(:items="ipConflictList" :fields="conflictFields" striped hover bordered responsive)
@@ -342,8 +862,8 @@ div(v-cloak)
           icon="check"
           size="sm"
           variant="outline-primary"
-          @click="updateUserIp(item.id, item.selectedIp)"
           :disabled="!item.selectedIp"
+          @click="updateUserIp(item.id, item.selectedIp)"
         ) 套用此 IP
 </template>
 
@@ -357,6 +877,24 @@ export default {
   middleware: ['isAdmin'],
 
   data: () => ({
+    // 視圖模式: 'badge' (名牌視圖) | 'table' (表格快改) | 'radar' (網段雷達)
+    viewMode: 'badge',
+
+    // 頂部智慧診斷快篩: '' | 'invalid_ip' | 'duplicate_ip' | 'incomplete' | 'special_role' | 'ad_locked'
+    quickFilter: '',
+
+    // 複合篩選條件
+    keyword: '',
+    selectedUnit: '',
+    selectedTitle: '',
+    selectedRole: '',
+    filter: ['on'],
+    filterOptions: [
+      { text: '在職', value: 'on' },
+      { text: '離職', value: 'off' }
+    ],
+
+    // 名牌視圖設定
     selectedGroup: 'unit',
     groupOptions: [
       { text: '部門', value: 'unit' },
@@ -374,12 +912,38 @@ export default {
     ],
     showAvatar: true,
     showIp: true,
-    keyword: '',
-    filter: ['on'],
-    filterOptions: [
-      { text: '在職', value: 'on' },
-      { text: '離職', value: 'off' }
+    showMeta: true,
+    collapsedCategories: {},
+
+    // 表格快改視圖設定
+    tablePerPage: 15,
+    tableCurrentPage: 1,
+    tableFields: [
+      { key: 'id', label: '帳號', sortable: true, thStyle: 'width: 115px' },
+      { key: 'name', label: '姓名 / 職掌', sortable: true, thStyle: 'min-width: 140px' },
+      { key: 'unit', label: '課室 (直接快改)', sortable: true, thStyle: 'width: 145px' },
+      { key: 'title', label: '職稱', sortable: true, thStyle: 'width: 110px' },
+      { key: 'ip', label: '電腦 IP (Enter 秒存)', sortable: true, thStyle: 'width: 260px' },
+      { key: 'ext', label: '分機 (Enter 秒存)', sortable: true, thStyle: 'width: 135px' },
+      { key: 'authority', label: '個人權限徽章', sortable: true },
+      { key: 'actions', label: '操作', class: 'text-center text-nowrap', thStyle: 'width: 150px' }
     ],
+    inlineEdits: {},
+    savingRowId: '',
+    recentlySavedMap: {},
+
+    // 網段雷達視圖設定
+    selectedSubnet: '',
+    radarFilter: 'all',
+    selectedFreeIp: '',
+    assignTargetUserId: '',
+
+    // AD 鎖定帳號狀態
+    lockedUserIds: [],
+    adLockedChecked: false,
+    isCheckingLocked: false,
+
+    // 核心資料與原有設定
     users: [],
     clickedUser: { id: '', name: '' },
     adConfig: {},
@@ -391,18 +955,6 @@ export default {
       { key: 'currentIp', label: '目前 IP' },
       { key: 'candidates', label: '候選 IP (請點選)' },
       { key: 'action', label: '操作', class: 'text-center' }
-    ],
-    // IP 列表相關
-    ipListFilter: '',
-    ipListUnit: '', // 課室篩選
-    ipListTitle: '', // 職稱篩選
-    ipListPage: 1,
-    ipListFields: [
-      { key: 'id', label: '帳號', sortable: true },
-      { key: 'name', label: '姓名', sortable: true },
-      { key: 'unit', label: '單位職稱', sortable: true },
-      { key: 'ip', label: 'IP 位址', sortable: true },
-      { key: 'ext', label: '分機', sortable: true }
     ]
   }),
 
@@ -412,7 +964,8 @@ export default {
       type: this.type
     }).then(({ data }) => {
       if (this.$utils.statusCheck(data.status)) {
-        this.users = data.raw
+        this.users = data.raw || []
+        this.ensureDefaultSubnet()
       } else {
         this.notify(data.message, { type: 'warning' })
       }
@@ -433,15 +986,192 @@ export default {
       if (this.filter.includes('off')) { return 'off_board_users' }
       return ''
     },
-    filteredUsers () {
-      if (this.$utils.empty(this.keyword)) { return this.users }
-      const k = this.keyword.toLowerCase()
+
+    // --- 頂部診斷統計計算 ---
+    invalidIpUsers () {
+      return this.users.filter(u => !this.isUserDisabled(u) && !this.isValidIp(u))
+    },
+
+    duplicateIpMap () {
+      const map = {}
+      this.users.forEach((u) => {
+        if (!this.isUserDisabled(u) && this.isValidIp(u)) {
+          if (!map[u.ip]) { map[u.ip] = [] }
+          map[u.ip].push(u)
+        }
+      })
+      return map
+    },
+
+    duplicateIpUsers () {
+      return this.users.filter(u => !this.isUserDisabled(u) && this.isDuplicateIp(u))
+    },
+
+    duplicateIpGroupCount () {
+      return Object.values(this.duplicateIpMap).filter(list => list.length > 1).length
+    },
+
+    incompleteUsers () {
       return this.users.filter((u) => {
-        return (u.id && u.id.toLowerCase().includes(k)) ||
-               (u.name && u.name.toLowerCase().includes(k)) ||
-               (u.ip && u.ip.includes(k))
+        if (this.isUserDisabled(u)) { return false }
+        const noUnit = !u.unit || u.unit === '未分配' || u.unit === '無資料'
+        const noTitle = !u.title || u.title === '無資料'
+        const noExt = !u.ext
+        return noUnit || noTitle || noExt
       })
     },
+
+    specialRoleUsers () {
+      return this.users.filter((u) => {
+        const auth = this.getAuthority(u)
+        return auth.isAdmin || auth.isChief || auth.isRAE || auth.isUserMgtStaff || auth.isNotifyMgtStaff
+      })
+    },
+
+    lockedUsersInList () {
+      if (this.lockedUserIds.length === 0) { return [] }
+      const set = new Set(this.lockedUserIds.map(id => String(id).toUpperCase()))
+      return this.users.filter(u => u.id && set.has(String(u.id).toUpperCase()))
+    },
+
+    // --- 下拉篩選選項 ---
+    unitFilterOptions () {
+      const counts = {}
+      this.users.forEach((u) => {
+        const key = u.unit || '未設定'
+        counts[key] = (counts[key] || 0) + 1
+      })
+      return Object.keys(counts).sort().map(u => ({
+        value: u === '未設定' ? '__EMPTY__' : u,
+        text: `${u} (${counts[u]})`
+      }))
+    },
+
+    inlineUnitOptions () {
+      const defaultUnits = [
+        '登記課', '測量課', '行政課', '地價課',
+        '資訊課', '人事室', '會計室', '秘書室', '主任室'
+      ]
+      const dynamicUnits = this.users.map(u => u.unit).filter(Boolean)
+      const merged = [...new Set([...defaultUnits, ...dynamicUnits])]
+      return merged.map(u => ({ value: u, text: u }))
+    },
+
+    titleFilterOptions () {
+      const counts = {}
+      this.users.forEach((u) => {
+        if (u.title) {
+          counts[u.title] = (counts[u.title] || 0) + 1
+        }
+      })
+      return Object.keys(counts).sort().map(t => ({
+        value: t,
+        text: `${t} (${counts[t]})`
+      }))
+    },
+
+    roleFilterOptions () {
+      return [
+        { value: '', text: '全部角色權限' },
+        { value: 'admin', text: '系統管理' },
+        { value: 'chief', text: '主管' },
+        { value: 'rae', text: '研考' },
+        { value: 'user_mgt', text: '人員管理' },
+        { value: 'notify_mgt', text: '公告管理' },
+        { value: 'normal', text: '一般人員 (無特殊權限)' },
+        { value: 'disabled', text: '已離職 / 停用' }
+      ]
+    },
+
+    hasActiveFilter () {
+      return Boolean(
+        this.keyword ||
+        this.quickFilter ||
+        this.selectedUnit ||
+        this.selectedTitle ||
+        this.selectedRole
+      )
+    },
+
+    // --- 主清單綜合過濾邏輯 ---
+    filteredUsers () {
+      const k = (this.keyword || '').toLowerCase()
+      const lockedSet = new Set(this.lockedUserIds.map(id => String(id).toUpperCase()))
+
+      return this.users.filter((u) => {
+        // 1. 頂部指標快篩 (quickFilter)
+        if (this.quickFilter === 'invalid_ip' && (this.isUserDisabled(u) || this.isValidIp(u))) {
+          return false
+        }
+        if (this.quickFilter === 'duplicate_ip' && (this.isUserDisabled(u) || !this.isDuplicateIp(u))) {
+          return false
+        }
+        if (this.quickFilter === 'incomplete') {
+          if (this.isUserDisabled(u)) { return false }
+          const noUnit = !u.unit || u.unit === '未分配' || u.unit === '無資料'
+          const noTitle = !u.title || u.title === '無資料'
+          const noExt = !u.ext
+          if (!noUnit && !noTitle && !noExt) { return false }
+        }
+        if (this.quickFilter === 'special_role') {
+          const auth = this.getAuthority(u)
+          if (!(auth.isAdmin || auth.isChief || auth.isRAE || auth.isUserMgtStaff || auth.isNotifyMgtStaff)) {
+            return false
+          }
+        }
+        if (this.quickFilter === 'ad_locked') {
+          if (!u.id || !lockedSet.has(String(u.id).toUpperCase())) {
+            return false
+          }
+        }
+
+        // 2. 課室過濾
+        if (this.selectedUnit) {
+          if (this.selectedUnit === '__EMPTY__') {
+            if (u.unit) { return false }
+          } else if (u.unit !== this.selectedUnit) {
+            return false
+          }
+        }
+
+        // 3. 職稱過濾
+        if (this.selectedTitle && u.title !== this.selectedTitle) {
+          return false
+        }
+
+        // 4. 角色權限過濾
+        if (this.selectedRole) {
+          const auth = this.getAuthority(u)
+          if (this.selectedRole === 'admin' && !auth.isAdmin) { return false }
+          if (this.selectedRole === 'chief' && !auth.isChief) { return false }
+          if (this.selectedRole === 'rae' && !auth.isRAE) { return false }
+          if (this.selectedRole === 'user_mgt' && !auth.isUserMgtStaff) { return false }
+          if (this.selectedRole === 'notify_mgt' && !auth.isNotifyMgtStaff) { return false }
+          if (this.selectedRole === 'disabled' && !auth.isDisabled) { return false }
+          if (this.selectedRole === 'normal') {
+            if (auth.isAdmin || auth.isChief || auth.isRAE || auth.isUserMgtStaff || auth.isNotifyMgtStaff || auth.isDisabled) {
+              return false
+            }
+          }
+        }
+
+        // 5. 全欄位關鍵字搜尋 (ID、姓名、IP、分機、單位、職稱、工作內容、手機)
+        if (k) {
+          const matchId = u.id && String(u.id).toLowerCase().includes(k)
+          const matchName = u.name && String(u.name).toLowerCase().includes(k)
+          const matchIp = u.ip && String(u.ip).toLowerCase().includes(k)
+          const matchExt = u.ext && String(u.ext).toLowerCase().includes(k)
+          const matchUnit = u.unit && String(u.unit).toLowerCase().includes(k)
+          const matchTitle = u.title && String(u.title).toLowerCase().includes(k)
+          const matchWork = u.work && String(u.work).toLowerCase().includes(k)
+          const matchCell = u.cell && String(u.cell).toLowerCase().includes(k)
+          return matchId || matchName || matchIp || matchExt || matchUnit || matchTitle || matchWork || matchCell
+        }
+
+        return true
+      })
+    },
+
     categories () {
       switch (this.selectedGroup) {
         case 'unit': return this.groupBy('unit')
@@ -450,18 +1180,42 @@ export default {
         case 'sex': return this.groupBy('sex')
         case 'ip': return this.groupBy('ip')
         case 'role': return this.groupByRole()
-        default: return [{ NAME: '未分類', LIST: this.filteredUsers }]
+        default: return [{ NAME: '全部篩選結果', LIST: this.showIp ? this.usersByIpAsc : this.usersById }]
       }
     },
+
     usersByIpAsc () {
       return [...this.filteredUsers].sort((a, b) => {
         return this.$utils.ipv4Int(a.ip) - this.$utils.ipv4Int(b.ip)
       })
     },
+
     usersById () {
-      return [...this.filteredUsers].sort((a, b) => a.id.localeCompare(b.id))
+      return [...this.filteredUsers].sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')))
     },
-    editUserTitle () { return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊` },
+
+    // --- 編輯視窗上一位 / 下一位導航 ---
+    currentEditIndex () {
+      if (!this.clickedUser || !this.clickedUser.id) { return -1 }
+      return this.filteredUsers.findIndex(u => u.id === this.clickedUser.id)
+    },
+    hasPrevUser () {
+      return this.currentEditIndex > 0
+    },
+    hasNextUser () {
+      return this.currentEditIndex !== -1 && this.currentEditIndex < this.filteredUsers.length - 1
+    },
+    prevUserName () {
+      return this.hasPrevUser ? `(${this.filteredUsers[this.currentEditIndex - 1].name})` : ''
+    },
+    nextUserName () {
+      return this.hasNextUser ? `(${this.filteredUsers[this.currentEditIndex + 1].name})` : ''
+    },
+    editUserTitle () {
+      return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊`
+    },
+
+    // --- AD 設定狀態 ---
     isAdConfigValid () {
       const c = this.adConfig
       return c.AD_HOST && c.AD_PORT && c.BASE_DN && c.QUERY_USER && c.QUERY_PASSWORD
@@ -469,92 +1223,598 @@ export default {
     adConfigVariant () { return this.isAdConfigValid ? 'outline-secondary' : 'outline-danger' },
     adConfigTooltip () { return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新' },
 
-    // 提取所有不重複的課室
-    unitOptions () {
-      const units = [...new Set(this.users.map(u => u.unit).filter(Boolean))]
-      return units.sort().map(u => ({ value: u, text: u }))
+    // --- 網段雷達 (Subnet IP Radar) 計算 ---
+    availableSubnets () {
+      const prefixMap = {}
+
+      // 1. 依據本所站點代碼加入預設優先網段 (例如 HA -> 192.168.10 ~ 16)
+      const site = this.site || ''
+      const code = site.length > 1 ? site.charAt(1).toUpperCase() : ''
+      if (code >= 'A' && code <= 'H') {
+        const idx = code.charCodeAt(0) - 64
+        const start = idx * 10
+        for (let s = start; s <= start + 6; s++) {
+          prefixMap[`192.168.${s}`] = { prefix: `192.168.${s}`, usedCount: 0, conflictCount: 0 }
+        }
+      }
+
+      // 2. 掃描現有在職員工實際使用中的 192.168.X 網段
+      this.users.forEach((u) => {
+        if (!this.isUserDisabled(u) && this.isValidIp(u)) {
+          const parts = u.ip.split('.')
+          if (parts.length === 4) {
+            const prefix = `${parts[0]}.${parts[1]}.${parts[2]}`
+            if (!prefixMap[prefix]) {
+              prefixMap[prefix] = { prefix, usedCount: 0, conflictCount: 0 }
+            }
+            prefixMap[prefix].usedCount++
+          }
+        }
+      })
+
+      // 計算各網段衝突組數
+      Object.keys(this.duplicateIpMap).forEach((ip) => {
+        if (this.duplicateIpMap[ip].length > 1) {
+          const parts = ip.split('.')
+          const prefix = `${parts[0]}.${parts[1]}.${parts[2]}`
+          if (prefixMap[prefix]) {
+            prefixMap[prefix].conflictCount++
+          }
+        }
+      })
+
+      const list = Object.values(prefixMap).sort((a, b) => {
+        if (b.usedCount !== a.usedCount) { return b.usedCount - a.usedCount }
+        return a.prefix.localeCompare(b.prefix, undefined, { numeric: true })
+      })
+
+      return list.length > 0 ? list : [{ prefix: '192.168.10', usedCount: 0, conflictCount: 0 }]
     },
-    // 提取所有不重複的職稱
-    titleOptions () {
-      const titles = [...new Set(this.users.map(u => u.title).filter(Boolean))]
-      return titles.sort().map(t => ({ value: t, text: t }))
+
+    radarCells () {
+      const prefix = this.selectedSubnet || (this.availableSubnets[0] && this.availableSubnets[0].prefix) || '192.168.10'
+      const dynamicByIp = {}
+      this.dynamicIPEntries.forEach((entry) => {
+        if (entry.ip && (!dynamicByIp[entry.ip] || entry.timestamp > dynamicByIp[entry.ip].timestamp)) {
+          dynamicByIp[entry.ip] = entry
+        }
+      })
+
+      const cells = []
+      for (let i = 1; i <= 254; i++) {
+        const ip = `${prefix}.${i}`
+        const assignedUsers = this.duplicateIpMap[ip] || []
+        const dyn = dynamicByIp[ip] || null
+
+        let status = 'free'
+        let tooltip = `${ip} — 空閒可用（點擊可快速配發給員工或複製）`
+
+        if (assignedUsers.length > 1) {
+          status = 'conflict'
+          tooltip = `${ip} — ⚠️ IP 衝突：${assignedUsers.map(u => `${u.id} ${u.name}(${u.unit || ''})`).join('、')}`
+        } else if (assignedUsers.length === 1) {
+          status = 'assigned'
+          const u = assignedUsers[0]
+          tooltip = `${ip} — ${u.id} ${u.name}（${u.unit || '未分配'} / ${u.title || ''} / 分機 ${u.ext || '無'}）`
+        } else if (dyn) {
+          status = 'dynamic'
+          tooltip = `${ip} — 近期動態登入紀錄：${dyn.entry_id}（尚未綁定於在職人員資料）`
+        }
+
+        cells.push({
+          octet: i,
+          ip,
+          status,
+          users: assignedUsers,
+          dynamicEntry: dyn,
+          tooltip
+        })
+      }
+      return cells
     },
-    // IP 列表綜合篩選邏輯
-    filteredIpList () {
-      return this.users.filter((user) => {
-        // 1. 關鍵字過濾 (ID, Name, IP)
-        let keywordMatch = true
-        if (this.ipListFilter) {
-          const k = this.ipListFilter.toLowerCase()
-          keywordMatch = (user.id && user.id.toLowerCase().includes(k)) ||
-                         (user.name && user.name.toLowerCase().includes(k)) ||
-                         (user.ip && user.ip.includes(k))
-        }
 
-        // 2. 課室過濾
-        let unitMatch = true
-        if (this.ipListUnit) {
-          unitMatch = user.unit === this.ipListUnit
-        }
+    currentSubnetStats () {
+      const stats = { free: 0, assigned: 0, conflict: 0, dynamic: 0 }
+      this.radarCells.forEach((c) => {
+        if (stats[c.status] !== undefined) { stats[c.status]++ }
+      })
+      return stats
+    },
 
-        // 3. 職稱過濾
-        let titleMatch = true
-        if (this.ipListTitle) {
-          titleMatch = user.title === this.ipListTitle
-        }
+    filteredRadarCells () {
+      if (this.radarFilter === 'all') { return this.radarCells }
+      return this.radarCells.filter(c => c.status === this.radarFilter)
+    },
 
-        return keywordMatch && unitMatch && titleMatch
+    assignableUserOptions () {
+      const activeUsers = this.users.filter(u => !this.isUserDisabled(u))
+      const sorted = [...activeUsers].sort((a, b) => {
+        const aNeed = !this.isValidIp(a) ? 0 : (this.isDuplicateIp(a) ? 1 : 2)
+        const bNeed = !this.isValidIp(b) ? 0 : (this.isDuplicateIp(b) ? 1 : 2)
+        if (aNeed !== bNeed) { return aNeed - bNeed }
+        return String(a.id).localeCompare(String(b.id))
+      })
+
+      return sorted.map((u) => {
+        let tag = ''
+        if (!this.isValidIp(u)) {
+          tag = '🚨 [無效/未設 IP] '
+        } else if (this.isDuplicateIp(u)) {
+          tag = '⚠️ [IP 衝突] '
+        }
+        return {
+          value: u.id,
+          text: `${tag}${u.id} ${u.name} (${u.unit || '未分配'} — 目前 IP: ${u.ip || '無'})`
+        }
       })
     }
   },
 
   watch: {
-    type (val) { this.users = []; if (val !== '') { this.$fetch() } },
-    showAvatar (val) { localStorage.setItem('user_mgt_show_avatar', val) },
-    showIp (val) { localStorage.setItem('user_mgt_show_ip', val) },
+    type (val) {
+      this.users = []
+      if (val !== '') { this.$fetch() }
+    },
+    viewMode (val) {
+      localStorage.setItem('user_mgt_view_mode', val)
+    },
+    showAvatar (val) {
+      localStorage.setItem('user_mgt_show_avatar', val)
+    },
+    showIp (val) {
+      localStorage.setItem('user_mgt_show_ip', val)
+    },
+    showMeta (val) {
+      localStorage.setItem('user_mgt_show_meta', val)
+    },
     dynamicIPEntries (val) {
       this.$utils.warn('Dynamic IP entries fetched:', val.length)
     },
-    // 當篩選條件變動時，重置分頁回第一頁
-    filteredIpList () {
-      this.ipListPage = 1
+    // 當篩選條件變動並影響表格顯示資料時，重設當前頁碼為 1 (遵守 AGENTS.md 規範)
+    filteredUsers () {
+      this.tableCurrentPage = 1
     }
   },
 
   mounted () {
+    const savedView = localStorage.getItem('user_mgt_view_mode')
     const avatar = localStorage.getItem('user_mgt_show_avatar')
     const ip = localStorage.getItem('user_mgt_show_ip')
+    const meta = localStorage.getItem('user_mgt_show_meta')
+    if (savedView && ['badge', 'table', 'radar'].includes(savedView)) {
+      this.viewMode = savedView
+    }
     if (avatar !== null) { this.showAvatar = avatar === 'true' }
     if (ip !== null) { this.showIp = ip === 'true' }
+    if (meta !== null) { this.showMeta = meta === 'true' }
+
+    // 註冊全域鍵盤快捷鍵 (/ 聚焦搜尋框、Alt + 左右鍵切換編輯員工)
+    this.handleKeydown = (e) => {
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : ''
+      const isInput = tag === 'input' || tag === 'textarea' || tag === 'select' || (e.target && e.target.isContentEditable)
+
+      if (e.key === '/' && !isInput && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault()
+        if (this.$refs.searchInput && this.$refs.searchInput.$el) {
+          this.$refs.searchInput.$el.focus()
+        } else if (this.$refs.searchInput && this.$refs.searchInput.focus) {
+          this.$refs.searchInput.focus()
+        }
+      } else if (e.altKey && e.key === 'ArrowLeft') {
+        if (this.hasPrevUser) {
+          e.preventDefault()
+          this.navigateEditUser(-1)
+        }
+      } else if (e.altKey && e.key === 'ArrowRight') {
+        if (this.hasNextUser) {
+          e.preventDefault()
+          this.navigateEditUser(1)
+        }
+      }
+    }
+    window.addEventListener('keydown', this.handleKeydown)
+  },
+
+  beforeDestroy () {
+    if (this.handleKeydown) {
+      window.removeEventListener('keydown', this.handleKeydown)
+    }
   },
 
   methods: {
-    // 顯示 IP 列表 Modal
-    showIpListModal () {
-      this.showModalById('ip-list-modal')
+    // --- 頂部指標與篩選控制 ---
+    setQuickFilter (filterName) {
+      if (this.quickFilter === filterName) {
+        this.quickFilter = ''
+      } else {
+        this.quickFilter = filterName
+        // 若點擊「重複 IP 衝突」，在名牌視圖下自動切換為依「電腦」分組方便比對
+        if (filterName === 'duplicate_ip' && this.viewMode === 'badge') {
+          this.selectedGroup = 'ip'
+        }
+      }
     },
 
-    // 匯出篩選後的 IP 列表
+    resetAllFilters () {
+      this.keyword = ''
+      this.quickFilter = ''
+      this.selectedUnit = ''
+      this.selectedTitle = ''
+      this.selectedRole = ''
+      this.tableCurrentPage = 1
+    },
+
+    // --- 分組展開與收合 ---
+    isCategoryOpen (name) {
+      const key = name || '__EMPTY__'
+      return this.collapsedCategories[key] !== true
+    },
+
+    toggleCategory (name) {
+      const key = name || '__EMPTY__'
+      this.$set(this.collapsedCategories, key, !this.collapsedCategories[key])
+    },
+
+    toggleAllCategories (expand) {
+      const next = {}
+      if (!expand) {
+        this.categories.forEach((c) => {
+          next[c.NAME || '__EMPTY__'] = true
+        })
+      }
+      this.collapsedCategories = next
+    },
+
+    // --- AD 鎖定帳號檢測與一鍵解鎖 ---
+    handleAdLockedCardClick () {
+      if (!this.adLockedChecked) {
+        this.checkAdLockedUsers(true)
+      } else {
+        this.setQuickFilter('ad_locked')
+      }
+    },
+
+    checkAdLockedUsers (autoFilterIfFound = false) {
+      this.isCheckingLocked = true
+      this.$axios.post(this.$consts.API.JSON.USER, {
+        type: 'ad_users_locked'
+      }).then(({ data }) => {
+        this.adLockedChecked = true
+        if (this.$utils.statusCheck(data.status) && Array.isArray(data.raw)) {
+          this.lockedUserIds = data.raw.map(u => u.id || u.sAMAccountName || u).filter(Boolean)
+          if (this.lockedUserIds.length > 0) {
+            this.notify(`偵測到 ${this.lockedUserIds.length} 個 AD 鎖定帳號`, { type: 'warning' })
+            if (autoFilterIfFound && this.lockedUsersInList.length > 0) {
+              this.quickFilter = 'ad_locked'
+            }
+          } else {
+            this.notify('目前無任何 AD 帳號被鎖定', { type: 'success' })
+            if (this.quickFilter === 'ad_locked') { this.quickFilter = '' }
+          }
+        } else {
+          this.lockedUserIds = []
+          this.notify('目前無被鎖定的 AD 帳號', { type: 'info' })
+          if (this.quickFilter === 'ad_locked') { this.quickFilter = '' }
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isCheckingLocked = false
+      })
+    },
+
+    isUserAdLocked (userId) {
+      if (!userId || this.lockedUserIds.length === 0) { return false }
+      const target = String(userId).toUpperCase()
+      return this.lockedUserIds.some(id => String(id).toUpperCase() === target)
+    },
+
+    quickUnlockAd (user) {
+      this.$bvModal.msgBoxConfirm(`確定要解除「${user.id} ${user.name}」的 AD 帳號鎖定嗎？`, {
+        title: 'AD 解鎖確認',
+        size: 'md',
+        okVariant: 'warning',
+        okTitle: '確定解鎖',
+        cancelTitle: '取消',
+        centered: true
+      }).then((ans) => {
+        if (!ans) { return }
+        this.$bvModal.msgBoxConfirm(`是否要同時將「${user.id} ${user.name}」的 AD 密碼重設為預設值 (a.000000)？`, {
+          title: '重設密碼選項',
+          size: 'md',
+          okVariant: 'danger',
+          okTitle: '是，同時重設密碼',
+          cancelVariant: 'outline-secondary',
+          cancelTitle: '否，僅解鎖',
+          centered: true
+        }).then((resetAns) => {
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.USER, {
+            type: 'ad_user_unlock',
+            id: user.id,
+            password: resetAns ? 'a.000000' : null
+          }).then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              this.notify(data.message || `已解除 ${user.id} 鎖定`, { type: 'success' })
+              this.lockedUserIds = this.lockedUserIds.filter(id => String(id).toUpperCase() !== String(user.id).toUpperCase())
+            } else {
+              this.notify(data.message || '解鎖失敗', { type: 'warning' })
+            }
+          }).catch(err => this.$utils.error(err)).finally(() => {
+            this.isBusy = false
+          })
+        })
+      })
+    },
+
+    quickResetAdPw (user) {
+      this.$bvModal.msgBoxConfirm(`確定要重設「${user.id} ${user.name}」的 AD 密碼嗎？`, {
+        title: '重設 AD 密碼',
+        size: 'md',
+        okVariant: 'danger',
+        okTitle: '繼續',
+        cancelTitle: '取消',
+        centered: true
+      }).then((ans) => {
+        if (!ans) { return }
+        const newPassword = prompt(`請輸入 ${user.id} ${user.name} 的新 AD 密碼：`, 'a.000000')
+        if (newPassword !== null) {
+          if (this.$utils.empty(newPassword)) {
+            this.notify('密碼不得為空', { type: 'warning' })
+            return
+          }
+          this.isBusy = true
+          this.$axios.post(this.$consts.API.JSON.USER, {
+            type: 'ad_pw_reset',
+            id: user.id,
+            password: newPassword
+          }).then(({ data }) => {
+            if (this.$utils.statusCheck(data.status)) {
+              this.notify(data.message || `已重設 ${user.id} 密碼`, { type: 'success' })
+            } else {
+              this.notify(data.message || '重設密碼失敗', { type: 'warning' })
+            }
+          }).catch(err => this.$utils.error(err)).finally(() => {
+            this.isBusy = false
+          })
+        }
+      })
+    },
+
+    // --- 表格行內極速編輯 (Inline Quick Edit) ---
+    getInlineEditValue (user, field) {
+      if (this.inlineEdits[user.id] && this.inlineEdits[user.id][field] !== undefined) {
+        return this.inlineEdits[user.id][field]
+      }
+      return user[field] || ''
+    },
+
+    setInlineEditValue (user, field, val) {
+      if (!this.inlineEdits[user.id]) {
+        this.$set(this.inlineEdits, user.id, {})
+      }
+      this.$set(this.inlineEdits[user.id], field, val ? String(val).trim() : '')
+    },
+
+    resetInlineEdit (user, field) {
+      if (this.inlineEdits[user.id]) {
+        this.$delete(this.inlineEdits[user.id], field)
+      }
+    },
+
+    isInlineDirty (user, field) {
+      if (!this.inlineEdits[user.id] || this.inlineEdits[user.id][field] === undefined) {
+        return false
+      }
+      return String(this.inlineEdits[user.id][field]) !== String(user[field] || '')
+    },
+
+    isInlineIpValid (user) {
+      const val = this.getInlineEditValue(user, 'ip')
+      return this.$utils.isIPv4(val) || val === '::1'
+    },
+
+    getInlineIpState (user) {
+      if (!this.isInlineDirty(user, 'ip')) {
+        return null
+      }
+      return this.isInlineIpValid(user)
+    },
+
+    markRowSaved (userId) {
+      this.$set(this.recentlySavedMap, userId, true)
+      setTimeout(() => {
+        this.$delete(this.recentlySavedMap, userId)
+      }, 1600)
+    },
+
+    async quickSaveDept (user, newDept) {
+      if (!newDept || newDept === user.unit) { return }
+      this.savingRowId = user.id
+      try {
+        const { data } = await this.$axios.post(this.$consts.API.JSON.USER, {
+          type: 'upd_dept',
+          id: user.id,
+          dept: newDept
+        })
+        if (this.$utils.statusCheck(data.status)) {
+          this.update({ id: user.id, unit: newDept })
+          this.markRowSaved(user.id)
+          this.notify(`${user.name} 課室已更新為「${newDept}」`, { type: 'success' })
+        } else {
+          this.warning(data.message || '更新課室失敗')
+        }
+      } catch (err) {
+        this.$utils.error(err)
+      } finally {
+        this.savingRowId = ''
+      }
+    },
+
+    async quickSaveIp (user) {
+      if (!this.isInlineDirty(user, 'ip')) { return }
+      if (!this.isInlineIpValid(user)) {
+        this.notify('IP 格式不正確，請輸入合法的 IPv4 位址', { type: 'warning' })
+        return
+      }
+      const newIp = this.getInlineEditValue(user, 'ip')
+      this.savingRowId = user.id
+      const res = await this.updateUserIp(user.id, newIp, false)
+      if (res && this.$utils.statusCheck(res.status)) {
+        this.resetInlineEdit(user, 'ip')
+        this.markRowSaved(user.id)
+      }
+      this.savingRowId = ''
+    },
+
+    async quickSaveExt (user) {
+      if (!this.isInlineDirty(user, 'ext')) { return }
+      const newExt = this.getInlineEditValue(user, 'ext')
+      if (newExt && !/^\d{3,4}$/.test(newExt)) {
+        this.notify('分機號碼須為 3 ~ 4 位數字', { type: 'warning' })
+        return
+      }
+      this.savingRowId = user.id
+      try {
+        const { data } = await this.$axios.post(this.$consts.API.JSON.USER, {
+          type: 'upd_ext',
+          id: user.id,
+          ext: newExt
+        })
+        if (this.$utils.statusCheck(data.status)) {
+          this.update({ id: user.id, ext: newExt })
+          this.resetInlineEdit(user, 'ext')
+          this.markRowSaved(user.id)
+          this.notify(`${user.name} 分機已更新為 ${newExt}`, { type: 'success' })
+        } else {
+          this.warning(data.message || '更新分機失敗')
+        }
+      } catch (err) {
+        this.$utils.error(err)
+      } finally {
+        this.savingRowId = ''
+      }
+    },
+
+    tableSortCompare (a, b, key) {
+      if (key === 'ip') {
+        const ipA = this.$utils.ipv4Int(a.ip) || 0
+        const ipB = this.$utils.ipv4Int(b.ip) || 0
+        return ipA - ipB
+      }
+      return null
+    },
+
+    tableRowClass (item, type) {
+      if (!item || type !== 'row') { return '' }
+      if (this.recentlySavedMap[item.id]) {
+        return 'row-saved-flash'
+      }
+      if (this.isUserAdLocked(item.id)) {
+        return 'table-danger'
+      }
+      return ''
+    },
+
+    // --- 網段 IP 雷達 (Subnet IP Radar) 邏輯 ---
+    ensureDefaultSubnet () {
+      if (!this.selectedSubnet && this.availableSubnets.length > 0) {
+        this.selectedSubnet = this.availableSubnets[0].prefix
+      }
+    },
+
+    switchToRadarView () {
+      this.ensureDefaultSubnet()
+      this.viewMode = 'radar'
+    },
+
+    handleRadarCellClick (cell) {
+      if (cell.status === 'free' || cell.status === 'dynamic') {
+        this.selectedFreeIp = cell.ip
+        this.assignTargetUserId = ''
+        this.showModalById('assign-ip-modal')
+      } else if (cell.users && cell.users.length > 0) {
+        this.edit(cell.users[0])
+      }
+    },
+
+    async confirmAssignFreeIp () {
+      if (!this.assignTargetUserId || !this.selectedFreeIp) { return }
+      const res = await this.updateUserIp(this.assignTargetUserId, this.selectedFreeIp, false)
+      if (res && this.$utils.statusCheck(res.status)) {
+        this.hideModalById('assign-ip-modal')
+      }
+    },
+
+    // --- 匯出篩選後的員工清單 (CSV) ---
     exportIpList () {
+      const escapeCsv = (val) => {
+        const str = val === null || val === undefined ? '' : String(val)
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`
+        }
+        return str
+      }
+
       const csvContent = [
-        ['帳號', '姓名', '單位', '職稱', 'IP', '分機'],
-        ...this.filteredIpList.map(u => [u.id, u.name, u.unit, u.title, u.ip || '', u.ext || ''])
+        ['帳號', '姓名', '單位', '職稱', '工作職掌', 'IP位址', '分機', '手機', '角色權限'],
+        ...this.filteredUsers.map(u => [
+          u.id,
+          u.name,
+          u.unit || '',
+          u.title || '',
+          u.work || '',
+          u.ip || '',
+          u.ext || '',
+          u.cell || '',
+          this.roleBadges(u).map(r => r.text).join('/') || '一般人員'
+        ].map(escapeCsv))
       ].map(e => e.join(',')).join('\n')
 
       const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
       const url = URL.createObjectURL(blob)
       link.setAttribute('href', url)
-      link.setAttribute('download', `ip_list_${this.$utils.now().split(' ')[0]}.csv`)
+      link.setAttribute('download', `users_ip_list_${this.$utils.now().split(' ')[0]}.csv`)
       link.style.visibility = 'hidden'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
     },
 
+    // --- 複製剪貼簿工具 ---
+    copyToClipboard (text, label = '內容') {
+      if (!text) { return }
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.notify(`已複製 ${label}「${text}」`, { type: 'info' })
+        }).catch(() => {
+          this.fallbackCopy(text, label)
+        })
+      } else {
+        this.fallbackCopy(text, label)
+      }
+    },
+
+    fallbackCopy (text, label) {
+      try {
+        const input = document.createElement('input')
+        input.setAttribute('value', text)
+        document.body.appendChild(input)
+        input.select()
+        document.execCommand('copy')
+        document.body.removeChild(input)
+        this.notify(`已複製 ${label}「${text}」`, { type: 'info' })
+      } catch (e) {
+        this.warning(`無法複製 ${label}`)
+      }
+    },
+
+    // --- 關鍵字安全高亮 ---
     highlight (text) {
       if (!text || this.$utils.empty(this.keyword)) { return text }
-      const regex = new RegExp(`(${this.keyword})`, 'gi')
+      const escaped = String(this.keyword).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      const regex = new RegExp(`(${escaped})`, 'gi')
       return text.toString().replace(regex, '<span class="bg-warning text-dark font-weight-bold px-1 rounded">$1</span>')
     },
 
@@ -577,9 +1837,12 @@ export default {
 
     groupByRole () {
       const res = [
-        { NAME: '系統管理者', LIST: [] }, { NAME: '主管', LIST: [] },
-        { NAME: '研考', LIST: [] }, { NAME: '人事管理者', LIST: [] },
-        { NAME: '公告管理者', LIST: [] }, { NAME: '一般使用者', LIST: [] }
+        { NAME: '系統管理者', LIST: [] },
+        { NAME: '主管', LIST: [] },
+        { NAME: '研考', LIST: [] },
+        { NAME: '人事管理者', LIST: [] },
+        { NAME: '公告管理者', LIST: [] },
+        { NAME: '一般使用者', LIST: [] }
       ]
       const sortTarget = (this.showIp ? this.usersByIpAsc : this.usersById)
       sortTarget.forEach((item) => {
@@ -592,40 +1855,61 @@ export default {
         return res[5].LIST.push(item)
       })
       res.sort(this.sortOrder ? this.sortDesc : this.sortAsc)
-      return res
+      return res.filter(g => g.LIST.length > 0)
     },
 
     sortAsc (a, b) {
-      if (a.LIST.length === b.LIST.length) { return a.NAME?.localeCompare(b.NAME) }
+      if (a.LIST.length === b.LIST.length) {
+        return String(a.NAME || '').localeCompare(String(b.NAME || ''))
+      }
       return b.LIST.length - a.LIST.length
     },
 
     sortDesc (a, b) { return this.sortAsc(b, a) },
 
+    // --- 新增 / 編輯 / 上下一位切換 ---
     add () { this.showModalById('add-user-modal') },
     added (event) {
       this.users.unshift(event.detail)
       this.hideModalById('add-user-modal')
       this.notify(`新增 ${event.detail.id} 成功`, { type: 'success' })
     },
-    edit (user) { this.clickedUser = user; this.showModalById('edit-user-modal') },
+    edit (user) {
+      this.clickedUser = { ...user }
+      this.showModalById('edit-user-modal')
+    },
+    navigateEditUser (step) {
+      const nextIdx = this.currentEditIndex + step
+      if (nextIdx >= 0 && nextIdx < this.filteredUsers.length) {
+        this.clickedUser = { ...this.filteredUsers[nextIdx] }
+      }
+    },
     saved (event) {
       this.update(event.detail)
+      this.clickedUser = { ...this.clickedUser, ...event.detail }
       this.hideModalById('edit-user-modal')
       this.notify(`更新 ${this.clickedUser.id} 完成`, { type: 'success' })
     },
     update (userData) {
       const idx = this.users.findIndex(u => u.id === userData.id)
-      if (idx !== -1) { this.users.splice(idx, 1, { ...this.users[idx], ...userData }) }
+      if (idx !== -1) {
+        this.users.splice(idx, 1, { ...this.users[idx], ...userData })
+      }
     },
 
-    showAdConfigModal () { this.loadAdConfig(); this.showModalById('ad-config-modal') },
+    showAdConfigModal () {
+      this.loadAdConfig()
+      this.showModalById('ad-config-modal')
+    },
     loadAdConfig () {
       this.$axios.post(this.$consts.API.JSON.USER, { type: 'ad_config' }).then(({ data }) => {
         if (this.$utils.statusCheck(data.status)) { this.adConfig = { ...data.raw } }
       }).catch(err => this.$utils.error(err))
     },
-    adConfigSaved (newConfig) { this.adConfig = { ...newConfig }; this.hideModalById('ad-config-modal') },
+    adConfigSaved (newConfig) {
+      this.adConfig = { ...newConfig }
+      this.hideModalById('ad-config-modal')
+    },
 
     // --- 更新 IP 核心邏輯 ---
     getDynamicIPEntries () {
@@ -644,42 +1928,18 @@ export default {
       }).catch(err => this.$utils.error(err)).finally(() => { this.isBusy = false })
     },
 
-    /**
-     * 優先網段定義：根據此站點代碼 (HA~HH) 決定 IP 優先權
-     * 計算方式:
-     * 1. 取得站點代碼的第二個字元 (A~H)。
-     * 2. 利用 ASCII Code 計算對應數值 (A=1, B=2, ... H=8)。
-     * 3. 網段第三碼起始值為 (數值 * 10)，例如 HA -> 10, HB -> 20。
-     * 4. 有效範圍為 起始值 ~ 起始值+9，例如 HA -> 10~19。
-     * 5. 特別排除網段的後三碼 (x7, x8, x9)，視為設備保留區段。
-     * 6. [新增] 嚴格排除 192.168.72.x 等不符合計算規則的網段
-     *
-     * 範例:
-     * HA (A=65-64=1) -> 1*10 = 10 -> 範圍 10 ~ 19 -> 排除 17, 18, 19 -> 有效 10 ~ 16
-     * HB (B=66-64=2) -> 2*10 = 20 -> 範圍 20 ~ 29 -> 排除 27, 28, 29 -> 有效 20 ~ 26
-     */
     isPriorityIp (ip) {
       if (!ip) { return false }
       const parts = ip.split('.').map(Number)
-      // 固定網段 192.168
       if (parts[0] !== 192 || parts[1] !== 168) { return false }
 
-      // 取得站點代碼 (e.g. HA, HB...)
       const site = this.site || ''
-      // 取第 2 碼 (A..H)
       const code = site.length > 1 ? site.charAt(1).toUpperCase() : ''
 
       if (code >= 'A' && code <= 'H') {
-        // A(65)-64=1 -> 1*10=10 (HA)
-        // H(72)-64=8 -> 8*10=80 (HH)
         const idx = code.charCodeAt(0) - 64
         const start = idx * 10
-        // 原本範圍是 start ~ start+9
-        // 依據需求排除後三碼 (x7, x8, x9)，故結束點為 start + 6
-        // 例如 HA: 10 ~ 16 (排除 17, 18, 19)
         const end = start + 6
-
-        // 判斷第三段 IP 是否在範圍內
         return parts[2] >= start && parts[2] <= end
       }
 
@@ -700,18 +1960,14 @@ export default {
         const records = userMap[user.id]
         if (!records) { return }
 
-        // 過濾出與目前 IP 不同，且符合站點網段的 IP
-        // [新增] 強制使用 isPriorityIp 過濾，不符合者直接忽略
         const validDiffIps = [...new Set(records.map(r => r.ip))]
           .filter(ip => ip !== user.ip && this.isPriorityIp(ip))
 
         if (validDiffIps.length === 0) { return }
 
         if (validDiffIps.length === 1) {
-          // 情況 A：只有一個符合條件的新 IP -> 直接列入自動更新
           autoUpdateList.push({ id: user.id, ip: validDiffIps[0], name: user.name })
         } else {
-          // 情況 B：有多個符合條件的新 IP -> 進入手動選擇
           const candidates = validDiffIps.map((ip) => {
             const latest = records.filter(r => r.ip === ip).sort((a, b) => b.timestamp - a.timestamp)[0]
             return { ip, timestamp: this.$utils.phpTsToAdDateStr(latest.timestamp, true) }
@@ -721,7 +1977,6 @@ export default {
       })
 
       if (autoUpdateList.length > 0) {
-        // 改用客製化 VNode 顯示詳細清單
         const h = this.$createElement
         const messageNode = h('div', [
           h('p', `偵測到 ${autoUpdateList.length} 位人員具備內部網段之 IP 變動，是否執行同步？`),
@@ -769,7 +2024,7 @@ export default {
       try {
         const { data } = await this.$axios.post(this.$consts.API.JSON.USER, { type: 'upd_ip', id, ip })
         if (this.$utils.statusCheck(data.status)) {
-          if (!silent) { this.notify(`${id} IP 已更新`, { type: 'success' }) }
+          if (!silent) { this.notify(`${id} IP 已更新為 ${ip}`, { type: 'success' }) }
           this.update({ id, ip })
           if (this.ipConflictList.length > 0) {
             this.ipConflictList = this.ipConflictList.filter(item => item.id !== id)
@@ -779,29 +2034,72 @@ export default {
           this.warning(`${id} 更新失敗: ${data.message}`)
         }
         return data
-      } catch (err) { this.$utils.error(err); return null }
+      } catch (err) {
+        this.$utils.error(err)
+        return null
+      }
     },
 
-    // --- UI 輔助方法 ---
-    variant (user) {
-      const auth = this.getAuthority(user)
-      if (auth.isDisabled) { return 'secondary' }
-      if (auth.isAdmin) { return 'outline-success' }
-      if (auth.isChief) { return 'primary' }
-      if (auth.isRAE) { return 'warning' }
-      if (auth.isUserMgtStaff) { return 'success' }
-      if (auth.isNotifyMgtStaff) { return 'outline-info' }
-      return 'outline-secondary'
+    // --- UI 狀態與多重權限徽章輔助方法 ---
+    isUserDisabled (user) {
+      return this.getAuthority(user).isDisabled
     },
-    role (user) {
-      const auth = this.getAuthority(user)
-      if (auth.isDisabled) { return '已離職' }
-      if (auth.isAdmin) { return '系統管理者' }
-      if (auth.isChief) { return '主管' }
-      if (auth.isRAE) { return '研考' }
-      if (auth.isUserMgtStaff) { return '人事管理者' }
-      return '一般使用者'
+
+    isDuplicateIp (user) {
+      if (!user || !this.isValidIp(user)) { return false }
+      const list = this.duplicateIpMap[user.ip]
+      return Array.isArray(list) && list.length > 1
     },
+
+    getDuplicateIpCount (user) {
+      const list = this.duplicateIpMap[user.ip]
+      return Array.isArray(list) ? list.length : 0
+    },
+
+    getDuplicateIpPeers (user) {
+      const list = this.duplicateIpMap[user.ip] || []
+      return list.filter(u => u.id !== user.id).map(u => `${u.id} ${u.name}`).join('、')
+    },
+
+    roleBadges (user) {
+      const auth = this.getAuthority(user)
+      const badges = []
+      if (auth.isDisabled) {
+        badges.push({ text: '已離職', variant: 'dark' })
+        return badges
+      }
+      if (auth.isAdmin) { badges.push({ text: '系統管理', variant: 'success' }) }
+      if (auth.isChief) { badges.push({ text: '主管', variant: 'primary' }) }
+      if (auth.isRAE) { badges.push({ text: '研考', variant: 'warning' }) }
+      if (auth.isUserMgtStaff) { badges.push({ text: '人員管理', variant: 'info' }) }
+      if (auth.isNotifyMgtStaff) { badges.push({ text: '公告管理', variant: 'danger' }) }
+      return badges
+    },
+
+    cardClass (user) {
+      const classes = []
+      if (this.isUserDisabled(user)) {
+        classes.push('card-disabled')
+      }
+      if (this.isUserAdLocked(user.id) || (!this.isUserDisabled(user) && !this.isValidIp(user))) {
+        classes.push('card-alert')
+      } else if (!this.isUserDisabled(user) && this.isDuplicateIp(user)) {
+        classes.push('card-conflict')
+      }
+      return classes
+    },
+
+    accentBarClass (user) {
+      const auth = this.getAuthority(user)
+      if (auth.isDisabled) { return 'bg-secondary' }
+      if (auth.isAdmin) { return 'bg-success' }
+      if (auth.isChief) { return 'bg-primary' }
+      if (auth.isRAE) { return 'bg-warning' }
+      if (auth.isUserMgtStaff) { return 'bg-info' }
+      if (auth.isNotifyMgtStaff) { return 'bg-danger' }
+      return 'bg-light-border'
+    },
+
     getAuthority (user) {
       const a = user.authority || 0
       return {
@@ -813,64 +2111,290 @@ export default {
         isNotifyMgtStaff: (a & this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT) === this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT
       }
     },
-    ipClass (user) {
-      const v = this.variant(user)
-      // 根據 Bootstrap 語意判斷背景深淺
-      return ['primary', 'success', 'secondary'].includes(v) ? 'ip-text-light' : 'ip-text-dark'
-    },
-    avatarSrc (user) { return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar` },
 
-    /**
-     * 判定是否為有效的顯示 IP
-     * 加入判定：若 IP 尾數為 .0 也視為無效 IP
-     */
-    isValidIp (user) {
-      if (!user.ip || typeof user.ip !== 'string') { return false }
-      const parts = user.ip.split('.')
-      // 必須有四段且最後一段不為 '0'
-      return parts.length === 4 && parts[3] !== '0'
+    avatarSrc (user) {
+      return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
     },
-    ipParts (user) { return user.ip.split('.') }
+
+    isValidIp (user) {
+      if (!user || !user.ip || typeof user.ip !== 'string') { return false }
+      const parts = user.ip.split('.')
+      if (parts.length !== 4 || parts[3] === '0') { return false }
+      return parts.every(p => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255)
+    },
+
+    ipParts (user) {
+      return (user.ip || '').split('.')
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.user-badge {
-  width: 240px;
-  justify-content: flex-start !important;
-  transition: transform 0.25s ease;
-  position: relative;
+// =========================================================
+// 1. lah-header 48px 高度規範
+// =========================================================
+.header-left-group {
+  ::v-deep > .btn {
+    height: 48px !important;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.header-right-group {
+  ::v-deep .btn-group > .btn,
+  ::v-deep > .btn {
+    height: 48px !important;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// =========================================================
+// 2. 頂部智慧診斷指標卡 (Diagnostic KPI Cards)
+// =========================================================
+.kpi-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+
   &:hover {
-    transform: scale(1.25);
-    z-index: 10;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
   }
-  &.btn-outline-dark:hover,
-  &.btn-outline-info:hover {
-    .ip-text-dark { color: #FFEB3B !important; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); }
+
+  &.kpi-active {
+    border-width: 2px;
+    background-color: #f8fafc;
+  }
+  &.kpi-primary { border-color: #007bff !important; background-color: #f0f7ff; }
+  &.kpi-danger  { border-color: #dc3545 !important; background-color: #fff5f5; }
+  &.kpi-warning { border-color: #f59e0b !important; background-color: #fffbeb; }
+  &.kpi-info    { border-color: #17a2b8 !important; background-color: #f0fcff; }
+  &.kpi-success { border-color: #28a745 !important; background-color: #f2fbf4; }
+}
+
+.text-warning-dark {
+  color: #b45309 !important;
+}
+
+.bg-light-danger {
+  background-color: #fff5f5 !important;
+}
+
+// =========================================================
+// 3. 分組與現代化微卡片名牌 (Mini Profile Cards)
+// =========================================================
+.category-header {
+  background-color: #f8f9fa;
+  transition: background-color 0.15s ease;
+  &:hover {
+    background-color: #edf2f7;
   }
 }
 
-// 亮黃色高亮樣式 (用於深色底名牌)
-.ip-text-light { color: #FFEB3B !important; font-weight: 900; text-shadow: 1px 1px 1px rgba(0,0,0,0.4); }
-
-// 深藍色高亮樣式 (用於淺色底名牌)
-.ip-text-dark {
-  color: #0033cc !important;
-  font-weight: 900;
-  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 1px 1px 1px rgba(0, 0, 0, 0.2);
+.user-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: 0.6rem;
 }
 
-// [醒目樣式] 亮紅色、粗體、文字陰影（用於「無 IP」或「尾數 .0」情況）
+.user-mini-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.55rem 0.65rem 0.55rem 0.85rem;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    border-color: #80bdff;
+
+    .card-quick-actions {
+      opacity: 1;
+    }
+  }
+
+  &.card-disabled {
+    background-color: #f1f3f5;
+    opacity: 0.78;
+  }
+
+  &.card-alert {
+    border-color: #f5c2c7;
+    background-color: #fffdfd;
+  }
+
+  &.card-conflict {
+    border-color: #ffecb5;
+    background-color: #fffdf9;
+  }
+}
+
+.card-accent-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+}
+
+.bg-light-border {
+  background-color: #cbd5e1;
+}
+
+.card-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.locked-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.user-id-text {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.user-name-text {
+  font-size: 0.98rem;
+  color: #212529;
+}
+
+.ext-pill {
+  font-weight: 600;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+.role-mini-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.18em 0.45em;
+}
+
+.card-quick-actions {
+  opacity: 0.25;
+  transition: opacity 0.15s ease;
+  display: flex;
+  align-items: center;
+}
+
+// =========================================================
+// 4. 網段 IP 佔用雷達 (Subnet IP Radar Grid)
+// =========================================================
+.ip-radar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.45rem;
+}
+
+.ip-radar-cell {
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.4rem;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font-size: 0.8rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  &.radar-cell-free {
+    background-color: #f8fff9;
+    border-color: #c3e6cb;
+    &:hover { border-color: #28a745; }
+  }
+
+  &.radar-cell-assigned {
+    background-color: #f4f9ff;
+    border-color: #b8daff;
+    &:hover { border-color: #007bff; }
+  }
+
+  &.radar-cell-conflict {
+    background-color: #fff5f5;
+    border-color: #f5c6cb;
+    &:hover { border-color: #dc3545; }
+  }
+
+  &.radar-cell-dynamic {
+    background-color: #fffbeb;
+    border-color: #fde68a;
+  }
+}
+
+.radar-octet {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.radar-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+
+  &.dot-free     { background-color: #28a745; }
+  &.dot-assigned { background-color: #007bff; }
+  &.dot-conflict { background-color: #dc3545; box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25); }
+  &.dot-dynamic  { background-color: #f59e0b; }
+}
+
+.radar-subtext {
+  font-size: 0.72rem;
+}
+
+// =========================================================
+// 5. 警示樣式與表格行內儲存動畫
+// =========================================================
 .ip-alert-style {
-  color: #ff3b3b !important;
-  font-weight: 900 !important;
-  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8), 1px 1px 1px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.5px;
+  color: #dc3545 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.3px;
 }
 
-// [新增] 表格行點擊手勢
 .pointer {
   cursor: pointer;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+::v-deep .row-saved-flash {
+  animation: flashGreen 1.5s ease;
+}
+
+@keyframes flashGreen {
+  0%   { background-color: #d4edda !important; }
+  100% { background-color: transparent; }
 }
 </style>
