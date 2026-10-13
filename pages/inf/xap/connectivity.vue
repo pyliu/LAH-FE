@@ -497,7 +497,7 @@
                 @click="toggleCountyCollapse(group.countyCode)"
               )
                 .d-flex.justify-content-between.align-items-center.flex-nowrap
-                  .d-flex.align-items-center.text-truncate.mr-1
+                  .d-flex.align-items-center.text-truncate.mr-2
                     lah-fa-icon.mr-1(
                       :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
                       variant="secondary"
@@ -506,17 +506,17 @@
                     h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
                     b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
                       | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
-                .d-flex.align-items-center.flex-shrink-0(@click.stop)
-                  span.small.text-muted.mr-2.d-none.d-xl-inline(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
-                  b-button(
-                    size="sm",
-                    variant="outline-info",
-                    class="py-0 px-2 s-80",
-                    title="將此縣市所有地所排入佇列最前端優先探測",
-                    @click="prioritizeCountySites(group.offices)"
-                  )
-                    lah-fa-icon.mr-1(icon="bolt")
-                    span 巡檢
+                  .d-flex.align-items-center.flex-shrink-0(@click.stop)
+                    span.small.font-weight-bold.text-muted.mr-2(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
+                    b-button(
+                      size="sm",
+                      variant="outline-info",
+                      class="py-0 px-2 s-80",
+                      title="將此縣市所有地所排入佇列最前端優先探測",
+                      @click="prioritizeCountySites(group.offices)"
+                    )
+                      lah-fa-icon.mr-1(icon="bolt")
+                      span 巡檢
 
               b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
                 b-card-body.p-2
