@@ -106,7 +106,7 @@ div(v-cloak)
               pill
               @click="openAddModal()"
             )
-      b-card-body.p-0
+      b-card-body.p-0.d-flex.flex-column.overflow-hidden
         b-table.b-table-max-height.mb-0(
           striped
           hover
@@ -216,7 +216,7 @@ div(v-cloak)
               @change="$fetch"
               title="查詢回報時間範圍"
             )
-      b-card-body.p-0
+      b-card-body.p-0.d-flex.flex-column.overflow-hidden
         b-table.b-table-max-height.mb-0(
           striped
           hover
@@ -914,7 +914,9 @@ export default {
   overflow: hidden;
 }
 .b-table-max-height {
-  max-height: calc(100vh - 225px);
+  flex: 1 1 auto;
+  max-height: 100%;
+  height: 100%;
 }
 .client-ip-widget {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
