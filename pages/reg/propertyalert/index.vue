@@ -1083,6 +1083,18 @@ export default {
       if (count && count >= 3) {
         this.setCache('propertyalert-perpage', count)
       }
+    },
+    typeFilter () {
+      this.pagination.currentPage = 1
+    },
+    smsFilter () {
+      this.pagination.currentPage = 1
+    },
+    filterOnlyMine () {
+      this.pagination.currentPage = 1
+    },
+    keyword () {
+      this.pagination.currentPage = 1
     }
   },
   async mounted () {
