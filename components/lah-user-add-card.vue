@@ -1,5 +1,9 @@
 <template lang="pug">
-  div(v-if="isAuthorized" @keydown.ctrl.s.prevent="handleCtrlS")
+  .user-add-card-root(
+    v-if="isAuthorized"
+    :class="{ 'is-compact-mode': isCompact }"
+    @keydown.ctrl.s.prevent="handleCtrlS"
+  )
     //- 1. 頂部即時名牌預覽列 (Live Mini Card Preview)
     .live-preview-banner.p-3.mb-3.rounded.border.bg-light.d-flex.flex-wrap.justify-content-between.align-items-center
       .d-flex.align-items-center.min-w-0
@@ -47,8 +51,8 @@
           title="清空重填所有欄位"
           @click="resetForm(false)"
         )
-          lah-fa-icon.mr-1(icon="rotate-left")
-          span 清空重填
+          lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="rotate-left")
+          span.btn-label 清空重填
 
     //- 2. 核心必填與常用職務區
     .p-3.rounded.border.bg-white.mb-3
@@ -81,7 +85,9 @@
                   variant="outline-primary"
                   title="一鍵帶入本所站台代碼前綴"
                   @click="fillSitePrefix"
-                ) 帶入 {{ sitePrefix }}
+                )
+                  lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="arrow-right-to-bracket")
+                  span.btn-label 帶入 {{ sitePrefix }}
           .small.mt-1(v-if="foundUser")
             span.text-danger.font-weight-bold
               lah-fa-icon.mr-1(icon="triangle-exclamation")
@@ -118,17 +124,19 @@
               b-button.flex-fill.mr-1(
                 size="sm"
                 :variant="userData.sex === 1 ? 'primary' : 'outline-secondary'"
+                title="生理性別：男 (1)"
                 @click="selectSex(1)"
               )
-                lah-fa-icon.mr-1(icon="mars")
-                span 男 (1)
+                lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="mars")
+                span.btn-label 男 (1)
               b-button.flex-fill(
                 size="sm"
                 :variant="userData.sex === 0 ? 'danger' : 'outline-secondary'"
+                title="生理性別：女 (0)"
                 @click="selectSex(0)"
               )
-                lah-fa-icon.mr-1(icon="venus")
-                span 女 (0)
+                lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="venus")
+                span.btn-label 女 (0)
 
         //- 所屬課室
         .col-12.col-md-4.mb-2
@@ -266,7 +274,9 @@
                     variant="outline-secondary"
                     title="一鍵填入今日民國日期"
                     @click="fillTodayOnboardDate"
-                  ) 今天
+                  )
+                    lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="calendar-day")
+                    span.btn-label 今天
 
           //- 手機號碼
           .col-12.col-md-4.mb-2
@@ -335,17 +345,21 @@
           variant="outline-info"
           :disabled="!checkRequired || isBusy"
           :busy="isBusy"
+          :no-icon-gutter="isCompact"
           title="儲存此筆員工後保留視窗與課室設定，方便連續新增下一位"
           @click="save(true)"
-        ) 新增並繼續下一筆
+        )
+          span.btn-label 新增並繼續下一筆
         lah-button(
           icon="check"
           :variant="checkRequired ? 'success' : 'secondary'"
           :disabled="!checkRequired || isBusy"
           :busy="isBusy"
+          :no-icon-gutter="isCompact"
           title="立即建立此員工帳號 (Ctrl + S)"
           @click="save(false)"
-        ) 立即新增員工
+        )
+          span.btn-label 立即新增員工
 </template>
 
 <script>
@@ -354,7 +368,11 @@ import userBase from '~/mixins/lah-user-base.js'
 export default {
   name: 'LahUserAddCard',
   mixins: [userBase],
+  props: {
+    compact: { type: Boolean, default: false }
+  },
   data: () => ({
+    isSmallContainer: false,
     users: [],
     foundUser: null,
     showOthers: false,
@@ -384,6 +402,10 @@ export default {
     })
   },
   computed: {
+    isCompact () {
+      return this.compact || this.isSmallContainer
+    },
+
     isAuthorized () {
       return this.authority.isAdmin || this.authority.isUserMgtStaff
     },
@@ -579,12 +601,41 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+      this.checkContainerSize()
+      if (typeof ResizeObserver !== 'undefined' && this.$el) {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.checkContainerSize()
+        })
+        this.resizeObserver.observe(this.$el)
+      }
       if (this.$refs.idInput && this.$refs.idInput.focus) {
         this.$refs.idInput.focus()
       }
     })
   },
+  beforeDestroy () {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
+  },
   methods: {
+    checkContainerSize () {
+      if (!this.$el) { return }
+      const modalDialog = this.$el.closest ? this.$el.closest('.modal-dialog') : null
+      if (modalDialog) {
+        const isLgOrXl = modalDialog.classList.contains('modal-lg') || modalDialog.classList.contains('modal-xl')
+        if (!isLgOrXl) {
+          this.isSmallContainer = true
+          return
+        }
+      }
+      const width = this.$el.offsetWidth || this.$el.clientWidth || 0
+      if (width > 0) {
+        this.isSmallContainer = width < 760
+      }
+    },
+
     formatter (val) {
       return String(val || '').toUpperCase()
     },
@@ -786,5 +837,61 @@ export default {
   background-color: #dc3545;
   border-color: #dc3545;
   color: #fff;
+}
+
+// 支援原生 CSS Container Queries (inline-size)
+.user-add-card-root {
+  container-type: inline-size;
+}
+
+// 當外部 container 寬度小於 760px 時，隱藏按鍵文字以節省空間
+@container (max-width: 760px) {
+  .btn-label {
+    display: none !important;
+  }
+  .btn .mr-1,
+  .btn .ml-1 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+// 緊湊模式類別與行動裝置 fallback
+.is-compact-mode {
+  .btn-label {
+    display: none !important;
+  }
+  .btn .mr-1,
+  .btn .ml-1 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .btn-label {
+    display: none !important;
+  }
+  .btn .mr-1,
+  .btn .ml-1 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+</style>
+
+<style lang="scss">
+// 當外部 b-modal 之 size 非 lg 以上時 (如 sm 或預設 500px 寬)，將按鍵文字不顯示以節省空間
+.modal-dialog:not(.modal-lg):not(.modal-xl) {
+  .user-add-card-root {
+    .btn-label {
+      display: none !important;
+    }
+    .btn .mr-1,
+    .btn .ml-1 {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
 }
 </style>
