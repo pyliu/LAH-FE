@@ -893,11 +893,12 @@ export default {
     },
     copyText (text, label = '內容') {
       if (!text) { return }
-      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          this.notify(`已複製 ${label}「${text}」`, { type: 'info' })
-        })
-      }
+      const str = String(text)
+      this.copyToClipboard(str, `已複製 ${label}「${str}」`, this.$el).then((success) => {
+        if (!success) {
+          this.notify(`複製 ${label} 失敗，請手動複製`, { type: 'warning' })
+        }
+      })
     },
 
     // --- 極速儲存變更 (免除二次確認視窗) ---

@@ -501,30 +501,12 @@ export default {
     },
     copyText (text, label = '內容') {
       if (!text) { return }
-      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(String(text)).then(() => {
-          this.notify(`已複製 ${label}「${text}」`, { type: 'info' })
-        }).catch(() => {
-          this.copyFallback(String(text), label)
-        })
-      } else {
-        this.copyFallback(String(text), label)
-      }
-    },
-    copyFallback (text, label) {
-      const input = document.createElement('textarea')
-      input.value = text
-      input.style.position = 'fixed'
-      input.style.opacity = '0'
-      document.body.appendChild(input)
-      input.select()
-      try {
-        document.execCommand('copy')
-        this.notify(`已複製 ${label}「${text}」`, { type: 'info' })
-      } catch (err) {
-        this.notify(`複製失敗：${err.message}`, { type: 'warning' })
-      }
-      document.body.removeChild(input)
+      const str = String(text)
+      this.copyToClipboard(str, `已複製 ${label}「${str}」`, this.$el).then((success) => {
+        if (!success) {
+          this.notify(`複製 ${label} 失敗，請手動複製`, { type: 'warning' })
+        }
+      })
     },
     copyFullContactCard () {
       const parts = []
