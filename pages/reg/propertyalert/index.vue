@@ -308,7 +308,7 @@ div
           size="sm"
           :variant="itemSmsVariant(item)"
           :disabled="isBusy || isNonLocalItem(item)"
-          :title="isNonLocalItem(item) ? '非本所案件，本所無法確認簡訊發送狀態' : ''"
+          :title="isNonLocalItem(item) ? '「非本所案件」無法確認簡訊發送狀態' : ''"
           no-caret
           @click.stop
         )
@@ -344,7 +344,7 @@ div
           )
             lah-fa-icon.text-secondary.mr-1(icon="bell-slash")
             | 忽略 / 免排查
-        lah-button.ml-1.px-2.d-inline-flex.align-items-center(
+        lah-button.ml-1.px-2.d-inline-flex.align-items-center.border-0(
           v-if="parseInt(item.sms_status || 0) === 0 && !isNonLocalItem(item)"
           icon="magnifying-glass"
           variant="outline-info"
