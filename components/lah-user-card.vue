@@ -8,7 +8,7 @@
       lah-fa-icon.mb-2(icon="user-slash" variant="secondary" size="2x")
       .font-weight-bold.text-muted.mb-3 查無此使用者資料
       lah-button(
-        v-if="isAuthorized"
+        v-if="canManageUsers"
         icon="user-plus"
         variant="primary"
         block
@@ -34,15 +34,15 @@
             span.status-pulse-dot.mr-1
             | 在職
 
-        //- 右上角快捷編輯按鈕 (若有權限)
+        //- 右上角快捷編輯按鈕 (嚴格權限管控：僅系統管理者或人員管理權限同仁可見)
         .d-flex.align-items-center
           lah-button(
-            v-if="isAuthorized && !noEditButton"
+            v-if="canEdit"
             icon="user-pen"
             variant="light"
             size="sm"
             class="shadow-sm border-0 font-weight-bold"
-            title="編輯同仁資料與照片"
+            title="編輯同仁資料與照片 (管理者 / 人員管理權限)"
             @click="edit"
           ) 編輯
 
@@ -92,8 +92,8 @@
               span.text-muted 職掌：
               span.text-dark.font-weight-bold {{ userData.work }}
 
-            //- 年資與年齡膠囊 (若有權限)
-            .d-flex.flex-wrap.justify-content-center.justify-content-sm-start(v-if="isAuthorized")
+            //- 年資與年齡膠囊 (僅具管理者或人員管理權限者可見)
+            .d-flex.flex-wrap.justify-content-center.justify-content-sm-start(v-if="canManageUsers")
               b-badge.mr-1.mb-1(
                 v-if="workAge !== false"
                 :variant="workAgeVariant"
@@ -111,7 +111,7 @@
 
         //- 3. 辦公通訊快捷資訊磚 (分機、電腦 IP、手機)
         .contact-grid.mb-3
-          //- 分機號碼
+          //- 分機號碼 (所有人均可檢視與複製)
           .contact-item.rounded.p-2(v-if="userData.ext")
             .contact-icon-box.bg-primary-soft.text-primary
               lah-fa-icon(icon="phone-volume")
@@ -126,8 +126,8 @@
             )
               lah-fa-icon(icon="copy" size="xs")
 
-          //- 電腦 IP (若有授權且存在)
-          .contact-item.rounded.p-2(v-if="isAuthorized && userData.ip")
+          //- 電腦 IP (僅具管理者或人員管理權限者可見)
+          .contact-item.rounded.p-2(v-if="canManageUsers && userData.ip")
             .contact-icon-box.bg-info-soft.text-info
               lah-fa-icon(icon="desktop")
             .contact-details.min-w-0
@@ -141,8 +141,8 @@
             )
               lah-fa-icon(icon="copy" size="xs")
 
-          //- 手機號碼 (若有授權且存在)
-          .contact-item.rounded.p-2(v-if="isAuthorized && userData.cell")
+          //- 手機號碼 (僅具管理者或人員管理權限者可見)
+          .contact-item.rounded.p-2(v-if="canManageUsers && userData.cell")
             .contact-icon-box.bg-success-soft.text-success
               lah-fa-icon(icon="mobile-screen-button")
             .contact-details.min-w-0
@@ -156,8 +156,8 @@
             )
               lah-fa-icon(icon="copy" size="xs")
 
-        //- 4. 人事進階資訊 (授權人員可見)
-        .hr-info-card.rounded.border.p-2.bg-light.mb-3(v-if="isAuthorized && hasHrDetails")
+        //- 4. 人事進階資訊 (僅具管理者或人員管理權限者可見)
+        .hr-info-card.rounded.border.p-2.bg-light.mb-3(v-if="canManageUsers && hasHrDetails")
           .d-flex.align-items-center.justify-content-between.mb-2.pb-1.border-bottom
             span.small.font-weight-bold.text-muted
               lah-fa-icon.mr-1(icon="id-card-clip")
@@ -201,12 +201,23 @@
 
             //- 放大照片
             lah-button(
+              :class="{ 'mr-1': canEdit }"
               icon="image"
               variant="outline-info"
               size="sm"
               title="檢視完整個人相片"
               @click="photoClick"
             ) 照片
+
+            //- 編輯按鈕 (嚴格權限管控：僅系統管理者或人員管理權限人員可見)
+            lah-button(
+              v-if="canEdit"
+              icon="user-pen"
+              variant="outline-danger"
+              size="sm"
+              title="編輯同仁資料與照片"
+              @click="edit"
+            ) 編輯
 </template>
 
 <script>
@@ -219,8 +230,35 @@ export default {
     noEditButton: { type: Boolean, default: false }
   },
   computed: {
+    /**
+     * 權限管控：只有系統管理者 (isAdmin) 或 人員管理權限人員 (isUserMgtStaff) 才具備管理權限
+     */
+    canManageUsers () {
+      // 1. 優先檢查 global store 中的 authority 旗標
+      const auth = this.authority || this.$store?.getters?.authority || this.$store?.state?.authority || {}
+      if (auth.isAdmin || auth.isUserMgtStaff) {
+        return true
+      }
+      // 2. 雙重保險：檢查目前登入使用者物件 (this.user) 的位元遮罩權限 (Bitmask)
+      const u = this.user || this.$store?.state?.user || {}
+      const userAuthority = Number(u.authority || 0)
+      if (this.$consts?.AUTHORITY) {
+        const isAdminBit = (userAuthority & this.$consts.AUTHORITY.ADMIN) === this.$consts.AUTHORITY.ADMIN
+        const isUserMgtBit = (userAuthority & this.$consts.AUTHORITY.USER_MANAGEMENT) === this.$consts.AUTHORITY.USER_MANAGEMENT
+        if (isAdminBit || isUserMgtBit) {
+          return true
+        }
+      }
+      return false
+    },
+    /**
+     * 是否可看見與執行編輯功能
+     */
+    canEdit () {
+      return !this.noEditButton && this.canManageUsers
+    },
     isAuthorized () {
-      return Boolean(this.authority?.isAdmin || this.authority?.isUserMgtStaff)
+      return this.canManageUsers
     },
     birthAgeVariant () {
       const badgeAge = this.birthAge
@@ -418,15 +456,21 @@ export default {
       }
     },
     add () {
-      if (this.isAuthorized) {
-        this.modal(this.$createElement('lah-user-add-card', { props: { id: this.id, name: this.name } }), {
-          title: `新增使用者 ${this.id} ${this.name}`,
-          size: 'lg',
-          noCloseOnBackdrop: true
-        })
+      if (!this.canManageUsers) {
+        this.warning('您沒有人員管理權限，無法新增同仁資料')
+        return
       }
+      this.modal(this.$createElement('lah-user-add-card', { props: { id: this.id, name: this.name } }), {
+        title: `新增使用者 ${this.id} ${this.name}`,
+        size: 'lg',
+        noCloseOnBackdrop: true
+      })
     },
     edit () {
+      if (!this.canEdit) {
+        this.warning('您沒有人員管理權限，無法編輯使用者資料')
+        return
+      }
       this.modal(this.$createElement('lah-user-edit-card', {
         props: {
           raw: [this.userData],
@@ -510,8 +554,8 @@ export default {
       const details = []
       if (this.userData.unit) { details.push(`單位：${this.userData.unit}`) }
       if (this.userData.ext) { details.push(`分機：${this.userData.ext}`) }
-      if (this.userData.ip && this.isAuthorized) { details.push(`電腦：${this.userData.ip}`) }
-      if (this.userData.cell && this.isAuthorized) { details.push(`手機：${this.userData.cell}`) }
+      if (this.userData.ip && this.canManageUsers) { details.push(`電腦：${this.userData.ip}`) }
+      if (this.userData.cell && this.canManageUsers) { details.push(`手機：${this.userData.cell}`) }
       if (this.userData.work) { details.push(`職掌：${this.userData.work}`) }
 
       const text = `${parts.join(' ')}（${details.join('、')}）`
