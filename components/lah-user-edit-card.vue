@@ -1,6 +1,10 @@
 <template lang="pug">
   //- 只有在找到使用者且有權限時才顯示編輯工作台
-  b-card.user-edit-studio.border-0.shadow-sm(v-if="found && isAuthorized" no-body)
+  b-card.user-edit-studio.border-0.shadow-sm(
+    v-if="found && isAuthorized"
+    :class="{ 'is-compact-mode': isCompact }"
+    no-body
+  )
     b-row.no-gutters
       //- =========================================================
       //- 左側欄：視覺媒體工作坊 (生活照 + 大頭照互動裁切 + AD 操作)
@@ -63,15 +67,15 @@
                 title="選擇照片檔案 (支援 JPG / PNG / WebP 自動轉檔)"
                 @click="triggerPhotoSelect()"
               )
-                lah-fa-icon.mr-1(icon="upload")
-                | 換照片
+                lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="upload")
+                span.btn-label 換照片
               b-button.text-nowrap(
                 variant="outline-info"
                 title="從下方照片直接框選裁切正方形大頭照，免另外準備檔案！"
                 @click="openCropperFromCurrentPhoto"
               )
-                lah-fa-icon.mr-1(icon="crop-simple")
-                | 裁切頭像
+                lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="crop-simple")
+                span.btn-label 裁切頭像
 
           //- 照片顯示容器
           .photo-preview-container.position-relative.rounded.overflow-hidden.bg-light.text-center(
@@ -126,16 +130,20 @@
                 icon="unlock"
                 variant="outline-warning"
                 size="sm"
+                :no-icon-gutter="isCompact"
                 title="解除 AD 帳號鎖定"
                 @click="unlockAd"
-              ) AD 解鎖
+              )
+                span.btn-label AD 解鎖
               lah-button.text-nowrap(
                 icon="key"
                 :variant="showAdPwPanel ? 'danger' : 'outline-danger'"
                 size="sm"
+                :no-icon-gutter="isCompact"
                 title="展開/收合 AD 密碼重設面板"
                 @click="toggleAdPwPanel"
-              ) AD 密碼
+              )
+                span.btn-label AD 密碼
 
           //- 內嵌式 AD 密碼重設面板
           b-collapse(v-model="showAdPwPanel")
@@ -153,12 +161,17 @@
                     variant="outline-secondary"
                     title="填入預設密碼 a.000000"
                     @click="customAdPassword = 'a.000000'"
-                  ) 預設值
+                  )
+                    lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="wand-magic-sparkles")
+                    span.btn-label 預設值
                   b-button(
                     variant="danger"
                     :disabled="!customAdPassword || isBusy"
+                    title="確認送出並重設 AD 密碼"
                     @click="submitAdPasswordReset"
-                  ) 確認重設
+                  )
+                    lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="check")
+                    span.btn-label 確認重設
 
       //- =========================================================
       //- 右側欄：結構化流暢表單區 (免折疊常用欄位 + 互動式權限膠囊)
@@ -309,7 +322,9 @@
                         trim
                       )
                       b-input-group-append(v-if="!isDisabled")
-                        b-button(variant="outline-secondary" title="填入今日民國日期" @click="fillTodayOnboard") 今天
+                        b-button(variant="outline-secondary" title="填入今日民國日期" @click="fillTodayOnboard")
+                          lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="calendar-day")
+                          span.btn-label 今天
 
                 //- 生日
                 .col-12.col-sm-6.mb-2
@@ -375,12 +390,12 @@
                 title="放棄此次修改，還原為原始內容"
                 @click="revertChanges"
               )
-                lah-fa-icon.mr-1(icon="rotate-left")
-                | 還原修改
+                lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="rotate-left")
+                span.btn-label 還原修改
             template(v-else)
               span.small.text-muted
                 lah-fa-icon.mr-1.text-success(icon="check-circle")
-                | 資料已同步（按 #[code Ctrl+S] 可快速存檔）
+                span.btn-label 資料已同步（按 #[code Ctrl+S] 可快速存檔）
 
           .d-flex.align-items-center.mb-1
             //- 儲存並切換下一位按鈕 (當父組件傳入 hasNext 時啟用)
@@ -390,20 +405,24 @@
               icon-append
               :variant="saveButtonDisabled ? 'outline-secondary' : 'info'"
               :disabled="saveButtonDisabled || isBusy"
+              :no-icon-gutter="isCompact"
               size="md"
               title="直接儲存目前變更並自動切換至下一位員工"
               @click="save(true)"
-            ) 儲存並下一位
+            )
+              span.btn-label 儲存並下一位
 
             //- 極速儲存按鈕 (免確認彈窗直接儲存)
             lah-button(
               icon="floppy-disk"
               :variant="saveButtonDisabled ? 'secondary' : 'success'"
               :disabled="saveButtonDisabled || isBusy"
+              :no-icon-gutter="isCompact"
               size="md"
               title="立即儲存變更 (Ctrl + S)"
               @click="save(false)"
-            ) 儲存變更
+            )
+              span.btn-label 儲存變更
 
     //- =========================================================
     //- 互動式大頭照裁切與雙上傳工作坊 Modal (Interactive Avatar Cropper)
@@ -514,9 +533,11 @@ export default {
   name: 'LahUserEditCard',
   mixins: [userBase],
   props: {
-    hasNext: { type: Boolean, default: false }
+    hasNext: { type: Boolean, default: false },
+    compact: { type: Boolean, default: false }
   },
   data: () => ({
+    isSmallContainer: false,
     showOthers: false,
     authorities: [],
 
@@ -547,6 +568,10 @@ export default {
     customAdPassword: 'a.000000'
   }),
   computed: {
+    isCompact () {
+      return this.compact || this.isSmallContainer
+    },
+
     isAuthorized () {
       return this.authority.isAdmin || this.authority.isUserMgtStaff
     },
@@ -745,6 +770,16 @@ export default {
       this.showOthers = savedShowOthers === 'true'
     }
 
+    this.$nextTick(() => {
+      this.checkContainerSize()
+      if (typeof ResizeObserver !== 'undefined' && this.$el) {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.checkContainerSize()
+        })
+        this.resizeObserver.observe(this.$el)
+      }
+    })
+
     // 支援 Ctrl+S 極速儲存 與 Ctrl+V 直接貼上剪貼簿圖片上傳
     this.handleStudioKeydown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -774,6 +809,10 @@ export default {
     window.addEventListener('paste', this.handleStudioPaste)
   },
   beforeDestroy () {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
     if (this.handleStudioKeydown) {
       window.removeEventListener('keydown', this.handleStudioKeydown)
     }
@@ -782,6 +821,22 @@ export default {
     }
   },
   methods: {
+    checkContainerSize () {
+      if (!this.$el) { return }
+      const modalDialog = this.$el.closest ? this.$el.closest('.modal-dialog') : null
+      if (modalDialog) {
+        const isLgOrXl = modalDialog.classList.contains('modal-lg') || modalDialog.classList.contains('modal-xl')
+        if (!isLgOrXl) {
+          this.isSmallContainer = true
+          return
+        }
+      }
+      const width = this.$el.offsetWidth || this.$el.clientWidth || 0
+      if (width > 0) {
+        this.isSmallContainer = width < 760
+      }
+    },
+
     formatter (val) {
       return val.toUpperCase()
     },
@@ -1405,5 +1460,61 @@ export default {
 
 .min-w-0 {
   min-width: 0;
+}
+
+// 支援原生 CSS Container Queries (inline-size)
+.user-edit-studio {
+  container-type: inline-size;
+}
+
+// 當外部 container 寬度小於 760px 時，隱藏按鍵文字以節省空間
+@container (max-width: 760px) {
+  .btn-label {
+    display: none !important;
+  }
+  .btn .mr-1,
+  .btn .ml-1 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+// 緊湊模式類別與行動裝置 fallback
+.is-compact-mode {
+  .btn-label {
+    display: none !important;
+  }
+  .btn .mr-1,
+  .btn .ml-1 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .btn-label {
+    display: none !important;
+  }
+  .btn .mr-1,
+  .btn .ml-1 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+</style>
+
+<style lang="scss">
+// 當外部 b-modal 之 size 非 lg 以上時 (如 sm 或預設 500px 寬)，將按鍵文字不顯示以節省空間
+.modal-dialog:not(.modal-lg):not(.modal-xl) {
+  .user-edit-studio {
+    .btn-label {
+      display: none !important;
+    }
+    .btn .mr-1,
+    .btn .ml-1 {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
 }
 </style>
