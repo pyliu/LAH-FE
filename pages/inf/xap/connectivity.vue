@@ -479,88 +479,85 @@
               lah-fa-icon.mr-1(icon="compress-arrows-alt")
               span 全收合
 
-        .county-masonry-row
-          transition-group.county-masonry-col(
-            v-for="(col, colIdx) in countyMatrixColumns",
-            :key="colIdx",
-            name="county-flip",
-            tag="div"
+        transition-group.county-masonry-container(
+          name="county-flip",
+          tag="div"
+        )
+          b-card.county-card.mb-3.shadow-sm(
+            v-for="group in countyGroups",
+            :key="group.countyCode",
+            no-body,
+            :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
           )
-            b-card.county-card.mb-3.shadow-sm(
-              v-for="group in col",
-              :key="group.countyCode",
-              no-body,
-              :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
+            b-card-header.county-card-header.py-2.px-3.pointer(
+              :class="{ 'bg-danger-subtle': group.downCount > 0 }",
+              @click="toggleCountyCollapse(group.countyCode)"
             )
-              b-card-header.county-card-header.py-2.px-3.pointer(
-                :class="{ 'bg-danger-subtle': group.downCount > 0 }",
-                @click="toggleCountyCollapse(group.countyCode)"
-              )
-                .d-flex.justify-content-between.align-items-center.flex-nowrap
-                  .d-flex.align-items-center.text-truncate.mr-1
-                    lah-fa-icon.mr-1(
-                      :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
-                      variant="secondary"
-                    )
-                    b-badge.mr-1(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
-                    h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
-                    b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
-                      | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
-                  .d-flex.align-items-center.flex-shrink-0(@click.stop)
-                    span.small.text-muted.mr-2.d-none.d-xl-inline(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
-                    b-button(
-                      size="sm",
-                      variant="outline-info",
-                      class="py-0 px-2 s-80",
-                      title="將此縣市所有地所排入佇列最前端優先探測",
-                      @click="prioritizeCountySites(group.offices)"
-                    )
-                      lah-fa-icon.mr-1(icon="bolt")
-                      span 巡檢
+              .d-flex.justify-content-between.align-items-center.flex-nowrap
+                .d-flex.align-items-center.text-truncate.mr-1
+                  lah-fa-icon.mr-1(
+                    :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
+                    variant="secondary"
+                  )
+                  b-badge.mr-1(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
+                  h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
+                  b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
+                    | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
+                .d-flex.align-items-center.flex-shrink-0(@click.stop)
+                  span.small.text-muted.mr-2.d-none.d-xl-inline(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
+                  b-button(
+                    size="sm",
+                    variant="outline-info",
+                    class="py-0 px-2 s-80",
+                    title="將此縣市所有地所排入佇列最前端優先探測",
+                    @click="prioritizeCountySites(group.offices)"
+                  )
+                    lah-fa-icon.mr-1(icon="bolt")
+                    span 巡檢
 
-              b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
-                b-card-body.p-2
-                  .county-sub-grid
-                    .county-sub-cell(
-                      v-for="office in group.offices",
-                      :key="office.ID",
-                      :class="tileStatusClass(office.ID)",
-                      @click="openOfficeModal(office)"
-                    )
-                      .d-flex.justify-content-between.align-items-center
-                        .d-flex.align-items-center.min-w-0
-                          lah-fa-icon.mr-1(
-                            v-if="isSiteProbing(office.ID)",
-                            icon="spinner",
-                            variant="info",
-                            action="spin"
-                          )
-                          lah-fa-icon.mr-1(
-                            v-else-if="getOfficeState(office.ID).status > 0",
-                            icon="circle-check",
-                            variant="success"
-                          )
-                          lah-fa-icon.mr-1(
-                            v-else-if="getOfficeState(office.ID).status === 0",
-                            icon="triangle-exclamation",
-                            variant="warning",
-                            action="breath"
-                          )
-                          lah-fa-icon.mr-1(
-                            v-else,
-                            icon="circle-xmark",
-                            variant="danger",
-                            action="breath"
-                          )
-                          span.font-weight-bold.text-truncate.s-90 {{ formatOfficeName(office) }}
-                        span.site-id-code.s-80.ml-1 {{ office.ID }}
-                      .d-flex.justify-content-between.align-items-center.mt-1
-                        span.latency-pill.s-80(
-                          v-if="getOfficeTelemetry(office.ID).lastLatency > 0",
-                          :class="latencyColorClass(getOfficeTelemetry(office.ID).lastLatency, getOfficeState(office.ID).status)"
-                        ) {{ getOfficeTelemetry(office.ID).lastLatency }}ms
-                        span.text-muted.s-75(v-else) 待測
-                        span.text-muted.s-75 {{ formatAgo(getOfficeState(office.ID).timestamp) }}
+            b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
+              b-card-body.p-2
+                .county-sub-grid
+                  .county-sub-cell(
+                    v-for="office in group.offices",
+                    :key="office.ID",
+                    :class="tileStatusClass(office.ID)",
+                    @click="openOfficeModal(office)"
+                  )
+                    .d-flex.justify-content-between.align-items-center
+                      .d-flex.align-items-center.min-w-0
+                        lah-fa-icon.mr-1(
+                          v-if="isSiteProbing(office.ID)",
+                          icon="spinner",
+                          variant="info",
+                          action="spin"
+                        )
+                        lah-fa-icon.mr-1(
+                          v-else-if="getOfficeState(office.ID).status > 0",
+                          icon="circle-check",
+                          variant="success"
+                        )
+                        lah-fa-icon.mr-1(
+                          v-else-if="getOfficeState(office.ID).status === 0",
+                          icon="triangle-exclamation",
+                          variant="warning",
+                          action="breath"
+                        )
+                        lah-fa-icon.mr-1(
+                          v-else,
+                          icon="circle-xmark",
+                          variant="danger",
+                          action="breath"
+                        )
+                        span.font-weight-bold.text-truncate.s-90 {{ formatOfficeName(office) }}
+                      span.site-id-code.s-80.ml-1 {{ office.ID }}
+                    .d-flex.justify-content-between.align-items-center.mt-1
+                      span.latency-pill.s-80(
+                        v-if="getOfficeTelemetry(office.ID).lastLatency > 0",
+                        :class="latencyColorClass(getOfficeTelemetry(office.ID).lastLatency, getOfficeState(office.ID).status)"
+                      ) {{ getOfficeTelemetry(office.ID).lastLatency }}ms
+                      span.text-muted.s-75(v-else) 待測
+                      span.text-muted.s-75 {{ formatAgo(getOfficeState(office.ID).timestamp) }}
 
       //- =========================================================
       //- 視圖三：管理者遙測數據表 (Admin Telemetry Table View)
@@ -2049,6 +2046,7 @@ export default {
   justify-content: space-between;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
   cursor: pointer;
 
   &:hover {
@@ -2173,28 +2171,34 @@ export default {
 // =========================================================
 // 5. 縣市戰情視圖 (Masonry 智慧瀑布流 3 欄卡片)
 // =========================================================
-.county-masonry-row {
-  display: flex;
-  gap: 0.85rem;
-  align-items: flex-start;
+.county-masonry-container {
+  column-count: 3;
+  column-gap: 0.85rem;
   width: 100%;
-}
 
-.county-masonry-col {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
+  @media (max-width: 1200px) {
+    column-count: 2;
+  }
+  @media (max-width: 768px) {
+    column-count: 1;
+  }
 }
 
 .county-card {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0.85rem !important;
   border-radius: 12px;
   border-width: 2px !important;
   border-style: solid;
   border-color: #e2e8f0;
   background-color: #ffffff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
+  will-change: transform;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
@@ -2255,7 +2259,21 @@ export default {
 }
 .list-move,
 .county-flip-move {
-  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  will-change: transform;
+  z-index: 5;
+}
+
+.fade-view-enter-active, .fade-view-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.fade-view-enter {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.fade-view-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 // =========================================================
