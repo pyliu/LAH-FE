@@ -3,7 +3,7 @@ div(v-cloak)
   //- 頁面標題列 (符合 48px 高度規範)
   lah-header: lah-transition(appear)
     .d-flex.justify-content-between.align-items-center.w-100
-      .d-flex.align-items-center.header-left-group
+      .d-flex.align-items-center.text-nowrap.flex-shrink-0.header-left-group
         h3.my-auto.font-weight-bold.mb-0 員工資訊管理
         lah-button.ml-1(
           v-b-modal.help-modal
@@ -23,19 +23,19 @@ div(v-cloak)
             :variant="viewMode === 'badge' ? 'primary' : 'outline-primary'"
             title="名牌分組視圖：視覺化檢視各部門與角色名牌"
             @click="viewMode = 'badge'"
-          ) 名牌視圖
+          ) 名牌
           lah-button(
             icon="table"
             :variant="viewMode === 'table' ? 'primary' : 'outline-primary'"
             title="表格快改視圖：高密度清單，支援行內直接修改 IP、分機與課室"
             @click="viewMode = 'table'"
-          ) 表格快改
+          ) 表格
           lah-button(
             icon="satellite-dish"
             :variant="viewMode === 'radar' ? 'primary' : 'outline-primary'"
             title="網段 IP 雷達：視覺化盤點本所網段空閒 IP 與衝突狀態"
             @click="switchToRadarView"
-          ) 網段雷達
+          ) 雷達
 
         //- 管理工具按鈕群組
         b-button-group(size="lg")
@@ -48,7 +48,7 @@ div(v-cloak)
             :disabled="isCheckingLocked"
             :busy="isCheckingLocked"
             @click="checkAdLockedUsers(true)"
-          ) AD 鎖定檢測
+          ) AD 鎖定
 
           lah-button.mr-1.text-nowrap(
             icon="cogs"
@@ -72,7 +72,7 @@ div(v-cloak)
             title="上傳「服務電話一覽表 (.xlsx / .csv)」智慧解析並批次更新人員職掌與分機"
             :disabled="isBusy"
             @click="openRosterImportModal"
-          ) 匯入分機表
+          ) 匯入分機
 
           lah-button-xlsx.mr-1(
             :jsons="xlsxData"
@@ -93,13 +93,13 @@ div(v-cloak)
     h5.font-weight-bold.text-primary 🚀 三大檢視與管理模式
     ul.pl-4
       li.mb-2
-        span.font-weight-bold 📇 名牌視圖：
+        span.font-weight-bold 📇 名牌（名牌視圖）：
         span 升級版個人資訊微卡片，同時呈現「大頭照、姓名、ID、職稱/分機、IP 狀態」與「多重權限徽章」（一人身兼多職時完整顯示所有權限標籤），點擊卡片右側圖示可一鍵複製帳號或 IP。
       li.mb-2
-        span.font-weight-bold 📋 表格快改：
+        span.font-weight-bold 📋 表格（表格快改）：
         span 整合原 IP 清單並支援#[b 行內極速編輯]！可直接在表格中修改「課室」、「電腦 IP」與「分機」，按 #[code Enter] 或點擊 #[b.text-success ✓] 即可秒存，免去反覆開關彈窗與雙重確認。
       li.mb-2
-        span.font-weight-bold 📡 網段雷達（驚喜功能）：
+        span.font-weight-bold 📡 雷達（網段雷達）：
         span 自動掃描本所優先網段（#[code 1 ~ 254]），以燈號標示「🟢 空閒可用」、「🔵 已配發」、「🔴 多人衝突」與「🟡 近期動態登入」。點擊「🟢 空閒可用」格即可一鍵將該空閒 IP 指派給待設定同仁！
 
     hr
@@ -107,7 +107,7 @@ div(v-cloak)
     h5.font-weight-bold.text-primary 💡 智慧診斷與效率工具
     ul.pl-4
       li.mb-2
-        span.font-weight-bold 匯入分機表（XLSX 智慧解析）：
+        span.font-weight-bold 匯入分機（分機表匯入）：
         span 支援直接上傳本所「服務電話一覽表 (.xlsx / .csv)」三欄並排印表格式（自動識別頂部主任/秘書/主管列、合併儲存格向下繼承職掌與共用分機、外駐工作站 #[code #] 分機擷取），並提供#[b 異動比對預覽表]讓你勾選與微調後再批次寫入！
         a.ml-2.font-weight-bold.text-success(
           href="/xlsx/桃園所最新電話一覽表.xlsx"
