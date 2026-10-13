@@ -198,26 +198,6 @@
               :title="isSelf ? '傳送備忘給自己' : `傳送訊息給 ${userData.name}`"
               @click="sendMessage"
             ) {{ isSelf ? '備忘' : '私訊' }}
-
-            //- 放大照片
-            lah-button(
-              :class="{ 'mr-1': canEdit }"
-              icon="image"
-              variant="outline-info"
-              size="sm"
-              title="檢視完整個人相片"
-              @click="photoClick"
-            ) 照片
-
-            //- 編輯按鈕 (嚴格權限管控：僅系統管理者或人員管理權限人員可見)
-            lah-button(
-              v-if="canEdit"
-              icon="user-pen"
-              variant="outline-danger"
-              size="sm"
-              title="編輯同仁資料與照片"
-              @click="edit"
-            ) 編輯
 </template>
 
 <script>

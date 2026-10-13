@@ -62,20 +62,20 @@
               lah-fa-icon.mr-1(icon="image" regular)
               | 員工照片與頭像工作坊
             b-button-group.flex-shrink-0(size="sm" v-if="!isDisabled")
-              b-button.text-nowrap(
+              lah-button.text-nowrap.mr-1(
+                icon="upload"
                 variant="outline-primary"
                 title="選擇照片檔案 (支援 JPG / PNG / WebP 自動轉檔)"
                 @click="triggerPhotoSelect()"
+                no-icon-gutter
               )
-                lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="upload")
-                span.btn-label 換照片
-              b-button.text-nowrap(
+              lah-button.text-nowrap(
+                icon="crop-simple"
                 variant="outline-info"
                 title="從下方照片直接框選裁切正方形大頭照，免另外準備檔案！"
                 @click="openCropperFromCurrentPhoto"
+                no-icon-gutter
               )
-                lah-fa-icon(:class="{ 'mr-1': !isCompact }" icon="crop-simple")
-                span.btn-label 裁切頭像
 
           //- 照片顯示容器
           .photo-preview-container.position-relative.rounded.overflow-hidden.bg-light.text-center(
@@ -133,8 +133,9 @@
                 :no-icon-gutter="isCompact"
                 title="解除 AD 帳號鎖定"
                 @click="unlockAd"
+                no-icon-gutter
               )
-                span.btn-label AD 解鎖
+                span(v-if="!isCompact") 解鎖
               lah-button.text-nowrap(
                 icon="key"
                 :variant="showAdPwPanel ? 'danger' : 'outline-danger'"
@@ -142,8 +143,9 @@
                 :no-icon-gutter="isCompact"
                 title="展開/收合 AD 密碼重設面板"
                 @click="toggleAdPwPanel"
+                no-icon-gutter
               )
-                span.btn-label AD 密碼
+                span(v-if="!isCompact") 密碼
 
           //- 內嵌式 AD 密碼重設面板
           b-collapse(v-model="showAdPwPanel")
