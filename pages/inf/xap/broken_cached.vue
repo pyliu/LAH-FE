@@ -456,108 +456,111 @@
             lah-fa-icon.mr-1(icon="compress-arrows-alt")
             span 全收合
 
-      transition-group.county-masonry-container(
-        name="county-flip",
-        tag="div"
-      )
-        b-card.county-group-card.mb-3.shadow-sm(
-          v-for="group in countyGroups",
-          :key="group.countyCode",
-          no-body,
-          :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
+      .county-masonry-row
+        transition-group.county-masonry-col(
+          v-for="(col, colIdx) in countyMatrixColumns",
+          :key="colIdx",
+          name="county-flip",
+          tag="div"
         )
-          b-card-header.county-header.py-2.px-3.pointer(
-            :class="{ 'bg-danger-subtle': group.downCount > 0 }",
-            @click="toggleCountyCollapse(group.countyCode)"
+          b-card.county-group-card.mb-3.shadow-sm(
+            v-for="group in col",
+            :key="group.countyCode",
+            no-body,
+            :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
           )
-            .d-flex.justify-content-between.align-items-center.flex-nowrap
-              .d-flex.align-items-center.text-truncate.mr-1
-                lah-fa-icon.mr-1(
-                  :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
-                  variant="secondary"
-                )
-                b-badge.mr-1(
-                  :variant="group.countyCode === 'H' ? 'info' : 'secondary'"
-                ) {{ group.regionName }}
-                h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
-                b-badge(
-                  :variant="group.downCount > 0 ? 'danger' : 'success'",
-                  pill
-                ) {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
-                b-badge.ml-1.d-none.d-xl-inline-block(
-                  v-if="group.flakyTotal > 0",
-                  variant="warning",
-                  pill
-                ) 24h:{{ group.flakyTotal }}
+            b-card-header.county-header.py-2.px-3.pointer(
+              :class="{ 'bg-danger-subtle': group.downCount > 0 }",
+              @click="toggleCountyCollapse(group.countyCode)"
+            )
+              .d-flex.justify-content-between.align-items-center.flex-nowrap
+                .d-flex.align-items-center.text-truncate.mr-1
+                  lah-fa-icon.mr-1(
+                    :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
+                    variant="secondary"
+                  )
+                  b-badge.mr-1(
+                    :variant="group.countyCode === 'H' ? 'info' : 'secondary'"
+                  ) {{ group.regionName }}
+                  h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
+                  b-badge(
+                    :variant="group.downCount > 0 ? 'danger' : 'success'",
+                    pill
+                  ) {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
+                  b-badge.ml-1.d-none.d-xl-inline-block(
+                    v-if="group.flakyTotal > 0",
+                    variant="warning",
+                    pill
+                  ) 24h:{{ group.flakyTotal }}
 
-              .d-flex.align-items-center.flex-shrink-0(@click.stop)
-                b-button(
-                  size="sm",
-                  :variant="group.downCount > 0 ? 'danger' : 'outline-info'",
-                  class="py-0 px-2 s-80",
-                  :disabled="isBatchProbing",
-                  :title="`立即針對 ${group.countyName} 所屬 ${group.offices.length} 所發送即時 HTTP 實測`",
-                  @click="probeCountyOffices(group)"
-                )
-                  lah-fa-icon.mr-1(icon="bolt")
-                  span 實測
+                .d-flex.align-items-center.flex-shrink-0(@click.stop)
+                  b-button(
+                    size="sm",
+                    :variant="group.downCount > 0 ? 'danger' : 'outline-info'",
+                    class="py-0 px-2 s-80",
+                    :disabled="isBatchProbing",
+                    :title="`立即針對 ${group.countyName} 所屬 ${group.offices.length} 所發送即時 HTTP 實測`",
+                    @click="probeCountyOffices(group)"
+                  )
+                    lah-fa-icon.mr-1(icon="bolt")
+                    span 實測
 
-          b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
-            b-card-body.p-2
-              .county-office-grid
-                .county-office-cell(
-                  v-for="office in group.offices",
-                  :key="office.id",
-                  :class="cellStatusClass(office)",
-                  @click="show(office)"
-                )
-                  .d-flex.justify-content-between.align-items-center
-                    .d-flex.align-items-center.min-w-0
-                      lah-fa-icon.mr-1(
-                        v-if="isProbing(office.id)",
-                        icon="spinner",
+            b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
+              b-card-body.p-2
+                .county-office-grid
+                  .county-office-cell(
+                    v-for="office in group.offices",
+                    :key="office.id",
+                    :class="cellStatusClass(office)",
+                    @click="show(office)"
+                  )
+                    .d-flex.justify-content-between.align-items-center
+                      .d-flex.align-items-center.min-w-0
+                        lah-fa-icon.mr-1(
+                          v-if="isProbing(office.id)",
+                          icon="spinner",
+                          variant="warning",
+                          action="spin"
+                        )
+                        lah-fa-icon.mr-1(
+                          v-else-if="office.state === 'UP'",
+                          icon="circle-check",
+                          variant="success"
+                        )
+                        lah-fa-icon.mr-1(
+                          v-else,
+                          icon="circle-xmark",
+                          variant="danger",
+                          action="breath"
+                        )
+                        span.font-weight-bold.text-truncate.s-90 {{ formatName(office.name) }}
+                      .d-flex.align-items-center.ml-1
+                        span.site-code-text.s-80.mr-1 {{ office.id }}
+                        b-button.p-0.tile-probe-btn(
+                          size="sm",
+                          variant="link",
+                          title="立即實測此所",
+                          :disabled="isProbing(office.id)",
+                          @click.stop="probeSingleOffice(office)"
+                        )
+                          lah-fa-icon(icon="bolt", :variant="office.state !== 'UP' ? 'danger' : 'info'")
+
+                    .d-flex.justify-content-between.align-items-center.mt-1
+                      span.text-danger.text-truncate.s-75(
+                        v-if="office.state !== 'UP'",
+                        :title="office.response"
+                      ) {{ office.response || '連線異常' }}
+                      span.text-info.font-weight-bold.s-75(
+                        v-else-if="liveProbeMap[office.id]"
+                      ) ⚡ {{ liveProbeMap[office.id].latency }}ms
+                      span.text-muted.s-75(v-else) {{ formatShortTime(office.timestamp) }}
+
+                      b-badge.s-70(
+                        v-if="getDown24hCount(office.id) > 0",
                         variant="warning",
-                        action="spin"
-                      )
-                      lah-fa-icon.mr-1(
-                        v-else-if="office.state === 'UP'",
-                        icon="circle-check",
-                        variant="success"
-                      )
-                      lah-fa-icon.mr-1(
-                        v-else,
-                        icon="circle-xmark",
-                        variant="danger",
-                        action="breath"
-                      )
-                      span.font-weight-bold.text-truncate.s-90 {{ formatName(office.name) }}
-                    .d-flex.align-items-center.ml-1
-                      span.site-code-text.s-80.mr-1 {{ office.id }}
-                      b-button.p-0.tile-probe-btn(
-                        size="sm",
-                        variant="link",
-                        title="立即實測此所",
-                        :disabled="isProbing(office.id)",
-                        @click.stop="probeSingleOffice(office)"
-                      )
-                        lah-fa-icon(icon="bolt", :variant="office.state !== 'UP' ? 'danger' : 'info'")
-
-                  .d-flex.justify-content-between.align-items-center.mt-1
-                    span.text-danger.text-truncate.s-75(
-                      v-if="office.state !== 'UP'",
-                      :title="office.response"
-                    ) {{ office.response || '連線異常' }}
-                    span.text-info.font-weight-bold.s-75(
-                      v-else-if="liveProbeMap[office.id]"
-                    ) ⚡ {{ liveProbeMap[office.id].latency }}ms
-                    span.text-muted.s-75(v-else) {{ formatShortTime(office.timestamp) }}
-
-                    b-badge.s-70(
-                      v-if="getDown24hCount(office.id) > 0",
-                      variant="warning",
-                      pill,
-                      :title="`24h 內曾斷線 ${getDown24hCount(office.id)} 次`"
-                    ) 24h:{{ getDown24hCount(office.id) }}
+                        pill,
+                        :title="`24h 內曾斷線 ${getDown24hCount(office.id)} 次`"
+                      ) 24h:{{ getDown24hCount(office.id) }}
 
     //- =========================================================
     //- 視圖三：高密度診斷清單視圖 (Diagnostic Table View)
@@ -1169,29 +1172,14 @@ export default {
       if (this.windowWidth < 1200) { return 2 }
       return 3
     },
-    // 智慧高度平衡 3 欄瀑布流 (填補每一處縱向空白)
+    // 依序由左至右分派欄位 (Round-Robin Left-to-Right 瀑布流)
     countyMatrixColumns () {
       const cols = Array.from({ length: this.columnCount }, () => [])
-      const colHeights = Array(this.columnCount).fill(0)
-
-      this.countyGroups.forEach((group) => {
+      this.countyGroups.forEach((group, index) => {
         if (!group) { return }
-        const isCollapsed = Boolean(this.collapsedCounties[group.countyCode])
-        // 預估高度：若收合僅標頭約 48px；若展開則標頭 48px + 雙欄地所約 Math.ceil(group.offices.length / 2) * 52px
-        const estHeight = isCollapsed ? 48 : 48 + Math.ceil(group.offices.length / 2) * 52
-
-        let minColIdx = 0
-        let minH = colHeights[0]
-        for (let i = 1; i < this.columnCount; i++) {
-          if (colHeights[i] < minH) {
-            minH = colHeights[i]
-            minColIdx = i
-          }
-        }
-        cols[minColIdx].push(group)
-        colHeights[minColIdx] += estHeight
+        const colIdx = index % this.columnCount
+        cols[colIdx].push(group)
       })
-
       return cols
     },
     // XLSX 匯出資料
@@ -1884,26 +1872,21 @@ export default {
 // =========================================================
 // 4. 縣市矩陣視圖 (Masonry 智慧瀑布流 3 欄卡片)
 // =========================================================
-.county-masonry-container {
-  column-count: 3;
-  column-gap: 0.85rem;
+.county-masonry-row {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
   width: 100%;
+}
 
-  @media (max-width: 1200px) {
-    column-count: 2;
-  }
-  @media (max-width: 768px) {
-    column-count: 1;
-  }
+.county-masonry-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .county-group-card {
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
-  display: inline-block;
-  width: 100%;
-  margin-bottom: 0.85rem !important;
   border-radius: 12px;
   border-width: 2px !important;
   border-style: solid;
@@ -1911,10 +1894,10 @@ export default {
   background-color: #ffffff;
   overflow: hidden;
   will-change: transform;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s ease;
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08) !important;
   }
 

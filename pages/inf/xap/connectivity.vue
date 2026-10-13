@@ -479,30 +479,33 @@
               lah-fa-icon.mr-1(icon="compress-arrows-alt")
               span 全收合
 
-        transition-group.county-masonry-container(
-          name="county-flip",
-          tag="div"
-        )
-          b-card.county-card.mb-3.shadow-sm(
-            v-for="group in countyGroups",
-            :key="group.countyCode",
-            no-body,
-            :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
+        .county-masonry-row
+          transition-group.county-masonry-col(
+            v-for="(col, colIdx) in countyMatrixColumns",
+            :key="colIdx",
+            name="county-flip",
+            tag="div"
           )
-            b-card-header.county-card-header.py-2.px-3.pointer(
-              :class="{ 'bg-danger-subtle': group.downCount > 0 }",
-              @click="toggleCountyCollapse(group.countyCode)"
+            b-card.county-card.mb-3.shadow-sm(
+              v-for="group in col",
+              :key="group.countyCode",
+              no-body,
+              :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
             )
-              .d-flex.justify-content-between.align-items-center.flex-nowrap
-                .d-flex.align-items-center.text-truncate.mr-1
-                  lah-fa-icon.mr-1(
-                    :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
-                    variant="secondary"
-                  )
-                  b-badge.mr-1(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
-                  h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
-                  b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
-                    | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
+              b-card-header.county-card-header.py-2.px-3.pointer(
+                :class="{ 'bg-danger-subtle': group.downCount > 0 }",
+                @click="toggleCountyCollapse(group.countyCode)"
+              )
+                .d-flex.justify-content-between.align-items-center.flex-nowrap
+                  .d-flex.align-items-center.text-truncate.mr-1
+                    lah-fa-icon.mr-1(
+                      :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
+                      variant="secondary"
+                    )
+                    b-badge.mr-1(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
+                    h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
+                    b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
+                      | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
                 .d-flex.align-items-center.flex-shrink-0(@click.stop)
                   span.small.text-muted.mr-2.d-none.d-xl-inline(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
                   b-button(
@@ -515,49 +518,49 @@
                     lah-fa-icon.mr-1(icon="bolt")
                     span 巡檢
 
-            b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
-              b-card-body.p-2
-                .county-sub-grid
-                  .county-sub-cell(
-                    v-for="office in group.offices",
-                    :key="office.ID",
-                    :class="tileStatusClass(office.ID)",
-                    @click="openOfficeModal(office)"
-                  )
-                    .d-flex.justify-content-between.align-items-center
-                      .d-flex.align-items-center.min-w-0
-                        lah-fa-icon.mr-1(
-                          v-if="isSiteProbing(office.ID)",
-                          icon="spinner",
-                          variant="info",
-                          action="spin"
-                        )
-                        lah-fa-icon.mr-1(
-                          v-else-if="getOfficeState(office.ID).status > 0",
-                          icon="circle-check",
-                          variant="success"
-                        )
-                        lah-fa-icon.mr-1(
-                          v-else-if="getOfficeState(office.ID).status === 0",
-                          icon="triangle-exclamation",
-                          variant="warning",
-                          action="breath"
-                        )
-                        lah-fa-icon.mr-1(
-                          v-else,
-                          icon="circle-xmark",
-                          variant="danger",
-                          action="breath"
-                        )
-                        span.font-weight-bold.text-truncate.s-90 {{ formatOfficeName(office) }}
-                      span.site-id-code.s-80.ml-1 {{ office.ID }}
-                    .d-flex.justify-content-between.align-items-center.mt-1
-                      span.latency-pill.s-80(
-                        v-if="getOfficeTelemetry(office.ID).lastLatency > 0",
-                        :class="latencyColorClass(getOfficeTelemetry(office.ID).lastLatency, getOfficeState(office.ID).status)"
-                      ) {{ getOfficeTelemetry(office.ID).lastLatency }}ms
-                      span.text-muted.s-75(v-else) 待測
-                      span.text-muted.s-75 {{ formatAgo(getOfficeState(office.ID).timestamp) }}
+              b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
+                b-card-body.p-2
+                  .county-sub-grid
+                    .county-sub-cell(
+                      v-for="office in group.offices",
+                      :key="office.ID",
+                      :class="tileStatusClass(office.ID)",
+                      @click="openOfficeModal(office)"
+                    )
+                      .d-flex.justify-content-between.align-items-center
+                        .d-flex.align-items-center.min-w-0
+                          lah-fa-icon.mr-1(
+                            v-if="isSiteProbing(office.ID)",
+                            icon="spinner",
+                            variant="info",
+                            action="spin"
+                          )
+                          lah-fa-icon.mr-1(
+                            v-else-if="getOfficeState(office.ID).status > 0",
+                            icon="circle-check",
+                            variant="success"
+                          )
+                          lah-fa-icon.mr-1(
+                            v-else-if="getOfficeState(office.ID).status === 0",
+                            icon="triangle-exclamation",
+                            variant="warning",
+                            action="breath"
+                          )
+                          lah-fa-icon.mr-1(
+                            v-else,
+                            icon="circle-xmark",
+                            variant="danger",
+                            action="breath"
+                          )
+                          span.font-weight-bold.text-truncate.s-90 {{ formatOfficeName(office) }}
+                        span.site-id-code.s-80.ml-1 {{ office.ID }}
+                      .d-flex.justify-content-between.align-items-center.mt-1
+                        span.latency-pill.s-80(
+                          v-if="getOfficeTelemetry(office.ID).lastLatency > 0",
+                          :class="latencyColorClass(getOfficeTelemetry(office.ID).lastLatency, getOfficeState(office.ID).status)"
+                        ) {{ getOfficeTelemetry(office.ID).lastLatency }}ms
+                        span.text-muted.s-75(v-else) 待測
+                        span.text-muted.s-75 {{ formatAgo(getOfficeState(office.ID).timestamp) }}
 
       //- =========================================================
       //- 視圖三：管理者遙測數據表 (Admin Telemetry Table View)
@@ -1213,29 +1216,14 @@ export default {
       if (this.windowWidth < 1200) { return 2 }
       return 3
     },
-    // 智慧高度平衡 3 欄瀑布流 (填補每一處縱向空白)
+    // 依序由左至右分派欄位 (Round-Robin Left-to-Right 瀑布流)
     countyMatrixColumns () {
       const cols = Array.from({ length: this.columnCount }, () => [])
-      const colHeights = Array(this.columnCount).fill(0)
-
-      this.countyGroups.forEach((group) => {
+      this.countyGroups.forEach((group, index) => {
         if (!group) { return }
-        const isCollapsed = Boolean(this.collapsedCounties[group.countyCode])
-        // 預估高度：若收合僅標頭約 48px；若展開則標頭 48px + 雙欄地所約 Math.ceil(offices.length / 2) * 52px
-        const estHeight = isCollapsed ? 48 : 48 + Math.ceil(group.offices.length / 2) * 52
-
-        let minColIdx = 0
-        let minH = colHeights[0]
-        for (let i = 1; i < this.columnCount; i++) {
-          if (colHeights[i] < minH) {
-            minH = colHeights[i]
-            minColIdx = i
-          }
-        }
-        cols[minColIdx].push(group)
-        colHeights[minColIdx] += estHeight
+        const colIdx = index % this.columnCount
+        cols[colIdx].push(group)
       })
-
       return cols
     },
     // 表格資料
@@ -2171,26 +2159,21 @@ export default {
 // =========================================================
 // 5. 縣市戰情視圖 (Masonry 智慧瀑布流 3 欄卡片)
 // =========================================================
-.county-masonry-container {
-  column-count: 3;
-  column-gap: 0.85rem;
+.county-masonry-row {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
   width: 100%;
+}
 
-  @media (max-width: 1200px) {
-    column-count: 2;
-  }
-  @media (max-width: 768px) {
-    column-count: 1;
-  }
+.county-masonry-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .county-card {
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
-  display: inline-block;
-  width: 100%;
-  margin-bottom: 0.85rem !important;
   border-radius: 12px;
   border-width: 2px !important;
   border-style: solid;
@@ -2198,10 +2181,10 @@ export default {
   background-color: #ffffff;
   overflow: hidden;
   will-change: transform;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s ease;
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08) !important;
   }
 
