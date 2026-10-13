@@ -1532,13 +1532,20 @@ export default {
           if (p.modifytime) {
             this.$set(item, 'modifytime', p.modifytime)
           }
+          if (typeof p.note === 'string') {
+            this.$set(item, 'note', p.note)
+          }
           if (this.editRecord && this.editRecord.id === item.id) {
             this.editForm.sms_status = parseInt(p.sms_status)
+            if (typeof p.note === 'string') {
+              this.editForm.note = p.note
+            }
           }
           const statusLabel = this.smsStatusText(p.sms_status)
+          const noteSuffix = parseInt(p.sms_status) === 1 ? '並將簡訊紀錄寫入備註' : ''
           this.smsCheckModal.steps.push({
             state: parseInt(p.sms_status) === 1 ? 'success' : 'warning',
-            text: `5. 結束比對，已自動更新狀態為「${statusLabel}」`
+            text: `5. 結束比對，已自動更新狀態為「${statusLabel}」${noteSuffix}`
           })
         } else {
           this.smsCheckModal.steps.push({
