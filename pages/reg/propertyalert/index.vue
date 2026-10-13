@@ -293,7 +293,7 @@ div
     template(#cell(cellphone)="{ item }")
       .d-flex.align-items-center.justify-content-center(v-if="item.cellphone")
         span.text-monospace.font-weight-bold(v-html="highlightText(item.cellphone)")
-        b-button.ml-1.p-0.px-1(
+        b-button.ml-1.p-0.px-1.border-0(
           variant="outline-secondary"
           size="sm"
           title="複製手機號碼"
