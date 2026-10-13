@@ -884,7 +884,7 @@ export default {
         key: 'note',
         label: '備註',
         sortable: false,
-        thStyle: { minWidth: '280px' }
+        thStyle: { width: '25vw', maxWidth: '25vw' }
       }
     ]
   }),
@@ -1803,6 +1803,7 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
+  max-width: 25vw;
 }
 
 .applicant-dropdown-list {
