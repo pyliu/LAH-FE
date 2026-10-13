@@ -1,40 +1,78 @@
 <template lang="pug">
 div(v-cloak)
   lah-header: lah-transition(appear): .d-flex.justify-content-between.align-items-center.w-100
-    .d-flex.align-items-center
+    .d-flex.align-items-center.header-left-group
       h3.my-auto.font-weight-bold.mb-0 IP對應表管理
       lah-button(
         icon="info"
         action="bounce"
         variant="outline-success"
+        size="lg"
         no-border
         no-icon-gutter
         @click="showModalById('help-modal')"
         title="說明"
         class="ml-1"
       )
-      lah-help-modal(:modal-id="'help-modal'" size="lg"): ol
-        li 管理靜態 IP 對應表（供系統主機識別、服務狀態監控與各項權限判定使用）。
-        li 即時顯示目前 Client IP，支援一鍵將連線 IP 加入靜態設定或在列表中快速篩選。
-        li 查看桃園即時通使用者動態回報的 IP 紀錄，並可一鍵升級為靜態對應或同步至使用者資料。
-          ul: li 電腦端需安裝 #[b 桃園即時通] 並正常登入連線才能正常回報電腦 IP。
+      lah-help-modal(:modal-id="'help-modal'" size="lg" modal-title="IP對應表管理說明" scrollable)
+        h6.font-weight-bold.text-dark
+          lah-fa-icon.mr-1(icon="desktop" variant="success")
+          span 頂部工具列與 Client IP 狀態卡
+        ul.mb-3
+          li #[b 自動偵測 Client IP]：即時顯示您目前連線的 IP 位址（游標停留可檢視是否已設為靜態或對應同仁）。若表格中有與目前 Client IP 相同的紀錄，該列會以綠色底色與 #[b-badge(variant="success" pill) 我的 IP] 醒目標示。
+          li #[lah-fa-icon.text-primary.mr-1(icon="satellite-dish")]#[b Ping 測試 Client IP]：立即測試目前連線 IP 的網路回應狀態與延遲時間（ms）。
+          li #[lah-fa-icon.text-info.mr-1(icon="filter")]#[b 在列表中篩選 Client IP]：一鍵於左右兩側表格同時過濾出目前連線之 IP，再次點擊即可清除篩選。
+          li #[lah-fa-icon.text-success.mr-1(icon="plus")]#[b 設為靜態]：將目前連線的 Client IP 與登入者資訊直接帶入新增靜態 IP 視窗。
+          li #[b-badge(variant="primary" pill) + 新增設定] / #[lah-fa-icon.text-secondary(icon="sync-alt")]：手動新增靜態 IP 設定，或立即重新整理資料（頁面每 60 秒亦會自動背景同步一次）。
 
-    .d-flex.align-items-center.flex-nowrap.text-nowrap
+        h6.font-weight-bold.text-primary
+          lah-fa-icon.mr-1(icon="network-wired")
+          span 左側：靜態 IP 設定（STATIC）
+        ul.mb-3
+          li 管理固定主機與終端設備之 IP 對應表，供系統主機識別、服務狀態監控及各項權限判定使用。
+          li #[b 設備類別標籤]：
+            ul.mt-1
+              li #[b-badge(variant="danger" pill) 伺服器]（#[code SERVER]）：資料庫、Web AP、備份機等伺服器主機。
+              li #[b-badge(variant="info" pill) 其他終端]（#[code OTHER_EP]）：工作站櫃台/審查電腦、公用印表機、閘道器、觸控查詢機等設備。
+              li #[b-badge(variant="dark" pill) 系統主機]（#[code SYSTEM]）：系統級核心設備與控管主機。
+              li #[b-badge(variant="primary" pill) 使用者]（#[code USER]）：固定配發給特定同仁使用之個人電腦。
+          li #[b 搜尋與篩選]：支援輸入 IP、設定名稱或備註關鍵字即時過濾，並可透過下拉選單依「設備類別」篩選。
+          li #[b 單筆操作與快捷功能]：
+            ul.mt-1
+              li 點擊 IP 位址文字或右側 #[lah-fa-icon.text-secondary(icon="copy")] 圖示，可一鍵複製該 IP 至剪貼簿。
+              li #[lah-fa-icon.text-secondary.mr-1(icon="satellite-dish")]#[b Ping 測試連線]：測試該 IP 是否在線，回應結果（延遲 #[code ms] 或 #[code 逾時]）會直接標示於 IP 旁。
+              li #[lah-fa-icon.text-primary.mr-1(icon="edit")]#[b 編輯設定] / #[lah-fa-icon.text-danger.mr-1(icon="times")]#[b 刪除設定]：修改或移除該筆靜態 IP 設定；新增與編輯視窗內支援常用名稱快捷帶入與即時 Ping 測試，輸入 IP 時若命中動態回報紀錄亦會自動帶入同仁名稱建議。
+
+        h6.font-weight-bold.text-info
+          lah-fa-icon.mr-1(icon="users")
+          span 右側：使用者回報 IP 對應表（DYNAMIC）
+        ul.mb-0
+          li 顯示同仁電腦端透過 #[b 桃園即時通] 正常登入連線時自動回報之動態 IP 紀錄（電腦端需安裝並登入 #[b 桃園即時通] 才會產生回報紀錄）。
+          li #[b 搜尋與時間範圍]：支援依 IP、登入帳號或同仁姓名即時搜尋，並可切換回報時間範圍（#[code 7 天內]、#[code 30 天內]、#[code 1 年內]）。
+          li #[b 單筆操作]：
+            ul.mt-1
+              li #[lah-fa-icon.text-secondary.mr-1(icon="satellite-dish")]#[b Ping 測試連線]：檢測該同仁目前回報之電腦 IP 是否可正常連線。
+              li #[lah-fa-icon.text-success.mr-1(icon="plus")]#[b 設為靜態設定]：將該筆動態回報紀錄一鍵升級轉入「新增靜態 IP 設定」視窗（自動預填 IP、使用者類別、同仁姓名與備註）。
+              li #[lah-fa-icon.text-primary.mr-1(icon="upload")]#[b 更新至使用者資料]：將該筆回報之連線 IP 直接同步寫入該名同仁的使用者基本資料中。
+
+    .d-flex.align-items-center.flex-nowrap.text-nowrap.header-right-group
       //- Client IP 狀態卡
-      b-input-group.client-ip-widget.mr-2(size="sm")
+      b-input-group.client-ip-widget.mr-2(size="lg")
         template(#prepend)
           b-input-group-text.bg-dark.text-white.font-weight-bold.px-2
             lah-fa-icon.text-success.mr-1(icon="desktop")
             span CLIENT IP
         b-form-input.font-weight-bold.text-center.bg-white.px-2(
           :value="clientIp || '偵測中...'"
+          size="lg"
           readonly
-          style="width: 140px;"
+          style="width: 160px;"
           :title="clientIpTooltip"
         )
         template(#append)
           b-button(
             variant="outline-primary"
+            size="lg"
             title="Ping 測試 Client IP"
             :disabled="!isClientIpValid || isBusy"
             @click="ping(clientIp)"
@@ -42,6 +80,7 @@ div(v-cloak)
             lah-fa-icon(icon="satellite-dish")
           b-button(
             :variant="isFilterMyIpActive ? 'info' : 'outline-info'"
+            size="lg"
             title="在列表中篩選 Client IP"
             :disabled="!isClientIpValid"
             @click="filterClientIp"
@@ -49,6 +88,7 @@ div(v-cloak)
             lah-fa-icon(icon="filter")
           b-button(
             variant="outline-success"
+            size="lg"
             title="將 Client IP 設為靜態設定"
             :disabled="!isClientIpValid"
             @click="addClientIpToStatic"
@@ -56,10 +96,11 @@ div(v-cloak)
             lah-fa-icon(icon="plus")
             span.d-none.d-xl-inline.ml-1 設為靜態
 
-      b-button-group(size="sm")
+      b-button-group(size="lg")
         lah-button.mr-1(
           icon="plus"
           variant="primary"
+          size="lg"
           title="新增靜態 IP 設定"
           @click="openAddModal()"
           pill
@@ -67,6 +108,7 @@ div(v-cloak)
         lah-button(
           icon="sync-alt"
           variant="outline-secondary"
+          size="lg"
           title="重新整理資料"
           :action="isBusy ? 'spin' : ''"
           :disabled="isBusy"
@@ -909,6 +951,36 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.header-left-group {
+  ::v-deep > .btn {
+    height: 48px !important;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.header-right-group {
+  ::v-deep .input-group {
+    height: 48px;
+  }
+  ::v-deep .input-group-text,
+  ::v-deep input.form-control,
+  ::v-deep .input-group .btn,
+  ::v-deep .btn-group > .btn,
+  ::v-deep > .btn {
+    height: 48px !important;
+    box-sizing: border-box;
+  }
+  ::v-deep .input-group-text,
+  ::v-deep .input-group .btn,
+  ::v-deep .btn-group > .btn,
+  ::v-deep > .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
 .fixed-vh {
   height: calc(100vh - 100px);
   overflow: hidden;
