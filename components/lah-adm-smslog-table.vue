@@ -79,7 +79,7 @@ div
         b-badge(
           :variant="getTypeVariant(item.SMS_TYPE)",
           pill,
-          class="px-2 py-1"
+          class="px-2 py-1 s-100"
         ) {{ item.SMS_TYPE }}
       template(#cell(SMS_DATETIME)="{ item }")
         .d-flex.flex-column.align-items-center.text-nowrap
@@ -142,14 +142,14 @@ div
             v-if="isSuccess(item)",
             variant="success",
             pill,
-            class="px-2 py-1"
+            class="px-2 py-1 s-100"
           )
             lah-fa-icon(icon="check", append) 成功
           .d-flex.flex-column.align-items-center(v-else)
             b-badge(
               variant="danger",
               pill,
-              class="px-2 py-1 mb-1"
+              class="px-2 py-1 mb-1 s-100"
             )
               lah-fa-icon(icon="triangle-exclamation", append) 失敗
             .small.text-danger.text-center.mb-1.font-weight-bold
