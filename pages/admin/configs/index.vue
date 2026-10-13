@@ -217,7 +217,7 @@
       </b-modal>
     </lah-header>
 
-    <b-container v-cloak fluid class="py-3">
+    <b-container v-cloak fluid class="py-3 configs-dashboard">
       <b-row>
         <!-- Card 1: 地政 WEB 資料庫連線設定 (9 項) -->
         <b-col cols="12" md="6" lg="4" class="mb-4">
@@ -1408,5 +1408,53 @@ export default {
 }
 .card-header h6 {
   margin-bottom: 0;
+}
+
+.configs-dashboard {
+  font-size: 1.25rem;
+
+  ::v-deep {
+    .card-header h6 {
+      font-size: 1.25rem;
+    }
+
+    .card-body {
+      font-size: 1.25rem;
+    }
+
+    .form-control,
+    .custom-select,
+    .input-group-text,
+    .input-group > .input-group-prepend > .btn,
+    .input-group > .input-group-append > .btn,
+    .input-group-sm > .form-control,
+    .input-group-sm > .custom-select,
+    .input-group-sm > .input-group-prepend > .input-group-text,
+    .input-group-sm > .input-group-append > .input-group-text,
+    .input-group-sm > .input-group-prepend > .btn,
+    .input-group-sm > .input-group-append > .btn {
+      font-size: 1.25rem;
+    }
+
+    .btn-sm {
+      font-size: 1.09375rem;
+    }
+
+    .form-control.small,
+    .form-control-sm.small {
+      font-size: 1.09375rem;
+    }
+
+    .custom-control-label {
+      &::before,
+      &::after {
+        top: 0.4375rem;
+      }
+    }
+
+    .custom-switch .custom-control-label::after {
+      top: calc(0.4375rem + 2px);
+    }
+  }
 }
 </style>
