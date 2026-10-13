@@ -1797,7 +1797,7 @@ export default {
 
 <style lang="scss" scoped>
 .receiving-type-badge {
-  font-size: 112.5%;
+  font-size: 100%;
 }
 
 .note-clamp {
