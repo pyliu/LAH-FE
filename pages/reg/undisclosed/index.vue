@@ -377,7 +377,7 @@ div
     template(#cell(modifytime)="{ item }")
       .mx-auto.small.text-muted {{ $utils.toADDate(item.modifytime * 1000) }}
     template(#cell(note)="{ item }")
-      .text-left(v-html="handleNoteText(item.note)")
+      .text-left.note-clamp(:title="item.note" v-html="handleNoteText(item.note)")
 
   //- 右鍵選單
   transition(name="ctx-fade")
@@ -821,61 +821,70 @@ export default {
         key: 'serial_no',
         label: '編號',
         sortable: true,
-        thStyle: { width: '110px' }
+        class: 'text-nowrap',
+        thStyle: { width: '95px' }
       },
       {
         key: 'applicant',
         label: '申請人',
         sortable: true,
-        thStyle: { width: '120px' }
+        class: 'text-nowrap',
+        thStyle: { width: '90px' }
       },
       {
         key: 'cellphone',
         label: '手機號碼',
         sortable: true,
-        thStyle: { width: '150px' }
+        class: 'text-nowrap',
+        thStyle: { width: '130px' }
       },
       {
         key: 'sms_status',
         label: '簡訊狀態',
         sortable: true,
-        thStyle: { width: '150px' }
+        class: 'text-nowrap',
+        thStyle: { width: '135px' }
       },
       {
         key: 'receiving_type',
         label: '收件類型',
         sortable: true,
-        thStyle: { width: '90px' }
+        class: 'text-nowrap',
+        thStyle: { width: '80px' }
       },
       {
         key: 'receiving_caseno',
         label: '案件號',
         sortable: true,
-        thStyle: { width: '150px' }
+        class: 'text-nowrap',
+        thStyle: { width: '135px' }
       },
       {
         key: 'receiver',
         label: '收件人員',
         sortable: true,
-        thStyle: { width: '120px' }
+        class: 'text-nowrap',
+        thStyle: { width: '85px' }
       },
       {
         key: 'createtime',
         label: '收件日期',
         sortable: true,
-        thStyle: { width: '110px' }
+        class: 'text-nowrap',
+        thStyle: { width: '95px' }
       },
       {
         key: 'modifytime',
         label: '修改時間',
         sortable: true,
-        thStyle: { width: '160px' }
+        class: 'text-nowrap',
+        thStyle: { width: '140px' }
       },
       {
         key: 'note',
         label: '備註',
         sortable: false,
-        thStyle: { width: '220px' }
+        thStyle: { minWidth: '280px' }
       }
     ]
   }),
@@ -1787,6 +1796,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.note-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
 .applicant-dropdown-list {
   max-height: 200px;
   overflow-y: auto;
