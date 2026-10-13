@@ -468,27 +468,29 @@
       //- =========================================================
       div(v-else-if="viewMode === 'county'")
         .county-matrix-grid
-          b-card.mb-2.shadow-sm(
+          b-card.county-card.mb-0.shadow-sm(
             v-for="group in countyGroups",
             :key="group.countyCode",
             no-body,
             :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
           )
-            b-card-header.py-2.px-3.d-flex.justify-content-between.align-items-center.flex-wrap
-              .d-flex.align-items-center
-                b-badge.mr-2(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
-                h6.mb-0.font-weight-bold.mr-2 {{ group.countyName }} ({{ group.countyCode }})
+            b-card-header.county-card-header.py-2.px-3.d-flex.justify-content-between.align-items-center.flex-nowrap
+              .d-flex.align-items-center.text-truncate.mr-1
+                b-badge.mr-1(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
+                h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
                 b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
-                  | {{ group.downCount > 0 ? `異常 ${group.downCount}/${group.offices.length}` : `${group.offices.length} 所正常` }}
-                span.small.text-muted.ml-2(v-if="group.avgLatency > 0") 均速 {{ group.avgLatency }} ms
-              b-button(
-                size="sm",
-                variant="outline-info",
-                title="將此縣市所有地所排入佇列最前端優先探測",
-                @click="prioritizeCountySites(group.offices)"
-              )
-                lah-fa-icon.mr-1(icon="bolt")
-                span 優先巡檢{{ group.countyName }}
+                  | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
+              .d-flex.align-items-center.flex-shrink-0
+                span.small.text-muted.mr-2.d-none.d-xl-inline(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
+                b-button(
+                  size="sm",
+                  variant="outline-info",
+                  class="py-0 px-2 s-80",
+                  title="將此縣市所有地所排入佇列最前端優先探測",
+                  @click="prioritizeCountySites(group.offices)"
+                )
+                  lah-fa-icon.mr-1(icon="bolt")
+                  span 巡檢
 
             b-card-body.p-2
               .county-sub-grid
@@ -512,20 +514,26 @@
                         variant="success"
                       )
                       lah-fa-icon.mr-1(
+                        v-else-if="getOfficeState(office.ID).status === 0",
+                        icon="triangle-exclamation",
+                        variant="warning",
+                        action="breath"
+                      )
+                      lah-fa-icon.mr-1(
                         v-else,
                         icon="circle-xmark",
                         variant="danger",
                         action="breath"
                       )
-                      span.font-weight-bold.text-truncate {{ formatOfficeName(office) }}
-                    span.site-id-code {{ office.ID }}
-                  .d-flex.justify-content-between.align-items-center.mt-1.small
-                    span.latency-pill(
+                      span.font-weight-bold.text-truncate.s-90 {{ formatOfficeName(office) }}
+                    span.site-id-code.s-80.ml-1 {{ office.ID }}
+                  .d-flex.justify-content-between.align-items-center.mt-1
+                    span.latency-pill.s-80(
                       v-if="getOfficeTelemetry(office.ID).lastLatency > 0",
                       :class="latencyColorClass(getOfficeTelemetry(office.ID).lastLatency, getOfficeState(office.ID).status)"
                     ) {{ getOfficeTelemetry(office.ID).lastLatency }}ms
-                    span.text-muted(v-else) 待測
-                    span.text-muted.small {{ formatAgo(getOfficeState(office.ID).timestamp) }}
+                    span.text-muted.s-75(v-else) 待測
+                    span.text-muted.s-75 {{ formatAgo(getOfficeState(office.ID).timestamp) }}
 
       //- =========================================================
       //- 視圖三：管理者遙測數據表 (Admin Telemetry Table View)
@@ -2082,25 +2090,69 @@ export default {
 }
 
 // =========================================================
-// 5. 縣市戰情視圖 (County Sub-grid)
+// 5. 縣市戰情視圖 (County Matrix 1/3 Card Grid)
 // =========================================================
-.county-sub-grid {
+.county-matrix-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  align-items: start; // 自然高度自適應，不強制等高
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.county-sub-cell {
-  padding: 0.45rem 0.6rem;
-  border-radius: 8px;
-  border-width: 2px;
+.county-card {
+  border-radius: 12px;
+  border-width: 2px !important;
   border-style: solid;
+  border-color: #e2e8f0;
   background-color: #ffffff;
-  cursor: pointer;
-  transition: transform 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
 
   &:hover {
     transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  &.border-danger {
+    border-color: #dc3545 !important;
+  }
+
+  &.border-info {
+    border-color: #0ea5e9 !important;
+  }
+}
+
+.county-card-header {
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.county-sub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.county-sub-cell {
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  border-width: 1.5px;
+  border-style: solid;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -2131,6 +2183,8 @@ export default {
   .kpi-card,
   .filter-toolbar,
   .telemetry-tile,
+  .county-card,
+  .county-card-header,
   .county-sub-cell {
     background-color: #1e1e1e !important;
     border-color: #383838 !important;

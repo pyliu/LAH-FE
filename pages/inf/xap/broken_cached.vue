@@ -457,7 +457,7 @@
             span 全收合
 
       .county-matrix-list
-        b-card.county-group-card.mb-3.shadow-sm(
+        b-card.county-group-card.mb-0.shadow-sm(
           v-for="group in countyGroups",
           :key="group.countyCode",
           no-body,
@@ -467,36 +467,37 @@
             :class="{ 'bg-danger-subtle': group.downCount > 0 }",
             @click="toggleCountyCollapse(group.countyCode)"
           )
-            .d-flex.justify-content-between.align-items-center.flex-wrap
-              .d-flex.align-items-center
-                lah-fa-icon.mr-2(
+            .d-flex.justify-content-between.align-items-center.flex-nowrap
+              .d-flex.align-items-center.text-truncate.mr-1
+                lah-fa-icon.mr-1(
                   :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
                   variant="secondary"
                 )
-                b-badge.mr-2(
+                b-badge.mr-1(
                   :variant="group.countyCode === 'H' ? 'info' : 'secondary'"
                 ) {{ group.regionName }}
-                h5.mb-0.font-weight-bold.mr-2 {{ group.countyName }} ({{ group.countyCode }})
-                b-badge.p-1(
+                h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
+                b-badge(
                   :variant="group.downCount > 0 ? 'danger' : 'success'",
                   pill
-                ) {{ group.downCount > 0 ? `異常 ${group.downCount} / ${group.offices.length} 所` : `${group.offices.length} 所全正常` }}
-                b-badge.ml-2(
+                ) {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
+                b-badge.ml-1.d-none.d-xl-inline-block(
                   v-if="group.flakyTotal > 0",
                   variant="warning",
                   pill
-                ) 24h 斷線 {{ group.flakyTotal }} 次
+                ) 24h:{{ group.flakyTotal }}
 
-              .d-flex.align-items-center(@click.stop)
+              .d-flex.align-items-center.flex-shrink-0(@click.stop)
                 b-button(
                   size="sm",
                   :variant="group.downCount > 0 ? 'danger' : 'outline-info'",
+                  class="py-0 px-2 s-80",
                   :disabled="isBatchProbing",
                   :title="`立即針對 ${group.countyName} 所屬 ${group.offices.length} 所發送即時 HTTP 實測`",
                   @click="probeCountyOffices(group)"
                 )
                   lah-fa-icon.mr-1(icon="bolt")
-                  span 實測{{ group.countyName }} ({{ group.offices.length }})
+                  span 實測
 
           b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
             b-card-body.p-2
@@ -526,9 +527,9 @@
                         variant="danger",
                         action="breath"
                       )
-                      span.font-weight-bold.text-truncate {{ formatName(office.name) }}
+                      span.font-weight-bold.text-truncate.s-90 {{ formatName(office.name) }}
                     .d-flex.align-items-center.ml-1
-                      span.site-code-text.mr-1 {{ office.id }}
+                      span.site-code-text.s-80.mr-1 {{ office.id }}
                       b-button.p-0.tile-probe-btn(
                         size="sm",
                         variant="link",
@@ -538,17 +539,17 @@
                       )
                         lah-fa-icon(icon="bolt", :variant="office.state !== 'UP' ? 'danger' : 'info'")
 
-                  .d-flex.justify-content-between.align-items-center.mt-1.small
-                    span.text-danger.text-truncate(
+                  .d-flex.justify-content-between.align-items-center.mt-1
+                    span.text-danger.text-truncate.s-75(
                       v-if="office.state !== 'UP'",
                       :title="office.response"
                     ) {{ office.response || '連線異常' }}
-                    span.text-info.font-weight-bold(
+                    span.text-info.font-weight-bold.s-75(
                       v-else-if="liveProbeMap[office.id]"
                     ) ⚡ {{ liveProbeMap[office.id].latency }}ms
-                    span.text-muted(v-else) {{ formatShortTime(office.timestamp) }}
+                    span.text-muted.s-75(v-else) {{ formatShortTime(office.timestamp) }}
 
-                    b-badge(
+                    b-badge.s-70(
                       v-if="getDown24hCount(office.id) > 0",
                       variant="warning",
                       pill,
@@ -1839,10 +1840,49 @@ export default {
 }
 
 // =========================================================
-// 4. 縣市矩陣視圖 (County Matrix View)
+// 4. 縣市矩陣視圖 (County Matrix 1/3 Card Grid)
 // =========================================================
+.county-matrix-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  align-items: start; // 自然高度自適應，不強制等高
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.county-group-card {
+  border-radius: 12px;
+  border-width: 2px !important;
+  border-style: solid;
+  border-color: #e2e8f0;
+  background-color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  &.border-danger {
+    border-color: #dc3545 !important;
+  }
+
+  &.border-info {
+    border-color: #0ea5e9 !important;
+  }
+}
+
 .county-header {
   background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
   transition: background-color 0.15s ease;
   &:hover {
     background-color: #f1f5f9;
@@ -1851,21 +1891,21 @@ export default {
 
 .county-office-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
 }
 
 .county-office-cell {
-  padding: 0.5rem 0.65rem;
+  padding: 0.4rem 0.5rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1.5px solid #e2e8f0;
   background-color: #ffffff;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
   }
 
   &.cell-down {
@@ -1906,6 +1946,7 @@ export default {
   .kpi-card,
   .filter-toolbar,
   .modern-tile,
+  .county-group-card,
   .county-office-cell {
     background-color: #1e1e1e !important;
     border-color: #383838 !important;
