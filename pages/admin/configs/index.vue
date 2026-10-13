@@ -56,7 +56,7 @@
       </lah-transition>
 
       <!-- 說明彈窗 -->
-      <lah-help-modal :modal-id="'help-modal'" size="md">
+      <lah-help-modal :modal-id="'help-modal'" size="lg" modal-title="系統參數管理使用說明">
         <div class="d-inline-flex align-items-center">
           ⭐ 按
           <lah-button
@@ -90,9 +90,41 @@
           />
           可進行個別設定快速更新
         </div>
-        <div class="d-inline-flex align-items-center text-muted small">
+        <div class="d-inline-flex align-items-center text-muted small mb-3">
           ℹ️ 管理者密碼預設值為 <code>034917647</code>，雜湊值為 <code>1f7744350d3dd3dc563421582f37f99e</code>
         </div>
+
+        <b-alert show variant="warning" class="small mb-0">
+          <div class="font-weight-bold text-dark mb-1">
+            <lah-fa-icon icon="exclamation-triangle" class="mr-1 text-warning" />
+            參數儲存位置與 <code>.env</code> 優先權機制說明：
+          </div>
+          <ul class="mb-2 pl-3">
+            <li>
+              <strong>儲存目標：</strong>本頁面所儲存之設定值會寫入後端 SQLite 資料庫（<code>dimension.db</code> 之 <code>config</code> 資料表），<strong>不會寫入或更動後端伺服器的 <code>.env</code> 檔案</strong>。
+            </li>
+            <li>
+              <strong><code>.env</code> 覆蓋機制：</strong>後端系統讀取參數時，若伺服器上的 <code>.env</code> 檔案中已設定同名變數，<strong><code>.env</code> 的數值具有最高優先權並直接覆蓋資料庫設定</strong>。
+            </li>
+            <li>
+              <strong>生效說明：</strong>若某項參數已在 <code>.env</code> 中宣告，於此頁面修改儲存後，讀取時依然會維持 <code>.env</code> 之內容；若欲由本介面動態控管該參數，需將該變數從後端 <code>.env</code> 中移除。
+            </li>
+          </ul>
+          <div class="pt-2 border-top d-flex flex-wrap align-items-center">
+            <lah-fa-icon icon="file-alt" class="mr-1 text-secondary" />
+            <span>詳細 <code>.env</code> 設定資料可參考 <code>.env.example</code></span>
+            <b-button
+              variant="outline-primary"
+              size="sm"
+              class="ml-auto py-1 px-2"
+              :disabled="isBusy"
+              @click="downloadEnvExample"
+            >
+              <lah-fa-icon icon="download" class="mr-1" />
+              下載 .env.example
+            </b-button>
+          </div>
+        </b-alert>
       </lah-help-modal>
 
       <!-- 管理者密碼變更彈窗 -->
@@ -1172,6 +1204,11 @@ export default {
       } catch (e) {
         return []
       }
+    },
+    envExampleUrl () {
+      const host = this.apiHost || this.loadedConfigs?.API_SERVER_IP || '220.1.34.75'
+      const port = this.apiPort || this.apiSvrPort || this.loadedConfigs?.API_SERVER_PORT
+      return port ? `http://${host}:${port}/.env.example` : `http://${host}/.env.example`
     }
   },
   watch: {
@@ -1220,6 +1257,33 @@ export default {
       }).finally(() => {
         this.isBusy = false
       })
+    },
+    downloadEnvExample () {
+      this.isBusy = true
+      fetch(this.envExampleUrl)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`)
+          }
+          return res.blob()
+        })
+        .then((blob) => {
+          const url = window.URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = '.env.example'
+          document.body.appendChild(link)
+          link.click()
+          link.remove()
+          window.URL.revokeObjectURL(url)
+          this.notify('已下載 .env.example', { type: 'success' })
+        })
+        .catch((err) => {
+          this.notify('下載失敗：' + err.message, { type: 'danger' })
+        })
+        .finally(() => {
+          this.isBusy = false
+        })
     },
     update () {
       this.confirm('確定要更新全部 35 項系統設定值？')
