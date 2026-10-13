@@ -1,374 +1,556 @@
 <template lang="pug">
-  //- 只有在找到使用者且有權限時才顯示編輯卡片
-  b-card(v-if="found && isAuthorized" body-border-variant="danger")
+  //- 只有在找到使用者且有權限時才顯示編輯工作台
+  b-card.user-edit-studio.border-0.shadow-sm(v-if="found && isAuthorized" no-body)
+    b-row.no-gutters
+      //- =========================================================
+      //- 左側欄：視覺媒體工作坊 (生活照 + 大頭照互動裁切 + AD 操作)
+      //- =========================================================
+      b-col.studio-left-pane.p-3.border-right(cols="12" lg="5")
+        //- 1. 頂部大頭照與個人識別區
+        .d-flex.align-items-center.mb-3
+          .avatar-drop-zone.mr-3.position-relative(
+            :class="{ 'is-dragover': isDraggingAvatar }"
+            title="點擊更換大頭照，或直接將圖片拖曳至此"
+            @click="!isDisabled && triggerAvatarSelect()"
+            @dragover.prevent="isDraggingAvatar = true"
+            @dragleave.prevent="isDraggingAvatar = false"
+            @drop.prevent="handleDrop($event, 'avatar')"
+          )
+            b-avatar.shadow-sm(
+              variant="light"
+              size="5.2rem"
+              :src="avatarPreviewUrl || avatarSrc"
+            )
+            .avatar-edit-overlay(v-if="!isDisabled")
+              lah-fa-icon(icon="camera" variant="light")
+              span.avatar-overlay-text 換頭像
+            b-spinner.avatar-spinner(v-if="uploadingAvatar" small variant="primary")
 
-    //- ==========================================
-    //- 1. 核心帳號與權限設定區塊
-    //- ==========================================
-    b-card-group(deck)
-      //- 帳號 (唯讀，不可修改)
-      b-card.border-0(no-body): b-form-group(
-        label="帳號"
-        label-for="id-input"
-        label-cols-sm="2"
-        label-size="md"
-      ): b-input(
-        id="id-input"
-        v-model="userData['id']"
-        :formatter="formatter"
-        disabled
-        trim
-      )
-      //- 權限 Checkbox Group
-      b-card.border-0(no-body)
-        b-form-group(
-          label="權限"
-          label-for="ext-input"
-          label-cols-sm="2"
-          label-size="md"
-          description="另外，電腦 IP 於「使用者角色管理」設定的角色會一併生效（只增加、不取消此處權限）"
-        ): b-checkbox-group(
-          v-model="authorities"
-          :options="authOpts"
+          .flex-grow-1.min-w-0
+            .d-flex.align-items-center.flex-wrap
+              span.h5.font-weight-bold.mb-0.mr-2 {{ userData.name || '未填姓名' }}
+              b-badge(v-if="isDisabled" variant="danger" pill) 已離職
+              b-badge(v-else variant="success" pill) 在職
+            .text-monospace.text-muted.small.mt-1
+              span {{ userData.id }}
+              b-button.p-0.ml-1.text-muted(
+                variant="link"
+                size="sm"
+                title="複製帳號 ID"
+                @click="copyText(userData.id, '帳號')"
+              )
+                lah-fa-icon(icon="copy" size="xs")
+            .d-flex.flex-wrap.mt-1
+              b-badge.mr-1.mb-1(v-if="userData.unit" variant="info") {{ userData.unit }}
+              b-badge.mr-1.mb-1(v-if="userData.title" variant="secondary") {{ userData.title }}
+              b-badge.mr-1.mb-1(v-if="birthAge !== false" :variant="birthAgeVariant" pill) {{ birthAge }} 歲
+              b-badge.mr-1.mb-1(v-if="workAge !== false" :variant="workAgeVariant" pill) 年資 {{ workAge }} 年
+
+        //- 2. 生活照互動拖放與預覽區 (支援拖曳、點擊、Ctrl+V 貼上、一鍵裁切頭像)
+        .photo-studio-card.rounded.border.p-2.bg-white.mb-3(
+          :class="{ 'is-dragover': isDraggingPhoto }"
+          @dragover.prevent="isDraggingPhoto = true"
+          @dragleave.prevent="isDraggingPhoto = false"
+          @drop.prevent="handleDrop($event, 'photo')"
         )
+          .d-flex.justify-content-between.align-items-center.flex-nowrap.mb-2
+            span.small.font-weight-bold.text-muted.text-nowrap.mr-2
+              lah-fa-icon.mr-1(icon="image" regular)
+              | 員工照片與頭像工作坊
+            b-button-group.flex-shrink-0(size="sm" v-if="!isDisabled")
+              b-button.text-nowrap(
+                variant="outline-primary"
+                title="選擇照片檔案 (支援 JPG / PNG / WebP 自動轉檔)"
+                @click="triggerPhotoSelect()"
+              )
+                lah-fa-icon.mr-1(icon="upload")
+                | 換照片
+              b-button.text-nowrap(
+                variant="outline-info"
+                title="從下方照片直接框選裁切正方形大頭照，免另外準備檔案！"
+                @click="openCropperFromCurrentPhoto"
+              )
+                lah-fa-icon.mr-1(icon="crop-simple")
+                | 裁切頭像
 
-    //- ==========================================
-    //- 2. 基本資料區塊 (姓名、IP)
-    //- ==========================================
-    b-card-group(deck)
-      //- 姓名 (必填驗證)
-      b-card.border-0(no-body): b-form-group(
-        label="姓名"
-        label-for="name-input"
-        label-cols-sm="2"
-        label-size="md"
-      ): b-input(
-        id="name-input"
-        v-model="userData['name']"
-        :state="checkName"
-        :disabled="isDisabled"
-        trim
-      )
-      //- 電腦 IP (格式驗證)
-      b-card.border-0(no-body): b-form-group(
-        label="電腦"
-        label-for="ip-input"
-        label-cols-sm="2"
-        label-size="md"
-      ): b-input(
-        id="ip-input"
-        v-model="userData['ip']"
-        :state="checkIp"
-        :disabled="isDisabled"
-        trim
-      )
-
-    //- ==========================================
-    //- 3. 分類資料區塊 (性別、課室)
-    //- ==========================================
-    b-card-group(deck)
-      b-card.border-0(no-body)
-        b-form-group(
-          label="性別"
-          label-for="sex-select"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-select(
-          id="sex-select"
-          v-model="userData['sex']"
-          :options="sexOpts"
-          :disabled="isDisabled"
-        )
-      b-card.border-0(no-body)
-        b-form-group(
-          label="課室"
-          label-for="unit-select"
-          label-cols-sm="2"
-          label-size="md"
-        ): b-select(
-          id="unit-select"
-          v-model="userData['unit']"
-          :options="unitOpts"
-          :disabled="isDisabled"
-        )
-
-    //- ==========================================
-    //- 4. 操作與擴充顯示控制列
-    //- ==========================================
-    .d-flex.justify-content-between.mb-2.align-items-center
-      //- 左側：儲存變更按鈕
-      lah-button(
-        icon="save"
-        :variant="saveButtonVariant"
-        @click="save"
-        :disabled="saveButtonDisabled"
-        size="sm"
-      ) 儲存變更
-
-      //- 右側：切換其他欄位顯示
-      .d-flex.align-items-center.toggle-block(
-        @click="showOthers = !showOthers"
-        style="cursor: pointer"
-        title="切換其他欄位顯示"
-      )
-        .mr-1 {{ showOthers ? '隱藏其他資訊欄位' : '顯示其他資訊欄位' }}
-        lah-fa-icon(
-          :icon="showOthers ? 'angle-double-up' : 'angle-double-down'"
-          :action="showOthers ? 'move-fade-btt' : 'move-fade-ttb'"
-        )
-
-    //- ==========================================
-    //- 5. 擴充資訊區塊 (包含較少更動的欄位)
-    //- ==========================================
-    lah-transition(zoom): .p-4.optional-border(v-show="showOthers")
-
-      //- 第一列：分機、職稱
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="分機"
-            label-for="ext-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input.border-info(
-            id="ext-input"
-            v-model="userData['ext']"
-            :state="checkExt"
-            :disabled="isDisabled"
-            trim
+          //- 照片顯示容器
+          .photo-preview-container.position-relative.rounded.overflow-hidden.bg-light.text-center(
+            @click="!isDisabled && triggerPhotoSelect()"
           )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="職稱"
-            label-for="work-title-select"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-select.border-info(
-            id="work-title-select"
-            v-model="userData['title']"
-            :options="workTitleOpts"
-            :disabled="isDisabled"
+            img.photo-preview-img(
+              ref="currentPhotoImg"
+              :key="photoSrc"
+              :src="photoPreviewUrl || photoSrc"
+              :alt="userData.name"
+              crossorigin="anonymous"
+              @load="onPhotoLoaded"
+            )
+            .photo-hover-hint(v-if="!isDisabled")
+              lah-fa-icon.mb-1(icon="cloud-arrow-up" size="2x")
+              .small.font-weight-bold 點擊選檔、拖曳圖片至此，或按 Ctrl+V 貼上截圖
+              .extra-small.text-light 支援 PNG / WebP / JPG 自動最佳化轉檔
+            .photo-uploading-mask(v-if="uploadingPhoto")
+              b-spinner(variant="light")
+              .small.text-white.mt-2 正在上傳照片...
+
+          //- 隱藏的檔案輸入框 (支援所有圖片格式，前端自動透過 Canvas 轉為 JPG)
+          input.d-none(
+            ref="photoFileInput"
+            type="file"
+            accept="image/*"
+            @change="onFileInputChange($event, 'photo')"
+          )
+          input.d-none(
+            ref="avatarFileInput"
+            type="file"
+            accept="image/*"
+            @change="onFileInputChange($event, 'avatar')"
           )
 
-      //- 第二列：工作內容、到職日
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="工作"
-            label-for="work-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input.border-info(
-            id="work-input"
-            v-model="userData['work']"
-            placeholder="範例：資訊系統管理"
-            :disabled="isDisabled"
-            trim
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="到職"
-            label-for="onboard-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="onboard-input"
-            v-model="userData['onboard_date']"
-            trim
-            :state="checkOnboardDate"
-            :disabled="isDisabled"
-            placeholder="範例：110/06/01"
-          )
+          .d-flex.justify-content-between.align-items-center.flex-nowrap.mt-2.px-1
+            span.extra-small.text-muted.text-nowrap 💡 支援 #[code Ctrl+V] 直接貼上剪貼簿圖片
+            b-link.extra-small.font-weight-bold.text-nowrap(
+              v-if="!isDisabled"
+              href="javascript:void(0)"
+              @click="triggerAvatarSelect()"
+            ) 單獨上傳頭像檔
 
-      //- 第三列：生日、手機
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="生日"
-            label-for="bd-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="bd-input"
-            v-model="userData['birthday']"
-            :state="checkBirthday"
-            :disabled="isDisabled"
-            placeholder="範例：066/05/23"
-            trim
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="手機"
-            label-for="cell-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="cell-input"
-            v-model="userData['cell']"
-            :state="checkCell"
-            :disabled="isDisabled"
-            trim
-          )
+        //- 3. AD 帳號管理與密碼重設專區 (取代原生醜陋的 window.prompt)
+        .ad-action-box.rounded.border.p-2.bg-white(v-if="!isDisabled")
+          .d-flex.justify-content-between.align-items-center.flex-nowrap
+            span.small.font-weight-bold.text-muted.text-nowrap.mr-2
+              lah-fa-icon.mr-1(icon="shield-halved")
+              | AD 網域帳號操作
+            .d-flex.flex-nowrap.flex-shrink-0
+              lah-button.mr-1.text-nowrap(
+                icon="unlock"
+                variant="outline-warning"
+                size="sm"
+                title="解除 AD 帳號鎖定"
+                @click="unlockAd"
+              ) AD 解鎖
+              lah-button.text-nowrap(
+                icon="key"
+                :variant="showAdPwPanel ? 'danger' : 'outline-danger'"
+                size="sm"
+                title="展開/收合 AD 密碼重設面板"
+                @click="toggleAdPwPanel"
+              ) AD 密碼
 
-      //- 第四列：考試、學歷
-      b-card-group(deck)
-        b-card.border-0(no-body)
-          b-form-group(
-            label="考試"
-            label-for="exam-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="exam-input"
-            v-model="userData['exam']"
-            placeholder="範例：107年資訊處理高考三級"
-            :disabled="isDisabled"
-            trim
-          )
-        b-card.border-0(no-body)
-          b-form-group(
-            label="教育"
-            label-for="edu-input"
-            label-cols-sm="2"
-            label-size="md"
-          ): b-input(
-            id="edu-input"
-            v-model="userData['education']"
-            placeholder="範例：台北科技大學資訊工程研究所"
-            :disabled="isDisabled"
-            trim
-          )
+          //- 內嵌式 AD 密碼重設面板
+          b-collapse(v-model="showAdPwPanel")
+            .mt-2.pt-2.border-top
+              .small.text-muted.mb-1 設定 #[b {{ userData.id }}] 的新 AD 密碼：
+              b-input-group(size="sm")
+                b-form-input(
+                  v-model="customAdPassword"
+                  placeholder="輸入新密碼"
+                  trim
+                  @keydown.enter.prevent="submitAdPasswordReset"
+                )
+                b-input-group-append
+                  b-button(
+                    variant="outline-secondary"
+                    title="填入預設密碼 a.000000"
+                    @click="customAdPassword = 'a.000000'"
+                  ) 預設值
+                  b-button(
+                    variant="danger"
+                    :disabled="!customAdPassword || isBusy"
+                    @click="submitAdPasswordReset"
+                  ) 確認重設
 
-    hr
+      //- =========================================================
+      //- 右側欄：結構化流暢表單區 (免折疊常用欄位 + 互動式權限膠囊)
+      //- =========================================================
+      b-col.studio-right-pane.p-3.d-flex.flex-column.justify-content-between(cols="12" lg="7")
+        div
+          //- 1. 互動式角色權限膠囊區 (Interactive Role Pills)
+          .form-section.mb-3.p-3.rounded.border.bg-light-subtle
+            .d-flex.justify-content-between.align-items-center.mb-2
+              label.font-weight-bold.mb-0.small.text-uppercase.text-secondary
+                lah-fa-icon.mr-1(icon="user-tag")
+                | 角色與權限設定（點擊膠囊立即切換）
+              span.extra-small.text-muted 可複選多重身分
 
-    //- ==========================================
-    //- 6. 底部操作按鈕區
-    //- ==========================================
-    //- 使用 .d-flex.justify-content-end 讓內容靠右
-    .d-flex.justify-content-end
-      //- AD 操作按鈕組
-      lah-button.mr-2(
-        icon="unlock"
-        variant="warning"
-        @click="unlockAd"
-        :disabled="isDisabled"
-        v-b-tooltip.hover
-        title="解除 AD 帳號鎖定"
-        pill
-      ) AD 解鎖
-      lah-button.mr-2(
-        icon="key"
-        variant="danger"
-        @click="changeAdPassword"
-        :disabled="isDisabled"
-        v-b-tooltip.hover
-        title="重設 AD 密碼"
-        pill
-      ) AD 密碼
+            .d-flex.flex-wrap.role-pill-group
+              b-button.role-pill-btn.mr-2.mb-2(
+                v-for="opt in rolePillOptions"
+                :key="opt.value"
+                :variant="hasAuthorityBit(opt.value) ? opt.activeVariant : 'outline-secondary'"
+                :disabled="opt.disabled"
+                size="sm"
+                pill
+                @click="toggleAuthorityBit(opt.value)"
+              )
+                lah-fa-icon.mr-1(:icon="hasAuthorityBit(opt.value) ? 'check-circle' : opt.icon")
+                span.font-weight-bold {{ opt.text }}
 
-      //- 圖片上傳按鈕 (保持在最右側)
-      lah-button(
-        icon="user-circle"
-        regular
-        v-if="!isDisabled"
-        variant="info"
-        v-b-modal.upload-user-img-modal
-      ) 上傳圖檔
+            //- 部門與角色自動生效權限智慧提示
+            .effective-auth-hint.small.text-muted.mt-1
+              lah-fa-icon.mr-1.text-info(icon="circle-info")
+              span {{ effectiveAuthorityHint }}
 
-    hr
+          //- 2. 核心常用資料區 (將「分機」與「職稱」直接提上來，免展開即可編輯！)
+          .form-section.mb-3
+            .row
+              //- 姓名
+              .col-12.col-sm-6.mb-2
+                b-form-group.mb-1(label="姓名 *" label-for="name-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                  b-form-input(
+                    id="name-input"
+                    v-model="userData.name"
+                    :state="checkName"
+                    :disabled="isDisabled"
+                    size="sm"
+                    trim
+                  )
 
-    //- 即時預覽卡片
-    lah-user-card(
-      :raw="[userData]"
-      @click="!isDisabled && showModalById('upload-user-img-modal')"
-      no-edit-button
-    )
+              //- 課室
+              .col-12.col-sm-6.mb-2
+                b-form-group.mb-1(label="課室單位 *" label-for="unit-select" label-size="sm" label-class="font-weight-bold text-secondary")
+                  b-form-select(
+                    id="unit-select"
+                    v-model="userData.unit"
+                    :options="unitOpts"
+                    :disabled="isDisabled"
+                    size="sm"
+                  )
 
-    //- ==========================================
-    //- 7. 圖片上傳 Modal
-    //- ==========================================
+              //- 電腦 IP
+              .col-12.col-sm-6.mb-2
+                b-form-group.mb-1(label="電腦 IP 位址 *" label-for="ip-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                  b-input-group(size="sm")
+                    b-form-input.text-monospace(
+                      id="ip-input"
+                      v-model="userData.ip"
+                      :state="checkIp"
+                      :disabled="isDisabled"
+                      placeholder="192.168.X.X"
+                      trim
+                    )
+                    b-input-group-append(v-if="userData.ip")
+                      b-button(
+                        variant="outline-secondary"
+                        title="複製 IP"
+                        @click="copyText(userData.ip, 'IP')"
+                      )
+                        lah-fa-icon(icon="copy")
+
+              //- 分機 (直接提升至核心區)
+              .col-6.col-sm-3.mb-2
+                b-form-group.mb-1(label="分機號碼" label-for="ext-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                  b-form-input(
+                    id="ext-input"
+                    v-model="userData.ext"
+                    :state="checkExt"
+                    :disabled="isDisabled"
+                    placeholder="3~4 碼"
+                    size="sm"
+                    trim
+                  )
+
+              //- 性別
+              .col-6.col-sm-3.mb-2
+                b-form-group.mb-1(label="性別" label-for="sex-select" label-size="sm" label-class="font-weight-bold text-secondary")
+                  b-form-select(
+                    id="sex-select"
+                    v-model="userData.sex"
+                    :options="sexOpts"
+                    :disabled="isDisabled"
+                    size="sm"
+                  )
+
+              //- 職稱 (直接提升至核心區)
+              .col-12.col-sm-6.mb-2
+                b-form-group.mb-1(label="職稱" label-for="work-title-select" label-size="sm" label-class="font-weight-bold text-secondary")
+                  b-form-select(
+                    id="work-title-select"
+                    v-model="userData.title"
+                    :options="workTitleOpts"
+                    :disabled="isDisabled"
+                    size="sm"
+                  )
+
+              //- 工作內容 (直接提升至核心區)
+              .col-12.col-sm-6.mb-2
+                b-form-group.mb-1(label="工作職掌" label-for="work-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                  b-form-input(
+                    id="work-input"
+                    v-model="userData.work"
+                    placeholder="範例：資訊系統管理、初審"
+                    :disabled="isDisabled"
+                    size="sm"
+                    trim
+                  )
+
+          //- 3. 進階人事檔案區塊 (到職、生日、手機、學歷、考試)
+          .d-flex.justify-content-between.align-items-center.mb-2
+            .d-flex.align-items-center.toggle-block.small.text-primary(
+              style="cursor: pointer"
+              @click="showOthers = !showOthers"
+            )
+              lah-fa-icon.mr-1(:icon="showOthers ? 'chevron-up' : 'chevron-down'")
+              span.font-weight-bold {{ showOthers ? '收合進階人事欄位 (到職/生日/手機/學歷/考試)' : '展開進階人事欄位 (到職/生日/手機/學歷/考試)' }}
+
+          b-collapse(v-model="showOthers")
+            .p-3.optional-border.mb-2
+              .row
+                //- 到職日 (附帶「今天」快捷填入)
+                .col-12.col-sm-6.mb-2
+                  b-form-group.mb-1(label="到職日期 (民國年)" label-for="onboard-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                    b-input-group(size="sm")
+                      b-form-input(
+                        id="onboard-input"
+                        v-model="userData.onboard_date"
+                        :state="checkOnboardDate"
+                        :disabled="isDisabled"
+                        placeholder="範例：110/06/01"
+                        trim
+                      )
+                      b-input-group-append(v-if="!isDisabled")
+                        b-button(variant="outline-secondary" title="填入今日民國日期" @click="fillTodayOnboard") 今天
+
+                //- 生日
+                .col-12.col-sm-6.mb-2
+                  b-form-group.mb-1(label="出生日期 (民國年)" label-for="bd-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                    b-form-input(
+                      id="bd-input"
+                      v-model="userData.birthday"
+                      :state="checkBirthday"
+                      :disabled="isDisabled"
+                      placeholder="範例：066/05/23"
+                      size="sm"
+                      trim
+                    )
+
+                //- 手機
+                .col-12.col-sm-6.mb-2
+                  b-form-group.mb-1(label="手機號碼" label-for="cell-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                    b-form-input(
+                      id="cell-input"
+                      v-model="userData.cell"
+                      :state="checkCell"
+                      :disabled="isDisabled"
+                      placeholder="範例：0912345678"
+                      size="sm"
+                      trim
+                    )
+
+                //- 考試
+                .col-12.col-sm-6.mb-2
+                  b-form-group.mb-1(label="考試資格" label-for="exam-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                    b-form-input(
+                      id="exam-input"
+                      v-model="userData.exam"
+                      :disabled="isDisabled"
+                      placeholder="範例：107年資訊處理高考三級"
+                      size="sm"
+                      trim
+                    )
+
+                //- 教育學歷
+                .col-12.mb-1
+                  b-form-group.mb-0(label="最高學歷" label-for="edu-input" label-size="sm" label-class="font-weight-bold text-secondary")
+                    b-form-input(
+                      id="edu-input"
+                      v-model="userData.education"
+                      :disabled="isDisabled"
+                      placeholder="範例：台北科技大學資訊工程研究所"
+                      size="sm"
+                      trim
+                    )
+
+        //- =========================================================
+        //- 底部極速儲存工具列 (免除二次確認視窗 + 支援儲存並下一位)
+        //- =========================================================
+        .studio-footer.pt-3.mt-2.border-top.d-flex.flex-wrap.justify-content-between.align-items-center
+          .d-flex.align-items-center.mb-1
+            template(v-if="modified")
+              b-badge.mr-2(variant="warning" pill) 尚有未儲存變更
+              b-button(
+                variant="link"
+                size="sm"
+                class="p-0 text-secondary small"
+                title="放棄此次修改，還原為原始內容"
+                @click="revertChanges"
+              )
+                lah-fa-icon.mr-1(icon="rotate-left")
+                | 還原修改
+            template(v-else)
+              span.small.text-muted
+                lah-fa-icon.mr-1.text-success(icon="check-circle")
+                | 資料已同步（按 #[code Ctrl+S] 可快速存檔）
+
+          .d-flex.align-items-center.mb-1
+            //- 儲存並切換下一位按鈕 (當父組件傳入 hasNext 時啟用)
+            lah-button.mr-2(
+              v-if="hasNext"
+              icon="forward-step"
+              icon-append
+              :variant="saveButtonDisabled ? 'outline-secondary' : 'info'"
+              :disabled="saveButtonDisabled || isBusy"
+              size="md"
+              title="直接儲存目前變更並自動切換至下一位員工"
+              @click="save(true)"
+            ) 儲存並下一位
+
+            //- 極速儲存按鈕 (免確認彈窗直接儲存)
+            lah-button(
+              icon="floppy-disk"
+              :variant="saveButtonDisabled ? 'secondary' : 'success'"
+              :disabled="saveButtonDisabled || isBusy"
+              size="md"
+              title="立即儲存變更 (Ctrl + S)"
+              @click="save(false)"
+            ) 儲存變更
+
+    //- =========================================================
+    //- 互動式大頭照裁切與雙上傳工作坊 Modal (Interactive Avatar Cropper)
+    //- =========================================================
     b-modal(
-      id="upload-user-img-modal"
-      :title="`更新 ${userData.id} ${userData.name} 照片`"
-      size="sm"
+      ref="cropperModal"
+      id="avatar-cropper-modal"
+      :title="`頭像裁切與照片工作坊 — ${userData.id} ${userData.name}`"
+      size="lg"
       centered
       hide-footer
-      scrollable
     )
-      //- 生活照上傳
-      b-form-group(
-        label="照片"
-        label-for="file-user-photo"
-        label-cols-sm="2"
-        label-size="md"
-        title="*.jpg"
-      ): b-input-group(id="file-user-photo" size="md")
-        b-file(
-          ref="file-user-photo"
-          v-model="userPhoto"
-          placeholder="*.jpg"
-          drop-placeholder="放開以設定上傳檔案"
-          accept="image/jpeg"
-        ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="primary") {{ names[0] }}
-        template(#append): lah-button(
-          icon="upload"
-          variant="outline-primary"
-          title="上傳"
-          @click="uploadPhoto"
-          :disabled="$utils.empty(userPhoto)"
-        )
+      .row
+        //- 左側：互動式 Canvas 裁切畫布 (可拖曳平移、滑桿縮放)
+        .col-12.col-md-7.text-center.border-right
+          .small.font-weight-bold.text-secondary.mb-2
+            lah-fa-icon.mr-1(icon="hand-pointer" regular)
+            | 在下方畫布拖曳調整位置，使用滑桿縮放取景範圍
+          .cropper-stage-wrap.d-inline-block.position-relative.rounded.overflow-hidden.border.shadow-sm
+            canvas.cropper-canvas(
+              ref="cropCanvas"
+              width="280"
+              height="280"
+              @mousedown="startCropDrag"
+              @mousemove="onCropDrag"
+              @mouseup="endCropDrag"
+              @mouseleave="endCropDrag"
+              @touchstart.prevent="startCropTouch"
+              @touchmove.prevent="onCropTouch"
+              @touchend="endCropDrag"
+              @wheel.prevent="onCropWheel"
+            )
+          .d-flex.align-items-center.justify-content-center.mt-2.px-3
+            lah-fa-icon.text-muted.mr-2(icon="magnifying-glass-minus")
+            b-form-input(
+              v-model.number="cropScale"
+              type="range"
+              :min="cropMinScale"
+              :max="cropMaxScale"
+              step="0.02"
+              style="max-width: 220px"
+              @input="drawCropCanvas"
+            )
+            lah-fa-icon.text-muted.ml-2(icon="magnifying-glass-plus")
 
-      //- 大頭照上傳
-      b-form-group(
-        label="頭像"
-        label-for="file-user-avatar"
-        label-cols-sm="2"
-        label-size="md"
-        title="請用正方形比例之大頭照"
-      ): b-input-group(id="file-user-avatar" size="md")
-        b-file(
-          ref="file-user-avatar"
-          v-model="userAvatar"
-          placeholder="*.jpg"
-          drop-placeholder="放開以設定上傳檔案"
-          accept="image/jpeg"
-        ): template(slot="file-name" slot-scope="{ names }"): b-badge(variant="secondary") {{ names[0] }}
-        template(#append): lah-button(
-          icon="upload"
-          variant="outline-primary"
-          @click="uploadAvatar"
-          title="上傳"
-          :disabled="$utils.empty(userAvatar)"
-        )
+        //- 右側：即時圓形/方形大頭照預覽與一鍵上傳選項
+        .col-12.col-md-5.d-flex.flex-column.justify-content-between.p-3
+          .text-center
+            .small.font-weight-bold.text-secondary.mb-2 即時大頭照預覽 (256 × 256)
+            .d-flex.justify-content-around.align-items-center.my-3
+              div
+                b-avatar.shadow(:src="croppedPreviewDataUrl" size="5.5rem" variant="light")
+                .extra-small.text-muted.mt-1 名牌圓形頭像
+              div
+                img.rounded.shadow-sm.border(
+                  v-if="croppedPreviewDataUrl"
+                  :src="croppedPreviewDataUrl"
+                  style="width: 88px; height: 88px; object-fit: cover"
+                )
+                .extra-small.text-muted.mt-1 正方形頭像
+
+          .mt-3
+            b-button.mb-2(
+              v-if="pendingPhotoFile"
+              variant="primary"
+              block
+              :disabled="uploadingPhoto || uploadingAvatar"
+              @click="uploadBothPhotoAndCroppedAvatar"
+            )
+              lah-fa-icon.mr-1(icon="wand-magic-sparkles")
+              | 同時更新「生活照」與「裁切頭像」
+
+            b-button.mb-2(
+              variant="success"
+              block
+              :disabled="uploadingAvatar"
+              @click="uploadCroppedAvatarOnly"
+            )
+              lah-fa-icon.mr-1(icon="check")
+              | 僅將裁切結果設為「大頭照」
+
+            b-button.mb-2(
+              v-if="pendingPhotoFile"
+              variant="outline-info"
+              block
+              :disabled="uploadingPhoto"
+              @click="uploadPendingPhotoOnly"
+            )
+              lah-fa-icon.mr-1(icon="image")
+              | 僅上傳原圖為「生活照」
+
+            b-button(
+              variant="outline-secondary"
+              size="sm"
+              block
+              @click="closeCropperModal"
+            ) 取消
 </template>
 
 <script>
-import userBase from '~/mixins/lah-user-base.js';
+import userBase from '~/mixins/lah-user-base.js'
 
 /**
  * @component LahUserEditCard
- * @description 使用者資料編輯卡片，提供基本資料修改、權限設定及圖片上傳功能。
- * 繼承自 userBase mixin。
+ * @description 升級版使用者資料編輯工作台：整合拖放/貼上圖片、互動式頭像裁切、角色膠囊、極速儲存與上下位連續編輯。
  */
 export default {
   name: 'LahUserEditCard',
   mixins: [userBase],
+  props: {
+    hasNext: { type: Boolean, default: false }
+  },
   data: () => ({
-    userPhoto: null,
-    userAvatar: null,
-    showOthers: false, // 控制是否顯示擴充欄位
-    authorities: [] // 用於綁定 Checkbox Group 的權限陣列
+    showOthers: false,
+    authorities: [],
+
+    // 圖片上傳與即時預覽狀態
+    isDraggingPhoto: false,
+    isDraggingAvatar: false,
+    uploadingPhoto: false,
+    uploadingAvatar: false,
+    photoPreviewUrl: '',
+    avatarPreviewUrl: '',
+    localImgBust: Date.now(),
+
+    // 互動式頭像裁切器 (Canvas Cropper) 狀態
+    pendingPhotoFile: null,
+    cropImageObj: null,
+    cropScale: 1,
+    cropMinScale: 0.2,
+    cropMaxScale: 3,
+    cropOffsetX: 0,
+    cropOffsetY: 0,
+    isCropDragging: false,
+    dragStartX: 0,
+    dragStartY: 0,
+    croppedPreviewDataUrl: '',
+
+    // 內嵌式 AD 密碼重設狀態
+    showAdPwPanel: false,
+    customAdPassword: 'a.000000'
   }),
   computed: {
-    /**
-     * 檢查當前使用者是否有編輯權限 (系統管理員或人事管理員)
-     */
-    isAuthorized () { return this.authority.isAdmin || this.authority.isUserMgtStaff },
+    isAuthorized () {
+      return this.authority.isAdmin || this.authority.isUserMgtStaff
+    },
 
-    /**
-     * 檢查所有必填欄位是否均已合法
-     * @returns {Boolean}
-     */
     checkRequired () {
       return this.checkName === true &&
              this.checkIp === true &&
@@ -378,15 +560,9 @@ export default {
              this.checkCell !== false
     },
 
-    /**
-     * 檢查資料是否被修改過
-     * @returns {Boolean}
-     */
     modified () {
       return !this.$utils.equal(this.userData, this.origUserData)
     },
-
-    // --- 各欄位驗證邏輯 ---
 
     checkId () {
       if (this.$utils.empty(this.userData.id) || this.userData.id.length < 6) {
@@ -398,74 +574,130 @@ export default {
       return !this.$utils.empty(this.userData.name) && this.userData.name.length > 1
     },
     checkIp () {
-      // 支援 IPv4 格式或 localhost 的 IPv6 表示法
       return this.$utils.isIPv4(this.userData.ip) || this.userData.ip === '::1'
     },
     checkExt () {
       if (this.$utils.empty(this.userData.ext)) {
-        return null // 空值不報錯 (選填)
+        return null
       }
-      // 驗證 3-4 位數字
-      const regex = new RegExp('^\\d{3,4}$', 'gm')
-      return Boolean(this.userData.ext.match(regex))
+      return Boolean(String(this.userData.ext).match(/^\d{3,4}$/))
     },
     checkBirthday () {
       if (this.$utils.empty(this.userData.birthday)) {
         return null
       }
-      // 驗證民國格式: 066/05/23
-      const regex = new RegExp('^\\d{3,4}/\\d{1,2}/\\d{1,2}$', 'gm')
-      return Boolean(this.userData.birthday.match(regex))
+      return Boolean(String(this.userData.birthday).match(/^\d{3,4}\/\d{1,2}\/\d{1,2}$/))
     },
     checkCell () {
       if (this.$utils.empty(this.userData.cell)) {
         return null
       }
-      // 驗證台灣手機格式 09xxxxxxxx
-      const regex = new RegExp('^0\\d{9}$', 'gm')
-      return Boolean(this.userData.cell.match(regex))
+      return Boolean(String(this.userData.cell).match(/^0\d{9}$/))
     },
     checkOnboardDate () {
       if (this.$utils.empty(this.userData.onboard_date)) {
         return null
       }
-      const regex = new RegExp('^\\d{3,4}/\\d{1,2}/\\d{1,2}$', 'gm')
-      return Boolean(this.userData.onboard_date.match(regex))
+      return Boolean(String(this.userData.onboard_date).match(/^\d{3,4}\/\d{1,2}\/\d{1,2}$/))
     },
 
-    // --- UI 狀態 ---
-
-    saveButtonVariant () {
-      return this.saveButtonDisabled ? 'secondary' : 'outline-success'
-    },
     saveButtonDisabled () {
-      // 只有在資料有變更且通過驗證時才啟用按鈕
-      if (this.modified && this.checkRequired) {
-        return false
-      }
-      return true
+      return !(this.modified && this.checkRequired)
     },
-    uploadUrl () { return `/img${this.$consts.API.FILE.PHOTO}` },
 
-    /**
-     * 權限選項定義
-     * 注意：'disabled' 屬性會根據當前組件是否唯讀 (isDisabled) 來決定
-     */
-    authOpts () {
+    uploadUrl () {
+      return `/img${this.$consts.API.FILE.PHOTO}`
+    },
+
+    photoSrc () {
+      return `/img/get_user_img.php?id=${this.userData.id}&name=${this.userData.name}&timestamp=${this.timestamp}_${this.localImgBust}`
+    },
+
+    avatarSrc () {
+      return `/img/get_user_img.php?id=${this.userData.id}_avatar&name=${this.userData.name}_avatar&timestamp=${this.timestamp}_${this.localImgBust}`
+    },
+
+    // 年齡與年資計算 (整合自 LahUserCard)
+    birthAge () {
+      let birth = this.userData.birthday
+      if (birth) {
+        const now = new Date()
+        birth = this.toADFormat(String(birth))
+        const temp = Date.parse(birth)
+        if (temp) {
+          const born = new Date(temp)
+          return ((now - born) / 31536000000).toFixed(1)
+        }
+      }
+      return false
+    },
+    birthAgeVariant () {
+      const a = this.birthAge
+      if (a < 30) { return 'success' }
+      if (a < 40) { return 'primary' }
+      if (a < 50) { return 'warning' }
+      if (a < 60) { return 'danger' }
+      return 'dark'
+    },
+    workAge () {
+      let onDate = this.userData.onboard_date
+      let offDate = this.userData.offboard_date
+      if (onDate !== undefined && onDate !== null && onDate !== '') {
+        onDate = onDate.date ? onDate.date.split(' ')[0] : String(onDate)
+        onDate = this.toADFormat(onDate)
+        let temp = Date.parse(onDate)
+        if (temp) {
+          const on = new Date(temp)
+          let now = new Date()
+          if (this.isDisabled && offDate) {
+            offDate = this.toADFormat(String(offDate))
+            temp = Date.parse(offDate)
+            if (temp) { now = new Date(temp) }
+          }
+          return ((now - on) / 31536000000).toFixed(1)
+        }
+      }
+      return false
+    },
+    workAgeVariant () {
+      const w = this.workAge
+      if (w < 5) { return 'success' }
+      if (w < 10) { return 'primary' }
+      if (w < 20) { return 'warning' }
+      return 'danger'
+    },
+
+    rolePillOptions () {
       return [
-        { value: this.$consts.AUTHORITY.DISABLED, text: '離職' },
-        { value: this.$consts.AUTHORITY.ADMIN, text: '系統管理', disabled: this.isDisabled },
-        { value: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT, text: '訊息管理', disabled: this.isDisabled },
-        { value: this.$consts.AUTHORITY.USER_MANAGEMENT, text: '人員管理', disabled: this.isDisabled },
-        { value: this.$consts.AUTHORITY.CHIEF, text: '主管', disabled: this.isDisabled },
-        { value: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION, text: '研考', disabled: this.isDisabled }
+        { value: this.$consts.AUTHORITY.ADMIN, text: '系統管理', activeVariant: 'success', icon: 'user-shield', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.CHIEF, text: '主管', activeVariant: 'primary', icon: 'user-tie', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION, text: '研考', activeVariant: 'warning', icon: 'clipboard-check', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.USER_MANAGEMENT, text: '人員管理', activeVariant: 'info', icon: 'users-gear', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT, text: '訊息管理', activeVariant: 'danger', icon: 'bullhorn', disabled: this.isDisabled },
+        { value: this.$consts.AUTHORITY.DISABLED, text: '離職停用', activeVariant: 'dark', icon: 'ban', disabled: false }
       ]
+    },
+
+    effectiveAuthorityHint () {
+      if (this.isDisabled) {
+        return '已勾選「離職停用」，此帳號將不套用任何部門或主管預設權限。'
+      }
+      const autoPerms = []
+      if (this.userData.unit === '資訊課') {
+        autoPerms.push('系統管理(全部權限)', '發布公告', '管理人員')
+      } else if (this.userData.unit === '人事室') {
+        autoPerms.push('發布公告', '管理人員')
+      }
+      if (this.hasAuthorityBit(this.$consts.AUTHORITY.CHIEF) || this.hasAuthorityBit(this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION)) {
+        if (!autoPerms.includes('發布公告')) { autoPerms.push('發布公告') }
+      }
+      if (autoPerms.length > 0) {
+        return `依目前課室/角色規則，登入後自動額外享有：【${autoPerms.join('、')}】權限。`
+      }
+      return '另外，電腦 IP 於「使用者角色管理」設定的角色會一併聯集生效（只增加、不取消）。'
     }
   },
   watch: {
-    /**
-     * 當外部傳入的 raw 使用者資料變更時（例如切換上一位/下一位），同步重設表單與權限狀態
-     */
     raw: {
       handler (val) {
         if (Array.isArray(val) && val.length > 0 && val[0]) {
@@ -489,34 +721,22 @@ export default {
           this.origUserData = { ...this.userData }
           this.authorities = []
           this.restoreAuthorities()
+          this.photoPreviewUrl = ''
+          this.avatarPreviewUrl = ''
+          this.showAdPwPanel = false
         }
       },
       deep: true
     },
-    /**
-     * 記憶「顯示其他資訊欄位」展開狀態，方便連續編輯多位員工
-     */
     showOthers (val) {
       localStorage.setItem('user_edit_show_others', val)
     },
-    /**
-     * 當權限複選框變更時，自動計算並更新 userData.authority 的位元遮罩值 (Bitmask)
-     */
     authorities (array) {
-      this.userData.authority = array.reduce((acc, item) => {
-        return acc + item
-      }, 0)
+      this.userData.authority = array.reduce((acc, item) => acc + item, 0)
     }
   },
-  beforeCreate () {
-    // 解決組件循環引用問題
-    // https://vuejs.org/v2/guide/components-edge-cases.html#Circular-References-Between-Components
-    this.$options.components.LahUserCard = require('~/components/lah-user-card.vue').default
-  },
   created () {
-    // 建立 userData 的深拷貝，用於比對是否修改 (modified)
     this.origUserData = { ...this.userData }
-    // 將 userData 中的位元遮罩轉換回 checkbox 陣列
     this.restoreAuthorities()
   },
   mounted () {
@@ -524,132 +744,63 @@ export default {
     if (savedShowOthers !== null) {
       this.showOthers = savedShowOthers === 'true'
     }
+
+    // 支援 Ctrl+S 極速儲存 與 Ctrl+V 直接貼上剪貼簿圖片上傳
+    this.handleStudioKeydown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault()
+        if (!this.saveButtonDisabled && !this.isBusy) {
+          this.save(false)
+        }
+      }
+    }
+    this.handleStudioPaste = (e) => {
+      if (this.isDisabled) { return }
+      const items = e.clipboardData && e.clipboardData.items
+      if (!items) { return }
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.includes('image')) {
+          const file = items[i].getAsFile()
+          if (file) {
+            e.preventDefault()
+            this.notify('已從剪貼簿讀取圖片，請調整頭像裁切範圍或直接上傳', { type: 'info' })
+            this.prepareCropperWithFile(file)
+            break
+          }
+        }
+      }
+    }
+    window.addEventListener('keydown', this.handleStudioKeydown)
+    window.addEventListener('paste', this.handleStudioPaste)
+  },
+  beforeDestroy () {
+    if (this.handleStudioKeydown) {
+      window.removeEventListener('keydown', this.handleStudioKeydown)
+    }
+    if (this.handleStudioPaste) {
+      window.removeEventListener('paste', this.handleStudioPaste)
+    }
   },
   methods: {
     formatter (val) {
       return val.toUpperCase()
     },
-    assignUserData (array) {
-      // 使用展開運算子確保 Vue 2 的響應式更新
-      this.userData = { ...this.userData, ...array }
+
+    // --- 權限膠囊切換 ---
+    hasAuthorityBit (bit) {
+      return this.authorities.includes(bit)
     },
-    // --- 日期格式轉換 (TW <-> AD) ---
-    toTWFormat (adDate) {
-      let twDate = adDate.replace('/-/g', '/')
-      if (twDate.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
-        twDate = parseInt(twDate.substring(0, 4)) - 1911 + twDate.substring(4)
+    toggleAuthorityBit (bit) {
+      const idx = this.authorities.indexOf(bit)
+      if (idx === -1) {
+        this.authorities.push(bit)
+      } else {
+        this.authorities.splice(idx, 1)
       }
-      return twDate
-    },
-    toADFormat (twDate) {
-      let adDate = twDate.replace('/-/g', '/')
-      if (adDate.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
-        adDate =
-          parseInt(adDate.substring(0, 3)) + 1911 + adDate.substring(3)
-      }
-      return adDate
     },
 
-    /**
-     * 通用的更新請求方法
-     * @param {String} prompt - 確認視窗的提示文字
-     * @param {Object} config - API 請求的 Payload
-     * @returns {Promise}
-     */
-    update (prompt, config) {
-      return new Promise((resolve, reject) => {
-        this.confirm(prompt).then((answer) => {
-          if (answer) {
-            this.isBusy = true
-            this.$axios.post(this.$consts.API.JSON.USER, config).then(({ data }) => {
-              if (this.$utils.statusCheck(data.status)) {
-                this.notify(data.message, { type: 'success' })
-
-                // 特殊處理：入職/離職時自動更新日期欄位
-                const today = this.$utils.now().split(' ')[0].replaceAll('-', '/')
-                if (config.type === 'user_onboard') {
-                  this.userData.offboard_date = ''
-                  this.userData.onboard_date = today
-                } else if (config.type === 'user_offboard') {
-                  this.userData.offboard_date = today
-                }
-
-                resolve(this.userData)
-              } else {
-                this.notify(data.message, { type: 'warning' })
-                reject(data.message)
-              }
-            }).catch((err) => {
-              this.$utils.error(err)
-              reject(err)
-            }).finally(() => {
-              this.isBusy = false
-            })
-          } else {
-            reject('user cancelled the confirmation!')
-          }
-        })
-      })
-    },
-
-    /**
-     * 儲存使用者變更
-     */
-    save () {
-      this.update('確定要更新?', {
-        type: 'save_user_info',
-        data: this.userData
-      }).then((userData) => {
-        // 通知父組件並更新原始資料快照
-        this.trigger('saved', userData)
-        this.origUserData = { ...this.origUserData, ...userData }
-      })
-    },
-
-    /**
-     * 上傳圖片通用邏輯
-     * @param {File} file - 檔案物件
-     * @param {Boolean} avatar - 是否為大頭照 (true: 大頭照, false: 生活照)
-     */
-    upload (file, avatar = false) {
-      this.isBusy = true
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('id', this.userData.id)
-      formData.append('name', this.userData.name)
-      formData.append('avatar', avatar)
-
-      this.$upload.post(this.uploadUrl, formData).then(({ data }) => {
-        const opts = { type: 'warning', title: '上傳圖檔結果通知' }
-        if (this.$utils.statusCheck(data.status)) {
-          opts.type = 'success'
-        }
-        this.notify(data.message, opts)
-      }).catch((err) => {
-        this.$utils.error(err)
-      }).finally(() => {
-        this.isBusy = false
-        // 更新 Vuex 中的 timestamp 以觸發圖片重新載入
-        this.$store.commit('timestamp')
-      })
-    },
-
-    uploadPhoto () {
-      this.upload(this.userPhoto, false)
-      this.userPhoto = null
-    },
-
-    uploadAvatar () {
-      this.upload(this.userAvatar, true)
-      this.userAvatar = null
-    },
-
-    /**
-     * 將整數權限值 (Bitmask) 解析回 Checkbox 陣列
-     */
     restoreAuthorities () {
       const authority = this.userData.authority
-      // 使用 Bitwise AND (&) 運算檢查權限
       this.$consts.AUTHORITY.DISABLED === (this.$consts.AUTHORITY.DISABLED & authority) && this.authorities.push(this.$consts.AUTHORITY.DISABLED)
       this.$consts.AUTHORITY.ADMIN === (this.$consts.AUTHORITY.ADMIN & authority) && this.authorities.push(this.$consts.AUTHORITY.ADMIN)
       this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT === (this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT & authority) && this.authorities.push(this.$consts.AUTHORITY.ANNOUNCEMENT_MANAGEMENT)
@@ -658,12 +809,378 @@ export default {
       this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION === (this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION & authority) && this.authorities.push(this.$consts.AUTHORITY.RESEARCH_AND_EVALUATION)
     },
 
-    /**
-     * 解除 AD 帳號鎖定 (包含詢問是否重設密碼)
-     */
+    // --- 日期格式與快捷輔助 ---
+    toTWFormat (adDate) {
+      let twDate = String(adDate || '').replace(/-/g, '/')
+      if (twDate.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
+        twDate = String(parseInt(twDate.substring(0, 4)) - 1911).padStart(3, '0') + twDate.substring(4)
+      }
+      return twDate
+    },
+    toADFormat (twDate) {
+      let adDate = String(twDate || '').replace(/-/g, '/')
+      if (adDate.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
+        adDate = (parseInt(adDate.substring(0, 3)) + 1911) + adDate.substring(3)
+      }
+      return adDate
+    },
+    fillTodayOnboard () {
+      const adToday = this.$utils.now().split(' ')[0].replace(/-/g, '/')
+      this.userData.onboard_date = this.toTWFormat(adToday)
+    },
+    revertChanges () {
+      this.userData = { ...this.origUserData }
+      this.authorities = []
+      this.restoreAuthorities()
+      this.notify('已還原未儲存的修改', { type: 'info' })
+    },
+    copyText (text, label = '內容') {
+      if (!text) { return }
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.notify(`已複製 ${label}「${text}」`, { type: 'info' })
+        })
+      }
+    },
+
+    // --- 極速儲存變更 (免除二次確認視窗) ---
+    save (andNext = false) {
+      if (this.saveButtonDisabled || this.isBusy) { return }
+      this.isBusy = true
+      this.$axios.post(this.$consts.API.JSON.USER, {
+        type: 'save_user_info',
+        data: this.userData
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.origUserData = { ...this.userData }
+          if (andNext) {
+            this.trigger('save-and-next', { ...this.userData })
+          } else {
+            this.trigger('saved', { ...this.userData })
+          }
+        } else {
+          this.notify(data.message || '儲存失敗', { type: 'warning' })
+        }
+      }).catch((err) => {
+        this.$utils.error(err)
+      }).finally(() => {
+        this.isBusy = false
+      })
+    },
+
+    // =========================================================
+    // 圖片拖曳、點擊、自動轉 JPG 與互動式頭像裁切工作坊
+    // =========================================================
+    triggerPhotoSelect () {
+      if (this.$refs.photoFileInput) {
+        this.$refs.photoFileInput.value = ''
+        this.$refs.photoFileInput.click()
+      }
+    },
+    triggerAvatarSelect () {
+      if (this.$refs.avatarFileInput) {
+        this.$refs.avatarFileInput.value = ''
+        this.$refs.avatarFileInput.click()
+      }
+    },
+    onPhotoLoaded () {
+      // 預留載入完成勾子
+    },
+    onFileInputChange (e, mode) {
+      const file = e.target.files && e.target.files[0]
+      if (!file) { return }
+      this.processSelectedImage(file, mode)
+    },
+    handleDrop (e, mode) {
+      this.isDraggingPhoto = false
+      this.isDraggingAvatar = false
+      if (this.isDisabled) { return }
+      const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]
+      if (!file) { return }
+      if (!file.type.startsWith('image/')) {
+        this.notify('請拖曳圖片格式檔案 (JPG / PNG / WebP)', { type: 'warning' })
+        return
+      }
+      this.processSelectedImage(file, mode)
+    },
+
+    processSelectedImage (file, mode) {
+      if (mode === 'avatar') {
+        // 單獨選取大頭照時，開啟互動裁切器讓使用者確認正方形範圍（預設只上傳頭像）
+        this.prepareCropperWithFile(file, false)
+      } else {
+        // 選取生活照時，開啟工作坊可一鍵「同時上傳生活照 + 裁切頭像」或「僅上傳生活照」
+        this.prepareCropperWithFile(file, true)
+      }
+    },
+
+    prepareCropperWithFile (file, includePhotoUpload = true) {
+      this.pendingPhotoFile = includePhotoUpload ? file : null
+      const reader = new FileReader()
+      reader.onload = (evt) => {
+        this.loadImageIntoCropper(evt.target.result)
+      }
+      reader.readAsDataURL(file)
+    },
+
+    openCropperFromCurrentPhoto () {
+      this.pendingPhotoFile = null
+      const imgEl = this.$refs.currentPhotoImg
+      if (imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
+        try {
+          const tempCanvas = document.createElement('canvas')
+          tempCanvas.width = imgEl.naturalWidth
+          tempCanvas.height = imgEl.naturalHeight
+          tempCanvas.getContext('2d').drawImage(imgEl, 0, 0)
+          const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.95)
+          this.loadImageIntoCropper(dataUrl)
+          return
+        } catch (err) {
+          // fallback to src
+        }
+      }
+      this.loadImageIntoCropper(this.photoPreviewUrl || this.photoSrc)
+    },
+
+    loadImageIntoCropper (src) {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = () => {
+        this.cropImageObj = img
+        const canvasSize = 280
+        // 計算初始縮放比例，使圖片短邊剛好填滿 280x280 裁切框
+        const minDim = Math.min(img.width, img.height) || 280
+        const initScale = canvasSize / minDim
+        this.cropMinScale = Math.max(0.05, initScale * 0.4)
+        this.cropMaxScale = Math.max(3, initScale * 3.5)
+        this.cropScale = initScale
+        // 預設水平置中、垂直偏上 (人像臉部通常在上方 1/3 處)
+        this.cropOffsetX = (canvasSize - img.width * initScale) / 2
+        this.cropOffsetY = Math.min(0, (canvasSize - img.height * initScale) * 0.25)
+
+        if (this.$refs.cropperModal) {
+          this.$refs.cropperModal.show()
+        }
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.drawCropCanvas()
+          }, 60)
+        })
+      }
+      img.onerror = () => {
+        this.notify('無法載入圖片進行裁切，請先選擇一張本機圖片', { type: 'warning' })
+      }
+      img.src = src
+    },
+
+    drawCropCanvas () {
+      const canvas = this.$refs.cropCanvas
+      const img = this.cropImageObj
+      if (!canvas || !img) { return }
+      const ctx = canvas.getContext('2d')
+      const size = canvas.width
+
+      // 背景填充白色（避免透明 PNG 轉 JPG 時變黑底）
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, size, size)
+
+      // 繪製縮放與平移後的圖片
+      const drawW = img.width * this.cropScale
+      const drawH = img.height * this.cropScale
+      ctx.drawImage(img, this.cropOffsetX, this.cropOffsetY, drawW, drawH)
+
+      // 產生乾淨的 256x256 裁切輸出供預覽與上傳
+      const outCanvas = document.createElement('canvas')
+      outCanvas.width = 256
+      outCanvas.height = 256
+      const outCtx = outCanvas.getContext('2d')
+      outCtx.fillStyle = '#ffffff'
+      outCtx.fillRect(0, 0, 256, 256)
+      const ratio = 256 / size
+      outCtx.drawImage(img, this.cropOffsetX * ratio, this.cropOffsetY * ratio, drawW * ratio, drawH * ratio)
+      this.croppedPreviewDataUrl = outCanvas.toDataURL('image/jpeg', 0.92)
+
+      // 在操作畫布上繪製圓形參考導引線 (不影響實際輸出)
+      ctx.save()
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)'
+      ctx.lineWidth = 2
+      ctx.setLineDash([5, 4])
+      ctx.beginPath()
+      ctx.arc(size / 2, size / 2, size / 2 - 6, 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.restore()
+    },
+
+    startCropDrag (e) {
+      this.isCropDragging = true
+      this.dragStartX = e.clientX - this.cropOffsetX
+      this.dragStartY = e.clientY - this.cropOffsetY
+    },
+    onCropDrag (e) {
+      if (!this.isCropDragging) { return }
+      this.cropOffsetX = e.clientX - this.dragStartX
+      this.cropOffsetY = e.clientY - this.dragStartY
+      this.drawCropCanvas()
+    },
+    startCropTouch (e) {
+      if (!e.touches || !e.touches[0]) { return }
+      this.isCropDragging = true
+      this.dragStartX = e.touches[0].clientX - this.cropOffsetX
+      this.dragStartY = e.touches[0].clientY - this.cropOffsetY
+    },
+    onCropTouch (e) {
+      if (!this.isCropDragging || !e.touches || !e.touches[0]) { return }
+      this.cropOffsetX = e.touches[0].clientX - this.dragStartX
+      this.cropOffsetY = e.touches[0].clientY - this.dragStartY
+      this.drawCropCanvas()
+    },
+    endCropDrag () {
+      this.isCropDragging = false
+    },
+    onCropWheel (e) {
+      const delta = e.deltaY < 0 ? 0.06 : -0.06
+      const next = Math.min(this.cropMaxScale, Math.max(this.cropMinScale, Number(this.cropScale) + delta))
+      this.cropScale = Number(next.toFixed(2))
+      this.drawCropCanvas()
+    },
+
+    closeCropperModal () {
+      if (this.$refs.cropperModal) {
+        this.$refs.cropperModal.hide()
+      }
+    },
+
+    // 將任意圖片 File 轉為標準高品質 JPG Blob (解決後端僅收 .jpg 限制)
+    convertFileToJpgBlob (file, maxWidth = 1600) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = (evt) => {
+          const img = new Image()
+          img.onload = () => {
+            let w = img.width
+            let h = img.height
+            if (w > maxWidth) {
+              h = Math.round((h * maxWidth) / w)
+              w = maxWidth
+            }
+            const canvas = document.createElement('canvas')
+            canvas.width = w
+            canvas.height = h
+            const ctx = canvas.getContext('2d')
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(0, 0, w, h)
+            ctx.drawImage(img, 0, 0, w, h)
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve({ blob, dataUrl: canvas.toDataURL('image/jpeg', 0.92) })
+              } else {
+                reject(new Error('圖片轉檔失敗'))
+              }
+            }, 'image/jpeg', 0.92)
+          }
+          img.onerror = () => reject(new Error('無法解析圖片'))
+          img.src = evt.target.result
+        }
+        reader.onerror = () => reject(new Error('讀取檔案失敗'))
+        reader.readAsDataURL(file)
+      })
+    },
+
+    dataUrlToBlob (dataUrl) {
+      const arr = dataUrl.split(',')
+      const bstr = atob(arr[1])
+      let n = bstr.length
+      const u8arr = new Uint8Array(n)
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n)
+      }
+      return new Blob([u8arr], { type: 'image/jpeg' })
+    },
+
+    async uploadBlobToServer (jpgBlob, isAvatar = false) {
+      const formData = new FormData()
+      const fileName = `${this.userData.id}${isAvatar ? '_avatar' : ''}.jpg`
+      formData.append('file', jpgBlob, fileName)
+      formData.append('id', this.userData.id)
+      formData.append('name', this.userData.name)
+      formData.append('avatar', isAvatar)
+
+      const { data } = await this.$upload.post(this.uploadUrl, formData)
+      if (!this.$utils.statusCheck(data.status)) {
+        throw new Error(data.message || '上傳失敗')
+      }
+      return data
+    },
+
+    async uploadCroppedAvatarOnly () {
+      if (!this.croppedPreviewDataUrl) { return }
+      this.uploadingAvatar = true
+      try {
+        const blob = this.dataUrlToBlob(this.croppedPreviewDataUrl)
+        await this.uploadBlobToServer(blob, true)
+        this.avatarPreviewUrl = this.croppedPreviewDataUrl
+        this.localImgBust = Date.now()
+        this.$store.commit('timestamp')
+        this.notify(`已成功更新 ${this.userData.name} 的大頭照！`, { type: 'success' })
+        this.closeCropperModal()
+      } catch (err) {
+        this.$utils.error(err)
+        this.notify(err.message || '上傳大頭照失敗', { type: 'warning' })
+      } finally {
+        this.uploadingAvatar = false
+      }
+    },
+
+    async uploadPendingPhotoOnly () {
+      if (!this.pendingPhotoFile) { return }
+      this.uploadingPhoto = true
+      try {
+        const { blob, dataUrl } = await this.convertFileToJpgBlob(this.pendingPhotoFile)
+        await this.uploadBlobToServer(blob, false)
+        this.photoPreviewUrl = dataUrl
+        this.localImgBust = Date.now()
+        this.$store.commit('timestamp')
+        this.notify(`已成功更新 ${this.userData.name} 的生活照！`, { type: 'success' })
+        this.closeCropperModal()
+      } catch (err) {
+        this.$utils.error(err)
+        this.notify(err.message || '上傳生活照失敗', { type: 'warning' })
+      } finally {
+        this.uploadingPhoto = false
+      }
+    },
+
+    async uploadBothPhotoAndCroppedAvatar () {
+      if (!this.pendingPhotoFile || !this.croppedPreviewDataUrl) { return }
+      this.uploadingPhoto = true
+      this.uploadingAvatar = true
+      try {
+        const { blob: photoBlob, dataUrl: photoDataUrl } = await this.convertFileToJpgBlob(this.pendingPhotoFile)
+        const avatarBlob = this.dataUrlToBlob(this.croppedPreviewDataUrl)
+
+        await this.uploadBlobToServer(photoBlob, false)
+        await this.uploadBlobToServer(avatarBlob, true)
+
+        this.photoPreviewUrl = photoDataUrl
+        this.avatarPreviewUrl = this.croppedPreviewDataUrl
+        this.localImgBust = Date.now()
+        this.$store.commit('timestamp')
+        this.notify(`已同時更新 ${this.userData.name} 的生活照與大頭照！`, { type: 'success' })
+        this.closeCropperModal()
+      } catch (err) {
+        this.$utils.error(err)
+        this.notify(err.message || '上傳圖片失敗', { type: 'warning' })
+      } finally {
+        this.uploadingPhoto = false
+        this.uploadingAvatar = false
+      }
+    },
+
+    // =========================================================
+    // AD 帳號解鎖與內嵌式密碼重設
+    // =========================================================
     unlockAd () {
-      // 第一步：確認是否解鎖
-      this.$bvModal.msgBoxConfirm(`確定要解除 ${this.userData.id} 的 AD 帳號鎖定嗎？`, {
+      this.$bvModal.msgBoxConfirm(`確定要解除 ${this.userData.id} (${this.userData.name}) 的 AD 帳號鎖定嗎？`, {
         title: 'AD 解鎖確認',
         size: 'md',
         okVariant: 'warning',
@@ -672,7 +1189,6 @@ export default {
         centered: true
       }).then((ans) => {
         if (ans) {
-          // 第二步：詢問是否順便重設密碼
           this.$bvModal.msgBoxConfirm(`是否要同時將 ${this.userData.id} 的 AD 密碼重設為預設值 (a.000000)？`, {
             title: '重設密碼選項',
             size: 'md',
@@ -683,17 +1199,11 @@ export default {
             centered: true
           }).then((resetAns) => {
             this.isBusy = true
-
-            // 準備 API payload
-            // 若 resetAns 為 true (使用者選「是」)，則同時解鎖並重設密碼
-            // 若 resetAns 為 false (使用者選「否」)，則僅解鎖
             const payload = {
               type: 'ad_user_unlock',
               id: this.userData.id,
               password: resetAns ? 'a.000000' : null
             }
-
-            // 串接實際 API
             this.$axios.post(this.$consts.API.JSON.USER, payload).then(({ data }) => {
               if (this.$utils.statusCheck(data.status)) {
                 this.notify(data.message, { type: 'success' })
@@ -710,50 +1220,44 @@ export default {
       })
     },
 
-    /**
-     * 變更 AD 密碼 (實作 UI 互動與輸入框)
-     */
-    changeAdPassword () {
-      // 1. 確認是否要變更
-      this.$bvModal.msgBoxConfirm(`確定要重設 ${this.userData.id} 的 AD 密碼嗎？`, {
-        title: '重設 AD 密碼',
+    toggleAdPwPanel () {
+      this.showAdPwPanel = !this.showAdPwPanel
+      if (this.showAdPwPanel && !this.customAdPassword) {
+        this.customAdPassword = 'a.000000'
+      }
+    },
+
+    submitAdPasswordReset () {
+      if (this.$utils.empty(this.customAdPassword)) {
+        this.notify('密碼不得為空', { type: 'warning' })
+        return
+      }
+      this.$bvModal.msgBoxConfirm(`確定要將 ${this.userData.id} (${this.userData.name}) 的 AD 密碼重設為「${this.customAdPassword}」嗎？`, {
+        title: '重設 AD 密碼確認',
         size: 'md',
         okVariant: 'danger',
-        okTitle: '繼續',
+        okTitle: '確定重設',
         cancelTitle: '取消',
         centered: true
       }).then((ans) => {
-        if (ans) {
-          // 2. 彈出輸入框供輸入新密碼，預設為 a.000000
-          // 注意：BootstraVue msgBoxConfirm 不支援 input，這裡使用原生 prompt 簡單實作
-          // 若要更美觀可改用自定義 Modal
-          const newPassword = prompt(`請輸入 ${this.userData.id} 的新 AD 密碼：`, 'a.000000')
-
-          if (newPassword !== null) { // 使用者未按取消
-            if (this.$utils.empty(newPassword)) {
-              this.notify('密碼不得為空', { type: 'warning' })
-              return
-            }
-
-            this.isBusy = true
-            // 串接實際 AD 密碼重置 API，並帶入 newPassword
-            this.$axios.post(this.$consts.API.JSON.USER, {
-              type: 'ad_pw_reset',
-              id: this.userData.id,
-              password: newPassword
-            }).then(({ data }) => {
-              if (this.$utils.statusCheck(data.status)) {
-                this.notify(data.message, { type: 'success' })
-              } else {
-                this.notify(data.message, { type: 'warning' })
-              }
-            }).catch((err) => {
-              this.$utils.error(err)
-            }).finally(() => {
-              this.isBusy = false
-            })
+        if (!ans) { return }
+        this.isBusy = true
+        this.$axios.post(this.$consts.API.JSON.USER, {
+          type: 'ad_pw_reset',
+          id: this.userData.id,
+          password: this.customAdPassword
+        }).then(({ data }) => {
+          if (this.$utils.statusCheck(data.status)) {
+            this.notify(data.message, { type: 'success' })
+            this.showAdPwPanel = false
+          } else {
+            this.notify(data.message, { type: 'warning' })
           }
-        }
+        }).catch((err) => {
+          this.$utils.error(err)
+        }).finally(() => {
+          this.isBusy = false
+        })
       })
     }
   }
@@ -761,14 +1265,145 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.studio-left-pane {
+  background-color: #f8fafc;
+}
+
+.bg-light-subtle {
+  background-color: #f8f9fa;
+}
+
+// 大頭照互動區
+.avatar-drop-zone {
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover,
+  &.is-dragover {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.35);
+
+    .avatar-edit-overlay {
+      opacity: 1;
+    }
+  }
+}
+
+.avatar-edit-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.52);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  color: #fff;
+}
+
+.avatar-overlay-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.avatar-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -0.5rem;
+  margin-left: -0.5rem;
+}
+
+// 生活照互動工作坊
+.photo-studio-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  &.is-dragover {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  }
+}
+
+.photo-preview-container {
+  cursor: pointer;
+  min-height: 220px;
+  max-height: 310px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover .photo-hover-hint {
+    opacity: 1;
+  }
+}
+
+.photo-preview-img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-hover-hint {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.photo-uploading-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// 互動式角色權限膠囊
+.role-pill-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+}
+
+// Canvas 裁切畫布
+.cropper-canvas {
+  cursor: grab;
+  display: block;
+  background-color: #e9ecef;
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 .toggle-block:hover {
-  font-weight: bolder;
   text-decoration: underline;
 }
+
 .optional-border {
-  border-style: dashed;
-  border-width: 2px;
-  border-radius: .75rem;
-  border-color: gray;
+  border: 1px dashed #cbd5e1;
+  border-radius: 0.5rem;
+  background-color: #f8fafc;
+}
+
+.extra-small {
+  font-size: 0.74rem;
+}
+
+.min-w-0 {
+  min-width: 0;
 }
 </style>

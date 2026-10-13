@@ -67,11 +67,18 @@ div(v-cloak)
           ) 更新 IP
 
           lah-button.mr-1.text-nowrap(
-            icon="file-excel"
+            icon="file-import"
             variant="outline-success"
-            title="將目前篩選結果匯出為 CSV 報表"
-            @click="exportIpList"
-          ) 匯出
+            title="上傳「服務電話一覽表 (.xlsx / .csv)」智慧解析並批次更新人員職掌與分機"
+            :disabled="isBusy"
+            @click="openRosterImportModal"
+          ) 匯入分機表
+
+          lah-button-xlsx.mr-1(
+            :jsons="xlsxData"
+            header="員工資訊管理清單"
+            size="lg"
+          )
 
           lah-button(
             icon="user-plus"
@@ -86,7 +93,7 @@ div(v-cloak)
     h5.font-weight-bold.text-primary 🚀 三大檢視與管理模式
     ul.pl-4
       li.mb-2
-        span.font-weight-bold 🪪 名牌視圖：
+        span.font-weight-bold 📇 名牌視圖：
         span 升級版個人資訊微卡片，同時呈現「大頭照、姓名、ID、職稱/分機、IP 狀態」與「多重權限徽章」（一人身兼多職時完整顯示所有權限標籤），點擊卡片右側圖示可一鍵複製帳號或 IP。
       li.mb-2
         span.font-weight-bold 📋 表格快改：
@@ -99,6 +106,15 @@ div(v-cloak)
 
     h5.font-weight-bold.text-primary 💡 智慧診斷與效率工具
     ul.pl-4
+      li.mb-2
+        span.font-weight-bold 匯入分機表（XLSX 智慧解析）：
+        span 支援直接上傳本所「服務電話一覽表 (.xlsx / .csv)」三欄並排印表格式（自動識別頂部主任/秘書/主管列、合併儲存格向下繼承職掌與共用分機、外駐工作站 #[code #] 分機擷取），並提供#[b 異動比對預覽表]讓你勾選與微調後再批次寫入！
+        a.ml-2.font-weight-bold.text-success(
+          href="/xlsx/桃園所最新電話一覽表.xlsx"
+          download="桃園所最新電話一覽表.xlsx"
+        )
+          lah-fa-icon.mr-1(icon="file-excel")
+          span 點此下載範例：桃園所最新電話一覽表.xlsx
       li.mb-2
         span.font-weight-bold 頂部診斷指標卡：
         span 點擊頂部任一指標卡（如「無效/缺失 IP」、「重複 IP 衝突」、「資料待補齊」、「AD 鎖定帳號」），即可一鍵過濾出問題名單。
@@ -374,15 +390,22 @@ div(v-cloak)
     .d-flex.flex-wrap.align-items-center.justify-content-between(v-else-if="viewMode === 'table'")
       .small.text-muted.my-1
         lah-fa-icon.text-info.mr-1(icon="bolt")
-        span #[b 極速模式]：直接在列內修改「課室」、「電腦 IP」或「分機」後按 #[code Enter] 或點 #[b.text-success ✓] 即可免彈窗秒存；點擊「姓名」或「完整編輯」可開啟詳細設定。
+        span #[b 極速模式]：直接在列內修改「課室」、「職稱」、「電腦 IP」或「分機」即可免彈窗秒存；點擊「姓名」或「編輯」可開啟詳細設定。
       .d-flex.align-items-center.my-1
         span.small.text-muted.mr-2 每頁顯示：
-        b-form-select(
-          v-model="tablePerPage"
-          :options="[15, 30, 50, 100]"
+        b-form-input.text-center(
+          v-model.number="tablePerPage"
+          type="number"
+          min="5"
+          max="100"
+          step="1"
           size="sm"
-          style="width: 80px"
+          style="width: 72px"
+          title="每頁顯示筆數（最少 5 筆，最多 100 筆）"
+          @change="clampTablePerPage"
+          @blur="clampTablePerPage"
         )
+        span.small.text-muted.ml-1 筆
 
   //- =========================================================
   //- 3A. 視圖一：現代化精緻名牌分組視圖 (Badge Grid View)
@@ -417,6 +440,7 @@ div(v-cloak)
               v-for="user in category.LIST"
               :key="user.id"
               :class="cardClass(user)"
+              :title="userCardTitle(user)"
               @click="edit(user)"
             )
               //- 左側角色色條
@@ -437,12 +461,37 @@ div(v-cloak)
 
               //- 卡片主要內容區
               .card-info-wrap.flex-grow-1.min-w-0
-                //- 第一列：帳號 + 姓名 + 分機
+                //- 第一列：姓名 + 快捷複製按鈕 + 分機
                 .d-flex.align-items-center.justify-content-between
-                  .text-truncate
-                    span.user-id-text.font-weight-bold.mr-1(v-html="highlight(user.id)")
-                    span.user-name-text.font-weight-bold(v-html="highlight(user.name)")
-                  b-badge.ext-pill.ml-1(
+                  .d-flex.align-items-center.min-w-0
+                    .text-truncate(:title="userCardTitle(user)")
+                      span.user-name-text.font-weight-bold(v-html="highlight(user.name)")
+                    //- 懸浮快捷工具組 (無邊框，緊鄰名字後方)
+                    .card-quick-actions.ml-1.flex-shrink-0(@click.stop)
+                      b-button.p-0.px-1.border-0.text-danger(
+                        v-if="isUserAdLocked(user.id)"
+                        variant="link"
+                        size="sm"
+                        title="立即解除 AD 鎖定"
+                        @click.stop="quickUnlockAd(user)"
+                      )
+                        lah-fa-icon(icon="unlock" size="xs")
+                      b-button.p-0.px-1.border-0.text-secondary(
+                        v-if="isValidIp(user)"
+                        variant="link"
+                        size="sm"
+                        :title="`複製 IP 位址 (${user.ip})`"
+                        @click.stop="copyToClipboard(user.ip, 'IP')"
+                      )
+                        lah-fa-icon(icon="copy" size="xs")
+                      b-button.p-0.px-1.border-0.text-secondary(
+                        variant="link"
+                        size="sm"
+                        :title="`複製員工帳號 ID (${user.id})`"
+                        @click.stop="copyToClipboard(user.id, '帳號')"
+                      )
+                        lah-fa-icon(icon="id-badge" size="xs")
+                  b-badge.ext-pill.ml-1.flex-shrink-0(
                     v-if="showMeta && user.ext"
                     variant="light"
                     title="分機號碼"
@@ -485,32 +534,6 @@ div(v-cloak)
                       lah-fa-icon.mr-1(icon="triangle-exclamation")
                       | {{ user.ip && user.ip.endsWith('.0') ? user.ip : '無效/未設 IP' }}
 
-                  //- 懸浮快捷工具組 (複製 IP / 解鎖 AD)
-                  .card-quick-actions.ml-auto(@click.stop)
-                    b-button.p-0.px-1.mr-1(
-                      v-if="isUserAdLocked(user.id)"
-                      variant="danger"
-                      size="sm"
-                      title="立即解除 AD 鎖定"
-                      @click.stop="quickUnlockAd(user)"
-                    )
-                      lah-fa-icon(icon="unlock" size="xs")
-                    b-button.p-0.px-1.mr-1(
-                      v-if="isValidIp(user)"
-                      variant="outline-secondary"
-                      size="sm"
-                      title="複製 IP 位址"
-                      @click.stop="copyToClipboard(user.ip, 'IP')"
-                    )
-                      lah-fa-icon(icon="copy" size="xs")
-                    b-button.p-0.px-1(
-                      variant="outline-secondary"
-                      size="sm"
-                      title="複製員工帳號 ID"
-                      @click.stop="copyToClipboard(user.id, '帳號')"
-                    )
-                      lah-fa-icon(icon="id-badge" size="xs")
-
   //- =========================================================
   //- 3B. 視圖二：高密度表格 + 行內極速快改視圖 (Table Quick-Edit View)
   //- =========================================================
@@ -518,7 +541,7 @@ div(v-cloak)
     b-table(
       :items="filteredUsers"
       :fields="tableFields"
-      :per-page="tablePerPage"
+      :per-page="safeTablePerPage"
       :current-page="tableCurrentPage"
       :sort-compare="tableSortCompare"
       :tbody-tr-class="tableRowClass"
@@ -564,9 +587,16 @@ div(v-cloak)
           @change="quickSaveDept(item, $event)"
         )
 
-      //- 職稱欄
+      //- 職稱欄 (行內下拉秒存)
       template(#cell(title)="{ item }")
-        span(:class="{ 'text-danger font-weight-bold': !item.title || item.title === '無資料' }" v-html="highlight(item.title || '未設定')")
+        b-form-select(
+          :value="item.title"
+          :options="inlineTitleOptions"
+          size="sm"
+          :disabled="isUserDisabled(item) || savingRowId === item.id"
+          :class="{ 'border-danger bg-light-danger': !item.title || item.title === '無資料', 'border-warning': item.title === '其他' }"
+          @change="quickSaveTitle(item, $event)"
+        )
 
       //- 電腦 IP 欄 (行內極速輸入 + 格式與衝突提示)
       template(#cell(ip)="{ item }")
@@ -677,7 +707,7 @@ div(v-cloak)
       b-pagination.mb-0(
         v-model="tableCurrentPage"
         :total-rows="filteredUsers.length"
-        :per-page="tablePerPage"
+        :per-page="safeTablePerPage"
         size="sm"
         align="right"
       )
@@ -795,7 +825,7 @@ div(v-cloak)
   //- =========================================================
   b-modal(
     id="edit-user-modal"
-    size="lg"
+    size="xl"
     hide-footer
     scrollable
     no-close-on-backdrop
@@ -803,10 +833,10 @@ div(v-cloak)
     template(#modal-title)
       .d-flex.align-items-center.flex-wrap
         span.font-weight-bold.mr-2 {{ editUserTitle }}
-        b-badge(v-if="currentEditIndex !== -1" variant="info" pill) 第 {{ currentEditIndex + 1 }} / {{ filteredUsers.length }} 位
+        b-badge(v-if="currentEditIndex !== -1" variant="info" pill) 第 {{ currentEditIndex + 1 }} / {{ navigableUsers.length }} 位
 
     //- 頂部快速導航列 (上一位 / 下一位 + 快速複製)
-    .d-flex.justify-content-between.align-items-center.bg-light.p-2.rounded.border.mb-2(v-if="filteredUsers.length > 1")
+    .d-flex.justify-content-between.align-items-center.bg-light.p-2.rounded.border.mb-2(v-if="navigableUsers.length > 1")
       lah-button(
         icon="arrow-left"
         variant="outline-secondary"
@@ -818,7 +848,7 @@ div(v-cloak)
 
       .small.text-muted.d-none.d-md-block
         lah-fa-icon.mr-1(icon="keyboard" regular)
-        span 可按 #[code Alt + ← / →] 快速切換上下一位同仁
+        span 可按 #[code Alt + ← / →] 切換同仁，按 #[code Ctrl + S] 極速存檔，按 #[code Ctrl + V] 貼上照片
 
       lah-button(
         icon="arrow-right"
@@ -830,11 +860,16 @@ div(v-cloak)
         @click="navigateEditUser(1)"
       ) 下一位 {{ nextUserName }}
 
-    lah-user-edit-card(:raw="[clickedUser]" @saved="saved($event)")
+    lah-user-edit-card(
+      :raw="[clickedUser]"
+      :has-next="hasNextUser"
+      @saved="saved($event)"
+      @save-and-next="savedAndNext($event)"
+    )
 
   //- 新增使用者 Modal
   b-modal(id="add-user-modal" title="手動新增使用者" size="lg" hide-footer scrollable no-close-on-backdrop)
-    lah-user-add-card(@added="added($event)")
+    lah-user-add-card(@added="added($event)" @added-continue="addedContinue($event)")
 
   //- AD 連線設定 Modal
   b-modal(
@@ -865,6 +900,229 @@ div(v-cloak)
           :disabled="!item.selectedIp"
           @click="updateUserIp(item.id, item.selectedIp)"
         ) 套用此 IP
+
+  //- =========================================================
+  //- 6. 分機表 XLSX 智慧解析與異動預覽 Modal
+  //- =========================================================
+  b-modal(
+    id="roster-import-modal"
+    size="xl"
+    scrollable
+    no-close-on-backdrop
+  )
+    template(#modal-title)
+      .d-flex.align-items-center
+        lah-fa-icon.mr-2.text-success(icon="file-excel" size="lg")
+        span.font-weight-bold 分機表智慧解析與批次更新（工作職掌 / 分機）
+
+    //- 隱藏檔案選擇器
+    input.d-none(
+      ref="rosterFileInput"
+      type="file"
+      accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+      @change="onRosterFileChange"
+    )
+
+    //- 尚未載入檔案或重新選檔拖曳區
+    .roster-dropzone.p-4.text-center.rounded.mb-3(
+      v-if="rosterDiffItems.length === 0 && !rosterParsing"
+      :class="{ 'drag-active': rosterDragOver }"
+      @click="triggerRosterFileSelect"
+      @dragover.prevent="rosterDragOver = true"
+      @dragleave.prevent="rosterDragOver = false"
+      @drop.prevent="onRosterFileDrop"
+    )
+      lah-fa-icon.text-success.mb-2(icon="cloud-upload-alt" size="3x")
+      h5.font-weight-bold.mb-1 點擊選擇或拖曳「服務電話一覽表 (.xlsx / .csv)」至此處
+      p.text-muted.small.mb-2
+        | 支援「桃園地政事務所服務電話一覽表」三欄並排印表格式（自動解析頂部主管列、合併儲存格職掌與共用分機、外駐站 #[code #] 分機）及一般平面表格
+      .d-flex.justify-content-center.align-items-center.flex-wrap
+        lah-button.mr-2(icon="folder-open" variant="success" size="sm" @click.stop="triggerRosterFileSelect") 選擇 Excel / CSV 檔案
+        a.btn.btn-sm.btn-outline-secondary(
+          href="/xlsx/桃園所最新電話一覽表.xlsx"
+          download="桃園所最新電話一覽表.xlsx"
+          @click.stop
+        )
+          lah-fa-icon.mr-1(icon="download")
+          span 下載範例：桃園所最新電話一覽表.xlsx
+
+    //- 解析中狀態
+    .text-center.py-5(v-else-if="rosterParsing")
+      b-spinner(variant="success" label="解析中")
+      .mt-2.font-weight-bold.text-secondary 正在智慧解析分機表並比對所內人員資料...
+
+    //- 解析完成：異動預覽與微調介面
+    div(v-else)
+      //- 檔案資訊與統計列
+      .d-flex.flex-wrap.justify-content-between.align-items-center.bg-light.p-2.rounded.border.mb-2
+        .d-flex.align-items-center.flex-wrap
+          b-badge.mr-2.px-2.py-1(variant="dark")
+            lah-fa-icon.mr-1(icon="file-alt")
+            span {{ rosterFileName }}
+          span.small.text-muted.mr-3 共擷取 #[b.text-dark {{ rosterTotalParsed }}] 筆人員資料
+          b-button-group(size="sm")
+            b-button(
+              :variant="rosterViewTab === 'changed' ? 'primary' : 'outline-primary'"
+              @click="rosterViewTab = 'changed'"
+            )
+              span ⚡ 有異動待更新
+              b-badge.ml-1(variant="light") {{ rosterChangedItems.length }}
+            b-button(
+              :variant="rosterViewTab === 'unchanged' ? 'secondary' : 'outline-secondary'"
+              @click="rosterViewTab = 'unchanged'"
+            )
+              span ✓ 資料已一致
+              b-badge.ml-1(variant="light") {{ rosterUnchangedItems.length }}
+            b-button(
+              v-if="rosterUnmatchedNames.length > 0"
+              :variant="rosterViewTab === 'unmatched' ? 'warning' : 'outline-warning'"
+              @click="rosterViewTab = 'unmatched'"
+            )
+              span ⚠️ 未匹配名單
+              b-badge.ml-1(variant="dark") {{ rosterUnmatchedNames.length }}
+
+        .d-flex.align-items-center.mt-2.mt-md-0
+          lah-button(
+            icon="sync-alt"
+            variant="outline-secondary"
+            size="sm"
+            title="重新上傳其他分機表檔案"
+            :disabled="rosterSaving"
+            @click="triggerRosterFileSelect"
+          ) 重新選檔
+
+      //- 欄位更新範圍與搜尋工具列
+      .d-flex.flex-wrap.justify-content-between.align-items-center.mb-2.px-1(v-if="rosterViewTab !== 'unmatched'")
+        .d-flex.align-items-center.flex-wrap
+          b-form-checkbox.mr-3.font-weight-bold(
+            v-model="rosterApplyWork"
+            :disabled="rosterSaving"
+          ) 同步更新「工作職掌」
+          b-form-checkbox.mr-3.font-weight-bold(
+            v-model="rosterApplyExt"
+            :disabled="rosterSaving"
+          ) 同步更新「分機號碼」
+          b-button.mr-1(
+            size="sm"
+            variant="outline-primary"
+            :disabled="rosterSaving"
+            @click="toggleSelectAllRoster(true)"
+          ) 全選有異動項 ({{ rosterChangedItems.length }})
+          b-button(
+            size="sm"
+            variant="outline-secondary"
+            :disabled="rosterSaving"
+            @click="toggleSelectAllRoster(false)"
+          ) 取消全選
+
+        .d-flex.align-items-center.mt-2.mt-md-0(style="width: 240px;")
+          b-input-group(size="sm")
+            b-form-input(
+              v-model.trim="rosterSearchKeyword"
+              placeholder="篩選預覽姓名 / 職掌 / 分機..."
+            )
+            b-input-group-append(v-if="rosterSearchKeyword")
+              b-button(variant="outline-secondary" @click="rosterSearchKeyword = ''") ×
+
+      //- 批次寫入進度條
+      .mb-2(v-if="rosterSaving")
+        .d-flex.justify-content-between.small.font-weight-bold.mb-1
+          span.text-success 正在批次寫入人員職掌與分機...
+          span {{ rosterSaveProgress }} / {{ rosterSelectedItems.length }} 筆
+        b-progress(:value="rosterSaveProgress" :max="Math.max(1, rosterSelectedItems.length)" variant="success" striped animated height="12px")
+
+      //- 未匹配名單檢視
+      .p-3.bg-light.rounded.border(v-if="rosterViewTab === 'unmatched'")
+        p.small.text-muted.mb-2 以下為分機表中解析出、但在目前載入之人員清單中查無同名在職紀錄的項目（可能為已離職/調職或非人員項目）：
+        .d-flex.flex-wrap
+          .badge.badge-warning.p-2.mr-2.mb-2.text-left(
+            v-for="(u, idx) in rosterUnmatchedNames"
+            :key="idx"
+            style="font-size: 0.85rem;"
+          )
+            span.font-weight-bold {{ u.name }}
+            span.ml-1.text-dark ({{ u.work || '無職掌' }} / 分機 {{ u.ext || '無' }})
+
+      //- 異動比對預覽表格
+      b-table(
+        v-else
+        :items="rosterFilteredItems"
+        :fields="rosterPreviewFields"
+        small
+        hover
+        bordered
+        responsive
+        sticky-header="52vh"
+        head-variant="light"
+        show-empty
+        empty-text="此分類下無符合條件之人員資料"
+      )
+        template(#cell(selected)="{ item }")
+          b-form-checkbox(
+            v-model="item.selected"
+            :disabled="rosterSaving"
+          )
+
+        template(#cell(user)="{ item }")
+          .d-flex.align-items-center
+            .mr-2
+              .font-weight-bold.text-dark {{ item.name }}
+              .small.text-muted.text-monospace {{ item.id }}
+            b-badge.ml-auto(variant="light" class="border") {{ item.unit || '未分配' }}
+
+        template(#cell(workDiff)="{ item }")
+          .d-flex.align-items-center
+            .text-muted.small.mr-2(style="min-width: 95px;")
+              span {{ item.oldWork || '(未填)' }}
+            span.text-muted.mr-2 ➔
+            b-form-input.flex-grow-1(
+              v-model.trim="item.newWork"
+              size="sm"
+              :disabled="!rosterApplyWork || rosterSaving"
+              :class="{ 'border-success bg-success-light font-weight-bold': rosterApplyWork && isRosterWorkChanged(item) }"
+              placeholder="輸入工作職掌"
+            )
+            b-badge.ml-2(
+              v-if="rosterApplyWork && isRosterWorkChanged(item)"
+              variant="success"
+            ) 異動
+
+        template(#cell(extDiff)="{ item }")
+          .d-flex.align-items-center
+            .text-muted.small.mr-2.text-monospace(style="min-width: 45px;")
+              span {{ item.oldExt || '(無)' }}
+            span.text-muted.mr-2 ➔
+            b-form-input(
+              v-model.trim="item.newExt"
+              size="sm"
+              maxlength="4"
+              style="width: 85px;"
+              :disabled="!rosterApplyExt || rosterSaving"
+              :class="{ 'border-primary bg-primary-light font-weight-bold text-monospace': rosterApplyExt && isRosterExtChanged(item) }"
+              placeholder="分機"
+            )
+            b-badge.ml-2(
+              v-if="rosterApplyExt && isRosterExtChanged(item)"
+              variant="primary"
+            ) 異動
+
+    template(#modal-footer="{ close }")
+      .d-flex.justify-content-between.align-items-center.w-100
+        .small.text-muted
+          span(v-if="rosterDiffItems.length > 0")
+            | 已勾選 #[b.text-success {{ rosterSelectedItems.length }}] 筆準備更新（職掌異動 #[b {{ rosterWorkDiffCount }}] 筆、分機異動 #[b {{ rosterExtDiffCount }}] 筆）
+          span(v-else) 請先選擇或拖入分機表檔案
+        .d-flex.align-items-center
+          b-button.mr-2(variant="outline-secondary" size="sm" :disabled="rosterSaving" @click="close()") 關閉
+          lah-button(
+            v-if="rosterDiffItems.length > 0"
+            icon="check-double"
+            variant="success"
+            size="sm"
+            :disabled="rosterSelectedItems.length === 0 || (!rosterApplyWork && !rosterApplyExt) || rosterSaving"
+            :busy="rosterSaving"
+            @click="executeRosterBatchUpdate"
+          ) 確認批次更新 ({{ rosterSelectedItems.length }} 筆)
 </template>
 
 <script>
@@ -922,7 +1180,7 @@ export default {
       { key: 'id', label: '帳號', sortable: true, thStyle: 'width: 115px' },
       { key: 'name', label: '姓名 / 職掌', sortable: true, thStyle: 'min-width: 140px' },
       { key: 'unit', label: '課室 (直接快改)', sortable: true, thStyle: 'width: 145px' },
-      { key: 'title', label: '職稱', sortable: true, thStyle: 'width: 110px' },
+      { key: 'title', label: '職稱 (直接快改)', sortable: true, thStyle: 'width: 145px' },
       { key: 'ip', label: '電腦 IP (Enter 秒存)', sortable: true, thStyle: 'width: 260px' },
       { key: 'ext', label: '分機 (Enter 秒存)', sortable: true, thStyle: 'width: 135px' },
       { key: 'authority', label: '個人權限徽章', sortable: true },
@@ -942,6 +1200,26 @@ export default {
     lockedUserIds: [],
     adLockedChecked: false,
     isCheckingLocked: false,
+
+    // 分機表 XLSX 智慧解析與異動預覽狀態
+    rosterFileName: '',
+    rosterDragOver: false,
+    rosterParsing: false,
+    rosterSaving: false,
+    rosterSaveProgress: 0,
+    rosterTotalParsed: 0,
+    rosterDiffItems: [],
+    rosterUnmatchedNames: [],
+    rosterViewTab: 'changed',
+    rosterSearchKeyword: '',
+    rosterApplyWork: true,
+    rosterApplyExt: true,
+    rosterPreviewFields: [
+      { key: 'selected', label: '勾選', class: 'text-center align-middle', thStyle: 'width: 55px' },
+      { key: 'user', label: '對應員工 (姓名 / 帳號 / 課室)', class: 'align-middle', thStyle: 'width: 220px' },
+      { key: 'workDiff', label: '工作職掌 (原職掌 ➔ 新職掌，可直接微調)', class: 'align-middle' },
+      { key: 'extDiff', label: '分機號碼 (原分機 ➔ 新分機)', class: 'align-middle', thStyle: 'width: 230px' }
+    ],
 
     // 核心資料與原有設定
     users: [],
@@ -1055,6 +1333,19 @@ export default {
       const dynamicUnits = this.users.map(u => u.unit).filter(Boolean)
       const merged = [...new Set([...defaultUnits, ...dynamicUnits])]
       return merged.map(u => ({ value: u, text: u }))
+    },
+
+    inlineTitleOptions () {
+      const defaultTitles = [
+        '業務助理', '約僱人員', '雇工', '工友', '書記',
+        '助理員', '辦事員', '課員', '測量助理', '測量員',
+        '技佐', '技工', '技士', '管理師', '助理管理師',
+        '會計員', '人事管理員', '課長', '秘書', '主任',
+        '臨時人員', '工讀生', '其他'
+      ]
+      const dynamicTitles = this.users.map(u => u.title).filter(Boolean)
+      const merged = [...new Set([...defaultTitles, ...dynamicTitles])]
+      return merged.map(t => ({ value: t, text: t }))
     },
 
     titleFilterOptions () {
@@ -1194,22 +1485,34 @@ export default {
       return [...this.filteredUsers].sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')))
     },
 
-    // --- 編輯視窗上一位 / 下一位導航 ---
+    // --- 編輯視窗上一位 / 下一位導航 (名牌視圖依分組視覺順序，表格視圖依篩選清單順序) ---
+    navigableUsers () {
+      if (this.viewMode === 'badge') {
+        const list = []
+        this.categories.forEach((cat) => {
+          if (Array.isArray(cat.LIST)) {
+            list.push(...cat.LIST)
+          }
+        })
+        return list
+      }
+      return this.filteredUsers
+    },
     currentEditIndex () {
       if (!this.clickedUser || !this.clickedUser.id) { return -1 }
-      return this.filteredUsers.findIndex(u => u.id === this.clickedUser.id)
+      return this.navigableUsers.findIndex(u => u.id === this.clickedUser.id)
     },
     hasPrevUser () {
       return this.currentEditIndex > 0
     },
     hasNextUser () {
-      return this.currentEditIndex !== -1 && this.currentEditIndex < this.filteredUsers.length - 1
+      return this.currentEditIndex !== -1 && this.currentEditIndex < this.navigableUsers.length - 1
     },
     prevUserName () {
-      return this.hasPrevUser ? `(${this.filteredUsers[this.currentEditIndex - 1].name})` : ''
+      return this.hasPrevUser ? `(${this.navigableUsers[this.currentEditIndex - 1].name})` : ''
     },
     nextUserName () {
-      return this.hasNextUser ? `(${this.filteredUsers[this.currentEditIndex + 1].name})` : ''
+      return this.hasNextUser ? `(${this.navigableUsers[this.currentEditIndex + 1].name})` : ''
     },
     editUserTitle () {
       return `編輯 ${this.clickedUser.id} ${this.clickedUser.name} 資訊`
@@ -1347,6 +1650,70 @@ export default {
           text: `${tag}${u.id} ${u.name} (${u.unit || '未分配'} — 目前 IP: ${u.ip || '無'})`
         }
       })
+    },
+
+    // 供 lah-button-xlsx 匯出之 JSON 資料陣列
+    xlsxData () {
+      return this.filteredUsers.map(u => ({
+        帳號: u.id || '',
+        姓名: u.name || '',
+        單位: u.unit || '',
+        職稱: u.title || '',
+        工作職掌: u.work || '',
+        電腦IP: u.ip || '',
+        分機: u.ext || '',
+        手機: u.cell || '',
+        到職日: u.onboard_date || '',
+        角色權限: this.roleBadges(u).map(r => r.text).join('、') || '一般人員'
+      }))
+    },
+
+    // --- 分機表 XLSX 異動預覽統計與篩選 ---
+    rosterChangedItems () {
+      return this.rosterDiffItems.filter(item => this.isRosterItemChanged(item))
+    },
+
+    rosterUnchangedItems () {
+      return this.rosterDiffItems.filter(item => !this.isRosterItemChanged(item))
+    },
+
+    rosterFilteredItems () {
+      const baseList = this.rosterViewTab === 'changed'
+        ? this.rosterChangedItems
+        : this.rosterUnchangedItems
+      const k = (this.rosterSearchKeyword || '').toLowerCase()
+      if (!k) { return baseList }
+      return baseList.filter((item) => {
+        return (
+          (item.id && String(item.id).toLowerCase().includes(k)) ||
+          (item.name && String(item.name).toLowerCase().includes(k)) ||
+          (item.unit && String(item.unit).toLowerCase().includes(k)) ||
+          (item.oldWork && String(item.oldWork).toLowerCase().includes(k)) ||
+          (item.newWork && String(item.newWork).toLowerCase().includes(k)) ||
+          (item.oldExt && String(item.oldExt).toLowerCase().includes(k)) ||
+          (item.newExt && String(item.newExt).toLowerCase().includes(k))
+        )
+      })
+    },
+
+    rosterSelectedItems () {
+      return this.rosterDiffItems.filter(item => item.selected && this.isRosterItemChanged(item))
+    },
+
+    rosterWorkDiffCount () {
+      if (!this.rosterApplyWork) { return 0 }
+      return this.rosterSelectedItems.filter(item => this.isRosterWorkChanged(item)).length
+    },
+
+    rosterExtDiffCount () {
+      if (!this.rosterApplyExt) { return 0 }
+      return this.rosterSelectedItems.filter(item => this.isRosterExtChanged(item)).length
+    },
+
+    safeTablePerPage () {
+      const n = parseInt(this.tablePerPage, 10)
+      if (isNaN(n)) { return 15 }
+      return Math.min(100, Math.max(5, n))
     }
   },
 
@@ -1373,16 +1740,30 @@ export default {
     // 當篩選條件變動並影響表格顯示資料時，重設當前頁碼為 1 (遵守 AGENTS.md 規範)
     filteredUsers () {
       this.tableCurrentPage = 1
+    },
+    tablePerPage () {
+      this.tableCurrentPage = 1
+      localStorage.setItem('user_mgt_table_per_page', this.safeTablePerPage)
+    },
+    rosterApplyWork () {
+      this.syncRosterSelectionByDiff()
+    },
+    rosterApplyExt () {
+      this.syncRosterSelectionByDiff()
     }
   },
 
   mounted () {
     const savedView = localStorage.getItem('user_mgt_view_mode')
+    const savedPerPage = parseInt(localStorage.getItem('user_mgt_table_per_page'), 10)
     const avatar = localStorage.getItem('user_mgt_show_avatar')
     const ip = localStorage.getItem('user_mgt_show_ip')
     const meta = localStorage.getItem('user_mgt_show_meta')
     if (savedView && ['badge', 'table', 'radar'].includes(savedView)) {
       this.viewMode = savedView
+    }
+    if (!isNaN(savedPerPage) && savedPerPage >= 5 && savedPerPage <= 100) {
+      this.tablePerPage = savedPerPage
     }
     if (avatar !== null) { this.showAvatar = avatar === 'true' }
     if (ip !== null) { this.showIp = ip === 'true' }
@@ -1423,6 +1804,10 @@ export default {
 
   methods: {
     // --- 頂部指標與篩選控制 ---
+    clampTablePerPage () {
+      this.tablePerPage = this.safeTablePerPage
+    },
+
     setQuickFilter (filterName) {
       if (this.quickFilter === filterName) {
         this.quickFilter = ''
@@ -1651,6 +2036,29 @@ export default {
       }
     },
 
+    async quickSaveTitle (user, newTitle) {
+      if (!newTitle || newTitle === user.title) { return }
+      this.savingRowId = user.id
+      try {
+        const payload = { ...user, title: newTitle }
+        const { data } = await this.$axios.post(this.$consts.API.JSON.USER, {
+          type: 'save_user_info',
+          data: payload
+        })
+        if (this.$utils.statusCheck(data.status)) {
+          this.update({ id: user.id, title: newTitle })
+          this.markRowSaved(user.id)
+          this.notify(`${user.name} 職稱已更新為「${newTitle}」`, { type: 'success' })
+        } else {
+          this.warning(data.message || '更新職稱失敗')
+        }
+      } catch (err) {
+        this.$utils.error(err)
+      } finally {
+        this.savingRowId = ''
+      }
+    },
+
     async quickSaveIp (user) {
       if (!this.isInlineDirty(user, 'ip')) { return }
       if (!this.isInlineIpValid(user)) {
@@ -1746,42 +2154,6 @@ export default {
       }
     },
 
-    // --- 匯出篩選後的員工清單 (CSV) ---
-    exportIpList () {
-      const escapeCsv = (val) => {
-        const str = val === null || val === undefined ? '' : String(val)
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-          return `"${str.replace(/"/g, '""')}"`
-        }
-        return str
-      }
-
-      const csvContent = [
-        ['帳號', '姓名', '單位', '職稱', '工作職掌', 'IP位址', '分機', '手機', '角色權限'],
-        ...this.filteredUsers.map(u => [
-          u.id,
-          u.name,
-          u.unit || '',
-          u.title || '',
-          u.work || '',
-          u.ip || '',
-          u.ext || '',
-          u.cell || '',
-          this.roleBadges(u).map(r => r.text).join('/') || '一般人員'
-        ].map(escapeCsv))
-      ].map(e => e.join(',')).join('\n')
-
-      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
-      const link = document.createElement('a')
-      const url = URL.createObjectURL(blob)
-      link.setAttribute('href', url)
-      link.setAttribute('download', `users_ip_list_${this.$utils.now().split(' ')[0]}.csv`)
-      link.style.visibility = 'hidden'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    },
-
     // --- 複製剪貼簿工具 ---
     copyToClipboard (text, label = '內容') {
       if (!text) { return }
@@ -1872,7 +2244,11 @@ export default {
     added (event) {
       this.users.unshift(event.detail)
       this.hideModalById('add-user-modal')
-      this.notify(`新增 ${event.detail.id} 成功`, { type: 'success' })
+      this.notify(`新增 ${event.detail.id} ${event.detail.name || ''} 成功`, { type: 'success' })
+    },
+    addedContinue (event) {
+      this.users.unshift(event.detail)
+      this.notify(`已新增 ${event.detail.id} ${event.detail.name || ''}，請直接輸入下一位`, { type: 'success' })
     },
     edit (user) {
       this.clickedUser = { ...user }
@@ -1880,8 +2256,8 @@ export default {
     },
     navigateEditUser (step) {
       const nextIdx = this.currentEditIndex + step
-      if (nextIdx >= 0 && nextIdx < this.filteredUsers.length) {
-        this.clickedUser = { ...this.filteredUsers[nextIdx] }
+      if (nextIdx >= 0 && nextIdx < this.navigableUsers.length) {
+        this.clickedUser = { ...this.navigableUsers[nextIdx] }
       }
     },
     saved (event) {
@@ -1889,6 +2265,13 @@ export default {
       this.clickedUser = { ...this.clickedUser, ...event.detail }
       this.hideModalById('edit-user-modal')
       this.notify(`更新 ${this.clickedUser.id} 完成`, { type: 'success' })
+    },
+    savedAndNext (event) {
+      const prevName = this.clickedUser.name
+      this.update(event.detail)
+      this.clickedUser = { ...this.clickedUser, ...event.detail }
+      this.notify(`已儲存 ${prevName}，自動切換至下一位`, { type: 'success' })
+      this.navigateEditUser(1)
     },
     update (userData) {
       const idx = this.users.findIndex(u => u.id === userData.id)
@@ -2113,7 +2496,7 @@ export default {
     },
 
     avatarSrc (user) {
-      return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar`
+      return `/img/get_user_img.php?id=${user.id}_avatar&name=${user.name}_avatar&timestamp=${this.timestamp}`
     },
 
     isValidIp (user) {
@@ -2125,6 +2508,454 @@ export default {
 
     ipParts (user) {
       return (user.ip || '').split('.')
+    },
+
+    userCardTitle (user) {
+      if (!user) { return '' }
+      const lines = [
+        `帳號：${user.id || '無'}`,
+        `姓名：${user.name || '無'}`,
+        `課室：${user.unit || '未分配'}${user.title ? ' (' + user.title + ')' : ''}`
+      ]
+      if (user.work) { lines.push(`職掌：${user.work}`) }
+      if (user.ext) { lines.push(`分機：${user.ext}`) }
+      if (user.ip) { lines.push(`電腦 IP：${user.ip}`) }
+      return lines.join('\n')
+    },
+
+    // =========================================================
+    // 分機表 XLSX / CSV 智慧解析與異動預覽核心方法
+    // =========================================================
+    openRosterImportModal () {
+      this.rosterDragOver = false
+      this.rosterSearchKeyword = ''
+      this.showModalById('roster-import-modal')
+    },
+
+    triggerRosterFileSelect () {
+      if (this.$refs.rosterFileInput) {
+        this.$refs.rosterFileInput.value = ''
+        this.$refs.rosterFileInput.click()
+      }
+    },
+
+    onRosterFileDrop (e) {
+      this.rosterDragOver = false
+      const files = e.dataTransfer && e.dataTransfer.files
+      if (files && files.length > 0) {
+        this.processRosterFile(files[0])
+      }
+    },
+
+    onRosterFileChange (e) {
+      const files = e.target && e.target.files
+      if (files && files.length > 0) {
+        this.processRosterFile(files[0])
+      }
+    },
+
+    getExcelJS () {
+      if (typeof window !== 'undefined' && window.ExcelJS) {
+        return Promise.resolve(window.ExcelJS)
+      }
+      return new Promise((resolve, reject) => {
+        if (typeof document === 'undefined') {
+          return reject(new Error('非瀏覽器環境無法載入 ExcelJS'))
+        }
+        const existing = document.querySelector('script[src="/js/exceljs.min.js"]')
+        if (existing) {
+          if (window.ExcelJS) { return resolve(window.ExcelJS) }
+          existing.addEventListener('load', () => resolve(window.ExcelJS))
+          existing.addEventListener('error', reject)
+          return
+        }
+        const script = document.createElement('script')
+        script.src = '/js/exceljs.min.js'
+        script.onload = () => resolve(window.ExcelJS)
+        script.onerror = () => reject(new Error('載入 /js/exceljs.min.js 失敗'))
+        document.head.appendChild(script)
+      })
+    },
+
+    normalizeRosterExt (raw) {
+      if (!raw) { return '' }
+      const s = String(raw).trim()
+      if (s.includes('#')) {
+        const afterHash = s.split('#').pop().trim()
+        const m = afterHash.match(/\d{3,4}/)
+        if (m) { return m[0] }
+      }
+      const m = s.match(/\d{3,4}/)
+      return m ? m[0] : ''
+    },
+
+    extractCellString (cell) {
+      if (!cell) { return '' }
+      let v = cell.value
+      if (v && typeof v === 'object') {
+        if (Array.isArray(v.richText)) {
+          v = v.richText.map(t => t.text || '').join('')
+        } else if (v.result !== undefined) {
+          v = v.result
+        } else if (v.text !== undefined) {
+          v = v.text
+        }
+      }
+      return v == null ? '' : String(v).trim().replace(/\s+/g, ' ')
+    },
+
+    parseCsvRows (csvText) {
+      const lines = String(csvText || '').split(/\r?\n/)
+      return lines.map((line) => {
+        const result = []
+        let cur = ''
+        let inQuotes = false
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i]
+          if (ch === '"') {
+            inQuotes = !inQuotes
+          } else if (ch === ',' && !inQuotes) {
+            result.push(cur.trim().replace(/\s+/g, ' '))
+            cur = ''
+          } else {
+            cur += ch
+          }
+        }
+        result.push(cur.trim().replace(/\s+/g, ' '))
+        return result
+      }).filter(row => row.some(Boolean))
+    },
+
+    async processRosterFile (file) {
+      if (!file) { return }
+      const fileName = file.name || ''
+      const ext = fileName.split('.').pop().toLowerCase()
+      if (!['xlsx', 'csv'].includes(ext)) {
+        this.notify('請上傳 .xlsx 或 .csv 格式的分機表檔案', { type: 'warning' })
+        return
+      }
+
+      this.rosterFileName = fileName
+      this.rosterParsing = true
+      this.rosterDiffItems = []
+      this.rosterUnmatchedNames = []
+
+      try {
+        let rows2D = []
+        if (ext === 'csv') {
+          const text = await new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = e => resolve(e.target.result)
+            reader.onerror = reject
+            reader.readAsText(file, 'utf-8')
+          })
+          rows2D = this.parseCsvRows(text)
+        } else {
+          const ExcelJS = await this.getExcelJS()
+          const arrayBuffer = await new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = e => resolve(e.target.result)
+            reader.onerror = reject
+            reader.readAsArrayBuffer(file)
+          })
+          const wb = new ExcelJS.Workbook()
+          await wb.xlsx.load(arrayBuffer)
+          const ws = wb.worksheets[0]
+          if (!ws) {
+            throw new Error('Excel 檔案中找不到工作表')
+          }
+          ws.eachRow({ includeEmpty: false }, (row) => {
+            const cols = []
+            const maxCol = Math.max(9, row.cellCount || 9)
+            for (let c = 1; c <= maxCol; c++) {
+              cols.push(this.extractCellString(row.getCell(c)))
+            }
+            if (cols.some(Boolean)) {
+              rows2D.push(cols)
+            }
+          })
+        }
+
+        const parsedEntries = this.parseRosterRows(rows2D)
+        this.rosterTotalParsed = parsedEntries.length
+
+        if (parsedEntries.length === 0) {
+          this.notify('未從檔案中識別出有效的人員職掌與分機資料，請確認檔案內容', { type: 'warning' })
+          return
+        }
+
+        this.buildRosterDiffPreview(parsedEntries)
+      } catch (err) {
+        this.$utils.error(err)
+        this.notify(`解析分機表失敗：${err.message || '檔案格式異常'}`, { type: 'danger' })
+      } finally {
+        this.rosterParsing = false
+      }
+    },
+
+    parseRosterRows (rows2D) {
+      const parsedMap = new Map()
+      const nonPersonPattern = /(專線|傳真|總機|語音|簡訊|電話|一覽表|閱覽處|儀器室|會議室|諮詢室|閱覽室|梯廳|櫃檯|櫃台|工作站|志工|姓名|使用者姓名)/
+
+      const addEntry = (rawName, rawWork, rawExt) => {
+        const name = String(rawName || '').replace(/\s+/g, '')
+        const work = String(rawWork || '').trim()
+        const ext = this.normalizeRosterExt(rawExt)
+        if (!name || name.length < 2 || name.length > 5) { return }
+        if (nonPersonPattern.test(name)) { return }
+        if (!work && !ext) { return }
+        parsedMap.set(name, { name, work, ext })
+      }
+
+      // 檢查是否為一般平面表格（表頭同時含「姓名」與「分機 / 職掌 / 工作」）
+      let flatHeaderIdx = -1
+      let colNameIdx = -1
+      let colWorkIdx = -1
+      let colExtIdx = -1
+
+      for (let r = 0; r < Math.min(5, rows2D.length); r++) {
+        const row = rows2D[r]
+        const nIdx = row.findIndex(c => /^(姓名|使用者姓名)$/.test(c))
+        const wIdx = row.findIndex(c => /^(工作職掌|職掌|工作)$/.test(c))
+        const eIdx = row.findIndex(c => /^(分機|分機號碼)$/.test(c))
+        if (nIdx !== -1 && (wIdx !== -1 || eIdx !== -1)) {
+          flatHeaderIdx = r
+          colNameIdx = nIdx
+          colWorkIdx = wIdx
+          colExtIdx = eIdx
+          break
+        }
+      }
+
+      if (flatHeaderIdx !== -1) {
+        for (let r = flatHeaderIdx + 1; r < rows2D.length; r++) {
+          const row = rows2D[r]
+          const n = colNameIdx !== -1 ? row[colNameIdx] : ''
+          const w = colWorkIdx !== -1 ? row[colWorkIdx] : ''
+          const e = colExtIdx !== -1 ? row[colExtIdx] : ''
+          addEntry(n, w, e)
+        }
+        return Array.from(parsedMap.values())
+      }
+
+      // 解析「桃園地政事務所服務電話一覽表」三欄並排印表格式
+      const lastWork = ['', '', '']
+      const lastExt = ['', '', '']
+
+      rows2D.forEach((cols) => {
+        // 1. 掃描頂部或行內複合字串（如「主任：陳振南 分機:100」、「會計室助理:官鈺如」+「分機:399」）
+        const uniqueCells = []
+        cols.forEach((txt, idx) => {
+          if (txt && (idx === 0 || txt !== cols[idx - 1])) {
+            uniqueCells.push({ txt, idx })
+          }
+        })
+
+        for (let i = 0; i < uniqueCells.length; i++) {
+          const item = uniqueCells[i].txt
+          if (/(專線|傳真|總機|語音|簡訊)/.test(item) && !/分機/.test(item)) {
+            continue
+          }
+          const inlineMatch = item.match(/^([^\d:：,，\s]{2,8})\s*[:：]\s*([\u4E00-\u9FA5]{2,4})(?:.*?分機\s*[:：]?\s*(\d{3,4}))?/)
+          if (inlineMatch) {
+            const work = inlineMatch[1].trim()
+            const name = inlineMatch[2].trim()
+            let ext = inlineMatch[3] || ''
+            if (!ext && i + 1 < uniqueCells.length) {
+              const nextTxt = uniqueCells[i + 1].txt
+              const extMatch = nextTxt.match(/分機\s*[:：]?\s*(\d{3,4})/)
+              if (extMatch) { ext = extMatch[1] }
+            }
+            if (work && name && ext) {
+              addEntry(name, work, ext)
+            }
+          }
+        }
+
+        // 2. 掃描三大直欄區塊：[0,1,2]、[3,4,5]、[6,7,8]
+        for (let b = 0; b < 3; b++) {
+          const c0 = cols[b * 3] || ''
+          const c1 = cols[b * 3 + 1] || ''
+          const c2 = cols[b * 3 + 2] || ''
+          if (!c0 && !c1 && !c2) { continue }
+          if (c0 === c1 && c1 === c2) { continue }
+          if (/(專線|傳真|總機|語音|簡訊|一覽表)/.test(c0) || /(專線|傳真|總機|語音|簡訊|一覽表)/.test(c1)) {
+            continue
+          }
+
+          // 處理「職掌-姓名」合併格（例如「市府便民工作站-蕭羽辰」+「3322101#6151」）
+          const dashMatch = c0.match(/^(.+?)[-－—]([\u4E00-\u9FA5]{2,4})$/)
+          if (dashMatch && (!c1 || c1 === c0)) {
+            const w = dashMatch[1].trim()
+            const n = dashMatch[2].trim()
+            const e = this.normalizeRosterExt(c2)
+            addEntry(n, w, e)
+            continue
+          }
+
+          let w = c0
+          const n = c1
+          let e = c2
+
+          if (w && !/[:：]/.test(w)) {
+            lastWork[b] = w
+          } else if (!w && lastWork[b]) {
+            w = lastWork[b]
+          }
+
+          if (e) {
+            lastExt[b] = e
+          } else if (!e && n && w === lastWork[b]) {
+            e = lastExt[b]
+          }
+
+          if (n && (w || e) && n !== w) {
+            addEntry(n, w, e)
+          }
+        }
+      })
+
+      return Array.from(parsedMap.values())
+    },
+
+    buildRosterDiffPreview (parsedEntries) {
+      const diffItems = []
+      const unmatched = []
+
+      // 建立姓名對應表（優先匹配在職人員）
+      const userByName = {}
+      this.users.forEach((u) => {
+        const cleanName = String(u.name || '').replace(/\s+/g, '')
+        if (!cleanName) { return }
+        if (!userByName[cleanName] || this.isUserDisabled(userByName[cleanName])) {
+          userByName[cleanName] = u
+        }
+      })
+
+      parsedEntries.forEach((entry) => {
+        const matchedUser = userByName[entry.name]
+        if (!matchedUser) {
+          unmatched.push(entry)
+          return
+        }
+
+        const oldWork = String(matchedUser.work || '').trim()
+        const oldExt = String(matchedUser.ext || '').trim()
+        const newWork = entry.work !== '' ? entry.work : oldWork
+        const newExt = entry.ext !== '' ? entry.ext : oldExt
+        const hasDiff = (newWork !== oldWork) || (newExt !== oldExt)
+
+        diffItems.push({
+          id: matchedUser.id,
+          name: matchedUser.name,
+          unit: matchedUser.unit || '',
+          title: matchedUser.title || '',
+          oldWork,
+          newWork,
+          oldExt,
+          newExt,
+          selected: hasDiff,
+          rawUser: matchedUser
+        })
+      })
+
+      this.rosterDiffItems = diffItems
+      this.rosterUnmatchedNames = unmatched
+      this.rosterViewTab = this.rosterChangedItems.length > 0 ? 'changed' : 'unchanged'
+      this.notify(`分機表解析完成：匹配 ${diffItems.length} 位同仁，其中 ${this.rosterChangedItems.length} 筆有職掌或分機異動`, {
+        type: this.rosterChangedItems.length > 0 ? 'success' : 'info'
+      })
+    },
+
+    isRosterWorkChanged (item) {
+      return String(item.newWork || '').trim() !== String(item.oldWork || '').trim()
+    },
+
+    isRosterExtChanged (item) {
+      return String(item.newExt || '').trim() !== String(item.oldExt || '').trim()
+    },
+
+    isRosterItemChanged (item) {
+      const workDiff = this.rosterApplyWork && this.isRosterWorkChanged(item)
+      const extDiff = this.rosterApplyExt && this.isRosterExtChanged(item)
+      return Boolean(workDiff || extDiff)
+    },
+
+    syncRosterSelectionByDiff () {
+      this.rosterDiffItems.forEach((item) => {
+        item.selected = this.isRosterItemChanged(item)
+      })
+    },
+
+    toggleSelectAllRoster (selectChanged) {
+      this.rosterDiffItems.forEach((item) => {
+        item.selected = selectChanged ? this.isRosterItemChanged(item) : false
+      })
+    },
+
+    async executeRosterBatchUpdate () {
+      const targets = this.rosterSelectedItems
+      if (targets.length === 0) { return }
+
+      // 驗證分機格式 (3 ~ 4 碼數字或空白)
+      if (this.rosterApplyExt) {
+        const invalidExtItem = targets.find(item => item.newExt && !/^\d{3,4}$/.test(item.newExt))
+        if (invalidExtItem) {
+          this.notify(`「${invalidExtItem.name}」的分機號碼 (${invalidExtItem.newExt}) 須為 3 ~ 4 碼數字`, { type: 'warning' })
+          return
+        }
+      }
+
+      this.rosterSaving = true
+      this.rosterSaveProgress = 0
+      let successCount = 0
+      let failCount = 0
+
+      try {
+        for (const item of targets) {
+          const payload = {
+            ...item.rawUser,
+            work: this.rosterApplyWork ? String(item.newWork || '').trim() : item.rawUser.work,
+            ext: this.rosterApplyExt ? String(item.newExt || '').trim() : item.rawUser.ext
+          }
+          try {
+            const { data } = await this.$axios.post(this.$consts.API.JSON.USER, {
+              type: 'save_user_info',
+              data: payload
+            })
+            if (this.$utils.statusCheck(data.status)) {
+              successCount++
+              this.update({
+                id: item.id,
+                work: payload.work,
+                ext: payload.ext
+              })
+              this.markRowSaved(item.id)
+              item.oldWork = payload.work
+              item.oldExt = payload.ext
+              item.rawUser = { ...item.rawUser, work: payload.work, ext: payload.ext }
+              item.selected = false
+            } else {
+              failCount++
+            }
+          } catch (e) {
+            failCount++
+          }
+          this.rosterSaveProgress++
+        }
+
+        this.removeCache('user_mapping')
+        this.removeCache('user_names')
+
+        if (failCount === 0) {
+          this.notify(`🎉 批次更新完成！已成功更新 ${successCount} 位同仁的職掌與分機`, { type: 'success' })
+          this.hideModalById('roster-import-modal')
+        } else {
+          this.notify(`更新完成：成功 ${successCount} 筆，失敗 ${failCount} 筆`, { type: 'warning' })
+        }
+      } finally {
+        this.rosterSaving = false
+      }
     }
   }
 }
@@ -2299,10 +3130,21 @@ export default {
 }
 
 .card-quick-actions {
-  opacity: 0.25;
+  opacity: 0.35;
   transition: opacity 0.15s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+
+  ::v-deep .btn {
+    border: none !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    line-height: 1;
+
+    &:hover {
+      color: #007bff !important;
+    }
+  }
 }
 
 // =========================================================
@@ -2373,7 +3215,31 @@ export default {
 }
 
 // =========================================================
-// 5. 警示樣式與表格行內儲存動畫
+// 5. 分機表拖曳上傳區與異動高亮樣式
+// =========================================================
+.roster-dropzone {
+  border: 2px dashed #86cfda;
+  background-color: #f8fdfe;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover,
+  &.drag-active {
+    border-color: #28a745;
+    background-color: #eefaf0;
+  }
+}
+
+.bg-success-light {
+  background-color: #f2fbf4 !important;
+}
+
+.bg-primary-light {
+  background-color: #f0f7ff !important;
+}
+
+// =========================================================
+// 6. 警示樣式與表格行內儲存動畫
 // =========================================================
 .ip-alert-style {
   color: #dc3545 !important;

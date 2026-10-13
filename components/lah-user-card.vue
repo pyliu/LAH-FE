@@ -41,6 +41,7 @@
           lah-button.ml-auto.mb-1(v-if="isAuthorized && !noEditButton" icon="edit" @click="edit") 編輯
           b-link(@click="photoClick" title="放大顯示")
             b-img-lazy.shadow(
+              :key="photoSrc"
               :src="photoSrc"
               :alt="userData.name"
               fluid
@@ -50,7 +51,7 @@
 </template>
 
 <script>
-import userBase from '~/mixins/lah-user-base.js';
+import userBase from '~/mixins/lah-user-base.js'
 
 export default {
   name: 'LahUserCard',
@@ -132,6 +133,30 @@ export default {
     }
   },
   watch: {
+    raw: {
+      handler (val) {
+        if (Array.isArray(val) && val.length > 0 && val[0]) {
+          this.userData = {
+            id: '',
+            name: '',
+            sex: '',
+            title: '',
+            work: '',
+            ext: '411',
+            birthday: '',
+            unit: '',
+            ip: '',
+            education: '',
+            exam: '',
+            cell: '',
+            onboard_date: '',
+            authority: 0,
+            ...val[0]
+          }
+        }
+      },
+      deep: true
+    },
     from (ip) {
       this.$fetch()
     }
