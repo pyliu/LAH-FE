@@ -467,73 +467,100 @@
       //- 視圖二：縣市戰情視圖 (County Matrix View)
       //- =========================================================
       div(v-else-if="viewMode === 'county'")
-        .county-matrix-grid
-          b-card.county-card.mb-0.shadow-sm(
-            v-for="group in countyGroups",
-            :key="group.countyCode",
-            no-body,
-            :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
-          )
-            b-card-header.county-card-header.py-2.px-3.d-flex.justify-content-between.align-items-center.flex-nowrap
-              .d-flex.align-items-center.text-truncate.mr-1
-                b-badge.mr-1(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
-                h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
-                b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
-                  | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
-              .d-flex.align-items-center.flex-shrink-0
-                span.small.text-muted.mr-2.d-none.d-xl-inline(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
-                b-button(
-                  size="sm",
-                  variant="outline-info",
-                  class="py-0 px-2 s-80",
-                  title="將此縣市所有地所排入佇列最前端優先探測",
-                  @click="prioritizeCountySites(group.offices)"
-                )
-                  lah-fa-icon.mr-1(icon="bolt")
-                  span 巡檢
+        .d-flex.justify-content-between.align-items-center.mb-2
+          .small.text-muted
+            lah-fa-icon.mr-1(icon="layer-group", variant="primary")
+            span 依縣市歸納共 #[strong {{ countyGroups.length }}] 個轄區（智慧無縫瀑布流填補，異常縣市與桃園置頂）
+          b-button-group(size="sm")
+            b-button(variant="outline-secondary", @click="toggleAllCounties(true)")
+              lah-fa-icon.mr-1(icon="expand-arrows-alt")
+              span 全展開
+            b-button(variant="outline-secondary", @click="toggleAllCounties(false)")
+              lah-fa-icon.mr-1(icon="compress-arrows-alt")
+              span 全收合
 
-            b-card-body.p-2
-              .county-sub-grid
-                .county-sub-cell(
-                  v-for="office in group.offices",
-                  :key="office.ID",
-                  :class="tileStatusClass(office.ID)",
-                  @click="openOfficeModal(office)"
-                )
-                  .d-flex.justify-content-between.align-items-center
-                    .d-flex.align-items-center.min-w-0
-                      lah-fa-icon.mr-1(
-                        v-if="isSiteProbing(office.ID)",
-                        icon="spinner",
-                        variant="info",
-                        action="spin"
-                      )
-                      lah-fa-icon.mr-1(
-                        v-else-if="getOfficeState(office.ID).status > 0",
-                        icon="circle-check",
-                        variant="success"
-                      )
-                      lah-fa-icon.mr-1(
-                        v-else-if="getOfficeState(office.ID).status === 0",
-                        icon="triangle-exclamation",
-                        variant="warning",
-                        action="breath"
-                      )
-                      lah-fa-icon.mr-1(
-                        v-else,
-                        icon="circle-xmark",
-                        variant="danger",
-                        action="breath"
-                      )
-                      span.font-weight-bold.text-truncate.s-90 {{ formatOfficeName(office) }}
-                    span.site-id-code.s-80.ml-1 {{ office.ID }}
-                  .d-flex.justify-content-between.align-items-center.mt-1
-                    span.latency-pill.s-80(
-                      v-if="getOfficeTelemetry(office.ID).lastLatency > 0",
-                      :class="latencyColorClass(getOfficeTelemetry(office.ID).lastLatency, getOfficeState(office.ID).status)"
-                    ) {{ getOfficeTelemetry(office.ID).lastLatency }}ms
-                    span.text-muted.s-75(v-else) 待測
-                    span.text-muted.s-75 {{ formatAgo(getOfficeState(office.ID).timestamp) }}
+        .county-masonry-row
+          transition-group.county-masonry-col(
+            v-for="(col, colIdx) in countyMatrixColumns",
+            :key="colIdx",
+            name="county-flip",
+            tag="div"
+          )
+            b-card.county-card.mb-3.shadow-sm(
+              v-for="group in col",
+              :key="group.countyCode",
+              no-body,
+              :class="{ 'border-danger': group.downCount > 0, 'border-info': group.countyCode === 'H' && group.downCount === 0 }"
+            )
+              b-card-header.county-card-header.py-2.px-3.pointer(
+                :class="{ 'bg-danger-subtle': group.downCount > 0 }",
+                @click="toggleCountyCollapse(group.countyCode)"
+              )
+                .d-flex.justify-content-between.align-items-center.flex-nowrap
+                  .d-flex.align-items-center.text-truncate.mr-1
+                    lah-fa-icon.mr-1(
+                      :icon="isCountyCollapsed(group.countyCode) ? 'chevron-right' : 'chevron-down'",
+                      variant="secondary"
+                    )
+                    b-badge.mr-1(:variant="group.countyCode === 'H' ? 'info' : 'secondary'") {{ group.regionName }}
+                    h6.mb-0.font-weight-bold.text-truncate.mr-1 {{ group.countyName }} ({{ group.countyCode }})
+                    b-badge(:variant="group.downCount > 0 ? 'danger' : 'success'", pill)
+                      | {{ group.downCount > 0 ? `異常 ${group.downCount}` : `${group.offices.length}所正常` }}
+                  .d-flex.align-items-center.flex-shrink-0(@click.stop)
+                    span.small.text-muted.mr-2.d-none.d-xl-inline(v-if="group.avgLatency > 0") {{ group.avgLatency }}ms
+                    b-button(
+                      size="sm",
+                      variant="outline-info",
+                      class="py-0 px-2 s-80",
+                      title="將此縣市所有地所排入佇列最前端優先探測",
+                      @click="prioritizeCountySites(group.offices)"
+                    )
+                      lah-fa-icon.mr-1(icon="bolt")
+                      span 巡檢
+
+              b-collapse(:visible="!isCountyCollapsed(group.countyCode)")
+                b-card-body.p-2
+                  .county-sub-grid
+                    .county-sub-cell(
+                      v-for="office in group.offices",
+                      :key="office.ID",
+                      :class="tileStatusClass(office.ID)",
+                      @click="openOfficeModal(office)"
+                    )
+                      .d-flex.justify-content-between.align-items-center
+                        .d-flex.align-items-center.min-w-0
+                          lah-fa-icon.mr-1(
+                            v-if="isSiteProbing(office.ID)",
+                            icon="spinner",
+                            variant="info",
+                            action="spin"
+                          )
+                          lah-fa-icon.mr-1(
+                            v-else-if="getOfficeState(office.ID).status > 0",
+                            icon="circle-check",
+                            variant="success"
+                          )
+                          lah-fa-icon.mr-1(
+                            v-else-if="getOfficeState(office.ID).status === 0",
+                            icon="triangle-exclamation",
+                            variant="warning",
+                            action="breath"
+                          )
+                          lah-fa-icon.mr-1(
+                            v-else,
+                            icon="circle-xmark",
+                            variant="danger",
+                            action="breath"
+                          )
+                          span.font-weight-bold.text-truncate.s-90 {{ formatOfficeName(office) }}
+                        span.site-id-code.s-80.ml-1 {{ office.ID }}
+                      .d-flex.justify-content-between.align-items-center.mt-1
+                        span.latency-pill.s-80(
+                          v-if="getOfficeTelemetry(office.ID).lastLatency > 0",
+                          :class="latencyColorClass(getOfficeTelemetry(office.ID).lastLatency, getOfficeState(office.ID).status)"
+                        ) {{ getOfficeTelemetry(office.ID).lastLatency }}ms
+                        span.text-muted.s-75(v-else) 待測
+                        span.text-muted.s-75 {{ formatAgo(getOfficeState(office.ID).timestamp) }}
 
       //- =========================================================
       //- 視圖三：管理者遙測數據表 (Admin Telemetry Table View)
@@ -873,6 +900,8 @@ export default {
     countyFilter: '',
     keyword: '',
     sortMode: 'stable', // 'stable' | 'latency_desc' | 'avg_latency_desc' | 'fail_desc' | 'recent_desc'
+    collapsedCounties: {},
+    windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1440,
 
     officesData: [],
     officeStateMap: {},
@@ -1182,6 +1211,36 @@ export default {
         return a.order - b.order
       })
     },
+    columnCount () {
+      if (this.windowWidth < 768) { return 1 }
+      if (this.windowWidth < 1200) { return 2 }
+      return 3
+    },
+    // 智慧高度平衡 3 欄瀑布流 (填補每一處縱向空白)
+    countyMatrixColumns () {
+      const cols = Array.from({ length: this.columnCount }, () => [])
+      const colHeights = Array(this.columnCount).fill(0)
+
+      this.countyGroups.forEach((group) => {
+        if (!group) { return }
+        const isCollapsed = Boolean(this.collapsedCounties[group.countyCode])
+        // 預估高度：若收合僅標頭約 48px；若展開則標頭 48px + 雙欄地所約 Math.ceil(offices.length / 2) * 52px
+        const estHeight = isCollapsed ? 48 : 48 + Math.ceil(group.offices.length / 2) * 52
+
+        let minColIdx = 0
+        let minH = colHeights[0]
+        for (let i = 1; i < this.columnCount; i++) {
+          if (colHeights[i] < minH) {
+            minH = colHeights[i]
+            minColIdx = i
+          }
+        }
+        cols[minColIdx].push(group)
+        colHeights[minColIdx] += estHeight
+      })
+
+      return cols
+    },
     // 表格資料
     tableItems () {
       return this.filteredOffices.map((o) => {
@@ -1275,6 +1334,10 @@ export default {
     }, 3000)
     if (typeof window !== 'undefined') {
       window.addEventListener('keydown', this.handleGlobalKeydown)
+      this.handleResize = () => {
+        this.windowWidth = window.innerWidth
+      }
+      window.addEventListener('resize', this.handleResize)
     }
   },
   beforeDestroy () {
@@ -1287,9 +1350,27 @@ export default {
     this.updateBodyBg(false)
     if (typeof window !== 'undefined') {
       window.removeEventListener('keydown', this.handleGlobalKeydown)
+      if (this.handleResize) {
+        window.removeEventListener('resize', this.handleResize)
+      }
     }
   },
   methods: {
+    toggleCountyCollapse (code) {
+      this.$set(this.collapsedCounties, code, !this.collapsedCounties[code])
+    },
+    isCountyCollapsed (code) {
+      return Boolean(this.collapsedCounties[code])
+    },
+    toggleAllCounties (expand) {
+      const next = {}
+      if (!expand) {
+        this.countyGroups.forEach((g) => {
+          next[g.countyCode] = true
+        })
+      }
+      this.collapsedCounties = next
+    },
     toggleTheme () {
       this.isDarkMode = !this.isDarkMode
     },
@@ -2090,21 +2171,20 @@ export default {
 }
 
 // =========================================================
-// 5. 縣市戰情視圖 (County Matrix 1/3 Card Grid)
+// 5. 縣市戰情視圖 (Masonry 智慧瀑布流 3 欄卡片)
 // =========================================================
-.county-matrix-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.county-masonry-row {
+  display: flex;
   gap: 0.85rem;
-  align-items: start; // 自然高度自適應，不強制等高
+  align-items: flex-start;
+  width: 100%;
+}
 
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+.county-masonry-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .county-card {
@@ -2164,15 +2244,18 @@ export default {
   min-width: 0;
 }
 
-.list-enter-active, .list-leave-active {
+.list-enter-active, .list-leave-active,
+.county-flip-enter-active, .county-flip-leave-active {
   transition: all 0.35s ease;
 }
-.list-enter, .list-leave-to {
+.list-enter, .list-leave-to,
+.county-flip-enter, .county-flip-leave-to {
   opacity: 0;
   transform: scale(0.92);
 }
-.list-move {
-  transition: transform 0.45s ease;
+.list-move,
+.county-flip-move {
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 // =========================================================
