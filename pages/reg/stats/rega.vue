@@ -3,24 +3,25 @@ div(v-cloak)
   lah-header
     lah-transition(appear)
       .d-flex.justify-content-between.w-100.my-auto.align-items-center
-        .d-flex.mr-auto.align-items-center
+        .d-flex.mr-auto.align-items-center.header-left-group
           div 登記統計資料案件查詢
-          lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
+          lah-button(icon="question" variant="outline-success" size="lg" no-border no-icon-gutter v-b-modal.help-modal title="說明")
 
-        .d-flex.align-items-center
-          b-input-group.mr-1(size="sm" style="width: 14rem")
+        .d-flex.align-items-center.header-right-group
+          b-input-group.mr-1(size="lg" style="width: 16rem")
             b-form-input(
               v-model="headerSearchKeyword",
+              size="lg",
               placeholder="搜尋項目或案號(Enter)...",
               trim,
               @keyup.enter="handleHeaderSearchEnter"
             )
             template(#append v-if="headerSearchKeyword")
-              b-button(variant="outline-secondary" size="sm" @click="headerSearchKeyword = ''" title="清除搜尋")
+              b-button(variant="outline-secondary" size="lg" @click="headerSearchKeyword = ''" title="清除搜尋")
                 lah-fa-icon(icon="times")
 
           b-button.mr-1.text-nowrap(
-            size="sm",
+            size="lg",
             :variant="showOnlyAbnormalItems ? 'danger' : 'outline-danger'",
             :disabled="isBusy || totalAbnormalCount === 0",
             @click="showOnlyAbnormalItems = !showOnlyAbnormalItems",
@@ -33,7 +34,7 @@ div(v-cloak)
 
           lah-button.mr-1.text-nowrap(
             icon="list-check",
-            size="sm",
+            size="lg",
             variant="outline-primary",
             :disabled="isBusy || totalAbnormalCount === 0",
             @click="openGlobalAbnormalModal",
@@ -797,6 +798,43 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.header-left-group {
+  ::v-deep .btn {
+    height: 48px !important;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.header-right-group {
+  display: flex;
+  align-items: center;
+
+  ::v-deep > .btn,
+  ::v-deep .input-group .btn,
+  ::v-deep .b-form-datepicker > .btn,
+  ::v-deep .b-form-datepicker.form-control,
+  ::v-deep input.form-control {
+    height: 48px !important;
+    box-sizing: border-box;
+  }
+
+  ::v-deep > .btn,
+  ::v-deep .input-group .btn,
+  ::v-deep .b-form-datepicker > .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
+  }
+
+  ::v-deep .input-group {
+    height: 48px;
+  }
+}
+
 .hover:hover {
   font-size: 1.1rem;
   position: relative;
