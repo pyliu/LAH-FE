@@ -357,7 +357,7 @@ div
           b-spinner(v-if="checkingSmsId === item.id" small)
       span.text-muted(v-else) (無手機)
     template(#cell(receiving_type)="{ item }")
-      b-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
+      b-badge.receiving-type-badge(:variant="receivingTypeVariant(item.receiving_type)") {{ receivingTypeLabel(item.receiving_type) }}
     template(#cell(receiving_caseno)="{ item }")
       .text-left
         b-link(v-if="item.receiving_caseno" href="#" :disabled="isBusy" @click.prevent="showDetail(item.receiving_caseno)")
@@ -1796,6 +1796,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.receiving-type-badge {
+  font-size: 112.5%;
+}
+
 .note-clamp {
   display: -webkit-box;
   -webkit-line-clamp: 2;
