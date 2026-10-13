@@ -1,17 +1,17 @@
 <template lang="pug">
-.dark-container.h-100(v-cloak, :class="{ 'dark-mode': isDarkMode }")
+.dark-container.h-100(v-cloak, :class="{ 'dark-mode': isDarkMode, 'header-compact': compactHeader }")
   //- 頂部標題與控制列 (符合 48px 高度規範)
   lah-header
     lah-transition(appear)
-      .d-flex.justify-content-between.align-items-center.w-100
+      .d-flex.justify-content-between.align-items-center.w-100.header-row
         .d-flex.align-items-center.header-left-group
-          .my-auto.d-flex.align-items-center
-            lah-fa-icon(
+          .my-auto.d-flex.align-items-center.header-title-wrap
+            lah-fa-icon.header-title-icon(
               icon="wave-square",
               :variant="headerLight",
               action="squeeze"
             )
-              span.font-weight-bold 即時全國地所跨域主機監控
+              span.font-weight-bold.header-title-text 即時全國地所跨域主機監控
             b-badge.ml-2.s-90(
               :variant="isPatrolPaused ? 'warning' : (red.length > 0 ? 'danger' : 'success')",
               pill
@@ -32,45 +32,51 @@
         .d-flex.align-items-center.flex-nowrap.text-nowrap.header-right-group
           //- 巡檢引擎控制群組
           b-button-group.mr-2(size="lg")
-            lah-button(
+            lah-button.hide-label-sm(
               :icon="isPatrolPaused ? 'play' : 'pause'",
               :variant="isPatrolPaused ? 'warning' : 'outline-success'",
               :title="isPatrolPaused ? '恢復背景主動佇列巡檢' : '暫停背景主動佇列巡檢'",
               @click="togglePatrol"
-            ) {{ isPatrolPaused ? '恢復巡檢' : '巡檢中' }}
-            lah-button(
+            )
+              span.btn-label {{ isPatrolPaused ? '恢復巡檢' : '巡檢中' }}
+            lah-button.hide-label-sm(
               icon="bolt",
               :variant="red.length + yellow.length > 0 ? 'danger' : 'outline-info'",
               :title="red.length + yellow.length > 0 ? '立即將異常與逾時站點插隊至佇列最前方優先重測' : '立即將桃園市 8 所插隊至佇列最前方優先重測'",
               @click="prioritizeUrgentSites"
-            ) {{ red.length + yellow.length > 0 ? `優先重測異常 (${red.length + yellow.length})` : '優先測本市' }}
-            lah-button(
+            )
+              span.btn-label {{ red.length + yellow.length > 0 ? `優先重測異常 (${red.length + yellow.length})` : '優先測本市' }}
+            lah-button.hide-label-sm(
               icon="arrows-rotate",
               variant="outline-secondary",
               title="重置佇列並展開新一輪全國完整巡檢",
               @click="restartFullPatrol"
-            ) 全量重巡
+            )
+              span.btn-label 全量重巡
 
           //- 三大檢視模式切換
           b-button-group.mr-2(size="lg")
-            lah-button(
+            lah-button.hide-label-sm(
               icon="gauge-high",
               :variant="viewMode === 'telemetry' ? 'primary' : 'outline-primary'",
               title="遙測方塊視圖：即時顯示各所延遲 ms、成功率與最近 8 次探測軌跡",
               @click="viewMode = 'telemetry'"
-            ) 遙測方塊
-            lah-button(
+            )
+              span.btn-label 遙測方塊
+            lah-button.hide-label-sm(
               icon="layer-group",
               :variant="viewMode === 'county' ? 'primary' : 'outline-primary'",
               title="縣市戰情視圖：依 22 縣市彙整區域平均延遲與連線健康度",
               @click="viewMode = 'county'"
-            ) 縣市戰情
-            lah-button(
+            )
+              span.btn-label 縣市戰情
+            lah-button.hide-label-sm(
               icon="table",
               :variant="viewMode === 'table' ? 'primary' : 'outline-primary'",
               title="遙測數據表：管理者專用高密度數據明細，含平均/峰值延遲與失敗率排序",
               @click="viewMode = 'table'"
-            ) 遙測數據表
+            )
+              span.btn-label 遙測數據表
 
           //- 輔助工具群組
           b-button-group(size="lg")
@@ -102,7 +108,7 @@
       lah-fa-icon.mr-1(icon="satellite-dish")
       span 主動式佇列巡檢引擎（Active Patrol Engine）
     ul.mb-3
-      li.mb-1 本頁為#[b 資訊管理人員專用]之主動式即時巡檢控制台，採用智慧佇列調度（預設併發數 #[code 2]，可於頂部指標卡動態調校為 #[code 1 / 2 / 4 / 6]），持續對全國各地所跨域 AP（#[code /Land&lt;ID&gt;/]）發送真實 HTTP 探測。
+      li.mb-1 本頁為#[b 資訊管理人員專用]之主動式即時巡檢控制台，採用智慧佇列調度（預設併發數 #[code 1]，可於頂部指標卡動態調校為 #[code 1 / 2 / 4 / 6]），持續對全國各地所跨域 AP（#[code /Land&lt;ID&gt;/]）發送真實 HTTP 探測。
       li.mb-1 #[b 快取預熱啟動]：開啟頁面瞬間會先載入後端最新快取作為基準狀態，免去等待首輪巡檢的空白期；隨後由巡檢佇列逐一覆寫為即時實測數據。
       li.mb-1 #[b 智慧重試與頻率]：連線逾時或失敗時自動排入高優先重試（5 秒後重測）；正常站點依設定之巡檢節奏（快速 / 標準 / 溫和）自動循環巡檢。
 
@@ -174,11 +180,11 @@
             )
               .d-flex.justify-content-between.align-items-center
                 .kpi-label.text-muted.small.font-weight-bold 全國即時連通率
-                lah-fa-icon.text-primary(icon="network-wired", size="lg")
-              .d-flex.align-items-baseline.mt-1
-                span.h4.font-weight-bold.mb-0(:class="red.length === 0 ? 'text-success' : 'text-danger'") {{ availabilityRate }}%
-                span.small.text-muted.ml-1 ({{ green.length }}/{{ officesData.length }})
-                span.small.ml-auto.badge.badge-light 顯示 {{ filteredOffices.length }}
+                lah-fa-icon.text-primary.flex-shrink-0(icon="network-wired", size="lg")
+              .kpi-value-row.mt-1
+                span.h4.font-weight-bold.mb-0.text-nowrap(:class="red.length === 0 ? 'text-success' : 'text-danger'") {{ availabilityRate }}%
+                span.small.text-muted.ml-1.text-nowrap ({{ green.length }}/{{ officesData.length }})
+                span.small.ml-auto.badge.badge-light.text-nowrap 顯示 {{ filteredOffices.length }}
 
           //- (2) 異常與逾時重試 (連線有問題始終置頂排在最前，不隱藏正常站點)
           .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -189,24 +195,24 @@
             )
               .d-flex.justify-content-between.align-items-center
                 .kpi-label.small.font-weight-bold(:class="red.length > 0 ? 'text-danger' : 'text-muted'") 異常 / 逾時重試
-                lah-fa-icon(
+                lah-fa-icon.flex-shrink-0(
                   :icon="red.length > 0 ? 'circle-xmark' : 'circle-check'",
                   :variant="red.length > 0 ? 'danger' : (yellow.length > 0 ? 'warning' : 'success')",
                   :action="red.length > 0 ? 'breath' : ''",
                   size="lg"
                 )
-              .d-flex.align-items-baseline.mt-1
-                span.h4.font-weight-bold.mb-0(:class="red.length > 0 ? 'text-danger' : 'text-success'") {{ red.length }}
-                span.small.text-muted.ml-1 斷線
-                span.small.ml-1.text-warning-dark.font-weight-bold(v-if="yellow.length > 0") / {{ yellow.length }} 逾時
-                b-badge.ml-auto.pointer(
+              .kpi-value-row.mt-1
+                span.h4.font-weight-bold.mb-0.text-nowrap(:class="red.length > 0 ? 'text-danger' : 'text-success'") {{ red.length }}
+                span.small.text-muted.ml-1.text-nowrap 斷線
+                span.small.ml-1.text-warning-dark.font-weight-bold.text-nowrap(v-if="yellow.length > 0") / {{ yellow.length }} 逾時
+                b-badge.ml-auto.pointer.text-nowrap.flex-shrink-0(
                   v-if="red.length + yellow.length > 0",
                   variant="danger",
                   pill,
                   title="立即插隊重測所有異常與逾時站點",
                   @click.stop="prioritizeUrgentSites"
                 ) ⚡ 優先測
-                span.small.ml-auto.text-success(v-else) 置頂中
+                span.small.ml-auto.text-success.text-nowrap(v-else) 置頂中
 
           //- (3) 高延遲慢速站點 (>= 600ms)
           .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -217,20 +223,20 @@
             )
               .d-flex.justify-content-between.align-items-center
                 .kpi-label.text-muted.small.font-weight-bold 慢速回應 (≥600ms)
-                lah-fa-icon(
+                lah-fa-icon.flex-shrink-0(
                   icon="gauge-simple-high",
                   :variant="slowOfficeIds.length > 0 ? 'warning' : 'secondary'",
                   size="lg"
                 )
-              .d-flex.align-items-baseline.mt-1
-                span.h4.font-weight-bold.mb-0(:class="slowOfficeIds.length > 0 ? 'text-warning-dark' : 'text-secondary'") {{ slowOfficeIds.length }}
-                span.small.text-muted.ml-1 所
+              .kpi-value-row.mt-1
+                span.h4.font-weight-bold.mb-0.text-nowrap(:class="slowOfficeIds.length > 0 ? 'text-warning-dark' : 'text-secondary'") {{ slowOfficeIds.length }}
+                span.small.text-muted.ml-1.text-nowrap 所
                 span.small.ml-auto.text-truncate.text-muted(
                   v-if="slowestSite",
-                  style="max-width: 105px;",
+                  style="max-width: 95px;",
                   :title="`目前最慢：${slowestSite.id} ${slowestSite.name} (${slowestSite.latency} ms)`"
                 ) 最慢:{{ slowestSite.shortName }}({{ slowestSite.latency }}ms)
-                span.small.ml-auto.text-muted(v-else) 均速 {{ nationalAvgLatency }}ms
+                span.small.ml-auto.text-muted.text-nowrap(v-else) 均速 {{ nationalAvgLatency }}ms
 
           //- (4) 狀態震盪 / 24h 瞬斷熱點
           .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -241,15 +247,15 @@
             )
               .d-flex.justify-content-between.align-items-center
                 .kpi-label.text-muted.small.font-weight-bold 震盪 / 24h 曾斷線
-                lah-fa-icon(
+                lah-fa-icon.flex-shrink-0(
                   icon="bolt",
                   :variant="unstableOfficeIds.length > 0 ? 'warning' : 'secondary'",
                   size="lg"
                 )
-              .d-flex.align-items-baseline.mt-1
-                span.h4.font-weight-bold.mb-0(:class="unstableOfficeIds.length > 0 ? 'text-warning-dark' : 'text-secondary'") {{ unstableOfficeIds.length }}
-                span.small.text-muted.ml-1 所
-                span.small.ml-auto.text-muted 事件流 {{ patrolEvents.length }} 筆
+              .kpi-value-row.mt-1
+                span.h4.font-weight-bold.mb-0.text-nowrap(:class="unstableOfficeIds.length > 0 ? 'text-warning-dark' : 'text-secondary'") {{ unstableOfficeIds.length }}
+                span.small.text-muted.ml-1.text-nowrap 所
+                span.small.ml-auto.text-muted.text-nowrap 事件流 {{ patrolEvents.length }} 筆
 
           //- (5) 桃園市 8 所專區
           .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -260,15 +266,15 @@
             )
               .d-flex.justify-content-between.align-items-center
                 .kpi-label.small.font-weight-bold(:class="taoyuanDownCount > 0 ? 'text-danger' : 'text-info'") 桃園市 8 所遙測
-                lah-fa-icon(
+                lah-fa-icon.flex-shrink-0(
                   icon="map-marker-alt",
                   :variant="taoyuanDownCount > 0 ? 'danger' : 'info'",
                   size="lg"
                 )
-              .d-flex.align-items-baseline.mt-1
-                span.h4.font-weight-bold.mb-0(:class="taoyuanDownCount > 0 ? 'text-danger' : 'text-info'") {{ 8 - taoyuanDownCount }} / 8
-                span.small.text-muted.ml-1 ({{ taoyuanAvgLatency }}ms)
-                b-badge.ml-auto.pointer(
+              .kpi-value-row.mt-1
+                span.h4.font-weight-bold.mb-0.text-nowrap(:class="taoyuanDownCount > 0 ? 'text-danger' : 'text-info'") {{ 8 - taoyuanDownCount }}/8
+                span.small.text-muted.ml-1.text-nowrap ({{ taoyuanAvgLatency }}ms)
+                b-badge.ml-auto.pointer.text-nowrap.flex-shrink-0(
                   variant="info",
                   pill,
                   title="將桃園市 8 所排入佇列最前端立即重測",
@@ -279,22 +285,23 @@
           .col-6.col-md-4.col-xl-2.px-1.mb-2
             .kpi-card.p-2.rounded.shadow-sm(@click.stop)
               .d-flex.justify-content-between.align-items-center
-                .kpi-label.text-muted.small.font-weight-bold 佇列併發與節奏調校
-                lah-fa-icon.text-secondary(icon="sliders", size="lg")
-              .d-flex.align-items-center.justify-content-between.mt-1
+                .kpi-label.text-muted.small.font-weight-bold 佇列併發與節奏
+                lah-fa-icon.text-secondary.flex-shrink-0(icon="sliders", size="lg")
+              .d-flex.align-items-center.justify-content-between.mt-1.flex-nowrap
                 b-button-group(size="sm", title="調整同時發送 HTTP 探測之最大併發連線數")
                   b-button(
                     v-for="c in [1, 2, 4, 6]",
                     :key="c",
                     :variant="maxConcurrent === c ? 'primary' : 'outline-secondary'",
-                    class="px-2 py-0",
+                    class="px-1 py-0",
+                    :title="`${c} 路併發`",
                     @click="setMaxConcurrent(c)"
-                  ) {{ c }}路
+                  ) {{ c }}
                 b-form-select.ml-1(
                   v-model="patrolPace",
                   :options="paceOptions",
                   size="sm",
-                  style="width: 78px; height: 24px; padding: 0 4px; font-size: 0.75rem;",
+                  style="min-width: 65px; max-width: 76px; height: 24px; padding: 0 2px; font-size: 0.72rem;",
                   title="調整正常站點完成探測後的下次輪巡間隔"
                 )
 
@@ -917,8 +924,8 @@ export default {
     updateQueue: [],
     processingIds: [],
     scheduledTimers: {},
-    maxConcurrent: 2,
-    patrolPace: 'normal', // 'fast' | 'normal' | 'relaxed'
+    maxConcurrent: 1,
+    patrolPace: 'relaxed', // 'fast' | 'normal' | 'relaxed'
     isPatrolPaused: false,
     patrolRound: 1,
     roundVisitedMap: {},
@@ -934,6 +941,8 @@ export default {
 
     // 暗色模式
     isDarkMode: false,
+    compactHeader: false,
+    headerNeedWidth: 0,
 
     // 表格分頁
     tableCurrentPage: 1,
@@ -1324,12 +1333,18 @@ export default {
       }
       window.addEventListener('resize', this.handleResize)
     }
+    this.$nextTick(this.setupHeaderCompact)
   },
   beforeDestroy () {
     this.isDestroyed = true
     this.updateQueue = []
     this.processingIds = []
     clearInterval(this.tickTimer)
+    clearTimeout(this.headerCompactTimer)
+    if (this.headerRO) {
+      this.headerRO.disconnect()
+      this.headerRO = null
+    }
     Object.values(this.scheduledTimers).forEach(t => clearTimeout(t))
     this.scheduledTimers = {}
     this.updateBodyBg(false)
@@ -1341,6 +1356,37 @@ export default {
     }
   },
   methods: {
+    // 依 header 實際可用寬度（非 viewport）決定是否隱藏按鈕文字，維持單行
+    setupHeaderCompact () {
+      if (typeof window === 'undefined' || typeof ResizeObserver === 'undefined') { return }
+      const row = this.$el.querySelector('.header-row')
+      if (!row) {
+        this.headerCompactTimer = setTimeout(this.setupHeaderCompact, 300)
+        return
+      }
+      this.headerRO = new ResizeObserver(this.checkHeaderCompact)
+      this.headerRO.observe(row)
+      const right = row.querySelector('.header-right-group')
+      if (right) { this.headerRO.observe(right) }
+      this.checkHeaderCompact()
+    },
+    checkHeaderCompact () {
+      const row = this.$el.querySelector('.header-row')
+      const left = row && row.querySelector('.header-left-group')
+      const right = row && row.querySelector('.header-right-group')
+      const title = row && row.querySelector('.header-title-text')
+      if (!left || !right || !title) { return }
+      if (!this.compactHeader) {
+        const titleClipped = title.scrollWidth > title.clientWidth + 1
+        const overflow = row.scrollWidth > row.clientWidth + 1
+        if (titleClipped || overflow) {
+          this.headerNeedWidth = left.offsetWidth - title.clientWidth + title.scrollWidth + right.offsetWidth + 16
+          this.compactHeader = true
+        }
+      } else if (row.clientWidth >= this.headerNeedWidth) {
+        this.compactHeader = false
+      }
+    },
     toggleCountyCollapse (code) {
       this.$set(this.collapsedCounties, code, !this.collapsedCounties[code])
     },
@@ -1925,7 +1971,37 @@ export default {
 // =========================================================
 // 1. lah-header 48px 高度規範
 // =========================================================
+.header-row {
+  flex-wrap: nowrap;
+}
+.header-right-group {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+@media (max-width: 1799.98px) {
+  .header-right-group ::v-deep .hide-label-sm {
+    .btn-label {
+      display: none;
+    }
+    .svg-inline--fa.mr-1 {
+      margin-right: 0 !important;
+    }
+  }
+}
 .header-left-group {
+  flex: 0 1 auto;
+  min-width: 0;
+  .header-title-wrap,
+  .header-title-icon {
+    min-width: 0;
+  }
+  .header-title-text {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   ::v-deep > .btn {
     height: 48px !important;
     box-sizing: border-box;
@@ -1975,6 +2051,12 @@ export default {
 // 3. 頂部遙測 KPI 指標卡
 // =========================================================
 .kpi-card {
+  height: 100%;
+  min-height: 74px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   cursor: pointer;
@@ -1993,6 +2075,22 @@ export default {
   &.kpi-danger  { border-color: #dc3545 !important; background-color: #fff5f5; }
   &.kpi-warning { border-color: #f59e0b !important; background-color: #fffbeb; }
   &.kpi-info    { border-color: #17a2b8 !important; background-color: #f0fcff; }
+
+  .kpi-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .kpi-value-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    min-width: 0;
+    overflow: hidden;
+  }
 }
 
 .text-warning-dark {

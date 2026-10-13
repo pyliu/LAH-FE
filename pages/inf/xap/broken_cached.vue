@@ -1,16 +1,16 @@
 <template lang="pug">
-.dark-container.h-100(v-cloak, :class="{ 'dark-mode': isDarkMode }")
+.dark-container.h-100(v-cloak, :class="{ 'dark-mode': isDarkMode, 'header-compact': compactHeader }")
   //- 頂部標題與控制列 (符合 48px 高度規範)
   lah-header: lah-transition(appear)
-    .d-flex.justify-content-between.align-items-center.w-100
+    .d-flex.justify-content-between.align-items-center.w-100.header-row
       .d-flex.align-items-center.header-left-group
-        .my-auto.d-flex.align-items-center
-          lah-fa-icon(
+        .my-auto.d-flex.align-items-center.header-title-wrap
+          lah-fa-icon.header-title-icon(
             icon="heart-pulse",
             :variant="red.length > 0 ? 'danger' : 'success'",
             action="breath"
           )
-            span.font-weight-bold 全國地所跨域主機監控
+            span.font-weight-bold.header-title-text 全國地所跨域主機監控
           b-badge.ml-2.s-90(
             v-if="officesData.length > 0",
             :variant="red.length > 0 ? 'danger' : 'success'",
@@ -29,28 +29,31 @@
       .d-flex.align-items-center.flex-nowrap.text-nowrap.header-right-group
         //- 三大檢視模式切換
         b-button-group.mr-2(size="lg")
-          lah-button(
+          lah-button.hide-label-sm(
             icon="th-large",
             :variant="viewMode === 'tile' ? 'primary' : 'outline-primary'",
             title="戰情方塊視圖：直覺卡片呈現各地所即時燈號與實測延遲",
             @click="viewMode = 'tile'"
-          ) 戰情方塊
-          lah-button(
+          )
+            span.btn-label 戰情方塊
+          lah-button.hide-label-sm(
             icon="layer-group",
             :variant="viewMode === 'county' ? 'primary' : 'outline-primary'",
             title="縣市矩陣視圖：依北中南東與 22 縣市分組檢視區域連線健康度",
             @click="viewMode = 'county'"
-          ) 縣市矩陣
-          lah-button(
+          )
+            span.btn-label 縣市矩陣
+          lah-button.hide-label-sm(
             icon="table",
             :variant="viewMode === 'table' ? 'primary' : 'outline-primary'",
             title="診斷清單視圖：高密度表格結合 24h 斷線熱點統計與排序",
             @click="viewMode = 'table'"
-          ) 診斷清單
+          )
+            span.btn-label 診斷清單
 
         //- 戰情工具與操作群組
         b-button-group(size="lg")
-          lah-button.mr-1(
+          lah-button.mr-1.hide-label-sm(
             icon="bolt",
             :variant="red.length > 0 ? 'danger' : 'outline-info'",
             size="lg",
@@ -58,9 +61,10 @@
             :disabled="isBatchProbing || officesData.length === 0",
             :title="red.length > 0 ? `立即針對目前 ${red.length} 所異常地所發送即時 HTTP 實測` : '立即針對桃園市 8 所發送即時 HTTP 實測'",
             @click="red.length > 0 ? batchProbeDownOffices() : batchProbeTaoyuan()"
-          ) {{ red.length > 0 ? `實測異常 (${red.length})` : '實測本市' }}
+          )
+            span.btn-label {{ red.length > 0 ? `實測異常 (${red.length})` : '實測本市' }}
 
-          lah-button.mr-1(
+          lah-button.mr-1.hide-label-sm(
             icon="link-slash",
             variant="outline-danger",
             size="lg",
@@ -68,7 +72,8 @@
             :badge-text="recentDownRecords.length > 0 ? String(recentDownRecords.length) : ''",
             badge-variant="danger",
             @click="showOfflineRecords"
-          ) 離線紀錄
+          )
+            span.btn-label 離線紀錄
 
           lah-button-xlsx.mr-1(
             :jsons="xlsxData",
@@ -156,11 +161,11 @@
           )
             .d-flex.justify-content-between.align-items-center
               .kpi-label.text-muted.small.font-weight-bold 全國跨域可用率
-              lah-fa-icon.text-primary(icon="globe-asia", size="lg")
-            .d-flex.align-items-baseline.mt-1
-              span.h4.font-weight-bold.mb-0(:class="availabilityTextClass") {{ availabilityRate }}%
-              span.small.text-muted.ml-1 ({{ officesData.length }} 所)
-              span.small.ml-auto.badge.badge-light 顯示 {{ filteredOffices.length }} 所
+              lah-fa-icon.text-primary.flex-shrink-0(icon="globe-asia", size="lg")
+            .kpi-value-row.mt-1
+              span.h4.font-weight-bold.mb-0.text-nowrap(:class="availabilityTextClass") {{ availabilityRate }}%
+              span.small.text-muted.ml-1.text-nowrap ({{ officesData.length }} 所)
+              span.small.ml-auto.badge.badge-light.text-nowrap 顯示 {{ filteredOffices.length }} 所
 
         //- (2) 服務正常 (UP)
         .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -171,11 +176,11 @@
           )
             .d-flex.justify-content-between.align-items-center
               .kpi-label.text-muted.small.font-weight-bold 服務正常 (UP)
-              lah-fa-icon.text-success(icon="circle-check", size="lg")
-            .d-flex.align-items-baseline.mt-1
-              span.h4.font-weight-bold.mb-0.text-success {{ green.length }}
-              span.small.text-muted.ml-1 所
-              span.small.ml-auto.text-muted {{ healthyCountyCount }}/{{ totalCountyCount }} 縣市全正常
+              lah-fa-icon.text-success.flex-shrink-0(icon="circle-check", size="lg")
+            .kpi-value-row.mt-1
+              span.h4.font-weight-bold.mb-0.text-success.text-nowrap {{ green.length }}
+              span.small.text-muted.ml-1.text-nowrap 所
+              span.small.ml-auto.text-muted.text-nowrap {{ healthyCountyCount }}/{{ totalCountyCount }} 縣市全正常
 
         //- (3) 連線異常 (DOWN)
         .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -186,23 +191,23 @@
           )
             .d-flex.justify-content-between.align-items-center
               .kpi-label.small.font-weight-bold(:class="red.length > 0 ? 'text-danger' : 'text-muted'") 目前連線異常
-              lah-fa-icon(
+              lah-fa-icon.flex-shrink-0(
                 :icon="red.length > 0 ? 'circle-xmark' : 'shield-alt'",
                 :variant="red.length > 0 ? 'danger' : 'success'",
                 :action="red.length > 0 ? 'breath' : ''",
                 size="lg"
               )
-            .d-flex.align-items-baseline.mt-1
-              span.h4.font-weight-bold.mb-0(:class="red.length > 0 ? 'text-danger' : 'text-success'") {{ red.length }}
-              span.small.text-muted.ml-1 所
-              b-badge.ml-auto.pointer(
+            .kpi-value-row.mt-1
+              span.h4.font-weight-bold.mb-0.text-nowrap(:class="red.length > 0 ? 'text-danger' : 'text-success'") {{ red.length }}
+              span.small.text-muted.ml-1.text-nowrap 所
+              b-badge.ml-auto.pointer.text-nowrap.flex-shrink-0(
                 v-if="red.length > 0",
                 variant="danger",
                 pill,
                 title="立即發送即時 HTTP 請求重測所有異常地所",
                 @click.stop="batchProbeDownOffices"
               ) ⚡ 實測異常
-              span.small.ml-auto.text-success.font-weight-bold(v-else) 全國順暢
+              span.small.ml-auto.text-success.font-weight-bold.text-nowrap(v-else) 全國順暢
 
         //- (4) 桃園市所屬地所 (HA ~ HH)
         .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -213,15 +218,15 @@
           )
             .d-flex.justify-content-between.align-items-center
               .kpi-label.small.font-weight-bold(:class="taoyuanDownCount > 0 ? 'text-danger' : 'text-info'") 桃園市所屬地所
-              lah-fa-icon(
+              lah-fa-icon.flex-shrink-0(
                 icon="map-marker-alt",
                 :variant="taoyuanDownCount > 0 ? 'danger' : 'info'",
                 size="lg"
               )
-            .d-flex.align-items-baseline.mt-1
-              span.h4.font-weight-bold.mb-0(:class="taoyuanDownCount > 0 ? 'text-danger' : 'text-info'") {{ taoyuanUpCount }} / {{ taoyuanOffices.length }}
-              span.small.text-muted.ml-1 正常
-              b-badge.ml-auto.pointer(
+            .kpi-value-row.mt-1
+              span.h4.font-weight-bold.mb-0.text-nowrap(:class="taoyuanDownCount > 0 ? 'text-danger' : 'text-info'") {{ taoyuanUpCount }}/{{ taoyuanOffices.length }}
+              span.small.text-muted.ml-1.text-nowrap 正常
+              b-badge.ml-auto.pointer.text-nowrap.flex-shrink-0(
                 variant="info",
                 pill,
                 title="立即實測桃園市 8 所最新連線延遲",
@@ -237,20 +242,20 @@
           )
             .d-flex.justify-content-between.align-items-center
               .kpi-label.text-muted.small.font-weight-bold 24h 曾斷線地所
-              lah-fa-icon(
+              lah-fa-icon.flex-shrink-0(
                 icon="bolt",
                 :variant="flakyOfficeIds.length > 0 ? 'warning' : 'secondary'",
                 size="lg"
               )
-            .d-flex.align-items-baseline.mt-1
-              span.h4.font-weight-bold.mb-0(:class="flakyOfficeIds.length > 0 ? 'text-warning-dark' : 'text-secondary'") {{ flakyOfficeIds.length }}
-              span.small.text-muted.ml-1 所 ({{ recentDownRecords.length }} 次)
+            .kpi-value-row.mt-1
+              span.h4.font-weight-bold.mb-0.text-nowrap(:class="flakyOfficeIds.length > 0 ? 'text-warning-dark' : 'text-secondary'") {{ flakyOfficeIds.length }}
+              span.small.text-muted.ml-1.text-nowrap 所
               span.small.ml-auto.text-truncate.text-warning-dark.font-weight-bold(
                 v-if="topFlakyOffice",
                 style="max-width: 95px;",
                 :title="`24h 最常斷線：${topFlakyOffice.id} ${topFlakyOffice.name} (${topFlakyOffice.count} 次)`"
               ) Top: {{ formatShortName(topFlakyOffice.name) }}({{ topFlakyOffice.count }})
-              span.small.ml-auto.text-muted(v-else) 24h 零斷線
+              span.small.ml-auto.text-muted.text-nowrap(v-else) 24h 零斷線
 
         //- (6) 快取鮮度與強制同步
         .col-6.col-md-4.col-xl-2.px-1.mb-2
@@ -261,14 +266,14 @@
           )
             .d-flex.justify-content-between.align-items-center
               .kpi-label.text-muted.small.font-weight-bold 快取檢測時間
-              lah-fa-icon(
+              lah-fa-icon.flex-shrink-0(
                 icon="clock",
                 :variant="isCacheStale ? 'warning' : 'secondary'",
                 size="lg"
               )
-            .d-flex.align-items-baseline.mt-1
-              span.h5.font-weight-bold.mb-0.text-monospace {{ latestSnapshotTimeStr || '--:--:--' }}
-              span.small.ml-auto(:class="isCacheStale ? 'text-warning-dark font-weight-bold' : 'text-muted'")
+            .kpi-value-row.mt-1
+              span.h5.font-weight-bold.mb-0.text-monospace.text-nowrap {{ latestSnapshotTimeStr || '--:--:--' }}
+              span.small.ml-auto.text-nowrap(:class="isCacheStale ? 'text-warning-dark font-weight-bold' : 'text-muted'")
                 template(v-if="liveProbedCount > 0") ⚡ 已實測 {{ liveProbedCount }} 所
                 template(v-else) {{ latestSnapshotRelative || '讀取中' }}
 
@@ -886,6 +891,8 @@ export default {
     timer: null,
     isBusy: false,
     isDarkMode: false,
+    compactHeader: false,
+    headerNeedWidth: 0,
 
     // 即時 HTTP 實測狀態
     probingIds: [],
@@ -1276,9 +1283,15 @@ export default {
       }
       window.addEventListener('resize', this.handleResize)
     }
+    this.$nextTick(this.setupHeaderCompact)
   },
   beforeDestroy () {
     clearInterval(this.timer)
+    clearTimeout(this.headerCompactTimer)
+    if (this.headerRO) {
+      this.headerRO.disconnect()
+      this.headerRO = null
+    }
     this.updateBodyBg(false)
     if (typeof window !== 'undefined') {
       window.removeEventListener('keydown', this.handleGlobalKeydown)
@@ -1288,6 +1301,37 @@ export default {
     }
   },
   methods: {
+    // 依 header 實際可用寬度（非 viewport）決定是否隱藏按鈕文字，維持單行
+    setupHeaderCompact () {
+      if (typeof window === 'undefined' || typeof ResizeObserver === 'undefined') { return }
+      const row = this.$el.querySelector('.header-row')
+      if (!row) {
+        this.headerCompactTimer = setTimeout(this.setupHeaderCompact, 300)
+        return
+      }
+      this.headerRO = new ResizeObserver(this.checkHeaderCompact)
+      this.headerRO.observe(row)
+      const right = row.querySelector('.header-right-group')
+      if (right) { this.headerRO.observe(right) }
+      this.checkHeaderCompact()
+    },
+    checkHeaderCompact () {
+      const row = this.$el.querySelector('.header-row')
+      const left = row && row.querySelector('.header-left-group')
+      const right = row && row.querySelector('.header-right-group')
+      const title = row && row.querySelector('.header-title-text')
+      if (!left || !right || !title) { return }
+      if (!this.compactHeader) {
+        const titleClipped = title.scrollWidth > title.clientWidth + 1
+        const overflow = row.scrollWidth > row.clientWidth + 1
+        if (titleClipped || overflow) {
+          this.headerNeedWidth = left.offsetWidth - title.clientWidth + title.scrollWidth + right.offsetWidth + 16
+          this.compactHeader = true
+        }
+      } else if (row.clientWidth >= this.headerNeedWidth) {
+        this.compactHeader = false
+      }
+    },
     async restorePreferences () {
       const shortFlag = await this.getCache('/inf/xap/broken_cached/displayShortName')
       if (shortFlag !== null && shortFlag !== undefined && shortFlag !== false) {
@@ -1677,7 +1721,37 @@ export default {
 // =========================================================
 // 1. lah-header 48px 高度規範
 // =========================================================
+.header-row {
+  flex-wrap: nowrap;
+}
+.header-right-group {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+@media (max-width: 1799.98px) {
+  .header-right-group ::v-deep .hide-label-sm {
+    .btn-label {
+      display: none;
+    }
+    .svg-inline--fa.mr-1 {
+      margin-right: 0 !important;
+    }
+  }
+}
 .header-left-group {
+  flex: 0 1 auto;
+  min-width: 0;
+  .header-title-wrap,
+  .header-title-icon {
+    min-width: 0;
+  }
+  .header-title-text {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   ::v-deep > .btn {
     height: 48px !important;
     box-sizing: border-box;
@@ -1706,6 +1780,12 @@ export default {
 }
 
 .kpi-card {
+  height: 100%;
+  min-height: 74px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   cursor: pointer;
@@ -1725,6 +1805,22 @@ export default {
   &.kpi-danger  { border-color: #dc3545 !important; background-color: #fff5f5; }
   &.kpi-info    { border-color: #17a2b8 !important; background-color: #f0fcff; }
   &.kpi-warning { border-color: #f59e0b !important; background-color: #fffbeb; }
+
+  .kpi-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .kpi-value-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    min-width: 0;
+    overflow: hidden;
+  }
 }
 
 .text-warning-dark {
