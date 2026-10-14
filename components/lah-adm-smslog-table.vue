@@ -44,7 +44,7 @@ div
       icon="spinner",
       action="spin"
     ) 讀取中
-    b-table.text-center.s-90(
+    b-table.text-center.s-90.mb-0(
       v-else-if="count > 0",
       ref="tbl",
       striped,
@@ -231,7 +231,8 @@ export default {
     inLogs: { type: Array, default: () => ([]) },
     busy: { type: Boolean, default: false },
     displayMode: { type: Boolean, default: false },
-    hideSearchToolbar: { type: Boolean, default: false }
+    hideSearchToolbar: { type: Boolean, default: false },
+    bottomOffset: { type: Number, default: 20 }
   },
   data: () => ({
     pagination: {
@@ -319,17 +320,34 @@ export default {
     }
   },
   watch: {
+    isBusy (val) {
+      if (!val) {
+        this.$nextTick(() => {
+          this.calculateMaxHeight()
+          setTimeout(() => this.calculateMaxHeight(), 300)
+        })
+      }
+    },
+    count () {
+      this.$nextTick(() => {
+        this.calculateMaxHeight()
+      })
+    },
     filterTime (dontcare) {
       this.resetPagination()
+      this.$nextTick(() => this.calculateMaxHeight())
     },
     filterType (dontcare) {
       this.resetPagination()
+      this.$nextTick(() => this.calculateMaxHeight())
     },
     watchFails (flag) {
       this.resetPagination()
+      this.$nextTick(() => this.calculateMaxHeight())
     },
     watchSuccess (flag) {
       this.resetPagination()
+      this.$nextTick(() => this.calculateMaxHeight())
     }
   },
   async created () {
@@ -343,6 +361,31 @@ export default {
     this.reloadDebounced = this.$utils.debounce(this.reload, 400)
     // restore setting by user
     this.pagination.perPage = parseInt(await this.getCache('sms-log-table-perPage') || 12)
+  },
+  mounted () {
+    this.updateMaxHeight = this.calculateMaxHeight
+    this.debouncedUpdateHeight = this.$utils.debounce(this.updateMaxHeight, 100)
+    window.addEventListener('resize', this.debouncedUpdateHeight)
+    if (this.zoomDetectorFrame?.contentWindow) {
+      this.zoomDetectorFrame.contentWindow.addEventListener('resize', this.debouncedUpdateHeight)
+    }
+    if (window.ResizeObserver && this.$el) {
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect()
+      }
+      this.resizeObserver = new ResizeObserver(this.debouncedUpdateHeight)
+      this.resizeObserver.observe(this.$el)
+    }
+    this.calculateMaxHeight()
+  },
+  beforeDestroy () {
+    if (this.debouncedUpdateHeight) {
+      window.removeEventListener('resize', this.debouncedUpdateHeight)
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
   },
   methods: {
     sanitizedDate (w) {
@@ -655,6 +698,28 @@ export default {
         console.error(err)
       }).finally(() => {
         this.isBusy = false
+      })
+    },
+    calculateMaxHeight () {
+      this.$nextTick(() => {
+        if (typeof window === 'undefined') { return }
+        let tableTop = 0
+        const tableEl = this.$refs.tbl?.$el
+        if (tableEl && typeof tableEl.getBoundingClientRect === 'function') {
+          tableTop = tableEl.getBoundingClientRect().top
+        } else if (this.$el && typeof this.$el.getBoundingClientRect === 'function') {
+          const elTop = this.$el.getBoundingClientRect().top
+          const toolbarHeight = (!this.displayMode && !this.hideSearchToolbar) ? 46 : 0
+          const paginationHeight = this.count > this.pagination.perPage ? 42 : 0
+          tableTop = elTop + toolbarHeight + paginationHeight
+        }
+        if (tableTop > 0) {
+          const offset = this.bottomOffset || 20
+          const availableHeight = Math.max(200, Math.floor(window.innerHeight - tableTop - offset))
+          if (Math.abs(this.maxHeight - availableHeight) > 2) {
+            this.maxHeight = availableHeight
+          }
+        }
       })
     }
   }

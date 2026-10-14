@@ -282,6 +282,11 @@ export default {
   created () {
     this.keyword = this.todayTW
   },
+  mounted () {
+    this.$nextTick(() => {
+      this.$refs.smsTable?.updateMaxHeight?.()
+    })
+  },
   methods: {
     getTypeVariant (type) {
       if (!type) { return 'secondary' }
@@ -349,11 +354,19 @@ export default {
         if (payload.stats) {
           this.stats = { ...payload.stats }
         }
+        this.$nextTick(() => {
+          this.$refs.smsTable?.updateMaxHeight?.()
+          setTimeout(() => this.$refs.smsTable?.updateMaxHeight?.(), 350)
+        })
       }
     },
     onStatsUpdate (stats) {
       if (stats) {
         this.stats = { ...stats }
+        this.$nextTick(() => {
+          this.$refs.smsTable?.updateMaxHeight?.()
+          setTimeout(() => this.$refs.smsTable?.updateMaxHeight?.(), 350)
+        })
       }
     },
     selectKpiFilter (type) {
@@ -374,15 +387,24 @@ export default {
         this.$refs.smsTable.setWatchSuccess(false)
         this.$refs.smsTable.setFilterType(type)
       }
+      this.$nextTick(() => {
+        this.$refs.smsTable?.updateMaxHeight?.()
+      })
     },
     handleFilterTimeChange (val) {
       this.$refs.smsTable?.setFilterTime(val)
+      this.$nextTick(() => {
+        this.$refs.smsTable?.updateMaxHeight?.()
+      })
     },
     resetAllFilters () {
       this.currentKpiFilter = 'all'
       this.currentFilterTime = '全部'
       if (this.$refs.smsTable) {
         this.$refs.smsTable.reset()
+        this.$nextTick(() => {
+          this.$refs.smsTable?.updateMaxHeight?.()
+        })
       }
     }
   }
