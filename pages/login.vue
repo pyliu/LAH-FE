@@ -120,10 +120,20 @@ export default {
       }
       return '1f7744350d3dd3dc563421582f37f99e'
     },
-    hasHistory () { return window.history.length > 1 }
+    hasHistory () { return window.history.length > 1 },
+    isAdminUser () {
+      return Boolean(this.authority?.isAdmin || this.isInf)
+    },
+    redirectTarget () {
+      const redirect = this.$route.query.redirect
+      if (typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.startsWith('/login')) {
+        return redirect
+      }
+      return '/'
+    }
   },
   watch: {
-    loggedIn (flag) {
+    isAdminUser (flag) {
       if (flag) {
         this.refirect()
       }
@@ -131,7 +141,7 @@ export default {
   },
   created () {
     this.isBusy = true
-    if (this.loggedIn) {
+    if (this.isAdminUser) {
       this.refirect()
     }
   },
@@ -156,8 +166,11 @@ export default {
     check () {
       if (this.$utils.equal(this.hashed, this.secret)) {
         // ok
+        const msg = this.redirectTarget !== '/'
+          ? '已登入，正在導向原頁面 ... '
+          : '已登入，正在導向首頁 ... '
         this.notify(
-          '已登入，將引導至管理者首頁 ... ',
+          msg,
           { type: 'success' }
         ).then((opts) => {
           this.$store.commit('admin', true)
@@ -169,7 +182,10 @@ export default {
       }
     },
     refirect () {
-      this.$router.push('/inf')
+      this.$router.replace(this.redirectTarget).catch(() => {})
+    },
+    redirect () {
+      this.refirect()
     }
   }
 }
