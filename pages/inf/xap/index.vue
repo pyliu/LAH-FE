@@ -261,8 +261,8 @@
         lah-fa-icon(icon="spinner", action="spin", size="2x", variant="primary")
         .small.text-muted.mt-2 初始化各所連線監控...
 
-    //- 右上：系統連線狀態監控
-    .col-12.col-lg-6.px-2.mb-2.quadrant-col(key="2", :class="{ 'is-focused': focusedOffice }", :data-focus="focusedOffice")
+    //- 右上：系統連線狀態監控 (本所專用)
+    .col-12.col-lg-6.px-2.mb-2.quadrant-col(key="2")
       lah-monitor-board-connectivity.quadrant-board(
         v-if="renderStage >= 2",
         ref="boardConn",
@@ -287,12 +287,11 @@
         lah-fa-icon(icon="spinner", action="spin", size="2x", variant="success")
         .small.text-muted.mt-2 初始化歷史連線趨勢...
 
-    //- 右下：AP使用者/系統連線明細 (動態綁定 office / 穿透)
-    .col-12.col-lg-6.px-2.mb-1.mb-lg-0.quadrant-col(key="4", :class="{ 'is-focused': focusedOffice }", :data-focus="focusedOffice")
+    //- 右下：AP使用者/系統連線明細 (本所專用)
+    .col-12.col-lg-6.px-2.mb-1.mb-lg-0.quadrant-col(key="4")
       lah-monitor-board-apconn.quadrant-board(
         v-if="renderStage >= 4",
         ref="boardApconn",
-        :office="focusedOffice",
         @light-update="handleLightUpdate"
       )
       b-card.quadrant-placeholder.d-flex.align-items-center.justify-content-center(v-else)
@@ -511,7 +510,7 @@ export default {
         this.info('已解除聚焦，返回全轄監控', { title: '🎯 聚焦模式' })
       } else {
         this.focusedOffice = officeName
-        this.info(`已聚焦「${officeName}」：長條圖高亮，趨勢圖與 AP 連線明細同步切換`, { title: '🎯 聚焦模式' })
+        this.info(`已聚焦「${officeName}」：左側長條圖高亮與趨勢圖同步切換（右側維持本所監控）`, { title: '🎯 聚焦模式' })
       }
     },
     // 依 Header 實際寬度逐級精簡：1 導覽按鈕只留圖示 → 2 標題縮短 → 3 徽章只留數值/圖示
