@@ -91,10 +91,12 @@ div(v-cloak)
     :items="displayItems",
     :fields="fields",
     :busy="isBusy",
+    :sticky-header="`${maxHeight}px`",
+    no-border-collapse,
+    class="text-center mb-0",
     :responsive="'lg'",
     :head-variant="'dark'",
     primary-key="ITEM",
-    class="text-center",
     select-mode="single",
     selected-variant="success",
     caption-top,
@@ -288,9 +290,11 @@ div(v-cloak)
 <script>
 import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
 import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+import dynamicHeight from '~/mixins/dynamic-height-mixin'
 
 export default {
   components: { lahRegCaseDetail, lahXlsxDownload },
+  mixins: [dynamicHeight],
   fetchOnServer: false,
   async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
     const itemMap = await $content('rega').fetch()
@@ -528,6 +532,19 @@ export default {
     }
   },
   watch: {
+    isBusy (val) {
+      if (!val) {
+        this.$nextTick(() => {
+          this.calculateMaxHeight()
+          setTimeout(() => this.calculateMaxHeight(), 300)
+        })
+      }
+    },
+    displayItems () {
+      this.$nextTick(() => {
+        this.calculateMaxHeight()
+      })
+    },
     filter: {
       deep: true,
       handler () { this.pagination.currentPage = 1 }
@@ -549,8 +566,51 @@ export default {
     const cachedGlobalPerPage = await this.getCache('rega-global-perPage')
     if (cachedGlobalPerPage) { this.globalPagination.perPage = cachedGlobalPerPage }
     setTimeout(() => this.getRegaData(false), 400)
+
+    this.updateMaxHeight = this.calculateMaxHeight
+    this.debouncedUpdateHeight = this.$utils.debounce(this.updateMaxHeight, 100)
+    window.addEventListener('resize', this.debouncedUpdateHeight)
+    if (this.zoomDetectorFrame?.contentWindow) {
+      this.zoomDetectorFrame.contentWindow.addEventListener('resize', this.debouncedUpdateHeight)
+    }
+    if (window.ResizeObserver && this.$el) {
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect()
+      }
+      this.resizeObserver = new ResizeObserver(this.debouncedUpdateHeight)
+      this.resizeObserver.observe(this.$el)
+    }
+    this.calculateMaxHeight()
+  },
+  beforeDestroy () {
+    if (this.debouncedUpdateHeight) {
+      window.removeEventListener('resize', this.debouncedUpdateHeight)
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
   },
   methods: {
+    calculateMaxHeight () {
+      this.$nextTick(() => {
+        if (typeof window === 'undefined') { return }
+        let tableTop = 0
+        const tableEl = this.$refs.display?.$el
+        if (tableEl && typeof tableEl.getBoundingClientRect === 'function') {
+          tableTop = tableEl.getBoundingClientRect().top
+        } else if (this.$el && typeof this.$el.getBoundingClientRect === 'function') {
+          tableTop = 64
+        }
+        if (tableTop > 0) {
+          const bottomOffset = 20
+          const availableHeight = Math.max(200, Math.floor(window.innerHeight - tableTop - bottomOffset))
+          if (Math.abs(this.maxHeight - availableHeight) > 2) {
+            this.maxHeight = availableHeight
+          }
+        }
+      })
+    },
     handleDate (e) {},
     round2 (n) {
       return Math.round((n + Number.EPSILON) * 100) / 100
