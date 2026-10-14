@@ -435,7 +435,7 @@ div(v-cloak)
 
       b-collapse(:visible="isCategoryOpen(category.NAME)")
         .category-body.p-2.bg-white.border.border-top-0.rounded-bottom.shadow-sm
-          .user-card-grid
+          transition-group.user-card-grid(name="user-card" tag="div")
             .user-mini-card(
               v-for="user in category.LIST"
               :key="user.id"
@@ -3112,6 +3112,27 @@ export default {
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+
+  // 篩選與重排轉場動效 (Fade + Scale + FLIP Move)
+  &.user-card-enter-active,
+  &.user-card-leave-active {
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    will-change: opacity, transform;
+  }
+
+  &.user-card-leave-active {
+    pointer-events: none;
+  }
+
+  &.user-card-enter,
+  &.user-card-leave-to {
+    opacity: 0 !important;
+    transform: scale(0.92);
+  }
+
+  &.user-card-move {
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
 
   &:hover {
     transform: translateY(-2px);
