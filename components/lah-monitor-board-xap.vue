@@ -62,40 +62,43 @@ b-card(ref="card", no-body, :border-variant="borderVariant", :class="[attentionC
     :legend="false"
   )
 
-  template(#footer): .d-flex.justify-content-between.small
-    lah-fa-icon(
-      :variant="dbStyles[0]",
-      :action="dbStyles[1]",
-      :size="dbStyles[2]",
-      :icon="dbStyles[3]",
-      :title="`資料庫連線數，${ dbTotal } / ${ apJndiLocalThreshold }`"
-    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill, :class="scaleCss(dbStyles[0])") {{ maximized ? `${dbTotal} / ${apJndiLocalThreshold} - ${dbPercent}` : dbPercent }}]
-    lah-fa-icon(
-      :variant="apStyles[0]",
-      :action="apStyles[1]",
-      :size="apStyles[2]",
-      :icon="apStyles[3]",
-      :title="`AP加總連線數，${ apTotal } / ${ apJndiXaLocalThreshold }`"
-    ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill, :class="scaleCss(apStyles[0])") {{ maximized ? `${ apTotal } / ${ apJndiXaLocalThreshold } - ${apPercent}` : apPercent }}]
-    lah-fa-icon(
-      :variant="cpuStyles[0]",
-      :action="cpuStyles[1]",
-      :size="cpuStyles[2]",
-      :icon="cpuStyles[3]"
-    ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill, :class="scaleCss(cpuStyles[0])") {{ jbossCpuUtilization }} %]
-    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
+  template(#footer): .d-flex.justify-content-between.align-items-center.w-100.small
+    .d-flex.align-items-center
+      lah-fa-icon.mr-3(
+        :variant="dbStyles[0]",
+        :action="dbStyles[1]",
+        :size="dbStyles[2]",
+        :icon="dbStyles[3]",
+        :title="`資料庫連線數，${ dbTotal } / ${ apJndiLocalThreshold }`"
+      ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill, :class="scaleCss(dbStyles[0])") {{ maximized ? `${dbTotal} / ${apJndiLocalThreshold} - ${dbPercent}` : dbPercent }}]
+      lah-fa-icon.mr-3(
+        :variant="apStyles[0]",
+        :action="apStyles[1]",
+        :size="apStyles[2]",
+        :icon="apStyles[3]",
+        :title="`AP加總連線數，${ apTotal } / ${ apJndiXaLocalThreshold }`"
+      ) #[span.mr-1 連線] #[b-badge(:variant="apStyles[0]", pill, :class="scaleCss(apStyles[0])") {{ maximized ? `${ apTotal } / ${ apJndiXaLocalThreshold } - ${apPercent}` : apPercent }}]
+      lah-fa-icon(
+        :variant="cpuStyles[0]",
+        :action="cpuStyles[1]",
+        :size="cpuStyles[2]",
+        :icon="cpuStyles[3]"
+      ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill, :class="scaleCss(cpuStyles[0])") {{ jbossCpuUtilization }} %]
+    lah-fa-icon.text-muted.text-nowrap.ml-auto(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
 
 <script>
-import LahMonitorBoardXapTrend from '~/components/lah-monitor-board-xap-trend.vue';
+import LahMonitorBoardXapTrend from '~/components/lah-monitor-board-xap-trend.vue'
 export default {
   name: 'LahMonitorBoardXap',
   emit: ['light-update'],
   components: { LahMonitorBoardXapTrend },
   props: {
     maximized: { type: Boolean, default: false },
-    enableAttention: { type: Boolean, default: false }
+    enableAttention: { type: Boolean, default: false },
+    disablePopup: { type: Boolean, default: false },
+    focusOffice: { type: String, default: '' }
   },
   data: () => ({
     header: '跨域AP各所連線狀態',
@@ -192,6 +195,7 @@ export default {
     }
   },
   watch: {
+    focusOffice (dontcare) { this.applyFocus() },
     light (nlight, olight) {
       this.emitLightUpdate(nlight, olight)
     },
@@ -236,12 +240,30 @@ export default {
   },
   methods: {
     updateThresholds () { /** placeholder */ },
+    // 聚焦地所之長條高亮，其餘變淡（僅調整 alpha，不改變資料）
+    applyFocus () {
+      const chart = this.$refs.chart
+      const ds = chart?.chartData?.datasets?.[this.barDatasetIdx]
+      if (!ds || !Array.isArray(ds.backgroundColor)) { return }
+      const labels = chart.chartData.labels || []
+      ds.backgroundColor = ds.backgroundColor.map((color, idx) => {
+        if (typeof color !== 'string') { return color }
+        const alpha = (!this.focusOffice || labels[idx] === this.focusOffice) ? 1 : 0.2
+        return color.replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, `rgba($1,$2,$3,${alpha})`)
+      })
+      ds.borderWidth = ds.backgroundColor.map((c, idx) => (this.focusOffice && labels[idx] === this.focusOffice) ? 3 : 1)
+      chart.update && chart.update()
+    },
     popupTrending ({ detail }) {
       /*
         label: "XX所"
         point: {element: BarElement, datasetIndex: 0, index: 5}
         value: 34
       */
+      this.$emit('select-office', detail.label)
+      if (this.disablePopup) {
+        return
+      }
       const found = [...this.$consts.ipMap].find(arr => arr[1].name === detail.label)
       this.modal(this.$createElement('LahMonitorBoardXapTrend', {
         props: {
@@ -260,6 +282,9 @@ export default {
         title: '跨域AP監控',
         size: 'xl'
       })
+    },
+    reload () {
+      this.loadAPConnectionCount()
     },
     loadAPConnectionCount () {
       clearTimeout(this.reloadTimer)
@@ -316,6 +341,18 @@ export default {
               }
             })
             this.$store.commit('topXap', topOffice)
+            this.focusOffice && this.applyFocus()
+            this.$emit('stats-update', {
+              dbTotal: this.dbTotal,
+              jbossCpuUtilization: this.jbossCpuUtilization,
+              apTotal: this.apTotal,
+              apJndiLocalThreshold: this.apJndiLocalThreshold,
+              apJndiXaLocalThreshold: this.apJndiXaLocalThreshold,
+              topOffice,
+              loadItems: this.loadItems,
+              light: this.light,
+              updatedTime: this.updatedTime
+            })
           }
         })
         .catch((err) => {

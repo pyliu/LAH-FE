@@ -53,11 +53,11 @@ b-card(no-body, :border-variant="borderVariant", :class="[attentionCss]")
       div #[lah-fa-icon(icon="circle", style="color: rgb(220, 53, 29)")] 紅色 - 連線數 451 以上
   lah-chart(ref="chart", :type="chartType", :legend="false")
 
-  template(#footer): .d-flex.justify-content-between.small
-    .d-flex
+  template(#footer): .d-flex.justify-content-between.align-items-center.w-100.small
+    .d-flex.align-items-center
       lah-fa-icon.my-auto.mr-1(icon="clock", variant="primary")
       b-select.m-n1(v-model="loadMins", :options="loadMinsOpts", size="sm", style="max-width: 100px")
-    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
+    lah-fa-icon.text-muted.text-nowrap.ml-auto(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 </template>
 
 <script>
@@ -154,7 +154,16 @@ export default {
     topXap (office) {
       // this var is in the store and mixin by plugins/global-vue-mixin.js
       if (this.watchTopXap || this.$utils.empty(this.office)) {
-        this.watchOffice = office.x
+        if (office && office.x && this.watchOffice !== office.x) {
+          this.watchOffice = office.x
+          this._load()
+        }
+      }
+    },
+    office (val) {
+      if (val && this.watchOffice !== val) {
+        this.watchOffice = val
+        this.reset()
         this._load()
       }
     },
@@ -323,6 +332,9 @@ export default {
           this.updatedTime = this.$utils.now().split(' ')[1]
           this.timeout(() => this.load(), this.reloadTime * 1000).then((handler) => { this.reloadTimer = handler })
         })
+    },
+    reload () {
+      this._load()
     },
     emitLightUpdate (n, o) {
       this.$emit('light-update', {

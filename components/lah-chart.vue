@@ -388,12 +388,18 @@ export default {
         const that = this
 
         this.$nextTick(() => {
-          if (that.isDestroyed || !document.getElementById(this.id)) {
+          const canvasEl = document.getElementById(this.id)
+          if (that.isDestroyed || !canvasEl) {
             this.$utils.warn(`[lah-chart] 元件 ${this.id} 已銷毀或 canvas 不存在，中止渲染。`)
             return
           }
 
-          this.inst = new Chart(document.getElementById(this.id), {
+          const existingChart = Chart.getChart(canvasEl)
+          if (existingChart) {
+            existingChart.destroy()
+          }
+
+          this.inst = new Chart(canvasEl, {
             data: this.chartData,
             options: Object.assign({
               responsive: true,

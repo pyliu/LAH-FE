@@ -76,33 +76,34 @@ b-card(ref="card", no-body, :border-variant="borderVariant")
     @click="popupUser"
   )
 
-  template(#footer): .d-flex.justify-content-between.align-items-center.small
-    lah-fa-icon(
-      v-if="allSwitch",
-      :variant="dbStyles[0]",
-      :action="dbStyles[1]",
-      :size="dbStyles[2]",
-      :icon="dbStyles[3]"
-    ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
-    lah-fa-icon(
-      v-if="allSwitch"
-      :variant="cpuStyles[0]",
-      :action="cpuStyles[1]",
-      :size="cpuStyles[2]",
-      :icon="cpuStyles[3]"
-    ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill) {{ jbossCpuUtilization }} %]
-    lah-fa-icon(
-      icon="wave-square",
-      :variant="light"
-      :title="`${word}連線數`"
-    ) #[span.mr-1 連線] #[b-badge(:variant="light", pill) {{ totalCount }}]
-    b-select.m-n2(v-model="apIp", :options="apIpList", size="sm", style="max-width: 115px")
-    lah-fa-icon.text-muted(icon="clock", reqular, title="更新時間") {{ updatedTime }}
+  template(#footer): .d-flex.justify-content-between.align-items-center.w-100.small
+    .d-flex.align-items-center
+      lah-fa-icon.mr-3(
+        v-if="allSwitch",
+        :variant="dbStyles[0]",
+        :action="dbStyles[1]",
+        :size="dbStyles[2]",
+        :icon="dbStyles[3]"
+      ) #[span.mr-1 資料庫] #[b-badge(:variant="dbStyles[0]", pill) {{ dbTotal }}]
+      lah-fa-icon.mr-3(
+        v-if="allSwitch"
+        :variant="cpuStyles[0]",
+        :action="cpuStyles[1]",
+        :size="cpuStyles[2]",
+        :icon="cpuStyles[3]"
+      ) #[span.mr-1 CPU] #[b-badge(:variant="cpuStyles[0]", pill) {{ jbossCpuUtilization }} %]
+      lah-fa-icon.mr-3(
+        icon="wave-square",
+        :variant="light"
+        :title="`${word}連線數`"
+      ) #[span.mr-1 連線] #[b-badge(:variant="light", pill) {{ totalCount }}]
+      b-select(v-model="apIp", :options="apIpList", size="sm", style="max-width: 125px")
+    lah-fa-icon.text-muted.text-nowrap.ml-auto(icon="clock", reqular, title="更新時間") {{ updatedTime }}
 
 </template>
 
 <script>
-import LahUserCard from '~/components/lah-user-card.vue';
+import LahUserCard from '~/components/lah-user-card.vue'
 export default {
   name: 'LahMonitorBoardApconn',
   emit: ['light-update'],
@@ -110,7 +111,9 @@ export default {
   props: {
     maximized: { type: Boolean, default: false },
     line: { type: Boolean, default: false },
-    all: { type: Boolean, default: false }
+    all: { type: Boolean, default: false },
+    office: { type: String, default: '' },
+    targetIp: { type: String, default: '' }
   },
   data: () => ({
     type: 'bar',
@@ -175,36 +178,74 @@ export default {
       return ['success', 'breath', 'sm', 'microchip']
     },
     ipPrefix () {
+      if (!this.apIp || typeof this.apIp !== 'string') { return '' }
       const ipParts = this.apIp.split('.')
       ipParts.pop()
       return ipParts.join('.')
     },
-    currSvr () { return this.apIp.split('.')[3] },
+    currSvr () {
+      if (!this.apIp || typeof this.apIp !== 'string') { return '' }
+      return this.apIp.split('.')[3] || ''
+    },
     prevSvr () {
+      if (!this.carousel || this.carousel.length === 0 || !this.currSvr) {
+        return this.apIp || ''
+      }
       let currIdx = -1
-      this.carousel.find((item, idx, array) => {
+      this.carousel.find((item, idx) => {
         // eslint-disable-next-line eqeqeq
         const found = item == this.currSvr
         currIdx = found ? idx : -1
         return found
       })
+      if (currIdx === -1) {
+        return this.apIp || ''
+      }
       const prevIdx = (currIdx - 1) === -1 ? this.carousel.length - 1 : currIdx - 1
       return `${this.ipPrefix}.${this.carousel[prevIdx]}`
     },
     nextSvr () {
+      if (!this.carousel || this.carousel.length === 0 || !this.currSvr) {
+        return this.apIp || ''
+      }
       let currIdx = -1
-      this.carousel.find((item, idx, array) => {
+      this.carousel.find((item, idx) => {
         // eslint-disable-next-line eqeqeq
         const found = item == this.currSvr
         currIdx = found ? idx : -1
         return found
       })
+      if (currIdx === -1) {
+        return this.apIp || ''
+      }
       const nextIdx = (currIdx + 1) % this.carousel.length
       return `${this.ipPrefix}.${this.carousel[nextIdx]}`
     },
-    apIpList () { return this.carousel.map(postfix => `${this.ipPrefix}.${postfix}`) }
+    apIpList () {
+      if (!this.carousel || this.carousel.length === 0) {
+        return this.apIp ? [this.apIp] : []
+      }
+      const list = this.carousel.map(postfix => `${this.ipPrefix}.${postfix}`)
+      if (this.apIp && !list.includes(this.apIp)) {
+        list.unshift(this.apIp)
+      }
+      return list
+    }
   },
   watch: {
+    office (newVal) {
+      if (newVal) {
+        const found = [...this.$consts.ipMap].find(item => item[1].name === newVal)
+        if (found) {
+          this.apIp = found[0]
+        }
+      }
+    },
+    targetIp (newVal) {
+      if (newVal) {
+        this.apIp = newVal
+      }
+    },
     allSwitch (dontcare) { this.reloadConn() },
     apIp (dontcare) { this.reloadConn() },
     light (nlight, olight) {
@@ -216,6 +257,14 @@ export default {
     this.reloadConn = this.$utils.debounce(this.loadAPConnectionCount, 500)
     this.allSwitch = this.all
     this.type = this.line ? 'line' : 'bar'
+    if (this.office) {
+      const found = [...this.$consts.ipMap].find(item => item[1].name === this.office)
+      if (found) {
+        this.apIp = found[0]
+      }
+    } else if (this.targetIp) {
+      this.apIp = this.targetIp
+    }
     this.loadConfig()
   },
   mounted () {
@@ -366,6 +415,9 @@ export default {
             this.reloadTimer = handler
           })
         })
+    },
+    reload () {
+      this.loadAPConnectionCount()
     },
     emitLightUpdate (n, o) {
       this.$emit('light-update', {

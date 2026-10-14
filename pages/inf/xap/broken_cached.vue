@@ -35,21 +35,21 @@
             title="戰情方塊視圖：直覺卡片呈現各地所即時燈號與實測延遲",
             @click="viewMode = 'tile'"
           )
-            span.btn-label 戰情方塊
+            span.btn-label 方塊
           lah-button.hide-label-sm(
             icon="layer-group",
             :variant="viewMode === 'county' ? 'primary' : 'outline-primary'",
             title="縣市矩陣視圖：依北中南東與 22 縣市分組檢視區域連線健康度",
             @click="viewMode = 'county'"
           )
-            span.btn-label 縣市矩陣
+            span.btn-label 縣市
           lah-button.hide-label-sm(
             icon="table",
             :variant="viewMode === 'table' ? 'primary' : 'outline-primary'",
             title="診斷清單視圖：高密度表格結合 24h 斷線熱點統計與排序",
             @click="viewMode = 'table'"
           )
-            span.btn-label 診斷清單
+            span.btn-label 清單
 
         //- 戰情工具與操作群組
         b-button-group(size="lg")
@@ -62,7 +62,7 @@
             :title="red.length > 0 ? `立即針對目前 ${red.length} 所異常地所發送即時 HTTP 實測` : '立即針對桃園市 8 所發送即時 HTTP 實測'",
             @click="red.length > 0 ? batchProbeDownOffices() : batchProbeTaoyuan()"
           )
-            span.btn-label {{ red.length > 0 ? `實測異常 (${red.length})` : '實測本市' }}
+            span.btn-label {{ red.length > 0 ? `測異常 (${red.length})` : '測本市' }}
 
           lah-button.mr-1.hide-label-sm(
             icon="link-slash",
@@ -73,7 +73,7 @@
             badge-variant="danger",
             @click="showOfflineRecords"
           )
-            span.btn-label 離線紀錄
+            span.btn-label 紀錄
 
           lah-button-xlsx.mr-1(
             :jsons="xlsxData",
@@ -1728,7 +1728,17 @@ export default {
   flex: 0 0 auto;
   margin-left: auto;
 }
-@media (max-width: 1799.98px) {
+.header-compact {
+  .header-right-group ::v-deep .hide-label-sm {
+    .btn-label {
+      display: none;
+    }
+    .svg-inline--fa.mr-1 {
+      margin-right: 0 !important;
+    }
+  }
+}
+@media (max-width: 1399.98px) {
   .header-right-group ::v-deep .hide-label-sm {
     .btn-label {
       display: none;

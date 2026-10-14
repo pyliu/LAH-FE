@@ -102,9 +102,9 @@ b-card(
     :legend="false"
   )
 
-  template(#footer, v-if="loadItems.length > 0")
-    .d-flex.justify-content-between.align-items-center.mb-2.small
-      span
+  template(#footer, v-if="loadItems.length > 0"): .d-flex.justify-content-between.align-items-center.w-100.small
+    .d-flex.align-items-center
+      span.mr-2
         lah-fa-icon(icon="server" :style="`color: ${colorCode}`")
         span.ml-1 {{ loadItems.length }} 個監控系統
       b-form-radio-group(
@@ -115,20 +115,29 @@ b-card(
         buttons
       )
 
-    lah-monitor-board-footer(
-      v-if="footer",
-      ref="footer",
-      :reload-ms="reloadMs",
-      :busy="isBusy",
-      :update-time="updatedTime",
-      @fetch="reloadConn(false)",
-      @reload="reloadConn(true)"
-    )
+    .d-flex.align-items-center.ml-auto
+      lah-countdown-button.border-0.mr-2(
+        v-if="footer",
+        ref="countdown",
+        size="sm",
+        icon="sync-alt",
+        action="ld-cycle",
+        auto-start,
+        title="立即重新讀取",
+        variant="outline-secondary",
+        badge-variant="secondary",
+        :milliseconds="reloadMs",
+        :disabled="isBusy",
+        :busy="isBusy",
+        @end="reloadConn(false)",
+        @click="reloadConn(true)"
+      )
+      lah-fa-icon.text-muted.text-nowrap(icon="clock", title="更新時間") {{ updatedTime }}
 </template>
 
 <script>
-import LahMonitorBoardConnectivitySetup from '~/components/lah-monitor-board-connectivity-setup.vue';
-import LahMonitorBoardFooter from '~/components/lah-monitor-board-footer.vue';
+import LahMonitorBoardConnectivitySetup from '~/components/lah-monitor-board-connectivity-setup.vue'
+import LahMonitorBoardFooter from '~/components/lah-monitor-board-footer.vue'
 
 export default {
   name: 'LahMonitorBoardConnectivity',
@@ -424,6 +433,16 @@ export default {
             if (this.type === 'line' && this.loadItems.length > 0) {
               this.$refs.chart?.setLineFillColor(this.datasetIdx, this.colorCode)
             }
+            const downCount = this.loadItems.filter(item => !item.status || item.status === 'DOWN' || item.status === '0').length
+            const upCount = this.loadItems.length - downCount
+            this.$emit('stats-update', {
+              total: this.loadItems.length,
+              upCount,
+              downCount,
+              worstItem: this.worstItem,
+              light: this.light,
+              updatedTime: this.updatedTime
+            })
           } else {
             this.warning(data.message, { title: '同步異動主機狀態檢視' })
           }
@@ -438,6 +457,9 @@ export default {
           this.updatedTime = this.$utils.now().split(' ')[1]
           this.isBusy = false
         })
+    },
+    reload (force = true) {
+      this.reloadConn(force)
     },
     _reload () { /* debounced placeholder */ }
   }

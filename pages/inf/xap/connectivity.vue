@@ -38,21 +38,21 @@
               :title="isPatrolPaused ? '恢復背景主動佇列巡檢' : '暫停背景主動佇列巡檢'",
               @click="togglePatrol"
             )
-              span.btn-label {{ isPatrolPaused ? '恢復巡檢' : '巡檢中' }}
+              span.btn-label {{ isPatrolPaused ? '恢復' : '巡檢' }}
             lah-button.hide-label-sm(
               icon="bolt",
               :variant="red.length + yellow.length > 0 ? 'danger' : 'outline-info'",
               :title="red.length + yellow.length > 0 ? '立即將異常與逾時站點插隊至佇列最前方優先重測' : '立即將桃園市 8 所插隊至佇列最前方優先重測'",
               @click="prioritizeUrgentSites"
             )
-              span.btn-label {{ red.length + yellow.length > 0 ? `優先重測異常 (${red.length + yellow.length})` : '優先測本市' }}
+              span.btn-label {{ red.length + yellow.length > 0 ? `測異常 (${red.length + yellow.length})` : '測本市' }}
             lah-button.hide-label-sm(
               icon="arrows-rotate",
               variant="outline-secondary",
               title="重置佇列並展開新一輪全國完整巡檢",
               @click="restartFullPatrol"
             )
-              span.btn-label 全量重巡
+              span.btn-label 重巡
 
           //- 三大檢視模式切換
           b-button-group.mr-2(size="lg")
@@ -62,21 +62,21 @@
               title="遙測方塊視圖：即時顯示各所延遲 ms、成功率與最近 8 次探測軌跡",
               @click="viewMode = 'telemetry'"
             )
-              span.btn-label 遙測方塊
+              span.btn-label 方塊
             lah-button.hide-label-sm(
               icon="layer-group",
               :variant="viewMode === 'county' ? 'primary' : 'outline-primary'",
               title="縣市戰情視圖：依 22 縣市彙整區域平均延遲與連線健康度",
               @click="viewMode = 'county'"
             )
-              span.btn-label 縣市戰情
+              span.btn-label 縣市
             lah-button.hide-label-sm(
               icon="table",
               :variant="viewMode === 'table' ? 'primary' : 'outline-primary'",
               title="遙測數據表：管理者專用高密度數據明細，含平均/峰值延遲與失敗率排序",
               @click="viewMode = 'table'"
             )
-              span.btn-label 遙測數據表
+              span.btn-label 表格
 
           //- 輔助工具群組
           b-button-group(size="lg")
@@ -1978,7 +1978,17 @@ export default {
   flex: 0 0 auto;
   margin-left: auto;
 }
-@media (max-width: 1799.98px) {
+.header-compact {
+  .header-right-group ::v-deep .hide-label-sm {
+    .btn-label {
+      display: none;
+    }
+    .svg-inline--fa.mr-1 {
+      margin-right: 0 !important;
+    }
+  }
+}
+@media (max-width: 1399.98px) {
   .header-right-group ::v-deep .hide-label-sm {
     .btn-label {
       display: none;
