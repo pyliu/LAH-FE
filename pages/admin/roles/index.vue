@@ -188,6 +188,47 @@
           </lah-button>
         </div>
       </b-modal>
+
+      <!-- 編輯角色權限彈窗 -->
+      <b-modal
+        id="edit-authority-modal"
+        title="編輯角色權限"
+        hide-footer
+        no-close-on-backdrop
+        centered
+      >
+        <div v-if="editTarget">
+          <b-form-group label="電腦 IP：" label-cols-sm="3">
+            <code class="d-block pt-2">{{ editTarget.role_ip }}</code>
+          </b-form-group>
+          <b-form-group label="綁定同仁：" label-cols-sm="3">
+            <span class="d-block pt-2">
+              {{ editTarget.name ? `${editTarget.name} (${editTarget.id} - ${editTarget.unit || ''})` : '系統預設 / 伺服器' }}
+            </span>
+          </b-form-group>
+          <b-form-group label="授權角色：" label-for="edit-role-select" label-cols-sm="3">
+            <b-form-select
+              id="edit-role-select"
+              v-model="editRole"
+              :options="editRoleOpts"
+              :state="editRole > 1"
+            />
+          </b-form-group>
+          <div class="d-flex justify-content-end pt-2 border-top">
+            <b-button variant="secondary" class="mr-2" @click="$bvModal.hide('edit-authority-modal')">
+              取消
+            </b-button>
+            <lah-button
+              icon="save"
+              variant="primary"
+              :disabled="!(editRole > 1) || editRole === Number(editTarget.role_id)"
+              @click="saveEdit"
+            >
+              儲存變更
+            </lah-button>
+          </div>
+        </div>
+      </b-modal>
     </lah-header>
 
     <b-container v-cloak fluid class="py-3">
@@ -393,6 +434,16 @@
         <!-- 操作 -->
         <template #cell(actions)="{ item }">
           <lah-button
+            icon="edit"
+            variant="outline-primary"
+            size="sm"
+            no-icon-gutter
+            no-border
+            pill
+            title="編輯授權角色"
+            @click="openEdit(item)"
+          />
+          <lah-button
             icon="trash-alt"
             variant="outline-danger"
             size="sm"
@@ -478,6 +529,8 @@ export default {
     addRole: '',
     selectedUserForAdd: null,
     userKeyword: '',
+    editTarget: null,
+    editRole: '',
     allUsersList: [],
     addRoleOpts: [
       { text: '請選擇授權角色...', value: '' },
@@ -503,6 +556,9 @@ export default {
   computed: {
     roleOK () {
       return this.addRole > 1
+    },
+    editRoleOpts () {
+      return this.addRoleOpts.filter(opt => opt.value !== '')
     },
     ipOK () {
       return this.$utils.isIPv4(this.addIp)
@@ -712,6 +768,38 @@ export default {
                 this.$fetch()
                 this.clearCache()
                 this.hideModalById('add-authority-modal')
+              }
+              this.notify(data.message, opts)
+            }).catch((err) => {
+              this.$utils.error(err)
+            })
+          }
+        })
+    },
+    openEdit (item) {
+      this.editTarget = item
+      this.editRole = Number(item.role_id)
+      this.$bvModal.show('edit-authority-modal')
+    },
+    saveEdit () {
+      const target = this.editTarget
+      if (!target || !(this.editRole > 1)) { return }
+      const roleText = (this.addRoleOpts.find(opt => opt.value === this.editRole) || {}).text
+      this.confirm(`請確認要將 ${target.role_ip} 的權限由「${target.role_name}」變更為「${roleText}」？`)
+        .then((answer) => {
+          if (answer) {
+            this.$axios.post(this.$consts.API.JSON.USER, {
+              type: 'update_authority',
+              old_role_id: target.role_id,
+              role_id: this.editRole,
+              ip: target.role_ip
+            }).then(({ data }) => {
+              const opts = { type: 'warning' }
+              if (this.$utils.statusCheck(data.status)) {
+                opts.type = 'success'
+                this.$fetch()
+                this.clearCache()
+                this.hideModalById('edit-authority-modal')
               }
               this.notify(data.message, opts)
             }).catch((err) => {
