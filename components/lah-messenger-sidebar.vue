@@ -32,6 +32,7 @@ client-only
       width="480px"
       sidebar-class="lah-messenger-sidebar-custom"
       body-class="p-0 d-flex flex-column h-100 overflow-hidden"
+      @hidden="resetToOnlineTab"
     )
       template(#default)
         //- 自訂側邊欄頂部列
@@ -184,6 +185,9 @@ export default {
             this.$refs.messengerHome.updateChannelLastReadId(this.currentChannel)
           }
         })
+      } else {
+        // 側邊欄收起時，將內部頁籤重設回到顯示線上使用者
+        this.resetToOnlineTab()
       }
     }
   },
@@ -219,6 +223,13 @@ export default {
     },
     closeSidebar () {
       this.visible = false
+    },
+    resetToOnlineTab () {
+      this.$nextTick(() => {
+        if (typeof this.$refs.messengerHome?.switchTab === 'function') {
+          this.$refs.messengerHome.switchTab('online')
+        }
+      })
     },
     onNewMessage (payload) {
       if (!payload || !this.isChannelAllowed(payload.channel)) {
