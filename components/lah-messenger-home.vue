@@ -1168,7 +1168,7 @@ export default {
             })
           } catch (err) {
             this.$utils.error(`附件 ${file.name} 上傳失敗:`, err)
-            this.notify(`訊息 #${messageId} 附件 ${file.name} 上傳失敗`, {
+            this.notify(`訊息 #${messageId} 附件 ${file.name} 上傳失敗: ${err.message}`, {
               type: 'danger'
             })
           }

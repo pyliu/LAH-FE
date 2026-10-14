@@ -292,7 +292,7 @@ export default {
               this.notify(`訊息 #${this.raw.id} 附件 ${file.name} 上傳成功`, { type: 'success' })
             } catch (err) {
               this.$utils.error(`上傳 ${file.name} 失敗`, err)
-              this.notify(`訊息 #${this.raw.id} 附件 ${file.name} 上傳失敗`, { type: 'danger' })
+              this.notify(`訊息 #${this.raw.id} 附件 ${file.name} 上傳失敗: ${err.message}`, { type: 'danger' })
             }
           })
         }
