@@ -109,10 +109,18 @@
           label-cols-sm="3"
           description="可直接選擇同仁以自動帶入其電腦 IP"
         >
+          <b-form-input
+            v-model="userKeyword"
+            class="mb-2"
+            placeholder="輸入姓名、帳號、課室或 IP 篩選同仁..."
+            trim
+            autocomplete="off"
+          />
           <b-form-select
             id="user-select"
             v-model="selectedUserForAdd"
             :options="userSelectOpts"
+            :select-size="userKeyword ? 6 : 0"
             @change="onUserSelectChange"
           />
         </b-form-group>
@@ -469,6 +477,7 @@ export default {
     addIp: '',
     addRole: '',
     selectedUserForAdd: null,
+    userKeyword: '',
     allUsersList: [],
     addRoleOpts: [
       { text: '請選擇授權角色...', value: '' },
@@ -566,12 +575,13 @@ export default {
     },
     userSelectOpts () {
       const opts = [{ value: null, text: '請選擇同仁以自動填入 IP (選填)' }]
+      const kw = (this.userKeyword || '').trim().toLowerCase()
       this.allUsersList.forEach((u) => {
         const ipLabel = u.ip ? `IP: ${u.ip}` : '未設 IP'
-        opts.push({
-          value: u,
-          text: `${u.unit || '其他'} - ${u.name} (${u.id}) [${ipLabel}]`
-        })
+        const text = `${u.unit || '其他'} - ${u.name} (${u.id}) [${ipLabel}]`
+        if (!kw || u === this.selectedUserForAdd || `${text} ${u.title || ''}`.toLowerCase().includes(kw)) {
+          opts.push({ value: u, text })
+        }
       })
       return opts
     }
@@ -659,7 +669,7 @@ export default {
           type: 'all_users'
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status) && Array.isArray(data.raw)) {
-            this.allUsersList = data.raw.filter(u => !u.offboard_date)
+            this.allUsersList = data.raw.filter(u => !String(u.offboard_date || '').trim() && !(Number(u.authority) & 1))
           }
         }).catch((e) => {
           this.$utils.error(e)
@@ -670,6 +680,7 @@ export default {
       this.addIp = ''
       this.addRole = ''
       this.selectedUserForAdd = null
+      this.userKeyword = ''
     },
     onUserSelectChange (user) {
       if (user && user.ip && this.$utils.isIPv4(user.ip)) {
