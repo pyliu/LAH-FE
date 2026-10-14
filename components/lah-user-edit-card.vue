@@ -23,12 +23,13 @@
             b-avatar.shadow-sm(
               variant="light"
               size="5.2rem"
-              :src="avatarPreviewUrl || avatarSrc"
+              :src="avatarPreviewUrl || displayedAvatarSrc || avatarSrc"
             )
-            .avatar-edit-overlay(v-if="!isDisabled")
+            .avatar-edit-overlay(v-if="!isDisabled && !loadingAvatar && !uploadingAvatar")
               lah-fa-icon(icon="camera" variant="light")
               span.avatar-overlay-text 換頭像
-            b-spinner.avatar-spinner(v-if="uploadingAvatar" small variant="primary")
+            .avatar-loading-mask(v-if="loadingAvatar || uploadingAvatar")
+              b-spinner(small variant="light")
 
           .flex-grow-1.min-w-0
             .d-flex.align-items-center.flex-wrap
@@ -73,6 +74,7 @@
                 icon="crop-simple"
                 variant="outline-info"
                 title="從下方照片直接框選裁切正方形大頭照，免另外準備檔案！"
+                :disabled="loadingPhoto"
                 @click="openCropperFromCurrentPhoto"
                 no-icon-gutter
               )
@@ -83,16 +85,18 @@
           )
             img.photo-preview-img(
               ref="currentPhotoImg"
-              :key="photoSrc"
-              :src="photoPreviewUrl || photoSrc"
+              :src="photoPreviewUrl || displayedPhotoSrc || photoSrc"
               :alt="userData.name"
               crossorigin="anonymous"
               @load="onPhotoLoaded"
             )
-            .photo-hover-hint(v-if="!isDisabled")
+            .photo-hover-hint(v-if="!isDisabled && !loadingPhoto && !uploadingPhoto")
               lah-fa-icon.mb-1(icon="cloud-arrow-up" size="2x")
               .small.font-weight-bold 點擊選檔、拖曳圖片至此，或按 Ctrl+V 貼上截圖
               .extra-small.text-light 支援 PNG / WebP / JPG 自動最佳化轉檔
+            .photo-loading-mask(v-if="loadingPhoto && !uploadingPhoto")
+              b-spinner(variant="light")
+              .small.text-white.mt-2 正在載入照片...
             .photo-uploading-mask(v-if="uploadingPhoto")
               b-spinner(variant="light")
               .small.text-white.mt-2 正在上傳照片...
@@ -548,6 +552,12 @@ export default {
     isDraggingAvatar: false,
     uploadingPhoto: false,
     uploadingAvatar: false,
+    loadingAvatar: false,
+    loadingPhoto: false,
+    displayedAvatarSrc: '',
+    displayedPhotoSrc: '',
+    preloadToken: 0,
+    preloadTimeout: null,
     photoPreviewUrl: '',
     avatarPreviewUrl: '',
     localImgBust: Date.now(),
@@ -751,6 +761,7 @@ export default {
           this.photoPreviewUrl = ''
           this.avatarPreviewUrl = ''
           this.showAdPwPanel = false
+          this.preloadImages(this.userData.id, this.userData.name)
         }
       },
       deep: true
@@ -765,6 +776,8 @@ export default {
   created () {
     this.origUserData = { ...this.userData }
     this.restoreAuthorities()
+    this.displayedAvatarSrc = this.avatarSrc
+    this.displayedPhotoSrc = this.photoSrc
   },
   mounted () {
     const savedShowOthers = localStorage.getItem('user_edit_show_others')
@@ -811,6 +824,10 @@ export default {
     window.addEventListener('paste', this.handleStudioPaste)
   },
   beforeDestroy () {
+    if (this.preloadTimeout) {
+      clearTimeout(this.preloadTimeout)
+      this.preloadTimeout = null
+    }
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
       this.resizeObserver = null
@@ -929,6 +946,74 @@ export default {
     // =========================================================
     // 圖片拖曳、點擊、自動轉 JPG 與互動式頭像裁切工作坊
     // =========================================================
+    preloadImages (targetId, targetName) {
+      if (!targetId) { return }
+      const currentToken = ++this.preloadToken
+      this.loadingAvatar = true
+      this.loadingPhoto = true
+
+      if (this.preloadTimeout) {
+        clearTimeout(this.preloadTimeout)
+      }
+
+      const avatarUrl = `/img/get_user_img.php?id=${targetId}_avatar&name=${targetName}_avatar&timestamp=${this.timestamp}_${this.localImgBust}`
+      const photoUrl = `/img/get_user_img.php?id=${targetId}&name=${targetName}&timestamp=${this.timestamp}_${this.localImgBust}`
+
+      // 5 秒逾時保護機制：若網路遲緩超過 5 秒，自動解除遮罩並呈現圖片
+      this.preloadTimeout = setTimeout(() => {
+        if (this.preloadToken === currentToken) {
+          this.displayedAvatarSrc = avatarUrl
+          this.displayedPhotoSrc = photoUrl
+          this.loadingAvatar = false
+          this.loadingPhoto = false
+        }
+      }, 5000)
+
+      // 預加載大頭照
+      const avatarImg = new Image()
+      avatarImg.onload = () => {
+        if (this.preloadToken === currentToken) {
+          this.displayedAvatarSrc = avatarUrl
+          this.loadingAvatar = false
+          if (!this.loadingPhoto && this.preloadTimeout) {
+            clearTimeout(this.preloadTimeout)
+          }
+        }
+      }
+      avatarImg.onerror = () => {
+        if (this.preloadToken === currentToken) {
+          this.displayedAvatarSrc = avatarUrl
+          this.loadingAvatar = false
+          if (!this.loadingPhoto && this.preloadTimeout) {
+            clearTimeout(this.preloadTimeout)
+          }
+        }
+      }
+      avatarImg.src = avatarUrl
+
+      // 預加載生活照
+      const photoImg = new Image()
+      photoImg.onload = () => {
+        if (this.preloadToken === currentToken) {
+          this.displayedPhotoSrc = photoUrl
+          this.loadingPhoto = false
+          if (!this.loadingAvatar && this.preloadTimeout) {
+            clearTimeout(this.preloadTimeout)
+          }
+        }
+      }
+      photoImg.onerror = () => {
+        if (this.preloadToken === currentToken) {
+          this.displayedPhotoSrc = photoUrl
+          this.loadingPhoto = false
+          if (!this.loadingAvatar && this.preloadTimeout) {
+            clearTimeout(this.preloadTimeout)
+          }
+        }
+      }
+      photoImg.src = photoUrl
+    },
+
     triggerPhotoSelect () {
       if (this.$refs.photoFileInput) {
         this.$refs.photoFileInput.value = ''
@@ -997,7 +1082,7 @@ export default {
           // fallback to src
         }
       }
-      this.loadImageIntoCropper(this.photoPreviewUrl || this.photoSrc)
+      this.loadImageIntoCropper(this.photoPreviewUrl || this.displayedPhotoSrc || this.photoSrc)
     },
 
     loadImageIntoCropper (src) {
@@ -1177,6 +1262,8 @@ export default {
         const blob = this.dataUrlToBlob(this.croppedPreviewDataUrl)
         await this.uploadBlobToServer(blob, true)
         this.avatarPreviewUrl = this.croppedPreviewDataUrl
+        this.displayedAvatarSrc = this.croppedPreviewDataUrl
+        this.loadingAvatar = false
         this.localImgBust = Date.now()
         this.$store.commit('timestamp')
         this.notify(`已成功更新 ${this.userData.name} 的大頭照！`, { type: 'success' })
@@ -1196,6 +1283,8 @@ export default {
         const { blob, dataUrl } = await this.convertFileToJpgBlob(this.pendingPhotoFile)
         await this.uploadBlobToServer(blob, false)
         this.photoPreviewUrl = dataUrl
+        this.displayedPhotoSrc = dataUrl
+        this.loadingPhoto = false
         this.localImgBust = Date.now()
         this.$store.commit('timestamp')
         this.notify(`已成功更新 ${this.userData.name} 的生活照！`, { type: 'success' })
@@ -1220,7 +1309,11 @@ export default {
         await this.uploadBlobToServer(avatarBlob, true)
 
         this.photoPreviewUrl = photoDataUrl
+        this.displayedPhotoSrc = photoDataUrl
         this.avatarPreviewUrl = this.croppedPreviewDataUrl
+        this.displayedAvatarSrc = this.croppedPreviewDataUrl
+        this.loadingPhoto = false
+        this.loadingAvatar = false
         this.localImgBust = Date.now()
         this.$store.commit('timestamp')
         this.notify(`已同時更新 ${this.userData.name} 的生活照與大頭照！`, { type: 'success' })
@@ -1376,6 +1469,17 @@ export default {
   margin-left: -0.5rem;
 }
 
+.avatar-loading-mask {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
 // 生活照互動工作坊
 .photo-studio-card {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -1419,6 +1523,18 @@ export default {
   transition: opacity 0.2s ease;
 }
 
+.photo-loading-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  backdrop-filter: blur(1px);
+}
+
 .photo-uploading-mask {
   position: absolute;
   inset: 0;
@@ -1427,6 +1543,7 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  z-index: 3;
 }
 
 // 互動式角色權限膠囊
