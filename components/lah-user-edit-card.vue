@@ -326,6 +326,7 @@
                         :disabled="isDisabled"
                         placeholder="範例：110/06/01"
                         trim
+                        @blur="normalizeOnboardDate"
                       )
                       b-input-group-append(v-if="!isDisabled")
                         b-button(variant="outline-secondary" title="填入今日民國日期" @click="fillTodayOnboard")
@@ -343,6 +344,7 @@
                       placeholder="範例：066/05/23"
                       size="sm"
                       trim
+                      @blur="normalizeBirthday"
                     )
 
                 //- 手機
@@ -623,7 +625,8 @@ export default {
       if (this.$utils.empty(this.userData.birthday)) {
         return null
       }
-      return Boolean(String(this.userData.birthday).match(/^\d{3,4}\/\d{1,2}\/\d{1,2}$/))
+      const str = String(this.userData.birthday).trim()
+      return Boolean(str.match(/^\d{2,4}[/-]\d{1,2}[/-]\d{1,2}$/) || str.match(/^\d{6,8}$/))
     },
     checkCell () {
       if (this.$utils.empty(this.userData.cell)) {
@@ -635,7 +638,8 @@ export default {
       if (this.$utils.empty(this.userData.onboard_date)) {
         return null
       }
-      return Boolean(String(this.userData.onboard_date).match(/^\d{3,4}\/\d{1,2}\/\d{1,2}$/))
+      const str = String(this.userData.onboard_date).trim()
+      return Boolean(str.match(/^\d{2,4}[/-]\d{1,2}[/-]\d{1,2}$/) || str.match(/^\d{6,8}$/))
     },
 
     saveButtonDisabled () {
@@ -755,6 +759,12 @@ export default {
             authority: 0,
             ...val[0]
           }
+          if (this.userData.onboard_date) {
+            this.userData.onboard_date = this.toTWFormat(this.userData.onboard_date)
+          }
+          if (this.userData.birthday) {
+            this.userData.birthday = this.toTWFormat(this.userData.birthday)
+          }
           this.origUserData = { ...this.userData }
           this.authorities = []
           this.restoreAuthorities()
@@ -774,6 +784,12 @@ export default {
     }
   },
   created () {
+    if (this.userData.onboard_date) {
+      this.userData.onboard_date = this.toTWFormat(this.userData.onboard_date)
+    }
+    if (this.userData.birthday) {
+      this.userData.birthday = this.toTWFormat(this.userData.birthday)
+    }
     this.origUserData = { ...this.userData }
     this.restoreAuthorities()
     this.displayedAvatarSrc = this.avatarSrc
@@ -885,18 +901,73 @@ export default {
 
     // --- 日期格式與快捷輔助 ---
     toTWFormat (adDate) {
-      let twDate = String(adDate || '').replace(/-/g, '/')
-      if (twDate.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
-        twDate = String(parseInt(twDate.substring(0, 4)) - 1911).padStart(3, '0') + twDate.substring(4)
+      if (!adDate) { return '' }
+      const str = String(adDate).trim().replace(/-/g, '/')
+      // 情況 1: 帶斜線或連字號 (例如 2012/1/14, 2012/01/14, 101/1/14, 101/01/14)
+      const parts = str.split('/')
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10)
+        const m = parseInt(parts[1], 10)
+        const d = parseInt(parts[2], 10)
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d) && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+          const twYear = y >= 1900 ? y - 1911 : y
+          const yyy = String(twYear).padStart(3, '0')
+          const mm = String(m).padStart(2, '0')
+          const dd = String(d).padStart(2, '0')
+          return `${yyy}/${mm}/${dd}`
+        }
       }
-      return twDate
+      // 情況 2: 連續數字 (例如 8 碼 20120114, 7 碼 1010114, 6 碼 660523)
+      const cleanDigits = str.replace(/\D/g, '')
+      if (cleanDigits.length === 8) {
+        const y = parseInt(cleanDigits.substring(0, 4), 10) - 1911
+        const yyy = String(y).padStart(3, '0')
+        return `${yyy}/${cleanDigits.substring(4, 6)}/${cleanDigits.substring(6, 8)}`
+      } else if (cleanDigits.length === 7) {
+        return `${cleanDigits.substring(0, 3)}/${cleanDigits.substring(3, 5)}/${cleanDigits.substring(5, 7)}`
+      } else if (cleanDigits.length === 6) {
+        return `${cleanDigits.substring(0, 2).padStart(3, '0')}/${cleanDigits.substring(2, 4)}/${cleanDigits.substring(4, 6)}`
+      }
+      return str
     },
     toADFormat (twDate) {
-      let adDate = String(twDate || '').replace(/-/g, '/')
-      if (adDate.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
-        adDate = (parseInt(adDate.substring(0, 3)) + 1911) + adDate.substring(3)
+      if (!twDate) { return '' }
+      const str = String(twDate).trim().replace(/-/g, '/')
+      // 情況 1: 帶斜線或連字號 (例如 101/1/14, 101/01/14, 66/5/23, 066/05/23, 2012/1/14)
+      const parts = str.split('/')
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10)
+        const m = parseInt(parts[1], 10)
+        const d = parseInt(parts[2], 10)
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d) && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+          const adYear = y < 1900 ? y + 1911 : y
+          const mm = String(m).padStart(2, '0')
+          const dd = String(d).padStart(2, '0')
+          return `${adYear}/${mm}/${dd}`
+        }
       }
-      return adDate
+      // 情況 2: 連續數字 (例如 7 碼 1010114, 6 碼 660523, 8 碼 20120114)
+      const cleanDigits = str.replace(/\D/g, '')
+      if (cleanDigits.length === 7) {
+        const y = parseInt(cleanDigits.substring(0, 3), 10) + 1911
+        return `${y}/${cleanDigits.substring(3, 5)}/${cleanDigits.substring(5, 7)}`
+      } else if (cleanDigits.length === 6) {
+        const y = parseInt(cleanDigits.substring(0, 2), 10) + 1911
+        return `${y}/${cleanDigits.substring(2, 4)}/${cleanDigits.substring(4, 6)}`
+      } else if (cleanDigits.length === 8) {
+        return `${cleanDigits.substring(0, 4)}/${cleanDigits.substring(4, 6)}/${cleanDigits.substring(6, 8)}`
+      }
+      return str
+    },
+    normalizeOnboardDate () {
+      if (this.userData.onboard_date) {
+        this.userData.onboard_date = this.toTWFormat(this.userData.onboard_date)
+      }
+    },
+    normalizeBirthday () {
+      if (this.userData.birthday) {
+        this.userData.birthday = this.toTWFormat(this.userData.birthday)
+      }
     },
     fillTodayOnboard () {
       const adToday = this.$utils.now().split(' ')[0].replace(/-/g, '/')
@@ -922,6 +993,13 @@ export default {
     save (andNext = false) {
       if (this.saveButtonDisabled || this.isBusy) { return }
       this.isBusy = true
+      // 儲存前自動正規化日期為民國年標準格式
+      if (this.userData.onboard_date) {
+        this.userData.onboard_date = this.toTWFormat(this.userData.onboard_date)
+      }
+      if (this.userData.birthday) {
+        this.userData.birthday = this.toTWFormat(this.userData.birthday)
+      }
       this.$axios.post(this.$consts.API.JSON.USER, {
         type: 'save_user_info',
         data: this.userData

@@ -472,20 +472,59 @@ export default {
       })
     },
     toTWFormat (adDate) {
-      if (!adDate || typeof adDate !== 'string') { return '' }
-      let twDate = adDate.replace(/-/g, '/')
-      if (twDate.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
-        twDate = parseInt(twDate.substring(0, 4)) - 1911 + twDate.substring(4)
+      if (!adDate) { return '' }
+      const str = String(adDate).trim().replace(/-/g, '/')
+      const parts = str.split('/')
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10)
+        const m = parseInt(parts[1], 10)
+        const d = parseInt(parts[2], 10)
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d) && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+          const twYear = y >= 1900 ? y - 1911 : y
+          const yyy = String(twYear).padStart(3, '0')
+          const mm = String(m).padStart(2, '0')
+          const dd = String(d).padStart(2, '0')
+          return `${yyy}/${mm}/${dd}`
+        }
       }
-      return twDate
+      const cleanDigits = str.replace(/\D/g, '')
+      if (cleanDigits.length === 8) {
+        const y = parseInt(cleanDigits.substring(0, 4), 10) - 1911
+        const yyy = String(y).padStart(3, '0')
+        return `${yyy}/${cleanDigits.substring(4, 6)}/${cleanDigits.substring(6, 8)}`
+      } else if (cleanDigits.length === 7) {
+        return `${cleanDigits.substring(0, 3)}/${cleanDigits.substring(3, 5)}/${cleanDigits.substring(5, 7)}`
+      } else if (cleanDigits.length === 6) {
+        return `${cleanDigits.substring(0, 2).padStart(3, '0')}/${cleanDigits.substring(2, 4)}/${cleanDigits.substring(4, 6)}`
+      }
+      return str
     },
     toADFormat (twDate) {
-      if (!twDate || typeof twDate !== 'string') { return '' }
-      let adDate = twDate.replace(/-/g, '/')
-      if (adDate.match(/^\d{3}\/\d{2}\/\d{2}$/)) {
-        adDate = parseInt(adDate.substring(0, 3)) + 1911 + adDate.substring(3)
+      if (!twDate) { return '' }
+      const str = String(twDate).trim().replace(/-/g, '/')
+      const parts = str.split('/')
+      if (parts.length === 3) {
+        const y = parseInt(parts[0], 10)
+        const m = parseInt(parts[1], 10)
+        const d = parseInt(parts[2], 10)
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d) && m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+          const adYear = y < 1900 ? y + 1911 : y
+          const mm = String(m).padStart(2, '0')
+          const dd = String(d).padStart(2, '0')
+          return `${adYear}/${mm}/${dd}`
+        }
       }
-      return adDate
+      const cleanDigits = str.replace(/\D/g, '')
+      if (cleanDigits.length === 7) {
+        const y = parseInt(cleanDigits.substring(0, 3), 10) + 1911
+        return `${y}/${cleanDigits.substring(3, 5)}/${cleanDigits.substring(5, 7)}`
+      } else if (cleanDigits.length === 6) {
+        const y = parseInt(cleanDigits.substring(0, 2), 10) + 1911
+        return `${y}/${cleanDigits.substring(2, 4)}/${cleanDigits.substring(4, 6)}`
+      } else if (cleanDigits.length === 8) {
+        return `${cleanDigits.substring(0, 4)}/${cleanDigits.substring(4, 6)}/${cleanDigits.substring(6, 8)}`
+      }
+      return str
     },
     photoClick () {
       this.modal(this.$createElement('lah-user-photo', {
