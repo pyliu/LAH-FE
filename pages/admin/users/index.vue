@@ -718,9 +718,11 @@ div(v-cloak)
   section.bg-white.rounded.shadow-sm.border.p-3(v-else-if="viewMode === 'radar'")
     .d-flex.flex-wrap.justify-content-between.align-items-center.mb-3
       div
-        h5.font-weight-bold.mb-1
+        h5.font-weight-bold.mb-1.d-flex.align-items-center.flex-wrap
           lah-fa-icon.text-primary.mr-2(icon="satellite-dish")
           span 本所網段 IP 佔用雷達與空閒尋址器
+          b-badge.ml-2(v-if="hasActiveFilter" variant="primary" pill)
+            | 🎯 本網段符合 {{ currentSubnetStats.matched }} / 全所 {{ filteredUsers.length }} 人
         p.small.text-muted.mb-0
           | 視覺化盤點網段 #[code 1 ~ 254] 配發狀況。點擊 #[b.text-success 🟢 空閒可用] 格可一鍵將該 IP 指派給員工；點擊 #[b.text-primary 🔵 已配發] 或 #[b.text-danger 🔴 衝突] 格可檢視並編輯該員工。
 
@@ -732,6 +734,7 @@ div(v-cloak)
         size="sm"
       )
         b-form-radio(value="all") 全部 (254)
+        b-form-radio(v-if="hasActiveFilter" value="matched") 🎯 符合條件 ({{ currentSubnetStats.matched }})
         b-form-radio(value="free") 🟢 空閒可用 ({{ currentSubnetStats.free }})
         b-form-radio(value="assigned") 🔵 已配發 ({{ currentSubnetStats.assigned }})
         b-form-radio(value="conflict") 🔴 衝突 ({{ currentSubnetStats.conflict }})
@@ -748,7 +751,10 @@ div(v-cloak)
         @click="selectedSubnet = sub.prefix"
       )
         span.font-weight-bold {{ sub.prefix }}.*
-        b-badge.ml-1(:variant="selectedSubnet === sub.prefix ? 'info' : 'secondary'" pill) {{ sub.usedCount }} 人
+        b-badge.ml-1(v-if="hasActiveFilter" :variant="sub.matchedCount > 0 ? 'success' : 'secondary'" pill)
+          | 符合 {{ sub.matchedCount }} 人
+        b-badge.ml-1(v-else :variant="selectedSubnet === sub.prefix ? 'info' : 'secondary'" pill)
+          | {{ sub.usedCount }} 人
         b-badge.ml-1(v-if="sub.conflictCount > 0" variant="danger" pill) 衝突 {{ sub.conflictCount }}
 
     //- 1 ~ 254 雷達矩陣
@@ -756,26 +762,28 @@ div(v-cloak)
       .ip-radar-cell(
         v-for="cell in filteredRadarCells"
         :key="cell.ip"
-        :class="`radar-cell-${cell.status}`"
+        :class="[`radar-cell-${cell.status}`, { 'radar-cell-matched': cell.isMatched, 'radar-cell-dimmed': hasActiveFilter && !cell.isMatched }]"
         :title="cell.tooltip"
         @click="handleRadarCellClick(cell)"
       )
         .d-flex.justify-content-between.align-items-center
           span.radar-octet.font-weight-bold .{{ cell.octet }}
-          span.radar-status-dot(:class="`dot-${cell.status}`")
+          .d-flex.align-items-center
+            span.radar-matched-badge(v-if="cell.isMatched" title="符合目前篩選條件") 🎯
+            span.radar-status-dot(:class="`dot-${cell.status}`")
         .radar-cell-body.text-truncate.mt-1
           template(v-if="cell.status === 'conflict'")
             .font-weight-bold.text-danger ⚠️ {{ cell.users.length }}人衝突
             .radar-subtext.text-truncate {{ cell.users.map(u => u.name).join('、') }}
           template(v-else-if="cell.status === 'assigned'")
-            .font-weight-bold {{ cell.users[0].name }}
-            .radar-subtext.text-muted.text-truncate {{ cell.users[0].unit || cell.users[0].id }}
+            .font-weight-bold.radar-cell-name.text-truncate {{ cell.users[0].name }}
+            .radar-subtext.text-truncate {{ cell.users[0].unit || cell.users[0].id }}
           template(v-else-if="cell.status === 'dynamic'")
             .font-weight-bold.text-warning-dark ⚡ 動態紀錄
             .radar-subtext.text-truncate {{ cell.dynamicEntry.entry_id }}
           template(v-else)
-            .text-success.small 空閒可用
-            .radar-subtext.text-muted 點擊指派/複製
+            .text-success.font-weight-bold.small 空閒可用
+            .radar-subtext 點擊指派/複製
 
   //- =========================================================
   //- 4. 空閒 IP 快速指派 Modal (由網段雷達觸發)
@@ -1527,6 +1535,11 @@ export default {
     adConfigTooltip () { return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新' },
 
     // --- 網段雷達 (Subnet IP Radar) 計算 ---
+    filteredUserIdSet () {
+      if (!this.hasActiveFilter) { return null }
+      return new Set(this.filteredUsers.map(u => String(u.id).toUpperCase()))
+    },
+
     availableSubnets () {
       const prefixMap = {}
 
@@ -1537,7 +1550,7 @@ export default {
         const idx = code.charCodeAt(0) - 64
         const start = idx * 10
         for (let s = start; s <= start + 6; s++) {
-          prefixMap[`192.168.${s}`] = { prefix: `192.168.${s}`, usedCount: 0, conflictCount: 0 }
+          prefixMap[`192.168.${s}`] = { prefix: `192.168.${s}`, usedCount: 0, conflictCount: 0, matchedCount: 0 }
         }
       }
 
@@ -1548,12 +1561,27 @@ export default {
           if (parts.length === 4) {
             const prefix = `${parts[0]}.${parts[1]}.${parts[2]}`
             if (!prefixMap[prefix]) {
-              prefixMap[prefix] = { prefix, usedCount: 0, conflictCount: 0 }
+              prefixMap[prefix] = { prefix, usedCount: 0, conflictCount: 0, matchedCount: 0 }
             }
             prefixMap[prefix].usedCount++
           }
         }
       })
+
+      // 3. 計算各網段符合篩選條件人數
+      if (this.filteredUserIdSet) {
+        this.filteredUsers.forEach((u) => {
+          if (!this.isUserDisabled(u) && this.isValidIp(u)) {
+            const parts = u.ip.split('.')
+            if (parts.length === 4) {
+              const prefix = `${parts[0]}.${parts[1]}.${parts[2]}`
+              if (prefixMap[prefix]) {
+                prefixMap[prefix].matchedCount = (prefixMap[prefix].matchedCount || 0) + 1
+              }
+            }
+          }
+        })
+      }
 
       // 計算各網段衝突組數
       Object.keys(this.duplicateIpMap).forEach((ip) => {
@@ -1571,7 +1599,7 @@ export default {
         return a.prefix.localeCompare(b.prefix, undefined, { numeric: true })
       })
 
-      return list.length > 0 ? list : [{ prefix: '192.168.10', usedCount: 0, conflictCount: 0 }]
+      return list.length > 0 ? list : [{ prefix: '192.168.10', usedCount: 0, conflictCount: 0, matchedCount: 0 }]
     },
 
     radarCells () {
@@ -1604,12 +1632,18 @@ export default {
           tooltip = `${ip} — 近期動態登入紀錄：${dyn.entry_id}（尚未綁定於在職人員資料）`
         }
 
+        const isMatched = Boolean(
+          this.filteredUserIdSet &&
+          assignedUsers.some(u => this.filteredUserIdSet.has(String(u.id).toUpperCase()))
+        )
+
         cells.push({
           octet: i,
           ip,
           status,
           users: assignedUsers,
           dynamicEntry: dyn,
+          isMatched,
           tooltip
         })
       }
@@ -1617,15 +1651,17 @@ export default {
     },
 
     currentSubnetStats () {
-      const stats = { free: 0, assigned: 0, conflict: 0, dynamic: 0 }
+      const stats = { free: 0, assigned: 0, conflict: 0, dynamic: 0, matched: 0 }
       this.radarCells.forEach((c) => {
         if (stats[c.status] !== undefined) { stats[c.status]++ }
+        if (c.isMatched) { stats.matched++ }
       })
       return stats
     },
 
     filteredRadarCells () {
       if (this.radarFilter === 'all') { return this.radarCells }
+      if (this.radarFilter === 'matched') { return this.radarCells.filter(c => c.isMatched) }
       return this.radarCells.filter(c => c.status === this.radarFilter)
     },
 
@@ -1724,6 +1760,11 @@ export default {
     },
     viewMode (val) {
       localStorage.setItem('user_mgt_view_mode', val)
+      if (val === 'radar' && this.hasActiveFilter) {
+        this.$nextTick(() => {
+          this.autoSwitchSubnetToBestMatch()
+        })
+      }
     },
     showAvatar (val) {
       localStorage.setItem('user_mgt_show_avatar', val)
@@ -1740,6 +1781,11 @@ export default {
     // 當篩選條件變動並影響表格顯示資料時，重設當前頁碼為 1 (遵守 AGENTS.md 規範)
     filteredUsers () {
       this.tableCurrentPage = 1
+      if (this.viewMode === 'radar' && this.hasActiveFilter) {
+        this.$nextTick(() => {
+          this.autoSwitchSubnetToBestMatch()
+        })
+      }
     },
     tablePerPage () {
       this.tableCurrentPage = 1
@@ -2131,9 +2177,28 @@ export default {
       }
     },
 
+    autoSwitchSubnetToBestMatch () {
+      if (!this.hasActiveFilter || !this.availableSubnets || this.availableSubnets.length === 0) { return }
+      const currentSub = this.availableSubnets.find(s => s.prefix === this.selectedSubnet)
+      // 若當前網段已有符合人員，尊重使用者當前檢視，不強制切換
+      if (currentSub && currentSub.matchedCount > 0) { return }
+      // 找出符合條件人數最多的網段
+      const best = [...this.availableSubnets]
+        .filter(s => s.matchedCount > 0)
+        .sort((a, b) => b.matchedCount - a.matchedCount)[0]
+      if (best && best.prefix !== this.selectedSubnet) {
+        this.selectedSubnet = best.prefix
+      }
+    },
+
     switchToRadarView () {
       this.ensureDefaultSubnet()
       this.viewMode = 'radar'
+      if (this.hasActiveFilter) {
+        this.$nextTick(() => {
+          this.autoSwitchSubnetToBestMatch()
+        })
+      }
     },
 
     handleRadarCellClick (cell) {
@@ -3157,39 +3222,112 @@ export default {
 }
 
 .ip-radar-cell {
-  padding: 0.4rem 0.55rem;
-  border-radius: 0.4rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.45rem;
   border: 1px solid #e2e8f0;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
   font-size: 0.8rem;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
   }
 
+  // 空閒可用 (清新綠底 + 綠色邊框與左色條)
   &.radar-cell-free {
-    background-color: #f8fff9;
-    border-color: #c3e6cb;
-    &:hover { border-color: #28a745; }
+    background-color: #eaf8ec;
+    border-color: #a3e2ad;
+    border-left: 4px solid #28a745;
+
+    .radar-octet {
+      color: #155724;
+    }
+    .radar-subtext {
+      color: #496e51;
+    }
+    &:hover {
+      background-color: #def4e1;
+      border-color: #28a745;
+    }
   }
 
+  // 已配發 (鮮明藍底 + 藍色邊框與左色條)
   &.radar-cell-assigned {
-    background-color: #f4f9ff;
-    border-color: #b8daff;
-    &:hover { border-color: #007bff; }
+    background-color: #eaf2ff;
+    border-color: #9bc5f9;
+    border-left: 4px solid #007bff;
+
+    .radar-octet {
+      color: #084298;
+    }
+    .radar-cell-name {
+      color: #0f172a;
+    }
+    .radar-subtext {
+      color: #3b5a7e;
+    }
+    &:hover {
+      background-color: #dbeafe;
+      border-color: #007bff;
+    }
   }
 
+  // IP 衝突 (警示粉紅底 + 紅色邊框與左色條)
   &.radar-cell-conflict {
-    background-color: #fff5f5;
-    border-color: #f5c6cb;
-    &:hover { border-color: #dc3545; }
+    background-color: #ffeef0;
+    border-color: #f8a5ad;
+    border-left: 4px solid #dc3545;
+
+    .radar-octet {
+      color: #842029;
+    }
+    .radar-subtext {
+      color: #842029;
+    }
+    &:hover {
+      background-color: #fed7da;
+      border-color: #dc3545;
+    }
   }
 
+  // 動態未綁定 (柔和琥珀黃底 + 琥珀色邊框與左色條)
   &.radar-cell-dynamic {
-    background-color: #fffbeb;
-    border-color: #fde68a;
+    background-color: #fff9db;
+    border-color: #ffe066;
+    border-left: 4px solid #f59e0b;
+
+    .radar-octet {
+      color: #92400e;
+    }
+    &:hover {
+      background-color: #fef08a;
+      border-color: #f59e0b;
+    }
+  }
+
+  // 篩選命中高亮效果 (空間聚焦)
+  &.radar-cell-matched {
+    box-shadow: 0 0 0 2.5px #007bff, 0 6px 14px rgba(0, 123, 255, 0.4) !important;
+    transform: translateY(-2px);
+    z-index: 5;
+    animation: radarMatchedGlow 2.4s infinite ease-in-out;
+  }
+
+  // 篩選未命中淡化效果
+  &.radar-cell-dimmed {
+    opacity: 0.22;
+    filter: grayscale(45%);
+    transition: opacity 0.2s ease, filter 0.2s ease;
+
+    &:hover {
+      opacity: 0.88;
+      filter: none;
+      z-index: 2;
+    }
   }
 }
 
@@ -3199,19 +3337,35 @@ export default {
 }
 
 .radar-status-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   display: inline-block;
+  box-shadow: 0 0 0 1.5px #fff;
 
   &.dot-free     { background-color: #28a745; }
   &.dot-assigned { background-color: #007bff; }
-  &.dot-conflict { background-color: #dc3545; box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25); }
+  &.dot-conflict { background-color: #dc3545; box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.4); }
   &.dot-dynamic  { background-color: #f59e0b; }
+}
+
+.radar-matched-badge {
+  font-size: 0.72rem;
+  line-height: 1;
+  margin-right: 3px;
 }
 
 .radar-subtext {
   font-size: 0.72rem;
+}
+
+@keyframes radarMatchedGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 2px #007bff, 0 4px 10px rgba(0, 123, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 3.5px #0d6efd, 0 8px 18px rgba(13, 110, 253, 0.55);
+  }
 }
 
 // =========================================================
