@@ -260,17 +260,8 @@ export default {
       }
     },
     speak (text) {
-      if (!this.enableVoice || !process.client || !('speechSynthesis' in window)) { return }
-      try {
-        window.speechSynthesis.cancel()
-        const utterance = new SpeechSynthesisUtterance(text)
-        utterance.lang = 'zh-TW'
-        utterance.rate = 1.0
-        utterance.pitch = 1.0
-        window.speechSynthesis.speak(utterance)
-      } catch (e) {
-        console.warn('語音合成錯誤:', e)
-      }
+      if (!this.enableVoice) { return }
+      this.$utils.speak(text)
     },
     toggleVoice () {
       this.enableVoice = !this.enableVoice

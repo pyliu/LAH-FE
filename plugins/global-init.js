@@ -904,7 +904,41 @@ export default ({ $axios, store, $config }, inject) => {
     info: console.info.bind(console),
     assert: console.assert.bind(console),
     error: console.error.bind(console),
-    table: console.table.bind(console)
+    table: console.table.bind(console),
+    /**
+     * Web Speech API (語音朗讀合成)
+     * @param {string} text 欲朗讀的文字內容
+     * @param {object} opts 自訂選項 { lang: 'zh-TW', rate: 1.0, pitch: 1.0, volume: 1.0, cancel: true }
+     */
+    speak (text, opts = {}) {
+      if (!process.client || !('speechSynthesis' in window) || !text) { return }
+      try {
+        const options = {
+          lang: 'zh-TW',
+          rate: 1.0,
+          pitch: 1.0,
+          volume: 1.0,
+          cancel: true,
+          ...opts
+        }
+        if (options.cancel) {
+          window.speechSynthesis.cancel()
+        }
+        const utterance = new SpeechSynthesisUtterance(String(text))
+        utterance.lang = options.lang
+        utterance.rate = options.rate
+        utterance.pitch = options.pitch
+        utterance.volume = options.volume
+        window.speechSynthesis.speak(utterance)
+      } catch (e) {
+        console.warn('語音合成錯誤:', e)
+      }
+    },
+    cancelSpeak () {
+      if (process.client && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+    }
   }
   // all injected var can be used by {varname} in Vue and ${varname} in Nuxt, e.g. this.$http (Vue), $http (Nuxt)
   inject('consts', consts)
