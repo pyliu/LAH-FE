@@ -74,7 +74,7 @@ div
         div {{ setter }} {{ setterName }}
       div
         .d-flex.text-nowrap.mb-1
-          .my-auto.mr-1.text-nowrap 　借閱人
+          .my-auto.mr-1.text-nowrap 借閱人
           strong.my-auto.mr-1(:title="`${updateData.borrower} ${borrowerName}`") {{ borrowerName }}
           lah-button(
             icon="user-friends",
@@ -153,7 +153,12 @@ div
     scrollable
   )
     template(#modal-title) 選擇借閱人 - {{ $utils.caseId(parentData.ID) }}
-    lah-user-select(:init-keyword="borrowerName" @update="borrowerSelected" @clean="borrowerClean")
+    lah-user-select(
+      :case-reviewer="parentData ? (parentData.初審人員 || parentData.RM45 || '') : ''"
+      :init-keyword="borrowerName"
+      @update="borrowerSelected"
+      @clean="borrowerClean"
+    )
 </template>
 
 <script>
