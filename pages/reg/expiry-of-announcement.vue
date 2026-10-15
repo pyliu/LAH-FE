@@ -299,7 +299,7 @@ div
         )
           lah-fa-icon(icon="copy" regular)
         b-link.ml-1.text-secondary(
-          :to="`/regcase/${item.ID}`"
+          :to="`/reg/case/${item.ID}`"
           target="_blank"
           title="新分頁開啟案件專頁"
         )
