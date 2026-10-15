@@ -22,6 +22,7 @@ export default {
   data: () => ({
     maxHeight: 600,
     maxHeightOffset: 150,
+    minHeight: 200,
     resizeObserver: null,
     zoomDetectorFrame: null
   }),
@@ -32,13 +33,14 @@ export default {
         if (this.$el?.getBoundingClientRect) {
           const topOffset = this.$el.getBoundingClientRect().top
           const newHeight = window.innerHeight - topOffset - this.maxHeightOffset
-          this.maxHeight = Math.max(600, newHeight)
+          const min = typeof this.minHeight === 'number' ? this.minHeight : 200
+          this.maxHeight = Math.max(min, newHeight)
           // this.$utils.warn(`動態高度更新(Mixin): top=${topOffset}, new=${newHeight}, final=${this.maxHeight}`)
         }
       })
     }
     // 2. Debounced 版本的函式
-    this.debouncedUpdateHeight = this.$utils.debounce(this.updateMaxHeight, 150)
+    this.debouncedUpdateHeight = this.$utils.debounce(() => this.updateMaxHeight?.(), 150)
     // 3. ResizeObserver
     this.resizeObserver = new ResizeObserver(this.debouncedUpdateHeight)
     this.resizeObserver.observe(this.$el)

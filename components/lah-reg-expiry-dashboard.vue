@@ -17,7 +17,12 @@
       </b-button>
     </div>
 
-    <div v-show="!collapsed" class="exd-body">
+    <b-collapse
+      :visible="!collapsed"
+      class="exd-body"
+      @shown="$emit('toggled', false)"
+      @hidden="$emit('toggled', true)"
+    >
       <!-- KPI -->
       <div class="exd-kpis">
         <div class="exd-kpi">
@@ -137,7 +142,7 @@
           </button>
         </div>
       </div>
-    </div>
+    </b-collapse>
   </section>
 </template>
 

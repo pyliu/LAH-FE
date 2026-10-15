@@ -110,15 +110,18 @@ div
   lah-transition(appear): lah-reg-expiry-dashboard.px-2(
     v-if="committed",
     @filter="onDashFilter",
-    @toggle="dashCollapsed = $event"
+    @toggle="onDashToggle",
+    @toggled="onDashToggled"
   )
 
-  lah-transition(appear): lah-expiry-b-table.dynamic-table-height(
-    :class="{ 'dash-open': !dashCollapsed }",
+  lah-transition(appear): lah-expiry-b-table(
+    ref="table",
     :busy="!committed || filtering",
     only-popup-detail,
     sticky-header,
-    urgency
+    urgency,
+    :alt-max-height-offset="15",
+    :alt-min-height="200"
   )
   lah-transition.center.h3(v-if="queryCount === 0 && committed") 無資料👍
 
@@ -362,6 +365,9 @@ export default {
         this.filterDebounced()
       },
       deep: true
+    },
+    advTags () {
+      this.$nextTick(this.updateTableHeight)
     }
   },
   created () {
@@ -369,6 +375,28 @@ export default {
   },
   methods: {
     filterDebounced () { /** placeholder for debounced filter method */ },
+    onDashToggle (collapsed) {
+      this.dashCollapsed = collapsed
+      this.$nextTick(this.updateTableHeight)
+    },
+    onDashToggled (collapsed) {
+      this.dashCollapsed = collapsed
+      this.$nextTick(() => {
+        this.updateTableHeight()
+        // 再次確保過渡完全結束時樣式與邊界穩定
+        setTimeout(this.updateTableHeight, 50)
+      })
+    },
+    updateTableHeight () {
+      const tbl = this.$refs.table
+      if (tbl) {
+        if (typeof tbl.updateMaxHeight === 'function') {
+          tbl.updateMaxHeight()
+        } else if (tbl.$children && typeof tbl.$children[0]?.updateMaxHeight === 'function') {
+          tbl.$children[0].updateMaxHeight()
+        }
+      }
+    },
     onDashFilter ({ key, value }) {
       // 戰情板點選：把人員／原因加入進階篩選（已存在則不重複加入）
       const arr = this.advOpts[key]
@@ -551,17 +579,5 @@ export default {
 }
 .input-group-height-hack::v-deep .form-control {
   height: 100%;
-}
-.dynamic-table-height::v-deep .b-table-sticky-header {
-  /* 100vh is the full viewport height.
-     Subtracting a fixed value for the header, tags, and padding.
-     This value might need fine-tuning.
-   */
-  max-height: calc(100vh - 165px) !important;
-}
-.dynamic-table-height.dash-open::v-deep .b-table-sticky-header {
-  /* 戰情板展開時預留空間，仍保留最小可視高度 */
-  max-height: calc(100vh - 165px) !important;
-  min-height: 360px;
 }
 </style>

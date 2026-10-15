@@ -138,7 +138,9 @@ export default {
     busy: { type: Boolean, default: false },
     onlyPopupDetail: { type: Boolean, default: false },
     // 啟用「剩餘/逾期時間」欄位與依緊急度標示列（預設關閉，不影響其他頁面）
-    urgency: { type: Boolean, default: false }
+    urgency: { type: Boolean, default: false },
+    altMaxHeightOffset: { type: Number, default: 0 },
+    altMinHeight: { type: Number, default: 0 }
   },
   data: () => ({
     fields: [
@@ -186,6 +188,14 @@ export default {
     }
   },
   watch: {},
+  created () {
+    if (this.altMaxHeightOffset > 0) {
+      this.maxHeightOffset = this.altMaxHeightOffset
+    }
+    if (this.altMinHeight > 0) {
+      this.minHeight = this.altMinHeight
+    }
+  },
   mounted () {
     if (this.urgency) {
       this.timer = setInterval(() => { this.now = Date.now() }, 60 * 1000)
