@@ -204,30 +204,30 @@ div
 
     .d-flex.align-items-center.flex-wrap.ml-md-auto.my-1
       span.font-weight-bold.text-secondary.mr-2.small
-        lah-fa-icon.mr-1(icon="traffic-light" variant="secondary")
-        | 燈號快速篩選：
+        lah-fa-icon.mr-1(icon="tasks" variant="secondary")
+        | 辦理情形：
       b-button-group(size="sm")
         b-button(
-          v-for="l in lightButtons"
-          :key="l.value"
-          :variant="isLightSelected(l.value) ? l.variant : `outline-${l.variant}`"
-          @click="toggleCaseLight(l.value)"
+          v-for="s in stateStatPills"
+          :key="s.state"
+          :variant="isStateSelected(s.state) ? 'primary' : 'outline-primary'"
+          @click="toggleCaseState(s.state)"
           class="mr-1 mb-1 rounded-pill px-2 font-weight-bold text-nowrap"
-          :title="`點擊快速${isLightSelected(l.value) ? '移除' : '加入'}【${l.name}】燈號篩選`"
+          :title="`點擊快速${isStateSelected(s.state) ? '移除' : '加入'}【${s.state}】篩選`"
         )
-          lah-fa-icon.mr-1(icon="circle" :variant="isLightSelected(l.value) ? 'white' : l.variant")
-          | {{ l.name }}
+          lah-fa-icon.mr-1(:icon="s.state.includes('初核') ? 'spinner' : 'bullhorn'")
+          | {{ s.state }}
           b-badge.ml-1(
-            :variant="isLightSelected(l.value) ? 'light' : l.variant"
+            :variant="isStateSelected(s.state) ? 'light' : 'primary'"
             pill
-          ) {{ lightCounts[l.value] || 0 }}
+          ) {{ s.count }}
         b-button(
-          v-if="advOpts.caseLights.length > 0"
+          v-if="advOpts.caseStates.length > 0"
           variant="outline-secondary"
           size="sm"
           class="mr-1 mb-1 rounded-pill px-2"
-          @click="clearCaseLights"
-          title="清除所有燈號篩選"
+          @click="clearCaseStates"
+          title="清除所有辦理情形篩選"
         )
           lah-fa-icon(icon="times" class="mr-1")
           | 清除
@@ -744,33 +744,26 @@ export default {
       return [...map.values()].sort((a, b) => b.count - a.count)
     },
 
-    // 公告燈號快速篩選選項
-    lightButtons () {
-      return [
-        { name: '審核中', value: 'info', variant: 'info' },
-        { name: '公告中', value: 'success', variant: 'success' },
-        { name: '快到期', value: 'warning', variant: 'warning' },
-        { name: '已到期', value: 'danger', variant: 'danger' }
-      ]
-    },
-
-    // 各公告燈號案件計數 (依當前初審人員過濾池統計)
-    lightCounts () {
-      const counts = {
-        info: 0,
-        success: 0,
-        warning: 0,
-        danger: 0
-      }
+    // 辦理情形分流 Pills (依當前初審人員過濾池統計)
+    stateStatPills () {
       if (!this.dataReady) {
-        return counts
+        return []
       }
+      const map = new Map()
+      const allStates = this.advOpts.caseStateOpts?.length > 0
+        ? this.advOpts.caseStateOpts
+        : [...new Set(this.bakedData.map(item => item.辦理情形))].filter(Boolean).sort()
+      allStates.forEach(state => map.set(state, { state, count: 0 }))
       this.currentReviewerFilteredCases.forEach((item) => {
-        if (counts[item.公告燈號] !== undefined) {
-          counts[item.公告燈號]++
+        const state = item.辦理情形
+        if (state) {
+          if (!map.has(state)) {
+            map.set(state, { state, count: 0 })
+          }
+          map.get(state).count++
         }
       })
-      return counts
+      return [...map.values()]
     },
 
     // 是否有任何作用中的篩選條件
@@ -946,6 +939,9 @@ export default {
     filterBakedData () {
       this.debouncedUpdateHeight?.()
     },
+    'advOpts.caseStates' () {
+      this.debouncedUpdateHeight?.()
+    },
     'advOpts.caseLights' () {
       this.debouncedUpdateHeight?.()
     },
@@ -1094,22 +1090,22 @@ export default {
       this.pagination.currentPage = 1
     },
 
-    isLightSelected (lightValue) {
-      return this.advOpts.caseLights.includes(lightValue)
+    isStateSelected (state) {
+      return this.advOpts.caseStates.includes(state)
     },
 
-    toggleCaseLight (lightValue) {
-      const idx = this.advOpts.caseLights.indexOf(lightValue)
+    toggleCaseState (state) {
+      const idx = this.advOpts.caseStates.indexOf(state)
       if (idx > -1) {
-        this.advOpts.caseLights.splice(idx, 1)
+        this.advOpts.caseStates.splice(idx, 1)
       } else {
-        this.advOpts.caseLights.push(lightValue)
+        this.advOpts.caseStates.push(state)
       }
       this.pagination.currentPage = 1
     },
 
-    clearCaseLights () {
-      this.advOpts.caseLights = []
+    clearCaseStates () {
+      this.advOpts.caseStates = []
       this.pagination.currentPage = 1
     },
 
