@@ -26,7 +26,7 @@
         @click="resetDeadline"
         no-icon-gutter
       )
-    .d-flex.my-1
+    .d-flex.my-1.align-items-center
       small.my-auto.text-nowrap.mr-1 通知送達
       b-datepicker(
         size="sm"
@@ -47,6 +47,19 @@
         :max="maxDate"
         :state="settleDeliveredDate"
       )
+      b-button-group.ml-1(size="sm")
+        b-button(
+          variant="outline-info"
+          size="sm"
+          title="快速填入今天"
+          @click="setToday"
+        ) 今
+        b-button(
+          variant="outline-secondary"
+          size="sm"
+          title="快速填入昨天"
+          @click="setYesterday"
+        ) 昨
     .d-flex.my-1
       small.my-auto.text-nowrap.mr-1 補正字號
       b-input(
@@ -69,13 +82,23 @@
     .my-auto.text-nowrap.mr-1 補正期滿：{{ parentData.REG_FIX_CASE_RECORD.fix_deadline_date }}
     .my-auto.text-nowrap.mr-1 通知送達：{{ parentData.REG_FIX_CASE_RECORD.notify_delivered_date }}
 
-  lah-transition: .d-flex.justify-content-end.align-items-center.p-1.mt-1(v-if="!$utils.empty(deliveredDate)")
-    b-badge.p-2.mr-2(pill, :class="overduedBadgeClass") 調整到期日期：{{ dueDate }}
-    b-badge.p-2(pill, :class="allowRejectBadgeClass") 可駁回日期：{{ rejectDate }}
+  lah-transition: .d-flex.flex-wrap.justify-content-end.align-items-center.p-1.mt-1(v-if="!$utils.empty(deliveredDate)")
+    b-badge.p-2.mr-1.mb-1(
+      v-if="isRolledOver"
+      pill
+      variant="warning"
+      v-b-tooltip.hover.top="rolloverTooltip"
+      style="cursor: help;"
+    )
+      lah-fa-icon(icon="balance-scale" class="mr-1")
+      | ⚡ 順延至 {{ legalCalc.dueDateMinguo }}
+    b-badge.p-2.mr-1.mb-1(pill, :class="overduedBadgeClass") 調整到期：{{ dueDate }}
+    b-badge.p-2.mb-1(pill, :class="allowRejectBadgeClass") 可駁回：{{ rejectDate }}
 </template>
 
 <script>
 import regCaseBase from '~/mixins/lah-reg-case-base.js'
+import { calculateLegalFixDeadline, formatDateISO } from '~/mixins/lah-fix-case-holiday.js'
 
 export default {
   /* from lah-reg-case-base.js
@@ -132,39 +155,37 @@ export default {
     noteChanged () {
       return !this.$utils.empty(this.note) && this.defaultDeadlineDate !== this.note
     },
-    dueDate () {
+    legalCalc () {
       if (this.$utils.empty(this.deliveredDate)) {
-        return ''
+        return null
       }
-      const dd = new Date(this.deliveredDate)
-      // RM52_TYPE === '1' => Month
-      const factor = this.parentData.RM52_TYPE === '1' ? 30 : 1
-      // 1140811: don't follow this.parentData.RM52_DAY
-      const days = factor * (parseInt(this.days) || 15)
-      dd.setDate(dd.getDate() + days)
-      /**
-       * 'en-ZA' => 2020/08/19 (year/month/day)
-       * 'en-CA' => 2020-08-19 (year-month-day)
-       */
-      return dd.toLocaleDateString('en-ZA')
+      const factor = this.parentData?.RM52_TYPE === '1' ? 30 : 1
+      const days = factor * (parseInt(this.days, 10) || 15)
+      return calculateLegalFixDeadline(this.deliveredDate, days)
+    },
+    dueDate () {
+      return this.legalCalc ? this.legalCalc.dueDate : ''
     },
     rejectDate () {
-      if (this.$utils.empty(this.dueDate)) {
-        return ''
-      }
-      const dd = new Date(this.dueDate)
-      dd.setDate(dd.getDate() + 1)
-      return dd.toLocaleDateString('en-ZA')
+      return this.legalCalc ? this.legalCalc.rejectDate : ''
+    },
+    isRolledOver () {
+      return this.legalCalc ? this.legalCalc.isRolledOver : false
+    },
+    rolloverTooltip () {
+      return this.legalCalc ? this.legalCalc.tooltipText : ''
     },
     today () {
-      return new Date().toLocaleDateString('en-ZA')
+      return formatDateISO(new Date())
     },
     light () {
-      if (!this.$utils.empty(this.deliveredDate)) {
-        if (this.today >= this.rejectDate) { return 'red' }
-        if (this.today === this.dueDate) { return 'yellow' }
+      if (!this.legalCalc) { return 'green' }
+      switch (this.legalCalc.status) {
+        case 'REJECTABLE': return 'red'
+        case 'DUE_SOON': return 'yellow'
+        case 'IN_PROGRESS': return 'green'
+        default: return 'green'
       }
-      return 'green'
     },
     overduedBadgeClass () {
       return [`badge-${this.light}`]
@@ -198,6 +219,11 @@ export default {
     caseId (dontcare) {
       // to let the component refresh in b-table
       this.load()
+    },
+    deliveredDate (val, oldVal) {
+      if (val && val !== oldVal) {
+        this.syncDeadlineDate()
+      }
     }
   },
   created () {
@@ -228,6 +254,25 @@ export default {
     this.origDataset.note = this.note || ''
   },
   methods: {
+    setToday () {
+      const today = formatDateISO(new Date())
+      this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date = today
+      this.syncDeadlineDate()
+    },
+    setYesterday () {
+      const y = new Date()
+      y.setDate(y.getDate() - 1)
+      const yesterday = formatDateISO(y)
+      this.parentData.REG_FIX_CASE_RECORD.notify_delivered_date = yesterday
+      this.syncDeadlineDate()
+    },
+    syncDeadlineDate () {
+      this.$nextTick(() => {
+        if (this.legalCalc && this.legalCalc.dueDate) {
+          this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = this.legalCalc.dueDate
+        }
+      })
+    },
     resetDeadline () {
       this.parentData.REG_FIX_CASE_RECORD.fix_deadline_date = this.defaultDeadlineDate
     },
