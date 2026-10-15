@@ -1,5 +1,5 @@
 <template lang="pug">
-.d-flex
+.d-flex.lah-datepicker
   b-input.display-input(
     v-if="!isADStyle",
     :value="$utils.addDateDivider($utils.twDateStr(startDateObj))",
@@ -128,6 +128,16 @@ export default {
     this.$('label.form-control.form-control-sm').addClass('my-auto text-nowrap')
     // tell outside the component is ready and emit the latest value
     this.$emit('ready', this.latestValue)
+  },
+  methods: {
+    setRange (beginDate, endDate) {
+      if (beginDate) {
+        this.startDateObj = beginDate
+      }
+      if (endDate) {
+        this.endDateObj = endDate
+      }
+    }
   }
 }
 </script>
