@@ -107,10 +107,18 @@ div
           @remove="removeTag(tag)"
         ) {{ tag }}
 
+  lah-transition(appear): lah-reg-expiry-dashboard.px-2(
+    v-if="committed",
+    @filter="onDashFilter",
+    @toggle="dashCollapsed = $event"
+  )
+
   lah-transition(appear): lah-expiry-b-table.dynamic-table-height(
+    :class="{ 'dash-open': !dashCollapsed }",
     :busy="!committed || filtering",
     only-popup-detail,
-    sticky-header
+    sticky-header,
+    urgency
   )
   lah-transition.center.h3(v-if="queryCount === 0 && committed") 無資料👍
 
@@ -211,6 +219,7 @@ export default {
   mixins: [expiryBase],
   data: () => ({
     filtering: false,
+    dashCollapsed: false,
     tagColorMap: {
       年: 'secondary',
       字: 'primary',
@@ -360,6 +369,13 @@ export default {
   },
   methods: {
     filterDebounced () { /** placeholder for debounced filter method */ },
+    onDashFilter ({ key, value }) {
+      // 戰情板點選：把人員／原因加入進階篩選（已存在則不重複加入）
+      const arr = this.advOpts[key]
+      if (Array.isArray(arr) && value && !arr.includes(value)) {
+        this.advOpts[key] = [...arr, value]
+      }
+    },
     getTagVariant (tag) {
       const [prefix] = tag.split('：')
       return this.tagColorMap[prefix.trim()] || 'secondary'
@@ -542,5 +558,10 @@ export default {
      This value might need fine-tuning.
    */
   max-height: calc(100vh - 165px) !important;
+}
+.dynamic-table-height.dash-open::v-deep .b-table-sticky-header {
+  /* 戰情板展開時預留空間，仍保留最小可視高度 */
+  max-height: calc(100vh - 165px) !important;
+  min-height: 360px;
 }
 </style>

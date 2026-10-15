@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="exp-tbl">
     <b-table
       ref="tbl"
 
@@ -17,10 +17,16 @@
       selected-variant="success"
 
       :items="tableItems"
-      :fields="fields"
+      :fields="displayFields"
       :busy="isBusy || busy"
       :sticky-header="`${maxHeight}px`"
+      :tbody-tr-class="rowClass"
     >
+      <template #cell(時限)="data">
+        <b-badge :variant="remainVariant(data.item)" class="exp-remain">
+          {{ remainText(data.item) }}
+        </b-badge>
+      </template>
       <template #table-busy>
         <div class="text-center text-danger my-5">
           <strong class="ld-txt">查詢中...</strong>
@@ -123,13 +129,16 @@
 <script>
 import lahUserCard from '~/components/lah-user-card.vue'
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
+import { parseRocDateTime, humanizeDuration, urgencyLevel } from '~/mixins/expiry-time-mixin'
 export default {
   name: 'LahExpiryBTable',
   mixins: [dynamicHeight],
   props: {
     reviewerId: { type: String, default: '' },
     busy: { type: Boolean, default: false },
-    onlyPopupDetail: { type: Boolean, default: false }
+    onlyPopupDetail: { type: Boolean, default: false },
+    // 啟用「剩餘/逾期時間」欄位與依緊急度標示列（預設關閉，不影響其他頁面）
+    urgency: { type: Boolean, default: false }
   },
   data: () => ({
     fields: [
@@ -143,7 +152,9 @@ export default {
       { key: '限辦期限', sortable: true }
     ],
     clickedId: undefined,
-    modalLoading: true
+    modalLoading: true,
+    now: Date.now(),
+    timer: undefined
   }),
   computed: {
     totalCase () {
@@ -169,9 +180,20 @@ export default {
     },
     count () { return this.tableItems ? this.tableItems.length : 0 },
     buttoVariant () { return this.isOverdueMode ? 'outline-danger' : 'warning' },
-    allCaseMode () { return this.$utils.empty(this.reviewerId) }
+    allCaseMode () { return this.$utils.empty(this.reviewerId) },
+    displayFields () {
+      return this.urgency ? [...this.fields, { key: '時限', label: '剩餘/逾期' }] : this.fields
+    }
   },
   watch: {},
+  mounted () {
+    if (this.urgency) {
+      this.timer = setInterval(() => { this.now = Date.now() }, 60 * 1000)
+    }
+  },
+  beforeDestroy () {
+    clearInterval(this.timer)
+  },
   methods: {
     popup (data) {
       this.modalLoading = true
@@ -180,6 +202,20 @@ export default {
     },
     buttonReviewerTitle (id) { return `查詢 ${id} 的${this.isOverdueMode ? '逾期' : '即將逾期'}案件` },
     searchByReviewer (id) {},
+    remainMs (item) { return parseRocDateTime(item?.限辦期限) - this.now },
+    rowClass (item, type) {
+      if (!this.urgency || type !== 'row' || !item) { return '' }
+      const lv = urgencyLevel(this.remainMs(item))
+      return lv === 'unknown' ? '' : `exp-${lv}`
+    },
+    remainVariant (item) {
+      return { crit: 'danger', warn: 'warning', over: 'warning', ok: 'success' }[urgencyLevel(this.remainMs(item))] || 'secondary'
+    },
+    remainText (item) {
+      const r = this.remainMs(item)
+      if (isNaN(r)) { return '-' }
+      return r > 0 ? `剩 ${humanizeDuration(r)}` : `逾 ${humanizeDuration(r)}`
+    },
     searchUser (name, id = '') {
       this.modal(this.$createElement(lahUserCard, {
         props: { name, id }
@@ -203,4 +239,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.exp-tbl ::v-deep tr.exp-crit > td:first-child { box-shadow: inset 5px 0 0 #dc3545; }
+.exp-tbl ::v-deep tr.exp-warn > td:first-child { box-shadow: inset 5px 0 0 #fd7e14; }
+.exp-tbl ::v-deep tr.exp-over > td:first-child { box-shadow: inset 5px 0 0 #ffc107; }
+.exp-tbl ::v-deep tr.exp-ok > td:first-child { box-shadow: inset 5px 0 0 #28a745; }
+.exp-tbl ::v-deep tr.exp-crit > td { background-color: rgba(220, 53, 69, .07); }
+.exp-remain { font-variant-numeric: tabular-nums; min-width: 5.5rem; }
 </style>
