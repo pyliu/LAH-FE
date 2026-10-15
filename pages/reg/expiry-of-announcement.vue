@@ -177,29 +177,60 @@ div
               .small.text-info 主管簽核中 (L)
           .h3.font-weight-bold.text-info.mb-0 {{ statusCounts.REVIEWING }}
 
-  //- 登記原因快捷分流列
-  lah-transition(appear): .d-flex.align-items-center.flex-wrap.p-2.my-1.bg-light.rounded.border(v-if="dataReady && reasonStatPills.length > 0")
-    span.font-weight-bold.text-secondary.mr-2.small
-      lah-fa-icon.mr-1(icon="tags" variant="secondary")
-      | 登記原因分流：
-    b-button-group(size="sm")
-      b-button(
-        :variant="selectedReason === 'ALL' ? 'dark' : 'outline-secondary'"
-        @click="selectedReason = 'ALL'"
-        class="mr-1 mb-1 rounded-pill px-3"
-      )
-        | 全部原因 ({{ currentReviewerFilteredCases.length }})
-      b-button(
-        v-for="r in reasonStatPills"
-        :key="r.reason"
-        :variant="selectedReason === r.reason ? 'primary' : 'outline-primary'"
-        @click="toggleReasonFilter(r.reason)"
-        class="mr-1 mb-1 rounded-pill px-2"
-        :title="`${r.reason} (法定公告 ${r.days} 日)`"
-      )
-        span.font-weight-bold {{ r.reason }}
-        b-badge.ml-1(variant="light" pill) {{ r.days }}日
-        span.ml-1 ({{ r.count }})
+  //- 登記原因快捷分流列 與 燈號快速篩選
+  lah-transition(appear): .d-flex.align-items-center.justify-content-between.flex-wrap.p-2.my-1.bg-light.rounded.border(v-if="dataReady")
+    .d-flex.align-items-center.flex-wrap.mr-auto
+      span.font-weight-bold.text-secondary.mr-2.small
+        lah-fa-icon.mr-1(icon="tags" variant="secondary")
+        | 登記原因分流：
+      b-button-group(size="sm")
+        b-button(
+          :variant="selectedReason === 'ALL' ? 'dark' : 'outline-secondary'"
+          @click="selectedReason = 'ALL'"
+          class="mr-1 mb-1 rounded-pill px-3"
+        )
+          | 全部原因 ({{ currentReviewerFilteredCases.length }})
+        b-button(
+          v-for="r in reasonStatPills"
+          :key="r.reason"
+          :variant="selectedReason === r.reason ? 'primary' : 'outline-primary'"
+          @click="toggleReasonFilter(r.reason)"
+          class="mr-1 mb-1 rounded-pill px-2"
+          :title="`${r.reason} (法定公告 ${r.days} 日)`"
+        )
+          span.font-weight-bold {{ r.reason }}
+          b-badge.ml-1(variant="light" pill) {{ r.days }}日
+          span.ml-1 ({{ r.count }})
+
+    .d-flex.align-items-center.flex-wrap.ml-md-auto.my-1
+      span.font-weight-bold.text-secondary.mr-2.small
+        lah-fa-icon.mr-1(icon="traffic-light" variant="secondary")
+        | 燈號快速篩選：
+      b-button-group(size="sm")
+        b-button(
+          v-for="l in lightButtons"
+          :key="l.value"
+          :variant="isLightSelected(l.value) ? l.variant : `outline-${l.variant}`"
+          @click="toggleCaseLight(l.value)"
+          class="mr-1 mb-1 rounded-pill px-2 font-weight-bold text-nowrap"
+          :title="`點擊快速${isLightSelected(l.value) ? '移除' : '加入'}【${l.name}】燈號篩選`"
+        )
+          lah-fa-icon.mr-1(icon="circle" :variant="isLightSelected(l.value) ? 'white' : l.variant")
+          | {{ l.name }}
+          b-badge.ml-1(
+            :variant="isLightSelected(l.value) ? 'light' : l.variant"
+            pill
+          ) {{ lightCounts[l.value] || 0 }}
+        b-button(
+          v-if="advOpts.caseLights.length > 0"
+          variant="outline-secondary"
+          size="sm"
+          class="mr-1 mb-1 rounded-pill px-2"
+          @click="clearCaseLights"
+          title="清除所有燈號篩選"
+        )
+          lah-fa-icon(icon="times" class="mr-1")
+          | 清除
 
   //- 篩選標籤 Bar
   lah-transition: .d-flex.align-items-center.bg-light.px-2.py-1.rounded.my-1.border(
@@ -713,6 +744,35 @@ export default {
       return [...map.values()].sort((a, b) => b.count - a.count)
     },
 
+    // 公告燈號快速篩選選項
+    lightButtons () {
+      return [
+        { name: '審核中', value: 'info', variant: 'info' },
+        { name: '公告中', value: 'success', variant: 'success' },
+        { name: '快到期', value: 'warning', variant: 'warning' },
+        { name: '已到期', value: 'danger', variant: 'danger' }
+      ]
+    },
+
+    // 各公告燈號案件計數 (依當前初審人員過濾池統計)
+    lightCounts () {
+      const counts = {
+        info: 0,
+        success: 0,
+        warning: 0,
+        danger: 0
+      }
+      if (!this.dataReady) {
+        return counts
+      }
+      this.currentReviewerFilteredCases.forEach((item) => {
+        if (counts[item.公告燈號] !== undefined) {
+          counts[item.公告燈號]++
+        }
+      })
+      return counts
+    },
+
     // 是否有任何作用中的篩選條件
     hasActiveFilters () {
       return (
@@ -886,6 +946,9 @@ export default {
     filterBakedData () {
       this.debouncedUpdateHeight?.()
     },
+    'advOpts.caseLights' () {
+      this.debouncedUpdateHeight?.()
+    },
     bakedData (val) {
       this.debouncedUpdateHeight?.()
       if (val?.length > 0) {
@@ -1028,6 +1091,25 @@ export default {
     filterByReviewer (item) {
       this.reviewerViewMode = 'CUSTOM'
       this.selectedReviewer = item.初審人員
+      this.pagination.currentPage = 1
+    },
+
+    isLightSelected (lightValue) {
+      return this.advOpts.caseLights.includes(lightValue)
+    },
+
+    toggleCaseLight (lightValue) {
+      const idx = this.advOpts.caseLights.indexOf(lightValue)
+      if (idx > -1) {
+        this.advOpts.caseLights.splice(idx, 1)
+      } else {
+        this.advOpts.caseLights.push(lightValue)
+      }
+      this.pagination.currentPage = 1
+    },
+
+    clearCaseLights () {
+      this.advOpts.caseLights = []
       this.pagination.currentPage = 1
     },
 
