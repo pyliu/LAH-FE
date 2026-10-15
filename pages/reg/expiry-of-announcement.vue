@@ -294,7 +294,7 @@ div
         b-button.ml-1.p-0.text-primary(
           variant="link"
           size="sm"
-          @click="copyCaseId(item)"
+          @click.stop="copyCaseId(item, $event)"
           title="複製完整字號至剪貼簿（便於貼入地政主系統）"
         )
           lah-fa-icon(icon="copy" regular)
@@ -375,7 +375,7 @@ div
           lah-fa-icon(icon="window-restore" regular)
         b-button(
           variant="outline-secondary"
-          @click="copyCaseId(item)"
+          @click.stop="copyCaseId(item, $event)"
           title="複製字號"
         )
           lah-fa-icon(icon="copy" regular)
@@ -1283,20 +1283,42 @@ export default {
       return ''
     },
 
-    // 一鍵複製案件字號至剪貼簿
-    copyCaseId (item) {
+    // 一鍵複製案件字號至剪貼簿 (支援 HTTP 與 HTTPS 環境)
+    copyCaseId (item, evt = null) {
       const fullText = item.收件字號 || `${item.RM01}年${item.RM02}字第${item.RM03}號`
-      if (navigator?.clipboard?.writeText) {
-        navigator.clipboard.writeText(fullText).then(() => {
-          this.notify(`已複製字號【${fullText}】至剪貼簿`, {
-            type: 'success',
-            title: '複製成功'
-          })
-        }).catch(() => {
-          this.notify(`複製失敗，請手動複製：${fullText}`, { type: 'warning' })
+      const container = (evt && evt.currentTarget) || this.$el
+
+      if (typeof this.copyToClipboard === 'function') {
+        this.copyToClipboard(fullText, `已複製字號【${fullText}】至剪貼簿`, container).then((success) => {
+          if (!success) {
+            this.warning(`無法寫入剪貼簿，請手動複製：${fullText}`)
+          }
         })
       } else {
-        this.notify(`已為您選取：${fullText}`, { type: 'info' })
+        try {
+          const textarea = document.createElement('textarea')
+          textarea.value = fullText
+          textarea.setAttribute('readonly', '')
+          textarea.style.position = 'fixed'
+          textarea.style.top = '0'
+          textarea.style.left = '-9999px'
+          document.body.appendChild(textarea)
+          textarea.focus()
+          textarea.select()
+          textarea.setSelectionRange(0, textarea.value.length)
+          const success = document.execCommand('copy')
+          document.body.removeChild(textarea)
+          if (success) {
+            this.notify(`已複製字號【${fullText}】至剪貼簿`, {
+              type: 'success',
+              title: '複製成功'
+            })
+          } else {
+            this.warning(`無法寫入剪貼簿，請手動複製：${fullText}`)
+          }
+        } catch (e) {
+          this.warning(`複製失敗：${e.message}`)
+        }
       }
     },
 
