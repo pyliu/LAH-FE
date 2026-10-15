@@ -64,35 +64,44 @@
             {{ topReason ? `${topReason.count} 件 (${topReason.percent}%)` : '-' }}
           </div>
         </div>
-      </div>
-
-      <!-- 時限分布 -->
-      <div class="exd-panel exd-dist">
-        <div class="exd-panel-title">
-          {{ isOverdueMode ? '逾期時間分布' : '到期時間分布' }}
-        </div>
-        <div class="exd-stack" role="img" :aria-label="distLabel">
-          <div
-            v-for="b in buckets"
-            v-show="b.count > 0"
-            :key="b.key"
-            class="exd-seg"
-            :class="`bg-${b.variant}`"
-            :style="{ flexGrow: b.count }"
-            :title="`${b.label}：${b.count} 件`"
-          >
-            {{ b.count }}
+        <div class="exd-kpi">
+          <div class="exd-kpi-label">
+            {{ isOverdueMode ? '平均逾期時間' : '平均剩餘時間' }}
+          </div>
+          <div class="exd-kpi-value exd-kpi-value-sm">
+            {{ avgText }}
+          </div>
+          <div class="exd-kpi-sub">
+            依 {{ validCount }} 件限辦期限計算
           </div>
         </div>
-        <div class="exd-legend">
-          <span v-for="b in buckets" :key="b.key" class="exd-legend-item">
-            <i :class="`bg-${b.variant}`" />{{ b.label }} <b>{{ b.count }}</b>
-          </span>
-        </div>
       </div>
 
-      <!-- 人員 / 原因 -->
+      <!-- 時限分布 / 人員 / 原因 -->
       <div class="exd-cols">
+        <div class="exd-panel exd-dist">
+          <div class="exd-panel-title">
+            {{ isOverdueMode ? '逾期時間分布' : '到期時間分布' }}
+          </div>
+          <div class="exd-stack" role="img" :aria-label="distLabel">
+            <div
+              v-for="b in buckets"
+              v-show="b.count > 0"
+              :key="b.key"
+              class="exd-seg"
+              :class="`bg-${b.variant}`"
+              :style="{ flexGrow: b.count }"
+              :title="`${b.label}：${b.count} 件`"
+            >
+              {{ b.count }}
+            </div>
+          </div>
+          <div class="exd-legend">
+            <span v-for="b in buckets" :key="b.key" class="exd-legend-item">
+              <i :class="`bg-${b.variant}`" />{{ b.label }} <b>{{ b.count }}</b>
+            </span>
+          </div>
+        </div>
         <div class="exd-panel">
           <div class="exd-panel-title">
             初審人員案件量 Top {{ topReviewers.length }}
@@ -159,6 +168,13 @@ export default {
       return valid.reduce((a, b) => (a.remain <= b.remain ? a : b))
     },
     mostUrgentItem () { return this.mostUrgentEntry?.item },
+    validCount () { return this.timed.filter(t => !isNaN(t.remain)).length },
+    avgText () {
+      const valid = this.timed.filter(t => !isNaN(t.remain))
+      if (valid.length === 0) { return '-' }
+      const avg = valid.reduce((sum, t) => sum + t.remain, 0) / valid.length
+      return avg > 0 ? `剩 ${humanizeDuration(avg)}` : `逾 ${humanizeDuration(avg)}`
+    },
     mostUrgentLevel () { return this.mostUrgentEntry ? urgencyLevel(this.mostUrgentEntry.remain) : 'unknown' },
     mostUrgentText () {
       if (!this.mostUrgentEntry) { return '-' }
@@ -197,7 +213,7 @@ export default {
       return this.group(this.items, i => i?.初審人員 || '')
     },
     topReviewers () {
-      const list = this.reviewerStats.slice(0, 6)
+      const list = this.reviewerStats.slice(0, 5)
       const max = list.length ? list[0].count : 1
       return list.map(r => ({
         ...r,
@@ -210,7 +226,7 @@ export default {
       return this.group(this.items, i => i?.登記原因 || '')
     },
     topReasons () {
-      const list = this.reasonStats.slice(0, 5)
+      const list = this.reasonStats.slice(0, 4)
       const max = list.length ? list[0].count : 1
       return list.map(r => ({ ...r, width: Math.max(4, Math.round((r.count / max) * 100)) }))
     },
@@ -265,84 +281,96 @@ export default {
 
 <style lang="scss" scoped>
 .exd {
-  margin: 0 0 .75rem;
-  border-radius: 14px;
+  margin: 0 0 .4rem;
+  border-radius: 10px;
   background: linear-gradient(135deg, #f7faff 0%, #eef3fb 100%);
   border: 1px solid rgba(0, 0, 0, .06);
-  box-shadow: 0 4px 18px rgba(30, 60, 120, .08);
+  box-shadow: 0 2px 8px rgba(30, 60, 120, .08);
   overflow: hidden;
+  font-size: .85rem;
   &.is-overdue {
     background: linear-gradient(135deg, #fff8f7 0%, #fdeeee 100%);
-    box-shadow: 0 4px 18px rgba(180, 40, 40, .1);
+    box-shadow: 0 2px 8px rgba(180, 40, 40, .1);
   }
 }
 .exd-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: .45rem .9rem;
+  padding: .1rem .6rem;
 }
-.exd-title { font-weight: 600; display: flex; align-items: center; gap: .5rem; }
-.exd-toggle { padding: 0 .4rem; }
-.exd-body { padding: 0 .9rem .9rem; display: grid; gap: .75rem; }
+.exd-title { font-weight: 600; font-size: .9rem; display: flex; align-items: center; gap: .4rem; }
+.exd-toggle { padding: 0 .3rem; line-height: 1.2; }
+.exd-body { padding: 0 .6rem .5rem; display: grid; gap: .4rem; }
 
 .exd-kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: .75rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .4rem;
 }
 .exd-kpi {
   background: #fff;
-  border-radius: 12px;
-  padding: .6rem .9rem;
-  border-left: 5px solid #5b8def;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+  border-radius: 8px;
+  padding: .2rem .6rem;
+  border-left: 4px solid #5b8def;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
   min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: .5rem;
   &.lv-crit { border-left-color: #dc3545; }
   &.lv-warn { border-left-color: #fd7e14; }
   &.lv-over { border-left-color: #ffc107; }
   &.lv-ok { border-left-color: #28a745; }
 }
-.exd-kpi-label { font-size: .8rem; color: #6c757d; }
-.exd-kpi-value { font-size: 1.9rem; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums;
-  small { font-size: .9rem; font-weight: 400; margin-left: .2rem; color: #6c757d; }
+.exd-kpi-label { font-size: .85rem; color: #6c757d; grid-column: 1 / -1; }
+.exd-kpi-value { font-size: 1.7rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap;
+  small { font-size: .85rem; font-weight: 400; margin-left: .15rem; color: #6c757d; }
 }
-.exd-kpi-value-sm { font-size: 1.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.exd-kpi-sub { font-size: .78rem; color: #8a939b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exd-kpi-value-sm { font-size: 1.35rem; }
+.exd-kpi-sub { font-size: .8rem; color: #8a939b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 
 .exd-panel {
   background: #fff;
-  border-radius: 12px;
-  padding: .6rem .9rem .7rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+  border-radius: 8px;
+  padding: .3rem .6rem .35rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
   min-width: 0;
 }
-.exd-panel-title { font-size: .85rem; font-weight: 600; color: #495057; margin-bottom: .45rem; }
+.exd-panel-title { font-size: .85rem; font-weight: 600; color: #495057; margin-bottom: .2rem; }
 
-.exd-stack { display: flex; height: 28px; border-radius: 8px; overflow: hidden; background: #e9ecef; }
-.exd-seg { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: .85rem; min-width: 2rem; transition: flex-grow .4s ease;
+.exd-stack { display: flex; height: 20px; border-radius: 6px; overflow: hidden; background: #e9ecef; }
+.exd-seg { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: .75rem; min-width: 1.6rem; transition: flex-grow .4s ease;
   &.bg-warning, &.bg-info { color: #212529; }
 }
-.exd-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .45rem; font-size: .8rem; color: #6c757d;
-  i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: .3rem; }
+.exd-legend { display: flex; flex-wrap: wrap; gap: .1rem .6rem; margin-top: .3rem; font-size: .8rem; color: #6c757d;
+  i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: .2rem; }
 }
 .bg-orange { background: #fd7e14; }
 
-.exd-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.exd-cols { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: .4rem; }
 .exd-row {
-  display: flex; align-items: center; gap: .6rem; width: 100%;
-  border: 0; background: transparent; padding: .2rem .3rem; border-radius: 8px; text-align: left; cursor: pointer;
+  display: flex; align-items: center; gap: .4rem; width: 100%;
+  border: 0; background: transparent; padding: 0 .2rem; border-radius: 6px; text-align: left; cursor: pointer; line-height: 1.5;
   &:hover { background: #eef3fb; }
   &:focus-visible { outline: 2px solid #5b8def; }
 }
-.exd-row-name { flex: 0 0 11.5rem; white-space: nowrap; font-size: .88rem; }
-.exd-row-count { flex: 0 0 2.2rem; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
-.exd-bar { flex: 1; height: 10px; background: #e9ecef; border-radius: 6px; overflow: hidden;
-  i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #5b8def, #7aa7ff); transition: width .4s ease; }
+.exd-row-name { flex: 0 0 auto; min-width: 10.5rem; white-space: nowrap; font-size: .9rem; }
+.exd-row-count { flex: 0 0 1.6rem; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; font-size: .9rem; }
+.exd-bar { flex: 1; min-width: 20px; height: 7px; background: #e9ecef; border-radius: 4px; overflow: hidden;
+  i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #5b8def, #7aa7ff); transition: width .4s ease; }
   &.alt i { background: linear-gradient(90deg, #20c997, #6fe3c1); }
 }
 .is-overdue .exd-bar:not(.alt) i { background: linear-gradient(90deg, #dc3545, #ff7b86); }
 
+@media (max-width: 1200px) {
+  .exd-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .exd-dist { grid-column: 1 / -1; }
+}
+@media (max-width: 1400px) {
+  .exd-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 @media (max-width: 992px) {
   .exd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .exd-cols { grid-template-columns: 1fr; }
