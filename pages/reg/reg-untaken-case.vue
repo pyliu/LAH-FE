@@ -111,6 +111,13 @@ div
               | 🟡 借閱中
               b-badge.ml-1(variant="dark") {{ countYellow }}
             b-button(
+              :variant="quickStatusFilter === 'RETURNED' ? 'info' : 'outline-info'"
+              @click="quickStatusFilter = 'RETURNED'"
+              class="font-weight-bold"
+            )
+              | 🔵 已還卷
+              b-badge.ml-1(variant="light") {{ countReturned }}
+            b-button(
               :variant="quickStatusFilter === '🟢' ? 'success' : 'outline-success'"
               @click="quickStatusFilter = '🟢'"
               class="font-weight-bold"
@@ -396,6 +403,9 @@ div
           template(v-else-if="statusLight(item) === '🟡'")
             span.text-warning 借出：{{ formatLentDate(item) }}
             span.text-warning 借閱：{{ getBorrowerDisplay(item) }}
+          template(v-else-if="isCaseReturned(item)")
+            span.text-info 還卷：{{ formatReturnDate(item) }}
+            span.text-muted 借閱：{{ getBorrowerDisplay(item) }}
           template(v-else)
             span.text-muted -
 
@@ -682,7 +692,12 @@ div
                     boundary="viewport"
                     variant="primary"
                     placeholder="選擇日期"
-                    :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit' }"
+                    locale="zh-TW"
+                    label-help="使用方向鍵操作移動日期"
+                    label-today-button="今天"
+                    label-reset-button="重設"
+                    label-close-button="關閉"
+                    :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
                     :max="maxDate"
                     hide-header
                     today-button
@@ -726,10 +741,16 @@ div
                   boundary="viewport"
                   variant="primary"
                   placeholder="借出日期"
-                  :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit' }"
+                  locale="zh-TW"
+                  label-help="使用方向鍵操作移動日期"
+                  label-today-button="今天"
+                  label-reset-button="重設"
+                  label-close-button="關閉"
+                  :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
                   :max="maxDate"
                   hide-header
                   today-button
+                  reset-button
                   close-button
                 )
             .col-md-6.mb-2
@@ -739,7 +760,12 @@ div
                   boundary="viewport"
                   variant="primary"
                   placeholder="點選設定歸還日期"
-                  :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit' }"
+                  locale="zh-TW"
+                  label-help="使用方向鍵操作移動日期"
+                  label-today-button="今天"
+                  label-reset-button="重設"
+                  label-close-button="關閉"
+                  :date-format-options="{ year: 'numeric', month: '2-digit', day: '2-digit', weekday: undefined }"
                   :max="maxDate"
                   hide-header
                   today-button
@@ -914,6 +940,7 @@ export default {
       caseLightOpts: [
         { text: '🟢 已領件', value: '🟢' },
         { text: '🟡 借閱中', value: '🟡' },
+        { text: '🔵 已還卷', value: 'RETURNED' },
         { text: '🔴 未領件', value: '🔴' }
       ],
       caseTakenDate: [],
@@ -1019,6 +1046,8 @@ export default {
         return `找到 ${this.filteredDataCount} 筆「未領件」案件 (總計 ${this.rows.length} 案)`
       } else if (this.quickStatusFilter === '🟡') {
         return `找到 ${this.filteredDataCount} 筆「借閱中」案件 (總計 ${this.rows.length} 案)`
+      } else if (this.quickStatusFilter === 'RETURNED') {
+        return `找到 ${this.filteredDataCount} 筆「已還卷」案件 (總計 ${this.rows.length} 案)`
       } else if (this.quickStatusFilter === '🟢') {
         return `找到 ${this.filteredDataCount} 筆「已領件」案件 (總計 ${this.rows.length} 案)`
       }
@@ -1029,6 +1058,7 @@ export default {
     countTotal () { return this.rows.length },
     countRed () { return this.rows.filter(item => this.statusLight(item) === '🔴').length },
     countYellow () { return this.rows.filter(item => this.statusLight(item) === '🟡').length },
+    countReturned () { return this.rows.filter(item => this.isCaseReturned(item)).length },
     countGreen () { return this.rows.filter(item => this.statusLight(item) === '🟢').length },
     fields () {
       const allFields = [
@@ -1050,8 +1080,10 @@ export default {
     filteredData () {
       let pipelineItems = [...this.rows]
 
-      // 1. Quick Status Filter (🔴 / 🟡 / 🟢 / ALL)
-      if (this.quickStatusFilter !== 'ALL') {
+      // 1. Quick Status Filter (🔴 / 🟡 / RETURNED / 🟢 / ALL)
+      if (this.quickStatusFilter === 'RETURNED') {
+        pipelineItems = pipelineItems.filter(item => this.isCaseReturned(item))
+      } else if (this.quickStatusFilter !== 'ALL') {
         pipelineItems = pipelineItems.filter(item => this.statusLight(item) === this.quickStatusFilter)
       }
 
@@ -1130,7 +1162,11 @@ export default {
         pipelineItems = pipelineItems.filter(item => this.advOpts.casePreliminator.includes(item.初審人員))
       }
       if (this.advOpts.caseLight.length > 0) {
-        pipelineItems = pipelineItems.filter(item => this.advOpts.caseLight.includes(this.statusLight(item)))
+        pipelineItems = pipelineItems.filter((item) => {
+          const matchLight = this.advOpts.caseLight.includes(this.statusLight(item))
+          const matchReturned = this.advOpts.caseLight.includes('RETURNED') && this.isCaseReturned(item)
+          return matchLight || matchReturned
+        })
       }
       if (this.advOpts.caseTakenDate.length > 0) {
         pipelineItems = pipelineItems.filter(item => this.advOpts.caseTakenDate.includes(this.takenDate(item)))
@@ -1226,9 +1262,9 @@ export default {
         if (Array.isArray(value)) {
           value.forEach((val) => {
             let textToShow = val
-            if (key === 'casePreliminator' || key === 'caseCloser' || key === 'caseSetter') {
+            if (key === 'casePreliminator' || key === 'caseCloser' || key === 'caseSetter' || key === 'caseLight') {
               let opts
-              if (key === 'casePreliminator') { opts = this.advOpts.casePreliminatorOpts } else if (key === 'caseCloser') { opts = this.advOpts.caseCloserOpts } else { opts = this.advOpts.caseSetterOpts }
+              if (key === 'casePreliminator') { opts = this.advOpts.casePreliminatorOpts } else if (key === 'caseCloser') { opts = this.advOpts.caseCloserOpts } else if (key === 'caseSetter') { opts = this.advOpts.caseSetterOpts } else { opts = this.advOpts.caseLightOpts }
               const found = opts.find(opt => opt.value === val)
               if (found) { textToShow = found.text }
             }
@@ -2018,6 +2054,13 @@ export default {
         this.pagination.currentPage = 1
       })
     },
+    isCaseReturned (item) {
+      return !this.$utils.empty(item?.UNTAKEN_RETURN_DATE)
+    },
+    formatReturnDate (item) {
+      const d = item?.UNTAKEN_RETURN_DATE
+      return d ? d.split('T')[0] : ''
+    },
     statusLight (item) {
       if (!this.$utils.empty(item?.UNTAKEN_BORROWER) && this.$utils.empty(item?.UNTAKEN_RETURN_DATE)) {
         return '🟡'
@@ -2131,35 +2174,18 @@ export default {
     min-width: 80px;
     justify-content: center;
   }
-  .b-form-btn-label-control.form-control {
-    height: 38px !important;
-    min-height: 38px !important;
-    display: flex;
-    align-items: center;
-    padding: 0 0.5rem;
-
-    > .form-control {
-      font-size: 0.875rem !important;
-      padding: 0 0.25rem !important;
-      line-height: 38px !important;
-      white-space: nowrap;
-      color: #333;
-      font-weight: 500;
-    }
-    > button {
-      padding: 0.25rem 0.4rem;
+  > input.form-control {
+    font-size: 0.875rem;
+  }
+  > .b-form-datepicker {
+    > label.form-control {
       font-size: 0.875rem;
-      color: #495057;
+      color: #333;
+      white-space: nowrap;
     }
   }
-  .form-control {
-    height: 38px !important;
-    font-size: 0.875rem !important;
-  }
-  .input-group-append .btn {
-    height: 38px !important;
-    font-size: 0.85rem !important;
-    padding: 0 0.75rem;
+  > .input-group-append > .btn {
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
   }
