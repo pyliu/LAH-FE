@@ -96,7 +96,7 @@ div(v-cloak)
       .h6 功能提示
       ul
         li 點擊上方「快捷日期」可一鍵代入常用日期區間並查詢。
-        li 點選下方 KPI 狀態卡片可快速過濾「全部」、「成功」、「傳送失敗」、「異動即時通」或「案件辦理」。
+        li 點選下方 KPI 狀態卡片可快速過濾「全部」、「成功」、「傳送失敗」或各類簡訊種類（地籍異動即時通、案件辦理、跨域代收、住址隱匿等）。
         li 簡訊記錄支援 Excel (XLSX) 匯出，可點擊上方 Excel 圖示下載。
         li 門號與簡訊內容皆附有「一鍵複製」按鈕，長簡訊支援展開與收合。
 
@@ -152,17 +152,17 @@ div(v-cloak)
 
         .kpi-divider.mx-1
 
-        //- 4. 動態顯示當前資料之所有簡訊種類卡片 (如：異動即時通、案件辦理、代收代寄、住址隱匿、手動等)
+        //- 4. 顯示所有簡訊種類卡片 (如：異動即時通、案件辦理、代收代寄、住址隱匿、指定送達處所、手動等)
         .kpi-card(
           v-for="t in typeList"
           :key="t.name"
           :class="[`kpi-card-${t.variant}`, { active: currentKpiFilter === t.name }]"
           @click="selectKpiFilter(t.name)"
-          :title="`僅顯示 ${t.name} (${t.count} 筆)`"
+          :title="`僅顯示 ${t.title || t.name} (${t.count} 筆)`"
         )
           .kpi-icon: lah-fa-icon(:icon="t.icon")
           .kpi-body
-            .kpi-title {{ t.name }}
+            .kpi-title {{ t.title || t.name }}
             .kpi-value {{ t.count }}
 
       //- 右側細部時段篩選與重設
@@ -232,7 +232,7 @@ export default {
       const counts = {}
       this.logs.forEach((item) => {
         let t = item.SMS_TYPE?.trim() || '其他'
-        if (t === 'O' || t === '跨所代收' || t === '跨所代收代寄') {
+        if (t === 'O' || t === '跨所代收' || t === '跨所代收代寄' || t === '跨域代收') {
           t = '跨域代收代寄'
         } else if (t === 'M') {
           t = '地籍異動即時通'
@@ -240,24 +240,37 @@ export default {
           t = '指定送達處所'
         } else if (t === 'Z') {
           t = '智慧控管系統'
+        } else if (t === '手動建檔') {
+          t = '手動'
         }
         counts[t] = (counts[t] || 0) + 1
       })
-      const order = ['地籍異動即時通', '案件辦理情形', '跨域代收代寄', '住址隱匿', '指定送達處所', '手動', '智慧控管系統']
-      const sortedTypes = Object.keys(counts).sort((a, b) => {
-        const idxA = order.indexOf(a)
-        const idxB = order.indexOf(b)
-        if (idxA !== -1 && idxB !== -1) { return idxA - idxB }
-        if (idxA !== -1) { return -1 }
-        if (idxB !== -1) { return 1 }
-        return counts[b] - counts[a]
+      const predefined = [
+        '地籍異動即時通',
+        '案件辦理情形',
+        '跨域代收代寄',
+        '住址隱匿',
+        '指定送達處所',
+        '手動',
+        '智慧控管系統'
+      ]
+      // 找出 logs 中可能存在的其他非預設類型
+      const extraTypes = Object.keys(counts).filter(k => !predefined.includes(k))
+      const allTypes = [...predefined, ...extraTypes]
+
+      return allTypes.map((type) => {
+        let title = type
+        if (type === '手動') {
+          title = '手動建檔'
+        }
+        return {
+          name: type,
+          title,
+          count: counts[type] || 0,
+          variant: this.getTypeVariant(type),
+          icon: this.getTypeIcon(type)
+        }
       })
-      return sortedTypes.map(type => ({
-        name: type,
-        count: counts[type],
-        variant: this.getTypeVariant(type),
-        icon: this.getTypeIcon(type)
-      }))
     },
     xlsxData () {
       if (!this.logs || this.logs.length === 0) { return [] }
@@ -292,7 +305,7 @@ export default {
       if (!type) { return 'secondary' }
       if (type.includes('異動即時通')) { return 'primary' }
       if (type.includes('案件辦理情形')) { return 'success' }
-      if (type.includes('跨域代收代寄') || type.includes('代收代寄') || type === 'O') { return 'info' }
+      if (type.includes('跨域代收') || type.includes('代收代寄') || type === 'O') { return 'info' }
       if (type.includes('住址隱匿')) { return 'warning' }
       if (type.includes('指定送達處所')) { return 'secondary' }
       if (type.includes('手動')) { return 'dark' }
@@ -303,7 +316,7 @@ export default {
       if (!type) { return 'comment-dots' }
       if (type.includes('異動即時通')) { return 'bell' }
       if (type.includes('案件辦理情形')) { return 'file-lines' }
-      if (type.includes('跨域代收代寄') || type.includes('代收代寄') || type === 'O') { return 'truck-fast' }
+      if (type.includes('跨域代收') || type.includes('代收代寄') || type === 'O') { return 'truck-fast' }
       if (type.includes('住址隱匿')) { return 'user-shield' }
       if (type.includes('指定送達處所')) { return 'map-location-dot' }
       if (type.includes('智慧控管')) { return 'gauge-high' }

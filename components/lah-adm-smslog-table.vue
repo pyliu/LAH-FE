@@ -253,7 +253,8 @@ export default {
       '跨域代收代寄',
       '住址隱匿',
       '指定送達處所',
-      { text: '手動建檔', value: '手動' }
+      { text: '手動建檔', value: '手動' },
+      '智慧控管系統'
     ],
     filterTime: '全部',
     filterTimeOpts: ['全部', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -308,6 +309,12 @@ export default {
       }
       if (this.filterType !== '全部') {
         pipelineItems = pipelineItems.filter((item) => {
+          if (this.filterType === '手動' || this.filterType === '手動建檔') {
+            return item.SMS_TYPE === '手動' || item.SMS_TYPE === '手動建檔'
+          }
+          if (this.filterType === '跨域代收' || this.filterType === '跨域代收代寄') {
+            return item.SMS_TYPE === '跨域代收' || item.SMS_TYPE === '跨域代收代寄'
+          }
           return item.SMS_TYPE === this.filterType
         })
       }
@@ -569,7 +576,7 @@ export default {
 
       const mappedLogs = logs.map((item) => {
         // 正規化 SMS_TYPE，修正後端未轉換之代號 (如 'O' 為代收代寄)
-        if (item.SMS_TYPE === 'O' || item.SMS_TYPE === '跨所代收' || item.SMS_TYPE === '跨所代收代寄') {
+        if (item.SMS_TYPE === 'O' || item.SMS_TYPE === '跨所代收' || item.SMS_TYPE === '跨所代收代寄' || item.SMS_TYPE === '跨域代收') {
           item.SMS_TYPE = '跨域代收代寄'
         } else if (item.SMS_TYPE === 'M') {
           item.SMS_TYPE = '地籍異動即時通'
@@ -618,7 +625,7 @@ export default {
       if (!type) { return 'secondary' }
       if (type.includes('異動即時通')) { return 'primary' }
       if (type.includes('案件辦理情形')) { return 'success' }
-      if (type.includes('跨域代收代寄') || type.includes('代收代寄') || type === 'O') { return 'info' }
+      if (type.includes('跨域代收') || type.includes('代收代寄') || type === 'O') { return 'info' }
       if (type.includes('住址隱匿')) { return 'warning' }
       if (type.includes('指定送達處所')) { return 'secondary' }
       if (type.includes('手動')) { return 'dark' }
