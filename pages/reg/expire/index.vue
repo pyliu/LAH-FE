@@ -222,7 +222,9 @@ export default {
     },
     advOpts: {
       caseYear: '',
+      caseYearOpts: [],
       caseWord: [],
+      caseWordOpts: [],
       caseNum: '',
       caseReason: [],
       caseReasonOpts: [],
@@ -273,7 +275,7 @@ export default {
         let tmp = {
           ...element,
           // only keep name
-          初審人員: element.初審人員.split(' ')[0]
+          初審人員: element.初審人員 ? element.初審人員.split(' ')[0] : ''
         }
         if (this.isOverdueMode) {
           tmp = {
@@ -292,7 +294,9 @@ export default {
       // reset advOpts to default state but keep opts arrays for new values
       this.advOpts = {
         caseYear: '',
+        caseYearOpts: [],
         caseWord: [],
+        caseWordOpts: [],
         caseNum: '',
         caseReason: [],
         caseReasonOpts: [],
@@ -306,18 +310,38 @@ export default {
         caseReceiveOfficeOpts: []
       }
 
-      if (val && val.items) {
+      if (val && Array.isArray(val.items)) {
         // dynamically generate options for select dropdowns
-        this.advOpts.caseReasonOpts = [...new Set(val.items.map(item => item.登記原因))].sort()
-        this.advOpts.caseStateOpts = [...new Set(val.items.map(item => item.辦理情形))].sort()
-        this.advOpts.casePreliminatorOpts = [...new Set(val.items.map(item => item.初審人員))].sort().filter(item => item?.includes(this.site))
-        this.advOpts.caseOperatorOpts = [...new Set(val.items.map(item => item.作業人員))].sort()
-        this.advOpts.caseYearOpts = [...new Set(val.raw.map(item => item.RM01))].sort()
-        this.advOpts.caseWordOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
-        this.advOpts.caseReceiveOfficeOpts = [...new Set(val.raw.map(item => item.RM02))].sort()
+        this.advOpts.caseReasonOpts = [...new Set(val.items.map(item => item?.登記原因).filter(Boolean))].sort()
+        this.advOpts.caseStateOpts = [...new Set(val.items.map(item => item?.辦理情形).filter(Boolean))].sort()
+        this.advOpts.casePreliminatorOpts = [...new Set(val.items.map(item => item?.初審人員).filter(Boolean))].sort().filter(item => item?.includes(this.site))
+        this.advOpts.caseOperatorOpts = [...new Set(val.items.map(item => item?.作業人員).filter(Boolean))].sort()
 
-        this.$store.commit('expiry/list', this.queriedJson.items || [])
-        this.$store.commit('expiry/list_by_id', this.queriedJson.items_by_id || {})
+        if (Array.isArray(val.raw) && val.raw.length > 0) {
+          this.advOpts.caseYearOpts = [...new Set(val.raw.map(item => item?.RM01).filter(Boolean))].sort()
+          this.advOpts.caseWordOpts = [...new Set(val.raw.map(item => item?.RM02).filter(Boolean))].sort()
+          this.advOpts.caseReceiveOfficeOpts = [...new Set(val.raw.map(item => item?.RM02).filter(Boolean))].sort()
+        } else {
+          // fallback extraction from val.items if raw is missing/empty
+          const years = new Set()
+          const words = new Set()
+          val.items.forEach((item) => {
+            const yrMatch = item?.收件字號?.match(/^(\d+)年/)
+            if (yrMatch && yrMatch[1]) {
+              years.add(yrMatch[1])
+            }
+            const wordMatch = item?.收件字號?.match(/\((.+)\)/)
+            if (wordMatch && wordMatch[1]) {
+              words.add(wordMatch[1])
+            }
+          })
+          this.advOpts.caseYearOpts = [...years].sort()
+          this.advOpts.caseWordOpts = [...words].sort()
+          this.advOpts.caseReceiveOfficeOpts = [...words].sort()
+        }
+
+        this.$store.commit('expiry/list', this.queriedJson?.items || [])
+        this.$store.commit('expiry/list_by_id', this.queriedJson?.items_by_id || {})
 
         // Set default selections after options are populated
         this.setDefaultCaseWords()
@@ -393,7 +417,7 @@ export default {
       const allItems = this.queriedJson?.items || []
 
       allItems.forEach((item) => {
-        const localCaseMatch = item.收件字號.match(/\((.+)\)/)
+        const localCaseMatch = item?.收件字號?.match(/\((.+)\)/)
         if (localCaseMatch && localCaseMatch[1]) {
           const extractedWord = localCaseMatch[1]
           const alphabet = this.site[1]
@@ -415,7 +439,7 @@ export default {
         const checkWord = this.advOpts.caseWord.length > 0
         if (checkWord) {
           pipelineItems = pipelineItems.filter((item) => {
-            const localCaseMatch = item.收件字號.match(/\((.+)\)/)
+            const localCaseMatch = item?.收件字號?.match(/\((.+)\)/)
             if (localCaseMatch && localCaseMatch[1]) {
               const extractedWord = localCaseMatch[1]
               return this.advOpts.caseWord.includes(extractedWord)
@@ -437,7 +461,7 @@ export default {
             if (!isNaN(startNum) && !isNaN(endNum) && startNum <= endNum) {
               pipelineItems = pipelineItems.filter((item) => {
                 const regex1 = /第\s*(\d+)\s*號/
-                const match1 = item.收件字號.match(regex1)
+                const match1 = item?.收件字號?.match(regex1)
                 const RM03 = match1 ? match1[1] : null
                 if (RM03) {
                   return !isNaN(RM03) && RM03 >= startNum && RM03 <= endNum
@@ -453,7 +477,7 @@ export default {
         // Filter by case year
         const checkYear = !this.$utils.empty(this.advOpts.caseYear)
         if (checkYear) {
-          pipelineItems = pipelineItems.filter(item => item.收件字號.startsWith(`${this.advOpts.caseYear}年`))
+          pipelineItems = pipelineItems.filter(item => item?.收件字號?.startsWith(`${this.advOpts.caseYear}年`))
         }
 
         // Filter by case reason
