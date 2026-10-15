@@ -44,8 +44,8 @@
 - 以 BootstrapVue 既有元件優先，避免自行重造輪子。
 - 保持現有 class 命名與排版節奏。
 - 若要微調 UI，盡量局部修改，不重做整頁樣式系統。
-- 若元件已存在，優先延用相同元件而不是換成新的寫法。
-- `lah-header` 組件裡的操作項目或是按鍵高度都要調整到 `48px`（僅限直接擺放在 `lah-header` 內的 UI，不含其衍生出的彈出視窗、下拉選單等 UI）。
+- `lah-header` 標題規範：頁面主標題文字大小必須為 `h3` 級別（例如使用 `h3` 標籤或 `.my-auto.font-weight-bold.h3.mb-0`），維持全系統視覺層級與排版一致。
+- `lah-header` 操作高度規範：組件內的所有操作項目、按鍵（`.btn` / `lah-button`）、按鈕群組（`b-button-group`）、下拉選單（`b-select` / `custom-select`）與輸入控制元件（如 `lah-datepicker` 的輸入框與日期選擇按鈕），高度**一律與 `lah-header` 內建的「選單」（`.bars-button`）及「家／首頁」（`.home-button`）按鈕（`size="lg"`，實測約 45px）高度完全對齊**（可使用 `height: 45px !important;` 或相應對齊樣式，僅限直接擺放在 `lah-header` 內的頂層操作 UI，不含其衍生出的彈出視窗、下拉選單浮動內容等）。
 
 ## 程式風格
 - 與專案現有風格一致。
