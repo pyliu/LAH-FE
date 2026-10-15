@@ -140,14 +140,12 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
             @click="modalFilter = ''",
             title="清除篩選"
           )
-      lah-button(
-        icon="file-csv",
-        variant="outline-success",
+      lah-button-xlsx(
+        :jsons="exportJsons",
+        :header="exportHeader",
         size="sm",
-        @click="exportCsv",
-        title="匯出 CSV",
-        :disabled="filteredModalSections.length === 0"
-      ) 匯出 CSV
+        title="匯出轄區段別資料為 EXCEL 檔案"
+      ) 匯出 EXCEL
 
     .d-flex.justify-content-between.align-items-center.mb-2.small.text-muted(v-if="modalSections.length > 1")
       span
@@ -175,8 +173,11 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
 </template>
 
 <script>
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+
 export default {
   name: 'LahMgmtBoardSectQuery',
+  components: { lahXlsxDownload },
   data: () => ({
     input: '',
     modalFilter: '',
@@ -243,6 +244,20 @@ export default {
     totalAreaPing () {
       const sum = this.filteredModalSections.reduce((acc, cur) => acc + (parseFloat(cur.面積) || 0), 0)
       return this.areaPing(sum)
+    },
+    exportHeader () {
+      const keyword = this.modalFilter || this.input || '清單'
+      return `轄區段別資料_${keyword}`
+    },
+    exportJsons () {
+      return this.filteredModalSections.map(s => ({
+        區代碼: s.區代碼,
+        區名稱: s.區名稱,
+        段代碼: s.段代碼,
+        段名稱: s.段名稱,
+        '面積(㎡)': s.面積,
+        土地標示部筆數: s.土地標示部筆數
+      }))
     }
   },
   mounted () {
@@ -363,26 +378,19 @@ export default {
         this.isBusy = false
       })
     },
+    exportXlsx () {
+      if (this.exportJsons.length === 0) { return }
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header: this.exportHeader,
+          jsonArray: this.exportJsons
+        }
+      }), {
+        title: `下載XLSX檔案 - ${this.exportHeader}`
+      })
+    },
     exportCsv () {
-      if (this.filteredModalSections.length === 0) { return }
-      const headers = ['區代碼', '區名稱', '段代碼', '段名稱', '面積(㎡)', '土地標示部筆數']
-      const rows = this.filteredModalSections.map(s => [
-        s.區代碼,
-        s.區名稱,
-        s.段代碼,
-        s.段名稱,
-        s.面積,
-        s.土地標示部筆數
-      ])
-      const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      const keyword = this.modalFilter || this.input || '清單'
-      link.setAttribute('download', `轄區段別資料_${keyword}.csv`)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      this.exportXlsx()
     }
   }
 }

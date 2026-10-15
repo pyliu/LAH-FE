@@ -107,14 +107,12 @@ b-card(:class="{ 'board-expanded': hasResults }")
       .d-flex.align-items-center
         b-badge.mr-2(variant="primary", pill) 登記案件 {{ crsmsCount }} 件
         b-badge(variant="success", pill) 測量案件 {{ cmsmsCount }} 件
-      lah-button(
-        icon="file-csv",
-        variant="outline-success",
+      lah-button-xlsx(
+        :jsons="exportJsons",
+        :header="exportHeader",
         size="sm",
-        @click="exportCsv",
-        title="匯出案件資料為 CSV",
-        :disabled="currentCount === 0"
-      ) 匯出 CSV
+        :title="exportTitle"
+      ) 匯出 EXCEL
 
     b-tabs(v-model="tabIndex", pills, card)
       b-tab
@@ -175,8 +173,11 @@ b-card(:class="{ 'board-expanded': hasResults }")
 </template>
 
 <script>
+import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+
 export default {
   name: 'LahMgmtBoardPidQuery',
+  components: { lahXlsxDownload },
   data: () => ({
     pid: '',
     searchedPid: '',
@@ -218,6 +219,40 @@ export default {
     validateState () {
       if (!this.pid || !this.pid.trim()) { return null }
       return Boolean(this.validate)
+    },
+    exportHeader () {
+      const typeText = this.tabIndex === 0 ? '登記案件' : '測量案件'
+      return `${typeText}_${this.searchedPid || this.pid}`
+    },
+    exportTitle () {
+      const typeText = this.tabIndex === 0 ? '登記案件' : '測量案件'
+      return `匯出${typeText}為 EXCEL 檔案`
+    },
+    exportJsons () {
+      if (this.tabIndex === 0) {
+        if (this.crsmsCount === 0) { return [] }
+        return this.crsmsData.map(r => ({
+          收件年: r.RM01 || '',
+          收件字: r.RM02 || '',
+          收件號: r.RM03 || '',
+          收件字號: r.收件字號 || '',
+          登記原因: r.登記原因 || '',
+          收件日期: r.收件日期 || '',
+          結案日期: r.結案日期 || '',
+          辦理情形: r.辦理情形 || ''
+        }))
+      }
+      if (this.cmsmsCount === 0) { return [] }
+      return this.cmsmsData.map(r => ({
+        收件年: r.MM01 || '',
+        收件字: r.MM02 || '',
+        收件號: r.MM03 || '',
+        收件日期: r.MM04_1 || '',
+        申請事由: (r.MM06_CHT ? `${r.MM06}:${r.MM06_CHT}` : r.MM06) || '',
+        辦理情形: `${r.MM22 || ''} ${r.MM23 || ''}`.trim(),
+        申請人統編: r.MM13 || '',
+        代理人統編: r.MM17_1 || ''
+      }))
     }
   },
   methods: {
@@ -324,49 +359,19 @@ export default {
         this.isBusy = false
       }
     },
-    exportCsv () {
-      if (this.tabIndex === 0) {
-        // 匯出登記案件
-        if (this.crsmsCount === 0) { return }
-        const headers = ['收件年', '收件字', '收件號', '收件字號', '登記原因', '收件日期', '結案日期', '辦理情形']
-        const rows = this.crsmsData.map(r => [
-          r.RM01 || '',
-          r.RM02 || '',
-          r.RM03 || '',
-          r.收件字號 || '',
-          r.登記原因 || '',
-          r.收件日期 || '',
-          r.結案日期 || '',
-          r.辦理情形 || ''
-        ])
-        this.downloadCsv(headers, rows, `登記案件_${this.searchedPid}.csv`)
-      } else {
-        // 匯出測量案件
-        if (this.cmsmsCount === 0) { return }
-        const headers = ['收件年', '收件字', '收件號', '收件日期', '申請事由', '辦理情形', '申請人統編', '代理人統編']
-        const rows = this.cmsmsData.map(r => [
-          r.MM01 || '',
-          r.MM02 || '',
-          r.MM03 || '',
-          r.MM04_1 || '',
-          (r.MM06_CHT ? `${r.MM06}:${r.MM06_CHT}` : r.MM06) || '',
-          `${r.MM22 || ''} ${r.MM23 || ''}`.trim(),
-          r.MM13 || '',
-          r.MM17_1 || ''
-        ])
-        this.downloadCsv(headers, rows, `測量案件_${this.searchedPid}.csv`)
-      }
+    exportXlsx () {
+      if (this.exportJsons.length === 0) { return }
+      this.modal(this.$createElement(lahXlsxDownload, {
+        props: {
+          header: this.exportHeader,
+          jsonArray: this.exportJsons
+        }
+      }), {
+        title: `下載XLSX檔案 - ${this.exportHeader}`
+      })
     },
-    downloadCsv (headers, rows, filename) {
-      const formattedRows = rows.map(r => r.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
-      const csvContent = '\uFEFF' + [headers.map(h => `"${h}"`).join(','), ...formattedRows].join('\n')
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.setAttribute('download', filename)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+    exportCsv () {
+      this.exportXlsx()
     }
   }
 }
