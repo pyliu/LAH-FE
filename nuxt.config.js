@@ -1,11 +1,14 @@
+import fs from 'fs'
 import pkg from './package.json'
 export default {
   // ssr: false, // Disable Server Side rendering
+  rootDir: fs.realpathSync(process.cwd()),
   server: {
     // bind to all possible addresses
     host: '0.0.0.0'
   },
   dev: process.env.NODE_ENV !== 'production',
+  buildDir: process.env.NODE_ENV !== 'production' ? '.nuxt-dev' : '.nuxt',
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: '桃園市桃園地政事務所',
