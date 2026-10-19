@@ -300,6 +300,9 @@ export default {
     targetUserId (newVal, oldVal) {
       if (newVal && newVal !== oldVal) {
         this.resetUnread(newVal)
+        if (this.isRefreshing) {
+          return
+        }
         if (this.connected) {
           this.fetchPersonalMessages(30)
         }
@@ -394,12 +397,14 @@ export default {
       const uid = typeof user === 'object' && user !== null ? (user.id || user.userid) : user
       if (uid) {
         this.viewingChannelUser = uid
+        this.$emit('user-change', this.targetUserId)
         this.refresh()
         this.notify(`[管理員] 已切換檢視【${this.targetUserName}】頻道`, { variant: 'info' })
       }
     },
     resetViewingChannel () {
       this.viewingChannelUser = ''
+      this.$emit('user-change', this.targetUserId)
       this.refresh()
       this.notify('已返回自己私訊頻道', { variant: 'info' })
     },

@@ -143,6 +143,13 @@ export default {
         return undefined
       }
     },
+    cleanRemove () {
+      const r = this.raw?.remove
+      if (!r || r === '⚠ 標題遺失') {
+        return 'dontcare'
+      }
+      return r
+    },
     randFace () {
       const count = this.faces.length
       const idx = typeof this.$utils?.rand === 'function'
@@ -167,7 +174,7 @@ export default {
         channel: this.raw.channel,
         date: this.date(),
         time: this.time(),
-        title: this.cascadeInfo ? JSON.stringify(this.cascadeInfo) : (this.raw?.remove || 'dontcare'),
+        title: this.cascadeInfo ? JSON.stringify(this.cascadeInfo) : this.cleanRemove,
         priority: this.cascadeInfo ? 4 : 3,
         message: `${this.replyHeader ? this.replyHeader + '\n' : ''}${this.mergedMessage}`,
         prepend: false,
@@ -177,17 +184,64 @@ export default {
     }
   },
   created () {
-    const rawMsg = this.raw?.message || ''
-    const regex = typeof this.regexpReplyHeader === 'function' ? this.regexpReplyHeader() : this.regexpReplyHeader
-    const matched = regex ? rawMsg.match(regex) : null
-    if (matched) {
-      this.replyHeader = matched[0]
-      this.message = rawMsg.replace(regex, '').trim()
-    } else {
-      this.message = rawMsg.trim()
-    }
+    this.normalize(this.raw?.message || '')
   },
   methods: {
+    normalize (rawInput) {
+      let txt = typeof rawInput === 'string' ? rawInput : ''
+      this.images = []
+      this.replyHeader = ''
+
+      const regex = typeof this.regexpReplyHeader === 'function' ? this.regexpReplyHeader() : this.regexpReplyHeader
+      const matched = regex ? txt.match(regex) : null
+      if (matched) {
+        this.replyHeader = matched[0]
+        txt = txt.replace(regex, '')
+      }
+
+      const htmlImgRegex = /<img[^>]+src=["'](data:image\/[^"']+)["'][^>]*>/gi
+      let imgMatch = htmlImgRegex.exec(txt)
+      while (imgMatch !== null) {
+        const b64 = imgMatch[1]
+        if (b64 && !this.images.includes(b64)) {
+          this.images.push(b64)
+        }
+        imgMatch = htmlImgRegex.exec(txt)
+      }
+      txt = txt.replace(/<p>\s*(?:<img[^>]+src=["']data:image\/[^"']+["'][^>]*>\s*)+<\/p>/gi, '')
+      txt = txt.replace(/<img[^>]+src=["']data:image\/[^"']+["'][^>]*>/gi, '')
+
+      const mdImgRegex = /!\[[^\]]*\]\((data:image\/[^)]+)\)/gi
+      let mdMatch = mdImgRegex.exec(txt)
+      while (mdMatch !== null) {
+        const b64 = mdMatch[1]
+        if (b64 && !this.images.includes(b64)) {
+          this.images.push(b64)
+        }
+        mdMatch = mdImgRegex.exec(txt)
+      }
+      txt = txt.replace(/!\[[^\]]*\]\(data:image\/[^)]+\)/gi, '')
+
+      txt = txt.replace(/(?:<hr\s*\/?>|\*{3,})\s*$/gi, '')
+
+      txt = txt
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
+        .replace(/<\/?p[^>]*>/gi, '')
+
+      if (typeof this.$utils?.trimTags === 'function') {
+        txt = this.$utils.trimTags(txt)
+      } else {
+        txt = txt.replace(/<[^>]+>/g, '')
+      }
+
+      txt = txt
+        .replace(/^給\s*.+\n+?/igm, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+
+      this.message = txt
+    },
     pasted (base64) {
       if (!this.images.includes(base64)) {
         this.images.push(base64)
@@ -269,7 +323,7 @@ export default {
         channel: this.raw.channel,
         date: this.date(),
         time: this.time(),
-        title: this.cascadeInfo ? JSON.stringify(this.cascadeInfo) : (this.raw?.remove || 'dontcare'),
+        title: this.cascadeInfo ? JSON.stringify(this.cascadeInfo) : this.cleanRemove,
         priority: this.cascadeInfo ? 4 : 3,
         message: `${this.replyHeader ? this.replyHeader + '\n' : ''}${this.mergedMessage}`,
         prepend: false,

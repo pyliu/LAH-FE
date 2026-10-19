@@ -709,7 +709,7 @@ export default {
             this.$store.commit('addChannel', channel)
           }
 
-          const isDuplicate = this.messages[channel].some((m) => {
+          const existingMsg = this.messages[channel].find((m) => {
             const incId = this.extractMessageId(incoming)
             const mId = this.extractMessageId(m)
             if (incId > 0 && mId > 0) {
@@ -722,6 +722,7 @@ export default {
               m.message === incoming.message
             )
           })
+          const isDuplicate = Boolean(existingMsg)
 
           if (!isDuplicate) {
             if (isHistory) {
@@ -735,9 +736,20 @@ export default {
             if (stashedAtts) {
               this.applyMessageAttachments(channel, receivedId, stashedAtts, false)
             }
-          } else if (receivedId > 0 && Array.isArray(incoming.attachments) && incoming.attachments.length > 0) {
-            // 重複訊息 (如重新載入 latest) 若帶有伺服器端附件清單，仍同步到畫面上既有訊息
-            this.applyMessageAttachments(channel, receivedId, incoming.attachments, false)
+          } else if (existingMsg) {
+            if (incoming.message !== undefined && incoming.message !== existingMsg.message) {
+              this.$set(existingMsg, 'message', incoming.message)
+            }
+            if (incoming.remove && incoming.remove !== '⚠ 標題遺失') {
+              this.$set(existingMsg, 'remove', incoming.remove)
+            }
+            if (incoming.flag !== undefined) {
+              this.$set(existingMsg, 'flag', incoming.flag)
+            }
+            if (receivedId > 0 && Array.isArray(incoming.attachments) && incoming.attachments.length > 0) {
+              // 重複訊息 (如重新載入 latest) 若帶有伺服器端附件清單，仍同步到畫面上既有訊息
+              this.applyMessageAttachments(channel, receivedId, incoming.attachments, false)
+            }
           }
 
           if (receivedId > 0 && channel && (incoming.sender === this.userid || (incoming.message && typeof incoming.message === 'object' && incoming.message.sender === this.userid))) {
@@ -864,13 +876,22 @@ export default {
               }
             }
             const cascade = json.payload.cascade
-            if (cascade?.to && cascade?.id && (idx > -1 || json.payload.channel === this.userid)) {
-              this.websocket?.send(this.packCommand({
-                command: 'remove_message',
-                channel: cascade.to,
-                id: parseInt(cascade.id) || cascade.id,
-                cascade: ''
-              }))
+            if (cascade?.to && cascade?.id) {
+              const cascadeList = this.messages[cascade.to]
+              if (Array.isArray(cascadeList)) {
+                const cIdx = cascadeList.findIndex(msg => Number(msg.id) === Number(cascade.id))
+                if (cIdx > -1) {
+                  cascadeList.splice(cIdx, 1)
+                }
+              }
+              if (!json.cascadeHandled && !json.payload?.cascadeHandled && (idx > -1 || json.payload.channel === this.userid)) {
+                this.websocket?.send(this.packCommand({
+                  command: 'remove_message',
+                  channel: cascade.to,
+                  id: parseInt(cascade.id) || cascade.id,
+                  cascade: ''
+                }))
+              }
             }
           }
           this.setConnectText(`${json.message}`)
@@ -882,47 +903,53 @@ export default {
             const found = this.messages[channel]?.find(msg => Number(msg.id) === Number(payload?.id))
             if (found) {
               if (channel.startsWith('announcement')) {
-                found.message = {
+                this.$set(found, 'message', {
                   ...found.message,
                   title: payload.title,
                   content: payload.content,
                   priority: payload.priority
-                }
+                })
               } else {
-                found.message = payload.message
+                this.$set(found, 'message', payload.message)
                 if (payload.title && payload.title !== '⚠ 標題遺失') {
-                  found.remove = payload.title
+                  this.$set(found, 'remove', payload.title)
                 }
               }
             }
             const cascade = json.payload.cascade
             const isSender = !json.payload.sender || json.payload.sender === this.userid
-            if (cascade?.id && cascade?.to && (found || isSender)) {
+            if (cascade?.id && cascade?.to) {
               const cascadeId = parseInt(cascade.id) || cascade.id
               const regex = typeof this.regexpReplyHeader === 'function' ? this.regexpReplyHeader() : this.regexpReplyHeader
               const cleanMessage = regex && payload?.message ? payload.message.replace(regex, '') : (payload?.message || '')
-              this.websocket?.send(JSON.stringify({
-                type: 'command',
-                sender: this.userid,
-                date: this.date(),
-                time: this.time(),
-                channel: 'system',
-                message: JSON.stringify({
-                  command: 'edit_message',
-                  channel: cascade.to,
-                  id: cascadeId,
+              const cascadeFound = this.messages[cascade.to]?.find(msg => Number(msg.id) === Number(cascadeId))
+              if (cascadeFound) {
+                this.$set(cascadeFound, 'message', cleanMessage)
+              }
+              if (!json.cascadeHandled && !json.payload?.cascadeHandled && (found || isSender)) {
+                this.websocket?.send(JSON.stringify({
+                  type: 'command',
                   sender: this.userid,
-                  payload: {
-                    ...payload,
-                    id: cascadeId,
+                  date: this.date(),
+                  time: this.time(),
+                  channel: 'system',
+                  message: JSON.stringify({
+                    command: 'edit_message',
                     channel: cascade.to,
+                    id: cascadeId,
                     sender: this.userid,
-                    title: 'dontcare',
-                    priority: 3,
-                    message: cleanMessage
-                  }
-                })
-              }))
+                    payload: {
+                      ...payload,
+                      id: cascadeId,
+                      channel: cascade.to,
+                      sender: this.userid,
+                      title: 'dontcare',
+                      priority: 3,
+                      message: cleanMessage
+                    }
+                  })
+                }))
+              }
             }
           }
           break
