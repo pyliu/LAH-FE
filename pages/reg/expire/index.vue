@@ -67,9 +67,9 @@ div
         icon="chart-column",
         size="lg",
         title="開啟統計圖表",
-        :href="`${legacyUrl}/overdue_reg_cases.html?chart=1`",
-        no-icon-gutter,
-        link
+        @click="$refs.chartModal.show()",
+        :disabled="!dataReady",
+        no-icon-gutter
       )
       lah-countdown-button(
         ref="countdown"
@@ -136,7 +136,7 @@ div
         small.text-muted.ml-2 按住 Ctrl 鍵進行選擇/取消
 
     .center.d-flex
-      b-input-group.mr-1(prepend="　收件字")
+      b-input-group.mr-1(:prepend="'\u3000收件字'")
         b-form-select(
           v-model="advOpts.caseWord",
           :options="advOpts.caseWordOpts",
@@ -144,7 +144,7 @@ div
           multiple,
           :select-size="4"
         )
-      b-input-group.input-group-height-hack(prepend="　收件號")
+      b-input-group.input-group-height-hack(:prepend="'\u3000收件號'")
         b-input(
           v-model="advOpts.caseNum",
           trim,
@@ -213,6 +213,11 @@ div
       ) 重設
       small.text-muted.ml-2 找到 {{ storeCaseCount }} 筆
       lah-fa-icon.ml-1(v-if="filtering", icon="sync-alt", action="spin", variant="danger",title="篩選中 ... ")
+
+  lah-reg-expiry-chart-modal(
+    ref="chartModal",
+    @filter="onDashFilter"
+  )
 </template>
 
 <script>
@@ -521,7 +526,7 @@ export default {
         // Filter by case year
         const checkYear = !this.$utils.empty(this.advOpts.caseYear)
         if (checkYear) {
-          pipelineItems = pipelineItems.filter(item => item?.收件字號?.startsWith(`${this.advOpts.caseYear}年`))
+          pipelineItems = pipelineItems.filter(item => item?.收件字號?.startsWith(this.advOpts.caseYear + '年'))
         }
 
         // Filter by case reason

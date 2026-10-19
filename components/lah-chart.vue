@@ -400,6 +400,7 @@ export default {
           }
 
           this.inst = new Chart(canvasEl, {
+            type: that.type,
             data: this.chartData,
             options: Object.assign({
               responsive: true,
