@@ -1796,6 +1796,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 確保表格在筆數少時維持足夠高度，避免簡訊狀態下拉選單被 sticky-header 的 overflow 遮截
+::v-deep .b-table-sticky-header {
+  min-height: 380px;
+}
+
 .receiving-type-badge {
   font-size: 100%;
 }
