@@ -177,7 +177,7 @@ div
           @click="typeFilter = '0'"
         ) 臨櫃 ({{ typeCountCounter }})
         b-button(
-          :variant="typeFilter === '1' ? 'danger' : 'outline-secondary'"
+          :variant="typeFilter === '1' ? 'info' : 'outline-secondary'"
           :disabled="isBusy"
           @click="typeFilter = '1'"
         ) 隨案 ({{ typeCountWithCase }})
@@ -1770,7 +1770,7 @@ export default {
     receivingTypeVariant (val) {
       const map = {
         0: 'secondary',
-        1: 'danger'
+        1: 'info'
       }
       return map[val] || 'light'
     },
