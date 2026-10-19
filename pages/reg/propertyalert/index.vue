@@ -770,7 +770,7 @@ export default {
       item: null
     },
     pagination: {
-      perPage: 20,
+      perPage: 15,
       currentPage: 1
     },
     form: {
@@ -1092,6 +1092,7 @@ export default {
       if (count && count >= 3) {
         this.setCache('propertyalert-perpage', count)
       }
+      this.$nextTick(() => this.calculateMaxHeight?.())
     },
     typeFilter () {
       this.pagination.currentPage = 1
@@ -1104,21 +1105,83 @@ export default {
     },
     keyword () {
       this.pagination.currentPage = 1
+    },
+    filteredRows () {
+      this.$nextTick(() => this.calculateMaxHeight?.())
+    },
+    isBusy (val) {
+      if (!val) {
+        this.$nextTick(() => this.calculateMaxHeight?.())
+      }
     }
   },
   async mounted () {
+    this.updateMaxHeight = this.calculateMaxHeight
+    this.debouncedUpdateHeight = this.$utils.debounce(this.updateMaxHeight, 80)
+    window.addEventListener('resize', this.debouncedUpdateHeight)
+    if (this.zoomDetectorFrame?.contentWindow) {
+      this.zoomDetectorFrame.contentWindow.addEventListener('resize', this.debouncedUpdateHeight)
+    }
+    if (window.ResizeObserver && this.$el) {
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect()
+      }
+      this.resizeObserver = new ResizeObserver(this.debouncedUpdateHeight)
+      this.resizeObserver.observe(this.$el)
+    }
+    this.calculateMaxHeight()
+    setTimeout(() => this.calculateMaxHeight?.(), 300)
+    setTimeout(() => this.calculateMaxHeight?.(), 800)
+    setTimeout(() => this.calculateMaxHeight?.(), 1500)
+
     const cachedPerPage = await this.getCache('propertyalert-perpage')
-    if (cachedPerPage && parseInt(cachedPerPage) >= 3) {
+    if (cachedPerPage && parseInt(cachedPerPage) >= 3 && parseInt(cachedPerPage) !== 20) {
       this.pagination.perPage = parseInt(cachedPerPage)
     }
     document.addEventListener('click', this.hideContextMenu)
     document.addEventListener('keydown', this.onKeyDown)
   },
   beforeDestroy () {
+    if (this.debouncedUpdateHeight) {
+      window.removeEventListener('resize', this.debouncedUpdateHeight)
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
     document.removeEventListener('click', this.hideContextMenu)
     document.removeEventListener('keydown', this.onKeyDown)
   },
   methods: {
+    // 與 .version 下緣精確對齊之表格最大高度試算
+    calculateMaxHeight () {
+      this.$nextTick(() => {
+        if (typeof window === 'undefined') { return }
+        const wrapperEl = this.$el?.querySelector('.b-table-sticky-header') ||
+                          this.$refs.table?.$el
+        let tableTop = 0
+        if (wrapperEl && typeof wrapperEl.getBoundingClientRect === 'function') {
+          tableTop = wrapperEl.getBoundingClientRect().top
+        } else if (this.$el && typeof this.$el.getBoundingClientRect === 'function') {
+          tableTop = this.$el.getBoundingClientRect().top + 320
+        }
+
+        if (tableTop > 0) {
+          const versionEl = document.querySelector('.version')
+          let targetBottom = window.innerHeight - 15
+          if (versionEl && typeof versionEl.getBoundingClientRect === 'function') {
+            const vRect = versionEl.getBoundingClientRect()
+            if (vRect.bottom > 0) {
+              targetBottom = vRect.bottom
+            }
+          }
+          const availableHeight = Math.max(200, Math.floor(targetBottom - tableTop))
+          if (Math.abs(this.maxHeight - availableHeight) >= 1) {
+            this.maxHeight = availableHeight
+          }
+        }
+      })
+    },
     isAnyModalOpen () {
       if (this.$isServer) { return false }
       return typeof document !== 'undefined' && (
@@ -1797,8 +1860,10 @@ export default {
 
 <style lang="scss" scoped>
 // 確保表格在筆數少時維持足夠高度，避免簡訊狀態下拉選單被 sticky-header 的 overflow 遮截
+// 去除底部預設邊距以精確貼齊 .version 下緣
 ::v-deep .b-table-sticky-header {
   min-height: 380px;
+  margin-bottom: 0 !important;
 }
 
 .receiving-type-badge {
