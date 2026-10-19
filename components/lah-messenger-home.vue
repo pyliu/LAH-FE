@@ -856,11 +856,21 @@ export default {
         case 'remove_message':
           if (json.success && json.payload) {
             const list = this.messages[json.payload.channel]
+            let idx = -1
             if (Array.isArray(list)) {
-              const idx = list.findIndex(msg => msg.id === json.payload.id)
+              idx = list.findIndex(msg => Number(msg.id) === Number(json.payload.id))
               if (idx > -1) {
                 list.splice(idx, 1)
               }
+            }
+            const cascade = json.payload.cascade
+            if (cascade?.to && cascade?.id && (idx > -1 || json.payload.channel === this.userid)) {
+              this.websocket?.send(this.packCommand({
+                command: 'remove_message',
+                channel: cascade.to,
+                id: parseInt(cascade.id) || cascade.id,
+                cascade: ''
+              }))
             }
           }
           this.setConnectText(`${json.message}`)
@@ -869,7 +879,7 @@ export default {
           if (json.success && json.payload) {
             const channel = json.payload.channel
             const payload = json.payload.payload
-            const found = this.messages[channel]?.find(msg => msg.id === payload?.id)
+            const found = this.messages[channel]?.find(msg => Number(msg.id) === Number(payload?.id))
             if (found) {
               if (channel.startsWith('announcement')) {
                 found.message = {
@@ -880,7 +890,39 @@ export default {
                 }
               } else {
                 found.message = payload.message
+                if (payload.title && payload.title !== '⚠ 標題遺失') {
+                  found.remove = payload.title
+                }
               }
+            }
+            const cascade = json.payload.cascade
+            const isSender = !json.payload.sender || json.payload.sender === this.userid
+            if (cascade?.id && cascade?.to && (found || isSender)) {
+              const cascadeId = parseInt(cascade.id) || cascade.id
+              const regex = typeof this.regexpReplyHeader === 'function' ? this.regexpReplyHeader() : this.regexpReplyHeader
+              const cleanMessage = regex && payload?.message ? payload.message.replace(regex, '') : (payload?.message || '')
+              this.websocket?.send(JSON.stringify({
+                type: 'command',
+                sender: this.userid,
+                date: this.date(),
+                time: this.time(),
+                channel: 'system',
+                message: JSON.stringify({
+                  command: 'edit_message',
+                  channel: cascade.to,
+                  id: cascadeId,
+                  sender: this.userid,
+                  payload: {
+                    ...payload,
+                    id: cascadeId,
+                    channel: cascade.to,
+                    sender: this.userid,
+                    title: 'dontcare',
+                    priority: 3,
+                    message: cleanMessage
+                  }
+                })
+              }))
             }
           }
           break
@@ -908,7 +950,23 @@ export default {
             if (insertedId && insertedChannel) {
               this.handleCreatedMessageForUpload(insertedChannel, insertedId)
             }
+            const chatRooms = typeof this.chatRooms === 'function' ? this.chatRooms() : (this.chatRooms || [])
+            if (
+              insertedChannel &&
+              insertedChannel !== this.userid &&
+              !insertedChannel.startsWith('announcement') &&
+              !chatRooms.includes(insertedChannel)
+            ) {
+              const remove = JSON.stringify({ to: insertedChannel, id: insertedId })
+              this.websocket?.send(this.packMessage(json.payload.message, {
+                channel: this.userid,
+                title: remove,
+                priority: 4,
+                flag: 1
+              }))
+            }
           }
+          this.setConnectText(`${json.message}`)
           break
         case 'attachment_uploaded':
         case 'attachment_deleted': {

@@ -167,6 +167,8 @@ export default {
         channel: this.raw.channel,
         date: this.date(),
         time: this.time(),
+        title: this.cascadeInfo ? JSON.stringify(this.cascadeInfo) : (this.raw?.remove || 'dontcare'),
+        priority: this.cascadeInfo ? 4 : 3,
         message: `${this.replyHeader ? this.replyHeader + '\n' : ''}${this.mergedMessage}`,
         prepend: false,
         sender: this.userid,
@@ -265,7 +267,14 @@ export default {
       const payload = {
         id: this.raw.id,
         channel: this.raw.channel,
-        message: `${this.replyHeader ? this.replyHeader + '\n' : ''}${this.mergedMessage}`
+        date: this.date(),
+        time: this.time(),
+        title: this.cascadeInfo ? JSON.stringify(this.cascadeInfo) : (this.raw?.remove || 'dontcare'),
+        priority: this.cascadeInfo ? 4 : 3,
+        message: `${this.replyHeader ? this.replyHeader + '\n' : ''}${this.mergedMessage}`,
+        prepend: false,
+        sender: this.userid,
+        type: 'remote'
       }
       const json = {
         type: 'command',
@@ -277,8 +286,9 @@ export default {
           command: 'edit_message',
           channel: this.raw.channel,
           id: this.raw.id,
+          sender: this.userid,
           payload,
-          cascade: this.cascadeInfo
+          cascade: this.cascadeInfo || ''
         })
       }
       if (this.websocket && this.websocket.readyState === 1) {
@@ -286,9 +296,11 @@ export default {
         if (this.uploadFiles.length > 0) {
           const filesToUpload = [...this.uploadFiles]
           this.uploadFiles = []
+          const uploadChannel = this.cascadeInfo?.to || this.raw.channel
+          const uploadMsgId = this.cascadeInfo?.id || this.raw.id
           filesToUpload.forEach(async (file) => {
             try {
-              await this.uploadAttachment(this.raw.channel, this.raw.id, file)
+              await this.uploadAttachment(uploadChannel, uploadMsgId, file)
               this.notify(`訊息 #${this.raw.id} 附件 ${file.name} 上傳成功`, { type: 'success' })
             } catch (err) {
               this.$utils.error(`上傳 ${file.name} 失敗`, err)
