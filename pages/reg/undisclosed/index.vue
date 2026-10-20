@@ -742,9 +742,11 @@ div
 <script>
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
 import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
+import lahUserCard from '~/components/lah-user-card.vue'
 
 export default {
-  components: { lahRegCaseDetail },
+  // eslint-disable-next-line vue/no-unused-components
+  components: { lahRegCaseDetail, lahUserCard },
   fetchOnServer: false,
   mixins: [dynamicHeight],
   data: () => ({

@@ -3,6 +3,11 @@ import $ from 'jquery'
 import isEmpty from 'lodash/isEmpty'
 import Vue from 'vue'
 import { mapActions, mapGetters } from 'vuex'
+import lahUserCard from '~/components/lah-user-card.vue'
+
+// eslint-disable-next-line vue/component-definition-name-casing
+Vue.component('lah-user-card', lahUserCard)
+Vue.component('LahUserCard', lahUserCard)
 
 // inject to all Vue instances
 let activeToast = null
@@ -644,7 +649,7 @@ Vue.mixin({
         props.id = id
       }
       const h = this.$createElement
-      name !== 'XXXXXXXX' && this.modal(h('lah-user-card', { props }), {
+      name !== 'XXXXXXXX' && this.modal(h(lahUserCard, { props }), {
         title: `${name} 使用者資訊${this.$utils.empty(id) ? '' : ` (${id})`}`
       })
     },
