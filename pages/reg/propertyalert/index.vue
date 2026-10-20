@@ -41,8 +41,8 @@ div
             li
               strong 複合狀態快篩：
               | 支援同時組合「類型（全部/臨櫃/隨案）」、「簡訊狀態（全部/未發送/成功/失敗/忽略/無手機）」及「
-              strong 只看我的
-              | （僅顯示自己收件之案件）」即時過濾列表並顯示各分類筆數
+              strong 收件員
+              | （可切換全部人員、只看我的或特定收件同仁）」即時過濾列表並顯示各分類筆數
             li
               strong 智慧關鍵字搜尋：
               | 輸入關鍵字可即時過濾並高亮標示「編號、申請人、手機號碼、案件號、收件人員（姓名/員編）與備註」
@@ -216,17 +216,17 @@ div
           @click="smsFilter = 'no_phone'"
         ) 無手機 ({{ smsCountNoPhone }})
 
-      //- 只看我的案件開關
-      b-button(
-        :variant="filterOnlyMine ? 'primary' : 'outline-primary'"
+      //- 收件人員快篩下拉選單
+      span.text-muted.small.ml-1.mr-1.font-weight-bold 收件員：
+      b-select(
+        v-model="receiverFilter"
         size="sm"
-        pill
+        :options="receiverOptions"
         :disabled="isBusy"
-        @click="filterOnlyMine = !filterOnlyMine"
-        :title="`只顯示收件人員為 ${myname || myid} 的案件`"
+        :class="{ 'border-primary text-primary font-weight-bold': receiverFilter !== 'all' }"
+        style="max-width: 190px;"
+        title="篩選特定收件人員"
       )
-        lah-fa-icon.mr-1(:icon="filterOnlyMine ? 'user-check' : 'user'")
-        | 只看我的 ({{ myCasesCount }})
 
     .d-flex.align-items-center.mt-2.mt-lg-0
       b-input-group(size="md")
@@ -752,7 +752,7 @@ export default {
     keyword: '',
     typeFilter: 'all',
     smsFilter: 'all',
-    filterOnlyMine: false,
+    receiverFilter: 'all',
     continuousIntake: true,
     editRecord: null,
     clickedCaseno: '',
@@ -912,6 +912,7 @@ export default {
       }).finally(() => {
         this.isBusy = false
         this.resetCountdown()
+        this.checkReceiverFilter()
       })
     }
   },
@@ -945,14 +946,66 @@ export default {
     smsCountFail () { return this.rows.filter(r => r.cellphone && parseInt(r.sms_status) === 2).length },
     smsCountIgnored () { return this.rows.filter(r => parseInt(r.sms_status) === 3).length },
     smsCountNoPhone () { return this.rows.filter(r => !r.cellphone && parseInt(r.sms_status) !== 3).length },
-    myCasesCount () {
-      return this.rows.filter(r => r.receiver && r.receiver.toUpperCase() === (this.myid || '').toUpperCase()).length
+    receiverOptions () {
+      const currentUid = (this.myid || '').trim().toUpperCase()
+      const totalCount = this.rows.length
+      const options = [
+        { value: 'all', text: `全部人員 (${totalCount})` }
+      ]
+
+      const counts = {}
+      const originalIds = {}
+      this.rows.forEach((r) => {
+        const rawId = (r.receiver || '').trim()
+        if (rawId) {
+          const upperId = rawId.toUpperCase()
+          counts[upperId] = (counts[upperId] || 0) + 1
+          if (!originalIds[upperId]) {
+            originalIds[upperId] = rawId
+          }
+        }
+      })
+
+      if (currentUid && counts[currentUid]) {
+        const myCount = counts[currentUid]
+        options.push({
+          value: currentUid,
+          text: `只看我的 (${myCount})`
+        })
+      }
+
+      const otherList = []
+      Object.entries(counts).forEach(([upperId, count]) => {
+        if (upperId !== currentUid) {
+          const rawId = originalIds[upperId] || upperId
+          const name = (this.userNames && this.userNames[rawId]) || (this.userNames && this.userNames[upperId]) || ''
+          const label = name ? `${name} (${rawId}) (${count})` : `${rawId} (${count})`
+          otherList.push({
+            value: upperId,
+            rawId,
+            name,
+            count,
+            text: label
+          })
+        }
+      })
+
+      otherList.sort((a, b) => {
+        if (b.count !== a.count) {
+          return b.count - a.count
+        }
+        return a.rawId.localeCompare(b.rawId)
+      })
+
+      otherList.forEach(item => options.push({ value: item.value, text: item.text }))
+
+      return options
     },
     filteredRows () {
       return this.rows.filter((item) => {
-        // 只看我的案件篩選
-        if (this.filterOnlyMine) {
-          if (!item.receiver || item.receiver.toUpperCase() !== (this.myid || '').toUpperCase()) {
+        // 收件人員篩選
+        if (this.receiverFilter !== 'all') {
+          if (!item.receiver || item.receiver.trim().toUpperCase() !== this.receiverFilter.trim().toUpperCase()) {
             return false
           }
         }
@@ -1100,8 +1153,9 @@ export default {
     smsFilter () {
       this.pagination.currentPage = 1
     },
-    filterOnlyMine () {
+    receiverFilter () {
       this.pagination.currentPage = 1
+      this.$nextTick(() => this.calculateMaxHeight?.())
     },
     keyword () {
       this.pagination.currentPage = 1
@@ -1213,6 +1267,14 @@ export default {
         return
       }
       this.$fetch()
+    },
+    checkReceiverFilter () {
+      if (this.receiverFilter !== 'all') {
+        const exists = this.receiverOptions.some(opt => opt.value === this.receiverFilter)
+        if (!exists) {
+          this.receiverFilter = 'all'
+        }
+      }
     },
     resetCountdown () {
       if (this.$refs.countdown) {
