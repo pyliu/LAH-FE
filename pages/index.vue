@@ -148,6 +148,9 @@ div.h-100.d-flex.flex-column.overflow-hidden
                   .d-flex.align-items-center.text-primary
                     h4.mr-2 📢
                     h5.font-weight-bold.text-dark 即時通公告
+                  nuxt-link.small.text-decoration-none.text-nowrap(to="/websocket")
+                    | 前往即時通
+                    lah-fa-icon(icon="arrow-right" size="xs").ml-1
 
               b-card-body.p-0.d-flex.flex-column.overflow-auto.flex-grow-1.custom-scrollbar(style="min-height: 0")
                 lah-timeline-announcement.px-3.py-2(
