@@ -27,11 +27,7 @@ b-sidebar#lah-sidebar(
 
       li: hr
 
-      li: a(
-        :href="`${this.apiQueryUrl}/project/bookmark/`",
-        target="_blank",
-        rel="noreferrer noopener"
-      ).
+      li: nuxt-link(to="/bookmark").
         #[font-awesome-icon(:icon="['far', 'bookmark']", fixed-width, size="lg")]
         所內書籤索引
       li: nuxt-link(to="/websocket").
