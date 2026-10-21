@@ -292,7 +292,7 @@
                     p.card-desc.text-muted.mb-0.mt-auto 資料庫同步作業與異動歷程查詢
 
             //- 5. 全國連線監控 (第 5 項跨滿整列橫卡)
-            b-col(cols="12").mb-3.mb-xl-4.d-flex
+            b-col(cols="12" sm="6").mb-3.mb-xl-4.d-flex
               nuxt-link(to="/inf/xap/connectivity").card-link.w-100
                 b-card.modern-card.featured-card.border-0.shadow-sm.h-100(no-body)
                   b-card-body.p-3.p-xl-4.d-flex.align-items-center.justify-content-between
@@ -304,6 +304,19 @@
                         p.card-desc.text-muted.mb-0 全國各所跨域主機即時網路連線與服務延遲檢測
                     .arrow-icon.ml-2
                       lah-fa-icon(icon="chevron-right", variant="muted", size="lg")
+
+            //- 6. 監控輪播
+            b-col(cols="12" sm="6").mb-3.mb-xl-4.d-flex
+              nuxt-link(to="/bureau").card-link.w-100
+                b-card.modern-card.border-0.shadow-sm.h-100(no-body)
+                  b-card-body.p-3.p-xl-4.d-flex.flex-column
+                    .d-flex.align-items-center.justify-content-between.mb-3
+                      .icon-box.bg-primary-light
+                        lah-fa-icon(icon="tv", variant="primary", size="2x")
+                      .arrow-icon
+                        lah-fa-icon(icon="chevron-right", variant="muted", size="sm")
+                    h4.card-title.font-weight-bold.text-dark.mb-2 監控輪播
+                    p.card-desc.text-muted.mb-0.mt-auto 重點儀表板輪播顯示
 
 </template>
 
