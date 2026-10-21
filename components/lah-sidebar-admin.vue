@@ -101,6 +101,9 @@ b-sidebar#lah-sidebar(
       li: nuxt-link(to="/inf/lxhweb").
         #[font-awesome-icon(:icon="['fas', 'database']", fixed-width, size="lg")]
         {{site}} 同步異動監控
+      li: nuxt-link(to="/users").
+        #[font-awesome-icon(:icon="['far', 'user-circle']", fixed-width, size="lg")]
+        員工芳名錄
 
       li: hr
 
