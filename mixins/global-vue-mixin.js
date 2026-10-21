@@ -522,6 +522,12 @@ Vue.mixin({
           }
           resolve(success)
         }
+        // 位於 b-modal 內時，Bootstrap 的 focus trap 會使 navigator.clipboard 因文件失焦而被拒絕，
+        // 且非同步後可能失去使用者手勢，故優先於同步流程內以 execCommand 複製
+        if (process.client && this.isInsideModal(containerEl) && this.fallbackCopyText(text, containerEl)) {
+          onDone(true)
+          return
+        }
         if (process.client && window.isSecureContext && navigator?.clipboard?.writeText) {
           navigator.clipboard.writeText(text).then(() => {
             onDone(true)
@@ -532,6 +538,14 @@ Vue.mixin({
         }
         onDone(this.fallbackCopyText(text, containerEl))
       })
+    },
+    isInsideModal (containerEl = null) {
+      if (!process.client || typeof document === 'undefined') {
+        return false
+      }
+      return !!((containerEl && typeof containerEl.closest === 'function' && containerEl.closest('.modal')) ||
+        (document.activeElement && document.activeElement.closest && document.activeElement.closest('.modal')) ||
+        document.querySelector('.modal.show'))
     },
     fallbackCopyText (text, containerEl = null) {
       if (!process.client || typeof document === 'undefined') {
@@ -554,9 +568,12 @@ Vue.mixin({
         textarea.style.fontSize = '16px'
 
         // 若目前處於 Modal 內部，必須掛載在該 Modal 容器內，否則會被 Bootstrap 的 enforceFocus 奪走焦點導致複製失敗
+        // 多層 Modal 時取最上層（DOM 中最後一個）已顯示的 Modal
+        const shownModals = document.querySelectorAll('.modal.show')
+        const topModal = shownModals.length ? shownModals[shownModals.length - 1] : null
         const activeModal = (containerEl && typeof containerEl.closest === 'function' && containerEl.closest('.modal-content')) ||
-          document.querySelector('.modal.show .modal-content') ||
-          document.querySelector('.modal.show') ||
+          (document.activeElement && document.activeElement.closest && document.activeElement.closest('.modal-content')) ||
+          (topModal && (topModal.querySelector('.modal-content') || topModal)) ||
           (containerEl && containerEl.parentElement) ||
           document.body
 
