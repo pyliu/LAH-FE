@@ -80,6 +80,8 @@ b-card.channel-card(no-body)
         :placeholder="`傳送到【${effectiveDeptName}】... (Ctrl+Enter)`"
         @keyup.enter.ctrl="send"
         @keyup.enter.shift="send"
+        @keydown="onKeydown"
+        @blur="closeHistory"
         @paste="pasteImage($event, pastedImage)"
         no-resize
         rows="2"
@@ -92,6 +94,13 @@ b-card.channel-card(no-body)
         style="min-width: 48px;"
       )
         b-icon(icon="cursor" rotate="45")
+      lah-messenger-input-history(
+        :open="historyOpen"
+        :list="historyList"
+        :index="historyIndex"
+        @choose="chooseHistory"
+        @hover="historyIndex = $event"
+      )
     .d-flex.align-items-center.justify-content-between.mt-1
       .d-flex.align-items-center
         b-button.mr-1(
@@ -134,6 +143,8 @@ b-card.channel-card(no-body)
 
 <script>
 import lahMessengerBase from '~/mixins/lah-messenger-base'
+import lahMessengerInputHistory from '~/mixins/lah-messenger-input-history'
+import LahMessengerInputHistory from '~/components/lah-messenger-input-history.vue'
 import LahMessengerMessage from '~/components/lah-messenger-message.vue'
 import LahMessengerEmojiPickup from '~/components/lah-messenger-emoji-pickup.vue'
 import LahMessengerImageUpload from '~/components/lah-messenger-image-upload.vue'
@@ -142,12 +153,13 @@ import LahMessengerMessageInputModal from '~/components/lah-messenger-message-in
 export default {
   name: 'LahMessengerChannelDepartment',
   components: {
+    LahMessengerInputHistory,
     LahMessengerMessage,
     LahMessengerEmojiPickup,
     LahMessengerImageUpload,
     LahMessengerMessageInputModal
   },
-  mixins: [lahMessengerBase],
+  mixins: [lahMessengerBase, lahMessengerInputHistory],
   props: {
     channel: {
       type: String,
@@ -415,6 +427,7 @@ export default {
         return
       }
 
+      this.pushHistory(this.inputText)
       const hasFiles = this.uploadFiles.length > 0
       const filesToUpload = hasFiles ? [...this.uploadFiles] : []
       if (hasFiles) {
