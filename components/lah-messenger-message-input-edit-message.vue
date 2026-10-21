@@ -240,7 +240,7 @@ export default {
         .replace(/\n{3,}/g, '\n\n')
         .trim()
 
-      this.message = txt
+      this.message = this.decodeHtmlEntities(txt)
     },
     pasted (base64) {
       if (!this.images.includes(base64)) {

@@ -324,8 +324,8 @@ export default {
     }
   },
   created () {
-    this.title = this.dataJson?.title || ''
-    this.content = this.dataJson?.content || ''
+    this.title = this.decodeHtmlEntities(this.dataJson?.title || '')
+    this.content = this.decodeHtmlEntities(this.dataJson?.content || '')
     this.priority = typeof this.dataJson?.priority !== 'undefined' ? parseInt(this.dataJson.priority) : 3
   },
   mounted () {

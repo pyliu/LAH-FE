@@ -225,6 +225,51 @@ export default {
         .replace(/(?<!`)(["'])(\\\\[a-zA-Z0-9_.-]+\\[^\r\n]+?|[a-zA-Z]:\\[^\r\n]+?)\1(?!`)/g, '`$2`')
         .replace(/(?<!`)(\\\\[a-zA-Z0-9_.-]+\\[^\s`<>]+|[a-zA-Z]:\\[^\s`<>]+)(?!`)/g, '`$1`')
     },
+    decodeHtmlEntities (str) {
+      if (!str || typeof str !== 'string') { return '' }
+      if (process.client && typeof document !== 'undefined') {
+        try {
+          const textarea = document.createElement('textarea')
+          textarea.innerHTML = str
+          return textarea.value
+        } catch (e) {}
+      }
+      const entityMap = {
+        '&quot;': '"',
+        '&apos;': "'",
+        '&lt;': '<',
+        '&gt;': '>',
+        '&amp;': '&',
+        '&nbsp;': ' ',
+        '&#39;': "'",
+        '&#34;': '"',
+        '&#38;': '&',
+        '&#60;': '<',
+        '&#62;': '>'
+      }
+      return str.replace(/&(?:quot|apos|lt|gt|amp|nbsp|#\d+|#x[0-9a-fA-F]+);/g, (match) => {
+        if (entityMap[match]) {
+          return entityMap[match]
+        }
+        if (match.startsWith('&#x') || match.startsWith('&#X')) {
+          const hex = match.slice(3, -1)
+          try {
+            return String.fromCodePoint(parseInt(hex, 16))
+          } catch (e) {
+            return String.fromCharCode(parseInt(hex, 16))
+          }
+        }
+        if (match.startsWith('&#')) {
+          const dec = match.slice(2, -1)
+          try {
+            return String.fromCodePoint(parseInt(dec, 10))
+          } catch (e) {
+            return String.fromCharCode(parseInt(dec, 10))
+          }
+        }
+        return match
+      })
+    },
     replaceFilepath (str) {
       if (!str) { return '' }
       const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
