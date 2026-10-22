@@ -5,10 +5,14 @@ div.h-100.d-flex.flex-column.overflow-hidden
       .d-flex.align-items-center
         span.h3.font-weight-bold.mr-2.my-auto {{ office }} 地政事務所入口網
         lah-fa-icon.h2.my-auto(icon="people-roof" variant="dark")
-      .d-flex.align-items-center
+      .d-flex.align-items-center(v-if="user")
         b-badge.d-none.d-lg-inline-flex.align-items-center.p-2(variant="light" class="border text-muted mr-2")
-          lah-fa-icon.text-success.mr-1(icon="building") {{ siteName }}
-          lah-fa-icon.text-primary.mr-1(icon="user") {{ userDisplayName }}
+          span {{ greeting }}，{{ userDisplayName }}
+          lah-avatar.ml-1(:user-data="user", size="1.5")
+      .d-flex.align-items-center(v-else)
+        b-badge.d-none.d-lg-inline-flex.align-items-center.p-2(variant="light" class="border text-muted mr-2")
+          lah-fa-icon.text-primary.mr-1(icon="user")
+          span 訪客您好
 
   //- 主體區域佔滿剩餘高度，內部處理捲動
   .flex-grow-1.position-relative.overflow-hidden
@@ -178,6 +182,10 @@ export default {
         return `${this.myname} (${this.myid})`
       }
       return this.myname || this.myid || '訪客'
+    },
+    greeting () {
+      const hours = new Date().getHours()
+      return hours > 11 ? (hours > 17 ? '晚安' : '午安') : '早安'
     }
   },
   methods: {
