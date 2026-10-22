@@ -364,7 +364,11 @@ div
           span(v-html="highlightText(item.receiving_caseno)")
         span.text-muted(v-else) (無)
     template(#cell(receiver)="{ item }")
-      .text-center(v-if="item.receiver")
+      .d-flex.align-items-center.justify-content-center(v-if="item.receiver")
+        lah-avatar.mr-1(
+          :id="item.receiver"
+          :name="userNames[item.receiver] || item.receiver"
+        )
         b-link.font-weight-bold.text-dark(
           href="#"
           @click.prevent="userinfo(userNames[item.receiver] || item.receiver, item.receiver)"
@@ -743,10 +747,11 @@ div
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
 import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
 import lahUserCard from '~/components/lah-user-card.vue'
+import lahAvatar from '~/components/lah-avatar.vue'
 
 export default {
   // eslint-disable-next-line vue/no-unused-components
-  components: { lahRegCaseDetail, lahUserCard },
+  components: { lahRegCaseDetail, lahUserCard, lahAvatar },
   fetchOnServer: false,
   mixins: [dynamicHeight],
   data: () => ({
@@ -866,7 +871,7 @@ export default {
         label: '收件人員',
         sortable: true,
         class: 'text-nowrap',
-        thStyle: { width: '85px' }
+        thStyle: { width: '100px' }
       },
       {
         key: 'createtime',
