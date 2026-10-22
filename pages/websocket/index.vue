@@ -234,6 +234,7 @@
             @click="setOnlinePreset"
           ) 線上正式 ({{ defaultServerIp }})
           b-button.mr-1.mb-1(
+            v-if="isAdmin"
             size="sm"
             variant="outline-info"
             @click="setDevPreset"
