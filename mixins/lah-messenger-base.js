@@ -223,7 +223,7 @@ export default {
       if (!text) { return '' }
       return String(text)
         .replace(/(?<!`)(["'])(\\\\[a-zA-Z0-9_.-]+\\[^\r\n]+?|[a-zA-Z]:\\[^\r\n]+?)\1(?!`)/g, '`$2`')
-        .replace(/(?<!`)(\\\\[a-zA-Z0-9_.-]+\\[^\s`<>]+|[a-zA-Z]:\\[^\s`<>]+)(?!`)/g, '`$1`')
+        .replace(/(?<!`)(\\\\[a-zA-Z0-9_.-]+\\[^\s`<>，。！？；：、）)」』》】\]},;!?]+|[a-zA-Z]:\\[^\s`<>，。！？；：、）)」』》】\]},;!?]+)(?!`)/g, '`$1`')
     },
     decodeHtmlEntities (str) {
       if (!str || typeof str !== 'string') { return '' }
@@ -272,9 +272,20 @@ export default {
     },
     replaceFilepath (str) {
       if (!str) { return '' }
-      const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
-      const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
-      return str.replace(regex, subst)
+      const regex = /((?:[c-zC-Z]:\\|\\\\)(?:[^<>:"/|?*\n\r\t]+?\\)*(?:[^<>:"/|?*\n\r\t]+(?=<\/code>)|[^<>:"/|?*\n\r\t\s，。！？；：、）)」』》】\]},;!?]+)?)/gim
+
+      return str.replace(regex, (match, p1) => {
+        let clean = p1
+        let trailingDot = ''
+        if (!clean.endsWith('\\')) {
+          const dotMatch = clean.match(/[.]+$/)
+          if (dotMatch) {
+            trailingDot = dotMatch[0]
+            clean = clean.slice(0, -trailingDot.length)
+          }
+        }
+        return `<span class="open-os-explorer" title="點擊複製路徑">${clean}</span>${trailingDot}`
+      })
     },
     replaceRegCase (html) {
       if (!html || typeof html !== 'string') {

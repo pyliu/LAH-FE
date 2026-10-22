@@ -324,9 +324,20 @@ export default ({ $axios, store, $config }, inject) => {
     },
     replaceFilepath (str) {
       if (!str) { return '' }
-      const regex = /(([c-z]:\\|\\\\)[^<>:"/|?*\n\r\t]+(\\(.+\.[a-z]{1,4})?))/gim
-      const subst = '<span class="open-os-explorer" title="點擊複製路徑">$1</span>'
-      return str.replace(regex, subst)
+      const regex = /((?:[c-zC-Z]:\\|\\\\)(?:[^<>:"/|?*\n\r\t]+?\\)*(?:[^<>:"/|?*\n\r\t]+(?=<\/code>)|[^<>:"/|?*\n\r\t\s，。！？；：、）)」』》】\]},;!?]+)?)/gim
+
+      return str.replace(regex, (match, p1) => {
+        let clean = p1
+        let trailingDot = ''
+        if (!clean.endsWith('\\')) {
+          const dotMatch = clean.match(/[.]+$/)
+          if (dotMatch) {
+            trailingDot = dotMatch[0]
+            clean = clean.slice(0, -trailingDot.length)
+          }
+        }
+        return `<span class="open-os-explorer" title="點擊複製路徑">${clean}</span>${trailingDot}`
+      })
     },
     /**
      * node-emoji
