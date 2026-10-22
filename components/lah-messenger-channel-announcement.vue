@@ -49,6 +49,7 @@ b-card.channel-card(no-body header-class="channel-card-header")
           :raw="item"
           :prev="announcementList[idx - 1]"
           @remove="refresh"
+          @edit="refresh"
         )
 </template>
 

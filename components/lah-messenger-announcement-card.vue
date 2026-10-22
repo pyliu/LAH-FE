@@ -7,7 +7,7 @@ b-card.announcement-card.w-100(
 )
   template(#header style="position:relative"): .d-flex.font-weight-bold.align-items-center.w-100
     span.mr-auto.text-truncate(:title="dataJson.title") {{ dataJson.title }}
-    span.ml-1.text-nowrap \#{{ dataJson.id }}
+    span.ml-1.text-nowrap \#{{ effectiveId || dataJson.id }}
   b-card-text(ref="content" v-html="content" @click="handleSpecialClick($event)")
   .attachments.mt-2.pt-2.border-top(v-if="attachments && attachments.length > 0")
     .small.text-muted.mb-1
@@ -16,10 +16,10 @@ b-card.announcement-card.w-100(
     .d-flex.flex-wrap.align-items-center
       b-button.mr-2.mb-1.text-left(
         v-for="(att, aIdx) in attachments"
-        :key="`card_att_${dataJson.id}_${aIdx}`"
+        :key="`card_att_${effectiveId || dataJson.id}_${aIdx}`"
         size="sm"
         variant="outline-secondary"
-        @click="downloadAttachment(channel, dataJson.id, att.name)"
+        @click="downloadAttachment(channel, effectiveId || dataJson.id, att.name)"
         :title="`點擊下載：${getAttachmentDisplayName(att.name)} (${formatFileSize(att.size)})`"
       )
         b-icon.mr-1(icon="paperclip")
@@ -60,9 +60,13 @@ export default {
     dataJson: { type: Object, required: true },
     rawAttachments: { type: Array, default: () => [] },
     channel: { type: String, required: true },
-    preview: { type: Boolean, default: false }
+    preview: { type: Boolean, default: false },
+    messageId: { type: [Number, String], default: 0 }
   },
   computed: {
+    effectiveId () {
+      return parseInt(this.dataJson?.id || this.dataJson?.messageId || this.dataJson?.message_id || this.messageId) || 0
+    },
     isAdmin () { return this.authority.isAdmin },
     mine () { return this.$utils.equal(this.dataJson.sender, this.userid) },
     header () { return this.dataJson.title },
@@ -124,7 +128,11 @@ export default {
     edit () {
       this.modal(this.$createElement(LahMessengerMessageInputEditAnnouncement, {
         props: {
-          dataJson: this.dataJson,
+          dataJson: {
+            ...this.dataJson,
+            id: this.effectiveId,
+            attachments: this.attachments
+          },
           channel: this.channel
         },
         on: {
@@ -148,7 +156,7 @@ export default {
         message: JSON.stringify({
           command: 'remove_message',
           channel: this.channel,
-          id: this.dataJson.id
+          id: this.effectiveId
         }),
         channel: 'system'
       })

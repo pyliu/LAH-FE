@@ -3,7 +3,7 @@
   .d-flex.justify-content-between.align-items-center.pb-2.mb-2.border-bottom
     .d-flex.align-items-center
       lah-fa-icon(:icon="isEdit ? 'edit' : 'bullhorn'" :variant="isEdit ? 'warning' : 'primary'").mr-2
-      strong.h6.mb-0 {{ isEdit ? `編輯公告 #${dataJson.id}` : '發布全所公告' }}
+      strong.h6.mb-0 {{ isEdit ? `編輯公告 #${effectiveId}` : '發布全所公告' }}
       b-badge.ml-2(:variant="isEdit ? 'warning' : 'primary'" pill) {{ isEdit ? '編輯模式' : '新增模式' }}
     .d-flex.align-items-center
       b-button-group(size="sm")
@@ -264,7 +264,10 @@ export default {
   }),
   computed: {
     isEdit () {
-      return !this.$utils.empty(this.dataJson?.id) && this.dataJson.id !== 0 && this.dataJson.id !== '?'
+      return this.effectiveId > 0
+    },
+    effectiveId () {
+      return parseInt(this.dataJson?.id || this.dataJson?.messageId || this.dataJson?.message_id) || 0
     },
     existingAttachments () {
       return Array.isArray(this.dataJson?.attachments) ? this.dataJson.attachments : []
@@ -308,7 +311,7 @@ export default {
     },
     previewDataJson () {
       return {
-        id: this.dataJson?.id || '#',
+        id: this.effectiveId || this.dataJson?.id || '#',
         title: this.title,
         content: this.mergedContent,
         priority: this.priority,
@@ -325,7 +328,7 @@ export default {
   },
   created () {
     this.title = this.decodeHtmlEntities(this.dataJson?.title || '')
-    this.content = this.decodeHtmlEntities(this.dataJson?.content || '')
+    this.content = this.normalizeContent(this.dataJson?.content || '')
     this.priority = typeof this.dataJson?.priority !== 'undefined' ? parseInt(this.dataJson.priority) : 3
   },
   mounted () {
@@ -478,9 +481,16 @@ export default {
           break
       }
     },
+    normalizeContent (txt) {
+      if (!txt) { return '' }
+      let c = String(txt)
+      c = c.replace(/<br\s*\/?>/igm, '\n')
+      c = this.decodeHtmlEntities(c)
+      return c
+    },
     resetFields () {
-      this.title = this.dataJson?.title || ''
-      this.content = this.dataJson?.content || ''
+      this.title = this.decodeHtmlEntities(this.dataJson?.title || '')
+      this.content = this.normalizeContent(this.dataJson?.content || '')
       this.priority = typeof this.dataJson?.priority !== 'undefined' ? parseInt(this.dataJson.priority) : 3
       this.images = []
       this.uploadFiles = []
@@ -508,11 +518,12 @@ export default {
       try {
         if (this.isEdit) {
           const payload = {
-            id: this.dataJson.id,
+            id: this.effectiveId,
             channel: this.channel,
             title: this.title,
             content: this.mergedContent,
-            priority: this.priority
+            priority: this.priority,
+            sender: this.dataJson?.sender || this.userid
           }
           const json = {
             type: 'command',
@@ -523,7 +534,7 @@ export default {
             message: JSON.stringify({
               command: 'edit_message',
               channel: this.channel,
-              id: this.dataJson.id,
+              id: this.effectiveId,
               payload
             })
           }
@@ -533,11 +544,11 @@ export default {
             this.uploadFiles = []
             for (const file of filesToUpload) {
               try {
-                await this.uploadAttachment(this.channel, this.dataJson.id, file)
-                this.notify(`公告 #${this.dataJson.id} 附件 ${file.name} 上傳成功`, { type: 'success' })
+                await this.uploadAttachment(this.channel, this.effectiveId, file)
+                this.notify(`公告 #${this.effectiveId} 附件 ${file.name} 上傳成功`, { type: 'success' })
               } catch (err) {
                 this.$utils.error(`上傳 ${file.name} 失敗`, err)
-                this.notify(`公告 #${this.dataJson.id} 附件 ${file.name} 上傳失敗: ${err.message}`, { type: 'danger' })
+                this.notify(`公告 #${this.effectiveId} 附件 ${file.name} 上傳失敗: ${err.message}`, { type: 'danger' })
               }
             }
           }
@@ -556,7 +567,8 @@ export default {
           const packet = this.packMessage(this.mergedContent, {
             channel: this.channel || 'announcement',
             title: this.title,
-            priority: this.priority
+            priority: this.priority,
+            sender: this.dataJson?.sender || this.userid
           })
           this.websocket.send(packet)
           this.notify('公告發布成功', { type: 'success' })
@@ -564,7 +576,8 @@ export default {
             channel: this.channel,
             title: this.title,
             content: this.mergedContent,
-            priority: this.priority
+            priority: this.priority,
+            sender: this.dataJson?.sender || this.userid
           })
         }
       } catch (e) {

@@ -49,6 +49,8 @@
       :channel="channel"
       :message-id="id"
       :class="isToday ? 'today-card' : ''"
+      @remove="$emit('remove', $event)"
+      @edit="$emit('edit', $event)"
     )
 
     //- 遠端或系統文字訊息
