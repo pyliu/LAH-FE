@@ -1,4 +1,7 @@
 {
-    "editor.tabSize": 2,
-    "workbench.startupEditor": "none"
+  "editor.tabSize": 2,
+  "workbench.startupEditor": "none",
+  "terminal.integrated.env.windows": {
+    "PATH": "C:\\AppServ\\node;${env:PATH}"
+  }
 }

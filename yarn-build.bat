@@ -1,3 +1,3 @@
 @echo off
-nvm use 16
+set "PATH=C:\AppServ\node;%PATH%"
 yarn build

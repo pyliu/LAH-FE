@@ -1,2 +1,3 @@
 @echo off
-pm2 start ecosystem.config.js
+set "PATH=C:\AppServ\node;%PATH%"
+call pm2 start ecosystem.config.js
