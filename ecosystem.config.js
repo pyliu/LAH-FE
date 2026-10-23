@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     // App 名稱
     name: 'LAH-FE',
-    // 分為 cluster 以及 fork 模式
+    // 分為 cluster 以及 fork 模式（cluster 模式由 PM2 Daemon 所屬之 Node 執行期衍生，建議將 PM2 服務鎖定由 C:\AppServ\node\node.exe 喚醒）
     exec_mode: 'cluster',
     instances: 2,
     // 執行服務的入口檔案
