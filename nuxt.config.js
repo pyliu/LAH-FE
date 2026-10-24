@@ -118,6 +118,14 @@ export default {
       // proxyTimeout: 60000 // Timeout in milliseconds (60 seconds)
       // pathRewrite: { '^/api': '' }
     },
+    '/LAH-API': {
+      target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
+      changeOrigin: true
+    },
+    '/lah-api': {
+      target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
+      changeOrigin: true
+    },
     '/l05proxy': {
       target: `${process.env.PROTOCOL}://${process.env.MONITOR_HOST_L05_IP}:${process.env.MONITOR_HOST_L05_PORT}`,
       changeOrigin: true,

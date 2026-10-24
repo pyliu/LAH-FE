@@ -18,7 +18,14 @@ lah-transition(slide-up appear)
     a.mx-1(href="https://vuejs.org/" target="_blank" title="Learn Vue JS!")
       i.text-success.fab.fa-vuejs.fa-lg
 
-    .version.ml-2.my-1 v{{ $config.pkgVersion }}
+    .version.ml-2.my-1(
+      :class="{ 'bg-success text-white': isPhp85Active }"
+      @click="openApiTrackModal"
+      role="button"
+      :title="isPhp85Active ? '目前運行於 PHP 8.5 (點擊切換 API 軌道)' : '點擊切換 API 軌道'"
+    )
+      span(v-if="isPhp85Active") PHP 8.5 ·
+      | v{{ $config.pkgVersion }}
 </template>
 
 <script>
@@ -39,6 +46,11 @@ export default {
       'lah-shadow'
     ]
   }),
+  computed: {
+    isPhp85Active () {
+      return this.$store.getters.isPhp85Active
+    }
+  },
   created () {
     this.$root.$on('toggle-lah-footer', this.toggle)
     this.$root.$on('show-lah-footer', this.display)
@@ -53,6 +65,9 @@ export default {
     this.systemConfigs.mock && this.notify('目前系統處於模擬模式，僅會回應快取的資料', { type: 'dark', pos: 'br', delay: 7500 })
   },
   methods: {
+    openApiTrackModal () {
+      this.$root.$emit('open-api-track-switcher-modal')
+    },
     cancelTimer () {
       if (this.timerHandle) {
         clearTimeout(this.timerHandle)

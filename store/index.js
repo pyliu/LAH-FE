@@ -73,6 +73,20 @@ export const state = () => ({
     isNotifyMgtStaff: false,
     isSuper: false
   },
+  // API 軌道管理 (PHP 7.4 舊軌 vs PHP 8.5 新軌)
+  apiTrack: {
+    globalTrack: 'php7',
+    moduleOverrides: {},
+    health: {
+      status: null,
+      phpVersion: '',
+      sapi: '',
+      extensions: {},
+      latency: 0,
+      timestamp: null,
+      error: ''
+    }
+  },
   // System-wide configurations.
   systemConfigs: {},
   // The last received message for global display.
@@ -167,6 +181,12 @@ export const getters = {
   siteUserNames: state => state.siteUserNames,
   authority: state => state.authority,
   systemConfigs: state => state.systemConfigs,
+  apiTrack: state => state.apiTrack,
+  isPhp85Active: (state) => {
+    return state.apiTrack?.globalTrack === 'php85' ||
+      Object.values(state.apiTrack?.moduleOverrides || {}).includes('php85')
+  },
+  isPhp85Global: state => state.apiTrack?.globalTrack === 'php85',
   apiHost: state => state.systemConfigs.API_SERVER_IP,
   apiPort: state => state.systemConfigs.API_SERVER_PORT,
   wsHost: state => state.systemConfigs.WS_SERVER_IP,
@@ -469,6 +489,71 @@ export const mutations = {
       }
     }
   },
+  setApiGlobalTrack (state, track) {
+    state.apiTrack.globalTrack = track === 'php85' ? 'php85' : 'php7'
+    if (process.client && typeof window !== 'undefined') {
+      try {
+        const saved = JSON.parse(window.localStorage?.getItem('lah-api-track-config') || '{}')
+        saved.globalTrack = state.apiTrack.globalTrack
+        window.localStorage?.setItem('lah-api-track-config', JSON.stringify(saved))
+      } catch (e) {
+        console.warn('儲存 apiTrack 至 localStorage 失敗', e)
+      }
+    }
+  },
+  setApiModuleOverride (state, { moduleName, track }) {
+    if (!track || track === 'default') {
+      const copy = { ...state.apiTrack.moduleOverrides }
+      delete copy[moduleName]
+      state.apiTrack.moduleOverrides = copy
+    } else {
+      state.apiTrack.moduleOverrides = {
+        ...state.apiTrack.moduleOverrides,
+        [moduleName]: track === 'php85' ? 'php85' : 'php7'
+      }
+    }
+    if (process.client && typeof window !== 'undefined') {
+      try {
+        const saved = JSON.parse(window.localStorage?.getItem('lah-api-track-config') || '{}')
+        saved.moduleOverrides = state.apiTrack.moduleOverrides
+        window.localStorage?.setItem('lah-api-track-config', JSON.stringify(saved))
+      } catch (e) {
+        console.warn('儲存 apiTrack 至 localStorage 失敗', e)
+      }
+    }
+  },
+  resetApiTrack (state) {
+    state.apiTrack.globalTrack = 'php7'
+    state.apiTrack.moduleOverrides = {}
+    if (process.client && typeof window !== 'undefined') {
+      try {
+        window.localStorage?.removeItem('lah-api-track-config')
+      } catch (e) {
+        console.warn('清除 apiTrack localStorage 失敗', e)
+      }
+    }
+  },
+  setApiHealth (state, health) {
+    state.apiTrack.health = { ...state.apiTrack.health, ...health }
+  },
+  initApiTrack (state) {
+    if (process.client && typeof window !== 'undefined') {
+      try {
+        const raw = window.localStorage?.getItem('lah-api-track-config')
+        if (raw) {
+          const saved = JSON.parse(raw)
+          if (saved.globalTrack === 'php85' || saved.globalTrack === 'php7') {
+            state.apiTrack.globalTrack = saved.globalTrack
+          }
+          if (saved.moduleOverrides && typeof saved.moduleOverrides === 'object') {
+            state.apiTrack.moduleOverrides = saved.moduleOverrides
+          }
+        }
+      } catch (e) {
+        console.warn('讀取 apiTrack localStorage 失敗', e)
+      }
+    }
+  },
   initDisplayFontScale (state) {
     let scale = 100
     if (process.client && typeof window !== 'undefined') {
@@ -684,6 +769,40 @@ export const actions = {
    * NOTE: This action is intended to be called during nuxtServerInit
    * as $content is not available on the client-side in this project setup.
    */
+  async checkApi85Health ({ commit }) {
+    commit('setApiHealth', { status: 'checking', error: '' })
+    const startTime = Date.now()
+    try {
+      const response = await this.$axios.get('/LAH-API/ver.php', {
+        headers: { 'Cache-Control': 'no-cache' },
+        timeout: 6000
+      })
+      const latency = Date.now() - startTime
+      if (response && response.data && response.data.status === 1) {
+        commit('setApiHealth', {
+          status: 'healthy',
+          phpVersion: response.data.php_version || '8.5',
+          sapi: response.data.sapi || '',
+          extensions: response.data.extensions || {},
+          latency,
+          timestamp: response.data.timestamp || new Date().toLocaleTimeString(),
+          error: ''
+        })
+        return true
+      } else {
+        throw new Error('伺服器未回傳預期的版本資訊')
+      }
+    } catch (err) {
+      const latency = Date.now() - startTime
+      commit('setApiHealth', {
+        status: 'unhealthy',
+        latency,
+        timestamp: new Date().toLocaleTimeString(),
+        error: err.response ? `HTTP ${err.response.status} (${err.response.statusText})` : (err.message || '連線逾時或 FastCGI 服務未啟動')
+      })
+      return false
+    }
+  },
   async loadXap ({ getters }, $content) {
     try {
       if (!$content) {

@@ -4,13 +4,17 @@ b-container(v-cloak fluid)
   lah-footer(ref="footer")
   lah-messenger-sidebar
   lah-message-history-modal(ref="messageHistoryModal")
+  lah-api-track-switcher-modal(ref="apiTrackSwitcherModal")
   lah-sidebar-admin(v-if="isAdmin")
   lah-sidebar(v-else)
   .version.shadow(
-    @click="toggleFooter"
-    title="點擊切換顯示頁尾資訊"
+    :class="{ 'php85-active': isPhp85Active }"
+    @click="openApiTrackModal"
+    :title="isPhp85Active ? '目前運行於 PHP 8.5 軌道 (點擊開啟切換面板)' : '點擊開啟 API 軌道切換與健康狀態面板'"
     role="button"
-  ) v{{ $config.pkgVersion }}
+  )
+    span.badge.badge-light.mr-1(v-if="isPhp85Active") PHP 8.5
+    | v{{ $config.pkgVersion }}
 </template>
 
 <script>
@@ -34,6 +38,9 @@ export default {
   computed: {
     isAdmin () {
       return this.$store.getters.authority?.isAdmin
+    },
+    isPhp85Active () {
+      return this.$store.getters.isPhp85Active
     }
   },
   created () {
@@ -74,18 +81,29 @@ export default {
     // 初始化系統訊息歷史紀錄與監聽開啟 Modal 事件
     this.$store.commit('initMessageMemento')
     this.$store.commit('initDisplayFontScale')
+    this.$store.commit('initApiTrack')
     this.openMessageHistoryModalHandler = () => {
       this.$refs.messageHistoryModal?.show()
     }
     this.$root.$on('open-message-history-modal', this.openMessageHistoryModalHandler)
+    this.openApiTrackModalHandler = () => {
+      this.$refs.apiTrackSwitcherModal?.show()
+    }
+    this.$root.$on('open-api-track-switcher-modal', this.openApiTrackModalHandler)
   },
   beforeDestroy () {
     window.removeEventListener('keydown', this.handleKeydown)
     if (this.openMessageHistoryModalHandler) {
       this.$root.$off('open-message-history-modal', this.openMessageHistoryModalHandler)
     }
+    if (this.openApiTrackModalHandler) {
+      this.$root.$off('open-api-track-switcher-modal', this.openApiTrackModalHandler)
+    }
   },
   methods: {
+    openApiTrackModal () {
+      this.$refs.apiTrackSwitcherModal?.show()
+    },
     toggleFooter () {
       if (this.$refs.footer && typeof this.$refs.footer.toggle === 'function') {
         this.$refs.footer.toggle()
@@ -170,6 +188,15 @@ export default {
   transition: all 0.3s ease-in-out;
   cursor: pointer;
 
+  /* PHP 8.5 啟用狀態：高對比翡翠青綠風格，醒目提示目前運行於新軌道 */
+  &.php85-active {
+    color: #ffffff !important;
+    background-color: #20c997 !important;
+    border-color: #17a2b8;
+    box-shadow: 0 0 12px rgba(32, 201, 151, 0.75) !important;
+    animation: pulse 2.5s infinite;
+  }
+
   &:hover {
     /* 懸停狀態：高對比實體化 + 白色外發光，確保暗色系中絕對清晰可見 */
     color: #ffffff !important;
@@ -177,6 +204,18 @@ export default {
     border-color: #ffffff;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
     transform: translateY(-2px); /* 微微上浮增加互動感 */
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(32, 201, 151, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(32, 201, 151, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(32, 201, 151, 0);
   }
 }
 </style>
