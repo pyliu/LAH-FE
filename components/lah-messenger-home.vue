@@ -1253,9 +1253,7 @@ export default {
             })
           } catch (err) {
             this.$utils.error(`附件 ${file.name} 上傳失敗:`, err)
-            this.notify(`訊息 #${messageId} 附件 ${file.name} 上傳失敗: ${err.message}`, {
-              type: 'danger'
-            })
+            this.showAttachmentError(file.name, err.message || '後端伺服器拒絕上傳或連線異常')
           }
         }
       }

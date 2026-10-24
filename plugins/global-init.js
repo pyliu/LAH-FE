@@ -921,29 +921,92 @@ export default ({ $axios, store, $config }, inject) => {
       )
     },
     highlightPipeline (str) {
-      if (str) {
-        // 保護 Markdown 圖片與 data:image 內嵌 base64 內容，避免被文字醒目規則破壞
-        const placeholders = []
-        let tmp = str.replace(/!\[[\s\S]*?\]\([\s\S]*?\)|data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/g, (match) => {
-          const token = `___LAH_PROTECTED_MEDIA_${placeholders.length}___`
-          placeholders.push(match)
-          return token
-        })
+      if (!str) { return str }
 
-        tmp = this.highlightBlue(tmp)
-        tmp = this.highlightRed(tmp)
-        tmp = this.highlightOrange(tmp)
-        tmp = this.highlightGreen(tmp)
-        tmp = this.highlightTimestamp(tmp)
-        tmp = this.highlightTitle(tmp)
+      const b64Protections = []
+      const htmlProtections = []
+      const codeProtections = []
+      const mdProtections = []
+      const urlProtections = []
+      const pathProtections = []
+      const ipProtections = []
+      let tmp = str
 
-        for (let i = 0; i < placeholders.length; i++) {
-          tmp = tmp.replace(`___LAH_PROTECTED_MEDIA_${i}___`, placeholders[i])
-        }
+      // 1. 保護 Base64 Data URI (最優先執行，避免超長字串導致 Regex 限制或破壞)
+      tmp = tmp.replace(/(data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=_\r\n]+)/g, (match) => {
+        b64Protections.push(match)
+        return `__B64_PROTECT_${b64Protections.length - 1}__`
+      })
 
-        return tmp
-      }
-      return str
+      // 2. 保護已被解析或既有的 HTML 標籤 (避免 <h3 id="..."> 或 <font color="..."> 內部屬性被破壞)
+      tmp = tmp.replace(/(<[^>]+>)/g, (match) => {
+        htmlProtections.push(match)
+        return `__HTML_PROTECT_${htmlProtections.length - 1}__`
+      })
+
+      // 3. 保護 Inline Code (如 `\\192.168.1.1\TBD` 等程式碼區塊)
+      tmp = tmp.replace(/(`[^`]+`)/g, (match) => {
+        codeProtections.push(match)
+        return `__CODE_PROTECT_${codeProtections.length - 1}__`
+      })
+
+      // 4. 保護 Markdown 連結與圖片
+      tmp = tmp.replace(/(!?\[.*?\]\([^)]+\))/g, (match) => {
+        mdProtections.push(match)
+        return `__MD_PROTECT_${mdProtections.length - 1}__`
+      })
+
+      // 5. 保護純文字 URL
+      tmp = tmp.replace(/(https?:\/\/[^\s<]+)/g, (match) => {
+        urlProtections.push(match)
+        return `__URL_PROTECT_${urlProtections.length - 1}__`
+      })
+
+      // 6. 保護 UNC 網路路徑與本機路徑
+      const pathRegex = /((?:[c-zC-Z]:\\|\\\\)(?:[^<>:"/|?*\n\r\t]+?\\)*(?:[^<>:"/|?*\n\r\t]+(?=<\/code>)|[^<>:"/|?*\n\r\t\s，。！？；：、）)」』》】\]},;!?]+)?)/gim
+      tmp = tmp.replace(pathRegex, (match) => {
+        pathProtections.push(match)
+        return `__PATH_PROTECT_${pathProtections.length - 1}__`
+      })
+
+      // 7. 保護單獨的 IPv4 位址
+      tmp = tmp.replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, (match) => {
+        ipProtections.push(match)
+        return `__IP_PROTECT_${ipProtections.length - 1}__`
+      })
+
+      // 8. 執行各式文字高亮轉換
+      tmp = this.highlightBlue(tmp)
+      tmp = this.highlightRed(tmp)
+      tmp = this.highlightOrange(tmp)
+      tmp = this.highlightGreen(tmp)
+      tmp = this.highlightTimestamp(tmp)
+      tmp = this.highlightTitle(tmp)
+
+      // 9. 依序還原受保護的原始結構 (從下往上，順序反轉；使用傳回函式避免 $ 符號被 replace 誤判)
+      ipProtections.forEach((ip, idx) => {
+        tmp = tmp.replace(`__IP_PROTECT_${idx}__`, () => ip)
+      })
+      pathProtections.forEach((path, idx) => {
+        tmp = tmp.replace(`__PATH_PROTECT_${idx}__`, () => path)
+      })
+      urlProtections.forEach((url, idx) => {
+        tmp = tmp.replace(`__URL_PROTECT_${idx}__`, () => url)
+      })
+      mdProtections.forEach((md, idx) => {
+        tmp = tmp.replace(`__MD_PROTECT_${idx}__`, () => md)
+      })
+      codeProtections.forEach((code, idx) => {
+        tmp = tmp.replace(`__CODE_PROTECT_${idx}__`, () => code)
+      })
+      htmlProtections.forEach((html, idx) => {
+        tmp = tmp.replace(`__HTML_PROTECT_${idx}__`, () => html)
+      })
+      b64Protections.forEach((b64, idx) => {
+        tmp = tmp.replace(`__B64_PROTECT_${idx}__`, () => b64)
+      })
+
+      return tmp
     },
     log () {
       if ($config.isDev) {

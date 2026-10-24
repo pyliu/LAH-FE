@@ -9,6 +9,20 @@ import {
 
 const isDevMode = process.env.NODE_ENV !== 'production'
 
+export const ALLOWED_ATTACHMENT_EXTENSIONS = [
+  'pdf', 'rtf',
+  'doc', 'docx', 'dot', 'dotx',
+  'xls', 'xlsx', 'xlt', 'xltx',
+  'ppt', 'pptx', 'pot', 'potx',
+  'odt', 'ott', 'ods', 'ots', 'odp', 'otp', 'odg', 'otg',
+  'txt', 'csv', 'xml', 'json', 'di',
+  'dwg', 'dxf',
+  'tif', 'tiff', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp',
+  'rar', 'zip', '7z', 'gz', 'tar',
+  'eml', 'msg'
+]
+export const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB
+
 export default {
   computed: {
     ...mapGetters([
@@ -37,6 +51,9 @@ export default {
       'wsHost',
       'wsPort'
     ]),
+    attachmentAcceptAttr () {
+      return ALLOWED_ATTACHMENT_EXTENSIONS.map(ext => `.${ext}`).join(',')
+    },
     totalUnread () {
       const storeTotal = this.$store?.getters?.totalUnread
       if (typeof storeTotal === 'number' && storeTotal > 0) {
@@ -858,6 +875,61 @@ export default {
       this.resetUnread(ch)
       this.$utils && this.$utils.log && this.$utils.log(`[即時通] updateChannelLastReadId: 頻道 [${ch}]，列表長度: ${list.length}，最大 ID: ${maxId}`)
     },
+    validateAttachmentFile (file) {
+      if (!file) { return { valid: false, message: '未選取任何檔案' } }
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        return {
+          valid: false,
+          filename: file.name,
+          message: `檔案大小 (${this.formatFileSize(file.size)}) 超過限制，單檔上限為 10 MB。`
+        }
+      }
+      const name = file.name || ''
+      const dotIndex = name.lastIndexOf('.')
+      const ext = dotIndex > 0 ? name.slice(dotIndex + 1).toLowerCase() : ''
+      if (!ext || !ALLOWED_ATTACHMENT_EXTENSIONS.includes(ext)) {
+        return {
+          valid: false,
+          filename: file.name,
+          ext: ext ? `.${ext}` : '無副檔名或特殊檔案',
+          message: `不支援「${file.name}」的檔案類型 (${ext ? '.' + ext : '無副檔名或特殊檔案'})。請選取合規之公務檔案。`
+        }
+      }
+      return { valid: true }
+    },
+    showAttachmentError (filename, reason) {
+      const safeFilename = this.$utils ? this.$utils.escape(filename || '未命名檔案') : (filename || '')
+      const safeReason = this.$utils ? this.$utils.escape(reason || '檔案格式或大小不符限制') : (reason || '')
+      const htmlContent = `
+        <div class="p-1">
+          <div class="text-danger font-weight-bold mb-2">
+            ⚠️ 無法附加檔案「${safeFilename}」
+          </div>
+          <div class="alert alert-danger py-2 px-3 small mb-3">
+            ${safeReason}
+          </div>
+          <div class="small text-muted bg-light p-2 rounded border">
+            <div class="font-weight-bold text-dark mb-1">📌 允許之公務附件格式：</div>
+            <div class="mb-1"><strong>文書與公文：</strong>PDF, DOC/DOCX, XLS/XLSX, PPT/PPTX, ODF(ODT/ODS/ODP), TXT, CSV, DI公文交換檔</div>
+            <div class="mb-1"><strong>圖資與掃描：</strong>CAD圖資(DWG, DXF), 謄本/公文掃描(TIF, TIFF), 影像(JPG, PNG, GIF, BMP, WEBP)</div>
+            <div class="mb-1"><strong>壓縮與郵件：</strong>ZIP, 7Z, RAR, GZ, TAR, EML, MSG</div>
+            <div class="text-secondary mt-1"><strong>單檔大小上限：</strong>10 MB</div>
+          </div>
+        </div>
+      `
+      this.modal(htmlContent, {
+        title: '❌ 附件檔案檢查失敗',
+        html: true,
+        hideFooter: false,
+        okTitle: '我知道了',
+        okVariant: 'danger',
+        size: 'md'
+      })
+      this.notify(`附件「${safeFilename}」上傳失敗：${safeReason}`, {
+        type: 'danger',
+        autoHideDelay: 10000
+      })
+    },
     async uploadAttachment (channel, messageId, file) {
       if (!channel || !messageId || !file) {
         throw new Error('缺少上傳參數 (channel, messageId, file)')
@@ -876,17 +948,29 @@ export default {
       }
 
       // 使用原生 fetch 發送 multipart/form-data，避免被全域 axios 攔截器 (qs.stringify) 破壞 FormData
-      const res = await fetch(uploadUrl, {
-        method: 'POST',
-        headers,
-        body: formData
-      })
-      const resData = await res.json()
+      let res = null
+      try {
+        res = await fetch(uploadUrl, {
+          method: 'POST',
+          headers,
+          body: formData
+        })
+      } catch (networkErr) {
+        throw new Error(`無法連線至附件伺服器 (${networkErr.message || '連線逾時或伺服器未啟動'})`)
+      }
 
-      if (res.ok && resData?.status === 1) {
+      let resData = null
+      try {
+        resData = await res.json()
+      } catch (parseErr) {
+        // 非 JSON 回應
+      }
+
+      if (res && res.ok && resData?.status === 1) {
         return resData.data
       } else {
-        throw new Error(resData?.message || `上傳失敗 (${res.status})`)
+        const errorMsg = resData?.message || (res && res.status === 413 ? '檔案大小超過伺服器上限 (413 Payload Too Large)' : `伺服器回應異常 (${res ? res.status : '未知錯誤'})`)
+        throw new Error(errorMsg)
       }
     },
     formatFileSize (bytes) {

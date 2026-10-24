@@ -113,6 +113,7 @@
             ref="fileInput"
             type="file"
             multiple
+            :accept="attachmentAcceptAttr"
             style="display: none"
             @change="handleFileChange"
           )
@@ -452,11 +453,16 @@ export default {
     handleFileChange (e) {
       const files = Array.from(e.target.files || [])
       if (!files.length) { return }
-      files.forEach((f) => {
+      for (const f of files) {
+        const check = this.validateAttachmentFile(f)
+        if (!check.valid) {
+          this.showAttachmentError(f.name, check.message)
+          return
+        }
         if (!this.uploadFiles.some(item => item.name === f.name && item.size === f.size)) {
           this.uploadFiles.push(f)
         }
-      })
+      }
       e.target.value = ''
     },
     removeUploadFile (idx) {

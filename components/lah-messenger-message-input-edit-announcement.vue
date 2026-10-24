@@ -118,6 +118,7 @@
             ref="fileInput"
             type="file"
             multiple
+            :accept="attachmentAcceptAttr"
             style="display: none"
             @change="handleFileChange"
           )
@@ -448,11 +449,16 @@ export default {
     handleFileChange (e) {
       const files = Array.from(e.target.files || [])
       if (!files.length) { return }
-      files.forEach((f) => {
+      for (const f of files) {
+        const check = this.validateAttachmentFile(f)
+        if (!check.valid) {
+          this.showAttachmentError(f.name, check.message)
+          return
+        }
         if (!this.uploadFiles.some(item => item.name === f.name && item.size === f.size)) {
           this.uploadFiles.push(f)
         }
-      })
+      }
       e.target.value = ''
     },
     removeUploadFile (idx) {
@@ -541,15 +547,24 @@ export default {
           this.websocket.send(JSON.stringify(json))
           if (this.uploadFiles.length > 0) {
             const filesToUpload = [...this.uploadFiles]
-            this.uploadFiles = []
+            const failedFiles = []
             for (const file of filesToUpload) {
               try {
                 await this.uploadAttachment(this.channel, this.effectiveId, file)
                 this.notify(`公告 #${this.effectiveId} 附件 ${file.name} 上傳成功`, { type: 'success' })
+                const idx = this.uploadFiles.indexOf(file)
+                if (idx !== -1) {
+                  this.uploadFiles.splice(idx, 1)
+                }
               } catch (err) {
                 this.$utils.error(`上傳 ${file.name} 失敗`, err)
-                this.notify(`公告 #${this.effectiveId} 附件 ${file.name} 上傳失敗: ${err.message}`, { type: 'danger' })
+                failedFiles.push({ file, err })
               }
+            }
+            if (failedFiles.length > 0) {
+              const firstErr = failedFiles[0]
+              this.showAttachmentError(firstErr.file.name, firstErr.err.message || '後端伺服器拒絕上傳或連線逾時')
+              return
             }
           }
           this.notify('公告已成功更新', { type: 'success' })

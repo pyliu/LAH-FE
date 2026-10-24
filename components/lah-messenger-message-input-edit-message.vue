@@ -16,13 +16,14 @@ div(style="position:relative" @paste="pasteImage($event, pasted)")
     )
     b-button.ml-1.d-flex.flex-column.align-items-center.justify-content-center(
       @click="send"
-      :disabled="notValid"
-      :variant="notValid ? 'outline-primary' : 'primary'"
+      :disabled="notValid || isUploading"
+      :variant="notValid || isUploading ? 'outline-primary' : 'primary'"
       title="儲存修改 (Ctrl+Enter)"
       style="min-width: 54px;"
     )
-      b-icon(icon="cursor" rotate="45" font-scale="1.2")
-      span.small.mt-1 儲存
+      b-spinner(v-if="isUploading" small)
+      b-icon(v-else icon="cursor" rotate="45" font-scale="1.2")
+      span.small.mt-1 {{ isUploading ? '上傳中' : '儲存' }}
 
   .position-relative.my-2
     .d-flex.align-items-center
@@ -50,6 +51,7 @@ div(style="position:relative" @paste="pasteImage($event, pasted)")
           ref="fileInput"
           type="file"
           multiple
+          :accept="attachmentAcceptAttr"
           style="display: none"
           @change="handleFileChange"
         )
@@ -308,14 +310,21 @@ export default {
     },
     handleFileChange (e) {
       const files = Array.from(e.target.files || [])
-      files.forEach(f => this.uploadFiles.push(f))
+      for (const f of files) {
+        const check = this.validateAttachmentFile(f)
+        if (!check.valid) {
+          this.showAttachmentError(f.name, check.message)
+          return
+        }
+        this.uploadFiles.push(f)
+      }
       e.target.value = ''
     },
     removeUploadFile (idx) {
       this.uploadFiles.splice(idx, 1)
     },
-    send () {
-      if (this.notValid) {
+    async send () {
+      if (this.isUploading || this.notValid) {
         return
       }
       const payload = {
@@ -348,19 +357,32 @@ export default {
       if (this.websocket && this.websocket.readyState === 1) {
         this.websocket.send(JSON.stringify(json))
         if (this.uploadFiles.length > 0) {
+          this.isUploading = true
           const filesToUpload = [...this.uploadFiles]
-          this.uploadFiles = []
           const uploadChannel = this.cascadeInfo?.to || this.raw.channel
           const uploadMsgId = this.cascadeInfo?.id || this.raw.id
-          filesToUpload.forEach(async (file) => {
+          const failedFiles = []
+
+          for (const file of filesToUpload) {
             try {
               await this.uploadAttachment(uploadChannel, uploadMsgId, file)
               this.notify(`訊息 #${this.raw.id} 附件 ${file.name} 上傳成功`, { type: 'success' })
+              const idx = this.uploadFiles.indexOf(file)
+              if (idx !== -1) {
+                this.uploadFiles.splice(idx, 1)
+              }
             } catch (err) {
               this.$utils.error(`上傳 ${file.name} 失敗`, err)
-              this.notify(`訊息 #${this.raw.id} 附件 ${file.name} 上傳失敗: ${err.message}`, { type: 'danger' })
+              failedFiles.push({ file, err })
             }
-          })
+          }
+          this.isUploading = false
+
+          if (failedFiles.length > 0) {
+            const firstErr = failedFiles[0]
+            this.showAttachmentError(firstErr.file.name, firstErr.err.message || '後端伺服器拒絕上傳或連線逾時')
+            return
+          }
         }
         this.$emit('sent', payload)
       }

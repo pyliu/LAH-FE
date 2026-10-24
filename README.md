@@ -85,3 +85,6 @@ This frontend application relies on the LAH-API service, which functions as the 
 * **地價課 (地價小幫手)**: 處理地價相關的業務。
 * **系管 (Administration)**: 提供使用者管理、權限設定等後台功能。
 
+## 版本修改歷程 (Changelog)
+
+詳細版本演進與修改歷程請參閱 [CHANGELOG.md](./CHANGELOG.md)。
