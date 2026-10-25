@@ -124,7 +124,7 @@
             ) 單獨上傳頭像檔
 
         //- 3. AD 帳號管理與密碼重設專區 (取代原生醜陋的 window.prompt)
-        .ad-action-box.rounded.border.p-2.bg-white(v-if="!isDisabled")
+        .ad-action-box.rounded.border.p-2.bg-white(v-if="!isDisabled && isAdAvailable")
           .d-flex.justify-content-between.align-items-center.flex-nowrap
             span.small.font-weight-bold.text-muted.text-nowrap.mr-2
               lah-fa-icon.mr-1(icon="shield-halved")

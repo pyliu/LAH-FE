@@ -331,6 +331,7 @@ export default {
         }
 
         this.adConnectionVerified = true
+        this.$store.commit('systemConfigs', { ad_available: true })
         this.notify('AD 連線測試成功', { type: 'success' })
       } catch (err) {
         this.$utils.error(err)

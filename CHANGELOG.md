@@ -6,6 +6,17 @@
 
 ## [2026-10-25]
 
+### 🛡️ AD 主機動態偵測與無效營運服務智慧隱藏
+- **狀態驅動介面切換**：整合全域 `isAdAvailable` 計算屬性（來自後端 API 與系統參數快取），精準控制 AD 相關控制項之顯示或隱藏。
+- **員工管理畫面精煉 (`pages/admin/users/index.vue`)**：
+  - 頂部工具列：無 AD 主機時自動隱藏「AD 鎖定」按鈕；保留「AD 設定」按鈕並切換為警告樣式（`outline-warning`）與輔助 Tooltip，提示管理人員「AD 伺服器離線或尚未設定，點擊進入設定」。
+  - KPI 統計卡片：無 AD 主機時自動隱藏「AD 帳號鎖定」卡片，避免呈現無意義的 0 人指標或錯誤重測。
+  - 動態狀態刷新：設定更新（`adConfigSaved`）後自動觸發 `ad_status` 重新探活，及時刷新全域狀態。
+- **人員編輯卡片防呆 (`components/lah-user-edit-card.vue`)**：
+  - 當 AD 不可用時，自動隱藏左側「AD 網域帳號操作」區塊（含 AD 解鎖與密碼重設面板），防止誤觸與無效請求。
+- **AD 設定組件連線聯動 (`components/lah-ad-config-card.vue`)**：
+  - 點擊「測試連線」驗證成功時，即時更新 Vuex 全域狀態為可用。
+
 ### 🐛 即時通文字高亮管線 HTML 破版修正
 - **問題根因修復**：修復伺服端將 Markdown 標題（如 `### 【工作回報】業務處理進度`）轉譯為 `<h3 id="【工作回報】...">` 後，前端 `plugins/global-init.js` 的 `highlightPipeline` 未保護既有 HTML 標籤（`<[^>]+>`），導致 `highlightTitle` 正規表達式匹配並拆碎 `id="..."` 屬性值、注入 `<span class="font-weight-bold" ...>`，使得屬性引號提前閉合、在聊天室泡泡中異常洩漏 `">` 與重複文字標題的重大破版問題。
 - **超強遮罩防護管線 (Super Masking Pipeline)**：

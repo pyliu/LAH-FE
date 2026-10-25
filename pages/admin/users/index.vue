@@ -40,6 +40,7 @@ div(v-cloak)
         //- 管理工具按鈕群組
         b-button-group(size="lg")
           lah-button.mr-1.text-nowrap(
+            v-if="isAdAvailable"
             icon="user-lock"
             :variant="lockedUserIds.length > 0 ? 'danger' : 'outline-secondary'"
             :badge-text="lockedUserIds.length > 0 ? String(lockedUserIds.length) : ''"
@@ -273,7 +274,7 @@ div(v-cloak)
             span.small.ml-auto.text-muted 具管理/主管權限
 
       //- AD 帳號鎖定指標
-      .col-6.col-md-4.col-xl-2.px-1.mb-2
+      .col-6.col-md-4.col-xl-2.px-1.mb-2(v-if="isAdAvailable")
         .kpi-card.p-2.rounded.shadow-sm(
           :class="{ 'kpi-active kpi-danger': quickFilter === 'ad_locked', 'border-danger': lockedUsersInList.length > 0 }"
           @click="handleAdLockedCardClick"
@@ -1261,6 +1262,7 @@ export default {
       this.isBusy = false
     })
     this.loadAdConfig()
+    this.refreshAdStatus()
   },
 
   head: { title: '員工資訊管理-桃園市地政局' },
@@ -1531,8 +1533,14 @@ export default {
       const c = this.adConfig
       return c.AD_HOST && c.AD_PORT && c.BASE_DN && c.QUERY_USER && c.QUERY_PASSWORD
     },
-    adConfigVariant () { return this.isAdConfigValid ? 'outline-secondary' : 'outline-danger' },
-    adConfigTooltip () { return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新' },
+    adConfigVariant () {
+      if (!this.isAdAvailable) { return 'outline-warning' }
+      return this.isAdConfigValid ? 'outline-secondary' : 'outline-danger'
+    },
+    adConfigTooltip () {
+      if (!this.isAdAvailable) { return 'AD 伺服器離線或尚未設定，點擊進入設定' }
+      return this.isAdConfigValid ? 'AD 設定已完成' : 'AD 設定不完整，請點擊更新'
+    },
 
     // --- 網段雷達 (Subnet IP Radar) 計算 ---
     filteredUserIdSet () {
@@ -2357,6 +2365,17 @@ export default {
     adConfigSaved (newConfig) {
       this.adConfig = { ...newConfig }
       this.hideModalById('ad-config-modal')
+      this.refreshAdStatus(true)
+    },
+    refreshAdStatus (force = false) {
+      this.$axios.post(this.$consts.API.JSON.USER, {
+        type: 'ad_status',
+        refresh: force
+      }).then(({ data }) => {
+        if (this.$utils.statusCheck(data.status)) {
+          this.$store.commit('systemConfigs', { ad_available: Boolean(data.ad_available) })
+        }
+      }).catch(err => this.$utils.error(err))
     },
 
     // --- 更新 IP 核心邏輯 ---
