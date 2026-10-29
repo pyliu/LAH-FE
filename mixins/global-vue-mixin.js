@@ -97,7 +97,7 @@ Vue.mixin({
       if (process.client && location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
         return location.hostname
       }
-      return this.apiSvrIp || (process.client ? location.hostname : '') || this.systemConfigs?.API_SERVER_IP || '220.1.34.75'
+      return this.apiSvrIp || (process.client ? location.hostname : '') || this.systemConfigs?.API_SERVER_IP || '220.1.34.18'
     },
     legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` },
     apiQueryUrl () {

@@ -199,7 +199,7 @@ export default {
         return this.systemConfigs.API_SERVER_IP
       }
       // 3. 最後不行預設才設定為桃園所預設 IP
-      return '220.1.34.75'
+      return '220.1.34.18'
     },
     wsHttpHost () {
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
