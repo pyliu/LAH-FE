@@ -436,7 +436,7 @@
       b-form-group(label="連結網址 (URL)：" label-for="bm-href" description="支援 http:// 或 https:// 網址")
         b-form-input#bm-href(
           v-model="bookmarkForm.href"
-          placeholder="http://220.1.34.18/..."
+          placeholder="http://220.1.34.18:8888/..."
           required
         )
 
@@ -1217,10 +1217,10 @@ export default {
             }
             if (item.linkId === 'main-gate-roster') {
               item.title = `${rocYear}年${currentMonth}月大門輪值表`
-              item.href = `http://220.1.34.18/service/section/%E4%BA%BA%E4%BA%8B%E5%AE%A4/photogallery/%E8%BC%AA%E5%80%BC%E8%A1%A8/${rocYear}/${currentMonth}%E6%9C%88%E8%BC%AA%E5%80%BC%E8%A1%A8.pdf`
+              item.href = `http://220.1.34.18:8888/service/section/%E4%BA%BA%E4%BA%8B%E5%AE%A4/photogallery/%E8%BC%AA%E5%80%BC%E8%A1%A8/${rocYear}/${currentMonth}%E6%9C%88%E8%BC%AA%E5%80%BC%E8%A1%A8.pdf`
             } else if (item.linkId === 'inf-roster') {
               item.title = `資訊課${rocYear}年${currentMonth}月輪值表`
-              item.href = 'http://220.1.34.18/service/section/%E8%B3%87%E8%A8%8A%E8%AA%B2/news/%E8%B3%87%E8%A8%8A%E8%AA%B2%E8%BC%AA%E5%80%BC%E8%A1%A8.pdf'
+              item.href = 'http://220.1.34.18:8888/service/section/%E8%B3%87%E8%A8%8A%E8%AA%B2/news/%E8%B3%87%E8%A8%8A%E8%AA%B2%E8%BC%AA%E5%80%BC%E8%A1%A8.pdf'
             }
             return item
           })
@@ -1244,7 +1244,7 @@ export default {
       const filesCat = this.categories.find(c => c.id === 'files')
       const mainGate = filesCat?.links?.find(l => l.linkId === 'main-gate-roster')
       if (mainGate) {
-        const nextUrl = `http://220.1.34.18/service/section/%E4%BA%BA%E4%BA%8B%E5%AE%A4/photogallery/%E8%BC%AA%E5%80%BC%E8%A1%A8/${nextMonthRocYear}/${nextMonth}%E6%9C%88%E8%BC%AA%E5%80%BC%E8%A1%A8.pdf`
+        const nextUrl = `http://220.1.34.18:8888/service/section/%E4%BA%BA%E4%BA%8B%E5%AE%A4/photogallery/%E8%BC%AA%E5%80%BC%E8%A1%A8/${nextMonthRocYear}/${nextMonth}%E6%9C%88%E8%BC%AA%E5%80%BC%E8%A1%A8.pdf`
         try {
           const resp = await fetch(nextUrl, { method: 'HEAD' })
           if (resp.ok) {
@@ -1256,7 +1256,7 @@ export default {
       const infCat = this.categories.find(c => c.id === 'inf')
       const infRoster = infCat?.links?.find(l => l.linkId === 'inf-roster')
       if (infRoster) {
-        const nextUrl = 'http://220.1.34.18/service/section/%E8%B3%87%E8%A8%8A%E8%AA%B2/news/%E8%B3%87%E8%A8%8A%E8%AA%B2%E8%BC%AA%E5%80%BC%E8%A1%A8NEXT.pdf'
+        const nextUrl = 'http://220.1.34.18:8888/service/section/%E8%B3%87%E8%A8%8A%E8%AA%B2/news/%E8%B3%87%E8%A8%8A%E8%AA%B2%E8%BC%AA%E5%80%BC%E8%A1%A8NEXT.pdf'
         try {
           const resp = await fetch(nextUrl, { method: 'HEAD' })
           if (resp.ok) {
