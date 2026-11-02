@@ -55,25 +55,17 @@ export default {
       return ALLOWED_ATTACHMENT_EXTENSIONS.map(ext => `.${ext}`).join(',')
     },
     totalUnread () {
+      const lds = parseInt(this.getUnread('lds')) || 0
+      const ann = parseInt(this.getUnread('announcement')) || 0
+      const priv = this.userid ? (parseInt(this.getUnread(this.userid)) || 0) : 0
+      const dept = this.userdept ? (parseInt(this.getUnread(this.userdept)) || 0) : 0
+      const calculated = lds + ann + priv + dept
+
       const storeTotal = this.$store?.getters?.totalUnread
-      if (typeof storeTotal === 'number' && storeTotal > 0) {
-        return storeTotal
+      if (typeof storeTotal === 'number' && storeTotal >= 0) {
+        return Math.max(storeTotal, calculated)
       }
-      // 雙重保險計算：若 store 回傳 0，但 mixin 本地有未讀紀錄時進行回退計算
-      let fallbackTotal = 0
-      const targetChannels = ['announcement', 'lds']
-      if (this.userdept) {
-        targetChannels.push(this.userdept)
-      }
-      if (this.userid) {
-        targetChannels.push(this.userid)
-      }
-      const uniqueChannels = [...new Set(targetChannels.filter(Boolean))]
-      uniqueChannels.forEach((ch) => {
-        const val = parseInt(this.getUnread(ch)) || 0
-        fallbackTotal += val
-      })
-      return fallbackTotal
+      return calculated
     },
     userdept () {
       const unit = this.myinfo?.unit || this.user?.unit || this.user?.dept || this.user?.work || ''
@@ -128,7 +120,14 @@ export default {
       return ['announcement', this.userid, 'chat']
     },
     showUnreadChannels () {
-      return ['announcement', this.userid, `announcement_${this.userdept}`]
+      const channels = ['announcement', 'lds']
+      if (this.userdept) {
+        channels.push(this.userdept)
+      }
+      if (this.userid) {
+        channels.push(this.userid)
+      }
+      return [...new Set(channels.filter(Boolean))]
     },
     defaultWsPort () {
       return DEFAULT_WS_PORT
@@ -363,14 +362,36 @@ export default {
       return parseInt(val) > 0 || val === '99+' || val === '9+'
     },
     getUnread (channel) {
-      if (this.unread && channel && !channel.startsWith('announcement_')) {
-        let val = this.unread[channel] || 0
-        if (!val && (channel === this.userid || channel.toUpperCase() === this.userid)) {
-          val = this.unread[this.userid] || this.unread[this.userid.toLowerCase()] || 0
-        }
-        return val > 99 ? '99+' : val
+      if (!this.unread || !channel || String(channel).startsWith('announcement_')) {
+        return 0
       }
-      return 0
+      const ch = String(channel)
+      let val = this.unread[ch]
+      if (typeof val !== 'number' || val <= 0) {
+        const lower = ch.toLowerCase()
+        const upper = ch.toUpperCase()
+        const valLower = this.unread[lower]
+        const valUpper = this.unread[upper]
+        val = Math.max(
+          typeof val === 'number' ? val : 0,
+          typeof valLower === 'number' ? valLower : 0,
+          typeof valUpper === 'number' ? valUpper : 0
+        )
+      }
+      if (!val && (ch === this.userid || ch.toUpperCase() === (this.userid || '').toUpperCase())) {
+        const uid = this.userid || ''
+        const valUid = this.unread[uid]
+        const valUidLower = this.unread[uid.toLowerCase()]
+        const valUidUpper = this.unread[uid.toUpperCase()]
+        val = Math.max(
+          typeof val === 'number' ? val : 0,
+          typeof valUid === 'number' ? valUid : 0,
+          typeof valUidLower === 'number' ? valUidLower : 0,
+          typeof valUidUpper === 'number' ? valUidUpper : 0
+        )
+      }
+      const num = parseInt(val) || 0
+      return num > 99 ? '99+' : num
     },
     plusUnread (channel) {
       this.$store.commit('plusUnread', channel)

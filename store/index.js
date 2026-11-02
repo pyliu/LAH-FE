@@ -229,7 +229,6 @@ export const getters = {
   unread: state => state.unread,
   totalUnread: (state) => {
     try {
-      let total = 0
       const isDev = process.env.NODE_ENV !== 'production'
       const devUid = isDev ? 'DEV' : ''
       const uid = (state.user?.id || devUid).toUpperCase()
@@ -239,48 +238,33 @@ export const getters = {
         dept = 'inf'
       }
 
-      const allChatRooms = ['adm', 'inf', 'val', 'reg', 'sur', 'acc', 'hr', 'supervisor']
-      const otherDeptRooms = allChatRooms.filter(r => r !== dept)
-
       const unreadMap = state.unread || {}
-      const countedChannels = new Set()
+      const getCount = (ch) => {
+        if (!ch || typeof ch !== 'string') {
+          return 0
+        }
+        const valDirect = unreadMap[ch]
+        if (typeof valDirect === 'number' && valDirect > 0) {
+          return valDirect
+        }
+        const lower = ch.toLowerCase()
+        const upper = ch.toUpperCase()
+        const valLower = unreadMap[lower]
+        const valUpper = unreadMap[upper]
+        const count = Math.max(
+          typeof valDirect === 'number' ? valDirect : 0,
+          typeof valLower === 'number' ? valLower : 0,
+          typeof valUpper === 'number' ? valUpper : 0
+        )
+        return count > 0 ? count : 0
+      }
 
-      Object.entries(unreadMap).forEach(([channel, count]) => {
-        if (!channel || typeof count !== 'number' || count <= 0) {
-          return
-        }
-        // 排除 announcement_ 附屬頻道
-        if (channel.startsWith('announcement_')) {
-          return
-        }
-        // 排除系統頻道
-        if (channel.toLowerCase() === 'system') {
-          return
-        }
-        // 排除不屬於使用者的其他課室頻道
-        if (otherDeptRooms.includes(channel.toLowerCase())) {
-          return
-        }
-        // 使用者本身私訊頻道 (不區分大小寫去重)
-        const upperChannel = channel.toUpperCase()
-        if (uid && upperChannel === uid) {
-          if (!countedChannels.has(uid)) {
-            countedChannels.add(uid)
-            const cUpper = typeof unreadMap[uid] === 'number' ? unreadMap[uid] : 0
-            const cLower = uid !== uid.toLowerCase() && typeof unreadMap[uid.toLowerCase()] === 'number' ? unreadMap[uid.toLowerCase()] : 0
-            const personalCount = Math.max(cUpper, cLower, count)
-            total += personalCount
-          }
-          return
-        }
+      const lds = getCount('lds')
+      const ann = getCount('announcement')
+      const priv = uid ? getCount(uid) : 0
+      const deptCount = dept ? getCount(dept) : 0
 
-        if (!countedChannels.has(channel)) {
-          countedChannels.add(channel)
-          total += count
-        }
-      })
-
-      return total
+      return lds + ann + priv + deptCount
     } catch {
       return 0
     }
@@ -622,25 +606,26 @@ export const mutations = {
     state.unread = newUnread
   },
   resetUnread (state, channel) {
+    if (!channel) {
+      return
+    }
     const isDev = process.env.NODE_ENV !== 'production'
     const devUid = isDev ? 'DEV' : ''
     const uid = (state.user?.id || devUid).toUpperCase()
-    const targetKey = (channel && uid && channel.toUpperCase() === uid) ? uid : channel
+    const targetKey = (uid && channel.toUpperCase() === uid) ? uid : channel
     const newUnread = { ...state.unread }
-    if (targetKey in newUnread) {
+    const chStr = String(channel)
+    const lower = chStr.toLowerCase()
+    const upper = chStr.toUpperCase()
+    newUnread[chStr] = 0
+    newUnread[lower] = 0
+    newUnread[upper] = 0
+    if (targetKey) {
       newUnread[targetKey] = 0
     }
-    if (channel && channel !== targetKey && channel in newUnread) {
-      newUnread[channel] = 0
-    }
-    if (uid && channel && channel.toUpperCase() === uid) {
-      if (uid in newUnread) {
-        newUnread[uid] = 0
-      }
-      const lower = uid.toLowerCase()
-      if (lower in newUnread) {
-        newUnread[lower] = 0
-      }
+    if (uid && channel.toUpperCase() === uid) {
+      newUnread[uid] = 0
+      newUnread[uid.toLowerCase()] = 0
     }
     state.unread = newUnread
   },
