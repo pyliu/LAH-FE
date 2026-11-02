@@ -349,6 +349,10 @@ export default {
              '發生未預期的系統問題'
     },
     errorStack () {
+      const isDev = this.$config?.isDev ?? (process.env.NODE_ENV !== 'production')
+      if (!isDev) {
+        return ''
+      }
       return this.error?.stack ||
              (this.error?.originalError && this.error.originalError.stack) ||
              ''

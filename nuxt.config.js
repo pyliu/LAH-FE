@@ -222,5 +222,17 @@ export default {
       // Default: http://[HOST]:[PORT][PREFIX]
       baseURL: process.env.BASE_URL
     }
+  },
+  // 資安加固：中介軟體過濾 HTTP 回應標頭中的伺服器技術棧指紋 (X-Powered-By 等)
+  serverMiddleware: [
+    '~/server-middleware/security-headers.js'
+  ],
+  hooks: {
+    'render:beforeResponse': (url, result, { res }) => {
+      if (res && typeof res.removeHeader === 'function') {
+        res.removeHeader('x-powered-by')
+        res.removeHeader('X-Powered-By')
+      }
+    }
   }
 }
