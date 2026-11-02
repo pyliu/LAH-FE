@@ -151,20 +151,7 @@ export const state = () => ({
   isPersonalDrawerOpen: false,
   pendingAttachmentUploads: [],
   wsHttpPort: 8082,
-  displayFontScale: 100,
-  // 八所候選伺服器陣列字典 (對齊 lah-messenger 桌面端)
-  tySvrIp: new Map([
-    ['H0', ['220.1.33.71']],
-    ['HA', ['220.1.34.75', '220.1.34.18']],
-    ['HB', ['220.1.35.84']],
-    ['HC', ['220.1.36.14']],
-    ['HD', ['220.1.37.1']],
-    ['HE', ['220.1.38.44']],
-    ['HF', ['220.1.39.235']],
-    ['HG', ['220.1.40.62']],
-    ['HH', ['220.1.41.83']]
-  ]),
-  wsHost: ''
+  displayFontScale: 100
 })
 
 /**
@@ -202,8 +189,7 @@ export const getters = {
   isPhp85Global: state => state.apiTrack?.globalTrack === 'php85',
   apiHost: state => state.systemConfigs.API_SERVER_IP,
   apiPort: state => state.systemConfigs.API_SERVER_PORT,
-  tySvrIp: state => state.tySvrIp,
-  wsHost: state => state.wsHost || state.systemConfigs.WS_SERVER_IP,
+  wsHost: state => state.systemConfigs.WS_SERVER_IP,
   wsPort: state => state.systemConfigs.WS_SERVER_PORT,
   lastMessage: state => state.lastMessage,
   topXap: state => state.topXap,
@@ -229,6 +215,7 @@ export const getters = {
   unread: state => state.unread,
   totalUnread: (state) => {
     try {
+      let total = 0
       const isDev = process.env.NODE_ENV !== 'production'
       const devUid = isDev ? 'DEV' : ''
       const uid = (state.user?.id || devUid).toUpperCase()
@@ -238,33 +225,48 @@ export const getters = {
         dept = 'inf'
       }
 
+      const allChatRooms = ['adm', 'inf', 'val', 'reg', 'sur', 'acc', 'hr', 'supervisor']
+      const otherDeptRooms = allChatRooms.filter(r => r !== dept)
+
       const unreadMap = state.unread || {}
-      const getCount = (ch) => {
-        if (!ch || typeof ch !== 'string') {
-          return 0
-        }
-        const valDirect = unreadMap[ch]
-        if (typeof valDirect === 'number' && valDirect > 0) {
-          return valDirect
-        }
-        const lower = ch.toLowerCase()
-        const upper = ch.toUpperCase()
-        const valLower = unreadMap[lower]
-        const valUpper = unreadMap[upper]
-        const count = Math.max(
-          typeof valDirect === 'number' ? valDirect : 0,
-          typeof valLower === 'number' ? valLower : 0,
-          typeof valUpper === 'number' ? valUpper : 0
-        )
-        return count > 0 ? count : 0
-      }
+      const countedChannels = new Set()
 
-      const lds = getCount('lds')
-      const ann = getCount('announcement')
-      const priv = uid ? getCount(uid) : 0
-      const deptCount = dept ? getCount(dept) : 0
+      Object.entries(unreadMap).forEach(([channel, count]) => {
+        if (!channel || typeof count !== 'number' || count <= 0) {
+          return
+        }
+        // 排除 announcement_ 附屬頻道
+        if (channel.startsWith('announcement_')) {
+          return
+        }
+        // 排除系統頻道
+        if (channel.toLowerCase() === 'system') {
+          return
+        }
+        // 排除不屬於使用者的其他課室頻道
+        if (otherDeptRooms.includes(channel.toLowerCase())) {
+          return
+        }
+        // 使用者本身私訊頻道 (不區分大小寫去重)
+        const upperChannel = channel.toUpperCase()
+        if (uid && upperChannel === uid) {
+          if (!countedChannels.has(uid)) {
+            countedChannels.add(uid)
+            const cUpper = typeof unreadMap[uid] === 'number' ? unreadMap[uid] : 0
+            const cLower = uid !== uid.toLowerCase() && typeof unreadMap[uid.toLowerCase()] === 'number' ? unreadMap[uid.toLowerCase()] : 0
+            const personalCount = Math.max(cUpper, cLower, count)
+            total += personalCount
+          }
+          return
+        }
 
-      return lds + ann + priv + deptCount
+        if (!countedChannels.has(channel)) {
+          countedChannels.add(channel)
+          total += count
+        }
+      })
+
+      return total
     } catch {
       return 0
     }
@@ -339,9 +341,6 @@ export const mutations = {
    * @param {object} state - The Vuex state.
    * @param {object} payload - The configuration object to merge.
    */
-  wsHost (state, host) {
-    state.wsHost = host
-  },
   systemConfigs (state, payload) {
     state.systemConfigs = { ...state.systemConfigs, ...payload }
   },
@@ -606,26 +605,25 @@ export const mutations = {
     state.unread = newUnread
   },
   resetUnread (state, channel) {
-    if (!channel) {
-      return
-    }
     const isDev = process.env.NODE_ENV !== 'production'
     const devUid = isDev ? 'DEV' : ''
     const uid = (state.user?.id || devUid).toUpperCase()
-    const targetKey = (uid && channel.toUpperCase() === uid) ? uid : channel
+    const targetKey = (channel && uid && channel.toUpperCase() === uid) ? uid : channel
     const newUnread = { ...state.unread }
-    const chStr = String(channel)
-    const lower = chStr.toLowerCase()
-    const upper = chStr.toUpperCase()
-    newUnread[chStr] = 0
-    newUnread[lower] = 0
-    newUnread[upper] = 0
-    if (targetKey) {
+    if (targetKey in newUnread) {
       newUnread[targetKey] = 0
     }
-    if (uid && channel.toUpperCase() === uid) {
-      newUnread[uid] = 0
-      newUnread[uid.toLowerCase()] = 0
+    if (channel && channel !== targetKey && channel in newUnread) {
+      newUnread[channel] = 0
+    }
+    if (uid && channel && channel.toUpperCase() === uid) {
+      if (uid in newUnread) {
+        newUnread[uid] = 0
+      }
+      const lower = uid.toLowerCase()
+      if (lower in newUnread) {
+        newUnread[lower] = 0
+      }
     }
     state.unread = newUnread
   },
