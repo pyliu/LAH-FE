@@ -251,7 +251,11 @@ export default {
       toastMessageQueue: [],
       toastProcessTimer: null,
       activeToastIds: [],
-      toastSeq: 0
+      toastSeq: 0,
+      activeWsHost: '',
+      autoProbeTimer: null,
+      probeAttemptedIps: [],
+      allCandidatesFailed: false
     }
   },
   computed: {
@@ -267,26 +271,34 @@ export default {
       }
       return {}
     },
+    currentProbeHost () {
+      if (this.activeWsHost) {
+        return this.activeWsHost
+      }
+      if (this.customWsHost) {
+        return this.customWsHost
+      }
+      if (process.client && typeof window !== 'undefined' && window.localStorage) {
+        const customHost = window.localStorage.getItem('lah-messenger-custom-ws-host')
+        if (customHost) {
+          return customHost
+        }
+      }
+      if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
+        return this.systemConfigs.WS_SERVER_IP
+      }
+      if (this.wsHost) {
+        return this.wsHost
+      }
+      return this.defaultServerIp
+    },
     currentWsConnStr () {
       const ws = this.websocket || this.$store?.getters?.websocket
       if (ws && ws.url) {
         return ws.url.replace(/\/$/, '')
       }
-      if (process.client && typeof window !== 'undefined' && window.localStorage) {
-        const customHost = window.localStorage.getItem('lah-messenger-custom-ws-host')
-        const customPort = window.localStorage.getItem('lah-messenger-custom-ws-port')
-        if (customHost) {
-          return `ws://${customHost}:${customPort || 8081}`
-        }
-      }
-      if (this.systemConfigs && this.systemConfigs.WS_SERVER_IP) {
-        return `ws://${this.systemConfigs.WS_SERVER_IP}:${this.systemConfigs.WS_SERVER_PORT || this.defaultWsPort || 8081}`
-      }
-      if (this.wsHost) {
-        return `ws://${this.wsHost}:${this.wsPort || this.defaultWsPort || 8081}`
-      }
-      const host = this.defaultServerIp
-      const port = this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || 8081
+      const host = this.activeWsHost || this.currentProbeHost
+      const port = this.customWsPort || this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || 8081
       return `ws://${host}:${port}`
     }
   },
@@ -348,6 +360,7 @@ export default {
     this.$root.$off('lah-messenger:connect', this.connect)
     this.$root.$off('lah-messenger:reconnect', this.triggerReconnect)
     clearTimeout(this.toastProcessTimer)
+    this.clearProbeTimer()
     this.stopReconnectTimer()
     this.closeWebsocket()
   },
@@ -459,13 +472,48 @@ export default {
     },
 
     // ---------------------------------------------------------
-    // WebSocket 連線與重試機制
+    // WebSocket 連線與自動探活容錯機制
     // ---------------------------------------------------------
+    clearProbeTimer () {
+      if (this.autoProbeTimer) {
+        clearTimeout(this.autoProbeTimer)
+        this.autoProbeTimer = null
+      }
+    },
+    handleConnectionFailure () {
+      this.clearProbeTimer()
+      if (this.connected) { return }
+
+      const currentHost = this.activeWsHost || this.currentProbeHost
+      if (currentHost && !this.probeAttemptedIps.includes(currentHost)) {
+        this.probeAttemptedIps.push(currentHost)
+      }
+
+      const candidates = this.candidateSvrIps || []
+      const nextIp = candidates.find(ip => !this.probeAttemptedIps.includes(ip))
+
+      if (nextIp) {
+        const isNextLocal = typeof this.isLocalSiteIp === 'function' ? this.isLocalSiteIp(nextIp) : true
+        const modeDesc = isNextLocal ? '本所備援主機' : '跨所全局備援主機'
+        this.setConnectText(`切換${modeDesc} (${nextIp}) ...`)
+        this.activeWsHost = nextIp
+        this.$store.commit('wsHost', nextIp)
+        setTimeout(() => {
+          this.connect()
+        }, 300)
+      } else {
+        this.allCandidatesFailed = true
+        this.connecting = false
+        this.setConnectText(`伺服器連線失敗 (已嘗試 ${this.probeAttemptedIps.join(', ')})`)
+      }
+    },
     connect () {
       if (this.connected && this.websocket?.readyState === 1) {
         return
       }
       this.connecting = true
+      this.clearProbeTimer()
+
       try {
         if (this.websocket) {
           this.websocket.onopen = null
@@ -475,29 +523,62 @@ export default {
           this.websocket.close()
         }
 
-        this.setConnectText('即時通連線中')
+        const targetHost = this.activeWsHost || this.currentProbeHost
+        this.setConnectText(`即時通連線中 (${targetHost})`)
+
+        // 階層式逾時監控 (本所候選 3.5 秒，跨所候選 1.5 秒)
+        const isLocal = typeof this.isLocalSiteIp === 'function' ? this.isLocalSiteIp(targetHost) : true
+        const probeTimeoutMs = isLocal ? 3500 : 1500
+        this.autoProbeTimer = setTimeout(() => {
+          if (!this.connected) {
+            console.warn(`[即時通探測] 主機 ${targetHost} 連線逾時 (${probeTimeoutMs}ms)，進行容錯切換...`)
+            try {
+              if (this.websocket) {
+                this.websocket.onopen = null
+                this.websocket.onmessage = null
+                this.websocket.onerror = null
+                this.websocket.onclose = null
+                this.websocket.close()
+              }
+            } catch (e) {}
+            this.handleConnectionFailure()
+          }
+        }, probeTimeoutMs)
+
         const ws = new WebSocket(this.currentWsConnStr)
 
         ws.onopen = () => {
+          this.clearProbeTimer()
+          this.probeAttemptedIps = []
+          this.allCandidatesFailed = false
           this.$store.commit('wsConnected', true)
           this.$store.commit('websocket', ws)
+          if (targetHost && targetHost !== '127.0.0.1' && targetHost !== 'localhost') {
+            this.$store.commit('wsHost', targetHost)
+          }
           this.setConnectText('即時通已連線')
           this.register()
           this.connecting = false
         }
 
         ws.onclose = () => {
+          this.clearProbeTimer()
           this.$store.commit('wsConnected', false)
           this.$store.commit('websocket', undefined)
-          this.setConnectText('即時通已斷開')
           this.connecting = false
+          if (!this.connected) {
+            if (!this.allCandidatesFailed) {
+              this.handleConnectionFailure()
+            } else {
+              this.setConnectText('即時通已斷開')
+            }
+          }
         }
 
         ws.onerror = () => {
-          this.$store.commit('wsConnected', false)
-          this.$store.commit('websocket', undefined)
-          this.setConnectText('即時通伺服器連線失敗')
-          this.connecting = false
+          if (!this.connected) {
+            this.handleConnectionFailure()
+          }
         }
 
         ws.onmessage = (e) => {
@@ -507,6 +588,7 @@ export default {
         this.setConnectText('即時通初始化錯誤')
         this.closeWebsocket()
         this.connecting = false
+        this.handleConnectionFailure()
       }
     },
     closeWebsocket () {
@@ -521,6 +603,10 @@ export default {
       }
     },
     triggerReconnect () {
+      this.clearProbeTimer()
+      this.probeAttemptedIps = []
+      this.allCandidatesFailed = false
+      this.activeWsHost = this.customWsHost || this.defaultServerIp
       this.closeWebsocket()
       this.connect()
       this.notify('正在重新連線即時通伺服器...', { variant: 'info' })
@@ -529,6 +615,8 @@ export default {
       this.stopReconnectTimer()
       this.reconnectTimer = setInterval(() => {
         if (!this.connected && !this.connecting) {
+          this.probeAttemptedIps = []
+          this.allCandidatesFailed = false
           this.connect()
         }
       }, this.reconnectMs)
@@ -555,6 +643,9 @@ export default {
       }
       this.customWsHost = host
       this.customWsPort = port || '8081'
+      this.activeWsHost = host
+      this.probeAttemptedIps = []
+      this.allCandidatesFailed = false
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
         try {
           window.localStorage.setItem('lah-messenger-custom-ws-host', this.customWsHost)

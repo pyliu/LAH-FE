@@ -1228,7 +1228,9 @@ export default {
       })
 
       this.categories = processed
-      this.checkNextMonthRosters()
+      if (this.isDevOffice) {
+        this.checkNextMonthRosters()
+      }
     },
     // 次月輪值表自動檢查探測
     async checkNextMonthRosters () {

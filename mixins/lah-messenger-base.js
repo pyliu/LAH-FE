@@ -198,8 +198,8 @@ export default {
       if (this.systemConfigs && this.systemConfigs.API_SERVER_IP) {
         return this.systemConfigs.API_SERVER_IP
       }
-      // 3. 最後不行預設才設定為桃園所預設 IP
-      return '220.1.34.18'
+      // 3. 最後不行預設才動態解析該所預設 IP
+      return this.defaultSvrIp || '220.1.34.18'
     },
     wsHttpHost () {
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
@@ -233,6 +233,11 @@ export default {
     }
   },
   methods: {
+    isLocalSiteIp (ip) {
+      if (!ip) { return false }
+      const locals = this.localSvrIps || []
+      return locals.includes(ip)
+    },
     empty (val) {
       return isEmpty(val)
     },

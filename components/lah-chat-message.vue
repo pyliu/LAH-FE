@@ -172,7 +172,7 @@ export default {
       ]
     },
     avatarSrc () {
-      const base = this.apiQueryUrl || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
+      const base = this.apiQueryUrl || (process.client ? `http://${location.hostname}` : `http://${this.defaultSvrIp || '127.0.0.1'}`)
       return `${base}/get_user_img.php?id=${this.senderId}_avatar&name=${this.sender}_avatar`
     },
     replyTitle () {

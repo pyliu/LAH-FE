@@ -4,6 +4,27 @@
 
 ---
 
+## [2026-11-02]
+
+### 🌐 八所候選伺服器動態映射與即時通自動探活容錯 (Failover)
+- **架構決策對齊**：依據全域架構決策紀錄 [0005-fe-dynamic-server-ip-and-failover.md](../../docs/adr/0005-fe-dynamic-server-ip-and-failover.md)，徹底消除前端程式碼中寫死的單一所別 IP（`220.1.34.75` 與 `220.1.34.18`），支援全桃園八所與局本部之彈性部署與動態容錯。
+- **全域狀態與八所候選陣列 (`store/index.js`)**：
+  - 注入 `tySvrIp` 八所候選伺服器字典（桃園所支援新主機 `.18` 與舊主機 `.75`，其餘七所與局本部各一組正式主機）。
+  - 新增 `wsHost` 狀態與變異，支援即時通連線成功時動態儲存當前可用主機。
+- **全域 Mixin 動態化 (`mixins/global-vue-mixin.js`)**：
+  - 修復龜山所（`220.1.41.`）所別代碼誤植為 `HG` 的判定問題，修正為 `HH`。
+  - 新增帳號前綴所別解析（例如 `HA10013859` 自動對齊 `HA`）。
+  - 新增 `defaultSvrIp`、`localSvrIps`、`candidateSvrIps` 計算屬性，`apiHost` 回退值全面改以所屬轄區動態預設主機解析。
+- **即時通模組探活容錯機制移植 (`components/lah-messenger-home.vue` & `mixins/lah-messenger-base.js`)**：
+  - `mixins/lah-messenger-base.js`: `defaultServerIp` 最後回退動態綁定 `defaultSvrIp`，新增 `isLocalSiteIp` 輔助判斷。
+  - `components/lah-messenger-home.vue`: 實作階層式逾時探測（本所主機 3.5 秒、跨所主機 1.5 秒），當連線失敗或逾時自動依序切換至候選佇列輪巡，並在狀態列清晰標示嘗試主機與模式；連線成功後自動快取為活躍連線端點。
+- **頁面與元件寫死 IP 全面清理**：
+  - `components/lah-ad-config-card.vue`: AD Agent 腳本下載端點 Fallback 動態化。
+  - `components/lah-chat-message.vue` & `pages/notification/message.vue`: 大頭貼取圖 URL Fallback 動態化。
+  - `pages/admin/configs/index.vue`: `.env.example` 測試端點 Fallback 動態化。
+  - `pages/bookmark.vue`: 桃園所內部知識網（`220.1.34.18:8888`）輪值表探測加上 `isDevOffice` 轄區守門員，非桃園所不嘗試探測。
+  - `pages/notification/help.vue`: 軟體下載連結依 `isDevOffice` 動態切換為知識網或通用下載區，標題自適應為當前事務所名稱。
+
 ## [2026-10-29]
 
 ### 🌐 更新後端 API 預設連線伺服器 IP 至 220.1.34.18

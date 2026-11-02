@@ -38,9 +38,9 @@ b-card(:border-variant="border", :class="[attentionCss]")
         li 儀表板每15分鐘重新檢查一次
       hr
       div 👉🏻 點擊紀錄內容開啟詳細記錄視窗
-      div 🟢 表示一切正常
+      div 🟢 表示同步完成且無錯誤
       div 🟡 表示找不到任何郵件訊息
-      div 🔴 表示最新同步郵件日期非今日[{{ $utils.toADDate(new Date(), 'yyyy-LL-dd') }}]
+      div 🔴 表示最新同步郵件日期非今日[{{ $utils.toADDate(new Date(), 'yyyy-LL-dd') }}] 或同步過程發生錯誤
   slot
   .center(v-if="headMessages.length === 0") ⚠  {{ fetchDay }}日內無資料
   div(v-else, v-for="(item, idx) in headMessages")
@@ -119,6 +119,9 @@ export default {
       if (messageDate !== todayDate) {
         return 'danger'
       }
+      if (!this.isSuccess(this.headMessage)) {
+        return 'danger'
+      }
       return 'success'
     }
   },
@@ -128,13 +131,29 @@ export default {
     }
   },
   methods: {
+    isSuccess (item) {
+      if (!item || !item.message || item.subject === this.todayNoAdSyncMessage) {
+        return false
+      }
+      const msg = item.message
+      const hasSyncallDone = msg.includes('SyncAll 完成') || /syncall finished/i.test(msg)
+      const hasNoErrors = msg.includes('SyncAll 已終止，沒有錯誤') || /syncall terminated with no errors/i.test(msg)
+      const hasCheckEnd = /check end/i.test(msg)
+
+      if (!hasSyncallDone || !hasNoErrors || !hasCheckEnd) {
+        return false
+      }
+
+      // 排除「沒有錯誤」與「no errors」合法標記後檢查是否包含錯誤關鍵字
+      const cleaned = msg.replace(/沒有錯誤/g, '').replace(/terminated with no errors/gi, '')
+      const failRegex = /(?:報告下列錯誤|發生錯誤|失敗|已取消|無法使用|錯誤|\berror\b|\bfail(?:ed|ure)?\b|\bfatal\b)/i
+      return !failRegex.test(cleaned)
+    },
     subjectLight (item) {
-      const list = this.subjectCss(item)
-      return list.includes('text-danger') ? '🔴' : '🟢'
+      return this.isSuccess(item) ? '🟢' : '🔴'
     },
     subjectCss (item) {
-      // parsing message for the successful text
-      if (item.subject === this.todayNoAdSyncMessage) {
+      if (!this.isSuccess(item)) {
         return ['text-danger']
       }
       return []

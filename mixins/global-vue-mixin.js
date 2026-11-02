@@ -48,9 +48,14 @@ Vue.mixin({
       'unreadSystemMessageCount',
       'fetchingMonitorMail',
       'fetchedMonitorMailCount',
-      'displayFontScale'
+      'displayFontScale',
+      'tySvrIp'
     ]),
     site () {
+      const accountPrefix = (this.myid || this.user?.id || '').slice(0, 2).toUpperCase()
+      if (/^H[0-9A-H]$/.test(accountPrefix)) {
+        return accountPrefix
+      }
       if (this.systemConfigs && this.systemConfigs.site) {
         return this.systemConfigs.site
       }
@@ -79,9 +84,39 @@ Vue.mixin({
         return 'HG'
       }
       if (/(^220\.1\.41\.|^192\.168\.8[0-9]\.)/g.test(this.apiSvrIp)) {
-        return 'HG'
+        return 'HH'
       }
       return 'HA'
+    },
+    defaultSvrIp () {
+      const raw = this.tySvrIp?.get(this.site)
+      if (Array.isArray(raw)) {
+        return raw[0] || '220.1.34.18'
+      }
+      return raw || '220.1.34.18'
+    },
+    localSvrIps () {
+      const raw = this.tySvrIp?.get(this.site)
+      if (Array.isArray(raw)) {
+        return [...raw]
+      }
+      return raw ? [raw] : ['220.1.34.18', '220.1.34.75']
+    },
+    candidateSvrIps () {
+      const list = [...this.localSvrIps]
+      if (this.tySvrIp && typeof this.tySvrIp.forEach === 'function') {
+        this.tySvrIp.forEach((ips, siteCode) => {
+          if (siteCode !== this.site) {
+            const arr = Array.isArray(ips) ? ips : [ips]
+            arr.forEach((ip) => {
+              if (ip && !list.includes(ip)) {
+                list.push(ip)
+              }
+            })
+          }
+        })
+      }
+      return list
     },
     siteName () {
       return this.$consts.siteMap.get(this.site)?.name || '未知所別'
@@ -97,7 +132,7 @@ Vue.mixin({
       if (process.client && location.hostname && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
         return location.hostname
       }
-      return this.apiSvrIp || (process.client ? location.hostname : '') || this.systemConfigs?.API_SERVER_IP || '220.1.34.18'
+      return this.apiSvrIp || (process.client ? location.hostname : '') || this.systemConfigs?.API_SERVER_IP || this.defaultSvrIp || '220.1.34.18'
     },
     legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` },
     apiQueryUrl () {

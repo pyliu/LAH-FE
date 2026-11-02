@@ -1094,7 +1094,7 @@ export default {
       return this.getDeptName(ch)
     },
     getAvatarSrc (id) {
-      const base = this.apiQueryUrl || (process.client ? `http://${location.hostname}` : 'http://220.1.34.75')
+      const base = this.apiQueryUrl || (process.client ? `http://${location.hostname}` : `http://${this.defaultSvrIp || '127.0.0.1'}`)
       return `${base}/get_user_img.php?id=${id}_avatar&name=${id}_avatar`
     },
     isChannelSelected (code) {

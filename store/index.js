@@ -151,7 +151,20 @@ export const state = () => ({
   isPersonalDrawerOpen: false,
   pendingAttachmentUploads: [],
   wsHttpPort: 8082,
-  displayFontScale: 100
+  displayFontScale: 100,
+  // 八所候選伺服器陣列字典 (對齊 lah-messenger 桌面端)
+  tySvrIp: new Map([
+    ['H0', ['220.1.33.71']],
+    ['HA', ['220.1.34.18', '220.1.34.75']],
+    ['HB', ['220.1.35.84']],
+    ['HC', ['220.1.36.14']],
+    ['HD', ['220.1.37.1']],
+    ['HE', ['220.1.38.44']],
+    ['HF', ['220.1.39.235']],
+    ['HG', ['220.1.40.62']],
+    ['HH', ['220.1.41.83']]
+  ]),
+  wsHost: ''
 })
 
 /**
@@ -189,7 +202,8 @@ export const getters = {
   isPhp85Global: state => state.apiTrack?.globalTrack === 'php85',
   apiHost: state => state.systemConfigs.API_SERVER_IP,
   apiPort: state => state.systemConfigs.API_SERVER_PORT,
-  wsHost: state => state.systemConfigs.WS_SERVER_IP,
+  tySvrIp: state => state.tySvrIp,
+  wsHost: state => state.wsHost || state.systemConfigs.WS_SERVER_IP,
   wsPort: state => state.systemConfigs.WS_SERVER_PORT,
   lastMessage: state => state.lastMessage,
   topXap: state => state.topXap,
@@ -341,6 +355,9 @@ export const mutations = {
    * @param {object} state - The Vuex state.
    * @param {object} payload - The configuration object to merge.
    */
+  wsHost (state, host) {
+    state.wsHost = host
+  },
   systemConfigs (state, payload) {
     state.systemConfigs = { ...state.systemConfigs, ...payload }
   },

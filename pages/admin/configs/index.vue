@@ -1206,7 +1206,7 @@ export default {
       }
     },
     envExampleUrl () {
-      const host = this.apiHost || this.loadedConfigs?.API_SERVER_IP || '220.1.34.75'
+      const host = this.apiHost || this.loadedConfigs?.API_SERVER_IP || this.defaultSvrIp || '127.0.0.1'
       const port = this.apiPort || this.apiSvrPort || this.loadedConfigs?.API_SERVER_PORT
       return port ? `http://${host}:${port}/.env.example` : `http://${host}/.env.example`
     }
