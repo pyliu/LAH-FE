@@ -976,9 +976,11 @@ export default {
       return rate === 100 ? '100' : rate.toFixed(1)
     },
     availabilityTextClass () {
-      if (this.red.length === 0) { return 'text-success' }
-      const rate = (this.green.length / (this.officesData.length || 1)) * 100
-      return rate >= 95 ? 'text-warning-dark' : 'text-danger'
+      if (this.officesData.length === 0 || this.red.length === 0) { return 'text-success' }
+      const rate = (this.green.length / this.officesData.length) * 100
+      if (rate >= 90) { return 'text-success' }
+      if (rate >= 80) { return 'text-warning-dark' }
+      return 'text-danger'
     },
     // 桃園市地所統計
     taoyuanOffices () {
@@ -2099,6 +2101,10 @@ export default {
 }
 
 .dark-mode {
+  .text-warning-dark {
+    color: #f59e0b !important;
+  }
+
   .kpi-card,
   .filter-toolbar,
   .modern-tile,

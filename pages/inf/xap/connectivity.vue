@@ -182,7 +182,7 @@
                 .kpi-label.text-muted.small.font-weight-bold 全國即時連通率
                 lah-fa-icon.text-primary.flex-shrink-0(icon="network-wired", size="lg")
               .kpi-value-row.mt-1
-                span.h4.font-weight-bold.mb-0.text-nowrap(:class="red.length === 0 ? 'text-success' : 'text-danger'") {{ availabilityRate }}%
+                span.h4.font-weight-bold.mb-0.text-nowrap(:class="availabilityTextClass") {{ availabilityRate }}%
                 span.small.text-muted.ml-1.text-nowrap ({{ green.length }}/{{ officesData.length }})
                 span.small.ml-auto.badge.badge-light.text-nowrap 顯示 {{ filteredOffices.length }}
 
@@ -1003,6 +1003,13 @@ export default {
       if (this.officesData.length === 0) { return '100.0' }
       const rate = (this.green.length / this.officesData.length) * 100
       return rate === 100 ? '100' : rate.toFixed(1)
+    },
+    availabilityTextClass () {
+      if (this.officesData.length === 0 || this.red.length === 0) { return 'text-success' }
+      const rate = (this.green.length / this.officesData.length) * 100
+      if (rate >= 90) { return 'text-success' }
+      if (rate >= 80) { return 'text-warning-dark' }
+      return 'text-danger'
     },
     roundCompletedCount () {
       return Object.keys(this.roundVisitedMap).length
@@ -2371,6 +2378,10 @@ export default {
 // 6. 深色戰情室模式 (Dark Mode Overrides)
 // =========================================================
 .dark-mode {
+  .text-warning-dark {
+    color: #f59e0b !important;
+  }
+
   .patrol-status-strip,
   .kpi-card,
   .filter-toolbar,
