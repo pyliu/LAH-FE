@@ -91,16 +91,16 @@ Vue.mixin({
     defaultSvrIp () {
       const raw = this.tySvrIp?.get(this.site)
       if (Array.isArray(raw)) {
-        return raw[0] || '220.1.34.18'
+        return raw[0] || '220.1.34.75'
       }
-      return raw || '220.1.34.18'
+      return raw || '220.1.34.75'
     },
     localSvrIps () {
       const raw = this.tySvrIp?.get(this.site)
       if (Array.isArray(raw)) {
         return [...raw]
       }
-      return raw ? [raw] : ['220.1.34.18', '220.1.34.75']
+      return raw ? [raw] : ['220.1.34.75', '220.1.34.18']
     },
     candidateSvrIps () {
       const list = [...this.localSvrIps]

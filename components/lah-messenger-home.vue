@@ -293,10 +293,6 @@ export default {
       return this.defaultServerIp
     },
     currentWsConnStr () {
-      const ws = this.websocket || this.$store?.getters?.websocket
-      if (ws && ws.url) {
-        return ws.url.replace(/\/$/, '')
-      }
       const host = this.activeWsHost || this.currentProbeHost
       const port = this.customWsPort || this.systemConfigs?.WS_SERVER_PORT || this.wsPort || this.defaultWsPort || 8081
       return `ws://${host}:${port}`
@@ -526,26 +522,24 @@ export default {
         const targetHost = this.activeWsHost || this.currentProbeHost
         this.setConnectText(`即時通連線中 (${targetHost})`)
 
+        const ws = new WebSocket(this.currentWsConnStr)
+
         // 階層式逾時監控 (本所候選 3.5 秒，跨所候選 1.5 秒)
         const isLocal = typeof this.isLocalSiteIp === 'function' ? this.isLocalSiteIp(targetHost) : true
         const probeTimeoutMs = isLocal ? 3500 : 1500
         this.autoProbeTimer = setTimeout(() => {
-          if (!this.connected) {
+          if (!this.connected && this.connecting) {
             console.warn(`[即時通探測] 主機 ${targetHost} 連線逾時 (${probeTimeoutMs}ms)，進行容錯切換...`)
             try {
-              if (this.websocket) {
-                this.websocket.onopen = null
-                this.websocket.onmessage = null
-                this.websocket.onerror = null
-                this.websocket.onclose = null
-                this.websocket.close()
-              }
+              ws.onopen = null
+              ws.onmessage = null
+              ws.onerror = null
+              ws.onclose = null
+              ws.close()
             } catch (e) {}
             this.handleConnectionFailure()
           }
         }, probeTimeoutMs)
-
-        const ws = new WebSocket(this.currentWsConnStr)
 
         ws.onopen = () => {
           this.clearProbeTimer()
@@ -565,26 +559,24 @@ export default {
           this.clearProbeTimer()
           this.$store.commit('wsConnected', false)
           this.$store.commit('websocket', undefined)
+          this.setConnectText('即時通已斷開')
           this.connecting = false
-          if (!this.connected) {
-            if (!this.allCandidatesFailed) {
-              this.handleConnectionFailure()
-            } else {
-              this.setConnectText('即時通已斷開')
-            }
-          }
         }
 
         ws.onerror = () => {
-          if (!this.connected) {
-            this.handleConnectionFailure()
-          }
+          this.clearProbeTimer()
+          this.$store.commit('wsConnected', false)
+          this.$store.commit('websocket', undefined)
+          this.setConnectText(`即時通伺服器 (${targetHost}) 連線失敗`)
+          this.connecting = false
+          this.handleConnectionFailure()
         }
 
         ws.onmessage = (e) => {
           this.handleWebSocketMessage(e)
         }
       } catch (e) {
+        this.clearProbeTimer()
         this.setConnectText('即時通初始化錯誤')
         this.closeWebsocket()
         this.connecting = false
@@ -592,6 +584,7 @@ export default {
       }
     },
     closeWebsocket () {
+      this.clearProbeTimer()
       if (this.websocket) {
         this.websocket.onopen = null
         this.websocket.onmessage = null
@@ -601,6 +594,7 @@ export default {
         this.$store.commit('wsConnected', false)
         this.$store.commit('websocket', undefined)
       }
+      this.connecting = false
     },
     triggerReconnect () {
       this.clearProbeTimer()

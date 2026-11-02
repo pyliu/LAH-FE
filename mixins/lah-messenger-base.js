@@ -198,7 +198,7 @@ export default {
         return this.systemConfigs.API_SERVER_IP
       }
       // 3. 最後不行預設才動態解析該所預設 IP
-      return this.defaultSvrIp || '220.1.34.18'
+      return this.defaultSvrIp || '220.1.34.75'
     },
     wsHttpHost () {
       if (process.client && typeof window !== 'undefined' && window.localStorage) {
