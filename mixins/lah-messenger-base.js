@@ -70,7 +70,7 @@ export default {
     userdept () {
       const unit = this.myinfo?.unit || this.user?.unit || this.user?.dept || this.user?.work || ''
       if (unit) {
-        const code = this.getDepartmentCode(unit)
+        const code = this.getDepartmentCode(unit, '')
         if (code) {
           return code
         }
@@ -80,7 +80,7 @@ export default {
       if (this.isVal) { return 'val' }
       if (this.isSur) { return 'sur' }
       if (this.isAdm) { return 'adm' }
-      return 'inf'
+      return ''
     },
     userid () {
       // 開發模式 (非 production) 且尚未取得登入身分時，以 DEV 作為備用 ID，方便本機測試
@@ -161,8 +161,16 @@ export default {
         const existing = userMap.get(uid)
         if (!existing) {
           userMap.set(uid, u)
-        } else if (parseTime(u) >= parseTime(existing)) {
-          userMap.set(uid, u)
+        } else {
+          // 若同一使用者同時有桌面端 (domain !== 'tyland') 與網頁端 (domain === 'tyland') 連線，保留桌面端的真實課室
+          const merged = parseTime(u) >= parseTime(existing) ? { ...u } : { ...existing }
+          const other = parseTime(u) >= parseTime(existing) ? existing : u
+          if ((merged.domain === 'tyland' || !merged.dept) && other.domain !== 'tyland' && other.dept) {
+            merged.dept = other.dept
+          } else if ((!merged.dept || merged.dept === 'inf') && other.dept && other.dept !== 'inf') {
+            merged.dept = other.dept
+          }
+          userMap.set(uid, merged)
         }
       }
       return Array.from(userMap.values())

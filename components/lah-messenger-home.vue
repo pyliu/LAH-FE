@@ -310,11 +310,19 @@ export default {
     connectText (val) {
       this.$store.commit('statusText', val)
     },
+    username (val) {
+      if (val && this.connected && this.userid) {
+        this.register()
+      }
+    },
     userdept: {
       immediate: true,
       handler (val) {
         if (val && !this.userSelectedDept) {
           this.currentDeptChannel = val
+        }
+        if (val && this.connected && this.userid) {
+          this.register()
         }
       }
     }
@@ -1112,7 +1120,12 @@ export default {
           json = JSON.parse(json)
         } catch (e) {}
       }
-      if (['user_connected', 'user_disconnected', 'user_channel_changed'].includes(json?.command)) {
+      if (json?.command === 'update_user' && json?.payload) {
+        this.register()
+        if (typeof this.delayQueryOnlineClients === 'function') {
+          this.delayQueryOnlineClients()
+        }
+      } else if (['user_connected', 'user_disconnected', 'user_channel_changed'].includes(json?.command)) {
         if (typeof this.delayQueryOnlineClients === 'function') {
           this.delayQueryOnlineClients()
         }
