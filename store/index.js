@@ -736,13 +736,13 @@ export const actions = {
   /**
    * Nuxt-specific action for server-side initialization.
    */
-  nuxtServerInit ({ commit, dispatch }, { req, $content }) {
+  async nuxtServerInit ({ commit, dispatch }, { req, $content }) {
     try {
       commit('ip', req.connection.remoteAddress || req.socket.remoteAddress)
       // Load XAP config from content file at server side
-      dispatch('loadXap', $content)
+      await dispatch('loadXap', $content)
       // Login action is dispatched to fetch user data before client-side render.
-      dispatch('login')
+      await dispatch('login')
     } catch (e) {
       console.error('Error in nuxtServerInit:', e)
     }
@@ -752,7 +752,7 @@ export const actions = {
    */
   login ({ commit, getters }) {
     if (!getters.loggedIn) {
-      this.$axios.post(this.$consts.API.JSON.AUTH, {
+      return this.$axios.post(this.$consts.API.JSON.AUTH, {
         type: 'login',
         req_ip: getters.ip
       }).then((res) => {
