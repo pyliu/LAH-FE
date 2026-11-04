@@ -7,7 +7,13 @@ const axios = require('axios')
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 function randomDelay (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
-};
+}
+function formatAxiosError (prefix, err) {
+  const status = err.response ? `[${err.response.status} ${err.response.statusText}]` : ''
+  const code = err.code ? `(${err.code})` : ''
+  const message = err.message || err.toString()
+  return `${prefix}失敗 ${code} ${status}: ${message}`.replace(/\s+/g, ' ').trim()
+}
 try {
   const isDev = process.env.NODE_ENV !== 'production'
   const cfg = require('dotenv').config()
@@ -25,7 +31,7 @@ try {
     ).then(({ data }) => {
       isDev && console.log(data.message)
     }).catch((err) => {
-      console.error(err)
+      console.error(formatAxiosError('watchdog 請求', err))
     }).finally(() => {
       isDev && console.log('完成 watchdog 請求')
     })
@@ -42,7 +48,7 @@ try {
     ).then(({ data }) => {
       isDev && console.log(data.message)
     }).catch((err) => {
-      console.error(err)
+      console.error(formatAxiosError('scheduler 請求', err))
     }).finally(() => {
       isDev && console.log('完成 scheduler 請求')
     })
