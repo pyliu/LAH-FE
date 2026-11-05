@@ -75,6 +75,7 @@ export const state = () => ({
   },
   // API 軌道管理 (PHP 7.4 舊軌 vs PHP 8.5 新軌)
   apiTrack: {
+    initialized: false,
     globalTrack: 'php7',
     moduleOverrides: {},
     health: {
@@ -537,6 +538,7 @@ export const mutations = {
     state.apiTrack.health = { ...state.apiTrack.health, ...health }
   },
   initApiTrack (state) {
+    state.apiTrack.initialized = true
     if (process.client && typeof window !== 'undefined') {
       try {
         const raw = window.localStorage?.getItem('lah-api-track-config')

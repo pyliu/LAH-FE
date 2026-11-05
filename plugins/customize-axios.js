@@ -26,10 +26,7 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
   $axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
   $axios.defaults.headers.common.CLIENT_IP = store.getters.ip
 
-  // 子元件 mounted 早於 layout mounted，須在外掛階段還原軌道設定，否則初始請求一律走預設 php7
-  if (process.client) {
-    store.commit('initApiTrack')
-  }
+  // 避免在外掛階段同步變更 Store 造成 SSR Hydration Mismatch，軌道還原於 resolveTargetTrack 與 layout mounted 雙重保證
 
   /**
    * @description 解析請求所屬的 API 軌道 (PHP 7.4 vs PHP 8.5)
@@ -38,14 +35,21 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
     let globalTrack = store.state.apiTrack?.globalTrack
     let moduleOverrides = store.state.apiTrack?.moduleOverrides || {}
 
-    // 若客戶端 Store 尚未完全初始化，嘗試自 localStorage 讀取
-    if (!globalTrack && process.client && typeof window !== 'undefined') {
+    // 若客戶端 Store 尚未完成 initApiTrack（子元件 mounted 早於 layout mounted），優先從 localStorage 讀取設定
+    if (!store.state.apiTrack?.initialized && process.client && typeof window !== 'undefined') {
       try {
-        const saved = JSON.parse(window.localStorage?.getItem('lah-api-track-config') || '{}')
-        globalTrack = saved.globalTrack || 'php7'
-        moduleOverrides = saved.moduleOverrides || {}
+        const raw = window.localStorage?.getItem('lah-api-track-config')
+        if (raw) {
+          const saved = JSON.parse(raw)
+          if (saved.globalTrack === 'php85' || saved.globalTrack === 'php7') {
+            globalTrack = saved.globalTrack
+          }
+          if (saved.moduleOverrides && typeof saved.moduleOverrides === 'object') {
+            moduleOverrides = saved.moduleOverrides
+          }
+        }
       } catch (e) {
-        globalTrack = 'php7'
+        // ignore
       }
     }
 

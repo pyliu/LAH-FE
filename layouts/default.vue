@@ -7,14 +7,15 @@ b-container(v-cloak fluid)
   lah-api-track-switcher-modal(ref="apiTrackSwitcherModal")
   lah-sidebar-admin(v-if="isAdmin")
   lah-sidebar(v-else)
-  .version.shadow(
-    :class="{ 'php85-active': isPhp85Active }"
-    @click="openApiTrackModal"
-    :title="isPhp85Active ? '目前運行於 PHP 8.5 軌道 (點擊開啟切換面板)' : '點擊開啟 API 軌道切換與健康狀態面板'"
-    role="button"
-  )
-    span.badge.badge-light.mr-1(v-if="isPhp85Active") PHP 8.5
-    | v{{ $config.pkgVersion }}
+  client-only
+    .version.shadow(
+      :class="{ 'php85-active': isPhp85Active }"
+      @click="openApiTrackModal"
+      :title="isPhp85Active ? '目前運行於 PHP 8.5 軌道 (點擊開啟切換面板)' : '點擊開啟 API 軌道切換與健康狀態面板'"
+      role="button"
+    )
+      span.badge.badge-light.mr-1(v-if="isPhp85Active") PHP 8.5
+      span v{{ $config.pkgVersion }}
 </template>
 
 <script>
