@@ -225,7 +225,13 @@ export default {
   },
   // 資安加固：中介軟體過濾 HTTP 回應標頭中的伺服器技術棧指紋 (X-Powered-By 等)
   serverMiddleware: [
-    '~/server-middleware/security-headers.js'
+    (req, res, next) => {
+      if (res && typeof res.removeHeader === 'function') {
+        res.removeHeader('x-powered-by')
+        res.removeHeader('X-Powered-By')
+      }
+      next()
+    }
   ],
   hooks: {
     'render:beforeResponse': (url, result, { res }) => {
