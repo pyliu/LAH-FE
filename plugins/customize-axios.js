@@ -49,7 +49,7 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
     }
 
     // 擷取端點檔名 (例如 /api/query_json_api.php -> query_json_api)
-    const match = url.match(/\/api\/([a-zA-Z0-9_-]+)(?:\.php)?/)
+    const match = url.match(/(?:\/api\/|\/LAH-API\/api\/)([a-zA-Z0-9_-]+)(?:\.php)?/i)
     if (match) {
       const baseName = match[1]
       const fullName = `${baseName}.php`
@@ -65,6 +65,61 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
   }
 
   /**
+   * @description 判斷請求是否屬於本機 LAH-API 伺服器之 PHP 業務端點
+   * @param {string} url - 請求路徑或完整 URL
+   * @param {string} [baseURL] - Axios baseURL
+   * @returns {boolean}
+   */
+  const isLahApiRequest = (url, baseURL = '') => {
+    if (!url || typeof url !== 'string') {
+      return false
+    }
+    // 已改寫為 PHP 8.5 路由前綴者直接排除
+    if (/^(\/)?(LAH-API|lah-api)\//.test(url)) {
+      return false
+    }
+    // 排除即時通訊伺服器 (Port 8081 / 8082)
+    if (/:808[12]/.test(baseURL) || /:808[12]/.test(url)) {
+      return false
+    }
+    // 排除 Nuxt 反向代理前綴 (如 /l05proxy, /smsproxy 等 *proxy) 與自訂代理路由 (如 /srmas-weathermap)
+    if (/(?:proxy|\/srmas-weathermap)/i.test(url) || /(?:proxy|\/srmas-weathermap)/i.test(baseURL)) {
+      return false
+    }
+    // 排除帶有 /api/v數字/ 的微服務 REST API (如 /api/v1/l05, /api/v1/log)
+    if (/\/api\/v\d+\//i.test(url)) {
+      return false
+    }
+    // 相對路徑以 /api/ 或 api/ 開頭者為本地 LAH-API
+    if (/^\/?api\//i.test(url)) {
+      return true
+    }
+    // 絕對路徑其根路徑為 /api/ 者為本地 LAH-API
+    if (/^https?:\/\/[^/]+\/api\//i.test(url)) {
+      return true
+    }
+    return false
+  }
+
+  /**
+   * @description 將本機 LAH-API 端點精確開頭錨定改寫為 PHP 8.5 FastCGI 路由
+   * @param {string} url
+   * @returns {string}
+   */
+  const rewriteToLahApi85 = (url) => {
+    if (/^\/api\//.test(url)) {
+      return url.replace(/^\/api\//, '/LAH-API/api/')
+    }
+    if (/^api\//.test(url)) {
+      return url.replace(/^api\//, 'LAH-API/api/')
+    }
+    if (/^https?:\/\/[^/]+\/api\//.test(url)) {
+      return url.replace(/^((?:https?:\/\/[^/]+)?)\/api\//, '$1/LAH-API/api/')
+    }
+    return url
+  }
+
+  /**
    * @description 請求攔截器 (Request Interceptor)
    */
   $axios.onRequest((config) => {
@@ -72,13 +127,11 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
     isDev && console.log(`onRequest: 目前 axios request count is ${pendingRequests}`, config)
 
     // 處理 API 雙軌路由轉發 (PHP 7.4 舊軌 vs PHP 8.5 新軌)
-    const isMessengerServer = (config.baseURL && /:808[12]/.test(config.baseURL)) ||
-                              (config.url && /:808[12]/.test(config.url))
-    if (!isMessengerServer && config.url && (config.url.startsWith('/api/') || config.url.includes('/api/'))) {
+    if (isLahApiRequest(config.url, config.baseURL)) {
       const targetTrack = resolveTargetTrack(config.url)
       if (targetTrack === 'php85') {
-        // 重寫 /api/ 為 /LAH-API/api/ (對接 Apache Alias C:/AppServ/LAH-API/v1)
-        config.url = config.url.replace(/\/api\//, '/LAH-API/api/')
+        // 精確改寫為 /LAH-API/api/ (對接 Apache Alias C:/AppServ/LAH-API/v1)
+        config.url = rewriteToLahApi85(config.url)
         config.headers.common['X-LAH-API-Track'] = 'PHP-8.5'
         isDev && console.log(`[API Track] 轉發至 PHP 8.5 FastCGI: ${config.url}`)
       } else {
