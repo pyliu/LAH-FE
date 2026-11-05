@@ -26,6 +26,11 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
   $axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
   $axios.defaults.headers.common.CLIENT_IP = store.getters.ip
 
+  // 子元件 mounted 早於 layout mounted，須在外掛階段還原軌道設定，否則初始請求一律走預設 php7
+  if (process.client) {
+    store.commit('initApiTrack')
+  }
+
   /**
    * @description 解析請求所屬的 API 軌道 (PHP 7.4 vs PHP 8.5)
    */
