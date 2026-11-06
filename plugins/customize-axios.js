@@ -179,7 +179,13 @@ export default function ({ $axios, redirect, store, isDev }, inject) {
       // 返回一個 resolved 的 Promise，這樣元件端的 .catch 就不會被觸發
       return Promise.resolve({ data: { status: 'cancelled', message: error.message } })
     } else {
-      console.error('Axios Error:', error)
+      const status = error.response?.status
+      // 若為特定代理服務之 502/504 等暫態 Gateway 狀態，以 warn 記錄，避免誤導為主程式未捕捉之致命錯誤
+      if (status === 502 || status === 504) {
+        console.warn(`[Axios Proxy Warning ${status}]`, error.config?.url || error.message)
+      } else {
+        console.error('Axios Error:', error)
+      }
     }
 
     return Promise.reject(error)

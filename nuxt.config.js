@@ -134,7 +134,9 @@ export default {
     '/smsproxy': {
       target: `${process.env.PROTOCOL}://${process.env.MONITOR_HOST_SMS_IP}:${process.env.MONITOR_HOST_SMS_PORT}`,
       changeOrigin: true,
-      pathRewrite: { '^/smsproxy': '' }
+      pathRewrite: { '^/smsproxy': '' },
+      proxyTimeout: 120000,
+      timeout: 120000
     },
     '/img': {
       target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,

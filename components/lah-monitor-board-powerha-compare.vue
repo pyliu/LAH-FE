@@ -287,27 +287,40 @@ export default {
       }
     },
     buildReport () {
-      if (!this.nodes.p8_51.clusterInfo || !this.nodes.p8_52.clusterInfo) {
+      const node51 = this.nodes.p8_51
+      const node52 = this.nodes.p8_52
+      if (!node51?.clusterInfo?.clusterName || !node52?.clusterInfo?.clusterName) {
         this.reportData = []
         return
       }
       try {
-        const p851State = this.getHAStateDefinition(this.nodes.p8_51.clusterInfo.nodes[0]?.clusterState)
-        const p852State = this.getHAStateDefinition(this.nodes.p8_52.clusterInfo.nodes[1]?.clusterState)
+        const p851State = this.getHAStateDefinition(node51.clusterInfo.nodes?.[0]?.clusterState)
+        const p852State = this.getHAStateDefinition(node52.clusterInfo.nodes?.[1]?.clusterState)
+
+        const fs51 = Array.isArray(node51.highUsageFileSystems) ? node51.highUsageFileSystems : []
+        const fs52 = Array.isArray(node52.highUsageFileSystems) ? node52.highUsageFileSystems : []
+        const oracleErr51 = node51.oracleErrors?.totalErrors ?? 0
+        const oracleErr52 = node52.oracleErrors?.totalErrors ?? 0
+        const aixErr51 = (node51.aixErrors || []).length
+        const aixErr52 = (node52.aixErrors || []).length
+        const allMounts51 = Array.isArray(node51.allMounts) ? node51.allMounts : []
+        const allMounts52 = Array.isArray(node52.allMounts) ? node52.allMounts : []
+        const dnp51 = node51.dnpValues || []
+        const dnp52 = node52.dnpValues || []
 
         this.reportData = [
-          { item: '叢集名稱', p8_51: this.nodes.p8_51.clusterInfo.clusterName, p8_52: this.nodes.p8_52.clusterInfo.clusterName, result: this.nodes.p8_51.clusterInfo.clusterName === this.nodes.p8_52.clusterInfo.clusterName ? '✅' : '❌' },
+          { item: '叢集名稱', p8_51: node51.clusterInfo.clusterName, p8_52: node52.clusterInfo.clusterName, result: node51.clusterInfo.clusterName === node52.clusterInfo.clusterName ? '✅' : '❌' },
           { item: '節點狀態', p8_51: this.is51Online ? 'ONLINE' : 'OFFLINE', p8_52: this.is52Online ? 'ONLINE' : 'OFFLINE', result: this.is51Online && !this.is52Online ? '✅' : '❌' },
           { item: '叢集狀態', p8_51: { code: p851State.code, ...p851State }, p8_52: { code: p852State.code, ...p852State }, result: p851State.type === 'normal' && p852State.type === 'normal' ? '✅' : '❌' },
-          { item: '檔案系統超過 80%', p8_51: this.nodes.p8_51.highUsageFileSystems, p8_52: this.nodes.p8_52.highUsageFileSystems, result: this.nodes.p8_51.highUsageFileSystems.length > 0 || this.nodes.p8_52.highUsageFileSystems.length > 0 ? '❌' : '✅' },
-          { item: 'Oracle 錯誤', p8_51: this.nodes.p8_51.oracleErrors.totalErrors, p8_52: this.nodes.p8_52.oracleErrors.totalErrors, result: this.nodes.p8_51.oracleErrors.totalErrors > 0 || this.nodes.p8_52.oracleErrors.totalErrors > 0 ? '⚠' : '✅' },
-          { item: 'AIX 錯誤', p8_51: this.nodes.p8_51.aixErrors.length, p8_52: this.nodes.p8_52.aixErrors.length, result: this.nodes.p8_51.aixErrors.length === 0 && this.nodes.p8_52.aixErrors.length === 0 ? '✅' : '❌' },
-          { item: '檔案系統', p8_51: this.nodes.p8_51.allMounts, p8_52: this.nodes.p8_52.allMounts, result: this.nodes.p8_51.allMounts.length - this.nodes.p8_52.allMounts.length === 7 ? '✅' : '❌' },
-          { item: '子系統 PID', p8_51: this.nodes.p8_51.hacmpPids, p8_52: this.nodes.p8_52.hacmpPids, result: '✅' },
-          { item: 'NDP 數值', p8_51: this.nodes.p8_51.dnpValues, p8_52: this.nodes.p8_52.dnpValues, result: this.nodes.p8_51.dnpValues.length === 2 && this.nodes.p8_52.dnpValues.length === 2 ? '✅' : '❌' },
-          { item: '記憶體', p8_51: this.nodes.p8_51.memoryStats, p8_52: this.nodes.p8_52.memoryStats, result: '✅' },
-          { item: 'Oracle 程式數', p8_51: this.nodes.p8_51.oracleProcs, p8_52: this.nodes.p8_52.oracleProcs, result: this.nodes.p8_51.oracleProcs > 0 ? '✅' : '❌' },
-          { item: 'I/O 統計', p8_51: this.nodes.p8_51.ioStats, p8_52: this.nodes.p8_52.ioStats, result: '✅' }
+          { item: '檔案系統超過 80%', p8_51: fs51, p8_52: fs52, result: fs51.length > 0 || fs52.length > 0 ? '❌' : '✅' },
+          { item: 'Oracle 錯誤', p8_51: oracleErr51, p8_52: oracleErr52, result: oracleErr51 > 0 || oracleErr52 > 0 ? '⚠' : '✅' },
+          { item: 'AIX 錯誤', p8_51: aixErr51, p8_52: aixErr52, result: aixErr51 === 0 && aixErr52 === 0 ? '✅' : '❌' },
+          { item: '檔案系統', p8_51: allMounts51, p8_52: allMounts52, result: allMounts51.length - allMounts52.length === 7 ? '✅' : '❌' },
+          { item: '子系統 PID', p8_51: node51.hacmpPids || [], p8_52: node52.hacmpPids || [], result: '✅' },
+          { item: 'NDP 數值', p8_51: dnp51, p8_52: dnp52, result: dnp51.length === 2 && dnp52.length === 2 ? '✅' : '❌' },
+          { item: '記憶體', p8_51: node51.memoryStats, p8_52: node52.memoryStats, result: '✅' },
+          { item: 'Oracle 程式數', p8_51: node51.oracleProcs || 0, p8_52: node52.oracleProcs || 0, result: (node51.oracleProcs || 0) > 0 ? '✅' : '❌' },
+          { item: 'I/O 統計', p8_51: node51.ioStats, p8_52: node52.ioStats, result: '✅' }
         ]
 
         // [修改] 新增：有錯誤(❌)或警示(⚠)的欄位置頂
@@ -390,6 +403,9 @@ export default {
       return resultArray
     },
     getClusterName (logContent) {
+      if (!logContent || typeof logContent !== 'string') {
+        return 'N/A'
+      }
       const clusterNameMatch = logContent.match(/Cluster Name:\s*(\S+)/)
       if (clusterNameMatch && clusterNameMatch[1]) {
         return clusterNameMatch[1].replace(/_cluster$/i, '')
@@ -397,6 +413,9 @@ export default {
       return 'N/A'
     },
     getClusterManagerState (logContent) {
+      if (!logContent || typeof logContent !== 'string') {
+        return 'N/A'
+      }
       const regex = /Details of PowerHA SystemMirror cluster manager:[\s\S]*?Current state:\s*(\S+)/
       const match = logContent.match(regex)
       if (match && match[1]) {
@@ -406,6 +425,9 @@ export default {
     },
     getNodeState (logContent) {
       const nodes = []
+      if (!logContent || typeof logContent !== 'string') {
+        return nodes
+      }
       const nodeStateSection = logContent.split(/Node\s+State/)[1]
       if (nodeStateSection) {
         const lines = nodeStateSection.trim().split('\n')

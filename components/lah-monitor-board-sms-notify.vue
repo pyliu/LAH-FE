@@ -99,8 +99,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue';
-import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue';
+import lahAdmSmslogTableVue from '~/components/lah-adm-smslog-table.vue'
+import lahRegCaseDetailVue from '~/components/lah-reg-case-detail.vue'
 export default {
   name: 'LahMonitorBoardSmsNotify',
   emit: ['light-update'],
@@ -332,16 +332,21 @@ export default {
         .post(this.SmsAPIUrl, {
           encoding: 'CP950',
           path: this.logPath
+        }, {
+          timeout: 60000
         })
         .then(({ data }) => {
           this.responseData = { ...data }
         })
         .catch((err) => {
           this.error = err
+          const isTimeout = err.code === 'ECONNABORTED' || err.response?.status === 504
           this.responseData = {
             ...{
               statusCode: -1,
-              message: `❌ 無法取得 ${this.SmsAPIUrl} LOG資料`,
+              message: isTimeout
+                ? `⌛ 取得 ${this.SmsAPIUrl} LOG 資料逾時 (504 Gateway Timeout)`
+                : `❌ 無法取得 ${this.SmsAPIUrl} LOG資料`,
               payload: {
                 raw: ''
               }

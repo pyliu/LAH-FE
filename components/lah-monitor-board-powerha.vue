@@ -416,8 +416,10 @@ export default {
         this.nodes.p8_51.errpts = this.parseAixHealthCheckErrpt(val.message)
         // force reactive
         this.nodes.p8_51 = { ...this.nodes.p8_51 }
-        this.prepareReportData()
+      } else {
+        this.nodes.p8_51 = {}
       }
+      this.prepareReportData()
     },
     headP8_52 (val) {
       // this.$utils.warn('headP8_52', val)
@@ -437,8 +439,10 @@ export default {
         this.nodes.p8_52.errpts = this.parseAixHealthCheckErrpt(val.message)
         // force reactive
         this.nodes.p8_52 = { ...this.nodes.p8_52 }
-        this.prepareReportData()
+      } else {
+        this.nodes.p8_52 = {}
       }
+      this.prepareReportData()
     }
   },
   created () {
@@ -653,6 +657,9 @@ export default {
      * 備用：如果從頭到尾都沒找到，就回傳 'N/A'。
      */
     getClusterName (logContent) {
+      if (!logContent || typeof logContent !== 'string') {
+        return 'N/A'
+      }
       const clusterNameMatch = logContent.match(/Cluster Name:\s*(\S+)/)
       if (clusterNameMatch && clusterNameMatch[1]) {
         return clusterNameMatch[1].replace(/_cluster$/i, '')
@@ -666,6 +673,9 @@ export default {
      * @returns {string} - "Current state" 的值 (例如 "ST_STABLE")，若找不到則回傳 "N/A"。
      */
     getClusterManagerState (logContent) {
+      if (!logContent || typeof logContent !== 'string') {
+        return 'N/A'
+      }
       // 1. 建立一個正規表示式來尋找整個區塊並擷取目標值
       //    - Details of PowerHA...:  先定位到這個固定的標題
       //    - [\s\S]*?:              接著非貪婪地匹配任何字元 (包含換行)
@@ -689,6 +699,9 @@ export default {
      */
     getNodeState (logContent) {
       const nodes = []
+      if (!logContent || typeof logContent !== 'string') {
+        return nodes
+      }
       // 使用正規表達式來處理 "Node" 和 "State" 間的任何空白字元
       const nodeStateSection = logContent.split(/Node\s+State/)[1]
 
@@ -1106,7 +1119,7 @@ export default {
 
       // *** 新增開始: 專門處理子系統 PID 物件 ***
       // 透過檢查物件是否含有 'rsct' 和 'powerha' 這些獨特的鍵來識別它
-      if (typeof data === 'object' && data !== null && data.hasOwnProperty('rsct') && data.hasOwnProperty('powerha')) {
+      if (typeof data === 'object' && data !== null && Object.prototype.hasOwnProperty.call(data, 'rsct') && Object.prototype.hasOwnProperty.call(data, 'powerha')) {
         const outputLines = []
         const formatSection = (title, subsystems) => {
           if (subsystems && subsystems.length > 0) {
@@ -1127,10 +1140,10 @@ export default {
 
       // 處理陣列 (Array) 的特殊顯示規則
       if (Array.isArray(data)) {
-        if (data.length > 0 && data[0] && data[0].hasOwnProperty('mountedOn')) {
+        if (data.length > 0 && data[0] && Object.prototype.hasOwnProperty.call(data[0], 'mountedOn')) {
           return data.map(item => `${item.mountedOn} (${item.usedPercent})`).join('\n')
         }
-        if (data.length > 0 && data[0] && data[0].hasOwnProperty('identifier')) {
+        if (data.length > 0 && data[0] && Object.prototype.hasOwnProperty.call(data[0], 'identifier')) {
           return data.map(item => item.description).join('\n')
         }
         return data.join('\n')
@@ -1302,10 +1315,18 @@ export default {
       try {
         // 0. 清除之前 reportData 資料
         this.reportData.length = 0
+
+        // 節點完整性防護：必須 51 與 52 兩節點皆具備 clusterInfo 且能解析出叢集名稱才能進行分析比對
+        const node51 = this.nodes.p8_51
+        const node52 = this.nodes.p8_52
+        if (!node51?.clusterInfo?.clusterName || !node52?.clusterInfo?.clusterName) {
+          return
+        }
+
         const ha1Regex = /^ORAH[0A-H]HA1/i
         const ha2Regex = /^ORAH[0A-H]HA2/i
-        const clusterName51 = this.nodes.p8_51.clusterInfo.clusterName
-        const clusterName52 = this.nodes.p8_52.clusterInfo.clusterName
+        const clusterName51 = node51.clusterInfo.clusterName
+        const clusterName52 = node52.clusterInfo.clusterName
 
         this.reportData.push({
           item: '叢集名稱',
@@ -1321,8 +1342,10 @@ export default {
           result: this.is51Online && !this.is52Online ? '✅' : '❌'
         })
 
-        const p851ClusterState = this.nodes.p8_51.clusterInfo.nodes.find(n => ha1Regex.test(n.name)).clusterState
-        const p852ClusterState = this.nodes.p8_52.clusterInfo.nodes.find(n => ha2Regex.test(n.name)).clusterState
+        const p851Node = (node51.clusterInfo.nodes || []).find(n => ha1Regex.test(n.name))
+        const p852Node = (node52.clusterInfo.nodes || []).find(n => ha2Regex.test(n.name))
+        const p851ClusterState = p851Node?.clusterState || 'UNKNOWN'
+        const p852ClusterState = p852Node?.clusterState || 'UNKNOWN'
         this.reportData.push({
           item: '叢集狀態',
           p8_51: {
@@ -1336,15 +1359,17 @@ export default {
           result: p851ClusterState === 'ST_STABLE' && p852ClusterState === 'ST_STABLE' ? '✅' : '❌'
         })
 
+        const fs51 = Array.isArray(node51.highUsageFileSystems) ? node51.highUsageFileSystems : []
+        const fs52 = Array.isArray(node52.highUsageFileSystems) ? node52.highUsageFileSystems : []
         this.reportData.push({
           item: '檔案系統超過 80%',
-          p8_51: this.nodes.p8_51.highUsageFileSystems,
-          p8_52: this.nodes.p8_52.highUsageFileSystems,
-          result: this.nodes.p8_51.highUsageFileSystems.length > 0 || this.nodes.p8_52.highUsageFileSystems.length > 0 ? '❌' : '✅'
+          p8_51: fs51,
+          p8_52: fs52,
+          result: fs51.length > 0 || fs52.length > 0 ? '❌' : '✅'
         })
 
-        const oracleErrors51 = this.formatForDisplay(this.nodes.p8_51.oracleErrors.length)
-        const oracleErrors52 = this.formatForDisplay(this.nodes.p8_52.oracleErrors.length)
+        const oracleErrors51 = this.formatForDisplay((node51.oracleErrors || []).length)
+        const oracleErrors52 = this.formatForDisplay((node52.oracleErrors || []).length)
         this.reportData.push({
           item: 'Oracle 錯誤',
           p8_51: oracleErrors51,
@@ -1353,8 +1378,8 @@ export default {
         })
 
         // 處理 AIX Error
-        const aixErrorCount51 = this.nodes.p8_51.aixErrors.length
-        const aixErrorCount52 = this.nodes.p8_52.aixErrors.length
+        const aixErrorCount51 = (node51.aixErrors || []).length
+        const aixErrorCount52 = (node52.aixErrors || []).length
         this.reportData.push({
           item: 'AIX 錯誤',
           p8_51: aixErrorCount51 > 0 ? `${aixErrorCount51} 個錯誤` : '無',
@@ -1362,8 +1387,8 @@ export default {
           result: aixErrorCount51 === 0 && aixErrorCount52 === 0 ? '✅' : '❌'
         })
 
-        const allmounts51 = this.nodes.p8_51.allMounts
-        const allmounts52 = this.nodes.p8_52.allMounts
+        const allmounts51 = Array.isArray(node51.allMounts) ? node51.allMounts : []
+        const allmounts52 = Array.isArray(node52.allMounts) ? node52.allMounts : []
         this.reportData.push({
           item: '檔案系統',
           p8_51: allmounts51,
@@ -1371,8 +1396,8 @@ export default {
           result: allmounts51.length - allmounts52.length === 7 ? '✅' : '❌'
         })
 
-        const hacmpPids51 = this.nodes.p8_51.hacmpPids
-        const hacmpPids52 = this.nodes.p8_52.hacmpPids
+        const hacmpPids51 = node51.hacmpPids || []
+        const hacmpPids52 = node52.hacmpPids || []
         this.reportData.push({
           item: '子系統 PID',
           p8_51: this.formatPIDsHtmlDisplay(hacmpPids51),
@@ -1380,33 +1405,35 @@ export default {
           result: '✅'
         })
 
-        const dnpValues51 = this.nodes.p8_51.dnpValues
-        const dnpValues52 = this.nodes.p8_52.dnpValues
+        const dnpValues51 = node51.dnpValues || []
+        const dnpValues52 = node52.dnpValues || []
         this.reportData.push({
           item: 'NDP 數值',
-          p8_51: this.formatNDPHtmlDisplay(this.nodes.p8_51.dnpValues),
-          p8_52: this.formatNDPHtmlDisplay(this.nodes.p8_52.dnpValues),
+          p8_51: this.formatNDPHtmlDisplay(dnpValues51),
+          p8_52: this.formatNDPHtmlDisplay(dnpValues52),
           result: dnpValues51.length === 2 && dnpValues52.length === 2 ? '✅' : '❌'
         })
 
         this.reportData.push({
           item: '記憶體',
-          p8_51: this.formatMemoryStatsHtmlDisplay(this.nodes.p8_51.memoryStats),
-          p8_52: this.formatMemoryStatsHtmlDisplay(this.nodes.p8_52.memoryStats),
+          p8_51: this.formatMemoryStatsHtmlDisplay(node51.memoryStats),
+          p8_52: this.formatMemoryStatsHtmlDisplay(node52.memoryStats),
           result: '✅'
         })
 
+        const oracleProcs51 = node51.oracleProcs || 0
+        const oracleProcs52 = node52.oracleProcs || 0
         this.reportData.push({
           item: 'Oracle 程式數',
-          p8_51: this.nodes.p8_51.oracleProcs,
-          p8_52: this.nodes.p8_52.oracleProcs,
-          result: this.nodes.p8_51.oracleProcs > 0 ? '✅' : '❌'
+          p8_51: oracleProcs51,
+          p8_52: oracleProcs52,
+          result: oracleProcs51 > 0 ? '✅' : '❌'
         })
 
         this.reportData.push({
           item: 'I/O 統計',
-          p8_51: this.formatIOStatsHtmlDisplay(this.nodes.p8_51.ioStats),
-          p8_52: this.formatIOStatsHtmlDisplay(this.nodes.p8_52.ioStats),
+          p8_51: this.formatIOStatsHtmlDisplay(node51.ioStats),
+          p8_52: this.formatIOStatsHtmlDisplay(node52.ioStats),
           result: '✅'
         })
 
