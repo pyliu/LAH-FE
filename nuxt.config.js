@@ -230,6 +230,15 @@ export default {
         res.removeHeader('x-powered-by')
         res.removeHeader('X-Powered-By')
       }
+      // Node2Shell (CVE-2026-111497) 應用層深度防禦：阻斷傳入之 Brotli 壓縮 Body
+      if (req && req.headers) {
+        const enc = req.headers['content-encoding']
+        if (enc && /br/i.test(enc)) {
+          res.writeHead(415, { 'Content-Type': 'text/plain; charset=utf-8' })
+          res.end('415 Unsupported Media Type: Brotli request body encoding is blocked for security.')
+          return
+        }
+      }
       next()
     }
   ],
