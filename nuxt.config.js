@@ -4,7 +4,7 @@ export default {
   ssr: false, // Disable Server Side rendering (Static SPA Mode)
   target: 'static',
   generate: {
-    fallback: 'index.html'
+    fallback: false
   },
   rootDir: fs.realpathSync(process.cwd()),
   server: {
