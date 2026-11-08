@@ -226,6 +226,7 @@ div(v-cloak)
 
 <script>
 import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+import statsSiteCodeJson from '~/content/statsSiteCode.json'
 
 const BOARD_KEYS = [
   'regInitial',
@@ -238,8 +239,8 @@ const BOARD_KEYS = [
 export default {
   components: { lahXlsxDownload },
   fetchOnServer: false,
-  async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
-    const siteCodeMap = await $content('statsSiteCode').fetch()
+  asyncData () {
+    const siteCodeMap = statsSiteCodeJson
     const today = new Date()
     return {
       initBegin: new Date(today.getFullYear() - 1, 0, 1),

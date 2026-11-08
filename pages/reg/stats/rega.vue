@@ -290,14 +290,15 @@ div(v-cloak)
 <script>
 import lahRegCaseDetail from '~/components/lah-reg-case-detail.vue'
 import lahXlsxDownload from '~/components/lah-xlsx-download.vue'
+import regaJson from '~/content/rega.json'
 import dynamicHeight from '~/mixins/dynamic-height-mixin'
 
 export default {
   components: { lahRegCaseDetail, lahXlsxDownload },
   mixins: [dynamicHeight],
   fetchOnServer: false,
-  async asyncData ({ isDev, route, store, env, params, query, req, res, redirect, error, $content }) {
-    const itemMap = await $content('rega').fetch()
+  asyncData () {
+    const itemMap = regaJson
     const today = new Date()
     return {
       initBegin: new Date(today.getFullYear(), today.getMonth() - 1, 1),

@@ -174,13 +174,13 @@ div: client-only
 </template>
 
 <script>
-import { format, formatDistance, formatDistanceToNow } from 'date-fns';
+import { format, formatDistance, formatDistanceToNow } from 'date-fns'
 // Require Esperanto locale
-import { zhTW } from 'date-fns/locale';
+import { zhTW } from 'date-fns/locale'
 
 export default {
   // middleware: ['isAdmin'],
-  async asyncData ({ $axios, $content }) {
+  asyncData () {
     // SSR: returned object will replace the data inside "data" before rendering
     // http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01
     // return await $axios.get('http://220.1.34.161/LandY0/open_news/queryNews?newsCategory=01', { timeout: 400 })
@@ -194,7 +194,7 @@ export default {
       ('0' + now.getMinutes()).slice(-2) +
       ':' +
       ('0' + now.getSeconds()).slice(-2)
-    const testContent = await $content('test').fetch()
+    const testContent = {}
     return {
       testContent,
       list: [{ type: 'remote', text: '準備中 ... ', time }]

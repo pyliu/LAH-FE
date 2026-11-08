@@ -2,6 +2,7 @@ import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import uniqWith from 'lodash/uniqWith'
 import { getDepartmentCode } from '~/constants/lah-messenger-constants'
+import xapMapJson from '~/content/xapMap.json'
 
 /**
  * Custom error logger for Axios interceptor.
@@ -95,7 +96,7 @@ export const state = () => ({
   // State for the top XAP component.
   topXap: { x: '', y: 0 },
   // A map for XAP configurations.
-  xapMap: new Map(),
+  xapMap: new Map(Object.entries(xapMapJson)),
   // Capacity for the image memento.
   imageMementoCapacity: 30,
   // An array acting as a memento for images.
@@ -330,11 +331,18 @@ export const mutations = {
    * @param {object} payload - The login response data.
    */
   login (state, payload) {
+    if (payload && payload.ip && payload.ip !== '0.0.0.0') {
+      state.ip = payload.ip
+    }
     state.user = { ...payload.user }
     state.systemConfigs = { ...state.systemConfigs, ...payload.configs }
-    state.authority = { ...state.authority, ...payload.configs.authority }
+    state.authority = {
+      ...state.authority,
+      ...(payload.configs ? payload.configs.authority : {}),
+      isAdmin: state.adminIps.includes(state.ip) || Boolean(payload.configs && payload.configs.authority && payload.configs.authority.isAdmin)
+    }
     state.server = { ...state.server, ...payload.server }
-    state.apiSvrIps = [...payload.ips]
+    state.apiSvrIps = Array.isArray(payload.ips) ? [...payload.ips] : []
     state.loggedIn = true
   },
   /**
@@ -736,20 +744,6 @@ export const actions = {
     commit('plusUnread', channel)
   },
   /**
-   * Nuxt-specific action for server-side initialization.
-   */
-  async nuxtServerInit ({ commit, dispatch }, { req, $content }) {
-    try {
-      commit('ip', req.connection.remoteAddress || req.socket.remoteAddress)
-      // Load XAP config from content file at server side
-      await dispatch('loadXap', $content)
-      // Login action is dispatched to fetch user data before client-side render.
-      await dispatch('login')
-    } catch (e) {
-      console.error('Error in nuxtServerInit:', e)
-    }
-  },
-  /**
    * Performs a login request to the backend if the user is not already logged in.
    */
   login ({ commit, getters }) {
@@ -759,6 +753,9 @@ export const actions = {
         req_ip: getters.ip
       }).then((res) => {
         commit('login', res.data)
+        if (this.$axios && this.$axios.defaults && this.$axios.defaults.headers && this.$axios.defaults.headers.common) {
+          this.$axios.defaults.headers.common.CLIENT_IP = getters.ip
+        }
       }).catch((error) => {
         logerror(error)
       }).finally(() => {
@@ -805,14 +802,9 @@ export const actions = {
       return false
     }
   },
-  async loadXap ({ getters }, $content) {
+  loadXap ({ getters }) {
     try {
-      if (!$content) {
-        console.warn('Nuxt content is not available, skipping loadXap.')
-        return
-      }
-      const json = await $content('xapMap').fetch()
-      for (const [key, value] of Object.entries(json)) {
+      for (const [key, value] of Object.entries(xapMapJson)) {
         getters.xapMap.set(key, value)
       }
     } catch (e) {

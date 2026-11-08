@@ -38,7 +38,19 @@ marked.setOptions({
   breaks: true
 })
 
-export default ({ $axios, store, $config }, inject) => {
+export default async ({ $axios, store, $config }, inject) => {
+  if (process.client && typeof window !== 'undefined' && window.__LAH_CONFIG__ && typeof window.__LAH_CONFIG__ === 'object') {
+    const rtCfg = window.__LAH_CONFIG__
+    Object.keys(rtCfg).forEach((k) => {
+      if (rtCfg[k] !== undefined) {
+        if (typeof rtCfg[k] === 'object' && rtCfg[k] !== null && typeof $config[k] === 'object' && $config[k] !== null) {
+          $config[k] = { ...$config[k], ...rtCfg[k] }
+        } else {
+          $config[k] = rtCfg[k]
+        }
+      }
+    })
+  }
   if (store && !Vue.prototype.$store) {
     Vue.prototype.$store = store
   }
@@ -1066,4 +1078,12 @@ export default ({ $axios, store, $config }, inject) => {
   // need to add 'Header set Access-Control-Allow-Origin "*"' to Apache site and turn on mod_header.so in httpd.conf
   uploadAxios.defaults.headers.post['Content-Type'] = 'multipart/form-data'
   inject('upload', uploadAxios)
+
+  if (process.client && store && !store.getters.loggedIn) {
+    try {
+      await store.dispatch('login')
+    } catch (e) {
+      console.warn('客戶端自動登入初始化異常:', e)
+    }
+  }
 }

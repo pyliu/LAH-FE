@@ -105,6 +105,7 @@ b-card(
 
 <script>
 import lahRegCaseDetailVue from './lah-reg-case-detail.vue'
+import crsmsSchemaJson from '~/content/crsmsSchema.json'
 export default {
   components: { lahRegCaseDetailVue },
   props: {
@@ -377,8 +378,8 @@ export default {
       }
     }
   },
-  async created () {
-    this.rmMap = await this.$content('crsmsSchema').fetch()
+  created () {
+    this.rmMap = crsmsSchemaJson
     this.crsmsSchema = [...Object.entries(this.rmMap)
       .filter(item => item[0]?.startsWith('RM'))
       .map((item) => {

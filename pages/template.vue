@@ -14,8 +14,8 @@ div(v-cloak)
 <script>
 export default {
   fetchOnServer: false,
-  async asyncData ({ $axios, $content }) {
-    const testMD = await $content('test').fetch()
+  asyncData () {
+    const testMD = {}
     return {
       testMD
     }

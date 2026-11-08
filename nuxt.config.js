@@ -1,7 +1,11 @@
 import fs from 'fs'
 import pkg from './package.json'
 export default {
-  // ssr: false, // Disable Server Side rendering
+  ssr: false, // Disable Server Side rendering (Static SPA Mode)
+  target: 'static',
+  generate: {
+    fallback: 'index.html'
+  },
   rootDir: fs.realpathSync(process.cwd()),
   server: {
     // bind to all possible addresses
@@ -31,7 +35,9 @@ export default {
       href: '/favicon.ico'
     }
     ],
-    script: []
+    script: [
+      { src: '/runtime-config.js' }
+    ]
   },
   /*
    ** Customize the progress-bar color
@@ -81,7 +87,6 @@ export default {
     '@nuxtjs/proxy',
     '@nuxtjs/localforage',
     // nuxt2 needs v1 => yarn add @nuxt/content@^1
-    '@nuxt/content',
     // '@nuxt/content',
     'nuxt-fontawesome'
   ],
