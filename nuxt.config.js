@@ -165,7 +165,37 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend (config, ctx) {},
+    loaders: {
+      scss: {
+        sassOptions: {
+          quietDeps: true,
+          silenceDeprecations: [
+            'legacy-js-api',
+            'import',
+            'global-builtin',
+            'color-functions',
+            'abs-percent',
+            'slash-div'
+          ]
+        }
+      },
+      sass: {
+        sassOptions: {
+          quietDeps: true,
+          silenceDeprecations: [
+            'legacy-js-api',
+            'import',
+            'global-builtin',
+            'color-functions',
+            'abs-percent',
+            'slash-div'
+          ]
+        }
+      }
+    },
+    extend (config, ctx) {
+      config.performance = { hints: false }
+    },
     babel: { compact: true }
   },
   // should hold all env variables that are public as these will be exposed on the frontend.

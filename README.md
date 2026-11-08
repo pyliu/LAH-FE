@@ -1,90 +1,107 @@
-# Land Administration Hub Frontend by Nuxt.js v2
+# LAH-FE - 智慧控管與監控系統前端 (Land Administration Hub FrontEnd)
 
-This frontend application relies on the LAH-API service, which functions as the PHP backend provider for all JSON data structures.
-
-​Configuration:
-> Please ensure all mandatory environment variables are defined prior to starting the Nuxt.js server. A template is provided in the .env.example file.
+`LAH-FE` 為地政智慧控管系統的 Web 前端應用程式，主要透過 HTTP REST API 與 `LAH-API` 伺服器溝通，並透過 WebSocket 與 `lah-messenger-server` 進行即時通訊。
 
 ![系統區塊圖](system_block.jpg)
 
-# Need to use Node.js in v16
+## 核心架構與運作模式
 
-# LAH-FE - Land Administration Hub FrontEnd 地政資訊管理前端
+本專案採 **純靜態 SPA (Static SPA) + PM2 背景排程** 的雙軌架構：
 
-## 專案簡介
+* **前端網站 (Static SPA)**：透過 Nuxt 2 的 `yarn generate` 編譯為純靜態 HTML/JS/CSS（輸出至 `dist/` 目錄），由 Apache 8080 連接埠作為虛擬主機（DocumentRoot）直接託管。
+* **背景排程服務 (LAH-SCHEDULER)**：由 PM2 常駐守護 `scheduler/server.js`，負責定時排程、健康檢測與環境變數監控。
+* **執行期動態設定 (Runtime Config)**：靜態頁面透過 `/runtime-config.js` 載入環境變數（`window.__LAH_CONFIG__`）。此檔案由 `LAH-SCHEDULER` 或安裝更新工具自伺服器本機的 `.env` 自動產出，確保靜態前端無需重新編譯即可即時套用正式環境組態。
 
-`LAH-FE` (Land Administration Hub - Frontend) 是一個基於 Nuxt.js v2 和 Vue.js 2 開發的前端應用程式，旨在為地政業務提供一個功能全面的內部智慧管控平台。系統整合了案件管理、系統監控、數據統計及使用者權限等多項核心功能。
+## 主要技術棧 (Core Technologies)
 
-本專案建立於 2017 年左右，採用了當時主流的技術棧與開發模式，並持續進行維護與功能迭代。
+* **核心框架**：Nuxt.js (`2.15.8`)
+* **視圖框架**：Vue.js (`2.7.16`)
+* **UI 元件庫**：BootstrapVue (`2.23.0`)
+* **樣板引擎**：Pug (`^3.0.2`)
+* **樣式編譯**：Dart Sass (`sass ^1.77.0`, `sass-loader ^10.2.0`)
+* **圖表庫**：Chart.js (`3.9.1`)、vue-chartjs (`^4.0.3`)
+* **HTTP 客戶端**：@nuxtjs/axios (`^5.12.2`)
+* **執行期環境**：支援 Node.js v18 至 v26+（已全面相容最新可攜式 Node.js v26.13.0）
 
-## 主要技術 (Core Technologies)
+## 專案目錄結構
 
-* **主要框架**: Nuxt.js (`~2.15.8`)
-* **JS 框架**: Vue.js (`2.6.14`)
-* **UI 框架**: BootstrapVue (`~2.21.2`)
-* **樣板引擎**: Pug (`~3.0.2`)
-* **HTTP 客戶端**: @nuxtjs/axios (`~5.13.6`)
-* **JS 工具庫**: Lodash (`~4.17.21`)
-* **CSS 預處理器**: SASS/SCSS (`~1.32.13`)
-* **圖示庫**: Font Awesome (`~5.15.4`)
-* **程序管理**: PM2 (`^5.1.0`)
+專案目錄遵循 Nuxt 2 規範與專案模組職責劃分：
 
-## 專案結構
+* **`/assets`**：存放 SCSS 樣式、未編譯圖檔與全域資源。
+* **`/components`**：存放可重複使用的 Vue 元件（遵循 `lah-*.vue` 命名慣例，並內建移植自即時通之 `lah-messenger-*.vue` 元件群）。
+* **`/layouts`**：應用程式整體佈局，定義共用的頁首、側邊欄與頁尾。
+* **`/mixins`**：共用 Vue Mixin 邏輯（如動態高度計算、資料快取存取等）。
+* **`/pages`**：業務頁面與路由目錄，結構自動映射至系統 URL 路徑。
+* **`/plugins`**：Vue 實例插件（如 axios 攔截器、Font Awesome 等）。
+* **`/scheduler`**：背景服務程式碼（包含排程伺服器 `server.js` 與定時任務）。
+* **`/store`**：Vuex 狀態管理模組（按業務劃分，如 `auth`、`inf`、`regcase` 等）。
+* **`/static`**：純靜態外部資源目錄。
+* **`yarn-build.bat`**：一鍵靜態網頁產製工具（自動適應 Node v26 與 OpenSSL legacy provider，建置後開啟 `dist/` 目錄）。
+* **`ecosystem.config.js`**：PM2 常駐守護程序設定檔（定義 `LAH-SCHEDULER`）。
+* **`nuxt.config.js`**：Nuxt 設定檔（宣告 SPA 靜態產製目標、代理伺服器規則與插件）。
 
-專案遵循標準的 Nuxt.js 目錄結構，核心目錄功能如下：
+## 開發與建置操作指南
 
-* **`/assets`**: 存放 SCSS 樣式、圖片、字體等未經編譯的靜態資源。
-* **`/components`**: 存放可重用的 Vue 組件，是構成頁面的基本單位。
-* **`/layouts`**: 存放應用程式的佈局，定義了共用的頁首、頁尾和側邊欄。
-* **`/mixins`**: 存放可複用的 Vue Mixin 邏輯，例如動態高度計算、共用資料獲取等。
-* **`/pages`**: 存放頁面級組件，此處的目錄結構會自動生成應用的路由。
-* **`/plugins`**: 存放需要注入到 Vue 根實例的插件，例如 axios 的攔截器、全域 mixin 等。
-* **`/store`**: 存放 Vuex 狀態管理檔案，按業務模組進行劃分。
-* **`/constants`**: 存放專案中使用的常數，例如表格欄位定義、狀態碼等。
+### 1. 環境變數設定 (.env)
 
-## 如何啟動 (Getting Started)
+啟動開發伺服器前，請建立 `.env` 檔案：
 
-1.  **環境變數設定 (.env)**
-    > 本專案仰賴環境變數配置前端伺服器、LAH-API 後端位置以及各項監控主機資訊。啟動前請務必建立 `.env` 檔案：
+```bash
+# 複製範本建立設定檔
+cp .env.example .env
+```
 
-    ```bash
-    # 複製範本建立設定檔
-    cp .env.example .env
-    ```
-    > 請依實際開發環境調整 `.env` 內容，特別是 `HOST`、`PORT`、`API_HOST`、`API_PORT` 等連線設定。
+請依本機或測試環境調整 `.env` 內容（如 `API_HOST`、`API_PORT`、`WEBSOCKET_HOST` 等）。
 
-2.  **安裝依賴**
-    > **注意**：本專案需使用 **Node.js v16** 環境（因相依 `node-sass` 等原生套件）。
-    > 在全新環境安裝或無 lockfile 時，若遇 `node-releases` 等間接相依套件回報 `The engine "node" is incompatible with this module`，請加上 `--ignore-engines` 參數或設定 Yarn 忽略引擎版本檢查：
+> [!CAUTION]
+> 部署至遠端伺服器時，**切勿使用本機開發的 `.env` 覆蓋遠端檔案**，以免導致正式站台連線組態失效。
 
-    ```bash
-    # 方式一：直接帶參數安裝（建議）
-    yarn install --ignore-engines
+### 2. 套件安裝
 
-    # 方式二：設定 Yarn 永久忽略版本檢查後再安裝
-    yarn config set ignore-engines true
-    yarn install
-    ```
+本專案支援現代 Node.js 執行期（Node.js v18 / v20 / v22 / v26+）：
 
-3.  **啟動開發環境**
-    ```bash
-    yarn dev
-    ```
-    應用程式將會在 `http://localhost:8080` 上運行。
+```bash
+yarn install
+```
 
-4.  **打包部署**
-    ```bash
-    yarn build
-    ```
+### 3. 啟動本機開發伺服器
 
-## 主要功能模組
+執行以下指令啟動具備熱重載（Hot Reload）的前端開發伺服器：
 
-* **登記課 (智慧控管)**: 處理各類登記案件，如案件查詢、狀態追蹤、補正管理等。
-* **測量課 (測量小幫手)**: 處理測量相關的業務邏輯。
-* **資訊課 (智慧監控)**: 提供系統戰情面板，如 PowerHA 狀態、伺服器連線、資料庫備份等。
-* **地價課 (地價小幫手)**: 處理地價相關的業務。
-* **系管 (Administration)**: 提供使用者管理、權限設定等後台功能。
+```bash
+yarn dev
+```
 
-## 版本修改歷程 (Changelog)
+開發伺服器預設運行於 `http://localhost:8080`。
+
+### 4. 產製靜態網頁 (Static Build)
+
+若要產製供 Apache 託管或複製至遠端安裝目錄的靜態網頁：
+
+* **方式一：執行一鍵產製腳本（推薦）**  
+  在 Windows 檔案總管雙擊或於終端機執行：
+  ```cmd
+  yarn-build.bat
+  ```
+  該腳本會自動偵測 Node 執行期、注入 `--openssl-legacy-provider`、執行 `yarn generate` 並於完成後自動開啟 `dist\` 資料夾。
+
+* **方式二：手動執行 Yarn 指令**  
+  在 Node 17+ 環境下需帶上 OpenSSL 相容旗標：
+  ```powershell
+  $env:NODE_OPTIONS = "--openssl-legacy-provider"
+  yarn generate
+  ```
+  產出之純靜態檔案位於 `dist\` 目錄。
+
+## 主要業務功能模組
+
+* **智慧控管（登記課）**：處理登記案件管理、即時狀態追蹤、逾期預警、補正展期與業務統計。
+* **測量小幫手（測量課）**：處理測量外業案件排程、成果圖資查詢與自動化試算。
+* **智慧監控（資訊課）**：提供資訊機房戰情看板、PowerHA 高可用狀態、主機資源負載、連線監控與資料庫備份檢測。
+* **地價小幫手（地價課）**：處理地價查調、歷史地價比較與相關統計工具。
+* **系統管理（系管課）**：使用者帳號管理、權限角色設定、操作稽核紀錄與系統參數配置。
+* **即時通訊模組（跨課室協作）**：內嵌桃園即時通通訊元件，提供頻道公告、線上即時對話與附件傳遞功能。
+
+## 版本演進紀錄
 
 詳細版本演進與修改歷程請參閱 [CHANGELOG.md](./CHANGELOG.md)。

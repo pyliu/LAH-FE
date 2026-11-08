@@ -6,10 +6,6 @@
     <title>LAH-FE 互動式分析報告</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chosen Palette: Slate and Sky -->
-    <!-- Application Structure Plan: The application is designed as a single-page dashboard with a fixed top navigation bar for easy access to different sections (Overview, Tech Stack, Architecture, Code Patterns). This thematic structure allows users to explore the report's content non-linearly, which is more intuitive than a static document. The core interaction is the file-tree explorer in the 'Architecture' section, allowing users to click on directories to understand their purpose, making the complex project structure digestible. This design prioritizes user-driven exploration and quick information retrieval over a passive reading experience. -->
-    <!-- Visualization & Content Choices: Report Info: Tech Stack -> Goal: Compare -> Viz: Card Grid & Donut Chart -> Interaction: Hover on cards, hover on chart segments -> Justification: Cards provide organized detail for each technology. A donut chart gives a quick visual summary of the technology categories' proportions. | Report Info: Project Directory Structure -> Goal: Organize/Inform -> Presentation: Interactive HTML list styled as a file tree -> Interaction: Click to show details -> Justification: This transforms a boring list into an engaging, explorable diagram, making it easier to understand the project's layout. | Report Info: Code Conventions -> Goal: Inform -> Presentation: Accordion-style list -> Interaction: Click to expand -> Justification: Hides complexity by default, allowing users to focus on one concept at a time. All implemented using Tailwind and Chart.js Canvas. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif', '微軟正黑體', 'Microsoft JhengHei';
@@ -54,18 +50,21 @@
         <section id="overview" class="mb-20">
             <h2 class="text-3xl font-bold text-slate-900 mb-4">專案概觀</h2>
             <p class="text-lg text-slate-600 leading-relaxed max-w-4xl">
-                這是一個基於 **Nuxt.js v2** 的前端應用程式，專案名稱為 `lah-fe`，推測為「地政資訊中心前端 (Land Administration Hub - Frontend)」。從其功能與結構分析，此系統是一個為地政業務設計的內部智慧管控平台，整合了案件管理、系統監控、數據統計及使用者權限等多項核心功能。專案的技術選型與程式碼風格反映了約 2017 年的主流實踐，以 Vue 2 的選項式 API 為主，架構清晰，為後續維護奠定了良好基礎。
+                `LAH-FE`（Land Administration Hub - Frontend）為地政智慧控管系統的前端核心應用程式。系統整合了登記案件管理、測量小幫手、資訊機房戰情看板、地價查調工具與即時通訊等多項功能。
+            </p>
+            <p class="text-lg text-slate-600 leading-relaxed max-w-4xl mt-3">
+                架構全面採行 <strong>純靜態 SPA (Static SPA) + PM2 背景排程 (LAH-SCHEDULER)</strong> 雙軌設計：前端靜態網頁由 Apache 8080 埠直接託管；背景排程與環境變數動態同步則由 PM2 常駐守護。系統已全面相容最新 Node.js v26.13.0 執行期環境。
             </p>
         </section>
 
         <section id="tech-stack" class="mb-20">
             <h2 class="text-3xl font-bold text-slate-900 mb-4">技術棧</h2>
             <p class="text-lg text-slate-600 mb-10 max-w-4xl">
-                此專案採用了一套成熟且經過驗證的技術組合，以 Nuxt.js 為核心，搭配 BootstrapVue 進行 UI 開發。這套組合在當時提供了高效的開發體驗與穩定的伺服器端渲染能力。以下是專案所使用的主要技術及其分佈。
+                專案以 Nuxt.js 2.15.8 (Vue 2.7.16) 為核心，搭配 BootstrapVue 2.23.0 構建現代化管理介面。樣式編譯已現代化至 Dart Sass，並相容現代 Node.js 執行期環境。
             </p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <!-- Tech stack data will be injected here -->
+                    <!-- Tech stack cards will be injected here -->
                 </div>
                 <div class="chart-container">
                     <canvas id="techStackChart"></canvas>
@@ -75,8 +74,8 @@
 
         <section id="architecture" class="mb-20">
             <h2 class="text-3xl font-bold text-slate-900 mb-4">專案結構</h2>
-             <p class="text-lg text-slate-600 mb-10 max-w-4xl">
-                專案遵循 Nuxt.js 的標準目錄結構，職責劃分明確。這種約定優於配置的方式，讓開發者能快速理解不同檔案的功能定位。您可以點擊下方的目錄或檔案名稱，來查看其詳細說明。
+            <p class="text-lg text-slate-600 mb-10 max-w-4xl">
+                專案嚴格遵循職責分離原則，將前端介面元件、狀態管理、背景排程與建置腳本清晰切分。點擊左側目錄或檔案可檢視功能說明。
             </p>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
                 <div class="md:col-span-4 bg-white p-4 rounded-lg border border-slate-200">
@@ -96,7 +95,7 @@
         <section id="code-patterns" class="mb-20">
             <h2 class="text-3xl font-bold text-slate-900 mb-4">程式碼模式與慣例</h2>
             <p class="text-lg text-slate-600 mb-10 max-w-4xl">
-                專案在長期開發下形成了一套穩定且一致的編碼慣例。這些模式不僅確保了程式碼的可讀性，也提高了團隊協作的效率。
+                專案在長期維護與迭代中建立了穩定的工程慣例，確保程式碼具備高可讀性與擴充性。
             </p>
             <div id="patterns-container" class="space-y-4">
                 <!-- Code patterns will be injected here -->
@@ -107,24 +106,24 @@
 
     <footer class="bg-slate-800 text-white py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p>&copy; 2025 LAH-FE 互動式分析報告</p>
+            <p>&copy; 2026 LAH-FE 互動式分析報告</p>
         </div>
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const techStackData = [
-                { name: 'Nuxt.js', version: '~2.15.8', desc: '核心框架', category: '框架' },
-                { name: 'Vue.js', version: '2.6.14', desc: 'JS 框架', category: '框架' },
-                { name: 'BootstrapVue', version: '~2.21.2', desc: 'UI 框架', category: 'UI' },
-                { name: '@nuxtjs/axios', version: '~5.13.6', desc: 'HTTP 客戶端', category: '工具庫' },
-                { name: 'SASS/SCSS', version: '~1.32.13', desc: 'CSS 預處理器', category: 'UI' },
-                { name: 'vue-chartjs', version: '~3.5.1', desc: '圖表庫', category: 'UI' },
-                { name: 'ESLint', version: '~7.29.0', desc: '程式碼檢查', category: '工具庫' },
-                { name: 'Lodash', version: '~4.17.21', desc: 'JS 工具庫', category: '工具庫' },
-                { name: 'Font Awesome', version: '~5.15.4', desc: '圖示庫', category: 'UI' },
-                { name: 'Express', version: '~4.17.1', desc: '伺服器', category: '後端' },
-                { name: 'PM2', version: '^5.1.0', desc: '程序管理', category: '後端' }
+                { name: 'Nuxt.js', version: '2.15.8', desc: '核心框架 (Static SPA)', category: '框架' },
+                { name: 'Vue.js', version: '2.7.16', desc: 'JS 框架 (Options API)', category: '框架' },
+                { name: 'BootstrapVue', version: '2.23.0', desc: 'UI 元件庫', category: 'UI' },
+                { name: 'Dart Sass', version: '^1.77.0', desc: 'CSS 預處理器', category: 'UI' },
+                { name: 'Chart.js', version: '3.9.1', desc: '資料圖表引擎', category: 'UI' },
+                { name: 'vue-chartjs', version: '^4.0.3', desc: 'Vue 圖表元件', category: 'UI' },
+                { name: '@nuxtjs/axios', version: '^5.12.2', desc: 'HTTP 客戶端與攔截器', category: '工具庫' },
+                { name: 'Lodash', version: '^4.17.21', desc: 'JavaScript 工具庫', category: '工具庫' },
+                { name: 'Font Awesome', version: '^6.1.1', desc: '向量圖示庫', category: 'UI' },
+                { name: 'PM2', version: '^5.x', desc: 'LAH-SCHEDULER 排程管理', category: '後端' },
+                { name: 'Node.js', version: 'v18 - v26+', desc: '執行期環境 (v26.13.0 相容)', category: '後端' }
             ];
 
             const techContainer = document.querySelector('.grid-cols-2.sm\\:grid-cols-3');
@@ -153,11 +152,11 @@
                         label: '技術分類',
                         data: Object.values(categoryCounts),
                         backgroundColor: [
-                            'rgba(56, 189, 248, 0.7)', // sky-400
-                            'rgba(16, 185, 129, 0.7)', // emerald-500
-                            'rgba(249, 115, 22, 0.7)', // orange-500
-                            'rgba(139, 92, 246, 0.7)', // violet-500
-                            'rgba(239, 68, 68, 0.7)'   // red-500
+                            'rgba(56, 189, 248, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(249, 115, 22, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(239, 68, 68, 0.7)'
                         ],
                         borderColor: '#fff',
                         borderWidth: 2
@@ -181,14 +180,17 @@
             });
 
             const architectureData = {
-                'assets/': '存放靜態資源，如 SCSS 樣式檔案、圖片和字體。`main.scss` 是主要的樣式進入點，並在 `_variables.scss` 中定義了顏色等變數，這是一個很好的實踐。',
-                'components/': '存放可重用的 Vue 組件。此專案的組件數量非常龐大，且遵循 `lah-*.vue` 的命名規則，例如 `lah-button.vue`、`lah-reg-case-detail.vue`。這表明專案有著良好的組件化實踐。',
-                'layouts/': '存放應用程式的佈局。`default.vue` 是預設佈局，包含了共用的 `lah-header`、`lah-sidebar` 和 `lah-footer`，定義了整個應用的基本外觀。',
-                'middleware/': '存放路由中間件。例如 `isAdmin.js`、`isInf.js` 用於在進入特定頁面前進行權限驗證，這是保護頁面訪問權限的標準做法。',
-                'pages/': '存放應用的頁面和路由。目錄結構直接對應到 URL 路徑。例如 `pages/reg/case/index.vue` 對應 `/reg/case` 路徑。子目錄如 `reg`、`sur`、`inf`、`admin` 等清楚地劃分了不同的業務模組。',
-                'plugins/': '存放需要注入到 Vue 實例的插件。例如 `fontawesome.js` 用於設定 Font Awesome 圖示，`customize-axios.js` 用於攔截和客製化 Axios 的請求/回應。`global-vue-mixin.js` 提供了全域的 mixin，這在舊專案中很常見。',
-                'store/': '存放 Vuex 狀態管理檔案。採用了模組化的 Vuex store，例如 `inf.js`、`regcase.js`，分別管理不同業務模組的狀態，這有助於大型應用的狀態維護。',
-                'nuxt.config.js': '專案的核心設定檔。定義了 head 標籤、CSS、插件、模組、代理 (proxy) 等。可以看到專案啟用了 `bootstrap-vue/nuxt`、`@nuxtjs/axios` 等模組，並設定了 API 代理來解決跨域問題。'
+                'assets/': '存放靜態資源，如 SCSS 樣式檔案、未編譯圖片與字體。`main.scss` 為主樣式進入點，並在 `_variables.scss` 定義全域主題色彩變數。',
+                'components/': '存放可重複使用的 Vue 元件。元件全面遵循 `lah-*.vue` 命名慣例，並內建移植自桃園即時通之 `lah-messenger-*.vue` 元件群。',
+                'layouts/': '存放應用程式版面佈局。`default.vue` 為系統預設佈局，內嵌共用之 `lah-header`、`lah-sidebar` 與 `lah-footer`。',
+                'middleware/': '存放路由中介軟體。例如 `isAdmin.js`、`isInf.js` 用於在進入目標頁面前進行身分認證與課室存取授權。',
+                'pages/': '存放業務功能頁面與路由。目錄結構自動對應 URL 路徑，依業務劃分 `reg`（登記）、`sur`（測量）、`inf`（資訊）、`admin`（系管）等模組。',
+                'plugins/': '存放注入 Vue 實例之插件。包含 `fontawesome.js`、Axios 統一錯誤與載入攔截器 `customize-axios.js` 及全域 mixin。',
+                'scheduler/': '存放 PM2 背景排程服務程式碼。核心 `server.js` 負責健康監控巡檢、排程任務，並於 `.env` 變更時自動同步產出 `dist/runtime-config.js`。',
+                'store/': '存放 Vuex 狀態管理模組。採模組化架構，分別管理使用者身分驗證 (`auth`)、機房戰情 (`inf`)、登記案件 (`regcase`) 等狀態。',
+                'yarn-build.bat': '一鍵靜態網頁產製工具。自動解析本地、AppServ 或系統全域 Node.js（相容 v26.13.0），注入 OpenSSL 舊版旗標並執行 `yarn generate`，完成後自動開啟 dist 資料夾。',
+                'ecosystem.config.js': 'PM2 常駐守護程序設定檔。定義背景排程服務 `LAH-SCHEDULER` 執行參數與日誌輸出路徑。',
+                'nuxt.config.js': 'Nuxt 核心設定檔。宣告 `target: "static"` 與 `ssr: false`，定義前端標頭、樣式資源、API 代理伺服器規則與插件配置。'
             };
 
             const fileTreeContainer = document.getElementById('file-tree');
@@ -222,11 +224,11 @@
             });
 
             const patternsData = [
-                { title: '選項式 API (Options API)', content: '所有 `.vue` 組件都使用 Vue 2 的標準寫法，將 `data`、`methods`、`computed`、`watch`、`created` 等選項分開定義。' },
-                { title: 'Mixin 的使用', content: '在 `mixins/global-vue-mixin.js` 中定義了全域的 mixin，並且在 `components` 目錄下有名為 `*-base.js` 的檔案（如 `lah-reg-case-base.js`），這很可能是被多個相關組件共用的 mixin，用來抽取重複的邏輯。' },
-                { title: 'BootstrapVue 的深度使用', content: '從組件庫來看，`b-table`、`b-card`、`b-modal`、`b-form-*` 等組件被廣泛使用，是構成 UI 的主要元素。' },
-                { title: 'API 請求', content: '透過 `this.$axios` 發起 API 請求，並在 `plugins/customize-axios.js` 中統一處理錯誤和 loading 狀態，這是一個很好的集中管理機制。' },
-                { title: '狀態管理 (Vuex)', content: '`store/index.js` 處理全域狀態，例如使用者身份驗證 (`auth`)。`store/inf.js`, `store/regcase.js` 等模組化檔案處理特定業務的狀態，職責分明。Actions 用於處理非同步操作，Mutations 用於同步修改 state，遵循 Vuex 的標準流程。' }
+                { title: '選項式 API (Options API)', content: '所有 `.vue` 元件皆採 Vue 2 標準選項式語法，清晰劃分 `data`、`computed`、`methods`、`watch` 與生命週期鉤子。' },
+                { title: 'Mixin 與 Base 基礎元件抽取', content: '在 `mixins/global-vue-mixin.js` 定義全域通訊與工具邏輯，並透過 `lah-*-base.js` 為同系列複雜元件抽取共同狀態與邏輯。' },
+                { title: 'BootstrapVue 響應式佈局', content: '廣泛採用 `b-table`、`b-modal`、`b-card` 與表單元件群，提供一致且高效之跨平台操作體驗。' },
+                { title: '靜態 SPA 與動態執行期配置 (Runtime Config)', content: '前端編譯為純靜態檔案（`dist/`），執行期透過 `/runtime-config.js` 動態讀取環境設定（`window.__LAH_CONFIG__`），達成一次編譯即可無縫套用不同伺服器之 `.env` 配置。' },
+                { title: '模組化 Vuex 狀態治理', content: '全域與業務狀態徹底模組化，Action 負責非同步 API 請求與業務協調，Mutation 負責同步狀態更新，維持單向資料流。' }
             ];
 
             const patternsContainer = document.getElementById('patterns-container');
