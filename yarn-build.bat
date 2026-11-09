@@ -47,7 +47,7 @@ if errorlevel 1 (
 )
 
 echo [資訊] 目前 Yarn 版本:
-yarn -v
+call yarn -v
 echo.
 
 set "NODE_ENV=production"
