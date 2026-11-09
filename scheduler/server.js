@@ -152,7 +152,7 @@ function postFormUrlEncoded (targetUrl, formObj) {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Content-Length': Buffer.byteLength(bodyStr)
           },
-          timeout: 60000
+          timeout: 240000
         },
         (res) => {
           const chunks = []
