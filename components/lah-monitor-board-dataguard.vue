@@ -109,7 +109,7 @@ export default {
       return '/assets/sh/check-dataguard.sql'
     },
     checkDataguardSopPdf () {
-      return '/assets/pdf/AIX_6.1_Oracle_DataGuard_Crontab_SOP.pdf'
+      return '/assets/doc/AIX_6.1_Oracle_DataGuard_Crontab_SOP.pdf'
     },
     headMessages () {
       // collect records within 6 hrs
