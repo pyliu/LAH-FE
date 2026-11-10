@@ -153,6 +153,14 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^/legacy': '' }
     },
+    '/assets': {
+      target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
+      changeOrigin: true
+    },
+    '/project': {
+      target: `${process.env.PROTOCOL}://${process.env.API_HOST}:${process.env.API_PORT}`,
+      changeOrigin: true
+    },
     // 建立一個假的本地端路由 /srmas-weathermap/
     '/srmas-weathermap/': {
       target: `https://${process.env.SRMAS_HOST}/`,

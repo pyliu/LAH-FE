@@ -200,7 +200,7 @@ b-card(
 
     h6.font-weight-bold.mb-2 地政系統進階列印操作說明
     ul
-      li 利用專屬監控頁面可進行櫃台已列印的謄本、規費收據預覽或是重印 👉 #[b-link(:href="`http://${this.apiSvrIp}:${this.apiSvrPort}/project/printer/`" target="_blank" rel="noopener") 點我開啟新視窗]
+      li 利用專屬監控頁面可進行櫃台已列印的謄本、規費收據預覽或是重印 👉 #[b-link(:href="`${legacyUrl}/project/printer/`" target="_blank" rel="noopener") 點我開啟新視窗]
 
   //- 伺服器紀錄 Modal
   b-modal(
@@ -575,9 +575,9 @@ b-card(
 </template>
 
 <script>
-import axios from 'axios';
-import _ from 'lodash';
-import dynamicHeight from '~/mixins/dynamic-height-mixin.js';
+import axios from 'axios'
+import _ from 'lodash'
+import dynamicHeight from '~/mixins/dynamic-height-mixin.js'
 
 export default {
   name: 'LahMonitorBoardPrinter',
@@ -642,13 +642,13 @@ export default {
       return `${this.selectedPrinter.Name} - 詳細資訊${loadingText}`
     },
     downloadUrlBase () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}`
+      return ''
     },
     agentDownloadUrl () {
-      return `${this.downloadUrlBase}/project/printer/server/Printer_API_Agent.ps1`
+      return '/project/printer/server/Printer_API_Agent.ps1'
     },
     guideDownloadUrl () {
-      return `${this.downloadUrlBase}/project/printer/server/Printer_API_Agent_Windows_Server_部署指南.pdf`
+      return '/project/printer/server/Printer_API_Agent_Windows_Server_部署指南.pdf'
     },
     isDisplayMode () {
       return this.inPrinters && this.inPrinters.length > 0

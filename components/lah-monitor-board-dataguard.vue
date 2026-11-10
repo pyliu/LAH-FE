@@ -102,10 +102,10 @@ export default {
   }),
   computed: {
     checkDataguardSh () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/check-dataguard.sh`
+      return '/assets/sh/check-dataguard.sh'
     },
     checkDataguardSQL () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/check-dataguard.sql`
+      return '/assets/sh/check-dataguard.sql'
     },
     headMessages () {
       // collect records within 6 hrs

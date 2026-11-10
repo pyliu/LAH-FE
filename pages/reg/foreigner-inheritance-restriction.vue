@@ -477,7 +477,7 @@ export default {
       })
     },
     openPdf (item) {
-      const url = `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/pdf/${item.BB03 || item.RM01}/${item.BB04_2 || item.RM03}_${item.BB09}_${item.BB09_CHT}.pdf`
+      const url = `/assets/pdf/${item.BB03 || item.RM01}/${item.BB04_2 || item.RM03}_${item.BB09}_${item.BB09_CHT}.pdf`
       this.$utils.openNewWindow(url)
     },
     pdfTooltip (item) {

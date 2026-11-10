@@ -148,7 +148,7 @@ export default {
   }),
   computed: {
     checkHacmpSh () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/check-hacmp-fs.sh`
+      return '/assets/sh/check-hacmp-fs.sh'
     },
     headMessage () {
       return this.messages[0]

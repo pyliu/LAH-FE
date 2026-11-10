@@ -99,7 +99,12 @@ Vue.mixin({
       }
       return this.apiSvrIp || (process.client ? location.hostname : '') || this.systemConfigs?.API_SERVER_IP || '220.1.34.18'
     },
-    legacyUrl () { return `http://${this.apiSvrIp}:${this.apiSvrPort}` },
+    legacyUrl () {
+      const host = this.apiHost
+      const port = this.apiPort || this.apiSvrPort || 80
+      const portStr = port && port !== 80 && port !== '80' ? `:${port}` : ''
+      return `http://${host}${portStr}`
+    },
     apiQueryUrl () {
       const host = this.apiHost
       const port = this.apiPort || this.apiSvrPort

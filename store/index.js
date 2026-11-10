@@ -173,10 +173,7 @@ export const getters = {
     return state.systemConfigs.API_SERVER_IP
   },
   apiSvrPort: (state) => {
-    if (!isEmpty(state.server)) {
-      return state.server.SERVER_PORT
-    }
-    return state.systemConfigs.API_SERVER_PORT
+    return state.systemConfigs.API_SERVER_PORT || 80
   },
   user: state => state.user,
   userNames: state => state.userNames,

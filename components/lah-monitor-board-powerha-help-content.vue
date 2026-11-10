@@ -29,10 +29,10 @@ export default {
   name: 'LahPowerhaHelpContent',
   computed: {
     checkAIXSh51 () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/health_check_aix_51_HA.sh`
+      return '/assets/sh/health_check_aix_51_HA.sh'
     },
     checkAIXSh52 () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/health_check_aix_52.sh`
+      return '/assets/sh/health_check_aix_52.sh'
     }
   }
 }

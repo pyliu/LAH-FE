@@ -81,8 +81,8 @@ b-card(:border-variant="border", :class="[attentionCss]")
 </template>
 
 <script>
-import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base';
-import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue';
+import lahMonitorBoardBase from '~/mixins/lah-monitor-board-base'
+import lahMonitorBoardRaw from '~/components/lah-monitor-board-raw.vue'
 
 export default {
   name: 'LahMonitorBoardDnp',
@@ -104,7 +104,7 @@ export default {
   }),
   computed: {
     checkDnpSh () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/check-dnp.sh`
+      return '/assets/sh/check-dnp.sh'
     },
     headMessage () {
       return this.messages[0]

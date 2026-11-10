@@ -284,8 +284,7 @@ export default {
              !this.$utils.empty(this.config.QUERY_PASSWORD)
     },
     adAgentScriptUrl () {
-      const base = this.apiQueryUrl || (this.apiSvrIp ? `http://${this.apiSvrIp}:${this.apiSvrPort}` : '') || (process.client ? `http://${location.hostname}` : `http://${this.defaultSvrIp || '127.0.0.1'}`)
-      return `${base}/assets/sh/AD_Password_Agent.ps1`
+      return '/assets/sh/AD_Password_Agent.ps1'
     }
   },
   watch: {

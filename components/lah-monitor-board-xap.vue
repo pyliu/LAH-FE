@@ -125,7 +125,7 @@ export default {
   }),
   computed: {
     netstatsSh () {
-      return `http://${this.apiSvrIp}:${this.apiSvrPort}/assets/sh/send_netstats.sh`
+      return '/assets/sh/send_netstats.sh'
     },
     crossAPIp () {
       const found = [...this.$consts.ipMap].find(arr => arr[1].code === this.site)

@@ -30,7 +30,7 @@ export default {
       if (this.isDevOffice) {
         return 'http://220.1.34.18:8888/service/section/%E8%B3%87%E8%A8%8A%E8%AA%B2/soft.html'
       }
-      return `${this.apiQueryUrl}/assets/soft/`
+      return '/assets/soft/'
     }
   },
   watch: {

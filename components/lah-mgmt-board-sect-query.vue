@@ -53,13 +53,13 @@ b-card(:class="{ 'board-expanded': filteredSections.length > 0 }")
     span.text-muted 相關規章與表單：
     .d-flex
       a.mr-2(
-        :href="`${legacyUrl}/assets/files/桃園市土地基本資料庫電子資料收費標準.pdf`",
+        href="/assets/files/桃園市土地基本資料庫電子資料收費標準.pdf",
         target="_blank",
         rel="noreferrer noopener"
       )
         lah-fa-icon(icon="file-pdf", regular) 收費標準
       a(
-        :href="`${legacyUrl}/assets/files/%E5%9C%9F%E5%9C%B0%E5%9F%BA%E6%9C%AC%E8%B3%87%E6%96%99%E5%BA%AB%E9%9B%BB%E5%AD%90%E8%B3%87%E6%96%99%E6%B5%81%E9%80%9A%E7%94%B3%E8%AB%8B%E8%A1%A8.doc`",
+        href="/assets/files/%E5%9C%9F%E5%9C%B0%E5%9F%BA%E6%9C%AC%E8%B3%87%E6%96%99%E5%BA%AB%E9%9B%BB%E5%AD%90%E8%B3%87%E6%96%99%E6%B5%81%E9%80%9A%E7%94%B3%E8%AB%8B%E8%A1%A8.doc",
         target="_blank",
         rel="noreferrer noopener"
       )
