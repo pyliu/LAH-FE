@@ -45,6 +45,7 @@ b-card(:border-variant="border", :class="[attentionCss]")
           ul
             li 請於各主機裡 crontab 安裝「#[b-link.text-danger.font-weight-bold(:href="checkDataguardSh" target="_blank" title="下載腳本") check-dataguard.sh]」以利完成後送出通知電子郵件。(⭐請依各所實際環境修正腳本內路徑及收件者資訊⭐)
             li 將此檔案 ⭐#[b-link.text-primary.font-weight-bold(:href="checkDataguardSQL" target="_blank" title="下載SQL") check-dataguard.sql]⭐ 跟上面的腳本放在一起以利腳本執行SQL步驟
+            li 詳細排程與環境變數設定請參考「#[b-link.text-success.font-weight-bold(:href="checkDataguardSopPdf" target="_blank" title="下載SOP手冊") AIX 6.1 Oracle 伺服器 DataGuard 監控排程設定標準作業手冊 (PDF)]」(含各所參數檢查清單與故障排除)
             li e.g. 在 root 的 crontab 新增「0 8-17 * * 1-6 /scripts/check-dataguard.sh > /dev/null」於辦公時間每小時執行一次(請自行依擺放腳本位置修正路徑)
         li 分析電子郵件以顯示各資料庫 Data Guard 狀態。
         li 檢視P8-2(主)、P7-102(備份)及hb-114(副中心)內相關文字(log sequence及switchover status)狀態，如下圖。
@@ -106,6 +107,9 @@ export default {
     },
     checkDataguardSQL () {
       return '/assets/sh/check-dataguard.sql'
+    },
+    checkDataguardSopPdf () {
+      return '/assets/pdf/AIX_6.1_Oracle_DataGuard_Crontab_SOP.pdf'
     },
     headMessages () {
       // collect records within 6 hrs
