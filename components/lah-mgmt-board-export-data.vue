@@ -1,9 +1,20 @@
 <template lang="pug">
-b-card(:class="{ 'board-expanded': working || links.length > 0 }")
+b-card(:class="{ 'board-expanded': working }")
   template(#header)
     .d-flex.w-100.justify-content-between.align-items-center.mb-0
-      h6.my-auto.font-weight-bolder
-        lah-fa-icon(icon="road" size="lg") 輸出地籍資料
+      .d-flex.align-items-center
+        h6.my-auto.font-weight-bolder
+          lah-fa-icon(icon="road" size="lg") 輸出地籍資料
+        b-button(
+          v-if="working || hasRunTasks",
+          variant="outline-primary",
+          size="sm",
+          class="py-0 px-2 s-85 ml-2",
+          @click="openProgressModal",
+          title="開啟產製進度視窗"
+        )
+          lah-fa-icon(:icon="working ? 'spinner' : 'window-maximize'", :spin="working", class="mr-1")
+          span {{ working ? '產製中 (檢視)' : '檢視進度' }}
       b-button-group.align-middle(size="sm" v-if="!working")
         lah-button.border-0.mr-1(
           icon="list-check",
@@ -68,7 +79,7 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
           li AI00701 - 建物標示部
           li AI00801 - 基地坐落
           li AI00901 - 建物分層及附屬
-          li AI01001 - 主建物與共同使用部分
+          li AI00101 - 主建物與共同使用部分
         .font-weight-bold.text-secondary AI011-20
         ul.mb-2
           li AI01101 - 建物所有權部
@@ -96,6 +107,92 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
         span 登記子系統/列印/清冊報表/土地建物地籍整理清冊
         ul.pl-4.mb-3
           li 土地、建物清冊各產製一份 PDF，依所選段碼合併。
+
+  //- 產製進度彈出視窗
+  b-modal#export-data-progress-modal(
+    ref="progressModal",
+    size="lg",
+    scrollable,
+    no-close-on-backdrop
+  )
+    template(#modal-title)
+      .d-flex.align-items-center
+        lah-fa-icon(:icon="working ? 'spinner' : (iteration === max && failedCount === 0 ? 'circle-check' : 'triangle-exclamation')", :spin="working", :variant="working ? 'primary' : (iteration === max && failedCount === 0 ? 'success' : 'warning')", size="lg")
+        span.ml-2.font-weight-bold 輸出地籍資料進度
+        b-badge.ml-2(v-if="tags.length > 0", variant="secondary", pill) 段代碼：{{ tags.join(', ') }}
+
+    //- 頂部進度摘要與進度條
+    .mb-3
+      .d-flex.justify-content-between.align-items-center.mb-1
+        span.small.font-weight-bold.text-secondary
+          span(v-if="working")
+            lah-fa-icon(icon="spinner" spin class="mr-1")
+            | 正在產製：{{ currentTask }}
+          span(v-else-if="iteration === max")
+            | 產製結束：成功 {{ successCount }} 項、查無資料 {{ emptyCount }} 項、失敗 {{ failedCount }} 項 (共 {{ max }} 項)
+          span(v-else) 等待開始...
+        span.small.text-muted.font-weight-bold {{ progressPercent }} ({{ iteration }} / {{ max }})
+      b-progress(:max="max" show-progress animated)
+        b-progress-bar(:value="iteration" :variant="progressBarVariant" :label="progressPercent")
+
+    //- 16 項檢核清單
+    .export-progress-list.border.rounded.bg-white
+      .d-flex.align-items-center.justify-content-between.p-2.border-bottom(
+        v-for="item in taskItems",
+        :key="'progress_' + item.code",
+        :class="getTaskRowClass(item)"
+      )
+        .d-flex.align-items-center.mr-2.text-truncate
+          lah-fa-icon.mr-2(
+            :icon="getTaskIcon(item)",
+            :variant="getTaskIconVariant(item)",
+            :spin="item.state === 'running'"
+          )
+          .text-truncate
+            .font-weight-bold.s-90 {{ item.name }}
+            small.text-muted.s-75 {{ item.code }} · {{ getTaskStateText(item) }}
+        .d-flex.align-items-center.flex-shrink-0
+          b-badge.mr-2(:variant="getTaskBadgeVariant(item)")
+            | {{ getTaskBadgeText(item) }}
+          lah-button(
+            v-if="item.filename",
+            icon="download",
+            size="sm",
+            variant="outline-primary",
+            @click="download({ code: item.code, filename: item.filename })",
+            title="下載此檔案"
+          ) 下載
+
+    template(#modal-footer="{ cancel }")
+      .d-flex.w-100.justify-content-between.align-items-center
+        .small.text-muted
+          span(v-if="working")
+            lah-fa-icon(icon="spinner" spin class="mr-1")
+            | 產製進行中，關閉視窗不影響背景處理
+          span.text-success.font-weight-bold(v-else-if="iteration === max && failedCount === 0")
+            lah-fa-icon(icon="check" class="mr-1")
+            | 地籍資料產製已全數完成
+          span.text-warning.font-weight-bold(v-else-if="iteration === max && failedCount > 0")
+            lah-fa-icon(icon="triangle-exclamation" class="mr-1")
+            | 產製完成，但有 {{ failedCount }} 項失敗，請檢視清單
+        .d-flex.align-items-center
+          lah-button(
+            v-if="links.length > 0",
+            icon="file-zipper",
+            size="sm",
+            variant="success",
+            class="mr-2",
+            @click="downloadZip",
+            :disabled="downloading || clearing",
+            title="打包成 ZIP 下載"
+          )
+            span(v-if="!downloading") 全部下載 (ZIP)
+            span(v-else) 打包中...
+          b-button(
+            variant="secondary",
+            size="sm",
+            @click="cancel"
+          ) 關閉
 
   //- 清理後端檔案彈出視窗
   b-modal#export-data-clean-modal(
@@ -352,14 +449,6 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
             lah-fa-icon(icon="check")
             span.ml-1 確認帶入 ({{ selectedSectCodes.length }})
 
-  //- 產製進度條
-  .my-2(v-if="working")
-    .d-flex.justify-content-between.align-items-center.mb-1
-      small.text-muted: lah-fa-icon(icon="spinner" spin) 產製中...
-      small.font-weight-bold.text-primary {{ currentTask }}
-    b-progress(:max="max" show-progress animated)
-      b-progress-bar(:value="iteration" :label="progressPercent")
-
   //- 段代碼輸入區
   b-input-group.input-group-height-hack(size="sm", prepend="段代碼", v-if="!working")
     b-form-input.no-cache(
@@ -394,6 +483,17 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
         :disabled="disabled"
       ) 執行
 
+  //- 產製中狀態列 (保持卡片版面乾淨，點擊直接於 Modal 檢視)
+  .mt-2.p-2.rounded.border.bg-light.d-flex.justify-content-between.align-items-center.cursor-pointer(
+    v-if="working",
+    @click="openProgressModal",
+    title="點擊開啟進度視窗"
+  )
+    .small.font-weight-bold.text-primary
+      lah-fa-icon(icon="spinner" spin class="mr-1")
+      span {{ currentTask }}
+    b-badge(variant="primary" pill) {{ progressPercent }}
+
   //- 已選段代碼標籤管理區
   .mt-2(v-if="tags.length > 0 && !working")
     .d-flex.justify-content-between.align-items-center.mb-1
@@ -422,51 +522,19 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
         title="點擊展開所有已選段代碼"
       ) +{{ tags.length - 6 }} 個段別...
 
-  //- 產製結果下載清單
-  .mt-3(v-if="links.length > 0")
-    .d-flex.justify-content-between.align-items-center.mb-1.border-bottom.pb-1
-      small.font-weight-bold.text-secondary
-        lah-fa-icon(icon="file-lines")
-        span.ml-1 產製檔案清單 (共 {{ links.length }} 個)
-      .d-flex.align-items-center
-        lah-button(
-          icon="file-zipper",
-          variant="outline-success",
-          size="sm",
-          no-border,
-          @click="downloadZip",
-          :disabled="downloading || clearing",
-          title="打包成 ZIP 下載"
-        )
-          span(v-if="!downloading") 全部下載 (ZIP)
-          span(v-else)
-            lah-fa-icon(icon="spinner" spin)
-            span.ml-1 打包下載中...
-        lah-button.ml-1(
-          v-if="hasServerFiles",
-          icon="trash-can",
-          variant="outline-danger",
-          size="sm",
-          no-border,
-          @click="openCleanModal",
-          :disabled="downloading || clearing",
-          title="清理後端已產出檔案"
-        )
-          lah-fa-icon(icon="spinner" spin v-if="clearing")
-          span.ml-1(v-if="clearing") 清理中...
-          span(v-else) 清理檔案
-
-    .d-flex.flex-wrap.align-items-center.mt-1
-      lah-button.m-1(
-        v-for="(link, idx) in links"
-        :key="idx"
-        icon="download",
-        action="move-fade-ttb",
+  //- 產製結果精簡提示列 (維持卡片版面乾淨，點擊直接於 Modal 檢視與下載全部檔案)
+  .mt-2.p-2.rounded.border.bg-light.d-flex.justify-content-between.align-items-center(v-if="links.length > 0 && !working")
+    .small.font-weight-bold.text-success
+      lah-fa-icon(icon="circle-check" class="mr-1")
+      span 已產出 {{ links.length }} 份地籍檔案
+    .d-flex.align-items-center
+      lah-button(
+        icon="window-maximize",
         variant="outline-primary",
         size="sm",
-        @click="download(link)",
-        :title="'下載 ' + link.filename"
-      ) {{ getDisplayName(link) }}
+        @click="openProgressModal",
+        title="開啟視窗檢視檔案清單與下載"
+      ) 檢視檔案與下載
 </template>
 
 <script>
@@ -513,6 +581,13 @@ export default {
     loadingSections: false,
     selectedSectCodes: [],
     sectFilter: '',
+    taskItems: EXPORT_CODES.map(item => ({
+      code: item.code,
+      name: item.name,
+      state: 'idle',
+      message: '',
+      filename: ''
+    })),
     sectFields: [
       { key: '選取', label: '選取', sortable: false, thClass: 'text-center align-middle', tdClass: 'text-center align-middle' },
       { key: '區代碼', sortable: true, thClass: 'text-center align-middle', tdClass: 'text-center align-middle' },
@@ -526,6 +601,23 @@ export default {
   computed: {
     disabled () {
       return this.tags.length === 0 || this.working
+    },
+    hasRunTasks () {
+      return this.taskItems.some(i => i.state !== 'idle')
+    },
+    successCount () {
+      return this.taskItems.filter(i => i.state === 'success').length
+    },
+    emptyCount () {
+      return this.taskItems.filter(i => i.state === 'empty').length
+    },
+    failedCount () {
+      return this.taskItems.filter(i => i.state === 'failed').length
+    },
+    progressBarVariant () {
+      if (this.failedCount > 0) { return 'warning' }
+      if (this.iteration === this.max) { return 'success' }
+      return 'primary'
     },
     progressPercent () {
       if (this.max === 0) { return '0%' }
@@ -595,6 +687,67 @@ export default {
     this.loadSections()
   },
   methods: {
+    openProgressModal () {
+      this.$bvModal.show('export-data-progress-modal')
+    },
+    closeProgressModal () {
+      this.$bvModal.hide('export-data-progress-modal')
+    },
+    initTaskItems () {
+      this.taskItems = EXPORT_CODES.map(item => ({
+        code: item.code,
+        name: item.name,
+        state: 'idle',
+        message: '',
+        filename: ''
+      }))
+    },
+    getTaskIcon (item) {
+      switch (item.state) {
+        case 'running': return 'spinner'
+        case 'success': return 'circle-check'
+        case 'empty': return 'circle-info'
+        case 'failed': return 'circle-xmark'
+        default: return 'clock'
+      }
+    },
+    getTaskIconVariant (item) {
+      switch (item.state) {
+        case 'running': return 'primary'
+        case 'success': return 'success'
+        case 'empty': return 'info'
+        case 'failed': return 'danger'
+        default: return 'secondary'
+      }
+    },
+    getTaskBadgeVariant (item) {
+      switch (item.state) {
+        case 'running': return 'primary'
+        case 'success': return 'success'
+        case 'empty': return 'info'
+        case 'failed': return 'danger'
+        default: return 'secondary'
+      }
+    },
+    getTaskBadgeText (item) {
+      switch (item.state) {
+        case 'running': return '產製中'
+        case 'success': return '成功'
+        case 'empty': return '查無資料'
+        case 'failed': return '失敗'
+        default: return '等待中'
+      }
+    },
+    getTaskStateText (item) {
+      if (item.filename) { return item.filename }
+      if (item.message) { return item.message }
+      return this.getTaskBadgeText(item)
+    },
+    getTaskRowClass (item) {
+      if (item.state === 'running') { return 'bg-light' }
+      if (item.state === 'failed') { return 'bg-light text-danger' }
+      return ''
+    },
     validator (tag) {
       const trimmed = (tag || '').trim()
       if (!/^\d{1,4}$/.test(trimmed)) {
@@ -627,6 +780,7 @@ export default {
       this.currentTask = ''
       this.inputTag = ''
       this.tagsExpanded = false
+      this.initTaskItems()
     },
     cleanTags () {
       this.tags = []
@@ -683,7 +837,7 @@ export default {
     },
     async go () {
       if (this.working) {
-        this.warning('資料產製中，請稍候...')
+        this.openProgressModal()
         return
       }
       if (this.tags.length === 0) {
@@ -695,23 +849,28 @@ export default {
       if (!confirmed) { return }
 
       this.links = []
+      this.initTaskItems()
       this.working = true
       this.iteration = 0
+      this.openProgressModal()
 
       try {
-        for (let i = 0; i < EXPORT_CODES.length; i++) {
-          const item = EXPORT_CODES[i]
+        for (let i = 0; i < this.taskItems.length; i++) {
+          const item = this.taskItems[i]
+          item.state = 'running'
           this.currentTask = `正在產製 ${item.name} (${item.code})...`
-          await this.query(item.code)
+          await this.queryTaskItem(item)
           this.iteration = i + 1
         }
         if (this.links.length > 0) {
           this.hasServerFiles = true
         }
-        if (this.links.length === EXPORT_CODES.length) {
+        if (this.failedCount === 0 && this.successCount > 0) {
           this.notify('地籍資料產製完成！', { type: 'success', title: '產製完成' })
+        } else if (this.failedCount > 0) {
+          this.warning(`已完成產製流程，成功 ${this.successCount} 項、失敗 ${this.failedCount} 項，請確認失敗項目的提示。`, { title: '產製結果' })
         } else {
-          this.warning(`已完成產製流程，共取得 ${this.links.length} / ${EXPORT_CODES.length} 份檔案，請確認缺少項目的提示。`, { title: '產製結果' })
+          this.warning('產製完成，但各項均查無資料。', { title: '產製結果' })
         }
       } catch (err) {
         this.$utils.error(err)
@@ -721,7 +880,47 @@ export default {
         this.currentTask = ''
       }
     },
+    async queryTaskItem (item) {
+      try {
+        const res = await this.$axios.post(this.$consts.API.FILE.EXPORT, {
+          type: 'file_data_export',
+          code: item.code,
+          section: this.tags
+        })
+        let data = res.data
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data.trim())
+          } catch (e) {
+            this.$utils.error('無法解析回應的 JSON 字串:', data)
+          }
+        }
+        if (this.$utils.statusCheck(data.status)) {
+          const filename = data.filename || data.data?.filename
+          if (filename) {
+            item.state = 'success'
+            item.filename = filename
+            item.message = filename
+            this.links.push({ code: item.code, filename })
+          } else {
+            item.state = 'empty'
+            item.message = data.message || '查無資料'
+          }
+        } else {
+          item.state = 'failed'
+          item.message = data.message || '產製失敗'
+        }
+      } catch (err) {
+        this.$utils.error(err)
+        item.state = 'failed'
+        item.message = err.message || '連線錯誤'
+      }
+    },
     async query (code) {
+      const item = this.taskItems.find(i => i.code === code)
+      if (item) {
+        return this.queryTaskItem(item)
+      }
       try {
         const res = await this.$axios.post(this.$consts.API.FILE.EXPORT, {
           type: 'file_data_export',
@@ -761,7 +960,6 @@ export default {
         this.notify(`${link.filename} 下載完成`, { type: 'success', title: '下載產製資料' })
       } catch (err) {
         this.$utils.error(err)
-        // 備援下載方案：若 blob 請求異常則透過原生 a 標籤點擊下載
         const a = document.createElement('a')
         a.href = url
         a.download = link.filename
@@ -791,7 +989,6 @@ export default {
         this.notify(`${zipFilename} 下載完成`, { type: 'success', title: '全部下載 (ZIP)' })
       } catch (err) {
         this.$utils.error(err)
-        // 備援下載方案：若 blob POST 請求異常則透過原生 a 標籤 GET 下載
         const params = new URLSearchParams()
         params.append('type', 'zip')
         params.append('zip_filename', zipFilename)
@@ -845,7 +1042,6 @@ export default {
         if (this.$utils.statusCheck(data.status)) {
           this.serverFiles = data.data || []
           this.hasServerFiles = this.serverFiles.length > 0
-          // 預設全選
           this.selectedFilenames = this.serverFiles.map(f => f.filename)
         } else {
           this.serverFiles = []
@@ -1144,6 +1340,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.export-progress-list {
+  max-height: 380px;
+  overflow-y: auto;
+}
 .clean-modal-files-list {
   max-height: 380px;
   overflow-y: auto;

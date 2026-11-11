@@ -106,8 +106,9 @@ div(v-cloak)
         lah-fa-icon(icon="screwdriver-wrench", variant="secondary") 系統工具
       //- 轄區段別資料查詢組件
       lah-mgmt-board-sect-query
-      lah-mgmt-board-export-data.my-3
-      lah-mgmt-board-watchdog.compact-board
+      lah-mgmt-board-tax-export.my-3
+      lah-mgmt-board-export-data
+      lah-mgmt-board-watchdog.my-3.compact-board
 </template>
 
 <script>
