@@ -1435,12 +1435,13 @@ export default {
             }
             this.$axios.post(this.$consts.API.JSON.USER, payload).then(({ data }) => {
               if (this.$utils.statusCheck(data.status)) {
-                this.notify(data.message, { type: 'success' })
+                this.notify(data.message || '解鎖/重設密碼成功', { type: 'success' })
               } else {
-                this.notify(data.message, { type: 'warning' })
+                this.notify(data.message || '解鎖/重設密碼失敗', { type: 'warning' })
               }
             }).catch((err) => {
               this.$utils.error(err)
+              this.notify(err.message || '解鎖連線逾時或伺服器異常', { type: 'danger' })
             }).finally(() => {
               this.isBusy = false
             })
@@ -1477,13 +1478,14 @@ export default {
           password: this.customAdPassword
         }).then(({ data }) => {
           if (this.$utils.statusCheck(data.status)) {
-            this.notify(data.message, { type: 'success' })
+            this.notify(data.message || '密碼重設成功', { type: 'success' })
             this.showAdPwPanel = false
           } else {
-            this.notify(data.message, { type: 'warning' })
+            this.notify(data.message || '密碼重設失敗', { type: 'warning' })
           }
         }).catch((err) => {
           this.$utils.error(err)
+          this.notify(err.message || '重設密碼連線逾時或伺服器異常', { type: 'danger' })
         }).finally(() => {
           this.isBusy = false
         })
