@@ -55,9 +55,9 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
       p.mt-2.mb-1
         span.text-danger.font-weight-bold ※
         strong 系統管理子系統 / 資料轉入轉出
-        span.text-muted  (共 14 個 txt 檔案，地/建號範圍從 00000000 ~ 99999999)
+        span.text-muted  (共 14 份 TXT、2 份 PDF，地/建號範圍從 00000000 ~ 99999999)
       .alert.alert-light.border.py-1.px-2.my-2
-        small.text-muted 除標示為黃色部分須至地政系統 WEB 版作業，其餘皆由本功能產出下載。
+        small.text-muted 依所選段碼產製 14 份地籍 TXT 與土地、建物清冊各一份 PDF，可一併下載 ZIP。
 
       .pl-3.mb-3
         .font-weight-bold.text-secondary AI001-10
@@ -72,11 +72,11 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
         .font-weight-bold.text-secondary AI011-20
         ul.mb-2
           li AI01101 - 建物所有權部
-          li: span.bg-warning.px-1.rounded AI01901 - 土地各部別 (須至地政系統WEB版)
+          li AI01901 - 土地各部別
         .font-weight-bold.text-secondary AI021-40
         ul.mb-2
-          li: span.bg-warning.px-1.rounded AI02101 - 土地他項權利部 (須至地政系統WEB版)
-          li: span.bg-warning.px-1.rounded AI02201 - 建物他項權利部 (須至地政系統WEB版)
+          li AI02101 - 土地他項權利部
+          li AI02201 - 建物他項權利部
           li AI02901 - 各部別之其他登記事項【土地、建物各做一次】
 
       hr
@@ -95,8 +95,7 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
         span.text-danger.font-weight-bold ※
         span 登記子系統/列印/清冊報表/土地建物地籍整理清冊
         ul.pl-4.mb-3
-          li 土地、建物各產一次存PDF
-          li 請至地政系統WEB版產出
+          li 土地、建物清冊各產製一份 PDF，依所選段碼合併。
 
   //- 清理後端檔案彈出視窗
   b-modal#export-data-clean-modal(
@@ -118,7 +117,7 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
     //- 無檔案狀態
     .text-center.my-4(v-else-if="serverFiles.length === 0")
       lah-fa-icon(icon="folder-open" size="2x" variant="secondary")
-      .mt-2.text-secondary 後端目前無任何地籍產出檔案（.txt 或 .zip）可供清理。
+      .mt-2.text-secondary 後端目前無任何地籍產出檔案（.txt、.pdf 或 .zip）可供清理。
 
     //- 檔案清單
     div(v-else)
@@ -167,7 +166,7 @@ b-card(:class="{ 'board-expanded': working || links.length > 0 }")
               class="my-auto"
             )
             lah-fa-icon(
-              :icon="file.type === 'zip' ? 'file-zipper' : 'file-lines'",
+              :icon="file.type === 'zip' ? 'file-zipper' : (file.type === 'pdf' ? 'file-pdf' : 'file-lines')",
               :variant="file.type === 'zip' ? 'warning' : 'primary'",
               class="mx-2"
             )
@@ -483,8 +482,13 @@ const EXPORT_CODES = [
   { code: 'AI00901', name: '建物分層及附屬資料' },
   { code: 'AI01001', name: '主建物及共同使用部分資料' },
   { code: 'AI01101', name: '建物所有權部' },
+  { code: 'AI01901', name: '土地各部別' },
+  { code: 'AI02101', name: '土地他項權利部' },
+  { code: 'AI02201', name: '建物他項權利部' },
   { code: 'AI02901_B', name: '土地各部別之其他登記事項' },
-  { code: 'AI02901_E', name: '建物各部別之其他登記事項' }
+  { code: 'AI02901_E', name: '建物各部別之其他登記事項' },
+  { code: 'RCD0901_B', name: '土地地籍整理清冊 PDF' },
+  { code: 'RCD0901_E', name: '建物地籍整理清冊 PDF' }
 ]
 
 export default {
@@ -704,7 +708,11 @@ export default {
         if (this.links.length > 0) {
           this.hasServerFiles = true
         }
-        this.notify('地籍資料產製完成！', { type: 'success', title: '產製完成' })
+        if (this.links.length === EXPORT_CODES.length) {
+          this.notify('地籍資料產製完成！', { type: 'success', title: '產製完成' })
+        } else {
+          this.warning(`已完成產製流程，共取得 ${this.links.length} / ${EXPORT_CODES.length} 份檔案，請確認缺少項目的提示。`, { title: '產製結果' })
+        }
       } catch (err) {
         this.$utils.error(err)
         this.warning(`產製過程中斷: ${err.message || err}`)
@@ -732,6 +740,8 @@ export default {
           const filename = data.filename || data.data?.filename
           if (filename) {
             this.links.push({ code, filename })
+          } else {
+            this.warning(data.message || `產製 ${code} 查無資料`)
           }
         } else {
           this.warning(data.message || `產製 ${code} 失敗`)
