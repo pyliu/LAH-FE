@@ -54,6 +54,9 @@ Vue.mixin({
       if (this.systemConfigs && this.systemConfigs.site) {
         return this.systemConfigs.site
       }
+      if (this.$config && this.$config.site) {
+        return this.$config.site
+      }
       if (/(^220\.1\.33\.|^192\.168\.[0-9]\.)/g.test(this.apiSvrIp)) {
         return 'H0'
       }
@@ -79,11 +82,14 @@ Vue.mixin({
         return 'HG'
       }
       if (/(^220\.1\.41\.|^192\.168\.8[0-9]\.)/g.test(this.apiSvrIp)) {
-        return 'HG'
+        return 'HH'
       }
-      return 'HA'
+      return ''
     },
     siteName () {
+      if (!this.site) {
+        return '載入中...'
+      }
       return this.$consts.siteMap.get(this.site)?.name || '未知所別'
     },
     isDevOffice () {

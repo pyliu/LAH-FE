@@ -71,8 +71,22 @@ function readPkgVersion () {
 }
 
 function buildPublicRuntimeConfig (env) {
+  const site = env.SITE || ''
+  const defaultSrmasMap = {
+    HA: '220.1.34.253',
+    HB: '220.1.35.253',
+    HC: '220.1.36.253',
+    HD: '220.1.37.253',
+    HE: '220.1.38.253',
+    HF: '220.1.39.253',
+    HG: '220.1.40.253',
+    HH: '220.1.41.253'
+  }
+  const srmasHost = env.SRMAS_HOST || env.SRMAS_HOST_IP || defaultSrmasMap[site] || ''
+
   return {
     pkgVersion: readPkgVersion(),
+    site,
     perPage: env.PER_PAGE,
     websocketHost: env.WEBSOCKET_HOST,
     websocketPort: env.WEBSOCKET_PORT,
@@ -108,7 +122,7 @@ function buildPublicRuntimeConfig (env) {
           port: env.GRAFANA_PORT
         },
         SRMAS: {
-          ip: env.SRMAS_HOST
+          ip: srmasHost
         }
       },
       capacity: {
@@ -124,6 +138,24 @@ function buildPublicRuntimeConfig (env) {
 
 function syncRuntimeConfigJs (triggerReason = '手動/啟動') {
   const fileEnv = parseEnvFile(ENV_PATH)
+
+  // 合併後端 www/.env 或 LAH-API/.env (補足 SITE 等後端核心參數)
+  const backendEnvPaths = [
+    path.join(ROOT_DIR, '..', 'www', '.env'),
+    path.join(ROOT_DIR, '..', 'LAH-API', '.env')
+  ]
+  for (const bPath of backendEnvPaths) {
+    if (fs.existsSync(bPath)) {
+      const bEnv = parseEnvFile(bPath)
+      Object.keys(bEnv).forEach((k) => {
+        if (!fileEnv[k]) {
+          fileEnv[k] = bEnv[k]
+        }
+      })
+      break
+    }
+  }
+
   Object.keys(fileEnv).forEach((k) => {
     process.env[k] = fileEnv[k]
   })
