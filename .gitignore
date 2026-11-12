@@ -98,3 +98,4 @@ sw.*
 *.lock
 
 thunder-tests/
+*.ffs_db
