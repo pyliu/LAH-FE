@@ -1,90 +1,30 @@
-# AGENTS.md — Nuxt 2 + BootstrapVue v2 專案規範
+# LAH-FE — Nuxt 2 + BootstrapVue v2 前端規範
 
-## 角色定位
-你是一位資深 Nuxt 2 / Vue 2 前端維護工程師，負責既有企業專案的功能新增、Bug 修正、畫面調整、元件維護與效能優化。
+## 1. 技術棧與框架邊界
 
-## 技術邊界
-- 框架：**Nuxt.js 2**
-- Vue：**Vue 2**
-- UI：**BootstrapVue v2**
-- 預設以既有專案的 ESLint、Prettier、Vue code style 為準。
-- 不可改用 Vue 3、Nuxt 3、Composition API 作為預設解法。
-- 不可假設專案已具備 TypeScript、Pinia、Vite、Tailwind 或其他未確認依賴。
+- **核心框架**：**Nuxt.js 2.15.8** + **Vue 2（預設採 Options API）** + **BootstrapVue 2.23.0**（Bootstrap 4.5）。
+- **嚴禁跨代混用**：禁止將元件改寫為 Vue 3、Nuxt 3、Composition API，或自行引入 TypeScript、Pinia、Vite、Tailwind 等未安裝依賴。
+- **最小變動與向下相容**：優先局部修補既有頁面、元件、`computed`、`methods`、Vuex `store` 或 `mixins`；不擅自變更路由路徑、Query 參數、Props/Events 契約或 API Schema。
+- **無障礙與介面品質（UI/UX Pro Max 原則）**：確保色彩對比、ARIA 屬性、鍵盤導覽與 Loading / Empty / Error 狀態回饋符合企業級標準（僅在設計全新頁面或大型視覺重構時才需載入 `ui-ux-pro-max` 技能）。
 
-## 核心目標
-- 以**最小變動**完成需求。
-- 保持頁面結構、路由、資料流與 API 介面穩定。
-- 優先修補既有元件，而不是重寫整頁。
-- 讓改動容易審核、容易回復、容易部署。
+---
 
-## 修改原則
-1. **Minimal Change**
-   - 只改需求相關的頁面、元件、computed、methods、store 或 CSS。
-   - 不要順便整理整個專案架構。
-   - 不要為了程式整潔而改變現有行為。
+## 2. 專案專屬 UI 與互動鐵律
 
-2. **Backward Compatibility**
-   - 不改 API schema、不改欄位名稱、不改 route path、不改 query 參數，除非需求明確要求。
-   - 保留既有 props、events、slots、filters 與 store 介面。
-   - 若必須調整，先說明可能影響。
+1. **`lah-header` 標題層級規範**：
+   - 頁面主標題文字大小必須為 **`h3` 級別**（使用 `h3` 標籤或 `.my-auto.font-weight-bold.h3.mb-0`），維持全系統視覺一致。
+2. **`lah-header` 頂層操作元件 45px 高度對齊規範**：
+   - 直接擺放在 `lah-header` 內的頂層操作項目——包含按鍵（`.btn` / `lah-button`）、按鈕群組（`b-button-group`）、下拉選單（`b-select` / `custom-select`）與輸入控制項（如 `lah-datepicker` 的輸入框與按鈕）——高度**一律與內建「選單」（`.bars-button`）及「首頁」（`.home-button`，`size="lg"`，實測約 `45px`）完全對齊**（可使用 `height: 45px !important;`，不包含衍生之彈出視窗或下拉選單浮動內容）。
+3. **表格（`b-table`）篩選頁碼重設防呆**：
+   - 當任何篩選條件（關鍵字搜尋、下拉選單過濾、狀態切換）變更並影響表格顯示資料時，**必須將當前頁碼（`currentPage`）重設為 `1`**，防止總頁數縮減後停留在空白頁。
+4. **SSR / CSR 生命週期安全**：
+   - 保持 `data / computed / methods / watch / mounted / asyncData / fetch` 既有寫法；避免在 `created` 或模組頂層直接使用 `window` / `document`。
+5. **內嵌即時通元件群同步注意**：
+   - 修改 `components/lah-messenger-*.vue` 時，須確認與 `lah-messenger-server`（WebSocket :8081 / HTTP 附件 :8082）及桌面端 `lah-messenger` 的協定相容性。
 
-3. **保持舊專案可用**
-   - 盡量沿用既有元件、樣式與工具函式。
-   - 不新增不必要套件。
-   - 不要求升級 Nuxt / Vue / BootstrapVue 版本。
+---
 
-## Vue 2 / Nuxt 2 實作準則
-- 預設使用 Options API。
-- 保持 `data / computed / methods / watch / mounted / asyncData / fetch` 等既有模式一致。
-- 若專案已用 mixin、plugin、store module 或 global helper，優先沿用。
-- SSR 與 CSR 行為要一致，避免在不適合的位置直接使用 `window` / `document`。
-- 涉及路由或頁面資料時，注意 Nuxt 的生命週期與伺服器端渲染限制。
+## 3. 驗證指令
 
-## BootstrapVue v2 準則
-- 以 BootstrapVue 既有元件優先，避免自行重造輪子。
-- 保持現有 class 命名與排版節奏。
-- 若要微調 UI，盡量局部修改，不重做整頁樣式系統。
-- `lah-header` 標題規範：頁面主標題文字大小必須為 `h3` 級別（例如使用 `h3` 標籤或 `.my-auto.font-weight-bold.h3.mb-0`），維持全系統視覺層級與排版一致。
-- `lah-header` 操作高度規範：組件內的所有操作項目、按鍵（`.btn` / `lah-button`）、按鈕群組（`b-button-group`）、下拉選單（`b-select` / `custom-select`）與輸入控制元件（如 `lah-datepicker` 的輸入框與日期選擇按鈕），高度**一律與 `lah-header` 內建的「選單」（`.bars-button`）及「家／首頁」（`.home-button`）按鈕（`size="lg"`，實測約 45px）高度完全對齊**（可使用 `height: 45px !important;` 或相應對齊樣式，僅限直接擺放在 `lah-header` 內的頂層操作 UI，不含其衍生出的彈出視窗、下拉選單浮動內容等）。
-
-## 程式風格
-- 與專案現有風格一致。
-- 命名要延續原本語意，不因個人偏好重命名。
-- 先理解既有邏輯，再決定是否抽函式。
-- 不要為了抽象化而破壞可讀性。
-
-## 資料處理
-- 所有 API 資料都視為可能缺值、型別不一、欄位順序不穩定。
-- 需處理 loading / error / empty state。
-- 對表單驗證、字串格式、日期格式與數字格式應保守處理。
-- 若有列表、分頁、排序、篩選，維持原本 UX，不任意改互動方式。
-- 當篩選條件（如關鍵字搜尋、下拉選單過濾、狀態切換等）變更並影響表格（如 `b-table`）顯示資料時，應將表格的當前頁碼（`currentPage`）重設為 `1`，避免因篩選後總頁數縮減而導致畫面停留在無資料的空白頁。
-
-## 除錯與驗證
-- 若涉及畫面變更，確認：
-  - desktop / mobile 版面
-  - 初始載入
-  - 空資料
-  - 錯誤資料
-  - 使用者操作流程
-- 若有測試或 lint，優先遵守既有規範。
-- 若不能實際跑測試，需明確標示風險與假設。
-
-## 輸出要求
-當你提供修改建議或程式碼時，請：
-- 直接指出修改點。
-- 提供可直接貼用的片段。
-- 如需多檔修改，標明檔名與區塊。
-- 若可能影響 SSR、路由、SEO 或使用者流程，先提醒。
-
-## 禁止事項
-- 不要默認改成 Vue 3 / Nuxt 3。
-- 不要把 Options API 強改成 Composition API。
-- 不要為了新潮寫法破壞舊專案穩定性。
-- 不要新增無必要依賴。
-- 不要大規模重構既有頁面或元件樹。
-
-## 預設工作方式
-- 先觀察既有檔案與寫法。
-- 先守住相容性，再談最佳化。
-- 先修需求，再談結構調整。
+- **程式碼檢查與修復**：`yarn lint`（或 `npm run lint`）
+- **開發／建置檢查**：`yarn dev`、`yarn build`
