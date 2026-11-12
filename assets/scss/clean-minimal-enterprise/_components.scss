@@ -1,0 +1,59 @@
+// body.theme-dark 沿用即時通頁面原有的深色樣式。
+html.lah-theme-clean body:not(.theme-dark) {
+  font-family: $font-family-sans-serif;
+
+  .card {
+    box-shadow: none;
+  }
+
+  // 標題列頂層控制項對齊 45px，浮層與日期選擇器內部保留原尺寸。
+  .lah-header {
+    .btn,
+    .form-control,
+    .custom-select {
+      &:not(.dropdown-menu *, .modal *, .popover *, .b-calendar *, .b-time *) {
+        height: 45px !important;
+      }
+    }
+  }
+
+  .lah-shadow-sm {
+    filter: none;
+    box-shadow: $box-shadow-sm;
+  }
+
+  .lah-shadow {
+    filter: none;
+    box-shadow: $box-shadow;
+  }
+
+  .lah-shadow-xl {
+    filter: none;
+    box-shadow: $box-shadow-lg;
+  }
+
+  // outline 與陰影分開，避免 active/focus 陰影蓋掉鍵盤提示。
+  a:focus,
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus,
+  [tabindex]:not([tabindex='-1']):focus {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+// 深色容器的語意文字獨立配色，避免淺色主題的深色文字降低可讀性。
+body.theme-dark,
+html.lah-theme-clean .dark-container.dark-mode {
+  .text-primary { color: #93c5fd !important; }
+  .text-secondary,
+  .text-muted { color: #cbd5e1 !important; }
+  .text-success { color: #86efac !important; }
+  .text-danger { color: #fca5a5 !important; }
+
+  :focus {
+    outline-color: #93c5fd;
+  }
+}

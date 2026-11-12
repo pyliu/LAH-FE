@@ -6,6 +6,9 @@ export default {
   generate: {
     fallback: false
   },
+  static: {
+    cacheDir: '.nuxt'
+  },
   rootDir: fs.realpathSync(process.cwd()),
   server: {
     // bind to all possible addresses
@@ -16,6 +19,9 @@ export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: '桃園市桃園地政事務所',
+    htmlAttrs: {
+      class: 'lah-theme-clean'
+    },
     meta: [{
       charset: 'utf-8'
     },
@@ -98,6 +104,8 @@ export default {
     }
   },
   bootstrapVue: {
+    bootstrapCSS: false,
+    bootstrapVueCSS: false,
     // Install the `IconsPlugin` plugin (in addition to `BootstrapVue` plugin)
     icons: true,
     config: {
