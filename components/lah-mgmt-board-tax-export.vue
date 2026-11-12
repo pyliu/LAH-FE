@@ -235,7 +235,11 @@
       <template #modal-footer="{ cancel }">
         <div class="d-flex w-100 justify-content-between align-items-center">
           <div class="small text-muted">
-            <span v-if="working">
+            <span v-if="cancelling" class="text-danger font-weight-bold">
+              <lah-fa-icon icon="spinner" spin class="mr-1" />
+              正在中斷產製作業…
+            </span>
+            <span v-else-if="working">
               <lah-fa-icon icon="spinner" spin class="mr-1" />
               產製進行中，關閉視窗不影響背景處理
             </span>
@@ -249,6 +253,18 @@
             </span>
           </div>
           <div class="d-flex align-items-center">
+            <b-button
+              v-if="working"
+              variant="outline-danger"
+              size="sm"
+              class="mr-2"
+              :disabled="cancelling"
+              title="中斷產製流程並停止後續項目"
+              @click="cancelJob"
+            >
+              <lah-fa-icon :icon="cancelling ? 'spinner' : 'ban'" :spin="cancelling" class="mr-1" />
+              {{ cancelling ? '正在取消…' : '取消作業' }}
+            </b-button>
             <b-button
               v-if="batch && hasUnfinished && !working"
               variant="primary"
@@ -274,6 +290,7 @@
             <b-button
               variant="secondary"
               size="sm"
+              :disabled="cancelling"
               @click="cancel"
             >
               關閉
@@ -303,13 +320,15 @@ export default {
     mock: false,
     items: [],
     working: false,
+    cancelling: false,
     checking: false,
     downloading: '',
     uncertainStart: false,
     interrupted: false,
     disposed: false,
     notice: '',
-    noticeVariant: 'info'
+    noticeVariant: 'info',
+    cancelSource: null
   }),
   computed: {
     inputId () {
@@ -325,7 +344,7 @@ export default {
       return this.busy || this.uncertainStart || !!this.batch
     },
     busy () {
-      return this.working || this.checking || !!this.downloading
+      return this.working || this.cancelling || this.checking || !!this.downloading
     },
     hasUnfinished () {
       return this.items.some(item => item.supported && !TERMINAL.includes(item.state))
@@ -345,6 +364,11 @@ export default {
   },
   beforeDestroy () {
     this.disposed = true
+    if (this.cancelSource) {
+      try {
+        this.cancelSource.cancel('COMPONENT_DISPOSED')
+      } catch (_) {}
+    }
   },
   methods: {
     openModal () {
@@ -374,9 +398,13 @@ export default {
       }
     },
     async request (action, params = {}, timeout = 660000) {
+      const config = { timeout }
+      if (this.cancelSource) {
+        config.cancelToken = this.cancelSource.token
+      }
       const response = await this.$axios.post(this.$consts.API.FILE.EXPORT, {
         type: 'file_tax_export', action, ...params
-      }, { timeout })
+      }, config)
       const body = typeof response.data === 'string' ? JSON.parse(response.data) : response.data
       if (!body || body.status !== 1) {
         throw new Error((body && body.message) || '系統未接受此操作。')
@@ -448,12 +476,30 @@ export default {
       this.items = []
       this.mock = false
       this.interrupted = false
+      this.cancelling = false
       this.notice = ''
       this.noticeVariant = 'info'
     },
+    cancelJob () {
+      if (!this.working || this.cancelling) { return }
+      this.cancelling = true
+      this.notice = '正在取消產製作業…'
+      this.noticeVariant = 'warning'
+      if (this.cancelSource) {
+        try {
+          this.cancelSource.cancel('USER_CANCELLED')
+        } catch (_) {}
+      }
+    },
     async run ({ create = false, retryCode = '' } = {}) {
       if (this.busy || this.disposed) { return }
+      if (this.$axios && this.$axios.CancelToken) {
+        this.cancelSource = this.$axios.CancelToken.source()
+      } else {
+        this.cancelSource = null
+      }
       this.working = true
+      this.cancelling = false
       this.interrupted = false
       this.notice = create ? '正在建立產製批次…' : '正在確認最新進度…'
       this.noticeVariant = 'info'
@@ -462,14 +508,15 @@ export default {
         const snapshot = create
           ? await this.request('start', { begin: this.begin, end: this.end })
           : await this.request('status', { batch: this.batch })
-        if (this.disposed) { return }
+        if (this.disposed || this.cancelling) { return }
         this.applySnapshot(snapshot)
         this.uncertainStart = false
         const codes = retryCode ? [retryCode] : this.items.map(item => item.code)
         for (const code of codes) {
+          if (this.cancelling || this.disposed) { break }
           const deadline = Date.now() + ITEM_DEADLINE
           let retry = retryCode === code && this.items.find(item => item.code === code).state === 'failed'
-          while (!this.disposed) {
+          while (!this.disposed && !this.cancelling) {
             const item = this.items.find(item => item.code === code)
             if (!item || !item.supported) { break }
             if (!retry && TERMINAL.includes(item.state)) { break }
@@ -478,7 +525,7 @@ export default {
             const params = { batch: this.batch, item: code }
             if (retry) { params.retry = '1' }
             const next = await this.request('advance', params, Math.min(660000, deadline - Date.now()))
-            if (this.disposed) { return }
+            if (this.disposed || this.cancelling) { break }
             this.applySnapshot(next)
             retry = false
             if (Date.now() >= deadline) { throw new Error('此項產製已等待超過 15 分鐘。') }
@@ -486,25 +533,48 @@ export default {
               await new Promise(resolve => setTimeout(resolve, 1500))
             }
           }
-          if (this.disposed) { return }
+          if (this.disposed || this.cancelling) { break }
+        }
+        if (this.cancelling) {
+          this.interrupted = true
+          if (this.batch) {
+            try {
+              this.cancelSource = null
+              const snapshot = await this.request('status', { batch: this.batch }, 10000)
+              if (!this.disposed) { this.applySnapshot(snapshot) }
+            } catch (_) {}
+          }
+          this.noticeVariant = 'warning'
+          this.notice = '已由使用者中途取消產製作業。已產製完成之項目已妥善保存，可下載或隨時點擊「繼續產製」接續處理。'
+          return
         }
         this.showResult()
       } catch (error) {
         if (this.disposed) { return }
+        const isUserCancel = this.cancelling || (this.$axios && this.$axios.isCancel && this.$axios.isCancel(error))
         this.interrupted = true
         let checked = false
         if (this.batch) {
           try {
-            const snapshot = await this.request('status', { batch: this.batch })
+            this.cancelSource = null
+            const snapshot = await this.request('status', { batch: this.batch }, 10000)
             if (this.disposed) { return }
             this.applySnapshot(snapshot)
             checked = true
           } catch (_) {}
         }
         this.noticeVariant = 'warning'
-        this.notice = `自動產製流程仍未完成，已停止。${error.message || '連線中斷。'} ${checked ? '已查詢最新進度，請核對各項結果。' : '目前無法確認最新進度。'}${this.batch ? ' 可查詢進度或按「繼續產製」接續未完成項目。' : ' 請勿重複提交產製申請。'}`
+        if (isUserCancel) {
+          this.notice = '已由使用者中途取消產製作業。已產製完成之項目已妥善保存，可下載或隨時點擊「繼續產製」接續處理。'
+        } else {
+          this.notice = `自動產製流程仍未完成，已停止。${error.message || '連線中斷。'} ${checked ? '已查詢最新進度，請核對各項結果。' : '目前無法確認最新進度。'}${this.batch ? ' 可查詢進度或按「繼續產製」接續未完成項目。' : ' 請勿重複提交產製申請。'}`
+        }
       } finally {
-        if (!this.disposed) { this.working = false }
+        this.cancelSource = null
+        if (!this.disposed) {
+          this.working = false
+          this.cancelling = false
+        }
       }
     },
     showResult () {
