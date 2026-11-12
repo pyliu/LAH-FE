@@ -63,12 +63,12 @@ b-card(:class="{ 'board-expanded': working }")
   )
     .modal-help-content
       h5.font-weight-bold.text-primary 地政局索取地籍資料備註
-      p.mt-2.mb-1
-        span.text-danger.font-weight-bold ※
-        strong 系統管理子系統 / 資料轉入轉出
-        span.text-muted  (共 14 份 TXT、2 份 PDF，地/建號範圍從 00000000 ~ 99999999)
       .alert.alert-light.border.py-1.px-2.my-2
-        small.text-muted 依所選段碼產製 14 份地籍 TXT 與土地、建物清冊各一份 PDF，可一併下載 ZIP。
+        span.text-muted 依所選段碼產製 14 份地籍 TXT 與土地、建物清冊各一份 PDF，可一併下載 ZIP。
+        span.text-muted  (共 14 份 TXT、2 份 PDF，地/建號範圍從 00000000 ~ 99999999)
+      .d-flex.align-items-center.mt-2.mb-1
+        h4.text-success.font-weight-bold.mr-1 ✔
+        strong 系統管理子系統 / 資料轉入轉出
 
       .pl-3.mb-3
         .font-weight-bold.text-secondary AI001-10
@@ -90,23 +90,22 @@ b-card(:class="{ 'board-expanded': working }")
           li AI02201 - 建物他項權利部
           li AI02901 - 各部別之其他登記事項【土地、建物各做一次】
 
-      hr
-
-      p.mb-1
-        span.text-danger.font-weight-bold ※
+      .d-flex.align-items-center.mt-2.mb-1
+        h4.text-success.font-weight-bold.mr-1 ✔
         span 登記子系統/列印/清冊報表/土地建物地籍整理清冊
-        ul.pl-4.mb-3
+      .pl-3.mb-3
+        ul.pl-4
           li 土地、建物清冊各產製一份 PDF，依所選段碼合併。
 
-      p.mb-0
-        span.text-danger.font-weight-bold ※
-        strong 測量子系統 / 測量資料管理 / 資料輸出入
+      hr
+
+      .d-flex.align-items-center.mb-0
+        h4.text-danger.font-weight-bold.mr-1 ⚠
+        strong 測量子系統 / 測量資料管理 / 資料輸出入 (請至舊版地政系統WEB版[IE]產出或請測量課協助。)
       ul.pl-4.mb-3
         li 地籍圖轉出 (數值地籍)：輸出 DXF 圖檔【含控制點】及 NEC 重測輸出檔
         li 地籍圖轉出 (圖解數化)：同上兩種類皆輸出，並將【分幅管理者先接合】下選項皆勾選
         li 如無法產出 DXF 資料請選擇【整段輸出】(例如中壢區 0210 忠福段)
-        li 請至舊版地政系統WEB版(IE)產出或請測量課協助。
-      hr
 
   //- 產製進度彈出視窗
   b-modal#export-data-progress-modal(
