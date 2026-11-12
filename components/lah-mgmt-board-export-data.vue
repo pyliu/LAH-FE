@@ -94,19 +94,19 @@ b-card(:class="{ 'board-expanded': working }")
 
       p.mb-1
         span.text-danger.font-weight-bold ※
+        span 登記子系統/列印/清冊報表/土地建物地籍整理清冊
+        ul.pl-4.mb-3
+          li 土地、建物清冊各產製一份 PDF，依所選段碼合併。
+
+      p.mb-0
+        span.text-danger.font-weight-bold ※
         strong 測量子系統 / 測量資料管理 / 資料輸出入
       ul.pl-4.mb-3
         li 地籍圖轉出 (數值地籍)：輸出 DXF 圖檔【含控制點】及 NEC 重測輸出檔
         li 地籍圖轉出 (圖解數化)：同上兩種類皆輸出，並將【分幅管理者先接合】下選項皆勾選
-        li 如無法產出 DXF 資料請選擇【整段輸出】(例如 0210 忠福段)
-        li 請至地政系統WEB版產出
+        li 如無法產出 DXF 資料請選擇【整段輸出】(例如中壢區 0210 忠福段)
+        li 請至舊版地政系統WEB版(IE)產出或請測量課協助。
       hr
-
-      p.mb-0
-        span.text-danger.font-weight-bold ※
-        span 登記子系統/列印/清冊報表/土地建物地籍整理清冊
-        ul.pl-4.mb-3
-          li 土地、建物清冊各產製一份 PDF，依所選段碼合併。
 
   //- 產製進度彈出視窗
   b-modal#export-data-progress-modal(
