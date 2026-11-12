@@ -153,7 +153,7 @@ div(v-cloak)
       .section-title
         lah-fa-icon.mr-1(:icon="g.icon" variant="secondary")
         | {{ g.title }}
-      .tool-item(v-for="t in g.tools" :key="t.id" :id="t.id" :class="{ 'is-open': isOpen(t.id), 'is-compact': t.compact }" :style="holderStyle(t.id)")
+      .tool-item(v-for="t in g.tools" :key="t.id" :id="t.id" :class="{ 'is-compact': t.compact }" :style="holderStyle(t.id)")
         .tool-body(
           :ref="'body-' + t.id"
           :class="{ 'is-floating': activeId === t.id }"
@@ -167,13 +167,6 @@ div(v-cloak)
             b-button(size="sm" variant="outline-secondary" aria-label="關閉" title="關閉 (Esc)" @click="closeTool") ✕ 關閉
           .tool-head
             .tool-desc.small.text-muted {{ t.desc }}
-            b-button.tool-toggle(
-              v-if="t.compact && activeId !== t.id"
-              size="sm"
-              variant="link"
-              :aria-expanded="String(isOpen(t.id))"
-              @click="toggle(t.id)"
-            ) {{ isOpen(t.id) ? '收合 ▴' : '展開 ▾' }}
           component(:is="t.comp" :class="{ 'compact-board': t.compact }")
 </template>
 <script>
@@ -214,7 +207,6 @@ const GROUPS = [
     ]
   }
 ]
-const STORE_KEY = 'inf-mgt-open-tools'
 const ALL_TOOLS = [...PRIMARY, ...GROUPS.flatMap(g => g.tools)]
 
 export default {
@@ -225,7 +217,6 @@ export default {
     sel: 0,
     primaryTools: PRIMARY,
     toolGroups: GROUPS,
-    openIds: [],
     activeId: '',
     holderHeight: 0,
     pushed: false,
@@ -268,7 +259,6 @@ export default {
     }
   },
   mounted () {
-    try { this.openIds = JSON.parse(localStorage.getItem(STORE_KEY) || '[]') } catch (e) { this.openIds = [] }
     const id = this.$route.query.tool
     if (id && ALL_TOOLS.some(t => t.id === id)) { this.$nextTick(() => this.show(id)) }
     window.addEventListener('keydown', this.onKey)
@@ -278,11 +268,7 @@ export default {
     document.body.style.overflow = ''
   },
   methods: {
-    isOpen (id) { return this.openIds.includes(id) },
-    toggle (id) {
-      this.openIds = this.isOpen(id) ? this.openIds.filter(i => i !== id) : [...this.openIds, id]
-      try { localStorage.setItem(STORE_KEY, JSON.stringify(this.openIds)) } catch (e) { /* 忽略儲存失敗 */ }
-    },
+
     holderStyle (id) {
       return this.activeId === id && this.holderHeight ? { minHeight: `${this.holderHeight}px` } : null
     },
@@ -467,7 +453,6 @@ export default {
   border-bottom: 2px solid #dee2e6;
 }
 .tool-head { display: flex; justify-content: space-between; align-items: center; min-height: 1.5rem; }
-.tool-toggle { padding: 0 0.25rem; min-height: 24px; }
 
 // 浮動視窗：同一個元件實例，以 fixed 置中顯示（不產生第二份）
 .tool-backdrop {
@@ -506,18 +491,47 @@ export default {
   border-bottom: 1px solid #dee2e6;
 }
 
-// 收合式卡片
+// 收合式卡片：滑鼠移入或鍵盤聚焦即展開，底部漸層列提示可展開
 .compact-board {
   position: relative;
   max-height: 180px;
   overflow: hidden;
-  transition: max-height 0.3s ease-in-out;
+  transition: max-height 0.4s ease-in-out 0.5s, box-shadow 0.3s ease 0.5s;
+
+  &::after {
+    content: '▾ 滑過展開';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #495057;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(233, 236, 239, 0.95) 60%);
+    border-top: 1px dashed rgba(108, 117, 125, 0.3);
+    pointer-events: none;
+    transition: opacity 0.25s ease 0.5s;
+  }
+  &:hover,
+  &:focus-within,
+  &.board-expanded {
+    max-height: 800px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: max-height 0.4s ease-in-out 0s, box-shadow 0.3s ease 0s;
+    &::after { opacity: 0; transition-delay: 0s; }
+  }
 }
-.tool-item.is-open .compact-board,
-.compact-board.board-expanded,
 .is-floating .compact-board {
   max-height: 800px;
   overflow-y: auto;
+  &::after { display: none; }
 }
 .is-floating .compact-board { max-height: none; }
 
