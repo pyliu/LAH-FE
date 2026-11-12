@@ -2,12 +2,12 @@
 div(v-cloak)
   lah-header
     lah-transition(appear)
-      .d-flex.justify-content-between.w-100.my-auto
-        .d-flex
+      .d-flex.justify-content-between.align-items-center.w-100.my-auto
+        .d-flex.align-items-center
           div 地政系統管理儀表板
           lah-button(icon="question" variant="outline-success" no-border no-icon-gutter v-b-modal.help-modal title="說明")
         .tool-search.ml-3
-          b-input-group(size="sm")
+          b-input-group(size="lg")
             b-input-group-prepend
               b-input-group-text
                 lah-fa-icon(icon="magnifying-glass")
@@ -358,6 +358,11 @@ export default {
 
 <style lang="scss" scoped>
 .tool-search {
+  ::v-deep .form-control,
+  ::v-deep .input-group-text {
+    height: 3rem;
+    font-size: 1rem;
+  }
   position: relative;
   width: 20rem;
   max-width: 40vw;
