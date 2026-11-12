@@ -527,7 +527,7 @@ export default {
         }
       } catch (error) {
         this.noticeVariant = 'warning'
-        this.notice = `無法查詢進度：${error.message || '連線異常'}。請勿重複提交原系統工作。`
+        this.notice = `無法查詢進度：${error.message || '連線異常'}。請稍後再試。`
       } finally {
         this.checking = false
       }
