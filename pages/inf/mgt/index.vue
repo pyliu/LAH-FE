@@ -162,7 +162,13 @@ div(v-cloak)
 
   //- 重點核心區
   .dashboard-primary.mb-3
-    .primary-card(v-for="t in primaryTools" :key="t.id" :id="t.id" :style="holderStyle(t.id)")
+    .primary-card(
+      v-for="t in primaryTools"
+      :key="t.id"
+      :id="t.id"
+      :class="{ 'is-spotlight': focusedPrimaryId === t.id }"
+      :style="holderStyle(t.id)"
+    )
       .tool-body(
         :ref="'body-' + t.id"
         :class="{ 'is-floating': activeId === t.id }"
@@ -301,6 +307,8 @@ export default {
     toolGroups: GROUPS,
     guideSections: GUIDE_SECTIONS,
     activeId: '',
+    focusedPrimaryId: '',
+    spotlightTimer: null,
     holderHeight: 0,
     pushed: false,
     lastTrigger: null,
@@ -359,6 +367,7 @@ export default {
   beforeDestroy () {
     window.removeEventListener('keydown', this.onKey)
     clearInterval(this.cmcrdTimer)
+    clearTimeout(this.spotlightTimer)
     document.body.style.overflow = ''
   },
   methods: {
@@ -422,7 +431,15 @@ export default {
       if (!el) { return }
       const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
       el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' })
-      const focusable = el.querySelector('input, select, button, a[href]')
+      clearTimeout(this.spotlightTimer)
+      this.focusedPrimaryId = ''
+      this.$nextTick(() => {
+        this.focusedPrimaryId = id
+        this.spotlightTimer = setTimeout(() => {
+          this.focusedPrimaryId = ''
+        }, 1800)
+      })
+      const focusable = el.querySelector('.card-body input:not([disabled]), .card-body select:not([disabled]), .card-body textarea:not([disabled])')
       if (focusable) { focusable.focus({ preventScroll: true }) }
     },
     closeTool () {
@@ -619,7 +636,21 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
   align-items: start;
-  .primary-card { min-width: 0; }
+  .primary-card {
+    min-width: 0;
+    border-radius: 0.35rem;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    &.is-spotlight {
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.45), 0 8px 24px rgba(0, 123, 255, 0.18);
+      transform: translateY(-2px);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-primary .primary-card {
+    transition: none !important;
+    &.is-spotlight { transform: none !important; }
+  }
 }
 
 .guide-grid {
