@@ -94,7 +94,7 @@ div(v-cloak)
           strong 轄區段別資料查詢：
           | 即時統計土地標示部（RALID）各段小段之土地筆數、總面積與所屬行政區，並提供收費標準及申請書表下載。
         li
-          strong 資料匯出：
+          strong 地籍資料匯出：
           | 支援自訂轄區段代碼（具轄區代碼防呆保護與快速選取彈窗），批次產製土地標示部、所有權部等標準純文字匯出檔案。
 
       hr.my-2
@@ -123,12 +123,42 @@ div(v-cloak)
           v-for="t in g.tools"
           :key="t.id"
           type="button"
-          :title="t.desc"
+          :class="{ 'has-alert': t.id === 'tool-watchdog' && cmcrdDanglingCount > 0 }"
+          :title="tileTitle(t)"
+          :aria-label="tileAriaLabel(t)"
           @click="openTool(t.id)"
         )
+          b-badge.quick-tile-badge(
+            v-if="t.id === 'tool-watchdog' && cmcrdDanglingCount > 0"
+            variant="danger"
+            pill
+          ) {{ cmcrdDanglingCount }}
+          span.quick-tile-dot(
+            v-else-if="t.id === 'tool-watchdog' && cmcrdChecked"
+            :class="cmcrdError ? 'is-error' : 'is-ok'"
+            aria-hidden="true"
+          )
           lah-fa-icon.quick-tile-icon(:icon="t.icon" size="lg")
           span.quick-tile-name {{ t.name }}
+
   .tool-backdrop(v-if="activeId" @click="closeTool")
+
+  //- 次要工具浮動視窗：按需掛載並以 keep-alive 保留操作狀態
+  .tool-body.is-floating(
+    v-show="activeSecondaryTool"
+    ref="floatingBody"
+    :role="activeSecondaryTool ? 'dialog' : null"
+    :aria-modal="activeSecondaryTool ? 'true' : null"
+    :aria-label="activeSecondaryTool ? activeSecondaryTool.name : null"
+    @keydown.tab="trapTab"
+  )
+    .tool-float-bar(v-if="activeSecondaryTool")
+      strong
+        lah-fa-icon.mr-1(:icon="activeSecondaryTool.icon")
+        | {{ activeSecondaryTool.name }}
+      b-button(size="sm" variant="outline-secondary" aria-label="關閉" title="關閉 (Esc)" @click="closeTool") ✕ 關閉
+    keep-alive
+      component(:is="activeSecondaryTool.comp" v-if="activeSecondaryTool" :key="activeSecondaryTool.id")
 
   //- 重點核心區
   .dashboard-primary.mb-3
@@ -144,30 +174,42 @@ div(v-cloak)
         .tool-float-bar(v-if="activeId === t.id")
           strong {{ t.name }}
           b-button(size="sm" variant="outline-secondary" aria-label="關閉" title="關閉 (Esc)" @click="closeTool") ✕ 關閉
-        .tool-desc.small.text-muted.mb-1 {{ t.desc }}
         component(:is="t.comp")
 
-  //- 工具區：響應式
-  .tool-grid
-    section.tool-section(v-for="g in toolGroups" :key="g.key")
-      .section-title
-        lah-fa-icon.mr-1(:icon="g.icon" variant="secondary")
-        | {{ g.title }}
-      .tool-item(v-for="t in g.tools" :key="t.id" :id="t.id" :class="{ 'is-compact': t.compact }" :style="holderStyle(t.id)")
-        .tool-body(
-          :ref="'body-' + t.id"
-          :class="{ 'is-floating': activeId === t.id }"
-          :role="activeId === t.id ? 'dialog' : null"
-          :aria-modal="activeId === t.id ? 'true' : null"
-          :aria-label="t.name"
-          @keydown.tab="trapTab"
-        )
-          .tool-float-bar(v-if="activeId === t.id")
-            strong {{ t.name }}
-            b-button(size="sm" variant="outline-secondary" aria-label="關閉" title="關閉 (Esc)" @click="closeTool") ✕ 關閉
-          .tool-head
-            .tool-desc.small.text-muted {{ t.desc }}
-          component(:is="t.comp" :class="{ 'compact-board': t.compact }")
+  //- 下方作業情境與功能說明區
+  section.guide-grid.mb-4(aria-label="作業情境與功能說明")
+    .guide-card(v-for="sec in guideSections" :key="sec.key" :class="'gc-' + sec.key")
+      .guide-card-header
+        .guide-card-title
+          lah-fa-icon.mr-2(:icon="sec.icon")
+          span {{ sec.title }}
+      .guide-card-body
+        ul.guide-list.list-unstyled.mb-0
+          li.guide-item(v-for="item in sec.items" :key="item.id")
+            .guide-item-info
+              .guide-item-head
+                lah-fa-icon.guide-item-icon.mr-1(:icon="item.icon")
+                strong {{ item.name }}
+              .guide-item-desc {{ item.desc }}
+            b-button.guide-item-action(
+              v-if="item.primary"
+              size="sm"
+              variant="outline-secondary"
+              pill
+              :aria-label="`定位至上方${item.name}`"
+              @click="focusPrimary(item.id)"
+            ) 上方常駐
+            b-button.guide-item-action(
+              v-else
+              size="sm"
+              variant="outline-primary"
+              pill
+              :aria-label="`開啟${item.name}`"
+              @click="openTool(item.id)"
+            ) 開啟
+        .guide-tip(v-if="sec.tip")
+          lah-fa-icon.guide-tip-icon.mr-2(icon="lightbulb" variant="warning")
+          span {{ sec.tip }}
 </template>
 <script>
 const PRIMARY = [
@@ -181,7 +223,7 @@ const GROUPS = [
     title: '查人與通知',
     icon: 'users',
     tools: [
-      { id: 'tool-sms', name: '發送簡訊', icon: 'comment-sms', comp: 'lah-mgmt-board-sms', compact: true, desc: '案件手機簡訊發送、重發與歷程檢索。', kw: '簡訊 手機 通知' },
+      { id: 'tool-sms', name: '發送簡訊', icon: 'comment-sms', comp: 'lah-mgmt-board-sms', desc: '案件手機簡訊發送、重發與歷程檢索。', kw: '簡訊 手機 通知' },
       { id: 'tool-user-query', name: '使用者查詢', icon: 'user', comp: 'lah-mgmt-board-user-query', desc: '以代碼、姓名查同仁帳號、課室、分機與照片。', kw: '使用者 同仁 姓名 分機' },
       { id: 'tool-pid-query', name: '人民申請案件', icon: 'id-card', comp: 'lah-mgmt-board-pid-query', desc: '依統一編號查申請人所有登記與測量案件。', kw: '統編 統一編號 人民 申請人' }
     ]
@@ -202,12 +244,52 @@ const GROUPS = [
     tools: [
       { id: 'tool-sect-query', name: '轄區段別查詢', icon: 'map', comp: 'lah-mgmt-board-sect-query', desc: '各段小段土地筆數、面積與行政區，含收費標準下載。', kw: '段別 小段 土地 面積' },
       { id: 'tool-tax-export', name: '稅務資料匯出', icon: 'file-export', comp: 'lah-mgmt-board-tax-export', desc: '稅務相關資料匯出。', kw: '稅務 匯出' },
-      { id: 'tool-export-data', name: '資料匯出', icon: 'download', comp: 'lah-mgmt-board-export-data', desc: '自訂段代碼，批次匯出土地標示部、所有權部純文字檔。', kw: '匯出 標示部 所有權部 段代碼' },
-      { id: 'tool-watchdog', name: '看門狗監控', icon: 'dog', comp: 'lah-mgmt-board-watchdog', compact: true, desc: '檢測並修復 CMC01 證號異常、排程與逾期未結問題。', kw: '看門狗 監控 CMC01 修復 逾期' }
+      { id: 'tool-export-data', name: '地籍資料匯出', icon: 'download', comp: 'lah-mgmt-board-export-data', desc: '自訂段代碼，批次匯出土地標示部、所有權部純文字檔。', kw: '匯出 標示部 所有權部 段代碼' },
+      { id: 'tool-watchdog', name: '看門狗監控', icon: 'dog', comp: 'lah-mgmt-board-watchdog', desc: '檢測並修復 CMC01 證號異常、排程與逾期未結問題。', kw: '看門狗 監控 CMC01 修復 逾期' }
     ]
   }
 ]
-const ALL_TOOLS = [...PRIMARY, ...GROUPS.flatMap(g => g.tools)]
+const SECONDARY_TOOLS = GROUPS.flatMap(g => g.tools)
+const ALL_TOOLS = [...PRIMARY, ...SECONDARY_TOOLS]
+const TOOL_MAP = Object.fromEntries(ALL_TOOLS.map(t => [t.id, t]))
+const GUIDE_SECTIONS = [
+  {
+    key: 'reg',
+    title: '登記案件與通知查調',
+    icon: 'folder-open',
+    tip: '跨縣市案件約每分鐘自動回寫，局端資料可能延遲約 10 分鐘；遠端同步功能受局端 IP 白名單限制。',
+    items: [
+      { ...TOOL_MAP['tool-search-reg-case'], primary: true, desc: '依收件字號查詢辦理情形、結案狀態與手機號碼，支援狀態修正與暫存檔處理。' },
+      { ...TOOL_MAP['tool-sync-reg-case'], primary: true, desc: '跨所收辦或資料不一致時，執行資料庫雙向比對與回寫同步。' },
+      { ...TOOL_MAP['tool-sms'], desc: '依案件手機號碼即時發送通知、重發失敗簡訊與檢索發送歷程。' },
+      { ...TOOL_MAP['tool-user-query'], desc: '以代碼、姓名或 IP 關鍵字查詢同仁帳號、課室職稱、分機與照片。' },
+      { ...TOOL_MAP['tool-pid-query'], desc: '依統一編號進行總歸戶查詢，檢視申請人所有登記與測量案件歷程。' }
+    ]
+  },
+  {
+    key: 'fee',
+    title: '規費帳務與異常處置',
+    icon: 'file-invoice-dollar',
+    tip: '無給號假資料編碼規則：9 + 年度 + 流水號；EXPAA 常見欄位為 AA08（1 正常／0 作廢）、AA09（1 已印／0 未印）、AA100（付款方式快取 7 天）。',
+    items: [
+      { ...TOOL_MAP['tool-search-fee-form'], primary: true, desc: '依電腦給號或憑證序號檢索，修正印製狀態、作廢、付款方式與收費項目。' },
+      { ...TOOL_MAP['tool-search-fee-date'], desc: '依結帳日期統計單據總數、實收總額，支援現金／悠遊卡／行動支付等類別圖表分析。' },
+      { ...TOOL_MAP['tool-fee-obsolete'], desc: '遇卡紙或跳號時，依編碼規則快速產生假資料並執行系統作廢作業。' }
+    ]
+  },
+  {
+    key: 'sys',
+    title: '系統巡檢與資料產製',
+    icon: 'screwdriver-wrench',
+    tip: '看門狗背景每 5 分鐘自動巡檢 CMCRD 測量通知書孤立暫存檔，亦可手動檢測 CMC01／跨所註記與悠遊卡扣款異常。',
+    items: [
+      { ...TOOL_MAP['tool-watchdog'], desc: '檢測並修復 CMCRD 空白／無連結暫存檔、登記與地價跨所註記、悠遊卡扣款失敗及測量連件異常。' },
+      { ...TOOL_MAP['tool-sect-query'], desc: '即時統計 RALID 各段小段土地筆數、面積與所屬行政區，提供收費標準與書表下載。' },
+      { ...TOOL_MAP['tool-tax-export'], desc: '依指定起訖日期匯出地方稅務局所需之稅務相關資料。' },
+      { ...TOOL_MAP['tool-export-data'], desc: '自訂轄區段代碼（含防呆選單），批次產製土地標示部與所有權部純文字檔。' }
+    ]
+  }
+]
 
 export default {
   middleware: ['isInf'],
@@ -217,10 +299,16 @@ export default {
     sel: 0,
     primaryTools: PRIMARY,
     toolGroups: GROUPS,
+    guideSections: GUIDE_SECTIONS,
     activeId: '',
     holderHeight: 0,
     pushed: false,
-    lastTrigger: null
+    lastTrigger: null,
+    cmcrdDanglingCount: 0,
+    cmcrdChecked: false,
+    cmcrdError: false,
+    cmcrdLastUpdated: '',
+    cmcrdTimer: null
   }),
   head: {
     title: '地政系統管理面板-桃園市地政局'
@@ -237,6 +325,9 @@ export default {
     },
     allGroups () {
       return [{ key: 'core', title: '常用', primary: true, tools: PRIMARY }, ...GROUPS]
+    },
+    activeSecondaryTool () {
+      return this.activeId ? SECONDARY_TOOLS.find(t => t.id === this.activeId) || null : null
     },
     suggestions () {
       const k = this.keyword.trim().toLowerCase()
@@ -262,17 +353,59 @@ export default {
     const id = this.$route.query.tool
     if (id && ALL_TOOLS.some(t => t.id === id)) { this.$nextTick(() => this.show(id)) }
     window.addEventListener('keydown', this.onKey)
+    this.checkCmcrd()
+    this.cmcrdTimer = setInterval(this.checkCmcrd, 5 * 60 * 1000)
   },
   beforeDestroy () {
     window.removeEventListener('keydown', this.onKey)
+    clearInterval(this.cmcrdTimer)
     document.body.style.overflow = ''
   },
   methods: {
-
+    tileTitle (t) {
+      if (t.id !== 'tool-watchdog' || !this.cmcrdChecked) { return t.desc }
+      const timeHint = this.cmcrdLastUpdated ? `（上次檢測：${this.cmcrdLastUpdated}）` : ''
+      if (this.cmcrdError) { return `${t.desc} — 複丈通知書檢測連線異常${timeHint}` }
+      if (this.cmcrdDanglingCount > 0) {
+        return `發現 ${this.cmcrdDanglingCount} 筆複丈通知書異常暫存檔${timeHint}；${t.desc}`
+      }
+      return `複丈通知書暫存檔檢測正常${timeHint}；${t.desc}`
+    },
+    tileAriaLabel (t) {
+      if (t.id === 'tool-watchdog' && this.cmcrdDanglingCount > 0) {
+        return `${t.name}，發現 ${this.cmcrdDanglingCount} 筆複丈通知書異常暫存檔`
+      }
+      return t.name
+    },
+    checkCmcrd () {
+      const year = new Date().getFullYear() - 1911
+      this.$axios
+        .post(this.$consts.API.JSON.MOICAS, {
+          type: 'sur_notify_application_tmp_check',
+          year
+        })
+        .then(({ data }) => {
+          const raw = Array.isArray(data?.raw) ? data.raw : []
+          this.cmcrdDanglingCount = raw.filter(
+            item => this.$utils.empty(item.CL02) || this.$utils.empty(item.CL03)
+          ).length
+          this.cmcrdError = false
+        })
+        .catch(() => {
+          this.cmcrdError = true
+        })
+        .finally(() => {
+          this.cmcrdChecked = true
+          this.cmcrdLastUpdated = this.$utils.time()
+        })
+    },
     holderStyle (id) {
       return this.activeId === id && this.holderHeight ? { minHeight: `${this.holderHeight}px` } : null
     },
     bodyEl (id) {
+      if (SECONDARY_TOOLS.some(t => t.id === id)) {
+        return this.$refs.floatingBody
+      }
       const r = this.$refs[`body-${id}`]
       return Array.isArray(r) ? r[0] : r
     },
@@ -283,6 +416,14 @@ export default {
       if (this.$route.query.tool === id) { return }
       this.pushed = true
       this.$router.push({ query: { ...this.$route.query, tool: id } })
+    },
+    focusPrimary (id) {
+      const el = document.getElementById(id)
+      if (!el) { return }
+      const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' })
+      const focusable = el.querySelector('input, select, button, a[href]')
+      if (focusable) { focusable.focus({ preventScroll: true }) }
     },
     closeTool () {
       if (this.pushed) {
@@ -295,7 +436,8 @@ export default {
       }
     },
     show (id) {
-      const el = this.bodyEl(id)
+      const isPrimary = PRIMARY.some(t => t.id === id)
+      const el = isPrimary ? this.bodyEl(id) : null
       this.holderHeight = el ? el.offsetHeight : 0
       this.activeId = id
       this.$nextTick(() => {
@@ -305,10 +447,12 @@ export default {
     },
     hide () {
       if (!this.activeId) { return }
+      const wasWatchdog = this.activeId === 'tool-watchdog'
       this.activeId = ''
       this.holderHeight = 0
       const t = this.lastTrigger
       this.lastTrigger = null
+      if (wasWatchdog) { this.checkCmcrd() }
       this.$nextTick(() => { if (t && t.focus && document.body.contains(t)) { t.focus() } })
     },
     onKey (e) {
@@ -344,10 +488,20 @@ export default {
 
 <style lang="scss" scoped>
 .tool-search {
+  ::v-deep .input-group {
+    height: 45px;
+    flex-wrap: nowrap;
+  }
+  ::v-deep .input-group-prepend {
+    height: 100%;
+  }
   ::v-deep .form-control,
   ::v-deep .input-group-text {
-    height: 3rem;
+    height: 100% !important;
+    padding-top: 0;
+    padding-bottom: 0;
     font-size: 1rem;
+    line-height: 1.5;
   }
   position: relative;
   width: 20rem;
@@ -374,54 +528,85 @@ export default {
 
 .quick-nav {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
 
   .quick-group {
     --qg: #6c757d;
     min-width: 0;
-    padding: 0.5rem 0.75rem 0.25rem;
-    border: 1px solid #dee2e6;
-    border-top: 3px solid var(--qg);
+    padding: 0.45rem 0.65rem 0.2rem;
+    border: 1px solid #e9ecef;
     border-radius: 0.5rem;
-    background: #fff;
+    background: #f8f9fa;
   }
   .qg-user { --qg: #6c757d; }
   .qg-fee { --qg: #28a745; }
   .qg-sys { --qg: #e8590c; }
 
   .quick-group-title {
-    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.82rem;
     font-weight: 600;
-    color: #343a40;
-    margin-bottom: 0.4rem;
+    color: #495057;
+    margin-bottom: 0.35rem;
+    &::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      margin-right: 0.4rem;
+      border-radius: 50%;
+      background: var(--qg);
+    }
   }
   .quick-tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.45rem;
   }
   .quick-tile {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
     min-height: 64px;
-    padding: 0.4rem 0.25rem;
+    padding: 0.4rem 0.35rem;
     font-size: 0.85rem;
     line-height: 1.2;
     text-align: center;
     color: #212529;
-    background: #f8f9fa;
+    background: #fff;
     border: 1px solid #dee2e6;
     border-radius: 0.4rem;
     cursor: pointer;
     transition: background-color 0.15s, border-color 0.15s, transform 0.15s;
 
     .quick-tile-icon { color: var(--qg); }
-    &:hover { background: #fff; border-color: var(--qg); transform: translateY(-1px); }
+    .quick-tile-badge {
+      position: absolute;
+      top: 0.25rem;
+      right: 0.25rem;
+      font-size: 0.7rem;
+      line-height: 1;
+    }
+    .quick-tile-dot {
+      position: absolute;
+      top: 0.35rem;
+      right: 0.35rem;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      &.is-ok { background: #28a745; }
+      &.is-error { background: #ffc107; }
+    }
+    &.has-alert {
+      border-color: #dc3545;
+      background: #fff5f5;
+    }
+    &:hover { background: #f8f9fa; border-color: var(--qg); transform: translateY(-1px); }
     &:focus-visible { outline: 3px solid rgba(0, 123, 255, 0.5); outline-offset: 2px; }
   }
 }
@@ -433,28 +618,103 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
+  align-items: start;
   .primary-card { min-width: 0; }
 }
-.tool-grid {
+
+.guide-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
 }
-.tool-section { min-width: 0; }
-.tool-item { margin-bottom: 1rem; }
+.guide-card {
+  --gc: #6c757d;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  overflow: hidden;
 
-.section-title {
+  &.gc-reg { --gc: #6c757d; }
+  &.gc-fee { --gc: #28a745; }
+  &.gc-sys { --gc: #e8590c; }
+}
+.guide-card-header {
+  padding: 0.6rem 0.9rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  border-left: 4px solid var(--gc);
+}
+.guide-card-title {
+  display: flex;
+  align-items: center;
   font-size: 0.95rem;
-  font-weight: 600;
-  color: #495057;
-  padding-bottom: 0.4rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 2px solid #dee2e6;
+  font-weight: 700;
+  color: #212529;
 }
-.tool-head { display: flex; justify-content: space-between; align-items: center; min-height: 1.5rem; }
+.guide-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 0.75rem 0.9rem;
+}
+.guide-list {
+  flex: 1 1 auto;
+}
+.guide-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed #e9ecef;
 
-// 浮動視窗：同一個元件實例，以 fixed 置中顯示（不產生第二份）
+  &:first-child { padding-top: 0; }
+  &:last-child { border-bottom: 0; padding-bottom: 0.25rem; }
+}
+.guide-item-info {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.guide-item-head {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #212529;
+  margin-bottom: 0.15rem;
+}
+.guide-item-icon { color: var(--gc); }
+.guide-item-desc {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #495057;
+}
+.guide-item-action {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-top: 0.1rem;
+}
+.guide-tip {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #343a40;
+  background: #f8f9fa;
+  border-left: 3px solid var(--gc);
+  border-radius: 0.25rem;
+}
+.guide-tip-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+// 浮動視窗：置中顯示單一工具
 .tool-backdrop {
   position: fixed;
   inset: 0;
@@ -485,57 +745,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 -1rem 0.5rem;
+  margin: 0 -1rem 0.75rem;
   padding: 0.6rem 1rem;
   background: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
-}
-
-// 收合式卡片：滑鼠移入或鍵盤聚焦即展開，底部漸層列提示可展開
-.compact-board {
-  position: relative;
-  max-height: 180px;
-  overflow: hidden;
-  transition: max-height 0.4s ease-in-out 0.5s, box-shadow 0.3s ease 0.5s;
-
-  &::after {
-    content: '▾ 滑過展開';
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 28px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: #495057;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(233, 236, 239, 0.95) 60%);
-    border-top: 1px dashed rgba(108, 117, 125, 0.3);
-    pointer-events: none;
-    transition: opacity 0.25s ease 0.5s;
-  }
-  &:hover,
-  &:focus-within,
-  &.board-expanded {
-    max-height: 800px;
-    overflow-y: auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: max-height 0.4s ease-in-out 0s, box-shadow 0.3s ease 0s;
-    &::after { opacity: 0; transition-delay: 0s; }
-  }
-}
-.is-floating .compact-board {
-  max-height: 800px;
-  overflow-y: auto;
-  &::after { display: none; }
-}
-.is-floating .compact-board { max-height: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  .compact-board { transition: none; }
 }
 </style>
