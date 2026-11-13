@@ -1,13 +1,16 @@
 <template lang="pug">
 client-only
   .lah-messenger-sidebar-wrapper
-    //- 1. 平常置於 Viewport 右側邊角的觸發按鈕 (半透明、Hover 展開箭頭)
+    //- 1. 平常置於 Viewport 右側邊角的觸發按鈕 (半透明、Hover 展開箭頭，支援上下拖曳調整位置)
     transition(name="fade")
       .sidebar-edge-handle(
         v-if="showHandle"
-        @click="openSidebar()"
-        title="點選展開即時通"
-        :class="{ 'has-unread': totalUnread > 0 }"
+        ref="edgeHandle"
+        :style="handleStyle"
+        @pointerdown="onHandlePointerDown"
+        @click="onHandleClick"
+        title="點選展開即時通（可上下拖曳調整位置）"
+        :class="{ 'has-unread': totalUnread > 0, 'is-dragging': isDraggingHandle }"
       )
         .handle-content
           .handle-icon-slot
@@ -109,6 +112,13 @@ client-only
 import lahMessengerBase from '~/mixins/lah-messenger-base'
 import LahMessengerHome from '~/components/lah-messenger-home.vue'
 
+const HANDLE_POS_STORAGE_KEY = 'lah-messenger-sidebar-handle-top-pct'
+const HANDLE_DEFAULT_TOP_PCT = 50
+const HANDLE_SAFE_TOP_PX = 72
+const HANDLE_SAFE_BOTTOM_PX = 16
+const HANDLE_FALLBACK_HEIGHT_PX = 110
+const DRAG_THRESHOLD_PX = 5
+
 export default {
   name: 'LahMessengerSidebar',
   components: {
@@ -121,7 +131,15 @@ export default {
       showFloatingToast: false,
       latestNotification: null,
       toastTimer: null,
-      remainingSeconds: 8
+      remainingSeconds: 8,
+      handleTopPct: HANDLE_DEFAULT_TOP_PCT,
+      viewportHeight: 0,
+      handleHeight: HANDLE_FALLBACK_HEIGHT_PX,
+      isDraggingHandle: false,
+      dragStartY: 0,
+      dragStartCenterY: 0,
+      dragMoved: false,
+      suppressNextClick: false
     }
   },
   computed: {
@@ -152,6 +170,18 @@ export default {
     },
     displayTotalUnread () {
       return this.totalUnread > 99 ? '99+' : this.totalUnread
+    },
+    effectiveHandleTopPct () {
+      if (!this.viewportHeight || this.viewportHeight <= 0) {
+        return this.handleTopPct
+      }
+      const clampedCenterY = this.clampCenterY((this.handleTopPct / 100) * this.viewportHeight)
+      return Math.round((clampedCenterY / this.viewportHeight) * 10000) / 100
+    },
+    handleStyle () {
+      return {
+        top: `${this.effectiveHandleTopPct}%`
+      }
     }
   },
   watch: {
@@ -168,6 +198,13 @@ export default {
       if (val) {
         this.visible = false
         this.dismissFloatingToast()
+      }
+    },
+    showHandle (val) {
+      if (val) {
+        this.$nextTick(() => {
+          this.syncViewportMetrics()
+        })
       }
     },
     visible (newVal) {
@@ -193,10 +230,22 @@ export default {
   },
   mounted () {
     this.$root.$on('open-messenger-sidebar', this.openSidebar)
+    if (typeof window !== 'undefined') {
+      this.loadHandlePosition()
+      this.syncViewportMetrics()
+      window.addEventListener('resize', this.onWindowResize)
+      this.$nextTick(() => {
+        this.syncViewportMetrics()
+      })
+    }
   },
   beforeDestroy () {
     this.$root.$off('open-messenger-sidebar', this.openSidebar)
     this.clearToastTimer()
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.onWindowResize)
+      this.removePointerListeners()
+    }
   },
   methods: {
     openSidebar (channel) {
@@ -323,6 +372,118 @@ export default {
         clearTimeout(this.toastTimer)
         this.toastTimer = null
       }
+    },
+    syncViewportMetrics () {
+      if (!process.client || typeof window === 'undefined') {
+        return
+      }
+      this.viewportHeight = window.innerHeight || 0
+      const el = this.$refs.edgeHandle
+      if (el && el.offsetHeight > 0) {
+        this.handleHeight = el.offsetHeight
+      }
+    },
+    onWindowResize () {
+      this.syncViewportMetrics()
+    },
+    clampCenterY (rawCenterY) {
+      const vh = this.viewportHeight || (typeof window !== 'undefined' ? window.innerHeight : 0)
+      if (!vh || vh <= 0) {
+        return rawCenterY
+      }
+      const halfH = (this.handleHeight || HANDLE_FALLBACK_HEIGHT_PX) / 2
+      const minCenterY = HANDLE_SAFE_TOP_PX + halfH
+      const maxCenterY = Math.max(minCenterY, vh - HANDLE_SAFE_BOTTOM_PX - halfH)
+      return Math.min(Math.max(rawCenterY, minCenterY), maxCenterY)
+    },
+    loadHandlePosition () {
+      if (!process.client || typeof window === 'undefined' || !window.localStorage) {
+        return
+      }
+      try {
+        const raw = window.localStorage.getItem(HANDLE_POS_STORAGE_KEY)
+        if (raw === null || raw === '') {
+          return
+        }
+        const parsed = Number.parseFloat(raw)
+        if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 100) {
+          this.handleTopPct = parsed
+        }
+      } catch (e) {
+        console.warn('[即時通] 讀取側邊欄觸發按鈕位置失敗', e)
+      }
+    },
+    saveHandlePosition () {
+      if (!process.client || typeof window === 'undefined' || !window.localStorage) {
+        return
+      }
+      try {
+        const rounded = Math.round(this.handleTopPct * 100) / 100
+        window.localStorage.setItem(HANDLE_POS_STORAGE_KEY, String(rounded))
+      } catch (e) {
+        console.warn('[即時通] 儲存側邊欄觸發按鈕位置失敗', e)
+      }
+    },
+    onHandlePointerDown (e) {
+      if (e.button !== undefined && e.button !== 0) {
+        return
+      }
+      if (!process.client || typeof window === 'undefined') {
+        return
+      }
+      this.syncViewportMetrics()
+      this.dragStartY = e.clientY
+      this.dragStartCenterY = (this.effectiveHandleTopPct / 100) * (this.viewportHeight || window.innerHeight)
+      this.dragMoved = false
+      this.suppressNextClick = false
+      window.addEventListener('pointermove', this.onHandlePointerMove, { passive: false })
+      window.addEventListener('pointerup', this.onHandlePointerUp)
+      window.addEventListener('pointercancel', this.onHandlePointerUp)
+    },
+    onHandlePointerMove (e) {
+      const deltaY = e.clientY - this.dragStartY
+      if (!this.dragMoved && Math.abs(deltaY) <= DRAG_THRESHOLD_PX) {
+        return
+      }
+      this.dragMoved = true
+      this.isDraggingHandle = true
+      if (e.cancelable) {
+        e.preventDefault()
+      }
+      const vh = this.viewportHeight || window.innerHeight
+      if (!vh || vh <= 0) {
+        return
+      }
+      const clampedCenterY = this.clampCenterY(this.dragStartCenterY + deltaY)
+      this.handleTopPct = (clampedCenterY / vh) * 100
+    },
+    onHandlePointerUp () {
+      this.removePointerListeners()
+      if (this.dragMoved) {
+        this.suppressNextClick = true
+        this.saveHandlePosition()
+        // 保險重置：若某些瀏覽器拖曳結束未觸發 click，避免下次正常點擊被吞掉
+        setTimeout(() => {
+          this.suppressNextClick = false
+        }, 0)
+      }
+      this.isDraggingHandle = false
+      this.dragMoved = false
+    },
+    removePointerListeners () {
+      if (!process.client || typeof window === 'undefined') {
+        return
+      }
+      window.removeEventListener('pointermove', this.onHandlePointerMove)
+      window.removeEventListener('pointerup', this.onHandlePointerUp)
+      window.removeEventListener('pointercancel', this.onHandlePointerUp)
+    },
+    onHandleClick () {
+      if (this.suppressNextClick) {
+        this.suppressNextClick = false
+        return
+      }
+      this.openSidebar()
     }
   }
 }
@@ -340,6 +501,7 @@ export default {
   z-index: 1040;
   cursor: pointer;
   user-select: none;
+  touch-action: none;
 
   /* 防抖關鍵 1: 外層定位與熱區穩定，預留向左與上下的隱形感應緩衝區 */
   padding: 14px 0 14px 16px;
@@ -473,6 +635,23 @@ export default {
     &:hover .handle-content {
       opacity: 1;
       background: rgba(55, 18, 25, 0.98);
+    }
+  }
+
+  /* 拖曳調整位置中：暫停過渡動畫與箭頭彈跳，確保即時跟手 */
+  &.is-dragging {
+    cursor: ns-resize;
+
+    .handle-content {
+      transition: none;
+      opacity: 1;
+      transform: translateX(-4px);
+      background: rgba(20, 25, 34, 0.96);
+      box-shadow: -4px 6px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    .handle-icon-arrow {
+      animation: none;
     }
   }
 }
